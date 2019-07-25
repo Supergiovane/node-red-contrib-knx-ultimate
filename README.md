@@ -1,17 +1,13 @@
 # node-red-contrib-knx-ultimate
 
 
-
-
-
-
-    <p>
+## DESCRIPTION
         Knx-ultimate is a powerfull device node, all-in-one. It acts as input device as well as output device at the same time.<br />
         Based on configuration and msg option, you can achieve all what you need.<br />
         You can import your ETS csv file, containing all your group addresses and datapoint types and use it instead of manually create one node for each group address.<br />
         Node's settings is divided in 3 parts: common settings, input settings (Node used as input device) and output settings (Node used as output device).
-    </p>
-         <p>
+    
+         
             <h3>COMMON SETTINGS</h3>
             <dl class="message-properties">
                 <dt>Gateway</dt>
@@ -53,10 +49,10 @@
                     <code>msg.knx.rawValue</code> with value <code>null</code>.
                 </dd>
             </dl>
-        </p>
+        
         
 
-   <p>
+   
         <b>Payload -->> Input Node</b><br />
         <code>msg.payload="read"</code>: The world "read" is RESERVED. Issues a read request to the KNX bus.<br />
         <code>msg.payload</code>: issues a write or response (based on the options above) to the KNX bus.<br />
@@ -64,8 +60,8 @@
         <code>msg.knx.event</code>: "GroupValue_Write" or "GroupValue_Response", overrides the option <b>Output Type</b> above.<br />
         <code>msg.knx.destination</code>: for example "0/0/1", overrides the node's topic.<br />
         <code>msg.knx.dpt</code>: for example "1.001", overrides the <b>Datapoint</b> option.<br />
-    </p>
-    <p>
+    
+    
         <b>Examples:</b><br />
         If you have selected a topic and a datapoint in the options above, you can simply write this in a function to dim a light:
         <pre>return ({payload: 30});</pre>
@@ -75,7 +71,7 @@
                     knx: {
                       destination: "0/0/10"}
                   });</pre>
-     </p>
+     
     
 
      <b>Output Node -->> Payload</b><br />
