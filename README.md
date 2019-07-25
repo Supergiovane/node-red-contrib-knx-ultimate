@@ -1,4 +1,4 @@
-# node-red-contrib-knx-ultimate
+# node-red-contrib-knx-ultimate (BETA)
 
 ![Sample Node](img/sample.png) 
 
