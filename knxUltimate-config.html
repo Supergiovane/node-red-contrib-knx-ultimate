@@ -1,0 +1,55 @@
+<script type="text/javascript">
+    RED.nodes.registerType('knxUltimate-config',{
+        category: 'config',
+        defaults: {
+            host: {value:"224.0.23.12",required:true},
+            port: {value:3671,required:true,validate:RED.validators.number()},
+            csv: {value:"",required:false},
+        },
+        oneditsave: function() {
+            // Check if the csv file contains errors
+            if($("#node-config-input-csv").val() != 'undefined' && $("#node-config-input-csv").val()!=""){
+                var checkResult="Upon deploy, i'll parse the CSV. Please see the debug TAB or node-red's log for errors/warnings"
+                var myNotification= RED.notify(checkResult,
+                {
+                    modal: true,
+                    fixed: true,
+                    type: 'warning',
+                    buttons: [
+                        {
+                            text: "OK",
+                            click: function(e) {
+                                myNotification.close();
+                            }
+                        }]
+                })
+            }
+        },
+        label: function() {
+            return this.host+":"+this.port;
+        }
+    });
+
+    
+</script>
+
+<script type="text/x-red" data-template-name="knxUltimate-config">
+    <div class="form-row">
+        <label for="node-config-input-host"><i class="icon-bookmark"></i> Host</label>
+        <input type="text" id="node-config-input-host">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-port"><i class="icon-bookmark"></i> Port</label>
+        <input type="text" id="node-config-input-port">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-csv"><i class="icon-bookmark"></i> ETS Group Addresses list</label>
+        <br /><i>On ETS, click the group addresses list, then right click, then select 'export group addresses'. On the export window, select these options -> Output Format: CSV, CSV Format: 1/1 Name/Address, Export with header line: checked, CSV Separator: Tabulator. </i>
+ 
+        <textarea rows=20 id="node-config-input-csv" style="width:100%" placeholder="Paste here your CSV exported file from ETS">
+    </div>
+</script>
+
+<script type="text/x-red" data-help-name="knxUltimate-config">
+<p><b>ETS Group Addresses list</b>: Optionally, you can paste here the CSV file from ETS. This CSV will then be used by the knxUltimate node (if you select "Listen to all Group Addresses" on the knxUltimate node) to automatically decode all the raw values received from the KNX bus. These values will then be outputted by the msg.payload</p>
+</script>

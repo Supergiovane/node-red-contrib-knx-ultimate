@@ -1,0 +1,256 @@
+<script type="text/javascript">
+    RED.nodes.registerType('knxUltimate', {
+        category: 'input',
+        color: '#99ccff',
+        defaults: {
+            server: { type: "knxUltimate-config", required: true },
+            topic: { value: "" },
+            dpt: { value: "" },
+            initialread: { value: false },
+            notifyreadrequest: { value: false },
+            notifyresponse: { value: false },
+            notifywrite: { value: true },
+            listenallga: { value: false },
+            name: { value: "" }
+        },
+        inputs: 1,
+        outputs: 1,
+        align: "left",
+        icon: "knx.png",
+        label: function () {
+            return this.name || this.topic || "knx-ultimate"
+        },
+        oneditprepare: function () {
+            $.getJSON('knxUltimateDpts', (data) => {
+                data.forEach(dpt => {
+                    $("#node-input-dpt").append($("<option></option>")
+                        .attr("value", dpt.value)
+                        .text(dpt.text))
+                });
+                $("#node-input-dpt").val(this.dpt)
+            })
+
+            // Add write and response as default for existing nodes like was default before
+            if (typeof this.notifywrite === 'undefined') {
+                this.notifywrite = true
+                this.notifyresponse = true
+                $("#node-input-notifywrite").prop("checked", true)
+                $("#node-input-notifyresponse").prop("checked", true)
+            }
+           
+              // Add Write as default for existing clients output
+              if (typeof this.outputtype === 'undefined') {
+                this.outputtype = "write"
+                $("#node-input-outputtype").val("write")
+            }
+
+            // Hide or show the GA and DPT fields if Notify on all Group Addresses is checked
+            if(this.server){
+                if (RED.nodes.node(this.server).csv != 'undefined' && RED.nodes.node(this.server).csv!="") {
+                $("#node-input-listenallga").prop("disabled", false);
+                $("#helpallga").hide()
+                $("#node-input-listenallga").on('change',function() {
+                    if ($("#node-input-listenallga").is(":checked")) {
+                        $("#GAandDPT").hide()
+                    }else{
+                        $("#GAandDPT").show()
+                    }
+                })
+                }else{
+                    $("#node-input-listenallga").prop("disabled", true);
+                    $("#node-input-listenallga").prop("checked", false)
+                    $("#GAandDPT").show()
+                    $("#helpallga").show()
+                }
+            }else{
+                $("#node-input-listenallga").prop("disabled", true);
+                $("#node-input-listenallga").prop("checked", false)
+                $("#GAandDPT").show()
+                $("#helpallga").show()
+            }
+        }
+
+        
+    })
+</script>
+
+<script type="text/x-red" data-template-name="knxUltimate">
+    <div class="form-row">
+        <label for="node-input-server"><i class="fa fa-tag"></i> Gateway </label>
+        <input type="text" id="node-input-server">
+    </div>
+    <div id="GAandDPT">
+        <div class="form-row">
+            <label for="node-input-topic"><i class="fa fa-tasks"></i> Group Address </label>
+            <input type="text" id="node-input-topic" placeholder="Ex: 1/1/1 or select 'Listen to all Groups'">
+        </div>
+        <div class="form-row">
+            <label for="node-input-dpt"><i class="fa fa-tasks"></i> Datapoint </label>
+            <select id="node-input-dpt"></select>
+        </div>
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name </label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+    <dd>
+        <div class="form-row">
+            <input type="checkbox" id="node-input-listenallga" style="display:inline-block; width:auto; vertical-align:top;">
+            <label style="width:auto" for="node-input-listenallga"> Listen to all Group Addresses (using ETS file)</label>
+            <div id="helpallga"><i>   You must import your ETS file, otherwise this option is disabled.<br />Please see the config node. <br />Once imported, please click deploy to enable this option</i></div>
+        </div>
+    </dd>
+    <dt>OUTPUT (sends datagram to the KNX bus)</dt>
+    <div class="form-row">
+        <label for="node-input-outputtype"> Output Type </label>
+        <select id="node-input-outputtype">
+            <option value="write">Write</option>
+            <option value="response">Response</option>
+        </select>
+    </div>
+    <dd>
+        <div class="form-row">
+            <input type="checkbox" id="node-input-initialread" style="display:inline-block; width:auto; vertical-align:top;">
+            <label style="width:auto" for="node-input-initialread"> Send a GroupValue read once on connection/reconnect </label>
+        </div>
+    </dd>
+   
+    <dt>INPUT (listen to datagram from the KNX bus)</dt>
+        <dd>
+            <div class="form-row">
+            <input type="checkbox" id="node-input-notifywrite" style="display:inline-block; width:auto; vertical-align:top;">
+            <label style="width:auto" for="node-input-notifywrite"> React to event GroupValue write </label>
+            </div>
+        </dd>
+        <dd>
+            <div class="form-row">
+            <input type="checkbox" id="node-input-notifyresponse" style="display:inline-block; width:auto; vertical-align:top;">
+            <label style="width:auto" for="node-input-notifyresponse"> React to event GroupValue response </label>
+            </div>
+        </dd>
+        <dd>
+            <div class="form-row">
+            <input type="checkbox" id="node-input-notifyreadrequest" style="display:inline-block; width:auto; vertical-align:top;">
+            <label style="width:auto" for="node-input-notifyreadrequest"> React to event GroupValue read </label>
+            </div>
+        </dd>
+</script>
+
+<script type="text/x-red" data-help-name="knxUltimate">
+    <p>	Depending on your settings, a notification message will be created when the following events occured for the selected group address:
+        <ul>
+            <li> a write request is received </li>
+            <li> a read request is received </li>
+            <li> a response to a read request is received </li>
+        </ul>
+        Default is to only notify write requests
+    </p>
+    <p> Creation of a manual read request is also possible by injecting any message to this node. <p>
+    <p> <b>Listen to all group addresses</b> checkbox, allow the node to listen to all group address it receives from the bus. In order for this option to work, the node must know each datapoints belonging to each group address, in order to output a correctly formatted payload. For this reason, you need to import your ETS file. Please see the configuration node to do so. <p>
+    <p> msg.payload will contain your desired value </p>
+    <p> If you have enabled notification of read requests,
+        be aware that the output msg will have a payload of <code>null</code> for these events.
+    </p>
+
+    <h3>Properties</h3>
+        <dl class="message-properties">
+            <dt>Gateway</dt>
+            <dd> Selected KNX gateway. </dd>
+
+            <dt>Group Address
+                <span class="property-type">x/y/z</span>
+            </dt>
+            <dd> KNX Group address to read/subscribe to. </dd>
+
+            <dt>Datapoint</dt>
+            <dd> KNX datapoint type (DPT). </dd>
+
+            <h4>What to output ? </h4>
+                <dt>GroupValue write</dt>
+                <dd>When checked, received writeRequests will be notified</dd>
+
+                <dt>GroupValue response</dt>
+                <dd>When checked, received responses will be notified</dd>
+
+                <dt>GroupValue read</dt>
+                <dd> When checked, received readRequests will be notified, this can be used to create your own response with a knxUltimate-out node.
+                    <strong>Attention:</strong> Messages for received readRequests have a <code>msg.payload</code> and
+                    <code>msg.knx.rawValue</code> with value <code>null</code>.
+                </dd>
+            
+            <h4>Other options</h4>
+            <dt>Read on startup</dt>
+            <dd> When checked, a readRequest will be sent on the knx bus when connection is established/reestablished </dd>
+        </dl>
+        <h3>Input</h3>
+        <dl class="message-properties">
+            <dt>payload</dt>
+            <dd>Any payload will trigger a read Request</dd>
+            <dt>knx</dt>
+            <dd> The following parameters can be sent to override what is configured for the node: 
+            <pre>
+{ "knx": { 
+     "destination": "1/1/1"
+    }
+}           </pre>
+            </dd>
+        </dl>
+    <h3>Output</h3>
+        <ul>
+            <li>Output of write requests
+<pre>
+msg = {
+    "topic": "1/1/1",
+    "payload": 0,
+    "knx": {
+        "event": "GroupValue_Write",
+        "dpt": "1.001",
+        "dptDetails": {
+            "name": "DPT_Switch",
+            "desc": "switch",
+            "use": "G"
+        },
+    "source": "2.2.2",
+    "destination": "1/1/1",
+    "rawValue": [0]
+    }
+} </pre>
+            </li>
+            <li>Output of responses
+<pre> msg = {
+    "topic": "1/1/1",
+    "payload": 0,
+    "knx": {
+        "event": "GroupValue_Response",
+        "dpt":"1.001",
+        "dptDetails": {
+            "name": "DPT_Switch",
+            "desc": "switch",
+            "use": "G"
+        },
+    "source": "2.2.2",
+    "destination": "1/1/1",
+    "rawValue": [0]
+    }
+} </pre>
+            </li>
+            <li>Output of read requests
+<pre> msg = {
+    "topic": "1/1/1",
+    "payload": null,
+    "knx": {
+        "event": "GroupValue_Read",
+        "dpt":"1.001",
+        "dptDetails": {
+            "name": "DPT_Switch",
+            "desc": "switch",
+            "use": "G"
+        },
+    "source": "2.2.2",
+    "destination": "1/1/1",
+    "rawValue": null
+    }
+} </pre>
+            </li>
+        </ul>
+    </script>

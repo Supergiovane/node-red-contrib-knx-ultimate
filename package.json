@@ -1,0 +1,28 @@
+{
+  "name": "node-red-contrib-knx-ultimate",
+  "version": "0.0.1",
+  "description": "Single Node KNX IN/OUT with optional ETS group address importer.",
+  "dependencies": {
+    "knx": "2.3.3"
+  },
+  "node-red": {
+    "nodes": {
+      "knxUltimate": "knxUltimate.js",
+      "knxUltimate-config": "knxUltimate-config.js"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate.git"
+  },
+  "keywords": [
+    "node-red",
+    "KNX",
+    "ETS",
+    "eib",
+    "eibd",
+    "konnex"
+  ],
+  "author": "Supergiovane",
+  "license": "MIT"
+}
