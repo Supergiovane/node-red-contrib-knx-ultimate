@@ -1,0 +1,17 @@
+{
+  "name": "typescript-sample",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tslint *.ts; tsc"
+  },
+  "author": "Mattias Holmlund <mattias@holmlund.se>",
+  "license": "MIT",
+  "dependencies": {
+    "knx": "../",
+    "tslint": "^5.1.0",
+    "typescript": "^2.2.2"
+  }
+}

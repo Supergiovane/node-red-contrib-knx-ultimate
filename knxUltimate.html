@@ -137,67 +137,81 @@
 </script>
 
 <script type="text/x-red" data-help-name="knxUltimate">
-    <p>	Depending on your settings, a notification message will be created when the following events occured for the selected group address:
-        <ul>
-            <li> a write request is received </li>
-            <li> a read request is received </li>
-            <li> a response to a read request is received </li>
-        </ul>
-        Default is to only notify write requests
+    <p>
+        Knx-ultimate is a powerfull device node, all-in-one. It acts as input device as well as output device at the same time.<br />
+        Based on configuration and msg option, you can achieve all what you need.<br />
+        You can import your ETS csv file, containing all your group addresses and datapoint types and use it instead of manually create one node for each group address.<br />
+        Node's settings is divided in 3 parts: common settings, input settings (Node used as input device) and output settings (Node used as output device).
     </p>
-    <p> Creation of a manual read request is also possible by injecting any message to this node. <p>
-    <p> <b>Listen to all group addresses</b> checkbox, allow the node to listen to all group address it receives from the bus. In order for this option to work, the node must know each datapoints belonging to each group address, in order to output a correctly formatted payload. For this reason, you need to import your ETS file. Please see the configuration node to do so. <p>
-    <p> msg.payload will contain your desired value </p>
-    <p> If you have enabled notification of read requests,
-        be aware that the output msg will have a payload of <code>null</code> for these events.
-    </p>
+         <p>
+            <h3>COMMON SETTINGS</h3>
+            <dl class="message-properties">
+                <dt>Gateway</dt>
+                <dd> Selected KNX gateway. </dd>
+ 
+                <dt>Group Address
+                    <span class="property-type">x/y/z</span>
+                </dt>
+                <dd> KNX Group address to read/write to. It's not mandatory if you import the ETS csv file and select <i>Listen to all Group Addresses (using ETS file)</i></dd>
+    
+                <dt>Datapoint</dt>
+                <dd> KNX datapoint type (DPT). It's not mandatory if you import the ETS csv file and select <i>Listen to all Group Addresses (using ETS file)</i></dd>
+    
+                <dt>Listen to all Group Addresses (using ETS file)</dt>
+                <dd> The node will react to all group addresses when used as INPUT, and will notify a message containing a payload correctly decoded using the datapoints specified in the ETS csv file. When used as OUTPUT, it automatically decodes the payload using the right datapoint specified in the ETS csv file.</dd>
+            </dl>
 
-    <h3>Properties</h3>
-        <dl class="message-properties">
-            <dt>Gateway</dt>
-            <dd> Selected KNX gateway. </dd>
-
-            <dt>Group Address
-                <span class="property-type">x/y/z</span>
-            </dt>
-            <dd> KNX Group address to read/subscribe to. </dd>
-
-            <dt>Datapoint</dt>
-            <dd> KNX datapoint type (DPT). </dd>
-
-            <h4>What to output ? </h4>
-                <dt>GroupValue write</dt>
+            <h3>OUTPUT (sends datagram to the KNX bus)</h3>
+            <dl class="message-properties">
+                    <dt>Output Type</dt>
+                    <dd>Write: the node will send the payload to the KNX bus as a 'write' message (standard).<br />
+                        Response: the node will send the payload to the KNX bus as a 'response' message (in case you wish to create your own 'response', in response to a read request).</dd>
+        
+                    <dt>Send a GroupValue read once on connection/reconnect</dt>
+                    <dd>On connection/reconnection, the node will send a 'read' request to the group address specified on the topic or, if <i>Listen to all Group Addresses (using ETS file)</i> is selected, on all group addresses specified on the ETS csv file.</dd>
+            </dl>
+           
+            <h3>INPUT (listen to datagram from the KNX bus)</h3>
+            <dl class="message-properties">
+                <dt>React to event GroupValue write</dt>
                 <dd>When checked, received writeRequests will be notified</dd>
 
-                <dt>GroupValue response</dt>
+                <dt>React to event GroupValue response</dt>
                 <dd>When checked, received responses will be notified</dd>
 
-                <dt>GroupValue read</dt>
-                <dd> When checked, received readRequests will be notified, this can be used to create your own response with a knxUltimate-out node.
-                    <strong>Attention:</strong> Messages for received readRequests have a <code>msg.payload</code> and
+                <dt>React to event GroupValue read</dt>
+                <dd> When checked, received read requests will be notified, this can be used to create your own response with a <i>Output Type</i> set to 'Response'.
+                    <strong>Attention:</strong> Messages for received read requests have a <code>msg.payload</code> and
                     <code>msg.knx.rawValue</code> with value <code>null</code>.
                 </dd>
-            
-            <h4>Other options</h4>
-            <dt>Read on startup</dt>
-            <dd> When checked, a readRequest will be sent on the knx bus when connection is established/reestablished </dd>
-        </dl>
-        <h3>Input</h3>
-        <dl class="message-properties">
-            <dt>payload</dt>
-            <dd>Any payload will trigger a read Request</dd>
-            <dt>knx</dt>
-            <dd> The following parameters can be sent to override what is configured for the node: 
-            <pre>
-{ "knx": { 
-     "destination": "1/1/1"
-    }
-}           </pre>
-            </dd>
-        </dl>
-    <h3>Output</h3>
-        <ul>
-            <li>Output of write requests
+            </dl>
+        </p>
+        
+
+   <p>
+        <b>Payload -->> Input Node</b><br />
+        <code>msg.payload="read"</code>: The world "read" is RESERVED. Issues a read request to the KNX bus.<br />
+        <code>msg.payload</code>: issues a write or response (based on the options above) to the KNX bus.<br />
+        You can override some configurations, or you can specify some parameters, like group address destination if, for example, you have selected <i>Listen to all Group Addresses (using ETS file)</i>.<br />
+        <code>msg.knx.event</code>: "GroupValue_Write" or "GroupValue_Response", overrides the option <b>Output Type</b> above.<br />
+        <code>msg.knx.destination</code>: for example "0/0/1", overrides the node's topic.<br />
+        <code>msg.knx.dpt</code>: for example "1.001", overrides the <b>Datapoint</b> option.<br />
+    </p>
+    <p>
+        <b>Examples:</b><br />
+        If you have selected a topic and a datapoint in the options above, you can simply write this in a function to dim a light:
+        <pre>return ({payload: 30});</pre>
+        Or, if you have selected <i>Listen to all Group Addresses (using ETS file)</i> (in this case, specifying <code>the msg.knx.destination</code> is mandatory), in a function, you can return a message to be send to the node, that sets the dim to 30%:
+        <pre>return ({
+                    payload: 30,
+                    knx: {
+                      destination: "0/0/10"}
+                  });</pre>
+     </p>
+    
+
+     <b>Output Node -->> Payload</b><br />
+     The node outputs a message with these data (if the node receives a WRITE telegram):
 <pre>
 msg = {
     "topic": "1/1/1",
@@ -210,14 +224,14 @@ msg = {
             "desc": "switch",
             "use": "G"
         },
+    "devicename": "Kitchen Lamp", --only if ETS csv file is used--
     "source": "2.2.2",
     "destination": "1/1/1",
     "rawValue": [0]
-    }
-} </pre>
-            </li>
-            <li>Output of responses
-<pre> msg = {
+    }} </pre>
+
+The node outputs a message with these data (if the node receives a RESPONSE telegram):
+<pre>msg = {
     "topic": "1/1/1",
     "payload": 0,
     "knx": {
@@ -228,13 +242,13 @@ msg = {
             "desc": "switch",
             "use": "G"
         },
+    "devicename": "Kitchen Lamp", --only if ETS csv file is used--
     "source": "2.2.2",
     "destination": "1/1/1",
     "rawValue": [0]
-    }
-} </pre>
-            </li>
-            <li>Output of read requests
+    }} </pre>
+
+    The node outputs a message with these data (if the node receives a READ telegram):
 <pre> msg = {
     "topic": "1/1/1",
     "payload": null,
@@ -249,8 +263,6 @@ msg = {
     "source": "2.2.2",
     "destination": "1/1/1",
     "rawValue": null
-    }
-} </pre>
-            </li>
-        </ul>
+    }} </pre>
+           
     </script>

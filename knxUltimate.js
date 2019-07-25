@@ -1,5 +1,5 @@
 module.exports = function (RED) {
-    function knxUltimateIn(config) {
+    function knxUltimate(config) {
         RED.nodes.createNode(this, config)
         var node = this
         node.server = RED.nodes.getNode(config.server)
@@ -17,7 +17,7 @@ module.exports = function (RED) {
         node.on("input", function (msg) {
             // 25/07/2019 if payload is read, do a read, otherwise, write to the bus
             if (msg.hasOwnProperty('payload') && msg.payload == "read") {
-                // Send a Read request to the bus
+                // READ: Send a Read request to the bus
                 if (!node.listenallga) {
                     if (node.server && node.topic) {
                         node.server.readValue(node.topic)
@@ -31,7 +31,7 @@ module.exports = function (RED) {
                     }
                 }
             } else {
-                // Send message to the bus (write/response)
+                // OUTPUT: Send message to the bus (write/response)
                 if (node.server) {
                     if (node.server.knxConnection) {
                         let outputtype =
@@ -65,7 +65,7 @@ module.exports = function (RED) {
                                 dpt = msg.knx.dpt;
                             } else {
                                 // Get the datapoint from the CSV
-                                let oGA=node.csv.filter(sga => sga.ga == grpaddr)[0]
+                                let oGA=node.server.csv.filter(sga => sga.ga == grpaddr)[0]
                                 dpt=oGA.dpt
                             }
                         } else {
@@ -91,15 +91,15 @@ module.exports = function (RED) {
 
         node.on('close', function () {
             if (node.server) {
-                node.server.deregister("in", node)
+                node.server.removeClient(node)
             }
         })
 
         if (node.server) {
             if (node.topic || node.listenallga ) {
-                node.server.register("in", node)
+                node.server.addClient(node)
             }
         }
     }
-    RED.nodes.registerType("knxUltimate", knxUltimateIn)
+    RED.nodes.registerType("knxUltimate", knxUltimate)
 }

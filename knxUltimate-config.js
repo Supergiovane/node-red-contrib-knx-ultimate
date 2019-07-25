@@ -120,7 +120,7 @@ module.exports = (RED) => {
         node.host = n.host
         node.port = n.port
         node.csv = readCSV(n.csv,RED,false) // Array from ETS CSV Group Addresses
-        node.setClientStatus("disconnected","red","")
+        //node.setClientStatus("disconnected","red","")
 
         var knxErrorTimeout
         node.nodeClients = [] // Stores the registered clients
@@ -181,7 +181,7 @@ module.exports = (RED) => {
         node.setClientStatus = (_status, _color, _text) => {
             node.status = _status
             function nextStatus(oClient) {
-                oClient.status({ fill: _color, shape: "dot", text: "("+ input.topic +") " + _status + " " + _text  })
+                oClient.status({ fill: _color, shape: "dot", text: "("+ oClient.topic +") " + _status + " " + _text  })
             }
             node.nodeClients.map(nextStatus)
         }
