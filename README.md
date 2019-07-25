@@ -1,4 +1,4 @@
-# node-red-contrib-knx-easy
+# node-red-contrib-knx-ultimate
 Simple Node-RED nodes for knx.
 The input and output nodes is used in a similar way as the built in mqtt nodes.
 
