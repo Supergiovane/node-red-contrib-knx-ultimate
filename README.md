@@ -1,5 +1,6 @@
 # node-red-contrib-knx-ultimate
 
+![Sample Node](img/sample.png) 
 
 ## DESCRIPTION
 Knx-ultimate is a powerfull device node, all-in-one. It acts as input device as well as output device at the same time.<br />
@@ -59,7 +60,7 @@ Response: the node will send the payload to the KNX bus as a 'response' message 
 You can override some configurations, or you can specify some parameters, like group address destination if, for example, you have selected <i>Listen to all Group Addresses (using ETS file)</i>.<br />
 <code>msg.knx.event</code>: "GroupValue_Write" or "GroupValue_Response", overrides the option <b>Output Type</b> above.<br />
 <code>msg.knx.destination</code>: for example "0/0/1", overrides the node's topic.<br />
-<code>msg.knx.dpt</code>: for example "1.001", overrides the <b>Datapoint</b> option.<br />
+<code>msg.knx.dpt</code>: for example "1.001", overrides the <b>Datapoint</b> option. (Datapoints can be sent as 9 , "9" , "9.001" or "DPT9.001")<br />
 
 
 <b>Examples:</b><br />
@@ -133,80 +134,9 @@ The node outputs a message with these data (if the node receives a READ telegram
 
 
 
-
-
-
-
-The input and output nodes is used in a similar way as the built in mqtt nodes.
-
-![Input and output node](readme/input_output.jpg) 
-
-
-
-## Input node
-Set Group-address and DPT in node config to subscribe to all messages with 
-that destination and  msg.payload will contain the value you want.
-
-Listen to values written to address 1/1/1:
-
-![Input and output node](readme/input_properties.jpg)
-
-You can also suscribe to GroupValue response and GroupValue read events,
-this way you can create your own response and send it back to the bus with a knxUltimate-out node.
-
-If you need more than the value, extended information is available in the message outputted:   
+## COPY/PASTE IN YOUR NODE-RED FLOW
+```js
+[{"id":"4e7a85d4.13fcfc","type":"knxUltimate","z":"71ead01a.630ba","server":"d08a9721.b34f1","topic":"0/0/1","dpt":"1.001","initialread":false,"notifyreadrequest":false,"notifyresponse":false,"notifywrite":true,"listenallga":false,"name":"","x":230,"y":140,"wires":[["40ec912e.71f2f"]]},{"id":"bd0b9536.ce0148","type":"inject","z":"71ead01a.630ba","name":"Switch on","topic":"","payload":"true","payloadType":"bool","repeat":"","crontab":"","once":false,"onceDelay":0.1,"x":90,"y":120,"wires":[["4e7a85d4.13fcfc"]]},{"id":"ef9de1ce.4d9bc","type":"inject","z":"71ead01a.630ba","name":"Switch off","topic":"","payload":"false","payloadType":"bool","repeat":"","crontab":"","once":false,"onceDelay":0.1,"x":90,"y":160,"wires":[["4e7a85d4.13fcfc"]]},{"id":"40ec912e.71f2f","type":"debug","z":"71ead01a.630ba","name":"","active":true,"tosidebar":true,"console":false,"tostatus":false,"complete":"true","x":350,"y":140,"wires":[]},{"id":"d08a9721.b34f1","type":"knxUltimate-config","z":"","host":"224.0.23.12","port":"3671","csv":""}]
 ```
-msg = 
-    { "topic": "1/1/1"
-    , "payload": 0
-    , "knx": 
-        { "event": "GroupValue_Write"
-        , "dpt":"1.001"
-        , "dptDetails": 
-            { "name": "DPT_Switch"
-            ,"desc": "switch"
-            ,"use":"G"
-            }
-        , "source":"2.2.2"
-        , "destination": "1/1/1"
-        , "rawValue":[0]
-        }
-    }                        
-```
-(Read events will have payload and knx.rawValue of null)
 
-## Output node
-Set up group address and select DPT in node configuration.
-Send your values using msg.payload
-This makes it simple to connect the output node directly to a slider or a switch.
-![Input and output node](readme/output_properties.jpg)
-
-Output mode can be set to "Response" if you want to use a input-node to
-listen for readRequests and make your own responses to the knx bus.
-
-### Inputs
     
-#### payload
-Value to transmit
-
-
-#### knx
-The following parameters can be sent to override what is configured for the node:
-```
-{ "knx": { 
-    "event": "GroupValue_Write",
-     "dpt":"1.001",
-     "destination": "1/1/1"
-    }
-}
-```   
-(DPTs can be sent as 9 , "9" , "9.001" or "DPT9.001")
-
-Example: 
-    If you only want to override destination you would send only that, eventType and dpt will be taken from node config:
-```
-{ "knx": { 
-     "destination": "1/1/1"
-    }
-}
-```
