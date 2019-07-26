@@ -1,5 +1,10 @@
 # node-red-contrib-knx-ultimate
 <p>
+<b>Version 0.0.4 BETA</b><br/>
+- Integration of Help documentation<br/>
+- Readstatus fix.<br/>
+</p>
+<p>
 <b>Version 0.0.3 BETA</b><br/>
 - Added Help documentation<br/>
 - Added samples on the Readme.md<br/>

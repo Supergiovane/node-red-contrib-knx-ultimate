@@ -16,19 +16,27 @@ module.exports = function (RED) {
         
         node.on("input", function (msg) {
             // 25/07/2019 if payload is read, do a read, otherwise, write to the bus
-            if (msg.hasOwnProperty('readstatus') && Boolean(msg.readstatus) == true) {
+            if (msg.hasOwnProperty('readstatus') && msg.readstatus === true) {
                 // READ: Send a Read request to the bus
-                if (node.server){
+                if (node.server) {
+                    var grpaddr = ""
                     if (!node.listenallga) {
-                        var grpaddr = ""
                         grpaddr = msg.knx && msg.knx.destination ? msg.knx.destination : node.topic
                         node.server.readValue(grpaddr)
-                    } else {
+                    } else { // Listen all GAs
+                        if (msg.knx && msg.knx.destination) {
+                            // listenallga is true, but the user specified own group address
+                            grpaddr = msg.knx.destination
+                            node.server.readValue(grpaddr)
+                        } else {
+                           // Issue read to all group addresses
                             for (let index = 0; index < node.server.csv.length; index++) {
                                 const element = node.server.csv[index];
-                                node.server.readValue(element.ga)
-                            }
+                                node.server.readValue(element.ga)}
                         }
+                       
+                    }
+                        
                  }
             } else {
                 // OUTPUT: Send message to the bus (write/response)
