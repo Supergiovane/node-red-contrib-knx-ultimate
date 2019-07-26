@@ -1,5 +1,10 @@
 # node-red-contrib-knx-ultimate
 <p>
+<b>Version 1.0.1 FIRST PUBLIC RELEASE</b><br/>
+- Fixed minor glitches<br/>
+- Ended extensive testing<br/>
+</p>
+<p>
 <b>Version 0.0.6 BETA</b><br/>
 - Fixed Output Type unable to be set<br/>
 - Added node status for response (blue) and read (grey)<br/>
