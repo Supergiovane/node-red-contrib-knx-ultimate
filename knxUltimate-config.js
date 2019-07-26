@@ -246,9 +246,11 @@ module.exports = (RED) => {
                                     // Get the DPT
                                     let oGA=node.csv.filter(sga => sga.ga == dest)[0]
                                     let msg = buildInputMessage(src, dest, evt, rawValue, oGA.dpt, oGA.devicename)
+                                    input.status({ fill: "blue", shape: "dot", text: "("+ msg.knx.destination +") " + msg.payload + " dpt:" + msg.knx.dpt })
                                     input.send(msg)                                    
                                 }else if (input.topic == dest) {
                                     let msg = buildInputMessage(src, dest, evt, rawValue, input.dpt)
+                                    input.status({ fill: "blue", shape: "dot", text: "("+ input.topic +") " + msg.payload})
                                     input.send(msg)
                                 }
                             })
@@ -263,9 +265,11 @@ module.exports = (RED) => {
                                     // Get the DPT
                                     let oGA=node.csv.filter(sga => sga.ga == dest)[0]
                                     let msg = buildInputMessage(src, dest, evt, null, oGA.dpt, oGA.devicename)
+                                    input.status({ fill: "grey", shape: "dot", text: "("+ msg.knx.destination +") read dpt:" + msg.knx.dpt })
                                     input.send(msg)                                    
                                 }else if (input.topic == dest) {
                                     let msg = buildInputMessage(src, dest, evt, null, input.dpt)
+                                    input.status({ fill: "grey", shape: "dot", text: "("+ input.topic +") read"})
                                     input.send(msg)
                                 }
                             })

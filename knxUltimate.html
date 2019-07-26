@@ -11,7 +11,8 @@
             notifyresponse: { value: false },
             notifywrite: { value: true },
             listenallga: { value: false },
-            name: { value: "" }
+            name: { value: "" },
+            outputtype: { value: "write" }
         },
         inputs: 1,
         outputs: 1,
@@ -227,7 +228,7 @@
         <h3>MSG FORMAT</h3>
         The Node Device accepts input and output. Below, an explanation of the message's format to be sent to or trasmitted from the node.<br /><br />
         <b>YOU CAN SEND THIS TO THE NODE</b><br />
-        <code>msg.readstatus:true</code>: Issues a read request to the KNX bus. You'll expect a 'response' from the bus. When you issue a 'read' request, you can only override the group address specified in the <b>Group Address</b>, with <code>msg.knx.destination</code>. If you've selected <i>Listen to all Group Addresses (using ETS file)</i>, the node will issue a 'read' request to ALL group addresses specified in the ETS csv file.<br />
+        <code>msg.readstatus=true</code>: Issues a read request to the KNX bus. You'll expect a 'response' from the bus. When you issue a 'read' request, you can only override the group address specified in the <b>Group Address</b>, with <code>msg.knx.destination</code>. If you've selected <i>Listen to all Group Addresses (using ETS file)</i>, the node will issue a 'read' request to ALL group addresses specified in the ETS csv file.<br />
         <code>msg.payload</code>: issues a write or response (based on the options <b>Output Type</b> above) to the KNX bus.<br />
         <code>msg.knx.event</code>: "GroupValue_Write" or "GroupValue_Response", overrides the option <b>Output Type</b> above.<br />
         <code>msg.knx.destination</code>: for example "0/0/1", overrides the node's <b>Group Address</b>.<br />

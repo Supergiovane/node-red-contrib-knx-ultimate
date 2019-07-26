@@ -1,9 +1,13 @@
 # node-red-contrib-knx-ultimate
 <p>
+<b>Version 0.0.6 BETA</b><br/>
+- Fixed Output Type unable to be set<br/>
+- Added node status for response (blue) and read (grey)<br/>
+</p>
+<p>
 <b>Version 0.0.5 BETA</b><br/>
 - Integration of Help documentation<br/>
-- Readstatus fix
-.<br/>
+- Readstatus fix<br/>
 </p>
 <p>
 <b>Version 0.0.3 BETA</b><br/>
