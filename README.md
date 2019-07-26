@@ -1,5 +1,7 @@
 # node-red-contrib-knx-ultimate (BETA)
 
+CAUTION, THIS NODE WORKS BUT IT'S STILL IN BETA. EXPECTED STABLE RELEASE IN ABOUT 7 DAYS,
+
 ![Sample Node](img/sample.png) 
 
 ## DESCRIPTION

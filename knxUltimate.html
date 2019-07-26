@@ -18,7 +18,7 @@
         align: "left",
         icon: "knx.png",
         label: function () {
-            return this.name || this.topic || "knx-ultimate"
+            return "BETA " + this.name || this.topic || "knx-ultimate"
         },
         oneditprepare: function () {
             $.getJSON('knxUltimateDpts', (data) => {
