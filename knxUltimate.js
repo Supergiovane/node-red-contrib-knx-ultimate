@@ -16,20 +16,20 @@ module.exports = function (RED) {
         
         node.on("input", function (msg) {
             // 25/07/2019 if payload is read, do a read, otherwise, write to the bus
-            if (msg.hasOwnProperty('payload') && msg.payload == "read") {
+            if (msg.hasOwnProperty('readstatus') && Boolean(msg.readstatus) == true) {
                 // READ: Send a Read request to the bus
-                if (!node.listenallga) {
-                    if (node.server && node.topic) {
-                        node.server.readValue(node.topic)
-                    }
-                } else {
-                    if (node.server) {
-                        for (let index = 0; index < node.server.csv.length; index++) {
-                            const element = node.server.csv[index];
-                            node.server.readValue(element.ga)
+                if (node.server){
+                    if (!node.listenallga) {
+                        var grpaddr = ""
+                        grpaddr = msg.knx && msg.knx.destination ? msg.knx.destination : node.topic
+                        node.server.readValue(grpaddr)
+                    } else {
+                            for (let index = 0; index < node.server.csv.length; index++) {
+                                const element = node.server.csv[index];
+                                node.server.readValue(element.ga)
+                            }
                         }
-                    }
-                }
+                 }
             } else {
                 // OUTPUT: Send message to the bus (write/response)
                 if (node.server) {

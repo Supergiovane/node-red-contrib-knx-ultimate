@@ -9,12 +9,12 @@
         oneditsave: function() {
             // Check if the csv file contains errors
             if($("#node-config-input-csv").val() != 'undefined' && $("#node-config-input-csv").val()!=""){
-                var checkResult="Upon deploy, i'll parse the CSV. Please see the debug TAB or node-red's log for errors/warnings"
+                var checkResult="Upon deploy, i'll parse the CSV. Please see the debug TAB or node-red's log for errors/warnings. If no warnings, then the csv is OK. Otherwise you should correct the issues and again export from ETS and paste here."
                 var myNotification= RED.notify(checkResult,
                 {
                     modal: true,
                     fixed: true,
-                    type: 'warning',
+                    type: 'info',
                     buttons: [
                         {
                             text: "OK",
@@ -29,8 +29,6 @@
             return this.host+":"+this.port;
         }
     });
-
-    
 </script>
 
 <script type="text/x-red" data-template-name="knxUltimate-config">
