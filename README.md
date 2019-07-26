@@ -74,7 +74,8 @@ The Node Device accepts flow's input and transmits flow's output. Below, an expl
 <b>THE NODE OUTPUTS THIS TO THE FLOW</b><br />
 The node outputs a message with these data (if the node receives a WRITE telegram):
 </p>
-<pre>
+
+```js
 msg = {
 "topic": "1/1/1",
 "payload": 0,
@@ -90,11 +91,14 @@ msg = {
 "source": "2.2.2",
 "destination": "1/1/1",
 "rawValue": [0]
-}} </pre>
+}}
+```
 <p>
 The node outputs a message with these data (if the node receives a RESPONSE telegram):
 </p>
-<pre>msg = {
+
+```js
+msg = {
 "topic": "1/1/1",
 "payload": 0,
 "knx": {
@@ -109,10 +113,13 @@ The node outputs a message with these data (if the node receives a RESPONSE tele
 "source": "2.2.2",
 "destination": "1/1/1",
 "rawValue": [0]
-}} </pre>
+}} 
+```
 
 The node outputs a message with these data (if the node receives a READ telegram):
-<pre> msg = {
+
+```js
+msg = {
 "topic": "1/1/1",
 "payload": null,
 "knx": {
@@ -126,9 +133,37 @@ The node outputs a message with these data (if the node receives a READ telegram
 "source": "2.2.2",
 "destination": "1/1/1",
 "rawValue": null
-}} </pre>
+}}
+```
 
 # EXAMPLES
+
+## -->> SET DATE/TIME FROM NODE-RED TO KNX BUS
+
+<img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/datetime.png" width="50%"><br/>
+
+To set the date and time, you'll use 2 separate devices. <br/>
+Set the datapoint of the 'Date' device to 11.001<br/>
+Set the datapoint of the 'Time' device to 10.001<br/>
+To set the date, use this code in a function (adjust the locale (it-IT) and Timezone to match your country):<br/>
+```js
+return {payload:new Date().toLocaleDateString('it-IT',
+        {year:"2-digit",
+        month:"2-digit", 
+        day:"2-digit",
+        timeZone: 'Europe/Rome'})}
+```
+<br/>
+To set the time, use this code in a function (adjust the locale (it-IT) and Timezone to match your country):<br/>
+
+```js
+return {payload:new Date().toLocaleTimeString('it-IT',
+    {hour: '2-digit', hour12: false,
+    minute: '2-digit',
+    second: '2-digit',
+    timeZone: 'Europe/Rome'})}
+```
+
 
 ## -->> TURN ON AND OFF A LAMP
 
