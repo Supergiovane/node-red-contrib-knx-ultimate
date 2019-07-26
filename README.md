@@ -13,9 +13,6 @@ Node's settings is divided in 3 parts: common settings, input settings (Node use
 ## CHANGELOG
 * See <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/blob/master/CHANGELOG.md">here the changelog</a>
 
-## NODE-RED Package
-* See <a href="https://www.npmjs.com/package/node-red-contrib-knx-ultimate">here the package</a>
-
 
 <p>
 <h3>COMMON SETTINGS</h3>
