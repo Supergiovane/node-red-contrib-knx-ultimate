@@ -16,11 +16,7 @@ Node's settings is divided in 3 parts: common settings, input settings (Node use
 ## NODE-RED Package
 * See <a href="https://www.npmjs.com/package/node-red-contrib-knx-ultimate">here the package</a>
 
-<p>
-Knx-ultimate is a powerfull device node, all-in-one. It acts as input device as well as output device at the same time.<br />
-You can import your ETS csv file, containing all your group addresses and datapoint types and use it instead of manually create one node for each group address.<br />
-Node's settings is divided in 3 parts: common settings, input settings (Node used as input device) and output settings (Node used as output device).
-</p>
+
 <p>
 <h3>COMMON SETTINGS</h3>
 <dl class="message-properties">
@@ -68,10 +64,10 @@ Node's settings is divided in 3 parts: common settings, input settings (Node use
 
 <p>
 <h3>MSG FORMAT</h3>
-The Node Device accepts input and output. Below, an explanation of the message's format to be sent to or trasmitted from the node.<br /><br />
+The Node Device accepts flow's input and transmits flow's output. Below, an explanation of the message's format to be sent to or trasmitted from the node.<br /><br />
 <b>YOU CAN SEND THIS TO THE NODE</b><br />
-<code>msg.readstatus=true</code>: Issues a read request to the KNX bus. You'll expect a 'response' from the bus. When you issue a 'read' request, you can only override the group address specified in the <b>Group Address</b>, with <code>msg.knx.destination</code>. If you've selected <i>Listen to all Group Addresses (using ETS file)</i>, the node will issue a 'read' request to ALL group addresses specified in the ETS csv file.<br />
-<code>msg.payload</code>: issues a write or response (based on the options <b>Output Type</b> above) to the KNX bus.<br />
+<code>msg.readstatus=true</code>: Issues a read request to the KNX bus. You'll expect a 'response' from the bus. When you issue a 'read' request, you can only override the group address specified in the <b>Group Address</b>, with <code>msg.knx.destination</code>. If you've selected <i>Listen to all Group Addresses (using ETS file)</i>, the node is able to issue a 'read' request to ALL group addresses specified in the ETS csv file.<br />
+<code>msg.payload</code>: value to be transmitted to the KNX bus. You can issue a write (default) or response request (based on the options <b>Output Type</b> above) to the KNX bus.<br />
 <code>msg.knx.event</code>: "GroupValue_Write" or "GroupValue_Response", overrides the option <b>Output Type</b> above.<br />
 <code>msg.knx.destination</code>: for example "0/0/1", overrides the node's <b>Group Address</b>.<br />
 <code>msg.knx.dpt</code>: for example "1.001", overrides the <b>Datapoint</b> option. (Datapoints can be sent as 9 , "9" , "9.001" or "DPT9.001")<br />
@@ -164,7 +160,7 @@ The configuration Node<br/>
 <img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/overrides4.png" width="40%">
 
 
-This is the override of some parameters. Note that we do not have specified the datapoint, because the node uses the datapoint read from the ETS csv file.<br/>
+This is the message. Note that we do not have specified the datapoint, because the node uses the datapoint from the ETS csv file.<br/>
 <img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/overrides2.png" width="40%">
 
 ```js
