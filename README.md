@@ -7,12 +7,15 @@
 Knx-ultimate is a powerfull device node, all-in-one. It acts as input device as well as output device at the same time.<br />
 Based on configuration and msg option, you can achieve all what you need.<br />
 You can import your ETS csv file, containing all your group addresses and datapoint types and use it instead of manually create one node for each group address.<br />
-Node's settings is divided in 3 parts: common settings, input settings (Node used as input device) and output settings (Node used as output device).
+
 
 ## CHANGELOG
 * See <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/blob/master/CHANGELOG.md">here the changelog</a>
 
+## WIKI
+* See <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki">here the wiki with samples and documentation</a>
 
+Node's settings is divided in 3 parts: common settings, input settings (Node used as input device) and output settings (Node used as output device).
 <p>
 <h3>COMMON SETTINGS</h3>
 <dl class="message-properties">
