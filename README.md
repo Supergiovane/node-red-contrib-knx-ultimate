@@ -10,9 +10,9 @@ Based on configuration and msg option, you can achieve all what you need.<br />
 ### WORKING WITH THE ETS CSV FILE
 Instead of create a knx-ultimate node for each Group Address to control, you can import your ETS csv group addresses file. 
 Thanks to that, the knx-ultimate node where you selected **Listen to all Group Addresses**, becomes an universal input/output node, aware of all Datapoints, Group Addresses and Device's name (ex: Living Room Lamp). Just send the payload to the knx-ultimate node, and it'll encode it with the right datapoint and send it to the bus. Likewise, when the knx-ultimate node receives a telegram from the bus, it outputs a right decoded payload using the datapoint specified in the ETS file.
-> You can work with a mix of knx-ultimate nodes, some with **Listen to all Group Addresses** checked and some not. You are absolutely free!
+> You can work with a mix of knx-ultimate nodes, some with **Listen to all Group Addresses** checked and some not. You are absolutely free! See this youtube video,
 
-<a href="https://youtu.be/I32_qG7yhFc"><img src='https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/yt.png'></a>
+<a href="https://youtu.be/I32_qG7yhFc"><img src='https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/yt.png' width='60%></a>
 
 
 
