@@ -1,8 +1,9 @@
 # node-red-contrib-knx-ultimate
 <p>
-<b>Version 1.0.0 FIRST PUBLIC RELEASE</b><br/>
+<b>Version 1.0.1 FIRST PUBLIC RELEASE</b><br/>
 - Fixed minor glitches<br/>
 - Ended extensive testing<br/>
+- Enhanced Wiki and Youtube Video about ETS CSV File
 </p>
 <p>
 <b>Version 0.0.6 BETA</b><br/>
