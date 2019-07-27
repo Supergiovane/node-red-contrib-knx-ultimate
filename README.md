@@ -15,24 +15,7 @@ You can import your ETS csv file, containing all your group addresses and datapo
 ## WIKI
 * See <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki">here the wiki with samples and documentation</a>
 
-Node's settings is divided in 3 parts: common settings, input settings (Node used as input device) and output settings (Node used as output device).
-<p>
-<h3>COMMON SETTINGS</h3>
-<dl class="message-properties">
-<dt>Gateway</dt>
-<dd> Selected KNX gateway. </dd>
 
-<dt>Group Address (topic)
-<span class="property-type">Example 0/0/1</span>
-</dt>
-<dd> KNX Group address to read/write to. It's not mandatory if you import the ETS csv file and select <i>Listen to all Group Addresses (using ETS file)</i>. Please note that the Group Address will then transmitted to the flow as <code>msg.topic</code>. It can be overridden by <code>msg.knx.destination</code>.</dd>
-
-<dt>Datapoint</dt>
-<dd> KNX datapoint type (DPT). It's not mandatory if you import the ETS csv file and select <i>Listen to all Group Addresses (using ETS file)</i>. It can be overridden by <code>msg.knx.dpt</code>.</dd>
-
-<dt>Listen to all Group Addresses (using ETS file)</dt>
-<dd> The node will react to all group addresses when used as INPUT, and will notify a message containing a payload correctly decoded using the datapoints specified in the ETS csv file. When used as OUTPUT, it automatically decodes the payload using the right datapoint specified in the ETS csv file.</dd>
-</dl>
 
 <h3>OUTPUT (sends datagram to the KNX bus)</h3>
 <dl class="message-properties">
