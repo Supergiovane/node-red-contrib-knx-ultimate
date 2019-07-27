@@ -16,7 +16,6 @@ You can import your ETS csv file, containing all your group addresses and datapo
 * See <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki">here the wiki with samples and documentation</a>
 
 
-
 <h3>OUTPUT (sends datagram to the KNX bus)</h3>
 <dl class="message-properties">
 <dt>Output Type</dt>
