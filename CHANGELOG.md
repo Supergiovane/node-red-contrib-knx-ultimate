@@ -1,6 +1,6 @@
 # node-red-contrib-knx-ultimate
 <p>
-<b>Version 1.0.1 FIRST PUBLIC RELEASE</b><br/>
+<b>Version 1.0.0 FIRST PUBLIC RELEASE</b><br/>
 - Fixed minor glitches<br/>
 - Ended extensive testing<br/>
 </p>
