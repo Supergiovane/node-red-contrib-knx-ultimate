@@ -12,8 +12,7 @@ Instead of create a knx-ultimate node for each Group Address to control, you can
 Thanks to that, the knx-ultimate node where you selected **Listen to all Group Addresses**, becomes an universal input/output node, aware of all Datapoints, Group Addresses and Device's name (ex: Living Room Lamp). Just send the payload to the knx-ultimate node, and it'll encode it with the right datapoint and send it to the bus. Likewise, when the knx-ultimate node receives a telegram from the bus, it outputs a right decoded payload using the datapoint specified in the ETS file.
 > You can work with a mix of knx-ultimate nodes, some with **Listen to all Group Addresses** checked and some not. You are absolutely free! See this youtube video,
 
-<a href="https://youtu.be/I32_qG7yhFc"><img src='https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/yt.png' width='60%'></a>
-
+<a href="https://youtu.be/I32_qG7yhFc"><img src='https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/yt.png' width='100%'></a>
 
 
 ## CHANGELOG
@@ -22,9 +21,12 @@ Thanks to that, the knx-ultimate node where you selected **Listen to all Group A
 ## WIKI
 * See <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki">here the wiki with samples and documentation</a>
 
+
+
+
 ## EXAMPLES (Others are in the Wiki)
 
-## -->> SET DATE/TIME FROM NODE-RED TO KNX BUS
+### SET DATE/TIME FROM NODE-RED TO KNX BUS
 
 <img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/datetime.png" width="50%"><br/>
 
@@ -51,7 +53,7 @@ return {payload:new Date().toLocaleTimeString('it-IT',
 ```
 
 
-## -->> TURN ON AND OFF A LAMP
+### TURN ON AND OFF A LAMP
 
 <img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/simple.png" width="50%">
 
@@ -67,7 +69,7 @@ The message passed to the node is simple <code>{payload=true}</code> and <code>{
     
 
 
-## -->> TURN ON SAME LAMP, BUT USING ETS CSV FILE (IN THE CONFIG NODE)
+### TURN ON SAME LAMP, BUT USING ETS CSV FILE (IN THE CONFIG NODE)
 
 <img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/overrides.png" width="50%">
 
@@ -86,7 +88,7 @@ This is the message. Note that we do not have specified the datapoint, because t
 ```
 
 
-## -->> ISSUE A READ REQUEST TO A SPECIFIED GROUP ADDRESS, USING ETS CSV FILE (IN THE CONFIG NODE)
+### ISSUE A READ REQUEST TO A SPECIFIED GROUP ADDRESS, USING ETS CSV FILE (IN THE CONFIG NODE)
 
 <img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/read.png" width="50%">
 
