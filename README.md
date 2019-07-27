@@ -12,115 +12,11 @@ You can import your ETS csv file, containing all your group addresses and datapo
 ## CHANGELOG
 * See <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/blob/master/CHANGELOG.md">here the changelog</a>
 
-## WIKI
+# WIKI
 * See <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki">here the wiki with samples and documentation</a>
 
 
-<h3>OUTPUT (sends datagram to the KNX bus)</h3>
-<dl class="message-properties">
-<dt>Output Type</dt>
-<dd>Write: the node will send the payload to the KNX bus as a 'write' message (standard).<br />
-    Response: the node will send the payload to the KNX bus as a 'response' message (in case you wish to create your own 'response', in response to a read request).</dd>
-
-<dt>Send a GroupValue read once on connection/reconnect</dt>
-<dd>On connection/reconnection, the node will send a 'read' request to the group address specified on the <b>Group Address</b> or, if <i>Listen to all Group Addresses (using ETS file)</i> is selected, on all group addresses specified on the ETS csv file.</dd>
-</dl>
-
-<h3>INPUT (listen to datagram from the KNX bus)</h3>
-<dl class="message-properties">
-<dt>React to event GroupValue write</dt>
-<dd>When checked, received writeRequests will be notified</dd>
-
-<dt>React to event GroupValue response</dt>
-<dd>When checked, received responses will be notified</dd>
-
-<dt>React to event GroupValue read</dt>
-<dd> When checked, received read requests will be notified, this can be used to create your own response with a <i>Output Type</i> set to 'Response'.
-<strong>Attention:</strong> Messages for received read requests have a <code>msg.payload</code> and
-<code>msg.knx.rawValue</code> with value <code>null</code>.
-</dd>
-</dl>
-</p>
-
-
-<p>
-<h3>MSG FORMAT</h3>
-The Node Device accepts flow's input and transmits flow's output. Below, an explanation of the message's format to be sent to or trasmitted from the node.<br /><br />
-<b>YOU CAN SEND THIS TO THE NODE</b><br />
-<code>msg.readstatus=true</code>: Issues a read request to the KNX bus. You'll expect a 'response' from the bus. When you issue a 'read' request, you can only override the group address specified in the <b>Group Address</b>, with <code>msg.knx.destination</code>. If you've selected <i>Listen to all Group Addresses (using ETS file)</i>, the node is able to issue a 'read' request to ALL group addresses specified in the ETS csv file.<br />
-<code>msg.payload</code>: value to be transmitted to the KNX bus. You can issue a write (default) or response request (based on the options <b>Output Type</b> above) to the KNX bus.<br />
-<code>msg.knx.event</code>: "GroupValue_Write" or "GroupValue_Response", overrides the option <b>Output Type</b> above.<br />
-<code>msg.knx.destination</code>: for example "0/0/1", overrides the node's <b>Group Address</b>.<br />
-<code>msg.knx.dpt</code>: for example "1.001", overrides the <b>Datapoint</b> option. (Datapoints can be sent as 9 , "9" , "9.001" or "DPT9.001")<br />
-</p>
-
-<p>
-<b>THE NODE OUTPUTS THIS TO THE FLOW</b><br />
-The node outputs a message with these data (if the node receives a WRITE telegram):
-</p>
-
-```js
-msg = {
-"topic": "1/1/1",
-"payload": 0,
-"knx": {
-"event": "GroupValue_Write",
-"dpt": "1.001",
-"dptDetails": {
-"name": "DPT_Switch",
-"desc": "switch",
-"use": "G"
-},
-"devicename": "Kitchen Lamp", --only if ETS csv file is used--
-"source": "2.2.2",
-"destination": "1/1/1",
-"rawValue": [0]
-}}
-```
-<p>
-The node outputs a message with these data (if the node receives a RESPONSE telegram):
-</p>
-
-```js
-msg = {
-"topic": "1/1/1",
-"payload": 0,
-"knx": {
-"event": "GroupValue_Response",
-"dpt":"1.001",
-"dptDetails": {
-"name": "DPT_Switch",
-"desc": "switch",
-"use": "G"
-},
-"devicename": "Kitchen Lamp", --only if ETS csv file is used--
-"source": "2.2.2",
-"destination": "1/1/1",
-"rawValue": [0]
-}} 
-```
-
-The node outputs a message with these data (if the node receives a READ telegram):
-
-```js
-msg = {
-"topic": "1/1/1",
-"payload": null,
-"knx": {
-"event": "GroupValue_Read",
-"dpt":"1.001",
-"dptDetails": {
-"name": "DPT_Switch",
-"desc": "switch",
-"use": "G"
-},
-"source": "2.2.2",
-"destination": "1/1/1",
-"rawValue": null
-}}
-```
-
-# EXAMPLES
+## EXAMPLES
 
 ## -->> SET DATE/TIME FROM NODE-RED TO KNX BUS
 
