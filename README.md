@@ -8,15 +8,13 @@ Knx-ultimate is a powerfull device node, all-in-one. It acts as input device as 
 Based on configuration and msg option, you can achieve all what you need.<br />
 You can import your ETS csv file, containing all your group addresses and datapoint types and use it instead of manually create one node for each group address.<br />
 
-
 ## CHANGELOG
 * See <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/blob/master/CHANGELOG.md">here the changelog</a>
 
-# WIKI
+## WIKI
 * See <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki">here the wiki with samples and documentation</a>
 
-
-## EXAMPLES
+## EXAMPLES (Others are in the Wiki)
 
 ## -->> SET DATE/TIME FROM NODE-RED TO KNX BUS
 
