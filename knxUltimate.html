@@ -45,19 +45,20 @@
                 $("#node-input-outputtype").val("write")
             }
 
+            $("#node-input-listenallga").on('change',function() {
+                if ($("#node-input-listenallga").is(":checked")) {
+                    $("#GAandDPT").hide()
+                }else{
+                    $("#GAandDPT").show()
+                }
+            })
+
             // Hide or show the GA and DPT fields if Notify on all Group Addresses is checked
             if(this.server){
                 if (RED.nodes.node(this.server).csv != 'undefined' && RED.nodes.node(this.server).csv!="") {
                     //$("#node-input-listenallga").prop("disabled", false);
                     $("#helpallga").hide()
-                    $("#node-input-listenallga").on('change',function() {
-                        if ($("#node-input-listenallga").is(":checked")) {
-                            $("#GAandDPT").hide()
-                        }else{
-                            $("#GAandDPT").show()
-                        }
-                    })
-                }else{
+                 }else{
                     //$("#node-input-listenallga").prop("disabled", true);
                     $("#node-input-listenallga").prop("checked", false)
                     $("#GAandDPT").show()
@@ -73,7 +74,7 @@
         oneditsave: function(){
              // Uncheck the Listen All GA's if the config node doesn't contain the csv
              if(this.server){
-                if (RED.nodes.node(this.server).csv != 'undefined' && RED.nodes.node(this.server).csv!="") {
+                if (typeof RED.nodes.node(this.server).csv !== 'undefined' && RED.nodes.node(this.server).csv!="") {
                 }else{
                    
                     // Notify the user
@@ -108,9 +109,11 @@
 
         
     })
+    
 </script>
 
 <script type="text/x-red" data-template-name="knxUltimate">
+   
     <div class="form-row">
         <label for="node-input-server"><i class="fa fa-tag"></i> Gateway </label>
         <input type="text" id="node-input-server">
