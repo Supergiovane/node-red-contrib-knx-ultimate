@@ -53,9 +53,43 @@
                 }
             })
 
+           // Autocomplete suggestion with ETS csv File
+            $( "#node-input-topic" ).autocomplete({
+                minLength: 1,
+                source: function( request, response ) {
+                    $.getJSON("csv", request, function( data, status, xhr ) {
+                        response($.map(data, function (value, key) {
+                            var sSearch = (value.ga + " (" + value.devicename+") DPT"+value.dpt).toUpperCase();
+                            if (sSearch.indexOf(request.term.toUpperCase()) != -1) {				
+                                return {
+                                    label: value.ga + " # " + value.devicename+" # "+value.dpt, // Label for Display
+                                    value: value.ga // Value
+                                }
+                            } else {
+                                return null;
+                            }
+                        }));
+                    });
+                },select: function(event, ui) {
+                    // Sets Datapoint and device name automatically
+                    $('#node-input-name').val(ui.item.label.split("#")[1].trim());
+                    var optVal = $("#node-input-dpt option:contains('"+ui.item.label.split("#")[2].trim()+"')").attr('value');
+                    // Select the option value 
+                    $("#node-input-dpt").val(optVal);
+                    // $('#node-input-dpt').each(function() {
+                    //     var iSearch=$(this).text().indexOf(ui.item.label.split("#")[2].trim());
+                    //     if( iSearch > -1) {
+                    //         alert(iSearch + " " + $(this).text());
+                    //         $("#node-input-dpt").val(this.value());
+                    //         //option.selected = true;
+                    //     }
+                    // });
+                }
+              });
+
             // Hide or show the GA and DPT fields if Notify on all Group Addresses is checked
             if(this.server){
-                if (RED.nodes.node(this.server).csv != 'undefined' && RED.nodes.node(this.server).csv!="") {
+                if (typeof RED.nodes.node(this.server).csv !== 'undefined' && RED.nodes.node(this.server).csv!="") {
                     //$("#node-input-listenallga").prop("disabled", false);
                     $("#helpallga").hide()
                  }else{
