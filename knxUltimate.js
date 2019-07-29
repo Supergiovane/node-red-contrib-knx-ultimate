@@ -11,8 +11,6 @@ module.exports = function (RED) {
         node.initialread = config.initialread || false
         node.listenallga = config.listenallga || false
         node.outputtype = config.outputtype || "write" // When the node is used as output
-
-  
         
         node.on("input", function (msg) {
             // 25/07/2019 if payload is read, do a read, otherwise, write to the bus

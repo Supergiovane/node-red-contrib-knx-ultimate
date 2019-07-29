@@ -1,5 +1,9 @@
 # node-red-contrib-knx-ultimate
 <p>
+<b>Version 1.0.5</b><br/>
+- Fixed a typo error causing a mess<br/>
+</p>
+<p>
 <b>Version 1.0.4</b><br/>
 - Fixed possible issue with the csv ETS endpoint<br/>
 </p>

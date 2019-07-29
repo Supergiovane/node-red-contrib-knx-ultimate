@@ -4,11 +4,11 @@
         defaults: {
             host: {value:"224.0.23.12",required:true},
             port: {value:3671,required:true,validate:RED.validators.number()},
-            csv: {value:"",required:false},
+            csvincollato: {value:"",required:false}
         },
         oneditsave: function() {
             // Check if the csv file contains errors
-            if($("#node-config-input-csv").val() != 'undefined' && $("#node-config-input-csv").val()!=""){
+            if($("#node-config-input-csvincollato").val() != 'undefined' && $("#node-config-input-csvincollato").val()!=""){
                 var checkResult="Upon deploy, i'll parse the CSV. Please see the debug TAB or node-red's log for errors/warnings. If no warnings, then the csv is OK. Otherwise you should correct the issues and again export from ETS and paste here."
                 var myNotification= RED.notify(checkResult,
                 {
@@ -41,10 +41,10 @@
         <input type="text" id="node-config-input-port">
     </div>
     <div class="form-row">
-        <label for="node-config-input-csv"><i class="icon-bookmark"></i> ETS Group Addresses list</label>
+        <label for="node-config-input-csvincollato"><i class="icon-bookmark"></i> ETS Group Addresses list</label>
         <br /><i>On ETS, click the group addresses list, then right click, then select 'export group addresses'. On the export window, select these options -> Output Format: CSV, CSV Format: 1/1 Name/Address, Export with header line: checked, CSV Separator: Tabulator. </i><br />
         <a href="https://youtu.be/I32_qG7yhFc" target="_blank">See how on Youtube</a>
-        <textarea rows=20 id="node-config-input-csv" style="width:100%" placeholder="Paste here your CSV exported file from ETS">
+        <textarea rows=20 id="node-config-input-csvincollato" style="width:100%" placeholder="Paste here your CSV exported file from ETS">
     </div>
 </script>
 

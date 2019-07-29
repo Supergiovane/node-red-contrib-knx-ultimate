@@ -36,6 +36,11 @@ toConcattedSubtypes = (acc, baseType) => {
     return acc.concat(subtypes)
 }
 
+
+
+
+
+
 module.exports = (RED) => {
 
     RED.httpAdmin.get("/knxUltimateDpts", RED.auth.needsPermission('knxUltimate-config.read'), function (req, res) {
@@ -49,22 +54,21 @@ module.exports = (RED) => {
         res.json(dpts)
     });
 
-    function knxUltimateConfigNode(n) {
-        RED.nodes.createNode(this, n)
+    function knxUltimateConfigNode(config) {
+        RED.nodes.createNode(this, config)
         var node = this
-        node.host = n.host
-        node.port = n.port
-        node.csv = readCSV(n.csv,false) // Array from ETS CSV Group Addresses
-        //node.setClientStatus("disconnected","red","")
-
+        node.host = config.host
+        node.port = config.port
+        node.csv = toJsonCSV(config.csvincollato); // Array from ETS CSV Group Addresses
+        
         // Entry point for reading csv from the other nodes
         RED.httpAdmin.get("/knxUltimatecsv", RED.auth.needsPermission('knxUltimate-config.read'), function (req, res) {
-            res.json(node.csv)
-        });
-        
+             res.json(node.csv)
+         });
+         
         var knxErrorTimeout
         node.nodeClients = [] // Stores the registered clients
-        
+      
         node.addClient = (_Node) => {
             // Add _Node to the clients array
             node.nodeClients.push(_Node)
@@ -77,6 +81,7 @@ module.exports = (RED) => {
             }
         }
 
+       
         node.removeClient = (_Node) => {
             // Remove the client node from the clients array
             node.nodeClients = node.nodeClients.filter(x => x.id !== _Node.id)
@@ -112,6 +117,7 @@ module.exports = (RED) => {
                 })
         }
 
+    
         node.readValue = topic => {
             if (node.knxConnection) {
                 node.knxConnection.read(topic)
@@ -126,7 +132,6 @@ module.exports = (RED) => {
             node.nodeClients.map(nextStatus)
         }
 
-        
         node.connect = () => {
             node.setClientStatus("disconnected","red","")
             node.knxConnection = new knx.Connection({
@@ -220,6 +225,8 @@ module.exports = (RED) => {
             })
         }
 
+       
+
         function buildInputMessage(src, dest, evt, value, inputDpt, _devicename) {
             // Resolve DPT and convert value if available
             var dpt = dptlib.resolve(inputDpt)
@@ -245,77 +252,74 @@ module.exports = (RED) => {
             }
         }
 
+       
+
+        function toJsonCSV(_csvText) {
+            var ajsonOutput = new Array(); // Array: qui va l'output totale con i nodi per node-red
+
+            if (_csvText == "") {
+                RED.log.info('knxUltimate: no csv ETS found');
+                return ajsonOutput;
+            } else {
+                RED.log.info('knxUltimate: csv ETS found !');
+                // Read and decode the CSV in an Array containing:  "group address", "DPT", "Device Name"
+                let fileGA = _csvText.split("\n");
+                // Controllo se le righe dei gruppi contengono il separatore di tabulazione
+                if (fileGA[0].search("\t") == -1) {
+                    RED.log.error('knxUltimate: ERROR: the csv ETS file must have the tabulation as separator')
+                    return ajsonOutput;
+                }
+           
+                for (let index = 0; index < fileGA.length; index++) {
+                    const element = fileGA[index].replace(/\"/g, ""); // Rimuovo le virgolette
+                    if (element !== "") {
+                        if (element.split("\t")[1].search("-") == -1 && element.split("\t")[1].search("/") !== -1) {
+                            // Ho trovato una riga contenente un GA valido, cioè con 2 "/"
+                            if (element.split("\t")[5] == "") {
+                                RED.log.error("knxUltimate: ERROR: Datapoint not set in ETS CSV. Please set the datapoint with ETS and export the group addresses again. ->" + element.split("\t")[0] + " " + element.split("\t")[1])
+                                return ajsonOutput;
+                            }
+                            var DPTa = element.split("\t")[5].split("-")[1];
+                            var DPTb = "";
+                            try {
+                                DPTb = element.split("\t")[5].split("-")[2];
+                            } catch (error) {
+                                DPTb = "001"; // default
+                            }
+                            if (!DPTb) {
+                                RED.log.warn("knxUltimate: WARNING: Datapoint not fully set (there is only the first part on the left of the '.'). I applied a default .001, but please set the datapoint with ETS and export the group addresses again. ->" + element.split("\t")[0] + " " + element.split("\t")[1] + " Datapoint: " + element.split("\t")[5]);
+                                retLog += "knxUltimate: WARNING: Datapoint not fully set (there is only the first part on the left of the '.'). I applied a default .001, but please set the datapoint with ETS and export the group addresses again. ->" + element.split("\t")[0] + " " + element.split("\t")[1] + " Datapoint: " + element.split("\t")[5] + "<br />"
+                                DPTb = "001"; // default
+                            }
+                            // Trailing zeroes
+                            if (DPTb.length == 1) {
+                                DPTb = "00" + DPTb;
+                            } else if (DPTb.length == 2) {
+                                DPTb = "0" + DPTb;
+                            } if (DPTb.length == 3) {
+                                DPTb = "" + DPTb; // stupid, but for readability
+                            }
+                            ajsonOutput.push({ ga: element.split("\t")[1], dpt: DPTa + "." + DPTb, devicename: element.split("\t")[0] });
+                        }
+                    }
+                }
+                return ajsonOutput;
+            }
+
+        }
+
+
         node.on("close", function () {
             node.setClientStatus("disconnected","red","")
             node.knxConnection = null
         })
+ 
+    
     }
 
-
-    readCSV = (_csv, _checkOnly) => {
-        var retLog = "" // if _checkOnly, returns this, otherwise, the json array of the group addresses in the csv
-        if (_csv=="") {
-            RED.log.info('knxUltimate: no csv ETS found')
-            return null;
-        } else {
-            RED.log.info('knxUltimate: csv ETS found !')
-            // Read and decode the CSV in an Array containing:  "group address", "DPT", "Device Name"
-            let fileGA = _csv.split("\n");
-            // Controllo se le righe dei gruppi contengono il separatore di tabulazione
-            if (fileGA[0].search("\t")==-1) {
-                RED.log.error('knxUltimate: ERROR: the csv ETS file must have the tabulation as separator')
-                if (_checkOnly) { 
-                    return "knxUltimate: ERROR: the csv ETS file must have the tabulation as separator"
-                } else {
-                    return null;
-                }
-            }   
-            var ajsonOutput = new Array(); // Array: qui va l'output totale con i nodi per node-red
-            for (let index = 0; index < fileGA.length; index++) {
-                const element = fileGA[index].replace(/\"/g,""); // Rimuovo le virgolette
-                
-                if (element !== "") {
-                    if (element.split("\t")[1].search("-")==-1 && element.split("\t")[1].search("/")!==-1) {
-                        // Ho trovato una riga contenente un GA valido, cioè con 2 "/"
-                        if (element.split("\t")[5] == "") {
-                            RED.log.error("knxUltimate: ERROR: Datapoint not set in ETS CSV. Please set the datapoint with ETS and export the group addresses again. ->" + element.split("\t")[0] + " " + element.split("\t")[1])
-                            if (_checkOnly) { 
-                                return "knxUltimate: ERROR: Datapoint not set in ETS CSV. Please set the datapoint with ETS and export the group addresses again. ->" + element.split("\t")[0] + " " + element.split("\t")[1]
-                            } else {
-                                return null;
-                            }
-                        }
-                        var DPTa = element.split("\t")[5].split("-")[1];
-                        var DPTb = "";
-                        try {
-                            DPTb = element.split("\t")[5].split("-")[2];
-                        } catch (error) {
-                            DPTb = "001"; // default
-                        }
-                        if (!DPTb) {
-                            RED.log.warn("knxUltimate: WARNING: Datapoint not fully set (there is only the first part on the left of the '.'). I applied a default .001, but please set the datapoint with ETS and export the group addresses again. ->" + element.split("\t")[0] + " " + element.split("\t")[1] + " Datapoint: " + element.split("\t")[5]);
-                            retLog+="knxUltimate: WARNING: Datapoint not fully set (there is only the first part on the left of the '.'). I applied a default .001, but please set the datapoint with ETS and export the group addresses again. ->" + element.split("\t")[0] + " " + element.split("\t")[1] + " Datapoint: " + element.split("\t")[5] + "<br />"
-                            DPTb = "001"; // default
-                        } 
-                        // Trailing zeroes
-                        if (DPTb.length == 1) {
-                            DPTb = "00" + DPTb;
-                        }else if (DPTb.length==2) {
-                            DPTb = "0" + DPTb;
-                        }if (DPTb.length==3) {
-                            DPTb = "" + DPTb; // stupid, but for readability
-                        }
-                        ajsonOutput.push({ga:element.split("\t")[1],dpt:DPTa+"."+DPTb,devicename:element.split("\t")[0]});
-                    }
-                 }
-            }
-            if (_checkOnly) { 
-                return retLog;
-            } else {
-                return ajsonOutput;
-            }
-        }
-    }
+   
 
     RED.nodes.registerType("knxUltimate-config", knxUltimateConfigNode);
 }
+
+
