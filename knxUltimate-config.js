@@ -58,9 +58,9 @@ module.exports = (RED) => {
         //node.setClientStatus("disconnected","red","")
 
         // Entry point for reading csv from the other nodes
-RED.httpAdmin.get("/csv", RED.auth.needsPermission('knxUltimate-config.read'), function (req, res) {
-    res.json(node.csv)
-});
+        RED.httpAdmin.get("/knxUltimatecsv", RED.auth.needsPermission('knxUltimate-config.read'), function (req, res) {
+            res.json(node.csv)
+        });
         
         var knxErrorTimeout
         node.nodeClients = [] // Stores the registered clients

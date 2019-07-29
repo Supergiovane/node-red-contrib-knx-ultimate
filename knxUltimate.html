@@ -57,7 +57,8 @@
             $( "#node-input-topic" ).autocomplete({
                 minLength: 1,
                 source: function( request, response ) {
-                    $.getJSON("csv", request, function( data, status, xhr ) {
+                    //$.getJSON("csv", request, function( data, status, xhr ) {
+                    $.getJSON("knxUltimatecsv", (data) => {
                         response($.map(data, function (value, key) {
                             var sSearch = (value.ga + " (" + value.devicename+") DPT"+value.dpt).toUpperCase();
                             if (sSearch.indexOf(request.term.toUpperCase()) != -1) {				

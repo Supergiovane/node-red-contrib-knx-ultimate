@@ -1,5 +1,9 @@
 # node-red-contrib-knx-ultimate
 <p>
+<b>Version 1.0.4</b><br/>
+- Fixed possible issue with the csv ETS endpoint<br/>
+</p>
+<p>
 <b>Version 1.0.3</b><br/>
 - If ETS csv file is set, when typing a group address in the node, a list of KNX devices will be shown and when selected, it set the Datapoint and the Devicename automatically.<br/>
 </p>
