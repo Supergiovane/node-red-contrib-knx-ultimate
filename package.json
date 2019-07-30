@@ -1,6 +1,6 @@
 {
   "name": "node-red-contrib-knx-ultimate",
-  "version": "1.0.5",
+  "version": "1.0.7",
   "description": "Single Node KNX IN/OUT with optional ETS group address importer.",
   "dependencies": {
     "knx": "=>2.3.5"

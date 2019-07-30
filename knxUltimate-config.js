@@ -38,10 +38,8 @@ toConcattedSubtypes = (acc, baseType) => {
 
 
 
-
-
-
 module.exports = (RED) => {
+
 
     RED.httpAdmin.get("/knxUltimateDpts", RED.auth.needsPermission('knxUltimate-config.read'), function (req, res) {
         const dpts =
@@ -52,24 +50,40 @@ module.exports = (RED) => {
                 .reduce(toConcattedSubtypes, [])
 
         res.json(dpts)
-    });
+    })
 
     function knxUltimateConfigNode(config) {
         RED.nodes.createNode(this, config)
         var node = this
         node.host = config.host
         node.port = config.port
-        node.csv = toJsonCSV(config.csvincollato); // Array from ETS CSV Group Addresses
-        
+        node.csv = readCSV(config.csvincollato); // Array from ETS CSV Group Addresses
+
         // Entry point for reading csv from the other nodes
         RED.httpAdmin.get("/knxUltimatecsv", RED.auth.needsPermission('knxUltimate-config.read'), function (req, res) {
-             res.json(node.csv)
-         });
-         
-        var knxErrorTimeout
+           
+            res.json(node.csv)
+        });
+        
+       
+        var knxErrorTimeout;
         node.nodeClients = [] // Stores the registered clients
       
         node.addClient = (_Node) => {
+
+         // Check if the node has a valid topic and dpt
+        if (typeof _Node.topic == "undefined" || typeof _Node.dpt == "undefined") {
+            _Node.status({ fill: "red", shape: "dot", text: "Empty group address (topic) or datapoint." })
+            return;
+        } else {
+          
+            // Topic must be in formar x/x/x
+            if (_Node.topic.split("\/").length < 3) {
+                _Node.status({ fill: "red", shape: "dot", text: "Wrong group address (topic: " + _Node.topic + ") format." })
+                return;
+            }
+        }
+            
             // Add _Node to the clients array
             node.nodeClients.push(_Node)
             if (node.status === "connected" && _Node.initialread) {
@@ -81,7 +95,7 @@ module.exports = (RED) => {
             }
         }
 
-       
+      
         node.removeClient = (_Node) => {
             // Remove the client node from the clients array
             node.nodeClients = node.nodeClients.filter(x => x.id !== _Node.id)
@@ -92,7 +106,7 @@ module.exports = (RED) => {
             }
         }
       
-
+        
         node.readInitialValues = () => {
             var readHistory = []
             let delay = 50
@@ -106,7 +120,7 @@ module.exports = (RED) => {
                             if (readHistory.includes(element.ga)) return
                             setTimeout(() => node.readValue(element.ga), delay)
                             readHistory.push(element.ga)
-                        }                        
+                        }
                     } else {
                         if (readHistory.includes(oClient.topic)) return
                         setTimeout(() => node.readValue(oClient.topic), delay)
@@ -116,45 +130,52 @@ module.exports = (RED) => {
                     
                 })
         }
-
+       
     
         node.readValue = topic => {
             if (node.knxConnection) {
-                node.knxConnection.read(topic)
+                try {
+                    node.knxConnection.read(topic)
+                } catch (error) {
+                    RED.log.error('knxUltimate readValue: (' + topic + ') ' + error);
+                    node.setClientStatus("error tx", "red", 'readValue: (' + topic + ') ' + error)
+                }
+                
             }
         }
-
+        
         node.setClientStatus = (_status, _color, _text) => {
             node.status = _status
             function nextStatus(oClient) {
-                oClient.status({ fill: _color, shape: "dot", text: "("+ oClient.topic +") " + _status + " " + _text  })
+                oClient.status({ fill: _color, shape: "dot", text: "(" + oClient.topic + ") " + _status + " " + _text })
             }
             node.nodeClients.map(nextStatus)
         }
-
+        
         node.connect = () => {
-            node.setClientStatus("disconnected","red","")
+            
+            node.setClientStatus("disconnected", "red", "")
             node.knxConnection = new knx.Connection({
                 ipAddr: node.host,
                 ipPort: node.port,
                 handlers: {
                     connected: () => {
                         if (knxErrorTimeout == undefined) {
-                            node.setClientStatus("connected","green","")
+                            node.setClientStatus("connected", "green", "")
                             node.readInitialValues() // Perform initial read if applicable
                         }
                     },
-                    error: (connstatus) => {
-                        node.error(connstatus)
-                        if (connstatus == "E_KNX_CONNECTION") {
-                            node.setClientStatus("knxError","yellow","Error KNX BUS communication")
-                        } else {
-                            node.setClientStatus("disconnected","red","")
-                        }
+                    error: function(connstatus) {
+                        node.error(connstatus);
+                            if (connstatus == "E_KNX_CONNECTION") {
+                                node.setClientStatus("knxError", "yellow", "Error KNX BUS communication")
+                            } else {
+                                node.setClientStatus("disconnected", "red", "")
+                            }
                     }
                 }
             })
-
+            
             node.Disconnect = () => {
                 node.setClientStatus("disconnected", "red", "")
             }
@@ -170,13 +191,13 @@ module.exports = (RED) => {
                             .forEach(input => {
                                 if (input.listenallga) {
                                     // Get the GA from CVS
-                                    let oGA=node.csv.filter(sga => sga.ga == dest)[0]
+                                    let oGA = node.csv.filter(sga => sga.ga == dest)[0]
                                     let msg = buildInputMessage(src, dest, evt, rawValue, oGA.dpt, oGA.devicename)
-                                    input.status({ fill: "green", shape: "dot", text: "("+ msg.knx.destination +") " + msg.payload + " dpt:" + msg.knx.dpt })
-                                    input.send(msg)                                    
-                                }else if (input.topic == dest) {
+                                    input.status({ fill: "green", shape: "dot", text: "(" + msg.knx.destination + ") " + msg.payload + " dpt:" + msg.knx.dpt })
+                                    input.send(msg)
+                                } else if (input.topic == dest) {
                                     let msg = buildInputMessage(src, dest, evt, rawValue, input.dpt)
-                                    input.status({ fill: "green", shape: "dot", text: "("+ input.topic +") " + msg.payload})
+                                    input.status({ fill: "green", shape: "dot", text: "(" + input.topic + ") " + msg.payload })
                                     input.send(msg)
                                 }
                             })
@@ -189,13 +210,13 @@ module.exports = (RED) => {
                             .forEach(input => {
                                 if (input.listenallga) {
                                     // Get the DPT
-                                    let oGA=node.csv.filter(sga => sga.ga == dest)[0]
+                                    let oGA = node.csv.filter(sga => sga.ga == dest)[0]
                                     let msg = buildInputMessage(src, dest, evt, rawValue, oGA.dpt, oGA.devicename)
-                                    input.status({ fill: "blue", shape: "dot", text: "("+ msg.knx.destination +") " + msg.payload + " dpt:" + msg.knx.dpt })
-                                    input.send(msg)                                    
-                                }else if (input.topic == dest) {
+                                    input.status({ fill: "blue", shape: "dot", text: "(" + msg.knx.destination + ") " + msg.payload + " dpt:" + msg.knx.dpt })
+                                    input.send(msg)
+                                } else if (input.topic == dest) {
                                     let msg = buildInputMessage(src, dest, evt, rawValue, input.dpt)
-                                    input.status({ fill: "blue", shape: "dot", text: "("+ input.topic +") " + msg.payload})
+                                    input.status({ fill: "blue", shape: "dot", text: "(" + input.topic + ") " + msg.payload })
                                     input.send(msg)
                                 }
                             })
@@ -208,13 +229,13 @@ module.exports = (RED) => {
                             .forEach(input => {
                                 if (input.listenallga) {
                                     // Get the DPT
-                                    let oGA=node.csv.filter(sga => sga.ga == dest)[0]
+                                    let oGA = node.csv.filter(sga => sga.ga == dest)[0]
                                     let msg = buildInputMessage(src, dest, evt, null, oGA.dpt, oGA.devicename)
-                                    input.status({ fill: "grey", shape: "dot", text: "("+ msg.knx.destination +") read dpt:" + msg.knx.dpt })
-                                    input.send(msg)                                    
-                                }else if (input.topic == dest) {
+                                    input.status({ fill: "grey", shape: "dot", text: "(" + msg.knx.destination + ") read dpt:" + msg.knx.dpt })
+                                    input.send(msg)
+                                } else if (input.topic == dest) {
                                     let msg = buildInputMessage(src, dest, evt, null, input.dpt)
-                                    input.status({ fill: "grey", shape: "dot", text: "("+ input.topic +") read"})
+                                    input.status({ fill: "grey", shape: "dot", text: "(" + input.topic + ") read" })
                                     input.send(msg)
                                 }
                             })
@@ -225,10 +246,10 @@ module.exports = (RED) => {
             })
         }
 
-       
+      
 
         function buildInputMessage(src, dest, evt, value, inputDpt, _devicename) {
-            // Resolve DPT and convert value if available
+                  // Resolve DPT and convert value if available
             var dpt = dptlib.resolve(inputDpt)
             var jsValue = null
             if (dpt && value) {
@@ -251,15 +272,20 @@ module.exports = (RED) => {
                 , devicename: (typeof _devicename !== 'undefined') ? _devicename : ""
             }
         }
+    
 
-       
-
-        function toJsonCSV(_csvText) {
+        node.on("close", function () {
+            node.setClientStatus("disconnected","red","")
+            node.knxConnection = null
+        })
+ 
+        function readCSV(_csvText) {
+                
             var ajsonOutput = new Array(); // Array: qui va l'output totale con i nodi per node-red
-
+           
             if (_csvText == "") {
                 RED.log.info('knxUltimate: no csv ETS found');
-                return ajsonOutput;
+                return;
             } else {
                 RED.log.info('knxUltimate: csv ETS found !');
                 // Read and decode the CSV in an Array containing:  "group address", "DPT", "Device Name"
@@ -267,9 +293,9 @@ module.exports = (RED) => {
                 // Controllo se le righe dei gruppi contengono il separatore di tabulazione
                 if (fileGA[0].search("\t") == -1) {
                     RED.log.error('knxUltimate: ERROR: the csv ETS file must have the tabulation as separator')
-                    return ajsonOutput;
+                    return;
                 }
-           
+    
                 for (let index = 0; index < fileGA.length; index++) {
                     const element = fileGA[index].replace(/\"/g, ""); // Rimuovo le virgolette
                     if (element !== "") {
@@ -277,18 +303,12 @@ module.exports = (RED) => {
                             // Ho trovato una riga contenente un GA valido, cioè con 2 "/"
                             if (element.split("\t")[5] == "") {
                                 RED.log.error("knxUltimate: ERROR: Datapoint not set in ETS CSV. Please set the datapoint with ETS and export the group addresses again. ->" + element.split("\t")[0] + " " + element.split("\t")[1])
-                                return ajsonOutput;
+                                return;
                             }
                             var DPTa = element.split("\t")[5].split("-")[1];
-                            var DPTb = "";
-                            try {
-                                DPTb = element.split("\t")[5].split("-")[2];
-                            } catch (error) {
-                                DPTb = "001"; // default
-                            }
-                            if (!DPTb) {
-                                RED.log.warn("knxUltimate: WARNING: Datapoint not fully set (there is only the first part on the left of the '.'). I applied a default .001, but please set the datapoint with ETS and export the group addresses again. ->" + element.split("\t")[0] + " " + element.split("\t")[1] + " Datapoint: " + element.split("\t")[5]);
-                                retLog += "knxUltimate: WARNING: Datapoint not fully set (there is only the first part on the left of the '.'). I applied a default .001, but please set the datapoint with ETS and export the group addresses again. ->" + element.split("\t")[0] + " " + element.split("\t")[1] + " Datapoint: " + element.split("\t")[5] + "<br />"
+                            var DPTb = element.split("\t")[5].split("-")[2];
+                            if (typeof DPTb == "undefined") {
+                                RED.log.warn("knxUltimate: WARNING: Datapoint not fully set (there is only the first part on the left of the '.'). I applied a default .001, but please set the datapoint with ETS and export the group addresses again. ->" + element.split("\t")[0] + " " + element.split("\t")[1] + " Datapoint: " + element.split("\t")[5] );
                                 DPTb = "001"; // default
                             }
                             // Trailing zeroes
@@ -299,21 +319,26 @@ module.exports = (RED) => {
                             } if (DPTb.length == 3) {
                                 DPTb = "" + DPTb; // stupid, but for readability
                             }
-                            ajsonOutput.push({ ga: element.split("\t")[1], dpt: DPTa + "." + DPTb, devicename: element.split("\t")[0] });
+                            //RED.log.info("OK " + element.split("\t")[1]);
+                            // var riga = new Object();
+                            // riga.ga = encodeURIComponent(element.split("\t")[1]);
+                            // riga.dpt = encodeURIComponent( DPTa + "." + DPTb);
+                            // riga.devicename = encodeURIComponent(element.split("\t")[0]);
+                            // ajsonOutput.push(riga);
+                            ajsonOutput.push({ga:element.split("\t")[1], dpt:DPTa + "." + DPTb, devicename:element.split("\t")[0]});
+                            //Object.assign(ajsonOutput, {ga: element.split("\t")[1], dpt: DPTa + "." + DPTb, devicename: element.split("\t")[0] };
                         }
                     }
                 }
+                for (let index = 0; index < ajsonOutput.length; index++) {
+                    const element = ajsonOutput[index];
+                    RED.log.error("ARRAYLIST  " + element.ga + " " + element.dpt + " " + element.devicename);
+                }
+                
                 return ajsonOutput;
             }
-
+    
         }
-
-
-        node.on("close", function () {
-            node.setClientStatus("disconnected","red","")
-            node.knxConnection = null
-        })
- 
     
     }
 

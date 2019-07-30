@@ -1,5 +1,13 @@
 # node-red-contrib-knx-ultimate
 <p>
+<b>Version 1.0.6</b><br/>
+- Check for invalid node's group address (topic)<br/>
+</p>
+<p>
+<b>Version 1.0.5</b><br/>
+- Fixed the fix for the typo error causing a mess<br/>
+</p>
+<p>
 <b>Version 1.0.5</b><br/>
 - Fixed a typo error causing a mess<br/>
 </p>
