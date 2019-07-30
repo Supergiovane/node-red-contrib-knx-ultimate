@@ -1,6 +1,6 @@
 # node-red-contrib-knx-ultimate
 <p>
-<b>Version 1.0.6</b><br/>
+<b>Version 1.0.7</b><br/>
 - Check for invalid node's group address (topic)<br/>
 </p>
 <p>
