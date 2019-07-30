@@ -1,6 +1,6 @@
 # node-red-contrib-knx-ultimate
 <p>
-<b>Version 1.0.8</b><br/>
+<b>Version 1.0.11</b><br/>
 - Fixed knx dependency<br/>
 </p>
 <p>

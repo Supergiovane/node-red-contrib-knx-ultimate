@@ -57,7 +57,7 @@ module.exports = (RED) => {
         var node = this
         node.host = config.host
         node.port = config.port
-        node.csv = readCSV(config.csvincollato); // Array from ETS CSV Group Addresses
+        node.csv = readCSV(config.csv); // Array from ETS CSV Group Addresses
 
         // Entry point for reading csv from the other nodes
         RED.httpAdmin.get("/knxUltimatecsv", RED.auth.needsPermission('knxUltimate-config.read'), function (req, res) {
@@ -72,18 +72,20 @@ module.exports = (RED) => {
         node.addClient = (_Node) => {
 
          // Check if the node has a valid topic and dpt
-        if (typeof _Node.topic == "undefined" || typeof _Node.dpt == "undefined") {
-            _Node.status({ fill: "red", shape: "dot", text: "Empty group address (topic) or datapoint." })
-            return;
-        } else {
+            if (!_Node.listenallga) {
+                if (typeof _Node.topic == "undefined" || typeof _Node.dpt == "undefined") {
+                    _Node.status({ fill: "red", shape: "dot", text: "Empty group address (topic) or datapoint." })
+                    return;
+                } else {
           
-            // Topic must be in formar x/x/x
-            if (_Node.topic.split("\/").length < 3) {
-                _Node.status({ fill: "red", shape: "dot", text: "Wrong group address (topic: " + _Node.topic + ") format." })
-                return;
+                    // Topic must be in formar x/x/x
+                    if (_Node.topic.split("\/").length < 3) {
+                        _Node.status({ fill: "red", shape: "dot", text: "Wrong group address (topic: " + _Node.topic + ") format." })
+                        return;
+                    }
+                }
             }
-        }
-            
+
             // Add _Node to the clients array
             node.nodeClients.push(_Node)
             if (node.status === "connected" && _Node.initialread) {
@@ -138,7 +140,6 @@ module.exports = (RED) => {
                     node.knxConnection.read(topic)
                 } catch (error) {
                     RED.log.error('knxUltimate readValue: (' + topic + ') ' + error);
-                    node.setClientStatus("error tx", "red", 'readValue: (' + topic + ') ' + error)
                 }
                 
             }

@@ -13,15 +13,17 @@ module.exports = function (RED) {
         node.outputtype = config.outputtype || "write" // When the node is used as output
         
          // Check if the node has a valid topic and dpt
-         if (typeof node.topic == "undefined" || typeof node.dpt == "undefined") {
-            node.status({ fill: "red", shape: "dot", text: "Empty group address (topic) or datapoint." })
-            return;
-        } else {
-          
-            // Topic must be in formar x/x/x
-            if (node.topic.split("\/").length < 3) {
-                node.status({ fill: "red", shape: "dot", text: "Wrong group address (topic: " + node.topic + ") format." })
+        if(!node.listenallga){
+            if (typeof node.topic == "undefined" || typeof node.dpt == "undefined") {
+                node.status({ fill: "red", shape: "dot", text: "Empty group address (topic) or datapoint." })
                 return;
+            } else {
+            
+                // Topic must be in formar x/x/x
+                if (node.topic.split("\/").length < 3) {
+                    node.status({ fill: "red", shape: "dot", text: "Wrong group address (topic: " + node.topic + ") format." })
+                    return;
+                }
             }
         }
 
