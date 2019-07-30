@@ -1,5 +1,9 @@
 # node-red-contrib-knx-ultimate
 <p>
+<b>Version 1.0.15</b><br/>
+- Device Node outputs the name when ETS csv is not set too.<br/>
+</p>
+<p>
 <b>Version 1.0.14</b><br/>
 - Fixed knx dependency<br/>
 </p>

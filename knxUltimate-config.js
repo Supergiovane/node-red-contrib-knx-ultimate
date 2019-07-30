@@ -197,7 +197,7 @@ module.exports = (RED) => {
                                     input.status({ fill: "green", shape: "dot", text: "(" + msg.knx.destination + ") " + msg.payload + " dpt:" + msg.knx.dpt })
                                     input.send(msg)
                                 } else if (input.topic == dest) {
-                                    let msg = buildInputMessage(src, dest, evt, rawValue, input.dpt)
+                                    let msg = buildInputMessage(src, dest, evt, rawValue, input.dpt, input.name ? input.name :"")
                                     input.status({ fill: "green", shape: "dot", text: "(" + input.topic + ") " + msg.payload })
                                     input.send(msg)
                                 }
@@ -216,7 +216,7 @@ module.exports = (RED) => {
                                     input.status({ fill: "blue", shape: "dot", text: "(" + msg.knx.destination + ") " + msg.payload + " dpt:" + msg.knx.dpt })
                                     input.send(msg)
                                 } else if (input.topic == dest) {
-                                    let msg = buildInputMessage(src, dest, evt, rawValue, input.dpt)
+                                    let msg = buildInputMessage(src, dest, evt, rawValue, input.dpt, input.name ? input.name :"")
                                     input.status({ fill: "blue", shape: "dot", text: "(" + input.topic + ") " + msg.payload })
                                     input.send(msg)
                                 }
@@ -235,7 +235,7 @@ module.exports = (RED) => {
                                     input.status({ fill: "grey", shape: "dot", text: "(" + msg.knx.destination + ") read dpt:" + msg.knx.dpt })
                                     input.send(msg)
                                 } else if (input.topic == dest) {
-                                    let msg = buildInputMessage(src, dest, evt, null, input.dpt)
+                                    let msg = buildInputMessage(src, dest, evt, null, input.dpt, input.name ? input.name :"")
                                     input.status({ fill: "grey", shape: "dot", text: "(" + input.topic + ") read" })
                                     input.send(msg)
                                 }
