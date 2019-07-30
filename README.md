@@ -5,7 +5,6 @@
 [![NPM downloads total][npm-downloads-total-image]][npm-url]
 [![MIT License][license-image]][license-url]
 [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
-[![Build Status](https://travis-ci.org/Rafelder/knx-datapoints.svg?branch=master)](https://travis-ci.org/Rafelder/knx-datapoints)
 
 
 ![Sample Node](img/sample.png) 
@@ -114,8 +113,8 @@ We now issue a 'read' request. Note that the node, can automatically issue a 're
 ```
 
 [license-image]: https://img.shields.io/badge/license-MIT-blue.svg
-[license-url]: https://github.com/Rafelder/knx-datapoints/blob/master/LICENSE
-[npm-url]: https://npmjs.org/package/knx-datapoints
-[npm-version-image]: https://img.shields.io/npm/v/knx-datapoints.svg
-[npm-downloads-month-image]: https://img.shields.io/npm/dm/knx-datapoints.svg
-[npm-downloads-total-image]: https://img.shields.io/npm/dt/knx-datapoints.svg
+[license-url]: https://github.com/Supergiovane/node-red-contrib-knx-ultimate/master/LICENSE
+[npm-url]: https://npmjs.org/package/node-red-contrib-knx-ultimate
+[npm-version-image]: https://img.shields.io/npm/v/node-red-contrib-knx-ultimate.svg
+[npm-downloads-month-image]: https://img.shields.io/npm/dm/node-red-contrib-knx-ultimate.svg
+[npm-downloads-total-image]: https://img.shields.io/npm/dt/node-red-contrib-knx-ultimate.svg
