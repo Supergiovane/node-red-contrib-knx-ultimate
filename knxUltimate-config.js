@@ -319,20 +319,9 @@ module.exports = (RED) => {
                             } if (DPTb.length == 3) {
                                 DPTb = "" + DPTb; // stupid, but for readability
                             }
-                            //RED.log.info("OK " + element.split("\t")[1]);
-                            // var riga = new Object();
-                            // riga.ga = encodeURIComponent(element.split("\t")[1]);
-                            // riga.dpt = encodeURIComponent( DPTa + "." + DPTb);
-                            // riga.devicename = encodeURIComponent(element.split("\t")[0]);
-                            // ajsonOutput.push(riga);
                             ajsonOutput.push({ga:element.split("\t")[1], dpt:DPTa + "." + DPTb, devicename:element.split("\t")[0]});
-                            //Object.assign(ajsonOutput, {ga: element.split("\t")[1], dpt: DPTa + "." + DPTb, devicename: element.split("\t")[0] };
                         }
                     }
-                }
-                for (let index = 0; index < ajsonOutput.length; index++) {
-                    const element = ajsonOutput[index];
-                    RED.log.error("ARRAYLIST  " + element.ga + " " + element.dpt + " " + element.devicename);
                 }
                 
                 return ajsonOutput;

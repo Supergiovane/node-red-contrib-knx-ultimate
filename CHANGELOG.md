@@ -1,5 +1,9 @@
 # node-red-contrib-knx-ultimate
 <p>
+<b>Version 1.0.8</b><br/>
+- Fixed knx dependency<br/>
+</p>
+<p>
 <b>Version 1.0.7</b><br/>
 - Check for invalid node's group address (topic)<br/>
 </p>
