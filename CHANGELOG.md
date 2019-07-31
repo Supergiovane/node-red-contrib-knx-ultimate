@@ -1,7 +1,7 @@
 # node-red-contrib-knx-ultimate
 <p>
 <b>Version 1.0.16</b><br/>
-- Circular reference protection (when 2 nodes with same group address are link toghether, the protection avoids loops.).<br/>
+- Circular reference protection (when 2 nodes with same group address are linked toghether, the protection avoids loops.).<br/>
 </p>
 <p>
 <b>Version 1.0.15</b><br/>
