@@ -6,6 +6,8 @@
 [![MIT License][license-image]][license-url]
 [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
 
+# NODE INPUT MESSAGE HAS CHANGED SINCE v.1.0.16. PLEASE SEE IN THE WIKI, the new messages input format!!!
+
 
 ![Sample Node](img/sample.png) 
 
