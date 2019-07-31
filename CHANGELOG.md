@@ -2,6 +2,7 @@
 <p>
 <b>Version 1.0.16</b><br/>
 - Circular reference protection (when 2 nodes with same group address are linked toghether, the protection avoids loops.).<br/>
+- Input message format has been CHANGED! please see the wiki!!!.<br/>
 </p>
 <p>
 <b>Version 1.0.15</b><br/>
