@@ -100,8 +100,9 @@ module.exports = (RED) => {
       
         node.removeClient = (_Node) => {
             // Remove the client node from the clients array
+            // RED.log.info(node.nodeClients.length + "Node " + node.id + " has been unsubscribed from receiving KNX messages. ");
             node.nodeClients = node.nodeClients.filter(x => x.id !== _Node.id)
-            // If no clien nodes, disconnect from bus.
+              // If no clien nodes, disconnect from bus.
             if (node.nodeClients.length === 0) {
                 node.Disconnect()
                 node.knxConnection = null
@@ -250,7 +251,7 @@ module.exports = (RED) => {
       
 
         function buildInputMessage(src, dest, evt, value, inputDpt, _devicename) {
-                  // Resolve DPT and convert value if available
+            // Resolve DPT and convert value if available
             var dpt = dptlib.resolve(inputDpt)
             var jsValue = null
             if (dpt && value) {
@@ -265,7 +266,7 @@ module.exports = (RED) => {
                 {
                     event: evt
                     , dpt: inputDpt
-                    , dptDetails: dpt
+                    //, dptDetails: dpt
                     , source: src
                     , destination: dest
                     , rawValue: value

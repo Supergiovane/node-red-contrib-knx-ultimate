@@ -11,7 +11,7 @@ module.exports = function (RED) {
         node.initialread = config.initialread || false
         node.listenallga = config.listenallga || false
         node.outputtype = config.outputtype || "write" // When the node is used as output
-        
+       
          // Check if the node has a valid topic and dpt
         if(!node.listenallga){
             if (typeof node.topic == "undefined" || typeof node.dpt == "undefined") {
@@ -28,24 +28,37 @@ module.exports = function (RED) {
         }
 
         node.on("input", function (msg) {
-            // 25/07/2019 if payload is read, do a read, otherwise, write to the bus
+            if (!msg) return;
+
+                        // 25/07/2019 if payload is read, do a read, otherwise, write to the bus
             if (msg.hasOwnProperty('readstatus') && msg.readstatus === true) {
                 // READ: Send a Read request to the bus
                 if (node.server) {
                     var grpaddr = ""
                     if (!node.listenallga) {
-                        grpaddr = msg.knx && msg.knx.destination ? msg.knx.destination : node.topic
+                        grpaddr = msg && msg.destination ? msg.destination : node.topic
+                        node.status({ fill: "grey", shape: "dot", text: "Read (" + grpaddr + ")" });
                         node.server.readValue(grpaddr)
                     } else { // Listen all GAs
-                        if (msg.knx && msg.knx.destination) {
+                        if (msg.destination) {
                             // listenallga is true, but the user specified own group address
-                            grpaddr = msg.knx.destination
+                            grpaddr = msg.destination
                             node.server.readValue(grpaddr)
                         } else {
                            // Issue read to all group addresses
+                            let delay = 50;
                             for (let index = 0; index < node.server.csv.length; index++) {
                                 const element = node.server.csv[index];
-                                node.server.readValue(element.ga)}
+                                setTimeout(() => {
+                                    node.server.readValue(element.ga);
+                                    node.status({ fill: "yellow", shape: "dot", text: "Request (" + element.ga + ")" });
+                                }, delay);
+                                delay = delay + 60;
+                            }
+                            // setTimeout(() => {
+                            //     node.status({ fill: "yellow", shape: "dot", text: "Done requests." });
+                            // }, delay+500);
+                            
                         }
                        
                     }
@@ -56,10 +69,10 @@ module.exports = function (RED) {
                 if (node.server) {
                     if (node.server.knxConnection) {
                         let outputtype =
-                            msg.knx && msg.knx.event
-                                ? msg.knx.event == "GroupValue_Response"
+                            msg.event
+                                ? msg.event == "GroupValue_Response"
                                     ? "response"
-                                    : msg.knx.event == "GroupValue_Write"
+                                    : msg.event == "GroupValue_Write"
                                         ? "write"
                                         : node.outputtype
                                 : node.outputtype
@@ -68,33 +81,41 @@ module.exports = function (RED) {
                         var dpt = "";
                         if (node.listenallga) {
                             // The node is set to listen to all Group Addresses. The msg.knx.destination is needed.
-                            if (msg.knx && msg.knx.destination) {
-                                grpaddr = msg.knx.destination;
+                            if (msg.destination) {
+                                grpaddr = msg.destination;
                             } else {
-                                node.status({ fill: "red", shape: "dot", text: "msg.knx.destination not set!" })
+                                node.status({ fill: "red", shape: "dot", text: "msg.destination not set!" })
                                 return;
                             }
                         } else {
-                            grpaddr = msg.knx && msg.knx.destination
-                            ? msg.knx.destination
+                            grpaddr = msg.destination
+                            ? msg.destination
                             : node.topic
                         }
                         
                         if (node.listenallga) {
-                            // The node is set to listen to all Group Addresses. Gets the datapoint from the CSV or use the msg.knx.dpt.
-                            if (msg.knx && msg.knx.dpt) {
-                                dpt = msg.knx.dpt;
+                            // The node is set to listen to all Group Addresses. Gets the datapoint from the CSV or use the msg.dpt.
+                            if (msg.dpt) {
+                                dpt = msg.dpt;
                             } else {
                                 // Get the datapoint from the CSV
                                 let oGA=node.server.csv.filter(sga => sga.ga == grpaddr)[0]
                                 dpt=oGA.dpt
                             }
                         } else {
-                            dpt = msg.knx && msg.knx.dpt
-                            ? msg.knx.dpt
+                            dpt = msg.dpt
+                            ? msg.dpt
                             : node.dpt
                         }
-                        
+                        // Protection over circular references (for example, if you link two Ultimate Nodes toghether with the same group address), to prevent infinite loops
+                        if (msg.topic == grpaddr &&  msg.knx) { 
+                            RED.log.error("Circular reference protection. The node " + node.id + " has been disabled. " + JSON.stringify(msg));
+                            setTimeout(() => {
+                                node.status({ fill: "red", shape: "ring", text: "Node DISABLED due to a circulare reference (" + grpaddr + "). Two nodes with same group address are linked. Unlink it." })
+                            }, 1000);
+                            //node.server.removeClient(node);
+                            return;
+                        }
                         if (outputtype == "response") {
                             node.server.knxConnection.respond(grpaddr, msg.payload, dpt)
                             node.status({ fill: "green", shape: "dot", text: "Respond ("+ grpaddr +") " + msg.payload + " dpt:" + dpt })
@@ -109,7 +130,7 @@ module.exports = function (RED) {
             
             
         })
-
+        
         node.on('close', function () {
             if (node.server) {
                 node.server.removeClient(node)
