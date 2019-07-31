@@ -108,13 +108,15 @@ module.exports = function (RED) {
                             : node.dpt
                         }
                         // Protection over circular references (for example, if you link two Ultimate Nodes toghether with the same group address), to prevent infinite loops
-                        if (msg.topic == grpaddr &&  msg.knx) { 
-                            RED.log.error("Circular reference protection. The node " + node.id + " has been disabled. " + JSON.stringify(msg));
-                            setTimeout(() => {
-                                node.status({ fill: "red", shape: "ring", text: "Node DISABLED due to a circulare reference (" + grpaddr + "). Two nodes with same group address are linked. Unlink it." })
-                            }, 1000);
-                            //node.server.removeClient(node);
-                            return;
+                        if (msg.hasOwnProperty('topic')) { 
+                            if (msg.topic == grpaddr && msg.knx) {
+                                RED.log.error("Circular reference protection. The node " + node.id + " has been disabled. " + JSON.stringify(msg));
+                                setTimeout(() => {
+                                    node.status({ fill: "red", shape: "ring", text: "Node DISABLED due to a circulare reference (" + grpaddr + "). Two nodes with same group address are linked. Unlink it." })
+                                }, 1000);
+                                //node.server.removeClient(node);
+                                return;
+                            }
                         }
                         if (outputtype == "response") {
                             node.server.knxConnection.respond(grpaddr, msg.payload, dpt)
