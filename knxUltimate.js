@@ -83,8 +83,7 @@ module.exports = function (RED) {
                     if (newVal=="true") {
                         newVal = "1";
                     }
-                    RED.log.error("inputrbe "+ node.inputRBE + " curval " +curVal + " newwal " + newVal )
-                    if (curVal == newVal) {
+                     if (curVal == newVal) {
                         node.status({ fill: "grey", shape: "ring", text: "rbe filter applied on " + msg.payload })
                         return;
                     }
