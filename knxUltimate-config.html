@@ -4,7 +4,6 @@
         defaults: {
             host: {value:"224.0.23.12",required:true},
             port: {value:3671,required:true,validate:RED.validators.number()},
-            interface: {value:"eth0",required:true},
             // the KNX physical address we'd like to use
             physAddr: {value:"15.15.22",required:true},
             // enable this option to suppress the acknowledge flag with outgoing L_Data.req requests. LoxOne needs this
@@ -47,10 +46,6 @@
     </div>
 
     <div class="form-row">
-        <label for="node-config-input-interface"><i class="icon-bookmark"></i> ETH Interface</label>
-        <input type="text" id="node-config-input-interface">
-    </div>
-    <div class="form-row">
         <label for="node-config-input-physAddr"><i class="icon-bookmark"></i> KNX Physical Addrress</label>
         <input type="text" id="node-config-input-physAddr">
     </div>
@@ -70,4 +65,5 @@
 
 <script type="text/x-red" data-help-name="knxUltimate-config">
 <p><b>ETS Group Addresses list</b>: Optionally, you can paste here the CSV file from ETS. This CSV will then be used by the knxUltimate node (if you select "Listen to all Group Addresses" on the knxUltimate node) to automatically decode all the raw values received from the KNX bus. These values will then be outputted by the msg.payload</p>
+<p>For other options, please <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki">see the wiki here.</a></p>
 </script>

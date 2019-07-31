@@ -12,14 +12,15 @@
             notifywrite: { value: true },
             listenallga: { value: false },
             name: { value: "" },
-            outputtype: { value: "write" }
+            outputtype: { value: "write" },
+            inputRBE: { value: false }
         },
         inputs: 1,
         outputs: 1,
         align: "left",
         icon: "knx.png",
         label: function () {
-            return this.name || this.topic || "knx-ultimate"
+            return (this.inputRBE==true?"|rbe| ":"") + this.name || this.topic || "knx-ultimate"
         },
         oneditprepare: function () {
             $.getJSON('knxUltimateDpts', (data) => {
@@ -159,13 +160,13 @@
         <label for="node-input-name"><i class="fa fa-tag"></i> Name </label>
         <input type="text" id="node-input-name" placeholder="Name">
     </div>
-    <dd>
+    
         <div class="form-row">
-            <input type="checkbox" id="node-input-listenallga" style="display:inline-block; width:auto; vertical-align:top;">
-            <label style="width:auto" for="node-input-listenallga"> Listen to all Group Addresses (using ETS file)</label>
-            <div id="helpallga"><i>   You must import your ETS file, otherwise this option is disabled.<br />Please see the config node. <br />Once imported, please click deploy to enable this option</i></div>
+             <label style="width:auto" for="node-input-listenallga"> Listen to all Group Addresses (using ETS file)</label>
+                <input type="checkbox" id="node-input-listenallga" style="display:inline-block; width:auto; vertical-align:top;">
+                <div id="helpallga"><i>   You must import your ETS file, otherwise this option is disabled.<br />Please see the config node. <br />Once imported, please click deploy to enable this option</i></div>
         </div>
-    </dd>
+    
     <dt>OUTPUT (sends datagram to the KNX bus)</dt>
     <div class="form-row">
         <label for="node-input-outputtype"> Output Type </label>
@@ -174,6 +175,13 @@
             <option value="response">Response</option>
         </select>
     </div>
+    <dd>
+        <div class="form-row">
+            <input type="checkbox" id="node-input-inputRBE" style="display:inline-block; width:auto; vertical-align:top;">
+            <label style="width:auto" for="node-input-inputRBE"> RBE filter - only passes on data to KNX bus if the payload has changed</label>
+            <div id="helpallga"><i>  The RBE (Report by Exception) filter, writes to KNX bus only if the received <b>msg.payload</b> differs from the current value.<br/>For example, if the <i>kitchen light</i> is on (true) and you send again a msg.payload=true to the node,<br/>the value will not be written again to the bus. This is useful to avoid loops.</i></div>
+        </div>
+    </dd>
     <dd>
         <div class="form-row">
             <input type="checkbox" id="node-input-initialread" style="display:inline-block; width:auto; vertical-align:top;">
@@ -235,7 +243,10 @@
         
                     <dt>Send a GroupValue read once on connection/reconnect</dt>
                     <dd>On connection/reconnection, the node will send a 'read' request to the group address specified on the <b>Group Address</b> or, if <i>Listen to all Group Addresses (using ETS file)</i> is selected, on all group addresses specified on the ETS csv file.</dd>
-            </dl>
+
+                    <dt>RBE filter - only passes on data to KNX bus if the payload has changed</dt>
+                    <dd>The RBE (Report by Exception) filter, only passes on data if the payload has changed. The node writes to KNX bus only if the received msg.payload differs from the current value. For example, if the kitchen light is on (true) and you send again a msg.payload=true to the node, the value will not be written again to the bus. This is useful to avoid loops.</dd>
+                </dl>
            
             <h3>INPUT (listen to datagram from the KNX bus)</h3>
             <dl class="message-properties">

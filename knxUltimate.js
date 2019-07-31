@@ -11,9 +11,11 @@ module.exports = function (RED) {
         node.initialread = config.initialread || false
         node.listenallga = config.listenallga || false
         node.outputtype = config.outputtype || "write" // When the node is used as output
+        node.inputRBE = config.inputRBE || "false" // Apply or not RBE to the input
+        node.currentPayload = "" // Current value for the RBE input
        
          // Check if the node has a valid topic and dpt
-        if(!node.listenallga){
+        if(node.listenallga==false){
             if (typeof node.topic == "undefined" || typeof node.dpt == "undefined") {
                 node.status({ fill: "red", shape: "dot", text: "Empty group address (topic) or datapoint." })
                 return;
@@ -30,12 +32,12 @@ module.exports = function (RED) {
         node.on("input", function (msg) {
             if (!msg) return;
 
-                        // 25/07/2019 if payload is read, do a read, otherwise, write to the bus
+            // 25/07/2019 if payload is read, do a read, otherwise, write to the bus
             if (msg.hasOwnProperty('readstatus') && msg.readstatus === true) {
                 // READ: Send a Read request to the bus
                 if (node.server) {
                     var grpaddr = ""
-                    if (!node.listenallga) {
+                    if (node.listenallga==false) {
                         grpaddr = msg && msg.destination ? msg.destination : node.topic
                         node.status({ fill: "grey", shape: "dot", text: "Read (" + grpaddr + ")" });
                         node.server.readValue(grpaddr)
@@ -65,6 +67,28 @@ module.exports = function (RED) {
                         
                  }
             } else {
+                // Applying RBE filter
+                if (node.inputRBE==true) {
+                    var curVal=node.currentPayload.toString();
+                    var newVal=msg.payload.toString();
+                    if (curVal=="false") {
+                        curVal = "0";
+                    }
+                    if (curVal=="true") {
+                        curVal = "1";
+                    }
+                    if (newVal=="false") {
+                        newVal = "0";
+                    }
+                    if (newVal=="true") {
+                        newVal = "1";
+                    }
+                    RED.log.error("inputrbe "+ node.inputRBE + " curval " +curVal + " newwal " + newVal )
+                    if (curVal == newVal) {
+                        node.status({ fill: "grey", shape: "ring", text: "rbe filter applied on " + msg.payload })
+                        return;
+                    }
+                }
                 // OUTPUT: Send message to the bus (write/response)
                 if (node.server) {
                     if (node.server.knxConnection) {
@@ -79,7 +103,7 @@ module.exports = function (RED) {
                         
                         var grpaddr = "";
                         var dpt = "";
-                        if (node.listenallga) {
+                        if (node.listenallga==true) {
                             // The node is set to listen to all Group Addresses. The msg.knx.destination is needed.
                             if (msg.destination) {
                                 grpaddr = msg.destination;
@@ -93,7 +117,7 @@ module.exports = function (RED) {
                             : node.topic
                         }
                         
-                        if (node.listenallga) {
+                        if (node.listenallga==true) {
                             // The node is set to listen to all Group Addresses. Gets the datapoint from the CSV or use the msg.dpt.
                             if (msg.dpt) {
                                 dpt = msg.dpt;

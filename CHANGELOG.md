@@ -1,11 +1,11 @@
 # node-red-contrib-knx-ultimate
 <p>
-<b>Version 1.0.16</b><br/>
+<b>Version 1.0.18</b><br/>
 - Added gateway options:<br/>
-    ETH Interface <br/>
     KNX Physical Address<br/>
     Suppress ACK request<br/>
     This option help compatibility with old Siemens SWG1 148-1AB22 IP Interface <br/>
+- Added RBE option to the input (Report by Exception node - only passes on data if the payload has changed)<br/>
 </p>
 <p>
 <b>Version 1.0.16</b><br/>

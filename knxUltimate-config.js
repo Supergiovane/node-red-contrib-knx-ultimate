@@ -57,7 +57,6 @@ module.exports = (RED) => {
         var node = this
         node.host = config.host
         node.port = config.port
-        node.interface = config.interface || "eth0"; // Normally, EHT0
         node.physAddr = config.physAddr || "15.15.22"; // the KNX physical address we'd like to use
         node.suppress_ack_ldatareq = config.suppress_ack_ldatareq || false; // enable this option to suppress the acknowledge flag with outgoing L_Data.req requests. LoxOne needs this
         node.csv = readCSV(config.csv); // Array from ETS CSV Group Addresses
@@ -75,7 +74,7 @@ module.exports = (RED) => {
         node.addClient = (_Node) => {
 
          // Check if the node has a valid topic and dpt
-            if (!_Node.listenallga) {
+            if (_Node.listenallga==false) {
                 if (typeof _Node.topic == "undefined" || typeof _Node.dpt == "undefined") {
                     _Node.status({ fill: "red", shape: "dot", text: "Empty group address (topic) or datapoint." })
                     return;
@@ -119,7 +118,7 @@ module.exports = (RED) => {
             node.nodeClients
                 .filter(oClient => oClient.initialread)
                 .forEach(oClient => {
-                    if (oClient.listenallga) {
+                    if (oClient.listenallga==true) {
                         delay = delay + 60
                         for (let index = 0; index < node.csv.length; index++) {
                             const element = node.csv[index];
@@ -163,7 +162,6 @@ module.exports = (RED) => {
             node.knxConnection = new knx.Connection({
                 ipAddr: node.host,
                 ipPort: node.port,
-                interface: node.interface, // Normally, EHT0
                 physAddr: node.physAddr, // the KNX physical address we'd like to use
                 suppress_ack_ldatareq:node.suppress_ack_ldatareq,
                 handlers: {
@@ -197,7 +195,7 @@ module.exports = (RED) => {
                         node.nodeClients
                             .filter(input => input.notifywrite)
                             .forEach(input => {
-                                if (input.listenallga) {
+                                if (input.listenallga==true) {
                                     // Get the GA from CVS
                                     let oGA = node.csv.filter(sga => sga.ga == dest)[0]
                                     let msg = buildInputMessage(src, dest, evt, rawValue, oGA.dpt, oGA.devicename)
@@ -205,6 +203,7 @@ module.exports = (RED) => {
                                     input.send(msg)
                                 } else if (input.topic == dest) {
                                     let msg = buildInputMessage(src, dest, evt, rawValue, input.dpt, input.name ? input.name :"")
+                                    input.currentPayload = msg.payload;// Set the current value for the RBE input
                                     input.status({ fill: "green", shape: "dot", text: "(" + input.topic + ") " + msg.payload })
                                     input.send(msg)
                                 }
@@ -216,7 +215,7 @@ module.exports = (RED) => {
                         node.nodeClients
                             .filter(input => input.notifyresponse)
                             .forEach(input => {
-                                if (input.listenallga) {
+                                if (input.listenallga==true) {
                                     // Get the DPT
                                     let oGA = node.csv.filter(sga => sga.ga == dest)[0]
                                     let msg = buildInputMessage(src, dest, evt, rawValue, oGA.dpt, oGA.devicename)
@@ -224,6 +223,7 @@ module.exports = (RED) => {
                                     input.send(msg)
                                 } else if (input.topic == dest) {
                                     let msg = buildInputMessage(src, dest, evt, rawValue, input.dpt, input.name ? input.name :"")
+                                    input.currentPayload = msg.payload; // Set the current value for the RBE input
                                     input.status({ fill: "blue", shape: "dot", text: "(" + input.topic + ") " + msg.payload })
                                     input.send(msg)
                                 }
@@ -235,7 +235,7 @@ module.exports = (RED) => {
                         node.nodeClients
                             .filter(input => input.notifyreadrequest)
                             .forEach(input => {
-                                if (input.listenallga) {
+                                if (input.listenallga==true) {
                                     // Get the DPT
                                     let oGA = node.csv.filter(sga => sga.ga == dest)[0]
                                     let msg = buildInputMessage(src, dest, evt, null, oGA.dpt, oGA.devicename)
