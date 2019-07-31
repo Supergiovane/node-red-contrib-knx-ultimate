@@ -57,6 +57,9 @@ module.exports = (RED) => {
         var node = this
         node.host = config.host
         node.port = config.port
+        node.interface = config.interface || "eth0"; // Normally, EHT0
+        node.physAddr = config.physAddr || "15.15.22"; // the KNX physical address we'd like to use
+        node.suppress_ack_ldatareq = config.suppress_ack_ldatareq || false; // enable this option to suppress the acknowledge flag with outgoing L_Data.req requests. LoxOne needs this
         node.csv = readCSV(config.csv); // Array from ETS CSV Group Addresses
 
         // Entry point for reading csv from the other nodes
@@ -160,6 +163,9 @@ module.exports = (RED) => {
             node.knxConnection = new knx.Connection({
                 ipAddr: node.host,
                 ipPort: node.port,
+                interface: node.interface, // Normally, EHT0
+                physAddr: node.physAddr, // the KNX physical address we'd like to use
+                suppress_ack_ldatareq:node.suppress_ack_ldatareq,
                 handlers: {
                     connected: () => {
                         if (knxErrorTimeout == undefined) {

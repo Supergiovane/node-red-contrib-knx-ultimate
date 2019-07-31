@@ -4,6 +4,11 @@
         defaults: {
             host: {value:"224.0.23.12",required:true},
             port: {value:3671,required:true,validate:RED.validators.number()},
+            interface: {value:"eth0",required:true},
+            // the KNX physical address we'd like to use
+            physAddr: {value:"15.15.22",required:true},
+            // enable this option to suppress the acknowledge flag with outgoing L_Data.req requests. LoxOne needs this
+            suppress_ack_ldatareq: {value: false},
             csv: {value:"",required:false}
         },
         oneditsave: function() {
@@ -40,6 +45,21 @@
         <label for="node-config-input-port"><i class="icon-bookmark"></i> Port</label>
         <input type="text" id="node-config-input-port">
     </div>
+
+    <div class="form-row">
+        <label for="node-config-input-interface"><i class="icon-bookmark"></i> ETH Interface</label>
+        <input type="text" id="node-config-input-interface">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-physAddr"><i class="icon-bookmark"></i> KNX Physical Addrress</label>
+        <input type="text" id="node-config-input-physAddr">
+    </div>
+    <div class="form-row">
+        <input type="checkbox" id="node-input-suppress_ack_ldatareq" style="display:inline-block; width:auto; vertical-align:top;">
+        <label style="width:auto" for="node-input-suppress_ack_ldatareq"> Suppress ACK request</label>
+        <div id="helpallga"> This option help compatibility with old Siemens SWG1 148-1AB22 IP Interface firmware</div>
+    </div>
+
     <div class="form-row">
         <label for="node-config-input-csv"><i class="icon-bookmark"></i> ETS Group Addresses list</label>
         <br /><i>On ETS, click the group addresses list, then right click, then select 'export group addresses'. On the export window, select these options -> Output Format: CSV, CSV Format: 1/1 Name/Address, Export with header line: checked, CSV Separator: Tabulator. </i><br />
