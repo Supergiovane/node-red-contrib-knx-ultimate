@@ -148,17 +148,17 @@ module.exports = (RED) => {
             }
         }
         
-        node.setClientStatus = (_status, _color, _text) => {
+        node.setAllClientsStatus = (_status, _color, _text) => {
             node.status = _status
             function nextStatus(oClient) {
-                oClient.status({ fill: _color, shape: "dot", text: "(" + oClient.topic + ") " + _status + " " + _text })
+                oClient.setStatus( _color, "dot", "(" + oClient.topic + ") " + _status + " " + _text )
             }
             node.nodeClients.map(nextStatus)
         }
         
         node.connect = () => {
             
-            node.setClientStatus("disconnected", "red", "")
+            node.setAllClientsStatus("disconnected", "red", "")
             node.knxConnection = new knx.Connection({
                 ipAddr: node.host,
                 ipPort: node.port,
@@ -167,23 +167,23 @@ module.exports = (RED) => {
                 handlers: {
                     connected: () => {
                         if (knxErrorTimeout == undefined) {
-                            node.setClientStatus("connected", "green", "")
+                            node.setAllClientsStatus("connected", "green", "")
                             node.readInitialValues() // Perform initial read if applicable
                         }
                     },
                     error: function(connstatus) {
                         node.error(connstatus);
                             if (connstatus == "E_KNX_CONNECTION") {
-                                node.setClientStatus("knxError", "yellow", "Error KNX BUS communication")
+                                node.setAllClientsStatus("knxError", "yellow", "Error KNX BUS communication")
                             } else {
-                                node.setClientStatus("disconnected", "red", "")
+                                node.setAllClientsStatus("disconnected", "red", "")
                             }
                     }
                 }
             })
             
             node.Disconnect = () => {
-                node.setClientStatus("disconnected", "red", "")
+                node.setAllClientsStatus("disconnected", "red", "")
             }
 
             // Handle BUS events
@@ -199,12 +199,12 @@ module.exports = (RED) => {
                                     // Get the GA from CVS
                                     let oGA = node.csv.filter(sga => sga.ga == dest)[0]
                                     let msg = buildInputMessage(src, dest, evt, rawValue, oGA.dpt, oGA.devicename)
-                                    input.status({ fill: "green", shape: "dot", text: "(" + msg.knx.destination + ") " + msg.payload + " dpt:" + msg.knx.dpt })
+                                    input.setStatus("green","dot","(" + msg.knx.destination + ") " + msg.payload + " dpt:" + msg.knx.dpt);
                                     input.send(msg)
                                 } else if (input.topic == dest) {
                                     let msg = buildInputMessage(src, dest, evt, rawValue, input.dpt, input.name ? input.name :"")
                                     input.currentPayload = msg.payload;// Set the current value for the RBE input
-                                    input.status({ fill: "green", shape: "dot", text: "(" + input.topic + ") " + msg.payload })
+                                    input.setStatus("green", "dot", "(" + input.topic + ") " + msg.payload);
                                     input.send(msg)
                                 }
                             })
@@ -219,12 +219,12 @@ module.exports = (RED) => {
                                     // Get the DPT
                                     let oGA = node.csv.filter(sga => sga.ga == dest)[0]
                                     let msg = buildInputMessage(src, dest, evt, rawValue, oGA.dpt, oGA.devicename)
-                                    input.status({ fill: "blue", shape: "dot", text: "(" + msg.knx.destination + ") " + msg.payload + " dpt:" + msg.knx.dpt })
+                                    input.setStatus("blue", "dot", "(" + msg.knx.destination + ") " + msg.payload + " dpt:" + msg.knx.dpt);
                                     input.send(msg)
                                 } else if (input.topic == dest) {
                                     let msg = buildInputMessage(src, dest, evt, rawValue, input.dpt, input.name ? input.name :"")
                                     input.currentPayload = msg.payload; // Set the current value for the RBE input
-                                    input.status({ fill: "blue", shape: "dot", text: "(" + input.topic + ") " + msg.payload })
+                                    input.setStatus("blue", "dot", "(" + input.topic + ") " + msg.payload);
                                     input.send(msg)
                                 }
                             })
@@ -239,11 +239,11 @@ module.exports = (RED) => {
                                     // Get the DPT
                                     let oGA = node.csv.filter(sga => sga.ga == dest)[0]
                                     let msg = buildInputMessage(src, dest, evt, null, oGA.dpt, oGA.devicename)
-                                    input.status({ fill: "grey", shape: "dot", text: "(" + msg.knx.destination + ") read dpt:" + msg.knx.dpt })
+                                    input.setStatus("grey", "dot","(" + msg.knx.destination + ") read dpt:" + msg.knx.dpt);
                                     input.send(msg)
                                 } else if (input.topic == dest) {
                                     let msg = buildInputMessage(src, dest, evt, null, input.dpt, input.name ? input.name :"")
-                                    input.status({ fill: "grey", shape: "dot", text: "(" + input.topic + ") read" })
+                                    input.setStatus("grey", "dot", "(" + input.topic + ") read");
                                     input.send(msg)
                                 }
                             })
@@ -283,7 +283,7 @@ module.exports = (RED) => {
     
 
         node.on("close", function () {
-            node.setClientStatus("disconnected","red","")
+            node.setAllClientsStatus("disconnected","red","")
             node.knxConnection = null
         })
  

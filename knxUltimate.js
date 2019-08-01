@@ -13,7 +13,8 @@ module.exports = function (RED) {
         node.outputtype = config.outputtype || "write" // When the node is used as output
         node.inputRBE = config.inputRBE || "false" // Apply or not RBE to the input
         node.currentPayload = "" // Current value for the RBE input
-       
+        var icountMessageInWindow = 0; // Used to prevent looping messages
+
          // Check if the node has a valid topic and dpt
         if(node.listenallga==false){
             if (typeof node.topic == "undefined" || typeof node.dpt == "undefined") {
@@ -27,6 +28,12 @@ module.exports = function (RED) {
                     return;
                 }
             }
+        }
+
+        // Used to call the status update from the config node.
+        node.setStatus = (_color, _shape, _text) => {
+            if (icountMessageInWindow == -999) return; // Locked out, doesn't change status.
+            node.status({ fill: _color, shape: _shape, text: _text });
         }
 
         node.on("input", function (msg) {
@@ -88,6 +95,25 @@ module.exports = function (RED) {
                         return;
                     }
                 }
+
+                // Anti looping check
+                if (icountMessageInWindow == -999) return; // Lock out
+                if (icountMessageInWindow == 0) {
+                    setTimeout(() => {
+                        if (icountMessageInWindow >= 80) {
+                            // Looping detected
+                            setTimeout(() => {
+                                node.status({ fill: "red", shape: "dot", text: "DISABLED! Looping detected! Check your flow's design or use RBE option." })
+                                RED.log.error("Node " + node.id + " has been disabled due to loop detection. Check your flow's design or use RBE option.");
+                            }, 1000);
+                            icountMessageInWindow = -999; //Lock out node
+                            return;
+                        }else{icountMessageInWindow = -1;}
+                    }, 1000);
+                } 
+                icountMessageInWindow += 1;
+                        
+
                 // OUTPUT: Send message to the bus (write/response)
                 if (node.server) {
                     if (node.server.knxConnection) {

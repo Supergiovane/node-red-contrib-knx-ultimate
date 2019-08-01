@@ -6,7 +6,6 @@
 [![MIT License][license-image]][license-url]
 [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
 
-# NODE INPUT MESSAGE HAS CHANGED SINCE v.1.0.16. See in the WIKI, the new messages input format!!!
 
 ![Sample Node](img/sample.png) 
 
@@ -27,37 +26,68 @@ Thanks to that, the knx-ultimate node where you selected **Listen to all Group A
 
 <a href="https://youtu.be/I32_qG7yhFc" target="_blank"><img src='https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/yt.png' width='100%'></a>
 
+**Sample ETS csv file to paste into your config for testing pourposes**
+> Copy/Paste this into your configuration node.
 
-
-
-
-## EXAMPLES (Others are in the Wiki)
-
-### SET DATE/TIME FROM NODE-RED TO KNX BUS
-
-<img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/datetime.png" width="50%"><br/>
-
-To set the date and time, you'll use 2 separate devices. <br/>
-Set the datapoint of the 'Date' device to 11.001<br/>
-Set the datapoint of the 'Time' device to 10.001<br/>
-To set the date, use this code in a function (adjust the locale (it-IT) and Timezone to match your country):<br/>
 ```js
-return {payload:new Date().toLocaleDateString('it-IT',
-        {year:"2-digit",
-        month:"2-digit", 
-        day:"2-digit",
-        timeZone: 'Europe/Rome'})}
+"Group name"	"Address"	"Central"	"Unfiltered"	"Description"	"DatapointType"	"Security"
+"Attuatori luci"	"0/-/-"	""	""	"Attuatori luci"	""	"Auto"
+"Luci primo piano"	"0/0/-"	""	""	"Luci primo piano"	""	"Auto"
+"Camera da letto luce"	"0/0/1"	""	""	"Camera da letto luce"	"DPST-1-8"	"Auto"
+"Loggia camera da letto"	"0/0/2"	""	""	"Loggia camera da letto"	"DPST-1-1"	"Auto"
+"Camera armadi luce"	"0/0/3"	""	""	"Camera armadi luce"	"DPST-1-1"	"Auto"
+"Bagno grande luce"	"0/0/4"	""	""	"Bagno grande luce"	"DPST-1-1"	"Auto"
+"Loggia bagno grande"	"0/0/5"	""	""	"Loggia bagno grande"	"DPST-1-1"	"Auto"
+"Bagno grande specchio (switch)"	"0/0/6"	""	""	"Bagno grande specchio switch"	"DPST-1-1"	"Auto"
+"Lavanderia luce"	"0/0/7"	""	""	"Lavanderia luce"	"DPST-1-1"	"Auto"
+"Lavanderia specchio (switch)"	"0/0/8"	""	""	"Lavanderia specchio switch"	"DPST-1-1"	"Auto"
+"Studio luce"	"0/0/9"	""	""	"Studio luce"	"DPST-1-1"	"Auto"
+"Soggiorno luce (switch)"	"0/0/10"	""	""	"Soggiorno luce switch"	"DPST-1-1"	"Auto"
+"Soggiorno aplique (switch)"	"0/0/11"	""	""	"Soggiorno aplique switch"	"DPST-1-1"	"Auto"
+"Loggia soggiorno cucina"	"0/0/12"	""	""	"Loggia soggiorno-cucina"	"DPST-1-1"	"Auto"
+"Cucina luce"	"0/0/13"	""	""	"Cucina luce"	"DPT-1"	"Auto"
+"Cucina luce pensili"	"0/0/14"	""	""	"Cucina luce pensili"	"DPT-1"	"Auto"
+"Corridoio luce"	"0/0/15"	""	""	"Corridoio luce"	"DPST-1-1"	"Auto"
+"Scala LED"	"0/0/16"	""	""	"Scala LED"	"DPST-1-1"	"Auto"
+"Soggiorno aplique brighness value"	"0/0/17"	""	""	""	"DPST-5-1"	"Auto"
+"Bagno grande specchio (dim)"	"0/0/18"	""	""	"Bagno grande specchio dim"	"DPST-3-7"	"Auto"
+"Soggiorno luce brighness value"	"0/0/19"	""	""	""	"DPST-5-1"	"Auto"
+"Lavanderia specchio (dim)"	"0/0/20"	""	""	"Lavanderia specchio dim"	"DPST-3-7"	"Auto"
+"Scala LED cambiacolori RGB"	"0/0/21"	""	""	""	"DPST-1-1"	"Auto"
+"Bagno grande specchio brightness value"	"0/0/22"	""	""	""	"DPST-5-1"	"Auto"
+"Soggiorno luce (dim)"	"0/0/23"	""	""	"Soggiorno luce dim"	"DPST-3-7"	"Auto"
 ```
+
+### CIRCULAR REFERENCE PROTECTION
+
+<a href="https://youtu.be/I32_qG7yhFc" target="_blank"><img src='https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/Loop.png' width='70%'></a>
+> The Node has a circular reference protection. If 2 nodes with same group address are linked toghether, the protection avoids loops by stopping the message transmitted to the KNX BUS.
+
+### AUTOMATIC LOOP PROTECTION
+> Protect the flow form being flooded by KNX telegram, in case of mistaken in the flow design, by DISABLING the affected node.
+
+
 <br/>
-To set the time, use this code in a function (adjust the locale (it-IT) and Timezone to match your country):<br/>
 
-```js
-return {payload:new Date().toLocaleTimeString('it-IT',
-    {hour: '2-digit', hour12: false,
-    minute: '2-digit',
-    second: '2-digit',
-    timeZone: 'Europe/Rome'})}
-```
+### WIKI PAGES TO START FROM FRESH
+
+> GATEWAY CONFIGURATION: <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/1.-Gateway-configuration" target="_blank"> click here.</a>
+>
+> NODE CONFIGURATION: <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/2.-Node-Configuration" target="_blank"> click here.</a>
+>
+> MESSAGES FROM THE NODE: <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/3.-Messages-from-the-node" target="_blank"> click here.</a>
+>
+> MESSAGES TO THE NODE: <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/4.-Messages-to-the-node" target="_blank"> click here.</a>
+>
+> SAMPLES: <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/5.-Samples" target="_blank"> click here.</a>
+
+<br/>
+<br/>
+<br/>
+<br/>
+
+
+## BRIEF TOUR (Samples are in the <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki">Wiki</a>)
 
 
 ### TURN ON AND OFF A LAMP

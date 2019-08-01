@@ -1,5 +1,9 @@
 # node-red-contrib-knx-ultimate
 <p>
+<b>Version 1.0.19</b><br/>
+- Automatic loop protection<br/>
+</p>
+<p>
 <b>Version 1.0.18</b><br/>
 - Added gateway options:<br/>
     KNX Physical Address<br/>
