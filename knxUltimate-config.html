@@ -46,19 +46,19 @@
     </div>
 
     <div class="form-row">
-        <label for="node-config-input-physAddr"><i class="icon-bookmark"></i> KNX Physical Addrress</label>
+        <label for="node-config-input-physAddr"><i class="fa fa-microchip"></i> KNX Physical Addrress</label>
         <input type="text" id="node-config-input-physAddr">
     </div>
     <div class="form-row">
         <input type="checkbox" id="node-input-suppress_ack_ldatareq" style="display:inline-block; width:auto; vertical-align:top;">
-        <label style="width:auto" for="node-input-suppress_ack_ldatareq"> Suppress ACK request</label>
+        <label style="width:auto" for="node-input-suppress_ack_ldatareq">&nbsp;&nbsp;<i class="fa fa-ban"></i>  Suppress ACK request</label>
         <div id="helpallga"> This option help compatibility with old Siemens SWG1 148-1AB22 IP Interface firmware</div>
     </div>
 
     <div class="form-row">
-        <label for="node-config-input-csv"><i class="icon-bookmark"></i> ETS Group Addresses list</label>
+        <label for="node-config-input-csv"><i class="fa fa-th-list"></i> ETS Group Addresses list</label>
         <br /><i>On ETS, click the group addresses list, then right click, then select 'export group addresses'. On the export window, select these options -> Output Format: CSV, CSV Format: 1/1 Name/Address, Export with header line: checked, CSV Separator: Tabulator. </i><br />
-        <a href="https://youtu.be/I32_qG7yhFc" target="_blank">See how on Youtube</a>
+        <a href="https://youtu.be/I32_qG7yhFc" target="_blank">See how to export the CSV on Youtube</a>
         <textarea rows=20 id="node-config-input-csv" style="width:100%" placeholder="Paste here your CSV exported file from ETS">
     </div>
 </script>

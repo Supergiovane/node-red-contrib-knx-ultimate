@@ -1,5 +1,9 @@
 # node-red-contrib-knx-ultimate
 <p>
+<b>Version 1.0.20 LTS (Long term stable)</b><br/>
+- Cosmetic adjustment<br/>
+</p>
+<p>
 <b>Version 1.0.19</b><br/>
 - Automatic loop protection<br/>
 </p>

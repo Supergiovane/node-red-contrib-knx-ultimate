@@ -160,16 +160,17 @@
         <label for="node-input-name"><i class="fa fa-tag"></i> Name </label>
         <input type="text" id="node-input-name" placeholder="Name">
     </div>
-    
-        <div class="form-row">
-                <input type="checkbox" id="node-input-listenallga" style="display:inline-block; width:auto; vertical-align:top;">
-                <label style="width:auto" for="node-input-listenallga"> Listen to all Group Addresses (using ETS file)</label>
-                <div id="helpallga"><i>   You must import your ETS file, otherwise this option is disabled.<br />Please see the config node. <br />Once imported, please click deploy to enable this option</i></div>
-        </div>
-    
-    <dt>OUTPUT (sends datagram to the KNX bus)</dt>
     <div class="form-row">
-        <label for="node-input-outputtype"> Output Type </label>
+            <label>&nbsp;</label>
+            <input type="checkbox" id="node-input-listenallga" style="display:inline-block; width:auto; vertical-align:top;">
+            <label style="width:auto" for="node-input-listenallga">&nbsp;&nbsp;<i class="fa fa-th-list"></i> Listen to all Group Addresses (using ETS file)</label>
+            <div id="helpallga"><i> You must import your ETS file, otherwise this option is disabled.<br />Please see the config node. <br />Once imported, please click deploy to enable this option</i></div>
+    </div>
+
+    <br/ ><dt><i class="fa fa-code-fork"></i>&nbsp; OUTPUT (sends datagram to the KNX bus)</dt><br/ >
+    <div class="form-row">
+        <label>&nbsp;</label>
+        <label for="node-input-outputtype"><i class="fa fa-rocket"></i> Output Type </label>
         <select id="node-input-outputtype">
             <option value="write">Write</option>
             <option value="response">Response</option>
@@ -177,35 +178,39 @@
     </div>
     <dd>
         <div class="form-row">
+            <label>&nbsp;</label>
             <input type="checkbox" id="node-input-inputRBE" style="display:inline-block; width:auto; vertical-align:top;">
-            <label style="width:auto" for="node-input-inputRBE"> RBE filter - only passes on data to KNX bus if the payload has changed</label>
-            <div id="helpallga"><i>  The RBE (Report by Exception) filter, writes to KNX bus only if the received <b>msg.payload</b><br/> differs from the current value.<br/>For example, if the <i>kitchen light</i> is on (true) and you send again a msg.payload=true to the node,<br/>the value will not be written again to the bus. This is useful to avoid loops.</i></div>
-        </div>
+            <label style="width:auto" for="node-input-inputRBE">&nbsp;&nbsp;<i class="fa fa-filter"></i> RBE filter - send payload to KNX bus only if changed</label>
+         </div>
     </dd>
     <dd>
         <div class="form-row">
+            <label>&nbsp;</label>
             <input type="checkbox" id="node-input-initialread" style="display:inline-block; width:auto; vertical-align:top;">
-            <label style="width:auto" for="node-input-initialread"> Send a GroupValue read once on connection/reconnect </label>
+            <label style="width:auto" for="node-input-initialread">&nbsp;&nbsp;<i class="fa fa-question-circle-o"></i> Send a GrpValue read once on connection/reconnect</label>
         </div>
     </dd>
    
-    <dt>INPUT (listen to datagram from the KNX bus)</dt>
+    <br/ ><dt><i class="fa fa-code-fork"></i>&nbsp; INPUT (listen to datagram from the KNX bus)</dt><br/ >
         <dd>
             <div class="form-row">
+            <label>&nbsp;</label>
             <input type="checkbox" id="node-input-notifywrite" style="display:inline-block; width:auto; vertical-align:top;">
-            <label style="width:auto" for="node-input-notifywrite"> React to event GroupValue write </label>
+            <label style="width:auto" for="node-input-notifywrite">&nbsp;&nbsp;<i class="fa fa-sign-in"></i> React to event GroupValue write </label>
             </div>
         </dd>
         <dd>
             <div class="form-row">
+            <label>&nbsp;</label>
             <input type="checkbox" id="node-input-notifyresponse" style="display:inline-block; width:auto; vertical-align:top;">
-            <label style="width:auto" for="node-input-notifyresponse"> React to event GroupValue response </label>
+            <label style="width:auto" for="node-input-notifyresponse">&nbsp;&nbsp;<i class="fa fa-sign-in"></i> React to event GroupValue response </label>
             </div>
         </dd>
         <dd>
             <div class="form-row">
+             <label>&nbsp;</label>
             <input type="checkbox" id="node-input-notifyreadrequest" style="display:inline-block; width:auto; vertical-align:top;">
-            <label style="width:auto" for="node-input-notifyreadrequest"> React to event GroupValue read </label>
+            <label style="width:auto" for="node-input-notifyreadrequest">&nbsp;&nbsp;<i class="fa fa-sign-in"></i> React to event GroupValue read </label>
             </div>
         </dd>
 </script>
