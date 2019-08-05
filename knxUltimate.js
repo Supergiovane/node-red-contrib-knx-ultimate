@@ -37,7 +37,7 @@ module.exports = function (RED) {
         }
 
         node.on("input", function (msg) {
-            if (!msg) return;
+            if (typeof msg === "undefined") return;
 
             // 25/07/2019 if payload is read, do a read, otherwise, write to the bus
             if (msg.hasOwnProperty('readstatus') && msg.readstatus === true) {
@@ -74,28 +74,29 @@ module.exports = function (RED) {
                         
                  }
             } else {
-                // Applying RBE filter
-                if (node.inputRBE==true) {
-                    var curVal=node.currentPayload.toString();
-                    var newVal=msg.payload.toString();
-                    if (curVal=="false") {
-                        curVal = "0";
+                if (node.listenallga == false) {
+                    // Applying RBE filter
+                    if (node.inputRBE==true) {
+                        var curVal=node.currentPayload.toString();
+                        var newVal=msg.payload.toString();
+                        if (curVal=="false") {
+                            curVal = "0";
+                        }
+                        if (curVal=="true") {
+                            curVal = "1";
+                        }
+                        if (newVal=="false") {
+                            newVal = "0";
+                        }
+                        if (newVal=="true") {
+                            newVal = "1";
+                        }
+                        if (curVal == newVal) {
+                            node.status({ fill: "grey", shape: "ring", text: "rbe filter applied on " + msg.payload })
+                            return;
+                        }
                     }
-                    if (curVal=="true") {
-                        curVal = "1";
-                    }
-                    if (newVal=="false") {
-                        newVal = "0";
-                    }
-                    if (newVal=="true") {
-                        newVal = "1";
-                    }
-                     if (curVal == newVal) {
-                        node.status({ fill: "grey", shape: "ring", text: "rbe filter applied on " + msg.payload })
-                        return;
-                    }
-                }
-
+                }   
                 // Anti looping check
                 if (icountMessageInWindow == -999) return; // Lock out
                 if (icountMessageInWindow == 0) {
@@ -188,11 +189,18 @@ module.exports = function (RED) {
             }
         })
 
+        // On each deploy, unsubscribe+resubscribe
+        // Unsubscribe(Subscribe)
         if (node.server) {
-            if (node.topic || node.listenallga ) {
-                node.server.addClient(node)
+            node.server.removeClient(node);
+            //node.status({ fill: "grey", shape: "ring", text: "Unsubscribed" });
+            if (node.topic || node.listenallga) {
+                node.server.addClient(node);
+                //(node.status({ fill: "green", shape: "ring", text: "Ready" })
             }
+            
         }
+       
     }
     RED.nodes.registerType("knxUltimate", knxUltimate)
 }

@@ -49,8 +49,11 @@
             $("#node-input-listenallga").on('change',function() {
                 if ($("#node-input-listenallga").is(":checked")) {
                     $("#GAandDPT").hide()
+                    $("#divRBE").hide()
+                    $("#node-input-inputRBE").prop('checked', false)
                 }else{
                     $("#GAandDPT").show()
+                    $("#divRBE").show()
                 }
             })
 
@@ -90,12 +93,14 @@
                     //$("#node-input-listenallga").prop("disabled", true);
                     $("#node-input-listenallga").prop("checked", false)
                     $("#GAandDPT").show()
+                    $("#divRBE").show()
                     $("#helpallga").show()
                 }
             }else{
                 //$("#node-input-listenallga").prop("disabled", true);
                 $("#node-input-listenallga").prop("checked", false)
                 $("#GAandDPT").show()
+                $("#divRBE").show()
                 $("#helpallga").show()
             }
         },
@@ -125,12 +130,14 @@
                     //$("#node-input-listenallga").prop("disabled", true);
                     $("#node-input-listenallga").prop("checked", false)
                     $("#GAandDPT").show()
+                    $("#divRBE").show()
                     $("#helpallga").show()
                 }
             }else{
                 //$("#node-input-listenallga").prop("disabled", true);
                 $("#node-input-listenallga").prop("checked", false)
                 $("#GAandDPT").show()
+                $("#divRBE").show()
                 $("#helpallga").show()
             }
         }
@@ -177,7 +184,7 @@
         </select>
     </div>
     <dd>
-        <div class="form-row">
+        <div class="form-row" id="divRBE">
             <label>&nbsp;</label>
             <input type="checkbox" id="node-input-inputRBE" style="display:inline-block; width:auto; vertical-align:top;">
             <label style="width:auto" for="node-input-inputRBE">&nbsp;&nbsp;<i class="fa fa-filter"></i> RBE filter - send payload to KNX bus only if changed</label>

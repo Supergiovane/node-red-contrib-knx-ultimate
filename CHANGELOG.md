@@ -1,6 +1,8 @@
 # node-red-contrib-knx-ultimate
 <p>
-<b>Version 1.0.20 LTS (Long term stable)</b><br/>
+<b>Version 1.1.0 LTS (Long term stable)</b><br/>
+- Once disabled for loop or circular reference protection, the node can be re-enabled by simply click on deploy "modified nodes"<br/>
+- When "listen to all group addresses" is selected, the RBE filter is disabled.<br/>
 - Cosmetic adjustment<br/>
 </p>
 <p>

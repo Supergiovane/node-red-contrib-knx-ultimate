@@ -103,11 +103,13 @@ module.exports = (RED) => {
         node.removeClient = (_Node) => {
             // Remove the client node from the clients array
             // RED.log.info(node.nodeClients.length + "Node " + node.id + " has been unsubscribed from receiving KNX messages. ");
-            node.nodeClients = node.nodeClients.filter(x => x.id !== _Node.id)
+            try {node.nodeClients = node.nodeClients.filter(x => x.id !== _Node.id)
+            } catch (error) {}
+            
               // If no clien nodes, disconnect from bus.
             if (node.nodeClients.length === 0) {
-                node.Disconnect()
-                node.knxConnection = null
+                node.Disconnect();
+                node.knxConnection = null;
             }
         }
       
@@ -182,10 +184,6 @@ module.exports = (RED) => {
                 }
             })
             
-            node.Disconnect = () => {
-                node.setAllClientsStatus("disconnected", "red", "")
-            }
-
             // Handle BUS events
             node.knxConnection.on("event", function (evt, src, dest, rawValue) {
                 //RED.log.info(src + " " + dest + " " + evt)
@@ -254,7 +252,9 @@ module.exports = (RED) => {
             })
         }
 
-      
+        node.Disconnect = () => {
+            node.setAllClientsStatus("disconnected", "red", "")
+        }
 
         function buildInputMessage(src, dest, evt, value, inputDpt, _devicename) {
             // Resolve DPT and convert value if available
