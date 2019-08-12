@@ -304,9 +304,25 @@ module.exports = (RED) => {
                     return;
                 }
     
+                var sFirstGroupName = "";
+                var sSecondGroupName = "";
+                var sFather="";
                 for (let index = 0; index < fileGA.length; index++) {
                     const element = fileGA[index].replace(/\"/g, ""); // Rimuovo le virgolette
                     if (element !== "") {
+                        
+                        // Main and secondary group names
+                        if ((element.split("\t")[1].match(/-/g) || []).length == 2) {
+                            // Found main group family name (Example Light Actuators)
+                            sFirstGroupName = element.split("\t")[0] || "";
+                            sSecondGroupName = "";
+                        }
+                        if ((element.split("\t")[1].match(/-/g)||[]).length==1) {
+                            // Found second group family name (Example First Floor light)
+                            sSecondGroupName = element.split("\t")[0] || "";
+                        }
+                        if(sFirstGroupName!=="" && sSecondGroupName !==""){sFather="(" + sFirstGroupName + "->" +sSecondGroupName + ") " }
+                       
                         if (element.split("\t")[1].search("-") == -1 && element.split("\t")[1].search("/") !== -1) {
                             // Ho trovato una riga contenente un GA valido, cioè con 2 "/"
                             if (element.split("\t")[5] == "") {
@@ -327,7 +343,7 @@ module.exports = (RED) => {
                             } if (DPTb.length == 3) {
                                 DPTb = "" + DPTb; // stupid, but for readability
                             }
-                            ajsonOutput.push({ga:element.split("\t")[1], dpt:DPTa + "." + DPTb, devicename:element.split("\t")[0]});
+                            ajsonOutput.push({ga:element.split("\t")[1], dpt:DPTa + "." + DPTb, devicename: sFather + element.split("\t")[0]});
                         }
                     }
                 }

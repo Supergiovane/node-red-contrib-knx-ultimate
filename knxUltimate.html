@@ -78,7 +78,12 @@
                     });
                 },select: function(event, ui) {
                     // Sets Datapoint and device name automatically
-                    $('#node-input-name').val(ui.item.label.split("#")[1].trim());
+                    var sDevName=ui.item.label.split("#")[1].trim();
+                    try {
+                        sDevName=sDevName.substr(sDevName.indexOf(")")+1).trim();
+                    } catch (error) {
+                    }
+                    $('#node-input-name').val(sDevName);
                     var optVal = $("#node-input-dpt option:contains('"+ui.item.label.split("#")[2].trim()+"')").attr('value');
                     // Select the option value 
                     $("#node-input-dpt").val(optVal);

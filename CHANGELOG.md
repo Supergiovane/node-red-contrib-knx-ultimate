@@ -7,6 +7,7 @@
 <p>
 <b>Version 1.1.1</b><br/>
 - Disambigued misinterpretation of the "disconnect" status.<br/>
+- In the autocomplete box of KNX device names, when you type in the group address or the device's name, it shows the main and subgroup name as well<br/>
 - Cosmetic adjustment<br/>
 - In-Line help additions<br/>
 </p>
