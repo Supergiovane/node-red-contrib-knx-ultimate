@@ -10,7 +10,7 @@
 [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
 [![Donate via PayPal](https://img.shields.io/badge/Donate-PayPal-blue.svg?style=flat-square)](https://www.paypal.me/techtoday) 
 
-![Sample Node](img/samplereadmemain.png) 
+![Sample Node](img/readmemain.png) 
 
 ## DESCRIPTION
 Knx-ultimate is a powerfull device node, all-in-one. It acts as input device as well as output device at the same time.<br />
