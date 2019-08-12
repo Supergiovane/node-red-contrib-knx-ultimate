@@ -64,6 +64,25 @@
 </script>
 
 <script type="text/x-red" data-help-name="knxUltimate-config">
-<p><b>ETS Group Addresses list</b>: Optionally, you can paste here the CSV file from ETS. This CSV will then be used by the knxUltimate node (if you select "Listen to all Group Addresses" on the knxUltimate node) to automatically decode all the raw values received from the KNX bus. These values will then be outputted by the msg.payload</p>
+To be able to interact with the KNX bus, you need to configure the Node's gateway. It stores the default ETH/KNX Router's multicast address as well as the default port. It should work with the default values.
+<br/>
+<p>
+<b>Host</b><br/>
+ETH/KNX Router's multicast address.
+</p>
+<p>
+<b>Port</b><br/>
+ETH/KNX Router's multicast port.
+</p>
+<p>
+<b>KNX Physical Address</b><br/>
+Local KNX physical addres, identifying the KNX device. Default "15.15.22". This is not a group address, this represents the unique address of a konnex device in a konnex installation.
+</p>
+<p>
+<b>Suppress ACK request</b><br/>
+This option help compatibility with old Siemens SWG1 148-1AB22 IP Interface firmware and other EHT/KNX interfaces that does'nt like the ACK. Default "unchecked". Check it to help compatibility
+</p>
+<p><b>ETS Group Addresses list</b><br/>
+Optionally, you can paste here the CSV file from ETS. This CSV will then be used by the knxUltimate node (if you select "Listen to all Group Addresses" on the knxUltimate node) to automatically decode all the raw values received from the KNX bus. These values will then be outputted by the msg.payload</p>
 <p>For other options, please <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki">see the wiki here.</a></p>
 </script>

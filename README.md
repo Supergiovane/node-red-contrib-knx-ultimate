@@ -1,5 +1,8 @@
 # node-red-contrib-knx-ultimate
 
+![Sample Node](img/logo.png) 
+
+
 [![NPM version][npm-version-image]][npm-url]
 [![NPM downloads per month][npm-downloads-month-image]][npm-url]
 [![NPM downloads total][npm-downloads-total-image]][npm-url]

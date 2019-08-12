@@ -1,4 +1,12 @@
 # node-red-contrib-knx-ultimate
+![Sample Node](img/logo.png) 
+
+<p>
+<b>Version 1.1.1</b><br/>
+- Disambigued misinterpretation of the "disconnect" status.<br/>
+- Cosmetic adjustment<br/>
+- In-Line help additions<br/>
+</p>
 <p>
 <b>Version 1.1.0 LTS (Long term stable)</b><br/>
 - Once disabled for loop or circular reference protection, the node can be re-enabled by simply click on deploy "modified nodes"<br/>

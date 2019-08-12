@@ -160,7 +160,7 @@ module.exports = (RED) => {
         
         node.connect = () => {
             
-            node.setAllClientsStatus("disconnected", "red", "")
+            node.setAllClientsStatus("Waiting", "grey", "")
             node.knxConnection = new knx.Connection({
                 ipAddr: node.host,
                 ipPort: node.port,
@@ -178,7 +178,7 @@ module.exports = (RED) => {
                             if (connstatus == "E_KNX_CONNECTION") {
                                 node.setAllClientsStatus("knxError", "yellow", "Error KNX BUS communication")
                             } else {
-                                node.setAllClientsStatus("disconnected", "red", "")
+                                node.setAllClientsStatus("Waiting", "grey", "")
                             }
                     }
                 }
@@ -253,7 +253,7 @@ module.exports = (RED) => {
         }
 
         node.Disconnect = () => {
-            node.setAllClientsStatus("disconnected", "red", "")
+            node.setAllClientsStatus("Waiting", "grey", "")
         }
 
         function buildInputMessage(src, dest, evt, value, inputDpt, _devicename) {
@@ -283,7 +283,7 @@ module.exports = (RED) => {
     
 
         node.on("close", function () {
-            node.setAllClientsStatus("disconnected","red","")
+            node.setAllClientsStatus("Waiting","grey","")
             node.knxConnection = null
         })
  
