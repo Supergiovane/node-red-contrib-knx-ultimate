@@ -1,5 +1,8 @@
 # node-red-contrib-knx-ultimate
+
 ![Sample Node](img/logo.png) 
+
+[![Donate via PayPal](https://img.shields.io/badge/Donate-PayPal-blue.svg?style=flat-square)](https://www.paypal.me/techtoday) 
 
 <p>
 <b>Version 1.1.1</b><br/>
