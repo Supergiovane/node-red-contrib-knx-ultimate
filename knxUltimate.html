@@ -13,6 +13,7 @@
             listenallga: { value: false },
             name: { value: "" },
             outputtype: { value: "write" },
+            outputRBE: { value: false },
             inputRBE: { value: false }
         },
         inputs: 1,
@@ -20,7 +21,7 @@
         align: "left",
         icon: "knx.png",
         label: function () {
-            return (this.inputRBE==true?"|rbe| ":"") + this.name || this.topic || "knx-ultimate"
+            return (this.outputRBE==true ? "|rbe| " : "") + (this.name || this.topic || "knx-ultimate") + (this.inputRBE==true ? " |rbe|" : "" )
         },
         oneditprepare: function () {
             $.getJSON('knxUltimateDpts', (data) => {
@@ -49,12 +50,15 @@
             $("#node-input-listenallga").on('change',function() {
                 if ($("#node-input-listenallga").is(":checked")) {
                     $("#GAandDPT").hide()
-                    $("#divRBE").hide()
+                    $("#divOutputRBE").hide()
+                    $("#node-input-outputRBE").prop('checked', false)
+                    $("#divInputRBE").hide()
                     $("#node-input-inputRBE").prop('checked', false)
                     
                 }else{
                     $("#GAandDPT").show()
-                    $("#divRBE").show()
+                    $("#divOutputRBE").show()
+                    $("#divInputRBE").show()
                 }
             })
 
@@ -99,14 +103,16 @@
                     //$("#node-input-listenallga").prop("disabled", true);
                     $("#node-input-listenallga").prop("checked", false)
                     $("#GAandDPT").show()
-                    $("#divRBE").show()
+                    $("#divOutputRBE").show()
+                    $("#divInputRBE").show()
                     $("#helpallga").show()
                 }
             }else{
                 //$("#node-input-listenallga").prop("disabled", true);
                 $("#node-input-listenallga").prop("checked", false)
                 $("#GAandDPT").show()
-                $("#divRBE").show()
+                $("#divOutputRBE").show()
+                $("#divInputRBE").show()
                 $("#helpallga").show()
             }
         },
@@ -136,14 +142,16 @@
                     //$("#node-input-listenallga").prop("disabled", true);
                     $("#node-input-listenallga").prop("checked", false)
                     $("#GAandDPT").show()
-                    $("#divRBE").show()
+                    $("#divOutputRBE").show()
+                    $("#divInputRBE").show()
                     $("#helpallga").show()
                 }
             }else{
                 //$("#node-input-listenallga").prop("disabled", true);
                 $("#node-input-listenallga").prop("checked", false)
                 $("#GAandDPT").show()
-                $("#divRBE").show()
+                $("#divOutputRBE").show()
+                $("#divInputRBE").show()
                 $("#helpallga").show()
             }
         }
@@ -190,10 +198,10 @@
         </select>
     </div>
     <dd>
-        <div class="form-row" id="divRBE">
+        <div class="form-row" id="divOutputRBE">
             <label>&nbsp;</label>
-            <input type="checkbox" id="node-input-inputRBE" style="display:inline-block; width:auto; vertical-align:top;">
-            <label style="width:auto" for="node-input-inputRBE">&nbsp;&nbsp;<i class="fa fa-filter"></i> RBE filter - send payload to KNX bus only if changed</label>
+            <input type="checkbox" id="node-input-outputRBE" style="display:inline-block; width:auto; vertical-align:top;">
+            <label style="width:auto" for="node-input-outputRBE">&nbsp;&nbsp;<i class="fa fa-filter"></i> Send payload to KNX bus only if changed (RBE filter)</label>
          </div>
     </dd>
     <dd>
@@ -209,6 +217,13 @@
             <label style="width:auto"><i class="fa fa-times-circle"></i>&nbsp;The node will not respond to telegrams coming from the KNX bus,<br />
             <i class="fa fa-times-circle"></i>&nbsp; unless you tick some checks here below.</label>
         </div> -->
+        <dd>
+            <div class="form-row" id="divInputRBE">
+                <label>&nbsp;</label>
+                <input type="checkbox" id="node-input-inputRBE" style="display:inline-block; width:auto; vertical-align:top;">
+                <label style="width:auto" for="node-input-inputRBE">&nbsp;&nbsp;<i class="fa fa-filter"></i> React only if payload from KNX Bus is changed (RBE filter)</label>
+             </div>
+        </dd>
         <dd>
             <div class="form-row">
             <label>&nbsp;</label>
@@ -264,15 +279,18 @@
                     <dd>Write: the node will send the payload to the KNX bus as a 'write' message (standard).<br />
                         Response: the node will send the payload to the KNX bus as a 'response' message (in case you wish to create your own 'response', in response to a read request).</dd>
         
-                    <dt>Send a GroupValue read once on connection/reconnect</dt>
-                    <dd>On connection/reconnection, the node will send a 'read' request to the group address specified on the <b>Group Address</b> or, if <i>Listen to all Group Addresses (using ETS file)</i> is selected, on all group addresses specified on the ETS csv file.</dd>
-
-                    <dt>RBE filter - only passes on data to KNX bus if the payload has changed</dt>
+                    <dt>Send payload to KNX bus only if changed (RBE filter)</dt>
                     <dd>The RBE (Report by Exception) filter, only passes on data if the payload has changed. The node writes to KNX bus only if the received msg.payload differs from the current value. For example, if the kitchen light is on (true) and you send again a msg.payload=true to the node, the value will not be written again to the bus. This is useful to avoid loops.</dd>
-                </dl>
+    
+                    <dt>Send a GrpValue read once on connection/reconnect</dt>
+                    <dd>On connection/reconnection, the node will send a 'read' request to the group address specified on the <b>Group Address</b> or, if <i>Listen to all Group Addresses (using ETS file)</i> is selected, on all group addresses specified on the ETS csv file.</dd>
+            </dl>
            
             <h3>INPUT (listen to datagram from the KNX bus)</h3>
             <dl class="message-properties">
+                <dt>React only if payload from KNX Bus is changed (RBE filter)</dt>
+                <dd>The RBE (Report by Exception) filter, only passes on data on the flow if the KNX Telegram coming from BUS has changed. The node starts a flow only if the received KNX Telegram differs from the current Payload. This is useful to avoid loops.</dd>
+    
                 <dt>React to event GroupValue write</dt>
                 <dd>When checked, received writeRequests will be notified</dd>
 

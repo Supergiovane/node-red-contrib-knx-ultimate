@@ -5,6 +5,14 @@
 [![Donate via PayPal](https://img.shields.io/badge/Donate-PayPal-blue.svg?style=flat-square)](https://www.paypal.me/techtoday) 
 
 <p>
+<b>Version 1.1.2</b><br/>
+- When you asks for a read on a node having Listen All Group Addresses set to true, due to a low delay between each KNX telegram, some telegrams are discarded. Increased the delay between telegram to avoid that.<br/>
+- Added RBE filter for the INPUT from KNX bus as well.<br/>
+- Added the option to bind to local ethernet interface, in case you have more than one, for example, ethernet and wifi.<br/>
+- Fixed option suppress_ack_ldatareq not retain after restart.<br/>
+- In-Line help update to reflect new changes.<br/>
+</p>
+<p>
 <b>Version 1.1.1</b><br/>
 - Disambigued misinterpretation of the "disconnect" status.<br/>
 - In the autocomplete box of KNX device names, when you type in the group address or the device's name, it shows the main and subgroup name as well<br/>

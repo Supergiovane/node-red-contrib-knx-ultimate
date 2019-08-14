@@ -7,8 +7,27 @@
             // the KNX physical address we'd like to use
             physAddr: {value:"15.15.22",required:true},
             // enable this option to suppress the acknowledge flag with outgoing L_Data.req requests. LoxOne needs this
-            suppress_ack_ldatareq: {value: false},
-            csv: {value:"",required:false}
+            suppressACKRequest: {value: false},
+            csv: {value:"",required:false},
+            KNXEthInterface:{value:"Auto"}
+        },
+        oneditprepare: function () {
+            $("#node-config-input-KNXEthInterface").append($("<option></option>")
+                .attr("value", "Auto")
+                .text("Auto")
+            )
+
+            $.getJSON('knxUltimateETHInterfaces', (data) => {
+                data.sort().forEach(iFace => {
+                    $("#node-config-input-KNXEthInterface").append($("<option></option>")
+                            .attr("value", iFace.name)
+                            .text(iFace.name + " (" + iFace.address+")")
+                        )
+                    });
+            $("#node-config-input-KNXEthInterface").val(typeof this.KNXEthInterface ==="undefined" ? "Auto":this.KNXEthInterface)
+                
+            })
+
         },
         oneditsave: function() {
             // Check if the csv file contains errors
@@ -44,14 +63,17 @@
         <label for="node-config-input-port"><i class="icon-bookmark"></i> Port</label>
         <input type="text" id="node-config-input-port">
     </div>
-
+    <div class="form-row">
+        <label for="node-config-input-KNXEthInterface"><i class="fa fa-wifi"></i> Bind to local interface </label>
+        <select id="node-config-input-KNXEthInterface"></select>
+    </div>
     <div class="form-row">
         <label for="node-config-input-physAddr"><i class="fa fa-microchip"></i> KNX Physical Addrress</label>
         <input type="text" id="node-config-input-physAddr">
     </div>
     <div class="form-row">
-        <input type="checkbox" id="node-input-suppress_ack_ldatareq" style="display:inline-block; width:auto; vertical-align:top;">
-        <label style="width:auto" for="node-input-suppress_ack_ldatareq">&nbsp;&nbsp;<i class="fa fa-ban"></i>  Suppress ACK request</label>
+        <input type="checkbox" id="node-config-input-suppressACKRequest" style="display:inline-block; width:auto; vertical-align:top;">
+        <label style="width:auto" for="node-config-input-suppressACKRequest">&nbsp;&nbsp;<i class="fa fa-ban"></i>  Suppress ACK request</label>
         <div id="helpallga"> This option help compatibility with old Siemens SWG1 148-1AB22 IP Interface firmware</div>
     </div>
 
@@ -74,6 +96,9 @@ ETH/KNX Router's multicast address.
 <p>
 <b>Port</b><br/>
 ETH/KNX Router's multicast port.
+</p>
+<b>Bind to local interface</b><br/>
+The Node will use this local interface for communications. Leave "Auto" for automatic selection. If you have more than one lan connection, for example Ethernet and Wifi, it's strongly recommended to manually select the interface, otherwise not all UDP telegram will reach your computer, thus the Node may not work as expected.
 </p>
 <p>
 <b>KNX Physical Address</b><br/>

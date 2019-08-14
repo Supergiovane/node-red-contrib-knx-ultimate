@@ -11,6 +11,7 @@ module.exports = function (RED) {
         node.initialread = config.initialread || false
         node.listenallga = config.listenallga || false
         node.outputtype = config.outputtype || "write" // When the node is used as output
+        node.outputRBE = config.outputRBE || "false" // Apply or not RBE to the input
         node.inputRBE = config.inputRBE || "false" // Apply or not RBE to the input
         node.currentPayload = "" // Current value for the RBE input
         var icountMessageInWindow = 0; // Used to prevent looping messages
@@ -55,14 +56,14 @@ module.exports = function (RED) {
                             node.server.readValue(grpaddr)
                         } else {
                            // Issue read to all group addresses
-                            let delay = 50;
+                            let delay = 0;
                             for (let index = 0; index < node.server.csv.length; index++) {
                                 const element = node.server.csv[index];
                                 setTimeout(() => {
                                     node.server.readValue(element.ga);
                                     node.status({ fill: "yellow", shape: "dot", text: "Request (" + element.ga + ")" });
                                 }, delay);
-                                delay = delay + 60;
+                                delay = delay + 200;
                             }
                             // setTimeout(() => {
                             //     node.status({ fill: "yellow", shape: "dot", text: "Done requests." });
@@ -76,29 +77,29 @@ module.exports = function (RED) {
             } else {
                 if (node.listenallga == false) {
                     // Applying RBE filter
-                    if (node.inputRBE==true) {
-                        var curVal=node.currentPayload.toString();
-                        var newVal=msg.payload.toString();
-                        if (curVal=="false") {
+                    if (node.outputRBE==true) {
+                        var curVal=node.currentPayload.toString().toLowerCase();
+                        var newVal=msg.payload.toString().toLowerCase();
+                        if (curVal==="false") {
                             curVal = "0";
                         }
-                        if (curVal=="true") {
+                        if (curVal==="true") {
                             curVal = "1";
                         }
-                        if (newVal=="false") {
+                        if (newVal==="false") {
                             newVal = "0";
                         }
-                        if (newVal=="true") {
+                        if (newVal==="true") {
                             newVal = "1";
                         }
-                        if (curVal == newVal) {
-                            node.status({ fill: "grey", shape: "ring", text: "rbe filter applied on " + msg.payload })
+                        if (curVal === newVal) {
+                            node.status({ fill: "grey", shape: "ring", text: "rbe OUTPUT filter applied on " + msg.payload })
                             return;
                         }
                     }
                 }   
                 // Anti looping check
-                if (icountMessageInWindow == -999) return; // Lock out
+                if (icountMessageInWindow == -999) return; // Locked out
                 if (icountMessageInWindow == 0) {
                     setTimeout(() => {
                         if (icountMessageInWindow >= 80) {

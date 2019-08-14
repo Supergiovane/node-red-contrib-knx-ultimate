@@ -1,5 +1,6 @@
 const knx = require('knx')
 const dptlib = require('knx/src/dptlib')
+const oOS = require('os')
 
 //Helpers
 sortBy = (field) => (a, b) => {
@@ -58,70 +59,93 @@ module.exports = (RED) => {
         node.host = config.host
         node.port = config.port
         node.physAddr = config.physAddr || "15.15.22"; // the KNX physical address we'd like to use
-        node.suppress_ack_ldatareq = config.suppress_ack_ldatareq || false; // enable this option to suppress the acknowledge flag with outgoing L_Data.req requests. LoxOne needs this
+        node.suppressACKRequest = typeof config.suppressACKRequest ==="undefined" ? false:config.suppressACKRequest; // enable this option to suppress the acknowledge flag with outgoing L_Data.req requests. LoxOne needs this
         node.csv = readCSV(config.csv); // Array from ETS CSV Group Addresses
-
-        // Entry point for reading csv from the other nodes
-        RED.httpAdmin.get("/knxUltimatecsv", RED.auth.needsPermission('knxUltimate-config.read'), function (req, res) {
-           
-            res.json(node.csv)
-        });
-        
-       
+        node.status = "disconnected";
         var knxErrorTimeout;
         node.nodeClients = [] // Stores the registered clients
-      
+        node.KNXEthInterface = typeof config.KNXEthInterface ==="undefined" ? "Auto" : config.KNXEthInterface;
+        
+        // Endpoint for reading csv from the other nodes
+        RED.httpAdmin.get("/knxUltimatecsv", RED.auth.needsPermission('knxUltimate-config.read'), function (req, res) {
+            res.json(node.csv)
+        });
+        // 14/08/2019 Endpoint for retrieving the ethernet interfaces
+        RED.httpAdmin.get("/knxUltimateETHInterfaces", RED.auth.needsPermission('knxUltimate-config.read'), function (req, res) {
+            var oiFaces = oOS.networkInterfaces();
+            var jListInterfaces = [];
+            try {
+                Object.keys(oiFaces).forEach(ifname => {
+                    // Interface wit single IP
+                    if (Object.keys(oiFaces[ifname]).length === 1) {
+                        if (Object.keys(oiFaces[ifname])[0].internal == false) jListInterfaces.push({ name: ifname, address:Object.keys(oiFaces[ifname])[0].address});
+                    } else {
+                        var sAddresses = "";
+                        oiFaces[ifname].forEach(function (iface) {
+                            if (iface.internal == false) sAddresses += "+" + iface.address;
+                        });
+                        if (sAddresses!=="") jListInterfaces.push({ name: ifname, address:sAddresses});
+                    }
+                })
+            } catch (error) {}
+            res.json(jListInterfaces)
+        });
+        
         node.addClient = (_Node) => {
-
-         // Check if the node has a valid topic and dpt
-            if (_Node.listenallga==false) {
-                if (typeof _Node.topic == "undefined" || typeof _Node.dpt == "undefined") {
-                    _Node.status({ fill: "red", shape: "dot", text: "Empty group address (topic) or datapoint." })
-                    return;
-                } else {
-          
-                    // Topic must be in formar x/x/x
-                    if (_Node.topic.split("\/").length < 3) {
-                        _Node.status({ fill: "red", shape: "dot", text: "Wrong group address (topic: " + _Node.topic + ") format." })
+            // Check if node already exists
+            if (node.nodeClients.filter(x => x.id === _Node.id).length === 0) {
+                // Check if the node has a valid topic and dpt
+                if (_Node.listenallga==false) {
+                    if (typeof _Node.topic == "undefined" || typeof _Node.dpt == "undefined") {
+                        _Node.status({ fill: "red", shape: "dot", text: "Empty group address (topic) or datapoint." })
                         return;
+                    } else {
+            
+                        // Topic must be in formar x/x/x
+                        if (_Node.topic.split("\/").length < 3) {
+                            _Node.status({ fill: "red", shape: "dot", text: "Wrong group address (topic: " + _Node.topic + ") format." })
+                            return;
+                        }
                     }
                 }
-            }
-
-            // Add _Node to the clients array
-            node.nodeClients.push(_Node)
-            if (node.status === "connected" && _Node.initialread) {
-                node.readValue(_Node.topic);
+                // Add _Node to the clients array
+                node.nodeClients.push(_Node)
             }
             // At first node client connection, this node connects to the bus
             if (node.nodeClients.length === 1) {
-                node.connect();
+                // 14/08/2018 Initialize the connection
+                node.initKNXConnection();
+            }
+            if (_Node.initialread) {
+                node.readValue(_Node.topic);
             }
         }
 
       
         node.removeClient = (_Node) => {
             // Remove the client node from the clients array
-            // RED.log.info(node.nodeClients.length + "Node " + node.id + " has been unsubscribed from receiving KNX messages. ");
-            try {node.nodeClients = node.nodeClients.filter(x => x.id !== _Node.id)
+            //RED.log.info( "BEFORE Node " + _Node.id + " has been unsubscribed from receiving KNX messages. " + node.nodeClients.length);
+            try {
+                node.nodeClients = node.nodeClients.filter(x => x.id !== _Node.id)
             } catch (error) {}
-            
+            //RED.log.info("AFTER Node " + _Node.id + " has been unsubscribed from receiving KNX messages. " + node.nodeClients.length);
+
               // If no clien nodes, disconnect from bus.
             if (node.nodeClients.length === 0) {
+                node.status = "disconnected";
                 node.Disconnect();
-                node.knxConnection = null;
             }
         }
       
         
         node.readInitialValues = () => {
-            var readHistory = []
-            let delay = 50
+            var readHistory = [];
+            let delay = 0;
             node.nodeClients
                 .filter(oClient => oClient.initialread)
                 .forEach(oClient => {
                     if (oClient.listenallga==true) {
-                        delay = delay + 60
+                        delay = delay + 200
                         for (let index = 0; index < node.csv.length; index++) {
                             const element = node.csv[index];
                             if (readHistory.includes(element.ga)) return
@@ -131,7 +155,7 @@ module.exports = (RED) => {
                     } else {
                         if (readHistory.includes(oClient.topic)) return
                         setTimeout(() => node.readValue(oClient.topic), delay)
-                        delay = delay + 60
+                        delay = delay + 200
                         readHistory.push(oClient.topic)
                     }
                     
@@ -151,30 +175,84 @@ module.exports = (RED) => {
         }
         
         node.setAllClientsStatus = (_status, _color, _text) => {
-            node.status = _status
             function nextStatus(oClient) {
                 oClient.setStatus( _color, "dot", "(" + oClient.topic + ") " + _status + " " + _text )
             }
             node.nodeClients.map(nextStatus)
         }
         
-        node.connect = () => {
-            
+        node.initKNXConnection = () => {
+            node.Disconnect();
             node.setAllClientsStatus("Waiting", "grey", "")
+            if (node.KNXEthInterface !== "Auto")
+            {
+                RED.log.info("Start KNX Bus connection on interface : " + node.KNXEthInterface);
+                node.knxConnection = new knx.Connection({
+                    ipAddr: node.host,
+                    ipPort: node.port,
+                    physAddr: node.physAddr, // the KNX physical address we'd like to use
+                    interface: node.KNXEthInterface,
+                    suppress_ack_ldatareq: node.suppressACKRequest,
+                    handlers: {
+                        connected: () => {
+                            node.status = "connected";
+                            if (typeof knxErrorTimeout == "undefined") {
+                                node.setAllClientsStatus("Connected", "green", "Waiting for telegram.")
+                                node.readInitialValues() // Perform initial read if applicable
+                            }
+                        },
+                        error: function (connstatus) {
+                                node.status = "disconnected";
+                                if (connstatus == "E_KNX_CONNECTION") {
+                                    node.setAllClientsStatus("knxError", "yellow", "Error KNX BUS communication")
+                                } else {
+                                    node.setAllClientsStatus("Waiting", "grey", "")
+                                }
+                        }
+                    }
+                })
+            } else {
+                RED.log.info("Start KNX Bus connection on interface automatic selected.");
+                node.knxConnection = new knx.Connection({
+                    ipAddr: node.host,
+                    ipPort: node.port,
+                    physAddr: node.physAddr, // the KNX physical address we'd like to use
+                    suppress_ack_ldatareq: node.suppressACKRequest,
+                    handlers: {
+                        connected: () => {
+                            node.status = "connected";
+                            if (typeof knxErrorTimeout == "undefined") {
+                                node.setAllClientsStatus("Connected", "green", "Waiting for telegram.")
+                                node.readInitialValues() // Perform initial read if applicable
+                            }
+                        },
+                        error: function (connstatus) {
+                                node.status = "disconnected";
+                                if (connstatus == "E_KNX_CONNECTION") {
+                                    node.setAllClientsStatus("knxError", "yellow", "Error KNX BUS communication")
+                                } else {
+                                    node.setAllClientsStatus("Waiting", "grey", "")
+                                }
+                        }
+                    }
+                }) 
+            }
+
             node.knxConnection = new knx.Connection({
                 ipAddr: node.host,
                 ipPort: node.port,
                 physAddr: node.physAddr, // the KNX physical address we'd like to use
-                suppress_ack_ldatareq:node.suppress_ack_ldatareq,
+                suppress_ack_ldatareq: node.suppressACKRequest,
                 handlers: {
                     connected: () => {
-                        if (knxErrorTimeout == undefined) {
-                            node.setAllClientsStatus("connected", "green", "")
+                        node.status = "connected";
+                        if (typeof knxErrorTimeout == "undefined") {
+                            node.setAllClientsStatus("Connected", "green", "Waiting for telegram.")
                             node.readInitialValues() // Perform initial read if applicable
                         }
                     },
-                    error: function(connstatus) {
-                        node.error(connstatus);
+                    error: function (connstatus) {
+                            node.status = "disconnected";
                             if (connstatus == "E_KNX_CONNECTION") {
                                 node.setAllClientsStatus("knxError", "yellow", "Error KNX BUS communication")
                             } else {
@@ -186,12 +264,11 @@ module.exports = (RED) => {
             
             // Handle BUS events
             node.knxConnection.on("event", function (evt, src, dest, rawValue) {
-                //RED.log.info(src + " " + dest + " " + evt)
+                //if (dest == "0/1/8") RED.log.error("RX FROM BUS : " + src + " " + dest + " " + evt + rawValue);
                 switch (evt) {
                     case "GroupValue_Write": {
-                        
                         node.nodeClients
-                            .filter(input => input.notifywrite)
+                            .filter(input => input.notifywrite==true)
                             .forEach(input => {
                                 if (input.listenallga==true) {
                                     // Get the GA from CVS
@@ -201,8 +278,14 @@ module.exports = (RED) => {
                                     input.send(msg)
                                 } else if (input.topic == dest) {
                                     let msg = buildInputMessage(src, dest, evt, rawValue, input.dpt, input.name ? input.name :"")
+                                     // Check RBE INPUT from KNX Bus, to avoid send the payload to the flow, if it's equal to the current payload
+                                    if (!checkRBEInputFromKNXBusAllowSend(input, msg.payload)) {
+                                        input.setStatus("grey", "ring", "rbe INPUT filter applied on " + msg.payload )
+                                        return;
+                                    };
                                     input.currentPayload = msg.payload;// Set the current value for the RBE input
                                     input.setStatus("green", "dot", "(" + input.topic + ") " + msg.payload);
+                                    //RED.log.error("RX FROM BUS : " + input.id +" " + src + " " + dest + " " + evt)
                                     input.send(msg)
                                 }
                             })
@@ -211,7 +294,7 @@ module.exports = (RED) => {
                     case "GroupValue_Response": {
                         
                         node.nodeClients
-                            .filter(input => input.notifyresponse)
+                            .filter(input => input.notifyresponse==true)
                             .forEach(input => {
                                 if (input.listenallga==true) {
                                     // Get the DPT
@@ -220,7 +303,12 @@ module.exports = (RED) => {
                                     input.setStatus("blue", "dot", "(" + msg.knx.destination + ") " + msg.payload + " dpt:" + msg.knx.dpt);
                                     input.send(msg)
                                 } else if (input.topic == dest) {
-                                    let msg = buildInputMessage(src, dest, evt, rawValue, input.dpt, input.name ? input.name :"")
+                                    let msg = buildInputMessage(src, dest, evt, rawValue, input.dpt, input.name ? input.name : "")
+                                    // Check RBE INPUT from KNX Bus, to avoid send the payload to the flow, if it's equal to the current payload
+                                    if (!checkRBEInputFromKNXBusAllowSend(input, msg.payload)) {
+                                        input.setStatus("grey", "ring", "rbe INPUT filter applied on " + msg.payload )
+                                        return;
+                                    };
                                     input.currentPayload = msg.payload; // Set the current value for the RBE input
                                     input.setStatus("blue", "dot", "(" + input.topic + ") " + msg.payload);
                                     input.send(msg)
@@ -231,7 +319,7 @@ module.exports = (RED) => {
                     case "GroupValue_Read": {
                         
                         node.nodeClients
-                            .filter(input => input.notifyreadrequest)
+                            .filter(input => input.notifyreadrequest==true)
                             .forEach(input => {
                                 if (input.listenallga==true) {
                                     // Get the DPT
@@ -254,7 +342,45 @@ module.exports = (RED) => {
 
         node.Disconnect = () => {
             node.setAllClientsStatus("Waiting", "grey", "")
+            // Remove listener
+            try {
+                node.knxConnection.removeListener("event");    
+            } catch (error) {
+                
+            }
+            try {
+                node.knxConnection.off("event");
+            } catch (error) {
+                
+            }
+            node.knxConnection = null;
         }
+
+        // 14/08/2019 If the node has payload same as the received telegram, return false
+        checkRBEInputFromKNXBusAllowSend = (_node, _KNXTelegramPayload) => {
+            if (_node.inputRBE !== true) return true;
+            if (typeof _node.currentPayload === "undefined") return true;
+            var curVal = _node.currentPayload.toString().toLowerCase();
+            var newVal = _KNXTelegramPayload.toString().toLowerCase();
+            if (curVal==="false") {
+                curVal = "0";
+            }
+            if (curVal==="true") {
+                curVal = "1";
+            }
+            if (newVal==="false") {
+                newVal = "0";
+            }
+            if (newVal==="true") {
+                newVal = "1";
+            }
+            if (curVal === newVal) {
+                 return false;
+            }
+            return true;
+        }
+        
+
 
         function buildInputMessage(src, dest, evt, value, inputDpt, _devicename) {
             // Resolve DPT and convert value if available
@@ -283,8 +409,7 @@ module.exports = (RED) => {
     
 
         node.on("close", function () {
-            node.setAllClientsStatus("Waiting","grey","")
-            node.knxConnection = null
+            node.Disconnect();
         })
  
         function readCSV(_csvText) {
