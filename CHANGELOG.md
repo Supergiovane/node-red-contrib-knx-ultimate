@@ -5,6 +5,10 @@
 [![Donate via PayPal](https://img.shields.io/badge/Donate-PayPal-blue.svg?style=flat-square)](https://www.paypal.me/techtoday) 
 
 <p>
+<b>Version 1.1.3</b><br/>
+- In node status, added the last changed status date/time.<br/>
+</p>
+<p>
 <b>Version 1.1.2</b><br/>
 - When you asks for a read on a node having Listen All Group Addresses set to true, due to a low delay between each KNX telegram, some telegrams are discarded. Increased the delay between telegram to avoid that.<br/>
 - Added RBE filter for the INPUT from KNX bus as well.<br/>
