@@ -35,7 +35,7 @@ module.exports = function (RED) {
         node.setNodeStatus = ({ fill, shape, text }) => {
             if (node.icountMessageInWindow == -999) return; // Locked out, doesn't change status.
             var dDate = new Date();
-            node.status({fill: fill,shape: shape,text: text + " (" + dDate.getDate() + ", " + new Date().toLocaleTimeString() + ")"})
+            node.status({fill: fill,shape: shape,text: text + " (" + dDate.getDate() + ", " + dDate.toLocaleTimeString() + ")"})
         }
 
         node.on("input", function (msg) {
