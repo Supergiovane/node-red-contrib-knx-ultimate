@@ -280,7 +280,7 @@ module.exports = (RED) => {
                                     let msg = buildInputMessage(src, dest, evt, rawValue, input.dpt, input.name ? input.name : "")
                                     // Check RBE INPUT from KNX Bus, to avoid send the payload to the flow, if it's equal to the current payload
                                     if (!checkRBEInputFromKNXBusAllowSend(input, msg.payload)) {
-                                        input.setNodeStatus({fill: "grey", shape: "ring", text: "From KNX ("+msg.payload+") -> blocked by rbe"})
+                                        input.setNodeStatus({fill: "grey", shape: "ring", text: "rbe block ("+msg.payload+") from KNX"})
                         return;
                     };
                                     input.currentPayload = msg.payload;// Set the current value for the RBE input

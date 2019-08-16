@@ -34,7 +34,8 @@ module.exports = function (RED) {
         // Used to call the status update from the config node.
         node.setNodeStatus = ({ fill, shape, text }) => {
             if (node.icountMessageInWindow == -999) return; // Locked out, doesn't change status.
-            node.status({fill: fill,shape: shape,text: text + " (Last " + new Date().toLocaleString() + ")"})
+            var dDate = new Date();
+            node.status({fill: fill,shape: shape,text: text + " (" + dDate.getDate() + ", " + new Date().toLocaleTimeString() + ")"})
         }
 
         node.on("input", function (msg) {
@@ -93,7 +94,7 @@ module.exports = function (RED) {
                             newVal = "1";
                         }
                         if (curVal === newVal) {
-                            node.setNodeStatus({ fill: "grey", shape: "ring", text: "To KNX ("+msg.payload+") -> blocked by rbe"})
+                            node.setNodeStatus({ fill: "grey", shape: "ring", text: "rbe block ("+msg.payload+") to KNX"})
                             return;
                         }
                     }
