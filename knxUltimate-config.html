@@ -9,12 +9,17 @@
             // enable this option to suppress the acknowledge flag with outgoing L_Data.req requests. LoxOne needs this
             suppressACKRequest: {value: false},
             csv: {value:"",required:false},
-            KNXEthInterface:{value:"Auto"}
+            KNXEthInterface:{value:"Auto"},
+            KNXEthInterfaceManuallyInput:{value:""}
         },
         oneditprepare: function () {
             $("#node-config-input-KNXEthInterface").append($("<option></option>")
                 .attr("value", "Auto")
                 .text("Auto")
+            )
+            $("#node-config-input-KNXEthInterface").append($("<option></option>")
+                .attr("value", "Manual")
+                .text("Manually enter interface's name")
             )
 
             $.getJSON('knxUltimateETHInterfaces', (data) => {
@@ -24,8 +29,25 @@
                             .text(iFace.name + " (" + iFace.address+")")
                         )
                     });
-            $("#node-config-input-KNXEthInterface").val(typeof this.KNXEthInterface ==="undefined" ? "Auto":this.KNXEthInterface)
-                
+                $("#node-config-input-KNXEthInterface").val(typeof this.KNXEthInterface ==="undefined" ? "Auto":this.KNXEthInterface)
+                if (this.KNXEthInterface==="Manual")
+                {
+                    // Show input 
+                    $("#divKNXEthInterfaceManuallyInput").show();
+                }else{
+                    $("#divKNXEthInterfaceManuallyInput").hide()
+                }
+
+                $("#node-config-input-KNXEthInterface").on('change',function() {
+                    if ($("#node-config-input-KNXEthInterface").val()==="Manual")
+                    {
+                        // Show input 
+                        $("#divKNXEthInterfaceManuallyInput").show();
+                    }else{
+                        // Hide input
+                        $("#divKNXEthInterfaceManuallyInput").hide()
+                    }
+                })
             })
 
         },
@@ -66,6 +88,10 @@
     <div class="form-row">
         <label for="node-config-input-KNXEthInterface"><i class="fa fa-wifi"></i> Bind to local interface </label>
         <select id="node-config-input-KNXEthInterface"></select>
+    </div>
+    <div class="form-row" id="divKNXEthInterfaceManuallyInput">
+        <label for="node-config-input-KNXEthInterfaceManuallyInput"></label>
+        <input type="text" id="node-config-input-KNXEthInterfaceManuallyInput" placeholder="Interface name, ex: eth0 or ens1 or Ethernet 1 and so on..."></input>
     </div>
     <div class="form-row">
         <label for="node-config-input-physAddr"><i class="fa fa-microchip"></i> KNX Physical Address</label>

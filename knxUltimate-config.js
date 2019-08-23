@@ -64,7 +64,9 @@ module.exports = (RED) => {
         node.status = "disconnected";
         var knxErrorTimeout;
         node.nodeClients = [] // Stores the registered clients
-        node.KNXEthInterface = typeof config.KNXEthInterface ==="undefined" ? "Auto" : config.KNXEthInterface;
+        node.KNXEthInterface = typeof config.KNXEthInterface === "undefined" ? "Auto" : config.KNXEthInterface;
+        node.KNXEthInterfaceManuallyInput = typeof config.KNXEthInterfaceManuallyInput === "undefined" ? "" : config.KNXEthInterfaceManuallyInput; // If you manually set the interface name, it will be wrote here
+        
         // Endpoint for reading csv from the other nodes
         RED.httpAdmin.get("/knxUltimatecsv", RED.auth.needsPermission('knxUltimate-config.read'), function (req, res) {
             res.json(RED.nodes.getNode(node.id).csv);
@@ -75,7 +77,7 @@ module.exports = (RED) => {
             var jListInterfaces = [];
             try {
                 Object.keys(oiFaces).forEach(ifname => {
-                    // Interface wit single IP
+                    // Interface with single IP
                     if (Object.keys(oiFaces[ifname]).length === 1) {
                         if (Object.keys(oiFaces[ifname])[0].internal == false) jListInterfaces.push({ name: ifname, address:Object.keys(oiFaces[ifname])[0].address});
                     } else {
@@ -185,12 +187,21 @@ module.exports = (RED) => {
             node.setAllClientsStatus("Waiting", "grey", "")
             if (node.KNXEthInterface !== "Auto")
             {
-                RED.log.info("Start KNX Bus connection on interface : " + node.KNXEthInterface);
+                var sIfaceName = "";
+                if (node.KNXEthInterface === "Manual") {
+                    sIfaceName = node.KNXEthInterfaceManuallyInput;
+                    RED.log.info("Bind KNX Bus to interface : " + sIfaceName + " (Interface's name entered by hand)");
+                } else
+                {
+                    sIfaceName = node.KNXEthInterface;
+                    RED.log.info("Bind KNX Bus to interface : " + sIfaceName + " (Interface's name selected from dropdown list)");
+                }
+                
                 node.knxConnection = new knx.Connection({
                     ipAddr: node.host,
                     ipPort: node.port,
                     physAddr: node.physAddr, // the KNX physical address we'd like to use
-                    interface: node.KNXEthInterface,
+                    interface: sIfaceName,
                     suppress_ack_ldatareq: node.suppressACKRequest,
                     handlers: {
                         connected: () => {
@@ -207,11 +218,12 @@ module.exports = (RED) => {
                                 } else {
                                     node.setAllClientsStatus("Waiting", "grey", "")
                                 }
+                                RED.log.error("Bind KNX Bus to interface error: " + connstatus);
                         }
                     }
                 })
             } else {
-                RED.log.info("Start KNX Bus connection on interface automatic selected.");
+                RED.log.info("Bind KNX Bus to interface (Auto)");
                 node.knxConnection = new knx.Connection({
                     ipAddr: node.host,
                     ipPort: node.port,
@@ -232,34 +244,13 @@ module.exports = (RED) => {
                                 } else {
                                     node.setAllClientsStatus("Waiting", "grey", "")
                                 }
+                                RED.log.error("Bind KNX Bus to interface error: " + connstatus);
                         }
                     }
                 }) 
             }
 
-            node.knxConnection = new knx.Connection({
-                ipAddr: node.host,
-                ipPort: node.port,
-                physAddr: node.physAddr, // the KNX physical address we'd like to use
-                suppress_ack_ldatareq: node.suppressACKRequest,
-                handlers: {
-                    connected: () => {
-                        node.status = "connected";
-                        if (typeof knxErrorTimeout == "undefined") {
-                            node.setAllClientsStatus("Connected", "green", "Waiting for telegram.")
-                            node.readInitialValues() // Perform initial read if applicable
-                        }
-                    },
-                    error: function (connstatus) {
-                            node.status = "disconnected";
-                            if (connstatus == "E_KNX_CONNECTION") {
-                                node.setAllClientsStatus("knxError", "yellow", "Error KNX BUS communication")
-                            } else {
-                                node.setAllClientsStatus("Waiting", "grey", "")
-                            }
-                    }
-                }
-            })
+         
             
             // Handle BUS events
             node.knxConnection.on("event", function (evt, src, dest, rawValue) {
