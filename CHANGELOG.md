@@ -5,6 +5,10 @@
 [![Donate via PayPal](https://img.shields.io/badge/Donate-PayPal-blue.svg?style=flat-square)](https://www.paypal.me/techtoday) 
 
 <p>
+<b>Version 1.1.5</b><br/>
+- Fixed inport CSV from ETS where there is return carriages and parenthesis in the Group Address description. Thanks to user xrk.<br/>
+</p>
+<p>
 <b>Version 1.1.4</b><br/>
 - Last changed status date/time shortened out<br/>
 </p>

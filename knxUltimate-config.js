@@ -65,10 +65,9 @@ module.exports = (RED) => {
         var knxErrorTimeout;
         node.nodeClients = [] // Stores the registered clients
         node.KNXEthInterface = typeof config.KNXEthInterface ==="undefined" ? "Auto" : config.KNXEthInterface;
-        
         // Endpoint for reading csv from the other nodes
         RED.httpAdmin.get("/knxUltimatecsv", RED.auth.needsPermission('knxUltimate-config.read'), function (req, res) {
-            res.json(node.csv)
+            res.json(RED.nodes.getNode(node.id).csv);
         });
         // 14/08/2019 Endpoint for retrieving the ethernet interfaces
         RED.httpAdmin.get("/knxUltimateETHInterfaces", RED.auth.needsPermission('knxUltimate-config.read'), function (req, res) {
@@ -421,8 +420,11 @@ module.exports = (RED) => {
                 return;
             } else {
                 RED.log.info('knxUltimate: csv ETS found !');
+                // 23/08/2019 Delete inwanted CRLF in the GA description
+                let sTemp = correctCRLFInCSV(_csvText);
+                
                 // Read and decode the CSV in an Array containing:  "group address", "DPT", "Device Name"
-                let fileGA = _csvText.split("\n");
+                let fileGA = sTemp.split("\n");
                 // Controllo se le righe dei gruppi contengono il separatore di tabulazione
                 if (fileGA[0].search("\t") == -1) {
                     RED.log.error('knxUltimate: ERROR: the csv ETS file must have the tabulation as separator')
@@ -433,7 +435,9 @@ module.exports = (RED) => {
                 var sSecondGroupName = "";
                 var sFather="";
                 for (let index = 0; index < fileGA.length; index++) {
-                    const element = fileGA[index].replace(/\"/g, ""); // Rimuovo le virgolette
+                    var element = fileGA[index];
+                    element = element.replace(/\"/g, ""); // Rimuovo le virgolette
+                
                     if (element !== "") {
                         
                         // Main and secondary group names
@@ -478,6 +482,49 @@ module.exports = (RED) => {
     
         }
     
+     
+        // 23/08/2019 Delete unwanted CRLF in the GA description
+        function correctCRLFInCSV(_csv) {
+            
+            var sOut = ""; // fixed output text to return
+            var sChar = "";
+            var bStart = false;
+            for (let index = 0; index < _csv.length; index++) {
+                sChar = _csv.substr(index, 1);
+                if (sChar == "\"")
+                {
+                    if (!bStart) {
+                        bStart = true;                        
+                    }else
+                    {
+                        bStart = false;                        
+                    }
+                    sOut += sChar;
+
+                } else
+                {
+                    if (bStart) {
+                        // i'm in the phrase, delimited by "". No CRLF should be there
+                        if (sChar !== "\n" && sChar !== "\r")
+                        {
+                            sOut += sChar;        
+                        } else
+                        {
+                            sOut += " "; // Where it was a CRLF, i put a space
+                        }
+                    } else
+                    {
+                        sOut += sChar; 
+                    }
+                    
+                }
+            }
+
+            // Replace all parenthesis with []
+            sOut = sOut.replace(/\(/g, "[").replace(/\)/g, "]");
+            return sOut;
+        }
+
     }
 
    
