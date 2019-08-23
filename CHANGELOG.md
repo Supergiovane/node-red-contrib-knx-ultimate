@@ -6,7 +6,7 @@
 
 <p>
 <b>Version 1.1.7</b><br/>
-- Fixed bind to ethernet. Now you can manually input the ethernet name as well. Thanks to user xrk.<br/>
+- Fixed bind to ethernet. Now you can manually input the ethernet name as well. Thanks to user rotorman.<br/>
 </p>
 <p>
 <b>Version 1.1.6</b><br/>
