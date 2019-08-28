@@ -5,6 +5,10 @@
 [![Donate via PayPal](https://img.shields.io/badge/Donate-PayPal-blue.svg?style=flat-square)](https://www.paypal.me/techtoday) 
 
 <p>
+<b>Version 1.1.8</b><br/>
+- For new nodes, the rbe output filter is enabled by default. You can always turn it off in the options. This helps novice users avoiding loops.<br/>
+</p>
+<p>
 <b>Version 1.1.7</b><br/>
 - Fixed bind to ethernet. Now you can manually input the ethernet name as well. Thanks to user rotorman.<br/>
 </p>
