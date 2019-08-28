@@ -21,6 +21,7 @@ Based on configuration and msg option, you can achieve all what you need.<br />
 
 ## WIKI
 * See <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki">here the wiki with samples and documentation</a>
+* Join <a href="https://www.youtube.com/channel/UCA9RsLps1IthT7fDSeUbRZw">my Youtube channel.</a> 
 
 ### WORKING WITH THE ETS CSV FILE
 Instead of create a knx-ultimate node for each Group Address to control, you can import your ETS csv group addresses file. 
