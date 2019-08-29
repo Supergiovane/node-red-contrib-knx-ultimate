@@ -61,8 +61,7 @@ module.exports = (RED) => {
         node.physAddr = config.physAddr || "15.15.22"; // the KNX physical address we'd like to use
         node.suppressACKRequest = typeof config.suppressACKRequest ==="undefined" ? false:config.suppressACKRequest; // enable this option to suppress the acknowledge flag with outgoing L_Data.req requests. LoxOne needs this
         node.csv = readCSV(config.csv); // Array from ETS CSV Group Addresses
-        node.status = "disconnected";
-        var knxErrorTimeout;
+        node.linkStatus = "disconnected";
         node.nodeClients = [] // Stores the registered clients
         node.KNXEthInterface = typeof config.KNXEthInterface === "undefined" ? "Auto" : config.KNXEthInterface;
         node.KNXEthInterfaceManuallyInput = typeof config.KNXEthInterfaceManuallyInput === "undefined" ? "" : config.KNXEthInterfaceManuallyInput; // If you manually set the interface name, it will be wrote here
@@ -133,43 +132,47 @@ module.exports = (RED) => {
 
               // If no clien nodes, disconnect from bus.
             if (node.nodeClients.length === 0) {
-                node.status = "disconnected";
+                node.linkStatus = "disconnected";
                 node.Disconnect();
             }
         }
       
         
         node.readInitialValues = () => {
-            var readHistory = [];
-            let delay = 0;
-            node.nodeClients
-                .filter(oClient => oClient.initialread)
-                .forEach(oClient => {
-                    if (oClient.listenallga==true) {
-                        delay = delay + 200
-                        for (let index = 0; index < node.csv.length; index++) {
-                            const element = node.csv[index];
-                            if (readHistory.includes(element.ga)) return
-                            setTimeout(() => node.readValue(element.ga), delay)
-                            readHistory.push(element.ga)
+            if (node.linkStatus !== "connected") return; // 29/08/2019 If not connected, exit
+            if (node.knxConnection) { 
+                var readHistory = [];
+                let delay = 0;
+                node.nodeClients
+                    .filter(oClient => oClient.initialread)
+                    .forEach(oClient => {
+                        if (oClient.listenallga==true) {
+                            delay = delay + 200
+                            for (let index = 0; index < node.csv.length; index++) {
+                                const element = node.csv[index];
+                                if (readHistory.includes(element.ga)) return
+                                setTimeout(() => node.readValue(element.ga), delay)
+                                readHistory.push(element.ga)
+                            }
+                        } else {
+                            if (readHistory.includes(oClient.topic)) return
+                            setTimeout(() => node.readValue(oClient.topic), delay)
+                            delay = delay + 200
+                            readHistory.push(oClient.topic)
                         }
-                    } else {
-                        if (readHistory.includes(oClient.topic)) return
-                        setTimeout(() => node.readValue(oClient.topic), delay)
-                        delay = delay + 200
-                        readHistory.push(oClient.topic)
-                    }
-                    
-                })
+                        
+                    })
+            }
         }
        
     
         node.readValue = topic => {
+            if (node.linkStatus !== "connected") return; // 29/08/2019 If not connected, exit
             if (node.knxConnection) {
                 try {
                     node.knxConnection.read(topic)
                 } catch (error) {
-                    RED.log.error('knxUltimate readValue: (' + topic + ') ' + error);
+                    RED.log.error('knxUltimate: readValue: (' + topic + ') ' + error);
                 }
                 
             }
@@ -190,11 +193,11 @@ module.exports = (RED) => {
                 var sIfaceName = "";
                 if (node.KNXEthInterface === "Manual") {
                     sIfaceName = node.KNXEthInterfaceManuallyInput;
-                    RED.log.info("Bind KNX Bus to interface : " + sIfaceName + " (Interface's name entered by hand)");
+                    RED.log.info("knxUltimate: Bind KNX Bus to interface : " + sIfaceName + " (Interface's name entered by hand)");
                 } else
                 {
                     sIfaceName = node.KNXEthInterface;
-                    RED.log.info("Bind KNX Bus to interface : " + sIfaceName + " (Interface's name selected from dropdown list)");
+                    RED.log.info("knxUltimate: Bind KNX Bus to interface : " + sIfaceName + " (Interface's name selected from dropdown list)");
                 }
                 
                 node.knxConnection = new knx.Connection({
@@ -205,25 +208,35 @@ module.exports = (RED) => {
                     suppress_ack_ldatareq: node.suppressACKRequest,
                     handlers: {
                         connected: () => {
-                            node.status = "connected";
-                            if (typeof knxErrorTimeout == "undefined") {
-                                node.setAllClientsStatus("Connected", "green", "Waiting for telegram.")
-                                node.readInitialValues() // Perform initial read if applicable
-                            }
+                            node.linkStatus = "connected";
+                            node.setAllClientsStatus("Connected", "green", "Waiting for telegram.")
+                            node.readInitialValues() // Perform initial read if applicable
                         },
                         error: function (connstatus) {
-                                node.status = "disconnected";
-                                if (connstatus == "E_KNX_CONNECTION") {
-                                    node.setAllClientsStatus("knxError", "yellow", "Error KNX BUS communication")
-                                } else {
-                                    node.setAllClientsStatus("Waiting", "grey", "")
-                                }
-                                RED.log.error("Bind KNX Bus to interface error: " + connstatus);
+                            // NO_ERROR: 0x00, // E_NO_ERROR - The connection was established succesfully
+                            // E_HOST_PROTOCOL_TYPE: 0x01,
+                            // E_VERSION_NOT_SUPPORTED: 0x02,
+                            // E_SEQUENCE_NUMBER: 0x04,
+                            // E_CONNSTATE_LOST: 0x15, // typo in eibd/libserver/eibnetserver.cpp:394, forgot 0x prefix ??? "uchar res = 21;"
+                            // E_CONNECTION_ID: 0x21, // - The KNXnet/IP server device could not find an active data connection with the given ID
+                            // E_CONNECTION_TYPE: 0x22, // - The requested connection type is not supported by the KNXnet/IP server device
+                            // E_CONNECTION_OPTION: 0x23, // - The requested connection options is not supported by the KNXnet/IP server device
+                            // E_NO_MORE_CONNECTIONS: 0x24, //  - The KNXnet/IP server could not accept the new data connection (Maximum reached)
+                            // E_DATA_CONNECTION: 0x26,// - The KNXnet/IP server device detected an erro concerning the Dat connection with the given ID
+                            // E_KNX_CONNECTION: 0x27,  // - The KNXnet/IP server device detected an error concerning the KNX Bus with the given ID
+                            // E_TUNNELING_LAYER: 0x29,
+                            node.linkStatus = "disconnected";
+                            if (connstatus == "E_KNX_CONNECTION") {
+                                setTimeout(() => node.setAllClientsStatus(connstatus, "red", "Error on KNX BUS. Check KNX red/black connector and cable."), 2000)
+                            } else {
+                                setTimeout(() => node.setAllClientsStatus(connstatus, "red", "Error"), 2000)
+                            }
+                            RED.log.error("knxUltimate: Bind KNX Bus to interface error: " + connstatus);
                         }
                     }
                 })
             } else {
-                RED.log.info("Bind KNX Bus to interface (Auto)");
+                RED.log.info("knxUltimate: Bind KNX Bus to interface (Auto)");
                 node.knxConnection = new knx.Connection({
                     ipAddr: node.host,
                     ipPort: node.port,
@@ -231,20 +244,30 @@ module.exports = (RED) => {
                     suppress_ack_ldatareq: node.suppressACKRequest,
                     handlers: {
                         connected: () => {
-                            node.status = "connected";
-                            if (typeof knxErrorTimeout == "undefined") {
-                                node.setAllClientsStatus("Connected", "green", "Waiting for telegram.")
-                                node.readInitialValues() // Perform initial read if applicable
-                            }
+                            node.linkStatus = "connected";
+                            node.setAllClientsStatus("Connected", "green", "Waiting for telegram.")
+                            node.readInitialValues() // Perform initial read if applicable
                         },
                         error: function (connstatus) {
-                                node.status = "disconnected";
+                                // NO_ERROR: 0x00, // E_NO_ERROR - The connection was established succesfully
+                                // E_HOST_PROTOCOL_TYPE: 0x01,
+                                // E_VERSION_NOT_SUPPORTED: 0x02,
+                                // E_SEQUENCE_NUMBER: 0x04,
+                                // E_CONNSTATE_LOST: 0x15, // typo in eibd/libserver/eibnetserver.cpp:394, forgot 0x prefix ??? "uchar res = 21;"
+                                // E_CONNECTION_ID: 0x21, // - The KNXnet/IP server device could not find an active data connection with the given ID
+                                // E_CONNECTION_TYPE: 0x22, // - The requested connection type is not supported by the KNXnet/IP server device
+                                // E_CONNECTION_OPTION: 0x23, // - The requested connection options is not supported by the KNXnet/IP server device
+                                // E_NO_MORE_CONNECTIONS: 0x24, //  - The KNXnet/IP server could not accept the new data connection (Maximum reached)
+                                // E_DATA_CONNECTION: 0x26,// - The KNXnet/IP server device detected an erro concerning the Dat connection with the given ID
+                                // E_KNX_CONNECTION: 0x27,  // - The KNXnet/IP server device detected an error concerning the KNX Bus with the given ID
+                                // E_TUNNELING_LAYER: 0x29,
+                                node.linkStatus = "disconnected";
                                 if (connstatus == "E_KNX_CONNECTION") {
-                                    node.setAllClientsStatus("knxError", "yellow", "Error KNX BUS communication")
+                                    setTimeout(() => node.setAllClientsStatus(connstatus, "red", "Error on KNX BUS. Check KNX red/black connector and cable."), 2000)
                                 } else {
-                                    node.setAllClientsStatus("Waiting", "grey", "")
+                                    setTimeout(() => node.setAllClientsStatus(connstatus, "red", "Error"), 2000)
                                 }
-                                RED.log.error("Bind KNX Bus to interface error: " + connstatus);
+                                RED.log.error("knxUltimate: Bind KNX Bus to interface error: " + connstatus);
                         }
                     }
                 }) 
@@ -343,6 +366,7 @@ module.exports = (RED) => {
             } catch (error) {
                 
             }
+            node.linkStatus = "disconnected"; // 29/08/2019 If not connected, exit
             node.knxConnection = null;
         }
 

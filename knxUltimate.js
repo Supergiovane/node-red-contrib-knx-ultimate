@@ -40,7 +40,12 @@ module.exports = function (RED) {
 
         node.on("input", function (msg) {
             if (typeof msg === "undefined") return;
-
+            if (!node.server) return; // 29/08/2019 Server not instantiate
+            if (node.server.linkStatus !== "connected") {
+                //node.setNodeStatus({ fill: "red", shape: "ring", text: "Lost link due to a connection error" });
+                RED.log.error("knxUltimate: Lost link due to a connection error");
+                return; // 29/08/2019 If not connected, exit
+            }
             // 25/07/2019 if payload is read, do a read, otherwise, write to the bus
             if (msg.hasOwnProperty('readstatus') && msg.readstatus === true) {
                 // READ: Send a Read request to the bus
@@ -107,7 +112,7 @@ module.exports = function (RED) {
                             // Looping detected
                             setTimeout(() => {
                                 node.setNodeStatus({ fill: "red", shape: "dot", text: "DISABLED! Looping detected! Check your flow's design or use RBE option." })
-                                RED.log.error("Node " + node.id + " has been disabled due to loop detection. Check your flow's design or use RBE option.");
+                                RED.log.error("knxUltimate: Node " + node.id + " has been disabled due to loop detection. Check your flow's design or use RBE option.");
                             }, 1000);
                             node.icountMessageInWindow = -999; //Lock out node
                             return;
@@ -162,7 +167,7 @@ module.exports = function (RED) {
                         // Protection over circular references (for example, if you link two Ultimate Nodes toghether with the same group address), to prevent infinite loops
                         if (msg.hasOwnProperty('topic')) { 
                             if (msg.topic == grpaddr && msg.knx) {
-                                RED.log.error("Circular reference protection. The node " + node.id + " has been disabled. " + JSON.stringify(msg));
+                                RED.log.error("knxUltimate: Circular reference protection. The node " + node.id + " has been disabled. " + JSON.stringify(msg));
                                 setTimeout(() => {
                                     node.setNodeStatus({ fill: "red", shape: "ring", text: "Node DISABLED due to a circulare reference (" + grpaddr + "). Two nodes with same group address are linked. Unlink it." })
                                 }, 1000);
@@ -171,12 +176,15 @@ module.exports = function (RED) {
                             }
                         }
                         if (outputtype == "response") {
-                            node.server.knxConnection.respond(grpaddr, msg.payload, dpt)
-                            node.setNodeStatus({ fill: "green", shape: "dot", text: "Respond ("+ grpaddr +") " + msg.payload + " dpt:" + dpt })
+                            try {
+                                node.server.knxConnection.respond(grpaddr, msg.payload, dpt);
+                                node.setNodeStatus({ fill: "green", shape: "dot", text: "Respond (" + grpaddr + ") " + msg.payload + " dpt:" + dpt });
+                            } catch (error) {}
                         } else {
-                            node.server.knxConnection.write(grpaddr, msg.payload, dpt)
-                            node.setNodeStatus({ fill: "green", shape: "dot", text: "Write ("+ grpaddr +") " + msg.payload + " dpt:" + dpt })
-     
+                            try {
+                                node.server.knxConnection.write(grpaddr, msg.payload, dpt);
+                                node.setNodeStatus({ fill: "green", shape: "dot", text: "Write (" + grpaddr + ") " + msg.payload + " dpt:" + dpt });
+                            } catch (error) {}
                         }
                     }
                 }
