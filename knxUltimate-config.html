@@ -10,7 +10,10 @@
             suppressACKRequest: {value: false},
             csv: {value:"",required:false},
             KNXEthInterface:{value:"Auto"},
-            KNXEthInterfaceManuallyInput:{value:""}
+            KNXEthInterfaceManuallyInput:{value:""},
+            statusDisplayLastUpdate:{value:false},
+            statusDisplayDeviceNameWhenALL:{value:true},
+            statusDisplayDataPoint:{value:false}
         },
         oneditprepare: function () {
             $("#node-config-input-KNXEthInterface").append($("<option></option>")
@@ -97,6 +100,20 @@
         <label for="node-config-input-physAddr"><i class="fa fa-microchip"></i> KNX Physical Address</label>
         <input type="text" id="node-config-input-physAddr">
     </div>
+
+    <div class="form-row">
+        <input type="checkbox" id="node-config-input-statusDisplayLastUpdate" style="display:inline-block; width:auto; vertical-align:top;">
+        <label style="width:auto" for="node-config-input-statusDisplayLastUpdate">&nbsp;&nbsp;<i class="fa fa-comment-o"></i>  Display last update day and time in node status</label>
+    </div>
+    <div class="form-row">
+        <input type="checkbox" id="node-config-input-statusDisplayDeviceNameWhenALL" style="display:inline-block; width:auto; vertical-align:top;">
+        <label style="width:auto" for="node-config-input-statusDisplayDeviceNameWhenALL">&nbsp;&nbsp;<i class="fa fa-comment-o"></i>  Display device name in node status (only avaiable if "Listen all Group Address" is checked)</label>
+    </div>
+    <div class="form-row">
+        <input type="checkbox" id="node-config-input-statusDisplayDataPoint" style="display:inline-block; width:auto; vertical-align:top;">
+        <label style="width:auto" for="node-config-input-statusDisplayDataPoint">&nbsp;&nbsp;<i class="fa fa-comment-o"></i>  Display datapoint in node status</label>
+    </div>
+
     <div class="form-row">
         <input type="checkbox" id="node-config-input-suppressACKRequest" style="display:inline-block; width:auto; vertical-align:top;">
         <label style="width:auto" for="node-config-input-suppressACKRequest">&nbsp;&nbsp;<i class="fa fa-ban"></i>  Suppress ACK request</label>
@@ -130,6 +147,27 @@ The Node will use this local interface for communications. Leave "Auto" for auto
 <b>KNX Physical Address</b><br/>
 Local KNX physical addres, identifying the KNX device. Default "15.15.22". This is not a group address, this represents the unique address of a konnex device in a konnex installation.
 </p>
+
+<p>
+    <b>Display last update day and time in node status</b><br/>
+    Display last update day and time, in the format (day, hh:mm:ss);
+</p>
+<p>
+    <b>Display device name in node status (only avaiable if "Listen all Group Address" is checked)</b><br/>
+    Display device name in node status. This option is only taken in consideration if "Listen all Group Address" is checked. Displays the KNX device name.
+</p>
+<p>
+    <b>Display device name in node status (only avaiable if "Listen all Group Address" is checked)</b><br/>
+    Display device name in node status. This option is only taken in consideration if "Listen all Group Address" is checked. Displays the KNX device name.
+</p>
+<p>
+    <b>Display datapoint in node status</b><br/>
+    Display the node's KNX Datapoint. 
+</p>
+    
+
+
+
 <p>
 <b>Suppress ACK request</b><br/>
 This option help compatibility with old Siemens SWG1 148-1AB22 IP Interface firmware and other EHT/KNX interfaces that does'nt like the ACK. Default "unchecked". Check it to help compatibility
