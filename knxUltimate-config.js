@@ -228,10 +228,12 @@ module.exports = (RED) => {
                             node.linkStatus = "disconnected";
                             if (connstatus == "E_KNX_CONNECTION") {
                                 setTimeout(() => node.setAllClientsStatus(connstatus, "red", "Error on KNX BUS. Check KNX red/black connector and cable."), 2000)
+                                RED.log.error("knxUltimate: Bind KNX Bus to interface error: " + connstatus);
                             } else {
                                 setTimeout(() => node.setAllClientsStatus(connstatus, "red", "Error"), 2000)
+                                RED.log.error("knxUltimate: knxConnection error: " + connstatus);
                             }
-                            RED.log.error("knxUltimate: Bind KNX Bus to interface error: " + connstatus);
+                            
                         }
                     }
                 })
@@ -264,10 +266,11 @@ module.exports = (RED) => {
                                 node.linkStatus = "disconnected";
                                 if (connstatus == "E_KNX_CONNECTION") {
                                     setTimeout(() => node.setAllClientsStatus(connstatus, "red", "Error on KNX BUS. Check KNX red/black connector and cable."), 2000)
+                                    RED.log.error("knxUltimate: Bind KNX Bus to interface error: " + connstatus);
                                 } else {
                                     setTimeout(() => node.setAllClientsStatus(connstatus, "red", "Error"), 2000)
+                                    RED.log.error("knxUltimate: knxConnection error: " + connstatus);
                                 }
-                                RED.log.error("knxUltimate: Bind KNX Bus to interface error: " + connstatus);
                         }
                     }
                 }) 
