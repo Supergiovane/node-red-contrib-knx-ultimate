@@ -15,34 +15,38 @@ module.exports = function (RED) {
         node.inputRBE = config.inputRBE || "false" // Apply or not RBE to the input
         node.currentPayload = "" // Current value for the RBE input
         node.icountMessageInWindow = 0; // Used to prevent looping messages
+        
 
          // Check if the node has a valid topic and dpt
         if(node.listenallga==false){
             if (typeof node.topic == "undefined" || typeof node.dpt == "undefined") {
-                node.setNodeStatus({ fill: "red", shape: "dot", text: "Empty group address (topic) or datapoint." })
+                node.setNodeStatus({ fill: "red", shape: "dot", text: "Empty group address (topic) or datapoint.",payload: "", GA: "", dpt:"", devicename:"" })
                 return;
             } else {
             
                 // Topic must be in formar x/x/x
                 if (node.topic.split("\/").length < 3) {
-                    node.setNodeStatus({ fill: "red", shape: "dot", text: "Wrong group address (topic: " + node.topic + ") format." })
+                    node.setNodeStatus({ fill: "red", shape: "dot", text: "Wrong group address format.",payload: "", GA: node.topic, dpt:"", devicename:""})
                     return;
                 }
             }
         }
 
         // Used to call the status update from the config node.
-        node.setNodeStatus = ({ fill, shape, text }) => {
+        node.setNodeStatus = ({ fill, shape, text, payload, GA, dpt, devicename }) => {
             if (node.icountMessageInWindow == -999) return; // Locked out, doesn't change status.
             var dDate = new Date();
-            node.status({fill: fill,shape: shape,text: text + " (" + dDate.getDate() + ", " + dDate.toLocaleTimeString() + ")"})
+            // 30/08/2019 Display only the things selected in the config
+            _GA= (typeof _GA == "undefined" || GA == "") ? "" : "(" + GA + ") ";
+            _devicename = devicename || "";
+            _dpt= (typeof dpt == "undefined" || dpt == "") ? "" : " DPT" + dpt;
+            node.status({ fill: fill, shape: shape, text: _GA + payload + ((node.listenallga && node.server.statusDisplayDeviceNameWhenALL) == true ? " " + _devicename : "") +(node.server.statusDisplayDataPoint == true ? _dpt : "") + (node.server.statusDisplayLastUpdate == true ? " (" + dDate.getDate() + ", " + dDate.toLocaleTimeString() + ")" : "") + " " + text });
         }
 
         node.on("input", function (msg) {
             if (typeof msg === "undefined") return;
             if (!node.server) return; // 29/08/2019 Server not instantiate
             if (node.server.linkStatus !== "connected") {
-                //node.setNodeStatus({ fill: "red", shape: "ring", text: "Lost link due to a connection error" });
                 RED.log.error("knxUltimate: Lost link due to a connection error");
                 return; // 29/08/2019 If not connected, exit
             }
@@ -53,7 +57,7 @@ module.exports = function (RED) {
                     var grpaddr = ""
                     if (node.listenallga==false) {
                         grpaddr = msg && msg.destination ? msg.destination : node.topic
-                        node.setNodeStatus({ fill: "grey", shape: "dot", text: "Read (" + grpaddr + ")" });
+                        node.setNodeStatus({ fill: "grey", shape: "dot", text: "Read",payload: "", GA: grpaddr, dpt:node.dpt, devicename:"" });
                         node.server.readValue(grpaddr)
                     } else { // Listen all GAs
                         if (msg.destination) {
@@ -67,7 +71,7 @@ module.exports = function (RED) {
                                 const element = node.server.csv[index];
                                 setTimeout(() => {
                                     node.server.readValue(element.ga);
-                                    node.setNodeStatus({ fill: "yellow", shape: "dot", text: "Request (" + element.ga + ")" });
+                                    node.setNodeStatus({ fill: "yellow", shape: "dot", text: "Read",payload:"", GA: element.ga, dpt:element.dpt, devicename:element.devicename });
                                 }, delay);
                                 delay = delay + 200;
                             }
@@ -99,7 +103,7 @@ module.exports = function (RED) {
                             newVal = "1";
                         }
                         if (curVal === newVal) {
-                            node.setNodeStatus({ fill: "grey", shape: "ring", text: "rbe block ("+msg.payload+") to KNX"})
+                            node.setNodeStatus({ fill: "grey", shape: "ring", text: "rbe block ("+msg.payload+") to KNX", payload:"", GA: "", dpt:"", devicename:""})
                             return;
                         }
                     }
@@ -111,7 +115,7 @@ module.exports = function (RED) {
                         if (node.icountMessageInWindow >= 80) {
                             // Looping detected
                             setTimeout(() => {
-                                node.setNodeStatus({ fill: "red", shape: "dot", text: "DISABLED! Looping detected! Check your flow's design or use RBE option." })
+                                node.setNodeStatus({ fill: "red", shape: "dot", text: "DISABLED! Looping detected! Check your flow's design or use RBE option.", payload:"", GA: "", dpt:"", devicename:"" })
                                 RED.log.error("knxUltimate: Node " + node.id + " has been disabled due to loop detection. Check your flow's design or use RBE option.");
                             }, 1000);
                             node.icountMessageInWindow = -999; //Lock out node
@@ -141,7 +145,7 @@ module.exports = function (RED) {
                             if (msg.destination) {
                                 grpaddr = msg.destination;
                             } else {
-                                node.setNodeStatus({ fill: "red", shape: "dot", text: "msg.destination not set!" })
+                                node.setNodeStatus({ fill: "red", shape: "dot", text: "msg.destination not set!" ,payload:"", GA: "", dpt:"", devicename:""})
                                 return;
                             }
                         } else {
@@ -169,7 +173,7 @@ module.exports = function (RED) {
                             if (msg.topic == grpaddr && msg.knx) {
                                 RED.log.error("knxUltimate: Circular reference protection. The node " + node.id + " has been disabled. " + JSON.stringify(msg));
                                 setTimeout(() => {
-                                    node.setNodeStatus({ fill: "red", shape: "ring", text: "Node DISABLED due to a circulare reference (" + grpaddr + "). Two nodes with same group address are linked. Unlink it." })
+                                    node.setNodeStatus({ fill: "red", shape: "ring", text: "Node DISABLED due to a circulare reference (" + grpaddr + "). Two nodes with same group address are linked. Unlink it.",payload:"", GA: "", dpt:"", devicename:"" })
                                 }, 1000);
                                 //node.server.removeClient(node);
                                 return;
@@ -178,12 +182,12 @@ module.exports = function (RED) {
                         if (outputtype == "response") {
                             try {
                                 node.server.knxConnection.respond(grpaddr, msg.payload, dpt);
-                                node.setNodeStatus({ fill: "green", shape: "dot", text: "Respond (" + grpaddr + ") " + msg.payload + " dpt:" + dpt });
+                                node.setNodeStatus({ fill: "blue", shape: "dot", text: "Respond",payload: msg.payload, GA: grpaddr, dpt:dpt, devicename:"" });
                             } catch (error) {}
                         } else {
                             try {
                                 node.server.knxConnection.write(grpaddr, msg.payload, dpt);
-                                node.setNodeStatus({ fill: "green", shape: "dot", text: "Write (" + grpaddr + ") " + msg.payload + " dpt:" + dpt });
+                                node.setNodeStatus({ fill: "green", shape: "dot", text: "Write",payload: msg.payload, GA: grpaddr, dpt:dpt, devicename:"" });
                             } catch (error) {}
                         }
                     }

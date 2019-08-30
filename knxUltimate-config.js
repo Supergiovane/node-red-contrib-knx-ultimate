@@ -65,6 +65,10 @@ module.exports = (RED) => {
         node.nodeClients = [] // Stores the registered clients
         node.KNXEthInterface = typeof config.KNXEthInterface === "undefined" ? "Auto" : config.KNXEthInterface;
         node.KNXEthInterfaceManuallyInput = typeof config.KNXEthInterfaceManuallyInput === "undefined" ? "" : config.KNXEthInterfaceManuallyInput; // If you manually set the interface name, it will be wrote here
+        node.statusDisplayLastUpdate = config.statusDisplayLastUpdate || true;
+        node.statusDisplayDeviceNameWhenALL = config.statusDisplayDeviceNameWhenALL || false;
+        node.statusDisplayDataPoint = config.statusDisplayDataPoint || false;
+        
         
         // Endpoint for reading csv from the other nodes
         RED.httpAdmin.get("/knxUltimatecsv", RED.auth.needsPermission('knxUltimate-config.read'), function (req, res) {
@@ -97,13 +101,13 @@ module.exports = (RED) => {
                 // Check if the node has a valid topic and dpt
                 if (_Node.listenallga==false) {
                     if (typeof _Node.topic == "undefined" || typeof _Node.dpt == "undefined") {
-                        _Node.setNodeStatus({ fill: "red", shape: "dot", text: "Empty group address (topic) or datapoint." })
+                        _Node.setNodeStatus({ fill: "red", shape: "dot", text: "Empty group address (topic) or datapoint.",payload: "", GA: "", dpt:"", devicename:"" })
                         return;
                     } else {
             
                         // Topic must be in formar x/x/x
                         if (_Node.topic.split("\/").length < 3) {
-                            _Node.setNodeStatus({ fill: "red", shape: "dot", text: "Wrong group address (topic: " + _Node.topic + ") format." })
+                            _Node.setNodeStatus({ fill: "red", shape: "dot", text: "Wrong group address (topic: " + _Node.topic + ") format.",payload: "", GA: "", dpt:"", devicename:"" })
                             return;
                         }
                     }
@@ -180,7 +184,7 @@ module.exports = (RED) => {
         
         node.setAllClientsStatus = (_status, _color, _text) => {
             function nextStatus(oClient) {
-                oClient.setNodeStatus({ fill: _color, shape: "dot", text: "(" + oClient.topic + ") " + _status + " " + _text })
+                oClient.setNodeStatus({ fill: _color, shape: "dot", text: _status + " " + _text ,payload: "", GA: oClient.topic, dpt:"", devicename:""})
             }
             node.nodeClients.map(nextStatus);
         }
@@ -290,17 +294,17 @@ module.exports = (RED) => {
                                     // Get the GA from CVS
                                     let oGA = node.csv.filter(sga => sga.ga == dest)[0]
                                     let msg = buildInputMessage(src, dest, evt, rawValue, oGA.dpt, oGA.devicename)
-                                    input.setNodeStatus({ fill: "green", shape: "dot", text: "(" + msg.knx.destination + ") " + msg.payload + " dpt:" + msg.knx.dpt });
+                                    input.setNodeStatus({ fill: "green", shape: "dot", text: "",payload: msg.payload, GA: msg.knx.destination, dpt:msg.knx.dpt, devicename:msg.devicename });
                                     input.send(msg)
                                 } else if (input.topic == dest) {
                                     let msg = buildInputMessage(src, dest, evt, rawValue, input.dpt, input.name ? input.name : "")
                                     // Check RBE INPUT from KNX Bus, to avoid send the payload to the flow, if it's equal to the current payload
                                     if (!checkRBEInputFromKNXBusAllowSend(input, msg.payload)) {
-                                        input.setNodeStatus({fill: "grey", shape: "ring", text: "rbe block ("+msg.payload+") from KNX"})
-                        return;
-                    };
+                                        input.setNodeStatus({fill: "grey", shape: "ring", text: "rbe block ("+msg.payload+") from KNX",payload: "", GA: "", dpt:"", devicename:""})
+                                    return;
+                                };
                                     input.currentPayload = msg.payload;// Set the current value for the RBE input
-                                    input.setNodeStatus({fill: "green", shape: "dot", text: "(" + input.topic + ") " + msg.payload});
+                                    input.setNodeStatus({fill: "green", shape: "dot", text: "", payload: msg.payload, GA: input.topic, dpt:input.dpt, devicename:""});
                                     //RED.log.error("RX FROM BUS : " + input.id +" " + src + " " + dest + " " + evt)
                                     input.send(msg)
                                 }
@@ -316,7 +320,7 @@ module.exports = (RED) => {
                                     // Get the DPT
                                     let oGA = node.csv.filter(sga => sga.ga == dest)[0]
                                     let msg = buildInputMessage(src, dest, evt, rawValue, oGA.dpt, oGA.devicename)
-                                    input.setNodeStatus({ fill: "blue", shape: "dot", text: "(" + msg.knx.destination + ") " + msg.payload + " dpt:" + msg.knx.dpt });
+                                    input.setNodeStatus({ fill: "blue", shape: "dot", text: "", payload: msg.payload, GA: msg.knx.destination, dpt:msg.knx.dpt, devicename:msg.devicename });
                                     input.send(msg)
                                 } else if (input.topic == dest) {
                                     let msg = buildInputMessage(src, dest, evt, rawValue, input.dpt, input.name ? input.name : "")
@@ -326,7 +330,7 @@ module.exports = (RED) => {
                                         return;
                                     };
                                     input.currentPayload = msg.payload; // Set the current value for the RBE input
-                                    input.setNodeStatus({ fill: "blue", shape: "dot", text: "(" + input.topic + ") " + msg.payload });
+                                    input.setNodeStatus({ fill: "blue", shape: "dot", text: "", payload: msg.payload, GA: input.topic, dpt:msg.knx.dpt, devicename:msg.devicename });
                                     input.send(msg)
                                 }
                             })
@@ -341,11 +345,11 @@ module.exports = (RED) => {
                                     // Get the DPT
                                     let oGA = node.csv.filter(sga => sga.ga == dest)[0]
                                     let msg = buildInputMessage(src, dest, evt, null, oGA.dpt, oGA.devicename)
-                                    input.setNodeStatus({ fill: "grey", shape: "dot", text: "(" + msg.knx.destination + ") read dpt:" + msg.knx.dpt });
+                                    input.setNodeStatus({ fill: "grey", shape: "dot", text: "Read", payload: msg.payload, GA: msg.knx.destination, dpt:msg.knx.dpt, devicename:msg.devicename});
                                     input.send(msg)
                                 } else if (input.topic == dest) {
                                     let msg = buildInputMessage(src, dest, evt, null, input.dpt, input.name ? input.name :"")
-                                    input.setNodeStatus({ fill: "grey", shape: "dot", text: "(" + input.topic + ") read" });
+                                    input.setNodeStatus({ fill: "grey", shape: "dot", text: "Read", payload: msg.payload, GA: input.topic , dpt:msg.knx.dpt, devicename:"" });
                                     input.send(msg)
                                 }
                             })
