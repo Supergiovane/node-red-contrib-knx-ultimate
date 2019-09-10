@@ -8,6 +8,7 @@
 <b>Version 1.1.9</b><br/>
 - Fixed visual glitch when create a new freshly Config Node.<br/>
 - Added 3 options in the config-node to select what to display in the node status, for a cleaner flow or for a clearer flow.<br/>
+- Fixed issue with IP Interfaces. On each deploy, the node doesn't lock tunnels anymore.<br/>
 </p>
 <p>
 <b>Version 1.1.8</b><br/>

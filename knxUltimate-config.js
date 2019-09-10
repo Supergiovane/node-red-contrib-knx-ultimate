@@ -373,7 +373,12 @@ module.exports = (RED) => {
             } catch (error) {
                 
             }
-            node.linkStatus = "disconnected"; // 29/08/2019 If not connected, exit
+            node.linkStatus = "disconnected"; // 29/08/2019 signal disconnection
+            try {
+                node.knxConnection.Disconnect();
+            } catch (error) {
+            }
+            
             node.knxConnection = null;
         }
 
