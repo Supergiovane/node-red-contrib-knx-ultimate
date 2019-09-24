@@ -5,6 +5,10 @@
 [![Donate via PayPal](https://img.shields.io/badge/Donate-PayPal-blue.svg?style=flat-square)](https://www.paypal.me/techtoday) 
 
 <p>
+<b>Version 1.1.10</b><br/>
+- Auto send node value as response to the KNX Bus. It works in conjunction with React to event GroupValue read. When checked, whenever the node receives a read request from bus, it sends a response to the KNX Bus with the stored payload value.<br/>
+</p>
+<p>
 <b>Version 1.1.9</b><br/>
 - Fixed visual glitch when create a new freshly Config Node.<br/>
 - Added 3 options in the config-node to select what to display in the node status, for a cleaner flow or for a clearer flow.<br/>

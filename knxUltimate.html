@@ -10,6 +10,8 @@
             notifyreadrequest: { value: false },
             notifyresponse: { value: false },
             notifywrite: { value: true },
+            notifywritealsorespondtobus: { value: false },
+            notifywritealsorespondtobusdefaultvalueifnotinitialized: { value: "0" },
             listenallga: { value: false },
             name: { value: "" },
             outputtype: { value: "write" },
@@ -47,6 +49,17 @@
                 $("#node-input-outputtype").val("write")
             }
 
+            $("#node-input-notifyreadrequest").on('change',function() {
+                if ($("#node-input-notifyreadrequest").is(":checked")) {
+                    if ($("#node-input-listenallga").is(":checked")) {
+                    }else{
+                       $("#divnotifyreadrequestautoreact").show();
+                    }
+                }else{
+                    $("#divnotifyreadrequestautoreact").hide();
+                }
+            })
+
             $("#node-input-listenallga").on('change',function() {
                 if ($("#node-input-listenallga").is(":checked")) {
                     $("#GAandDPT").hide()
@@ -54,11 +67,17 @@
                     $("#node-input-outputRBE").prop('checked', false)
                     $("#divInputRBE").hide()
                     $("#node-input-inputRBE").prop('checked', false)
+                    $("#divnotifyreadrequestautoreact").hide();
                     
                 }else{
                     $("#GAandDPT").show()
                     $("#divOutputRBE").show()
                     $("#divInputRBE").show()
+                    if ($("#node-input-notifyreadrequest").is(":checked")) {
+                        $("#divnotifyreadrequestautoreact").show();
+                    }else{
+                        $("#divnotifyreadrequestautoreact").hide();
+                    }
                 }
             })
 
@@ -197,54 +216,65 @@
             <option value="response">Response</option>
         </select>
     </div>
-    <dd>
-        <div class="form-row" id="divOutputRBE">
-            <label>&nbsp;</label>
-            <input type="checkbox" id="node-input-outputRBE" style="display:inline-block; width:auto; vertical-align:top;">
-            <label style="width:auto" for="node-input-outputRBE">&nbsp;&nbsp;<i class="fa fa-filter"></i> Send payload to KNX bus only if changed (RBE filter)</label>
-         </div>
-    </dd>
-    <dd>
-        <div class="form-row">
-            <label>&nbsp;</label>
-            <input type="checkbox" id="node-input-initialread" style="display:inline-block; width:auto; vertical-align:top;">
-            <label style="width:auto" for="node-input-initialread">&nbsp;&nbsp;<i class="fa fa-question-circle-o"></i> Send a GrpValue read once on connection/reconnect</label>
+ 
+    <div class="form-row" id="divOutputRBE">
+        <label>&nbsp;</label>
+        <input type="checkbox" id="node-input-outputRBE" style="display:inline-block; width:auto; vertical-align:top;">
+        <label style="width:auto" for="node-input-outputRBE">&nbsp;&nbsp;<i class="fa fa-filter"></i> Send payload to KNX bus only if changed (RBE filter)</label>
         </div>
-    </dd>
+
+    <div class="form-row">
+        <label>&nbsp;</label>
+        <input type="checkbox" id="node-input-initialread" style="display:inline-block; width:auto; vertical-align:top;">
+        <label style="width:auto" for="node-input-initialread">&nbsp;&nbsp;<i class="fa fa-question-circle-o"></i> Send a GrpValue read once on connection/reconnect</label>
+    </div>
+    
    
     <br/ ><dt><i class="fa fa-code-fork"></i>&nbsp; INPUT (listen to datagram from the KNX bus)</dt><br/ >
         <!-- <div class="form-row" id="divAllInputsDeselected">
             <label style="width:auto"><i class="fa fa-times-circle"></i>&nbsp;The node will not respond to telegrams coming from the KNX bus,<br />
             <i class="fa fa-times-circle"></i>&nbsp; unless you tick some checks here below.</label>
         </div> -->
-        <dd>
-            <div class="form-row" id="divInputRBE">
-                <label>&nbsp;</label>
-                <input type="checkbox" id="node-input-inputRBE" style="display:inline-block; width:auto; vertical-align:top;">
-                <label style="width:auto" for="node-input-inputRBE">&nbsp;&nbsp;<i class="fa fa-filter"></i> React only if payload from KNX Bus is changed (RBE filter)</label>
-             </div>
-        </dd>
-        <dd>
-            <div class="form-row">
+       
+        <div class="form-row" id="divInputRBE">
+            <label>&nbsp;</label>
+            <input type="checkbox" id="node-input-inputRBE" style="display:inline-block; width:auto; vertical-align:top;">
+            <label style="width:auto" for="node-input-inputRBE">&nbsp;&nbsp;<i class="fa fa-filter"></i> React only if payload from KNX Bus is changed (RBE filter)</label>
+            </div>
+    
+        <div class="form-row">
             <label>&nbsp;</label>
             <input type="checkbox" id="node-input-notifywrite" style="display:inline-block; width:auto; vertical-align:top;">
             <label style="width:auto" for="node-input-notifywrite">&nbsp;&nbsp;<i class="fa fa-sign-in"></i> React to event GroupValue write </label>
-            </div>
-        </dd>
-        <dd>
-            <div class="form-row">
+        </div>
+    
+        <div class="form-row">
             <label>&nbsp;</label>
             <input type="checkbox" id="node-input-notifyresponse" style="display:inline-block; width:auto; vertical-align:top;">
             <label style="width:auto" for="node-input-notifyresponse">&nbsp;&nbsp;<i class="fa fa-sign-in"></i> React to event GroupValue response </label>
-            </div>
-        </dd>
-        <dd>
-            <div class="form-row">
-             <label>&nbsp;</label>
+        </div>
+    
+        <div class="form-row">
+            <label>&nbsp;</label>
             <input type="checkbox" id="node-input-notifyreadrequest" style="display:inline-block; width:auto; vertical-align:top;">
             <label style="width:auto" for="node-input-notifyreadrequest">&nbsp;&nbsp;<i class="fa fa-sign-in"></i> React to event GroupValue read </label>
+        </div>
+      
+        <div id="divnotifyreadrequestautoreact">
+        <dd>
+            <div class="form-row" >
+                <label>&nbsp;</label>
+                <input type="checkbox" id="node-input-notifywritealsorespondtobus" style="display:inline-block; width:auto; vertical-align:top;">
+                <label style="width:auto" for="node-input-notifywritealsorespondtobus">&nbsp;&nbsp; Auto send node value as response to the KNX Bus</label>
+           </div>
+           <div class="form-row">
+                <label>&nbsp;</label>
+                <label style="width:auto">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; If value is undefined, send</label>
+                <input style="width:auto"type="text" id="node-input-notifywritealsorespondtobusdefaultvalueifnotinitialized" placeholder="Ex: 0 for false, 1 for true, otherwise any value">
             </div>
         </dd>
+    </div>
+        
 </script>
 
 <script type="text/x-red" data-help-name="knxUltimate">
@@ -300,7 +330,11 @@
                 <dt>React to event GroupValue read</dt>
                 <dd> When checked, received read requests will be notified, this can be used to create your own response with a <i>Output Type</i> set to 'Response'.
                     <strong>Attention:</strong> Messages for received read requests have a <code>msg.payload</code> and
-                    <code>msg.knx.rawValue</code> with value <code>null</code>.
+                    <code>msg.knx.rawValue</code> with value <code>null</code>.<br/>
+                        <dt>Auto send node value as response to the KNX Bus</dt>
+                        <dd> Only enabled if "Listen to all group addresses" is not selected. It works in conjunction with <b>React to event GroupValue read</b>. When checked, whenever the node receives a read request from bus, it sends a response to the KNX Bus with the stored payload value.
+                            If the value is unknown/not initialized, it sends a default value you've selected in the text box.
+                        </dd>
                 </dd>
             </dl>
         </p>
