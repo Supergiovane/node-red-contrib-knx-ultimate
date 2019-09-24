@@ -6,6 +6,8 @@ module.exports = function (RED) {
         node.topic = config.topic
         node.dpt = config.dpt || "1.001"
         node.notifyreadrequest = config.notifyreadrequest || false
+        node.notifyreadrequestalsorespondtobus = config.notifyreadrequestalsorespondtobus || "false";  // Auto respond if notifireadrequest is true
+        node.notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized = config.notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized || "";
         node.notifyresponse = config.notifyresponse || false
         node.notifywrite = config.notifywrite
         node.initialread = config.initialread || false
@@ -15,7 +17,7 @@ module.exports = function (RED) {
         node.inputRBE = config.inputRBE || "false" // Apply or not RBE to the input
         node.currentPayload = "" // Current value for the RBE input
         node.icountMessageInWindow = 0; // Used to prevent looping messages
-        
+       
 
          // Check if the node has a valid topic and dpt
         if(node.listenallga==false){
@@ -78,11 +80,8 @@ module.exports = function (RED) {
                             // setTimeout(() => {
                             //     node.setNodeStatus({ fill: "yellow", shape: "dot", text: "Done requests." });
                             // }, delay+500);
-                            
                         }
-                       
                     }
-                        
                  }
             } else {
                 if (node.listenallga == false) {

@@ -10,8 +10,8 @@
             notifyreadrequest: { value: false },
             notifyresponse: { value: false },
             notifywrite: { value: true },
-            notifywritealsorespondtobus: { value: false },
-            notifywritealsorespondtobusdefaultvalueifnotinitialized: { value: "0" },
+            notifyreadrequestalsorespondtobus: { value: false },
+            notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized: { value: "0" },
             listenallga: { value: false },
             name: { value: "" },
             outputtype: { value: "write" },
@@ -261,19 +261,19 @@
         </div>
       
         <div id="divnotifyreadrequestautoreact">
-        <dd>
-            <div class="form-row" >
-                <label>&nbsp;</label>
-                <input type="checkbox" id="node-input-notifywritealsorespondtobus" style="display:inline-block; width:auto; vertical-align:top;">
-                <label style="width:auto" for="node-input-notifywritealsorespondtobus">&nbsp;&nbsp; Auto send node value as response to the KNX Bus</label>
-           </div>
-           <div class="form-row">
-                <label>&nbsp;</label>
-                <label style="width:auto">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; If value is undefined, send</label>
-                <input style="width:auto"type="text" id="node-input-notifywritealsorespondtobusdefaultvalueifnotinitialized" placeholder="Ex: 0 for false, 1 for true, otherwise any value">
+            <dd>
+                <div class="form-row" >
+                    <label>&nbsp;</label>
+                    <input type="checkbox" id="node-input-notifyreadrequestalsorespondtobus" style="display:inline-block; width:auto; vertical-align:top;">
+                    <label style="width:auto" for="node-input-notifyreadrequestalsorespondtobus">&nbsp;&nbsp; Auto send node value as response to the KNX Bus</label>
             </div>
-        </dd>
-    </div>
+            <div class="form-row">
+                    <label>&nbsp;</label>
+                    <label style="width:auto">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; If value is undefined, send</label>
+                    <input style="width:auto"type="text" id="node-input-notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized" placeholder="Ex: 0 for false, 1 for true, otherwise any value">
+                </div>
+            </dd>
+        </div>
         
 </script>
 

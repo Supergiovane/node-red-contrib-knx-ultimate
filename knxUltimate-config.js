@@ -284,7 +284,12 @@ module.exports = (RED) => {
             
             // Handle BUS events
             node.knxConnection.on("event", function (evt, src, dest, rawValue) {
-                //if (dest == "0/1/8") RED.log.error("RX FROM BUS : " + src + " " + dest + " " + evt + rawValue);
+                // if (dest == "0/0/50") RED.log.error("RX FROM BUS : " + src + " " + dest + " " + evt + rawValue);
+                // if (dest == "0/0/50") {
+                //     node.nodeClients.filter(input => input.notifywrite == true).forEach(input => {
+                //     RED.log.error("ID=" + input.id + " " + input.topic + " dest=" + dest + " notifywrite=" + input.notifywrite + " listenallga="+input.listenallga);
+                //     });
+                // }
                 switch (evt) {
                     case "GroupValue_Write": {
                         node.nodeClients
@@ -293,16 +298,21 @@ module.exports = (RED) => {
                                 if (input.listenallga == true) {
                                     // Get the GA from CVS
                                     let oGA = node.csv.filter(sga => sga.ga == dest)[0]
-                                    let msg = buildInputMessage(src, dest, evt, rawValue, oGA.dpt, oGA.devicename)
-                                    input.setNodeStatus({ fill: "green", shape: "dot", text: "",payload: msg.payload, GA: msg.knx.destination, dpt:msg.knx.dpt, devicename:msg.devicename });
-                                    input.send(msg)
+                                    if (typeof oGA === "undefined") {
+                                        RED.log.warn("knxUltimate: node " + input.id + ", received write from KNX Bus but destination " + dest + " not found in the ETS CVS group addresses list. Unable to decode the Datapoint");    
+                                    } else {
+                                        let msg = buildInputMessage(src, dest, evt, rawValue, oGA.dpt, oGA.devicename)
+                                        input.setNodeStatus({ fill: "green", shape: "dot", text: "",payload: msg.payload, GA: msg.knx.destination, dpt:msg.knx.dpt, devicename:msg.devicename });
+                                        input.send(msg)
+                                    }
                                 } else if (input.topic == dest) {
+                                    
                                     let msg = buildInputMessage(src, dest, evt, rawValue, input.dpt, input.name ? input.name : "")
                                     // Check RBE INPUT from KNX Bus, to avoid send the payload to the flow, if it's equal to the current payload
                                     if (!checkRBEInputFromKNXBusAllowSend(input, msg.payload)) {
                                         input.setNodeStatus({fill: "grey", shape: "ring", text: "rbe block ("+msg.payload+") from KNX",payload: "", GA: "", dpt:"", devicename:""})
-                                    return;
-                                };
+                                        return;
+                                    };
                                     input.currentPayload = msg.payload;// Set the current value for the RBE input
                                     input.setNodeStatus({fill: "green", shape: "dot", text: "", payload: msg.payload, GA: input.topic, dpt:input.dpt, devicename:""});
                                     //RED.log.error("RX FROM BUS : " + input.id +" " + src + " " + dest + " " + evt)
@@ -319,9 +329,13 @@ module.exports = (RED) => {
                                 if (input.listenallga==true) {
                                     // Get the DPT
                                     let oGA = node.csv.filter(sga => sga.ga == dest)[0]
-                                    let msg = buildInputMessage(src, dest, evt, rawValue, oGA.dpt, oGA.devicename)
-                                    input.setNodeStatus({ fill: "blue", shape: "dot", text: "", payload: msg.payload, GA: msg.knx.destination, dpt:msg.knx.dpt, devicename:msg.devicename });
-                                    input.send(msg)
+                                    if (typeof oGA === "undefined") {
+                                        RED.log.warn("knxUltimate:  node " + input.id +", received response from KNX Bus but destination " + dest + " not found in the ETS CVS group addresses list. Unable to decode the Datapoint");    
+                                    } else {
+                                        let msg = buildInputMessage(src, dest, evt, rawValue, oGA.dpt, oGA.devicename)
+                                        input.setNodeStatus({ fill: "blue", shape: "dot", text: "", payload: msg.payload, GA: msg.knx.destination, dpt: msg.knx.dpt, devicename: msg.devicename });
+                                        input.send(msg)
+                                    }
                                 } else if (input.topic == dest) {
                                     let msg = buildInputMessage(src, dest, evt, rawValue, input.dpt, input.name ? input.name : "")
                                     // Check RBE INPUT from KNX Bus, to avoid send the payload to the flow, if it's equal to the current payload
@@ -344,13 +358,33 @@ module.exports = (RED) => {
                                 if (input.listenallga==true) {
                                     // Get the DPT
                                     let oGA = node.csv.filter(sga => sga.ga == dest)[0]
-                                    let msg = buildInputMessage(src, dest, evt, null, oGA.dpt, oGA.devicename)
-                                    input.setNodeStatus({ fill: "grey", shape: "dot", text: "Read", payload: msg.payload, GA: msg.knx.destination, dpt:msg.knx.dpt, devicename:msg.devicename});
-                                    input.send(msg)
+                                    if (typeof oGA === "undefined") {
+                                        RED.log.warn("knxUltimate:  node " + input.id + ", received read from KNX Bus but destination " + dest + " not found in the ETS CVS group addresses list. Unable to decode the Datapoint");
+                                    } else {
+                                        let msg = buildInputMessage(src, dest, evt, null, oGA.dpt, oGA.devicename)
+                                        input.setNodeStatus({ fill: "grey", shape: "dot", text: "Read", payload: msg.payload, GA: msg.knx.destination, dpt: msg.knx.dpt, devicename: msg.devicename });
+                                        input.send(msg)
+                                    }
                                 } else if (input.topic == dest) {
-                                    let msg = buildInputMessage(src, dest, evt, null, input.dpt, input.name ? input.name :"")
-                                    input.setNodeStatus({ fill: "grey", shape: "dot", text: "Read", payload: msg.payload, GA: input.topic , dpt:msg.knx.dpt, devicename:"" });
+                                    let msg = buildInputMessage(src, dest, evt, null, input.dpt, input.name ? input.name : "")
+                                    // 24/09/2019 Autorespond to BUS
+                                    if (input.notifyreadrequestalsorespondtobus===true) {
+                                        if (typeof input.currentPayload === "undefined" || input.currentPayload === "") {
+                                            setTimeout(() => {
+                                                node.knxConnection.respond(dest, input.notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized, input.dpt);
+                                                input.setNodeStatus({ fill: "blue", shape: "ring", text: "Read & Autorespond with default", payload: input.notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized, GA: input.topic, dpt: msg.knx.dpt, devicename: "" });
+                                            }, 200);
+                                        } else {
+                                            setTimeout(() => {
+                                                node.knxConnection.respond(dest, input.currentPayload, input.dpt);    
+                                                input.setNodeStatus({ fill: "blue", shape: "ring", text: "Read & Autorespond", payload: input.currentPayload, GA: input.topic, dpt: msg.knx.dpt, devicename: "" });
+                                            }, 200);
+                                        }
+                                    } else {
+                                        input.setNodeStatus({ fill: "grey", shape: "dot", text: "Read", payload: msg.payload, GA: input.topic , dpt:msg.knx.dpt, devicename:"" });    
+                                    }
                                     input.send(msg)
+                                    
                                 }
                             })
                         break;
@@ -410,6 +444,7 @@ module.exports = (RED) => {
 
         function buildInputMessage(src, dest, evt, value, inputDpt, _devicename) {
             // Resolve DPT and convert value if available
+            //if (dest=="0/0/50") RED.log.error("Buildinputmessage src=" + src + " dest" + dest + " value=" + value + " inputDpt=" + inputDpt + " _devicename="+_devicename);
             var dpt = dptlib.resolve(inputDpt)
             var jsValue = null
             if (dpt && value) {
