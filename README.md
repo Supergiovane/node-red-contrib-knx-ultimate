@@ -23,6 +23,37 @@ Based on configuration and msg option, you can achieve all what you need.<br />
 * See <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki">here the wiki with samples and documentation</a>
 * Join <a href="https://www.youtube.com/channel/UCA9RsLps1IthT7fDSeUbRZw">my Youtube channel.</a> 
 
+## DETAILS
+* **STAND ALONE OR WITH ETS GROUP ADDRESS LIST** >You can set you own group address, datapoint and device name, or you can import the ETS Group Address list and have datapoint and device name auto populated while typing in the group address.
+
+* **AUTOMATIC DISPLAY OF ALL YOUR KNX DEVICES** >If you import your ETS CSV file, just begin typing the group address or the device name in the Group Address textbox and a list of possible matches will appear. Just select an item in the list it and have datapoint and device name auto populated. You can then accept the auto populated fields or change it.
+
+* **AUTOMATIC ENCODING/DECONDING OF TELEGRAM** >Just pass a normal payload to the node (true, false, a string or any nymber) and just receive a normal payload (true, false, a string or any nymber) to use in your flow.
+
+* **DOUBLE PERSONALITY** >The node can act as a single device (for example having Group Address 0/0/1), or can be used as universal catch all messages coming from KNX Bus (in this case the node will output a comprehensive msg to the flow, containing group address, device name, automatic decoded payload and other useful infos). The node can act as universal KNX sender as well (you can pass a message to the node, containing the destination group address, the datapont type and the payload).
+
+* **EMULATE KNX DEVICE** >You can use the node to emulate a phisically non existent KNX device. The node will behave exactly as a normal KNX Device and will also respond to read requests coming from the KNX bus, by sending the current payload value to the KNX bus.
+
+* **ADJUSTABLE STATUS DISPLAY** >You can select what to see in the status (the row below the node). For example, you can select to see the current payload value and the last time changed, or the device name as well.
+
+* **CIRCULAR REFERENCE PROTECTION** >The Node has a circular reference protection. If 2 nodes with same group address are linked toghether, the protection avoids loops by stopping the message transmitted to the KNX BUS. <a href="https://youtu.be/I32_qG7yhFc" target="_blank"><img src='https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/Loop.png' width='15%'></a>
+
+* **AUTOMATIC LOOP PROTECTION** >Protect the flow form being flooded by KNX telegram, in case of mistaken in the flow design, by DISABLING the affected node.
+
+* **BUILT IN RBE INPUT FILTER** >You can select to activate or deactivate it. If active, the node reacts only if payload from KNX Bus is changed.
+
+* **BUILT IN RBE OUTPUT FILTER** >You can select to activate or deactivate it. If active, the node will send the payload to the KNX Bus, only if changed.
+
+* **WORKS WITH IP INTERFACES AS WELL AS IP ROUTERS** >Full support for IP Interfaces as well for IP Routers. It's recommended the use of IP Routers because of simple setup and stability in a large environment.
+
+* **SUPPRESS ACK REQUEST** >This option help compatibility with very old IP Interfaces, like the Siemens SWG1 148-1AB22 IP Interface firmware.
+
+* **VERY GRANULAR OPTIONS** >The node is very simple to use "out of the box", but you can plasmate it to achieve any goal you want.
+
+* **ACTIVE DEVELOPED** >I personally use my node at home, so i put a lot of effort to develop it and i respond to your "github issues" very quickly.
+
+
+
 ### WORKING WITH THE ETS CSV FILE
 Instead of create a knx-ultimate node for each Group Address to control, you can import your ETS csv group addresses file. 
 Thanks to that, the knx-ultimate node where you selected **Listen to all Group Addresses**, becomes an universal input/output node, aware of all Datapoints, Group Addresses and Device's name (ex: Living Room Lamp). Just send the payload to the knx-ultimate node, and it'll encode it with the right datapoint and send it to the bus. Likewise, when the knx-ultimate node receives a telegram from the bus, it outputs a right decoded payload using the datapoint specified in the ETS file.
@@ -61,14 +92,6 @@ Thanks to that, the knx-ultimate node where you selected **Listen to all Group A
 "Bagno grande specchio brightness value"	"0/0/22"	""	""	""	"DPST-5-1"	"Auto"
 "Soggiorno luce (dim)"	"0/0/23"	""	""	"Soggiorno luce dim"	"DPST-3-7"	"Auto"
 ```
-
-### CIRCULAR REFERENCE PROTECTION
-
-<a href="https://youtu.be/I32_qG7yhFc" target="_blank"><img src='https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/Loop.png' width='70%'></a>
-> The Node has a circular reference protection. If 2 nodes with same group address are linked toghether, the protection avoids loops by stopping the message transmitted to the KNX BUS.
-
-### AUTOMATIC LOOP PROTECTION
-> Protect the flow form being flooded by KNX telegram, in case of mistaken in the flow design, by DISABLING the affected node.
 
 
 <br/>
