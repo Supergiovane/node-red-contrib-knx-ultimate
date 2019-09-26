@@ -14,7 +14,7 @@
 
 ## DESCRIPTION
 Knx-ultimate is a powerfull device node, all-in-one. It acts as input device as well as output device at the same time. I'ts very SIMPLE TO USE thus very customizable.<br />
-If you're here, you probably already have tried other knx nodes from npm. I hope you enjoy this one, because i've put big effort to do what i really needed, a copy/paste friendly node, with many functions and the possibility to use the ETS csv exportet Group Addresses.
+If you're here, you probably already have tried other knx nodes from npm. I hope you enjoy this one, because i've put big effort to do what i really needed, a copy/paste friendly node, with many functions and the possibility to use the ETS csv exported Group Addresses.
 
 ## CHANGELOG
 * See <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/blob/master/CHANGELOG.md">here the changelog</a>
