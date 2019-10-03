@@ -19,7 +19,18 @@ module.exports = function (RED) {
         node.icountMessageInWindow = 0; // Used to prevent looping messages
        
 
-         // Check if the node has a valid topic and dpt
+        // Used to call the status update from the config node.
+        node.setNodeStatus = ({ fill, shape, text, payload, GA, dpt, devicename }) => {
+            if (node.icountMessageInWindow == -999) return; // Locked out, doesn't change status.
+            var dDate = new Date();
+            // 30/08/2019 Display only the things selected in the config
+            _GA= (typeof _GA == "undefined" || GA == "") ? "" : "(" + GA + ") ";
+            _devicename = devicename || "";
+            _dpt= (typeof dpt == "undefined" || dpt == "") ? "" : " DPT" + dpt;
+            node.status({ fill: fill, shape: shape, text: _GA + payload + ((node.listenallga && node.server.statusDisplayDeviceNameWhenALL) == true ? " " + _devicename : "") +(node.server.statusDisplayDataPoint == true ? _dpt : "") + (node.server.statusDisplayLastUpdate == true ? " (" + dDate.getDate() + ", " + dDate.toLocaleTimeString() + ")" : "") + " " + text });
+        }
+
+        // Check if the node has a valid topic and dpt
         if(node.listenallga==false){
             if (typeof node.topic == "undefined" || typeof node.dpt == "undefined") {
                 node.setNodeStatus({ fill: "red", shape: "dot", text: "Empty group address (topic) or datapoint.",payload: "", GA: "", dpt:"", devicename:"" })
@@ -32,17 +43,6 @@ module.exports = function (RED) {
                     return;
                 }
             }
-        }
-
-        // Used to call the status update from the config node.
-        node.setNodeStatus = ({ fill, shape, text, payload, GA, dpt, devicename }) => {
-            if (node.icountMessageInWindow == -999) return; // Locked out, doesn't change status.
-            var dDate = new Date();
-            // 30/08/2019 Display only the things selected in the config
-            _GA= (typeof _GA == "undefined" || GA == "") ? "" : "(" + GA + ") ";
-            _devicename = devicename || "";
-            _dpt= (typeof dpt == "undefined" || dpt == "") ? "" : " DPT" + dpt;
-            node.status({ fill: fill, shape: shape, text: _GA + payload + ((node.listenallga && node.server.statusDisplayDeviceNameWhenALL) == true ? " " + _devicename : "") +(node.server.statusDisplayDataPoint == true ? _dpt : "") + (node.server.statusDisplayLastUpdate == true ? " (" + dDate.getDate() + ", " + dDate.toLocaleTimeString() + ")" : "") + " " + text });
         }
 
         node.on("input", function (msg) {

@@ -95,6 +95,36 @@ module.exports = (RED) => {
             res.json(jListInterfaces)
         });
         
+        
+        node.setAllClientsStatus = (_status, _color, _text) => {
+            function nextStatus(oClient) {
+                oClient.setNodeStatus({ fill: _color, shape: "dot", text: _status + " " + _text ,payload: "", GA: oClient.topic, dpt:"", devicename:""})
+            }
+            node.nodeClients.map(nextStatus);
+        }
+
+        node.Disconnect = () => {
+            node.setAllClientsStatus("Waiting", "grey", "")
+            // Remove listener
+            try {
+                node.knxConnection.removeListener("event");    
+            } catch (error) {
+                
+            }
+            try {
+                node.knxConnection.off("event");
+            } catch (error) {
+                
+            }
+            node.linkStatus = "disconnected"; // 29/08/2019 signal disconnection
+            try {
+                node.knxConnection.Disconnect();
+            } catch (error) {
+            }
+            
+            node.knxConnection = null;
+        }
+
         node.addClient = (_Node) => {
             // Check if node already exists
             if (node.nodeClients.filter(x => x.id === _Node.id).length === 0) {
@@ -182,13 +212,7 @@ module.exports = (RED) => {
             }
         }
         
-        node.setAllClientsStatus = (_status, _color, _text) => {
-            function nextStatus(oClient) {
-                oClient.setNodeStatus({ fill: _color, shape: "dot", text: _status + " " + _text ,payload: "", GA: oClient.topic, dpt:"", devicename:""})
-            }
-            node.nodeClients.map(nextStatus);
-        }
-        
+            
         node.initKNXConnection = () => {
             node.Disconnect();
             node.setAllClientsStatus("Waiting", "grey", "")
@@ -394,27 +418,7 @@ module.exports = (RED) => {
             })
         }
 
-        node.Disconnect = () => {
-            node.setAllClientsStatus("Waiting", "grey", "")
-            // Remove listener
-            try {
-                node.knxConnection.removeListener("event");    
-            } catch (error) {
-                
-            }
-            try {
-                node.knxConnection.off("event");
-            } catch (error) {
-                
-            }
-            node.linkStatus = "disconnected"; // 29/08/2019 signal disconnection
-            try {
-                node.knxConnection.Disconnect();
-            } catch (error) {
-            }
-            
-            node.knxConnection = null;
-        }
+  
 
         // 14/08/2019 If the node has payload same as the received telegram, return false
         checkRBEInputFromKNXBusAllowSend = (_node, _KNXTelegramPayload) => {
