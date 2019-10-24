@@ -68,15 +68,20 @@ module.exports = function (RED) {
                             node.server.readValue(grpaddr)
                         } else {
                            // Issue read to all group addresses
-                            let delay = 0;
-                            for (let index = 0; index < node.server.csv.length; index++) {
-                                const element = node.server.csv[index];
-                                setTimeout(() => {
-                                    node.server.readValue(element.ga);
-                                    node.setNodeStatus({ fill: "yellow", shape: "dot", text: "Read",payload:"", GA: element.ga, dpt:element.dpt, devicename:element.devicename });
-                                }, delay);
-                                delay = delay + 200;
+                            // 25/10/2019 the user is able not import the csv, so i need to check for it. This option should be unckecked by the knxUltimate html config, but..
+                            if (typeof node.server.csv !== "undefined")
+                            {
+                                let delay = 0;
+                                for (let index = 0; index < node.server.csv.length; index++) {
+                                    const element = node.server.csv[index];
+                                    setTimeout(() => {
+                                        node.server.readValue(element.ga);
+                                        node.setNodeStatus({ fill: "yellow", shape: "dot", text: "Read",payload:"", GA: element.ga, dpt:element.dpt, devicename:element.devicename });
+                                    }, delay);
+                                    delay = delay + 200;
+                                }    
                             }
+                            
                             // setTimeout(() => {
                             //     node.setNodeStatus({ fill: "yellow", shape: "dot", text: "Done requests." });
                             // }, delay+500);
@@ -140,7 +145,7 @@ module.exports = function (RED) {
                         var grpaddr = "";
                         var dpt = "";
                         if (node.listenallga==true) {
-                            // The node is set to listen to all Group Addresses. The msg.knx.destination is needed.
+                            // The node is set to Universal mode (listen to all Group Addresses). The msg.knx.destination is needed.
                             if (msg.destination) {
                                 grpaddr = msg.destination;
                             } else {
@@ -154,13 +159,19 @@ module.exports = function (RED) {
                         }
                         
                         if (node.listenallga==true) {
-                            // The node is set to listen to all Group Addresses. Gets the datapoint from the CSV or use the msg.dpt.
+                            // The node is set to Universal mode (listen to all Group Addresses). Gets the datapoint from the CSV or use the msg.dpt.
                             if (msg.dpt) {
                                 dpt = msg.dpt;
                             } else {
                                 // Get the datapoint from the CSV
-                                let oGA=node.server.csv.filter(sga => sga.ga == grpaddr)[0]
-                                dpt=oGA.dpt
+                                if (typeof node.server.csv !== "undefined") {
+                                    let oGA = node.server.csv.filter(sga => sga.ga == grpaddr)[0]
+                                    dpt = oGA.dpt
+                                } else
+                                {
+                                    node.setNodeStatus({ fill: "red", shape: "dot", text: "msg.dpt not set!" ,payload:"", GA: "", dpt:"", devicename:""})
+                                    return;
+                                }
                             }
                         } else {
                             dpt = msg.dpt

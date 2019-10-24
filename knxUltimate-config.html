@@ -173,6 +173,7 @@ Local KNX physical addres, identifying the KNX device. Default "15.15.22". This 
 This option help compatibility with old Siemens SWG1 148-1AB22 IP Interface firmware and other EHT/KNX interfaces that does'nt like the ACK. Default "unchecked". Check it to help compatibility
 </p>
 <p><b>ETS Group Addresses list</b><br/>
-Optionally, you can paste here the CSV file from ETS. This CSV will then be used by the knxUltimate node (if you select "Listen to all Group Addresses" on the knxUltimate node) to automatically decode all the raw values received from the KNX bus. These values will then be outputted by the msg.payload</p>
+Optionally, you can paste here the CSV file from ETS. This CSV will then be used by the knxUltimate node (if you select "Universal mode (listen to all Group Addresses)" on the knxUltimate node) to automatically decode all the raw values received from the KNX bus. These values will then be outputted by the msg.payload<br/>
+Starting from Version 1.1.11, you can use <b>Universal mode (listen to all Group Addresses)</b> option without the need of an imported ETS CSV File. You need to pass a message to the node, containing datapoint type and a value. As soon as the node receives a telegram from KNX Bus, it will output a RAW value and beside that, it will try to decode the value without knowing the datapoint type.</p>
 <p>For other options, please <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki">see the wiki here.</a></p>
 </script>

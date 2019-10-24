@@ -321,9 +321,31 @@ module.exports = (RED) => {
                             .forEach(input => {
                                 if (input.listenallga == true) {
                                     // Get the GA from CVS
-                                    let oGA = node.csv.filter(sga => sga.ga == dest)[0]
+                                    let oGA;
+                                    try {
+                                        oGA=node.csv.filter(sga => sga.ga == dest)[0];
+                                    } catch (error) { }
+                                    
+                                    // 25/10/2019 TRY TO AUTO DECODE
+                                    // --------------------------------
                                     if (typeof oGA === "undefined") {
-                                        RED.log.warn("knxUltimate: node " + input.id + ", received write from KNX Bus but destination " + dest + " not found in the ETS CVS group addresses list. Unable to decode the Datapoint");    
+                                        // 25/10/2019 from v. 1.1.11, try to decode and output a datapoint.
+                                        let sDataPointMaybe = "";
+                                        // 25/10/2019 Try some Datapoints
+                                        if (rawValue.length == 1) {
+                                            if (rawValue[0].toString() == "0" || rawValue[0].toString() == "1") {
+                                                sDataPointMaybe = "1.001"; // True/False?
+                                            } else {
+                                                sDataPointMaybe = "5.001"; // Absolute Brightness ?       
+                                            }
+                                        } else if (rawValue.length == 4) {
+                                            sDataPointMaybe = "14.001"; // Watt ?
+                                        } else { sDataPointMaybe = "3.001"; }// Dont' know
+                                        let msg = buildInputMessage(src, dest, evt, rawValue, sDataPointMaybe, "")
+                                        input.setNodeStatus({ fill: "green", shape: "dot", text: "Try to decode",payload: msg.payload, GA: msg.knx.destination, dpt:"", devicename:"" });
+                                        input.send(msg)    
+                                      // --------------------------------
+                                        
                                     } else {
                                         let msg = buildInputMessage(src, dest, evt, rawValue, oGA.dpt, oGA.devicename)
                                         input.setNodeStatus({ fill: "green", shape: "dot", text: "",payload: msg.payload, GA: msg.knx.destination, dpt:msg.knx.dpt, devicename:msg.devicename });
@@ -352,9 +374,31 @@ module.exports = (RED) => {
                             .forEach(input => {
                                 if (input.listenallga==true) {
                                     // Get the DPT
-                                    let oGA = node.csv.filter(sga => sga.ga == dest)[0]
+                                    let oGA;
+                                    try {
+                                        oGA=node.csv.filter(sga => sga.ga == dest)[0];
+                                    } catch (error) { }
+                                    
+                                    // 25/10/2019 TRY TO AUTO DECODE
+                                    // --------------------------------
                                     if (typeof oGA === "undefined") {
-                                        RED.log.warn("knxUltimate:  node " + input.id +", received response from KNX Bus but destination " + dest + " not found in the ETS CVS group addresses list. Unable to decode the Datapoint");    
+                                        // 25/10/2019 from v. 1.1.11, try to decode and output a datapoint.
+                                        let sDataPointMaybe = "";
+                                        // 25/10/2019 Try some Datapoints
+                                        if (rawValue.length == 1) {
+                                            if (rawValue[0].toString() == "0" || rawValue[0].toString() == "1") {
+                                                sDataPointMaybe = "1.001"; // True/False?
+                                            } else {
+                                                sDataPointMaybe = "5.001"; // Absolute Brightness ?       
+                                            }
+                                        } else if (rawValue.length == 4) {
+                                            sDataPointMaybe = "14.001"; // Watt ?
+                                        } else { sDataPointMaybe = "3.001"; }// Dont' know
+                                        let msg = buildInputMessage(src, dest, evt, rawValue, sDataPointMaybe, "")
+                                        input.setNodeStatus({ fill: "green", shape: "dot", text: "Try to decode",payload: msg.payload, GA: msg.knx.destination, dpt:"", devicename:"" });
+                                        input.send(msg)    
+                                      // --------------------------------
+                                        
                                     } else {
                                         let msg = buildInputMessage(src, dest, evt, rawValue, oGA.dpt, oGA.devicename)
                                         input.setNodeStatus({ fill: "blue", shape: "dot", text: "", payload: msg.payload, GA: msg.knx.destination, dpt: msg.knx.dpt, devicename: msg.devicename });
@@ -381,10 +425,32 @@ module.exports = (RED) => {
                             .forEach(input => {
                                 if (input.listenallga==true) {
                                     // Get the DPT
-                                    let oGA = node.csv.filter(sga => sga.ga == dest)[0]
+                                    let oGA;
+                                    try {
+                                        oGA=node.csv.filter(sga => sga.ga == dest)[0];
+                                    } catch (error) { }
+                                    
+                                    // 25/10/2019 TRY TO AUTO DECODE
+                                    // --------------------------------
                                     if (typeof oGA === "undefined") {
-                                        RED.log.warn("knxUltimate:  node " + input.id + ", received read from KNX Bus but destination " + dest + " not found in the ETS CVS group addresses list. Unable to decode the Datapoint");
-                                    } else {
+                                        // 25/10/2019 from v. 1.1.11, try to decode and output a datapoint.
+                                        let sDataPointMaybe = "";
+                                        // 25/10/2019 Try some Datapoints
+                                        if (rawValue.length == 1) {
+                                            if (rawValue[0].toString() == "0" || rawValue[0].toString() == "1") {
+                                                sDataPointMaybe = "1.001"; // True/False?
+                                            } else {
+                                                sDataPointMaybe = "5.001"; // Absolute Brightness ?       
+                                            }
+                                        } else if (rawValue.length == 4) {
+                                            sDataPointMaybe = "14.001"; // Watt ?
+                                        } else { sDataPointMaybe = "3.001"; }// Dont' know
+                                        let msg = buildInputMessage(src, dest, evt, null, sDataPointMaybe, "")
+                                        input.setNodeStatus({ fill: "green", shape: "dot", text: "Try to decode",payload: msg.payload, GA: msg.knx.destination, dpt:"", devicename:"" });
+                                        input.send(msg)    
+                                      // --------------------------------
+   
+                                } else {
                                         let msg = buildInputMessage(src, dest, evt, null, oGA.dpt, oGA.devicename)
                                         input.setNodeStatus({ fill: "grey", shape: "dot", text: "Read", payload: msg.payload, GA: msg.knx.destination, dpt: msg.knx.dpt, devicename: msg.devicename });
                                         input.send(msg)

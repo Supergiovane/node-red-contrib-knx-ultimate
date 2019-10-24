@@ -21,7 +21,7 @@ If you're here, you probably already have tried other knx nodes from npm. I hope
 
 ## WIKI
 * See <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki">here the wiki with samples and documentation</a>
-* Join <a href="https://www.youtube.com/channel/UCA9RsLps1IthT7fDSeUbRZw">my Youtube channel.</a> 
+* See it in action at <a href="https://www.youtube.com/channel/UCA9RsLps1IthT7fDSeUbRZw">my Youtube channel.</a> 
 
 ## DETAILS
 * **STAND ALONE OR WITH ETS GROUP ADDRESS LIST** >You can set you own group address, datapoint and device name, or you can import the ETS Group Address list and have datapoint and device name auto populated while typing in the group address.
@@ -30,9 +30,9 @@ If you're here, you probably already have tried other knx nodes from npm. I hope
 
 * **AUTOMATIC ENCODING/DECONDING OF TELEGRAM** >Just pass a normal payload to the node (true, false, a string or any nymber) and just receive a normal payload (true, false, a string or any nymber) to use in your flow.
 
-* **DOUBLE PERSONALITY** >The node can act as a single device (for example having Group Address 0/0/1), or can be used as universal catch all messages coming from KNX Bus (in this case the node will output a comprehensive msg to the flow, containing group address, device name, automatic decoded payload and other useful infos). The node can act as universal KNX sender as well (you can pass a message to the node, containing the destination group address, the datapont type and the payload).
+* **DOUBLE PERSONALITY** >The node can act as a single device (for example having Group Address 0/0/1), or can be used as universal node, catching all messages coming from KNX Bus (in this case the node will output a comprehensive msg to the flow, containing group address, device name, automatic decoded payload and other useful infos). The node can act as universal KNX sender as well (you can pass a message to the node, containing the destination group address, the datapont type and the payload).
 
-* **EMULATE KNX DEVICE** >You can use the node to emulate a phisically non existent KNX device. The node will behave exactly as a normal KNX Device and will also respond to read requests coming from the KNX bus, by sending the current payload value to the KNX bus.
+* **EMULATE REAL KNX DEVICE** >You can use the node to emulate a phisically non existent KNX device. The node will behave exactly as a normal KNX Device and will also respond to read requests coming from the KNX bus, by sending the current payload value to the KNX bus.
 
 * **ADJUSTABLE STATUS DISPLAY** >You can select what to see in the status (the row below the node). For example, you can select to see the current payload value and the last time changed, or the device name as well.
 
@@ -56,8 +56,8 @@ If you're here, you probably already have tried other knx nodes from npm. I hope
 
 ### WORKING WITH THE ETS CSV FILE
 Instead of create a knx-ultimate node for each Group Address to control, you can import your ETS csv group addresses file. 
-Thanks to that, the knx-ultimate node where you selected **Listen to all Group Addresses**, becomes an universal input/output node, aware of all Datapoints, Group Addresses and Device's name (ex: Living Room Lamp). Just send the payload to the knx-ultimate node, and it'll encode it with the right datapoint and send it to the bus. Likewise, when the knx-ultimate node receives a telegram from the bus, it outputs a right decoded payload using the datapoint specified in the ETS file.
-> You can work with a mix of knx-ultimate nodes, some with **Listen to all Group Addresses** checked and some not. You are absolutely free! See this youtube video,
+Thanks to that, the knx-ultimate node where you selected **Universal mode (listen to all Group Addresses)**, becomes an universal input/output node, aware of all Datapoints, Group Addresses and Device's name (ex: Living Room Lamp). Just send the payload to the knx-ultimate node, and it'll encode it with the right datapoint and send it to the bus. Likewise, when the knx-ultimate node receives a telegram from the bus, it outputs a right decoded payload using the datapoint specified in the ETS file.
+> You can work with a mix of knx-ultimate nodes, some with **Universal mode (listen to all Group Addresses)** checked and some not. You are absolutely free! See this youtube video,
 
 <a href="https://youtu.be/I32_qG7yhFc" target="_blank"><img src='https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/yt.png' width='100%'></a>
 

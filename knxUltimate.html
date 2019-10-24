@@ -26,6 +26,7 @@
             return (this.outputRBE==true ? "|rbe| " : "") + (this.name || this.topic || "knx-ultimate") + (this.inputRBE==true ? " |rbe|" : "" )
         },
         oneditprepare: function () {
+            
             $.getJSON('knxUltimateDpts', (data) => {
                 data.forEach(dpt => {
                     $("#node-input-dpt").append($("<option></option>")
@@ -68,7 +69,17 @@
                     $("#divInputRBE").hide()
                     $("#node-input-inputRBE").prop('checked', false)
                     $("#divnotifyreadrequestautoreact").hide();
-                    
+                    $("#helpallga").show();
+                    if ($("#helpallga").html==""){
+                        // There is a ETS csv file, show the init read option
+                        $("#divNode-input-initialread").show()
+                    }
+                    else
+                    {
+                        // There isn't a ETS csv file, hide and deselect the init read option
+                        $("#divNode-input-initialread").hide();
+                        $("#node-input-initialread").prop('checked', false);
+                    }
                 }else{
                     $("#GAandDPT").show()
                     $("#divOutputRBE").show()
@@ -78,6 +89,8 @@
                     }else{
                         $("#divnotifyreadrequestautoreact").hide();
                     }
+                    $("#helpallga").hide()
+                    $("#divNode-input-initialread").show();
                 }
             })
 
@@ -116,34 +129,39 @@
             // Hide or show the GA and DPT fields if Notify on all Group Addresses is checked
             if(this.server){
                 if (typeof RED.nodes.node(this.server).csv !== 'undefined' && RED.nodes.node(this.server).csv!="") {
-                    //$("#node-input-listenallga").prop("disabled", false);
-                    $("#helpallga").hide()
+                    $("#helpallga").html("");
+                    // There is a ETS csv file, show the init read option
+                    $("#divNode-input-initialread").show()
                  }else{
-                    //$("#node-input-listenallga").prop("disabled", true);
-                    $("#node-input-listenallga").prop("checked", false)
-                    $("#GAandDPT").show()
-                    $("#divOutputRBE").show()
-                    $("#divInputRBE").show()
-                    $("#helpallga").show()
+                    // 25/10/2019 Warn user that the node will node encode/decode datagram, if Listen All GA's if the config node doesn't contain the csv
+                    $("#helpallga").html("<i> You haven't imported the ETS csv file. <br/> The node will work as blind transmitter/receiver. <a href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/2.-Node-Configuration\" target='_blank'>See the wiki about that</a>.</i>");
+                    if ($("#node-input-listenallga").is(":checked")) {
+                        // There isn't a ETS csv file, hide and deselect the init read option
+                        $("#divNode-input-initialread").hide();
+                        $("#node-input-initialread").prop('checked', false);
+                    }else
+                    {
+                        $("#divNode-input-initialread").show()
+                    }
                 }
             }else{
-                //$("#node-input-listenallga").prop("disabled", true);
                 $("#node-input-listenallga").prop("checked", false)
                 $("#GAandDPT").show()
                 $("#divOutputRBE").show()
                 $("#divInputRBE").show()
-                $("#helpallga").show()
+                $("#helpallga").hide()
+                $("#divNode-input-initialread").show()
             }
         },
         oneditsave: function(){
-             // Uncheck the Listen All GA's if the config node doesn't contain the csv
+             // 25/10/2019 Warn user that the node will node encode/decode datagram, if Listen All GA's if the config node doesn't contain the csv
              if(this.server){
                 if (typeof RED.nodes.node(this.server).csv !== 'undefined' && RED.nodes.node(this.server).csv!="") {
                 }else{
                    
                     // Notify the user
                      if($("#node-input-listenallga").is(":checked")){
-                        var checkResult="Listen to all Group Addresses needs a valid ETS csv. Please paste the ETS csv in the config node."
+                        var checkResult="Universal mode (listen to all Group Addresses) needs a valid ETS csv to be able to decode datatypes and output device names. Please paste the ETS csv in the config node. If you don't use ETS csv file, the node will work als blind transmitter/receiver and you need to pass in the input message, the datatype besides the value."
                         var myNotification= RED.notify(checkResult,
                         {
                             modal: true,
@@ -158,20 +176,18 @@
                                 }]
                         })
                     }
-                    //$("#node-input-listenallga").prop("disabled", true);
-                    $("#node-input-listenallga").prop("checked", false)
-                    $("#GAandDPT").show()
-                    $("#divOutputRBE").show()
-                    $("#divInputRBE").show()
+                    // $("#node-input-listenallga").prop("checked", false)
+                    // $("#GAandDPT").show()
+                    // $("#divOutputRBE").show()
+                    // $("#divInputRBE").show()
                     $("#helpallga").show()
                 }
             }else{
-                //$("#node-input-listenallga").prop("disabled", true);
                 $("#node-input-listenallga").prop("checked", false)
                 $("#GAandDPT").show()
                 $("#divOutputRBE").show()
                 $("#divInputRBE").show()
-                $("#helpallga").show()
+                $("#helpallga").hide()
             }
         }
 
@@ -201,15 +217,13 @@
         <input type="text" id="node-input-name" placeholder="Name">
     </div>
     <div class="form-row">
-            <label>&nbsp;</label>
             <input type="checkbox" id="node-input-listenallga" style="display:inline-block; width:auto; vertical-align:top;">
-            <label style="width:auto" for="node-input-listenallga">&nbsp;&nbsp;<i class="fa fa-th-list"></i> Listen to all Group Addresses (using ETS file)</label>
-            <div id="helpallga"><i> You must import your ETS file, otherwise this option is disabled.<br />Please see the config node. <br />Once imported, please click deploy to enable this option</i></div>
+            <label style="width:auto" for="node-input-listenallga">&nbsp;&nbsp;<i class="fa fa-th-list"></i> Universal mode (listen to all Group Addresses)</label>
+            <div id="helpallga">Some Content Here</div>
     </div>
 
     <br/ ><dt><i class="fa fa-code-fork"></i>&nbsp; OUTPUT (sends datagram to the KNX bus)</dt><br/ >
     <div class="form-row">
-        <label>&nbsp;</label>
         <label for="node-input-outputtype"><i class="fa fa-rocket"></i> Output Type </label>
         <select id="node-input-outputtype">
             <option value="write">Write</option>
@@ -218,13 +232,11 @@
     </div>
  
     <div class="form-row" id="divOutputRBE">
-        <label>&nbsp;</label>
         <input type="checkbox" id="node-input-outputRBE" style="display:inline-block; width:auto; vertical-align:top;">
         <label style="width:auto" for="node-input-outputRBE">&nbsp;&nbsp;<i class="fa fa-filter"></i> Send payload to KNX bus only if changed (RBE filter)</label>
         </div>
 
-    <div class="form-row">
-        <label>&nbsp;</label>
+    <div class="form-row" id="divNode-input-initialread">
         <input type="checkbox" id="node-input-initialread" style="display:inline-block; width:auto; vertical-align:top;">
         <label style="width:auto" for="node-input-initialread">&nbsp;&nbsp;<i class="fa fa-question-circle-o"></i> Send a GrpValue read once on connection/reconnect</label>
     </div>
@@ -237,25 +249,21 @@
         </div> -->
        
         <div class="form-row" id="divInputRBE">
-            <label>&nbsp;</label>
             <input type="checkbox" id="node-input-inputRBE" style="display:inline-block; width:auto; vertical-align:top;">
             <label style="width:auto" for="node-input-inputRBE">&nbsp;&nbsp;<i class="fa fa-filter"></i> React only if payload from KNX Bus is changed (RBE filter)</label>
             </div>
     
         <div class="form-row">
-            <label>&nbsp;</label>
             <input type="checkbox" id="node-input-notifywrite" style="display:inline-block; width:auto; vertical-align:top;">
             <label style="width:auto" for="node-input-notifywrite">&nbsp;&nbsp;<i class="fa fa-sign-in"></i> React to event GroupValue write </label>
         </div>
     
         <div class="form-row">
-            <label>&nbsp;</label>
             <input type="checkbox" id="node-input-notifyresponse" style="display:inline-block; width:auto; vertical-align:top;">
             <label style="width:auto" for="node-input-notifyresponse">&nbsp;&nbsp;<i class="fa fa-sign-in"></i> React to event GroupValue response </label>
         </div>
     
         <div class="form-row">
-            <label>&nbsp;</label>
             <input type="checkbox" id="node-input-notifyreadrequest" style="display:inline-block; width:auto; vertical-align:top;">
             <label style="width:auto" for="node-input-notifyreadrequest">&nbsp;&nbsp;<i class="fa fa-sign-in"></i> React to event GroupValue read </label>
         </div>
@@ -263,12 +271,10 @@
         <div id="divnotifyreadrequestautoreact">
             <dd>
                 <div class="form-row" >
-                    <label>&nbsp;</label>
                     <input type="checkbox" id="node-input-notifyreadrequestalsorespondtobus" style="display:inline-block; width:auto; vertical-align:top;">
                     <label style="width:auto" for="node-input-notifyreadrequestalsorespondtobus">&nbsp;&nbsp; Auto send node value as response to the KNX Bus</label>
             </div>
             <div class="form-row">
-                    <label>&nbsp;</label>
                     <label style="width:auto">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; If value is undefined, send</label>
                     <input style="width:auto"type="text" id="node-input-notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized" placeholder="Ex: 0 for false, 1 for true, otherwise any value">
                 </div>
@@ -294,13 +300,14 @@
                 <dt>Group Address (topic)
                     <span class="property-type">Example 0/0/1</span>
                 </dt>
-                <dd> KNX Group address to read/write to. It's not mandatory if you import the ETS csv file and select <i>Listen to all Group Addresses (using ETS file)</i>. Please note that the Group Address will then transmitted to the flow as <code>msg.topic</code>. It can be overridden by <code>msg.knx.destination</code>.</dd>
+                <dd> KNX Group address to read/write to. It's not mandatory if you import the ETS csv file and select <i>Universal mode (listen to all Group Addresses)</i>. Please note that the Group Address will then transmitted to the flow as <code>msg.topic</code>. It can be overridden by <code>msg.knx.destination</code>.</dd>
     
                 <dt>Datapoint</dt>
-                <dd> KNX datapoint type (DPT). It's not mandatory if you import the ETS csv file and select <i>Listen to all Group Addresses (using ETS file)</i>. It can be overridden by <code>msg.dpt</code>.</dd>
+                <dd> KNX datapoint type (DPT). It's not mandatory if you import the ETS csv file and select <i>Universal mode (listen to all Group Addresses)</i>. It can be overridden by <code>msg.dpt</code>.</dd>
     
-                <dt>Listen to all Group Addresses (using ETS file)</dt>
+                <dt>Universal mode (listen to all Group Addresses)</dt>
                 <dd> The node will react to all group addresses when used as INPUT, and will notify a message containing a payload correctly decoded using the datapoints specified in the ETS csv file. When used as OUTPUT, it automatically decodes the payload using the right datapoint specified in the ETS csv file.</dd>
+                <dd> Starting from Version 1.1.11, you can use <i>Universal mode (listen to all Group Addresses)</i> option without the need of an imported ETS CSV File. You need to pass a message to the node, containing datapoint type and a value. As soon as the node receives a telegram from KNX Bus, it will output a RAW value and beside that, it will try to decode the value without knowing the datapoint type.</dd>
             </dl>
 
             <h3>OUTPUT (sends datagram to the KNX bus)</h3>
@@ -313,7 +320,7 @@
                     <dd>The RBE (Report by Exception) filter, only passes on data if the payload has changed. The node writes to KNX bus only if the received msg.payload differs from the current value. For example, if the kitchen light is on (true) and you send again a msg.payload=true to the node, the value will not be written again to the bus. This is useful to avoid loops.</dd>
     
                     <dt>Send a GrpValue read once on connection/reconnect</dt>
-                    <dd>On connection/reconnection, the node will send a 'read' request to the group address specified on the <b>Group Address</b> or, if <i>Listen to all Group Addresses (using ETS file)</i> is selected, on all group addresses specified on the ETS csv file.</dd>
+                    <dd>On connection/reconnection, the node will send a 'read' request to the group address specified on the <b>Group Address</b> or, if <i>Universal mode (listen to all Group Addresses)</i> is selected and ETS cvs file was imported, on all group addresses specified on the ETS csv file.</dd>
             </dl>
            
             <h3>INPUT (listen to datagram from the KNX bus)</h3>
@@ -332,7 +339,7 @@
                     <strong>Attention:</strong> Messages for received read requests have a <code>msg.payload</code> and
                     <code>msg.knx.rawValue</code> with value <code>null</code>.<br/>
                         <dt>Auto send node value as response to the KNX Bus</dt>
-                        <dd> Only enabled if "Listen to all group addresses" is not selected. It works in conjunction with <b>React to event GroupValue read</b>. When checked, whenever the node receives a read request from bus, it sends a response to the KNX Bus with the stored payload value.
+                        <dd> Only enabled if "Universal mode (listen to all Group Addresses)" is not selected. It works in conjunction with <b>React to event GroupValue read</b>. When checked, whenever the node receives a read request from bus, it sends a response to the KNX Bus with the stored payload value.
                             If the value is unknown/not initialized, it sends a default value you've selected in the text box.
                         </dd>
                 </dd>
@@ -340,63 +347,13 @@
         </p>
         
 
-   <p>
+    <p>
         <h3>MSG FORMAT</h3>
-        The Node Device accepts input and output. Below, an explanation of the message's format to be sent to or trasmitted from the node.<br /><br />
-        <b>YOU CAN SEND THIS TO THE NODE</b><br />
-        <code>msg.readstatus=true</code>: Issues a read request to the KNX bus. You'll expect a 'response' from the bus. When you issue a 'read' request, you can only override the group address specified in the <b>Group Address</b>, with <code>msg.destination</code>. If you've selected <i>Listen to all Group Addresses (using ETS file)</i>, the node will issue a 'read' request to ALL group addresses specified in the ETS csv file.<br />
-        <code>msg.payload</code>: issues a write or response (based on the options <b>Output Type</b> above) to the KNX bus.<br />
-        <code>msg.event</code>: "GroupValue_Write" or "GroupValue_Response", overrides the option <b>Output Type</b> above.<br />
-        <code>msg.destination</code>: for example "0/0/1", overrides the node's <b>Group Address</b>.<br />
-        <code>msg.dpt</code>: for example "1.001", overrides the <b>Datapoint</b> option. (Datapoints can be sent as 9 , "9" , "9.001" or "DPT9.001")<br />
+        The Node Device accepts input and output messages.<br />
+        These messages can vary. <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/2.-Node-Configuration" target="_blank">See the wiki about that</a>.<br /><br />
     </p>
     <p>
         The Node has a circular reference protection. If 2 nodes with same group address are link toghether, the protection avoids loops by stopping the message transmitted to the KNX BUS.
     </p>
-    
-    <p>
-     <b>THE NODE OUTPUTS THIS TO THE FLOW</b><br />
-     The node outputs a message with these data (if the node receives a WRITE telegram):
-    </p>
-<pre>
-msg = {
-    "topic": "1/1/1",
-    "payload": 0,
-    "knx": {
-        "event": "GroupValue_Write",
-        "dpt": "1.001",
-    "devicename": "Kitchen Lamp", --only if ETS csv file is used--
-    "source": "2.2.2",
-    "destination": "1/1/1",
-    "rawValue": [0]
-    }} </pre>
-    <p>
-    The node outputs a message with these data (if the node receives a RESPONSE telegram):
-    </p>
-<pre>msg = {
-    "topic": "1/1/1",
-    "payload": 0,
-    "knx": {
-        "event": "GroupValue_Response",
-        "dpt":"1.001"
-        },
-    "devicename": "Kitchen Lamp", --only if ETS csv file is used--
-    "source": "2.2.2",
-    "destination": "1/1/1",
-    "rawValue": [0]
-    }} </pre>
-
-    The node outputs a message with these data (if the node receives a READ telegram):
-<pre> msg = {
-    "topic": "1/1/1",
-    "payload": null,
-    "knx": {
-        "event": "GroupValue_Read",
-        "dpt":"1.001"
-        },
-    "source": "2.2.2",
-    "destination": "1/1/1",
-    "rawValue": null
-    }} </pre>
            
     </script>
