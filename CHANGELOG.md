@@ -5,7 +5,14 @@
 [![Donate via PayPal](https://img.shields.io/badge/Donate-PayPal-blue.svg?style=flat-square)](https://www.paypal.me/techtoday) 
 
 <p>
-<b>Version 1.1.11</b><br/>
+<b>Version 1.1.12</b><br/>
+- Universal mode optimizations<br/>
+- Fix abnormal log iw universal mode receiver cannot find a suitable datapoint<br/>
+- Added automatic discover for datapoint 14.056<br/>
+- Added automatic discover for datapoint 16.001<br/>
+</p>
+<p>
+<b>Version 1.1.12</b><br/>
 - Fixed a little issue where the status message is not displayed if the node has not well wrote group address (for example 1/5 instead of 1/5/1). Thanks @arsiesis.<br/>
 - Cleaned up the layout of config window.<br/>
 - Changed option <b>Listen to all Group Addresses</b> to a more comprensible <b>Universal mode (listen to all Group Addresses)</b>.<br/>

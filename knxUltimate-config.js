@@ -330,18 +330,7 @@ module.exports = (RED) => {
                                     // --------------------------------
                                     if (typeof oGA === "undefined") {
                                         // 25/10/2019 from v. 1.1.11, try to decode and output a datapoint.
-                                        let sDataPointMaybe = "";
-                                        // 25/10/2019 Try some Datapoints
-                                        if (rawValue.length == 1) {
-                                            if (rawValue[0].toString() == "0" || rawValue[0].toString() == "1") {
-                                                sDataPointMaybe = "1.001"; // True/False?
-                                            } else {
-                                                sDataPointMaybe = "5.001"; // Absolute Brightness ?       
-                                            }
-                                        } else if (rawValue.length == 4) {
-                                            sDataPointMaybe = "14.001"; // Watt ?
-                                        } else { sDataPointMaybe = "3.001"; }// Dont' know
-                                        let msg = buildInputMessage(src, dest, evt, rawValue, sDataPointMaybe, "")
+                                        let msg = buildInputMessage(src, dest, evt, rawValue, tryToFigureOutDataPointFromRawValue(rawValue,dest), "")
                                         input.setNodeStatus({ fill: "green", shape: "dot", text: "Try to decode",payload: msg.payload, GA: msg.knx.destination, dpt:"", devicename:"" });
                                         input.send(msg)    
                                       // --------------------------------
@@ -382,19 +371,7 @@ module.exports = (RED) => {
                                     // 25/10/2019 TRY TO AUTO DECODE
                                     // --------------------------------
                                     if (typeof oGA === "undefined") {
-                                        // 25/10/2019 from v. 1.1.11, try to decode and output a datapoint.
-                                        let sDataPointMaybe = "";
-                                        // 25/10/2019 Try some Datapoints
-                                        if (rawValue.length == 1) {
-                                            if (rawValue[0].toString() == "0" || rawValue[0].toString() == "1") {
-                                                sDataPointMaybe = "1.001"; // True/False?
-                                            } else {
-                                                sDataPointMaybe = "5.001"; // Absolute Brightness ?       
-                                            }
-                                        } else if (rawValue.length == 4) {
-                                            sDataPointMaybe = "14.001"; // Watt ?
-                                        } else { sDataPointMaybe = "3.001"; }// Dont' know
-                                        let msg = buildInputMessage(src, dest, evt, rawValue, sDataPointMaybe, "")
+                                        let msg = buildInputMessage(src, dest, evt, rawValue, tryToFigureOutDataPointFromRawValue(rawValue,dest), "")
                                         input.setNodeStatus({ fill: "green", shape: "dot", text: "Try to decode",payload: msg.payload, GA: msg.knx.destination, dpt:"", devicename:"" });
                                         input.send(msg)    
                                       // --------------------------------
@@ -434,18 +411,7 @@ module.exports = (RED) => {
                                     // --------------------------------
                                     if (typeof oGA === "undefined") {
                                         // 25/10/2019 from v. 1.1.11, try to decode and output a datapoint.
-                                        let sDataPointMaybe = "";
-                                        // 25/10/2019 Try some Datapoints
-                                        if (rawValue.length == 1) {
-                                            if (rawValue[0].toString() == "0" || rawValue[0].toString() == "1") {
-                                                sDataPointMaybe = "1.001"; // True/False?
-                                            } else {
-                                                sDataPointMaybe = "5.001"; // Absolute Brightness ?       
-                                            }
-                                        } else if (rawValue.length == 4) {
-                                            sDataPointMaybe = "14.001"; // Watt ?
-                                        } else { sDataPointMaybe = "3.001"; }// Dont' know
-                                        let msg = buildInputMessage(src, dest, evt, null, sDataPointMaybe, "")
+                                        let msg = buildInputMessage(src, dest, evt, null, tryToFigureOutDataPointFromRawValue(rawValue,dest), "")
                                         input.setNodeStatus({ fill: "green", shape: "dot", text: "Try to decode",payload: msg.payload, GA: msg.knx.destination, dpt:"", devicename:"" });
                                         input.send(msg)    
                                       // --------------------------------
@@ -485,6 +451,50 @@ module.exports = (RED) => {
         }
 
   
+        // 26/10/2019 Try to figure out the datapoint type from raw value
+        function tryToFigureOutDataPointFromRawValue(_rawValue,dest) {
+            // 25/10/2019 Try some Datapoints
+            if (_rawValue.length == 1) {
+                if (_rawValue[0].toString() == "0" || _rawValue[0].toString() == "1") {
+                    return "1.001"; // True/False?
+                } else {
+                    return "5.001"; // Absolute Brightness ?       
+                }
+            } else if (_rawValue.length == 4) {
+                return "14.056"; // Watt ?
+            } else if (_rawValue.length == 2) {
+                return "9.001"; 
+            } else if (_rawValue.length == 14) {
+                return "16.001"; // Text ?
+            } else {
+                // Dont' know, try until no errors
+                let dpts =
+                    Object.entries(dptlib)
+                        .filter(onlyDptKeys)
+                        .map(extractBaseNo)
+                        .sort(sortBy("base"))
+                        .reduce(toConcattedSubtypes, []);
+                for (let index = 0; index < dpts.length; index++) {
+                    const element = dpts[index];
+                    try {
+                        //dpt.value)
+                        //dpt.text))
+                        var dpt = dptlib.resolve(element.value);
+                        if (typeof dpt !== "undefined")
+                        {
+                            var jsValue = dptlib.fromBuffer(_rawValue, dpt)
+                            if (typeof jsValue !== "undefined") { 
+                                //RED.log.info("Trying for " + dest + ". FOUND " + element.value);
+                                return element.value;
+                            }
+                        }
+                    } catch (error) {
+                        
+                    }                        
+                }
+            }
+        }
+
 
         // 14/08/2019 If the node has payload same as the received telegram, return false
         checkRBEInputFromKNXBusAllowSend = (_node, _KNXTelegramPayload) => {
