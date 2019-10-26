@@ -216,6 +216,44 @@ module.exports = (RED) => {
         node.initKNXConnection = () => {
             node.Disconnect();
             node.setAllClientsStatus("Waiting", "grey", "")
+
+            var knxConnectionProperties = {
+                ipAddr: node.host,
+                ipPort: node.port,
+                physAddr: node.physAddr, // the KNX physical address we'd like to use
+                suppress_ack_ldatareq: node.suppressACKRequest,
+                handlers: {
+                    connected: () => {
+                        node.linkStatus = "connected";
+                        node.setAllClientsStatus("Connected", "green", "Waiting for telegram.")
+                        node.readInitialValues() // Perform initial read if applicable
+                    },
+                    error: function (connstatus) {
+                        // NO_ERROR: 0x00, // E_NO_ERROR - The connection was established succesfully
+                        // E_HOST_PROTOCOL_TYPE: 0x01,
+                        // E_VERSION_NOT_SUPPORTED: 0x02,
+                        // E_SEQUENCE_NUMBER: 0x04,
+                        // E_CONNSTATE_LOST: 0x15, // typo in eibd/libserver/eibnetserver.cpp:394, forgot 0x prefix ??? "uchar res = 21;"
+                        // E_CONNECTION_ID: 0x21, // - The KNXnet/IP server device could not find an active data connection with the given ID
+                        // E_CONNECTION_TYPE: 0x22, // - The requested connection type is not supported by the KNXnet/IP server device
+                        // E_CONNECTION_OPTION: 0x23, // - The requested connection options is not supported by the KNXnet/IP server device
+                        // E_NO_MORE_CONNECTIONS: 0x24, //  - The KNXnet/IP server could not accept the new data connection (Maximum reached)
+                        // E_DATA_CONNECTION: 0x26,// - The KNXnet/IP server device detected an erro concerning the Dat connection with the given ID
+                        // E_KNX_CONNECTION: 0x27,  // - The KNXnet/IP server device detected an error concerning the KNX Bus with the given ID
+                        // E_TUNNELING_LAYER: 0x29,
+                        node.linkStatus = "disconnected";
+                        if (connstatus == "E_KNX_CONNECTION") {
+                            setTimeout(() => node.setAllClientsStatus(connstatus, "red", "Error on KNX BUS. Check KNX red/black connector and cable."), 2000)
+                            RED.log.error("knxUltimate: Bind KNX Bus to interface error: " + connstatus);
+                        } else {
+                            setTimeout(() => node.setAllClientsStatus(connstatus, "red", "Error"), 2000)
+                            RED.log.error("knxUltimate: knxConnection error: " + connstatus);
+                        }
+                        
+                    }
+                }
+            };
+
             if (node.KNXEthInterface !== "Auto")
             {
                 var sIfaceName = "";
@@ -227,85 +265,14 @@ module.exports = (RED) => {
                     sIfaceName = node.KNXEthInterface;
                     RED.log.info("knxUltimate: Bind KNX Bus to interface : " + sIfaceName + " (Interface's name selected from dropdown list)");
                 }
-                
-                node.knxConnection = new knx.Connection({
-                    ipAddr: node.host,
-                    ipPort: node.port,
-                    physAddr: node.physAddr, // the KNX physical address we'd like to use
-                    interface: sIfaceName,
-                    suppress_ack_ldatareq: node.suppressACKRequest,
-                    handlers: {
-                        connected: () => {
-                            node.linkStatus = "connected";
-                            node.setAllClientsStatus("Connected", "green", "Waiting for telegram.")
-                            node.readInitialValues() // Perform initial read if applicable
-                        },
-                        error: function (connstatus) {
-                            // NO_ERROR: 0x00, // E_NO_ERROR - The connection was established succesfully
-                            // E_HOST_PROTOCOL_TYPE: 0x01,
-                            // E_VERSION_NOT_SUPPORTED: 0x02,
-                            // E_SEQUENCE_NUMBER: 0x04,
-                            // E_CONNSTATE_LOST: 0x15, // typo in eibd/libserver/eibnetserver.cpp:394, forgot 0x prefix ??? "uchar res = 21;"
-                            // E_CONNECTION_ID: 0x21, // - The KNXnet/IP server device could not find an active data connection with the given ID
-                            // E_CONNECTION_TYPE: 0x22, // - The requested connection type is not supported by the KNXnet/IP server device
-                            // E_CONNECTION_OPTION: 0x23, // - The requested connection options is not supported by the KNXnet/IP server device
-                            // E_NO_MORE_CONNECTIONS: 0x24, //  - The KNXnet/IP server could not accept the new data connection (Maximum reached)
-                            // E_DATA_CONNECTION: 0x26,// - The KNXnet/IP server device detected an erro concerning the Dat connection with the given ID
-                            // E_KNX_CONNECTION: 0x27,  // - The KNXnet/IP server device detected an error concerning the KNX Bus with the given ID
-                            // E_TUNNELING_LAYER: 0x29,
-                            node.linkStatus = "disconnected";
-                            if (connstatus == "E_KNX_CONNECTION") {
-                                setTimeout(() => node.setAllClientsStatus(connstatus, "red", "Error on KNX BUS. Check KNX red/black connector and cable."), 2000)
-                                RED.log.error("knxUltimate: Bind KNX Bus to interface error: " + connstatus);
-                            } else {
-                                setTimeout(() => node.setAllClientsStatus(connstatus, "red", "Error"), 2000)
-                                RED.log.error("knxUltimate: knxConnection error: " + connstatus);
-                            }
-                            
-                        }
-                    }
-                })
+
+                knxConnectionProperties.interface = sIfaceName;            
             } else {
                 RED.log.info("knxUltimate: Bind KNX Bus to interface (Auto)");
-                node.knxConnection = new knx.Connection({
-                    ipAddr: node.host,
-                    ipPort: node.port,
-                    physAddr: node.physAddr, // the KNX physical address we'd like to use
-                    suppress_ack_ldatareq: node.suppressACKRequest,
-                    handlers: {
-                        connected: () => {
-                            node.linkStatus = "connected";
-                            node.setAllClientsStatus("Connected", "green", "Waiting for telegram.")
-                            node.readInitialValues() // Perform initial read if applicable
-                        },
-                        error: function (connstatus) {
-                                // NO_ERROR: 0x00, // E_NO_ERROR - The connection was established succesfully
-                                // E_HOST_PROTOCOL_TYPE: 0x01,
-                                // E_VERSION_NOT_SUPPORTED: 0x02,
-                                // E_SEQUENCE_NUMBER: 0x04,
-                                // E_CONNSTATE_LOST: 0x15, // typo in eibd/libserver/eibnetserver.cpp:394, forgot 0x prefix ??? "uchar res = 21;"
-                                // E_CONNECTION_ID: 0x21, // - The KNXnet/IP server device could not find an active data connection with the given ID
-                                // E_CONNECTION_TYPE: 0x22, // - The requested connection type is not supported by the KNXnet/IP server device
-                                // E_CONNECTION_OPTION: 0x23, // - The requested connection options is not supported by the KNXnet/IP server device
-                                // E_NO_MORE_CONNECTIONS: 0x24, //  - The KNXnet/IP server could not accept the new data connection (Maximum reached)
-                                // E_DATA_CONNECTION: 0x26,// - The KNXnet/IP server device detected an erro concerning the Dat connection with the given ID
-                                // E_KNX_CONNECTION: 0x27,  // - The KNXnet/IP server device detected an error concerning the KNX Bus with the given ID
-                                // E_TUNNELING_LAYER: 0x29,
-                                node.linkStatus = "disconnected";
-                                if (connstatus == "E_KNX_CONNECTION") {
-                                    setTimeout(() => node.setAllClientsStatus(connstatus, "red", "Error on KNX BUS. Check KNX red/black connector and cable."), 2000)
-                                    RED.log.error("knxUltimate: Bind KNX Bus to interface error: " + connstatus);
-                                } else {
-                                    setTimeout(() => node.setAllClientsStatus(connstatus, "red", "Error"), 2000)
-                                    RED.log.error("knxUltimate: knxConnection error: " + connstatus);
-                                }
-                        }
-                    }
-                }) 
             }
 
+            node.knxConnection = new knx.Connection(knxConnectionProperties);
          
-            
             // Handle BUS events
             node.knxConnection.on("event", function (evt, src, dest, rawValue) {
                 // if (dest == "0/0/50") RED.log.error("RX FROM BUS : " + src + " " + dest + " " + evt + rawValue);
