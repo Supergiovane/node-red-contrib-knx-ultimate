@@ -216,96 +216,62 @@ module.exports = (RED) => {
         node.initKNXConnection = () => {
             node.Disconnect();
             node.setAllClientsStatus("Waiting", "grey", "")
+
+            var knxConnectionProperties = {
+                ipAddr: node.host,
+                ipPort: node.port,
+                physAddr: node.physAddr, // the KNX physical address we'd like to use
+                suppress_ack_ldatareq: node.suppressACKRequest,
+                handlers: {
+                    connected: () => {
+                        node.linkStatus = "connected";
+                        node.setAllClientsStatus("Connected", "green", "Waiting for telegram.")
+                        node.readInitialValues() // Perform initial read if applicable
+                    },
+                    error: function (connstatus) {
+                        // NO_ERROR: 0x00, // E_NO_ERROR - The connection was established succesfully
+                        // E_HOST_PROTOCOL_TYPE: 0x01,
+                        // E_VERSION_NOT_SUPPORTED: 0x02,
+                        // E_SEQUENCE_NUMBER: 0x04,
+                        // E_CONNSTATE_LOST: 0x15, // typo in eibd/libserver/eibnetserver.cpp:394, forgot 0x prefix ??? "uchar res = 21;"
+                        // E_CONNECTION_ID: 0x21, // - The KNXnet/IP server device could not find an active data connection with the given ID
+                        // E_CONNECTION_TYPE: 0x22, // - The requested connection type is not supported by the KNXnet/IP server device
+                        // E_CONNECTION_OPTION: 0x23, // - The requested connection options is not supported by the KNXnet/IP server device
+                        // E_NO_MORE_CONNECTIONS: 0x24, //  - The KNXnet/IP server could not accept the new data connection (Maximum reached)
+                        // E_DATA_CONNECTION: 0x26,// - The KNXnet/IP server device detected an erro concerning the Dat connection with the given ID
+                        // E_KNX_CONNECTION: 0x27,  // - The KNXnet/IP server device detected an error concerning the KNX Bus with the given ID
+                        // E_TUNNELING_LAYER: 0x29,
+                        node.linkStatus = "disconnected";
+                        if (connstatus == "E_KNX_CONNECTION") {
+                            setTimeout(() => node.setAllClientsStatus(connstatus, "red", "Error on KNX BUS. Check KNX red/black connector and cable."), 2000)
+                            RED.log.error("knxUltimate: Bind KNX Bus to interface error: " + connstatus);
+                        } else {
+                            setTimeout(() => node.setAllClientsStatus(connstatus, "red", "Error"), 2000)
+                            RED.log.error("knxUltimate: knxConnection error: " + connstatus);
+                        }
+                        
+                    }
+                }
+            };
+
             if (node.KNXEthInterface !== "Auto")
             {
                 var sIfaceName = "";
                 if (node.KNXEthInterface === "Manual") {
                     sIfaceName = node.KNXEthInterfaceManuallyInput;
                     RED.log.info("knxUltimate: Bind KNX Bus to interface : " + sIfaceName + " (Interface's name entered by hand)");
-                } else
-                {
+                } else {
                     sIfaceName = node.KNXEthInterface;
                     RED.log.info("knxUltimate: Bind KNX Bus to interface : " + sIfaceName + " (Interface's name selected from dropdown list)");
                 }
-                
-                node.knxConnection = new knx.Connection({
-                    ipAddr: node.host,
-                    ipPort: node.port,
-                    physAddr: node.physAddr, // the KNX physical address we'd like to use
-                    interface: sIfaceName,
-                    suppress_ack_ldatareq: node.suppressACKRequest,
-                    handlers: {
-                        connected: () => {
-                            node.linkStatus = "connected";
-                            node.setAllClientsStatus("Connected", "green", "Waiting for telegram.")
-                            node.readInitialValues() // Perform initial read if applicable
-                        },
-                        error: function (connstatus) {
-                            // NO_ERROR: 0x00, // E_NO_ERROR - The connection was established succesfully
-                            // E_HOST_PROTOCOL_TYPE: 0x01,
-                            // E_VERSION_NOT_SUPPORTED: 0x02,
-                            // E_SEQUENCE_NUMBER: 0x04,
-                            // E_CONNSTATE_LOST: 0x15, // typo in eibd/libserver/eibnetserver.cpp:394, forgot 0x prefix ??? "uchar res = 21;"
-                            // E_CONNECTION_ID: 0x21, // - The KNXnet/IP server device could not find an active data connection with the given ID
-                            // E_CONNECTION_TYPE: 0x22, // - The requested connection type is not supported by the KNXnet/IP server device
-                            // E_CONNECTION_OPTION: 0x23, // - The requested connection options is not supported by the KNXnet/IP server device
-                            // E_NO_MORE_CONNECTIONS: 0x24, //  - The KNXnet/IP server could not accept the new data connection (Maximum reached)
-                            // E_DATA_CONNECTION: 0x26,// - The KNXnet/IP server device detected an erro concerning the Dat connection with the given ID
-                            // E_KNX_CONNECTION: 0x27,  // - The KNXnet/IP server device detected an error concerning the KNX Bus with the given ID
-                            // E_TUNNELING_LAYER: 0x29,
-                            node.linkStatus = "disconnected";
-                            if (connstatus == "E_KNX_CONNECTION") {
-                                setTimeout(() => node.setAllClientsStatus(connstatus, "red", "Error on KNX BUS. Check KNX red/black connector and cable."), 2000)
-                                RED.log.error("knxUltimate: Bind KNX Bus to interface error: " + connstatus);
-                            } else {
-                                setTimeout(() => node.setAllClientsStatus(connstatus, "red", "Error"), 2000)
-                                RED.log.error("knxUltimate: knxConnection error: " + connstatus);
-                            }
-                            
-                        }
-                    }
-                })
+
+                knxConnectionProperties.interface = sIfaceName;            
             } else {
                 RED.log.info("knxUltimate: Bind KNX Bus to interface (Auto)");
-                node.knxConnection = new knx.Connection({
-                    ipAddr: node.host,
-                    ipPort: node.port,
-                    physAddr: node.physAddr, // the KNX physical address we'd like to use
-                    suppress_ack_ldatareq: node.suppressACKRequest,
-                    handlers: {
-                        connected: () => {
-                            node.linkStatus = "connected";
-                            node.setAllClientsStatus("Connected", "green", "Waiting for telegram.")
-                            node.readInitialValues() // Perform initial read if applicable
-                        },
-                        error: function (connstatus) {
-                                // NO_ERROR: 0x00, // E_NO_ERROR - The connection was established succesfully
-                                // E_HOST_PROTOCOL_TYPE: 0x01,
-                                // E_VERSION_NOT_SUPPORTED: 0x02,
-                                // E_SEQUENCE_NUMBER: 0x04,
-                                // E_CONNSTATE_LOST: 0x15, // typo in eibd/libserver/eibnetserver.cpp:394, forgot 0x prefix ??? "uchar res = 21;"
-                                // E_CONNECTION_ID: 0x21, // - The KNXnet/IP server device could not find an active data connection with the given ID
-                                // E_CONNECTION_TYPE: 0x22, // - The requested connection type is not supported by the KNXnet/IP server device
-                                // E_CONNECTION_OPTION: 0x23, // - The requested connection options is not supported by the KNXnet/IP server device
-                                // E_NO_MORE_CONNECTIONS: 0x24, //  - The KNXnet/IP server could not accept the new data connection (Maximum reached)
-                                // E_DATA_CONNECTION: 0x26,// - The KNXnet/IP server device detected an erro concerning the Dat connection with the given ID
-                                // E_KNX_CONNECTION: 0x27,  // - The KNXnet/IP server device detected an error concerning the KNX Bus with the given ID
-                                // E_TUNNELING_LAYER: 0x29,
-                                node.linkStatus = "disconnected";
-                                if (connstatus == "E_KNX_CONNECTION") {
-                                    setTimeout(() => node.setAllClientsStatus(connstatus, "red", "Error on KNX BUS. Check KNX red/black connector and cable."), 2000)
-                                    RED.log.error("knxUltimate: Bind KNX Bus to interface error: " + connstatus);
-                                } else {
-                                    setTimeout(() => node.setAllClientsStatus(connstatus, "red", "Error"), 2000)
-                                    RED.log.error("knxUltimate: knxConnection error: " + connstatus);
-                                }
-                        }
-                    }
-                }) 
             }
 
+            node.knxConnection = new knx.Connection(knxConnectionProperties);
          
-            
             // Handle BUS events
             node.knxConnection.on("event", function (evt, src, dest, rawValue) {
                 // if (dest == "0/0/50") RED.log.error("RX FROM BUS : " + src + " " + dest + " " + evt + rawValue);
@@ -316,143 +282,106 @@ module.exports = (RED) => {
                 // }
                 switch (evt) {
                     case "GroupValue_Write": {
+
                         node.nodeClients
                             .filter(input => input.notifywrite == true)
                             .forEach(input => {
-                                if (input.listenallga == true) {
-                                    // Get the GA from CVS
-                                    let oGA;
-                                    try {
-                                        oGA=node.csv.filter(sga => sga.ga == dest)[0];
-                                    } catch (error) { }
-                                    
-                                    // 25/10/2019 TRY TO AUTO DECODE
-                                    // --------------------------------
-                                    if (typeof oGA === "undefined") {
-                                        // 25/10/2019 from v. 1.1.11, try to decode and output a datapoint.
-                                        let msg = buildInputMessage(src, dest, evt, rawValue, tryToFigureOutDataPointFromRawValue(rawValue,dest), "")
-                                        input.setNodeStatus({ fill: "green", shape: "dot", text: "Try to decode",payload: msg.payload, GA: msg.knx.destination, dpt:"", devicename:"" });
-                                        input.send(msg)    
-                                      // --------------------------------
-                                        
-                                    } else {
-                                        let msg = buildInputMessage(src, dest, evt, rawValue, oGA.dpt, oGA.devicename)
-                                        input.setNodeStatus({ fill: "green", shape: "dot", text: "",payload: msg.payload, GA: msg.knx.destination, dpt:msg.knx.dpt, devicename:msg.devicename });
-                                        input.send(msg)
-                                    }
-                                } else if (input.topic == dest) {
-                                    
-                                    let msg = buildInputMessage(src, dest, evt, rawValue, input.dpt, input.name ? input.name : "")
-                                    // Check RBE INPUT from KNX Bus, to avoid send the payload to the flow, if it's equal to the current payload
-                                    if (!checkRBEInputFromKNXBusAllowSend(input, msg.payload)) {
-                                        input.setNodeStatus({fill: "grey", shape: "ring", text: "rbe block ("+msg.payload+") from KNX",payload: "", GA: "", dpt:"", devicename:""})
-                                        return;
-                                    };
-                                    input.currentPayload = msg.payload;// Set the current value for the RBE input
-                                    input.setNodeStatus({fill: "green", shape: "dot", text: "", payload: msg.payload, GA: input.topic, dpt:input.dpt, devicename:""});
-                                    //RED.log.error("RX FROM BUS : " + input.id +" " + src + " " + dest + " " + evt)
-                                    input.send(msg)
-                                }
-                            })
+                                processIncomingKnxMessage(input, evt, src, dest, rawValue);
+                            });
                         break;
                     }
-                    case "GroupValue_Response": {
-                        
+                    case "GroupValue_Response": {   
+
                         node.nodeClients
-                            .filter(input => input.notifyresponse==true)
+                            .filter(input => input.notifyresponse == true)
                             .forEach(input => {
-                                if (input.listenallga==true) {
-                                    // Get the DPT
-                                    let oGA;
-                                    try {
-                                        oGA=node.csv.filter(sga => sga.ga == dest)[0];
-                                    } catch (error) { }
-                                    
-                                    // 25/10/2019 TRY TO AUTO DECODE
-                                    // --------------------------------
-                                    if (typeof oGA === "undefined") {
-                                        let msg = buildInputMessage(src, dest, evt, rawValue, tryToFigureOutDataPointFromRawValue(rawValue,dest), "")
-                                        input.setNodeStatus({ fill: "green", shape: "dot", text: "Try to decode",payload: msg.payload, GA: msg.knx.destination, dpt:"", devicename:"" });
-                                        input.send(msg)    
-                                      // --------------------------------
-                                        
-                                    } else {
-                                        let msg = buildInputMessage(src, dest, evt, rawValue, oGA.dpt, oGA.devicename)
-                                        input.setNodeStatus({ fill: "blue", shape: "dot", text: "", payload: msg.payload, GA: msg.knx.destination, dpt: msg.knx.dpt, devicename: msg.devicename });
-                                        input.send(msg)
-                                    }
-                                } else if (input.topic == dest) {
-                                    let msg = buildInputMessage(src, dest, evt, rawValue, input.dpt, input.name ? input.name : "")
-                                    // Check RBE INPUT from KNX Bus, to avoid send the payload to the flow, if it's equal to the current payload
-                                    if (!checkRBEInputFromKNXBusAllowSend(input, msg.payload)) {
-                                        input.setNodeStatus({ fill: "grey", shape: "ring", text: "rbe INPUT filter applied on " + msg.payload })
-                                        return;
-                                    };
-                                    input.currentPayload = msg.payload; // Set the current value for the RBE input
-                                    input.setNodeStatus({ fill: "blue", shape: "dot", text: "", payload: msg.payload, GA: input.topic, dpt:msg.knx.dpt, devicename:msg.devicename });
-                                    input.send(msg)
-                                }
-                            })
+                                processIncomingKnxMessage(input, evt, src, dest, rawValue);
+                            });
                         break;
                     }
                     case "GroupValue_Read": {
                         
                         node.nodeClients
-                            .filter(input => input.notifyreadrequest==true)
+                            .filter(input => input.notifyreadrequest == true)
                             .forEach(input => {
-                                if (input.listenallga==true) {
-                                    // Get the DPT
-                                    let oGA;
-                                    try {
-                                        oGA=node.csv.filter(sga => sga.ga == dest)[0];
-                                    } catch (error) { }
-                                    
-                                    // 25/10/2019 TRY TO AUTO DECODE
-                                    // --------------------------------
-                                    if (typeof oGA === "undefined") {
-                                        // 25/10/2019 from v. 1.1.11, try to decode and output a datapoint.
-                                        let msg = buildInputMessage(src, dest, evt, null, tryToFigureOutDataPointFromRawValue(rawValue,dest), "")
-                                        input.setNodeStatus({ fill: "green", shape: "dot", text: "Try to decode",payload: msg.payload, GA: msg.knx.destination, dpt:"", devicename:"" });
-                                        input.send(msg)    
-                                      // --------------------------------
-   
-                                } else {
-                                        let msg = buildInputMessage(src, dest, evt, null, oGA.dpt, oGA.devicename)
-                                        input.setNodeStatus({ fill: "grey", shape: "dot", text: "Read", payload: msg.payload, GA: msg.knx.destination, dpt: msg.knx.dpt, devicename: msg.devicename });
-                                        input.send(msg)
-                                    }
-                                } else if (input.topic == dest) {
-                                    let msg = buildInputMessage(src, dest, evt, null, input.dpt, input.name ? input.name : "")
-                                    // 24/09/2019 Autorespond to BUS
-                                    if (input.notifyreadrequestalsorespondtobus===true) {
-                                        if (typeof input.currentPayload === "undefined" || input.currentPayload === "") {
-                                            setTimeout(() => {
-                                                node.knxConnection.respond(dest, input.notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized, input.dpt);
-                                                input.setNodeStatus({ fill: "blue", shape: "ring", text: "Read & Autorespond with default", payload: input.notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized, GA: input.topic, dpt: msg.knx.dpt, devicename: "" });
-                                            }, 200);
-                                        } else {
-                                            setTimeout(() => {
-                                                node.knxConnection.respond(dest, input.currentPayload, input.dpt);    
-                                                input.setNodeStatus({ fill: "blue", shape: "ring", text: "Read & Autorespond", payload: input.currentPayload, GA: input.topic, dpt: msg.knx.dpt, devicename: "" });
-                                            }, 200);
-                                        }
+                                let msg = processIncomingKnxMessage(input, evt, src, dest, rawValue);
+
+                                // Check if we need to respond to a ReadRequest
+                                if (msg && !input.listenallga && input.notifyreadrequestalsorespondtobus === true) {
+                                    if (typeof input.currentPayload === "undefined" || input.currentPayload === "") {
+                                        setTimeout(() => {
+                                            node.knxConnection.respond(dest, input.notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized, input.dpt);
+                                            input.setNodeStatus({ fill: "blue", shape: "ring", text: "Read & Autorespond with default", payload: input.notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized, GA: input.topic, dpt: msg.knx.dpt, devicename: "" });
+                                        }, 200);
                                     } else {
-                                        input.setNodeStatus({ fill: "grey", shape: "dot", text: "Read", payload: msg.payload, GA: input.topic , dpt:msg.knx.dpt, devicename:"" });    
+                                        setTimeout(() => {
+                                            node.knxConnection.respond(dest, input.currentPayload, input.dpt);    
+                                            input.setNodeStatus({ fill: "blue", shape: "ring", text: "Read & Autorespond", payload: input.currentPayload, GA: input.topic, dpt: msg.knx.dpt, devicename: "" });
+                                        }, 200);
                                     }
-                                    input.send(msg)
-                                    
                                 }
-                            })
+                            });
                         break;
                     }
                     default: return
                 }
             })
         }
+        
+
+        function processIncomingKnxMessage(input, evt, src, dest, rawValue) {
+            // Ignore messages we don't want to process with this node
+            if (input.topic != dest && !input.listenallga) {
+                return;
+            }
+
+            let dpt = input.dpt;
+            let deviceName = input.name ? input.name : "";
+            let logMessage = "";
+
+            // If we listen to all GAs - try to get dpt and devicename from csv or try to figure it out ourself
+            if (input.listenallga) {
+                let oGA;
+                try {
+                    oGA = node.csv.filter(sga => sga.ga == dest)[0];
+                } catch (error) { }
+
+                if (oGA === undefined) {
+                    dpt = tryToFigureOutDataPointFromRawValue(rawValue);
+                    deviceName = "";
+                    logMessage = "Trying to decode";
+                } else {
+                    dpt = oGA.dpt;
+                    devicename = oGA.devicename;
+                }
+            }
+            
+            let msg = buildInputMessage(src, dest, evt, rawValue, dpt, deviceName);
+
+            // Check RBE INPUT from KNX Bus, to avoid send the payload to the flow, if it's equal to the current payload
+            if (!checkRBEInputFromKNXBusAllowSend(input, msg.payload)) {
+                input.setNodeStatus({fill: "grey", shape: "ring", text: "rbe block (" + msg.payload + ") from KNX", payload: "", GA: "", dpt:"", devicename:""});
+                return;
+            };
+
+            let nodeStatusFill = "green";
+
+            if (evt == "GroupValue_Response") {
+                nodeStatusFill = "blue";
+            } else if (evt == "GroupValue_Read") {
+                nodeStatusFill = "grey";
+                logMessage = "Read";
+            }
+
+            input.setNodeStatus({fill: nodeStatusFill, shape: "dot", text: logMessage, payload: msg.payload, GA: msg.knx.destination, dpt: msg.knx.dpt, devicename: msg.devicename});
+            input.send(msg)
+
+            return msg;
+        }
 
   
         // 26/10/2019 Try to figure out the datapoint type from raw value
-        function tryToFigureOutDataPointFromRawValue(_rawValue,dest) {
+        function tryToFigureOutDataPointFromRawValue(_rawValue) {
             // 25/10/2019 Try some Datapoints
             if (_rawValue.length == 1) {
                 if (_rawValue[0].toString() == "0" || _rawValue[0].toString() == "1") {
@@ -499,7 +428,9 @@ module.exports = (RED) => {
         // 14/08/2019 If the node has payload same as the received telegram, return false
         checkRBEInputFromKNXBusAllowSend = (_node, _KNXTelegramPayload) => {
             if (_node.inputRBE !== true) return true;
+            if (_node.listenallga) return true;
             if (typeof _node.currentPayload === "undefined") return true;
+
             var curVal = _node.currentPayload.toString().toLowerCase();
             var newVal = _KNXTelegramPayload.toString().toLowerCase();
             if (curVal==="false") {
@@ -517,6 +448,9 @@ module.exports = (RED) => {
             if (curVal === newVal) {
                  return false;
             }
+
+            // Set the current value for the RBE input
+            _node.currentPayload = _KNXTelegramPayload;
             return true;
         }
         
