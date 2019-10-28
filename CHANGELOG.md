@@ -5,6 +5,10 @@
 [![Donate via PayPal](https://img.shields.io/badge/Donate-PayPal-blue.svg?style=flat-square)](https://www.paypal.me/techtoday) 
 
 <p>
+<b>Version 1.1.13</b><br/>
+- Code cleanup thanks @SystemKeeper<br/>
+</p>
+<p>
 <b>Version 1.1.12</b><br/>
 - Universal mode optimizations<br/>
 - Fix abnormal log iw universal mode receiver cannot find a suitable datapoint<br/>
