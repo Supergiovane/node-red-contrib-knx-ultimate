@@ -363,9 +363,11 @@ module.exports = (RED) => {
                 input.setNodeStatus({fill: "grey", shape: "ring", text: "rbe block (" + msg.payload + ") from KNX", payload: "", GA: "", dpt:"", devicename:""});
                 return;
             };
-
+            
+            // 29/10/2019 Set the node's current payload
+            input.currentPayload = msg.payload;// Set the current value for the RBE input
+            
             let nodeStatusFill = "green";
-
             if (evt == "GroupValue_Response") {
                 nodeStatusFill = "blue";
             } else if (evt == "GroupValue_Read") {
@@ -375,8 +377,7 @@ module.exports = (RED) => {
 
             input.setNodeStatus({fill: nodeStatusFill, shape: "dot", text: logMessage, payload: msg.payload, GA: msg.knx.destination, dpt: msg.knx.dpt, devicename: msg.devicename});
             input.send(msg)
-
-            return msg;
+           
         }
 
   
