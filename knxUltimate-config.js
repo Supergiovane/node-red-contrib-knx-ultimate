@@ -364,6 +364,9 @@ module.exports = (RED) => {
                 return;
             };
 
+            // 29/10/2019
+            input.currentPayload = msg.payload;// Set the current value for the RBE input
+            
             let nodeStatusFill = "green";
 
             if (evt == "GroupValue_Response") {
@@ -375,8 +378,6 @@ module.exports = (RED) => {
 
             input.setNodeStatus({fill: nodeStatusFill, shape: "dot", text: logMessage, payload: msg.payload, GA: msg.knx.destination, dpt: msg.knx.dpt, devicename: msg.devicename});
             input.send(msg)
-
-            return msg;
         }
 
   
@@ -611,5 +612,4 @@ module.exports = (RED) => {
 
     RED.nodes.registerType("knxUltimate-config", knxUltimateConfigNode);
 }
-
 
