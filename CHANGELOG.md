@@ -4,14 +4,17 @@
 
 [![Donate via PayPal](https://img.shields.io/badge/Donate-PayPal-blue.svg?style=flat-square)](https://www.paypal.me/techtoday) 
 
+<a href="http://eepurl.com/gJm095" target="_blank">Subscribe to my channel.</a> Only news about my nodes, no spam, no ads. I'm a github developer, not a merchant.
+
 <p>
 <b>Version 1.1.13</b><br/>
 - Code cleanup thanks @SystemKeeper<br/>
+- If you send a null payload, the node will display a status warning. Thanks @metaneutrons<br/>
 </p>
 <p>
 <b>Version 1.1.12</b><br/>
 - Universal mode optimizations<br/>
-- Fix abnormal log iw universal mode receiver cannot find a suitable datapoint<br/>
+- Fix abnormal log if universal mode receiver cannot find a suitable datapoint<br/>
 - Added automatic discover for datapoint 14.056<br/>
 - Added automatic discover for datapoint 16.001<br/>
 </p>

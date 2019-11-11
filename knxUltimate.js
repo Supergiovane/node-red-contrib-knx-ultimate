@@ -89,6 +89,13 @@ module.exports = function (RED) {
                     }
                  }
             } else {
+                // There must be a payload bug:null payload to a Text DPT (16.001) #14
+                if (!msg.hasOwnProperty('payload') || typeof msg.payload ==="undefined" || msg.payload == null) {
+                    node.setNodeStatus({ fill: "red", shape: "ring", text: "Payload not present", payload: "", GA: "", dpt: "", devicename: "" });
+                    return;
+                    }
+                    
+
                 if (node.listenallga == false) {
                     // Applying RBE filter
                     if (node.outputRBE==true) {
