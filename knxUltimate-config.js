@@ -465,16 +465,10 @@ module.exports = (RED) => {
         }
 
 
-        // 14/08/2019 If the node has payload same as the received telegram, return false
+         // 14/08/2019 If the node has payload same as the received telegram, return false
         checkRBEInputFromKNXBusAllowSend = (_node, _KNXTelegramPayload) => {
             if (_node.inputRBE !== true) return true;
-            if (_node.listenallga) return true;
-
-            if (typeof _node.currentPayload === "undefined") {
-                _node.currentPayload = _KNXTelegramPayload;
-                return true;
-            } 
-
+            if (typeof _node.currentPayload === "undefined") return true;
             var curVal = _node.currentPayload.toString().toLowerCase();
             var newVal = _KNXTelegramPayload.toString().toLowerCase();
             if (curVal==="false") {
@@ -492,9 +486,6 @@ module.exports = (RED) => {
             if (curVal === newVal) {
                  return false;
             }
-
-            // Set the current value for the RBE input
-            _node.currentPayload = _KNXTelegramPayload;
             return true;
         }
         

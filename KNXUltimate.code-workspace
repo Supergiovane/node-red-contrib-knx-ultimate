@@ -2,6 +2,9 @@
 	"folders": [
 		{
 			"path": "."
+		},
+		{
+			"path": "/Users/massimosaccani/Documents/GitHub/node-red-contrib-knx-ultimate.wiki"
 		}
 	],
 	"settings": {}

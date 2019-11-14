@@ -20,38 +20,86 @@ If you're here, you probably already have tried other knx nodes from npm. I hope
 ## CHANGELOG
 * See <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/blob/master/CHANGELOG.md">here the changelog</a>
 
-## WIKI (ALWAYS UPDATED, YOUR PRIMARY REFERENCE)
+## WIKI AND FAQ
 * See <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki">here the wiki with samples and documentation</a>
 * See it in action at <a href="https://www.youtube.com/channel/UCA9RsLps1IthT7fDSeUbRZw">my Youtube channel.</a> 
 
-## DETAILS
-* **STAND ALONE OR WITH ETS GROUP ADDRESS LIST** >You can set you own group address, datapoint and device name, or you can import the ETS Group Address list and have datapoint and device name auto populated while typing in the group address.
+## HIGHLIGHTS
 
-* **AUTOMATIC DISPLAY OF ALL YOUR KNX DEVICES** >If you import your ETS CSV file, just begin typing the group address or the device name in the Group Address textbox and a list of possible matches will appear. Just select an item in the list it and have datapoint and device name auto populated. You can then accept the auto populated fields or change it.
+### Click a row to see the description
 
-* **AUTOMATIC ENCODING/DECONDING OF TELEGRAM** >Just pass a normal payload to the node (true, false, a string or any nymber) and just receive a normal payload (true, false, a string or any nymber) to use in your flow.
+<details><summary>STAND ALONE OR WITH ETS GROUP ADDRESS LIST</summary>
 
-* **DOUBLE PERSONALITY** >The node can act as a single device (for example having Group Address 0/0/1), or can be used as universal node, catching all messages coming from KNX Bus (in this case the node will output a comprehensive msg to the flow, containing group address, device name, automatic decoded payload and other useful infos). The node can act as universal KNX sender as well (you can pass a message to the node, containing the destination group address, the datapont type and the payload).
+You can set you own group address, datapoint and device name, or you can import the ETS Group Address list and have datapoint and device name auto populated while typing in the group address.
 
-* **EMULATE REAL KNX DEVICE** >You can use the node to emulate a phisically non existent KNX device. The node will behave exactly as a normal KNX Device and will also respond to read requests coming from the KNX bus, by sending the current payload value to the KNX bus.
+</details>
+<details><summary>AUTOMATIC DISPLAY OF ALL YOUR KNX DEVICES</summary>
 
-* **ADJUSTABLE STATUS DISPLAY** >You can select what to see in the status (the row below the node). For example, you can select to see the current payload value and the last time changed, or the device name as well.
+If you import your ETS CSV file, just begin typing the group address or the device name in the Group Address textbox and a list of possible matches will appear. Just select an item in the list it and have datapoint and device name auto populated. You can then accept the auto populated fields or change it.
 
-* **CIRCULAR REFERENCE PROTECTION** >The Node has a circular reference protection. If 2 nodes with same group address are linked toghether, the protection avoids loops by stopping the message transmitted to the KNX BUS. <a href="https://youtu.be/I32_qG7yhFc" target="_blank"><img src='https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/Loop.png' width='15%'></a>
+</details>
+<details><summary>AUTOMATIC ENCODING/DECONDING OF TELEGRAM</summary>
 
-* **AUTOMATIC LOOP PROTECTION** >Protect the flow form being flooded by KNX telegram, in case of mistaken in the flow design, by DISABLING the affected node.
+Just pass a normal payload to the node (true, false, a string or any nymber) and just receive a normal payload (true, false, a string or any nymber) to use in your flow.
 
-* **BUILT IN RBE INPUT FILTER** >You can select to activate or deactivate it. If active, the node reacts only if payload from KNX Bus is changed.
+</details>
+<details><summary>DOUBLE PERSONALITY</summary>
 
-* **BUILT IN RBE OUTPUT FILTER** >You can select to activate or deactivate it. If active, the node will send the payload to the KNX Bus, only if changed.
+The node can act as a single device (for example having Group Address 0/0/1), or can be used as universal node, catching all messages coming from KNX Bus (in this case the node will output a comprehensive msg to the flow, containing group address, device name, automatic decoded payload and other useful infos). The node can act as universal KNX sender as well (you can pass a message to the node, containing the destination group address, the datapont type and the payload).
 
-* **WORKS WITH IP INTERFACES AS WELL AS IP ROUTERS** >Full support for IP Interfaces as well for IP Routers. It's recommended the use of IP Routers because of simple setup and stability in a large environment.
+</details>
+<details><summary>EMULATE REAL KNX DEVICE</summary>
 
-* **SUPPRESS ACK REQUEST** >This option help compatibility with very old IP Interfaces, like the Siemens SWG1 148-1AB22 IP Interface firmware.
+You can use the node to emulate a phisically non existent KNX device. The node will behave exactly as a normal KNX Device and will also respond to read requests coming from the KNX bus, by sending the current payload value to the KNX bus.
 
-* **VERY GRANULAR OPTIONS** >The node is very simple to use "out of the box", but you can plasmate it to achieve any goal you want.
+</details>
+<details><summary>ADJUSTABLE STATUS DISPLAY</summary>
 
-* **ACTIVE DEVELOPED** >I personally use my node at home, so i put a lot of effort to develop it and i respond to your "github issues" very quickly.
+You can select what to see in the status (the row below the node). For example, you can select to see the current payload value and the last time changed, or the device name as well.
+
+</details>
+<details><summary>CIRCULAR REFERENCE PROTECTION</summary>
+
+The Node has a circular reference protection. If 2 nodes with same group address are linked toghether, the protection avoids loops by stopping the message transmitted to the KNX BUS. <a href="https://youtu.be/I32_qG7yhFc" target="_blank"><img src='https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/Loop.png' width='15%'></a>You can select what to see in the status (the row below the node). For example, you can select to see the current payload value and the last time changed, or the device name as well.
+
+</details>
+<details><summary>AUTOMATIC LOOP PROTECTION</summary>
+
+Protect the flow form being flooded by KNX telegram, in case of mistaken in the flow design, by DISABLING the affected node.
+
+</details>
+<details><summary>BUILT INPUT AND OUTPUT RBE FILTER</summary>
+
+You can select to activate or deactivate it. If active, the node reacts only if payload from KNX Bus is changed.
+
+</details>
+<details><summary>BUILT IN RBE INPUT FILTER</summary>
+
+IN: You can select to activate or deactivate it. If active, the node reacts only if payload from KNX Bus is changed.
+OUT: You can select to activate or deactivate it. If active, the node will send the payload to the KNX Bus, only if changed.
+
+</details>
+<details><summary>WORKS WITH IP INTERFACES AS WELL AS IP ROUTERS</summary>
+
+Full support for IP Interfaces as well for IP Routers. It's recommended the use of IP Routers because of simple setup and stability in a large environment.
+
+</details>
+<details><summary>SUPPRESS ACK REQUEST</summary>
+
+This option help compatibility with very old IP Interfaces, like the Siemens SWG1 148-1AB22 IP Interface firmware.
+
+</details>
+<details><summary>VERY GRANULAR OPTIONS</summary>
+
+The node is very simple to use "out of the box", but you can plasmate it to achieve any goal you want.
+
+</details>
+<details><summary>ACTIVE DEVELOPED</summary>
+
+I personally use my node at home, so i put a lot of effort to develop it and i respond to your "github issues" very quickly
+
+</details>
+
 
 
 
@@ -96,26 +144,11 @@ Thanks to that, the knx-ultimate node where you selected **Universal mode (liste
 
 
 <br/>
-
-### WIKI PAGES TO START FROM FRESH
-
-> GATEWAY CONFIGURATION: <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/1.-Gateway-configuration" target="_blank"> click here.</a>
->
-> NODE CONFIGURATION: <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/2.-Node-Configuration" target="_blank"> click here.</a>
->
-> MESSAGES FROM THE NODE: <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/3.-Messages-from-the-node" target="_blank"> click here.</a>
->
-> MESSAGES TO THE NODE: <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/4.-Messages-to-the-node" target="_blank"> click here.</a>
->
-> SAMPLES: <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/5.-Samples" target="_blank"> click here.</a>
-
-<br/>
-<br/>
 <br/>
 <br/>
 
 
-## BRIEF TOUR (Samples are in the <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki">Wiki</a>)
+# BRIEF TOUR (Samples are in the <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki">Wiki</a>)
 
 
 ### TURN ON AND OFF A LAMP
