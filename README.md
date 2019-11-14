@@ -13,7 +13,7 @@
 
 ## DESCRIPTION
 Knx-ultimate is a powerfull device node, all-in-one. It acts as input device as well as output device at the same time. I'ts very SIMPLE TO USE thus very customizable.<br />
-If you're here, you probably already have tried other knx nodes from npm. I hope you enjoy this one, because i've put big effort to do what i really needed, a copy/paste friendly node, with many functions and the possibility to use the ETS csv exported Group Addresses. <br/> Deutche Freunde sind willkommen und koennen mir auf knx-user-forum.de als "TheMax74", oder auf community.home-assistant.io als "Supergiovane" finden.
+If you're here, you probably already have tried other knx nodes from npm. I hope you enjoy this one, because i've put big effort to do what i really needed, a copy/paste friendly node, with many functions and the possibility to use the ETS csv exported Group Addresses.
 
 [![Donate via PayPal](https://img.shields.io/badge/Donate-PayPal-blue.svg?style=flat-square)](https://www.paypal.me/techtoday) and <a href="http://eepurl.com/gJm095" target="_blank">subscribe to my channel.</a> Only news about my nodes, no spam, no ads.<br/>Please never put pineapple on an italian pizza!
 
