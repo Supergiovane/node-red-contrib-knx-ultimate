@@ -21,7 +21,7 @@ If you're here, you probably already have tried other knx nodes from npm. I hope
 * See <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/blob/master/CHANGELOG.md">here the changelog</a>
 
 ## WIKI AND FAQ
-* See <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki">here the wiki with samples and documentation</a>
+* See <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki">here the wiki with samples and documentation, as well as FAQ</a>
 * See it in action at <a href="https://www.youtube.com/channel/UCA9RsLps1IthT7fDSeUbRZw">my Youtube channel.</a> 
 
 ## HIGHLIGHTS
