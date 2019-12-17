@@ -5,6 +5,10 @@
 [![Donate via PayPal](https://img.shields.io/badge/Donate-PayPal-blue.svg?style=flat-square)](https://www.paypal.me/techtoday) and <a href="http://eepurl.com/gJm095" target="_blank">subscribe to my channel.</a> Only news about my nodes, no spam, no ads. I'm a github developer, not a merchant.
 
 <p>
+<b>Version 1.1.16</b><br/>
+- Added a minimum delay of 60milliseconds between telegrams, when the node sends telegrams to the BUS, to avoid flooding the KNX BUS, causing a loss of telegrams. The KNX.org specs allows max 50 telegrams per seconds (max 1 telegram each 20milliseconds), but in real life, this is too much.<br/>
+</p>
+<p>
 <b>Version 1.1.15</b><br/>
 - Updated underlying API to 2.3.6 with some bugfixes.<br/>
 - Added FAQ and troubleshoot in the Wiki.<br/>

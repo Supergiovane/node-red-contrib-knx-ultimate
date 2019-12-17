@@ -222,6 +222,8 @@ module.exports = (RED) => {
                 ipPort: node.port,
                 physAddr: node.physAddr, // the KNX physical address we'd like to use
                 suppress_ack_ldatareq: node.suppressACKRequest,
+                // wait at least 60 millisec between each datagram
+                minimumDelay: 60,
                 handlers: {
                     connected: () => {
                         node.linkStatus = "connected";
