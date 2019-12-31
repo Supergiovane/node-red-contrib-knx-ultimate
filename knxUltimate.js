@@ -191,13 +191,15 @@ module.exports = function (RED) {
                         }
                         if (outputtype == "response") {
                             try {
+                                node.currentPayload = msg.payload;// 31/12/2019 Set the current value (because, if the node is a virtual device, then it'll never fire "GroupValue_Write" in the server node, causing the currentPayload to never update)
                                 node.server.knxConnection.respond(grpaddr, msg.payload, dpt);
                                 node.setNodeStatus({ fill: "blue", shape: "dot", text: "Respond",payload: msg.payload, GA: grpaddr, dpt:dpt, devicename:"" });
                             } catch (error) {}
                         } else {
                             try {
+                                node.currentPayload = msg.payload;// 31/12/2019 Set the current value (because, if the node is a virtual device, then it'll never fire "GroupValue_Write" in the server node, causing the currentPayload to never update)
                                 node.server.knxConnection.write(grpaddr, msg.payload, dpt);
-                                node.setNodeStatus({ fill: "green", shape: "dot", text: "Write",payload: msg.payload, GA: grpaddr, dpt:dpt, devicename:"" });
+                                node.setNodeStatus({ fill: "green", shape: "dot", text: "writing to BUS",payload: msg.payload, GA: grpaddr, dpt:dpt, devicename:"" });
                             } catch (error) {}
                         }
                     }

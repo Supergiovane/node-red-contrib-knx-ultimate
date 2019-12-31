@@ -384,17 +384,17 @@ module.exports = (RED) => {
                                         input.send(msg)    
                                       // --------------------------------
    
-                                } else {
+                                    } else {
                                         let msg = buildInputMessage(src, dest, evt, null, oGA.dpt, oGA.devicename)
                                         input.setNodeStatus({ fill: "grey", shape: "dot", text: "Read", payload: msg.payload, GA: msg.knx.destination, dpt: msg.knx.dpt, devicename: msg.devicename });
                                         input.send(msg)
                                     }
                                 } else if (input.topic == dest) {
-                                    let msg = buildInputMessage(src, dest, evt, null, input.dpt, input.name ? input.name : "")
+                                    let msg = buildInputMessage(src, dest, evt, null, input.dpt, input.name ? input.name : "");
                                     // 24/09/2019 Autorespond to BUS
                                     if (input.notifyreadrequestalsorespondtobus===true) {
                                         if (typeof input.currentPayload === "undefined" || input.currentPayload === "") {
-                                            setTimeout(() => {
+                                             setTimeout(() => {
                                                 node.knxConnection.respond(dest, input.notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized, input.dpt);
                                                 input.setNodeStatus({ fill: "blue", shape: "ring", text: "Read & Autorespond with default", payload: input.notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized, GA: input.topic, dpt: msg.knx.dpt, devicename: "" });
                                             }, 200);
