@@ -5,6 +5,10 @@
 [![Donate via PayPal](https://img.shields.io/badge/Donate-PayPal-blue.svg?style=flat-square)](https://www.paypal.me/techtoday) and <a href="http://eepurl.com/gJm095" target="_blank">subscribe to my channel.</a> Only news about my nodes, no spam, no ads. I'm a github developer, not a merchant.
 
 <p>
+<b>Version 1.1.19</b><br/>
+- More UI cleanup.
+</p>
+<p>
 <b>Version 1.1.18</b><br/>
 - Removed the handling of the telegram queue's delay buffer from underlying KNX.js API, because it doesn't respect the telegram queue order.<br/>
 - Added own message queue buffer with delay of 50 millisecs. Now the telegrams order is respected.<br/>
