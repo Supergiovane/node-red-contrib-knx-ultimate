@@ -8,7 +8,7 @@
 <b>Version 1.1.18</b><br/>
 - Removed the handling of the telegram queue's delay buffer from underlying KNX.js API, because it doesn't respect the telegram queue order.<br/>
 - Added own message queue buffer with delay of 50 millisecs. Now the telegrams order is respected.<br/>
-- In the node's configuration, added an advanced tab, that hides or shows the advanced options; now the configuration is much mode clean. Advanced Options opens up automatically if the values have been changed from defaults.<br/>
+- In the node's configuration, added an advanced tab, that hides or shows the advanced options; now the configuration is much more clean. Advanced Options opens up automatically if the values have been changed from defaults.<br/>
 </p>
 <p>
 <p>
