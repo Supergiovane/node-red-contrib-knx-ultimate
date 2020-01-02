@@ -26,7 +26,7 @@
             return (this.outputRBE==true ? "|rbe| " : "") + (this.name || this.topic || "knx-ultimate") + (this.inputRBE==true ? " |rbe|" : "" )
         },
         oneditprepare: function () {
-            
+
             $.getJSON('knxUltimateDpts', (data) => {
                 data.forEach(dpt => {
                     $("#node-input-dpt").append($("<option></option>")
@@ -152,6 +152,30 @@
                 $("#helpallga").hide()
                 $("#divNode-input-initialread").show()
             }
+
+            // 02/01/2020 Advanced options Collapsible script
+            // *****************************
+            $("#advancedOptionsAccordion").accordion({
+                header:"h3",
+                heightStyle: "content", 
+                collapsible: true,
+                active: false
+            });
+            // Auto open accordion if the default fields have been changed
+            if (this.notifyreadrequest !== false || 
+                this.notifyresponse !== false ||
+                this.notifywrite !== true ||
+                this.notifyreadrequestalsorespondtobus !==false ||
+                this.notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized !=="0" ||
+                this.outputtype !== "write" ||
+                this.outputRBE !== true ||
+                this.inputRBE !== false
+                ) {
+                    $("#advancedOptionsAccordion").accordion({ active: 0 });
+            }
+            // *****************************
+            
+
         },
         oneditsave: function(){
              // 25/10/2019 Warn user that the node will node encode/decode datagram, if Listen All GA's if the config node doesn't contain the csv
@@ -197,7 +221,6 @@
 </script>
 
 <script type="text/x-red" data-template-name="knxUltimate">
-   
     <div class="form-row">
         <label for="node-input-server"><i class="fa fa-tag"></i> Gateway </label>
         <input type="text" id="node-input-server">
@@ -221,66 +244,67 @@
             <label style="width:auto" for="node-input-listenallga">&nbsp;&nbsp;<i class="fa fa-th-list"></i> Universal mode (listen to all Group Addresses)</label>
             <div id="helpallga">Some Content Here</div>
     </div>
-
-    <br/ ><dt><i class="fa fa-code-fork"></i>&nbsp; OUTPUT (sends datagram to the KNX bus)</dt><br/ >
-    <div class="form-row">
-        <label for="node-input-outputtype"><i class="fa fa-rocket"></i> Output Type </label>
-        <select id="node-input-outputtype">
-            <option value="write">Write</option>
-            <option value="response">Response</option>
-        </select>
-    </div>
- 
-    <div class="form-row" id="divOutputRBE">
-        <input type="checkbox" id="node-input-outputRBE" style="display:inline-block; width:auto; vertical-align:top;">
-        <label style="width:auto" for="node-input-outputRBE">&nbsp;&nbsp;<i class="fa fa-filter"></i> Send payload to KNX bus only if changed (RBE filter)</label>
-        </div>
-
-    <div class="form-row" id="divNode-input-initialread">
-        <input type="checkbox" id="node-input-initialread" style="display:inline-block; width:auto; vertical-align:top;">
-        <label style="width:auto" for="node-input-initialread">&nbsp;&nbsp;<i class="fa fa-question-circle-o"></i> Send a GrpValue read once on connection/reconnect</label>
-    </div>
     
-   
-    <br/ ><dt><i class="fa fa-code-fork"></i>&nbsp; INPUT (listen to datagram from the KNX bus)</dt><br/ >
-        <!-- <div class="form-row" id="divAllInputsDeselected">
-            <label style="width:auto"><i class="fa fa-times-circle"></i>&nbsp;The node will not respond to telegrams coming from the KNX bus,<br />
-            <i class="fa fa-times-circle"></i>&nbsp; unless you tick some checks here below.</label>
-        </div> -->
-       
-        <div class="form-row" id="divInputRBE">
-            <input type="checkbox" id="node-input-inputRBE" style="display:inline-block; width:auto; vertical-align:top;">
-            <label style="width:auto" for="node-input-inputRBE">&nbsp;&nbsp;<i class="fa fa-filter"></i> React only if payload from KNX Bus is changed (RBE filter)</label>
-            </div>
-    
-        <div class="form-row">
-            <input type="checkbox" id="node-input-notifywrite" style="display:inline-block; width:auto; vertical-align:top;">
-            <label style="width:auto" for="node-input-notifywrite">&nbsp;&nbsp;<i class="fa fa-sign-in"></i> React to event GroupValue write </label>
-        </div>
-    
-        <div class="form-row">
-            <input type="checkbox" id="node-input-notifyresponse" style="display:inline-block; width:auto; vertical-align:top;">
-            <label style="width:auto" for="node-input-notifyresponse">&nbsp;&nbsp;<i class="fa fa-sign-in"></i> React to event GroupValue response </label>
-        </div>
-    
-        <div class="form-row">
-            <input type="checkbox" id="node-input-notifyreadrequest" style="display:inline-block; width:auto; vertical-align:top;">
-            <label style="width:auto" for="node-input-notifyreadrequest">&nbsp;&nbsp;<i class="fa fa-sign-in"></i> React to event GroupValue read </label>
-        </div>
-      
-        <div id="divnotifyreadrequestautoreact">
-            <dd>
-                <div class="form-row" >
-                    <input type="checkbox" id="node-input-notifyreadrequestalsorespondtobus" style="display:inline-block; width:auto; vertical-align:top;">
-                    <label style="width:auto" for="node-input-notifyreadrequestalsorespondtobus">&nbsp;&nbsp; Auto send node value as response to the KNX Bus</label>
-            </div>
+    <div id="advancedOptionsAccordion">
+        <h3>Advanced options</h3>
+        <div>
+        <p>
+            <dt><i class="fa fa-code-fork"></i>&nbsp; OUTPUT (sends datagram to the KNX BUS)</dt><br/ >
             <div class="form-row">
-                    <label style="width:auto">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; If value is undefined, send</label>
-                    <input style="width:auto"type="text" id="node-input-notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized" placeholder="Ex: 0 for false, 1 for true, otherwise any value">
-                </div>
-            </dd>
-        </div>
+                <label for="node-input-outputtype"><i class="fa fa-rocket"></i> Output Type </label>
+                <select id="node-input-outputtype">
+                    <option value="write">Write</option>
+                    <option value="response">Response</option>
+                </select>
+            </div>
         
+            <div class="form-row" id="divOutputRBE">
+                <input type="checkbox" id="node-input-outputRBE" style="display:inline-block; width:auto; vertical-align:top;">
+                <label style="width:auto" for="node-input-outputRBE">&nbsp;&nbsp;<i class="fa fa-filter"></i> Send payload to BUS only if changed (RBE filter)</label>
+            </div>
+
+            <div class="form-row" id="divNode-input-initialread">
+                <input type="checkbox" id="node-input-initialread" style="display:inline-block; width:auto; vertical-align:top;">
+                <label style="width:auto" for="node-input-initialread">&nbsp;&nbsp;<i class="fa fa-question-circle-o"></i> Send a GrpValue read once on connection/reconnect</label>
+            </div>
+            
+        
+            <br/ ><dt><i class="fa fa-code-fork"></i>&nbsp; INPUT (listen to datagram from the KNX BUS)</dt><br/ >
+                <div class="form-row" id="divInputRBE">
+                    <input type="checkbox" id="node-input-inputRBE" style="display:inline-block; width:auto; vertical-align:top;">
+                    <label style="width:auto" for="node-input-inputRBE">&nbsp;&nbsp;<i class="fa fa-filter"></i> React only if payload from BUS is changed (RBE filter)</label>
+                </div>
+            
+                <div class="form-row">
+                    <input type="checkbox" id="node-input-notifywrite" style="display:inline-block; width:auto; vertical-align:top;">
+                    <label style="width:auto" for="node-input-notifywrite">&nbsp;&nbsp;<i class="fa fa-sign-in"></i> React to event GroupValue write </label>
+                </div>
+            
+                <div class="form-row">
+                    <input type="checkbox" id="node-input-notifyresponse" style="display:inline-block; width:auto; vertical-align:top;">
+                    <label style="width:auto" for="node-input-notifyresponse">&nbsp;&nbsp;<i class="fa fa-sign-in"></i> React to event GroupValue response </label>
+                </div>
+            
+                <div class="form-row">
+                    <input type="checkbox" id="node-input-notifyreadrequest" style="display:inline-block; width:auto; vertical-align:top;">
+                    <label style="width:auto" for="node-input-notifyreadrequest">&nbsp;&nbsp;<i class="fa fa-sign-in"></i> React to event GroupValue read </label>
+                </div>
+            
+                <div id="divnotifyreadrequestautoreact">
+                    <dd>
+                        <div class="form-row" >
+                            <input type="checkbox" id="node-input-notifyreadrequestalsorespondtobus" style="display:inline-block; width:auto; vertical-align:top;">
+                            <label style="width:auto" for="node-input-notifyreadrequestalsorespondtobus">&nbsp;&nbsp; Auto send node value as response to the BUS</label>
+                        </div>
+                        <div class="form-row">
+                            <label style="width:auto">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; If value is undefined, send</label>
+                            <input style="width:auto"type="text" id="node-input-notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized" placeholder="Ex: 0 for false, 1 for true, otherwise any value">
+                        </div>
+                    </dd>
+                </div>
+            </p>
+        </div>
+    </div>        
 </script>
 
 <script type="text/x-red" data-help-name="knxUltimate">
@@ -311,25 +335,25 @@
     
                 <dt>Universal mode (listen to all Group Addresses)</dt>
                 <dd> The node will react to all group addresses when used as INPUT, and will notify a message containing a payload correctly decoded using the datapoints specified in the ETS csv file. When used as OUTPUT, it automatically decodes the payload using the right datapoint specified in the ETS csv file.</dd>
-                <dd> Starting from Version 1.1.11, you can use <i>Universal mode (listen to all Group Addresses)</i> option without the need of an imported ETS CSV File. You need to pass a message to the node, containing datapoint type and a value. As soon as the node receives a telegram from KNX Bus, it will output a RAW value and beside that, it will try to decode the value without knowing the datapoint type.</dd>
+                <dd> Starting from Version 1.1.11, you can use <i>Universal mode (listen to all Group Addresses)</i> option without the need of an imported ETS CSV File. You need to pass a message to the node, containing datapoint type and a value. As soon as the node receives a telegram from BUS, it will output a RAW value and beside that, it will try to decode the value without knowing the datapoint type.</dd>
             </dl>
 
-            <h3>OUTPUT (sends datagram to the KNX bus)</h3>
+            <h3>OUTPUT (sends datagram to the BUS)</h3>
             <dl class="message-properties">
                     <dt>Output Type</dt>
-                    <dd>Write: the node will send the payload to the KNX bus as a 'write' message (standard).<br />
-                        Response: the node will send the payload to the KNX bus as a 'response' message (in case you wish to create your own 'response', in response to a read request).</dd>
+                    <dd>Write: the node will send the payload to the BUS as a 'write' message (standard).<br />
+                        Response: the node will send the payload to the BUS as a 'response' message (in case you wish to create your own 'response', in response to a read request).</dd>
         
-                    <dt>Send payload to KNX bus only if changed (RBE filter)</dt>
-                    <dd>The RBE (Report by Exception) filter, only passes on data if the payload has changed. The node writes to KNX bus only if the received msg.payload differs from the current value. For example, if the kitchen light is on (true) and you send again a msg.payload=true to the node, the value will not be written again to the bus. This is useful to avoid loops.</dd>
+                    <dt>Send payload to BUS only if changed (RBE filter)</dt>
+                    <dd>The RBE (Report by Exception) filter, only passes on data if the payload has changed. The node writes to BUS only if the received msg.payload differs from the current value. For example, if the kitchen light is on (true) and you send again a msg.payload=true to the node, the value will not be written again to the bus. This is useful to avoid loops.</dd>
     
                     <dt>Send a GrpValue read once on connection/reconnect</dt>
                     <dd>On connection/reconnection, the node will send a 'read' request to the group address specified on the <b>Group Address</b> or, if <i>Universal mode (listen to all Group Addresses)</i> is selected and ETS cvs file was imported, on all group addresses specified on the ETS csv file.</dd>
             </dl>
            
-            <h3>INPUT (listen to datagram from the KNX bus)</h3>
+            <h3>INPUT (listen to datagram from the BUS)</h3>
             <dl class="message-properties">
-                <dt>React only if payload from KNX Bus is changed (RBE filter)</dt>
+                <dt>React only if payload from BUS is changed (RBE filter)</dt>
                 <dd>The RBE (Report by Exception) filter, only passes on data on the flow if the KNX Telegram coming from BUS has changed. The node starts a flow only if the received KNX Telegram differs from the current Payload. This is useful to avoid loops.</dd>
     
                 <dt>React to event GroupValue write</dt>
@@ -342,8 +366,8 @@
                 <dd> When checked, received read requests will be notified, this can be used to create your own response with a <i>Output Type</i> set to 'Response'.
                     <strong>Attention:</strong> Messages for received read requests have a <code>msg.payload</code> and
                     <code>msg.knx.rawValue</code> with value <code>null</code>.<br/>
-                        <dt>Auto send node value as response to the KNX Bus</dt>
-                        <dd> Only enabled if "Universal mode (listen to all Group Addresses)" is not selected. It works in conjunction with <b>React to event GroupValue read</b>. When checked, whenever the node receives a read request from bus, it sends a response to the KNX Bus with the stored payload value.
+                        <dt>Auto send node value as response to the BUS</dt>
+                        <dd> Only enabled if "Universal mode (listen to all Group Addresses)" is not selected. It works in conjunction with <b>React to event GroupValue read</b>. When checked, whenever the node receives a read request from bus, it sends a response to the BUS with the stored payload value.
                             If the value is unknown/not initialized, it sends a default value you've selected in the text box.
                         </dd>
                 </dd>
@@ -357,7 +381,7 @@
         These messages can vary. <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/2.-Node-Configuration" target="_blank">See the wiki about that</a>.<br /><br />
     </p>
     <p>
-        The Node has a circular reference protection. If 2 nodes with same group address are link toghether, the protection avoids loops by stopping the message transmitted to the KNX BUS.
+        The Node has a circular reference protection. If 2 nodes with same group address are link toghether, the protection avoids loops by stopping the message transmitted to the BUS.
     </p>
            
     </script>

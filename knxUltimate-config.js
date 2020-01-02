@@ -68,8 +68,9 @@ module.exports = (RED) => {
         node.statusDisplayLastUpdate = config.statusDisplayLastUpdate || true;
         node.statusDisplayDeviceNameWhenALL = config.statusDisplayDeviceNameWhenALL || false;
         node.statusDisplayDataPoint = config.statusDisplayDataPoint || false;
-        
-        
+        node.telegramsQueue = [];  // 02/01/2020 Queue containing telegrams
+        node.timerSendTelegramFromQueue = setInterval(handleTelegramQueue, 50); // 02/01/2020 Start the timer that handles the queue of telegrams
+                
         // Endpoint for reading csv from the other nodes
         RED.httpAdmin.get("/knxUltimatecsv", RED.auth.needsPermission('knxUltimate-config.read'), function (req, res) {
             res.json(RED.nodes.getNode(node.id).csv);
@@ -223,7 +224,7 @@ module.exports = (RED) => {
                 physAddr: node.physAddr, // the KNX physical address we'd like to use
                 suppress_ack_ldatareq: node.suppressACKRequest,
                 // wait at least 60 millisec between each datagram
-                minimumDelay: 60,
+                //minimumDelay: 60, // 02/01/2020 Removed becuse it doesn't respect the message sequence, it sends messages random.
                 handlers: {
                     connected: () => {
                         node.linkStatus = "connected";
@@ -276,13 +277,7 @@ module.exports = (RED) => {
          
             // Handle BUS events
             node.knxConnection.on("event", function (evt, src, dest, rawValue) {
-         // if (dest == "0/0/50") RED.log.error("RX FROM BUS : " + src + " " + dest + " " + evt + rawValue);
-                // if (dest == "0/0/50") {
-                //     node.nodeClients.filter(input => input.notifywrite == true).forEach(input => {
-                //     RED.log.error("ID=" + input.id + " " + input.topic + " dest=" + dest + " notifywrite=" + input.notifywrite + " listenallga="+input.listenallga);
-                //     });
-                // }
-                switch (evt) {
+                  switch (evt) {
                     case "GroupValue_Write": {
                         node.nodeClients
                             .filter(input => input.notifywrite == true)
@@ -419,8 +414,28 @@ module.exports = (RED) => {
         }
         
 
-       
-
+       // 02/01/2020 All sent messages are queued, to allow at least 50 milliseconds between each telegram sent to the bus
+        node.writeQueueAdd = _oKNXMessage => {
+            // _oKNXMessage is { grpaddr, payload,dpt,outputtype (write or response)}
+            node.telegramsQueue.unshift(_oKNXMessage); // Add _oKNXMessage as first in the buffer
+        }
+        function handleTelegramQueue() {
+            if (node.knxConnection) { 
+                if (node.telegramsQueue.length==0) {
+                    return;
+                }
+                // Retrieving oKNXMessage  { grpaddr, payload,dpt,outputtype (write or response)}
+                var oKNXMessage = node.telegramsQueue[node.telegramsQueue.length - 1]; // Get the last message in the queue
+                // RED.log.error("handling " + oKNXMessage.grpaddr + " " +  oKNXMessage.payload + " " + oKNXMessage.dpt);
+                node.telegramsQueue.pop();// Remove the last message from the queue.
+                if (oKNXMessage.outputtype==="response") {
+                    node.knxConnection.respond(oKNXMessage.grpaddr, oKNXMessage.payload, oKNXMessage.dpt); 
+                } else
+                {
+                    node.knxConnection.write(oKNXMessage.grpaddr, oKNXMessage.payload, oKNXMessage.dpt);        
+                }
+            }
+        }
   
         // 26/10/2019 Try to figure out the datapoint type from raw value
         function tryToFigureOutDataPointFromRawValue(_rawValue) {
@@ -521,6 +536,8 @@ module.exports = (RED) => {
     
 
         node.on("close", function () {
+            clearInterval(node.timerSendTelegramFromQueue); // 02/01/2020 Stop queue timer
+            node.telegramsQueue = []; // 02/01/2020 clear the telegram queue
             node.Disconnect();
         })
  

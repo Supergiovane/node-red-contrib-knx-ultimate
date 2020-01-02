@@ -17,8 +17,8 @@ module.exports = function (RED) {
         node.inputRBE = config.inputRBE || "false" // Apply or not RBE to the input
         node.currentPayload = "" // Current value for the RBE input
         node.icountMessageInWindow = 0; // Used to prevent looping messages
-       
-
+        node.messageQueue = []; // 01/01/2020 All messages from the flow to the node, will be queued and will be sent separated by 60 milliseconds each. Use uf the underlying knx.js "minimumDelay" is not possible because the telegram order isn't mantained.
+         
         // Used to call the status update from the config node.
         node.setNodeStatus = ({ fill, shape, text, payload, GA, dpt, devicename }) => {
             if (node.icountMessageInWindow == -999) return; // Locked out, doesn't change status.
@@ -192,14 +192,16 @@ module.exports = function (RED) {
                         if (outputtype == "response") {
                             try {
                                 node.currentPayload = msg.payload;// 31/12/2019 Set the current value (because, if the node is a virtual device, then it'll never fire "GroupValue_Write" in the server node, causing the currentPayload to never update)
-                                node.server.knxConnection.respond(grpaddr, msg.payload, dpt);
-                                node.setNodeStatus({ fill: "blue", shape: "dot", text: "Respond",payload: msg.payload, GA: grpaddr, dpt:dpt, devicename:"" });
+                                //node.server.knxConnection.respond(grpaddr, msg.payload, dpt);
+                                node.server.writeQueueAdd({ grpaddr: grpaddr, payload:msg.payload,dpt:dpt,outputtype:outputtype})
+                                node.setNodeStatus({ fill: "blue", shape: "dot", text: "Responding",payload: msg.payload, GA: grpaddr, dpt:dpt, devicename:"" });
                             } catch (error) {}
                         } else {
                             try {
                                 node.currentPayload = msg.payload;// 31/12/2019 Set the current value (because, if the node is a virtual device, then it'll never fire "GroupValue_Write" in the server node, causing the currentPayload to never update)
-                                node.server.knxConnection.write(grpaddr, msg.payload, dpt);
-                                node.setNodeStatus({ fill: "green", shape: "dot", text: "writing to BUS",payload: msg.payload, GA: grpaddr, dpt:dpt, devicename:"" });
+                                //node.server.knxConnection.write(grpaddr, msg.payload, dpt);
+                                node.server.writeQueueAdd({ grpaddr: grpaddr, payload:msg.payload,dpt:dpt,outputtype:outputtype})
+                                node.setNodeStatus({ fill: "green", shape: "dot", text: "Writing",payload: msg.payload, GA: grpaddr, dpt:dpt, devicename:"" });
                             } catch (error) {}
                         }
                     }
