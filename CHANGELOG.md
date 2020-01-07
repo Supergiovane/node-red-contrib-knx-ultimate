@@ -6,7 +6,8 @@
 
 <p>
 <b>Version 1.1.20</b><br/>
-- Config node UI clean.
+- Config node UI cleanup.<br/>
+- Added Homekit, Alexa and Google Assistant samples in the wiki.<br/>
 </p>
 <p>
 <b>Version 1.1.19</b><br/>
