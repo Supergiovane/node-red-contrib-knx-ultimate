@@ -13,7 +13,8 @@
             KNXEthInterfaceManuallyInput:{value:""},
             statusDisplayLastUpdate:{value:true},
             statusDisplayDeviceNameWhenALL:{value:true},
-            statusDisplayDataPoint:{value:false}
+            statusDisplayDataPoint:{value:false},
+            stopETSImportIfNoDatapoint:{value:"stop"}
         },
         oneditprepare: function () {
             $("#node-config-input-KNXEthInterface").append($("<option></option>")
@@ -142,17 +143,23 @@
         </div>
     </div>        
     <div id="etsCSVListBox">
-        <h3>ETS Group Address list</h3>
+        <h3>ETS Group Address list import</h3>
         <div>
+            <p>
+                <i class="fa fa-link"></i> <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/1.-Gateway-configuration" target="_blank">Click for instruction on how to export your CSV from ETS</a></br>
+                <i class="fa fa-youtube"></i> <a href="https://youtu.be/I32_qG7yhFc" target="_blank">See how to export the CSV on Youtube</a>
                 <div class="form-row">
-                    <p>
-                        <i class="fa fa-link"></i> <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/1.-Gateway-configuration" target="_blank">Click for instruction on how to export your CSV from ETS</a></br>
-                        <i class="fa fa-youtube"></i> <a href="https://youtu.be/I32_qG7yhFc" target="_blank">See how to export the CSV on Youtube</a>
-                    </p>
+                    <label style="width:auto" for="node-config-input-stopETSImportIfNoDatapoint"><i class="fa fa-question-circle"></i> If Group Address has no Datapoint</label>
+                    <select id="node-config-input-stopETSImportIfNoDatapoint" style="width:200px;">
+                        <option value="stop">Stop and abort import</option>
+                        <option value="skip">Skip and continue import</option>
+                    </select>
+                </div>
+                <div class="form-row">
                     <label style="width:auto" for="node-config-input-csv">&nbsp;&nbsp;<i class="fa fa-th-list"></i>  Group Address list</label></br>
                     <textarea rows=20 id="node-config-input-csv" style="width:100%" placeholder="Paste here your CSV exported file from ETS">
                 </div>
-           
+            </p>
         </div>
     </div>        
  
@@ -207,8 +214,10 @@ Local KNX physical addres, identifying the KNX device. Default "15.15.22". This 
 <b>Suppress ACK request</b><br/>
 This option help compatibility with old Siemens SWG1 148-1AB22 IP Interface firmware and other EHT/KNX interfaces that does'nt like the ACK. Default "unchecked". Check it to help compatibility
 </p>
-<p><b>ETS Group Address list</b><br/>
+<p><b>ETS Group Address list import</b><br/>
 Optionally, you can paste here the CSV file from ETS. This CSV will then be used by the knxUltimate node (if you select "Universal mode (listen to all Group Address)" on the knxUltimate node) to automatically decode all the raw values received from the KNX bus. These values will then be outputted by the msg.payload<br/>
 Starting from Version 1.1.11, you can use <b>Universal mode (listen to all Group Address)</b> option without the need of an imported ETS CSV File. You need to pass a message to the node, containing datapoint type and a value. As soon as the node receives a telegram from KNX Bus, it will output a RAW value and beside that, it will try to decode the value without knowing the datapoint type.</p>
-<p>For other options, please <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki">see the wiki here.</a></p>
+<p><b>If Group Address has no Datapoint</b><br/>
+If a Group address has no Datapoint set in the ETS, you can select to stop and abort the entire import process, or to skip the affected Group Address and continue import.<br/>
+<p>For other options, please <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/1.-Gateway-configuration">see the Gateway wiki here.</a></p>
 </script>

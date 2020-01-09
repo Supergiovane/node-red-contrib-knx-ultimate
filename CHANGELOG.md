@@ -7,6 +7,7 @@
 <p>
 <b>Version 1.1.20</b><br/>
 - Config node UI cleanup.<br/>
+- During the ETS CSV file import, if a datapoint is not set, you can now select whether to abort the import or to skip the affected group address and continue.<br/>
 - Added Homekit, Alexa and Google Assistant samples in the wiki.<br/>
 </p>
 <p>

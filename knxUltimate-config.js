@@ -60,7 +60,6 @@ module.exports = (RED) => {
         node.port = config.port
         node.physAddr = config.physAddr || "15.15.22"; // the KNX physical address we'd like to use
         node.suppressACKRequest = typeof config.suppressACKRequest ==="undefined" ? false:config.suppressACKRequest; // enable this option to suppress the acknowledge flag with outgoing L_Data.req requests. LoxOne needs this
-        node.csv = readCSV(config.csv); // Array from ETS CSV Group Addresses
         node.linkStatus = "disconnected";
         node.nodeClients = [] // Stores the registered clients
         node.KNXEthInterface = typeof config.KNXEthInterface === "undefined" ? "Auto" : config.KNXEthInterface;
@@ -70,7 +69,9 @@ module.exports = (RED) => {
         node.statusDisplayDataPoint = config.statusDisplayDataPoint || false;
         node.telegramsQueue = [];  // 02/01/2020 Queue containing telegrams
         node.timerSendTelegramFromQueue = setInterval(handleTelegramQueue, 50); // 02/01/2020 Start the timer that handles the queue of telegrams
-                
+        node.stopETSImportIfNoDatapoint = typeof config.stopETSImportIfNoDatapoint === "undefined" ? "stop" : config.stopETSImportIfNoDatapoint; // 09/01/2020 Stop or Skip the import if a group address has unset datapoint
+        node.csv = readCSV(config.csv); // Array from ETS CSV Group Addresses
+
         // Endpoint for reading csv from the other nodes
         RED.httpAdmin.get("/knxUltimatecsv", RED.auth.needsPermission('knxUltimate-config.read'), function (req, res) {
             res.json(RED.nodes.getNode(node.id).csv);
@@ -586,6 +587,10 @@ module.exports = (RED) => {
                             // Ho trovato una riga contenente un GA valido, cioè con 2 "/"
                             if (element.split("\t")[5] == "") {
                                 RED.log.error("knxUltimate: ERROR: Datapoint not set in ETS CSV. Please set the datapoint with ETS and export the group addresses again. ->" + element.split("\t")[0] + " " + element.split("\t")[1])
+                                if (node.stopETSImportIfNoDatapoint === "stop") {
+                                    RED.log.error("knxUltimate: ABORT IMPORT OF ETS CSV FILE. To skip the invalid datapoint and continue import, change the related setting, located in the config node in the ETS import section.");
+                                    return;
+                                }
                             } else {
                                 var DPTa = element.split("\t")[5].split("-")[1];
                                 var DPTb = element.split("\t")[5].split("-")[2];
