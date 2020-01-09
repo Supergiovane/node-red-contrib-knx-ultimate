@@ -586,23 +586,23 @@ module.exports = (RED) => {
                             // Ho trovato una riga contenente un GA valido, cioè con 2 "/"
                             if (element.split("\t")[5] == "") {
                                 RED.log.error("knxUltimate: ERROR: Datapoint not set in ETS CSV. Please set the datapoint with ETS and export the group addresses again. ->" + element.split("\t")[0] + " " + element.split("\t")[1])
-                                return;
+                            } else {
+                                var DPTa = element.split("\t")[5].split("-")[1];
+                                var DPTb = element.split("\t")[5].split("-")[2];
+                                if (typeof DPTb == "undefined") {
+                                    RED.log.warn("knxUltimate: WARNING: Datapoint not fully set (there is only the first part on the left of the '.'). I applied a default .001, but please set the datapoint with ETS and export the group addresses again. ->" + element.split("\t")[0] + " " + element.split("\t")[1] + " Datapoint: " + element.split("\t")[5] );
+                                    DPTb = "001"; // default
+                                }
+                                // Trailing zeroes
+                                if (DPTb.length == 1) {
+                                    DPTb = "00" + DPTb;
+                                } else if (DPTb.length == 2) {
+                                    DPTb = "0" + DPTb;
+                                } if (DPTb.length == 3) {
+                                    DPTb = "" + DPTb; // stupid, but for readability
+                                }
+                                ajsonOutput.push({ga:element.split("\t")[1], dpt:DPTa + "." + DPTb, devicename: sFather + element.split("\t")[0]});
                             }
-                            var DPTa = element.split("\t")[5].split("-")[1];
-                            var DPTb = element.split("\t")[5].split("-")[2];
-                            if (typeof DPTb == "undefined") {
-                                RED.log.warn("knxUltimate: WARNING: Datapoint not fully set (there is only the first part on the left of the '.'). I applied a default .001, but please set the datapoint with ETS and export the group addresses again. ->" + element.split("\t")[0] + " " + element.split("\t")[1] + " Datapoint: " + element.split("\t")[5] );
-                                DPTb = "001"; // default
-                            }
-                            // Trailing zeroes
-                            if (DPTb.length == 1) {
-                                DPTb = "00" + DPTb;
-                            } else if (DPTb.length == 2) {
-                                DPTb = "0" + DPTb;
-                            } if (DPTb.length == 3) {
-                                DPTb = "" + DPTb; // stupid, but for readability
-                            }
-                            ajsonOutput.push({ga:element.split("\t")[1], dpt:DPTa + "." + DPTb, devicename: sFather + element.split("\t")[0]});
                         }
                     }
                 }
