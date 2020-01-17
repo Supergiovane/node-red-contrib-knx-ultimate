@@ -5,6 +5,12 @@
 [![Donate via PayPal](https://img.shields.io/badge/Donate-PayPal-blue.svg?style=flat-square)](https://www.paypal.me/techtoday) and <a href="http://eepurl.com/gJm095" target="_blank">subscribe to my channel.</a> Only news about my nodes, no spam, no ads. I'm a github developer, not a merchant.
 
 <p>
+<b>Version 1.1.21</b><br/>
+- Fixed a possible crash if the payload is an object and the node is set to send a "response" telegram instead of a "write" telegram.<br/>
+- Added an explanation about meaning of status colors, in the node info on the right panel and in the wiki.<br/>
+- Updated node info and wiki to reflect the new UI changes.<br/>
+</p>
+<p>
 <b>Version 1.1.20</b><br/>
 - Config node UI cleanup.<br/>
 - During the ETS CSV file import, if a datapoint is not set, you can now select whether to abort the import or to skip the affected group address and continue.<br/>

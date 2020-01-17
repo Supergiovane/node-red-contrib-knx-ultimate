@@ -310,7 +310,6 @@
         Knx-ultimate is a powerfull device node, all-in-one. It acts as input device as well as output device at the same time.<br />
         Please see the <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki">WIKI for instructions.</a>.<br />
         You can import your ETS csv file, containing all your group addresses and datapoint types and use it instead of manually create one node for each group address.<br />
-        Node's settings is divided in 3 parts: common settings, input settings (Node used as input device) and output settings (Node used as output device).
     </p>
     <p>
         <a href="https://www.paypal.me/techtoday" target="_blank"><img src='https://img.shields.io/badge/Donate-PayPal-blue.svg?style=flat-square' width='30%'></a>
@@ -318,7 +317,6 @@
         <a href="http://eepurl.com/gJm095" target="_blank">Subscribe to my channel</a> for news about my nodes.
     </p>
     <p>
-            <h3>COMMON SETTINGS</h3>
             <dl class="message-properties">
                 <dt>Gateway</dt>
                 <dd> Selected KNX gateway. </dd>
@@ -335,8 +333,10 @@
                 <dd> The node will react to all group addresses when used as INPUT, and will notify a message containing a payload correctly decoded using the datapoints specified in the ETS csv file. When used as OUTPUT, it automatically decodes the payload using the right datapoint specified in the ETS csv file.</dd>
                 <dd> Starting from Version 1.1.11, you can use <i>Universal mode (listen to all Group Addresses)</i> option without the need of an imported ETS CSV File. You need to pass a message to the node, containing datapoint type and a value. As soon as the node receives a telegram from BUS, it will output a RAW value and beside that, it will try to decode the value without knowing the datapoint type.</dd>
             </dl>
+            
+            <h3>ADVANCED OPTIONS</h3>
 
-            <h3>OUTPUT (sends datagram to the BUS)</h3>
+            <b>OUTPUT (sends datagram to the BUS)</b>
             <dl class="message-properties">
                     <dt>Output Type</dt>
                     <dd>Write: the node will send the payload to the BUS as a 'write' message (standard).<br />
@@ -349,7 +349,7 @@
                     <dd>On connection/reconnection, the node will send a 'read' request to the group address specified on the <b>Group Address</b> or, if <i>Universal mode (listen to all Group Addresses)</i> is selected and ETS cvs file was imported, on all group addresses specified on the ETS csv file.</dd>
             </dl>
            
-            <h3>INPUT (listen to datagram from the BUS)</h3>
+            <b>INPUT (listen to datagram from the BUS)</b>
             <dl class="message-properties">
                 <dt>React only if payload from BUS is changed (RBE filter)</dt>
                 <dd>The RBE (Report by Exception) filter, only passes on data on the flow if the KNX Telegram coming from BUS has changed. The node starts a flow only if the received KNX Telegram differs from the current Payload. This is useful to avoid loops.</dd>
@@ -371,10 +371,48 @@
                 </dd>
             </dl>
         </p>
-        
-
+   
     <p>
-        <h3>MSG FORMAT</h3>
+        <table style="font-size:12px">
+            <tr>
+            <th colspan="2" style="font-size:14px">Node status colors explanation</th>
+            </tr>
+            <tr>
+            <td><svg width="16" height="13"><rect x="2" y="2" width="9" height="9" rx="2" ry="2" stroke-width="3" fill="#55aa88" stroke="#55aa88"></rect></svg></td>
+            <td>React to event GroupValue write</td>
+            </tr>
+            <tr>
+                <td><svg width="16" height="13"><rect x="2" y="2" width="9" height="9" rx="2" ry="2" stroke-width="3" fill="#fff" stroke="#55aa88"></rect></svg></td>
+                <td>Circular reference protection. <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki" target="_blank">See this page.</a></td>
+            </tr>
+            <tr>
+            <td><svg width="16" height="13"><rect x="2" y="2" width="9" height="9" rx="2" ry="2" stroke-width="3" fill="#53A3F3" stroke="#53A3F3"></rect></svg></td>
+            <td>React to event GroupValue response.</td>
+            </tr>
+            <tr>
+                <td><svg width="16" height="13"><rect x="2" y="2" width="9" height="9" rx="2" ry="2" stroke-width="3" fill="#fff" stroke="#53A3F3"></rect></svg></td>
+                <td>Auto send node value as response to the BUS. <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Virtual-Device" target="_blank">See Virtual Device.</a></td>
+            </tr>
+            <tr>
+                <td><svg width="16" height="13"><rect x="2" y="2" width="9" height="9" rx="2" ry="2" stroke-width="3" fill="#d3d3d3" stroke="#d3d3d3"></rect></svg></td>
+                <td>React to event GroupValue read.</td>
+            </tr>
+            <tr>
+                <td><svg width="16" height="13"><rect x="2" y="2" width="9" height="9" rx="2" ry="2" stroke-width="3" fill="#fff" stroke="#d3d3d3"></rect></svg></td>
+                <td>RBE filter: no telegrams has been sent.</td>
+            </tr>
+            <tr>
+                <td><svg width="16" height="13"><rect x="2" y="2" width="9" height="9" rx="2" ry="2" stroke-width="3" fill="#cc0000" stroke="#cc0000"></rect></svg></td>
+                <td>Error or disconnected.</td>
+            </tr>
+            <tr>
+                <td><svg width="16" height="13"><rect x="2" y="2" width="9" height="9" rx="2" ry="2" stroke-width="3" fill="#fff" stroke="#cc0000"></rect></svg></td>
+                <td>Node DISABLED due to a circulare reference. <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki" target="_blank">See this page.</a></td>
+            </tr>
+        </table>
+    </p>
+    <p>
+        <b>MSG FORMAT</b><br/>
         The Node Device accepts input and output messages.<br />
         These messages can vary. <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/2.-Node-Configuration" target="_blank">See the wiki about that</a>.<br /><br />
     </p>

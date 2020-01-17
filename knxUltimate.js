@@ -47,6 +47,13 @@ module.exports = function (RED) {
 
         node.on("input", function (msg) {
             if (typeof msg === "undefined") return;
+            if (typeof msg.payload === "undefined" || typeof msg.payload === "object" || typeof msg.payload === "function") // 16/01/2020 Check for invalid payload
+            {
+                node.setNodeStatus({ fill: "red", shape: "dot", text: "Payload must be string, number or boolean",payload: "", GA: "", dpt:"", devicename:"" })
+                return; 
+            }
+                
+            
             if (!node.server) return; // 29/08/2019 Server not instantiate
             if (node.server.linkStatus !== "connected") {
                 RED.log.error("knxUltimate: Lost link due to a connection error");
