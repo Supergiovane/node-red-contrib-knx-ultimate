@@ -295,7 +295,7 @@ module.exports = (RED) => {
                                     if (typeof oGA === "undefined") {
                                         // 25/10/2019 from v. 1.1.11, try to decode and output a datapoint.
                                         let msg = buildInputMessage(src, dest, evt, rawValue, tryToFigureOutDataPointFromRawValue(rawValue,dest), "")
-                                        input.setNodeStatus({ fill: "green", shape: "dot", text: "Try to decode",payload: msg.payload, GA: msg.knx.destination, dpt:"", devicename:"" });
+                                        input.setNodeStatus({ fill: "green", shape: "dot", text: "Try to decode", payload: msg.payload, GA: msg.knx.destination, dpt: "", devicename: "" });
                                         input.send(msg)    
                                       // --------------------------------
                                         
@@ -312,9 +312,9 @@ module.exports = (RED) => {
                                         input.setNodeStatus({fill: "grey", shape: "ring", text: "rbe block ("+msg.payload+") from KNX",payload: "", GA: "", dpt:"", devicename:""})
                                         return;
                                     };
+                                    msg.previouspayload = typeof input.currentPayload !== "undefined" ? input.currentPayload: ""; // 24/01/2020 Added previous payload
                                     input.currentPayload = msg.payload;// Set the current value for the RBE input
                                     input.setNodeStatus({fill: "green", shape: "dot", text: "", payload: msg.payload, GA: input.topic, dpt:input.dpt, devicename:""});
-                                    //RED.log.error("RX FROM BUS : " + input.id +" " + src + " " + dest + " " + evt)
                                     input.send(msg)
                                 }
                             })
@@ -352,6 +352,7 @@ module.exports = (RED) => {
                                         input.setNodeStatus({ fill: "grey", shape: "ring", text: "rbe INPUT filter applied on " + msg.payload })
                                         return;
                                     };
+                                    msg.previouspayload = typeof input.currentPayload !== "undefined" ? input.currentPayload: ""; // 24/01/2020 Added previous payload
                                     input.currentPayload = msg.payload; // Set the current value for the RBE input
                                     input.setNodeStatus({ fill: "blue", shape: "dot", text: "", payload: msg.payload, GA: input.topic, dpt:msg.knx.dpt, devicename:msg.devicename });
                                     input.send(msg)
@@ -387,6 +388,7 @@ module.exports = (RED) => {
                                     }
                                 } else if (input.topic == dest) {
                                     let msg = buildInputMessage(src, dest, evt, null, input.dpt, input.name ? input.name : "");
+                                    msg.previouspayload = typeof input.currentPayload !== "undefined" ? input.currentPayload: ""; // 24/01/2020 Added previous payload
                                     // 24/09/2019 Autorespond to BUS
                                     if (input.notifyreadrequestalsorespondtobus===true) {
                                         if (typeof input.currentPayload === "undefined" || input.currentPayload === "") {

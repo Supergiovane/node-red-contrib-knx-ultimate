@@ -15,7 +15,7 @@ module.exports = function (RED) {
         node.outputtype = config.outputtype || "write" // When the node is used as output
         node.outputRBE = config.outputRBE || "false" // Apply or not RBE to the input
         node.inputRBE = config.inputRBE || "false" // Apply or not RBE to the input
-        node.currentPayload = "" // Current value for the RBE input
+        node.currentPayload = "" // Current value for the RBE input and for the .previouspayload msg
         node.icountMessageInWindow = 0; // Used to prevent looping messages
         node.messageQueue = []; // 01/01/2020 All messages from the flow to the node, will be queued and will be sent separated by 60 milliseconds each. Use uf the underlying knx.js "minimumDelay" is not possible because the telegram order isn't mantained.
          
