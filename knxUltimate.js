@@ -49,8 +49,12 @@ module.exports = function (RED) {
             if (typeof msg === "undefined") return;
             if (typeof msg.payload === "undefined" || typeof msg.payload === "object" || typeof msg.payload === "function") // 16/01/2020 Check for invalid payload
             {
-                node.setNodeStatus({ fill: "red", shape: "dot", text: "Payload must be string, number or boolean",payload: "", GA: "", dpt:"", devicename:"" })
-                return; 
+                // 29/01/2020 If the message has no payload and no readstatus, throw an error. (If you requests a readstatus, there's no need to pass a payload)
+                if (!msg.hasOwnProperty("readstatus")) {
+                    node.setNodeStatus({ fill: "red", shape: "dot", text: "Payload must be string, number or boolean", payload: "", GA: "", dpt: "", devicename: "" })
+                    RED.log.error("knxUltimate: Node " + node.id + " has received an INVALID payload. Please check the flow.");
+                    return; 
+                }
             }
                 
             
