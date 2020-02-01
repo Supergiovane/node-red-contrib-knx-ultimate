@@ -214,7 +214,23 @@ module.exports = (RED) => {
             }
         }
         
-            
+        // 01/02/2020 Dinamic change of the KNX Gateway IP, Port and Physical Address
+        // This new thing has been requested by proServ RealKNX staff.
+        node.setGatewayConfig = (_sIP, _iPort, _sPhysicalAddress, _sBindToEthernetInterface) => {
+            if (typeof _sIP !== "undefined" && _sIP !== "") node.host = _sIP;
+            if (typeof _iPort !== "undefined" && _iPort !== 0) node.port = _iPort;
+            if (typeof _sPhysicalAddress !== "undefined" && _sPhysicalAddress !== "") node.physAddr = _sPhysicalAddress;
+            if (typeof _sBindToEthernetInterface !== "undefined"){
+                if (_sBindToEthernetInterface === "Auto") node.KNXEthInterface = "Auto"; // Reset the interface to Auto;
+            } 
+            setTimeout(() => node.setAllClientsStatus("CONFIG", "yellow", "Node's main config setting has been changed."), 1000);
+            setTimeout(() => node.setAllClientsStatus("CONFIG", "green", "New config: IP " + node.host + " Port " + node.port + " PhysicalAddress " + node.physAddr + " BindToInterface " + node.KNXEthInterface), 2000)
+            RED.log.info("Node's main config setting has been changed. New config: IP " + node.host + " Port " + node.port + " PhysicalAddress " + node.physAddr + " BindToInterface " + node.KNXEthInterface);
+            if (node.knxConnection) {
+                node.initKNXConnection();                
+            }
+        }
+
         node.initKNXConnection = () => {
             node.Disconnect();
             node.setAllClientsStatus("Waiting", "grey", "")

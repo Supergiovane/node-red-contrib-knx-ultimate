@@ -47,6 +47,14 @@ module.exports = function (RED) {
 
         node.on("input", function (msg) {
             if (typeof msg === "undefined") return;
+
+            // 01/02/2020 Dinamic change of the KNX Gateway IP, Port and Physical Address
+            // This new thing has been requested by proServ RealKNX staff.
+            if (msg.hasOwnProperty("setGatewayConfig")) {
+                node.server.setGatewayConfig(msg.setGatewayConfig.IP, msg.setGatewayConfig.Port, msg.setGatewayConfig.PhysicalAddress, msg.setGatewayConfig.BindToEthernetInterface);
+                return;
+            }
+
             if (typeof msg.payload === "undefined" || typeof msg.payload === "object" || typeof msg.payload === "function") // 16/01/2020 Check for invalid payload
             {
                 // 29/01/2020 If the message has no payload and no readstatus and isn't a dim command, throw an error. (If you requests a readstatus, there's no need to pass a payload)

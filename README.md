@@ -93,9 +93,14 @@ OUT: You can select to activate or deactivate it. If active, the node will send 
 Full support for IP Interfaces as well for IP Routers. It's recommended the use of IP Routers because of simple setup and stability in a large environment.
 
 </details>
-<details><summary>SUPPRESS ACK REQUEST</summary>
+<details><summary>SUPPRESS ACK REQUEST FOR OLD IP INTERFACES</summary>
 
 This option help compatibility with very old IP Interfaces, like the Siemens SWG1 148-1AB22 IP Interface firmware.
+
+</details>
+<details><summary>PROGRAMMATICALLY CHANGE THE KNX/IP INTERFACE/ROUTER CONFIG</summary>
+
+Programmatically change the IP, Port etc... of the KNX/IP Interface or router, via msg.
 
 </details>
 <details><summary>VERY GRANULAR OPTIONS</summary>
