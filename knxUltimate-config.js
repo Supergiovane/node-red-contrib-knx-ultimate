@@ -5,19 +5,19 @@ const oOS = require('os')
 //Helpers
 sortBy = (field) => (a, b) => {
     if (a[field] > b[field]) { return 1 } else { return -1 }
-}
+};
 
 
 onlyDptKeys = (kv) => {
     return kv[0].startsWith("DPT")
-}
+};
 
 extractBaseNo = (kv) => {
     return {
         subtypes: kv[1].subtypes,
         base: parseInt(kv[1].id.replace("DPT", ""))
     }
-}
+};
 
 convertSubtype = (baseType) => (kv) => {
     let value = `${baseType.base}.${kv[0]}`
@@ -25,7 +25,7 @@ convertSubtype = (baseType) => (kv) => {
         value: value
         , text: value + ` (${kv[1].name})`
     }
-}
+};
 
 
 toConcattedSubtypes = (acc, baseType) => {
@@ -35,7 +35,7 @@ toConcattedSubtypes = (acc, baseType) => {
             .map(convertSubtype(baseType))
 
     return acc.concat(subtypes)
-}
+};
 
 
 
@@ -51,7 +51,7 @@ module.exports = (RED) => {
                 .reduce(toConcattedSubtypes, [])
 
         res.json(dpts)
-    })
+    });
 
     function knxUltimateConfigNode(config) {
         RED.nodes.createNode(this, config)
@@ -220,16 +220,14 @@ module.exports = (RED) => {
             if (typeof _sIP !== "undefined" && _sIP !== "") node.host = _sIP;
             if (typeof _iPort !== "undefined" && _iPort !== 0) node.port = _iPort;
             if (typeof _sPhysicalAddress !== "undefined" && _sPhysicalAddress !== "") node.physAddr = _sPhysicalAddress;
-            if (typeof _sBindToEthernetInterface !== "undefined"){
-                if (_sBindToEthernetInterface === "Auto") node.KNXEthInterface = "Auto"; // Reset the interface to Auto;
-            } 
+            if (typeof _sBindToEthernetInterface !== "undefined") node.KNXEthInterface = _sBindToEthernetInterface;
             setTimeout(() => node.setAllClientsStatus("CONFIG", "yellow", "Node's main config setting has been changed."), 1000);
             setTimeout(() => node.setAllClientsStatus("CONFIG", "green", "New config: IP " + node.host + " Port " + node.port + " PhysicalAddress " + node.physAddr + " BindToInterface " + node.KNXEthInterface), 2000)
             RED.log.info("Node's main config setting has been changed. New config: IP " + node.host + " Port " + node.port + " PhysicalAddress " + node.physAddr + " BindToInterface " + node.KNXEthInterface);
             if (node.knxConnection) {
-                node.initKNXConnection();                
-            }
-        }
+                node.initKNXConnection();
+            };
+        };
 
         node.initKNXConnection = () => {
             node.Disconnect();
@@ -274,8 +272,7 @@ module.exports = (RED) => {
                 }
             };
 
-            if (node.KNXEthInterface !== "Auto")
-            {
+            if (node.KNXEthInterface !== "Auto") {
                 var sIfaceName = "";
                 if (node.KNXEthInterface === "Manual") {
                     sIfaceName = node.KNXEthInterfaceManuallyInput;
@@ -284,8 +281,7 @@ module.exports = (RED) => {
                     sIfaceName = node.KNXEthInterface;
                     RED.log.info("knxUltimate: Bind KNX Bus to interface : " + sIfaceName + " (Interface's name selected from dropdown list)");
                 }
-
-                knxConnectionProperties.interface = sIfaceName;            
+                knxConnectionProperties.interface = sIfaceName;
             } else {
                 RED.log.info("knxUltimate: Bind KNX Bus to interface (Auto)");
             }
@@ -294,7 +290,7 @@ module.exports = (RED) => {
          
             // Handle BUS events
             node.knxConnection.on("event", function (evt, src, dest, rawValue) {
-                  switch (evt) {
+                switch (evt) {
                     case "GroupValue_Write": {
                         node.nodeClients
                             .filter(input => input.notifywrite == true)
@@ -303,21 +299,21 @@ module.exports = (RED) => {
                                     // Get the GA from CVS
                                     let oGA;
                                     try {
-                                        oGA=node.csv.filter(sga => sga.ga == dest)[0];
+                                        oGA = node.csv.filter(sga => sga.ga == dest)[0];
                                     } catch (error) { }
                                     
                                     // 25/10/2019 TRY TO AUTO DECODE
                                     // --------------------------------
                                     if (typeof oGA === "undefined") {
                                         // 25/10/2019 from v. 1.1.11, try to decode and output a datapoint.
-                                        let msg = buildInputMessage(src, dest, evt, rawValue, tryToFigureOutDataPointFromRawValue(rawValue,dest), "")
+                                        let msg = buildInputMessage(src, dest, evt, rawValue, tryToFigureOutDataPointFromRawValue(rawValue, dest), "")
                                         input.setNodeStatus({ fill: "green", shape: "dot", text: "Try to decode", payload: msg.payload, GA: msg.knx.destination, dpt: "", devicename: "" });
-                                        input.send(msg)    
-                                      // --------------------------------
+                                        input.send(msg)
+                                        // --------------------------------
                                         
                                     } else {
                                         let msg = buildInputMessage(src, dest, evt, rawValue, oGA.dpt, oGA.devicename)
-                                        input.setNodeStatus({ fill: "green", shape: "dot", text: "",payload: msg.payload, GA: msg.knx.destination, dpt:msg.knx.dpt, devicename:msg.devicename });
+                                        input.setNodeStatus({ fill: "green", shape: "dot", text: "", payload: msg.payload, GA: msg.knx.destination, dpt: msg.knx.dpt, devicename: msg.devicename });
                                         input.send(msg)
                                     }
                                 } else if (input.topic == dest) {
@@ -325,12 +321,12 @@ module.exports = (RED) => {
                                     let msg = buildInputMessage(src, dest, evt, rawValue, input.dpt, input.name ? input.name : "")
                                     // Check RBE INPUT from KNX Bus, to avoid send the payload to the flow, if it's equal to the current payload
                                     if (!checkRBEInputFromKNXBusAllowSend(input, msg.payload)) {
-                                        input.setNodeStatus({fill: "grey", shape: "ring", text: "rbe block ("+msg.payload+") from KNX",payload: "", GA: "", dpt:"", devicename:""})
+                                        input.setNodeStatus({ fill: "grey", shape: "ring", text: "rbe block (" + msg.payload + ") from KNX", payload: "", GA: "", dpt: "", devicename: "" })
                                         return;
                                     };
-                                    msg.previouspayload = typeof input.currentPayload !== "undefined" ? input.currentPayload: ""; // 24/01/2020 Added previous payload
+                                    msg.previouspayload = typeof input.currentPayload !== "undefined" ? input.currentPayload : ""; // 24/01/2020 Added previous payload
                                     input.currentPayload = msg.payload;// Set the current value for the RBE input
-                                    input.setNodeStatus({fill: "green", shape: "dot", text: "", payload: msg.payload, GA: input.topic, dpt:input.dpt, devicename:""});
+                                    input.setNodeStatus({ fill: "green", shape: "dot", text: "", payload: msg.payload, GA: input.topic, dpt: input.dpt, devicename: "" });
                                     input.send(msg)
                                 }
                             })
@@ -339,22 +335,22 @@ module.exports = (RED) => {
                     case "GroupValue_Response": {
                         
                         node.nodeClients
-                            .filter(input => input.notifyresponse==true)
+                            .filter(input => input.notifyresponse == true)
                             .forEach(input => {
-                                if (input.listenallga==true) {
+                                if (input.listenallga == true) {
                                     // Get the DPT
                                     let oGA;
                                     try {
-                                        oGA=node.csv.filter(sga => sga.ga == dest)[0];
+                                        oGA = node.csv.filter(sga => sga.ga == dest)[0];
                                     } catch (error) { }
                                     
                                     // 25/10/2019 TRY TO AUTO DECODE
                                     // --------------------------------
                                     if (typeof oGA === "undefined") {
-                                        let msg = buildInputMessage(src, dest, evt, rawValue, tryToFigureOutDataPointFromRawValue(rawValue,dest), "")
-                                        input.setNodeStatus({ fill: "green", shape: "dot", text: "Try to decode",payload: msg.payload, GA: msg.knx.destination, dpt:"", devicename:"" });
-                                        input.send(msg)    
-                                      // --------------------------------
+                                        let msg = buildInputMessage(src, dest, evt, rawValue, tryToFigureOutDataPointFromRawValue(rawValue, dest), "")
+                                        input.setNodeStatus({ fill: "green", shape: "dot", text: "Try to decode", payload: msg.payload, GA: msg.knx.destination, dpt: "", devicename: "" });
+                                        input.send(msg)
+                                        // --------------------------------
                                         
                                     } else {
                                         let msg = buildInputMessage(src, dest, evt, rawValue, oGA.dpt, oGA.devicename)
@@ -368,9 +364,9 @@ module.exports = (RED) => {
                                         input.setNodeStatus({ fill: "grey", shape: "ring", text: "rbe INPUT filter applied on " + msg.payload })
                                         return;
                                     };
-                                    msg.previouspayload = typeof input.currentPayload !== "undefined" ? input.currentPayload: ""; // 24/01/2020 Added previous payload
+                                    msg.previouspayload = typeof input.currentPayload !== "undefined" ? input.currentPayload : ""; // 24/01/2020 Added previous payload
                                     input.currentPayload = msg.payload; // Set the current value for the RBE input
-                                    input.setNodeStatus({ fill: "blue", shape: "dot", text: "", payload: msg.payload, GA: input.topic, dpt:msg.knx.dpt, devicename:msg.devicename });
+                                    input.setNodeStatus({ fill: "blue", shape: "dot", text: "", payload: msg.payload, GA: input.topic, dpt: msg.knx.dpt, devicename: msg.devicename });
                                     input.send(msg)
                                 }
                             })
@@ -379,58 +375,66 @@ module.exports = (RED) => {
                     case "GroupValue_Read": {
                         
                         node.nodeClients
-                            .filter(input => input.notifyreadrequest==true)
+                            .filter(input => input.notifyreadrequest == true)
                             .forEach(input => {
-                                if (input.listenallga==true) {
+                                
+                                if (input.listenallga == true) {
                                     // Get the DPT
                                     let oGA;
                                     try {
-                                        oGA=node.csv.filter(sga => sga.ga == dest)[0];
+                                        oGA = node.csv.filter(sga => sga.ga == dest)[0];
                                     } catch (error) { }
                                     
                                     // 25/10/2019 TRY TO AUTO DECODE
                                     // --------------------------------
                                     if (typeof oGA === "undefined") {
                                         // 25/10/2019 from v. 1.1.11, try to decode and output a datapoint.
-                                        let msg = buildInputMessage(src, dest, evt, null, tryToFigureOutDataPointFromRawValue(rawValue,dest), "")
-                                        input.setNodeStatus({ fill: "green", shape: "dot", text: "Try to decode",payload: msg.payload, GA: msg.knx.destination, dpt:"", devicename:"" });
-                                        input.send(msg)    
-                                      // --------------------------------
+                                        let msg = buildInputMessage(src, dest, evt, null, tryToFigureOutDataPointFromRawValue(rawValue, dest), "")
+                                        input.setNodeStatus({ fill: "green", shape: "dot", text: "Try to decode", payload: msg.payload, GA: msg.knx.destination, dpt: "", devicename: "" });
+                                        input.send(msg)
+                                        // --------------------------------
    
                                     } else {
-                                        let msg = buildInputMessage(src, dest, evt, null, oGA.dpt, oGA.devicename)
+                                        let msg = buildInputMessage(src, dest, evt, null, oGA.dpt, oGA.devicename);
                                         input.setNodeStatus({ fill: "grey", shape: "dot", text: "Read", payload: msg.payload, GA: msg.knx.destination, dpt: msg.knx.dpt, devicename: msg.devicename });
-                                        input.send(msg)
+                                        input.send(msg);
                                     }
                                 } else if (input.topic == dest) {
-                                    let msg = buildInputMessage(src, dest, evt, null, input.dpt, input.name ? input.name : "");
-                                    msg.previouspayload = typeof input.currentPayload !== "undefined" ? input.currentPayload: ""; // 24/01/2020 Added previous payload
-                                    // 24/09/2019 Autorespond to BUS
-                                    if (input.notifyreadrequestalsorespondtobus===true) {
-                                        if (typeof input.currentPayload === "undefined" || input.currentPayload === "") {
-                                             setTimeout(() => {
-                                                node.knxConnection.respond(dest, input.notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized, input.dpt);
-                                                input.setNodeStatus({ fill: "blue", shape: "ring", text: "Read & Autorespond with default", payload: input.notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized, GA: input.topic, dpt: msg.knx.dpt, devicename: "" });
-                                            }, 200);
-                                        } else {
-                                            setTimeout(() => {
-                                                node.knxConnection.respond(dest, input.currentPayload, input.dpt);    
-                                                input.setNodeStatus({ fill: "blue", shape: "ring", text: "Read & Autorespond", payload: input.currentPayload, GA: input.topic, dpt: msg.knx.dpt, devicename: "" });
-                                            }, 200);
-                                        }
+
+                                    // 04/02/2020 Watchdog implementation
+                                    if (input.hasOwnProperty("isWatchDog")) {
+                                        // Is a watchdog node
+                                        input.evalCalledByConfigNode();
                                     } else {
-                                        input.setNodeStatus({ fill: "grey", shape: "dot", text: "Read", payload: msg.payload, GA: input.topic , dpt:msg.knx.dpt, devicename:"" });    
-                                    }
-                                    input.send(msg)
-                                    
-                                }
-                            })
+                                        // Is not an watchdog node
+                                        let msg = buildInputMessage(src, dest, evt, null, input.dpt, input.name ? input.name : "");
+                                        msg.previouspayload = typeof input.currentPayload !== "undefined" ? input.currentPayload : ""; // 24/01/2020 Added previous payload
+                                        // 24/09/2019 Autorespond to BUS
+                                        if (input.notifyreadrequestalsorespondtobus === true) {
+                                            if (typeof input.currentPayload === "undefined" || input.currentPayload === "") {
+                                                setTimeout(() => {
+                                                    node.knxConnection.respond(dest, input.notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized, input.dpt);
+                                                    input.setNodeStatus({ fill: "blue", shape: "ring", text: "Read & Autorespond with default", payload: input.notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized, GA: input.topic, dpt: msg.knx.dpt, devicename: "" });
+                                                }, 200);
+                                            } else {
+                                                setTimeout(() => {
+                                                    node.knxConnection.respond(dest, input.currentPayload, input.dpt);
+                                                    input.setNodeStatus({ fill: "blue", shape: "ring", text: "Read & Autorespond", payload: input.currentPayload, GA: input.topic, dpt: msg.knx.dpt, devicename: "" });
+                                                }, 200);
+                                            };
+                                        } else {
+                                            input.setNodeStatus({ fill: "grey", shape: "dot", text: "Read", payload: msg.payload, GA: input.topic, dpt: msg.knx.dpt, devicename: "" });
+                                        };
+                                        input.send(msg);
+                                    };
+                                };
+                            });
                         break;
-                    }
+                    };
                     default: return
-                }
-            })
-        }
+                };
+            });
+        };
         
 
        // 02/01/2020 All sent messages are queued, to allow at least 50 milliseconds between each telegram sent to the bus
@@ -438,6 +442,7 @@ module.exports = (RED) => {
             // _oKNXMessage is { grpaddr, payload,dpt,outputtype (write or response)}
             node.telegramsQueue.unshift(_oKNXMessage); // Add _oKNXMessage as first in the buffer
         }
+
         function handleTelegramQueue() {
             if (node.knxConnection) { 
                 if (node.telegramsQueue.length==0) {

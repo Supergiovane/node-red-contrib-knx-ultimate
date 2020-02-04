@@ -49,9 +49,11 @@ module.exports = function (RED) {
             if (typeof msg === "undefined") return;
 
             // 01/02/2020 Dinamic change of the KNX Gateway IP, Port and Physical Address
+            // DEPRECATED, USE THE WATCHDOG INSTEAD
             // This new thing has been requested by proServ RealKNX staff.
             if (msg.hasOwnProperty("setGatewayConfig")) {
                 node.server.setGatewayConfig(msg.setGatewayConfig.IP, msg.setGatewayConfig.Port, msg.setGatewayConfig.PhysicalAddress, msg.setGatewayConfig.BindToEthernetInterface);
+                RED.log.warn("knxUltimate: Node " + node.id + " setGatewayConfig is deprecated here. Use it with WatchDog node instead!");
                 return;
             }
 
@@ -204,21 +206,18 @@ module.exports = function (RED) {
                                 setTimeout(() => {
                                     node.setNodeStatus({ fill: "red", shape: "ring", text: "Node DISABLED due to a circulare reference (" + grpaddr + "). Two nodes with same group address are linked. Unlink it.",payload:"", GA: "", dpt:"", devicename:"" })
                                 }, 1000);
-                                //node.server.removeClient(node);
                                 return;
                             }
                         }
                         if (outputtype == "response") {
                             try {
                                 node.currentPayload = msg.payload;// 31/12/2019 Set the current value (because, if the node is a virtual device, then it'll never fire "GroupValue_Write" in the server node, causing the currentPayload to never update)
-                                //node.server.knxConnection.respond(grpaddr, msg.payload, dpt);
                                 node.server.writeQueueAdd({ grpaddr: grpaddr, payload:msg.payload,dpt:dpt,outputtype:outputtype})
                                 node.setNodeStatus({ fill: "blue", shape: "dot", text: "Responding",payload: msg.payload, GA: grpaddr, dpt:dpt, devicename:"" });
                             } catch (error) {}
                         } else {
                             try {
                                 node.currentPayload = msg.payload;// 31/12/2019 Set the current value (because, if the node is a virtual device, then it'll never fire "GroupValue_Write" in the server node, causing the currentPayload to never update)
-                                //node.server.knxConnection.write(grpaddr, msg.payload, dpt);
                                 node.server.writeQueueAdd({ grpaddr: grpaddr, payload:msg.payload,dpt:dpt,outputtype:outputtype})
                                 node.setNodeStatus({ fill: "green", shape: "dot", text: "Writing",payload: msg.payload, GA: grpaddr, dpt:dpt, devicename:"" });
                             } catch (error) {}
@@ -240,10 +239,8 @@ module.exports = function (RED) {
         // Unsubscribe(Subscribe)
         if (node.server) {
             node.server.removeClient(node);
-            //node.setNodeStatus({ fill: "grey", shape: "ring", text: "Unsubscribed" });
             if (node.topic || node.listenallga) {
                 node.server.addClient(node);
-                //(node.setNodeStatus({ fill: "green", shape: "ring", text: "Ready" })
             }
             
         }

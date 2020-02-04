@@ -6,12 +6,13 @@
             server: { type: "knxUltimate-config", required: true },
             topic: { value: "12/0/0" },
             maxRetry: {value:6}, // After this number is reached, throw a connection error
-            retryIntervall: {value:10},
-            name: { value: "" }
+            retryInterval: {value:10},
+            name: { value: "" },
+            autoStart: {value: false}
         },
         inputs: 1,
-        outputs: 2,
-        outputLabels: ["ErrorFromOtherNodes","WatchDogElapsed"],
+        outputs: 1,
+        outputLabels: ["Output"],
         align: "left",
         icon: "alert.png",
         label: function () {
@@ -49,21 +50,24 @@
     </div>
     <div class="form-row">
         <label for="node-input-topic"><i class="fa fa-tasks"></i> Group Address to monitor</label>
-        <input type="text" id="node-input-topic" placeholder="Example: 5/0/0 Please use a non existent device.">
+        <input type="text" id="node-input-topic" placeholder="Example: 12/0/0 Please use a non existent device.">
     </div>
     <div class="form-row">
         <label for="node-input-name"><i class="fa fa-tag"></i> Name </label>
         <input type="text" id="node-input-name" placeholder="Name">
     </div>
-    
+    <div class="form-row">
+        <input type="checkbox" id="node-input-autoStart" style="display:inline-block; width:auto; vertical-align:top;">
+        <label style="width:auto" for="node-input-autoStart">&nbsp;&nbsp;<i class="fa fa-play-circle"></i>  Auto start the watchdog timer</label>
+    </div>    
     
     <div id="advancedOptionsAccordion">
         <h3>Advanced options</h3>
         <div>
             <p>
                 <div class="form-row">
-                    <label for="node-input-retryIntervall"><i class="fa fa-clock-o"></i> Retry interval (in seconds) </label>
-                    <input type="text" id="node-input-retryIntervall" placeholder="">
+                    <label for="node-input-retryInterval"><i class="fa fa-clock-o"></i> Retry interval (in seconds) </label>
+                    <input type="text" id="node-input-retryInterval" placeholder="">
                 </div>
                 <div class="form-row">
                     <label for="node-input-maxRetry"><i class="fa fa-undo"></i> Number of retry before giving an error </label>
@@ -76,11 +80,15 @@
 
 <script type="text/x-red" data-help-name="knxUltimateWatchDog">
     <p>
+        <b>What does it do?</b>
+        1. Checks for the healty of KNX BUS communication/connection by sending a telegram at regular intervals, watching for a response and sends a msg to the flow if a connection to KNX Bus is broken.
+        2. Programmatically changes the Configuration Node parameters, thus the connection to your KNX/IP Router/Interface (for example, if you have 2 KNX/IP Routers and you want to switch between the two for connection backup). <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Change-KNX-IP-config-parameters-on-the-fly" target="_blank">See here how to do.</a>
+
         WatchDog node is a powerfull node for signalling errors and connection problems. It sends a telegram to a designated goup address (please set a non existent group address, otherwise your KNX real device will respond. This may not be a problem, but it's better not to interfere with real KNX devices in your installation).<br />
-        It has two outputs: the output 1 catches all error of your nodes in all flows (for example, loop protection errors and so on); the output 2 catches only the internal watchdog error.<br />
-        It sends a read request to a designated group address, at regular intervals specified in <b>Retry interval (in seconds)</b>, for a specific number of times specified in <b>Number of retry before giving an error</b> and listens to the response from the KNX Bus. In case of no response from KNX Bus after the <b>Number of retry before giving an error</b>, it throws an error on output pin 2.<br />
+        It sends a telegram to a designated group address, at regular intervals specified in <b>Retry interval (in seconds)</b>, for a specific number of times specified in <b>Number of retry before giving an error</b> and listens to the response from the KNX Bus. In case of no response from KNX Bus after the <b>Number of retry before giving an error</b>, it throws an error on output pin.<br />
+        The telegram's path is monitored in his route through <b>Ethernet Interface -> KNX TP Media -> Return to Ethernet Interface</b>.<br />
         You can then send an Email to the KNX installer responsible to your Building, or you can automatically switch to a backup KNX/IP Router/Interface in your installation, <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Change-KNX-IP-config-parameters-on-the-fly" target="_blank">by using this method</a>.
-        Please see the <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki">WIKI for instructions.</a>.<br />
+        Please see the <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki">Full Wiki.</a>.<br />
 
     </p>
     <p>
@@ -91,107 +99,37 @@
     <p>
             <dl class="message-properties">
                 <dt>Gateway</dt>
-                <dd> Selected KNX gateway. </dd>
+                <dd>Selected KNX gateway. </dd>
  
-                <dt>Group Address (topic)
-                    <span class="property-type">Example 0/0/1</span>
+                <dt>Group Address to monitor
+                    <span class="property-type">Example 12/0/0</span>
                 </dt>
-                <dd> KNX Group address to read/write to. It's not mandatory if you import the ETS csv file and select <i>Universal mode (listen to all Group Addresses)</i>. Please note that the Group Address will then transmitted to the flow as <code>msg.topic</code>. It can be overridden by <code>msg.knx.destination</code>.</dd>
-    
-                <dt>Datapoint</dt>
-                <dd> KNX datapoint type (DPT). It's not mandatory if you import the ETS csv file and select <i>Universal mode (listen to all Group Addresses)</i>. It can be overridden by <code>msg.dpt</code>.</dd>
-    
-                <dt>Universal mode (listen to all Group Addresses)</dt>
-                <dd> The node will react to all group addresses when used as INPUT, and will notify a message containing a payload correctly decoded using the datapoints specified in the ETS csv file. When used as OUTPUT, it automatically decodes the payload using the right datapoint specified in the ETS csv file.</dd>
-                <dd> Starting from Version 1.1.11, you can use <i>Universal mode (listen to all Group Addresses)</i> option without the need of an imported ETS CSV File. You need to pass a message to the node, containing datapoint type and a value. As soon as the node receives a telegram from BUS, it will output a RAW value and beside that, it will try to decode the value without knowing the datapoint type.</dd>
-            </dl>
+                <dd>The node will send a telegram to this address and monitors the message flowing through the KNX BUS.</dd>
+
+                <dt>Name</dt>
+                <dd>Node's name</dd>
+
+                <dt>Auto start the watchdog timer</dt>
+                <dd>The watchdog timer starts automatically on deploy or on node-red start.</dd>
+          </dl>
             
             <h3>ADVANCED OPTIONS</h3>
-
-            <b>OUTPUT (sends datagram to the BUS)</b>
-            <dl class="message-properties">
-                    <dt>Output Type</dt>
-                    <dd>Write: the node will send the payload to the BUS as a 'write' message (standard).<br />
-                        Response: the node will send the payload to the BUS as a 'response' message (in case you wish to create your own 'response', in response to a read request).</dd>
-        
-                    <dt>Send payload to BUS only if changed (RBE filter)</dt>
-                    <dd>The RBE (Report by Exception) filter, only passes on data if the payload has changed. The node writes to BUS only if the received msg.payload differs from the current value. For example, if the kitchen light is on (true) and you send again a msg.payload=true to the node, the value will not be written again to the bus. This is useful to avoid loops.</dd>
-    
-                    <dt>Send a GrpValue read once on connection/reconnect</dt>
-                    <dd>On connection/reconnection, the node will send a 'read' request to the group address specified on the <b>Group Address</b> or, if <i>Universal mode (listen to all Group Addresses)</i> is selected and ETS cvs file was imported, on all group addresses specified on the ETS csv file.</dd>
-            </dl>
-           
-            <b>INPUT (listen to datagram from the BUS)</b>
-            <dl class="message-properties">
-                <dt>React only if payload from BUS is changed (RBE filter)</dt>
-                <dd>The RBE (Report by Exception) filter, only passes on data on the flow if the KNX Telegram coming from BUS has changed. The node starts a flow only if the received KNX Telegram differs from the current Payload. This is useful to avoid loops.</dd>
-    
-                <dt>React to event GroupValue write</dt>
-                <dd>When checked, received writeRequests will be notified</dd>
-
-                <dt>React to event GroupValue response</dt>
-                <dd>When checked, received responses will be notified</dd>
-
-                <dt>React to event GroupValue read</dt>
-                <dd> When checked, received read requests will be notified, this can be used to create your own response with a <i>Output Type</i> set to 'Response'.
-                    <strong>Attention:</strong> Messages for received read requests have a <code>msg.payload</code> and
-                    <code>msg.knx.rawValue</code> with value <code>null</code>.<br/>
-                        <dt>Auto send node value as response to the BUS</dt>
-                        <dd> Only enabled if "Universal mode (listen to all Group Addresses)" is not selected. It works in conjunction with <b>React to event GroupValue read</b>. When checked, whenever the node receives a read request from bus, it sends a response to the BUS with the stored payload value.
-                            If the value is unknown/not initialized, it sends a default value you've selected in the text box.
-                        </dd>
-                </dd>
-            </dl>
+                <dl class="message-properties">
+                    <dt>Retry interval (in seconds)</dt>
+                    <dd>The node sends a telegram to the KNX bus at this time interva, in seconds. For example, <b>6</b> indicates that the telegram is sent every 6 seconds.<br />
+                    
+                    <dt>Number of retry before giving an error</dt>
+                    <dd>After the telegram has been sent for this amount of times, without any response from KNX Bus, the note throws an error on output pin 2</dd>
+                </dl>
         </p>
    
-        <p>
-            <table style="font-size:12px">
-                <tr>
-                <th colspan="2" style="font-size:14px">Node status colors explanation</th>
-                </tr>
-                <tr>
-                <td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/greendot.png"></img></td>
-                <td>React to event GroupValue write</td>
-                </tr>
-                <tr>
-                    <td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/greenring.png"></img></td>
-                    <td>Circular reference protection. <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki" target="_blank">See this page.</a></td>
-                </tr>
-                <tr>
-                <td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/bluedot.png"></img></td>
-                <td>React to event GroupValue response.</td>
-                </tr>
-                <tr>
-                    <td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/bluering.png"></img></td>
-                    <td>Auto send node value as response to the BUS. <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Virtual-Device" target="_blank">See Virtual Device.</a></td>
-                </tr>
-                <tr>
-                    <td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/greudot.png"></img></td>
-                    <td>React to event GroupValue read.</td>
-                </tr>
-                <tr>
-                    <td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/greyring.png"></img></td>
-                    <td>RBE filter: no telegrams has been sent.</td>
-                </tr>
-                <tr>
-                    <td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/reddot.png"></img></td>
-                    <td>Error or disconnected.</td>
-                </tr>
-                <tr>
-                    <td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/redring.png"></img></td>
-                    <td>Node DISABLED due to a circulare reference. <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki" target="_blank">See this page.</a></td>
-                </tr>
-            </table>
-        </p>
+      
         
     <p>
         <b>MSG FORMAT</b><br/>
-        <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/3.-Messages-from-the-node" target="_blank">Click here for msg output format</a>.<br />
-        <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/4.-Messages-to-the-node" target="_blank">Click here for msg input format</a>.<br />
+        <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/8.-WatchDog-Messages-from-the-node" target="_blank">Click here for msg output format</a>.<br />
+        <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/9.-WathDog-Messages-to-the-node" target="_blank">Click here for msg input format</a>.<br />
         <br />
     </p>
-    <p>
-        The Node has a circular reference protection. If 2 nodes with same group address are link toghether, the protection avoids loops by stopping the message transmitted to the BUS.
-    </p>
-           
+            
     </script>
