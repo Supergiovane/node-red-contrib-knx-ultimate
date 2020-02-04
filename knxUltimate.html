@@ -1,6 +1,6 @@
 <script type="text/javascript">
     RED.nodes.registerType('knxUltimate', {
-        category: 'input',
+        category: 'KnxUltimate',
         color: '#99ccff',
         defaults: {
             server: { type: "knxUltimate-config", required: true },
@@ -25,6 +25,7 @@
         label: function () {
             return (this.outputRBE==true ? "|rbe| " : "") + (this.name || this.topic || "knx-ultimate") + (this.inputRBE==true ? " |rbe|" : "" )
         },
+        paletteLabel : "KNX Device",
         oneditprepare: function () {
 
             $.getJSON('knxUltimateDpts', (data) => {
