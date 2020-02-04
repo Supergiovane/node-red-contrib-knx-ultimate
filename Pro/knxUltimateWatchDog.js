@@ -44,6 +44,7 @@ module.exports = function (RED) {
                 node.beatNumber = 0; // Reset Counter
                 msg = {
                     type: "BUSError",
+                    checkPerformed:node.checkLevel,
                     nodeid: node.id,
                     payload: true,
                     description: "Watchdog elapsed and no response from KNX Bus"
