@@ -7,7 +7,7 @@ module.exports = function (RED) {
         node.notifyreadrequestalsorespondtobus =  "false"
         node.notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized = ""
         node.notifyreadrequest = true;
-        node.notifyresponse = false
+        node.notifyresponse = true
         node.notifywrite = false
         node.initialread =  false
         node.listenallga = false
@@ -22,6 +22,7 @@ module.exports = function (RED) {
         if (node.autoStart) node.timerWatchDog = setInterval(handleTheDog, node.retryInterval);  // Autostart watchdog
         node.beatNumber = 0; // Telegram counter
         node.isWatchDog = true;
+        node.checkLevel= config.checkLevel !== undefined ? config.checkLevel : "Ethernet";
         
         // Used to call the status update from the config node.
         node.setNodeStatus = ({ fill, shape, text, payload, GA, dpt, devicename }) => {
@@ -50,19 +51,36 @@ module.exports = function (RED) {
                 node.send(msg)
             } else {
                 // Issue a read request
-                node.server.readValue(node.topic);
-                node.setNodeStatus({ fill: "yellow", shape: "dot", text: "Sent beat telegram " + node.beatNumber + " of " + node.maxRetry, payload: "", GA: "", dpt: "", devicename: "" });
-            }
-        }
+                if (node.server.knxConnection) {
+                    node.server.readValue(node.topic);
+                    node.setNodeStatus({ fill: "yellow", shape: "dot", text: "Check level " + node.checkLevel + ", beat telegram " + node.beatNumber + " of " + node.maxRetry, payload: "", GA: "", dpt: "", devicename: "" });
+                };
+            };
+        };
 
         // This function is called by the knx-ultimate config node.
-        node.evalCalledByConfigNode = () => {
-            // The node received a telegram from the bus. 
-            node.beatNumber = 0; // Reset counter
-            setTimeout(() => {
-                node.setNodeStatus({ fill: "green", shape: "dot", text: "BUS OK.", payload: "", GA: node.topic, dpt: "", devicename: "" });
-            }, 500);
-            
+        node.evalCalledByConfigNode = _sTypeOfTelegram => {
+            // The node received a telegram from the bus
+            // _sTypeOfTelegram = "Read" (in case of Ethernet level check)
+            // _sTypeOfTelegram = "Response" or "Write" (in case of KNX TP level check)
+            if (node.checkLevel === "Ethernet") {
+                if (_sTypeOfTelegram === "Read" || _sTypeOfTelegram === "Response") {
+                    // With this check level "Ethernet", i need to obtain at least a response from the KNX/IP Gateway, that is "Read"
+                    node.beatNumber = 0; // Reset counter
+                    setTimeout(() => {
+                        node.setNodeStatus({ fill: "green", shape: "dot", text: "Basic check level " + node.checkLevel + " - BUS OK.", payload: "", GA: node.topic, dpt: "", devicename: "" });
+                    }, 500);
+                };
+            } else {
+                // With thes check level "Ethernet + KNX Twisted Pair", i need to obtain the "Response" from the physical device, otherwise the connection TP is broken.
+                if (_sTypeOfTelegram === "Response") {
+                    // With this check level, i need to obtain at least a response from the KNX/IP Gateway, that is "Read"
+                    node.beatNumber = 0; // Reset counter
+                    setTimeout(() => {
+                        node.setNodeStatus({ fill: "green", shape: "dot", text: "Full check level " + node.checkLevel + " - BUS OK.", payload: "", GA: node.topic, dpt: "", devicename: "" });
+                    }, 500);
+                };
+            };
         };
 
         node.on("input", function (msg) {
@@ -96,6 +114,7 @@ module.exports = function (RED) {
         });
         
         node.on('close', function () {
+            clearInterval(node.timerWatchDog);
             if (node.server) {
                 node.server.removeClient(node)
             };
@@ -104,14 +123,15 @@ module.exports = function (RED) {
         // On each deploy, unsubscribe+resubscribe
         // Unsubscribe(Subscribe)
         if (node.server) {
+            clearInterval(node.timerWatchDog);
             node.server.removeClient(node);
             if (node.topic || node.listenallga) {
                 node.server.addClient(node);
+                if (node.autoStart) node.timerWatchDog = setInterval(handleTheDog, node.retryInterval);  // Autostart watchdog
             }
             
         }
-       
-			
+       	
     }
     RED.nodes.registerType("knxUltimateWatchDog", knxUltimateWatchDog)
 }

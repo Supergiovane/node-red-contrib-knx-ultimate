@@ -12,8 +12,9 @@
 ![Sample Node](img/readmemain.png) 
 
 ## DESCRIPTION
-Knx-ultimate is a powerfull device node, all-in-one. It acts as input device as well as output device at the same time. I'ts very SIMPLE TO USE thus very customizable.<br />
-If you're here, you probably already have tried other knx nodes from npm. I hope you enjoy this one, because i've put big effort to do what i really needed, a copy/paste friendly node, with many functions and the possibility to use the ETS csv exported Group Addresses.
+**Knx-ultimate device node** is a powerfull device node, all-in-one. It acts as input device as well as output device at the same time. I'ts very SIMPLE TO USE thus very customizable.<br/>
+If you're here, you probably already have tried other knx nodes from npm. I hope you enjoy this one, because i've put big effort to do what i really needed, a copy/paste friendly node, with many functions and the possibility to use the ETS csv exported Group Addresses.<br />
+**WatchDog node** is a professional oriented knx node for installers/companies. It allows notification (Email, Twitter, Telegram, Alexa, Siri, Sonos -with sonospollytts node- and so on) of KNX Bus connection errors, automatic or manual switchover to a backup KNX/IP router if the primary fails and allows you to programmatically change the config-node directly from a msg flow.
 
 [![Donate via PayPal](https://img.shields.io/badge/Donate-PayPal-blue.svg?style=flat-square)](https://www.paypal.me/techtoday) and <a href="http://eepurl.com/gJm095" target="_blank">subscribe to my channel.</a> Only news about my nodes, no spam, no ads.<br/>Please never put pineapple on an italian pizza!
 
@@ -24,6 +25,7 @@ If you're here, you probably already have tried other knx nodes from npm. I hope
 * See <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki">here the wiki with samples and documentation, as well as FAQ</a>
 * See it in action at <a href="https://www.youtube.com/channel/UCA9RsLps1IthT7fDSeUbRZw">my Youtube channel.</a> 
 * Troubleshoot <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/5.-FAQ-Troubleshoot">are here! Take a look.</a> 
+* WatchDog node <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/7.-WatchDog-Configuration" target="_blank">wiki is here.</a>
 <table>
   <tr>
     <td>Sample code for use with </td>
@@ -96,6 +98,11 @@ Full support for IP Interfaces as well for IP Routers. It's recommended the use 
 <details><summary>SUPPRESS ACK REQUEST FOR OLD IP INTERFACES</summary>
 
 This option help compatibility with very old IP Interfaces, like the Siemens SWG1 148-1AB22 IP Interface firmware.
+
+</details>
+<details><summary>WATCHDOG NODE FOR KNX CONNECTION BACKUP AND NOTIFICATION</summary>
+
+You can check the healty of your KNX Bus connection and switch over to anoter KNX/IP Router if the primary fails.
 
 </details>
 <details><summary>PROGRAMMATICALLY CHANGE THE KNX/IP INTERFACE/ROUTER CONFIG</summary>

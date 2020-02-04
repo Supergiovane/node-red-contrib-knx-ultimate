@@ -317,21 +317,26 @@ module.exports = (RED) => {
                                         input.send(msg)
                                     }
                                 } else if (input.topic == dest) {
-                                    
-                                    let msg = buildInputMessage(src, dest, evt, rawValue, input.dpt, input.name ? input.name : "")
-                                    // Check RBE INPUT from KNX Bus, to avoid send the payload to the flow, if it's equal to the current payload
-                                    if (!checkRBEInputFromKNXBusAllowSend(input, msg.payload)) {
-                                        input.setNodeStatus({ fill: "grey", shape: "ring", text: "rbe block (" + msg.payload + ") from KNX", payload: "", GA: "", dpt: "", devicename: "" })
-                                        return;
+                                    // 04/02/2020 Watchdog implementation
+                                    if (input.hasOwnProperty("isWatchDog")) {
+                                        // Is a watchdog node
+                                        input.evalCalledByConfigNode("Write");
+                                    } else {
+                                        let msg = buildInputMessage(src, dest, evt, rawValue, input.dpt, input.name ? input.name : "")
+                                        // Check RBE INPUT from KNX Bus, to avoid send the payload to the flow, if it's equal to the current payload
+                                        if (!checkRBEInputFromKNXBusAllowSend(input, msg.payload)) {
+                                            input.setNodeStatus({ fill: "grey", shape: "ring", text: "rbe block (" + msg.payload + ") from KNX", payload: "", GA: "", dpt: "", devicename: "" })
+                                            return;
+                                        };
+                                        msg.previouspayload = typeof input.currentPayload !== "undefined" ? input.currentPayload : ""; // 24/01/2020 Added previous payload
+                                        input.currentPayload = msg.payload;// Set the current value for the RBE input
+                                        input.setNodeStatus({ fill: "green", shape: "dot", text: "", payload: msg.payload, GA: input.topic, dpt: input.dpt, devicename: "" });
+                                        input.send(msg);
                                     };
-                                    msg.previouspayload = typeof input.currentPayload !== "undefined" ? input.currentPayload : ""; // 24/01/2020 Added previous payload
-                                    input.currentPayload = msg.payload;// Set the current value for the RBE input
-                                    input.setNodeStatus({ fill: "green", shape: "dot", text: "", payload: msg.payload, GA: input.topic, dpt: input.dpt, devicename: "" });
-                                    input.send(msg)
-                                }
-                            })
+                                };
+                            });
                         break;
-                    }
+                    };
                     case "GroupValue_Response": {
                         
                         node.nodeClients
@@ -356,22 +361,29 @@ module.exports = (RED) => {
                                         let msg = buildInputMessage(src, dest, evt, rawValue, oGA.dpt, oGA.devicename)
                                         input.setNodeStatus({ fill: "blue", shape: "dot", text: "", payload: msg.payload, GA: msg.knx.destination, dpt: msg.knx.dpt, devicename: msg.devicename });
                                         input.send(msg)
-                                    }
-                                } else if (input.topic == dest) {
-                                    let msg = buildInputMessage(src, dest, evt, rawValue, input.dpt, input.name ? input.name : "")
-                                    // Check RBE INPUT from KNX Bus, to avoid send the payload to the flow, if it's equal to the current payload
-                                    if (!checkRBEInputFromKNXBusAllowSend(input, msg.payload)) {
-                                        input.setNodeStatus({ fill: "grey", shape: "ring", text: "rbe INPUT filter applied on " + msg.payload })
-                                        return;
                                     };
-                                    msg.previouspayload = typeof input.currentPayload !== "undefined" ? input.currentPayload : ""; // 24/01/2020 Added previous payload
-                                    input.currentPayload = msg.payload; // Set the current value for the RBE input
-                                    input.setNodeStatus({ fill: "blue", shape: "dot", text: "", payload: msg.payload, GA: input.topic, dpt: msg.knx.dpt, devicename: msg.devicename });
-                                    input.send(msg)
-                                }
-                            })
+                                } else if (input.topic == dest) {
+
+                                    // 04/02/2020 Watchdog implementation
+                                    if (input.hasOwnProperty("isWatchDog")) {
+                                        // Is a watchdog node
+                                        input.evalCalledByConfigNode("Response");
+                                    } else {
+                                        let msg = buildInputMessage(src, dest, evt, rawValue, input.dpt, input.name ? input.name : "")
+                                        // Check RBE INPUT from KNX Bus, to avoid send the payload to the flow, if it's equal to the current payload
+                                        if (!checkRBEInputFromKNXBusAllowSend(input, msg.payload)) {
+                                            input.setNodeStatus({ fill: "grey", shape: "ring", text: "rbe INPUT filter applied on " + msg.payload })
+                                            return;
+                                        };
+                                        msg.previouspayload = typeof input.currentPayload !== "undefined" ? input.currentPayload : ""; // 24/01/2020 Added previous payload
+                                        input.currentPayload = msg.payload; // Set the current value for the RBE input
+                                        input.setNodeStatus({ fill: "blue", shape: "dot", text: "", payload: msg.payload, GA: input.topic, dpt: msg.knx.dpt, devicename: msg.devicename });
+                                        input.send(msg)
+                                    };
+                                };
+                            });
                         break;
-                    }
+                    };
                     case "GroupValue_Read": {
                         
                         node.nodeClients
@@ -404,9 +416,8 @@ module.exports = (RED) => {
                                     // 04/02/2020 Watchdog implementation
                                     if (input.hasOwnProperty("isWatchDog")) {
                                         // Is a watchdog node
-                                        input.evalCalledByConfigNode();
+                                        input.evalCalledByConfigNode("Read");
                                     } else {
-                                        // Is not an watchdog node
                                         let msg = buildInputMessage(src, dest, evt, null, input.dpt, input.name ? input.name : "");
                                         msg.previouspayload = typeof input.currentPayload !== "undefined" ? input.currentPayload : ""; // 24/01/2020 Added previous payload
                                         // 24/09/2019 Autorespond to BUS

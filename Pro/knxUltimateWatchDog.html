@@ -8,7 +8,8 @@
             maxRetry: {value:6}, // After this number is reached, throw a connection error
             retryInterval: {value:10},
             name: { value: "" },
-            autoStart: {value: false}
+            autoStart: {value: false},
+            checkLevel:{value:"Ethernet"}
         },
         inputs: 1,
         outputs: 1,
@@ -47,6 +48,13 @@
     <div class="form-row">
         <label for="node-input-server"><i class="fa fa-tag"></i> Gateway </label>
         <input type="text" id="node-input-server">
+    </div>
+    <div class="form-row">
+        <label for="node-input-checkLevel"><i class="fa fa-search"></i> Check level (please see the wiki)</label>
+        <select id="node-input-checkLevel">
+            <option value="Ethernet">Only Ethernet (default), using a fake Group Address to monitor</option>
+            <option value="Eth+KNX">Ethernet + KNX Twisted Pair, using a real KNX device</option>
+        </select>
     </div>
     <div class="form-row">
         <label for="node-input-topic"><i class="fa fa-tasks"></i> Group Address to monitor</label>
@@ -100,7 +108,12 @@
             <dl class="message-properties">
                 <dt>Gateway</dt>
                 <dd>Selected KNX gateway. </dd>
- 
+                
+                <dt>Check level</dt>
+                <dd><i>Ethernet level</i>: Basic check thus very useful. It checks the connection between KNX-Ultimate Gateway and your KNX/IP Router/Interface<br/>
+                <i>Ethernet and KNX TP level</i>: Complete check. By using a physical KNX device responding to a read request (for example a light actuator having a status group address set), it checks the connection between KNX-Ultimate and this physical KNX device, by issuing a read request and by awaiting a response telegram from this device. Any error on the ethernet trunk or on the KNX Twisted Pair trunk will be notified.
+                </dd>
+                
                 <dt>Group Address to monitor
                     <span class="property-type">Example 12/0/0</span>
                 </dt>
