@@ -8,6 +8,7 @@
 <b>Version 1.1.27</b><br/>
 - New: added payloadmeasureunit to the node's msg output (for example "W" or "%"), based on Datapoint type.<br/>
 - New: added knx.dptdesc to the node's msg output (for example "Power" or "Humidity").<br/>
+- New: added Loglevel option in config-node, for debugging pourpose only. Thanks Heleon19.<br/>
 </p>
 <p>
 <b>Version 1.1.26</b><br/>

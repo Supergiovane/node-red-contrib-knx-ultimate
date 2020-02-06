@@ -124,15 +124,15 @@
                 </div>
                 <div class="form-row">
                     <input type="checkbox" id="node-config-input-statusDisplayLastUpdate" style="display:inline-block; width:auto; vertical-align:top;">
-                    <label style="width:auto" for="node-config-input-statusDisplayLastUpdate">&nbsp;&nbsp;<i class="fa fa-comment-o"></i>  Display last update day and time in node status</label>
+                    <label style="width:auto" for="node-config-input-statusDisplayLastUpdate">&nbsp;&nbsp;<i class="fa fa-comment-o"></i>  Show last update day and time in status</label>
                 </div>
                 <div class="form-row">
                     <input type="checkbox" id="node-config-input-statusDisplayDeviceNameWhenALL" style="display:inline-block; width:auto; vertical-align:top;">
-                    <label style="width:auto" for="node-config-input-statusDisplayDeviceNameWhenALL">&nbsp;&nbsp;<i class="fa fa-comment-o"></i>  Display device name in node status (only avaiable if "Listen all Group Address" is checked)</label>
+                    <label style="width:auto" for="node-config-input-statusDisplayDeviceNameWhenALL">&nbsp;&nbsp;<i class="fa fa-comment-o"></i>  Show device name in status (require "Listen all Group Address" )</label>
                 </div>
                 <div class="form-row">
                     <input type="checkbox" id="node-config-input-statusDisplayDataPoint" style="display:inline-block; width:auto; vertical-align:top;">
-                    <label style="width:auto" for="node-config-input-statusDisplayDataPoint">&nbsp;&nbsp;<i class="fa fa-comment-o"></i>  Display datapoint in node status</label>
+                    <label style="width:auto" for="node-config-input-statusDisplayDataPoint">&nbsp;&nbsp;<i class="fa fa-comment-o"></i>  Show datapoint in status</label>
                 </div>
 
                 <div class="form-row">
@@ -142,7 +142,7 @@
                 </div>
                 <div class="form-row">
                     <label for="node-config-input-loglevel"><i class="fa fa-question-circle"></i> Loglevel</label>
-                    <select id="node-config-input-loglevel" style="width:70%;">
+                    <select id="node-config-input-loglevel" style="width:50%;">
                         <option value="error">Error</option>
                         <option value="warn">Warning</option>
                         <option value="info">Info (default)</option>
@@ -202,32 +202,24 @@ Local KNX physical addres, identifying the KNX device. Default "15.15.22". This 
 </p>
 
 <p>
-    <b>Display last update day and time in node status</b><br/>
+    <b>Show last update day and time in status</b><br/>
     Display last update day and time, in the format (day, hh:mm:ss);
 </p>
 <p>
-    <b>Display device name in node status (only avaiable if "Listen all Group Address" is checked)</b><br/>
+    <b>Show device name in status (require "Listen all Group Address" is checked)</b><br/>
     Display device name in node status. This option is only taken in consideration if "Listen all Group Address" is checked. Displays the KNX device name.
 </p>
 <p>
-    <b>Display device name in node status (only avaiable if "Listen all Group Address" is checked)</b><br/>
-    Display device name in node status. This option is only taken in consideration if "Listen all Group Address" is checked. Displays the KNX device name.
-</p>
-<p>
-    <b>Display datapoint in node status</b><br/>
+    <b>Show datapoint in status</b><br/>
     Display the node's KNX Datapoint.
 </p>
-
-
-
-
 <p>
 <b>Suppress ACK request</b><br/>
 This option help compatibility with old Siemens SWG1 148-1AB22 IP Interface firmware and other EHT/KNX interfaces that does'nt like the ACK. Default "unchecked". Check it to help compatibility
 </p>
 <p>
 <b>Loglevel</b><br/>
-Define the log level of the underling KNX library.
+Define the log level of the underling KNX library. Useful for debugging in case of problem. Normally, you don't need to change this.
 </p>
 <p><b>ETS Group Address list import</b><br/>
 Optionally, you can paste here the CSV file from ETS. This CSV will then be used by the knxUltimate node (if you select "Universal mode (listen to all Group Address)" on the knxUltimate node) to automatically decode all the raw values received from the KNX bus. These values will then be outputted by the msg.payload<br/>
