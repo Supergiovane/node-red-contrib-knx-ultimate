@@ -25,7 +25,16 @@ convertSubtype = (baseType) => (kv) => {
         value: value
         , text: value + ` (${kv[1].name})`
     }
-};
+}
+
+// 06/02/2020 To be tested
+// convertSubtype = (baseType) => (kv) => {
+//     let value = `${baseType.base}.${kv[0]}`
+//     return {
+//         value: value
+//         , text: value + ` (${kv[1].name}${kv[1].unit !== undefined?" - " + kv[1].unit:""})`
+//     }
+// }
 
 
 toConcattedSubtypes = (acc, baseType) => {
@@ -36,7 +45,6 @@ toConcattedSubtypes = (acc, baseType) => {
 
     return acc.concat(subtypes)
 };
-
 
 
 module.exports = (RED) => {
@@ -542,25 +550,31 @@ module.exports = (RED) => {
         }
         
 
-
         function buildInputMessage(src, dest, evt, value, inputDpt, _devicename) {
             // Resolve DPT and convert value if available
-            //if (dest=="0/0/50") RED.log.error("Buildinputmessage src=" + src + " dest" + dest + " value=" + value + " inputDpt=" + inputDpt + " _devicename="+_devicename);
-            var dpt = dptlib.resolve(inputDpt)
+            var dpt = dptlib.resolve(inputDpt);
             var jsValue = null
             if (dpt && value) {
                 var jsValue = dptlib.fromBuffer(value, dpt)
             }
-
+            var sPayloadmeasureunit = "unknown";
+            var sDptdesc = "unknown";
+            if (dpt.subtype !== undefined) {
+                sPayloadmeasureunit = dpt.subtype.unit !== undefined ? dpt.subtype.unit : "unknown";
+                sDptdesc = dpt.subtype.desc !== undefined ? dpt.subtype.desc.charAt(0).toUpperCase() + dpt.subtype.desc.slice(1) : "unknown";
+            };
+           
             // Build final input message object
             return {
                 topic: dest
                 , payload: jsValue
+                , payloadmeasureunit: sPayloadmeasureunit
                 , knx:
                 {
                     event: evt
                     , dpt: inputDpt
-                    //, dptDetails: dpt
+                    //, details: dpt
+                    , dptdesc: sDptdesc
                     , source: src
                     , destination: dest
                     , rawValue: value
