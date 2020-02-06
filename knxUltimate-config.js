@@ -79,6 +79,7 @@ module.exports = (RED) => {
         node.timerSendTelegramFromQueue = setInterval(handleTelegramQueue, 50); // 02/01/2020 Start the timer that handles the queue of telegrams
         node.stopETSImportIfNoDatapoint = typeof config.stopETSImportIfNoDatapoint === "undefined" ? "stop" : config.stopETSImportIfNoDatapoint; // 09/01/2020 Stop or Skip the import if a group address has unset datapoint
         node.csv = readCSV(config.csv); // Array from ETS CSV Group Addresses
+        node.loglevel = config.loglevel || "info"; // Loglevel default info
 
         // Endpoint for reading csv from the other nodes
         RED.httpAdmin.get("/knxUltimatecsv", RED.auth.needsPermission('knxUltimate-config.read'), function (req, res) {
@@ -104,8 +105,8 @@ module.exports = (RED) => {
             } catch (error) {}
             res.json(jListInterfaces)
         });
-        
-        
+
+
         node.setAllClientsStatus = (_status, _color, _text) => {
             function nextStatus(oClient) {
                 oClient.setNodeStatus({ fill: _color, shape: "dot", text: _status + " " + _text ,payload: "", GA: oClient.topic, dpt:"", devicename:""})
@@ -117,21 +118,21 @@ module.exports = (RED) => {
             node.setAllClientsStatus("Waiting", "grey", "")
             // Remove listener
             try {
-                node.knxConnection.removeListener("event");    
+                node.knxConnection.removeListener("event");
             } catch (error) {
-                
+
             }
             try {
                 node.knxConnection.off("event");
             } catch (error) {
-                
+
             }
             node.linkStatus = "disconnected"; // 29/08/2019 signal disconnection
             try {
                 node.knxConnection.Disconnect();
             } catch (error) {
             }
-            
+
             node.knxConnection = null;
         }
 
@@ -144,7 +145,7 @@ module.exports = (RED) => {
                         _Node.setNodeStatus({ fill: "red", shape: "dot", text: "Empty group address (topic) or datapoint.",payload: "", GA: "", dpt:"", devicename:"" })
                         return;
                     } else {
-            
+
                         // Topic must be in formar x/x/x
                         if (_Node.topic.split("\/").length < 3) {
                             _Node.setNodeStatus({ fill: "red", shape: "dot", text: "Wrong group address (topic: " + _Node.topic + ") format.",payload: "", GA: "", dpt:"", devicename:"" })
@@ -165,7 +166,7 @@ module.exports = (RED) => {
             }
         }
 
-      
+
         node.removeClient = (_Node) => {
             // Remove the client node from the clients array
             //RED.log.info( "BEFORE Node " + _Node.id + " has been unsubscribed from receiving KNX messages. " + node.nodeClients.length);
@@ -180,11 +181,11 @@ module.exports = (RED) => {
                 node.Disconnect();
             }
         }
-      
-        
+
+
         node.readInitialValues = () => {
             if (node.linkStatus !== "connected") return; // 29/08/2019 If not connected, exit
-            if (node.knxConnection) { 
+            if (node.knxConnection) {
                 var readHistory = [];
                 let delay = 0;
                 node.nodeClients
@@ -204,12 +205,12 @@ module.exports = (RED) => {
                             delay = delay + 200
                             readHistory.push(oClient.topic)
                         }
-                        
+
                     })
             }
         }
-       
-    
+
+
         node.readValue = topic => {
             if (node.linkStatus !== "connected") return; // 29/08/2019 If not connected, exit
             if (node.knxConnection) {
@@ -218,10 +219,10 @@ module.exports = (RED) => {
                 } catch (error) {
                     RED.log.error('knxUltimate: readValue: (' + topic + ') ' + error);
                 }
-                
+
             }
         }
-        
+
         // 01/02/2020 Dinamic change of the KNX Gateway IP, Port and Physical Address
         // This new thing has been requested by proServ RealKNX staff.
         node.setGatewayConfig = (_sIP, _iPort, _sPhysicalAddress, _sBindToEthernetInterface) => {
@@ -246,6 +247,7 @@ module.exports = (RED) => {
                 ipPort: node.port,
                 physAddr: node.physAddr, // the KNX physical address we'd like to use
                 suppress_ack_ldatareq: node.suppressACKRequest,
+                loglevel: node.loglevel,
                 // wait at least 60 millisec between each datagram
                 //minimumDelay: 60, // 02/01/2020 Removed becuse it doesn't respect the message sequence, it sends messages random.
                 handlers: {
@@ -275,7 +277,7 @@ module.exports = (RED) => {
                             setTimeout(() => node.setAllClientsStatus(connstatus, "red", "Error"), 2000)
                             RED.log.error("knxUltimate: knxConnection error: " + connstatus);
                         }
-                        
+
                     }
                 }
             };
@@ -295,7 +297,7 @@ module.exports = (RED) => {
             }
 
             node.knxConnection = new knx.Connection(knxConnectionProperties);
-         
+
             // Handle BUS events
             node.knxConnection.on("event", function (evt, src, dest, rawValue) {
                 switch (evt) {
@@ -309,7 +311,7 @@ module.exports = (RED) => {
                                     try {
                                         oGA = node.csv.filter(sga => sga.ga == dest)[0];
                                     } catch (error) { }
-                                    
+
                                     // 25/10/2019 TRY TO AUTO DECODE
                                     // --------------------------------
                                     if (typeof oGA === "undefined") {
@@ -318,7 +320,7 @@ module.exports = (RED) => {
                                         input.setNodeStatus({ fill: "green", shape: "dot", text: "Try to decode", payload: msg.payload, GA: msg.knx.destination, dpt: "", devicename: "" });
                                         input.send(msg)
                                         // --------------------------------
-                                        
+
                                     } else {
                                         let msg = buildInputMessage(src, dest, evt, rawValue, oGA.dpt, oGA.devicename)
                                         input.setNodeStatus({ fill: "green", shape: "dot", text: "", payload: msg.payload, GA: msg.knx.destination, dpt: msg.knx.dpt, devicename: msg.devicename });
@@ -346,7 +348,7 @@ module.exports = (RED) => {
                         break;
                     };
                     case "GroupValue_Response": {
-                        
+
                         node.nodeClients
                             .filter(input => input.notifyresponse == true)
                             .forEach(input => {
@@ -356,7 +358,7 @@ module.exports = (RED) => {
                                     try {
                                         oGA = node.csv.filter(sga => sga.ga == dest)[0];
                                     } catch (error) { }
-                                    
+
                                     // 25/10/2019 TRY TO AUTO DECODE
                                     // --------------------------------
                                     if (typeof oGA === "undefined") {
@@ -364,7 +366,7 @@ module.exports = (RED) => {
                                         input.setNodeStatus({ fill: "green", shape: "dot", text: "Try to decode", payload: msg.payload, GA: msg.knx.destination, dpt: "", devicename: "" });
                                         input.send(msg)
                                         // --------------------------------
-                                        
+
                                     } else {
                                         let msg = buildInputMessage(src, dest, evt, rawValue, oGA.dpt, oGA.devicename)
                                         input.setNodeStatus({ fill: "blue", shape: "dot", text: "", payload: msg.payload, GA: msg.knx.destination, dpt: msg.knx.dpt, devicename: msg.devicename });
@@ -393,18 +395,18 @@ module.exports = (RED) => {
                         break;
                     };
                     case "GroupValue_Read": {
-                        
+
                         node.nodeClients
                             .filter(input => input.notifyreadrequest == true)
                             .forEach(input => {
-                                
+
                                 if (input.listenallga == true) {
                                     // Get the DPT
                                     let oGA;
                                     try {
                                         oGA = node.csv.filter(sga => sga.ga == dest)[0];
                                     } catch (error) { }
-                                    
+
                                     // 25/10/2019 TRY TO AUTO DECODE
                                     // --------------------------------
                                     if (typeof oGA === "undefined") {
@@ -413,7 +415,7 @@ module.exports = (RED) => {
                                         input.setNodeStatus({ fill: "green", shape: "dot", text: "Try to decode", payload: msg.payload, GA: msg.knx.destination, dpt: "", devicename: "" });
                                         input.send(msg)
                                         // --------------------------------
-   
+
                                     } else {
                                         let msg = buildInputMessage(src, dest, evt, null, oGA.dpt, oGA.devicename);
                                         input.setNodeStatus({ fill: "grey", shape: "dot", text: "Read", payload: msg.payload, GA: msg.knx.destination, dpt: msg.knx.dpt, devicename: msg.devicename });
@@ -454,7 +456,7 @@ module.exports = (RED) => {
                 };
             });
         };
-        
+
 
        // 02/01/2020 All sent messages are queued, to allow at least 50 milliseconds between each telegram sent to the bus
         node.writeQueueAdd = _oKNXMessage => {
@@ -463,7 +465,7 @@ module.exports = (RED) => {
         }
 
         function handleTelegramQueue() {
-            if (node.knxConnection) { 
+            if (node.knxConnection) {
                 if (node.telegramsQueue.length==0) {
                     return;
                 }
@@ -472,14 +474,14 @@ module.exports = (RED) => {
                 // RED.log.error("handling " + oKNXMessage.grpaddr + " " +  oKNXMessage.payload + " " + oKNXMessage.dpt);
                 node.telegramsQueue.pop();// Remove the last message from the queue.
                 if (oKNXMessage.outputtype==="response") {
-                    node.knxConnection.respond(oKNXMessage.grpaddr, oKNXMessage.payload, oKNXMessage.dpt); 
+                    node.knxConnection.respond(oKNXMessage.grpaddr, oKNXMessage.payload, oKNXMessage.dpt);
                 } else
                 {
-                    node.knxConnection.write(oKNXMessage.grpaddr, oKNXMessage.payload, oKNXMessage.dpt);        
+                    node.knxConnection.write(oKNXMessage.grpaddr, oKNXMessage.payload, oKNXMessage.dpt);
                 }
             }
         }
-  
+
         // 26/10/2019 Try to figure out the datapoint type from raw value
         function tryToFigureOutDataPointFromRawValue(_rawValue) {
             // 25/10/2019 Try some Datapoints
@@ -487,12 +489,12 @@ module.exports = (RED) => {
                 if (_rawValue[0].toString() == "0" || _rawValue[0].toString() == "1") {
                     return "1.001"; // True/False?
                 } else {
-                    return "5.001"; // Absolute Brightness ?       
+                    return "5.001"; // Absolute Brightness ?
                 }
             } else if (_rawValue.length == 4) {
                 return "14.056"; // Watt ?
             } else if (_rawValue.length == 2) {
-                return "9.001"; 
+                return "9.001";
             } else if (_rawValue.length == 14) {
                 return "16.001"; // Text ?
             } else {
@@ -512,14 +514,14 @@ module.exports = (RED) => {
                         if (typeof dpt !== "undefined")
                         {
                             var jsValue = dptlib.fromBuffer(_rawValue, dpt)
-                            if (typeof jsValue !== "undefined") { 
+                            if (typeof jsValue !== "undefined") {
                                 //RED.log.info("Trying for " + dest + ". FOUND " + element.value);
                                 return element.value;
                             }
                         }
                     } catch (error) {
-                        
-                    }                        
+
+                    }
                 }
             }
         }
@@ -548,7 +550,7 @@ module.exports = (RED) => {
             }
             return true;
         }
-        
+
 
         function buildInputMessage(src, dest, evt, value, inputDpt, _devicename) {
             // Resolve DPT and convert value if available
@@ -563,7 +565,7 @@ module.exports = (RED) => {
                 sPayloadmeasureunit = dpt.subtype.unit !== undefined ? dpt.subtype.unit : "unknown";
                 sDptdesc = dpt.subtype.desc !== undefined ? dpt.subtype.desc.charAt(0).toUpperCase() + dpt.subtype.desc.slice(1) : "unknown";
             };
-           
+
             // Build final input message object
             return {
                 topic: dest
@@ -582,18 +584,18 @@ module.exports = (RED) => {
                 }
             };
         };
-    
+
 
         node.on("close", function () {
             clearInterval(node.timerSendTelegramFromQueue); // 02/01/2020 Stop queue timer
             node.telegramsQueue = []; // 02/01/2020 clear the telegram queue
             node.Disconnect();
         })
- 
+
         function readCSV(_csvText) {
-                
+
             var ajsonOutput = new Array(); // Array: qui va l'output totale con i nodi per node-red
-           
+
             if (_csvText == "") {
                 RED.log.info('knxUltimate: no csv ETS found');
                 return;
@@ -601,7 +603,7 @@ module.exports = (RED) => {
                 RED.log.info('knxUltimate: csv ETS found !');
                 // 23/08/2019 Delete inwanted CRLF in the GA description
                 let sTemp = correctCRLFInCSV(_csvText);
-                
+
                 // Read and decode the CSV in an Array containing:  "group address", "DPT", "Device Name"
                 let fileGA = sTemp.split("\n");
                 // Controllo se le righe dei gruppi contengono il separatore di tabulazione
@@ -609,16 +611,16 @@ module.exports = (RED) => {
                     RED.log.error('knxUltimate: ERROR: the csv ETS file must have the tabulation as separator')
                     return;
                 }
-    
+
                 var sFirstGroupName = "";
                 var sSecondGroupName = "";
                 var sFather="";
                 for (let index = 0; index < fileGA.length; index++) {
                     var element = fileGA[index];
                     element = element.replace(/\"/g, ""); // Rimuovo le virgolette
-                
+
                     if (element !== "") {
-                        
+
                         // Main and secondary group names
                         if ((element.split("\t")[1].match(/-/g) || []).length == 2) {
                             // Found main group family name (Example Light Actuators)
@@ -630,7 +632,7 @@ module.exports = (RED) => {
                             sSecondGroupName = element.split("\t")[0] || "";
                         }
                         if(sFirstGroupName!=="" && sSecondGroupName !==""){sFather="(" + sFirstGroupName + "->" +sSecondGroupName + ") " }
-                       
+
                         if (element.split("\t")[1].search("-") == -1 && element.split("\t")[1].search("/") !== -1) {
                             // Ho trovato una riga contenente un GA valido, cioè con 2 "/"
                             if (element.split("\t")[5] == "") {
@@ -659,16 +661,16 @@ module.exports = (RED) => {
                         }
                     }
                 }
-                
+
                 return ajsonOutput;
             }
-    
+
         }
-    
-     
+
+
         // 23/08/2019 Delete unwanted CRLF in the GA description
         function correctCRLFInCSV(_csv) {
-            
+
             var sOut = ""; // fixed output text to return
             var sChar = "";
             var bStart = false;
@@ -677,10 +679,10 @@ module.exports = (RED) => {
                 if (sChar == "\"")
                 {
                     if (!bStart) {
-                        bStart = true;                        
+                        bStart = true;
                     }else
                     {
-                        bStart = false;                        
+                        bStart = false;
                     }
                     sOut += sChar;
 
@@ -690,16 +692,16 @@ module.exports = (RED) => {
                         // i'm in the phrase, delimited by "". No CRLF should be there
                         if (sChar !== "\n" && sChar !== "\r")
                         {
-                            sOut += sChar;        
+                            sOut += sChar;
                         } else
                         {
                             sOut += " "; // Where it was a CRLF, i put a space
                         }
                     } else
                     {
-                        sOut += sChar; 
+                        sOut += sChar;
                     }
-                    
+
                 }
             }
 
@@ -710,9 +712,7 @@ module.exports = (RED) => {
 
     }
 
-   
+
 
     RED.nodes.registerType("knxUltimate-config", knxUltimateConfigNode);
 }
-
-
