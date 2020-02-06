@@ -14,7 +14,8 @@
             statusDisplayLastUpdate:{value:true},
             statusDisplayDeviceNameWhenALL:{value:true},
             statusDisplayDataPoint:{value:false},
-            stopETSImportIfNoDatapoint:{value:"stop"}
+            stopETSImportIfNoDatapoint:{value:"stop"},
+            loglevel: {value:"info"}
         },
         oneditprepare: function () {
             $("#node-config-input-KNXEthInterface").append($("<option></option>")
@@ -36,7 +37,7 @@
                 $("#node-config-input-KNXEthInterface").val(typeof this.KNXEthInterface ==="undefined" ? "Auto":this.KNXEthInterface)
                 if (this.KNXEthInterface==="Manual")
                 {
-                    // Show input 
+                    // Show input
                     $("#divKNXEthInterfaceManuallyInput").show();
                 }else{
                     $("#divKNXEthInterfaceManuallyInput").hide()
@@ -45,7 +46,7 @@
                 $("#node-config-input-KNXEthInterface").on('change',function() {
                     if ($("#node-config-input-KNXEthInterface").val()==="Manual")
                     {
-                        // Show input 
+                        // Show input
                         $("#divKNXEthInterfaceManuallyInput").show();
                     }else{
                         // Hide input
@@ -58,16 +59,16 @@
             // *****************************
             $("#advancedOptionsAccordion").accordion({
                 header:"h3",
-                heightStyle: "content", 
+                heightStyle: "content",
                 collapsible: true,
                 active: false
             });
             $("#etsCSVListBox").accordion({
                 header:"h3",
-                heightStyle: "content", 
+                heightStyle: "content",
                 collapsible: true,
                 active: false
-            });            
+            });
             // *****************************
 
         },
@@ -139,9 +140,19 @@
                     <label style="width:auto" for="node-config-input-suppressACKRequest">&nbsp;&nbsp;<i class="fa fa-ban"></i>  Suppress ACK request</label>
                     <div id="helpallga"> This option help compatibility with old Siemens SWG1 148-1AB22 IP Interface firmware</div>
                 </div>
+                <div class="form-row">
+                    <label for="node-config-input-loglevel"><i class="fa fa-question-circle"></i> Loglevel</label>
+                    <select id="node-config-input-loglevel" style="width:70%;">
+                        <option value="error">Error</option>
+                        <option value="warn">Warning</option>
+                        <option value="info">Info (default)</option>
+                        <option value="debug">Debug</option>
+                        <option value="trace">Trace</option>
+                    </select>
+                </div>
             </p>
         </div>
-    </div>        
+    </div>
     <div id="etsCSVListBox">
         <h3>ETS Group Address list import</h3>
         <div>
@@ -161,8 +172,8 @@
                 </div>
             </p>
         </div>
-    </div>        
- 
+    </div>
+
 </script>
 
 <script type="text/x-red" data-help-name="knxUltimate-config">
@@ -171,7 +182,7 @@
         and
         <a href="http://eepurl.com/gJm095" target="_blank">Subscribe to my channel</a> for news about my nodes.
     </p>
-    
+
     To be able to interact with the KNX bus, you need to configure the Node's gateway. It stores the default ETH/KNX Router's multicast address as well as the default port. It should work with the default values.
 <br/>
 <p>
@@ -204,15 +215,19 @@ Local KNX physical addres, identifying the KNX device. Default "15.15.22". This 
 </p>
 <p>
     <b>Display datapoint in node status</b><br/>
-    Display the node's KNX Datapoint. 
+    Display the node's KNX Datapoint.
 </p>
-    
+
 
 
 
 <p>
 <b>Suppress ACK request</b><br/>
 This option help compatibility with old Siemens SWG1 148-1AB22 IP Interface firmware and other EHT/KNX interfaces that does'nt like the ACK. Default "unchecked". Check it to help compatibility
+</p>
+<p>
+<b>Loglevel</b><br/>
+Define the log level of the underling KNX library.
 </p>
 <p><b>ETS Group Address list import</b><br/>
 Optionally, you can paste here the CSV file from ETS. This CSV will then be used by the knxUltimate node (if you select "Universal mode (listen to all Group Address)" on the knxUltimate node) to automatically decode all the raw values received from the KNX bus. These values will then be outputted by the msg.payload<br/>
