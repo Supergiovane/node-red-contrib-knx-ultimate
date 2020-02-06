@@ -569,6 +569,7 @@ module.exports = (RED) => {
                 topic: dest
                 , payload: jsValue
                 , payloadmeasureunit: sPayloadmeasureunit
+                , devicename: (typeof _devicename !== 'undefined') ? _devicename : ""
                 , knx:
                 {
                     event: evt
@@ -579,9 +580,8 @@ module.exports = (RED) => {
                     , destination: dest
                     , rawValue: value
                 }
-                , devicename: (typeof _devicename !== 'undefined') ? _devicename : ""
-            }
-        }
+            };
+        };
     
 
         node.on("close", function () {

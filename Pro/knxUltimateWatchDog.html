@@ -90,12 +90,12 @@
     <p>
         <b>What does it do?</b>
         1. Checks for the healty of KNX BUS communication/connection by sending a telegram at regular intervals, watching for a response and sends a msg to the flow if a connection to KNX Bus is broken.
-        2. Programmatically changes the Configuration Node parameters, thus the connection to your KNX/IP Router/Interface (for example, if you have 2 KNX/IP Routers and you want to switch between the two for connection backup). <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Change-KNX-IP-config-parameters-on-the-fly" target="_blank">See here how to do.</a>
+        2. Programmatically changes the Configuration Node parameters, thus the connection to your KNX/IP Router/Interface (for example, if you have 2 KNX/IP Routers and you want to switch between the two for connection backup). <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---WatchDog" target="_blank">See here how to do.</a>
 
         WatchDog node is a powerfull node for signalling errors and connection problems. It sends a telegram to a designated goup address (please set a non existent group address, otherwise your KNX real device will respond. This may not be a problem, but it's better not to interfere with real KNX devices in your installation).<br />
         It sends a telegram to a designated group address, at regular intervals specified in <b>Retry interval (in seconds)</b>, for a specific number of times specified in <b>Number of retry before giving an error</b> and listens to the response from the KNX Bus. In case of no response from KNX Bus after the <b>Number of retry before giving an error</b>, it throws an error on output pin.<br />
         The telegram's path is monitored in his route through <b>Ethernet Interface -> KNX TP Media -> Return to Ethernet Interface</b>.<br />
-        You can then send an Email to the KNX installer responsible to your Building, or you can automatically switch to a backup KNX/IP Router/Interface in your installation, <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Change-KNX-IP-config-parameters-on-the-fly" target="_blank">by using this method</a>.
+        You can then send an Email to the KNX installer responsible to your Building, or you can automatically switch to a backup KNX/IP Router/Interface in your installation, <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---WatchDog" target="_blank">by using this method</a>.
         Please see the <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki">Full Wiki.</a>.<br />
 
     </p>
