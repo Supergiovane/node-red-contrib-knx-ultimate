@@ -142,13 +142,13 @@
                 </div>
                 <div class="form-row">
                     <label for="node-config-input-loglevel"><i class="fa fa-question-circle"></i> Loglevel</label>
-                    <select id="node-config-input-loglevel" style="width:50%;">
+                    <select id="node-config-input-loglevel" style="width:25%;">
                         <option value="error">Error</option>
                         <option value="warn">Warning</option>
                         <option value="info">Info (default)</option>
                         <option value="debug">Debug</option>
                         <option value="trace">Trace</option>
-                    </select>
+                    </select> <b>Restart node-red</b> after change!
                 </div>
             </p>
         </div>
@@ -219,7 +219,7 @@ This option help compatibility with old Siemens SWG1 148-1AB22 IP Interface firm
 </p>
 <p>
 <b>Loglevel</b><br/>
-Define the log level of the underling KNX library. Useful for debugging in case of problem. Normally, you don't need to change this.
+Define the log level of the underling KNX library. Useful for debugging in case of problem. Normally, you don't need to change this. Require node-red restart to take effect.
 </p>
 <p><b>ETS Group Address list import</b><br/>
 Optionally, you can paste here the CSV file from ETS. This CSV will then be used by the knxUltimate node (if you select "Universal mode (listen to all Group Address)" on the knxUltimate node) to automatically decode all the raw values received from the KNX bus. These values will then be outputted by the msg.payload<br/>
