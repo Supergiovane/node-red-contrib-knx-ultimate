@@ -37,7 +37,7 @@ module.exports = function (RED) {
                 return;
             } else {
             
-                // Topic must be in formar x/x/x
+                // topic must be in formar x/x/x
                 if (node.topic.split("\/").length < 3) {
                     node.setNodeStatus({ fill: "red", shape: "dot", text: "Wrong group address format.",payload: "", GA: node.topic, dpt:"", devicename:""})
                     return;
@@ -133,16 +133,14 @@ module.exports = function (RED) {
                         }
                     }
                 }   
-                // Anti looping check
-                if (node.icountMessageInWindow == -999) return; // Locked out
+                // 07/02/2020 Revamped flood protection (avoid accepting too many messages as input)
+                if (node.icountMessageInWindow == -999)return; // Locked out
                 if (node.icountMessageInWindow == 0) {
                     setTimeout(() => {
-                        if (node.icountMessageInWindow >= 80) {
+                        if (node.icountMessageInWindow >= 120) {
                             // Looping detected
-                            setTimeout(() => {
-                                node.setNodeStatus({ fill: "red", shape: "dot", text: "DISABLED! Looping detected! Check your flow's design or use RBE option.", payload:"", GA: "", dpt:"", devicename:"" })
-                                RED.log.error("knxUltimate: Node " + node.id + " has been disabled due to loop detection. Check your flow's design or use RBE option.");
-                            }, 1000);
+                            node.setNodeStatus({ fill: "red", shape: "dot", text: "DISABLED! Flood protection! Too many msg at the same time.", payload:"", GA: "", dpt:"", devicename:"" })
+                            RED.log.error("knxUltimate: Node " + node.id + " has been disabled due to Flood Protection. Too many messages in a timeframe. Check your flow's design or use RBE option.");
                             node.icountMessageInWindow = -999; //Lock out node
                             return;
                         }else{node.icountMessageInWindow = -1;}
@@ -200,11 +198,13 @@ module.exports = function (RED) {
                             : node.dpt
                         }
                         // Protection over circular references (for example, if you link two Ultimate Nodes toghether with the same group address), to prevent infinite loops
-                        if (msg.hasOwnProperty('topic')) { 
-                            if (msg.topic == grpaddr && msg.knx) {
-                                RED.log.error("knxUltimate: Circular reference protection. The node " + node.id + " has been disabled. " + JSON.stringify(msg));
+                        // if (msg.hasOwnProperty('topic')) { 
+                        if (msg.hasOwnProperty('knx')) { 
+                            //if (msg.topic == grpaddr && msg.knx !== undefined) { // 07/02/2020 changed, to allow topic customization asked by users.
+                            if (msg.knx.destination == grpaddr) { // 07/02/2020 changed, to allow topic customization asket by users.
+                                RED.log.error("knxUltimate: Circular reference protection. The node " + node.id + " has been disabled. Two nodes with same group address are linked. See the FAQ in the Wiki. Msg:" + JSON.stringify(msg));
                                 setTimeout(() => {
-                                    node.setNodeStatus({ fill: "red", shape: "ring", text: "Node DISABLED due to a circulare reference (" + grpaddr + "). Two nodes with same group address are linked. Unlink it.",payload:"", GA: "", dpt:"", devicename:"" })
+                                    node.setNodeStatus({ fill: "red", shape: "ring", text: "DISABLED due to a circulare reference (" + grpaddr + ").",payload:"", GA: "", dpt:"", devicename:"" })
                                 }, 1000);
                                 return;
                             }

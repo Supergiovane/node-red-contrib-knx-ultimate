@@ -80,7 +80,7 @@ module.exports = (RED) => {
         node.stopETSImportIfNoDatapoint = typeof config.stopETSImportIfNoDatapoint === "undefined" ? "stop" : config.stopETSImportIfNoDatapoint; // 09/01/2020 Stop or Skip the import if a group address has unset datapoint
         node.csv = readCSV(config.csv); // Array from ETS CSV Group Addresses
         node.loglevel = config.loglevel !== undefined ? config.loglevel : "info"; // 06/02/2020 by Heleon19 Loglevel default info
-
+        
         // Endpoint for reading csv from the other nodes
         RED.httpAdmin.get("/knxUltimatecsv", RED.auth.needsPermission('knxUltimate-config.read'), function (req, res) {
             res.json(RED.nodes.getNode(node.id).csv);
@@ -146,7 +146,7 @@ module.exports = (RED) => {
                         return;
                     } else {
 
-                        // Topic must be in formar x/x/x
+                        // topic must be in formar x/x/x
                         if (_Node.topic.split("\/").length < 3) {
                             _Node.setNodeStatus({ fill: "red", shape: "dot", text: "Wrong group address (topic: " + _Node.topic + ") format.",payload: "", GA: "", dpt:"", devicename:"" })
                             return;

@@ -5,6 +5,7 @@
         defaults: {
             server: { type: "knxUltimate-config", required: true },
             topic: { value: "" },
+            outputtopic: { value: "" },
             dpt: { value: "" },
             initialread: { value: false },
             notifyreadrequest: { value: false },
@@ -226,7 +227,7 @@
     </div>
     <div id="GAandDPT">
         <div class="form-row">
-            <label for="node-input-topic"><i class="fa fa-tasks"></i> Group Address (topic)</label>
+            <label for="node-input-topic"><i class="fa fa-tasks"><img src=""></i> Group Address</label>
             <input type="text" id="node-input-topic" placeholder="Ex: 1/1/1 or select 'Listen to all Groups'">
         </div>
         <div class="form-row">
@@ -235,8 +236,12 @@
         </div>
     </div>
     <div class="form-row">
-        <label for="node-input-name"><i class="fa fa-tag"></i> Name </label>
+        <label for="node-input-name"><i class="fa fa-tag"></i> Node Name </label>
         <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+    <div class="form-row">
+        <label for="node-input-outputtopic"><i class="fa fa-tasks"></i> Topic </label>
+        <input type="text" id="node-input-outputtopic" placeholder="Leave empty to use Group Address">
     </div>
     <div class="form-row">
             <input type="checkbox" id="node-input-listenallga" style="display:inline-block; width:auto; vertical-align:top;">
@@ -372,7 +377,12 @@
                 </dd>
             </dl>
         </p>
-   
+        <p>
+            <b>MSG FORMAT</b><br/>
+            <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/3.-Messages-from-the-node" target="_blank">Click here for msg output format</a>.<br />
+            <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/4.-Messages-to-the-node" target="_blank">Click here for msg input format</a>.<br />
+            <br />
+        </p>
         <p>
             <table style="font-size:12px">
                 <tr>
@@ -412,13 +422,5 @@
                 </tr>
             </table>
         </p>
-        
-    <p>
-        <b>MSG FORMAT</b><br/>
-        <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/3.-Messages-from-the-node" target="_blank">Click here for msg output format</a>.<br />
-        <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/4.-Messages-to-the-node" target="_blank">Click here for msg input format</a>.<br />
-        <br />
-    </p>
-  
            
     </script>
