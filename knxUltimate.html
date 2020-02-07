@@ -72,6 +72,7 @@
                     $("#node-input-inputRBE").prop('checked', false)
                     $("#divnotifyreadrequestautoreact").hide();
                     $("#helpallga").show();
+                    $("#divTopic").hide()
                     if ($("#helpallga").html==""){
                         // There is a ETS csv file, show the init read option
                         $("#divNode-input-initialread").show()
@@ -86,6 +87,7 @@
                     $("#GAandDPT").show()
                     $("#divOutputRBE").show()
                     $("#divInputRBE").show()
+                    $("#divTopic").show()
                     if ($("#node-input-notifyreadrequest").is(":checked")) {
                         $("#divnotifyreadrequestautoreact").show();
                     }else{
@@ -148,6 +150,7 @@
                 }
             }else{
                 $("#node-input-listenallga").prop("checked", false)
+                $("#divTopic").show()
                 $("#GAandDPT").show()
                 $("#divOutputRBE").show()
                 $("#divInputRBE").show()
@@ -239,7 +242,7 @@
         <label for="node-input-name"><i class="fa fa-tag"></i> Node Name </label>
         <input type="text" id="node-input-name" placeholder="Name">
     </div>
-    <div class="form-row">
+    <div class="form-row" id="divTopic">
         <label for="node-input-outputtopic"><i class="fa fa-tasks"></i> Topic </label>
         <input type="text" id="node-input-outputtopic" placeholder="Leave empty to use Group Address">
     </div>
