@@ -69,14 +69,9 @@ You can use the node to emulate a phisically non existent KNX device. The node w
 You can select what to see in the status (the row below the node). For example, you can select to see the current payload value and the last time changed, or the device name as well.
 
 </details>
-<details><summary>CIRCULAR REFERENCE PROTECTION</summary>
+<details><summary>NODE SELF PROTECTION</summary>
 
-The Node has a circular reference protection. If 2 nodes with same group address are linked toghether, the protection avoids loops by stopping the message transmitted to the KNX BUS. <a href="https://youtu.be/I32_qG7yhFc" target="_blank"><img src='https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/Loop.png' width='15%'></a>You can select what to see in the status (the row below the node). For example, you can select to see the current payload value and the last time changed, or the device name as well.
-
-</details>
-<details><summary>AUTOMATIC LOOP PROTECTION</summary>
-
-Protect the flow form being flooded by KNX telegram, in case of mistaken in the flow design, by DISABLING the affected node.
+The Node protects you, from youself. [Node Protections](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Protections)
 
 </details>
 <details><summary>BUILT INPUT AND OUTPUT RBE FILTER</summary>
