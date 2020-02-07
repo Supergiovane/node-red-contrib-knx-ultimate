@@ -4,6 +4,7 @@ module.exports = function (RED) {
         var node = this
         node.server = RED.nodes.getNode(config.server)
         node.topic = config.topic
+        node.outputtopic = (typeof config.outputtopic === "undefined" || config.outputtopic == "") ? config.topic : config.outputtopic; // 07/02/2020 Importante, per retrocompatibilità
         node.dpt = config.dpt || "1.001"
         node.notifyreadrequest = config.notifyreadrequest || false
         node.notifyreadrequestalsorespondtobus = config.notifyreadrequestalsorespondtobus || "false";  // Auto respond if notifireadrequest is true
@@ -18,7 +19,7 @@ module.exports = function (RED) {
         node.currentPayload = "" // Current value for the RBE input and for the .previouspayload msg
         node.icountMessageInWindow = 0; // Used to prevent looping messages
         node.messageQueue = []; // 01/01/2020 All messages from the flow to the node, will be queued and will be sent separated by 60 milliseconds each. Use uf the underlying knx.js "minimumDelay" is not possible because the telegram order isn't mantained.
-         
+        
         // Used to call the status update from the config node.
         node.setNodeStatus = ({ fill, shape, text, payload, GA, dpt, devicename }) => {
             if (node.icountMessageInWindow == -999) return; // Locked out, doesn't change status.
@@ -33,7 +34,7 @@ module.exports = function (RED) {
         // Check if the node has a valid topic and dpt
         if(node.listenallga==false){
             if (typeof node.topic == "undefined" || typeof node.dpt == "undefined") {
-                node.setNodeStatus({ fill: "red", shape: "dot", text: "Empty group address (topic) or datapoint.",payload: "", GA: "", dpt:"", devicename:"" })
+                node.setNodeStatus({ fill: "red", shape: "dot", text: "Empty Group Addr. or datapoint.",payload: "", GA: "", dpt:"", devicename:"" })
                 return;
             } else {
             
@@ -139,7 +140,7 @@ module.exports = function (RED) {
                     setTimeout(() => {
                         if (node.icountMessageInWindow >= 120) {
                             // Looping detected
-                            node.setNodeStatus({ fill: "red", shape: "dot", text: "DISABLED! Flood protection! Too many msg at the same time.", payload:"", GA: "", dpt:"", devicename:"" })
+                            node.setNodeStatus({ fill: "red", shape: "ring", text: "DISABLED! Flood protection! Too many msg at the same time.", payload:"", GA: "", dpt:"", devicename:"" })
                             RED.log.error("knxUltimate: Node " + node.id + " has been disabled due to Flood Protection. Too many messages in a timeframe. Check your flow's design or use RBE option.");
                             node.icountMessageInWindow = -999; //Lock out node
                             return;

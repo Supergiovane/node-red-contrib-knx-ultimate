@@ -222,16 +222,16 @@
 
 <script type="text/x-red" data-template-name="knxUltimate">
     <div class="form-row">
-        <label for="node-input-server"><i class="fa fa-tag"></i> Gateway </label>
+        <label for="node-input-server"><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/config/connectioneibnettunneling.png"></i> Gateway </label>
         <input type="text" id="node-input-server">
     </div>
     <div id="GAandDPT">
         <div class="form-row">
-            <label for="node-input-topic"><i class="fa fa-tasks"><img src=""></i> Group Address</label>
+            <label for="node-input-topic"><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/config/subgroup.png"></i> Group Addr.</label>
             <input type="text" id="node-input-topic" placeholder="Ex: 1/1/1 or select 'Listen to all Groups'">
         </div>
         <div class="form-row">
-            <label for="node-input-dpt"><i class="fa fa-tasks"></i> Datapoint </label>
+            <label for="node-input-dpt"><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/config/device.png"></i> Datapoint </label>
             <select id="node-input-dpt"></select>
         </div>
     </div>
@@ -245,7 +245,7 @@
     </div>
     <div class="form-row">
             <input type="checkbox" id="node-input-listenallga" style="display:inline-block; width:auto; vertical-align:top;">
-            <label style="width:auto" for="node-input-listenallga">&nbsp;&nbsp;<i class="fa fa-th-list"></i> Universal mode (listen to all Group Addresses)</label>
+            <label style="width:auto" for="node-input-listenallga">&nbsp;&nbsp;<img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/config/maingroup.png"></i> Universal mode (listen to all Group Addresses)</label>
             <div id="helpallga">Some Content Here</div>
     </div>
     
@@ -327,10 +327,10 @@
                 <dt>Gateway</dt>
                 <dd> Selected KNX gateway. </dd>
  
-                <dt>Group Address (topic)
+                <dt>Group Addr.
                     <span class="property-type">Example 0/0/1</span>
                 </dt>
-                <dd> KNX Group address to read/write to. It's not mandatory if you import the ETS csv file and select <i>Universal mode (listen to all Group Addresses)</i>. Please note that the Group Address will then transmitted to the flow as <code>msg.topic</code>. It can be overridden by <code>msg.knx.destination</code>.</dd>
+                <dd> KNX Group address to read/write to. It can be overridden by msg input <code>msg.knx.destination</code>.</dd>
     
                 <dt>Datapoint</dt>
                 <dd> KNX datapoint type (DPT). It's not mandatory if you import the ETS csv file and select <i>Universal mode (listen to all Group Addresses)</i>. It can be overridden by <code>msg.dpt</code>.</dd>

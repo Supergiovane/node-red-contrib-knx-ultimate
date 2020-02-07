@@ -142,7 +142,7 @@ module.exports = (RED) => {
                 // Check if the node has a valid topic and dpt
                 if (_Node.listenallga==false) {
                     if (typeof _Node.topic == "undefined" || typeof _Node.dpt == "undefined") {
-                        _Node.setNodeStatus({ fill: "red", shape: "dot", text: "Empty group address (topic) or datapoint.",payload: "", GA: "", dpt:"", devicename:"" })
+                        _Node.setNodeStatus({ fill: "red", shape: "dot", text: "Empty Group Addr. or datapoint.",payload: "", GA: "", dpt:"", devicename:"" })
                         return;
                     } else {
 
@@ -316,13 +316,13 @@ module.exports = (RED) => {
                                     // --------------------------------
                                     if (typeof oGA === "undefined") {
                                         // 25/10/2019 from v. 1.1.11, try to decode and output a datapoint.
-                                        let msg = buildInputMessage(src, dest, evt, rawValue, tryToFigureOutDataPointFromRawValue(rawValue, dest), "")
+                                        let msg = buildInputMessage(src, dest, evt, rawValue, tryToFigureOutDataPointFromRawValue(rawValue, dest), "", dest); 
                                         input.setNodeStatus({ fill: "green", shape: "dot", text: "Try to decode", payload: msg.payload, GA: msg.knx.destination, dpt: "", devicename: "" });
                                         input.send(msg)
                                         // --------------------------------
 
                                     } else {
-                                        let msg = buildInputMessage(src, dest, evt, rawValue, oGA.dpt, oGA.devicename)
+                                        let msg = buildInputMessage(src, dest, evt, rawValue, oGA.dpt, oGA.devicename, dest); 
                                         input.setNodeStatus({ fill: "green", shape: "dot", text: "", payload: msg.payload, GA: msg.knx.destination, dpt: msg.knx.dpt, devicename: msg.devicename });
                                         input.send(msg)
                                     }
@@ -332,7 +332,7 @@ module.exports = (RED) => {
                                         // Is a watchdog node
                                         input.evalCalledByConfigNode("Write");
                                     } else {
-                                        let msg = buildInputMessage(src, dest, evt, rawValue, input.dpt, input.name ? input.name : "")
+                                        let msg = buildInputMessage(src, dest, evt, rawValue, input.dpt, input.name ? input.name : "", input.outputtopic)
                                         // Check RBE INPUT from KNX Bus, to avoid send the payload to the flow, if it's equal to the current payload
                                         if (!checkRBEInputFromKNXBusAllowSend(input, msg.payload)) {
                                             input.setNodeStatus({ fill: "grey", shape: "ring", text: "rbe block (" + msg.payload + ") from KNX", payload: "", GA: "", dpt: "", devicename: "" })
@@ -362,13 +362,13 @@ module.exports = (RED) => {
                                     // 25/10/2019 TRY TO AUTO DECODE
                                     // --------------------------------
                                     if (typeof oGA === "undefined") {
-                                        let msg = buildInputMessage(src, dest, evt, rawValue, tryToFigureOutDataPointFromRawValue(rawValue, dest), "")
+                                        let msg = buildInputMessage(src, dest, evt, rawValue, tryToFigureOutDataPointFromRawValue(rawValue, dest), "", dest)
                                         input.setNodeStatus({ fill: "green", shape: "dot", text: "Try to decode", payload: msg.payload, GA: msg.knx.destination, dpt: "", devicename: "" });
                                         input.send(msg)
                                         // --------------------------------
 
                                     } else {
-                                        let msg = buildInputMessage(src, dest, evt, rawValue, oGA.dpt, oGA.devicename)
+                                        let msg = buildInputMessage(src, dest, evt, rawValue, oGA.dpt, oGA.devicename, dest)
                                         input.setNodeStatus({ fill: "blue", shape: "dot", text: "", payload: msg.payload, GA: msg.knx.destination, dpt: msg.knx.dpt, devicename: msg.devicename });
                                         input.send(msg)
                                     };
@@ -379,7 +379,7 @@ module.exports = (RED) => {
                                         // Is a watchdog node
                                         input.evalCalledByConfigNode("Response");
                                     } else {
-                                        let msg = buildInputMessage(src, dest, evt, rawValue, input.dpt, input.name ? input.name : "")
+                                        let msg = buildInputMessage(src, dest, evt, rawValue, input.dpt, input.name ? input.name : "", input.outputtopic)
                                         // Check RBE INPUT from KNX Bus, to avoid send the payload to the flow, if it's equal to the current payload
                                         if (!checkRBEInputFromKNXBusAllowSend(input, msg.payload)) {
                                             input.setNodeStatus({ fill: "grey", shape: "ring", text: "rbe INPUT filter applied on " + msg.payload })
@@ -411,13 +411,13 @@ module.exports = (RED) => {
                                     // --------------------------------
                                     if (typeof oGA === "undefined") {
                                         // 25/10/2019 from v. 1.1.11, try to decode and output a datapoint.
-                                        let msg = buildInputMessage(src, dest, evt, null, tryToFigureOutDataPointFromRawValue(rawValue, dest), "")
+                                        let msg = buildInputMessage(src, dest, evt, null, tryToFigureOutDataPointFromRawValue(rawValue, dest), "",dest)
                                         input.setNodeStatus({ fill: "green", shape: "dot", text: "Try to decode", payload: msg.payload, GA: msg.knx.destination, dpt: "", devicename: "" });
                                         input.send(msg)
                                         // --------------------------------
 
                                     } else {
-                                        let msg = buildInputMessage(src, dest, evt, null, oGA.dpt, oGA.devicename);
+                                        let msg = buildInputMessage(src, dest, evt, null, oGA.dpt, oGA.devicename, dest);
                                         input.setNodeStatus({ fill: "grey", shape: "dot", text: "Read", payload: msg.payload, GA: msg.knx.destination, dpt: msg.knx.dpt, devicename: msg.devicename });
                                         input.send(msg);
                                     }
@@ -428,7 +428,7 @@ module.exports = (RED) => {
                                         // Is a watchdog node
                                         input.evalCalledByConfigNode("Read");
                                     } else {
-                                        let msg = buildInputMessage(src, dest, evt, null, input.dpt, input.name ? input.name : "");
+                                        let msg = buildInputMessage(src, dest, evt, null, input.dpt, input.name ? input.name : "", input.outputtopic);
                                         msg.previouspayload = typeof input.currentPayload !== "undefined" ? input.currentPayload : ""; // 24/01/2020 Added previous payload
                                         // 24/09/2019 Autorespond to BUS
                                         if (input.notifyreadrequestalsorespondtobus === true) {
@@ -552,7 +552,7 @@ module.exports = (RED) => {
         }
 
 
-        function buildInputMessage(src, dest, evt, value, inputDpt, _devicename) {
+        function buildInputMessage(src, dest, evt, value, inputDpt, _devicename, _outputtopic) {
             // Resolve DPT and convert value if available
             var dpt = dptlib.resolve(inputDpt);
             var jsValue = null
@@ -568,7 +568,7 @@ module.exports = (RED) => {
 
             // Build final input message object
             return {
-                topic: dest
+                topic: _outputtopic
                 , payload: jsValue
                 , payloadmeasureunit: sPayloadmeasureunit
                 , devicename: (typeof _devicename !== 'undefined') ? _devicename : ""
