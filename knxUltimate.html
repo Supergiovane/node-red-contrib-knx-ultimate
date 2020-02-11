@@ -3,6 +3,7 @@
         category: 'KnxUltimate',
         color: '#99ccff',
         defaults: {
+            //buttonState: {value: true},
             server: { type: "knxUltimate-config", required: true },
             topic: { value: "" },
             outputtopic: { value: "" },
@@ -17,15 +18,30 @@
             name: { value: "" },
             outputtype: { value: "write" },
             outputRBE: { value: true },
-            inputRBE: { value: false }
+            inputRBE: { value: false },
         },
         inputs: 1,
         outputs: 1,
         icon: "knx.png",
+        align:"left",
         label: function () {
             return (this.outputRBE==true ? "|rbe| " : "") + (this.name || this.topic || "knx-ultimate") + (this.inputRBE==true ? " |rbe|" : "" )
         },
         paletteLabel : "KNX Device",
+        // button: {
+        //     enabled: function() {
+        //         // return whether or not the button is enabled, based on the current
+        //         // configuration of the node
+        //         return !this.changed
+        //     },
+        //     visible: function() {
+        //         // return whether or not the button is visible, based on the current
+        //         // configuration of the node
+        //         return this.hasButton
+        //     },
+        //     //toggle: "buttonState",
+        //     onclick: function() {}
+        // },
         oneditprepare: function () {
 
             $.getJSON('knxUltimateDpts', (data) => {
