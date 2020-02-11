@@ -37,75 +37,69 @@ If you're here, you probably already have tried other knx nodes from npm. I hope
 
 ## Highlights
 
-<details><summary>STAND ALONE OR WITH ETS GROUP ADDRESS LIST</summary>
+<details><summary>Stand alone or with ETS exported file</summary>
 
 You can set you own group address, datapoint and device name, or you can import the ETS Group Address list and have datapoint and device name auto populated while typing in the group address.
 
 </details>
-<details><summary>AUTOMATIC DISPLAY OF ALL YOUR KNX DEVICES</summary>
+<details><summary>Filling helpers</summary>
 
 If you import your ETS CSV file, just begin typing the group address or the device name in the Group Address textbox and a list of possible matches will appear. Just select an item in the list it and have datapoint and device name auto populated. You can then accept the auto populated fields or change it.
 
 </details>
-<details><summary>AUTOMATIC ENCODING/DECONDING OF TELEGRAM</summary>
+<details><summary>Automatic encoding/deconding of KNX datagrams</summary>
 
 Just pass a normal payload to the node (true, false, a string or any nymber) and just receive a normal payload (true, false, a string or any nymber) to use in your flow.
 
 </details>
-<details><summary>DOUBLE PERSONALITY</summary>
+<details><summary>Double Personality</summary>
 
 The node can act as a single device (for example having Group Address 0/0/1), or can be used as universal node, catching all messages coming from KNX Bus (in this case the node will output a comprehensive msg to the flow, containing group address, device name, automatic decoded payload and other useful infos). The node can act as universal KNX sender as well (you can pass a message to the node, containing the destination group address, the datapont type and the payload).
 
 </details>
-<details><summary>EMULATE REAL KNX DEVICE</summary>
+<details><summary>Emulate real KNX device</summary>
 
 You can use the node to emulate a phisically non existent KNX device. The node will behave exactly as a normal KNX Device and will also respond to read requests coming from the KNX bus, by sending the current payload value to the KNX bus.
 
 </details>
-<details><summary>ADJUSTABLE STATUS DISPLAY</summary>
+<details><summary>Customizable status display</summary>
 
 You can select what to see in the status (the row below the node). For example, you can select to see the current payload value and the last time changed, or the device name as well.
 
 </details>
-<details><summary>NODE SELF PROTECTION</summary>
+<details><summary>Self protection</summary>
 
 The Node protects you, from youself. [Node Protections](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Protections)
 
 </details>
 <details><summary>BUILT INPUT AND OUTPUT RBE FILTER</summary>
 
-You can select to activate or deactivate it. If active, the node reacts only if payload from KNX Bus is changed.
+You can select to activate or deactivate it. If active, the node reacts only if payload from KNX Bus or from input msg is changed.
 
 </details>
-<details><summary>BUILT IN RBE INPUT FILTER</summary>
-
-IN: You can select to activate or deactivate it. If active, the node reacts only if payload from KNX Bus is changed.
-OUT: You can select to activate or deactivate it. If active, the node will send the payload to the KNX Bus, only if changed.
-
-</details>
-<details><summary>WORKS WITH IP INTERFACES AS WELL AS IP ROUTERS</summary>
+<details><summary>Automatic KNX interface type</summary>
 
 Full support for IP Interfaces as well for IP Routers. It's recommended the use of IP Routers because of simple setup and stability in a large environment.
 
 </details>
-<details><summary>SUPPRESS ACK REQUEST FOR OLD IP INTERFACES</summary>
+<details><summary>Old interfaces friendly</summary>
 
-This option help compatibility with very old IP Interfaces, like the Siemens SWG1 148-1AB22 IP Interface firmware.
+The "Suppress ACK" option, helps compatibility with old IP Interfaces, like the Siemens SWG1 148-1AB22 IP Interface firmware etc...
 
 </details>
-<details><summary>WATCHDOG NODE FOR KNX CONNECTION BACKUP AND NOTIFICATION</summary>
+<details><summary>Granular options</summary>
+
+The node is very simple to use "out of the box", but you can plasmate it to achieve any goal you want.
+
+</details>
+<details><summary>WATCHDOG Node for KNX backup connection and notification</summary>
 
 You can check the healty of your KNX Bus connection and switch over to anoter KNX/IP Router if the primary fails.
 
 </details>
-<details><summary>PROGRAMMATICALLY CHANGE THE KNX/IP INTERFACE/ROUTER CONFIG</summary>
+<details><summary>WATCHDOG Node to change the KNX gateway configuration on the fly</summary>
 
 Programmatically change the IP, Port etc... of the KNX/IP Interface or router, via msg.
-
-</details>
-<details><summary>VERY GRANULAR OPTIONS</summary>
-
-The node is very simple to use "out of the box", but you can plasmate it to achieve any goal you want.
 
 </details>
 <details><summary>ACTIVE DEVELOPED</summary>
