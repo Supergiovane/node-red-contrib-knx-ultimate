@@ -12,9 +12,9 @@
 ![Sample Node](img/readmemain.png) 
 
 ## DESCRIPTION
-**Knx-ultimate device node** is a powerfull device node, all-in-one. It acts as input device as well as output device at the same time. I'ts very SIMPLE TO USE thus very customizable.<br/>
+* **Knx-ultimate device node** is a powerfull device node, all-in-one. It acts as input device as well as output device at the same time. I'ts very SIMPLE TO USE thus very customizable.<br/>
 If you're here, you probably already have tried other knx nodes from npm. I hope you enjoy this one, because i've put big effort to do what i really needed, a copy/paste friendly node, with many functions and the possibility to use the ETS csv exported Group Addresses.<br />
-**WatchDog node** is a professional oriented knx node for installers/companies. It allows notification (Email, Twitter, Telegram, Alexa, Siri, Sonos -with sonospollytts node- and so on) of KNX Bus connection errors, automatic or manual switchover to a backup KNX/IP router if the primary fails and allows you to programmatically change the config-node directly from a msg flow.
+* **WatchDog node** is a professional oriented knx node for installers/companies. It allows notification (Email, Twitter, Telegram, Alexa, Siri, Sonos -with sonospollytts node- and so on) of KNX Bus connection errors, automatic or manual switchover to a backup KNX/IP router if the primary fails and allows you to programmatically change the config-node directly from a msg flow.
 
 [![Donate via PayPal](https://img.shields.io/badge/Donate-PayPal-blue.svg?style=flat-square)](https://www.paypal.me/techtoday) and <a href="http://eepurl.com/gJm095" target="_blank">subscribe to my channel.</a> Only news about my nodes, no spam, no ads.<br/>Please never put pineapple on an italian pizza!
 
@@ -35,9 +35,7 @@ If you're here, you probably already have tried other knx nodes from npm. I hope
   </tr>
  </table>
 
-## HIGHLIGHTS
-
-### Click a row to see the description
+## Highlights
 
 <details><summary>STAND ALONE OR WITH ETS GROUP ADDRESS LIST</summary>
 
@@ -119,17 +117,18 @@ I personally use my node at home, so i put a lot of effort to develop it and i r
 
 
 
-### WORKING WITH THE ETS CSV FILE
+## WORKING WITH THE ETS CSV FILE
 Instead of create a knx-ultimate node for each Group Address to control, you can import your ETS csv group addresses file. 
 Thanks to that, the knx-ultimate node where you selected **Universal mode (listen to all Group Addresses)**, becomes an universal input/output node, aware of all Datapoints, Group Addresses and Device's name (ex: Living Room Lamp). Just send the payload to the knx-ultimate node, and it'll encode it with the right datapoint and send it to the bus. Likewise, when the knx-ultimate node receives a telegram from the bus, it outputs a right decoded payload using the datapoint specified in the ETS file.
 > You can work with a mix of knx-ultimate nodes, some with **Universal mode (listen to all Group Addresses)** checked and some not. You are absolutely free! See this youtube video,
 
-<a href="https://youtu.be/I32_qG7yhFc" target="_blank"><img src='https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/yt.png' width='100%'></a>
+<a href="https://youtu.be/I32_qG7yhFc" target="_blank"><img src='https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/yt.png' width='80%'></a>
 
-**Sample ETS csv file to paste into your config for testing pourposes**
+<details><summary>Sample ETS csv file to paste into the ETS field of your config node.</summary>
 > Copy/Paste this into your configuration node.
 
 <code>
+
 "Group name"	"Address"	"Central"	"Unfiltered"	"Description"	"DatapointType"	"Security"
 "Attuatori luci"	"0/-/-"	""	""	"Attuatori luci"	""	"Auto"
 "Luci primo piano"	"0/0/-"	""	""	"Luci primo piano"	""	"Auto"
@@ -157,6 +156,9 @@ Thanks to that, the knx-ultimate node where you selected **Universal mode (liste
 "Bagno grande specchio brightness value"	"0/0/22"	""	""	""	"DPST-5-1"	"Auto"
 "Soggiorno luce (dim)"	"0/0/23"	""	""	"Soggiorno luce dim"	"DPST-3-7"	"Auto"
 </code>
+
+</details>
+
 
 
 <br/>
