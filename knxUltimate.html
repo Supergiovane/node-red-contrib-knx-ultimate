@@ -1,7 +1,7 @@
 <script type="text/javascript">
     RED.nodes.registerType('knxUltimate', {
-        category: 'KnxUltimate',
-        color: '#99ccff',
+        category: 'KNX',
+        color: '#7dd484',
         defaults: {
             //buttonState: {value: true},
             server: { type: "knxUltimate-config", required: true },
@@ -22,7 +22,7 @@
         },
         inputs: 1,
         outputs: 1,
-        icon: "knx.png",
+        icon: "node-icon.png",
         align:"left",
         label: function () {
             return (this.outputRBE==true ? "|rbe| " : "") + (this.name || this.topic || "knx-ultimate") + (this.inputRBE==true ? " |rbe|" : "" )
