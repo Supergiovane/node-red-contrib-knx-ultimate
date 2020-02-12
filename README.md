@@ -1,7 +1,6 @@
 # node-red-contrib-knx-ultimate
 
-![Sample Node](img/logo.png) 
-
+![Sample Node](img/logo-new.png)
 
 [![NPM version][npm-version-image]][npm-url]
 [![NPM downloads per month][npm-downloads-month-image]][npm-url]
@@ -9,10 +8,11 @@
 [![MIT License][license-image]][license-url]
 [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
 
-![Sample Node](img/readmemain.png) 
+![Sample Node](img/readmemain.png)
 
 ## DESCRIPTION
-* **Knx-ultimate device node** allow you to control your *KNX installation* via Node-Red. You can control all your KNX devices as well as create a *Virtual Device* in Node-Red, to link external *non KNX* devices, and make it compatible with your KNX installation. I'ts very SIMPLE TO USE thus very customizable.<br/>
+
+* **Knx-ultimate device node** allow you to control your *KNX installation* via Node-Red. You can control all your KNX devices as well as create a *Virtual Device* in Node-Red, to link external *non KNX* devices, and make it compatible with your KNX installation. I'ts very SIMPLE TO USE thus very customizable.  
 * **WatchDog node** is a professional oriented knx node for installers/companies. It allows notification (Email, Twitter, Telegram, Alexa, Siri, Sonos -with sonospollytts node- and so on) of KNX Bus connection errors, automatic or manual switchover to a backup KNX/IP router if the primary fails and allows you to programmatically change the config-node directly from a msg flow.
 
 [![Donate via PayPal](https://img.shields.io/badge/Donate-PayPal-blue.svg?style=flat-square)](https://www.paypal.me/techtoday) and <a href="http://eepurl.com/gJm095" target="_blank">subscribe to my channel.</a> Only news about my nodes, no spam, no ads.
@@ -109,11 +109,9 @@ I personally use my node at home, so i put a lot of effort to develop it and i r
 
 </details>
 
-
-
-
 ## WORKING WITH THE ETS CSV FILE
-Instead of create a knx-ultimate node for each Group Address to control, you can import your ETS csv group addresses file. 
+
+Instead of create a knx-ultimate node for each Group Address to control, you can import your ETS csv group addresses file.  
 Thanks to that, the knx-ultimate node where you selected **Universal mode (listen to all Group Addresses)**, becomes an universal input/output node, aware of all Datapoints, Group Addresses and Device's name (ex: Living Room Lamp). Just send the payload to the knx-ultimate node, and it'll encode it with the right datapoint and send it to the bus. Likewise, when the knx-ultimate node receives a telegram from the bus, it outputs a right decoded payload using the datapoint specified in the ETS file.
 > You can work with a mix of knx-ultimate nodes, some with **Universal mode (listen to all Group Addresses)** checked and some not. You are absolutely free! See this youtube video,
 
@@ -124,7 +122,6 @@ Thanks to that, the knx-ultimate node where you selected **Universal mode (liste
 > Copy/Paste this into your configuration node.
 
 <code>
-
 "Group name"	"Address"	"Central"	"Unfiltered"	"Description"	"DatapointType"	"Security"
 "Attuatori luci"	"0/-/-"	""	""	"Attuatori luci"	""	"Auto"
 "Luci primo piano"	"0/0/-"	""	""	"Luci primo piano"	""	"Auto"
@@ -155,12 +152,9 @@ Thanks to that, the knx-ultimate node where you selected **Universal mode (liste
 
 </details>
 
-
-
 <br/>
 <br/>
 <br/>
-
 
 # <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki">Click here for comprehensive samples</a>
 
@@ -171,7 +165,6 @@ return {payload:true}
 ```javascript
 return {payload:false}
 ```
-
 
 [license-image]: https://img.shields.io/badge/license-MIT-blue.svg
 [license-url]: https://github.com/Supergiovane/node-red-contrib-knx-ultimate/master/LICENSE
