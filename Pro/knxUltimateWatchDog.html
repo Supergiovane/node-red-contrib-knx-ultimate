@@ -1,7 +1,7 @@
 <script type="text/javascript">
     RED.nodes.registerType('knxUltimateWatchDog', {
-        category: 'KnxUltimate',
-        color: '#cce6ff',
+        category: 'KNX',
+        color: '#C7E9C0',
         defaults: {
             server: { type: "knxUltimate-config", required: true },
             topic: { value: "12/0/0" },
@@ -14,8 +14,7 @@
         inputs: 1,
         outputs: 1,
         outputLabels: ["Output"],
-        align: "left",
-        icon: "alert.png",
+        icon: "node-watchdog-icon.png",
         label: function () {
             return ((this.name || "KNX Watchdog") + " " + this.topic);
         },
