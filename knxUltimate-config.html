@@ -1,21 +1,21 @@
 <script type="text/javascript">
-    RED.nodes.registerType('knxUltimate-config',{
+    RED.nodes.registerType('knxUltimate-config', {
         category: 'config',
         defaults: {
-            host: {value:"224.0.23.12",required:true},
-            port: {value:3671,required:true,validate:RED.validators.number()},
+            host: { value: "224.0.23.12", required: true },
+            port: { value: 3671, required: true, validate: RED.validators.number() },
             // the KNX physical address we'd like to use
-            physAddr: {value:"15.15.22",required:true},
+            physAddr: { value: "15.15.22", required: true },
             // enable this option to suppress the acknowledge flag with outgoing L_Data.req requests. LoxOne needs this
-            suppressACKRequest: {value: false},
-            csv: {value:"",required:false},
-            KNXEthInterface:{value:"Auto"},
-            KNXEthInterfaceManuallyInput:{value:""},
-            statusDisplayLastUpdate:{value:true},
-            statusDisplayDeviceNameWhenALL:{value:true},
-            statusDisplayDataPoint:{value:false},
-            stopETSImportIfNoDatapoint:{value:"stop"},
-            loglevel: {value:"info"}
+            suppressACKRequest: { value: false },
+            csv: { value: "", required: false },
+            KNXEthInterface: { value: "Auto" },
+            KNXEthInterfaceManuallyInput: { value: "" },
+            statusDisplayLastUpdate: { value: true },
+            statusDisplayDeviceNameWhenALL: { value: true },
+            statusDisplayDataPoint: { value: false },
+            stopETSImportIfNoDatapoint: { value: "stop" },
+            loglevel: { value: "info" }
         },
         oneditprepare: function () {
             $("#node-config-input-KNXEthInterface").append($("<option></option>")
@@ -30,41 +30,45 @@
             $.getJSON('knxUltimateETHInterfaces', (data) => {
                 data.sort().forEach(iFace => {
                     $("#node-config-input-KNXEthInterface").append($("<option></option>")
-                            .attr("value", iFace.name)
-                            .text(iFace.name + " (" + iFace.address+")")
-                        )
-                    });
-                $("#node-config-input-KNXEthInterface").val(typeof this.KNXEthInterface ==="undefined" ? "Auto":this.KNXEthInterface)
-                if (this.KNXEthInterface==="Manual")
-                {
+                        .attr("value", iFace.name)
+                        .text(iFace.name + " (" + iFace.address + ")")
+                    )
+                });
+                $("#node-config-input-KNXEthInterface").val(typeof this.KNXEthInterface === "undefined" ? "Auto" : this.KNXEthInterface)
+                if (this.KNXEthInterface === "Manual") {
                     // Show input
                     $("#divKNXEthInterfaceManuallyInput").show();
-                }else{
+                } else {
                     $("#divKNXEthInterfaceManuallyInput").hide()
                 }
 
-                $("#node-config-input-KNXEthInterface").on('change',function() {
-                    if ($("#node-config-input-KNXEthInterface").val()==="Manual")
-                    {
+                $("#node-config-input-KNXEthInterface").on('change', function () {
+                    if ($("#node-config-input-KNXEthInterface").val() === "Manual") {
                         // Show input
                         $("#divKNXEthInterfaceManuallyInput").show();
-                    }else{
+                    } else {
                         // Hide input
                         $("#divKNXEthInterfaceManuallyInput").hide()
                     }
-                })
+                });
             });
+
+            // 14/02/2020 San Valentino. Retrieve all nodes and show here. Requested by use Alloc in knx-user-forum.de
+            $.getJSON('nodeList', (data) => {
+                $("#nodeList").val(data);
+            });
+
 
             // 07/01/2020 Collapsible script
             // *****************************
             $("#advancedOptionsAccordion").accordion({
-                header:"h3",
+                header: "h3",
                 heightStyle: "content",
                 collapsible: true,
                 active: false
             });
             $("#etsCSVListBox").accordion({
-                header:"h3",
+                header: "h3",
                 heightStyle: "content",
                 collapsible: true,
                 active: false
@@ -72,27 +76,27 @@
             // *****************************
 
         },
-        oneditsave: function() {
+        oneditsave: function () {
             // Check if the csv file contains errors
-            if($("#node-config-input-csv").val() != 'undefined' && $("#node-config-input-csv").val()!=""){
-                var checkResult="Upon deploy, i'll parse the CSV. Please see the debug TAB or node-red's log for errors/warnings. If no warnings, then the csv is OK. Otherwise you should correct the issues and again export from ETS and paste here."
-                var myNotification= RED.notify(checkResult,
-                {
-                    modal: true,
-                    fixed: true,
-                    type: 'info',
-                    buttons: [
-                        {
-                            text: "OK",
-                            click: function(e) {
-                                myNotification.close();
-                            }
-                        }]
-                })
+            if ($("#node-config-input-csv").val() != 'undefined' && $("#node-config-input-csv").val() != "") {
+                var checkResult = "Upon deploy, i'll parse the CSV. Please see the debug TAB or node-red's log for errors/warnings. If no warnings, then the csv is OK. Otherwise you should correct the issues and again export from ETS and paste here."
+                var myNotification = RED.notify(checkResult,
+                    {
+                        modal: true,
+                        fixed: true,
+                        type: 'info',
+                        buttons: [
+                            {
+                                text: "OK",
+                                click: function (e) {
+                                    myNotification.close();
+                                }
+                            }]
+                    })
             }
         },
-        label: function() {
-            return this.host+":"+this.port;
+        label: function () {
+            return this.host + ":" + this.port;
         }
     });
 </script>
@@ -145,14 +149,21 @@
                     <select id="node-config-input-loglevel" style="width:25%;">
                         <option value="error">Error</option>
                         <option value="warn">Warning</option>
-                        <option value="info">Info (default)</option>
+                        <option value="info">Info (Default)</option>
                         <option value="debug">Debug</option>
                         <option value="trace">Trace</option>
                     </select> <b>Restart node-red</b> after change!
                 </div>
+
+                <p>
+                    List of your nodes in all flows
+                    <textarea rows="20" id="nodeList" style="width:100%" placeholder="Here is a list of all your configured KNX Nodes."></textarea>
+                </p>
+     
             </p>
         </div>
     </div>
+
     <div id="etsCSVListBox">
         <h3>ETS Group Address list import</h3>
         <div>
@@ -168,7 +179,7 @@
                 </div>
                 <div class="form-row">
                     <label style="width:auto" for="node-config-input-csv">&nbsp;&nbsp;<i class="fa fa-th-list"></i>  Group Address list</label></br>
-                    <textarea rows=20 id="node-config-input-csv" style="width:100%" placeholder="Paste here your CSV exported file from ETS">
+                    <textarea rows="20" id="node-config-input-csv" style="width:100%" placeholder="Paste here your CSV exported file from ETS"></textarea>
                 </div>
             </p>
         </div>

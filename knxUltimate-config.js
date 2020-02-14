@@ -67,7 +67,7 @@ module.exports = (RED) => {
         node.host = config.host
         node.port = config.port
         node.physAddr = config.physAddr || "15.15.22"; // the KNX physical address we'd like to use
-        node.suppressACKRequest = typeof config.suppressACKRequest ==="undefined" ? false:config.suppressACKRequest; // enable this option to suppress the acknowledge flag with outgoing L_Data.req requests. LoxOne needs this
+        node.suppressACKRequest = typeof config.suppressACKRequest === "undefined" ? false : config.suppressACKRequest; // enable this option to suppress the acknowledge flag with outgoing L_Data.req requests. LoxOne needs this
         node.linkStatus = "disconnected";
         node.nodeClients = [] // Stores the registered clients
         node.KNXEthInterface = typeof config.KNXEthInterface === "undefined" ? "Auto" : config.KNXEthInterface;
@@ -80,11 +80,12 @@ module.exports = (RED) => {
         node.stopETSImportIfNoDatapoint = typeof config.stopETSImportIfNoDatapoint === "undefined" ? "stop" : config.stopETSImportIfNoDatapoint; // 09/01/2020 Stop or Skip the import if a group address has unset datapoint
         node.csv = readCSV(config.csv); // Array from ETS CSV Group Addresses
         node.loglevel = config.loglevel !== undefined ? config.loglevel : "info"; // 06/02/2020 by Heleon19 Loglevel default info
-        
+
         // Endpoint for reading csv from the other nodes
         RED.httpAdmin.get("/knxUltimatecsv", RED.auth.needsPermission('knxUltimate-config.read'), function (req, res) {
             res.json(RED.nodes.getNode(node.id).csv);
         });
+
         // 14/08/2019 Endpoint for retrieving the ethernet interfaces
         RED.httpAdmin.get("/knxUltimateETHInterfaces", RED.auth.needsPermission('knxUltimate-config.read'), function (req, res) {
             var oiFaces = oOS.networkInterfaces();
@@ -93,23 +94,58 @@ module.exports = (RED) => {
                 Object.keys(oiFaces).forEach(ifname => {
                     // Interface with single IP
                     if (Object.keys(oiFaces[ifname]).length === 1) {
-                        if (Object.keys(oiFaces[ifname])[0].internal == false) jListInterfaces.push({ name: ifname, address:Object.keys(oiFaces[ifname])[0].address});
+                        if (Object.keys(oiFaces[ifname])[0].internal == false) jListInterfaces.push({ name: ifname, address: Object.keys(oiFaces[ifname])[0].address });
                     } else {
                         var sAddresses = "";
                         oiFaces[ifname].forEach(function (iface) {
                             if (iface.internal == false) sAddresses += "+" + iface.address;
                         });
-                        if (sAddresses!=="") jListInterfaces.push({ name: ifname, address:sAddresses});
+                        if (sAddresses !== "") jListInterfaces.push({ name: ifname, address: sAddresses });
                     }
                 })
-            } catch (error) {}
+            } catch (error) { }
             res.json(jListInterfaces)
+        });
+
+        // 14/02/2020 Endpoint for retrieving all nodes in all flows
+        RED.httpAdmin.get("/nodeList", RED.auth.needsPermission('knxUltimate-config.read'), function (req, res) {
+            var sNodes = ""; // Contains the text with nodes
+            var sGA = "";
+            var sDPT = "";
+            var sName = "";
+            var sNodeID = "";
+            try {
+                node.nodeClients
+                    .filter(input => input.notifywrite == true)
+                    .forEach(input => {
+                        sNodeID = "\"" + input.id + "\"";
+                        sName = "\"" + input.name + "\"";
+                        if (input.listenallga == true) {
+                            // Is a ListenallGA
+                            sGA = "\"Universal Node\"";
+                            sDPT = "\"Any\"";
+                        } else {
+                            sGA = "\"" + input.topic + "\"";
+                            sDPT = "\"" + input.dpt + "\"";
+                            if (input.hasOwnProperty("isWatchDog")) {
+                                // Is a watchdog node
+
+                            } else {
+                                // Is a device node
+
+                            };
+                        };
+                        sNodes += sGA + "\t" + sDPT + "\t" + sNodeID + "\t" + sName + "\n";
+                    });
+                res.json(sNodes)
+            } catch (error) {
+            }
         });
 
 
         node.setAllClientsStatus = (_status, _color, _text) => {
             function nextStatus(oClient) {
-                oClient.setNodeStatus({ fill: _color, shape: "dot", text: _status + " " + _text ,payload: "", GA: oClient.topic, dpt:"", devicename:""})
+                oClient.setNodeStatus({ fill: _color, shape: "dot", text: _status + " " + _text, payload: "", GA: oClient.topic, dpt: "", devicename: "" })
             }
             node.nodeClients.map(nextStatus);
         }
@@ -140,15 +176,15 @@ module.exports = (RED) => {
             // Check if node already exists
             if (node.nodeClients.filter(x => x.id === _Node.id).length === 0) {
                 // Check if the node has a valid topic and dpt
-                if (_Node.listenallga==false) {
+                if (_Node.listenallga == false) {
                     if (typeof _Node.topic == "undefined" || typeof _Node.dpt == "undefined") {
-                        _Node.setNodeStatus({ fill: "red", shape: "dot", text: "Empty Group Addr. or datapoint.",payload: "", GA: "", dpt:"", devicename:"" })
+                        _Node.setNodeStatus({ fill: "red", shape: "dot", text: "Empty Group Addr. or datapoint.", payload: "", GA: "", dpt: "", devicename: "" })
                         return;
                     } else {
 
                         // topic must be in formar x/x/x
                         if (_Node.topic.split("\/").length < 3) {
-                            _Node.setNodeStatus({ fill: "red", shape: "dot", text: "Wrong group address (topic: " + _Node.topic + ") format.",payload: "", GA: "", dpt:"", devicename:"" })
+                            _Node.setNodeStatus({ fill: "red", shape: "dot", text: "Wrong group address (topic: " + _Node.topic + ") format.", payload: "", GA: "", dpt: "", devicename: "" })
                             return;
                         }
                     }
@@ -172,10 +208,10 @@ module.exports = (RED) => {
             //RED.log.info( "BEFORE Node " + _Node.id + " has been unsubscribed from receiving KNX messages. " + node.nodeClients.length);
             try {
                 node.nodeClients = node.nodeClients.filter(x => x.id !== _Node.id)
-            } catch (error) {}
+            } catch (error) { }
             //RED.log.info("AFTER Node " + _Node.id + " has been unsubscribed from receiving KNX messages. " + node.nodeClients.length);
 
-              // If no clien nodes, disconnect from bus.
+            // If no clien nodes, disconnect from bus.
             if (node.nodeClients.length === 0) {
                 node.linkStatus = "disconnected";
                 node.Disconnect();
@@ -191,7 +227,7 @@ module.exports = (RED) => {
                 node.nodeClients
                     .filter(oClient => oClient.initialread)
                     .forEach(oClient => {
-                        if (oClient.listenallga==true) {
+                        if (oClient.listenallga == true) {
                             delay = delay + 200
                             for (let index = 0; index < node.csv.length; index++) {
                                 const element = node.csv[index];
@@ -316,13 +352,13 @@ module.exports = (RED) => {
                                     // --------------------------------
                                     if (typeof oGA === "undefined") {
                                         // 25/10/2019 from v. 1.1.11, try to decode and output a datapoint.
-                                        let msg = buildInputMessage(src, dest, evt, rawValue, tryToFigureOutDataPointFromRawValue(rawValue, dest), "", dest); 
+                                        let msg = buildInputMessage(src, dest, evt, rawValue, tryToFigureOutDataPointFromRawValue(rawValue, dest), "", dest);
                                         input.setNodeStatus({ fill: "green", shape: "dot", text: "Try to decode", payload: msg.payload, GA: msg.knx.destination, dpt: "", devicename: "" });
                                         input.send(msg)
                                         // --------------------------------
 
                                     } else {
-                                        let msg = buildInputMessage(src, dest, evt, rawValue, oGA.dpt, oGA.devicename, dest); 
+                                        let msg = buildInputMessage(src, dest, evt, rawValue, oGA.dpt, oGA.devicename, dest);
                                         input.setNodeStatus({ fill: "green", shape: "dot", text: "", payload: msg.payload, GA: msg.knx.destination, dpt: msg.knx.dpt, devicename: msg.devicename });
                                         input.send(msg)
                                     }
@@ -411,7 +447,7 @@ module.exports = (RED) => {
                                     // --------------------------------
                                     if (typeof oGA === "undefined") {
                                         // 25/10/2019 from v. 1.1.11, try to decode and output a datapoint.
-                                        let msg = buildInputMessage(src, dest, evt, null, tryToFigureOutDataPointFromRawValue(rawValue, dest), "",dest)
+                                        let msg = buildInputMessage(src, dest, evt, null, tryToFigureOutDataPointFromRawValue(rawValue, dest), "", dest)
                                         input.setNodeStatus({ fill: "green", shape: "dot", text: "Try to decode", payload: msg.payload, GA: msg.knx.destination, dpt: "", devicename: "" });
                                         input.send(msg)
                                         // --------------------------------
@@ -458,7 +494,7 @@ module.exports = (RED) => {
         };
 
 
-       // 02/01/2020 All sent messages are queued, to allow at least 50 milliseconds between each telegram sent to the bus
+        // 02/01/2020 All sent messages are queued, to allow at least 50 milliseconds between each telegram sent to the bus
         node.writeQueueAdd = _oKNXMessage => {
             // _oKNXMessage is { grpaddr, payload,dpt,outputtype (write or response)}
             node.telegramsQueue.unshift(_oKNXMessage); // Add _oKNXMessage as first in the buffer
@@ -466,17 +502,16 @@ module.exports = (RED) => {
 
         function handleTelegramQueue() {
             if (node.knxConnection) {
-                if (node.telegramsQueue.length==0) {
+                if (node.telegramsQueue.length == 0) {
                     return;
                 }
                 // Retrieving oKNXMessage  { grpaddr, payload,dpt,outputtype (write or response)}
                 var oKNXMessage = node.telegramsQueue[node.telegramsQueue.length - 1]; // Get the last message in the queue
                 // RED.log.error("handling " + oKNXMessage.grpaddr + " " +  oKNXMessage.payload + " " + oKNXMessage.dpt);
                 node.telegramsQueue.pop();// Remove the last message from the queue.
-                if (oKNXMessage.outputtype==="response") {
+                if (oKNXMessage.outputtype === "response") {
                     node.knxConnection.respond(oKNXMessage.grpaddr, oKNXMessage.payload, oKNXMessage.dpt);
-                } else
-                {
+                } else {
                     node.knxConnection.write(oKNXMessage.grpaddr, oKNXMessage.payload, oKNXMessage.dpt);
                 }
             }
@@ -511,8 +546,7 @@ module.exports = (RED) => {
                         //dpt.value)
                         //dpt.text))
                         var dpt = dptlib.resolve(element.value);
-                        if (typeof dpt !== "undefined")
-                        {
+                        if (typeof dpt !== "undefined") {
                             var jsValue = dptlib.fromBuffer(_rawValue, dpt)
                             if (typeof jsValue !== "undefined") {
                                 //RED.log.info("Trying for " + dest + ". FOUND " + element.value);
@@ -527,26 +561,26 @@ module.exports = (RED) => {
         }
 
 
-         // 14/08/2019 If the node has payload same as the received telegram, return false
+        // 14/08/2019 If the node has payload same as the received telegram, return false
         checkRBEInputFromKNXBusAllowSend = (_node, _KNXTelegramPayload) => {
             if (_node.inputRBE !== true) return true;
             if (typeof _node.currentPayload === "undefined") return true;
             var curVal = _node.currentPayload.toString().toLowerCase();
             var newVal = _KNXTelegramPayload.toString().toLowerCase();
-            if (curVal==="false") {
+            if (curVal === "false") {
                 curVal = "0";
             }
-            if (curVal==="true") {
+            if (curVal === "true") {
                 curVal = "1";
             }
-            if (newVal==="false") {
+            if (newVal === "false") {
                 newVal = "0";
             }
-            if (newVal==="true") {
+            if (newVal === "true") {
                 newVal = "1";
             }
             if (curVal === newVal) {
-                 return false;
+                return false;
             }
             return true;
         }
@@ -561,9 +595,19 @@ module.exports = (RED) => {
             }
             var sPayloadmeasureunit = "unknown";
             var sDptdesc = "unknown";
+            var sPayloadsubtypevalue = "unknown";
+            
             if (dpt.subtype !== undefined) {
                 sPayloadmeasureunit = dpt.subtype.unit !== undefined ? dpt.subtype.unit : "unknown";
                 sDptdesc = dpt.subtype.desc !== undefined ? dpt.subtype.desc.charAt(0).toUpperCase() + dpt.subtype.desc.slice(1) : "unknown";
+                if (dpt.subtype.enc !== undefined) {
+                    try {
+                        if (!Boolean(jsValue)) sPayloadsubtypevalue = dpt.subtype.enc[0];
+                        if (Boolean(jsValue)) sPayloadsubtypevalue = dpt.subtype.enc[1];
+                    } catch (error) {                        
+                    }
+                    
+                }
             };
 
             // Build final input message object
@@ -571,6 +615,7 @@ module.exports = (RED) => {
                 topic: _outputtopic
                 , payload: jsValue
                 , payloadmeasureunit: sPayloadmeasureunit
+                , payloadsubtypevalue: sPayloadsubtypevalue
                 , devicename: (typeof _devicename !== 'undefined') ? _devicename : ""
                 , knx:
                 {
@@ -614,7 +659,7 @@ module.exports = (RED) => {
 
                 var sFirstGroupName = "";
                 var sSecondGroupName = "";
-                var sFather="";
+                var sFather = "";
                 for (let index = 0; index < fileGA.length; index++) {
                     var element = fileGA[index];
                     element = element.replace(/\"/g, ""); // Rimuovo le virgolette
@@ -627,11 +672,11 @@ module.exports = (RED) => {
                             sFirstGroupName = element.split("\t")[0] || "";
                             sSecondGroupName = "";
                         }
-                        if ((element.split("\t")[1].match(/-/g)||[]).length==1) {
+                        if ((element.split("\t")[1].match(/-/g) || []).length == 1) {
                             // Found second group family name (Example First Floor light)
                             sSecondGroupName = element.split("\t")[0] || "";
                         }
-                        if(sFirstGroupName!=="" && sSecondGroupName !==""){sFather="(" + sFirstGroupName + "->" +sSecondGroupName + ") " }
+                        if (sFirstGroupName !== "" && sSecondGroupName !== "") { sFather = "(" + sFirstGroupName + "->" + sSecondGroupName + ") " }
 
                         if (element.split("\t")[1].search("-") == -1 && element.split("\t")[1].search("/") !== -1) {
                             // Ho trovato una riga contenente un GA valido, cioè con 2 "/"
@@ -645,7 +690,7 @@ module.exports = (RED) => {
                                 var DPTa = element.split("\t")[5].split("-")[1];
                                 var DPTb = element.split("\t")[5].split("-")[2];
                                 if (typeof DPTb == "undefined") {
-                                    RED.log.warn("knxUltimate: WARNING: Datapoint not fully set (there is only the first part on the left of the '.'). I applied a default .001, but please set the datapoint with ETS and export the group addresses again. ->" + element.split("\t")[0] + " " + element.split("\t")[1] + " Datapoint: " + element.split("\t")[5] );
+                                    RED.log.warn("knxUltimate: WARNING: Datapoint not fully set (there is only the first part on the left of the '.'). I applied a default .001, but please set the datapoint with ETS and export the group addresses again. ->" + element.split("\t")[0] + " " + element.split("\t")[1] + " Datapoint: " + element.split("\t")[5]);
                                     DPTb = "001"; // default
                                 }
                                 // Trailing zeroes
@@ -656,7 +701,7 @@ module.exports = (RED) => {
                                 } if (DPTb.length == 3) {
                                     DPTb = "" + DPTb; // stupid, but for readability
                                 }
-                                ajsonOutput.push({ga:element.split("\t")[1], dpt:DPTa + "." + DPTb, devicename: sFather + element.split("\t")[0]});
+                                ajsonOutput.push({ ga: element.split("\t")[1], dpt: DPTa + "." + DPTb, devicename: sFather + element.split("\t")[0] });
                             }
                         }
                     }
@@ -676,29 +721,23 @@ module.exports = (RED) => {
             var bStart = false;
             for (let index = 0; index < _csv.length; index++) {
                 sChar = _csv.substr(index, 1);
-                if (sChar == "\"")
-                {
+                if (sChar == "\"") {
                     if (!bStart) {
                         bStart = true;
-                    }else
-                    {
+                    } else {
                         bStart = false;
                     }
                     sOut += sChar;
 
-                } else
-                {
+                } else {
                     if (bStart) {
                         // i'm in the phrase, delimited by "". No CRLF should be there
-                        if (sChar !== "\n" && sChar !== "\r")
-                        {
+                        if (sChar !== "\n" && sChar !== "\r") {
                             sOut += sChar;
-                        } else
-                        {
+                        } else {
                             sOut += " "; // Where it was a CRLF, i put a space
                         }
-                    } else
-                    {
+                    } else {
                         sOut += sChar;
                     }
 

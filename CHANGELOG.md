@@ -7,8 +7,8 @@
 
 <p>
 <b>Version 1.1.29</b><br/>
-- Changed Node KNX Icon, thanks @svenflender <br/>
-- Added some example in Node-Red Web Interface, upper right Toast Menu, Import, Samples.<br/>
+- Changed Node KNX Icon, logo and colors, thanks @svenflender <br/>
+- New in config-node: copy/paste friendly text block, with a list of all KNX Nodes (for using, for example, in KNX Router line/zone filters).<br/>
 </p>
 <p>
 <b>Version 1.1.28</b><br/>
