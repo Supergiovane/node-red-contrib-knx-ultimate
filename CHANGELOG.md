@@ -9,7 +9,7 @@
 <b>Version 1.1.29</b><br/>
 - Changed Node KNX Icon, logo and colors, thanks @svenflender <br/>
 - New in config-node: copy/paste friendly text block, with a list of all KNX Nodes (for using, for example, in KNX Router line/zone filters).<br/>
-- New: added subtype decoded value **payloadsubtypevalue** ( for exampe, On/Off, Ramp/NoRamp, Start/Stop, Alarm/NoAlarm )<br/>
+- New: added subtype decoded value **payloadsubtypevalue** ( for exampe, On/Off, Ramp/NoRamp, Start/Stop, Alarm/NoAlarm ). <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Subtype" target="_blank">See here an example</a><br/>
 </p>
 <p>
 <b>Version 1.1.28</b><br/>
