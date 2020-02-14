@@ -116,7 +116,7 @@ module.exports = (RED) => {
             var sNodeID = "";
             try {
                 node.nodeClients
-                    //.map( a => a.topic.indexOf("/") !== -1 ? a.split('/').map( n => +n+100000 ).join('/'):a ).sort().map( a => a.topic.indexOf("/") !== -1 ? a.split('/').map( n => +n-100000 ).join('/'):a )
+                    //.map( a => a.topic.indexOf("/") !== -1 ? a.topic.split('/').map( n => +n+100000 ).join('/'):0 ).sort().map( a => a.topic.indexOf("/") !== -1 ? a.topic.split('/').map( n => +n-100000 ).join('/'):0 )
                     .sort((a, b) => {
                         if (a.topic.indexOf("/") === -1) return -1;
                         if (b.topic.indexOf("/") === -1) return -1;
