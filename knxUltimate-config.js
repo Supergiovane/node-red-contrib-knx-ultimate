@@ -109,7 +109,7 @@ module.exports = (RED) => {
 
         // 14/02/2020 Endpoint for retrieving all nodes in all flows
         RED.httpAdmin.get("/nodeList", RED.auth.needsPermission('knxUltimate-config.read'), function (req, res) {
-            var sNodes = ""; // Contains the text with nodes
+            var sNodes = "\"Group Address\"\t\"Datapoint\"\t\"Node ID\"\t\"Device Name\"\n"; // Contains the text with nodes
             var sGA = "";
             var sDPT = "";
             var sName = "";
