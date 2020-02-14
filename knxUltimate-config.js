@@ -116,7 +116,16 @@ module.exports = (RED) => {
             var sNodeID = "";
             try {
                 node.nodeClients
-                    .filter(input => input.notifywrite == true)
+                    //.map( a => a.topic.indexOf("/") !== -1 ? a.split('/').map( n => +n+100000 ).join('/'):a ).sort().map( a => a.topic.indexOf("/") !== -1 ? a.split('/').map( n => +n-100000 ).join('/'):a )
+                    .sort((a, b) => {
+                        if (a.topic.indexOf("/") === -1) return -1;
+                        if (b.topic.indexOf("/") === -1) return -1;
+                        var date1 = a.topic.split("/");
+                        var date2 = b.topic.split("/");
+                        date1 = date1[0].padStart(2, "0") + date1[1].padStart(2, "0") + date1[2].padStart(2, "0");
+                        date2 = date2[0].padStart(2, "0") + date2[1].padStart(2, "0") + date2[2].padStart(2, "0");
+                        return date1.localeCompare(date2);
+                    })
                     .forEach(input => {
                         sNodeID = "\"" + input.id + "\"";
                         sName = "\"" + input.name + "\"";
@@ -596,7 +605,7 @@ module.exports = (RED) => {
             var sPayloadmeasureunit = "unknown";
             var sDptdesc = "unknown";
             var sPayloadsubtypevalue = "unknown";
-            
+
             if (dpt.subtype !== undefined) {
                 sPayloadmeasureunit = dpt.subtype.unit !== undefined ? dpt.subtype.unit : "unknown";
                 sDptdesc = dpt.subtype.desc !== undefined ? dpt.subtype.desc.charAt(0).toUpperCase() + dpt.subtype.desc.slice(1) : "unknown";
@@ -604,9 +613,9 @@ module.exports = (RED) => {
                     try {
                         if (!Boolean(jsValue)) sPayloadsubtypevalue = dpt.subtype.enc[0];
                         if (Boolean(jsValue)) sPayloadsubtypevalue = dpt.subtype.enc[1];
-                    } catch (error) {                        
+                    } catch (error) {
                     }
-                    
+
                 }
             };
 
