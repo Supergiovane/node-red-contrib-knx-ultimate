@@ -97,7 +97,7 @@ module.exports = function (RED) {
                                     const element = node.server.csv[index];
                                     setTimeout(() => {
                                         node.server.readValue(element.ga);
-                                        node.setNodeStatus({ fill: "yellow", shape: "dot", text: "Read", payload: "", GA: element.ga, dpt: element.dpt, devicename: element.devicename });
+                                        node.setNodeStatus({ fill: "grey", shape: "dot", text: "Read", payload: "", GA: element.ga, dpt: element.dpt, devicename: element.devicename });
                                     }, delay);
                                     delay = delay + 200;
                                 }

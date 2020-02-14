@@ -230,8 +230,13 @@ This option help compatibility with old Siemens SWG1 148-1AB22 IP Interface firm
 </p>
 <p>
 <b>Loglevel</b><br/>
-Define the log level of the underling KNX library. Useful for debugging in case of problem. Normally, you don't need to change this. Require node-red restart to take effect.
+    Define the log level of the underling KNX library. Useful for debugging in case of problem. Normally, you don't need to change this. Require node-red restart to take effect.
 </p>
+<p>
+    <b>List of your nodes in all flows</b><br/>
+    This is a list of all the knx-ultimate nodes, you inserted into your flows. This is useful, for example, to copy each group address and to paste it into a KNX Router filter table, for example. Or you can just check, if you wrongly added two knx-ultimate node with same Group Address but with different Datapoint.
+</p>
+
 <p><b>ETS Group Address list import</b><br/>
 Optionally, you can paste here the CSV file from ETS.<br/>
 Supported ETS versions: ETS 4 and onwards.<br/>
