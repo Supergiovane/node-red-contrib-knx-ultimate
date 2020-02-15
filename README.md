@@ -2,7 +2,7 @@
 
 ![Logo](img/logo-big.png)
 
-![Sample Node](img/readmemain.png)
+<br/>
 
 [![NPM version][npm-version-image]][npm-url]
 [![NPM downloads per month][npm-downloads-month-image]][npm-url]
@@ -10,6 +10,7 @@
 [![MIT License][license-image]][license-url]
 [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
 
+![Sample Node](img/readmemain.png)
 ## DESCRIPTION
 
 * **Knx-ultimate device node** allow you to control your *KNX installation* via Node-Red. You can control all your KNX devices as well as create a *Virtual Device* in Node-Red, to link external *non KNX* devices, and make it compatible with your KNX installation. I'ts very SIMPLE TO USE thus very customizable.  
