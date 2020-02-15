@@ -1,6 +1,6 @@
 # node-red-contrib-knx-ultimate
 
-![Logo](img/logo.png)
+![Logo](img/logo-big.png)
 
 [![NPM version][npm-version-image]][npm-url]
 [![NPM downloads per month][npm-downloads-month-image]][npm-url]
