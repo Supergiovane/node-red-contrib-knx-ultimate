@@ -1,5 +1,3 @@
-# node-red-contrib-knx-ultimate
-
 ![Logo](img/logo-big.png)
 
 <br/>
