@@ -159,6 +159,17 @@ module.exports = (RED) => {
             node.nodeClients.map(nextStatus);
         }
 
+        // 16/02/2020 KNX-Ultimate nodes calls this function, then this funcion calls the same function on the Watchdog
+        node.reportToWatchdogCalledByKNXUltimateNode = (_oError) => {
+            var readHistory = [];
+            let delay = 0;
+            node.nodeClients
+                .filter(oClient => (oClient.isWatchDog !== undefined && oClient.isWatchDog === true))
+                .forEach(oClient => {
+                    oClient.signalNodeErrorCalledByConfigNode(_oError);
+                })
+        }
+
         node.Disconnect = () => {
             node.setAllClientsStatus("Waiting", "grey", "")
             // Remove listener

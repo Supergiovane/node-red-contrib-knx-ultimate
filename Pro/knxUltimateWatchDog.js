@@ -4,39 +4,39 @@ module.exports = function (RED) {
         var node = this;
         node.server = RED.nodes.getNode(config.server);
         node.dpt = "1.001"
-        node.notifyreadrequestalsorespondtobus =  "false"
+        node.notifyreadrequestalsorespondtobus = "false"
         node.notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized = ""
         node.notifyreadrequest = true;
         node.notifyresponse = true
         node.notifywrite = false
-        node.initialread =  false
+        node.initialread = false
         node.listenallga = false
-        node.outputtype = "write" 
-        node.outputRBE =  "false" 
-        node.inputRBE =  "false" 
+        node.outputtype = "write"
+        node.outputRBE = "false"
+        node.inputRBE = "false"
         node.currentPayload = ""
         node.topic = config.topic;
-        node.retryInterval = config.retryInterval !== undefined ? config.retryInterval * 1000: 10000;
+        node.retryInterval = config.retryInterval !== undefined ? config.retryInterval * 1000 : 10000;
         node.maxRetry = config.maxRetry !== undefined ? config.maxRetry : 6;
-        node.autoStart = config.autoStart !== undefined ? config.autoStart: false;
-        if (node.autoStart) node.timerWatchDog = setInterval(handleTheDog, node.retryInterval);  // Autostart watchdog
+        node.autoStart = config.autoStart !== undefined ? config.autoStart : false;
         node.beatNumber = 0; // Telegram counter
+        node.timerWatchDog;
         node.isWatchDog = true;
-        node.checkLevel= config.checkLevel !== undefined ? config.checkLevel : "Ethernet";
-        
+        node.checkLevel = config.checkLevel !== undefined ? config.checkLevel : "Ethernet";
+
         // Used to call the status update from the config node.
         node.setNodeStatus = ({ fill, shape, text, payload, GA, dpt, devicename }) => {
             if (node.icountMessageInWindow == -999) return; // Locked out, doesn't change status.
             var dDate = new Date();
             // 30/08/2019 Display only the things selected in the config
-            _GA= (typeof _GA == "undefined" || GA == "") ? "" : "(" + GA + ") ";
+            _GA = (typeof _GA == "undefined" || GA == "") ? "" : "(" + GA + ") ";
             _devicename = devicename || "";
-            _dpt= (typeof dpt == "undefined" || dpt == "") ? "" : " DPT" + dpt;
-            node.status({ fill: fill, shape: shape, text: _GA + payload + ((node.listenallga && node.server.statusDisplayDeviceNameWhenALL) == true ? " " + _devicename : "") +(node.server.statusDisplayDataPoint == true ? _dpt : "") + (node.server.statusDisplayLastUpdate == true ? " (" + dDate.getDate() + ", " + dDate.toLocaleTimeString() + ")" : "") + " " + text });
+            _dpt = (typeof dpt == "undefined" || dpt == "") ? "" : " DPT" + dpt;
+            node.status({ fill: fill, shape: shape, text: _GA + payload + ((node.listenallga && node.server.statusDisplayDeviceNameWhenALL) == true ? " " + _devicename : "") + (node.server.statusDisplayDataPoint == true ? _dpt : "") + (node.server.statusDisplayLastUpdate == true ? " (" + dDate.getDate() + ", " + dDate.toLocaleTimeString() + ")" : "") + " " + text });
         }
 
-        if (!node.server) return; // 29/08/2019 Server not instantiate
-        
+        if (!node.server) return;
+
         function handleTheDog() {
             node.beatNumber += 1;
             if (node.beatNumber > node.maxRetry) {
@@ -44,7 +44,7 @@ module.exports = function (RED) {
                 node.beatNumber = 0; // Reset Counter
                 msg = {
                     type: "BUSError",
-                    checkPerformed:node.checkLevel,
+                    checkPerformed: node.checkLevel,
                     nodeid: node.id,
                     payload: true,
                     description: "Watchdog elapsed and no response from KNX Bus"
@@ -73,7 +73,7 @@ module.exports = function (RED) {
                     }, 500);
                 };
             } else {
-                // With thes check level "Ethernet + KNX Twisted Pair", i need to obtain the "Response" from the physical device, otherwise the connection TP is broken.
+                // With this check level "Ethernet + KNX Twisted Pair", i need to obtain the "Response" from the physical device, otherwise the connection TP is broken.
                 if (_sTypeOfTelegram === "Response") {
                     // With this check level, i need to obtain at least a response from the KNX/IP Gateway, that is "Read"
                     node.beatNumber = 0; // Reset counter
@@ -84,6 +84,30 @@ module.exports = function (RED) {
             };
         };
 
+        // 16/02/2020 This function is called by the knx-ultimate config node.
+        node.signalNodeErrorCalledByConfigNode = _oError => {
+            // Report an error from knx-ultimate node.
+            // var oError = {nodeid:node.id,topic:node.outputtopic,devicename:_devicename,GA:_GA,text:text};
+            msg = {
+                type: "NodeError",
+                checkPerformed: "Self KNX-Ultimate node reporting a red color status",
+                nodeid: _oError.nodeid,
+                payload: true,
+                description: _oError.text,
+                completeError: _oError
+            };
+            node.send(msg);
+        };
+
+        node.StartWatchDogTimer = () => {
+            node.beatNumber = 0;
+            if (node.timerWatchDog !== undefined) clearInterval(node.timerWatchDog);
+            node.timerWatchDog = setInterval(handleTheDog, node.retryInterval); // 02/01/2020 Start the timer that handles the queue of telegrams
+            node.setNodeStatus({ fill: "green", shape: "dot", text: "WatchDog started.", payload: "", GA: "", dpt: "", devicename: "" })
+        }
+
+        if (node.autoStart) node.StartWatchDogTimer();  // Autostart watchdog
+      
         node.on("input", function (msg) {
 
             if (typeof msg === "undefined") return;
@@ -102,10 +126,7 @@ module.exports = function (RED) {
 
             if (msg.hasOwnProperty("start")) {
                 if (Boolean(msg.start) === true) {
-                    node.beatNumber = 0;
-                    clearInterval(node.timerWatchDog);
-                    node.timerWatchDog = setInterval(handleTheDog, node.retryInterval); // 02/01/2020 Start the timer that handles the queue of telegrams
-                    node.setNodeStatus({ fill: "green", shape: "dot", text: "WatchDog started.", payload: "", GA: "", dpt: "", devicename: "" })
+                    node.StartWatchDogTimer();
                 }
                 else {
                     clearInterval(node.timerWatchDog);
@@ -113,7 +134,7 @@ module.exports = function (RED) {
                 };
             };
         });
-        
+   
         node.on('close', function () {
             clearInterval(node.timerWatchDog);
             if (node.server) {
@@ -128,11 +149,11 @@ module.exports = function (RED) {
             node.server.removeClient(node);
             if (node.topic || node.listenallga) {
                 node.server.addClient(node);
-                if (node.autoStart) node.timerWatchDog = setInterval(handleTheDog, node.retryInterval);  // Autostart watchdog
+                if (node.autoStart) node.StartWatchDogTimer();  // Autostart watchdog
             }
-            
+
         }
-       	
+
     }
     RED.nodes.registerType("knxUltimateWatchDog", knxUltimateWatchDog)
 }
