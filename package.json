@@ -7,9 +7,9 @@
   },
   "node-red": {
     "nodes": {
-      "knxUltimate": "knxUltimate.js",
-      "knxUltimate-config": "knxUltimate-config.js",
-      "knxUltimateWatchDog": "/Pro/knxUltimateWatchDog.js"
+      "knxUltimate": "/nodes/knxUltimate.js",
+      "knxUltimate-config": "/nodes/knxUltimate-config.js",
+      "knxUltimateWatchDog": "/nodes/knxUltimateWatchDog.js"
     }
   },
   "repository": {
