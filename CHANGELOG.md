@@ -7,6 +7,10 @@
 <br/>
 
 <p>
+<b>Version 1.1.30</b><br/>
+- New: the Watchdog node now signals if a knx-ultimate node throws errors as well. <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/8.-WatchDog-Messages-from-the-node" target="_blank">See here output message properties.</a><br/>
+</p>
+<p>
 <b>Version 1.1.29</b><br/>
 - Changed Node KNX Icon, logo and colors, thanks @svenflender <br/>
 - New in config-node: copy/paste friendly text block, with a list of all KNX Nodes (for using, for example, in KNX Router line/zone filters).<br/>
