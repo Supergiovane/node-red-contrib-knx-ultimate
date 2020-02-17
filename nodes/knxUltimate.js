@@ -37,7 +37,7 @@ module.exports = function (RED) {
                 };
             };
         }
-
+        
         // Check if the node has a valid topic and dpt
         if (node.listenallga == false) {
             if (typeof node.topic == "undefined" || typeof node.dpt == "undefined") {
@@ -89,12 +89,12 @@ module.exports = function (RED) {
                     if (node.listenallga == false) {
                         grpaddr = msg && msg.destination ? msg.destination : node.topic
                         node.setNodeStatus({ fill: "grey", shape: "dot", text: "Read", payload: "", GA: grpaddr, dpt: node.dpt, devicename: "" });
-                        node.server.readValue(grpaddr)
+                        node.server.writeQueueAdd({ grpaddr: grpaddr, payload: "", dpt: "", outputtype: "read" });
                     } else { // Listen all GAs
                         if (msg.destination) {
                             // listenallga is true, but the user specified own group address
                             grpaddr = msg.destination
-                            node.server.readValue(grpaddr)
+                            node.server.writeQueueAdd({ grpaddr: grpaddr, payload: "", dpt: "", outputtype: "read" });
                         } else {
                             // Issue read to all group addresses
                             // 25/10/2019 the user is able not import the csv, so i need to check for it. This option should be unckecked by the knxUltimate html config, but..
@@ -102,11 +102,12 @@ module.exports = function (RED) {
                                 let delay = 0;
                                 for (let index = 0; index < node.server.csv.length; index++) {
                                     const element = node.server.csv[index];
+                                    node.server.writeQueueAdd({ grpaddr: element.ga, payload: "", dpt: "", outputtype: "read" });
                                     setTimeout(() => {
-                                        node.server.readValue(element.ga);
+                                        // Timeout is only for the status update.
                                         node.setNodeStatus({ fill: "grey", shape: "dot", text: "Read", payload: "", GA: element.ga, dpt: element.dpt, devicename: element.devicename });
                                     }, delay);
-                                    delay = delay + 200;
+                                    delay = delay + 100;
                                 }
                             }
 

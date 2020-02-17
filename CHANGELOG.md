@@ -7,38 +7,44 @@
 <br/>
 
 <p>
-<b>Version 1.1.30</b><br/>
+<b>Version 1.1.31</b> - Feb 2020<br/>
+- Rewritten the "Send a GrpValue read once on connection/reconnect" using the telegram queue.<br/>
+- New: new underlying API set to knxultimate-api (v. 2.3.7) and patched with last API fixes. From now onwards, knx-ultimate node will switch between underlying <b>knx.js</b> API and his own <b>knxultimate-api</b>, to allow a quicker fix of possible problems with the API.<br/>
+- Relocate nodes in a specific folder.<br/>
+</p>
+<p>
+<b>Version 1.1.30</b> - Feb 2020<br/>
 - New: the Watchdog node now signals if a knx-ultimate node throws errors as well. <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/8.-WatchDog-Messages-from-the-node" target="_blank">See here output message properties.</a><br/>
 </p>
 <p>
-<b>Version 1.1.29</b><br/>
+<b>Version 1.1.29</b> - Feb 2020<br/>
 - Changed Node KNX Icon, logo and colors, thanks @svenflender <br/>
 - New in config-node: copy/paste friendly text block, with a list of all KNX Nodes (for using, for example, in KNX Router line/zone filters).<br/>
 - New: added subtype decoded value **payloadsubtypevalue** ( for exampe, On/Off, Ramp/NoRamp, Start/Stop, Alarm/NoAlarm ). <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Subtype" target="_blank">See here an example</a><br/>
 </p>
 <p>
-<b>Version 1.1.28</b><br/>
+<b>Version 1.1.28</b> - Jan 2020<br/>
 - New: Added topic property<br/>
 - New: added page to wiki, explaining the node protection. <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Protections" target="_blank">Node Protections</a>.<br/>
 - Updated Wiki to reflect the new changes.<br/>
 </p>
 <p>
-<b>Version 1.1.27</b><br/>
+<b>Version 1.1.27</b> - Jan 2020<br/>
 - New: added payloadmeasureunit to the node's msg output (for example "W" or "%"), based on Datapoint type.<br/>
 - New: added knx.dptdesc to the node's msg output (for example "Power" or "Humidity").<br/>
 - New: added Loglevel option in config-node, for debugging pourpose only. Thanks Heleon19.<br/>
 </p>
 <p>
-<b>Version 1.1.26</b><br/>
+<b>Version 1.1.26</b> - Jan 2020<br/>
 - New: Watchdog Node added. Please <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/7.-WatchDog-Configuration" target="_blank">consult the Wiki</a>.<br/>
 - Changed category (the node's list on left panel of node-red) to "KnxUltimate", to accomodate the Watchdog node.<br/>
 </p>
 <p>
-<b>Version 1.1.25</b><br/>
+<b>Version 1.1.25</b> - Jan 2020<br/>
 - New: ability to programmatically change the KNX/IP interface or router's IP, Port, Physical Address and reset local ETH Interface Binding.<br/>
 </p>
 <p>
-<b>Version 1.1.24</b><br/>
+<b>Version 1.1.24</b> - Jan 2020<br/>
 - FIX: If the message has no payload and no readstatus, throw an error. If you requests a readstatus, there's no need to pass a payload. Previously, the node has gone in stop mode if the payload was null, thus having readstatus.<br/>
 - Added Read Request sample in the Wiki.<br/>
 </p>

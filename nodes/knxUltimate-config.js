@@ -1,5 +1,5 @@
-const knx = require('knx')
-const dptlib = require('knx/src/dptlib')
+const knx = require('knxultimate-api')
+const dptlib = require('knxultimate-api/src/dptlib')
 const oOS = require('os')
 
 //Helpers
@@ -77,6 +77,7 @@ module.exports = (RED) => {
         node.statusDisplayDataPoint = config.statusDisplayDataPoint || false;
         node.telegramsQueue = [];  // 02/01/2020 Queue containing telegrams
         node.timerSendTelegramFromQueue = setInterval(handleTelegramQueue, 50); // 02/01/2020 Start the timer that handles the queue of telegrams
+        node.timerDoInitialRead; // 17/02/2020 Timer (timeout) to do initial read of all nodes requesting initial read, after all nodes have been registered to the sercer
         node.stopETSImportIfNoDatapoint = typeof config.stopETSImportIfNoDatapoint === "undefined" ? "stop" : config.stopETSImportIfNoDatapoint; // 09/01/2020 Stop or Skip the import if a group address has unset datapoint
         node.csv = readCSV(config.csv); // Array from ETS CSV Group Addresses
         node.loglevel = config.loglevel !== undefined ? config.loglevel : "info"; // 06/02/2020 by Heleon19 Loglevel default info
@@ -171,6 +172,8 @@ module.exports = (RED) => {
         }
 
         node.Disconnect = () => {
+            if (node.timerDoInitialRead !== undefined) clearTimeout(timerDoInitialRead); // 17/02/2020 Stop the initial read timer
+            node.telegramsQueue = []; // 02/01/2020 clear the telegram queue
             node.setAllClientsStatus("Waiting", "grey", "")
             // Remove listener
             try {
@@ -217,11 +220,7 @@ module.exports = (RED) => {
                 // 14/08/2018 Initialize the connection
                 node.initKNXConnection();
             }
-            if (_Node.initialread) {
-                node.readValue(_Node.topic);
-            }
         }
-
 
         node.removeClient = (_Node) => {
             // Remove the client node from the clients array
@@ -239,45 +238,31 @@ module.exports = (RED) => {
         }
 
 
-        node.readInitialValues = () => {
+        // 17/02/2020 Do initial read (called by node.timerDoInitialRead timer)
+        function readInitialValues() {
             if (node.linkStatus !== "connected") return; // 29/08/2019 If not connected, exit
+            RED.log.info("knxUltimate: Do readInitialValues");
             if (node.knxConnection) {
                 var readHistory = [];
-                let delay = 0;
                 node.nodeClients
                     .filter(oClient => oClient.initialread)
                     .forEach(oClient => {
                         if (oClient.listenallga == true) {
-                            delay = delay + 200
                             for (let index = 0; index < node.csv.length; index++) {
                                 const element = node.csv[index];
-                                if (readHistory.includes(element.ga)) return
-                                setTimeout(() => node.readValue(element.ga), delay)
+                                if (readHistory.includes(element.ga)) return;
+                                node.writeQueueAdd({ grpaddr: element.ga, payload: "", dpt: "", outputtype: "read" });
                                 readHistory.push(element.ga)
                             }
                         } else {
-                            if (readHistory.includes(oClient.topic)) return
-                            setTimeout(() => node.readValue(oClient.topic), delay)
-                            delay = delay + 200
+                            if (readHistory.includes(oClient.topic)) return;
+                            node.writeQueueAdd({ grpaddr: oClient.topic, payload: "", dpt: "", outputtype: "read" });
                             readHistory.push(oClient.topic)
                         }
-
                     })
             }
         }
 
-
-        node.readValue = topic => {
-            if (node.linkStatus !== "connected") return; // 29/08/2019 If not connected, exit
-            if (node.knxConnection) {
-                try {
-                    node.knxConnection.read(topic)
-                } catch (error) {
-                    RED.log.error('knxUltimate: readValue: (' + topic + ') ' + error);
-                }
-
-            }
-        }
 
         // 01/02/2020 Dinamic change of the KNX Gateway IP, Port and Physical Address
         // This new thing has been requested by proServ RealKNX staff.
@@ -310,7 +295,9 @@ module.exports = (RED) => {
                     connected: () => {
                         node.linkStatus = "connected";
                         node.setAllClientsStatus("Connected", "green", "Waiting for telegram.")
-                        node.readInitialValues() // Perform initial read if applicable
+                        // Start the timer to do initial read.
+                        if (node.timerDoInitialRead !== undefined) clearTimeout(timerDoInitialRead);
+                        node.timerDoInitialRead = setTimeout(readInitialValues, 5000); // 17/02/2020 Do initial read of all nodes requesting initial read, after all nodes have been registered to the sercer
                     },
                     error: function (connstatus) {
                         // NO_ERROR: 0x00, // E_NO_ERROR - The connection was established succesfully
@@ -327,10 +314,10 @@ module.exports = (RED) => {
                         // E_TUNNELING_LAYER: 0x29,
                         node.linkStatus = "disconnected";
                         if (connstatus == "E_KNX_CONNECTION") {
-                            setTimeout(() => node.setAllClientsStatus(connstatus, "red", "Error on KNX BUS. Check KNX red/black connector and cable."), 2000)
+                            setTimeout(() => node.setAllClientsStatus(connstatus, "grey", "Error on KNX BUS. Check KNX red/black connector and cable."), 2000)
                             RED.log.error("knxUltimate: Bind KNX Bus to interface error: " + connstatus);
                         } else {
-                            setTimeout(() => node.setAllClientsStatus(connstatus, "red", "Error"), 2000)
+                            setTimeout(() => node.setAllClientsStatus(connstatus, "grey", "Error"), 2000)
                             RED.log.error("knxUltimate: knxConnection error: " + connstatus);
                         }
 
@@ -527,10 +514,11 @@ module.exports = (RED) => {
                 }
                 // Retrieving oKNXMessage  { grpaddr, payload,dpt,outputtype (write or response)}
                 var oKNXMessage = node.telegramsQueue[node.telegramsQueue.length - 1]; // Get the last message in the queue
-                // RED.log.error("handling " + oKNXMessage.grpaddr + " " +  oKNXMessage.payload + " " + oKNXMessage.dpt);
                 node.telegramsQueue.pop();// Remove the last message from the queue.
                 if (oKNXMessage.outputtype === "response") {
                     node.knxConnection.respond(oKNXMessage.grpaddr, oKNXMessage.payload, oKNXMessage.dpt);
+                } else if (oKNXMessage.outputtype === "read") {
+                    node.knxConnection.read(oKNXMessage.grpaddr);
                 } else {
                     node.knxConnection.write(oKNXMessage.grpaddr, oKNXMessage.payload, oKNXMessage.dpt);
                 }
@@ -652,8 +640,7 @@ module.exports = (RED) => {
 
 
         node.on("close", function () {
-            clearInterval(node.timerSendTelegramFromQueue); // 02/01/2020 Stop queue timer
-            node.telegramsQueue = []; // 02/01/2020 clear the telegram queue
+            if (node.timerSendTelegramFromQueue !== undefined) clearInterval(node.timerSendTelegramFromQueue); // 02/01/2020 Stop queue timer
             node.Disconnect();
         })
 
