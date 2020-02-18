@@ -1,5 +1,8 @@
-const knx = require('knxultimate-api')
-const dptlib = require('knxultimate-api/src/dptlib')
+const knx = require('knx');
+const dptlib = require('knx/src/dptlib');
+// const knx = require('knxultimate-api');
+// const dptlib = require('knxultimate-api/src/dptlib');
+
 const oOS = require('os')
 
 //Helpers
@@ -355,27 +358,18 @@ module.exports = (RED) => {
                                         oGA = node.csv.filter(sga => sga.ga == dest)[0];
                                     } catch (error) { }
 
-                                    // 25/10/2019 TRY TO AUTO DECODE
-                                    // --------------------------------
-                                    if (typeof oGA === "undefined") {
-                                        // 25/10/2019 from v. 1.1.11, try to decode and output a datapoint.
-                                        let msg = buildInputMessage(src, dest, evt, rawValue, tryToFigureOutDataPointFromRawValue(rawValue, dest), "", dest);
-                                        input.setNodeStatus({ fill: "green", shape: "dot", text: "Try to decode", payload: msg.payload, GA: msg.knx.destination, dpt: "", devicename: "" });
-                                        input.send(msg)
-                                        // --------------------------------
+                                    // 25/10/2019 TRY TO AUTO DECODE IF Group address not found in the CSV
+                                    let msg = buildInputMessage({ _srcGA: src, _destGA: dest, _event: evt, _Rawvalue: rawValue, _inputDpt: (typeof oGA === "undefined") ? null : oGA.dpt, _devicename: (typeof oGA === "undefined") ? "" : oGA.devicename, _outputtopic: dest, _oNode: input });
+                                    input.setNodeStatus({ fill: "green", shape: "dot", text: (typeof oGA === "undefined") ? "Try to decode" : "", payload: msg.payload, GA: msg.knx.destination, dpt: msg.knx.dpt, devicename: msg.devicename });
+                                    input.send(msg)
 
-                                    } else {
-                                        let msg = buildInputMessage(src, dest, evt, rawValue, oGA.dpt, oGA.devicename, dest);
-                                        input.setNodeStatus({ fill: "green", shape: "dot", text: "", payload: msg.payload, GA: msg.knx.destination, dpt: msg.knx.dpt, devicename: msg.devicename });
-                                        input.send(msg)
-                                    }
                                 } else if (input.topic == dest) {
                                     // 04/02/2020 Watchdog implementation
                                     if (input.hasOwnProperty("isWatchDog")) {
                                         // Is a watchdog node
                                         input.evalCalledByConfigNode("Write");
                                     } else {
-                                        let msg = buildInputMessage(src, dest, evt, rawValue, input.dpt, input.name ? input.name : "", input.outputtopic)
+                                        let msg = buildInputMessage({ _srcGA: src, _destGA: dest, _event: evt, _Rawvalue: rawValue, _inputDpt: input.dpt, _devicename: input.name ? input.name : "", _outputtopic: input.outputtopic, _oNode: input })
                                         // Check RBE INPUT from KNX Bus, to avoid send the payload to the flow, if it's equal to the current payload
                                         if (!checkRBEInputFromKNXBusAllowSend(input, msg.payload)) {
                                             input.setNodeStatus({ fill: "grey", shape: "ring", text: "rbe block (" + msg.payload + ") from KNX", payload: "", GA: "", dpt: "", devicename: "" })
@@ -402,19 +396,11 @@ module.exports = (RED) => {
                                         oGA = node.csv.filter(sga => sga.ga == dest)[0];
                                     } catch (error) { }
 
-                                    // 25/10/2019 TRY TO AUTO DECODE
-                                    // --------------------------------
-                                    if (typeof oGA === "undefined") {
-                                        let msg = buildInputMessage(src, dest, evt, rawValue, tryToFigureOutDataPointFromRawValue(rawValue, dest), "", dest)
-                                        input.setNodeStatus({ fill: "green", shape: "dot", text: "Try to decode", payload: msg.payload, GA: msg.knx.destination, dpt: "", devicename: "" });
-                                        input.send(msg)
-                                        // --------------------------------
+                                    // 25/10/2019 TRY TO AUTO DECODE IF Group address not found in the CSV
+                                    let msg = buildInputMessage({ _srcGA: src, _destGA: dest, _event: evt, _Rawvalue: rawValue, _inputDpt: (typeof oGA === "undefined") ? null : oGA.dpt, _devicename: (typeof oGA === "undefined") ? "" : oGA.devicename, _outputtopic: dest, _oNode: input });
+                                    input.setNodeStatus({ fill: "green", shape: "dot", text: (typeof oGA === "undefined") ? "Try to decode" : "", payload: msg.payload, GA: msg.knx.destination, dpt: msg.knx.dpt, devicename: msg.devicename });
+                                    input.send(msg)
 
-                                    } else {
-                                        let msg = buildInputMessage(src, dest, evt, rawValue, oGA.dpt, oGA.devicename, dest)
-                                        input.setNodeStatus({ fill: "blue", shape: "dot", text: "", payload: msg.payload, GA: msg.knx.destination, dpt: msg.knx.dpt, devicename: msg.devicename });
-                                        input.send(msg)
-                                    };
                                 } else if (input.topic == dest) {
 
                                     // 04/02/2020 Watchdog implementation
@@ -422,7 +408,7 @@ module.exports = (RED) => {
                                         // Is a watchdog node
                                         input.evalCalledByConfigNode("Response");
                                     } else {
-                                        let msg = buildInputMessage(src, dest, evt, rawValue, input.dpt, input.name ? input.name : "", input.outputtopic)
+                                        let msg = buildInputMessage({ _srcGA: src, _destGA: dest, _event: evt, _Rawvalue: rawValue, _inputDpt: input.dpt, _devicename: input.name ? input.name : "", _outputtopic: input.outputtopic, _oNode: input })
                                         // Check RBE INPUT from KNX Bus, to avoid send the payload to the flow, if it's equal to the current payload
                                         if (!checkRBEInputFromKNXBusAllowSend(input, msg.payload)) {
                                             input.setNodeStatus({ fill: "grey", shape: "ring", text: "rbe INPUT filter applied on " + msg.payload })
@@ -450,20 +436,11 @@ module.exports = (RED) => {
                                         oGA = node.csv.filter(sga => sga.ga == dest)[0];
                                     } catch (error) { }
 
-                                    // 25/10/2019 TRY TO AUTO DECODE
-                                    // --------------------------------
-                                    if (typeof oGA === "undefined") {
-                                        // 25/10/2019 from v. 1.1.11, try to decode and output a datapoint.
-                                        let msg = buildInputMessage(src, dest, evt, null, tryToFigureOutDataPointFromRawValue(rawValue, dest), "", dest)
-                                        input.setNodeStatus({ fill: "green", shape: "dot", text: "Try to decode", payload: msg.payload, GA: msg.knx.destination, dpt: "", devicename: "" });
-                                        input.send(msg)
-                                        // --------------------------------
+                                    // 25/10/2019 TRY TO AUTO DECODE IF Group address not found in the CSV
+                                    let msg = buildInputMessage({ _srcGA: src, _destGA: dest, _event: evt, _Rawvalue: null, _inputDpt: (typeof oGA === "undefined") ? null : oGA.dpt, _devicename: (typeof oGA === "undefined") ? "" : oGA.devicename, _outputtopic: dest, _oNode: input });
+                                    input.setNodeStatus({ fill: "green", shape: "dot", text: (typeof oGA === "undefined") ? "Try to decode" : "", payload: msg.payload, GA: msg.knx.destination, dpt: msg.knx.dpt, devicename: msg.devicename });
+                                    input.send(msg)
 
-                                    } else {
-                                        let msg = buildInputMessage(src, dest, evt, null, oGA.dpt, oGA.devicename, dest);
-                                        input.setNodeStatus({ fill: "grey", shape: "dot", text: "Read", payload: msg.payload, GA: msg.knx.destination, dpt: msg.knx.dpt, devicename: msg.devicename });
-                                        input.send(msg);
-                                    }
                                 } else if (input.topic == dest) {
 
                                     // 04/02/2020 Watchdog implementation
@@ -471,8 +448,8 @@ module.exports = (RED) => {
                                         // Is a watchdog node
                                         input.evalCalledByConfigNode("Read");
                                     } else {
-                                        let msg = buildInputMessage(src, dest, evt, null, input.dpt, input.name ? input.name : "", input.outputtopic);
-                                        msg.previouspayload = typeof input.currentPayload !== "undefined" ? input.currentPayload : ""; // 24/01/2020 Added previous payload
+                                        let msg = buildInputMessage({ _srcGA: src, _destGA: dest, _event: evt, _Rawvalue: null, _inputDpt: input.dpt, _devicename: input.name ? input.name : "", _outputtopic: input.outputtopic, _oNode: input })
+                                        msg.previouspayload = typeof input.currentPayload !== "undefined" ? input.currentPayload : ""; // 24/01/2020 Reset previous payload
                                         // 24/09/2019 Autorespond to BUS
                                         if (input.notifyreadrequestalsorespondtobus === true) {
                                             if (typeof input.currentPayload === "undefined" || input.currentPayload === "") {
@@ -525,9 +502,34 @@ module.exports = (RED) => {
             }
         }
 
+        // 14/08/2019 If the node has payload same as the received telegram, return false
+        checkRBEInputFromKNXBusAllowSend = (_node, _KNXTelegramPayload) => {
+            if (_node.inputRBE !== true) return true;
+            if (typeof _node.currentPayload === "undefined") return true;
+            var curVal = _node.currentPayload.toString().toLowerCase();
+            var newVal = _KNXTelegramPayload.toString().toLowerCase();
+            if (curVal === "false") {
+                curVal = "0";
+            }
+            if (curVal === "true") {
+                curVal = "1";
+            }
+            if (newVal === "false") {
+                newVal = "0";
+            }
+            if (newVal === "true") {
+                newVal = "1";
+            }
+            if (curVal === newVal) {
+                return false;
+            }
+            return true;
+        }
+
         // 26/10/2019 Try to figure out the datapoint type from raw value
         function tryToFigureOutDataPointFromRawValue(_rawValue) {
             // 25/10/2019 Try some Datapoints
+            if (_rawValue === null) return "1.001";
             if (_rawValue.length == 1) {
                 if (_rawValue[0].toString() == "0" || _rawValue[0].toString() == "1") {
                     return "1.001"; // True/False?
@@ -568,39 +570,46 @@ module.exports = (RED) => {
             }
         }
 
-
-        // 14/08/2019 If the node has payload same as the received telegram, return false
-        checkRBEInputFromKNXBusAllowSend = (_node, _KNXTelegramPayload) => {
-            if (_node.inputRBE !== true) return true;
-            if (typeof _node.currentPayload === "undefined") return true;
-            var curVal = _node.currentPayload.toString().toLowerCase();
-            var newVal = _KNXTelegramPayload.toString().toLowerCase();
-            if (curVal === "false") {
-                curVal = "0";
-            }
-            if (curVal === "true") {
-                curVal = "1";
-            }
-            if (newVal === "false") {
-                newVal = "0";
-            }
-            if (newVal === "true") {
-                newVal = "1";
-            }
-            if (curVal === newVal) {
-                return false;
-            }
-            return true;
-        }
-
-
-        function buildInputMessage(src, dest, evt, value, inputDpt, _devicename, _outputtopic) {
+        function buildInputMessage({ _srcGA, _destGA, _event, _Rawvalue, _inputDpt, _devicename, _outputtopic, _oNode }) {
             // Resolve DPT and convert value if available
-            var dpt = dptlib.resolve(inputDpt);
-            var jsValue = null
-            if (dpt && value) {
-                var jsValue = dptlib.fromBuffer(value, dpt)
+            sInputDpt = (_inputDpt === null) ? tryToFigureOutDataPointFromRawValue(_Rawvalue) : _inputDpt;
+            var dpt = dptlib.resolve(sInputDpt);
+            var jsValue = null;
+            if (dpt && _Rawvalue !== null) {
+                var jsValue = dptlib.fromBuffer(_Rawvalue, dpt)
             }
+
+            // Formatting the msg output value
+            if (_oNode !== null && jsValue !== null) {
+                if (typeof jsValue === "number") {
+
+                    //if (_destGA == "12/0/3") RED.log.warn("Original: " + jsValue);
+
+                    // multiplier
+                    jsValue = jsValue * _oNode.formatmultiplyvalue;
+                    //if (_destGA == "12/0/3") RED.log.warn("Multiply: " + jsValue);
+
+                    // Number of decimals
+                    if (_oNode.formatdecimalsvalue == 999) {
+                        // Leave as is
+                    } else {
+                        // Round
+                        jsValue = +(Math.round(jsValue + "e+" + _oNode.formatdecimalsvalue) + "e-" + _oNode.formatdecimalsvalue);
+                    }
+                    //if (_destGA == "12/0/3") RED.log.warn("Decimals: " + jsValue + " decimali " + _oNode.formatdecimalsvalue);
+
+                    // leave, zero or abs
+                    if (jsValue < 0) {
+                        if (_oNode.formatnegativevalue == "zero") {
+                            jsValue = 0;
+                        } else if (_oNode.formatnegativevalue == "abs") {
+                            jsValue = Math.abs(jsValue);
+                        }
+                    }
+                    //if (_destGA == "12/0/3") RED.log.warn("Seminorezero: " + jsValue);
+                }
+            }
+
             var sPayloadmeasureunit = "unknown";
             var sDptdesc = "unknown";
             var sPayloadsubtypevalue = "unknown";
@@ -614,7 +623,6 @@ module.exports = (RED) => {
                         if (Boolean(jsValue)) sPayloadsubtypevalue = dpt.subtype.enc[1];
                     } catch (error) {
                     }
-
                 }
             };
 
@@ -627,13 +635,13 @@ module.exports = (RED) => {
                 , devicename: (typeof _devicename !== 'undefined') ? _devicename : ""
                 , knx:
                 {
-                    event: evt
-                    , dpt: inputDpt
+                    event: _event
+                    , dpt: sInputDpt
                     //, details: dpt
                     , dptdesc: sDptdesc
-                    , source: src
-                    , destination: dest
-                    , rawValue: value
+                    , source: _srcGA
+                    , destination: _destGA
+                    , rawValue: _Rawvalue
                 }
             };
         };

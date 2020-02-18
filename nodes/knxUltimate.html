@@ -19,14 +19,17 @@
             outputtype: { value: "write" },
             outputRBE: { value: true },
             inputRBE: { value: false },
+            formatmultiplyvalue: { value: 1 },
+            formatnegativevalue: { value: "leave" },
+            formatdecimalsvalue: { value: 999 }
         },
         inputs: 1,
         outputs: 1,
         icon: "node-knx-icon.png",
         label: function () {
-            return (this.outputRBE==true ? "|rbe| " : "") + (this.name || this.topic || "knx-ultimate") + (this.inputRBE==true ? " |rbe|" : "" )
+            return (this.outputRBE == true ? "|rbe| " : "") + (this.name || this.topic || "knx-ultimate") + (this.inputRBE == true ? " |rbe|" : "")
         },
-        paletteLabel : "KNX Device",
+        paletteLabel: "KNX Device",
         // button: {
         //     enabled: function() {
         //         // return whether or not the button is enabled, based on the current
@@ -59,25 +62,25 @@
                 $("#node-input-notifywrite").prop("checked", true)
                 $("#node-input-notifyresponse").prop("checked", true)
             }
-           
-              // Add Write as default for existing clients output
-              if (typeof this.outputtype === 'undefined') {
+
+            // Add Write as default for existing clients output
+            if (typeof this.outputtype === 'undefined') {
                 this.outputtype = "write"
                 $("#node-input-outputtype").val("write")
             }
 
-            $("#node-input-notifyreadrequest").on('change',function() {
+            $("#node-input-notifyreadrequest").on('change', function () {
                 if ($("#node-input-notifyreadrequest").is(":checked")) {
                     if ($("#node-input-listenallga").is(":checked")) {
-                    }else{
-                       $("#divnotifyreadrequestautoreact").show();
+                    } else {
+                        $("#divnotifyreadrequestautoreact").show();
                     }
-                }else{
+                } else {
                     $("#divnotifyreadrequestautoreact").hide();
                 }
             })
 
-            $("#node-input-listenallga").on('change',function() {
+            $("#node-input-listenallga").on('change', function () {
                 if ($("#node-input-listenallga").is(":checked")) {
                     $("#GAandDPT").hide()
                     $("#divOutputRBE").hide()
@@ -87,24 +90,23 @@
                     $("#divnotifyreadrequestautoreact").hide();
                     $("#helpallga").show();
                     $("#divTopic").hide()
-                    if ($("#helpallga").html==""){
+                    if ($("#helpallga").html == "") {
                         // There is a ETS csv file, show the init read option
                         $("#divNode-input-initialread").show()
                     }
-                    else
-                    {
+                    else {
                         // There isn't a ETS csv file, hide and deselect the init read option
                         $("#divNode-input-initialread").hide();
                         $("#node-input-initialread").prop('checked', false);
                     }
-                }else{
+                } else {
                     $("#GAandDPT").show()
                     $("#divOutputRBE").show()
                     $("#divInputRBE").show()
                     $("#divTopic").show()
                     if ($("#node-input-notifyreadrequest").is(":checked")) {
                         $("#divnotifyreadrequestautoreact").show();
-                    }else{
+                    } else {
                         $("#divnotifyreadrequestautoreact").hide();
                     }
                     $("#helpallga").hide()
@@ -112,17 +114,17 @@
                 }
             })
 
-           // Autocomplete suggestion with ETS csv File
-            $( "#node-input-topic" ).autocomplete({
+            // Autocomplete suggestion with ETS csv File
+            $("#node-input-topic").autocomplete({
                 minLength: 1,
-                source: function( request, response ) {
+                source: function (request, response) {
                     //$.getJSON("csv", request, function( data, status, xhr ) {
                     $.getJSON("knxUltimatecsv", (data) => {
                         response($.map(data, function (value, key) {
-                            var sSearch = (value.ga + " (" + value.devicename+") DPT"+value.dpt).toUpperCase();
-                            if (sSearch.indexOf(request.term.toUpperCase()) != -1) {				
+                            var sSearch = (value.ga + " (" + value.devicename + ") DPT" + value.dpt).toUpperCase();
+                            if (sSearch.indexOf(request.term.toUpperCase()) != -1) {
                                 return {
-                                    label: value.ga + " # " + value.devicename+" # "+value.dpt, // Label for Display
+                                    label: value.ga + " # " + value.devicename + " # " + value.dpt, // Label for Display
                                     value: value.ga // Value
                                 }
                             } else {
@@ -130,39 +132,38 @@
                             }
                         }));
                     });
-                },select: function(event, ui) {
+                }, select: function (event, ui) {
                     // Sets Datapoint and device name automatically
-                    var sDevName=ui.item.label.split("#")[1].trim();
+                    var sDevName = ui.item.label.split("#")[1].trim();
                     try {
-                        sDevName=sDevName.substr(sDevName.indexOf(")")+1).trim();
+                        sDevName = sDevName.substr(sDevName.indexOf(")") + 1).trim();
                     } catch (error) {
                     }
                     $('#node-input-name').val(sDevName);
-                    var optVal = $("#node-input-dpt option:contains('"+ui.item.label.split("#")[2].trim()+"')").attr('value');
+                    var optVal = $("#node-input-dpt option:contains('" + ui.item.label.split("#")[2].trim() + "')").attr('value');
                     // Select the option value 
                     $("#node-input-dpt").val(optVal);
                 }
-              });
+            });
 
             // Hide or show the GA and DPT fields if Notify on all Group Addresses is checked
-            if(this.server){
-                if (typeof RED.nodes.node(this.server).csv !== 'undefined' && RED.nodes.node(this.server).csv!="") {
+            if (this.server) {
+                if (typeof RED.nodes.node(this.server).csv !== 'undefined' && RED.nodes.node(this.server).csv != "") {
                     $("#helpallga").html("");
                     // There is a ETS csv file, show the init read option
                     $("#divNode-input-initialread").show()
-                 }else{
+                } else {
                     // 25/10/2019 Warn user that the node will node encode/decode datagram, if Listen All GA's if the config node doesn't contain the csv
                     $("#helpallga").html("<i> You haven't imported the ETS csv file. <br/> The node will work as blind transmitter/receiver. <a href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/2.-Node-Configuration\" target='_blank'>See the wiki about that</a>.</i>");
                     if ($("#node-input-listenallga").is(":checked")) {
                         // There isn't a ETS csv file, hide and deselect the init read option
                         $("#divNode-input-initialread").hide();
                         $("#node-input-initialread").prop('checked', false);
-                    }else
-                    {
+                    } else {
                         $("#divNode-input-initialread").show()
                     }
                 }
-            }else{
+            } else {
                 $("#node-input-listenallga").prop("checked", false)
                 $("#divTopic").show()
                 $("#GAandDPT").show()
@@ -175,47 +176,56 @@
             // 02/01/2020 Advanced options Collapsible script
             // *****************************
             $("#advancedOptionsAccordion").accordion({
-                header:"h3",
-                heightStyle: "content", 
+                header: "h3",
+                heightStyle: "content",
                 collapsible: true,
                 active: false
             });
             // Auto open accordion if the default fields have been changed
-            if (this.notifyreadrequest !== false || 
+            if (this.notifyreadrequest !== false ||
                 this.notifyresponse !== false ||
                 this.notifywrite !== true ||
                 this.outputtype !== "write" ||
                 this.outputRBE !== true ||
                 this.inputRBE !== false
-                ) {
-                    $("#advancedOptionsAccordion").accordion({ active: 0 });
+            ) {
+                $("#advancedOptionsAccordion").accordion({ active: 0 });
             }
             // *****************************
-            
+
+            // 18/02/2020 KNX Value format Collapsible script
+            // *****************************
+            $("#formatValueAccordion").accordion({
+                header: "h3",
+                heightStyle: "content",
+                collapsible: true,
+                active: false
+            });
+            // *****************************
 
         },
-        oneditsave: function(){
-             // 25/10/2019 Warn user that the node will node encode/decode datagram, if Listen All GA's if the config node doesn't contain the csv
-             if(this.server){
-                if (typeof RED.nodes.node(this.server).csv !== 'undefined' && RED.nodes.node(this.server).csv!="") {
-                }else{
-                   
+        oneditsave: function () {
+            // 25/10/2019 Warn user that the node will node encode/decode datagram, if Listen All GA's if the config node doesn't contain the csv
+            if (this.server) {
+                if (typeof RED.nodes.node(this.server).csv !== 'undefined' && RED.nodes.node(this.server).csv != "") {
+                } else {
+
                     // Notify the user
-                     if($("#node-input-listenallga").is(":checked")){
-                        var checkResult="Universal mode (listen to all Group Addresses) needs a valid ETS csv to be able to decode datatypes and output device names. Please paste the ETS csv in the config node. If you don't use ETS csv file, the node will work als blind transmitter/receiver and you need to pass in the input message, the datatype besides the value."
-                        var myNotification= RED.notify(checkResult,
-                        {
-                            modal: true,
-                            fixed: true,
-                            type: 'error',
-                            buttons: [
-                                {
-                                    text: "OK",
-                                    click: function(e) {
-                                        myNotification.close();
-                                    }
-                                }]
-                        })
+                    if ($("#node-input-listenallga").is(":checked")) {
+                        var checkResult = "Universal mode (listen to all Group Addresses) needs a valid ETS csv to be able to decode datatypes and output device names. Please paste the ETS csv in the config node. If you don't use ETS csv file, the node will work als blind transmitter/receiver and you need to pass in the input message, the datatype besides the value."
+                        var myNotification = RED.notify(checkResult,
+                            {
+                                modal: true,
+                                fixed: true,
+                                type: 'error',
+                                buttons: [
+                                    {
+                                        text: "OK",
+                                        click: function (e) {
+                                            myNotification.close();
+                                        }
+                                    }]
+                            })
                     }
                     // $("#node-input-listenallga").prop("checked", false)
                     // $("#GAandDPT").show()
@@ -223,7 +233,7 @@
                     // $("#divInputRBE").show()
                     $("#helpallga").show()
                 }
-            }else{
+            } else {
                 $("#node-input-listenallga").prop("checked", false)
                 $("#GAandDPT").show()
                 $("#divOutputRBE").show()
@@ -232,9 +242,9 @@
             }
         }
 
-        
+
     })
-    
+
 </script>
 
 <script type="text/x-red" data-template-name="knxUltimate">
@@ -325,7 +335,48 @@
                 </div>
             </p>
         </div>
-    </div>        
+    </div>     
+    
+    <div id="formatValueAccordion">
+        <h3>Custom KNX message value formatting</h3>
+        <div>
+            <p>
+                <dt><i class="fa fa-sort-numeric-asc"></i>&nbsp; NUMERIC VALUES (operations are performed in order)</dt><br/ >
+                <div class="form-row">
+                    <label for="node-input-formatmultiplyvalue"><i class="fa fa-calculator"></i> Multiply </label>
+                    <select id="node-input-formatmultiplyvalue">
+                        <option value=0.001>Divide x 1000</option>
+                        <option value=0.01>Divide x 100</option>
+                        <option value=0.1>Divide x 10</option>
+                        <option value=1>Leave unchanged (Default)</option>
+                        <option value=10>Multiply x 10</option>
+                        <option value=100>Multiply x 100</option>
+                        <option value=1000>Multiply x 1000</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <label for="node-input-formatdecimalsvalue"><i class="fa fa-expand"></i> Decimals</label>
+                    <select id="node-input-formatdecimalsvalue">
+                       <option value=999>Leave unchanged (Default)</option>
+                       <option value=0>Round to integer (no decimals)</option> 
+                       <option value=1>Round to 1 decimal</option> 
+                       <option value=2>Round to 2 decimal</option>
+                       <option value=3>Round to 3 decimal</option>
+                       <option value=4>Round to 4 decimal</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <label for="node-input-formatnegativevalue"><i class="fa fa-minus-circle"></i> Negatives</label>
+                    <select id="node-input-formatnegativevalue">
+                        <option value="leave">Leave unchanged (Default)</option>
+                        <option value="zero">Output zero</option>
+                        <option value="abs">Output absolute value (remove the minus sign)</option>
+                    </select>
+                </div>
+             
+            </p>
+        </div>
+    </div>     
 </script>
 
 <script type="text/x-red" data-help-name="knxUltimate">
@@ -394,6 +445,24 @@
                 </dd>
             </dl>
         </p>
+
+       
+        <dl class="message-properties">
+            <h3>Custom KNX message value formatting</h3>
+            <p>This section allow you to manipulate the value coming from KNX BUS and to output a formatted payload to the flow.</p>
+            <b>NUMERIC VALUES (operations are performed in order)</b>
+            
+                <dt>Multiply</dt>
+                <dd>Multiply or divide the value.</dd>
+    
+                <dt>Decimals</dt>
+                <dd>Select how many decimals to keep. The value will then be rouded.</dd>
+
+                <dt>Negatives</dt>
+                <dd>It can be sometime necessary to manipulate the negative values, if these doesn't make sense. For example, if you have a washing machine that is off, and a power meter attached to it, sometime the watt-meter shows a negative value, for example -0,4 Watt. With this option, you can send 0 every time the value is negative.</dd>
+        </dl>
+
+
         <p>
             <b>MSG FORMAT</b><br/>
             <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/3.-Messages-from-the-node" target="_blank">Click here for msg output format</a>.<br />

@@ -1,10 +1,10 @@
 {
   "name": "node-red-contrib-knx-ultimate",
-  "version": "1.1.31",
+  "version": "1.1.32",
   "description": "Single Node KNX IN/OUT with optional ETS group address importer. Easy to use and highly configurable. Control your KNX intallation via Node-Red!",
   "dependencies": {
     "knxultimate-api": "2.3.7",
-    "knx": "2.3.6"
+    "knx": "2.3.7"
   },
   "node-red": {
     "nodes": {

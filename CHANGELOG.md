@@ -1,11 +1,13 @@
-
-
-![Sample Node](img/logo.png) 
+![Sample Node](img/logo.png)
 
 [![Donate via PayPal](https://img.shields.io/badge/Donate-PayPal-blue.svg?style=flat-square)](https://www.paypal.me/techtoday) and <a href="http://eepurl.com/gJm095" target="_blank">subscribe to my channel </a> for latest news about my nodes.
 
 <br/>
-
+<p>
+<b>Version 1.1.32</b> - Feb 2020<br/>
+- New: Added the option to format the msg.payload value if it's numeric.<br/>
+- Switched to knx.js API 2.3.7<br/>
+</p>
 <p>
 <b>Version 1.1.31</b> - Feb 2020<br/>
 - Rewritten the "Send a GrpValue read once on connection/reconnect" using the telegram queue.<br/>
