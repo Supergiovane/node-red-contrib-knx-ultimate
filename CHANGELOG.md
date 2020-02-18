@@ -5,8 +5,9 @@
 <br/>
 <p>
 <b>Version 1.1.32</b> - Feb 2020<br/>
-- New: Added the option to format the msg.payload value if it's numeric.<br/>
+- New: in the knx-ultimate, added the option to format the msg.payload value if it's numeric.<br/>
 - Switched to knx.js API 2.3.7<br/>
+- Refractoring of some interal code.<br/>
 </p>
 <p>
 <b>Version 1.1.31</b> - Feb 2020<br/>
