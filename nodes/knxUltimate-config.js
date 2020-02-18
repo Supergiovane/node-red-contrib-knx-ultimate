@@ -83,7 +83,7 @@ module.exports = (RED) => {
         node.timerDoInitialRead; // 17/02/2020 Timer (timeout) to do initial read of all nodes requesting initial read, after all nodes have been registered to the sercer
         node.stopETSImportIfNoDatapoint = typeof config.stopETSImportIfNoDatapoint === "undefined" ? "stop" : config.stopETSImportIfNoDatapoint; // 09/01/2020 Stop or Skip the import if a group address has unset datapoint
         node.csv = readCSV(config.csv); // Array from ETS CSV Group Addresses
-        node.loglevel = config.loglevel !== undefined ? config.loglevel : "info"; // 06/02/2020 by Heleon19 Loglevel default info
+        node.loglevel = config.loglevel !== undefined ? config.loglevel : "error"; // 18/02/2020 Loglevel default error
 
         // Endpoint for reading csv from the other nodes
         RED.httpAdmin.get("/knxUltimatecsv", RED.auth.needsPermission('knxUltimate-config.read'), function (req, res) {

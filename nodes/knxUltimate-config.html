@@ -15,7 +15,7 @@
             statusDisplayDeviceNameWhenALL: { value: true },
             statusDisplayDataPoint: { value: false },
             stopETSImportIfNoDatapoint: { value: "stop" },
-            loglevel: { value: "info" }
+            loglevel: { value: "error" }
         },
         oneditprepare: function () {
             $("#node-config-input-KNXEthInterface").append($("<option></option>")
@@ -147,9 +147,9 @@
                 <div class="form-row">
                     <label for="node-config-input-loglevel"><i class="fa fa-question-circle"></i> Loglevel</label>
                     <select id="node-config-input-loglevel" style="width:25%;">
-                        <option value="error">Error</option>
+                        <option value="error">Error (Default)</option>
                         <option value="warn">Warning</option>
-                        <option value="info">Info (Default)</option>
+                        <option value="info">Info</option>
                         <option value="debug">Debug</option>
                         <option value="trace">Trace</option>
                     </select> <b>Restart node-red</b> after change!
