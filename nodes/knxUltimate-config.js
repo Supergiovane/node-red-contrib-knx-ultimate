@@ -571,60 +571,55 @@ module.exports = (RED) => {
         }
 
         function buildInputMessage({ _srcGA, _destGA, _event, _Rawvalue, _inputDpt, _devicename, _outputtopic, _oNode }) {
-            // Resolve DPT and convert value if available
-            sInputDpt = (_inputDpt === null) ? tryToFigureOutDataPointFromRawValue(_Rawvalue) : _inputDpt;
-            var dpt = dptlib.resolve(sInputDpt);
-            var jsValue = null;
-            if (dpt && _Rawvalue !== null) {
-                var jsValue = dptlib.fromBuffer(_Rawvalue, dpt)
-            }
-
-            // Formatting the msg output value
-            if (_oNode !== null && jsValue !== null) {
-                if (typeof jsValue === "number") {
-
-                    //if (_destGA == "12/0/3") RED.log.warn("Original: " + jsValue);
-
-                    // multiplier
-                    jsValue = jsValue * _oNode.formatmultiplyvalue;
-                    //if (_destGA == "12/0/3") RED.log.warn("Multiply: " + jsValue);
-
-                    // Number of decimals
-                    if (_oNode.formatdecimalsvalue == 999) {
-                        // Leave as is
-                    } else {
-                        // Round
-                        jsValue = +(Math.round(jsValue + "e+" + _oNode.formatdecimalsvalue) + "e-" + _oNode.formatdecimalsvalue);
-                    }
-                    //if (_destGA == "12/0/3") RED.log.warn("Decimals: " + jsValue + " decimali " + _oNode.formatdecimalsvalue);
-
-                    // leave, zero or abs
-                    if (jsValue < 0) {
-                        if (_oNode.formatnegativevalue == "zero") {
-                            jsValue = 0;
-                        } else if (_oNode.formatnegativevalue == "abs") {
-                            jsValue = Math.abs(jsValue);
-                        }
-                    }
-                    //if (_destGA == "12/0/3") RED.log.warn("Seminorezero: " + jsValue);
-                }
-            }
-
             var sPayloadmeasureunit = "unknown";
             var sDptdesc = "unknown";
             var sPayloadsubtypevalue = "unknown";
+            var jsValue = null;
+            
+            // Resolve DPT and convert value if available
+            if (_Rawvalue !== null) {
+                sInputDpt = (_inputDpt === null) ? tryToFigureOutDataPointFromRawValue(_Rawvalue) : _inputDpt;
 
-            if (dpt.subtype !== undefined) {
-                sPayloadmeasureunit = dpt.subtype.unit !== undefined ? dpt.subtype.unit : "unknown";
-                sDptdesc = dpt.subtype.desc !== undefined ? dpt.subtype.desc.charAt(0).toUpperCase() + dpt.subtype.desc.slice(1) : "unknown";
-                if (dpt.subtype.enc !== undefined) {
-                    try {
-                        if (!Boolean(jsValue)) sPayloadsubtypevalue = dpt.subtype.enc[0];
-                        if (Boolean(jsValue)) sPayloadsubtypevalue = dpt.subtype.enc[1];
-                    } catch (error) {
+                var dpt = dptlib.resolve(sInputDpt);
+                if (dpt && _Rawvalue !== null) {
+                    var jsValue = dptlib.fromBuffer(_Rawvalue, dpt)
+                }
+
+                // Formatting the msg output value
+                if (_oNode !== null && jsValue !== null) {
+                    if (typeof jsValue === "number") {
+                        // multiplier
+                        jsValue = jsValue * _oNode.formatmultiplyvalue;
+                        // Number of decimals
+                        if (_oNode.formatdecimalsvalue == 999) {
+                            // Leave as is
+                        } else {
+                            // Round
+                            jsValue = +(Math.round(jsValue + "e+" + _oNode.formatdecimalsvalue) + "e-" + _oNode.formatdecimalsvalue);
+                        }
+                        // leave, zero or abs
+                        if (jsValue < 0) {
+                            if (_oNode.formatnegativevalue == "zero") {
+                                jsValue = 0;
+                            } else if (_oNode.formatnegativevalue == "abs") {
+                                jsValue = Math.abs(jsValue);
+                            }
+                        }
                     }
                 }
-            };
+
+                if (dpt.subtype !== undefined) {
+                    sPayloadmeasureunit = dpt.subtype.unit !== undefined ? dpt.subtype.unit : "unknown";
+                    sDptdesc = dpt.subtype.desc !== undefined ? dpt.subtype.desc.charAt(0).toUpperCase() + dpt.subtype.desc.slice(1) : "unknown";
+                    if (dpt.subtype.enc !== undefined) {
+                        try {
+                            if (!Boolean(jsValue)) sPayloadsubtypevalue = dpt.subtype.enc[0];
+                            if (Boolean(jsValue)) sPayloadsubtypevalue = dpt.subtype.enc[1];
+                        } catch (error) {
+                        }
+                    }
+                };
+            }
 
             // Build final input message object
             return {
