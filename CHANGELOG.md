@@ -5,7 +5,7 @@
 <br/>
 <p>
 <b>Version 1.1.32</b> - Feb 2020<br/>
-- New: in the knx-ultimate, added the option to format the msg.payload value if it's numeric.<br/>
+- New: in the knx-ultimate, added the option to [format the msg.payload value](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/2.-Node-Configuration) if it's numeric.<br/>
 - Switched to knx.js API 2.3.7<br/>
 - Refractoring of some internal code to speed up things, whenever the node sends a "Read" request to the BUS.<br/>
 - Fix a message warning in the config page, if you not imported the ETS csv file.<br/>
