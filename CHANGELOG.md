@@ -7,9 +7,10 @@
 <b>Version 1.1.32</b> - Feb 2020<br/>
 - New: in the knx-ultimate, added the option to format the msg.payload value if it's numeric.<br/>
 - Switched to knx.js API 2.3.7<br/>
-- Refractoring of some interal code.<br/>
+- Refractoring of some interal code to speed up things, whenever the node sends a "Read" request to the BUS.<br/>
 - Fix a message warning in the config page, if you not imported the ETS csv file.<br/>
 - Fix the "Universal Mode" setting wrongly reverting to false on newly added nodes, if you've not imported the ETS csv.<br/>
+- Update the Wiki and node help, with the new "payload format" options.<br/>
 </p>
 <p>
 <b>Version 1.1.31</b> - Feb 2020<br/>
