@@ -8,6 +8,8 @@
 - New: in the knx-ultimate, added the option to format the msg.payload value if it's numeric.<br/>
 - Switched to knx.js API 2.3.7<br/>
 - Refractoring of some interal code.<br/>
+- Fix a message warning in the config page, if you not imported the ETS csv file.<br/>
+- Fix the "Universal Mode" setting wrongly reverting to false on newly added nodes, if you've not imported the ETS csv.<br/>
 </p>
 <p>
 <b>Version 1.1.31</b> - Feb 2020<br/>
