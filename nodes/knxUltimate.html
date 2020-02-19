@@ -48,7 +48,6 @@
 
             // 19/02/2020 Used to alert the user if the CSV file has not been loaded
             $("#node-input-server").change(function () {
-                // The following doesn't work on HTML, how can I get the config node in HTML?
                 var config = RED.nodes.node($(this).val());
                 if (typeof config.csv !== "undefined" && config.csv !== "") {
                     $("#isETSFileLoaded").val("si");
