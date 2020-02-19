@@ -46,6 +46,17 @@
         // },
         oneditprepare: function () {
 
+            // 19/02/2020 Used to alert the user if the CSV file has not been loaded
+            $("#node-input-server").change(function () {
+                // The following doesn't work on HTML, how can I get the config node in HTML?
+                var config = RED.nodes.node($(this).val());
+                if (typeof config.csv !== "undefined" && config.csv !== "") {
+                    $("#isETSFileLoaded").val("si");
+                } else {
+                    $("#isETSFileLoaded").val("no");
+                }
+            });
+
             $.getJSON('knxUltimateDpts', (data) => {
                 data.forEach(dpt => {
                     $("#node-input-dpt").append($("<option></option>")
@@ -205,82 +216,82 @@
 
         },
         oneditsave: function () {
-            // 25/10/2019 Warn user that the node will node encode/decode datagram, if Listen All GA's if the config node doesn't contain the csv
-            if (this.server) {
-                if (typeof RED.nodes.node(this.server).csv !== 'undefined' && RED.nodes.node(this.server).csv != "") {
-                } else {
-
-                    // Notify the user
-                    if ($("#node-input-listenallga").is(":checked")) {
-                        var checkResult = "Universal mode (listen to all Group Addresses) needs a valid ETS csv to be able to decode datatypes and output device names. Please paste the ETS csv in the config node. If you don't use ETS csv file, the node will work als blind transmitter/receiver and you need to pass in the input message, the datatype besides the value."
-                        var myNotification = RED.notify(checkResult,
-                            {
-                                modal: true,
-                                fixed: true,
-                                type: 'error',
-                                buttons: [
-                                    {
-                                        text: "OK",
-                                        click: function (e) {
-                                            myNotification.close();
-                                        }
-                                    }]
-                            })
-                    }
-                    // $("#node-input-listenallga").prop("checked", false)
-                    // $("#GAandDPT").show()
-                    // $("#divOutputRBE").show()
-                    // $("#divInputRBE").show()
-                    $("#helpallga").show()
+            // 19/02/2020 Warn user that the node will node encode/decode datagram, if Listen All GA's if the config node doesn't contain the csv
+            if ($("#isETSFileLoaded").val() === "no") {
+                // Notify the user
+                if ($("#node-input-listenallga").is(":checked")) {
+                    var checkResult = "Universal mode (listen to all Group Addresses) needs a valid ETS csv to be able to decode datatypes and output device names. Please paste the ETS csv in the config node. If you don't use ETS csv file, the node will work as blind receiver (with automatic deconding of the datagrams) but you need to pass the datatype (besides the value) in the input message to be able to send something to the KNX BUS."
+                    var myNotification = RED.notify(checkResult,
+                        {
+                            modal: true,
+                            fixed: true,
+                            type: 'error',
+                            buttons: [
+                                {
+                                    text: "OK",
+                                    click: function (e) {
+                                        myNotification.close();
+                                    }
+                                }]
+                        })
                 }
-            } else {
-                $("#node-input-listenallga").prop("checked", false)
-                $("#GAandDPT").show()
-                $("#divOutputRBE").show()
-                $("#divInputRBE").show()
-                $("#helpallga").hide()
+                // $("#node-input-listenallga").prop("checked", false)
+                // $("#GAandDPT").show()
+                // $("#divOutputRBE").show()
+                // $("#divInputRBE").show()
+                $("#helpallga").show()
             }
         }
-
-
     })
 
 </script>
 
 <script type="text/x-red" data-template-name="knxUltimate">
+
+    <!-- Setted by oneditprepare and used in oneditsave to warn th user if no CSV file has been loaded -->
+<input id="isETSFileLoaded" name="isETSFileLoaded" type="hidden" value="false">
+
+<div class="form-row">
+    <label for="node-input-server"><img
+            src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/config/connectioneibnettunneling.png"></i>
+        Gateway </label>
+    <input type="text" id="node-input-server">
+</div>
+<div id="GAandDPT">
     <div class="form-row">
-        <label for="node-input-server"><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/config/connectioneibnettunneling.png"></i> Gateway </label>
-        <input type="text" id="node-input-server">
-    </div>
-    <div id="GAandDPT">
-        <div class="form-row">
-            <label for="node-input-topic"><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/config/subgroup.png"></i> Group Addr.</label>
-            <input type="text" id="node-input-topic" placeholder="Ex: 1/1/1 or select 'Listen to all Groups'">
-        </div>
-        <div class="form-row">
-            <label for="node-input-dpt"><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/config/device.png"></i> Datapoint </label>
-            <select id="node-input-dpt"></select>
-        </div>
-    </div>
-    <div class="form-row">
-        <label for="node-input-name"><i class="fa fa-tag"></i> Node Name </label>
-        <input type="text" id="node-input-name" placeholder="Name">
-    </div>
-    <div class="form-row" id="divTopic">
-        <label for="node-input-outputtopic"><i class="fa fa-tasks"></i> Topic </label>
-        <input type="text" id="node-input-outputtopic" placeholder="Leave empty to use Group Address">
+        <label for="node-input-topic"><img
+                src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/config/subgroup.png"></i>
+            Group Addr.</label>
+        <input type="text" id="node-input-topic" placeholder="Ex: 1/1/1 or select 'Listen to all Groups'">
     </div>
     <div class="form-row">
-            <input type="checkbox" id="node-input-listenallga" style="display:inline-block; width:auto; vertical-align:top;">
-            <label style="width:auto" for="node-input-listenallga">&nbsp;&nbsp;<img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/config/maingroup.png"></i> Universal mode (listen to all Group Addresses)</label>
-            <div id="helpallga">Some Content Here</div>
+        <label for="node-input-dpt"><img
+                src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/config/device.png"></i>
+            Datapoint </label>
+        <select id="node-input-dpt"></select>
     </div>
-    
-    <div id="advancedOptionsAccordion">
-        <h3>Advanced options</h3>
-        <div>
+</div>
+<div class="form-row">
+    <label for="node-input-name"><i class="fa fa-tag"></i> Node Name </label>
+    <input type="text" id="node-input-name" placeholder="Name">
+</div>
+<div class="form-row" id="divTopic">
+    <label for="node-input-outputtopic"><i class="fa fa-tasks"></i> Topic </label>
+    <input type="text" id="node-input-outputtopic" placeholder="Leave empty to use Group Address">
+</div>
+<div class="form-row">
+    <input type="checkbox" id="node-input-listenallga" style="display:inline-block; width:auto; vertical-align:top;">
+    <label style="width:auto" for="node-input-listenallga">&nbsp;&nbsp;<img
+            src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/config/maingroup.png"></i>
+        Universal mode (listen to all Group Addresses)</label>
+    <div id="helpallga">Some Content Here</div>
+</div>
+
+<div id="advancedOptionsAccordion">
+    <h3>Advanced options</h3>
+    <div>
         <p>
-            <dt><i class="fa fa-code-fork"></i>&nbsp; OUTPUT (sends datagram to the KNX BUS)</dt><br/ >
+            <dt><i class="fa fa-code-fork"></i>&nbsp; OUTPUT (sends datagram to the KNX BUS)</dt><br />
             <div class="form-row">
                 <label for="node-input-outputtype"><i class="fa fa-rocket"></i> Output Type </label>
                 <select id="node-input-outputtype">
@@ -288,95 +299,114 @@
                     <option value="response">Response</option>
                 </select>
             </div>
-        
+
             <div class="form-row" id="divOutputRBE">
-                <input type="checkbox" id="node-input-outputRBE" style="display:inline-block; width:auto; vertical-align:top;">
-                <label style="width:auto" for="node-input-outputRBE">&nbsp;&nbsp;<i class="fa fa-filter"></i> Send payload to BUS only if changed (RBE filter)</label>
+                <input type="checkbox" id="node-input-outputRBE"
+                    style="display:inline-block; width:auto; vertical-align:top;">
+                <label style="width:auto" for="node-input-outputRBE">&nbsp;&nbsp;<i class="fa fa-filter"></i> Send
+                    payload to BUS only if changed (RBE filter)</label>
             </div>
 
             <div class="form-row" id="divNode-input-initialread">
-                <input type="checkbox" id="node-input-initialread" style="display:inline-block; width:auto; vertical-align:top;">
-                <label style="width:auto" for="node-input-initialread">&nbsp;&nbsp;<i class="fa fa-question-circle-o"></i> Send a GrpValue read once on connection/reconnect</label>
+                <input type="checkbox" id="node-input-initialread"
+                    style="display:inline-block; width:auto; vertical-align:top;">
+                <label style="width:auto" for="node-input-initialread">&nbsp;&nbsp;<i
+                        class="fa fa-question-circle-o"></i> Send a GrpValue read once on connection/reconnect</label>
             </div>
-            
-        
-            <br/ ><dt><i class="fa fa-code-fork"></i>&nbsp; INPUT (listen to datagram from the KNX BUS)</dt><br/ >
-                <div class="form-row" id="divInputRBE">
-                    <input type="checkbox" id="node-input-inputRBE" style="display:inline-block; width:auto; vertical-align:top;">
-                    <label style="width:auto" for="node-input-inputRBE">&nbsp;&nbsp;<i class="fa fa-filter"></i> React only if payload from BUS is changed (RBE filter)</label>
-                </div>
-            
-                <div class="form-row">
-                    <input type="checkbox" id="node-input-notifywrite" style="display:inline-block; width:auto; vertical-align:top;">
-                    <label style="width:auto" for="node-input-notifywrite">&nbsp;&nbsp;<i class="fa fa-sign-in"></i> React to event GroupValue write </label>
-                </div>
-            
-                <div class="form-row">
-                    <input type="checkbox" id="node-input-notifyresponse" style="display:inline-block; width:auto; vertical-align:top;">
-                    <label style="width:auto" for="node-input-notifyresponse">&nbsp;&nbsp;<i class="fa fa-sign-in"></i> React to event GroupValue response </label>
-                </div>
-            
-                <div class="form-row">
-                    <input type="checkbox" id="node-input-notifyreadrequest" style="display:inline-block; width:auto; vertical-align:top;">
-                    <label style="width:auto" for="node-input-notifyreadrequest">&nbsp;&nbsp;<i class="fa fa-sign-in"></i> React to event GroupValue read </label>
-                </div>
-            
-                <div id="divnotifyreadrequestautoreact">
-                    <dd>
-                        <div class="form-row" >
-                            <input type="checkbox" id="node-input-notifyreadrequestalsorespondtobus" style="display:inline-block; width:auto; vertical-align:top;">
-                            <label style="width:auto" for="node-input-notifyreadrequestalsorespondtobus">&nbsp;&nbsp; Auto send node value as response to the BUS</label>
-                        </div>
-                        <div class="form-row">
-                            <label style="width:auto">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; If value is undefined, send</label>
-                            <input style="width:auto"type="text" id="node-input-notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized" placeholder="Ex: 0 for false, 1 for true, otherwise any value">
-                        </div>
-                    </dd>
-                </div>
-            </p>
-        </div>
-    </div>     
-    
-    <div id="formatValueAccordion">
-        <h3>Custom KNX message value formatting</h3>
-        <div>
-            <p>
-                <dt><i class="fa fa-sort-numeric-asc"></i>&nbsp; NUMERIC VALUES (operations are performed in order)</dt><br/ >
-                <div class="form-row">
-                    <label for="node-input-formatmultiplyvalue"><i class="fa fa-calculator"></i> Multiply </label>
-                    <select id="node-input-formatmultiplyvalue">
-                        <option value=0.001>Divide x 1000</option>
-                        <option value=0.01>Divide x 100</option>
-                        <option value=0.1>Divide x 10</option>
-                        <option value=1>Leave unchanged (Default)</option>
-                        <option value=10>Multiply x 10</option>
-                        <option value=100>Multiply x 100</option>
-                        <option value=1000>Multiply x 1000</option>
-                    </select>
-                </div>
-                <div class="form-row">
-                    <label for="node-input-formatdecimalsvalue"><i class="fa fa-expand"></i> Decimals</label>
-                    <select id="node-input-formatdecimalsvalue">
-                       <option value=999>Leave unchanged (Default)</option>
-                       <option value=0>Round to integer (no decimals)</option> 
-                       <option value=1>Round to 1 decimal</option> 
-                       <option value=2>Round to 2 decimal</option>
-                       <option value=3>Round to 3 decimal</option>
-                       <option value=4>Round to 4 decimal</option>
-                    </select>
-                </div>
-                <div class="form-row">
-                    <label for="node-input-formatnegativevalue"><i class="fa fa-minus-circle"></i> Negatives</label>
-                    <select id="node-input-formatnegativevalue">
-                        <option value="leave">Leave unchanged (Default)</option>
-                        <option value="zero">Output zero</option>
-                        <option value="abs">Output absolute value (remove the minus sign)</option>
-                    </select>
-                </div>
-             
-            </p>
-        </div>
-    </div>     
+
+
+            <br />
+            <dt><i class="fa fa-code-fork"></i>&nbsp; INPUT (listen to datagram from the KNX BUS)</dt><br />
+            <div class="form-row" id="divInputRBE">
+                <input type="checkbox" id="node-input-inputRBE"
+                    style="display:inline-block; width:auto; vertical-align:top;">
+                <label style="width:auto" for="node-input-inputRBE">&nbsp;&nbsp;<i class="fa fa-filter"></i> React only
+                    if payload from BUS is changed (RBE filter)</label>
+            </div>
+
+            <div class="form-row">
+                <input type="checkbox" id="node-input-notifywrite"
+                    style="display:inline-block; width:auto; vertical-align:top;">
+                <label style="width:auto" for="node-input-notifywrite">&nbsp;&nbsp;<i class="fa fa-sign-in"></i> React
+                    to event GroupValue write </label>
+            </div>
+
+            <div class="form-row">
+                <input type="checkbox" id="node-input-notifyresponse"
+                    style="display:inline-block; width:auto; vertical-align:top;">
+                <label style="width:auto" for="node-input-notifyresponse">&nbsp;&nbsp;<i class="fa fa-sign-in"></i>
+                    React to event GroupValue response </label>
+            </div>
+
+            <div class="form-row">
+                <input type="checkbox" id="node-input-notifyreadrequest"
+                    style="display:inline-block; width:auto; vertical-align:top;">
+                <label style="width:auto" for="node-input-notifyreadrequest">&nbsp;&nbsp;<i class="fa fa-sign-in"></i>
+                    React to event GroupValue read </label>
+            </div>
+
+            <div id="divnotifyreadrequestautoreact">
+                <dd>
+                    <div class="form-row">
+                        <input type="checkbox" id="node-input-notifyreadrequestalsorespondtobus"
+                            style="display:inline-block; width:auto; vertical-align:top;">
+                        <label style="width:auto" for="node-input-notifyreadrequestalsorespondtobus">&nbsp;&nbsp; Auto
+                            send node value as response to the BUS</label>
+                    </div>
+                    <div class="form-row">
+                        <label style="width:auto">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; If value is undefined,
+                            send</label>
+                        <input style="width:auto" type="text"
+                            id="node-input-notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized"
+                            placeholder="Ex: 0 for false, 1 for true, otherwise any value">
+                    </div>
+                </dd>
+            </div>
+        </p>
+    </div>
+</div>
+
+<div id="formatValueAccordion">
+    <h3>Custom KNX message value formatting</h3>
+    <div>
+        <p>
+            <dt><i class="fa fa-sort-numeric-asc"></i>&nbsp; NUMERIC VALUES (operations are performed in order)</dt>
+            <br />
+            <div class="form-row">
+                <label for="node-input-formatmultiplyvalue"><i class="fa fa-calculator"></i> Multiply </label>
+                <select id="node-input-formatmultiplyvalue">
+                    <option value=1>Leave unchanged (Default)</option>
+                    <option value=0.001>Divide x 1000</option>
+                    <option value=0.01>Divide x 100</option>
+                    <option value=0.1>Divide x 10</option>
+                    <option value=10>Multiply x 10</option>
+                    <option value=100>Multiply x 100</option>
+                    <option value=1000>Multiply x 1000</option>
+                </select>
+            </div>
+            <div class="form-row">
+                <label for="node-input-formatdecimalsvalue"><i class="fa fa-expand"></i> Decimals</label>
+                <select id="node-input-formatdecimalsvalue">
+                    <option value=999>Leave unchanged (Default)</option>
+                    <option value=0>Round to integer (no decimals)</option>
+                    <option value=1>Round to 1 decimal</option>
+                    <option value=2>Round to 2 decimal</option>
+                    <option value=3>Round to 3 decimal</option>
+                    <option value=4>Round to 4 decimal</option>
+                </select>
+            </div>
+            <div class="form-row">
+                <label for="node-input-formatnegativevalue"><i class="fa fa-minus-circle"></i> Negatives</label>
+                <select id="node-input-formatnegativevalue">
+                    <option value="leave">Leave unchanged (Default)</option>
+                    <option value="zero">Output zero</option>
+                    <option value="abs">Output absolute value (remove the minus sign)</option>
+                </select>
+            </div>
+
+        </p>
+    </div>
+</div>
 </script>
 
 <script type="text/x-red" data-help-name="knxUltimate">

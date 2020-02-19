@@ -359,7 +359,7 @@ module.exports = (RED) => {
                                     } catch (error) { }
 
                                     // 25/10/2019 TRY TO AUTO DECODE IF Group address not found in the CSV
-                                    let msg = buildInputMessage({ _srcGA: src, _destGA: dest, _event: evt, _Rawvalue: rawValue, _inputDpt: (typeof oGA === "undefined") ? null : oGA.dpt, _devicename: (typeof oGA === "undefined") ? "" : oGA.devicename, _outputtopic: dest, _oNode: input });
+                                    let msg = buildInputMessage({ _srcGA: src, _destGA: dest, _event: evt, _Rawvalue: rawValue, _inputDpt: (typeof oGA === "undefined") ? null : oGA.dpt, _devicename: (typeof oGA === "undefined") ? input.name || "" : oGA.devicename, _outputtopic: dest, _oNode: input });
                                     input.setNodeStatus({ fill: "green", shape: "dot", text: (typeof oGA === "undefined") ? "Try to decode" : "", payload: msg.payload, GA: msg.knx.destination, dpt: msg.knx.dpt, devicename: msg.devicename });
                                     input.send(msg)
 
@@ -397,12 +397,11 @@ module.exports = (RED) => {
                                     } catch (error) { }
 
                                     // 25/10/2019 TRY TO AUTO DECODE IF Group address not found in the CSV
-                                    let msg = buildInputMessage({ _srcGA: src, _destGA: dest, _event: evt, _Rawvalue: rawValue, _inputDpt: (typeof oGA === "undefined") ? null : oGA.dpt, _devicename: (typeof oGA === "undefined") ? "" : oGA.devicename, _outputtopic: dest, _oNode: input });
+                                    let msg = buildInputMessage({ _srcGA: src, _destGA: dest, _event: evt, _Rawvalue: rawValue, _inputDpt: (typeof oGA === "undefined") ? null : oGA.dpt, _devicename: (typeof oGA === "undefined") ? input.name || "" : oGA.devicename, _outputtopic: dest, _oNode: input });
                                     input.setNodeStatus({ fill: "green", shape: "dot", text: (typeof oGA === "undefined") ? "Try to decode" : "", payload: msg.payload, GA: msg.knx.destination, dpt: msg.knx.dpt, devicename: msg.devicename });
                                     input.send(msg)
 
                                 } else if (input.topic == dest) {
-
                                     // 04/02/2020 Watchdog implementation
                                     if (input.hasOwnProperty("isWatchDog")) {
                                         // Is a watchdog node
@@ -437,7 +436,7 @@ module.exports = (RED) => {
                                     } catch (error) { }
 
                                     // 25/10/2019 TRY TO AUTO DECODE IF Group address not found in the CSV
-                                    let msg = buildInputMessage({ _srcGA: src, _destGA: dest, _event: evt, _Rawvalue: null, _inputDpt: (typeof oGA === "undefined") ? null : oGA.dpt, _devicename: (typeof oGA === "undefined") ? "" : oGA.devicename, _outputtopic: dest, _oNode: input });
+                                    let msg = buildInputMessage({ _srcGA: src, _destGA: dest, _event: evt, _Rawvalue: null, _inputDpt: (typeof oGA === "undefined") ? null : oGA.dpt, _devicename: (typeof oGA === "undefined") ? input.name || "" : oGA.devicename, _outputtopic: dest, _oNode: input });
                                     input.setNodeStatus({ fill: "green", shape: "dot", text: (typeof oGA === "undefined") ? "Try to decode" : "", payload: msg.payload, GA: msg.knx.destination, dpt: msg.knx.dpt, devicename: msg.devicename });
                                     input.send(msg)
 
@@ -575,7 +574,7 @@ module.exports = (RED) => {
             var sDptdesc = "unknown";
             var sPayloadsubtypevalue = "unknown";
             var jsValue = null;
-            
+
             // Resolve DPT and convert value if available
             if (_Rawvalue !== null) {
                 sInputDpt = (_inputDpt === null) ? tryToFigureOutDataPointFromRawValue(_Rawvalue) : _inputDpt;
