@@ -1,7 +1,7 @@
-const knx = require('knx');
-const dptlib = require('knx/src/dptlib');
-// const knx = require('knxultimate-api');
-// const dptlib = require('knxultimate-api/src/dptlib');
+//const knx = require('knx');
+//const dptlib = require('knx/src/dptlib');
+const knx = require('knxultimate-api');
+const dptlib = require('knxultimate-api/src/dptlib');
 
 const oOS = require('os')
 
@@ -80,7 +80,7 @@ module.exports = (RED) => {
         node.statusDisplayDataPoint = config.statusDisplayDataPoint || false;
         node.telegramsQueue = [];  // 02/01/2020 Queue containing telegrams
         node.timerSendTelegramFromQueue = setInterval(handleTelegramQueue, 50); // 02/01/2020 Start the timer that handles the queue of telegrams
-        node.timerDoInitialRead; // 17/02/2020 Timer (timeout) to do initial read of all nodes requesting initial read, after all nodes have been registered to the sercer
+        node.timerDoInitialRead = null; // 17/02/2020 Timer (timeout) to do initial read of all nodes requesting initial read, after all nodes have been registered to the sercer
         node.stopETSImportIfNoDatapoint = typeof config.stopETSImportIfNoDatapoint === "undefined" ? "stop" : config.stopETSImportIfNoDatapoint; // 09/01/2020 Stop or Skip the import if a group address has unset datapoint
         node.csv = readCSV(config.csv); // Array from ETS CSV Group Addresses
         node.loglevel = config.loglevel !== undefined ? config.loglevel : "error"; // 18/02/2020 Loglevel default error
@@ -175,7 +175,7 @@ module.exports = (RED) => {
         }
 
         node.Disconnect = () => {
-            if (node.timerDoInitialRead !== undefined) clearTimeout(timerDoInitialRead); // 17/02/2020 Stop the initial read timer
+            if (node.timerDoInitialRead !== null) clearTimeout(node.timerDoInitialRead); // 17/02/2020 Stop the initial read timer
             node.telegramsQueue = []; // 02/01/2020 clear the telegram queue
             node.setAllClientsStatus("Waiting", "grey", "")
             // Remove listener
@@ -249,6 +249,7 @@ module.exports = (RED) => {
                 var readHistory = [];
                 node.nodeClients
                     .filter(oClient => oClient.initialread)
+                    .filter(oClient => oClient.hasOwnProperty("isWatchDog") === false)
                     .forEach(oClient => {
                         if (oClient.listenallga == true) {
                             for (let index = 0; index < node.csv.length; index++) {
@@ -299,7 +300,7 @@ module.exports = (RED) => {
                         node.linkStatus = "connected";
                         node.setAllClientsStatus("Connected", "green", "Waiting for telegram.")
                         // Start the timer to do initial read.
-                        if (node.timerDoInitialRead !== undefined) clearTimeout(timerDoInitialRead);
+                        if (node.timerDoInitialRead !== null) clearTimeout(node.timerDoInitialRead);
                         node.timerDoInitialRead = setTimeout(readInitialValues, 5000); // 17/02/2020 Do initial read of all nodes requesting initial read, after all nodes have been registered to the sercer
                     },
                     error: function (connstatus) {

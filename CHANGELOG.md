@@ -3,6 +3,13 @@
 [![Donate via PayPal](https://img.shields.io/badge/Donate-PayPal-blue.svg?style=flat-square)](https://www.paypal.me/techtoday) and <a href="http://eepurl.com/gJm095" target="_blank">subscribe to my channel </a> for latest news about my nodes.
 
 <br/>
+
+<p>
+<b>Version 1.1.33</b> - Feb 2020<br/>
+- New: the Watchdog node now outputs a msg to the flow if you issued a setGatewayConfig<br/>
+- Patched and switched to knxultimate-api (v. 2.3.8) underlying API. This should fix a very rare issue causing node-red to crash giving ERR_SOCKET_DGRAM_NOT_RUNNING error.
+<br/>
+</p>
 <p>
 <b>Version 1.1.32</b> - Feb 2020<br/>
 - New: in the knx-ultimate, added the option to <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/2.-Node-Configuration" target="_blank">format the msg.payload value</a>, if it's numeric.<br/>

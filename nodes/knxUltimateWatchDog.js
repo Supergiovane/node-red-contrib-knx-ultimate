@@ -20,7 +20,7 @@ module.exports = function (RED) {
         node.maxRetry = config.maxRetry !== undefined ? config.maxRetry : 6;
         node.autoStart = config.autoStart !== undefined ? config.autoStart : false;
         node.beatNumber = 0; // Telegram counter
-        node.timerWatchDog;
+        node.timerWatchDog = null;
         node.isWatchDog = true;
         node.checkLevel = config.checkLevel !== undefined ? config.checkLevel : "Ethernet";
 
@@ -101,13 +101,13 @@ module.exports = function (RED) {
 
         node.StartWatchDogTimer = () => {
             node.beatNumber = 0;
-            if (node.timerWatchDog !== undefined) clearInterval(node.timerWatchDog);
+            if (node.timerWatchDog !== null) clearInterval(node.timerWatchDog);
             node.timerWatchDog = setInterval(handleTheDog, node.retryInterval); // 02/01/2020 Start the timer that handles the queue of telegrams
             node.setNodeStatus({ fill: "green", shape: "dot", text: "WatchDog started.", payload: "", GA: "", dpt: "", devicename: "" })
         }
 
         if (node.autoStart) node.StartWatchDogTimer();  // Autostart watchdog
-      
+
         node.on("input", function (msg) {
 
             if (typeof msg === "undefined") return;
@@ -122,6 +122,17 @@ module.exports = function (RED) {
             // This new thing has been requested by proServ RealKNX staff.
             if (msg.hasOwnProperty("setGatewayConfig")) {
                 node.server.setGatewayConfig(msg.setGatewayConfig.IP, msg.setGatewayConfig.Port, msg.setGatewayConfig.PhysicalAddress, msg.setGatewayConfig.BindToEthernetInterface);
+                msg = {
+                    type: "setGatewayConfig",
+                    checkPerformed: "The Watchdog node changed the gateway configuration.",
+                    nodeid: node.id,
+                    payload: true,
+                    description: "New Config issued to the gateway. IP:" + (msg.setGatewayConfig.IP || "Unchanged") + " Port:" + (msg.setGatewayConfig.Port || "Unchanged") + " PhysicalAddress:" + (msg.setGatewayConfig.PhysicalAddress || "Unchanged") + " BindLocalInterface:" + (msg.setGatewayConfig.BindToEthernetInterface || "Unchanged"),
+                    completeError: ""
+                };
+                node.send(msg);
+                // 20/02/2020 Restart watchdog timer from scratch
+                node.StartWatchDogTimer();
             };
 
             if (msg.hasOwnProperty("start")) {
@@ -134,7 +145,7 @@ module.exports = function (RED) {
                 };
             };
         });
-   
+
         node.on('close', function () {
             clearInterval(node.timerWatchDog);
             if (node.server) {
