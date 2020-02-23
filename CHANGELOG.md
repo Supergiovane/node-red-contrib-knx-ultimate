@@ -5,10 +5,14 @@
 <br/>
 
 <p>
+<b>Version 1.1.34</b> - Feb 2020<br/>
+- Fix an issue with RGB values.<br/>
+- Added RGB sample in the Wiki.<br/>
+</p>
+<p>
 <b>Version 1.1.33</b> - Feb 2020<br/>
 - New: the Watchdog node now outputs a msg to the flow if you issued a setGatewayConfig<br/>
-- Patched and switched to knxultimate-api (v. 2.3.8) underlying API. This should fix a very rare issue causing node-red to crash giving ERR_SOCKET_DGRAM_NOT_RUNNING error.
-<br/>
+- Patched and switched to knxultimate-api (v. 2.3.8) underlying API. This should fix a very rare issue causing node-red to crash giving ERR_SOCKET_DGRAM_NOT_RUNNING error.<br/>
 </p>
 <p>
 <b>Version 1.1.32</b> - Feb 2020<br/>
