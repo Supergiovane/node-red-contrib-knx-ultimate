@@ -117,7 +117,7 @@ Thanks to that, the knx-ultimate node where you selected **Universal mode (liste
 
 > Copy/Paste this into your configuration node.
 
-<code>
+```javascript
 "Group name"	"Address"	"Central"	"Unfiltered"	"Description"	"DatapointType"	"Security"
 "Attuatori luci"	"0/-/-"	""	""	"Attuatori luci"	""	"Auto"
 "Luci primo piano"	"0/0/-"	""	""	"Luci primo piano"	""	"Auto"
@@ -144,7 +144,7 @@ Thanks to that, the knx-ultimate node where you selected **Universal mode (liste
 "Scala LED cambiacolori RGB"	"0/0/21"	""	""	""	"DPST-1-1"	"Auto"
 "Bagno grande specchio brightness value"	"0/0/22"	""	""	""	"DPST-5-1"	"Auto"
 "Soggiorno luce (dim)"	"0/0/23"	""	""	"Soggiorno luce dim"	"DPST-3-7"	"Auto"
-</code>
+```
 
 </details>
 
@@ -153,7 +153,7 @@ Thanks to that, the knx-ultimate node where you selected **Universal mode (liste
 
 > Copy/Paste this into your configuration node.
 
-<p>
+```javascript
 My beautiful home
 Attuatori luci.Luci primo piano.0/0/1	Luce camera da letto	EIS 1 'Switching' (1 Bit)	Low	
 Attuatori luci.Luci primo piano.0/0/2	Luce loggia camera da letto	EIS 1 'Switching' (1 Bit)	Low	
@@ -178,7 +178,7 @@ Attuatori luci.Luci primo piano.0/0/24	Applique soggiorno (dim)	EIS 2 'Dimming -
 Attuatori luci.Luci primo piano.0/0/17	Applique soggiorno brighness value	Uncertain (1 Byte)	Low	
 Attuatori luci.Luci primo piano.0/0/19	Plafoniera soggiorno brighness value	Uncertain (1 Byte)	Low	
 Attuatori luci.Luci primo piano.0/0/21	LED cambiacolori RGB scala	EIS 1 'Switching' (1 Bit)	Low	
-</p>
+```
 
 </details>
 
