@@ -5,6 +5,10 @@
 <br/>
 
 <p>
+<b>Version 1.1.37</b> - Feb 2020<br/>
+- Fixed an issue where new knx-ultimate nodes, without a gateway config node, doesn't open the configuration window. Thanks @svenflender<br/>
+</p>
+<p>
 <b>Version 1.1.36</b> - Feb 2020<br/>
 - You can now import ESF group address format, beside CSV.<br/>
 - Updated the Wiki.<br/>
