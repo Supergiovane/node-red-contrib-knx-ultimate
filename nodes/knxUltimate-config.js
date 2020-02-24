@@ -787,6 +787,18 @@ module.exports = (RED) => {
                             sDPT = "5.001";
                         } else if (sEIS.toUpperCase().includes("EIS 15")) {
                             sDPT = "16.001";
+                        } else if (sEIS.toUpperCase().includes("UNCERTAIN")) {
+                            if (sEIS.toUpperCase().includes("4 BYTE")) {
+                                sDPT = "14.056";
+                            } else if (sEIS.toUpperCase().includes("2 BYTE")) {
+                                sDPT = "9.001";
+                            } else if (sEIS.toUpperCase().includes("3 BYTE")) {
+                                sDPT = "10.001"; // Date
+                            } else if (sEIS.toUpperCase().includes("1 BYTE")) {
+                                sDPT = "20.102"; // RTC
+                            } else {
+                                sDPT = "5.004"; // Maybe.
+                            }
                         } else {
                             sDPT = "5.004"; // Maybe.
                             RED.log.error("knxUltimate: ERROR: Found an UNCERTAIN datapoint in ESF ETS. Please set the datapoint with ETS and export the group addresses again. ->" + sGA + ". An ideal datapoint has been set: " + sDPT)
