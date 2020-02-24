@@ -4,6 +4,7 @@
 
 <br/>
 
+<p>
 <b>Version 1.1.36</b> - Feb 2020<br/>
 - You can now import ESF group address format, beside CSV.<br/>
 - Updated the Wiki.<br/>

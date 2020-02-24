@@ -727,6 +727,7 @@ module.exports = (RED) => {
 
         function readESF(_esfText) {
             // 24/02/2020 must do an EIS to DPT conversion.
+            // https://www.loxone.com/dede/kb/eibknx-datentypen/
             // Format: Attuatori luci.Luci primo piano.0/0/1	Luce camera da letto	EIS 1 'Switching' (1 Bit)	Low
             var ajsonOutput = new Array(); // Array: qui va l'output totale con i nodi per node-red
 
