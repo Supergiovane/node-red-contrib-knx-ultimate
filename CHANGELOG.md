@@ -5,6 +5,11 @@
 <br/>
 
 <p>
+<b>Version 1.1.35</b> - Feb 2020<br/>
+- You can now import ESF group address format, beside CSV.<br/>
+- Updated the Wiki.<br/>
+</p>
+<p>
 <b>Version 1.1.34</b> - Feb 2020<br/>
 - Fix an issue with RGB values.<br/>
 - Added RGB sample in the Wiki.<br/>

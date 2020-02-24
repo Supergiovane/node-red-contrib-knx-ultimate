@@ -649,6 +649,9 @@ module.exports = (RED) => {
 
         function readCSV(_csvText) {
 
+            // 24/02/2020, in the middle of Coronavirus emergency in Italy. Check if it a CSV ETS Export of group addresses, or if it's an EFS
+            if (_csvText.split("\n")[0].toUpperCase().indexOf("GROUP NAME") == -1) return readESF(_csvText);
+
             var ajsonOutput = new Array(); // Array: qui va l'output totale con i nodi per node-red
 
             if (_csvText == "") {
@@ -719,6 +722,85 @@ module.exports = (RED) => {
 
                 return ajsonOutput;
             }
+
+        }
+
+        function readESF(_esfText) {
+            // 24/02/2020 must do an EIS to DPT conversion.
+            // Format: Attuatori luci.Luci primo piano.0/0/1	Luce camera da letto	EIS 1 'Switching' (1 Bit)	Low
+            var ajsonOutput = new Array(); // Array: qui va l'output totale con i nodi per node-red
+
+            if (_esfText == "") {
+                RED.log.info('knxUltimate: no ESF found');
+                return;
+            } else {
+                RED.log.info('knxUltimate: esf ETS found !');
+                // Read and decode the CSV in an Array containing:  "group address", "DPT", "Device Name"
+                let fileGA = _esfText.split("\n");
+                var sGA = "";
+                var sFirstGroupName = "";
+                var sSecondGroupName = ""; // Fake, because EIS datapoints are unprecise.
+                var sDeviceName = "";
+                var sEIS = "";
+                var sDPT = "";
+
+                for (let index = 1; index < fileGA.length; index++) {
+                    var element = fileGA[index];
+                    element = element.replace(/\"/g, ""); // Rimuovo evetuali virgolette
+                    element = element.replace(/[^\x00-\x7F]/g, ""); // Remove non ascii chars
+
+                    if (element !== "") {
+
+                        sFirstGroupName = element.split("\t")[0].split(".")[0] || "";
+                        sSecondGroupName = element.split("\t")[0].split(".")[1] || "";
+                        sGA = element.split("\t")[0].split(".")[2] || "";
+                        sDeviceName = element.split("\t")[1] || "";
+                        sEIS = element.split("\t")[2] || "";
+                        // Transform EIS to DPT
+                        if (sEIS.toUpperCase().includes("EIS 1")) {
+                            sDPT = "1.001";
+                        } else if (sEIS.toUpperCase().includes("EIS 2")) {
+                            sDPT = "3.007";
+                        } else if (sEIS.toUpperCase().includes("EIS 3")) {
+                            sDPT = "10.001";
+                        } else if (sEIS.toUpperCase().includes("EIS 4")) {
+                            sDPT = "11.001";
+                        } else if (sEIS.toUpperCase().includes("EIS 5")) {
+                            sDPT = "9.001";
+                        } else if (sEIS.toUpperCase().includes("EIS 6")) {
+                            sDPT = "5.001";
+                        } else if (sEIS.toUpperCase().includes("EIS 7")) {
+                            sDPT = "1.001";
+                        } else if (sEIS.toUpperCase().includes("EIS 8")) {
+                            sDPT = "2.001";
+                        } else if (sEIS.toUpperCase().includes("EIS 9")) {
+                            sDPT = "14.007";
+                        } else if (sEIS.toUpperCase().includes("EIS 10")) {
+                            sDPT = "7.001";
+                        } else if (sEIS.toUpperCase().includes("EIS 11")) {
+                            sDPT = "12.001";
+                        } else if (sEIS.toUpperCase().includes("EIS 12")) {
+                            sDPT = "15.000";
+                        } else if (sEIS.toUpperCase().includes("EIS 13")) {
+                            sDPT = "4.001";
+                        } else if (sEIS.toUpperCase().includes("EIS 14")) {
+                            sDPT = "5.001";
+                        } else if (sEIS.toUpperCase().includes("EIS 15")) {
+                            sDPT = "16.001";
+                        } else {
+                            sDPT = "5.004"; // Maybe.
+                            RED.log.error("knxUltimate: ERROR: Found an UNCERTAIN datapoint in ESF ETS. Please set the datapoint with ETS and export the group addresses again. ->" + sGA + ". An ideal datapoint has been set: " + sDPT)
+                            if (node.stopETSImportIfNoDatapoint === "stop") {
+                                RED.log.error("knxUltimate: ABORT IMPORT OF ETS ESF FILE. To skip the invalid datapoint and continue import, change the related setting, located in the config node in the ETS import section.");
+                                return;
+                            }
+                        }
+                        ajsonOutput.push({ ga: sGA, dpt: sDPT, devicename: "(" + sFirstGroupName + "->" + sSecondGroupName + ") " + sDeviceName });
+                    }
+                }
+            }
+
+            return ajsonOutput;
 
         }
 
