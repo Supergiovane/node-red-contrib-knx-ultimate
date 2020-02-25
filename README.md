@@ -19,11 +19,11 @@
 ## CHANGELOG
 * See <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/blob/master/CHANGELOG.md">here the changelog</a>
 
-## WIKI, TROUBLESHOOT, FAQ AND SAMPLES
-* See <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki">here the wiki with samples and documentation, as well as FAQ</a>
-* See it in action at <a href="https://www.youtube.com/channel/UCA9RsLps1IthT7fDSeUbRZw">my Youtube channel.</a> 
-* Troubleshoot <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/5.-FAQ-Troubleshoot">are here! Take a look.</a> 
-* WatchDog node <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/7.-WatchDog-Configuration" target="_blank">wiki is here.</a>
+## TROUBLESHOOT, WIKI, FAQ, BEST PRACTICES AND SAMPLES
+* [All you need to know](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki)
+* [Youtube video](https://www.youtube.com/channel/UCA9RsLps1IthT7fDSeUbRZw)
+* [Troubleshoot & FAQ](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/5.-FAQ-Troubleshoot)
+* [Security best practices and suggestions](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/blob/master/SECURITY.md)
 <table>
   <tr>
     <td>Sample code for use with </td>
@@ -32,6 +32,7 @@
     <td valign="center" height="60"><a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Google-Assistant"><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/googleassistant.png" ></a></td> 
   </tr>
  </table>
+
 
 ## Highlights
 
