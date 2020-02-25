@@ -13,6 +13,7 @@ The developer of knx-ultimate repository and all developers involved in this pro
 ## Home automation rules
 
 In my experience, i developed some **best practices** to secure my home from fire, damages and risks for third persons.<br/>
+Some interesting things are below, for you. Hope you appreciate that.<br/>
 
 * Install one or more main power switches, that cut off the power in your whole house while you're away, leaving powered only the minimal number of necessary devices (like refirgerator, alarm panel, internet router and so on). If you need some automation while youre away, you can temporarly switch on the main power switch and regain full access. This is worthful to avoid possible hacking of your home by someone having access, for example, to an improperly secured IOT device.
 * Install a redundant internet router using another wan line, for example an LTE connection. In case you lost one wan, you have another one to rely to.
@@ -21,24 +22,11 @@ In my experience, i developed some **best practices** to secure my home from fir
 * Find a way to **escape** from your home in case of bulgary or fire alarm (for example, by means of an extensible ladder from a balcony).
 * Use only professional and certified bulgary/fire security system and command it by KNX. Be aware, the KNX command becomes the backdoor of possible problems. Never ever allow the KNX node to disarm your security system without a password. If you use a touchscreen, avoid **single button disarm** capability. Create buttons simulating a security panel **keypad** pression instead.
 * Install a **medical emergency** KNX pushbutton and put it, for example, near your bed. In case of emergency, automatically notify your family or someone that can help you, turn on all significant lights, create a **visible entrance pattern** for paramedics, unlock doors and the pathway to allow them to reach you even in case you become inconscious. You can even use Alexa, Siri or Google Home to trigger this KNX pushbutton (see in the example section of the wiki), in case you've a stroke and you can't move.
+* Install a **panic** KNX pushbutton
+* Take this into consideration: never enter your home in case of someone forces and threats you to do that, expecially if your family is inside. Once you're inside, **the offender can do whatever he wants** and no one outside can care about you. Install a **panic** button somewhere near your external doors and garages.
+* If you've installed external perimeter sensors, light up hour home by means of at least 4 (one for each angle of your home) powerful LEDs projector as soon as someone enters the perimeter at dusk or night.
+* Do an announcement via alarm keypads as soon as someone opens a window, external door or blind, even if you're at home.
 
 
 
-
-Use this section to tell people about which versions of your project are
-currently being supported with security updates.
-
-| Version | Supported          |
-| ------- | ------------------ |
-| 5.1.x   | :white_check_mark: |
-| 5.0.x   | :x:                |
-| 4.0.x   | :white_check_mark: |
-| < 4.0   | :x:                |
-
-## Reporting a Vulnerability
-
-Use this section to tell people how to report a vulnerability.
-
-Tell them where to go, how often they can expect to get an update on a
-reported vulnerability, what to expect if the vulnerability is accepted or
-declined, etc.
+## REMEMBER: YOU ARE THE ONLY RESPONSIBLE OF THE SECURITY OF YOUR PROPERTY. FOLLOW THE LAW, CONSIDER THIS KNX-ULTIMATE NODE ONLY AS AUTOMATION HELP, RELY ONLY ON CERTIFIED AND MECHANICALLY OR ELECTRONICALLY SECURED DEVICES. THINK FOR YOUR SAFETY. THINK THAT FOR SOME REASON, SOMETHING CAN GO WRONG, SO HAVE A BACKUP, FOR HEALT AND SAFETY RISKS, HAVE DOUBLE SECURITY. ONLY THEN, YOU CAN ENJOY YOUR LIFE WITH THE HELP AND FUN OF HOME AUTOMATION!
