@@ -7,7 +7,7 @@ Not to mention if, for your fault or for a BUG in the knx-ultimate repository, a
 The **building security** must be your primary concern.<br/>
 Please use knx-ultimate (but it's generally the same for ALL repositories) only to control actuators that have been secured by other certified means.<br/>
 For the example above, the garage door must be secured by a **CERTIFIED mechanical or electronical system**, preventing damages to people, animals or things.
-The developer of knx-ultimate repository and all developers involved in this project, is not responsible in any way for any damage, as stated in the MIT License you can find [here](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/blob/master/LICENSE).<br/>
+The developer of knx-ultimate repository and all developers involved in this project, are not responsible in any way for any damage, as stated in the MIT License you can find [here](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/blob/master/LICENSE).<br/>
 
 
 ## Home automation rules
