@@ -77,7 +77,7 @@ module.exports = (RED) => {
         node.KNXEthInterfaceManuallyInput = typeof config.KNXEthInterfaceManuallyInput === "undefined" ? "" : config.KNXEthInterfaceManuallyInput; // If you manually set the interface name, it will be wrote here
         node.statusDisplayLastUpdate = config.statusDisplayLastUpdate || true;
         node.statusDisplayDeviceNameWhenALL = config.statusDisplayDeviceNameWhenALL || false;
-        node.statusDisplayDataPoint = config.statusDisplayDataPoint || false;
+        node.statusDisplayDataPoint = typeof config.statusDisplayDataPoint ==="undefined"? false : config.statusDisplayDataPoint;
         node.telegramsQueue = [];  // 02/01/2020 Queue containing telegrams
         node.timerSendTelegramFromQueue = setInterval(handleTelegramQueue, 50); // 02/01/2020 Start the timer that handles the queue of telegrams
         node.timerDoInitialRead = null; // 17/02/2020 Timer (timeout) to do initial read of all nodes requesting initial read, after all nodes have been registered to the sercer
@@ -698,6 +698,10 @@ module.exports = (RED) => {
                                 if (node.stopETSImportIfNoDatapoint === "stop") {
                                     RED.log.error("knxUltimate: ABORT IMPORT OF ETS CSV FILE. To skip the invalid datapoint and continue import, change the related setting, located in the config node in the ETS import section.");
                                     return;
+                                } else {
+                                    // 02/03/2020 Whould you like to continue without datapoint? Good. Here a totally fake datapoint
+                                    RED.log.warn("knxUltimate: WARNING IMPORT OF ETS CSV FILE. Datapoint not set. You choosed to continue import. The Group Address will be imported with a fake datapoint 1.001. -> " + element.split("\t")[0] + " " + element.split("\t")[1]);
+                                    ajsonOutput.push({ ga: element.split("\t")[1], dpt: "1.001", devicename: sFather + element.split("\t")[0] + " (DPT NOT SET IN ETS - FAKE DPT USED)" });
                                 }
                             } else {
                                 var DPTa = element.split("\t")[5].split("-")[1];

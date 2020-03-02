@@ -175,7 +175,7 @@
                     <label style="width:auto" for="node-config-input-stopETSImportIfNoDatapoint"><i class="fa fa-question-circle"></i> If Group Address has no Datapoint</label>
                     <select id="node-config-input-stopETSImportIfNoDatapoint" style="width:200px;">
                         <option value="stop">Stop and abort import</option>
-                        <option value="skip">Skip and continue import</option>
+                        <option value="skip">Skip and continue import (Will use a fake DPT 1.001 datapoint. Not recommended!)</option>
                     </select>
                 </div>
                 <div class="form-row">
@@ -246,6 +246,6 @@ Starting from Version 1.1.11, you can use <b>Universal mode (listen to all Group
 <i>Note</i>: *ETS CSV Group address exported file* is way the best option, because it contain a precise datapoints with subtype. *ETS ESF exported file* is simpler and it doesn't have the subtype.<br />
 If you can use both, please prefer the <b>ETS CSV Group address exported file</b><br/><br/>
 <p><b>If Group Address has no Datapoint</b><br/>
-If a Group address has no Datapoint set in the ETS, you can select to stop and abort the entire import process, or to skip the affected Group Address and continue import.<br/>
+If a Group address has no Datapoint set in the ETS, you can select to stop and abort the entire import process, or to add the affected Group Address with a fake datapoint 1.001 and continue import.<br/>
 <p>For other options, please <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/1.-Gateway-configuration">see the Gateway wiki here.</a></p>
 </script>
