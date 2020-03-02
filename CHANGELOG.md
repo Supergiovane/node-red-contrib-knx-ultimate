@@ -5,6 +5,10 @@
 <br/>
 
 <p>
+<b>Version 1.1.38</b> - March 2020<br/>
+- Yet, if you import an ETS CSV file without datapoints, a fake datapoint 1.001 will be used (if you selected to force import the group address)<br/>
+</p>
+<p>
 <b>Version 1.1.37</b> - Feb 2020<br/>
 - Fixed an issue where new knx-ultimate nodes, without a gateway config node, doesn't open the configuration window. Thanks @svenflender<br/>
 </p>
