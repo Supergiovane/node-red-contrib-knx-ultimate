@@ -77,7 +77,7 @@ module.exports = (RED) => {
         node.KNXEthInterfaceManuallyInput = typeof config.KNXEthInterfaceManuallyInput === "undefined" ? "" : config.KNXEthInterfaceManuallyInput; // If you manually set the interface name, it will be wrote here
         node.statusDisplayLastUpdate = config.statusDisplayLastUpdate || true;
         node.statusDisplayDeviceNameWhenALL = config.statusDisplayDeviceNameWhenALL || false;
-        node.statusDisplayDataPoint = typeof config.statusDisplayDataPoint ==="undefined"? false : config.statusDisplayDataPoint;
+        node.statusDisplayDataPoint = typeof config.statusDisplayDataPoint === "undefined" ? false : config.statusDisplayDataPoint;
         node.telegramsQueue = [];  // 02/01/2020 Queue containing telegrams
         node.timerSendTelegramFromQueue = setInterval(handleTelegramQueue, 50); // 02/01/2020 Start the timer that handles the queue of telegrams
         node.timerDoInitialRead = null; // 17/02/2020 Timer (timeout) to do initial read of all nodes requesting initial read, after all nodes have been registered to the sercer
@@ -255,12 +255,12 @@ module.exports = (RED) => {
                             for (let index = 0; index < node.csv.length; index++) {
                                 const element = node.csv[index];
                                 if (readHistory.includes(element.ga)) return;
-                                node.writeQueueAdd({ grpaddr: element.ga, payload: "", dpt: "", outputtype: "read" });
+                                node.writeQueueAdd({ grpaddr: element.ga, payload: "", dpt: "", outputtype: "read", nodecallerid: element.id });
                                 readHistory.push(element.ga)
                             }
                         } else {
                             if (readHistory.includes(oClient.topic)) return;
-                            node.writeQueueAdd({ grpaddr: oClient.topic, payload: "", dpt: "", outputtype: "read" });
+                            node.writeQueueAdd({ grpaddr: oClient.topic, payload: "", dpt: "", outputtype: "read", nodecallerid: oClient.id });
                             readHistory.push(oClient.topic)
                         }
                     })
@@ -480,8 +480,8 @@ module.exports = (RED) => {
 
         // 02/01/2020 All sent messages are queued, to allow at least 50 milliseconds between each telegram sent to the bus
         node.writeQueueAdd = _oKNXMessage => {
-            // _oKNXMessage is { grpaddr, payload,dpt,outputtype (write or response)}
-            node.telegramsQueue.unshift(_oKNXMessage); // Add _oKNXMessage as first in the buffer
+            // _oKNXMessage is { grpaddr, payload,dpt,outputtype (write or response),nodecallerid (id of the node sending adding the telegram to the queue)}
+            node.telegramsQueue.unshift(_oKNXMessage); // Add _oKNXMessage as first in the queue
         }
 
         function handleTelegramQueue() {
@@ -489,15 +489,29 @@ module.exports = (RED) => {
                 if (node.telegramsQueue.length == 0) {
                     return;
                 }
-                // Retrieving oKNXMessage  { grpaddr, payload,dpt,outputtype (write or response)}
+                // Retrieving oKNXMessage  { grpaddr, payload,dpt,outputtype (write or response),nodecallerid (node caller)}
                 var oKNXMessage = node.telegramsQueue[node.telegramsQueue.length - 1]; // Get the last message in the queue
                 node.telegramsQueue.pop();// Remove the last message from the queue.
                 if (oKNXMessage.outputtype === "response") {
-                    node.knxConnection.respond(oKNXMessage.grpaddr, oKNXMessage.payload, oKNXMessage.dpt);
+                    try {
+                        node.knxConnection.respond(oKNXMessage.grpaddr, oKNXMessage.payload, oKNXMessage.dpt);
+                    } catch (error) {
+                        try {
+                            node.nodeClients.find(a => a.id === oKNXMessage.nodecallerid).setNodeStatus({ fill: "red", shape: "dot", text: "Send response " + error, payload: oKNXMessage.payload, GA: oKNXMessage.grpaddr, dpt: oKNXMessage.dpt, devicename: "" })
+                        } catch (error) { }
+                    }
                 } else if (oKNXMessage.outputtype === "read") {
-                    node.knxConnection.read(oKNXMessage.grpaddr);
+                    try {
+                        node.knxConnection.read(oKNXMessage.grpaddr);
+                    } catch (error) { }
                 } else {
-                    node.knxConnection.write(oKNXMessage.grpaddr, oKNXMessage.payload, oKNXMessage.dpt);
+                    try {
+                        node.knxConnection.write(oKNXMessage.grpaddr, oKNXMessage.payload, oKNXMessage.dpt);
+                    } catch (error) {
+                        try {
+                            node.nodeClients.find(a => a.id === oKNXMessage.nodecallerid).setNodeStatus({ fill: "red", shape: "dot", text: "Send write " + error, payload: oKNXMessage.payload, GA: oKNXMessage.grpaddr, dpt: oKNXMessage.dpt, devicename: "" })
+                        } catch (error) { }
+                    }
                 }
             }
         }

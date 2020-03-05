@@ -5,6 +5,10 @@
 <br/>
 
 <p>
+<b>Version 1.1.39</b> - March 2020<br/>
+- Fix a very low priority issue: a possible crash if you set the knx-ultimate node's output as "respond", while passing an object as payload to the input.<br/>
+</p>
+<p>
 <b>Version 1.1.38</b> - March 2020<br/>
 - Yet, if you import an ETS CSV file without datapoints, a fake datapoint 1.001 will be used (if you selected to force import the group address)<br/>
 - Update help and wiki to reflect the change<br/>
