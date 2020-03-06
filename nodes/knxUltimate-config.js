@@ -78,7 +78,7 @@ module.exports = (RED) => {
         node.statusDisplayLastUpdate = config.statusDisplayLastUpdate || true;
         node.statusDisplayDeviceNameWhenALL = config.statusDisplayDeviceNameWhenALL || false;
         node.statusDisplayDataPoint = typeof config.statusDisplayDataPoint === "undefined" ? false : config.statusDisplayDataPoint;
-        node.telegramsQueue = [];  // 02/01/2020 Queue containing telegrams
+        node.telegramsQueue = [];  // 02/01/2020 Queue containing telegrams 
         node.timerSendTelegramFromQueue = setInterval(handleTelegramQueue, 50); // 02/01/2020 Start the timer that handles the queue of telegrams
         node.timerDoInitialRead = null; // 17/02/2020 Timer (timeout) to do initial read of all nodes requesting initial read, after all nodes have been registered to the sercer
         node.stopETSImportIfNoDatapoint = typeof config.stopETSImportIfNoDatapoint === "undefined" ? "stop" : config.stopETSImportIfNoDatapoint; // 09/01/2020 Stop or Skip the import if a group address has unset datapoint
@@ -481,17 +481,27 @@ module.exports = (RED) => {
         // 02/01/2020 All sent messages are queued, to allow at least 50 milliseconds between each telegram sent to the bus
         node.writeQueueAdd = _oKNXMessage => {
             // _oKNXMessage is { grpaddr, payload,dpt,outputtype (write or response),nodecallerid (id of the node sending adding the telegram to the queue)}
-            node.telegramsQueue.unshift(_oKNXMessage); // Add _oKNXMessage as first in the queue
+            node.telegramsQueue.unshift(_oKNXMessage); // Add _oKNXMessage as first in the queue pile
         }
 
         function handleTelegramQueue() {
             if (node.knxConnection) {
-                if (node.telegramsQueue.length == 0) {
+
+                if (typeof node.lockHandleTelegramQueue !== "undefined" && node.lockHandleTelegramQueue === true) return; // Eits if the cuntion is busy
+                node.lockHandleTelegramQueue = true; // Lock the function. It cannot be called again until finished.
+
+                // Retrieving oKNXMessage  { grpaddr, payload,dpt,outputtype (write or response),nodecallerid (node caller)}. 06/03/2020 "Read" request does have the lower priority in the queue, so firstly, i search for "read" telegrams and i move it on the top of the queue pile.
+                var aTelegramsFiltered = [];
+                aTelegramsFiltered = node.telegramsQueue.filter(a => a.outputtype !== "read");
+                if (aTelegramsFiltered.length == 0) {
+                    aTelegramsFiltered = node.telegramsQueue;
+                }
+                if (aTelegramsFiltered.length == 0) {
+                    node.lockHandleTelegramQueue = false; // Unlock the function
                     return;
                 }
-                // Retrieving oKNXMessage  { grpaddr, payload,dpt,outputtype (write or response),nodecallerid (node caller)}
-                var oKNXMessage = node.telegramsQueue[node.telegramsQueue.length - 1]; // Get the last message in the queue
-                node.telegramsQueue.pop();// Remove the last message from the queue.
+
+                var oKNXMessage = aTelegramsFiltered[aTelegramsFiltered.length - 1]; // Get the last message in the queue
                 if (oKNXMessage.outputtype === "response") {
                     try {
                         node.knxConnection.respond(oKNXMessage.grpaddr, oKNXMessage.payload, oKNXMessage.dpt);
@@ -513,6 +523,15 @@ module.exports = (RED) => {
                         } catch (error) { }
                     }
                 }
+                // Remove current item in the main node.telegramsQueue array
+                try {
+                    node.telegramsQueue = node.telegramsQueue.filter(item => {
+                        if (item !== oKNXMessage) {
+                            return item;
+                        }
+                    });
+                } catch (error) { }
+                node.lockHandleTelegramQueue = false; // Unlock the function
             }
         }
 

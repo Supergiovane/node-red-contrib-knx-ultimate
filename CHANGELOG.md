@@ -5,6 +5,10 @@
 <br/>
 
 <p>
+<b>Version 1.1.40</b> - March 2020<br/>
+- Better handling of telegrams, giving priority to the "write" and "response" telegram in the queue. Thanks @heleon19 for the suggestion.<br/>
+</p>
+<p>
 <b>Version 1.1.39</b> - March 2020<br/>
 - Fix a very low priority issue: a possible crash if you set the knx-ultimate node's output as "respond", while passing an object as payload to the input.<br/>
 </p>
