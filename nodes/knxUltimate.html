@@ -48,12 +48,17 @@
 
             // 19/02/2020 Used to alert the user if the CSV file has not been loaded
             $("#node-input-server").change(function () {
-                var config = RED.nodes.node($(this).val());
-                if (typeof config.csv !== "undefined" && config.csv !== "") {
-                    $("#isETSFileLoaded").val("si");
-                } else {
+                try {
+                    var config = RED.nodes.node($(this).val());
+                    if (typeof config.csv !== "undefined" && config.csv !== "") {
+                        $("#isETSFileLoaded").val("si");
+                    } else {
+                        $("#isETSFileLoaded").val("no");
+                    }
+                } catch (error) {
                     $("#isETSFileLoaded").val("no");
                 }
+
             });
 
             $.getJSON('knxUltimateDpts', (data) => {

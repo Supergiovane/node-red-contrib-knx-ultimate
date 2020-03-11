@@ -92,12 +92,12 @@ module.exports = function (RED) {
                     if (node.listenallga == false) {
                         grpaddr = msg && msg.destination ? msg.destination : node.topic
                         node.setNodeStatus({ fill: "grey", shape: "dot", text: "Read", payload: "", GA: grpaddr, dpt: node.dpt, devicename: "" });
-                        node.server.writeQueueAdd({ grpaddr: grpaddr, payload: "", dpt: "", outputtype: "read" });
+                        node.server.writeQueueAdd({ grpaddr: grpaddr, payload: "", dpt: "", outputtype: "read" , nodecallerid: node.id});
                     } else { // Listen all GAs
                         if (msg.destination) {
                             // listenallga is true, but the user specified own group address
                             grpaddr = msg.destination
-                            node.server.writeQueueAdd({ grpaddr: grpaddr, payload: "", dpt: "", outputtype: "read" });
+                            node.server.writeQueueAdd({ grpaddr: grpaddr, payload: "", dpt: "", outputtype: "read", nodecallerid: node.id });
                         } else {
                             // Issue read to all group addresses
                             // 25/10/2019 the user is able not import the csv, so i need to check for it. This option should be unckecked by the knxUltimate html config, but..
@@ -105,7 +105,7 @@ module.exports = function (RED) {
                                 let delay = 0;
                                 for (let index = 0; index < node.server.csv.length; index++) {
                                     const element = node.server.csv[index];
-                                    node.server.writeQueueAdd({ grpaddr: element.ga, payload: "", dpt: "", outputtype: "read" });
+                                    node.server.writeQueueAdd({ grpaddr: element.ga, payload: "", dpt: "", outputtype: "read", nodecallerid: node.id });
                                     setTimeout(() => {
                                         // Timeout is only for the status update.
                                         node.setNodeStatus({ fill: "grey", shape: "dot", text: "Read", payload: "", GA: element.ga, dpt: element.dpt, devicename: element.devicename });
@@ -222,13 +222,13 @@ module.exports = function (RED) {
                         if (outputtype == "response") {
                             try {
                                 node.currentPayload = msg.payload;// 31/12/2019 Set the current value (because, if the node is a virtual device, then it'll never fire "GroupValue_Write" in the server node, causing the currentPayload to never update)
-                                node.server.writeQueueAdd({ grpaddr: grpaddr, payload: msg.payload, dpt: dpt, outputtype: outputtype })
+                                node.server.writeQueueAdd({ grpaddr: grpaddr, payload: msg.payload, dpt: dpt, outputtype: outputtype, nodecallerid: node.id })
                                 node.setNodeStatus({ fill: "blue", shape: "dot", text: "Responding", payload: msg.payload, GA: grpaddr, dpt: dpt, devicename: "" });
                             } catch (error) { }
                         } else {
                             try {
                                 node.currentPayload = msg.payload;// 31/12/2019 Set the current value (because, if the node is a virtual device, then it'll never fire "GroupValue_Write" in the server node, causing the currentPayload to never update)
-                                node.server.writeQueueAdd({ grpaddr: grpaddr, payload: msg.payload, dpt: dpt, outputtype: outputtype })
+                                node.server.writeQueueAdd({ grpaddr: grpaddr, payload: msg.payload, dpt: dpt, outputtype: outputtype, nodecallerid: node.id })
                                 node.setNodeStatus({ fill: "green", shape: "dot", text: "Writing", payload: msg.payload, GA: grpaddr, dpt: dpt, devicename: "" });
                             } catch (error) { }
                         }
