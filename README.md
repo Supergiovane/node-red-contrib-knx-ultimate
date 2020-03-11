@@ -93,7 +93,7 @@ The "Suppress ACK" option, helps compatibility with old IP Interfaces, like the 
 The node is very simple to use "out of the box", but you can plasmate it to achieve any goal you want.
 
 </details>
-<details><summary>WATCHDOG Node for KNX backup connection and notification and to change the KNX gateway configuration on the fly</summary>
+<details><summary>WATCHDOG Node</summary>
 
 You can check the healty of your KNX Bus connection and switch over to anoter KNX/IP Router if the primary fails. It can programmatically change the IP, Port etc... of the KNX/IP Interface or router, via msg as well.
 
