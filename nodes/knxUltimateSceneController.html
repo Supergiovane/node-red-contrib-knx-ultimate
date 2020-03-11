@@ -322,92 +322,21 @@
 
 <script type="text/x-red" data-help-name="knxUltimateSceneController">
     <p>
-        Knx-ultimate is a powerfull device node, all-in-one. It acts as input device as well as output device at the same time.<br />
-        Please see the <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki">WIKI for instructions.</a>.<br />
-        You can import your ETS csv file, containing all your group addresses and datapoint types and use it instead of manually create one node for each group address.<br />
-    </p>
-    <p>
         <a href="https://www.paypal.me/techtoday" target="_blank"><img src='https://img.shields.io/badge/Donate-PayPal-blue.svg?style=flat-square' width='30%'></a>
         and
         <a href="http://eepurl.com/gJm095" target="_blank">Subscribe to my channel</a> for news about my nodes.
     </p>
     <p>
-            <dl class="message-properties">
-                <dt>Gateway</dt>
-                <dd> Selected KNX gateway. </dd>
- 
-                <dt>Group Addr.
-                    <span class="property-type">Example 0/0/1</span>
-                </dt>
-                <dd> KNX Group address to read/write to. It can be overridden by msg input <code>msg.knx.destination</code>.</dd>
-    
-                <dt>Datapoint</dt>
-                <dd> KNX datapoint type (DPT). It's not mandatory if you import the ETS csv file and select <i>Universal mode (listen to all Group Addresses)</i>. It can be overridden by <code>msg.dpt</code>.</dd>
-    
-                <dt>Universal mode (listen to all Group Addresses)</dt>
-                <dd> The node will react to all group addresses when used as INPUT, and will notify a message containing a payload correctly decoded using the datapoints specified in the ETS csv file. When used as OUTPUT, it automatically decodes the payload using the right datapoint specified in the ETS csv file.</dd>
-                <dd> Starting from Version 1.1.11, you can use <i>Universal mode (listen to all Group Addresses)</i> option without the need of an imported ETS CSV File. You need to pass a message to the node, containing datapoint type and a value. As soon as the node receives a telegram from BUS, it will output a RAW value and beside that, it will try to decode the value without knowing the datapoint type.</dd>
-            </dl>
-            
-            <h3>ADVANCED OPTIONS</h3>
-
-            <b>OUTPUT (sends datagram to the BUS)</b>
-            <dl class="message-properties">
-                    <dt>Output Type</dt>
-                    <dd>Write: the node will send the payload to the BUS as a 'write' message (standard).<br />
-                        Response: the node will send the payload to the BUS as a 'response' message (in case you wish to create your own 'response', in response to a read request).</dd>
-        
-                    <dt>Send payload to BUS only if changed (RBE filter)</dt>
-                    <dd>The RBE (Report by Exception) filter, only passes on data if the payload has changed. The node writes to BUS only if the received msg.payload differs from the current value. For example, if the kitchen light is on (true) and you send again a msg.payload=true to the node, the value will not be written again to the bus. This is useful to avoid loops.</dd>
-    
-                    <dt>Send a GrpValue read once on connection/reconnect</dt>
-                    <dd>On connection/reconnection, the node will send a 'read' request to the group address specified on the <b>Group Address</b> or, if <i>Universal mode (listen to all Group Addresses)</i> is selected and ETS cvs file was imported, on all group addresses specified on the ETS csv file.</dd>
-            </dl>
-           
-            <b>INPUT (listen to datagram from the BUS)</b>
-            <dl class="message-properties">
-                <dt>React only if payload from BUS is changed (RBE filter)</dt>
-                <dd>The RBE (Report by Exception) filter, only passes on data on the flow if the KNX Telegram coming from BUS has changed. The node starts a flow only if the received KNX Telegram differs from the current Payload. This is useful to avoid loops.</dd>
-    
-                <dt>React to event GroupValue write</dt>
-                <dd>When checked, received writeRequests will be notified</dd>
-
-                <dt>React to event GroupValue response</dt>
-                <dd>When checked, received responses will be notified</dd>
-
-                <dt>React to event GroupValue read</dt>
-                <dd> When checked, received read requests will be notified, this can be used to create your own response with a <i>Output Type</i> set to 'Response'.
-                    <strong>Attention:</strong> Messages for received read requests have a <code>msg.payload</code> and
-                    <code>msg.knx.rawValue</code> with value <code>null</code>.<br/>
-                        <dt>Auto send node value as response to the BUS</dt>
-                        <dd> Only enabled if "Universal mode (listen to all Group Addresses)" is not selected. It works in conjunction with <b>React to event GroupValue read</b>. When checked, whenever the node receives a read request from bus, it sends a response to the BUS with the stored payload value.
-                            If the value is unknown/not initialized, it sends a default value you've selected in the text box.
-                        </dd>
-                </dd>
-            </dl>
-        </p>
-
        
-        <dl class="message-properties">
-            <h3>Custom KNX message value formatting</h3>
-            <p>This section allow you to manipulate the value coming from KNX BUS and to output a formatted payload to the flow.</p>
-            <b>NUMERIC VALUES (operations are performed in order)</b>
+        Please consult <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/SceneController-Configuration" target="_blank">this page of the wiki</a> for the configuration parameters, and 
+        <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/Sample-Scene-Node" target="_blank"> samples here</a>.       
+     </p>
 
-                <dt>Multiply</dt>
-                <dd>Multiply or divide the value.</dd>
-    
-                <dt>Decimals</dt>
-                <dd>Select how many decimals to keep. The value will then be rounded.</dd>
-
-                <dt>Negatives</dt>
-                <dd>It can be sometime necessary to manipulate the negative values, if these doesn't make sense. For example, if you have a washing machine that is off, and a power meter attached to it, sometime the watt-meter shows a negative value, for example -0,4 Watt. With this option, you can send 0 everytime the value is negative.</dd>
-        </dl>
-
-
+      
         <p>
             <b>MSG FORMAT</b><br/>
-            <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/3.-Messages-from-the-node" target="_blank">Click here for msg output format</a>.<br />
-            <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/4.-Messages-to-the-node" target="_blank">Click here for msg input format</a>.<br />
+            <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/SceneController-MSG-from-the-node" target="_blank">Click here for msg output format</a>.<br />
+            <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/SceneController-MSG-to-the-node" target="_blank">Click here for msg input format</a>.<br />
             <br />
         </p>
         <p>
