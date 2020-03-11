@@ -246,7 +246,6 @@ module.exports = function (RED) {
         })
 
         // On each deploy, unsubscribe+resubscribe
-        // Unsubscribe(Subscribe)
         if (node.server) {
             node.server.removeClient(node);
             if (node.topic || node.listenallga) {
