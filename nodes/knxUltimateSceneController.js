@@ -27,15 +27,14 @@ module.exports = function (RED) {
         node.rules = config.rules || [{}];
         node.isSceneController = true; // Signal to config node, that this is a node scene controller
         node.userDir = RED.settings.userDir + "/knxultimatestorage"; // 09/03/2020 Storage of sonospollytts (otherwise, at each upgrade to a newer version, the node path is wiped out and recreated, loosing all custom files)
-        node.hasFilesystemAccess = false; // if error in accessong filesystem, avoid saving scenes.
-
+        
         // 11/03/2020 Delete scene saved file, from html
         RED.httpAdmin.get("/knxultimatescenecontrollerdelete", RED.auth.needsPermission("knxUltimateSceneController.read"), function (req, res) {
             // Delete the file
             try {
-                var newPath = node.userDir + "/scenecontroller/SceneController_" + node.id;
+                var newPath = node.userDir + "/scenecontroller/SceneController_" + req.query.FileName;
                 fs.unlinkSync(newPath)
-            } catch (error) { }
+            } catch (error) { RED.log.warn("e " + error)}
             res.json({ status: 220 });
         });
 
@@ -73,9 +72,8 @@ module.exports = function (RED) {
         if (!setupDirectory(node.userDir + "/scenecontroller")) {
             RED.log.error('knxUltimate-Scene Controller: Unable to set up permanent files directory: ' + node.userDir + "/scenecontroller");
             node.setNodeStatus({ fill: "red", shape: "dot", text: "Unable to setup permanent files directory", payload: "", GA: "", dpt: "", devicename: node.name })
-            node.hasFilesystemAccess = false;
         } else {
-            node.hasFilesystemAccess = true;
+
         }
 
         // Used to call the status update from the config node.
@@ -165,11 +163,7 @@ module.exports = function (RED) {
 
         // 11/03/2020 in the middle of coronavirus. Whole italy is red zone, closed down. Save scene.
         node.SaveScene = _Payload => {
-            if (!node.hasFilesystemAccess) {
-                node.setNodeStatus({ fill: "red", shape: "dot", text: "Error saving scene. Unable to access filesystem.", payload: "", GA: "", dpt: "", devicename: node.name });
-                return;
-            }
-
+  
             var curVal = _Payload.toString().toLowerCase();
             var newVal = node.topicSaveTrigger.toString().toLowerCase();
             if (curVal === "false") {
@@ -197,7 +191,10 @@ module.exports = function (RED) {
             node.setNodeStatus({ fill: "blue", shape: "dot", text: "Saved scene", payload: "", GA: "", dpt: "", devicename: "" });
             try {
                 fs.writeFileSync(node.userDir + "/scenecontroller/SceneController_" + node.id, JSON.stringify(node.rules, null, 2), 'utf-8');
-            } catch (error) { }
+            } catch (error) {
+                node.setNodeStatus({ fill: "red", shape: "dot", text: "Error saving scene. Unable to access filesystem.", payload: "", GA: "", dpt: "", devicename: node.name });
+                return;
+             }
             node.send({ savescene: true, recallscene: false });
         }
 

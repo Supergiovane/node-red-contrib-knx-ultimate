@@ -5,7 +5,7 @@
 <br/>
 
 <p>
-<b>Version 1.1.42</b> - March 2020<br/>
+<b>Version 1.1.43</b> - March 2020 in the middle of Coronavirus emergency in Italy<br/>
 - NEW: Scene Controller node (see the Wiki).<br/>
 </p>
 <p>
