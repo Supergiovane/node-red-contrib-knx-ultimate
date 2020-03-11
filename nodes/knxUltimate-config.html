@@ -103,149 +103,134 @@
 
 <script type="text/x-red" data-template-name="knxUltimate-config">
     <div class="form-row">
-        <label for="node-config-input-host"><i class="icon-bookmark"></i> Host</label>
-        <input type="text" id="node-config-input-host">
+        <h4><span data-i18n="knxUltimate-config.properties.title"></span></h4>
     </div>
     <div class="form-row">
-        <label for="node-config-input-port"><i class="icon-bookmark"></i> Port</label>
-        <input type="text" id="node-config-input-port">
+        <label for="node-config-input-host">
+            <i class="fa fa-server"></i>
+            <span data-i18n="knxUltimate-config.properties.host"></span>
+        </label>
+        <input type="text" id="node-config-input-host" style="width: 30%"><i class="fa fa-info-circle" data-i18n="[Title]knxUltimate-config.properties.host_info" style="margin-left:5px;"></i>
+
+        <label for="node-config-input-port" style="margin-left:20px; width:43px;">
+            <span data-i18n="knxUltimate-config.properties.port"></span>
+        </label>
+        <input type="text" id="node-config-input-port" style="width: 55px"><i class="fa fa-info-circle" data-i18n="[Title]knxUltimate-config.properties.port_info" style="margin-left:5px;"></i>
     </div>
     <div class="form-row">
-        <label for="node-config-input-KNXEthInterface"><i class="fa fa-wifi"></i> Bind to local interface </label>
-        <select id="node-config-input-KNXEthInterface"></select> <b>Restart node-red</b> after change!
+        <label for="node-config-input-KNXEthInterface" style="width: 200px">
+            <i class="fa fa-wifi"></i>
+            <span data-i18n="knxUltimate-config.properties.bind_local_int"></span>
+        </label>
+        <select id="node-config-input-KNXEthInterface"></select>
+        <div class="form-tips" style="margin-top: 11px;background-color:#FFEEEE;text-align:center"><b><span data-i18n="knxUltimate-config.properties.restart_hint"></span></b></div>
     </div>
     <div class="form-row" id="divKNXEthInterfaceManuallyInput" style="display: none;">
         <label for="node-config-input-KNXEthInterfaceManuallyInput"></label>
         <input type="text" id="node-config-input-KNXEthInterfaceManuallyInput" placeholder="Interface name, ex: eth0 or ens1 or Ethernet 1 and so on..."></input>
     </div>
+
     <div id="advancedOptionsAccordion">
-        <h3>Advanced options</h3>
+        <h3><span data-i18n="knxUltimate-config.properties.adv_options"></span></h3>
         <div>
-            <p>
-                <div class="form-row">
-                    <label for="node-config-input-physAddr"><i class="fa fa-microchip"></i> KNX Physical Address</label>
-                    <input type="text" id="node-config-input-physAddr">
-                </div>
+            <div class="form-row">
+                <label for="node-config-input-physAddr" style="width:auto">
+                    <i class="fa fa-microchip"></i>
+                    <span data-i18n="knxUltimate-config.advanced.knx_phy_addr"></span>
+                </label>
+                <input type="text" id="node-config-input-physAddr" style="width:30%">
+            </div>
                 <div class="form-row">
                     <input type="checkbox" id="node-config-input-statusDisplayLastUpdate" style="display:inline-block; width:auto; vertical-align:top;">
-                    <label style="width:auto" for="node-config-input-statusDisplayLastUpdate">&nbsp;&nbsp;<i class="fa fa-comment-o"></i>  Show last update day and time in status</label>
+                    <label style="width:85%" for="node-config-input-statusDisplayLastUpdate">
+                        <i class="fa fa-comment-o"></i>
+                        <span data-i18n="knxUltimate-config.advanced.show_date_status"></span>
+                    </label>
                 </div>
                 <div class="form-row">
                     <input type="checkbox" id="node-config-input-statusDisplayDeviceNameWhenALL" style="display:inline-block; width:auto; vertical-align:top;">
-                    <label style="width:auto" for="node-config-input-statusDisplayDeviceNameWhenALL">&nbsp;&nbsp;<i class="fa fa-comment-o"></i>  Show device name in status (require "Listen all Group Address" )</label>
+                    <label style="width:85%" for="node-config-input-statusDisplayDeviceNameWhenALL">
+                        <i class="fa fa-comment-o"></i>
+                        <span data-i18n="knxUltimate-config.advanced.show_device_status"></span>
+                    </label>
                 </div>
                 <div class="form-row">
                     <input type="checkbox" id="node-config-input-statusDisplayDataPoint" style="display:inline-block; width:auto; vertical-align:top;">
-                    <label style="width:auto" for="node-config-input-statusDisplayDataPoint">&nbsp;&nbsp;<i class="fa fa-comment-o"></i>  Show datapoint in status</label>
+                    <label style="width:85%" for="node-config-input-statusDisplayDataPoint">
+                        <i class="fa fa-comment-o"></i>
+                        <span data-i18n="knxUltimate-config.advanced.show_datapoint_status"></span>
+                    </label>
                 </div>
-
                 <div class="form-row">
                     <input type="checkbox" id="node-config-input-suppressACKRequest" style="display:inline-block; width:auto; vertical-align:top;">
-                    <label style="width:auto" for="node-config-input-suppressACKRequest">&nbsp;&nbsp;<i class="fa fa-ban"></i>  Suppress ACK request</label>
-                    <div id="helpallga"> This option help compatibility with old Siemens SWG1 148-1AB22 IP Interface firmware</div>
+                    <label style="width:85%" for="node-config-input-suppressACKRequest">
+                        <i class="fa fa-ban"></i>
+                        <span data-i18n="knxUltimate-config.advanced.suppress_ack"></span>
+                    </label>
+                    <div id="helpallga" class="form-tips" style="margin-top:11px">
+                        <span data-i18n="knxUltimate-config.advanced.suppress_ack_help"></span>
+                    </div>
                 </div>
                 <div class="form-row">
-                    <label for="node-config-input-loglevel"><i class="fa fa-question-circle"></i> Loglevel</label>
-                    <select id="node-config-input-loglevel" style="width:25%;">
-                        <option value="error">Error (Default)</option>
-                        <option value="warn">Warning</option>
-                        <option value="info">Info</option>
-                        <option value="debug">Debug</option>
-                        <option value="trace">Trace</option>
-                    </select> <b>Restart node-red</b> after change!
+                    <label for="node-config-input-loglevel">
+                        <i class="fa fa-question-circle"></i>
+                        <span data-i18n="knxUltimate-config.advanced.log_level"></span>
+                    </label>
+                    <select id="node-config-input-loglevel" style="width:40%;">
+                        <option value="error" data-i18n="knxUltimate-config.advanced.select_error"></option>
+                        <option value="warn" data-i18n="knxUltimate-config.advanced.select_warning"></option>
+                        <option value="info" data-i18n="knxUltimate-config.advanced.select_info"></option>
+                        <option value="debug" data-i18n="knxUltimate-config.advanced.select_debug"></option>
+                        <option value="trace" data-i18n="knxUltimate-config.advanced.select_trace"></option>
+                    </select>
+                    <div class="form-tips" style="margin-top: 11px;background-color:#FFEEEE;text-align:center">
+                        <b><span data-i18n="knxUltimate-config.properties.restart_hint"></span></b>
+                    </div>
                 </div>
-
                 <p>
-                    List of your nodes in all flows
-                    <textarea rows="20" id="nodeList" style="width:100%" placeholder="Here is a list of all your configured KNX Nodes."></textarea>
+                    <span data-i18n="knxUltimate-config.advanced.nodes_list_title"></span>
+                    <textarea rows="20" id="nodeList" style="width:100%" data-i18n="[placeholder]knxUltimate-config.advanced.nodes_list_help"></textarea>
                 </p>
-     
-            </p>
         </div>
     </div>
 
     <div id="etsCSVListBox">
-        <h3>ETS Group Address list import</h3>
+        <h3><span data-i18n="knxUltimate-config.properties.ets_import"></span></h3>
         <div>
-            <p>
-                You can import either an ETS CSV group address list, or an ESF group address list. Please prefer the <b>ETS CSV group address list</b>, as the datapoints are more complete.<br/><br/>
-                <i class="fa fa-link"></i> <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/1.-Gateway-configuration" target="_blank">Click for instruction on how to export ETS CSV group address list</a>.</br>
-                <i class="fa fa-youtube"></i> <a href="https://youtu.be/I32_qG7yhFc" target="_blank">See how to export the CSV on Youtube</a>
-                <div class="form-row">
-                    <label style="width:auto" for="node-config-input-stopETSImportIfNoDatapoint"><i class="fa fa-question-circle"></i> If Group Address has no Datapoint</label>
-                    <select id="node-config-input-stopETSImportIfNoDatapoint" style="width:200px;">
-                        <option value="stop">Stop and abort import</option>
-                        <option value="skip">Import with a fake 1.001 datapoint (Not recommended)</option>
-                    </select>
-                </div>
-                <div class="form-row">
-                    <label style="width:auto" for="node-config-input-csv">&nbsp;&nbsp;<i class="fa fa-th-list"></i>  Group Address list</label></br>
-                    <textarea rows="20" id="node-config-input-csv" style="width:100%" placeholder="Paste here your CSV or ESF exported file from ETS"></textarea>
-                </div>
-            </p>
+            <div class="form-row">
+                <span data-i18n="knxUltimate-config.ets.description"></span>
+            </div>
+            <div class="form-row">
+                <i class="fa fa-link"></i>
+                <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/1.-Gateway-configuration" target="_blank">
+                    <span data-i18n="knxUltimate-config.ets.instruction"></span>
+                </a>
+            </div>
+            <div class="form-row">
+                <i class="fa fa-youtube"></i>
+                <a href="https://youtu.be/I32_qG7yhFc" target="_blank">
+                    <span data-i18n="knxUltimate-config.ets.youtube"></span>
+                </a>
+            </div>
+            <div class="form-row">
+                <label style="width:auto" for="node-config-input-stopETSImportIfNoDatapoint">
+                    <i class="fa fa-question-circle"></i>
+                    <span data-i18n="knxUltimate-config.ets.help_ga"></span>
+                </label>
+                <select id="node-config-input-stopETSImportIfNoDatapoint" style="width:100%">
+                    <option value="stop" data-i18n="knxUltimate-config.ets.import_select_stop"></option>
+                    <option value="skip" data-i18n="knxUltimate-config.ets.import_select_skip"></option>
+                </select>
+            </div>
+            <div class="form-row">
+                <label style="width:auto" for="node-config-input-csv">
+                    <i class="fa fa-th-list"></i>
+                    <span data-i18n="knxUltimate-config.ets.ga_list_title"></span>
+                </label>
+            </div>
+            <div class="form-row">
+                <textarea rows="20" id="node-config-input-csv" style="width:100%" data-i18n="[placeholder]knxUltimate-config.ets.ga_list_help"></textarea>
+            </div>
         </div>
     </div>
-
-</script>
-
-<script type="text/x-red" data-help-name="knxUltimate-config">
-    <p>
-        <a href="https://www.paypal.me/techtoday" target="_blank"><img src='https://img.shields.io/badge/Donate-PayPal-blue.svg?style=flat-square' width='30%'></a>
-        and
-        <a href="http://eepurl.com/gJm095" target="_blank">Subscribe to my channel</a> for news about my nodes.
-    </p>
-
-    To be able to interact with the KNX bus, you need to configure the Node's gateway. It stores the default ETH/KNX Router's multicast address as well as the default port. It should work with the default values.
-<br/>
-<p>
-<b>Host</b><br/>
-ETH/KNX Router's multicast address.
-</p>
-<p>
-<b>Port</b><br/>
-ETH/KNX Router's multicast port.
-</p>
-<b>Bind to local interface</b><br/>
-The Node will use this local interface for communications. Leave "Auto" for automatic selection. If you have more than one lan connection, for example Ethernet and Wifi, it's strongly recommended to manually select the interface, otherwise not all UDP telegram will reach your computer, thus the Node may not work as expected.
-</p>
-<p>
-<b>KNX Physical Address</b><br/>
-Local KNX physical addres, identifying the KNX device. Default "15.15.22". This is not a group address, this represents the unique address of a konnex device in a konnex installation.
-</p>
-
-<p>
-    <b>Show last update day and time in status</b><br/>
-    Display last update day and time, in the format (day, hh:mm:ss);
-</p>
-<p>
-    <b>Show device name in status (require "Listen all Group Address" is checked)</b><br/>
-    Display device name in node status. This option is only taken in consideration if "Listen all Group Address" is checked. Displays the KNX device name.
-</p>
-<p>
-    <b>Show datapoint in status</b><br/>
-    Display the node's KNX Datapoint.
-</p>
-<p>
-<b>Suppress ACK request</b><br/>
-This option help compatibility with old Siemens SWG1 148-1AB22 IP Interface firmware and other EHT/KNX interfaces that does'nt like the ACK. Default "unchecked". Check it to help compatibility
-</p>
-<p>
-<b>Loglevel</b><br/>
-    Define the log level of the underling KNX library. Useful for debugging in case of problem. Normally, you don't need to change this. Require node-red restart to take effect.
-</p>
-<p>
-    <b>List of your nodes in all flows</b><br/>
-    This is a list of all the knx-ultimate nodes, you inserted into your flows. This is useful, for example, to copy each group address and to paste it into a KNX Router filter table, for example. Or you can just check, if you wrongly added two knx-ultimate node with same Group Address but with different Datapoint.
-</p>
-
-<p><b>ETS Group Address list import</b><br/>
-Optionally, you can paste here the CSV or ESF file from ETS.<br/>
-Supported ETS versions: ETS 4 and onwards.<br/>
-This CSV or ESF will then be used by the knxUltimate node (if you select "Universal mode (listen to all Group Address)" on the knxUltimate node) to automatically decode all the raw values received from the KNX bus. These values will then be outputted by the msg.payload<br/>
-Starting from Version 1.1.11, you can use <b>Universal mode (listen to all Group Address)</b> option without the need of an imported ETS CSV or EFS File. You need to pass a message to the node, containing datapoint type and a value. As soon as the node receives a telegram from KNX Bus, it will output a RAW value and beside that, it will try to decode the value without knowing the datapoint type.</p>
-<i>Note</i>: *ETS CSV Group address exported file* is way the best option, because it contain a precise datapoints with subtype. *ETS ESF exported file* is simpler and it doesn't have the subtype.<br />
-If you can use both, please prefer the <b>ETS CSV Group address exported file</b><br/><br/>
-<p><b>If Group Address has no Datapoint</b><br/>
-If a Group address has no Datapoint set in the ETS, you can select to stop and abort the entire import process, or to add the affected Group Address with a fake datapoint 1.001 and continue import.<br/>
-<p>For other options, please <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/1.-Gateway-configuration">see the Gateway wiki here.</a></p>
 </script>

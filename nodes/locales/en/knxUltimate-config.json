@@ -1,0 +1,41 @@
+{
+    "knxUltimate-config": {
+        "properties": {
+            "title": "KNX/IP Router Configuration",
+            "host": "Host",
+            "host_info": "Default setting is the Multicast address of KNX/IP (224.0.23.12)",
+            "port": "Port",
+            "port_info": "Default Setting is the Port of KNX/IP (3671)",
+            "bind_local_int": "Bind to local interface",
+            "restart_hint": "! Restart Node-RED after change !",
+            "adv_options": "Advanced options",
+            "ets_import": "ETS Group Address list import"
+        },
+        "advanced": {
+            "knx_phy_addr": "KNX Physical Address",
+            "show_date_status": "Show last update day and time in status",
+            "show_device_status": "Show device name in status (require \"Listen all Group Address\" )",
+            "show_datapoint_status": "Show datapoint in status",
+            "suppress_ack": "Suppress ACK request",
+            "suppress_ack_help": "This option help compatibility with old Siemens SWG1 148-1AB22 IP Interface firmware",
+            "log_level": "Loglevel",
+            "nodes_list_title": "List of your nodes in all flows",
+            "nodes_list_help": "Here is a list of all your configured KNX Nodes.",
+            "select_trace": "Trace",
+            "select_debug": "Debug",
+            "select_info": "Info",
+            "select_warning": "Warning",
+            "select_error": "Error (Default)"
+        },
+        "ets": {
+            "description": "You can import either an ETS CSV group address list, or an ESF group address list. Please prefer the ETS CSV group address list, as the datapoints are more complete.",
+            "instruction": "Click for instruction on how to export ETS CSV group address list.",
+            "youtube": "See how to export the CSV on Youtube",
+            "help_ga": "If Group Address has no Datapoint",
+            "import_select_stop": "Stop and abort import",
+            "import_select_skip": "Import with a fake 1.001 datapoint (Not recommended)",
+            "ga_list_title": "Group Address list",
+            "ga_list_help": "Paste here your CSV or ESF exported file from the ETS"
+        }
+    }
+}
