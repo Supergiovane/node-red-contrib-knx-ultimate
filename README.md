@@ -93,14 +93,14 @@ The "Suppress ACK" option, helps compatibility with old IP Interfaces, like the 
 The node is very simple to use "out of the box", but you can plasmate it to achieve any goal you want.
 
 </details>
-<details><summary>WATCHDOG Node for KNX backup connection and notification</summary>
+<details><summary>WATCHDOG Node</summary>
 
-You can check the healty of your KNX Bus connection and switch over to anoter KNX/IP Router if the primary fails.
+You can check the healty of your KNX Bus connection and switch over to anoter KNX/IP Router if the primary fails. It can programmatically change the IP, Port etc... of the KNX/IP Interface or router, via msg as well.
 
 </details>
-<details><summary>WATCHDOG Node to change the KNX gateway configuration on the fly</summary>
+<details><summary>SCENE CONTROLLER Node</summary>
 
-Programmatically change the IP, Port etc... of the KNX/IP Interface or router, via msg.
+The scene controller node can act as a real scene controller, with recall and save of the current scene.
 
 </details>
 <details><summary>ACTIVE DEVELOPED</summary>

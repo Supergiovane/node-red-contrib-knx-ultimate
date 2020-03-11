@@ -5,6 +5,10 @@
 <br/>
 
 <p>
+<b>Version 1.1.42</b> - March 2020<br/>
+- NEW: Scene Controller node (see the Wiki).<br/>
+</p>
+<p>
 <b>Version 1.1.40</b> - March 2020<br/>
 - Better handling of telegrams, giving priority to the "write" and "response" telegram in the queue. Thanks @heleon19 for the suggestion.<br/>
 </p>

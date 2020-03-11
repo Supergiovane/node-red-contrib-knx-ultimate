@@ -1,16 +1,19 @@
 {
   "name": "node-red-contrib-knx-ultimate",
-  "version": "1.1.40",
+  "version": "1.1.42",
   "description": "Single Node KNX IN/OUT with optional ETS group address importer. Easy to use and highly configurable. Control your KNX intallation via Node-Red!",
   "dependencies": {
     "knxultimate-api": "2.3.8",
-    "knx": "2.3.7"
+    "knx": "2.3.7",
+    "fs": "0.0.1-security",
+    "mkdirp": "^0.5.1"
   },
   "node-red": {
     "nodes": {
       "knxUltimate": "/nodes/knxUltimate.js",
       "knxUltimate-config": "/nodes/knxUltimate-config.js",
-      "knxUltimateWatchDog": "/nodes/knxUltimateWatchDog.js"
+      "knxUltimateWatchDog": "/nodes/knxUltimateWatchDog.js",
+      "knxUltimateSceneController": "/nodes/knxUltimateSceneController.js"
     }
   },
   "repository": {

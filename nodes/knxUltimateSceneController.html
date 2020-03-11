@@ -1,0 +1,382 @@
+<script type="text/javascript">
+    RED.nodes.registerType('knxUltimateSceneController', {
+        category: 'KNX',
+        color: '#7dd484',
+        defaults: {
+            //buttonState: {value: true},
+            server: { type: "knxUltimate-config", required: true },
+            name: { value: "" },
+            outputtopic: { value: "" },
+            topic: { value: "" },
+            dpt: { value: "" },
+            topicTrigger: { value: "true" },
+            topicSave: { value: "" },
+            dptSave: { value: "" },
+            topicSaveTrigger: { value: "true" },
+
+            property: { value: "payload", required: true, validate: RED.validators.typedInput("propertyType") },
+            propertyType: { value: "msg" },
+            rules: { value: [{ t: "eq", v: "", vt: "str" }] }
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: "node-scene-icon.png",
+        label: function () {
+            return (this.outputRBE == true ? "|rbe| " : "") + (this.name || this.topic || "KNX Scene Controller") + (this.inputRBE == true ? " |rbe|" : "")
+        },
+        paletteLabel: "KNX Scene Contoller",
+        // button: {
+        //     enabled: function() {
+        //         // return whether or not the button is enabled, based on the current
+        //         // configuration of the node
+        //         return !this.changed
+        //     },
+        //     visible: function() {
+        //         // return whether or not the button is visible, based on the current
+        //         // configuration of the node
+        //         return this.hasButton
+        //     },
+        //     //toggle: "buttonState",
+        //     onclick: function() {}
+        // },
+        oneditprepare: function () {
+
+            // Scene Recall
+            $.getJSON('knxUltimateDpts', (data) => {
+                data.forEach(dpt => {
+                    $("#node-input-dpt").append($("<option></option>")
+                        .attr("value", dpt.value)
+                        .text(dpt.text))
+                });
+                $("#node-input-dpt").val(this.dpt)
+            })
+
+            // Autocomplete suggestion with ETS csv File
+            $("#node-input-topic").autocomplete({
+                minLength: 1,
+                source: function (request, response) {
+                    //$.getJSON("csv", request, function( data, status, xhr ) {
+                    $.getJSON("knxUltimatecsv", (data) => {
+                        response($.map(data, function (value, key) {
+                            var sSearch = (value.ga + " (" + value.devicename + ") DPT" + value.dpt).toUpperCase();
+                            if (sSearch.indexOf(request.term.toUpperCase()) != -1) {
+                                return {
+                                    label: value.ga + " # " + value.devicename + " # " + value.dpt, // Label for Display
+                                    value: value.ga // Value
+                                }
+                            } else {
+                                return null;
+                            }
+                        }));
+                    });
+                }, select: function (event, ui) {
+                    // Sets Datapoint and device name automatically
+                    var sDevName = ui.item.label.split("#")[1].trim();
+                    try {
+                        sDevName = sDevName.substr(sDevName.indexOf(")") + 1).trim();
+                    } catch (error) {
+                    }
+                    $('#node-input-name').val("Recall: " + sDevName + "/" + $('#node-input-name').val().split("/")[1]);
+                    var optVal = $("#node-input-dpt option:contains('" + ui.item.label.split("#")[2].trim() + "')").attr('value');
+                    // Select the option value 
+                    $("#node-input-dpt").val(optVal);
+                }
+            });
+            // *****************************
+
+
+            // Scene Save
+            $.getJSON('knxUltimateDpts', (data) => {
+                data.forEach(dpt => {
+                    $("#node-input-dptSave").append($("<option></option>")
+                        .attr("value", dpt.value)
+                        .text(dpt.text))
+                });
+                $("#node-input-dptSave").val(this.dpt)
+            })
+
+            // Autocomplete suggestion with ETS csv File
+            $("#node-input-topicSave").autocomplete({
+                minLength: 1,
+                source: function (request, response) {
+                    //$.getJSON("csv", request, function( data, status, xhr ) {
+                    $.getJSON("knxUltimatecsv", (data) => {
+                        response($.map(data, function (value, key) {
+                            var sSearch = (value.ga + " (" + value.devicename + ") DPT" + value.dpt).toUpperCase();
+                            if (sSearch.indexOf(request.term.toUpperCase()) != -1) {
+                                return {
+                                    label: value.ga + " # " + value.devicename + " # " + value.dpt, // Label for Display
+                                    value: value.ga // Value
+                                }
+                            } else {
+                                return null;
+                            }
+                        }));
+                    });
+                }, select: function (event, ui) {
+                    // Sets Datapoint and device name automatically
+                    var sDevName = ui.item.label.split("#")[1].trim();
+                    try {
+                        sDevName = sDevName.substr(sDevName.indexOf(")") + 1).trim();
+                    } catch (error) {
+                    }
+                    $('#node-input-name').val($('#node-input-name').val().split("/")[0] + "/Save: " + sDevName);
+                    var optVal = $("#node-input-dptSave option:contains('" + ui.item.label.split("#")[2].trim() + "')").attr('value');
+                    // Select the option value 
+                    $("#node-input-dptSave").val(optVal);
+                }
+            });
+            // *****************************
+
+
+            // Scene configuration
+            var node = this;
+            var previousValueType = { value: "prev", label: this._("switch.previous"), hasValue: false };
+            function resizeRule(rule) { }
+            $("#node-input-rule-container").css('min-height', '150px').css('min-width', '450px').editableList({
+                addItem: function (container, i, opt) { // row, index, data
+                    // opt.r is: { topic: rowRuleTopic, devicename: rowRuleDeviceName, dpt:rowRuleDPT, send: rowRuleSend}
+
+                    if (!opt.hasOwnProperty('r')) {
+                        opt.r = {};
+                        // Delete saved scene
+                        // ##########################################################
+                        $.getJSON("knxultimatescenecontrollerdelete", (data) => { });
+                        // ##########################################################
+                    }
+                    var rule = opt.r;
+                    if (!opt.hasOwnProperty('i')) {
+                        opt._i = Math.floor((0x99999 - 0x10000) * Math.random()).toString();
+                    }
+                    container.css({
+                        overflow: 'hidden',
+                        whiteSpace: 'nowrap'
+                    });
+
+
+                    var row = $('<div/>').appendTo(container);
+                    var row2 = $('<div/>', { style: "padding-top: 5px; padding-left: 5px;" }).appendTo(container);
+
+                    var oTopicField = $("<input/>", { class: "rowRuleTopic", type: "text", placeholder: "1/1/1 or device name", style: "width:100px; margin-left: 5px; text-align: left;" }).appendTo(row);
+                    var oDPTField = $('<select/>', { class: "rowRuleDPT", type: "text", style: "width:160px; margin-left: 5px; text-align: left;" }).appendTo(row);
+                    var finalspan = $('<span/>', { style: "" }).appendTo(row);
+                    finalspan.append(' &#8594; <span class="node-input-rule-index"></span> ');
+                    var oSendField = $('<input/>', { class: "rowRuleSend", type: "text", placeholder: "Value", style: "width:70px; margin-left: 5px; text-align: left;" }).appendTo(row);
+                    var orowRuleDeviceName = $('<input/>', { class: "rowRuleDeviceName", type: "text", style: "width:95%; margin-left: 0px; text-align: left;font-style: italic;", placeholder: "Device Name" }).appendTo(row2);
+
+                    oTopicField.on("change", function () {
+                        resizeRule(container);
+                    });
+
+                    $.getJSON('knxUltimateDpts', (data) => {
+                        data.forEach(dpt => {
+                            oDPTField.append($("<option></option>")
+                                .attr("value", dpt.value)
+                                .text(dpt.text))
+                        });
+                        oDPTField.val(rule.dpt);
+                    })
+
+                    // Autocomplete suggestion with ETS csv File
+                    oTopicField.autocomplete({
+                        minLength: 1,
+                        source: function (request, response) {
+                            $.getJSON("knxUltimatecsv", (data) => {
+                                response($.map(data, function (value, key) {
+                                    var sSearch = (value.ga + " (" + value.devicename + ") DPT" + value.dpt).toUpperCase();
+                                    if (sSearch.indexOf(request.term.toUpperCase()) != -1) {
+                                        return {
+                                            label: value.ga + " # " + value.devicename + " # " + value.dpt, // Label for Display
+                                            value: value.ga // Value
+                                        }
+                                    } else {
+                                        return null;
+                                    }
+                                }));
+                            });
+                        }, select: function (event, ui) {
+                            // Sets Datapoint and device name automatically
+                            var sDevName = ui.item.label.split("#")[1].trim();
+                            try {
+                                sDevName = sDevName.substr(sDevName.indexOf(")") + 1).trim();
+                                orowRuleDeviceName.val(sDevName);
+                            } catch (error) {
+                            }
+                            var optVal = $(".rowRuleDPT option:contains('" + ui.item.label.split("#")[2].trim() + "')").attr('value');
+                            oDPTField.val(optVal);
+                        }
+                    });
+
+                    oTopicField.val(rule.topic);
+                    oSendField.val(rule.send);
+                    orowRuleDeviceName.val(rule.devicename);
+                    oTopicField.change();
+                },
+                removeItem: function (opt) {
+                    // Delete saved scene
+                    // ##########################################################
+                    $.getJSON("knxultimatescenecontrollerdelete", (data) => { });
+                    // ##########################################################
+                },
+                resizeItem: resizeRule,
+                sortItems: function (rules) {
+                },
+                sortable: true,
+                removable: true
+            });
+
+            // 10/03/2020 For each rule, create a row
+            for (var i = 0; i < this.rules.length; i++) {
+                var rule = this.rules[i];
+                $("#node-input-rule-container").editableList('addItem', { r: rule, i: i });
+            }
+
+
+        },
+        oneditsave: function () {
+
+
+
+            var rules = $("#node-input-rule-container").editableList('items');
+            var node = this;
+            node.rules = [];
+            rules.each(function (i) {
+                var rule = $(this);
+                var rowRuleTopic = rule.find(".rowRuleTopic").val();
+                var rowRuleDPT = rule.find(".rowRuleDPT").val();
+                var rowRuleSend = rule.find(".rowRuleSend").val();
+                var rowRuleDeviceName = rule.find(".rowRuleDeviceName").val();
+                node.rules.push({ topic: rowRuleTopic, devicename: rowRuleDeviceName, dpt: rowRuleDPT, send: rowRuleSend });
+            });
+            this.propertyType = $("#node-input-property").typedInput('type');
+        },
+        oneditresize: function (size) {
+            var rows = $("#dialog-form>div:not(.node-input-rule-container-row)");
+            var height = size.height;
+            for (var i = 0; i < rows.length; i++) {
+                height -= $(rows[i]).outerHeight(true);
+            }
+            var editorRow = $("#dialog-form>div.node-input-rule-container-row");
+            height -= (parseInt(editorRow.css("marginTop")) + parseInt(editorRow.css("marginBottom")));
+            height += 16;
+            $("#node-input-rule-container").editableList('height', height);
+        }
+    })
+
+</script>
+
+<script type="text/x-red" data-template-name="knxUltimateSceneController">
+
+
+<div class="form-row">
+    <label for="node-input-server"><img
+            src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/config/connectioneibnettunneling.png">
+        Gateway </label>
+    <input type="text" id="node-input-server">
+</div>
+<div id="GAandDPT">
+    <div class="form-row">
+        <label for="node-input-topic" style="width:100px;"><i class="fa fa-play"></i> Scene Recall</label>
+        <input type="text" id="node-input-topic" placeholder="Ex: 1/1/1" style="width:80px;margin-left: 5px; text-align: left;">
+       
+        <label for="node-input-dpt" style="width:90px; margin-left: 0px; text-align: right;"><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/config/device.png">
+            Datapoint </label>
+        <select id="node-input-dpt" style="width:140px;"></select>
+       
+        <label for="node-input-topicTrigger" style="width:60px;text-align: right;"><i class="fa fa-bolt"></i> Trigger</label>
+        <input type="text" id="node-input-topicTrigger" placeholder="Ex: 5 or true" style="width:80px;margin-left: 5px; text-align: left;">
+        
+    </div>
+    <div class="form-row">
+        <label for="node-input-topicSave" style="width:100px;"><i class="fa fa-floppy-o"></i> Scene Save</label>
+        <input type="text" id="node-input-topicSave" placeholder="Ex: 1/1/2" style="width:80px;margin-left: 5px; text-align: left;">
+        
+        <label for="node-input-dptSave" style="width:90px; margin-left: 0px; text-align: right;"><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/config/device.png">
+            Datapoint </label>
+        <select id="node-input-dptSave" style="width:140px;"></select>
+
+        <label for="node-input-topicSaveTrigger" style="width:60px;text-align: right;"><i class="fa fa-bolt"></i> Trigger</label>
+        <input type="text" id="node-input-topicSaveTrigger" placeholder="Ex: 5 or true" style="width:80px;margin-left: 5px; text-align: left;">
+    </div>
+</div>
+<div class="form-row">
+    <label for="node-input-name"><i class="fa fa-tag"></i> Node Name </label>
+    <input type="text" id="node-input-name" placeholder="Name">
+</div>
+<div class="form-row" id="divTopic">
+    <label for="node-input-outputtopic"><i class="fa fa-tasks"></i> Topic </label>
+    <input type="text" id="node-input-outputtopic" placeholder="Leave empty to use Group Address">
+</div>
+
+
+<dt><i class="fa fa-code-fork"></i>&nbsp; Scene Configuration</dt>
+<div class="form-row node-input-rule-container-row">
+    <ol id="node-input-rule-container"></ol>
+</div>
+
+<div class="form-row">
+    <p>Press ADD, to add a device in the scene</p>
+</div>
+
+</script>
+
+<script type="text/x-red" data-help-name="knxUltimateSceneController">
+    <p>
+        <a href="https://www.paypal.me/techtoday" target="_blank"><img src='https://img.shields.io/badge/Donate-PayPal-blue.svg?style=flat-square' width='30%'></a>
+        and
+        <a href="http://eepurl.com/gJm095" target="_blank">Subscribe to my channel</a> for news about my nodes.
+    </p>
+    <p>
+       
+        Please consult <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/SceneController-Configuration" target="_blank">this page of the wiki</a> for the configuration parameters, and 
+        <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/Sample-Scene-Node" target="_blank"> samples here</a>.       
+     </p>
+
+      
+        <p>
+            <b>MSG FORMAT</b><br/>
+            <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/SceneController-MSG-from-the-node" target="_blank">Click here for msg output format</a>.<br />
+            <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/SceneController-MSG-to-the-node" target="_blank">Click here for msg input format</a>.<br />
+            <br />
+        </p>
+        <p>
+            <table style="font-size:12px">
+                <tr>
+                <th colspan="2" style="font-size:14px">Node status colors explanation</th>
+                </tr>
+                <tr>
+                <td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/greendot.png"></img></td>
+                <td>React to event GroupValue write</td>
+                </tr>
+                <tr>
+                    <td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/greenring.png"></img></td>
+                    <td>Circular reference protection. <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki" target="_blank">See this page.</a></td>
+                </tr>
+                <tr>
+                <td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/bluedot.png"></img></td>
+                <td>React to event GroupValue response.</td>
+                </tr>
+                <tr>
+                    <td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/bluering.png"></img></td>
+                    <td>Auto send node value as response to the BUS. <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Virtual-Device" target="_blank">See Virtual Device.</a></td>
+                </tr>
+                <tr>
+                    <td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/greudot.png"></img></td>
+                    <td>React to event GroupValue read.</td>
+                </tr>
+                <tr>
+                    <td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/greyring.png"></img></td>
+                    <td>RBE filter: no telegrams has been sent.</td>
+                </tr>
+                <tr>
+                    <td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/reddot.png"></img></td>
+                    <td>Error or disconnected.</td>
+                </tr>
+                <tr>
+                    <td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/redring.png"></img></td>
+                    <td>Node DISABLED due to a circulare reference. <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki" target="_blank">See this page.</a></td>
+                </tr>
+            </table>
+        </p>
+           
+    </script>

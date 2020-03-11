@@ -82,7 +82,7 @@ module.exports = (RED) => {
         node.timerSendTelegramFromQueue = setInterval(handleTelegramQueue, 50); // 02/01/2020 Start the timer that handles the queue of telegrams
         node.timerDoInitialRead = null; // 17/02/2020 Timer (timeout) to do initial read of all nodes requesting initial read, after all nodes have been registered to the sercer
         node.stopETSImportIfNoDatapoint = typeof config.stopETSImportIfNoDatapoint === "undefined" ? "stop" : config.stopETSImportIfNoDatapoint; // 09/01/2020 Stop or Skip the import if a group address has unset datapoint
-        node.csv = readCSV(config.csv); // Array from ETS CSV Group Addresses
+        node.csv = readCSV(config.csv); // Array from ETS CSV Group Addresses {ga:group address, dpt: datapoint, devicename: full device name with main and subgroups}
         node.loglevel = config.loglevel !== undefined ? config.loglevel : "error"; // 18/02/2020 Loglevel default error
 
         // Endpoint for reading csv from the other nodes
@@ -134,9 +134,16 @@ module.exports = (RED) => {
                         sNodeID = "\"" + input.id + "\"";
                         sName = "\"" + input.name + "\"";
                         if (input.listenallga == true) {
-                            // Is a ListenallGA
-                            sGA = "\"Universal Node\"";
-                            sDPT = "\"Any\"";
+                            if (input.hasOwnProperty("isSceneController")) {
+                                // Is a Scene Controller
+                                sGA = "\"Scene Controller\"";
+                                sDPT = "\"Any\"";
+                            } else {
+                                // Is a ListenallGA
+                                sGA = "\"Universal Node\"";
+                                sDPT = "\"Any\"";
+                            }
+
                         } else {
                             sGA = "\"" + input.topic + "\"";
                             sDPT = "\"" + input.dpt + "\"";
@@ -361,12 +368,19 @@ module.exports = (RED) => {
 
                                     // 25/10/2019 TRY TO AUTO DECODE IF Group address not found in the CSV
                                     let msg = buildInputMessage({ _srcGA: src, _destGA: dest, _event: evt, _Rawvalue: rawValue, _inputDpt: (typeof oGA === "undefined") ? null : oGA.dpt, _devicename: (typeof oGA === "undefined") ? input.name || "" : oGA.devicename, _outputtopic: dest, _oNode: input });
-                                    input.setNodeStatus({ fill: "green", shape: "dot", text: (typeof oGA === "undefined") ? "Try to decode" : "", payload: msg.payload, GA: msg.knx.destination, dpt: msg.knx.dpt, devicename: msg.devicename });
-                                    input.send(msg)
+
+                                    // 11/03/2020 in the middle of coronavirus. Whole italy is red zone, closed down. Scene Controller implementation
+                                    if (input.hasOwnProperty("isSceneController")) {
+                                        input.HandleScene(msg);
+                                    } else {
+                                        // Is a normal listenallga knx-ultimate device
+                                        input.setNodeStatus({ fill: "green", shape: "dot", text: (typeof oGA === "undefined") ? "Try to decode" : "", payload: msg.payload, GA: msg.knx.destination, dpt: msg.knx.dpt, devicename: msg.devicename });
+                                        input.send(msg)
+                                    }
 
                                 } else if (input.topic == dest) {
-                                    // 04/02/2020 Watchdog implementation
-                                    if (input.hasOwnProperty("isWatchDog")) {
+
+                                    if (input.hasOwnProperty("isWatchDog")) { // 04/02/2020 Watchdog implementation
                                         // Is a watchdog node
                                         input.evalCalledByConfigNode("Write");
                                     } else {
@@ -681,7 +695,6 @@ module.exports = (RED) => {
         })
 
         function readCSV(_csvText) {
-
             // 24/02/2020, in the middle of Coronavirus emergency in Italy. Check if it a CSV ETS Export of group addresses, or if it's an EFS
             if (_csvText.split("\n")[0].toUpperCase().indexOf("GROUP NAME") == -1) return readESF(_csvText);
 
