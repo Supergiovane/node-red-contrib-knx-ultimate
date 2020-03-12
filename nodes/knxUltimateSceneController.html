@@ -141,7 +141,7 @@
                         opt.r = {};
                         // Delete saved scene
                         // ##########################################################
-                        $.getJSON("knxultimatescenecontrollerdelete", (data) => { });
+                        $.getJSON("knxultimatescenecontrollerdelete?FileName=" + node.id ,  new Date().getTime(),(data) => { });
                         // ##########################################################
                     }
                     var rule = opt.r;
@@ -215,7 +215,7 @@
                 removeItem: function (opt) {
                     // Delete saved scene
                     // ##########################################################
-                    $.getJSON("knxultimatescenecontrollerdelete", (data) => { });
+                    $.getJSON("knxultimatescenecontrollerdelete?FileName=" + node.id ,  new Date().getTime(),(data) => { });
                     // ##########################################################
                 },
                 resizeItem: resizeRule,
