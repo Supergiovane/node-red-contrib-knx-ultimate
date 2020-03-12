@@ -94,14 +94,14 @@ The "Suppress ACK" option, helps compatibility with old IP Interfaces, like the 
 The node is very simple to use "out of the box", but you can plasmate it to achieve any goal you want.
 
 </details>
-<details><summary>WATCHDOG Node</summary>
+<details><summary>WATCHDOG</summary>
 
-You can check the healty of your KNX Bus connection and switch over to anoter KNX/IP Router if the primary fails. It can programmatically change the IP, Port etc... of the KNX/IP Interface or router, via msg as well.
+You can [check the healty](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---WatchDog) of your KNX Bus connection and switch over to anoter KNX/IP Router if the primary fails. It can programmatically change the IP, Port etc... of the KNX/IP Interface or router, via msg as well.
 
 </details>
-<details><summary>SCENE CONTROLLER Node</summary>
+<details><summary>SCENE CONTROLLER</summary>
 
-The scene controller node can act as a real scene controller, with recall and save of the current scene.
+The [scene controller node](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/Sample-Scene-Node) can act as a real scene controller, with recall and save of the current scene.
 
 </details>
 <details><summary>ACTIVE DEVELOPED</summary>
@@ -199,6 +199,25 @@ return {payload:true}
 ```javascript
 return {payload:false}
 ```
+
+**Increase the light/open blind**
+```javascript
+// The parameter "data" indicates the relative amount of the dimming commmand (how much to dim).
+// The parameter "data" can be any integer value from 0 to 7
+// The parameter decr_incr:1 increases the light
+// The parameter decr_incr:0 decreases the light
+msg.payload={decr_incr: 1, data: 5};
+return msg;
+```
+
+**Set RGB color**
+```javascript
+// Each color in a range between 0 and 255
+msg.payload={red:255, green:200, blue:30};
+return msg;
+```
+
+[MORE Samples and documentation....](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki)
 
 [license-image]: https://img.shields.io/badge/license-MIT-blue.svg
 [license-url]: https://github.com/Supergiovane/node-red-contrib-knx-ultimate/master/LICENSE
