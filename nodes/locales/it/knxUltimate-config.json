@@ -7,9 +7,9 @@
             "port": "Porta",
             "port_info": "Di default è impostata la porta de router KNX/IP (3671)",
             "bind_local_int": "Utilizza l'interfaccia locale",
-            "restart_hint": "! Riavvia Node-Red dopo cambio interfaccia !",
+            "restart_hint": "! Riavvia Node-Red dopo cambio qui sopra !",
             "adv_options": "Opzioni avanzate",
-            "ets_import": "Elenco indirizzi di gruppo ETS importati"
+            "ets_import": "Importa indirizzi di gruppo ETS"
         },
         "advanced": {
             "knx_phy_addr": "Indirizzo fisico KNX",
@@ -17,7 +17,7 @@
             "show_device_status": "Visualizza il nome del dispositivo nello stato (richiede \"Listen all Group Address\" )",
             "show_datapoint_status": "Visualizza il DPT nello stato",
             "suppress_ack": "Sopprimi richieste ACK",
-            "suppress_ack_help": "L'opzione sopra aiuta la compatibilità con vecchie interfacce",
+            "suppress_ack_help": "L'opzione ACK sopra aiuta la compatibilità con vecchie interfacce",
             "log_level": "Livello log",
             "nodes_list_title": "Elenco nodi in tutti i flows",
             "nodes_list_help": "Elenco di tutti i tuoi nodi KNX",
@@ -33,7 +33,7 @@
             "youtube": "Guarda come si esporta un file CSV su YouTube",
             "help_ga": "Se l'indirizzo di gruppo non ha datapoint",
             "import_select_stop": "Blocca ed annulla l'importazione",
-            "import_select_skip": "Importa con un finto datapoint (Non raccomandato)",
+            "import_select_skip": "Importa con un finto datapoint 1.001 (Non raccomandato)",
             "ga_list_title": "Elenco indirizzi di gruppo",
             "ga_list_help": "Incolla qui il contenuto del file CSV o ESF esportato da ETS"
         }
