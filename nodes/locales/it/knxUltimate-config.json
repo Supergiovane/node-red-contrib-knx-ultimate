@@ -6,7 +6,7 @@
             "host_info": "Di default è impostato l'indirizzo multicast del router KNX/IP (224.0.23.12)",
             "port": "Porta",
             "port_info": "Di default è impostata la porta de router KNX/IP (3671)",
-            "bind_local_int": "Utilizza l'interfaccia",
+            "bind_local_int": "Utilizza l'interfaccia locale",
             "restart_hint": "! Riavvia Node-Red dopo cambio interfaccia !",
             "adv_options": "Opzioni avanzate",
             "ets_import": "Elenco indirizzi di gruppo ETS importati"
@@ -15,7 +15,7 @@
             "knx_phy_addr": "Indirizzo fisico KNX",
             "show_date_status": "Visualizza data e ora ultimo aggiornamento, nello stato",
             "show_device_status": "Visualizza il nome del dispositivo nello stato (richiede \"Listen all Group Address\" )",
-            "show_datapoint_status": "Visualizza il DPT nello statp",
+            "show_datapoint_status": "Visualizza il DPT nello stato",
             "suppress_ack": "Sopprimi richieste ACK",
             "suppress_ack_help": "L'opzione sopra aiuta la compatibilità con vecchie interfacce",
             "log_level": "Livello log",

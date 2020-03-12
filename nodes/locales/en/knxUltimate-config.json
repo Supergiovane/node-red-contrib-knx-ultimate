@@ -17,7 +17,7 @@
             "show_device_status": "Show device name in status (require \"Listen all Group Address\" )",
             "show_datapoint_status": "Show datapoint in status",
             "suppress_ack": "Suppress ACK request",
-            "suppress_ack_help": "This option help compatibility with old Siemens SWG1 148-1AB22 IP Interface firmware",
+            "suppress_ack_help": "The option above helps old KNX/IP Interfaces compatibility",
             "log_level": "Loglevel",
             "nodes_list_title": "List of your nodes in all flows",
             "nodes_list_help": "Here is a list of all your configured KNX Nodes.",
