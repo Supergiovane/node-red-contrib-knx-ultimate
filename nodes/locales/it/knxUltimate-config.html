@@ -1,61 +1,14 @@
 <script type="text/x-red" data-help-name="knxUltimate-config">
+    <h1>KNX Ultimate - Nodo di configurazione</h1>
     <p>
         <a href="https://www.paypal.me/techtoday" target="_blank"><img src='https://img.shields.io/badge/Donate-PayPal-blue.svg?style=flat-square' width='30%'></a>
         and
-        <a href="http://eepurl.com/gJm095" target="_blank">Subscribe to my channel</a> for news about my nodes.
+        <a href="http://eepurl.com/gJm095" target="_blank">Iscriviti al mio canale</a> per le novità.
     </p>
 
-    To be able to interact with the KNX bus, you need to configure the Node's gateway. It stores the default ETH/KNX Router's multicast address as well as the default port. It should work with the default values.
-<br/>
-<p>
-<b>Host</b><br/>
-ETH/KNX Router's multicast address.
-</p>
-<p>
-<b>Port</b><br/>
-ETH/KNX Router's multicast port.
-</p>
-<b>Bind to local interface</b><br/>
-The Node will use this local interface for communications. Leave "Auto" for automatic selection. If you have more than one lan connection, for example Ethernet and Wifi, it's strongly recommended to manually select the interface, otherwise not all UDP telegram will reach your computer, thus the Node may not work as expected.
-</p>
-<p>
-<b>KNX Physical Address</b><br/>
-Local KNX physical addres, identifying the KNX device. Default "15.15.22". This is not a group address, this represents the unique address of a konnex device in a konnex installation.
-</p>
-
-<p>
-    <b>Show last update day and time in status</b><br/>
-    Display last update day and time, in the format (day, hh:mm:ss);
-</p>
-<p>
-    <b>Show device name in status (require "Listen all Group Address" is checked)</b><br/>
-    Display device name in node status. This option is only taken in consideration if "Listen all Group Address" is checked. Displays the KNX device name.
-</p>
-<p>
-    <b>Show datapoint in status</b><br/>
-    Display the node's KNX Datapoint.
-</p>
-<p>
-<b>Suppress ACK request</b><br/>
-This option help compatibility with old Siemens SWG1 148-1AB22 IP Interface firmware and other EHT/KNX interfaces that does'nt like the ACK. Default "unchecked". Check it to help compatibility
-</p>
-<p>
-<b>Loglevel</b><br/>
-    Define the log level of the underling KNX library. Useful for debugging in case of problem. Normally, you don't need to change this. Require node-red restart to take effect.
-</p>
-<p>
-    <b>List of your nodes in all flows</b><br/>
-    This is a list of all the knx-ultimate nodes, you inserted into your flows. This is useful, for example, to copy each group address and to paste it into a KNX Router filter table, for example. Or you can just check, if you wrongly added two knx-ultimate node with same Group Address but with different Datapoint.
-</p>
-
-<p><b>ETS Group Address list import</b><br/>
-Optionally, you can paste here the CSV or ESF file from ETS.<br/>
-Supported ETS versions: ETS 4 and onwards.<br/>
-This CSV or ESF will then be used by the knxUltimate node (if you select "Universal mode (listen to all Group Address)" on the knxUltimate node) to automatically decode all the raw values received from the KNX bus. These values will then be outputted by the msg.payload<br/>
-Starting from Version 1.1.11, you can use <b>Universal mode (listen to all Group Address)</b> option without the need of an imported ETS CSV or EFS File. You need to pass a message to the node, containing datapoint type and a value. As soon as the node receives a telegram from KNX Bus, it will output a RAW value and beside that, it will try to decode the value without knowing the datapoint type.</p>
-<i>Note</i>: *ETS CSV Group address exported file* is way the best option, because it contain a precise datapoints with subtype. *ETS ESF exported file* is simpler and it doesn't have the subtype.<br />
-If you can use both, please prefer the <b>ETS CSV Group address exported file</b><br/><br/>
-<p><b>If Group Address has no Datapoint</b><br/>
-If a Group address has no Datapoint set in the ETS, you can select to stop and abort the entire import process, or to skip the affected Group Address and continue import.<br/>
-<p>For other options, please <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/1.-Gateway-configuration">see the Gateway wiki here.</a></p>
+    <p> 
+        <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/1.-Gateway-configuration" target="_blank">Istruziomi sulla configurazione</a>
+    </p>
+    
+   
 </script>
