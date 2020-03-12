@@ -1,0 +1,56 @@
+<script type="text/x-red" data-help-name="knxUltimateSceneController">
+    <h1>KNX Ultimate - Scene Controller</h1>
+    <p>
+        <a href="https://www.paypal.me/techtoday" target="_blank">
+            <img src='https://img.shields.io/badge/Donate-PayPal-blue.svg?style=flat-square' width='30%'>
+        </a>
+        and
+        <a href="http://eepurl.com/gJm095" target="_blank">Subscribe to my channel</a> for news about my nodes.
+    </p>
+    <p> 
+        Please consult <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/SceneController-Configuration" target="_blank">this page of the wiki</a> for the configuration parameters, and 
+        <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/Sample-Scene-Node" target="_blank"> samples here</a>.       
+    </p>
+    <p>
+        <h2>MSG FORMAT</h2>
+        <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/SceneController-MSG-from-the-node" target="_blank">Click here for msg output format</a>.<br />
+        <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/SceneController-MSG-to-the-node" target="_blank">Click here for msg input format</a>.<br />
+    </p>
+    <p>
+        <h2>Node status colors explanation</h2>
+        <table style="font-size:12px">
+            <tr>
+                <td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/greendot.png"></img></td>
+                <td>React to event GroupValue write</td>
+            </tr>
+            <tr>
+                <td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/greenring.png"></img></td>
+                <td>Circular reference protection. <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki" target="_blank">See this page.</a></td>
+            </tr>
+            <tr>
+                <td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/bluedot.png"></img></td>
+                <td>React to event GroupValue response.</td>
+            </tr>
+            <tr>
+                <td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/bluering.png"></img></td>
+                <td>Auto send node value as response to the BUS. <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Virtual-Device" target="_blank">See Virtual Device.</a></td>
+            </tr>
+            <tr>
+                <td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/greudot.png"></img></td>
+                <td>React to event GroupValue read.</td>
+            </tr>
+            <tr>
+                <td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/greyring.png"></img></td>
+                <td>RBE filter: no telegrams has been sent.</td>
+            </tr>
+            <tr>
+                <td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/reddot.png"></img></td>
+                <td>Error or disconnected.</td>
+            </tr>
+            <tr>
+                <td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/redring.png"></img></td>
+                <td>Node DISABLED due to a circulare reference. <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki" target="_blank">See this page.</a></td>
+            </tr>
+        </table>
+    </p>      
+</script>
