@@ -7,7 +7,7 @@
             "port": "Port",
             "port_info": "Als Standard Port wird der Port von KNX/IP verwendet (3671)",
             "bind_local_int": "An lokale Netzwerk-Schnittstelle binden",
-            "restart_hint": "! Starten Sie Node-RED nach der Änderung neu !",
+            "restart_hint": "! Starten Sie Node-RED nach der obenen Änderung neu !",
             "adv_options": "Erweiterte Optionen",
             "ets_import": "Import der ETS-Gruppenadressliste"
         },

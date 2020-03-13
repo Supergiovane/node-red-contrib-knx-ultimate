@@ -7,7 +7,7 @@
             "port": "Port",
             "port_info": "Default Setting is the Port of KNX/IP (3671)",
             "bind_local_int": "Bind to local interface",
-            "restart_hint": "! Restart Node-RED after change !",
+            "restart_hint": "! Restart Node-RED after above change !",
             "adv_options": "Advanced options",
             "ets_import": "ETS Group Address list import"
         },
