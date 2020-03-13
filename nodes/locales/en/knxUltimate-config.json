@@ -1,7 +1,7 @@
 {
     "knxUltimate-config": {
         "properties": {
-            "title": "KNX/IP Router Configuration",
+            "title": "KNX/IP Gateway Configuration",
             "host": "Host",
             "host_info": "Default setting is the Multicast address of KNX/IP (224.0.23.12)",
             "port": "Port",
@@ -9,7 +9,8 @@
             "bind_local_int": "Bind to local interface",
             "restart_hint": "! Restart Node-RED after above change !",
             "adv_options": "Advanced options",
-            "ets_import": "ETS Group Address list import"
+            "ets_import": "ETS Group Address list import",
+            "node-config-input-name": "Name"
         },
         "advanced": {
             "knx_phy_addr": "KNX Physical Address",

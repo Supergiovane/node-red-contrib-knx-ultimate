@@ -351,7 +351,7 @@ module.exports = (RED) => {
             }
 
             node.knxConnection = new knx.Connection(knxConnectionProperties);
-
+                   
             // Handle BUS events
             node.knxConnection.on("event", function (evt, src, dest, rawValue) {
                 switch (evt) {
