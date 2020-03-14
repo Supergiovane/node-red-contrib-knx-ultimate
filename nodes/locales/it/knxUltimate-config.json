@@ -26,7 +26,8 @@
             "select_debug": "Debug",
             "select_info": "Info",
             "select_warning": "Warning",
-            "select_error": "Error (Default)"
+            "select_error": "Error (Default)",
+            "localEchoInTunneling":"Echo messaggi inviati su tutti i nodi con lo stesso indirizzo di gruppo"
         },
         "ets": {
             "description": "Puoi importare sia il file ETS in CSV, che ESF. Usa il CSV se possibile, perchè i datapoints sono più precisi.",

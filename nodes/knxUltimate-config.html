@@ -16,7 +16,8 @@
             statusDisplayDataPoint: { value: false },
             stopETSImportIfNoDatapoint: { value: "stop" },
             loglevel: { value: "error" },
-            name: { value: "Gateway" }
+            name: { value: "Gateway" },
+            localEchoInTunneling: { value: true }
         },
         oneditprepare: function () {
             $("#node-config-input-KNXEthInterface").append($("<option></option>")
@@ -151,57 +152,66 @@
                 </label>
                 <input type="text" id="node-config-input-physAddr" style="width:30%">
             </div>
-                <div class="form-row">
-                    <input type="checkbox" id="node-config-input-statusDisplayLastUpdate" style="display:inline-block; width:auto; vertical-align:top;">
-                    <label style="width:85%" for="node-config-input-statusDisplayLastUpdate">
-                        <i class="fa fa-comment-o"></i>
-                        <span data-i18n="knxUltimate-config.advanced.show_date_status"></span>
-                    </label>
+            
+            <div class="form-row">
+                <input type="checkbox" id="node-config-input-localEchoInTunneling" style="display:inline-block; width:auto; vertical-align:top;">
+                <label style="width:85%" for="node-config-input-localEchoInTunneling">
+                    <i class="fa fa-bullhorn"></i>
+                    <span data-i18n="knxUltimate-config.advanced.localEchoInTunneling"></span>
+                </label>
+            </div>
+            
+            <div class="form-row">
+                <input type="checkbox" id="node-config-input-statusDisplayLastUpdate" style="display:inline-block; width:auto; vertical-align:top;">
+                <label style="width:85%" for="node-config-input-statusDisplayLastUpdate">
+                    <i class="fa fa-comment-o"></i>
+                    <span data-i18n="knxUltimate-config.advanced.show_date_status"></span>
+                </label>
+            </div>
+            <div class="form-row">
+                <input type="checkbox" id="node-config-input-statusDisplayDeviceNameWhenALL" style="display:inline-block; width:auto; vertical-align:top;">
+                <label style="width:85%" for="node-config-input-statusDisplayDeviceNameWhenALL">
+                    <i class="fa fa-comment-o"></i>
+                    <span data-i18n="knxUltimate-config.advanced.show_device_status"></span>
+                </label>
+            </div>
+            <div class="form-row">
+                <input type="checkbox" id="node-config-input-statusDisplayDataPoint" style="display:inline-block; width:auto; vertical-align:top;">
+                <label style="width:85%" for="node-config-input-statusDisplayDataPoint">
+                    <i class="fa fa-comment-o"></i>
+                    <span data-i18n="knxUltimate-config.advanced.show_datapoint_status"></span>
+                </label>
+            </div>
+            <div class="form-row">
+                <input type="checkbox" id="node-config-input-suppressACKRequest" style="display:inline-block; width:auto; vertical-align:top;">
+                <label style="width:85%" for="node-config-input-suppressACKRequest">
+                    <i class="fa fa-ban"></i>
+                    <span data-i18n="knxUltimate-config.advanced.suppress_ack"></span>
+                </label>
+                <div id="helpallga" class="form-tips" style="margin-top:11px">
+                    <span data-i18n="knxUltimate-config.advanced.suppress_ack_help"></span>
                 </div>
-                <div class="form-row">
-                    <input type="checkbox" id="node-config-input-statusDisplayDeviceNameWhenALL" style="display:inline-block; width:auto; vertical-align:top;">
-                    <label style="width:85%" for="node-config-input-statusDisplayDeviceNameWhenALL">
-                        <i class="fa fa-comment-o"></i>
-                        <span data-i18n="knxUltimate-config.advanced.show_device_status"></span>
-                    </label>
+            </div>
+            <div class="form-row">
+                <label for="node-config-input-loglevel">
+                    <i class="fa fa-question-circle"></i>
+                    <span data-i18n="knxUltimate-config.advanced.log_level"></span>
+                </label>
+                <select id="node-config-input-loglevel" style="width:40%;">
+                    <option value="error" data-i18n="knxUltimate-config.advanced.select_error"></option>
+                    <option value="warn" data-i18n="knxUltimate-config.advanced.select_warning"></option>
+                    <option value="info" data-i18n="knxUltimate-config.advanced.select_info"></option>
+                    <option value="debug" data-i18n="knxUltimate-config.advanced.select_debug"></option>
+                    <option value="trace" data-i18n="knxUltimate-config.advanced.select_trace"></option>
+                </select>
+                <div class="form-tips" style="margin-top: 11px;background-color:#FFEEEE;text-align:center">
+                    <b><span data-i18n="knxUltimate-config.properties.restart_hint"></span></b>
                 </div>
-                <div class="form-row">
-                    <input type="checkbox" id="node-config-input-statusDisplayDataPoint" style="display:inline-block; width:auto; vertical-align:top;">
-                    <label style="width:85%" for="node-config-input-statusDisplayDataPoint">
-                        <i class="fa fa-comment-o"></i>
-                        <span data-i18n="knxUltimate-config.advanced.show_datapoint_status"></span>
-                    </label>
-                </div>
-                <div class="form-row">
-                    <input type="checkbox" id="node-config-input-suppressACKRequest" style="display:inline-block; width:auto; vertical-align:top;">
-                    <label style="width:85%" for="node-config-input-suppressACKRequest">
-                        <i class="fa fa-ban"></i>
-                        <span data-i18n="knxUltimate-config.advanced.suppress_ack"></span>
-                    </label>
-                    <div id="helpallga" class="form-tips" style="margin-top:11px">
-                        <span data-i18n="knxUltimate-config.advanced.suppress_ack_help"></span>
-                    </div>
-                </div>
-                <div class="form-row">
-                    <label for="node-config-input-loglevel">
-                        <i class="fa fa-question-circle"></i>
-                        <span data-i18n="knxUltimate-config.advanced.log_level"></span>
-                    </label>
-                    <select id="node-config-input-loglevel" style="width:40%;">
-                        <option value="error" data-i18n="knxUltimate-config.advanced.select_error"></option>
-                        <option value="warn" data-i18n="knxUltimate-config.advanced.select_warning"></option>
-                        <option value="info" data-i18n="knxUltimate-config.advanced.select_info"></option>
-                        <option value="debug" data-i18n="knxUltimate-config.advanced.select_debug"></option>
-                        <option value="trace" data-i18n="knxUltimate-config.advanced.select_trace"></option>
-                    </select>
-                    <div class="form-tips" style="margin-top: 11px;background-color:#FFEEEE;text-align:center">
-                        <b><span data-i18n="knxUltimate-config.properties.restart_hint"></span></b>
-                    </div>
-                </div>
-                <p>
-                    <span data-i18n="knxUltimate-config.advanced.nodes_list_title"></span>
-                    <textarea rows="20" id="nodeList" style="width:100%" data-i18n="[placeholder]knxUltimate-config.advanced.nodes_list_help"></textarea>
-                </p>
+            </div>
+            <p>
+                <span data-i18n="knxUltimate-config.advanced.nodes_list_title"></span>
+                <textarea rows="20" id="nodeList" style="width:100%" data-i18n="[placeholder]knxUltimate-config.advanced.nodes_list_help"></textarea>
+            </p>
         </div>
     </div>
 

@@ -26,7 +26,8 @@
             "select_debug": "Debug",
             "select_info": "Info",
             "select_warning": "Warning",
-            "select_error": "Error (Default)"
+            "select_error": "Error (Default)",
+            "localEchoInTunneling":"Echo sent message to all node with same Group Address"
         },
         "ets": {
             "description": "You can import either an ETS CSV group address list, or an ESF group address list. Please prefer the ETS CSV group address list, as the datapoints are more complete.",
