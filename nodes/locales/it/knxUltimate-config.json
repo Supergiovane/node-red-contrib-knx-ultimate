@@ -15,7 +15,7 @@
         "advanced": {
             "knx_phy_addr": "Indirizzo fisico KNX",
             "show_date_status": "Visualizza data e ora ultimo aggiornamento, nello stato",
-            "show_device_status": "Visualizza il nome del dispositivo nello stato (richiede \"Listen all Group Address\" )",
+            "show_device_status": "Visualizza il nome del dispositivo nello stato (richiede \"Modalità universale\" )",
             "show_datapoint_status": "Visualizza il DPT nello stato",
             "suppress_ack": "Sopprimi richieste ACK",
             "suppress_ack_help": "L'opzione ACK sopra aiuta la compatibilità con vecchie interfacce",
