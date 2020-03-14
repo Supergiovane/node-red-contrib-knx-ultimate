@@ -5,6 +5,11 @@
 <br/>
 
 <p>
+<b>Version 1.1.44</b> - March 2020 in Italy, we're locked down for Coronavirus<br/>
+- Update knxultimate-api. Yet the nodes connected to an IP Interface, behaves like the nodes connected to an IP Router. See option <b>Echo sent message to all node with same Group Address</b> in the Gateway configuration wiki.<br/>
+- Begin node translation in Deutsch and Italiano via i18n, thanks to @svenflender.<br/>
+</p>
+<p>
 <b>Version 1.1.43</b> - March 2020 in the middle of Coronavirus emergency in Italy<br/>
 - NEW: Scene Controller node (see the Wiki).<br/>
 </p>
