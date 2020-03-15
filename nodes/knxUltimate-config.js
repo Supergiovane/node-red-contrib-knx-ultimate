@@ -116,26 +116,31 @@ module.exports = (RED) => {
 
         // 14/02/2020 Endpoint for retrieving all nodes in all flows
         RED.httpAdmin.get("/nodeList", RED.auth.needsPermission('knxUltimate-config.read'), function (req, res) {
+            var sNodeID = req.query.nodeID; // Retrieve node.id of the config node.
+            var _node = RED.nodes.getNode(sNodeID);
             var sNodes = "\"Group Address\"\t\"Datapoint\"\t\"Node ID\"\t\"Device Name\"\n"; // Contains the text with nodes
             var sGA = "";
             var sDPT = "";
             var sName = "";
             var sNodeID = "";
+            RED.log.info("knxUltimate: Total knx-ultimate nodes: " + _node.nodeClients.length)
             try {
-                node.nodeClients
+                _node.nodeClients
                     //.map( a => a.topic.indexOf("/") !== -1 ? a.topic.split('/').map( n => +n+100000 ).join('/'):0 ).sort().map( a => a.topic.indexOf("/") !== -1 ? a.topic.split('/').map( n => +n-100000 ).join('/'):0 )
                     .sort((a, b) => {
-                        if (a.topic.indexOf("/") === -1) return -1;
-                        if (b.topic.indexOf("/") === -1) return -1;
-                        var date1 = a.topic.split("/");
-                        var date2 = b.topic.split("/");
-                        date1 = date1[0].padStart(2, "0") + date1[1].padStart(2, "0") + date1[2].padStart(2, "0");
-                        date2 = date2[0].padStart(2, "0") + date2[1].padStart(2, "0") + date2[2].padStart(2, "0");
-                        return date1.localeCompare(date2);
+                        if (typeof a.topic !== "undefined" && b.topic !== "undefined") {
+                            if (a.topic.indexOf("/") === -1) return -1;
+                            if (b.topic.indexOf("/") === -1) return -1;
+                            var date1 = a.topic.split("/");
+                            var date2 = b.topic.split("/");
+                            date1 = date1[0].padStart(2, "0") + date1[1].padStart(2, "0") + date1[2].padStart(2, "0");
+                            date2 = date2[0].padStart(2, "0") + date2[1].padStart(2, "0") + date2[2].padStart(2, "0");
+                            return date1.localeCompare(date2);
+                        } else { return -1;}
                     })
                     .forEach(input => {
                         sNodeID = "\"" + input.id + "\"";
-                        sName = "\"" + input.name + "\"";
+                        sName = "\"" + (typeof input.name !== "undefined" ? input.name : "") + "\"";
                         if (input.listenallga == true) {
                             if (input.hasOwnProperty("isSceneController")) {
                                 // Is a Scene Controller
@@ -148,8 +153,8 @@ module.exports = (RED) => {
                             }
 
                         } else {
-                            sGA = "\"" + input.topic + "\"";
-                            sDPT = "\"" + input.dpt + "\"";
+                            sGA = "\"" + (typeof input.topic !== "undefined" ? input.topic : "") + "\"";
+                            sDPT = "\"" + (typeof input.dpt !== "undefined" ? input.dpt : "") + "\"";
                             if (input.hasOwnProperty("isWatchDog")) {
                                 // Is a watchdog node
 
@@ -161,7 +166,7 @@ module.exports = (RED) => {
                         sNodes += sGA + "\t" + sDPT + "\t" + sNodeID + "\t" + sName + "\n";
                     });
                 res.json(sNodes)
-            } catch (error) {
+            } catch (error) { RED.log.warn("D " + error)
             }
         });
 
@@ -303,7 +308,7 @@ module.exports = (RED) => {
                 physAddr: node.physAddr, // the KNX physical address we'd like to use
                 suppress_ack_ldatareq: node.suppressACKRequest,
                 loglevel: node.loglevel,
-                localEchoInTunneling:node.localEchoInTunneling, // 14/03/2020 local echo in tunneling mode (see API Supergiovane)
+                localEchoInTunneling: node.localEchoInTunneling, // 14/03/2020 local echo in tunneling mode (see API Supergiovane)
                 // wait at least 60 millisec between each datagram
                 //minimumDelay: 60, // 02/01/2020 Removed becuse it doesn't respect the message sequence, it sends messages random.
                 handlers: {
@@ -353,12 +358,12 @@ module.exports = (RED) => {
             } else {
                 RED.log.info("knxUltimate: Bind KNX Bus to interface (Auto)");
             }
-           
+
             node.knxConnection = new knx.Connection(knxConnectionProperties);
-                   
+
             // Handle BUS events
             node.knxConnection.on("event", function (evt, src, dest, rawValue) {
-                 switch (evt) {
+                switch (evt) {
                     case "GroupValue_Write": {
                         node.nodeClients
                             .filter(input => input.notifywrite == true)

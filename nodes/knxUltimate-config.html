@@ -56,7 +56,7 @@
             });
 
             // 14/02/2020 San Valentino. Retrieve all nodes and show here. Requested by use Alloc in knx-user-forum.de
-            $.getJSON('nodeList', (data) => {
+            $.getJSON("nodeList?nodeID=" + this.id, (data) => {
                 $("#nodeList").val(data);
             });
 

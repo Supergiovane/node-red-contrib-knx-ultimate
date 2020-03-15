@@ -5,6 +5,10 @@
 <br/>
 
 <p>
+<b>Version 1.1.46</b> - March 2020 in Italy, continue lock down. More people involved in Coronavirus<br/>
+- FIX: In gateway config-node, fixed the "List of your nodes in all flows" (under Advanced Options) list, sometime not populated.<br/>
+</p>
+<p>
 <b>Version 1.1.45</b> - March 2020 in Italy, we're locked down for Coronavirus<br/>
 - Update knxultimate-api. Yet the nodes connected to an IP Interface, behaves like the nodes connected to an IP Router. See option <b>Echo sent message to all node with same Group Address</b> in the Gateway configuration wiki.<br/>
 - I'm internationalizing the node <b>(Deutsch, Italiano, English)</b> with the help of <b>@svenflender</b>, so please be patient if some parts are still only in english. Internationalization is working with node-red version 1.0.3 and above. Versions below, does have issues in the i18n module, so knx-ultimate falls back to english. Please upgrade node-red.<br/>
