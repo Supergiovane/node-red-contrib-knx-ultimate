@@ -7,6 +7,7 @@
 <p>
 <b>Version 1.1.46</b> - March 2020 in Italy, continue lock down. More people involved in Coronavirus<br/>
 - FIX: In gateway config-node, fixed the "List of your nodes in all flows" (under Advanced Options) list, sometime not populated.<br/>
+- ENHANCEMENT: Now knx-ultimate and scene controller display device list names for newly added nodes in the flow. Prior, you had to save the node first, to get the knx device list into the Group Address fields.<br/>
 </p>
 <p>
 <b>Version 1.1.45</b> - March 2020 in Italy, we're locked down for Coronavirus<br/>

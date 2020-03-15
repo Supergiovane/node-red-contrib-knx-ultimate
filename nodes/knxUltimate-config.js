@@ -90,7 +90,9 @@ module.exports = (RED) => {
 
         // Endpoint for reading csv from the other nodes
         RED.httpAdmin.get("/knxUltimatecsv", RED.auth.needsPermission('knxUltimate-config.read'), function (req, res) {
-            res.json(RED.nodes.getNode(node.id).csv);
+            var sNodeID = req.query.nodeID; // Retrieve node.id of the config node.
+            var _node = RED.nodes.getNode(sNodeID);
+            res.json(RED.nodes.getNode(_node.id).csv);
         });
 
         // 14/08/2019 Endpoint for retrieving the ethernet interfaces

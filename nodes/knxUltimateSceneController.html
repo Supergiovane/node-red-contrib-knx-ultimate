@@ -40,6 +40,15 @@
         //     onclick: function() {}
         // },
         oneditprepare: function () {
+            var node = this;
+
+            // 19/02/2020 Used to get the server sooner als deploy.
+            $("#node-input-server").change(function () {
+                try {
+                    var config = RED.nodes.node($(this).val());
+                    node.server = config; // 15/03/2020 get the node server
+                } catch (error) { }
+            });
 
             // Scene Recall
             $.getJSON('knxUltimateDpts', (data) => {
@@ -56,7 +65,7 @@
                 minLength: 1,
                 source: function (request, response) {
                     //$.getJSON("csv", request, function( data, status, xhr ) {
-                    $.getJSON("knxUltimatecsv", (data) => {
+                    $.getJSON("knxUltimatecsv?nodeID=" + node.server.id, (data) => {
                         response($.map(data, function (value, key) {
                             var sSearch = (value.ga + " (" + value.devicename + ") DPT" + value.dpt).toUpperCase();
                             if (sSearch.indexOf(request.term.toUpperCase()) != -1) {
@@ -100,7 +109,7 @@
                 minLength: 1,
                 source: function (request, response) {
                     //$.getJSON("csv", request, function( data, status, xhr ) {
-                    $.getJSON("knxUltimatecsv", (data) => {
+                    $.getJSON("knxUltimatecsv?nodeID=" + node.server.id, (data) => {
                         response($.map(data, function (value, key) {
                             var sSearch = (value.ga + " (" + value.devicename + ") DPT" + value.dpt).toUpperCase();
                             if (sSearch.indexOf(request.term.toUpperCase()) != -1) {
@@ -130,7 +139,6 @@
 
 
             // Scene configuration
-            var node = this;
             var previousValueType = { value: "prev", label: this._("switch.previous"), hasValue: false };
             function resizeRule(rule) { }
             $("#node-input-rule-container").css('min-height', '150px').css('min-width', '450px').editableList({
@@ -141,7 +149,7 @@
                         opt.r = {};
                         // Delete saved scene
                         // ##########################################################
-                        $.getJSON("knxultimatescenecontrollerdelete?FileName=" + node.id ,  new Date().getTime(),(data) => { });
+                        $.getJSON("knxultimatescenecontrollerdelete?FileName=" + node.id, new Date().getTime(), (data) => { });
                         // ##########################################################
                     }
                     var rule = opt.r;
@@ -181,7 +189,7 @@
                     oTopicField.autocomplete({
                         minLength: 1,
                         source: function (request, response) {
-                            $.getJSON("knxUltimatecsv", (data) => {
+                            $.getJSON("knxUltimatecsv?nodeID=" + node.server.id, (data) => {
                                 response($.map(data, function (value, key) {
                                     var sSearch = (value.ga + " (" + value.devicename + ") DPT" + value.dpt).toUpperCase();
                                     if (sSearch.indexOf(request.term.toUpperCase()) != -1) {
@@ -215,7 +223,7 @@
                 removeItem: function (opt) {
                     // Delete saved scene
                     // ##########################################################
-                    $.getJSON("knxultimatescenecontrollerdelete?FileName=" + node.id ,  new Date().getTime(),(data) => { });
+                    $.getJSON("knxultimatescenecontrollerdelete?FileName=" + node.id, new Date().getTime(), (data) => { });
                     // ##########################################################
                 },
                 resizeItem: resizeRule,
@@ -234,11 +242,9 @@
 
         },
         oneditsave: function () {
-
-
+            var node = this;
 
             var rules = $("#node-input-rule-container").editableList('items');
-            var node = this;
             node.rules = [];
             rules.each(function (i) {
                 var rule = $(this);
@@ -251,6 +257,8 @@
             this.propertyType = $("#node-input-property").typedInput('type');
         },
         oneditresize: function (size) {
+            var node = this;
+
             var rows = $("#dialog-form>div:not(.node-input-rule-container-row)");
             var height = size.height;
             for (var i = 0; i < rows.length; i++) {

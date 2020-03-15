@@ -45,11 +45,13 @@
         //     onclick: function() {}
         // },
         oneditprepare: function () {
+            var node = this;
 
-            // 19/02/2020 Used to alert the user if the CSV file has not been loaded
+            // 19/02/2020 Used to alert the user if the CSV file has not been loaded and to get the server sooner als deploy
             $("#node-input-server").change(function () {
                 try {
                     var config = RED.nodes.node($(this).val());
+                    node.server = config; // 15/03/2020 get the node server
                     if (typeof config.csv !== "undefined" && config.csv !== "") {
                         $("#isETSFileLoaded").val("si");
                     } else {
@@ -58,10 +60,9 @@
                 } catch (error) {
                     $("#isETSFileLoaded").val("no");
                 }
-
             });
 
-            $.getJSON('knxUltimateDpts', (data) => {
+            $.getJSON("knxUltimateDpts", (data) => {
                 data.forEach(dpt => {
                     $("#node-input-dpt").append($("<option></option>")
                         .attr("value", dpt.value)
@@ -133,8 +134,7 @@
             $("#node-input-topic").autocomplete({
                 minLength: 1,
                 source: function (request, response) {
-                    //$.getJSON("csv", request, function( data, status, xhr ) {
-                    $.getJSON("knxUltimatecsv", (data) => {
+                    $.getJSON("knxUltimatecsv?nodeID=" + node.server.id, (data) => {
                         response($.map(data, function (value, key) {
                             var sSearch = (value.ga + " (" + value.devicename + ") DPT" + value.dpt).toUpperCase();
                             if (sSearch.indexOf(request.term.toUpperCase()) != -1) {
@@ -220,6 +220,8 @@
 
         },
         oneditsave: function () {
+            var node = this;
+
             // 19/02/2020 Warn user that the node will node encode/decode datagram, if Listen All GA's if the config node doesn't contain the csv
             if ($("#isETSFileLoaded").val() === "no") {
                 // Notify the user
