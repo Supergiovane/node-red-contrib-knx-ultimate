@@ -3,7 +3,8 @@
 const knx = require('knxultimate-api');
 const dptlib = require('knxultimate-api/src/dptlib');
 
-const oOS = require('os')
+const oOS = require('os');
+
 
 //Helpers
 sortBy = (field) => (a, b) => {
@@ -85,6 +86,7 @@ module.exports = (RED) => {
         node.csv = readCSV(config.csv); // Array from ETS CSV Group Addresses {ga:group address, dpt: datapoint, devicename: full device name with main and subgroups}
         node.loglevel = config.loglevel !== undefined ? config.loglevel : "error"; // 18/02/2020 Loglevel default error
         node.localEchoInTunneling = typeof config.localEchoInTunneling !== "undefined" ? config.localEchoInTunneling : false;
+
 
         // Endpoint for reading csv from the other nodes
         RED.httpAdmin.get("/knxUltimatecsv", RED.auth.needsPermission('knxUltimate-config.read'), function (req, res) {

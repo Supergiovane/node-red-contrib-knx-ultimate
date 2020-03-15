@@ -5,9 +5,9 @@
 <br/>
 
 <p>
-<b>Version 1.1.44</b> - March 2020 in Italy, we're locked down for Coronavirus<br/>
+<b>Version 1.1.45</b> - March 2020 in Italy, we're locked down for Coronavirus<br/>
 - Update knxultimate-api. Yet the nodes connected to an IP Interface, behaves like the nodes connected to an IP Router. See option <b>Echo sent message to all node with same Group Address</b> in the Gateway configuration wiki.<br/>
-- Begin node translation in Deutsch and Italiano via i18n, thanks to @svenflender.<br/>
+- I'm internationalizing the node <b>(Deutsch, Italiano, English)</b> with the help of <b>@svenflender</b>, so please be patient if some parts are still only in english. Internationalization is working with node-red version 1.0.1 and above. Versions below, does have issues in the i18n module, so knx-ultimate falls back to english. Please upgrade node-red.<br/>
 </p>
 <p>
 <b>Version 1.1.43</b> - March 2020 in the middle of Coronavirus emergency in Italy<br/>

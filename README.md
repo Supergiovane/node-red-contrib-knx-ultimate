@@ -20,6 +20,9 @@
 ## CHANGELOG
 * See <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/blob/master/CHANGELOG.md">here the changelog</a>
 
+## INTERNATIONALIZATION
+*I'm internationalizing the node **(Deutsch, Italiano, English)** with the help of @svenflender, so please be patient if some parts are still only in english. Internationalization is working with node-red version 1.0.1 and above. Versions below, does have issues in the i18n module, so knx-ultimate falls back to english. Please upgrade node-red.*
+
 ## TROUBLESHOOT, WIKI, FAQ, BEST PRACTICES AND SAMPLES
 * [All you need to know](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki)
 * [Youtube video](https://www.youtube.com/channel/UCA9RsLps1IthT7fDSeUbRZw)
