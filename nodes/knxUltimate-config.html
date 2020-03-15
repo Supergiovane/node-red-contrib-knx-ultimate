@@ -20,6 +20,8 @@
             localEchoInTunneling: { value: true }
         },
         oneditprepare: function () {
+            var node = this;
+
             $("#node-config-input-KNXEthInterface").append($("<option></option>")
                 .attr("value", "Auto")
                 .text("Auto")
@@ -36,8 +38,8 @@
                         .text(iFace.name + " (" + iFace.address + ")")
                     )
                 });
-                $("#node-config-input-KNXEthInterface").val(typeof this.KNXEthInterface === "undefined" ? "Auto" : this.KNXEthInterface)
-                if (this.KNXEthInterface === "Manual") {
+                $("#node-config-input-KNXEthInterface").val(typeof node.KNXEthInterface === "undefined" ? "Auto" : node.KNXEthInterface)
+                if (node.KNXEthInterface === "Manual") {
                     // Show input
                     $("#divKNXEthInterfaceManuallyInput").show();
                 } else {
@@ -56,7 +58,7 @@
             });
 
             // 14/02/2020 San Valentino. Retrieve all nodes and show here. Requested by use Alloc in knx-user-forum.de
-            $.getJSON('nodeList', (data) => {
+            $.getJSON("nodeList?nodeID=" + node.id, (data) => {
                 $("#nodeList").val(data);
             });
 
@@ -79,6 +81,8 @@
 
         },
         oneditsave: function () {
+            var node = this;
+
             // Check if the csv file contains errors
             if ($("#node-config-input-csv").val() != 'undefined' && $("#node-config-input-csv").val() != "") {
                 var checkResult = "Upon deploy, i'll parse the CSV. Please see the debug TAB or node-red's log for errors/warnings. If no warnings, then the csv is OK. Otherwise you should correct the issues and again export from ETS and paste here."
@@ -255,3 +259,5 @@
         </div>
     </div>
 </script>
+
+
