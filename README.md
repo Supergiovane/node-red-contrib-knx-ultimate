@@ -12,7 +12,8 @@
 
 **You can use it immediately!**
 ```javascript
-*Light: node.send{payload:true}      *Colorize: node.send{payload:{red:255, green:200, blue:30}}
+*Light: node.send{payload:true}
+*Color: node.send{payload:{red:255, green:200, blue:30}}
 ```
 
 ## DESCRIPTION
