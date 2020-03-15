@@ -9,6 +9,12 @@
 [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
 
 ![Sample Node](img/readmemain.png)
+
+**You can use it immediately!**
+```javascript
+*Light: node.send{payload:true}      *Colorize: node.send{payload:{red:255, green:200, blue:30}}
+```
+
 ## DESCRIPTION
 
 * **Knx-ultimate device node** [here](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/2.-Node-Configuration), allow you to control your *KNX installation* via Node-Red. You can control all your KNX devices as well as create a *Virtual Device* in Node-Red, to link external *non KNX* devices, and make it compatible with your KNX installation. I'ts very SIMPLE TO USE thus very customizable.  
