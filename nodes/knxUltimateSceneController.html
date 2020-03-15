@@ -46,7 +46,7 @@
             $("#node-input-server").change(function () {
                 try {
                     var config = RED.nodes.node($(this).val());
-                    node.server = config; // 15/03/2020 get the node server
+                    if (typeof node.server === "undefined") node.server = config; // 15/03/2020 get the node server
                 } catch (error) { }
             });
 
