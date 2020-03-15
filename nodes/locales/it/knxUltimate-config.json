@@ -1,0 +1,43 @@
+{
+    "knxUltimate-config": {
+        "properties": {
+            "title": "Configurazione gateway KNX/IP",
+            "host": "Host",
+            "host_info": "Di default è impostato l'indirizzo multicast del router KNX/IP (224.0.23.12)",
+            "port": "Porta",
+            "port_info": "Di default è impostata la porta de router KNX/IP (3671)",
+            "bind_local_int": "Utilizza l'interfaccia locale",
+            "restart_hint": "! Riavvia Node-Red dopo cambio qui sopra !",
+            "adv_options": "Opzioni avanzate",
+            "ets_import": "Importa indirizzi di gruppo ETS",
+            "node-config-input-name": "Nome"
+        },
+        "advanced": {
+            "knx_phy_addr": "Indirizzo fisico KNX",
+            "show_date_status": "Visualizza data e ora ultimo aggiornamento, nello stato",
+            "show_device_status": "Visualizza il nome del dispositivo nello stato (richiede \"Modalità universale\" )",
+            "show_datapoint_status": "Visualizza il DPT nello stato",
+            "suppress_ack": "Sopprimi richieste ACK",
+            "suppress_ack_help": "L'opzione ACK sopra aiuta la compatibilità con vecchie interfacce",
+            "log_level": "Livello log",
+            "nodes_list_title": "Elenco nodi in tutti i flows",
+            "nodes_list_help": "Elenco di tutti i tuoi nodi KNX",
+            "select_trace": "Trace",
+            "select_debug": "Debug",
+            "select_info": "Info",
+            "select_warning": "Warning",
+            "select_error": "Error (Default)",
+            "localEchoInTunneling":"Echo messaggi inviati su tutti i nodi con lo stesso indirizzo di gruppo"
+        },
+        "ets": {
+            "description": "Puoi importare sia il file ETS in CSV, che ESF. Usa il CSV se possibile, perchè i datapoints sono più precisi.",
+            "instruction": "Clicca per vedere come si importa un file ETS CSV.",
+            "youtube": "Guarda come si esporta un file CSV su YouTube",
+            "help_ga": "Se l'indirizzo di gruppo non ha datapoint",
+            "import_select_stop": "Blocca ed annulla l'importazione",
+            "import_select_skip": "Importa con un finto datapoint 1.001 (Non raccomandato)",
+            "ga_list_title": "Elenco indirizzi di gruppo",
+            "ga_list_help": "Incolla qui il contenuto del file CSV o ESF esportato da ETS"
+        }
+    }
+}

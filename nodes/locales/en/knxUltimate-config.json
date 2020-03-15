@@ -1,15 +1,16 @@
 {
     "knxUltimate-config": {
         "properties": {
-            "title": "KNX/IP Router Configuration",
+            "title": "KNX/IP Gateway Configuration",
             "host": "Host",
             "host_info": "Default setting is the Multicast address of KNX/IP (224.0.23.12)",
             "port": "Port",
             "port_info": "Default Setting is the Port of KNX/IP (3671)",
             "bind_local_int": "Bind to local interface",
-            "restart_hint": "! Restart Node-RED after change !",
+            "restart_hint": "! Restart Node-RED after above change !",
             "adv_options": "Advanced options",
-            "ets_import": "ETS Group Address list import"
+            "ets_import": "ETS Group Address list import",
+            "node-config-input-name": "Name"
         },
         "advanced": {
             "knx_phy_addr": "KNX Physical Address",
@@ -17,7 +18,7 @@
             "show_device_status": "Show device name in status (require \"Listen all Group Address\" )",
             "show_datapoint_status": "Show datapoint in status",
             "suppress_ack": "Suppress ACK request",
-            "suppress_ack_help": "This option help compatibility with old Siemens SWG1 148-1AB22 IP Interface firmware",
+            "suppress_ack_help": "The option above helps old KNX/IP Interfaces compatibility",
             "log_level": "Loglevel",
             "nodes_list_title": "List of your nodes in all flows",
             "nodes_list_help": "Here is a list of all your configured KNX Nodes.",
@@ -25,7 +26,8 @@
             "select_debug": "Debug",
             "select_info": "Info",
             "select_warning": "Warning",
-            "select_error": "Error (Default)"
+            "select_error": "Error (Default)",
+            "localEchoInTunneling":"Echo sent message to all node with same Group Address"
         },
         "ets": {
             "description": "You can import either an ETS CSV group address list, or an ESF group address list. Please prefer the ETS CSV group address list, as the datapoints are more complete.",

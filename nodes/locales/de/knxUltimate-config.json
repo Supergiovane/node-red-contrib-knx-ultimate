@@ -1,15 +1,16 @@
 {
     "knxUltimate-config": {
         "properties": {
-            "title": "KNX/IP Router Konfiguration",
+            "title": "KNX/IP Gateway Konfiguration",
             "host": "Host",
             "host_info": "Als Standard IP wird die Multicast Addresse von KNX/IP verwendet (224.0.23.12)",
             "port": "Port",
             "port_info": "Als Standard Port wird der Port von KNX/IP verwendet (3671)",
             "bind_local_int": "An lokale Netzwerk-Schnittstelle binden",
-            "restart_hint": "! Starten Sie Node-RED nach der Änderung neu !",
+            "restart_hint": "! Starten Sie Node-RED nach der obenen Änderung neu !",
             "adv_options": "Erweiterte Optionen",
-            "ets_import": "Import der ETS-Gruppenadressliste"
+            "ets_import": "Import der ETS-Gruppenadressliste",
+            "node-config-input-name": "Name"
         },
         "advanced": {
             "knx_phy_addr": "KNX-Adresse",
@@ -25,7 +26,8 @@
             "select_debug": "Debug",
             "select_info": "Information",
             "select_warning": "Warnung",
-            "select_error": "Fehler (Standard)"
+            "select_error": "Fehler (Standard)",
+            "localEchoInTunneling":"Echo von gesendeten Telegram an alle Nodes mit gleichen Gruppenadressen"
         },
         "ets": {
             "description": "Sie können entweder eine ETS CSV-Gruppenadressliste oder eine ESF-Gruppenadressliste importieren. Bitte bevorzugen Sie die Adressliste der ETS CSV-Gruppe, da die Datenpunkte vollständiger sind.",

@@ -219,6 +219,8 @@ return msg;
 
 [MORE Samples and documentation....](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki)
 
+![Logo](https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/flags/madeinitaly.png)
+
 [license-image]: https://img.shields.io/badge/license-MIT-blue.svg
 [license-url]: https://github.com/Supergiovane/node-red-contrib-knx-ultimate/master/LICENSE
 [npm-url]: https://npmjs.org/package/node-red-contrib-knx-ultimate

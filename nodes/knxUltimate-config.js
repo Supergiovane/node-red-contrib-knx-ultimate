@@ -84,6 +84,7 @@ module.exports = (RED) => {
         node.stopETSImportIfNoDatapoint = typeof config.stopETSImportIfNoDatapoint === "undefined" ? "stop" : config.stopETSImportIfNoDatapoint; // 09/01/2020 Stop or Skip the import if a group address has unset datapoint
         node.csv = readCSV(config.csv); // Array from ETS CSV Group Addresses {ga:group address, dpt: datapoint, devicename: full device name with main and subgroups}
         node.loglevel = config.loglevel !== undefined ? config.loglevel : "error"; // 18/02/2020 Loglevel default error
+        node.localEchoInTunneling = typeof config.localEchoInTunneling !== "undefined" ? config.localEchoInTunneling : false;
 
         // Endpoint for reading csv from the other nodes
         RED.httpAdmin.get("/knxUltimatecsv", RED.auth.needsPermission('knxUltimate-config.read'), function (req, res) {
@@ -300,6 +301,7 @@ module.exports = (RED) => {
                 physAddr: node.physAddr, // the KNX physical address we'd like to use
                 suppress_ack_ldatareq: node.suppressACKRequest,
                 loglevel: node.loglevel,
+                localEchoInTunneling:node.localEchoInTunneling, // 14/03/2020 local echo in tunneling mode (see API Supergiovane)
                 // wait at least 60 millisec between each datagram
                 //minimumDelay: 60, // 02/01/2020 Removed becuse it doesn't respect the message sequence, it sends messages random.
                 handlers: {
@@ -349,12 +351,12 @@ module.exports = (RED) => {
             } else {
                 RED.log.info("knxUltimate: Bind KNX Bus to interface (Auto)");
             }
-
+           
             node.knxConnection = new knx.Connection(knxConnectionProperties);
-
+                   
             // Handle BUS events
             node.knxConnection.on("event", function (evt, src, dest, rawValue) {
-                switch (evt) {
+                 switch (evt) {
                     case "GroupValue_Write": {
                         node.nodeClients
                             .filter(input => input.notifywrite == true)
