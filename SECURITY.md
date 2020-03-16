@@ -1,4 +1,7 @@
 # Security Policy
+<a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/blob/master/SECURITY.md"><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/flags/usa-today.png"/></a>
+<a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/blob/master/de-SECURITY.md"><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/flags/germany.png"/></a>
+<a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/blob/master/it-SECURITY.md"><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/flags/italy.png"/></a>
 
 Home automation is not a joke. Please consider all dangers involving the use of this repository to control your home or building.
 A single light that remains ON while you're not at home, for example, **can become a serious danger for fire**.<br/>
