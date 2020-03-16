@@ -5,6 +5,11 @@
 <br/>
 
 <p>
+<b>Version 1.1.48</b> - March 2020 in Italy, continue lock down Coronavirus. Milan index down 8%, Down Jons as well. Panic selling everywhere.<br/>
+- FIX: When you copy/paste knx-ultimate or scene controller node, autofill of device names doesn't work.<br/>
+- Scene Controller devices cosmetics adjustments.<br/>
+</p>
+<p>
 <b>Version 1.1.47</b> - March 2020 in Italy, continue lock down. More people involved in Coronavirus<br/>
 - FIX: In gateway config-node, fixed the "List of your nodes in all flows" (under Advanced Options) list, sometime not populated.<br/>
 - ENHANCEMENT: Now knx-ultimate and scene controller display device list names for newly added nodes in the flow. Prior, you had to save the node first, to get the knx device list into the Group Address fields.<br/>
