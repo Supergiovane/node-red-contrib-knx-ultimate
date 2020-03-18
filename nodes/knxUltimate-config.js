@@ -138,7 +138,7 @@ module.exports = (RED) => {
                             date1 = date1[0].padStart(2, "0") + date1[1].padStart(2, "0") + date1[2].padStart(2, "0");
                             date2 = date2[0].padStart(2, "0") + date2[1].padStart(2, "0") + date2[2].padStart(2, "0");
                             return date1.localeCompare(date2);
-                        } else { return -1;}
+                        } else { return -1; }
                     })
                     .forEach(input => {
                         sNodeID = "\"" + input.id + "\"";
@@ -168,7 +168,8 @@ module.exports = (RED) => {
                         sNodes += sGA + "\t" + sDPT + "\t" + sNodeID + "\t" + sName + "\n";
                     });
                 res.json(sNodes)
-            } catch (error) { RED.log.warn("D " + error)
+            } catch (error) {
+                RED.log.warn("D " + error)
             }
         });
 
@@ -371,20 +372,39 @@ module.exports = (RED) => {
                             .filter(input => input.notifywrite == true)
                             .forEach(input => {
                                 if (input.listenallga == true) {
-                                    // Get the GA from CVS
-                                    let oGA;
-                                    try {
-                                        oGA = node.csv.filter(sga => sga.ga == dest)[0];
-                                    } catch (error) { }
-
-                                    // 25/10/2019 TRY TO AUTO DECODE IF Group address not found in the CSV
-                                    let msg = buildInputMessage({ _srcGA: src, _destGA: dest, _event: evt, _Rawvalue: rawValue, _inputDpt: (typeof oGA === "undefined") ? null : oGA.dpt, _devicename: (typeof oGA === "undefined") ? input.name || "" : oGA.devicename, _outputtopic: dest, _oNode: input });
 
                                     // 11/03/2020 in the middle of coronavirus. Whole italy is red zone, closed down. Scene Controller implementation
                                     if (input.hasOwnProperty("isSceneController")) {
-                                        input.HandleScene(msg);
+                                        // Check wether to recall or save scene
+                                        if (dest === input.topic) {
+                                            let msg = buildInputMessage({ _srcGA: src, _destGA: dest, _event: evt, _Rawvalue: rawValue, _inputDpt: input.dpt, _devicename: input.name ? input.name : "", _outputtopic: input.outputtopic, _oNode: null })
+                                            input.RecallScene(msg.payload.toString());
+                                        } else if (dest === input.topicSave) {
+                                            let msg = buildInputMessage({ _srcGA: src, _destGA: dest, _event: evt, _Rawvalue: rawValue, _inputDpt: input.dptSave, _devicename: input.name ? input.name : "", _outputtopic: dest, _oNode: null })
+                                            input.SaveScene(msg.payload.toString());
+                                        } else {
+                                            // Check and update the values of each device in the scene and update the rule array accordingly.
+                                            for (var i = 0; i < input.rules.length; i++) {
+                                                // rule is { topic: rowRuleTopic, devicename: rowRuleDeviceName, dpt:rowRuleDPT, send: rowRuleSend}
+                                                var oDevice = input.rules[i];
+                                                if (typeof oDevice !== "undefined" && oDevice.topic == dest) {
+                                                    let msg = buildInputMessage({ _srcGA: src, _destGA: dest, _event: evt, _Rawvalue: rawValue, _inputDpt: oDevice.dpt, _devicename: oDevice.name ? input.name : "", _outputtopic: oDevice, outputtopic, _oNode: null })
+                                                    oDevice.currentPayload = msg.payload.toString();
+                                                    input.setNodeStatus({ fill: "grey", shape: "dot", text: "Update dev in scene", payload: oDevice.currentPayload, GA: oDevice.topic, dpt: oDevice.dpt, devicename: oDevice.devicename || "" });
+                                                    break;
+                                                }
+                                            }
+                                        }
+
                                     } else {
                                         // Is a normal listenallga knx-ultimate device
+                                        // Get the GA from CVS
+                                        let oGA;
+                                        try {
+                                            oGA = node.csv.filter(sga => sga.ga == dest)[0];
+                                        } catch (error) { }
+                                        // 25/10/2019 TRY TO AUTO DECODE IF Group address not found in the CSV
+                                        let msg = buildInputMessage({ _srcGA: src, _destGA: dest, _event: evt, _Rawvalue: rawValue, _inputDpt: (typeof oGA === "undefined") ? null : oGA.dpt, _devicename: (typeof oGA === "undefined") ? input.name || "" : oGA.devicename, _outputtopic: dest, _oNode: input });
                                         input.setNodeStatus({ fill: "green", shape: "dot", text: (typeof oGA === "undefined") ? "Try to decode" : "", payload: msg.payload, GA: msg.knx.destination, dpt: msg.knx.dpt, devicename: msg.devicename });
                                         input.send(msg)
                                     }
@@ -633,16 +653,15 @@ module.exports = (RED) => {
             var sDptdesc = "unknown";
             var sPayloadsubtypevalue = "unknown";
             var jsValue = null;
-
+            
             // Resolve DPT and convert value if available
             if (_Rawvalue !== null) {
                 sInputDpt = (_inputDpt === null) ? tryToFigureOutDataPointFromRawValue(_Rawvalue) : _inputDpt;
-
                 var dpt = dptlib.resolve(sInputDpt);
                 if (dpt && _Rawvalue !== null) {
                     var jsValue = dptlib.fromBuffer(_Rawvalue, dpt)
                 }
-
+    
                 // Formatting the msg output value
                 if (_oNode !== null && jsValue !== null) {
                     if (typeof jsValue === "number") {

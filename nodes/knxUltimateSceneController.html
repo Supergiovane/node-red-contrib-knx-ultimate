@@ -108,7 +108,6 @@
             $("#node-input-topicSave").autocomplete({
                 minLength: 1,
                 source: function (request, response) {
-                    //$.getJSON("csv", request, function( data, status, xhr ) {
                     $.getJSON("knxUltimatecsv?nodeID=" + oNodeServer.id, (data) => {
                         response($.map(data, function (value, key) {
                             var sSearch = (value.ga + " (" + value.devicename + ") DPT" + value.dpt).toUpperCase();

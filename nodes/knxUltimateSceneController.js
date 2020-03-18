@@ -97,11 +97,11 @@ module.exports = function (RED) {
         // 11/03/2020 in the middle of coronavirus. Whole italy is red zone, closed down. Recall scene. This is called from the node server, that pass the telegram msg.
         // This function is called everytime node.server receives a telegram, so i need to parse the msg to do what scene controller needs
         // Relevant parts of the message: msg.knx.destination and msg.payload
-        node.HandleScene = msg => {
-
+        node.SaveDeviceInScene = msg => {
+            RED.log.warn("BANANA " + msg.payload.toString())
             // Check wether to recall or save scene
-            if (msg.knx.destination === node.topic) { node.RecallScene(msg.payload.toString()); return; }
-            if (msg.knx.destination === node.topicSave) { node.SaveScene(msg.payload.toString()); return; }
+            //if (msg.knx.destination === node.topic) {node.RecallScene(msg.payload.toString()); return; }
+            //if (msg.knx.destination === node.topicSave) { node.SaveScene(msg.payload.toString()); return; }
 
             // Check and update the values of each device in the scene and update the rule array accordingly.
             for (var i = 0; i < node.rules.length; i++) {
