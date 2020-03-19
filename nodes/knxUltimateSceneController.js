@@ -197,14 +197,49 @@ module.exports = function (RED) {
 
         // 11/03/2020 in the middle of coronavirus. Whole italy is red zone, closed down. Save scene.
         node.SaveScene = _Payload => {
+            var curVal;
+            var newVal;
+           
+            if (typeof _Payload === "object") {
+                // If payload is an object, parse it as object
+                try {
+                    curVal = JSON.stringify(_Payload);
+                    if (node.topicSaveTrigger.toString().indexOf("{") > -1) {
+                        // Sanitize string, if not having quotes
+                        var correctJson = node.topicSaveTrigger.replace(/(['"])?([a-z0-9A-Z_]+)(['"])?:/g, '"$2": ');
+                        try {
+                            newVal = JSON.stringify(JSON.parse(correctJson));
+                        } catch (error) {
+                            // Not a valid JSON, thread as normal.
+                            newVal = node.topicSaveTrigger.toString().toLowerCase();
+                        }
+                    } else {
+                        // topicTrigge is not a JSON
+                        newVal = node.topicSaveTrigger.toString().toLowerCase();
+                    }
+                } catch (error) {
+                    // Invalid JSON, threat as normal.
+                    curVal = _Payload.toString().toLowerCase();
+                    newVal = node.topicSaveTrigger.toString().toLowerCase();
+                }
 
-            var curVal = _Payload.toString().toLowerCase();
-            var newVal = node.topicSaveTrigger.toString().toLowerCase();
+            } else {
+                // Not a JSON, threath as normal.
+                curVal = _Payload.toString().toLowerCase();
+                newVal = node.topicSaveTrigger.toString().toLowerCase();
+            }
+            
             if (curVal === "false") {
                 curVal = "0";
             }
             if (curVal === "true") {
                 curVal = "1";
+            }
+            if (curVal.toString().indexOf("\"decr_incr\":1") > -1 && curVal.toString().indexOf("\"data\":0") == -1) { // Handling DIM
+                curVal = "DIMUP";
+            }
+            if (curVal.toString().indexOf("\"decr_incr\":0") > -1 && curVal.toString().indexOf("\"data\":0") == -1) {// Handling DIM
+                curVal = "DIMDOWN";
             }
             if (newVal === "false") {
                 newVal = "0";
@@ -212,6 +247,13 @@ module.exports = function (RED) {
             if (newVal === "true") {
                 newVal = "1";
             }
+            if (newVal.toString().indexOf("\"decr_incr\":1") > -1 && curVal.toString().indexOf("\"data\":0") == -1) {// Handling DIM
+                newVal = "DIMUP";
+            }
+            if (newVal.toString().indexOf("\"decr_incr\":0") > -1 && curVal.toString().indexOf("\"data\":0") == -1) {// Handling DIM
+                newVal = "DIMDOWN";
+            }
+            //RED.log.warn(curVal + " new: " + newVal)
             if (curVal != newVal) return;
 
             // Save the currentPayload of each device in the scene
