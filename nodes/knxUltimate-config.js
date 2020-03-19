@@ -738,7 +738,7 @@ module.exports = (RED) => {
 
         function readCSV(_csvText) {
             // 24/02/2020, in the middle of Coronavirus emergency in Italy. Check if it a CSV ETS Export of group addresses, or if it's an EFS
-            if (_csvText.split("\n")[0].toUpperCase().indexOf("GROUP NAME") == -1) return readESF(_csvText);
+            if (_csvText.split("\n")[0].toUpperCase().indexOf("\"") == -1) return readESF(_csvText);
 
             var ajsonOutput = new Array(); // Array: qui va l'output totale con i nodi per node-red
 
