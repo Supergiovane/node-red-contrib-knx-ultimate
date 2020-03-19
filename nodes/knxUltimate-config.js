@@ -378,7 +378,7 @@ module.exports = (RED) => {
                                     if (dest === input.topic) {
                                         new Promise((resolve, reject) => {
                                             let msg = buildInputMessage({ _srcGA: src, _destGA: dest, _event: evt, _Rawvalue: rawValue, _inputDpt: input.dpt, _devicename: input.name ? input.name : "", _outputtopic: input.outputtopic, _oNode: null })
-                                            input.RecallScene(msg.payload.toString());
+                                            input.RecallScene(msg.payload);
                                             resolve(true); // fulfilled
                                             //reject("error"); // rejected
                                         }).then(function(){}).catch(function(){});
@@ -386,7 +386,7 @@ module.exports = (RED) => {
                                     } else if (dest === input.topicSave) {
                                         new Promise((resolve, reject) => {
                                             let msg = buildInputMessage({ _srcGA: src, _destGA: dest, _event: evt, _Rawvalue: rawValue, _inputDpt: input.dptSave, _devicename: input.name ? input.name : "", _outputtopic: dest, _oNode: null })
-                                            input.SaveScene(msg.payload.toString());
+                                            input.SaveScene(msg.payload);
                                             resolve(true); // fulfilled
                                             //reject("error"); // rejected
                                         }).then(function(){}).catch(function(){});;
@@ -399,7 +399,7 @@ module.exports = (RED) => {
                                                 var oDevice = input.rules[i];
                                                 if (typeof oDevice !== "undefined" && oDevice.topic == dest) {
                                                     let msg = buildInputMessage({ _srcGA: src, _destGA: dest, _event: evt, _Rawvalue: rawValue, _inputDpt: oDevice.dpt, _devicename: oDevice.name ? input.name : "", _outputtopic: oDevice.outputtopic, _oNode: null })
-                                                    oDevice.currentPayload = msg.payload.toString();
+                                                    oDevice.currentPayload = msg.payload;
                                                     input.setNodeStatus({ fill: "grey", shape: "dot", text: "Update dev in scene", payload: oDevice.currentPayload, GA: oDevice.topic, dpt: oDevice.dpt, devicename: oDevice.devicename || "" });
                                                     break;
                                                 }
