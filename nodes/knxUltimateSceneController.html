@@ -41,7 +41,7 @@
         // },
         oneditprepare: function () {
             var node = this;
-            var oNodeServer= RED.nodes.node($("#node-input-server").val());; // Store the config-node
+            var oNodeServer = RED.nodes.node($("#node-input-server").val());; // Store the config-node
 
             // 19/02/2020 Used to get the server sooner als deploy.
             $("#node-input-server").change(function () {
@@ -51,6 +51,7 @@
             });
 
             // Scene Recall
+            // ########################
             $.getJSON('knxUltimateDpts', (data) => {
                 data.forEach(dpt => {
                     $("#node-input-dpt").append($("<option></option>")
@@ -92,16 +93,17 @@
                 }
             });
             // *****************************
-
+            // ########################
 
             // Scene Save
+            // ########################
             $.getJSON('knxUltimateDpts', (data) => {
                 data.forEach(dpt => {
                     $("#node-input-dptSave").append($("<option></option>")
                         .attr("value", dpt.value)
                         .text(dpt.text))
                 });
-                $("#node-input-dptSave").val(this.dpt)
+                $("#node-input-dptSave").val(this.dptSave)
             })
 
             // Autocomplete suggestion with ETS csv File
@@ -135,6 +137,7 @@
                 }
             });
             // *****************************
+            // ########################
 
 
             // Scene configuration
@@ -164,11 +167,11 @@
                     var row = $('<div class="form-row"/>').appendTo(container);
                     var row2 = $('<div class="form-row"/>', { style: "padding-top: 5px; padding-left: 5px;" }).appendTo(container);
 
-                    var oTopicField = $("<input/>", { class: "rowRuleTopic", type: "text",placeholder: "1/1/1 or device name", style: "width:150px; margin-left: 5px; text-align: left;" }).appendTo(row);
+                    var oTopicField = $("<input/>", { class: "rowRuleTopic", type: "text", placeholder: "1/1/1 or device name", style: "width:140px; margin-left: 5px; text-align: left;" }).appendTo(row);
                     var oDPTField = $('<select/>', { class: "rowRuleDPT", type: "text", style: "width:160px; margin-left: 5px; text-align: left;" }).appendTo(row);
                     var finalspan = $('<span/>', { style: "" }).appendTo(row);
                     finalspan.append(' &#8594; <span class="node-input-rule-index"></span> ');
-                    var oSendField = $('<input/>', { class: "rowRuleSend", type: "text", placeholder: "Value", style: "width:70px; margin-left: 5px; text-align: left;" }).appendTo(row);
+                    var oSendField = $('<input/>', { class: "rowRuleSend", type: "text", placeholder: "Value", style: "width:150px; margin-left: 5px; text-align: left;" }).appendTo(row);
                     var orowRuleDeviceName = $('<input/>', { class: "rowRuleDeviceName", type: "text", style: "width:95%; margin-left: 0px; text-align: left;font-style: italic;", placeholder: "Device Name" }).appendTo(row2);
 
                     oTopicField.on("change", function () {

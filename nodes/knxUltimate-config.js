@@ -87,7 +87,6 @@ module.exports = (RED) => {
         node.loglevel = config.loglevel !== undefined ? config.loglevel : "error"; // 18/02/2020 Loglevel default error
         node.localEchoInTunneling = typeof config.localEchoInTunneling !== "undefined" ? config.localEchoInTunneling : false;
 
-
         // Endpoint for reading csv from the other nodes
         RED.httpAdmin.get("/knxUltimatecsv", RED.auth.needsPermission('knxUltimate-config.read'), function (req, res) {
             var sNodeID = req.query.nodeID; // Retrieve node.id of the config node.
@@ -173,7 +172,6 @@ module.exports = (RED) => {
             }
         });
 
-
         node.setAllClientsStatus = (_status, _color, _text) => {
             function nextStatus(oClient) {
                 oClient.setNodeStatus({ fill: _color, shape: "dot", text: _status + " " + _text, payload: "", GA: oClient.topic, dpt: "", devicename: "" })
@@ -215,6 +213,7 @@ module.exports = (RED) => {
 
             node.knxConnection = null;
         }
+
 
         node.addClient = (_Node) => {
             // Check if node already exists
@@ -368,46 +367,59 @@ module.exports = (RED) => {
             node.knxConnection.on("event", function (evt, src, dest, rawValue) {
                 switch (evt) {
                     case "GroupValue_Write": {
+
                         node.nodeClients
                             .filter(input => input.notifywrite == true)
                             .forEach(input => {
-                                if (input.listenallga == true) {
 
-                                    // 11/03/2020 in the middle of coronavirus. Whole italy is red zone, closed down. Scene Controller implementation
-                                    if (input.hasOwnProperty("isSceneController")) {
-                                        // Check wether to recall or save scene
-                                        if (dest === input.topic) {
+                                // 19/03/2020 in the middle of coronavirus. Whole italy is red zone, closed down. Scene Controller implementation
+                                if (input.hasOwnProperty("isSceneController")) {
+                                    // Check wether to recall or save scene
+                                    if (dest === input.topic) {
+                                        new Promise((resolve, reject) => {
                                             let msg = buildInputMessage({ _srcGA: src, _destGA: dest, _event: evt, _Rawvalue: rawValue, _inputDpt: input.dpt, _devicename: input.name ? input.name : "", _outputtopic: input.outputtopic, _oNode: null })
                                             input.RecallScene(msg.payload.toString());
-                                        } else if (dest === input.topicSave) {
+                                            resolve(true); // fulfilled
+                                            //reject("error"); // rejected
+                                        }).then(function(){}).catch(function(){});
+
+                                    } else if (dest === input.topicSave) {
+                                        new Promise((resolve, reject) => {
                                             let msg = buildInputMessage({ _srcGA: src, _destGA: dest, _event: evt, _Rawvalue: rawValue, _inputDpt: input.dptSave, _devicename: input.name ? input.name : "", _outputtopic: dest, _oNode: null })
                                             input.SaveScene(msg.payload.toString());
-                                        } else {
+                                            resolve(true); // fulfilled
+                                            //reject("error"); // rejected
+                                        }).then(function(){}).catch(function(){});;
+                                    } else {
+                                        // 19/03/2020 Check and Update value if the input is part of a scene controller
+                                        new Promise((resolve, reject) => {
                                             // Check and update the values of each device in the scene and update the rule array accordingly.
                                             for (var i = 0; i < input.rules.length; i++) {
                                                 // rule is { topic: rowRuleTopic, devicename: rowRuleDeviceName, dpt:rowRuleDPT, send: rowRuleSend}
                                                 var oDevice = input.rules[i];
                                                 if (typeof oDevice !== "undefined" && oDevice.topic == dest) {
-                                                    let msg = buildInputMessage({ _srcGA: src, _destGA: dest, _event: evt, _Rawvalue: rawValue, _inputDpt: oDevice.dpt, _devicename: oDevice.name ? input.name : "", _outputtopic: oDevice, outputtopic, _oNode: null })
+                                                    let msg = buildInputMessage({ _srcGA: src, _destGA: dest, _event: evt, _Rawvalue: rawValue, _inputDpt: oDevice.dpt, _devicename: oDevice.name ? input.name : "", _outputtopic: oDevice.outputtopic, _oNode: null })
                                                     oDevice.currentPayload = msg.payload.toString();
                                                     input.setNodeStatus({ fill: "grey", shape: "dot", text: "Update dev in scene", payload: oDevice.currentPayload, GA: oDevice.topic, dpt: oDevice.dpt, devicename: oDevice.devicename || "" });
                                                     break;
                                                 }
                                             }
-                                        }
-
-                                    } else {
-                                        // Is a normal listenallga knx-ultimate device
-                                        // Get the GA from CVS
-                                        let oGA;
-                                        try {
-                                            oGA = node.csv.filter(sga => sga.ga == dest)[0];
-                                        } catch (error) { }
-                                        // 25/10/2019 TRY TO AUTO DECODE IF Group address not found in the CSV
-                                        let msg = buildInputMessage({ _srcGA: src, _destGA: dest, _event: evt, _Rawvalue: rawValue, _inputDpt: (typeof oGA === "undefined") ? null : oGA.dpt, _devicename: (typeof oGA === "undefined") ? input.name || "" : oGA.devicename, _outputtopic: dest, _oNode: input });
-                                        input.setNodeStatus({ fill: "green", shape: "dot", text: (typeof oGA === "undefined") ? "Try to decode" : "", payload: msg.payload, GA: msg.knx.destination, dpt: msg.knx.dpt, devicename: msg.devicename });
-                                        input.send(msg)
+                                            resolve(true); // fulfilled
+                                            //reject("error"); // rejected
+                                        }).then(function(){}).catch(function(){});
                                     }
+
+                                } else if (input.listenallga == true) {
+
+                                    // Get the GA from CVS
+                                    let oGA;
+                                    try {
+                                        oGA = node.csv.filter(sga => sga.ga == dest)[0];
+                                    } catch (error) { }
+                                    // 25/10/2019 TRY TO AUTO DECODE IF Group address not found in the CSV
+                                    let msg = buildInputMessage({ _srcGA: src, _destGA: dest, _event: evt, _Rawvalue: rawValue, _inputDpt: (typeof oGA === "undefined") ? null : oGA.dpt, _devicename: (typeof oGA === "undefined") ? input.name || "" : oGA.devicename, _outputtopic: dest, _oNode: input });
+                                    input.setNodeStatus({ fill: "green", shape: "dot", text: (typeof oGA === "undefined") ? "Try to decode" : "", payload: msg.payload, GA: msg.knx.destination, dpt: msg.knx.dpt, devicename: msg.devicename });
+                                    input.send(msg)
 
                                 } else if (input.topic == dest) {
 
@@ -653,7 +665,7 @@ module.exports = (RED) => {
             var sDptdesc = "unknown";
             var sPayloadsubtypevalue = "unknown";
             var jsValue = null;
-            
+
             // Resolve DPT and convert value if available
             if (_Rawvalue !== null) {
                 sInputDpt = (_inputDpt === null) ? tryToFigureOutDataPointFromRawValue(_Rawvalue) : _inputDpt;
@@ -661,7 +673,7 @@ module.exports = (RED) => {
                 if (dpt && _Rawvalue !== null) {
                     var jsValue = dptlib.fromBuffer(_Rawvalue, dpt)
                 }
-    
+
                 // Formatting the msg output value
                 if (_oNode !== null && jsValue !== null) {
                     if (typeof jsValue === "number") {
