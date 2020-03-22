@@ -5,7 +5,6 @@ const dptlib = require('knxultimate-api/src/dptlib');
 
 const oOS = require('os');
 
-
 //Helpers
 sortBy = (field) => (a, b) => {
     if (a[field] > b[field]) { return 1 } else { return -1 }
