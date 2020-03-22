@@ -2,7 +2,7 @@
     "knxUltimate": {
         "properties": {
             "node-input-server": "Gateway",
-            "node-input-topic": "Indir. Gruppo",
+            "node-input-topic": "Ind. Gruppo",
             "node-input-outputtopic": "Topic",
             "node-input-dpt": "Datapoint",
             "node-input-initialread": "Leggi il valore alla connessione/riconnessione",

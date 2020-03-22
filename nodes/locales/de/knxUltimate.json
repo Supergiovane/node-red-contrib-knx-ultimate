@@ -2,9 +2,9 @@
     "knxUltimate": {
         "properties": {
             "node-input-server": "Gateway",
-            "node-input-topic": "Group Addr.",
+            "node-input-topic": "Addr. Gruppe",
             "node-input-outputtopic": "Topic",
-            "node-input-dpt": "Datapoint",
+            "node-input-dpt": "Datapunkt",
             "node-input-initialread": "Send a GrpValue read once on connection/reconnect",
             "node-input-notifyreadrequest": "React to event GroupValue read",
             "node-input-notifyresponse": "React to event GroupValue response",
@@ -12,8 +12,8 @@
             "node-input-notifyreadrequestalsorespondtobus": "Auto send node value as response to the BUS",
             "node-input-notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized": "If value is undefined, send",
             "node-input-listenallga": "Universal mode (listen to all Group Addresses)",
-            "node-input-name": "Node Name",
-            "node-input-outputtype": "Output Type",
+            "node-input-name": "Name",
+            "node-input-outputtype": "Ausgabetyp",
             "node-input-outputRBE": "Send payload to BUS only if changed (RBE filter)",
             "node-input-inputRBE": "React only if payload from BUS is changed (RBE filter)",
             "node-input-formatmultiplyvalue": "Multiply",
@@ -33,8 +33,8 @@
             "NUMERICVALUES":"NUMERIC VALUES (operations are performed in order)"
         },
         "selectlists": {
-            "Output_write": "Write",
-            "Output_response": "Response",
+            "Output_write": "Schreiben",
+            "Output_response": "Antwort",
             "Multiply_leave": "Leave unchanged (default)",
             "Multiply_divide1000": "Divide x 1000",
             "Multiply_divide100": "Divide x 100",
