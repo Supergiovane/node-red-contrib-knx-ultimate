@@ -28,7 +28,6 @@
         "advanced": {
             "Advancedoptions":"Advanced options",
             "Formatting":"Custom KNX message value formatting",
-            "Operations":"NUMERIC VALUES (operations are performed in order)",
             "OUTPUT": "OUTPUT (sends datagram to the KNX BUS)",
             "INPUT": "INPUT (listen to datagram from the KNX BUS)",
             "NUMERICVALUES":"NUMERIC VALUES (operations are performed in order)"
