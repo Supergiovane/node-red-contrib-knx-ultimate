@@ -3,7 +3,7 @@
         "properties": {
             "node-input-server": "Gateway",
             "node-input-topic": "Gruppenadresse",
-            "node-input-outputtopic": "Thema",
+            "node-input-outputtopic": "Topic",
             "node-input-dpt": "Datenpunkt",
             "node-input-initialread": "Bei Verbindung / Wiederverbindung einen Gruppenadressen-Wert versenden",
             "node-input-notifyreadrequest": "Auf das Lesen von Gruppenadressen reagieren",
@@ -22,15 +22,15 @@
            
         },
         "placeholder": {
-            "leaveempty":"Lassen Sie das Feld leer, um die Gruppenadresse zu verwenden",
+            "leaveempty":"Leer lassen, um die Gruppenadresse zu verwenden",
             "notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized" : "Ex: 0 für false, 1 für true, andernfalls jeder Wert"
         },
         "advanced": {
             "Advancedoptions":"Erweiterte Optionen",
             "Formatting":"Benutzerdefinierte Formatierung der KNX-Nachricht",
-            "OUTPUT": "OUTPUT (sendet ein Telegramm an den KNX-Bus)",
-            "INPUT": "INPUT (Telegram vom KNX-Bus lesen)",
-            "NUMERICVALUES":"NUMERIC VALUES (Operationen werden in der richtigen Reihenfolge ausgeführt)",
+            "OUTPUT": "AUSGANG (sendet ein Telegramm an den KNX-Bus)",
+            "INPUT": "EINGANG (Telegramm vom KNX-Bus lesen)",
+            "NUMERICVALUES":"NUMERISCHE WERTE (Operationen werden in der richtigen Reihenfolge ausgeführt)",
             "noETSWarning":"Sie haben die ETS-CSV-Datei nicht importiert. <br/> Die Node arbeitet als blinder Sender / Empfänger. <a href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/de-2.-Node-Configuration\" target='_blank'>Klicken Sie hier für die Hilfe.</a>."
         },
         "selectlists": {

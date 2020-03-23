@@ -255,128 +255,161 @@
 <script type="text/x-red" data-template-name="knxUltimate">
 
     <!-- Setted by oneditprepare and used in oneditsave to warn th user if no CSV file has been loaded -->
-<input id="isETSFileLoaded" name="isETSFileLoaded" type="hidden" value="false">
+    <input id="isETSFileLoaded" name="isETSFileLoaded" type="hidden" value="false" />
 
-<div class="form-row">
-    <label for="node-input-server"><img
-            src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/config/connectioneibnettunneling.png"></i>
-            <span data-i18n="knxUltimate.properties.node-input-server"></span> </label>
-    <input type="text" id="node-input-server">
-</div>
-<div id="GAandDPT">
     <div class="form-row">
-        <label for="node-input-topic"><img
-                src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/config/subgroup.png"></i>
-                <span data-i18n="knxUltimate.properties.node-input-topic"></span></label>
-        <input type="text" id="node-input-topic" placeholder="Ex: 1/1/1">
+        <label for="node-input-server">
+            <img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/config/connectioneibnettunneling.png"></img>
+            <span data-i18n="knxUltimate.properties.node-input-server"></span>
+        </label>
+        <input type="text" id="node-input-server" />
+    </div>
+    <div id="GAandDPT">
+        <div class="form-row">
+            <label style="width:30%" for="node-input-topic">
+                <img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/config/subgroup.png"></img>
+                <span data-i18n="knxUltimate.properties.node-input-topic"></span>
+            </label>
+            <input style="width:60%" type="text" id="node-input-topic" placeholder="Ex: 1/1/1" />
+        </div>
+        <div class="form-row">
+            <label style="width:30%" for="node-input-dpt">
+                <img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/config/device.png"></img>
+                <span data-i18n="knxUltimate.properties.node-input-dpt"></span>
+            </label>
+            <select style="width:60%" id="node-input-dpt"></select>
+        </div>
     </div>
     <div class="form-row">
-        <label for="node-input-dpt"><img
-                src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/config/device.png"></i>
-                <span data-i18n="knxUltimate.properties.node-input-dpt"></span> </label>
-        <select id="node-input-dpt"></select>
+        <label  for="node-input-name">
+            <i class="fa fa-tag"></i>
+            <span data-i18n="knxUltimate.properties.node-input-name"></span>
+        </label>
+        <input type="text" id="node-input-name" data-i18n="[placeholder]knxUltimate.properties.node-input-name" />
     </div>
-</div>
-<div class="form-row">
-    <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="knxUltimate.properties.node-input-name"></span> </label>
-    <input type="text" id="node-input-name" data-i18n="[placeholder]knxUltimate.properties.node-input-name">
-</div>
-<div class="form-row" id="divTopic">
-    <label for="node-input-outputtopic"><i class="fa fa-tasks"></i> <span data-i18n="knxUltimate.properties.node-input-outputtopic"></span> </label>
-    <input type="text" id="node-input-outputtopic" data-i18n="[placeholder]knxUltimate.placeholder.leaveempty">
-</div>
-<div class="form-row">
-    <input type="checkbox" id="node-input-listenallga" style="display:inline-block; width:auto; vertical-align:top;">
-    <label style="width:auto" for="node-input-listenallga">&nbsp;&nbsp;<img
-            src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/config/maingroup.png"></i>
-            <span data-i18n="knxUltimate.properties.node-input-listenallga"></span></label>
-    <div id="helpallga">Some Content Here</div>
-</div>
+    <div class="form-row" id="divTopic">
+        <label for="node-input-outputtopic">
+            <i class="fa fa-tasks"></i>
+            <span data-i18n="knxUltimate.properties.node-input-outputtopic"></span>
+        </label>
+        <input type="text" id="node-input-outputtopic" data-i18n="[placeholder]knxUltimate.placeholder.leaveempty" />
+    </div>
+    <div class="form-row">
+        <input type="checkbox" id="node-input-listenallga" style="display:inline-block; width:auto; vertical-align:top;" />
+        <label style="width:auto" for="node-input-listenallga">
+            <img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/config/maingroup.png"></img>
+            <span data-i18n="knxUltimate.properties.node-input-listenallga"></span>
+        </label>
+        <!-- <div id="helpallga">Some Content Here</div> -->
+    </div>
 
-
-<div id="advancedOptionsAccordion">
-    <h3><span data-i18n="knxUltimate.advanced.Advancedoptions"></span></h3>
-    <div>
-        <p>
-            <dt><i class="fa fa-code-fork"></i>&nbsp; <span data-i18n="knxUltimate.advanced.OUTPUT"></span></dt><br />
+    <div id="advancedOptionsAccordion">
+        <h3><span data-i18n="knxUltimate.advanced.Advancedoptions"></span></h3>
+        <div class="form-row">
             <div class="form-row">
-                <label for="node-input-outputtype"><i class="fa fa-rocket"></i> <span data-i18n="knxUltimate.properties.node-input-outputtype"></span> </label>
+                <dt>
+                    <i class="fa fa-code-fork"></i>
+                    <span data-i18n="knxUltimate.advanced.OUTPUT"></span>
+                </dt>
+            </div>  
+            <div class="form-row">
+                <label for="node-input-outputtype">
+                    <i class="fa fa-rocket"></i>
+                    <span data-i18n="knxUltimate.properties.node-input-outputtype"></span>
+                </label>
                 <select id="node-input-outputtype">
                     <option value="write" data-i18n="knxUltimate.selectlists.Output_write"></option>
                     <option value="response" data-i18n="knxUltimate.selectlists.Output_response"></option>
                 </select>
             </div>
-
             <div class="form-row" id="divOutputRBE">
-                <input type="checkbox" id="node-input-outputRBE"
-                    style="display:inline-block; width:auto; vertical-align:top;">
-                <label style="width:auto" for="node-input-outputRBE">&nbsp;&nbsp;<i class="fa fa-filter"></i> <span data-i18n="knxUltimate.properties.node-input-outputRBE"></span></label>
+                <input type="checkbox" id="node-input-outputRBE" style="display:inline-block; width:auto; vertical-align:top;" />
+                <label style="width:85%" for="node-input-outputRBE">
+                    <i class="fa fa-filter"></i>
+                    <span data-i18n="knxUltimate.properties.node-input-outputRBE"></span>
+                </label>
             </div>
-
             <div class="form-row" id="divNode-input-initialread">
-                <input type="checkbox" id="node-input-initialread"
-                    style="display:inline-block; width:auto; vertical-align:top;">
-                <label style="width:auto" for="node-input-initialread">&nbsp;&nbsp;<i
-                        class="fa fa-question-circle-o"></i> <span data-i18n="knxUltimate.properties.node-input-initialread"></span></label>
+                <input type="checkbox" id="node-input-initialread" style="display:inline-block; width:auto; vertical-align:top;" />
+                <label style="width:85%" for="node-input-initialread">
+                    <i class="fa fa-question-circle-o"></i>
+                    <span data-i18n="knxUltimate.properties.node-input-initialread"></span>
+                </label>
             </div>
-
-
-            <br />
-            <dt><i class="fa fa-code-fork"></i>&nbsp; <span data-i18n="knxUltimate.advanced.INPUT"></span></dt><br />
+            </br>
+            <div class="form-row">
+                <dt>
+                    <i class="fa fa-code-fork"></i>
+                    <span data-i18n="knxUltimate.advanced.INPUT"></span>
+                </dt>
+            </div>
             <div class="form-row" id="divInputRBE">
-                <input type="checkbox" id="node-input-inputRBE"
-                    style="display:inline-block; width:auto; vertical-align:top;">
-                <label style="width:auto" for="node-input-inputRBE">&nbsp;&nbsp;<i class="fa fa-filter"></i> <span data-i18n="knxUltimate.properties.node-input-inputRBE"></span></label>
+                <input type="checkbox" id="node-input-inputRBE" style="display:inline-block; width:auto; vertical-align:top;" />
+                <label style="width:85%" for="node-input-inputRBE">
+                    <i class="fa fa-filter"></i>
+                    <span data-i18n="knxUltimate.properties.node-input-inputRBE"></span>
+                </label>
             </div>
-
             <div class="form-row">
-                <input type="checkbox" id="node-input-notifywrite"
-                    style="display:inline-block; width:auto; vertical-align:top;">
-                <label style="width:auto" for="node-input-notifywrite">&nbsp;&nbsp;<i class="fa fa-sign-in"></i> <span data-i18n="knxUltimate.properties.node-input-notifywrite"></span></label>
+                <input type="checkbox" id="node-input-notifywrite" style="display:inline-block; width:auto; vertical-align:top;" />
+                <label style="width:85%" for="node-input-notifywrite">
+                    <i class="fa fa-sign-in"></i>
+                    <span data-i18n="knxUltimate.properties.node-input-notifywrite"></span>
+                </label>
             </div>
-
             <div class="form-row">
-                <input type="checkbox" id="node-input-notifyresponse"
-                    style="display:inline-block; width:auto; vertical-align:top;">
-                <label style="width:auto" for="node-input-notifyresponse">&nbsp;&nbsp;<i class="fa fa-sign-in"></i>
-                    <span data-i18n="knxUltimate.properties.node-input-notifyresponse"></span></label>
+                <input type="checkbox" id="node-input-notifyresponse" style="display:inline-block; width:auto; vertical-align:top;" />
+                <label style="width:85%" for="node-input-notifyresponse">
+                    <i class="fa fa-sign-in"></i>
+                    <span data-i18n="knxUltimate.properties.node-input-notifyresponse"></span>
+                </label>
             </div>
-
             <div class="form-row">
-                <input type="checkbox" id="node-input-notifyreadrequest"
-                    style="display:inline-block; width:auto; vertical-align:top;">
-                <label style="width:auto" for="node-input-notifyreadrequest">&nbsp;&nbsp;<i class="fa fa-sign-in"></i>
-                    <span data-i18n="knxUltimate.properties.node-input-notifyreadrequest"></span></label>
+                <input type="checkbox" id="node-input-notifyreadrequest" style="display:inline-block; width:auto; vertical-align:top;" />
+                <label style="width:85%" for="node-input-notifyreadrequest">
+                    <i class="fa fa-sign-in"></i>
+                    <span data-i18n="knxUltimate.properties.node-input-notifyreadrequest"></span>
+                </label>
             </div>
 
             <div id="divnotifyreadrequestautoreact">
                 <dd>
                     <div class="form-row">
-                        <input type="checkbox" id="node-input-notifyreadrequestalsorespondtobus"
-                            style="display:inline-block; width:auto; vertical-align:top;">
-                        <label style="width:auto" for="node-input-notifyreadrequestalsorespondtobus">&nbsp;&nbsp; <span data-i18n="knxUltimate.properties.node-input-notifyreadrequestalsorespondtobus"></span></label>
+                        <input type="checkbox" id="node-input-notifyreadrequestalsorespondtobus" style="display:inline-block; width:auto; vertical-align:top;" />
+                        <label style="width:85%" for="node-input-notifyreadrequestalsorespondtobus">
+                            <span data-i18n="knxUltimate.properties.node-input-notifyreadrequestalsorespondtobus"></span>
+                        </label>
                     </div>
                     <div class="form-row">
-                        <label style="width:auto">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span data-i18n="knxUltimate.properties.node-input-notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized"></span></label>
-                        <input style="width:auto" type="text"
-                            id="node-input-notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized"
-                            data-i18n="[placeholder]knxUltimate.placeholder.notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized">
+                        <label style="width:auto">
+                            <span data-i18n="knxUltimate.properties.node-input-notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized"></span>
+                        </label>
+                        <input style="width:auto" 
+                               type="text"
+                               id="node-input-notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized"
+                               data-i18n="[placeholder]knxUltimate.placeholder.notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized"
+                        />
                     </div>
                 </dd>
             </div>
-        </p>
+        </div>
     </div>
-</div>
 
-<div id="formatValueAccordion">
-    <h3><span data-i18n="knxUltimate.advanced.Formatting"></span></h3>
-    <div>
-        <p>
-            <dt><i class="fa fa-sort-numeric-asc"></i>&nbsp; <span data-i18n="knxUltimate.advanced.NUMERICVALUES"></span></dt>
-            <br />
+    <div id="formatValueAccordion">
+        <h3><span data-i18n="knxUltimate.advanced.Formatting"></span></h3>
+        <div>
             <div class="form-row">
-                <label for="node-input-formatmultiplyvalue"><i class="fa fa-calculator"></i> <span data-i18n="knxUltimate.properties.node-input-formatmultiplyvalue"></span> </label>
-                <select id="node-input-formatmultiplyvalue">
+                <dt>
+                    <i class="fa fa-sort-numeric-asc"></i>
+                    <span data-i18n="knxUltimate.advanced.NUMERICVALUES"></span>
+                </dt>
+            </div>
+            <div class="form-row">
+                <label style="width:30%" for="node-input-formatmultiplyvalue">
+                    <i class="fa fa-calculator" />
+                    <span data-i18n="knxUltimate.properties.node-input-formatmultiplyvalue" />
+                </label>
+                <select style="width:65%" id="node-input-formatmultiplyvalue">
                     <option value=1 data-i18n="knxUltimate.selectlists.Multiply_leave"></option>
                     <option value=0.001 data-i18n="knxUltimate.selectlists.Multiply_divide1000"></option>
                     <option value=0.01 data-i18n="knxUltimate.selectlists.Multiply_divide100"></option>
@@ -387,8 +420,11 @@
                 </select>
             </div>
             <div class="form-row">
-                <label for="node-input-formatdecimalsvalue"><i class="fa fa-expand"></i> <span data-i18n="knxUltimate.properties.node-input-formatdecimalsvalue"></span></label>
-                <select id="node-input-formatdecimalsvalue">
+                <label style="width:30%" for="node-input-formatdecimalsvalue">
+                    <i class="fa fa-expand" />
+                    <span data-i18n="knxUltimate.properties.node-input-formatdecimalsvalue" />
+                </label>
+                <select style="width:65%" id="node-input-formatdecimalsvalue">
                     <option value=999 data-i18n="knxUltimate.selectlists.Decimals_leave"></option>
                     <option value=0 data-i18n="knxUltimate.selectlists.Decimals_roundint"></option>
                     <option value=1 data-i18n="knxUltimate.selectlists.Decimals_round1"></option>
@@ -398,16 +434,17 @@
                 </select>
             </div>
             <div class="form-row">
-                <label for="node-input-formatnegativevalue"><i class="fa fa-minus-circle"></i> <span data-i18n="knxUltimate.properties.node-input-formatnegativevalue"></span></label>
-                <select id="node-input-formatnegativevalue">
+                <label style="width:30%" for="node-input-formatnegativevalue">
+                    <i class="fa fa-minus-circle"></i>
+                    <span data-i18n="knxUltimate.properties.node-input-formatnegativevalue"></span>
+                </label>
+                <select style="width:65%" id="node-input-formatnegativevalue">
                     <option value="leave" data-i18n="knxUltimate.selectlists.Negatives_leave"></option>
                     <option value="zero" data-i18n="knxUltimate.selectlists.Negatives_zero"></option>
                     <option value="abs" data-i18n="knxUltimate.selectlists.Negatives_abs"></option>
                 </select>
             </div>
-
-        </p>
+        </div>
     </div>
-</div>
 </script>
 
