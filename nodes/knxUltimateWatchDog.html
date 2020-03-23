@@ -38,103 +38,42 @@
 
 <script type="text/x-red" data-template-name="knxUltimateWatchDog">
     <div class="form-row">
-        <label for="node-input-server"><i class="fa fa-tag"></i> Gateway </label>
+        <label for="node-input-server"><i class="fa fa-tag"></i> <span data-i18n="knxUltimateWatchDog.properties.node-input-server"></span> </label>
         <input type="text" id="node-input-server">
     </div>
     <div class="form-row">
-        <label for="node-input-checkLevel"><i class="fa fa-search"></i> Check level (please see the wiki)</label>
+        <label for="node-input-checkLevel"><i class="fa fa-search"></i> <span data-i18n="knxUltimateWatchDog.properties.node-input-checkLevel"></span> </label>
         <select id="node-input-checkLevel">
-            <option value="Ethernet">Only Ethernet (default), using a fake Group Address to monitor. Works only with KNX/IP Routers</option>
-            <option value="Eth+KNX">Ethernet + KNX Twisted Pair, using a real KNX device</option>
+            <option value="Ethernet" data-i18n="knxUltimateWatchDog.selectlists.Ethernet"></option>
+            <option value="Eth+KNX" data-i18n="knxUltimateWatchDog.selectlists.EthKNX"></option>
         </select>
     </div>
     <div class="form-row">
-        <label for="node-input-topic"><i class="fa fa-tasks"></i> Group Address to monitor</label>
-        <input type="text" id="node-input-topic" placeholder="Example: 12/0/0 Please use a non existent device.">
+        <label for="node-input-topic"><i class="fa fa-tasks"></i> <span data-i18n="knxUltimateWatchDog.properties.node-input-topic"></span></label>
+        <input type="text" id="node-input-topic" data-i18n="[placeholder]knxUltimateWatchDog.placeholder.monitor">
     </div>
     <div class="form-row">
-        <label for="node-input-name"><i class="fa fa-tag"></i> Name </label>
-        <input type="text" id="node-input-name" placeholder="Name">
+        <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="knxUltimateWatchDog.properties.node-input-name"></span> </label>
+        <input type="text" id="node-input-name" data-i18n="[placeholder]knxUltimateWatchDog.properties.node-input-name">
     </div>
     <div class="form-row">
         <input type="checkbox" id="node-input-autoStart" style="display:inline-block; width:auto; vertical-align:top;">
-        <label style="width:auto" for="node-input-autoStart">&nbsp;&nbsp;<i class="fa fa-play-circle"></i>  Auto start the watchdog timer</label>
+        <label style="width:auto" for="node-input-autoStart">&nbsp;&nbsp;<i class="fa fa-play-circle"></i> <span data-i18n="knxUltimateWatchDog.properties.node-input-autoStart"></span> </label>
     </div>    
     
     <div id="advancedOptionsAccordion">
-        <h3>Advanced options</h3>
+        <h3><span data-i18n="knxUltimateWatchDog.properties.advancedOptionsAccordion"></span></h3>
         <div>
             <p>
                 <div class="form-row">
-                    <label for="node-input-retryInterval"><i class="fa fa-clock-o"></i> Retry interval (in seconds) </label>
-                    <input type="text" id="node-input-retryInterval" placeholder="">
+                    <label for="node-input-retryInterval"><i class="fa fa-clock-o"></i> <span data-i18n="knxUltimateWatchDog.properties.node-input-retryInterval"></span></label>
+                    <input type="text" id="node-input-retryInterval">
                 </div>
                 <div class="form-row">
-                    <label for="node-input-maxRetry"><i class="fa fa-undo"></i> Number of retry before giving an error </label>
-                    <input type="text" id="node-input-maxRetry" placeholder="">
+                    <label for="node-input-maxRetry"><i class="fa fa-undo"></i> <span data-i18n="knxUltimateWatchDog.properties.node-input-maxRetry"></span></label>
+                    <input type="text" id="node-input-maxRetry" >
                 </div>
             </p>
         </div>
     </div>        
 </script>
-
-<script type="text/x-red" data-help-name="knxUltimateWatchDog">
-    <p>
-        <b>What does it do?</b>
-        1. Checks for the healty of KNX BUS communication/connection by sending a telegram at regular intervals, watching for a response and sends a msg to the flow if a connection to KNX Bus is broken.
-        2. Programmatically changes the Configuration Node parameters, thus the connection to your KNX/IP Router/Interface (for example, if you have 2 KNX/IP Routers and you want to switch between the two for connection backup). <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---WatchDog" target="_blank">See here how to do.</a>
-
-        WatchDog node is a powerfull node for signalling errors and connection problems. It sends a telegram to a designated goup address (please set a non existent group address, otherwise your KNX real device will respond. This may not be a problem, but it's better not to interfere with real KNX devices in your installation).<br />
-        It sends a telegram to a designated group address, at regular intervals specified in <b>Retry interval (in seconds)</b>, for a specific number of times specified in <b>Number of retry before giving an error</b> and listens to the response from the KNX Bus. In case of no response from KNX Bus after the <b>Number of retry before giving an error</b>, it throws an error on output pin.<br />
-        The telegram's path is monitored in his route through <b>Ethernet Interface -> KNX TP Media -> Return to Ethernet Interface</b>.<br />
-        You can then send an Email to the KNX installer responsible to your Building, or you can automatically switch to a backup KNX/IP Router/Interface in your installation, <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---WatchDog" target="_blank">by using this method</a>.
-        Please see the <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki">Full Wiki.</a>.<br />
-
-    </p>
-    <p>
-        <a href="https://www.paypal.me/techtoday" target="_blank"><img src='https://img.shields.io/badge/Donate-PayPal-blue.svg?style=flat-square' width='30%'></a>
-        and
-        <a href="http://eepurl.com/gJm095" target="_blank">Subscribe to my channel</a> for news about my nodes.
-    </p>
-    <p>
-            <dl class="message-properties">
-                <dt>Gateway</dt>
-                <dd>Selected KNX gateway. </dd>
-                
-                <dt>Check level</dt>
-                <dd><i>Ethernet level</i>: Basic check thus very useful. It checks the connection between KNX-Ultimate Gateway and your KNX/IP Router/Interface<br/>
-                <i>Ethernet and KNX TP level</i>: Complete check. By using a physical KNX device responding to a read request (for example a light actuator having a status group address set), it checks the connection between KNX-Ultimate and this physical KNX device, by issuing a read request and by awaiting a response telegram from this device. Any error on the ethernet trunk or on the KNX Twisted Pair trunk will be notified.
-                </dd>
-                
-                <dt>Group Address to monitor
-                    <span class="property-type">Example 12/0/0</span>
-                </dt>
-                <dd>The node will send a telegram to this address and monitors the message flowing through the KNX BUS.</dd>
-
-                <dt>Name</dt>
-                <dd>Node's name</dd>
-
-                <dt>Auto start the watchdog timer</dt>
-                <dd>The watchdog timer starts automatically on deploy or on node-red start.</dd>
-          </dl>
-            
-            <h3>ADVANCED OPTIONS</h3>
-                <dl class="message-properties">
-                    <dt>Retry interval (in seconds)</dt>
-                    <dd>The node sends a telegram to the KNX bus at this time interva, in seconds. For example, <b>6</b> indicates that the telegram is sent every 6 seconds.<br />
-                    
-                    <dt>Number of retry before giving an error</dt>
-                    <dd>After the telegram has been sent for this amount of times, without any response from KNX Bus, the note throws an error on output pin 2</dd>
-                </dl>
-        </p>
-   
-      
-        
-    <p>
-        <b>MSG FORMAT</b><br/>
-        <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/8.-WatchDog-Messages-from-the-node" target="_blank">Click here for msg output format</a>.<br />
-        <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/9.-WathDog-Messages-to-the-node" target="_blank">Click here for msg input format</a>.<br />
-        <br />
-    </p>
-            
-    </script>

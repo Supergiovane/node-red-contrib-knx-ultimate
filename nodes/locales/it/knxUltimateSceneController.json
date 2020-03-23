@@ -2,7 +2,7 @@
     "knxUltimateSceneController": {
         "properties": {
             "node-input-server": "Gateway",
-            "node-input-topic": "Richia Scena",
+            "node-input-topic": "Richiama Scena",
             "node-input-dpt": "Datapoint",
             "node-input-topicTrigger": "Trigger",
             "node-input-topicSave": "Salva Scena",
