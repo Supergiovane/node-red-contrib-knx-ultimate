@@ -38,7 +38,7 @@
             "import_select_skip": "Import with a fake 1.001 datapoint (Not recommended)",
             "ga_list_title": "Group Address list",
             "ga_list_help": "Paste here your CSV or ESF exported file from the ETS",
-            "deploywithETS":"Upon deploy, i'll parse the CSV. Please see the debug TAB or node-red's log for errors/warnings. If no warnings, then the csv is OK. Otherwise you should correct the issues and again export from ETS and paste here."
+            "deploywithETS":"Upon deploy, i'll parse the ETS file. Please see the debug TAB or node-red's log for errors/warnings. If no warnings, then the import process is OK. Otherwise you should correct the issues and again reimport the file."
         }
     }
 }

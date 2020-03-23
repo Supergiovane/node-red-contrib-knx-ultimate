@@ -2,56 +2,21 @@
     "knxUltimateSceneController": {
         "properties": {
             "node-input-server": "Gateway",
-            "node-input-topic": "Group Addr.",
-            "node-input-outputtopic": "Topic",
+            "node-input-topic": "Scene Recall",
             "node-input-dpt": "Datapoint",
-            "node-input-initialread": "Send a GrpValue read once on connection/reconnect",
-            "node-input-notifyreadrequest": "React to event GroupValue read",
-            "node-input-notifyresponse": "React to event GroupValue response",
-            "node-input-notifywrite": "React to event GroupValue write",
-            "node-input-notifyreadrequestalsorespondtobus": "Auto send node value as response to the BUS",
-            "node-input-notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized": "If value is undefined, send",
-            "node-input-listenallga": "Universal mode (listen to all Group Addresses)",
+            "node-input-topicTrigger": "Trigger",
+            "node-input-topicSave": "Scene Save",
             "node-input-name": "Node Name",
-            "node-input-outputtype": "Output Type",
-            "node-input-outputRBE": "Send payload to BUS only if changed (RBE filter)",
-            "node-input-inputRBE": "React only if payload from BUS is changed (RBE filter)",
-            "node-input-formatmultiplyvalue": "Multiply",
-            "node-input-formatnegativevalue": "Negatives",
-            "node-input-formatdecimalsvalue": "Decimals"
-           
+            "node-input-outputtopic": "Topic"
+         
         },
         "placeholder": {
             "leaveempty":"Leave empty to use Group Address",
-            "notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized" : "Ex: 0 for false, 1 for true, otherwise any value"
+            "valueexample" : "Ex: false, true, otherwise any value"
         },
-        "advanced": {
-            "Advancedoptions":"Advanced options",
-            "Formatting":"Custom KNX message value formatting",
-            "Operations":"NUMERIC VALUES (operations are performed in order)",
-            "OUTPUT": "OUTPUT (sends datagram to the KNX BUS)",
-            "INPUT": "INPUT (listen to datagram from the KNX BUS)",
-            "NUMERICVALUES":"NUMERIC VALUES (operations are performed in order)"
-        },
-        "selectlists": {
-            "Output_write": "Write",
-            "Output_response": "Response",
-            "Multiply_leave": "Leave unchanged (default)",
-            "Multiply_divide1000": "Divide x 1000",
-            "Multiply_divide100": "Divide x 100",
-            "Multiply_divide10": "Divide x 10",
-            "Multiply_multiply1000": "Multiply x 1000",
-            "Multiply_multiply100": "Multiply x 100",
-            "Multiply_multiply10": "Multiply x 10",
-            "Decimals_leave": "Leave unchanged (default)",
-            "Decimals_roundint": "Round to integer (no decimals)",
-            "Decimals_round1": "Round 1 decimal",
-            "Decimals_round2": "Round 2 decimals",
-            "Decimals_round3": "Round 3 decimals",
-            "Decimals_round4": "Round 4 decimals",
-            "Negatives_leave":"Leave unchanged (default)",
-            "Negatives_zero": "Output zero",
-            "Negatives_abs": "Output absolute value (remove the minus sign)"          
-        }
+        "other": {
+            "sceneConfig":"Scene Configuration",
+            "add":"Press ADD, to add a device in the scene"
+         }
     }
 }
