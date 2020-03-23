@@ -38,40 +38,40 @@
 
 <script type="text/x-red" data-template-name="knxUltimateWatchDog">
     <div class="form-row">
-        <label for="node-input-server"><i class="fa fa-tag"></i> Gateway </label>
+        <label for="node-input-server"><i class="fa fa-tag"></i> <span data-i18n="knxUltimateWatchDog.properties.node-input-server"></span> </label>
         <input type="text" id="node-input-server">
     </div>
     <div class="form-row">
-        <label for="node-input-checkLevel"><i class="fa fa-search"></i> Check level (please see the wiki)</label>
+        <label for="node-input-checkLevel"><i class="fa fa-search"></i> <span data-i18n="knxUltimateWatchDog.properties.node-input-checkLevel"></span> </label>
         <select id="node-input-checkLevel">
-            <option value="Ethernet">Only Ethernet (default), using a fake Group Address to monitor. Works only with KNX/IP Routers</option>
-            <option value="Eth+KNX">Ethernet + KNX Twisted Pair, using a real KNX device</option>
+            <option value="Ethernet"><span data-i18n="knxUltimateWatchDog.selectlists.Ethernet"></option>
+            <option value="Eth+KNX"><span data-i18n="knxUltimateWatchDog.selectlists.EthKNX"></option>
         </select>
     </div>
     <div class="form-row">
-        <label for="node-input-topic"><i class="fa fa-tasks"></i> Group Address to monitor</label>
-        <input type="text" id="node-input-topic" placeholder="Example: 12/0/0 Please use a non existent device.">
+        <label for="node-input-topic"><i class="fa fa-tasks"></i> <span data-i18n="knxUltimateWatchDog.properties.node-input-topic"></span></label>
+        <input type="text" id="node-input-topic" data-i18n="[placeholder]knxUltimateWatchDog.placeholder.monitor">
     </div>
     <div class="form-row">
-        <label for="node-input-name"><i class="fa fa-tag"></i> Name </label>
-        <input type="text" id="node-input-name" placeholder="Name">
+        <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="knxUltimateWatchDog.properties.node-input-name"></span> </label>
+        <input type="text" id="node-input-name" data-i18n="[placeholder]knxUltimateWatchDog.properties.node-input-name">
     </div>
     <div class="form-row">
         <input type="checkbox" id="node-input-autoStart" style="display:inline-block; width:auto; vertical-align:top;">
-        <label style="width:auto" for="node-input-autoStart">&nbsp;&nbsp;<i class="fa fa-play-circle"></i>  Auto start the watchdog timer</label>
+        <label style="width:auto" for="node-input-autoStart">&nbsp;&nbsp;<i class="fa fa-play-circle"></i> <span data-i18n="knxUltimateWatchDog.properties.node-input-autoStart"></span> </label>
     </div>    
     
     <div id="advancedOptionsAccordion">
-        <h3>Advanced options</h3>
+        <h3><span data-i18n="knxUltimateWatchDog.properties.advancedOptionsAccordion"></span></h3>
         <div>
             <p>
                 <div class="form-row">
-                    <label for="node-input-retryInterval"><i class="fa fa-clock-o"></i> Retry interval (in seconds) </label>
-                    <input type="text" id="node-input-retryInterval" placeholder="">
+                    <label for="node-input-retryInterval"><i class="fa fa-clock-o"></i> <span data-i18n="knxUltimateWatchDog.properties.node-input-retryInterval"></span></label>
+                    <input type="text" id="node-input-retryInterval">
                 </div>
                 <div class="form-row">
-                    <label for="node-input-maxRetry"><i class="fa fa-undo"></i> Number of retry before giving an error </label>
-                    <input type="text" id="node-input-maxRetry" placeholder="">
+                    <label for="node-input-maxRetry"><i class="fa fa-undo"></i> <span data-i18n="knxUltimateWatchDog.properties.node-input-maxRetry"></span></label>
+                    <input type="text" id="node-input-maxRetry" >
                 </div>
             </p>
         </div>
