@@ -1,4 +1,7 @@
 # Politica di sicurezza domotica
+<a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/blob/master/SECURITY.md"><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/flags/usa-today.png"/></a>
+<a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/blob/master/de-SECURITY.md"><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/flags/germany.png"/></a>
+<a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/blob/master/it-SECURITY.md"><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/flags/italy.png"/></a>
 
 La domotica non è uno scherzo. Ti preghiamo di considerare tutti i pericoli connessi all'uso di questo repository per controllare la tua casa o edificio.
 Una singola luce che rimane accesa mentre non sei in casa, ad esempio, **può diventare un serio pericolo di incendio**. <br/>

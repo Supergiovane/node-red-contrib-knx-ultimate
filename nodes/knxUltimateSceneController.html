@@ -41,16 +41,17 @@
         // },
         oneditprepare: function () {
             var node = this;
+            var oNodeServer = RED.nodes.node($("#node-input-server").val());; // Store the config-node
 
             // 19/02/2020 Used to get the server sooner als deploy.
             $("#node-input-server").change(function () {
                 try {
-                    var config = RED.nodes.node($(this).val());
-                    if (typeof node.server === "undefined") node.server = config; // 15/03/2020 get the node server
+                    oNodeServer = RED.nodes.node($(this).val());
                 } catch (error) { }
             });
 
             // Scene Recall
+            // ########################
             $.getJSON('knxUltimateDpts', (data) => {
                 data.forEach(dpt => {
                     $("#node-input-dpt").append($("<option></option>")
@@ -65,7 +66,7 @@
                 minLength: 1,
                 source: function (request, response) {
                     //$.getJSON("csv", request, function( data, status, xhr ) {
-                    $.getJSON("knxUltimatecsv?nodeID=" + node.server.id, (data) => {
+                    $.getJSON("knxUltimatecsv?nodeID=" + oNodeServer.id, (data) => {
                         response($.map(data, function (value, key) {
                             var sSearch = (value.ga + " (" + value.devicename + ") DPT" + value.dpt).toUpperCase();
                             if (sSearch.indexOf(request.term.toUpperCase()) != -1) {
@@ -91,25 +92,34 @@
                     $("#node-input-dpt").val(optVal);
                 }
             });
-            // *****************************
 
+            // 19/03/2020 Adjust trigger value accordingly
+            $("#node-input-dpt").on("change", function () {
+                if ($(this).val() !== null) {
+                    if ($(this).val().indexOf("17.") > -1) {
+                        // It's a DIM. Suggest the right value
+                        $("#node-input-topicTrigger").val("{decr_incr:1, data:5}");
+                    }
+                }
+            });
+            // ########################
 
             // Scene Save
+            // ########################
             $.getJSON('knxUltimateDpts', (data) => {
                 data.forEach(dpt => {
                     $("#node-input-dptSave").append($("<option></option>")
                         .attr("value", dpt.value)
                         .text(dpt.text))
                 });
-                $("#node-input-dptSave").val(this.dpt)
+                $("#node-input-dptSave").val(this.dptSave)
             })
 
             // Autocomplete suggestion with ETS csv File
             $("#node-input-topicSave").autocomplete({
                 minLength: 1,
                 source: function (request, response) {
-                    //$.getJSON("csv", request, function( data, status, xhr ) {
-                    $.getJSON("knxUltimatecsv?nodeID=" + node.server.id, (data) => {
+                    $.getJSON("knxUltimatecsv?nodeID=" + oNodeServer.id, (data) => {
                         response($.map(data, function (value, key) {
                             var sSearch = (value.ga + " (" + value.devicename + ") DPT" + value.dpt).toUpperCase();
                             if (sSearch.indexOf(request.term.toUpperCase()) != -1) {
@@ -135,7 +145,17 @@
                     $("#node-input-dptSave").val(optVal);
                 }
             });
-            // *****************************
+
+            // 19/03/2020 Adjust trigger value accordingly
+            $("#node-input-dptSave").on("change", function () {
+                if ($(this).val() !== null) {
+                    if ($(this).val().indexOf("17.") > -1) {
+                        // It's a DIM. Suggest the right value
+                        $("#node-input-topicSaveTrigger").val("{decr_incr:1, data:5}");
+                    }
+                }
+            });
+            // ########################
 
 
             // Scene configuration
@@ -162,14 +182,14 @@
                     });
 
 
-                    var row = $('<div/>').appendTo(container);
-                    var row2 = $('<div/>', { style: "padding-top: 5px; padding-left: 5px;" }).appendTo(container);
+                    var row = $('<div class="form-row"/>').appendTo(container);
+                    var row2 = $('<div class="form-row"/>', { style: "padding-top: 5px; padding-left: 5px;" }).appendTo(container);
 
-                    var oTopicField = $("<input/>", { class: "rowRuleTopic", type: "text", placeholder: "1/1/1 or device name", style: "width:100px; margin-left: 5px; text-align: left;" }).appendTo(row);
+                    var oTopicField = $("<input/>", { class: "rowRuleTopic", type: "text", placeholder: "1/1/1 or device name", style: "width:140px; margin-left: 5px; text-align: left;" }).appendTo(row);
                     var oDPTField = $('<select/>', { class: "rowRuleDPT", type: "text", style: "width:160px; margin-left: 5px; text-align: left;" }).appendTo(row);
                     var finalspan = $('<span/>', { style: "" }).appendTo(row);
                     finalspan.append(' &#8594; <span class="node-input-rule-index"></span> ');
-                    var oSendField = $('<input/>', { class: "rowRuleSend", type: "text", placeholder: "Value", style: "width:70px; margin-left: 5px; text-align: left;" }).appendTo(row);
+                    var oSendField = $('<input/>', { class: "rowRuleSend", type: "text", placeholder: "Value", style: "width:150px; margin-left: 5px; text-align: left;" }).appendTo(row);
                     var orowRuleDeviceName = $('<input/>', { class: "rowRuleDeviceName", type: "text", style: "width:95%; margin-left: 0px; text-align: left;font-style: italic;", placeholder: "Device Name" }).appendTo(row2);
 
                     oTopicField.on("change", function () {
@@ -189,7 +209,7 @@
                     oTopicField.autocomplete({
                         minLength: 1,
                         source: function (request, response) {
-                            $.getJSON("knxUltimatecsv?nodeID=" + node.server.id, (data) => {
+                            $.getJSON("knxUltimatecsv?nodeID=" + oNodeServer.id, (data) => {
                                 response($.map(data, function (value, key) {
                                     var sSearch = (value.ga + " (" + value.devicename + ") DPT" + value.dpt).toUpperCase();
                                     if (sSearch.indexOf(request.term.toUpperCase()) != -1) {
@@ -279,51 +299,51 @@
 <div class="form-row">
     <label for="node-input-server"><img
             src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/config/connectioneibnettunneling.png">
-        Gateway </label>
+            <span data-i18n="knxUltimateSceneController.properties.node-input-server"></span> </label>
     <input type="text" id="node-input-server">
 </div>
 <div id="GAandDPT">
     <div class="form-row">
-        <label for="node-input-topic" style="width:100px;"><i class="fa fa-play"></i> Scene Recall</label>
+        <label for="node-input-topic" style="width:100px;"><i class="fa fa-play"></i> <span data-i18n="knxUltimateSceneController.properties.node-input-topic"></span></label>
         <input type="text" id="node-input-topic" placeholder="Ex: 1/1/1" style="width:80px;margin-left: 5px; text-align: left;">
        
         <label for="node-input-dpt" style="width:90px; margin-left: 0px; text-align: right;"><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/config/device.png">
-            Datapoint </label>
+            <span data-i18n="knxUltimateSceneController.properties.node-input-dpt"></span> </label>
         <select id="node-input-dpt" style="width:140px;"></select>
        
-        <label for="node-input-topicTrigger" style="width:60px;text-align: right;"><i class="fa fa-bolt"></i> Trigger</label>
-        <input type="text" id="node-input-topicTrigger" placeholder="Ex: 5 or true" style="width:80px;margin-left: 5px; text-align: left;">
+        <label for="node-input-topicTrigger" style="width:60px;text-align: right;"><i class="fa fa-bolt"></i> <span data-i18n="knxUltimateSceneController.properties.node-input-topicTrigger"></span></label>
+        <input type="text" id="node-input-topicTrigger" placeholder="Ex: 5 or true" style="width:100px;margin-left: 5px; text-align: left;">
         
     </div>
     <div class="form-row">
-        <label for="node-input-topicSave" style="width:100px;"><i class="fa fa-floppy-o"></i> Scene Save</label>
+        <label for="node-input-topicSave" style="width:100px;"><i class="fa fa-floppy-o"></i> <span data-i18n="knxUltimateSceneController.properties.node-input-topicSave"></span></label>
         <input type="text" id="node-input-topicSave" placeholder="Ex: 1/1/2" style="width:80px;margin-left: 5px; text-align: left;">
         
         <label for="node-input-dptSave" style="width:90px; margin-left: 0px; text-align: right;"><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/config/device.png">
-            Datapoint </label>
+            <span data-i18n="knxUltimateSceneController.properties.node-input-dpt"></span> </label>
         <select id="node-input-dptSave" style="width:140px;"></select>
 
-        <label for="node-input-topicSaveTrigger" style="width:60px;text-align: right;"><i class="fa fa-bolt"></i> Trigger</label>
-        <input type="text" id="node-input-topicSaveTrigger" placeholder="Ex: 5 or true" style="width:80px;margin-left: 5px; text-align: left;">
+        <label for="node-input-topicSaveTrigger" style="width:60px;text-align: right;"><i class="fa fa-bolt"></i>  <span data-i18n="knxUltimateSceneController.properties.node-input-topicTrigger"></span></label>
+        <input type="text" id="node-input-topicSaveTrigger" data-i18n="[placeholder]knxUltimateSceneController.placeholder.valueexample" style="width:100px;margin-left: 5px; text-align: left;">
     </div>
 </div>
 <div class="form-row">
-    <label for="node-input-name"><i class="fa fa-tag"></i> Node Name </label>
-    <input type="text" id="node-input-name" placeholder="Name">
+    <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="knxUltimateSceneController.properties.node-input-name"></span> </label>
+    <input type="text" id="node-input-name" data-i18n="[placeholder]knxUltimateSceneController.properties.node-input-name">
 </div>
 <div class="form-row" id="divTopic">
-    <label for="node-input-outputtopic"><i class="fa fa-tasks"></i> Topic </label>
-    <input type="text" id="node-input-outputtopic" placeholder="Leave empty to use Group Address">
+    <label for="node-input-outputtopic"><i class="fa fa-tasks"></i>  <span data-i18n="knxUltimateSceneController.properties.node-input-outputtopic"></span> </label>
+    <input type="text" id="node-input-outputtopic" data-i18n="[placeholder]knxUltimateSceneController.placeholder.leaveempty">
 </div>
 
 
-<dt><i class="fa fa-code-fork"></i>&nbsp; Scene Configuration</dt>
+<dt><i class="fa fa-code-fork"></i>&nbsp; <span data-i18n="knxUltimateSceneController.other.sceneConfig"></dt>
 <div class="form-row node-input-rule-container-row">
     <ol id="node-input-rule-container"></ol>
 </div>
 
 <div class="form-row">
-    <p>Press ADD, to add a device in the scene</p>
+    <p><span data-i18n="knxUltimateSceneController.other.add"></p>
 </div>
 
 </script>

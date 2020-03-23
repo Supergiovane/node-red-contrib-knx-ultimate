@@ -5,6 +5,23 @@
 <br/>
 
 <p>
+<b>Version 1.1.51</b> - March 2020 in Italy, continue lock down Coronavirus.<br/>
+- FIX: import ETS csv and ESF files may had problem with languages other that english. Fixed.<br/>
+- Other translation work has been done.<br/>
+</p>
+<p>
+<b>Version 1.1.50</b> - March 2020 in Italy, continue lock down Coronavirus. Cases ocer 25.000<br/>
+- FIX: Scene controller, the "save scene" datapoint was override by "recall scene" datapoint on each open of the config window.<br/>
+- FIX: Scene Controller, without imported ETS file, the scene controller recall/save worked only with boolean values. Now it works correctly. Thanks @mthauth.<br/>
+- FIX: Scene Controller, correct handling of dim commands (example {decr_incr:1,data:5}).<br/>
+- Scene Controller now is called via javascript Promise to leverage the main thread.<br/>
+</p>
+<p>
+<b>Version 1.1.48</b> - March 2020 in Italy, continue lock down Coronavirus. Milan index down 8%, Down Jons as well. Panic selling everywhere.<br/>
+- FIX: When you copy/paste knx-ultimate or scene controller node, autofill of device names doesn't work.<br/>
+- Scene Controller devices cosmetics adjustments.<br/>
+</p>
+<p>
 <b>Version 1.1.47</b> - March 2020 in Italy, continue lock down. More people involved in Coronavirus<br/>
 - FIX: In gateway config-node, fixed the "List of your nodes in all flows" (under Advanced Options) list, sometime not populated.<br/>
 - ENHANCEMENT: Now knx-ultimate and scene controller display device list names for newly added nodes in the flow. Prior, you had to save the node first, to get the knx device list into the Group Address fields.<br/>

@@ -1,0 +1,21 @@
+{
+    "knxUltimateSceneController": {
+        "properties": {
+            "node-input-server": "Gateway",
+            "node-input-topic": "Richia Scena",
+            "node-input-dpt": "Datapoint",
+            "node-input-topicTrigger": "Trigger",
+            "node-input-topicSave": "Salva Scena",
+            "node-input-name": "Nome nodo",
+            "node-input-outputtopic": "Topic"
+        },
+        "placeholder": {
+            "leaveempty":"Lascia vuoto per usare l'indirizzo di gruppo",
+            "valueexample" : "Es: false, true, altrimenti qualsiasi valore"
+        },
+        "other": {
+            "sceneConfig":"Configurazione Scena",
+            "add":"Permi ADD per aggiungere un dispositiva alla scena"
+         }
+    }
+}

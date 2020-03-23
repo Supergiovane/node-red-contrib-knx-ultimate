@@ -1,0 +1,57 @@
+{
+    "knxUltimate": {
+        "properties": {
+            "node-input-server": "Gateway",
+            "node-input-topic": "Ind. Gruppo",
+            "node-input-outputtopic": "Topic",
+            "node-input-dpt": "Datapoint",
+            "node-input-initialread": "Leggi il valore alla connessione/riconnessione",
+            "node-input-notifyreadrequest": "Reagisci all'evento GroupValue read",
+            "node-input-notifyresponse": "Reagisci all'evento GroupValue response",
+            "node-input-notifywrite": "Reagisci all'evento GroupValue write",
+            "node-input-notifyreadrequestalsorespondtobus": "Invio automatico del valore del nodo come risposta al bus KNX",
+            "node-input-notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized": "Se il valore è sconosciuto, invia",
+            "node-input-listenallga": "Modalità Universale (Ascolta tutti gli indirizzi di gruppo)",
+            "node-input-name": "Nome",
+            "node-input-outputtype": "Tipo Output",
+            "node-input-outputRBE": "Invia payload al bus KNX solo se modificato (filtro RBE)",
+            "node-input-inputRBE": "Reagisci solo se il payload del bus KNX cambia (filtro RBE)",
+            "node-input-formatmultiplyvalue": "Moltiplica",
+            "node-input-formatnegativevalue": "Negativi",
+            "node-input-formatdecimalsvalue": "Decimali"
+           
+        },
+        "placeholder": {
+            "leaveempty":"Lascia vuoto per usare l'indirizzo di gruppo",
+            "notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized" : "Es: 0 per false, 1 per true, altrimenti qualsiasi valore",
+            "noETSWarning":"Non hai importato il file ETS. <br/> Il nodo tenterà di codificare/decodificare i telegrammi. <a href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/it-2.-Node-Configuration\" target='_blank'>Clicca qui per vedere l'help.</a>."
+        },
+        "advanced": {
+            "Advancedoptions":"Opzioni avanzate",
+            "Formatting":"Formattazione payload",
+            "OUTPUT": "OUTPUT (invio datagrammi sul bus KNX)",
+            "INPUT": "INPUT (ricezione datagrammi dal bus KNX)",
+            "NUMERICVALUES":"VALORI NUMERICI (le operazioni vengono eseguite in questo ordine)"
+        },
+        "selectlists": {
+            "Output_write": "Scrittura",
+            "Output_response": "Risposta",
+            "Multiply_leave": "Lascia invariato (default)",
+            "Multiply_divide1000": "Dividi x 1000",
+            "Multiply_divide100": "Dividi x 100",
+            "Multiply_divide10": "Dividi x 10",
+            "Multiply_multiply1000": "Moltiplica x 1000",
+            "Multiply_multiply100": "Moltiplica x 100",
+            "Multiply_multiply10": "Moltiplica x 10",
+            "Decimals_leave": "Lascia invariato (default)",
+            "Decimals_roundint": "Arrotonda all'intero (nessun decimale)",
+            "Decimals_round1": "Arrotonda ad 1 decimale",
+            "Decimals_round2": "Arrotonda ad 2 decimali",
+            "Decimals_round3": "Arrotonda ad 3 decimali",
+            "Decimals_round4": "Arrotonda ad 4 decimali",
+            "Negatives_leave":"Lascia invariato (default)",
+            "Negatives_zero": "Invia zero",
+            "Negatives_abs": "Invia valore assoluto (togli il segno -)"          
+        }
+    }
+}

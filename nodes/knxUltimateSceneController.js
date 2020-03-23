@@ -16,7 +16,7 @@ module.exports = function (RED) {
         node.topicSave = config.topicSave || "";
         node.dptSave = config.dptSave || "1.001"
         node.topicSaveTrigger = config.topicSaveTrigger || "true";
-        node.listenallga = true; // Dont' remove this.
+        node.listenallga = false; // Dont' remove this.
         node.notifyreadrequest = false;
         node.notifyresponse = false
         node.notifywrite = true; // Dont' remove this.
@@ -27,14 +27,14 @@ module.exports = function (RED) {
         node.rules = config.rules || [{}];
         node.isSceneController = true; // Signal to config node, that this is a node scene controller
         node.userDir = RED.settings.userDir + "/knxultimatestorage"; // 09/03/2020 Storage of sonospollytts (otherwise, at each upgrade to a newer version, the node path is wiped out and recreated, loosing all custom files)
-        
+
         // 11/03/2020 Delete scene saved file, from html
         RED.httpAdmin.get("/knxultimatescenecontrollerdelete", RED.auth.needsPermission("knxUltimateSceneController.read"), function (req, res) {
             // Delete the file
             try {
                 var newPath = node.userDir + "/scenecontroller/SceneController_" + req.query.FileName;
                 fs.unlinkSync(newPath)
-            } catch (error) { RED.log.warn("e " + error)}
+            } catch (error) { RED.log.warn("e " + error) }
             res.json({ status: 220 });
         });
 
@@ -94,37 +94,51 @@ module.exports = function (RED) {
             };
         }
 
-        // 11/03/2020 in the middle of coronavirus. Whole italy is red zone, closed down. Recall scene. This is called from the node server, that pass the telegram msg.
-        // This function is called everytime node.server receives a telegram, so i need to parse the msg to do what scene controller needs
-        // Relevant parts of the message: msg.knx.destination and msg.payload
-        node.HandleScene = msg => {
-
-            // Check wether to recall or save scene
-            if (msg.knx.destination === node.topic) { node.RecallScene(msg.payload.toString()); return; }
-            if (msg.knx.destination === node.topicSave) { node.SaveScene(msg.payload.toString()); return; }
-
-            // Check and update the values of each device in the scene and update the rule array accordingly.
-            for (var i = 0; i < node.rules.length; i++) {
-                // rule is { topic: rowRuleTopic, devicename: rowRuleDeviceName, dpt:rowRuleDPT, send: rowRuleSend}
-                var oDevice = node.rules[i];
-                if (typeof oDevice !== "undefined" && oDevice.topic == msg.knx.destination) {
-                    // Ops... found a device in the scene. Wonderful. update the device in the rule by adding a currentPayload property
-                    oDevice.currentPayload = msg.payload.toString();
-                    node.setNodeStatus({ fill: "grey", shape: "dot", text: "Update dev in scene", payload: oDevice.currentPayload, GA: oDevice.topic, dpt: oDevice.dpt, devicename: oDevice.devicename || "" });
-                    break;
-                }
-            }
-        }
-
         // 11/03/2020 in the middle of coronavirus. Whole italy is red zone, closed down. Recall scene. 
         node.RecallScene = _Payload => {
-            var curVal = _Payload.toString().toLowerCase();
-            var newVal = node.topicTrigger.toString().toLowerCase();
+            var curVal;
+            var newVal;
+           
+            if (typeof _Payload === "object") {
+                // If payload is an object, parse it as object
+                try {
+                    curVal = JSON.stringify(_Payload);
+                    if (node.topicTrigger.toString().indexOf("{") > -1) {
+                        // Sanitize string, if not having quotes
+                        var correctJson = node.topicTrigger.replace(/(['"])?([a-z0-9A-Z_]+)(['"])?:/g, '"$2": ');
+                        try {
+                            newVal = JSON.stringify(JSON.parse(correctJson));
+                        } catch (error) {
+                            // Not a valid JSON, thread as normal.
+                            newVal = node.topicTrigger.toString().toLowerCase();
+                        }
+                    } else {
+                        // topicTrigge is not a JSON
+                        newVal = node.topicTrigger.toString().toLowerCase();
+                    }
+                } catch (error) {
+                    // Invalid JSON, threat as normal.
+                    curVal = _Payload.toString().toLowerCase();
+                    newVal = node.topicTrigger.toString().toLowerCase();
+                }
+
+            } else {
+                // Not a JSON, threath as normal.
+                curVal = _Payload.toString().toLowerCase();
+                newVal = node.topicTrigger.toString().toLowerCase();
+            }
+            
             if (curVal === "false") {
                 curVal = "0";
             }
             if (curVal === "true") {
                 curVal = "1";
+            }
+            if (curVal.toString().indexOf("\"decr_incr\":1") > -1 && curVal.toString().indexOf("\"data\":0") == -1) { // Handling DIM
+                curVal = "DIMUP";
+            }
+            if (curVal.toString().indexOf("\"decr_incr\":0") > -1 && curVal.toString().indexOf("\"data\":0") == -1) {// Handling DIM
+                curVal = "DIMDOWN";
             }
             if (newVal === "false") {
                 newVal = "0";
@@ -132,6 +146,13 @@ module.exports = function (RED) {
             if (newVal === "true") {
                 newVal = "1";
             }
+            if (newVal.toString().indexOf("\"decr_incr\":1") > -1 && curVal.toString().indexOf("\"data\":0") == -1) {// Handling DIM
+                newVal = "DIMUP";
+            }
+            if (newVal.toString().indexOf("\"decr_incr\":0") > -1 && curVal.toString().indexOf("\"data\":0") == -1) {// Handling DIM
+                newVal = "DIMDOWN";
+            }
+            //RED.log.warn(curVal + " new: " + newVal)
             if (curVal != newVal) return;
 
             // Read the scene values from file, if any.
@@ -153,7 +174,20 @@ module.exports = function (RED) {
                         if (newVal !== null) { rule.send = newVal.toString(); }
                     }
                 }
-                node.server.writeQueueAdd({ grpaddr: rule.topic, payload: rule.send, dpt: rule.dpt, outputtype: "write", nodecallerid: node.id })
+                // If payload is an object, parse it as object
+                var oPayload;
+                if (rule.send.toString().indexOf("{") > -1) {
+                    // Sanitize string, if not having quotes
+                    var correctJson = rule.send.replace(/(['"])?([a-z0-9A-Z_]+)(['"])?:/g, '"$2": ');
+                    try {
+                        oPayload = JSON.parse(correctJson);
+                    } catch (error) {
+                        oPayload = rule.send;
+                    }
+                } else {
+                    oPayload = rule.send;
+                }
+                node.server.writeQueueAdd({ grpaddr: rule.topic, payload: oPayload, dpt: rule.dpt, outputtype: "write", nodecallerid: node.id })
             }
             setTimeout(() => {
                 node.setNodeStatus({ fill: "green", shape: "dot", text: "Recall scene", payload: "", GA: "", dpt: "", devicename: "" });
@@ -163,14 +197,49 @@ module.exports = function (RED) {
 
         // 11/03/2020 in the middle of coronavirus. Whole italy is red zone, closed down. Save scene.
         node.SaveScene = _Payload => {
-  
-            var curVal = _Payload.toString().toLowerCase();
-            var newVal = node.topicSaveTrigger.toString().toLowerCase();
+            var curVal;
+            var newVal;
+           
+            if (typeof _Payload === "object") {
+                // If payload is an object, parse it as object
+                try {
+                    curVal = JSON.stringify(_Payload);
+                    if (node.topicSaveTrigger.toString().indexOf("{") > -1) {
+                        // Sanitize string, if not having quotes
+                        var correctJson = node.topicSaveTrigger.replace(/(['"])?([a-z0-9A-Z_]+)(['"])?:/g, '"$2": ');
+                        try {
+                            newVal = JSON.stringify(JSON.parse(correctJson));
+                        } catch (error) {
+                            // Not a valid JSON, thread as normal.
+                            newVal = node.topicSaveTrigger.toString().toLowerCase();
+                        }
+                    } else {
+                        // topicTrigge is not a JSON
+                        newVal = node.topicSaveTrigger.toString().toLowerCase();
+                    }
+                } catch (error) {
+                    // Invalid JSON, threat as normal.
+                    curVal = _Payload.toString().toLowerCase();
+                    newVal = node.topicSaveTrigger.toString().toLowerCase();
+                }
+
+            } else {
+                // Not a JSON, threath as normal.
+                curVal = _Payload.toString().toLowerCase();
+                newVal = node.topicSaveTrigger.toString().toLowerCase();
+            }
+            
             if (curVal === "false") {
                 curVal = "0";
             }
             if (curVal === "true") {
                 curVal = "1";
+            }
+            if (curVal.toString().indexOf("\"decr_incr\":1") > -1 && curVal.toString().indexOf("\"data\":0") == -1) { // Handling DIM
+                curVal = "DIMUP";
+            }
+            if (curVal.toString().indexOf("\"decr_incr\":0") > -1 && curVal.toString().indexOf("\"data\":0") == -1) {// Handling DIM
+                curVal = "DIMDOWN";
             }
             if (newVal === "false") {
                 newVal = "0";
@@ -178,6 +247,13 @@ module.exports = function (RED) {
             if (newVal === "true") {
                 newVal = "1";
             }
+            if (newVal.toString().indexOf("\"decr_incr\":1") > -1 && curVal.toString().indexOf("\"data\":0") == -1) {// Handling DIM
+                newVal = "DIMUP";
+            }
+            if (newVal.toString().indexOf("\"decr_incr\":0") > -1 && curVal.toString().indexOf("\"data\":0") == -1) {// Handling DIM
+                newVal = "DIMDOWN";
+            }
+            //RED.log.warn(curVal + " new: " + newVal)
             if (curVal != newVal) return;
 
             // Save the currentPayload of each device in the scene
@@ -194,7 +270,7 @@ module.exports = function (RED) {
             } catch (error) {
                 node.setNodeStatus({ fill: "red", shape: "dot", text: "Error saving scene. Unable to access filesystem.", payload: "", GA: "", dpt: "", devicename: node.name });
                 return;
-             }
+            }
             node.send({ savescene: true, recallscene: false });
         }
 

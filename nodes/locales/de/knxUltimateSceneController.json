@@ -1,0 +1,21 @@
+{
+    "knxUltimateSceneController": {
+        "properties": {
+            "node-input-server": "Gateway",
+            "node-input-topic": "Szenenrückruf",
+            "node-input-dpt": "Datapoint",
+            "node-input-topicTrigger": "Trigger",
+            "node-input-topicSave": "Szene speichern",
+            "node-input-name": "Node Name",
+            "node-input-outputtopic": "Topic"
+        },
+        "placeholder": {
+            "leaveempty":"Lassen Sie leer, um die Gruppenadresse zu verwenden",
+            "valueexample" : "Beispiel: false, true, sonst ein beliebiger Wert"
+        },
+        "other": {
+            "sceneConfig":"Szenenkonfiguration",
+            "add":"Drücken Sie ADD, um ein Gerät zur Szene hinzuzufügen"
+         }
+    }
+}
