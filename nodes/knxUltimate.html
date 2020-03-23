@@ -47,7 +47,7 @@
         oneditprepare: function () {
             var node = this;
             var oNodeServer= RED.nodes.node($("#node-input-server").val());; // Store the config-node
-           
+
             // 19/02/2020 Used to alert the user if the CSV file has not been loaded and to get the server sooner als deploy
             $("#node-input-server").change(function () {
                 try {
@@ -169,7 +169,7 @@
                     $("#divNode-input-initialread").show()
                 } else {
                     // 25/10/2019 Warn user that the node will node encode/decode datagram, if Listen All GA's if the config node doesn't contain the csv
-                    $("#helpallga").html("<i> You haven't imported the ETS csv file. <br/> The node will work as blind transmitter/receiver. <a href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/2.-Node-Configuration\" target='_blank'>See the wiki about that</a>.</i>");
+                    $("#helpallga").html("<i> " + node._("knxUltimate.advanced.noETSWarning") + " </i>");
                     if ($("#node-input-listenallga").is(":checked")) {
                         // There isn't a ETS csv file, hide and deselect the init read option
                         $("#divNode-input-initialread").hide();

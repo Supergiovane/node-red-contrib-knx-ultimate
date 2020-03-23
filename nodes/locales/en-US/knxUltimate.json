@@ -31,7 +31,8 @@
             "Operations":"NUMERIC VALUES (operations are performed in order)",
             "OUTPUT": "OUTPUT (sends datagram to the KNX BUS)",
             "INPUT": "INPUT (listen to datagram from the KNX BUS)",
-            "NUMERICVALUES":"NUMERIC VALUES (operations are performed in order)"
+            "NUMERICVALUES":"NUMERIC VALUES (operations are performed in order)",
+            "noETSWarning":"You haven't imported the ETS csv file. <br/> The node will work as blind transmitter/receiver. <a href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/2.-Node-Configuration\" target='_blank'>Click here for help about that</a>."
         },
         "selectlists": {
             "Output_write": "Write",
@@ -53,5 +54,6 @@
             "Negatives_zero": "Output zero",
             "Negatives_abs": "Output absolute value (remove the minus sign)"          
         }
+        
     }
 }

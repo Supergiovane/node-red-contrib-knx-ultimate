@@ -23,7 +23,8 @@
         },
         "placeholder": {
             "leaveempty":"Lascia vuoto per usare l'indirizzo di gruppo",
-            "notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized" : "Es: 0 per false, 1 per true, altrimenti qualsiasi valore"
+            "notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized" : "Es: 0 per false, 1 per true, altrimenti qualsiasi valore",
+            "noETSWarning":"Non hai importato il file ETS. <br/> Il nodo tenterà di codificare/decodificare i telegrammi. <a href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/it-2.-Node-Configuration\" target='_blank'>Clicca qui per vedere l'help.</a>."
         },
         "advanced": {
             "Advancedoptions":"Opzioni avanzate",
