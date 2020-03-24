@@ -96,7 +96,7 @@
             // 19/03/2020 Adjust trigger value accordingly
             $("#node-input-dpt").on("change", function () {
                 if ($(this).val() !== null) {
-                    if ($(this).val().indexOf("17.") > -1) {
+                    if ($(this).val().indexOf("3.007") > -1) {
                         // It's a DIM. Suggest the right value
                         $("#node-input-topicTrigger").val("{decr_incr:1, data:5}");
                     }
