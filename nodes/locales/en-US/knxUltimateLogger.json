@@ -1,0 +1,18 @@
+{
+    "knxUltimateLogger": {
+        "properties": {
+            "node-input-server": "Gateway",
+            "node-input-topic": "Topic",
+            "node-input-name": "Node Name",
+            "node-input-autoStart": "Auto start timer",
+            "mlxETSFileAccordion": "ETS compatible BUS Diagnostic File (output pin 1)",
+            "node-input-intervalCreateETSXML": "Output new XML every (in minutes)"
+        },
+        "placeholder": {
+            
+        },
+        "selectlists": {
+            
+        }
+    }
+}

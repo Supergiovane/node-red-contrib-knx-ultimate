@@ -3,18 +3,18 @@ module.exports = function (RED) {
         RED.nodes.createNode(this, config);
         var node = this;
         node.server = RED.nodes.getNode(config.server);
-        node.dpt = "1.001"
-        node.notifyreadrequestalsorespondtobus = "false"
-        node.notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized = ""
+        node.dpt = "1.001";
+        node.notifyreadrequestalsorespondtobus = "false";
+        node.notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized = "";
         node.notifyreadrequest = true;
-        node.notifyresponse = true
-        node.notifywrite = false
-        node.initialread = false
-        node.listenallga = false
-        node.outputtype = "write"
-        node.outputRBE = "false"
-        node.inputRBE = "false"
-        node.currentPayload = ""
+        node.notifyresponse = true;
+        node.notifywrite = false;
+        node.initialread = false;
+        node.listenallga = false;
+        node.outputtype = "write";
+        node.outputRBE = false;
+        node.inputRBE = false;
+        node.currentPayload = "";
         node.topic = config.topic;
         node.retryInterval = config.retryInterval !== undefined ? config.retryInterval * 1000 : 10000;
         node.maxRetry = config.maxRetry !== undefined ? config.maxRetry : 6;
