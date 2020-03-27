@@ -3,11 +3,11 @@
         "properties": {
             "node-input-server": "Gateway",
             "node-input-topic": "Topic",
-            "node-input-name": "Node Name",
-            "node-input-autoStartTimerCreateETSXML": "Auto start timer",
-            "mlxETSFileAccordion": "ETS compatible BUS Diagnostic File",
-            "node-input-intervalCreateETSXML": "Output new XML every (in minutes)",
-            "node-input-maxRowsInETSXML":"Max number of rows in XML (0 = no limit)"
+            "node-input-name": "Nome",
+            "node-input-autoStartTimerCreateETSXML": "Avvia il timer automaticamente",
+            "mlxETSFileAccordion": "File compatibile con diagnostica ETS",
+            "node-input-intervalCreateETSXML": "Nuovo file XML ogni (in minuti)",
+            "node-input-maxRowsInETSXML":"Numero massimo di righe nel file (0 = nessun limite)"
         },
         "placeholder": {
             
