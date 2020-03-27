@@ -45,6 +45,7 @@ module.exports = function (RED) {
             sFile += "<RecordStop Timestamp=\"" + new Date().toISOString() + "\" />\n";
             sFile += "</CommunicationLog>";
             node.send({ topic: node.topic, payload: sFile });
+            node.setNodeStatus({ fill: "green", shape: "dot", text: "Payload ETS sent.", payload: "", GA: "", dpt: "", devicename: "" });
         };
 
         // This function is called by the knx-ultimate config node.
@@ -64,7 +65,7 @@ module.exports = function (RED) {
         node.StartETSXMLTimer = () => {
             if (node.timerCreateETSXML !== null) clearInterval(node.timerCreateETSXML);
             node.timerCreateETSXML = setInterval(createETSXML, node.intervalCreateETSXML); // 02/01/2020 Start the timer that handles the queue of telegrams
-            setInterval(function () { node.setNodeStatus({ fill: "green", shape: "dot", text: "ETS timer started.", payload: "", GA: "", dpt: "", devicename: "" }) }, 5000)
+            setTimeout(function () { node.setNodeStatus({ fill: "green", shape: "dot", text: "ETS timer started.", payload: "", GA: "", dpt: "", devicename: "" }) }, 5000)
         }
 
         node.on("input", function (msg) {

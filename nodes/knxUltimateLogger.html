@@ -12,7 +12,7 @@
         },
         inputs: 1,
         outputs: 1,
-        outputLabels: ["ETS Diag file", "Banana"],
+        outputLabels: ["ETS Diag file"],
         icon: "node-watchdog-icon.svg",
         label: function () {
             return ((this.name || "KNX Logger") + " " + this.topic);
@@ -56,15 +56,15 @@
             <p>
                 <div class="form-row">
                     <input type="checkbox" id="node-input-autoStartTimerCreateETSXML" style="display:inline-block; width:auto; vertical-align:top;">
-                    <label style="width:150px" for="node-input-autoStartTimerCreateETSXML">&nbsp;&nbsp;<i class="fa fa-play-circle"></i> <span data-i18n="knxUltimateLogger.properties.node-input-autoStartTimerCreateETSXML"></span> </label>
+                    <label style="width:auto" for="node-input-autoStartTimerCreateETSXML">&nbsp;&nbsp;<i class="fa fa-play-circle"></i> <span data-i18n="knxUltimateLogger.properties.node-input-autoStartTimerCreateETSXML"></span> </label>
                 </div>  
                 <div class="form-row">
-                    <label for="node-input-intervalCreateETSXML"><i class="fa fa-clock-o"></i> <span data-i18n="knxUltimateLogger.properties.node-input-intervalCreateETSXML"></span></label>
-                    <input type="number" id="node-input-intervalCreateETSXML">
+                    <label style="width:290px" for="node-input-intervalCreateETSXML"><i class="fa fa-clock-o"></i> <span data-i18n="knxUltimateLogger.properties.node-input-intervalCreateETSXML"></span></label>
+                    <input style="width:90px" type="number" id="node-input-intervalCreateETSXML">
                 </div>
                 <div class="form-row">
-                    <label for="node-input-maxRowsInETSXML"><i class="fa fa-bars"></i> <span data-i18n="knxUltimateLogger.properties.node-input-maxRowsInETSXML"></span></label>
-                    <input type="number" id="node-input-maxRowsInETSXML">
+                    <label style="width:290px" for="node-input-maxRowsInETSXML"><i class="fa fa-bars"></i> <span data-i18n="knxUltimateLogger.properties.node-input-maxRowsInETSXML"></span></label>
+                    <input style="width:90px" type="number" id="node-input-maxRowsInETSXML">
                 </div>
             </p>
         </div>
