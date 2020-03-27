@@ -5,7 +5,7 @@
 <br/>
 
 <p>
-<b>Version 1.1.51</b> - March 2020 in Italy, continue lock down Coronavirus.<br/>
+<b>Version 1.1.52</b> - March 2020 in Italy, continue lock down Coronavirus.<br/>
 - FIX: import ETS csv and ESF files may had problem with languages other that english. Fixed.<br/>
 - FIX: Scene Controller, fix trigger suggestion if datapoint trigger is set to DIM.<br/>
 - FIX: WatchDog, fix autostart timer if no Group Address monitor is selected.<br/>
