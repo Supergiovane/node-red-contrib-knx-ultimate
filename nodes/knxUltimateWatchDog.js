@@ -15,10 +15,10 @@ module.exports = function (RED) {
         node.outputRBE = false;
         node.inputRBE = false;
         node.currentPayload = "";
-        node.topic = config.topic;
+        node.topic = config.topic !== undefined ? config.topic : "";
         node.retryInterval = config.retryInterval !== undefined ? config.retryInterval * 1000 : 10000;
         node.maxRetry = config.maxRetry !== undefined ? config.maxRetry : 6;
-        node.autoStart = config.autoStart !== undefined ? config.autoStart : false;
+        node.autoStart = config.autoStart !== undefined ? config.autoStart : true;
         node.beatNumber = 0; // Telegram counter
         node.timerWatchDog = null;
         node.isWatchDog = true;
@@ -106,13 +106,11 @@ module.exports = function (RED) {
             node.setNodeStatus({ fill: "green", shape: "dot", text: "WatchDog started.", payload: "", GA: "", dpt: "", devicename: "" })
         }
 
-        if (node.autoStart) node.StartWatchDogTimer();  // Autostart watchdog
-
         node.on("input", function (msg) {
 
             if (typeof msg === "undefined") return;
             if (node.topic === undefined) {
-                clearInterval(node.timerWatchDog);
+                if (node.timerWatchDog !== null) clearInterval(node.timerWatchDog);
                 node.setNodeStatus({ fill: "red", shape: "dot", text: "Invalid Group Address Monitor", payload: "", GA: "", dpt: "", devicename: "" })
                 RED.log.error("knxUltimateWatchDog: Node " + node.id + " Invalid Group Address Monitor. Please correct it.");
                 return;
@@ -140,14 +138,14 @@ module.exports = function (RED) {
                     node.StartWatchDogTimer();
                 }
                 else {
-                    clearInterval(node.timerWatchDog);
+                    if (node.timerWatchDog !== null) clearInterval(node.timerWatchDog);
                     node.setNodeStatus({ fill: "grey", shape: "ring", text: "WatchDog stopped.", payload: "", GA: "", dpt: "", devicename: "" })
                 };
             };
         });
 
         node.on('close', function () {
-            clearInterval(node.timerWatchDog);
+            if (node.timerWatchDog !== null) clearInterval(node.timerWatchDog);
             if (node.server) {
                 node.server.removeClient(node)
             };
@@ -156,13 +154,12 @@ module.exports = function (RED) {
         // On each deploy, unsubscribe+resubscribe
         // Unsubscribe(Subscribe)
         if (node.server) {
-            clearInterval(node.timerWatchDog);
+            if (node.timerWatchDog !== null) clearInterval(node.timerWatchDog);
             node.server.removeClient(node);
             if (node.topic || node.listenallga) {
                 node.server.addClient(node);
                 if (node.autoStart) node.StartWatchDogTimer();  // Autostart watchdog
             }
-
         }
 
     }

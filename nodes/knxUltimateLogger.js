@@ -14,17 +14,17 @@ module.exports = function (RED) {
         node.outputRBE = false;
         node.inputRBE = false;
         node.currentPayload = ""
-        node.topic = config.topic;
-        node.intervalCreateETSXML = config.intervalCreateETSXML !== undefined ? (config.intervalCreateETSXML * 1000) *60 : 900000;
-
-        node.autoStart = config.autoStart !== undefined ? config.autoStart : false;
+        node.topic = config.topic !== undefined ? config.topic : "";
+        node.autoStartTimerCreateETSXML = config.autoStartTimerCreateETSXML !== undefined ? config.autoStartTimerCreateETSXML : true;
+        node.intervalCreateETSXML = config.intervalCreateETSXML !== undefined ? (config.intervalCreateETSXML * 1000) * 60 : 900000;
+        node.maxRowsInETSXML = config.maxRowsInETSXML !== undefined ? config.maxRowsInETSXML : 0;
         node.timerCreateETSXML = null;
         node.isLogger = true;
         node.etsXMLRow = [];
 
         // Used to call the status update from the config node.
         node.setNodeStatus = ({ fill, shape, text, payload, GA, dpt, devicename }) => {
-            if (node.icountMessageInWindow == -999) return; // Locked out, doesn't change status.
+
             var dDate = new Date();
             // 30/08/2019 Display only the things selected in the config
             _GA = (typeof _GA == "undefined" || GA == "") ? "" : "(" + GA + ") ";
@@ -38,50 +38,60 @@ module.exports = function (RED) {
         // 26/03/2020 Create and output the XML for ETS bus monitor
         function createETSXML() {
             var sFile = "<CommunicationLog xmlns=\"http://knx.org/xml/telegrams/01\">\n";
-
             for (let index = 0; index < node.etsXMLRow.length; index++) {
                 const element = node.etsXMLRow[index];
                 sFile += element;
             }
             sFile += "<RecordStop Timestamp=\"" + new Date().toISOString() + "\" />\n";
             sFile += "</CommunicationLog>";
-            node.send({ payload: sFile });
+            node.send({ topic: node.topic, payload: sFile });
         };
 
         // This function is called by the knx-ultimate config node.
         node.handleMessage = msg => {
             // Receiving every message
+
             // Add row to XML ETS
+            // If too much, delete the oldest
+            if (node.maxRowsInETSXML > 0 && (node.etsXMLRow.length > node.maxRowsInETSXML)) {
+                // Shift (remove) the first row (the oldest)
+                node.etsXMLRow.shift()
+            }
             node.etsXMLRow.push(" <Telegram Timestamp=\"" + new Date().toISOString() + "\" Service=\"L_Data.ind\" FrameFormat=\"CommonEmi\" RawData=\"" + msg.knx.cemiETS + "\" />\n");
         };
 
 
         node.StartETSXMLTimer = () => {
-            node.beatNumber = 0;
             if (node.timerCreateETSXML !== null) clearInterval(node.timerCreateETSXML);
             node.timerCreateETSXML = setInterval(createETSXML, node.intervalCreateETSXML); // 02/01/2020 Start the timer that handles the queue of telegrams
-            node.setNodeStatus({ fill: "green", shape: "dot", text: "ETS timer started.", payload: "", GA: "", dpt: "", devicename: "" })
+            setInterval(function () { node.setNodeStatus({ fill: "green", shape: "dot", text: "ETS timer started.", payload: "", GA: "", dpt: "", devicename: "" }) }, 5000)
         }
-
-        if (node.autoStart) node.StartETSXMLTimer();  // Autostart ETS timer
 
         node.on("input", function (msg) {
 
             if (typeof msg === "undefined") return;
-           
-            if (msg.hasOwnProperty("startetstimer")) {
+
+            if (msg.hasOwnProperty("etsstarttimer")) {
                 if (Boolean(msg.startetstimer) === true) {
                     node.StartETSXMLTimer();
                 }
                 else {
-                    clearInterval(node.timerCreateETSXML);
+                    if (node.timerCreateETSXML !== null) clearInterval(node.timerCreateETSXML);
                     node.setNodeStatus({ fill: "grey", shape: "ring", text: "ETS timer stopped.", payload: "", GA: "", dpt: "", devicename: "" })
                 };
             };
+            if (msg.hasOwnProperty("etsoutputnow")) {
+                if (node.timerCreateETSXML !== null) clearInterval(node.timerCreateETSXML);
+                createETSXML()
+                node.setNodeStatus({ fill: "grey", shape: "ring", text: "Output ETS", payload: "", GA: "", dpt: "", devicename: "" })
+                if (node.autoStartTimerCreateETSXML) node.StartETSXMLTimer();  // autoStartTimerCreateETSXML ETS timer
+            };
+
+
         });
 
         node.on('close', function () {
-            clearInterval(node.timerCreateETSXML);
+            if (node.timerCreateETSXML !== null) clearInterval(node.timerCreateETSXML);
             if (node.server) {
                 node.server.removeClient(node)
             };
@@ -90,13 +100,10 @@ module.exports = function (RED) {
         // On each deploy, unsubscribe+resubscribe
         // Unsubscribe(Subscribe)
         if (node.server) {
-            clearInterval(node.timerCreateETSXML);
+            if (node.timerCreateETSXML !== null) clearInterval(node.timerCreateETSXML);
             node.server.removeClient(node);
-            if (node.topic || node.listenallga) {
-                node.server.addClient(node);
-                if (node.autoStart) node.StartETSXMLTimer();  // Autostart ETS timer
-            }
-
+            node.server.addClient(node);
+            if (node.autoStartTimerCreateETSXML) node.StartETSXMLTimer();  // autoStartTimerCreateETSXML ETS timer
         }
 
     }

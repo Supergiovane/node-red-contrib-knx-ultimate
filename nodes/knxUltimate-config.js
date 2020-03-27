@@ -427,7 +427,6 @@ module.exports = (RED) => {
                                         } catch (error) { }
                                         // 25/10/2019 TRY TO AUTO DECODE IF Group address not found in the CSV
                                         let msg = buildInputMessage({ _srcGA: src, _destGA: dest, _event: evt, _Rawvalue: rawValue, _inputDpt: (typeof oGA === "undefined") ? null : oGA.dpt, _devicename: (typeof oGA === "undefined") ? input.name || "" : oGA.devicename, _outputtopic: dest, _oNode: input });
-                                        input.setNodeStatus({ fill: "green", shape: "dot", text: (typeof oGA === "undefined") ? "Log" : "", payload: msg.payload, GA: msg.knx.destination, dpt: msg.knx.dpt, devicename: msg.devicename });
                                         msg.knx.cemiETS = cemiETS; // Adding CEMI ETS string
                                         input.handleMessage(msg);
                                         resolve(true); // fulfilled
@@ -484,7 +483,6 @@ module.exports = (RED) => {
                                         } catch (error) { }
                                         // 25/10/2019 TRY TO AUTO DECODE IF Group address not found in the CSV
                                         let msg = buildInputMessage({ _srcGA: src, _destGA: dest, _event: evt, _Rawvalue: rawValue, _inputDpt: (typeof oGA === "undefined") ? null : oGA.dpt, _devicename: (typeof oGA === "undefined") ? input.name || "" : oGA.devicename, _outputtopic: dest, _oNode: input });
-                                        input.setNodeStatus({ fill: "green", shape: "dot", text: (typeof oGA === "undefined") ? "Log" : "", payload: msg.payload, GA: msg.knx.destination, dpt: msg.knx.dpt, devicename: msg.devicename });
                                         msg.knx.cemiETS = cemiETS; // Adding CEMI ETS string
                                         input.handleMessage(msg);
                                         resolve(true); // fulfilled
@@ -541,7 +539,6 @@ module.exports = (RED) => {
                                         } catch (error) { }
                                         // 25/10/2019 TRY TO AUTO DECODE IF Group address not found in the CSV
                                         let msg = buildInputMessage({ _srcGA: src, _destGA: dest, _event: evt, _Rawvalue: rawValue, _inputDpt: (typeof oGA === "undefined") ? null : oGA.dpt, _devicename: (typeof oGA === "undefined") ? input.name || "" : oGA.devicename, _outputtopic: dest, _oNode: input });
-                                        input.setNodeStatus({ fill: "green", shape: "dot", text: (typeof oGA === "undefined") ? "Log" : "", payload: msg.payload, GA: msg.knx.destination, dpt: msg.knx.dpt, devicename: msg.devicename });
                                         msg.knx.cemiETS = cemiETS; // Adding CEMI ETS string
                                         input.handleMessage(msg);
                                         resolve(true); // fulfilled
