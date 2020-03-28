@@ -203,7 +203,8 @@
                 this.notifywrite !== true ||
                 this.outputtype !== "write" ||
                 this.outputRBE !== true ||
-                this.inputRBE !== false
+                this.inputRBE !== false ||
+                this.passthrough !=="no"
             ) {
                 $("#advancedOptionsAccordion").accordion({ active: 0 });
             }
@@ -303,10 +304,22 @@
         </label>
         <!-- <div id="helpallga">Some Content Here</div> -->
     </div>
-
+   
     <div id="advancedOptionsAccordion">
         <h3><span data-i18n="knxUltimate.advanced.Advancedoptions"></span></h3>
         <div class="form-row">
+            <div class="form-row">
+                <label style="width:230px" for="node-input-passthrough">
+                    <i class="fa fa-sign-out"></i>
+                    <span data-i18n="knxUltimate.properties.node-input-passthrough"></span>
+                </label>
+                <select style="width:92px" id="node-input-passthrough">
+                    <option value="no" data-i18n="knxUltimate.selectlists.passthrough_No"></option>
+                    <option value="yes" data-i18n="knxUltimate.selectlists.passthrough_Leave"></option>
+                    <option value="yesownprop" data-i18n="knxUltimate.selectlists.passthrough_OwnProp"></option>
+                </select>
+            </div>
+            <br/>    
             <div class="form-row">
                 <dt>
                     <i class="fa fa-code-fork"></i>
@@ -321,17 +334,6 @@
                 <select id="node-input-outputtype">
                     <option value="write" data-i18n="knxUltimate.selectlists.Output_write"></option>
                     <option value="response" data-i18n="knxUltimate.selectlists.Output_response"></option>
-                </select>
-            </div>
-            <div class="form-row">
-                <label style="width:230px" for="node-input-passthrough">
-                    <i class="fa fa-sign-out"></i>
-                    <span data-i18n="knxUltimate.properties.node-input-passthrough"></span>
-                </label>
-                <select style="width:95px" id="node-input-passthrough">
-                    <option value="no" data-i18n="knxUltimate.selectlists.passthrough_No"></option>
-                    <option value="yes" data-i18n="knxUltimate.selectlists.passthrough_Leave"></option>
-                    <option value="yesownprop" data-i18n="knxUltimate.selectlists.passthrough_OwnProp"></option>
                 </select>
             </div>
             <div class="form-row" id="divOutputRBE">
