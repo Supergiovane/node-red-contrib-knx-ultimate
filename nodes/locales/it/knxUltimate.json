@@ -6,9 +6,9 @@
             "node-input-outputtopic": "Topic",
             "node-input-dpt": "Datapoint",
             "node-input-initialread": "Leggi il valore alla connessione/riconnessione",
-            "node-input-notifyreadrequest": "Reagisci all'evento GroupValue read",
-            "node-input-notifyresponse": "Reagisci all'evento GroupValue response",
-            "node-input-notifywrite": "Reagisci all'evento GroupValue write",
+            "node-input-notifyreadrequest": "Reagisci all'evento Richiesta (Read)",
+            "node-input-notifyresponse": "Reagisci all'evento Risposta (Response)",
+            "node-input-notifywrite": "Reagisci all'evento Scrittura (Write)",
             "node-input-notifyreadrequestalsorespondtobus": "Invio automatico del valore del nodo come risposta al bus KNX",
             "node-input-notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized": "Se il valore è sconosciuto, invia",
             "node-input-listenallga": "Modalità Universale (Ascolta tutti gli indirizzi di gruppo)",
@@ -18,7 +18,8 @@
             "node-input-inputRBE": "Reagisci solo se il payload del bus KNX cambia (filtro RBE)",
             "node-input-formatmultiplyvalue": "Moltiplica",
             "node-input-formatnegativevalue": "Negativi",
-            "node-input-formatdecimalsvalue": "Decimali"
+            "node-input-formatdecimalsvalue": "Decimali",
+            "node-input-passthrough": "Passa msg di ingresso sull'uscita"
            
         },
         "placeholder": {
@@ -51,7 +52,10 @@
             "Decimals_round4": "Arrotonda ad 4 decimali",
             "Negatives_leave":"Lascia invariato (default)",
             "Negatives_zero": "Invia zero",
-            "Negatives_abs": "Invia valore assoluto (togli il segno -)"          
+            "Negatives_abs": "Invia valore assoluto (togli il segno -)",
+            "passthrough_No": "No",
+            "passthrough_Leave": "Si",
+            "passthrough_OwnProp": "Si, ma metti il msg in ingresso, nella proprietà msg.inputmessage del messaggio in uscita"         
         }
     }
 }

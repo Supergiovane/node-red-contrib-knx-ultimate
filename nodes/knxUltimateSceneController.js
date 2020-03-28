@@ -98,7 +98,7 @@ module.exports = function (RED) {
         node.RecallScene = _Payload => {
             var curVal;
             var newVal;
-           
+
             if (typeof _Payload === "object") {
                 // If payload is an object, parse it as object
                 try {
@@ -127,7 +127,7 @@ module.exports = function (RED) {
                 curVal = _Payload.toString().toLowerCase();
                 newVal = node.topicTrigger.toString().toLowerCase();
             }
-            
+
             if (curVal === "false") {
                 curVal = "0";
             }
@@ -199,7 +199,7 @@ module.exports = function (RED) {
         node.SaveScene = _Payload => {
             var curVal;
             var newVal;
-           
+
             if (typeof _Payload === "object") {
                 // If payload is an object, parse it as object
                 try {
@@ -228,7 +228,7 @@ module.exports = function (RED) {
                 curVal = _Payload.toString().toLowerCase();
                 newVal = node.topicSaveTrigger.toString().toLowerCase();
             }
-            
+
             if (curVal === "false") {
                 curVal = "0";
             }
@@ -273,6 +273,11 @@ module.exports = function (RED) {
             }
             node.send({ savescene: true, recallscene: false });
         }
+
+        // This function is called by the knx-ultimate config node, to output a msg.payload.
+        node.handleSend = msg => {
+            node.send(msg);
+        };
 
         node.on("input", function (msg) {
             if (typeof msg === "undefined") return;

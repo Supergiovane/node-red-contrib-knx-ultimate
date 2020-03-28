@@ -18,7 +18,8 @@
             "node-input-inputRBE": "React only if payload from BUS is changed (RBE filter)",
             "node-input-formatmultiplyvalue": "Multiply",
             "node-input-formatnegativevalue": "Negatives",
-            "node-input-formatdecimalsvalue": "Decimals"
+            "node-input-formatdecimalsvalue": "Decimals",
+            "node-input-passthrough": "Input msg passthrough"
            
         },
         "placeholder": {
@@ -52,7 +53,10 @@
             "Decimals_round4": "Round 4 decimals",
             "Negatives_leave":"Leave unchanged (default)",
             "Negatives_zero": "Output zero",
-            "Negatives_abs": "Output absolute value (remove the minus sign)"          
+            "Negatives_abs": "Output absolute value (remove the minus sign)",       
+            "passthrough_No": "No",
+            "passthrough_Leave": "Yes",
+            "passthrough_OwnProp": "Yes, but put the input msg into msg.inputmessage property of the output message"
         }
         
     }

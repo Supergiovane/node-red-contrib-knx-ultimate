@@ -4,7 +4,7 @@
 <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/blob/master/it-SECURITY.md"><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/flags/italy.png"/></a>
 
 Home automation is not a joke. Please consider all dangers involving the use of this repository to control your home or building.
-A single light that remains ON while you're not at home, for example, **can become a serious danger for fire**.<br/>
+A single light that remains ON while you're not at home, for example, **can become a serious danger of fire**.<br/>
 All unattended devices put your building at risk.<br/>
 Not to mention if, for your fault or for a BUG in the knx-ultimate repository, a garage doors closes while a child is sitting inbetween.
 The **building security** must be your primary concern.<br/>

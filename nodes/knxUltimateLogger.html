@@ -1,0 +1,72 @@
+<script type="text/javascript">
+    RED.nodes.registerType('knxUltimateLogger', {
+        category: 'KNX',
+        color: '#C7E9C0',
+        defaults: {
+            server: { type: "knxUltimate-config", required: true },
+            topic: { value: "" },
+            intervalCreateETSXML: { value: 15, required: true, validate: RED.validators.number() },
+            name: { value: "" },
+            autoStartTimerCreateETSXML: { value: true },
+            maxRowsInETSXML: { value: 0, required: true, validate: RED.validators.number() }
+        },
+        inputs: 1,
+        outputs: 1,
+        outputLabels: ["ETS Diag file"],
+        icon: "node-watchdog-icon.svg",
+        label: function () {
+            return ((this.name || "KNX Logger") + " " + this.topic);
+        },
+        paletteLabel: "KNX Logger",
+        oneditprepare: function () {
+            $("#mlxETSFileAccordion").accordion({
+                header: "h3",
+                heightStyle: "content",
+                collapsible: true,
+                active: false
+            });
+
+        },
+        oneditsave: function () {
+
+        }
+
+    })
+
+</script>
+
+<script type="text/x-red" data-template-name="knxUltimateLogger">
+    <div class="form-row">
+        <label for="node-input-server"><i class="fa fa-tag"></i> <span data-i18n="knxUltimateLogger.properties.node-input-server"></span> </label>
+        <input type="text" id="node-input-server">
+    </div>
+    <div class="form-row">
+        <label for="node-input-topic"><i class="fa fa-tasks"></i> <span data-i18n="knxUltimateLogger.properties.node-input-topic"></span></label>
+        <input type="text" id="node-input-topic" data-i18n="[placeholder]knxUltimateLogger.properties.node-input-topic">
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="knxUltimateLogger.properties.node-input-name"></span> </label>
+        <input type="text" id="node-input-name" data-i18n="[placeholder]knxUltimateLogger.properties.node-input-name">
+    </div>
+      
+    
+    <div id="mlxETSFileAccordion">
+        <h3><span data-i18n="knxUltimateLogger.properties.mlxETSFileAccordion"></span></h3>
+        <div>
+            <p>
+                <div class="form-row">
+                    <input type="checkbox" id="node-input-autoStartTimerCreateETSXML" style="display:inline-block; width:auto; vertical-align:top;">
+                    <label style="width:auto" for="node-input-autoStartTimerCreateETSXML">&nbsp;&nbsp;<i class="fa fa-play-circle"></i> <span data-i18n="knxUltimateLogger.properties.node-input-autoStartTimerCreateETSXML"></span> </label>
+                </div>  
+                <div class="form-row">
+                    <label style="width:290px" for="node-input-intervalCreateETSXML"><i class="fa fa-clock-o"></i> <span data-i18n="knxUltimateLogger.properties.node-input-intervalCreateETSXML"></span></label>
+                    <input style="width:90px" type="number" id="node-input-intervalCreateETSXML">
+                </div>
+                <div class="form-row">
+                    <label style="width:290px" for="node-input-maxRowsInETSXML"><i class="fa fa-bars"></i> <span data-i18n="knxUltimateLogger.properties.node-input-maxRowsInETSXML"></span></label>
+                    <input style="width:90px" type="number" id="node-input-maxRowsInETSXML">
+                </div>
+            </p>
+        </div>
+    </div>        
+</script>

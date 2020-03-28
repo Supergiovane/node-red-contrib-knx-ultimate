@@ -5,12 +5,21 @@
 <br/>
 
 <p>
-<b>Version 1.1.51</b> - March 2020 in Italy, continue lock down Coronavirus.<br/>
+<b>Version 1.1.53</b> - March 2020 in Italy, continue lock down Coronavirus.<br/>
+- NEW: msg passthrough option.<br/>
+</p>
+<p>
+<b>Version 1.1.52</b> - March 2020 in Italy, continue lock down Coronavirus.<br/>
 - FIX: import ETS csv and ESF files may had problem with languages other that english. Fixed.<br/>
+- FIX: Scene Controller, fix trigger suggestion if datapoint trigger is set to DIM.<br/>
+- FIX: WatchDog, fix autostart timer if no Group Address monitor is selected.<br/>
+- NEW: Logger Node, a new node to hear all telegrams and to output an ETS bus monitor compatible file.<br/>
+- Update underlying KNX api to 2.3.10, to extract CEMI telegram for the Logger Node.<br/>
+- Minor bugfixes.<br/>
 - Other translation work has been done.<br/>
 </p>
 <p>
-<b>Version 1.1.50</b> - March 2020 in Italy, continue lock down Coronavirus. Cases ocer 25.000<br/>
+<b>Version 1.1.50</b> - March 2020 in Italy, continue lock down Coronavirus. Cases 25.000<br/>
 - FIX: Scene controller, the "save scene" datapoint was override by "recall scene" datapoint on each open of the config window.<br/>
 - FIX: Scene Controller, without imported ETS file, the scene controller recall/save worked only with boolean values. Now it works correctly. Thanks @mthauth.<br/>
 - FIX: Scene Controller, correct handling of dim commands (example {decr_incr:1,data:5}).<br/>

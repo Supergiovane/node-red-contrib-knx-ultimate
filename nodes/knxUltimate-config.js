@@ -146,6 +146,10 @@ module.exports = (RED) => {
                                 // Is a Scene Controller
                                 sGA = "\"Scene Controller\"";
                                 sDPT = "\"Any\"";
+                            } else if (input.hasOwnProperty("isLogger")) {
+                                // Is a Scene Controller
+                                sGA = "\"Logger\"";
+                                sDPT = "\"Any\"";
                             } else {
                                 // Is a ListenallGA
                                 sGA = "\"Universal Node\"";
@@ -363,10 +367,9 @@ module.exports = (RED) => {
             node.knxConnection = new knx.Connection(knxConnectionProperties);
 
             // Handle BUS events
-            node.knxConnection.on("event", function (evt, src, dest, rawValue) {
+            node.knxConnection.on("event", function (evt, src, dest, rawValue, cemiETS) {
                 switch (evt) {
                     case "GroupValue_Write": {
-
                         node.nodeClients
                             .filter(input => input.notifywrite == true)
                             .forEach(input => {
@@ -375,21 +378,25 @@ module.exports = (RED) => {
                                 if (input.hasOwnProperty("isSceneController")) {
                                     // Check wether to recall or save scene
                                     if (dest === input.topic) {
+
                                         new Promise((resolve, reject) => {
                                             let msg = buildInputMessage({ _srcGA: src, _destGA: dest, _event: evt, _Rawvalue: rawValue, _inputDpt: input.dpt, _devicename: input.name ? input.name : "", _outputtopic: input.outputtopic, _oNode: null })
                                             input.RecallScene(msg.payload);
                                             resolve(true); // fulfilled
                                             //reject("error"); // rejected
-                                        }).then(function(){}).catch(function(){});
+                                        }).then(function () { }).catch(function () { });
 
                                     } else if (dest === input.topicSave) {
+
                                         new Promise((resolve, reject) => {
                                             let msg = buildInputMessage({ _srcGA: src, _destGA: dest, _event: evt, _Rawvalue: rawValue, _inputDpt: input.dptSave, _devicename: input.name ? input.name : "", _outputtopic: dest, _oNode: null })
                                             input.SaveScene(msg.payload);
                                             resolve(true); // fulfilled
                                             //reject("error"); // rejected
-                                        }).then(function(){}).catch(function(){});;
+                                        }).then(function () { }).catch(function () { });
+
                                     } else {
+
                                         // 19/03/2020 Check and Update value if the input is part of a scene controller
                                         new Promise((resolve, reject) => {
                                             // Check and update the values of each device in the scene and update the rule array accordingly.
@@ -405,8 +412,26 @@ module.exports = (RED) => {
                                             }
                                             resolve(true); // fulfilled
                                             //reject("error"); // rejected
-                                        }).then(function(){}).catch(function(){});
+                                        }).then(function () { }).catch(function () { });
+
                                     }
+
+                                } else if (input.hasOwnProperty("isLogger")) { // 26/03/2020 Coronavirus is slightly decreasing the affected numer of people. Logger Node
+
+                                    // 26/03/2020 Logger Node, i'll pass everythings
+                                    new Promise((resolve, reject) => {
+                                        // Get the GA from CVS
+                                        let oGA;
+                                        try {
+                                            oGA = node.csv.filter(sga => sga.ga == dest)[0];
+                                        } catch (error) { }
+                                        // 25/10/2019 TRY TO AUTO DECODE IF Group address not found in the CSV
+                                        let msg = buildInputMessage({ _srcGA: src, _destGA: dest, _event: evt, _Rawvalue: rawValue, _inputDpt: (typeof oGA === "undefined") ? null : oGA.dpt, _devicename: (typeof oGA === "undefined") ? input.name || "" : oGA.devicename, _outputtopic: dest, _oNode: input });
+                                        msg.knx.cemiETS = cemiETS; // Adding CEMI ETS string
+                                        input.handleSend(msg);
+                                        resolve(true); // fulfilled
+                                        //reject("error"); // rejected
+                                    }).then(function () { }).catch(function () { });
 
                                 } else if (input.listenallga == true) {
 
@@ -418,7 +443,7 @@ module.exports = (RED) => {
                                     // 25/10/2019 TRY TO AUTO DECODE IF Group address not found in the CSV
                                     let msg = buildInputMessage({ _srcGA: src, _destGA: dest, _event: evt, _Rawvalue: rawValue, _inputDpt: (typeof oGA === "undefined") ? null : oGA.dpt, _devicename: (typeof oGA === "undefined") ? input.name || "" : oGA.devicename, _outputtopic: dest, _oNode: input });
                                     input.setNodeStatus({ fill: "green", shape: "dot", text: (typeof oGA === "undefined") ? "Try to decode" : "", payload: msg.payload, GA: msg.knx.destination, dpt: msg.knx.dpt, devicename: msg.devicename });
-                                    input.send(msg)
+                                    input.handleSend(msg);
 
                                 } else if (input.topic == dest) {
 
@@ -435,7 +460,7 @@ module.exports = (RED) => {
                                         msg.previouspayload = typeof input.currentPayload !== "undefined" ? input.currentPayload : ""; // 24/01/2020 Added previous payload
                                         input.currentPayload = msg.payload;// Set the current value for the RBE input
                                         input.setNodeStatus({ fill: "green", shape: "dot", text: "", payload: msg.payload, GA: input.topic, dpt: input.dpt, devicename: "" });
-                                        input.send(msg);
+                                        input.handleSend(msg);
                                     };
                                 };
                             });
@@ -446,7 +471,25 @@ module.exports = (RED) => {
                         node.nodeClients
                             .filter(input => input.notifyresponse == true)
                             .forEach(input => {
-                                if (input.listenallga == true) {
+
+                                if (input.hasOwnProperty("isLogger")) { // 26/03/2020 Coronavirus is slightly decreasing the affected numer of people. Logger Node
+
+                                    // 26/03/2020 Logger Node, i'll pass everythings
+                                    new Promise((resolve, reject) => {
+                                        // Get the GA from CVS
+                                        let oGA;
+                                        try {
+                                            oGA = node.csv.filter(sga => sga.ga == dest)[0];
+                                        } catch (error) { }
+                                        // 25/10/2019 TRY TO AUTO DECODE IF Group address not found in the CSV
+                                        let msg = buildInputMessage({ _srcGA: src, _destGA: dest, _event: evt, _Rawvalue: rawValue, _inputDpt: (typeof oGA === "undefined") ? null : oGA.dpt, _devicename: (typeof oGA === "undefined") ? input.name || "" : oGA.devicename, _outputtopic: dest, _oNode: input });
+                                        msg.knx.cemiETS = cemiETS; // Adding CEMI ETS string
+                                        input.handleSend(msg);
+                                        resolve(true); // fulfilled
+                                        //reject("error"); // rejected
+                                    }).then(function () { }).catch(function () { });
+
+                                } else if (input.listenallga == true) {
                                     // Get the DPT
                                     let oGA;
                                     try {
@@ -456,7 +499,7 @@ module.exports = (RED) => {
                                     // 25/10/2019 TRY TO AUTO DECODE IF Group address not found in the CSV
                                     let msg = buildInputMessage({ _srcGA: src, _destGA: dest, _event: evt, _Rawvalue: rawValue, _inputDpt: (typeof oGA === "undefined") ? null : oGA.dpt, _devicename: (typeof oGA === "undefined") ? input.name || "" : oGA.devicename, _outputtopic: dest, _oNode: input });
                                     input.setNodeStatus({ fill: "green", shape: "dot", text: (typeof oGA === "undefined") ? "Try to decode" : "", payload: msg.payload, GA: msg.knx.destination, dpt: msg.knx.dpt, devicename: msg.devicename });
-                                    input.send(msg)
+                                    input.handleSend(msg)
 
                                 } else if (input.topic == dest) {
                                     // 04/02/2020 Watchdog implementation
@@ -473,7 +516,7 @@ module.exports = (RED) => {
                                         msg.previouspayload = typeof input.currentPayload !== "undefined" ? input.currentPayload : ""; // 24/01/2020 Added previous payload
                                         input.currentPayload = msg.payload; // Set the current value for the RBE input
                                         input.setNodeStatus({ fill: "blue", shape: "dot", text: "", payload: msg.payload, GA: input.topic, dpt: msg.knx.dpt, devicename: msg.devicename });
-                                        input.send(msg)
+                                        input.handleSend(msg)
                                     };
                                 };
                             });
@@ -485,7 +528,24 @@ module.exports = (RED) => {
                             .filter(input => input.notifyreadrequest == true)
                             .forEach(input => {
 
-                                if (input.listenallga == true) {
+                                if (input.hasOwnProperty("isLogger")) { // 26/03/2020 Coronavirus is slightly decreasing the affected numer of people. Logger Node
+
+                                    // 26/03/2020 Logger Node, i'll pass everythings
+                                    new Promise((resolve, reject) => {
+                                        // Get the GA from CVS
+                                        let oGA;
+                                        try {
+                                            oGA = node.csv.filter(sga => sga.ga == dest)[0];
+                                        } catch (error) { }
+                                        // 25/10/2019 TRY TO AUTO DECODE IF Group address not found in the CSV
+                                        let msg = buildInputMessage({ _srcGA: src, _destGA: dest, _event: evt, _Rawvalue: rawValue, _inputDpt: (typeof oGA === "undefined") ? null : oGA.dpt, _devicename: (typeof oGA === "undefined") ? input.name || "" : oGA.devicename, _outputtopic: dest, _oNode: input });
+                                        msg.knx.cemiETS = cemiETS; // Adding CEMI ETS string
+                                        input.handleSend(msg);
+                                        resolve(true); // fulfilled
+                                        //reject("error"); // rejected
+                                    }).then(function () { }).catch(function () { });
+
+                                } else if (input.listenallga == true) {
                                     // Get the DPT
                                     let oGA;
                                     try {
@@ -495,7 +555,7 @@ module.exports = (RED) => {
                                     // 25/10/2019 TRY TO AUTO DECODE IF Group address not found in the CSV
                                     let msg = buildInputMessage({ _srcGA: src, _destGA: dest, _event: evt, _Rawvalue: null, _inputDpt: (typeof oGA === "undefined") ? null : oGA.dpt, _devicename: (typeof oGA === "undefined") ? input.name || "" : oGA.devicename, _outputtopic: dest, _oNode: input });
                                     input.setNodeStatus({ fill: "green", shape: "dot", text: (typeof oGA === "undefined") ? "Try to decode" : "", payload: msg.payload, GA: msg.knx.destination, dpt: msg.knx.dpt, devicename: msg.devicename });
-                                    input.send(msg)
+                                    input.handleSend(msg)
 
                                 } else if (input.topic == dest) {
 
@@ -522,7 +582,7 @@ module.exports = (RED) => {
                                         } else {
                                             input.setNodeStatus({ fill: "grey", shape: "dot", text: "Read", payload: msg.payload, GA: input.topic, dpt: msg.knx.dpt, devicename: "" });
                                         };
-                                        input.send(msg);
+                                        input.handleSend(msg);
                                     };
                                 };
                             });

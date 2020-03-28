@@ -21,7 +21,8 @@
             inputRBE: { value: false },
             formatmultiplyvalue: { value: 1 },
             formatnegativevalue: { value: "leave" },
-            formatdecimalsvalue: { value: 999 }
+            formatdecimalsvalue: { value: 999 },
+            passthrough: { value: "no" }
         },
         inputs: 1,
         outputs: 1,
@@ -46,7 +47,7 @@
         // },
         oneditprepare: function () {
             var node = this;
-            var oNodeServer= RED.nodes.node($("#node-input-server").val());; // Store the config-node
+            var oNodeServer= RED.nodes.node($("#node-input-server").val()); // Store the config-node
 
             // 19/02/2020 Used to alert the user if the CSV file has not been loaded and to get the server sooner als deploy
             $("#node-input-server").change(function () {
@@ -202,7 +203,8 @@
                 this.notifywrite !== true ||
                 this.outputtype !== "write" ||
                 this.outputRBE !== true ||
-                this.inputRBE !== false
+                this.inputRBE !== false ||
+                this.passthrough !=="no"
             ) {
                 $("#advancedOptionsAccordion").accordion({ active: 0 });
             }
@@ -302,10 +304,22 @@
         </label>
         <!-- <div id="helpallga">Some Content Here</div> -->
     </div>
-
+   
     <div id="advancedOptionsAccordion">
         <h3><span data-i18n="knxUltimate.advanced.Advancedoptions"></span></h3>
         <div class="form-row">
+            <div class="form-row">
+                <label style="width:230px" for="node-input-passthrough">
+                    <i class="fa fa-sign-out"></i>
+                    <span data-i18n="knxUltimate.properties.node-input-passthrough"></span>
+                </label>
+                <select style="width:92px" id="node-input-passthrough">
+                    <option value="no" data-i18n="knxUltimate.selectlists.passthrough_No"></option>
+                    <option value="yes" data-i18n="knxUltimate.selectlists.passthrough_Leave"></option>
+                    <option value="yesownprop" data-i18n="knxUltimate.selectlists.passthrough_OwnProp"></option>
+                </select>
+            </div>
+            <br/>    
             <div class="form-row">
                 <dt>
                     <i class="fa fa-code-fork"></i>

@@ -1,35 +1,35 @@
-# Politica di sicurezza domotica
+# Security Policy
 <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/blob/master/SECURITY.md"><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/flags/usa-today.png"/></a>
 <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/blob/master/de-SECURITY.md"><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/flags/germany.png"/></a>
 <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/blob/master/it-SECURITY.md"><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/flags/italy.png"/></a>
 
-La domotica non è uno scherzo. Ti preghiamo di considerare tutti i pericoli connessi all'uso di questo repository per controllare la tua casa o edificio.
-Una singola luce che rimane accesa mentre non sei in casa, ad esempio, **può diventare un serio pericolo di incendio**. <br/>
-Tutti i dispositivi incustoditi mettono a rischio la tua casa. <br/>
-Per non parlare del fatto che, per colpa tua o di un ERRORE nel repository knx-ultimate, le porte di un garage si possano chiudere mentre un bambino è seduto sotto.
-La **sicurezza dell'edificio** deve essere la tua preoccupazione principale. <br/>
-Per favore utilizza knx-ultimate (ma è generalmente lo stesso per TUTTI i repository) solo per controllare gli attuatori che sono stati resi sicuri con altri mezzi certificati. <br/>
-Nell'esempio sopra, la porta del garage deve essere protetta da un **sistema meccanico o elettronico** CERTIFICATO, per prevenire danni a persone, animali o cose.
-Lo sviluppatore del repository knx-ultimate e tutti gli sviluppatori coinvolti in questo progetto, non sono in alcun modo responsabili per eventuali danni, come indicato nella Licenza MIT che puoi trovare [qui](https://github.com/Supergiovane/node-red-contrib-KNX-ultimate/blob/master/LICENSE). <br/>
+Home automation is not a joke. Please consider all dangers involving the use of this repository to control your home or building.
+A single light that remains ON while you're not at home, for example, **can become a serious danger of fire**.<br/>
+All unattended devices put your building at risk.<br/>
+Not to mention if, for your fault or for a BUG in the knx-ultimate repository, a garage doors closes while a child is sitting inbetween.
+The **building security** must be your primary concern.<br/>
+Please use knx-ultimate (but it's generally the same for ALL repositories) only to control actuators that have been secured by other certified means.<br/>
+For the example above, the garage door must be secured by a **CERTIFIED mechanical or electronical system**, preventing damages to people, animals or things.
+The developer of knx-ultimate repository and all developers involved in this project, are not responsible in any way for any damage, as stated in the MIT License you can find [here](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/blob/master/LICENSE).<br/>
 
 
-## Regole di domotica
+## Home automation rules
 
-Nella mia esperienza, ho sviluppato alcune **best practices** per proteggere la mia casa da incendi, danni e rischi per terzi. <br/>
-Alcune cose interessanti sono qui sotto, per te. Spero che tu lo possa apprezzare. <br/>
+In my experience, i developed some **best practices** to secure my home from fire, damages and risks for third persons.<br/>
+Some interesting things are below, for you. Hope you appreciate that.<br/>
 
-* Installa uno o più interruttori di alimentazione principali, che interrompano l'alimentazione in tutta la casa mentre sei assente, lasciando alimentato solo il numero minimo di dispositivi necessari (come frigorifero, pannello di allarme, router Internet e così via). Se hai bisogno di un po 'di automazione mentre sei lontano, puoi temporaneamente accendere l'interruttore di alimentazione principale e riavere quindi l'accesso completo. Ciò è utile per evitare possibili hackeraggi della tua casa da parte di qualcuno che ha avuto accesso, ad esempio, a un dispositivo IOT protetto in modo improprio e sempre alimentato.
-* Installa un router Internet ridondante utilizzando un'altra linea wan, ad esempio una connessione LTE. Nel caso in cui tu abbia perso una linea, ne hai un' altra a cui affidarti.
-* Trova un modo per **entrare** nella tua casa, anche in caso di interruzioni di corrente (ad esempio, una chiave meccanica da qualche parte nel giardino).
-* Trova un modo per **uscire** da casa tua, anche in caso di interruzioni di corrente (ad esempio, una chiave meccanica da qualche parte vicino alla porta principale).
-* Trova un modo per **scappare** da casa tua in caso di ladri o allarme antincendio (ad esempio, tramite una scala estensibile da un balcone).
-* Utilizza solo sistemi di allarme / antincendio professionali e certificati e comandali tramite KNX. Attenzione, la parte KNX del sistema di sicurezza diventa una backdoor per possibili problemi. Non consentire mai al nodo KNX di disinserire il sistema di sicurezza senza una password. Se usi un touchscreen, evita la funzionalità di **disinserimento premendo un pulsante singolo**. In alternativa, crea pulsanti che simulano la pressione di un tasto della **tastiera del tuo antifurto**.
-* Installa un pulsante **di emergenza medica** KNX e mettilo, ad esempio, vicino al tuo letto. In caso di emergenza, esso avvisa automaticamente la tua famiglia o qualcuno che può aiutarti, accende tutte le luci significative, crea un **percorso di ingresso visibile** per i paramedici apre le porte per consentire loro di raggiungerti anche nel caso in cui tu possa perdere conoscenza. Ripeti un messaggio audio per aiutare **l'equipe di paramedici**, usando ad esempio i tuoi altoparlanti Sonos, indicando **come trovarti** nella tua casa (per esempio comunicando in quale stanza potresti essere), **quali parenti chiamare**, quali **malattie preesistenti** hai. Puoi persino usare Alexa, Siri o Google Home per attivare questo pulsante KNX (vedi nella sezione esempio delle wiki), nel caso tu abbia un ictus (sgrat sgrat) e non riesca a muoverti.
-* Installa un pulsante **antipanico** KNX
-* Prendi questa cosa in seria considerazione: non entrare mai in casa tua nel caso in cui qualcuno ti costringa e ti minacci di farlo, specialmente se la tua famiglia è dentro. Una volta dentro, **l'aggressore può fare tutto ciò che vuole** e nessuno fuori se ne potrà accorgere. Installa un pulsante **antipanico** da qualche parte vicino alle porte e ai garage esterni.
-* Se hai installato sensori perimetrali esterni, illumina l'esterno della casa per mezzo di almeno 4 (uno per ogni angolo della tua casa) potenti proiettori a LED, non appena qualcuno entra nel perimetro al crepuscolo o di notte.
-* Fai un annuncio tramite tastiere di allarme non appena qualcuno apre una finestra, una porta esterna o una tenda, anche se sei a casa.
+* Install one or more main power switches, that cut off the power in your whole house while you're away, leaving powered only the minimal number of necessary devices (like refirgerator, alarm panel, internet router and so on). If you need some automation while youre away, you can temporarly switch on the main power switch and regain full access. This is worthful to avoid possible hacking of your home by someone having access, for example, to an improperly secured, always powered IOT device.
+* Install a redundant internet router using another wan line, for example an LTE connection. In case you lost one wan, you have another one to rely to.
+* Find a way to **enter** in your home, even in case of power outages (for example, a phisycal mechanichal key somewhere in the garden).
+* Find a way to **exit** your home, even in case of power outages (for example, a phisycal mechanichal key somewhere near your main door).
+* Find a way to **escape** from your home in case of bulgary or fire alarm (for example, by means of an extensible ladder from a balcony).
+* Use only professional and certified bulgary/fire security system and command it by KNX. Be aware, the KNX part of your security system, becomes a backdoor for possible problems. Never ever allow the KNX node to disarm your security system without a password. If you use a touchscreen, avoid **single button disarm** capability. Create buttons simulating a security panel **keypad** pression instead.
+* Install a **medical emergency** KNX pushbutton and put it, for example, near your bed. In case of emergency, automatically notify your family or someone that can help you, turn on all significant lights, create a **visible entrance pattern** for paramedics, unlock doors and the pathway to allow them to reach you even in case you become inconscious. Repeat an audio message to help **paramedics equipe**, using for example you Sonos speakers, stating **how to find you** in your home, **who parents to call**, what pre-existing **diseases** do you have. You can even use Alexa, Siri or Google Home to trigger this KNX pushbutton (see in the example section of the wiki), in case you've a stroke and you can't move.
+* Install a **panic** KNX pushbutton
+* Take this into consideration: never enter your home in case of someone forces and threats you to do that, expecially if your family is inside. Once you're inside, **the offender can do whatever he wants** and no one outside can care about you. Install a **panic** button somewhere near your external doors and garages.
+* If you've installed external perimeter sensors, light up hour home by means of at least 4 (one for each angle of your home) powerful LEDs projector as soon as someone enters the perimeter at dusk or night.
+* Do an announcement via alarm keypads as soon as someone opens a window, external door or blind, even if you're at home.
 
 
 
-## RICORDA: SEI L'UNICO RESPONSABILE DELLA SICUREZZA DELLA TUA PROPRIETÀ. SEGUIRE LA LEGGE, CONSIDERA QUESTO NODO KNX-ULTIMATE SOLO COME AIUTO PER L'AUTOMAZIONE, AFFIDATI SOLO A DISPOSITIVI DI AUTOMAZIONE CERTIFICATI RESI SICURI MECCANICAMENTE O ELETTRONICAMENTE. PENSA ALLA TUA SICUREZZA. PENSA CHE QUALCOSA POTREBBE ANDARE STORTO, QUINDI PREVEDI UN BACKUP E, PER DISPOSITIVI CHE METTONO A RISCHIO LA SALUTE E LA SICUREZZA, PREVEDI UN DOPPIO BACKUP. 
+## REMEMBER: YOU ARE THE ONLY RESPONSIBLE OF THE SECURITY OF YOUR PROPERTY. FOLLOW THE LAW, CONSIDER THIS KNX-ULTIMATE NODE ONLY AS AUTOMATION HELP, RELY ONLY ON CERTIFIED AND MECHANICALLY OR ELECTRONICALLY SECURED AUTOMATION DEVICES. THINK ABOUT YOUR SAFETY. THINK THAT SOMETHING CAN GO WRONG OR FAIL, SO HAVE A BACKUP AND, FOR HEALT AND SAFETY RISKS, HAVE DOUBLE SECURITY BACKUP. ONLY THEN, YOU CAN ENJOY YOUR LIFE WITH THE HELP AND FUN OF HOME AUTOMATION!
