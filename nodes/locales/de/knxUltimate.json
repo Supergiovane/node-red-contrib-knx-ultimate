@@ -12,7 +12,7 @@
             "node-input-notifyreadrequestalsorespondtobus": "Node Werte automatisch als Antwort auf den KNX-Bus senden",
             "node-input-notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized": "Wenn der Wert nicht definiert ist, senden",
             "node-input-listenallga": "Universalmodus (alle Gruppenadressen lesen)",
-            "node-input-name": "Name",
+            "node-input-name": "Node Name",
             "node-input-outputtype": "Ausgabetyp",
             "node-input-outputRBE": "Payload nur bei Änderung an den KNX-BUS senden (RBE-Filter)",
             "node-input-inputRBE": "Nur bei Änderungen vom KNX-Bus reagieren (RBE filter)",
