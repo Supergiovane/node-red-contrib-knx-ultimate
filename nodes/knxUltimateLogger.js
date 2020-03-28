@@ -49,7 +49,7 @@ module.exports = function (RED) {
         };
 
         // This function is called by the knx-ultimate config node.
-        node.handleMessage = msg => {
+        node.handleSend = msg => {
             // Receiving every message
 
             // Add row to XML ETS

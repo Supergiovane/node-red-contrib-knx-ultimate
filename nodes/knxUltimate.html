@@ -21,7 +21,8 @@
             inputRBE: { value: false },
             formatmultiplyvalue: { value: 1 },
             formatnegativevalue: { value: "leave" },
-            formatdecimalsvalue: { value: 999 }
+            formatdecimalsvalue: { value: 999 },
+            passthrough: { value: "no" }
         },
         inputs: 1,
         outputs: 1,
@@ -320,6 +321,17 @@
                 <select id="node-input-outputtype">
                     <option value="write" data-i18n="knxUltimate.selectlists.Output_write"></option>
                     <option value="response" data-i18n="knxUltimate.selectlists.Output_response"></option>
+                </select>
+            </div>
+            <div class="form-row">
+                <label style="width:230px" for="node-input-passthrough">
+                    <i class="fa fa-sign-out"></i>
+                    <span data-i18n="knxUltimate.properties.node-input-passthrough"></span>
+                </label>
+                <select style="width:95px" id="node-input-passthrough">
+                    <option value="no" data-i18n="knxUltimate.selectlists.passthrough_No"></option>
+                    <option value="yes" data-i18n="knxUltimate.selectlists.passthrough_Leave"></option>
+                    <option value="yesownprop" data-i18n="knxUltimate.selectlists.passthrough_OwnProp"></option>
                 </select>
             </div>
             <div class="form-row" id="divOutputRBE">

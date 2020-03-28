@@ -106,6 +106,11 @@ module.exports = function (RED) {
             node.setNodeStatus({ fill: "green", shape: "dot", text: "WatchDog started.", payload: "", GA: "", dpt: "", devicename: "" })
         }
 
+        // This function is called by the knx-ultimate config node, to output a msg.payload.
+        node.handleSend = msg => {
+            node.send(msg);
+        };
+
         node.on("input", function (msg) {
 
             if (typeof msg === "undefined") return;

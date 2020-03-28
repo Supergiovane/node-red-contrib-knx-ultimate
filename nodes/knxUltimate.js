@@ -1,4 +1,5 @@
 module.exports = function (RED) {
+
     function knxUltimate(config) {
         RED.nodes.createNode(this, config)
         var node = this
@@ -22,6 +23,9 @@ module.exports = function (RED) {
         node.formatmultiplyvalue = (typeof config.formatmultiplyvalue === "undefined" ? 1 : config.formatmultiplyvalue);
         node.formatnegativevalue = (typeof config.formatnegativevalue === "undefined" ? "leave" : config.formatnegativevalue);
         node.formatdecimalsvalue = (typeof config.formatdecimalsvalue === "undefined" ? 999 : config.formatdecimalsvalue);
+        node.passthrough = (typeof config.passthrough === "undefined" ? "no" : config.passthrough);
+        node.inputmessage = {}; // Stores the input message to be passed through
+        node.timerTTLInputMessage = null; // The stored node.inputmessage has a ttl.
 
         // Used to call the status update from the config node.
         node.setNodeStatus = ({ fill, shape, text, payload, GA, dpt, devicename }) => {
@@ -56,8 +60,34 @@ module.exports = function (RED) {
             }
         }
 
+        // This function is called by the knx-ultimate config node, to output a msg.payload.
+        node.handleSend = msg => {
+            // 27/03/2020 can i merge the last input msg arrived, with the output?
+            try {
+                if (node.passthrough === "yes") {
+                    // Respect the order! Object.assign(target, master). On master will be copied to target and properties of master will overwrite the same properties on target!
+                    if (node.timerTTLInputMessage !== null) clearTimeout(node.timerTTLInputMessage);
+                    msg = Object.assign(RED.util.cloneMessage(node.inputmessage), msg);
+                    node.inputmessage = {};
+                } else if (node.passthrough === "yesownprop") {
+                    // Yes, but in an own prop
+                    if (node.timerTTLInputMessage !== null) clearTimeout(node.timerTTLInputMessage);
+                    msg.inputmessage = RED.util.cloneMessage(node.inputmessage);
+                    node.inputmessage = {};
+                }
+            } catch (error) { }
+            node.send(msg);
+        };
+
         node.on("input", function (msg) {
             if (typeof msg === "undefined") return;
+
+            if (node.passthrough !== "no") { // 27/03/2020 Save the input message to be passed out to msg output
+                // The msg has a TTL of 3 seconds
+                if (node.timerTTLInputMessage !== null) clearTimeout(node.timerTTLInputMessage);
+                node.timerTTLInputMessage = setTimeout(function () { node.inputmessage = {}; }, 3000);
+                node.inputmessage = msg;   // 28/03/2020 Store the message to be passed through.
+            }
 
             // 01/02/2020 Dinamic change of the KNX Gateway IP, Port and Physical Address
             // DEPRECATED, USE THE WATCHDOG INSTEAD
@@ -92,7 +122,7 @@ module.exports = function (RED) {
                     if (node.listenallga == false) {
                         grpaddr = msg && msg.destination ? msg.destination : node.topic
                         node.setNodeStatus({ fill: "grey", shape: "dot", text: "Read", payload: "", GA: grpaddr, dpt: node.dpt, devicename: "" });
-                        node.server.writeQueueAdd({ grpaddr: grpaddr, payload: "", dpt: "", outputtype: "read" , nodecallerid: node.id});
+                        node.server.writeQueueAdd({ grpaddr: grpaddr, payload: "", dpt: "", outputtype: "read", nodecallerid: node.id });
                     } else { // Listen all GAs
                         if (msg.destination) {
                             // listenallga is true, but the user specified own group address
@@ -240,6 +270,8 @@ module.exports = function (RED) {
         })
 
         node.on('close', function () {
+            if (node.timerTTLInputMessage !== null) clearTimeout(node.timerTTLInputMessage);
+            node.inputmessage = {};
             if (node.server) {
                 node.server.removeClient(node)
             }

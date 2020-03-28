@@ -18,7 +18,8 @@
             "node-input-inputRBE": "Nur bei Änderungen vom KNX-Bus reagieren (RBE filter)",
             "node-input-formatmultiplyvalue": "Multiplizieren",
             "node-input-formatnegativevalue": "Negativ",
-            "node-input-formatdecimalsvalue": "Dezimalstellen"
+            "node-input-formatdecimalsvalue": "Dezimalstellen",
+            "node-input-passthrough": "Passthrough eingang msg"
            
         },
         "placeholder": {
@@ -51,7 +52,10 @@
             "Decimals_round4": "Auf 4 Dezimalstelle runden",
             "Negatives_leave":"Unverändert lassen (Standard)",
             "Negatives_zero": "Null als Ausgabe",
-            "Negatives_abs": "Absolutwert ausgeben (Minuszeichen entfernen)"          
+            "Negatives_abs": "Absolutwert ausgeben (Minuszeichen entfernen)"  ,
+            "passthrough_No": "Nein",
+            "passthrough_Leave": "Ja",
+            "passthrough_OwnProp": "Ja, aber fügen Sie den eingangmsg in die msg.inputmessage des Ausgabenmsg ein"
         }
     }
 }

@@ -428,7 +428,7 @@ module.exports = (RED) => {
                                         // 25/10/2019 TRY TO AUTO DECODE IF Group address not found in the CSV
                                         let msg = buildInputMessage({ _srcGA: src, _destGA: dest, _event: evt, _Rawvalue: rawValue, _inputDpt: (typeof oGA === "undefined") ? null : oGA.dpt, _devicename: (typeof oGA === "undefined") ? input.name || "" : oGA.devicename, _outputtopic: dest, _oNode: input });
                                         msg.knx.cemiETS = cemiETS; // Adding CEMI ETS string
-                                        input.handleMessage(msg);
+                                        input.handleSend(msg);
                                         resolve(true); // fulfilled
                                         //reject("error"); // rejected
                                     }).then(function () { }).catch(function () { });
@@ -443,7 +443,7 @@ module.exports = (RED) => {
                                     // 25/10/2019 TRY TO AUTO DECODE IF Group address not found in the CSV
                                     let msg = buildInputMessage({ _srcGA: src, _destGA: dest, _event: evt, _Rawvalue: rawValue, _inputDpt: (typeof oGA === "undefined") ? null : oGA.dpt, _devicename: (typeof oGA === "undefined") ? input.name || "" : oGA.devicename, _outputtopic: dest, _oNode: input });
                                     input.setNodeStatus({ fill: "green", shape: "dot", text: (typeof oGA === "undefined") ? "Try to decode" : "", payload: msg.payload, GA: msg.knx.destination, dpt: msg.knx.dpt, devicename: msg.devicename });
-                                    input.send(msg);
+                                    input.handleSend(msg);
 
                                 } else if (input.topic == dest) {
 
@@ -460,7 +460,7 @@ module.exports = (RED) => {
                                         msg.previouspayload = typeof input.currentPayload !== "undefined" ? input.currentPayload : ""; // 24/01/2020 Added previous payload
                                         input.currentPayload = msg.payload;// Set the current value for the RBE input
                                         input.setNodeStatus({ fill: "green", shape: "dot", text: "", payload: msg.payload, GA: input.topic, dpt: input.dpt, devicename: "" });
-                                        input.send(msg);
+                                        input.handleSend(msg);
                                     };
                                 };
                             });
@@ -484,7 +484,7 @@ module.exports = (RED) => {
                                         // 25/10/2019 TRY TO AUTO DECODE IF Group address not found in the CSV
                                         let msg = buildInputMessage({ _srcGA: src, _destGA: dest, _event: evt, _Rawvalue: rawValue, _inputDpt: (typeof oGA === "undefined") ? null : oGA.dpt, _devicename: (typeof oGA === "undefined") ? input.name || "" : oGA.devicename, _outputtopic: dest, _oNode: input });
                                         msg.knx.cemiETS = cemiETS; // Adding CEMI ETS string
-                                        input.handleMessage(msg);
+                                        input.handleSend(msg);
                                         resolve(true); // fulfilled
                                         //reject("error"); // rejected
                                     }).then(function () { }).catch(function () { });
@@ -499,7 +499,7 @@ module.exports = (RED) => {
                                     // 25/10/2019 TRY TO AUTO DECODE IF Group address not found in the CSV
                                     let msg = buildInputMessage({ _srcGA: src, _destGA: dest, _event: evt, _Rawvalue: rawValue, _inputDpt: (typeof oGA === "undefined") ? null : oGA.dpt, _devicename: (typeof oGA === "undefined") ? input.name || "" : oGA.devicename, _outputtopic: dest, _oNode: input });
                                     input.setNodeStatus({ fill: "green", shape: "dot", text: (typeof oGA === "undefined") ? "Try to decode" : "", payload: msg.payload, GA: msg.knx.destination, dpt: msg.knx.dpt, devicename: msg.devicename });
-                                    input.send(msg)
+                                    input.handleSend(msg)
 
                                 } else if (input.topic == dest) {
                                     // 04/02/2020 Watchdog implementation
@@ -516,7 +516,7 @@ module.exports = (RED) => {
                                         msg.previouspayload = typeof input.currentPayload !== "undefined" ? input.currentPayload : ""; // 24/01/2020 Added previous payload
                                         input.currentPayload = msg.payload; // Set the current value for the RBE input
                                         input.setNodeStatus({ fill: "blue", shape: "dot", text: "", payload: msg.payload, GA: input.topic, dpt: msg.knx.dpt, devicename: msg.devicename });
-                                        input.send(msg)
+                                        input.handleSend(msg)
                                     };
                                 };
                             });
@@ -540,7 +540,7 @@ module.exports = (RED) => {
                                         // 25/10/2019 TRY TO AUTO DECODE IF Group address not found in the CSV
                                         let msg = buildInputMessage({ _srcGA: src, _destGA: dest, _event: evt, _Rawvalue: rawValue, _inputDpt: (typeof oGA === "undefined") ? null : oGA.dpt, _devicename: (typeof oGA === "undefined") ? input.name || "" : oGA.devicename, _outputtopic: dest, _oNode: input });
                                         msg.knx.cemiETS = cemiETS; // Adding CEMI ETS string
-                                        input.handleMessage(msg);
+                                        input.handleSend(msg);
                                         resolve(true); // fulfilled
                                         //reject("error"); // rejected
                                     }).then(function () { }).catch(function () { });
@@ -555,7 +555,7 @@ module.exports = (RED) => {
                                     // 25/10/2019 TRY TO AUTO DECODE IF Group address not found in the CSV
                                     let msg = buildInputMessage({ _srcGA: src, _destGA: dest, _event: evt, _Rawvalue: null, _inputDpt: (typeof oGA === "undefined") ? null : oGA.dpt, _devicename: (typeof oGA === "undefined") ? input.name || "" : oGA.devicename, _outputtopic: dest, _oNode: input });
                                     input.setNodeStatus({ fill: "green", shape: "dot", text: (typeof oGA === "undefined") ? "Try to decode" : "", payload: msg.payload, GA: msg.knx.destination, dpt: msg.knx.dpt, devicename: msg.devicename });
-                                    input.send(msg)
+                                    input.handleSend(msg)
 
                                 } else if (input.topic == dest) {
 
@@ -582,7 +582,7 @@ module.exports = (RED) => {
                                         } else {
                                             input.setNodeStatus({ fill: "grey", shape: "dot", text: "Read", payload: msg.payload, GA: input.topic, dpt: msg.knx.dpt, devicename: "" });
                                         };
-                                        input.send(msg);
+                                        input.handleSend(msg);
                                     };
                                 };
                             });
