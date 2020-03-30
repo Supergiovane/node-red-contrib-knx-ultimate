@@ -36,7 +36,7 @@
         },
         "selectlists": {
             "Output_write": "Schreiben",
-            "Output_response": "Antwort",
+            "Output_response": "Antworten",
             "Multiply_leave": "Unverändert lassen (Standard)",
             "Multiply_divide1000": "Teilen / 1000",
             "Multiply_divide100": "Teilen / 100",

@@ -33,10 +33,22 @@ node.send{payload:{red:255, green:200, blue:30}} // Put some colors in our life
 *I'm internationalizing the node **(Deutsch, Italiano, English)** with the foundamental help of **@svenflender**, so please be patient if some parts are still only in english. Internationalization is working with node-red version 1.0.3 and above. Versions below, does have issues in the i18n module, so knx-ultimate falls back to english. Please upgrade node-red.*
 
 ## TROUBLESHOOT, WIKI, FAQ, BEST PRACTICES AND SAMPLES
-* [All you need to know](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki)
 * [Youtube video](https://www.youtube.com/channel/UCA9RsLps1IthT7fDSeUbRZw)
-* [Troubleshoot & FAQ](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/5.-FAQ-Troubleshoot)
-* [Security best practices and suggestions](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/blob/master/SECURITY.md)
+* [Overview](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki)
+* [Changelog](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/blob/master/CHANGELOG.md)
+* [FAQ + Troubleshoot](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/5.-FAQ-Troubleshoot)
+* [Security best practices](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/blob/master/SECURITY.md)
+* *SAMPLES*
+  * [Sample Switch Light](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Switch-light)
+  * [Sample Dimming](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Dimming)
+  * [Sample RGB color](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---RGB-Color)
+  * [Sample Datetime to BUS](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---DateTime-to-BUS)
+  * [Sample Read Status](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Read-value-from-Device)
+  * [Sample Virtual Device](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Virtual-Device)
+  * [Sample Subtype decoded](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Subtype)
+  * [Sample Scene Controller](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/Sample-Scene-Node)
+  * [Sample WatchDog](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---WatchDog)
+  * [Sample WatchDog](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/Logger-Sample)
 <table>
   <tr>
     <td>Sample code for use with </td>

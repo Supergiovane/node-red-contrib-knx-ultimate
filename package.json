@@ -12,10 +12,10 @@
   "node-red": {
     "nodes": {
       "knxUltimate": "/nodes/knxUltimate.js",
-      "knxUltimate-config": "/nodes/knxUltimate-config.js",
-      "knxUltimateWatchDog": "/nodes/knxUltimateWatchDog.js",
       "knxUltimateSceneController": "/nodes/knxUltimateSceneController.js",
-      "knxUltimateLogger": "/nodes/knxUltimateLogger.js"
+      "knxUltimateWatchDog": "/nodes/knxUltimateWatchDog.js",
+      "knxUltimateLogger": "/nodes/knxUltimateLogger.js",
+      "knxUltimate-config": "/nodes/knxUltimate-config.js"
     }
   },
   "repository": {
