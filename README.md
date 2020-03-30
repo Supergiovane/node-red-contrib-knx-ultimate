@@ -48,7 +48,6 @@ node.send{payload:{red:255, green:200, blue:30}} // Put some colors in our life
   * [Sample Subtype decoded](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Subtype)
   * [Sample Scene Controller](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/Sample-Scene-Node)
   * [Sample WatchDog](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---WatchDog)
-  * [Sample WatchDog](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/Logger-Sample)
 <table>
   <tr>
     <td>Sample code for use with </td>
