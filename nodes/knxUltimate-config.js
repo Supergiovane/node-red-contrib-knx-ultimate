@@ -75,8 +75,8 @@ module.exports = (RED) => {
         node.nodeClients = [] // Stores the registered clients
         node.KNXEthInterface = typeof config.KNXEthInterface === "undefined" ? "Auto" : config.KNXEthInterface;
         node.KNXEthInterfaceManuallyInput = typeof config.KNXEthInterfaceManuallyInput === "undefined" ? "" : config.KNXEthInterfaceManuallyInput; // If you manually set the interface name, it will be wrote here
-        node.statusDisplayLastUpdate = config.statusDisplayLastUpdate || true;
-        node.statusDisplayDeviceNameWhenALL = config.statusDisplayDeviceNameWhenALL || false;
+        node.statusDisplayLastUpdate = typeof config.statusDisplayLastUpdate === "undefined" ? true : config.statusDisplayLastUpdate;
+        node.statusDisplayDeviceNameWhenALL = typeof config.statusDisplayDeviceNameWhenALL === "undefined" ? false : config.statusDisplayDeviceNameWhenALL;
         node.statusDisplayDataPoint = typeof config.statusDisplayDataPoint === "undefined" ? false : config.statusDisplayDataPoint;
         node.telegramsQueue = [];  // 02/01/2020 Queue containing telegrams 
         node.timerSendTelegramFromQueue = setInterval(handleTelegramQueue, 50); // 02/01/2020 Start the timer that handles the queue of telegrams

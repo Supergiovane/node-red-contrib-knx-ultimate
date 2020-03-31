@@ -5,6 +5,13 @@
 <br/>
 
 <p>
+<b>Version 1.1.54</b> - March 2020 in Italy, continue lock down Coronavirus, but situation is better now.<br/>
+- FIX: fixed status display of date/time. Yet if you uncheck the option not do display the date/time, it works.<br/>
+- ENHANCEMENT: search for all words in the group address fields. You can now search, for example, for "licht wohnzimmer".<br/>
+- Changed palette order to better view the service nodes, like Logger and Watchdog.<br/>
+- Ongoning Deutch translation.<br/>
+</p>
+<p>
 <b>Version 1.1.53</b> - March 2020 in Italy, continue lock down Coronavirus.<br/>
 - NEW: msg passthrough option.<br/>
 </p>
