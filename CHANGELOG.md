@@ -5,6 +5,10 @@
 <br/>
 
 <p>
+<b>Version 1.1.55</b> - March 2020 in Italy, continue lock down Coronavirus, but situation is better now.<br/>
+- NEW: Added option to skip the import of the group address from the ETS file, if the datapoint is not set.<br/>
+</p>
+<p>
 <b>Version 1.1.54</b> - March 2020 in Italy, continue lock down Coronavirus, but situation is better now.<br/>
 - FIX: fixed status display of date/time. Yet if you uncheck the option not do display the date/time, it works.<br/>
 - ENHANCEMENT: search for all words in the group address fields. You can now search, for example, for "licht wohnzimmer".<br/>

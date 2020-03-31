@@ -81,7 +81,7 @@ module.exports = (RED) => {
         node.telegramsQueue = [];  // 02/01/2020 Queue containing telegrams 
         node.timerSendTelegramFromQueue = setInterval(handleTelegramQueue, 50); // 02/01/2020 Start the timer that handles the queue of telegrams
         node.timerDoInitialRead = null; // 17/02/2020 Timer (timeout) to do initial read of all nodes requesting initial read, after all nodes have been registered to the sercer
-        node.stopETSImportIfNoDatapoint = typeof config.stopETSImportIfNoDatapoint === "undefined" ? "stop" : config.stopETSImportIfNoDatapoint; // 09/01/2020 Stop or Skip the import if a group address has unset datapoint
+        node.stopETSImportIfNoDatapoint = typeof config.stopETSImportIfNoDatapoint === "undefined" ? "stop" : config.stopETSImportIfNoDatapoint; // 09/01/2020 Stop, Import Fake or Skip the import if a group address has unset datapoint
         node.csv = readCSV(config.csv); // Array from ETS CSV Group Addresses {ga:group address, dpt: datapoint, devicename: full device name with main and subgroups}
         node.loglevel = config.loglevel !== undefined ? config.loglevel : "error"; // 18/02/2020 Loglevel default error
         node.localEchoInTunneling = typeof config.localEchoInTunneling !== "undefined" ? config.localEchoInTunneling : false;
@@ -841,20 +841,22 @@ module.exports = (RED) => {
                         if (element.split("\t")[1].search("-") == -1 && element.split("\t")[1].search("/") !== -1) {
                             // Ho trovato una riga contenente un GA valido, cioè con 2 "/"
                             if (element.split("\t")[5] == "") {
-                                RED.log.error("knxUltimate: ERROR: Datapoint not set in ETS CSV. Please set the datapoint with ETS and export the group addresses again. ->" + element.split("\t")[0] + " " + element.split("\t")[1])
                                 if (node.stopETSImportIfNoDatapoint === "stop") {
                                     RED.log.error("knxUltimate: ABORT IMPORT OF ETS CSV FILE. To skip the invalid datapoint and continue import, change the related setting, located in the config node in the ETS import section.");
                                     return;
-                                } else {
+                                } if (node.stopETSImportIfNoDatapoint === "fake") {
                                     // 02/03/2020 Whould you like to continue without datapoint? Good. Here a totally fake datapoint
-                                    RED.log.warn("knxUltimate: WARNING IMPORT OF ETS CSV FILE. Datapoint not set. You choosed to continue import. The Group Address will be imported with a fake datapoint 1.001. -> " + element.split("\t")[0] + " " + element.split("\t")[1]);
+                                    RED.log.warn("knxUltimate: WARNING IMPORT OF ETS CSV FILE. Datapoint not set. You choosed to continue import with a fake datapoint 1.001. -> " + element.split("\t")[0] + " " + element.split("\t")[1]);
                                     ajsonOutput.push({ ga: element.split("\t")[1], dpt: "1.001", devicename: sFather + element.split("\t")[0] + " (DPT NOT SET IN ETS - FAKE DPT USED)" });
+                                } else {
+                                    // 31/03/2020 Skip import
+                                    RED.log.warn("knxUltimate: WARNING IMPORT OF ETS CSV FILE. Datapoint not set. You choosed to skip -> " + element.split("\t")[0] + " " + element.split("\t")[1]);
                                 }
                             } else {
                                 var DPTa = element.split("\t")[5].split("-")[1];
                                 var DPTb = element.split("\t")[5].split("-")[2];
                                 if (typeof DPTb == "undefined") {
-                                    RED.log.warn("knxUltimate: WARNING: Datapoint not fully set (there is only the first part on the left of the '.'). I applied a default .001, but please set the datapoint with ETS and export the group addresses again. ->" + element.split("\t")[0] + " " + element.split("\t")[1] + " Datapoint: " + element.split("\t")[5]);
+                                    RED.log.warn("knxUltimate: WARNING: Datapoint not fully set (there is only the main type). I applied a default .001, but please check if i'ts ok ->" + element.split("\t")[0] + " " + element.split("\t")[1] + " Datapoint: " + element.split("\t")[5]);
                                     DPTb = "001"; // default
                                 }
                                 // Trailing zeroes
@@ -952,14 +954,18 @@ module.exports = (RED) => {
                                 sDPT = "5.004"; // Maybe.
                             }
                         } else {
-                            sDPT = "5.004"; // Maybe.
-                            RED.log.error("knxUltimate: ERROR: Found an UNCERTAIN datapoint in ESF ETS. Please set the datapoint with ETS and export the group addresses again. ->" + sGA + ". An ideal datapoint has been set: " + sDPT)
                             if (node.stopETSImportIfNoDatapoint === "stop") {
-                                RED.log.error("knxUltimate: ABORT IMPORT OF ETS ESF FILE. To skip the invalid datapoint and continue import, change the related setting, located in the config node in the ETS import section.");
+                                RED.log.error("knxUltimate: ABORT IMPORT OF ETS ESF FILE. To continue import, change the related setting, located in the config node in the ETS import section.");
                                 return;
+                            } else if (node.stopETSImportIfNoDatapoint === "fake") {
+                                sDPT = "5.004"; // Maybe.
+                                RED.log.error("knxUltimate: ERROR: Found an UNCERTAIN datapoint in ESF ETS. You choosed to fake the datapoint -> " + sGA + ". An fake datapoint has been set: " + sDPT);
+                                ajsonOutput.push({ ga: sGA, dpt: sDPT, devicename: "(" + sFirstGroupName + "->" + sSecondGroupName + ") " + sDeviceName });
+                            } else {
+                                RED.log.error("knxUltimate: ERROR: Found an UNCERTAIN datapoint in ESF ETS. You choosed to skip -> " + sGA);
                             }
                         }
-                        ajsonOutput.push({ ga: sGA, dpt: sDPT, devicename: "(" + sFirstGroupName + "->" + sSecondGroupName + ") " + sDeviceName });
+                        
                     }
                 }
             }

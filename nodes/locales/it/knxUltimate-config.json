@@ -35,7 +35,8 @@
             "youtube": "Guarda come si esporta un file CSV su YouTube",
             "help_ga": "Se l'indirizzo di gruppo non ha datapoint",
             "import_select_stop": "Blocca ed annulla l'importazione",
-            "import_select_skip": "Importa con un finto datapoint 1.001 (Non raccomandato)",
+            "import_select_skip": "Salta l'importazione dell'indirizzo di gruppo",
+            "import_select_fake": "Importa con un finto datapoint 1.001 (Non raccomandato)",
             "ga_list_title": "Elenco indirizzi di gruppo",
             "ga_list_help": "Incolla qui il contenuto del file CSV o ESF esportato da ETS",
             "deploywithETS":"Durante il deploy, verrà elaborato il file ETS. Verifica nella finestra di debug, a destra, se ci sono degli errori o avvisi. Se non ci sono errori, è tutto ok, altrimenti correggi gli errori e ripeti l'importazione."
