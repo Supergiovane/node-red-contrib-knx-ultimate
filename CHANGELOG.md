@@ -5,8 +5,10 @@
 <br/>
 
 <p>
-<b>Version 1.1.56</b> - April 2020 in Italy, continue lock down Coronavirus, but situation is better now.<br/>
+<b>Version 1.1.57</b> - April 2020 in Italy, continue lock down Coronavirus, but situation is better now.<br/>
 - Datapoint 18.001 added. Now this datapoint for Scene is fully supported.<br/>
+- Sample controlling datapoint 18.001.<br/>
+- Scene node and knx-ultimate device node changed accordnlgy.<br/>
 </p>
 <p>
 <b>Version 1.1.55</b> - March 2020 in Italy, continue lock down Coronavirus, but situation is better now.<br/>
