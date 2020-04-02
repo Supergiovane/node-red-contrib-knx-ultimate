@@ -110,7 +110,11 @@
                     if ($(this).val().indexOf("3.007") > -1) {
                         // It's a DIM. Suggest the right value
                         $("#node-input-topicTrigger").val("{decr_incr:1, data:5}");
+                    } else if ($(this).val().indexOf("18.001") > -1) {
+                        // It's a scene actuator. Suggest the right value
+                        $("#node-input-topicTrigger").val("{save_recall:1, scenenumber:2}");
                     }
+
                 }
             });
             // ########################
