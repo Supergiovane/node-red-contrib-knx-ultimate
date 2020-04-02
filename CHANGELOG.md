@@ -5,6 +5,10 @@
 <br/>
 
 <p>
+<b>Version 1.1.56</b> - March 2020 in Italy, continue lock down Coronavirus, but situation is better now.<br/>
+- Datapoint 18.001 added. Now this datapoint for Scene is fully supported.<br/>
+</p>
+<p>
 <b>Version 1.1.55</b> - March 2020 in Italy, continue lock down Coronavirus, but situation is better now.<br/>
 - NEW: Added option to skip the import of the group address from the ETS file, if the datapoint is not set.<br/>
 </p>
