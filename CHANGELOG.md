@@ -5,7 +5,7 @@
 <br/>
 
 <p>
-<b>Version 1.1.56</b> - March 2020 in Italy, continue lock down Coronavirus, but situation is better now.<br/>
+<b>Version 1.1.56</b> - April 2020 in Italy, continue lock down Coronavirus, but situation is better now.<br/>
 - Datapoint 18.001 added. Now this datapoint for Scene is fully supported.<br/>
 </p>
 <p>
