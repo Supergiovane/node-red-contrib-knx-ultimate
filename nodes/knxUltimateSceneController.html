@@ -111,7 +111,7 @@
                     if ($(this).val().indexOf("3.007") > -1) {
                         // It's a DIM. Suggest the right value
                         $("#node-input-topicTrigger").val("{decr_incr:1, data:5}");
-                        var myNotification = RED.notify(node._("knxUltimate.advanced.notify-DPT3007"),
+                        var myNotification = RED.notify(node._("knxUltimateSceneController.advanced.notify-DPT3007"),
                             {
                                 modal: true,
                                 fixed: true,
@@ -127,7 +127,7 @@
                     } else if ($(this).val().indexOf("18.001") > -1) {
                         // It's a scene actuator. Suggest the right value
                         $("#node-input-topicTrigger").val("{save_recall:0, scenenumber:2}");
-                        var myNotification = RED.notify(node._("knxUltimate.advanced.notify-DPT18001"),
+                        var myNotification = RED.notify(node._("knxUltimateSceneController.advanced.notify-DPT18001"),
                             {
                                 modal: true,
                                 fixed: true,
@@ -198,7 +198,7 @@
                     if ($(this).val().indexOf("3.007") > -1) {
                         // It's a DIM. Suggest the right value
                         $("#node-input-topicSaveTrigger").val("{decr_incr:1, data:5}");
-                        var myNotification = RED.notify(node._("knxUltimate.advanced.notify-DPT3007"),
+                        var myNotification = RED.notify(node._("knxUltimateSceneController.advanced.notify-DPT3007"),
                             {
                                 modal: true,
                                 fixed: true,
@@ -214,7 +214,7 @@
                     } else if ($(this).val().indexOf("18.001") > -1) {
                         // It's a scene actuator. Suggest the right value
                         $("#node-input-topicSaveTrigger").val("{save_recall:1, scenenumber:2}");
-                        var myNotification = RED.notify(node._("knxUltimate.advanced.notify-DPT18001"),
+                        var myNotification = RED.notify(node._("knxUltimateSceneController.advanced.notify-DPT18001"),
                             {
                                 modal: true,
                                 fixed: true,
