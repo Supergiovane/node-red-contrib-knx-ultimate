@@ -32,7 +32,10 @@
             "Formatting":"Formattazione payload",
             "OUTPUT": "OUTPUT (invio datagrammi sul bus KNX)",
             "INPUT": "INPUT (ricezione datagrammi dal bus KNX)",
-            "NUMERICVALUES":"VALORI NUMERICI (le operazioni vengono eseguite in questo ordine)"
+            "NUMERICVALUES":"VALORI NUMERICI (le operazioni vengono eseguite in questo ordine)",
+            "notify-DPT3007":"Hai selezionato un DIM relativo. Per favore <a target='_blank' href='https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Dimming'>clicca qui per vedere un esempio</a> e capire come gestire il relativo payload.",
+            "notify-DPT18001":"Hai selezionato un datapoint scena. Per favore <a target='_blank' href='https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Control-a-scene-actuator'>clicca qui per vedere un esempio</a> per capire come gestire il relatico payload."
+  
         },
         "selectlists": {
             "Output_write": "Scrittura",

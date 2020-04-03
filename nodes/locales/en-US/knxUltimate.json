@@ -33,7 +33,9 @@
             "OUTPUT": "OUTPUT (sends datagram to the KNX BUS)",
             "INPUT": "INPUT (listen to datagram from the KNX BUS)",
             "NUMERICVALUES":"NUMERIC VALUES (operations are performed in order)",
-            "noETSWarning":"You haven't imported the ETS csv file. <br/> The node will work as blind transmitter/receiver. <a href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/2.-Node-Configuration\" target='_blank'>Click here for help about that</a>."
+            "noETSWarning":"You haven't imported the ETS csv file. <br/> The node will work as blind transmitter/receiver. <a href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/2.-Node-Configuration\" target='_blank'>Click here for help about that</a>.",
+            "notify-DPT3007":"You selected a relative DIM. Please <a target='_blank' href='https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Dimming'>click here to view this sample</a> and learn how to handle such payload.",
+            "notify-DPT18001":"You selected a scene Datapoint. Please <a target='_blank' href='https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Control-a-scene-actuator'>click here to view this sample</a> and learn how to handle such payload."
         },
         "selectlists": {
             "Output_write": "Write",

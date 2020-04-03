@@ -32,7 +32,10 @@
             "OUTPUT": "AUSGANG (sendet ein Telegramm an den KNX-Bus)",
             "INPUT": "EINGANG (Telegramm vom KNX-Bus lesen)",
             "NUMERICVALUES":"NUMERISCHE WERTE (Operationen werden in der richtigen Reihenfolge ausgeführt)",
-            "noETSWarning":"Sie haben die ETS-CSV-Datei nicht importiert. <br/> Die Node arbeitet als blinder Sender / Empfänger. <a href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/de-2.-Node-Configuration\" target='_blank'>Klicken Sie hier für die Hilfe.</a>."
+            "noETSWarning":"Sie haben die ETS-CSV-Datei nicht importiert. <br/> Die Node arbeitet als blinder Sender / Empfänger. <a href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/de-2.-Node-Configuration\" target='_blank'>Klicken Sie hier für die Hilfe.</a>.",
+            "notify-DPT3007":"Du haßt ein relatives DIM ausgewählt. Bitte <a target='_blank' href='https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Dimming'>klicke hier, um dieses Beispiel anzuzeigen</a> und lernen, wie den Payload handeln.",
+            "notify-DPT18001":"Du haßt Szene Datenpunkt ausgewählt. Bitte <a target='_blank' href='https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Control-a-scene-actuator'>klicke hier, um dieses Beispiel anzuzeigen<</a> und lernen, wie den Payload handeln."
+  
         },
         "selectlists": {
             "Output_write": "Schreiben",

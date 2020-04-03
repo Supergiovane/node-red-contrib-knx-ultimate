@@ -67,7 +67,7 @@
                 if ($(this).val() !== null) {
                     if ($(this).val().indexOf("3.007") > -1) {
                         // It's a DIM. Suggest the right value
-                        var myNotification = RED.notify("You selected a relative DIM. Please <a target='_blank' href='https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Dimming'>click here to view this sample</a> and learn how relative DIM works.",
+                        var myNotification = RED.notify(node._("knxUltimate.advanced.notify-DPT3007"),
                             {
                                 modal: true,
                                 fixed: true,
@@ -81,7 +81,7 @@
                             })
                     } else if ($(this).val().indexOf("18.001") > -1) {
                         // It's a scene actuator. Suggest the right value
-                        var myNotification = RED.notify("You selected a scene Datapoint. Please <a target='_blank' href='https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Control-a-scene-actuator'>click here to view this sample</a> and learn how scene Datapoint works.",
+                        var myNotification = RED.notify(node._("knxUltimate.advanced.notify-DPT18001"),
                             {
                                 modal: true,
                                 fixed: true,

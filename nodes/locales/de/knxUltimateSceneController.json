@@ -16,6 +16,10 @@
         "other": {
             "sceneConfig":"Szenenkonfiguration",
             "add":"Drücken Sie Hinzufuegen, um ein Gerät zur Szene hinzuzufügen"
-         }
+         },
+         "advanced": {
+            "notify-DPT3007":"Du haßt ein relatives DIM ausgewählt. Bitte <a target='_blank' href='https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Dimming'>klicke hier, um dieses Beispiel anzuzeigen</a> und lernen, wie den Payload handeln.",
+            "notify-DPT18001":"Du haßt Szene Datenpunkt ausgewählt. Bitte <a target='_blank' href='https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Control-a-scene-actuator'>klicke hier, um dieses Beispiel anzuzeigen<</a> und lernen, wie den Payload handeln."
+       }
     }
 }
