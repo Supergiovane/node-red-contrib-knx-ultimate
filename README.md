@@ -37,7 +37,7 @@ node.send{payload:{red:255, green:200, blue:30}} // Put some colors in our life
 * [Overview](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki)
 * [Changelog](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/blob/master/CHANGELOG.md)
 * [FAQ + Troubleshoot](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/5.-FAQ-Troubleshoot)
-* [Security best practices](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/blob/master/SECURITY.md)
+* [Security best practices](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/SECURITY)
 * *SAMPLES*
   * [Sample Switch Light](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Switch-light)
   * [Sample Dimming](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Dimming)
