@@ -28,7 +28,7 @@
         },
         "advanced": {
             "Advancedoptions":"Erweiterte Optionen",
-            "Formatting":"Benutzerdefinierte Formatierung der KNX-Nachricht",
+            "Formatting":"Benutzerdefinierte Formatierung INPUT (Telegramme vom KNX-Bus)",
             "OUTPUT": "AUSGANG (sendet ein Telegramm an den KNX-Bus)",
             "INPUT": "EINGANG (Telegramm vom KNX-Bus lesen)",
             "NUMERICVALUES":"NUMERISCHE WERTE (Operationen werden in der richtigen Reihenfolge ausgeführt)",

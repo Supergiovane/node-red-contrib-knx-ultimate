@@ -29,7 +29,7 @@
         },
         "advanced": {
             "Advancedoptions":"Opzioni avanzate",
-            "Formatting":"Formattazione payload",
+            "Formatting":"Formatta INPUT (datagrammi in arrivo dal BUS KNX)",
             "OUTPUT": "OUTPUT (invio datagrammi sul bus KNX)",
             "INPUT": "INPUT (ricezione datagrammi dal bus KNX)",
             "NUMERICVALUES":"VALORI NUMERICI (le operazioni vengono eseguite in questo ordine)",
