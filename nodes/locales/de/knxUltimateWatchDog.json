@@ -2,20 +2,20 @@
     "knxUltimateWatchDog": {
         "properties": {
             "node-input-server": "Gateway",
-            "node-input-checkLevel": "Check level (please see the wiki)",
-            "node-input-topic": "Group Address to monitor",
-            "node-input-name": "Node Name",
-            "node-input-autoStart": "Auto start the watchdog timer",
-            "advancedOptionsAccordion": "Advanced Options",
-            "node-input-retryInterval": "Retry interval (in seconds)",
-            "node-input-maxRetry": "Number of retry before giving an error"
+            "node-input-checkLevel": "Check level (siehe wiki)",
+            "node-input-topic": "Gruppenadresse monitor",
+            "node-input-name": "Name",
+            "node-input-autoStart": "Watchdog-Timer automatisch starten",
+            "advancedOptionsAccordion": "Erweiterte Optionen",
+            "node-input-retryInterval": "Wiederholungsintervall (in Sekunden)",
+            "node-input-maxRetry": "Anzahl der Wiederholungen, bevor ein Fehler ausgegeben wird"
         },
         "placeholder": {
-            "monitor": "Ex: 12/0/0. For 'Only Ethernet' checks, please use a non existent Group Address."
+            "monitor": "Beispiel: 12/0/0. Bitte für 'Nur Ethernet', verwenden Sie eine nicht vorhandene Gruppenadresse."
         },
         "selectlists": {
-            "Ethernet": "Only Ethernet (default), using a fake Group Address to monitor. Works better with KNX/IP Routers",
-            "EthKNX": "Ethernet + KNX Twisted Pair, using a real KNX device"
+            "Ethernet": "Nur Ethernet (Standard) mit einer gefälschten Gruppenadresse zur Überwachung. Funktioniert besser mit KNX/IP-Routern",
+            "EthKNX": "Ethernet + KNX Twisted Pair, mit einem echten KNX-Gerät"
         }
     }
 }

@@ -774,11 +774,8 @@ module.exports = (RED) => {
                 topic: _outputtopic
                 , payload: jsValue
                 , devicename: (typeof _devicename !== 'undefined') ? _devicename : ""
-                , visu:
-                {
-                    payloadmeasureunit: sPayloadmeasureunit
-                    , payloadsubtypevalue: sPayloadsubtypevalue
-                }
+                , payloadmeasureunit: sPayloadmeasureunit
+                , payloadsubtypevalue: sPayloadsubtypevalue
                 , knx:
                 {
                     event: _event

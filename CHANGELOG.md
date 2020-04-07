@@ -8,7 +8,6 @@
 <b>Version 1.1.58</b> - April 2020 in Italy, continue lock down Coronavirus.<br/>
 - Adjusted translations.<br/>
 - Small bugfixes.<br/>
-- Moved some properties, to the new subproperty "visu" for visualization pourposes (payloadmeasureunit, payloadsubtypevalue).<br/>
 - Removed the deprecated setGatewayConfig from knx-ultimate. Use Watchdog node instead.<br/>
 </p>
 <p>

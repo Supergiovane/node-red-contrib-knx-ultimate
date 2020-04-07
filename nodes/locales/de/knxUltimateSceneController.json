@@ -3,7 +3,7 @@
         "properties": {
             "node-input-server": "Gateway",
             "node-input-topic": "Szenenrückruf",
-            "node-input-dpt": "Datapoint",
+            "node-input-dpt": "Datenpunkt",
             "node-input-topicTrigger": "Trigger",
             "node-input-topicSave": "Szene speichern",
             "node-input-name": "Node Name",
