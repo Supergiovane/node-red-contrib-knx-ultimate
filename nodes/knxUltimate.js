@@ -81,6 +81,11 @@ module.exports = function (RED) {
 
         node.on("input", function (msg) {
             if (typeof msg === "undefined") return;
+            if (!node.server) return; // 29/08/2019 Server not instantiate
+            if (node.server.linkStatus !== "connected") {
+                RED.log.error("knxUltimate: Lost link due to a connection error");
+                return; // 29/08/2019 If not connected, exit
+            }
 
             if (node.passthrough !== "no") { // 27/03/2020 Save the input message to be passed out to msg output
                 // The msg has a TTL of 3 seconds
@@ -89,64 +94,33 @@ module.exports = function (RED) {
                 node.inputmessage = msg;   // 28/03/2020 Store the message to be passed through.
             }
 
-            // 01/02/2020 Dinamic change of the KNX Gateway IP, Port and Physical Address
-            // DEPRECATED, USE THE WATCHDOG INSTEAD
-            // This new thing has been requested by proServ RealKNX staff.
-            if (msg.hasOwnProperty("setGatewayConfig")) {
-                node.server.setGatewayConfig(msg.setGatewayConfig.IP, msg.setGatewayConfig.Port, msg.setGatewayConfig.PhysicalAddress, msg.setGatewayConfig.BindToEthernetInterface);
-                RED.log.warn("knxUltimate: Node " + node.id + " setGatewayConfig is deprecated here. Use it with WatchDog node instead!");
-                return;
-            }
-
-            if (typeof msg.payload === "undefined" || typeof msg.payload === "object" || typeof msg.payload === "function") // 16/01/2020 Check for invalid payload
-            {
-                // 29/01/2020 If the message has no payload and no readstatus and isn't a dim command, throw an error. (If you requests a readstatus, there's no need to pass a payload)
-                // if (!msg.hasOwnProperty("readstatus") && !msg.payload.hasOwnProperty("decr_incr") && !msg.payload.hasOwnProperty("green")) {
-                //     node.setNodeStatus({ fill: "red", shape: "dot", text: "Payload must be string, number or boolean", payload: "", GA: "", dpt: "", devicename: "" })
-                //     RED.log.error("knxUltimate: Node " + node.id + " has received an INVALID payload. Please check the flow.");
-                //     return;
-                // }
-            }
-
-
-            if (!node.server) return; // 29/08/2019 Server not instantiate
-            if (node.server.linkStatus !== "connected") {
-                RED.log.error("knxUltimate: Lost link due to a connection error");
-                return; // 29/08/2019 If not connected, exit
-            }
             // 25/07/2019 if payload is read, do a read, otherwise, write to the bus
             if (msg.hasOwnProperty('readstatus') && msg.readstatus === true) {
                 // READ: Send a Read request to the bus
-                if (node.server) {
-                    var grpaddr = ""
-                    if (node.listenallga == false) {
-                        grpaddr = msg && msg.destination ? msg.destination : node.topic
-                        node.setNodeStatus({ fill: "grey", shape: "dot", text: "Read", payload: "", GA: grpaddr, dpt: node.dpt, devicename: "" });
+                var grpaddr = ""
+                if (node.listenallga == false) {
+                    grpaddr = msg && msg.destination ? msg.destination : node.topic
+                    node.setNodeStatus({ fill: "grey", shape: "dot", text: "Read", payload: "", GA: grpaddr, dpt: node.dpt, devicename: "" });
+                    node.server.writeQueueAdd({ grpaddr: grpaddr, payload: "", dpt: "", outputtype: "read", nodecallerid: node.id });
+                } else { // Listen all GAs
+                    if (msg.destination) {
+                        // listenallga is true, but the user specified own group address
+                        grpaddr = msg.destination
                         node.server.writeQueueAdd({ grpaddr: grpaddr, payload: "", dpt: "", outputtype: "read", nodecallerid: node.id });
-                    } else { // Listen all GAs
-                        if (msg.destination) {
-                            // listenallga is true, but the user specified own group address
-                            grpaddr = msg.destination
-                            node.server.writeQueueAdd({ grpaddr: grpaddr, payload: "", dpt: "", outputtype: "read", nodecallerid: node.id });
-                        } else {
-                            // Issue read to all group addresses
-                            // 25/10/2019 the user is able not import the csv, so i need to check for it. This option should be unckecked by the knxUltimate html config, but..
-                            if (typeof node.server.csv !== "undefined") {
-                                let delay = 0;
-                                for (let index = 0; index < node.server.csv.length; index++) {
-                                    const element = node.server.csv[index];
-                                    node.server.writeQueueAdd({ grpaddr: element.ga, payload: "", dpt: "", outputtype: "read", nodecallerid: node.id });
-                                    setTimeout(() => {
-                                        // Timeout is only for the status update.
-                                        node.setNodeStatus({ fill: "grey", shape: "dot", text: "Read", payload: "", GA: element.ga, dpt: element.dpt, devicename: element.devicename });
-                                    }, delay);
-                                    delay = delay + 100;
-                                }
+                    } else {
+                        // Issue read to all group addresses
+                        // 25/10/2019 the user is able not import the csv, so i need to check for it. This option should be unckecked by the knxUltimate html config, but..
+                        if (typeof node.server.csv !== "undefined") {
+                            let delay = 0;
+                            for (let index = 0; index < node.server.csv.length; index++) {
+                                const element = node.server.csv[index];
+                                node.server.writeQueueAdd({ grpaddr: element.ga, payload: "", dpt: "", outputtype: "read", nodecallerid: node.id });
+                                setTimeout(() => {
+                                    // Timeout is only for the status update.
+                                    node.setNodeStatus({ fill: "grey", shape: "dot", text: "Read", payload: "", GA: element.ga, dpt: element.dpt, devicename: element.devicename });
+                                }, delay);
+                                delay = delay + 100;
                             }
-
-                            // setTimeout(() => {
-                            //     node.setNodeStatus({ fill: "yellow", shape: "dot", text: "Done requests." });
-                            // }, delay+500);
                         }
                     }
                 }
@@ -191,77 +165,75 @@ module.exports = function (RED) {
 
 
                 // OUTPUT: Send message to the bus (write/response)
-                if (node.server) {
-                    if (node.server.knxConnection) {
-                        let outputtype =
-                            msg.event
-                                ? msg.event == "GroupValue_Response"
-                                    ? "response"
-                                    : msg.event == "GroupValue_Write"
-                                        ? "write"
-                                        : node.outputtype
-                                : node.outputtype
+                if (node.server.knxConnection) {
+                    let outputtype =
+                        msg.event
+                            ? msg.event == "GroupValue_Response"
+                                ? "response"
+                                : msg.event == "GroupValue_Write"
+                                    ? "write"
+                                    : node.outputtype
+                            : node.outputtype
 
-                        var grpaddr = "";
-                        var dpt = "";
-                        if (node.listenallga == true) {
-                            // The node is set to Universal mode (listen to all Group Addresses). The msg.knx.destination is needed.
-                            if (msg.destination) {
-                                grpaddr = msg.destination;
-                            } else {
-                                node.setNodeStatus({ fill: "red", shape: "dot", text: "msg.destination not set!", payload: "", GA: "", dpt: "", devicename: "" })
-                                return;
-                            }
+                    var grpaddr = "";
+                    var dpt = "";
+                    if (node.listenallga == true) {
+                        // The node is set to Universal mode (listen to all Group Addresses). The msg.knx.destination is needed.
+                        if (msg.destination) {
+                            grpaddr = msg.destination;
                         } else {
-                            grpaddr = msg.destination
-                                ? msg.destination
-                                : node.topic
+                            node.setNodeStatus({ fill: "red", shape: "dot", text: "msg.destination not set!", payload: "", GA: "", dpt: "", devicename: "" })
+                            return;
                         }
+                    } else {
+                        grpaddr = msg.destination
+                            ? msg.destination
+                            : node.topic
+                    }
 
-                        if (node.listenallga == true) {
-                            // The node is set to Universal mode (listen to all Group Addresses). Gets the datapoint from the CSV or use the msg.dpt.
-                            if (msg.dpt) {
-                                dpt = msg.dpt;
-                            } else {
-                                // Get the datapoint from the CSV
-                                if (typeof node.server.csv !== "undefined") {
-                                    let oGA = node.server.csv.filter(sga => sga.ga == grpaddr)[0]
-                                    dpt = oGA.dpt
-                                } else {
-                                    node.setNodeStatus({ fill: "red", shape: "dot", text: "msg.dpt not set!", payload: "", GA: "", dpt: "", devicename: "" })
-                                    return;
-                                }
-                            }
+                    if (node.listenallga == true) {
+                        // The node is set to Universal mode (listen to all Group Addresses). Gets the datapoint from the CSV or use the msg.dpt.
+                        if (msg.dpt) {
+                            dpt = msg.dpt;
                         } else {
-                            dpt = msg.dpt
-                                ? msg.dpt
-                                : node.dpt
-                        }
-                        // Protection over circular references (for example, if you link two Ultimate Nodes toghether with the same group address), to prevent infinite loops
-                        // if (msg.hasOwnProperty('topic')) { 
-                        if (msg.hasOwnProperty('knx')) {
-                            //if (msg.topic == grpaddr && msg.knx !== undefined) { // 07/02/2020 changed, to allow topic customization asked by users.
-                            if (msg.knx.destination == grpaddr) { // 07/02/2020 changed, to allow topic customization asket by users.
-                                RED.log.error("knxUltimate: Circular reference protection. The node " + node.id + " has been disabled. Two nodes with same group address are linked. See the FAQ in the Wiki. Msg:" + JSON.stringify(msg));
-                                setTimeout(() => {
-                                    node.setNodeStatus({ fill: "red", shape: "ring", text: "DISABLED due to a circulare reference (" + grpaddr + ").", payload: "", GA: "", dpt: "", devicename: "" })
-                                }, 1000);
+                            // Get the datapoint from the CSV
+                            if (typeof node.server.csv !== "undefined") {
+                                let oGA = node.server.csv.filter(sga => sga.ga == grpaddr)[0]
+                                dpt = oGA.dpt
+                            } else {
+                                node.setNodeStatus({ fill: "red", shape: "dot", text: "msg.dpt not set!", payload: "", GA: "", dpt: "", devicename: "" })
                                 return;
                             }
                         }
-                        if (outputtype == "response") {
-                            try {
-                                node.currentPayload = msg.payload;// 31/12/2019 Set the current value (because, if the node is a virtual device, then it'll never fire "GroupValue_Write" in the server node, causing the currentPayload to never update)
-                                node.server.writeQueueAdd({ grpaddr: grpaddr, payload: msg.payload, dpt: dpt, outputtype: outputtype, nodecallerid: node.id })
-                                node.setNodeStatus({ fill: "blue", shape: "dot", text: "Responding", payload: msg.payload, GA: grpaddr, dpt: dpt, devicename: "" });
-                            } catch (error) { }
-                        } else {
-                            try {
-                                node.currentPayload = msg.payload;// 31/12/2019 Set the current value (because, if the node is a virtual device, then it'll never fire "GroupValue_Write" in the server node, causing the currentPayload to never update)
-                                node.server.writeQueueAdd({ grpaddr: grpaddr, payload: msg.payload, dpt: dpt, outputtype: outputtype, nodecallerid: node.id })
-                                node.setNodeStatus({ fill: "green", shape: "dot", text: "Writing", payload: msg.payload, GA: grpaddr, dpt: dpt, devicename: "" });
-                            } catch (error) { }
+                    } else {
+                        dpt = msg.dpt
+                            ? msg.dpt
+                            : node.dpt
+                    }
+                    // Protection over circular references (for example, if you link two Ultimate Nodes toghether with the same group address), to prevent infinite loops
+                    // if (msg.hasOwnProperty('topic')) { 
+                    if (msg.hasOwnProperty('knx')) {
+                        //if (msg.topic == grpaddr && msg.knx !== undefined) { // 07/02/2020 changed, to allow topic customization asked by users.
+                        if (msg.knx.destination == grpaddr) { // 07/02/2020 changed, to allow topic customization asket by users.
+                            RED.log.error("knxUltimate: Circular reference protection. The node " + node.id + " has been disabled. Two nodes with same group address are linked. See the FAQ in the Wiki. Msg:" + JSON.stringify(msg));
+                            setTimeout(() => {
+                                node.setNodeStatus({ fill: "red", shape: "ring", text: "DISABLED due to a circulare reference (" + grpaddr + ").", payload: "", GA: "", dpt: "", devicename: "" })
+                            }, 1000);
+                            return;
                         }
+                    }
+                    if (outputtype == "response") {
+                        try {
+                            node.currentPayload = msg.payload;// 31/12/2019 Set the current value (because, if the node is a virtual device, then it'll never fire "GroupValue_Write" in the server node, causing the currentPayload to never update)
+                            node.server.writeQueueAdd({ grpaddr: grpaddr, payload: msg.payload, dpt: dpt, outputtype: outputtype, nodecallerid: node.id })
+                            node.setNodeStatus({ fill: "blue", shape: "dot", text: "Responding", payload: msg.payload, GA: grpaddr, dpt: dpt, devicename: "" });
+                        } catch (error) { }
+                    } else {
+                        try {
+                            node.currentPayload = msg.payload;// 31/12/2019 Set the current value (because, if the node is a virtual device, then it'll never fire "GroupValue_Write" in the server node, causing the currentPayload to never update)
+                            node.server.writeQueueAdd({ grpaddr: grpaddr, payload: msg.payload, dpt: dpt, outputtype: outputtype, nodecallerid: node.id })
+                            node.setNodeStatus({ fill: "green", shape: "dot", text: "Writing", payload: msg.payload, GA: grpaddr, dpt: dpt, devicename: "" });
+                        } catch (error) { }
                     }
                 }
             }

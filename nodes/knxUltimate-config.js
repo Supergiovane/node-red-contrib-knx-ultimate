@@ -773,9 +773,12 @@ module.exports = (RED) => {
             return {
                 topic: _outputtopic
                 , payload: jsValue
-                , payloadmeasureunit: sPayloadmeasureunit
-                , payloadsubtypevalue: sPayloadsubtypevalue
                 , devicename: (typeof _devicename !== 'undefined') ? _devicename : ""
+                , visu:
+                {
+                    payloadmeasureunit: sPayloadmeasureunit
+                    , payloadsubtypevalue: sPayloadsubtypevalue
+                }
                 , knx:
                 {
                     event: _event
@@ -965,7 +968,7 @@ module.exports = (RED) => {
                                 RED.log.error("knxUltimate: ERROR: Found an UNCERTAIN datapoint in ESF ETS. You choosed to skip -> " + sGA);
                             }
                         }
-                        
+
                     }
                 }
             }

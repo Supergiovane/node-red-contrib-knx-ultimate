@@ -34,7 +34,8 @@
             "NUMERICVALUES":"NUMERISCHE WERTE (Operationen werden in der richtigen Reihenfolge ausgeführt)",
             "noETSWarning":"Sie haben die ETS-CSV-Datei nicht importiert. <br/> Die Node arbeitet als blinder Sender / Empfänger. <a href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/de-2.-Node-Configuration\" target='_blank'>Klicken Sie hier für die Hilfe.</a>.",
             "notify-DPT3007":"Du haßt ein relatives DIM ausgewählt. Bitte <a target='_blank' href='https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Dimming'>klicke hier, um dieses Beispiel anzuzeigen</a> und lernen, wie den Payload handeln.",
-            "notify-DPT18001":"Du haßt Szene Datenpunkt ausgewählt. Bitte <a target='_blank' href='https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Control-a-scene-actuator'>klicke hier, um dieses Beispiel anzuzeigen<</a> und lernen, wie den Payload handeln."
+            "notify-DPT18001":"Du haßt Szene Datenpunkt ausgewählt. Bitte <a target='_blank' href='https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Control-a-scene-actuator'>klicke hier, um dieses Beispiel anzuzeigen<</a> und lernen, wie den Payload handeln.",
+            "notify-NoETSFile":"Der Universalmodus benötigt eine gültige ETS-Datei, um Datentypen dekodieren und Gerätenamen ausgeben zu können. Bitte fügen Sie die ETS-Datei in den Konfigurationsknoten ein. Wenn Sie keine ETS-Datei verwenden, fungiert der Knoten als blinder Empfänger (mit automatischer Dekondierung der Datagramme), Sie müssen jedoch den Datentyp (neben dem Wert) in der Eingabenachricht übergeben, um etwas an den KNX-BUS senden zu können."
   
         },
         "selectlists": {
