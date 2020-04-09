@@ -5,6 +5,11 @@
 <br/>
 
 <p>
+<b>Version 1.1.59</b> - April 2020 in Italy, deaths are decresing to 500 pro day.<br/>
+- Adjusted translations.<br/>
+- NEW: added Datapoint 10 Bytes.<br/>
+</p>
+<p>
 <b>Version 1.1.58</b> - April 2020 in Italy, continue lock down Coronavirus.<br/>
 - Adjusted translations.<br/>
 - Small bugfixes.<br/>
