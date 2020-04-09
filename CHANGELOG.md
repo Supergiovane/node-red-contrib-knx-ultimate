@@ -5,6 +5,10 @@
 <br/>
 
 <p>
+<b>Version 1.1.60</b> - April 2020 in Italy, deaths are decresing to 500 pro day.<br/>
+- Fix error in gateway node translation, that disappeared.<br/>
+</p>
+<p>
 <b>Version 1.1.59</b> - April 2020 in Italy, deaths are decresing to 500 pro day.<br/>
 - Adjusted translations.<br/>
 - NEW: added Datapoint 10 Bytes.<br/>
