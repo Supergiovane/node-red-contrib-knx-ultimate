@@ -35,7 +35,7 @@ node.send{payload:{red:255, green:200, blue:30}} // Put some colors in our life
 *I'm internationalizing the node **(Deutsch, Italiano, English)** with the foundamental help of **@svenflender**, so please be patient if some parts are still only in english. Internationalization is working with node-red version 1.0.3 and above. Versions below, does have issues in the i18n module, so knx-ultimate falls back to english. Please upgrade node-red.*
 
 ## TROUBLESHOOT, WIKI, FAQ, BEST PRACTICES AND SAMPLES
-* [Youtube video](https://youtu.be/egRbR_KwP9I)
+* [Youtube video](https://www.youtube.com/playlist?list=PL9Yh1bjbLAYpfy1Auz6CKDfXUusgMwOQr)
 * [Overview](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki)
 * [Changelog](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/blob/master/CHANGELOG.md)
 * [FAQ + Troubleshoot](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/5.-FAQ-Troubleshoot)

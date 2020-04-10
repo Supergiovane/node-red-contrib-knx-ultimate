@@ -5,6 +5,10 @@
 <br/>
 
 <p>
+<b>Version 1.1.61</b> - April 2020 in Italy, deaths are increasing to 600 pro day.<br/>
+- Fix error in ESF file import, if you set more than one Group Address in a single device property.<br/>
+</p>
+<p>
 <b>Version 1.1.60</b> - April 2020 in Italy, deaths are decresing to 500 pro day.<br/>
 - Fix error in gateway node translation, that disappeared.<br/>
 </p>

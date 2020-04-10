@@ -960,12 +960,12 @@ module.exports = (RED) => {
                             } else if (node.stopETSImportIfNoDatapoint === "fake") {
                                 sDPT = "5.004"; // Maybe.
                                 RED.log.error("knxUltimate: ERROR: Found an UNCERTAIN datapoint in ESF ETS. You choosed to fake the datapoint -> " + sGA + ". An fake datapoint has been set: " + sDPT);
-                                ajsonOutput.push({ ga: sGA, dpt: sDPT, devicename: "(" + sFirstGroupName + "->" + sSecondGroupName + ") " + sDeviceName });
                             } else {
+                                sDPT = "SKIP";
                                 RED.log.error("knxUltimate: ERROR: Found an UNCERTAIN datapoint in ESF ETS. You choosed to skip -> " + sGA);
                             }
                         }
-
+                        if (sDPT !== "SKIP") ajsonOutput.push({ ga: sGA, dpt: sDPT, devicename: "(" + sFirstGroupName + "->" + sSecondGroupName + ") " + sDeviceName });
                     }
                 }
             }
