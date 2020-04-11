@@ -27,7 +27,7 @@
             "select_info": "Info",
             "select_warning": "Warning",
             "select_error": "Error (Default)",
-            "localEchoInTunneling": "Echo sent message to all node with same Group Address",
+            "localEchoInTunneling": "Echo sent message to all node with same Group Address.",
             "tiphost": "Supports Multicast and Unicast address, with automatic detection."
         },
         "ets": {
