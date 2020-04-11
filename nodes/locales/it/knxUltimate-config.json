@@ -2,7 +2,7 @@
     "knxUltimate-config": {
         "properties": {
             "title": "Configurazione gateway KNX/IP",
-            "host": "Host",
+            "host": "IP Gateway",
             "host_info": "Di default è impostato l'indirizzo multicast del router KNX/IP (224.0.23.12)",
             "port": "Porta",
             "port_info": "Di default è impostata la porta de router KNX/IP (3671)",
@@ -27,7 +27,8 @@
             "select_info": "Info",
             "select_warning": "Warning",
             "select_error": "Error (Default)",
-            "localEchoInTunneling":"Echo messaggi inviati su tutti i nodi con lo stesso indirizzo di gruppo"
+            "localEchoInTunneling":"Echo messaggi inviati su tutti i nodi con lo stesso indirizzo di gruppo",
+            "tiphost": "Supporta Multicast o Unicast, con rilevamento automatico."
         },
         "ets": {
             "description": "Puoi importare sia il file ETS in CSV, che ESF. Usa il CSV se possibile, perchè i datapoints sono più precisi.",

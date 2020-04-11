@@ -5,6 +5,11 @@
 <br/>
 
 <p>
+<b>Version 1.1.62</b> - April 2020 in Italy, we're crying our dead people.<br/>
+- Better decriptive Multicast/Unicast gateway auto discovery.<br/>
+- Definitive use of heavily modified knx-ultimate.js API instead of knx.js.<br/>
+</p>
+<p>
 <b>Version 1.1.61</b> - April 2020 in Italy, deaths are increasing to 600 pro day.<br/>
 - Fix error in ESF file import, if you set more than one Group Address in a single device property.<br/>
 </p>

@@ -2,7 +2,7 @@
     "knxUltimate-config": {
         "properties": {
             "title": "KNX/IP Gateway Configuration",
-            "host": "Host",
+            "host": "Gateway IP",
             "host_info": "Default setting is the Multicast address of KNX/IP (224.0.23.12)",
             "port": "Port",
             "port_info": "Default Setting is the Port of KNX/IP (3671)",
@@ -27,7 +27,8 @@
             "select_info": "Info",
             "select_warning": "Warning",
             "select_error": "Error (Default)",
-            "localEchoInTunneling": "Echo sent message to all node with same Group Address"
+            "localEchoInTunneling": "Echo sent message to all node with same Group Address",
+            "tiphost": "Supports Multicast and Unicast address, with automatic detection."
         },
         "ets": {
             "description": "You can import either an ETS CSV group address list, or an ESF group address list. Please prefer the ETS CSV group address list, as the datapoints are more complete.",
