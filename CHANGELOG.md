@@ -5,6 +5,11 @@
 <br/>
 
 <p>
+<b>Version 1.1.63</b> - April 2020<br/>
+- Informational nitification when datapoint RGB is selected, on how to pass into the payload.<br/>
+- Removal selection of echoing the sent payload on all node, if the gateway is unicast. Now the echo is active everytime.<br/>
+</p>
+<p>
 <b>Version 1.1.62</b> - April 2020 in Italy, we're crying our dead people.<br/>
 - Better decriptive Multicast/Unicast gateway auto discovery.<br/>
 - Definitive use of heavily modified knx-ultimate.js API instead of knx.js.<br/>

@@ -141,6 +141,23 @@
                                     }]
                             })
 
+                    } else if ($(this).val().indexOf("232.600") > -1) {
+                        // It's a scene actuator. Suggest the right value
+                        $("#node-input-topicTrigger").val("{red:0, green:0, blue:0}");
+                        var myNotification = RED.notify(node._("knxUltimateSceneController.advanced.notify-DPT232600"),
+                            {
+                                modal: true,
+                                fixed: true,
+                                type: 'info',
+                                buttons: [
+                                    {
+                                        text: "OK",
+                                        click: function (e) {
+                                            myNotification.close();
+                                        }
+                                    }]
+                            })
+
                     }
 
                 }
@@ -215,6 +232,23 @@
                         // It's a scene actuator. Suggest the right value
                         $("#node-input-topicSaveTrigger").val("{save_recall:1, scenenumber:2}");
                         var myNotification = RED.notify(node._("knxUltimateSceneController.advanced.notify-DPT18001"),
+                            {
+                                modal: true,
+                                fixed: true,
+                                type: 'info',
+                                buttons: [
+                                    {
+                                        text: "OK",
+                                        click: function (e) {
+                                            myNotification.close();
+                                        }
+                                    }]
+                            })
+
+                    } else if ($(this).val().indexOf("232.600") > -1) {
+                        // It's a scene actuator. Suggest the right value
+                        $("#node-input-topicSaveTrigger").val("{red:0, green:0, blue:0}");
+                        var myNotification = RED.notify(node._("knxUltimateSceneController.advanced.notify-DPT232600"),
                             {
                                 modal: true,
                                 fixed: true,

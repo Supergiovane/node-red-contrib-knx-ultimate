@@ -94,6 +94,21 @@
                                 }]
                             })
 
+                    } else if ($(this).val().indexOf("232.600") > -1) {
+                        // It's a scene actuator. Suggest the right value
+                        var myNotification = RED.notify(node._("knxUltimate.advanced.notify-DPT232600"),
+                            {
+                                modal: true,
+                                fixed: true,
+                                type: 'info',
+                                buttons: [{
+                                    text: "OK",
+                                    click: function (e) {
+                                        myNotification.close();
+                                    }
+                                }]
+                            })
+
                     }
 
                 }
