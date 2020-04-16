@@ -42,6 +42,7 @@
         "selectlists": {
             "Output_write": "Schreiben",
             "Output_response": "Antworten",
+            "Output_read": "Lesen",
             "Multiply_leave": "Unverändert lassen (Standard)",
             "Multiply_divide1000": "Teilen / 1000",
             "Multiply_divide100": "Teilen / 100",

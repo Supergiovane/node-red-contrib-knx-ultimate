@@ -5,6 +5,10 @@
 <br/>
 
 <p>
+<b>Version 1.1.64</b> - April 2020<br/>
+- NEW: Added output type "Read", to issue a read by simply pass a payload to the node. Thanks @waldbaer for the suggestion.<br/>
+</p>
+<p>
 <b>Version 1.1.63</b> - April 2020<br/>
 - Informational nitification when datapoint RGB is selected, on how to pass into the payload.<br/>
 - Removal selection of echoing the sent payload on all node, if the gateway is unicast. Now the echo is active everytime.<br/>

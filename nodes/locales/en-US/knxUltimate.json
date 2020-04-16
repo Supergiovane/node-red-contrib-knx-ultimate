@@ -20,29 +20,29 @@
             "node-input-formatnegativevalue": "Negatives",
             "node-input-formatdecimalsvalue": "Decimals",
             "node-input-passthrough": "Input msg passthrough"
-           
         },
         "placeholder": {
-            "leaveempty":"Leave empty to use Group Address",
-            "notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized" : "Ex: 0 for false, 1 for true, otherwise any value"
+            "leaveempty": "Leave empty to use Group Address",
+            "notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized": "Ex: 0 for false, 1 for true, otherwise any value"
         },
         "advanced": {
-            "Advancedoptions":"Advanced options",
-            "Formatting":"Format INPUT (datagram coming from the KNX BUS)",
-            "Operations":"NUMERIC VALUES (operations are performed in order)",
+            "Advancedoptions": "Advanced options",
+            "Formatting": "Format INPUT (datagram coming from the KNX BUS)",
+            "Operations": "NUMERIC VALUES (operations are performed in order)",
             "OUTPUT": "OUTPUT (sends datagram to the KNX BUS)",
             "INPUT": "INPUT (listen to datagram from the KNX BUS)",
-            "NUMERICVALUES":"NUMERIC VALUES (operations are performed in order)",
-            "noETSWarning":"You haven't imported the ETS csv file. <br/> The node will work as blind transmitter/receiver. <a href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/2.-Node-Configuration\" target='_blank'>Click here for help about that</a>.",
-            "notify-DPT3007":"You selected a relative DIM. Please <a target='_blank' href='https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Dimming'>click here to view this sample</a> and learn how to handle such payload.",
-            "notify-DPT18001":"You selected a scene Datapoint. Please <a target='_blank' href='https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Control-a-scene-actuator'>click here to view this sample</a> and learn how to handle such payload.",
-            "notify-NoETSFile":"Universal mode needs a valid ETS file to be able to decode datatypes and output device names. Please paste the ETS file in the config node. If you don't use ETS file, the node will work as blind receiver (with automatic deconding of the datagrams) but you need to pass the datatype (besides the value) in the input message to be able to send something to the KNX BUS."
-            ,"notify-DPT232600":"You selected an RGB Datapoint. Please <a target='_blank' href='https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---RGB-Color'>click here to view this sample</a> and learn how to handle such payload."
-            ,"divVediEsempi":"<a href='https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-SamplesHome' target='_blank'><i class='fa fa-code'></i>&nbsp PLEASE TAKE 5 MINUTES TO SEE SOME SAMPLES</a>"
+            "NUMERICVALUES": "NUMERIC VALUES (operations are performed in order)",
+            "noETSWarning": "You haven't imported the ETS csv file. <br/> The node will work as blind transmitter/receiver. <a href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/2.-Node-Configuration\" target='_blank'>Click here for help about that</a>.",
+            "notify-DPT3007": "You selected a relative DIM. Please <a target='_blank' href='https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Dimming'>click here to view this sample</a> and learn how to handle such payload.",
+            "notify-DPT18001": "You selected a scene Datapoint. Please <a target='_blank' href='https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Control-a-scene-actuator'>click here to view this sample</a> and learn how to handle such payload.",
+            "notify-NoETSFile": "Universal mode needs a valid ETS file to be able to decode datatypes and output device names. Please paste the ETS file in the config node. If you don't use ETS file, the node will work as blind receiver (with automatic deconding of the datagrams) but you need to pass the datatype (besides the value) in the input message to be able to send something to the KNX BUS.",
+            "notify-DPT232600": "You selected an RGB Datapoint. Please <a target='_blank' href='https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---RGB-Color'>click here to view this sample</a> and learn how to handle such payload.",
+            "divVediEsempi": "<a href='https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-SamplesHome' target='_blank'><i class='fa fa-code'></i>&nbsp PLEASE TAKE 5 MINUTES TO SEE SOME SAMPLES</a>"
         },
         "selectlists": {
             "Output_write": "Write",
             "Output_response": "Response",
+            "Output_read": "Read",
             "Multiply_leave": "Leave unchanged (default)",
             "Multiply_divide1000": "Divide x 1000",
             "Multiply_divide100": "Divide x 100",
@@ -56,13 +56,12 @@
             "Decimals_round2": "Round 2 decimals",
             "Decimals_round3": "Round 3 decimals",
             "Decimals_round4": "Round 4 decimals",
-            "Negatives_leave":"Leave unchanged (default)",
+            "Negatives_leave": "Leave unchanged (default)",
             "Negatives_zero": "Output zero",
-            "Negatives_abs": "Output absolute value (remove the minus sign)",       
+            "Negatives_abs": "Output absolute value (remove the minus sign)",
             "passthrough_No": "No",
             "passthrough_Leave": "Yes",
             "passthrough_OwnProp": "Yes, but put the input msg into msg.inputmessage property of the output message"
         }
-        
     }
 }
