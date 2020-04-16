@@ -94,8 +94,8 @@ module.exports = function (RED) {
                 node.inputmessage = msg;   // 28/03/2020 Store the message to be passed through.
             }
 
-            // 25/07/2019 if payload is read, do a read, otherwise, write to the bus
-            if (msg.hasOwnProperty('readstatus') && msg.readstatus === true) {
+            // 25/07/2019 if payload is read or the output type is set to "read", do a read, otherwise, write to the bus
+            if ((msg.hasOwnProperty('readstatus') && msg.readstatus === true) || node.outputtype === "read") {
                 // READ: Send a Read request to the bus
                 var grpaddr = ""
                 if (node.listenallga == false) {
@@ -103,7 +103,7 @@ module.exports = function (RED) {
                     node.setNodeStatus({ fill: "grey", shape: "dot", text: "Read", payload: "", GA: grpaddr, dpt: node.dpt, devicename: "" });
                     node.server.writeQueueAdd({ grpaddr: grpaddr, payload: "", dpt: "", outputtype: "read", nodecallerid: node.id });
                 } else { // Listen all GAs
-                    if (msg.destination) {
+                    if (msg.hasOwnProperty("destination")) {
                         // listenallga is true, but the user specified own group address
                         grpaddr = msg.destination
                         node.server.writeQueueAdd({ grpaddr: grpaddr, payload: "", dpt: "", outputtype: "read", nodecallerid: node.id });
@@ -121,6 +121,13 @@ module.exports = function (RED) {
                                 }, delay);
                                 delay = delay + 100;
                             }
+                        } else {
+                            // No csv. A chi cavolo dovrei mandare la richiesta read?
+                            setTimeout(() => {
+                                // Timeout is only for the status update.
+                                node.setNodeStatus({ fill: "red", shape: "dot", text: "Read: ETS file not set, i don't know where to send the read request.", payload: "", GA: "", dpt: "", devicename: node.name });
+                                RED.log.error("KNX-Ultimate: ETS file not set, i don't know where to send the read request. I'm the node " + node.id);
+                            }, 100);
                         }
                     }
                 }
