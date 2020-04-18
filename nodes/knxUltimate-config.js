@@ -81,7 +81,7 @@ module.exports = (RED) => {
         node.stopETSImportIfNoDatapoint = typeof config.stopETSImportIfNoDatapoint === "undefined" ? "stop" : config.stopETSImportIfNoDatapoint; // 09/01/2020 Stop, Import Fake or Skip the import if a group address has unset datapoint
         node.csv = readCSV(config.csv); // Array from ETS CSV Group Addresses {ga:group address, dpt: datapoint, devicename: full device name with main and subgroups}
         node.loglevel = config.loglevel !== undefined ? config.loglevel : "error"; // 18/02/2020 Loglevel default error
-        node.localEchoInTunneling = typeof config.localEchoInTunneling !== "undefined" ? config.localEchoInTunneling : true;
+        node.localEchoInTunneling = true;//typeof config.localEchoInTunneling !== "undefined" ? config.localEchoInTunneling : true;
 
         // Endpoint for reading csv from the other nodes
         RED.httpAdmin.get("/knxUltimatecsv", RED.auth.needsPermission('knxUltimate-config.read'), function (req, res) {
@@ -820,6 +820,7 @@ module.exports = (RED) => {
                 for (let index = 0; index < fileGA.length; index++) {
                     var element = fileGA[index];
                     element = element.replace(/\"/g, ""); // Rimuovo le virgolette
+                    element = element.replace(/\#/g, ""); // Rimuovo evetuali #
 
                     if (element !== "") {
 
@@ -898,6 +899,7 @@ module.exports = (RED) => {
                 for (let index = 1; index < fileGA.length; index++) {
                     var element = fileGA[index];
                     element = element.replace(/\"/g, ""); // Rimuovo evetuali virgolette
+                    element = element.replace(/\#/g, ""); // Rimuovo evetuali #
                     element = element.replace(/[^\x00-\x7F]/g, ""); // Remove non ascii chars
 
                     if (element !== "") {
