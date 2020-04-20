@@ -5,6 +5,11 @@
 <br/>
 
 <p>
+<b>Version 1.1.67</b> - April 2020<br/>
+- Re-introduced selectable option for local echo if tunneling.<br/>
+- Smarter restart maneuvering in case of Ethernet issues, while on tunneling connections.<br/>
+</p>
+<p>
 <b>Version 1.1.65</b> - April 2020<br/>
 - FIX: If the imported ETS file, contains a device name with a # character, strange things happens. Fixed.<br/>
 - Forced local Echo for IP interfaces.<br/>

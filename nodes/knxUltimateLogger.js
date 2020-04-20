@@ -91,11 +91,12 @@ module.exports = function (RED) {
 
         });
 
-        node.on('close', function () {
+        node.on("close", function (done) {
             if (node.timerCreateETSXML !== null) clearInterval(node.timerCreateETSXML);
             if (node.server) {
                 node.server.removeClient(node)
             };
+            done();
         });
 
         // On each deploy, unsubscribe+resubscribe

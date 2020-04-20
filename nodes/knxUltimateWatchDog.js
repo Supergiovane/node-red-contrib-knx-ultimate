@@ -149,11 +149,12 @@ module.exports = function (RED) {
             };
         });
 
-        node.on('close', function () {
+        node.on("close", function (done) {
             if (node.timerWatchDog !== null) clearInterval(node.timerWatchDog);
             if (node.server) {
                 node.server.removeClient(node)
             };
+            done();
         });
 
         // On each deploy, unsubscribe+resubscribe

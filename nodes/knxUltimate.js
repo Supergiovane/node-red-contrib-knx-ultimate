@@ -248,12 +248,13 @@ module.exports = function (RED) {
 
         })
 
-        node.on('close', function () {
+        node.on("close", function (done) {
             if (node.timerTTLInputMessage !== null) clearTimeout(node.timerTTLInputMessage);
             node.inputmessage = {};
             if (node.server) {
-                node.server.removeClient(node)
+                node.server.removeClient(node);
             }
+            done();
         })
 
         // On each deploy, unsubscribe+resubscribe
