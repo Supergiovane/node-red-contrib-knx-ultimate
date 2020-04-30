@@ -85,9 +85,21 @@ module.exports = (RED) => {
 
         // Endpoint for reading csv from the other nodes
         RED.httpAdmin.get("/knxUltimatecsv", RED.auth.needsPermission('knxUltimate-config.read'), function (req, res) {
-            var sNodeID = req.query.nodeID; // Retrieve node.id of the config node.
-            var _node = RED.nodes.getNode(sNodeID);
-            res.json(RED.nodes.getNode(_node.id).csv);
+            if (typeof req.query.nodeID !== "undefined" && req.query.nodeID !== null && req.query.nodeID !== "") {
+                var _node = RED.nodes.getNode(req.query.nodeID);// Retrieve node.id of the config node.
+                res.json(RED.nodes.getNode(_node.id).csv);
+            } else {
+                // Get the first knxultimate-config having a valid csv
+                try {
+                    RED.log.info("knxUltimate-config: Requested csv maybe from visu-ultimate?");
+                    RED.nodes.eachNode(function (_node) {
+                        if (_node.hasOwnProperty("csv") && _node.type == "knxUltimate-config" && _node.csv !== "") {
+                            res.json(RED.nodes.getNode(_node.id).csv);
+                            return;
+                        }
+                    });
+                } catch (error) { }
+            }
         });
 
         // 14/08/2019 Endpoint for retrieving the ethernet interfaces
@@ -223,7 +235,6 @@ module.exports = (RED) => {
                         _Node.setNodeStatus({ fill: "red", shape: "dot", text: "Empty Group Addr. or datapoint.", payload: "", GA: "", dpt: "", devicename: "" })
                         return;
                     } else {
-
                         // topic must be in formar x/x/x
                         if (_Node.topic.split("\/").length < 3) {
                             _Node.setNodeStatus({ fill: "red", shape: "dot", text: "Wrong group address (topic: " + _Node.topic + ") format.", payload: "", GA: "", dpt: "", devicename: "" })

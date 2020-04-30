@@ -5,6 +5,12 @@
 <br/>
 
 <p>
+<b>Version 1.1.68</b> - April 2020<br/>
+- Update: knxultimate-api to 2.3.16.<br/>
+- FIX: fixed disconnection in tunneling mode by strictly adhere to KNX standard (sending state request to the BUS every 10 seconds). Thanks to Matthias of Timberwolf Server.<br/>
+- Introduced some internal changes in preparation to the introduction of the new dashboard compatible visualization nodeset "visu-ultimate".<br/>
+</p>
+<p>
 <b>Version 1.1.67</b> - April 2020<br/>
 - Re-introduced selectable option for local echo if tunneling.<br/>
 - Smarter restart maneuvering in case of Ethernet issues, while on tunneling connections.<br/>
