@@ -4,6 +4,12 @@
 
 <br/>
 
+
+<p>
+<b>Version 1.1.69</b> - Mai 2020<br/>
+- Update: knxultimate-api to 2.3.17.<br/>
+- NEW: Added Datapoint 12.001 and 12.1201.<br/>
+</p>
 <p>
 <b>Version 1.1.68</b> - April 2020<br/>
 - Update: knxultimate-api to 2.3.16.<br/>
