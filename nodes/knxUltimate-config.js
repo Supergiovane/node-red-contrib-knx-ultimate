@@ -76,7 +76,9 @@ module.exports = (RED) => {
         node.statusDisplayDeviceNameWhenALL = typeof config.statusDisplayDeviceNameWhenALL === "undefined" ? false : config.statusDisplayDeviceNameWhenALL;
         node.statusDisplayDataPoint = typeof config.statusDisplayDataPoint === "undefined" ? false : config.statusDisplayDataPoint;
         node.telegramsQueue = [];  // 02/01/2020 Queue containing telegrams 
-        node.timerSendTelegramFromQueue = setInterval(handleTelegramQueue, 50); // 02/01/2020 Start the timer that handles the queue of telegrams
+        node.timerSendTelegramFromQueue = setInterval(handleTelegramQueue, (typeof config.delaybetweentelegrams === "undefined" || config.delaybetweentelegrams < 5) ? 50 : config.delaybetweentelegrams); // 02/01/2020 Start the timer that handles the queue of telegrams
+        node.delaybetweentelegramsfurtherdelayREAD = (typeof config.delaybetweentelegramsfurtherdelayREAD === "undefined" || config.delaybetweentelegramsfurtherdelayREAD < 1) ? 1 : config.delaybetweentelegramsfurtherdelayREAD; // 18/05/2020 delay multiplicator only for "read" telegrams.
+        node.delaybetweentelegramsREADCount = 0;// 18/05/2020 delay multiplicator only for "read" telegrams.
         node.timerDoInitialRead = null; // 17/02/2020 Timer (timeout) to do initial read of all nodes requesting initial read, after all nodes have been registered to the sercer
         node.stopETSImportIfNoDatapoint = typeof config.stopETSImportIfNoDatapoint === "undefined" ? "stop" : config.stopETSImportIfNoDatapoint; // 09/01/2020 Stop, Import Fake or Skip the import if a group address has unset datapoint
         node.csv = readCSV(config.csv); // Array from ETS CSV Group Addresses {ga:group address, dpt: datapoint, devicename: full device name with main and subgroups}
@@ -593,7 +595,7 @@ module.exports = (RED) => {
 
                                 // 25/10/2019 TRY TO AUTO DECODE IF Group address not found in the CSV
                                 let msg = buildInputMessage({ _srcGA: src, _destGA: dest, _event: evt, _Rawvalue: null, _inputDpt: (typeof oGA === "undefined") ? null : oGA.dpt, _devicename: (typeof oGA === "undefined") ? input.name || "" : oGA.devicename, _outputtopic: dest, _oNode: input });
-                                input.setNodeStatus({ fill: "green", shape: "dot", text: (typeof oGA === "undefined") ? "Try to decode" : "", payload: msg.payload, GA: msg.knx.destination, dpt: msg.knx.dpt, devicename: msg.devicename });
+                                input.setNodeStatus({ fill: "grey", shape: "dot", text: "Read", payload: "", GA: msg.knx.destination, dpt: msg.knx.dpt, devicename: msg.devicename });
                                 input.handleSend(msg)
 
                             } else if (input.topic == dest) {
@@ -643,14 +645,19 @@ module.exports = (RED) => {
 
             if (node.knxConnection) {
 
-                if (typeof node.lockHandleTelegramQueue !== "undefined" && node.lockHandleTelegramQueue === true) return; // Eits if the cuntion is busy
+                if (typeof node.lockHandleTelegramQueue !== "undefined" && node.lockHandleTelegramQueue === true) return; // Exits if the funtion is busy
                 node.lockHandleTelegramQueue = true; // Lock the function. It cannot be called again until finished.
 
                 // Retrieving oKNXMessage  { grpaddr, payload,dpt,outputtype (write or response),nodecallerid (node caller)}. 06/03/2020 "Read" request does have the lower priority in the queue, so firstly, i search for "read" telegrams and i move it on the top of the queue pile.
                 var aTelegramsFiltered = [];
                 aTelegramsFiltered = node.telegramsQueue.filter(a => a.outputtype !== "read");
+
                 if (aTelegramsFiltered.length == 0) {
-                    aTelegramsFiltered = node.telegramsQueue;
+                    // There are no write nor response telegrams, handle the remaining "read", if any
+                    if (node.delaybetweentelegramsREADCount >= node.delaybetweentelegramsfurtherdelayREAD) { // 18/05/2020 delay multiplicator only for "read" telegrams.
+                        node.delaybetweentelegramsREADCount = 0;
+                        aTelegramsFiltered = node.telegramsQueue;
+                    }else{node.delaybetweentelegramsREADCount+=1}
                 }
                 if (aTelegramsFiltered.length == 0) {
                     node.lockHandleTelegramQueue = false; // Unlock the function

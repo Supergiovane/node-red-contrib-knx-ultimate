@@ -117,9 +117,9 @@ module.exports = function (RED) {
                                 node.server.writeQueueAdd({ grpaddr: element.ga, payload: "", dpt: "", outputtype: "read", nodecallerid: node.id });
                                 setTimeout(() => {
                                     // Timeout is only for the status update.
-                                    node.setNodeStatus({ fill: "grey", shape: "dot", text: "Read", payload: "", GA: element.ga, dpt: element.dpt, devicename: element.devicename });
+                                    node.setNodeStatus({ fill: "grey", shape: "dot", text: "Add Read to queue...", payload: "", GA: element.ga, dpt: element.dpt, devicename: element.devicename });
                                 }, delay);
-                                delay = delay + 100;
+                                delay = delay + 10;
                             }
                         } else {
                             // No csv. A chi cavolo dovrei mandare la richiesta read?

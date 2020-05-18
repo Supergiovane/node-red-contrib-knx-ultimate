@@ -17,7 +17,9 @@
             stopETSImportIfNoDatapoint: { value: "stop" },
             loglevel: { value: "error" },
             name: { value: "Gateway" },
-            localEchoInTunneling: { value: true }
+            localEchoInTunneling: { value: true },
+            delaybetweentelegrams: {value:50,required:false},
+            delaybetweentelegramsfurtherdelayREAD: {value:1,required:false}
         },
         oneditprepare: function () {
             var node = this;
@@ -198,6 +200,16 @@
                     <span data-i18n="knxUltimate-config.advanced.suppress_ack_help"></span>
                 </div>
             </div>
+            
+            <div class="form-row">
+                <label for="node-config-input-delaybetweentelegrams" style="width:auto">
+                    <i class="fa fa-hourglass-start"></i>
+                    <span data-i18n="knxUltimate-config.advanced.delaybetweentelegrams"></span>
+                </label>
+                <input type="number" id="node-config-input-delaybetweentelegrams" style="width:20%">
+                <span data-i18n="knxUltimate-config.advanced.delaybetweentelegramsfurtherdelayREAD"></span><input type="number" id="node-config-input-delaybetweentelegramsfurtherdelayREAD" style="width:15%">X
+            </div>
+
             <div class="form-row">
                 <label for="node-config-input-loglevel">
                     <i class="fa fa-question-circle"></i>
