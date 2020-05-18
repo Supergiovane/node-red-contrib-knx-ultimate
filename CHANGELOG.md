@@ -4,7 +4,10 @@
 
 <br/>
 
-
+<p>
+<b>Version 1.1.70</b> - Mai 2020<br/>
+- NEW: Added the option to select the delay between each telegram and further delay multiplicator between only the **read** telegrams<br/>
+</p>
 <p>
 <b>Version 1.1.69</b> - Mai 2020<br/>
 - Update: knxultimate-api to 2.3.17.<br/>
