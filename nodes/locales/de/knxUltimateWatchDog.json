@@ -14,7 +14,7 @@
             "monitor": "Beispiel: 12/0/0. Bitte für 'Nur Ethernet', verwenden Sie eine nicht vorhandene Gruppenadresse."
         },
         "selectlists": {
-            "Ethernet": "Nur Ethernet (Standard) mit einer gefälschten Gruppenadresse zur Überwachung. Funktioniert besser mit KNX/IP-Routern",
+            "Ethernet": "Nur Ethernet unicast (Default) mit ping. Funktioniert NUR mit KNX Interface (kein Router)",
             "EthKNX": "Ethernet + KNX Twisted Pair, mit einem echten KNX-Gerät"
         }
     }

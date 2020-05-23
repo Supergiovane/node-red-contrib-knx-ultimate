@@ -1,4 +1,8 @@
+const ping = require('ping');
+
 module.exports = function (RED) {
+
+
     function knxUltimateWatchDog(config) {
         RED.nodes.createNode(this, config);
         var node = this;
@@ -47,40 +51,49 @@ module.exports = function (RED) {
                     checkPerformed: node.checkLevel,
                     nodeid: node.id,
                     payload: true,
-                    description: "Watchdog elapsed and no response from KNX Bus"
+                    description: "Watchdog elapsed with no response."
                 }
                 node.send(msg)
             } else {
-                // Issue a read request
-                if (node.server.knxConnection) {
-                    node.server.writeQueueAdd({ grpaddr: node.topic, payload: "", dpt: "", outputtype: "read" });
-                    node.setNodeStatus({ fill: "yellow", shape: "dot", text: "Check level " + node.checkLevel + ", beat telegram " + node.beatNumber + " of " + node.maxRetry, payload: "", GA: "", dpt: "", devicename: "" });
-                };
+                if (node.checkLevel === "Ethernet") {
+                    // 23/05/2020 using ping
+                    var cfg = {
+                        timeout: 2
+                    };
+                    ping.sys.probe(node.server.host, function (isAlive) {
+                        if (isAlive) {
+                            node.watchDogTimerReset()
+                        } else {
+                            node.setNodeStatus({ fill: "yellow", shape: "dot", text: "Check level " + node.checkLevel + ", failed ping " + node.beatNumber + " of " + node.maxRetry, payload: "", GA: "", dpt: "", devicename: "" });
+                        };
+                    }, cfg);
+
+                } else {
+                    // Issue a read request
+                    if (node.server.knxConnection) {
+                        node.server.writeQueueAdd({ grpaddr: node.topic, payload: "", dpt: "", outputtype: "read" });
+                        node.setNodeStatus({ fill: "yellow", shape: "dot", text: "Check level " + node.checkLevel + ", failed beat telegram " + node.beatNumber + " of " + node.maxRetry, payload: "", GA: "", dpt: "", devicename: "" });
+                    };
+                }
             };
         };
 
         // This function is called by the knx-ultimate config node.
-        node.evalCalledByConfigNode = _sTypeOfTelegram => {
-            // The node received a telegram from the bus
-            // _sTypeOfTelegram = "Read" (in case of Ethernet level check)
-            // _sTypeOfTelegram = "Response" or "Write" (in case of KNX TP level check)
+        node.watchDogTimerReset = () => {
+            // Resets the watchdog, means all is OK
             if (node.checkLevel === "Ethernet") {
-                if (_sTypeOfTelegram === "Read" || _sTypeOfTelegram === "Response") {
-                    // With this check level "Ethernet", i need to obtain at least a response from the KNX/IP Gateway, that is "Read"
-                    node.beatNumber = 0; // Reset counter
-                    setTimeout(() => {
-                        node.setNodeStatus({ fill: "green", shape: "dot", text: "Basic check level " + node.checkLevel + " - BUS OK.", payload: "", GA: node.topic, dpt: "", devicename: "" });
-                    }, 500);
-                };
+                node.beatNumber = 0; // Reset counter
+                setTimeout(() => {
+                    node.setNodeStatus({ fill: "green", shape: "dot", text: "Basic check level unicast " + node.checkLevel + " - Interface OK.", payload: "", GA: node.topic, dpt: "", devicename: "" });
+                }, 500);
+
             } else {
                 // With this check level "Ethernet + KNX Twisted Pair", i need to obtain the "Response" from the physical device, otherwise the connection TP is broken.
-                if (_sTypeOfTelegram === "Response") {
-                    // With this check level, i need to obtain at least a response from the KNX/IP Gateway, that is "Read"
-                    node.beatNumber = 0; // Reset counter
-                    setTimeout(() => {
-                        node.setNodeStatus({ fill: "green", shape: "dot", text: "Full check level " + node.checkLevel + " - BUS OK.", payload: "", GA: node.topic, dpt: "", devicename: "" });
-                    }, 500);
-                };
+                node.beatNumber = 0; // Reset counter
+                setTimeout(() => {
+                    node.setNodeStatus({ fill: "green", shape: "dot", text: "Full check level " + node.checkLevel + " - KNX BUS OK.", payload: "", GA: node.topic, dpt: "", devicename: "" });
+                }, 500);
+
             };
         };
 

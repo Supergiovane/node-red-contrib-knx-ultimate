@@ -14,7 +14,7 @@
             "monitor": "Ex: 12/0/0. For 'Only Ethernet' checks, please use a non existent Group Address."
         },
         "selectlists": {
-            "Ethernet": "Only Ethernet (default), using a fake Group Address to monitor. Works better with KNX/IP Routers",
+            "Ethernet": "Only Ethernet unicast (Default), using ping. Works ONLY with KNX Interfaces (not routers)",
             "EthKNX": "Ethernet + KNX Twisted Pair, using a real KNX device"
         }
     }

@@ -345,6 +345,7 @@ module.exports = (RED) => {
                         node.linkStatus = "disconnected";
                     },
                     error: function (connstatus) {
+                        // Coming from api requestingConnState: {
                         // NO_ERROR: 0x00, // E_NO_ERROR - The connection was established succesfully
                         // E_HOST_PROTOCOL_TYPE: 0x01,
                         // E_VERSION_NOT_SUPPORTED: 0x02,
@@ -364,6 +365,10 @@ module.exports = (RED) => {
                         } else if (connstatus == "E_NO_MORE_CONNECTIONS") {
                             setTimeout(() => node.setAllClientsStatus(connstatus, "grey", "Error on KNX BUS. No more avaiable tunnels."), 1000)
                             RED.log.error("knxUltimate-config: Error on KNX BUS. No more avaiable tunnels: " + connstatus);
+                        } else if (connstatus == "timed out waiting for CONNECTIONSTATE_RESPONSE") {
+                            // The KNX/IP Interface is not responding to connection state request.
+                            // It can be normal, if it's not strictly adhering to knx standards.
+                            RED.log.warn("knxUltimate-config: knxConnection warning: " + connstatus);
                         } else {
                             setTimeout(() => node.setAllClientsStatus(connstatus, "grey", "Error"), 2000)
                             RED.log.error("knxUltimate-config: knxConnection error: " + connstatus);
@@ -490,7 +495,7 @@ module.exports = (RED) => {
 
                                 if (input.hasOwnProperty("isWatchDog")) { // 04/02/2020 Watchdog implementation
                                     // Is a watchdog node
-                                    input.evalCalledByConfigNode("Write");
+
                                 } else {
                                     let msg = buildInputMessage({ _srcGA: src, _destGA: dest, _event: evt, _Rawvalue: rawValue, _inputDpt: input.dpt, _devicename: input.name ? input.name : "", _outputtopic: input.outputtopic, _oNode: input })
                                     // Check RBE INPUT from KNX Bus, to avoid send the payload to the flow, if it's equal to the current payload
@@ -546,7 +551,7 @@ module.exports = (RED) => {
                                 // 04/02/2020 Watchdog implementation
                                 if (input.hasOwnProperty("isWatchDog")) {
                                     // Is a watchdog node
-                                    input.evalCalledByConfigNode("Response");
+                                    input.watchDogTimerReset();
                                 } else {
                                     let msg = buildInputMessage({ _srcGA: src, _destGA: dest, _event: evt, _Rawvalue: rawValue, _inputDpt: input.dpt, _devicename: input.name ? input.name : "", _outputtopic: input.outputtopic, _oNode: input })
                                     // Check RBE INPUT from KNX Bus, to avoid send the payload to the flow, if it's equal to the current payload
@@ -603,7 +608,7 @@ module.exports = (RED) => {
                                 // 04/02/2020 Watchdog implementation
                                 if (input.hasOwnProperty("isWatchDog")) {
                                     // Is a watchdog node
-                                    input.evalCalledByConfigNode("Read");
+                                    
                                 } else {
                                     let msg = buildInputMessage({ _srcGA: src, _destGA: dest, _event: evt, _Rawvalue: null, _inputDpt: input.dpt, _devicename: input.name ? input.name : "", _outputtopic: input.outputtopic, _oNode: input })
                                     msg.previouspayload = typeof input.currentPayload !== "undefined" ? input.currentPayload : ""; // 24/01/2020 Reset previous payload
@@ -657,7 +662,7 @@ module.exports = (RED) => {
                     if (node.delaybetweentelegramsREADCount >= node.delaybetweentelegramsfurtherdelayREAD) { // 18/05/2020 delay multiplicator only for "read" telegrams.
                         node.delaybetweentelegramsREADCount = 0;
                         aTelegramsFiltered = node.telegramsQueue;
-                    }else{node.delaybetweentelegramsREADCount+=1}
+                    } else { node.delaybetweentelegramsREADCount += 1 }
                 }
                 if (aTelegramsFiltered.length == 0) {
                     node.lockHandleTelegramQueue = false; // Unlock the function

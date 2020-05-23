@@ -158,11 +158,28 @@
                                     }]
                             })
 
+                    } else if ($(this).val().indexOf("251.600") > -1) {
+                        // It's a scene actuator. Suggest the right value
+                        $("#node-input-topicTrigger").val("{red:0, green:0, blue:0, white:0, mR:1, mG:1, mB:1, mW:1}");
+                        var myNotification = RED.notify(node._("knxUltimateSceneController.advanced.notify-DPT251600"),
+                            {
+                                modal: true,
+                                fixed: true,
+                                type: 'info',
+                                buttons: [
+                                    {
+                                        text: "OK",
+                                        click: function (e) {
+                                            myNotification.close();
+                                        }
+                                    }]
+                            })
+
                     }
 
                 }
             });
-            // ########################
+            // ######################## 
 
 
 

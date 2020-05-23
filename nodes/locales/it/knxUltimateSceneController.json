@@ -21,6 +21,8 @@
             "notify-DPT3007": "Hai selezionato un DIM relativo. Per favore <a target='_blank' href='https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Dimming'>clicca qui per vedere un esempio</a> e capire come gestire il relativo payload.",
             "notify-DPT18001": "Hai selezionato un datapoint scena. Per favore <a target='_blank' href='https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Control-a-scene-actuator'>clicca qui per vedere un esempio</a> per capire come gestire il relatico payload."
             ,"notify-DPT232600": "Hai selezionato un datapoint RGB. Per favore <a target='_blank' href='https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---RGB-Color'>clicca qui per vedere un esempio</a> per capire come gestire il relatico payload."
+            ,"notify-DPT251600":"Hai selezionato un datapoint RGBW. Per favore <a target='_blank' href='https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---RGBW-Color-plus-White'>clicca qui per vedere un esempio</a> per capire come gestire il relatico payload."
+           
         }
     }
 }

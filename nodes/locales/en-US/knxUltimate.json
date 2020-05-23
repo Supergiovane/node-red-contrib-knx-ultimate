@@ -37,6 +37,7 @@
             "notify-DPT18001": "You selected a scene Datapoint. Please <a target='_blank' href='https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Control-a-scene-actuator'>click here to view this sample</a> and learn how to handle such payload.",
             "notify-NoETSFile": "Universal mode needs a valid ETS file to be able to decode datatypes and output device names. Please paste the ETS file in the config node. If you don't use ETS file, the node will work as blind receiver (with automatic deconding of the datagrams) but you need to pass the datatype (besides the value) in the input message to be able to send something to the KNX BUS.",
             "notify-DPT232600": "You selected an RGB Datapoint. Please <a target='_blank' href='https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---RGB-Color'>click here to view this sample</a> and learn how to handle such payload.",
+            "notify-DPT251600": "You selected an RGBW Datapoint. Please <a target='_blank' href='https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---RGBW-Color-plus-White'>click here to view this sample</a> and learn how to handle such payload.",
             "divVediEsempi": "<a href='https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-SamplesHome' target='_blank'><i class='fa fa-code'></i>&nbsp PLEASE TAKE 5 MINUTES TO SEE SOME SAMPLES</a>"
         },
         "selectlists": {

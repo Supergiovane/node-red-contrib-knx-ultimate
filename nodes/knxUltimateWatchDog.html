@@ -5,35 +5,48 @@
         defaults: {
             server: { type: "knxUltimate-config", required: true },
             topic: { value: "12/0/0" },
-            maxRetry: {value:6}, // After this number is reached, throw a connection error
-            retryInterval: {value:10},
+            maxRetry: { value: 6 }, // After this number is reached, throw a connection error
+            retryInterval: { value: 10 },
             name: { value: "" },
-            autoStart: {value: true},
-            checkLevel:{value:"Ethernet"}
+            autoStart: { value: true },
+            checkLevel: { value: "Ethernet" }
         },
         inputs: 1,
         outputs: 1,
         outputLabels: ["Output"],
         icon: "node-watchdog-icon.svg",
         label: function () {
-            return ((this.name || "KNX Watchdog") + " " + this.topic);
+            return ((this.name || "KNX Watchdog") + " " + (this.checkLevel == "Ethernet" ? "Gateway IP": this.topic));
         },
-        paletteLabel : "KNX WatchDog",
+        paletteLabel: "KNX WatchDog",
         oneditprepare: function () {
             $("#advancedOptionsAccordion").accordion({
-                header:"h3",
-                heightStyle: "content", 
+                header: "h3",
+                heightStyle: "content",
                 collapsible: true,
                 active: false
             });
-            
+
+            $("#node-input-checkLevel").on('change', function () {
+                if ($("#node-input-checkLevel").val() == "Ethernet") {
+                    $("#divHost").hide();
+                } else {
+                    $("#divHost").show();
+                }
+            })
+
+            if (checkLevel !== "Ethernet") {
+                $("#divHost").hide();
+            } else {
+                $("#divHost").show();
+            }
         },
-        oneditsave: function(){
-            
+        oneditsave: function () {
+
         }
-        
+
     })
-    
+
 </script>
 
 <script type="text/x-red" data-template-name="knxUltimateWatchDog">
@@ -48,7 +61,7 @@
             <option value="Eth+KNX" data-i18n="knxUltimateWatchDog.selectlists.EthKNX"></option>
         </select>
     </div>
-    <div class="form-row">
+    <div class="form-row" id="divHost">
         <label for="node-input-topic"><i class="fa fa-tasks"></i> <span data-i18n="knxUltimateWatchDog.properties.node-input-topic"></span></label>
         <input type="text" id="node-input-topic" data-i18n="[placeholder]knxUltimateWatchDog.placeholder.monitor">
     </div>
@@ -71,7 +84,7 @@
                 </div>
                 <div class="form-row">
                     <label for="node-input-maxRetry"><i class="fa fa-undo"></i> <span data-i18n="knxUltimateWatchDog.properties.node-input-maxRetry"></span></label>
-                    <input type="text" id="node-input-maxRetry" >
+                    <input type="text" id="node-input-maxRetry">
                 </div>
             </p>
         </div>

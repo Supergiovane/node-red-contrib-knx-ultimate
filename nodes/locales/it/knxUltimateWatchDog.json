@@ -15,7 +15,7 @@
 
         },
         "selectlists": {
-            "Ethernet": "Solo Ethernet (default), usando un Group Address inesistente (funziona meglio con Router KNX/IP)",
+            "Ethernet": "Solo Ethernet unicast (Default), tramite ping. Funziona SOLO con Interfacce IP (non con routers)",
             "EthKNX": "Ethernet + KNX Twisted Pair, usando un vero dispositivo KNX esistente"
         }
         

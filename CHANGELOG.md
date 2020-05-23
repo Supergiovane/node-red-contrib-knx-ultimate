@@ -5,6 +5,14 @@
 <br/>
 
 <p>
+<b>Version 1.1.71</b> - Mai 2020<br/>
+- Update knx api to 2.3.18<br/>
+- NEW: added Datapoint 251.600 RGBW<br/>
+- State request to the BUS is now sent every 60 seconds instead of 10, for lowering the BUS traffic (see changelog for Version 1.1.68)<br/>
+- More relaxed handling of errors coming from an query to a KNX/IP interface not always reponding to connection status (in case, for example, of some implementations of knxd)<br/>
+- Watchdog: on "basic Ethernet check", switched to ping mode detection. With the introduction of "echo local telegrams" in unicast mode, since some versions ago, the watchdog must yet check for the KNX Interface using Ping, otherwise, the lost of connection is never trapped. Other than that, the "basic Ethernet check" works only with KNX Interfaces, because the router uses multicast and multicast is connectionless.<br/>
+</p>
+<p>
 <b>Version 1.1.70</b> - Mai 2020<br/>
 - NEW: Added the option to select the delay between each telegram and further delay multiplicator between only the **read** telegrams<br/>
 </p>

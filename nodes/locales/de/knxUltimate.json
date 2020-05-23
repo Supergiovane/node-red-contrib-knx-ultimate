@@ -37,6 +37,7 @@
             "notify-DPT18001":"Du haßt Szene Datenpunkt ausgewählt. Bitte <a target='_blank' href='https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Control-a-scene-actuator'>klicke hier, um dieses Beispiel anzuzeigen</a> und lernen, wie den Payload handeln.",
             "notify-NoETSFile":"Der Universalmodus benötigt eine gültige ETS-Datei, um Datentypen dekodieren und Gerätenamen ausgeben zu können. Bitte fügen Sie die ETS-Datei in den Konfigurationsknoten ein. Wenn Sie keine ETS-Datei verwenden, fungiert der Knoten als blinder Empfänger (mit automatischer Dekondierung der Datagramme), Sie müssen jedoch den Datentyp (neben dem Wert) in der Eingabenachricht übergeben, um etwas an den KNX-BUS senden zu können."
             ,"notify-DPT232600":"Du haßt einen RGB Datenpunkt ausgewählt. Bitte <a target='_blank' href='https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---RGB-Color'>klicke hier, um dieses Beispiel anzuzeigen</a> und lernen, wie den Payload handeln."
+            ,"notify-DPT251600":"Du haßt einen RGBW Datenpunkt ausgewählt. Bitte <a target='_blank' href='https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---RGBW-Color-plus-White'>klicke hier, um dieses Beispiel anzuzeigen</a> und lernen, wie den Payload handeln."
             ,"divVediEsempi":"<a href='https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-SamplesHome' target='_blank'><i class='fa fa-code'></i>&nbsp BITTE LESE HIER EINIGE BEISPIELE.</a>"
         },
         "selectlists": {
