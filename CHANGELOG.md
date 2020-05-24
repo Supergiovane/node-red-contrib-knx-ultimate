@@ -5,6 +5,12 @@
 <br/>
 
 <p>
+<b>Version 1.1.72</b> - Mai 2020<br/>
+- Update knx api to 2.3.19<br/>
+- FIX: fixed a problem when issuing a gateway ip change to a watchdog node, if you've a tunneling KNX Interface and node-red v. 0.20 or below.<br/>
+- FIX: above related with connection status request if tunneling mode, sometime giving "timed out waiting for CONNECTIONSTATE_RESPONSE" errors.<br/>
+</p>
+<p>
 <b>Version 1.1.71</b> - Mai 2020<br/>
 - Update knx api to 2.3.18<br/>
 - NEW: added Datapoint 251.600 RGBW<br/>

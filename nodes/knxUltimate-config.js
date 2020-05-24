@@ -307,15 +307,17 @@ module.exports = (RED) => {
             if (typeof _iPort !== "undefined" && _iPort !== 0) node.port = _iPort;
             if (typeof _sPhysicalAddress !== "undefined" && _sPhysicalAddress !== "") node.physAddr = _sPhysicalAddress;
             if (typeof _sBindToEthernetInterface !== "undefined") node.KNXEthInterface = _sBindToEthernetInterface;
-            setTimeout(() => node.setAllClientsStatus("CONFIG", "yellow", "Node's main config setting has been changed."), 1000);
-            setTimeout(() => node.setAllClientsStatus("CONFIG", "green", "New config: IP " + node.host + " Port " + node.port + " PhysicalAddress " + node.physAddr + " BindToInterface " + node.KNXEthInterface), 2000)
             RED.log.info("Node's main config setting has been changed. New config: IP " + node.host + " Port " + node.port + " PhysicalAddress " + node.physAddr + " BindToInterface " + node.KNXEthInterface);
             if (node.knxConnection) {
                 try {
-                    node.initKNXConnection();
-                } catch (error) {
-
-                }
+                    node.Disconnect();
+                    if (node.tempDiscoTimer !== null) clearTimeout(node.tempDiscoTimer)
+                    node.tempDiscoTimer = setTimeout(() => {
+                        setTimeout(() => node.setAllClientsStatus("CONFIG", "yellow", "Node's main config setting has been changed."), 1000);
+                        setTimeout(() => node.setAllClientsStatus("CONFIG", "yellow", "New config: IP " + node.host + " Port " + node.port + " PhysicalAddress " + node.physAddr + " BindToInterface " + node.KNXEthInterface), 2000)
+                        node.initKNXConnection();
+                    }, 5000);
+                } catch (error) { }
             };
         };
 
@@ -395,7 +397,7 @@ module.exports = (RED) => {
                 RED.log.info("KNXUltimate-config: Bind KNX Bus to interface (Auto). Node " + node.name);
             }
             try {
-                node.knxConnection = new knx.Connection(knxConnectionProperties);
+                node.knxConnection = knx.Connection(knxConnectionProperties);
             } catch (error) {
                 RED.log.error("KNXUltimate-config: Error in instantiating knxConnection " + error + ". Node " + node.name);
                 node.linkStatus = "disconnected";
@@ -608,7 +610,7 @@ module.exports = (RED) => {
                                 // 04/02/2020 Watchdog implementation
                                 if (input.hasOwnProperty("isWatchDog")) {
                                     // Is a watchdog node
-                                    
+
                                 } else {
                                     let msg = buildInputMessage({ _srcGA: src, _destGA: dest, _event: evt, _Rawvalue: null, _inputDpt: input.dpt, _devicename: input.name ? input.name : "", _outputtopic: input.outputtopic, _oNode: input })
                                     msg.previouspayload = typeof input.currentPayload !== "undefined" ? input.currentPayload : ""; // 24/01/2020 Reset previous payload

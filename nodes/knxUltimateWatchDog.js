@@ -127,12 +127,12 @@ module.exports = function (RED) {
         node.on("input", function (msg) {
 
             if (typeof msg === "undefined") return;
-            if (node.topic === undefined) {
-                if (node.timerWatchDog !== null) clearInterval(node.timerWatchDog);
-                node.setNodeStatus({ fill: "red", shape: "dot", text: "Invalid Group Address Monitor", payload: "", GA: "", dpt: "", devicename: "" })
-                RED.log.error("knxUltimateWatchDog: Node " + node.id + " Invalid Group Address Monitor. Please correct it.");
-                return;
-            };
+            // if (node.topic === undefined) {
+            //     if (node.timerWatchDog !== null) clearInterval(node.timerWatchDog);
+            //     node.setNodeStatus({ fill: "red", shape: "dot", text: "Invalid Group Address Monitor", payload: "", GA: "", dpt: "", devicename: "" })
+            //     RED.log.error("knxUltimateWatchDog: Node " + node.id + " Invalid Group Address Monitor. Please correct it.");
+            //     return;
+            // };
 
             // 01/02/2020 Dinamic change of the KNX Gateway IP, Port and Physical Address
             // This new thing has been requested by proServ RealKNX staff.
