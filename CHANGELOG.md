@@ -5,6 +5,10 @@
 <br/>
 
 <p>
+<b>Version 1.1.73</b> - Mai 2020<br/>
+- FIX: fixed an issue in importing ETS file, preventing import if you have an improperly set knx-ultimate node, having no gateway selected. Thanks @enzensbs.<br/>
+</p>
+<p>
 <b>Version 1.1.72</b> - Mai 2020<br/>
 - Update knx api to 2.3.19<br/>
 - FIX: fixed a problem when issuing a gateway ip change to a watchdog node, if you've a tunneling KNX Interface and node-red v. 0.20 or below.<br/>

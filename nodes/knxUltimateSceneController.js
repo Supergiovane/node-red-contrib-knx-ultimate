@@ -78,6 +78,7 @@ module.exports = function (RED) {
 
         // Used to call the status update from the config node.
         node.setNodeStatus = ({ fill, shape, text, payload, GA, dpt, devicename }) => {
+            if (node.server == null) { node.status({ fill: "red", shape: "dot", text: "[NO GATEWAY SELECTED]"}); return; }
             if (node.icountMessageInWindow == -999) return; // Locked out
             var dDate = new Date();
             // 30/08/2019 Display only the things selected in the config

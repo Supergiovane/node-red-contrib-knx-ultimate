@@ -23,7 +23,8 @@ node.send{payload:{red:255, green:200, blue:30}} // Put some colors in our life
 * **WATCHDOG node** [here](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/7.-WatchDog-Configuration), allows notification (Email, Twitter, Telegram, Alexa, Siri, Sonos -with sonospollytts node- and so on) of KNX Bus connection errors, automatic or manual switchover to a backup KNX/IP router if the primary fails and allows you to programmatically change the config-node directly from a msg flow.
 * **LOGGER node** [here](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/Logger-Configuration), creates an XML diagnostic file, compatible with ETS. You can open it with ETS for diagnostic pourposes.
 
-[![Donate via PayPal](https://img.shields.io/badge/Donate-PayPal-blue.svg?style=flat-square)](https://www.paypal.me/techtoday) and <a href="http://eepurl.com/gJm095" target="_blank">subscribe to my channel.</a> Only news about my nodes, no spam, no ads. or [Buy a die-cut sticker "powered by KNX_Ultimate" for your products](https://teespring.com/it/stores/knx-ultimate-support-store)
+[![Donate via PayPal](https://img.shields.io/badge/Donate-PayPal-blue.svg?style=flat-square)](https://www.paypal.me/techtoday) and <a href="http://eepurl.com/gJm095" target="_blank">subscribe to my channel.</a> Only news about my nodes, no spam, no ads.<br/>
+NEW: ![Buy a Sticker!](https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/PoweredBySticker.png) [Buy a die-cut sticker "powered by KNX-Ultimate" for your products](https://teespring.com/it/stores/knx-ultimate-support-store)
 
 ## CHANGELOG
 * See <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/blob/master/CHANGELOG.md">here the changelog</a>
