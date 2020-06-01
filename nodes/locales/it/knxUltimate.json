@@ -6,7 +6,7 @@
             "node-input-outputtopic": "Topic",
             "node-input-dpt": "Datapoint",
             "node-input-initialread": "Leggi il valore alla connessione/riconnessione",
-            "node-input-notifyreadrequest": "Reagisci all'evento Richiesta (Read)",
+            "node-input-notifyreadrequest": "Reagisci all'evento Lettura (Read)",
             "node-input-notifyresponse": "Reagisci all'evento Risposta (Response)",
             "node-input-notifywrite": "Reagisci all'evento Scrittura (Write)",
             "node-input-notifyreadrequestalsorespondtobus": "Invio automatico del valore del nodo come risposta al bus KNX",
