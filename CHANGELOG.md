@@ -5,6 +5,10 @@
 <br/>
 
 <p>
+<b>Version 1.1.74</b> - Mai 2020<br/>
+- Adjusted italian node translation on "OUTPUT (invio datagrammi sul bus KNX)" selection properties. Adjusted the documentation consequently.<br/>
+</p>
+<p>
 <b>Version 1.1.73</b> - Mai 2020<br/>
 - FIX: fixed an issue in importing ETS file, preventing import if you have an improperly set knx-ultimate node, having no gateway selected. Thanks @enzensbs.<br/>
 </p>
