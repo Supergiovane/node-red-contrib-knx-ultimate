@@ -59,12 +59,13 @@ module.exports = (RED) => {
                 .reduce(toConcattedSubtypes, [])
 
         res.json(dpts)
-        var stringa = "";
-        for (let index = 0; index < dpts.length; index++) {
-            const element = dpts[index];
-            stringa += element.text + "<br/>\n";
-        }
-        RED.log.warn(stringa)
+        // Utilità per visualizzare i datapoints, da copiare in README
+        // var stringa = "";
+        // for (let index = 0; index < dpts.length; index++) {
+        //     const element = dpts[index];
+        //     stringa += element.text + "<br/>\n";
+        // }
+        // RED.log.warn(stringa)
     });
 
     function knxUltimateConfigNode(config) {

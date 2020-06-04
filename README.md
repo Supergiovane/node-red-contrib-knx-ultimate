@@ -12,8 +12,8 @@
 
 **You can use it immediately!**
 ```javascript
-node.send{payload:true} // Turn light on
-node.send{payload:{red:255, green:200, blue:30}} // Put some colors in our life
+payload=true // Turn light on
+payload={red:255, green:200, blue:30} // Put some colors in our life
 ```
 
 ## DESCRIPTION
