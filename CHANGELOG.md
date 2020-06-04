@@ -6,6 +6,7 @@
 
 <p>
 <b>Version 1.1.74</b> - Mai 2020<br/>
+- NEW: Added Datapont 7.xxx with 7.600 as well.<br/>
 - Adjusted italian node translation on "OUTPUT (invio datagrammi sul bus KNX)" selection properties. Adjusted the documentation consequently.<br/>
 </p>
 <p>
