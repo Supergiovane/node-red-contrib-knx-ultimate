@@ -5,6 +5,10 @@
 <br/>
 
 <p>
+<b>Version 1.1.76</b> - August 2020<br/>
+- Fixed the ETS XML logger. Sometimes the files could contains an invalid CEMI telegram that was not properly discarded and that prevent ETS to load the log. Thanks @Namakemono93.<br/>
+</p>
+<p>
 <b>Version 1.1.75</b> - June 2020<br/>
 - NEW: Added Datapont 7.xxx with 7.600 as well.<br/>
 - Adjusted italian node translation on "OUTPUT (invio datagrammi sul bus KNX)" selection properties. Adjusted the documentation consequently.<br/>

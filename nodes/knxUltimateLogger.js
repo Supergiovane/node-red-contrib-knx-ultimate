@@ -58,7 +58,7 @@ module.exports = function (RED) {
                 // Shift (remove) the first row (the oldest)
                 node.etsXMLRow.shift()
             }
-            node.etsXMLRow.push(" <Telegram Timestamp=\"" + new Date().toISOString() + "\" Service=\"L_Data.ind\" FrameFormat=\"CommonEmi\" RawData=\"" + msg.knx.cemiETS + "\" />\n");
+            if (typeof (msg) !=="undefined" && typeof (msg.knx) !=="undefined" && typeof (msg.knx.cemiETS) !=="undefined") node.etsXMLRow.push(" <Telegram Timestamp=\"" + new Date().toISOString() + "\" Service=\"L_Data.ind\" FrameFormat=\"CommonEmi\" RawData=\"" + msg.knx.cemiETS + "\" />\n");
         };
 
 

@@ -92,6 +92,9 @@ module.exports = (RED) => {
         node.loglevel = config.loglevel !== undefined ? config.loglevel : "error"; // 18/02/2020 Loglevel default error
         node.localEchoInTunneling = typeof config.localEchoInTunneling !== "undefined" ? config.localEchoInTunneling : true;
 
+        // 29/07/2020 Create YAML for Homeassistant
+        // node.yamlHomeAssistant = CreateYamlForHomeAssistant();
+
         // Endpoint for reading csv from the other nodes
         RED.httpAdmin.get("/knxUltimatecsv", RED.auth.needsPermission('knxUltimate-config.read'), function (req, res) {
             if (typeof req.query.nodeID !== "undefined" && req.query.nodeID !== null && req.query.nodeID !== "") {
@@ -1037,6 +1040,21 @@ module.exports = (RED) => {
 
         }
 
+        // // 29/07/2020 Create YAML for homeassistant
+        // function CreateYamlForHomeAssistant() {
+        //     // Node.CSV : {ga:group address, dpt: datapoint, devicename: full device name with main and subgroups}
+        //     sOut = "light:\n";
+        //     const sCercaLuci = ["luce", "plafoniera", "applique"];
+        //     node.csv.forEach(element => {
+        //         if (sCercaLuci.some(element.devicename.includes.bind(element.devicename))) {
+        //             // There's at least one
+        //             sOut += "\t- platform: knx\n";
+        //             sOut += "\t\tname:" + + "\n";
+        //         }
+                
+
+        //     });
+        // }
 
         // 23/08/2019 Delete unwanted CRLF in the GA description
         function correctCRLFInCSV(_csv) {
