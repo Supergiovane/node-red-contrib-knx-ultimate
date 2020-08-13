@@ -7,6 +7,7 @@
 <p>
 <b>Version 1.1.76</b> - August 2020<br/>
 - Fixed the ETS XML logger. Sometimes the files could contains an invalid CEMI telegram that was not properly discarded and that prevent ETS to load the log. Thanks @Namakemono93.<br/>
+- Fixed a visual glitch in the KNX-Node config window (Telegram value format) for nodered 1.1.0 and above.
 </p>
 <p>
 <b>Version 1.1.75</b> - June 2020<br/>
