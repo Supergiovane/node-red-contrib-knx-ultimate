@@ -5,7 +5,7 @@
 <br/>
 
 <p>
-<b>Version 1.1.78</b> - August 2020<br/>
+<b>Version 1.1.79</b> - August 2020<br/>
 - NEW: The scene controller node can now save the current group address value via a msg input. See here: https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/SceneController-MSG-to-the-node and the sample in the wiki as well..
 </p>
 <p>

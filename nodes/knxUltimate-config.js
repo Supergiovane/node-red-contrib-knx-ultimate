@@ -434,24 +434,44 @@ module.exports = (RED) => {
 
                             // 19/03/2020 in the middle of coronavirus. Whole italy is red zone, closed down. Scene Controller implementation
                             if (input.hasOwnProperty("isSceneController")) {
-                                // Check wether to recall or save scene
-                                if (dest === input.topic) {
 
+                                // 12/08/2020 Check wether is a learn (save) command or a activate (play) command.
+                                if (dest === input.topic || dest === input.topicSave) {
+                                    // Prepare the two messages to be evaluated directly into the Scene Controller node.
                                     new Promise((resolve, reject) => {
-                                        let msg = buildInputMessage({ _srcGA: src, _destGA: dest, _event: evt, _Rawvalue: rawValue, _inputDpt: input.dpt, _devicename: input.name ? input.name : "", _outputtopic: input.outputtopic, _oNode: null })
-                                        input.RecallScene(msg.payload);
+                                        if (dest === input.topic) {
+                                            try {
+                                                let msgRecall = buildInputMessage({ _srcGA: src, _destGA: dest, _event: evt, _Rawvalue: rawValue, _inputDpt: input.dpt, _devicename: input.name ? input.name : "", _outputtopic: input.outputtopic, _oNode: null });
+                                                input.RecallScene(msgRecall.payload);
+                                            } catch (error) { }
+                                        } // 12/08/2020 Do NOT use "else", because both topics must be evaluated in case both recall and save have same group address.
+                                        if (dest === input.topicSave) {
+                                            try {
+                                                let msgSave = buildInputMessage({ _srcGA: src, _destGA: dest, _event: evt, _Rawvalue: rawValue, _inputDpt: input.dptSave, _devicename: input.name ? input.name : "", _outputtopic: dest, _oNode: null });
+                                                input.SaveScene(msgSave.payload);
+                                            } catch (error) { }
+                                        }
                                         resolve(true); // fulfilled
                                         //reject("error"); // rejected
                                     }).then(function () { }).catch(function () { });
+                                    // }
+                                    // if (dest === input.topic) {
 
-                                } else if (dest === input.topicSave) {
+                                    //     new Promise((resolve, reject) => {
+                                    //         let msg = buildInputMessage({ _srcGA: src, _destGA: dest, _event: evt, _Rawvalue: rawValue, _inputDpt: input.dpt, _devicename: input.name ? input.name : "", _outputtopic: input.outputtopic, _oNode: null })
+                                    //         input.RecallScene(msg.payload);
+                                    //         resolve(true); // fulfilled
+                                    //         //reject("error"); // rejected
+                                    //     }).then(function () { }).catch(function () { });
 
-                                    new Promise((resolve, reject) => {
-                                        let msg = buildInputMessage({ _srcGA: src, _destGA: dest, _event: evt, _Rawvalue: rawValue, _inputDpt: input.dptSave, _devicename: input.name ? input.name : "", _outputtopic: dest, _oNode: null })
-                                        input.SaveScene(msg.payload);
-                                        resolve(true); // fulfilled
-                                        //reject("error"); // rejected
-                                    }).then(function () { }).catch(function () { });
+                                    // } else if (dest === input.topicSave) {
+
+                                    //     new Promise((resolve, reject) => {
+                                    //         let msg = buildInputMessage({ _srcGA: src, _destGA: dest, _event: evt, _Rawvalue: rawValue, _inputDpt: input.dptSave, _devicename: input.name ? input.name : "", _outputtopic: dest, _oNode: null })
+                                    //         input.SaveScene(msg.payload);
+                                    //         resolve(true); // fulfilled
+                                    //         //reject("error"); // rejected
+                                    //     }).then(function () { }).catch(function () { });
 
                                 } else {
 
@@ -1051,7 +1071,7 @@ module.exports = (RED) => {
         //             sOut += "\t- platform: knx\n";
         //             sOut += "\t\tname:" + + "\n";
         //         }
-                
+
 
         //     });
         // }

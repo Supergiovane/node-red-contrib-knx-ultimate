@@ -95,6 +95,7 @@ module.exports = function (RED) {
             };
         }
 
+
         // 11/03/2020 in the middle of coronavirus. Whole italy is red zone, closed down. Recall scene. 
         node.RecallScene = _Payload => {
             var curVal;
@@ -193,7 +194,7 @@ module.exports = function (RED) {
             setTimeout(() => {
                 node.setNodeStatus({ fill: "green", shape: "dot", text: "Recall scene", payload: "", GA: "", dpt: "", devicename: "" });
             }, 1000);
-            node.send({ savescene: false, recallscene: true, savevalue: false});
+            node.send({ savescene: false, recallscene: true, savevalue: false });
         }
 
         // 11/03/2020 in the middle of coronavirus. Whole italy is red zone, closed down. Save scene.
@@ -283,7 +284,7 @@ module.exports = function (RED) {
                 for (var i = 0; i < node.rules.length; i++) {
                     // rule is { topic: rowRuleTopic, devicename: rowRuleDeviceName, dpt:rowRuleDPT, send: rowRuleSend}
                     var oDevice = node.rules[i];
-                    if (oDevice.hasOwnProperty("topic") && oDevice.hasOwnProperty("currentPayload") && oDevice.topic === _msg.topic ) {
+                    if (oDevice.hasOwnProperty("topic") && oDevice.hasOwnProperty("currentPayload") && oDevice.topic === _msg.topic) {
                         oDevice.currentPayload = _msg.payload;
                     }
                 }
