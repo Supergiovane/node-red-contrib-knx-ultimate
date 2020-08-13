@@ -283,7 +283,7 @@ module.exports = function (RED) {
                 for (var i = 0; i < node.rules.length; i++) {
                     // rule is { topic: rowRuleTopic, devicename: rowRuleDeviceName, dpt:rowRuleDPT, send: rowRuleSend}
                     var oDevice = node.rules[i];
-                    if (oDevice.hasOwnProperty("topic") && Device.hasOwnProperty("currentPayload") && oDevice.topic === _msg.topic ) {
+                    if (oDevice.hasOwnProperty("topic") && oDevice.hasOwnProperty("currentPayload") && oDevice.topic === _msg.topic ) {
                         oDevice.currentPayload = _msg.payload;
                     }
                 }
