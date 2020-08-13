@@ -78,7 +78,7 @@ module.exports = function (RED) {
 
         // Used to call the status update from the config node.
         node.setNodeStatus = ({ fill, shape, text, payload, GA, dpt, devicename }) => {
-            if (node.server == null) { node.status({ fill: "red", shape: "dot", text: "[NO GATEWAY SELECTED]"}); return; }
+            if (node.server == null) { node.status({ fill: "red", shape: "dot", text: "[NO GATEWAY SELECTED]" }); return; }
             if (node.icountMessageInWindow == -999) return; // Locked out
             var dDate = new Date();
             // 30/08/2019 Display only the things selected in the config
@@ -193,7 +193,7 @@ module.exports = function (RED) {
             setTimeout(() => {
                 node.setNodeStatus({ fill: "green", shape: "dot", text: "Recall scene", payload: "", GA: "", dpt: "", devicename: "" });
             }, 1000);
-            node.send({ savescene: false, recallscene: true });
+            node.send({ savescene: false, recallscene: true, savevalue: false});
         }
 
         // 11/03/2020 in the middle of coronavirus. Whole italy is red zone, closed down. Save scene.
@@ -272,8 +272,28 @@ module.exports = function (RED) {
                 node.setNodeStatus({ fill: "red", shape: "dot", text: "Error saving scene. Unable to access filesystem.", payload: "", GA: "", dpt: "", devicename: node.name });
                 return;
             }
-            node.send({ savescene: true, recallscene: false });
+            node.send({ savescene: true, recallscene: false, savevalue: false });
         }
+
+        // 12/08/2020 Save the topic's value into the group address
+        node.SaveValue = _msg => {
+
+            if (_msg.hasOwnProperty("topic") && _msg.hasOwnProperty("payload")) {
+                // Save the currentPayload into the group address
+                for (var i = 0; i < node.rules.length; i++) {
+                    // rule is { topic: rowRuleTopic, devicename: rowRuleDeviceName, dpt:rowRuleDPT, send: rowRuleSend}
+                    var oDevice = node.rules[i];
+                    if (oDevice.hasOwnProperty("topic") && Device.hasOwnProperty("currentPayload") && oDevice.topic === _msg.topic ) {
+                        oDevice.currentPayload = _msg.payload;
+                    }
+                }
+                node.setNodeStatus({ fill: "blue", shape: "dot", text: "Saved value", payload: _msg.payload, GA: _msg.topic, dpt: "", devicename: "" });
+                node.send({ savescene: false, recallscene: false, savevalue: true });
+            } else {
+                node.setNodeStatus({ fill: "red", shape: "dot", text: "Error saving value; the msg.topic and msg.payload must be both present in the input message.", payload: "", GA: "", dpt: "", devicename: node.name });
+            }
+        }
+
 
         // This function is called by the knx-ultimate config node, to output a msg.payload.
         node.handleSend = msg => {
@@ -306,6 +326,7 @@ module.exports = function (RED) {
 
             if (msg.hasOwnProperty('savescene')) node.SaveScene(node.topicSaveTrigger);
             if (msg.hasOwnProperty('recallscene')) node.RecallScene(node.topicTrigger);
+            if (msg.hasOwnProperty('savevalue')) node.SaveValue(msg);
 
         })
 
