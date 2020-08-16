@@ -5,6 +5,10 @@
 <br/>
 
 <p>
+<b>Version 1.1.80</b> - August 2020<br/>
+- Update API to 2.3.21: changing the debug level now is applied immediately without restarting node-red. 
+</p>
+<p>
 <b>Version 1.1.79</b> - August 2020<br/>
 - NEW: The scene controller node can now save the current group address value via a msg input. See here: https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/SceneController-MSG-to-the-node and the sample in the wiki as well..
 </p>
