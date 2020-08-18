@@ -5,6 +5,11 @@
 <br/>
 
 <p>
+<b>Version 1.1.81</b> - August 2020<br/>
+- Update API to 2.3.22: Changed the log datetime from ISO to Local UTC. Added the prefix "KnUltimate-API to the log, to better undestand form where the log comes.<br/> 
+- NEW: ADDED Datapoint 5.100 Fan Stage
+</p>
+<p>
 <b>Version 1.1.80</b> - August 2020<br/>
 - Update API to 2.3.21: changing the debug level now is applied immediately without restarting node-red. 
 </p>

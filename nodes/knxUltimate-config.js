@@ -144,8 +144,8 @@ module.exports = (RED) => {
             var sDPT = "";
             var sName = "";
             var sNodeID = "";
-            RED.log.info("KNXUltimate-config: Total knx-ultimate nodes: " + _node.nodeClients.length)
             try {
+                RED.log.info("KNXUltimate-config: Total knx-ultimate nodes: " + _node.nodeClients.length || 0);
                 _node.nodeClients
                     //.map( a => a.topic.indexOf("/") !== -1 ? a.topic.split('/').map( n => +n+100000 ).join('/'):0 ).sort().map( a => a.topic.indexOf("/") !== -1 ? a.topic.split('/').map( n => +n-100000 ).join('/'):0 )
                     .sort((a, b) => {

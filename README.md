@@ -105,7 +105,8 @@ payload={red:255, green:200, blue:30} // Put some colors in our life
 5.004 (DPT_Percent_U8)<br/>
 5.005 (DPT_DecimalFactor)<br/>
 5.006 (DPT_Tariff)<br/>
-5.010 (DPT_Value_1_Ucount)<br/>
+5.010 (DPT_Counter_Pulses)<br/>
+5.100 (DPT_Fan_Stage)<br/>
 6.001 (DPT_Switch)<br/>
 6.010 (DPT_Bool)<br/>
 7.001 (DPT_Value_2_Ucount)<br/>
