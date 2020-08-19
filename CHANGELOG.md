@@ -5,6 +5,10 @@
 <br/>
 
 <p>
+<b>Version 1.1.82</b> - August 2020<br/>
+- Update API to 2.3.23: Fixed a very old/why this?/odd issue with log in datapoints code, that instantiate a new instance of the logger instead of using the proper one. Thanks @heleon19 .<br/> 
+</p>
+<p>
 <b>Version 1.1.81</b> - August 2020<br/>
 - Update API to 2.3.22: Changed the log datetime from ISO to Local UTC. Added the prefix "KnUltimate-API to the log, to better undestand form where the log comes.<br/> 
 - NEW: ADDED Datapoint 5.100 Fan Stage
