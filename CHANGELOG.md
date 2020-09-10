@@ -5,6 +5,11 @@
 <br/>
 
 <p>
+<b>Version 1.1.83</b> - September 2020<br/>
+- Update API to 2.3.24: Added Datapoint 222.100 and 222.201.<br/>
+- NEW: Many users simply don't care about Wiki in Github, so an inline sample is shown, direclty below the datapoint selection in the config window.<br/> 
+</p>
+<p>
 <b>Version 1.1.82</b> - August 2020<br/>
 - Update API to 2.3.23: Fixed a very old/why this?/odd issue with log in datapoints code, that instantiate a new instance of the logger instead of using the proper one. Thanks @heleon19 .<br/> 
 </p>
