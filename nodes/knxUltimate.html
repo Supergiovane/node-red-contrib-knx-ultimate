@@ -64,6 +64,7 @@
             // 02/04/2020 Alert user about data type
             // ###########################
             $("#node-input-dpt").on("change", function () {
+                
                 if ($(this).val() !== null) {
                     if ($(this).val().indexOf("3.007") > -1) {
                         // It's a DIM. Suggest the right value
@@ -112,6 +113,21 @@
                     }else if ($(this).val().indexOf("251.600") > -1) {
                         // It's a scene actuator. Suggest the right value
                         var myNotification = RED.notify(node._("knxUltimate.advanced.notify-DPT251600"),
+                            {
+                                modal: true,
+                                fixed: true,
+                                type: 'info',
+                                buttons: [{
+                                    text: "OK",
+                                    click: function (e) {
+                                        myNotification.close();
+                                    }
+                                }]
+                            })
+
+                    }else if ($(this).val().indexOf("222.") > -1) {
+                        // It's 3x16 Bit Setpoint or Setpoint shift
+                        var myNotification = RED.notify(node._("knxUltimate.advanced.notify-DPT222"),
                             {
                                 modal: true,
                                 fixed: true,

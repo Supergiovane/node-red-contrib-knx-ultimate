@@ -68,6 +68,9 @@ module.exports = (RED) => {
         // RED.log.warn(stringa)
     });
 
+    
+    
+
     function knxUltimateConfigNode(config) {
         RED.nodes.createNode(this, config)
         var node = this
