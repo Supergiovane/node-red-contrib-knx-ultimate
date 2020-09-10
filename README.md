@@ -47,6 +47,7 @@ payload={red:255, green:200, blue:30} // Put some colors in our life
   * [Sample RGB color](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---RGB-Color)
   * [Sample RGBW color + White](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---RGBW-Color-plus-White)
   * [Sample Command a scene actuator](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Control-a-scene-actuator)
+  * [Sample Datapoint 222.x Setpoint](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---DPT222)
   * [Sample Datetime to BUS](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---DateTime-to-BUS)
   * [Sample Read Status](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Read-value-from-Device)
   * [Sample Virtual Device](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Virtual-Device)
@@ -190,6 +191,8 @@ payload={red:255, green:200, blue:30} // Put some colors in our life
 18.001 (DPT_SceneControl [payload:{'save_recall':0 (0 to recall or 1 to save), 'scenenumber':2}])<br/>
 19.001 (DPT_DateTime)<br/>
 20.102 (HVAC_Mode)<br/>
+222.100 (3x16 Bit Setpoint [payload:{Comport:21, Standby:20, Economy:18}])<br/>
+222.101 (3x16 Bit Setpoint Shift [payload:{Comport:1, Standby:1, Economy:3}])<br/>
 232.600 (RGB [payload:{red:255, green:200, blue:30}])<br/>
 238.003 (DPT_Angle)<br/>
 238.004 (DPT_Percent_U8)<br/>
