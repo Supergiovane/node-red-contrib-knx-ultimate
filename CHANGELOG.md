@@ -6,7 +6,7 @@
 
 <p>
 <b>Version 1.1.84</b> - September 2020<br/>
-- Update API to 2.3.25: Rewrote all datapoint names, to adhere to ETS naming convenction.<br/>
+- Update API to 2.3.25: Rewrite of all datapoint names, to adhere to ETS naming convenction. Updated some deprecated buffer initialization.<br/>
 - NEW: many people simply don't care about WIKI in Github, so i need to find a simpler and more direct way to access the huge documentation, without being flooded by questions about samples, that are already in the WIKI. Now KNX-Ultimate node displays a text box with sample on how to format input payload and a link to the relative help page, directly in the config window.<br/> 
 </p>
 <p>

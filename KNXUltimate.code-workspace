@@ -1,10 +1,16 @@
 {
 	"folders": [
 		{
+			"name": "node-red-contrib-knx-ultimate",
 			"path": "."
 		},
 		{
-			"path": "/Users/massimosaccani/Documents/GitHub/node-red-contrib-knx-ultimate.wiki"
+			"name": "knxultimate-api",
+			"path": "../knxultimate-api"
+		},
+		{
+			"name": "node-red-contrib-knx-ultimate.wiki",
+			"path": "../node-red-contrib-knx-ultimate.wiki"
 		}
 	],
 	"settings": {}
