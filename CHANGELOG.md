@@ -5,6 +5,11 @@
 <br/>
 
 <p>
+<b>Version 1.1.84</b> - September 2020<br/>
+- Update API to 2.3.25: Rewrote all datapoints names, to adhere to ETS naming convenction.<br/>
+- NEW: many people simply don't care about WIKI in Github, so i need to find a simpler and more direct way to access the huge documentation. Now KNX-Ultimate node displays a text box with sample on how to format input payload and a link to the relative help page, directly in the config window.<br/> 
+</p>
+<p>
 <b>Version 1.1.83</b> - September 2020<br/>
 - Update API to 2.3.24: Added Datapoint 222.100 and 222.201.<br/>
 - NEW: Added Sample DPT 222 (See in the Wiki).<br/> 
