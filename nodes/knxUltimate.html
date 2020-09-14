@@ -64,7 +64,7 @@
             // 02/04/2020 Alert user about data type
             // ###########################
             $("#node-input-dpt").on("change", function () {
-                
+
                 if ($(this).val() !== null) {
                     if ($(this).val().indexOf("3.007") > -1) {
                         // It's a DIM. Suggest the right value
@@ -96,7 +96,7 @@
                             })
 
                     } else if ($(this).val().indexOf("232.600") > -1) {
-                        // It's a scene actuator. Suggest the right value
+                        // It's RGB. Suggest the right value
                         var myNotification = RED.notify(node._("knxUltimate.advanced.notify-DPT232600"),
                             {
                                 modal: true,
@@ -110,7 +110,7 @@
                                 }]
                             })
 
-                    }else if ($(this).val().indexOf("251.600") > -1) {
+                    } else if ($(this).val().indexOf("251.600") > -1) {
                         // It's a scene actuator. Suggest the right value
                         var myNotification = RED.notify(node._("knxUltimate.advanced.notify-DPT251600"),
                             {
@@ -125,7 +125,7 @@
                                 }]
                             })
 
-                    }else if ($(this).val().indexOf("222.") > -1) {
+                    } else if ($(this).val().indexOf("222.") > -1) {
                         // It's 3x16 Bit Setpoint or Setpoint shift
                         var myNotification = RED.notify(node._("knxUltimate.advanced.notify-DPT222"),
                             {
@@ -163,7 +163,7 @@
             });
             // ###########################
 
-            
+
             $.getJSON("knxUltimateDpts", (data) => {
                 data.forEach(dpt => {
                     $("#node-input-dpt").append($("<option></option>")
@@ -322,6 +322,28 @@
             });
             // *****************************
 
+            // 14/09/2020 Prepare the help box
+            // *****************************
+            $("#sampleCodeAccordion").accordion({
+                header: "h3",
+                heightStyle: "fill",
+                collapsible: true,
+                active: false
+            });
+            var banana=  
+`// The parameter "data" indicates the relative amount of the dimming commmand (how much to dim).
+// The parameter "data" can be any integer value from 0 to 7
+// The parameter decr_incr:1 increases the light
+// The parameter decr_incr:0 decreases the light
+msg.payload={decr_incr: 1, data: 5};
+return msg;`;
+            this.sampleEditor = RED.editor.createEditor({
+                id: 'node-input-example-editor',
+                mode: 'ace/mode/javascript',
+                value: banana//this.exampleText
+            }).renderer.setShowGutter(false);//.setReadOnly(true).setShowPrintMargin(false);
+            // *****************************
+            
         },
         oneditsave: function () {
             var node = this;
@@ -358,7 +380,7 @@
 
 <script type="text/x-red" data-template-name="knxUltimate">
 
-    <!-- Setted by oneditprepare and used in oneditsave to warn th user if no CSV file has been loaded -->
+    <!-- Setted by oneditprepare and used in oneditsave to warn user if no CSV file has been loaded -->
 <input id="isETSFileLoaded" name="isETSFileLoaded" type="hidden" value="false" />
 
 <div class="form-row">
@@ -411,9 +433,14 @@
     <!-- <div id="helpallga">Some Content Here</div> -->
 </div>
 
-<div id="advancedOptionsAccordion">
+<div id="sampleCodeAccordion">
+    <h3><span data-i18n="knxUltimate.advanced.Sample"></span></h3>
+    <div style="height:150px;min-height:120px;padding:0px;" class="node-text-editor" id="node-input-example-editor"></div>
+</div>
+
+<div id="advancedOptionsAccordion" >
     <h3><span data-i18n="knxUltimate.advanced.Advancedoptions"></span></h3>
-    <div class="form-row">
+    <div class="form-row" style="padding:10px">
         <div class="form-row">
             <label style="width:230px" for="node-input-passthrough">
                 <i class="fa fa-sign-out"></i>
@@ -524,13 +551,14 @@
 
 <div id="formatValueAccordion">
     <h3><span data-i18n="knxUltimate.advanced.Formatting"></span></h3>
-    <div class="form-row">
+    <div class="form-row" style="padding:10px">
         <div class="form-row">
             <dt>
                 <i class="fa fa-sort-numeric-asc"></i>
                 <span data-i18n="knxUltimate.advanced.NUMERICVALUES"></span>
             </dt>
         </div>
+
         <div class="form-row">
             <label style="width:30%" for="node-input-formatmultiplyvalue">
                 <i class="fa fa-calculator"></i>

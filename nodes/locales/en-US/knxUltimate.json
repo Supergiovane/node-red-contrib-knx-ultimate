@@ -39,7 +39,9 @@
             "notify-DPT232600": "You selected an RGB Datapoint. Please <a target='_blank' href='https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---RGB-Color'>click here to view this sample</a> and learn how to handle such payload.",
             "notify-DPT251600": "You selected an RGBW Datapoint. Please <a target='_blank' href='https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---RGBW-Color-plus-White'>click here to view this sample</a> and learn how to handle such payload.",
             "notify-DPT222": "You selected an 3x16 Bit Datapoint. Please <a target='_blank' href='https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---DPT222'>click here to view this sample</a> and learn how to handle such payload.",
-            "divVediEsempi": "<a href='https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-SamplesHome' target='_blank'><i class='fa fa-code'></i>&nbsp PLEASE TAKE 5 MINUTES TO SEE SOME SAMPLES</a>"
+            "divVediEsempi": "<a href='https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-SamplesHome' target='_blank'><i class='fa fa-code'></i>&nbsp PLEASE TAKE 5 MINUTES TO SEE SOME SAMPLES</a>",
+            "Sample": "Example"
+
         },
         "selectlists": {
             "Output_write": "Write",
