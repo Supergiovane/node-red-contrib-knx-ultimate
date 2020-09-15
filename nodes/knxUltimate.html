@@ -65,6 +65,7 @@
                 $.getJSON("knxUltimateDptsGetHelp?dpt=" + _dpt, (data) => {
                     try {
                         $("#example-editor").html("");
+                        $("#sampleCodeAccordionWebPage").html();
                         node.sampleEditor.destroy();
                         delete node.sampleEditor;
                     } catch (error) {
@@ -77,6 +78,7 @@
                         }).renderer.setShowGutter(false);//.setReadOnly(true).setShowPrintMargin(false);                    
                         // Expand Accordion
                         if (_forceClose == false) $("#sampleCodeAccordion").accordion({ active: 0 });
+                        if (data.helplink !== "") $("#sampleCodeAccordionWebPage").html("<i class=\"fa fa-hand-o-right\"></i>&nbsp <a target=\"_blank\" href=\"" + data.helplink + "\">Click this link to contextual KNX-Ultimate help webpage.</a>");
                     } else {
                         // No help avaiable
                         node.sampleEditor = RED.editor.createEditor({
@@ -86,6 +88,7 @@
                         }).renderer.setShowGutter(false);//.setReadOnly(true).setShowPrintMargin(false);
                         // Collapse Accordion
                         $("#sampleCodeAccordion").accordion({ active: 1 });
+                        if (data.helplink !== "") $("#sampleCodeAccordionWebPage").html("<i class=\"fa fa-hand-o-right\"></i>&nbsp<a target=\"_blank\" href=\"" + data.helplink + "\">Click this link to contextual KNX-Ultimate help webpage.</a>");
                     }
                 })
             }
@@ -97,84 +100,6 @@
                 // Load help sample
                 knxUltimateDptsGetHelp($(this).val(), false);
 
-                if ($(this).val() !== null) {
-                    if ($(this).val().indexOf("3.007") > -1) {
-                        // It's a DIM. Suggest the right value
-                        var myNotification = RED.notify(node._("knxUltimate.advanced.notify-DPT3007"),
-                            {
-                                modal: true,
-                                fixed: true,
-                                type: 'info',
-                                buttons: [{
-                                    text: "OK",
-                                    click: function (e) {
-                                        myNotification.close();
-                                    }
-                                }]
-                            })
-                    } else if ($(this).val().indexOf("18.001") > -1) {
-                        // It's a scene actuator. Suggest the right value
-                        var myNotification = RED.notify(node._("knxUltimate.advanced.notify-DPT18001"),
-                            {
-                                modal: true,
-                                fixed: true,
-                                type: 'info',
-                                buttons: [{
-                                    text: "OK",
-                                    click: function (e) {
-                                        myNotification.close();
-                                    }
-                                }]
-                            })
-
-                    } else if ($(this).val().indexOf("232.600") > -1) {
-                        // It's RGB. Suggest the right value
-                        var myNotification = RED.notify(node._("knxUltimate.advanced.notify-DPT232600"),
-                            {
-                                modal: true,
-                                fixed: true,
-                                type: 'info',
-                                buttons: [{
-                                    text: "OK",
-                                    click: function (e) {
-                                        myNotification.close();
-                                    }
-                                }]
-                            })
-
-                    } else if ($(this).val().indexOf("251.600") > -1) {
-                        // It's a scene actuator. Suggest the right value
-                        var myNotification = RED.notify(node._("knxUltimate.advanced.notify-DPT251600"),
-                            {
-                                modal: true,
-                                fixed: true,
-                                type: 'info',
-                                buttons: [{
-                                    text: "OK",
-                                    click: function (e) {
-                                        myNotification.close();
-                                    }
-                                }]
-                            })
-
-                    } else if ($(this).val().indexOf("222.") > -1) {
-                        // It's 3x16 Bit Setpoint or Setpoint shift
-                        var myNotification = RED.notify(node._("knxUltimate.advanced.notify-DPT222"),
-                            {
-                                modal: true,
-                                fixed: true,
-                                type: 'info',
-                                buttons: [{
-                                    text: "OK",
-                                    click: function (e) {
-                                        myNotification.close();
-                                    }
-                                }]
-                            })
-
-                    }
-
-                }
             });
             // ###########################
 
@@ -482,9 +407,11 @@
 </div>
 
 <div id="sampleCodeAccordion">
-    <h3 style="background-color:#C7ECCA;"><i class="fa fa-code"></i>&nbsp;<span
-            data-i18n="knxUltimate.advanced.Sample"></span></h3>
-    <div style="height:150px;min-height:120px;padding:5px;" class="node-text-editor" id="example-editor"></div>
+    <h3 style="background-color:#C7ECCA;"><i class="fa fa-code"></i>&nbsp;<span data-i18n="knxUltimate.advanced.Sample"></span></h3>
+    <div style="height:180px;min-height:150px;padding:5px;">
+        <p id="sampleCodeAccordionWebPage" style="color:green;"/>
+        <div style="height:80%;width:100%;padding:0px;" class="node-text-editor" id="example-editor"></div>
+    </div>
 </div>
 
 <div id="advancedOptionsAccordion">

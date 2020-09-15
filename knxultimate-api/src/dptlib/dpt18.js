@@ -78,7 +78,7 @@ return {payload:{"save_recall":0, "scenenumber":2}};`,
 exports.subtypes = {
     // 18.001 DPT_SceneControl 
     "001": {
-        name: "DPT_SceneControl", desc: "Scene control"
+        "desc": "DPT_SceneControl", "name": "Scene control"
     }
 }
 
