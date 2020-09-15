@@ -40,7 +40,7 @@
             ,"notify-DPT251600":"Du haßt einen RGBW Datenpunkt ausgewählt. Bitte <a target='_blank' href='https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---RGBW-Color-plus-White'>klicke hier, um dieses Beispiel anzuzeigen</a> und lernen, wie den Payload handeln."
             ,"notify-DPT222": "Du haßt einen 3x16 Bit Datapoint ausgewählt. Bitte <a target='_blank' href='https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---DPT222'>klicke hier, um dieses Beispiel anzuzeigen</a> und lernen, wie den Payload handeln."
             ,"divVediEsempi":"<a href='https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-SamplesHome' target='_blank'><i class='fa fa-code'></i>&nbsp BITTE LESE HIER EINIGE BEISPIELE.</a>"
-            ,"Sample": "Beispiel"
+            ,"Sample": "Hilfe beim Formatieren von ausgewähltem payload"
         },
         "selectlists": {
             "Output_write": "Schreiben",

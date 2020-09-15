@@ -38,19 +38,27 @@ exports.fromBuffer = function(buf) {
 exports.basetype = {
   "bitlength": 4,
   "valuetype": "composite",
-  "desc": "4-bit relative dimming control"
+  "desc": "4-bit relative dimming control",
+  "help": 
+`// The parameter "data" indicates the relative amount of the dimming commmand (how much to dim).
+// The parameter "data" can be any integer value from 0 to 7
+// The parameter decr_incr:1 increases the light
+// The parameter decr_incr:0 decreases the light
+msg.payload={decr_incr: 1, data: 5};
+return msg;`,
+"helplink":"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Dimming"
 }
 
 exports.subtypes = {
   // 3.007 dimming control
   "007": {
-    "name": "DPT_Control_Dimming [payload:{decr_incr:1 (1 to increase or 0 to decrease), data: 5}]",
+    "name": "Dimming control",
     "desc": "dimming control"
   },
 
   // 3.008 blind control
   "008": {
-    "name": "DPT_Control_Blinds",
+    "name": "Blinds control",
     "desc": "blinds control"
   }
 }

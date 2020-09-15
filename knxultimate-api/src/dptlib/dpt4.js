@@ -29,20 +29,25 @@ exports.fromBuffer = function(buf) {
 exports.basetype =  {
     "bitlength" : 8,
     "valuetype" : "basic",
-    "desc" : "8-bit character"
+    "desc" : "8-bit character",
+    "help": 
+`// Send a text to a display
+msg.payload = "Hello!"
+return msg;`,
+"helplink":""
 }
 
 exports.subtypes = {
     // 4.001 character (ASCII)
     "001" : {
-        "name" : "DPT_Char_ASCII",
+        "name" : "Char ASCII",
         "desc" : "ASCII character (0-127)",
         "range" : [0, 127],
         "use" : "G",
     },
     // 4.002 character (ISO-8859-1)
     "002" : {
-        "name" : "DPT_Char_8859_1",
+        "name" : "Char 8859 1",
         "desc" : "ISO-8859-1 character (0..255)",
         "use" : "G",
     }

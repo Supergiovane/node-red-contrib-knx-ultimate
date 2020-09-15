@@ -44,81 +44,81 @@ exports.basetype = {
 exports.subtypes = {
     // 2.001 switch control
     "001" : { "use" : "G",
-        "name" : "DPT_Switch_Control",
+        "name" : "Switch control",
         "desc" : "switch with priority",
         "enc" : { 0 : "Off", 1 : "On" }
     },
     // 2.002 boolean control
     "002" : { "use" : "G",
-        "name" : "DPT_Bool_Control",
+        "name" : "Bool control",
         "desc" : "boolean with priority",
         "enc" : { 0 : "false", 1 : "true" }
     },
     // 2.003 enable control
     "003" : {  "use" : "FB",
-        "name" : "DPT_Emable_Control",
+        "name" : "Emable control",
         "desc" : "enable with priority",
         "enc" : { 0 : "Disabled", 1 : "Enabled" }
     },
 
     // 2.004 ramp control
     "004" : { "use" : "FB",
-        "name" : "DPT_Ramp_Control",
+        "name" : "Ramp control",
         "desc" : "ramp with priority",
         "enc" : { 0 : "No ramp", 1 : "Ramp" }
     },
 
     // 2.005 alarm control
     "005" : { "use" : "FB",
-        "name" : "DPT_Alarm_Control",
+        "name" : "Alarm control",
         "desc" : "alarm with priority",
         "enc" : { 0 : "No alarm", 1 : "Alarm" }
     },
 
     // 2.006 binary value control
     "006" : { "use" : "FB",
-        "name" : "DPT_BinaryValue_Control",
+        "name" : "Binary value control",
         "desc" : "binary value with priority",
         "enc" : { 0 : "Off", 1 : "On" }
     },
 
     // 2.007 step control
     "007" : { "use" : "FB",
-        "name" : "DPT_Step_Control",
+        "name" : "Step control",
         "desc" : "step with priority",
         "enc" : { 0 : "Off", 1 : "On" }
     },
 
     // 2.008 Direction1 control
     "008" : { "use" : "FB",
-        "name" : "DPT_Direction1_Control",
+        "name" : "Direction1 control",
         "desc" : "direction 1 with priority",
         "enc" : { 0 : "Off", 1 : "On" }
     },
 
     // 2.009 Direction2 control
     "009" : { "use" : "FB",
-        "name" : "DPT_Direction2_Control",
+        "name" : "Direction2 control",
         "desc" : "direction 2 with priority",
         "enc" : { 0 : "Off", 1 : "On" }
     },
 
     // 2.010 start control
     "001" : { "use" : "FB",
-        "name" : "DPT_Start_Control",
+        "name" : "Start control",
         "desc" : "start with priority",
         "enc" : { 0 : "No control", 1: "No control", 2 : "Off", 3 : "On" }
     },
 
     // 2.011 state control
     "001" : { "use" : "FB",
-        "name" : "DPT_Switch_Control", "desc" : "switch",
+        "name" : "Switch control", "desc" : "switch",
         "enc" : { 0 : "No control", 1: "No control", 2 : "Off", 3 : "On" }
     },
 
     // 2.012 invert control
     "001" : { "use" : "FB",
-        "name" : "DPT_Switch_Control", "desc" : "switch",
+        "name" : "Switch control", "desc" : "switch",
         "enc" : { 0 : "No control", 1: "No control", 2 : "Off", 3 : "On" }
     }
 }

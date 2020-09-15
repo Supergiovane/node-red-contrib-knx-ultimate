@@ -40,7 +40,7 @@
             "import_select_stop": "Beenden und abbruch des Imports",
             "import_select_fake": "Import mit einem gefälschten 1.001-Datenpunkt (nicht empfohlen)",
             "import_select_skip": "Überspringen den Import der betroffenen Gruppenadresse",
-            "ga_list_title": "Gruppenadressliste",
+            "ga_list_title": "Fügen Sie hier die exportierte ETS-Datei ein",
             "ga_list_help": "Fügen Sie hier Ihre CSV- oder ESF-exportierte Datei aus der ETS ein",
             "deploywithETS":"Upon deploy, i'll parse the ETS file. Please see the debug TAB or node-red's log for errors/warnings. If no warnings, then the import process is OK. Otherwise you should correct the issues and again reimport the file."
         }

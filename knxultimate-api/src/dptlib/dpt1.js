@@ -26,168 +26,174 @@ exports.fromBuffer = function(buf) {
 exports.basetype = {
     'bitlength': 1,
     'valuetype': 'basic',
-    'desc' : "1-bit value"
+    'desc' : "1-bit value",
+    "help": 
+`// Turn on or off a lamp
+msg.payload = true; // Turn on
+// or msg.payload = false; // Turn off
+return msg;`,
+"helplink":"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Switch-light"
 }
 
 //  DPT subtypes info hash
 exports.subtypes = {
     //  1.001 on/off
     "001": { "use" : "G",
-        "name" : "DPT_Switch",
+        "name" : "Switch",
         "desc" : "switch",
-        "enc" : { 0 : "Off", 1 : "On" }
+        "enc": { 0: "Off", 1: "On" }
     },
 
     //  1.002 boolean
     "002" : { "use" : "G",
-        "name" : "DPT_Bool",
+        "name" : "Boolean",
         "desc" : "bool",
         "enc" : { 0 : "false", 1 : "true" }
     },
 
     //  1.003 enable
     "003" : { "use" : "G",
-        "name" : "DPT_Enable",
+        "name" : "Enable",
         "desc" : "enable",
         "enc" : { 0 : "disable", 1 : "enable" }
     },
 
     //  1.004 ramp
     "004" : { "use" : "FB",
-        "name" : "DPT_Ramp",
+        "name" : "Ramp",
         "desc" : "ramp",
         "enc" : { 0 : "No ramp", 1 : "Ramp" }
     },
 
     //  1.005 alarm
     "005" : { "use" : "FB",
-        "name" : "DPT_Alarm",
+        "name" : "Alarm",
         "desc" : "alarm",
         "enc" : { 0 : "No alarm", 1 : "Alarm" }
     },
 
     //  1.006 binary value
     "006" : { "use" : "FB",
-        "name" : "DPT_BinaryValue",
+        "name" : "Binary Value",
         "desc" : "binary value",
         "enc" : { 0 : "Low", 1 : "High" }
     },
 
     //  1.007 step
     "007" : { "use" : "FB",
-        "name" : "DPT_Step",
+        "name" : "Step",
         "desc" : "step",
         "enc" : { 0 : "Decrease", 1 : "Increase" }
     },
 
     //  1.008 up/down
     "008" : { "use" : "G",
-        "name" : "DPT_UpDown",
+        "name" : "Up/Down",
         "desc" : "up/down",
         "enc" : { 0 : "Up", 1 : "Down" }
     },
 
     //  1.009 open/close
     "009" : { "use" : "G",
-        "name" : "DPT_OpenClose",
+        "name" : "Open/Close",
         "desc" : "open/close",
         "enc" : { 0 : "Open", 1 : "Close" }
     },
 
     //  1.010 start/stop
     "010" : { "use" : "G",
-        "name" : "DPT_Start",
+        "name" : "Start/Stop",
         "desc" : "start/stop",
         "enc" : { 0 : "Stop", 1 : "Start" }
     },
 
     //  1.011 state
     "011" : { "use" : "FB",
-        "name" : "DPT_State",
+        "name" : "State",
         "desc" : "state",
         "enc" : { 0 : "Inactive", 1 : "Active" }
     },
 
     //  1.012 invert
     "012" : { "use" : "FB",
-        "name" : "DPT_Invert",
+        "name" : "Invert",
         "desc" : "invert",
         "enc" : { 0 : "Not inverted", 1 : "inverted" }
     },
 
     //  1.013 dim send style
     "013" : { "use" : "FB",
-        "name" : "DPT_DimSendStyle",
+        "name" : "Dim send style",
         "desc" : "dim send style",
         "enc" : { 0 : "Start/stop", 1 : "Cyclically" }
     },
 
     //  1.014 input source
     "014" : { "use" : "FB",
-        "name" : "DPT_InputSource",
+        "name" : "Input source",
         "desc" : "input source",
         "enc" : { 0 : "Fixed", 1 : "Calculated" }
     },
 
     //  1.015 reset
     "015" : { "use" : "G",
-        "name" : "DPT_Reset",
+        "name" : "Reset",
         "desc" : "reset",
         "enc" : { 0 : "no action(dummy)", 1 : "reset command(trigger)" }
     },
 
     //  1.016 acknowledge
     "016" : { "use" : "G",
-        "name" : "DPT_Ack",
+        "name" : "Ack",
         "desc" : "ack",
         "enc" : { 0 : "no action(dummy)", 1 : "acknowledge command(trigger)" }
     },
 
     //  1.017 trigger
     "017" : { "use" : "G",
-        "name" : "DPT_Trigger",
+        "name" : "Trigger",
         "desc" : "trigger",
         "enc" : { 0 : "trigger", 1 : "trigger" }
     },
 
     //  1.018 occupied
     "018" : { "use" : "G",
-        "name" : "DPT_Occupancy",
+        "name" : "Occupancy",
         "desc" : "occupancy",
         "enc" : { 0 : "not occupied", 1 : "occupied" }
     },
 
     //  1.019 open window or door
     "019" : { "use" : "G",
-        "name" : "DPT_WindowDoor",
+        "name" : "Window/Door",
         "desc" : "open window/door",
         "enc" : { 0 : "closed", 1 : "open" }
     },
 
     //  1.021 and/or
     "021" : { "use" : "FB",
-        "name" : "DPT_LogicalFunction",
+        "name" : "Logical function",
         "desc" : "and/or",
         "enc" : { 0 : "logical function OR", 1 : "logical function AND" }
     },
 
     //  1.022 scene A/B
     "022" : { "use" : "FB",
-        "name" : "DPT_Scene_AB",
+        "name" : "Scene",
         "desc" : "scene A/B",
         "enc" : { 0 : "scene A", 1 : "scene B" }
     },
 
     //  1.023 shutter/blinds mode
     "023" : { "use" : "FB",
-        "name" : "DPT_ShutterBlinds_Mode",
+        "name" : "Shutter/Blinds mode",
         "desc" : "shutter/blinds mode",
         "enc" : { 0 : "only move Up/Down mode (shutter)", 1 : "move Up/Down + StepStop mode (blind)" }
     },
 
     //  1.100 cooling/heating     ---FIXME---
     "100" : {  "use" : "???",
-        "name" : "DPT_Heat/Cool",
+        "name" : "Heat/Cool",
         "desc" : "heat/cool",
         "enc" : { 0 : "???", 1 : "???" }
     }

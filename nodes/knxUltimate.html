@@ -60,10 +60,42 @@
                 return i == aSearchWords.length;
             }
 
+            // 15/09/2020 Supergiovane, set the help sample based on Datapoint
+            function knxUltimateDptsGetHelp(_dpt, _forceClose) {
+                $.getJSON("knxUltimateDptsGetHelp?dpt=" + _dpt, (data) => {
+                    try {
+                        $("#example-editor").html("");
+                        node.sampleEditor.destroy();
+                        delete node.sampleEditor;
+                    } catch (error) {
+                    }
+                    if (data.help !== "NO") {
+                        node.sampleEditor = RED.editor.createEditor({
+                            id: 'example-editor',
+                            mode: 'ace/mode/javascript',
+                            value: data.help//this.exampleText
+                        }).renderer.setShowGutter(false);//.setReadOnly(true).setShowPrintMargin(false);                    
+                        // Expand Accordion
+                        if (_forceClose == false) $("#sampleCodeAccordion").accordion({ active: 0 });
+                    } else {
+                        // No help avaiable
+                        node.sampleEditor = RED.editor.createEditor({
+                            id: 'example-editor',
+                            mode: 'ace/mode/javascript',
+                            value: "Currently, no sample payload is avaiable, sorry."
+                        }).renderer.setShowGutter(false);//.setReadOnly(true).setShowPrintMargin(false);
+                        // Collapse Accordion
+                        $("#sampleCodeAccordion").accordion({ active: 1 });
+                    }
+                })
+            }
 
             // 02/04/2020 Alert user about data type
             // ###########################
             $("#node-input-dpt").on("change", function () {
+
+                // Load help sample
+                knxUltimateDptsGetHelp($(this).val(), false);
 
                 if ($(this).val() !== null) {
                     if ($(this).val().indexOf("3.007") > -1) {
@@ -171,6 +203,13 @@
                         .text(dpt.text))
                 });
                 $("#node-input-dpt").val(this.dpt);
+                // 15/09/2020 Set the sample help text
+                if (($("#node-input-listenallga").is(":checked"))) {
+                    // Call a fake datapoint to load a sample "Universal Node"
+                    knxUltimateDptsGetHelp("0.000", false); // 15/09/2020 Supergiovane, load sample help
+                } else {
+                    knxUltimateDptsGetHelp(this.dpt, true); // 15/09/2020 Supergiovane, load sample help                    
+                }
             })
 
             // Add write and response as default for existing nodes like was default before
@@ -208,16 +247,23 @@
                     $("#divnotifyreadrequestautoreact").hide();
                     $("#helpallga").show();
                     $("#divTopic").hide()
+
+                    // Call a fake datapoint to load a sample "Universal Node"
+                    knxUltimateDptsGetHelp("0.000", false); // 15/09/2020 Supergiovane, load sample help
+
                     if ($("#helpallga").html == "") {
                         // There is a ETS csv file, show the init read option
                         $("#divNode-input-initialread").show()
-                    }
-                    else {
+                    } else {
                         // There isn't a ETS csv file, hide and deselect the init read option
                         $("#divNode-input-initialread").hide();
                         $("#node-input-initialread").prop('checked', false);
                     }
                 } else {
+
+                    // 15/09/2020 Supergiovane, load the help sample of the current datapoint
+                    knxUltimateDptsGetHelp($("#node-input-dpt").val(), false); // 15/09/2020 Supergiovane, load sample help
+
                     $("#GAandDPT").show()
                     $("#divOutputRBE").show()
                     $("#divInputRBE").show()
@@ -330,20 +376,8 @@
                 collapsible: true,
                 active: false
             });
-            var banana=  
-`// The parameter "data" indicates the relative amount of the dimming commmand (how much to dim).
-// The parameter "data" can be any integer value from 0 to 7
-// The parameter decr_incr:1 increases the light
-// The parameter decr_incr:0 decreases the light
-msg.payload={decr_incr: 1, data: 5};
-return msg;`;
-            this.sampleEditor = RED.editor.createEditor({
-                id: 'node-input-example-editor',
-                mode: 'ace/mode/javascript',
-                value: banana//this.exampleText
-            }).renderer.setShowGutter(false);//.setReadOnly(true).setShowPrintMargin(false);
             // *****************************
-            
+
         },
         oneditsave: function () {
             var node = this;
@@ -373,6 +407,20 @@ return msg;`;
                 // $("#divInputRBE").show()
                 $("#helpallga").show()
             }
+
+            // 15/09/2020 Supergiovane, Detele the sample help editor
+            try {
+                node.sampleEditor.destroy();
+                delete node.sampleEditor;
+            } catch (error) { }
+
+        },
+        oneditcancel: function () {
+            // 15/09/2020 Supergiovane, Detele the sample help editor
+            try {
+                node.sampleEditor.destroy();
+                delete node.sampleEditor;
+            } catch (error) { }
         }
     })
 
@@ -434,16 +482,18 @@ return msg;`;
 </div>
 
 <div id="sampleCodeAccordion">
-    <h3><span data-i18n="knxUltimate.advanced.Sample"></span></h3>
-    <div style="height:150px;min-height:120px;padding:0px;" class="node-text-editor" id="node-input-example-editor"></div>
+    <h3 style="background-color:#C7ECCA;"><i class="fa fa-code"></i>&nbsp;<span
+            data-i18n="knxUltimate.advanced.Sample"></span></h3>
+    <div style="height:150px;min-height:120px;padding:5px;" class="node-text-editor" id="example-editor"></div>
 </div>
 
-<div id="advancedOptionsAccordion" >
-    <h3><span data-i18n="knxUltimate.advanced.Advancedoptions"></span></h3>
+<div id="advancedOptionsAccordion">
+    <h3 style="background-color:#C7ECCA;"><i class="fa fa-braille"></i>&nbsp;<span
+            data-i18n="knxUltimate.advanced.Advancedoptions"></span></h3>
     <div class="form-row" style="padding:10px">
         <div class="form-row">
             <label style="width:230px" for="node-input-passthrough">
-                <i class="fa fa-sign-out"></i>
+                <i class="fa fa-long-arrow-right"></i>
                 <span data-i18n="knxUltimate.properties.node-input-passthrough"></span>
             </label>
             <select style="width:92px" id="node-input-passthrough">
@@ -455,13 +505,13 @@ return msg;`;
         <br />
         <div class="form-row">
             <dt>
-                <i class="fa fa-code-fork"></i>
+                <i class="fa fa-arrow-right"></i>|
                 <span data-i18n="knxUltimate.advanced.OUTPUT"></span>
             </dt>
         </div>
         <div class="form-row">
-            <label for="node-input-outputtype">
-                <i class="fa fa-rocket"></i>
+            &nbsp;&nbsp;<label for="node-input-outputtype">
+                <i class="fa fa-paper-plane-o"></i>
                 <span data-i18n="knxUltimate.properties.node-input-outputtype"></span>
             </label>
             <select id="node-input-outputtype">
@@ -471,7 +521,7 @@ return msg;`;
             </select>
         </div>
         <div class="form-row" id="divOutputRBE">
-            <input type="checkbox" id="node-input-outputRBE"
+            &nbsp;&nbsp;<input type="checkbox" id="node-input-outputRBE"
                 style="display:inline-block; width:auto; vertical-align:top;" />
             <label style="width:85%" for="node-input-outputRBE">
                 <i class="fa fa-filter"></i>
@@ -479,7 +529,7 @@ return msg;`;
             </label>
         </div>
         <div class="form-row" id="divNode-input-initialread">
-            <input type="checkbox" id="node-input-initialread"
+            &nbsp;&nbsp;<input type="checkbox" id="node-input-initialread"
                 style="display:inline-block; width:auto; vertical-align:top;" />
             <label style="width:85%" for="node-input-initialread">
                 <i class="fa fa-question-circle-o"></i>
@@ -489,12 +539,12 @@ return msg;`;
         </br>
         <div class="form-row">
             <dt>
-                <i class="fa fa-code-fork"></i>
+                |<i class="fa fa-arrow-right"></i>
                 <span data-i18n="knxUltimate.advanced.INPUT"></span>
             </dt>
         </div>
         <div class="form-row" id="divInputRBE">
-            <input type="checkbox" id="node-input-inputRBE"
+            &nbsp;&nbsp;<input type="checkbox" id="node-input-inputRBE"
                 style="display:inline-block; width:auto; vertical-align:top;" />
             <label style="width:85%" for="node-input-inputRBE">
                 <i class="fa fa-filter"></i>
@@ -502,7 +552,7 @@ return msg;`;
             </label>
         </div>
         <div class="form-row">
-            <input type="checkbox" id="node-input-notifywrite"
+            &nbsp;&nbsp;<input type="checkbox" id="node-input-notifywrite"
                 style="display:inline-block; width:auto; vertical-align:top;" />
             <label style="width:85%" for="node-input-notifywrite">
                 <i class="fa fa-sign-in"></i>
@@ -510,7 +560,7 @@ return msg;`;
             </label>
         </div>
         <div class="form-row">
-            <input type="checkbox" id="node-input-notifyresponse"
+            &nbsp;&nbsp;<input type="checkbox" id="node-input-notifyresponse"
                 style="display:inline-block; width:auto; vertical-align:top;" />
             <label style="width:85%" for="node-input-notifyresponse">
                 <i class="fa fa-sign-in"></i>
@@ -518,7 +568,7 @@ return msg;`;
             </label>
         </div>
         <div class="form-row">
-            <input type="checkbox" id="node-input-notifyreadrequest"
+            &nbsp;&nbsp;<input type="checkbox" id="node-input-notifyreadrequest"
                 style="display:inline-block; width:auto; vertical-align:top;" />
             <label style="width:85%" for="node-input-notifyreadrequest">
                 <i class="fa fa-sign-in"></i>
@@ -529,14 +579,14 @@ return msg;`;
         <div id="divnotifyreadrequestautoreact">
             <dd>
                 <div class="form-row">
-                    <input type="checkbox" id="node-input-notifyreadrequestalsorespondtobus"
+                    &nbsp;&nbsp;<input type="checkbox" id="node-input-notifyreadrequestalsorespondtobus"
                         style="display:inline-block; width:auto; vertical-align:top;" />
                     <label style="width:85%" for="node-input-notifyreadrequestalsorespondtobus">
                         <span data-i18n="knxUltimate.properties.node-input-notifyreadrequestalsorespondtobus"></span>
                     </label>
                 </div>
                 <div class="form-row">
-                    <label style="width:auto">
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<label style="width:auto">
                         <span
                             data-i18n="knxUltimate.properties.node-input-notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized"></span>
                     </label>
@@ -550,7 +600,8 @@ return msg;`;
 </div>
 
 <div id="formatValueAccordion">
-    <h3><span data-i18n="knxUltimate.advanced.Formatting"></span></h3>
+    <h3 style="background-color:#C7ECCA;"><i class="fa fa-list-ol"></i>&nbsp;<span
+            data-i18n="knxUltimate.advanced.Formatting"></span></h3>
     <div class="form-row" style="padding:10px">
         <div class="form-row">
             <dt>

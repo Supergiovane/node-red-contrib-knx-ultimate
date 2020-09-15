@@ -68,8 +68,36 @@ module.exports = (RED) => {
         // RED.log.warn(stringa)
     });
 
-    
-    
+    // 15/09/2020 Supergiovane, read datapoint help usage
+    RED.httpAdmin.get("/knxUltimateDptsGetHelp", RED.auth.needsPermission('knxUltimate-config.read'), function (req, res) {
+        var sDPT = req.query.dpt.split(".")[0]; // Takes only the main type
+        var jRet;
+        if (sDPT == "0") { // Special fake datapoint, meaning "Universal Mode"
+            jRet = {"help":
+`// KNX-Ultimate set as UNIVERSAL NODE
+// Example of a function that sends a message to the KNX-Ultimate
+msg.destination = "0/0/1"; // Set the destination 
+msg.payload = false; // issues a write or response (based on the options Output Type above) to the KNX bus
+msg.event = "GroupValue_Write"; // "GroupValue_Write" or "GroupValue_Response", overrides the option Output Type above.
+msg.dpt = "1.001"; // for example "1.001", overrides the Datapoint option. (Datapoints can be sent as 9 , "9" , "9.001" or "DPT9.001")
+return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki"};
+            res.json(jRet);
+            return;
+        }
+        jRet = { "help": "NO", "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki" };
+        const dpts =
+            Object.entries(dptlib)
+                .filter(onlyDptKeys)
+        for (let index = 0; index < dpts.length; index++) {
+            if (dpts[index][0].toUpperCase() === "DPT" + sDPT) {
+                jRet = { "help": (dpts[index][1].basetype.hasOwnProperty("help") ? dpts[index][1].basetype.help : "NO"), "helplink": (dpts[index][1].basetype.hasOwnProperty("helplink") ? dpts[index][1].basetype.helplink : "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki") };
+                break;
+            }
+        }
+        res.json(jRet);
+    });
+
+
 
     function knxUltimateConfigNode(config) {
         RED.nodes.createNode(this, config)

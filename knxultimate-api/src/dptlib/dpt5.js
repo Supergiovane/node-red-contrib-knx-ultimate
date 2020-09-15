@@ -16,49 +16,55 @@ exports.basetype = {
     "signedness": "unsigned",
     "range" : [0, 255],
     "valuetype" : "basic",
-    "desc" : "8-bit unsigned value"
+    "desc" : "8-bit unsigned value",
+    "help": 
+`// Set a percentage. Based on subtype, you can send a range 0-100 or 0-255
+// Set blinds to half position
+msg.payload = 50;
+return msg;`,
+  "helplink":"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Dimming"
 }
 
 exports.subtypes = {
     // 5.001 percentage (0=0..ff=100%)
     "001" : {
-        "name" : "DPT_Scaling, Percentage (0..100%)", "desc" : "percent",
+        "name" : "Percentage (0..100%)", "desc" : "percent",
         "unit" : "%", "scalar_range" : [0, 100]
     },
 
     // 5.003 angle (degrees 0=0, ff=360)
     "003" : {
-        "name" : "DPT_Angle, Degrees (0..360)", "desc" : "angle degrees",
+        "name" : "Angle, Degrees (0..360)", "desc" : "angle degrees",
         "unit" : "°", "scalar_range" : [0, 360]
     },
 
     // 5.004 percentage (0..255%)
     "004" : {
-        "name" : "DPT_Percent_U8, Percentage (0..255%)", "desc" : "percent",
+        "name" : "Percentage (0..255%)", "desc" : "percent",
         "unit" : "%",
     },
 
     // 5.005 ratio (0..255)
     "005" : {
-        "name" : "DPT_DecimalFactor, Ratio (0..255)", "desc" : "ratio",
+        "name" : "Ratio (0..255)", "desc" : "ratio",
         "unit" : "ratio",
     },
 
     // 5.006 tariff (0..255)
     "006" : {
-        "name" : "DPT_Tariff, Tariff (0..255)", "desc" : "tariff",
+        "name" : "Tariff (0..255)", "desc" : "tariff",
         "unit" : "tariff",
     },
 
     // 5.010 counter pulses (0..255)
     "010" : {
-        "name" : "DPT_Couter_Pulses, Pulses (0..255)", "desc" : "counter pulses",
+        "name" : "Pulses (0..255)", "desc" : "counter pulses",
         "unit" : "pulses",
     },
 
      // 5.100 Fan Stage (0..255)
      "100" : {
-        "name" : "DPT_Fan_Stage, Fan stage (0..255)", "desc" : "Fan Stage",
+        "name" : "Fan stage (0..255)", "desc" : "Fan Stage",
         "unit" : "",
     }
 }
