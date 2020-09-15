@@ -6,7 +6,7 @@
 
 <p>
 <b>Version 1.1.84</b> - September 2020<br/>
-- The knx API is now part of knx-ultimate. External dependency has been removed. This allow to a more tigh integration between KNX Bus and node-red.<br/>
+- The knx API is now part of knx-ultimate. External dependency has been removed. This allow to a more tight integration between KNX Bus and node-red.<br/>
 - Update: Rewrite of all datapoint names, to adhere to ETS naming convenction. Updated some deprecated buffer initialization.<br/>
 - NEW: Added Datapoint 6.020 Status with mode.<br/>
 - NEW: Added Datapoint 8.012 Length in meter.<br/>
