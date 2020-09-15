@@ -19,14 +19,19 @@ exports.basetype = {
 exports.subtypes = {
     // 6.001 percentage (-128%..127%)
     "001" : {
-        "name" : "DPT_Switch", "desc" : "percent",
+        "name" : "Percent (-128..127%)", "desc" : "percent",
         "unit" : "%",
     },
 
     // 6.002 counter pulses (-128..127)
     "010" : {
-        "name" : "DPT_Bool", "desc" : "counter pulses",
+        "name" : "Counter pulses (-128..127%)", "desc" : "counter pulses",
         "unit" : "pulses"
+    },
+    // 6.02 Status with mode
+    "020" : {
+        "name" : "Status with mode (-128..127%)", "desc" : "status with mode",
+        "unit" : "status"
     },
 
     //

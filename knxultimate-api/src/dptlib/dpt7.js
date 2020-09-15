@@ -49,7 +49,7 @@ exports.subtypes = {
     // 7.001 pulses
     "001": {
         "use": "G",
-        "name": "DPT_Value_2_Ucount",
+        "name": "Pulses",
         "desc": "pulses",
         "unit": "pulses"
     },
@@ -57,7 +57,7 @@ exports.subtypes = {
     // 7.002 time(ms)
     "002": {
         "use": "G",
-        "name": "DPT_TimePeriodMsec",
+        "name": "Time (ms)",
         "desc": "time (ms)",
         "unit": "milliseconds"
     },
@@ -65,7 +65,7 @@ exports.subtypes = {
     // 7.003 time (10ms)
     "003": {
         "use": "G",
-        "name": "DPT_TimePeriod10Msec",
+        "name": "Time (10ms)",
         "desc": "time (10ms)",
         "unit": "centiseconds"
     },
@@ -73,7 +73,7 @@ exports.subtypes = {
     // 7.004 time (100ms)
     "004": {
         "use": "G",
-        "name": "DPT_TimePeriod100Msec",
+        "name": "Time (100ms)",
         "desc": "time (100ms)",
         "unit": "deciseconds"
     },
@@ -81,7 +81,7 @@ exports.subtypes = {
     // 7.005 time (sec)
     "005": {
         "use": "G",
-        "name": "DPT_TimePeriodSec",
+        "name": "Time (s)",
         "desc": "time (s)",
         "unit": "seconds"
     },
@@ -89,7 +89,7 @@ exports.subtypes = {
     // 7.006 time (min)
     "006": {
         "use": "G",
-        "name": "DPT_TimePeriodMin",
+        "name": "Time (min)",
         "desc": "time (min)",
         "unit": "minutes"
     },
@@ -97,23 +97,23 @@ exports.subtypes = {
     // 7.007 time  (hour)
     "007": {
         "use": "G",
-        "name": "DPT_TimePeriodHrs",
+        "name": "Time (hrs)",
         "desc": "time (hrs)",
         "unit": "hours"
     },
 
-    // 7.010 DPT_PropDataType
+    // 7.010 PropDataType
     // not to be used in runtime communications!
     "010": {
         "use": "FB",
-        "name": "DPT_PropDataType",
+        "name": "Property data type",
         "desc": "Identifier Interface Object Property data type "
     },
 
     // 7.011
     "011": {
         "use": "FB SAB",
-        "name": "DPT_Length_mm",
+        "name": "Length_mm",
         "desc": "Length in mm",
         "unit": "mm"
     },
@@ -121,7 +121,7 @@ exports.subtypes = {
     // 7.012
     "012": {
         "use": "FB",
-        "name": "DPT_UEICurrentmA",
+        "name": "Current (mA)",
         "desc": "bus power supply current (mA)",
         "unit": "mA"
     },
@@ -129,7 +129,7 @@ exports.subtypes = {
     // 7.013
     "013": {
         "use": "FB",
-        "name": "DPT_Brightness",
+        "name": "Brightness (lux)",
         "desc": "interior brightness",
         "unit": "lux"
     },
@@ -137,7 +137,7 @@ exports.subtypes = {
     // 7.600 Kelvin
     "600": {
         "use": "FB",
-        "name": "DPT_Absolute_Colour_Temperature",
+        "name": "Absolute colour temperature (K)",
         "desc": "absolute colour temperature (K).",
         "unit": "K",
         "range" : [0, 65535]

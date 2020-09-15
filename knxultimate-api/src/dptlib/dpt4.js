@@ -31,8 +31,8 @@ exports.basetype =  {
     "valuetype" : "basic",
     "desc" : "8-bit character",
     "help": 
-`// Send a text to a display
-msg.payload = "Hello!"
+`// Send a single character in ascii or ISO
+msg.payload = "A";
 return msg;`,
 "helplink":""
 }

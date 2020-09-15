@@ -63,13 +63,18 @@ exports.fromBuffer = function(buf) {
 exports.basetype = {
   bitlength : 24,
   valuetype : 'composite',
-  desc : "3-byte date value"
+  desc : "3-byte date value",
+  "help": 
+`// Send the date to the bus!
+msg.payload = new Date().toString();
+return msg;`,
+"helplink":"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---DateTime-to-BUS"
 }
 
 // DPT11 subtypes info
 exports.subtypes = {
   // 11.001 date
   "001" : {
-      name : "DPT_Date", desc : "Date"
+      name : "Date", desc : "Date"
   }
 }

@@ -131,14 +131,19 @@ exports.fromBuffer = function (buf) {
 exports.basetype = {
     "bitlength": 48,
     "valuetype": "basic",
-    "desc": "3x16-bit floating point value"
+    "desc": "3x16-bit floating point value",
+    "help": 
+`// Set the temperature setpoints or setpoint shift
+msg.payload = {Comfort:21.4, Standby:20, Economy:18.2};
+return msg;`,
+  "helplink":"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---DPT222"
 }
 
 // DPT222 subtypes
 exports.subtypes = {
     // 222.100 RoomTemperature Setpoint Values
     "100": {
-        "name": "DPT_TempRoomSetpSetF16[3] payload = {Comfort:21, Standby:20, Economy:14}", "desc": "RoomTemperature Setpoint Values for Comfort, Standby and Economy",
+        "desc": "DPT_TempRoomSetpSetF16[3]", "name": "Room temperature setpoint (Comfort, Standby and Economy)",
         "unit": "°C",
         "range": [-273, 670760]
         
@@ -146,7 +151,7 @@ exports.subtypes = {
 
     // 222.101 RoomTemperature Setpoint Shift Values
     "101": {
-        "name": "DPT_TempRoomSetpSetShiftF16[3] payload = {Comfort:2, Standby:1, Economy:4}", "desc": "RoomTemperature Setpoint Shift Values for Comfort, Standby and Economy",
+        "desc": "DPT_TempRoomSetpSetShiftF16[3]", "name": "Room temperature setpoint shift (Comfort, Standby and Economy)",
         "unit": "K", "range": [-670760, 670760]
     }
 }

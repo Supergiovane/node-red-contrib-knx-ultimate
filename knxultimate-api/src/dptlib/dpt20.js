@@ -34,7 +34,7 @@ exports.basetype = {
 exports.subtypes = {
     // 20.102 HVAC mode
     "102" : {
-        "name" : "HVAC_Mode",
+        "name" : "HVAC Mode",
 		"desc" : "",
         "unit" : "",
 		"scalar_range" : [ , ],

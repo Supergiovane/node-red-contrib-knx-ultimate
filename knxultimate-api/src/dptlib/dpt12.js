@@ -35,9 +35,9 @@ exports.basetype = {
 exports.subtypes = {
   // 12.001 counter pulses
   "001" : {
-    "name" : "DPT_Value_4_Ucount", "desc" : "counter pulses"
+    "name" : "Counter pulses (unsigned)", "desc" : "counter pulses"
   },
   "1201" : {
-    "name" : "DPT_Value_Volume_m3", "desc" : "Volume m3"
+    "name" : "Volume (m3)", "desc" : "Volume m3"
   }
 }

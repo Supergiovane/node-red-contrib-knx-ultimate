@@ -39,31 +39,31 @@ exports.subtypes = {
 
     // 5.003 angle (degrees 0=0, ff=360)
     "003" : {
-        "name" : "DPT_Angle", "desc" : "angle degrees",
+        "desc" : "Angle", "name" : "Angle degrees",
         "unit" : "°", "scalar_range" : [0, 360]
     },
 
     // 5.004 percentage (0..255%)
     "004" : {
-        "name" : "DPT_Percent_U8", "desc" : "percent",
+        "desc" : "Percent_U8", "name" : "Percent",
         "unit" : "%",
     },
 
     // 5.005 ratio (0..255)
     "005" : {
-        "name" : "DPT_DecimalFactor", "desc" : "ratio",
+        "desc" : "DecimalFactor", "name" : "Ratio",
         "unit" : "ratio",
     },
 
     // 5.006 tariff (0..255)
     "006" : {
-        "name" : "DPT_Tariff", "desc" : "tariff",
+        "desc" : "Tariff", "name" : "Tariff",
         "unit" : "tariff",
     },
 
     // 5.010 counter pulses (0..255)
     "010" : {
-        "name" : "DPT_Value_1_Ucount", "desc" : "counter pulses",
+        "desc" : "Value_1_Ucount", "name" : "Counter pulses",
         "unit" : "pulses",
     },
 }

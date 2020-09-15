@@ -19,6 +19,6 @@ exports.basetype = {
 //  DPT15 subtypes info
 exports.subtypes = {
   "000" : {
-    "name" : "DPT_Access_Data"
+    "name" : "Entrance access"
   }
 }

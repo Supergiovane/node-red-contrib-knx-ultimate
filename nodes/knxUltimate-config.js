@@ -23,7 +23,7 @@ convertSubtype = (baseType) => (kv) => {
     let value = `${baseType.base}.${kv[0]}`
     return {
         value: value
-        , text: value + ` (${kv[1].name})`
+        , text: value + ` ${kv[1].name}`
     }
 }
 

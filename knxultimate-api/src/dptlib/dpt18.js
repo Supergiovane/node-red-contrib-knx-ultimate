@@ -64,14 +64,21 @@ exports.fromBuffer = function (buf) {
 exports.basetype = {
     bitlength: 8,
     valuetype: 'composite',
-    desc: "8-bit Scene Activate/Learn + number"
+    desc: "8-bit Scene Activate/Learn + number",
+    "help":
+`// To save and recall scene, use payload:{"save_recall":0, "scenenumber":2}
+// save_recall = 0 recalls the scene
+// save_recall = 1 saves the scene
+// scenenumber is the number of the scene to be recalled or saved
+return {payload:{"save_recall":0, "scenenumber":2}};`,
+"helplink": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Control-a-scene-actuator"
 }
 
-// DPT9 subtypes
+// DPT18 subtypes
 exports.subtypes = {
-    // 9.001 temperature (oC)
+    // 18.001 DPT_SceneControl 
     "001": {
-        name: "DPT_SceneControl [payload:{'save_recall':0 (0 to recall or 1 to save), 'scenenumber':2}]", desc: "scene control"
+        name: "DPT_SceneControl", desc: "Scene control"
     }
 }
 

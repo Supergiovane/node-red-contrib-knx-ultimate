@@ -83,13 +83,18 @@ exports.fromBuffer = function(buf) {
 exports.basetype = {
   "bitlength" : 24,
   "valuetype" : "composite",
-  "desc" : "day of week + time of day"
+  "desc" : "day of week + time of day",
+  "help": 
+`// Send the time to the bus!
+msg.payload = new Date().toString();
+return msg;`,
+"helplink":"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---DateTime-to-BUS"
 }
 
 // DPT10 subtypes info
 exports.subtypes = {
   // 10.001 time of day
   "001" : {
-      "name" : "DPT_TimeOfDay", "desc" : "time of day"
+      "name" : "Time of day", "desc" : "time of day"
   }
 }

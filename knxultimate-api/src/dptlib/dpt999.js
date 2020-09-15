@@ -43,7 +43,12 @@ exports.fromBuffer = function (buf) {
 exports.basetype = {
   bitlength: 80,
   valuetype: 'basic',
-  desc: "10-bytes"
+  desc: "10-bytes",
+  "help": 
+`// Send a code to an alarm keypad
+msg.payload = '123400000000000000'; // Or  msg.payload = '$12 $34 $00 $00 $00 $00 $00 $00 $00';
+return msg;`,
+"helplink":""
 }
 
 // DPT999 subtypes
@@ -51,6 +56,6 @@ exports.subtypes = {
   // 10 Bytes string hex value
   "001": {
     use: "G",
-    name: "10Bytes HEX [payload: '123400000000000000' or '$12 $34 $00 $00 $00 $00 $00 $00 $00']", desc: "HEX string"
+    "desc": "10Bytes HEX", "name": "10 Bytes"
   }
 }

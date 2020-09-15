@@ -54,12 +54,18 @@ exports.fromBuffer = function (buf) {
 exports.basetype = {
     "bitlength": 6 * 8,
     "valuetype": "basic",
-    "desc": "RGBW array"
+    "desc": "RGBW array",
+    "help": 
+`// Each color + white in a range between 0 and 255, the latest 4 bits in range 0 to 1
+// red:0-255, green:0-255, blue:0-255, white:0-255, mR:0-1, mG:0-1, mB:0-1, mW:0-1
+msg.payload={red:90, green:200, blue:30, white:120, mR:1, mG:1, mB:1, mW:1};
+return msg;`,
+  "helplink":"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---RGBW-Color-plus-White"
 }
 
 exports.subtypes = {
     "600": {
-        "name": "RGBW [payload:{red:255, green:200, blue:30, white:50, mR:1, mG:1, mB:1, mW:1}]", "desc": "RGB color triplet + White + Validity",
+        "desc": "RGBW [payload:{red:255, green:200, blue:30, white:50, mR:1, mG:1, mB:1, mW:1}]", "name": "RGB color triplet + White + Validity",
         "unit": "", "scalar_range": [,],
         "range": [,]
     }

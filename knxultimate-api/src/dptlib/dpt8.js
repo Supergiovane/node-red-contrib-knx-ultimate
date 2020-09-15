@@ -20,64 +20,71 @@ exports.basetype = {
 exports.subtypes = {
   // 8.001 pulses difference
   "001" : {
-      "name" : "DPT_Value_2_Count",
+      "name" : "Pulses difference",
       "desc" : "pulses",
       "unit" : "pulses"
   },
 
   // 8.002 time lag (ms)
   "002" : {
-      "name" : "DPT_DeltaTimeMsec",
+      "name" : "Time lag (ms)",
       "desc" : "time lag(ms)",
       "unit" : "milliseconds"
   },
 
   // 8.003 time lag (10ms)
   "003" : {
-      "name" : "DPT_DeltaTime10Msec",
+      "name" : "Time lag (10ms)",
       "desc" : "time lag(10ms)",
       "unit" : "centiseconds"
   },
 
   // 8.004 time lag (100ms)
   "004" : {
-      "name" : "DPT_DeltaTime100Msec",
+      "name" : "Time lag(100ms)",
       "desc" : "time lag(100ms)",
       "unit" : "deciseconds"
   },
 
   // 8.005 time lag (sec)
   "005" : {
-      "name" : "DPT_DeltaTimeSec",
+      "name" : "Time lag(s)",
       "desc" : "time lag(s)",
       "unit" : "seconds"
   },
 
   // 8.006 time lag (min)
   "006" : {
-      "name" : "DPT_DeltaTimeMin",
+      "name" : "Time lag(min)",
       "desc" : "time lag(min)",
       "unit" : "minutes"
   },
 
   // 8.007 time lag (hour)
   "007" : {
-      "name" : "DPT_DeltaTimeHrs",
+      "name" : "Time lag(hrs)",
       "desc" : "time lag(hrs)",
       "unit" : "hours"
   },
 
   // 8.010 percentage difference (%)
   "010" : {
-      "name" : "DPT_Percent_V16",
+      "name" : "Percentage difference (%)",
       "desc" : "percentage difference",
       "unit" : "%"
   },
 
   // 8.011 rotation angle (deg)
   "011" : {
-      "name" : "DPT_RotationAngle",
-      "desc" : "angle(degrees)",
+      "name" : "Rotation angle (°)",
+      "desc" : "angle (degrees)",
       "unit" : "°"
+    },
+  
+  // 8.012 length (m)
+  "012" : {
+      "name" : "Length (m)",
+      "desc" : "length (m)",
+      "unit" : "m"
   },
 }

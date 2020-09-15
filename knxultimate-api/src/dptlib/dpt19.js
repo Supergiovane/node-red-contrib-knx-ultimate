@@ -48,6 +48,6 @@ exports.basetype = {
 exports.subtypes = {
   // 19.001
   "001" : {
-      "name" : "DPT_DateTime", "desc" : "datetime"
+      "name" : "Date time", "desc" : "datetime"
   },
 }

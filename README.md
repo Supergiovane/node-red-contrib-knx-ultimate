@@ -110,6 +110,7 @@ payload={red:255, green:200, blue:30} // Put some colors in our life
 5.100 (DPT_Fan_Stage)<br/>
 6.001 (DPT_Switch)<br/>
 6.010 (DPT_Bool)<br/>
+6.020 (status with mode)<br/>
 7.001 (DPT_Value_2_Ucount)<br/>
 7.002 (DPT_TimePeriodMsec)<br/>
 7.003 (DPT_TimePeriod10Msec)<br/>

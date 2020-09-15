@@ -37,12 +37,17 @@ exports.fromBuffer = function(buf) {
 exports.basetype = {
     "bitlength" : 3*8,
     "valuetype" : "basic",
-    "desc" : "RGB array"
+    "desc" : "RGB array",
+    "help": 
+`// Each color in a range between 0 and 255
+msg.payload={red:255, green:200, blue:30};
+return msg;`,
+  "helplink":"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---RGB-Color"
 }
 
 exports.subtypes = {
     "600" : {
-        "name" : "RGB [payload:{red:255, green:200, blue:30}]", "desc" : "RGB color triplet",
+        "desc" : "RGB", "name" : "RGB color triplet",
         "unit" : "", "scalar_range" : [ , ],
         "range" : [ , ]
     }

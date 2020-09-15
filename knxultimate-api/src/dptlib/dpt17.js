@@ -20,6 +20,6 @@ exports.basetype = {
 exports.subtypes = {
   // 17.001 Scene number
   "001" : { use : "G",
-      name : "DPT_SceneNumber", desc : "Scene Number",
-  },
+      "desc" : "DPT_SceneNumber", "name" : "Scene Number",
+  }
 }
