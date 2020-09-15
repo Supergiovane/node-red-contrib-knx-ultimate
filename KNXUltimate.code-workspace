@@ -5,10 +5,6 @@
 			"path": "."
 		},
 		{
-			"name": "knxultimate-api",
-			"path": "../knxultimate-api"
-		},
-		{
 			"name": "node-red-contrib-knx-ultimate.wiki",
 			"path": "../node-red-contrib-knx-ultimate.wiki"
 		}

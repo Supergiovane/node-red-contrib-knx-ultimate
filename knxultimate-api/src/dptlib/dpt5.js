@@ -1,0 +1,64 @@
+/**
+* knxultimate-api - a KNX protocol stack in pure Javascript based on knx.js (originally written by Elias Karakoulakis)
+* (C) 2020 Supergiovane
+*/
+
+
+
+
+
+//
+// DPT5: 8-bit unsigned value
+//
+// DPT5 is the only (AFAIK) DPT with scalar datatypes (5.001 and 5.003)
+exports.basetype = {
+    "bitlength" : 8,
+    "signedness": "unsigned",
+    "range" : [0, 255],
+    "valuetype" : "basic",
+    "desc" : "8-bit unsigned value"
+}
+
+exports.subtypes = {
+    // 5.001 percentage (0=0..ff=100%)
+    "001" : {
+        "name" : "DPT_Scaling, Percentage (0..100%)", "desc" : "percent",
+        "unit" : "%", "scalar_range" : [0, 100]
+    },
+
+    // 5.003 angle (degrees 0=0, ff=360)
+    "003" : {
+        "name" : "DPT_Angle, Degrees (0..360)", "desc" : "angle degrees",
+        "unit" : "°", "scalar_range" : [0, 360]
+    },
+
+    // 5.004 percentage (0..255%)
+    "004" : {
+        "name" : "DPT_Percent_U8, Percentage (0..255%)", "desc" : "percent",
+        "unit" : "%",
+    },
+
+    // 5.005 ratio (0..255)
+    "005" : {
+        "name" : "DPT_DecimalFactor, Ratio (0..255)", "desc" : "ratio",
+        "unit" : "ratio",
+    },
+
+    // 5.006 tariff (0..255)
+    "006" : {
+        "name" : "DPT_Tariff, Tariff (0..255)", "desc" : "tariff",
+        "unit" : "tariff",
+    },
+
+    // 5.010 counter pulses (0..255)
+    "010" : {
+        "name" : "DPT_Couter_Pulses, Pulses (0..255)", "desc" : "counter pulses",
+        "unit" : "pulses",
+    },
+
+     // 5.100 Fan Stage (0..255)
+     "100" : {
+        "name" : "DPT_Fan_Stage, Fan stage (0..255)", "desc" : "Fan Stage",
+        "unit" : "",
+    }
+}

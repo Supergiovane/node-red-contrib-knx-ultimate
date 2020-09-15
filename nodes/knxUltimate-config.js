@@ -1,5 +1,5 @@
-const knx = require('knxultimate-api');
-const dptlib = require('knxultimate-api/src/dptlib');
+const knx = require('./../knxultimate-api');
+const dptlib = require('./../knxultimate-api/src/dptlib');
 const oOS = require('os');
 
 //Helpers
