@@ -5,6 +5,10 @@
 <br/>
 
 <p>
+<b>Version 1.1.85</b> - September 2020<br/>
+- FIX: The buffer of the ETS Logger is now cleared after every sendout. Thanks @Mil.<br/>
+</p>
+<p>
 <b>Version 1.1.84</b> - September 2020<br/>
 - The knx API is now part of knx-ultimate. External dependency has been removed. This allow to a more tight integration between KNX Bus and node-red.<br/>
 - Update: Rewrite of all datapoint names, to adhere to ETS naming convenction. Updated some deprecated buffer initialization.<br/>

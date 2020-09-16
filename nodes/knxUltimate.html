@@ -128,13 +128,6 @@
                         .text(dpt.text))
                 });
                 $("#node-input-dpt").val(this.dpt);
-                // 15/09/2020 Set the sample help text
-                if (($("#node-input-listenallga").is(":checked"))) {
-                    // Call a fake datapoint to load a sample "Universal Node"
-                    knxUltimateDptsGetHelp("0.000", false); // 15/09/2020 Supergiovane, load sample help
-                } else {
-                    knxUltimateDptsGetHelp(this.dpt, true); // 15/09/2020 Supergiovane, load sample help                    
-                }
             })
 
             // Add write and response as default for existing nodes like was default before
@@ -174,7 +167,7 @@
                     $("#divTopic").hide()
 
                     // Call a fake datapoint to load a sample "Universal Node"
-                    knxUltimateDptsGetHelp("0.000", false); // 15/09/2020 Supergiovane, load sample help
+                    knxUltimateDptsGetHelp("0.000", true); // 15/09/2020 Supergiovane, load sample help
 
                     if ($("#helpallga").html == "") {
                         // There is a ETS csv file, show the init read option

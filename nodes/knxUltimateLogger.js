@@ -24,7 +24,7 @@ module.exports = function (RED) {
 
         // Used to call the status update from the config node.
         node.setNodeStatus = ({ fill, shape, text, payload, GA, dpt, devicename }) => {
-            if (node.server == null) { node.status({ fill: "red", shape: "dot", text: "[NO GATEWAY SELECTED]"}); return; }
+            if (node.server == null) { node.status({ fill: "red", shape: "dot", text: "[NO GATEWAY SELECTED]" }); return; }
             var dDate = new Date();
             // 30/08/2019 Display only the things selected in the config
             _GA = (typeof _GA == "undefined" || GA == "") ? "" : "(" + GA + ") ";
@@ -46,19 +46,23 @@ module.exports = function (RED) {
             sFile += "</CommunicationLog>";
             node.send({ topic: node.topic, payload: sFile });
             node.setNodeStatus({ fill: "green", shape: "dot", text: "Payload ETS sent.", payload: "", GA: "", dpt: "", devicename: "" });
+            node.etsXMLRow = [];
         };
 
         // This function is called by the knx-ultimate config node.
         node.handleSend = msg => {
             // Receiving every message
-
-            // Add row to XML ETS
-            // If too much, delete the oldest
-            if (node.maxRowsInETSXML > 0 && (node.etsXMLRow.length > node.maxRowsInETSXML)) {
-                // Shift (remove) the first row (the oldest)
-                node.etsXMLRow.shift()
+            if (typeof (msg) !== "undefined" && typeof (msg.knx) !== "undefined" && typeof (msg.knx.cemiETS) !== "undefined") {
+                // If too much, delete the oldest
+                if (node.maxRowsInETSXML > 0 && (node.etsXMLRow.length > node.maxRowsInETSXML)) {
+                    // Shift (remove) the first row (the oldest)
+                    try {
+                        node.etsXMLRow.shift()    
+                    } catch (error) {}
+                }
+                // Add row to XML ETS
+                node.etsXMLRow.push(" <Telegram Timestamp=\"" + new Date().toISOString() + "\" Service=\"L_Data.ind\" FrameFormat=\"CommonEmi\" RawData=\"" + msg.knx.cemiETS + "\" />\n");
             }
-            if (typeof (msg) !=="undefined" && typeof (msg.knx) !=="undefined" && typeof (msg.knx.cemiETS) !=="undefined") node.etsXMLRow.push(" <Telegram Timestamp=\"" + new Date().toISOString() + "\" Service=\"L_Data.ind\" FrameFormat=\"CommonEmi\" RawData=\"" + msg.knx.cemiETS + "\" />\n");
         };
 
 
