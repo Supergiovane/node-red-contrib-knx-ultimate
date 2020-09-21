@@ -333,8 +333,10 @@ module.exports = function (RED) {
             if (msg.hasOwnProperty('disabled')) {
                 if (msg.disabled === true) {
                     node.disabled = true;
+                    node.setNodeStatus({ fill: "grey", shape: "dot", text: "Disabled", payload: "", GA: "", dpt: "", devicename: "" });
                 } else {
                     node.disabled = false;
+                    node.setNodeStatus({ fill: "green", shape: "dot", text: "Enabled", payload: "", GA: "", dpt: "", devicename: "" });
                 }
             }
 

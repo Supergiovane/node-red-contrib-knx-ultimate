@@ -467,18 +467,20 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
 
                             // 19/03/2020 in the middle of coronavirus. Whole italy is red zone, closed down. Scene Controller implementation
                             if (input.hasOwnProperty("isSceneController")) {
-                                // 21/09/2020 Check wether the scene controller has been disabled
-                                if (input.hasOwnProperty("disabled") && input.disabled === true) {
-                                    new Promise((resolve, reject) => {
-                                        input.setNodeStatus({ fill: "grey", shape: "dot", text: "Disabled", payload: "", GA: "", dpt: "", devicename: "" });
-                                        input.handleSend({ savescene: false, recallscene: false, savevalue: false, disabled: true });
-                                        resolve(true); // fulfilled
-                                    }).then(function () { }).catch(function () { });
-                                    return;
-                                }
 
                                 // 12/08/2020 Check wether is a learn (save) command or a activate (play) command.
                                 if (dest === input.topic || dest === input.topicSave) {
+
+                                    // 21/09/2020 Check wether the scene controller has been disabled
+                                    if (input.hasOwnProperty("disabled") && input.disabled === true) {
+                                        new Promise((resolve, reject) => {
+                                            input.setNodeStatus({ fill: "grey", shape: "dot", text: "Disabled", payload: "", GA: "", dpt: "", devicename: "" });
+                                            input.handleSend({ savescene: false, recallscene: false, savevalue: false, disabled: true });
+                                            resolve(true); // fulfilled
+                                        }).then(function () { }).catch(function () { });
+                                        return;
+                                    }
+
                                     // Prepare the two messages to be evaluated directly into the Scene Controller node.
                                     new Promise((resolve, reject) => {
                                         if (dest === input.topic) {

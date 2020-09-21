@@ -5,6 +5,10 @@
 <br/>
 
 <p>
+<b>Version 1.1.86</b> - September 2020<br/>
+- NEW: Scene Controller, added the ability to disable the scene controller via msg.disabled = true. See here at bottom: https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/SceneController-MSG-to-the-node<br/>
+</p>
+<p>
 <b>Version 1.1.85</b> - September 2020<br/>
 - FIX: The buffer of the ETS Logger is now cleared after every sendout. Thanks @Mil.<br/>
 </p>
