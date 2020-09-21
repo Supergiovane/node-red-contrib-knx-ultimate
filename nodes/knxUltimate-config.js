@@ -73,14 +73,16 @@ module.exports = (RED) => {
         var sDPT = req.query.dpt.split(".")[0]; // Takes only the main type
         var jRet;
         if (sDPT == "0") { // Special fake datapoint, meaning "Universal Mode"
-            jRet = {"help":
-`// KNX-Ultimate set as UNIVERSAL NODE
+            jRet = {
+                "help":
+                    `// KNX-Ultimate set as UNIVERSAL NODE
 // Example of a function that sends a message to the KNX-Ultimate
 msg.destination = "0/0/1"; // Set the destination 
 msg.payload = false; // issues a write or response (based on the options Output Type above) to the KNX bus
 msg.event = "GroupValue_Write"; // "GroupValue_Write" or "GroupValue_Response", overrides the option Output Type above.
 msg.dpt = "1.001"; // for example "1.001", overrides the Datapoint option. (Datapoints can be sent as 9 , "9" , "9.001" or "DPT9.001")
-return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki"};
+return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki"
+            };
             res.json(jRet);
             return;
         }
@@ -465,6 +467,15 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
 
                             // 19/03/2020 in the middle of coronavirus. Whole italy is red zone, closed down. Scene Controller implementation
                             if (input.hasOwnProperty("isSceneController")) {
+                                // 21/09/2020 Check wether the scene controller has been disabled
+                                if (input.hasOwnProperty("disabled") && input.disabled === true) {
+                                    new Promise((resolve, reject) => {
+                                        input.setNodeStatus({ fill: "grey", shape: "dot", text: "Disabled", payload: "", GA: "", dpt: "", devicename: "" });
+                                        input.handleSend({ savescene: false, recallscene: false, savevalue: false, disabled: true });
+                                        resolve(true); // fulfilled
+                                    }).then(function () { }).catch(function () { });
+                                    return;
+                                }
 
                                 // 12/08/2020 Check wether is a learn (save) command or a activate (play) command.
                                 if (dest === input.topic || dest === input.topicSave) {
@@ -485,24 +496,6 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                                         resolve(true); // fulfilled
                                         //reject("error"); // rejected
                                     }).then(function () { }).catch(function () { });
-                                    // }
-                                    // if (dest === input.topic) {
-
-                                    //     new Promise((resolve, reject) => {
-                                    //         let msg = buildInputMessage({ _srcGA: src, _destGA: dest, _event: evt, _Rawvalue: rawValue, _inputDpt: input.dpt, _devicename: input.name ? input.name : "", _outputtopic: input.outputtopic, _oNode: null })
-                                    //         input.RecallScene(msg.payload);
-                                    //         resolve(true); // fulfilled
-                                    //         //reject("error"); // rejected
-                                    //     }).then(function () { }).catch(function () { });
-
-                                    // } else if (dest === input.topicSave) {
-
-                                    //     new Promise((resolve, reject) => {
-                                    //         let msg = buildInputMessage({ _srcGA: src, _destGA: dest, _event: evt, _Rawvalue: rawValue, _inputDpt: input.dptSave, _devicename: input.name ? input.name : "", _outputtopic: dest, _oNode: null })
-                                    //         input.SaveScene(msg.payload);
-                                    //         resolve(true); // fulfilled
-                                    //         //reject("error"); // rejected
-                                    //     }).then(function () { }).catch(function () { });
 
                                 } else {
 

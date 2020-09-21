@@ -27,6 +27,7 @@ module.exports = function (RED) {
         node.rules = config.rules || [{}];
         node.isSceneController = true; // Signal to config node, that this is a node scene controller
         node.userDir = RED.settings.userDir + "/knxultimatestorage"; // 09/03/2020 Storage of sonospollytts (otherwise, at each upgrade to a newer version, the node path is wiped out and recreated, loosing all custom files)
+        node.disabled = false; // 21/09/2020 you can now disable the scene controller
 
         // 11/03/2020 Delete scene saved file, from html
         RED.httpAdmin.get("/knxultimatescenecontrollerdelete", RED.auth.needsPermission("knxUltimateSceneController.read"), function (req, res) {
@@ -80,6 +81,7 @@ module.exports = function (RED) {
         node.setNodeStatus = ({ fill, shape, text, payload, GA, dpt, devicename }) => {
             if (node.server == null) { node.status({ fill: "red", shape: "dot", text: "[NO GATEWAY SELECTED]" }); return; }
             if (node.icountMessageInWindow == -999) return; // Locked out
+            if (node.disabled === true) fill = "grey"; // 21/09/2020 if disabled, color is grey
             var dDate = new Date();
             // 30/08/2019 Display only the things selected in the config
             _GA = (typeof _GA == "undefined" || GA == "") ? "" : "(" + GA + ") ";
@@ -194,7 +196,7 @@ module.exports = function (RED) {
             setTimeout(() => {
                 node.setNodeStatus({ fill: "green", shape: "dot", text: "Recall scene", payload: "", GA: "", dpt: "", devicename: "" });
             }, 1000);
-            node.send({ savescene: false, recallscene: true, savevalue: false });
+            node.send({ savescene: false, recallscene: true, savevalue: false, disabled: node.disabled });
         }
 
         // 11/03/2020 in the middle of coronavirus. Whole italy is red zone, closed down. Save scene.
@@ -273,7 +275,7 @@ module.exports = function (RED) {
                 node.setNodeStatus({ fill: "red", shape: "dot", text: "Error saving scene. Unable to access filesystem.", payload: "", GA: "", dpt: "", devicename: node.name });
                 return;
             }
-            node.send({ savescene: true, recallscene: false, savevalue: false });
+            node.send({ savescene: true, recallscene: false, savevalue: false, disabled: node.disabled });
         }
 
         // 12/08/2020 Save the topic's value into the group address
@@ -289,7 +291,7 @@ module.exports = function (RED) {
                     }
                 }
                 node.setNodeStatus({ fill: "blue", shape: "dot", text: "Saved value", payload: _msg.payload, GA: _msg.topic, dpt: "", devicename: "" });
-                node.send({ savescene: false, recallscene: false, savevalue: true });
+                node.send({ savescene: false, recallscene: false, savevalue: true, disabled: node.disabled });
             } else {
                 node.setNodeStatus({ fill: "red", shape: "dot", text: "Error saving value; the msg.topic and msg.payload must be both present in the input message.", payload: "", GA: "", dpt: "", devicename: node.name });
             }
@@ -328,6 +330,13 @@ module.exports = function (RED) {
             if (msg.hasOwnProperty('savescene')) node.SaveScene(node.topicSaveTrigger);
             if (msg.hasOwnProperty('recallscene')) node.RecallScene(node.topicTrigger);
             if (msg.hasOwnProperty('savevalue')) node.SaveValue(msg);
+            if (msg.hasOwnProperty('disabled')) {
+                if (msg.disabled === true) {
+                    node.disabled = true;
+                } else {
+                    node.disabled = false;
+                }
+            }
 
         })
 
