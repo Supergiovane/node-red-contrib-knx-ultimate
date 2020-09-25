@@ -26,12 +26,10 @@ payload = {red:255, green:200, blue:30} // Put some colors in our life
 [![Donate via PayPal](https://img.shields.io/badge/Donate-PayPal-blue.svg?style=flat-square)](https://www.paypal.me/techtoday) and <a href="http://eepurl.com/gJm095" target="_blank">subscribe to my channel.</a> Only news about my nodes, no spam, no ads.<br/>
 [![Buy a Sticker!](https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/PoweredBySticker.png) Support the project, buy an (overpriced) die-cut sticker "powered by KNX-Ultimate" for your products](https://teespring.com/it/stores/knx-ultimate-support-store)
 
----
-
 ## CHANGELOG
+
 * See <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/blob/master/CHANGELOG.md">here the changelog</a>
 
----
 
 ## HELP, SAMPLES, TROUBLESHOOT, WIKI, FAQ, BEST PRACTICES
 
@@ -41,15 +39,14 @@ Here you find the WIKI. Tons of documentation, samples, even for use in conjunct
 <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/de-Overview"><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/flags/germany.png"/></a>
 <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/it-Overview"><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/flags/italy.png"/></a><br/>
 
----
 
 ## STARTER PACK
+
 * [Youtube video](https://www.youtube.com/playlist?list=PL9Yh1bjbLAYpfy1Auz6CKDfXUusgMwOQr)
 * [Overview](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki)
 * [FAQ + Troubleshoot](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/5.-FAQ-Troubleshoot)
 * [Security best practices](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/SECURITY)
 
----
 
 ## Highlights
 
@@ -103,7 +100,6 @@ Full support for IP Interfaces as well for IP Routers. It's recommended the use 
 </details>
 
 
----
 
 ## WORKING WITH THE ETS CSV FILE OR WITH ESF FILE
 
