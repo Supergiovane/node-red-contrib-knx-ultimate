@@ -99,7 +99,17 @@ module.exports = function (RED) {
 
 
         // 11/03/2020 in the middle of coronavirus. Whole italy is red zone, closed down. Recall scene. 
-        node.RecallScene = _Payload => {
+        node.RecallScene = (_Payload, _ForceEvenControllerIsDisabled) => {
+
+            // 25/09/2020 If the node is disabled, doens't perform the action.
+            if (node.disabled && !_ForceEvenControllerIsDisabled) {
+                setTimeout(() => {
+                    node.setNodeStatus({ fill: "grey", shape: "dot", text: "Recall while disabled", payload: "", GA: "", dpt: "", devicename: "" });
+                }, 500);
+                node.send({ savescene: false, recallscene: true, savevalue: false, disabled: true });
+                return;
+            }
+
             var curVal;
             var newVal;
 
@@ -196,11 +206,21 @@ module.exports = function (RED) {
             setTimeout(() => {
                 node.setNodeStatus({ fill: "green", shape: "dot", text: "Recall scene", payload: "", GA: "", dpt: "", devicename: "" });
             }, 1000);
-            node.send({ savescene: false, recallscene: true, savevalue: false, disabled: node.disabled });
+            node.send({ savescene: false, recallscene: true, savevalue: false, disabled: false });
         }
 
         // 11/03/2020 in the middle of coronavirus. Whole italy is red zone, closed down. Save scene.
-        node.SaveScene = _Payload => {
+        node.SaveScene = (_Payload, _ForceEvenControllerIsDisabled) => {
+
+            // 25/09/2020 If the node is disabled, doens't perform the action.
+            if (node.disabled && !_ForceEvenControllerIsDisabled) {
+                setTimeout(() => {
+                    node.setNodeStatus({ fill: "grey", shape: "dot", text: "Saved while disabled", payload: "", GA: "", dpt: "", devicename: "" });
+                }, 500);
+                node.send({ savescene: true, recallscene: false, savevalue: false, disabled: true });
+                return;
+            }
+
             var curVal;
             var newVal;
 
@@ -275,7 +295,7 @@ module.exports = function (RED) {
                 node.setNodeStatus({ fill: "red", shape: "dot", text: "Error saving scene. Unable to access filesystem.", payload: "", GA: "", dpt: "", devicename: node.name });
                 return;
             }
-            node.send({ savescene: true, recallscene: false, savevalue: false, disabled: node.disabled });
+            node.send({ savescene: true, recallscene: false, savevalue: false, disabled: false });
         }
 
         // 12/08/2020 Save the topic's value into the group address
@@ -327,8 +347,8 @@ module.exports = function (RED) {
             }
             node.icountMessageInWindow += 1;
 
-            if (msg.hasOwnProperty('savescene')) node.SaveScene(node.topicSaveTrigger);
-            if (msg.hasOwnProperty('recallscene')) node.RecallScene(node.topicTrigger);
+            if (msg.hasOwnProperty('savescene')) node.SaveScene(node.topicSaveTrigger, true);
+            if (msg.hasOwnProperty('recallscene')) node.RecallScene(node.topicTrigger, true);
             if (msg.hasOwnProperty('savevalue')) node.SaveValue(msg);
             if (msg.hasOwnProperty('disabled')) {
                 if (msg.disabled === true) {
