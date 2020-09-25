@@ -101,15 +101,6 @@ module.exports = function (RED) {
         // 11/03/2020 in the middle of coronavirus. Whole italy is red zone, closed down. Recall scene. 
         node.RecallScene = (_Payload, _ForceEvenControllerIsDisabled) => {
 
-            // 25/09/2020 If the node is disabled, doens't perform the action.
-            if (node.disabled && !_ForceEvenControllerIsDisabled) {
-                setTimeout(() => {
-                    node.setNodeStatus({ fill: "grey", shape: "dot", text: "Recall while disabled", payload: "", GA: "", dpt: "", devicename: "" });
-                }, 500);
-                node.send({ savescene: false, recallscene: true, savevalue: false, disabled: true });
-                return;
-            }
-
             var curVal;
             var newVal;
 
@@ -169,6 +160,15 @@ module.exports = function (RED) {
             //RED.log.warn(curVal + " new: " + newVal)
             if (curVal != newVal) return;
 
+            // 25/09/2020 If the node is disabled, doens't perform the action.
+            if (node.disabled && !_ForceEvenControllerIsDisabled) {
+                setTimeout(() => {
+                    node.setNodeStatus({ fill: "grey", shape: "dot", text: "Recall while disabled", payload: "", GA: "", dpt: "", devicename: "" });
+                }, 500);
+                node.send({ savescene: false, recallscene: true, savevalue: false, disabled: true });
+                return;
+            }
+
             // Read the scene values from file, if any.
             let oSavedRules = null;
             try {
@@ -211,15 +211,6 @@ module.exports = function (RED) {
 
         // 11/03/2020 in the middle of coronavirus. Whole italy is red zone, closed down. Save scene.
         node.SaveScene = (_Payload, _ForceEvenControllerIsDisabled) => {
-
-            // 25/09/2020 If the node is disabled, doens't perform the action.
-            if (node.disabled && !_ForceEvenControllerIsDisabled) {
-                setTimeout(() => {
-                    node.setNodeStatus({ fill: "grey", shape: "dot", text: "Saved while disabled", payload: "", GA: "", dpt: "", devicename: "" });
-                }, 500);
-                node.send({ savescene: true, recallscene: false, savevalue: false, disabled: true });
-                return;
-            }
 
             var curVal;
             var newVal;
@@ -279,6 +270,15 @@ module.exports = function (RED) {
             }
             //RED.log.warn(curVal + " new: " + newVal)
             if (curVal != newVal) return;
+
+            // 25/09/2020 If the node is disabled, doens't perform the action.
+            if (node.disabled && !_ForceEvenControllerIsDisabled) {
+                setTimeout(() => {
+                    node.setNodeStatus({ fill: "grey", shape: "dot", text: "Saved while disabled", payload: "", GA: "", dpt: "", devicename: "" });
+                }, 500);
+                node.send({ savescene: true, recallscene: false, savevalue: false, disabled: true });
+                return;
+            }
 
             // Save the currentPayload of each device in the scene
             for (var i = 0; i < node.rules.length; i++) {
