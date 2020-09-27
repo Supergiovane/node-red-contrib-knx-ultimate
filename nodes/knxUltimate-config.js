@@ -132,7 +132,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
         RED.httpAdmin.get("/knxUltimatecsv", RED.auth.needsPermission('knxUltimate-config.read'), function (req, res) {
             if (typeof req.query.nodeID !== "undefined" && req.query.nodeID !== null && req.query.nodeID !== "") {
                 var _node = RED.nodes.getNode(req.query.nodeID);// Retrieve node.id of the config node.
-                res.json(RED.nodes.getNode(_node.id).csv);
+                if (_node !== null) res.json(RED.nodes.getNode(_node.id).csv);
             } else {
                 // Get the first knxultimate-config having a valid csv
                 try {
@@ -172,6 +172,10 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
         RED.httpAdmin.get("/nodeList", RED.auth.needsPermission('knxUltimate-config.read'), function (req, res) {
             var sNodeID = req.query.nodeID; // Retrieve node.id of the config node.
             var _node = RED.nodes.getNode(sNodeID);
+            if (_node === null) {
+                // 27/09/2020 Something wrong
+                return;
+            }
             var sNodes = "\"Group Address\"\t\"Datapoint\"\t\"Node ID\"\t\"Device Name\"\n"; // Contains the text with nodes
             var sGA = "";
             var sDPT = "";
