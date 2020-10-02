@@ -83,10 +83,12 @@ module.exports = function (RED) {
         node.on("input", function (msg) {
             if (typeof msg === "undefined") return;
             if (!node.server) return; // 29/08/2019 Server not instantiate
-            if (node.server.linkStatus !== "connected") {
-                RED.log.error("knxUltimate: Lost link due to a connection error");
-                return; // 29/08/2019 If not connected, exit
-            }
+
+            // 02/10/2020 is now handled in the connection.js API. Search for isTunnelConnected
+            // if (node.server.linkStatus !== "connected") {
+            //     RED.log.error("knxUltimate: KNX link is disconnected");
+            //     return; // 29/08/2019 If not connected, exit
+            // }
 
             if (node.passthrough !== "no") { // 27/03/2020 Save the input message to be passed out to msg output
                 // The msg has a TTL of 3 seconds

@@ -383,6 +383,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                 //minimumDelay: 60, // 02/01/2020 Removed becuse it doesn't respect the message sequence, it sends messages random.
                 handlers: {
                     connected: () => {
+                        node.telegramsQueue = []; // 01/10/2020 Supergiovane: clear the telegram queue
                         node.linkStatus = "connected";
                         node.setAllClientsStatus("Connected", "green", "Waiting for telegram.")
                         // Start the timer to do initial read.
@@ -407,7 +408,8 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                         // E_DATA_CONNECTION: 0x26,// - The KNXnet/IP server device detected an erro concerning the Dat connection with the given ID
                         // E_KNX_CONNECTION: 0x27,  // - The KNXnet/IP server device detected an error concerning the KNX Bus with the given ID
                         // E_TUNNELING_LAYER: 0x29,
-                        node.linkStatus = "disconnected";
+                        //node.linkStatus = "disconnected"; 01/10/2020 Removed.
+                        
                         if (connstatus == "E_KNX_CONNECTION") {
                             setTimeout(() => node.setAllClientsStatus(connstatus, "grey", "Error on KNX BUS. Check KNX red/black connector and cable."), 1000)
                             RED.log.error("knxUltimate-config: Bind KNX Bus to interface error: " + connstatus);
@@ -418,10 +420,14 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                             // The KNX/IP Interface is not responding to connection state request.
                             // It can be normal, if it's not strictly adhering to knx standards.
                             RED.log.warn("knxUltimate-config: knxConnection warning: " + connstatus);
+                        } else if (connstatus == "E_CONNECTION_ID") {
+                            //RED.log.warn("BANANA RED :" +  connstatus);
+                            
                         } else {
                             setTimeout(() => node.setAllClientsStatus(connstatus, "grey", "Error"), 2000)
                             RED.log.error("knxUltimate-config: knxConnection error: " + connstatus);
                         }
+                        
                     },
                     // get notified for all KNX events:
                     event: function (evt, src, dest, rawValue, cemiETS) {
@@ -465,6 +471,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
         function handleBusEvents(evt, src, dest, rawValue, cemiETS) {
             switch (evt) {
                 case "GroupValue_Write": {
+                    node.linkStatus = "connected"; // 01/10/2020 The connection must be alive, if womething comes from the bus!
                     node.nodeClients
                         .filter(input => input.notifywrite == true)
                         .forEach(input => {
@@ -694,6 +701,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
 
         // 02/01/2020 All sent messages are queued, to allow at least 50 milliseconds between each telegram sent to the bus
         node.writeQueueAdd = _oKNXMessage => {
+            if (node.linkStatus !== "connected") return;
             // _oKNXMessage is { grpaddr, payload,dpt,outputtype (write or response),nodecallerid (id of the node sending adding the telegram to the queue)}
             node.telegramsQueue.unshift(_oKNXMessage); // Add _oKNXMessage as first in the queue pile
         }

@@ -5,6 +5,10 @@
 <br/>
 
 <p>
+<b>Version 1.1.90</b> - October 2020<br/>
+- Connection and queue handling optimization for big installations where knxd is used and where there is a near maximum (allowed by knx standards) of datagram per seconds traffic on the BUS. Thanks @Songzh<br/>
+</p>
+<p>
 <b>Version 1.1.89</b> - September 2020<br/>
 - Fix an issue, where the node stops connecting to the bus if you're using knxd, in some particular scenario. Thanks @Songzh<br/>
 </p>

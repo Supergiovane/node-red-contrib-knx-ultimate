@@ -86,6 +86,7 @@ FSM.prototype.AddCRI = function (datagram) {
 }
 
 FSM.prototype.AddCEMI = function (datagram, msgcode) {
+  
   var sendAck = ((msgcode || 0x11) == 0x11) && !this.options.suppress_ack_ldatareq; // only for L_Data.req
   datagram.cemi = {
     msgcode: msgcode || 0x11, // default: L_Data.req for tunneling
@@ -194,16 +195,23 @@ FSM.prototype.send = function (datagram, callback) {
     var svctype = KnxConstants.keyText('SERVICE_TYPE', datagram.service_type);
     var descr = this.datagramDesc(datagram);
     KnxLog.get().trace('(%s): Sending %s ==> %j', this.compositeState(), descr, datagram);
-    this.socket.send(
-      buf, 0, buf.length,
-      conn.remoteEndpoint.port, conn.remoteEndpoint.addr.toString(),
-      function (err) {
-        KnxLog.get().trace('(%s): UDP sent %s: %s %s', conn.compositeState(),
-          (err ? err.toString() : 'OK'), descr, buf.toString('hex')
-        );
-        if (typeof callback === 'function') callback(err);
-      }
-    );
+    try {
+      this.socket.send(
+        buf, 0, buf.length,
+        conn.remoteEndpoint.port, conn.remoteEndpoint.addr.toString(),
+        function (err) {
+          KnxLog.get().trace('(%s): UDP sent %s: %s %s', conn.compositeState(),
+            (err ? err.toString() : 'OK'), descr, buf.toString('hex')
+          );
+          if (typeof callback === 'function') callback(err);
+        }
+      );
+    } catch (e) {
+      // 01/10/2020 Supergiovane, aggiunto catch
+      KnxLog.get().warn(e);
+    if (typeof callback === 'function') callback(e);
+    }
+
   } catch (e) {
     KnxLog.get().warn(e);
     if (typeof callback === 'function') callback(e);
@@ -211,6 +219,11 @@ FSM.prototype.send = function (datagram, callback) {
 }
 
 FSM.prototype.write = function (grpaddr, value, dptid, callback) {
+  //console.log("BANANA eFSM.prototype.write Tunnel connected = " + this.isTunnelConnected);
+  if (this.useTunneling && this.isTunnelConnected === false) {
+    // console.log("BANANA exit FSM.prototype.write Tunnel down");
+    return; // 02/10/2020 Supergiovane: if in tunnel mode and is not connected, exit
+  }
   if (grpaddr == null || value == null) {
     KnxLog.get().warn('You must supply both grpaddr and value!');
     return;
@@ -230,6 +243,10 @@ FSM.prototype.write = function (grpaddr, value, dptid, callback) {
 }
 
 FSM.prototype.respond = function (grpaddr, value, dptid) {
+  if (this.useTunneling && this.isTunnelConnected === false) {
+    // console.log("BANANA exit FSM.prototype.write Tunnel down");
+    return; // 02/10/2020 Supergiovane: if in tunnel mode and is not connected, exit
+  }
   if (grpaddr == null || value == null) {
     KnxLog.get().warn('You must supply both grpaddr and value!');
     return;
@@ -247,6 +264,10 @@ FSM.prototype.respond = function (grpaddr, value, dptid) {
 }
 
 FSM.prototype.writeRaw = function (grpaddr, value, bitlength, callback) {
+  if (this.useTunneling && this.isTunnelConnected === false) {
+    // console.log("BANANA exit FSM.prototype.write Tunnel down");
+    return; // 02/10/2020 Supergiovane: if in tunnel mode and is not connected, exit
+  }
   if (grpaddr == null || value == null) {
     KnxLog.get().warn('You must supply both grpaddr and value!');
     return;
@@ -269,6 +290,10 @@ FSM.prototype.writeRaw = function (grpaddr, value, bitlength, callback) {
 // send a READ request to the bus
 // you can pass a callback function which gets bound to the RESPONSE datagram event
 FSM.prototype.read = function (grpaddr, callback) {
+  if (this.useTunneling && this.isTunnelConnected === false) {
+    // console.log("BANANA exit FSM.prototype.write Tunnel down");
+    return; // 02/10/2020 Supergiovane: if in tunnel mode and is not connected, exit
+  }
   if (typeof callback == 'function') {
     var conn = this;
     // when the response arrives:

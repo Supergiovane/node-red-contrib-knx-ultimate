@@ -49,6 +49,7 @@ module.exports = machina.Fsm.extend({
       default:
         throw util.format("IP address % (%s) cannot be used for KNX", options.ipAddr, range);
     }
+    this.isTunnelConnected = false; // 02/10/2020 Supergiovane: signal if connected or not (in tunnel mode only)
   },
 
   namespace: "knxnet",
@@ -101,10 +102,12 @@ module.exports = machina.Fsm.extend({
                 }, delay * 1000);
               }
             } else {
-              this.log.warn('connection timed out, retrying...');
+              this.log.warn('connection timed out, retrying... ' + sm.connection_attempts);
               this.send(sm.prepareDatagram(KnxConstants.SERVICE_TYPE.CONNECT_REQUEST));
             }
           }.bind(this), 3000);
+          
+
           delete this.channel_id;
           delete this.conntime;
           delete this.lastSentTime;
@@ -165,6 +168,7 @@ module.exports = machina.Fsm.extend({
         this.transition('idle');
         this.emit('connected');
         this.startTimerConnectioRequest(true); // 24/05/2020 Supergiovane
+        this.isTunnelConnected = true; // 02/10/2020 Supergiovane: signal that the tunnel is up
       }
     },
 
@@ -174,6 +178,7 @@ module.exports = machina.Fsm.extend({
         var sm = this;
 
         sm.startTimerConnectioRequest(false); // 24/05/2020 Supergiovane
+        this.isTunnelConnected = false; // 02/10/2020 Supergiovane: signal that the tunnel is down
 
         if (this.useTunneling) {
           // in case of a tunneled connection a disconnect request will be sent
@@ -188,6 +193,7 @@ module.exports = machina.Fsm.extend({
 
           this.send(this.prepareDatagram(KnxConstants.SERVICE_TYPE.DISCONNECT_REQUEST), function (err) {
             // TODO: handle send err
+            
             KnxLog.get().debug('(%s):\tsent DISCONNECT_REQUEST', sm.compositeState());
           });
         } else {
@@ -196,12 +202,13 @@ module.exports = machina.Fsm.extend({
         }
       },
       _onExit: function () {
-        clearTimeout(this.disconnecttimer)
+        if (this.disconnecttimer !== null) clearTimeout(this.disconnecttimer)
       },
       inbound_DISCONNECT_RESPONSE: function (datagram) {
+        this.isTunnelConnected = false; // 02/10/2020 Supergiovane: signal that the tunnel is down
         if (this.useTunneling) {
           KnxLog.get().debug('(%s):\tgot disconnect response', this.compositeState());
-
+          
           // close the socket
           sm.close();
         }
@@ -315,6 +322,7 @@ module.exports = machina.Fsm.extend({
     requestingConnState: {
       _onEnter: function () {
         var sm = this;
+        sm.startTimerConnectioRequest(false); // 02/10/2020 Supergiovane
         KnxLog.get().trace('(%s): Requesting Connection State', this.compositeState());
         this.send(sm.prepareDatagram(KnxConstants.SERVICE_TYPE.CONNECTIONSTATE_REQUEST));
         sm.connstatetimer = setTimeout(function () {
@@ -322,28 +330,37 @@ module.exports = machina.Fsm.extend({
           KnxLog.get().trace('(%s): %s', sm.compositeState(), msg);
           sm.transition('connecting');
           sm.emit('error', msg);
-        }.bind(sm), 10000); // 23/05/2020 Supergiovane, was 1000, but KNX Standard is 10000
+          sm.startTimerConnectioRequest(true); // 02/10/2020 Supergiovane: resets timers and restart counter
+          this.isTunnelConnected = false; // 02/10/2020 Supergiovane: signal that the tunnel is down
+        }.bind(sm), 1000); // 23/05/2020 Supergiovane, was 1000, but KNX Standard is 10000
       },
       _onExit: function () {
         var sm = this;
-        if (sm.connstatetimer !== null) clearTimeout(sm.connstatetimer);
+        //console.log("BANANA dentro _onExit fi requestingConnState");
+        sm.startTimerConnectioRequest(true); // 01/10/2020 Supergiovane: resets timers and restart counter
+        //if (sm.connstatetimer !== null) clearTimeout(sm.connstatetimer);
       },
       inbound_CONNECTIONSTATE_RESPONSE: function (datagram) {
         var state = KnxConstants.keyText('RESPONSECODE', datagram.connstate.status);
+        // console.log("BANANA dentro inbound_CONNECTIONSTATE_RESPONSE fi requestingConnState");
         switch (datagram.connstate.status) {
           case 0:
             this.transition('idle');
+            this.isTunnelConnected = true; // 02/10/2020 Supergiovane: signal that the tunnel is up
             break;
           default:
             this.log.debug(util.format(
               '*** error: %s *** (connstate.code: %d)', state, datagram.connstate.status));
             this.transition('connecting');
             this.emit('error', state);
+            this.isTunnelConnected = false; // 02/10/2020 Supergiovane: signal that the tunnel is down
         }
       },
       "*": function (data) {
+        // Qui ci entra se non fa nè l'_onexit, nè l'inbound_CONNECTIONSTATE_RESPONSE
         this.log.debug(util.format('*** deferring %s until transition from requestingConnState => idle', data.inputType));
         this.deferUntilTransition('idle');
+        // console.log("BANANA dentro * fi requestingConnState");
       },
     },
 
@@ -451,6 +468,7 @@ module.exports = machina.Fsm.extend({
     try {
       this.send(ack, function (err) {
         // TODO: handle send err
+        //console.log("BANANA acknowledge " + err);
       });
     } catch (error) {
     }
@@ -516,7 +534,9 @@ module.exports = machina.Fsm.extend({
 
   close: function () {
     var sm = this;
-
+    this.startTimerConnectioRequest(false); // 01/10/2020 Supergiovane
+    this.isTunnelConnected = false; // 02/10/2020 Supergiovane: signal that the tunnel is down
+    
     try {
       // close the socket
       sm.socket.close();
@@ -526,6 +546,8 @@ module.exports = machina.Fsm.extend({
     sm.transition('uninitialized');
     sm.emit('disconnected');
   },
+
+
 
   // 24/05/2020 Supergiovane: query connection status every max 120 secs, as per KNX specs.
   startTimerConnectioRequest: function (_bEnable) {
@@ -538,7 +560,7 @@ module.exports = machina.Fsm.extend({
         sm.timerConnectioRequest = setInterval(function () {
           //console.log("BANANA sm.transition(requestingConnState);");
           sm.transition("requestingConnState");
-        },30000);
+        },5000); // era 30000 01/10/2020 
       }
 
     } else {
