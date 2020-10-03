@@ -19,7 +19,7 @@ exports.formatAPDU = function(value) {
     } else {
       knxLog.get().error("DPT2: Must supply an value {priority:<bool>, data:<bool>}");
     }
-    return new Buffer([apdu_data]);
+    return new Buffer.from([apdu_data]);
   }
 }
 

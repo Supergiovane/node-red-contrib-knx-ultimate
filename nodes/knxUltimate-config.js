@@ -116,7 +116,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
         node.statusDisplayDeviceNameWhenALL = typeof config.statusDisplayDeviceNameWhenALL === "undefined" ? false : config.statusDisplayDeviceNameWhenALL;
         node.statusDisplayDataPoint = typeof config.statusDisplayDataPoint === "undefined" ? false : config.statusDisplayDataPoint;
         node.telegramsQueue = [];  // 02/01/2020 Queue containing telegrams 
-        node.timerSendTelegramFromQueue = setInterval(handleTelegramQueue, (typeof config.delaybetweentelegrams === "undefined" || config.delaybetweentelegrams < 5) ? 50 : config.delaybetweentelegrams); // 02/01/2020 Start the timer that handles the queue of telegrams
+        node.timerSendTelegramFromQueue = setInterval(handleTelegramQueue, (typeof config.delaybetweentelegrams === "undefined" || config.delaybetweentelegrams < 5) ? 40 : config.delaybetweentelegrams); // 02/01/2020 Start the timer that handles the queue of telegrams
         node.delaybetweentelegramsfurtherdelayREAD = (typeof config.delaybetweentelegramsfurtherdelayREAD === "undefined" || config.delaybetweentelegramsfurtherdelayREAD < 1) ? 1 : config.delaybetweentelegramsfurtherdelayREAD; // 18/05/2020 delay multiplicator only for "read" telegrams.
         node.delaybetweentelegramsREADCount = 0;// 18/05/2020 delay multiplicator only for "read" telegrams.
         node.timerDoInitialRead = null; // 17/02/2020 Timer (timeout) to do initial read of all nodes requesting initial read, after all nodes have been registered to the sercer
@@ -414,7 +414,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                             setTimeout(() => node.setAllClientsStatus(connstatus, "grey", "Error on KNX BUS. Check KNX red/black connector and cable."), 1000)
                             RED.log.error("knxUltimate-config: Bind KNX Bus to interface error: " + connstatus);
                         } else if (connstatus == "E_NO_MORE_CONNECTIONS") {
-                            setTimeout(() => node.setAllClientsStatus(connstatus, "grey", "Error on KNX BUS. No more avaiable tunnels."), 1000)
+                            setTimeout(() => node.setAllClientsStatus(connstatus, "grey", "Error on KNX BUS. No more avaiable tunnels."), 1000);
                             RED.log.error("knxUltimate-config: Error on KNX BUS. No more avaiable tunnels: " + connstatus);
                         } else if (connstatus == "timed out waiting for CONNECTIONSTATE_RESPONSE") {
                             // The KNX/IP Interface is not responding to connection state request.
@@ -422,7 +422,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                             RED.log.warn("knxUltimate-config: knxConnection warning: " + connstatus);
                         } else if (connstatus == "E_CONNECTION_ID") {
                             //RED.log.warn("BANANA RED :" +  connstatus);
-                            
+                       
                         } else {
                             setTimeout(() => node.setAllClientsStatus(connstatus, "grey", "Error"), 2000)
                             RED.log.error("knxUltimate-config: knxConnection error: " + connstatus);

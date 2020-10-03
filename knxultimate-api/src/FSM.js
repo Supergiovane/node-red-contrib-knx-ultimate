@@ -103,7 +103,10 @@ module.exports = machina.Fsm.extend({
               }
             } else {
               this.log.warn('connection timed out, retrying... ' + sm.connection_attempts);
-              this.send(sm.prepareDatagram(KnxConstants.SERVICE_TYPE.CONNECT_REQUEST));
+              try {
+                this.send(sm.prepareDatagram(KnxConstants.SERVICE_TYPE.CONNECT_REQUEST));  
+              } catch (error) {}
+              
             }
           }.bind(this), 3000);
           
@@ -112,7 +115,9 @@ module.exports = machina.Fsm.extend({
           delete this.conntime;
           delete this.lastSentTime;
           // send connect request directly
-          this.send(sm.prepareDatagram(KnxConstants.SERVICE_TYPE.CONNECT_REQUEST));
+          try {
+            this.send(sm.prepareDatagram(KnxConstants.SERVICE_TYPE.CONNECT_REQUEST));
+          } catch (error) {}          
 
         } else {
           // no connection sequence needed in pure multicast routing
@@ -128,15 +133,19 @@ module.exports = machina.Fsm.extend({
         if (datagram.hasOwnProperty('connstate') && datagram.connstate.status === KnxConstants.RESPONSECODE.E_NO_MORE_CONNECTIONS) {
           // close the socket
           sm.close();
-          this.log.debug("The KNXnet/IP server rejected the data connection (Maximum connections reached). Waiting 5 seconds before retrying...");
+          this.log.debug("The KNXnet/IP server rejected the data connection (Maximum connections reached). Waiting 60 seconds before retrying...");
           setTimeout(function () {
             sm.Connect()
-          }, 5000)
+          }, 60000)
         } else {
           // store channel ID into the Connection object
           this.channel_id = datagram.connstate.channel_id;
+          this.log.debug("The KNXnet/IP server gives me the channel id CCID: " + this.channel_id);
           // send connectionstate request directly
-          this.send(sm.prepareDatagram(KnxConstants.SERVICE_TYPE.CONNECTIONSTATE_REQUEST));
+          try {
+            this.send(sm.prepareDatagram(KnxConstants.SERVICE_TYPE.CONNECTIONSTATE_REQUEST));  
+          } catch (error) {}
+          
         }
       },
       inbound_CONNECTIONSTATE_RESPONSE: function (datagram) {
@@ -191,11 +200,13 @@ module.exports = machina.Fsm.extend({
             sm.close();
           }.bind(this), 3000);
 
-          this.send(this.prepareDatagram(KnxConstants.SERVICE_TYPE.DISCONNECT_REQUEST), function (err) {
-            // TODO: handle send err
-            
-            KnxLog.get().debug('(%s):\tsent DISCONNECT_REQUEST', sm.compositeState());
-          });
+          try {
+            this.send(this.prepareDatagram(KnxConstants.SERVICE_TYPE.DISCONNECT_REQUEST), function (err) {
+              // TODO: handle send err            
+              KnxLog.get().debug('(%s):\tsent DISCONNECT_REQUEST', sm.compositeState());
+            });
+          } catch (error) {}
+         
         } else {
           // in case of multicast the socket will be closed directly
           sm.close();
@@ -324,7 +335,10 @@ module.exports = machina.Fsm.extend({
         var sm = this;
         sm.startTimerConnectioRequest(false); // 02/10/2020 Supergiovane
         KnxLog.get().trace('(%s): Requesting Connection State', this.compositeState());
-        this.send(sm.prepareDatagram(KnxConstants.SERVICE_TYPE.CONNECTIONSTATE_REQUEST));
+        try {
+          this.send(sm.prepareDatagram(KnxConstants.SERVICE_TYPE.CONNECTIONSTATE_REQUEST));  
+        } catch (error) {}
+        
         sm.connstatetimer = setTimeout(function () {
           var msg = 'timed out waiting for CONNECTIONSTATE_RESPONSE';
           KnxLog.get().trace('(%s): %s', sm.compositeState(), msg);
@@ -373,39 +387,42 @@ module.exports = machina.Fsm.extend({
         // send the telegram on the wire
         this.seqnum += 1;
         if (this.useTunneling) datagram.tunnstate.seqnum = this.seqnum & 0xFF;
-        this.send(datagram, function (err) {
-          if (err) {
-            //console.trace('error sending datagram, going idle');
-            sm.seqnum -= 1;
-            sm.transition('idle');
-          } else {
-            // successfully sent the datagram
-            if (sm.useTunneling) sm.sentTunnRequests[datagram.cemi.dest_addr] = datagram;
-            sm.lastSentTime = Date.now();
-            sm.log.debug('(%s):\t>>>>>>> successfully sent seqnum: %d', sm.compositeState(), sm.seqnum);
-            if (sm.useTunneling) {
-              // and then wait for the acknowledgement
-              sm.transition('sendTunnReq_waitACK', datagram);
-            } else {
+        try {
+          this.send(datagram, function (err) {
+            if (err) {
+              //console.trace('error sending datagram, going idle');
+              sm.seqnum -= 1;
               sm.transition('idle');
-            }
-          }
-          // 14/03/2020 Supergiovane: In multicast mode, other node-red nodes receives the echo of the telegram sent (the groupaddress_write event). If in tunneling, force the emit of the echo datagram (so other node-red nodes can receive the echo), because in tunneling, there is no echo.
-          // ########################
-          //if (sm.useTunneling) sm.sentTunnRequests[datagram.cemi.dest_addr] = datagram;
-          if (sm.useTunneling) {
-            sm.sentTunnRequests[datagram.cemi.dest_addr] = datagram;
-            if (typeof sm.localEchoInTunneling !== "undefined" && sm.localEchoInTunneling) {
-              try {
-                sm.emitEvent(datagram);
-                sm.log.debug('(%s):\t>>>>>>> localEchoInTunneling: echoing by emitting %d', sm.compositeState(), sm.seqnum);
-              } catch (error) {
-                sm.log.debug('(%s):\t>>>>>>> localEchoInTunneling: error echoing by emitting %d ' + error, sm.compositeState(), sm.seqnum);
+            } else {
+              // successfully sent the datagram
+              if (sm.useTunneling) sm.sentTunnRequests[datagram.cemi.dest_addr] = datagram;
+              sm.lastSentTime = Date.now();
+              sm.log.debug('(%s):\t>>>>>>> successfully sent seqnum: %d', sm.compositeState(), sm.seqnum);
+              if (sm.useTunneling) {
+                // and then wait for the acknowledgement
+                sm.transition('sendTunnReq_waitACK', datagram);
+              } else {
+                sm.transition('idle');
               }
             }
-          }
-          // ########################
-        });
+            // 14/03/2020 Supergiovane: In multicast mode, other node-red nodes receives the echo of the telegram sent (the groupaddress_write event). If in tunneling, force the emit of the echo datagram (so other node-red nodes can receive the echo), because in tunneling, there is no echo.
+            // ########################
+            //if (sm.useTunneling) sm.sentTunnRequests[datagram.cemi.dest_addr] = datagram;
+            if (sm.useTunneling) {
+              sm.sentTunnRequests[datagram.cemi.dest_addr] = datagram;
+              if (typeof sm.localEchoInTunneling !== "undefined" && sm.localEchoInTunneling) {
+                try {
+                  sm.emitEvent(datagram);
+                  sm.log.debug('(%s):\t>>>>>>> localEchoInTunneling: echoing by emitting %d', sm.compositeState(), sm.seqnum);
+                } catch (error) {
+                  sm.log.debug('(%s):\t>>>>>>> localEchoInTunneling: error echoing by emitting %d ' + error, sm.compositeState(), sm.seqnum);
+                }
+              }
+            }
+            // ########################
+          });
+        } catch (error) {}
+
       },
       "*": function (data) {
         this.log.debug(util.format('*** deferring %s until transition sendDatagram => idle', data.inputType));
@@ -470,8 +487,7 @@ module.exports = machina.Fsm.extend({
         // TODO: handle send err
         //console.log("BANANA acknowledge " + err);
       });
-    } catch (error) {
-    }
+    } catch (error) { }
 
   },
 
@@ -536,15 +552,16 @@ module.exports = machina.Fsm.extend({
     var sm = this;
     this.startTimerConnectioRequest(false); // 01/10/2020 Supergiovane
     this.isTunnelConnected = false; // 02/10/2020 Supergiovane: signal that the tunnel is down
-    
+   
+    sm.transition('uninitialized');
+    sm.emit('disconnected');
+     
     try {
       // close the socket
       sm.socket.close();
-      sm.socket = null; // 24/05/2020 Supergiovane added this line.
+      //sm.socket = null; // 24/05/2020 Supergiovane added this line. 02/10/2020 removed.
     } catch (error) { }
 
-    sm.transition('uninitialized');
-    sm.emit('disconnected');
   },
 
 

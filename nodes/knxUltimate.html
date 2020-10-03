@@ -128,6 +128,8 @@
                         .text(dpt.text))
                 });
                 $("#node-input-dpt").val(this.dpt);
+                 // Load help sample
+                 knxUltimateDptsGetHelp(this.dpt, true);
             })
 
             // Add write and response as default for existing nodes like was default before
