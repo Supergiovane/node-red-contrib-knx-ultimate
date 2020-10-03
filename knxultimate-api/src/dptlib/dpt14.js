@@ -31,7 +31,11 @@ exports.basetype = {
   "bitlength" : 32,
   "valuetype" : "basic",
   "range" : [0, Math.pow(2, 32)],
-  "desc" : "32-bit floating point value"
+  "desc" : "32-bit floating point value",
+  "help": 
+`// Send 32-bit floating point value.
+msg.payload = 42;
+return msg;`
 }
 
 // DPT14 subtypes info

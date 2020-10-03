@@ -28,7 +28,11 @@ exports.basetype = {
   bitlength : 32,
   signedness: "unsigned",
   valuetype : "basic",
-  desc : "4-byte unsigned value"
+  desc : "4-byte unsigned value",
+  "help": 
+`// Send 4-byte unsigned value
+msg.payload = 12;
+return msg;`
 }
 
 // DPT12 subtype info

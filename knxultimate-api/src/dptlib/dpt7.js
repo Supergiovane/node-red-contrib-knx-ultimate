@@ -41,7 +41,11 @@ exports.basetype = {
     "bitlength": 16,
     "signedness": "unsigned",
     "valuetype": "basic",
-    "desc": "16-bit unsigned value"
+    "desc": "16-bit unsigned value",
+    "help": 
+`// Send 16-bit unsigned value. If you use time, please be careful in selecting the correct datapoint (ms, 10ms, 100ms, ecc..).
+msg.payload = 22;
+return msg;`
 }
 
 // DPT subtypes info

@@ -13,7 +13,11 @@ exports.basetype = {
     "signedness": "signed",
     "valuetype" : "basic",
     "desc" : "4-byte signed value",
-    "range" : [-Math.pow(2, 31), Math.pow(2, 31)-1]
+    "range" : [-Math.pow(2, 31), Math.pow(2, 31)-1],
+    "help": 
+`// Send 4-byte signed value. Range [-Math.pow(2, 31), Math.pow(2, 31)-1].
+msg.payload = 22;
+return msg;`
 }
 
 // DPT13 subtypes

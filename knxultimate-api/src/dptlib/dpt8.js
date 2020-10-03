@@ -13,7 +13,11 @@ exports.basetype = {
   "signedness": "signed",
   "valuetype" : "basic",
   "range" : [-32768, 32767],
-  "desc" : "16-bit signed value"
+  "desc" : "16-bit signed value",
+  "help": 
+`// Send 16 bit value [-32768, 32767].
+msg.payload = 1200;
+return msg;`
 }
 
 // DPT8 subtypes info

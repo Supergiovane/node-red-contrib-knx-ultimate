@@ -73,7 +73,11 @@ exports.fromBuffer = function (buf) {
 exports.basetype = {
     "bitlength": 16,
     "valuetype": "basic",
-    "desc": "16-bit floating point value"
+    "desc": "16-bit floating point value",
+    "help": 
+  `// Send 16-bit floating point value.
+  msg.payload = 25;
+  return msg;`
 }
 
 // DPT9 subtypes

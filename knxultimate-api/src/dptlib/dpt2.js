@@ -37,7 +37,14 @@ exports.fromBuffer = function(buf) {
 exports.basetype = {
     "bitlength" : 2,
     "valuetype" : "composite",
-    "desc" : "1-bit value with priority"
+    "desc" : "1-bit value with priority",
+    "help": 
+`// Send a true/false with priority
+// priority = true or false
+// data = true or false
+msg.payload = {priority:false, data:true};
+return msg;`,
+  "helplink":"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---DPT2"
 }
 
 // DPT subtypes info hash
