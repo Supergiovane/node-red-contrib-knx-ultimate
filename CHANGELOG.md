@@ -16,6 +16,7 @@
 - Added sample for Datapoint 12.x. <br/>
 - Added sample for Datapoint 13.x. <br/>
 - Added sample for Datapoint 14.x. <br/>
+- Added sample for switching on/off a POE port of Unifi Switch (https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---UnifiPOE)
 </p>
 <p>
 <b>Version 1.1.89</b> - September 2020<br/>
