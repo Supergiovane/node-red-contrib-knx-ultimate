@@ -21,7 +21,7 @@ exports.formatAPDU = function(value) {
         } else {
             knxLog.get().error("DPT232: Must supply an value {red:0-255, green:0-255, blue:0-255}");
         }
-        return new Buffer([
+        return new Buffer.alloc([
             Math.floor(value.red), 
             Math.floor(value.green), 
             Math.floor(value.blue)]);

@@ -10,7 +10,7 @@ const knxLog = require('./../KnxLog');
 //
 // FIXME: help needed
 exports.formatAPDU = function(value) {
-    var apdu_data = new Buffer(1);
+    var apdu_data = new Buffer.alloc(1);
     apdu_data[0] = value;
     knxLog.get().debug('./knx/src/dpt20.js : input value = ' + value + '   apdu_data = ' + apdu_data);
     return apdu_data;
@@ -28,7 +28,12 @@ exports.basetype = {
     "bitlength" : 8,
     "range" : [ , ],
     "valuetype" : "basic",
-    "desc" : "1-byte"
+    "desc" : "1-byte",
+    "help": 
+`// Send Value. Example for HVAC: 0 = Auto, 1 = Comfort, 2 = Standby, 3 = Economy, 4 = Building protection
+msg.payload = 1; // Set to Comfort
+return msg;`,
+  "helplink":""
 }
 
 exports.subtypes = {

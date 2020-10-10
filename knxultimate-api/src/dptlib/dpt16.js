@@ -9,17 +9,20 @@ const knxLog = require('./../KnxLog');
 // DPT16: ASCII string (max 14 chars)
 //
 
+// Write to BUS
 exports.formatAPDU = function(value) {
   if (typeof value != 'string') knxLog.get().warn("Must supply a string value")
   else {
-    var buf = new Buffer(14);
+    var buf = new Buffer.alloc(14);
     buf.write(value, 'ascii')
     return buf;
   }
 }
 
+// Read from BUS
 exports.fromBuffer = function(buf) {
   return buf.toString('ascii');
+ 
 }
 
 // DPT16 basetype info
