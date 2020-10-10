@@ -5,6 +5,12 @@
 <br/>
 
 <p>
+<b>Version 1.1.91</b> - October 2020<br/>
+- NEW: Datapoint 22.201 RCHH Status (for example, for MDT actuators)<br/>
+- Added sample for Datapoint 22.x (https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---DPT22)<br/>
+- Added sample for Datapoint 20.x<br/>
+</p>
+<p>
 <b>Version 1.1.90</b> - October 2020<br/>
 - Connection and queue handling optimization for big installations where knxd is used and where there is a near maximum (allowed by knx standards) of datagram per seconds traffic on the BUS. Thanks @Songzh<br/>
 - FIX sample message not showing in the config window of knx-ultimate device, if the device is already presento on the flow. <br/>
