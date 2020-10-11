@@ -23,7 +23,6 @@ exports.formatAPDU = function (value) {
     if (!value) {
         knxLog.get().error("DPT232: cannot write null value");
     } else {
-        var apdu_data;
         if (typeof value == 'object') {
             if (!value.hasOwnProperty('Fault')) value.Fault = 0;
             if (!value.hasOwnProperty('StatusEcoH')) value.StatusEcoH = 0;
@@ -112,21 +111,21 @@ exports.basetype = {
 // Please respect the upper and lowercase letters.
 // For help about meaning of each parameter, please see the sample in the Wiki
 var s1={}; 
-s1.Fault=1;
-s1.StatusEcoH=0;
-s1.TempFlowLimit=0;
-s1.TempReturnLimit=0;
-s1.StatusMorningBoostH=0;
-s1.StatusStartOptim=0;
-s1.StatusStopOptim=0;
-s1.HeatingDisabled=1;
-s1.HeatCoolMode=1;
-s1.StatusEcoC=0;
-s1.StatusPreCool=0;
-s1.CoolingDisabled=1;
-s1.DewPointStatus=0;
-s1.FrostAlarm=0;
-s1.OverheatAlarm=1;
+s1.Fault = true;
+s1.StatusEcoH = false;
+s1.TempFlowLimit = false;
+s1.TempReturnLimit = false;
+s1.StatusMorningBoostH = false;
+s1.StatusStartOptim = false;
+s1.StatusStopOptim = false;
+s1.HeatingDisabled = true;
+s1.HeatCoolMode = true;
+s1.StatusEcoC = false;
+s1.StatusPreCool = false;
+s1.CoolingDisabled = true;
+s1.DewPointStatus = false;
+s1.FrostAlarm = false;
+s1.OverheatAlarm = true;
 return {payload:s1};`,
     "helplink": ""
 }
