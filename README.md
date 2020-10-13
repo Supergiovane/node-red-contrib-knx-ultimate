@@ -10,7 +10,7 @@
 
 ![Sample Node](img/readmemain.png)
 
-Single Node KNX IN/OUT with optional ETS group address importer. Easy to use and highly configurable. Control your KNX intallation via Node-Red!
+Control your KNX intallation via Node-Red! Single Node KNX IN/OUT with optional ETS group address importer. Easy to use and highly configurable.
 
 **You can use it immediately!**
 ```javascript
