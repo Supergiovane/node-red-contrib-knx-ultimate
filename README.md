@@ -18,7 +18,7 @@ payload = true // Turn light on
 payload = {red:255, green:200, blue:30} // Put some colors in our life
 ```
 
-![Covid Free](img/covidfree.png)
+<p align="center"> <img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/covidfree.png"> </p>
 
 ## DESCRIPTION
 
