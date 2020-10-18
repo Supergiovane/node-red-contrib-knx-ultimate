@@ -12,7 +12,7 @@ exports.formatAPDU = function(value) {
     return new Buffer([Boolean(f) ? 1 : 0]);
   } else {
     // non-numeric value truthiness is Boolean true or the string 'true'.
-    return new Buffer([(value == true || value == 'true') ? 1 : 0]);
+    return new Buffer.from([(value == true || value == 'true') ? 1 : 0]);
   }
 }
 

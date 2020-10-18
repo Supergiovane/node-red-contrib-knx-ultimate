@@ -5,6 +5,10 @@
 <br/>
 
 <p>
+<b>Version 1.1.92</b> - October 2020<br/>
+- BUGFIX: RGB Color wasn't working. Now it's fixed.<br/>
+</p>
+<p>
 <b>Version 1.1.91</b> - October 2020<br/>
 - NEW: Datapoint 22.201 RCHH Status (for example, for MDT actuators)<br/>
 - Added sample for Datapoint 22.x (https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---DPT22)<br/>

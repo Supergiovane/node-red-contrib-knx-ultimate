@@ -34,7 +34,7 @@ exports.formatAPDU = function (value) {
         }
         var bitVal= parseInt("0000" + value.mR + value.mG + value.mB + value.mW, 2) ;
 
-        return new Buffer([
+        return new Buffer.from([
             Math.floor(value.red),
             Math.floor(value.green),
             Math.floor(value.blue),
