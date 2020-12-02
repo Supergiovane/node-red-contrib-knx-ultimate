@@ -18,8 +18,6 @@ payload = true // Turn light on
 payload = {red:255, green:200, blue:30} // Put some colors in our life
 ```
 
-<p align="center"> <img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/covidfree.png"> </p>
-
 ## DESCRIPTION
 
 * **KNX-ULTIMATE node** [here](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/2.-Node-Configuration), allow you to control your *KNX installation* via Node-Red. You can control all your KNX devices as well as create a *Virtual Device* in Node-Red, to link external *non KNX* devices, and make it compatible with your KNX installation. I'ts very SIMPLE TO USE thus very customizable.  
