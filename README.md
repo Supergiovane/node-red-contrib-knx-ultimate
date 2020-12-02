@@ -100,7 +100,11 @@ You can select to activate or deactivate it. If active, the node reacts only if 
 Full support for IP Interfaces as well for IP Routers. It's recommended the use of IP Routers because of simple setup and stability in a large environment.
 
 </details>
+<details><summary>RAW message directly to the BUS</summary>
 
+You can send RAW buffers directly to the bus.
+
+</details>
 
 
 ## WORKING WITH THE ETS CSV FILE OR WITH ESF FILE
