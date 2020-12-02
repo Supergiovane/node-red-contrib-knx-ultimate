@@ -206,13 +206,15 @@ module.exports = function (RED) {
                         if (msg.dpt) {
                             dpt = msg.dpt;
                         } else {
-                            // Get the datapoint from the CSV
-                            if (typeof node.server.csv !== "undefined") {
-                                let oGA = node.server.csv.filter(sga => sga.ga == grpaddr)[0]
-                                dpt = oGA.dpt
-                            } else {
-                                node.setNodeStatus({ fill: "red", shape: "dot", text: "msg.dpt not set!", payload: "", GA: "", dpt: "", devicename: "" })
-                                return;
+                            if (!msg.hasOwnProperty("writeraw")) { // In raw mode, Datapoint is useless
+                                // Get the datapoint from the CSV
+                                if (typeof node.server.csv !== "undefined") {
+                                    let oGA = node.server.csv.filter(sga => sga.ga == grpaddr)[0]
+                                    dpt = oGA.dpt
+                                } else {
+                                    node.setNodeStatus({ fill: "red", shape: "dot", text: "msg.dpt not set!", payload: "", GA: "", dpt: "", devicename: "" })
+                                    return;
+                                }
                             }
                         }
                     } else {
@@ -247,7 +249,7 @@ module.exports = function (RED) {
                                 node.server.knxConnection.writeRaw(grpaddr, msg.writeraw, msg.bitlenght);
                             } else {
                                 node.server.knxConnection.writeRaw(grpaddr, msg.writeraw);
-                            }    
+                            }
                             node.setNodeStatus({ fill: "green", shape: "dot", text: "RAW Write", payload: "", GA: grpaddr, dpt: "", devicename: "" });
                         } catch (error) {
                             node.setNodeStatus({ fill: "red", shape: "dot", text: "Error RAW Write: " + error, payload: "", GA: grpaddr, dpt: "", devicename: "" });
