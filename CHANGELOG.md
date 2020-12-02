@@ -5,6 +5,11 @@
 <br/>
 
 <p>
+<b>Version 1.1.94</b> - December 2020<br/>
+- Enhancement: you can now send a raw buffer directly to the KNX bus. See the Wiki, "message to the node" page.<br/>
+- Updated the wiki accordingly.<br/>
+</p>
+<p>
 <b>Version 1.1.93</b> - December 2020<br/>
 - Enhancement: Check if the gateway's IP is a valid one, otherwise it avoids connection. Thanks @heleon for signaling this issue.<br/>
 - Replaced some deprecated buffer calls.<br/>
