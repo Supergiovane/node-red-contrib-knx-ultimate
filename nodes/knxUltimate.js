@@ -29,7 +29,7 @@ module.exports = function (RED) {
 
         // Used to call the status update from the config node.
         node.setNodeStatus = ({ fill, shape, text, payload, GA, dpt, devicename }) => {
-            if (node.server == null) { node.status({ fill: "red", shape: "dot", text: "[NO GATEWAY SELECTED]"}); return; }
+            if (node.server == null) { node.status({ fill: "red", shape: "dot", text: "[NO GATEWAY SELECTED]" }); return; }
             if (node.icountMessageInWindow == -999) return; // Locked out, doesn't change status.
             var dDate = new Date();
             // 30/08/2019 Display only the things selected in the config
@@ -232,6 +232,29 @@ module.exports = function (RED) {
                             return;
                         }
                     }
+
+
+                    // 01/12/2020 Write RAW added.
+                    //  If you encode the values by yourself, you can write raw buffers with writeRaw(groupaddress: string, buffer: Buffer, bitlength?: Number, callback?: () => void).
+                    // The third (optional) parameter bitlength is necessary for datapoint types where the bitlength does not equal the buffers bytelength * 8. This is the case for dpt 1 (bitlength 1), 2 (bitlength 2) and 3 (bitlength 4). For other dpts the paramter can be omitted.
+                    // // Write raw buffer to a groupaddress with dpt 1 (e.g light on = value true = Buffer<01>) with a bitlength of 1
+                    // connection.writeRaw('1/0/0', Buffer.from('01', 'hex'), 1)
+                    // // Write raw buffer to a groupaddress with dpt 9 (e.g temperature 18.4 °C = Buffer<0730>) without bitlength
+                    // connection.writeRaw('1/0/0', Buffer.from('0730', 'hex'))
+                    if (msg.hasOwnProperty("writeraw") && msg.hasOwnProperty("writeraw") !== null) {
+                        try {
+                            if (msg.hasOwnProperty("bitlenght") && msg.bitlenght !== null) {
+                                node.server.knxConnection.writeRaw(grpaddr, msg.writeraw, msg.bitlenght);
+                            } else {
+                                node.server.knxConnection.writeRaw(grpaddr, msg.writeraw);
+                            }    
+                            node.setNodeStatus({ fill: "green", shape: "dot", text: "RAW Write", payload: "", GA: grpaddr, dpt: "", devicename: "" });
+                        } catch (error) {
+                            node.setNodeStatus({ fill: "red", shape: "dot", text: "Error RAW Write: " + error, payload: "", GA: grpaddr, dpt: "", devicename: "" });
+                        }
+                        return;
+                    }
+
                     if (outputtype == "response") {
                         try {
                             node.currentPayload = msg.payload;// 31/12/2019 Set the current value (because, if the node is a virtual device, then it'll never fire "GroupValue_Write" in the server node, causing the currentPayload to never update)
