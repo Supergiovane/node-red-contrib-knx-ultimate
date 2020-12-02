@@ -11,7 +11,7 @@ const util = require('util');
 exports.formatAPDU = function(value) {
   if (!value) knxLog.get().error("cannot write null value for DPT11")
   else {
-    var apdu_data = new Buffer(3);
+    var apdu_data = new Buffer.alloc(3);
     switch(typeof value) {
       case 'string':
       case 'number':

@@ -1,6 +1,7 @@
 const knx = require('./../knxultimate-api');
 const dptlib = require('./../knxultimate-api/src/dptlib');
 const oOS = require('os');
+const net = require("net");
 
 //Helpers
 sortBy = (field) => (a, b) => {
@@ -409,7 +410,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                         // E_KNX_CONNECTION: 0x27,  // - The KNXnet/IP server device detected an error concerning the KNX Bus with the given ID
                         // E_TUNNELING_LAYER: 0x29,
                         //node.linkStatus = "disconnected"; 01/10/2020 Removed.
-                        
+
                         if (connstatus == "E_KNX_CONNECTION") {
                             setTimeout(() => node.setAllClientsStatus(connstatus, "grey", "Error on KNX BUS. Check KNX red/black connector and cable."), 1000)
                             RED.log.error("knxUltimate-config: Bind KNX Bus to interface error: " + connstatus);
@@ -422,12 +423,12 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                             RED.log.warn("knxUltimate-config: knxConnection warning: " + connstatus);
                         } else if (connstatus == "E_CONNECTION_ID") {
                             //RED.log.warn("BANANA RED :" +  connstatus);
-                       
+
                         } else {
                             setTimeout(() => node.setAllClientsStatus(connstatus, "grey", "Error"), 2000)
                             RED.log.error("knxUltimate-config: knxConnection error: " + connstatus);
                         }
-                        
+
                     },
                     // get notified for all KNX events:
                     event: function (evt, src, dest, rawValue, cemiETS) {
@@ -450,6 +451,20 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                 RED.log.info("KNXUltimate-config: Bind KNX Bus to interface (Auto). Node " + node.name);
             }
             try {
+                // 01/12/2020 Test if the IP is a valid one
+                switch (net.isIP(node.host)) {
+                    case 0:
+                        // Invalid IP
+                        throw ("INVALID IP. Check the IP in Config node.");
+                    case 4:
+                        // It's an IPv4
+                        break;
+                    case 6:
+                        // It's an IPv6
+                        break;
+                    default:
+                        break;
+                }
                 node.knxConnection = knx.Connection(knxConnectionProperties);
             } catch (error) {
                 RED.log.error("KNXUltimate-config: Error in instantiating knxConnection " + error + ". Node " + node.name);
@@ -481,7 +496,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
 
                                 // 12/08/2020 Check wether is a learn (save) command or a activate (play) command.
                                 if (dest === input.topic || dest === input.topicSave) {
-                                   
+
                                     // Prepare the two messages to be evaluated directly into the Scene Controller node.
                                     new Promise((resolve, reject) => {
                                         if (dest === input.topic) {

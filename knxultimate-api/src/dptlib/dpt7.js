@@ -12,7 +12,7 @@ const util = require('util');
 const knxLog = require('./../KnxLog');
 
 exports.formatAPDU = function (value) {
-    var apdu_data = new Buffer(2);
+    var apdu_data = new Buffer.alloc(2);
     if (!isFinite(value)) {
         knxLog.get().warn("DPT7: cannot write non-numeric or undefined value");
     } else {

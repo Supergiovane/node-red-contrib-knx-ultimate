@@ -41,7 +41,7 @@ KnxProtocol.define('IPv4Endpoint', {
         throw "Invalid IPv4 endpoint, please set a string as  'ip.add.re.ss:port'";
       }
       var arr = value.split(':');
-      this.raw(new Buffer(ipaddr.parse(arr[0]).toByteArray()), 4);
+      this.raw(new Buffer.from(ipaddr.parse(arr[0]).toByteArray()), 4);
       this.UInt16BE(arr[1]);
     }
   }
@@ -377,7 +377,7 @@ KnxProtocol.define('APDU', {
       // APDU data should ALWAYS be a buffer, even for 1-bit payloads
       hdr.data = (hdr.apdu_length > 1) ?
         hdr.apdu_raw.slice(2) :
-        new Buffer([apdu.data]);
+        new Buffer.from([apdu.data]);
       if (KnxProtocol.debug) KnxLog.get().trace(' unmarshalled APDU: %j', hdr);
     })
     .popStack(propertyName, function (data) {
@@ -409,7 +409,7 @@ KnxProtocol.define('APDU', {
         this.UInt16BE(word);
         // payload follows TPCI+APCI word
         // KnxLog.get().trace('~~~%s, %j, %d', typeof value.data, value.data, total_length);
-        this.raw(new Buffer(value.data, total_length-3));
+        this.raw(new Buffer.from(value.data, total_length-3));
       }
     }
   }

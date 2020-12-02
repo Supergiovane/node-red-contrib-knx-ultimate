@@ -22,7 +22,7 @@ exports.formatAPDU = function (value) {
   if (typeof value != 'string' || value.length < 10) knxLog.get().warn("Must supply an HEX string value of 10 bytes. Please don't add '$' nor '0x' Example 12340000000000000000")
   else {
     value = value.toUpperCase().replace(/\$/g, "").replace(/0X/g, "").replace(/ /g, ""); // Remove the $ and 0x
-    var apdu_data = new Buffer(10);
+    var apdu_data = new Buffer.alloc(10);
     var i = 0;
     var iSlice = 2;
     for (let index = 0; index < value.length; index += iSlice) {

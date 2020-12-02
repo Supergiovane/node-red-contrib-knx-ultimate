@@ -73,7 +73,7 @@ Address.parse = function (addr /*string*/, addrtype /*TYPE*/, twoLevelAddressing
     KnxLog.get().warn('Fix your code - no address given to Address.parse');
   }
   var group = (addrtype === TYPE.GROUP) ;
-  var address = new Buffer(2);
+  var address = new Buffer.alloc(2);
   var tokens  = addr.split((group ? '/' : '.')).filter((w) => { return w.length > 0; });
   if (tokens.length < 2) throw "Invalid address (less than 2 tokens)";
   var hinibble = parseInt(tokens[0]);

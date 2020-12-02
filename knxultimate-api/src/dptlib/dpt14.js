@@ -16,7 +16,7 @@ const knxLog = require('./../KnxLog');
 exports.formatAPDU = function(value) {
   if (!value || typeof value != 'number')
     knxLog.get().error('DPT14: Must supply a number value');
-  var apdu_data = new Buffer(4);
+  var apdu_data = new Buffer.alloc(4);
   apdu_data.writeFloatBE(value,0);
   return apdu_data;
 }

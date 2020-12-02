@@ -5,6 +5,11 @@
 <br/>
 
 <p>
+<b>Version 1.1.93</b> - December 2020<br/>
+- Enhancement: Check if the gateway's IP is a valid one, otherwise it avoids connection. Thanks @heleon for signaling this issue.<br/>
+- Replaced some deprecated buffer calls.<br/>
+</p>
+<p>
 <b>Version 1.1.92</b> - October 2020<br/>
 - BUGFIX: RGB Color wasn't working. Now it's fixed.<br/>
 </p>
