@@ -5,7 +5,7 @@
 <br/>
 
 <p>
-<b>Version 1.1.94</b> - December 2020<br/>
+<b>Version 1.1.95</b> - December 2020<br/>
 - Enhancement: you can now send a raw buffer directly to the KNX bus. See the Wiki, "message to the node" page.<br/>
 - Updated the wiki accordingly.<br/>
 </p>
