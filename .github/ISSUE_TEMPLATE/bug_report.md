@@ -1,5 +1,3 @@
-Dear Sir or Madem,
-
 ---
 name: Bug report
 about: Create a report to help us improve
@@ -8,6 +6,8 @@ labels: ''
 assignees: Supergiovane
 
 ---
+
+**Salutation (i'll not respond to user that at least says "Hello")**
 
 **Describe the bug**
 A clear and concise description of what the bug is.
@@ -25,6 +25,16 @@ A clear and concise description of what you expected to happen.
 **Screenshots**
 If applicable, add screenshots to help explain your problem.
 
-**Courtesy is a must**
-Some people still asking feature requests, help and other things, without even a salutation.
-I've developed the nodes for free and you're using it for free and you're receiving professional level support in no time. I don't want you to thank me for my work, but a salutation like "Hello Supergiovane" should be the first line you write. Courtesy is "a must" here in Italy, so please be kind. Kindness is free :-)
+**Desktop (please complete the following information):**
+ - OS: [e.g. iOS]
+ - Browser [e.g. chrome, safari]
+ - Version [e.g. 22]
+
+**Smartphone (please complete the following information):**
+ - Device: [e.g. iPhone6]
+ - OS: [e.g. iOS8.1]
+ - Browser [e.g. stock browser, safari]
+ - Version [e.g. 22]
+
+**Additional context**
+Add any other context about the problem here.
