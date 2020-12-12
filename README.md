@@ -229,5 +229,5 @@ return msg;
 [npm-version-image]: https://img.shields.io/npm/v/node-red-contrib-knx-ultimate.svg
 [npm-downloads-month-image]: https://img.shields.io/npm/dm/node-red-contrib-knx-ultimate.svg
 [npm-downloads-total-image]: https://img.shields.io/npm/dt/node-red-contrib-knx-ultimate.svg
-[facebook-image]: https://img.shields.io/badge/Facebook-Visit%20me-blue
+[facebook-image]: https://img.shields.io/badge/Visit%20me-Facebook-blue
 [facebook-url]: https://www.facebook.com/supergiovaneDev
