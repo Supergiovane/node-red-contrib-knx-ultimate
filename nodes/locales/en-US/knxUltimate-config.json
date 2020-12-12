@@ -1,6 +1,7 @@
 {
     "knxUltimate-config": {
         "properties": {
+            "helplink" : "&nbsp<i class=\"fa fa-question-circle\"></i>&nbsp<a target=\"_blank\" href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/1.-Gateway-configuration\"><u>Help for configuration</u></a>",
             "title": "KNX/IP Gateway Configuration",
             "host": "Gateway IP",
             "host_info": "Default setting is the Multicast address of KNX/IP (224.0.23.12)",

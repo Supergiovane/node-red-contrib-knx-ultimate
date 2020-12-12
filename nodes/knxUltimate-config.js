@@ -87,13 +87,13 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
             res.json(jRet);
             return;
         }
-        jRet = { "help": "NO", "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki" };
+        jRet = { "help": "NO", "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-SamplesHome" };
         const dpts =
             Object.entries(dptlib)
                 .filter(onlyDptKeys)
         for (let index = 0; index < dpts.length; index++) {
             if (dpts[index][0].toUpperCase() === "DPT" + sDPT) {
-                jRet = { "help": (dpts[index][1].basetype.hasOwnProperty("help") ? dpts[index][1].basetype.help : "NO"), "helplink": (dpts[index][1].basetype.hasOwnProperty("helplink") ? dpts[index][1].basetype.helplink : "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki") };
+                jRet = { "help": (dpts[index][1].basetype.hasOwnProperty("help") ? dpts[index][1].basetype.help : "NO"), "helplink": (dpts[index][1].basetype.hasOwnProperty("helplink") ? dpts[index][1].basetype.helplink : "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-SamplesHome") };
                 break;
             }
         }
