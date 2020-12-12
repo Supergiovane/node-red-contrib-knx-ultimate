@@ -1,5 +1,8 @@
 {
     "knxUltimateSceneController": {
+        "helplink" : "&nbsp<i class=\"fa fa-question-circle\"></i>&nbsp<a target=\"_blank\" href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/it-SceneController-Configuration\"><u>Aiuto per configurazione</u></a>",
+        "title": "Controller scena",
+      
         "properties": {
             "node-input-server": "Gateway",
             "node-input-topic": "Richiama Scena",

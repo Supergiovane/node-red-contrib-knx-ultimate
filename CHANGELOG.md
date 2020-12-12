@@ -5,7 +5,7 @@
 <br/>
 
 <p>
-<b>Version 1.1.96</b> - December 2020<br/>
+<b>Version 1.1.97</b> - December 2020<br/>
 - NEW: added help links directly into the config windows and upon selection of datapoint as well.<br/>
 - Cleaning of UI.<br/>
 </p>

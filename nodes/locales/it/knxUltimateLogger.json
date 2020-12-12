@@ -1,5 +1,7 @@
 {
     "knxUltimateLogger": {
+        "helplink" : "&nbsp<i class=\"fa fa-question-circle\"></i>&nbsp<a target=\"_blank\" href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/it-Logger-Configuration\"><u>Aiuto per configurazione</u></a>",
+        "title": "Logger KNX per ETS",
         "properties": {
             "node-input-server": "Gateway",
             "node-input-topic": "Topic",

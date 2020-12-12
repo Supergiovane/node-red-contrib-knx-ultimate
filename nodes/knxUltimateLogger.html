@@ -1,6 +1,6 @@
 <script type="text/javascript">
     RED.nodes.registerType('knxUltimateLogger', {
-        category: 'KNX',
+        category: "KNX Ultimate",
         color: '#C7E9C0',
         defaults: {
             server: { type: "knxUltimate-config", required: true },
@@ -37,6 +37,9 @@
 
 <script type="text/x-red" data-template-name="knxUltimateLogger">
     <div class="form-row">
+        <b><span data-i18n="knxUltimateLogger.title"></span></b>&nbsp&nbsp<span style="color:red" data-i18n="[html]knxUltimateLogger.helplink"></span>
+        <br/><br/>
+
         <label for="node-input-server"><i class="fa fa-tag"></i> <span data-i18n="knxUltimateLogger.properties.node-input-server"></span> </label>
         <input type="text" id="node-input-server">
     </div>

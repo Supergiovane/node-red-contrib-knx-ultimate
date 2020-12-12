@@ -1,5 +1,7 @@
 {
     "knxUltimateSceneController": {
+        "helplink" : "&nbsp<i class=\"fa fa-question-circle\"></i>&nbsp<a target=\"_blank\" href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/de-SceneController-Configuration\"><u>Hilfe für die Konfiguration</u></a>",
+        "title": "Szene Kontroller",
         "properties": {
             "node-input-server": "Gateway",
             "node-input-topic": "Szenenrückruf",
