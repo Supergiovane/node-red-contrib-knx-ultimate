@@ -5,6 +5,11 @@
 <br/>
 
 <p>
+<b>Version 1.1.96</b> - December 2020<br/>
+- NEW: added help links directly into the config windows and upon selection of datapoint as well.<br/>
+- Cleaning of UI.<br/>
+</p>
+<p>
 <b>Version 1.1.95</b> - December 2020<br/>
 - Enhancement: you can now send a raw buffer directly to the KNX bus. See the Wiki, "message to the node" page.<br/>
 - Updated the wiki accordingly.<br/>
