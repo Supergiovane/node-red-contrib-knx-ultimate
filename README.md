@@ -45,7 +45,7 @@ payload = {red:255, green:200, blue:30} // Put some colors in our life
 ## STARTER PACK
 
 * [Youtube video](https://www.youtube.com/playlist?list=PL9Yh1bjbLAYpfy1Auz6CKDfXUusgMwOQr)
-* [Overview](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki)
+* [Wiki and Help](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki)
 * [FAQ + Troubleshoot](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/5.-FAQ-Troubleshoot)
 * [Security best practices](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/SECURITY)
 
