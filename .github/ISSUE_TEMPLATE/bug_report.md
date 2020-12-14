@@ -7,7 +7,7 @@ assignees: Supergiovane
 
 ---
 
-**Salutation (i'll not respond to user that at least says "Hello")**
+**Salutation (i'll not respond to users that doesn’t wrote at least "Hello")**
 
 **Describe the bug**
 A clear and concise description of what the bug is.
