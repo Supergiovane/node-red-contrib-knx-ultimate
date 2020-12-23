@@ -1,4 +1,5 @@
 module.exports = function (RED) {
+    const _ = require("lodash");
 
     function knxUltimate(config) {
         RED.nodes.createNode(this, config)
@@ -15,8 +16,8 @@ module.exports = function (RED) {
         node.initialread = config.initialread || false
         node.listenallga = config.listenallga || false
         node.outputtype = config.outputtype || "write" // When the node is used as output
-        node.outputRBE = config.outputRBE || "false" // Apply or not RBE to the input
-        node.inputRBE = config.inputRBE || "false" // Apply or not RBE to the input
+        node.outputRBE = config.outputRBE || "false" // Apply or not RBE to the output (Messages coming from flow)
+        node.inputRBE = config.inputRBE || "false" // Apply or not RBE to the input (Messages coming from BUS)
         node.currentPayload = "" // Current value for the RBE input and for the .previouspayload msg
         node.icountMessageInWindow = 0; // Used to prevent looping messages
         node.messageQueue = []; // 01/01/2020 All messages from the flow to the node, will be queued and will be sent separated by 60 milliseconds each. Use uf the underlying api "minimumDelay" is not possible because the telegram order isn't mantained.
@@ -136,23 +137,10 @@ module.exports = function (RED) {
                 }
             } else {
                 if (node.listenallga == false) {
-                    // Applying RBE filter
+                    // 23/12/2020 Applying RBE filter
                     if (node.outputRBE == true) {
-                        var curVal = node.currentPayload.toString().toLowerCase();
-                        var newVal = msg.payload.toString().toLowerCase();
-                        if (curVal === "false") {
-                            curVal = "0";
-                        }
-                        if (curVal === "true") {
-                            curVal = "1";
-                        }
-                        if (newVal === "false") {
-                            newVal = "0";
-                        }
-                        if (newVal === "true") {
-                            newVal = "1";
-                        }
-                        if (curVal === newVal) {
+                        if (_.isEqual(node.currentPayload, msg.payload)) {
+                            // RBE kicks in, doesn't send the payload
                             node.setNodeStatus({ fill: "grey", shape: "ring", text: "rbe block (" + msg.payload + ") to KNX", payload: "", GA: "", dpt: "", devicename: "" })
                             return;
                         }

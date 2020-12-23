@@ -5,6 +5,11 @@
 <br/>
 
 <p>
+<b>Version 1.1.99</b> - December 2020<br/>
+- FIX: RBE filter (from BUS and from flow) doesn't work if the payload is an object.<br/>
+- Removed an unwanted debug log in dPT 242.600<br/>
+</p>
+<p>
 <b>Version 1.1.98</b> - December 2020<br/>
 - NEW: added Datapoint 242.600 Color xyY.<br/>
 </p>

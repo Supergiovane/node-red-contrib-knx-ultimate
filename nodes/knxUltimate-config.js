@@ -2,6 +2,7 @@ const knx = require('./../knxultimate-api');
 const dptlib = require('./../knxultimate-api/src/dptlib');
 const oOS = require('os');
 const net = require("net");
+const _ = require("lodash");
 
 //Helpers
 sortBy = (field) => (a, b) => {
@@ -781,25 +782,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
         // 14/08/2019 If the node has payload same as the received telegram, return false
         checkRBEInputFromKNXBusAllowSend = (_node, _KNXTelegramPayload) => {
             if (_node.inputRBE !== true) return true;
-            if (typeof _node.currentPayload === "undefined") return true;
-            var curVal = _node.currentPayload.toString().toLowerCase();
-            var newVal = _KNXTelegramPayload.toString().toLowerCase();
-            if (curVal === "false") {
-                curVal = "0";
-            }
-            if (curVal === "true") {
-                curVal = "1";
-            }
-            if (newVal === "false") {
-                newVal = "0";
-            }
-            if (newVal === "true") {
-                newVal = "1";
-            }
-            if (curVal === newVal) {
-                return false;
-            }
-            return true;
+            return !_.isEqual(_node.currentPayload, _KNXTelegramPayload);
         }
 
         // 26/10/2019 Try to figure out the datapoint type from raw value

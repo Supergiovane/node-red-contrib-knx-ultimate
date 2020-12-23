@@ -221,6 +221,19 @@ return msg;
 
 [MORE Samples and documentation....](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki)
 
+<br/>
+<br/>
+<br/>
+
+## FRIENDLY COMMUNITIES AROUND THE WORLD
+
+**Italy**
+* [VivereSmart](https://www.facebook.com/groups/viveresmart)
+* [VivereSmart TV](https://www.youtube.com/channel/UC6GlFhcbNuoSEejZ_HlCynA)
+
+<br/>
+<br/>
+<br/>
 ![Logo](https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/flags/madeinitaly.png)
 
 [license-image]: https://img.shields.io/badge/license-MIT-blue.svg

@@ -10,7 +10,7 @@ function hex2bin(hex) {
 }
 
 //
-// DPT232: 3-byte RGB xyY
+// DPT242: 3-byte RGB xyY
 // The info about validity of Colour and Brighness are omitted.
 //
 exports.formatAPDU = function (value) {
@@ -23,7 +23,7 @@ exports.formatAPDU = function (value) {
             value.hasOwnProperty('y') && value.y >= 0 && value.y <= 65535 &&
             value.hasOwnProperty('brightness') && value.brightness >= 0 && value.brightness <= 100) {
         } else {
-            knxLog.get().error("DPT232: Must supply an value {x:0-65535, y:0-65535, brightness:0-100}");
+            knxLog.get().error("DPT242: Must supply an value {x:0-65535, y:0-65535, brightness:0-100}");
         }
 
         const bufferTotal = Buffer.alloc(6);
@@ -48,7 +48,7 @@ exports.formatAPDU = function (value) {
 exports.fromBuffer = function (buf) {
 
     var bufTotale = buf.toString('hex');
-    console.log("bufTotale STRINGA: " + bufTotale);
+    //console.log("bufTotale STRINGA: " + bufTotale);
     var x = bufTotale.substring(0, 4);
     var y = bufTotale.substring(4, 8);
     var CB = bufTotale.substring(8, 10);// these are Colour and Brighness validities (2 bit) //00000011
