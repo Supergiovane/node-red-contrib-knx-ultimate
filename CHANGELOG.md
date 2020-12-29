@@ -6,6 +6,7 @@
 
 <p>
 <b>Version 1.2.0</b> - December 2020<br/>
+- NEW: added compatibility with ETS KNX VIRTUAL.<br/>
 - NEW: added node protection help in the german wiki.<br/>
 - Updated the circular reference protection to be more intelligent thus more tollerant. Thanks @Christian for raising the request.<br/>
 - Updated the circular reference sample in the wiki.<br/>
