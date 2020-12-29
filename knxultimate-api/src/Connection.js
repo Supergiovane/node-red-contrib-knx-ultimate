@@ -86,7 +86,7 @@ FSM.prototype.AddCRI = function (datagram) {
 }
 
 FSM.prototype.AddCEMI = function (datagram, msgcode) {
-  
+
   var sendAck = ((msgcode || 0x11) == 0x11) && !this.options.suppress_ack_ldatareq; // only for L_Data.req
   datagram.cemi = {
     msgcode: msgcode || 0x11, // default: L_Data.req for tunneling
@@ -209,7 +209,7 @@ FSM.prototype.send = function (datagram, callback) {
     } catch (e) {
       // 01/10/2020 Supergiovane, aggiunto catch
       KnxLog.get().warn(e);
-    if (typeof callback === 'function') callback(e);
+      if (typeof callback === 'function') callback(e);
     }
 
   } catch (e) {
@@ -328,8 +328,8 @@ FSM.prototype.Disconnect = function (cb) {
   //console.log("BANANA Logger distrutto");
   try {
     KnxLog.destroy(); // 16/08/2020 Force reinstantiation of the logger to refresh the settings.
-  } catch (error) {}
- 
+  } catch (error) { }
+
   // machina.js removeAllListeners equivalent:
   // this.off();
 }
@@ -348,8 +348,8 @@ FSM.prototype.datagramDesc = function (dg) {
 FSM.prototype.AddHPAI = function (datagram) {
   datagram.hpai = {
     protocol_type: 1, // UDP
-    //tunnel_endpoint: this.localAddress + ":" + this.control.address().port
-    tunnel_endpoint: '0.0.0.0:0'
+    tunnel_endpoint: this.localAddress + ":" + this.socket.address().port // 29/12/2020 Supergiovane added on tips https://bitbucket.org/ekarak/knx.js/issues/76/knx-virtual-is-crashed-right-after 
+    //tunnel_endpoint: '0.0.0.0:0'
   };
 }
 
@@ -357,8 +357,8 @@ FSM.prototype.AddHPAI = function (datagram) {
 FSM.prototype.AddTunn = function (datagram) {
   datagram.tunn = {
     protocol_type: 1, // UDP
-    tunnel_endpoint: '0.0.0.0:0'
-    //tunnel_endpoint: this.localAddress + ":" + this.tunnel.address().port
+    tunnel_endpoint: this.localAddress + ":" + this.socket.address().port // 29/12/2020 Supergiovane added on tips https://bitbucket.org/ekarak/knx.js/issues/76/knx-virtual-is-crashed-right-after 
+    // tunnel_endpoint: '0.0.0.0:0'
   };
 }
 
