@@ -16,8 +16,8 @@ module.exports = function (RED) {
         node.initialread = config.initialread || false
         node.listenallga = config.listenallga || false
         node.outputtype = config.outputtype || "write" // When the node is used as output
-        node.outputRBE = config.outputRBE || "false" // Apply or not RBE to the output (Messages coming from flow)
-        node.inputRBE = config.inputRBE || "false" // Apply or not RBE to the input (Messages coming from BUS)
+        node.outputRBE = config.outputRBE || false // Apply or not RBE to the output (Messages coming from flow)
+        node.inputRBE = config.inputRBE || false // Apply or not RBE to the input (Messages coming from BUS)
         node.currentPayload = "" // Current value for the RBE input and for the .previouspayload msg
         node.icountMessageInWindow = 0; // Used to prevent looping messages
         node.messageQueue = []; // 01/01/2020 All messages from the flow to the node, will be queued and will be sent separated by 60 milliseconds each. Use uf the underlying api "minimumDelay" is not possible because the telegram order isn't mantained.
@@ -110,14 +110,14 @@ module.exports = function (RED) {
                             return;
                         }
                     }
-                    node.setNodeStatus({ fill: "grey", shape: "dot", text: "Read", payload: "", GA: grpaddr, dpt: node.dpt, devicename: "" });
+                    node.setNodeStatus({ fill: "grey", shape: "dot", text: "Read", payload: "", GA: grpaddr, dpt: "", devicename: "" });
                     node.server.writeQueueAdd({ grpaddr: grpaddr, payload: "", dpt: "", outputtype: "read", nodecallerid: node.id });
                 } else { // Listen all GAs
                     if (msg.hasOwnProperty("destination")) {
                         // listenallga is true, but the user specified own group address
                         grpaddr = msg.destination
                         // 29/12/2020 Protection over circular references (for example, if you link two Ultimate Nodes toghether with the same group address), to prevent infinite loops
-                        if (msg.hasOwnProperty('knx')) {
+                        if (msg.hasOwnProperty("knx")) {
                             if (msg.knx.destination == grpaddr && ((msg.knx.event === "GroupValue_Response" || msg.knx.event === "GroupValue_Read"))) {
                                 RED.log.error("knxUltimate: Circular reference protection during READ-2. The node " + node.id + " has been temporary disabled. Two nodes with same group address and reaction/output type are linked. See the FAQ in the Wiki. Msg:" + JSON.stringify(msg));
                                 setTimeout(() => {
@@ -190,7 +190,9 @@ module.exports = function (RED) {
                 // OUTPUT: Send message to the bus (write/response)
                 if (node.server.knxConnection) {
                     let outputtype = node.outputtype;
-
+                    let grpaddr = "";
+                    let dpt = "";
+                    
                     // 29/12/2020 Check wheter the input message contains the "event" property, that overwrite the node's outputtype
                     if (msg.hasOwnProperty("event")) {
                         if (msg.event === "GroupValue_Write") outputtype = "write";
@@ -198,8 +200,7 @@ module.exports = function (RED) {
                         if (msg.event === "GroupValue_Read") outputtype = "read";
                     }
 
-                    let grpaddr = "";
-                    let dpt = "";
+                    
                     if (node.listenallga == true) {
                         // The node is set to Universal mode (listen to all Group Addresses). Some fields are needed
                         if (msg.hasOwnProperty("destination")) {
@@ -235,7 +236,7 @@ module.exports = function (RED) {
                         if (msg.hasOwnProperty("destination")) {
                             grpaddr = msg.destination;
                         }
-                        dpt = msg.dpt;
+                        dpt = node.dpt;
                         if (msg.hasOwnProperty("dpt")) {
                             dpt = msg.dpt;
                         }

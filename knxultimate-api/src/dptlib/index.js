@@ -58,7 +58,7 @@ for (var i = 0; i < dirEntries.length; i++) {
 
 // a generic DPT resolution function
 // DPTs might come in as 9/"9"/"9.001"/"DPT9.001"
-dpts.resolve = function(dptid) {
+dpts.resolve = function (dptid) {
   var m = dptid.toString().toUpperCase().match(/^(?:DPT)?(\d+)(\.(\d+))?$/);
   if (m === null) { throw "Invalid DPT format: " + dptid; }
 
@@ -80,7 +80,8 @@ dpts.resolve = function(dptid) {
  * --  1) checks if the value adheres to the range set from the DPT's bitlength
  *
  */
-dpts.populateAPDU = function(value, apdu, dptid) {
+dpts.populateAPDU = function (value, apdu, dptid) {
+  //console.log ("BANANA " + dptid)
   var dpt = dpts.resolve(dptid || 'DPT1');
   var nbytes = Math.ceil(dpt.basetype.bitlength / 8);
   //apdu.data = new Buffer(nbytes); // 14/09/2020 Supregiovane: Deprecated. Replaced with below.
@@ -101,7 +102,7 @@ dpts.populateAPDU = function(value, apdu, dptid) {
       dpt.basetype.range : [0, Math.pow(2, dpt.basetype.bitlength) - 1];
     // is there a scalar range? eg. DPT5.003 angle degrees (0=0, ff=360)
     if (dpt.hasOwnProperty('subtype') && dpt.subtype.hasOwnProperty(
-        'scalar_range')) {
+      'scalar_range')) {
       var scalar = dpt.subtype.scalar_range;
       if (value < scalar[0] || value > scalar[1]) {
         knxLog.get().trace(
@@ -137,7 +138,7 @@ dpts.populateAPDU = function(value, apdu, dptid) {
  * - or by this generic version, which:
  * --  1) checks if the value adheres to the range set from the DPT's bitlength
  */
-dpts.fromBuffer = function(buf, dpt) {
+dpts.fromBuffer = function (buf, dpt) {
   // sanity check
   if (!dpt) throw util.format("DPT %s not found", dpt);
   var value = 0;
@@ -152,13 +153,13 @@ dpts.fromBuffer = function(buf, dpt) {
       throw "cannot handle unsigned integers more then 6 bytes in length"
     }
     if (dpt.basetype.hasOwnProperty('signedness') && dpt.basetype.signedness == 'signed') {
-      value = buf.readIntBE(0,buf.length);
+      value = buf.readIntBE(0, buf.length);
     } else {
-      value = buf.readUIntBE(0,buf.length);
+      value = buf.readUIntBE(0, buf.length);
     }
- // knxLog.get().trace(' ../knx/src/index.js : DPT : ' + JSON.stringify(dpt));   // for exploring dpt and implementing description
+    // knxLog.get().trace(' ../knx/src/index.js : DPT : ' + JSON.stringify(dpt));   // for exploring dpt and implementing description
     if (dpt.hasOwnProperty('subtype') && dpt.subtype.hasOwnProperty(
-        'scalar_range')) {
+      'scalar_range')) {
       var range = (dpt.basetype.hasOwnProperty('range')) ?
         dpt.basetype.range : [0, Math.pow(2, dpt.basetype.bitlength) - 1];
       var scalar = dpt.subtype.scalar_range;
