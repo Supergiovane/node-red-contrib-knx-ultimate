@@ -8,11 +8,13 @@ const util = require('util');
 //
 // DPT11.*: date
 //
-exports.formatAPDU = function(value) {
+exports.formatAPDU = function (value) {
+
   if (!value) knxLog.get().error("cannot write null value for DPT11")
   else {
     var apdu_data = new Buffer.alloc(3);
-    switch(typeof value) {
+
+    switch (typeof value) {
       case 'string':
       case 'number':
         value = new Date(value);
@@ -38,17 +40,17 @@ exports.formatAPDU = function(value) {
   }
 }
 
-exports.fromBuffer = function(buf) {
-  if (buf.length != 3) knxLog.get().error("Buffer should be 3 bytes long")
+exports.fromBuffer = function (buf) {
+  if (buf.length != 3) knxLog.get().error("Buffer should be 3 bytes long. Received " + buf.length)
   else {
-    var day   = (buf[0] & 31);      //0b00011111);
+    var day = (buf[0] & 31);      //0b00011111);
     var month = (buf[1] & 15);      //0b00001111);
-    var year  = (buf[2] & 127);     //0b01111111);
+    var year = (buf[2] & 127);     //0b01111111);
     year = year + (year > 89 ? 1900 : 2000)
     if (day >= 1 & day <= 31 &
       month >= 1 & month <= 12 &
       year >= 1990 & year <= 2089) {
-      return new Date(year, month-1, day);
+      return new Date(year, month - 1, day);
     } else {
       knxLog.get().error(
         "%j => %d/%d/%d is not valid date according to DPT11, setting to 1990/01/01",
@@ -61,20 +63,20 @@ exports.fromBuffer = function(buf) {
 
 // DPT11 base type info
 exports.basetype = {
-  bitlength : 24,
-  valuetype : 'composite',
-  desc : "3-byte date value",
-  "help": 
-`// Send the date to the bus!
+  bitlength: 24,
+  valuetype: 'composite',
+  desc: "3-byte date value",
+  "help":
+    `// Send the date to the bus!
 msg.payload = new Date().toString();
 return msg;`,
-"helplink":"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---DateTime-to-BUS"
+  "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---DateTime-to-BUS"
 }
 
 // DPT11 subtypes info
 exports.subtypes = {
   // 11.001 date
-  "001" : {
-      name : "Date", desc : "Date"
+  "001": {
+    name: "Date", desc: "Date"
   }
 }
