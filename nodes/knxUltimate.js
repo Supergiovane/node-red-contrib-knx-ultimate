@@ -85,31 +85,47 @@ module.exports = function (RED) {
             if (typeof msg === "undefined") return;
             if (!node.server) return; // 29/08/2019 Server not instantiate
 
-            // 02/10/2020 is now handled in the connection.js API. Search for isTunnelConnected
-            // if (node.server.linkStatus !== "connected") {
-            //     RED.log.error("knxUltimate: KNX link is disconnected");
-            //     return; // 29/08/2019 If not connected, exit
-            // }
-
             if (node.passthrough !== "no") { // 27/03/2020 Save the input message to be passed out to msg output
                 // The msg has a TTL of 3 seconds
                 if (node.timerTTLInputMessage !== null) clearTimeout(node.timerTTLInputMessage);
                 node.timerTTLInputMessage = setTimeout(function () { node.inputmessage = {}; }, 3000);
-                node.inputmessage = msg;   // 28/03/2020 Store the message to be passed through.
+                node.inputmessage = RED.util.cloneMessage(msg);   // 28/03/2020 Store the message to be passed through.
             }
 
             // 25/07/2019 if payload is read or the output type is set to "read", do a read, otherwise, write to the bus
             if ((msg.hasOwnProperty('readstatus') && msg.readstatus === true) || node.outputtype === "read") {
+
                 // READ: Send a Read request to the bus
-                var grpaddr = ""
+                let grpaddr = ""
                 if (node.listenallga == false) {
-                    grpaddr = msg && msg.destination ? msg.destination : node.topic
+                    grpaddr = node.topic;
+                    if (msg.hasOwnProperty("destination")) grpaddr = msg.destination;
+                    // 29/12/2020 Protection over circular references (for example, if you link two Ultimate Nodes toghether with the same group address), to prevent infinite loops
+                    if (msg.hasOwnProperty('knx')) {
+                        if (msg.knx.destination == grpaddr && ((msg.knx.event === "GroupValue_Response" || msg.knx.event === "GroupValue_Read"))) {
+                            RED.log.error("knxUltimate: Circular reference protection during READ. The node " + node.id + " has been temporary disabled. Two nodes with same group address and reaction/output type are linked. See the FAQ in the Wiki. Msg:" + JSON.stringify(msg));
+                            setTimeout(() => {
+                                node.setNodeStatus({ fill: "red", shape: "ring", text: "DISABLED due to a circulare reference while READ (" + grpaddr + ").", payload: "", GA: "", dpt: "", devicename: "" })
+                            }, 1000);
+                            return;
+                        }
+                    }
                     node.setNodeStatus({ fill: "grey", shape: "dot", text: "Read", payload: "", GA: grpaddr, dpt: node.dpt, devicename: "" });
                     node.server.writeQueueAdd({ grpaddr: grpaddr, payload: "", dpt: "", outputtype: "read", nodecallerid: node.id });
                 } else { // Listen all GAs
                     if (msg.hasOwnProperty("destination")) {
                         // listenallga is true, but the user specified own group address
                         grpaddr = msg.destination
+                        // 29/12/2020 Protection over circular references (for example, if you link two Ultimate Nodes toghether with the same group address), to prevent infinite loops
+                        if (msg.hasOwnProperty('knx')) {
+                            if (msg.knx.destination == grpaddr && ((msg.knx.event === "GroupValue_Response" || msg.knx.event === "GroupValue_Read"))) {
+                                RED.log.error("knxUltimate: Circular reference protection during READ-2. The node " + node.id + " has been temporary disabled. Two nodes with same group address and reaction/output type are linked. See the FAQ in the Wiki. Msg:" + JSON.stringify(msg));
+                                setTimeout(() => {
+                                    node.setNodeStatus({ fill: "red", shape: "ring", text: "DISABLED due to a circulare reference while READ-2 (" + grpaddr + ").", payload: "", GA: "", dpt: "", devicename: "" })
+                                }, 1000);
+                                return;
+                            }
+                        }
                         node.server.writeQueueAdd({ grpaddr: grpaddr, payload: "", dpt: "", outputtype: "read", nodecallerid: node.id });
                     } else {
                         // Issue read to all group addresses
@@ -118,12 +134,21 @@ module.exports = function (RED) {
                             let delay = 0;
                             for (let index = 0; index < node.server.csv.length; index++) {
                                 const element = node.server.csv[index];
-                                node.server.writeQueueAdd({ grpaddr: element.ga, payload: "", dpt: "", outputtype: "read", nodecallerid: node.id });
-                                setTimeout(() => {
-                                    // Timeout is only for the status update.
-                                    node.setNodeStatus({ fill: "grey", shape: "dot", text: "Add Read to queue...", payload: "", GA: element.ga, dpt: element.dpt, devicename: element.devicename });
-                                }, delay);
-                                delay = delay + 10;
+                                let grpaddr = element.ga;
+                                // 29/12/2020 Protection over circular references (for example, if you link two Ultimate Nodes toghether with the same group address), to prevent infinite loops
+                                if (msg.hasOwnProperty('knx')) {
+                                    if (msg.knx.destination == grpaddr && ((msg.knx.event === "GroupValue_Response" || msg.knx.event === "GroupValue_Read"))) {
+                                        RED.log.error("knxUltimate: Circular reference protection during READ-3. Node " + node.id + " The read request hasn't been sent. Two nodes with same group address and reaction/output type are linked. See the FAQ in the Wiki. Msg:" + JSON.stringify(msg));
+                                        node.setNodeStatus({ fill: "red", shape: "ring", text: "NOT SENT due to a circulare reference while READ-3 (" + grpaddr + ").", payload: "", GA: "", dpt: "", devicename: "" })
+                                    }
+                                } else {
+                                    node.server.writeQueueAdd({ grpaddr: grpaddr, payload: "", dpt: "", outputtype: "read", nodecallerid: node.id });
+                                    setTimeout(() => {
+                                        // Timeout is only for the status update.
+                                        node.setNodeStatus({ fill: "grey", shape: "dot", text: "Add Read to queue...", payload: "", GA: grpaddr, dpt: element.dpt, devicename: element.devicename });
+                                    }, delay);
+                                    delay = delay + 10;
+                                }
                             }
                         } else {
                             // No csv. A chi cavolo dovrei mandare la richiesta read?
@@ -164,58 +189,63 @@ module.exports = function (RED) {
 
                 // OUTPUT: Send message to the bus (write/response)
                 if (node.server.knxConnection) {
-                    let outputtype =
-                        msg.event
-                            ? msg.event == "GroupValue_Response"
-                                ? "response"
-                                : msg.event == "GroupValue_Write"
-                                    ? "write"
-                                    : node.outputtype
-                            : node.outputtype
+                    let outputtype = node.outputtype;
 
-                    var grpaddr = "";
-                    var dpt = "";
+                    // 29/12/2020 Check wheter the input message contains the "event" property, that overwrite the node's outputtype
+                    if (msg.hasOwnProperty("event")) {
+                        if (msg.event === "GroupValue_Write") outputtype = "write";
+                        if (msg.event === "GroupValue_Response") outputtype = "response";
+                        if (msg.event === "GroupValue_Read") outputtype = "read";
+                    }
+
+                    let grpaddr = "";
+                    let dpt = "";
                     if (node.listenallga == true) {
-                        // The node is set to Universal mode (listen to all Group Addresses). The msg.knx.destination is needed.
-                        if (msg.destination) {
+                        // The node is set to Universal mode (listen to all Group Addresses). Some fields are needed
+                        if (msg.hasOwnProperty("destination")) {
                             grpaddr = msg.destination;
                         } else {
                             node.setNodeStatus({ fill: "red", shape: "dot", text: "msg.destination not set!", payload: "", GA: "", dpt: "", devicename: "" })
                             return;
                         }
-                    } else {
-                        grpaddr = msg.destination
-                            ? msg.destination
-                            : node.topic
-                    }
-
-                    if (node.listenallga == true) {
-                        // The node is set to Universal mode (listen to all Group Addresses). Gets the datapoint from the CSV or use the msg.dpt.
-                        if (msg.dpt) {
+                        if (msg.hasOwnProperty("dpt")) {
                             dpt = msg.dpt;
                         } else {
+                            // No datapoint set. If the CSV is loaded, try to get it from there.
                             if (!msg.hasOwnProperty("writeraw")) { // In raw mode, Datapoint is useless
                                 // Get the datapoint from the CSV
                                 if (typeof node.server.csv !== "undefined") {
                                     let oGA = node.server.csv.filter(sga => sga.ga == grpaddr)[0]
-                                    dpt = oGA.dpt
+                                    if (oGA !== undefined) {
+                                        dpt = oGA.dpt
+                                    } else {
+                                        node.setNodeStatus({ fill: "red", shape: "dot", text: "msg.dpt not set and not found in the CSV!", payload: "", GA: "", dpt: "", devicename: "" })
+                                        RED.log.error("knxUltimate: node id: " + node.id + " " + "msg.dpt not set and not found in the CSV!");
+                                        return;
+                                    }
                                 } else {
-                                    node.setNodeStatus({ fill: "red", shape: "dot", text: "msg.dpt not set!", payload: "", GA: "", dpt: "", devicename: "" })
+                                    node.setNodeStatus({ fill: "red", shape: "dot", text: "msg.dpt not set and there's no CSV to search for!", payload: "", GA: "", dpt: "", devicename: "" })
+                                    RED.log.error("knxUltimate: node id: " + node.id + " " + "msg.dpt not set and there's no CSV to search for!");
                                     return;
                                 }
                             }
                         }
                     } else {
-                        dpt = msg.dpt
-                            ? msg.dpt
-                            : node.dpt
+                        grpaddr = node.topic;
+                        if (msg.hasOwnProperty("destination")) {
+                            grpaddr = msg.destination;
+                        }
+                        dpt = msg.dpt;
+                        if (msg.hasOwnProperty("dpt")) {
+                            dpt = msg.dpt;
+                        }
                     }
+
                     // Protection over circular references (for example, if you link two Ultimate Nodes toghether with the same group address), to prevent infinite loops
-                    // if (msg.hasOwnProperty('topic')) { 
                     if (msg.hasOwnProperty('knx')) {
-                        //if (msg.topic == grpaddr && msg.knx !== undefined) { // 07/02/2020 changed, to allow topic customization asked by users.
-                        if (msg.knx.destination == grpaddr) { // 07/02/2020 changed, to allow topic customization asket by users.
-                            RED.log.error("knxUltimate: Circular reference protection. The node " + node.id + " has been disabled. Two nodes with same group address are linked. See the FAQ in the Wiki. Msg:" + JSON.stringify(msg));
+
+                        if (msg.knx.destination == grpaddr && ((msg.knx.event === "GroupValue_Write" && outputtype === "write") || (msg.knx.event === "GroupValue_Response" && outputtype === "response") || (msg.knx.event === "GroupValue_Response" && outputtype === "read") || (msg.knx.event === "GroupValue_Read" && outputtype === "read"))) {
+                            RED.log.error("knxUltimate: Circular reference protection. The node " + node.id + " has been temporarely disabled. Two nodes with same group address and reaction/output type are linked. See the FAQ in the Wiki. Msg:" + JSON.stringify(msg));
                             setTimeout(() => {
                                 node.setNodeStatus({ fill: "red", shape: "ring", text: "DISABLED due to a circulare reference (" + grpaddr + ").", payload: "", GA: "", dpt: "", devicename: "" })
                             }, 1000);

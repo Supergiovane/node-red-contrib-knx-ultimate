@@ -5,6 +5,13 @@
 <br/>
 
 <p>
+<b>Version 1.2.0</b> - December 2020<br/>
+- NEW: added node protection help in the german wiki.<br/>
+- Update the circular reference protection to be more intelligent thus more tollerant. Thanks @Christian for raising the request.<br/>
+- Updated the circular reference sample in the wiki.<br/>
+- Updated the msg input help in the wiki.<br/>
+</p>
+<p>
 <b>Version 1.1.99</b> - December 2020<br/>
 - FIX: RBE filter (from BUS and from flow) doesn't work if the payload is an object.<br/>
 - Removed an unwanted debug log in dPT 242.600<br/>
