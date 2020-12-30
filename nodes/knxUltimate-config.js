@@ -782,6 +782,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
         // 14/08/2019 If the node has payload same as the received telegram, return false
         checkRBEInputFromKNXBusAllowSend = (_node, _KNXTelegramPayload) => {
             if (_node.inputRBE !== true) return true;
+            
             return !_.isEqual(_node.currentPayload, _KNXTelegramPayload);
         }
 

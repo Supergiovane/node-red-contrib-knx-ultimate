@@ -192,7 +192,7 @@ module.exports = function (RED) {
                     let outputtype = node.outputtype;
                     let grpaddr = "";
                     let dpt = "";
-                    
+
                     // 29/12/2020 Check wheter the input message contains the "event" property, that overwrite the node's outputtype
                     if (msg.hasOwnProperty("event")) {
                         if (msg.event === "GroupValue_Write") outputtype = "write";
@@ -200,7 +200,7 @@ module.exports = function (RED) {
                         if (msg.event === "GroupValue_Read") outputtype = "read";
                     }
 
-                    
+
                     if (node.listenallga == true) {
                         // The node is set to Universal mode (listen to all Group Addresses). Some fields are needed
                         if (msg.hasOwnProperty("destination")) {
@@ -232,14 +232,8 @@ module.exports = function (RED) {
                             }
                         }
                     } else {
-                        grpaddr = node.topic;
-                        if (msg.hasOwnProperty("destination")) {
-                            grpaddr = msg.destination;
-                        }
-                        dpt = node.dpt;
-                        if (msg.hasOwnProperty("dpt")) {
-                            dpt = msg.dpt;
-                        }
+                        grpaddr = msg.hasOwnProperty("destination") ? msg.destination : node.topic;
+                        dpt = msg.hasOwnProperty("dpt") ? msg.dpt : node.dpt;
                     }
 
                     // Protection over circular references (for example, if you link two Ultimate Nodes toghether with the same group address), to prevent infinite loops
