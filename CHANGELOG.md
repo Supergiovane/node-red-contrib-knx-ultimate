@@ -7,6 +7,7 @@
 <p>
 <b>Version 1.2.1</b> - December 2020<br/>
 - FIX: fixed RBE filter not working for Datapoint 242.600<br/>
+- Change: payload 242.600 must now be passed with color and brighness valididy booleans: msg.payload={x:500, y:500, brightness:80, isColorValid:true, isBrightnessValid:true};
 </p>
 <p>
 <b>Version 1.2.0</b> - December 2020<br/>
