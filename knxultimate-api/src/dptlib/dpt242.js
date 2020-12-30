@@ -68,7 +68,7 @@ exports.basetype = {
     "valuetype": "basic",
     "desc": "RGB xyY",
     "help":
-        `// Each color in a range between 0 and 65535 and brightness 0 and 100%
+        `// Each color in a range between 0 and 65535, brightness 0 and 100%, isColorValid true and isBrightnessValid true
 msg.payload={x:500, y:500, brightness:80, isColorValid:true, isBrightnessValid:true};
 return msg;`
 }
