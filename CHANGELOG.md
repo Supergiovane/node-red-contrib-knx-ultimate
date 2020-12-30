@@ -5,6 +5,10 @@
 <br/>
 
 <p>
+<b>Version 1.2.1</b> - December 2020<br/>
+- FIX: fixed RBE filter not working for Datapoint 242.600<br/>
+</p>
+<p>
 <b>Version 1.2.0</b> - December 2020<br/>
 - NEW: added compatibility with ETS KNX VIRTUAL.<br/>
 - NEW: added node protection help in the german wiki.<br/>
