@@ -70,7 +70,7 @@ exports.basetype = {
     "help":
         `// Brightness Colour Temperature Transition.
 // Properties: transitionTime is in milliseconds, colourTemperature is Kelvin (0-65535 with resolution of 1K)
-// absoluteBrightness in % (0-100), isTimePeriodValid (true/false), isAbsoluteColourTemperatureValid (true/false), isAbsoluteBrightnessValid (true/false)
+// absoluteBrightness (0-255), isTimePeriodValid (true/false), isAbsoluteColourTemperatureValid (true/false), isAbsoluteBrightnessValid (true/false)
 msg.payload={transitionTime:100, colourTemperature:1000, absoluteBrightness:80, isTimePeriodValid:true, isAbsoluteColourTemperatureValid:true, isAbsoluteBrightnessValid:true};
 return msg;`
 }
