@@ -6,8 +6,8 @@
 
 <p>
 <b>Version 1.2.3</b> - 31 December 2020<br/>
-- FIX: last 2 bytes of 249.600 was swapped.<br/>
-- FIX: last 2 bytes of 242.600 was swapped.<br/>
+- FIX: last 2 bytes of 249.600 were swapped.<br/>
+- FIX: last 2 bytes of 242.600 were swapped.<br/>
 </p>
 <p>
 <b>Version 1.2.2</b> - 31 December 2020<br/>
