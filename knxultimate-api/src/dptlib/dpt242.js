@@ -41,8 +41,8 @@ exports.formatAPDU = function (value) {
         bufferTotal[1] = bufX[1];
         bufferTotal[2] = bufY[0];
         bufferTotal[3] = bufY[1];
-        bufferTotal[4] = bufBrightness[0];
-        bufferTotal[5] = bufBrightness[1];
+        bufferTotal[4] = bufBrightness[1];
+        bufferTotal[5] = bufBrightness[0];
 
         return bufferTotal;
     }
@@ -54,8 +54,8 @@ exports.fromBuffer = function (buf) {
     //console.log("bufTotale STRINGA: " + bufTotale);
     let x = bufTotale.substring(0, 4);
     let y = bufTotale.substring(4, 8);
-    let CB = bufTotale.substring(8, 10);// these are Colour and Brighness validities (2 bit) //00000011
-    let brightness = bufTotale.substring(10, 12);
+    let brightness = bufTotale.substring(8, 10);// these are Colour and Brighness validities (2 bit) //00000011
+    let CB = bufTotale.substring(10, 12);
     let isColorValid = hex2bin(CB).substring(6, 7) === "1" ? true : false;
     let isBrightnessValid = hex2bin(CB).substring(7, 8) === "1" ? true : false;
     ret = { x: parseInt(x, 16), y: parseInt(y, 16), brightness: parseInt(brightness, 16), isColorValid: isColorValid, isBrightnessValid: isBrightnessValid };

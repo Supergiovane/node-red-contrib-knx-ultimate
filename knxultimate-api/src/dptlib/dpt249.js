@@ -42,8 +42,8 @@ exports.formatAPDU = function (value) {
         bufferTotal[1] = transitionTime[1];
         bufferTotal[2] = colourTemperature[0];
         bufferTotal[3] = colourTemperature[1];
-        bufferTotal[4] = absoluteBrightness[0];
-        bufferTotal[5] = absoluteBrightness[1];
+        bufferTotal[4] = absoluteBrightness[1];
+        bufferTotal[5] = absoluteBrightness[0];
         return bufferTotal;
     }
 }
@@ -53,8 +53,8 @@ exports.fromBuffer = function (buf) {
     let bufTotale = buf.toString('hex');
     let transitionTime = bufTotale.substring(0, 4);
     let colourTemperature = bufTotale.substring(4, 8);
-    let CB = bufTotale.substring(8, 10);// This is 1 Byte of validities (3 bit) //00000111
-    let absoluteBrightness = bufTotale.substring(10, 12);
+    let absoluteBrightness = bufTotale.substring(8, 10);// This is 1 Byte of validities (3 bit) //00000111
+    let CB = bufTotale.substring(10, 12);
     let isTimePeriodValid = hex2bin(CB).substring(5, 6) === "1" ? true : false;
     let isAbsoluteColourTemperatureValid = hex2bin(CB).substring(6, 7) === "1" ? true : false;
     let isAbsoluteBrightnessValid = hex2bin(CB).substring(7, 8) === "1" ? true : false;
