@@ -56,9 +56,9 @@ exports.fromBuffer = function (buf) {
     let y = bufTotale.substring(4, 8);
     let CB = bufTotale.substring(8, 10);// these are Colour and Brighness validities (2 bit) //00000011
     let brightness = bufTotale.substring(10, 12);
-    let isColorValid = hex2bin(CB).substr(6, 7);
-    let isBrightnessValid = hex2bin(CB).substr(7, 8);
-    ret = { x: parseInt(x, 16), y: parseInt(y, 16), brightness: parseInt(brightness, 16), isColorValid: Boolean(isColorValid), isBrightnessValid: Boolean(isBrightnessValid) };
+    let isColorValid = hex2bin(CB).substring(6, 7) === "1" ? true : false;
+    let isBrightnessValid = hex2bin(CB).substring(7, 8) === "1" ? true : false;
+    ret = { x: parseInt(x, 16), y: parseInt(y, 16), brightness: parseInt(brightness, 16), isColorValid: isColorValid, isBrightnessValid: isBrightnessValid };
     return ret;
 }
 

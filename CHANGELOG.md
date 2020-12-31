@@ -5,6 +5,11 @@
 <br/>
 
 <p>
+<b>Version 1.2.2</b> - 31 December 2020<br/>
+- NEW: Datapoint 249.600 added msg.payload={transitionTime:100, colourTemperature:1000, absoluteBrightness:80, isTimePeriodValid:true, isAbsoluteColourTemperatureValid:true, isAbsoluteBrightnessValid:true};
+- FIX: validities bits of 242.600, that returns everytime true.<br/>
+</p>
+<p>
 <b>Version 1.2.1</b> - December 2020<br/>
 - FIX: fixed RBE filter not working for Datapoint 242.600<br/>
 - Change: payload 242.600 must now be passed with color and brighness valididy booleans: msg.payload={x:500, y:500, brightness:80, isColorValid:true, isBrightnessValid:true};

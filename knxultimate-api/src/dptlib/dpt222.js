@@ -6,7 +6,7 @@
 const knxLog = require('./../KnxLog');
 
 //
-// DPT222: Data Type “3x 16-Float Value”
+// DPT222: Data Type 3x 16-Float Value
 //
 
 const util = require('util');
