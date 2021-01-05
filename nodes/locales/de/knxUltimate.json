@@ -48,6 +48,7 @@
             "Output_write": "Schreiben",
             "Output_response": "Antworten",
             "Output_read": "Lesen",
+            "Output_update": "Keine Zusendung. Nur Update (aktualisiert den Wert ohne ein Telegram auf den KNX Bus zu senden)",
             "Multiply_leave": "Unverändert lassen (Standard)",
             "Multiply_divide1000": "Teilen / 1000",
             "Multiply_divide100": "Teilen / 100",

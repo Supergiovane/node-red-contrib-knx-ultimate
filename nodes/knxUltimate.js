@@ -197,7 +197,7 @@ module.exports = function (RED) {
                     if (msg.hasOwnProperty("event")) {
                         if (msg.event === "GroupValue_Write") outputtype = "write";
                         if (msg.event === "GroupValue_Response") outputtype = "response";
-                        if (msg.event === "GroupValue_Read") outputtype = "read";
+                        if (msg.event === "Update_NoWrite") outputtype = "update"; // 05/01/2021 Doesn't send anything to the bus. Only updates the node currentPayload
                     }
 
 
@@ -275,6 +275,13 @@ module.exports = function (RED) {
                             node.currentPayload = msg.payload;// 31/12/2019 Set the current value (because, if the node is a virtual device, then it'll never fire "GroupValue_Write" in the server node, causing the currentPayload to never update)
                             node.server.writeQueueAdd({ grpaddr: grpaddr, payload: msg.payload, dpt: dpt, outputtype: outputtype, nodecallerid: node.id })
                             node.setNodeStatus({ fill: "blue", shape: "dot", text: "Responding", payload: msg.payload, GA: grpaddr, dpt: dpt, devicename: "" });
+                        } catch (error) { }
+                    } else if (outputtype == "update") {
+                        // 05/01/2021 Updates only the internal currentPayload value.
+                        try {
+                            node.currentPayload = msg.payload;
+                            node.server.writeQueueAdd({ grpaddr: grpaddr, payload: msg.payload, dpt: dpt, outputtype: outputtype, nodecallerid: node.id })
+                            node.setNodeStatus({ fill: "grey", shape: "dot", text: "Updating internal value", payload: msg.payload, GA: grpaddr, dpt: dpt, devicename: "" });
                         } catch (error) { }
                     } else {
                         try {

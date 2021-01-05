@@ -5,6 +5,13 @@
 <br/>
 
 <p>
+<b>Version 1.2.5</b> - January 2021<br/>
+- FIX: nodes wasn't emitting a msg to the flow, when they've been set to respond to READ requests while the they haven't already received a value either from BUS or flow.<br/>
+- NEW: you can now update the node's payload without sending the KNX Telegram to the bus. See the node input messages in the wiki and the Virtual Device sample.<br/>
+- Updated the Help in various parts of the wiki.<br/>
+- Updated Virtual Device sample, in the samples section.<br/>
+</p>
+<p>
 <b>Version 1.2.4</b> - January 2021<br/>
 - REMOVED: removed compatibility with KNX Virtual because it brokes some dockerized/pluginized node-red KNX connections.<br/>
 </p>

@@ -758,7 +758,58 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                     try {
                         node.knxConnection.read(oKNXMessage.grpaddr);
                     } catch (error) { }
+                } else if (oKNXMessage.outputtype === "update") {
+
+                    // 05/01/2021 Update don't send anything to the bus, but instead updates the values of all nodes belonging to the group address passed
+                    // oKNXMessage = {
+                    //     grpaddr: '5/0/1',
+                    //     payload: true,
+                    //     dpt: '1.001',
+                    //     outputtype: 'update',
+                    //     nodecallerid: 'd104af91.31da18'
+                    //   }
+                    try {
+                        
+                        node.nodeClients.forEach(input => {
+
+                            // 19/03/2020 in the middle of coronavirus. Whole italy is red zone, closed down. Scene Controller implementation
+                            if (input.hasOwnProperty("isSceneController")) {
+
+                            } else if (input.hasOwnProperty("isLogger")) { // 26/03/2020 Coronavirus is slightly decreasing the affected numer of people. Logger Node
+
+                            } else if (input.listenallga == true) {
+
+                            } else if (input.topic == oKNXMessage.grpaddr) {
+
+                                if (input.hasOwnProperty("isWatchDog")) { // 04/02/2020 Watchdog implementation
+                                    // Is a watchdog node
+
+                                } else {
+                                   
+                                    let msg = {
+                                        topic: input.topic,
+                                        payload: oKNXMessage.payload,
+                                        devicename: input.name ? input.name : "",
+                                        event: "Update_NoWrite",
+                                        eventdesc:"The value has been updated from another node and hasn't been received from KNX BUS"
+                                    };
+                                    // Check RBE INPUT from KNX Bus, to avoid send the payload to the flow, if it's equal to the current payload
+                                    if (!checkRBEInputFromKNXBusAllowSend(input, msg.payload)) {
+                                        input.setNodeStatus({ fill: "grey", shape: "ring", text: "rbe block (" + msg.payload + ") from KNX", payload: "", GA: "", dpt: "", devicename: "" })
+                                        return;
+                                    };
+                                    msg.previouspayload = typeof input.currentPayload !== "undefined" ? input.currentPayload : ""; // 24/01/2020 Added previous payload
+                                    input.currentPayload = msg.payload;// Set the current value for the RBE input
+                                    input.setNodeStatus({ fill: "green", shape: "dot", text: "", payload: msg.payload, GA: input.topic, dpt: input.dpt, devicename: "" });
+                                    input.handleSend(msg);
+                                };
+                            };
+                        });
+
+                    } catch (error) { }
+
                 } else {
+
                     try {
                         node.knxConnection.write(oKNXMessage.grpaddr, oKNXMessage.payload, oKNXMessage.dpt);
                     } catch (error) {
@@ -766,6 +817,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                             node.nodeClients.find(a => a.id === oKNXMessage.nodecallerid).setNodeStatus({ fill: "red", shape: "dot", text: "Send write " + error, payload: oKNXMessage.payload, GA: oKNXMessage.grpaddr, dpt: oKNXMessage.dpt, devicename: "" })
                         } catch (error) { }
                     }
+
                 }
                 // Remove current item in the main node.telegramsQueue array
                 try {
@@ -782,7 +834,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
         // 14/08/2019 If the node has payload same as the received telegram, return false
         checkRBEInputFromKNXBusAllowSend = (_node, _KNXTelegramPayload) => {
             if (_node.inputRBE !== true) return true;
-            
+
             return !_.isEqual(_node.currentPayload, _KNXTelegramPayload);
         }
 
@@ -835,6 +887,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
             var sDptdesc = "unknown";
             var sPayloadsubtypevalue = "unknown";
             var jsValue = null;
+            var sInputDpt = "unknown";
 
             // Resolve DPT and convert value if available
             if (_Rawvalue !== null) {
@@ -879,25 +932,29 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                     }
                 };
             }
+            try {
+                // Build final input message object
+                return {
+                    topic: _outputtopic
+                    , payload: jsValue
+                    , devicename: (typeof _devicename !== 'undefined') ? _devicename : ""
+                    , payloadmeasureunit: sPayloadmeasureunit
+                    , payloadsubtypevalue: sPayloadsubtypevalue
+                    , knx:
+                    {
+                        event: _event
+                        , dpt: sInputDpt
+                        //, details: dpt
+                        , dptdesc: sDptdesc
+                        , source: _srcGA
+                        , destination: _destGA
+                        , rawValue: _Rawvalue
+                    }
+                };
+            } catch (error) {
+                RED.log.error("knxUltimate-config: buildInputMessage error: " + error.message);
+            }
 
-            // Build final input message object
-            return {
-                topic: _outputtopic
-                , payload: jsValue
-                , devicename: (typeof _devicename !== 'undefined') ? _devicename : ""
-                , payloadmeasureunit: sPayloadmeasureunit
-                , payloadsubtypevalue: sPayloadsubtypevalue
-                , knx:
-                {
-                    event: _event
-                    , dpt: sInputDpt
-                    //, details: dpt
-                    , dptdesc: sDptdesc
-                    , source: _srcGA
-                    , destination: _destGA
-                    , rawValue: _Rawvalue
-                }
-            };
         };
 
 
@@ -1086,22 +1143,6 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
             return ajsonOutput;
 
         }
-
-        // // 29/07/2020 Create YAML for homeassistant
-        // function CreateYamlForHomeAssistant() {
-        //     // Node.CSV : {ga:group address, dpt: datapoint, devicename: full device name with main and subgroups}
-        //     sOut = "light:\n";
-        //     const sCercaLuci = ["luce", "plafoniera", "applique"];
-        //     node.csv.forEach(element => {
-        //         if (sCercaLuci.some(element.devicename.includes.bind(element.devicename))) {
-        //             // There's at least one
-        //             sOut += "\t- platform: knx\n";
-        //             sOut += "\t\tname:" + + "\n";
-        //         }
-
-
-        //     });
-        // }
 
         // 23/08/2019 Delete unwanted CRLF in the GA description
         function correctCRLFInCSV(_csv) {

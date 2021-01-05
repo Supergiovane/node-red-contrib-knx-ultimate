@@ -48,6 +48,7 @@
             "Output_write": "Scrittura",
             "Output_response": "Risposta",
             "Output_read": "Lettura",
+            "Output_update": "Nessun output. Solo aggiornamento (aggiorna solo il valore del nodo, senza scrivere sul BUS KNX)",
             "Multiply_leave": "Lascia invariato (default)",
             "Multiply_divide1000": "Dividi x 1000",
             "Multiply_divide100": "Dividi x 100",
