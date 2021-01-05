@@ -6,7 +6,7 @@
 
 <p>
 <b>Version 1.2.4</b> - Janyary 2021<br/>
-- REMOVED: removed compatibility with KNX Virtual because it brokes KNXD connections.<br/>
+- REMOVED: removed compatibility with KNX Virtual because it brokes some dockerized/pluginized node-red KNX connections.<br/>
 </p>
 <p>
 <b>Version 1.2.3</b> - 31 December 2020<br/>
