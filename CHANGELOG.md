@@ -5,6 +5,10 @@
 <br/>
 
 <p>
+<b>Version 1.2.4</b> - Janyary 2021<br/>
+- REMOVED: removed compatibility with KNX Virtual because it brokes KNXD connections.<br/>
+</p>
+<p>
 <b>Version 1.2.3</b> - 31 December 2020<br/>
 - FIX: last 2 bytes of 249.600 were swapped.<br/>
 - FIX: last 2 bytes of 242.600 were swapped.<br/>

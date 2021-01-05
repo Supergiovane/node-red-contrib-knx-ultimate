@@ -348,8 +348,9 @@ FSM.prototype.datagramDesc = function (dg) {
 FSM.prototype.AddHPAI = function (datagram) {
   datagram.hpai = {
     protocol_type: 1, // UDP
-    tunnel_endpoint: this.localAddress + ":" + this.socket.address().port // 29/12/2020 Supergiovane added on tips https://bitbucket.org/ekarak/knx.js/issues/76/knx-virtual-is-crashed-right-after 
-    //tunnel_endpoint: '0.0.0.0:0'
+    // 05/12/2020 Removed and ripristinated '0.0.0.0:0' due to connection lost with KNXD 
+    //tunnel_endpoint: this.localAddress + ":" + this.socket.address().port // 29/12/2020 Supergiovane added on tips https://bitbucket.org/ekarak/knx.js/issues/76/knx-virtual-is-crashed-right-after 
+    tunnel_endpoint: '0.0.0.0:0'
   };
 }
 
@@ -357,8 +358,9 @@ FSM.prototype.AddHPAI = function (datagram) {
 FSM.prototype.AddTunn = function (datagram) {
   datagram.tunn = {
     protocol_type: 1, // UDP
-    tunnel_endpoint: this.localAddress + ":" + this.socket.address().port // 29/12/2020 Supergiovane added on tips https://bitbucket.org/ekarak/knx.js/issues/76/knx-virtual-is-crashed-right-after 
-    // tunnel_endpoint: '0.0.0.0:0'
+    // 05/12/2020 Removed and ripristinated '0.0.0.0:0' due to connection lost with KNXD 
+    //tunnel_endpoint: this.localAddress + ":" + this.socket.address().port // 29/12/2020 Supergiovane added on tips https://bitbucket.org/ekarak/knx.js/issues/76/knx-virtual-is-crashed-right-after 
+    tunnel_endpoint: '0.0.0.0:0'
   };
 }
 
