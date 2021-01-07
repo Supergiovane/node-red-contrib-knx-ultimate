@@ -5,6 +5,11 @@
 <br/>
 
 <p>
+<b>Version 1.2.6</b> - January 2021<br/>
+- NEW: Datapoint 213.x has been added.<br/>
+- Added sample DPT 213.x in the Wiki
+</p>
+<p>
 <b>Version 1.2.5</b> - January 2021<br/>
 - FIX: nodes wasn't emitting a msg to the flow, when they've been set to respond to READ requests while the they haven't already received a value either from BUS or flow.<br/>
 - NEW: you can now update the node's payload without sending the KNX Telegram to the bus. See the node input messages in the wiki and the Virtual Device sample.<br/>
