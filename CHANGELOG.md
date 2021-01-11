@@ -5,6 +5,11 @@
 <br/>
 
 <p>
+<b>Version 1.2.7</b> - January 2021<br/>
+- NEW: Datapoint 237 DALI diags. https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---DPT237<br/>
+- Added sample DPT 237.x in the Wiki
+</p>
+<p>
 <b>Version 1.2.6</b> - January 2021<br/>
 - NEW: Datapoint 213.x has been added.<br/>
 - Added sample DPT 213.x in the Wiki
