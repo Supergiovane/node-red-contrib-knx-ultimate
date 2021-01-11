@@ -11,7 +11,6 @@ function hex2bin(hex) {
 
 //
 // DPT242: 3-byte RGB xyY
-// The info about validity of Colour and Brighness are omitted.
 //
 exports.formatAPDU = function (value) {
     if (!value) {
