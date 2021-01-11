@@ -5,6 +5,11 @@
 <br/>
 
 <p>
+<b>Version 1.2.8</b> - January 2021<br/>
+- NEW: you can now change the node configuration my input message. https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample-setConfig<br/>
+- Added msg.setConfig sample and updated the rest of the WIKI.
+</p>
+<p>
 <b>Version 1.2.7</b> - January 2021<br/>
 - NEW: Datapoint 237 DALI diags. https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---DPT237<br/>
 - Added sample DPT 237.x in the Wiki
