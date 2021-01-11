@@ -85,6 +85,24 @@ module.exports = function (RED) {
             if (typeof msg === "undefined") return;
             if (!node.server) return; // 29/08/2019 Server not instantiate
 
+
+            // 11/01/2021 Accept properties change from msg
+            // *********************************
+            if (msg.hasOwnProperty("setConfig")) {
+                if (msg.setConfig.hasOwnProperty("setDPT")) {
+                    node.dpt = msg.setConfig.setDPT;
+                    RED.log.info("knxUltimate: new datapoint set by msg: " + node.dpt);
+                    node.setNodeStatus({ fill: 'grey', shape: 'ring', text: "Datapoint changed to " + node.dpt });
+                };
+                if (msg.setConfig.hasOwnProperty("setGroupAddress")) {
+                    node.topic = msg.setConfig.setGroupAddress;
+                    RED.log.info("knxUltimate: new GroupAddress set by msg: " + node.topic);
+                    node.setNodeStatus({ fill: 'grey', shape: 'ring', text: "GroupAddress changed to " + node.topic });
+                };
+            };
+            // *********************************
+
+
             if (node.passthrough !== "no") { // 27/03/2020 Save the input message to be passed out to msg output
                 // The msg has a TTL of 3 seconds
                 if (node.timerTTLInputMessage !== null) clearTimeout(node.timerTTLInputMessage);
