@@ -42,8 +42,15 @@ exports.fromBuffer = function(buf) {
 exports.basetype = {
   "bitlength" : 64,
   "valuetype" : "composite",
-  "desc" : "8-byte Date+Time"
+  "desc" : "8-byte Date+Time",
+  "help": 
+`// Setting date/time using DPT 19.001
+// This sends both date and time to the KNX BUS
+msg.payload = new Date();
+return msg;`,
+"helplink":"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---DateTime-to-BUS"
 }
+
 
 exports.subtypes = {
   // 19.001
