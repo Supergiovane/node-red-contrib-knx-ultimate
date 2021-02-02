@@ -5,6 +5,11 @@
 <br/>
 
 <p>
+<b>Version 1.2.9</b> - January 2021<br/>
+- NEW: Datapoint 19.001 DateTime<br/>
+- Added sample in the config window of Datapoint 19.001 and updated the sample page in the wiki.
+</p>
+<p>
 <b>Version 1.2.8</b> - January 2021<br/>
 - NEW: you can now change the node configuration my input message. https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample-setConfig<br/>
 - Added msg.setConfig sample and updated the rest of the WIKI.
