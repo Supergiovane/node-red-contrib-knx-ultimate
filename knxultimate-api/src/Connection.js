@@ -88,6 +88,7 @@ FSM.prototype.AddCRI = function (datagram) {
 FSM.prototype.AddCEMI = function (datagram, msgcode) {
 
   var sendAck = ((msgcode || 0x11) == 0x11) && !this.options.suppress_ack_ldatareq; // only for L_Data.req
+  
   datagram.cemi = {
     msgcode: msgcode || 0x11, // default: L_Data.req for tunneling
     ctrl: {

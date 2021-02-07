@@ -104,12 +104,12 @@ module.exports = machina.Fsm.extend({
             } else {
               this.log.warn('connection timed out, retrying... ' + sm.connection_attempts);
               try {
-                this.send(sm.prepareDatagram(KnxConstants.SERVICE_TYPE.CONNECT_REQUEST));  
-              } catch (error) {}
-              
+                this.send(sm.prepareDatagram(KnxConstants.SERVICE_TYPE.CONNECT_REQUEST));
+              } catch (error) { }
+
             }
           }.bind(this), 3000);
-          
+
 
           delete this.channel_id;
           delete this.conntime;
@@ -117,7 +117,7 @@ module.exports = machina.Fsm.extend({
           // send connect request directly
           try {
             this.send(sm.prepareDatagram(KnxConstants.SERVICE_TYPE.CONNECT_REQUEST));
-          } catch (error) {}          
+          } catch (error) { }
 
         } else {
           // no connection sequence needed in pure multicast routing
@@ -143,9 +143,9 @@ module.exports = machina.Fsm.extend({
           this.log.debug("The KNXnet/IP server gives me the channel id CCID: " + this.channel_id);
           // send connectionstate request directly
           try {
-            this.send(sm.prepareDatagram(KnxConstants.SERVICE_TYPE.CONNECTIONSTATE_REQUEST));  
-          } catch (error) {}
-          
+            this.send(sm.prepareDatagram(KnxConstants.SERVICE_TYPE.CONNECTIONSTATE_REQUEST));
+          } catch (error) { }
+
         }
       },
       inbound_CONNECTIONSTATE_RESPONSE: function (datagram) {
@@ -205,8 +205,8 @@ module.exports = machina.Fsm.extend({
               // TODO: handle send err            
               KnxLog.get().debug('(%s):\tsent DISCONNECT_REQUEST', sm.compositeState());
             });
-          } catch (error) {}
-         
+          } catch (error) { }
+
         } else {
           // in case of multicast the socket will be closed directly
           sm.close();
@@ -219,7 +219,7 @@ module.exports = machina.Fsm.extend({
         this.isTunnelConnected = false; // 02/10/2020 Supergiovane: signal that the tunnel is down
         if (this.useTunneling) {
           KnxLog.get().debug('(%s):\tgot disconnect response', this.compositeState());
-          
+
           // close the socket
           sm.close();
         }
@@ -336,9 +336,9 @@ module.exports = machina.Fsm.extend({
         sm.startTimerConnectioRequest(false); // 02/10/2020 Supergiovane
         KnxLog.get().trace('(%s): Requesting Connection State', this.compositeState());
         try {
-          this.send(sm.prepareDatagram(KnxConstants.SERVICE_TYPE.CONNECTIONSTATE_REQUEST));  
-        } catch (error) {}
-        
+          this.send(sm.prepareDatagram(KnxConstants.SERVICE_TYPE.CONNECTIONSTATE_REQUEST));
+        } catch (error) { }
+
         sm.connstatetimer = setTimeout(function () {
           var msg = 'timed out waiting for CONNECTIONSTATE_RESPONSE';
           KnxLog.get().trace('(%s): %s', sm.compositeState(), msg);
@@ -421,7 +421,7 @@ module.exports = machina.Fsm.extend({
             }
             // ########################
           });
-        } catch (error) {}
+        } catch (error) { }
 
       },
       "*": function (data) {
@@ -435,6 +435,13 @@ module.exports = machina.Fsm.extend({
     */
     sendTunnReq_waitACK: {
       _onEnter: function (datagram) {
+        // 05/02/2021 Check for Acknowledge option
+        // try {
+        //   if (datagram.cemi.ctrl.acknowledge === 0) return;
+        //   console.log("BANANA ", datagram)
+        // } catch (error) {
+          
+        // }
         var sm = this;
         //this.log.debug('setting up tunnreq timeout for %j', datagram);
         this.tunnelingAckTimer = setTimeout(function () {
@@ -552,10 +559,10 @@ module.exports = machina.Fsm.extend({
     var sm = this;
     this.startTimerConnectioRequest(false); // 01/10/2020 Supergiovane
     this.isTunnelConnected = false; // 02/10/2020 Supergiovane: signal that the tunnel is down
-   
+
     sm.transition('uninitialized');
     sm.emit('disconnected');
-     
+
     try {
       // close the socket
       sm.socket.close();
@@ -577,7 +584,7 @@ module.exports = machina.Fsm.extend({
         sm.timerConnectioRequest = setInterval(function () {
           //console.log("BANANA sm.transition(requestingConnState);");
           sm.transition("requestingConnState");
-        },5000); // era 30000 01/10/2020 
+        }, 5000); // era 30000 01/10/2020 
       }
 
     } else {
