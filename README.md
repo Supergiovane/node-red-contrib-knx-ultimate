@@ -227,11 +227,6 @@ return msg;
 ## COMMERCIAL COMPANIES USING KNX-ULTIMATE
 List of commercial companies, which have given us permission to be mentioned on this page. Want to be listed here? Email to info@supergiovane.it
 
-|  |  |
-| --- | --- |
-| ![](https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/c/tervis.png) | ![](https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/c/knxsardegna.png) |
-
-
 * [Tervis Miura - Alarm System Producer](https://www.tervis.it)
 * [KNX Sardegna - Gianmarco Sitzia, Certified KNX Partner](http://www.knxsardegna.com)
 
