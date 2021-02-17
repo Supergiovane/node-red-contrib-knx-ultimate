@@ -219,10 +219,23 @@ msg.payload = {red:90, green:200, blue:30, white:120, mR:1, mG:1, mB:1, mW:1};
 return msg;
 ```
 
-[MORE Samples and documentation....](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki)
+--> [MORE Samples and documentation....](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki)
 
 <br/>
-<br/>
+
+
+## COMMERCIAL COMPANIES USING KNX-ULTIMATE
+List of commercial companies, which have given us permission to be mentioned on this page. Want to be listed here? Email to info@supergiovane.it
+
+|  |  |
+| --- | --- |
+| ![](https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/l/tervis.png) | ![](https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/l/knxsardegna.png) |
+
+
+* [Tervis Miura - Alarm System Producer](https://www.tervis.it)
+* [KNX Sardegna - Gianmarco Sitzia, Certified KNX Partner](http://www.knxsardegna.com)
+
+
 <br/>
 
 ## FRIENDLY COMMUNITIES AROUND THE WORLD
@@ -230,6 +243,10 @@ return msg;
 **Italy**
 * [VivereSmart](https://www.facebook.com/groups/viveresmart)
 * [VivereSmart TV](https://www.youtube.com/channel/UC6GlFhcbNuoSEejZ_HlCynA)
+
+**Germany**
+* [knx-user-forum](https://knx-user-forum.de/forum/öffentlicher-bereich/knx-eib-forum/1389088-knx-node-for-node-red)
+
 
 <br/>
 <br/>
