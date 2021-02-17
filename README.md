@@ -229,7 +229,7 @@ List of commercial companies, which have given us permission to be mentioned on 
 
 |  |  |
 | --- | --- |
-| ![](https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/l/tervis.png) | ![](https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/l/knxsardegna.png) |
+| ![](https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/l/tervis.png) | ![](https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/l/knxsardegna.png) |
 
 
 * [Tervis Miura - Alarm System Producer](https://www.tervis.it)
