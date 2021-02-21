@@ -3,7 +3,10 @@
 [![Donate via PayPal](https://img.shields.io/badge/Donate-PayPal-blue.svg?style=flat-square)](https://www.paypal.me/techtoday) 
 
 <br/>
-
+<p>
+<b>Version 1.2.10</b> - Febryary 2021<br/>
+- NEW: LOBAL CONTEXT node: https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/SampleGlobalContextNode), exposes the group addresses to a Global Context variable, to be used in function nodes.<br/>
+</p>
 <p>
 <b>Version 1.2.9</b> - January 2021<br/>
 - NEW: Datapoint 19.001 DateTime<br/>
