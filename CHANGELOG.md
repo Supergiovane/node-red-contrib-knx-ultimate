@@ -4,11 +4,8 @@
 
 <br/>
 <p>
-<b>Version 1.2.10</b> - February 2021<br/>
+<b>Version 1.2.9</b> - February 2021<br/>
 - NEW: LOBAL CONTEXT node: https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/SampleGlobalContextNode), exposes the group addresses to a Global Context variable, to be used in function nodes.<br/>
-</p>
-<p>
-<b>Version 1.2.9</b> - January 2021<br/>
 - NEW: Datapoint 19.001 DateTime<br/>
 - Added sample in the config window of Datapoint 19.001 and updated the sample page in the wiki.
 </p>
