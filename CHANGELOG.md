@@ -4,7 +4,7 @@
 
 <br/>
 <p>
-<b>Version 1.2.10</b> - Febryary 2021<br/>
+<b>Version 1.2.10</b> - February 2021<br/>
 - NEW: LOBAL CONTEXT node: https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/SampleGlobalContextNode), exposes the group addresses to a Global Context variable, to be used in function nodes.<br/>
 </p>
 <p>
