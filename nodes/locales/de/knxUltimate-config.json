@@ -31,7 +31,11 @@
             "localEchoInTunneling":"Echo von gesendeten Telegram an alle Nodes mit gleichen Gruppenadressen",
             "tiphost": "Unterstützt Multicast und Unicast Adressen, mit automatischer Erkennung.",
             "delaybetweentelegrams": "Verzögerung zwischen jedem Telegramm (in Millisekunden)",
-            "delaybetweentelegramsfurtherdelayREAD" : "und weitere Verzögerung nur zwischen -lese- Telegrammen multiplizieren"
+            "delaybetweentelegramsfurtherdelayREAD" : "und weitere Verzögerung nur zwischen -lese- Telegrammen multiplizieren",
+            "exposeAsVariable" : "Als global Variable verfügbar machen",
+            "exposeAsVariableNO" : "Nein",
+            "exposeAsVariableREADONLY" : "Nur Lesen",
+            "exposeAsVariableREADWRITE" : "Lesen/Schreiben"
         },
         "ets": {
             "description": "Sie können entweder eine ETS CSV-Gruppenadressliste oder eine ESF-Gruppenadressliste importieren. Bitte bevorzugen Sie die Adressliste der ETS CSV-Gruppe, da die Datenpunkte vollständiger sind.",

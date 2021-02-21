@@ -31,7 +31,11 @@
             "localEchoInTunneling":"Echo messaggi inviati su tutti i nodi con lo stesso indirizzo di gruppo",
             "tiphost": "Supporta Multicast o Unicast, con rilevamento automatico.",
             "delaybetweentelegrams": "Pausa tra l'invio di un telegramma ed un altro (in millisecondi)",
-            "delaybetweentelegramsfurtherdelayREAD" : "e moltiplica ritardo solo tra telegrammi -read- di"
+            "delaybetweentelegramsfurtherdelayREAD" : "e moltiplica ritardo solo tra telegrammi -read- di",
+            "exposeAsVariable" : "Esponi come variabile globale",
+            "exposeAsVariableNO" : "No",
+            "exposeAsVariableREADONLY" : "Sola lettura",
+            "exposeAsVariableREADWRITE" : "Lettura/Scrittura"
         },
         "ets": {
             "description": "Puoi importare sia il file ETS in CSV, che ESF. Usa il CSV se possibile, perchè i datapoints sono più precisi.",

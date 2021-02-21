@@ -32,6 +32,7 @@
             "tiphost": "Supports Multicast and Unicast address, with automatic detection.",
             "delaybetweentelegrams": "Delay between each telegram (in milliseconds)",
             "delaybetweentelegramsfurtherdelayREAD" : "and further multiply delay only between -read- telegrams"
+            
         },
         "ets": {
             "description": "You can import either an ETS CSV group address list, or an ESF group address list. Please prefer the ETS CSV group address list, as the datapoints are more complete.",

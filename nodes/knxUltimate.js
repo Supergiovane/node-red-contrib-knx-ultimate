@@ -34,9 +34,9 @@ module.exports = function (RED) {
             if (node.icountMessageInWindow == -999) return; // Locked out, doesn't change status.
             var dDate = new Date();
             // 30/08/2019 Display only the things selected in the config
-            _GA = (typeof _GA == "undefined" || GA == "") ? "" : "(" + GA + ") ";
-            _devicename = devicename || "";
-            _dpt = (typeof dpt == "undefined" || dpt == "") ? "" : " DPT" + dpt;
+            var _GA = (typeof GA == "undefined" || GA == "") ? "" : "(" + GA + ") ";
+            var _devicename = devicename || "";
+            var _dpt = (typeof dpt == "undefined" || dpt == "") ? "" : " DPT" + dpt;
             node.status({ fill: fill, shape: shape, text: _GA + payload + ((node.listenallga && node.server.statusDisplayDeviceNameWhenALL) === true ? " " + _devicename : "") + (node.server.statusDisplayDataPoint === true ? _dpt : "") + (node.server.statusDisplayLastUpdate === true ? " (" + dDate.getDate() + ", " + dDate.toLocaleTimeString() + ")" : "") + " " + text });
             // 16/02/2020 signal errors to the server
             if (fill.toUpperCase() == "RED") {

@@ -3,8 +3,8 @@ module.exports = function (RED) {
         RED.nodes.createNode(this, config);
         var node = this;
         node.server = RED.nodes.getNode(config.server);
-        node.notifyreadrequestalsorespondtobus = "false"
-        node.notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized = ""
+        node.notifyreadrequestalsorespondtobus = "false";
+        node.notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized = "";
         node.notifyreadrequest = true;
         node.notifyresponse = true;
         node.notifywrite = true;
