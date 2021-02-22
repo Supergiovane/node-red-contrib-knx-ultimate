@@ -254,7 +254,7 @@ List of commercial companies, which have given us permission to be mentioned on 
 
 <br/>
 <br/>
-<br/>
+
 ![Logo](https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/flags/madeinitaly.png)
 
 [license-image]: https://img.shields.io/badge/license-MIT-blue.svg
