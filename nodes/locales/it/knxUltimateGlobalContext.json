@@ -1,15 +1,15 @@
 {
     "knxUltimateGlobalContext": {
-        "helplink" : "&nbsp<i class=\"fa fa-question-circle\"></i>&nbsp<a target=\"_blank\" href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/2.-Node-Configuration\"><u>Help for configuration</u></a>",
+        "helplink" : "&nbsp<i class=\"fa fa-question-circle\"></i>&nbsp<a target=\"_blank\" href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/SampleGlobalContextNode\"><u>Esempio</u></a>",
         "title": "KNX Global Context",
-        "node-input-name": "Variable Name (no spaces, only chars [a-z])",
+        "node-input-name": "Nome variabile (no spazi, solo [a-z])",
         "advanced": {
-           
-            "exposeAsVariable" : "Expose as Global variable",
+            "exposeAsVariable" : "Esponi come variabile globale",
             "exposeAsVariableNO" : "No",
-            "exposeAsVariableREADONLY" : "Read Only",
-            "exposeAsVariableREADWRITE" : "Read/Write"
-            
+            "exposeAsVariableREADONLY" : "Sola lettura",
+            "exposeAsVariableREADWRITE" : "Lettura/Scrittura",
+            "node-input-server" : "Gateway",
+            "warning" : "Attenzione: è sufficiente UN SOLO NODO in tutto il progetto. La variabile verrà vista da tutti i flows, indipendentemente da dove sia stato messo il nodo."            
         }
     }
 }

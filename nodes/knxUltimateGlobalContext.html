@@ -6,7 +6,7 @@
             //buttonState: {value: true},
             server: { type: "knxUltimate-config", required: true },
             name: { value: "KNXGlobalContext", validate: RED.validators.regex(/^[a-z]+$/i) },
-            exposeAsVariable: { value: "exposeAsVariableREADONLY", required: false }
+            exposeAsVariable: { value: "exposeAsVariableREADWRITE", required: false }
         },
         inputs: 0,
         outputs: 0,
@@ -50,8 +50,11 @@
 <div class="form-row">
     <b><span data-i18n="knxUltimateGlobalContext.title"></span></b>&nbsp&nbsp<span style="color:red"
         data-i18n="[html]knxUltimateGlobalContext.helplink"></span>
-    <br /><br />
-
+    <br />
+    <div class="form-tips" style="margin-top: 11px;background-color:#FFEEEE;text-align:center">
+        <b><span data-i18n="knxUltimateGlobalContext.advanced.warning"></span></b>
+    </div>
+    <br />
     <label for="node-input-server">
         <img
             src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAKnRFWHRDcmVhdGlvbiBUaW1lAEZyIDYgQXVnIDIwMTAgMjE6NTI6MTkgKzAxMDD84aS8AAAAB3RJTUUH3gYYCicNV+4WIQAAAAlwSFlzAAALEgAACxIB0t1+/AAAAARnQU1BAACxjwv8YQUAAACUSURBVHjaY2CgFZg5c+Z/ZEyWAZ8+f/6/ZsWs/xoamqMGkGrA6Wla/1+fVARjEBuGsSoGmY4eZSCNL59d/g8DIDbIAHR14OgFGQByKjIGKX5+6/T///8gGMQGiV1+/B0Fg70GIkD+RMYgxf/O5/7//2MSmAZhkBi6OrgB6Bg5DGB4ajr3f2xqsYYLSDE2THJUDg0AAAqyDVd4tp4YAAAAAElFTkSuQmCC"></img>
@@ -61,19 +64,19 @@
 </div>
 
 <div class="form-row">
-    <label for="node-input-name">
+    <label for="node-input-name" style="width:60%;">
         <i class="fa fa-tag"></i>
         <span data-i18n="knxUltimateGlobalContext.node-input-name"></span>
     </label>
-    <input type="text" id="node-input-name" data-i18n="[placeholder]knxUltimateGlobalContext.node-input-name" />
+    <input style="width:35%;" type="text" id="node-input-name" data-i18n="[placeholder]knxUltimateGlobalContext.node-input-name" />
 </div>
 
 <div class="form-row">
-    <label for="node-input-exposeAsVariable">
+    <label for="node-input-exposeAsVariable" style="width:60%;">
         <i class="fa fa-link"></i>
         <span data-i18n="knxUltimateGlobalContext.advanced.exposeAsVariable"></span>
     </label>
-    <select id="node-input-exposeAsVariable">
+    <select id="node-input-exposeAsVariable" style="width:35%;">
         <option value="exposeAsVariableNO" data-i18n="knxUltimateGlobalContext.advanced.exposeAsVariableNO"></option>
         <option value="exposeAsVariableREADONLY" data-i18n="knxUltimateGlobalContext.advanced.exposeAsVariableREADONLY"></option>
         <option value="exposeAsVariableREADWRITE" data-i18n="knxUltimateGlobalContext.advanced.exposeAsVariableREADWRITE"></option>
