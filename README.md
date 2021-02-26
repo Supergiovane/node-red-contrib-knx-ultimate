@@ -13,7 +13,7 @@
 
 ![Sample Node](img/readmemain.png)
 
-Control your KNX intallation via Node-Red! Single Node KNX IN/OUT with optional ETS group address importer. Easy to use and highly configurable.
+Control your KNX intallation via Node-Red! Single Node KNX IN/OUT with optional ETS group address importer and gateway simulation. Easy to use and highly configurable.
 
 **You can use it immediately!**
 ```javascript
@@ -108,6 +108,11 @@ Full support for IP Interfaces as well for IP Routers. It's recommended the use 
 <details><summary>RAW message directly to the BUS</summary>
 
 You can send RAW buffers directly to the bus.
+
+</details>
+<details><summary>Gateway simulation</summary>
+
+By putting **EMULATE** in the gateway IP field, the gateway node will not write to the KNX BUS. Useful for simulations and classsrooms.
 
 </details>
 

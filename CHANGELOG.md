@@ -5,6 +5,12 @@
 <br/>
 
 <p>
+<b>Version 1.2.11</b> - February 2021<br/>
+- NEW: Gateway Simulation node. Put "EMULATE" instead of IP Address in the gateway node. The gateway will not write to the KNX BUS. Useful for simulation and classroom's lessons.
+- NEW: Online node-red tester tool at http://casacorte.myqnapcloud.com:2021
+</p>
+<p>
+<p>
 <b>Version 1.2.10</b> - February 2021<br/>
 - Global Context Node: fixed translation issues and added a warning in the config window.
 </p>

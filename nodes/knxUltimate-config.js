@@ -326,7 +326,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
         function readInitialValues() {
             if (node.linkStatus !== "connected") return; // 29/08/2019 If not connected, exit
             RED.log.info("KNXUltimate-config: Do readInitialValues");
-            if (node.knxConnection) {
+            try {
                 var readHistory = [];
                 node.nodeClients
                     .filter(oClient => oClient.initialread)
@@ -345,6 +345,8 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                             readHistory.push(oClient.topic)
                         }
                     })
+            } catch (error) {
+
             }
         }
 
@@ -371,6 +373,19 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
         };
 
         node.initKNXConnection = () => {
+
+            // 26/01/2021 Emulation mode
+            if (node.host.toUpperCase() === "EMULATE") {
+                node.knxConnection = true; // Must not be null
+                node.telegramsQueue = []; // 01/10/2020 Supergiovane: clear the telegram queue
+                node.linkStatus = "connected";
+                node.setAllClientsStatus("Emulation", "green", "Waiting for telegram.")
+                // Start the timer to do initial read.
+                if (node.timerDoInitialRead !== null) clearTimeout(node.timerDoInitialRead);
+                node.timerDoInitialRead = setTimeout(readInitialValues, 5000); // 17/02/2020 Do initial read of all nodes requesting initial read, after all nodes have been registered to the sercer
+                return;
+            }
+
             node.Disconnect();
             node.setAllClientsStatus("Waiting", "grey", "")
 
@@ -723,8 +738,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
         }
 
         function handleTelegramQueue() {
-
-            if (node.knxConnection) {
+            if (node.knxConnection || node.host.toUpperCase() === "EMULATE") {
 
                 if (typeof node.lockHandleTelegramQueue !== "undefined" && node.lockHandleTelegramQueue === true) return; // Exits if the funtion is busy
                 node.lockHandleTelegramQueue = true; // Lock the function. It cannot be called again until finished.
@@ -748,7 +762,12 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                 var oKNXMessage = aTelegramsFiltered[aTelegramsFiltered.length - 1]; // Get the last message in the queue
                 if (oKNXMessage.outputtype === "response") {
                     try {
-                        node.knxConnection.respond(oKNXMessage.grpaddr, oKNXMessage.payload, oKNXMessage.dpt);
+                        if (node.host.toUpperCase() === "EMULATE") {
+                            // The gateway is in EMULATION mode
+                            sendEmulatedTelegram(oKNXMessage);
+                        } else {
+                            node.knxConnection.respond(oKNXMessage.grpaddr, oKNXMessage.payload, oKNXMessage.dpt);
+                        }
                     } catch (error) {
                         try {
                             node.nodeClients.find(a => a.id === oKNXMessage.nodecallerid).setNodeStatus({ fill: "red", shape: "dot", text: "Send response " + error, payload: oKNXMessage.payload, GA: oKNXMessage.grpaddr, dpt: oKNXMessage.dpt, devicename: "" })
@@ -756,7 +775,12 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                     }
                 } else if (oKNXMessage.outputtype === "read") {
                     try {
-                        node.knxConnection.read(oKNXMessage.grpaddr);
+                        if (node.host.toUpperCase() === "EMULATE") {
+                            // The gateway is in EMULATION mode
+                            sendEmulatedTelegram(oKNXMessage);
+                        } else {
+                            node.knxConnection.read(oKNXMessage.grpaddr);
+                        }
                     } catch (error) { }
                 } else if (oKNXMessage.outputtype === "update") {
 
@@ -769,7 +793,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                     //     nodecallerid: 'd104af91.31da18'
                     //   }
                     try {
-                        
+
                         node.nodeClients.forEach(input => {
 
                             // 19/03/2020 in the middle of coronavirus. Whole italy is red zone, closed down. Scene Controller implementation
@@ -785,13 +809,13 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                                     // Is a watchdog node
 
                                 } else {
-                                   
+
                                     let msg = {
                                         topic: input.topic,
                                         payload: oKNXMessage.payload,
                                         devicename: input.name ? input.name : "",
                                         event: "Update_NoWrite",
-                                        eventdesc:"The value has been updated from another node and hasn't been received from KNX BUS"
+                                        eventdesc: "The value has been updated from another node and hasn't been received from KNX BUS"
                                     };
                                     // Check RBE INPUT from KNX Bus, to avoid send the payload to the flow, if it's equal to the current payload
                                     if (!checkRBEInputFromKNXBusAllowSend(input, msg.payload)) {
@@ -811,7 +835,12 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                 } else {
 
                     try {
-                        node.knxConnection.write(oKNXMessage.grpaddr, oKNXMessage.payload, oKNXMessage.dpt);
+                        if (node.host.toUpperCase() === "EMULATE") {
+                            // The gateway is in EMULATION mode
+                            sendEmulatedTelegram(oKNXMessage);
+                        } else {
+                            node.knxConnection.write(oKNXMessage.grpaddr, oKNXMessage.payload, oKNXMessage.dpt);
+                        }
                     } catch (error) {
                         try {
                             node.nodeClients.find(a => a.id === oKNXMessage.nodecallerid).setNodeStatus({ fill: "red", shape: "dot", text: "Send write " + error, payload: oKNXMessage.payload, GA: oKNXMessage.grpaddr, dpt: oKNXMessage.dpt, devicename: "" })
@@ -1178,6 +1207,106 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
             // Replace all parenthesis with []
             sOut = sOut.replace(/\(/g, "[").replace(/\)/g, "]");
             return sOut;
+        }
+
+        // 26/02/2021 Used to send the messages if the node gateway is in EMULATION mode
+        function sendEmulatedTelegram(_msg) {
+            // INPUT IS
+            // _msg = {
+            //     grpaddr: '5/0/1',
+            //     payload: true,
+            //     dpt: '1.001'       
+            //   }
+
+            // OUTPUT MUST BE:
+            // {
+            //     "topic": "2/4/3",
+            //     "payload": 0,
+            //     "devicename": "",
+            //     "payloadmeasureunit": "W",
+            //     "payloadsubtypevalue": "unknown",
+            //     "knx": {
+            //       "event": "GroupValue_Write",
+            //       "dpt": "14.056",
+            //       "dptdesc": "DPT_Value_Power",
+            //       "source": "1.1.53",
+            //       "destination": "2/4/3",
+            //       "rawValue": [
+            //         0,
+            //         0,
+            //         0,
+            //         0
+            //       ]
+            //     },
+            //     "_msgid": "c5e3a9f1.ced418"
+            //   }
+
+            try {
+
+                // Complete the properties mancanti
+                let sEvent = "GroupValue_Write";
+                if (_msg.outputtype === "write") sEvent = "GroupValue_Write";
+                if (_msg.outputtype === "response") sEvent = "GroupValue_Response";
+                if (_msg.outputtype === "read") sEvent = "GroupValue_Read";
+
+                node.nodeClients.forEach(input => {
+
+                    // 19/03/2020 in the middle of coronavirus. Whole italy is red zone, closed down. Scene Controller implementation
+                    if (input.hasOwnProperty("isSceneController")) {
+
+                    } else if (input.hasOwnProperty("isLogger")) { // 26/03/2020 Coronavirus is slightly decreasing the affected numer of people. Logger Node
+
+                    } else if (input.listenallga == true) {
+
+                        // Get the DPT
+                        let oGA;
+                        try {
+                            oGA = node.csv.filter(sga => sga.ga == _msg.grpaddr)[0];
+                        } catch (error) { }
+
+                        let msg = {
+                            topic: input.topic,
+                            payload: _msg.payload,
+                            devicename: (typeof oGA === "undefined") ? input.name || "" : oGA.devicename,
+                            payload: _msg.payload,
+                            knx: { event: sEvent, dpt: _msg.dpt, destination: _msg.grpaddr },
+                            emulated: true
+                        };
+
+                        input.setNodeStatus({ fill: "green", shape: "ring", text: "Emulated", payload: msg.payload, GA: input.topic, dpt: input.dpt, devicename: "" });
+                        input.handleSend(msg);
+
+                    } else if (input.topic == _msg.grpaddr) {
+
+                        if (input.hasOwnProperty("isWatchDog")) { // 04/02/2020 Watchdog implementation
+                            // Is a watchdog node
+
+                        } else {
+
+                            let msg = {
+                                topic: input.topic,
+                                payload: _msg.payload,
+                                devicename: input.name ? input.name : "",
+                                payload: _msg.payload,
+                                knx: { event: sEvent, dpt: _msg.dpt, destination: _msg.grpaddr },
+                                emulated: true
+                            };
+
+                            // Check RBE INPUT from KNX Bus, to avoid send the payload to the flow, if it's equal to the current payload
+                            if (!checkRBEInputFromKNXBusAllowSend(input, msg.payload)) {
+                                input.setNodeStatus({ fill: "grey", shape: "ring", text: "rbe block (" + msg.payload + ") from KNX", payload: "", GA: "", dpt: "", devicename: "" })
+                                return;
+                            };
+
+                            msg.previouspayload = typeof input.currentPayload !== "undefined" ? input.currentPayload : ""; // 24/01/2020 Added previous payload
+                            input.currentPayload = msg.payload;// Set the current value for the RBE input
+                            input.setNodeStatus({ fill: "green", shape: "ring", text: "Emulated", payload: msg.payload, GA: input.topic, dpt: input.dpt, devicename: "" });
+                            input.handleSend(msg);
+                        };
+                    };
+                });
+
+            } catch (error) { }
         }
 
     }

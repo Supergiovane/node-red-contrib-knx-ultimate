@@ -29,7 +29,7 @@
             "select_warning": "Warnung",
             "select_error": "Fehler (Standard)",
             "localEchoInTunneling":"Echo von gesendeten Telegram an alle Nodes mit gleichen Gruppenadressen",
-            "tiphost": "Unterstützt Multicast und Unicast Adressen, mit automatischer Erkennung.",
+            "tiphost": "Multicast und Unicast Adressen, mit automatischer Erkennung. Schreiben Sie EMULATE anstelle der IP-Adresse, um ein Gateway zu simulieren (das Gateway stellt keine Verbindung zum KNX-BUS her).",
             "delaybetweentelegrams": "Verzögerung zwischen jedem Telegramm (in Millisekunden)",
             "delaybetweentelegramsfurtherdelayREAD" : "und weitere Verzögerung nur zwischen -lese- Telegrammen multiplizieren",
             "exposeAsVariable" : "Als global Variable verfügbar machen",

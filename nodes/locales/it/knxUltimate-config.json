@@ -29,7 +29,7 @@
             "select_warning": "Warning",
             "select_error": "Error (Default)",
             "localEchoInTunneling":"Echo messaggi inviati su tutti i nodi con lo stesso indirizzo di gruppo",
-            "tiphost": "Supporta Multicast o Unicast, con rilevamento automatico.",
+            "tiphost": "Multicast o Unicast, con rilevamento automatico. Scrivi EMULATE al posto dell'indirizzo IP, per simulare un gateway (il gateway non si connette al BUS KNX)",
             "delaybetweentelegrams": "Pausa tra l'invio di un telegramma ed un altro (in millisecondi)",
             "delaybetweentelegramsfurtherdelayREAD" : "e moltiplica ritardo solo tra telegrammi -read- di",
             "exposeAsVariable" : "Esponi come variabile globale",
