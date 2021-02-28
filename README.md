@@ -237,6 +237,7 @@ List of commercial companies, which have given us permission to be mentioned on 
 [![](https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/c/tervis.png)](https://www.tervis.it)
 [![](https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/c/knxsardegna.png)](http://www.knxsardegna.com)
 [![](https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/c/agata.png)](https://www.agatastore.it)
+[![](https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/c/proKNX.png)](https://proknx.com)
 
 <br/>
 
