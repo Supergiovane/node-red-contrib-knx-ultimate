@@ -234,7 +234,7 @@ List of commercial companies, which have given us permission to be mentioned on 
 
 <br/>
 
-<table style="border: none;"> 
+<table cellspacing="0" cellpadding="0"> 
 <tr style="height:120px;valign:center; border: 0px; padding: 15px;"> 
 <td style="valign:center; border: 4px; padding: 15px;">
 
