@@ -234,11 +234,26 @@ List of commercial companies, which have given us permission to be mentioned on 
 
 <br/>
 
-[![](https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/c/tervis.png)](https://www.tervis.it)
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[![](https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/c/knxsardegna.png)](http://www.knxsardegna.com)
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[![](https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/c/agata.png)](https://www.agatastore.it)
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[![](https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/c/proKNX.png)](https://proknx.com)
+<table border="0" > 
+<tr style="height:120px;"> 
+<td style="valign:center, border: 0px; padding: 15px;">
 
+[![](https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/c/tervis.png)](https://www.tervis.it)
+</td> 
+<td style="valign:center, border: 0px; padding: 15px;"> 
+
+[![](https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/c/knxsardegna.png)](http://www.knxsardegna.com)
+</td> 
+<td style="valign:center, border: 0px; padding: 15px;"> 
+
+[![](https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/c/agata.png)](https://www.agatastore.it)
+</td> 
+<td style="valign:center, border: 0px; padding: 15px;">
+
+[![](https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/c/proKNX.png)](https://proknx.com)
+</td> 
+</tr> 
+</table> 
 
 
 <br/>
