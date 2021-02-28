@@ -236,7 +236,7 @@ List of commercial companies, which have given us permission to be mentioned on 
 
 <table style="border-collapse: collapse"> 
 <tr > 
-<td style="valign:center; border: none; padding: 0;">
+<td style="valign:center; border: none; padding: 15px;">
 
 [![](https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/c/tervis.png)](https://www.tervis.it)
 </td> 
