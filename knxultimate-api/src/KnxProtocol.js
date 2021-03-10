@@ -520,6 +520,17 @@ KnxProtocol.lengths['CEMI'] = function(value) {
   return 8 + apdu_length;
 }
 
+
+// +-7-+-6-+-5-+-4-+-3-+-2-+-1-+-0-+-7-+-6-+-5-+-4-+-3-+-2-+-1-+-0-+
+// | Header Length | Protocol Version 
+// | (06h)         | (10h) 
+// | +-7-+-6-+-5-+-4-+-3-+-2-+-1-+-0-+-7-+-6-+-5-+-4-+-3-+-2-+-1-+-0-+
+// | Service Type Identifier 
+// | (2 Octet) 
+// | +-7-+-6-+-5-+-4-+-3-+-2-+-1-+-0-+-7-+-6-+-5-+-4-+-3-+-2-+-1-+-0-+
+// | Total Length 
+// | (2 Octet) 
+// | +-7-+-6-+-5-+-4-+-3-+-2-+-1-+-0-+-7-+-6-+-5-+-4-+-3-+-2-+-1-+-0-+
 KnxProtocol.define('KNXNetHeader', {
   read: function (propertyName) {
     this.pushStack({ header_length: 0, protocol_version: -1, service_type: -1, total_length: 0})
@@ -582,7 +593,7 @@ KnxProtocol.define('KNXNetHeader', {
     if (KnxProtocol.debug) KnxLog.get().trace("writing KnxHeader:", value);
     this
       .UInt8(6)    // header length (6 bytes constant)
-      .UInt8(0x10) // protocol version 1.0
+      .UInt8(0x10) // protocol version 1.0 (anche per KNX Secure) 02/03/2021
       .UInt16BE(value.service_type)
       .UInt16BE(value.total_length);
     switch (value.service_type) {
