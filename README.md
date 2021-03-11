@@ -235,17 +235,17 @@ return msg;
 
 
 ## COMMERCIAL COMPANIES USING KNX-ULTIMATE
-List of commercial companies, which have given us permission to be mentioned on this page. Want to be listed here? Email to info@supergiovane.it
+List of commercial companies, which have given us permission to be mentioned on this page. Want to be listed here? Email to maxsupergiovane@icloud.com
 
 <br/>
 
 <table> 
 <tr> 
-<td style="valign:center; border: none; padding: 15px;">
+<td style="valign:center; border: 0px; padding: 15px;"> 
 
 [![](https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/c/tervis.png)](https://www.tervis.it)
 </td> 
-<td style="valign:center; border: none; padding: 15px;"> 
+<td style="valign:center; border: 0px; padding: 15px;"> 
 
 [![](https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/c/knxsardegna.png)](http://www.knxsardegna.com)
 </td> 
