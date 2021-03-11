@@ -52,6 +52,7 @@ module.exports = function (RED) {
         node.formatmultiplyvalue = 1;
         node.formatnegativevalue = "leave";
         node.formatdecimalsvalue = 999;
+        node.writeExecutionInterval = config.writeExecutionInterval === undefined ? 1000 : config.writeExecutionInterval;
   
         node.exposeAsVariable = config.exposeAsVariable !== undefined ? config.exposeAsVariable : "exposeAsVariableREADONLY"; // Should expose the Group Addresses to the Global Variable?
         node.exposedGAs = [];
@@ -88,7 +89,7 @@ module.exports = function (RED) {
                     node.server.writeQueueAdd({ grpaddr: element.address, payload: element.payload, dpt: element.dpt || "", outputtype: "write", nodecallerid: node.id });
                 }
                 goTimerGo();
-            }, 1000);
+            }, node.writeExecutionInterval);
         }
         // 21/02/2021 timer for write to BUS
         if (node.exposeAsVariable === "exposeAsVariableREADWRITE") {
