@@ -5,6 +5,14 @@
 <br/>
 
 <p>
+<b>Version 1.2.12</b> - March 2021<br/>
+- Global Context Node: fixed the help link, it was broken in italian language.<br/>
+- Global Context Node: optimized the JavaScript samples.<br/>
+- Global Context Node: fix the gateway description not showing in config window, in italian language.<br/>
+- NEW: Online node-red public test website: Point your browser here http://casacorte.myqnapcloud.com:2021 There is a node-red installation ready to be tested, with KNX-Ultimate fully set in "emulation" mode (you cannot do any damage, because the KNX backbone is simulated).<br/>
+- Added proKNX to the list of KNX device manufacturers using KNX-Ultimate (at bottom of the README page).<br/>
+</p>
+<p>
 <b>Version 1.2.11</b> - February 2021<br/>
 - NEW: Gateway Simulation node. Put "EMULATE" instead of IP Address in the gateway node. The gateway will not write to the KNX BUS. Useful for simulation and classroom's lessons.<br/>
 - NEW: Online node-red public test website... coming soon.

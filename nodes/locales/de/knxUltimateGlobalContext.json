@@ -1,6 +1,6 @@
 {
     "knxUltimateGlobalContext": {
-        "helplink" : "&nbsp<i class=\"fa fa-question-circle\"></i>&nbsp<a target=\"_blank\" href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/SampleGlobalContextNode\"><u>Beispiel</u></a>",
+        "helplink" : "&nbsp<i class=\"fa fa-question-circle\"></i>&nbsp<a target=\"_blank\" href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/de-GlobalVariable\"><u>Beispiel</u></a>",
         "title": "KNX Global Context",
         "node-input-name": "Variablenname (keine Leerzeichen, nur Zeichen [a-z])",
         "advanced": {
@@ -9,6 +9,7 @@
             "exposeAsVariableREADONLY" : "Nur Lesen",
             "exposeAsVariableREADWRITE" : "Lesen/Schreiben",
             "node-input-server" : "Gateway",
+            "writeExecutionInterval" : "BUS-Schreibintervall",
             "warning" : "Achtung: Ein einzelner Knoten wird von ALLEN FLOWS gemeinsam genutzt. Sie benötigen nicht mehr als einen Knoten. Unabhängig davon, wo es sich befindet, sie können die Variable auf globaler Ebene sehen."                        
         }
     }

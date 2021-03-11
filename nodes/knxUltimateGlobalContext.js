@@ -115,7 +115,7 @@ module.exports = function (RED) {
                     oGa.dpt = msg.knx.dpt;
                     oGa.payload = msg.payload;
                 }
-                // Save into the global Contextual
+                // Save into the global Context
                 try {
                     node.context().global.set(node.name + "_READ", node.exposedGAs);
                 } catch (error) {

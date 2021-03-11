@@ -29,6 +29,7 @@ payload = {red:255, green:200, blue:30} // Put some colors in our life
 * **LOGGER node** [here](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/Logger-Configuration), creates an XML diagnostic file, compatible with ETS. You can open it with ETS for diagnostic pourposes.
 * **GLOBAL CONTEXT node** [here](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/SampleGlobalContextNode), exposes the group addresses to a Global Context variable, to be used in function nodes.
 
+
 [![Buy a Sticker!](https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/PoweredBySticker.png) Support the project, buy an (overpriced) die-cut sticker "powered by KNX-Ultimate" for your products](https://teespring.com/it/stores/knx-ultimate-support-store)
 
 ## CHANGELOG
@@ -53,6 +54,8 @@ payload = {red:255, green:200, blue:30} // Put some colors in our life
 * [Wiki and Help](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki)
 * [FAQ + Troubleshoot](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/5.-FAQ-Troubleshoot)
 * [Security best practices](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/SECURITY)
+* [NODE-RED KNX-ULTIMATE TEST SITE](http://casacorte.myqnapcloud.com:2021) Online node-red public test website (and Dashboard UI as well http://casacorte.myqnapcloud.com:2021/ui). There is a node-red installation ready to be tested, with KNX-Ultimate fully set in "emulation" mode (you cannot do any damage, because the KNX backbone is simulated).
+
 
 
 ## Highlights
