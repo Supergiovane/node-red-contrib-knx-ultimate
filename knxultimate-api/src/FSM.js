@@ -395,6 +395,21 @@ module.exports = machina.Fsm.extend({
               sm.transition('idle');
             } else {
               // successfully sent the datagram
+
+              // 14/03/2020 Supergiovane: In multicast mode, other node-red nodes receives the echo of the telegram sent (the groupaddress_write event). If in tunneling, force the emit of the echo datagram (so other node-red nodes can receive the echo), because in tunneling, there is no echo.
+              // ########################
+              if (sm.useTunneling) {
+                if (typeof sm.localEchoInTunneling !== "undefined" && sm.localEchoInTunneling) {
+                  try {
+                    sm.emitEvent(datagram);
+                    sm.log.debug('(%s):\t>>>>>>> localEchoInTunneling: echoing by emitting %d', sm.compositeState(), sm.seqnum);
+                  } catch (error) {
+                    sm.log.debug('(%s):\t>>>>>>> localEchoInTunneling: error echoing by emitting %d ' + error, sm.compositeState(), sm.seqnum);
+                  }
+                }
+              }
+              // ########################
+
               if (sm.useTunneling) sm.sentTunnRequests[datagram.cemi.dest_addr] = datagram;
               sm.lastSentTime = Date.now();
               sm.log.debug('(%s):\t>>>>>>> successfully sent seqnum: %d', sm.compositeState(), sm.seqnum);
@@ -405,21 +420,7 @@ module.exports = machina.Fsm.extend({
                 sm.transition('idle');
               }
             }
-            // 14/03/2020 Supergiovane: In multicast mode, other node-red nodes receives the echo of the telegram sent (the groupaddress_write event). If in tunneling, force the emit of the echo datagram (so other node-red nodes can receive the echo), because in tunneling, there is no echo.
-            // ########################
-            //if (sm.useTunneling) sm.sentTunnRequests[datagram.cemi.dest_addr] = datagram;
-            if (sm.useTunneling) {
-              sm.sentTunnRequests[datagram.cemi.dest_addr] = datagram;
-              if (typeof sm.localEchoInTunneling !== "undefined" && sm.localEchoInTunneling) {
-                try {
-                  sm.emitEvent(datagram);
-                  sm.log.debug('(%s):\t>>>>>>> localEchoInTunneling: echoing by emitting %d', sm.compositeState(), sm.seqnum);
-                } catch (error) {
-                  sm.log.debug('(%s):\t>>>>>>> localEchoInTunneling: error echoing by emitting %d ' + error, sm.compositeState(), sm.seqnum);
-                }
-              }
-            }
-            // ########################
+
           });
         } catch (error) { }
 
@@ -440,7 +441,7 @@ module.exports = machina.Fsm.extend({
         //   if (datagram.cemi.ctrl.acknowledge === 0) return;
         //   console.log("BANANA ", datagram)
         // } catch (error) {
-          
+
         // }
         var sm = this;
         //this.log.debug('setting up tunnreq timeout for %j', datagram);

@@ -5,6 +5,10 @@
 <br/>
 
 <p>
+<b>Version 1.2.14</b> - March 2021<br/>
+- .<br/>
+</p>
+<p>
 <b>Version 1.2.13</b> - March 2021<br/>
 - Global Context Node: added the option to set the interval to write to the KNX bus.<br/>
 - Global Context Node: fixed the help link, it was broken in italian language.<br/>
