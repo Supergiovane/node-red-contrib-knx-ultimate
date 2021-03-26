@@ -50,9 +50,10 @@ module.exports = function (RED) {
         };
 
         // This function is called by the knx-ultimate config node.
-        node.handleSend = msg => {
+        node.handleSend = _cemiETS => {
+            
             // Receiving every message
-            if (typeof (msg) !== "undefined" && typeof (msg.knx) !== "undefined" && typeof (msg.knx.cemiETS) !== "undefined") {
+            if (_cemiETS !== undefined) {
                 // If too much, delete the oldest
                 if (node.maxRowsInETSXML > 0 && (node.etsXMLRow.length > node.maxRowsInETSXML)) {
                     // Shift (remove) the first row (the oldest)
@@ -61,7 +62,7 @@ module.exports = function (RED) {
                     } catch (error) {}
                 }
                 // Add row to XML ETS
-                node.etsXMLRow.push(" <Telegram Timestamp=\"" + new Date().toISOString() + "\" Service=\"L_Data.ind\" FrameFormat=\"CommonEmi\" RawData=\"" + msg.knx.cemiETS + "\" />\n");
+                node.etsXMLRow.push(" <Telegram Timestamp=\"" + new Date().toISOString() + "\" Service=\"L_Data.ind\" FrameFormat=\"CommonEmi\" RawData=\"" + _cemiETS + "\" />\n");
             }
         };
 

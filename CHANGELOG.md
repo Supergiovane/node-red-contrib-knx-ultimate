@@ -6,7 +6,8 @@
 
 <p>
 <b>Version 1.2.14</b> - March 2021<br/>
-- .<br/>
+- NEW: KNX-Logger now logs telegrams sent by KNX-Ultimate nodes having an IP Interface as gateway. Previously, it worked only woth IP Routers.<br/>
+- Begin refractoring of code for KNX Secure compatibility.<br/>
 </p>
 <p>
 <b>Version 1.2.13</b> - March 2021<br/>

@@ -388,27 +388,29 @@ module.exports = machina.Fsm.extend({
         this.seqnum += 1;
         if (this.useTunneling) datagram.tunnstate.seqnum = this.seqnum & 0xFF;
         try {
-          this.send(datagram, function (err) {
+          var retBufForcemiETS = this.send(datagram, function (err) {
             if (err) {
               //console.trace('error sending datagram, going idle');
               sm.seqnum -= 1;
               sm.transition('idle');
+              return; // 25/03/2021 Supergiovane: added
+
             } else {
               // successfully sent the datagram
 
-              // 14/03/2020 Supergiovane: In multicast mode, other node-red nodes receives the echo of the telegram sent (the groupaddress_write event). If in tunneling, force the emit of the echo datagram (so other node-red nodes can receive the echo), because in tunneling, there is no echo.
-              // ########################
-              if (sm.useTunneling) {
-                if (typeof sm.localEchoInTunneling !== "undefined" && sm.localEchoInTunneling) {
-                  try {
-                    sm.emitEvent(datagram);
-                    sm.log.debug('(%s):\t>>>>>>> localEchoInTunneling: echoing by emitting %d', sm.compositeState(), sm.seqnum);
-                  } catch (error) {
-                    sm.log.debug('(%s):\t>>>>>>> localEchoInTunneling: error echoing by emitting %d ' + error, sm.compositeState(), sm.seqnum);
-                  }
-                }
-              }
-              // ########################
+              // // 14/03/2020 Supergiovane: In multicast mode, other node-red nodes receives the echo of the telegram sent (the groupaddress_write event). If in tunneling, force the emit of the echo datagram (so other node-red nodes can receive the echo), because in tunneling, there is no echo.
+              // // ########################
+              // if (sm.useTunneling) {
+              //   if (typeof sm.localEchoInTunneling !== "undefined" && sm.localEchoInTunneling) {
+              //     try {
+              //       sm.emitEvent(datagram);
+              //       sm.log.debug('(%s):\t>>>>>>> localEchoInTunneling: echoing by emitting %d', sm.compositeState(), sm.seqnum);
+              //     } catch (error) {
+              //       sm.log.debug('(%s):\t>>>>>>> localEchoInTunneling: error echoing by emitting %d ' + error, sm.compositeState(), sm.seqnum);
+              //     }
+              //   }
+              // }
+              // // ########################
 
               if (sm.useTunneling) sm.sentTunnRequests[datagram.cemi.dest_addr] = datagram;
               sm.lastSentTime = Date.now();
@@ -422,6 +424,23 @@ module.exports = machina.Fsm.extend({
             }
 
           });
+          // 23/03/2021 Supergiovane: In multicast mode, other node-red nodes receives the echo of the telegram sent (the groupaddress_write event). If in tunneling, force the emit of the echo datagram (so other node-red nodes can receive the echo), because in tunneling, there is no echo.
+          // ########################
+          if (sm.useTunneling) {
+            if (typeof sm.localEchoInTunneling !== "undefined" && sm.localEchoInTunneling) {
+              try {
+                let sCEMI = retBufForcemiETS.toString("hex");
+                sCEMI = "2e00" + sCEMI.substr(24);
+                datagram.cemi.cemiETS = sCEMI;
+                sm.emitEvent(datagram);
+                sm.log.debug('(%s):\t>>>>>>> localEchoInTunneling: echoing by emitting %d', sm.compositeState(), sm.seqnum);
+              } catch (error) {
+                console.log("BANANA FIGA ERRORE! localEchoInTunneling", error)
+                sm.log.debug('(%s):\t>>>>>>> localEchoInTunneling: error echoing by emitting %d ' + error, sm.compositeState(), sm.seqnum);
+              }
+            }
+          }
+          // ########################
         } catch (error) { }
 
       },
@@ -436,13 +455,6 @@ module.exports = machina.Fsm.extend({
     */
     sendTunnReq_waitACK: {
       _onEnter: function (datagram) {
-        // 05/02/2021 Check for Acknowledge option
-        // try {
-        //   if (datagram.cemi.ctrl.acknowledge === 0) return;
-        //   console.log("BANANA ", datagram)
-        // } catch (error) {
-
-        // }
         var sm = this;
         //this.log.debug('setting up tunnreq timeout for %j', datagram);
         this.tunnelingAckTimer = setTimeout(function () {
@@ -496,9 +508,7 @@ module.exports = machina.Fsm.extend({
         //console.log("BANANA acknowledge " + err);
       });
     } catch (error) { }
-
   },
-
   // 26/03/2020 Supergiovane, added the cemi datagram.cemi.cemiETS for ETS export in knx-ultimate node.
   emitEvent: function (datagram) {
     // emit events to our beloved subscribers in a multitude of targets

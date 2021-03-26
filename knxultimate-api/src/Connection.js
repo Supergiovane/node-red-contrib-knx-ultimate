@@ -207,6 +207,7 @@ FSM.prototype.send = function (datagram, callback) {
           if (typeof callback === 'function') callback(err);
         }
       );
+      return buf; // 25/03/2021 Supergiovane
     } catch (e) {
       // 01/10/2020 Supergiovane, aggiunto catch
       KnxLog.get().warn(e);

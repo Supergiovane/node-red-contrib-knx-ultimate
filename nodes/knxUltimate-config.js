@@ -500,6 +500,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
         // Handle BUS events
         // ---------------------------------------------------------------------------------------
         function handleBusEvents(evt, src, dest, rawValue, cemiETS) {
+            //console.log("BANANA",evt, src, dest, rawValue, cemiETS !== undefined ? cemiETS.toString("hex") : "undefined");
             switch (evt) {
                 case "GroupValue_Write": {
                     node.linkStatus = "connected"; // 01/10/2020 The connection must be alive, if womething comes from the bus!
@@ -554,20 +555,14 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
 
                             } else if (input.hasOwnProperty("isLogger")) { // 26/03/2020 Coronavirus is slightly decreasing the affected numer of people. Logger Node
 
-                                // 26/03/2020 Logger Node, i'll pass everythings
-                                new Promise((resolve, reject) => {
-                                    // Get the GA from CVS
-                                    let oGA;
-                                    try {
-                                        oGA = node.csv.filter(sga => sga.ga == dest)[0];
-                                    } catch (error) { }
-                                    // 25/10/2019 TRY TO AUTO DECODE IF Group address not found in the CSV
-                                    let msg = buildInputMessage({ _srcGA: src, _destGA: dest, _event: evt, _Rawvalue: rawValue, _inputDpt: (typeof oGA === "undefined") ? null : oGA.dpt, _devicename: (typeof oGA === "undefined") ? input.name || "" : oGA.devicename, _outputtopic: dest, _oNode: input });
-                                    msg.knx.cemiETS = cemiETS; // Adding CEMI ETS string
-                                    input.handleSend(msg);
-                                    resolve(true); // fulfilled
+                                // 24/03/2021 Logger Node, i'll pass cemiETS
+                                if (cemiETS !== undefined) {
+                                    //new Promise((resolve, reject) => {
+                                    input.handleSend(cemiETS);
+                                    //    resolve(true); // fulfilled
                                     //reject("error"); // rejected
-                                }).then(function () { }).catch(function () { });
+                                    //}).then(function () { }).catch(function () { });
+                                }
 
                             } else if (input.listenallga == true) {
 
@@ -610,20 +605,14 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
 
                             if (input.hasOwnProperty("isLogger")) { // 26/03/2020 Coronavirus is slightly decreasing the affected numer of people. Logger Node
 
-                                // 26/03/2020 Logger Node, i'll pass everythings
-                                new Promise((resolve, reject) => {
-                                    // Get the GA from CVS
-                                    let oGA;
-                                    try {
-                                        oGA = node.csv.filter(sga => sga.ga == dest)[0];
-                                    } catch (error) { }
-                                    // 25/10/2019 TRY TO AUTO DECODE IF Group address not found in the CSV
-                                    let msg = buildInputMessage({ _srcGA: src, _destGA: dest, _event: evt, _Rawvalue: rawValue, _inputDpt: (typeof oGA === "undefined") ? null : oGA.dpt, _devicename: (typeof oGA === "undefined") ? input.name || "" : oGA.devicename, _outputtopic: dest, _oNode: input });
-                                    msg.knx.cemiETS = cemiETS; // Adding CEMI ETS string
-                                    input.handleSend(msg);
-                                    resolve(true); // fulfilled
+                                // 24/03/2021 Logger Node, i'll pass cemiETS
+                                if (cemiETS !== undefined) {
+                                    //new Promise((resolve, reject) => {
+                                    input.handleSend(cemiETS);
+                                    //    resolve(true); // fulfilled
                                     //reject("error"); // rejected
-                                }).then(function () { }).catch(function () { });
+                                    //}).then(function () { }).catch(function () { });
+                                }
 
                             } else if (input.listenallga == true) {
                                 // Get the DPT
@@ -666,20 +655,14 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
 
                             if (input.hasOwnProperty("isLogger")) { // 26/03/2020 Coronavirus is slightly decreasing the affected numer of people. Logger Node
 
-                                // 26/03/2020 Logger Node, i'll pass everythings
-                                new Promise((resolve, reject) => {
-                                    // Get the GA from CVS
-                                    let oGA;
-                                    try {
-                                        oGA = node.csv.filter(sga => sga.ga == dest)[0];
-                                    } catch (error) { }
-                                    // 25/10/2019 TRY TO AUTO DECODE IF Group address not found in the CSV
-                                    let msg = buildInputMessage({ _srcGA: src, _destGA: dest, _event: evt, _Rawvalue: rawValue, _inputDpt: (typeof oGA === "undefined") ? null : oGA.dpt, _devicename: (typeof oGA === "undefined") ? input.name || "" : oGA.devicename, _outputtopic: dest, _oNode: input });
-                                    msg.knx.cemiETS = cemiETS; // Adding CEMI ETS string
-                                    input.handleSend(msg);
-                                    resolve(true); // fulfilled
+                                // 24/03/2021 Logger Node, i'll pass cemiETS
+                                if (cemiETS !== undefined) {
+                                    //new Promise((resolve, reject) => {
+                                    input.handleSend(cemiETS);
+                                    //    resolve(true); // fulfilled
                                     //reject("error"); // rejected
-                                }).then(function () { }).catch(function () { });
+                                    //}).then(function () { }).catch(function () { });
+                                }
 
                             } else if (input.listenallga == true) {
                                 // Get the DPT

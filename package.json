@@ -13,7 +13,8 @@
     "ipaddr.js": "1.2.0",
     "log-driver": "1.2.7",
     "machina": "^4.0.2",
-    "lodash": ">=4.17.20"
+    "lodash": ">=4.17.20",
+    "caller-id": "^0.1.0"
   },
   "node-red": {
     "nodes": {
@@ -22,7 +23,7 @@
       "knxUltimateWatchDog": "/nodes/knxUltimateWatchDog.js",
       "knxUltimateLogger": "/nodes/knxUltimateLogger.js",
       "knxUltimate-config": "/nodes/knxUltimate-config.js",
-      "knxUltimateGlobalContext": "/nodes/knxUltimateGlobalContext.js"     
+      "knxUltimateGlobalContext": "/nodes/knxUltimateGlobalContext.js"
     }
   },
   "repository": {
