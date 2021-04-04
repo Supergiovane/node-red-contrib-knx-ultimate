@@ -1,10 +1,8 @@
-const knx = require('./../knxultimate-api2');
-const dptlib = require('./../knxultimate-api2/src/dptlib');
+const knx = require('./../knxultimate-api');
+const dptlib = require('./../knxultimate-api/src/dptlib');
 const oOS = require('os');
 const net = require("net");
 const _ = require("lodash");
-const path = require("path");
-var fs = require('fs');
 
 //Helpers
 sortBy = (field) => (a, b) => {
@@ -128,51 +126,9 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
         node.csv = readCSV(config.csv); // Array from ETS CSV Group Addresses {ga:group address, dpt: datapoint, devicename: full device name with main and subgroups}
         node.loglevel = config.loglevel !== undefined ? config.loglevel : "error"; // 18/02/2020 Loglevel default error
         node.localEchoInTunneling = typeof config.localEchoInTunneling !== "undefined" ? config.localEchoInTunneling : true;
-        node.userDir = path.join(RED.settings.userDir, "knxultimatestorage"); // 04/04/2021 Supergiovane: Storage for service files
-        node.exposedGAs = [];
 
-        // 04/04/2021 Supergiovane, creates the service paths where the persistent files are created.
-        // The values file is stored only upon disconnection/close
-        // ************************
-        function setupDirectory(_aPath) {
-
-            if (!fs.existsSync(_aPath)) {
-                // Create the path
-                try {
-                    fs.mkdirSync(_aPath);
-                    return true;
-                } catch (error) { return false; }
-            } else {
-                return true;
-            }
-        }
-        if (!setupDirectory(node.userDir)) {
-            RED.log.error('KNX-Ultimate-config: Unable to set up MAIN directory: ' + node.userDir);
-        }
-        if (!setupDirectory(path.join(node.userDir, "knxpersistvalues"))) {
-            RED.log.error('KNX-Ultimate-config: Unable to set up cache directory: ' + path.join(node.userDir, "knxpersistvalues"));
-        } else {
-            RED.log.info('KNX-Ultimate-config: payload cache set to ' + path.join(node.userDir, "knxpersistvalues"));
-        }
-
-        function saveExposedGAs() {
-            try {
-                if (node.exposedGAs.length > 0) {
-                    fs.writeFileSync(path.join(node.userDir, "knxpersistvalues", "knxpersist.json"), JSON.stringify(node.exposedGAs))
-                }
-            } catch (err) {
-                RED.log.info('KNX-Ultimate-config: unable to write peristent values to the file ' + path.join(node.userDir, "knxpersistvalues") + " " + err.message);
-            }
-        }
-        function loadExposedGAs() {
-            try {
-                node.exposedGAs = JSON.parse(fs.readFileSync(path.join(node.userDir, "knxpersistvalues", "knxpersist.json"), 'utf8'));
-            } catch (err) {
-                RED.log.error('KNX-Ultimate-config: unable to write peristent values to the file ' + path.join(node.userDir, "knxpersistvalues") + " " + err.message);
-            }
-        }
-
-        // ************************
+        // 29/07/2020 Create YAML for Homeassistant
+        // node.yamlHomeAssistant = CreateYamlForHomeAssistant();
 
         // Endpoint for reading csv from the other nodes
         RED.httpAdmin.get("/knxUltimatecsv", RED.auth.needsPermission('knxUltimate-config.read'), function (req, res) {
@@ -318,7 +274,6 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
             } catch (error) {
             }
             node.knxConnection = null;
-            saveExposedGAs(); // 04/04/2021 save the current values of GA payload
         }
 
 
@@ -370,68 +325,26 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
         // 17/02/2020 Do initial read (called by node.timerDoInitialRead timer)
         function readInitialValues() {
             if (node.linkStatus !== "connected") return; // 29/08/2019 If not connected, exit
-            loadExposedGAs(); // 04/04/2021 load the current values of GA payload
-            try {
-                RED.log.info("KNXUltimate-config: Loaded saved GA values", node.exposedGAs.length);
-            } catch (error) {
-            }
             RED.log.info("KNXUltimate-config: Do readInitialValues");
             try {
                 var readHistory = [];
                 node.nodeClients
-                    .filter(oClient => oClient.initialread > 0)
+                    .filter(oClient => oClient.initialread)
                     .filter(oClient => oClient.hasOwnProperty("isWatchDog") === false)
                     .forEach(oClient => {
-                        // 04/04/2020 selected READ FROM BUS 1
-                        if (oClient.initialread === 1) {
-                            if (oClient.listenallga == true) {
-                                for (let index = 0; index < node.csv.length; index++) {
-                                    const element = node.csv[index];
-                                    if (!readHistory.includes(element.ga)) {
-                                        node.writeQueueAdd({ grpaddr: element.ga, payload: "", dpt: "", outputtype: "read", nodecallerid: element.id });
-                                        readHistory.push(element.ga);
-                                    };
-                                }
-                            } else {
-                                if (!readHistory.includes(oClient.topic)) {
-                                    node.writeQueueAdd({ grpaddr: oClient.topic, payload: "", dpt: "", outputtype: "read", nodecallerid: oClient.id });
-                                    readHistory.push(oClient.topic);
-                                };
+                        if (oClient.listenallga == true) {
+                            for (let index = 0; index < node.csv.length; index++) {
+                                const element = node.csv[index];
+                                if (readHistory.includes(element.ga)) return;
+                                node.writeQueueAdd({ grpaddr: element.ga, payload: "", dpt: "", outputtype: "read", nodecallerid: element.id });
+                                readHistory.push(element.ga)
                             }
-                        }
-                        // 04/04/2020 selected READ FROM FILE 2 or from file then from bus 3
-                        if (oClient.initialread === 2 || oClient.initialread === 3) {
-                            if (oClient.listenallga == true) {
-
-                            } else {
-                                try {
-                                    let item = node.exposedGAs.find(a => a.ga === oClient.topic);
-                                    if (node.exposedGAs.length > 0 && item !== undefined) {
-
-                                        // Retrieve the value from datapoint
-                                        let msg = buildInputMessage({ _srcGA: "", _destGA: oClient.topic, _event: "", _Rawvalue: item.rawValue.data, _inputDpt: oClient.dpt, _devicename: oClient.name ? oClient.name : "", _outputtopic: oClient.outputtopic, _oNode: null })
-                                        oClient.currentPayload = msg.payload;
-                                        oClient.setNodeStatus({ fill: "grey", shape: "dot", text: "Update value from file", payload: oClient.currentPayload, GA: oClient.topic, dpt: oClient.dpt, devicename: oClient.devicename || "" });
-                                        if (oClient.notifyresponse) oClient.handleSend(msg);
-
-                                    } else {
-                                        if (oClient.initialread === 3) {
-                                            // Not found, issue a READ to the bus
-                                            if (!readHistory.includes(oClient.topic)) {
-                                                node.writeQueueAdd({ grpaddr: oClient.topic, payload: "", dpt: "", outputtype: "read", nodecallerid: oClient.id });
-                                                readHistory.push(oClient.topic);
-                                            };
-                                        };
-                                    };
-                                } catch (error) {
-
-                                }
-
-                            }
+                        } else {
+                            if (readHistory.includes(oClient.topic)) return;
+                            node.writeQueueAdd({ grpaddr: oClient.topic, payload: "", dpt: "", outputtype: "read", nodecallerid: oClient.id });
+                            readHistory.push(oClient.topic)
                         }
                     })
-
-
             } catch (error) {
 
             }
@@ -483,43 +396,21 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                 suppress_ack_ldatareq: node.suppressACKRequest,
                 loglevel: node.loglevel,
                 localEchoInTunneling: node.localEchoInTunneling, // 14/03/2020 local echo in tunneling mode (see API Supergiovane)
-                //minimumDelay: 60, // With api2 it works again, but better handling it on knx-ultimate queue
+                // wait at least 60 millisec between each datagram
+                //minimumDelay: 60, // 02/01/2020 Removed becuse it doesn't respect the message sequence, it sends messages random.
                 handlers: {
-                    // This is going to be called when the connection was established
                     connected: () => {
                         node.telegramsQueue = []; // 01/10/2020 Supergiovane: clear the telegram queue
                         node.linkStatus = "connected";
                         node.setAllClientsStatus("Connected", "green", "Waiting for telegram.")
                         // Start the timer to do initial read.
                         if (node.timerDoInitialRead !== null) clearTimeout(node.timerDoInitialRead);
-                        node.timerDoInitialRead = setTimeout(readInitialValues, 1000); // 17/02/2020 Do initial read of all nodes requesting initial read
+                        node.timerDoInitialRead = setTimeout(readInitialValues, 5000); // 17/02/2020 Do initial read of all nodes requesting initial read, after all nodes have been registered to the sercer
                     },
                     disconnected: function () {
                         node.setAllClientsStatus("Disconnected", "grey", "");
                         node.linkStatus = "disconnected";
-                        saveExposedGAs(); // 04/04/2021 save the current values of GA payload
                     },
-                    // This will be called when the connection to the KNX interface failed
-                    connFailCb: function () {
-                        //console.log('[Cool callback function] Connection to the KNX-IP Interface failed!')
-                        //node.setAllClientsStatus("KNX/IP Interface disconnected", "grey", "");
-                        //node.linkStatus = "disconnected";
-                    },
-                    // This will be called when the connection to the KNX interface failed because it ran out of connections
-                    outOfConnectionsCb: function () {
-                        //console.log('[Even cooler callback function] The KNX-IP Interface reached its connection limit!')
-                        setTimeout(() => node.setAllClientsStatus(connstatus, "grey", "Error on KNX BUS. No more avaiable tunnels."), 1000);
-                        RED.log.error("knxUltimate-config: Error on KNX BUS. No more avaiable tunnels.");
-                    },
-                    // This will be called when the KNX interface failed to acknowledge a message in time
-                    waitAckTimeoutCb: function () {
-                        //console.log('[Wait Acknowledge Timeout Callback] Timeout reached when waiting for acknowledge message')
-                    },
-                    // This will be called when sending of a message failed
-                    sendFailCb: function (err) {
-                        //console.log('[Send Fail Callback] Error while sending a message: %j', err)
-                    },
-                    // This is going to be called on general errors
                     error: function (connstatus) {
                         // Coming from api requestingConnState: {
                         // NO_ERROR: 0x00, // E_NO_ERROR - The connection was established succesfully
@@ -540,8 +431,8 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                             setTimeout(() => node.setAllClientsStatus(connstatus, "grey", "Error on KNX BUS. Check KNX red/black connector and cable."), 1000)
                             RED.log.error("knxUltimate-config: Bind KNX Bus to interface error: " + connstatus);
                         } else if (connstatus == "E_NO_MORE_CONNECTIONS") {
-                            //setTimeout(() => node.setAllClientsStatus(connstatus, "grey", "Error on KNX BUS. No more avaiable tunnels."), 1000);
-                            //RED.log.error("knxUltimate-config: Error on KNX BUS. No more avaiable tunnels: " + connstatus);
+                            setTimeout(() => node.setAllClientsStatus(connstatus, "grey", "Error on KNX BUS. No more avaiable tunnels."), 1000);
+                            RED.log.error("knxUltimate-config: Error on KNX BUS. No more avaiable tunnels: " + connstatus);
                         } else if (connstatus == "timed out waiting for CONNECTIONSTATE_RESPONSE") {
                             // The KNX/IP Interface is not responding to connection state request.
                             // It can be normal, if it's not strictly adhering to knx standards.
@@ -555,7 +446,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                         }
 
                     },
-                    // This is going to be called on every incoming messages (only group communication)
+                    // get notified for all KNX events:
                     event: function (evt, src, dest, rawValue, cemiETS) {
                         handleBusEvents(evt, src, dest, rawValue, cemiETS);
                     }
@@ -608,17 +499,9 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
         };
         // Handle BUS events
         // ---------------------------------------------------------------------------------------
-        function handleBusEvents(_evt, _src, _dest, _rawValue, _cemiETS) {
-            //console.log("BANANA", _evt, _src, _dest, _rawValue, _cemiETS);
-            // 04/04/2021 Supergiovane: save value to node.exposedGAs
-            if (typeof _dest === "string" && _rawValue !== undefined && (_evt === "GroupValue_Write" || _evt === "GroupValue_Response")) {
-                try {
-                    node.exposedGAs = node.exposedGAs.filter((item) => item.ga !== _dest); // Remove previous
-                    node.exposedGAs.push({ ga: _dest, rawValue: _rawValue }); // add the new
-                } catch (error) {
-                }
-            }
-            switch (_evt) {
+        function handleBusEvents(evt, src, dest, rawValue, cemiETS) {
+            //console.log("BANANA",evt, src, dest, rawValue, cemiETS !== undefined ? cemiETS.toString("hex") : "undefined");
+            switch (evt) {
                 case "GroupValue_Write": {
                     node.linkStatus = "connected"; // 01/10/2020 The connection must be alive, if womething comes from the bus!
                     node.nodeClients
@@ -629,19 +512,19 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                             if (input.hasOwnProperty("isSceneController")) {
 
                                 // 12/08/2020 Check wether is a learn (save) command or a activate (play) command.
-                                if (_dest === input.topic || _dest === input.topicSave) {
+                                if (dest === input.topic || dest === input.topicSave) {
 
                                     // Prepare the two messages to be evaluated directly into the Scene Controller node.
                                     new Promise((resolve, reject) => {
-                                        if (_dest === input.topic) {
+                                        if (dest === input.topic) {
                                             try {
-                                                let msgRecall = buildInputMessage({ _srcGA: _src, _destGA: _dest, _event: _evt, _Rawvalue: _rawValue, _inputDpt: input.dpt, _devicename: input.name ? input.name : "", _outputtopic: input.outputtopic, _oNode: null });
+                                                let msgRecall = buildInputMessage({ _srcGA: src, _destGA: dest, _event: evt, _Rawvalue: rawValue, _inputDpt: input.dpt, _devicename: input.name ? input.name : "", _outputtopic: input.outputtopic, _oNode: null });
                                                 input.RecallScene(msgRecall.payload, false);
                                             } catch (error) { }
                                         } // 12/08/2020 Do NOT use "else", because both topics must be evaluated in case both recall and save have same group address.
-                                        if (_dest === input.topicSave) {
+                                        if (dest === input.topicSave) {
                                             try {
-                                                let msgSave = buildInputMessage({ _srcGA: _src, _destGA: _dest, _event: _evt, _Rawvalue: _rawValue, _inputDpt: input.dptSave, _devicename: input.name ? input.name : "", _outputtopic: _dest, _oNode: null });
+                                                let msgSave = buildInputMessage({ _srcGA: src, _destGA: dest, _event: evt, _Rawvalue: rawValue, _inputDpt: input.dptSave, _devicename: input.name ? input.name : "", _outputtopic: dest, _oNode: null });
                                                 input.SaveScene(msgSave.payload, false);
                                             } catch (error) { }
                                         }
@@ -657,8 +540,8 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                                         for (var i = 0; i < input.rules.length; i++) {
                                             // rule is { topic: rowRuleTopic, devicename: rowRuleDeviceName, dpt:rowRuleDPT, send: rowRuleSend}
                                             var oDevice = input.rules[i];
-                                            if (typeof oDevice !== "undefined" && oDevice.topic == _dest) {
-                                                let msg = buildInputMessage({ _srcGA: _src, _destGA: _dest, _event: _evt, _Rawvalue: _rawValue, _inputDpt: oDevice.dpt, _devicename: oDevice.name ? input.name : "", _outputtopic: oDevice.outputtopic, _oNode: null })
+                                            if (typeof oDevice !== "undefined" && oDevice.topic == dest) {
+                                                let msg = buildInputMessage({ _srcGA: src, _destGA: dest, _event: evt, _Rawvalue: rawValue, _inputDpt: oDevice.dpt, _devicename: oDevice.name ? input.name : "", _outputtopic: oDevice.outputtopic, _oNode: null })
                                                 oDevice.currentPayload = msg.payload;
                                                 input.setNodeStatus({ fill: "grey", shape: "dot", text: "Update dev in scene", payload: oDevice.currentPayload, GA: oDevice.topic, dpt: oDevice.dpt, devicename: oDevice.devicename || "" });
                                                 break;
@@ -673,9 +556,9 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                             } else if (input.hasOwnProperty("isLogger")) { // 26/03/2020 Coronavirus is slightly decreasing the affected numer of people. Logger Node
 
                                 // 24/03/2021 Logger Node, i'll pass cemiETS
-                                if (_cemiETS !== undefined) {
+                                if (cemiETS !== undefined) {
                                     //new Promise((resolve, reject) => {
-                                    input.handleSend(_cemiETS);
+                                    input.handleSend(cemiETS);
                                     //    resolve(true); // fulfilled
                                     //reject("error"); // rejected
                                     //}).then(function () { }).catch(function () { });
@@ -686,20 +569,20 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                                 // Get the GA from CVS
                                 let oGA;
                                 try {
-                                    oGA = node.csv.filter(sga => sga.ga == _dest)[0];
+                                    oGA = node.csv.filter(sga => sga.ga == dest)[0];
                                 } catch (error) { }
                                 // 25/10/2019 TRY TO AUTO DECODE IF Group address not found in the CSV
-                                let msg = buildInputMessage({ _srcGA: _src, _destGA: _dest, _event: _evt, _Rawvalue: _rawValue, _inputDpt: (typeof oGA === "undefined") ? null : oGA.dpt, _devicename: (typeof oGA === "undefined") ? input.name || "" : oGA.devicename, _outputtopic: _dest, _oNode: input });
+                                let msg = buildInputMessage({ _srcGA: src, _destGA: dest, _event: evt, _Rawvalue: rawValue, _inputDpt: (typeof oGA === "undefined") ? null : oGA.dpt, _devicename: (typeof oGA === "undefined") ? input.name || "" : oGA.devicename, _outputtopic: dest, _oNode: input });
                                 input.setNodeStatus({ fill: "green", shape: "dot", text: (typeof oGA === "undefined") ? "Try to decode" : "", payload: msg.payload, GA: msg.knx.destination, dpt: msg.knx.dpt, devicename: msg.devicename });
                                 input.handleSend(msg);
 
-                            } else if (input.topic == _dest) {
+                            } else if (input.topic == dest) {
 
                                 if (input.hasOwnProperty("isWatchDog")) { // 04/02/2020 Watchdog implementation
                                     // Is a watchdog node
 
                                 } else {
-                                    let msg = buildInputMessage({ _srcGA: _src, _destGA: _dest, _event: _evt, _Rawvalue: _rawValue, _inputDpt: input.dpt, _devicename: input.name ? input.name : "", _outputtopic: input.outputtopic, _oNode: input })
+                                    let msg = buildInputMessage({ _srcGA: src, _destGA: dest, _event: evt, _Rawvalue: rawValue, _inputDpt: input.dpt, _devicename: input.name ? input.name : "", _outputtopic: input.outputtopic, _oNode: input })
                                     // Check RBE INPUT from KNX Bus, to avoid send the payload to the flow, if it's equal to the current payload
                                     if (!checkRBEInputFromKNXBusAllowSend(input, msg.payload)) {
                                         input.setNodeStatus({ fill: "grey", shape: "ring", text: "rbe block (" + msg.payload + ") from KNX", payload: "", GA: "", dpt: "", devicename: "" })
@@ -723,9 +606,9 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                             if (input.hasOwnProperty("isLogger")) { // 26/03/2020 Coronavirus is slightly decreasing the affected numer of people. Logger Node
 
                                 // 24/03/2021 Logger Node, i'll pass cemiETS
-                                if (_cemiETS !== undefined) {
+                                if (cemiETS !== undefined) {
                                     //new Promise((resolve, reject) => {
-                                    input.handleSend(_cemiETS);
+                                    input.handleSend(cemiETS);
                                     //    resolve(true); // fulfilled
                                     //reject("error"); // rejected
                                     //}).then(function () { }).catch(function () { });
@@ -735,21 +618,21 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                                 // Get the DPT
                                 let oGA;
                                 try {
-                                    oGA = node.csv.filter(sga => sga.ga == _dest)[0];
+                                    oGA = node.csv.filter(sga => sga.ga == dest)[0];
                                 } catch (error) { }
 
                                 // 25/10/2019 TRY TO AUTO DECODE IF Group address not found in the CSV
-                                let msg = buildInputMessage({ _srcGA: _src, _destGA: _dest, _event: _evt, _Rawvalue: _rawValue, _inputDpt: (typeof oGA === "undefined") ? null : oGA.dpt, _devicename: (typeof oGA === "undefined") ? input.name || "" : oGA.devicename, _outputtopic: _dest, _oNode: input });
+                                let msg = buildInputMessage({ _srcGA: src, _destGA: dest, _event: evt, _Rawvalue: rawValue, _inputDpt: (typeof oGA === "undefined") ? null : oGA.dpt, _devicename: (typeof oGA === "undefined") ? input.name || "" : oGA.devicename, _outputtopic: dest, _oNode: input });
                                 input.setNodeStatus({ fill: "green", shape: "dot", text: (typeof oGA === "undefined") ? "Try to decode" : "", payload: msg.payload, GA: msg.knx.destination, dpt: msg.knx.dpt, devicename: msg.devicename });
                                 input.handleSend(msg)
 
-                            } else if (input.topic == _dest) {
+                            } else if (input.topic == dest) {
                                 // 04/02/2020 Watchdog implementation
                                 if (input.hasOwnProperty("isWatchDog")) {
                                     // Is a watchdog node
                                     input.watchDogTimerReset();
                                 } else {
-                                    let msg = buildInputMessage({ _srcGA: _src, _destGA: _dest, _event: _evt, _Rawvalue: _rawValue, _inputDpt: input.dpt, _devicename: input.name ? input.name : "", _outputtopic: input.outputtopic, _oNode: input })
+                                    let msg = buildInputMessage({ _srcGA: src, _destGA: dest, _event: evt, _Rawvalue: rawValue, _inputDpt: input.dpt, _devicename: input.name ? input.name : "", _outputtopic: input.outputtopic, _oNode: input })
                                     // Check RBE INPUT from KNX Bus, to avoid send the payload to the flow, if it's equal to the current payload
                                     if (!checkRBEInputFromKNXBusAllowSend(input, msg.payload)) {
                                         input.setNodeStatus({ fill: "grey", shape: "ring", text: "rbe INPUT filter applied on " + msg.payload })
@@ -772,11 +655,10 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
 
                             if (input.hasOwnProperty("isLogger")) { // 26/03/2020 Coronavirus is slightly decreasing the affected numer of people. Logger Node
 
-                                console.log("BANANA isLogger", _evt, _src, _dest, _rawValue, _cemiETS);
                                 // 24/03/2021 Logger Node, i'll pass cemiETS
-                                if (_cemiETS !== undefined) {
+                                if (cemiETS !== undefined) {
                                     //new Promise((resolve, reject) => {
-                                    input.handleSend(_cemiETS);
+                                    input.handleSend(cemiETS);
                                     //    resolve(true); // fulfilled
                                     //reject("error"); // rejected
                                     //}).then(function () { }).catch(function () { });
@@ -786,33 +668,33 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                                 // Get the DPT
                                 let oGA;
                                 try {
-                                    oGA = node.csv.filter(sga => sga.ga == _dest)[0];
+                                    oGA = node.csv.filter(sga => sga.ga == dest)[0];
                                 } catch (error) { }
 
                                 // 25/10/2019 TRY TO AUTO DECODE IF Group address not found in the CSV
-                                let msg = buildInputMessage({ _srcGA: _src, _destGA: _dest, _event: _evt, _Rawvalue: null, _inputDpt: (typeof oGA === "undefined") ? null : oGA.dpt, _devicename: (typeof oGA === "undefined") ? input.name || "" : oGA.devicename, _outputtopic: _dest, _oNode: input });
+                                let msg = buildInputMessage({ _srcGA: src, _destGA: dest, _event: evt, _Rawvalue: null, _inputDpt: (typeof oGA === "undefined") ? null : oGA.dpt, _devicename: (typeof oGA === "undefined") ? input.name || "" : oGA.devicename, _outputtopic: dest, _oNode: input });
                                 input.setNodeStatus({ fill: "grey", shape: "dot", text: "Read", payload: "", GA: msg.knx.destination, dpt: msg.knx.dpt, devicename: msg.devicename });
                                 input.handleSend(msg)
 
-                            } else if (input.topic == _dest) {
+                            } else if (input.topic == dest) {
 
                                 // 04/02/2020 Watchdog implementation
                                 if (input.hasOwnProperty("isWatchDog")) {
                                     // Is a watchdog node
 
                                 } else {
-                                    let msg = buildInputMessage({ _srcGA: _src, _destGA: _dest, _event: _evt, _Rawvalue: null, _inputDpt: input.dpt, _devicename: input.name ? input.name : "", _outputtopic: input.outputtopic, _oNode: input })
+                                    let msg = buildInputMessage({ _srcGA: src, _destGA: dest, _event: evt, _Rawvalue: null, _inputDpt: input.dpt, _devicename: input.name ? input.name : "", _outputtopic: input.outputtopic, _oNode: input })
                                     msg.previouspayload = typeof input.currentPayload !== "undefined" ? input.currentPayload : ""; // 24/01/2020 Reset previous payload
                                     // 24/09/2019 Autorespond to BUS
                                     if (input.notifyreadrequestalsorespondtobus === true) {
                                         if (typeof input.currentPayload === "undefined" || input.currentPayload === "") {
                                             setTimeout(() => {
-                                                node.knxConnection.respond(_dest, input.notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized, input.dpt);
+                                                node.knxConnection.respond(dest, input.notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized, input.dpt);
                                                 input.setNodeStatus({ fill: "blue", shape: "ring", text: "Read & Autorespond with default", payload: input.notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized, GA: input.topic, dpt: msg.knx.dpt, devicename: "" });
                                             }, 200);
                                         } else {
                                             setTimeout(() => {
-                                                node.knxConnection.respond(_dest, input.currentPayload, input.dpt);
+                                                node.knxConnection.respond(dest, input.currentPayload, input.dpt);
                                                 input.setNodeStatus({ fill: "blue", shape: "ring", text: "Read & Autorespond", payload: input.currentPayload, GA: input.topic, dpt: msg.knx.dpt, devicename: "" });
                                             }, 200);
                                         };
@@ -1090,7 +972,6 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
 
         node.on("close", function () {
             if (node.timerSendTelegramFromQueue !== undefined) clearInterval(node.timerSendTelegramFromQueue); // 02/01/2020 Stop queue timer
-            saveExposedGAs(); // 04/04/2021 save the current values of GA payload
             node.Disconnect();
         })
 

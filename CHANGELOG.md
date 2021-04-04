@@ -5,6 +5,12 @@
 <br/>
 
 <p>
+<b>Version 1.2.15</b> - April 2021<br/>
+- NEW: KNX-Ultimate node can retain it's value after reconnection to KNX bus and even after reboot of node-red.<br/>
+- Update the WIKI to reflect the changes (https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/2.-Node-Configuration).<br/>
+- NEW: begin to prepare KNX-Ultimate to support KNX Secure. Some changes to the underlying API where made.<br/>
+</p>
+<p>
 <b>Version 1.2.14</b> - March 2021<br/>
 - NEW: KNX-Logger now logs telegrams sent by KNX-Ultimate nodes having an IP Interface as gateway. Previously, it worked only woth IP Routers.<br/>
 - Begin refractoring of code for KNX Secure compatibility.<br/>

@@ -8,7 +8,7 @@
             topic: { value: "" },
             outputtopic: { value: "" },
             dpt: { value: "" },
-            initialread: { value: false },
+            initialread: { value: 0 },
             notifyreadrequest: { value: false },
             notifyresponse: { value: false },
             notifywrite: { value: true },
@@ -177,7 +177,7 @@
                     } else {
                         // There isn't a ETS csv file, hide and deselect the init read option
                         $("#divNode-input-initialread").hide();
-                        $("#node-input-initialread").prop('checked', false);
+                        $("#node-input-initialread").val(0);
                     }
                 } else {
 
@@ -242,7 +242,7 @@
                     if ($("#node-input-listenallga").is(":checked")) {
                         // There isn't a ETS csv file, hide and deselect the init read option
                         $("#divNode-input-initialread").hide();
-                        $("#node-input-initialread").prop('checked', false);
+                        $("#node-input-initialread").val(0);
                     } else {
                         $("#divNode-input-initialread").show()
                     }
@@ -455,20 +455,25 @@
                 <span data-i18n="knxUltimate.properties.node-input-outputRBE"></span>
             </label>
         </div>
-        <div class="form-row" id="divNode-input-initialread">
-            &nbsp;&nbsp;<input type="checkbox" id="node-input-initialread"
-                style="display:inline-block; width:auto; vertical-align:top;" />
-            <label style="width:85%" for="node-input-initialread">
-                <i class="fa fa-question-circle-o"></i>
-                <span data-i18n="knxUltimate.properties.node-input-initialread"></span>
-            </label>
-        </div>
-        </br>
+        <br/>
         <div class="form-row">
             <dt>
                 |<i class="fa fa-arrow-right"></i>
                 <span data-i18n="knxUltimate.advanced.INPUT"></span>
             </dt>
+        </div>
+        <div class="form-row" id="divNode-input-initialread">
+            &nbsp;&nbsp;<label style="width:70%" for="node-input-initialread">
+                <i class="fa fa-question-circle-o"></i>
+                <span data-i18n="knxUltimate.properties.node-input-initialread"></span>
+            </label>
+           <select style="width:100px" id="node-input-initialread">
+                <option value=0 data-i18n="knxUltimate.properties.node-input-initialread0"></option>
+                <option value=1 data-i18n="knxUltimate.properties.node-input-initialread1"></option>
+                <option value=2 data-i18n="knxUltimate.properties.node-input-initialread2"></option>
+                <option value=3 data-i18n="knxUltimate.properties.node-input-initialread3"></option>
+            </select>
+            
         </div>
         <div class="form-row" id="divInputRBE">
             &nbsp;&nbsp;<input type="checkbox" id="node-input-inputRBE"

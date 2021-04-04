@@ -26,7 +26,8 @@ module.exports = function (RED) {
         node.inputRBE = "false"
         node.rules = config.rules || [{}];
         node.isSceneController = true; // Signal to config node, that this is a node scene controller
-        node.userDir = RED.settings.userDir + "/knxultimatestorage"; // 09/03/2020 Storage of sonospollytts (otherwise, at each upgrade to a newer version, the node path is wiped out and recreated, loosing all custom files)
+        node.userDir = path.join(RED.settings.userDir, "knxultimatestorage"); // 09/03/2020 Storage of ttsultimate (otherwise, at each upgrade to a newer version, the node path is wiped out and recreated, loosing all custom files)
+       
         node.disabled = false; // 21/09/2020 you can now disable the scene controller
 
         // 11/03/2020 Delete scene saved file, from html
