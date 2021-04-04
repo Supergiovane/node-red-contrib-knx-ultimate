@@ -1,5 +1,7 @@
 const knx = require('./../knxultimate-api2');
 const dptlib = require('./../knxultimate-api2/src/dptlib');
+// const knx = require('./../knxultimate-api');
+// const dptlib = require('./../knxultimate-api/src/dptlib');
 const oOS = require('os');
 const net = require("net");
 const _ = require("lodash");
