@@ -416,15 +416,18 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                                         let msg = buildInputMessage({ _srcGA: "", _destGA: oClient.topic, _event: "GroupValue_Response", _Rawvalue: item.rawValue.data, _inputDpt: oClient.dpt, _devicename: oClient.name ? oClient.name : "", _outputtopic: oClient.outputtopic, _oNode: null })
                                         oClient.previouspayload = ""; // 05/04/2021 Added previous payload
                                         oClient.currentPayload = msg.payload;
-                                        oClient.setNodeStatus({ fill: "grey", shape: "dot", text: "Update value from file", payload: oClient.currentPayload, GA: oClient.topic, dpt: oClient.dpt, devicename: oClient.devicename || "" });
+                                        oClient.setNodeStatus({ fill: "grey", shape: "dot", text: "Update value from persist file", payload: oClient.currentPayload, GA: oClient.topic, dpt: oClient.dpt, devicename: oClient.devicename || "" });
                                         if (oClient.notifyresponse) oClient.handleSend(msg);
 
                                     } else {
                                         if (oClient.initialread === 3) {
                                             // Not found, issue a READ to the bus
                                             if (!readHistory.includes(oClient.topic)) {
-                                                node.writeQueueAdd({ grpaddr: oClient.topic, payload: "", dpt: "", outputtype: "read", nodecallerid: oClient.id });
-                                                readHistory.push(oClient.topic);
+                                                setTimeout(() => {
+                                                    oClient.setNodeStatus({ fill: "grey", shape: "dot", text: "Persist file not found, issuing READ request to BUS", payload: oClient.currentPayload, GA: oClient.topic, dpt: oClient.dpt, devicename: oClient.devicename || "" });
+                                                    node.writeQueueAdd({ grpaddr: oClient.topic, payload: "", dpt: "", outputtype: "read", nodecallerid: oClient.id });
+                                                    readHistory.push(oClient.topic);
+                                                }, 1000);
                                             };
                                         };
                                     };
@@ -474,7 +477,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                 node.setAllClientsStatus("Emulation", "green", "Waiting for telegram.")
                 // Start the timer to do initial read.
                 if (node.timerDoInitialRead !== null) clearTimeout(node.timerDoInitialRead);
-                node.timerDoInitialRead = setTimeout(DoInitialReadFromKNXBusOrFile, 5000); // 17/02/2020 Do initial read of all nodes requesting initial read, after all nodes have been registered to the sercer
+                node.timerDoInitialRead = setTimeout(DoInitialReadFromKNXBusOrFile, 3000); // 17/02/2020 Do initial read of all nodes requesting initial read, after all nodes have been registered to the sercer
                 return;
             }
 
@@ -498,7 +501,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                         console.log ("BANANA CONNECTEDBANANA CONNECTEDBANANA CONNECTEDBANANA CONNECTEDBANANA CONNECTEDBANANA CONNECTED");
                         // Start the timer to do initial read.
                         if (node.timerDoInitialRead !== null) clearTimeout(node.timerDoInitialRead);
-                        node.timerDoInitialRead = setTimeout(DoInitialReadFromKNXBusOrFile, 8000); // 17/02/2020 Do initial read of all nodes requesting initial read
+                        node.timerDoInitialRead = setTimeout(DoInitialReadFromKNXBusOrFile, 3000); // 17/02/2020 Do initial read of all nodes requesting initial read
                     },
                     disconnected: function () {
                         node.setAllClientsStatus("Disconnected", "grey", "");
