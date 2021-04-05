@@ -1,6 +1,6 @@
 /**
-* knx.js - a KNX protocol stack in pure Javascript
-* (C) 2016-2018 Elias Karakoulakis
+* knxultimate-api - a KNX protocol stack in pure Javascript based on knx.js (originally written by Elias Karakoulakis)
+* (C) 2021 Supergiovane
 */
 const KnxLog = require('./KnxLog')
 const Parser = require('binary-parser').Parser

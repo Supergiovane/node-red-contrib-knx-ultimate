@@ -1,5 +1,5 @@
 /**
-* knx.js - a KNX protocol stack in pure Javascript
+* knxultimate-api - a KNX protocol stack in pure Javascript based on knx.js (originally written by Elias Karakoulakis)
 * (C) 2016-2017 Elias Karakoulakis
 */
 

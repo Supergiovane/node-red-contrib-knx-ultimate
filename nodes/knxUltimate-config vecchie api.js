@@ -323,9 +323,9 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
 
 
         // 17/02/2020 Do initial read (called by node.timerDoInitialRead timer)
-        function readInitialValues() {
+        function DoInitialReadFromKNXBusOrFile() {
             if (node.linkStatus !== "connected") return; // 29/08/2019 If not connected, exit
-            RED.log.info("KNXUltimate-config: Do readInitialValues");
+            RED.log.info("KNXUltimate-config: Do DoInitialReadFromKNXBusOrFile");
             try {
                 var readHistory = [];
                 node.nodeClients
@@ -382,7 +382,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                 node.setAllClientsStatus("Emulation", "green", "Waiting for telegram.")
                 // Start the timer to do initial read.
                 if (node.timerDoInitialRead !== null) clearTimeout(node.timerDoInitialRead);
-                node.timerDoInitialRead = setTimeout(readInitialValues, 5000); // 17/02/2020 Do initial read of all nodes requesting initial read, after all nodes have been registered to the sercer
+                node.timerDoInitialRead = setTimeout(DoInitialReadFromKNXBusOrFile, 5000); // 17/02/2020 Do initial read of all nodes requesting initial read, after all nodes have been registered to the sercer
                 return;
             }
 
@@ -405,7 +405,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                         node.setAllClientsStatus("Connected", "green", "Waiting for telegram.")
                         // Start the timer to do initial read.
                         if (node.timerDoInitialRead !== null) clearTimeout(node.timerDoInitialRead);
-                        node.timerDoInitialRead = setTimeout(readInitialValues, 5000); // 17/02/2020 Do initial read of all nodes requesting initial read, after all nodes have been registered to the sercer
+                        node.timerDoInitialRead = setTimeout(DoInitialReadFromKNXBusOrFile, 5000); // 17/02/2020 Do initial read of all nodes requesting initial read, after all nodes have been registered to the sercer
                     },
                     disconnected: function () {
                         node.setAllClientsStatus("Disconnected", "grey", "");
