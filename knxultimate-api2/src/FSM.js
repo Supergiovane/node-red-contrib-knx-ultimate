@@ -4,7 +4,6 @@
 */
 
 const RawModHandlers = require('./RawMod/Handlers')
-
 const os = require('os')
 const util = require('util')
 const ipaddr = require('ipaddr.js')
@@ -149,7 +148,9 @@ const states = {
         /*
          * kill the connection
          */
-        this.Disconnect()
+        this.Disconnect();
+        // close the socket
+        this.close(); // 05/04/2021 Supergiovane
       } else {
         // store channel ID into the Connection object
         this.channel_id = datagram.connstate.channel_id
@@ -204,11 +205,17 @@ const states = {
       this.lastSentTime = this.conntime = Date.now()
       this.log.debug(util.format('--- Connected in %s mode ---', this.useTunneling ? 'TUNNELING' : 'ROUTING'))
       this.transition('idle')
-      this.emit('connected')
+      this.emit('connected');
+      this.startTimerConnectioRequest(true); // 24/05/2020 Supergiovane
+      this.isTunnelConnected = true; // 02/10/2020 Supergiovane: signal that the tunnel is up
+
     }
   },
   disconnecting: {
     _onEnter: function () {
+      this.startTimerConnectioRequest(false); // 24/05/2020 Supergiovane
+      this.isTunnelConnected = false; // 02/10/2020 Supergiovane: signal that the tunnel is down
+
       if (this.useTunneling) {
         // Set this.disconnectCalled
         this.disconnectCalled = true
@@ -218,12 +225,8 @@ const states = {
         KnxLog.get().debug('(%s):\tconnection alive for %d seconds', this.compositeState(), aliveFor / 1000)
         this.disconnecttimer = setTimeout(function () {
           KnxLog.get().debug('(%s):\tconnection timed out', sm.compositeState())
-          try {
-            sm.socket.close()
-          } catch (error) { }
-          sm.transition('uninitialized')
-          this.isConnected = false
-          sm.emit('disconnected')
+          sm.close(); // 05/04/2021 Supergiovane
+          this.isConnected = false;
         }, 3000)
         //
         try {
@@ -238,6 +241,9 @@ const states = {
             KnxLog.get().debug('(%s):\tsent DISCONNECT_REQUEST', sm.compositeState())
           })
         } catch (error) { }
+      } else {
+        // in case of multicast the socket will be closed directly
+        this.close(); // 05/04/2021 Supergiovane
       }
     },
     _onExit: function () {
@@ -245,31 +251,28 @@ const states = {
     },
     inbound_DISCONNECT_RESPONSE: function (/* datagram */) {
       if (this.useTunneling) {
+        this.isTunnelConnected = false; // 02/10/2020 Supergiovane: signal that the tunnel is down
         KnxLog.get().debug('(%s):\tgot disconnect response', this.compositeState())
-        try {
-          this.socket.close()
-        } catch (error) { }
-        this.transition('uninitialized')
+        this.close(); // 05/04/2021 Supergiovane
         this.isConnected = false
-        this.emit('disconnected')
       }
     }
   },
   idle: {
     _onEnter: function () {
-      if (this.useTunneling) {
-        this.idletimer = setTimeout(function () {
-          // time out on inactivity...
-          this.transition('requestingConnState')
-        }.bind(this), this.options.connstateRequestInterval || DEFAULT_CONNSTATE_REQUEST_INTERVAL)
-      }
+      // if (this.useTunneling) {
+      //   this.idletimer = setTimeout(function () {
+      //     // time out on inactivity...
+      //     this.transition('requestingConnState')
+      //   }.bind(this), this.options.connstateRequestInterval || DEFAULT_CONNSTATE_REQUEST_INTERVAL)
+      // }
       // debuglog the current FSM state plus a custom message
       KnxLog.get().debug('(%s):\t%s', this.compositeState(), ' zzzz...')
       // process any deferred items from the FSM internal queue
       this.processQueue()
     },
     _onExit: function () {
-      clearTimeout(this.idletimer)
+      // clearTimeout(this.idletimer)
     },
     // while idle we can either...
 
@@ -364,6 +367,7 @@ const states = {
     // if idle for too long, request connection state from the KNX IP router
     _onEnter: function () {
       let sm = this
+      sm.startTimerConnectioRequest(false); // 02/10/2020 Supergiovane
       KnxLog.get().trace('(%s): Requesting Connection State', this.compositeState())
       try {
         this.send(this.prepareDatagram(KnxConstants.SERVICE_TYPE.CONNECTIONSTATE_REQUEST), err => {
@@ -381,20 +385,27 @@ const states = {
         KnxLog.get().trace('(%s): %s', sm.compositeState(), msg)
         sm.transition('connecting')
         sm.emit('error', msg)
+        sm.startTimerConnectioRequest(true); // 02/10/2020 Supergiovane: resets timers and restart counter
+        this.isTunnelConnected = false; // 02/10/2020 Supergiovane: signal that the tunnel is down
       }, this.options.connstateResponseTimeout || DEFAULT_CONNSTATE_RESPONSE_TIMEOUT)
     },
     _onExit: function () {
-      clearTimeout(this.connstatetimer)
+      //console.log("BANANA dentro _onExit fi requestingConnState");
+      this.startTimerConnectioRequest(true); // 01/10/2020 Supergiovane: resets timers and restart counter
+      //if (sm.connstatetimer !== null) clearTimeout(sm.connstatetimer);
     },
     inbound_CONNECTIONSTATE_RESPONSE: function (datagram) {
       let state = KnxConstants.keyText('RESPONSECODE', datagram.connstate.status)
       if (datagram.connstate.status === 0) {
         this.transition('idle')
+        this.isTunnelConnected = true; // 02/10/2020 Supergiovane: signal that the tunnel is up
       } else {
         this.log.debug(util.format(
           '*** error: %s *** (connstate.code: %d)', state, datagram.connstate.status))
         this.transition('connecting')
-        this.emit('error', state)
+        this.emit('error', state);
+        this.isTunnelConnected = false; // 02/10/2020 Supergiovane: signal that the tunnel is down
+
       }
     },
     '*': function (data) {
@@ -553,6 +564,7 @@ const initialize = function (options) {
 
   let range = this.remoteEndpoint.addr.range()
   this.log.debug('initializing %s connection to %s', range, this.remoteEndpoint.addrstring)
+  this.isTunnelConnected = false; // 02/10/2020 Supergiovane: signal if connected or not (in tunnel mode only)
   switch (range) {
     case 'multicast':
       if (this.localEchoInTunneling) { this.localEchoInTunneling = false; this.log.debug('localEchoInTunneling: true but DISABLED because i am on multicast'); }; // 14/03/2020 Supergiovane: if multicast, disable the localEchoInTunneling, because there is already an echo
@@ -625,6 +637,23 @@ const getIPv4Interfaces = function () {
 
   return candidateInterfaces
 }
+
+// 05/04/2021 Supergiovane
+const close = function () {
+
+  this.startTimerConnectioRequest(false); // 01/10/2020 Supergiovane
+  this.isTunnelConnected = false; // 02/10/2020 Supergiovane: signal that the tunnel is down
+
+  this.transition('uninitialized');
+  this.emit('disconnected');
+  try {
+    // close the socket
+    sm.socket.close();
+    //sm.socket = null; // 24/05/2020 Supergiovane added this line. 02/10/2020 removed.
+  } catch (error) { }
+
+}
+
 const getLocalAddress = function () {
   let candidateInterfaces = this.getIPv4Interfaces()
   // if user has declared a desired interface then use it
@@ -635,6 +664,7 @@ const getLocalAddress = function () {
       return candidateInterfaces[this.options.interface].address
     }
   }
+ 
   // just return the first available IPv4 non-loopback interface
   if (Object.keys(candidateInterfaces).length > 0) {
     return candidateInterfaces[Object.keys(candidateInterfaces)[0]].address
@@ -643,14 +673,36 @@ const getLocalAddress = function () {
   throw Error('No valid IPv4 interfaces detected')
 }
 
+ // 05/04/2021 Supergiovane: query connection status every max 120 secs, as per KNX specs.
+ const startTimerConnectioRequest = function (_bEnable) {
+  var sm = this;
+  if (_bEnable) {
+    if (sm.useTunneling) {
+      //console.log("BANANA START TIMER");
+      if (sm.connstatetimer !== null) clearTimeout(sm.connstatetimer);
+      if (sm.timerConnectioRequest !== null) clearTimeout(sm.timerConnectioRequest);
+      sm.timerConnectioRequest = setInterval(function () {
+        //console.log("BANANA sm.transition(requestingConnState);");
+        sm.transition("requestingConnState");
+      }, 5000); // era 30000 01/10/2020 
+    }
+
+  } else {
+    // Stop timer
+    //console.log("BANANA STOP TIMER")
+    if (sm.timerConnectioRequest !== null) clearTimeout(sm.timerConnectioRequest);
+    if (sm.connstatetimer !== null) clearInterval(sm.connstatetimer);
+  }
+}
 module.exports = machina.Fsm.extend({
   initialState: 'uninitialized',
   namespace: 'knxnet',
   states: states,
-
   initialize: initialize,
   acknowledge: acknowledge,
   emitEvent: emitEvent,
   getIPv4Interfaces: getIPv4Interfaces,
-  getLocalAddress: getLocalAddress
+  getLocalAddress: getLocalAddress,
+  startTimerConnectioRequest:startTimerConnectioRequest,
+  close:close
 })

@@ -132,6 +132,8 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
         node.localEchoInTunneling = typeof config.localEchoInTunneling !== "undefined" ? config.localEchoInTunneling : true;
         node.userDir = path.join(RED.settings.userDir, "knxultimatestorage"); // 04/04/2021 Supergiovane: Storage for service files
         node.exposedGAs = [];
+        node.timerRiavviaDopoInstanziazione = null;
+        node.tempDiscoTimer = null;
 
         // 04/04/2021 Supergiovane, creates the service paths where the persistent files are created.
         // The values file is stored only upon disconnection/close
@@ -411,7 +413,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                                     if (node.exposedGAs.length > 0 && item !== undefined) {
 
                                         // Retrieve the value from datapoint
-                                        let msg = buildInputMessage({ _srcGA: "", _destGA: oClient.topic, _event: "", _Rawvalue: item.rawValue.data, _inputDpt: oClient.dpt, _devicename: oClient.name ? oClient.name : "", _outputtopic: oClient.outputtopic, _oNode: null })
+                                        let msg = buildInputMessage({ _srcGA: "", _destGA: oClient.topic, _event: "GroupValue_Response", _Rawvalue: item.rawValue.data, _inputDpt: oClient.dpt, _devicename: oClient.name ? oClient.name : "", _outputtopic: oClient.outputtopic, _oNode: null })
                                         oClient.currentPayload = msg.payload;
                                         oClient.setNodeStatus({ fill: "grey", shape: "dot", text: "Update value from file", payload: oClient.currentPayload, GA: oClient.topic, dpt: oClient.dpt, devicename: oClient.devicename || "" });
                                         if (oClient.notifyresponse) oClient.handleSend(msg);
@@ -492,9 +494,10 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                         node.telegramsQueue = []; // 01/10/2020 Supergiovane: clear the telegram queue
                         node.linkStatus = "connected";
                         node.setAllClientsStatus("Connected", "green", "Waiting for telegram.")
+                        console.log ("BANANA CONNECTEDBANANA CONNECTEDBANANA CONNECTEDBANANA CONNECTEDBANANA CONNECTEDBANANA CONNECTED");
                         // Start the timer to do initial read.
                         if (node.timerDoInitialRead !== null) clearTimeout(node.timerDoInitialRead);
-                        node.timerDoInitialRead = setTimeout(readInitialValues, 1000); // 17/02/2020 Do initial read of all nodes requesting initial read
+                        node.timerDoInitialRead = setTimeout(readInitialValues, 5000); // 17/02/2020 Do initial read of all nodes requesting initial read
                     },
                     disconnected: function () {
                         node.setAllClientsStatus("Disconnected", "grey", "");
@@ -506,6 +509,9 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                         //console.log('[Cool callback function] Connection to the KNX-IP Interface failed!')
                         //node.setAllClientsStatus("KNX/IP Interface disconnected", "grey", "");
                         //node.linkStatus = "disconnected";
+                        node.setAllClientsStatus("connFailCb", "grey", "");
+                        node.linkStatus = "disconnected";
+                        saveExposedGAs(); // 04/04/2021 save the current values of GA payload
                     },
                     // This will be called when the connection to the KNX interface failed because it ran out of connections
                     outOfConnectionsCb: function () {

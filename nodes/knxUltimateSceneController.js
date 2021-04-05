@@ -3,6 +3,7 @@
 module.exports = function (RED) {
     function knxUltimateSceneController(config) {
         var fs = require('fs');
+        var path = require('path');
         var mkdirp = require('mkdirp');
 
         RED.nodes.createNode(this, config)

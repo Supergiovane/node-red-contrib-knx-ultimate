@@ -605,5 +605,4 @@ module.exports = machina.Fsm.extend({
       if (sm.connstatetimer !== null) clearInterval(sm.connstatetimer);
     }
   }
-
 });
