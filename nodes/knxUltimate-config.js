@@ -414,6 +414,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
 
                                         // Retrieve the value from datapoint
                                         let msg = buildInputMessage({ _srcGA: "", _destGA: oClient.topic, _event: "GroupValue_Response", _Rawvalue: item.rawValue.data, _inputDpt: oClient.dpt, _devicename: oClient.name ? oClient.name : "", _outputtopic: oClient.outputtopic, _oNode: null })
+                                        oClient.previouspayload = ""; // 05/04/2021 Added previous payload
                                         oClient.currentPayload = msg.payload;
                                         oClient.setNodeStatus({ fill: "grey", shape: "dot", text: "Update value from file", payload: oClient.currentPayload, GA: oClient.topic, dpt: oClient.dpt, devicename: oClient.devicename || "" });
                                         if (oClient.notifyresponse) oClient.handleSend(msg);
