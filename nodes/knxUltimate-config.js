@@ -498,7 +498,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                         node.telegramsQueue = []; // 01/10/2020 Supergiovane: clear the telegram queue
                         node.linkStatus = "connected";
                         node.setAllClientsStatus("Connected", "green", "Waiting for telegram.")
-                        console.log("BANANA CONNECTEDBANANA CONNECTEDBANANA CONNECTEDBANANA CONNECTEDBANANA CONNECTEDBANANA CONNECTED");
+                        //console.log("BANANA CONNECTEDBANANA CONNECTEDBANANA CONNECTEDBANANA CONNECTEDBANANA CONNECTEDBANANA CONNECTED");
                         // Start the timer to do initial read.
                         if (node.timerDoInitialRead !== null) clearTimeout(node.timerDoInitialRead);
                         node.timerDoInitialRead = setTimeout(DoInitialReadFromKNXBusOrFile, 3000); // 17/02/2020 Do initial read of all nodes requesting initial read
@@ -520,7 +520,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                     // This will be called when the connection to the KNX interface failed because it ran out of connections
                     outOfConnectionsCb: function () {
                         //console.log('[Even cooler callback function] The KNX-IP Interface reached its connection limit!')
-                        setTimeout(() => node.setAllClientsStatus("outOfConnectionsCb", "red", "Error on KNX BUS. No more avaiable tunnels."), 1000);
+                        setTimeout(() => node.setAllClientsStatus("outOfConnectionsCb", "red", "No more avaiable tunnels in the interface."), 1000);
                         RED.log.error("knxUltimate-config: Error on KNX BUS. No more avaiable tunnels.");
                     },
                     // This will be called when the KNX interface failed to acknowledge a message in time
