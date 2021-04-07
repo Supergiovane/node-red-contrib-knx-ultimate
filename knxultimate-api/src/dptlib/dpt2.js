@@ -25,7 +25,7 @@ exports.formatAPDU = function(value) {
 
 exports.fromBuffer = function(buf) {
   if (buf.length != 1) {
-    knxLog.get().error( "Buffer should be 1 byte long" );
+    knxLog.get().error( "DPT2: Buffer should be 1 byte long" );
   } else
   return {
     priority: (buf[0] & 0b00000011) >> 1,
