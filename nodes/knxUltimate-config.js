@@ -520,7 +520,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                     // This will be called when the connection to the KNX interface failed because it ran out of connections
                     outOfConnectionsCb: function () {
                         //console.log('[Even cooler callback function] The KNX-IP Interface reached its connection limit!')
-                        setTimeout(() => node.setAllClientsStatus(connstatus, "grey", "Error on KNX BUS. No more avaiable tunnels."), 1000);
+                        setTimeout(() => node.setAllClientsStatus("outOfConnectionsCb", "red", "Error on KNX BUS. No more avaiable tunnels."), 1000);
                         RED.log.error("knxUltimate-config: Error on KNX BUS. No more avaiable tunnels.");
                     },
                     // This will be called when the KNX interface failed to acknowledge a message in time
