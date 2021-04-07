@@ -1041,9 +1041,9 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                 if (dpt && _Rawvalue !== null) {
                     try {
                         var jsValue = dptlib.fromBuffer(_Rawvalue, dpt)
-                        if (jsValue === null) RED.log.error("knxUltimate-config: buildInputMessage: received a wrong datagram form KNX BUS, from device ", _srcGA, "Destination", _destGA, "Event", _event, "RawValue", _Rawvalue, "GA's Datapoint", (_inputDpt === null ? "THE ETS FILE HAS NOT BEEN IMPORTED, SO I'M TRYING TO FIGURE OUT WHAT DATAPOINT BELONGS THIS GROUP ADDRESS. DON'T BLAME ME IF I'M WRONG, INSTEAD, IMPORT THE ETS FILE!" : _inputDpt), "Devicename", _devicename, "Topic", _outputtopic);
+                        if (jsValue === null) RED.log.error("knxUltimate-config: buildInputMessage: received a wrong datagram form KNX BUS, from device " + _srcGA + " Destination " + _destGA + " Event " + _event + " RawValue " + _Rawvalue + " GA's Datapoint " + (_inputDpt === null ? "THE ETS FILE HAS NOT BEEN IMPORTED, SO I'M TRYING TO FIGURE OUT WHAT DATAPOINT BELONGS THIS GROUP ADDRESS. DON'T BLAME ME IF I'M WRONG, INSTEAD, IMPORT THE ETS FILE!" : _inputDpt) + " Devicename " + _devicename + " Topic " + _outputtopic);
                     } catch (error) {
-                        RED.log.error("knxUltimate-config: buildInputMessage: Error returning from DPT decoding, from device ", _srcGA, "Destination", _destGA, "Event", _event, "RawValue", _Rawvalue, "GA's Datapoint", (_inputDpt === null ? "THE ETS FILE HAS NOT BEEN IMPORTED, SO I'M TRYING TO FIGURE OUT WHAT DATAPOINT BELONGS THIS GROUP ADDRESS. DON'T BLAME ME IF I'M WRONG, INSTEAD, IMPORT THE ETS FILE!" : _inputDpt), "Devicename", _devicename, "Topic", _outputtopic);
+                        RED.log.error("knxUltimate-config: buildInputMessage: Error returning from DPT decoding. Device " + _srcGA + " Destination " + _destGA + " Event " + _event + " RawValue " + _Rawvalue + " GA's Datapoint " + (_inputDpt === null ? "THE ETS FILE HAS NOT BEEN IMPORTED, SO I'M TRYING TO FIGURE OUT WHAT DATAPOINT BELONGS THIS GROUP ADDRESS. DON'T BLAME ME IF I'M WRONG, INSTEAD, IMPORT THE ETS FILE!" : _inputDpt) + " Devicename " + _devicename + " Topic " + _outputtopic);
                     }
 
                 }
