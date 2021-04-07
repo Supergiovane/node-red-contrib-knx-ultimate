@@ -141,7 +141,7 @@ dpts.populateAPDU = function (value, apdu, dptid) {
 dpts.fromBuffer = function (buf, dpt) {
   // sanity check
   if (!dpt) throw util.format("DPT %s not found", dpt);
-  var value = 0;
+  var value = 0; 
   // get the raw APDU data for the given JS value
   if (typeof dpt.fromBuffer == 'function') {
     // nothing to do here, DPT-specific fromBuffer implementation will handle everything

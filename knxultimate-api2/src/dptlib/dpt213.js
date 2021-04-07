@@ -109,6 +109,7 @@ exports.fromBuffer = function (buf) {
     
     if (buf.length != 8) {
         knxLog.get().warn("DPT213.fromBuffer: buf should be 4x2 bytes long (got %d bytes)", buf.length);
+        return null;
     } else {
         // Preparo per l'avvento di Gozer il gozeriano.
         var nComfort = GetFloat(buf[0] , buf[1]);

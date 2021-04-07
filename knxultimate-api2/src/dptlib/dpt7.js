@@ -30,6 +30,7 @@ exports.formatAPDU = function (value) {
 exports.fromBuffer = function (buf) {
     if (buf.length != 2) {
         knxLog.get().warn("DPT7.fromBuffer: buf should be 2 bytes long (got %d bytes)", buf.length);
+        return null;
     } else {
         return (buf[0] * 256) + buf[1]
     }

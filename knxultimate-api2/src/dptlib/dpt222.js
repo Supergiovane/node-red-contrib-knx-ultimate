@@ -32,9 +32,9 @@ function frexp(value) {
         var exponent = bits - 1022, mantissa = ldexp(value, -exponent);
         return [mantissa, exponent];
     } catch (error) {
-        
+
     }
-   
+
 }
 
 function GetHex(_value) {
@@ -51,11 +51,11 @@ function GetHex(_value) {
         var sign = (mantissa < 0) ? 1 : 0
         var mant = (mantissa < 0) ? ~(max_mantissa ^ 2047) : max_mantissa
         var exp = exponent - e;
-        return [((sign << 7) + (exp << 3) + (mant >> 8)),(mant % 256)];
+        return [((sign << 7) + (exp << 3) + (mant >> 8)), (mant % 256)];
     } catch (error) {
-        
+
     }
-   
+
 }
 function GetFloat(_value0, _value1) {
 
@@ -92,12 +92,12 @@ exports.formatAPDU = function (value) {
         var ArrComfort = GetHex(value.Comfort);
         apdu_data[0] = ArrComfort[0];
         apdu_data[1] = ArrComfort[1];
-        
+
         // Standby
         var ArrStandby = GetHex(value.Standby);
         apdu_data[2] = ArrStandby[0];
         apdu_data[3] = ArrStandby[1];
-        
+
         // Economy
         var ArrEconomy = GetHex(value.Economy);
         apdu_data[4] = ArrEconomy[0];
@@ -116,6 +116,7 @@ exports.formatAPDU = function (value) {
 exports.fromBuffer = function (buf) {
     if (buf.length != 6) {
         knxLog.get().warn("DPT222.fromBuffer: buf should be 3x2 bytes long (got %d bytes)", buf.length);
+        return null;
     } else {
 
         // Preparo per l'avvento di Gozer il gozeriano.
@@ -132,11 +133,11 @@ exports.basetype = {
     "bitlength": 48,
     "valuetype": "basic",
     "desc": "3x16-bit floating point value",
-    "help": 
-`// Set the temperature setpoints or setpoint shift
+    "help":
+        `// Set the temperature setpoints or setpoint shift
 msg.payload = {Comfort:21.4, Standby:20, Economy:18.2};
 return msg;`,
-  "helplink":"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---DPT222"
+    "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---DPT222"
 }
 
 // DPT222 subtypes
@@ -146,7 +147,7 @@ exports.subtypes = {
         "desc": "DPT_TempRoomSetpSetF16[3]", "name": "Room temperature setpoint (Comfort, Standby and Economy)",
         "unit": "°C",
         "range": [-273, 670760]
-        
+
     },
 
     // 222.101 RoomTemperature Setpoint Shift Values

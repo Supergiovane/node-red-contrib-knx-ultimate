@@ -14,16 +14,16 @@ var timeRegexp = /(\d{1,2}):(\d{1,2}):(\d{1,2})/;
 // DPTFrame to parse a DPT10 frame.
 // Always 8-bit aligned.
 
-exports.formatAPDU = function(value) {
+exports.formatAPDU = function (value) {
   var apdu_data = new Buffer.alloc(3);
   var dow, hour, minute, second;
   // day of week. NOTE: JS Sunday = 0
-  switch(typeof value) {
+  switch (typeof value) {
     case 'string':
       // try to parse
       match = timeRegexp.exec(value);
       if (match) {
-        dow = ((new Date().getDay()-7) % 7)+7;
+        dow = ((new Date().getDay() - 7) % 7) + 7;
         hour = parseInt(match[1]);
         minute = parseInt(match[2]);
         second = parseInt(match[3]);
@@ -39,12 +39,12 @@ exports.formatAPDU = function(value) {
     case 'number':
       value = new Date(value);
     default:
-      dow = ((value.getDay()-7) % 7)+7;
+      dow = ((value.getDay() - 7) % 7) + 7;
       hour = value.getHours();
       minute = value.getMinutes();
       second = value.getSeconds();
   }
-  apdu_data[0] = (dow<<5) + hour;
+  apdu_data[0] = (dow << 5) + hour;
   apdu_data[1] = minute;
   apdu_data[2] = second;
   return apdu_data;
@@ -52,9 +52,12 @@ exports.formatAPDU = function(value) {
 
 // return a JS Date from a DPT10 payload, with DOW/hour/month/seconds set to the buffer values.
 // The week/month/year are inherited from the current timestamp.
-exports.fromBuffer = function(buf) {
-  if (buf.length != 3) knxLog.get().warn("DPT10: Buffer should be 3 bytes long")
-  else {
+exports.fromBuffer = function (buf) {
+  if (buf.length != 3) {
+    knxLog.get().error("DPT10: Buffer should be 3 bytes long, got", buf.length);
+    //console.log("BANANA","DPT10: Buffer should be 3 bytes long, got", buf.length)
+    return null;
+  } else {
     var d = new Date();
     var dow = (buf[0] & 0b11100000) >> 5;
     var hours = buf[0] & 0b00011111;
@@ -81,20 +84,20 @@ exports.fromBuffer = function(buf) {
 
 // DPT10 base type info
 exports.basetype = {
-  "bitlength" : 24,
-  "valuetype" : "composite",
-  "desc" : "day of week + time of day",
-  "help": 
-`// Send the time to the bus!
+  "bitlength": 24,
+  "valuetype": "composite",
+  "desc": "day of week + time of day",
+  "help":
+    `// Send the time to the bus!
 msg.payload = new Date().toString();
 return msg;`,
-"helplink":"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---DateTime-to-BUS"
+  "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---DateTime-to-BUS"
 }
 
 // DPT10 subtypes info
 exports.subtypes = {
   // 10.001 time of day
-  "001" : {
-      "name" : "Time of day", "desc" : "time of day"
+  "001": {
+    "name": "Time of day", "desc": "time of day"
   }
 }

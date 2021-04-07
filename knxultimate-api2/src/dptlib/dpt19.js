@@ -12,7 +12,7 @@ const knxLog = require('./../KnxLog');
 //
 
 
-exports.formatAPDU = function(value) {
+exports.formatAPDU = function (value) {
   if (typeof value != 'object' || value.constructor.name != 'Date')
     knxLog.get().error('DPT19: Must supply a Date object')
   else {
@@ -31,30 +31,32 @@ exports.formatAPDU = function(value) {
   }
 }
 
-exports.fromBuffer = function(buf) {
-  if (buf.length != 8) knxLog.get().warn("DPT19: Buffer should be 8 bytes long")
-  else {
-    var d = new Date(buf[0]+1900, buf[1]-1, buf[2], buf[3] & 0b00011111, buf[4], buf[5]);
+exports.fromBuffer = function (buf) {
+  if (buf.length != 8) {
+    knxLog.get().warn("DPT19: Buffer should be 8 bytes long, got", buf.length);
+    return null;
+  } else {
+    var d = new Date(buf[0] + 1900, buf[1] - 1, buf[2], buf[3] & 0b00011111, buf[4], buf[5]);
     return d;
   }
 }
 
 exports.basetype = {
-  "bitlength" : 64,
-  "valuetype" : "composite",
-  "desc" : "8-byte Date+Time",
-  "help": 
-`// Setting date/time using DPT 19.001
+  "bitlength": 64,
+  "valuetype": "composite",
+  "desc": "8-byte Date+Time",
+  "help":
+    `// Setting date/time using DPT 19.001
 // This sends both date and time to the KNX BUS
 msg.payload = new Date();
 return msg;`,
-"helplink":"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---DateTime-to-BUS"
+  "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---DateTime-to-BUS"
 }
 
 
 exports.subtypes = {
   // 19.001
-  "001" : {
-      "name" : "Date time", "desc" : "datetime"
+  "001": {
+    "name": "Date time", "desc": "datetime"
   },
 }

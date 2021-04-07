@@ -60,6 +60,7 @@ exports.formatAPDU = function (value) {
 exports.fromBuffer = function (buf) {
     if (buf.length != 2) {
         knxLog.get().warn("DPT9.fromBuffer: buf should be 2 bytes long (got %d bytes)", buf.length);
+        return null;
     } else {
         var sign = buf[0] >> 7;
         var exponent = (buf[0] & 0b01111000) >> 3;
@@ -74,8 +75,8 @@ exports.basetype = {
     "bitlength": 16,
     "valuetype": "basic",
     "desc": "16-bit floating point value",
-    "help": 
-  `// Send 16-bit floating point value.
+    "help":
+        `// Send 16-bit floating point value.
   msg.payload = 25;
   return msg;`
 }

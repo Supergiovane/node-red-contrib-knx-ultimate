@@ -498,7 +498,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                         node.telegramsQueue = []; // 01/10/2020 Supergiovane: clear the telegram queue
                         node.linkStatus = "connected";
                         node.setAllClientsStatus("Connected", "green", "Waiting for telegram.")
-                        console.log ("BANANA CONNECTEDBANANA CONNECTEDBANANA CONNECTEDBANANA CONNECTEDBANANA CONNECTEDBANANA CONNECTED");
+                        console.log("BANANA CONNECTEDBANANA CONNECTEDBANANA CONNECTEDBANANA CONNECTEDBANANA CONNECTEDBANANA CONNECTED");
                         // Start the timer to do initial read.
                         if (node.timerDoInitialRead !== null) clearTimeout(node.timerDoInitialRead);
                         node.timerDoInitialRead = setTimeout(DoInitialReadFromKNXBusOrFile, 3000); // 17/02/2020 Do initial read of all nodes requesting initial read
@@ -994,6 +994,8 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                 return "14.056"; // Watt ?
             } else if (_rawValue.length == 2) {
                 return "9.001";
+            } else if (_rawValue.length == 3) {
+                return "11.001";
             } else if (_rawValue.length == 14) {
                 return "16.001"; // Text ?
             } else {
@@ -1035,8 +1037,15 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
             if (_Rawvalue !== null) {
                 sInputDpt = (_inputDpt === null) ? tryToFigureOutDataPointFromRawValue(_Rawvalue) : _inputDpt;
                 var dpt = dptlib.resolve(sInputDpt);
+
                 if (dpt && _Rawvalue !== null) {
-                    var jsValue = dptlib.fromBuffer(_Rawvalue, dpt)
+                    try {
+                        var jsValue = dptlib.fromBuffer(_Rawvalue, dpt)
+                        if (jsValue === null) RED.log.error("knxUltimate-config: buildInputMessage: received a wrong datagram form KNX BUS, from device ", _srcGA, "Destination", _destGA, "Event", _event, "RawValue", _Rawvalue, "GA's Datapoint", (_inputDpt === null ? "THE ETS FILE HAS NOT BEEN IMPORTED, SO I'M TRYING TO FIGURE OUT WHAT DATAPOINT BELONGS THIS GROUP ADDRESS. DON'T BLAME ME IF I'M WRONG, INSTEAD, IMPORT THE ETS FILE!" : _inputDpt), "Devicename", _devicename, "Topic", _outputtopic);
+                    } catch (error) {
+                        RED.log.error("knxUltimate-config: buildInputMessage: Error returning from DPT decoding, from device ", _srcGA, "Destination", _destGA, "Event", _event, "RawValue", _Rawvalue, "GA's Datapoint", (_inputDpt === null ? "THE ETS FILE HAS NOT BEEN IMPORTED, SO I'M TRYING TO FIGURE OUT WHAT DATAPOINT BELONGS THIS GROUP ADDRESS. DON'T BLAME ME IF I'M WRONG, INSTEAD, IMPORT THE ETS FILE!" : _inputDpt), "Devicename", _devicename, "Topic", _outputtopic);
+                    }
+
                 }
 
                 // Formatting the msg output value

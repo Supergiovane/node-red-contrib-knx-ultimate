@@ -49,7 +49,8 @@ exports.formatAPDU = function (value) {
 exports.fromBuffer = function (buf) {
     //console.log("BANANA BUFF RECEIVE HEX " + buf.toString("hex").toUpperCase())
     if (buf.length != 1) {
-        knxLog.get().error("DP18: Buffer should be 1 byte long");
+        knxLog.get().error("DP18: Buffer should be 1 byte long, got", buf.length);
+        return null;
     } else {
         var sBit = (parseInt(buf.toString("hex").toUpperCase(), 16).toString(2)).padStart(8, '0'); // Get bit from hex
         //console.log("BANANA BUFF RECEIVE BIT " + sBit)

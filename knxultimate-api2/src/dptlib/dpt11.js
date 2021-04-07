@@ -41,8 +41,10 @@ exports.formatAPDU = function (value) {
 }
 
 exports.fromBuffer = function (buf) {
-  if (buf.length != 3) knxLog.get().error("Buffer should be 3 bytes long. Received " + buf.length)
-  else {
+  if (buf.length != 3) {
+    knxLog.get().error("Buffer should be 3 bytes long. Received " + buf.length)
+    return null;
+  } else {
     var day = (buf[0] & 31);      //0b00011111);
     var month = (buf[1] & 15);      //0b00001111);
     var year = (buf[2] & 127);     //0b01111111);
