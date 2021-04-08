@@ -5,10 +5,11 @@
 <br/>
 
 <p>
-<b>Version 1.2.15 and Version 1.2.16</b> - April 2021<br/>
+<b>Version 1.2.18</b> - April 2021<br/>
 - NEW: KNX-Ultimate node can retain it's value after reconnection to KNX bus and even after reboot of node-red.<br/>
 - Update the WIKI to reflect the changes (https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/2.-Node-Configuration).<br/>
 - NEW: begin to prepare KNX-Ultimate to support KNX Secure. Some changes to the underlying API where made.<br/>
+- Done some checks on new datapoints coming from BUS to discard wrong telegrams lenght.<br/>
 </p>
 <p>
 <b>Version 1.2.14</b> - March 2021<br/>
