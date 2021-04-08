@@ -21,6 +21,10 @@ exports.formatAPDU = function(value) {
 
 // Read from BUS
 exports.fromBuffer = function(buf) {
+  if (buf.length != 14) {
+    knxLog.get().error( "DPT6: Buffer should be 14 byte long, got", buf.length );
+    return null;
+  }
   return buf.toString('ascii');
  
 }

@@ -43,7 +43,7 @@ function IpTunnelingConnection (instance, options) {
 
       socket.on('message', function (msg, rinfo, callback) {
         KnxLog.get().debug('Inbound message: %s', msg.toString('hex'))
-        sm.onUdpSocketMessage(msg, rinfo, callback)
+        sm.onUdpSocketMessage(msg, rinfo, callback);
       })
 
       // start connection sequence

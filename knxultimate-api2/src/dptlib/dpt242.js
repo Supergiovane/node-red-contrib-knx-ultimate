@@ -48,7 +48,10 @@ exports.formatAPDU = function (value) {
 }
 
 exports.fromBuffer = function (buf) {
-
+    if (buf.length != 6) {
+        knxLog.get().error("DPT242: Buffer should be 6 bytes long, got", buf.length);
+        return null;
+    }
     let bufTotale = buf.toString('hex');
     //console.log("bufTotale STRINGA: " + bufTotale);
     let x = bufTotale.substring(0, 4);

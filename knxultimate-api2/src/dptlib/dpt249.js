@@ -49,7 +49,10 @@ exports.formatAPDU = function (value) {
 }
 
 exports.fromBuffer = function (buf) {
-
+    if (buf.length != 6) {
+        knxLog.get().error("DPT249: Buffer should be 6 bytes long, got", buf.length);
+        return null;
+    }
     let bufTotale = buf.toString('hex');
     let transitionTime = bufTotale.substring(0, 4);
     let colourTemperature = bufTotale.substring(4, 8);

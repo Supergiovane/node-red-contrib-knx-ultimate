@@ -45,6 +45,10 @@ exports.formatAPDU = function (value) {
 }
 
 exports.fromBuffer = function (buf) {
+    if (buf.length != 6) {
+        knxLog.get().error("DPT251: Buffer should be 6 bytes long, got", buf.length);
+        return null;
+    }
     var valByte = (buf[5]).toString(2); // Get validity bits
     ret = { red: buf[0], green: buf[1], blue: buf[2], white: buf[3], mR: parseInt(valByte[0])|| 0, mG: parseInt(valByte[1])|| 0, mB: parseInt(valByte[2])|| 0, mW: parseInt(valByte[3])|| 0 }
     return ret;

@@ -850,6 +850,7 @@ KnxProtocol.define('KNXNetHeader', {
           throw util.format('Incomplete KNXNet packet: got %d bytes (expected %d)',
             this.buffer.length + hdr.header_length, this.total_length)
         }
+        
         switch (hdr.service_type) {
           //        case SERVICE_TYPE.SEARCH_REQUEST:
           case KnxConstants.SERVICE_TYPE.CONNECT_REQUEST: {

@@ -18,9 +18,11 @@ const KnxNetProtocol = require('./KnxProtocol');
 // bind incoming UDP packet handler
 FSM.prototype.onUdpSocketMessage = function (msg, rinfo, callback) {
   // get the incoming packet's service type ...
+
+  
   try {
     var reader = KnxNetProtocol.createReader(msg);
-    reader.KNXNetHeader('tmp');
+    reader.KNXNetHeader('tmp'); // Questo da l'orrore errore nel KnxProtocol alla riga 374,43 con il fake msg banana
     var dg = reader.next()['tmp'];
     var descr = this.datagramDesc(dg);
     KnxLog.get().trace('(%s): Received %s message: %j', this.compositeState(), descr, dg);
@@ -58,6 +60,7 @@ FSM.prototype.onUdpSocketMessage = function (msg, rinfo, callback) {
     KnxLog.get().debug('(%s): Incomplete/unparseable UDP packet: %s: %s',
       this.compositeState(), err, msg.toString('hex')
     );
+    
   }
 };
 
@@ -88,7 +91,7 @@ FSM.prototype.AddCRI = function (datagram) {
 FSM.prototype.AddCEMI = function (datagram, msgcode) {
 
   var sendAck = ((msgcode || 0x11) == 0x11) && !this.options.suppress_ack_ldatareq; // only for L_Data.req
-  
+
   datagram.cemi = {
     msgcode: msgcode || 0x11, // default: L_Data.req for tunneling
     ctrl: {

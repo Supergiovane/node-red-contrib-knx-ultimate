@@ -17,6 +17,10 @@ exports.formatAPDU = function(value) {
 }
 
 exports.fromBuffer = function(buf) {
+    if (buf.length != 1) {
+        knxLog.get().error("DPT238: Buffer should be 1 byte long, got", buf.length);
+        return null;
+    }
 	ret = buf[0];
     return ret;
 }

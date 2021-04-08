@@ -31,6 +31,7 @@ const states = {
     '*': function () {
       // Set this.isConnected
       this.isConnected = false
+      this.isTunnelConnected = false;
 
       // try to connect
       this.transition('connecting')
@@ -198,7 +199,8 @@ const states = {
 
       // Set this.isConnected
       this.isConnected = true
-
+      this.isTunnelConnected = true; // 02/10/2020 Supergiovane: signal that the tunnel is up
+      
       /* important note: the sequence counter is SEPARATE for incoming and
         outgoing datagrams. We only keep track of the OUTGOING L_Data.req
         and we simply acknowledge the incoming datagrams with their own seqnum */
@@ -207,7 +209,7 @@ const states = {
       this.transition('idle')
       this.emit('connected');
       this.startTimerConnectioRequest(true); // 24/05/2020 Supergiovane
-      this.isTunnelConnected = true; // 02/10/2020 Supergiovane: signal that the tunnel is up
+      
 
     }
   },
@@ -553,6 +555,7 @@ const initialize = function (options) {
   this.sentTunnRequests = {}
   this.disconnectCalled = false
   this.isConnected = false
+  this.isTunnelConnected = false; // 08/04/2021 Supergiovane: signal that the tunnel is up or down
   this.useTunneling = options.forceTunneling || false
   this.localEchoInTunneling = typeof options.localEchoInTunneling !== "undefined" ? options.localEchoInTunneling : true; // 24/03/2021 Supergiovane (local echo of emitEvent if in tunneling mode)
 

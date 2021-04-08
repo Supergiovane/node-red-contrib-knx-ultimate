@@ -18,6 +18,15 @@ const DEFAULT_READ_GROUPVAL_TIMEOUT = 3000
 const onUdpSocketMessage = function (msg /*, rinfo, callback */) {
   // get the incoming packet's service type ...
 
+  // if (msg.toString("hex").endsWith("8000")) {
+  //   console.log("BANANA VERO MSG", msg.toString("hex"));
+  //   //0610053000102900b050c703230000ca
+  //   msg = Buffer.from("0610053000102900b050c703230000ca", "hex");
+  //   console.log("BANANA FAKE MSG", msg.toString("hex"));
+  //   // DISCONNECT_RESPONSE:  0x020a,
+  //   var pera =true;
+  // }
+
   try {
     let reader = KnxNetProtocol.createReader(msg)
     let dg
@@ -31,7 +40,7 @@ const onUdpSocketMessage = function (msg /*, rinfo, callback */) {
     /* Catch broken messages       */
     if (dg) {
       /*******************************/
-
+      // if (pera === true) console.log ("BANANA OCCHIO PERA TRUE",msg.toString("hex"),dg)
       const descr = this.datagramDesc(dg)
 
       KnxLog.get().trace('(%s): Received %s message: %j', this.compositeState(), descr, dg)
@@ -78,7 +87,7 @@ const onUdpSocketMessage = function (msg /*, rinfo, callback */) {
     console.trace(err)
     KnxLog.get().debug('(%s): Incomplete/unparseable UDP packet: %s: %s',
       this.compositeState(), err, msg.toString()
-    )
+    );
   }
 }
 
@@ -241,7 +250,7 @@ const send = function (datagram, callback) {
 }
 
 const write = function (grpaddr, value, dptid, callback) {
-  if (this.useTunneling && !this.isConnected) {
+  if (this.useTunneling && !this.isTunnelConnected) {
     KnxLog.get().warn('Tunnel is down. Datagram not sent.');
     return; // 02/10/2020 Supergiovane: if in tunnel mode and is not connected, exit
   }
@@ -261,7 +270,7 @@ const write = function (grpaddr, value, dptid, callback) {
 }
 
 const respond = function (grpaddr, value, dptid) {
-  if (this.useTunneling && !this.isConnected) {
+  if (this.useTunneling && !this.isTunnelConnected) {
     KnxLog.get().warn('Tunnel is down. Datagram not sent.');
     return; // 02/10/2020 Supergiovane: if in tunnel mode and is not connected, exit
   }
@@ -282,7 +291,7 @@ const respond = function (grpaddr, value, dptid) {
 }
 
 const writeRaw = function (grpaddr, value, bitlength, callback) {
-  if (this.useTunneling && !this.isConnected) {
+  if (this.useTunneling && !this.isTunnelConnected) {
     KnxLog.get().warn('Tunnel is down. Datagram not sent.');
     return; // 02/10/2020 Supergiovane: if in tunnel mode and is not connected, exit
   }
@@ -308,6 +317,11 @@ const writeRaw = function (grpaddr, value, bitlength, callback) {
 // send a READ request to the bus
 // you can pass a callback function which gets bound to the RESPONSE datagram event
 const read = function (grpaddr, callback) {
+  if (this.useTunneling && this.isTunnelConnected === false) {
+    // console.log("BANANA exit FSM.prototype.write Tunnel down");
+    return; // 02/10/2020 Supergiovane: if in tunnel mode and is not connected, exit
+  }
+
   if (typeof callback === 'function') {
     const conn = this
 
@@ -372,7 +386,9 @@ const datagramDesc = function (dg) {
 const AddHPAI = function (datagram) {
   datagram.hpai = {
     protocol_type: 1, // UDP
-    tunnel_endpoint: this.localAddress + ':' + this.localPort
+    // 05/12/2020 Removed and ripristinated '0.0.0.0:0' due to connection lost with KNXD 
+    //tunnel_endpoint: this.localAddress + ':' + this.localPort // 29/12/2020 Supergiovane added on tips https://bitbucket.org/ekarak/knx.js/issues/76/knx-virtual-is-crashed-right-after 
+    tunnel_endpoint: "0.0.0.0:0"
   }
 }
 
@@ -380,7 +396,9 @@ const AddHPAI = function (datagram) {
 const AddTunn = function (datagram) {
   datagram.tunn = {
     protocol_type: 1, // UDP
-    tunnel_endpoint: this.localAddress + ':' + this.localPort
+    // 05/12/2020 Removed and ripristinated '0.0.0.0:0' due to connection lost with KNXD 
+    //tunnel_endpoint: this.localAddress + ':' + this.localPort // 29/12/2020 Supergiovane added on tips https://bitbucket.org/ekarak/knx.js/issues/76/knx-virtual-is-crashed-right-after 
+    tunnel_endpoint: "0.0.0.0:0"
   }
 }
 
@@ -416,7 +434,6 @@ const Connection = function (options) {
 
   // boot up the KNX connection unless told otherwise
   if (!options.manualConnect) conn.Connect()
-
   return (conn)
 }
 
