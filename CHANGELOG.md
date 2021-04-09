@@ -6,7 +6,7 @@
 
 <p>
 <b>Version 1.2.19</b> - April 2021<br/>
-- NEW: Silent Mode for log. You can now chose to totally avoid logging. This is useful for reducing I/O access to the disk. Thank to @Webbeh for the request.<br/>
+- NEW: Silent Mode for log. You can now chose to totally avoid logging, thanks to the new logging engine. This is useful for reducing I/O access to the disk. Thank to @Webbeh for the request.<br/>
 </p>
 <p>
 <b>Version 1.2.18</b> - April 2021<br/>
