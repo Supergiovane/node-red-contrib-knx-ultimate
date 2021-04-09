@@ -3,6 +3,7 @@
 * (C) 2020-2022 Supergiovane
 */
 const util = require('util');
+const possibleLEvels = ['silent', 'error', 'warn', 'info', 'debug', 'trace'];
 var logger;
 
 module.exports = {
@@ -11,6 +12,7 @@ module.exports = {
       lvl = (options && options.debug && 'debug') ||
         (options && options.loglevel) ||
         'error';
+      if (!possibleLEvels.includes(lvl)) lvl = "error";
       //console.trace('new logger, level='+lvl);
       logger = require('log-driver')({
         level: lvl,

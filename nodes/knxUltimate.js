@@ -29,7 +29,9 @@ module.exports = function (RED) {
         node.passthrough = (typeof config.passthrough === "undefined" ? "no" : config.passthrough);
         node.inputmessage = {}; // Stores the input message to be passed through
         node.timerTTLInputMessage = null; // The stored node.inputmessage has a ttl.
+        node.sysLogger = require("./utils/sysLogger.js").get({ loglevel: node.server.loglevel || "error"}); // 08/04/2021 new logger to adhere to the loglevel selected in the config-window
 
+        
         // Used to call the status update from the config node.
         node.setNodeStatus = ({ fill, shape, text, payload, GA, dpt, devicename }) => {
             if (node.server == null) { node.status({ fill: "red", shape: "dot", text: "[NO GATEWAY SELECTED]" }); return; }
@@ -93,12 +95,12 @@ module.exports = function (RED) {
             if (msg.hasOwnProperty("setConfig")) {
                 if (msg.setConfig.hasOwnProperty("setDPT")) {
                     node.dpt = msg.setConfig.setDPT;
-                    RED.log.info("knxUltimate: new datapoint set by msg: " + node.dpt);
+                    if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("knxUltimate: new datapoint set by msg: " + node.dpt);
                     node.setNodeStatus({ fill: 'grey', shape: 'ring', text: "Datapoint changed to " + node.dpt });
                 };
                 if (msg.setConfig.hasOwnProperty("setGroupAddress")) {
                     node.topic = msg.setConfig.setGroupAddress;
-                    RED.log.info("knxUltimate: new GroupAddress set by msg: " + node.topic);
+                    if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("knxUltimate: new GroupAddress set by msg: " + node.topic);
                     node.setNodeStatus({ fill: 'grey', shape: 'ring', text: "GroupAddress changed to " + node.topic });
                 };
             };
@@ -123,7 +125,7 @@ module.exports = function (RED) {
                     // 29/12/2020 Protection over circular references (for example, if you link two Ultimate Nodes toghether with the same group address), to prevent infinite loops
                     if (msg.hasOwnProperty('knx')) {
                         if (msg.knx.destination == grpaddr && ((msg.knx.event === "GroupValue_Response" || msg.knx.event === "GroupValue_Read"))) {
-                            RED.log.error("knxUltimate: Circular reference protection during READ. The node " + node.id + " has been temporary disabled. Two nodes with same group address and reaction/output type are linked. See the FAQ in the Wiki. Msg:" + JSON.stringify(msg));
+                            if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("knxUltimate: Circular reference protection during READ. The node " + node.id + " has been temporary disabled. Two nodes with same group address and reaction/output type are linked. See the FAQ in the Wiki. Msg:" + JSON.stringify(msg));
                             setTimeout(() => {
                                 node.setNodeStatus({ fill: "red", shape: "ring", text: "DISABLED due to a circulare reference while READ (" + grpaddr + ").", payload: "", GA: "", dpt: "", devicename: "" })
                             }, 1000);
@@ -139,7 +141,7 @@ module.exports = function (RED) {
                         // 29/12/2020 Protection over circular references (for example, if you link two Ultimate Nodes toghether with the same group address), to prevent infinite loops
                         if (msg.hasOwnProperty("knx")) {
                             if (msg.knx.destination == grpaddr && ((msg.knx.event === "GroupValue_Response" || msg.knx.event === "GroupValue_Read"))) {
-                                RED.log.error("knxUltimate: Circular reference protection during READ-2. The node " + node.id + " has been temporary disabled. Two nodes with same group address and reaction/output type are linked. See the FAQ in the Wiki. Msg:" + JSON.stringify(msg));
+                                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("knxUltimate: Circular reference protection during READ-2. The node " + node.id + " has been temporary disabled. Two nodes with same group address and reaction/output type are linked. See the FAQ in the Wiki. Msg:" + JSON.stringify(msg));
                                 setTimeout(() => {
                                     node.setNodeStatus({ fill: "red", shape: "ring", text: "DISABLED due to a circulare reference while READ-2 (" + grpaddr + ").", payload: "", GA: "", dpt: "", devicename: "" })
                                 }, 1000);
@@ -158,7 +160,7 @@ module.exports = function (RED) {
                                 // 29/12/2020 Protection over circular references (for example, if you link two Ultimate Nodes toghether with the same group address), to prevent infinite loops
                                 if (msg.hasOwnProperty('knx')) {
                                     if (msg.knx.destination == grpaddr && ((msg.knx.event === "GroupValue_Response" || msg.knx.event === "GroupValue_Read"))) {
-                                        RED.log.error("knxUltimate: Circular reference protection during READ-3. Node " + node.id + " The read request hasn't been sent. Two nodes with same group address and reaction/output type are linked. See the FAQ in the Wiki. Msg:" + JSON.stringify(msg));
+                                        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("knxUltimate: Circular reference protection during READ-3. Node " + node.id + " The read request hasn't been sent. Two nodes with same group address and reaction/output type are linked. See the FAQ in the Wiki. Msg:" + JSON.stringify(msg));
                                         node.setNodeStatus({ fill: "red", shape: "ring", text: "NOT SENT due to a circulare reference while READ-3 (" + grpaddr + ").", payload: "", GA: "", dpt: "", devicename: "" })
                                     }
                                 } else {
@@ -175,7 +177,7 @@ module.exports = function (RED) {
                             setTimeout(() => {
                                 // Timeout is only for the status update.
                                 node.setNodeStatus({ fill: "red", shape: "dot", text: "Read: ETS file not set, i don't know where to send the read request.", payload: "", GA: "", dpt: "", devicename: node.name });
-                                RED.log.error("KNX-Ultimate: ETS file not set, i don't know where to send the read request. I'm the node " + node.id);
+                                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("KNX-Ultimate: ETS file not set, i don't know where to send the read request. I'm the node " + node.id);
                             }, 100);
                         }
                     }
@@ -198,7 +200,7 @@ module.exports = function (RED) {
                         if (node.icountMessageInWindow >= 120) {
                             // Looping detected
                             node.setNodeStatus({ fill: "red", shape: "ring", text: "DISABLED! Flood protection! Too many msg at the same time.", payload: "", GA: "", dpt: "", devicename: "" })
-                            RED.log.error("knxUltimate: Node " + node.id + " has been disabled due to Flood Protection. Too many messages in a timeframe. Check your flow's design or use RBE option.");
+                            if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("knxUltimate: Node " + node.id + " has been disabled due to Flood Protection. Too many messages in a timeframe. Check your flow's design or use RBE option.");
                             node.icountMessageInWindow = -999; //Lock out node
                             return;
                         } else { node.icountMessageInWindow = -1; }
@@ -241,12 +243,12 @@ module.exports = function (RED) {
                                         dpt = oGA.dpt
                                     } else {
                                         node.setNodeStatus({ fill: "red", shape: "dot", text: "msg.dpt not set and not found in the CSV!", payload: "", GA: "", dpt: "", devicename: "" })
-                                        RED.log.error("knxUltimate: node id: " + node.id + " " + "msg.dpt not set and not found in the CSV!");
+                                        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("knxUltimate: node id: " + node.id + " " + "msg.dpt not set and not found in the CSV!");
                                         return;
                                     }
                                 } else {
                                     node.setNodeStatus({ fill: "red", shape: "dot", text: "msg.dpt not set and there's no CSV to search for!", payload: "", GA: "", dpt: "", devicename: "" })
-                                    RED.log.error("knxUltimate: node id: " + node.id + " " + "msg.dpt not set and there's no CSV to search for!");
+                                    if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("knxUltimate: node id: " + node.id + " " + "msg.dpt not set and there's no CSV to search for!");
                                     return;
                                 }
                             }
@@ -260,7 +262,7 @@ module.exports = function (RED) {
                     if (msg.hasOwnProperty('knx')) {
 
                         if (msg.knx.destination == grpaddr && ((msg.knx.event === "GroupValue_Write" && outputtype === "write") || (msg.knx.event === "GroupValue_Response" && outputtype === "response") || (msg.knx.event === "GroupValue_Response" && outputtype === "read") || (msg.knx.event === "GroupValue_Read" && outputtype === "read"))) {
-                            RED.log.error("knxUltimate: Circular reference protection. The node " + node.id + " has been temporarely disabled. Two nodes with same group address and reaction/output type are linked. See the FAQ in the Wiki. Msg:" + JSON.stringify(msg));
+                            if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("knxUltimate: Circular reference protection. The node " + node.id + " has been temporarely disabled. Two nodes with same group address and reaction/output type are linked. See the FAQ in the Wiki. Msg:" + JSON.stringify(msg));
                             setTimeout(() => {
                                 node.setNodeStatus({ fill: "red", shape: "ring", text: "DISABLED due to a circulare reference (" + grpaddr + ").", payload: "", GA: "", dpt: "", devicename: "" })
                             }, 1000);

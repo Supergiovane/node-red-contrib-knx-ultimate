@@ -23,6 +23,7 @@
             "log_level": "Loglevel",
             "nodes_list_title": "Liste aller KNX-Ultimate Nodes in allen Flows",
             "nodes_list_help": "Hier ist eine Liste aller konfigurierten KNX-Ultimate Nodes.",
+            "select_silent": "Stumm (Kein log)",
             "select_trace": "Trace",
             "select_debug": "Debug",
             "select_info": "Information",

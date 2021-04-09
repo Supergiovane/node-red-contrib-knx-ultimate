@@ -57,7 +57,7 @@ module.exports = function (RED) {
         node.exposeAsVariable = config.exposeAsVariable !== undefined ? config.exposeAsVariable : "exposeAsVariableREADONLY"; // Should expose the Group Addresses to the Global Variable?
         node.exposedGAs = [];
         node.timerExposedGAs = null;
-
+        
         // Used to call the status update from the config node.
         node.setNodeStatus = ({ fill, shape, text, payload, GA, dpt, devicename }) => {
             if (node.server == null) { node.status({ fill: "red", shape: "dot", text: "[NO GATEWAY SELECTED]" }); return; }

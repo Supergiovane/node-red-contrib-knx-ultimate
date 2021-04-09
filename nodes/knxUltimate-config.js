@@ -7,6 +7,8 @@ const net = require("net");
 const _ = require("lodash");
 const path = require("path");
 var fs = require('fs');
+//onst systemLogger = require("./utils/sysLogger.js");
+
 
 //Helpers
 sortBy = (field) => (a, b) => {
@@ -71,7 +73,7 @@ module.exports = (RED) => {
         //     const element = dpts[index];
         //     stringa += element.text + "<br/>\n";
         // }
-        // RED.log.warn(stringa)
+        // if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.warn(stringa)
     });
 
     // 15/09/2020 Supergiovane, read datapoint help usage
@@ -134,6 +136,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
         node.exposedGAs = [];
         node.timerRiavviaDopoInstanziazione = null;
         node.tempDiscoTimer = null;
+        node.sysLogger = require("./utils/sysLogger.js").get({ loglevel: node.loglevel }); // 08/04/2021 new logger to adhere to the loglevel selected in the config-window
 
         // 04/04/2021 Supergiovane, creates the service paths where the persistent files are created.
         // The values file is stored only upon disconnection/close
@@ -151,12 +154,12 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
             }
         }
         if (!setupDirectory(node.userDir)) {
-            RED.log.error('KNX-Ultimate-config: Unable to set up MAIN directory: ' + node.userDir);
+            if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error('KNXUltimate-config: Unable to set up MAIN directory: ' + node.userDir);
         }
         if (!setupDirectory(path.join(node.userDir, "knxpersistvalues"))) {
-            RED.log.error('KNX-Ultimate-config: Unable to set up cache directory: ' + path.join(node.userDir, "knxpersistvalues"));
+            if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error('KNXUltimate-config: Unable to set up cache directory: ' + path.join(node.userDir, "knxpersistvalues"));
         } else {
-            RED.log.info('KNX-Ultimate-config: payload cache set to ' + path.join(node.userDir, "knxpersistvalues"));
+            if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info('KNXUltimate-config: payload cache set to ' + path.join(node.userDir, "knxpersistvalues"));
         }
 
         function saveExposedGAs() {
@@ -165,14 +168,14 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                     fs.writeFileSync(path.join(node.userDir, "knxpersistvalues", "knxpersist.json"), JSON.stringify(node.exposedGAs))
                 }
             } catch (err) {
-                RED.log.info('KNX-Ultimate-config: unable to write peristent values to the file ' + path.join(node.userDir, "knxpersistvalues") + " " + err.message);
+                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info('KNXUltimate-config: unable to write peristent values to the file ' + path.join(node.userDir, "knxpersistvalues") + " " + err.message);
             }
         }
         function loadExposedGAs() {
             try {
                 node.exposedGAs = JSON.parse(fs.readFileSync(path.join(node.userDir, "knxpersistvalues", "knxpersist.json"), 'utf8'));
             } catch (err) {
-                RED.log.error('KNX-Ultimate-config: unable to write peristent values to the file ' + path.join(node.userDir, "knxpersistvalues") + " " + err.message);
+                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error('KNXUltimate-config: unable to write peristent values to the file ' + path.join(node.userDir, "knxpersistvalues") + " " + err.message);
             }
         }
 
@@ -186,7 +189,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
             } else {
                 // Get the first knxultimate-config having a valid csv
                 try {
-                    RED.log.info("knxUltimate-config: Requested csv maybe from visu-ultimate?");
+                    if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("KNXUltimate-config: Requested csv maybe from visu-ultimate?");
                     RED.nodes.eachNode(function (_node) {
                         if (_node.hasOwnProperty("csv") && _node.type == "knxUltimate-config" && _node.csv !== "") {
                             res.json(RED.nodes.getNode(_node.id).csv);
@@ -232,7 +235,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
             var sName = "";
             var sNodeID = "";
             try {
-                RED.log.info("KNXUltimate-config: Total knx-ultimate nodes: " + _node.nodeClients.length || 0);
+                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("KNXUltimate-config: Total knx-ultimate nodes: " + _node.nodeClients.length || 0);
                 _node.nodeClients
                     //.map( a => a.topic.indexOf("/") !== -1 ? a.topic.split('/').map( n => +n+100000 ).join('/'):0 ).sort().map( a => a.topic.indexOf("/") !== -1 ? a.topic.split('/').map( n => +n-100000 ).join('/'):0 )
                     .sort((a, b) => {
@@ -279,7 +282,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                     });
                 res.json(sNodes)
             } catch (error) {
-                RED.log.warn("D " + error)
+                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.warn("D " + error)
             }
         });
 
@@ -358,11 +361,11 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
 
         node.removeClient = (_Node) => {
             // Remove the client node from the clients array
-            //RED.log.info( "BEFORE Node " + _Node.id + " has been unsubscribed from receiving KNX messages. " + node.nodeClients.length);
+            //if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info( "BEFORE Node " + _Node.id + " has been unsubscribed from receiving KNX messages. " + node.nodeClients.length);
             try {
                 node.nodeClients = node.nodeClients.filter(x => x.id !== _Node.id)
             } catch (error) { }
-            //RED.log.info("AFTER Node " + _Node.id + " has been unsubscribed from receiving KNX messages. " + node.nodeClients.length);
+            //if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("AFTER Node " + _Node.id + " has been unsubscribed from receiving KNX messages. " + node.nodeClients.length);
 
             // If no clien nodes, disconnect from bus.
             if (node.nodeClients.length === 0) {
@@ -376,10 +379,10 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
             if (node.linkStatus !== "connected") return; // 29/08/2019 If not connected, exit
             loadExposedGAs(); // 04/04/2021 load the current values of GA payload
             try {
-                RED.log.info("KNXUltimate-config: Loaded saved GA values", node.exposedGAs.length);
+                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("KNXUltimate-config: Loaded saved GA values", node.exposedGAs.length);
             } catch (error) {
             }
-            RED.log.info("KNXUltimate-config: Do DoInitialReadFromKNXBusOrFile");
+            if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("KNXUltimate-config: Do DoInitialReadFromKNXBusOrFile");
             try {
                 var readHistory = [];
                 node.nodeClients
@@ -453,7 +456,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
             if (typeof _iPort !== "undefined" && _iPort !== 0) node.port = _iPort;
             if (typeof _sPhysicalAddress !== "undefined" && _sPhysicalAddress !== "") node.physAddr = _sPhysicalAddress;
             if (typeof _sBindToEthernetInterface !== "undefined") node.KNXEthInterface = _sBindToEthernetInterface;
-            RED.log.info("Node's main config setting has been changed. New config: IP " + node.host + " Port " + node.port + " PhysicalAddress " + node.physAddr + " BindToInterface " + node.KNXEthInterface);
+            if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("Node's main config setting has been changed. New config: IP " + node.host + " Port " + node.port + " PhysicalAddress " + node.physAddr + " BindToInterface " + node.KNXEthInterface);
             if (node.knxConnection) {
                 try {
                     node.Disconnect();
@@ -502,11 +505,13 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                         // Start the timer to do initial read.
                         if (node.timerDoInitialRead !== null) clearTimeout(node.timerDoInitialRead);
                         node.timerDoInitialRead = setTimeout(DoInitialReadFromKNXBusOrFile, 3000); // 17/02/2020 Do initial read of all nodes requesting initial read
+                        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.debug("knxUltimate-config: Connected.");
                     },
                     disconnected: function () {
                         node.setAllClientsStatus("Disconnected", "grey", "");
                         node.linkStatus = "disconnected";
                         saveExposedGAs(); // 04/04/2021 save the current values of GA payload
+                        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.warn("knxUltimate-config: Disconnected.");
                     },
                     // This will be called when the connection to the KNX interface failed
                     connFailCb: function () {
@@ -516,12 +521,13 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                         node.setAllClientsStatus("connFailCb", "grey", "");
                         node.linkStatus = "disconnected";
                         saveExposedGAs(); // 04/04/2021 save the current values of GA payload
+                        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.warn("knxUltimate-config: connFailCb, Disconnected.");
                     },
                     // This will be called when the connection to the KNX interface failed because it ran out of connections
                     outOfConnectionsCb: function () {
                         //console.log('[Even cooler callback function] The KNX-IP Interface reached its connection limit!')
                         setTimeout(() => node.setAllClientsStatus("outOfConnectionsCb", "red", "No more avaiable tunnels in the interface."), 1000);
-                        RED.log.error("knxUltimate-config: Error on KNX BUS. No more avaiable tunnels.");
+                        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.warn("knxUltimate-config: Error on KNX BUS. No more avaiable tunnels.");
                     },
                     // This will be called when the KNX interface failed to acknowledge a message in time
                     waitAckTimeoutCb: function () {
@@ -550,20 +556,20 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
 
                         if (connstatus == "E_KNX_CONNECTION") {
                             setTimeout(() => node.setAllClientsStatus(connstatus, "grey", "Error on KNX BUS. Check KNX red/black connector and cable."), 1000)
-                            RED.log.error("knxUltimate-config: Bind KNX Bus to interface error: " + connstatus);
+                            if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("knxUltimate-config: Bind KNX Bus to interface error: " + connstatus);
                         } else if (connstatus == "E_NO_MORE_CONNECTIONS") {
                             //setTimeout(() => node.setAllClientsStatus(connstatus, "grey", "Error on KNX BUS. No more avaiable tunnels."), 1000);
-                            //RED.log.error("knxUltimate-config: Error on KNX BUS. No more avaiable tunnels: " + connstatus);
+                            //if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("knxUltimate-config: Error on KNX BUS. No more avaiable tunnels: " + connstatus);
                         } else if (connstatus == "timed out waiting for CONNECTIONSTATE_RESPONSE") {
                             // The KNX/IP Interface is not responding to connection state request.
                             // It can be normal, if it's not strictly adhering to knx standards.
-                            RED.log.warn("knxUltimate-config: knxConnection warning: " + connstatus);
+                            if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.warn("knxUltimate-config: knxConnection warning: " + connstatus);
                         } else if (connstatus == "E_CONNECTION_ID") {
-                            //RED.log.warn("BANANA RED :" +  connstatus);
+                            //if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.warn("BANANA RED :" +  connstatus);
 
                         } else {
                             setTimeout(() => node.setAllClientsStatus(connstatus, "grey", "Error"), 2000)
-                            RED.log.error("knxUltimate-config: knxConnection error: " + connstatus);
+                            if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("knxUltimate-config: knxConnection error: " + connstatus);
                         }
 
                     },
@@ -578,14 +584,14 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                 var sIfaceName = "";
                 if (node.KNXEthInterface === "Manual") {
                     sIfaceName = node.KNXEthInterfaceManuallyInput;
-                    RED.log.info("KNXUltimate-config: Bind KNX Bus to interface : " + sIfaceName + " (Interface's name entered by hand). Node " + node.name);
+                    if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("KNXUltimate-config: Bind KNX Bus to interface : " + sIfaceName + " (Interface's name entered by hand). Node " + node.name);
                 } else {
                     sIfaceName = node.KNXEthInterface;
-                    RED.log.info("KNXUltimate-config: Bind KNX Bus to interface : " + sIfaceName + " (Interface's name selected from dropdown list). Node " + node.name);
+                    if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("KNXUltimate-config: Bind KNX Bus to interface : " + sIfaceName + " (Interface's name selected from dropdown list). Node " + node.name);
                 }
                 knxConnectionProperties.interface = sIfaceName;
             } else {
-                RED.log.info("KNXUltimate-config: Bind KNX Bus to interface (Auto). Node " + node.name);
+                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("KNXUltimate-config: Bind KNX Bus to interface (Auto). Node " + node.name);
             }
             try {
                 // 01/12/2020 Test if the IP is a valid one
@@ -604,7 +610,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                 }
                 node.knxConnection = knx.Connection(knxConnectionProperties);
             } catch (error) {
-                RED.log.error("KNXUltimate-config: Error in instantiating knxConnection " + error + ". Node " + node.name);
+                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("KNXUltimate-config: Error in instantiating knxConnection " + error + ". Node " + node.name);
                 node.linkStatus = "disconnected";
                 setTimeout(() => node.setAllClientsStatus("Error in instantiating knxConnection " + error, "red", "Error"), 1000);
                 if (node.timerRiavviaDopoInstanziazione != null) clearTimeout(node.timerRiavviaDopoInstanziazione);
@@ -1015,7 +1021,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                         if (typeof dpt !== "undefined") {
                             var jsValue = dptlib.fromBuffer(_rawValue, dpt)
                             if (typeof jsValue !== "undefined") {
-                                //RED.log.info("Trying for " + dest + ". FOUND " + element.value);
+                                //if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("Trying for " + dest + ". FOUND " + element.value);
                                 return element.value;
                             }
                         }
@@ -1041,9 +1047,9 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                 if (dpt && _Rawvalue !== null) {
                     try {
                         var jsValue = dptlib.fromBuffer(_Rawvalue, dpt)
-                        if (jsValue === null) RED.log.error("knxUltimate-config: buildInputMessage: received a wrong datagram form KNX BUS, from device " + _srcGA + " Destination " + _destGA + " Event " + _event + " RawValue " + _Rawvalue + " GA's Datapoint " + (_inputDpt === null ? "THE ETS FILE HAS NOT BEEN IMPORTED, SO I'M TRYING TO FIGURE OUT WHAT DATAPOINT BELONGS THIS GROUP ADDRESS. DON'T BLAME ME IF I'M WRONG, INSTEAD, IMPORT THE ETS FILE!" : _inputDpt) + " Devicename " + _devicename + " Topic " + _outputtopic);
+                        if (jsValue === null) if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("knxUltimate-config: buildInputMessage: received a wrong datagram form KNX BUS, from device " + _srcGA + " Destination " + _destGA + " Event " + _event + " RawValue " + _Rawvalue + " GA's Datapoint " + (_inputDpt === null ? "THE ETS FILE HAS NOT BEEN IMPORTED, SO I'M TRYING TO FIGURE OUT WHAT DATAPOINT BELONGS THIS GROUP ADDRESS. DON'T BLAME ME IF I'M WRONG, INSTEAD, IMPORT THE ETS FILE!" : _inputDpt) + " Devicename " + _devicename + " Topic " + _outputtopic);
                     } catch (error) {
-                        RED.log.error("knxUltimate-config: buildInputMessage: Error returning from DPT decoding. Device " + _srcGA + " Destination " + _destGA + " Event " + _event + " RawValue " + _Rawvalue + " GA's Datapoint " + (_inputDpt === null ? "THE ETS FILE HAS NOT BEEN IMPORTED, SO I'M TRYING TO FIGURE OUT WHAT DATAPOINT BELONGS THIS GROUP ADDRESS. DON'T BLAME ME IF I'M WRONG, INSTEAD, IMPORT THE ETS FILE!" : _inputDpt) + " Devicename " + _devicename + " Topic " + _outputtopic);
+                        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("knxUltimate-config: buildInputMessage: Error returning from DPT decoding. Device " + _srcGA + " Destination " + _destGA + " Event " + _event + " RawValue " + _Rawvalue + " GA's Datapoint " + (_inputDpt === null ? "THE ETS FILE HAS NOT BEEN IMPORTED, SO I'M TRYING TO FIGURE OUT WHAT DATAPOINT BELONGS THIS GROUP ADDRESS. DON'T BLAME ME IF I'M WRONG, INSTEAD, IMPORT THE ETS FILE!" : _inputDpt) + " Devicename " + _devicename + " Topic " + _outputtopic);
                     }
 
                 }
@@ -1103,7 +1109,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                     }
                 };
             } catch (error) {
-                RED.log.error("knxUltimate-config: buildInputMessage error: " + error.message);
+                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("knxUltimate-config: buildInputMessage error: " + error.message);
             }
 
         };
@@ -1112,6 +1118,10 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
         node.on("close", function () {
             if (node.timerSendTelegramFromQueue !== undefined) clearInterval(node.timerSendTelegramFromQueue); // 02/01/2020 Stop queue timer
             saveExposedGAs(); // 04/04/2021 save the current values of GA payload
+            try {
+                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.destroy();
+            } catch (error) { }
+
             node.Disconnect();
         })
 
@@ -1122,10 +1132,10 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
             var ajsonOutput = new Array(); // Array: qui va l'output totale con i nodi per node-red
 
             if (_csvText == "") {
-                RED.log.info('KNXUltimate-config: no csv ETS found');
+                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info('KNXUltimate-config: no csv ETS found');
                 return;
             } else {
-                RED.log.info('KNXUltimate-config: csv ETS found !');
+                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info('KNXUltimate-config: csv ETS found !');
                 // 23/08/2019 Delete inwanted CRLF in the GA description
                 let sTemp = correctCRLFInCSV(_csvText);
 
@@ -1133,7 +1143,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                 let fileGA = sTemp.split("\n");
                 // Controllo se le righe dei gruppi contengono il separatore di tabulazione
                 if (fileGA[0].search("\t") == -1) {
-                    RED.log.error('KNXUltimate-config: ERROR: the csv ETS file must have the tabulation as separator')
+                    if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error('KNXUltimate-config: ERROR: the csv ETS file must have the tabulation as separator')
                     return;
                 }
 
@@ -1163,21 +1173,21 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                             // Ho trovato una riga contenente un GA valido, cioè con 2 "/"
                             if (element.split("\t")[5] == "") {
                                 if (node.stopETSImportIfNoDatapoint === "stop") {
-                                    RED.log.error("KNXUltimate-config: ABORT IMPORT OF ETS CSV FILE. To skip the invalid datapoint and continue import, change the related setting, located in the config node in the ETS import section.");
+                                    if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("KNXUltimate-config: ABORT IMPORT OF ETS CSV FILE. To skip the invalid datapoint and continue import, change the related setting, located in the config node in the ETS import section.");
                                     return;
                                 } if (node.stopETSImportIfNoDatapoint === "fake") {
                                     // 02/03/2020 Whould you like to continue without datapoint? Good. Here a totally fake datapoint
-                                    RED.log.warn("KNXUltimate-config: WARNING IMPORT OF ETS CSV FILE. Datapoint not set. You choosed to continue import with a fake datapoint 1.001. -> " + element.split("\t")[0] + " " + element.split("\t")[1]);
+                                    if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.warn("KNXUltimate-config: WARNING IMPORT OF ETS CSV FILE. Datapoint not set. You choosed to continue import with a fake datapoint 1.001. -> " + element.split("\t")[0] + " " + element.split("\t")[1]);
                                     ajsonOutput.push({ ga: element.split("\t")[1], dpt: "1.001", devicename: sFather + element.split("\t")[0] + " (DPT NOT SET IN ETS - FAKE DPT USED)" });
                                 } else {
                                     // 31/03/2020 Skip import
-                                    RED.log.warn("KNXUltimate-config: WARNING IMPORT OF ETS CSV FILE. Datapoint not set. You choosed to skip -> " + element.split("\t")[0] + " " + element.split("\t")[1]);
+                                    if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.warn("KNXUltimate-config: WARNING IMPORT OF ETS CSV FILE. Datapoint not set. You choosed to skip -> " + element.split("\t")[0] + " " + element.split("\t")[1]);
                                 }
                             } else {
                                 var DPTa = element.split("\t")[5].split("-")[1];
                                 var DPTb = element.split("\t")[5].split("-")[2];
                                 if (typeof DPTb == "undefined") {
-                                    RED.log.warn("KNXUltimate-config: WARNING: Datapoint not fully set (there is only the main type). I applied a default .001, but please check if i'ts ok ->" + element.split("\t")[0] + " " + element.split("\t")[1] + " Datapoint: " + element.split("\t")[5]);
+                                    if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.warn("KNXUltimate-config: WARNING: Datapoint not fully set (there is only the main type). I applied a default .001, but please check if i'ts ok ->" + element.split("\t")[0] + " " + element.split("\t")[1] + " Datapoint: " + element.split("\t")[5]);
                                     DPTb = "001"; // default
                                 }
                                 // Trailing zeroes
@@ -1206,10 +1216,10 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
             var ajsonOutput = new Array(); // Array: qui va l'output totale con i nodi per node-red
 
             if (_esfText == "") {
-                RED.log.info('KNXUltimate-config: no ESF found');
+                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info('KNXUltimate-config: no ESF found');
                 return;
             } else {
-                RED.log.info('KNXUltimate-config: esf ETS found !');
+                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info('KNXUltimate-config: esf ETS found !');
                 // Read and decode the CSV in an Array containing:  "group address", "DPT", "Device Name"
                 let fileGA = _esfText.split("\n");
                 var sGA = "";
@@ -1277,14 +1287,14 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                             }
                         } else {
                             if (node.stopETSImportIfNoDatapoint === "stop") {
-                                RED.log.error("KNXUltimate-config: ABORT IMPORT OF ETS ESF FILE. To continue import, change the related setting, located in the config node in the ETS import section.");
+                                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("KNXUltimate-config: ABORT IMPORT OF ETS ESF FILE. To continue import, change the related setting, located in the config node in the ETS import section.");
                                 return;
                             } else if (node.stopETSImportIfNoDatapoint === "fake") {
                                 sDPT = "5.004"; // Maybe.
-                                RED.log.error("KNXUltimate-config: ERROR: Found an UNCERTAIN datapoint in ESF ETS. You choosed to fake the datapoint -> " + sGA + ". An fake datapoint has been set: " + sDPT);
+                                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("KNXUltimate-config: ERROR: Found an UNCERTAIN datapoint in ESF ETS. You choosed to fake the datapoint -> " + sGA + ". An fake datapoint has been set: " + sDPT);
                             } else {
                                 sDPT = "SKIP";
-                                RED.log.error("KNXUltimate-config: ERROR: Found an UNCERTAIN datapoint in ESF ETS. You choosed to skip -> " + sGA);
+                                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("KNXUltimate-config: ERROR: Found an UNCERTAIN datapoint in ESF ETS. You choosed to skip -> " + sGA);
                             }
                         }
                         if (sDPT !== "SKIP") ajsonOutput.push({ ga: sGA, dpt: sDPT, devicename: "(" + sFirstGroupName + "->" + sSecondGroupName + ") " + sDeviceName });

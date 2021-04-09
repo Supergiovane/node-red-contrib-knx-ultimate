@@ -23,6 +23,7 @@
             "log_level": "Livello log",
             "nodes_list_title": "Elenco nodi in tutti i flows",
             "nodes_list_help": "Elenco di tutti i tuoi nodi KNX",
+            "select_silent": "Silenzioso (Nessun log)",
             "select_trace": "Trace",
             "select_debug": "Debug",
             "select_info": "Info",

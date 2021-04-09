@@ -1,5 +1,4 @@
 /**
-* knxultimate-api - a KNX protocol stack in pure Javascript based on knx.js (originally written by Elias Karakoulakis)
 * (C) 2021 Supergiovane
 */
 const util = require('util')
@@ -35,17 +34,18 @@ module.exports = {
       //(options && options.loglevel) ||
       //'error');
       logger = require('log-driver')({
-        levels: possibleLEvels,
+        levels: ['silent', 'error', 'warn', 'info', 'debug', 'trace'],
         level: determineLogLevel(options),
         format: function () {
+
           // arguments[0] is the log level ie 'debug'
           const a = Array.from(arguments)
           var ts;
           //var ts = new Date().toISOString().replace(/T/, ' ').replace(/Z$/, '');
           try {
-            ts = new Date().toLocaleString().replace(/T/, ' ').replace(/Z$/, '') + " KnxUltimate-API2:"; // 24/03/2021 Added KnxUltimate-Api2  
+            ts = new Date().toLocaleString().replace(/T/, ' ').replace(/Z$/, '');
           } catch (error) {
-            ts = new Date().toISOString().replace(/T/, ' ').replace(/Z$/, '') + " KnxUltimate-API2:";// 24/03/2021 Added KnxUltimate-Api2
+            ts = new Date().toISOString().replace(/T/, ' ').replace(/Z$/, '');
           }
 
           if (a.length > 2) {

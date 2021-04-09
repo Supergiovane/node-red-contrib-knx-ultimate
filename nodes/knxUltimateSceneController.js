@@ -28,7 +28,8 @@ module.exports = function (RED) {
         node.rules = config.rules || [{}];
         node.isSceneController = true; // Signal to config node, that this is a node scene controller
         node.userDir = path.join(RED.settings.userDir, "knxultimatestorage"); // 09/03/2020 Storage of ttsultimate (otherwise, at each upgrade to a newer version, the node path is wiped out and recreated, loosing all custom files)
-       
+        node.sysLogger = require("./utils/sysLogger.js").get({ loglevel: node.server.loglevel || "error"}); // 08/04/2021 new logger to adhere to the loglevel selected in the config-window
+
         node.disabled = false; // 21/09/2020 you can now disable the scene controller
 
         // 11/03/2020 Delete scene saved file, from html
@@ -37,7 +38,7 @@ module.exports = function (RED) {
             try {
                 var newPath = node.userDir + "/scenecontroller/SceneController_" + req.query.FileName;
                 fs.unlinkSync(newPath)
-            } catch (error) { RED.log.warn("e " + error) }
+            } catch (error) { if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.warn("e " + error) }
             res.json({ status: 220 });
         });
 
@@ -52,15 +53,15 @@ module.exports = function (RED) {
                     try {
                         try {
                             mkdirp.sync(aPath);
-                            RED.log.info('knxUltimate-Scene Controller: created directory path: ' + aPath);
+                            if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info('knxUltimate-Scene Controller: created directory path: ' + aPath);
                         } catch (error) {
-                            RED.log.error('knxUltimate-Scene Controller: failed to access path:: ' + aPath + " : " + error);
+                            if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error('knxUltimate-Scene Controller: failed to access path:: ' + aPath + " : " + error);
                             return false;
                         }
 
                         return true;
                     } catch (e) {
-                        RED.log.error('knxUltimate-Scene Controller: failed to create path: ' + aPath + " : " + e);
+                        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error('knxUltimate-Scene Controller: failed to create path: ' + aPath + " : " + e);
                     }
                 }
                 // Otherwise failure
@@ -73,7 +74,7 @@ module.exports = function (RED) {
             setupDirectory(node.userDir);
         } catch (error) { }
         if (!setupDirectory(node.userDir + "/scenecontroller")) {
-            RED.log.error('knxUltimate-Scene Controller: Unable to set up permanent files directory: ' + node.userDir + "/scenecontroller");
+            if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error('knxUltimate-Scene Controller: Unable to set up permanent files directory: ' + node.userDir + "/scenecontroller");
             node.setNodeStatus({ fill: "red", shape: "dot", text: "Unable to setup permanent files directory", payload: "", GA: "", dpt: "", devicename: node.name })
         } else {
 
@@ -159,7 +160,7 @@ module.exports = function (RED) {
             if (newVal.toString().indexOf("\"decr_incr\":0") > -1 && curVal.toString().indexOf("\"data\":0") == -1) {// Handling DIM
                 newVal = "DIMDOWN";
             }
-            //RED.log.warn(curVal + " new: " + newVal)
+            //if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.warn(curVal + " new: " + newVal)
             if (curVal != newVal) return;
 
             // 25/09/2020 If the node is disabled, doens't perform the action.
@@ -270,7 +271,7 @@ module.exports = function (RED) {
             if (newVal.toString().indexOf("\"decr_incr\":0") > -1 && curVal.toString().indexOf("\"data\":0") == -1) {// Handling DIM
                 newVal = "DIMDOWN";
             }
-            //RED.log.warn(curVal + " new: " + newVal)
+            //if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.warn(curVal + " new: " + newVal)
             if (curVal != newVal) return;
 
             // 25/09/2020 If the node is disabled, doens't perform the action.
@@ -330,7 +331,7 @@ module.exports = function (RED) {
 
             if (!node.server) return; // 29/08/2019 Server not instantiate
             if (node.server.linkStatus !== "connected") {
-                RED.log.error("knxUltimateSceneController: Lost link due to a connection error");
+                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("knxUltimateSceneController: Lost link due to a connection error");
                 return; // 29/08/2019 If not connected, exit
             }
 
@@ -341,7 +342,7 @@ module.exports = function (RED) {
                     if (node.icountMessageInWindow >= 120) {
                         // Looping detected
                         node.setNodeStatus({ fill: "red", shape: "ring", text: "DISABLED! Flood protection! Too many msg at the same time.", payload: "", GA: "", dpt: "", devicename: "" })
-                        RED.log.error("knxUltimateSceneController: Node " + node.id + " has been disabled due to Flood Protection. Too many messages in a timeframe. Check your flow's design or use RBE option.");
+                        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("knxUltimateSceneController: Node " + node.id + " has been disabled due to Flood Protection. Too many messages in a timeframe. Check your flow's design or use RBE option.");
                         node.icountMessageInWindow = -999; //Lock out node
                         return;
                     } else { node.icountMessageInWindow = -1; }

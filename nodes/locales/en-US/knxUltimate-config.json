@@ -23,6 +23,7 @@
             "log_level": "Loglevel",
             "nodes_list_title": "List of your nodes in all flows",
             "nodes_list_help": "Here is a list of all your configured KNX Nodes.",
+            "select_silent": "Silent (No log)",
             "select_trace": "Trace",
             "select_debug": "Debug",
             "select_info": "Info",
