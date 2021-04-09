@@ -5,6 +5,10 @@
 <br/>
 
 <p>
+<b>Version 1.2.19</b> - April 2021<br/>
+- NEW: Silent Mode for log. You can now chose to totally avoid logging. This is useful for reducing I/O access to the disk. Thank to @Webbeh for the request.<br/>
+</p>
+<p>
 <b>Version 1.2.18</b> - April 2021<br/>
 - NEW: KNX-Ultimate node can retain it's value after reconnection to KNX bus and even after reboot of node-red.<br/>
 - Update the WIKI to reflect the changes (https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/2.-Node-Configuration).<br/>
