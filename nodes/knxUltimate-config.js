@@ -115,7 +115,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
         node.host = config.host
         node.port = config.port
         node.physAddr = config.physAddr || "15.15.22"; // the KNX physical address we'd like to use
-        node.suppressACKRequest = typeof config.suppressACKRequest === "undefined" ? false : config.suppressACKRequest; // enable this option to suppress the acknowledge flag with outgoing L_Data.req requests. LoxOne needs this
+        node.suppressACKRequest = typeof config.suppressACKRequest === "undefined" ? true : config.suppressACKRequest; // enable this option to suppress the acknowledge flag with outgoing L_Data.req requests. LoxOne needs this
         node.linkStatus = "disconnected";
         node.nodeClients = [] // Stores the registered clients
         node.KNXEthInterface = typeof config.KNXEthInterface === "undefined" ? "Auto" : config.KNXEthInterface;
