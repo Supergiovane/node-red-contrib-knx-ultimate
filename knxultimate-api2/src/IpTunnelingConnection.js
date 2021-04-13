@@ -45,7 +45,7 @@ function IpTunnelingConnection (instance, options) {
         KnxLog.get().debug('Inbound message: %s', msg.toString('hex'))
         sm.onUdpSocketMessage(msg, rinfo, callback);
       })
-
+           
       // start connection sequence
       sm.transition('connecting')
     })
