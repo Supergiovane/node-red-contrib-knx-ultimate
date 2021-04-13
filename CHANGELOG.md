@@ -6,7 +6,7 @@
 
 <p>
 <b>Version 1.2.21</b> - April 2021<br/>
-- Increased the Multicast TTL from 1 to 16 (this should allow the multicast packet to be routed to other than the current subnet).<br/>
+- Increased the Multicast TTL from 1 to 16 (this should allow the multicast packet to be routed beyond the current subnet).<br/>
 </p>
 <p>
 <b>Version 1.2.20</b> - April 2021<br/>
