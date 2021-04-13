@@ -32,7 +32,12 @@ function IpRoutingConnection (instance) {
 
     // ROUTING multicast connections need to bind to the default port, 3671
     udpSocket.bind(3671, function () {
-      cb && cb(udpSocket)
+      cb && cb(udpSocket);
+      try {
+        udpSocket.setMulticastTTL(16); // 13/04/2021 Set TTL        
+      } catch (error) {        
+      }
+      // console.log ("BANANA TTL",udpSocket)
     })
 
     return udpSocket

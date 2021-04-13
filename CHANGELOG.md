@@ -5,6 +5,10 @@
 <br/>
 
 <p>
+<b>Version 1.2.21</b> - April 2021<br/>
+- Increased the Multicast TTL from 1 to 16 (this should allow the multicast packet to be routed to other than the current subnet).<br/>
+</p>
+<p>
 <b>Version 1.2.20</b> - April 2021<br/>
 - The "Suppress ACK Request" in the gateway config window is now enabled by default on new installations. This prevent some issues with some IP Interfaces.<br/>
 </p>
