@@ -10,7 +10,7 @@ const KnxLog = require('./KnxLog.js')
   Initializes a new KNX routing connection with provided values. Make
  sure the local system allows UDP messages to the multicast group.
 **/
-function IpRoutingConnection (instance) {
+function IpRoutingConnection(instance) {
   let log = KnxLog.get()
 
   instance.BindSocket = function (cb) {
@@ -34,10 +34,9 @@ function IpRoutingConnection (instance) {
     udpSocket.bind(3671, function () {
       cb && cb(udpSocket);
       try {
-        udpSocket.setMulticastTTL(16); // 13/04/2021 Set TTL        
-      } catch (error) {        
+        udpSocket.setMulticastTTL(16); // 13/04/2021 Supergiovane: Set TTL        
+      } catch (error) {
       }
-      // console.log ("BANANA TTL",udpSocket)
     })
 
     return udpSocket
