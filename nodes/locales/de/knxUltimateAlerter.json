@@ -11,7 +11,7 @@
         },
         "selectlists": {
             "manualstart": "Starten den Alarmzyklus manuell über eine eingehende MSG",
-            "onlyifnewalert": "Starten den Alarmzyklus mit jedem neuen alarmierten Gerät"
+            "ifnewalert": "Starten den Alarmzyklus mit jedem neuen alarmierten Gerät"
         },
         "other": {
             "sceneConfig": "Zu überwachende Geräte",
