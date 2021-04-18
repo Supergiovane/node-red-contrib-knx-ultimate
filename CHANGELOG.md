@@ -5,6 +5,12 @@
 <br/>
 
 <p>
+<b>Version 1.2.22</b> - April 2021<br/>
+- Fix: emulated mode in knx-ultimate set to "universal mode" has the topic always set to empty string.<br/>
+- NEW: Alerter node (https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/Alerter-Configuration).<br/>
+- NEW: Alerter node HELP online with samples, in both italiano, english and deutsch.<br/>
+</p>
+<p>
 <b>Version 1.2.21</b> - April 2021<br/>
 - Increased the Multicast TTL from 1 to 16 (this should allow the multicast packet to be routed beyond the current subnet).<br/>
 </p>

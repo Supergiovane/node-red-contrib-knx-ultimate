@@ -1401,7 +1401,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                         } catch (error) { }
 
                         let msg = {
-                            topic: input.topic,
+                            topic: _msg.grpaddr,//input.topic,
                             payload: _msg.payload,
                             devicename: (typeof oGA === "undefined") ? input.name || "" : oGA.devicename,
                             payload: _msg.payload,

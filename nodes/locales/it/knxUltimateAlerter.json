@@ -11,7 +11,7 @@
         },
         "selectlists": {
             "manualstart": "Avvia ciclo allerta manualmente tramite messaggio in ingresso",
-            "onlyifnewalert": "Avvia ciclo allerta ad ogni nuovo dispositivo allertato"
+            "ifnewalert": "Avvia ciclo allerta ad ogni nuovo dispositivo allertato"
         },
         "other": {
             "sceneConfig": "Dispositivi da monitorare",

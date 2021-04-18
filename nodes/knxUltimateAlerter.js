@@ -24,6 +24,8 @@ module.exports = function (RED) {
         node.alertedDevices = [];
         node.curIndexAlertedDevice = 0;
         node.timerSend = null;
+        node.whentostart = config.whentostart === undefined ? "ifnewalert" : config.whentostart;
+        node.timerinterval = (config.timerinterval === undefined || config.timerinterval == "") ? "2" : config.timerinterval;
         try {
             node.sysLogger = require("./utils/sysLogger.js").get({ loglevel: node.server.loglevel || "error" }); // 08/04/2021 new logger to adhere to the loglevel selected in the config-window
         } catch (error) {
@@ -31,56 +33,9 @@ module.exports = function (RED) {
         }
 
 
-        // 11/03/2020 Delete scene saved file, from html
-        RED.httpAdmin.get("/knxUltimateAlerterdelete", RED.auth.needsPermission("knxUltimateAlerter.read"), function (req, res) {
-            // Delete the file
-            try {
-                var newPath = node.userDir + "/alertnode/alertnode_" + req.query.FileName;
-                fs.unlinkSync(newPath)
-            } catch (error) { if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.warn("e " + error) }
-            res.json({ status: 220 });
-        });
-
-        function setupDirectory(aPath) {
-            try {
-                return fs.statSync(aPath).isDirectory();
-            } catch (e) {
-
-                // Path does not exist
-                if (e.code === 'ENOENT') {
-                    // Try and create it
-                    try {
-                        try {
-                            mkdirp.sync(aPath);
-                            if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info('knxUltimate-Alerter Controller: created directory path: ' + aPath);
-                        } catch (error) {
-                            if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error('knxUltimate-Alerter Controller: failed to access path:: ' + aPath + " : " + error);
-                            return false;
-                        }
-
-                        return true;
-                    } catch (e) {
-                        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error('knxUltimate-Alerter Controller: failed to create path: ' + aPath + " : " + e);
-                    }
-                }
-                // Otherwise failure
-                return false;
-            }
-        }
-
-        // This stores all scenes values, that are been saved.
-        try {
-            setupDirectory(node.userDir);
-        } catch (error) { }
-        if (!setupDirectory(node.userDir + "/alertnode")) {
-            if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error('knxUltimate-Alerter Controller: Unable to set up permanent files directory: ' + node.userDir + "/alertnode");
-            node.setNodeStatus({ fill: "red", shape: "dot", text: "Unable to setup permanent files directory", payload: "", GA: "", dpt: "", devicename: node.name })
-        } else {
-
-        }
-
         // Used to call the status update from the config node.
         node.setNodeStatus = ({ fill, shape, text, payload, GA, dpt, devicename }) => {
+            if (node.server === null) return;
             // Log only service statuses, not the GA values
             if (dpt !== undefined) return;
             if (dpt !== "") return;
@@ -101,7 +56,11 @@ module.exports = function (RED) {
             _GA = (typeof _GA == "undefined" || GA == "") ? "" : "(" + GA + ") ";
             _devicename = devicename || "";
             _dpt = (typeof dpt == "undefined" || dpt == "") ? "" : " DPT" + dpt;
-            node.status({ fill: fill, shape: shape, text: _GA + payload + ((node.listenallga && node.server.statusDisplayDeviceNameWhenALL) === true ? " " + _devicename : "") + (node.server.statusDisplayDataPoint === true ? _dpt : "") + (node.server.statusDisplayLastUpdate === true ? " (" + dDate.getDate() + ", " + dDate.toLocaleTimeString() + ")" : "") + " " + text });
+            try {
+                node.status({ fill: fill, shape: shape, text: _GA + payload + ((node.listenallga && node.server.statusDisplayDeviceNameWhenALL) === true ? " " + _devicename : "") + (node.server.statusDisplayDataPoint === true ? _dpt : "") + (node.server.statusDisplayLastUpdate === true ? " (" + dDate.getDate() + ", " + dDate.toLocaleTimeString() + ")" : "") + " " + text });
+            } catch (error) {
+                node.status({ fill: fill, shape: shape, text: _GA + payload + ((true === true) ? " " + _devicename : "") + (false === true ? _dpt : "") + (true === true ? " (" + dDate.getDate() + ", " + dDate.toLocaleTimeString() + ")" : "") + " " + text });
+            }
 
         }
 
@@ -133,18 +92,37 @@ module.exports = function (RED) {
                         node.setLocalStatus({ fill: "green", shape: "dot", text: "Restore", payload: "", GA: msg.topic, dpt: "", devicename: rule.devicename });
                     }
                 }
-                // If there's some device to alert, stop current timer and restart
-                // This allow the last alerted device to be outputted immediately
-                if (node.alertedDevices.length > 0) {
-                    clearTimeout(node.timerSend);
-                    node.curIndexAlertedDevice = 0; // Restart form the beginning
-                    startTimer();
-                }
+            }
+            
+            // If there's some device to alert, stop current timer and restart
+            // This allow the last alerted device to be outputted immediately
+            if (node.whentostart === "ifnewalert" && node.alertedDevices.length > 0) {
+                clearTimeout(node.timerSend);
+                node.curIndexAlertedDevice = 0; // Restart form the beginning
+                node.startTimer();
             }
         };
 
         node.on("input", function (msg) {
             if (typeof msg === "undefined") return;
+            if (msg.hasOwnProperty("start")) {
+                clearTimeout(node.timerSend);
+                node.curIndexAlertedDevice = 0; // Restart form the beginning
+                node.startTimer();
+                return;
+            }
+
+            if (msg.topic === undefined) {
+                node.setLocalStatus({ fill: "grey", shape: "dot", text: "ERROR: You must provide a msg.topic", payload: "", GA: "", dpt: "", devicename: "" });
+                return;
+            }
+            if (msg.payload === undefined) {
+                node.setLocalStatus({ fill: "grey", shape: "dot", text: "ERROR: You must provide payload (true/false)", payload: "", GA: "", dpt: "", devicename: "" });
+                return;
+            }
+            msg.knx = { dpt: "1.001" };
+            node.handleSend(msg);
+
         })
 
         node.on("close", function (done) {
@@ -155,10 +133,17 @@ module.exports = function (RED) {
             done();
         })
 
-        handleTimer = () => {
+        node.handleTimer = () => {
             if (node.alertedDevices.length > 0) {
-                let count = node.alertedDevices.length - 1;
-                if (node.curIndexAlertedDevice > count) node.curIndexAlertedDevice = 0;
+                let count = node.alertedDevices.length;
+                if (node.curIndexAlertedDevice > count - 1) {
+                    node.curIndexAlertedDevice = 0;
+                    if (node.whentostart === "manualstart") {
+                        node.curIndexAlertedDevice = 0; // Restart form the beginning
+                        node.sendNoMoreDevices();
+                        return;
+                    }
+                }
                 // Create output message
                 try {
                     let curDev = node.alertedDevices[node.curIndexAlertedDevice]; // is { topic: rule.topic, devicename: rule.devicename }
@@ -172,22 +157,23 @@ module.exports = function (RED) {
                 }
                 node.curIndexAlertedDevice += 1;
                 // Restart timer
-                startTimer();
+                node.startTimer();
             } else {
                 // Nothing more to output
-                sendNoMoreDevices();
+                node.sendNoMoreDevices();
             }
         }
 
         // Start timer
-        startTimer = () => {
+        node.startTimer = () => {
+            clearTimeout(node.timerSend);
             node.timerSend = setTimeout(() => {
-                handleTimer();
-            }, 2000);
+                node.handleTimer();
+            }, node.timerinterval * 1000);
         }
 
         // As soon as there no more devices..
-        sendNoMoreDevices = () => {
+        node.sendNoMoreDevices = () => {
             let msg = {};
             msg.topic = "";
             msg.count = 0;
@@ -197,7 +183,7 @@ module.exports = function (RED) {
         }
 
         // Init
-        sendNoMoreDevices();
+        node.sendNoMoreDevices();
 
         // On each deploy, unsubscribe+resubscribe
         if (node.server) {

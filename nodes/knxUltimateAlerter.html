@@ -64,13 +64,6 @@
                     
                     // opt.r is: { topic: rowRuleTopic, devicename: rowRuleDeviceName}
 
-                    if (!opt.hasOwnProperty('r')) {
-                        opt.r = {};
-                        // Delete saved scene
-                        // ##########################################################
-                        $.getJSON("knxUltimateAlerterdelete?FileName=" + node.id, new Date().getTime(), (data) => { });
-                        // ##########################################################
-                    }
                     var rule = opt.r;
                     if (!opt.hasOwnProperty('i')) {
                         opt._i = Math.floor((0x99999 - 0x10000) * Math.random()).toString();
@@ -125,10 +118,7 @@
                     oTopicField.change();
                 },
                 removeItem: function (opt) {
-                    // Delete saved scene
-                    // ##########################################################
-                    $.getJSON("knxUltimateAlerterdelete?FileName=" + node.id, new Date().getTime(), (data) => { });
-                    // ##########################################################
+                    
                 },
                 resizeItem: resizeRule,
                 sortItems: function (rules) {
