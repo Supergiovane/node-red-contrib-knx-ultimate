@@ -1,0 +1,218 @@
+<script type="text/javascript">
+    RED.nodes.registerType('knxUltimateAlerter', {
+        category: "KNX Ultimate",
+        color: '#C7E9C0',
+        defaults: {
+            //buttonState: {value: true},
+            server: { type: "knxUltimate-config", required: false },
+            name: { value: "" },
+            property: { value: "payload", required: true, validate: RED.validators.typedInput("propertyType") },
+            propertyType: { value: "msg" },
+            rules: { value: [{ t: "eq", v: "", vt: "str" }] },
+            whentostart: { value: "ifnewalert" },
+            timerinterval:{ value: "2" }
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: "node-alerter-icon.svg",
+        label: function () {
+            return (this.outputRBE == true ? "|rbe| " : "") + (this.name || this.topic || "KNX Alerter") + (this.inputRBE == true ? " |rbe|" : "")
+        },
+        paletteLabel: "KNX Alerter",
+        // button: {
+        //     enabled: function() {
+        //         // return whether or not the button is enabled, based on the current
+        //         // configuration of the node
+        //         return !this.changed
+        //     },
+        //     visible: function() {
+        //         // return whether or not the button is visible, based on the current
+        //         // configuration of the node
+        //         return this.hasButton
+        //     },
+        //     //toggle: "buttonState",
+        //     onclick: function() {}
+        // },
+        oneditprepare: function () {
+            var node = this;
+            var oNodeServer = RED.nodes.node($("#node-input-server").val()); // Store the config-node
+
+            // 19/02/2020 Used to get the server sooner als deploy.
+            $("#node-input-server").change(function () {
+                try {
+                    oNodeServer = RED.nodes.node($(this).val());
+                } catch (error) { }
+            });
+
+            // 31/03/2020 Search Helper
+            function fullSearch(sourceText, searchString) {
+                // This searches for all words in a string
+                var aSearchWords = searchString.toLowerCase().split(" ");
+                var i = 0;
+                for (let index = 0; index < aSearchWords.length; index++) {
+                    if (sourceText.toLowerCase().indexOf(aSearchWords[index]) > -1) i += 1;
+                }
+                return i == aSearchWords.length;
+            }
+
+       
+            // Scene configuration
+            var previousValueType = { value: "prev", label: this._("switch.previous"), hasValue: false };
+            function resizeRule(rule) { }
+            $("#node-input-rule-container").css('min-height', '150px').css('min-width', '450px').editableList({
+                addItem: function (container, i, opt) { // row, index, data
+                    
+                    // opt.r is: { topic: rowRuleTopic, devicename: rowRuleDeviceName}
+
+                    if (!opt.hasOwnProperty('r')) {
+                        opt.r = {};
+                        // Delete saved scene
+                        // ##########################################################
+                        $.getJSON("knxUltimateAlerterdelete?FileName=" + node.id, new Date().getTime(), (data) => { });
+                        // ##########################################################
+                    }
+                    var rule = opt.r;
+                    if (!opt.hasOwnProperty('i')) {
+                        opt._i = Math.floor((0x99999 - 0x10000) * Math.random()).toString();
+                    }
+                    container.css({
+                        overflow: 'hidden',
+                        whiteSpace: 'nowrap'
+                    });
+                    var row = $('<div class="form-row"/>').appendTo(container);
+                    
+                    var oTopicField = $("<input/>", { class: "rowRuleTopic", type: "text", placeholder: "1/1/1 or device name", style: "width:20%; margin-left: 5px; text-align: left;" }).appendTo(row);
+                    var finalspan = $('<span/>', { style: "" }).appendTo(row);
+                    finalspan.append(' <span class="node-input-rule-index"></span> ');
+                    var orowRuleDeviceName = $('<input/>', { class: "rowRuleDeviceName", type: "text", style: "width:75%; margin-left: 0px; text-align: left;font-style: italic;", placeholder: "Device Name" }).appendTo(row);
+
+                    oTopicField.on("change", function () {
+                        resizeRule(container);
+                    });
+
+                    
+                    // Autocomplete suggestion with ETS csv File
+                    oTopicField.autocomplete({
+                        minLength: 1,
+                        source: function (request, response) {
+                            $.getJSON("knxUltimatecsv?nodeID=" + oNodeServer.id, (data) => {
+                                response($.map(data, function (value, key) {
+                                    var sSearch = (value.ga + " (" + value.devicename + ") DPT" + value.dpt);
+                                    if (fullSearch(sSearch, request.term)) {
+                                        return {
+                                            label: value.ga + " # " + value.devicename + " # " + value.dpt, // Label for Display
+                                            value: value.ga // Value
+                                        }
+                                    } else {
+                                        return null;
+                                    }
+                                }));
+                            });
+                        }, select: function (event, ui) {
+                            // Sets Datapoint and device name automatically
+                            var sDevName = ui.item.label.split("#")[1].trim();
+                            try {
+                                sDevName = sDevName.substr(sDevName.indexOf(")") + 1).trim();
+                                orowRuleDeviceName.val(sDevName);
+                            } catch (error) {
+                            }
+                           
+                        }
+                    });
+
+                    oTopicField.val(rule.topic);
+                    orowRuleDeviceName.val(rule.devicename);
+                    oTopicField.change();
+                },
+                removeItem: function (opt) {
+                    // Delete saved scene
+                    // ##########################################################
+                    $.getJSON("knxUltimateAlerterdelete?FileName=" + node.id, new Date().getTime(), (data) => { });
+                    // ##########################################################
+                },
+                resizeItem: resizeRule,
+                sortItems: function (rules) {
+                },
+                sortable: true,
+                removable: true
+            });
+
+            // 10/03/2020 For each rule, create a row
+            for (var i = 0; i < this.rules.length; i++) {
+                var rule = this.rules[i];
+                $("#node-input-rule-container").editableList('addItem', { r: rule, i: i });
+            }
+
+
+        },
+        oneditsave: function () {
+            var node = this;
+
+            var rules = $("#node-input-rule-container").editableList('items');
+            node.rules = [];
+            rules.each(function (i) {
+                var rule = $(this);
+                var rowRuleTopic = rule.find(".rowRuleTopic").val();
+                var rowRuleDeviceName = rule.find(".rowRuleDeviceName").val();
+                node.rules.push({ topic: rowRuleTopic, devicename: rowRuleDeviceName });
+            });
+            this.propertyType = $("#node-input-property").typedInput('type');
+        },
+        oneditresize: function (size) {
+            var node = this;
+
+            var rows = $("#dialog-form>div:not(.node-input-rule-container-row)");
+            var height = size.height;
+            for (var i = 0; i < rows.length; i++) {
+                height -= $(rows[i]).outerHeight(true);
+            }
+            var editorRow = $("#dialog-form>div.node-input-rule-container-row");
+            height -= (parseInt(editorRow.css("marginTop")) + parseInt(editorRow.css("marginBottom")));
+            height += 16;
+            $("#node-input-rule-container").editableList('height', height);
+        }
+    })
+
+</script>
+
+<script type="text/x-red" data-template-name="knxUltimateAlerter">
+
+
+<div class="form-row">
+    <b><span data-i18n="knxUltimateAlerter.title"></span></b>&nbsp&nbsp<span style="color:red" data-i18n="[html]knxUltimateAlerter.helplink"></span>
+    <br/><br/>
+
+    <label for="node-input-server"> <img
+        src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAKnRFWHRDcmVhdGlvbiBUaW1lAEZyIDYgQXVnIDIwMTAgMjE6NTI6MTkgKzAxMDD84aS8AAAAB3RJTUUH3gYYCicNV+4WIQAAAAlwSFlzAAALEgAACxIB0t1+/AAAAARnQU1BAACxjwv8YQUAAACUSURBVHjaY2CgFZg5c+Z/ZEyWAZ8+f/6/ZsWs/xoamqMGkGrA6Wla/1+fVARjEBuGsSoGmY4eZSCNL59d/g8DIDbIAHR14OgFGQByKjIGKX5+6/T///8gGMQGiV1+/B0Fg70GIkD+RMYgxf/O5/7//2MSmAZhkBi6OrgB6Bg5DGB4ajr3f2xqsYYLSDE2THJUDg0AAAqyDVd4tp4YAAAAAElFTkSuQmCC"></img>
+            <span data-i18n="knxUltimateAlerter.properties.node-input-server"></span> </label>
+    <input type="text" id="node-input-server">
+</div>
+
+<div class="form-row">
+    <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="knxUltimateAlerter.properties.node-input-name"></span> </label>
+    <input type="text" id="node-input-name" data-i18n="[placeholder]knxUltimateAlerter.properties.node-input-name">
+</div>
+
+<div class="form-row">
+    <label for="node-input-whentostart"><i class="fa fa-repeat"></i> <span data-i18n="knxUltimateAlerter.properties.node-input-whentostart"></span> </label>
+    <select id="node-input-whentostart">
+        <option value="manualstart" data-i18n="knxUltimateAlerter.selectlists.manualstart"></option>
+        <option value="ifnewalert" data-i18n="knxUltimateAlerter.selectlists.ifnewalert"></option>        
+    </select>
+</div>
+
+<div class="form-row">
+    <label for="node-input-timerinterval"><i class="fa fa-clock-o"></i> <span data-i18n="knxUltimateAlerter.properties.node-input-timerinterval"></span> </label>
+    <input type="text" id="node-input-timerinterval">       
+</div>
+
+<dt><i class="fa fa-code-fork"></i>&nbsp; <span data-i18n="knxUltimateAlerter.other.sceneConfig"></dt>
+<div class="form-row node-input-rule-container-row">
+    <ol id="node-input-rule-container"></ol>
+</div>
+
+<div class="form-row">
+    <p><span data-i18n="knxUltimateAlerter.other.add"></p>
+</div>
+
+</script>

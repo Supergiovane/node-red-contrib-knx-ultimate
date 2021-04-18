@@ -1,0 +1,21 @@
+{
+    "knxUltimateAlerter": {
+        "helplink" : "&nbsp<i class=\"fa fa-question-circle\"></i>&nbsp<a target=\"_blank\" href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/it-Alerter-Configuration\"><u>Aiuto per configurazione</u></a>",
+        "title": "Nodo Alerter",
+      
+        "properties": {
+            "node-input-server": "Gateway",
+            "node-input-name": "Nome nodo",
+            "node-input-timerinterval": "Intervallo tra ciascun messaggio (in secondi)",
+            "node-input-whentostart": "Modalità avvio allerta"
+        },
+        "selectlists": {
+            "manualstart": "Avvia ciclo allerta manualmente tramite messaggio in ingresso",
+            "onlyifnewalert": "Avvia ciclo allerta ad ogni nuovo dispositivo allertato"
+        },
+        "other": {
+            "sceneConfig": "Dispositivi da monitorare",
+            "add": "Premi Aggiungi, per aggiungere un dispositivo"
+        }
+    }
+}

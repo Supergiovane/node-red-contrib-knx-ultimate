@@ -24,7 +24,8 @@
       "knxUltimateWatchDog": "/nodes/knxUltimateWatchDog.js",
       "knxUltimateLogger": "/nodes/knxUltimateLogger.js",
       "knxUltimate-config": "/nodes/knxUltimate-config.js",
-      "knxUltimateGlobalContext": "/nodes/knxUltimateGlobalContext.js"
+      "knxUltimateGlobalContext": "/nodes/knxUltimateGlobalContext.js",
+      "knxUltimateAlerter": "/nodes/knxUltimateAlerter.js"
     }
   },
   "repository": {

@@ -261,6 +261,10 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                                 // Is a Scene Controller
                                 sGA = "\"Logger\"";
                                 sDPT = "\"Any\"";
+                            } else if (input.hasOwnProperty("isalertnode")) {
+                                // Is a Scene Controller
+                                sGA = "\"Alerter\"";
+                                sDPT = "\"Any\"";
                             } else {
                                 // Is a ListenallGA
                                 sGA = "\"Universal Node\"";
@@ -327,7 +331,6 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
             node.knxConnection = null;
             saveExposedGAs(); // 04/04/2021 save the current values of GA payload
         }
-
 
         node.addClient = (_Node) => {
             // Check if node already exists
