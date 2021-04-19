@@ -381,6 +381,9 @@
                 removable: true
             });
 
+             // Put some spaces after the container
+             $('<br/><br/><br/><br/><br/><br/><br/><br/><br/>').insertAfter($("#node-input-rule-container"));
+
             // 10/03/2020 For each rule, create a row
             for (var i = 0; i < this.rules.length; i++) {
                 var rule = this.rules[i];

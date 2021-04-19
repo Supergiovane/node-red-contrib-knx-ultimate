@@ -14,7 +14,7 @@
             "ifnewalert": "Avvia ciclo allerta ad ogni nuovo dispositivo allertato"
         },
         "other": {
-            "sceneConfig": "Dispositivi da monitorare",
+            "sceneConfig": "Dispositivi da monitorare (IL DPT DEVE ESSERE BOOLEANO)",
             "add": "Premi Aggiungi, per aggiungere un dispositivo"
         }
     }

@@ -10,7 +10,7 @@
             propertyType: { value: "msg" },
             rules: { value: [{ t: "eq", v: "", vt: "str" }] },
             whentostart: { value: "ifnewalert" },
-            timerinterval:{ value: "2" }
+            timerinterval: { value: "2" }
         },
         inputs: 1,
         outputs: 1,
@@ -55,13 +55,15 @@
                 return i == aSearchWords.length;
             }
 
-       
+
             // Scene configuration
             var previousValueType = { value: "prev", label: this._("switch.previous"), hasValue: false };
-            function resizeRule(rule) { }
-            $("#node-input-rule-container").css('min-height', '150px').css('min-width', '450px').editableList({
+            function resizeRule(rule) {
+                
+             }
+            $("#node-input-rule-container").css('min-height', '350px').css('min-width', '450px').editableList({
                 addItem: function (container, i, opt) { // row, index, data
-                    
+
                     // opt.r is: { topic: rowRuleTopic, devicename: rowRuleDeviceName}
 
                     var rule = opt.r;
@@ -73,8 +75,8 @@
                         whiteSpace: 'nowrap'
                     });
                     var row = $('<div class="form-row"/>').appendTo(container);
-                    
-                    var oTopicField = $("<input/>", { class: "rowRuleTopic", type: "text", placeholder: "1/1/1 or device name", style: "width:20%; margin-left: 5px; text-align: left;" }).appendTo(row);
+
+                    var oTopicField = $("<input/>", { class: "rowRuleTopic", type: "text", placeholder: "GA or devicename", style: "width:20%; margin-left: 5px; text-align: left;" }).appendTo(row);
                     var finalspan = $('<span/>', { style: "" }).appendTo(row);
                     finalspan.append(' <span class="node-input-rule-index"></span> ');
                     var orowRuleDeviceName = $('<input/>', { class: "rowRuleDeviceName", type: "text", style: "width:75%; margin-left: 0px; text-align: left;font-style: italic;", placeholder: "Device Name" }).appendTo(row);
@@ -83,7 +85,7 @@
                         resizeRule(container);
                     });
 
-                    
+
                     // Autocomplete suggestion with ETS csv File
                     oTopicField.autocomplete({
                         minLength: 1,
@@ -109,16 +111,17 @@
                                 orowRuleDeviceName.val(sDevName);
                             } catch (error) {
                             }
-                           
+
                         }
                     });
 
                     oTopicField.val(rule.topic);
                     orowRuleDeviceName.val(rule.devicename);
-                    oTopicField.change();
+                    oTopicField.change();                   
+
                 },
                 removeItem: function (opt) {
-                    
+
                 },
                 resizeItem: resizeRule,
                 sortItems: function (rules) {
@@ -126,6 +129,9 @@
                 sortable: true,
                 removable: true
             });
+
+            // Put some spaces after the container
+            $('<br/><br/><br/><br/><br/><br/><br/><br/><br/>').insertAfter($("#node-input-rule-container"));
 
             // 10/03/2020 For each rule, create a row
             for (var i = 0; i < this.rules.length; i++) {

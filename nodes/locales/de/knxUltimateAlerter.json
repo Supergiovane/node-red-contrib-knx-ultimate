@@ -14,7 +14,7 @@
             "ifnewalert": "Starten den Alarmzyklus mit jedem neuen alarmierten Gerät"
         },
         "other": {
-            "sceneConfig": "Zu überwachende Geräte",
+            "sceneConfig": "Zu überwachende Geräte (DPT MUSS BOOLEAN SEIN)",
             "add": "Drücken Sie Hinzufügen, um ein Gerät hinzuzufügen"
         }
     }

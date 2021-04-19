@@ -5,6 +5,11 @@
 <br/>
 
 <p>
+<b>Version 1.2.23</b> - April 2021<br/>
+- Fix: Put some spaces in the device list window of Alerter and Scene node, to facilitate the fields editing.<br/>
+- Alerter node: other than "write", the devices listed react to "response" telegrams as well (https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/Alerter-Configuration).<br/>
+</p>
+<p>
 <b>Version 1.2.22</b> - April 2021<br/>
 - Fix: emulated mode in knx-ultimate set to "universal mode" has the topic always set to empty string.<br/>
 - NEW: Alerter node (https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/Alerter-Configuration).<br/>
