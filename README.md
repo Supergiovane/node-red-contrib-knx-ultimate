@@ -31,8 +31,6 @@ payload = {red:255, green:200, blue:30} // Put some colors in our life
 * **ALERTER node** [here](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/SampleAlerter). With the Alerter node you can signal to a display or to the node-red-contrib-tts-ultimate node (audio feedback), whenever the selected devices are alerted, i.e. they have payload **true**.
 
 
-[![Buy a Sticker!](https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/PoweredBySticker.png) Support the project, buy an (overpriced) die-cut sticker "powered by KNX-Ultimate" for your products](https://teespring.com/it/stores/knx-ultimate-support-store)
-
 ## CHANGELOG
 
 * See <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/blob/master/CHANGELOG.md">here the changelog</a>
