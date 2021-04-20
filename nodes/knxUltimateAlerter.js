@@ -93,22 +93,52 @@ module.exports = function (RED) {
                     }
                 }
             }
-            
+
             // If there's some device to alert, stop current timer and restart
             // This allow the last alerted device to be outputted immediately
             if (node.whentostart === "ifnewalert" && node.alertedDevices.length > 0) {
                 clearTimeout(node.timerSend);
                 node.curIndexAlertedDevice = 0; // Restart form the beginning
                 node.startTimer();
+                // Send directly the second message PIN
+                node.send([null, node.getSecondPinMSG()]);
             }
         };
+
+        // Get the msg to be outputted on second PIN
+        node.getSecondPinMSG = () => {
+
+            if (node.alertedDevices.length > 0) {
+                let msg = {};
+                let sRet = "";
+                let sTopic = "";
+                node.alertedDevices.forEach(function (item) {
+                    sTopic += item.topic + ", ";
+                    sRet += item.devicename + ", ";
+                });
+                sTopic = sTopic.slice(0, -2);
+                sRet = sRet.slice(0, -2);
+                msg.topic = sTopic;
+                msg.devicename = sRet;
+                msg.count = node.alertedDevices.length;
+                msg.payload = true;
+                return msg;
+            }
+
+        }
 
         node.on("input", function (msg) {
             if (typeof msg === "undefined") return;
             if (msg.hasOwnProperty("start")) {
                 clearTimeout(node.timerSend);
                 node.curIndexAlertedDevice = 0; // Restart form the beginning
-                node.startTimer();
+                if (node.alertedDevices.length > 0) {
+                    node.startTimer();
+                    node.send([null, node.getSecondPinMSG()]);
+                } else {
+                    // Nothing more to output
+                    node.sendNoMoreDevices();
+                }
                 return;
             }
 
@@ -140,7 +170,6 @@ module.exports = function (RED) {
                     node.curIndexAlertedDevice = 0;
                     if (node.whentostart === "manualstart") {
                         node.curIndexAlertedDevice = 0; // Restart form the beginning
-                        node.sendNoMoreDevices();
                         return;
                     }
                 }
@@ -152,7 +181,7 @@ module.exports = function (RED) {
                     msg.count = count;
                     msg.devicename = curDev.devicename;
                     msg.payload = true;
-                    node.send(msg);
+                    node.send([msg, null]);
                 } catch (error) {
                 }
                 node.curIndexAlertedDevice += 1;
@@ -179,7 +208,7 @@ module.exports = function (RED) {
             msg.count = 0;
             msg.devicename = "";
             msg.payload = false;
-            node.send(msg);
+            node.send([msg, msg]);
         }
 
         // Init
