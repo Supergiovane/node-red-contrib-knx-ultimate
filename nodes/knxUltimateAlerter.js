@@ -75,14 +75,14 @@ module.exports = function (RED) {
 
             // Update the node.rules with the values taken from the file, if any, otherwise leave the default value
             for (var i = 0; i < node.rules.length; i++) {
-                // rule is { topic: rowRuleTopic, devicename: rowRuleDeviceName}
+                // rule is { topic: rowRuleTopic, devicename: rowRuleDeviceName, longdevicename: rowRuleLongDeviceName}
                 var rule = node.rules[i];
                 if (msg.topic === rule.topic) {
                     if (msg.payload == true) {
                         // Add the device to the array of alertedDevices
                         let oTrovato = node.alertedDevices.find(a => a.topic === rule.topic);
                         if (oTrovato === undefined) {
-                            node.alertedDevices.unshift({ topic: rule.topic, devicename: rule.devicename }); // Add to the begin of array
+                            node.alertedDevices.unshift({ topic: rule.topic, devicename: rule.devicename, longdevicename: rule.longdevicename }); // Add to the begin of array
                         }
                         node.setLocalStatus({ fill: "red", shape: "dot", text: "Alert", payload: "", GA: msg.topic, dpt: "", devicename: rule.devicename });
 
@@ -111,15 +111,19 @@ module.exports = function (RED) {
             if (node.alertedDevices.length > 0) {
                 let msg = {};
                 let sRet = "";
+                let sRetLong = "";
                 let sTopic = "";
                 node.alertedDevices.forEach(function (item) {
                     sTopic += item.topic + ", ";
                     sRet += item.devicename + ", ";
+                    sRetLong += item.longdevicename + ", ";
                 });
                 sTopic = sTopic.slice(0, -2);
                 sRet = sRet.slice(0, -2);
+                sRetLong = sRetLong.slice(0, -2);
                 msg.topic = sTopic;
                 msg.devicename = sRet;
+                msg.longdevicename = sRetLong;
                 msg.count = node.alertedDevices.length;
                 msg.payload = true;
                 return msg;
@@ -180,6 +184,7 @@ module.exports = function (RED) {
                     msg.topic = curDev.topic;
                     msg.count = count;
                     msg.devicename = curDev.devicename;
+                    msg.longdevicename = curDev.longdevicename;
                     msg.payload = true;
                     node.send([msg, null]);
                 } catch (error) {
@@ -207,6 +212,7 @@ module.exports = function (RED) {
             msg.topic = "";
             msg.count = 0;
             msg.devicename = "";
+            msg.longdevicename = "";
             msg.payload = false;
             node.send([msg, msg]);
         }

@@ -64,7 +64,7 @@
             $("#node-input-rule-container").css('min-height', '350px').css('min-width', '450px').editableList({
                 addItem: function (container, i, opt) { // row, index, data
 
-                    // opt.r is: { topic: rowRuleTopic, devicename: rowRuleDeviceName}
+                    // opt.r is: { topic: rowRuleTopic, devicename: rowRuleDeviceName, longdevicename: rowRuleLongDeviceName}
 
                     var rule = opt.r;
                     if (!opt.hasOwnProperty('i')) {
@@ -79,7 +79,8 @@
                     var oTopicField = $("<input/>", { class: "rowRuleTopic", type: "text", placeholder: "GA or devicename", style: "width:20%; margin-left: 5px; text-align: left;" }).appendTo(row);
                     var finalspan = $('<span/>', { style: "" }).appendTo(row);
                     finalspan.append(' <span class="node-input-rule-index"></span> ');
-                    var orowRuleDeviceName = $('<input/>', { class: "rowRuleDeviceName", type: "text", style: "width:75%; margin-left: 0px; text-align: left;font-style: italic;", placeholder: "Device Name" }).appendTo(row);
+                    var orowRuleDeviceName = $('<input/>', {  maxlength: "14", class: "rowRuleDeviceName", type: "text", style: "width:30%; margin-left: 0px; text-align: left;font-style: italic;", placeholder: "Name (max 14 chars)" }).appendTo(row);
+                    var orowRuleLongDeviceName = $('<input/>', { class: "rowRuleLongDeviceName", type: "text", style: "width:45%; margin-left: 0px; text-align: left;", placeholder: "Long name" }).appendTo(row);
 
                     oTopicField.on("change", function () {
                         resizeRule(container);
@@ -108,7 +109,8 @@
                             var sDevName = ui.item.label.split("#")[1].trim();
                             try {
                                 sDevName = sDevName.substr(sDevName.indexOf(")") + 1).trim();
-                                orowRuleDeviceName.val(sDevName);
+                                orowRuleDeviceName.val(sDevName.substr(0,14));
+                                orowRuleLongDeviceName.val(sDevName);
                             } catch (error) {
                             }
 
@@ -117,6 +119,7 @@
 
                     oTopicField.val(rule.topic);
                     orowRuleDeviceName.val(rule.devicename);
+                    orowRuleLongDeviceName.val(rule.longdevicename);
                     oTopicField.change();                   
 
                 },
@@ -131,7 +134,7 @@
             });
 
             // Put some spaces after the container
-            $('<br/><br/><br/><br/><br/><br/><br/><br/><br/>').insertAfter($("#node-input-rule-container"));
+            $('<br/><br/><br/><br/><br/><br/><br/><br/>').insertAfter($("#node-input-rule-container"));
 
             // 10/03/2020 For each rule, create a row
             for (var i = 0; i < this.rules.length; i++) {
@@ -150,7 +153,8 @@
                 var rule = $(this);
                 var rowRuleTopic = rule.find(".rowRuleTopic").val();
                 var rowRuleDeviceName = rule.find(".rowRuleDeviceName").val();
-                node.rules.push({ topic: rowRuleTopic, devicename: rowRuleDeviceName });
+                var rowRuleLongDeviceName = rule.find(".rowRuleLongDeviceName").val();
+                node.rules.push({ topic: rowRuleTopic, devicename: rowRuleDeviceName, longdevicename: rowRuleLongDeviceName });
             });
             this.propertyType = $("#node-input-property").typedInput('type');
         },
