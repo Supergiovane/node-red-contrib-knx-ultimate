@@ -115,12 +115,12 @@ module.exports = function (RED) {
                 let sTopic = "";
                 node.alertedDevices.forEach(function (item) {
                     sTopic += item.topic + ", ";
-                    sRet += item.devicename + ", ";
-                    sRetLong += item.longdevicename + ", ";
+                    if (item.devicename !== undefined && item.devicename !== "") sRet += item.devicename + ", ";
+                    if (item.longdevicename !== undefined && item.longdevicename !== "") sRetLong += item.longdevicename + ", ";
                 });
                 sTopic = sTopic.slice(0, -2);
-                sRet = sRet.slice(0, -2);
-                sRetLong = sRetLong.slice(0, -2);
+                if (sRet.length > 2) sRet = sRet.slice(0, -2);
+                if (sRetLong.length > 2) sRetLong = sRetLong.slice(0, -2);
                 msg.topic = sTopic;
                 msg.devicename = sRet;
                 msg.longdevicename = sRetLong;
