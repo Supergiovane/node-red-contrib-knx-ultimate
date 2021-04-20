@@ -83,6 +83,7 @@ module.exports = function (RED) {
                         let oTrovato = node.alertedDevices.find(a => a.topic === rule.topic);
                         if (oTrovato === undefined) {
                             node.alertedDevices.unshift({ topic: rule.topic, devicename: rule.devicename, longdevicename: rule.longdevicename }); // Add to the begin of array
+                            if (node.whentostart === "ifnewalert") node.send([null, null, node.getThirdPinMSG()]);
                         }
                         node.setLocalStatus({ fill: "red", shape: "dot", text: "Alert", payload: "", GA: msg.topic, dpt: "", devicename: rule.devicename });
 
@@ -98,10 +99,10 @@ module.exports = function (RED) {
             // This allow the last alerted device to be outputted immediately
             if (node.whentostart === "ifnewalert" && node.alertedDevices.length > 0) {
                 clearTimeout(node.timerSend);
+                // Send directly the second and third message PIN
+                node.send([null, node.getSecondPinMSG(), null]);
                 node.curIndexAlertedDevice = 0; // Restart form the beginning
                 node.startTimer();
-                // Send directly the second message PIN
-                node.send([null, node.getSecondPinMSG()]);
             }
         };
 
@@ -131,14 +132,36 @@ module.exports = function (RED) {
 
         }
 
+        // Get the msg to be outputted on third PIN
+        node.getThirdPinMSG = () => {
+
+            if (node.alertedDevices.length > 0) {
+                let msg = {};
+                let sRet = "";
+                let sRetLong = "";
+                let sTopic = "";
+                let item = node.alertedDevices[0]; // Pick the last alerted device
+                sTopic = item.topic;
+                if (item.devicename !== undefined && item.devicename !== "") sRet = item.devicename;
+                if (item.longdevicename !== undefined && item.longdevicename !== "") sRetLong = item.longdevicename;
+                msg.topic = sTopic;
+                msg.devicename = sRet;
+                msg.longdevicename = sRetLong;
+                msg.count = node.alertedDevices.length;
+                msg.payload = true;
+                return msg;
+            }
+
+        }
+
         node.on("input", function (msg) {
             if (typeof msg === "undefined") return;
             if (msg.hasOwnProperty("start")) {
                 clearTimeout(node.timerSend);
                 node.curIndexAlertedDevice = 0; // Restart form the beginning
                 if (node.alertedDevices.length > 0) {
+                    node.send([null, node.getSecondPinMSG(), node.getThirdPinMSG()]);
                     node.startTimer();
-                    node.send([null, node.getSecondPinMSG()]);
                 } else {
                     // Nothing more to output
                     node.sendNoMoreDevices();
@@ -186,7 +209,7 @@ module.exports = function (RED) {
                     msg.devicename = curDev.devicename;
                     msg.longdevicename = curDev.longdevicename;
                     msg.payload = true;
-                    node.send([msg, null]);
+                    node.send([msg, null, null]);
                 } catch (error) {
                 }
                 node.curIndexAlertedDevice += 1;
@@ -214,7 +237,7 @@ module.exports = function (RED) {
             msg.devicename = "";
             msg.longdevicename = "";
             msg.payload = false;
-            node.send([msg, msg]);
+            node.send([msg, msg, msg]);
         }
 
         // Init

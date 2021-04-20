@@ -5,6 +5,11 @@
 <br/>
 
 <p>
+<b>Version 1.2.26</b> - April 2021<br/>
+- NEW: Alerter node: added a third output PIN containing the last alerted device (https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/Alerter-Configuration).<br/>
+- Updated Wiki, Help and SAMPLE to reflect this change.<br/>
+<p>
+<p>
 <b>Version 1.2.25</b> - April 2021<br/>
 - NEW: Alerter node: added a second output PIN containing all alerted devices at once (useful for Telegram, Alexa and so on) (https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/Alerter-Configuration).<br/>
 - NEW: Alerter node: now you can enter TWO device's descriptions, one short (MAX 14 CHARS, SUITABLE FOR DPT 16.x) and one long.<br/>
