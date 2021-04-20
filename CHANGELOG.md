@@ -5,6 +5,9 @@
 <br/>
 
 <p>
+<b>Version 1.2.24</b> - April 2021<br/>
+- NEW: Alerter node: added a second output PIN containing all alerted devices at once (useful for Telegram, Alexa and so on) (https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/Alerter-Configuration).<br/>
+<p>
 <b>Version 1.2.23</b> - April 2021<br/>
 - Fix: Put some spaces in the device list window of Alerter and Scene node, to facilitate the fields editing.<br/>
 - Alerter node: other than "write", the devices listed react to "response" telegrams as well (https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/Alerter-Configuration).<br/>
