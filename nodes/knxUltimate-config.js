@@ -394,7 +394,9 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                     .forEach(oClient => {
                         // 04/04/2020 selected READ FROM BUS 1
                         if (oClient.initialread === 1) {
-                            if (oClient.listenallga == true) {
+                            if (oClient.hasOwnProperty("isalertnode") && oClient.isalertnode) {
+                                oClient.initialReadAllDevicesInRules();
+                            } else if (oClient.listenallga == true) {
                                 for (let index = 0; index < node.csv.length; index++) {
                                     const element = node.csv[index];
                                     if (!readHistory.includes(element.ga)) {

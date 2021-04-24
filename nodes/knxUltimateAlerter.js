@@ -5,6 +5,8 @@ module.exports = function (RED) {
         var fs = require('fs');
         var path = require('path');
         var mkdirp = require('mkdirp');
+        const Address = require('./../knxultimate-api2/src/Address.js')
+        const KnxConstants = require('./../knxultimate-api2/src/KnxConstants.js')
 
         RED.nodes.createNode(this, config)
         var node = this
@@ -26,6 +28,8 @@ module.exports = function (RED) {
         node.timerSend = null;
         node.whentostart = config.whentostart === undefined ? "ifnewalert" : config.whentostart;
         node.timerinterval = (config.timerinterval === undefined || config.timerinterval == "") ? "2" : config.timerinterval;
+        node.initialread = Number(config.initialread === undefined ? 1 : config.initialread);
+
         try {
             node.sysLogger = require("./utils/sysLogger.js").get({ loglevel: node.server.loglevel || "error" }); // 08/04/2021 new logger to adhere to the loglevel selected in the config-window
         } catch (error) {
@@ -72,6 +76,7 @@ module.exports = function (RED) {
             } catch (error) {
                 return;
             }
+            let bFound = false; // 24/04/2021 true if the cycle below found a match, otherwise false
 
             // Update the node.rules with the values taken from the file, if any, otherwise leave the default value
             for (var i = 0; i < node.rules.length; i++) {
@@ -79,6 +84,7 @@ module.exports = function (RED) {
                 var rule = node.rules[i];
                 if (msg.topic === rule.topic) {
                     if (msg.payload == true) {
+                        bFound = true;
                         // Add the device to the array of alertedDevices
                         let oTrovato = node.alertedDevices.find(a => a.topic === rule.topic);
                         if (oTrovato === undefined) {
@@ -97,7 +103,7 @@ module.exports = function (RED) {
 
             // If there's some device to alert, stop current timer and restart
             // This allow the last alerted device to be outputted immediately
-            if (node.whentostart === "ifnewalert" && node.alertedDevices.length > 0) {
+            if (bFound && node.whentostart === "ifnewalert" && node.alertedDevices.length > 0) {
                 clearTimeout(node.timerSend);
                 // Send directly the second and third message PIN
                 node.send([null, node.getSecondPinMSG(), null]);
@@ -154,6 +160,29 @@ module.exports = function (RED) {
 
         }
 
+        // 24/04/2021 perform a read on all GA in the rule list. Called both from node.on("input") and knxUltimate-config
+        node.initialReadAllDevicesInRules = () => {
+            if (node.server) {
+                let grpaddr = "";
+                for (var i = 0; i < node.rules.length; i++) {
+                    // rule is { topic: rowRuleTopic, devicename: rowRuleDeviceName, longdevicename: rowRuleLongDeviceName}
+                    var rule = node.rules[i];
+                    // READ: Send a Read request to the bus
+                    grpaddr = rule.topic;
+                    try {
+                        // Check if it's a group address
+                        let ret = Address.parse(grpaddr, KnxConstants.KNX_ADDR_TYPES.GROUP, false);
+                        node.setLocalStatus({ fill: "grey", shape: "dot", text: "Read", payload: "", GA: grpaddr, dpt: "", devicename: rule.devicename });
+                        node.server.writeQueueAdd({ grpaddr: grpaddr, payload: "", dpt: "", outputtype: "read", nodecallerid: node.id });
+                    } catch (error) {
+                        node.setLocalStatus({ fill: "grey", shape: "dot", text: "Not a KNX GA " + error.message, payload: "", GA: grpaddr, dpt: "", devicename: rule.devicename });
+                    }
+                }
+            } else {
+                node.setLocalStatus({ fill: "red", shape: "ring", text: "No gateway selected. Unable to read from KNX bus", payload: "", GA: "", dpt: "", devicename: "" });
+            }
+        }
+
         node.on("input", function (msg) {
             if (typeof msg === "undefined") return;
             if (msg.hasOwnProperty("start")) {
@@ -166,6 +195,12 @@ module.exports = function (RED) {
                     // Nothing more to output
                     node.sendNoMoreDevices();
                 }
+                return;
+            }
+
+            // 24/04/2021 if payload is read or the output type is set to "read", do a read
+            if ((msg.hasOwnProperty('readstatus') && msg.readstatus === true)) {
+                node.initialReadAllDevicesInRules();
                 return;
             }
 

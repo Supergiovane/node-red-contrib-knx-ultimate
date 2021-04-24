@@ -10,7 +10,8 @@
             propertyType: { value: "msg" },
             rules: { value: [{ t: "eq", v: "", vt: "str" }] },
             whentostart: { value: "ifnewalert" },
-            timerinterval: { value: "2" }
+            timerinterval: { value: "2" },
+            initialread: { value: "1" },
         },
         inputs: 1,
         outputs: 3,
@@ -202,11 +203,24 @@
 </div>
 
 <div class="form-row">
-    <label for="node-input-timerinterval"><i class="fa fa-clock-o"></i> <span data-i18n="knxUltimateAlerter.properties.node-input-timerinterval"></span> </label>
-    <input type="text" id="node-input-timerinterval">       
+    <label for="node-input-timerinterval" style="width:70%"><i class="fa fa-clock-o"></i> <span data-i18n="knxUltimateAlerter.properties.node-input-timerinterval"></span> </label>
+    <input type="text" id="node-input-timerinterval" style="width:10%">       
 </div>
 
+<br/>
+<br/>
 <dt><i class="fa fa-code-fork"></i>&nbsp; <span data-i18n="knxUltimateAlerter.other.sceneConfig"></dt>
+    <div class="form-row" id="divNode-input-initialread">
+        &nbsp;&nbsp;<label style="width:70%" for="node-input-initialread">
+            <i class="fa fa-question-circle-o"></i>
+            <span data-i18n="knxUltimateAlerter.properties.node-input-initialread"></span>
+        </label>
+        <select style="width:100px" id="node-input-initialread">
+            <option value="0" data-i18n="knxUltimateAlerter.properties.node-input-initialread0"></option>
+            <option value="1" data-i18n="knxUltimateAlerter.properties.node-input-initialread1"></option>
+        </select>
+    
+    </div>
 <div class="form-row node-input-rule-container-row">
     <ol id="node-input-rule-container"></ol>
 </div>

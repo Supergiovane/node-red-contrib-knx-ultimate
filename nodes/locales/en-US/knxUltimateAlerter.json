@@ -7,7 +7,10 @@
             "node-input-server": "Gateway",
             "node-input-name": "Name",
             "node-input-timerinterval": "Interval between each MSG (in seconds)",
-            "node-input-whentostart": "Alerting cycle start type"
+            "node-input-whentostart": "Alerting cycle start type",
+            "node-input-initialread": "Read value of each device on connection/reconnect",
+            "node-input-initialread0": "No",
+            "node-input-initialread1": "Read from KNX BUS"
         },
         "selectlists": {
             "manualstart": "Start alert cycle manually via incoming message",
