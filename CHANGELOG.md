@@ -6,6 +6,7 @@
 
 <p>
 <b>Version 1.2.27</b> - April 2021<br/>
+- Alerter node: fixed an issue related to the order of cycled msg output of alerted devices.
 - Alerter node: now you can read the value of all devices belonging to the list, on each connection/reconnection.<br/>
 - Alerter node: now you can read the value of all devices belonging to the list, by massing *msg.readstatus = true* to the node.<br/>
 - Updated Wiki, Help and SAMPLE to reflect this change.<br/>
