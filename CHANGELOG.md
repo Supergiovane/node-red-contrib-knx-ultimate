@@ -5,6 +5,12 @@
 <br/>
 
 <p>
+<b>Version 1.2.27</b> - April 2021<br/>
+- Alerter node: now you can read the value of all devices belonging to the list, on each connection/reconnection.<br/>
+- Alerter node: now you can read the value of all devices belonging to the list, by massing *msg.readstatus = true* to the node.<br/>
+- Updated Wiki, Help and SAMPLE to reflect this change.<br/>
+<p>
+<p>
 <b>Version 1.2.26</b> - April 2021<br/>
 - NEW: Alerter node: added a third output PIN containing the last alerted device (https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/Alerter-Configuration).<br/>
 - Updated Wiki, Help and SAMPLE to reflect this change.<br/>
