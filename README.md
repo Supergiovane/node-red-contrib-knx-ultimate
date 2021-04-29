@@ -55,7 +55,6 @@ Click your language to go to the documentation.<br/>
 * [Facebook page](https://www.facebook.com/supergiovaneDev)
 * [FAQ + Troubleshoot](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/5.-FAQ-Troubleshoot)
 * [Security best practices](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/SECURITY)
-* [NODE-RED KNX-ULTIMATE TEST SITE](http://casacorte.myqnapcloud.com:2021) Online node-red public test website (and Dashboard UI as well http://casacorte.myqnapcloud.com:2021/ui). There is a node-red installation ready to be tested, with KNX-Ultimate fully set in "emulation" mode (you cannot do any damage, because the KNX backbone is simulated).
 
 
 
