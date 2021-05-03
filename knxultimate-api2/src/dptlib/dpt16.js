@@ -13,7 +13,12 @@ const knxLog = require('./../KnxLog');
 exports.formatAPDU = function (value) {
   if (typeof value != 'string') {
     knxLog.get().error("Must supply a string value. Autoconversion to string");
-    value = value.toString();
+    try {
+      value = value.toString();
+    } catch (error) {
+      value = "DPT Err";
+    }
+
   }
 
   var buf = new Buffer.alloc(14);
