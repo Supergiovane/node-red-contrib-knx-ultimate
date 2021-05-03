@@ -5,6 +5,10 @@
 <br/>
 
 <p>
+<b>Version 1.2.28</b> - May 2021<br/>
+- KNX Device: if you send a boolean value to a node with datapoint 16.001 (Ascii string), all nodes goes to sleep and shows "Waiting" in the status. Fixed. Thanks to @Poddler.
+<p>
+<p>
 <b>Version 1.2.27</b> - April 2021<br/>
 - Alerter node: fixed an issue related to the order of cycled msg output of alerted devices.
 - Alerter node: now you can read the value of all devices belonging to the list, on each connection/reconnection.<br/>
