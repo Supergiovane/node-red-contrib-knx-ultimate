@@ -495,11 +495,11 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                 try {
                     node.Disconnect();
                     if (node.tempDiscoTimer !== null) clearTimeout(node.tempDiscoTimer)
+                    node.setAllClientsStatus("CONFIG", "yellow", "Forced GW connection from watchdog.");
                     node.tempDiscoTimer = setTimeout(() => {
-                        node.setAllClientsStatus("CONFIG", "green", "Forced GW connection from watchdog.")
                         node.autoReconnect = true;
                         node.initKNXConnection();
-                    }, 5000);
+                    }, 2000);
                 } catch (error) { }
             } else {
                 // DISCONNECT AND DISABLE RECONNECTION ATTEMPTS
@@ -508,8 +508,8 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                     node.Disconnect();
                     if (node.tempDiscoTimer !== null) clearTimeout(node.tempDiscoTimer)
                     node.tempDiscoTimer = setTimeout(() => {
-                        node.setAllClientsStatus("CONFIG", "red", "Forced GW disconnection and stop reconnection attempts, from watchdog.")
-                    }, 5000);
+                        node.setAllClientsStatus("CONFIG", "yellow", "Forced GW disconnection and stop reconnection attempts, from watchdog.");
+                    }, 2000);
                 } catch (error) { }
             }
 
