@@ -137,6 +137,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
         node.timerRiavviaDopoInstanziazione = null;
         node.tempDiscoTimer = null;
         node.sysLogger = require("./utils/sysLogger.js").get({ loglevel: node.loglevel }); // 08/04/2021 new logger to adhere to the loglevel selected in the config-window
+        node.autoReconnect = true; // 05/05/2021 force FMS (knxConnection) to automatically reconnect.
 
         // 04/04/2021 Supergiovane, creates the service paths where the persistent files are created.
         // The values file is stored only upon disconnection/close
@@ -388,62 +389,68 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
             if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("KNXUltimate-config: Do DoInitialReadFromKNXBusOrFile");
             try {
                 var readHistory = [];
+
+                // First, read from file. This allow all virtual devices to get their values from file.
                 node.nodeClients
-                    .filter(oClient => oClient.initialread > 0)
+                    .filter(oClient => oClient.initialread == 2 || oClient.initialread == 3)
+                    .filter(oClient => oClient.hasOwnProperty("isWatchDog") === false)
+                    .forEach(oClient => {
+                        // 04/04/2020 selected READ FROM FILE 2 or from file then from bus 3
+                        if (oClient.listenallga == true) {
+
+                        } else {
+                            try {
+                                let item = node.exposedGAs.find(a => a.ga === oClient.topic);
+                                if (node.exposedGAs.length > 0 && item !== undefined) {
+
+                                    // Retrieve the value from datapoint
+                                    let msg = buildInputMessage({ _srcGA: "", _destGA: oClient.topic, _event: "GroupValue_Response", _Rawvalue: item.rawValue.data, _inputDpt: oClient.dpt, _devicename: oClient.name ? oClient.name : "", _outputtopic: oClient.outputtopic, _oNode: null })
+                                    oClient.previouspayload = ""; // 05/04/2021 Added previous payload
+                                    oClient.currentPayload = msg.payload;
+                                    oClient.setNodeStatus({ fill: "grey", shape: "dot", text: "Update value from persist file", payload: oClient.currentPayload, GA: oClient.topic, dpt: oClient.dpt, devicename: oClient.devicename || "" });
+                                    if (oClient.notifyresponse) oClient.handleSend(msg);
+
+                                } else {
+                                    if (oClient.initialread === 3) {
+                                        // Not found, issue a READ to the bus
+                                        if (!readHistory.includes(oClient.topic)) {
+                                            setTimeout(() => {
+                                                oClient.setNodeStatus({ fill: "grey", shape: "dot", text: "Persist file not found, issuing READ request to BUS", payload: oClient.currentPayload, GA: oClient.topic, dpt: oClient.dpt, devicename: oClient.devicename || "" });
+                                                node.writeQueueAdd({ grpaddr: oClient.topic, payload: "", dpt: "", outputtype: "read", nodecallerid: oClient.id });
+                                                readHistory.push(oClient.topic);
+                                            }, 1000);
+                                        };
+                                    };
+                                };
+                            } catch (error) {
+
+                            }
+
+                        }
+                    })
+
+                // Then, after all values have been read from file, read from BUS
+                // This allow the virtual devices to get their values before this will be readed from bus
+                node.nodeClients
+                    .filter(oClient => oClient.initialread == 1)
                     .filter(oClient => oClient.hasOwnProperty("isWatchDog") === false)
                     .forEach(oClient => {
                         // 04/04/2020 selected READ FROM BUS 1
-                        if (oClient.initialread === 1) {
-                            if (oClient.hasOwnProperty("isalertnode") && oClient.isalertnode) {
-                                oClient.initialReadAllDevicesInRules();
-                            } else if (oClient.listenallga == true) {
-                                for (let index = 0; index < node.csv.length; index++) {
-                                    const element = node.csv[index];
-                                    if (!readHistory.includes(element.ga)) {
-                                        node.writeQueueAdd({ grpaddr: element.ga, payload: "", dpt: "", outputtype: "read", nodecallerid: element.id });
-                                        readHistory.push(element.ga);
-                                    };
-                                }
-                            } else {
-                                if (!readHistory.includes(oClient.topic)) {
-                                    node.writeQueueAdd({ grpaddr: oClient.topic, payload: "", dpt: "", outputtype: "read", nodecallerid: oClient.id });
-                                    readHistory.push(oClient.topic);
+                        if (oClient.hasOwnProperty("isalertnode") && oClient.isalertnode) {
+                            oClient.initialReadAllDevicesInRules();
+                        } else if (oClient.listenallga == true) {
+                            for (let index = 0; index < node.csv.length; index++) {
+                                const element = node.csv[index];
+                                if (!readHistory.includes(element.ga)) {
+                                    node.writeQueueAdd({ grpaddr: element.ga, payload: "", dpt: "", outputtype: "read", nodecallerid: element.id });
+                                    readHistory.push(element.ga);
                                 };
                             }
-                        }
-                        // 04/04/2020 selected READ FROM FILE 2 or from file then from bus 3
-                        if (oClient.initialread === 2 || oClient.initialread === 3) {
-                            if (oClient.listenallga == true) {
-
-                            } else {
-                                try {
-                                    let item = node.exposedGAs.find(a => a.ga === oClient.topic);
-                                    if (node.exposedGAs.length > 0 && item !== undefined) {
-
-                                        // Retrieve the value from datapoint
-                                        let msg = buildInputMessage({ _srcGA: "", _destGA: oClient.topic, _event: "GroupValue_Response", _Rawvalue: item.rawValue.data, _inputDpt: oClient.dpt, _devicename: oClient.name ? oClient.name : "", _outputtopic: oClient.outputtopic, _oNode: null })
-                                        oClient.previouspayload = ""; // 05/04/2021 Added previous payload
-                                        oClient.currentPayload = msg.payload;
-                                        oClient.setNodeStatus({ fill: "grey", shape: "dot", text: "Update value from persist file", payload: oClient.currentPayload, GA: oClient.topic, dpt: oClient.dpt, devicename: oClient.devicename || "" });
-                                        if (oClient.notifyresponse) oClient.handleSend(msg);
-
-                                    } else {
-                                        if (oClient.initialread === 3) {
-                                            // Not found, issue a READ to the bus
-                                            if (!readHistory.includes(oClient.topic)) {
-                                                setTimeout(() => {
-                                                    oClient.setNodeStatus({ fill: "grey", shape: "dot", text: "Persist file not found, issuing READ request to BUS", payload: oClient.currentPayload, GA: oClient.topic, dpt: oClient.dpt, devicename: oClient.devicename || "" });
-                                                    node.writeQueueAdd({ grpaddr: oClient.topic, payload: "", dpt: "", outputtype: "read", nodecallerid: oClient.id });
-                                                    readHistory.push(oClient.topic);
-                                                }, 1000);
-                                            };
-                                        };
-                                    };
-                                } catch (error) {
-
-                                }
-
-                            }
+                        } else {
+                            if (!readHistory.includes(oClient.topic)) {
+                                node.writeQueueAdd({ grpaddr: oClient.topic, payload: "", dpt: "", outputtype: "read", nodecallerid: oClient.id });
+                                readHistory.push(oClient.topic);
+                            };
                         }
                     })
 
@@ -475,6 +482,39 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
             };
         };
 
+
+        // 05/05/2021 force connection or disconnection from the KNX BUS and disable the autoreconenctions attempts.
+        // This new thing has been requested by proServ RealKNX staff.
+        node.connectGateway = (_bConnection) => {
+            if (_bConnection === undefined) return;
+            if (node.knxConnection === undefined) return;
+
+            if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info((_bConnection === true ? "Forced connection from watchdog" : "Forced disconnection from watchdog") + node.host + " Port " + node.port + " PhysicalAddress " + node.physAddr + " BindToInterface " + node.KNXEthInterface);
+            if (_bConnection === true) {
+                // CONNECT AND ENABLE RECONNECTION ATTEMPTS
+                try {
+                    node.Disconnect();
+                    if (node.tempDiscoTimer !== null) clearTimeout(node.tempDiscoTimer)
+                    node.tempDiscoTimer = setTimeout(() => {
+                        node.setAllClientsStatus("CONFIG", "green", "Forced GW connection from watchdog.")
+                        node.autoReconnect = true;
+                        node.initKNXConnection();
+                    }, 5000);
+                } catch (error) { }
+            } else {
+                // DISCONNECT AND DISABLE RECONNECTION ATTEMPTS
+                try {
+                    node.autoReconnect = false;
+                    node.Disconnect();
+                    if (node.tempDiscoTimer !== null) clearTimeout(node.tempDiscoTimer)
+                    node.tempDiscoTimer = setTimeout(() => {
+                        node.setAllClientsStatus("CONFIG", "red", "Forced GW disconnection and stop reconnection attempts, from watchdog.")
+                    }, 5000);
+                } catch (error) { }
+            }
+
+        };
+
         node.initKNXConnection = () => {
 
             // 26/01/2021 Emulation mode
@@ -499,6 +539,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                 suppress_ack_ldatareq: node.suppressACKRequest,
                 loglevel: node.loglevel,
                 localEchoInTunneling: node.localEchoInTunneling, // 14/03/2020 local echo in tunneling mode (see API Supergiovane)
+                autoReconnect: node.autoReconnect,
                 //minimumDelay: 60, // With api2 it works again, but better handling it on knx-ultimate queue
                 handlers: {
                     // This is going to be called when the connection was established

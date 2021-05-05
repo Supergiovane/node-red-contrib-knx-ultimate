@@ -126,12 +126,38 @@ module.exports = function (RED) {
         };
 
         node.on("input", function (msg) {
-
             if (typeof msg === "undefined") return;
-            
+
+            if (msg.hasOwnProperty("start")) {
+                if (Boolean(msg.start) === true) {
+                    node.StartWatchDogTimer();
+                }
+                else {
+                    if (node.timerWatchDog !== null) clearInterval(node.timerWatchDog);
+                    node.setNodeStatus({ fill: "grey", shape: "ring", text: "WatchDog stopped.", payload: "", GA: "", dpt: "", devicename: "" })
+                };
+            };
+
+            if (node.server === undefined) return;
+
+            // 05/05/2021 force connection/disconnectio of the gateway
+            if (msg.hasOwnProperty("connectGateway")) {
+                node.server.connectGateway(msg.connectGateway);
+                msg = {
+                    type: "connectGateway",
+                    checkPerformed: "The Watchdog issued a connection/disconnection to the gateway.",
+                    nodeid: node.id,
+                    payload: msg.connectGateway,
+                    description: "Connection",
+                    completeError: ""
+                };
+                node.send(msg);
+            }
+
             // 01/02/2020 Dinamic change of the KNX Gateway IP, Port and Physical Address
             // This new thing has been requested by proServ RealKNX staff.
             if (msg.hasOwnProperty("setGatewayConfig")) {
+
                 node.server.setGatewayConfig(msg.setGatewayConfig.IP, msg.setGatewayConfig.Port, msg.setGatewayConfig.PhysicalAddress, msg.setGatewayConfig.BindToEthernetInterface);
                 msg = {
                     type: "setGatewayConfig",
@@ -146,15 +172,6 @@ module.exports = function (RED) {
                 node.StartWatchDogTimer();
             };
 
-            if (msg.hasOwnProperty("start")) {
-                if (Boolean(msg.start) === true) {
-                    node.StartWatchDogTimer();
-                }
-                else {
-                    if (node.timerWatchDog !== null) clearInterval(node.timerWatchDog);
-                    node.setNodeStatus({ fill: "grey", shape: "ring", text: "WatchDog stopped.", payload: "", GA: "", dpt: "", devicename: "" })
-                };
-            };
         });
 
         node.on("close", function (done) {

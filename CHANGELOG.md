@@ -5,6 +5,10 @@
 <br/>
 
 <p>
+<b>Version 1.2.29</b> - May 2021<br/>
+- KNX Device: if "read on connection/reconnection" is selected, the gateway node will now read all values of all nodes in 2 steps: first from file (for the nodes set in this way), then from BUS (for the nodes set in this way). This allow nodes that are setup as virtual devices, to get their values from file before being asked to send the value as response to the bus, by other nodes. It's all clear? No? Sorry for that, i'm unable to better explain that.</br>
+<p>
+<p>
 <b>Version 1.2.28</b> - May 2021<br/>
 - KNX Device: if you send a boolean value to a node with datapoint 16.001 (Ascii string), all nodes goes to sleep and shows "Waiting" in the status. Fixed. Thanks to @Podler.
 <p>

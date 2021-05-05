@@ -260,6 +260,10 @@ List of commercial companies, which have given us permission to be mentioned on 
 
 [![](https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/c/proKNX.png)](https://proknx.com)
 </td> 
+<td style="valign:center; border: 0px; padding: 15px;">
+
+[![](https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/c/altis.png)](https://altis.swiss)
+</td> 
 </tr> 
 </table> 
 
@@ -270,6 +274,7 @@ List of commercial companies, which have given us permission to be mentioned on 
 * [KNX Sardegna - Gianmarco Sitzia, Certified KNX Partner](http://www.knxsardegna.com)
 * [Agata Store - Professional store and Certified KNX Partner](https://www.agatastore.it)
 * [ProKNX - KNX Device Manufacturer](https://proknx.com)
+* [Altis - Energy and utilities provider](https://altis.swiss)
 
 <br/>
 
