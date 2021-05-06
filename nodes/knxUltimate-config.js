@@ -167,9 +167,10 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
             try {
                 if (node.exposedGAs.length > 0) {
                     fs.writeFileSync(path.join(node.userDir, "knxpersistvalues", "knxpersist.json"), JSON.stringify(node.exposedGAs))
+                    if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info('KNXUltimate-config: wrote peristent values to the file ' + path.join(node.userDir, "knxpersistvalues"));
                 }
             } catch (err) {
-                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info('KNXUltimate-config: unable to write peristent values to the file ' + path.join(node.userDir, "knxpersistvalues") + " " + err.message);
+                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error('KNXUltimate-config: unable to write peristent values to the file ' + path.join(node.userDir, "knxpersistvalues") + " " + err.message);
             }
         }
         function loadExposedGAs() {
@@ -400,28 +401,38 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
 
                         } else {
                             try {
-                                let item = node.exposedGAs.find(a => a.ga === oClient.topic);
-                                if (node.exposedGAs.length > 0 && item !== undefined) {
+                                if (node.exposedGAs.length > 0) {
+                                    let oExposedGA = node.exposedGAs.find(a => a.ga === oClient.topic);
+                                    if (oExposedGA !== undefined) {
 
-                                    // Retrieve the value from datapoint
-                                    let msg = buildInputMessage({ _srcGA: "", _destGA: oClient.topic, _event: "GroupValue_Response", _Rawvalue: item.rawValue.data, _inputDpt: oClient.dpt, _devicename: oClient.name ? oClient.name : "", _outputtopic: oClient.outputtopic, _oNode: null })
-                                    oClient.previouspayload = ""; // 05/04/2021 Added previous payload
-                                    oClient.currentPayload = msg.payload;
-                                    oClient.setNodeStatus({ fill: "grey", shape: "dot", text: "Update value from persist file", payload: oClient.currentPayload, GA: oClient.topic, dpt: oClient.dpt, devicename: oClient.devicename || "" });
-                                    if (oClient.notifyresponse) oClient.handleSend(msg);
+                                        // Retrieve the value from exposedGAs
+                                        let msg = buildInputMessage({ _srcGA: "", _destGA: oClient.topic, _event: "GroupValue_Response", _Rawvalue: oExposedGA.rawValue.data, _inputDpt: oClient.dpt, _devicename: oClient.name ? oClient.name : "", _outputtopic: oClient.outputtopic, _oNode: oClient })
+                                        oClient.previouspayload = ""; // 05/04/2021 Added previous payload
+                                        oClient.currentPayload = msg.payload;
+                                        oClient.setNodeStatus({ fill: "grey", shape: "dot", text: "Update value from persist file", payload: oClient.currentPayload, GA: oClient.topic, dpt: oClient.dpt, devicename: oClient.name || "" });
+                                        // 06/05/2021 If, after the rawdata has been savad to file, the user changes the datapoint, the buildInputMessage returns payload null, because it's unable to convert the value
+                                        if (msg.payload === null) {
+                                            // Delete the exposedGA
+                                            node.exposedGAs = node.exposedGAs.filter((item) => item.ga !== oClient.topic);
+                                            oClient.setNodeStatus({ fill: "yellow", shape: "dot", text: "Datapoint has been changed, remove the value from persist file", payload: oClient.currentPayload, GA: oClient.topic, dpt: oClient.dpt, devicename: oClient.devicename || "" });
+                                            if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("knxUltimate-config: DoInitialReadFromKNXBusOrFile: Datapoint may have been changed, remove the value from persist file of " + oClient.topic + " Devicename " + oClient.name + " Currend DPT " + oClient.dpt + " Node.id " + oClient.id);
+                                        }else{
+                                            if (oClient.notifyresponse) oClient.handleSend(msg);
+                                        }
 
-                                } else {
-                                    if (oClient.initialread === 3) {
-                                        // Not found, issue a READ to the bus
-                                        if (!readHistory.includes(oClient.topic)) {
-                                            setTimeout(() => {
-                                                oClient.setNodeStatus({ fill: "grey", shape: "dot", text: "Persist file not found, issuing READ request to BUS", payload: oClient.currentPayload, GA: oClient.topic, dpt: oClient.dpt, devicename: oClient.devicename || "" });
-                                                node.writeQueueAdd({ grpaddr: oClient.topic, payload: "", dpt: "", outputtype: "read", nodecallerid: oClient.id });
-                                                readHistory.push(oClient.topic);
-                                            }, 1000);
+                                    } else {
+                                        if (oClient.initialread === 3) {
+                                            // Not found, issue a READ to the bus
+                                            if (!readHistory.includes(oClient.topic)) {
+                                                setTimeout(() => {
+                                                    oClient.setNodeStatus({ fill: "grey", shape: "dot", text: "Persist file not found, issuing READ request to BUS", payload: oClient.currentPayload, GA: oClient.topic, dpt: oClient.dpt, devicename: oClient.devicename || "" });
+                                                    node.writeQueueAdd({ grpaddr: oClient.topic, payload: "", dpt: "", outputtype: "read", nodecallerid: oClient.id });
+                                                    readHistory.push(oClient.topic);
+                                                }, 1000);
+                                            };
                                         };
                                     };
-                                };
+                                }
                             } catch (error) {
 
                             }
@@ -843,7 +854,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
 
                             if (input.hasOwnProperty("isLogger")) { // 26/03/2020 Coronavirus is slightly decreasing the affected numer of people. Logger Node
 
-                                console.log("BANANA isLogger", _evt, _src, _dest, _rawValue, _cemiETS);
+                                //console.log("BANANA isLogger", _evt, _src, _dest, _rawValue, _cemiETS);
                                 // 24/03/2021 Logger Node, i'll pass cemiETS
                                 if (_cemiETS !== undefined) {
                                     //new Promise((resolve, reject) => {
@@ -1100,7 +1111,9 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                 if (dpt && _Rawvalue !== null) {
                     try {
                         var jsValue = dptlib.fromBuffer(_Rawvalue, dpt)
-                        if (jsValue === null) if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("knxUltimate-config: buildInputMessage: received a wrong datagram form KNX BUS, from device " + _srcGA + " Destination " + _destGA + " Event " + _event + " RawValue " + _Rawvalue + " GA's Datapoint " + (_inputDpt === null ? "THE ETS FILE HAS NOT BEEN IMPORTED, SO I'M TRYING TO FIGURE OUT WHAT DATAPOINT BELONGS THIS GROUP ADDRESS. DON'T BLAME ME IF I'M WRONG, INSTEAD, IMPORT THE ETS FILE!" : _inputDpt) + " Devicename " + _devicename + " Topic " + _outputtopic);
+                        if (jsValue === null) {
+                            if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("knxUltimate-config: buildInputMessage: received a wrong datagram form KNX BUS, from device " + _srcGA + " Destination " + _destGA + " Event " + _event + " RawValue " + _Rawvalue + " GA's Datapoint " + (_inputDpt === null ? "THE ETS FILE HAS NOT BEEN IMPORTED, SO I'M TRYING TO FIGURE OUT WHAT DATAPOINT BELONGS THIS GROUP ADDRESS. DON'T BLAME ME IF I'M WRONG, INSTEAD, IMPORT THE ETS FILE!" : _inputDpt) + " Devicename " + _devicename + " Topic " + _outputtopic);
+                        }
                     } catch (error) {
                         if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("knxUltimate-config: buildInputMessage: Error returning from DPT decoding. Device " + _srcGA + " Destination " + _destGA + " Event " + _event + " RawValue " + _Rawvalue + " GA's Datapoint " + (_inputDpt === null ? "THE ETS FILE HAS NOT BEEN IMPORTED, SO I'M TRYING TO FIGURE OUT WHAT DATAPOINT BELONGS THIS GROUP ADDRESS. DON'T BLAME ME IF I'M WRONG, INSTEAD, IMPORT THE ETS FILE!" : _inputDpt) + " Devicename " + _devicename + " Topic " + _outputtopic);
                     }

@@ -5,6 +5,10 @@
 <br/>
 
 <p>
+<b>Version 1.2.31</b> - May 2021<br/>
+- Fixed an issue happening if whenever you change a KNX node's datapoint, while the persistent value saved to file has already been saved using the old datapoint.<br/>
+<p>
+<p>
 <b>Version 1.2.30</b> - May 2021<br/>
 - Datapoint 14.x: fixed a possible issue if the inpur message coming from the flow, is'nt a valid datapoint 14.x value.<br/>
 <p>
