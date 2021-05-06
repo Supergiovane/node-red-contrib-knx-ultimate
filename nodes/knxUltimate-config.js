@@ -532,6 +532,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
             node.Disconnect();
             node.setAllClientsStatus("Waiting", "grey", "")
 
+            // Reference from https://www.npmjs.com/package/advanced_knx
             var knxConnectionProperties = {
                 ipAddr: node.host,
                 ipPort: node.port,
@@ -567,13 +568,13 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                         node.setAllClientsStatus("connFailCb", "grey", "");
                         node.linkStatus = "disconnected";
                         saveExposedGAs(); // 04/04/2021 save the current values of GA payload
-                        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.warn("knxUltimate-config: connFailCb, Disconnected.");
+                        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("knxUltimate-config: connFailCb, Disconnected.");
                     },
                     // This will be called when the connection to the KNX interface failed because it ran out of connections
                     outOfConnectionsCb: function () {
                         //console.log('[Even cooler callback function] The KNX-IP Interface reached its connection limit!')
                         setTimeout(() => node.setAllClientsStatus("outOfConnectionsCb", "red", "No more avaiable tunnels in the interface."), 1000);
-                        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.warn("knxUltimate-config: Error on KNX BUS. No more avaiable tunnels.");
+                        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("knxUltimate-config: Error on KNX BUS. No more avaiable tunnels.");
                     },
                     // This will be called when the KNX interface failed to acknowledge a message in time
                     waitAckTimeoutCb: function () {
@@ -582,9 +583,15 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                     // This will be called when sending of a message failed
                     sendFailCb: function (err) {
                         //console.log('[Send Fail Callback] Error while sending a message: %j', err)
+                        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("knxUltimate-config: Send Fail Callback: Error while sending a message " + err.message);
+                    },
+                    // This will be called on every incoming message
+                    rawMsgCb: function (rawKnxMsg, rawMsgJson) {
+                        //console.log('The KNXNet message (JSON): %j', rawMsgJson)
+                        //console.log('The KNX message (RAW): %j', rawKnxMsg)
                     },
                     // This is going to be called on general errors
-                    error: function (connstatus) {
+                    error: function (stat) {
                         // Coming from api requestingConnState: {
                         // NO_ERROR: 0x00, // E_NO_ERROR - The connection was established succesfully
                         // E_HOST_PROTOCOL_TYPE: 0x01,
@@ -600,22 +607,22 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                         // E_TUNNELING_LAYER: 0x29,
                         //node.linkStatus = "disconnected"; 01/10/2020 Removed.
 
-                        if (connstatus == "E_KNX_CONNECTION") {
-                            setTimeout(() => node.setAllClientsStatus(connstatus, "grey", "Error on KNX BUS. Check KNX red/black connector and cable."), 1000)
-                            if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("knxUltimate-config: Bind KNX Bus to interface error: " + connstatus);
-                        } else if (connstatus == "E_NO_MORE_CONNECTIONS") {
+                        if (stat == "E_KNX_CONNECTION") {
+                            setTimeout(() => node.setAllClientsStatus(stat, "grey", "Error on KNX BUS. Check KNX red/black connector and cable."), 1000)
+                            if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("knxUltimate-config: Bind KNX Bus to interface error: " + stat);
+                        } else if (stat == "E_NO_MORE_CONNECTIONS") {
                             //setTimeout(() => node.setAllClientsStatus(connstatus, "grey", "Error on KNX BUS. No more avaiable tunnels."), 1000);
                             //if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("knxUltimate-config: Error on KNX BUS. No more avaiable tunnels: " + connstatus);
-                        } else if (connstatus == "timed out waiting for CONNECTIONSTATE_RESPONSE") {
+                        } else if (stat == "timed out waiting for CONNECTIONSTATE_RESPONSE") {
                             // The KNX/IP Interface is not responding to connection state request.
                             // It can be normal, if it's not strictly adhering to knx standards.
-                            if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.warn("knxUltimate-config: knxConnection warning: " + connstatus);
-                        } else if (connstatus == "E_CONNECTION_ID") {
+                            if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.warn("knxUltimate-config: knxConnection warning: " + stat);
+                        } else if (stat == "E_CONNECTION_ID") {
                             //if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.warn("BANANA RED :" +  connstatus);
 
                         } else {
-                            setTimeout(() => node.setAllClientsStatus(connstatus, "grey", "Error"), 2000)
-                            if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("knxUltimate-config: knxConnection error: " + connstatus);
+                            setTimeout(() => node.setAllClientsStatus(stat, "grey", "Error"), 2000)
+                            if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("knxUltimate-config: knxConnection error: " + stat);
                         }
 
                     },

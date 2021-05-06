@@ -5,6 +5,10 @@
 <br/>
 
 <p>
+<b>Version 1.2.30</b> - May 2021<br/>
+- Datapoint 14.x: fixed a possible issue if the inpur message coming from the flow, is'nt a valid datapoint 14.x value.<br/>
+<p>
+<p>
 <b>Version 1.2.29</b> - May 2021<br/>
 - KNX Device: if "read on connection/reconnection" is selected, the gateway node will now read all values of all nodes in 2 steps: first from file (for the nodes set in this way), then from BUS (for the nodes set in this way). This allow nodes that are setup as virtual devices, to get their values from file before being asked to send the value as response to the bus, by other nodes. It's all clear? No? Sorry for that, i'm unable to better explain that.</br>
 - Watchdog node: NEW: you can force the selected gateway to disconnect from the KNX BUS and to STOP reconnection attempts. You can also force the selected gateway to connect to the KNX BUS and to ENABLE reconnection attempts. https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---WatchDog<br/>
