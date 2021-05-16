@@ -161,7 +161,16 @@ exports.subtypes = {
     "name": "Temperature difference",
     "unit": "K"
   },
-
+  "074": {
+    "desc": "DDPT_Value_Time",
+    "name": "Time",
+    "unit": "s"
+  },
+  "076": {
+    "desc": "DPT_Value_Volume",
+    "name": "Volume",
+    "unit": "m3"
+  },
   "078": {
     "desc": "DPT_Value_Weight",
     "name": "Weight",

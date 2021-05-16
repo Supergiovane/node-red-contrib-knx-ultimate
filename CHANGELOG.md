@@ -5,6 +5,10 @@
 <br/>
 
 <p>
+<b>Version 1.2.32</b> - May 2021<br/>
+- NEW Dattpoint 14.074 (Time in secs) and 14.076 (Volume in m3).<br/>
+<p>
+<p>
 <b>Version 1.2.31</b> - May 2021<br/>
 - Fixed an issue happening if whenever you change a KNX node's datapoint, while the persistent value saved to file has already been saved using the old datapoint.<br/>
 <p>
