@@ -231,17 +231,18 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                 // 27/09/2020 Something wrong
                 return;
             }
-            var sNodes = "\"Group Address\"\t\"Datapoint\"\t\"Node ID\"\t\"Device Name\"\n"; // Contains the text with nodes
+            var sNodes = "\"Group Address\"\t\"Datapoint\"\t\"Node ID\"\t\"Device Name\"\t\"Options\"\n"; // Contains the text with nodes
             var sGA = "";
             var sDPT = "";
             var sName = "";
             var sNodeID = "";
+            let sOptions = "";
             try {
                 if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("KNXUltimate-config: Total knx-ultimate nodes: " + _node.nodeClients.length || 0);
                 _node.nodeClients
                     //.map( a => a.topic.indexOf("/") !== -1 ? a.topic.split('/').map( n => +n+100000 ).join('/'):0 ).sort().map( a => a.topic.indexOf("/") !== -1 ? a.topic.split('/').map( n => +n-100000 ).join('/'):0 )
                     .sort((a, b) => {
-                        if (typeof a.topic !== "undefined" && b.topic !== "undefined") {
+                        if (a.topic !== undefined && b.topic !== undefined) {
                             if (a.topic.indexOf("/") === -1) return -1;
                             if (b.topic.indexOf("/") === -1) return -1;
                             var date1 = a.topic.split("/");
@@ -253,7 +254,8 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                     })
                     .forEach(input => {
                         sNodeID = "\"" + input.id + "\"";
-                        sName = "\"" + (typeof input.name !== "undefined" ? input.name : "") + "\"";
+                        sName = "\"" + (input.name !== undefined ? input.name : "") + "\"";
+                        sOptions = "\"" + "\"";
                         if (input.listenallga == true) {
                             if (input.hasOwnProperty("isSceneController")) {
                                 // Is a Scene Controller
@@ -271,20 +273,39 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                                 // Is a ListenallGA
                                 sGA = "\"Universal Node\"";
                                 sDPT = "\"Any\"";
+                                sOptions = "\"" + "No Initial Read" + ", ";
+
+                                sOptions += (input.notifywrite === true ? "React to Write" : "No React to Write") + ", ";
+                                sOptions += (input.notifyresponse === true ? "React to Response" : "No React to Response") + ", ";
+                                sOptions += (input.notifyreadrequest === true ? "React to Read" : "No React to Read") + ", ";
+                                sOptions += "No Autorespond to Read Requests" + ", ";
+
+                                sOptions += "Output type " + input.outputtype + ", ";
+                                sOptions += "No RBE on Output to Bus" + ", ";
+                                sOptions += "No RBE on Input from Bus" + "\"";
                             }
 
                         } else {
-                            sGA = "\"" + (typeof input.topic !== "undefined" ? input.topic : "") + "\"";
-                            sDPT = "\"" + (typeof input.dpt !== "undefined" ? input.dpt : "") + "\"";
+                            sGA = "\"" + (input.topic !== undefined ? input.topic : "") + "\"";
+                            sDPT = "\"" + (input.dpt !== undefined ? input.dpt : "") + "\"";
+
                             if (input.hasOwnProperty("isWatchDog")) {
                                 // Is a watchdog node
 
                             } else {
                                 // Is a device node
+                                sOptions = "\"" + (Number(input.initialread) > 0 ? "Initial Read" : "No Initial Read") + ", ";
+                                sOptions += (input.notifywrite === true ? "React to Write" : "No React to Write") + ", ";
+                                sOptions += (input.notifyresponse === true ? "React to Response" : "No React to Response") + ", ";
+                                sOptions += (input.notifyreadrequest === true ? "React to Read" : "No React to Read") + ", ";
+                                sOptions += (input.notifyreadrequestalsorespondtobus === true ? "Autorespond to Read Requests" : "No Autorespond to Read Requests") + ", ";
 
+                                sOptions += "Output type " + input.outputtype + ", ";
+                                sOptions += (input.outputRBE === true ? "RBE on Output to Bus" : "No RBE on Output to Bus") + ", ";
+                                sOptions += (input.inputRBE === true ? "RBE on Input from Bus" : "No RBE on Input from Bus") + "\"";
                             };
                         };
-                        sNodes += sGA + "\t" + sDPT + "\t" + sNodeID + "\t" + sName + "\n";
+                        sNodes += sGA + "\t" + sDPT + "\t" + sNodeID + "\t" + sName + "\t" + sOptions + "\n";
                     });
                 res.json(sNodes)
             } catch (error) {
@@ -416,7 +437,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                                             node.exposedGAs = node.exposedGAs.filter((item) => item.ga !== oClient.topic);
                                             oClient.setNodeStatus({ fill: "yellow", shape: "dot", text: "Datapoint has been changed, remove the value from persist file", payload: oClient.currentPayload, GA: oClient.topic, dpt: oClient.dpt, devicename: oClient.devicename || "" });
                                             if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("knxUltimate-config: DoInitialReadFromKNXBusOrFile: Datapoint may have been changed, remove the value from persist file of " + oClient.topic + " Devicename " + oClient.name + " Currend DPT " + oClient.dpt + " Node.id " + oClient.id);
-                                        }else{
+                                        } else {
                                             if (oClient.notifyresponse) oClient.handleSend(msg);
                                         }
 

@@ -5,6 +5,10 @@
 <br/>
 
 <p>
+<b>Version 1.2.33</b> - May 2021<br/>
+- Gateway configuration -> Advanced Options -> Node list in all flows: added more infos to each node in the list, to allow more control on the nodes overview. The options are: "No Initial Read, React to Write, React to Response, No React to Read, No Autorespond to Read Requests, Output type write, No RBE on Output to Bus, No RBE on Input from Bus"<br/>
+<p>
+<p>
 <b>Version 1.2.32</b> - May 2021<br/>
 - NEW Dattpoint 14.074 (Time in secs) and 14.076 (Volume in m3).<br/>
 <p>
