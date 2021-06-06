@@ -5,42 +5,46 @@
 <br/>
 
 <p>
+<b>Version 1.2.34</b> - June 2021<br/>
+- Gateway configuration: added option Suppress repeated (R-Flag) telegrams fom BUS. When enabled, this option suppress the telegrams marked as "repeated" (with R-Flag) coming from the bus. See here: https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/1.-Gateway-configuration<br/>
+</p>
+<p>
 <b>Version 1.2.33</b> - May 2021<br/>
 - Gateway configuration -> Advanced Options -> Node list in all flows: added more infos to each node in the list, to allow more control on the nodes overview. The options are: "No Initial Read, React to Write, React to Response, No React to Read, No Autorespond to Read Requests, Output type write, No RBE on Output to Bus, No RBE on Input from Bus"<br/>
-<p>
+</p>
 <p>
 <b>Version 1.2.32</b> - May 2021<br/>
 - NEW Dattpoint 14.074 (Time in secs) and 14.076 (Volume in m3).<br/>
-<p>
+</p>
 <p>
 <b>Version 1.2.31</b> - May 2021<br/>
 - Fixed an issue happening if whenever you change a KNX node's datapoint, while the persistent value saved to file has already been saved using the old datapoint.<br/>
-<p>
+</p>
 <p>
 <b>Version 1.2.30</b> - May 2021<br/>
 - Datapoint 14.x: fixed a possible issue if the inpur message coming from the flow, is'nt a valid datapoint 14.x value.<br/>
-<p>
+</p>
 <p>
 <b>Version 1.2.29</b> - May 2021<br/>
 - KNX Device: if "read on connection/reconnection" is selected, the gateway node will now read all values of all nodes in 2 steps: first from file (for the nodes set in this way), then from BUS (for the nodes set in this way). This allow nodes that are setup as virtual devices, to get their values from file before being asked to send the value as response to the bus, by other nodes. It's all clear? No? Sorry for that, i'm unable to better explain that.</br>
 - Watchdog node: NEW: you can force the selected gateway to disconnect from the KNX BUS and to STOP reconnection attempts. You can also force the selected gateway to connect to the KNX BUS and to ENABLE reconnection attempts. https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---WatchDog<br/>
-<p>
+</p>
 <p>
 <b>Version 1.2.28</b> - May 2021<br/>
 - KNX Device: if you send a boolean value to a node with datapoint 16.001 (Ascii string), all nodes goes to sleep and shows "Waiting" in the status. Fixed. Thanks to @Podler.
-<p>
+</p>
 <p>
 <b>Version 1.2.27</b> - April 2021<br/>
 - Alerter node: fixed an issue related to the order of cycled msg output of alerted devices.
 - Alerter node: now you can read the value of all devices belonging to the list, on each connection/reconnection.<br/>
 - Alerter node: now you can read the value of all devices belonging to the list, by massing *msg.readstatus = true* to the node.<br/>
 - Updated Wiki, Help and SAMPLE to reflect this change.<br/>
-<p>
+</p>
 <p>
 <b>Version 1.2.26</b> - April 2021<br/>
 - NEW: Alerter node: added a third output PIN containing the last alerted device (https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/Alerter-Configuration).<br/>
 - Updated Wiki, Help and SAMPLE to reflect this change.<br/>
-<p>
+</p>
 <p>
 <b>Version 1.2.25</b> - April 2021<br/>
 - NEW: Alerter node: added a second output PIN containing all alerted devices at once (useful for Telegram, Alexa and so on) (https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/Alerter-Configuration).<br/>

@@ -138,6 +138,8 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
         node.tempDiscoTimer = null;
         node.sysLogger = require("./utils/sysLogger.js").get({ loglevel: node.loglevel }); // 08/04/2021 new logger to adhere to the loglevel selected in the config-window
         node.autoReconnect = true; // 05/05/2021 force FMS (knxConnection) to automatically reconnect.
+        node.ignoreTelegramsWithRepeatedFlag = (config.ignoreTelegramsWithRepeatedFlag === undefined ? false : config.ignoreTelegramsWithRepeatedFlag);
+
 
         // 04/04/2021 Supergiovane, creates the service paths where the persistent files are created.
         // The values file is stored only upon disconnection/close
@@ -659,8 +661,8 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
 
                     },
                     // This is going to be called on every incoming messages (only group communication)
-                    event: function (evt, src, dest, rawValue, cemiETS) {
-                        handleBusEvents(evt, src, dest, rawValue, cemiETS);
+                    event: function (evt, src, dest, rawValue, datagram) {
+                        handleBusEvents(evt, src, dest, rawValue, datagram);
                     }
                 }
             };
@@ -711,8 +713,19 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
         };
         // Handle BUS events
         // ---------------------------------------------------------------------------------------
-        function handleBusEvents(_evt, _src, _dest, _rawValue, _cemiETS) {
-            //console.log("BANANA", _evt, _src, _dest, _rawValue, _cemiETS);
+        function handleBusEvents(_evt, _src, _dest, _rawValue, _datagram) {
+
+            // 06/06/2021 Supergiovane: check if i can handle the telegrams with "Repeated" flag
+            // repeat: 0 = telegram is repeated
+            // repeat: 1 = telegram is not repeated
+            if (node.ignoreTelegramsWithRepeatedFlag === true) {
+                if (_datagram.hasOwnProperty("cemi") && _datagram.cemi.hasOwnProperty("ctrl") && _datagram.cemi.ctrl.repeat === 0) {
+                    if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.warn("KNXUltimate-config: Ignored telegram with Repeated Flag " + _evt + " Src:" + _src + " Dest:" + _dest);
+                    return;
+                }
+            }
+
+            let _cemiETS = _datagram.cemi.cemiETS;
             // 04/04/2021 Supergiovane: save value to node.exposedGAs
             if (typeof _dest === "string" && _rawValue !== undefined && (_evt === "GroupValue_Write" || _evt === "GroupValue_Response")) {
                 try {

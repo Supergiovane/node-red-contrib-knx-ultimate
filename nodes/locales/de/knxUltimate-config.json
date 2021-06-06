@@ -20,6 +20,7 @@
             "show_datapoint_status": "Datenpunkt im Status anzeigen",
             "suppress_ack": "ACK-Anfrage unterdrücken",
             "suppress_ack_help": "Diese Option unterstützt die Kompatibilität mit der alten Firmware des IP-Interface SWG1 148-1AB22 von Siemens",
+            "ignoreTelegramsWithRepeatedFlag": "Wiederholt (R-Flag) telegramme vom BUS unterdrücken",
             "log_level": "Loglevel",
             "nodes_list_title": "Liste aller KNX-Ultimate Nodes in allen Flows",
             "nodes_list_help": "Hier ist eine Liste aller konfigurierten KNX-Ultimate Nodes.",

@@ -20,6 +20,7 @@
             "show_datapoint_status": "Show datapoint in status",
             "suppress_ack": "Suppress ACK request",
             "suppress_ack_help": "The option above helps old KNX/IP Interfaces compatibility",
+            "ignoreTelegramsWithRepeatedFlag": "Suppress repeated (R-Flag) telegrams fom BUS",
             "log_level": "Loglevel",
             "nodes_list_title": "List of your nodes in all flows",
             "nodes_list_help": "Here is a list of all your configured KNX Nodes.",

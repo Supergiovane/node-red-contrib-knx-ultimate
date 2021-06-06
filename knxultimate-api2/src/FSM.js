@@ -610,17 +610,17 @@ const emitEvent = function (datagram) {
 
   // 1. 'event_<dest_addr>', ''GroupValue_Write', src, data
   this.emit(util.format('event_%s', datagram.cemi.dest_addr),
-    evtName, datagram.cemi.src_addr, datagram.cemi.apdu.data, datagram.cemi.cemiETS)
+    evtName, datagram.cemi.src_addr, datagram.cemi.apdu.data, datagram)
 
   // 2. 'GroupValue_Write_1/2/3', src, data
   this.emit(util.format('%s_%s', evtName, datagram.cemi.dest_addr),
-    datagram.cemi.src_addr, datagram.cemi.apdu.data, datagram.cemi.cemiETS)
+    datagram.cemi.src_addr, datagram.cemi.apdu.data, datagram)
 
   // 3. 'GroupValue_Write', src, dest, data
-  this.emit(evtName, datagram.cemi.src_addr, datagram.cemi.dest_addr, datagram.cemi.apdu.data, datagram.cemi.cemiETS)
+  this.emit(evtName, datagram.cemi.src_addr, datagram.cemi.dest_addr, datagram.cemi.apdu.data, datagram)
 
   // 4. 'event', 'GroupValue_Write', src, dest, data
-  this.emit('event', evtName, datagram.cemi.src_addr, datagram.cemi.dest_addr, datagram.cemi.apdu.data, datagram.cemi.cemiETS)
+  this.emit('event', evtName, datagram.cemi.src_addr, datagram.cemi.dest_addr, datagram.cemi.apdu.data, datagram)
 }
 const getIPv4Interfaces = function () {
   // get the local address of the IPv4 interface we're going to use

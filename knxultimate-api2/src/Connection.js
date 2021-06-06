@@ -20,8 +20,8 @@ const onUdpSocketMessage = function (msg /*, rinfo, callback */) {
 
   // if (msg.toString("hex").endsWith("8000")) {
   //   console.log("BANANA VERO MSG", msg.toString("hex"));
-  //   //0610053000102900b050c703230000ca
-  //   msg = Buffer.from("0610053000102900b050c703230000ca", "hex");
+ // TELEGRAMMA CON FLAG REPEATED 0610042000160413070029009CD01132140405008000000000
+  // msg = Buffer.from("0610042000160413070029009CD01132140405008000000000", "hex");
   //   console.log("BANANA FAKE MSG", msg.toString("hex"));
   //   // DISCONNECT_RESPONSE:  0x020a,
   //   var pera =true;

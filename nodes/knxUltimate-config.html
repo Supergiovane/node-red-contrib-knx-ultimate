@@ -19,7 +19,8 @@
             name: { value: "Multicast KNX Gateway" },
             localEchoInTunneling: { value: true },
             delaybetweentelegrams: { value: 40, required: false },
-            delaybetweentelegramsfurtherdelayREAD: { value: 1, required: false }
+            delaybetweentelegramsfurtherdelayREAD: { value: 1, required: false },
+            ignoreTelegramsWithRepeatedFlag: { value: false, required: false }
         },
         oneditprepare: function () {
             var node = this;
@@ -190,6 +191,15 @@
                     <span data-i18n="knxUltimate-config.advanced.show_datapoint_status"></span>
                 </label>
             </div>
+
+            <div class="form-row">
+                <input type="checkbox" id="node-config-input-ignoreTelegramsWithRepeatedFlag" style="display:inline-block; width:auto; vertical-align:top;">
+                <label style="width:85%" for="node-config-input-ignoreTelegramsWithRepeatedFlag">
+                    <i class="fa fa-ban"></i>
+                    <span data-i18n="knxUltimate-config.advanced.ignoreTelegramsWithRepeatedFlag"></span>
+                </label>
+            </div>
+
             <div class="form-row">
                 <input type="checkbox" id="node-config-input-suppressACKRequest" style="display:inline-block; width:auto; vertical-align:top;">
                 <label style="width:85%" for="node-config-input-suppressACKRequest">

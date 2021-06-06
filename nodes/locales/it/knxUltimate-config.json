@@ -20,6 +20,7 @@
             "show_datapoint_status": "Visualizza il DPT nello stato",
             "suppress_ack": "Sopprimi richieste ACK",
             "suppress_ack_help": "L'opzione ACK sopra aiuta la compatibilità con vecchie interfacce",
+            "ignoreTelegramsWithRepeatedFlag": "Sopprimi telegrammi dal BUS ripetuti (Flag R)",
             "log_level": "Livello log",
             "nodes_list_title": "Elenco nodi in tutti i flows",
             "nodes_list_help": "Elenco di tutti i tuoi nodi KNX",
