@@ -36,9 +36,9 @@ payload = {red:255, green:200, blue:30} // Put some colors in our life
 * See <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/blob/master/CHANGELOG.md">here the changelog</a>
 
 
-## KNX SECURE DEVELOPING
+## KNX SECURE
 
-Due to lack of time, i'm searching for a **volunteer able to implement KNX Secure**. Please open an ISSUE on gitHub if you wish to help. Knowledge of cypher algorithms and KNX is required. 
+KNX-Secure is under development and **should** be ready by the end of the year.
 
 ## HELP, SAMPLES, TROUBLESHOOT, WIKI, FAQ, BEST PRACTICES
 
