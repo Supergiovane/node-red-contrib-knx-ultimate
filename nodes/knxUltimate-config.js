@@ -1546,5 +1546,10 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
 
 
 
-    RED.nodes.registerType("knxUltimate-config", knxUltimateConfigNode);
+    //RED.nodes.registerType("knxUltimate-config", knxUltimateConfigNode);
+    RED.nodes.registerType("knxUltimate-config", knxUltimateConfigNode, {
+        credentials: {
+            keyringFilePassword: { type: "password" }
+        }
+    });
 }

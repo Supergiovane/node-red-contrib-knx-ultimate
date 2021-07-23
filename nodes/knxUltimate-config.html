@@ -20,10 +20,25 @@
             localEchoInTunneling: { value: true },
             delaybetweentelegrams: { value: 40, required: false },
             delaybetweentelegramsfurtherdelayREAD: { value: 1, required: false },
-            ignoreTelegramsWithRepeatedFlag: { value: false, required: false }
+            ignoreTelegramsWithRepeatedFlag: { value: false, required: false },
+            keyring: { value: "" },
+            keyringFilePassword: { value: "" },
+            knxSecureSelected: { value: false }
+        },
+        credentials: {
+            keyringFilePassword: { type: "password" }
         },
         oneditprepare: function () {
             var node = this;
+
+            // 22/07/2021 Main tab
+            $("#tabsMain").tabs({
+                active: node.knxSecureSelected ? 1 : 0,
+                activate: function (event, ui) {
+                    node.knxSecureSelected = $(ui.newTab).index() === 1;
+                }
+            });
+
 
             $("#node-config-input-KNXEthInterface").append($("<option></option>")
                 .attr("value", "Auto")
@@ -109,7 +124,39 @@
         }
     });
 </script>
+<style>
+    .ui-tabs {
+        background: transparent;
+        border: none;
+    }
 
+    .ui-tabs .ui-widget-header {
+        background: transparent;
+        border: none;
+        border-bottom: 1px solid #c0c0c0;
+        -moz-border-radius: 0px;
+        -webkit-border-radius: 0px;
+        border-radius: 0px;
+    }
+
+    .ui-tabs .ui-tabs-nav .ui-state-default {
+        background: transparent;
+        border: none;
+    }
+
+    .ui-tabs .ui-tabs-nav .ui-state-active {
+        background: transparent url(../img/frecciaperUIKnxSecure.png) no-repeat bottom center;
+        border: none;
+    }
+
+    .ui-tabs .ui-tabs-nav .ui-state-default a {
+        color: #c0c0c0;
+    }
+
+    .ui-tabs .ui-tabs-nav .ui-state-active a {
+        color: #459e00;
+    }
+</style>
 <script type="text/x-red" data-template-name="knxUltimate-config">
     <div class="form-row">
        <b><span data-i18n="knxUltimate-config.properties.title"></span></b>&nbsp&nbsp<span style="color:red" data-i18n="[html]knxUltimate-config.properties.helplink"></span>
@@ -120,25 +167,57 @@
             <span data-i18n="knxUltimate-config.properties.node-config-input-name"></span>
         </label>
         <input type="text" id="node-config-input-name" ><data-i18n="[Title]knxUltimate-config.properties.node-config-input-name" style="margin-left:5px;">
-      
     </div>
-    <div class="form-row">
-        <label for="node-config-input-host">
-            <i class="fa fa-server"></i>
-            <span data-i18n="knxUltimate-config.properties.host"></span>
-        </label>
-        <input type="text" id="node-config-input-host" style="width: 30%"><data-i18n="[Title]knxUltimate-config.properties.host_info" style="margin-left:5px;">
-
-        <label for="node-config-input-port" style="margin-left:20px; width:43px;">
-            <span data-i18n="knxUltimate-config.properties.port"></span>
-        </label>
-        <input type="text" id="node-config-input-port" style="width: 55px"><data-i18n="[Title]knxUltimate-config.properties.port_info" style="margin-left:5px;">
-        <div class="form-tips" style="margin-top:11px">
-            <span data-i18n="knxUltimate-config.advanced.tiphost"></span>
+    <!-- KNX Secure / Unsecure selector-->
+    <div id="tabsMain" >
+        <ul>
+          <li><a href="#unsecureKNX"><i class="fa fa-circle-o"></i>&nbsp;<span data-i18n="knxUltimate-config.properties.unsecureKNX"></span></a></li>
+          <li><a href="#SecureKNX"><i class="fa fa-shield"></i>&nbsp;<span data-i18n="knxUltimate-config.properties.secureKNX"></span></a></li>
+        </ul>
+        <div id="unsecureKNX" style="margin: 5px 5px 5px 5px;">
+            <p>
+            <div class="form-row">
+                <label for="node-config-input-host">
+                    <i class="fa fa-server"></i>
+                    <span data-i18n="knxUltimate-config.properties.host"></span>
+                </label>
+                <input type="text" id="node-config-input-host" style="width: 30%"><data-i18n="[Title]knxUltimate-config.properties.host_info" style="margin-left:5px;">
+        
+                <label for="node-config-input-port" style="margin-left:20px; width:43px;">
+                    <span data-i18n="knxUltimate-config.properties.port"></span>
+                </label>
+                <input type="text" id="node-config-input-port" style="width: 55px"><data-i18n="[Title]knxUltimate-config.properties.port_info" style="margin-left:5px;">
+                <div class="form-tips" style="margin-top:11px">
+                    <span data-i18n="knxUltimate-config.advanced.tiphost"></span>
+                </div>
+            </div>
+        
+            </p>
+         </div>
+        <div id="SecureKNX" style="margin: 5px 5px 5px 5px;">
+            <p>
+                <div class="form-row">
+                    <i class="fa fa-youtube"></i>
+                    <a href="https://youtu.be/OpR7ZQTlMRU" target="_blank">
+                        <span data-i18n="knxUltimate-config.ets.youtubeKeyring"></span>
+                    </a>
+                </div>
+                <div class="form-row">
+                    Keyring file
+                    <textarea rows="5" id="node-config-input-keyring" style="width:100%" data-i18n="[placeholder]knxUltimate-config.ets.keyring"></textarea>
+                </div>
+                <div class="form-row">
+                    <label for="node-config-input-keyringFilePassword"><i class="fa fa-shield"></i> Password</label>
+                    <input type="password" id="node-config-input-keyringFilePassword" style="width:200px;">
+                    <input type="button" id="getinfocam" class="ui-button ui-corner-all ui-widget" style="width:100px" value="Login">
+               
+                </div>
+            </p>   
         </div>
-    </div>
+      </div>
 
-    <div class="form-row">
+        <br/>
+      <div class="form-row">
         <label for="node-config-input-KNXEthInterface" style="width: 200px">
             <i class="fa fa-wifi"></i>
             <span data-i18n="knxUltimate-config.properties.bind_local_int"></span>
@@ -150,7 +229,6 @@
         <label for="node-config-input-KNXEthInterfaceManuallyInput"></label>
         <input type="text" id="node-config-input-KNXEthInterfaceManuallyInput" placeholder="Interface name, ex: eth0 or ens1 or Ethernet 1 and so on..."></input>
     </div>
-
     <div id="advancedOptionsAccordion">
         <h3><span data-i18n="knxUltimate-config.properties.adv_options"></span></h3>
         <div>

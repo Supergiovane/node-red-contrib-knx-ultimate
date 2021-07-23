@@ -11,7 +11,9 @@
             "restart_hint": "! Restart Node-RED after above change !",
             "adv_options": "Advanced options",
             "ets_import": "ETS Group Address list import",
-            "node-config-input-name": "Name"
+            "node-config-input-name": "Name",
+            "unsecureKNX" : "Simple KNX connection",
+            "secureKNX" : "Secure KNX connection"
         },
         "advanced": {
             "knx_phy_addr": "KNX Physical Address",
@@ -46,7 +48,9 @@
             "import_select_fake": "Import with a fake 1.001 datapoint (Not recommended)",
             "ga_list_title": "Paste the ETS exported file here",
             "ga_list_help": "Paste here your CSV or ESF exported file from the ETS",
-            "deploywithETS": "Upon deploy, i'll parse the ETS file. Please see the debug TAB or node-red's log for errors/warnings. If no warnings, then the import process is OK. Otherwise you should correct the issues and again reimport the file."
+            "deploywithETS": "Upon deploy, i'll parse the ETS file. Please see the debug TAB or node-red's log for errors/warnings. If no warnings, then the import process is OK. Otherwise you should correct the issues and again reimport the file.",
+            "keyring":"Paste here the content of the Keyring XML file, exported from ETS",
+            "youtubeKeyring": "See how to export the Keyring XML file on Youtube"
         }
     }
 }

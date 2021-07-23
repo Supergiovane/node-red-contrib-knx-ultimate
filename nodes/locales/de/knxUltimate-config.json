@@ -11,7 +11,9 @@
             "restart_hint": "! Starten Sie Node-RED nach der obenen Änderung neu !",
             "adv_options": "Erweiterte Optionen",
             "ets_import": "Import der ETS-Gruppenadressliste",
-            "node-config-input-name": "Name"
+            "node-config-input-name": "Name",
+            "unsecureKNX" : "Unsicher KNX Verbindung",
+            "secureKNX" : "Sicher KNX Verbindung"
         },
         "advanced": {
             "knx_phy_addr": "KNX-Adresse",
@@ -49,7 +51,9 @@
             "import_select_skip": "Überspringen den Import der betroffenen Gruppenadresse",
             "ga_list_title": "Fügen Sie hier die exportierte ETS-Datei ein",
             "ga_list_help": "Fügen Sie hier Ihre CSV- oder ESF-exportierte Datei aus der ETS ein",
-            "deploywithETS":"Upon deploy, i'll parse the ETS file. Please see the debug TAB or node-red's log for errors/warnings. If no warnings, then the import process is OK. Otherwise you should correct the issues and again reimport the file."
+            "deploywithETS":"Nach der Bereitstellung analysiere ich die ETS-Datei. Bitte sehen Sie im Debug-TAB oder im Log von node-red nach Fehlern/Warnungen. Wenn keine Warnungen vorliegen, ist der Importvorgang in Ordnung. Andernfalls sollten Sie die Probleme beheben und die Datei erneut importieren.",
+            "keyring":"Fügen Sie hier den Inhalt der Keyrinx-XML-Datei ein, die aus der ETS exportiert wurde",
+            "youtubeKeyring": "Anleitung des XML Keyring Exports auf Youtube"
         }
     }
 }

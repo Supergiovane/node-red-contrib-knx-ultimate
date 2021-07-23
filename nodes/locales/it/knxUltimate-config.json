@@ -1,7 +1,7 @@
 {
     "knxUltimate-config": {
         "properties": {
-            "helplink" : "&nbsp<i class=\"fa fa-question-circle\"></i>&nbsp<a target=\"_blank\" href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/SampleGlobalContextNode\"><u>Aiuto per configurazione</u></a>",
+            "helplink" : "&nbsp<i class=\"fa fa-question-circle\"></i>&nbsp<a target=\"_blank\" href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/it-1.-Gateway-configuration\"><u>Aiuto per configurazione</u></a>",
             "title": "Interfaccia KNX/IP",
             "host": "IP Gateway",
             "host_info": "Di default è impostato l'indirizzo multicast del router KNX/IP (224.0.23.12)",
@@ -11,7 +11,9 @@
             "restart_hint": "! Riavvia Node-Red dopo cambio qui sopra !",
             "adv_options": "Opzioni avanzate",
             "ets_import": "Importa indirizzi di gruppo ETS",
-            "node-config-input-name": "Nome"
+            "node-config-input-name": "Nome",
+            "unsecureKNX" : "Connessione KNX semplice",
+            "secureKNX" : "Connessione KNX sicura"
         },
         "advanced": {
             "knx_phy_addr": "Indirizzo fisico KNX",
@@ -49,7 +51,9 @@
             "import_select_fake": "Importa con un finto datapoint 1.001 (Non raccomandato)",
             "ga_list_title": "Incolla qui il file esportato da ETS",
             "ga_list_help": "Incolla qui il contenuto del file CSV o ESF esportato da ETS",
-            "deploywithETS":"Durante il deploy, verrà elaborato il file ETS. Verifica nella finestra di debug, a destra, se ci sono degli errori o avvisi. Se non ci sono errori, è tutto ok, altrimenti correggi gli errori e ripeti l'importazione."
+            "deploywithETS":"Durante il deploy, verrà elaborato il file ETS. Verifica nella finestra di debug, a destra, se ci sono degli errori o avvisi. Se non ci sono errori, è tutto ok, altrimenti correggi gli errori e ripeti l'importazione.",
+            "keyring":"Incolla qui il contenuto del file XML Keyring esportato da ETS",
+            "youtubeKeyring": "Guarda come si esporta il Keyring XML su YouTube"
         }
     }
 }
