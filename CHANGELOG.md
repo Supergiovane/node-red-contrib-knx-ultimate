@@ -9,6 +9,7 @@
 - Fixed a wrong help link in the gateway configuration node, in the italian language.<br/>
 - Fix: on importing ETS Group Addresses file, the debug window won't show the import's warnings/error.<br/>
 - NEW: starting implementation of KNX Secure (ETA END DECEMBER 2021). For now, the only thing working is keyring import and verification of his Hash against the password you set on the file while exporting keyring from ETS and decyphering of the Backbone key.<br/>
+- Updated WIKI and help to reflect KNX Secure changes.<br/>
 </p>
 <p>
 <b>Version 1.2.34</b> - June 2021<br/>
