@@ -7,6 +7,7 @@ const net = require("net");
 const _ = require("lodash");
 const path = require("path");
 var fs = require('fs');
+const { reduceRight } = require('lodash');
 //onst systemLogger = require("./utils/sysLogger.js");
 
 
@@ -139,7 +140,29 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
         node.sysLogger = require("./utils/sysLogger.js").get({ loglevel: node.loglevel }); // 08/04/2021 new logger to adhere to the loglevel selected in the config-window
         node.autoReconnect = true; // 05/05/2021 force FMS (knxConnection) to automatically reconnect.
         node.ignoreTelegramsWithRepeatedFlag = (config.ignoreTelegramsWithRepeatedFlag === undefined ? false : config.ignoreTelegramsWithRepeatedFlag);
+        // 24/07/2021 KNX Secure checks...
+        node.keyringFileXML = (typeof config.keyringFileXML === "undefined" || config.keyringFileXML.trim() === "") ? "" : config.keyringFileXML;
+        node.knxSecureSelected = typeof config.knxSecureSelected === "undefined" ? false : config.knxSecureSelected;
+        
+        node.setAllClientsStatus = (_status, _color, _text) => {
+            function nextStatus(oClient) {
+                oClient.setNodeStatus({ fill: _color, shape: "dot", text: _status + " " + _text, payload: "", GA: oClient.topic, dpt: "", devicename: "" })
+            }
+            node.nodeClients.map(nextStatus);
+        }
 
+        async function KNXSecureLoadKeyringFile() {
+            try {
+                node.jKNXSecureKeyring = await knx.KNXSecureKeyring.load(node.keyringFileXML, node.credentials.keyringFilePassword); // 24/07/2021 Endpoint for verify the ETS KNX Secure Keyring file from the HTML
+            } catch (error) {
+                node.error("KNXUltimate-config: KNX Secure: error parsing the keyring XML: " + error.message.toString());
+                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("KNXUltimate-config: KNX Secure: error parsing the keyring XML: " + error.message.toString());
+                node.jKNXSecureKeyring = null;
+                node.knxSecureSelected = false;
+                setTimeout(() => node.setAllClientsStatus("Error","red","KNX Secure " + error.message), 4000);
+            }
+        }
+        if (node.knxSecureSelected) KNXSecureLoadKeyringFile();
 
         // 04/04/2021 Supergiovane, creates the service paths where the persistent files are created.
         // The values file is stored only upon disconnection/close
@@ -314,13 +337,6 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                 if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.warn("D " + error)
             }
         });
-
-        node.setAllClientsStatus = (_status, _color, _text) => {
-            function nextStatus(oClient) {
-                oClient.setNodeStatus({ fill: _color, shape: "dot", text: _status + " " + _text, payload: "", GA: oClient.topic, dpt: "", devicename: "" })
-            }
-            node.nodeClients.map(nextStatus);
-        }
 
         // 16/02/2020 KNX-Ultimate nodes calls this function, then this funcion calls the same function on the Watchdog
         node.reportToWatchdogCalledByKNXUltimateNode = (_oError) => {

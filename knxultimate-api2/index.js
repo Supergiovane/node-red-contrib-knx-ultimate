@@ -15,7 +15,7 @@ const log = require('log-driver').logger;
 exports.Connection = require('./src/Connection.js');
 exports.Datapoint = require('./src/Datapoint.js');
 exports.Log = require('./src/KnxLog.js');
-
+exports.KNXSecureKeyring = require('./src/KNXsecureKeyring.js');
 
 exports.RawMod = new RawMod();
 

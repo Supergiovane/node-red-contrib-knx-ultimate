@@ -51,7 +51,7 @@
             "import_select_skip": "Überspringen den Import der betroffenen Gruppenadresse",
             "ga_list_title": "Fügen Sie hier die exportierte ETS-Datei ein",
             "ga_list_help": "Fügen Sie hier Ihre CSV- oder ESF-exportierte Datei aus der ETS ein",
-            "deploywithETS":"Nach der Bereitstellung analysiere ich die ETS-Datei. Bitte sehen Sie im Debug-TAB oder im Log von node-red nach Fehlern/Warnungen. Wenn keine Warnungen vorliegen, ist der Importvorgang in Ordnung. Andernfalls sollten Sie die Probleme beheben und die Datei erneut importieren.",
+            "deploywithETS":"Einige Steuervorgänge werden ausgeführt. Alle Probleme werden im Debug-Fenster auf der rechten Seite gemeldet.",
             "keyring":"Fügen Sie hier den Inhalt der Keyrinx-XML-Datei ein, die aus der ETS exportiert wurde",
             "youtubeKeyring": "Anleitung des XML Keyring Exports auf Youtube"
         }

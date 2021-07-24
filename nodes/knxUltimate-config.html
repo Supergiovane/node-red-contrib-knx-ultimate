@@ -21,8 +21,7 @@
             delaybetweentelegrams: { value: 40, required: false },
             delaybetweentelegramsfurtherdelayREAD: { value: 1, required: false },
             ignoreTelegramsWithRepeatedFlag: { value: false, required: false },
-            keyring: { value: "" },
-            keyringFilePassword: { value: "" },
+            keyringFileXML: { value: "" },
             knxSecureSelected: { value: false }
         },
         credentials: {
@@ -38,7 +37,6 @@
                     node.knxSecureSelected = $(ui.newTab).index() === 1;
                 }
             });
-
 
             $("#node-config-input-KNXEthInterface").append($("<option></option>")
                 .attr("value", "Auto")
@@ -100,9 +98,8 @@
         },
         oneditsave: function () {
             var node = this;
-
             // Check if the csv file contains errors
-            if ($("#node-config-input-csv").val() != 'undefined' && $("#node-config-input-csv").val() != "") {
+            if (($("#node-config-input-csv").val() != 'undefined' && $("#node-config-input-csv").val() != "") || ($("#node-config-input-keyring").val() != 'undefined' && $("#node-config-input-keyring").val() != "")) {
                 var checkResult = node._("knxUltimate-config.ets.deploywithETS");
                 var myNotification = RED.notify(checkResult,
                     {
@@ -168,7 +165,7 @@
         </label>
         <input type="text" id="node-config-input-name" ><data-i18n="[Title]knxUltimate-config.properties.node-config-input-name" style="margin-left:5px;">
     </div>
-    <!-- KNX Secure / Unsecure selector-->
+    <!-- KNX Secure / Unsecure tabbed selector-->
     <div id="tabsMain" >
         <ul>
           <li><a href="#unsecureKNX"><i class="fa fa-circle-o"></i>&nbsp;<span data-i18n="knxUltimate-config.properties.unsecureKNX"></span></a></li>
@@ -196,6 +193,7 @@
          </div>
         <div id="SecureKNX" style="margin: 5px 5px 5px 5px;">
             <p>
+                <p>WARNING: FUNCTION NOT ENABLED. KNX SECURE WILL BE ACTIVE ON DECEMBER 2021</p>
                 <div class="form-row">
                     <i class="fa fa-youtube"></i>
                     <a href="https://youtu.be/OpR7ZQTlMRU" target="_blank">
@@ -204,12 +202,11 @@
                 </div>
                 <div class="form-row">
                     Keyring file
-                    <textarea rows="5" id="node-config-input-keyring" style="width:100%" data-i18n="[placeholder]knxUltimate-config.ets.keyring"></textarea>
+                    <textarea rows="5" id="node-config-input-keyringFileXML" style="width:100%" data-i18n="[placeholder]knxUltimate-config.ets.keyring"></textarea>
                 </div>
                 <div class="form-row">
                     <label for="node-config-input-keyringFilePassword"><i class="fa fa-shield"></i> Password</label>
                     <input type="password" id="node-config-input-keyringFilePassword" style="width:200px;">
-                    <input type="button" id="getinfocam" class="ui-button ui-corner-all ui-widget" style="width:100px" value="Login">
                
                 </div>
             </p>   

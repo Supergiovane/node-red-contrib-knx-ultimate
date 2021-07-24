@@ -13,7 +13,6 @@ class retJson {
         this.ETSProjectName = "";
         this.ETSCreated = "";
         this.ETSCreatedBy = "";
-        this.ETSkeyringPasswordOK = false;
         this.HASHkeyringPasswordBase64 = "";
         this.HASHCreatedBase64 = "";
 
@@ -232,21 +231,16 @@ var keyring = (function () {
             let keyringFileForHashing = Buffer.from(buffKeyringFileForHashing).toString();
 
             let outputHash = await sha256(keyringFileForHashing);
+            if (outputHash === signature) {
+                return true;
+            } else {
+                throw (new Error("verifySignature failed"));
+            }
+
         } catch (error) {
             throw (new Error("verifySignature ") + error.message)
         }
-        return true;
-        // return new Promise((resolve, reject) => {
-        //     try {
-        //         if (outputHash === signature) {
-        //             resolve(true);
-        //         } else {
-        //             reject(false);
-        //         }
-        //     } catch (error) {
-        //         reject(error);
-        //     }
-        // });
+
     }
 
     /**
@@ -310,10 +304,8 @@ var keyring = (function () {
             try {
                 await verifySignature(passwordHash);
                 KnxLog.get().debug("verifySignature OK");
-                _retJson.ETSkeyringPasswordOK = true;
             } catch (error) {
                 KnxLog.get().error("signature verification failed for keyring " + keyringPassword);
-                _retJson.ETSkeyringPasswordOK = false;
                 throw (new Error("The password is wrong"));
             }
         }
