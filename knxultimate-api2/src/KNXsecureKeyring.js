@@ -264,7 +264,10 @@ var keyring = (function () {
 
     // Read the XML text
     // Returns an object with all necessary info, or error if the keyring password is wrong or something is going bad
-    async function load(_sXML, keyringPassword) {
+    async function load(_sXML, _keyringPassword) {
+
+        if (_keyringPassword === undefined) _keyringPassword = "";
+        if (_sXML === undefined) _sXML = "";
 
         // All returned key are in base64 per comodità.
         try {
@@ -284,9 +287,9 @@ var keyring = (function () {
         KnxLog.get().info("Keyring for ETS proj " + _retJson.ETSProjectName + ", created by " + createdBy + " on " + created);
         try {
             // Get the hash from the keyring password
-            passwordHash = await hashKeyringPwd(keyringPassword);
+            passwordHash = await hashKeyringPwd(_keyringPassword);
             _retJson.HASHkeyringPasswordBase64 = passwordHash;
-            KnxLog.get().debug("passwordHash", passwordHash, "keyringPassword", keyringPassword) // OK !!!!
+            KnxLog.get().debug("passwordHash", passwordHash, "keyringPassword", _keyringPassword) // OK !!!!
         } catch (error) {
             KnxLog.get().error("passwordHash " + error.message)
             throw (new Error("passwordHash " + error.message));
@@ -300,12 +303,12 @@ var keyring = (function () {
         signature = jSonXMLKeyringFile.Keyring.$.Signature.toString("base64");
         KnxLog.get().debug("signature " + signature); // OK !!!
 
-        if (keyringPassword.length > 0) {
+        if (_keyringPassword.length > 0) {
             try {
                 await verifySignature(passwordHash);
                 KnxLog.get().debug("verifySignature OK");
             } catch (error) {
-                KnxLog.get().error("signature verification failed for keyring " + keyringPassword);
+                KnxLog.get().error("signature verification failed for keyring " + _keyringPassword);
                 throw (new Error("The password is wrong"));
             }
         }
