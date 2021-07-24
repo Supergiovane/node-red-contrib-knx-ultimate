@@ -143,7 +143,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
         // 24/07/2021 KNX Secure checks...
         node.keyringFileXML = (typeof config.keyringFileXML === "undefined" || config.keyringFileXML.trim() === "") ? "" : config.keyringFileXML;
         node.knxSecureSelected = typeof config.knxSecureSelected === "undefined" ? false : config.knxSecureSelected;
-        
+
         node.setAllClientsStatus = (_status, _color, _text) => {
             function nextStatus(oClient) {
                 oClient.setNodeStatus({ fill: _color, shape: "dot", text: _status + " " + _text, payload: "", GA: oClient.topic, dpt: "", devicename: "" })
@@ -159,7 +159,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                 if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("KNXUltimate-config: KNX Secure: error parsing the keyring XML: " + error.message.toString());
                 node.jKNXSecureKeyring = null;
                 node.knxSecureSelected = false;
-                setTimeout(() => node.setAllClientsStatus("Error","red","KNX Secure " + error.message), 4000);
+                setTimeout(() => node.setAllClientsStatus("Error", "red", "KNX Secure " + error.message), 4000);
             }
         }
         if (node.knxSecureSelected) KNXSecureLoadKeyringFile();
@@ -1259,7 +1259,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                 let fileGA = sTemp.split("\n");
                 // Controllo se le righe dei gruppi contengono il separatore di tabulazione
                 if (fileGA[0].search("\t") == -1) {
-                    if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error('KNXUltimate-config: ERROR: the csv ETS file must have the tabulation as separator')
+                    node.error('KNXUltimate-config: ERROR: the csv ETS file must have the tabulation as separator');
                     return;
                 }
 
@@ -1289,21 +1289,21 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                             // Ho trovato una riga contenente un GA valido, cioè con 2 "/"
                             if (element.split("\t")[5] == "") {
                                 if (node.stopETSImportIfNoDatapoint === "stop") {
-                                    if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("KNXUltimate-config: ABORT IMPORT OF ETS CSV FILE. To skip the invalid datapoint and continue import, change the related setting, located in the config node in the ETS import section.");
+                                    node.error("KNXUltimate-config: ABORT IMPORT OF ETS CSV FILE. To skip the invalid datapoint and continue import, change the related setting, located in the config node in the ETS import section.");
                                     return;
                                 } if (node.stopETSImportIfNoDatapoint === "fake") {
                                     // 02/03/2020 Whould you like to continue without datapoint? Good. Here a totally fake datapoint
-                                    if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.warn("KNXUltimate-config: WARNING IMPORT OF ETS CSV FILE. Datapoint not set. You choosed to continue import with a fake datapoint 1.001. -> " + element.split("\t")[0] + " " + element.split("\t")[1]);
+                                    node.warn("KNXUltimate-config: WARNING IMPORT OF ETS CSV FILE. Datapoint not set. You choosed to continue import with a fake datapoint 1.001. -> " + element.split("\t")[0] + " " + element.split("\t")[1]);
                                     ajsonOutput.push({ ga: element.split("\t")[1], dpt: "1.001", devicename: sFather + element.split("\t")[0] + " (DPT NOT SET IN ETS - FAKE DPT USED)" });
                                 } else {
                                     // 31/03/2020 Skip import
-                                    if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.warn("KNXUltimate-config: WARNING IMPORT OF ETS CSV FILE. Datapoint not set. You choosed to skip -> " + element.split("\t")[0] + " " + element.split("\t")[1]);
+                                    node.warn("KNXUltimate-config: WARNING IMPORT OF ETS CSV FILE. Datapoint not set. You choosed to skip -> " + element.split("\t")[0] + " " + element.split("\t")[1]);
                                 }
                             } else {
                                 var DPTa = element.split("\t")[5].split("-")[1];
                                 var DPTb = element.split("\t")[5].split("-")[2];
                                 if (typeof DPTb == "undefined") {
-                                    if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.warn("KNXUltimate-config: WARNING: Datapoint not fully set (there is only the main type). I applied a default .001, but please check if i'ts ok ->" + element.split("\t")[0] + " " + element.split("\t")[1] + " Datapoint: " + element.split("\t")[5]);
+                                    node.warn("KNXUltimate-config: WARNING: Datapoint not fully set (there is only the main type). I applied a default .001, but please check if i'ts ok ->" + element.split("\t")[0] + " " + element.split("\t")[1] + " Datapoint: " + element.split("\t")[5]);
                                     DPTb = "001"; // default
                                 }
                                 // Trailing zeroes
@@ -1403,14 +1403,14 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                             }
                         } else {
                             if (node.stopETSImportIfNoDatapoint === "stop") {
-                                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("KNXUltimate-config: ABORT IMPORT OF ETS ESF FILE. To continue import, change the related setting, located in the config node in the ETS import section.");
+                                node.error("KNXUltimate-config: ABORT IMPORT OF ETS ESF FILE. To continue import, change the related setting, located in the config node in the ETS import section.");
                                 return;
                             } else if (node.stopETSImportIfNoDatapoint === "fake") {
                                 sDPT = "5.004"; // Maybe.
-                                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("KNXUltimate-config: ERROR: Found an UNCERTAIN datapoint in ESF ETS. You choosed to fake the datapoint -> " + sGA + ". An fake datapoint has been set: " + sDPT);
+                                node.error("KNXUltimate-config: ERROR: Found an UNCERTAIN datapoint in ESF ETS. You choosed to fake the datapoint -> " + sGA + ". An fake datapoint has been set: " + sDPT);
                             } else {
                                 sDPT = "SKIP";
-                                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("KNXUltimate-config: ERROR: Found an UNCERTAIN datapoint in ESF ETS. You choosed to skip -> " + sGA);
+                                node.error("KNXUltimate-config: ERROR: Found an UNCERTAIN datapoint in ESF ETS. You choosed to skip -> " + sGA);
                             }
                         }
                         if (sDPT !== "SKIP") ajsonOutput.push({ ga: sGA, dpt: sDPT, devicename: "(" + sFirstGroupName + "->" + sSecondGroupName + ") " + sDeviceName });
