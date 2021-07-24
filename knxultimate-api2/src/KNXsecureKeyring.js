@@ -1,4 +1,10 @@
+/**
+* KNX Secure protocol stack in pure Javascript
+* (C) 2021 Supergiovane
+*/
+
 // https://support.knx.org/hc/it/articles/360001582259-Usare-keyring-al-di-f//uori-di-ETS-Falcon-SDK
+const KnxLog = require('./KnxLog');
 const xml2js = require("xml2js");
 const CryptoJS = require('crypto-js');
 const keyringSalt = "1.keyring.ets.knx.org";
@@ -67,7 +73,7 @@ var keyring = (function () {
             return secretKey.toString(CryptoJS.enc.Base64)
         }
         catch (error) {
-            console.log("pbkdf2WithHmacSha256 ERROR " + error.message);
+            KnxLog.get().error("pbkdf2WithHmacSha256 " + error.message);
             throw error;
         }
     }
@@ -92,7 +98,7 @@ var keyring = (function () {
             return pbkdf2WithHmacSha256(keyringPwd, keyringSalt);
         }
         catch (error) {
-            console.log("hashKeyringPwd ERROR " + error.message);
+            KnxLog.get().error("hashKeyringPwd " + error.message);
             throw error;
         }
     }
@@ -113,15 +119,13 @@ var keyring = (function () {
         //var decrypted = CryptoJS.AES.decrypt(_input,_pwdKeyringHash,{iv:iv,padding:CryptoJS.pad.ZeroPadding});
         return new Promise((resolve, reject) => {
             try {
-                //console.log("PARAMERTI", _input, _pwdKeyringHash, _createdHash)
                 var decrypted = CryptoJS.AES.decrypt(_inputBase64,
-                CryptoJS.enc.Base64.parse(_pwdKeyringHashBase64),
+                    CryptoJS.enc.Base64.parse(_pwdKeyringHashBase64),
                     { iv: CryptoJS.enc.Base64.parse(_createdHashBase64), mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.ZeroPadding });
-                
-                    //console.log("decrypted", CryptoJS.enc.Base64.stringify(decrypted));
+
                 resolve(CryptoJS.enc.Base64.stringify(decrypted));
             } catch (error) {
-                console.log("aes128Cbc", error)
+                KnxLog.get().error("aes128Cbc " + error)
                 reject(error);
             }
         });
@@ -130,7 +134,7 @@ var keyring = (function () {
     async function verifySignature(passwordHash) {
         let sRows = XMLKeyringFileString.split(">")
         let aFiltered = [];
-        let aTest = [];
+
         try {
             for (let index = 0; index < sRows.length; index++) {
                 let sRow = sRows[index] + ">";
@@ -144,7 +148,6 @@ var keyring = (function () {
                     if (sRow.startsWith("<") && !sRow.startsWith("<\/")) {
                         // START_ELEMENT
                         aFiltered.push(Uint8Array.from([1]));
-                        aTest.push(1);
                     }
                     if (!sRow.startsWith("<\/")) {
                         sRow = sRow.replace(/</g, '');
@@ -176,16 +179,13 @@ var keyring = (function () {
                         // Attributes and values MulticastAddress="224.0.23.12" Banana="22sdsf02312=="
                         let aAttribs = [];
                         do {
-                            //console.log("NO PURGE", sRow)
                             sAttribute = sRow.substring(0, sRow.indexOf("=")); // Get attribute
                             sRow = sRow.substring(sRow.indexOf("=") + 1).trim(); // Purge attribute
                             sValue = sRow.substring(0, sRow.indexOf("\"", 1) + 1); // Get value
                             sRow = sRow.substring(sValue.length + 1).trim(); // Purge value
                             sValue = sValue.replace(/\"/g, '');
-                            //console.log("PURGATO", sRow)
                             if (sAttribute !== "xmlns" && sAttribute !== "Signature") {
                                 aAttribs.push({ attlen: sAttribute.length, att: sAttribute, vallen: sValue.length, val: sValue });
-                                //console.log(sAttribute, sValue);
                             }
                             sAttribute = "";
                             sValue = "";
@@ -195,8 +195,6 @@ var keyring = (function () {
                         if (sTag.length > 0) {
                             aFiltered.push(Uint8Array.from([sTag.length]));
                             aFiltered.push(new TextEncoder().encode(sTag));
-                            aTest.push(sTag.length);
-                            aTest.push(sTag);
                         }
 
                         // Order the attribute array
@@ -206,46 +204,34 @@ var keyring = (function () {
                             const element = aAttribsSorted[index];
                             if (element.attlen > 0) {
                                 aFiltered.push(Uint8Array.from([element.attlen]));
-                                aTest.push(element.attlen);
                                 aFiltered.push(new TextEncoder().encode(element.att));
-                                aTest.push(element.att);
                                 aFiltered.push(Uint8Array.from([element.vallen]));
-                                aTest.push(element.vallen);
                                 aFiltered.push(new TextEncoder().encode(element.val));
-                                aTest.push(element.val);
                             }
                         }
                         // Add the end element tag.
                         if (bEndElement) {
                             // END_ELEMENT
                             aFiltered.push(Uint8Array.from([2]));
-                            aTest.push(2);
                             bEndElement = false;
                         }
                     } else {
                         // END_ELEMENT
-                        aTest.push(2);
                         aFiltered.push(Uint8Array.from([2]));
                     }
 
                 }
             }
-            // for (let index = 0; index < aTest.length; index++) {
-            //     const element = aTest[index];
-            //     console.log("-", element);
-
-            // }
 
             // Add the has password
             aFiltered.push(Uint8Array.from([passwordHash.length]));
             aFiltered.push(new TextEncoder().encode(passwordHash))
 
             let buffKeyringFileForHashing = Buffer.concat(aFiltered);
-            //console.log(Buffer.from(keyringFileForHashing).toString("hex"));
+            //KnxLog.get().error(Buffer.from(keyringFileForHashing).toString("hex"));
             let keyringFileForHashing = Buffer.from(buffKeyringFileForHashing).toString();
 
             let outputHash = await sha256(keyringFileForHashing);
-            //console.log("AAAAA keyringFileForHashing", keyringFileForHashing);
         } catch (error) {
             throw (new Error("verifySignature ") + error.message)
         }
@@ -296,154 +282,55 @@ var keyring = (function () {
             var created = jSonXMLKeyringFile.Keyring.$.Created;
             _retJson.ETSCreated = created;
         } catch (error) {
-            console.log("BANANA ERRORE", error.message);
+            KnxLog.get().error("load " + error.message);
             throw (error);
         }
 
 
-        console.log("Keyring for ETS proj " + _retJson.ETSProjectName + ", created by " + createdBy + " on " + created);
+        KnxLog.get().info("Keyring for ETS proj " + _retJson.ETSProjectName + ", created by " + createdBy + " on " + created);
         try {
             // Get the hash from the keyring password
             passwordHash = await hashKeyringPwd(keyringPassword);
             _retJson.HASHkeyringPasswordBase64 = passwordHash;
-            console.log("passwordHash", passwordHash, "keyringPassword", keyringPassword) // OK !!!!
+            KnxLog.get().debug("passwordHash", passwordHash, "keyringPassword", keyringPassword) // OK !!!!
         } catch (error) {
-            console.log("passwordHash error " + error.message)
-            throw (new Error("passwordHash error " + error.message));
+            KnxLog.get().error("passwordHash " + error.message)
+            throw (new Error("passwordHash " + error.message));
         }
         // Get the hash from the created tac
         createdHash = await sha256(created);
         _retJson.HASHCreatedBase64 = createdHash;
-        console.log("createdHash", createdHash); // OK !!!
+        KnxLog.get().debug("createdHash " + createdHash); // OK !!!
 
         // Get the signature from the KEYRING attribute
         signature = jSonXMLKeyringFile.Keyring.$.Signature.toString("base64");
-        console.log("signature", signature); // OK !!!
+        KnxLog.get().debug("signature " + signature); // OK !!!
+
         if (keyringPassword.length > 0) {
             try {
                 await verifySignature(passwordHash);
-                console.log("verifySignature OK");
+                KnxLog.get().debug("verifySignature OK");
                 _retJson.ETSkeyringPasswordOK = true;
             } catch (error) {
-                console.log("signature verification failed for keyring '" + keyringPassword + "'");
+                KnxLog.get().error("signature verification failed for keyring " + keyringPassword);
                 _retJson.ETSkeyringPasswordOK = false;
                 throw (new Error("The password is wrong"));
             }
         }
 
-        // Get the BACKBONE details
+        // Get the BACKBONE details OK !!!!!
         try {
             _retJson.BACKBONEmulticastAddress = jSonXMLKeyringFile.Keyring.Backbone.$.MulticastAddress;
             _retJson.BACKBONElatency = jSonXMLKeyringFile.Keyring.Backbone.$.Latency;
-            // 96f034fccf510760cbd63da0f70d4a9d
             _retJson.BACKBONEkeyBase64 = await decryptKey(jSonXMLKeyringFile.Keyring.Backbone.$.Key, passwordHash, createdHash);
-            //console.log(jSonXMLKeyringFile.Keyring.Backbone.$)
         } catch (error) {
-            throw (new Error("Backbone details error " + error.message));
+            KnxLog.get().error("Backbone details " + error.message);
+            throw (new Error("Backbone details " + error.message));
         }
 
 
+        return _retJson;
 
-        return _retJson
-
-
-
-
-        return;
-
-
-
-
-        // Backbone key
-        // <!-- BackboneKey := Base64( AES128-CBC( PBKDF2( HMAC-SHA256, KeyringPassword, "1.keyring.ets.knx.org", 65536, 128), MSB128(SHA256(this.Keyring.Created), Project.BackboneKey as byte[])) --> (1)
-
-        // SHA256(this.Keyring.Created)
-        var created_SHA256 = await sha256(new Buffer.from(created, 'utf-8'));
-        created_SHA256 = created_SHA256.substring(0, 16)
-        console.log("created_SHA256", created_SHA256, created_SHA256.length)
-        //var msb128 = msb.read(new Buffer.from(created_SHA256, 'hex'), new Buffer.from("banana".toString("hex"), 'hex'));
-        // PBKDF2( HMAC-SHA256, KeyringPassword, "1.keyring.ets.knx.org", 65536, 128)
-        //var backBoneKey_PBKDF2 = crypto.pbkdf2Sync("banana", new Buffer.from(gKeyringSalt, "hex"), 65536, 128, 'sha256');
-
-
-
-
-
-        const algorithm = 'aes-128-cbc';
-        const salt = "1.keyring.ets.knx.org";
-        const digest = 'sha256';
-        const createdDate = "2015-03-04T20:55:58.0160546Z"
-        var createdDate_SHA256 = await sha256(new Buffer.from(createdDate, 'utf-8'));
-        createdDate_SHA256 = createdDate_SHA256.substring(0, 16)
-        console.log("createdDate_SHA256", createdDate_SHA256, createdDate_SHA256.length)
-
-        function PR_encrypt(plainText, secretKey) {
-
-            const key = crypto.pbkdf2Sync(secretKey, salt, 65536, 128, digest);
-            const iv = Buffer.from([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
-
-            const cipher = crypto.createCipheriv(algorithm, key, iv);
-            let encrypted = cipher.update(plainText, 'utf8', 'base64')
-            encrypted += cipher.final('base64');
-            return encrypted;
-        };
-
-        function PR_decrypt(strToDecrypt, secretKey) {
-
-            const key = crypto.pbkdf2Sync(secretKey, salt, 65536, 128, digest);
-            const iv = created_SHA256;
-
-            const decipher = crypto.createDecipheriv(algorithm, key, iv);
-            let decrypted = decipher.update(strToDecrypt, 'base64');
-            decrypted += decipher.final();
-            return decrypted;
-        }
-
-        const key = new Buffer.from("A0A1A2A3A4A5A6A7A8A9AAABACADAEAF", "hex").toString("base64");
-        console.log("key", key);
-        //const cipherText = encrypt("test", key);
-        //console.log("Ciphertext:", cipherText);
-        const plainText = PR_decrypt("oKGio6SlpqeoqaqrrK2urw==", key);
-        console.log("Plaintext:", plainText);
-        return;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        //var backBoneKey = await aes128Cbc_decrypt(gPasswordHashA1.toString("hex"), "A3k6/D5qfD9VQMr4TRMGSA==", gCreatedHash.toString("hex"));
-        //console.log("backBoneKey_PBKDF2", backBoneKey_PBKDF2)
-        console.log("created_SHA256", created_SHA256)
-        console.log("msb128", msb128)
-
-        // 16/07/2021 ged decoded signature from base64
-        gSignature = new Buffer.from(gSignature, 'base64');
-
-        // Check the signature against file (DA FARE)
-
-        // Recupero key backbone (A3k6/D5qfD9VQMr4TRMGSA== è la backbone key del file keyring, dovrei leggerla dal file)
-        let iv = Buffer.from(gCreatedHash, 'hex');
-        let encryptedText = Buffer.from("A3k6/D5qfD9VQMr4TRMGSA==", 'hex');
-        let decipher = crypto.createDecipheriv("aes-128-cbc", Buffer.from("banana000"), iv);
-        let decrypted = decipher.update(encryptedText);
-        decrypted = Buffer.concat([decrypted, decipher.final()]);
-
-        console.log("BACKBONE KEY", decrypted.toString());
-
-        console.log("gSignature ", gSignature, ": keyringPassword:", gKeyringPassword, "passwordHash: ", gPasswordHashA1, "gCreatedHash: ", gCreatedHash);
-        //createdHash = sha256(utf8Bytes(created));
-        return jSonXMLKeyringFile;
     }
 
 
