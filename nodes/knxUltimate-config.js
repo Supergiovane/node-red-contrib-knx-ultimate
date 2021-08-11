@@ -7,7 +7,7 @@ const net = require("net");
 const _ = require("lodash");
 const path = require("path");
 var fs = require('fs');
-const { reduceRight } = require('lodash');
+//const { reduceRight } = require('lodash');
 //onst systemLogger = require("./utils/sysLogger.js");
 
 
@@ -619,6 +619,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                         node.linkStatus = "disconnected";
                         saveExposedGAs(); // 04/04/2021 save the current values of GA payload
                         if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("knxUltimate-config: connFailCb, Disconnected.");
+                        node.initKNXConnection(); // 11/08/2021 Supergiovane
                     },
                     // This will be called when the connection to the KNX interface failed because it ran out of connections
                     outOfConnectionsCb: function () {
@@ -633,7 +634,11 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                     // This will be called when sending of a message failed
                     sendFailCb: function (err) {
                         //console.log('[Send Fail Callback] Error while sending a message: %j', err)
+                        // 11/08/2021 Supergiovane, added handling of sendfailCB, by telling the system that the gateway is disconnected and forcing a reconnection.
+                        node.setAllClientsStatus("sendFailCb", "grey", err.message);
+                        node.linkStatus = "disconnected";
                         if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("knxUltimate-config: Send Fail Callback: Error while sending a message " + err.message);
+                        node.initKNXConnection();// 11/08/2021 Supergiovane
                     },
                     // This will be called on every incoming message
                     rawMsgCb: function (rawKnxMsg, rawMsgJson) {

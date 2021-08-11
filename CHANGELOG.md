@@ -5,6 +5,10 @@
 <br/>
 
 <p>
+<b>Version 1.2.37</b> - August 2021<br/>
+- Sometimes, with some KNX Interfaces, whenever you unplug the eth cable for a while, the gateway could'nt regain the connection. Fixed.<br/>
+</p>
+<p>
 <b>Version 1.2.36</b> - July 2021<br/>
 - Fixed a wrong help link in the gateway configuration node, in the italian language.<br/>
 - Fix: on importing ETS Group Addresses file, the debug window won't show the import's warnings/error.<br/>

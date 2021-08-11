@@ -1,5 +1,6 @@
 /**
 * knxultimate-api - a KNX protocol stack in pure Javascript based on knx.js (originally written by Elias Karakoulakis)
+* KNX Secure developed by Supergiovane.
 * (C) 2021 Supergiovane
 */
 
@@ -225,8 +226,29 @@ KnxConstants.KNX_RSM_CMDS = {
   HaltApplication: 0x02 // Halt the application
 }
 
+
+// KNX protocol version 27/07/2021
+KnxConstants.PROTOCOL_VERSION = {
+  KNXNETIP_VERSION_10 : 0x10
+}
+
 // The broadcast group address on every KNX bus
 KnxConstants.KNX_BROADCAST_ADDR = '0/0/0'
+
+// KNX Secure constants 27/07/2021
+KnxConstants.KNX_SECURE = {
+  // Search for KNX IP Secure Unicasts Setups
+  SearchRequest : 0x20b,
+  SearchResponse : 0x20c,
+  // KNX IP Secure
+  SecureWrapper : 0x0950,
+  SecureSessionRequest : 0x0951,
+  SecureSessionResponse : 0x0952,
+  SecureSessionAuth : 0x0953,
+  SecureSessionStatus : 0x0954,
+  SecureGroupSync : 0x0955
+}
+
 
 KnxConstants.keyText = function (object, value) {
   return Object.keys(object).filter(key => {

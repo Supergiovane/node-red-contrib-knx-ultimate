@@ -200,7 +200,7 @@ const states = {
       // Set this.isConnected
       this.isConnected = true
       this.isTunnelConnected = true; // 02/10/2020 Supergiovane: signal that the tunnel is up
-      
+
       /* important note: the sequence counter is SEPARATE for incoming and
         outgoing datagrams. We only keep track of the OUTGOING L_Data.req
         and we simply acknowledge the incoming datagrams with their own seqnum */
@@ -209,7 +209,7 @@ const states = {
       this.transition('idle')
       this.emit('connected');
       this.startTimerConnectioRequest(true); // 24/05/2020 Supergiovane
-      
+
 
     }
   },
@@ -643,7 +643,7 @@ const getIPv4Interfaces = function () {
 
 // 05/04/2021 Supergiovane
 const close = function () {
-
+  this.log.debug('Closing socket: %s');
   this.startTimerConnectioRequest(false); // 01/10/2020 Supergiovane
   this.isTunnelConnected = false; // 02/10/2020 Supergiovane: signal that the tunnel is down
 
@@ -651,9 +651,11 @@ const close = function () {
   this.emit('disconnected');
   try {
     // close the socket
-    sm.socket.close();
+    this.socket.close();
     //sm.socket = null; // 24/05/2020 Supergiovane added this line. 02/10/2020 removed.
-  } catch (error) { }
+  } catch (error) {
+    this.log.error('Error closing socket in const Close: %s', error.message);
+  }
 
 }
 
@@ -667,7 +669,7 @@ const getLocalAddress = function () {
       return candidateInterfaces[this.options.interface].address
     }
   }
- 
+
   // just return the first available IPv4 non-loopback interface
   if (Object.keys(candidateInterfaces).length > 0) {
     return candidateInterfaces[Object.keys(candidateInterfaces)[0]].address
@@ -676,8 +678,8 @@ const getLocalAddress = function () {
   throw Error('No valid IPv4 interfaces detected')
 }
 
- // 05/04/2021 Supergiovane: query connection status every max 120 secs, as per KNX specs.
- const startTimerConnectioRequest = function (_bEnable) {
+// 05/04/2021 Supergiovane: query connection status every max 120 secs, as per KNX specs.
+const startTimerConnectioRequest = function (_bEnable) {
   var sm = this;
   if (_bEnable) {
     if (sm.useTunneling) {
@@ -706,6 +708,6 @@ module.exports = machina.Fsm.extend({
   emitEvent: emitEvent,
   getIPv4Interfaces: getIPv4Interfaces,
   getLocalAddress: getLocalAddress,
-  startTimerConnectioRequest:startTimerConnectioRequest,
-  close:close
+  startTimerConnectioRequest: startTimerConnectioRequest,
+  close: close
 })

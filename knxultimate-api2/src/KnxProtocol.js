@@ -18,10 +18,12 @@ const KnxLog = require('./KnxLog')
 KnxProtocol.lengths = {}
 
 // helper function: what is the byte length of an object?
-function knxlen (objectName, context) {
+function knxlen(objectName, context) {
   let lf = KnxProtocol.lengths[objectName]
   return (typeof lf === 'function') ? lf(context) : lf
 }
+
+
 
 KnxProtocol.define('IPv4Endpoint', {
   read: function (propertyName) {
@@ -135,7 +137,7 @@ KnxProtocol.define('TunnState', {
         switch (hdr.status) {
           case 0x00:
             break
-        // default: throw "Connection State status: " + hdr.status;
+          // default: throw "Connection State status: " + hdr.status;
         }
 
         return hdr
@@ -612,7 +614,7 @@ KnxProtocol.lengths['APDU'] = function (value) {
       return 3 + value.data.length
     } else {
       if (!isNaN(parseFloat(value.data)) && isFinite(value.data) &&
-                                               value.data >= 0 && value.data <= 63) {
+        value.data >= 0 && value.data <= 63) {
         return 3
       } else {
         KnxLog.get().warn('Fix your code - APDU data payload must be a 6-bit int or an Array/Buffer (1 to 14 bytes), got: %j (%s)', value.data, typeof value.data)
@@ -710,18 +712,18 @@ KnxProtocol.define('CEMI', {
     }
 
     let ctrlField1 =
-            value.ctrl.frameType * 0x80 +
-            value.ctrl.reserved * 0x40 +
-            value.ctrl.repeat * 0x20 +
-            value.ctrl.broadcast * 0x10 +
-            value.ctrl.priority * 0x04 +
-            value.ctrl.acknowledge * 0x02 +
-            value.ctrl.confirm
+      value.ctrl.frameType * 0x80 +
+      value.ctrl.reserved * 0x40 +
+      value.ctrl.repeat * 0x20 +
+      value.ctrl.broadcast * 0x10 +
+      value.ctrl.priority * 0x04 +
+      value.ctrl.acknowledge * 0x02 +
+      value.ctrl.confirm
 
     let ctrlField2 =
-            value.ctrl.destAddrType * 0x80 +
-            value.ctrl.hopCount * 0x10 +
-            value.ctrl.extendedFrame
+      value.ctrl.destAddrType * 0x80 +
+      value.ctrl.hopCount * 0x10 +
+      value.ctrl.extendedFrame
 
     let srcAddr
     let destAddr
@@ -837,6 +839,8 @@ KnxProtocol.lengths['CEMI'] = function (value) {
   return 8 + apduLength
 }
 
+
+// For compatibility the KNXnet/IP security layer frames shall start with a standard KNXnet/IP header.
 KnxProtocol.define('KNXNetHeader', {
   read: function (propertyName) {
     this.pushStack({ header_length: 0, protocol_version: -1, service_type: -1, total_length: 0 })
@@ -850,7 +854,10 @@ KnxProtocol.define('KNXNetHeader', {
           throw util.format('Incomplete KNXNet packet: got %d bytes (expected %d)',
             this.buffer.length + hdr.header_length, this.total_length)
         }
-        
+        //! Sono arrivato qui
+        // 27/07/2021 check if the frame is secured
+        //hdr.isSecure = hdr.protocol_version == KnxConstants.PROTOCOL_VERSION.KNXNETIP_VERSION_10 && ((service_type & KnxConstants.KNX_SECURE.SecureWrapper) == KnxConstants.KNX_SECURE.SecureWrapper);
+
         switch (hdr.service_type) {
           //        case SERVICE_TYPE.SEARCH_REQUEST:
           case KnxConstants.SERVICE_TYPE.CONNECT_REQUEST: {
