@@ -5,7 +5,7 @@
 <br/>
 
 <p>
-<b>Version 1.2.37</b> - August 2021<br/>
+<b>Version 1.2.38</b> - August 2021<br/>
 - I remember you that i'm still collecting money to buy a KNX Router for testing KNX-Secure. Should you help me, click "Donate via PayPal" above in this page.<br/>
 - Sometimes, with some KNX Interfaces, whenever you unplug the eth cable for a while, the gateway could'nt regain the connection. Fixed.<br/>
 - Added a slight random delay before connecting to KNX BUS, to allow lazy ehternet adapters to come up after a reboot.<br/>
