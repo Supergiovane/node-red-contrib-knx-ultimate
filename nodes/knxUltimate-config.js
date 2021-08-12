@@ -356,7 +356,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
             } catch (error) { }
 
             node.telegramsQueue = []; // 02/01/2020 clear the telegram queue
-            node.setAllClientsStatus("Waiting", "grey", "")
+            node.setAllClientsStatus("Disconnected", "grey", "")
             // Remove listener
             try {
                 node.knxConnection.removeListener("event");
@@ -607,7 +607,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
             } catch (error) {
             }
 
-            node.setAllClientsStatus("Waiting", "grey", "")
+            //node.setAllClientsStatus("Warming up connection...", "grey", "")
 
             // Reference from https://www.npmjs.com/package/advanced_knx
             var knxConnectionProperties = {
@@ -661,7 +661,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                     // This will be called when the connection to the KNX interface failed because it ran out of connections
                     outOfConnectionsCb: function () {
                         //console.log('[Even cooler callback function] The KNX-IP Interface reached its connection limit!')
-                        setTimeout(() => node.setAllClientsStatus("outOfConnectionsCb", "red", "No more avaiable tunnels in the interface."), 1000);
+                        setTimeout(() => node.setAllClientsStatus("outOfConnectionsCb", "red", "No more avaiable tunnels in the interface."), 100)
                         if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("knxUltimate-config: Error on KNX BUS. No more avaiable tunnels.");
                         //console.log ("BANANA",conContext)
                         // ************
@@ -731,8 +731,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                             //if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.warn("BANANA RED :" +  connstatus);
 
                         } else {
-                            setTimeout(() => node.setAllClientsStatus(stat, "grey", "Unreco Error"), 2000)
-                            if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("knxUltimate-config: knxConnection error not recognized: {0}", stat);
+                            node.setAllClientsStatus("Boh", "grey", "Unreco Error");
                             // 11/08/2021
                             // ************
                             if (node.autoReconnect) {
@@ -741,6 +740,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                                 } catch (error) { }
                             }
                             // ************
+                            if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("knxUltimate-config: knxConnection error not recognized: {0}", stat);
                         }
 
                     },
@@ -782,8 +782,8 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
 
                 node.knxConnection = knx.Connection(knxConnectionProperties);
                 // Math.floor(Math.random() * (max - min + 1) + min)
-                let randomMillisecs = (Math.floor(Math.random() * (8 - 4 + 1) + 4) * 1000);
-                setTimeout(() => node.setAllClientsStatus("Join the KNX BUS in " + randomMillisecs / 1000 + " secs.", "grey", ""), 500);
+                let randomMillisecs = (Math.floor(Math.random() * (9 - 5 + 1) + 5) * 1000);
+                node.setAllClientsStatus("Will connect in " + randomMillisecs / 1000 + " secs.", "grey", "");
                 setTimeout(() => {
                     if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("knxUltimate-config: perform websocket connection on " + node.name);
                     try {
