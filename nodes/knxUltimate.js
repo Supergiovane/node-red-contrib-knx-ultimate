@@ -29,9 +29,9 @@ module.exports = function (RED) {
         node.passthrough = (typeof config.passthrough === "undefined" ? "no" : config.passthrough);
         node.inputmessage = {}; // Stores the input message to be passed through
         node.timerTTLInputMessage = null; // The stored node.inputmessage has a ttl.
-        node.sysLogger = require("./utils/sysLogger.js").get({ loglevel: node.server.loglevel || "error"}); // 08/04/2021 new logger to adhere to the loglevel selected in the config-window
+        node.sysLogger = require("./utils/sysLogger.js").get({ loglevel: node.server.loglevel || "error" }); // 08/04/2021 new logger to adhere to the loglevel selected in the config-window
 
-        
+
         // Used to call the status update from the config node.
         node.setNodeStatus = ({ fill, shape, text, payload, GA, dpt, devicename }) => {
             if (node.server == null) { node.status({ fill: "red", shape: "dot", text: "[NO GATEWAY SELECTED]" }); return; }
@@ -308,8 +308,12 @@ module.exports = function (RED) {
                     } else {
                         try {
                             node.currentPayload = msg.payload;// 31/12/2019 Set the current value (because, if the node is a virtual device, then it'll never fire "GroupValue_Write" in the server node, causing the currentPayload to never update)
-                            node.server.writeQueueAdd({ grpaddr: grpaddr, payload: msg.payload, dpt: dpt, outputtype: outputtype, nodecallerid: node.id })
-                            node.setNodeStatus({ fill: "green", shape: "dot", text: "Writing", payload: msg.payload, GA: grpaddr, dpt: dpt, devicename: "" });
+                            if (node.server.linkStatus === "connected") {
+                                node.server.writeQueueAdd({ grpaddr: grpaddr, payload: msg.payload, dpt: dpt, outputtype: outputtype, nodecallerid: node.id })
+                                node.setNodeStatus({ fill: "green", shape: "dot", text: "Writing", payload: msg.payload, GA: grpaddr, dpt: dpt, devicename: "" });
+                            }else{
+                                node.setNodeStatus({ fill: "grey", shape: "dot", text: "Disconnected", payload: msg.payload, GA: grpaddr, dpt: dpt, devicename: "" });
+                            }
                         } catch (error) { }
                     }
                 }

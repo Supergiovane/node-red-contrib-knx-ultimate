@@ -20,7 +20,7 @@ const onUdpSocketMessage = function (msg /*, rinfo, callback */) {
 
   // if (msg.toString("hex").endsWith("8000")) {
   //   console.log("BANANA VERO MSG", msg.toString("hex"));
- // TELEGRAMMA CON FLAG REPEATED 0610042000160413070029009CD01132140405008000000000
+  // TELEGRAMMA CON FLAG REPEATED 0610042000160413070029009CD01132140405008000000000
   // msg = Buffer.from("0610042000160413070029009CD01132140405008000000000", "hex");
   //   console.log("BANANA FAKE MSG", msg.toString("hex"));
   //   // DISCONNECT_RESPONSE:  0x020a,
@@ -240,12 +240,13 @@ const send = function (datagram, callback) {
     buf, 0, buf.length,
     conn.remoteEndpoint.port, conn.remoteEndpoint.addr.toString(),
     function (err) {
-      KnxLog.get().trace('(%s): UDP sent %s: %s %s', conn.compositeState(),
-        (err ? err.toString() : 'OK'), descr, buf.toString()
-      )
+        KnxLog.get().trace('(%s): UDP sent %s: %s %s', conn.compositeState(),
+          (err ? err.toString() : 'OK'), descr, buf.toString()
+        )
       if (typeof callback === 'function') callback(err)
     }
   )
+
   return buf; // 25/03/2021 Supergiovane
 }
 
@@ -402,6 +403,7 @@ const AddTunn = function (datagram) {
   }
 }
 
+// 12/08/2021 è l'oggetto KNXConnection
 const Connection = function (options) {
   const conn = new FSM(options)
 
@@ -422,6 +424,7 @@ const Connection = function (options) {
   conn.datagramDesc = datagramDesc
   conn.AddHPAI = AddHPAI
   conn.AddTunn = AddTunn
+
 
   // register with the FSM any event handlers passed into the options object
   if (typeof options.handlers === 'object') {

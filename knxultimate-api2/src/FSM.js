@@ -65,8 +65,10 @@ const states = {
       let sm = this
       this.log.debug(util.format('useTunneling=%j', this.useTunneling))
       if (this.useTunneling) {
+        clearInterval(sm.connecttimer); // 12/08/2021 Supergiovane
         sm.connection_attempts = -1
-        if (!this.localAddress) throw Error('Not bound to an IPv4 non-loopback interface')
+        // if (!this.localAddress) throw Error('Not bound to an IPv4 non-loopback interface') //11/02021 commentato 
+        if (!this.localAddress) this.log.error(util.format('Not bound to an IPv4 non-loopback interface')) // 11/08/2021 Supergiovane
         this.log.debug(util.format('Connecting via %s...', sm.localAddress))
         // we retry 3 times, then restart the whole cycle using a slower and slower rate (max delay is 5 minutes)
         this.connecttimer = setInterval(function () {
@@ -78,6 +80,7 @@ const states = {
               this.log.warn('connection timed out, falling back to pure routing mode...')
               sm.usingMulticastTunneling = true
               sm.transition('connected')
+
             } else {
               /*
                * Call RawModHandlers.connFailHandler() when the connection fails
@@ -88,6 +91,7 @@ const states = {
                * check if reconnecting is allowed
                */
               if (autoReconnect) {
+
                 /*
                  * try to reconnect if autoReconnect is set to true
                  */
@@ -99,7 +103,12 @@ const states = {
                  * disconnect and leave everything up to the user if autoReconnect is not set to true
                  */
                 this.log.warn('connection timed out ... disconnecting')
-                this.Disconnect()
+                try {
+                  this.Disconnect();
+                } catch (error) {
+                  //console.log("BANANA ERROR connection timed out ... disconnecting" + error.message);
+                }
+
               }
             }
           } else {
@@ -111,7 +120,8 @@ const states = {
                 // TODO: handle send err            
                 KnxLog.get().debug('(%s):\tsent DISCONNECT_REQUEST', sm.compositeState());
               });
-            } catch (error) { }
+            } catch (error) {
+            }
             try {
               this.send(this.prepareDatagram(KnxConstants.SERVICE_TYPE.CONNECT_REQUEST))
             } catch (error) { }
@@ -127,16 +137,17 @@ const states = {
       } else {
         // no connection sequence needed in pure multicast routing
         this.transition('connected')
+
       }
     },
     _onExit: function () {
       clearInterval(this.connecttimer)
     },
     inbound_CONNECT_RESPONSE: function (datagram) {
-      let sm = this
+      //let sm = this
       this.log.debug(util.format('got connect response'))
       if (datagram.hasOwnProperty('connstate') && datagram.connstate.status === KnxConstants.RESPONSECODE.E_NO_MORE_CONNECTIONS) {
-        clearInterval(sm.connecttimer)
+        clearInterval(this.connecttimer)
 
         /*
          * Call RawModHandlers.outOfConnectionsHandler() when the KNX-IP interface reported that it ran out of connections
@@ -144,14 +155,22 @@ const states = {
         RawModHandlers.outOfConnectionsHandler(this)
 
         this.log.debug('The KNXnet/IP server could not accept the new data connection (Maximum reached)')
-        this.log.debug('Killing connection...')
 
-        /*
-         * kill the connection
-         */
-        this.Disconnect();
-        // close the socket
-        this.close(); // 05/04/2021 Supergiovane
+       
+
+        // 12/08/2021 Supergiovane commentato tutto
+        //this.log.debug('Killing connection...')
+
+        // /*
+        //  * kill the connection
+        //  */
+        // this.Disconnect();
+        // // close the socket
+        // //this.close(); // 05/04/2021 Supergiovane
+        // try {
+        //   this.socket.close(); // 11/08/2021 Supergiovane  
+        // } catch (error) { }
+
       } else {
         // store channel ID into the Connection object
         this.channel_id = datagram.connstate.channel_id
@@ -180,8 +199,9 @@ const states = {
         const str = KnxConstants.keyText('RESPONSECODE', datagram.connstate.status)
         this.log.debug(util.format(
           'Got connection state response, connstate: %s, channel ID: %d',
-          str, datagram.connstate.channel_id))
+          str, datagram.connstate.channel_id));
         this.transition('connected')
+        //console.log("BANANA inbound_CONNECTIONSTATE_RESPONSE",datagram.connstate.status,datagram.connstate.channel_id,"isTunnelConnected",this.isTunnelConnected )
       }
     },
     '*': function (data) {
@@ -216,6 +236,7 @@ const states = {
   disconnecting: {
     _onEnter: function () {
       this.startTimerConnectioRequest(false); // 24/05/2020 Supergiovane
+
       this.isTunnelConnected = false; // 02/10/2020 Supergiovane: signal that the tunnel is down
 
       if (this.useTunneling) {
@@ -227,7 +248,10 @@ const states = {
         KnxLog.get().debug('(%s):\tconnection alive for %d seconds', this.compositeState(), aliveFor / 1000)
         this.disconnecttimer = setTimeout(function () {
           KnxLog.get().debug('(%s):\tconnection timed out', sm.compositeState())
-          sm.close(); // 05/04/2021 Supergiovane
+          try {
+            sm.close(); // 05/04/2021 Supergiovane  
+          } catch (error) {
+          }
           this.isConnected = false;
         }, 3000)
         //
@@ -245,7 +269,11 @@ const states = {
         } catch (error) { }
       } else {
         // in case of multicast the socket will be closed directly
-        this.close(); // 05/04/2021 Supergiovane
+        try {
+          this.close(); // 05/04/2021 Supergiovane  
+        } catch (error) {
+        }
+
       }
     },
     _onExit: function () {
@@ -382,6 +410,7 @@ const states = {
         })
       } catch (error) { }
 
+      if (this.connstatetimer !== null) clearTimeout(this.connstatetimer); // 11/08/2021 Supergiovane
       this.connstatetimer = setTimeout(function () {
         let msg = 'timed out waiting for CONNECTIONSTATE_RESPONSE'
         KnxLog.get().trace('(%s): %s', sm.compositeState(), msg)
@@ -645,17 +674,22 @@ const getIPv4Interfaces = function () {
 const close = function () {
   this.log.debug('Closing socket: %s');
   this.startTimerConnectioRequest(false); // 01/10/2020 Supergiovane
-  this.isTunnelConnected = false; // 02/10/2020 Supergiovane: signal that the tunnel is down
+  this.isConnected = false
+  this.isTunnelConnected = false;
 
-  this.transition('uninitialized');
-  this.emit('disconnected');
+  // 12/08/2021 Spostato il blocco prima del this.transition (era dopo this.emit)
   try {
     // close the socket
-    this.socket.close();
+    if (this.socket !== undefined) this.socket.close();
     //sm.socket = null; // 24/05/2020 Supergiovane added this line. 02/10/2020 removed.
   } catch (error) {
     this.log.error('Error closing socket in const Close: %s', error.message);
   }
+
+  this.transition('uninitialized');
+  this.emit('disconnected');
+
+
 
 }
 
@@ -696,7 +730,7 @@ const startTimerConnectioRequest = function (_bEnable) {
     // Stop timer
     //console.log("BANANA STOP TIMER")
     if (sm.timerConnectioRequest !== null) clearTimeout(sm.timerConnectioRequest);
-    if (sm.connstatetimer !== null) clearInterval(sm.connstatetimer);
+    if (sm.connstatetimer !== null) clearTimeout(sm.connstatetimer);
   }
 }
 module.exports = machina.Fsm.extend({
