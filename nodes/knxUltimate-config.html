@@ -78,6 +78,22 @@
                 $("#nodeList").val(data);
             });
 
+            // 14/08/2021 Elimino il file delle persistenze di questo nodo
+            $.getJSON("deletePersistGAFile?nodeID=" + node.id, (data) => {
+                // var myNotification = RED.notify("Persistence group addresses file for this gateway has been deleted. That's normal.",
+                //     {
+                //         modal: false,
+                //         fixed: false,
+                //         type: 'info',
+                //         buttons: [
+                //             {
+                //                 text: "OK",
+                //                 click: function (e) {
+                //                     myNotification.close();
+                //                 }
+                //             }]
+                //     })
+            });
 
             // 07/01/2020 Collapsible script
             // *****************************

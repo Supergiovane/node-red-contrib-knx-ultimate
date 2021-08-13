@@ -189,20 +189,24 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
         }
 
         function saveExposedGAs() {
+            let sFile = path.join(node.userDir, "knxpersistvalues", "knxpersist" + node.id + ".json");
             try {
                 if (node.exposedGAs.length > 0) {
-                    fs.writeFileSync(path.join(node.userDir, "knxpersistvalues", "knxpersist.json"), JSON.stringify(node.exposedGAs))
-                    if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info('KNXUltimate-config: wrote peristent values to the file ' + path.join(node.userDir, "knxpersistvalues"));
+                    fs.writeFileSync(sFile, JSON.stringify(node.exposedGAs));
+                    if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info('KNXUltimate-config: wrote peristent values to the file ' + sFile);
                 }
             } catch (err) {
-                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error('KNXUltimate-config: unable to write peristent values to the file ' + path.join(node.userDir, "knxpersistvalues") + " " + err.message);
+                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error('KNXUltimate-config: unable to write peristent values to the file ' + sFile + " " + err.message);
             }
         }
         function loadExposedGAs() {
+            let sFile = path.join(node.userDir, "knxpersistvalues", "knxpersist" + node.id + ".json");
             try {
-                node.exposedGAs = JSON.parse(fs.readFileSync(path.join(node.userDir, "knxpersistvalues", "knxpersist.json"), 'utf8'));
+                node.exposedGAs = JSON.parse(fs.readFileSync(sFile, 'utf8'));
             } catch (err) {
-                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error('KNXUltimate-config: unable to write peristent values to the file ' + path.join(node.userDir, "knxpersistvalues") + " " + err.message);
+                node.exposedGAs = [];
+                setTimeout(() => node.setAllClientsStatus("Warning", "yellow", "Unable to read peristent file " + err.message), 1000);
+                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.warn('KNXUltimate-config: unable to read peristent file ' + sFile + " " + err.message);
             }
         }
 
@@ -338,6 +342,20 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
             }
         });
 
+        // 12/08/2021 Endpoint for deleting the GA persistent file for the current gateway
+        RED.httpAdmin.get("/deletePersistGAFile", RED.auth.needsPermission('knxUltimate-config.read'), function (req, res) {
+            if (typeof req.query.nodeID !== "undefined" && req.query.nodeID !== null && req.query.nodeID !== "") {
+                let sFile = path.join(node.userDir, "knxpersistvalues", "knxpersist" + req.query.nodeID + ".json");
+                try {
+                    fs.unlinkSync(sFile);
+                } catch (error) { }
+                res.json({ error: "No error" });
+            } else {
+                res.json({ error: "No NodeID specified" });
+            }
+        });
+
+
         // 16/02/2020 KNX-Ultimate nodes calls this function, then this funcion calls the same function on the Watchdog
         node.reportToWatchdogCalledByKNXUltimateNode = (_oError) => {
             var readHistory = [];
@@ -469,7 +487,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                                             // Not found, issue a READ to the bus
                                             if (!readHistory.includes(oClient.topic)) {
                                                 setTimeout(() => {
-                                                    oClient.setNodeStatus({ fill: "grey", shape: "dot", text: "Persist file not found, issuing READ request to BUS", payload: oClient.currentPayload, GA: oClient.topic, dpt: oClient.dpt, devicename: oClient.devicename || "" });
+                                                    oClient.setNodeStatus({ fill: "grey", shape: "dot", text: "Persist value not found, issuing READ request to BUS", payload: oClient.currentPayload, GA: oClient.topic, dpt: oClient.dpt, devicename: oClient.devicename || "" });
                                                     node.writeQueueAdd({ grpaddr: oClient.topic, payload: "", dpt: "", outputtype: "read", nodecallerid: oClient.id });
                                                     readHistory.push(oClient.topic);
                                                 }, 1000);
@@ -1020,7 +1038,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                                     msg.previouspayload = typeof input.currentPayload !== "undefined" ? input.currentPayload : ""; // 24/01/2020 Reset previous payload
                                     // 24/09/2019 Autorespond to BUS
                                     if (input.notifyreadrequestalsorespondtobus === true) {
-                                        if (typeof input.currentPayload === "undefined" || input.currentPayload === "") {
+                                        if (typeof input.currentPayload === "undefined" || input.currentPayload === "" || input.currentPayload === null) { // 14/08/2021 Added || input.currentPayload === null
                                             setTimeout(() => {
                                                 node.knxConnection.respond(_dest, input.notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized, input.dpt);
                                                 input.setNodeStatus({ fill: "blue", shape: "ring", text: "Read & Autorespond with default", payload: input.notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized, GA: input.topic, dpt: msg.knx.dpt, devicename: "" });
@@ -1291,7 +1309,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
             }
             try {
                 // Build final input message object
-                return {
+                let finalMessage = {
                     topic: _outputtopic
                     , payload: jsValue
                     , devicename: (typeof _devicename !== 'undefined') ? _devicename : ""
@@ -1308,6 +1326,8 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                         , rawValue: _Rawvalue
                     }
                 };
+                //if (finalMessage.payload === null) delete finalMessage.payload; // 14/08/2021 delete the property if the payload is null
+                return finalMessage;
             } catch (error) {
                 if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("knxUltimate-config: buildInputMessage error: " + error.message);
             }

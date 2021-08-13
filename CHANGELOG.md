@@ -9,6 +9,8 @@
 - I remember you that i'm still collecting money to buy a KNX Router for testing KNX-Secure. Should you help me, click "Donate via PayPal" above in this page.<br/>
 - Sometimes, with some KNX Interfaces, whenever you unplug the eth cable for a while, the gateway could'nt regain the connection. Fixed.<br/>
 - Added a slight random delay before connecting to KNX BUS, to allow lazy ehternet adapters to come up after a reboot.<br/>
+- Improvement: knx-ultimate nodes does have a persistent state after reboot (it saves the states to a json file). Now, if you have multiple gateways, it saves the states for each gateway in a different file.<br/>
+- FIX: currently, knx-ultimate set to "auto respond with current value" and "if value unknown, respond with", responds with value selected by the user, if the current value is "" or undefined. Now it does so even if the value is null.<br/>
 </p>
 <p>
 <b>Version 1.2.36</b> - July 2021<br/>
