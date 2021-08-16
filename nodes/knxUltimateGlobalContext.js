@@ -94,7 +94,7 @@ module.exports = function (RED) {
         // 21/02/2021 timer for write to BUS
         if (node.exposeAsVariable === "exposeAsVariableREADWRITE") {
             goTimerGo();
-            node.setNodeStatus({ fill: "green", shape: "dot", text: "Start Writing poll" });
+            node.setNodeStatus({ fill: "green", shape: "dot", text: "Start Writing" });
         } else {
             if (node.timerExposedGAs !== null) clearTimeout(node.timerExposedGAs);
             node.context().global.set(node.name + "_WRITE", []); // Delete the var

@@ -144,6 +144,9 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
         node.keyringFileXML = (typeof config.keyringFileXML === "undefined" || config.keyringFileXML.trim() === "") ? "" : config.keyringFileXML;
         node.knxSecureSelected = typeof config.knxSecureSelected === "undefined" ? false : config.knxSecureSelected;
         node.busyInInitKNXConnection = false; // 11/08/2021 not to enter a initKNXConnection function while conneciton is in progress.
+        node.name = (config.name === undefined || config.name === "") ? node.host : config.name; // 12/08/2021
+        node.waitAckTimeoutCbNumberOfTries = 0; // 16/08/2021 If the KNX Interface fails to send the acknowledge, the node will reconnect. This counts how many times it failed to acknowledge.
+
         node.setAllClientsStatus = (_status, _color, _text) => {
             function nextStatus(oClient) {
                 oClient.setNodeStatus({ fill: _color, shape: "dot", text: _status + " " + _text, payload: "", GA: oClient.topic, dpt: "", devicename: "" })
@@ -458,6 +461,9 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                     .filter(oClient => oClient.initialread == 2 || oClient.initialread == 3)
                     .filter(oClient => oClient.hasOwnProperty("isWatchDog") === false)
                     .forEach(oClient => {
+
+                        if (node.linkStatus !== "connected") return; // 16/08/2021 If not connected, exit
+
                         // 04/04/2020 selected READ FROM FILE 2 or from file then from bus 3
                         if (oClient.listenallga == true) {
 
@@ -508,6 +514,9 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                     .filter(oClient => oClient.initialread == 1)
                     .filter(oClient => oClient.hasOwnProperty("isWatchDog") === false)
                     .forEach(oClient => {
+
+                        if (node.linkStatus !== "connected") return; // 16/08/2021 If not connected, exit
+
                         // 04/04/2020 selected READ FROM BUS 1
                         if (oClient.hasOwnProperty("isalertnode") && oClient.isalertnode) {
                             oClient.initialReadAllDevicesInRules();
@@ -560,7 +569,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
         // This new thing has been requested by proServ RealKNX staff.
         node.connectGateway = (_bConnection) => {
             if (_bConnection === undefined) return;
-            if (node.knxConnection === undefined) return;
+            if (node.knxConnection === undefined || node.knxConnection === null) return;
 
             if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info((_bConnection === true ? "Forced connection from watchdog" : "Forced disconnection from watchdog") + node.host + " Port " + node.port + " PhysicalAddress " + node.physAddr + " BindToInterface " + node.KNXEthInterface);
             if (_bConnection === true) {
@@ -594,15 +603,15 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
             // At start, initKNXConnection is already called only if the gateway has clients, but in the successive calls from the error handler, this check is not done.
             if (node.nodeClients.length === 0) {
                 try {
-                    if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("knxUltimate-config: No nodes linked to this gateway " + node.id);
-                    if (node.linkStatus = "connected") node.Disconnect();
+                    if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("knxUltimate-config: No nodes linked to this gateway " + node.name);
+                    if (node.linkStatus === "connected") node.Disconnect();
                     node.busyInInitKNXConnection = false;
                     return
                 } catch (error) { }
             }
 
             if (node.busyInInitKNXConnection) {
-                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("knxUltimate-config: busy in a connection attempt...");
+                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.warn("knxUltimate-config: busy in a connection attempt...");
                 return;
             }
             node.busyInInitKNXConnection = true;
@@ -655,7 +664,16 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                             node.setAllClientsStatus("Disconnected", "red", "");
                             saveExposedGAs(); // 04/04/2021 save the current values of GA payload
                             if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.warn("knxUltimate-config: Disconnected.");
+                            // 16/08/2021
+                            // ************
+                            if (node.autoReconnect) {
+                                try {
+                                    node.initKNXConnection();
+                                } catch (error) { }
+                            }
+                            // ************
                         }
+                        node.telegramsQueue = [];
                         node.linkStatus = "disconnected";
                     },
                     // This will be called when the connection to the KNX interface failed
@@ -693,6 +711,19 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                     // This will be called when the KNX interface failed to acknowledge a message in time
                     waitAckTimeoutCb: function () {
                         //console.log('[Wait Acknowledge Timeout Callback] Timeout reached when waiting for acknowledge message')
+                        node.waitAckTimeoutCbNumberOfTries += 1;
+                        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.warn("knxUltimate-config: Timeout reached when waiting for acknowledge message. Tried " + node.waitAckTimeoutCbNumberOfTries + " times.");
+                        // ************
+                        if (node.waitAckTimeoutCbNumberOfTries >= 10) {
+                            node.waitAckTimeoutCbNumberOfTries = 0;
+                            if (node.autoReconnect) {
+                                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("knxUltimate-config: Timeout reached when waiting for acknowledge message. Reached limit. Restarting connection.");
+                                try {
+                                    node.initKNXConnection(); // 11/08/2021 Supergiovane                            
+                                } catch (error) { }
+                            }
+                            // ************
+                        }
                     },
                     // This will be called when sending of a message failed
                     sendFailCb: function (err) {
@@ -802,6 +833,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                 // Math.floor(Math.random() * (max - min + 1) + min)
                 let randomMillisecs = (Math.floor(Math.random() * (9 - 5 + 1) + 5) * 1000);
                 node.setAllClientsStatus("Will connect in " + randomMillisecs / 1000 + " secs.", "grey", "");
+                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("knxUltimate-config: Will connect in " + randomMillisecs / 1000 + " secs. with " + node.name);
                 setTimeout(() => {
                     if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("knxUltimate-config: perform websocket connection on " + node.name);
                     try {
@@ -818,7 +850,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
             } catch (error) {
                 if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("KNXUltimate-config: Error in instantiating knxConnection " + error + ". Node " + node.name);
                 node.linkStatus = "disconnected";
-                setTimeout(() => node.setAllClientsStatus("Error in instantiating knxConnection " + error, "red", "Error"), 1000);
+                setTimeout(() => node.setAllClientsStatus("Error in instantiating knxConnection " + error, "red", "Error"), 200);
                 // 20/04/2020 Retry
                 node.busyInInitKNXConnection = false;
                 setTimeout(() => node.setAllClientsStatus("Retry connection...", "grey", "Info"), 3000);
@@ -973,7 +1005,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
 
                                 // 25/10/2019 TRY TO AUTO DECODE IF Group address not found in the CSV
                                 let msg = buildInputMessage({ _srcGA: _src, _destGA: _dest, _event: _evt, _Rawvalue: _rawValue, _inputDpt: (typeof oGA === "undefined") ? null : oGA.dpt, _devicename: (typeof oGA === "undefined") ? input.name || "" : oGA.devicename, _outputtopic: _dest, _oNode: input });
-                                input.setNodeStatus({ fill: "green", shape: "dot", text: (typeof oGA === "undefined") ? "Try to decode" : "", payload: msg.payload, GA: msg.knx.destination, dpt: msg.knx.dpt, devicename: msg.devicename });
+                                input.setNodeStatus({ fill: "blue", shape: "dot", text: (typeof oGA === "undefined") ? "Try to decode" : "", payload: msg.payload, GA: msg.knx.destination, dpt: msg.knx.dpt, devicename: msg.devicename });
                                 input.handleSend(msg)
 
                             } else if (input.topic == _dest) {
@@ -1040,13 +1072,22 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                                     if (input.notifyreadrequestalsorespondtobus === true) {
                                         if (typeof input.currentPayload === "undefined" || input.currentPayload === "" || input.currentPayload === null) { // 14/08/2021 Added || input.currentPayload === null
                                             setTimeout(() => {
-                                                node.knxConnection.respond(_dest, input.notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized, input.dpt);
-                                                input.setNodeStatus({ fill: "blue", shape: "ring", text: "Read & Autorespond with default", payload: input.notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized, GA: input.topic, dpt: msg.knx.dpt, devicename: "" });
+                                                try {
+                                                    node.knxConnection.respond(_dest, input.notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized, input.dpt);
+                                                    input.setNodeStatus({ fill: "blue", shape: "ring", text: "Read & Autorespond with default", payload: input.notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized, GA: input.topic, dpt: msg.knx.dpt, devicename: "" });
+                                                } catch (error) {
+                                                    console.log("BANANA ERRORE RESPOND", error.message);
+                                                }
+
                                             }, 200);
                                         } else {
                                             setTimeout(() => {
-                                                node.knxConnection.respond(_dest, input.currentPayload, input.dpt);
-                                                input.setNodeStatus({ fill: "blue", shape: "ring", text: "Read & Autorespond", payload: input.currentPayload, GA: input.topic, dpt: msg.knx.dpt, devicename: "" });
+                                                try {
+                                                    node.knxConnection.respond(_dest, input.currentPayload, input.dpt);
+                                                    input.setNodeStatus({ fill: "blue", shape: "ring", text: "Read & Autorespond", payload: input.currentPayload, GA: input.topic, dpt: msg.knx.dpt, devicename: "" });
+                                                } catch (error) {
+                                                    console.log("BANANA ERRORE RESPOND2", error.message);
+                                                }
                                             }, 200);
                                         };
                                     } else {
@@ -1073,10 +1114,17 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
         }
 
         function handleTelegramQueue() {
-            if (node.knxConnection || node.host.toUpperCase() === "EMULATE") {
+            if (node.knxConnection !== null || node.host.toUpperCase() === "EMULATE") {
 
                 if (typeof node.lockHandleTelegramQueue !== "undefined" && node.lockHandleTelegramQueue === true) return; // Exits if the funtion is busy
                 node.lockHandleTelegramQueue = true; // Lock the function. It cannot be called again until finished.
+
+                // 16/08/2021 If not connected, exit
+                if (node.linkStatus !== "connected") {
+                    node.telegramsQueue = [];
+                    node.lockHandleTelegramQueue = false; // Unlock the function
+                    return;
+                }
 
                 // Retrieving oKNXMessage  { grpaddr, payload,dpt,outputtype (write or response),nodecallerid (node caller)}. 06/03/2020 "Read" request does have the lower priority in the queue, so firstly, i search for "read" telegrams and i move it on the top of the queue pile.
                 var aTelegramsFiltered = [];
@@ -1130,6 +1178,13 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                     try {
 
                         node.nodeClients.forEach(input => {
+
+                            // 16/08/2021 If not connected, exit
+                            if (node.linkStatus !== "connected") {
+                                node.telegramsQueue = [];
+                                node.lockHandleTelegramQueue = false; // Unlock the function
+                                return;
+                            }
 
                             // 19/03/2020 in the middle of coronavirus. Whole italy is red zone, closed down. Scene Controller implementation
                             if (input.hasOwnProperty("isSceneController")) {
