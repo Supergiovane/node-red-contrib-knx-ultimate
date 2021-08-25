@@ -626,8 +626,8 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                     if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.debug("knxUltimate-config: Connected.");
                 },
                 disconnected: function () {
+                    node.telegramsQueue = [];
                     if (node.linkStatus === "connected") {
-                        node.telegramsQueue = [];
                         node.linkStatus = "disconnected";
                         node.setAllClientsStatus("Disconnected", "red", "");
                         saveExposedGAs(); // 04/04/2021 save the current values of GA payload
@@ -649,6 +649,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                     //node.linkStatus = "disconnected";
                     node.setAllClientsStatus("connFailCb", "red", "");
                     //if (node.linkStatus === "connected") saveExposedGAs(); // 04/04/2021 save the current values of GA payload
+                    node.telegramsQueue = [];
                     node.linkStatus = "disconnected";
                     if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("knxUltimate-config: connFailCb, Disconnected.");
                     // ************
@@ -664,6 +665,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                 outOfConnectionsCb: function () {
                     //console.log('[Even cooler callback function] The KNX-IP Interface reached its connection limit!')
                     setTimeout(() => node.setAllClientsStatus("outOfConnectionsCb", "red", "No more avaiable tunnels in the interface."), 100)
+                    node.telegramsQueue = [];
                     if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("knxUltimate-config: Error on KNX BUS. No more avaiable tunnels.");
                     //console.log ("BANANA",conContext)
                     // ************
