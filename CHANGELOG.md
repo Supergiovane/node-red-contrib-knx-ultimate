@@ -5,6 +5,11 @@
 <br/>
 
 <p>
+<b>Version 1.2.40</b> - August 2021<br/>
+- Great improvement of system resource.<br/>
+- Fixed too many reconnection attempts in a short timeframe. Now it's more relaxed thus more responsive.<br/>
+</p>
+<p>
 <b>Version 1.2.39</b> - August 2021<br/>
 - I remember you that i'm still collecting money to buy a KNX Router for testing KNX-Secure. Should you help me, click "Donate via PayPal" above in this page.<br/>
 - Optimized the fix in 1.2.38 by adding more in-depth checks.<br/>
