@@ -156,7 +156,7 @@ const states = {
 
         this.log.debug('The KNXnet/IP server could not accept the new data connection (Maximum reached)')
 
-       
+
 
         // 12/08/2021 Supergiovane commentato tutto
         //this.log.debug('Killing connection...')
