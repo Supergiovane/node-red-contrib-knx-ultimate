@@ -8,6 +8,7 @@
 <b>Version 1.2.40</b> - August 2021<br/>
 - Great improvement of system resource.<br/>
 - Fixed too many reconnection attempts in a short timeframe. Now it's more relaxed thus more responsive.<br/>
+- I've successfully collected KNX Secure device to go ahead with the development. THANK YOU TO ALL PATREONS, SPECIALLY TO A COMPANY THAT WON'T BE MENTIONED HERE, HAVING SENT ME KNX SECURE DEVICES.<br/>
 </p>
 <p>
 <b>Version 1.2.39</b> - August 2021<br/>
