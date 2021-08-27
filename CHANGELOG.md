@@ -5,6 +5,10 @@
 <br/>
 
 <p>
+<b>Version 1.2.41</b> - August 2021<br/>
+- Fixed a zero day bug: the loading of buffer value other than true/false from the peristent file (where all the values are persisted, stored and read upon restart if you selected that in the node config) fails. No error occurs nor other malfunctions, but the node emits a status error and the value is not read from this file.<br/>
+</p>
+<p>
 <b>Version 1.2.40</b> - August 2021<br/>
 - Great improvement of system resource.<br/>
 - Fixed too many reconnection attempts in a short timeframe. Now it's more relaxed thus more responsive.<br/>
