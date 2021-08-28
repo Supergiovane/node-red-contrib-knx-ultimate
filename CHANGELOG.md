@@ -5,6 +5,10 @@
 <br/>
 
 <p>
+<b>Version 1.2.42</b> - August 2021<br/>
+- FIX: if the config node is configured in EMULATION mode, knx-ultimate ouputs always the flow msg with the Group Address as topic, instead of a msg with the customized topic (if you have customizet it).<br/>
+</p>
+<p>
 <b>Version 1.2.41</b> - August 2021<br/>
 - Fixed a zero day bug: the loading of buffer value other than true/false from the peristent file (where all the values are persisted, stored and read upon restart if you selected that in the node config) fails. No error occurs nor other malfunctions, but the node emits a status error and the value is not read from this file.<br/>
 </p>

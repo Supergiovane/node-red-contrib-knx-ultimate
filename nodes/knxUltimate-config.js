@@ -1232,7 +1232,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                     } catch (error) { }
 
                 } else {
-
+                    // Write
                     try {
                         if (node.host.toUpperCase() === "EMULATE") {
                             // The gateway is in EMULATION mode
@@ -1319,7 +1319,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
             var sPayloadsubtypevalue = "unknown";
             var jsValue = null;
             var sInputDpt = "unknown";
-            
+
             let errorMessage = {
                 topic: _outputtopic
                 , payload: "UNKNOWN, PLEASE IMPORT THE ETS FILE!"
@@ -1737,7 +1737,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                         } else {
 
                             let msg = {
-                                topic: input.topic,
+                                topic: input.outputtopic,
                                 payload: _msg.payload,
                                 devicename: input.name ? input.name : "",
                                 payload: _msg.payload,
