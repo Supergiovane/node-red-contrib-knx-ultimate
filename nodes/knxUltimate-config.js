@@ -552,17 +552,17 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
             if (typeof _sPhysicalAddress !== "undefined" && _sPhysicalAddress !== "") node.physAddr = _sPhysicalAddress;
             if (typeof _sBindToEthernetInterface !== "undefined") node.KNXEthInterface = _sBindToEthernetInterface;
             if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("Node's main config setting has been changed. New config: IP " + node.host + " Port " + node.port + " PhysicalAddress " + node.physAddr + " BindToInterface " + node.KNXEthInterface);
-            if (node.knxConnection) {
-                try {
-                    node.Disconnect();
-                    if (node.tempDiscoTimer !== null) clearTimeout(node.tempDiscoTimer)
-                    node.tempDiscoTimer = setTimeout(() => {
-                        setTimeout(() => node.setAllClientsStatus("CONFIG", "yellow", "Node's main config setting has been changed."), 1000);
-                        setTimeout(() => node.setAllClientsStatus("CONFIG", "yellow", "New config: IP " + node.host + " Port " + node.port + " PhysicalAddress " + node.physAddr + " BindToInterface " + node.KNXEthInterface), 2000)
-                        node.initKNXConnection();
-                    }, 5000);
-                } catch (error) { }
-            };
+            //if (node.knxConnection) {
+            try {
+                node.Disconnect();
+                if (node.tempDiscoTimer !== null) clearTimeout(node.tempDiscoTimer)
+                node.tempDiscoTimer = setTimeout(() => {
+                    setTimeout(() => node.setAllClientsStatus("CONFIG", "yellow", "Node's main config setting has been changed."), 1000);
+                    setTimeout(() => node.setAllClientsStatus("CONFIG", "yellow", "New config: IP " + node.host + " Port " + node.port + " PhysicalAddress " + node.physAddr + " BindToInterface " + node.KNXEthInterface), 2000)
+                    node.initKNXConnection();
+                }, 5000);
+            } catch (error) { }
+            //};
         };
 
 
