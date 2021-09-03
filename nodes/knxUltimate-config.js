@@ -570,8 +570,6 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
         // This new thing has been requested by proServ RealKNX staff.
         node.connectGateway = (_bConnection) => {
             if (_bConnection === undefined) return;
-            if (node.knxConnection === undefined || node.knxConnection === null) return;
-
             if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info((_bConnection === true ? "Forced connection from watchdog" : "Forced disconnection from watchdog") + node.host + " Port " + node.port + " PhysicalAddress " + node.physAddr + " BindToInterface " + node.KNXEthInterface);
             if (_bConnection === true) {
                 // CONNECT AND ENABLE RECONNECTION ATTEMPTS

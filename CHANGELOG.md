@@ -5,6 +5,10 @@
 <br/>
 
 <p>
+<b>Version 1.2.43</b> - September 2021<br/>
+- Watchdog Node: fixed the msg.connectGateway = true not actually reconnecting.<br/>
+</p>
+<p>
 <b>Version 1.2.42</b> - August 2021<br/>
 - FIX: if the config node is configured in EMULATION mode, knx-ultimate ouputs always the flow msg with the Group Address as topic, instead of a msg with the customized topic (if you have customizet it).<br/>
 </p>
