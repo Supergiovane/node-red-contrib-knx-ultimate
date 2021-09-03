@@ -313,7 +313,7 @@
                     var row = $('<div class="form-row"/>').appendTo(container);
                     var row2 = $('<div class="form-row"/>', { style: "padding-top: 5px; padding-left: 5px;" }).appendTo(container);
 
-                    var oTopicField = $("<input/>", { class: "rowRuleTopic", type: "text", placeholder: "1/1/1 or device name", style: "width:140px; margin-left: 5px; text-align: left;" }).appendTo(row);
+                    var oTopicField = $("<input/>", { class: "rowRuleTopic", type: "text", placeholder: "1/1/1, wait or device name", style: "width:140px; margin-left: 5px; text-align: left;" }).appendTo(row);
                     var oDPTField = $('<select/>', { class: "rowRuleDPT", type: "text", style: "width:160px; margin-left: 5px; text-align: left;" }).appendTo(row);
                     var finalspan = $('<span/>', { style: "" }).appendTo(row);
                     finalspan.append(' &#8594; <span class="node-input-rule-index"></span> ');
@@ -382,7 +382,7 @@
             });
 
              // Put some spaces after the container
-             $('<br/><br/><br/><br/><br/><br/><br/><br/><br/>').insertAfter($("#node-input-rule-container"));
+             $('<br/><br/><br/>').insertAfter($("#node-input-rule-container"));
 
             // 10/03/2020 For each rule, create a row
             for (var i = 0; i < this.rules.length; i++) {

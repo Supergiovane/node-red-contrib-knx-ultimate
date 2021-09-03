@@ -28,7 +28,7 @@ module.exports = function (RED) {
         node.rules = config.rules || [{}];
         node.isSceneController = true; // Signal to config node, that this is a node scene controller
         node.userDir = path.join(RED.settings.userDir, "knxultimatestorage"); // 09/03/2020 Storage of ttsultimate (otherwise, at each upgrade to a newer version, the node path is wiped out and recreated, loosing all custom files)
-        node.sysLogger = require("./utils/sysLogger.js").get({ loglevel: node.server.loglevel || "error"}); // 08/04/2021 new logger to adhere to the loglevel selected in the config-window
+        node.sysLogger = require("./utils/sysLogger.js").get({ loglevel: node.server.loglevel || "error" }); // 08/04/2021 new logger to adhere to the loglevel selected in the config-window
 
         node.disabled = false; // 21/09/2020 you can now disable the scene controller
 
@@ -41,6 +41,17 @@ module.exports = function (RED) {
             } catch (error) { if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.warn("e " + error) }
             res.json({ status: 220 });
         });
+
+        // 03/09/2021
+        async function delay(ms) {
+            return new Promise(function (resolve, reject) {
+                try {
+                    node.timerWait = setTimeout(resolve, ms);
+                } catch (error) {
+                    reject();
+                }
+            });
+        }
 
         function setupDirectory(aPath) {
             try {
@@ -100,10 +111,8 @@ module.exports = function (RED) {
             };
         }
 
-
-        // 11/03/2020 in the middle of coronavirus. Whole italy is red zone, closed down. Recall scene. 
-        node.RecallScene = (_Payload, _ForceEvenControllerIsDisabled) => {
-
+        // 03/09/2021 Async function to allow await delay(x)
+        async function RecallSceneAsync(_Payload, _ForceEvenControllerIsDisabled) {
             var curVal;
             var newVal;
 
@@ -204,12 +213,32 @@ module.exports = function (RED) {
                 } else {
                     oPayload = rule.send;
                 }
-                node.server.writeQueueAdd({ grpaddr: rule.topic, payload: oPayload, dpt: rule.dpt, outputtype: "write", nodecallerid: node.id })
+
+                // 03/09/2021 wait command?
+                if (rule.topic.toLowerCase() === "wait") {
+                    if (isNaN(rule.send)) {
+                        setTimeout(() => {
+                            node.setNodeStatus({ fill: "red", shape: "dot", text: "Invalid wait time. Write a number in milliseconds", payload: "", GA: "", dpt: "", devicename: "" });
+                        }, 1000);
+                    } else {
+                        await delay(Number(rule.send));
+                    }
+                } else {
+                    // Topic is Group Address
+                    node.server.writeQueueAdd({ grpaddr: rule.topic, payload: oPayload, dpt: rule.dpt, outputtype: "write", nodecallerid: node.id })
+                }
             }
             setTimeout(() => {
                 node.setNodeStatus({ fill: "green", shape: "dot", text: "Recall scene", payload: "", GA: "", dpt: "", devicename: "" });
             }, 1000);
+            await delay(500);
             node.send({ savescene: false, recallscene: true, savevalue: false, disabled: false });
+        }
+
+
+        // 11/03/2020 in the middle of coronavirus. Whole italy is red zone, closed down. Recall scene. 
+        node.RecallScene = (_Payload, _ForceEvenControllerIsDisabled) => {
+            RecallSceneAsync(_Payload, _ForceEvenControllerIsDisabled);
         }
 
         // 11/03/2020 in the middle of coronavirus. Whole italy is red zone, closed down. Save scene.
