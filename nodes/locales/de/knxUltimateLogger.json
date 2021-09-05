@@ -1,0 +1,21 @@
+{
+    "knxUltimateLogger": {
+        "helplink" : "&nbsp<i class=\"fa fa-question-circle\"></i>&nbsp<a target=\"_blank\" href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/de-Logger-Configuration\"><u>Hilfe für die Konfiguration</u></a>",
+        "title": "KNX Logger für ETS",
+        "properties": {
+            "node-input-server": "Gateway",
+            "node-input-topic": "Topic",
+            "node-input-name": "Node Name",
+            "node-input-autoStartTimerCreateETSXML": "Timer für automatischen Start",
+            "mlxETSFileAccordion": "ETS-kompatible BUS-Diagnosedatei",
+            "node-input-intervalCreateETSXML": "Schreibe eine XML Datei jede (in Minuten)",
+            "node-input-maxRowsInETSXML":"Maximale Anzahl von Zeilen im XML (0 = keine Begrenzung)"
+        },
+        "placeholder": {
+            
+        },
+        "selectlists": {
+            
+        }
+    }
+}

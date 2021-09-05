@@ -1,0 +1,587 @@
+<script type="text/javascript">
+    RED.nodes.registerType('knxUltimate', {
+        category: "KNX Ultimate",
+        color: '#7dd484',
+        defaults: {
+            //buttonState: {value: true},
+            server: { type: "knxUltimate-config", required: true },
+            topic: { value: "" },
+            outputtopic: { value: "" },
+            dpt: { value: "" },
+            initialread: { value: 0 },
+            notifyreadrequest: { value: false },
+            notifyresponse: { value: false },
+            notifywrite: { value: true },
+            notifyreadrequestalsorespondtobus: { value: false },
+            notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized: { value: "0" },
+            listenallga: { value: false },
+            name: { value: "" },
+            outputtype: { value: "write" },
+            outputRBE: { value: true },
+            inputRBE: { value: false },
+            formatmultiplyvalue: { value: 1 },
+            formatnegativevalue: { value: "leave" },
+            formatdecimalsvalue: { value: 999 },
+            passthrough: { value: "no" }
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: "node-knx-icon.svg",
+        label: function () {
+            return (this.outputRBE == true ? "|rbe| " : "") + (this.name || this.topic || "knx-ultimate") + (this.inputRBE == true ? " |rbe|" : "")
+        },
+        paletteLabel: "KNX Device",
+        // button: {
+        //     enabled: function() {
+        //         // return whether or not the button is enabled, based on the current
+        //         // configuration of the node
+        //         return !this.changed
+        //     },
+        //     visible: function() {
+        //         // return whether or not the button is visible, based on the current
+        //         // configuration of the node
+        //         return this.hasButton
+        //     },
+        //     //toggle: "buttonState",
+        //     onclick: function() {}
+        // },
+        oneditprepare: function () {
+            var node = this;
+            var oNodeServer = RED.nodes.node($("#node-input-server").val()); // Store the config-node
+
+            // 31/03/2020 Search Helper
+            function fullSearch(sourceText, searchString) {
+                // This searches for all words in a string
+                var aSearchWords = searchString.toLowerCase().split(" ");
+                var i = 0;
+                for (let index = 0; index < aSearchWords.length; index++) {
+                    if (sourceText.toLowerCase().indexOf(aSearchWords[index]) > -1) i += 1;
+                }
+                return i == aSearchWords.length;
+            }
+
+            // 15/09/2020 Supergiovane, set the help sample based on Datapoint
+            function knxUltimateDptsGetHelp(_dpt, _forceClose) {
+                $.getJSON("knxUltimateDptsGetHelp?dpt=" + _dpt, (data) => {
+                    try {
+                        $("#example-editor").html("");
+                        $("#sampleCodeAccordionWebPage").html();
+                        node.sampleEditor.destroy();
+                        delete node.sampleEditor;
+                    } catch (error) {
+                    }
+                    if (data.help !== "NO") {
+                        node.sampleEditor = RED.editor.createEditor({
+                            id: 'example-editor',
+                            mode: 'ace/mode/javascript',
+                            value: data.help//this.exampleText
+                        }).renderer.setShowGutter(false);//.setReadOnly(true).setShowPrintMargin(false);                    
+                        // Expand Accordion
+                        if (_forceClose == false) $("#sampleCodeAccordion").accordion({ active: 0 });
+                        if (data.helplink !== "") $("#sampleCodeAccordionWebPage").html("&nbsp<i class=\"fa fa-question-circle\"></i>&nbsp<a target=\"_blank\" href=\"" + data.helplink + "\"><u>Link example of " + _dpt + "</u></a>");
+                    } else {
+                        // No help avaiable
+                        node.sampleEditor = RED.editor.createEditor({
+                            id: 'example-editor',
+                            mode: 'ace/mode/javascript',
+                            value: "Currently, no sample payload is avaiable, sorry."
+                        }).renderer.setShowGutter(false);//.setReadOnly(true).setShowPrintMargin(false);
+                        // Collapse Accordion
+                        $("#sampleCodeAccordion").accordion({ active: 1 });
+                        if (data.helplink !== "") $("#sampleCodeAccordionWebPage").html("&nbsp<i class=\"fa fa-question-circle\"></i>&nbsp<a target=\"_blank\" href=\"" + data.helplink + "\"><u>Link to wiki</u></a>");
+                    }
+                })
+            }
+
+            // 02/04/2020 Alert user about data type
+            // ###########################
+            $("#node-input-dpt").on("change", function () {
+
+                // Load help sample
+                knxUltimateDptsGetHelp($(this).val(), false);
+
+            });
+            // ###########################
+
+
+            // 19/02/2020 Used to alert the user if the CSV file has not been loaded and to get the server sooner als deploy
+            // ###########################
+            $("#node-input-server").change(function () {
+                try {
+                    oNodeServer = RED.nodes.node($(this).val());
+                    if (typeof oNodeServer.csv !== "undefined" && oNodeServer.csv !== "") {
+                        $("#isETSFileLoaded").val("si");
+                    } else {
+                        $("#isETSFileLoaded").val("no");
+                    }
+                } catch (error) {
+                    $("#isETSFileLoaded").val("no");
+                }
+            });
+            // ###########################
+
+
+            $.getJSON("knxUltimateDpts", (data) => {
+                data.forEach(dpt => {
+                    $("#node-input-dpt").append($("<option></option>")
+                        .attr("value", dpt.value)
+                        .text(dpt.text))
+                });
+                $("#node-input-dpt").val(this.dpt);
+                // Load help sample
+                knxUltimateDptsGetHelp(this.dpt, true);
+            })
+
+            // Add write and response as default for existing nodes like was default before
+            if (typeof this.notifywrite === 'undefined') {
+                this.notifywrite = true
+                this.notifyresponse = true
+                $("#node-input-notifywrite").prop("checked", true)
+                $("#node-input-notifyresponse").prop("checked", true)
+            }
+
+            // Add Write as default for existing clients output
+            if (typeof this.outputtype === 'undefined') {
+                this.outputtype = "write"
+                $("#node-input-outputtype").val("write")
+            }
+
+            $("#node-input-notifyreadrequest").on('change', function () {
+                if ($("#node-input-notifyreadrequest").is(":checked")) {
+                    if ($("#node-input-listenallga").is(":checked")) {
+                    } else {
+                        $("#divnotifyreadrequestautoreact").show();
+                    }
+                } else {
+                    $("#divnotifyreadrequestautoreact").hide();
+                }
+            })
+
+            $("#node-input-listenallga").on('change', function () {
+                if ($("#node-input-listenallga").is(":checked")) {
+                    $("#GAandDPT").hide()
+                    $("#divOutputRBE").hide()
+                    $("#node-input-outputRBE").prop('checked', false)
+                    $("#divInputRBE").hide()
+                    $("#node-input-inputRBE").prop('checked', false)
+                    $("#divnotifyreadrequestautoreact").hide();
+                    $("#helpallga").show();
+                    $("#divTopic").hide()
+
+                    // Call a fake datapoint to load a sample "Universal Node"
+                    knxUltimateDptsGetHelp("0.000", true); // 15/09/2020 Supergiovane, load sample help
+
+                    if ($("#helpallga").html == "") {
+                        // There is a ETS csv file, show the init read option
+                        $("#divNode-input-initialread").show()
+                    } else {
+                        // There isn't a ETS csv file, hide and deselect the init read option
+                        $("#divNode-input-initialread").hide();
+                        $("#node-input-initialread").val(0);
+                    }
+                } else {
+
+                    // 15/09/2020 Supergiovane, load the help sample of the current datapoint
+                    knxUltimateDptsGetHelp($("#node-input-dpt").val(), false); // 15/09/2020 Supergiovane, load sample help
+
+                    $("#GAandDPT").show()
+                    $("#divOutputRBE").show()
+                    $("#divInputRBE").show()
+                    $("#divTopic").show()
+                    if ($("#node-input-notifyreadrequest").is(":checked")) {
+                        $("#divnotifyreadrequestautoreact").show();
+                    } else {
+                        $("#divnotifyreadrequestautoreact").hide();
+                    }
+                    $("#helpallga").hide()
+                    $("#divNode-input-initialread").show();
+                }
+            })
+
+            // Autocomplete suggestion with ETS csv File
+            $("#node-input-topic").autocomplete({
+                minLength: 1,
+                source: function (request, response) {
+                    $.getJSON("knxUltimatecsv?nodeID=" + oNodeServer.id, (data) => {
+                        response($.map(data, function (value, key) {
+                            var sSearch = (value.ga + " (" + value.devicename + ") DPT" + value.dpt);
+                            if (fullSearch(sSearch, request.term)) {
+                                return {
+                                    label: value.ga + " # " + value.devicename + " # " + value.dpt, // Label for Display
+                                    value: value.ga // Value
+                                }
+                            } else {
+                                return null;
+                            }
+                        }));
+                    });
+                }, select: function (event, ui) {
+                    // Sets Datapoint and device name automatically
+                    var sDevName = ui.item.label.split("#")[1].trim();
+                    try {
+                        sDevName = sDevName.substr(sDevName.indexOf(")") + 1).trim();
+                    } catch (error) {
+                    }
+                    $('#node-input-name').val(sDevName);
+                    var optVal = $("#node-input-dpt option:contains('" + ui.item.label.split("#")[2].trim() + "')").attr('value');
+                    // Select the option value 
+                    $("#node-input-dpt").val(optVal);
+                    $("#node-input-dpt").trigger("change");
+                }
+            });
+
+            // Hide or show the GA and DPT fields if Notify on all Group Addresses is checked
+            if (this.server) {
+                if (typeof RED.nodes.node(this.server).csv !== 'undefined' && RED.nodes.node(this.server).csv != "") {
+                    $("#helpallga").html("");
+                    // There is a ETS csv file, show the init read option
+                    $("#divNode-input-initialread").show()
+                } else {
+                    // 25/10/2019 Warn user that the node will node encode/decode datagram, if Listen All GA's if the config node doesn't contain the csv
+                    $("#helpallga").html("<i> " + node._("knxUltimate.advanced.noETSWarning") + " </i>");
+                    if ($("#node-input-listenallga").is(":checked")) {
+                        // There isn't a ETS csv file, hide and deselect the init read option
+                        $("#divNode-input-initialread").hide();
+                        $("#node-input-initialread").val(0);
+                    } else {
+                        $("#divNode-input-initialread").show()
+                    }
+                }
+            } else {
+                $("#node-input-listenallga").prop("checked", false)
+                $("#divTopic").show()
+                $("#GAandDPT").show()
+                $("#divOutputRBE").show()
+                $("#divInputRBE").show()
+                $("#helpallga").hide()
+                $("#divNode-input-initialread").show()
+            }
+
+            // 02/01/2020 Advanced options Collapsible script
+            // *****************************
+            $("#advancedOptionsAccordion").accordion({
+                header: "h3",
+                heightStyle: "content",
+                collapsible: true,
+                active: false
+            });
+            // Auto open accordion if the default fields have been changed
+            if (this.notifyreadrequest !== false ||
+                this.notifyresponse !== false ||
+                this.notifywrite !== true ||
+                this.outputtype !== "write" ||
+                this.outputRBE !== true ||
+                this.inputRBE !== false ||
+                this.passthrough !== "no"
+            ) {
+                $("#advancedOptionsAccordion").accordion({ active: 0 });
+            }
+            // *****************************
+
+            // 18/02/2020 KNX Value format Collapsible script
+            // *****************************
+            $("#formatValueAccordion").accordion({
+                header: "h3",
+                heightStyle: "content",
+                collapsible: true,
+                active: false
+            });
+            // *****************************
+
+            // 14/09/2020 Prepare the help box
+            // *****************************
+            $("#sampleCodeAccordion").accordion({
+                header: "h3",
+                heightStyle: "fill",
+                collapsible: true,
+                active: false
+            });
+            // *****************************
+
+        },
+        oneditsave: function () {
+            var node = this;
+
+            // 19/02/2020 Warn user that the node will node encode/decode datagram, if Listen All GA's if the config node doesn't contain the csv
+            if ($("#isETSFileLoaded").val() === "no") {
+                // Notify the user
+                if ($("#node-input-listenallga").is(":checked")) {
+                    var checkResult = node._("knxUltimate.advanced.notify-NoETSFile");
+                    var myNotification = RED.notify(checkResult,
+                        {
+                            modal: true,
+                            fixed: true,
+                            type: 'error',
+                            buttons: [
+                                {
+                                    text: "OK",
+                                    click: function (e) {
+                                        myNotification.close();
+                                    }
+                                }]
+                        })
+                }
+                // $("#node-input-listenallga").prop("checked", false)
+                // $("#GAandDPT").show()
+                // $("#divOutputRBE").show()
+                // $("#divInputRBE").show()
+                $("#helpallga").show()
+            }
+
+            // 15/09/2020 Supergiovane, Detele the sample help editor
+            try {
+                node.sampleEditor.destroy();
+                delete node.sampleEditor;
+            } catch (error) { }
+
+        },
+        oneditcancel: function () {
+            // 15/09/2020 Supergiovane, Detele the sample help editor
+            try {
+                node.sampleEditor.destroy();
+                delete node.sampleEditor;
+            } catch (error) { }
+        }
+    })
+
+</script>
+
+<script type="text/x-red" data-template-name="knxUltimate">
+
+    <!-- Setted by oneditprepare and used in oneditsave to warn user if no CSV file has been loaded -->
+<input id="isETSFileLoaded" name="isETSFileLoaded" type="hidden" value="false" />
+
+<div class="form-row">
+    <b><span data-i18n="knxUltimate.title"></span></b>&nbsp&nbsp<span style="color:red"
+        data-i18n="[html]knxUltimate.helplink"></span>
+    <br /><br />
+
+    <label for="node-input-server">
+        <img
+            src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAKnRFWHRDcmVhdGlvbiBUaW1lAEZyIDYgQXVnIDIwMTAgMjE6NTI6MTkgKzAxMDD84aS8AAAAB3RJTUUH3gYYCicNV+4WIQAAAAlwSFlzAAALEgAACxIB0t1+/AAAAARnQU1BAACxjwv8YQUAAACUSURBVHjaY2CgFZg5c+Z/ZEyWAZ8+f/6/ZsWs/xoamqMGkGrA6Wla/1+fVARjEBuGsSoGmY4eZSCNL59d/g8DIDbIAHR14OgFGQByKjIGKX5+6/T///8gGMQGiV1+/B0Fg70GIkD+RMYgxf/O5/7//2MSmAZhkBi6OrgB6Bg5DGB4ajr3f2xqsYYLSDE2THJUDg0AAAqyDVd4tp4YAAAAAElFTkSuQmCC"></img>
+        <span data-i18n="knxUltimate.properties.node-input-server"></span>
+    </label>
+    <input type="text" id="node-input-server" />
+</div>
+<div id="GAandDPT">
+    <div class="form-row">
+        <label for="node-input-topic">
+            <img
+                src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAACXBIWXMAAB7CAAAewgFu0HU+AAAF6WlUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNS42LWMxNDggNzkuMTY0MDM2LCAyMDE5LzA4LzEzLTAxOjA2OjU3ICAgICAgICAiPiA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPiA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtbG5zOmRjPSJodHRwOi8vcHVybC5vcmcvZGMvZWxlbWVudHMvMS4xLyIgeG1sbnM6cGhvdG9zaG9wPSJodHRwOi8vbnMuYWRvYmUuY29tL3Bob3Rvc2hvcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RFdnQ9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZUV2ZW50IyIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgMjEuMSAoTWFjaW50b3NoKSIgeG1wOkNyZWF0ZURhdGU9IjIwMjAtMDMtMjNUMTY6MjE6MDkrMDE6MDAiIHhtcDpNb2RpZnlEYXRlPSIyMDIwLTAzLTIzVDE2OjI4OjI3KzAxOjAwIiB4bXA6TWV0YWRhdGFEYXRlPSIyMDIwLTAzLTIzVDE2OjI4OjI3KzAxOjAwIiBkYzpmb3JtYXQ9ImltYWdlL3BuZyIgcGhvdG9zaG9wOkNvbG9yTW9kZT0iMyIgcGhvdG9zaG9wOklDQ1Byb2ZpbGU9InNSR0IgSUVDNjE5NjYtMi4xIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOjc4M2I5OWIxLTkwMjYtNGQ2OC05N2FmLTRkM2E2ZWY4Zjk2OCIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDo4N2E3YTg0NS0xMDljLTRkMTMtOGEzOS04OWVhOTMyMDQ0ZWMiIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDo4N2E3YTg0NS0xMDljLTRkMTMtOGEzOS04OWVhOTMyMDQ0ZWMiPiA8eG1wTU06SGlzdG9yeT4gPHJkZjpTZXE+IDxyZGY6bGkgc3RFdnQ6YWN0aW9uPSJjcmVhdGVkIiBzdEV2dDppbnN0YW5jZUlEPSJ4bXAuaWlkOjg3YTdhODQ1LTEwOWMtNGQxMy04YTM5LTg5ZWE5MzIwNDRlYyIgc3RFdnQ6d2hlbj0iMjAyMC0wMy0yM1QxNjoyMTowOSswMTowMCIgc3RFdnQ6c29mdHdhcmVBZ2VudD0iQWRvYmUgUGhvdG9zaG9wIDIxLjEgKE1hY2ludG9zaCkiLz4gPHJkZjpsaSBzdEV2dDphY3Rpb249InNhdmVkIiBzdEV2dDppbnN0YW5jZUlEPSJ4bXAuaWlkOjc4M2I5OWIxLTkwMjYtNGQ2OC05N2FmLTRkM2E2ZWY4Zjk2OCIgc3RFdnQ6d2hlbj0iMjAyMC0wMy0yM1QxNjoyODoyNyswMTowMCIgc3RFdnQ6c29mdHdhcmVBZ2VudD0iQWRvYmUgUGhvdG9zaG9wIDIxLjEgKE1hY2ludG9zaCkiIHN0RXZ0OmNoYW5nZWQ9Ii8iLz4gPC9yZGY6U2VxPiA8L3htcE1NOkhpc3Rvcnk+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+DGyPFQAAAE9JREFUKJG1UEEOACAIgub/v2yHalnJVoe4uIEKSgccJ9jroVmjA0+ujZtWku3DgZmgBiT4egN9CmmEAAfA/5HUW0OQu7dKmOCzmM3k9YYKZv8ZEZ/YgNsAAAAASUVORK5CYII="></img>
+            <span data-i18n="knxUltimate.properties.node-input-topic"></span>
+        </label>
+        <input style="width:60%" type="text" id="node-input-topic" placeholder="Ex: 1/1/1" />
+    </div>
+    <div class="form-row">
+        <label for="node-input-dpt">
+            <img
+                src="data:image/png;base64,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"></img>
+            <span data-i18n="knxUltimate.properties.node-input-dpt"></span>
+        </label>
+        <select style="width:40%" id="node-input-dpt"></select>
+        <span id="sampleCodeAccordionWebPage" style="color:red;" />
+
+    </div>
+</div>
+<div class="form-row">
+    <label for="node-input-name">
+        <i class="fa fa-tag"></i>
+        <span data-i18n="knxUltimate.properties.node-input-name"></span>
+    </label>
+    <input type="text" id="node-input-name" data-i18n="[placeholder]knxUltimate.properties.node-input-name" />
+</div>
+<div class="form-row" id="divTopic">
+    <label for="node-input-outputtopic">
+        <i class="fa fa-tasks"></i>
+        <span data-i18n="knxUltimate.properties.node-input-outputtopic"></span>
+    </label>
+    <input type="text" id="node-input-outputtopic" data-i18n="[placeholder]knxUltimate.placeholder.leaveempty" />
+</div>
+<div class="form-row">
+    <input type="checkbox" id="node-input-listenallga" style="display:inline-block; width:auto; vertical-align:top;" />
+    <label style="width:auto" for="node-input-listenallga">
+        <img
+            src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAACXBIWXMAAB7CAAAewgFu0HU+AAAFGmlUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNS42LWMxNDggNzkuMTY0MDM2LCAyMDE5LzA4LzEzLTAxOjA2OjU3ICAgICAgICAiPiA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPiA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtbG5zOmRjPSJodHRwOi8vcHVybC5vcmcvZGMvZWxlbWVudHMvMS4xLyIgeG1sbnM6cGhvdG9zaG9wPSJodHRwOi8vbnMuYWRvYmUuY29tL3Bob3Rvc2hvcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RFdnQ9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZUV2ZW50IyIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgMjEuMSAoTWFjaW50b3NoKSIgeG1wOkNyZWF0ZURhdGU9IjIwMjAtMDMtMjNUMTY6MjM6MjMrMDE6MDAiIHhtcDpNb2RpZnlEYXRlPSIyMDIwLTAzLTIzVDE2OjI1OjM0KzAxOjAwIiB4bXA6TWV0YWRhdGFEYXRlPSIyMDIwLTAzLTIzVDE2OjI1OjM0KzAxOjAwIiBkYzpmb3JtYXQ9ImltYWdlL3BuZyIgcGhvdG9zaG9wOkNvbG9yTW9kZT0iMyIgcGhvdG9zaG9wOklDQ1Byb2ZpbGU9InNSR0IgSUVDNjE5NjYtMi4xIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOmJmNGM3NWVjLTIwNGYtNGY1YS05YTMxLTQ5NTU5YWJmZDE4NSIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDpiZjRjNzVlYy0yMDRmLTRmNWEtOWEzMS00OTU1OWFiZmQxODUiIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDpiZjRjNzVlYy0yMDRmLTRmNWEtOWEzMS00OTU1OWFiZmQxODUiPiA8eG1wTU06SGlzdG9yeT4gPHJkZjpTZXE+IDxyZGY6bGkgc3RFdnQ6YWN0aW9uPSJjcmVhdGVkIiBzdEV2dDppbnN0YW5jZUlEPSJ4bXAuaWlkOmJmNGM3NWVjLTIwNGYtNGY1YS05YTMxLTQ5NTU5YWJmZDE4NSIgc3RFdnQ6d2hlbj0iMjAyMC0wMy0yM1QxNjoyMzoyMyswMTowMCIgc3RFdnQ6c29mdHdhcmVBZ2VudD0iQWRvYmUgUGhvdG9zaG9wIDIxLjEgKE1hY2ludG9zaCkiLz4gPC9yZGY6U2VxPiA8L3htcE1NOkhpc3Rvcnk+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+nhtLUgAAAE9JREFUKJG1UMsOACAIgub//7IdqvVQtjrExU1EEQLuiGCvgTNgl5D74MmVZPu4wIxQAgm+/sDec2VhgQPgf0sq1unjMlYJE/3MZrvy+kMFZQkZEWfC7ikAAAAASUVORK5CYII="></img>
+        <span data-i18n="knxUltimate.properties.node-input-listenallga"></span>
+    </label>
+    <!-- <div id="helpallga">Some Content Here</div> -->
+</div>
+
+<div id="sampleCodeAccordion">
+    <h3><i class="fa fa-code"></i>&nbsp;<span data-i18n="knxUltimate.advanced.Sample"></span></h3>
+    <div style="height:180px;min-height:150px;padding:5px;">
+        <div style="height:80%;width:100%;padding:0px;" class="node-text-editor" id="example-editor"></div>
+    </div>
+</div>
+
+<div id="advancedOptionsAccordion">
+    <h3><i class="fa fa-braille"></i>&nbsp;<span data-i18n="knxUltimate.advanced.Advancedoptions"></span></h3>
+    <div class="form-row" style="padding:10px">
+        <div class="form-row">
+            <label style="width:230px" for="node-input-passthrough">
+                <i class="fa fa-long-arrow-right"></i>
+                <span data-i18n="knxUltimate.properties.node-input-passthrough"></span>
+            </label>
+            <select style="width:92px" id="node-input-passthrough">
+                <option value="no" data-i18n="knxUltimate.selectlists.passthrough_No"></option>
+                <option value="yes" data-i18n="knxUltimate.selectlists.passthrough_Leave"></option>
+                <option value="yesownprop" data-i18n="knxUltimate.selectlists.passthrough_OwnProp"></option>
+            </select>
+        </div>
+        <br />
+        <div class="form-row">
+            <dt>
+                <i class="fa fa-arrow-right"></i>|
+                <span data-i18n="knxUltimate.advanced.OUTPUT"></span>
+            </dt>
+        </div>
+        <div class="form-row">
+            &nbsp;&nbsp;<label for="node-input-outputtype">
+                <i class="fa fa-paper-plane-o"></i>
+                <span data-i18n="knxUltimate.properties.node-input-outputtype"></span>
+            </label>
+            <select id="node-input-outputtype">
+                <option value="write" data-i18n="knxUltimate.selectlists.Output_write"></option>
+                <option value="response" data-i18n="knxUltimate.selectlists.Output_response"></option>
+                <option value="read" data-i18n="knxUltimate.selectlists.Output_read"></option>
+                <option value="update" data-i18n="knxUltimate.selectlists.Output_update"></option>
+            </select>
+        </div>
+        <div class="form-row" id="divOutputRBE">
+            &nbsp;&nbsp;<input type="checkbox" id="node-input-outputRBE"
+                style="display:inline-block; width:auto; vertical-align:top;" />
+            <label style="width:85%" for="node-input-outputRBE">
+                <i class="fa fa-filter"></i>
+                <span data-i18n="knxUltimate.properties.node-input-outputRBE"></span>
+            </label>
+        </div>
+        <br />
+        <div class="form-row">
+            <dt>
+                |<i class="fa fa-arrow-right"></i>
+                <span data-i18n="knxUltimate.advanced.INPUT"></span>
+            </dt>
+        </div>
+        <div class="form-row" id="divNode-input-initialread">
+            &nbsp;&nbsp;<label style="width:70%" for="node-input-initialread">
+                <i class="fa fa-question-circle-o"></i>
+                <span data-i18n="knxUltimate.properties.node-input-initialread"></span>
+            </label>
+            <select style="width:100px" id="node-input-initialread">
+                <option value=0 data-i18n="knxUltimate.properties.node-input-initialread0"></option>
+                <option value=1 data-i18n="knxUltimate.properties.node-input-initialread1"></option>
+                <option value=2 data-i18n="knxUltimate.properties.node-input-initialread2"></option>
+                <option value=3 data-i18n="knxUltimate.properties.node-input-initialread3"></option>
+            </select>
+
+        </div>
+        <div class="form-row" id="divInputRBE">
+            &nbsp;&nbsp;<input type="checkbox" id="node-input-inputRBE"
+                style="display:inline-block; width:auto; vertical-align:top;" />
+            <label style="width:85%" for="node-input-inputRBE">
+                <i class="fa fa-filter"></i>
+                <span data-i18n="knxUltimate.properties.node-input-inputRBE"></span>
+            </label>
+        </div>
+        <div class="form-row">
+            &nbsp;&nbsp;<input type="checkbox" id="node-input-notifywrite"
+                style="display:inline-block; width:auto; vertical-align:top;" />
+            <label style="width:85%" for="node-input-notifywrite">
+                <i class="fa fa-sign-in"></i>
+                <span data-i18n="knxUltimate.properties.node-input-notifywrite"></span>
+            </label>
+        </div>
+        <div class="form-row">
+            &nbsp;&nbsp;<input type="checkbox" id="node-input-notifyresponse"
+                style="display:inline-block; width:auto; vertical-align:top;" />
+            <label style="width:85%" for="node-input-notifyresponse">
+                <i class="fa fa-sign-in"></i>
+                <span data-i18n="knxUltimate.properties.node-input-notifyresponse"></span>
+            </label>
+        </div>
+        <div class="form-row">
+            &nbsp;&nbsp;<input type="checkbox" id="node-input-notifyreadrequest"
+                style="display:inline-block; width:auto; vertical-align:top;" />
+            <label style="width:85%" for="node-input-notifyreadrequest">
+                <i class="fa fa-sign-in"></i>
+                <span data-i18n="knxUltimate.properties.node-input-notifyreadrequest"></span>
+            </label>
+        </div>
+
+        <div id="divnotifyreadrequestautoreact">
+            <dd>
+                <div class="form-row">
+                    &nbsp;&nbsp;<input type="checkbox" id="node-input-notifyreadrequestalsorespondtobus"
+                        style="display:inline-block; width:auto; vertical-align:top;" />
+                    <label style="width:85%" for="node-input-notifyreadrequestalsorespondtobus">
+                        <span data-i18n="knxUltimate.properties.node-input-notifyreadrequestalsorespondtobus"></span>
+                    </label>
+                </div>
+                <div class="form-row">
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<label style="width:auto">
+                        <span
+                            data-i18n="knxUltimate.properties.node-input-notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized"></span>
+                    </label>
+                    <input style="width:auto" type="text"
+                        id="node-input-notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized"
+                        data-i18n="[placeholder]knxUltimate.placeholder.notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized" />
+                </div>
+            </dd>
+        </div>
+    </div>
+</div>
+
+<div id="formatValueAccordion">
+    <h3><i class="fa fa-list-ol"></i>&nbsp;<span data-i18n="knxUltimate.advanced.Formatting"></span></h3>
+    <div class="form-row" style="padding:10px">
+        <div class="form-row">
+            <dt>
+                <i class="fa fa-sort-numeric-asc"></i>
+                <span data-i18n="knxUltimate.advanced.NUMERICVALUES"></span>
+            </dt>
+        </div>
+
+        <div class="form-row">
+            <label style="width:30%" for="node-input-formatmultiplyvalue">
+                <i class="fa fa-calculator"></i>
+                <span data-i18n="knxUltimate.properties.node-input-formatmultiplyvalue"></span>
+            </label>
+            <select style="width:65%" id="node-input-formatmultiplyvalue">
+                <option value=1 data-i18n="knxUltimate.selectlists.Multiply_leave"></option>
+                <option value=0.001 data-i18n="knxUltimate.selectlists.Multiply_divide1000"></option>
+                <option value=0.01 data-i18n="knxUltimate.selectlists.Multiply_divide100"></option>
+                <option value=0.1 data-i18n="knxUltimate.selectlists.Multiply_divide10"></option>
+                <option value=10 data-i18n="knxUltimate.selectlists.Multiply_multiply10"></option>
+                <option value=100 data-i18n="knxUltimate.selectlists.Multiply_multiply100"></option>
+                <option value=1000 data-i18n="knxUltimate.selectlists.Multiply_multiply1000"></option>
+            </select>
+        </div>
+        <div class="form-row">
+            <label style="width:30%" for="node-input-formatdecimalsvalue">
+                <i class="fa fa-expand"></i>
+                <span data-i18n="knxUltimate.properties.node-input-formatdecimalsvalue"></span>
+            </label>
+            <select style="width:65%" id="node-input-formatdecimalsvalue">
+                <option value=999 data-i18n="knxUltimate.selectlists.Decimals_leave"></option>
+                <option value=0 data-i18n="knxUltimate.selectlists.Decimals_roundint"></option>
+                <option value=1 data-i18n="knxUltimate.selectlists.Decimals_round1"></option>
+                <option value=2 data-i18n="knxUltimate.selectlists.Decimals_round2"></option>
+                <option value=3 data-i18n="knxUltimate.selectlists.Decimals_round3"></option>
+                <option value=4 data-i18n="knxUltimate.selectlists.Decimals_round4"></option>
+            </select>
+        </div>
+        <div class="form-row">
+            <label style="width:30%" for="node-input-formatnegativevalue">
+                <i class="fa fa-minus-circle"></i>
+                <span data-i18n="knxUltimate.properties.node-input-formatnegativevalue"></span>
+            </label>
+            <select style="width:65%" id="node-input-formatnegativevalue">
+                <option value="leave" data-i18n="knxUltimate.selectlists.Negatives_leave"></option>
+                <option value="zero" data-i18n="knxUltimate.selectlists.Negatives_zero"></option>
+                <option value="abs" data-i18n="knxUltimate.selectlists.Negatives_abs"></option>
+            </select>
+        </div>
+    </div>
+</div>
+<br /><br />
+</script>

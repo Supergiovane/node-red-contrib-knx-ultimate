@@ -1,0 +1,102 @@
+<script type="text/javascript">
+    RED.nodes.registerType('knxUltimateGlobalContext', {
+        category: "KNX Ultimate",
+        color: '#C7E9C0',
+        defaults: {
+            //buttonState: {value: true},
+            server: { type: "knxUltimate-config", required: true },
+            name: { value: "KNXGlobalContext", validate: RED.validators.regex(/^[a-z]+$/i) },
+            exposeAsVariable: { value: "exposeAsVariableREADWRITE", required: false },
+            writeExecutionInterval: { value: 1000 }
+        },
+        inputs: 0,
+        outputs: 0,
+        icon: "node-knx-icon.svg",
+        label: function () {
+            return (this.name);
+        },
+        paletteLabel: "KNX Global Context",
+        // button: {
+        //     enabled: function() {
+        //         // return whether or not the button is enabled, based on the current
+        //         // configuration of the node
+        //         return !this.changed
+        //     },
+        //     visible: function() {
+        //         // return whether or not the button is visible, based on the current
+        //         // configuration of the node
+        //         return this.hasButton
+        //     },
+        //     //toggle: "buttonState",
+        //     onclick: function() {}
+        // },
+        oneditprepare: function () {
+
+
+        },
+        oneditsave: function () {
+
+
+        },
+        oneditcancel: function () {
+
+        }
+    })
+
+</script>
+
+<script type="text/x-red" data-template-name="knxUltimateGlobalContext">
+
+
+<div class="form-row">
+    <b><span data-i18n="knxUltimateGlobalContext.title"></span></b>&nbsp&nbsp<span style="color:red"
+        data-i18n="[html]knxUltimateGlobalContext.helplink"></span>
+    <br />
+    <div class="form-tips" style="margin-top: 11px;background-color:#FFEEEE;text-align:center">
+        <b><span data-i18n="knxUltimateGlobalContext.advanced.warning"></span></b>
+    </div>
+    <br />
+    <label for="node-input-server">
+        <img
+            src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAKnRFWHRDcmVhdGlvbiBUaW1lAEZyIDYgQXVnIDIwMTAgMjE6NTI6MTkgKzAxMDD84aS8AAAAB3RJTUUH3gYYCicNV+4WIQAAAAlwSFlzAAALEgAACxIB0t1+/AAAAARnQU1BAACxjwv8YQUAAACUSURBVHjaY2CgFZg5c+Z/ZEyWAZ8+f/6/ZsWs/xoamqMGkGrA6Wla/1+fVARjEBuGsSoGmY4eZSCNL59d/g8DIDbIAHR14OgFGQByKjIGKX5+6/T///8gGMQGiV1+/B0Fg70GIkD+RMYgxf/O5/7//2MSmAZhkBi6OrgB6Bg5DGB4ajr3f2xqsYYLSDE2THJUDg0AAAqyDVd4tp4YAAAAAElFTkSuQmCC"></img>
+        <span data-i18n="knxUltimateGlobalContext.advanced.node-input-server"></span>
+    </label>
+    <input type="text" id="node-input-server" />
+</div>
+
+<div class="form-row">
+    <label for="node-input-name" style="width:60%;">
+        <i class="fa fa-tag"></i>
+        <span data-i18n="knxUltimateGlobalContext.node-input-name"></span>
+    </label>
+    <input style="width:35%;" type="text" id="node-input-name" data-i18n="[placeholder]knxUltimateGlobalContext.node-input-name" />
+</div>
+
+<div class="form-row">
+    <label for="node-input-exposeAsVariable" style="width:60%;">
+        <i class="fa fa-link"></i>
+        <span data-i18n="knxUltimateGlobalContext.advanced.exposeAsVariable"></span>
+    </label>
+    <select id="node-input-exposeAsVariable" style="width:35%;">
+        <option value="exposeAsVariableNO" data-i18n="knxUltimateGlobalContext.advanced.exposeAsVariableNO"></option>
+        <option value="exposeAsVariableREADONLY" data-i18n="knxUltimateGlobalContext.advanced.exposeAsVariableREADONLY"></option>
+        <option value="exposeAsVariableREADWRITE" data-i18n="knxUltimateGlobalContext.advanced.exposeAsVariableREADWRITE"></option>
+    </select>
+</div>
+
+<div class="form-row">
+    <label for="node-input-writeExecutionInterval" style="width:60%;">
+        <i class="fa fa-link"></i>
+        <span data-i18n="knxUltimateGlobalContext.advanced.writeExecutionInterval"></span>
+    </label>
+    <select id="node-input-writeExecutionInterval" style="width:35%;">
+        <option value=250>250ms</option>
+        <option value=500>500ms</option>
+        <option value=1000>1000ms (Default)</option>
+        <option value=1500>1500ms</option>
+        <option value=2000>2000ms</option>
+    </select>
+</div>
+
+
+</script>

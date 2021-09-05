@@ -1,0 +1,31 @@
+{
+    "knxUltimateSceneController": {
+        "helplink" : "&nbsp<i class=\"fa fa-question-circle\"></i>&nbsp<a target=\"_blank\" href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/SceneController-Configuration\"><u>Help for configuration</u></a>",
+        "title": "Scene controller",
+        "properties": {
+            "node-input-server": "Gateway",
+            "node-input-topic": "Scene Recall",
+            "node-input-dpt": "Datapoint",
+            "node-input-topicTrigger": "Trigger",
+            "node-input-topicSave": "Scene Save",
+            "node-input-name": "Node Name",
+            "node-input-outputtopic": "Topic"
+         
+        },
+        "placeholder": {
+            "leaveempty":"Leave empty to use Group Address",
+            "valueexample" : "Ex: false, true, otherwise any value"
+        },
+        "other": {
+            "sceneConfig":"Scene Configuration",
+            "add":"Press ADD, to add a device in the scene"
+         },
+         "advanced": {
+            "notify-DPT3007":"You selected a relative DIM. Please <a target='_blank' href='https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Dimming'>click here to view this sample</a> and learn how to handle such payload.",
+            "notify-DPT18001":"You selected a scene Datapoint. Please <a target='_blank' href='https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Control-a-scene-actuator'>click here to view this sample</a> and learn how to handle such payload."
+            ,"notify-DPT232600": "You selected an RGB Datapoint. Please <a target='_blank' href='https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---RGB-Color'>click here to view this sample</a> and learn how to handle such payload."
+            ,"notify-DPT251600": "You selected an RGBW Datapoint. Please <a target='_blank' href='https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---RGBW-Color-plus-White'>click here to view this sample</a> and learn how to handle such payload."
+            
+        }
+    }
+}

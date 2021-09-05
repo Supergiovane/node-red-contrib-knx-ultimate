@@ -1,0 +1,24 @@
+{
+    "knxUltimateAlerter": {
+        "helplink" : "&nbsp<i class=\"fa fa-question-circle\"></i>&nbsp<a target=\"_blank\" href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/Alerter-Configuration\"><u>Help for configuration</u></a>",
+        "title": "Alerter node",
+      
+        "properties": {
+            "node-input-server": "Gateway",
+            "node-input-name": "Name",
+            "node-input-timerinterval": "Interval between each MSG (in seconds)",
+            "node-input-whentostart": "Alerting cycle start type",
+            "node-input-initialread": "Read value of each device on connection/reconnect",
+            "node-input-initialread0": "No",
+            "node-input-initialread1": "Read from KNX BUS"
+        },
+        "selectlists": {
+            "manualstart": "Start alert cycle manually via incoming message",
+            "ifnewalert": "Start the alert cycle with each new alerted device"
+        },
+        "other": {
+            "sceneConfig": "Devices to monitor (DPT MUST BE BOOLEAN)",
+            "add": "Press Add, to add a device"
+        }
+    }
+}

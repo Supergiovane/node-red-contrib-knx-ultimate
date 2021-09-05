@@ -1,0 +1,24 @@
+{
+    "knxUltimateAlerter": {
+        "helplink" : "&nbsp<i class=\"fa fa-question-circle\"></i>&nbsp<a target=\"_blank\" href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/it-Alerter-Configuration\"><u>Aiuto per configurazione</u></a>",
+        "title": "Nodo Alerter",
+      
+        "properties": {
+            "node-input-server": "Gateway",
+            "node-input-name": "Nome nodo",
+            "node-input-timerinterval": "Intervallo tra ciascun messaggio (in secondi)",
+            "node-input-whentostart": "Modalità avvio allerta",
+            "node-input-initialread": "Leggi il valore di ogni device alla connessione/riconnessione",
+            "node-input-initialread0": "No",
+            "node-input-initialread1": "Leggi dal BUS KNX"
+        },
+        "selectlists": {
+            "manualstart": "Avvia ciclo allerta manualmente tramite messaggio in ingresso",
+            "ifnewalert": "Avvia ciclo allerta ad ogni nuovo dispositivo allertato"
+        },
+        "other": {
+            "sceneConfig": "Dispositivi da monitorare (IL DPT DEVE ESSERE BOOLEANO)",
+            "add": "Premi Aggiungi, per aggiungere un dispositivo"
+        }
+    }
+}

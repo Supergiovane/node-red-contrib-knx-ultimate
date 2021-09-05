@@ -1,0 +1,59 @@
+{
+    "knxUltimate-config": {
+        "properties": {
+            "helplink" : "&nbsp<i class=\"fa fa-question-circle\"></i>&nbsp<a target=\"_blank\" href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/it-1.-Gateway-configuration\"><u>Aiuto per configurazione</u></a>",
+            "title": "Interfaccia KNX/IP",
+            "host": "IP Gateway",
+            "host_info": "Di default è impostato l'indirizzo multicast del router KNX/IP (224.0.23.12)",
+            "port": "Porta",
+            "port_info": "Di default è impostata la porta de router KNX/IP (3671)",
+            "bind_local_int": "Utilizza l'interfaccia locale",
+            "restart_hint": "! Riavvia Node-Red dopo cambio qui sopra !",
+            "adv_options": "Opzioni avanzate",
+            "ets_import": "Importa indirizzi di gruppo ETS",
+            "node-config-input-name": "Nome",
+            "unsecureKNX" : "Connessione KNX semplice",
+            "secureKNX" : "Connessione KNX sicura"
+        },
+        "advanced": {
+            "knx_phy_addr": "Indirizzo fisico KNX",
+            "show_date_status": "Visualizza data e ora ultimo aggiornamento, nello stato",
+            "show_device_status": "Visualizza il nome del dispositivo nello stato (richiede \"Modalità universale\" )",
+            "show_datapoint_status": "Visualizza il DPT nello stato",
+            "suppress_ack": "Sopprimi richieste ACK",
+            "suppress_ack_help": "L'opzione ACK sopra aiuta la compatibilità con vecchie interfacce",
+            "ignoreTelegramsWithRepeatedFlag": "Sopprimi telegrammi dal BUS ripetuti (Flag R)",
+            "log_level": "Livello log",
+            "nodes_list_title": "Elenco nodi in tutti i flows",
+            "nodes_list_help": "Elenco di tutti i tuoi nodi KNX",
+            "select_silent": "Silenzioso (Nessun log)",
+            "select_trace": "Trace",
+            "select_debug": "Debug",
+            "select_info": "Info",
+            "select_warning": "Warning",
+            "select_error": "Error (Default)",
+            "localEchoInTunneling":"Echo messaggi inviati su tutti i nodi con lo stesso indirizzo di gruppo",
+            "tiphost": "Multicast o Unicast, con rilevamento automatico. Scrivi EMULATE al posto dell'indirizzo IP, per simulare un gateway (il gateway non si connette al BUS KNX)",
+            "delaybetweentelegrams": "Pausa tra l'invio di un telegramma ed un altro (in millisecondi)",
+            "delaybetweentelegramsfurtherdelayREAD" : "e moltiplica ritardo solo tra telegrammi -read- di",
+            "exposeAsVariable" : "Esponi come variabile globale",
+            "exposeAsVariableNO" : "No",
+            "exposeAsVariableREADONLY" : "Sola lettura",
+            "exposeAsVariableREADWRITE" : "Lettura/Scrittura"
+        },
+        "ets": {
+            "description": "Puoi importare sia il file ETS in CSV, che ESF. Usa il CSV se possibile, perchè i datapoints sono più precisi.",
+            "instruction": "Clicca per vedere come si importa un file ETS CSV.",
+            "youtube": "Guarda come si esporta un file CSV su YouTube",
+            "help_ga": "Se l'indirizzo di gruppo non ha datapoint",
+            "import_select_stop": "Blocca ed annulla l'importazione",
+            "import_select_skip": "Salta l'importazione dell'indirizzo di gruppo",
+            "import_select_fake": "Importa con un finto datapoint 1.001 (Non raccomandato)",
+            "ga_list_title": "Incolla qui il file esportato da ETS",
+            "ga_list_help": "Incolla qui il contenuto del file CSV o ESF esportato da ETS",
+            "deploywithETS":"Verranno eseguite alcune operazioni di controllo. Eventuali problemi verranno segnalati nella finestra di debug a destra.",
+            "keyring":"Incolla qui il contenuto del file XML Keyring esportato da ETS",
+            "youtubeKeyring": "Guarda come si esporta il Keyring XML su YouTube"
+        }
+    }
+}

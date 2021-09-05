@@ -1,0 +1,24 @@
+{
+    "knxUltimateAlerter": {
+        "helplink" : "&nbsp<i class=\"fa fa-question-circle\"></i>&nbsp<a target=\"_blank\" href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/de-Alerter-Configuration\"><u>Config Hilfe</u></a>",
+        "title": "Alerter Knot",
+      
+        "properties": {
+            "node-input-server": "Gateway",
+            "node-input-name": "Name",
+            "node-input-timerinterval": "Intervall zwischen jedem MSG (in Sekunden)",
+            "node-input-whentostart": "Starttyp des Alarmierungszyklus",
+            "node-input-initialread": "Bei Verbindung/Wiederverbindung je Gerat-Wert lesen",
+            "node-input-initialread0": "Nein",
+            "node-input-initialread1": "Lesen vom KNX-BUS"
+        },
+        "selectlists": {
+            "manualstart": "Starten den Alarmzyklus manuell über eine eingehende MSG",
+            "ifnewalert": "Starten den Alarmzyklus mit jedem neuen alarmierten Gerät"
+        },
+        "other": {
+            "sceneConfig": "Zu überwachende Geräte (DPT MUSS BOOLEAN SEIN)",
+            "add": "Drücken Sie Hinzufügen, um ein Gerät hinzuzufügen"
+        }
+    }
+}

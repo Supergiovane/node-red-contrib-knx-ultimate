@@ -1,0 +1,95 @@
+<script type="text/javascript">
+    RED.nodes.registerType('knxUltimateWatchDog', {
+        category: "KNX Ultimate",
+        color: '#C7E9C0',
+        defaults: {
+            server: { type: "knxUltimate-config", required: true },
+            topic: { value: "12/0/0" },
+            maxRetry: { value: 6 }, // After this number is reached, throw a connection error
+            retryInterval: { value: 10 },
+            name: { value: "" },
+            autoStart: { value: true },
+            checkLevel: { value: "Ethernet" }
+        },
+        inputs: 1,
+        outputs: 1,
+        outputLabels: ["Output"],
+        icon: "node-watchdog-icon.svg",
+        label: function () {
+            return ((this.name || "KNX Watchdog") + " " + (this.checkLevel == "Ethernet" ? "Gateway IP": this.topic));
+        },
+        paletteLabel: "KNX WatchDog",
+        oneditprepare: function () {
+            $("#advancedOptionsAccordion").accordion({
+                header: "h3",
+                heightStyle: "content",
+                collapsible: true,
+                active: false
+            });
+
+            $("#node-input-checkLevel").on('change', function () {
+                if ($("#node-input-checkLevel").val() == "Ethernet") {
+                    $("#divHost").hide();
+                } else {
+                    $("#divHost").show();
+                }
+            })
+
+            if (checkLevel !== "Ethernet") {
+                $("#divHost").hide();
+            } else {
+                $("#divHost").show();
+            }
+        },
+        oneditsave: function () {
+
+        }
+
+    })
+
+</script>
+
+<script type="text/x-red" data-template-name="knxUltimateWatchDog">
+    <div class="form-row">
+        <b><span data-i18n="knxUltimateWatchDog.title"></span></b>&nbsp&nbsp<span style="color:red" data-i18n="[html]knxUltimateWatchDog.helplink"></span>
+        <br/><br/>
+
+        <label for="node-input-server"><i class="fa fa-tag"></i> <span data-i18n="knxUltimateWatchDog.properties.node-input-server"></span> </label>
+        <input type="text" id="node-input-server">
+    </div>
+    <div class="form-row">
+        <label for="node-input-checkLevel"><i class="fa fa-search"></i> <span data-i18n="knxUltimateWatchDog.properties.node-input-checkLevel"></span> </label>
+        <select id="node-input-checkLevel">
+            <option value="Ethernet" data-i18n="knxUltimateWatchDog.selectlists.Ethernet"></option>
+            <option value="Eth+KNX" data-i18n="knxUltimateWatchDog.selectlists.EthKNX"></option>
+        </select>
+    </div>
+    <div class="form-row" id="divHost">
+        <label for="node-input-topic"><i class="fa fa-tasks"></i> <span data-i18n="knxUltimateWatchDog.properties.node-input-topic"></span></label>
+        <input type="text" id="node-input-topic" data-i18n="[placeholder]knxUltimateWatchDog.placeholder.monitor">
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="knxUltimateWatchDog.properties.node-input-name"></span> </label>
+        <input type="text" id="node-input-name" data-i18n="[placeholder]knxUltimateWatchDog.properties.node-input-name">
+    </div>
+    <div class="form-row">
+        <input type="checkbox" id="node-input-autoStart" style="display:inline-block; width:auto; vertical-align:top;">
+        <label style="width:auto" for="node-input-autoStart">&nbsp;&nbsp;<i class="fa fa-play-circle"></i> <span data-i18n="knxUltimateWatchDog.properties.node-input-autoStart"></span> </label>
+    </div>    
+    
+    <div id="advancedOptionsAccordion">
+        <h3><span data-i18n="knxUltimateWatchDog.properties.advancedOptionsAccordion"></span></h3>
+        <div>
+            <p>
+                <div class="form-row">
+                    <label for="node-input-retryInterval"><i class="fa fa-clock-o"></i> <span data-i18n="knxUltimateWatchDog.properties.node-input-retryInterval"></span></label>
+                    <input type="text" id="node-input-retryInterval">
+                </div>
+                <div class="form-row">
+                    <label for="node-input-maxRetry"><i class="fa fa-undo"></i> <span data-i18n="knxUltimateWatchDog.properties.node-input-maxRetry"></span></label>
+                    <input type="text" id="node-input-maxRetry">
+                </div>
+            </p>
+        </div>
+    </div>        
+</script>

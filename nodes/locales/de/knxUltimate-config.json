@@ -1,0 +1,59 @@
+{
+    "knxUltimate-config": {
+        "properties": {
+            "helplink" : "&nbsp<i class=\"fa fa-question-circle\"></i>&nbsp<a target=\"_blank\" href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/de-1.-Gateway-configuration\"><u>Hilfe Konfiguration</u></a>",
+            "title": "KNX/IP Gateway Konfiguration",
+            "host": "Gateway IP",
+            "host_info": "Als Standard IP wird die Multicast Addresse von KNX/IP verwendet (224.0.23.12)",
+            "port": "Port",
+            "port_info": "Als Standard Port wird der Port von KNX/IP verwendet (3671)",
+            "bind_local_int": "An lokale Netzwerk-Schnittstelle binden",
+            "restart_hint": "! Starten Sie Node-RED nach der obenen Änderung neu !",
+            "adv_options": "Erweiterte Optionen",
+            "ets_import": "Import der ETS-Gruppenadressliste",
+            "node-config-input-name": "Name",
+            "unsecureKNX" : "Unsicher KNX Verbindung",
+            "secureKNX" : "Sicher KNX Verbindung"
+        },
+        "advanced": {
+            "knx_phy_addr": "KNX-Adresse",
+            "show_date_status": "Tag und Uhrzeit des letzten Updates im Status anzeigen",
+            "show_device_status": "Gerätenamen im Status anzeigen (\"Alle Gruppenadressen abhören\" erforderlich)",
+            "show_datapoint_status": "Datenpunkt im Status anzeigen",
+            "suppress_ack": "ACK-Anfrage unterdrücken",
+            "suppress_ack_help": "Diese Option unterstützt die Kompatibilität mit der alten Firmware des IP-Interface SWG1 148-1AB22 von Siemens",
+            "ignoreTelegramsWithRepeatedFlag": "Wiederholt (R-Flag) telegramme vom BUS unterdrücken",
+            "log_level": "Loglevel",
+            "nodes_list_title": "Liste aller KNX-Ultimate Nodes in allen Flows",
+            "nodes_list_help": "Hier ist eine Liste aller konfigurierten KNX-Ultimate Nodes.",
+            "select_silent": "Stumm (Kein log)",
+            "select_trace": "Trace",
+            "select_debug": "Debug",
+            "select_info": "Information",
+            "select_warning": "Warnung",
+            "select_error": "Fehler (Standard)",
+            "localEchoInTunneling":"Echo von gesendeten Telegram an alle Nodes mit gleichen Gruppenadressen",
+            "tiphost": "Multicast und Unicast Adressen, mit automatischer Erkennung. Schreiben Sie EMULATE anstelle der IP-Adresse, um ein Gateway zu simulieren (das Gateway stellt keine Verbindung zum KNX-BUS her).",
+            "delaybetweentelegrams": "Verzögerung zwischen jedem Telegramm (in Millisekunden)",
+            "delaybetweentelegramsfurtherdelayREAD" : "und weitere Verzögerung nur zwischen -lese- Telegrammen multiplizieren",
+            "exposeAsVariable" : "Als global Variable verfügbar machen",
+            "exposeAsVariableNO" : "Nein",
+            "exposeAsVariableREADONLY" : "Nur Lesen",
+            "exposeAsVariableREADWRITE" : "Lesen/Schreiben"
+        },
+        "ets": {
+            "description": "Sie können entweder eine ETS CSV-Gruppenadressliste oder eine ESF-Gruppenadressliste importieren. Bitte bevorzugen Sie die Adressliste der ETS CSV-Gruppe, da die Datenpunkte vollständiger sind.",
+            "instruction": "Klicken Sie hier, um Anweisungen zum Exportieren der Adressliste der ETS Gruppenadressen als CSV zu erhalten.",
+            "youtube": "Anleitung des ETS CSV Exports auf Youtube",
+            "help_ga": "Wenn die Gruppenadresse keinen Datenpunkt hat...",
+            "import_select_stop": "Beenden und abbruch des Imports",
+            "import_select_fake": "Import mit einem gefälschten 1.001-Datenpunkt (nicht empfohlen)",
+            "import_select_skip": "Überspringen den Import der betroffenen Gruppenadresse",
+            "ga_list_title": "Fügen Sie hier die exportierte ETS-Datei ein",
+            "ga_list_help": "Fügen Sie hier Ihre CSV- oder ESF-exportierte Datei aus der ETS ein",
+            "deploywithETS":"Einige Steuervorgänge werden ausgeführt. Alle Probleme werden im Debug-Fenster auf der rechten Seite gemeldet.",
+            "keyring":"Fügen Sie hier den Inhalt der Keyrinx-XML-Datei ein, die aus der ETS exportiert wurde",
+            "youtubeKeyring": "Anleitung des XML Keyring Exports auf Youtube"
+        }
+    }
+}

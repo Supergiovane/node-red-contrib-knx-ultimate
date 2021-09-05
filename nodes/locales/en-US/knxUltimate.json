@@ -1,0 +1,78 @@
+{
+    "knxUltimate": {
+        "helplink" : "&nbsp<i class=\"fa fa-question-circle\"></i>&nbsp<a target=\"_blank\" href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/2.-Node-Configuration\"><u>Help for configuration</u></a>",
+        "title": "KNX Device",
+        "properties": {
+            "node-input-server": "Gateway",
+            "node-input-topic": "Group Addr.",
+            "node-input-outputtopic": "Topic",
+            "node-input-dpt": "Datapoint",
+            "node-input-initialread": "Send a GrpValue read once on connection/reconnect",
+            "node-input-initialread0": "No",
+            "node-input-initialread1": "Read from KNX BUS",
+            "node-input-initialread2": "Read the last value saved to file prior to disconnection",
+            "node-input-initialread3": "Read the last value saved to file prior to disconnection. If the file is missing, read from KNX BUS",
+            "node-input-notifyreadrequest": "React to event GroupValue read",
+            "node-input-notifyresponse": "React to event GroupValue response",
+            "node-input-notifywrite": "React to event GroupValue write",
+            "node-input-notifyreadrequestalsorespondtobus": "Auto send node value as response to the BUS",
+            "node-input-notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized": "If value is undefined, send",
+            "node-input-listenallga": "Universal mode (listen to all Group Addresses)",
+            "node-input-name": "Node Name",
+            "node-input-outputtype": "Output Type",
+            "node-input-outputRBE": "Send payload to BUS only if changed (RBE filter)",
+            "node-input-inputRBE": "React only if payload from BUS is changed (RBE filter)",
+            "node-input-formatmultiplyvalue": "Multiply",
+            "node-input-formatnegativevalue": "Negatives",
+            "node-input-formatdecimalsvalue": "Decimals",
+            "node-input-passthrough": "Input msg passthrough"
+        },
+        "placeholder": {
+            "leaveempty": "Leave empty to use Group Address",
+            "notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized": "Ex: 0 for false, 1 for true, otherwise any value"
+        },
+        "advanced": {
+            "Advancedoptions": "Advanced options",
+            "Formatting": "Format INPUT (datagram coming from the KNX BUS)",
+            "Operations": "NUMERIC VALUES (operations are performed in order)",
+            "OUTPUT": "OUTPUT (sends datagram to the KNX BUS)",
+            "INPUT": "INPUT (listen to datagram from the KNX BUS)",
+            "NUMERICVALUES": "NUMERIC VALUES (operations are performed in order)",
+            "noETSWarning": "You haven't imported the ETS csv file. <br/> The node will work as blind transmitter/receiver. <a href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/2.-Node-Configuration\" target='_blank'>Click here for help about that</a>.",
+            "notify-DPT3007": "You selected a relative DIM. Please <a target='_blank' href='https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Dimming'>click here to view this sample</a> and learn how to handle such payload.",
+            "notify-DPT18001": "You selected a scene Datapoint. Please <a target='_blank' href='https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Control-a-scene-actuator'>click here to view this sample</a> and learn how to handle such payload.",
+            "notify-NoETSFile": "Universal mode needs a valid ETS file to be able to decode datatypes and output device names. Please paste the ETS file in the config node. If you don't use ETS file, the node will work as blind receiver (with automatic deconding of the datagrams) but you need to pass the datatype (besides the value) in the input message to be able to send something to the KNX BUS.",
+            "notify-DPT232600": "You selected an RGB Datapoint. Please <a target='_blank' href='https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---RGB-Color'>click here to view this sample</a> and learn how to handle such payload.",
+            "notify-DPT251600": "You selected an RGBW Datapoint. Please <a target='_blank' href='https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---RGBW-Color-plus-White'>click here to view this sample</a> and learn how to handle such payload.",
+            "notify-DPT222": "You selected an 3x16 Bit Datapoint. Please <a target='_blank' href='https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---DPT222'>click here to view this sample</a> and learn how to handle such payload.",
+            "divVediEsempi": "<a href='https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-SamplesHome' target='_blank'><i class='fa fa-code'></i>&nbsp PLEASE TAKE 5 MINUTES TO SEE SOME SAMPLES</a>",
+            "Sample": "Help example of the selected datapoint"
+
+        },
+        "selectlists": {
+            "Output_write": "Write",
+            "Output_response": "Response",
+            "Output_read": "Read",
+            "Output_update": "No output. Update only (updates the value without sending any telegram to the KNX BUS)",
+            "Multiply_leave": "Leave unchanged (default)",
+            "Multiply_divide1000": "Divide x 1000",
+            "Multiply_divide100": "Divide x 100",
+            "Multiply_divide10": "Divide x 10",
+            "Multiply_multiply1000": "Multiply x 1000",
+            "Multiply_multiply100": "Multiply x 100",
+            "Multiply_multiply10": "Multiply x 10",
+            "Decimals_leave": "Leave unchanged (default)",
+            "Decimals_roundint": "Round to integer (no decimals)",
+            "Decimals_round1": "Round 1 decimal",
+            "Decimals_round2": "Round 2 decimals",
+            "Decimals_round3": "Round 3 decimals",
+            "Decimals_round4": "Round 4 decimals",
+            "Negatives_leave": "Leave unchanged (default)",
+            "Negatives_zero": "Output zero",
+            "Negatives_abs": "Output absolute value (remove the minus sign)",
+            "passthrough_No": "No",
+            "passthrough_Leave": "Yes",
+            "passthrough_OwnProp": "Yes, but put the input msg into msg.inputmessage property of the output message"
+        }
+    }
+}

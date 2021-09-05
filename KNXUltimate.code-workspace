@@ -1,7 +1,12 @@
 {
 	"folders": [
 		{
+			"name": "node-red-contrib-knx-ultimate",
 			"path": "."
+		},
+		{
+			"name": "node-red-contrib-knx-ultimate.wiki",
+			"path": "../node-red-contrib-knx-ultimate.wiki"
 		}
 	],
 	"settings": {}

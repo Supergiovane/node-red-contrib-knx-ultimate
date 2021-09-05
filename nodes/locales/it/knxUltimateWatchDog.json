@@ -1,0 +1,26 @@
+{
+    "knxUltimateWatchDog": {
+        "helplink" : "&nbsp<i class=\"fa fa-question-circle\"></i>&nbsp<a target=\"_blank\" href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/it-7.-WatchDog-Configuration\"><u>Aiuto per configurazione</u></a>",
+        "title": "Watchdog",
+      
+        "properties": {
+            "node-input-server": "Gateway",
+            "node-input-checkLevel": "Livello controllo (vedi Wiki)",
+            "node-input-topic": "Group Address da monitorare",
+            "node-input-name": "Nome nodo",
+            "node-input-autoStart": "Avvia il watchdog automaticamente",
+            "advancedOptionsAccordion": "Opzioni avanzate",
+            "node-input-retryInterval": "Riprova ogni (in secondi)",
+            "node-input-maxRetry": "Dopo questo numero di tentativi, segnala l'errore"
+        },
+        "placeholder": {
+            "monitor":"Es: 12/0/0. Per 'Solo Ethernet', usa un GA inesistente."
+
+        },
+        "selectlists": {
+            "Ethernet": "Solo Ethernet unicast (Default), tramite ping. Funziona SOLO con Interfacce IP (non con routers)",
+            "EthKNX": "Ethernet + KNX Twisted Pair, usando un vero dispositivo KNX esistente"
+        }
+        
+    }
+}
