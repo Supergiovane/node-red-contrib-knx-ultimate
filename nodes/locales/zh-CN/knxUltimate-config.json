@@ -1,0 +1,55 @@
+{
+    "knxUltimate-config": {
+        "properties": {
+            "helplink" : "&nbsp<i class=\"fa fa-question-circle\"></i>&nbsp<a target=\"_blank\" href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/1.-Gateway-configuration\"><u>配置帮助文档</u></a>",
+            "title": "KNX/IP 网关配置",
+            "host": "网关 IP",
+            "host_info": "默认设置为 KNX/IP 的组播地址 (224.0.23.12)",
+            "port": "端口号",
+            "port_info": "默认设置为 KNX/IP (3671)",
+            "bind_local_int": "绑定到本地接口",
+            "restart_hint": "! 更改以后重启node-red !",
+            "adv_options": "高级选项",
+            "ets_import": "ETS组地址列表导入",
+            "node-config-input-name": "名称",
+            "unsecureKNX" : "一般的 KNX 连接",
+            "secureKNX" : "加密的 KNX 连接"
+        },
+        "advanced": {
+            "knx_phy_addr": "KNX 物理地址",
+            "show_date_status": "在状态中显示上次更新日期和时间",
+            "show_device_status": "在状态中显示设备的名称 (需要 \"监听所有组地址\" )",
+            "show_datapoint_status": "在状态中显示数据类型",
+            "suppress_ack": "抑制 ACK 请求",
+            "suppress_ack_help": "上面的选项有助于旧的 KNX/IP 接口兼容性",
+            "ignoreTelegramsWithRepeatedFlag": "抑制重复的 (R-Flag) 来自总线的电报",
+            "log_level": "日志等级",
+            "nodes_list_title": "所有流中的节点列表",
+            "nodes_list_help": "这是你配置的所有 KNX 节点的列表。",
+            "select_silent": "没有日志输出",
+            "select_trace": "跟踪",
+            "select_debug": "调试",
+            "select_info": "信息",
+            "select_warning": "警告",
+            "select_error": "错误 (默认值)",
+            "localEchoInTunneling": "向所有具有相同组地址的节点发送消息.",
+            "tiphost": "多播或单播地址，具有自动检测功能。 写 EMULATE 而不是 IP 地址，模拟网关（网关不会连接到 KNX BUS）",
+            "delaybetweentelegrams": "数据发送间隔时间 (毫秒)",
+            "delaybetweentelegramsfurtherdelayREAD" : "并且仅在读取电报之间进一步增加延迟"      
+        },
+        "ets": {
+            "description": "您可以导入 ETS CSV 组地址列表或 ESF 组地址列表。 请优先选择 ETS CSV 组地址列表，因为数据类型更完整.",
+            "instruction": "单击以获取有关如何导出 ETS CSV 组地址列表的说明.",
+            "youtube": "在Youtube上看怎么导入CSV文件",
+            "help_ga": "如果组地址没有数据类型",
+            "import_select_stop": "停止并且中断导入",
+            "import_select_skip": "跳过受影响的组地址",
+            "import_select_fake": "导入并替代为一个 1.001 数据类型 (不建议)",
+            "ga_list_title": "将 ETS 导出的文件粘贴到此处",
+            "ga_list_help": "将 ETS 导出的 CSV 或 ESF 文件粘贴到此处",
+            "deploywithETS": "将执行一些控制操作。 任何问题都会在右侧的调试窗口中报告.",
+            "keyring":"在这里粘贴从 ETS 导出的 Keyring XML 文件的内容",
+            "youtubeKeyring": "在 Youtube 上了解如何导出 Keyring XML 文件"
+        }
+    }
+}
