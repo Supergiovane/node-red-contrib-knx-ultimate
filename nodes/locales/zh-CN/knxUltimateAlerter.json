@@ -1,0 +1,24 @@
+{
+    "knxUltimateAlerter": {
+        "helplink" : "&nbsp<i class=\"fa fa-question-circle\"></i>&nbsp<a target=\"_blank\" href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/Alerter-Configuration\"><u>配置帮助文档</u></a>",
+        "title": "KNX 警报节点",
+      
+        "properties": {
+            "node-input-server": "网关",
+            "node-input-name": "名称",
+            "node-input-timerinterval": "每条数据间隔发送时间 (秒)",
+            "node-input-whentostart": "警报周期启动类型",
+            "node-input-initialread": "在连接/重新连接时读取每个设备的值",
+            "node-input-initialread0": "不使用",
+            "node-input-initialread1": "从KNX总线读取"
+        },
+        "selectlists": {
+            "manualstart": "通过传入消息手动启动警报周期",
+            "ifnewalert": "使用每个新的警报设备启动警报周期"
+        },
+        "other": {
+            "sceneConfig": "监控设备 (数据类型必须是布尔值)",
+            "add": "点击添加，添加设备"
+        }
+    }
+}
