@@ -6,7 +6,7 @@
 
 <p>
 <b>Version 1.2.45</b> - September 2021<br/>
-- NEW: Chinese translation. Many thanks @songzh96 !<br/>
+- NEW: Chinese translation. Many thanks @songzh96 for the BIG work done in traslating the entire WIKI and the node config windows in Chinese!<br/>
 </p>
 <p>
 <b>Version 1.2.44</b> - September 2021<br/>
