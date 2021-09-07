@@ -1,6 +1,6 @@
 {
     "knxUltimateGlobalContext": {
-        "helplink" : "&nbsp<i class=\"fa fa-question-circle\"></i>&nbsp<a target=\"_blank\" href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/GlobalVariable\"><u>案列</u></a>",
+        "helplink" : "&nbsp<i class=\"fa fa-question-circle\"></i>&nbsp<a target=\"_blank\" href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/cn-GlobalVariable\"><u>案列</u></a>",
         "title": "KNX 全局变量节点",
         "node-input-name": "变量名 (不能有空格，只能用小写字母)",
         "advanced": {
