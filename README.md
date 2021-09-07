@@ -46,6 +46,7 @@ Click your language to go to the documentation.<br/>
 <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/Overview"><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/flags/usa-today.png"/></a>
 <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/de-Overview"><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/flags/germany.png"/></a>
 <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/it-Overview"><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/flags/italy.png"/></a><br/>
+<a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/cn-Overview"><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/flags/cn.png"/><br/> 单击此处查看中文文档</a><br/>
 
 > Click a language above. Tons of documentation, samples, even for use in conjunction with <img width="90px" src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/homekit.png" > <img width="70px" src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/alexa.png" > <img width="90px" src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/googleassistant.png" >
 
