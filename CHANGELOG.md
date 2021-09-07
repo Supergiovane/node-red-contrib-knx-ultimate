@@ -5,6 +5,10 @@
 <br/>
 
 <p>
+<b>Version 1.2.45</b> - September 2021<br/>
+- NEW: Chinese translation. Many thanks @songzh96 !<br/>
+</p>
+<p>
 <b>Version 1.2.44</b> - September 2021<br/>
 - NEW: Scene Node: you can now add a pause in the command rule list (example, turn on light, wait 4000 milliseconds, turn off light). <br/>
 - WIKI: better organization of help, with direct links "SEE ALSO" to other related pages. You find these links at the bottom of every each page.<br/>
