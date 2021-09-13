@@ -53,11 +53,11 @@ module.exports = function (RED) {
         node.formatnegativevalue = "leave";
         node.formatdecimalsvalue = 999;
         node.writeExecutionInterval = config.writeExecutionInterval === undefined ? 1000 : config.writeExecutionInterval;
-  
+
         node.exposeAsVariable = config.exposeAsVariable !== undefined ? config.exposeAsVariable : "exposeAsVariableREADONLY"; // Should expose the Group Addresses to the Global Variable?
         node.exposedGAs = [];
         node.timerExposedGAs = null;
-        
+
         // Used to call the status update from the config node.
         node.setNodeStatus = ({ fill, shape, text, payload, GA, dpt, devicename }) => {
             if (node.server == null) { node.status({ fill: "red", shape: "dot", text: "[NO GATEWAY SELECTED]" }); return; }
@@ -74,17 +74,33 @@ module.exports = function (RED) {
                 var oContext = node.context().global.get(node.name + "_WRITE") || [];
                 node.context().global.set(node.name + "_WRITE", []); // Delete the var
                 for (let index = 0; index < oContext.length; index++) {
-                    const element = oContext[index];
+                    let element = oContext[index];
                     if (!element.hasOwnProperty("address")) {
                         node.setNodeStatus({ fill: "RED", shape: "dot", text: "NO Group Address set" });
+                        RED.log.error("knxUltimateGlobalContext: No group address set in node " + node.id);
                         goTimerGo();
                         return;
                     }
                     if (!element.hasOwnProperty("payload")) {
                         node.setNodeStatus({ fill: "RED", shape: "dot", text: "NO payload set" });
+                        RED.log.error("knxUltimateGlobalContext: No payload set for address " + element.address + " in node " + node.id);
                         goTimerGo();
                         return;
                     }
+
+                    // 13/09/2021 retrieve the datapoint if not specified
+                    if (!element.hasOwnProperty("dpt") || element.dpt !== undefined) {
+                        try {
+                            let sDPT = node.server.csv.find(item => item.ga === element.address).dpt;
+                            element.dpt = sDPT;                            
+                        } catch (error) {
+                            node.setNodeStatus({ fill: "RED", shape: "dot", text: "Datapoint not found in CSV for " + element.address });
+                            RED.log.error("knxUltimateGlobalContext: Datapoint not found in CSV for address " + element.address + " in node " + node.id);
+                            goTimerGo();
+                            return;    
+                        }
+                    }
+
                     node.setNodeStatus({ fill: "green", shape: "dot", text: "Write", payload: element.payload, GA: element.address, dpt: element.dpt || "", devicename: "" });
                     node.server.writeQueueAdd({ grpaddr: element.address, payload: element.payload, dpt: element.dpt || "", outputtype: "write", nodecallerid: node.id });
                 }
