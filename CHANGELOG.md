@@ -4,6 +4,11 @@
 
 <br/>
 
+
+<p>
+<b>Version 1.2.46</b> - September 2021<br/>
+- GlobalContext Node: you can now correctly pass the value to a group address even without setting the datapoint, if you import the CSV file.<br/>
+</p>
 <p>
 <b>Version 1.2.45</b> - September 2021<br/>
 - NEW: Chinese translation. Many thanks @songzh96 for the BIG work done in traslating the entire WIKI and the node config windows in Chinese!<br/>
