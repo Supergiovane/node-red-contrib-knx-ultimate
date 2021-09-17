@@ -71,7 +71,7 @@ exports.basetype = {
 // save_recall = 0 recalls the scene
 // save_recall = 1 saves the scene
 // scenenumber is the number of the scene to be recalled or saved
-return {payload:{"save_recall":0, "scenenumber":2}};`,
+return {payload:{save_recall:0, scenenumber:2}};`,
 "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Control-a-scene-actuator"
 }
 
