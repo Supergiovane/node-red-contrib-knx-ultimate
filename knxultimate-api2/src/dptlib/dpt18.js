@@ -67,7 +67,7 @@ exports.basetype = {
     valuetype: 'composite',
     desc: "8-bit Scene Activate/Learn + number",
     "help":
-`// To save and recall scene, use payload:{"save_recall":0, "scenenumber":2}
+`// To save and recall scene, use payload:{"ave_recall:0, scenenumber:2}
 // save_recall = 0 recalls the scene
 // save_recall = 1 saves the scene
 // scenenumber is the number of the scene to be recalled or saved
