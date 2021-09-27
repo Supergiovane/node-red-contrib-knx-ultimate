@@ -127,7 +127,7 @@ exports.subtypes = {
   },
 
   "057": {
-    "desc": "DPT_VALUE_POWER_FACTOR",
+    "desc": "DPT_Value_Power_Factor",
     "name": "Power factor",
     "unit": "-"
   },
