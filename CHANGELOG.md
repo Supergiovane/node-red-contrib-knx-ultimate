@@ -6,6 +6,10 @@
 
 
 <p>
+<b>Version 1.2.47</b> - September 2021<br/>
+- Added Datapoint 14.057 Power Factor.<br/>
+</p>
+<p>
 <b>Version 1.2.46</b> - September 2021<br/>
 - GlobalContext Node: you can now correctly pass the value to a group address even without setting the datapoint, if you import the CSV file.<br/>
 </p>

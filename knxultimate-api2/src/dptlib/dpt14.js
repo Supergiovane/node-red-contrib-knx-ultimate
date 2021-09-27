@@ -126,6 +126,12 @@ exports.subtypes = {
     "unit": "W"
   },
 
+  "057": {
+    "desc": "DPT_VALUE_POWER_FACTOR",
+    "name": "Power factor",
+    "unit": "-"
+  },
+  
   "065": {
     "desc": "DPT_Value_Speed",
     "name": "Speed",
