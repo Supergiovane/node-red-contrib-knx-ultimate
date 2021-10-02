@@ -4,7 +4,10 @@
 
 <br/>
 
-
+<p>
+<b>Version 1.2.48</b> - October 2021<br/>
+- Watchdog node: fixed a misleading status color during the first KNX test performed.<br/>
+</p>
 <p>
 <b>Version 1.2.47</b> - September 2021<br/>
 - Added Datapoint 14.057 Power Factor.<br/>

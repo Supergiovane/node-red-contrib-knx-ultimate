@@ -73,7 +73,7 @@ module.exports = function (RED) {
                     // Issue a read request
                     if (node.server.knxConnection) {
                         node.server.writeQueueAdd({ grpaddr: node.topic, payload: "", dpt: "", outputtype: "read" });
-                        node.setNodeStatus({ fill: "yellow", shape: "dot", text: "Check level " + node.checkLevel + ", failed beat telegram " + node.beatNumber + " of " + node.maxRetry, payload: "", GA: "", dpt: "", devicename: "" });
+                        node.setNodeStatus({ fill: "grey", shape: "dot", text: "Checking level " + node.checkLevel + ", with beat telegram " + node.beatNumber + " of " + node.maxRetry, payload: "", GA: "", dpt: "", devicename: "" });
                     };
                 }
             };
