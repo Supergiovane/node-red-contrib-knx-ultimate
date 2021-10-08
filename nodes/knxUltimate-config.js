@@ -612,11 +612,12 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                     connected: () => {
                         node.telegramsQueue = []; // 01/10/2020 Supergiovane: clear the telegram queue
                         node.linkStatus = "connected";
-                        setTimeout(() => node.setAllClientsStatus("Connected", "green", "Waiting for telegram."), 1000)
                         // Start the timer to do initial read.
                         if (node.timerDoInitialRead !== null) clearTimeout(node.timerDoInitialRead);
-                        node.timerDoInitialRead = setTimeout(DoInitialReadFromKNXBusOrFile, 3000); // 17/02/2020 Do initial read of all nodes requesting initial read
+                        node.timerDoInitialRead = setTimeout(DoInitialReadFromKNXBusOrFile, 6000); // 17/02/2020 Do initial read of all nodes requesting initial read
                         if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.debug("knxUltimate-config: Connected.");
+                        setTimeout(() => node.setAllClientsStatus(node.linkStatus.charAt(0).toUpperCase() + node.linkStatus.slice(1), "green", "Wait for telegrams."), 10000)
+                       
                     },
                     disconnected: function () {
                         node.telegramsQueue = [];
