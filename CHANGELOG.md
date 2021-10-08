@@ -6,6 +6,8 @@
 
 <p>
 <b>Version 1.2.49</b> - October 2021<br/>
+- Gateway connection: added more checks for connection resilience, in case of KNX Interface of particular manufacturer.<br/>
+- Gateway connection: connection is now more speedy.<br/>
 - Watchdog node: fixed an issue in changing the configuration via setConfig parameter, when an ethernet interface was manually selected in the config window.<br/>
 </p>
 <p>
