@@ -551,7 +551,9 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                 node.Disconnect();
 
                 // 08/10/2021 Adjust the connection properties as well
-                setKnxConnectionProperties()
+                setTimeout(() => {
+                    setKnxConnectionProperties();
+                }, 1000);
 
                 setTimeout(() => node.setAllClientsStatus("CONFIG", "yellow", "Node's main config setting has been changed."), 200);
                 setTimeout(() => node.setAllClientsStatus("CONFIG", "yellow", "New config: IP " + node.host + " Port " + node.port + " PhysicalAddress " + node.physAddr + " BindToInterface " + node.KNXEthInterface), 1500)
@@ -617,7 +619,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                         node.timerDoInitialRead = setTimeout(DoInitialReadFromKNXBusOrFile, 6000); // 17/02/2020 Do initial read of all nodes requesting initial read
                         if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.debug("knxUltimate-config: Connected.");
                         setTimeout(() => node.setAllClientsStatus(node.linkStatus.charAt(0).toUpperCase() + node.linkStatus.slice(1), "green", "Wait for telegrams."), 10000)
-                       
+
                     },
                     disconnected: function () {
                         node.telegramsQueue = [];
