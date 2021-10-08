@@ -5,6 +5,10 @@
 <br/>
 
 <p>
+<b>Version 1.2.49</b> - October 2021<br/>
+- Watchdog node: fixed an issue in changing the configuration via setConfig parameter, when an ethernet interface was manually selected in the config window.<br/>
+</p>
+<p>
 <b>Version 1.2.48</b> - October 2021<br/>
 - Watchdog node: fixed a misleading status color during the first KNX test performed.<br/>
 </p>

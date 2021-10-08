@@ -685,7 +685,7 @@ const close = function () {
     if (this.socket !== undefined) this.socket.close();
     //sm.socket = null; // 24/05/2020 Supergiovane added this line. 02/10/2020 removed.
   } catch (error) {
-    this.log.error('Error closing socket in const Close: %s', error.message);
+    //this.log.error('Error closing socket in const Close: %s', error.message);
   }
 
   this.transition('uninitialized');
