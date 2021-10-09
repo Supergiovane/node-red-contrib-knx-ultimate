@@ -8,6 +8,7 @@
 <b>Version 1.2.49</b> - October 2021<br/>
 - Gateway connection: added more checks for connection resilience, in case of KNX Interface of particular manufacturer.<br/>
 - Gateway connection: connection is now more speedy.<br/>
+- NEW: Gateway connection has a new option to enable/disable the automatic connection to the KNX BUS at start. You can now choose not to connect to the BUS on boot.
 - Watchdog node: fixed an issue in changing the configuration via setConfig parameter, when an ethernet interface was manually selected in the config window.<br/>
 </p>
 <p>
