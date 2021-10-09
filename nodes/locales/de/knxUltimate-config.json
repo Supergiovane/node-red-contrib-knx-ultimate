@@ -13,7 +13,10 @@
             "ets_import": "Import der ETS-Gruppenadressliste",
             "node-config-input-name": "Name",
             "unsecureKNX" : "Unsicher KNX Verbindung",
-            "secureKNX" : "Sicher KNX Verbindung"
+            "secureKNX" : "Sicher KNX Verbindung",
+            "autoReconnect" : "Beim Start automatisch mit dem KNX BUS verbinden",
+            "autoReconnect_yes" : "Ja",
+            "autoReconnect_no" : "Nein (Um eine Verbindung herzustellen, senden msg.connectGateway = true an einen Watchdog Knot)"
         },
         "advanced": {
             "knx_phy_addr": "KNX-Adresse",

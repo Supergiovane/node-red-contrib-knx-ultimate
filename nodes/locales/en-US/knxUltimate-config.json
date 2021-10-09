@@ -13,7 +13,10 @@
             "ets_import": "ETS Group Address list import",
             "node-config-input-name": "Name",
             "unsecureKNX" : "Simple KNX connection",
-            "secureKNX" : "Secure KNX connection"
+            "secureKNX" : "Secure KNX connection",
+            "autoReconnect" : "Automatically connect to KNX BUS at start",
+            "autoReconnect_yes" : "Yes",
+            "autoReconnect_no" : "No (To connect, pass msg.connectGateway = true to a Watchdog node)"
         },
         "advanced": {
             "knx_phy_addr": "KNX Physical Address",

@@ -13,7 +13,10 @@
             "ets_import": "Importa indirizzi di gruppo ETS",
             "node-config-input-name": "Nome",
             "unsecureKNX" : "Connessione KNX semplice",
-            "secureKNX" : "Connessione KNX sicura"
+            "secureKNX" : "Connessione KNX sicura",
+            "autoReconnect" : "Connetti al BUS KNX automaticamente all'avvio",
+            "autoReconnect_yes" : "Sì",
+            "autoReconnect_no" : "No (Per connetterti, invia msg.connectGateway = true ad un nodo Watchdog)"
         },
         "advanced": {
             "knx_phy_addr": "Indirizzo fisico KNX",

@@ -139,7 +139,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
         node.userDir = path.join(RED.settings.userDir, "knxultimatestorage"); // 04/04/2021 Supergiovane: Storage for service files
         node.exposedGAs = [];
         node.sysLogger = require("./utils/sysLogger.js").get({ loglevel: node.loglevel }); // 08/04/2021 new logger to adhere to the loglevel selected in the config-window
-        node.autoReconnect = true; // 05/05/2021 force FMS (knxConnection) to automatically reconnect.
+        node.autoReconnect = config.autoReconnect === undefined ? true : config.autoReconnect; // 05/05/2021 force FMS (knxConnection) to automatically reconnect.
         node.ignoreTelegramsWithRepeatedFlag = (config.ignoreTelegramsWithRepeatedFlag === undefined ? false : config.ignoreTelegramsWithRepeatedFlag);
         // 24/07/2021 KNX Secure checks...
         node.keyringFileXML = (typeof config.keyringFileXML === "undefined" || config.keyringFileXML.trim() === "") ? "" : config.keyringFileXML;
@@ -413,7 +413,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                     }
                 }
                 // Add _Node to the clients array
-                _Node.setNodeStatus({ fill: "grey", shape: "ring", text: "Warming up 15 seconds...", payload: "", GA: "", dpt: "", devicename: "" });
+                _Node.setNodeStatus({ fill: "grey", shape: "ring", text: "Wait for telegram", payload: "", GA: "", dpt: "", devicename: "" });
                 node.nodeClients.push(_Node)
             }
 

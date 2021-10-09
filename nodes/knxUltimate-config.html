@@ -22,7 +22,8 @@
             delaybetweentelegramsfurtherdelayREAD: { value: 1, required: false },
             ignoreTelegramsWithRepeatedFlag: { value: false, required: false },
             keyringFileXML: { value: "" },
-            knxSecureSelected: { value: false }
+            knxSecureSelected: { value: false },
+            autoReconnect: { value: "yes" }
         },
         credentials: {
             keyringFilePassword: { type: "password" }
@@ -230,13 +231,22 @@
       </div>
 
         <br/>
-      <div class="form-row">
+    <div class="form-row">
         <label for="node-config-input-KNXEthInterface" style="width: 200px">
             <i class="fa fa-wifi"></i>
             <span data-i18n="knxUltimate-config.properties.bind_local_int"></span>
         </label>
         <select id="node-config-input-KNXEthInterface"></select>
-        <!-- <div class="form-tips" style="margin-top: 11px;background-color:#FFEEEE;text-align:center"><b><span data-i18n="knxUltimate-config.properties.restart_hint"></span></b></div> -->
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-autoReconnect" style="width: 200px">
+            <i class="fa fa-plug"></i>
+            <span data-i18n="knxUltimate-config.properties.autoReconnect"></span>
+        </label>
+        <select id="node-config-input-autoReconnect">
+            <option value="yes" data-i18n="knxUltimate-config.autoReconnect_yes"></option>
+            <option value="no" data-i18n="knxUltimate-config.autoReconnect_no"></option>
+        </select>
     </div>
     <div class="form-row" id="divKNXEthInterfaceManuallyInput" style="display: none;">
         <label for="node-config-input-KNXEthInterfaceManuallyInput"></label>

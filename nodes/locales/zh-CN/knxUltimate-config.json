@@ -13,7 +13,10 @@
             "ets_import": "ETS组地址列表导入",
             "node-config-input-name": "名称",
             "unsecureKNX" : "一般的 KNX 连接",
-            "secureKNX" : "加密的 KNX 连接"
+            "secureKNX" : "加密的 KNX 连接",
+            "autoReconnect" : "Automatically connect to KNX BUS at start",
+            "autoReconnect_yes" : "Yes",
+            "autoReconnect_no" : "No (To connect, pass msg.connectGateway = true to a Watchdog node)"
         },
         "advanced": {
             "knx_phy_addr": "KNX 物理地址",
