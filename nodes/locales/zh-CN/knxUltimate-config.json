@@ -14,9 +14,9 @@
             "node-config-input-name": "名称",
             "unsecureKNX" : "一般的 KNX 连接",
             "secureKNX" : "加密的 KNX 连接",
-            "autoReconnect" : "Automatically connect to KNX BUS at start",
-            "autoReconnect_yes" : "Yes",
-            "autoReconnect_no" : "No (To connect, pass msg.connectGateway = true to a Watchdog node)"
+            "autoReconnect" : "在启动时自动链接到KNX总线",
+            "autoReconnect_yes" : "是",
+            "autoReconnect_no" : "否（发送 msg.connectGateway = true 到看门狗节点以此来链接KNX总线）"
         },
         "advanced": {
             "knx_phy_addr": "KNX 物理地址",
