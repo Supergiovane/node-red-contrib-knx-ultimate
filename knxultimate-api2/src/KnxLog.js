@@ -41,11 +41,12 @@ module.exports = {
           // arguments[0] is the log level ie 'debug'
           const a = Array.from(arguments)
           var ts;
+          var dt = new Date();
           //var ts = new Date().toISOString().replace(/T/, ' ').replace(/Z$/, '');
           try {
-            ts = new Date().toLocaleString().replace(/T/, ' ').replace(/Z$/, '') + " KnxUltimate-API2:"; // 24/03/2021 Added KnxUltimate-Api2  
+            ts = dt.toLocaleString().replace(/T/, ' ').replace(/Z$/, '') + "." + dt.getMilliseconds() + " KnxUltimate-API2:"; // 18/10/2021 Added millisecs
           } catch (error) {
-            ts = new Date().toISOString().replace(/T/, ' ').replace(/Z$/, '') + " KnxUltimate-API2:";// 24/03/2021 Added KnxUltimate-Api2
+            ts = dt.toISOString().replace(/T/, ' ').replace(/Z$/, '') + "." + dt.getMilliseconds() + " KnxUltimate-API2:"; // 18/10/2021 Added millisecs
           }
 
           if (a.length > 2) {

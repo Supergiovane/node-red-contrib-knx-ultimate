@@ -113,16 +113,16 @@ const states = {
             }
           } else {
 
-            // 24/03/2021 Supergiovane: some IP Interfaces (Enertex IP Interface, for example), leaves the tunnel open after networt disconnection
-            // So i need to force disconnect and do a connect again.
-            // **********************
-            try {
-              this.send(this.prepareDatagram(KnxConstants.SERVICE_TYPE.DISCONNECT_REQUEST), function (err) {
-                // TODO: handle send err            
-                KnxLog.get().debug('(%s):\tsent DISCONNECT_REQUEST', sm.compositeState());
-              });
-            } catch (error) { }
-            // **********************
+            // // 24/03/2021 Supergiovane: some IP Interfaces (Enertex IP Interface, for example), leaves the tunnel open after networt disconnection
+            // // So i need to force disconnect and do a connect again.
+            // // **********************
+            // try {
+            //   this.send(this.prepareDatagram(KnxConstants.SERVICE_TYPE.DISCONNECT_REQUEST), function (err) {
+            //     // TODO: handle send err            
+            //     KnxLog.get().debug('(%s):\tsent DISCONNECT_REQUEST', sm.compositeState());
+            //   });
+            // } catch (error) { }
+            // // **********************
 
             try {
               this.send(this.prepareDatagram(KnxConstants.SERVICE_TYPE.CONNECT_REQUEST))
@@ -358,6 +358,7 @@ const states = {
     // 3) receive an INBOUND tunneling request INDICATION (L_Data.ind)
     'inbound_TUNNELING_REQUEST_L_Data.ind': function (datagram) {
       if (this.useTunneling) {
+        KnxLog.get().trace('Supergiovane: inbound_TUNNELING_REQUEST_L_Data.ind (%s): %s', this.compositeState(), datagram.cemi.dest_addr || "");
         this.transition('recvTunnReqIndication', datagram)
       }
     },
@@ -563,6 +564,7 @@ const states = {
     _onEnter: function (datagram) {
       const sm = this
       sm.seqnumRecv = datagram.tunnstate.seqnum
+      this.log.trace('Supergiovane: recvTunnReqIndication (%s): %s', this.compositeState(), datagram.cemi.dest_addr || "");
       sm.acknowledge(datagram)
       sm.transition('idle')
       sm.emitEvent(datagram)
@@ -620,11 +622,13 @@ const acknowledge = function (datagram) {
   // copy the sequence number and acknowledge
   ack.tunnstate.seqnum = datagram.tunnstate.seqnum
   try {
+    this.log.trace('Supergiovane: acknowledge this.send (%s): %s', this.compositeState(), datagram.cemi.dest_addr || "");
     this.send(ack, err => {
       /*
        * Call RawModHandlers.sendFailHandler() when sending a message failed
        */
       if (err) {
+        this.log.trace('Supergiovane: acknowledge this.send error (%s): %s %s', this.compositeState(), datagram.cemi.dest_addr || "", err);
         RawModHandlers.sendFailHandler(err, this)
       }
     })

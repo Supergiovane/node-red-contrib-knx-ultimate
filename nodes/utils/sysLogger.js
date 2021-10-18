@@ -41,11 +41,11 @@ module.exports = {
           // arguments[0] is the log level ie 'debug'
           const a = Array.from(arguments)
           var ts;
-          //var ts = new Date().toISOString().replace(/T/, ' ').replace(/Z$/, '');
+          var dt = new Date();
           try {
-            ts = new Date().toLocaleString().replace(/T/, ' ').replace(/Z$/, '');
+            ts = dt.toLocaleString().replace(/T/, ' ').replace(/Z$/, '') + "." + dt.getMilliseconds();
           } catch (error) {
-            ts = new Date().toISOString().replace(/T/, ' ').replace(/Z$/, '');
+            ts = dt.toISOString().replace(/T/, ' ').replace(/Z$/, '') + "." + dt.getMilliseconds();
           }
 
           if (a.length > 2) {

@@ -52,6 +52,7 @@ exports.formatAPDU = function (value) {
 
 // return a JS Date from a DPT10 payload, with DOW/hour/month/seconds set to the buffer values.
 // The week/month/year are inherited from the current timestamp.
+// If day of week is 0, then the KNX device has not sent this optional value (Supergiovane)
 exports.fromBuffer = function (buf) {
   if (buf.length != 3) {
     knxLog.get().error("DPT10: Buffer should be 3 bytes long, got", buf.length);
@@ -59,14 +60,16 @@ exports.fromBuffer = function (buf) {
     return null;
   } else {
     var d = new Date();
-    var dow = (buf[0] & 0b11100000) >> 5;
+    var dow = (buf[0] & 0b11100000) >> 5; // Day of week
     var hours = buf[0] & 0b00011111;
     var minutes = buf[1];
     var seconds = buf[2];
     if (hours >= 0 & hours <= 23 &
       minutes >= 0 & minutes <= 59 &
       seconds >= 0 & seconds <= 59) {
-      if (d.getDay() != dow) {
+      // 18/10/2021 if dow = 0, then the KNX device has not sent this optional value.
+      if (d.getDay() != dow && dow > 0) {
+        if (dow === 7) dow = 0; // 18/10/2021 fix for the Sunday
         // adjust day of month to get the day of week right
         d.setDate(d.getDate() + dow - d.getDay());
       }

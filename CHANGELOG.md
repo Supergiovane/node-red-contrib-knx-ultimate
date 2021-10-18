@@ -5,6 +5,11 @@
 <br/>
 
 <p>
+<b>Version 1.2.50</b> - October 2021<br/>
+- Datapoint 10.001: fixed a little issue if the date of week is Sunday.<br/>
+- Added the milliseconds indication in all logs (things happen fast!).<br/>
+</p>
+<p>
 <b>Version 1.2.49</b> - October 2021<br/>
 - Gateway connection: added more checks for connection resilience, in case of KNX Interface of particular manufacturer.<br/>
 - Gateway connection: connection is now more speedy.<br/>
