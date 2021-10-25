@@ -5,6 +5,11 @@
 <br/>
 
 <p>
+<b>Version 1.2.51</b> - October 2021<br/>
+- NEW: Logger node: you can now count telegrams per second (or any interval you want), for statistic pourposes. Thank @RicharddeCrep for proposing this ehnancement.<br/>
+- WIKI: Updated the wiki in Deutsch, English, Italano and Chinese.<br/>
+</p>
+<p>
 <b>Version 1.2.50</b> - October 2021<br/>
 - Datapoint 10.001: fixed a little issue if the date of week is Sunday.<br/>
 - Added the milliseconds indication in all logs (things happen fast!).<br/>
