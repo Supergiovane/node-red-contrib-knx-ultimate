@@ -21,6 +21,11 @@ module.exports = function (RED) {
         node.timerCreateETSXML = null;
         node.isLogger = true;
         node.etsXMLRow = [];
+        node.autoStartTimerTelegramCounter = config.autoStartTimerTelegramCounter !== undefined ? config.autoStartTimerTelegramCounter : true;
+        node.intervalTelegramCount = config.intervalTelegramCount !== undefined ? (config.intervalTelegramCount * 1000) : 1000;
+        node.telegramCount = 0;
+        node.timerTelegramCount = null;
+
 
         // Used to call the status update from the config node.
         node.setNodeStatus = ({ fill, shape, text, payload, GA, dpt, devicename }) => {
@@ -44,22 +49,33 @@ module.exports = function (RED) {
             }
             sFile += "<RecordStop Timestamp=\"" + new Date().toISOString() + "\" />\n";
             sFile += "</CommunicationLog>";
-            node.send({ topic: node.topic, payload: sFile });
+            node.send([{ topic: node.topic, payload: sFile }, null]);
             node.setNodeStatus({ fill: "green", shape: "dot", text: "Payload ETS sent.", payload: "", GA: "", dpt: "", devicename: "" });
             node.etsXMLRow = [];
         };
 
+        // 25/10/2021 Count Telegrams. Requested by RicharddeCrep https://github.com/Supergiovane/node-red-contrib-knx-ultimate/issues/149#issue-1034644956
+        function countTelegrams() {
+
+            node.send([null, { topic: node.topic, payload: node.telegramCount, countIntervalInSeconds: node.intervalTelegramCount / 1000, currentTime: new Date().toLocaleString() }]);
+            node.setNodeStatus({ fill: "green", shape: "dot", text: "Payload Telegram counter sent.", payload: node.telegramCount, GA: "", dpt: "", devicename: "" });
+            node.telegramCount = 0;
+        };
+
         // This function is called by the knx-ultimate config node.
         node.handleSend = _cemiETS => {
-            
+
+            // 25/10/2021 Telegram counter - Increase telegram count
+            node.telegramCount += 1;
+
             // Receiving every message
             if (_cemiETS !== undefined) {
                 // If too much, delete the oldest
                 if (node.maxRowsInETSXML > 0 && (node.etsXMLRow.length > node.maxRowsInETSXML)) {
                     // Shift (remove) the first row (the oldest)
                     try {
-                        node.etsXMLRow.shift()    
-                    } catch (error) {}
+                        node.etsXMLRow.shift()
+                    } catch (error) { }
                 }
                 // Add row to XML ETS
                 node.etsXMLRow.push(" <Telegram Timestamp=\"" + new Date().toISOString() + "\" Service=\"L_Data.ind\" FrameFormat=\"CommonEmi\" RawData=\"" + _cemiETS + "\" />\n");
@@ -71,6 +87,13 @@ module.exports = function (RED) {
             if (node.timerCreateETSXML !== null) clearInterval(node.timerCreateETSXML);
             node.timerCreateETSXML = setInterval(createETSXML, node.intervalCreateETSXML); // 02/01/2020 Start the timer that handles the queue of telegrams
             setTimeout(function () { node.setNodeStatus({ fill: "green", shape: "dot", text: "ETS timer started.", payload: "", GA: "", dpt: "", devicename: "" }) }, 5000)
+        }
+
+
+        node.StartTelegramCounterTimer = () => {
+            if (node.timerTelegramCount !== null) clearInterval(node.timerTelegramCount);
+            node.timerTelegramCount = setInterval(countTelegrams, node.intervalTelegramCount);
+            setTimeout(function () { node.setNodeStatus({ fill: "green", shape: "dot", text: "Telegram counter timer started.", payload: "", GA: "", dpt: "", devicename: "" }) }, 5000)
         }
 
         node.on("input", function (msg) {
@@ -89,8 +112,23 @@ module.exports = function (RED) {
             if (msg.hasOwnProperty("etsoutputnow")) {
                 if (node.timerCreateETSXML !== null) clearInterval(node.timerCreateETSXML);
                 createETSXML()
-                node.setNodeStatus({ fill: "grey", shape: "ring", text: "Output ETS", payload: "", GA: "", dpt: "", devicename: "" })
                 if (node.autoStartTimerCreateETSXML) node.StartETSXMLTimer();  // autoStartTimerCreateETSXML ETS timer
+            };
+
+            if (msg.hasOwnProperty("telegramcounterstarttimer")) {
+                if (Boolean(msg.telegramcounterstarttimer) === true) {
+                    node.StartTelegramCounterTimer();
+                }
+                else {
+                    if (node.timerTelegramCount !== null) clearInterval(node.timerTelegramCount);
+                    node.telegramCount = 0;
+                    node.setNodeStatus({ fill: "grey", shape: "ring", text: "Telegram counter timer stopped.", payload: "", GA: "", dpt: "", devicename: "" })
+                };
+            };
+            if (msg.hasOwnProperty("telegramcounteroutputnow")) {
+                if (node.timerTelegramCount !== null) clearInterval(node.timerTelegramCount);
+                countTelegrams()
+                if (node.autoStartTimerTelegramCounter) node.StartTelegramCounterTimer();
             };
 
 
@@ -98,6 +136,7 @@ module.exports = function (RED) {
 
         node.on("close", function (done) {
             if (node.timerCreateETSXML !== null) clearInterval(node.timerCreateETSXML);
+            if (node.timerTelegramCount !== null) clearInterval(node.timerTelegramCount);
             if (node.server) {
                 node.server.removeClient(node)
             };
@@ -108,9 +147,11 @@ module.exports = function (RED) {
         // Unsubscribe(Subscribe)
         if (node.server) {
             if (node.timerCreateETSXML !== null) clearInterval(node.timerCreateETSXML);
+            if (node.timerTelegramCount !== null) clearInterval(node.timerTelegramCount);
             node.server.removeClient(node);
             node.server.addClient(node);
             if (node.autoStartTimerCreateETSXML) node.StartETSXMLTimer();  // autoStartTimerCreateETSXML ETS timer
+            if (node.autoStartTimerTelegramCounter) node.StartTelegramCounterTimer();
         }
 
     }

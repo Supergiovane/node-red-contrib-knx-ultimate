@@ -113,16 +113,16 @@ const states = {
             }
           } else {
 
-            // // 24/03/2021 Supergiovane: some IP Interfaces (Enertex IP Interface, for example), leaves the tunnel open after networt disconnection
-            // // So i need to force disconnect and do a connect again.
-            // // **********************
-            // try {
-            //   this.send(this.prepareDatagram(KnxConstants.SERVICE_TYPE.DISCONNECT_REQUEST), function (err) {
-            //     // TODO: handle send err            
-            //     KnxLog.get().debug('(%s):\tsent DISCONNECT_REQUEST', sm.compositeState());
-            //   });
-            // } catch (error) { }
-            // // **********************
+            // 24/03/2021 Supergiovane: some IP Interfaces (Enertex IP Interface, for example), leaves the tunnel open after networt disconnection
+            // So i need to force disconnect and do a connect again.
+            // **********************
+            try {
+              this.send(this.prepareDatagram(KnxConstants.SERVICE_TYPE.DISCONNECT_REQUEST), function (err) {
+                // TODO: handle send err            
+                KnxLog.get().debug('(%s):\tsent DISCONNECT_REQUEST', sm.compositeState());
+              });
+            } catch (error) { }
+            // **********************
 
             try {
               this.send(this.prepareDatagram(KnxConstants.SERVICE_TYPE.CONNECT_REQUEST))

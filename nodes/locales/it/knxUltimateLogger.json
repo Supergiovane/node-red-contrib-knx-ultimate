@@ -9,7 +9,9 @@
             "node-input-autoStartTimerCreateETSXML": "Avvia il timer automaticamente",
             "mlxETSFileAccordion": "File compatibile con diagnostica ETS",
             "node-input-intervalCreateETSXML": "Nuovo file XML ogni (in minuti)",
-            "node-input-maxRowsInETSXML":"Numero massimo di righe nel file (0 = nessun limite)"
+            "node-input-maxRowsInETSXML":"Numero massimo di righe nel file (0 = nessun limite)",
+            "telegramCounter": "Contatore telegrammi KNX",
+            "node-input-intervalTelegramCount": "Intervallo conteggio (in secondi)"
         },
         "placeholder": {
             

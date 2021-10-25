@@ -9,7 +9,9 @@
             "node-input-autoStartTimerCreateETSXML": "Auto start timer",
             "mlxETSFileAccordion": "ETS compatible BUS Diagnostic File",
             "node-input-intervalCreateETSXML": "Output new XML every (in minutes)",
-            "node-input-maxRowsInETSXML":"Max number of rows in XML (0 = no limit)"
+            "node-input-maxRowsInETSXML":"Max number of rows in XML (0 = no limit)",
+            "telegramCounter": "KNX Telegram Counter",
+            "node-input-intervalTelegramCount": "Count interval (in seconds)"
         },
         "placeholder": {
             
