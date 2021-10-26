@@ -9,8 +9,8 @@
             name: { value: "" },
             autoStartTimerCreateETSXML: { value: true },
             maxRowsInETSXML: { value: 0, required: true, validate: RED.validators.number() },
-            autoStartTimerTelegramCounter: { value: true },
-            intervalTelegramCount: { value: 1, required: true, validate: RED.validators.number() }
+            autoStartTimerTelegramCounter: { value: false },
+            intervalTelegramCount: { value: 60, required: false, validate: RED.validators.number() }
             
         },
         inputs: 1,

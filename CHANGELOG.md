@@ -5,6 +5,10 @@
 <br/>
 
 <p>
+<b>Version 1.2.52</b> - October 2021<br/>
+- KNX Logger node: fixed some default fields.<br/>
+</p>
+<p>
 <b>Version 1.2.51</b> - October 2021<br/>
 - NEW: Logger node: you can now count telegrams per second (or any interval you want), for statistic pourposes. Thank @RicharddeCrep for proposing this ehnancement.<br/>
 - WIKI: Updated the wiki in Deutsch, English, Italano and Chinese.<br/>

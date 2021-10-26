@@ -21,8 +21,8 @@ module.exports = function (RED) {
         node.timerCreateETSXML = null;
         node.isLogger = true;
         node.etsXMLRow = [];
-        node.autoStartTimerTelegramCounter = config.autoStartTimerTelegramCounter !== undefined ? config.autoStartTimerTelegramCounter : true;
-        node.intervalTelegramCount = config.intervalTelegramCount !== undefined ? (config.intervalTelegramCount * 1000) : 1000;
+        node.autoStartTimerTelegramCounter = config.autoStartTimerTelegramCounter !== undefined ? config.autoStartTimerTelegramCounter : false;
+        node.intervalTelegramCount = config.intervalTelegramCount !== undefined ? (config.intervalTelegramCount * 1000) : 60000;
         node.telegramCount = 0;
         node.timerTelegramCount = null;
 
