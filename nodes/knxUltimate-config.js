@@ -414,7 +414,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                 }
                 // Add _Node to the clients array
                 if (node.autoReconnect) {
-                    _Node.setNodeStatus({ fill: "grey", shape: "ring", text: "Wait for telegram", payload: "", GA: "", dpt: "", devicename: "" });
+                    _Node.setNodeStatus({ fill: "grey", shape: "ring", text: "Node initialized.", payload: "", GA: "", dpt: "", devicename: "" });
                 } else {
                     _Node.setNodeStatus({ fill: "red", shape: "ring", text: "Autoconnect disabled. Please manually connect.", payload: "", GA: "", dpt: "", devicename: "" });
                 }
@@ -621,7 +621,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                         if (node.timerDoInitialRead !== null) clearTimeout(node.timerDoInitialRead);
                         node.timerDoInitialRead = setTimeout(DoInitialReadFromKNXBusOrFile, 6000); // 17/02/2020 Do initial read of all nodes requesting initial read
                         if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.debug("knxUltimate-config: Connected.");
-                        setTimeout(() => node.setAllClientsStatus(node.linkStatus.charAt(0).toUpperCase() + node.linkStatus.slice(1), "green", "Wait for telegrams."), 10000)
+                        setTimeout(() => node.setAllClientsStatus(node.linkStatus.charAt(0).toUpperCase() + node.linkStatus.slice(1), "green", "Wait for telegrams."), 500)
 
                     },
                     disconnected: function () {
@@ -1398,7 +1398,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
         };
 
 
-        node.on("close", function () {
+        node.on("close", function (done) {
             if (node.timerSendTelegramFromQueue !== undefined) clearInterval(node.timerSendTelegramFromQueue); // 02/01/2020 Stop queue timer
             saveExposedGAs(); // 04/04/2021 save the current values of GA payload
             try {
@@ -1407,6 +1407,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
             try {
                 node.Disconnect();
             } catch (error) { }
+            done();
         })
 
         function readCSV(_csvText) {

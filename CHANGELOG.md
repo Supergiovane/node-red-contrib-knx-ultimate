@@ -5,6 +5,10 @@
 <br/>
 
 <p>
+<b>Version 1.2.53</b> - November 2021<br/>
+- Device node: as soon as you add a new node with "read from bus at start" option enabeld, it requests the value from the BUS also if you DEPLOY "modified nodes" only. Prior to that, you had to do a full DEPLOY.<br/>
+</p>
+<p>
 <b>Version 1.2.52</b> - October 2021<br/>
 - KNX Logger node: fixed some default fields.<br/>
 </p>
