@@ -189,7 +189,7 @@ module.exports = function (RED) {
             node.server.removeClient(node);
             if (node.topic || node.listenallga) {
                 node.server.addClient(node);
-                if (node.autoStart) node.StartWatchDogTimer();  // Autostart watchdog
+                if (node.autoStart) node.StartWatchDogTimer();  // Autostart watchdog                    
             }
         }
 

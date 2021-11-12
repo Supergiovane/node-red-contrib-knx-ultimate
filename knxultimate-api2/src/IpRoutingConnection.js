@@ -10,7 +10,7 @@ const KnxLog = require('./KnxLog.js')
   Initializes a new KNX routing connection with provided values. Make
  sure the local system allows UDP messages to the multicast group.
 **/
-function IpRoutingConnection(instance) {
+function IpRoutingConnection(instance, options) {
   let log = KnxLog.get()
 
   instance.BindSocket = function (cb) {
@@ -22,7 +22,7 @@ function IpRoutingConnection(instance) {
         'IpRoutingConnection %s:%d, adding membership for %s',
         instance.localAddress, udpSocket.address().port, conn.remoteEndpoint.addr
       ))
-
+      
       try {
         conn.socket.addMembership(conn.remoteEndpoint.addr, instance.localAddress)
       } catch (err) {
@@ -30,12 +30,15 @@ function IpRoutingConnection(instance) {
       }
     })
 
+   
+   
     // ROUTING multicast connections need to bind to the default port, 3671
     udpSocket.bind(3671, function () {
       cb && cb(udpSocket);
       try {
-        udpSocket.setMulticastTTL(16); // 13/04/2021 Supergiovane: Set TTL        
+        udpSocket.setMulticastTTL(options.TTL || 128); // 11/11/2021 Adjustable TTL  // 13/04/2021 Supergiovane: Set TTL 
       } catch (error) {
+        KnxLog.get().error("IpRoutingConnection.bind Error setting SetTTL " + error.message || "");
       }
     })
 
@@ -61,6 +64,7 @@ function IpRoutingConnection(instance) {
         log.debug(util.format('Socket error: %j', errmsg))
       })
 
+     
       socket.on('message', function (msg, rinfo, callback) {
         log.debug('Inbound multicast message = require(' + rinfo.address + ': ' + msg.toString('hex'))
         sm.onUdpSocketMessage(msg, rinfo, callback)

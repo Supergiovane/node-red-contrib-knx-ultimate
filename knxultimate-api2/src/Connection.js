@@ -209,20 +209,28 @@ const prepareDatagram = function (svcType) {
 const send = function (datagram, callback) {
   const conn = this
   let buf
-  let ret
+  let ret = null;
   let descr
 
   if (datagram.constructor !== Buffer) {
-    this.writer = KnxNetProtocol.createWriter()
+    try {
+      this.writer = KnxNetProtocol.createWriter()      
+    } catch (error) {      
+    }
+
 
     // Forge the datagram
-    ret = this.writer.KNXNetHeader(datagram)
+    try {
+      ret = this.writer.KNXNetHeader(datagram)  
+    } catch (error) {      
+    }
+    
 
     // Check if ret.buffer is null ==> if this.writer.KNXNetHeader() failed
-    if (ret.buffer === null) {
+    if (ret === null || ret.buffer === null) {
       // Check if error was set - if not, pass a standard message to callback
       ret.error !== null ? callback(ret.error) : callback(Error('Unknown error!'))
-
+      KnxLog.get().error(' Const send = function (datagram, callback) %s (%s)', this.compositeState() || "", ret || "");
       // Cancel the sending process
       return null; // 25/03/2021 Supergiovane: was return;
     }
@@ -240,13 +248,12 @@ const send = function (datagram, callback) {
     buf, 0, buf.length,
     conn.remoteEndpoint.port, conn.remoteEndpoint.addr.toString(),
     function (err) {
-        KnxLog.get().trace('(%s): UDP sent %s: %s %s', conn.compositeState(),
-          (err ? err.toString() : 'OK'), descr, buf.toString()
-        )
+      KnxLog.get().trace('(%s): UDP sent %s: %s %s', conn.compositeState(),
+        (err ? err.toString() : 'OK'), descr, buf.toString()
+      )
       if (typeof callback === 'function') callback(err)
     }
   )
-
   return buf; // 25/03/2021 Supergiovane
 }
 
@@ -367,10 +374,15 @@ const Disconnect = function (/* cb */) {
   this.transition('disconnecting');
   //console.log("BANANA Logger distrutto");
   try {
+    //KnxLog.get().info('Socket disconnected.');
+    //console.log("BANANA Socket disconnected.")
+    //this.socket.disconnect();
+  } catch (error) { 
+    //console.log("BANANA ORRORE Socket disconnected.",error)
+  }
+  try {
     KnxLog.destroy(); // 16/08/2020 Force reinstantiation of the logger to refresh the settings.
   } catch (error) { }
-  // machina.js removeAllListeners equivalent:
-  // this.off();
 }
 
 // return a descriptor for this datagram (TUNNELING_REQUEST_L_Data.ind)
@@ -430,7 +442,7 @@ const Connection = function (options) {
   if (typeof options.handlers === 'object') {
     Object.keys(options.handlers).forEach(function (key) {
       if (typeof options.handlers[key] === 'function') {
-        conn.on(key, options.handlers[key])
+        conn.on(key, options.handlers[key]);
       }
     })
   }

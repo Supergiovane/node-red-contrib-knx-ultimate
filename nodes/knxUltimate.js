@@ -5,6 +5,11 @@ module.exports = function (RED) {
         RED.nodes.createNode(this, config)
         var node = this
         node.server = RED.nodes.getNode(config.server)
+        // 11/11/2021 Is the node server disabled by the flow "disable" command?
+        if (node.server === null) {
+            node.status({ fill: "red", shape: "dot", text: "[THE GATEWAY NODE HAS BEEN DISABLED]" });
+            return;
+        }
         node.topic = config.topic
         node.outputtopic = (typeof config.outputtopic === "undefined" || config.outputtopic == "") ? config.topic : config.outputtopic; // 07/02/2020 Importante, per retrocompatibilità
         node.dpt = config.dpt || "1.001"
@@ -29,7 +34,7 @@ module.exports = function (RED) {
         node.passthrough = (typeof config.passthrough === "undefined" ? "no" : config.passthrough);
         node.inputmessage = {}; // Stores the input message to be passed through
         node.timerTTLInputMessage = null; // The stored node.inputmessage has a ttl.
-        node.sysLogger = require("./utils/sysLogger.js").get({ loglevel: node.server.loglevel || "error" }); // 08/04/2021 new logger to adhere to the loglevel selected in the config-window
+        node.sysLogger = require("./utils/sysLogger.js").get({ loglevel: node.server.loglevel || "error" }); // 08/04/2021 new logger to adhere to the loglevel selected in the config-window    
 
 
         // Used to call the status update from the config node.
@@ -327,34 +332,28 @@ module.exports = function (RED) {
             node.inputmessage = {};
             if (node.server) {
                 node.server.removeClient(node);
-                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("knxUltimate: Close: node id " + node.id + " with topic " + (node.topic || "") + " has been removed from the server.");
+                try {
+                    if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("knxUltimate: Close: node id " + node.id + " with topic " + (node.topic || "") + " has been removed from the server.");
+                } catch (error) { }
             }
             done();
         })
 
-        // On each deploy, unsubscribe+resubscribe
+        // On each deploy, add the node to the server list
         if (node.server) {
-            // 05/11/2021 check if the node already exists in the server clients list
-            if (node.server.nodeClients.filter(x => x.id === node.id).length === 0) {
-                // Node not present adding to the list.
-                ///node.server.removeClient(node);
-                if (node.topic || node.listenallga) {
-                    node.server.addClient(node);
-                    if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("knxUltimate: addClient: node id " + node.id + " with topic " + (node.topic || "") + " has been added to the server.");
-                    // 05/11/2021 if the node is set to read from bus, issue a read.
-                    // "node-input-initialread0": "No",
-                    // "node-input-initialread1": "Leggi dal BUS KNX",
-                    // "node-input-initialread2": "Leggi l'ultimo valore salvato su file prima della disconnessione.",
-                    // "node-input-initialread3": "Leggi l'ultimo valore salvato su file prima della disconnessione. Se inesistente, leggi dal BUS KNX",
-                    if (node.server.linkStatus ==="connected" && node.initialread === 1 || node.initialread === 3) {
-                        node.setNodeStatus({ fill: "yellow", shape: "dot", text: "Get value from BUS.", payload: "", GA: node.topic || "", dpt: "", devicename: "" });
-                        setTimeout(function () {
-                            node.emit("input", { readstatus: true });
-                        }, 3000);
-                    }
-                }
+            node.server.addClient(node);
+            if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("knxUltimate: addClient: node id " + node.id || "" + " with topic " + (node.topic || "") + " has been added to the server.");
+            // 05/11/2021 if the node is set to read from bus, issue a read.
+            // "node-input-initialread0": "No",
+            // "node-input-initialread1": "Leggi dal BUS KNX",
+            // "node-input-initialread2": "Leggi l'ultimo valore salvato su file prima della disconnessione.",
+            // "node-input-initialread3": "Leggi l'ultimo valore salvato su file prima della disconnessione. Se inesistente, leggi dal BUS KNX",
+            if (node.server.linkStatus === "connected" && node.initialread === 1 || node.initialread === 3) {
+                node.setNodeStatus({ fill: "yellow", shape: "dot", text: "Get value from BUS.", payload: "", GA: node.topic || "", dpt: "", devicename: "" });
+                setTimeout(function () {
+                    node.emit("input", { readstatus: true });
+                }, 3000);
             }
-
         }
 
 

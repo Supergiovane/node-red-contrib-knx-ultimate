@@ -6,7 +6,7 @@
 const dgram = require('dgram')
 const KnxLog = require('./KnxLog.js')
 
-function IpTunnelingConnection (instance, options) {
+function IpTunnelingConnection(instance, options) {
   instance.BindSocket = function (cb) {
     let udpSocket = dgram.createSocket('udp4')
 
@@ -16,6 +16,12 @@ function IpTunnelingConnection (instance, options) {
 
       // Make the local port accessible for other functions etc.
       instance.localPort = udpSocket.address().port
+
+      try {
+        udpSocket.setTTL(options.TTL || 128); // 11/11/2021 Adjustable TTL  
+      } catch (error) {
+        KnxLog.get().error("IpTunnelingConnection.bind Error setting SetTTL " + error.message || "");
+      }
 
       cb && cb(udpSocket)
     })
@@ -45,7 +51,7 @@ function IpTunnelingConnection (instance, options) {
         sm.onUdpSocketMessage(msg, rinfo, callback);
         KnxLog.get().debug('Inbound message: %s', msg.toString('hex'))
       })
-           
+
       // start connection sequence
       sm.transition('connecting')
     })

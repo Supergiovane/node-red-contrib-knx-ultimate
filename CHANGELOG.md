@@ -5,6 +5,22 @@
 <br/>
 
 <p>
+<b>Version 1.2.54</b> - November 2021<br/>
+- <font color="red">THIS VERSION TOUCHES MANY CONNECTIVITY POINTS.</font> It should handle all things better, but if you've trouble, you can always revert to the previous version by issuing <b>npm install node-red-contrib-knx-ultimate@1.2.53</b><br/>
+- Tunneling/Routing connection optimization: standardized delay in CONNECT_RESPONSE timeout and cleaned some code to better handling installations with more than 500 group addresses.<br/>
+- In tunneling mode, the node now signal the disconnection after 3 KNX Interface's connection state response failed, as per KNX standard.<br/>
+- Increased the socket telegram TTL (Time to Live) for Multicast as well as for Unicast, from 16 to 128 for better handling of multirouted packets.<br/>
+- Added "[THE GATEWAY NODE HAS BEEN DISABLED]" node status message, if you've disabled the KNX Gateway.<br/>
+- NEW: you can now choose to delay the connection to the KNX BUS at start. In some circumstances it's advisable to delay the connection to the BUS to allow the ethernet cards to be lifted up by the sysop. Thi happens often in VM environments.<br/>
+- Changing the log level in the Gateway node doesn't require a node-red restart anymore.<br/>
+- Because i'm flooded by user's queries, i removed a warning from the node status, if the persitent file has not yet been created.<br/>
+- Wait for message acknowledge by the IP router: now waits for 5 failed message ACKs before firing the disconnection sequence.<br/>
+- FIX: fixed a false "disconnection" node status, due to a glitch in the KNX API (after a connection request, the API was sending a false "disconnection" status). Chiamati in causa anche tutti i Santi, prima.<br/>
+- Fixed some check-connection timers not stopping in time.<br/>
+- Speed up the first KNX connection after node-red start/restart/deploy.<br/>
+- Speed up the reconnection attempts in case of disconnections.<br/>
+</p>
+<p>
 <b>Version 1.2.53</b> - November 2021<br/>
 - Device node: as soon as you add a new node with "read from bus at start" option enabeld, it requests the value from the BUS also if you DEPLOY "modified nodes" only. Prior to that, you had to do a full DEPLOY.<br/>
 </p>
