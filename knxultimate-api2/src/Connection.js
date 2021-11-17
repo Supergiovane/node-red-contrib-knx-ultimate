@@ -199,7 +199,7 @@ const prepareDatagram = function (svcType) {
       this.AddTunnState(datagram)
       break
     default:
-      this.log.debug('Do not know how to deal with svc type %d', svcType)
+      KnxLog.get().debug('Do not know how to deal with svc type %d', svcType)
   }
 
   return datagram
@@ -264,7 +264,7 @@ const write = function (grpaddr, value, dptid, callback) {
   }
 
   if (grpaddr == null || value == null) {
-    this.log.warn('You must supply both grpaddr and value!')
+    KnxLog.get().warn('You must supply both grpaddr and value!')
     return
   }
   // outbound request onto the state machine
@@ -283,7 +283,7 @@ const respond = function (grpaddr, value, dptid) {
     return; // 02/10/2020 Supergiovane: if in tunnel mode and is not connected, exit
   }
   if (grpaddr == null || value == null) {
-    this.log.warn('You must supply both grpaddr and value!')
+    KnxLog.get().warn('You must supply both grpaddr and value!')
     return
   }
   const serviceType = this.useTunneling
@@ -304,11 +304,11 @@ const writeRaw = function (grpaddr, value, bitlength, callback) {
     return; // 02/10/2020 Supergiovane: if in tunnel mode and is not connected, exit
   }
   if (grpaddr == null || value == null) {
-    this.log.warn('You must supply both grpaddr and value!')
+    KnxLog.get().warn('You must supply both grpaddr and value!')
     return
   }
   if (!Buffer.isBuffer(value)) {
-    this.log.warn('Value must be a buffer!')
+    KnxLog.get().warn('Value must be a buffer!')
     return
   }
   // outbound request onto the state machine
@@ -326,7 +326,6 @@ const writeRaw = function (grpaddr, value, bitlength, callback) {
 // you can pass a callback function which gets bound to the RESPONSE datagram event
 const read = function (grpaddr, callback) {
   if (this.useTunneling && this.isTunnelConnected === false) {
-    // console.log("BANANA exit FSM.prototype.write Tunnel down");
     return; // 02/10/2020 Supergiovane: if in tunnel mode and is not connected, exit
   }
 

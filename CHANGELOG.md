@@ -4,6 +4,9 @@
 
 <br/>
 
+<b>Version 1.2.55</b> - November 2021<br/>
+- Gateway servere node: recoding of some javascript parts, to increase speed to better accomodate the crypt/entrypt process of the upcoming KNX-Secure implementation.<br/>
+</p>
 <p>
 <b>Version 1.2.54</b> - November 2021<br/>
 - <font color="red">THIS VERSION TOUCHES MANY CONNECTIVITY POINTS.</font> It should handle all things better, but if you've trouble, you can always revert to the previous version by issuing <b>npm install node-red-contrib-knx-ultimate@1.2.53</b><br/>

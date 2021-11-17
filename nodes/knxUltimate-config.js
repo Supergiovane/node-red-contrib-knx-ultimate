@@ -167,18 +167,27 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
             node.nodeClients.map(nextStatus);
         }
 
-        async function KNXSecureLoadKeyringFile() {
-            try {
-                node.jKNXSecureKeyring = await knx.KNXSecureKeyring.load(node.keyringFileXML, node.credentials.keyringFilePassword); // 24/07/2021 Endpoint for verify the ETS KNX Secure Keyring file from the HTML
-            } catch (error) {
-                node.error("KNXUltimate-config: KNX Secure: error parsing the keyring XML: " + error.message.toString());
-                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("KNXUltimate-config: KNX Secure: error parsing the keyring XML: " + error.message.toString());
-                node.jKNXSecureKeyring = null;
-                node.knxSecureSelected = false;
-                setTimeout(() => node.setAllClientsStatus("Error", "red", "KNX Secure " + error.message), 4000);
-            }
+        // 
+        // KNX-SECURE
+        // 15/11/2021 Function to load the keyring file exported from ETS
+        //
+        //
+        try {
+            (async () => {
+                if (node.knxSecureSelected) {
+                    node.jKNXSecureKeyring = await knx.KNXSecureKeyring.load(node.keyringFileXML, node.credentials.keyringFilePassword);
+                    RED.log.info("KNX-Secure: Keyring for ETS proj " + node.jKNXSecureKeyring.ETSProjectName + ", created by " + node.jKNXSecureKeyring.ETSCreatedBy + " on " + node.jKNXSecureKeyring.ETSCreated + " succesfully validated with provided password, using node " + node.name || node.id);
+                }else{
+                    RED.log.info("KNX-Unsecure: connection to insecure interface/router using node " + node.name || node.id);                    
+                }
+            })();
+        } catch (error) {
+            if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("KNXUltimate-config: KNX Secure: error parsing the keyring XML: " + error.message);
+            node.jKNXSecureKeyring = null;
+            node.knxSecureSelected = false;
+            setTimeout(() => node.setAllClientsStatus("Error", "red", "KNX Secure " + error.message), 2000);
         }
-        if (node.knxSecureSelected) KNXSecureLoadKeyringFile();
+
 
         // 04/04/2021 Supergiovane, creates the service paths where the persistent files are created.
         // The values file is stored only upon disconnection/close
@@ -745,8 +754,12 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
 
                     },
                     // This is going to be called on every incoming messages (only group communication)
-                    event: function (evt, src, dest, rawValue, datagram) {
-                        handleBusEvents(evt, src, dest, rawValue, datagram);
+                    // event: function (evt, src, dest, rawValue, datagram) {
+                    //     handleBusEvents(evt, src, dest, rawValue, datagram);
+                    // }
+                    event: function (datagram) {
+                        // 15/11/2021
+                        handleBusEvents(datagram.cemi.apdu.apci, datagram.cemi.src_addr, datagram.cemi.dest_addr, datagram.cemi.apdu.data, datagram);
                     }
                 }
             };
@@ -1781,8 +1794,8 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
         node.timerSendTelegramFromQueue = setInterval(handleTelegramQueue, (config.delaybetweentelegrams === undefined || config.delaybetweentelegrams < 5) ? 40 : config.delaybetweentelegrams); // 02/01/2020 Start the timer that handles the queue of telegrams
 
         // 08/10/2021 Every xx seconds, i check if the connection is up and running
-        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("KNXUltimate-config: Autoconnection: " + (node.autoReconnect === 0 ? "no." : "yes, in " + node.autoReconnect + " seconds.") +" Node " + node.name);
-                
+        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("KNXUltimate-config: Autoconnection: " + (node.autoReconnect === 0 ? "no." : "yes, in " + node.autoReconnect + " seconds.") + " Node " + node.name);
+
         if (node.timerKNXUltimateCheckState !== null) clearInterval(node.timerKNXUltimateCheckState);
         if (node.autoReconnect > 0) {
             node.timerKNXUltimateCheckState = setInterval(() => {

@@ -9,11 +9,12 @@ const util = require('util')
 const ipaddr = require('ipaddr.js')
 const machina = require('machina')
 const KnxConstants = require('./KnxConstants.js')
+const Address = require('./Address.js')
 const IpRoutingConnection = require('./IpRoutingConnection.js')
 const IpTunnelingConnection = require('./IpTunnelingConnection.js')
 const KnxLog = require('./KnxLog.js')
-const Address = require('./Address.js')
-const { clearTimeout } = require('timers')
+
+//const { clearTimeout } = require('timers')
 
 
 /*
@@ -27,6 +28,8 @@ const DEFAULT_MINIMUM_DELAY = 20 // How long to wait after sending a message to 
 const DEFAULT_CONNSTATE_REQUEST_INTERVAL = 30000 // Request the connection state from the KNX-IP interface every 60 seconds by default
 const DEFAULT_CONNSTATE_RESPONSE_TIMEOUT = 10000 // 10 secs is the standard, wait for a connection state response before declaring a connecting lost by default
 const DEFAULT_CONNECTION_REQUEST_TIMEOUT = 10000 // Timeout for connection request
+
+
 
 const states = {
   uninitialized: {
@@ -167,6 +170,19 @@ const states = {
         // if (!this.localAddress) throw Error('Not bound to an IPv4 non-loopback interface') //11/02021 commentato 
         if (!this.localAddress) this.log.error(util.format('Not bound to an IPv4 non-loopback interface')) // 11/08/2021 Supergiovane
         this.log.debug(util.format('Connecting via %s...', sm.localAddress))
+
+
+        // // 24/03/2021 Supergiovane: some IP Interfaces (Enertex IP Interface, for example), leaves the tunnel open after networt disconnection
+        // // So i need to force disconnect and do a connect again.
+        // // **********************
+        // try {
+        //   this.send(this.prepareDatagram(KnxConstants.SERVICE_TYPE.DISCONNECT_REQUEST), function (err) {
+        //     // TODO: handle send err            
+        //     KnxLog.get().debug('(%s):\tsent DISCONNECT_REQUEST', sm.compositeState());
+        //   });
+        // } catch (error) { }
+        // // **********************
+
 
         delete this.channel_id
         delete this.conntime
@@ -438,7 +454,7 @@ const states = {
         if (confirmed) {
           msg = 'delivery confirmation (L_Data.con) received'
           delete this.sentTunnRequests[datagram.cemi.dest_addr]
-          this.emit('confirmed', confirmed)
+          //this.emit('confirmed', confirmed)
         } else {
           msg = 'unknown dest addr'
         }
@@ -644,7 +660,7 @@ const states = {
   recvTunnReqIndication: {
     _onEnter: function (datagram) {
       const sm = this;
-      sm.seqnumRecv = datagram.tunnstate.seqnum;
+      //sm.seqnumRecv = datagram.tunnstate.seqnum;
       sm.acknowledge(datagram);
       sm.transition('idle');
       this.log.trace('Supergiovane: recvTunnReqIndication (%s): %s', this.compositeState() || "", datagram.cemi.dest_addr || "");
@@ -721,25 +737,13 @@ const acknowledge = function (datagram) {
 // 22/03/2021 Supergiovane, added the cemi datagram.cemi.cemiETS for ETS export in knx-ultimate node.
 const emitEvent = function (datagram) {
 
-  // 24/03/2021 Supergiovane: change the value, from buffer to 3 level GA
-  if (typeof datagram.cemi.dest_addr !== "string") datagram.cemi.dest_addr = Address.toString(datagram.cemi.dest_addr, KnxConstants.KNX_ADDR_TYPES.GROUP);
+  // 15/11/2021 Emit only a single event
+  try {
+    datagram.cemi.dest_addr = Address.toString(datagram.cemi.dest_addr, KnxConstants.KNX_ADDR_TYPES.GROUP);
+    this.emit('event', datagram);
+  } catch (error) {
+  }
 
-  // emit events in a multitude of targets - ORDER IS IMPORTANT!
-  let evtName = datagram.cemi.apdu.apci
-
-  // 1. 'event_<dest_addr>', ''GroupValue_Write', src, data
-  this.emit(util.format('event_%s', datagram.cemi.dest_addr),
-    evtName, datagram.cemi.src_addr, datagram.cemi.apdu.data, datagram)
-
-  // 2. 'GroupValue_Write_1/2/3', src, data
-  this.emit(util.format('%s_%s', evtName, datagram.cemi.dest_addr),
-    datagram.cemi.src_addr, datagram.cemi.apdu.data, datagram)
-
-  // 3. 'GroupValue_Write', src, dest, data
-  this.emit(evtName, datagram.cemi.src_addr, datagram.cemi.dest_addr, datagram.cemi.apdu.data, datagram)
-
-  // 4. 'event', 'GroupValue_Write', src, dest, data
-  this.emit('event', evtName, datagram.cemi.src_addr, datagram.cemi.dest_addr, datagram.cemi.apdu.data, datagram)
 }
 const getIPv4Interfaces = function () {
   // get the local address of the IPv4 interface we're going to use

@@ -2,7 +2,6 @@
 * knxultimate-api - a KNX protocol stack in pure Javascript based on knx.js (originally written by Elias Karakoulakis)
 * (C) 2021 Supergiovane
 */
-const KnxLog = require('./KnxLog')
 const Parser = require('binary-parser').Parser
 const KnxConstants = require('./KnxConstants')
 
@@ -48,7 +47,7 @@ Address.toString = function (buf /* buffer */, addrtype /* ADDRESS_TYPE */, twoL
   let group = (addrtype === KnxConstants.KNX_ADDR_TYPES.GROUP)
   let address = null
 
-  // KnxLog.get().trace('%j, type: %d, %j', buf, addrtype, knxnetprotocol.twoLevelAddressing);
+
   if (!(typeof buf === 'object' && buf.constructor.name === 'Buffer' && buf.length === 2)) {
     throw Error('not a buffer, or not a 2-byte address buffer')
   }
@@ -71,7 +70,7 @@ Address.toString = function (buf /* buffer */, addrtype /* ADDRESS_TYPE */, twoL
 // parse address string to 2-byte Buffer
 Address.parse = function (addr /* string */, addrtype /* TYPE */, twoLevelAddressing) {
   if (!addr) {
-    KnxLog.get().warn('Fix your code - no address given to Address.parse')
+    return "";
   }
 
   let group = (addrtype === KnxConstants.KNX_ADDR_TYPES.GROUP)
