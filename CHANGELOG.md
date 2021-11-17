@@ -6,6 +6,9 @@
 
 <b>Version 1.2.55</b> - November 2021<br/>
 - Gateway servere node: recoding of some javascript parts, to increase speed to better accomodate the crypt/entrypt process of the upcoming KNX-Secure implementation.<br/>
+- KNX-Secure: succesfully read ETS Keyring file and decrypt of Devices keys, Group Address keys, Backbone Key, Management Key and Auth Key.<br/>
+- KNX-Secure: a shield icon near the Gateway name in the KNX Device node appears, if KNX-Secure gateway has been selected.<br/>
+- KNX-Secure: node-red log now logs wether the gateway is secure or not, ETS Keyring project name, created By and ETS version.<br/>
 </p>
 <p>
 <b>Version 1.2.54</b> - November 2021<br/>
