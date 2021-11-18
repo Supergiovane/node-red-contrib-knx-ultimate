@@ -989,7 +989,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                                     msg.previouspayload = typeof input.currentPayload !== "undefined" ? input.currentPayload : ""; // 24/01/2020 Added previous payload
                                     input.currentPayload = msg.payload;// Set the current value for the RBE input
                                     input.setNodeStatus({ fill: "green", shape: "dot", text: "", payload: msg.payload, GA: input.topic, dpt: input.dpt, devicename: "" });
-                                    input.handleSend(msg);
+                                    input.handleSend(msg);                                    
                                 };
                             };
                         });

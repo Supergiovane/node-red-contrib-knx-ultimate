@@ -4,6 +4,10 @@
 
 <br/>
 <p>
+<b>Version 1.2.56</b> - November 2021<br/>
+- FIX: hotfix echo in tunneling mode doesn't work since 1.2.55.<br/>
+</p>
+<p>
 <b>Version 1.2.55</b> - November 2021<br/>
 - Gateway servere node: recoding of some javascript parts, to increase speed to better accomodate the crypt/entrypt process of the upcoming KNX-Secure implementation.<br/>
 - KNX-Secure: succesfully read ETS Keyring file and decrypt of Devices keys, Group Address keys, Backbone Key, Management Key and Auth Key.<br/>

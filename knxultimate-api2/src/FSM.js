@@ -739,9 +739,10 @@ const emitEvent = function (datagram) {
 
   // 15/11/2021 Emit only a single event
   try {
-    datagram.cemi.dest_addr = Address.toString(datagram.cemi.dest_addr, KnxConstants.KNX_ADDR_TYPES.GROUP);
+    if (typeof datagram.cemi.dest_addr !== "string") datagram.cemi.dest_addr = Address.toString(datagram.cemi.dest_addr, KnxConstants.KNX_ADDR_TYPES.GROUP);
     this.emit('event', datagram);
   } catch (error) {
+    console.log("FIGA ERRORE", error, datagram)
   }
 
 }
