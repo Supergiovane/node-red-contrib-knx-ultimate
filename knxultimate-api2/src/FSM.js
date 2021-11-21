@@ -688,12 +688,13 @@ const initialize = function (options) {
   this.isTunnelConnected = false; // 08/04/2021 Supergiovane: signal that the tunnel is up or down
   this.useTunneling = options.forceTunneling || false
   this.localEchoInTunneling = typeof options.localEchoInTunneling !== "undefined" ? options.localEchoInTunneling : true; // 24/03/2021 Supergiovane (local echo of emitEvent if in tunneling mode)
+  this.isSecureKNXEnabled = options.isSecureKNXEnabled || false; // Is using KNX-Secure?
 
-  this.remoteEndpoint = {
-    addrstring: options.ipAddr,
-    addr: ipaddr.parse(options.ipAddr),
-    port: options.ipPort || 3671
-  }
+    this.remoteEndpoint = {
+      addrstring: options.ipAddr,
+      addr: ipaddr.parse(options.ipAddr),
+      port: options.ipPort || 3671
+    }
 
   let range = this.remoteEndpoint.addr.range()
   this.log.debug('initializing %s connection to %s', range, this.remoteEndpoint.addrstring)

@@ -855,8 +855,19 @@ KnxProtocol.define('KNXNetHeader', {
             this.buffer.length + hdr.header_length, this.total_length)
         }
         //! Sono arrivato qui
-        // 27/07/2021 check if the frame is secured
-        //hdr.isSecure = hdr.protocol_version == KnxConstants.PROTOCOL_VERSION.KNXNETIP_VERSION_10 && ((service_type & KnxConstants.KNX_SECURE.SecureWrapper) == KnxConstants.KNX_SECURE.SecureWrapper);
+        // 18/11/2021 check if the frame is secured
+       //hdr.isSecure = hdr.protocol_version == KnxConstants.PROTOCOL_VERSION.KNXNETIP_VERSION_13;
+       //console.log("BANANA HEADER",hdr);
+
+        // console.log("BANANA", this.isSecureKNXEnabled, hdr);
+        // if (this.isSecureKNXEnabled !== undefined) {
+        //   if (this.isSecureKNXEnabled && hdr.protocol_version !== KnxConstants.PROTOCOL_VERSION.KNXNETIP_VERSION_13) {
+        //     console.log("Ricevuto header non Secure, scarto");
+        //     throw new Error("Unsecure Header received while secure-knx was enabled.");
+        //   } else {
+        //     console.log("Ricevuto header Secure, procedo")
+        //   };
+        // }
 
         switch (hdr.service_type) {
           //        case SERVICE_TYPE.SEARCH_REQUEST:

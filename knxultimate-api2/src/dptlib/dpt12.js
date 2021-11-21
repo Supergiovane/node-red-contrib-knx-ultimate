@@ -43,7 +43,19 @@ return msg;`
 exports.subtypes = {
   // 12.001 counter pulses
   "001": {
-    "name": "Counter pulses (unsigned)", "desc": "counter pulses"
+    "name": "Counter pulses (unsigned)", "desc": "Counter pulses"
+  },
+  "100": {
+    "name": "Counter timesec (s)", "desc": "Counter timesec (s)"
+  },
+  "101": {
+    "name": "Counter timemin (min)", "desc": "Counter timemin (min)"
+  },
+  "102": {
+    "name": "Counter timehrs (h)", "desc": "Counter timehrs (h)"
+  },
+  "1200": {
+    "name": "Volume liquid (l)", "desc": "Volume liquid (l)"
   },
   "1201": {
     "name": "Volume (m3)", "desc": "Volume m3"

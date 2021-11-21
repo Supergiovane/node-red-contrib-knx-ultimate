@@ -4,6 +4,14 @@
 
 <br/>
 <p>
+<b>Version 1.2.57</b> - November 2021<br/>
+- Added following datapoints:<br/>
+- 12.100 counter timesec (s)<br/>
+- 12.101 counter timemin (min)<br/>
+- 12.102 counter timehrs (h)<br/>
+- 12.1200 volume liquid (l)<br/>
+</p>
+<p>
 <b>Version 1.2.56</b> - November 2021<br/>
 - FIX: hotfix echo in tunneling mode doesn't work since 1.2.55.<br/>
 </p>

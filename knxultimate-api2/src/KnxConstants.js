@@ -229,7 +229,8 @@ KnxConstants.KNX_RSM_CMDS = {
 
 // KNX protocol version 27/07/2021
 KnxConstants.PROTOCOL_VERSION = {
-  KNXNETIP_VERSION_10 : 0x10
+  KNXNETIP_VERSION_10 : 0x10,
+  KNXNETIP_VERSION_13 : 0x13 // Secure
 }
 
 // The broadcast group address on every KNX bus

@@ -26,22 +26,23 @@ const onUdpSocketMessage = function (msg /*, rinfo, callback */) {
   //   // DISCONNECT_RESPONSE:  0x020a,
   //   var pera =true;
   // }
-
+  
   try {
     let reader = KnxNetProtocol.createReader(msg)
     let dg
-
+    
     reader.KNXNetHeader('tmp')
-
+    
     if (reader.next()['tmp']) {
       dg = reader.next()['tmp']
     }
-
+    
     /* Catch broken messages       */
     if (dg) {
       /*******************************/
       // if (pera === true) console.log ("BANANA OCCHIO PERA TRUE",msg.toString("hex"),dg)
       const descr = this.datagramDesc(dg)
+      
 
       KnxLog.get().trace('(%s): Received %s message: %j', this.compositeState(), descr, dg)
 
@@ -84,7 +85,6 @@ const onUdpSocketMessage = function (msg /*, rinfo, callback */) {
     }
     /*******************************/
   } catch (err) {
-    console.trace(err)
     KnxLog.get().debug('(%s): Incomplete/unparseable UDP packet: %s: %s',
       this.compositeState(), err, msg.toString()
     );
@@ -214,17 +214,17 @@ const send = function (datagram, callback) {
 
   if (datagram.constructor !== Buffer) {
     try {
-      this.writer = KnxNetProtocol.createWriter()      
-    } catch (error) {      
+      this.writer = KnxNetProtocol.createWriter()
+    } catch (error) {
     }
 
 
     // Forge the datagram
     try {
-      ret = this.writer.KNXNetHeader(datagram)  
-    } catch (error) {      
+      ret = this.writer.KNXNetHeader(datagram)
+    } catch (error) {
     }
-    
+
 
     // Check if ret.buffer is null ==> if this.writer.KNXNetHeader() failed
     if (ret === null || ret.buffer === null) {
@@ -376,7 +376,7 @@ const Disconnect = function (/* cb */) {
     //KnxLog.get().info('Socket disconnected.');
     //console.log("BANANA Socket disconnected.")
     //this.socket.disconnect();
-  } catch (error) { 
+  } catch (error) {
     //console.log("BANANA ORRORE Socket disconnected.",error)
   }
   try {

@@ -177,8 +177,8 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                 if (node.knxSecureSelected) {
                     node.jKNXSecureKeyring = await knx.KNXSecureKeyring.load(node.keyringFileXML, node.credentials.keyringFilePassword);
                     RED.log.info("KNX-Secure: Keyring for ETS proj " + node.jKNXSecureKeyring.ETSProjectName + ", created by " + node.jKNXSecureKeyring.ETSCreatedBy + " on " + node.jKNXSecureKeyring.ETSCreated + " succesfully validated with provided password, using node " + node.name || node.id);
-                }else{
-                    RED.log.info("KNX-Unsecure: connection to insecure interface/router using node " + node.name || node.id);                    
+                } else {
+                    RED.log.info("KNX-Unsecure: connection to insecure interface/router using node " + node.name || node.id);
                 }
             })();
         } catch (error) {
@@ -612,7 +612,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
         };
 
 
-        //08/10/2021 Called from the Watchdog or other nodes needing to set the properties
+        // 08/10/2021 
         var knxConnectionProperties = null;
         setKnxConnectionProperties = () => {
             // 25/08/2021 Moved out of node.initKNXConnection 
@@ -627,6 +627,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                 autoReconnect: false,
                 reconnectDelayMs: 5000,
                 manualConnect: true,
+                isSecureKNXEnabled: node.knxSecureSelected,
                 TTL: 128, // 11/11/2021 Supergiovane: added adjustable TTL (128 is wrote on the Gira Router PDF user manual)
                 //minimumDelay: 60, // With api2 it works again, but better handling it on knx-ultimate queue
                 handlers: {
@@ -989,7 +990,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                                     msg.previouspayload = typeof input.currentPayload !== "undefined" ? input.currentPayload : ""; // 24/01/2020 Added previous payload
                                     input.currentPayload = msg.payload;// Set the current value for the RBE input
                                     input.setNodeStatus({ fill: "green", shape: "dot", text: "", payload: msg.payload, GA: input.topic, dpt: input.dpt, devicename: "" });
-                                    input.handleSend(msg);                                    
+                                    input.handleSend(msg);
                                 };
                             };
                         });
