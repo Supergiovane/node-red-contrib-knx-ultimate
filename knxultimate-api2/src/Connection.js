@@ -26,23 +26,23 @@ const onUdpSocketMessage = function (msg /*, rinfo, callback */) {
   //   // DISCONNECT_RESPONSE:  0x020a,
   //   var pera =true;
   // }
-  
+
   try {
     let reader = KnxNetProtocol.createReader(msg)
     let dg
-    
+
     reader.KNXNetHeader('tmp')
-    
+
     if (reader.next()['tmp']) {
       dg = reader.next()['tmp']
     }
-    
+
     /* Catch broken messages       */
     if (dg) {
       /*******************************/
       // if (pera === true) console.log ("BANANA OCCHIO PERA TRUE",msg.toString("hex"),dg)
       const descr = this.datagramDesc(dg)
-      
+
 
       KnxLog.get().trace('(%s): Received %s message: %j', this.compositeState(), descr, dg)
 
@@ -59,12 +59,15 @@ const onUdpSocketMessage = function (msg /*, rinfo, callback */) {
         /*******************************/
 
         // 23/03/2021 Supergiovane: Added the CEMI telegram for ETS Diagnostic
+        // 061004200015044400002900bce0111d000f010081
         // #####################################################################
         if (dg.hasOwnProperty("cemi") && typeof dg.cemi !== "undefined") {
           if (dg.hasOwnProperty("header_length") && typeof dg.header_length === "number") {
             try {
               var iStart = dg.header_length;
-              if (dg.hasOwnProperty("tunnstate") && dg.tunnstate.hasOwnProperty("header_length") && typeof dg.tunnstate.header_length === "number") iStart += dg.tunnstate.header_length; // Add the tunnel lenght
+              if (dg.hasOwnProperty("tunnstate") && dg.tunnstate.hasOwnProperty("header_length") && typeof dg.tunnstate.header_length === "number") {
+                iStart += dg.tunnstate.header_length; // Add the tunnel lenght                
+              }
               dg.cemi.cemiETS = msg.toString("hex").substring(iStart * 2);
             } catch (error) { dg.cemi.cemiETS = ""; }
           } else {
@@ -291,7 +294,7 @@ const respond = function (grpaddr, value, dptid) {
     : KnxConstants.SERVICE_TYPE.ROUTING_INDICATION
   this.Request(serviceType, function (datagram) {
     DPTLib.populateAPDU(value, datagram.cemi.apdu, dptid)
-    // this is a READ request
+    // this is a response request
     datagram.cemi.apdu.apci = 'GroupValue_Response'
     datagram.cemi.dest_addr = grpaddr
     return datagram

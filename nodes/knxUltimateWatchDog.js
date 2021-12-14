@@ -158,13 +158,13 @@ module.exports = function (RED) {
             // This new thing has been requested by proServ RealKNX staff.
             if (msg.hasOwnProperty("setGatewayConfig")) {
 
-                node.server.setGatewayConfig(msg.setGatewayConfig.IP, msg.setGatewayConfig.Port, msg.setGatewayConfig.PhysicalAddress, msg.setGatewayConfig.BindToEthernetInterface);
+                node.server.setGatewayConfig(msg.setGatewayConfig.IP, msg.setGatewayConfig.Port, msg.setGatewayConfig.PhysicalAddress, msg.setGatewayConfig.BindToEthernetInterface, msg.setGatewayConfig.Protocol);
                 msg = {
                     type: "setGatewayConfig",
                     checkPerformed: "The Watchdog node changed the gateway configuration.",
                     nodeid: node.id,
                     payload: true,
-                    description: "New Config issued to the gateway. IP:" + (msg.setGatewayConfig.IP || "Unchanged") + " Port:" + (msg.setGatewayConfig.Port || "Unchanged") + " PhysicalAddress:" + (msg.setGatewayConfig.PhysicalAddress || "Unchanged") + " BindLocalInterface:" + (msg.setGatewayConfig.BindToEthernetInterface || "Unchanged"),
+                    description: "New Config issued to the gateway. IP:" + (msg.setGatewayConfig.IP || "Unchanged") + " Port:" + (msg.setGatewayConfig.Port || "Unchanged") + " PhysicalAddress:" + (msg.setGatewayConfig.PhysicalAddress || "Unchanged") + " Protocol:" + (msg.setGatewayConfig.Protocol || "Unchanged") + " BindLocalInterface:" + (msg.setGatewayConfig.BindToEthernetInterface || "Unchanged"),
                     completeError: ""
                 };
                 node.send(msg);

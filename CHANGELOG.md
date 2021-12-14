@@ -4,6 +4,21 @@
 
 <br/>
 <p>
+<b>Version 1.3.0</b> - December 2021<br/>
+- Major version with totally rewritten KNX API, in pure Javascript.<br/>
+- KNX-Secure: not ready yet. I think not before the 1° quarter of 2022 because i'm learning the MANY cryptograhics algorithms of this Secure thing. Already done are the loading/checking against password of the ETS Keyring file, the new TCP stack (will come toghether with the already present UDP stack) and the first connection handshake between KNX-Ultimate and a KNX/IP Interface via TCP tunnel, using the DH Curve25519 algorythm. SOMEONE INTERESTED HELPING ME WITH THE DEVELOPMENT (FOR FREE)?<br/>
+- NEW: new KNX API developed in these months. This new API is more speedy, more mantainable (get rid of the old "machina" framework) and ready to accomodate the natively supports KNX-Secure.<br/>
+- NEW: ETS Logger: now the node logs the sent packets as well (previously, it was recording only the received ones).<br/>
+- NEW: KNX-Ultimate now supports TCP connection as well (for KNX Secure tunneling). All protocols are now supported (UDP Routing and Tunneling, TCP).<br/>
+- NEW: You can now choose the IP protocol to be used for the gateway.<br/>
+- NEW: WatchDog node: You can now set the communication protocol (TunnelingUDP, TunnelingTCP, Multicast) using msg.setGatewayConfig.Protocol. Updated the Wiki as well to reflect the change.<br/>
+- FIX: Watchdog node's setConfig sat the wrong configuration in case of more than one node gateway simultaneously active on the same flow.<br/>
+- FIX: Manually setting interface in a gateway node set to multicast address, resulting in the gateway bond to all interfaces, causing some issues in receiving datagrams on systems having more than one ethernet interface active at the same time.<br/>
+- FIX: KNX-Device: if the node was set to react to "Read" requests and "Autorespond" was also enabled and "Autorespond with default value if no payload is present" was also active, in some circumstances the "response" telegram was sent to a wrong group address.<br/>
+- FIX: Config gateway: the custom delay between Telegrams sent to the KNX BUS was locked to the safe mimimum of 40ms, even if you sat a lower value. Now is fixed, but proceed with caution if you set a low value. 50ms should be the safe-default.<br/>
+- FIX: Config gateway: suppress acknowledge telegram now work as expected, totally ignoring received Acknowledges and don't ask for any as well. Prior was only ignoring the received Acknowledges.<br/>
+</p>
+<p>
 <b>Version 1.2.57</b> - November 2021<br/>
 - Added following datapoints:<br/>
 - 12.100 counter timesec (s)<br/>

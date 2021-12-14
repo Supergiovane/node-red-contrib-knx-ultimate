@@ -3,7 +3,7 @@
         "properties": {
             "helplink" : "&nbsp<i class=\"fa fa-question-circle\"></i>&nbsp<a target=\"_blank\" href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/de-1.-Gateway-configuration\"><u>Hilfe Konfiguration</u></a>",
             "title": "KNX/IP Gateway Konfiguration",
-            "host": "Gateway IP",
+            "host": "IP",
             "host_info": "Als Standard IP wird die Multicast Addresse von KNX/IP verwendet (224.0.23.12)",
             "port": "Port",
             "port_info": "Als Standard Port wird der Port von KNX/IP verwendet (3671)",
@@ -39,7 +39,7 @@
             "select_warning": "Warnung",
             "select_error": "Fehler (Standard)",
             "localEchoInTunneling":"Echo von gesendeten Telegram an alle Nodes mit gleichen Gruppenadressen",
-            "tiphost": "Multicast und Unicast Adressen, mit automatischer Erkennung. Schreiben Sie EMULATE anstelle der IP-Adresse, um ein Gateway zu simulieren (das Gateway stellt keine Verbindung zum KNX-BUS her).",
+            "tiphost": "Schreiben Sie EMULATE anstelle der IP-Adresse, um ein Gateway zu simulieren (das Gateway stellt keine Verbindung zum KNX-BUS her).",
             "delaybetweentelegrams": "Verzögerung zwischen jedem Telegramm (in Millisekunden)",
             "delaybetweentelegramsfurtherdelayREAD" : "und weitere Verzögerung nur zwischen -lese- Telegrammen multiplizieren",
             "exposeAsVariable" : "Als global Variable verfügbar machen",

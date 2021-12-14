@@ -120,7 +120,7 @@ You can send RAW buffers directly to the bus.
 </details>
 <details><summary>Gateway simulation</summary>
 
-By putting **EMULATE** in the gateway IP field, the gateway node will not write to the KNX BUS. Useful for simulations and classsrooms.
+By putting **EMULATE** in the IP field, the gateway node will not write to the KNX BUS. Useful for simulations and classsrooms.
 
 </details>
 
