@@ -16,10 +16,7 @@
             "secureKNX" : "Sicher KNX Verbindung",
             "autoReconnect" : "Beim Start automatisch mit dem KNX BUS verbinden",
             "autoReconnect_yes" : "Ja",
-            "autoReconnect_no" : "Nein (Um eine Verbindung herzustellen, senden msg.connectGateway = true an einen Watchdog Knot)",
-            "autoReconnect_yesAfter30Seconds": "Ja, aber nach 30 Sekunden.",
-            "autoReconnect_yesAfter60Seconds": "Ja, aber nach 1 Minute.",
-            "autoReconnect_yesAfter120Seconds": "Ja, aber nach 3 Minuten."
+            "autoReconnect_no" : "Nein (Um eine Verbindung herzustellen, senden msg.connectGateway = true an einen Watchdog Knot)"
         },
         "advanced": {
             "knx_phy_addr": "KNX-Adresse",

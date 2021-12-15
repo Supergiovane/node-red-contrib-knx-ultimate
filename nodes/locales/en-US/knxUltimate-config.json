@@ -16,10 +16,7 @@
             "secureKNX" : "Secure KNX connection",
             "autoReconnect" : "Automatically connect to KNX BUS at start",
             "autoReconnect_yes" : "Yes",
-            "autoReconnect_no" : "No (To connect, pass msg.connectGateway = true to a Watchdog node)",
-            "autoReconnect_yesAfter30Seconds": "Yes, but after 30 seconds.",
-            "autoReconnect_yesAfter60Seconds": "Yes, but after 1 minute.",
-            "autoReconnect_yesAfter120Seconds": "Yes, but after 3 minutes."
+            "autoReconnect_no" : "No (To connect, pass msg.connectGateway = true to a Watchdog node)"
         },
         "advanced": {
             "knx_phy_addr": "KNX Physical Address",

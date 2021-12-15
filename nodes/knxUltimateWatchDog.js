@@ -129,7 +129,7 @@ module.exports = function (RED) {
             if (typeof msg === "undefined") return;
 
             if (msg.hasOwnProperty("start")) {
-                if (Boolean(msg.start) === true) {
+                if (msg.start === true) {
                     node.StartWatchDogTimer();
                 }
                 else {
@@ -140,26 +140,12 @@ module.exports = function (RED) {
 
             if (node.server === undefined) return;
 
-            // 05/05/2021 force connection/disconnectio of the gateway
-            if (msg.hasOwnProperty("connectGateway")) {
-                node.server.connectGateway(msg.connectGateway);
-                msg = {
-                    type: "connectGateway",
-                    checkPerformed: "The Watchdog issued a connection/disconnection to the gateway.",
-                    nodeid: node.id,
-                    payload: msg.connectGateway,
-                    description: "Connection",
-                    completeError: ""
-                };
-                node.send(msg);
-            }
-
             // 01/02/2020 Dinamic change of the KNX Gateway IP, Port and Physical Address
             // This new thing has been requested by proServ RealKNX staff.
             if (msg.hasOwnProperty("setGatewayConfig")) {
 
                 node.server.setGatewayConfig(msg.setGatewayConfig.IP, msg.setGatewayConfig.Port, msg.setGatewayConfig.PhysicalAddress, msg.setGatewayConfig.BindToEthernetInterface, msg.setGatewayConfig.Protocol);
-                msg = {
+                let ret = {
                     type: "setGatewayConfig",
                     checkPerformed: "The Watchdog node changed the gateway configuration.",
                     nodeid: node.id,
@@ -167,10 +153,22 @@ module.exports = function (RED) {
                     description: "New Config issued to the gateway. IP:" + (msg.setGatewayConfig.IP || "Unchanged") + " Port:" + (msg.setGatewayConfig.Port || "Unchanged") + " PhysicalAddress:" + (msg.setGatewayConfig.PhysicalAddress || "Unchanged") + " Protocol:" + (msg.setGatewayConfig.Protocol || "Unchanged") + " BindLocalInterface:" + (msg.setGatewayConfig.BindToEthernetInterface || "Unchanged"),
                     completeError: ""
                 };
-                node.send(msg);
-                // 20/02/2020 Restart watchdog timer from scratch
-                node.StartWatchDogTimer();
+                node.send(ret);
             };
+
+            // 05/05/2021 force connection/disconnectio of the gateway
+            if (msg.hasOwnProperty("connectGateway")) {
+                node.server.connectGateway(msg.connectGateway);
+                let ret = {
+                    type: "connectGateway",
+                    checkPerformed: "The Watchdog issued a connection/disconnection to the gateway.",
+                    nodeid: node.id,
+                    payload: msg.connectGateway,
+                    description: "Connection",
+                    completeError: ""
+                };
+                node.send(ret);
+            }
 
         });
 

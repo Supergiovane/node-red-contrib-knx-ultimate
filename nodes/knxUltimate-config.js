@@ -138,12 +138,11 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
             node.sysLogger = require("./utils/sysLogger.js").get({ loglevel: node.loglevel }); // 08/04/2021 new logger to adhere to the loglevel selected in the config-window            
         } catch (error) { }
         // 12/11/2021 Connect at start delay
-        if (config.autoReconnect === "no") node.autoReconnect = 0;
-        if (config.autoReconnect === undefined) node.autoReconnect = 5;
-        if (config.autoReconnect === "yes") node.autoReconnect = 5;
-        if (config.autoReconnect === "yes30") node.autoReconnect = 30;
-        if (config.autoReconnect === "yes60") node.autoReconnect = 60;
-        if (config.autoReconnect === "yes120") node.autoReconnect = 120;
+        if (config.autoReconnect === "no" || config.autoReconnect === false) {
+            node.autoReconnect = false;
+        } else {
+            node.autoReconnect = true;
+        }
         node.ignoreTelegramsWithRepeatedFlag = (config.ignoreTelegramsWithRepeatedFlag === undefined ? false : config.ignoreTelegramsWithRepeatedFlag);
         // 24/07/2021 KNX Secure checks...
         node.keyringFileXML = (typeof config.keyringFileXML === "undefined" || config.keyringFileXML.trim() === "") ? "" : config.keyringFileXML;
@@ -153,8 +152,8 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
         node.lockHandleTelegramQueue = false; // 12/11/2021 Lock sending telegrams if node disconnected or if already handling the queue
         node.knxConnectionProperties = null; // Retains the connection properties
 
-        // 05/12/2021 Set the protocol (this is undefined if coming from ild versions
-        if (config.hostProtocol === undefined) {
+        // 15/12/2021
+        node.adaptProtocolBasedOnIP = () => {
             // Auto set protocol based on IP            
             if (node.host.startsWith("224.") ||
                 node.host.startsWith("225.") ||
@@ -167,6 +166,12 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
             } else {
                 node.hostProtocol = "TunnelUDP";
             }
+            if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("IP Protocol auto adapded to " + node.hostProtocol + ", based on IP " + node.host);
+        }
+
+        // 05/12/2021 Set the protocol (this is undefined if coming from ild versions
+        if (config.hostProtocol === undefined) {
+            node.adaptProtocolBasedOnIP();
         } else {
             node.hostProtocol = config.hostProtocol;
         }
@@ -434,7 +439,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                     }
                 }
                 // Add _Node to the clients array
-                if (node.autoReconnect > 0) {
+                if (node.autoReconnect) {
                     _Node.setNodeStatus({ fill: "grey", shape: "ring", text: "Node initialized.", payload: "", GA: "", dpt: "", devicename: "" });
                 } else {
                     _Node.setNodeStatus({ fill: "red", shape: "ring", text: "Autoconnect disabled. Please manually connect.", payload: "", GA: "", dpt: "", devicename: "" });
@@ -571,25 +576,17 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
             if (typeof _iPort !== "undefined" && _iPort !== 0) node.port = _iPort;
             if (typeof _sPhysicalAddress !== "undefined" && _sPhysicalAddress !== "") node.physAddr = _sPhysicalAddress;
             if (typeof _sBindToEthernetInterface !== "undefined") node.KNXEthInterface = _sBindToEthernetInterface;
-            if (typeof _Protocol !== "undefined") node.hostProtocol = _Protocol;
+            if (_Protocol === undefined) {
+                node.adaptProtocolBasedOnIP();
+            } else { node.hostProtocol = _Protocol; }
+
             if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("Node's main config setting has been changed. New config: IP " + node.host + " Port " + node.port + " PhysicalAddress " + node.physAddr + " BindToInterface " + node.KNXEthInterface);
 
             try {
-                var oldReconnect = node.autoReconnect;
-                node.autoReconnect = 0; // Disable Autoreconnect
                 node.Disconnect();
                 node.setKnxConnectionProperties();
                 node.setAllClientsStatus("CONFIG", "yellow", "KNXUltimage-config:setGatewayConfig: disconnected by new setting...");
                 if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.debug("KNXUltimage-config:setGatewayConfig: disconnected by setGatewayConfig. AutoReconnect = " + oldReconnect);
-
-                // 08/10/2021 Adjust the connection properties as well
-                setTimeout(() => {
-                    node.setAllClientsStatus("CONFIG", "yellow", "Reconnecting after setGatewayConfig");
-                    setTimeout(() => node.setAllClientsStatus("CONFIG", "yellow", "New config: IP " + node.host + " Port " + node.port + " PhysicalAddress " + node.physAddr + " BindToInterface " + node.KNXEthInterface), 1000)
-                    node.autoReconnect = oldReconnect; // Disable Autoreconnect
-                    if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.debug("KNXUltimage-config:setGatewayConfig: reconnected from AutoReconnect = " + node.autoReconnect);
-                }, 10000);
-
             } catch (error) { }
 
         };
@@ -605,12 +602,12 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                 try {
                     node.Disconnect();
                     node.setAllClientsStatus("CONFIG", "yellow", "Forced GW connection from watchdog.");
-                    node.autoReconnect = 5;
+                    node.autoReconnect = true;
                 } catch (error) { }
             } else {
                 // DISCONNECT AND DISABLE RECONNECTION ATTEMPTS
                 try {
-                    node.autoReconnect = 0;
+                    node.autoReconnect = false;
                     node.Disconnect();
                     setTimeout(() => {
                         node.setAllClientsStatus("CONFIG", "yellow", "Forced GW disconnection and stop reconnection attempts, from watchdog.");
@@ -1745,16 +1742,14 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
 
         // 12/11/2021 Starts the telegram out queue handler
         if (node.timerSendTelegramFromQueue !== null) clearInterval(node.timerSendTelegramFromQueue);
-        node.timerSendTelegramFromQueue = setInterval(handleTelegramQueue, (config.delaybetweentelegrams === undefined || config.delaybetweentelegrams < 5) ? 40 : config.delaybetweentelegrams); // 02/01/2020 Start the timer that handles the queue of telegrams
+        node.timerSendTelegramFromQueue = setInterval(handleTelegramQueue, (config.delaybetweentelegrams === undefined || config.delaybetweentelegrams < 30) ? 30 : config.delaybetweentelegrams); // 02/01/2020 Start the timer that handles the queue of telegrams
 
         // 08/10/2021 Every xx seconds, i check if the connection is up and running
-        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("KNXUltimate-config: Autoconnection: " + (node.autoReconnect === 0 ? "no." : "yes, in " + node.autoReconnect + " seconds.") + " Node " + node.name);
+        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("KNXUltimate-config: Autoconnection: " + (node.autoReconnect === false ? "no." : "yes") + " Node " + node.name);
         if (node.timerKNXUltimateCheckState !== null) clearInterval(node.timerKNXUltimateCheckState);
-        if (node.autoReconnect > 0) {
-            node.timerKNXUltimateCheckState = setInterval(() => {
-                if (node.linkStatus === "disconnected" && node.autoReconnect > 0) node.initKNXConnection();
-            }, node.autoReconnect * 1000);
-        }
+        node.timerKNXUltimateCheckState = setInterval(() => {
+            if (node.linkStatus === "disconnected" && node.autoReconnect) node.initKNXConnection();
+        }, 10000);
 
 
 
