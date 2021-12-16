@@ -6,7 +6,7 @@
             port: { value: 3671, required: true, validate: RED.validators.number() },
             // the KNX physical address we'd like to use
             physAddr: { value: "15.15.22", required: true },
-            hostProtocol: { value: "TunnelUDP", required: false }, // TunnelUDP/TunnelTCP/Multicast
+            hostProtocol: { value: "Multicast", required: false }, // TunnelUDP/TunnelTCP/Multicast
             // enable this option to suppress the acknowledge flag with outgoing L_Data.req requests. LoxOne needs this
             suppressACKRequest: { value: true },
             csv: { value: "", required: false },
@@ -19,12 +19,12 @@
             loglevel: { value: "error" },
             name: { value: "KNX Gateway" },
             localEchoInTunneling: { value: true },
-            delaybetweentelegrams: { value: 40, required: false },
+            delaybetweentelegrams: { value: 50, required: false },
             delaybetweentelegramsfurtherdelayREAD: { value: 1, required: false },
             ignoreTelegramsWithRepeatedFlag: { value: false, required: false },
             keyringFileXML: { value: "" },
             knxSecureSelected: { value: false },
-            autoReconnect: { value: "yes" }
+            autoReconnect: { value: true }
         },
         credentials: {
             keyringFilePassword: { type: "password" }
@@ -219,12 +219,12 @@
             <select id="node-config-input-hostProtocol" style="margin-left:10px; width:140px;">
                 <option value="TunnelUDP" >Tunnel UDP (KNX Unsecure)</option>
                 <option value="Multicast" >Multicast (KNX Unsecure)</option>
-                <option value="TunnelTCP" >Tunnel TCP (KNX Secure)</option>
+                <!-- KNXSECUREDAATTIVARE <option value="TunnelTCP" >Tunnel TCP (KNX Secure)</option> -->
             </select>   
         </div>
     
     <!-- KNX Secure / Unsecure tabbed selector-->
-    <div id="tabsMain" >
+    <div id="tabsMain" style="display: none;">
         <ul>
           <li><a href="#unsecureKNX"><i class="fa fa-circle-o"></i>&nbsp;<span data-i18n="knxUltimate-config.properties.unsecureKNX"></span></a></li>
           <li><a href="#SecureKNX"><i class="fa fa-shield"></i>&nbsp;<span data-i18n="knxUltimate-config.properties.secureKNX"></span></a></li>
@@ -233,7 +233,7 @@
             <p>
             </p>
          </div>
-        <div id="SecureKNX" style="margin: 5px 5px 5px 5px;">
+        <div id="SecureKNX" style="margin: 5px 5px 5px 5px;" >
             <p>
                 <p>WARNING: FUNCTION NOT ENABLED. KNX SECURE WILL BE ACTIVE ON EARLY 2022</p>
                 <div class="form-row">
