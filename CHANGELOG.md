@@ -13,7 +13,7 @@
 - NEW: ETS Logger: now the node logs the sent packets as well (previously, it was recording only the received ones).<br/>
 - NEW: KNX-Ultimate now supports TCP connection as well (for KNX Secure tunneling). All protocols are now supported (UDP Routing and Tunneling, TCP).<br/>
 - NEW: You can now choose the IP protocol to be used for the gateway.<br/>
-- NEW: WatchDog node: You can now set the communication protocol (TunnelingUDP, TunnelingTCP, Multicast) using msg.setGatewayConfig.Protocol. Updated the Wiki as well to reflect the change.<br/>
+- NEW: WatchDog node: You can now set the communication protocol (TunnelingUDP, Multicast) using msg.setGatewayConfig.Protocol. Updated the Wiki as well to reflect the change.<br/>
 - FIX: Watchdog node's setConfig sat the wrong configuration in case of more than one node gateway simultaneously active on the same flow.<br/>
 - FIX: Manually setting interface in a gateway node set to multicast address, resulting in the gateway bond to all interfaces, causing some issues in receiving datagrams on systems having more than one ethernet interface active at the same time.<br/>
 - FIX: KNX-Device: if the node was set to react to "Read" requests and "Autorespond" was also enabled and "Autorespond with default value if no payload is present" was also active, in some circumstances the "response" telegram was sent to a wrong group address.<br/>
