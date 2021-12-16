@@ -6,7 +6,7 @@
 <p>
 <b>Version 1.3.0</b> - December 2021<br/>
 ---- MAJOR VERSION WITH TOTALLY REWRITTEN KNX API, IN PURE JAVASCRIPT ----<br/>
----- IF YOU ENCOUNTER ISSUES, JUST INSTALL THE LAST OLD VERSION WITH npm install node-red-knx-ultimate@1.2.57 ----<br/>
+---- IF YOU ENCOUNTER ISSUES, JUST INSTALL THE LAST OLD VERSION WITH:npm install node-red-knx-ultimate@1.2.57 ----<br/>
 ---- PLEASE BE AWARE THAT ALL PREVIOULSY KNX SECURE OPTIONS HAVE BEEN HIDDEN UNTIL READY TO BE RELEASED, TO AVOID CONFUSIONS ----<br/>
 - KNX-Secure: not ready yet. I think not before the 1° quarter of 2022 because i'm learning the MANY cryptograhics algorithms of this Secure thing. Already done are the loading/checking against password of the ETS Keyring file, the new TCP stack (will come toghether with the already present UDP stack) and the first connection handshake between KNX-Ultimate and a KNX/IP Interface via TCP tunnel, using the DH Curve25519 algorythm. SOMEONE INTERESTED HELPING ME WITH THE DEVELOPMENT (FOR FREE)?<br/>
 - NEW: new KNX API developed in these months. This new API is more speedy, more mantainable (get rid of the old "machina" framework) and ready to accomodate the natively supports KNX-Secure.<br/>
