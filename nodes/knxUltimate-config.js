@@ -822,7 +822,12 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
             // }
 
             // _rawValue
-            _rawValue = _datagram.cEMIMessage.npdu.dataValue;
+            try {
+                _rawValue = _datagram.cEMIMessage.npdu.dataValue;
+            } catch (error) {
+                return;
+            }
+
 
             // _evt
             if (_datagram.cEMIMessage.npdu.isGroupRead) _evt = "GroupValue_Read";
@@ -846,9 +851,19 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
             // #####################################################################
             let _cemiETS = "";
             if (_CEMI !== undefined && _CEMI !== null) {
+                // I'm receiving a telegram from the BUS
                 try {
-                    var iStart = _datagram._header._headerLength + 4;
-                    _cemiETS = _CEMI.toString("hex").substring(iStart * 2);
+                    var iStart = _datagram._header._headerLength; //+ 4;
+                    _cemiETS = _CEMI.substring(iStart*2 );
+                    //_cemiETS = datagram.cEMIMessage.srcAddress.toBuffer().toString("hex") + _datagram.cEMIMessage.dstAddress.toBuffer().toString("hex") + "01" + _datagram.cEMIMessage.npdu._tpci.toString(16)
+                } catch (error) { }
+
+            } else if (_echoed) {
+                // I'm sending a telegram to the BUS
+                try {
+                    let sCemiFromDatagram = _datagram.cEMIMessage.toBuffer().toString("hex");
+                    let iStartAddress = sCemiFromDatagram.indexOf(_datagram.cEMIMessage.srcAddress.toBuffer().toString("hex"));
+                    _cemiETS = "2900BCD0" + sCemiFromDatagram.substr(8);
                 } catch (error) { _cemiETS = ""; }
             }
             // #####################################################################

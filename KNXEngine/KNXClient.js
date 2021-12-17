@@ -224,6 +224,7 @@ class KNXClient extends EventEmitter {
             }
         }
 
+        // Real send to KNX wires
         if (this._options.hostProtocol === "Multicast" || this._options.hostProtocol === "TunnelUDP") {
             // UDP
             try {
@@ -234,8 +235,8 @@ class KNXClient extends EventEmitter {
                             this.emit(KNXClientEvents.error, err);
                         } catch (error) {
                         }
-
                     }
+                   
                 });
             } catch (error) {
                 if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.debug("Sending KNX packet via TCP: " + typeof (knxPacket) + " seqCounter:" + knxPacket.seqCounter);
@@ -253,6 +254,7 @@ class KNXClient extends EventEmitter {
                         if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.error("KNXClient: Send TCP: " + err.message || "Undef error");
                         this.emit(KNXClientEvents.error, err);
                     }
+                  
                 });
             } catch (error) {
                 if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.error("KNXClient: Send TCP Catch: " + error.message || "Undef error");
@@ -293,9 +295,9 @@ class KNXClient extends EventEmitter {
             cEMIMessage.control.hopCount = 6;
             const knxPacketRequest = KNXProtocol.KNXProtocol.newKNXRoutingIndication(cEMIMessage);
             this.send(knxPacketRequest);
-            // 06/12/2021 Echo the sent telegram. Last parameter is the echo true/false
+            // 06/12/2021 Echo the sent telegram.
             try {
-                this.emit(KNXClientEvents.indication, knxPacketRequest, true, knxPacketRequest.cEMIMessage.toBuffer().toString("hex"));
+                this.emit(KNXClientEvents.indication, knxPacketRequest, true, null);
             } catch (error) {
             }
 
@@ -313,7 +315,7 @@ class KNXClient extends EventEmitter {
             this.send(knxPacketRequest);
             // 06/12/2021 Echo the sent telegram. Last parameter is the echo true/false
             try {
-                if (this._options.localEchoInTunneling) this.emit(KNXClientEvents.indication, knxPacketRequest, true, knxPacketRequest.cEMIMessage.toBuffer().toString("hex"));
+                if (this._options.localEchoInTunneling) this.emit(KNXClientEvents.indication, knxPacketRequest, true, null);
             } catch (error) {
             }
 
@@ -343,7 +345,7 @@ class KNXClient extends EventEmitter {
             this.send(knxPacketRequest);
             // 06/12/2021 Echo the sent telegram. Last parameter is the echo true/false
             try {
-                if (this._options.localEchoInTunneling) this.emit(KNXClientEvents.indication, knxPacketRequest, true, knxPacketRequest.cEMIMessage.toBuffer().toString("hex"));
+                if (this._options.localEchoInTunneling) this.emit(KNXClientEvents.indication, knxPacketRequest, true, null);
             } catch (error) {
             }
 
@@ -361,7 +363,7 @@ class KNXClient extends EventEmitter {
             this.send(knxPacketRequest);
             // 06/12/2021 Echo the sent telegram. Last parameter is the echo true/false
             try {
-                if (this._options.localEchoInTunneling) this.emit(KNXClientEvents.indication, knxPacketRequest, true, knxPacketRequest.cEMIMessage.toBuffer().toString("hex"));
+                if (this._options.localEchoInTunneling) this.emit(KNXClientEvents.indication, knxPacketRequest, true, null);
             } catch (error) {
             }
 
@@ -388,7 +390,7 @@ class KNXClient extends EventEmitter {
             this.send(knxPacketRequest);
             // 06/12/2021 Echo the sent telegram. Last parameter is the echo true/false
             try {
-                if (this._options.localEchoInTunneling) this.emit(KNXClientEvents.indication, knxPacketRequest, true, knxPacketRequest.cEMIMessage.toBuffer().toString("hex"));
+                if (this._options.localEchoInTunneling) this.emit(KNXClientEvents.indication, knxPacketRequest, true, null);
             } catch (error) {
             }
 
@@ -406,7 +408,7 @@ class KNXClient extends EventEmitter {
             this.send(knxPacketRequest);
             // 06/12/2021 Echo the sent telegram. Last parameter is the echo true/false
             try {
-                if (this._options.localEchoInTunneling) this.emit(KNXClientEvents.indication, knxPacketRequest, true, knxPacketRequest.cEMIMessage.toBuffer().toString("hex"));
+                if (this._options.localEchoInTunneling) this.emit(KNXClientEvents.indication, knxPacketRequest, true, null);
             } catch (error) {
             }
 
@@ -440,7 +442,7 @@ class KNXClient extends EventEmitter {
             this.send(knxPacketRequest);
             // 06/12/2021 Echo the sent telegram. Last parameter is the echo true/false
             try {
-                this.emit(KNXClientEvents.indication, knxPacketRequest, true, knxPacketRequest.cEMIMessage.toBuffer().toString("hex"));
+                this.emit(KNXClientEvents.indication, knxPacketRequest, true, null);
             } catch (error) {
             }
 
@@ -458,7 +460,7 @@ class KNXClient extends EventEmitter {
             this.send(knxPacketRequest);
             // 06/12/2021 Echo the sent telegram. Last parameter is the echo true/false
             try {
-                if (this._options.localEchoInTunneling) this.emit(KNXClientEvents.indication, knxPacketRequest, true, knxPacketRequest.cEMIMessage.toBuffer().toString("hex"));
+                if (this._options.localEchoInTunneling) this.emit(KNXClientEvents.indication, knxPacketRequest, true, null);
             } catch (error) {
             }
 
@@ -755,7 +757,7 @@ class KNXClient extends EventEmitter {
                     } catch (error) { }
 
                     try {
-                        this.emit(KNXClientEvents.indication, knxTunnelingRequest, false, msg);
+                        this.emit(KNXClientEvents.indication, knxTunnelingRequest, false, msg.toString("hex"));
                     } catch (error) {
                     }
 
@@ -800,13 +802,13 @@ class KNXClient extends EventEmitter {
                         //this.emit(KNXClientEvents.error, `Unexpected Tunnel Ack ${knxTunnelingAck.seqCounter}`);
                     }
                 }
-                
+
             } else if (knxHeader.service_type === KNXConstants.KNX_CONSTANTS.ROUTING_INDICATION) {
                 // 07/12/2021 Multicast routing indication
                 const knxRoutingInd = knxMessage;
                 if (knxRoutingInd.cEMIMessage.msgCode === CEMIConstants.CEMIConstants.L_DATA_IND) {
                     try {
-                        this.emit(KNXClientEvents.indication, knxRoutingInd, false, msg);
+                        this.emit(KNXClientEvents.indication, knxRoutingInd, false, msg.toString("hex"));                        
                     } catch (error) {
                     }
                 }

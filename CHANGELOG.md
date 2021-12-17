@@ -4,7 +4,7 @@
 
 <br/>
 <p>
-<b>Version 1.3.0</b> - December 2021<br/>
+<b>Version 1.3.1</b> - December 2021<br/>
 ---- MAJOR VERSION WITH TOTALLY REWRITTEN KNX API, IN PURE JAVASCRIPT ----<br/>
 ---- IF YOU ENCOUNTER ISSUES, JUST INSTALL THE LAST OLD VERSION WITH: npm install node-red-contrib-knx-ultimate@1.2.57 ----<br/>
 ---- PLEASE BE AWARE THAT ALL PREVIOULSY KNX SECURE OPTIONS HAVE BEEN HIDDEN UNTIL READY TO BE RELEASED, TO AVOID CONFUSIONS ----<br/>
