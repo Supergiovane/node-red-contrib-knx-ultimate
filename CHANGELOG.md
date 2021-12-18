@@ -4,6 +4,10 @@
 
 <br/>
 <p>
+<b>Version 1.3.2</b> - December 2021<br/>
+- NEW: config node: you can now gather debug info (there is a button for that) to be sent to the developer to help resolving your issue. Then, please paste the debug infos in your gitHub issue.<br/>
+</p>
+<p>
 <b>Version 1.3.1</b> - December 2021<br/>
 ---- MAJOR VERSION WITH TOTALLY REWRITTEN KNX API, IN PURE JAVASCRIPT ----<br/>
 ---- IF YOU ENCOUNTER ISSUES, JUST INSTALL THE LAST OLD VERSION WITH: npm install node-red-contrib-knx-ultimate@1.2.57 ----<br/>

@@ -814,13 +814,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
         //function handleBusEvents(_evt, _src, _dest, _rawValue, _datagram, _isRepeated) {
         function handleBusEvents(_datagram, _echoed, _CEMI) {
 
-            // try {
-            //     var dpt = DPTLib.resolve("DPT1.001");
-            //     var jsvalue = DPTLib.fromBuffer(_datagram.cEMIMessage.npdu.dataValue, dpt)
-            // } catch (error) {
-            //     console.log(error);
-            // }
-
+          
             // _rawValue
             try {
                 _rawValue = _datagram.cEMIMessage.npdu.dataValue;

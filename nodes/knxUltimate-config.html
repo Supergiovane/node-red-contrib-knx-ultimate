@@ -64,7 +64,7 @@
                     $("#node-config-input-host").val().startsWith("235.") ||
                     $("#node-config-input-host").val().startsWith("239.")) {
                     $("#node-config-input-hostProtocol").val("Multicast");
-                }else{
+                } else {
                     $("#node-config-input-hostProtocol").val("TunnelUDP");
                 }
             });
@@ -132,6 +132,17 @@
                 active: false
             });
             // *****************************
+
+            var sRetDebugText = "";
+            $("#getinfocam").click(function () {
+                $("#divDebugText").show();
+                for (const [key, value] of Object.entries(node)) {
+                    sRetDebugText += (`-> ${key}: ${value}\r`);
+                }
+                $("#debugText").val(sRetDebugText); // Store the config-node);
+            });
+
+
 
         },
         oneditsave: function () {
@@ -413,5 +424,14 @@
                 <textarea rows="20" id="node-config-input-csv" style="width:100%" data-i18n="[placeholder]knxUltimate-config.ets.ga_list_help"></textarea>
             </div>
         </div>
+    </div>
+<br/>
+    <div class="form-row">
+        <label style="width:300px"><i class="fa fa-sign-in"></i> Gather debug info for troubleshoot</label>
+        <input type="button" id="getinfocam" class="ui-button ui-corner-all ui-widget" style="background-color:#AEE1FF;width:150px" value="Read">
+    </div>
+    <div class="form-row" id="divDebugText" style="display: none;">
+        Copy this text, open a new github issue <a target="_blank" href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/issues/new?assignees=Supergiovane&labels=&template=bug_report.md&title=KNXDebugText"> ->by CLICKING HERE</a>, or paste it to an already open issue.
+        <textarea rows="10" id="debugText" style="width:100%"></textarea>
     </div>
 </script>

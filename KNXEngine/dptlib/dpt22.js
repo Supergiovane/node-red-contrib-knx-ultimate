@@ -1,5 +1,5 @@
 /**
-* knxultimate-api - a KNX protocol stack 
+* KNXEngine - a KNX protocol stack in Javascript
 * (C) 2020-2022 Supergiovane
 */
 
