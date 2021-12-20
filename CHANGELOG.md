@@ -4,6 +4,10 @@
 
 <br/>
 <p>
+<b>Version 1.3.4</b> - December 2021<br/>
+- Temporary reverted to old API, due to some little glitches.<br/>
+</p>
+<p>
 <b>Version 1.3.2</b> - December 2021<br/>
 - NEW: config node: you can now gather debug info (there is a button for that) to be sent to the developer to help resolving your issue. Then, please paste the debug infos in your gitHub issue.<br/>
 </p>

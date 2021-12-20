@@ -35,6 +35,23 @@ class CEMIFactory {
         npdu.data = data;
         return new LDataReq.LDataReq(null, controlField, srcAddress, dstAddress, npdu);
     }
+    
+    // 18/12/2021 New
+    static newLDataIndicationMessage(requestType, srcAddress, dstAddress, data) {
+ 
+        const controlField = new ControlField.ControlField();
+       
+        const npdu = new NPDU.NPDU();
+        npdu.tpci = NPDU.NPDU.TPCI_UNUMBERED_PACKET;
+
+        // 06/12/2021
+        if (requestType === "write") npdu.action = NPDU.NPDU.GROUP_WRITE; // 2
+        if (requestType === "response") npdu.action = NPDU.NPDU.GROUP_RESPONSE; // 1
+        if (requestType === "read") npdu.action = NPDU.NPDU.GROUP_READ; // 0
+
+        npdu.data = data;
+        return new LDataInd.LDataInd(null, controlField, srcAddress, dstAddress, npdu);
+    }
 
 }
 exports.CEMIFactory = CEMIFactory;

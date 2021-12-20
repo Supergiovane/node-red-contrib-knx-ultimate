@@ -239,7 +239,7 @@ class KNXClient extends EventEmitter {
                    
                 });
             } catch (error) {
-                if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.debug("Sending KNX packet via TCP: " + typeof (knxPacket) + " seqCounter:" + knxPacket.seqCounter);
+                if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.debug("Sending KNX packet via UDP ERROR: " + error.message + " " + typeof (knxPacket) + " seqCounter:" + knxPacket.seqCounter);
                 try {
                     //this.emit(KNXClientEvents.error, error);
                 } catch (error) {
@@ -287,7 +287,7 @@ class KNXClient extends EventEmitter {
 
         if (this._options.hostProtocol === "Multicast") {
             // Multicast
-            const cEMIMessage = CEMIFactory.CEMIFactory.newLDataRequestMessage("write", srcAddress, dstAddress, data);
+            const cEMIMessage = CEMIFactory.CEMIFactory.newLDataIndicationMessage("write", srcAddress, dstAddress, data);
             cEMIMessage.control.ack = 0;
             cEMIMessage.control.broadcast = 1;
             cEMIMessage.control.priority = 3;

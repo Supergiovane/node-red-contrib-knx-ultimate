@@ -94,7 +94,7 @@ class KNXProtocol {
     static newKNXTunnelingRequest(channelID, seqCounter, cEMIMessage) {
         return new KNXTunnelingRequest.KNXTunnelingRequest(channelID, seqCounter, cEMIMessage);
     }
-    static newKNXRoutingIndication(cEMIMessage) {
+    static newKNXRoutingIndication(cEMIMessage) { // 18/12/2021
         return new KNXRoutingIndication.KNXRoutingIndication(cEMIMessage);
     }
     static newKNXSecureSessionRequest(cri, hpaiData = HPAI.HPAI.NULLHPAI) {

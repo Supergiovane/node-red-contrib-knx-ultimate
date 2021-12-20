@@ -1109,24 +1109,15 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                                     // 24/09/2019 Autorespond to BUS
                                     if (input.notifyreadrequestalsorespondtobus === true) {
                                         if (typeof input.currentPayload === "undefined" || input.currentPayload === "" || input.currentPayload === null) { // 14/08/2021 Added || input.currentPayload === null
-                                            setTimeout(() => {
-                                                try {
-                                                    node.knxConnection.respond(_dest, input.notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized, input.dpt);
-                                                    input.setNodeStatus({ fill: "blue", shape: "ring", text: "Read & Autorespond with default", payload: input.notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized, GA: input.topic, dpt: msg.knx.dpt, devicename: "" });
-                                                } catch (error) {
-                                                    console.log("BANANA ERRORE RESPOND", error.message);
-                                                }
+                                            node.writeQueueAdd({ grpaddr: _dest, payload: input.notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized, dpt: input.dpt, outputtype: "response", nodecallerid: input.id });
 
-                                            }, 200);
+                                            input.setNodeStatus({ fill: "blue", shape: "ring", text: "Read & Autorespond with default", payload: input.notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized, GA: input.topic, dpt: msg.knx.dpt, devicename: "" });
+
                                         } else {
-                                            setTimeout(() => {
-                                                try {
-                                                    node.knxConnection.respond(_dest, input.currentPayload, input.dpt);
-                                                    input.setNodeStatus({ fill: "blue", shape: "ring", text: "Read & Autorespond", payload: input.currentPayload, GA: input.topic, dpt: msg.knx.dpt, devicename: "" });
-                                                } catch (error) {
-                                                    console.log("BANANA ERRORE RESPOND2", error.message);
-                                                }
-                                            }, 200);
+                                            node.writeQueueAdd({ grpaddr: _dest, payload: input.currentPayload, dpt: input.dpt, outputtype: "response", nodecallerid: input.id });
+
+                                            input.setNodeStatus({ fill: "blue", shape: "ring", text: "Read & Autorespond", payload: input.currentPayload, GA: input.topic, dpt: msg.knx.dpt, devicename: "" });
+
                                         };
                                     } else {
                                         input.setNodeStatus({ fill: "grey", shape: "dot", text: "Read", payload: msg.payload, GA: input.topic, dpt: msg.knx.dpt, devicename: "" });

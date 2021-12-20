@@ -31,7 +31,7 @@ class LDataInd extends CEMIMessage.CEMIMessage {
         return new LDataInd(additionalInfo, controlField, srcAddress, dstAddress, npdu);
     }
     toBuffer() {
-        const buffer = Buffer.alloc(1);
+        const buffer = Buffer.alloc(2);
         const msgBuffer = [buffer];
         let offset = 0;
         buffer.writeUInt8(this.msgCode, offset++);
