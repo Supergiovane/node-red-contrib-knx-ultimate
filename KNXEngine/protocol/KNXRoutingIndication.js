@@ -24,11 +24,6 @@ class KNXRoutingIndication extends KNXPacket.KNXPacket {
         return new KNXRoutingIndication(cEMIMessage);
     }
     toBuffer() {
-        const buffer = Buffer.alloc(4);
-        buffer.writeUInt8(4, 0);
-        buffer.writeUInt8(0, 1);
-        buffer.writeUInt8(0, 2);
-        buffer.writeUInt8(0, 3);
         return Buffer.concat([this.header.toBuffer(),  this.cEMIMessage.toBuffer()]);
     }
 }

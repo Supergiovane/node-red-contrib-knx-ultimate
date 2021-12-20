@@ -178,14 +178,45 @@ class KNXClient extends EventEmitter {
     get channelID() {
         return this._channelID;
     }
-    // Transform the plain value "data" into a KNXDataBuffer
+    // Transform the plain value "data" into a KNXDataBuffer. The datapoints without "null" are SixBits
+    // dataPointsSixBits = {
+    //     DPT1,
+    //     DPT2,
+    //     DPT3,
+    //     DPT4: null,
+    //     DPT5,
+    //     DPT6: null,
+    //     DPT7: null,
+    //     DPT8: null,
+    //     DPT9,
+    //     DPT10,
+    //     DPT11,
+    //     DPT12: null,
+    //     DPT13: null,
+    //     DPT14,
+    //     DPT15: null,
+    //     DPT16: null,
+    //     DPT17: null,
+    //     DPT18,
+    //     DPT19: null,
+    //     DPT20: null
+    // };
     getKNXDataBuffer(_data, _dptid) {
         let adpu = {};
         DPTLib.populateAPDU(_data, adpu, _dptid);
+        let iDatapointType = parseInt(_dptid.substr(0, _dptid.indexOf(".")));
+        let isSixBits = adpu.bitlength <= 6; 
+        //let isSixBits = [1,2,3,5,9,10,11,14,18].includes(iDatapointType);
+        //console.log("isSixBits", isSixBits, "Includes (should be = isSixBits)", [1, 2, 3, 5, 9, 10, 11, 14, 18].includes(iDatapointType), "ADPU BitLenght", adpu.bitlength);
+        try {
+            if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.trace("isSixBits:" + isSixBits + " Includes (should be = isSixBits):" + [1, 2, 3, 5, 9, 10, 11, 14, 18].includes(iDatapointType) + " ADPU BitLenght:" + adpu.bitlength);
+        } catch (error) { }
+
         let IDataPoint = {
             id: "",
             value: "any",
-            type: { type: adpu.bitlength.toString() || null },
+            //type: { type: adpu.bitlength.toString() || null },
+            type: { type: isSixBits },
             bind: null,
             read: () => null,
             write: null
@@ -212,7 +243,7 @@ class KNXClient extends EventEmitter {
         if (this.sysLogger !== undefined && this.sysLogger !== null) {
             try {
                 if (knxPacket.constructor.name !== undefined && knxPacket.constructor.name.toLowerCase() === "knxconnectrequest") this.sysLogger.debug("Sending KNX packet: " + knxPacket.constructor.name + " Host:" + this._peerHost + ":" + this._peerPort);
-                if (knxPacket.constructor.name !== undefined && knxPacket.constructor.name.toLowerCase() === "knxtunnelingrequest") {
+                if (knxPacket.constructor.name !== undefined && (knxPacket.constructor.name.toLowerCase() === "knxtunnelingrequest" || knxPacket.constructor.name.toLowerCase() === "knxroutingindication")) {
                     let sTPCI = ""
                     if (knxPacket.cEMIMessage.npdu.isGroupRead) sTPCI = "Read";
                     if (knxPacket.cEMIMessage.npdu.isGroupResponse) sTPCI = "Response";
@@ -236,7 +267,7 @@ class KNXClient extends EventEmitter {
                         } catch (error) {
                         }
                     }
-                   
+
                 });
             } catch (error) {
                 if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.debug("Sending KNX packet via UDP ERROR: " + error.message + " " + typeof (knxPacket) + " seqCounter:" + knxPacket.seqCounter);
@@ -254,7 +285,7 @@ class KNXClient extends EventEmitter {
                         if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.error("KNXClient: Send TCP: " + err.message || "Undef error");
                         this.emit(KNXClientEvents.error, err);
                     }
-                  
+
                 });
             } catch (error) {
                 if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.error("KNXClient: Send TCP Catch: " + error.message || "Undef error");
@@ -295,12 +326,7 @@ class KNXClient extends EventEmitter {
             cEMIMessage.control.hopCount = 6;
             const knxPacketRequest = KNXProtocol.KNXProtocol.newKNXRoutingIndication(cEMIMessage);
             this.send(knxPacketRequest);
-            // 06/12/2021 Echo the sent telegram.
-            try {
-                this.emit(KNXClientEvents.indication, knxPacketRequest, true, null);
-            } catch (error) {
-            }
-
+            // 06/12/2021 Multivast automaticalli echoes telegrams
         } else {
             // Tunneling
             const cEMIMessage = CEMIFactory.CEMIFactory.newLDataRequestMessage("write", srcAddress, dstAddress, data);
@@ -335,7 +361,7 @@ class KNXClient extends EventEmitter {
 
         if (this._options.hostProtocol === "Multicast") {
             // Multicast
-            const cEMIMessage = CEMIFactory.CEMIFactory.newLDataRequestMessage("response", srcAddress, dstAddress, data);
+            const cEMIMessage = CEMIFactory.CEMIFactory.newLDataIndicationMessage("response", srcAddress, dstAddress, data);
             cEMIMessage.control.ack = 0;
             cEMIMessage.control.broadcast = 1;
             cEMIMessage.control.priority = 3;
@@ -343,11 +369,7 @@ class KNXClient extends EventEmitter {
             cEMIMessage.control.hopCount = 6;
             const knxPacketRequest = KNXProtocol.KNXProtocol.newKNXRoutingIndication(cEMIMessage);
             this.send(knxPacketRequest);
-            // 06/12/2021 Echo the sent telegram. Last parameter is the echo true/false
-            try {
-                if (this._options.localEchoInTunneling) this.emit(KNXClientEvents.indication, knxPacketRequest, true, null);
-            } catch (error) {
-            }
+            // 06/12/2021 Multivast automaticalli echoes telegrams
 
         } else {
             // Tunneling
@@ -380,7 +402,7 @@ class KNXClient extends EventEmitter {
 
         if (this._options.hostProtocol === "Multicast") {
             // Multicast
-            const cEMIMessage = CEMIFactory.CEMIFactory.newLDataRequestMessage("read", srcAddress, dstAddress, null);
+            const cEMIMessage = CEMIFactory.CEMIFactory.newLDataIndicationMessage("read", srcAddress, dstAddress, null);
             cEMIMessage.control.ack = 0;
             cEMIMessage.control.broadcast = 1;
             cEMIMessage.control.priority = 3;
@@ -388,11 +410,7 @@ class KNXClient extends EventEmitter {
             cEMIMessage.control.hopCount = 6;
             const knxPacketRequest = KNXProtocol.KNXProtocol.newKNXRoutingIndication(cEMIMessage);
             this.send(knxPacketRequest);
-            // 06/12/2021 Echo the sent telegram. Last parameter is the echo true/false
-            try {
-                if (this._options.localEchoInTunneling) this.emit(KNXClientEvents.indication, knxPacketRequest, true, null);
-            } catch (error) {
-            }
+            // 06/12/2021 Multivast automaticalli echoes telegrams
 
         } else {
             // Tunneling
@@ -432,7 +450,7 @@ class KNXClient extends EventEmitter {
         let srcAddress = this._options.physAddr;
         if (this._options.hostProtocol === "Multicast") {
             // Multicast
-            const cEMIMessage = CEMIFactory.CEMIFactory.newLDataRequestMessage("write", srcAddress, dstAddress, data);
+            const cEMIMessage = CEMIFactory.CEMIFactory.newLDataIndicationMessage("write", srcAddress, dstAddress, data);
             cEMIMessage.control.ack = 0;
             cEMIMessage.control.broadcast = 1;
             cEMIMessage.control.priority = 3;
@@ -440,11 +458,7 @@ class KNXClient extends EventEmitter {
             cEMIMessage.control.hopCount = 6;
             const knxPacketRequest = KNXProtocol.KNXProtocol.newKNXRoutingIndication(cEMIMessage);
             this.send(knxPacketRequest);
-            // 06/12/2021 Echo the sent telegram. Last parameter is the echo true/false
-            try {
-                this.emit(KNXClientEvents.indication, knxPacketRequest, true, null);
-            } catch (error) {
-            }
+            // 06/12/2021 Multivast automaticalli echoes telegrams
 
         } else {
             // Tunneling
@@ -676,6 +690,7 @@ class KNXClient extends EventEmitter {
         }, KNXConstants.KNX_CONSTANTS.TUNNELING_REQUEST_TIMEOUT * 1000));
     }
     _processInboundMessage(msg, rinfo) {
+
         try {
             const { knxHeader, knxMessage } = KNXProtocol.KNXProtocol.parseMessage(msg);
 
@@ -808,7 +823,7 @@ class KNXClient extends EventEmitter {
                 const knxRoutingInd = knxMessage;
                 if (knxRoutingInd.cEMIMessage.msgCode === CEMIConstants.CEMIConstants.L_DATA_IND) {
                     try {
-                        this.emit(KNXClientEvents.indication, knxRoutingInd, false, msg.toString("hex"));                        
+                        this.emit(KNXClientEvents.indication, knxRoutingInd, false, msg.toString("hex"));
                     } catch (error) {
                     }
                 }

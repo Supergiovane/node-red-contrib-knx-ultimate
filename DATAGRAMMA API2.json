@@ -1,0 +1,133 @@
+DATAGRAMMA API2
+{
+    header_length: 6,
+    protocol_version: 16,
+    service_type: 1328,
+    total_length: null,
+    hpai: {
+      protocol_type: 1,
+      tunnel_endpoint: "0.0.0.0:0",
+    },
+    cemi: {
+      msgcode: 41,
+      ctrl: {
+        frameType: 1,
+        reserved: 0,
+        repeat: 1,
+        broadcast: 1,
+        priority: 3,
+        acknowledge: 0,
+        confirm: 0,
+        destAddrType: 1,
+        hopCount: 6,
+        extendedFrame: 0,
+      },
+      src_addr: "15.15.22",
+      dest_addr: "0/1/20",
+      apdu: {
+        apci: "GroupValue_Write",
+        tpci: 0,
+        data: {
+          "0": 13,
+        },
+        bitlength: 4,
+      },
+    },
+  }
+  BUF:
+  {
+    "0": 6,
+    "1": 16,
+    "2": 5,
+    "3": 48,
+    "4": 0,
+    "5": 17,
+    "6": 41,
+    "7": 0,
+    "8": 188,
+    "9": 224,
+    "10": 255,
+    "11": 22,
+    "12": 1,
+    "13": 20,
+    "14": 1,
+    "15": 0,
+    "16": 141,
+  }
+  lenght = 17
+  word (TCPI = 141)
+
+  DATAGRAMMA KNXENGINE
+  {
+    type: 1328,
+    length: 12,
+    _header: {
+      _headerLength: 6,
+      _version: 16,
+      service_type: 1328,
+      length: 18,
+    },
+    cEMIMessage: {
+      msgCode: 41,
+      length: 12,
+      additionalInfo: null,
+      control: {
+        control1: 188,
+        control2: 224,
+        length: 2,
+      },
+      srcAddress: {
+        type: 0,
+        level: 3,
+        _address: 65302,
+        length: 2,
+      },
+      dstAddress: {
+        type: 1,
+        level: 3,
+        _address: 276,
+        length: 2,
+      },
+      npdu: {
+        _tpci: 0,
+        _apci: 128,
+        _data: {
+          _data: {
+            "0": 13,
+          },
+          _info: {
+            id: "",
+            value: "any",
+            type: {
+              type: "4",
+            },
+            bind: null,
+            read: () => null,
+            write: null,
+          },
+        },
+      },
+    },
+  }
+
+  BUF:
+ 
+Buffer(18) [6, 16, 5, 48, 0, 18, 41, 0, 188, 224, 255, 22, 1, 20, 2, 0, 128, 13]
+0: 6
+1: 16
+2: 5
+3: 48
+4: 0
+5: 18 <<
+6: 41
+7: 0
+8: 188
+9: 224
+10: 255
+11: 22
+12: 1
+13: 20
+14: 2 <<
+15: 0 <<
+16: 128 <<
+17: 13 <<

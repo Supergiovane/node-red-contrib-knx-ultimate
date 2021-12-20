@@ -17,7 +17,8 @@ class KNXDataBuffer {
         if (this.info == null) {
             return true;
         }
-        return this.info.type.type === '1';
+        //return !(this.info.type.type === '1');
+        return this.info.type.type;
     }
 }
 exports.KNXDataBuffer = KNXDataBuffer;

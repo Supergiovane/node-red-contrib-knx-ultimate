@@ -4,6 +4,10 @@
 
 <br/>
 <p>
+<b>Version 1.3.5</b> - December 2021<br/>
+- New KNX Engine has been enabled again, after fixing some glitches.<br/>
+</p>
+<p>
 <b>Version 1.3.4</b> - December 2021<br/>
 - Temporary reverted to old API, due to some little glitches.<br/>
 </p>

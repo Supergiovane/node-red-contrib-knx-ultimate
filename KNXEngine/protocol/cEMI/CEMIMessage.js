@@ -22,7 +22,7 @@ class CEMIMessage {
         return buffer;
     }
     static GetLength(additionalInfo, control, srcAddress, dstAddress, npdu) {
-        const length = additionalInfo == null ? 1 : additionalInfo.length;
+        const length = additionalInfo === null ? 1 : additionalInfo.length;
         const npduLength = npdu == null ? 0 : npdu.length;
         return 1 + length + control.length + srcAddress.length + dstAddress.length + npduLength;
     }

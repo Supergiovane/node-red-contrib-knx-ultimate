@@ -45,12 +45,13 @@ class NPDU {
         if (!(data instanceof KNXDataBuffer.KNXDataBuffer)) {
             throw new Error('Invalid data Buffer');
         }
+        
         if (data.sixBits() && data.length === 1 && data.value.readUInt8(0) < 0x3F) {
             this.apci = (this.apci & 0xC0) | data.value.readUInt8(0);
             this._data = null;
             return;
         }
-        
+
         this._data = data;
     }
     get length() {

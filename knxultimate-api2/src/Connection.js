@@ -27,6 +27,7 @@ const onUdpSocketMessage = function (msg /*, rinfo, callback */) {
   //   var pera =true;
   // }
 
+
   try {
     let reader = KnxNetProtocol.createReader(msg)
     let dg
