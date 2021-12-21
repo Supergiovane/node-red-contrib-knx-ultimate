@@ -698,6 +698,17 @@ class KNXClient extends EventEmitter {
     _processInboundMessage(msg, rinfo) {
 
         try {
+
+            // Composing debug string
+            var sProcessInboundLog = "???";
+            try {
+                sProcessInboundLog = "Data received: " + msg.toString("hex");
+                sProcessInboundLog += " srcAddress: " + JSON.stringify(rinfo);
+            } catch (error) { }
+            try {
+                if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.trace("Received KNX packet: _processInboundMessage, " + sProcessInboundLog + " ChannelID:" + this._channelID || "??" + " Host:" + this._options.ipAddr + ":" + this._options.ipPort);
+            } catch (error) { }
+
             const { knxHeader, knxMessage } = KNXProtocol.KNXProtocol.parseMessage(msg);
 
             if (knxHeader.service_type === KNXConstants.KNX_CONSTANTS.SEARCH_RESPONSE) {
@@ -899,6 +910,9 @@ class KNXClient extends EventEmitter {
             }
         }
         catch (e) {
+            try {
+                if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.error("Received KNX packet: Error processing inbound message: " + e.message + " " + sProcessInboundLog + " ChannelID:" + this._channelID + " Host:" + this._options.ipAddr + ":" + this._options.ipPort);
+            } catch (error) { }
             try {
                 this.emit(KNXClientEvents.error, e);
             } catch (error) { }
