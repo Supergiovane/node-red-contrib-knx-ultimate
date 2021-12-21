@@ -205,7 +205,7 @@ class KNXClient extends EventEmitter {
         let adpu = {};
         DPTLib.populateAPDU(_data, adpu, _dptid);
         let iDatapointType = parseInt(_dptid.substr(0, _dptid.indexOf(".")));
-        let isSixBits = adpu.bitlength <= 6; 
+        let isSixBits = adpu.bitlength <= 6;
         //let isSixBits = [1,2,3,5,9,10,11,14,18].includes(iDatapointType);
         //console.log("isSixBits", isSixBits, "Includes (should be = isSixBits)", [1, 2, 3, 5, 9, 10, 11, 14, 18].includes(iDatapointType), "ADPU BitLenght", adpu.bitlength);
         try {
@@ -248,10 +248,16 @@ class KNXClient extends EventEmitter {
                     if (knxPacket.cEMIMessage.npdu.isGroupRead) sTPCI = "Read";
                     if (knxPacket.cEMIMessage.npdu.isGroupResponse) sTPCI = "Response";
                     if (knxPacket.cEMIMessage.npdu.isGroupWrite) sTPCI = "Write";
-                    this.sysLogger.debug("Sending KNX packet: " + knxPacket.constructor.name + " Host:" + this._peerHost + ":" + this._peerPort + " channelID:" + knxPacket.channelID + " seqCounter:" + knxPacket.seqCounter + " Dest:" + knxPacket.cEMIMessage.dstAddress.toString(), " Data:" + knxPacket.cEMIMessage.npdu.dataValue.toString("hex") + " TPCI:" + sTPCI);
+                    // Composing debug string
+                    let sDebugString = "???";
+                    try {
+                        sDebugString = "Data: " + JSON.stringify(knxPacket.cEMIMessage.npdu);
+                        sDebugString += " srcAddress: " + knxPacket.cEMIMessage.srcAddress.toString();
+                        sDebugString += " dstAddress: " + knxPacket.cEMIMessage.dstAddress.toString();
+                    } catch (error) { }
+                    this.sysLogger.debug("Sending KNX packet: " + knxPacket.constructor.name + " " + sDebugString + " Host:" + this._peerHost + ":" + this._peerPort + " channelID:" + knxPacket.channelID + " seqCounter:" + knxPacket.seqCounter + " Dest:" + knxPacket.cEMIMessage.dstAddress.toString(), " Data:" + knxPacket.cEMIMessage.npdu.dataValue.toString("hex") + " TPCI:" + sTPCI);
                 }
             } catch (error) {
-                this.sysLogger.debug("Sending KNX packet error " + error.message || "");
             }
         }
 
@@ -261,7 +267,7 @@ class KNXClient extends EventEmitter {
             try {
                 this._clientSocket.send(knxPacket.toBuffer(), this._peerPort, this._peerHost, err => {
                     if (err) {
-                        if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.error("KNXClient: Send UDP: " + err.message || "Undef error");
+                        if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.error("Sending KNX packet: Send UDP sending error: " + err.message || "Undef error");
                         try {
                             this.emit(KNXClientEvents.error, err);
                         } catch (error) {
@@ -270,7 +276,7 @@ class KNXClient extends EventEmitter {
 
                 });
             } catch (error) {
-                if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.debug("Sending KNX packet via UDP ERROR: " + error.message + " " + typeof (knxPacket) + " seqCounter:" + knxPacket.seqCounter);
+                if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.error("Sending KNX packet: Send UDP Catch error: " + error.message + " " + typeof (knxPacket) + " seqCounter:" + knxPacket.seqCounter);
                 try {
                     //this.emit(KNXClientEvents.error, error);
                 } catch (error) {
@@ -282,13 +288,13 @@ class KNXClient extends EventEmitter {
             try {
                 this._clientSocket.write(knxPacket.toBuffer(), err => {
                     if (err) {
-                        if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.error("KNXClient: Send TCP: " + err.message || "Undef error");
+                        if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.error("Sending KNX packet: Send TCP sending error: " + err.message || "Undef error");
                         this.emit(KNXClientEvents.error, err);
                     }
 
                 });
             } catch (error) {
-                if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.error("KNXClient: Send TCP Catch: " + error.message || "Undef error");
+                if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.error("Sending KNX packet: Send TCP Catch error: " + error.message || "Undef error");
                 try {
                     //this.emit(KNXClientEvents.error, error);
                 } catch (error) {
@@ -767,8 +773,16 @@ class KNXClient extends EventEmitter {
 
                 if (knxTunnelingRequest.cEMIMessage.msgCode === CEMIConstants.CEMIConstants.L_DATA_IND) {
 
+                    // Composing debug string
+                    let sDebugString = "???";
                     try {
-                        if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.debug("Received KNX packet: TUNNELING_REQUEST L_DATA_IND, ChannelID:" + this._channelID + " seqCounter:" + knxTunnelingRequest.seqCounter + " Host:" + this._options.ipAddr + ":" + this._options.ipPort);
+                        sDebugString = "Data: " + JSON.stringify(knxTunnelingRequest.cEMIMessage.npdu);
+                        sDebugString += " srcAddress: " + knxTunnelingRequest.cEMIMessage.srcAddress.toString();
+                        sDebugString += " dstAddress: " + knxTunnelingRequest.cEMIMessage.dstAddress.toString();
+                    } catch (error) { }
+
+                    try {
+                        if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.debug("Received KNX packet: TUNNELING: L_DATA_IND, " + sDebugString + " ChannelID:" + this._channelID + " seqCounter:" + knxTunnelingRequest.seqCounter + " Host:" + this._options.ipAddr + ":" + this._options.ipPort);
                     } catch (error) { }
 
                     try {
@@ -780,7 +794,7 @@ class KNXClient extends EventEmitter {
                 else if (knxTunnelingRequest.cEMIMessage.msgCode === CEMIConstants.CEMIConstants.L_DATA_CON) {
 
                     try {
-                        if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.debug("Received KNX packet: TUNNELING_REQUEST L_DATA_CON, ChannelID:" + this._channelID + " seqCounter:" + knxTunnelingRequest.seqCounter + " Host:" + this._options.ipAddr + ":" + this._options.ipPort);
+                        if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.debug("Received KNX packet: TUNNELING: L_DATA_CON, ChannelID:" + this._channelID + " seqCounter:" + knxTunnelingRequest.seqCounter + " Host:" + this._options.ipAddr + ":" + this._options.ipPort);
                     } catch (error) { }
 
                 }
@@ -795,7 +809,7 @@ class KNXClient extends EventEmitter {
                 }
 
                 try {
-                    if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.debug("Received KNX packet: TUNNELING_ACK, ChannelID:" + this._channelID + " seqCounter:" + knxTunnelingAck.seqCounter + " Host:" + this._options.ipAddr + ":" + this._options.ipPort);
+                    if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.debug("Received KNX packet: TUNNELING: TUNNELING_ACK, ChannelID:" + this._channelID + " seqCounter:" + knxTunnelingAck.seqCounter + " Host:" + this._options.ipAddr + ":" + this._options.ipPort);
                 } catch (error) { }
 
                 this._incSeqNumber(knxTunnelingAck.seqCounter);
@@ -804,7 +818,7 @@ class KNXClient extends EventEmitter {
                     if (this._tunnelReqTimer.get(knxTunnelingAck.seqCounter) !== null) clearTimeout(this._tunnelReqTimer.get(knxTunnelingAck.seqCounter));
                     this._tunnelReqTimer.delete(knxTunnelingAck.seqCounter);
                     try {
-                        if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.debug("_processInboundMessage: DELETED_TUNNELING_ACK FROM PENDING ACK's, ChannelID:" + this._channelID + " seqCounter:" + knxTunnelingAck.seqCounter + " Host:" + this._options.ipAddr + ":" + this._options.ipPort);
+                        if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.debug("Received KNX packet: TUNNELING: DELETED_TUNNELING_ACK FROM PENDING ACK's, ChannelID:" + this._channelID + " seqCounter:" + knxTunnelingAck.seqCounter + " Host:" + this._options.ipAddr + ":" + this._options.ipPort);
                     } catch (error) { }
                 }
                 else {
@@ -812,22 +826,40 @@ class KNXClient extends EventEmitter {
                     // Avoid warning if the KNXEngine is set to ignore ACK's telegrams
                     if (!this._options.suppress_ack_ldatareq) {
                         try {
-                            if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.error("_processInboundMessage: Unexpected Tunnel Ack with seqCounter = " + knxTunnelingAck.seqCounter);
+                            if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.error("Received KNX packet: TUNNELING: Unexpected Tunnel Ack with seqCounter = " + knxTunnelingAck.seqCounter);
                         } catch (error) { }
                         //this.emit(KNXClientEvents.error, `Unexpected Tunnel Ack ${knxTunnelingAck.seqCounter}`);
                     }
                 }
 
             } else if (knxHeader.service_type === KNXConstants.KNX_CONSTANTS.ROUTING_INDICATION) {
+
                 // 07/12/2021 Multicast routing indication
                 const knxRoutingInd = knxMessage;
                 if (knxRoutingInd.cEMIMessage.msgCode === CEMIConstants.CEMIConstants.L_DATA_IND) {
+
+                    // Composing debug string
+                    let sDebugString = "???";
+                    try {
+                        sDebugString = "Data: " + JSON.stringify(knxRoutingInd.cEMIMessage.npdu);
+                        sDebugString += " srcAddress: " + knxRoutingInd.cEMIMessage.srcAddress.toString();
+                        sDebugString += " dstAddress: " + knxRoutingInd.cEMIMessage.dstAddress.toString();
+                    } catch (error) { }
+
+                    try {
+                        if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.debug("Received KNX packet: ROUTING: L_DATA_IND, " + sDebugString + " Host:" + this._options.ipAddr + ":" + this._options.ipPort);
+                    } catch (error) { }
+
                     try {
                         this.emit(KNXClientEvents.indication, knxRoutingInd, false, msg.toString("hex"));
                     } catch (error) {
                     }
                 }
                 else if (knxRoutingInd.cEMIMessage.msgCode === CEMIConstants.CEMIConstants.L_DATA_CON) {
+
+                    try {
+                        if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.debug("Received KNX packet: ROUTING: L_DATA_CON, Host:" + this._options.ipAddr + ":" + this._options.ipPort);
+                    } catch (error) { }
 
                 }
 
