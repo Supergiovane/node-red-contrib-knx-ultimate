@@ -8,7 +8,7 @@
 - FIX: fixed a stupid "Disconnected by Message length mismatch 8/16" error due to a dumb find/replace error in the code.<br/>
 </p>
 <p>
-<b>Version 1.3.5</b> - December 2021<br/>
+<b>Version 1.3.5 - REMOVED FROM REPO due to "Disconnected by Message length mismatch 8/16" error</b> - December 2021<br/>
 - New KNX Engine has been enabled again, after fixing some glitches.<br/>
 </p>
 <p>
