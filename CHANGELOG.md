@@ -4,8 +4,9 @@
 
 <br/>
 <p>
-<b>Version 1.3.6</b> - December 2021<br/>
+<b>Version 1.3.7</b> - December 2021<br/>
 - FIX: fixed a stupid "Disconnected by Message length mismatch 8/16" error due to a dumb find/replace error in the code.<br/>
+- Added some more log to help resolving issues.<br/>
 </p>
 <p>
 <b>Version 1.3.5 - REMOVED FROM REPO due to "Disconnected by Message length mismatch 8/16" error</b> - December 2021<br/>
