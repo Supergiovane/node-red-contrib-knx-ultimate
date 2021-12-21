@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.KNXHeader = void 0;
 const KNXConstants = require("./KNXConstants");
+
 class KNXHeader {
     constructor(type, length) {
         this._headerLength = KNXConstants.KNX_CONSTANTS.HEADER_SIZE_10;
@@ -33,7 +34,10 @@ class KNXHeader {
         offset += 2;
         const length = buffer.readUInt16BE(offset);
         if (length !== buffer.length) {
-            throw new Error(`Message length mismatch ${length}/${buffer.length} Data processed: ${buffer.toString("hex") || "??"}`);
+            try {
+                console.log(`Received KNX packet: KNXHeader: createFromBuffer: Message length mismatch ${length}/${buffer.length} Data processed: ${buffer.toString("hex") || "??"}`);
+            } catch (error) { }
+           // throw new Error(`Message length mismatch ${length}/${buffer.length} Data processed: ${buffer.toString("hex") || "??"}`);
         }
         return new KNXHeader(type, length - header_length);
     }

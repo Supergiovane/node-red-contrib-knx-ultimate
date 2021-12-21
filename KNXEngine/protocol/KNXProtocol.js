@@ -22,6 +22,7 @@ const HPAI = require("./HPAI");
 
 class KNXProtocol {
     static parseMessage(buffer) {
+        
         const knxHeader = KNXHeader.KNXHeader.createFromBuffer(buffer);
         const knxData = buffer.slice(knxHeader.headerLength);
         let knxMessage;
