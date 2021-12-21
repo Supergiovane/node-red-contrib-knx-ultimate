@@ -29,10 +29,7 @@ const determineLogLevel = options => {
 
 module.exports = {
   get: function (options) {
-    if (!logger) {
-      //console.log('BANANA new logger, level',determineLogLevel(options),(options && options.debug && 'debug') ||
-      //(options && options.loglevel) ||
-      //'error');
+    if ((!logger) || (logger && options)) {
       logger = require('log-driver')({
         levels: ['silent', 'error', 'warn', 'info', 'debug', 'trace'],
         level: determineLogLevel(options),
@@ -58,7 +55,7 @@ module.exports = {
           }
         }
       })
-    }
+    } 
     return (logger)
   },
   destroy: function () {

@@ -2,6 +2,8 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.KNXHeader = void 0;
 const KNXConstants = require("./KNXConstants");
+const sysLogger = require("./../KnxLog.js").get(); // 08/04/2021 new logger to adhere to the loglevel selected in the config-window            
+
 
 class KNXHeader {
     constructor(type, length) {
@@ -35,9 +37,9 @@ class KNXHeader {
         const length = buffer.readUInt16BE(offset);
         if (length !== buffer.length) {
             try {
-                console.log(`Received KNX packet: KNXHeader: createFromBuffer: Message length mismatch ${length}/${buffer.length} Data processed: ${buffer.toString("hex") || "??"}`);
+                if (sysLogger !== undefined && sysLogger !== null) sysLogger.error(`Received KNX packet: KNXHeader: createFromBuffer: Message length mismatch ${length}/${buffer.length} Data processed: ${buffer.toString("hex") || "??"}`);
             } catch (error) { }
-           // throw new Error(`Message length mismatch ${length}/${buffer.length} Data processed: ${buffer.toString("hex") || "??"}`);
+            // throw new Error(`Message length mismatch ${length}/${buffer.length} Data processed: ${buffer.toString("hex") || "??"}`);
         }
         return new KNXHeader(type, length - header_length);
     }
