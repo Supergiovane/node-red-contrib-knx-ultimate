@@ -4,7 +4,7 @@
 
 <br/>
 <p>
-<b>Version 1.3.11</b> - December 2021<br/>
+<b>Version 1.3.12</b> - December 2021<br/>
 - KNX-Ultimate DEVICE node: added the validation of Group Address while deploy, with support for modern addressing up to 31/7/255.<br/>
 </p>
 <p>
