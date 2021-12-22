@@ -425,19 +425,6 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
         node.addClient = (_Node) => {
             // Check if node already exists
             if (node.nodeClients.filter(x => x.id === _Node.id).length === 0) {
-                // Check if the node has a valid topic and dpt
-                if (_Node.listenallga === false) {
-                    if (_Node.topic === undefined || _Node.dpt === undefined) {
-                        _Node.setNodeStatus({ fill: "red", shape: "dot", text: "Empty Group Addr. or datapoint.", payload: "", GA: "", dpt: "", devicename: "" })
-                        return;
-                    } else {
-                        // topic must be in format x/x/x
-                        if (_Node.topic.split("\/").length < 3) {
-                            _Node.setNodeStatus({ fill: "red", shape: "dot", text: "Wrong group address (topic: " + _Node.topic + ") format.", payload: "", GA: "", dpt: "", devicename: "" })
-                            return;
-                        }
-                    }
-                }
                 // Add _Node to the clients array
                 if (node.autoReconnect) {
                     _Node.setNodeStatus({ fill: "grey", shape: "ring", text: "Node initialized.", payload: "", GA: "", dpt: "", devicename: "" });

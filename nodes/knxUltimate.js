@@ -63,12 +63,11 @@ module.exports = function (RED) {
                 node.setNodeStatus({ fill: "red", shape: "dot", text: "Empty Group Addr. or datapoint.", payload: "", GA: "", dpt: "", devicename: "" })
                 return;
             } else {
-
                 // Validate the Address
                 try {
                     KNXUtils.validateKNXAddress(node.topic, true)
                 } catch (error) {
-                    node.setNodeStatus({ fill: "red", shape: "dot", text: "Wrong group address format." + error.message, payload: "", GA: node.topic, dpt: "", devicename: "" })
+                    node.setNodeStatus({ fill: "red", shape: "dot", text: error.message, payload: "", GA: node.topic, dpt: "", devicename: "" })
                     return;
                 }
             }
