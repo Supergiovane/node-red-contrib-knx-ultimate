@@ -1,5 +1,6 @@
 module.exports = function (RED) {
     const _ = require("lodash");
+    const KNXUtils = require("./../KNXEngine/protocol/KNXUtils");
 
     function knxUltimate(config) {
         RED.nodes.createNode(this, config)
@@ -57,15 +58,17 @@ module.exports = function (RED) {
         }
 
         // Check if the node has a valid topic and dpt
-        if (node.listenallga == false) {
-            if (typeof node.topic == "undefined" || typeof node.dpt == "undefined") {
+        if (node.listenallga === false) {
+            if (node.topic === undefined || node.dpt === undefined) {
                 node.setNodeStatus({ fill: "red", shape: "dot", text: "Empty Group Addr. or datapoint.", payload: "", GA: "", dpt: "", devicename: "" })
                 return;
             } else {
 
-                // topic must be in formar x/x/x
-                if (node.topic.split("\/").length < 3) {
-                    node.setNodeStatus({ fill: "red", shape: "dot", text: "Wrong group address format.", payload: "", GA: node.topic, dpt: "", devicename: "" })
+                // Validate the Address
+                try {
+                    KNXUtils.validateKNXAddress(node.topic, true)
+                } catch (error) {
+                    node.setNodeStatus({ fill: "red", shape: "dot", text: "Wrong group address format." + error.message, payload: "", GA: node.topic, dpt: "", devicename: "" })
                     return;
                 }
             }

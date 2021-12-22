@@ -4,6 +4,10 @@
 
 <br/>
 <p>
+<b>Version 1.3.11</b> - December 2021<br/>
+- KNX-Ultimate DEVICE node: added the validation of Group Address while deploy, with support for modern addressing up to 31/7/255.<br/>
+</p>
+<p>
 <b>Version 1.3.10</b> - December 2021<br/>
 - FIX: fixed a stupid "Disconnected by Message length mismatch 8/16" error due to a dumb find/replace error in the code.<br/>
 - Added some more log to help resolving issues.<br/>
