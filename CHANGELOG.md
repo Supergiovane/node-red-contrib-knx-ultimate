@@ -4,6 +4,12 @@
 
 <br/>
 <p>
+<b>Version 1.3.13</b> - 25 December 2021<br/>
+- KNXEngine: when in tunneling and suppress ACK request is disabled, the error is raised only after 3° failed ACK reception instead of 1°.<br/>
+- KNXEngine: at disconnection, delete all pending ACK requests timer.<br/>
+- Warning: if you've suppressed the ACK requests, in some cases the node cannot detect the disconnection. In this case, please use the KNX Watchdog to detect the disconnecitons and reconnect.<br/>
+</p>
+<p>
 <b>Version 1.3.12</b> - December 2021<br/>
 - KNX-Ultimate DEVICE node: added the validation of Group Address while deploy, with support for modern addressing up to 31/7/255.<br/>
 </p>

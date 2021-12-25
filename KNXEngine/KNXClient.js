@@ -173,6 +173,7 @@ class KNXClient extends EventEmitter {
         this._channelID = null;
         this._connectionState = STATE.DISCONNECTED;
         this._tunnelReqTimer = new Map();
+        this._numFailedTelegramACK = 0; // 25/12/2021 Keep count of the failed tunnelig ACK telegrams
 
     }
     get channelID() {
@@ -544,6 +545,7 @@ class KNXClient extends EventEmitter {
         }
 
         this._connectionState = STATE.CONNECTING;
+        this._numFailedTelegramACK = 0; // 25/12/2021 Reset the failed ACK counter
 
         if (this._timer !== null) clearTimeout(this._timer);
 
@@ -652,9 +654,17 @@ class KNXClient extends EventEmitter {
         } catch (error) {
         }
 
+        // 25/12/2021 Stops all awaiting ACK timers
+        for (const [key, oTimer] of this._tunnelReqTimer.entries()) {
+            try {
+                clearTimeout(oTimer);
+            } catch (error) { }
+        }
+        this._tunnelReqTimer.clear();
         this._clientTunnelSeqNumber = 0;
         this._channelID = null;
         this._tunnelReqTimer = new Map();
+
         // 08/12/2021
         try {
             this._clientSocket.close();
@@ -685,12 +695,16 @@ class KNXClient extends EventEmitter {
     }
     _setTimerAndCallback(knxTunnelingRequest) {
         const timeoutErr = new errors.RequestTimeoutError(`RequestTimeoutError seqCounter:${knxTunnelingRequest.seqCounter}, DestAddr:${knxTunnelingRequest.cEMIMessage.dstAddress.toString() || "Non definito"},  AckRequested:${knxTunnelingRequest.cEMIMessage.control.ack}, timed out waiting telegram acknowledge by ${this._options.ipAddr || "No Peer host detected"}`);
-        //const key = this._keyFromCEMIMessage(knxTunnelingRequest.cEMIMessage);
         this._tunnelReqTimer.set(knxTunnelingRequest.seqCounter, setTimeout(() => {
             this._tunnelReqTimer.delete(knxTunnelingRequest.seqCounter);
-            if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.error("KNXClient: _setTimerAndCallback: " + (timeoutErr.message || "Undef error"));
             try {
-                this.emit(KNXClientEvents.error, timeoutErr);
+                this._numFailedTelegramACK += 1;
+                if (this._numFailedTelegramACK > 3) {
+                    this._numFailedTelegramACK = 0;
+                    this.emit(KNXClientEvents.error, timeoutErr);
+                } else {
+                    if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.error("KNXClient: _setTimerAndCallback: " + (timeoutErr.message || "Undef error") + " " + this._numFailedTelegramACK + " of 3 times before emitting error.");
+                }
             } catch (error) {
             }
         }, KNXConstants.KNX_CONSTANTS.TUNNELING_REQUEST_TIMEOUT * 1000));
@@ -826,8 +840,11 @@ class KNXClient extends EventEmitter {
                 this._incSeqNumber(knxTunnelingAck.seqCounter);
 
                 if (this._tunnelReqTimer.has(knxTunnelingAck.seqCounter)) {
-                    if (this._tunnelReqTimer.get(knxTunnelingAck.seqCounter) !== null) clearTimeout(this._tunnelReqTimer.get(knxTunnelingAck.seqCounter));
-                    this._tunnelReqTimer.delete(knxTunnelingAck.seqCounter);
+                    if (this._tunnelReqTimer.get(knxTunnelingAck.seqCounter) !== null) {
+                        clearTimeout(this._tunnelReqTimer.get(knxTunnelingAck.seqCounter));
+                        this._tunnelReqTimer.delete(knxTunnelingAck.seqCounter);
+                    }
+                    this._numFailedTelegramACK = 0; // 25/12/2021 clear the current ACK failed telegram number
                     try {
                         if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.debug("Received KNX packet: TUNNELING: DELETED_TUNNELING_ACK FROM PENDING ACK's, ChannelID:" + this._channelID + " seqCounter:" + knxTunnelingAck.seqCounter + " Host:" + this._options.ipAddr + ":" + this._options.ipPort);
                     } catch (error) { }
