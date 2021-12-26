@@ -801,7 +801,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
         //function handleBusEvents(_evt, _src, _dest, _rawValue, _datagram, _isRepeated) {
         function handleBusEvents(_datagram, _echoed, _CEMI) {
 
-          
+
             // _rawValue
             try {
                 _rawValue = _datagram.cEMIMessage.npdu.dataValue;
@@ -835,7 +835,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                 // I'm receiving a telegram from the BUS
                 try {
                     var iStart = _datagram._header._headerLength; //+ 4;
-                    _cemiETS = _CEMI.substring(iStart*2 );
+                    _cemiETS = _CEMI.substring(iStart * 2);
                     //_cemiETS = datagram.cEMIMessage.srcAddress.toBuffer().toString("hex") + _datagram.cEMIMessage.dstAddress.toBuffer().toString("hex") + "01" + _datagram.cEMIMessage.npdu._tpci.toString(16)
                 } catch (error) { }
 
@@ -1087,7 +1087,6 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
 
         function handleTelegramQueue() {
             if (node.knxConnection !== null || node.host.toUpperCase() === "EMULATE") {
-                //console.log("BANANA handleTelegramQueueSONO BLOCCATO ? ",node.lockHandleTelegramQueue, "CONNECTED ? ", node.linkStatus )
                 if (node.lockHandleTelegramQueue === true) return; // Exits if the funtion is busy
                 node.lockHandleTelegramQueue = true; // Lock the function. It cannot be called again until finished.
 
@@ -1095,6 +1094,15 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                 if (node.linkStatus !== "connected") {
                     node.telegramsQueue = [];
                     node.lockHandleTelegramQueue = false; // Unlock the function
+                    return;
+                }
+
+                // 26/12/2021 If the KNXEngine is busy waiting for telegram's ACK, exit
+                if (!node.knxConnection._getClearToSend()) {
+                    node.lockHandleTelegramQueue = false; // Unlock the function
+                    if (node.telegramsQueue.length > 0) {
+                        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.warn("knxUltimate-config: handleTelegramQueue: the KNXEngine is busy or is waiting for a telegram ACK with seqNumner " + node.knxConnection._getSeqNumber() + ". Delay handling queue.");
+                    }                   
                     return;
                 }
 

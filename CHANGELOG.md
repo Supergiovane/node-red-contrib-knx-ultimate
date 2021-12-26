@@ -4,6 +4,12 @@
 
 <br/>
 <p>
+<b>Version 1.3.14</b> - 26 December 2021<br/>
+- KNXEngine: ACK management: the not acknowledged message will be re-transmitted once, then the connection will be dropped, as per KNX specs.<br/>
+- KNXEngine: ACK management: the telegram's queue to be sent to the KNX BUS will be paused during the ACK waiting.<br/>
+- KNXEngine: Routing: now the routing_busy and routing_lost_messages telegrams sent by the KNX/IP Router are  handled.<br/>
+</p>
+<p>
 <b>Version 1.3.13</b> - 25 December 2021<br/>
 - KNXEngine: when in tunneling and suppress ACK request is disabled, the error is raised only after 3° failed ACK reception instead of 1°.<br/>
 - KNXEngine: at disconnection, delete all pending ACK requests timer.<br/>

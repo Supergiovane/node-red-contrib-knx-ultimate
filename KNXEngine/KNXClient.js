@@ -86,7 +86,7 @@ class KNXClient extends EventEmitter {
         }
 
         super();
-        this._clientTunnelSeqNumber = 0;
+        this._clientTunnelSeqNumber = -1;
         this._options = options;//Object.assign(optionsDefaults, options);
         this._options.connectionKeepAliveTimeout = KNXConstants.KNX_CONSTANTS.CONNECTION_ALIVE_TIME,
             this._localPort = null;
@@ -169,10 +169,10 @@ class KNXClient extends EventEmitter {
             });
         }
 
-        this._clientTunnelSeqNumber = 0;
+        this._clientTunnelSeqNumber = -1;
         this._channelID = null;
         this._connectionState = STATE.DISCONNECTED;
-        this._tunnelReqTimer = new Map();
+        this._tunnelReqTimer = null;
         this._numFailedTelegramACK = 0; // 25/12/2021 Keep count of the failed tunnelig ACK telegrams
 
     }
@@ -240,6 +240,7 @@ class KNXClient extends EventEmitter {
         });
     }
     send(knxPacket) {
+
         // Logging
         if (this.sysLogger !== undefined && this.sysLogger !== null) {
             try {
@@ -342,9 +343,11 @@ class KNXClient extends EventEmitter {
             cEMIMessage.control.priority = 3;
             cEMIMessage.control.addressType = 1;
             cEMIMessage.control.hopCount = 6;
+            this._incSeqNumber(); // 26/12/2021
             const seqNum = this._getSeqNumber();
             const knxPacketRequest = KNXProtocol.KNXProtocol.newKNXTunnelingRequest(this._channelID, seqNum, cEMIMessage);
-            if (!this._options.suppress_ack_ldatareq) this._setTimerAndCallback(knxPacketRequest);
+            if (!this._options.suppress_ack_ldatareq) this._setTimerWaitingForACK(knxPacketRequest);
+            //if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.error("this._tunnelReqTimer "+ this._tunnelReqTimer.size);
             this.send(knxPacketRequest);
             // 06/12/2021 Echo the sent telegram. Last parameter is the echo true/false
             try {
@@ -386,9 +389,10 @@ class KNXClient extends EventEmitter {
             cEMIMessage.control.priority = 3;
             cEMIMessage.control.addressType = 1;
             cEMIMessage.control.hopCount = 6;
+            this._incSeqNumber(); // 26/12/2021
             const seqNum = this._getSeqNumber();
             const knxPacketRequest = KNXProtocol.KNXProtocol.newKNXTunnelingRequest(this._channelID, seqNum, cEMIMessage);
-            if (!this._options.suppress_ack_ldatareq) this._setTimerAndCallback(knxPacketRequest);
+            if (!this._options.suppress_ack_ldatareq) this._setTimerWaitingForACK(knxPacketRequest);
             this.send(knxPacketRequest);
             // 06/12/2021 Echo the sent telegram. Last parameter is the echo true/false
             try {
@@ -427,9 +431,10 @@ class KNXClient extends EventEmitter {
             cEMIMessage.control.priority = 3;
             cEMIMessage.control.addressType = 1;
             cEMIMessage.control.hopCount = 6;
+            this._incSeqNumber(); // 26/12/2021
             const seqNum = this._getSeqNumber();
             const knxPacketRequest = KNXProtocol.KNXProtocol.newKNXTunnelingRequest(this._channelID, seqNum, cEMIMessage);
-            if (!this._options.suppress_ack_ldatareq) this._setTimerAndCallback(knxPacketRequest);
+            if (!this._options.suppress_ack_ldatareq) this._setTimerWaitingForACK(knxPacketRequest);
             this.send(knxPacketRequest);
             // 06/12/2021 Echo the sent telegram. Last parameter is the echo true/false
             try {
@@ -475,9 +480,10 @@ class KNXClient extends EventEmitter {
             cEMIMessage.control.priority = 3;
             cEMIMessage.control.addressType = 1;
             cEMIMessage.control.hopCount = 6;
+            this._incSeqNumber(); // 26/12/2021
             const seqNum = this._getSeqNumber();
             const knxPacketRequest = KNXProtocol.KNXProtocol.newKNXTunnelingRequest(this._channelID, seqNum, cEMIMessage);
-            if (!this._options.suppress_ack_ldatareq) this._setTimerAndCallback(knxPacketRequest);
+            if (!this._options.suppress_ack_ldatareq) this._setTimerWaitingForACK(knxPacketRequest);
             this.send(knxPacketRequest);
             // 06/12/2021 Echo the sent telegram. Last parameter is the echo true/false
             try {
@@ -546,6 +552,7 @@ class KNXClient extends EventEmitter {
 
         this._connectionState = STATE.CONNECTING;
         this._numFailedTelegramACK = 0; // 25/12/2021 Reset the failed ACK counter
+        this._clearToSend = true; // 26/12/2021 allow to send
 
         if (this._timer !== null) clearTimeout(this._timer);
 
@@ -566,7 +573,7 @@ class KNXClient extends EventEmitter {
 
             }, 1000 * KNXConstants.KNX_CONSTANTS.CONNECT_REQUEST_TIMEOUT);
             this._awaitingResponseType = KNXConstants.KNX_CONSTANTS.CONNECT_RESPONSE;
-            this._clientTunnelSeqNumber = 0;
+            this._clientTunnelSeqNumber = -1;
             this._sendConnectRequestMessage(new TunnelCRI.TunnelCRI(knxLayer));
 
         } else if (this._options.hostProtocol === "TunnelTCP") {
@@ -584,12 +591,11 @@ class KNXClient extends EventEmitter {
                 if (conn._options.isSecureKNXEnabled) conn._sendSecureSessionRequestMessage(new TunnelCRI.TunnelCRI(knxLayer));
             });
 
-
         } else {
 
             // Multicast
             this._connectionState = STATE.CONNECTED;
-            this._clientTunnelSeqNumber = 0;
+            this._clientTunnelSeqNumber = -1;
             try {
                 this.emit(KNXClientEvents.connected, this._options);
             } catch (error) {
@@ -647,6 +653,7 @@ class KNXClient extends EventEmitter {
         if (this._timerTimeoutSendDisconnectRequestMessagetimer !== null) clearTimeout(this._timerTimeoutSendDisconnectRequestMessagetimer);
         this._timerTimeoutSendDisconnectRequestMessage = null;
         if (this._timer !== null) clearTimeout(this._timer);
+        if (this._tunnelReqTimer !== null) clearTimeout(this._tunnelReqTimer);
         this.stopHeartBeat();
         this._connectionState = STATE.DISCONNECTED;
         try {
@@ -654,16 +661,9 @@ class KNXClient extends EventEmitter {
         } catch (error) {
         }
 
-        // 25/12/2021 Stops all awaiting ACK timers
-        for (const [key, oTimer] of this._tunnelReqTimer.entries()) {
-            try {
-                clearTimeout(oTimer);
-            } catch (error) { }
-        }
-        this._tunnelReqTimer.clear();
-        this._clientTunnelSeqNumber = 0;
+        this._clientTunnelSeqNumber = -1;
+        this._clearToSend = true; // 26/12/2021 allow to send
         this._channelID = null;
-        this._tunnelReqTimer = new Map();
 
         // 08/12/2021
         try {
@@ -682,50 +682,77 @@ class KNXClient extends EventEmitter {
     _getSeqNumber() {
         return this._clientTunnelSeqNumber;
     }
+    // 26/12/2021 Handle the busy state, for example while waiting for ACK
+    _getClearToSend() {
+        return (this._clearToSend !== undefined ? this._clearToSend : true);
+    }
+
     _incSeqNumber(seq) {
-        this._clientTunnelSeqNumber = seq ? seq + 1 : this._clientTunnelSeqNumber + 1;
+        this._clientTunnelSeqNumber++;
         if (this._clientTunnelSeqNumber > 255) {
             this._clientTunnelSeqNumber = 0;
         }
         return this._clientTunnelSeqNumber;
     }
-
     _keyFromCEMIMessage(cEMIMessage) {
         return cEMIMessage.dstAddress.toString();
     }
-    _setTimerAndCallback(knxTunnelingRequest) {
+    _setTimerWaitingForACK(knxTunnelingRequest) {
         const timeoutErr = new errors.RequestTimeoutError(`RequestTimeoutError seqCounter:${knxTunnelingRequest.seqCounter}, DestAddr:${knxTunnelingRequest.cEMIMessage.dstAddress.toString() || "Non definito"},  AckRequested:${knxTunnelingRequest.cEMIMessage.control.ack}, timed out waiting telegram acknowledge by ${this._options.ipAddr || "No Peer host detected"}`);
-        this._tunnelReqTimer.set(knxTunnelingRequest.seqCounter, setTimeout(() => {
-            this._tunnelReqTimer.delete(knxTunnelingRequest.seqCounter);
+        if (this._tunnelReqTimer !== null) clearTimeout(this._tunnelReqTimer);
+        this._clearToSend = false; // 26/12/2021 stop sending until ACK received
+        this._tunnelReqTimer = setTimeout(() => {
             try {
                 this._numFailedTelegramACK += 1;
-                if (this._numFailedTelegramACK > 3) {
+                if (this._numFailedTelegramACK > 2) {
                     this._numFailedTelegramACK = 0;
+                    this._clearToSend = true;
                     this.emit(KNXClientEvents.error, timeoutErr);
                 } else {
-                    if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.error("KNXClient: _setTimerAndCallback: " + (timeoutErr.message || "Undef error") + " " + this._numFailedTelegramACK + " of 3 times before emitting error.");
+                    // 26/12/2021 // If no ACK received, resend the datagram once with the same sequence number
+                    this._setTimerWaitingForACK(knxTunnelingRequest);
+                    this.send(knxTunnelingRequest);
+                    if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.error("KNXClient: _setTimerWaitingForACK: " + (timeoutErr.message || "Undef error") + " no ACK received. Retransmit datagram with seqNumber " + this._getSeqNumber());
                 }
-            } catch (error) {
-            }
-        }, KNXConstants.KNX_CONSTANTS.TUNNELING_REQUEST_TIMEOUT * 1000));
+            } catch (error) { }
+        }, KNXConstants.KNX_CONSTANTS.TUNNELING_REQUEST_TIMEOUT * 1000);
+
     }
     _processInboundMessage(msg, rinfo) {
 
         try {
 
             // Composing debug string
-            var sProcessInboundLog = "???";
             try {
-                sProcessInboundLog = "Data received: " + msg.toString("hex");
-                sProcessInboundLog += " srcAddress: " + JSON.stringify(rinfo);
-            } catch (error) { }
-            try {
-                if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.trace("Received KNX packet: _processInboundMessage, " + sProcessInboundLog + " ChannelID:" + this._channelID || "??" + " Host:" + this._options.ipAddr + ":" + this._options.ipPort);
+                if (this.sysLogger !== undefined && this.sysLogger !== null) {
+                    var sProcessInboundLog = "???";
+                    try {
+                        sProcessInboundLog = "Data received: " + msg.toString("hex");
+                        sProcessInboundLog += " srcAddress: " + JSON.stringify(rinfo);
+                    } catch (error) { }
+                    this.sysLogger.trace("Received KNX packet: _processInboundMessage, " + sProcessInboundLog + " ChannelID:" + this._channelID || "??" + " Host:" + this._options.ipAddr + ":" + this._options.ipPort);
+                }
             } catch (error) { }
 
             const { knxHeader, knxMessage } = KNXProtocol.KNXProtocol.parseMessage(msg);
 
+            // 26/12/2021 ROUTING LOST MESSAGE OR BUSY
+            if (knxHeader.service_type === KNXConstants.KNX_CONSTANTS.ROUTING_LOST_MESSAGE) {
+                try {
+                    this.emit(KNXClientEvents.error, new Error('ROUTING_LOST_MESSAGE'));
+                    this._setDisconnected();
+                    return;
+                } catch (error) { }
+            } else if (knxHeader.service_type === KNXConstants.KNX_CONSTANTS.ROUTING_BUSY) {
+                try {
+                    this.emit(KNXClientEvents.error, new Error('ROUTING_BUSY'));
+                    this._setDisconnected();
+                    return;
+                } catch (error) { }
+            }
+
             if (knxHeader.service_type === KNXConstants.KNX_CONSTANTS.SEARCH_RESPONSE) {
+
                 if (this._discovery_timer == null) {
                     return;
                 }
@@ -743,8 +770,7 @@ class KNXClient extends EventEmitter {
                     if (knxConnectResponse.status !== KNXConstants.ConnectionStatus.E_NO_ERROR) {
                         try {
                             this.emit(KNXClientEvents.error, KNXConnectResponse.KNXConnectResponse.statusToString(knxConnectResponse.status));
-                        } catch (error) {
-                        }
+                        } catch (error) { }
                         this._setDisconnected();
                         return;
                     }
@@ -799,34 +825,38 @@ class KNXClient extends EventEmitter {
                 if (knxTunnelingRequest.cEMIMessage.msgCode === CEMIConstants.CEMIConstants.L_DATA_IND) {
 
                     // Composing debug string
-                    let sDebugString = "???";
                     try {
-                        sDebugString = "Data: " + JSON.stringify(knxTunnelingRequest.cEMIMessage.npdu);
-                        sDebugString += " srcAddress: " + knxTunnelingRequest.cEMIMessage.srcAddress.toString();
-                        sDebugString += " dstAddress: " + knxTunnelingRequest.cEMIMessage.dstAddress.toString();
-                    } catch (error) { }
-
-                    try {
-                        if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.debug("Received KNX packet: TUNNELING: L_DATA_IND, " + sDebugString + " ChannelID:" + this._channelID + " seqCounter:" + knxTunnelingRequest.seqCounter + " Host:" + this._options.ipAddr + ":" + this._options.ipPort);
+                        if (this.sysLogger !== undefined && this.sysLogger !== null) {
+                            let sDebugString = "???";
+                            try {
+                                sDebugString = "Data: " + JSON.stringify(knxTunnelingRequest.cEMIMessage.npdu);
+                                sDebugString += " srcAddress: " + knxTunnelingRequest.cEMIMessage.srcAddress.toString();
+                                sDebugString += " dstAddress: " + knxTunnelingRequest.cEMIMessage.dstAddress.toString();
+                            } catch (error) { }
+                            this.sysLogger.debug("Received KNX packet: TUNNELING: L_DATA_IND, " + sDebugString + " ChannelID:" + this._channelID + " seqCounter:" + knxTunnelingRequest.seqCounter + " Host:" + this._options.ipAddr + ":" + this._options.ipPort);
+                        }
                     } catch (error) { }
 
                     try {
                         this.emit(KNXClientEvents.indication, knxTunnelingRequest, false, msg.toString("hex"));
-                    } catch (error) {
-                    }
+                    } catch (error) { }
 
-                }
-                else if (knxTunnelingRequest.cEMIMessage.msgCode === CEMIConstants.CEMIConstants.L_DATA_CON) {
+                } else if (knxTunnelingRequest.cEMIMessage.msgCode === CEMIConstants.CEMIConstants.L_DATA_CON) {
 
                     try {
                         if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.debug("Received KNX packet: TUNNELING: L_DATA_CON, ChannelID:" + this._channelID + " seqCounter:" + knxTunnelingRequest.seqCounter + " Host:" + this._options.ipAddr + ":" + this._options.ipPort);
                     } catch (error) { }
 
                 }
+
+                // 26/12/2021 send the ACK if the server requestet that
+                // Then REMOVED, because some interfaces sets the "ack request" always to 0 even if it needs ack.
+                //if (knxMessage.cEMIMessage.control.ack){
                 const knxTunnelAck = KNXProtocol.KNXProtocol.newKNXTunnelingACK(knxTunnelingRequest.channelID, knxTunnelingRequest.seqCounter, KNXConstants.KNX_CONSTANTS.E_NO_ERROR);
                 this.send(knxTunnelAck);
-            }
-            else if (knxHeader.service_type === KNXConstants.KNX_CONSTANTS.TUNNELING_ACK) {
+                //}               
+
+            } else if (knxHeader.service_type === KNXConstants.KNX_CONSTANTS.TUNNELING_ACK) {
                 //const knxTunnelingAck =  lodash.cloneDeep(knxMessage);
                 const knxTunnelingAck = knxMessage;
                 if (knxTunnelingAck.channelID !== this._channelID) {
@@ -837,22 +867,17 @@ class KNXClient extends EventEmitter {
                     if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.debug("Received KNX packet: TUNNELING: TUNNELING_ACK, ChannelID:" + this._channelID + " seqCounter:" + knxTunnelingAck.seqCounter + " Host:" + this._options.ipAddr + ":" + this._options.ipPort);
                 } catch (error) { }
 
-                this._incSeqNumber(knxTunnelingAck.seqCounter);
-
-                if (this._tunnelReqTimer.has(knxTunnelingAck.seqCounter)) {
-                    if (this._tunnelReqTimer.get(knxTunnelingAck.seqCounter) !== null) {
-                        clearTimeout(this._tunnelReqTimer.get(knxTunnelingAck.seqCounter));
-                        this._tunnelReqTimer.delete(knxTunnelingAck.seqCounter);
-                    }
-                    this._numFailedTelegramACK = 0; // 25/12/2021 clear the current ACK failed telegram number
-                    try {
-                        if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.debug("Received KNX packet: TUNNELING: DELETED_TUNNELING_ACK FROM PENDING ACK's, ChannelID:" + this._channelID + " seqCounter:" + knxTunnelingAck.seqCounter + " Host:" + this._options.ipAddr + ":" + this._options.ipPort);
-                    } catch (error) { }
-                }
-                else {
-
-                    // Avoid warning if the KNXEngine is set to ignore ACK's telegrams
-                    if (!this._options.suppress_ack_ldatareq) {
+                // Check the received ACK sequence number
+                if (!this._options.suppress_ack_ldatareq) {
+                    if (knxTunnelingAck.seqCounter === this._getSeqNumber()) {
+                        if (this._tunnelReqTimer !== null) clearTimeout(this._tunnelReqTimer);
+                        this._numFailedTelegramACK = 0; // 25/12/2021 clear the current ACK failed telegram number
+                        this._clearToSend = true; // I'm ready to send a new datagram now
+                        try {
+                            if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.debug("Received KNX packet: TUNNELING: DELETED_TUNNELING_ACK FROM PENDING ACK's, ChannelID:" + this._channelID + " seqCounter:" + knxTunnelingAck.seqCounter + " Host:" + this._options.ipAddr + ":" + this._options.ipPort);
+                        } catch (error) { }
+                    } else {
+                        // Inform that i received an ACK with an unexpected sequence number
                         try {
                             if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.error("Received KNX packet: TUNNELING: Unexpected Tunnel Ack with seqCounter = " + knxTunnelingAck.seqCounter);
                         } catch (error) { }
@@ -867,15 +892,16 @@ class KNXClient extends EventEmitter {
                 if (knxRoutingInd.cEMIMessage.msgCode === CEMIConstants.CEMIConstants.L_DATA_IND) {
 
                     // Composing debug string
-                    let sDebugString = "???";
                     try {
-                        sDebugString = "Data: " + JSON.stringify(knxRoutingInd.cEMIMessage.npdu);
-                        sDebugString += " srcAddress: " + knxRoutingInd.cEMIMessage.srcAddress.toString();
-                        sDebugString += " dstAddress: " + knxRoutingInd.cEMIMessage.dstAddress.toString();
-                    } catch (error) { }
-
-                    try {
-                        if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.debug("Received KNX packet: ROUTING: L_DATA_IND, " + sDebugString + " Host:" + this._options.ipAddr + ":" + this._options.ipPort);
+                        if (this.sysLogger !== undefined && this.sysLogger !== null) {
+                            let sDebugString = "???";
+                            try {
+                                sDebugString = "Data: " + JSON.stringify(knxRoutingInd.cEMIMessage.npdu);
+                                sDebugString += " srcAddress: " + knxRoutingInd.cEMIMessage.srcAddress.toString();
+                                sDebugString += " dstAddress: " + knxRoutingInd.cEMIMessage.dstAddress.toString();
+                            } catch (error) { }
+                            this.sysLogger.debug("Received KNX packet: ROUTING: L_DATA_IND, " + sDebugString + " Host:" + this._options.ipAddr + ":" + this._options.ipPort);
+                        }
                     } catch (error) { }
 
                     try {
@@ -932,6 +958,7 @@ class KNXClient extends EventEmitter {
             } catch (error) { }
             try {
                 this.emit(KNXClientEvents.error, e);
+                this._setDisconnected();
             } catch (error) { }
 
         }

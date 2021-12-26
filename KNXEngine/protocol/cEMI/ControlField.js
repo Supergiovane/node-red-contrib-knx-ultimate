@@ -82,7 +82,7 @@ class ControlField {
         }
         this.control2 = (this.control2 & 0xF0) | Number(format);
     }
-    get framrFormat() {
+    get frameFormat() {
         return this.control2 & 0xF;
     }
     static get DEFAULT_CONTROL1() {
