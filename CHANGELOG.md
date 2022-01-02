@@ -5,7 +5,7 @@
 <br/>
 <p>
 <b>Version 1.3.15</b> - Januar 2022<br/>
-- KNXEngine: better handling of disconnection in Tunneling UDP mode.<br/>
+- KNXEngine: better handling of disconnection in UDP mode, allowing very old grandpa KNX/IP interfaces enough time to understand what's happening, avoiding it to go crazy.<br/>
 - KNXEngine: corrected Curve Crypto in KNX-Secure (KNX Secure is not enabled yet!).<br/>
 </p>
 <p>
