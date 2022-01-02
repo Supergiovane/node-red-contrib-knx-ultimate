@@ -10,7 +10,7 @@ const HPAI = require("./HPAI");
 const CRIFactory = __importDefault(require("./CRIFactory"));
 
 class KNXSecureSessionRequest extends KNXPacket.KNXPacket {
-    constructor(cri, hpaiData = HPAI.HPAI.NULLHPAI) {
+    constructor(cri, hpaiData = HPAI.HPAI.NULLHPAI, _jKNXSecureKeyring = {}) {
         //super(KNXConstants.KNX_CONSTANTS.SECURE_SESSION_REQUEST, hpaiControl.length + hpaiData.length + cri.length + 32);
         super(KNXConstants.KNX_CONSTANTS.SECURE_SESSION_REQUEST, hpaiData.length + 32);
         this.cri = cri;
@@ -18,16 +18,20 @@ class KNXSecureSessionRequest extends KNXPacket.KNXPacket {
         this.diffieHellmanClientPublicValue = new Buffer.alloc(32);
 
         // Send the DH curve as well
-        let _key = ".!Pea332";
+        // 02/01/2022 SONO ARRIVATO QUI get the authentication password from the first tunnel of the interface
+        let authenticationPassword = _jKNXSecureKeyring.Devices[0].authenticationPassword;
+        //authenticationPassword = authenticationPassword.length === 0 ? new byte[16] : authenticationPassword;
+        authenticationPassword = authenticationPassword.length === 0 ? "00000000000000000000000000000000" : authenticationPassword;
+        let _key = authenticationPassword;
         _key = _key + new Array((32 + 1) - _key.length).join("\0");
-        let ALICE_PRIV = Buffer.from(_key).toString("hex");
-        let alicePriv = Uint8Array.from(Buffer.from(ALICE_PRIV, 'hex'));
+
+        let authenticationPasswordHEX = Buffer.from(_key).toString("hex");
+        let authenticationPasswordUint8Array = Uint8Array.from(Buffer.from(authenticationPasswordHEX, 'hex'));
         let Curve25519 = require('./../Curve25519');
         try {
-            let secret = Curve25519.generateKeyPair(alicePriv);
-            //console.log('BANANA Secret:', Buffer.from(secret).toString('hex'))
-            let hexString = "f0c143e363147dc64913d736978042ef748ba448aa6ce2a1dab5ddecca919455";
-            secret.public = Uint8Array.from(hexString.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
+            let secret = Curve25519.generateKeyPair(authenticationPasswordUint8Array);
+            //let hexString = "f0c143e363147dc64913d736978042ef748ba448aa6ce2a1dab5ddecca919455";
+            //secret.public = Uint8Array.from(hexString.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
             this.diffieHellmanClientPublicValue = Buffer.from(secret.public).toString('hex');
 
         } catch (error) {

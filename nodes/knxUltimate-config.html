@@ -228,14 +228,15 @@
             <input type="text" id="node-config-input-port" style="width: 55px"><data-i18n="[Title]knxUltimate-config.properties.port_info" style="margin-left:5px;">
             
             <select id="node-config-input-hostProtocol" style="margin-left:10px; width:140px;">
-                <option value="TunnelUDP" >Tunnel UDP (KNX Unsecure)</option>
-                <option value="Multicast" >Multicast (KNX Unsecure)</option>
-                <!-- KNXSECUREDAATTIVARE <option value="TunnelTCP" >Tunnel TCP (KNX Secure)</option> -->
+                <option value="TunnelUDP" >Tunnel UDP</option>
+                <option value="Multicast" >Multicast</option>
+                <option value="TunnelTCP" >Tunnel TCP</option>
             </select>   
         </div>
     
     <!-- KNX Secure / Unsecure tabbed selector-->
-    <div id="tabsMain" style="display: none;">
+    <!-- <div id="tabsMain" style="display: none;"> -->
+    <div id="tabsMain">
         <ul>
           <li><a href="#unsecureKNX"><i class="fa fa-circle-o"></i>&nbsp;<span data-i18n="knxUltimate-config.properties.unsecureKNX"></span></a></li>
           <li><a href="#SecureKNX"><i class="fa fa-shield"></i>&nbsp;<span data-i18n="knxUltimate-config.properties.secureKNX"></span></a></li>
@@ -259,18 +260,17 @@
                 </div>
                 <div class="form-row">
                     <label for="node-config-input-keyringFilePassword"><i class="fa fa-shield"></i> Password</label>
-                    <input type="password" id="node-config-input-keyringFilePassword" style="width:200px;">
-               
+                    <input type="password" id="node-config-input-keyringFilePassword" style="width:200px;">               
                 </div>
             </p>   
         </div>
       </div>
 
-      <div class="form-tips" style="margin-top:11px">
+    <div class="form-tips" style="margin-top:11px">
         <span data-i18n="knxUltimate-config.advanced.tiphost"></span>
     </div>
 
-        <br/>
+    <br/>
     <div class="form-row">
         <label for="node-config-input-KNXEthInterface" style="width: 200px">
             <i class="fa fa-wifi"></i>

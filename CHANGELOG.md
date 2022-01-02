@@ -4,6 +4,11 @@
 
 <br/>
 <p>
+<b>Version 1.3.15</b> - Januar 2022<br/>
+- KNXEngine: better handling of disconnection in Tunneling UDP mode.<br/>
+- KNXEngine: corrected Curve Crypto in KNX-Secure (KNX Secure is not enabled yet!).<br/>
+</p>
+<p>
 <b>Version 1.3.14</b> - 26 December 2021<br/>
 - KNXEngine: ACK management: the not acknowledged message will be re-transmitted once, then the connection will be dropped, as per KNX specs.<br/>
 - KNXEngine: ACK management: the telegram's queue to be sent to the KNX BUS will be paused during the ACK waiting.<br/>

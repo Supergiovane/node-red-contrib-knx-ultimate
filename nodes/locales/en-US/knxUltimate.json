@@ -1,5 +1,6 @@
 {
     "knxUltimate": {
+        "deployfirst": "PLEASE CREATE YOUR FIRST GATEWAY, THEN DEPLOY, THEN REOPEN THIS WINDOW.",
         "helplink" : "&nbsp<i class=\"fa fa-question-circle\"></i>&nbsp<a target=\"_blank\" href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/2.-Node-Configuration\"><u>Help for configuration</u></a>",
         "title": "KNX Device",
         "properties": {

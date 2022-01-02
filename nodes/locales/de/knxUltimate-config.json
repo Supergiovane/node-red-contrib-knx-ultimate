@@ -39,7 +39,7 @@
             "tiphost": "Schreiben Sie EMULATE anstelle der IP-Adresse, um ein Gateway zu simulieren (das Gateway stellt keine Verbindung zum KNX-BUS her).",
             "delaybetweentelegrams": "Verzögerung zwischen jedem Telegramm (in Millisekunden)",
             "delaybetweentelegramsfurtherdelayREAD" : "und weitere Verzögerung nur zwischen -lese- Telegrammen multiplizieren",
-            "exposeAsVariable" : "Als global Variable verfügbar machen",
+            "exposeAsVariable" : "Als global Context Variable verfügbar machen",
             "exposeAsVariableNO" : "Nein",
             "exposeAsVariableREADONLY" : "Nur Lesen",
             "exposeAsVariableREADWRITE" : "Lesen/Schreiben"

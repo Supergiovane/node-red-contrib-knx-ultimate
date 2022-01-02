@@ -17,7 +17,7 @@ const ipAddressHelper = require("./util/ipAddressHelper");
 const KNXAddress = require("./protocol/KNXAddress").KNXAddress;
 const KNXDataBuffer = require("./protocol/KNXDataBuffer").KNXDataBuffer;
 const DPTLib = require('./dptlib');
-const secureKeyring = require("./KNXsecureKeyring.js");
+const KNXsecureKeyring = require("./KNXsecureKeyring.js");
 //const lodash = require("lodash");
 
 var STATE;
@@ -74,7 +74,8 @@ const optionsDefaults = {
     loglevel: "info",
     localEchoInTunneling: true,
     localIPAddress: "",
-    interface: ""
+    interface: "",
+    jKNXSecureKeyring: {}
 };
 
 class KNXClient extends EventEmitter {
@@ -92,7 +93,7 @@ class KNXClient extends EventEmitter {
             this._localPort = null;
         this._peerHost = this._options.ipAddr;
         this._peerPort = this._options.ipPort;
-        this._timer = null;
+        this._connectionTimeoutTimer = null;
         this._heartbeatFailures = 0;
         this.max_HeartbeatFailures = 3;
         this._heartbeatTimer = null;
@@ -101,6 +102,7 @@ class KNXClient extends EventEmitter {
         this._processInboundMessage = this._processInboundMessage.bind(this);
         this._clientSocket = null;
         this.sysLogger = null;
+        this.jKNXSecureKeyring = this._options.jKNXSecureKeyring; // 28/12/2021 Contains the Keyring JSON object
         try {
             this.sysLogger = require("./KnxLog.js").get({ loglevel: this._options.loglevel }); // 08/04/2021 new logger to adhere to the loglevel selected in the config-window            
         } catch (error) {
@@ -179,7 +181,7 @@ class KNXClient extends EventEmitter {
     get channelID() {
         return this._channelID;
     }
-    // Transform the plain value "data" into a KNXDataBuffer. The datapoints without "null" are SixBits
+    // 16/12/2021 Transform the plain value "data" into a KNXDataBuffer. The datapoints without "null" are SixBits
     // dataPointsSixBits = {
     //     DPT1,
     //     DPT2,
@@ -280,7 +282,7 @@ class KNXClient extends EventEmitter {
             } catch (error) {
                 if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.error("Sending KNX packet: Send UDP Catch error: " + error.message + " " + typeof (knxPacket) + " seqCounter:" + knxPacket.seqCounter);
                 try {
-                    //this.emit(KNXClientEvents.error, error);
+                    this.emit(KNXClientEvents.error, error);
                 } catch (error) {
                 }
 
@@ -293,15 +295,12 @@ class KNXClient extends EventEmitter {
                         if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.error("Sending KNX packet: Send TCP sending error: " + err.message || "Undef error");
                         this.emit(KNXClientEvents.error, err);
                     }
-
                 });
             } catch (error) {
                 if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.error("Sending KNX packet: Send TCP Catch error: " + error.message || "Undef error");
                 try {
-                    //this.emit(KNXClientEvents.error, error);
-                } catch (error) {
-                }
-
+                    this.emit(KNXClientEvents.error, error);
+                } catch (error) {}
             }
         }
     }
@@ -529,8 +528,8 @@ class KNXClient extends EventEmitter {
         if (this._clientSocket == null) {
             throw new Error('No client socket defined');
         }
-        this._timer = setTimeout(() => {
-            this._timer = null;
+        this._connectionTimeoutTimer = setTimeout(() => {
+            this._connectionTimeoutTimer = null;
         }, 1000 * KNXConstants.KNX_CONSTANTS.DEVICE_CONFIGURATION_REQUEST_TIMEOUT);
         this._awaitingResponseType = KNXConstants.KNX_CONSTANTS.DESCRIPTION_RESPONSE;
         this._sendDescriptionRequestMessage(host, port);
@@ -554,7 +553,7 @@ class KNXClient extends EventEmitter {
         this._numFailedTelegramACK = 0; // 25/12/2021 Reset the failed ACK counter
         this._clearToSend = true; // 26/12/2021 allow to send
 
-        if (this._timer !== null) clearTimeout(this._timer);
+        if (this._connectionTimeoutTimer !== null) clearTimeout(this._connectionTimeoutTimer);
 
         // Emit connecting
         this.emit(KNXClientEvents.connecting, this._options);
@@ -564,8 +563,8 @@ class KNXClient extends EventEmitter {
 
             // Unicast, need to explicitly create the connection
             const timeoutError = new Error(`Connection timeout to ${this._peerHost}:${this._peerPort}`);
-            this._timer = setTimeout(() => {
-                this._timer = null;
+            this._connectionTimeoutTimer = setTimeout(() => {
+                this._connectionTimeoutTimer = null;
                 try {
                     this.emit(KNXClientEvents.error, timeoutError);
                 } catch (error) {
@@ -588,7 +587,7 @@ class KNXClient extends EventEmitter {
                 // }, 1000 * KNXConstants.KNX_CONSTANTS.CONNECT_REQUEST_TIMEOUT);
                 conn._awaitingResponseType = KNXConstants.KNX_CONSTANTS.CONNECT_RESPONSE;
                 conn._clientTunnelSeqNumber = 0;
-                if (conn._options.isSecureKNXEnabled) conn._sendSecureSessionRequestMessage(new TunnelCRI.TunnelCRI(knxLayer));
+                if (conn._options.isSecureKNXEnabled) conn._sendSecureSessionRequestMessage(new TunnelCRI.TunnelCRI(knxLayer), conn.jKNXSecureKeyring);
             });
 
         } else {
@@ -637,14 +636,11 @@ class KNXClient extends EventEmitter {
         }
         this.stopHeartBeat();
         this._connectionState = STATE.DISCONNECTING;
-        this._timer = setTimeout(() => {
-            this._timer = null;
-        }, 1000 * KNXConstants.KNX_CONSTANTS.CONNECT_REQUEST_TIMEOUT);
         this._awaitingResponseType = KNXConstants.KNX_CONSTANTS.DISCONNECT_RESPONSE;
         this._sendDisconnectRequestMessage(this._channelID);
-        this._timerTimeoutSendDisconnectRequestMessage = setTimeout(() => {
+        //this._timerTimeoutSendDisconnectRequestMessage = setTimeout(() => {
             this._setDisconnected();
-        }, 1000 * KNXConstants.KNX_CONSTANTS.CONNECT_REQUEST_TIMEOUT);
+        //}, 1000 * KNXConstants.KNX_CONSTANTS.CONNECT_REQUEST_TIMEOUT);
     }
     isConnected() {
         return this._connectionState === STATE.CONNECTED;
@@ -652,7 +648,7 @@ class KNXClient extends EventEmitter {
     _setDisconnected() {
         if (this._timerTimeoutSendDisconnectRequestMessagetimer !== null) clearTimeout(this._timerTimeoutSendDisconnectRequestMessagetimer);
         this._timerTimeoutSendDisconnectRequestMessage = null;
-        if (this._timer !== null) clearTimeout(this._timer);
+        if (this._connectionTimeoutTimer !== null) clearTimeout(this._connectionTimeoutTimer);
         if (this._tunnelReqTimer !== null) clearTimeout(this._tunnelReqTimer);
         this.stopHeartBeat();
         this._connectionState = STATE.DISCONNECTED;
@@ -694,9 +690,9 @@ class KNXClient extends EventEmitter {
         }
         return this._clientTunnelSeqNumber;
     }
-    _keyFromCEMIMessage(cEMIMessage) {
-        return cEMIMessage.dstAddress.toString();
-    }
+    // _keyFromCEMIMessage(cEMIMessage) {
+    //     return cEMIMessage.dstAddress.toString();
+    // }
     _setTimerWaitingForACK(knxTunnelingRequest) {
         const timeoutErr = new errors.RequestTimeoutError(`RequestTimeoutError seqCounter:${knxTunnelingRequest.seqCounter}, DestAddr:${knxTunnelingRequest.cEMIMessage.dstAddress.toString() || "Non definito"},  AckRequested:${knxTunnelingRequest.cEMIMessage.control.ack}, timed out waiting telegram acknowledge by ${this._options.ipAddr || "No Peer host detected"}`);
         if (this._tunnelReqTimer !== null) clearTimeout(this._tunnelReqTimer);
@@ -764,8 +760,8 @@ class KNXClient extends EventEmitter {
             }
             else if (knxHeader.service_type === KNXConstants.KNX_CONSTANTS.CONNECT_RESPONSE) {
                 if (this._connectionState === STATE.CONNECTING) {
-                    if (this._timer !== null) clearTimeout(this._timer);
-                    this._timer = null;
+                    if (this._connectionTimeoutTimer !== null) clearTimeout(this._connectionTimeoutTimer);
+                    this._connectionTimeoutTimer = null;
                     const knxConnectResponse = knxMessage;
                     if (knxConnectResponse.status !== KNXConstants.ConnectionStatus.E_NO_ERROR) {
                         try {
@@ -942,7 +938,7 @@ class KNXClient extends EventEmitter {
                         }
                     }
                     else {
-                        if (this._timer !== null) clearTimeout(this._timer);
+                        if (this._connectionTimeoutTimer !== null) clearTimeout(this._connectionTimeoutTimer);
                     }
                 }
                 try {
@@ -969,7 +965,6 @@ class KNXClient extends EventEmitter {
         this.send(KNXProtocol.KNXProtocol.newKNXDescriptionRequest(new HPAI.HPAI(this._options.localIPAddress)));
     }
     _sendSearchRequestMessage() {
-        console.log('_sendSearchRequestMessage', this._options.localIPAddress, this._localPort);
         this.send(KNXProtocol.KNXProtocol.newKNXSearchRequest(new HPAI.HPAI(this._options.localIPAddress, this._localPort)), KNXConstants.KNX_CONSTANTS.KNX_PORT, KNXConstants.KNX_CONSTANTS.KNX_IP);
     }
     _sendConnectRequestMessage(cri) {
@@ -984,9 +979,9 @@ class KNXClient extends EventEmitter {
     _sendDisconnectResponseMessage(channelID, status = KNXConstants.ConnectionStatus.E_NO_ERROR) {
         this.send(KNXProtocol.KNXProtocol.newKNXDisconnectResponse(channelID, status));
     }
-    _sendSecureSessionRequestMessage(cri) {
+    _sendSecureSessionRequestMessage(cri, jKNXSecureKeyring) {
         let oHPAI = new HPAI.HPAI("0.0.0.0", 0, this._options.hostProtocol === "TunnelTCP" ? KNXConstants.KNX_CONSTANTS.IPV4_TCP : KNXConstants.KNX_CONSTANTS.IPV4_UDP);
-        this.send(KNXProtocol.KNXProtocol.newKNXSecureSessionRequest(cri, oHPAI));
+        this.send(KNXProtocol.KNXProtocol.newKNXSecureSessionRequest(cri, oHPAI, jKNXSecureKeyring));
     }
 }
 

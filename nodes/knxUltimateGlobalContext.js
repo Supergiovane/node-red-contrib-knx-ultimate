@@ -54,7 +54,7 @@ module.exports = function (RED) {
         node.formatdecimalsvalue = 999;
         node.writeExecutionInterval = config.writeExecutionInterval === undefined ? 1000 : config.writeExecutionInterval;
 
-        node.exposeAsVariable = config.exposeAsVariable !== undefined ? config.exposeAsVariable : "exposeAsVariableREADONLY"; // Should expose the Group Addresses to the Global Variable?
+        node.exposeAsVariable = config.exposeAsVariable !== undefined ? config.exposeAsVariable : "exposeAsVariableREADONLY"; // Should expose the Group Addresses to the Global Context?
         node.exposedGAs = [];
         node.timerExposedGAs = null;
 

@@ -22,7 +22,7 @@ const HPAI = require("./HPAI");
 
 class KNXProtocol {
     static parseMessage(buffer) {
-        
+
         const knxHeader = KNXHeader.KNXHeader.createFromBuffer(buffer);
         const knxData = buffer.slice(knxHeader.headerLength);
         let knxMessage;
@@ -98,8 +98,8 @@ class KNXProtocol {
     static newKNXRoutingIndication(cEMIMessage) { // 18/12/2021
         return new KNXRoutingIndication.KNXRoutingIndication(cEMIMessage);
     }
-    static newKNXSecureSessionRequest(cri, hpaiData = HPAI.HPAI.NULLHPAI) {
-        return new KNXSecureSessionRequest.KNXSecureSessionRequest(cri, hpaiData);
+    static newKNXSecureSessionRequest(cri, hpaiData = HPAI.HPAI.NULLHPAI, jKNXSecureKeyring) {
+        return new KNXSecureSessionRequest.KNXSecureSessionRequest(cri, hpaiData, jKNXSecureKeyring);
     }
 }
 exports.KNXProtocol = KNXProtocol;
