@@ -151,6 +151,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
         node.timerKNXUltimateCheckState = null; // 08/10/2021 Check the state. If not connected and autoreconnect is true, retrig the connetion attempt.
         node.lockHandleTelegramQueue = false; // 12/11/2021 Lock sending telegrams if node disconnected or if already handling the queue
         node.knxConnectionProperties = null; // Retains the connection properties
+        node.allowLauch_initKNXConnection = true; // See the node.timerKNXUltimateCheckState function
 
         // 15/12/2021
         node.adaptProtocolBasedOnIP = () => {
@@ -711,14 +712,18 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                         break;
                 }
 
-                node.knxConnection = new knx.KNXClient(node.knxConnectionProperties);
-
-                // Unsetting handlers
+                // Unsetting handlers if node.knxConnection was existing
                 try {
-                    //node.knxConnection.removeAllListeners();
+                    if (node.knxConnection !== null && node.knxConnection !== undefined) {
+                        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.debug("knxUltimate-config: removing old handlers. Node " + node.name);
+                        node.knxConnection.removeAllListeners();
+                    }
                 } catch (error) {
                     console.log("BANANA ERRORINO", error);
                 }
+
+                node.knxConnection = new knx.KNXClient(node.knxConnectionProperties);
+
 
                 // Setting handlers
                 // ######################################
@@ -1742,12 +1747,25 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
         if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("KNXUltimate-config: Autoconnection: " + (node.autoReconnect === false ? "no." : "yes") + " Node " + node.name);
         if (node.timerKNXUltimateCheckState !== null) clearInterval(node.timerKNXUltimateCheckState);
         node.timerKNXUltimateCheckState = setInterval(() => {
-            if (node.linkStatus === "disconnected" && node.autoReconnect) {
-                node.setAllClientsStatus("Auto reconnect in progress...", "grey", "");
-                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("knxUltimate-config: Auto Reconect by timerKNXUltimateCheckState in progress. node.LinkStatus:" + node.linkStatus + ", node.autoReconnect:" + node.autoReconnect);
+            // If the node is disconnected, wait another cycle, then reconnects
+            if (node.allowLauch_initKNXConnection && node.autoReconnect) {
+                node.allowLauch_initKNXConnection = false;
+                setTimeout(() => {
+                    node.setAllClientsStatus("Auto reconnect in progress...", "grey", "");
+                }, 100);                
+                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.debug("knxUltimate-config: Auto Reconect by timerKNXUltimateCheckState in progress. node.LinkStatus:" + node.linkStatus + ", node.autoReconnect:" + node.autoReconnect);
                 node.initKNXConnection();
+                return;
             }
-        }, 20000);
+            if (node.linkStatus === "disconnected" && node.autoReconnect) {
+                node.allowLauch_initKNXConnection = true; // Next cycle, launch initKNXConnection, so it pauses more and leave more time
+                setTimeout(() => {
+                    node.setAllClientsStatus("Next cycle will reconnect...", "grey", "");
+                }, 1000);                
+                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.debug("knxUltimate-config: Waiting next cycle to reconect. node.LinkStatus:" + node.linkStatus + ", node.autoReconnect:" + node.autoReconnect);
+                //node.initKNXConnection();
+            }
+        }, 15000);
 
 
 
