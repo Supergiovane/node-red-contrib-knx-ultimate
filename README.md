@@ -38,7 +38,7 @@ payload = {red:255, green:200, blue:30} // Put some colors in our life
 
 ## KNX SECURE
 
-KNX-Secure is under development and **should** be ready by the end of the year. I'm collecting money to buy a KNX Secure Router. You can help me by clicking here [![Donate via PayPal](https://img.shields.io/badge/Donate-PayPal-blue.svg?style=flat-square)](https://www.paypal.me/techtoday) 
+KNX-Secure is under development and **should** be ready by mid 2022. You can help me by clicking here [![Donate via PayPal](https://img.shields.io/badge/Donate-PayPal-blue.svg?style=flat-square)](https://www.paypal.me/techtoday) 
 
 ## HELP, SAMPLES, TROUBLESHOOT, WIKI, FAQ, BEST PRACTICES
 
