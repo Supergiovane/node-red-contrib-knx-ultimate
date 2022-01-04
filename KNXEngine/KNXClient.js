@@ -300,7 +300,7 @@ class KNXClient extends EventEmitter {
                 if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.error("Sending KNX packet: Send TCP Catch error: " + error.message || "Undef error");
                 try {
                     this.emit(KNXClientEvents.error, error);
-                } catch (error) {}
+                } catch (error) { }
             }
         }
     }
@@ -612,7 +612,7 @@ class KNXClient extends EventEmitter {
         this._heartbeatTimer = setTimeout(() => {
             this._heartbeatTimer = null;
             try {
-                console.log("BANANA OH! getConnectionStatus Timeout", this._heartbeatFailures, "su", this.max_HeartbeatFailures);
+                if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.error("KNXClient: getConnectionStatus Timeout " + this._heartbeatFailures + " out of " + this.max_HeartbeatFailures);
                 //this.emit(KNXClientEvents.error, timeoutError);
             } catch (error) {
             }
@@ -639,7 +639,7 @@ class KNXClient extends EventEmitter {
         this._awaitingResponseType = KNXConstants.KNX_CONSTANTS.DISCONNECT_RESPONSE;
         this._sendDisconnectRequestMessage(this._channelID);
         //this._timerTimeoutSendDisconnectRequestMessage = setTimeout(() => {
-            this._setDisconnected();
+        this._setDisconnected();
         //}, 1000 * KNXConstants.KNX_CONSTANTS.CONNECT_REQUEST_TIMEOUT);
     }
     isConnected() {
@@ -717,7 +717,6 @@ class KNXClient extends EventEmitter {
     _processInboundMessage(msg, rinfo) {
 
         try {
-
             // Composing debug string
             try {
                 if (this.sysLogger !== undefined && this.sysLogger !== null) {
@@ -729,6 +728,9 @@ class KNXClient extends EventEmitter {
                     this.sysLogger.trace("Received KNX packet: _processInboundMessage, " + sProcessInboundLog + " ChannelID:" + this._channelID || "??" + " Host:" + this._options.ipAddr + ":" + this._options.ipPort);
                 }
             } catch (error) { }
+
+            // BUGFIXING https://github.com/Supergiovane/node-red-contrib-knx-ultimate/issues/162
+            //msg = Buffer.from("0610053000102900b06011fe11150080","hex");
 
             const { knxHeader, knxMessage } = KNXProtocol.KNXProtocol.parseMessage(msg);
 
@@ -950,11 +952,12 @@ class KNXClient extends EventEmitter {
         }
         catch (e) {
             try {
-                if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.error("Received KNX packet: Error processing inbound message: " + e.message + " " + sProcessInboundLog + " ChannelID:" + this._channelID + " Host:" + this._options.ipAddr + ":" + this._options.ipPort);
+                if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.error("Received KNX packet: Error processing inbound message: " + e.message + " " + sProcessInboundLog + " ChannelID:" + this._channelID + " Host:" + this._options.ipAddr + ":" + this._options.ipPort + ". This means that KNX-Ultimate received a malformed Header or CEMI message from your KNX Gateway.");
             } catch (error) { }
             try {
-                this.emit(KNXClientEvents.error, e);
-                this._setDisconnected();
+                // 05/01/2022 Avoid disconnecting, because there are many bugged knx gateways out there!
+                //this.emit(KNXClientEvents.error, e);
+                //this._setDisconnected();
             } catch (error) { }
 
         }

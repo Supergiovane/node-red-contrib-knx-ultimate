@@ -4,6 +4,10 @@
 
 <br/>
 <p>
+<b>Version 1.3.16/b> - Januar 2022<br/>
+- KNXEngine: there are many some KNX gateways out there, sending malformed header or CEMI messages. Now KNX-Ultimate will simply ignore these bad messages. Prior, it was disconnecting.<br/>
+</p>
+<p>
 <b>Version 1.3.15</b> - Januar 2022<br/>
 - KNXEngine: better handling of disconnection in UDP mode, allowing very old grandpa KNX/IP interfaces enough time to understand what's happening, avoiding it to go crazy.<br/>
 - KNXEngine: corrected Curve Crypto in KNX-Secure (KNX Secure is not enabled yet!).<br/>

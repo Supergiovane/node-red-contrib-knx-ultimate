@@ -3,6 +3,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.NPDU = void 0;
 const CEMIConstants = require("./CEMIConstants");
 const KNXDataBuffer = require("../KNXDataBuffer");
+const sysLogger = require("./../../KnxLog.js").get(); // 08/04/2021 new logger to adhere to the loglevel selected in the config-window            
+
+
 class NPDU {
     constructor(_tpci = 0x0, _apci = 0x0, _data = null) {
         this._tpci = _tpci;
@@ -45,7 +48,7 @@ class NPDU {
         if (!(data instanceof KNXDataBuffer.KNXDataBuffer)) {
             throw new Error('Invalid data Buffer');
         }
-        
+
         if (data.sixBits() && data.length === 1 && data.value.readUInt8(0) < 0x3F) {
             this.apci = (this.apci & 0xC0) | data.value.readUInt8(0);
             this._data = null;
@@ -104,12 +107,34 @@ class NPDU {
     }
     static createFromBuffer(buffer, offset = 0) {
         if (offset > buffer.length) {
+            if (sysLogger !== undefined && sysLogger !== null) sysLogger.error("NPDU: createFromBuffer: offset out of buffer range ");
             throw new Error(`offset ${offset}  out of buffer range ${buffer.length}`);
         }
-        const npduLength = buffer.readUInt8(offset++);
-        const tpci = buffer.readUInt8(offset++);
-        const apci = buffer.readUInt8(offset++);
-        const data = npduLength > 1 ? buffer.slice(offset, offset + npduLength - 1) : null;
+        let npduLength = null;
+        let tpci = null;
+        let apci = null;
+        let data = null;
+
+        try {
+            npduLength = buffer.readUInt8(offset++);
+        } catch (error) {
+            if (sysLogger !== undefined && sysLogger !== null) sysLogger.error("NPDU: createFromBuffer: error npduLength: " + error.message);
+        }
+        try {
+            tpci = buffer.readUInt8(offset++);
+        } catch (error) {
+            if (sysLogger !== undefined && sysLogger !== null) sysLogger.error("NPDU: createFromBuffer: error tpci: " + error.message);
+        }
+        try {
+            apci = buffer.readUInt8(offset++);
+        } catch (error) {
+            if (sysLogger !== undefined && sysLogger !== null) sysLogger.error("NPDU: createFromBuffer: error apci: " + error.message);
+        }
+        try {
+            data = npduLength > 1 ? buffer.slice(offset, offset + npduLength - 1) : null;
+        } catch (error) {
+            if (sysLogger !== undefined && sysLogger !== null) sysLogger.error("NPDU: createFromBuffer: error data: " + error.message);
+        }
         return new NPDU(tpci, apci, data == null ? null : new KNXDataBuffer.KNXDataBuffer(data));
     }
     toBuffer() {

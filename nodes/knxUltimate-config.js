@@ -758,7 +758,9 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                     // Start the timer to do initial read.
                     if (node.timerDoInitialRead !== null) clearTimeout(node.timerDoInitialRead);
                     node.timerDoInitialRead = setTimeout(DoInitialReadFromKNXBusOrFile, 6000); // 17/02/2020 Do initial read of all nodes requesting initial read
-                    node.setAllClientsStatus("Connected", "green", "Wait for telegrams.")
+                    setTimeout(() => {
+                        node.setAllClientsStatus("Connected.", "green", "On duty.")
+                    }, 500);                    
                     if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("knxUltimate-config: Connected to %o", info);
                 });
                 node.knxConnection.on(knx.KNXClient.KNXClientEvents.connecting, info => {
