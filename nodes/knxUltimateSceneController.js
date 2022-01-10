@@ -240,10 +240,10 @@ module.exports = function (RED) {
         node.RecallScene = (_Payload, _ForceEvenControllerIsDisabled) => {
             try {
                 RecallSceneAsync(_Payload, _ForceEvenControllerIsDisabled);
-            } catch (error) {  
+            } catch (error) {
                 if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("knxUltimateSceneController: Node " + node.id + " Recall scene error:" + error.message);
             }
-            
+
         }
 
         // 11/03/2020 in the middle of coronavirus. Whole italy is red zone, closed down. Save scene.
@@ -409,9 +409,7 @@ module.exports = function (RED) {
         // On each deploy, unsubscribe+resubscribe
         if (node.server) {
             node.server.removeClient(node);
-            if (node.topic !== "" || node.topicSave !== "") {
-                node.server.addClient(node);
-            }
+            node.server.addClient(node);
         }
 
 
