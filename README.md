@@ -35,6 +35,17 @@ payload = {red:255, green:200, blue:30} // Put some colors in our life
 
 * See <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/blob/master/CHANGELOG.md">here the changelog</a>
 
+<br>
+<br>
+
+## SEARCHING FOR HELP _ VOLUNTEER NEEDED _
+**************************************************
+**************************************************
+*I need volunteer helping in development of KNX Secure. High knowledge of cryptography and KNX is needed.*
+**************************************************
+**************************************************
+<br>
+<br>
 
 ## KNX SECURE
 
