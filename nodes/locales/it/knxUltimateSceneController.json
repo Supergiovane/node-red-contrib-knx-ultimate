@@ -17,7 +17,7 @@
             "valueexample": "Es: false, true, altrimenti qualsiasi valore"
         },
         "other": {
-            "sceneConfig": "Configurazione Scena",
+            "sceneConfig": "Configurazione valori default della scena",
             "add": "Permi Aggiungi, per aggiungere un dispositivo alla scena"
         },
         "advanced": {

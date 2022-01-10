@@ -16,7 +16,7 @@
             "valueexample": "Beispiel: false, true, sonst ein beliebiger Wert"
         },
         "other": {
-            "sceneConfig": "Szenenkonfiguration",
+            "sceneConfig": "Szenenkonfiguration, default Werte",
             "add": "Drücken Sie Hinzufuegen, um ein Gerät zur Szene hinzuzufügen"
         },
         "advanced": {

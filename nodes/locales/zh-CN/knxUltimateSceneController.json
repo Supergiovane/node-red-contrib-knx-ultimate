@@ -17,7 +17,7 @@
             "valueexample" : "案例: 0 是 false, 1 是 true, 否则是任意值"
         },
         "other": {
-            "sceneConfig":"场景配置",
+            "sceneConfig":"场景配置 (default values)",
             "add":"点击添加, 就在场景中添加一个设备"
          },
          "advanced": {

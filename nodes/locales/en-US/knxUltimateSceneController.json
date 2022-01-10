@@ -17,7 +17,7 @@
             "valueexample" : "Ex: false, true, otherwise any value"
         },
         "other": {
-            "sceneConfig":"Scene Configuration",
+            "sceneConfig":"Scene default values configuration",
             "add":"Press ADD, to add a device in the scene"
          },
          "advanced": {
