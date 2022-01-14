@@ -28,10 +28,12 @@ extractBaseNo = (kv) => {
 };
 
 convertSubtype = (baseType) => (kv) => {
-    let value = `${baseType.base}.${kv[0]}`
+    let value = `${baseType.base}.${kv[0]}`;
+    //let sRet = value + " " + kv[1].name + (kv[1].unit === undefined ? "" : " (" + kv[1].unit + ")");
+    let sRet = value + " " + kv[1].name;
     return {
         value: value
-        , text: value + ` ${kv[1].name}`
+        , text: sRet
     }
 }
 
@@ -760,7 +762,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                     node.timerDoInitialRead = setTimeout(DoInitialReadFromKNXBusOrFile, 6000); // 17/02/2020 Do initial read of all nodes requesting initial read
                     setTimeout(() => {
                         node.setAllClientsStatus("Connected.", "green", "On duty.")
-                    }, 500);                    
+                    }, 500);
                     if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("knxUltimate-config: Connected to %o", info);
                 });
                 node.knxConnection.on(knx.KNXClient.KNXClientEvents.connecting, info => {
@@ -1754,7 +1756,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                 node.allowLauch_initKNXConnection = false;
                 setTimeout(() => {
                     node.setAllClientsStatus("Auto reconnect in progress...", "grey", "");
-                }, 100);                
+                }, 100);
                 if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.debug("knxUltimate-config: Auto Reconect by timerKNXUltimateCheckState in progress. node.LinkStatus:" + node.linkStatus + ", node.autoReconnect:" + node.autoReconnect);
                 node.initKNXConnection();
                 return;
@@ -1763,7 +1765,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                 node.allowLauch_initKNXConnection = true; // Next cycle, launch initKNXConnection, so it pauses more and leave more time
                 setTimeout(() => {
                     node.setAllClientsStatus("Next cycle will reconnect...", "grey", "");
-                }, 1000);                
+                }, 1000);
                 if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.debug("knxUltimate-config: Waiting next cycle to reconect. node.LinkStatus:" + node.linkStatus + ", node.autoReconnect:" + node.autoReconnect);
                 //node.initKNXConnection();
             }

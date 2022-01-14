@@ -626,7 +626,7 @@ class KNXClient extends EventEmitter {
                     this.emit(KNXClientEvents.error, deadError);
                 } catch (error) {
                 }
-                this._setDisconnected();
+                this._setDisconnected(deadError.message);
             }
         }, 1000 * KNXConstants.KNX_CONSTANTS.CONNECTIONSTATE_REQUEST_TIMEOUT);
         this._awaitingResponseType = KNXConstants.KNX_CONSTANTS.CONNECTIONSTATE_RESPONSE;
@@ -641,13 +641,13 @@ class KNXClient extends EventEmitter {
         this._awaitingResponseType = KNXConstants.KNX_CONSTANTS.DISCONNECT_RESPONSE;
         this._sendDisconnectRequestMessage(this._channelID);
         //this._timerTimeoutSendDisconnectRequestMessage = setTimeout(() => {
-        this._setDisconnected();
+        this._setDisconnected("Called from KNXClient Disconnected");
         //}, 1000 * KNXConstants.KNX_CONSTANTS.CONNECT_REQUEST_TIMEOUT);
     }
     isConnected() {
         return this._connectionState === STATE.CONNECTED;
     }
-    _setDisconnected() {
+    _setDisconnected(_sReason = "") {
         if (this._timerTimeoutSendDisconnectRequestMessagetimer !== null) clearTimeout(this._timerTimeoutSendDisconnectRequestMessagetimer);
         this._timerTimeoutSendDisconnectRequestMessage = null;
         if (this._connectionTimeoutTimer !== null) clearTimeout(this._connectionTimeoutTimer);
@@ -655,7 +655,7 @@ class KNXClient extends EventEmitter {
         this.stopHeartBeat();
         this._connectionState = STATE.DISCONNECTED;
         try {
-            this.emit(KNXClientEvents.disconnected, `${this._options.ipAddr}:${this._options.ipPort}`);
+            this.emit(KNXClientEvents.disconnected, this._options.ipAddr + ":" + this._options.ipPort + " " + _sReason);
         } catch (error) {
         }
 
@@ -740,13 +740,13 @@ class KNXClient extends EventEmitter {
             if (knxHeader.service_type === KNXConstants.KNX_CONSTANTS.ROUTING_LOST_MESSAGE) {
                 try {
                     this.emit(KNXClientEvents.error, new Error('ROUTING_LOST_MESSAGE'));
-                    this._setDisconnected();
+                    this._setDisconnected("Routing Lost Message");
                     return;
                 } catch (error) { }
             } else if (knxHeader.service_type === KNXConstants.KNX_CONSTANTS.ROUTING_BUSY) {
                 try {
                     this.emit(KNXClientEvents.error, new Error('ROUTING_BUSY'));
-                    this._setDisconnected();
+                    this._setDisconnected("Routing Busy");
                     return;
                 } catch (error) { }
             }
@@ -771,7 +771,7 @@ class KNXClient extends EventEmitter {
                         try {
                             this.emit(KNXClientEvents.error, KNXConnectResponse.KNXConnectResponse.statusToString(knxConnectResponse.status));
                         } catch (error) { }
-                        this._setDisconnected();
+                        this._setDisconnected("Connect response error " + knxConnectResponse.status);
                         return;
                     }
                     this._connectionState = STATE.CONNECTED;
@@ -798,7 +798,7 @@ class KNXClient extends EventEmitter {
                     } catch (error) {
                     }
                 }
-                this._setDisconnected();
+                this._setDisconnected("Received Disconnect Response");
             }
             else if (knxHeader.service_type === KNXConstants.KNX_CONSTANTS.DISCONNECT_REQUEST) {
 
@@ -808,12 +808,12 @@ class KNXClient extends EventEmitter {
                 }
 
                 try {
-                    if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.debug("Received KNX packet: DISCONNECT_REQUEST, ChannelID:" + this._channelID + " Host:" + this._options.ipAddr + ":" + this._options.ipPort);
+                    if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.warn("Received KNX packet: DISCONNECT_REQUEST, ChannelID:" + this._channelID + " Host:" + this._options.ipAddr + ":" + this._options.ipPort);
                 } catch (error) { }
 
                 this._connectionState = STATE.DISCONNECTING;
                 this._sendDisconnectResponseMessage(knxDisconnectRequest.channelID);
-                this._setDisconnected();
+                this._setDisconnected("Received Disconnect Request");
             }
             else if (knxHeader.service_type === KNXConstants.KNX_CONSTANTS.TUNNELING_REQUEST) {
 
@@ -934,7 +934,7 @@ class KNXClient extends EventEmitter {
                                 this.emit(KNXClientEvents.error, KNXConnectionStateResponse.KNXConnectionStateResponse.statusToString(knxConnectionStateResponse.status));
                             } catch (error) {
                             }
-                            this._setDisconnected();
+                            this._setDisconnected("Awaiting response "+ this._awaitingResponseType + ", received connection state response  with status " + knxConnectionStateResponse.status);
                         }
                         else {
                             if (this._heartbeatTimer !== null) clearTimeout(this._heartbeatTimer);

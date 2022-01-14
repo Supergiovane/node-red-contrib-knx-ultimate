@@ -129,9 +129,15 @@ exports.subtypes = {
   "057": {
     "desc": "DPT_Value_Power_Factor",
     "name": "Power factor",
-    "unit": "-"
+    "unit": "cos Φ"
   },
   
+  "058": {
+    "desc": "DPT_Value_Pressure",
+    "name": "Pressure (Pa)",
+    "unit": "Pa"
+  },
+
   "065": {
     "desc": "DPT_Value_Speed",
     "name": "Speed",

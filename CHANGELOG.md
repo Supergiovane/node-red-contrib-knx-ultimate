@@ -4,18 +4,23 @@
 
 <br/>
 <p>
-<b>Version 1.3.18</b> - Januar 2022<br/>
+<b>Version 1.3.19</b> - January 2022<br/>
+- NEW: Added Datapoint 14.058 Pressure (Pa).<br/>
+- Added some more description while disconnecting from the BUS.<br/>
+</p>
+<p>
+<b>Version 1.3.18</b> - January 2022<br/>
 - FIX: Scene Controller: fixed an issue preventing the node to work if you haven't set the RECALL and SAVE group addresses.<br/>
 - WIKI: updated the samples in the scene controller node.<br/>
 </p>
 <p>
-<b>Version 1.3.16</b> - Januar 2022<br/>
+<b>Version 1.3.16</b> - January 2022<br/>
 - KNXEngine: there are some weird KNX gateways out there, either sending malformed header or CEMI messages. Now KNX-Ultimate will simply ignore these bad messages. Prior, it was disconnecting.<br/>
 - KNXEngine: KNX-Secure packets are silently discarded for now, until KNX Secure will be ready.<br/>
 - KNXEngine: added more logs to for troubleshooting pourposes.<br/>
 </p>
 <p>
-<b>Version 1.3.15</b> - Januar 2022<br/>
+<b>Version 1.3.15</b> - January 2022<br/>
 - KNXEngine: better handling of disconnection in UDP mode, allowing very old grandpa KNX/IP interfaces enough time to understand what's happening, avoiding it to go crazy.<br/>
 - KNXEngine: corrected Curve Crypto in KNX-Secure (KNX Secure is not enabled yet!).<br/>
 </p>
