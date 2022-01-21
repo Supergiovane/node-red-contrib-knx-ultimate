@@ -154,6 +154,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
         node.lockHandleTelegramQueue = false; // 12/11/2021 Lock sending telegrams if node disconnected or if already handling the queue
         node.knxConnectionProperties = null; // Retains the connection properties
         node.allowLauch_initKNXConnection = true; // See the node.timerKNXUltimateCheckState function
+        node.timerClearTelegramQueue = null; // Timer to clear the telegram's queue after long disconnection
 
         // 15/12/2021
         node.adaptProtocolBasedOnIP = () => {
@@ -186,6 +187,20 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
             }
             node.nodeClients.map(nextStatus);
         }
+
+        // 21/01/2022 TTL Timer for clearung the node.telegramsQueue if the connection stays down for long time
+        node.startTimerClearTelegramQueue = () => {
+            if (node.timerClearTelegramQueue === null) {
+                node.timerClearTelegramQueue = setTimeout(() => {
+                    setTimeout(() => {
+                        node.setAllClientsStatus("Queue", "grey", "Deleted TX");
+                    }, 200);
+                    node.telegramsQueue = [];
+                    node.timerClearTelegramQueue = null;
+                }, 30000);
+            }
+        }
+
 
         // 
         // KNX-SECURE
@@ -417,7 +432,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                 if (node.knxConnection !== null) node.knxConnection.Disconnect();
             } catch (error) { }
 
-            node.telegramsQueue = []; // 02/01/2020 clear the telegram queue
+            node.startTimerClearTelegramQueue(); // 21/01/2022 Clear the telegram queue after a while
             node.setAllClientsStatus("Disconnected", "grey", "")
             node.linkStatus = "disconnected"; // 29/08/2019 signal disconnection
 
@@ -732,7 +747,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                 node.knxConnection.on(knx.KNXClient.KNXClientEvents.indication, handleBusEvents);
                 node.knxConnection.on(knx.KNXClient.KNXClientEvents.error, err => {
                     saveExposedGAs(); // 13/12/2021 save the current values of GA payload
-                    node.telegramsQueue = [];
+                    node.startTimerClearTelegramQueue(); // 21/01/2022 Clear the telegram queue after a while
                     node.linkStatus = "disconnected";
                     node.setAllClientsStatus("Disconnected by error " + (err.message === undefined ? err : err.message), "red", "");
                     if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("knxUltimate-config: Disconnected by: " + (err.message === undefined ? err : err.message));
@@ -744,7 +759,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                 });
                 node.knxConnection.on(knx.KNXClient.KNXClientEvents.disconnected, info => {
                     saveExposedGAs(); // 13/12/2021 save the current values of GA payload
-                    node.telegramsQueue = [];
+                    node.startTimerClearTelegramQueue(); // 21/01/2022 Clear the telegram queue after a while
                     if (node.linkStatus !== "disconnected") {
                         node.linkStatus = "disconnected";
                         node.setAllClientsStatus("Disconnected by event: " + info || "", "red", "");
@@ -755,7 +770,10 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                     if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.debug("knxUltimate-config: KNXClient socket closed.");
                 });
                 node.knxConnection.on(knx.KNXClient.KNXClientEvents.connected, info => {
-                    node.telegramsQueue = []; // 01/10/2020 Supergiovane: clear the telegram queue
+                    if (node.timerClearTelegramQueue !== null) {
+                        clearTimeout(node.timerClearTelegramQueue); // Connected. Stop the timer that clears the telegrams queue.
+                        node.timerClearTelegramQueue = null;
+                    }
                     node.linkStatus = "connected";
                     // Start the timer to do initial read.
                     if (node.timerDoInitialRead !== null) clearTimeout(node.timerDoInitialRead);
@@ -766,7 +784,6 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                     if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("knxUltimate-config: Connected to %o", info);
                 });
                 node.knxConnection.on(knx.KNXClient.KNXClientEvents.connecting, info => {
-                    node.telegramsQueue = []; // 01/10/2020 Supergiovane: clear the telegram queue
                     node.linkStatus = "connecting";
                     // Start the timer to do initial read.
                     if (node.timerDoInitialRead !== null) clearTimeout(node.timerDoInitialRead);
@@ -859,9 +876,6 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
             }
             switch (_evt) {
                 case "GroupValue_Write": {
-                    //console.log("BANANA FIGA ARRIVA ROBA", node.linkStatus)
-                    //node.linkStatus = "connected"; // 01/10/2020 The connection must be alive, if womething comes from the bus!
-                    //console.log("BANANA HO ATTIVATO FORZATAMENTE LA CONNESSIONE", node.linkStatus)
                     node.nodeClients
                         .filter(input => input.notifywrite == true)
                         .forEach(input => {
@@ -1072,14 +1086,14 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
         // 02/01/2020 All sent messages are queued, to allow at least 50 milliseconds between each telegram sent to the bus
         node.writeQueueAdd = _oKNXMessage => {
             let _clonedMessage = RED.util.cloneMessage(_oKNXMessage);
-            if (node.linkStatus !== "connected") {
-                try {
-                    if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("knxUltimate-config: writeQueueAdd Discarded " + JSON.stringify(_clonedMessage));
-                } catch (error) {
+            // if (node.linkStatus !== "connected") {
+            //     try {
+            //         if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("knxUltimate-config: writeQueueAdd Discarded " + JSON.stringify(_clonedMessage));
+            //     } catch (error) {
 
-                }
-                return;
-            }
+            //     }
+            //     return;
+            // }
             // _clonedMessage is { grpaddr, payload,dpt,outputtype (write or response),nodecallerid (id of the node sending adding the telegram to the queue)}
             node.telegramsQueue.unshift(_clonedMessage); // Add _clonedMessage as first in the queue pile
         }
@@ -1090,12 +1104,11 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                 node.lockHandleTelegramQueue = true; // Lock the function. It cannot be called again until finished.
 
                 // 16/08/2021 If not connected, exit
-                if (node.linkStatus !== "connected") {
-                    node.telegramsQueue = [];
+                if (node.linkStatus !== "connected" || node.telegramsQueue.length === 0) {
                     node.lockHandleTelegramQueue = false; // Unlock the function
                     return;
                 }
-
+            
                 // 26/12/2021 If the KNXEngine is busy waiting for telegram's ACK, exit
                 if (!node.knxConnection._getClearToSend()) {
                     node.lockHandleTelegramQueue = false; // Unlock the function
@@ -1104,6 +1117,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                     }
                     return;
                 }
+
 
                 // Retrieving oKNXMessage  { grpaddr, payload,dpt,outputtype (write or response),nodecallerid (node caller)}. 06/03/2020 "Read" request does have the lower priority in the queue, so firstly, i search for "read" telegrams and i move it on the top of the queue pile.
                 var aTelegramsFiltered = [];
@@ -1160,7 +1174,6 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
 
                             // 16/08/2021 If not connected, exit
                             if (node.linkStatus !== "connected") {
-                                node.telegramsQueue = [];
                                 node.lockHandleTelegramQueue = false; // Unlock the function
                                 return;
                             }
@@ -1769,7 +1782,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                 if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.debug("knxUltimate-config: Waiting next cycle to reconect. node.LinkStatus:" + node.linkStatus + ", node.autoReconnect:" + node.autoReconnect);
                 //node.initKNXConnection();
             }
-        }, 15000);
+        }, 10000);
 
 
 

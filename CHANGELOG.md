@@ -4,6 +4,10 @@
 
 <br/>
 <p>
+<b>Version 1.3.20</b> - January 2022<br/>
+- NEW: Telegram out queue TTL: as soon as KNX-Ultimate detects a connection loss, it will retain the telegrams sent to the BUS during the disconnection. After the reconnection, KNX-Ultimate will send the retained queue.<br/>
+</p>
+<p>
 <b>Version 1.3.19</b> - January 2022<br/>
 - NEW: Added Datapoint 14.058 Pressure (Pa).<br/>
 - Added some more description while disconnecting from the BUS.<br/>

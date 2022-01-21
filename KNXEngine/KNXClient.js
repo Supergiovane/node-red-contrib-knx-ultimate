@@ -883,7 +883,7 @@ class KNXClient extends EventEmitter {
                         } catch (error) { }
                         //this.emit(KNXClientEvents.error, `Unexpected Tunnel Ack ${knxTunnelingAck.seqCounter}`);
                     }
-                }
+                } 
 
             } else if (knxHeader.service_type === KNXConstants.KNX_CONSTANTS.ROUTING_INDICATION) {
 
