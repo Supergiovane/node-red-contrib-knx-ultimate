@@ -4,6 +4,10 @@
 
 <br/>
 <p>
+<b>Version 1.3.21</b> - January 2022<br/>
+- FIX: Node Logger wasn't correclty logging the bus traffic. Fixed.<br/>
+</p>
+<p>
 <b>Version 1.3.20</b> - January 2022<br/>
 - NEW: Telegram out queue TTL: as soon as KNX-Ultimate detects a connection loss, it will retain the telegrams sent to the BUS during the disconnection. After the reconnection, KNX-Ultimate will send the retained queue.<br/>
 </p>

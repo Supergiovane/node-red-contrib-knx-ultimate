@@ -850,16 +850,18 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
             if (_CEMI !== undefined && _CEMI !== null) {
                 // I'm receiving a telegram from the BUS
                 try {
-                    var iStart = _datagram._header._headerLength; //+ 4;
-                    _cemiETS = _CEMI.substring(iStart * 2);
-                    //_cemiETS = datagram.cEMIMessage.srcAddress.toBuffer().toString("hex") + _datagram.cEMIMessage.dstAddress.toBuffer().toString("hex") + "01" + _datagram.cEMIMessage.npdu._tpci.toString(16)
+                    // Multicast: RX from BUS: OK
+                    // Multicast TX to BUS: OK
+                    // Tunnel: RX from BUS: OK
+                    // Tunnel: TX to BUS: see the _echoed below
+                    _cemiETS = _datagram.cEMIMessage.toBuffer().toString("hex")
                 } catch (error) { }
 
             } else if (_echoed) {
                 // I'm sending a telegram to the BUS
+                // Tunnel: TX to BUS: OK
                 try {
                     let sCemiFromDatagram = _datagram.cEMIMessage.toBuffer().toString("hex");
-                    let iStartAddress = sCemiFromDatagram.indexOf(_datagram.cEMIMessage.srcAddress.toBuffer().toString("hex"));
                     _cemiETS = "2900BCD0" + sCemiFromDatagram.substr(8);
                 } catch (error) { _cemiETS = ""; }
             }
@@ -1108,7 +1110,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                     node.lockHandleTelegramQueue = false; // Unlock the function
                     return;
                 }
-            
+
                 // 26/12/2021 If the KNXEngine is busy waiting for telegram's ACK, exit
                 if (!node.knxConnection._getClearToSend()) {
                     node.lockHandleTelegramQueue = false; // Unlock the function

@@ -808,7 +808,7 @@ class KNXClient extends EventEmitter {
                 }
 
                 try {
-                    if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.warn("Received KNX packet: DISCONNECT_REQUEST, ChannelID:" + this._channelID + " Host:" + this._options.ipAddr + ":" + this._options.ipPort);
+                    if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.error("Received KNX packet: DISCONNECT_REQUEST, ChannelID:" + this._channelID + " Host:" + this._options.ipAddr + ":" + this._options.ipPort);
                 } catch (error) { }
 
                 this._connectionState = STATE.DISCONNECTING;
