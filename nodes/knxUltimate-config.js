@@ -814,8 +814,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
 
         // Handle BUS events
         // ---------------------------------------------------------------------------------------
-        //function handleBusEvents(_evt, _src, _dest, _rawValue, _datagram, _isRepeated) {
-        function handleBusEvents(_datagram, _echoed, _CEMI) {
+        function handleBusEvents(_datagram, _echoed) {
 
 
             // _rawValue
@@ -847,22 +846,20 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
             // 23/03/2021 Supergiovane: Added the CEMI telegram for ETS Diagnostic
             // #####################################################################
             let _cemiETS = "";
-            if (_CEMI !== undefined && _CEMI !== null) {
-                // I'm receiving a telegram from the BUS
-                try {
-                    // Multicast: RX from BUS: OK
-                    // Multicast TX to BUS: OK
-                    // Tunnel: RX from BUS: OK
-                    // Tunnel: TX to BUS: see the _echoed below
-                    _cemiETS = _datagram.cEMIMessage.toBuffer().toString("hex")
-                } catch (error) { }
-
-            } else if (_echoed) {
-                // I'm sending a telegram to the BUS
+            if (_echoed) {
+                // I'm sending a telegram to the BUS in Tunneling mode, with echo enabled.
                 // Tunnel: TX to BUS: OK
                 try {
                     let sCemiFromDatagram = _datagram.cEMIMessage.toBuffer().toString("hex");
                     _cemiETS = "2900BCD0" + sCemiFromDatagram.substr(8);
+                } catch (error) { _cemiETS = ""; }
+            } else {
+                try {
+                    // Multicast: RX from BUS: OK
+                    // Multicast TX to BUS: OK
+                    // Tunnel: RX from BUS: OK
+                    // Tunnel: TX to BUS: see the _echoed above
+                    _cemiETS = _datagram.cEMIMessage.toBuffer().toString("hex")
                 } catch (error) { _cemiETS = ""; }
             }
             // #####################################################################
