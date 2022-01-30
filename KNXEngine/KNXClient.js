@@ -446,6 +446,56 @@ class KNXClient extends EventEmitter {
         }
 
     }
+    // writeRaw(dstAddress, _rawDataBuffer, bitlength) {
+    //     // bitlength is unused and only for backward compatibility
+
+    //     if (this._connectionState !== STATE.CONNECTED) throw new Error("The socket is not connected. Unable to access the KNX BUS");
+
+    //     if (!Buffer.isBuffer(_rawDataBuffer)) {
+    //         if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.error('KNXClient: writeRaw: Value must be a buffer! ');
+    //         return
+    //     }
+
+    //     // Transform the  "data" into a KNDDataBuffer
+    //     let data = new KNXDataBuffer(_rawDataBuffer);
+
+    //     if (typeof dstAddress === "string") dstAddress = KNXAddress.createFromString(dstAddress, KNXAddress.TYPE_GROUP);
+    //     let srcAddress = this._options.physAddr;
+    //     if (this._options.hostProtocol === "Multicast") {
+    //         // Multicast
+    //         const cEMIMessage = CEMIFactory.CEMIFactory.newLDataIndicationMessage("write", srcAddress, dstAddress, data);
+    //         cEMIMessage.control.ack = 0;
+    //         cEMIMessage.control.broadcast = 1;
+    //         cEMIMessage.control.priority = 3;
+    //         cEMIMessage.control.addressType = 1;
+    //         cEMIMessage.control.hopCount = 6;
+    //         const knxPacketRequest = KNXProtocol.KNXProtocol.newKNXRoutingIndication(cEMIMessage);
+    //         this.send(knxPacketRequest);
+    //         // 06/12/2021 Multivast automaticalli echoes telegrams
+
+    //     } else {
+    //         // Tunneling
+    //         const cEMIMessage = CEMIFactory.CEMIFactory.newLDataRequestMessage("write", srcAddress, dstAddress, data);
+    //         cEMIMessage.control.ack = this._options.suppress_ack_ldatareq ? 0 : 1;
+    //         cEMIMessage.control.broadcast = 1;
+    //         cEMIMessage.control.priority = 3;
+    //         cEMIMessage.control.addressType = 1;
+    //         cEMIMessage.control.hopCount = 6;
+    //         this._incSeqNumber(); // 26/12/2021
+    //         const seqNum = this._getSeqNumber();
+    //         const knxPacketRequest = KNXProtocol.KNXProtocol.newKNXTunnelingRequest(this._channelID, seqNum, cEMIMessage);
+    //         if (!this._options.suppress_ack_ldatareq) this._setTimerWaitingForACK(knxPacketRequest);
+    //         this.send(knxPacketRequest);
+    //         // 06/12/2021 Echo the sent telegram. Last parameter is the echo true/false
+    //         try {
+    //             if (this._options.localEchoInTunneling) this.emit(KNXClientEvents.indication, knxPacketRequest, true);
+    //         } catch (error) {
+    //         }
+
+    //     }
+
+    // }
+
     writeRaw(dstAddress, _rawDataBuffer, bitlength) {
         // bitlength is unused and only for backward compatibility
 
@@ -456,8 +506,20 @@ class KNXClient extends EventEmitter {
             return
         }
 
-        // Transform the  "data" into a KNDDataBuffer
-        let data = new KNXDataBuffer(_rawDataBuffer)
+
+        let isSixBits = bitlength <= 6;
+        let IDataPoint = {
+            id: "",
+            value: "any",
+            type: { type: isSixBits },
+            bind: null,
+            read: () => null,
+            write: null
+        }
+        // Get the KNDDataBuffer
+        var baseBufferFromBitLenght = Buffer.alloc((bitlength / 8)); // The buffer lenght must be like specified by bitlenght
+        _rawDataBuffer.copy(baseBufferFromBitLenght, 0);
+        let data = new KNXDataBuffer(baseBufferFromBitLenght, IDataPoint);
 
         if (typeof dstAddress === "string") dstAddress = KNXAddress.createFromString(dstAddress, KNXAddress.TYPE_GROUP);
         let srcAddress = this._options.physAddr;
@@ -883,7 +945,7 @@ class KNXClient extends EventEmitter {
                         } catch (error) { }
                         //this.emit(KNXClientEvents.error, `Unexpected Tunnel Ack ${knxTunnelingAck.seqCounter}`);
                     }
-                } 
+                }
 
             } else if (knxHeader.service_type === KNXConstants.KNX_CONSTANTS.ROUTING_INDICATION) {
 
@@ -934,7 +996,7 @@ class KNXClient extends EventEmitter {
                                 this.emit(KNXClientEvents.error, KNXConnectionStateResponse.KNXConnectionStateResponse.statusToString(knxConnectionStateResponse.status));
                             } catch (error) {
                             }
-                            this._setDisconnected("Awaiting response "+ this._awaitingResponseType + ", received connection state response  with status " + knxConnectionStateResponse.status);
+                            this._setDisconnected("Awaiting response " + this._awaitingResponseType + ", received connection state response  with status " + knxConnectionStateResponse.status);
                         }
                         else {
                             if (this._heartbeatTimer !== null) clearTimeout(this._heartbeatTimer);

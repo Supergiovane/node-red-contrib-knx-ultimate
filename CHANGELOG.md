@@ -4,6 +4,10 @@
 
 <br/>
 <p>
+<b>Version 1.3.22</b> - February 2022<br/>
+- FIX: WriteRaw: some values wasn't sent to the bus due to an hex conversion issue.<br/>
+</p>
+<p>
 <b>Version 1.3.21</b> - January 2022<br/>
 - FIX: Node Logger wasn't correclty logging the bus traffic. Fixed.<br/>
 </p>
