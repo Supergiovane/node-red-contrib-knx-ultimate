@@ -244,7 +244,7 @@ module.exports = function (RED) {
                     node.setLocalStatus({ fill: "green", shape: "dot", text: "Switch on", payload: "Shedding stage " + (node.sheddingStage - 1), GA: oRow.ga, dpt: oRow.dpt, devicename: oRow.name });
                     node.server.writeQueueAdd({ grpaddr: oRow.ga, payload: true, dpt: oRow.dpt, outputtype: "write", nodecallerid: node.id });
                 } else {
-                    node.setLocalStatus({ fill: "yellow", shape: "dot", text: "No GA defined", payload: "Shedding stage " + node.sheddingStage, GA: "", dpt: "", devicename: "" });
+                    node.setLocalStatus({ fill: "yellow", shape: "dot", text: "No GA defined", payload: "Shedding stage " + (node.sheddingStage - 1), GA: "", dpt: "", devicename: "" });
                 }
             } else {
                 // Cannot auto switch on the load.
