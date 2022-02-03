@@ -55,15 +55,17 @@ module.exports = function (RED) {
         node.setNodeStatus = ({ fill, shape, text, payload, GA, dpt, devicename }) => {
             if (node.server === null) return;
             // Log only service statuses, not the GA values
+            try {
+                if (dpt !== "") return;
+                var dDate = new Date();
+                // 30/08/2019 Display only the things selected in the config
+                _GA = (typeof _GA == "undefined" || GA == "") ? "" : "(" + GA + ") ";
+                _devicename = devicename || "";
+                _dpt = (typeof dpt == "undefined" || dpt == "") ? "" : " DPT" + dpt;
+                node.status({ fill: fill, shape: shape, text: _GA + payload + ((node.listenallga && node.server.statusDisplayDeviceNameWhenALL) === true ? " " + _devicename : "") + (node.server.statusDisplayDataPoint === true ? _dpt : "") + (node.server.statusDisplayLastUpdate === true ? " (" + dDate.getDate() + ", " + dDate.toLocaleTimeString() + ")" : "") + " " + text });
+            } catch (error) {
 
-            if (dpt !== "") return;
-
-            var dDate = new Date();
-            // 30/08/2019 Display only the things selected in the config
-            _GA = (typeof _GA == "undefined" || GA == "") ? "" : "(" + GA + ") ";
-            _devicename = devicename || "";
-            _dpt = (typeof dpt == "undefined" || dpt == "") ? "" : " DPT" + dpt;
-            node.status({ fill: fill, shape: shape, text: _GA + payload + ((node.listenallga && node.server.statusDisplayDeviceNameWhenALL) === true ? " " + _devicename : "") + (node.server.statusDisplayDataPoint === true ? _dpt : "") + (node.server.statusDisplayLastUpdate === true ? " (" + dDate.getDate() + ", " + dDate.toLocaleTimeString() + ")" : "") + " " + text });
+            }
 
         }
 
@@ -144,6 +146,9 @@ module.exports = function (RED) {
             // Increase shedding timer (Switch off devices)
             if (node.timerIncreaseShedding !== null) clearInterval(node.timerIncreaseShedding);
             node.timerIncreaseShedding = setInterval(() => {
+
+                // Issue a READ request to the main Watt GA
+                if (node.topic !== undefined && node.topic !== null && node.topic !== "") node.server.writeQueueAdd({ grpaddr: node.ga, payload: "", dpt: "", outputtype: "read", nodecallerid: node.id });
 
                 // Check consumption
                 if (node.totalWatt > node.wattLimit) {
@@ -236,16 +241,16 @@ module.exports = function (RED) {
             if (oRow.autoRestore === true) {
                 if (oRow.ga !== undefined && oRow.ga !== "" && oRow.ga !== null) {
                     // Check if the device is in use. If not, turn off the device and further increase the shedding stage to turn off the next one.
-                    node.setLocalStatus({ fill: "green", shape: "dot", text: "Switch on", payload: "Shedding stage " + node.sheddingStage - 1, GA: oRow.ga, dpt: oRow.dpt, devicename: oRow.name });
+                    node.setLocalStatus({ fill: "green", shape: "dot", text: "Switch on", payload: "Shedding stage " + (node.sheddingStage - 1), GA: oRow.ga, dpt: oRow.dpt, devicename: oRow.name });
                     node.server.writeQueueAdd({ grpaddr: oRow.ga, payload: true, dpt: oRow.dpt, outputtype: "write", nodecallerid: node.id });
                 } else {
                     node.setLocalStatus({ fill: "yellow", shape: "dot", text: "No GA defined", payload: "Shedding stage " + node.sheddingStage, GA: "", dpt: "", devicename: "" });
                 }
-                node.send({ topic: node.name || node.topic, payload: "Shedding stage " + node.sheddingStage - 1 });
             } else {
                 // Cannot auto switch on the load.
                 node.setLocalStatus({ fill: "yellow", shape: "dot", text: "Auto Restore disabled", payload: "Shedding stage " + node.sheddingStage, GA: oRow.ga, dpt: oRow.dpt, devicename: oRow.name });
             }
+            node.send({ topic: node.name || node.topic, payload: "Shedding stage " + (node.sheddingStage - 1) });
             if (node.sheddingStage > 0) {
                 node.sheddingStage--;
             } else {
