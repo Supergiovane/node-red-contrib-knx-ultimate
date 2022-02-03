@@ -948,7 +948,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                                 try {
                                     oGA = node.csv.filter(sga => sga.ga == _dest)[0];
                                 } catch (error) { }
-                                
+
                                 // 25/10/2019 TRY TO AUTO DECODE IF Group address not found in the CSV
                                 let msg = buildInputMessage({ _srcGA: _src, _destGA: _dest, _event: _evt, _Rawvalue: _rawValue, _inputDpt: (typeof oGA === "undefined") ? null : oGA.dpt, _devicename: (typeof oGA === "undefined") ? input.name || "" : oGA.devicename, _outputtopic: _dest, _oNode: input });
                                 input.setNodeStatus({ fill: "green", shape: "dot", text: (typeof oGA === "undefined") ? "Try to decode" : "", payload: msg.payload, GA: msg.knx.destination, dpt: msg.knx.dpt, devicename: msg.devicename });
@@ -1362,7 +1362,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
 
                 // Formatting the msg output value
                 if (_oNode !== null && jsValue !== null) {
-                    if (typeof jsValue === "number" && _oNode.formatmultiplyvalue !== undefined && _oNode.formatdecimalsvalue !== undefiend && _oNode.formatnegativevalue !== undefined) {
+                    if (typeof jsValue === "number" && _oNode.formatmultiplyvalue !== undefined && _oNode.formatdecimalsvalue !== undefined && _oNode.formatnegativevalue !== undefined) {
                         // multiplier
                         jsValue = jsValue * _oNode.formatmultiplyvalue;
                         // Number of decimals
