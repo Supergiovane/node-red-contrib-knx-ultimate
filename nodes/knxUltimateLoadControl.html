@@ -1,0 +1,353 @@
+<script type="text/javascript">
+    RED.nodes.registerType('knxUltimateLoadControl', {
+        category: "KNX Ultimate",
+        color: '#C7E9C0',
+        defaults: {
+            //buttonState: {value: true},
+            server: { type: "knxUltimate-config", required: false },
+            name: { value: "" },
+            topic: { value: "" },
+            dpt: { value: "" },
+            wattLimit: { value: 3000, validate: RED.validators.number() },
+            sheddingCheckInterval: { value: 15, validate: RED.validators.number() },
+            sheddingRestoreDelay: { value: 60, validate: RED.validators.number() },
+            GA1: { value: "" },
+            DPT1: { value: "" },
+            Name1: { value: "" },
+            autoRestore1: { value: true },
+            MonitorGA1: { value: "" },
+            MonitorDPT1: { value: "" },
+            MonitorName1: { value: "" },
+            GA2: { value: "" },
+            DPT2: { value: "" },
+            Name2: { value: "" },
+            autoRestore2: { value: true },
+            MonitorGA2: { value: "" },
+            MonitorDPT2: { value: "" },
+            MonitorName2: { value: "" },
+            GA3: { value: "" },
+            DPT3: { value: "" },
+            Name3: { value: "" },
+            autoRestore3: { value: true },
+            MonitorGA3: { value: "" },
+            MonitorDPT3: { value: "" },
+            MonitorName3: { value: "" },
+            GA4: { value: "" },
+            DPT4: { value: "" },
+            Name4: { value: "" },
+            autoRestore4: { value: true },
+            MonitorGA4: { value: "" },
+            MonitorDPT4: { value: "" },
+            MonitorName4: { value: "" },
+            GA5: { value: "" },
+            DPT5: { value: "" },
+            Name5: { value: "" },
+            autoRestore5: { value: true },
+            MonitorGA5: { value: "" },
+            MonitorDPT5: { value: "" },
+            MonitorName5: { value: "" }
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: "node-alerter-icon.svg",
+        label: function () {
+            return (this.name || this.topic || "KNX Load Control");
+        },
+        paletteLabel: "KNX Load Control",
+        // button: {
+        //     enabled: function() {
+        //         // return whether or not the button is enabled, based on the current
+        //         // configuration of the node
+        //         return !this.changed
+        //     },
+        //     visible: function() {
+        //         // return whether or not the button is visible, based on the current
+        //         // configuration of the node
+        //         return this.hasButton
+        //     },
+        //     //toggle: "buttonState",
+        //     onclick: function() {}
+        // },
+        oneditprepare: function () {
+            var node = this;
+            var oNodeServer = RED.nodes.node($("#node-input-server").val()); // Store the config-node
+
+            // 19/02/2020 Used to get the server sooner als deploy.
+            $("#node-input-server").change(function () {
+                try {
+                    oNodeServer = RED.nodes.node($(this).val());
+                } catch (error) { }
+            });
+
+            // 31/03/2020 Search Helper
+            function fullSearch(sourceText, searchString) {
+                // This searches for all words in a string
+                var aSearchWords = searchString.toLowerCase().split(" ");
+                var i = 0;
+                for (let index = 0; index < aSearchWords.length; index++) {
+                    if (sourceText.toLowerCase().indexOf(aSearchWords[index]) > -1) i += 1;
+                }
+                return i == aSearchWords.length;
+            }
+
+            $.getJSON("knxUltimateDpts", (data) => {
+                data.forEach(dpt => {
+                    $("#node-input-dpt").append($("<option></option>").attr("value", dpt.value).text(dpt.text));
+                    for (let index = 1; index < 6; index++) {
+                        $("#node-input-DPT" + index).append($("<option></option>").attr("value", dpt.value).text(dpt.text));
+                        $("#node-input-MonitorDPT" + index).append($("<option></option>").attr("value", dpt.value).text(dpt.text));
+                    }
+                });
+                $("#node-input-dpt").val(this.dpt);
+                $("#node-input-DPT1").val(this.DPT1);
+                $("#node-input-DPT2").val(this.DPT2);
+                $("#node-input-DPT3").val(this.DPT3);
+                $("#node-input-DPT4").val(this.DPT4);
+                $("#node-input-DPT5").val(this.DPT5);
+                $("#node-input-MonitorDPT1").val(this.MonitorDPT1);
+                $("#node-input-MonitorDPT2").val(this.MonitorDPT2);
+                $("#node-input-MonitorDPT3").val(this.MonitorDPT3);
+                $("#node-input-MonitorDPT4").val(this.MonitorDPT4);
+                $("#node-input-MonitorDPT5").val(this.MonitorDPT5);
+            })
+
+            // Autocomplete suggestion with ETS csv File
+            this.autoComplete = (_Name, _DPT) => {
+                let paramAutoComplete = {
+                    minLength: 1,
+                    source: function (request, response) {
+                        $.getJSON("knxUltimatecsv?nodeID=" + oNodeServer.id, (data) => {
+                            response($.map(data, function (value, key) {
+                                var sSearch = (value.ga + " (" + value.devicename + ") DPT" + value.dpt);
+                                if (fullSearch(sSearch, request.term)) {
+                                    return {
+                                        label: value.ga + " # " + value.devicename + " # " + value.dpt, // Label for Display
+                                        value: value.ga // Value
+                                    }
+                                } else {
+                                    return null;
+                                }
+                            }));
+                        });
+                    }, select: function (event, ui) {
+                        // Sets Datapoint and device name automatically
+                        var sDevName = ui.item.label.split("#")[1].trim();
+                        try {
+                            sDevName = sDevName.substr(sDevName.indexOf(")") + 1).trim();
+                        } catch (error) {
+                        }
+                        if (_Name === "name") {
+                            $("#node-input-" + _Name).val("Load Control for " + sDevName);
+                        } else {
+                            $("#node-input-" + _Name).val(sDevName);
+                        }
+
+                        var optVal = $("#node-input-dpt option:contains('" + ui.item.label.split("#")[2].trim() + "')").attr('value');
+                        // Select the option value 
+                        $("#node-input-" + _DPT).val(optVal);
+                        $("#node-input-" + _DPT).trigger("change");
+                    }
+                };
+                return paramAutoComplete;
+            };
+
+            $("#node-input-topic").autocomplete(this.autoComplete("name", "dpt"));
+            for (let index = 1; index < 6; index++) {
+                $("#node-input-GA" + index).autocomplete(this.autoComplete("Name" + index, "DPT" + index));
+                $("#node-input-MonitorGA" + index).autocomplete(this.autoComplete("MonitorName" + index, "MonitorDPT" + index));
+            }
+
+
+
+        },
+        oneditsave: function () {
+
+        },
+        oneditresize: function (size) {
+
+        }
+    })
+
+</script>
+
+<script type="text/x-red" data-template-name="knxUltimateLoadControl">
+
+
+<div class="form-row">
+    <b><span data-i18n="knxUltimateLoadControl.title"></span></b>&nbsp&nbsp<span style="color:red" data-i18n="[html]knxUltimateLoadControl.helplink"></span>
+    <br/><br/>
+
+    <label for="node-input-server"> <img
+        src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAKnRFWHRDcmVhdGlvbiBUaW1lAEZyIDYgQXVnIDIwMTAgMjE6NTI6MTkgKzAxMDD84aS8AAAAB3RJTUUH3gYYCicNV+4WIQAAAAlwSFlzAAALEgAACxIB0t1+/AAAAARnQU1BAACxjwv8YQUAAACUSURBVHjaY2CgFZg5c+Z/ZEyWAZ8+f/6/ZsWs/xoamqMGkGrA6Wla/1+fVARjEBuGsSoGmY4eZSCNL59d/g8DIDbIAHR14OgFGQByKjIGKX5+6/T///8gGMQGiV1+/B0Fg70GIkD+RMYgxf/O5/7//2MSmAZhkBi6OrgB6Bg5DGB4ajr3f2xqsYYLSDE2THJUDg0AAAqyDVd4tp4YAAAAAElFTkSuQmCC"></img>
+            <span data-i18n="knxUltimateLoadControl.properties.node-input-server"></span> </label>
+    <input type="text" id="node-input-server">
+</div>
+
+
+<div class="form-row">
+    <i class="fa fa-battery-full"></i>
+    <label style="width:100px" for="node-input-topic">
+            <span data-i18n="knxUltimateLoadControl.properties.node-input-topic"></span>
+    </label>
+    <input style="width:15%" type="text" id="node-input-topic" placeholder="Ex: 1/1/1" />
+    <select style="width:15%" id="node-input-dpt"></select>  
+    <input style="width:40%" type="text" id="node-input-name" data-i18n="[placeholder]knxUltimateLoadControl.properties.node-input-name">      
+</div>
+
+<div class="form-row">
+    <i class="fa fa-exclamation"></i>
+    <label style="width:125px" for="node-input-wattLimit">
+            <span data-i18n="knxUltimateLoadControl.properties.node-input-wattLimit"></span>
+    </label>
+    <input style="width:40%" type="text" id="node-input-wattLimit" placeholder="Ex. 3000">      
+</div>
+
+<div class="form-row">
+    <i class="fa fa-toggle-off"></i>
+    <label style="width:125px" for="node-input-sheddingCheckInterval">
+            <span data-i18n="knxUltimateLoadControl.properties.node-input-sheddingCheckInterval"></span>
+    </label>
+    <input style="width:40%" type="text" id="node-input-sheddingCheckInterval" placeholder=""">      
+</div>
+
+<div class="form-row">
+    <i class="fa fa-toggle-on"></i>
+    <label style="width:125px" for="node-input-sheddingRestoreDelay">
+            <span data-i18n="knxUltimateLoadControl.properties.node-input-sheddingRestoreDelay"></span>
+    </label>
+    <input style="width:40%" type="text" id="node-input-sheddingRestoreDelay" placeholder=""">      
+</div>
+
+
+
+<!-- LOAD CONTROL -->
+<hr>
+<b><span data-i18n="knxUltimateLoadControl.title"></span> 1</b>&nbsp;<span data-i18n="knxUltimateLoadControl.primoaldistacco"></span> <br/><br/>
+<div class="form-row">
+    <i class="fa fa-power-off"></i>
+    <label for="node-input-GA1" style="width:10%"></label>
+    <input style="width:20%" type="text" id="node-input-GA1" placeholder="Ex: 1/1/1" />
+    <select style="width:20%" id="node-input-DPT1"></select>
+    <input style="width:40%" type="text" id="node-input-Name1" data-i18n="[placeholder]knxUltimateLoadControl.properties.node-input-name">
+</div>
+<div class="form-row">
+    <i class="fa fa-battery-half"></i>
+    <label for="node-input-MonitorGA1" style="width:10%"></label>
+    <input style="width:20%" type="text" id="node-input-MonitorGA1" placeholder="Optional" />
+    <select style="width:20%" id="node-input-MonitorDPT1"></select>
+    <input style="width:40%" type="text" id="node-input-MonitorName1" data-i18n="[placeholder]knxUltimateLoadControl.properties.node-input-name">
+</div>
+<div class="form-row">
+    <input type="checkbox" id="node-input-autoRestore1" style="display:inline-block; width:auto; vertical-align:top;">
+    &nbsp;
+    <label style="width:85%" for="node-input-autoRestore1">
+        <i class="fa fa-toggle-on"></i>
+        <span data-i18n="knxUltimateLoadControl.properties.node-input-autoRestore"></span>
+    </label>
+</div>
+
+<hr>
+<b><span data-i18n="knxUltimateLoadControl.title"></span> 2</b><br/><br/>
+<div class="form-row">
+    <i class="fa fa-power-off"></i>
+    <label for="node-input-GA2" style="width:10%"></label>
+    <input style="width:20%" type="text" id="node-input-GA2" placeholder="Control GA" />
+    <select style="width:20%" id="node-input-DPT2"></select>
+    <input style="width:40%" type="text" id="node-input-Name2" data-i18n="[placeholder]knxUltimateLoadControl.properties.node-input-name">
+</div>
+<div class="form-row">
+    <i class="fa fa-battery-half"></i>
+    <label for="node-input-MonitorGA2" style="width:10%"></label>
+    <input style="width:20%" type="text" id="node-input-MonitorGA2" placeholder="Optional" />
+    <select style="width:20%" id="node-input-MonitorDPT2"></select>
+    <input style="width:40%" type="text" id="node-input-MonitorName2" data-i18n="[placeholder]knxUltimateLoadControl.properties.node-input-name">
+</div>
+<div class="form-row">
+    <input type="checkbox" id="node-input-autoRestore2" style="display:inline-block; width:auto; vertical-align:top;">
+    &nbsp;
+    <label style="width:85%" for="node-input-autoRestore2">
+        <i class="fa fa-toggle-on"></i>
+        <span data-i18n="knxUltimateLoadControl.properties.node-input-autoRestore"></span>
+    </label>
+</div>
+
+<hr>
+<b><span data-i18n="knxUltimateLoadControl.title"></span> 3</b><br/><br/>
+<div class="form-row">
+    <i class="fa fa-power-off"></i>
+    <label for="node-input-GA3" style="width:10%"></label>
+    <input style="width:20%" type="text" id="node-input-GA3" placeholder="Control GA" />
+    <select style="width:20%" id="node-input-DPT3"></select>
+    <input style="width:40%" type="text" id="node-input-Name3" data-i18n="[placeholder]knxUltimateLoadControl.properties.node-input-name">
+</div>
+<div class="form-row">
+    <i class="fa fa-battery-half"></i>
+    <label for="node-input-MonitorGA3" style="width:10%"></label>
+    <input style="width:20%" type="text" id="node-input-MonitorGA3" placeholder="Optional" />
+    <select style="width:20%" id="node-input-MonitorDPT3"></select>
+    <input style="width:40%" type="text" id="node-input-MonitorName3" data-i18n="[placeholder]knxUltimateLoadControl.properties.node-input-name">
+</div>
+<div class="form-row">
+    <input type="checkbox" id="node-input-autoRestore3" style="display:inline-block; width:auto; vertical-align:top;">
+    &nbsp;
+    <label style="width:85%" for="node-input-autoRestore3">
+        <i class="fa fa-toggle-on"></i>
+        <span data-i18n="knxUltimateLoadControl.properties.node-input-autoRestore"></span>
+    </label>
+</div>
+
+<hr>
+<b><span data-i18n="knxUltimateLoadControl.title"></span> 4</b><br/><br/>
+<div class="form-row">
+    <i class="fa fa-power-off"></i>
+    <label for="node-input-GA4" style="width:10%"></label>
+    <input style="width:20%" type="text" id="node-input-GA4" placeholder="Control GA" />
+    <select style="width:20%" id="node-input-DPT4"></select>
+    <input style="width:40%" type="text" id="node-input-Name4" data-i18n="[placeholder]knxUltimateLoadControl.properties.node-input-name">
+</div>
+<div class="form-row">
+    <i class="fa fa-battery-half"></i>
+    <label for="node-input-MonitorGA4" style="width:10%"></label>
+    <input style="width:20%" type="text" id="node-input-MonitorGA4" placeholder="Optional" />
+    <select style="width:20%" id="node-input-MonitorDPT4"></select>
+    <input style="width:40%" type="text" id="node-input-MonitorName4" data-i18n="[placeholder]knxUltimateLoadControl.properties.node-input-name">
+</div>
+<div class="form-row">
+    <input type="checkbox" id="node-input-autoRestore4" style="display:inline-block; width:auto; vertical-align:top;">
+    &nbsp;
+    <label style="width:85%" for="node-input-autoRestore4">
+        <i class="fa fa-toggle-on"></i>
+        <span data-i18n="knxUltimateLoadControl.properties.node-input-autoRestore"></span>
+    </label>
+</div>
+
+<hr>
+<b><span data-i18n="knxUltimateLoadControl.title"></span> 5</b><br/><br/>
+<div class="form-row">
+    <i class="fa fa-power-off"></i>
+    <label for="node-input-GA5" style="width:10%"></label>
+    <input style="width:20%" type="text" id="node-input-GA5" placeholder="Control GA" />
+    <select style="width:20%" id="node-input-DPT5"></select>
+    <input style="width:40%" type="text" id="node-input-Name5" data-i18n="[placeholder]knxUltimateLoadControl.properties.node-input-name">
+</div>
+<div class="form-row">
+    <i class="fa fa-battery-half"></i>
+    <label for="node-input-MonitorGA5" style="width:10%"></label>
+    <input style="width:20%" type="text" id="node-input-MonitorGA5" placeholder="Optional" />
+    <select style="width:20%" id="node-input-MonitorDPT5"></select>
+    <input style="width:40%" type="text" id="node-input-MonitorName5" data-i18n="[placeholder]knxUltimateLoadControl.properties.node-input-name">
+</div>
+<div class="form-row">
+    <input type="checkbox" id="node-input-autoRestore5" style="display:inline-block; width:auto; vertical-align:top;">
+    &nbsp;
+    <label style="width:85%" for="node-input-autoRestore5">
+        <i class="fa fa-toggle-on"></i>
+        <span data-i18n="knxUltimateLoadControl.properties.node-input-autoRestore"></span>
+    </label>
+</div>
+
+</br>
+</br>
+</br>
+</br>
+</script>

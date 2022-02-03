@@ -4,6 +4,12 @@
 
 <br/>
 <p>
+<b>Version 1.3.23</b> - February 2022<br/>
+- NEW: Load Control node: switch off your device if you're exceeding the Watt limit of your house.<br/>
+- FIX: Alerter Node: fixed a KNX Address verification, in case you wrote your own string instead of a GA.<br/>
+- FIX: Alerter Node: the node was sending a "read" request to all group addresses at start. Fixed.<br/>
+</p>
+<p>
 <b>Version 1.3.22</b> - February 2022<br/>
 - FIX: WriteRaw: some values wasn't sent to the bus due to an hex conversion issue.<br/>
 </p>

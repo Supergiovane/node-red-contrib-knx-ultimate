@@ -1,0 +1,21 @@
+{
+    "knxUltimateLoadControl": {
+        "helplink": "&nbsp<i class=\"fa fa-question-circle\"></i>&nbsp<a target=\"_blank\" href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/it-LoadControl-Configuration\"><u>Aiuto per configurazione</u></a>",
+        "title": "Controllo Carichi",
+        "primoaldistacco": "(è il primo che verrà staccato)",
+        "properties": {
+            "node-input-server": "Gateway",
+            "node-input-name": "Nome",
+            "node-input-dpt": "Datapoint",
+            "node-input-topic": "Monitor Wh",
+            "node-input-controlGA": "Carico",
+            "node-input-monitorGA": "In uso",
+            "node-input-wattLimit": "Soglia Wh",
+            "node-input-sheddingCheckInterval": "Ritardo distacco (s)",
+            "node-input-sheddingRestoreDelay": "Ritardo ripristino (s)",
+            "node-input-autoRestore": "Ripristino automatico"
+        },
+        "selectlists": {},
+        "other": {}
+    }
+}

@@ -5,8 +5,8 @@ module.exports = function (RED) {
         var fs = require('fs');
         var path = require('path');
         var mkdirp = require('mkdirp');
-        const Address = require('./../knxultimate-api2/src/Address.js')
-        const KnxConstants = require('./../knxultimate-api2/src/KnxConstants.js')
+        const Address = require('./../KNXEngine/protocol/KNXAddress')
+        const KnxConstants = require("./../KNXEngine/protocol/KNXConstants");
 
         RED.nodes.createNode(this, config)
         var node = this
@@ -28,7 +28,11 @@ module.exports = function (RED) {
         node.timerSend = null;
         node.whentostart = config.whentostart === undefined ? "ifnewalert" : config.whentostart;
         node.timerinterval = (config.timerinterval === undefined || config.timerinterval == "") ? "2" : config.timerinterval;
-        node.initialread = Number(config.initialread === undefined ? 1 : config.initialread);
+        if (config.initialreadGAInRules === undefined) {
+            node.initialread = true;
+        } else {
+            node.initialread = config.initialreadGAInRules === "0" ? false: true;
+        }
 
         try {
             node.sysLogger = require("./utils/sysLogger.js").get({ loglevel: node.server.loglevel || "error" }); // 08/04/2021 new logger to adhere to the loglevel selected in the config-window
@@ -171,7 +175,7 @@ module.exports = function (RED) {
                     grpaddr = rule.topic;
                     try {
                         // Check if it's a group address
-                        let ret = Address.parse(grpaddr, KnxConstants.KNX_ADDR_TYPES.GROUP, false);
+                        let ret = Address.KNXAddress.createFromString(grpaddr, Address.KNXAddress.TYPE_GROUP);
                         node.setLocalStatus({ fill: "grey", shape: "dot", text: "Read", payload: "", GA: grpaddr, dpt: "", devicename: rule.devicename });
                         node.server.writeQueueAdd({ grpaddr: grpaddr, payload: "", dpt: "", outputtype: "read", nodecallerid: node.id });
                     } catch (error) {
@@ -182,6 +186,7 @@ module.exports = function (RED) {
                 node.setLocalStatus({ fill: "red", shape: "ring", text: "No gateway selected. Unable to read from KNX bus", payload: "", GA: "", dpt: "", devicename: "" });
             }
         }
+
 
         node.on("input", function (msg) {
             if (typeof msg === "undefined") return;
