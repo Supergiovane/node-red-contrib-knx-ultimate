@@ -1115,14 +1115,15 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                 }
 
                 // 26/12/2021 If the KNXEngine is busy waiting for telegram's ACK, exit
-                if (!node.knxConnection._getClearToSend()) {
-                    node.lockHandleTelegramQueue = false; // Unlock the function
-                    if (node.telegramsQueue.length > 0) {
-                        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.warn("knxUltimate-config: handleTelegramQueue: the KNXEngine is busy or is waiting for a telegram ACK with seqNumner " + node.knxConnection._getSeqNumber() + ". Delay handling queue.");
+                if (node.host.toUpperCase() !== "EMULATE") {
+                    if (!node.knxConnection._getClearToSend()) {
+                        node.lockHandleTelegramQueue = false; // Unlock the function
+                        if (node.telegramsQueue.length > 0) {
+                            if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.warn("knxUltimate-config: handleTelegramQueue: the KNXEngine is busy or is waiting for a telegram ACK with seqNumner " + node.knxConnection._getSeqNumber() + ". Delay handling queue.");
+                        }
+                        return;
                     }
-                    return;
                 }
-
 
                 // Retrieving oKNXMessage  { grpaddr, payload,dpt,outputtype (write or response),nodecallerid (node caller)}. 06/03/2020 "Read" request does have the lower priority in the queue, so firstly, i search for "read" telegrams and i move it on the top of the queue pile.
                 var aTelegramsFiltered = [];

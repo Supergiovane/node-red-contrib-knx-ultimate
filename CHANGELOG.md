@@ -3,6 +3,13 @@
 [![Donate via PayPal](https://img.shields.io/badge/Donate-PayPal-blue.svg?style=flat-square)](https://www.paypal.me/techtoday) 
 
 <br/>
+
+# CHANGELOG
+
+<p>
+<b>Version 1.3.26</b> - February 2022<br/>
+- FIX: fix a crash occurring it the KNX Gateway is set to "emulate" (that means, don't write to the bus).<br/>
+</p>
 <p>
 <b>Version 1.3.25</b> - February 2022<br/>
 - FIX: Load Control: measure unit was Wh. Corrected in W. Thank @Mauro of VivereSmart Facebook group https://www.facebook.com/groups/viveresmart<br/>
