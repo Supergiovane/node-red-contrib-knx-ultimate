@@ -4,6 +4,11 @@
 
 <br/>
 <p>
+<b>Version 1.3.25</b> - February 2022<br/>
+- FIX: Load Control: measure unit was Wh. Corrected in W. Thank @Mauro of VivereSmart Facebook group https://www.facebook.com/groups/viveresmart<br/>
+- Load Control: Added more info to the output message. Updated the online help.<br/>
+</p>
+<p>
 <b>Version 1.3.24</b> - February 2022<br/>
 - NEW: Load Control node: switch off your device if you're exceeding the Watt limit of your house.<br/>
 - FIX: Alerter Node: fixed a KNX Address verification, in case you wrote your own string instead of a GA.<br/>
