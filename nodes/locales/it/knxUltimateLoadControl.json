@@ -7,10 +7,10 @@
             "node-input-server": "Gateway",
             "node-input-name": "Nome",
             "node-input-dpt": "Datapoint",
-            "node-input-topic": "Monitor Wh",
+            "node-input-topic": "Monitor W",
             "node-input-controlGA": "Carico",
             "node-input-monitorGA": "In uso",
-            "node-input-wattLimit": "Soglia Wh",
+            "node-input-wattLimit": "Soglia W",
             "node-input-sheddingCheckInterval": "Ritardo distacco (s)",
             "node-input-sheddingRestoreDelay": "Ritardo ripristino (s)",
             "node-input-autoRestore": "Ripristino automatico"

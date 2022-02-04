@@ -28,7 +28,7 @@ module.exports = function (RED) {
         node.sheddingRestoreDelay = config.sheddingRestoreDelay !== undefined ? config.sheddingRestoreDelay * 1000 : 60000;
 
         node.totalWatt = 0; // Current total watt consumption
-        node.wattLimit = config.wattLimit === undefined ? 3000 : config.wattLimit;
+        node.wattLimit = config.wattLimit === undefined ? 3000 : Number(config.wattLimit);
         node.deviceList = [];
         for (let index = 1; index < 6; index++) {
             // Eval, the magic. Fill in the device list. DEFINITION DEVICELIST
@@ -69,17 +69,13 @@ module.exports = function (RED) {
 
         }
 
-        // Used to call the status update from the config node.
-        node.setLocalStatus = ({ fill, shape, text, payload, GA, dpt, devicename }) => {
+        // Used to call the status update from this node
+        node.setLocalStatus = ({ fill = "green", shape = "ring", text = "" }) => {
+            if (text !== "") text += ".";
             var dDate = new Date();
-            // 30/08/2019 Display only the things selected in the config
-            _GA = (typeof _GA == "undefined" || GA == "") ? "" : "(" + GA + ") ";
-            _devicename = devicename || "";
-            _dpt = (typeof dpt == "undefined" || dpt == "") ? "" : " DPT" + dpt;
             try {
-                node.status({ fill: fill, shape: shape, text: _GA + payload + ((node.listenallga && node.server.statusDisplayDeviceNameWhenALL) === true ? " " + _devicename : "") + (node.server.statusDisplayDataPoint === true ? _dpt : "") + (node.server.statusDisplayLastUpdate === true ? " (" + dDate.getDate() + ", " + dDate.toLocaleTimeString() + ")" : "") + " " + text });
+                node.status({ fill: fill, shape: shape, text: text + " Shed:" + node.sheddingStage + " Power:" + node.totalWatt + "W" + " Limit:" + node.wattLimit + "W (" + dDate.getDate() + ", " + dDate.toLocaleTimeString() + ")" });
             } catch (error) {
-                node.status({ fill: fill, shape: shape, text: _GA + payload + ((true === true) ? " " + _devicename : "") + (false === true ? _dpt : "") + (true === true ? " (" + dDate.getDate() + ", " + dDate.toLocaleTimeString() + ")" : "") + " " + text });
             }
 
         }
@@ -90,7 +86,8 @@ module.exports = function (RED) {
             // Update the Total Watt?
             if (msg.topic === node.topic) {
                 node.totalWatt = msg.payload;
-                //node.setLocalStatus({ fill: "blue", shape: "dot", text: "Total consumption", payload: node.totalWatt, GA: msg.topic, dpt: "", devicename: node.name });
+                // Update current consumption
+                node.setLocalStatus({ fill: "blue" });
                 return;
             }
 
@@ -127,15 +124,15 @@ module.exports = function (RED) {
                         try {
                             // Check if it's a group address
                             let ret = Address.KNXAddress.createFromString(grpaddr, Address.KNXAddress.TYPE_GROUP);
-                            node.setLocalStatus({ fill: "grey", shape: "dot", text: "Read", payload: "", GA: grpaddr, dpt: "", devicename: node.deviceList[i].monitorName });
+                            node.setLocalStatus({ fill: "grey", shape: "dot", text: "Read Power from BUS" });
                             node.server.writeQueueAdd({ grpaddr: grpaddr, payload: "", dpt: "", outputtype: "read", nodecallerid: node.id });
                         } catch (error) {
-                            node.setLocalStatus({ fill: "grey", shape: "dot", text: "Not a KNX GA " + error.message, payload: "", GA: grpaddr, dpt: "", devicename: node.deviceList[i].monitorName });
+                            node.setLocalStatus({ fill: "grey", shape: "dot", text: "Not a KNX GA " + error.message });
                         }
                     }
                 }
             } else {
-                node.setLocalStatus({ fill: "red", shape: "ring", text: "No gateway selected. Unable to read from KNX bus", payload: "", GA: "", dpt: "", devicename: "" });
+                node.setLocalStatus({ fill: "red", shape: "ring", text: "No gateway selected. Unable to read from KNX bus" });
             }
         }
 
@@ -200,13 +197,12 @@ module.exports = function (RED) {
             const oRow = node.deviceList[iRowIndex];
             if (oRow.ga !== undefined && oRow.ga !== "" && oRow.ga !== null) {
                 // Check if the device is in use. If not, turn off the device and further increase the shedding stage to turn off the next one.
-                node.setLocalStatus({ fill: "red", shape: "dot", text: "Switch off", payload: "Shedding stage " + node.sheddingStage, GA: oRow.ga, dpt: oRow.dpt, devicename: oRow.name });
+                node.setLocalStatus({ fill: "red", shape: "dot", text: "OFF " + oRow.name });
                 node.server.writeQueueAdd({ grpaddr: oRow.ga, payload: false, dpt: oRow.dpt, outputtype: "write", nodecallerid: node.id });
             } else {
-                node.setLocalStatus({ fill: "yellow", shape: "dot", text: "No GA defined", payload: "Shedding stage " + node.sheddingStage, GA: "", dpt: "", devicename: "" });
+                node.setLocalStatus({ fill: "grey", shape: "dot", text: "No GA defined" });
             }
-
-            node.send({ topic: node.name || node.topic, payload: "Shedding stage " + node.sheddingStage });
+            node.send({ topic: node.name || node.topic, operation: "Increase Shedding", device: oRow.name || "", ga: oRow.ga || "", totalPowerConsumption: node.totalWatt, wattLimit: node.wattLimit, payload: node.sheddingStage });
             // Go furhter ?
             if (oRow.monitorGA !== undefined && oRow.monitorGA !== "" && oRow.monitorGA !== null) {
                 // Minimum consumption must be at lease xx Watt
@@ -229,33 +225,35 @@ module.exports = function (RED) {
             // monitorVal: null
             if (node.sheddingStage <= 0) {
                 node.sheddingStage = 0;
-                node.setLocalStatus({ fill: "green", shape: "dot", text: "All loads are on", payload: "", GA: "", dpt: "", devicename: "" });
+                node.setLocalStatus({ fill: "green", shape: "dot", text: "All loads are ON" });
                 return;
             }
 
-            let iRowIndex = node.sheddingStage - 1; // Array is base 0
-            if (iRowIndex < 0) {
-                iRowIndex = 0;
-            }
+            node.sheddingStage--;
+            let iRowIndex = node.sheddingStage; // Array is base 0
+            if (iRowIndex < 0) iRowIndex = 0;
+            if (iRowIndex > node.deviceList.length - 1) return;
+
             const oRow = node.deviceList[iRowIndex];
-            if (oRow.autoRestore === true) {
-                if (oRow.ga !== undefined && oRow.ga !== "" && oRow.ga !== null) {
+            if (oRow.ga !== undefined && oRow.ga !== "" && oRow.ga !== null) {
+                if (oRow.autoRestore === true) {
                     // Check if the device is in use. If not, turn off the device and further increase the shedding stage to turn off the next one.
-                    node.setLocalStatus({ fill: "green", shape: "dot", text: "Switch on", payload: "Shedding stage " + (node.sheddingStage - 1), GA: oRow.ga, dpt: oRow.dpt, devicename: oRow.name });
+                    node.setLocalStatus({ fill: "green", shape: "dot", text: "ON " + oRow.name });
                     node.server.writeQueueAdd({ grpaddr: oRow.ga, payload: true, dpt: oRow.dpt, outputtype: "write", nodecallerid: node.id });
                 } else {
-                    node.setLocalStatus({ fill: "yellow", shape: "dot", text: "No GA defined", payload: "Shedding stage " + (node.sheddingStage - 1), GA: "", dpt: "", devicename: "" });
+                    // Cannot auto switch on the load.
+                    node.setLocalStatus({ fill: "yellow", shape: "dot", text: "Auto Restore disabled " + oRow.name });
                 }
             } else {
-                // Cannot auto switch on the load.
-                node.setLocalStatus({ fill: "yellow", shape: "dot", text: "Auto Restore disabled", payload: "Shedding stage " + node.sheddingStage, GA: oRow.ga, dpt: oRow.dpt, devicename: oRow.name });
+                // No load GA defined
+                node.setLocalStatus({ fill: "grey", shape: "dot", text: "No Load GA defined" });
             }
-            node.send({ topic: node.name || node.topic, payload: "Shedding stage " + (node.sheddingStage - 1) });
-            if (node.sheddingStage > 0) {
-                node.sheddingStage--;
-            } else {
+            node.send({ topic: node.name || node.topic, operation: "Decrease Shedding", device: oRow.name || "", ga: oRow.ga || "", totalPowerConsumption: node.totalWatt, wattLimit: node.wattLimit, payload: node.sheddingStage });
+
+            if (node.sheddingStage < 0) {
+                node.sheddingStage = 0;
                 setTimeout(() => {
-                    node.setLocalStatus({ fill: "green", shape: "dot", text: "All loads have been restored", payload: "", GA: "", dpt: "", devicename: "" });
+                    node.setLocalStatus({ fill: "green", shape: "dot", text: "All loads have been restored" });
                 }, 1000);
             }
 
@@ -278,22 +276,21 @@ module.exports = function (RED) {
                     if (oRow.autoRestore === true) node.server.writeQueueAdd({ grpaddr: oRow.ga, payload: true, dpt: oRow.dpt, outputtype: "write", nodecallerid: node.id });
                 }
                 setTimeout(() => {
-                    node.setLocalStatus({ fill: "green", shape: "dot", text: "All loads have been restored", payload: "", GA: "", dpt: "", devicename: "" });
+                    node.setLocalStatus({ fill: "green", shape: "dot", text: "All loads have been restored" });
                     // Restart shedding timer
                     node.startTimerIncreaseShedding();
                 }, 1000);
-                node.send({ topic: node.name || node.topic, payload: "reset" });
+                node.send({ topic: node.name || node.topic, operation: "Reset", payload: node.sheddingStage });
             }
 
             // Disable the shedding node
             if (msg.hasOwnProperty("disable")) {
                 if (node.timerDecreaseShedding !== null) clearInterval(node.timerDecreaseShedding);
                 if (node.timerIncreaseShedding !== null) clearInterval(node.timerIncreaseShedding);
-                node.sheddingStage = 0;
                 setTimeout(() => {
-                    node.setLocalStatus({ fill: "grey", shape: "dot", text: "Disabled", payload: "", GA: "", dpt: "", devicename: "" });
+                    node.setLocalStatus({ fill: "grey", shape: "dot", text: "Disabled" });
                 }, 1000);
-                node.send({ topic: node.name || node.topic, payload: "disabled" });
+                node.send({ topic: node.name || node.topic, operation: "Disabled", payload: node.sheddingStage });
             }
 
             // Disable the shedding node
@@ -301,11 +298,11 @@ module.exports = function (RED) {
                 if (node.timerDecreaseShedding !== null) clearInterval(node.timerDecreaseShedding);
                 if (node.timerIncreaseShedding !== null) clearInterval(node.timerIncreaseShedding);
                 setTimeout(() => {
-                    node.setLocalStatus({ fill: "green", shape: "dot", text: "Enabled", payload: "", GA: "", dpt: "", devicename: "" });
+                    node.setLocalStatus({ fill: "green", shape: "dot", text: "Enabled" });
                     // Restart shedding timer
                     node.startTimerIncreaseShedding();
                 }, 1000);
-                node.send({ topic: node.name || node.topic, payload: "enabled" });
+                node.send({ topic: node.name || node.topic, operation: "Enabled", payload: node.sheddingStage });
             }
 
             // 24/04/2021 if payload is read or the output type is set to "read", do a read
