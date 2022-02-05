@@ -118,6 +118,9 @@ module.exports = function (RED) {
         // 03/02/2022 perform a read on all GA in the list
         node.initialReadAllDevicesInRules = () => {
             if (node.server) {
+                // Read status of the Total Power GA
+                node.server.writeQueueAdd({ grpaddr: node.topic, payload: "", dpt: "", outputtype: "read", nodecallerid: node.id });
+                   
                 for (var i = 0; i < node.deviceList.length; i++) {
                     let grpaddr = node.deviceList[i].monitorGA;
                     if (grpaddr !== undefined && grpaddr !== "") {
