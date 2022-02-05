@@ -7,6 +7,10 @@
 # CHANGELOG
 
 <p>
+<b>Version 1.3.27</b> - February 2022<br/>
+- Load Control: minor fixes + issue a KNX read of Watt values, in case the GA doesn't automatically send a power value on change.<br/>
+</p>
+<p>
 <b>Version 1.3.26</b> - February 2022<br/>
 - FIX: fix a crash occurring it the KNX Gateway is set to "emulate" (that means, don't write to the bus).<br/>
 </p>
