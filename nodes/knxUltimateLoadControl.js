@@ -84,7 +84,7 @@ module.exports = function (RED) {
         node.handleSend = msg => {
 
             // Update the Total Watt?
-            if (msg.topic === node.topic) {
+            if (msg.topic === node.topic && msg.payload !== "" && msg.payload !== null && msg.payload !== undefined) {
                 node.totalWatt = msg.payload;
                 // Update current consumption
                 node.setLocalStatus({ fill: "blue" });
@@ -105,7 +105,7 @@ module.exports = function (RED) {
                 // monitorVal: null
 
                 var oRow = node.deviceList[i];
-                if (msg.topic === oRow.monitorGA) {
+                if (msg.topic === oRow.monitorGA && msg.payload !== null && msg.payload !== undefined) {
                     oRow.monitorVal = msg.payload;
                     //node.setLocalStatus({ fill: "blue", shape: "dot", text: "Updated", payload: oRow.monitorVal, GA: msg.topic, dpt: "", devicename: oRow.monitorName });
                 }
