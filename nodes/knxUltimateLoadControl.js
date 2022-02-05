@@ -146,16 +146,18 @@ module.exports = function (RED) {
             // Increase shedding timer (Switch off devices)
             if (node.timerIncreaseShedding !== null) clearInterval(node.timerIncreaseShedding);
             node.timerIncreaseShedding = setInterval(() => {
+                if (node.server) {
+                    // Issue a READ request to the main Watt GA
+                    // The devices should automatically send a value on change, but... you know....
+                    if (node.topic !== undefined && node.topic !== null && node.topic !== "") node.server.writeQueueAdd({ grpaddr: node.topic, payload: "", dpt: "", outputtype: "read", nodecallerid: node.id });
 
-                // Issue a READ request to the main Watt GA
-                if (node.topic !== undefined && node.topic !== null && node.topic !== "") node.server.writeQueueAdd({ grpaddr: node.ga, payload: "", dpt: "", outputtype: "read", nodecallerid: node.id });
-
-                // Check consumption
-                if (node.totalWatt > node.wattLimit) {
-                    // Start increasing shedding!
-                    if (node.sheddingStage < node.deviceList.length) {
-                        node.increaseShedding();
-                        node.startTimerDecreaseShedding();
+                    // Check consumption
+                    if (node.totalWatt > node.wattLimit) {
+                        // Start increasing shedding!
+                        if (node.sheddingStage < node.deviceList.length) {
+                            node.increaseShedding();
+                            node.startTimerDecreaseShedding(); // Reset the decreasing timer from beginning
+                        }
                     }
                 }
             }, node.sheddingCheckInterval);
@@ -168,14 +170,12 @@ module.exports = function (RED) {
             if (node.timerDecreaseShedding !== null) clearInterval(node.timerDecreaseShedding);
             node.timerDecreaseShedding = setInterval(() => {
 
-                // Read the Watts of all devices
-                node.initialReadAllDevicesInRules();
-
                 // Check consumption
                 if (node.totalWatt <= node.wattLimit) {
                     // Start decreasing shedding!
                     if (node.sheddingStage > 0) {
                         node.decreaseShedding();
+                        node.startTimerIncreaseShedding(); // Reset the increasing timer from beginning
                     }
                 }
 
