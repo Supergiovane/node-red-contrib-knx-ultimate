@@ -21,6 +21,10 @@ module.exports = function (RED) {
         node.inputRBE = "false"
         node.isLoadControlNode = true; // Signal to config node, that this is a Load Control node
         node.initialread = true;
+        node.formatmultiplyvalue = 1;
+        node.formatnegativevalue = "zero";
+        node.formatdecimalsvalue = 0;
+
         node.sheddingStage = 0;
         node.timerIncreaseShedding = null;
         node.timerDecreaseShedding = null;

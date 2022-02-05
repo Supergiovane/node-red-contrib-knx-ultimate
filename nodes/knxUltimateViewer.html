@@ -1,0 +1,71 @@
+<script type="text/javascript">
+    RED.nodes.registerType('knxUltimateViewer', {
+        category: "KNX Ultimate",
+        color: '#C7E9C0',
+        defaults: {
+            //buttonState: {value: true},
+            server: { type: "knxUltimate-config", required: true },
+            name: { value: "KNXViewer", validate: RED.validators.regex(/^[a-z]+$/i) }
+        },
+        inputs: 0,
+        outputs: 1,
+        icon: "node-eye-icon.svg",
+        label: function () {
+            return (this.name);
+        },
+        paletteLabel: "KNX Viewer",
+        // button: {
+        //     enabled: function() {
+        //         // return whether or not the button is enabled, based on the current
+        //         // configuration of the node
+        //         return !this.changed
+        //     },
+        //     visible: function() {
+        //         // return whether or not the button is visible, based on the current
+        //         // configuration of the node
+        //         return this.hasButton
+        //     },
+        //     //toggle: "buttonState",
+        //     onclick: function() {}
+        // },
+        oneditprepare: function () {
+
+
+        },
+        oneditsave: function () {
+
+
+        },
+        oneditcancel: function () {
+
+        }
+    })
+
+</script>
+
+<script type="text/x-red" data-template-name="knxUltimateViewer">
+
+
+<div class="form-row">
+    <b><span data-i18n="knxUltimateViewer.title"></span></b>&nbsp&nbsp<span style="color:red"
+        data-i18n="[html]knxUltimateViewer.helplink"></span>
+    <br />
+    <label for="node-input-server">
+        <img
+            src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAKnRFWHRDcmVhdGlvbiBUaW1lAEZyIDYgQXVnIDIwMTAgMjE6NTI6MTkgKzAxMDD84aS8AAAAB3RJTUUH3gYYCicNV+4WIQAAAAlwSFlzAAALEgAACxIB0t1+/AAAAARnQU1BAACxjwv8YQUAAACUSURBVHjaY2CgFZg5c+Z/ZEyWAZ8+f/6/ZsWs/xoamqMGkGrA6Wla/1+fVARjEBuGsSoGmY4eZSCNL59d/g8DIDbIAHR14OgFGQByKjIGKX5+6/T///8gGMQGiV1+/B0Fg70GIkD+RMYgxf/O5/7//2MSmAZhkBi6OrgB6Bg5DGB4ajr3f2xqsYYLSDE2THJUDg0AAAqyDVd4tp4YAAAAAElFTkSuQmCC"></img>
+        <span data-i18n="knxUltimateViewer.advanced.node-input-server"></span>
+    </label>
+    <input type="text" id="node-input-server" />
+</div>
+
+<div class="form-row">
+    <label for="node-input-name">
+        <i class="fa fa-tag"></i>
+        <span data-i18n="knxUltimateViewer.node-input-name"></span>
+    </label>
+    <input type="text" id="node-input-name" data-i18n="[placeholder]knxUltimateViewer.node-input-name" />
+</div>
+
+
+
+</script>
