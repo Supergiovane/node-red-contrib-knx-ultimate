@@ -120,14 +120,14 @@ module.exports = function (RED) {
             if (node.server) {
                 // Read status of the Total Power GA
                 node.server.writeQueueAdd({ grpaddr: node.topic, payload: "", dpt: "", outputtype: "read", nodecallerid: node.id });
-                   
+
                 for (var i = 0; i < node.deviceList.length; i++) {
                     let grpaddr = node.deviceList[i].monitorGA;
-                    if (grpaddr !== undefined && grpaddr !== "") {
+                    if (grpaddr !== undefined && grpaddr !== "" && grpaddr !== null) {
                         try {
                             // Check if it's a group address
                             let ret = Address.KNXAddress.createFromString(grpaddr, Address.KNXAddress.TYPE_GROUP);
-                            node.setLocalStatus({ fill: "grey", shape: "dot", text: "Read Power from BUS" });
+                            //node.setLocalStatus({ fill: "grey", shape: "dot", text: "Read Power from BUS" });
                             node.server.writeQueueAdd({ grpaddr: grpaddr, payload: "", dpt: "", outputtype: "read", nodecallerid: node.id });
                         } catch (error) {
                             node.setLocalStatus({ fill: "grey", shape: "dot", text: "Not a KNX GA " + error.message });
@@ -167,6 +167,9 @@ module.exports = function (RED) {
             // Decrease shedding timer (Switch devices on again)
             if (node.timerDecreaseShedding !== null) clearInterval(node.timerDecreaseShedding);
             node.timerDecreaseShedding = setInterval(() => {
+
+                // Read the Watts of all devices
+                node.initialReadAllDevicesInRules();
 
                 // Check consumption
                 if (node.totalWatt <= node.wattLimit) {
