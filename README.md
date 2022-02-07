@@ -298,7 +298,7 @@ List of commercial companies, which have given us permission to be mentioned on 
 ## FRIENDLY COMMUNITIES AROUND THE WORLD
 
 **Italy**
-* [VivereSmart](https://www.facebook.com/groups/viveresmart)
+* [VivereSmart](https://www.facebook.com/groups/viveresmart) [![](https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/c/viveresmart.png)](https://www.facebook.com/groups/viveresmart)
 * [VivereSmart TV](https://www.youtube.com/channel/UC6GlFhcbNuoSEejZ_HlCynA)
 
 **Germany**
