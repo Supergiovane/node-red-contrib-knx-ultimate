@@ -297,11 +297,11 @@ List of commercial companies, which have given us permission to be mentioned on 
 ## FRIENDLY COMMUNITIES AROUND THE WORLD
 
 **Italy**
-* [![](https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/c/viveresmart.png)](https://www.facebook.com/groups/viveresmart) [VivereSmart](https://www.facebook.com/groups/viveresmart) 
+* [![](https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/c/viveresmart.png)](https://www.facebook.com/groups/viveresmart)
 * [VivereSmart TV](https://www.youtube.com/channel/UC6GlFhcbNuoSEejZ_HlCynA)
 
 **Germany**
-* [knx-user-forum](https://knx-user-forum.de/forum/öffentlicher-bereich/knx-eib-forum/1389088-knx-node-for-node-red)
+* [![](https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/c/knxuserforum.png)](https://knx-user-forum.de/forum/öffentlicher-bereich/knx-eib-forum/1389088-knx-node-for-node-red) 
 
 **China**
 * [QQ group: 837579219 （加群需要备注 “来自github”](tencent://groupwpa/?subcmd=all&param=7b2267726f757055696e223a3833373537393231392c2274696d655374616d70223a313633303934363639312c22617574684b6579223a22762b72482b466f4a496a75613033794e4a30744a6970756c55753639424f4d55724f464c4a6c474b77346a30326b7a4f7a3338535536517844684d7756414d62222c2261757468223a22227d&jump_from=)
