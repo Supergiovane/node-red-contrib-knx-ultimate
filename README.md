@@ -68,8 +68,7 @@ Click your language to go to the documentation.<br/>
 ## STARTER PACK
 
 * [Wiki and Help](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki)
-* [Youtube video](https://www.youtube.com/playlist?list=PL9Yh1bjbLAYpfy1Auz6CKDfXUusgMwOQr)
-* [Facebook page](https://www.facebook.com/supergiovaneDev)
+* [Youtube channel](https://www.youtube.com/playlist?list=PL9Yh1bjbLAYpfy1Auz6CKDfXUusgMwOQr)
 * [FAQ + Troubleshoot](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/5.-FAQ-Troubleshoot)
 * [Security best practices](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/SECURITY)
 
@@ -298,7 +297,7 @@ List of commercial companies, which have given us permission to be mentioned on 
 ## FRIENDLY COMMUNITIES AROUND THE WORLD
 
 **Italy**
-* [VivereSmart](https://www.facebook.com/groups/viveresmart) [![](https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/c/viveresmart.png)](https://www.facebook.com/groups/viveresmart)
+* [![](https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/c/viveresmart.png)](https://www.facebook.com/groups/viveresmart) [VivereSmart](https://www.facebook.com/groups/viveresmart) 
 * [VivereSmart TV](https://www.youtube.com/channel/UC6GlFhcbNuoSEejZ_HlCynA)
 
 **Germany**
