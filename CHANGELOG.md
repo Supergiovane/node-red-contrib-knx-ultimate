@@ -7,6 +7,11 @@
 # CHANGELOG
 
 <p>
+<b>Version 1.3.29</b> - February 2022<br/>
+- Load Control: the timer for shedding won't everytime obey to what you've set. Fixed. <br/>
+- Load Control: Added pre-shedding yellow warning message in the node status.<br/>
+</p>
+<p>
 <b>Version 1.3.28</b> - February 2022<br/>
 - NEW: KNX Viewer: this node allow you to see all datapints and values in a dashboard wirget. https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/knxUltimateViewer<br/>
 </p>

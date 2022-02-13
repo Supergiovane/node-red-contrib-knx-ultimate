@@ -81,7 +81,6 @@ module.exports = function (RED) {
                 node.status({ fill: fill, shape: shape, text: text + " Shed:" + node.sheddingStage + " Power:" + node.totalWatt + "W" + " Limit:" + node.wattLimit + "W (" + dDate.getDate() + ", " + dDate.toLocaleTimeString() + ")" });
             } catch (error) {
             }
-
         }
 
         // This function is called by the knx-ultimate config node.
@@ -90,8 +89,13 @@ module.exports = function (RED) {
             // Update the Total Watt?
             if (msg.topic === node.topic && msg.payload !== "" && msg.payload !== null && msg.payload !== undefined) {
                 node.totalWatt = msg.payload;
-                // Update current consumption
-                node.setLocalStatus({ fill: "blue" });
+                // Update current consumption only if the node is in idle state
+                if (node.timerIncreaseShedding === null && node.timerDecreaseShedding === null) {
+                    if (node.setLocalStatusTotalWattTimer === null) clearInterval(node.setLocalStatusTotalWattTimer);
+                    node.setLocalStatusTotalWattTimer = setTimeout(() => {
+                        node.setLocalStatus({ fill: "grey" });
+                    }, 2000);
+                }
                 return;
             }
 
@@ -123,7 +127,7 @@ module.exports = function (RED) {
         node.initialReadAllDevicesInRules = () => {
             if (node.server) {
                 // Read status of the Total Power GA
-                node.server.writeQueueAdd({ grpaddr: node.topic, payload: "", dpt: "", outputtype: "read", nodecallerid: node.id });
+                if (node.topic !== undefined && node.topic !== null && node.topic !== "") node.server.writeQueueAdd({ grpaddr: node.topic, payload: "", dpt: "", outputtype: "read", nodecallerid: node.id });
 
                 for (var i = 0; i < node.deviceList.length; i++) {
                     let grpaddr = node.deviceList[i].monitorGA;
@@ -143,27 +147,55 @@ module.exports = function (RED) {
             }
         }
 
+        node.startMainTimer = () => {
+            if (node.mainTimer !== null) clearInterval(node.mainTimer);// Clear the timer
+            node.mainTimer = setInterval(() => {
+                // Issue a READ on all GA's                
+                node.initialReadAllDevicesInRules();
+
+                // Check consumption
+                if (node.totalWatt > node.wattLimit) {
+                    // Start increasing shedding!
+                    if (node.sheddingStage < node.deviceList.length) {
+                        if (node.timerIncreaseShedding === null) {
+                            setTimeout(() => {
+                                node.setLocalStatus({ fill: "yellow", shape: "dot", text: "I'm about to shed the load " + node.sheddingStage, payload: "", GA: "", dpt: "", devicename: "" });
+                            }, 2000);
+                            if (node.timerDecreaseShedding !== null) clearTimeout(node.timerDecreaseShedding);// Clear the decreasing timer
+                            node.startTimerIncreaseShedding();
+                        }
+                    }
+                } else if (node.totalWatt <= node.wattLimit) {
+                    // Start decreasing shedding!
+                    if (node.sheddingStage > 0) {
+                        if (node.timerDecreaseShedding === null) {
+                            setTimeout(() => {
+                                node.setLocalStatus({ fill: "yellow", shape: "dot", text: "I'm about to unshed the load " + node.sheddingStage, payload: "", GA: "", dpt: "", devicename: "" });
+                            }, 2000);
+                            if (node.timerIncreaseShedding !== null) clearTimeout(node.timerIncreaseShedding);// Clear the increasing timer
+                            node.startTimerDecreaseShedding();
+                        }
+                    }
+                }
+            }, 10000);
+        }
 
         // Start the timer
         node.startTimerIncreaseShedding = () => {
 
             // Increase shedding timer (Switch off devices)
-            if (node.timerIncreaseShedding !== null) clearInterval(node.timerIncreaseShedding);
-            node.timerIncreaseShedding = setInterval(() => {
+            if (node.timerIncreaseShedding !== null) clearTimeout(node.timerIncreaseShedding);
+            node.timerIncreaseShedding = setTimeout(() => {
                 if (node.server) {
-                    // Issue a READ request to the main Watt GA
-                    // The devices should automatically send a value on change, but... you know....
-                    if (node.topic !== undefined && node.topic !== null && node.topic !== "") node.server.writeQueueAdd({ grpaddr: node.topic, payload: "", dpt: "", outputtype: "read", nodecallerid: node.id });
-
                     // Check consumption
                     if (node.totalWatt > node.wattLimit) {
                         // Start increasing shedding!
                         if (node.sheddingStage < node.deviceList.length) {
                             node.increaseShedding();
-                            node.startTimerDecreaseShedding(); // Reset the decreasing timer from beginning
                         }
                     }
                 }
+                node.timerIncreaseShedding = null; // Nullify the timer.
             }, node.sheddingCheckInterval);
         }
 
@@ -171,18 +203,18 @@ module.exports = function (RED) {
         node.startTimerDecreaseShedding = () => {
 
             // Decrease shedding timer (Switch devices on again)
-            if (node.timerDecreaseShedding !== null) clearInterval(node.timerDecreaseShedding);
-            node.timerDecreaseShedding = setInterval(() => {
-
-                // Check consumption
-                if (node.totalWatt <= node.wattLimit) {
-                    // Start decreasing shedding!
-                    if (node.sheddingStage > 0) {
-                        node.decreaseShedding();
-                        node.startTimerIncreaseShedding(); // Reset the increasing timer from beginning
+            if (node.timerDecreaseShedding !== null) clearTimeout(node.timerDecreaseShedding);
+            node.timerDecreaseShedding = setTimeout(() => {
+                if (node.server) {
+                    // Check consumption
+                    if (node.totalWatt <= node.wattLimit) {
+                        // Start decreasing shedding!
+                        if (node.sheddingStage > 0) {
+                            node.decreaseShedding();
+                        }
                     }
                 }
-
+                node.timerDecreaseShedding = null; // Nullify timer
             }, node.sheddingRestoreDelay);
         }
 
@@ -266,20 +298,18 @@ module.exports = function (RED) {
                     node.setLocalStatus({ fill: "green", shape: "dot", text: "All loads have been restored" });
                 }, 1000);
             }
-
-
         }
 
         // Start
-        node.startTimerIncreaseShedding();
+        node.startMainTimer();
 
         node.on("input", function (msg) {
             if (typeof msg === "undefined") return;
 
             // Reset the shedding and activate all loads
             if (msg.hasOwnProperty("reset")) {
-                if (node.timerDecreaseShedding !== null) clearInterval(node.timerDecreaseShedding);
-                if (node.timerIncreaseShedding !== null) clearInterval(node.timerIncreaseShedding);
+                if (node.timerDecreaseShedding !== null) clearTimeout(node.timerDecreaseShedding);
+                if (node.timerIncreaseShedding !== null) clearTimeout(node.timerIncreaseShedding);
                 node.sheddingStage = 0;
                 for (let index = 0; index < node.deviceList.length; index++) {
                     const oRow = node.deviceList[index];
@@ -287,16 +317,15 @@ module.exports = function (RED) {
                 }
                 setTimeout(() => {
                     node.setLocalStatus({ fill: "green", shape: "dot", text: "All loads have been restored" });
-                    // Restart shedding timer
-                    node.startTimerIncreaseShedding();
                 }, 1000);
                 node.send({ topic: node.name || node.topic, operation: "Reset", payload: node.sheddingStage });
             }
 
             // Disable the shedding node
             if (msg.hasOwnProperty("disable")) {
-                if (node.timerDecreaseShedding !== null) clearInterval(node.timerDecreaseShedding);
-                if (node.timerIncreaseShedding !== null) clearInterval(node.timerIncreaseShedding);
+                if (node.timerDecreaseShedding !== null) clearTimeout(node.timerDecreaseShedding);
+                if (node.timerIncreaseShedding !== null) clearTimeout(node.timerIncreaseShedding);
+                if (node.mainTimer !== null) clearInterval(node.mainTimer);
                 setTimeout(() => {
                     node.setLocalStatus({ fill: "grey", shape: "dot", text: "Disabled" });
                 }, 1000);
@@ -305,12 +334,12 @@ module.exports = function (RED) {
 
             // Disable the shedding node
             if (msg.hasOwnProperty("enable")) {
-                if (node.timerDecreaseShedding !== null) clearInterval(node.timerDecreaseShedding);
-                if (node.timerIncreaseShedding !== null) clearInterval(node.timerIncreaseShedding);
+                if (node.timerDecreaseShedding !== null) clearTimeout(node.timerDecreaseShedding);
+                if (node.timerIncreaseShedding !== null) clearTimeout(node.timerIncreaseShedding);
                 setTimeout(() => {
                     node.setLocalStatus({ fill: "green", shape: "dot", text: "Enabled" });
-                    // Restart shedding timer
-                    node.startTimerIncreaseShedding();
+                    // Restart timer
+                    node.startMainTimer();
                 }, 1000);
                 node.send({ topic: node.name || node.topic, operation: "Enabled", payload: node.sheddingStage });
             }
@@ -323,8 +352,9 @@ module.exports = function (RED) {
         })
 
         node.on("close", function (done) {
-            if (node.timerDecreaseShedding !== null) clearInterval(node.timerDecreaseShedding);
-            if (node.timerIncreaseShedding !== null) clearInterval(node.timerIncreaseShedding);
+            if (node.mainTimer !== null) clearInterval(node.mainTimer);
+            if (node.timerDecreaseShedding !== null) clearTimeout(node.timerDecreaseShedding);
+            if (node.timerIncreaseShedding !== null) clearTimeout(node.timerIncreaseShedding);
             if (node.server) {
                 node.server.removeClient(node)
             }
