@@ -7,6 +7,10 @@
 # CHANGELOG
 
 <p>
+<b>Version 1.3.30</b> - February 2022<br/>
+- KNX Viewer node: changed the Datetime display to local time format.<br/>
+</p>
+<p>
 <b>Version 1.3.29</b> - February 2022<br/>
 - Load Control: the timer for shedding won't everytime obey to what you've set. Fixed. <br/>
 - Load Control: Added pre-shedding yellow warning message in the node status.<br/>

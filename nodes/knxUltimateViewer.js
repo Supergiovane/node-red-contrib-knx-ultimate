@@ -5,7 +5,7 @@ module.exports = function (RED) {
         var node = this
         node.server = RED.nodes.getNode(config.server)
         node.topic = node.name;
-        node.name = config.name === undefined ? "KNXGlobalContext" : config.name;
+        node.name = config.name === undefined ? "KNXViewer" : config.name;
         node.outputtopic = node.name;
         node.dpt = "";
         node.notifyreadrequest = false
@@ -43,14 +43,15 @@ module.exports = function (RED) {
             } catch (error) {
 
             }
-            let dDate = new Date();
+            let sDate = new Date().toLocaleString();
+            let sDeviceName = msg.devicename === node.name ? "Import ETS file to view the group address name" : msg.devicename; // The ETS file hasn't been imported
             if (oGa === undefined) {
-                node.exposedGAs.push({ address: msg.knx.destination, dpt: msg.knx.dpt, payload: msg.payload, devicename: msg.devicename || "Import ETS file", lastupdate: + dDate.getDate() + ", " + dDate.toLocaleTimeString() });
+                node.exposedGAs.push({ address: msg.knx.destination, dpt: msg.knx.dpt, payload: msg.payload, devicename: sDeviceName, lastupdate: sDate });
             } else {
                 oGa.dpt = msg.knx.dpt;
                 oGa.payload = msg.payload;
-                oGa.devicename = msg.devicename || "Import ETS file";
-                oGa.lastupdate = dDate.getDate() + ", " + dDate.toLocaleTimeString()
+                oGa.devicename =sDeviceName;
+                oGa.lastupdate = sDate;
             }
             // Output the payload
             node.createPayload();
@@ -63,8 +64,8 @@ module.exports = function (RED) {
                 <th> GA </th>
                 <th> Value </th>
                 <th> DPT </th>
-                <th> Day, time </th>
-                <th> Name </th>
+                <th> Last updated </th>
+                <th> Group Address Name </th>
               </tr>
             </thead>
             <tbody>`;
@@ -73,13 +74,13 @@ module.exports = function (RED) {
             let sPayload = "";
 
             const aSorted = node.exposedGAs.sort((a, b) => {
-                if( a.address !== undefined && b.address !== undefined ) {
-                  return a.address > b.address ? 1 : -1;
+                if (a.address !== undefined && b.address !== undefined) {
+                    return a.address > b.address ? 1 : -1;
                 } else {
-                  return a.address !== undefined ? 1 : -1
+                    return a.address !== undefined ? 1 : -1
                 }
             });
-            
+
             for (let index = 0; index < aSorted.length; index++) {
                 const element = aSorted[index];
                 sPayload += `<tr>
