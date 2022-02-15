@@ -5,7 +5,7 @@
         "primoaldistacco": "(this is the first to be switched off)",
         "properties": {
             "node-input-server": "Gateway",
-            "node-input-name": "NoNameme",
+            "node-input-name": "Name",
             "node-input-dpt": "Datapoint",
             "node-input-topic": "Monitor W",
             "node-input-controlGA": "Load",
