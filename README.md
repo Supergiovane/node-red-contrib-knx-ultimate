@@ -21,7 +21,8 @@ payload = true // Turn light on
 payload = {red:255, green:200, blue:30} // Put some colors in our life
 ```
 
-## DESCRIPTION
+
+## NODE LIST
 
 * **KNX-ULTIMATE node** [here](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/2.-Node-Configuration), allow you to control your *KNX installation* via Node-Red. You can control all your KNX devices as well as create a *Virtual Device* in Node-Red, to link external *non KNX* devices, and make it compatible with your KNX installation. I'ts very SIMPLE TO USE thus very customizable.  
 * **SCENE CONTROLLER node** [here](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/SceneController-Configuration), The scene controller node can act as a real scene controller, with recall and save of the current scene.
@@ -32,6 +33,9 @@ payload = {red:255, green:200, blue:30} // Put some colors in our life
 * **LOAD CONTROL node** [here](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/LoadControl-Configuration). Control your loads (Oven, Washing machine, etc..) and avoit shutting down the main voltage due to too high power consumption.
 * **VIEWER node** [here](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/knxUltimateViewer). View all Group Addresses and values of your KNX BUS, in the Node-Red Dashboard.
 
+<br>
+<br>
+
 ## CHANGELOG
 
 * See <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/blob/master/CHANGELOG.md">here the changelog</a>
@@ -39,18 +43,25 @@ payload = {red:255, green:200, blue:30} // Put some colors in our life
 <br>
 <br>
 
-## SEARCHING FOR HELP _ VOLUNTEER NEEDED _
+## VOLUNTEER NEEDED FOR KNX SECURE
+
 **************************************************
 **************************************************
-*I need volunteer helping in development of KNX Secure. High knowledge of cryptography and KNX is needed.*
+
+KNX-Secure is under development and **should** be ready by mid 2022.<br/>
+Many users requested me to "extract" the baseline KNX API and make it accessible via npmjs. Here is it.<br/>
+The API is named **KNXUltimate**. In the README page is well documented and there are also samples for unsecure and secure KNX connections.
+* <a href="https://github.com/Supergiovane/KNXUltimate#readme">KNXUltimate API</a>
+
+I need volunteer helping in development of KNX Secure.<br/>
+High knowledge of cryptography and KNX is needed.
 **************************************************
 **************************************************
 <br>
 <br>
 
-## KNX SECURE
 
-KNX-Secure is under development and **should** be ready by mid 2022. You can help me by clicking here [![Donate via PayPal](https://img.shields.io/badge/Donate-PayPal-blue.svg?style=flat-square)](https://www.paypal.me/techtoday) 
+
 
 ## HELP, SAMPLES, TROUBLESHOOT, WIKI, FAQ, BEST PRACTICES
 
