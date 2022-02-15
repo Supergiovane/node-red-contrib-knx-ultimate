@@ -7,6 +7,12 @@
 # CHANGELOG
 
 <p>
+<b>Version 1.3.31</b> - February 2022<br/>
+- KNX Viewer node: now the payload is formatted depending on value type.<br/>
+- KNX Viewer node: now the list is ordered by group address.<br/>
+- KNX Viewer node: added a second output pin, that emits an Array containing all group addresses.<br/>
+</p>
+<p>
 <b>Version 1.3.30</b> - February 2022<br/>
 - KNX Viewer node: changed the Datetime display to local time format.<br/>
 </p>

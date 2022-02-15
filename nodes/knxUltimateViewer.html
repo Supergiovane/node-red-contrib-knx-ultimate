@@ -8,7 +8,19 @@
             name: { value: "KNXViewer", validate: RED.validators.regex(/^[a-z]+$/i) }
         },
         inputs: 0,
-        outputs: 1,
+        outputs: 2,
+        outputLabels: function (i) {
+			switch (i) {
+				case 0:
+					return "Formatted Payload";
+					break;
+				case 1:
+					return "Simple Array";
+					break;
+				default:
+					break;
+			}
+		},
         icon: "node-eye-icon.svg",
         label: function () {
             return (this.name);
