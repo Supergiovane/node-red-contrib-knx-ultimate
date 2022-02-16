@@ -7,6 +7,10 @@
 # CHANGELOG
 
 <p>
+<b>Version 1.3.32</b> - February 2022<br/>
+- FIX Datapoint 16.001: fixed an issue with the ISO8859-1 encoding.<br/>
+</p>
+<p>
 <b>Version 1.3.31</b> - February 2022<br/>
 - KNX Viewer node: now the payload is formatted depending on value type.<br/>
 - KNX Viewer node: now the list is ordered by group address.<br/>

@@ -22,7 +22,8 @@ exports.formatAPDU = function (value) {
   }
 
   var buf = new Buffer.alloc(14);
-  buf.write(value, 'ascii')
+  if (this.subtypeid === "001") buf.write(value, 'latin1');
+  if (this.subtypeid === "000") buf.write(value, 'ascii');
   return buf;
 
 }
@@ -33,7 +34,9 @@ exports.fromBuffer = function (buf) {
     knxLog.get().error("DPT6: Buffer should be 14 byte long, got", buf.length);
     return null;
   }
-  return buf.toString('ascii');
+  if (this.subtypeid === "001") return buf.toString('latin1');
+  if (this.subtypeid === "000") return buf.toString('ascii');
+  
 
 }
 
