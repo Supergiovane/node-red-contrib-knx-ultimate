@@ -7,6 +7,13 @@
 # CHANGELOG
 
 <p>
+<b>Version 1.3.33</b> - March 2022<br/>
+- Reset handlers by removing/adding every time the connection is set by "new" directive.<br/>
+- Fixed an issue causing glitches, when the disconnection is requested by the KNX interface instead of KNX-Ultimate.<br/>
+- Fixed an issue occurring when the disconnection is started from KNX-Ultimate by the DISCONNECT_REQUEST, but the KNX Interface fails to send the DISCONNECT_RESPONSE to confirm the disconnection.<br/>
+- Updated knxUltimate-config.js to actively disconnect and close the socket when the disconnection is requested by the KNX Interface. All other cases (disconnection by ethernet cable, disconnection by unreachable KNX Interface, disconnection by temporary out of access, disconnection by means of user intervention, disconnection by Watchdog node etc...) are not affected by this issue.<br/>
+</p>
+<p>
 <b>Version 1.3.32</b> - February 2022<br/>
 - FIX Datapoint 16.001: fixed an issue with the ISO8859-1 encoding.<br/>
 </p>

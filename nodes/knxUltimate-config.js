@@ -770,6 +770,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                         node.linkStatus = "disconnected";
                         node.setAllClientsStatus("Disconnected by event: " + info || "", "red", "");
                         if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.warn("knxUltimate-config: Disconnected event %s", info);
+                        node.Disconnect(); // 11/03/2022
                     }
                 });
                 node.knxConnection.on(knx.KNXClient.KNXClientEvents.close, info => {
