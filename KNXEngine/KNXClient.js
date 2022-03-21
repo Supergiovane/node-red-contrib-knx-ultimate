@@ -139,6 +139,7 @@ class KNXClient extends EventEmitter {
                 } catch (error) {
                     if (conn.sysLogger !== undefined && conn.sysLogger !== null) conn.sysLogger.error("UDP:  Error setting SetTTL " + error.message || "");
                 }
+                conn = null;
             });
 
         } else if (this._options.hostProtocol === "TunnelTCP") {
@@ -156,7 +157,7 @@ class KNXClient extends EventEmitter {
             this._clientSocket = dgram.createSocket({ type: 'udp4', reuseAddr: true });
             this._clientSocket.removeAllListeners();  // 12/03/2022 Remove all listeners
             this._clientSocket.on(SocketEvents.listening, function () {
-               
+
             });
             let conn = this;
             this._clientSocket.on(SocketEvents.message, this._processInboundMessage);
@@ -176,8 +177,10 @@ class KNXClient extends EventEmitter {
                     try {
                         conn.emit(KNXClientEvents.error, err);
                     } catch (error) { }
+                    conn = null;
                     return;
                 }
+                conn = null;
                 //this._localPort = this._clientSocket.address().port;// 07/12/2021 Get the local port used bu the socket
             });
         }
@@ -598,7 +601,7 @@ class KNXClient extends EventEmitter {
             // TCP
             const timeoutError = new Error(`Connection timeout to ${this._peerHost}:${this._peerPort}`);
             let conn = this;
-            this._clientSocket.connect( this._peerPort, this._peerHost, function () {
+            this._clientSocket.connect(this._peerPort, this._peerHost, function () {
                 // conn._timer = setTimeout(() => {
                 //     conn._timer = null;
                 //     conn.emit(KNXClientEvents.error, timeoutError);
@@ -606,6 +609,7 @@ class KNXClient extends EventEmitter {
                 conn._awaitingResponseType = KNXConstants.KNX_CONSTANTS.CONNECT_RESPONSE;
                 conn._clientTunnelSeqNumber = 0;
                 if (conn._options.isSecureKNXEnabled) conn._sendSecureSessionRequestMessage(new TunnelCRI.TunnelCRI(knxLayer));
+                conn = null;
             });
 
         } else {
