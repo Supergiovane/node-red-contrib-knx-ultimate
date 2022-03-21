@@ -7,7 +7,7 @@
 # CHANGELOG
 
 <p>
-<b>Version 1.3.33</b> - March 2022<br/>
+<b>Version 1.3.34</b> - March 2022<br/>
 - Reset handlers by removing/adding every time the connection is set by "new" directive.<br/>
 - Fixed an issue causing glitches, when the disconnection is requested by the KNX interface instead of KNX-Ultimate.<br/>
 - Fixed an issue occurring when the disconnection is started from KNX-Ultimate by the DISCONNECT_REQUEST, but the KNX Interface fails to send the DISCONNECT_RESPONSE to confirm the disconnection.<br/>
