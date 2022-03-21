@@ -84,14 +84,14 @@ module.exports = function (RED) {
             // Resets the watchdog, means all is OK
             if (node.checkLevel === "Ethernet") {
                 node.beatNumber = 0; // Reset counter
-                setTimeout(() => {
+                let t = setTimeout(() => { // 21/03/2022 fixed possible memory leak. Previously was setTimeout without "let t = ".
                     node.setNodeStatus({ fill: "green", shape: "dot", text: "Basic check level unicast " + node.checkLevel + " - Interface OK.", payload: "", GA: node.topic, dpt: "", devicename: "" });
                 }, 500);
 
             } else {
                 // With this check level "Ethernet + KNX Twisted Pair", i need to obtain the "Response" from the physical device, otherwise the connection TP is broken.
                 node.beatNumber = 0; // Reset counter
-                setTimeout(() => {
+                let t = setTimeout(() => { // 21/03/2022 fixed possible memory leak. Previously was setTimeout without "let t = ".
                     node.setNodeStatus({ fill: "green", shape: "dot", text: "Full check level " + node.checkLevel + " - KNX BUS OK.", payload: "", GA: node.topic, dpt: "", devicename: "" });
                 }, 500);
 

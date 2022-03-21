@@ -12,6 +12,14 @@
 - Fixed an issue causing glitches, when the disconnection is requested by the KNX interface instead of KNX-Ultimate.<br/>
 - Fixed an issue occurring when the disconnection is started from KNX-Ultimate by the DISCONNECT_REQUEST, but the KNX Interface fails to send the DISCONNECT_RESPONSE to confirm the disconnection.<br/>
 - Updated knxUltimate-config.js to actively disconnect and close the socket when the disconnection is requested by the KNX Interface. All other cases (disconnection by ethernet cable, disconnection by unreachable KNX Interface, disconnection by temporary out of access, disconnection by means of user intervention, disconnection by Watchdog node etc...) are not affected by this issue.<br/>
+- Optimized memory allocation to allow the garbage collector to get rid of unref variables.<br/>
+- Scene controller: fixed node status issues.<br/>
+- Load control: code revision.<br/>
+- Logger: code revision.<br/>
+- Watchdog: code revision.<br/>
+- Device node: code revision.<br/>
+- Global Context: code revision.<br/>
+- Wiki: merged Global Context node sample, into one single page for better readability.<br/>
 </p>
 <p>
 <b>Version 1.3.32</b> - February 2022<br/>

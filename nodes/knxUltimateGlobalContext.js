@@ -70,6 +70,7 @@ module.exports = function (RED) {
         // exposeAsVariableREADWRITE
         //#region "WRITE TO BUS"
         goTimerGo = () => {
+            if (node.timerExposedGAs !== null) clearTimeout(node.timerExposedGAs); // 21/03/2021
             node.timerExposedGAs = setTimeout(() => {
                 var oContext = node.context().global.get(node.name + "_WRITE") || [];
                 node.context().global.set(node.name + "_WRITE", []); // Delete the var
@@ -78,12 +79,14 @@ module.exports = function (RED) {
                     if (!element.hasOwnProperty("address")) {
                         node.setNodeStatus({ fill: "RED", shape: "dot", text: "NO Group Address set" });
                         RED.log.error("knxUltimateGlobalContext: No group address set in node " + node.id);
+                        oContext = null; // 21/03/2022
                         goTimerGo();
                         return;
                     }
                     if (!element.hasOwnProperty("payload")) {
                         node.setNodeStatus({ fill: "RED", shape: "dot", text: "NO payload set" });
                         RED.log.error("knxUltimateGlobalContext: No payload set for address " + element.address + " in node " + node.id);
+                        oContext = null; // 21/03/2022
                         goTimerGo();
                         return;
                     }
@@ -92,18 +95,20 @@ module.exports = function (RED) {
                     if (!element.hasOwnProperty("dpt") || element.dpt !== undefined) {
                         try {
                             let sDPT = node.server.csv.find(item => item.ga === element.address).dpt;
-                            element.dpt = sDPT;                            
+                            element.dpt = sDPT;
                         } catch (error) {
                             node.setNodeStatus({ fill: "RED", shape: "dot", text: "Datapoint not found in CSV for " + element.address });
                             RED.log.error("knxUltimateGlobalContext: Datapoint not found in CSV for address " + element.address + " in node " + node.id);
+                            oContext = null; // 21/03/2022
                             goTimerGo();
-                            return;    
+                            return;
                         }
                     }
 
                     node.setNodeStatus({ fill: "green", shape: "dot", text: "Write", payload: element.payload, GA: element.address, dpt: element.dpt || "", devicename: "" });
                     node.server.writeQueueAdd({ grpaddr: element.address, payload: element.payload, dpt: element.dpt || "", outputtype: "write", nodecallerid: node.id });
                 }
+                oContext = null; // 21/03/2022
                 goTimerGo();
             }, node.writeExecutionInterval);
         }
@@ -138,6 +143,7 @@ module.exports = function (RED) {
                 } catch (error) {
                     console.log(error);
                 }
+                oGa = null; // 21/03/2022
             } else {
                 node.exposedGAs = [];
                 node.context().global.set(node.name + "_READ", node.exposedGAs);
@@ -151,6 +157,7 @@ module.exports = function (RED) {
 
         node.on("close", function (done) {
             if (node.timerExposedGAs !== null) clearTimeout(node.timerExposedGAs);
+            node.exposedGAs = [];
             if (node.server) {
                 node.server.removeClient(node);
             }

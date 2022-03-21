@@ -1,6 +1,8 @@
 /**
 * (C) 2021 Supergiovane
 */
+"use strict";
+
 const util = require('util')
 const possibleLEvels = ['silent', 'error', 'warn', 'info', 'debug', 'trace'];
 let logger

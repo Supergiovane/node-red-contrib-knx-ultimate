@@ -1,3 +1,5 @@
+
+
 // const knx = require('./../knxultimate-api2');
 // const dptlib = require('./../knxultimate-api2/src/dptlib');
 const knx = require("./../KNXEngine");
@@ -11,23 +13,23 @@ var fs = require('fs');
 
 
 //Helpers
-sortBy = (field) => (a, b) => {
+let sortBy = (field) => (a, b) => {
     if (a[field] > b[field]) { return 1 } else { return -1 }
 };
 
 
-onlyDptKeys = (kv) => {
+let onlyDptKeys = (kv) => {
     return kv[0].startsWith("DPT")
 };
 
-extractBaseNo = (kv) => {
+let extractBaseNo = (kv) => {
     return {
         subtypes: kv[1].subtypes,
         base: parseInt(kv[1].id.replace("DPT", ""))
     }
 };
 
-convertSubtype = (baseType) => (kv) => {
+let convertSubtype = (baseType) => (kv) => {
     let value = `${baseType.base}.${kv[0]}`;
     //let sRet = value + " " + kv[1].name + (kv[1].unit === undefined ? "" : " (" + kv[1].unit + ")");
     let sRet = value + " " + kv[1].name;
@@ -47,7 +49,7 @@ convertSubtype = (baseType) => (kv) => {
 // }
 
 
-toConcattedSubtypes = (acc, baseType) => {
+let toConcattedSubtypes = (acc, baseType) => {
     let subtypes =
         Object.entries(baseType.subtypes)
             .sort(sortBy(0))
@@ -58,6 +60,8 @@ toConcattedSubtypes = (acc, baseType) => {
 
 
 module.exports = (RED) => {
+
+    "use strict";
 
     RED.httpAdmin.get("/knxUltimateDpts", RED.auth.needsPermission('knxUltimate-config.read'), function (req, res) {
         const dpts =
@@ -135,11 +139,12 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
         node.userDir = path.join(RED.settings.userDir, "knxultimatestorage"); // 04/04/2021 Supergiovane: Storage for service files
         node.exposedGAs = [];
         node.loglevel = config.loglevel !== undefined ? config.loglevel : "error"; // 18/02/2020 Loglevel default error
+        node.sysLogger = null; // 20/03/2022 Default
         try {
-            node.sysLogger = null;
             node.sysLogger = require("./utils/sysLogger.js").get({ loglevel: node.loglevel }); // 08/04/2021 new logger to adhere to the loglevel selected in the config-window            
         } catch (error) { }
         // 12/11/2021 Connect at start delay
+        node.autoReconnect = true; // 20/03/2022 Default
         if (config.autoReconnect === "no" || config.autoReconnect === false) {
             node.autoReconnect = false;
         } else {
@@ -155,7 +160,8 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
         node.knxConnectionProperties = null; // Retains the connection properties
         node.allowLauch_initKNXConnection = true; // See the node.timerKNXUltimateCheckState function
         node.timerClearTelegramQueue = null; // Timer to clear the telegram's queue after long disconnection
-
+        node.hostProtocol = "TunnelUDP"; // 20/03/2022 Default
+        node.knxConnection = null; // 20/03/2022 Default
         // 15/12/2021
         node.adaptProtocolBasedOnIP = () => {
             // Auto set protocol based on IP            
@@ -192,7 +198,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
         node.startTimerClearTelegramQueue = () => {
             if (node.timerClearTelegramQueue === null) {
                 node.timerClearTelegramQueue = setTimeout(() => {
-                    setTimeout(() => {
+                    let t = setTimeout(() => { // 21/03/2022 fixed possible memory leak. Previously was setTimeout without "let t = ".
                         node.setAllClientsStatus("Queue", "grey", "Deleted TX");
                     }, 200);
                     node.telegramsQueue = [];
@@ -207,6 +213,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
         // 15/11/2021 Function to load the keyring file exported from ETS
         //
         //
+        node.jKNXSecureKeyring = null;
         try {
             (async () => {
                 if (node.knxSecureSelected) {
@@ -220,7 +227,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
             if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("KNXUltimate-config: KNX Secure: error parsing the keyring XML: " + error.message);
             node.jKNXSecureKeyring = null;
             node.knxSecureSelected = false;
-            setTimeout(() => node.setAllClientsStatus("Error", "red", "KNX Secure " + error.message), 2000);
+            let t = setTimeout(() => node.setAllClientsStatus("Error", "red", "KNX Secure " + error.message), 2000); // 21/03/2022 fixed possible memory leak. Previously was setTimeout without "let t = ".
         }
 
 
@@ -323,7 +330,6 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
             var sGA = "";
             var sDPT = "";
             var sName = "";
-            var sNodeID = "";
             let sOptions = "";
             try {
                 if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("KNXUltimate-config: Total knx-ultimate nodes: " + _node.nodeClients.length || 0);
@@ -506,7 +512,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                                     if (oExposedGA !== undefined) {
 
                                         // Retrieve the value from exposedGAs
-                                        let msg = buildInputMessage({ _srcGA: "", _destGA: oClient.topic, _event: "GroupValue_Response", _Rawvalue: new Buffer.from(oExposedGA.rawValue.data), _inputDpt: oClient.dpt, _devicename: oClient.name ? oClient.name : "", _outputtopic: oClient.outputtopic, _oNode: oClient })
+                                        let msg = buildInputMessage({ _srcGA: "", _destGA: oClient.topic, _event: "GroupValue_Response", _Rawvalue: Buffer.from(oExposedGA.rawValue.data), _inputDpt: oClient.dpt, _devicename: oClient.name ? oClient.name : "", _outputtopic: oClient.outputtopic, _oNode: oClient })
                                         oClient.previouspayload = ""; // 05/04/2021 Added previous payload
                                         oClient.currentPayload = msg.payload;
                                         oClient.setNodeStatus({ fill: "grey", shape: "dot", text: "Update value from persist file", payload: oClient.currentPayload, GA: oClient.topic, dpt: oClient.dpt, devicename: oClient.name || "" });
@@ -596,7 +602,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                 node.Disconnect();
                 // node.setKnxConnectionProperties(); // 28/12/2021 Commented 
                 node.setAllClientsStatus("CONFIG", "yellow", "KNXUltimage-config:setGatewayConfig: disconnected by new setting...");
-                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.debug("KNXUltimage-config:setGatewayConfig: disconnected by setGatewayConfig. AutoReconnect = " + oldReconnect);
+                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.debug("KNXUltimage-config:setGatewayConfig: disconnected by setGatewayConfig.");
             } catch (error) { }
 
         };
@@ -619,7 +625,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                 try {
                     node.autoReconnect = false;
                     node.Disconnect();
-                    setTimeout(() => {
+                    let t = setTimeout(() => { // 21/03/2022 fixed possible memory leak. Previously was setTimeout without "let t = ".
                         node.setAllClientsStatus("CONFIG", "yellow", "Forced GW disconnection and stop reconnection attempts, from watchdog.");
                     }, 2000);
                 } catch (error) { }
@@ -759,10 +765,10 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                     if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("knxUltimate-config: Disconnected by: " + (err.message === undefined ? err : err.message));
                 });
                 // Call discoverCB when a knx gateway has been discovered.
-                node.knxConnection.on(knx.KNXClient.KNXClientEvents.discover, info => {
-                    const [ip, port] = info.split(":");
-                    discoverCB(ip, port);
-                });
+                // node.knxConnection.on(knx.KNXClient.KNXClientEvents.discover, info => {
+                //     const [ip, port] = info.split(":");
+                //     discoverCB(ip, port);
+                // });
                 node.knxConnection.on(knx.KNXClient.KNXClientEvents.disconnected, info => {
                     saveExposedGAs(); // 13/12/2021 save the current values of GA payload
                     node.startTimerClearTelegramQueue(); // 21/01/2022 Clear the telegram queue after a while
@@ -785,7 +791,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                     // Start the timer to do initial read.
                     if (node.timerDoInitialRead !== null) clearTimeout(node.timerDoInitialRead);
                     node.timerDoInitialRead = setTimeout(DoInitialReadFromKNXBusOrFile, 6000); // 17/02/2020 Do initial read of all nodes requesting initial read
-                    setTimeout(() => {
+                    let t = setTimeout(() => { // 21/03/2022 fixed possible memory leak. Previously was setTimeout without "let t = ".
                         node.setAllClientsStatus("Connected.", "green", "On duty.")
                     }, 500);
                     if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("knxUltimate-config: Connected to %o", info);
@@ -813,7 +819,8 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
             } catch (error) {
                 if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("KNXUltimate-config: Error in instantiating knxConnection " + error.message + ". Node " + node.name);
                 node.linkStatus = "disconnected";
-                setTimeout(() => node.setAllClientsStatus("Error in instantiating knxConnection " + error, "red", "Error"), 200);
+                // 21/03/2022 fixed possible memory leak. Previously was setTimeout without "let t = ".
+                let t = setTimeout(() => node.setAllClientsStatus("Error in instantiating knxConnection " + error, "red", "Error"), 200);
             }
 
         };
@@ -824,7 +831,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
         function handleBusEvents(_datagram, _echoed) {
 
 
-            // _rawValue
+            let _rawValue = null;
             try {
                 _rawValue = _datagram.cEMIMessage.npdu.dataValue;
             } catch (error) {
@@ -832,15 +839,15 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
             }
 
 
-            // _evt
+            let _evt = null;
             if (_datagram.cEMIMessage.npdu.isGroupRead) _evt = "GroupValue_Read";
             if (_datagram.cEMIMessage.npdu.isGroupResponse) _evt = "GroupValue_Response";
             if (_datagram.cEMIMessage.npdu.isGroupWrite) _evt = "GroupValue_Write";
 
-            // _src
+            let _src = null;
             _src = _datagram.cEMIMessage.srcAddress.toString();
 
-            // _dest
+            let _dest = null;
             _dest = _datagram.cEMIMessage.dstAddress.toString();
 
             let isRepeated = _datagram.cEMIMessage.control.repeat === 1 ? false : true;
@@ -945,10 +952,12 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                             } else if (input.listenallga == true) {
 
                                 // Get the GA from CVS
-                                let oGA;
-                                try {
-                                    oGA = node.csv.filter(sga => sga.ga == _dest)[0];
-                                } catch (error) { }
+                                let oGA = undefined;
+                                if (node.csv !== undefined) {
+                                    try {
+                                        oGA = node.csv.filter(sga => sga.ga == _dest)[0];
+                                    } catch (error) { }
+                                }
 
                                 // 25/10/2019 TRY TO AUTO DECODE IF Group address not found in the CSV
                                 let msg = buildInputMessage({ _srcGA: _src, _destGA: _dest, _event: _evt, _Rawvalue: _rawValue, _inputDpt: (typeof oGA === "undefined") ? null : oGA.dpt, _devicename: (typeof oGA === "undefined") ? input.name || "" : oGA.devicename, _outputtopic: _dest, _oNode: input });
@@ -1251,7 +1260,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
         }
 
         // 14/08/2019 If the node has payload same as the received telegram, return false
-        checkRBEInputFromKNXBusAllowSend = (_node, _KNXTelegramPayload) => {
+        function checkRBEInputFromKNXBusAllowSend(_node, _KNXTelegramPayload) {
             if (_node.inputRBE !== true) return true;
 
             return !_.isEqual(_node.currentPayload, _KNXTelegramPayload);
@@ -1350,7 +1359,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
 
                 if (dpt !== null && _Rawvalue !== null) {
                     try {
-                        var jsValue = dptlib.fromBuffer(_Rawvalue, dpt)
+                        jsValue = dptlib.fromBuffer(_Rawvalue, dpt)
                         if (jsValue === null) {
                             if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("knxUltimate-config: buildInputMessage: received a wrong datagram form KNX BUS, from device " + _srcGA + " Destination " + _destGA + " Event " + _event + " GA's Datapoint " + (_inputDpt === null ? "THE ETS FILE HAS NOT BEEN IMPORTED, SO I'M TRYING TO FIGURE OUT WHAT DATAPOINT BELONGS THIS GROUP ADDRESS. DON'T BLAME ME IF I'M WRONG, INSTEAD, IMPORT THE ETS FILE!" : _inputDpt) + " Devicename " + _devicename + " Topic " + _outputtopic + " NodeID " + _oNode.id || "");
                         }
@@ -1720,7 +1729,6 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
 
                         let msg = {
                             topic: _msg.grpaddr,//input.topic,
-                            payload: _msg.payload,
                             devicename: (typeof oGA === "undefined") ? input.name || "" : oGA.devicename,
                             payload: _msg.payload,
                             knx: { event: sEvent, dpt: _msg.dpt, destination: _msg.grpaddr },
@@ -1739,7 +1747,6 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
 
                             let msg = {
                                 topic: input.outputtopic,
-                                payload: _msg.payload,
                                 devicename: input.name ? input.name : "",
                                 payload: _msg.payload,
                                 knx: { event: sEvent, dpt: _msg.dpt, destination: _msg.grpaddr },
@@ -1774,7 +1781,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
             // If the node is disconnected, wait another cycle, then reconnects
             if (node.allowLauch_initKNXConnection && node.autoReconnect) {
                 node.allowLauch_initKNXConnection = false;
-                setTimeout(() => {
+                let t = setTimeout(() => { // 21/03/2022 fixed possible memory leak. Previously was setTimeout without "let t = ".
                     node.setAllClientsStatus("Auto reconnect in progress...", "grey", "");
                 }, 100);
                 if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.debug("knxUltimate-config: Auto Reconect by timerKNXUltimateCheckState in progress. node.LinkStatus:" + node.linkStatus + ", node.autoReconnect:" + node.autoReconnect);
@@ -1783,7 +1790,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
             }
             if (node.linkStatus === "disconnected" && node.autoReconnect) {
                 node.allowLauch_initKNXConnection = true; // Next cycle, launch initKNXConnection, so it pauses more and leave more time
-                setTimeout(() => {
+                let t = setTimeout(() => { // 21/03/2022 fixed possible memory leak. Previously was setTimeout without "let t = ".
                     node.setAllClientsStatus("Next cycle will reconnect...", "grey", "");
                 }, 1000);
                 if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.debug("knxUltimate-config: Waiting next cycle to reconect. node.LinkStatus:" + node.linkStatus + ", node.autoReconnect:" + node.autoReconnect);

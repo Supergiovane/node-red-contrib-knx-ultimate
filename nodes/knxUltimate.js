@@ -133,7 +133,7 @@ module.exports = function (RED) {
                     if (msg.hasOwnProperty('knx')) {
                         if (msg.knx.destination == grpaddr && ((msg.knx.event === "GroupValue_Response" || msg.knx.event === "GroupValue_Read"))) {
                             if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("knxUltimate: Circular reference protection during READ. The node " + node.id + " has been temporary disabled. Two nodes with same group address and reaction/output type are linked. See the FAQ in the Wiki. Msg:" + JSON.stringify(msg));
-                            setTimeout(() => {
+                            let t = setTimeout(() => { // 21/03/2022 fixed possible memory leak. Previously was setTimeout without "let t = ".
                                 node.setNodeStatus({ fill: "red", shape: "ring", text: "DISABLED due to a circulare reference while READ (" + grpaddr + ").", payload: "", GA: "", dpt: "", devicename: "" })
                             }, 1000);
                             return;
@@ -149,7 +149,7 @@ module.exports = function (RED) {
                         if (msg.hasOwnProperty("knx")) {
                             if (msg.knx.destination == grpaddr && ((msg.knx.event === "GroupValue_Response" || msg.knx.event === "GroupValue_Read"))) {
                                 if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("knxUltimate: Circular reference protection during READ-2. The node " + node.id + " has been temporary disabled. Two nodes with same group address and reaction/output type are linked. See the FAQ in the Wiki. Msg:" + JSON.stringify(msg));
-                                setTimeout(() => {
+                                let t = setTimeout(() => { // 21/03/2022 fixed possible memory leak. Previously was setTimeout without "let t = ".
                                     node.setNodeStatus({ fill: "red", shape: "ring", text: "DISABLED due to a circulare reference while READ-2 (" + grpaddr + ").", payload: "", GA: "", dpt: "", devicename: "" })
                                 }, 1000);
                                 return;
@@ -172,7 +172,7 @@ module.exports = function (RED) {
                                     }
                                 } else {
                                     node.server.writeQueueAdd({ grpaddr: grpaddr, payload: "", dpt: "", outputtype: "read", nodecallerid: node.id });
-                                    setTimeout(() => {
+                                    let t = setTimeout(() => { // 21/03/2022 fixed possible memory leak. Previously was setTimeout without "let t = ".
                                         // Timeout is only for the status update.
                                         node.setNodeStatus({ fill: "grey", shape: "dot", text: "Add Read to queue...", payload: "", GA: grpaddr, dpt: element.dpt, devicename: element.devicename });
                                     }, delay);
@@ -181,7 +181,7 @@ module.exports = function (RED) {
                             }
                         } else {
                             // No csv. A chi cavolo dovrei mandare la richiesta read?
-                            setTimeout(() => {
+                            let t = setTimeout(() => { // 21/03/2022 fixed possible memory leak. Previously was setTimeout without "let t = ".
                                 // Timeout is only for the status update.
                                 node.setNodeStatus({ fill: "red", shape: "dot", text: "Read: ETS file not set, i don't know where to send the read request.", payload: "", GA: "", dpt: "", devicename: node.name });
                                 if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("KNX-Ultimate: ETS file not set, i don't know where to send the read request. I'm the node " + node.id);
@@ -203,7 +203,7 @@ module.exports = function (RED) {
                 // 07/02/2020 Revamped flood protection (avoid accepting too many messages as input)
                 if (node.icountMessageInWindow == -999) return; // Locked out
                 if (node.icountMessageInWindow == 0) {
-                    setTimeout(() => {
+                    let t = setTimeout(() => { // 21/03/2022 fixed possible memory leak. Previously was setTimeout without "let t = ".
                         if (node.icountMessageInWindow >= 120) {
                             // Looping detected
                             node.setNodeStatus({ fill: "red", shape: "ring", text: "DISABLED! Flood protection! Too many msg at the same time.", payload: "", GA: "", dpt: "", devicename: "" })
@@ -270,7 +270,7 @@ module.exports = function (RED) {
 
                         if (msg.knx.destination == grpaddr && ((msg.knx.event === "GroupValue_Write" && outputtype === "write") || (msg.knx.event === "GroupValue_Response" && outputtype === "response") || (msg.knx.event === "GroupValue_Response" && outputtype === "read") || (msg.knx.event === "GroupValue_Read" && outputtype === "read"))) {
                             if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("knxUltimate: Circular reference protection. The node " + node.id + " has been temporarely disabled. Two nodes with same group address and reaction/output type are linked. See the FAQ in the Wiki. Msg:" + JSON.stringify(msg));
-                            setTimeout(() => {
+                            let t = setTimeout(() => { // 21/03/2022 fixed possible memory leak. Previously was setTimeout without "let t = ".
                                 node.setNodeStatus({ fill: "red", shape: "ring", text: "DISABLED due to a circulare reference (" + grpaddr + ").", payload: "", GA: "", dpt: "", devicename: "" })
                             }, 1000);
                             return;
@@ -352,7 +352,7 @@ module.exports = function (RED) {
             // "node-input-initialread3": "Leggi l'ultimo valore salvato su file prima della disconnessione. Se inesistente, leggi dal BUS KNX",
             if (node.server.linkStatus === "connected" && node.initialread === 1 || node.initialread === 3) {
                 node.setNodeStatus({ fill: "yellow", shape: "dot", text: "Get value from BUS.", payload: "", GA: node.topic || "", dpt: "", devicename: "" });
-                setTimeout(function () {
+                let t = setTimeout(function () { // 21/03/2022 fixed possible memory leak. Previously was setTimeout without "let t = ".
                     node.emit("input", { readstatus: true });
                 }, 3000);
             }

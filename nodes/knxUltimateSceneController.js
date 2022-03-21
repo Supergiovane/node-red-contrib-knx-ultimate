@@ -29,7 +29,8 @@ module.exports = function (RED) {
         node.isSceneController = true; // Signal to config node, that this is a node scene controller
         node.userDir = path.join(RED.settings.userDir, "knxultimatestorage"); // 09/03/2020 Storage of ttsultimate (otherwise, at each upgrade to a newer version, the node path is wiped out and recreated, loosing all custom files)
         node.sysLogger = require("./utils/sysLogger.js").get({ loglevel: node.server.loglevel || "error" }); // 08/04/2021 new logger to adhere to the loglevel selected in the config-window
-
+        node.timerWait = null;
+        node.icountMessageInWindow = 0;
         node.disabled = false; // 21/09/2020 you can now disable the scene controller
 
         // 11/03/2020 Delete scene saved file, from html
@@ -92,15 +93,15 @@ module.exports = function (RED) {
         }
 
         // Used to call the status update from the config node.
-        node.setNodeStatus = ({ fill, shape, text, payload, GA, dpt, devicename }) => {
+        node.setNodeStatus = ({ fill, shape, text, payload, _GA, _dpt, _devicename }) => {
             if (node.server == null) { node.status({ fill: "red", shape: "dot", text: "[NO GATEWAY SELECTED]" }); return; }
             if (node.icountMessageInWindow == -999) return; // Locked out
             if (node.disabled === true) fill = "grey"; // 21/09/2020 if disabled, color is grey
             var dDate = new Date();
             // 30/08/2019 Display only the things selected in the config
-            _GA = (typeof _GA == "undefined" || GA == "") ? "" : "(" + GA + ") ";
-            _devicename = devicename || "";
-            _dpt = (typeof dpt == "undefined" || dpt == "") ? "" : " DPT" + dpt;
+            _GA = (typeof _GA == "undefined" || _GA == "") ? "" : "(" + _GA + ") ";
+            _devicename = _devicename || "";
+            _dpt = (typeof _dpt == "undefined" || _dpt == "") ? "" : " DPT" + _dpt;
             node.status({ fill: fill, shape: shape, text: _GA + payload + ((node.listenallga && node.server.statusDisplayDeviceNameWhenALL) === true ? " " + _devicename : "") + (node.server.statusDisplayDataPoint === true ? _dpt : "") + (node.server.statusDisplayLastUpdate === true ? " (" + dDate.getDate() + ", " + dDate.toLocaleTimeString() + ")" : "") + " " + text });
             // 16/02/2020 signal errors to the server
             if (fill.toUpperCase() == "RED") {
@@ -174,7 +175,7 @@ module.exports = function (RED) {
 
             // 25/09/2020 If the node is disabled, doens't perform the action.
             if (node.disabled && !_ForceEvenControllerIsDisabled) {
-                setTimeout(() => {
+                let t = setTimeout(() => {
                     node.setNodeStatus({ fill: "grey", shape: "dot", text: "Recall while disabled", payload: "", GA: "", dpt: "", devicename: "" });
                 }, 500);
                 node.send({ savescene: false, recallscene: true, savevalue: false, disabled: true });
@@ -217,7 +218,7 @@ module.exports = function (RED) {
                 // 03/09/2021 wait command?
                 if (rule.topic.toLowerCase() === "wait") {
                     if (isNaN(rule.send)) {
-                        setTimeout(() => {
+                        let t = setTimeout(() => { // 21/03/2022 fixed possible memory leak. Previously was setTimeout without "let t = ".
                             node.setNodeStatus({ fill: "red", shape: "dot", text: "Invalid wait time. Write a number in milliseconds", payload: "", GA: "", dpt: "", devicename: "" });
                         }, 1000);
                     } else {
@@ -228,7 +229,7 @@ module.exports = function (RED) {
                     node.server.writeQueueAdd({ grpaddr: rule.topic, payload: oPayload, dpt: rule.dpt, outputtype: "write", nodecallerid: node.id })
                 }
             }
-            setTimeout(() => {
+            let t = setTimeout(() => { // 21/03/2022 fixed possible memory leak. Previously was setTimeout without "let t = ".
                 node.setNodeStatus({ fill: "green", shape: "dot", text: "Recall scene", payload: "", GA: "", dpt: "", devicename: "" });
             }, 1000);
             await delay(500);
@@ -310,7 +311,7 @@ module.exports = function (RED) {
 
             // 25/09/2020 If the node is disabled, doens't perform the action.
             if (node.disabled && !_ForceEvenControllerIsDisabled) {
-                setTimeout(() => {
+                let t = setTimeout(() => { // 21/03/2022 fixed possible memory leak. Previously was setTimeout without "let t = ".
                     node.setNodeStatus({ fill: "grey", shape: "dot", text: "Saved while disabled", payload: "", GA: "", dpt: "", devicename: "" });
                 }, 500);
                 node.send({ savescene: true, recallscene: false, savevalue: false, disabled: true });
@@ -372,7 +373,7 @@ module.exports = function (RED) {
             // 07/02/2020 Revamped flood protection (avoid accepting too many messages as input)
             if (node.icountMessageInWindow == -999) return; // Locked out
             if (node.icountMessageInWindow == 0) {
-                setTimeout(() => {
+                let t = setTimeout(() => { // 21/03/2022 fixed possible memory leak. Previously was setTimeout without "let t = ".
                     if (node.icountMessageInWindow >= 120) {
                         // Looping detected
                         node.setNodeStatus({ fill: "red", shape: "ring", text: "DISABLED! Flood protection! Too many msg at the same time.", payload: "", GA: "", dpt: "", devicename: "" })

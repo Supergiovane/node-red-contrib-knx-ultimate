@@ -94,8 +94,8 @@ class KNXClient extends EventEmitter {
         super();
         this._clientTunnelSeqNumber = -1;
         this._options = options;//Object.assign(optionsDefaults, options);
-        this._options.connectionKeepAliveTimeout = KNXConstants.KNX_CONSTANTS.CONNECTION_ALIVE_TIME,
-            this._localPort = null;
+        this._options.connectionKeepAliveTimeout = KNXConstants.KNX_CONSTANTS.CONNECTION_ALIVE_TIME;
+        //this._localPort = null;
         this._peerHost = this._options.ipAddr;
         this._peerPort = this._options.ipPort;
         this._connectionTimeoutTimer = null;
@@ -125,8 +125,6 @@ class KNXClient extends EventEmitter {
 
         // 12/03/2022 Remove all listeners
         this.removeAllListeners();
-
-        let conn = this;
         // 07/12/2021 Based on protocol instantiate the right socket
         if (this._options.hostProtocol === "TunnelUDP") {
             this._clientSocket = dgram.createSocket({ type: 'udp4', reuseAddr: false });
@@ -134,11 +132,12 @@ class KNXClient extends EventEmitter {
             this._clientSocket.on(SocketEvents.message, this._processInboundMessage);
             this._clientSocket.on(SocketEvents.error, error => this.emit(KNXClientEvents.error, error));
             this._clientSocket.on(SocketEvents.close, info => this.emit(KNXClientEvents.close, info));
-            this._clientSocket.bind({ address: this._options.localIPAddress, port: this._options._peerPort }, () => {
+            let conn = this;
+            this._clientSocket.bind({ address: this._options.localIPAddress, port: this._options._peerPort }, function () {
                 try {
                     conn._clientSocket.setTTL(128);
                 } catch (error) {
-                    if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.error("UDP:  Error setting SetTTL " + error.message || "");
+                    if (conn.sysLogger !== undefined && conn.sysLogger !== null) conn.sysLogger.error("UDP:  Error setting SetTTL " + error.message || "");
                 }
             });
 
@@ -154,38 +153,39 @@ class KNXClient extends EventEmitter {
             this._clientSocket.on(SocketEvents.close, info => this.emit(KNXClientEvents.close, info));
 
         } else if (this._options.hostProtocol === "Multicast") {
-            let conn = this;
             this._clientSocket = dgram.createSocket({ type: 'udp4', reuseAddr: true });
             this._clientSocket.removeAllListeners();  // 12/03/2022 Remove all listeners
             this._clientSocket.on(SocketEvents.listening, function () {
-                try {
-                    conn._clientSocket.addMembership(conn._peerHost, conn._options.localIPAddress);
-                } catch (err) {
-                    if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.error("Multicast: cannot add membership (%s)", err);
-                    try {
-                        this.emit(KNXClientEvents.error, err);
-                    } catch (error) { }
-                    return;
-                }
+               
             });
+            let conn = this;
             this._clientSocket.on(SocketEvents.message, this._processInboundMessage);
             this._clientSocket.on(SocketEvents.error, error => this.emit(KNXClientEvents.error, error));
             this._clientSocket.on(SocketEvents.close, info => this.emit(KNXClientEvents.close, info));
-            this._clientSocket.bind(this._peerPort, () => {
+            this._clientSocket.bind(this._peerPort, function () {
                 try {
                     conn._clientSocket.setMulticastTTL(128);
-                    conn._clientSocket.setMulticastInterface(this._options.localIPAddress);
+                    conn._clientSocket.setMulticastInterface(conn._options.localIPAddress);
                 } catch (error) {
-                    if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.error("Multicast: Error setting SetTTL " + error.message || "");
+                    if (conn.sysLogger !== undefined && conn.sysLogger !== null) conn.sysLogger.error("Multicast: Error setting SetTTL " + error.message || "");
                 }
-                this._localPort = this._clientSocket.address().port;// 07/12/2021 Get the local port used bu the socket
+                try {
+                    conn._clientSocket.addMembership(conn._peerHost, conn._options.localIPAddress);
+                } catch (err) {
+                    if (conn.sysLogger !== undefined && conn.sysLogger !== null) conn.sysLogger.error("Multicast: cannot add membership (%s)", err);
+                    try {
+                        conn.emit(KNXClientEvents.error, err);
+                    } catch (error) { }
+                    return;
+                }
+                //this._localPort = this._clientSocket.address().port;// 07/12/2021 Get the local port used bu the socket
             });
         }
 
         this._clientTunnelSeqNumber = -1;
         this._channelID = null;
         this._connectionState = STATE.DISCONNECTED;
-        this._tunnelReqTimer = null;
+        this._timerWaitingForACK = null;
         this._numFailedTelegramACK = 0; // 25/12/2021 Keep count of the failed tunnelig ACK telegrams
 
     }
@@ -237,21 +237,21 @@ class KNXClient extends EventEmitter {
         }
         return new KNXDataBuffer(adpu.data, IDataPoint);
     }
-    bindSocketPortAsync(port = KNXConstants.KNX_CONSTANTS.KNX_PORT, host = '0.0.0.0') {
-        return new Promise((resolve, reject) => {
-            try {
-                this._clientSocket.bind(port, host, () => {
-                    this._clientSocket.setMulticastInterface(host);
-                    this._clientSocket.setMulticastTTL(128);
-                    this._options.localIPAddress = host;
-                    resolve();
-                });
-            }
-            catch (err) {
-                reject(err);
-            }
-        });
-    }
+    // bindSocketPortAsync(port = KNXConstants.KNX_CONSTANTS.KNX_PORT, host = '0.0.0.0') {
+    //     return new Promise((resolve, reject) => {
+    //         try {
+    //             this._clientSocket.bind(port, host, () => {
+    //                 this._clientSocket.setMulticastInterface(host);
+    //                 this._clientSocket.setMulticastTTL(128);
+    //                 this._options.localIPAddress = host;
+    //                 resolve();
+    //             });
+    //         }
+    //         catch (err) {
+    //             reject(err);
+    //         }
+    //     });
+    // }
     send(knxPacket) {
 
         // Logging
@@ -318,10 +318,8 @@ class KNXClient extends EventEmitter {
 
     /**
     *
-    * @param {KNXAddress} srcAddress
     * @param {KNXAddress} dstAddress
     * @param {KNXDataBuffer} data
-    * @param {function} cb
     */
     // sendWriteRequest(dstAddress, data) {
     write(dstAddress, data, dptid) {
@@ -525,35 +523,35 @@ class KNXClient extends EventEmitter {
             clearTimeout(this._heartbeatTimer);
         }
     }
-    isDiscoveryRunning() {
-        return this._discovery_timer != null;
-    }
-    startDiscovery() {
-        if (this.isDiscoveryRunning()) {
-            throw new Error('Discovery already running');
-        }
-        this._discovery_timer = setTimeout(() => {
-            this._discovery_timer = null;
-        }, 1000 * KNXConstants.KNX_CONSTANTS.SEARCH_TIMEOUT);
-        this._sendSearchRequestMessage();
-    }
-    stopDiscovery() {
-        if (!this.isDiscoveryRunning()) {
-            return;
-        }
-        if (this._discovery_timer !== null) clearTimeout(this._discovery_timer);
-        this._discovery_timer = null;
-    }
-    getDescription(host, port) {
-        if (this._clientSocket == null) {
-            throw new Error('No client socket defined');
-        }
-        this._connectionTimeoutTimer = setTimeout(() => {
-            this._connectionTimeoutTimer = null;
-        }, 1000 * KNXConstants.KNX_CONSTANTS.DEVICE_CONFIGURATION_REQUEST_TIMEOUT);
-        this._awaitingResponseType = KNXConstants.KNX_CONSTANTS.DESCRIPTION_RESPONSE;
-        this._sendDescriptionRequestMessage(host, port);
-    }
+    // isDiscoveryRunning() {
+    //     return this._discovery_timer != null;
+    // }
+    // startDiscovery() {
+    //     if (this.isDiscoveryRunning()) {
+    //         throw new Error('Discovery already running');
+    //     }
+    //     this._discovery_timer = setTimeout(() => {
+    //         this._discovery_timer = null;
+    //     }, 1000 * KNXConstants.KNX_CONSTANTS.SEARCH_TIMEOUT);
+    //     this._sendSearchRequestMessage();
+    // }
+    // stopDiscovery() {
+    //     if (!this.isDiscoveryRunning()) {
+    //         return;
+    //     }
+    //     if (this._discovery_timer !== null) clearTimeout(this._discovery_timer);
+    //     this._discovery_timer = null;
+    // }
+    // getDescription(host, port) {
+    //     if (this._clientSocket == null) {
+    //         throw new Error('No client socket defined');
+    //     }
+    //     this._connectionTimeoutTimer = setTimeout(() => {
+    //         this._connectionTimeoutTimer = null;
+    //     }, 1000 * KNXConstants.KNX_CONSTANTS.DEVICE_CONFIGURATION_REQUEST_TIMEOUT);
+    //     this._awaitingResponseType = KNXConstants.KNX_CONSTANTS.DESCRIPTION_RESPONSE;
+    //     this._sendDescriptionRequestMessage(host, port);
+    // }
     Connect(knxLayer = TunnelCRI.TunnelTypes.TUNNEL_LINKLAYER) {
 
         if (this._clientSocket == null) {
@@ -600,7 +598,7 @@ class KNXClient extends EventEmitter {
             // TCP
             const timeoutError = new Error(`Connection timeout to ${this._peerHost}:${this._peerPort}`);
             let conn = this;
-            this._clientSocket.connect({ port: this._peerPort, host: this._peerHost, localAddress: this._options.localAddress }, function () {
+            this._clientSocket.connect( this._peerPort, this._peerHost, function () {
                 // conn._timer = setTimeout(() => {
                 //     conn._timer = null;
                 //     conn.emit(KNXClientEvents.error, timeoutError);
@@ -614,6 +612,11 @@ class KNXClient extends EventEmitter {
 
             // Multicast
             this._connectionState = STATE.CONNECTED;
+
+            // 16/03/2022 These two are referring to tunneling connection, but i set it here as well. Non si sa mai.
+            this._numFailedTelegramACK = 0; // 25/12/2021 Reset the failed ACK counter
+            this._clearToSend = true; // 26/12/2021 allow to send
+
             this._clientTunnelSeqNumber = -1;
             try {
                 this.emit(KNXClientEvents.connected, this._options);
@@ -659,7 +662,7 @@ class KNXClient extends EventEmitter {
         this._awaitingResponseType = KNXConstants.KNX_CONSTANTS.DISCONNECT_RESPONSE;
         this._sendDisconnectRequestMessage(this._channelID);
         // 12/03/2021 Set disconnected if not already set by DISCONNECT_RESPONSE sent from the IP Interface
-        setTimeout(() => {
+        let t = setTimeout(() => { // 21/03/2022 fixed possible memory leak. Previously was setTimeout without "let t = ".
             if (this._connectionState !== STATE.DISCONNECTED) this._setDisconnected("Forced call from KNXClient Disconnect() function, because the KNX Interface hasn't sent the DISCONNECT_RESPONSE in time.");
         }, 2000);
     }
@@ -673,10 +676,9 @@ class KNXClient extends EventEmitter {
         }
         this._connectionState = STATE.DISCONNECTED;
         this.stopHeartBeat();
-        if (this._timerTimeoutSendDisconnectRequestMessagetimer !== null) clearTimeout(this._timerTimeoutSendDisconnectRequestMessagetimer);
         this._timerTimeoutSendDisconnectRequestMessage = null;
         if (this._connectionTimeoutTimer !== null) clearTimeout(this._connectionTimeoutTimer);
-        if (this._tunnelReqTimer !== null) clearTimeout(this._tunnelReqTimer);
+        if (this._timerWaitingForACK !== null) clearTimeout(this._timerWaitingForACK);
         this._clientTunnelSeqNumber = -1;
         this._channelID = null;
 
@@ -689,13 +691,12 @@ class KNXClient extends EventEmitter {
             this.emit(KNXClientEvents.disconnected, this._options.ipAddr + ":" + this._options.ipPort + " " + _sReason);
         } catch (error) {
         }
-        this._clearToSend = true; // 26/12/2021 allow to send
-
+        this._clearToSend = true; // 26/12/2021 allow to send                
     }
     _runHeartbeat() {
         if (this._heartbeatRunning) {
             this.getConnectionStatus();
-            setTimeout(() => {
+            let t = setTimeout(() => { // 21/03/2022 fixed possible memory leak. Previously was setTimeout without "let t = ".
                 this._runHeartbeat();
             }, 1000 * this._options.connectionKeepAliveTimeout);
         }
@@ -719,10 +720,10 @@ class KNXClient extends EventEmitter {
     //     return cEMIMessage.dstAddress.toString();
     // }
     _setTimerWaitingForACK(knxTunnelingRequest) {
-        const timeoutErr = new errors.RequestTimeoutError(`RequestTimeoutError seqCounter:${knxTunnelingRequest.seqCounter}, DestAddr:${knxTunnelingRequest.cEMIMessage.dstAddress.toString() || "Non definito"},  AckRequested:${knxTunnelingRequest.cEMIMessage.control.ack}, timed out waiting telegram acknowledge by ${this._options.ipAddr || "No Peer host detected"}`);
-        if (this._tunnelReqTimer !== null) clearTimeout(this._tunnelReqTimer);
         this._clearToSend = false; // 26/12/2021 stop sending until ACK received
-        this._tunnelReqTimer = setTimeout(() => {
+        const timeoutErr = new errors.RequestTimeoutError(`RequestTimeoutError seqCounter:${knxTunnelingRequest.seqCounter}, DestAddr:${knxTunnelingRequest.cEMIMessage.dstAddress.toString() || "Non definito"},  AckRequested:${knxTunnelingRequest.cEMIMessage.control.ack}, timed out waiting telegram acknowledge by ${this._options.ipAddr || "No Peer host detected"}`);
+        if (this._timerWaitingForACK !== null) clearTimeout(this._timerWaitingForACK);
+        this._timerWaitingForACK = setTimeout(() => {
             try {
                 this._numFailedTelegramACK += 1;
                 if (this._numFailedTelegramACK > 2) {
@@ -797,6 +798,12 @@ class KNXClient extends EventEmitter {
                         this._setDisconnected("Connect response error " + knxConnectResponse.status);
                         return;
                     }
+
+                    // 16/03/2022
+                    if (this._timerWaitingForACK !== null) clearTimeout(this._timerWaitingForACK);
+                    this._numFailedTelegramACK = 0; // 16/03/2022 Reset the failed ACK counter
+                    this._clearToSend = true; // 16/03/2022 allow to send
+
                     this._connectionState = STATE.CONNECTED;
                     this._channelID = knxConnectResponse.channelID;
                     try {
@@ -837,7 +844,7 @@ class KNXClient extends EventEmitter {
                 this._connectionState = STATE.DISCONNECTING;
                 this._sendDisconnectResponseMessage(knxDisconnectRequest.channelID);
                 // 12/03/2021 Added 1 sec delay.
-                setTimeout(() => {
+                let t = setTimeout(() => { // 21/03/2022 fixed possible memory leak. Previously was setTimeout without "let t = ".
                     this._setDisconnected("Received KNX packet: DISCONNECT_REQUEST, ChannelID:" + this._channelID + " Host:" + this._options.ipAddr + ":" + this._options.ipPort);
                 }, 1000);
             }
@@ -896,7 +903,7 @@ class KNXClient extends EventEmitter {
                 // Check the received ACK sequence number
                 if (!this._options.suppress_ack_ldatareq) {
                     if (knxTunnelingAck.seqCounter === this._getSeqNumber()) {
-                        if (this._tunnelReqTimer !== null) clearTimeout(this._tunnelReqTimer);
+                        if (this._timerWaitingForACK !== null) clearTimeout(this._timerWaitingForACK);
                         this._numFailedTelegramACK = 0; // 25/12/2021 clear the current ACK failed telegram number
                         this._clearToSend = true; // I'm ready to send a new datagram now
                         try {
@@ -996,7 +1003,7 @@ class KNXClient extends EventEmitter {
         this.send(KNXProtocol.KNXProtocol.newKNXDescriptionRequest(new HPAI.HPAI(this._options.localIPAddress)));
     }
     _sendSearchRequestMessage() {
-        this.send(KNXProtocol.KNXProtocol.newKNXSearchRequest(new HPAI.HPAI(this._options.localIPAddress, this._localPort)), KNXConstants.KNX_CONSTANTS.KNX_PORT, KNXConstants.KNX_CONSTANTS.KNX_IP);
+        //this.send(KNXProtocol.KNXProtocol.newKNXSearchRequest(new HPAI.HPAI(this._options.localIPAddress, this._localPort)), KNXConstants.KNX_CONSTANTS.KNX_PORT, KNXConstants.KNX_CONSTANTS.KNX_IP);
     }
     _sendConnectRequestMessage(cri) {
         this.send(KNXProtocol.KNXProtocol.newKNXConnectRequest(cri));

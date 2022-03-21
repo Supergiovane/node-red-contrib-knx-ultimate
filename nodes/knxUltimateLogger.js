@@ -86,14 +86,16 @@ module.exports = function (RED) {
         node.StartETSXMLTimer = () => {
             if (node.timerCreateETSXML !== null) clearInterval(node.timerCreateETSXML);
             node.timerCreateETSXML = setInterval(createETSXML, node.intervalCreateETSXML); // 02/01/2020 Start the timer that handles the queue of telegrams
-            setTimeout(function () { node.setNodeStatus({ fill: "green", shape: "dot", text: "ETS timer started.", payload: "", GA: "", dpt: "", devicename: "" }) }, 5000)
+            // 21/03/2022 fixed possible memory leak. Previously was setTimeout without "let t = ".
+            let t = setTimeout(function () { node.setNodeStatus({ fill: "green", shape: "dot", text: "ETS timer started.", payload: "", GA: "", dpt: "", devicename: "" }) }, 5000)
         }
 
 
         node.StartTelegramCounterTimer = () => {
             if (node.timerTelegramCount !== null) clearInterval(node.timerTelegramCount);
             node.timerTelegramCount = setInterval(countTelegrams, node.intervalTelegramCount);
-            setTimeout(function () { node.setNodeStatus({ fill: "green", shape: "dot", text: "Telegram counter timer started.", payload: "", GA: "", dpt: "", devicename: "" }) }, 5000)
+            // 21/03/2022 fixed possible memory leak. Previously was setTimeout without "let t = ".
+            let t = setTimeout(function () { node.setNodeStatus({ fill: "green", shape: "dot", text: "Telegram counter timer started.", payload: "", GA: "", dpt: "", devicename: "" }) }, 5000)
         }
 
         node.on("input", function (msg) {

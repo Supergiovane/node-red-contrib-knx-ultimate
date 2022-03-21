@@ -30,7 +30,7 @@ module.exports = function (RED) {
         node.timerDecreaseShedding = null;
         node.sheddingCheckInterval = config.sheddingCheckInterval !== undefined ? config.sheddingCheckInterval * 1000 : 10000;
         node.sheddingRestoreDelay = config.sheddingRestoreDelay !== undefined ? config.sheddingRestoreDelay * 1000 : 60000;
-
+        node.mainTimer = null;
         node.totalWatt = 0; // Current total watt consumption
         node.wattLimit = config.wattLimit === undefined ? 3000 : Number(config.wattLimit);
         node.deviceList = [];
@@ -158,7 +158,7 @@ module.exports = function (RED) {
                     // Start increasing shedding!
                     if (node.sheddingStage < node.deviceList.length) {
                         if (node.timerIncreaseShedding === null) {
-                            setTimeout(() => {
+                            let t = setTimeout(() => { // 21/03/2022 fixed possible memory leak. Previously was setTimeout without "let t = ".
                                 node.setLocalStatus({ fill: "yellow", shape: "dot", text: "I'm about to shed the load " + node.sheddingStage, payload: "", GA: "", dpt: "", devicename: "" });
                             }, 2000);
                             if (node.timerDecreaseShedding !== null) clearTimeout(node.timerDecreaseShedding);// Clear the decreasing timer
@@ -169,7 +169,7 @@ module.exports = function (RED) {
                     // Start decreasing shedding!
                     if (node.sheddingStage > 0) {
                         if (node.timerDecreaseShedding === null) {
-                            setTimeout(() => {
+                            let t = setTimeout(() => { // 21/03/2022 fixed possible memory leak. Previously was setTimeout without "let t = ".
                                 node.setLocalStatus({ fill: "yellow", shape: "dot", text: "I'm about to unshed the load " + node.sheddingStage, payload: "", GA: "", dpt: "", devicename: "" });
                             }, 2000);
                             if (node.timerIncreaseShedding !== null) clearTimeout(node.timerIncreaseShedding);// Clear the increasing timer
@@ -294,7 +294,7 @@ module.exports = function (RED) {
 
             if (node.sheddingStage < 0) {
                 node.sheddingStage = 0;
-                setTimeout(() => {
+                let t = setTimeout(() => { // 21/03/2022 fixed possible memory leak. Previously was setTimeout without "let t = ".
                     node.setLocalStatus({ fill: "green", shape: "dot", text: "All loads have been restored" });
                 }, 1000);
             }
@@ -315,7 +315,7 @@ module.exports = function (RED) {
                     const oRow = node.deviceList[index];
                     if (oRow.autoRestore === true) node.server.writeQueueAdd({ grpaddr: oRow.ga, payload: true, dpt: oRow.dpt, outputtype: "write", nodecallerid: node.id });
                 }
-                setTimeout(() => {
+                let t = setTimeout(() => { // 21/03/2022 fixed possible memory leak. Previously was setTimeout without "let t = ".
                     node.setLocalStatus({ fill: "green", shape: "dot", text: "All loads have been restored" });
                 }, 1000);
                 node.send({ topic: node.name || node.topic, operation: "Reset", payload: node.sheddingStage });
@@ -326,7 +326,7 @@ module.exports = function (RED) {
                 if (node.timerDecreaseShedding !== null) clearTimeout(node.timerDecreaseShedding);
                 if (node.timerIncreaseShedding !== null) clearTimeout(node.timerIncreaseShedding);
                 if (node.mainTimer !== null) clearInterval(node.mainTimer);
-                setTimeout(() => {
+                let t = setTimeout(() => { // 21/03/2022 fixed possible memory leak. Previously was setTimeout without "let t = ".
                     node.setLocalStatus({ fill: "grey", shape: "dot", text: "Disabled" });
                 }, 1000);
                 node.send({ topic: node.name || node.topic, operation: "Disabled", payload: node.sheddingStage });
@@ -336,7 +336,7 @@ module.exports = function (RED) {
             if (msg.hasOwnProperty("enable")) {
                 if (node.timerDecreaseShedding !== null) clearTimeout(node.timerDecreaseShedding);
                 if (node.timerIncreaseShedding !== null) clearTimeout(node.timerIncreaseShedding);
-                setTimeout(() => {
+                let t = setTimeout(() => { // 21/03/2022 fixed possible memory leak. Previously was setTimeout without "let t = ".
                     node.setLocalStatus({ fill: "green", shape: "dot", text: "Enabled" });
                     // Restart timer
                     node.startMainTimer();
