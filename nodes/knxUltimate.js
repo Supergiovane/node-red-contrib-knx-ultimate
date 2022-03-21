@@ -4,7 +4,7 @@ module.exports = function (RED) {
 
     function knxUltimate(config) {
         RED.nodes.createNode(this, config)
-        var node = this
+        var node = this;
         node.server = RED.nodes.getNode(config.server)
         // 11/11/2021 Is the node server disabled by the flow "disable" command?
         if (node.server === null) {
@@ -44,14 +44,14 @@ module.exports = function (RED) {
             if (node.icountMessageInWindow == -999) return; // Locked out, doesn't change status.
             var dDate = new Date();
             // 30/08/2019 Display only the things selected in the config
-            var _GA = (typeof GA == "undefined" || GA == "") ? "" : "(" + GA + ") ";
-            var _devicename = devicename || "";
-            var _dpt = (typeof dpt == "undefined" || dpt == "") ? "" : " DPT" + dpt;
-            node.status({ fill: fill, shape: shape, text: _GA + payload + ((node.listenallga && node.server.statusDisplayDeviceNameWhenALL) === true ? " " + _devicename : "") + (node.server.statusDisplayDataPoint === true ? _dpt : "") + (node.server.statusDisplayLastUpdate === true ? " (" + dDate.getDate() + ", " + dDate.toLocaleTimeString() + ")" : "") + " " + text });
+            GA = (typeof GA == "undefined" || GA == "") ? "" : "(" + GA + ") ";
+            devicename = devicename || "";
+            dpt = (typeof dpt == "undefined" || dpt == "") ? "" : " DPT" + dpt;
+            node.status({ fill: fill, shape: shape, text: GA + payload + ((node.listenallga && node.server.statusDisplayDeviceNameWhenALL) === true ? " " + devicename : "") + (node.server.statusDisplayDataPoint === true ? dpt : "") + (node.server.statusDisplayLastUpdate === true ? " (" + dDate.getDate() + ", " + dDate.toLocaleTimeString() + ")" : "") + " " + text });
             // 16/02/2020 signal errors to the server
             if (fill.toUpperCase() === "RED") {
                 if (node.server) {
-                    var oError = { nodeid: node.id, topic: node.outputtopic, devicename: _devicename, GA: _GA, text: text };
+                    var oError = { nodeid: node.id, topic: node.outputtopic, devicename: devicename, GA: GA, text: text };
                     node.server.reportToWatchdogCalledByKNXUltimateNode(oError);
                 };
             };
@@ -103,12 +103,12 @@ module.exports = function (RED) {
                 if (msg.setConfig.hasOwnProperty("setDPT")) {
                     node.dpt = msg.setConfig.setDPT;
                     if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("knxUltimate: new datapoint set by msg: " + node.dpt);
-                    node.setNodeStatus({ fill: 'grey', shape: 'ring', text: "Datapoint changed to " + node.dpt });
+                    node.setNodeStatus({ fill: 'grey', shape: 'ring', text: "Datapoint changed to " + node.dpt, payload: "", GA: "", dpt: "", devicename: "" });
                 };
                 if (msg.setConfig.hasOwnProperty("setGroupAddress")) {
                     node.topic = msg.setConfig.setGroupAddress;
                     if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("knxUltimate: new GroupAddress set by msg: " + node.topic);
-                    node.setNodeStatus({ fill: 'grey', shape: 'ring', text: "GroupAddress changed to " + node.topic });
+                    node.setNodeStatus({ fill: 'grey', shape: 'ring', text: "GroupAddress changed to " + node.topic, payload: "", GA: "", dpt: "", devicename: "" });
                 };
             };
             // *********************************
@@ -316,8 +316,8 @@ module.exports = function (RED) {
                         try {
                             node.currentPayload = msg.payload;// 31/12/2019 Set the current value (because, if the node is a virtual device, then it'll never fire "GroupValue_Write" in the server node, causing the currentPayload to never update)
                             //if (node.server.linkStatus === "connected") {
-                                node.server.writeQueueAdd({ grpaddr: grpaddr, payload: msg.payload, dpt: dpt, outputtype: outputtype, nodecallerid: node.id })
-                                node.setNodeStatus({ fill: "green", shape: "dot", text: "Writing", payload: msg.payload, GA: grpaddr, dpt: dpt, devicename: "" });
+                            node.server.writeQueueAdd({ grpaddr: grpaddr, payload: msg.payload, dpt: dpt, outputtype: outputtype, nodecallerid: node.id })
+                            node.setNodeStatus({ fill: "green", shape: "dot", text: "Writing", payload: msg.payload, GA: grpaddr, dpt: dpt, devicename: "" });
                             //} else {
                             //    node.setNodeStatus({ fill: "grey", shape: "dot", text: "Disconnected", payload: msg.payload, GA: grpaddr, dpt: dpt, devicename: "" });
                             //}

@@ -9,7 +9,7 @@ module.exports = function (RED) {
         const KnxConstants = require("./../KNXEngine/protocol/KNXConstants");
 
         RED.nodes.createNode(this, config)
-        var node = this
+        var node = this;
         node.server = RED.nodes.getNode(config.server)
         node.name = config.name || "KNX Alerter";
         node.listenallga = true; // Dont' remove this.
@@ -50,10 +50,10 @@ module.exports = function (RED) {
 
             var dDate = new Date();
             // 30/08/2019 Display only the things selected in the config
-            _GA = (typeof _GA == "undefined" || GA == "") ? "" : "(" + GA + ") ";
-            _devicename = devicename || "";
-            _dpt = (typeof dpt == "undefined" || dpt == "") ? "" : " DPT" + dpt;
-            node.status({ fill: fill, shape: shape, text: _GA + payload + ((node.listenallga && node.server.statusDisplayDeviceNameWhenALL) === true ? " " + _devicename : "") + (node.server.statusDisplayDataPoint === true ? _dpt : "") + (node.server.statusDisplayLastUpdate === true ? " (" + dDate.getDate() + ", " + dDate.toLocaleTimeString() + ")" : "") + " " + text });
+            GA = (typeof GA == "undefined" || GA == "") ? "" : "(" + GA + ") ";
+            devicename = devicename || "";
+            dpt = (typeof dpt == "undefined" || dpt == "") ? "" : " DPT" + dpt;
+            node.status({ fill: fill, shape: shape, text: GA + payload + ((node.listenallga && node.server.statusDisplayDeviceNameWhenALL) === true ? " " + devicename : "") + (node.server.statusDisplayDataPoint === true ? dpt : "") + (node.server.statusDisplayLastUpdate === true ? " (" + dDate.getDate() + ", " + dDate.toLocaleTimeString() + ")" : "") + " " + text });
 
         }
 
@@ -61,13 +61,12 @@ module.exports = function (RED) {
         node.setLocalStatus = ({ fill, shape, text, payload, GA, dpt, devicename }) => {
             var dDate = new Date();
             // 30/08/2019 Display only the things selected in the config
-            _GA = (typeof _GA == "undefined" || GA == "") ? "" : "(" + GA + ") ";
-            _devicename = devicename || "";
-            _dpt = (typeof dpt == "undefined" || dpt == "") ? "" : " DPT" + dpt;
+            GA = (typeof GA == "undefined" || GA == "") ? "" : "(" + GA + ") ";
+            devicename = devicename || "";
+            dpt = (typeof dpt == "undefined" || dpt == "") ? "" : " DPT" + dpt;
             try {
-                node.status({ fill: fill, shape: shape, text: _GA + payload + ((node.listenallga && node.server.statusDisplayDeviceNameWhenALL) === true ? " " + _devicename : "") + (node.server.statusDisplayDataPoint === true ? _dpt : "") + (node.server.statusDisplayLastUpdate === true ? " (" + dDate.getDate() + ", " + dDate.toLocaleTimeString() + ")" : "") + " " + text });
+                node.status({ fill: fill, shape: shape, text: GA + payload + ((node.listenallga && node.server.statusDisplayDeviceNameWhenALL) === true ? " " + devicename : "") + (node.server.statusDisplayDataPoint === true ? dpt : "") + (node.server.statusDisplayLastUpdate === true ? " (" + dDate.getDate() + ", " + dDate.toLocaleTimeString() + ")" : "") + " " + text });
             } catch (error) {
-                node.status({ fill: fill, shape: shape, text: _GA + payload + ((true === true) ? " " + _devicename : "") + (false === true ? _dpt : "") + (true === true ? " (" + dDate.getDate() + ", " + dDate.toLocaleTimeString() + ")" : "") + " " + text });
             }
 
         }

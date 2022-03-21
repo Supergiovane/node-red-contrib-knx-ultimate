@@ -31,7 +31,7 @@ module.exports = function (RED) {
 
     function knxUltimateGlobalContext(config) {
         RED.nodes.createNode(this, config)
-        var node = this
+        var node = this;
         node.server = RED.nodes.getNode(config.server)
         node.topic = node.name;
         node.name = config.name === undefined ? "KNXGlobalContext" : config.name;
@@ -77,14 +77,14 @@ module.exports = function (RED) {
                 for (let index = 0; index < oContext.length; index++) {
                     let element = oContext[index];
                     if (!element.hasOwnProperty("address")) {
-                        node.setNodeStatus({ fill: "RED", shape: "dot", text: "NO Group Address set" });
+                        node.setNodeStatus({ fill: "RED", shape: "dot", text: "NO Group Address set", payload: "", GA: "", dpt: "", devicename: "" });
                         RED.log.error("knxUltimateGlobalContext: No group address set in node " + node.id);
                         oContext = null; // 21/03/2022
                         goTimerGo();
                         return;
                     }
                     if (!element.hasOwnProperty("payload")) {
-                        node.setNodeStatus({ fill: "RED", shape: "dot", text: "NO payload set" });
+                        node.setNodeStatus({ fill: "RED", shape: "dot", text: "NO payload set" , payload: "", GA: "", dpt: "", devicename: ""});
                         RED.log.error("knxUltimateGlobalContext: No payload set for address " + element.address + " in node " + node.id);
                         oContext = null; // 21/03/2022
                         goTimerGo();
@@ -97,7 +97,7 @@ module.exports = function (RED) {
                             let sDPT = node.server.csv.find(item => item.ga === element.address).dpt;
                             element.dpt = sDPT;
                         } catch (error) {
-                            node.setNodeStatus({ fill: "RED", shape: "dot", text: "Datapoint not found in CSV for " + element.address });
+                            node.setNodeStatus({ fill: "RED", shape: "dot", text: "Datapoint not found in CSV for " + element.address, payload: "", GA: "", dpt: "", devicename: "" });
                             RED.log.error("knxUltimateGlobalContext: Datapoint not found in CSV for address " + element.address + " in node " + node.id);
                             oContext = null; // 21/03/2022
                             goTimerGo();
@@ -115,7 +115,7 @@ module.exports = function (RED) {
         // 21/02/2021 timer for write to BUS
         if (node.exposeAsVariable === "exposeAsVariableREADWRITE") {
             goTimerGo();
-            node.setNodeStatus({ fill: "green", shape: "dot", text: "Start Writing" });
+            node.setNodeStatus({ fill: "green", shape: "dot", text: "Start Writing" , payload: "", GA: "", dpt: "", devicename: ""});
         } else {
             if (node.timerExposedGAs !== null) clearTimeout(node.timerExposedGAs);
             node.context().global.set(node.name + "_WRITE", []); // Delete the var

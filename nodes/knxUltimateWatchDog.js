@@ -27,6 +27,7 @@ module.exports = function (RED) {
         node.timerWatchDog = null;
         node.isWatchDog = true;
         node.checkLevel = config.checkLevel !== undefined ? config.checkLevel : "Ethernet";
+        node.icountMessageInWindow = 0;
 
         // Used to call the status update from the config node.
         node.setNodeStatus = ({ fill, shape, text, payload, GA, dpt, devicename }) => {
@@ -34,10 +35,10 @@ module.exports = function (RED) {
             if (node.icountMessageInWindow == -999) return; // Locked out, doesn't change status.
             var dDate = new Date();
             // 30/08/2019 Display only the things selected in the config
-            _GA = (typeof _GA == "undefined" || GA == "") ? "" : "(" + GA + ") ";
-            _devicename = devicename || "";
-            _dpt = (typeof dpt == "undefined" || dpt == "") ? "" : " DPT" + dpt;
-            node.status({ fill: fill, shape: shape, text: _GA + payload + ((node.listenallga && node.server.statusDisplayDeviceNameWhenALL) === true ? " " + _devicename : "") + (node.server.statusDisplayDataPoint === true ? _dpt : "") + (node.server.statusDisplayLastUpdate === true ? " (" + dDate.getDate() + ", " + dDate.toLocaleTimeString() + ")" : "") + " " + text });
+            GA = (typeof GA == "undefined" || GA == "") ? "" : "(" + GA + ") ";
+            devicename = devicename || "";
+            dpt = (typeof dpt == "undefined" || dpt == "") ? "" : " DPT" + dpt;
+            node.status({ fill: fill, shape: shape, text: GA + payload + ((node.listenallga && node.server.statusDisplayDeviceNameWhenALL) === true ? " " + devicename : "") + (node.server.statusDisplayDataPoint === true ? dpt : "") + (node.server.statusDisplayLastUpdate === true ? " (" + dDate.getDate() + ", " + dDate.toLocaleTimeString() + ")" : "") + " " + text });
         }
 
         if (!node.server) return;
@@ -47,7 +48,7 @@ module.exports = function (RED) {
             if (node.beatNumber > node.maxRetry) {
                 // Confirmed connection error    
                 node.beatNumber = 0; // Reset Counter
-                msg = {
+               let msg = {
                     type: "BUSError",
                     checkPerformed: node.checkLevel,
                     nodeid: node.id,
@@ -101,8 +102,8 @@ module.exports = function (RED) {
         // 16/02/2020 This function is called by the knx-ultimate config node.
         node.signalNodeErrorCalledByConfigNode = _oError => {
             // Report an error from knx-ultimate node.
-            // var oError = {nodeid:node.id,topic:node.outputtopic,devicename:_devicename,GA:_GA,text:text};
-            msg = {
+            // var oError = {nodeid:node.id,topic:node.outputtopic,devicename:devicename,GA:GA,text:text};
+            let msg = {
                 type: "NodeError",
                 checkPerformed: "Self KNX-Ultimate node reporting a red color status",
                 nodeid: _oError.nodeid,

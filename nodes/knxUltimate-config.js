@@ -116,7 +116,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
 
     function knxUltimateConfigNode(config) {
         RED.nodes.createNode(this, config)
-        var node = this
+        var node = this;
         node.host = config.host
         node.port = parseInt(config.port);
         node.physAddr = config.physAddr || "15.15.22"; // the KNX physical address we'd like to use
@@ -1381,7 +1381,9 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                             // Leave as is
                         } else {
                             // Round
-                            jsValue = +(Math.round(jsValue + "e+" + _oNode.formatdecimalsvalue) + "e-" + _oNode.formatdecimalsvalue);
+                            //jsValue = +(Math.round(jsValue + "e+" + _oNode.formatdecimalsvalue) + "e-" + _oNode.formatdecimalsvalue);
+                            let iMigliaia = parseInt("1" + "0".repeat(_oNode.formatdecimalsvalue));
+                            jsValue = Math.round(jsValue * iMigliaia) / iMigliaia;
                         }
                         // leave, zero or abs
                         if (jsValue < 0) {

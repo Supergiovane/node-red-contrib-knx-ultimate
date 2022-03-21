@@ -6,7 +6,7 @@ module.exports = function (RED) {
         const KnxConstants = require("./../KNXEngine/protocol/KNXConstants");
 
         RED.nodes.createNode(this, config)
-        var node = this
+        var node = this;
         node.server = RED.nodes.getNode(config.server)
         node.name = config.name || "KNX Load Control";
         node.topic = config.topic;
@@ -24,7 +24,7 @@ module.exports = function (RED) {
         node.formatmultiplyvalue = 1;
         node.formatnegativevalue = "zero";
         node.formatdecimalsvalue = 0;
-
+        node.setLocalStatusTotalWattTimer = null;
         node.sheddingStage = 0;
         node.timerIncreaseShedding = null;
         node.timerDecreaseShedding = null;
@@ -63,10 +63,10 @@ module.exports = function (RED) {
                 if (dpt !== "") return;
                 var dDate = new Date();
                 // 30/08/2019 Display only the things selected in the config
-                _GA = (typeof _GA == "undefined" || GA == "") ? "" : "(" + GA + ") ";
-                _devicename = devicename || "";
-                _dpt = (typeof dpt == "undefined" || dpt == "") ? "" : " DPT" + dpt;
-                node.status({ fill: fill, shape: shape, text: _GA + payload + ((node.listenallga && node.server.statusDisplayDeviceNameWhenALL) === true ? " " + _devicename : "") + (node.server.statusDisplayDataPoint === true ? _dpt : "") + (node.server.statusDisplayLastUpdate === true ? " (" + dDate.getDate() + ", " + dDate.toLocaleTimeString() + ")" : "") + " " + text });
+                GA = (typeof GA == "undefined" || GA == "") ? "" : "(" + GA + ") ";
+                devicename = devicename || "";
+                dpt = (typeof dpt == "undefined" || dpt == "") ? "" : " DPT" + dpt;
+                node.status({ fill: fill, shape: shape, text: GA + payload + ((node.listenallga && node.server.statusDisplayDeviceNameWhenALL) === true ? " " + devicename : "") + (node.server.statusDisplayDataPoint === true ? dpt : "") + (node.server.statusDisplayLastUpdate === true ? " (" + dDate.getDate() + ", " + dDate.toLocaleTimeString() + ")" : "") + " " + text });
             } catch (error) {
 
             }
@@ -159,7 +159,7 @@ module.exports = function (RED) {
                     if (node.sheddingStage < node.deviceList.length) {
                         if (node.timerIncreaseShedding === null) {
                             let t = setTimeout(() => { // 21/03/2022 fixed possible memory leak. Previously was setTimeout without "let t = ".
-                                node.setLocalStatus({ fill: "yellow", shape: "dot", text: "I'm about to shed the load " + node.sheddingStage, payload: "", GA: "", dpt: "", devicename: "" });
+                                node.setLocalStatus({ fill: "yellow", shape: "dot", text: "I'm about to shed the load " + node.sheddingStage });
                             }, 2000);
                             if (node.timerDecreaseShedding !== null) clearTimeout(node.timerDecreaseShedding);// Clear the decreasing timer
                             node.startTimerIncreaseShedding();
@@ -170,7 +170,7 @@ module.exports = function (RED) {
                     if (node.sheddingStage > 0) {
                         if (node.timerDecreaseShedding === null) {
                             let t = setTimeout(() => { // 21/03/2022 fixed possible memory leak. Previously was setTimeout without "let t = ".
-                                node.setLocalStatus({ fill: "yellow", shape: "dot", text: "I'm about to unshed the load " + node.sheddingStage, payload: "", GA: "", dpt: "", devicename: "" });
+                                node.setLocalStatus({ fill: "yellow", shape: "dot", text: "I'm about to unshed the load " + node.sheddingStage });
                             }, 2000);
                             if (node.timerIncreaseShedding !== null) clearTimeout(node.timerIncreaseShedding);// Clear the increasing timer
                             node.startTimerDecreaseShedding();
@@ -230,7 +230,7 @@ module.exports = function (RED) {
             // monitorVal: null
             if (node.sheddingStage >= node.deviceList.length) {
                 node.sheddingStage = node.deviceList.length;
-                node.setLocalStatus({ fill: "red", shape: "dot", text: "No more loads to shed!!", payload: "", GA: "", dpt: "", devicename: "" });
+                node.setLocalStatus({ fill: "red", shape: "dot", text: "No more loads to shed!!" });
                 return;
             }
 

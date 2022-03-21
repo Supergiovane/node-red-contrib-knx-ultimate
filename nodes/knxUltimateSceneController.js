@@ -7,7 +7,7 @@ module.exports = function (RED) {
         var mkdirp = require('mkdirp');
 
         RED.nodes.createNode(this, config)
-        var node = this
+        var node = this;
         node.server = RED.nodes.getNode(config.server)
         node.name = config.name || "KNX Scene Controller";
         node.outputtopic = typeof config.outputtopic === "undefined" ? "" : config.outputtopic;
@@ -93,20 +93,20 @@ module.exports = function (RED) {
         }
 
         // Used to call the status update from the config node.
-        node.setNodeStatus = ({ fill, shape, text, payload, _GA, _dpt, _devicename }) => {
+        node.setNodeStatus = ({ fill, shape, text, payload, GA, dpt, devicename }) => {
             if (node.server == null) { node.status({ fill: "red", shape: "dot", text: "[NO GATEWAY SELECTED]" }); return; }
             if (node.icountMessageInWindow == -999) return; // Locked out
             if (node.disabled === true) fill = "grey"; // 21/09/2020 if disabled, color is grey
             var dDate = new Date();
             // 30/08/2019 Display only the things selected in the config
-            _GA = (typeof _GA == "undefined" || _GA == "") ? "" : "(" + _GA + ") ";
-            _devicename = _devicename || "";
-            _dpt = (typeof _dpt == "undefined" || _dpt == "") ? "" : " DPT" + _dpt;
-            node.status({ fill: fill, shape: shape, text: _GA + payload + ((node.listenallga && node.server.statusDisplayDeviceNameWhenALL) === true ? " " + _devicename : "") + (node.server.statusDisplayDataPoint === true ? _dpt : "") + (node.server.statusDisplayLastUpdate === true ? " (" + dDate.getDate() + ", " + dDate.toLocaleTimeString() + ")" : "") + " " + text });
+            GA = (typeof GA == "undefined" || GA == "") ? "" : "(" + GA + ") ";
+            devicename = devicename || "";
+            dpt = (typeof dpt == "undefined" || dpt == "") ? "" : " DPT" + dpt;
+            node.status({ fill: fill, shape: shape, text: GA + payload + ((node.listenallga && node.server.statusDisplayDeviceNameWhenALL) === true ? " " + devicename : "") + (node.server.statusDisplayDataPoint === true ? dpt : "") + (node.server.statusDisplayLastUpdate === true ? " (" + dDate.getDate() + ", " + dDate.toLocaleTimeString() + ")" : "") + " " + text });
             // 16/02/2020 signal errors to the server
             if (fill.toUpperCase() == "RED") {
                 if (node.server) {
-                    var oError = { nodeid: node.id, topic: node.outputtopic, devicename: _devicename, GA: _GA, text: text };
+                    var oError = { nodeid: node.id, topic: node.outputtopic, devicename: devicename, GA: GA, text: text };
                     node.server.reportToWatchdogCalledByKNXUltimateNode(oError);
                 };
             };

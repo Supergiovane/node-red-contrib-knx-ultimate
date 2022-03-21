@@ -32,10 +32,10 @@ module.exports = function (RED) {
             if (node.server == null) { node.status({ fill: "red", shape: "dot", text: "[NO GATEWAY SELECTED]" }); return; }
             var dDate = new Date();
             // 30/08/2019 Display only the things selected in the config
-            _GA = (typeof _GA == "undefined" || GA == "") ? "" : "(" + GA + ") ";
-            _devicename = devicename || "";
-            _dpt = (typeof dpt == "undefined" || dpt == "") ? "" : " DPT" + dpt;
-            node.status({ fill: fill, shape: shape, text: _GA + payload + ((node.listenallga && node.server.statusDisplayDeviceNameWhenALL) === true ? " " + _devicename : "") + (node.server.statusDisplayDataPoint === true ? _dpt : "") + (node.server.statusDisplayLastUpdate === true ? " (" + dDate.getDate() + ", " + dDate.toLocaleTimeString() + ")" : "") + " " + text });
+            GA = (typeof GA == "undefined" || GA == "") ? "" : "(" + GA + ") ";
+            devicename = devicename || "";
+            dpt = (typeof dpt == "undefined" || dpt == "") ? "" : " DPT" + dpt;
+            node.status({ fill: fill, shape: shape, text: GA + payload + ((node.listenallga && node.server.statusDisplayDeviceNameWhenALL) === true ? " " + devicename : "") + (node.server.statusDisplayDataPoint === true ? dpt : "") + (node.server.statusDisplayLastUpdate === true ? " (" + dDate.getDate() + ", " + dDate.toLocaleTimeString() + ")" : "") + " " + text });
         }
 
         if (!node.server) return;
