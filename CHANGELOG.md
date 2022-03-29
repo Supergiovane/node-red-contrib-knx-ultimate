@@ -7,6 +7,10 @@
 # CHANGELOG
 
 <p>
+<b>Version 1.3.36</b> - February 2022<br/>
+- Purged unused requires and bumped dependencies versions.<br/>
+</p>
+<p>
 <b>Version 1.3.35</b> - March 2022<br/>
 - Reset handlers by removing/adding every time the connection is set by "new" directive.<br/>
 - Fixed an issue causing glitches, when the disconnection is requested by the KNX interface instead of KNX-Ultimate.<br/>
