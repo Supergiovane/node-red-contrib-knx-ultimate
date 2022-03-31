@@ -17,8 +17,8 @@ Control your KNX intallation via Node-Red!
 
 **You can use it immediately!**
 ```javascript
-payload = true // Turn light on
-payload = {red:255, green:200, blue:30} // Put some colors in our life
+msg.payload = true // Turn light on
+msg.payload = {red:255, green:200, blue:30} // Put some colors in our life
 ```
 
 
