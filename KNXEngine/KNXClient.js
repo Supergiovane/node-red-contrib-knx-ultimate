@@ -745,7 +745,7 @@ class KNXClient extends EventEmitter {
 
     }
     _processInboundMessage(msg, rinfo) {
-
+        
         try {
             // Composing debug string
             try {
@@ -768,13 +768,13 @@ class KNXClient extends EventEmitter {
             if (knxHeader.service_type === KNXConstants.KNX_CONSTANTS.ROUTING_LOST_MESSAGE) {
                 try {
                     this.emit(KNXClientEvents.error, new Error('ROUTING_LOST_MESSAGE'));
-                    this._setDisconnected("Routing Lost Message");
+                    //this._setDisconnected("Routing Lost Message"); // 31/03/2022 Commented, because it doesn't matter. Non need to disconnect.
                     return;
                 } catch (error) { }
             } else if (knxHeader.service_type === KNXConstants.KNX_CONSTANTS.ROUTING_BUSY) {
                 try {
                     this.emit(KNXClientEvents.error, new Error('ROUTING_BUSY'));
-                    this._setDisconnected("Routing Busy");
+                    //this._setDisconnected("Routing Busy"); // 31/03/2022 Commented, because it doesn't matter. Non need to disconnect.
                     return;
                 } catch (error) { }
             }

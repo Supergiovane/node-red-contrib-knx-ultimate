@@ -758,6 +758,14 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                 // ######################################
                 node.knxConnection.on(knx.KNXClient.KNXClientEvents.indication, handleBusEvents);
                 node.knxConnection.on(knx.KNXClient.KNXClientEvents.error, err => {
+                    try {
+                        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("knxUltimate-config: received KNXClientEvents.error: " + (err.message === undefined ? err : err.message));
+                    } catch (error) { }
+                    // 31/03/2022 Don't care about some errors
+                    if (err.message === "ROUTING_LOST_MESSAGE") {
+                        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.debug("knxUltimate-config: Don't care about KNXClientEvents.error: " + (err.message === undefined ? err : err.message));
+                        return;
+                    }
                     saveExposedGAs(); // 13/12/2021 save the current values of GA payload
                     node.startTimerClearTelegramQueue(); // 21/01/2022 Clear the telegram queue after a while
                     node.linkStatus = "disconnected";

@@ -7,10 +7,14 @@
 # CHANGELOG
 
 <p>
-<b>Version 1.3.36</b> - February 2022<br/>
-- Purged unused requires and bumped dependencies versions.<br/>
+<b>Version 1.3.37</b> - April 2022<br/>
+- Changed: the KNX Gateway don't care anymore for ROUTING_LOST_MESSAGE and ROUTING_BUSY. Previously, it was disconnecting. Now it only advises in LOG.<br/>
 - Updated and beautifullyfied the WIKI.<br/>
 - Totally rewrote the CIRCULAR REFERENCE PROTECTION and FLOOD PROTECTION wiki page, in all languages.<br/>
+</p>
+<p>
+<b>Version 1.3.36</b> - February 2022<br/>
+- Purged unused requires and bumped dependencies versions.<br/>
 </p>
 <p>
 <b>Version 1.3.35</b> - March 2022<br/>
