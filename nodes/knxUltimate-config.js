@@ -762,7 +762,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                         if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("knxUltimate-config: received KNXClientEvents.error: " + (err.message === undefined ? err : err.message));
                     } catch (error) { }
                     // 31/03/2022 Don't care about some errors
-                    if (err.message === "ROUTING_LOST_MESSAGE") {
+                    if (err.message !== undefined && err.message === "ROUTING_LOST_MESSAGE") {
                         if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.debug("knxUltimate-config: Don't care about KNXClientEvents.error: " + (err.message === undefined ? err : err.message));
                         return;
                     }
