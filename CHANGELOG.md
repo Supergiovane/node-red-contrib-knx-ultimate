@@ -9,6 +9,8 @@
 <p>
 <b>Version 1.3.36</b> - February 2022<br/>
 - Purged unused requires and bumped dependencies versions.<br/>
+- Updated and beautifullyfied the WIKI.<br/>
+- Totally rewrote the CIRCULAR REFERENCE PROTECTION and FLOOD PROTECTION wiki page, in all languages.<br/>
 </p>
 <p>
 <b>Version 1.3.35</b> - March 2022<br/>
