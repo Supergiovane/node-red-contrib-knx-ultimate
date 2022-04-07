@@ -10,6 +10,7 @@ const net = require("net");
 const _ = require("lodash");
 const path = require("path");
 var fs = require('fs');
+const { Server } = require("http");
 
 
 //Helpers
@@ -188,8 +189,10 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
 
 
         node.setAllClientsStatus = (_status, _color, _text) => {
-            function nextStatus(oClient) {
-                oClient.setNodeStatus({ fill: _color, shape: "dot", text: _status + " " + _text, payload: "", GA: oClient.topic, dpt: "", devicename: "" })
+            function nextStatus(_oClient) {
+                let oClient = RED.nodes.getNode(_oClient.id);
+                oClient.setNodeStatus({ fill: _color, shape: "dot", text: _status + " " + _text, payload: "", GA: oClient.topic, dpt: "", devicename: "" });
+                oClient = null;
             }
             node.nodeClients.map(nextStatus);
         }
@@ -305,11 +308,11 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                 Object.keys(oiFaces).forEach(ifname => {
                     // Interface with single IP
                     if (Object.keys(oiFaces[ifname]).length === 1) {
-                        if (Object.keys(oiFaces[ifname])[0].internal == false) jListInterfaces.push({ name: ifname, address: Object.keys(oiFaces[ifname])[0].address });
+                        if (Object.keys(oiFaces[ifname])[0].internal === false) jListInterfaces.push({ name: ifname, address: Object.keys(oiFaces[ifname])[0].address });
                     } else {
                         var sAddresses = "";
                         oiFaces[ifname].forEach(function (iface) {
-                            if (iface.internal == false) sAddresses += "+" + iface.address;
+                            if (iface.internal === false) sAddresses += "+" + iface.address;
                         });
                         if (sAddresses !== "") jListInterfaces.push({ name: ifname, address: sAddresses });
                     }
@@ -346,11 +349,12 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                             return date1.localeCompare(date2);
                         } else { return -1; }
                     })
-                    .forEach(input => {
+                    .forEach(_input => {
+                        let input = RED.nodes.getNode(_input.id);
                         sNodeID = "\"" + input.id + "\"";
                         sName = "\"" + (input.name !== undefined ? input.name : "") + "\"";
                         sOptions = "\"" + "\"";
-                        if (input.listenallga == true) {
+                        if (input.listenallga === true) {
                             if (input.hasOwnProperty("isSceneController")) {
                                 // Is a Scene Controller
                                 sGA = "\"Scene Controller\"";
@@ -430,8 +434,9 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
             var readHistory = [];
             let delay = 0;
             node.nodeClients
-                .filter(oClient => (oClient.isWatchDog !== undefined && oClient.isWatchDog === true))
-                .forEach(oClient => {
+                .filter(_oClient => (_oClient.isWatchDog !== undefined && _oClient.isWatchDog === true))
+                .forEach(_oClient => {
+                    let oClient = RED.nodes.getNode(_oClient.id);
                     oClient.signalNodeErrorCalledByConfigNode(_oError);
                 })
         }
@@ -449,6 +454,20 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
             saveExposedGAs(); // 04/04/2021 save the current values of GA payload
         }
 
+        // node.addClient = (_Node) => {
+        //     // Check if node already exists
+        //     if (node.nodeClients.filter(x => x.id === _Node.id).length === 0) {
+        //         // Add _Node to the clients array
+        //         if (node.autoReconnect) {
+        //             _Node.setNodeStatus({ fill: "grey", shape: "ring", text: "Node initialized.", payload: "", GA: "", dpt: "", devicename: "" });
+        //         } else {
+        //             _Node.setNodeStatus({ fill: "red", shape: "ring", text: "Autoconnect disabled. Please manually connect.", payload: "", GA: "", dpt: "", devicename: "" });
+        //         }
+        //         node.nodeClients.push(_Node);
+        //     }
+
+        // }
+
         node.addClient = (_Node) => {
             // Check if node already exists
             if (node.nodeClients.filter(x => x.id === _Node.id).length === 0) {
@@ -458,18 +477,25 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                 } else {
                     _Node.setNodeStatus({ fill: "red", shape: "ring", text: "Autoconnect disabled. Please manually connect.", payload: "", GA: "", dpt: "", devicename: "" });
                 }
-                node.nodeClients.push(_Node);
+                // 05/04/2022 create the Json variable and add it to the list
+                let jNode = {};
+                jNode.id = _Node.id;
+                jNode.topic = _Node.topic;
+                if (_Node.hasOwnProperty("isWatchDog")) jNode.isWatchDog = _Node.isWatchDog;
+                jNode.initialread = _Node.initialread;
+                jNode.notifywrite = _Node.notifywrite;
+                jNode.notifyresponse = _Node.notifyresponse;
+                jNode.notifyreadrequest = _Node.notifyreadrequest;
+                node.nodeClients.push(jNode);
             }
 
         }
 
         node.removeClient = (_Node) => {
             // Remove the client node from the clients array
-            //if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info( "BEFORE Node " + _Node.id + " has been unsubscribed from receiving KNX messages. " + node.nodeClients.length);
             try {
                 node.nodeClients = node.nodeClients.filter(x => x.id !== _Node.id)
             } catch (error) { }
-            //if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("AFTER Node " + _Node.id + " has been unsubscribed from receiving KNX messages. " + node.nodeClients.length);
 
             // If no clien nodes, disconnect from bus.
             if (node.nodeClients.length === 0) {
@@ -496,14 +522,15 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
 
                 // First, read from file. This allow all virtual devices to get their values from file.
                 node.nodeClients
-                    .filter(oClient => oClient.initialread == 2 || oClient.initialread == 3)
-                    .filter(oClient => oClient.hasOwnProperty("isWatchDog") === false)
-                    .forEach(oClient => {
+                    .filter(_oClient => _oClient.initialread === 2 || _oClient.initialread === 3)
+                    .filter(_oClient => _oClient.hasOwnProperty("isWatchDog") === false)
+                    .forEach(_oClient => {
+                        let oClient = RED.nodes.getNode(_oClient.id); // 05/04/2022 Get the real node
 
                         if (node.linkStatus !== "connected") return; // 16/08/2021 If not connected, exit
 
                         // 04/04/2020 selected READ FROM FILE 2 or from file then from bus 3
-                        if (oClient.listenallga == true) {
+                        if (oClient.listenallga === true) {
                             // 13/12/2021 DA FARE
                         } else {
                             try {
@@ -548,9 +575,10 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                 // Then, after all values have been read from file, read from BUS
                 // This allow the virtual devices to get their values before this will be readed from bus
                 node.nodeClients
-                    .filter(oClient => oClient.initialread == 1)
-                    .filter(oClient => oClient.hasOwnProperty("isWatchDog") === false)
-                    .forEach(oClient => {
+                    .filter(_oClient => _oClient.initialread === 1)
+                    .filter(_oClient => _oClient.hasOwnProperty("isWatchDog") === false)
+                    .forEach(_oClient => {
+                        let oClient = RED.nodes.getNode(_oClient.id); // 05/04/2022 Get the real node
 
                         if (node.linkStatus !== "connected") return; // 16/08/2021 If not connected, exit
 
@@ -559,7 +587,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                             oClient.initialReadAllDevicesInRules();
                         } else if (oClient.hasOwnProperty("isLoadControlNode") && oClient.isLoadControlNode) {
                             oClient.initialReadAllDevicesInRules();
-                        } else if (oClient.listenallga == true) {
+                        } else if (oClient.listenallga === true) {
                             for (let index = 0; index < node.csv.length; index++) {
                                 const element = node.csv[index];
                                 if (!readHistory.includes(element.ga)) {
@@ -837,7 +865,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
         // Handle BUS events
         // ---------------------------------------------------------------------------------------
         function handleBusEvents(_datagram, _echoed) {
-
+            //console.time('handleBusEvents');
 
             let _rawValue = null;
             try {
@@ -897,9 +925,11 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
             }
             switch (_evt) {
                 case "GroupValue_Write": {
+                    // console.time('GroupValue_Write'); // 05/04/2022 Fatto test velocità tra for..loop e forEach. E' risultato sempre comunque più veloce il forEach!
                     node.nodeClients
-                        .filter(input => input.notifywrite == true)
-                        .forEach(input => {
+                        .filter(_input => _input.notifywrite === true)
+                        .forEach(_input => {
+                            let input = RED.nodes.getNode(_input.id); // 05/04/2022 Get the real node
 
                             // 19/03/2020 in the middle of coronavirus. Whole italy is red zone, closed down. Scene Controller implementation
                             if (input.hasOwnProperty("isSceneController")) {
@@ -957,7 +987,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                                     //}).then(function () { }).catch(function () { });
                                 }
 
-                            } else if (input.listenallga == true) {
+                            } else if (input.listenallga === true) {
 
                                 // Get the GA from CVS
                                 let oGA = undefined;
@@ -991,13 +1021,15 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                                 };
                             };
                         });
+                    //console.timeEnd('GroupValue_Write');
                     break;
                 };
                 case "GroupValue_Response": {
 
                     node.nodeClients
-                        .filter(input => input.notifyresponse == true)
-                        .forEach(input => {
+                        .filter(_input => _input.notifyresponse === true)
+                        .forEach(_input => {
+                            let input = RED.nodes.getNode(_input.id); // 05/04/2022 Get the real node
 
                             if (input.hasOwnProperty("isLogger")) { // 26/03/2020 Coronavirus is slightly decreasing the affected numer of people. Logger Node
 
@@ -1010,7 +1042,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                                     //}).then(function () { }).catch(function () { });
                                 }
 
-                            } else if (input.listenallga == true) {
+                            } else if (input.listenallga === true) {
                                 // Get the DPT
                                 let oGA;
                                 try {
@@ -1045,8 +1077,9 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                 case "GroupValue_Read": {
 
                     node.nodeClients
-                        .filter(input => input.notifyreadrequest == true)
-                        .forEach(input => {
+                        .filter(_input => _input.notifyreadrequest === true)
+                        .forEach(_input => {
+                            let input = RED.nodes.getNode(_input.id); // 05/04/2022 Get the real node
 
                             if (input.hasOwnProperty("isLogger")) { // 26/03/2020 Coronavirus is slightly decreasing the affected numer of people. Logger Node
 
@@ -1060,7 +1093,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                                     //}).then(function () { }).catch(function () { });
                                 }
 
-                            } else if (input.listenallga == true) {
+                            } else if (input.listenallga === true) {
                                 // Get the DPT
                                 let oGA;
                                 try {
@@ -1102,6 +1135,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                 };
                 default: return
             };
+            //console.timeEnd('handleBusEvents');
         };
         // END Handle BUS events---------------------------------------------------------------------------------------
 
@@ -1170,7 +1204,8 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                         }
                     } catch (error) {
                         try {
-                            node.nodeClients.find(a => a.id === oKNXMessage.nodecallerid).setNodeStatus({ fill: "red", shape: "dot", text: "Send response " + error, payload: oKNXMessage.payload, GA: oKNXMessage.grpaddr, dpt: oKNXMessage.dpt, devicename: "" })
+                            let oNode = RED.nodes.getNode(oKNXMessage.nodecallerid); // 05/04/2022 Get the real node
+                            oNode.setNodeStatus({ fill: "red", shape: "dot", text: "Send response " + error, payload: oKNXMessage.payload, GA: oKNXMessage.grpaddr, dpt: oKNXMessage.dpt, devicename: "" })
                         } catch (error) { }
                     }
                 } else if (oKNXMessage.outputtype === "read") {
@@ -1194,7 +1229,9 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                     //   }
                     try {
 
-                        node.nodeClients.forEach(input => {
+                        node.nodeClients.forEach(_input => {
+
+                            let input = RED.nodes.getNode(_input.id); // 05/04/2022 Get the real node
 
                             // 16/08/2021 If not connected, exit
                             if (node.linkStatus !== "connected") {
@@ -1207,7 +1244,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
 
                             } else if (input.hasOwnProperty("isLogger")) { // 26/03/2020 Coronavirus is slightly decreasing the affected numer of people. Logger Node
 
-                            } else if (input.listenallga == true) {
+                            } else if (input.listenallga === true) {
 
                             } else if (input.topic == oKNXMessage.grpaddr) {
 
@@ -1250,7 +1287,8 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                         }
                     } catch (error) {
                         try {
-                            node.nodeClients.find(a => a.id === oKNXMessage.nodecallerid).setNodeStatus({ fill: "red", shape: "dot", text: "Send write " + error, payload: oKNXMessage.payload, GA: oKNXMessage.grpaddr, dpt: oKNXMessage.dpt, devicename: "" })
+                            let oNode = RED.nodes.getNode(oKNXMessage.nodecallerid); // 05/04/2022 Get the real node
+                            oNode.setNodeStatus({ fill: "red", shape: "dot", text: "Send write " + error, payload: oKNXMessage.payload, GA: oKNXMessage.grpaddr, dpt: oKNXMessage.dpt, devicename: "" })
                         } catch (error) { }
                     }
 
@@ -1456,6 +1494,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
             node.lockHandleTelegramQueue = false; // Unlock the telegram handling function
 
             saveExposedGAs(); // 04/04/2021 save the current values of GA payload
+            node.nodeClients = []; // 05/04/2023 Nullify
             try {
                 if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.destroy();
             } catch (error) { }
@@ -1722,14 +1761,16 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                 if (_msg.outputtype === "response") sEvent = "GroupValue_Response";
                 if (_msg.outputtype === "read") sEvent = "GroupValue_Read";
 
-                node.nodeClients.forEach(input => {
+                node.nodeClients.forEach(_input => {
+
+                    let input = RED.nodes.getNode(_input.id); // 05/04/2022 Get the real node
 
                     // 19/03/2020 in the middle of coronavirus. Whole italy is red zone, closed down. Scene Controller implementation
                     if (input.hasOwnProperty("isSceneController")) {
 
                     } else if (input.hasOwnProperty("isLogger")) { // 26/03/2020 Coronavirus is slightly decreasing the affected numer of people. Logger Node
 
-                    } else if (input.listenallga == true) {
+                    } else if (input.listenallga === true) {
 
                         // Get the DPT
                         let oGA;

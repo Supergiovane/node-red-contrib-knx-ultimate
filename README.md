@@ -46,17 +46,11 @@ msg.payload = {red:255, green:200, blue:30} // Put some colors in our life
 ## VOLUNTEER NEEDED FOR KNX SECURE
 
 **************************************************
-**************************************************
-
 KNX-Secure is under development and **should** be ready by mid 2022.<br/>
-Many users requested me to "extract" the baseline KNX API and make it accessible via npmjs. Here is it.<br/>
-The API is named **KNXUltimate**. In the README page is well documented and there are also samples for unsecure and secure KNX connections.
-* <a href="https://github.com/Supergiovane/KNXUltimate#readme">KNXUltimate API</a>
-
 I need volunteer helping in development of KNX Secure.<br/>
 High knowledge of cryptography and KNX is needed.
 **************************************************
-**************************************************
+
 <br>
 <br>
 
@@ -321,6 +315,16 @@ List of commercial companies, which have given us permission to be mentioned on 
 
 <br/>
 <br/>
+
+
+## ARE YOU A NODEJS DEV? DO YOU KNOW THERE IS AN API FOR NODEJS?
+Many users requested me to "extract" the baseline KNX API and make it accessible via npmjs. Here is it.<br/>
+The API is named **KNXUltimate**. In the README page is well documented and there are also samples for unsecure and secure KNX connections.
+* <a href="https://github.com/Supergiovane/KNXUltimate#readme">KNXUltimate API</a>
+
+<br/>
+<br/>
+
 
 ![Logo](https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/flags/madeinitaly.png)
 
