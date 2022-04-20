@@ -7,6 +7,10 @@
 # CHANGELOG
 
 <p>
+<b>Version 1.3.39</b> - April 2022<br/>
+- Fixed an empty text in the KNX Alerter config node, about the Read States at start.<br/>
+</p>
+<p>
 <b>Version 1.3.38</b> - April 2022<br/>
 - Memory footprint decreased.<br/>
 - Better handling of KNX nodes objects array, for flows with more than 250 nodes.<br/>
