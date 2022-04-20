@@ -10,7 +10,8 @@
             "node-input-whentostart": "Alerting cycle start type",
             "node-input-initialread": "Read value of each device on connection/reconnect",
             "node-input-initialread0": "No",
-            "node-input-initialread1": "Read from KNX BUS"
+            "node-input-initialread1": "Read from KNX BUS",
+            "node-input-initialreadGAInRules": "Read states at start/reconnection"
         },
         "selectlists": {
             "manualstart": "Start alert cycle manually via incoming message",
