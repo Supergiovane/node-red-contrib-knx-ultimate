@@ -621,7 +621,7 @@ class KNXClient extends EventEmitter {
             // 16/03/2022 These two are referring to tunneling connection, but i set it here as well. Non si sa mai.
             this._numFailedTelegramACK = 0; // 25/12/2021 Reset the failed ACK counter
             this._clearToSend = true; // 26/12/2021 allow to send
-            
+
             this._clientTunnelSeqNumber = -1;
             try {
                 this.emit(KNXClientEvents.connected, this._options);
@@ -740,11 +740,12 @@ class KNXClient extends EventEmitter {
                     }
                     this._clearToSend = true;
                     this.emit(KNXClientEvents.error, timeoutErr);
+                    if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.error("KNXClient: _setTimerWaitingForACK: " + (timeoutErr.message || "Undef error") + " no ACK received. ABORT sending datagram with seqNumber " + this._getSeqNumber() + " from " + knxTunnelingRequest.cEMIMessage.srcAddress.toString() + " to " + knxTunnelingRequest.cEMIMessage.dstAddress.toString());
                 } else {
                     // 26/12/2021 // If no ACK received, resend the datagram once with the same sequence number
                     this._setTimerWaitingForACK(knxTunnelingRequest);
                     this.send(knxTunnelingRequest);
-                    if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.error("KNXClient: _setTimerWaitingForACK: " + (timeoutErr.message || "Undef error") + " no ACK received. Retransmit datagram with seqNumber " + this._getSeqNumber());
+                    if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.error("KNXClient: _setTimerWaitingForACK: " + (timeoutErr.message || "Undef error") + " no ACK received. Retransmit datagram with seqNumber " + this._getSeqNumber() + " from " + knxTunnelingRequest.cEMIMessage.srcAddress.toString() + " to " + knxTunnelingRequest.cEMIMessage.dstAddress.toString());
                 }
             } catch (error) { }
         }, KNXConstants.KNX_CONSTANTS.TUNNELING_REQUEST_TIMEOUT * 1000);
