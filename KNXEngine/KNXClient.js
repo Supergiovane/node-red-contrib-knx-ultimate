@@ -51,6 +51,7 @@ var KNXClientEvents;
     KNXClientEvents["ready"] = "ready";
     KNXClientEvents["response"] = "response";
     KNXClientEvents["connecting"] = "connecting";
+    KNXClientEvents["ackReceived"] = "ackReceived";
 })(KNXClientEvents || (KNXClientEvents = {}));
 
 // const KNXClientEvents = {
@@ -620,7 +621,7 @@ class KNXClient extends EventEmitter {
             // 16/03/2022 These two are referring to tunneling connection, but i set it here as well. Non si sa mai.
             this._numFailedTelegramACK = 0; // 25/12/2021 Reset the failed ACK counter
             this._clearToSend = true; // 26/12/2021 allow to send
-
+            
             this._clientTunnelSeqNumber = -1;
             try {
                 this.emit(KNXClientEvents.connected, this._options);
@@ -732,6 +733,11 @@ class KNXClient extends EventEmitter {
                 this._numFailedTelegramACK += 1;
                 if (this._numFailedTelegramACK > 2) {
                     this._numFailedTelegramACK = 0;
+                    // 08/04/2022 Emits the event informing that the last ACK has not been acknowledge.
+                    try {
+                        this.emit(KNXClientEvents.ackReceived, knxTunnelingRequest, false);
+                    } catch (error) {
+                    }
                     this._clearToSend = true;
                     this.emit(KNXClientEvents.error, timeoutErr);
                 } else {
@@ -745,7 +751,7 @@ class KNXClient extends EventEmitter {
 
     }
     _processInboundMessage(msg, rinfo) {
-        
+
         try {
             // Composing debug string
             try {
@@ -910,6 +916,11 @@ class KNXClient extends EventEmitter {
                         if (this._timerWaitingForACK !== null) clearTimeout(this._timerWaitingForACK);
                         this._numFailedTelegramACK = 0; // 25/12/2021 clear the current ACK failed telegram number
                         this._clearToSend = true; // I'm ready to send a new datagram now
+                        // 08/04/2022 Emits the event informing that the last ACK has been acknowledge.
+                        try {
+                            this.emit(KNXClientEvents.ackReceived, knxMessage, true);
+                        } catch (error) {
+                        }
                         try {
                             if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.debug("Received KNX packet: TUNNELING: DELETED_TUNNELING_ACK FROM PENDING ACK's, ChannelID:" + this._channelID + " seqCounter:" + knxTunnelingAck.seqCounter + " Host:" + this._options.ipAddr + ":" + this._options.ipPort);
                         } catch (error) { }
