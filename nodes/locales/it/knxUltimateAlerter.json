@@ -10,7 +10,8 @@
             "node-input-whentostart": "Modalità avvio allerta",
             "node-input-initialread": "Leggi il valore di ogni device alla connessione/riconnessione",
             "node-input-initialread0": "No",
-            "node-input-initialread1": "Leggi dal BUS KNX"
+            "node-input-initialread1": "Leggi dal BUS KNX",
+            "node-input-initialreadGAInRules": "Leggi stati alla connessione/riconnessione"
         },
         "selectlists": {
             "manualstart": "Avvia ciclo allerta manualmente tramite messaggio in ingresso",
