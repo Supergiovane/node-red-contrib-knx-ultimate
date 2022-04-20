@@ -42,8 +42,8 @@
         },
         "ets": {
             "description": "您可以导入 ETS CSV 组地址列表或 ESF 组地址列表。 请优先选择 ETS CSV 组地址列表，因为数据类型更完整.",
-            "instruction": "单击以获取有关如何导出 ETS CSV 组地址列表的说明.",
-            "youtube": "在Youtube上看怎么导入CSV文件",
+            "instruction" : "&nbsp<i class=\"fa fa-question-circle\"></i>&nbsp<a target=\"_blank\" href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/cn-1.-Gateway-configuration\"><u>单击以获取有关如何导出 ETS CSV 组地址列表的说明.</u></a>",
+            "youtube" : "&nbsp<i class=\"fa fa-youtube-play\"></i>&nbsp<a target=\"_blank\" href=\"https://youtu.be/egRbR_KwP9I\"><u>在Youtube上看怎么导入CSV文件.</u></a>",
             "help_ga": "如果组地址没有数据类型",
             "import_select_stop": "停止并且中断导入",
             "import_select_skip": "跳过受影响的组地址",

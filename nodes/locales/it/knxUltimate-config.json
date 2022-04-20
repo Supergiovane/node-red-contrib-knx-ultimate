@@ -46,8 +46,8 @@
         },
         "ets": {
             "description": "Puoi importare sia il file ETS in CSV, che ESF. Usa il CSV se possibile, perchè i datapoints sono più precisi.",
-            "instruction": "Clicca per vedere come si importa un file ETS CSV.",
-            "youtube": "Guarda come si esporta un file CSV su YouTube",
+            "instruction" : "&nbsp<i class=\"fa fa-question-circle\"></i>&nbsp<a target=\"_blank\" href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/it-1.-Gateway-configuration\"><u>Clicca per vedere come si importa un file ETS CSV.</u></a>",
+            "youtube" : "&nbsp<i class=\"fa fa-youtube-play\"></i>&nbsp<a target=\"_blank\" href=\"https://youtu.be/egRbR_KwP9I\"><u>Guarda come si esporta un file CSV su YouTube.</u></a>",
             "help_ga": "Se l'indirizzo di gruppo non ha datapoint",
             "import_select_stop": "Blocca ed annulla l'importazione",
             "import_select_skip": "Salta l'importazione dell'indirizzo di gruppo",
