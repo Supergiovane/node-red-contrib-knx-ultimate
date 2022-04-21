@@ -12,6 +12,7 @@
 - Fixed an improperly cleaned queue in the config node close function.<br/>
 - Fixed a possible issue in case of multiple disconnection from the KNX Bus in a short timeframe.<br/>
 - Fixed sending disconnection_request with a null connection_ID, in the KNX Engine.<br/>
+- Fixed re-sending per KNX Standards, of not ACKnowledged telegrams, not always working in some circumstances.<br/>
 - Protected some function with a try-catch.<br/>
 - Now the telegram handler function stops whenever the connection is lost and restart from fresh on connection.<br />
 - Optimized the retain mechanism of the queue handling, in case of shorttimed disconnections.<br />
