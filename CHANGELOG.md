@@ -9,6 +9,12 @@
 <p>
 <b>Version 1.3.39</b> - April 2022<br/>
 - Fixed an empty text in the KNX Alerter config node, about the Read States at start.<br/>
+- Fixed an improperly cleaned queue in the config node close function.<br/>
+- Fixed a possible issue in case of multiple disconnection from the KNX Bus in a short timeframe.<br/>
+- Fixed sending disconnection_request with a null connection_ID, in the KNX Engine.<br/>
+- Protected some function with a try-catch.<br/>
+- Now the telegram handler function stops whenever the connection is lost and restart from fresh on connection.<br />
+- Optimized the retain mechanism of the queue handling, in case of shorttimed disconnections.<br />
 </p>
 <p>
 <b>Version 1.3.38</b> - April 2022<br/>

@@ -130,8 +130,8 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
         node.statusDisplayDeviceNameWhenALL = typeof config.statusDisplayDeviceNameWhenALL === "undefined" ? false : config.statusDisplayDeviceNameWhenALL;
         node.statusDisplayDataPoint = typeof config.statusDisplayDataPoint === "undefined" ? false : config.statusDisplayDataPoint;
         node.telegramsQueue = [];  // 02/01/2020 Queue containing telegrams 
-        node.timerSendTelegramFromQueue;
-        node.delaybetweentelegramsfurtherdelayREAD = (typeof config.delaybetweentelegramsfurtherdelayREAD === "undefined" || config.delaybetweentelegramsfurtherdelayREAD < 1) ? 1 : config.delaybetweentelegramsfurtherdelayREAD; // 18/05/2020 delay multiplicator only for "read" telegrams.
+        node.timerSendTelegramFromQueue = null;
+        node.delaybetweentelegramsfurtherdelayREAD = (typeof config.delaybetweentelegramsfurtherdelayREAD === "undefined" || Number(config.delaybetweentelegramsfurtherdelayREAD < 1)) ? 1 : Number(config.delaybetweentelegramsfurtherdelayREAD); // 18/05/2020 delay multiplicator only for "read" telegrams.
         node.delaybetweentelegramsREADCount = 0;// 18/05/2020 delay multiplicator only for "read" telegrams.
         node.timerDoInitialRead = null; // 17/02/2020 Timer (timeout) to do initial read of all nodes requesting initial read, after all nodes have been registered to the sercer
         node.stopETSImportIfNoDatapoint = typeof config.stopETSImportIfNoDatapoint === "undefined" ? "stop" : config.stopETSImportIfNoDatapoint; // 09/01/2020 Stop, Import Fake or Skip the import if a group address has unset datapoint
@@ -441,18 +441,6 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                 })
         }
 
-        node.Disconnect = () => {
-            if (node.timerDoInitialRead !== null) clearTimeout(node.timerDoInitialRead); // 17/02/2020 Stop the initial read timer
-            try {
-                if (node.knxConnection !== null) node.knxConnection.Disconnect();
-            } catch (error) { }
-
-            node.startTimerClearTelegramQueue(); // 21/01/2022 Clear the telegram queue after a while
-            node.setAllClientsStatus("Disconnected", "grey", "")
-            node.linkStatus = "disconnected"; // 29/08/2019 signal disconnection
-
-            saveExposedGAs(); // 04/04/2021 save the current values of GA payload
-        }
 
         // node.addClient = (_Node) => {
         //     // Check if node already exists
@@ -790,14 +778,11 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                         if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("knxUltimate-config: received KNXClientEvents.error: " + (err.message === undefined ? err : err.message));
                     } catch (error) { }
                     // 31/03/2022 Don't care about some errors
-                    if (err.message !== undefined && err.message === "ROUTING_LOST_MESSAGE") {
-                        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.debug("knxUltimate-config: Don't care about KNXClientEvents.error: " + (err.message === undefined ? err : err.message));
+                    if (err.message !== undefined && (err.message === "ROUTING_LOST_MESSAGE" || err.message === "ROUTING_BUSY")) {
+                        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("knxUltimate-config: KNXClientEvents.error: " + (err.message === undefined ? err : err.message) + " consider DECREASING the transmission speed, by increasing the telegram's DELAY in the gateway configuration node!");
                         return;
                     }
-                    saveExposedGAs(); // 13/12/2021 save the current values of GA payload
-                    node.startTimerClearTelegramQueue(); // 21/01/2022 Clear the telegram queue after a while
-                    node.linkStatus = "disconnected";
-                    node.setAllClientsStatus("Disconnected by error " + (err.message === undefined ? err : err.message), "red", "");
+                    node.Disconnect("Disconnected by error " + (err.message === undefined ? err : err.message), "red");
                     if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("knxUltimate-config: Disconnected by: " + (err.message === undefined ? err : err.message));
                 });
                 // Call discoverCB when a knx gateway has been discovered.
@@ -806,13 +791,11 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                 //     discoverCB(ip, port);
                 // });
                 node.knxConnection.on(knx.KNXClient.KNXClientEvents.disconnected, info => {
-                    saveExposedGAs(); // 13/12/2021 save the current values of GA payload
                     node.startTimerClearTelegramQueue(); // 21/01/2022 Clear the telegram queue after a while
                     if (node.linkStatus !== "disconnected") {
                         node.linkStatus = "disconnected";
-                        node.setAllClientsStatus("Disconnected by event: " + info || "", "red", "");
                         if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.warn("knxUltimate-config: Disconnected event %s", info);
-                        node.Disconnect(); // 11/03/2022
+                        node.Disconnect("Disconnected by event: " + info || "", "red"); // 11/03/2022
                     }
                 });
                 node.knxConnection.on(knx.KNXClient.KNXClientEvents.close, info => {
@@ -823,7 +806,11 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                         clearTimeout(node.timerClearTelegramQueue); // Connected. Stop the timer that clears the telegrams queue.
                         node.timerClearTelegramQueue = null;
                     }
+                    // 12/11/2021 Starts the telegram out queue handler
+                    if (node.timerSendTelegramFromQueue !== null) clearInterval(node.timerSendTelegramFromQueue);
+                    node.timerSendTelegramFromQueue = setInterval(handleTelegramQueue, (config.delaybetweentelegrams === undefined || Number(config.delaybetweentelegrams) < 20) ? 20 : Number(config.delaybetweentelegrams)); // 02/01/2020 Start the timer that handles the queue of telegrams
                     node.linkStatus = "connected";
+
                     // Start the timer to do initial read.
                     if (node.timerDoInitialRead !== null) clearTimeout(node.timerDoInitialRead);
                     node.timerDoInitialRead = setTimeout(DoInitialReadFromKNXBusOrFile, 6000); // 17/02/2020 Do initial read of all nodes requesting initial read
@@ -834,8 +821,6 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                 });
                 node.knxConnection.on(knx.KNXClient.KNXClientEvents.connecting, info => {
                     node.linkStatus = "connecting";
-                    // Start the timer to do initial read.
-                    if (node.timerDoInitialRead !== null) clearTimeout(node.timerDoInitialRead);
                     if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.debug("knxUltimate-config: Connecting to" + info.ipAddr || "");
                     node.setAllClientsStatus(info.ipAddr || "", "grey", "Connecting...")
                 });
@@ -1489,21 +1474,6 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
         };
 
 
-        node.on("close", function (done) {
-            if (node.timerSendTelegramFromQueue !== undefined) clearInterval(node.timerSendTelegramFromQueue); // 02/01/2020 Stop queue timer
-            node.lockHandleTelegramQueue = false; // Unlock the telegram handling function
-
-            saveExposedGAs(); // 04/04/2021 save the current values of GA payload
-            node.nodeClients = []; // 05/04/2023 Nullify
-            try {
-                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.destroy();
-            } catch (error) { }
-            try {
-                node.Disconnect();
-            } catch (error) { }
-            done();
-        })
-
         function readCSV(_csvText) {
             // 24/02/2020, in the middle of Coronavirus emergency in Italy. Check if it a CSV ETS Export of group addresses, or if it's an EFS
             if (_csvText.split("\n")[0].toUpperCase().indexOf("\"") == -1) return readESF(_csvText);
@@ -1821,9 +1791,6 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
             } catch (error) { }
         }
 
-        // 12/11/2021 Starts the telegram out queue handler
-        if (node.timerSendTelegramFromQueue !== null) clearInterval(node.timerSendTelegramFromQueue);
-        node.timerSendTelegramFromQueue = setInterval(handleTelegramQueue, (config.delaybetweentelegrams === undefined || config.delaybetweentelegrams < 30) ? 30 : config.delaybetweentelegrams); // 02/01/2020 Start the timer that handles the queue of telegrams
 
         // 08/10/2021 Every xx seconds, i check if the connection is up and running
         if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("KNXUltimate-config: Autoconnection: " + (node.autoReconnect === false ? "no." : "yes") + " Node " + node.name);
@@ -1835,7 +1802,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                 let t = setTimeout(() => { // 21/03/2022 fixed possible memory leak. Previously was setTimeout without "let t = ".
                     node.setAllClientsStatus("Auto reconnect in progress...", "grey", "");
                 }, 100);
-                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.debug("knxUltimate-config: Auto Reconect by timerKNXUltimateCheckState in progress. node.LinkStatus:" + node.linkStatus + ", node.autoReconnect:" + node.autoReconnect);
+                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.debug("knxUltimate-config: Auto Reconect by timerKNXUltimateCheckState in progress. node.LinkStatus: " + node.linkStatus + ", node.autoReconnect:" + node.autoReconnect);
                 node.initKNXConnection();
                 return;
             }
@@ -1844,12 +1811,44 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                 let t = setTimeout(() => { // 21/03/2022 fixed possible memory leak. Previously was setTimeout without "let t = ".
                     node.setAllClientsStatus("Next cycle will reconnect...", "grey", "");
                 }, 1000);
-                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.debug("knxUltimate-config: Waiting next cycle to reconect. node.LinkStatus:" + node.linkStatus + ", node.autoReconnect:" + node.autoReconnect);
+                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.debug("knxUltimate-config: Waiting next cycle to reconect. node.LinkStatus: " + node.linkStatus + ", node.autoReconnect:" + node.autoReconnect);
                 //node.initKNXConnection();
             }
         }, 10000);
 
+        node.Disconnect = (_sNodeStatus = "", _sColor = "grey") => {
+            if (node.linkStatus === "disconnected") {
+                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.debug("knxUltimate-config: Disconnect: already not connected:" + node.linkStatus + ", node.autoReconnect:" + node.autoReconnect);
+                return;
+            }
+            if (node.timerSendTelegramFromQueue !== null) clearInterval(node.timerSendTelegramFromQueue); // 02/01/2020 Stop queue timer
+            node.linkStatus = "disconnected"; // 29/08/2019 signal disconnection
+            node.lockHandleTelegramQueue = false; // Unlock the telegram handling function
+            if (node.timerDoInitialRead !== null) clearTimeout(node.timerDoInitialRead); // 17/02/2020 Stop the initial read timer
+            try {
+                if (node.knxConnection !== null) node.knxConnection.Disconnect();
+            } catch (error) {
+                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.debug("knxUltimate-config: Disconnected: node.knxConnection.Disconnect() " + (error.message || "") + " , node.autoReconnect:" + node.autoReconnect);
+            }
+            node.startTimerClearTelegramQueue(); // 21/01/2022 Clear the telegram queue after a while
+            node.setAllClientsStatus("Disconnected", _sColor, _sNodeStatus);
+            saveExposedGAs(); // 04/04/2021 save the current values of GA payload
+            if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.debug("knxUltimate-config: Disconnected, node.autoReconnect:" + node.autoReconnect);
 
+        }
+
+        node.on("close", function (done) {
+            try {
+                node.Disconnect();
+            } catch (error) { }
+            if (node.timerClearTelegramQueue !== null) clearTimeout(node.timerClearTelegramQueue);
+            node.telegramsQueue = [];
+            node.nodeClients = []; // 05/04/2023 Nullify
+            try {
+                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.destroy();
+            } catch (error) { }
+            done();
+        })
 
     }
 
