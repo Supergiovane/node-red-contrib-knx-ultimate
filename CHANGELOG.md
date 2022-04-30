@@ -7,7 +7,7 @@
 # CHANGELOG
 
 <p>
-<b>Version 1.3.39</b> - Mai 2022<br/>
+<b>Version 1.3.40</b> - Mai 2022<br/>
 - Fixed an issue in the GlobalContext node, preventing the node from searching for the DPT, if the CSV ETS file has been imported and you don't specify the DPT in the msg input. Thanks to @Sebastien-Posca for pointing me out that.<br />
 </p>
 <p>
