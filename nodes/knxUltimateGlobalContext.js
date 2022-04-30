@@ -92,7 +92,7 @@ module.exports = function (RED) {
                     }
 
                     // 13/09/2021 retrieve the datapoint if not specified
-                    if (!element.hasOwnProperty("dpt") || element.dpt !== undefined) {
+                    if (!element.hasOwnProperty("dpt") || element.dpt === undefined || element.dpt === "") {
                         try {
                             let sDPT = node.server.csv.find(item => item.ga === element.address).dpt;
                             element.dpt = sDPT;

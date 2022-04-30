@@ -7,6 +7,10 @@
 # CHANGELOG
 
 <p>
+<b>Version 1.3.39</b> - Mai 2022<br/>
+- Fixed an issue in the GlobalContext node, preventing the node from searching for the DPT, if the CSV ETS file has been imported and you don't specify the DPT in the msg input. Thanks to @Sebastien-Posca for pointing me out that.<br />
+</p>
+<p>
 <b>Version 1.3.39</b> - April 2022<br/>
 - Fixed an empty text in the KNX Alerter config node, about the Read States at start.<br/>
 - Fixed an improperly cleaned queue in the config node close function.<br/>
