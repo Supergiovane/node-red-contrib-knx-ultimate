@@ -431,6 +431,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
 
         // 16/02/2020 KNX-Ultimate nodes calls this function, then this funcion calls the same function on the Watchdog
         node.reportToWatchdogCalledByKNXUltimateNode = (_oError) => {
+            // _oError is = { nodeid: node.id, topic: node.outputtopic, devicename: devicename, GA: GA, text: text };
             var readHistory = [];
             let delay = 0;
             node.nodeClients

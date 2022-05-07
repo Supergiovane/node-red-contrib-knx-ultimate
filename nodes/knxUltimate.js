@@ -51,7 +51,7 @@ module.exports = function (RED) {
             // 16/02/2020 signal errors to the server
             if (fill.toUpperCase() === "RED") {
                 if (node.server) {
-                    var oError = { nodeid: node.id, topic: node.outputtopic, devicename: devicename, GA: GA, text: text };
+                    let oError = { nodeid: node.id, topic: node.outputtopic, devicename: devicename, GA: GA, text: text };
                     node.server.reportToWatchdogCalledByKNXUltimateNode(oError);
                 };
             };

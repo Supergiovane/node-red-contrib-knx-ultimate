@@ -48,7 +48,7 @@ module.exports = function (RED) {
             if (node.beatNumber > node.maxRetry) {
                 // Confirmed connection error    
                 node.beatNumber = 0; // Reset Counter
-               let msg = {
+                let msg = {
                     type: "BUSError",
                     checkPerformed: node.checkLevel,
                     nodeid: node.id,
@@ -102,7 +102,7 @@ module.exports = function (RED) {
         // 16/02/2020 This function is called by the knx-ultimate config node.
         node.signalNodeErrorCalledByConfigNode = _oError => {
             // Report an error from knx-ultimate node.
-            // var oError = {nodeid:node.id,topic:node.outputtopic,devicename:devicename,GA:GA,text:text};
+            // let oError = {nodeid:node.id,topic:node.outputtopic,devicename:devicename,GA:GA,text:text};
             let msg = {
                 type: "NodeError",
                 checkPerformed: "Self KNX-Ultimate node reporting a red color status",
