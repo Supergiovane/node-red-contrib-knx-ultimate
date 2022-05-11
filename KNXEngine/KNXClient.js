@@ -350,7 +350,8 @@ class KNXClient extends EventEmitter {
         } else {
             // Tunneling
             const cEMIMessage = CEMIFactory.CEMIFactory.newLDataRequestMessage("write", srcAddress, dstAddress, data);
-            cEMIMessage.control.ack = this._options.suppress_ack_ldatareq ? 0 : 1;
+            //cEMIMessage.control.ack = this._options.suppress_ack_ldatareq ? 0 : 1; // No ack like telegram sent from ETS (0 means don't care)
+            cEMIMessage.control.ack = 0;// No ack like telegram sent from ETS (0 means don't care)
             cEMIMessage.control.broadcast = 1;
             cEMIMessage.control.priority = 3;
             cEMIMessage.control.addressType = 1;
@@ -383,7 +384,7 @@ class KNXClient extends EventEmitter {
         if (this._options.hostProtocol === "Multicast") {
             // Multicast
             const cEMIMessage = CEMIFactory.CEMIFactory.newLDataIndicationMessage("response", srcAddress, dstAddress, data);
-            cEMIMessage.control.ack = 0;
+            cEMIMessage.control.ack = 0; // No ack like telegram sent from ETS (0 means don't care)
             cEMIMessage.control.broadcast = 1;
             cEMIMessage.control.priority = 3;
             cEMIMessage.control.addressType = 1;
@@ -395,7 +396,8 @@ class KNXClient extends EventEmitter {
         } else {
             // Tunneling
             const cEMIMessage = CEMIFactory.CEMIFactory.newLDataRequestMessage("response", srcAddress, dstAddress, data);
-            cEMIMessage.control.ack = this._options.suppress_ack_ldatareq ? 0 : 1;
+            //cEMIMessage.control.ack = this._options.suppress_ack_ldatareq ? 0 : 1;
+            cEMIMessage.control.ack = 0;// No ack like telegram sent from ETS (0 means don't care)
             cEMIMessage.control.broadcast = 1;
             cEMIMessage.control.priority = 3;
             cEMIMessage.control.addressType = 1;
@@ -436,7 +438,8 @@ class KNXClient extends EventEmitter {
         } else {
             // Tunneling
             const cEMIMessage = CEMIFactory.CEMIFactory.newLDataRequestMessage("read", srcAddress, dstAddress, null);
-            cEMIMessage.control.ack = 0;// No ack like telegram sent from ETS
+             //cEMIMessage.control.ack = this._options.suppress_ack_ldatareq ? 0 : 1;
+            cEMIMessage.control.ack = 0;// No ack like telegram sent from ETS (0 means don't care)
             cEMIMessage.control.broadcast = 1;
             cEMIMessage.control.priority = 3;
             cEMIMessage.control.addressType = 1;
@@ -764,6 +767,7 @@ class KNXClient extends EventEmitter {
         }, KNXConstants.KNX_CONSTANTS.TUNNELING_REQUEST_TIMEOUT * 1000);
 
     }
+
     _processInboundMessage(msg, rinfo) {
 
         try {
@@ -879,13 +883,24 @@ class KNXClient extends EventEmitter {
 
                 const knxTunnelingRequest = knxMessage;
                 if (knxTunnelingRequest.channelID !== this._channelID) {
+                    try {
+                        this.sysLogger.debug("Received KNX packet: TUNNELING: L_DATA_IND, NOT FOR ME: MyChannelID:" + this._channelID + " ReceivedPacketChannelID: " + knxTunnelingRequest.channelID + " ReceivedPacketseqCounter:" + knxTunnelingRequest.seqCounter + " Host:" + this._options.ipAddr + ":" + this._options.ipPort);
+                    } catch (error) { }
                     return;
                 }
                 // 26/12/2021 send the ACK if the server requestet that
                 // Then REMOVED, because some interfaces sets the "ack request" always to 0 even if it needs ack.
                 //if (knxMessage.cEMIMessage.control.ack){
-                let knxTunnelAck = KNXProtocol.KNXProtocol.newKNXTunnelingACK(knxTunnelingRequest.channelID, knxTunnelingRequest.seqCounter, KNXConstants.KNX_CONSTANTS.E_NO_ERROR);
-                this.send(knxTunnelAck);
+                //setTimeout(() => {
+                try {
+                    let knxTunnelAck = KNXProtocol.KNXProtocol.newKNXTunnelingACK(knxTunnelingRequest.channelID, knxTunnelingRequest.seqCounter, KNXConstants.KNX_CONSTANTS.E_NO_ERROR);
+                    this.send(knxTunnelAck);
+                } catch (error) {
+                    this.sysLogger.error("Received KNX packet: TUNNELING: L_DATA_IND, ERROR BUOLDING THE TUNNELINK ACK: " + error.message + " MyChannelID:" + this._channelID + " ReceivedPacketChannelID: " + knxTunnelingRequest.channelID + " ReceivedPacketseqCounter:" + knxTunnelingRequest.seqCounter + " Host:" + this._options.ipAddr + ":" + this._options.ipPort);
+                }
+
+                //}, 20);
+
                 //}      
 
                 if (knxTunnelingRequest.cEMIMessage.msgCode === CEMIConstants.CEMIConstants.L_DATA_IND) {
@@ -973,6 +988,8 @@ class KNXClient extends EventEmitter {
                         this.emit(KNXClientEvents.indication, knxRoutingInd, false);
                     } catch (error) {
                     }
+
+
                 }
                 else if (knxRoutingInd.cEMIMessage.msgCode === CEMIConstants.CEMIConstants.L_DATA_CON) {
 

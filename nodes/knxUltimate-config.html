@@ -278,6 +278,10 @@
         </label>
         <select id="node-config-input-KNXEthInterface"></select>
     </div>
+    <div class="form-row" id="divKNXEthInterfaceManuallyInput" style="display: none;">
+        <label for="node-config-input-KNXEthInterfaceManuallyInput">Interface name:</label>
+        <input type="text" id="node-config-input-KNXEthInterfaceManuallyInput" placeholder="Interface name, ex: eth0 or ens1 or Ethernet 1 and so on..."></input>
+    </div>
     <div class="form-row">
         <label for="node-config-input-autoReconnect" style="width: 200px">
             <i class="fa fa-plug"></i>
@@ -288,10 +292,7 @@
             <option value="no" data-i18n="knxUltimate-config.properties.autoReconnect_no"></option>
         </select>
     </div>
-    <div class="form-row" id="divKNXEthInterfaceManuallyInput" style="display: none;">
-        <label for="node-config-input-KNXEthInterfaceManuallyInput"></label>
-        <input type="text" id="node-config-input-KNXEthInterfaceManuallyInput" placeholder="Interface name, ex: eth0 or ens1 or Ethernet 1 and so on..."></input>
-    </div>
+    
     <div id="advancedOptionsAccordion">
         <h3><span data-i18n="knxUltimate-config.properties.adv_options"></span></h3>
         <div>

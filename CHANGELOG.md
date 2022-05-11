@@ -7,6 +7,12 @@
 # CHANGELOG
 
 <p>
+<b>Version 1.3.41</b> - Mai 2022<br/>
+- Fixed an issue in the gateway config node UI, where you manually set the IP interface name.<br />
+- Fixed an issue introduced by a breaking change in Node 18.<br />
+- Added more "trace" log in the ipAddressHelper function, to better track the ethernet interface details.<br />
+</p>
+<p>
 <b>Version 1.3.40</b> - Mai 2022<br/>
 - Fixed an issue in the GlobalContext node, preventing the node from searching for the DPT, if the CSV ETS file has been imported and you don't specify the DPT in the msg input. Thanks to @Sebastien-Posca for pointing me out that.<br />
 </p>
