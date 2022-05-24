@@ -7,6 +7,11 @@
 # CHANGELOG
 
 <p>
+<b>Version 1.3.42</b> - Mai 2022<br/>
+- Fixed an issue in the gateway config node UI. Corrected some UI spacing issues in low resolution monitor.<br />
+- Fixed an issue occurring in the detection of local IP in case of ETH interface without family property specified.<br />
+</p>
+<p>
 <b>Version 1.3.41</b> - Mai 2022<br/>
 - Fixed an issue in the gateway config node UI, where you manually set the IP interface name.<br />
 - Fixed an issue introduced by a breaking change in Node 18.<br />

@@ -12,7 +12,7 @@ function getIPv4Interfaces () {
             let intf = interfaces[iface][key]
             // 11/05/2022 Fixed a breaking change introduced by node 18 (https://nodejs.org/api/os.html#osnetworkinterfaces)
             // In Node < 18, intf.family is a string "IPv4" or "IPv6", from node 18, is an integer, for example 4.
-            if (intf.family.toString().includes("4") && !intf.internal) { 
+            if (intf.family !== undefined && intf.family.toString().includes("4") && !intf.internal) { 
                 knxLog.get().trace('ipAddressHelper.js: Found suitable interface: %s (%j)', iface, intf);
                 candidateInterfaces[iface] = intf
             } else {
