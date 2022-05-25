@@ -7,6 +7,10 @@
 # CHANGELOG
 
 <p>
+<b>Version 1.3.43</b> - Mai 2022<br/>
+- NEW: Scene Controller: you can now specity the "wait" time also in seconds, minutes or hours.<br />
+</p>
+<p>
 <b>Version 1.3.42</b> - Mai 2022<br/>
 - Fixed an issue in the gateway config node UI. Corrected some UI spacing issues in low resolution monitor.<br />
 - Fixed an issue occurring in the detection of local IP in case of ETH interface without family property specified.<br />
