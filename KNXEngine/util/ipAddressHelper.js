@@ -12,12 +12,17 @@ function getIPv4Interfaces () {
             let intf = interfaces[iface][key]
             // 11/05/2022 Fixed a breaking change introduced by node 18 (https://nodejs.org/api/os.html#osnetworkinterfaces)
             // In Node < 18, intf.family is a string "IPv4" or "IPv6", from node 18, is an integer, for example 4.
-            if (intf.family !== undefined && intf.family.toString().includes("4") && !intf.internal) { 
-                knxLog.get().trace('ipAddressHelper.js: Found suitable interface: %s (%j)', iface, intf);
-                candidateInterfaces[iface] = intf
-            } else {
-                knxLog.get().trace('ipAddressHelper.js: Found NOT suitable interface: %s (%j)', iface, intf);
-            }
+            try {
+                knxLog.get().debug('ipAddressHelper.js: parsing interface: %s (%j)', iface, intf);
+                if (intf.family !== undefined && intf.family.toString().includes("4") && !intf.internal) { 
+                    knxLog.get().trace('ipAddressHelper.js: Found suitable interface: %s (%j)', iface, intf);
+                    candidateInterfaces[iface] = intf
+                } else {
+                    knxLog.get().trace('ipAddressHelper.js: Found NOT suitable interface: %s (%j)', iface, intf);
+                }    
+            } catch (error) {
+                knxLog.get().error("ipAddressHelper.js: getIPv4Interfaces: error parsing the interface %s (%j)", iface, intf);
+            }            
         }
     }
 
@@ -30,7 +35,8 @@ exports.getLocalAddress = function (_interface = "") {
     // if user has declared a desired interface then use it
     if (_interface !== "") {
         if (!candidateInterfaces.hasOwnProperty(_interface)) {
-            throw Error('Interface ' + _interface + ' not found or has no useful IPv4 address!')
+            knxLog.get().error("ipAddressHelper.js: exports.getLocalAddress: Interface " + _interface + " not found or has no useful IPv4 address!");
+            throw Error('Interface ' + _interface + ' not found or has no useful IPv4 address!');
         } else {
             return candidateInterfaces[_interface].address
         }

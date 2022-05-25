@@ -217,12 +217,28 @@ module.exports = function (RED) {
 
                 // 03/09/2021 wait command?
                 if (rule.topic.toLowerCase() === "wait") {
-                    if (isNaN(rule.send)) {
-                        let t = setTimeout(() => { // 21/03/2022 fixed possible memory leak. Previously was setTimeout without "let t = ".
-                            node.setNodeStatus({ fill: "red", shape: "dot", text: "Invalid wait time. Write a number in milliseconds", payload: "", GA: "", dpt: "", devicename: "" });
+                    //if (isNaN(rule.send)) {
+                    if (rule.send === undefined || rule.send === "") {
+                        let t = setTimeout(() => {
+                            node.setNodeStatus({ fill: "red", shape: "dot", text: "Wait time is empty. See the WIKI for help.", payload: "", GA: "", dpt: "", devicename: "" });
                         }, 1000);
                     } else {
-                        await delay(Number(rule.send));
+                        // 25/05/2022 added support for seconds and minutes
+                        let msWait = 0;
+                        try {
+                            if (rule.send.toString().endsWith("s")) {
+                                msWait = Number(rule.send.toString().slice(0, -1)) * 1000; // Seconds
+                            } else if (rule.send.toString().endsWith("m")) {
+                                msWait = Number(rule.send.toString().slice(0, -1)) * 60 * 1000; // Minutes
+                            } else if (rule.send.toString().endsWith("h")) {
+                                msWait = Number(rule.send.toString().slice(0, -1)) * 60 * 60 * 1000; // Hours
+                            } else {
+                                msWait = Number(rule.send);
+                            }
+                        } catch (error) {
+                            node.setNodeStatus({ fill: "red", shape: "dot", text: "Invalid wait time. See the WIKI for help: " + error.message, payload: "", GA: "", dpt: "", devicename: "" });
+                        }
+                        await delay(msWait);
                     }
                 } else {
                     // Topic is Group Address
