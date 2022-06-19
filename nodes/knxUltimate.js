@@ -113,6 +113,15 @@ module.exports = function (RED) {
             };
             // *********************************
 
+            // 19/06/2022 Reset the RBE filter https://github.com/Supergiovane/node-red-contrib-knx-ultimate/issues/191
+            // *********************************
+            if (msg.hasOwnProperty("resetRBE")) {
+                node.currentPayload = "";
+                node.setNodeStatus({ fill: "grey", shape: "ring", text: "Reset RBE filter on this node.", payload: "", GA: "", dpt: "", devicename: "" })
+                return;
+            };
+            // *********************************
+
 
             if (node.passthrough !== "no") { // 27/03/2020 Save the input message to be passed out to msg output
                 // The msg has a TTL of 3 seconds

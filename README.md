@@ -16,9 +16,12 @@
 Control your KNX intallation via Node-Red! 
 
 **You can use it immediately!**
+
 ```javascript
+
 msg.payload = true // Turn light on
 msg.payload = {red:255, green:200, blue:30} // Put some colors in our life
+
 ```
 
 
@@ -150,7 +153,9 @@ Thanks to that, the knx-ultimate node where you selected **Universal mode (liste
 
 > Copy/Paste this into your configuration node.
 
+
 ```javascript
+
 "Group name"	"Address"	"Central"	"Unfiltered"	"Description"	"DatapointType"	"Security"
 "Attuatori luci"	"0/-/-"	""	""	"Attuatori luci"	""	"Auto"
 "Luci primo piano"	"0/0/-"	""	""	"Luci primo piano"	""	"Auto"
@@ -177,6 +182,7 @@ Thanks to that, the knx-ultimate node where you selected **Universal mode (liste
 "Scala LED cambiacolori RGB"	"0/0/21"	""	""	""	"DPST-1-1"	"Auto"
 "Bagno grande specchio brightness value"	"0/0/22"	""	""	""	"DPST-5-1"	"Auto"
 "Soggiorno luce (dim)"	"0/0/23"	""	""	"Soggiorno luce dim"	"DPST-3-7"	"Auto"
+
 ```
 
 </details>
@@ -186,7 +192,9 @@ Thanks to that, the knx-ultimate node where you selected **Universal mode (liste
 
 > Copy/Paste this into your configuration node.
 
+
 ```javascript
+
 My beautiful home
 Attuatori luci.Luci primo piano.0/0/1	Luce camera da letto	EIS 1 'Switching' (1 Bit)	Low	
 Attuatori luci.Luci primo piano.0/0/2	Luce loggia camera da letto	EIS 1 'Switching' (1 Bit)	Low	
@@ -211,6 +219,7 @@ Attuatori luci.Luci primo piano.0/0/24	Applique soggiorno (dim)	EIS 2 'Dimming -
 Attuatori luci.Luci primo piano.0/0/17	Applique soggiorno brighness value	Uncertain (1 Byte)	Low	
 Attuatori luci.Luci primo piano.0/0/19	Plafoniera soggiorno brighness value	Uncertain (1 Byte)	Low	
 Attuatori luci.Luci primo piano.0/0/21	LED cambiacolori RGB scala	EIS 1 'Switching' (1 Bit)	Low	
+
 ```
 
 </details>
@@ -224,28 +233,40 @@ Attuatori luci.Luci primo piano.0/0/21	LED cambiacolori RGB scala	EIS 1 'Switchi
 
 # <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki">Click here for comprehensive samples</a>
 **Turn on/off a Lamp**
+
 ```javascript
+
 return {payload:true}
+
 ```
+
 ```javascript
+
 return {payload:false}
+
 ```
 
 **Increase the light/open blind**
+
 ```javascript
+
 // The parameter "data" indicates the relative amount of the dimming commmand (how much to dim).
 // The parameter "data" can be any integer value from 0 to 7
 // The parameter decr_incr:1 increases the light
 // The parameter decr_incr:0 decreases the light
 msg.payload = {decr_incr: 1, data: 5};
 return msg;
+
 ```
 
 **Set RGBW color**
+
 ```javascript
+
 // Each color in a range between 0 and 255
 msg.payload = {red:90, green:200, blue:30, white:120, mR:1, mG:1, mB:1, mW:1};
 return msg;
+
 ```
 
 --> [MORE Samples and documentation....](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki)

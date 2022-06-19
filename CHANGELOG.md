@@ -7,6 +7,10 @@
 # CHANGELOG
 
 <p>
+<b>Version 1.3.44</b> - June 2022<br/>
+- NEW: pass msg.resetRBE = true to a device node, to reset both input and output RBE filter on that particular node.<br />
+</p>
+<p>
 <b>Version 1.3.43</b> - Mai 2022<br/>
 - NEW: Scene Controller: you can now specity the "wait" time also in seconds, minutes or hours.<br />
 </p>
