@@ -118,7 +118,6 @@ module.exports = function (RED) {
             if (msg.hasOwnProperty("resetRBE")) {
                 node.currentPayload = "";
                 node.setNodeStatus({ fill: "grey", shape: "ring", text: "Reset RBE filter on this node.", payload: "", GA: "", dpt: "", devicename: "" })
-                return;
             };
             // *********************************
 
