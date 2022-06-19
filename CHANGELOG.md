@@ -7,7 +7,7 @@
 # CHANGELOG
 
 <p>
-<b>Version 1.3.44</b> - June 2022<br/>
+<b>Version 1.3.45</b> - June 2022<br/>
 - NEW: pass msg.resetRBE = true to a device node, to reset both input and output RBE filter on that particular node.<br />
 </p>
 <p>
