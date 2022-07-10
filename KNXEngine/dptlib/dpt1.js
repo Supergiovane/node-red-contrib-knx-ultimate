@@ -192,6 +192,13 @@ exports.subtypes = {
         "enc" : { 0 : "only move Up/Down mode (shutter)", 1 : "move Up/Down + StepStop mode (blind)" }
     },
 
+    //  1.024 day/night
+    "024" : { "use" : "G",
+        "name" : "Day/Night",
+        "desc" : "day/night",
+        "enc" : { 0 : "Day", 1 : "Night" }
+    },
+  
     //  1.100 cooling/heating     ---FIXME---
     "100" : {  "use" : "???",
         "name" : "Heat/Cool",
