@@ -55,7 +55,10 @@
             }
 
             // Auto set protocol based on IP
+
             $("#node-config-input-host").on('focusout', function () {
+                let suggestedProtocol = "";
+                // 11/07/2022 only if the previous value was undefined, automatic set the protocol
                 if ($("#node-config-input-host").val().startsWith("224.") ||
                     $("#node-config-input-host").val().startsWith("225.") ||
                     $("#node-config-input-host").val().startsWith("232.") ||
@@ -63,10 +66,24 @@
                     $("#node-config-input-host").val().startsWith("234.") ||
                     $("#node-config-input-host").val().startsWith("235.") ||
                     $("#node-config-input-host").val().startsWith("239.")) {
-                    $("#node-config-input-hostProtocol").val("Multicast");
+                    suggestedProtocol = "Multicast.";
                 } else {
-                    $("#node-config-input-hostProtocol").val("TunnelUDP");
+                    suggestedProtocol = "TunnelUDP or TunnelTCP (if the interface is KNX-Secure).";
                 }
+                var myNotification = RED.notify("The suggested protocol based on your input, is " + suggestedProtocol,
+                    {
+                        modal: false,
+                        fixed: false,
+                        type: 'info',
+                        buttons: [
+                            {
+                                text: "Ok",
+                                click: function (e) {
+                                    myNotification.close();
+                                }
+                            }]
+                    })
+
             });
 
             $.getJSON('knxUltimateETHInterfaces', (data) => {
@@ -216,11 +233,11 @@
     </div>
    
         <div class="form-row">
-            <label for="node-config-input-host" style="width: 50px">
+            <label for="node-config-input-host" style="width: 110px">
                 <i class="fa fa-server"></i>
                 <span data-i18n="knxUltimate-config.properties.host"></span>
             </label>
-            <input type="text" id="node-config-input-host" style="width: 128px"><data-i18n="[Title]knxUltimate-config.properties.host_info" style="margin-left:5px;">
+            <input type="text" id="node-config-input-host" style="width: 120px"><data-i18n="[Title]knxUltimate-config.properties.host_info" style="margin-left:5px;">
     
             <label for="node-config-input-port" style="margin-left:5px; width:35px;">
                 <span data-i18n="knxUltimate-config.properties.port"></span>

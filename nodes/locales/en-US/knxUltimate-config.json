@@ -3,7 +3,7 @@
         "properties": {
             "helplink" : "&nbsp<i class=\"fa fa-question-circle\"></i>&nbsp<a target=\"_blank\" href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/1.-Gateway-configuration\"><u>Help for configuration</u></a>",
             "title": "KNX/IP Gateway Configuration",
-            "host": "IP",
+            "host": "IP/Hostname",
             "host_info": "Default setting is the Multicast address of KNX/IP (224.0.23.12)",
             "port": "Port",
             "port_info": "Default Setting is the Port of KNX/IP (3671)",

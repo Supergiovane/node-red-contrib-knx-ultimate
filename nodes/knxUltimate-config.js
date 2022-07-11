@@ -164,7 +164,9 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
         node.hostProtocol = "TunnelUDP"; // 20/03/2022 Default
         node.knxConnection = null; // 20/03/2022 Default
         // 15/12/2021
-        node.adaptProtocolBasedOnIP = () => {
+
+        // 05/12/2021 Set the protocol (this is undefined if coming from ild versions
+        if (config.hostProtocol === undefined) {
             // Auto set protocol based on IP            
             if (node.host.startsWith("224.") ||
                 node.host.startsWith("225.") ||
@@ -175,14 +177,10 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                 node.host.startsWith("239.")) {
                 node.hostProtocol = "Multicast";
             } else {
+                // 11/07/2022
                 node.hostProtocol = "TunnelUDP";
             }
             if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("IP Protocol auto adapded to " + node.hostProtocol + ", based on IP " + node.host);
-        }
-
-        // 05/12/2021 Set the protocol (this is undefined if coming from ild versions
-        if (config.hostProtocol === undefined) {
-            node.adaptProtocolBasedOnIP();
         } else {
             node.hostProtocol = config.hostProtocol;
         }
@@ -609,9 +607,7 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
             if (typeof _iPort !== "undefined" && _iPort !== 0) node.port = _iPort;
             if (typeof _sPhysicalAddress !== "undefined" && _sPhysicalAddress !== "") node.physAddr = _sPhysicalAddress;
             if (typeof _sBindToEthernetInterface !== "undefined") node.KNXEthInterface = _sBindToEthernetInterface;
-            if (_Protocol === undefined) {
-                node.adaptProtocolBasedOnIP();
-            } else { node.hostProtocol = _Protocol; }
+            if (typeof _Protocol !== "undefined") node.hostProtocol = _Protocol;
 
             if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("Node's main config setting has been changed. New config: IP " + node.host + " Port " + node.port + " PhysicalAddress " + node.physAddr + " BindToInterface " + node.KNXEthInterface);
 
@@ -682,6 +678,35 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                 jKNXSecureKeyring: node.jKNXSecureKeyring,
                 localIPAddress: "" // Riempito da KNXEngine
             };
+            // 11/07/2022 Test if the IP is a valid one or is a DNS Name
+            if (node.host.toUpperCase() !== "EMULATE") {
+                switch (net.isIP(node.host)) {
+                    case 0:
+                        // Invalid IP, resolve the DNS name.
+                        let dns = require("dns-sync");
+                        let resolvedIP = null;
+                        try {
+                            resolvedIP = dns.resolve(node.host);
+                        } catch (error) {
+                            throw new Error("net.isIP: INVALID IP OR DNS NAME. Error checking the Gateway Host in Config node. " + error.message);
+                        }
+                        if (resolvedIP === null || net.isIP(resolvedIP) === 0) {
+                            // Error in resolving DNS Name
+                            if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("knxUltimate-config: net.isIP: INVALID IP OR DNS NAME. Check the Gateway Host in Config node " + node.name + " " + node.host);
+                            throw new Error("net.isIP: INVALID IP OR DNS NAME. Check the Gateway Host in Config node.");
+                        }
+                        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("knxUltimate-config: net.isIP: The gateway is not specified as IP. The DNS resolver pointed me to the IP " + node.host + ", in Config node " + node.name);
+                        node.knxConnectionProperties.ipAddr = resolvedIP;
+                    case 4:
+                        // It's an IPv4
+                        break;
+                    case 6:
+                        // It's an IPv6
+                        break;
+                    default:
+                        break;
+                }
+            }
 
             if (node.KNXEthInterface !== "Auto") {
                 var sIfaceName = "";
@@ -706,7 +731,13 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
 
         node.initKNXConnection = () => {
 
-            node.setKnxConnectionProperties(); //28/12/2021 Added 
+            try {
+                node.setKnxConnectionProperties(); //28/12/2021 Added     
+            } catch (error) {
+                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("knxUltimate-config: setKnxConnectionProperties: " + error.message);
+                if (node.linkStatus !== "disconnected") node.Disconnect();
+                return;
+            }
 
             // 12/08/2021 Avoid start connection if there are no knx-ultimate nodes linked to this gateway
             // At start, initKNXConnection is already called only if the gateway has clients, but in the successive calls from the error handler, this check is not done.
@@ -742,22 +773,6 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
 
 
             try {
-                // 01/12/2020 Test if the IP is a valid one
-                switch (net.isIP(node.host)) {
-                    case 0:
-                        // Invalid IP
-                        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("knxUltimate-config: net.isIP: INVALID IP. Check the IP in Config node " + node.name);
-                        throw ("INVALID IP. Check the IP in Config node.");
-                    case 4:
-                        // It's an IPv4
-                        break;
-                    case 6:
-                        // It's an IPv6
-                        break;
-                    default:
-                        break;
-                }
-
                 // Unsetting handlers if node.knxConnection was existing
                 try {
                     if (node.knxConnection !== null && node.knxConnection !== undefined) {
@@ -839,10 +854,10 @@ return msg;`, "helplink": "https://github.com/Supergiovane/node-red-contrib-knx-
                 }
 
             } catch (error) {
-                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("KNXUltimate-config: Error in instantiating knxConnection " + error.message + ". Node " + node.name);
+                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("KNXUltimate-config: Error in instantiating knxConnection " + error.message + " Node " + node.name);
                 node.linkStatus = "disconnected";
                 // 21/03/2022 fixed possible memory leak. Previously was setTimeout without "let t = ".
-                let t = setTimeout(() => node.setAllClientsStatus("Error in instantiating knxConnection " + error, "red", "Error"), 200);
+                let t = setTimeout(() => node.setAllClientsStatus("Error in instantiating knxConnection " + error.message, "red", "Error"), 200);
             }
 
         };

@@ -7,6 +7,12 @@
 # CHANGELOG
 
 <p>
+<b>Version 1.3.46</b> - july 2022<br/>
+- NEW: Added hostname DNS resolution in Config Gateway IP. Now you can put an IP or an hostname in the IP gateway's field.<br />
+- NEW: Added Datapoint 1.024 Day/Night.<br />
+- Now the procol in the config node gateways is only suggested. You can choose the protocol by yourself.<br />
+</p>
+<p>
 <b>Version 1.3.45</b> - June 2022<br/>
 - NEW: pass msg.resetRBE = true to a device node, to reset both input and output RBE filter on that particular node.<br />
 </p>
