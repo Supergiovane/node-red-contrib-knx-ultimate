@@ -49,7 +49,7 @@ msg.payload = {red:255, green:200, blue:30} // Put some colors in our life
 ## VOLUNTEER NEEDED FOR KNX SECURE
 
 **************************************************
-KNX-Secure is under development and **should** be ready by mid 2022.<br/>
+KNX-Secure is under development.<br/>
 I need volunteer helping in development of KNX Secure.<br/>
 High knowledge of cryptography and KNX is needed.
 **************************************************

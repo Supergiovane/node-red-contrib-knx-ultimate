@@ -7,7 +7,11 @@
 # CHANGELOG
 
 <p>
-<b>Version 1.3.46</b> - july 2022<br/>
+<b>Version 1.3.47</b> - August 2022<br/>
+- Temporary hide KNX Secure TAB from the config window. It will appear again when KNX Secure will be ready.<br />
+</p>
+<p>
+<b>Version 1.3.46</b> - July 2022<br/>
 - NEW: Added hostname DNS resolution in Config Gateway IP. Now you can put an IP or an hostname in the IP gateway's field.<br />
 - NEW: Added Datapoint 1.024 Day/Night.<br />
 - Now the procol in the config node gateways is only suggested. You can choose the protocol by yourself.<br />
