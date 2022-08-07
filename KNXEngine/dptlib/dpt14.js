@@ -19,7 +19,7 @@ exports.formatAPDU = function (value) {
     value = 0;
   }
 
-  var apdu_data = new Buffer.alloc(4);
+  var apdu_data = Buffer.alloc(4);
   apdu_data.writeFloatBE(value, 0);
   return apdu_data;
 }

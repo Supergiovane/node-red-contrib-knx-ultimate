@@ -7,8 +7,12 @@
 # CHANGELOG
 
 <p>
+<b>Version 1.3.48</b> - August 2022<br/>
+- Fixed old "new Buffer" call. It's deprecated and may not work with new node.js versions.<br/>
+</p>
+<p>
 <b>Version 1.3.47</b> - August 2022<br/>
-- Temporary hide KNX Secure TAB from the config window. It will appear again when KNX Secure will be ready.<br />
+- Temporary hide KNX Secure TAB from the config window. It will appear again when KNX Secure will be ready.<br/>
 </p>
 <p>
 <b>Version 1.3.46</b> - July 2022<br/>

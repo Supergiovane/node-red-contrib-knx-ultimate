@@ -35,7 +35,7 @@ exports.formatAPDU = function (value) {
         // MSB
         let MSB = "00000" + (value.convertorError === false ? "0" : "1") + (value.ballastFailure === false ? "0" : "1") + (value.lampFailure === false ? "0" : "1");
      
-        var bufferTotal = new Buffer.alloc(2)
+        var bufferTotal = Buffer.alloc(2)
         bufferTotal[0] = parseInt(MSB, 2);
         bufferTotal[1] = parseInt(LSB, 2);
         return bufferTotal;

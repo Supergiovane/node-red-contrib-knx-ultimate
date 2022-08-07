@@ -18,7 +18,7 @@ exports.formatAPDU = function (value) {
   else {
     // Sunday is 0 in Javascript, but 7 in KNX.
     var day = (value.getDay() === 0) ? 7 : value.getDay();
-    var apdu_data = new Buffer.alloc(8);
+    var apdu_data = Buffer.alloc(8);
     apdu_data[0] = value.getFullYear() - 1900;
     apdu_data[1] = value.getMonth() + 1;
     apdu_data[2] = value.getDate();

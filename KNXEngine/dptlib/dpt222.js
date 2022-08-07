@@ -81,7 +81,7 @@ function GetFloat(_value0, _value1) {
 // 08/09/2020 Supergiovane
 // Send to BUS
 exports.formatAPDU = function (value) {
-    var apdu_data = new Buffer.alloc(6); // 3 x 2 bytes
+    var apdu_data = Buffer.alloc(6); // 3 x 2 bytes
 
     if (typeof value == 'object' &&
         value.hasOwnProperty('Comfort') && value.Comfort >= -273 && value.Comfort <= 670760 &&

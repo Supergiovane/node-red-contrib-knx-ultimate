@@ -21,7 +21,7 @@ exports.formatAPDU = function (value) {
 
   }
 
-  var buf = new Buffer.alloc(14);
+  var buf = Buffer.alloc(14);
   if (this.subtypeid === "001") buf.write(value, 'latin1');
   if (this.subtypeid === "000") buf.write(value, 'ascii');
   return buf;

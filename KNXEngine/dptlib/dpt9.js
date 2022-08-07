@@ -34,7 +34,7 @@ function frexp(value) {
 }
 
 exports.formatAPDU = function (value) {
-    var apdu_data = new Buffer.alloc(2);
+    var apdu_data = Buffer.alloc(2);
     if (!isFinite(value)) {
         knxLog.get().warn("DPT9: cannot write non-numeric or undefined value");
     } else {

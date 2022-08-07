@@ -15,7 +15,7 @@ var timeRegexp = /(\d{1,2}):(\d{1,2}):(\d{1,2})/;
 // Always 8-bit aligned.
 
 exports.formatAPDU = function (value) {
-  var apdu_data = new Buffer.alloc(3);
+  var apdu_data = Buffer.alloc(3);
   var dow, hour, minute, second;
   // day of week. NOTE: JS Sunday = 0
   switch (typeof value) {

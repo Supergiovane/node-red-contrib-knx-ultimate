@@ -27,7 +27,7 @@ const knxLog = require('./../KnxLog');
 exports.formatAPDU = function (value) {
     if (!value) knxLog.get().warn("DPT18: cannot write null value");
     else {
-        var apdu_data = new Buffer.alloc(1);
+        var apdu_data = Buffer.alloc(1);
         if (typeof value == 'object' &&
             value.hasOwnProperty("save_recall") &&
             value.hasOwnProperty("scenenumber")) {

@@ -19,7 +19,7 @@ function reverseString(str) {
 
 exports.formatAPDU = function (value) {
     // Send to BUS
-    var apdu_data = new Buffer.alloc(2);
+    var apdu_data = Buffer.alloc(2);
     if (!value) {
         knxLog.get().error("DPT232: cannot write null value");
     } else {

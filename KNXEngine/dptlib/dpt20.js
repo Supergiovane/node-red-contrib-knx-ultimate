@@ -10,7 +10,7 @@ const knxLog = require('./../KnxLog');
 //
 // FIXME: help needed
 exports.formatAPDU = function (value) {
-    var apdu_data = new Buffer.alloc(1);
+    var apdu_data = Buffer.alloc(1);
     apdu_data[0] = value;
     knxLog.get().debug('./knx/src/dpt20.js : input value = ' + value + '   apdu_data = ' + apdu_data);
     return apdu_data;

@@ -10,7 +10,7 @@ const knxLog = require('./../KnxLog');
 //
 // DPT5 is the only (AFAIK) DPT with scalar datatypes (5.001 and 5.003)
 exports.formatAPDU = function(value) {
-    var apdu_data = new Buffer.alloc(1);
+    var apdu_data = Buffer.alloc(1);
     apdu_data[0] = value;
     knxLog.get().trace('dpt238.js : input value = ' + value + '   apdu_data = ' + apdu_data);
     return apdu_data;

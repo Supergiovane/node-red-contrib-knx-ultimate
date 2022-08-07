@@ -15,7 +15,7 @@ exports.formatAPDU = function (value) {
     if (typeof value == 'string') {
       var apdu_data = value.charCodeAt(0);
       if (apdu_data > 255) knxLog.get().warn("DPT4: must supply an ASCII character");
-      return new Buffer.from([apdu_data]);
+      return Buffer.from([apdu_data]);
     }
     else knxLog.get().warn("DPT4: Must supply a character or string");
   }
