@@ -5,22 +5,22 @@
         defaults: {
             //buttonState: {value: true},
             server: { type: "knxUltimate-config", required: true },
-            name: { value: "KNXViewer", validate: RED.validators.regex(/^[a-z]+$/i) }
+            name: { value: "KNXViewer", required: false }
         },
         inputs: 0,
         outputs: 2,
         outputLabels: function (i) {
-			switch (i) {
-				case 0:
-					return "Formatted Payload";
-					break;
-				case 1:
-					return "Simple Array";
-					break;
-				default:
-					break;
-			}
-		},
+            switch (i) {
+                case 0:
+                    return "Formatted Payload";
+                    break;
+                case 1:
+                    return "Simple Array";
+                    break;
+                default:
+                    break;
+            }
+        },
         icon: "node-eye-icon.svg",
         label: function () {
             return (this.name);

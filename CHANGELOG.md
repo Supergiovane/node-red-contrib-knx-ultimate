@@ -7,6 +7,10 @@
 # CHANGELOG
 
 <p>
+<b>Version 1.3.49</b> - August 2022<br/>
+- Fixed name validation in the Viewer node.<br/>
+</p>
+<p>
 <b>Version 1.3.48</b> - August 2022<br/>
 - Fixed old "new Buffer" call. It's deprecated and may not work with new node.js versions.<br/>
 </p>
