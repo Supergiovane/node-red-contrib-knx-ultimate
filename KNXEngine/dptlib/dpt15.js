@@ -11,14 +11,14 @@
 
 //  DPT15 base type info
 exports.basetype = {
-  "bitlength" : 32,
-  "valuetype" : "basic",
-  "desc" : "4-byte access control data"
+  bitlength: 32,
+  valuetype: 'basic',
+  desc: '4-byte access control data'
 }
 
 //  DPT15 subtypes info
 exports.subtypes = {
-  "000" : {
-    "name" : "Entrance access"
+  '000': {
+    name: 'Entrance access'
   }
 }
