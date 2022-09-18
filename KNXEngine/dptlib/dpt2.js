@@ -122,7 +122,7 @@ exports.subtypes = {
   },
 
   // 2.010 start control
-  '001': {
+  '010': {
     use: 'FB',
     name: 'Start control',
     desc: 'start with priority',
@@ -130,7 +130,7 @@ exports.subtypes = {
   },
 
   // 2.011 state control
-  '001': {
+  '011': {
     use: 'FB',
     name: 'Switch control',
     desc: 'switch',
@@ -138,7 +138,7 @@ exports.subtypes = {
   },
 
   // 2.012 invert control
-  '001': {
+  '012': {
     use: 'FB',
     name: 'Switch control',
     desc: 'switch',
