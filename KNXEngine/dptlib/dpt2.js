@@ -132,16 +132,16 @@ exports.subtypes = {
   // 2.011 state control
   '011': {
     use: 'FB',
-    name: 'Switch control',
-    desc: 'switch',
+    name: 'State control',
+    desc: 'state',
     enc: { 0: 'No control', 1: 'No control', 2: 'Off', 3: 'On' }
   },
 
   // 2.012 invert control
   '012': {
     use: 'FB',
-    name: 'Switch control',
-    desc: 'switch',
+    name: 'Invert control',
+    desc: 'invert',
     enc: { 0: 'No control', 1: 'No control', 2: 'Off', 3: 'On' }
   }
 }
