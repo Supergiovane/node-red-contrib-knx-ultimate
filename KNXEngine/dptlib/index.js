@@ -148,7 +148,8 @@ dpts.fromBuffer = function (buf, dpt) {
   return value
 }
 
-function cloneDpt (d) {
+function cloneDpt(d) {
+  let result = {}
   result = JSON.parse(JSON.stringify(d))
   result.fromBuffer = d.fromBuffer
   result.formatAPDU = d.formatAPDU

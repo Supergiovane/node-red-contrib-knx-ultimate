@@ -1252,7 +1252,7 @@ return msg;`,
     function tryToFigureOutDataPointFromRawValue (_rawValue) {
       // 25/10/2019 Try some Datapoints
       if (_rawValue === null) return '1.001'
-      if (_rawValue.length == 1) {
+      if (_rawValue.length === 1) {
         if (_rawValue[0].toString() == '0' || _rawValue[0].toString() == '1') {
           return '1.001' // True/False?
         } else {

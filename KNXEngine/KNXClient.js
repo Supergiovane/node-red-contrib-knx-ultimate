@@ -40,7 +40,7 @@ const SocketEvents = {
   data: 'data',
   close: 'close'
 }
-let KNXClientEvents;
+var KNXClientEvents;
 (function (KNXClientEvents) {
   KNXClientEvents.error = 'error'
   KNXClientEvents.disconnected = 'disconnected'
