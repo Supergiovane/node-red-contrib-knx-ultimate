@@ -7,6 +7,10 @@
 # CHANGELOG
 
 <p>
+<b>Version 1.3.50</b> - September 2022<br/>
+- Cleaned code and standardize things, thanks @croghostrider.<br/>
+</p>
+<p>
 <b>Version 1.3.49</b> - August 2022<br/>
 - Fixed name validation in the Viewer node.<br/>
 </p>
