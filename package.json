@@ -43,5 +43,11 @@
     "KNX Secure"
   ],
   "author": "Supergiovane",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "standard": "*"
+  },
+  "scripts": {
+    "test": "standard"
+  }
 }

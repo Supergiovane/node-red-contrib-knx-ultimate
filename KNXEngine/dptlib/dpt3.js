@@ -3,63 +3,63 @@
 * (C) 2020-2022 Supergiovane
 */
 
-const knxLog = require('./../KnxLog');
+const knxLog = require('./../KnxLog')
 
 //
 // DPT3.*: 4-bit dimming/blinds control
 //
-exports.formatAPDU = function(value) {
-  if (!value) knxLog.get().warn("DPT3: cannot write null value");
+exports.formatAPDU = function (value) {
+  if (!value) knxLog.get().warn('DPT3: cannot write null value')
   else {
-    var apdu_data = Buffer.alloc(1);
-    if (typeof value == 'object' &&
+    const apdu_data = Buffer.alloc(1)
+    if (typeof value === 'object' &&
       value.hasOwnProperty('decr_incr') &&
       value.hasOwnProperty('data')) {
-      apdu_data[0] = (value.decr_incr << 3) + (value.data & 0b00000111);
+      apdu_data[0] = (value.decr_incr << 3) + (value.data & 0b00000111)
     } else {
-      knxLog.get().error("Must supply a value object of {decr_incr, data}");
+      knxLog.get().error('Must supply a value object of {decr_incr, data}')
     }
-    return apdu_data;
+    return apdu_data
   }
 }
 
-exports.fromBuffer = function(buf) {
+exports.fromBuffer = function (buf) {
   if (buf.length != 1) {
-    knxLog.get().error("DPT3: Buffer should be 1 byte long, got", buf.length );
-    return null;
+    knxLog.get().error('DPT3: Buffer should be 1 byte long, got', buf.length)
+    return null
   } else {
     return {
       decr_incr: (buf[0] & 0b00001000) >> 3,
-      data:      (buf[0] & 0b00000111)
+      data: (buf[0] & 0b00000111)
     }
   };
 }
 
 exports.basetype = {
-  "bitlength": 4,
-  "valuetype": "composite",
-  "desc": "4-bit relative dimming control",
-  "help": 
+  bitlength: 4,
+  valuetype: 'composite',
+  desc: '4-bit relative dimming control',
+  help:
 `// The parameter "data" indicates the relative amount of the dimming commmand (how much to dim).
 // The parameter "data" can be any integer value from 0 to 7
 // The parameter decr_incr:1 increases the light
 // The parameter decr_incr:0 decreases the light
 msg.payload={decr_incr: 1, data: 5};
 return msg;`,
-"helplink":"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Dimming"
+  helplink: 'https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Dimming'
 }
 
 exports.subtypes = {
   // 3.007 dimming control
-  "007": {
-    "name": "Dimming control",
-    "desc": "dimming control"
+  '007': {
+    name: 'Dimming control',
+    desc: 'dimming control'
   },
 
   // 3.008 blind control
-  "008": {
-    "name": "Blinds control",
-    "desc": "blinds control"
+  '008': {
+    name: 'Blinds control',
+    desc: 'blinds control'
   }
 }
 

@@ -1,15 +1,13 @@
-const {KNXClient,KNXClientEvents} = require("./../KNXEngine/KNXClient.js");
-const KNXSecureKeyring = require('./../KNXEngine/KNXsecureKeyring.js');    
-exports.KNXSecureKeyring = KNXSecureKeyring;    
+const { KNXClient, KNXClientEvents } = require('./../KNXEngine/KNXClient.js')
+const KNXSecureKeyring = require('./../KNXEngine/KNXsecureKeyring.js')
+exports.KNXSecureKeyring = KNXSecureKeyring
 
-//exports.KNXClientEvents = KNXClient.KNXClientEvents;
+// exports.KNXClientEvents = KNXClient.KNXClientEvents;
 try {
-    exports.KNXClient = KNXClient;   
-    exports.KNXClient.KNXClientEvents = KNXClientEvents;
+  exports.KNXClient = KNXClient
+  exports.KNXClient.KNXClientEvents = KNXClientEvents
 } catch (error) {
-    console.log("KNXSecureKeyring",error)    
+  console.log('KNXSecureKeyring', error)
 }
 
-
-//exports.KNXClientEvents = KNXClientEvents;
- 
+// exports.KNXClientEvents = KNXClientEvents;

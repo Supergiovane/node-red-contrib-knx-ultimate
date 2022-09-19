@@ -1,3 +1,3 @@
 class RequestTimeoutError extends Error {
 }
-exports.RequestTimeoutError = RequestTimeoutError;
+exports.RequestTimeoutError = RequestTimeoutError

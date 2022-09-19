@@ -1,5 +1,4 @@
 
-
 class BufferLengthError extends Error {
 }
-exports.BufferLengthError = BufferLengthError;
+exports.BufferLengthError = BufferLengthError

@@ -1,10 +1,10 @@
 /**
 * (C) 2021 Supergiovane
 */
-"use strict";
+'use strict'
 
 const util = require('util')
-const possibleLEvels = ['silent', 'error', 'warn', 'info', 'debug', 'trace'];
+const possibleLEvels = ['silent', 'error', 'warn', 'info', 'debug', 'trace']
 let logger
 
 /*
@@ -25,7 +25,7 @@ const determineLogLevel = options => {
   } else {
     level = 'info'
   }
-  if (!possibleLEvels.includes(level)) level = "error";
+  if (!possibleLEvels.includes(level)) level = 'error'
   return level
 }
 
@@ -36,15 +36,14 @@ module.exports = {
         levels: ['silent', 'error', 'warn', 'info', 'debug', 'trace'],
         level: determineLogLevel(options),
         format: function () {
-
           // arguments[0] is the log level ie 'debug'
           const a = Array.from(arguments)
-          var ts;
-          var dt = new Date();
+          let ts
+          const dt = new Date()
           try {
-            ts = dt.toLocaleString().replace(/T/, ' ').replace(/Z$/, '') + "." + dt.getMilliseconds() + " KNXUltimate-KNXEngine:";
+            ts = dt.toLocaleString().replace(/T/, ' ').replace(/Z$/, '') + '.' + dt.getMilliseconds() + ' KNXUltimate-KNXEngine:'
           } catch (error) {
-            ts = dt.toISOString().replace(/T/, ' ').replace(/Z$/, '') + "." + dt.getMilliseconds() + " KNXUltimate-KNXEngine:";
+            ts = dt.toISOString().replace(/T/, ' ').replace(/Z$/, '') + '.' + dt.getMilliseconds() + ' KNXUltimate-KNXEngine:'
           }
 
           if (a.length > 2) {
@@ -57,11 +56,11 @@ module.exports = {
           }
         }
       })
-    } 
+    }
     return (logger)
   },
   destroy: function () {
     // 16/08/2020 Supergiovane Destruction of the logger
-    logger = null;
+    logger = null
   }
 }
