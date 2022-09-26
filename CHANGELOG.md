@@ -7,6 +7,10 @@
 # CHANGELOG
 
 <p>
+<b>Version 1.4.1</b> - October 2022<br/>
+- Added DPT 14.077.<br/>
+</p>
+<p>
 <b>Version 1.4.0</b> - September 2022<br/>
 - Cleaned code and standardize things, thanks @croghostrider.<br/>
 - Fixed DPT 13.002 description Flow Rate in m³/h<br/>
