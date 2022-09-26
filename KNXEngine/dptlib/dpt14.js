@@ -183,6 +183,11 @@ exports.subtypes = {
     name: 'Volume',
     unit: 'm3'
   },
+  '077': {
+    desc: 'DPT_Value_Volume_Flux',
+    name: 'Volume flux ',
+    unit: 'm3/s'
+  },
   '078': {
     desc: 'DPT_Value_Weight',
     name: 'Weight',
