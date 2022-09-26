@@ -30,9 +30,9 @@ exports.subtypes = {
   },
 
   '002': {
-    desc: 'Value_Activation_Energy',
-    name: 'Activation energy (J/mol)',
-    unit: 'J/mol'
+    desc: 'DPT_FlowRate_m3/h',
+    name: 'Flow Rate in m³/h',
+    unit: 'm³/h'
   },
 
   // 13.010 active energy (Wh)
@@ -44,7 +44,7 @@ exports.subtypes = {
 
   // 13.011 apparent energy (VAh)
   '011': {
-    desc: 'ApparantEnergy',
+    desc: 'ApparentEnergy',
     name: 'Apparent energy (VAh)',
     unit: 'VAh'
   },

@@ -7,8 +7,9 @@
 # CHANGELOG
 
 <p>
-<b>Version 1.3.50</b> - September 2022<br/>
+<b>Version 1.4.0</b> - September 2022<br/>
 - Cleaned code and standardize things, thanks @croghostrider.<br/>
+- Fixed DPT 13.002 description Flow Rate in m³/h<br/>
 </p>
 <p>
 <b>Version 1.3.49</b> - August 2022<br/>
