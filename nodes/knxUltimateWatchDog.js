@@ -138,13 +138,13 @@ module.exports = function (RED) {
       // 01/02/2020 Dinamic change of the KNX Gateway IP, Port and Physical Address
       // This new thing has been requested by proServ RealKNX staff.
       if (msg.hasOwnProperty('setGatewayConfig')) {
-        node.server.setGatewayConfig(msg.setGatewayConfig.IP, msg.setGatewayConfig.Port, msg.setGatewayConfig.PhysicalAddress, msg.setGatewayConfig.BindToEthernetInterface, msg.setGatewayConfig.Protocol)
+        node.server.setGatewayConfig(msg.setGatewayConfig.IP, msg.setGatewayConfig.Port, msg.setGatewayConfig.PhysicalAddress, msg.setGatewayConfig.BindToEthernetInterface, msg.setGatewayConfig.Protocol, msg.setGatewayConfig.importCSV)
         const ret = {
           type: 'setGatewayConfig',
           checkPerformed: 'The Watchdog node changed the gateway configuration.',
           nodeid: node.id,
           payload: true,
-          description: 'New Config issued to the gateway. IP:' + (msg.setGatewayConfig.IP || 'Unchanged') + ' Port:' + (msg.setGatewayConfig.Port || 'Unchanged') + ' PhysicalAddress:' + (msg.setGatewayConfig.PhysicalAddress || 'Unchanged') + ' Protocol:' + (msg.setGatewayConfig.Protocol || 'Unchanged') + ' BindLocalInterface:' + (msg.setGatewayConfig.BindToEthernetInterface || 'Unchanged'),
+          description: 'New Config issued to the gateway. IP:' + (msg.setGatewayConfig.IP || 'Unchanged') + ' Port:' + (msg.setGatewayConfig.Port || 'Unchanged') + ' PhysicalAddress:' + (msg.setGatewayConfig.PhysicalAddress || 'Unchanged') + ' Protocol:' + (msg.setGatewayConfig.Protocol || 'Unchanged') + ' BindLocalInterface:' + (msg.setGatewayConfig.BindToEthernetInterface || 'Unchanged' + ' importCSV:' + (msg.setGatewayConfig.importCSV || 'Unchanged')),
           completeError: ''
         }
         node.send(ret)
