@@ -7,6 +7,10 @@
 # CHANGELOG
 
 <p>
+<b>Version 1.4.2</b> - October 2022<br/>
+- Added DPT 21.001.<br/>
+</p>
+<p>
 <b>Version 1.4.1</b> - October 2022<br/>
 - Added DPT 14.077.<br/>
 - NEW: you can now set the ETS group address list at runtime, via the Watchdog Node. See here https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/7.-WatchDog-Configuration the "importCSV" property of the msg.setGatewayConfig.<br/>
