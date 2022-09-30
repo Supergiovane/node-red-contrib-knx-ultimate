@@ -1343,7 +1343,7 @@ return msg;`,
           var dpt = dptlib.resolve(sInputDpt)
         } catch (error) {
           if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error('knxUltimate-config: buildInputMessage: Error returning from dptlib.resolve(sInputDpt). Device ' + _srcGA + ' Destination ' + _destGA + ' Event ' + _event + " GA's Datapoint " + (_inputDpt === null ? "THE ETS FILE HAS NOT BEEN IMPORTED, SO I'M TRYING TO FIGURE OUT WHAT DATAPOINT BELONGS THIS GROUP ADDRESS. DON'T BLAME ME IF I'M WRONG, INSTEAD, IMPORT THE ETS FILE!" : _inputDpt) + ' Devicename ' + _devicename + ' Topic ' + _outputtopic + ' ' + error.message)
-          errorMessage.payload = 'UNKNOWN: ERROR dptlib.resolve:' + error.message
+          errorMessage.payload = 'UNKNOWN: ERROR dptlib.resolve:' + error.messages
           return errorMessage
         }
 
