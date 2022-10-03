@@ -1,7 +1,7 @@
 const KNXAddress = require('./../KNXEngine/protocol/KNXAddress').KNXAddress
 
 module.exports = function (RED) {
-  function knxUltimateViewer (config) {
+  function knxUltimateViewer(config) {
     RED.nodes.createNode(this, config)
     const node = this
     node.server = RED.nodes.getNode(config.server)
@@ -46,12 +46,14 @@ module.exports = function (RED) {
       const sDeviceName = msg.devicename === node.name ? 'Import ETS file to view the group address name' : msg.devicename // The ETS file hasn't been imported
       const sAddressRAW = KNXAddress.createFromString(msg.knx.destination, KNXAddress.TYPE_GROUP).get() // Address as number (for ordering later)
       if (oGa === undefined) {
-        node.exposedGAs.push({ address: msg.knx.destination, addressRAW: sAddressRAW, dpt: msg.knx.dpt, payload: msg.payload, devicename: sDeviceName, lastupdate: new Date() })
+        node.exposedGAs.push({ address: msg.knx.destination, addressRAW: sAddressRAW, dpt: msg.knx.dpt, payload: msg.payload, devicename: sDeviceName, lastupdate: new Date(), rawPayload: 'HEX Raw: ' + msg.knx.rawValue.toString('hex') || '?', payloadmeasureunit: (msg.payloadmeasureunit !== 'unknown' ? ' ' + msg.payloadmeasureunit : '') })
       } else {
         oGa.dpt = msg.knx.dpt
         oGa.payload = msg.payload
         oGa.devicename = sDeviceName
         oGa.lastupdate = new Date()
+        oGa.rawPayload = 'HEX Raw: ' + msg.knx.rawValue.toString('hex') || '?'
+        oGa.payloadmeasureunit = (msg.payloadmeasureunit !== 'unknown' ? ' ' + msg.payloadmeasureunit : '')
       }
       // Output the payload
       node.createPayload()
@@ -94,12 +96,13 @@ module.exports = function (RED) {
           } else if (typeof element.payload === 'object') {
             // Is maybe a JSON?
             try {
-              sPayload += '<td>' + JSON.stringify(element.payload) + '</td>'
+              //sPayload += '<td>' + JSON.stringify(element.payload) + '</td>'
+              sPayload += '<td><i>' + element.rawPayload + '</i></td>'
             } catch (error) {
               sPayload += '<td>' + element.payload + '</td>'
             }
           } else {
-            sPayload += '<td>' + element.payload + '</td>'
+            sPayload += '<td>' + element.payload + element.payloadmeasureunit + '</td>'
           }
           sPayload += '<td>' + element.dpt + '</td>'
           sPayload += '<td>' + element.lastupdate.toLocaleString() + '</td>'

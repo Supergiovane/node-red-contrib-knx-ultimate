@@ -7,6 +7,11 @@
 # CHANGELOG
 
 <p>
+<b>Version 1.4.3</b> - October 2022<br/>
+- Changed view for JSON objects (will display the RAW value instead of the JSON) in the KNXUltimate Viewer node.<br/>
+- Added the measure unit near the payload value.<br/>
+</p>
+<p>
 <b>Version 1.4.2</b> - October 2022<br/>
 - Added DPT 21.001.<br/>
 </p>
