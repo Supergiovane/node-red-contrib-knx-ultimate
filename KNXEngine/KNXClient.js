@@ -84,7 +84,7 @@ const optionsDefaults = {
 }
 
 class KNXClient extends EventEmitter {
-  constructor (options) {
+  constructor(options) {
     if (options === undefined) {
       options = optionsDefaults
     }
@@ -188,7 +188,7 @@ class KNXClient extends EventEmitter {
     this._numFailedTelegramACK = 0 // 25/12/2021 Keep count of the failed tunnelig ACK telegrams
   }
 
-  get channelID () {
+  get channelID() {
     return this._channelID
   }
 
@@ -215,7 +215,7 @@ class KNXClient extends EventEmitter {
   //     DPT19: null,
   //     DPT20: null
   // };
-  getKNXDataBuffer (_data, _dptid) {
+  getKNXDataBuffer(_data, _dptid) {
     const adpu = {}
     DPTLib.populateAPDU(_data, adpu, _dptid)
     const iDatapointType = parseInt(_dptid.substr(0, _dptid.indexOf('.')))
@@ -253,7 +253,7 @@ class KNXClient extends EventEmitter {
   //         }
   //     });
   // }
-  send (knxPacket) {
+  send(knxPacket) {
     // Logging
     if (this.sysLogger !== undefined && this.sysLogger !== null) {
       try {
@@ -320,7 +320,7 @@ class KNXClient extends EventEmitter {
     * @param {KNXDataBuffer} data
     */
   // sendWriteRequest(dstAddress, data) {
-  write (dstAddress, data, dptid) {
+  write(dstAddress, data, dptid) {
     if (this._connectionState !== STATE.CONNECTED) throw new Error('The socket is not connected. Unable to access the KNX BUS')
 
     // Get the Data Buffer from the plain value
@@ -363,7 +363,7 @@ class KNXClient extends EventEmitter {
   }
 
   // sendResponseRequest
-  respond (dstAddress, data, dptid) {
+  respond(dstAddress, data, dptid) {
     if (this._connectionState !== STATE.CONNECTED) throw new Error('The socket is not connected. Unable to access the KNX BUS')
 
     // Get the Data Buffer from the plain value
@@ -405,7 +405,7 @@ class KNXClient extends EventEmitter {
   }
 
   // sendReadRequest
-  read (dstAddress) {
+  read(dstAddress) {
     if (this._connectionState !== STATE.CONNECTED) throw new Error('The socket is not connected. Unable to access the KNX BUS')
 
     if (typeof dstAddress === 'string') dstAddress = KNXAddress.createFromString(dstAddress, KNXAddress.TYPE_GROUP)
@@ -443,7 +443,7 @@ class KNXClient extends EventEmitter {
     }
   }
 
-  writeRaw (dstAddress, _rawDataBuffer, bitlength) {
+  writeRaw(dstAddress, _rawDataBuffer, bitlength) {
     // bitlength is unused and only for backward compatibility
 
     if (this._connectionState !== STATE.CONNECTED) throw new Error('The socket is not connected. Unable to access the KNX BUS')
@@ -500,14 +500,14 @@ class KNXClient extends EventEmitter {
     }
   }
 
-  startHeartBeat () {
+  startHeartBeat() {
     this.stopHeartBeat()
     this._heartbeatFailures = 0
     this._heartbeatRunning = true
     this._runHeartbeat()
   }
 
-  stopHeartBeat () {
+  stopHeartBeat() {
     if (this._heartbeatTimer !== null) {
       this._heartbeatRunning = false
       clearTimeout(this._heartbeatTimer)
@@ -543,7 +543,7 @@ class KNXClient extends EventEmitter {
   //     this._awaitingResponseType = KNXConstants.KNX_CONSTANTS.DESCRIPTION_RESPONSE;
   //     this._sendDescriptionRequestMessage(host, port);
   // }
-  Connect (knxLayer = TunnelCRI.TunnelTypes.TUNNEL_LINKLAYER) {
+  Connect(knxLayer = TunnelCRI.TunnelTypes.TUNNEL_LINKLAYER) {
     if (this._clientSocket == null) {
       throw new Error('No client socket defined')
     }
@@ -611,7 +611,7 @@ class KNXClient extends EventEmitter {
     }
   }
 
-  getConnectionStatus () {
+  getConnectionStatus() {
     if (this._clientSocket == null) {
       throw new Error('No client socket defined')
     }
@@ -641,12 +641,18 @@ class KNXClient extends EventEmitter {
     } catch (error) { }
   }
 
-  Disconnect () {
+  Disconnect() {
     if (this._clientSocket === null) {
       throw new Error('No client socket defined')
     }
     // 20/04/2022 this._channelID === null can happen when the KNX Gateway is already disconnected
     if (this._channelID === null) {
+      // 11/10/2022 Close the socket
+      try {
+        this._clientSocket.close()
+      } catch (error) {
+        if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.debug('KNXClient: into Disconnect(), this._clientSocket.close(): ' + this._options.ipAddr + ':' + this._options.ipPort + ' ' + error.message)
+      }
       throw new Error('KNX Socket is already disconnected')
     }
     this.stopHeartBeat()
@@ -663,11 +669,11 @@ class KNXClient extends EventEmitter {
     }, 2000)
   }
 
-  isConnected () {
+  isConnected() {
     return this._connectionState === STATE.CONNECTED
   }
 
-  _setDisconnected (_sReason = '') {
+  _setDisconnected(_sReason = '') {
     try {
       if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.debug('KNXClient: called _setDisconnected ' + this._options.ipAddr + ':' + this._options.ipPort + ' ' + _sReason)
     } catch (error) {
@@ -692,7 +698,7 @@ class KNXClient extends EventEmitter {
     this._clearToSend = true // 26/12/2021 allow to send
   }
 
-  _runHeartbeat () {
+  _runHeartbeat() {
     if (this._heartbeatRunning) {
       this.getConnectionStatus()
       const t = setTimeout(() => { // 21/03/2022 fixed possible memory leak. Previously was setTimeout without "let t = ".
@@ -701,16 +707,16 @@ class KNXClient extends EventEmitter {
     }
   }
 
-  _getSeqNumber () {
+  _getSeqNumber() {
     return this._clientTunnelSeqNumber
   }
 
   // 26/12/2021 Handle the busy state, for example while waiting for ACK
-  _getClearToSend () {
+  _getClearToSend() {
     return (this._clearToSend !== undefined ? this._clearToSend : true)
   }
 
-  _incSeqNumber () {
+  _incSeqNumber() {
     this._clientTunnelSeqNumber++
     if (this._clientTunnelSeqNumber > 255) {
       this._clientTunnelSeqNumber = 0
@@ -721,7 +727,7 @@ class KNXClient extends EventEmitter {
   // _keyFromCEMIMessage(cEMIMessage) {
   //     return cEMIMessage.dstAddress.toString();
   // }
-  _setTimerWaitingForACK (knxTunnelingRequest) {
+  _setTimerWaitingForACK(knxTunnelingRequest) {
     this._clearToSend = false // 26/12/2021 stop sending until ACK received
     const timeoutErr = new errors.RequestTimeoutError(`RequestTimeoutError seqCounter:${knxTunnelingRequest.seqCounter}, DestAddr:${knxTunnelingRequest.cEMIMessage.dstAddress.toString() || 'Non definito'},  AckRequested:${knxTunnelingRequest.cEMIMessage.control.ack}, timed out waiting telegram acknowledge by ${this._options.ipAddr || 'No Peer host detected'}`)
     if (this._timerWaitingForACK !== null) clearTimeout(this._timerWaitingForACK)
@@ -748,7 +754,7 @@ class KNXClient extends EventEmitter {
     }, KNXConstants.KNX_CONSTANTS.TUNNELING_REQUEST_TIMEOUT * 1000)
   }
 
-  _processInboundMessage (msg, rinfo) {
+  _processInboundMessage(msg, rinfo) {
     try {
       // Composing debug string
       try {
@@ -992,31 +998,31 @@ class KNXClient extends EventEmitter {
     }
   }
 
-  _sendDescriptionRequestMessage () {
+  _sendDescriptionRequestMessage() {
     this.send(KNXProtocol.KNXProtocol.newKNXDescriptionRequest(new HPAI.HPAI(this._options.localIPAddress)))
   }
 
-  _sendSearchRequestMessage () {
+  _sendSearchRequestMessage() {
     // this.send(KNXProtocol.KNXProtocol.newKNXSearchRequest(new HPAI.HPAI(this._options.localIPAddress, this._localPort)), KNXConstants.KNX_CONSTANTS.KNX_PORT, KNXConstants.KNX_CONSTANTS.KNX_IP);
   }
 
-  _sendConnectRequestMessage (cri) {
+  _sendConnectRequestMessage(cri) {
     this.send(KNXProtocol.KNXProtocol.newKNXConnectRequest(cri))
   }
 
-  _sendConnectionStateRequestMessage (channelID) {
+  _sendConnectionStateRequestMessage(channelID) {
     this.send(KNXProtocol.KNXProtocol.newKNXConnectionStateRequest(channelID))
   }
 
-  _sendDisconnectRequestMessage (channelID) {
+  _sendDisconnectRequestMessage(channelID) {
     this.send(KNXProtocol.KNXProtocol.newKNXDisconnectRequest(channelID))
   }
 
-  _sendDisconnectResponseMessage (channelID, status = KNXConstants.ConnectionStatus.E_NO_ERROR) {
+  _sendDisconnectResponseMessage(channelID, status = KNXConstants.ConnectionStatus.E_NO_ERROR) {
     this.send(KNXProtocol.KNXProtocol.newKNXDisconnectResponse(channelID, status))
   }
 
-  _sendSecureSessionRequestMessage (cri) {
+  _sendSecureSessionRequestMessage(cri) {
     const oHPAI = new HPAI.HPAI('0.0.0.0', 0, this._options.hostProtocol === 'TunnelTCP' ? KNXConstants.KNX_CONSTANTS.IPV4_TCP : KNXConstants.KNX_CONSTANTS.IPV4_UDP)
     this.send(KNXProtocol.KNXProtocol.newKNXSecureSessionRequest(cri, oHPAI))
   }
