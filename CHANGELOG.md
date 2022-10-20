@@ -7,6 +7,10 @@
 # CHANGELOG
 
 <p>
+<b>Version 1.4.5</b> - October 2022<br/>
+- Now the Watchdog node sends same errors from other KNX-Ultimate nodes, only once. This avoids flooding node-red flow with unnecessary messages.<br/>
+</p>
+<p>
 <b>Version 1.4.4</b> - October 2022<br/>
 - FIX: fixed an issue accurring when you put a wrong IP/hostname in the configuration gateway. Leaving node-red running with such wrong configuration, after a month or so, all UDP channels remain occupied until reboot. Thanks to @tarag for reporting that.<br/>
 </p>

@@ -97,12 +97,12 @@ module.exports = function (RED) {
       if (node.disabled === true) fill = 'grey' // 21/09/2020 if disabled, color is grey
       const dDate = new Date()
       // 30/08/2019 Display only the things selected in the config
-      GA = (typeof GA === 'undefined' || GA == '') ? '' : '(' + GA + ') '
+      GA = (typeof GA === 'undefined' || GA === '') ? '' : '(' + GA + ') '
       devicename = devicename || ''
-      dpt = (typeof dpt === 'undefined' || dpt == '') ? '' : ' DPT' + dpt
+      dpt = (typeof dpt === 'undefined' || dpt === '') ? '' : ' DPT' + dpt
       node.status({ fill, shape, text: GA + payload + ((node.listenallga && node.server.statusDisplayDeviceNameWhenALL) === true ? ' ' + devicename : '') + (node.server.statusDisplayDataPoint === true ? dpt : '') + (node.server.statusDisplayLastUpdate === true ? ' (' + dDate.getDate() + ', ' + dDate.toLocaleTimeString() + ')' : '') + ' ' + text })
       // 16/02/2020 signal errors to the server
-      if (fill.toUpperCase() == 'RED') {
+      if (fill.toUpperCase() === 'RED') {
         if (node.server) {
           const oError = { nodeid: node.id, topic: node.outputtopic, devicename, GA, text }
           node.server.reportToWatchdogCalledByKNXUltimateNode(oError)
