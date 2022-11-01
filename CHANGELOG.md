@@ -7,6 +7,10 @@
 # CHANGELOG
 
 <p>
+<b>Version 1.4.6</b> - November 2022<br/>
+- NEW: added Airflow Datapoint 9.009.<br/>
+</p>
+<p>
 <b>Version 1.4.5</b> - October 2022<br/>
 - Now the Watchdog node sends same errors from other KNX-Ultimate nodes, only once. This avoids flooding node-red flow with unnecessary messages.<br/>
 </p>
