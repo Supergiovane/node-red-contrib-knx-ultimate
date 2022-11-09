@@ -38,8 +38,8 @@ exports.fromBuffer = function (buf) {
     knxLog.get().error('DPT21: Buffer should be 8 bit long, got', buf.length)
     return null
   }
-  const sBit =Array.from((parseInt(buf.toString('hex').toUpperCase(), 16).toString(2)).padStart(8, '0')) // Get bit from hex
-  const ret = { outOfService: sBit[7] ==='1' ? true : false, fault: sBit[6]==='1' ? true : false, overridden: sBit[5]==='1' ? true : false, inAlarm: sBit[4]==='1' ? true : false, alarmUnAck: sBit[3] ==='1' ? true : false }
+  const sBit = Array.from((parseInt(buf.toString('hex').toUpperCase(), 16).toString(2)).padStart(8, '0')) // Get bit from hex
+  const ret = { outOfService: sBit[7] === '1', fault: sBit[6] === '1', overridden: sBit[5] === '1', inAlarm: sBit[4] === '1', alarmUnAck: sBit[3] === '1' }
   return ret
 }
 

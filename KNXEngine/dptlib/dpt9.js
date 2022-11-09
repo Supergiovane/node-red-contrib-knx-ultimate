@@ -11,7 +11,7 @@ const knxLog = require('./../KnxLog')
 
 const util = require('util')
 // kudos to http://croquetweak.blogspot.gr/2014/08/deconstructing-floats-frexp-and-ldexp.html
-function ldexp(mantissa, exponent) {
+function ldexp (mantissa, exponent) {
   return exponent > 1023 // avoid multiplying by infinity
     ? mantissa * Math.pow(2, 1023) * Math.pow(2, exponent - 1023)
     : exponent < -1074 // avoid multiplying by zero
@@ -19,7 +19,7 @@ function ldexp(mantissa, exponent) {
       : mantissa * Math.pow(2, exponent)
 }
 
-function frexp(value) {
+function frexp (value) {
   if (value === 0) return [value, 0]
   const data = new DataView(new ArrayBuffer(8))
   data.setFloat64(0, value)
