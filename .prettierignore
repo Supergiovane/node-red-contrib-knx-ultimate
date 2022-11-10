@@ -1,0 +1,8 @@
+# Ignore artifacts:
+build
+coverage
+dist
+out
+
+# Ignore all JavaScript files:
+*.js

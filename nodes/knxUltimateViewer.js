@@ -1,7 +1,7 @@
 const KNXAddress = require('./../KNXEngine/protocol/KNXAddress').KNXAddress
 
 module.exports = function (RED) {
-  function knxUltimateViewer(config) {
+  function knxUltimateViewer (config) {
     RED.nodes.createNode(this, config)
     const node = this
     node.server = RED.nodes.getNode(config.server)
@@ -96,7 +96,7 @@ module.exports = function (RED) {
           } else if (typeof element.payload === 'object') {
             // Is maybe a JSON?
             try {
-              //sPayload += '<td>' + JSON.stringify(element.payload) + '</td>'
+              // sPayload += '<td>' + JSON.stringify(element.payload) + '</td>'
               sPayload += '<td><i>' + element.rawPayload + '</i></td>'
             } catch (error) {
               sPayload += '<td>' + element.payload + '</td>'
