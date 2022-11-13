@@ -7,6 +7,10 @@
 # CHANGELOG
 
 <p>
+<b>Version 1.4.8</b> - November 2022<br/>
+- NEW: added Datapoints 13.016, 13.1200, 13.1201.<br/>
+</p>
+<p>
 <b>Version 1.4.7</b> - November 2022<br/>
 - NEW: added "Griesser Object" Custom Datapoint 6001.001. Thanks @croghostrider<br/>
 </p>
