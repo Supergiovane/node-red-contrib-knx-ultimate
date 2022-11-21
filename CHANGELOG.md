@@ -7,6 +7,10 @@
 # CHANGELOG
 
 <p>
+<b>Version 1.4.9</b> - November 2022<br/>
+- Fixed incorrect links in the Node-Red's Help TAB for some nodes.<br/>
+</p>
+<p>
 <b>Version 1.4.8</b> - November 2022<br/>
 - NEW: added Datapoints 13.016, 13.1200, 13.1201.<br/>
 </p>
