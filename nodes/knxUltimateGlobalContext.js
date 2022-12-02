@@ -26,7 +26,7 @@ module.exports = function (RED) {
   //     payload
   // }
 
-  function knxUltimateGlobalContext (config) {
+  function knxUltimateGlobalContext(config) {
     RED.nodes.createNode(this, config)
     const node = this
     node.server = RED.nodes.getNode(config.server)
@@ -62,6 +62,18 @@ module.exports = function (RED) {
       payload = payload === undefined ? '' : payload
       const dDate = new Date()
       node.status({ fill, shape, text: GA + ' ' + payload + ' ' + text + ' (' + dDate.getDate() + ', ' + dDate.toLocaleTimeString() + ')' })
+    }
+
+    // 02/12/2022 Expose the complete ETS CSV as well
+    if (node.exposeAsVariable !== 'exposeAsVariableNO') {
+      try {
+        node.server.csv.forEach(element => {
+          node.exposedGAs.push({ address: element.ga, dpt: element.dpt, devicename: element.devicename, payload: undefined })
+        });
+      } catch (error) {
+      }
+
+
     }
 
     // exposeAsVariableREADWRITE
@@ -128,7 +140,7 @@ module.exports = function (RED) {
           console.log(error)
         }
         if (oGa === undefined) {
-          node.exposedGAs.push({ address: msg.knx.destination, dpt: msg.knx.dpt, payload: msg.payload })
+          node.exposedGAs.push({ address: msg.knx.destination, devicename: undefined, dpt: msg.knx.dpt, payload: msg.payload })
         } else {
           oGa.dpt = msg.knx.dpt
           oGa.payload = msg.payload
