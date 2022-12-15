@@ -302,10 +302,17 @@ List of commercial companies, which have given us permission to be mentioned on 
 
 [![](https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/c/proKNX.png)](https://proknx.com)
 </td> 
+
 <td style="valign:center; border: 0px; padding: 15px;">
 
 [![](https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/c/altis.png)](https://altis.swiss)
 </td> 
+
+<td style="valign:center; border: 0px; padding: 15px;">
+
+[![](https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/c/cannx.png)](https://can-nx.com/kloudnx-routeur-knx-iot-connecte-a-un-cloud-securise/)
+</td> 
+
 </tr> 
 </table> 
 
@@ -317,6 +324,7 @@ List of commercial companies, which have given us permission to be mentioned on 
 * [Agata Store - Professional store and Certified KNX Partner](https://www.agatastore.it)
 * [ProKNX - KNX Device Manufacturer](https://proknx.com)
 * [Altis - Energy and utilities provider](https://altis.swiss)
+* [Can'nX France - KNX Device Manufacturer and integrator](https://can-nx.com)
 
 <br/>
 

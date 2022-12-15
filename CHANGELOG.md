@@ -7,8 +7,13 @@
 # CHANGELOG
 
 <p>
+<b>Version 1.4.10</b> - December 2022<br/>
+- Wellcome in: Company Can'nX from France is using KNX-Ultimate in his Kloud'nX product.<br/>
+- Minor fixes and WIKI update.<br/>
+</p>
+<p>
 <b>Version 1.4.9</b> - November 2022<br/>
-- NEW: GlobalContext node: If you import your ETS file, the global variable now contains ALL group addresses included in the ETS file. 
+- NEW: GlobalContext node: If you import your ETS file, the global variable now contains ALL group addresses included in the ETS file. <br/>
 - Fixed incorrect links in the Node-Red's Help TAB for some nodes.<br/>
 </p>
 <p>
