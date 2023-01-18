@@ -7,6 +7,12 @@
 # CHANGELOG
 
 <p>
+<b>Version 1.4.11</b> - January 2022<br/>
+- FIX: fixed RBE output filter, for those Datapoints (like PPM) that doesn't follow the KNX specifications. (https://github.com/Supergiovane/node-red-contrib-knx-ultimate/issues/223) and when you use the "round, multiply, etc..." payload handling option in the node configuration.<br/>
+- NEW: Added DPT28.001 UTF-8 string. Thanks @twod-davydemaegt.<br/>
+- FIX: Fixed a mistake (old one) in the ESF file import. Thanks @twod-davydemaegt.<br/>
+</p>
+<p>
 <b>Version 1.4.10</b> - December 2022<br/>
 - Wellcome in: Company Can'nX from France is using KNX-Ultimate in his Kloud'nX product.<br/>
 - Minor fixes and WIKI update.<br/>

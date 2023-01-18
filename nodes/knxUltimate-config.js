@@ -10,6 +10,7 @@ const _ = require('lodash')
 const path = require('path')
 const fs = require('fs')
 const { Server } = require('http')
+const payloadRounder = require('./utils/payloadManipulation')
 
 // Helpers
 const sortBy = (field) => (a, b) => {
@@ -108,7 +109,7 @@ return msg;`,
     res.json(jRet)
   })
 
-  function knxUltimateConfigNode (config) {
+  function knxUltimateConfigNode(config) {
     RED.nodes.createNode(this, config)
     const node = this
     node.host = config.host
@@ -179,7 +180,7 @@ return msg;`,
     }
 
     node.setAllClientsStatus = (_status, _color, _text) => {
-      function nextStatus (_oClient) {
+      function nextStatus(_oClient) {
         let oClient = RED.nodes.getNode(_oClient.id)
         oClient.setNodeStatus({ fill: _color, shape: 'dot', text: _status + ' ' + _text, payload: '', GA: oClient.topic, dpt: '', devicename: '' })
         oClient = null
@@ -225,7 +226,7 @@ return msg;`,
     // 04/04/2021 Supergiovane, creates the service paths where the persistent files are created.
     // The values file is stored only upon disconnection/close
     // ************************
-    function setupDirectory (_aPath) {
+    function setupDirectory(_aPath) {
       if (!fs.existsSync(_aPath)) {
         // Create the path
         try {
@@ -245,7 +246,7 @@ return msg;`,
       if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info('KNXUltimate-config: payload cache set to ' + path.join(node.userDir, 'knxpersistvalues'))
     }
 
-    function saveExposedGAs () {
+    function saveExposedGAs() {
       const sFile = path.join(node.userDir, 'knxpersistvalues', 'knxpersist' + node.id + '.json')
       try {
         if (node.exposedGAs.length > 0) {
@@ -256,7 +257,7 @@ return msg;`,
         if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error('KNXUltimate-config: unable to write peristent values to the file ' + sFile + ' ' + err.message)
       }
     }
-    function loadExposedGAs () {
+    function loadExposedGAs() {
       const sFile = path.join(node.userDir, 'knxpersistvalues', 'knxpersist' + node.id + '.json')
       try {
         node.exposedGAs = JSON.parse(fs.readFileSync(sFile, 'utf8'))
@@ -479,7 +480,7 @@ return msg;`,
     }
 
     // 17/02/2020 Do initial read (called by node.timerDoInitialRead timer)
-    function DoInitialReadFromKNXBusOrFile () {
+    function DoInitialReadFromKNXBusOrFile() {
       if (node.linkStatus !== 'connected') return // 29/08/2019 If not connected, exit
       loadExposedGAs() // 04/04/2021 load the current values of GA payload
       try {
@@ -839,7 +840,7 @@ return msg;`,
 
     // Handle BUS events
     // ---------------------------------------------------------------------------------------
-    function handleBusEvents (_datagram, _echoed) {
+    function handleBusEvents(_datagram, _echoed) {
       // console.time('handleBusEvents');
 
       let _rawValue = null
@@ -1107,7 +1108,7 @@ return msg;`,
       node.telegramsQueue.unshift(_clonedMessage) // Add _clonedMessage as first in the queue pile
     }
 
-    function handleTelegramQueue () {
+    function handleTelegramQueue() {
       if (node.knxConnection !== null || node.host.toUpperCase() === 'EMULATE') {
         if (node.lockHandleTelegramQueue === true) return // Exits if the funtion is busy
         node.lockHandleTelegramQueue = true // Lock the function. It cannot be called again until finished.
@@ -1146,6 +1147,13 @@ return msg;`,
         }
 
         const oKNXMessage = aTelegramsFiltered[aTelegramsFiltered.length - 1] // Get the last message in the queue
+
+        // 19/01/2023 FORMATTING THE OUTPUT PAYLOAD (ROUND, ETC) BASED ON THE NODE CONFIG
+        //*********************************************************
+        oKNXMessage.payload = payloadRounder.Manipulate(RED.nodes.getNode(oKNXMessage.nodecallerid), oKNXMessage.payload)
+        //*********************************************************
+
+
         if (oKNXMessage.outputtype === 'response') {
           try {
             if (node.host.toUpperCase() === 'EMULATE') {
@@ -1250,14 +1258,14 @@ return msg;`,
     }
 
     // 14/08/2019 If the node has payload same as the received telegram, return false
-    function checkRBEInputFromKNXBusAllowSend (_node, _KNXTelegramPayload) {
+    function checkRBEInputFromKNXBusAllowSend(_node, _KNXTelegramPayload) {
       if (_node.inputRBE !== true) return true
 
       return !_.isEqual(_node.currentPayload, _KNXTelegramPayload)
     }
 
     // 26/10/2019 Try to figure out the datapoint type from raw value
-    function tryToFigureOutDataPointFromRawValue (_rawValue) {
+    function tryToFigureOutDataPointFromRawValue(_rawValue) {
       // 25/10/2019 Try some Datapoints
       if (_rawValue === null) return '1.001'
       if (_rawValue.length === 1) {
@@ -1303,7 +1311,7 @@ return msg;`,
       }
     }
 
-    function buildInputMessage ({ _srcGA, _destGA, _event, _Rawvalue, _inputDpt, _devicename, _outputtopic, _oNode }) {
+    function buildInputMessage({ _srcGA, _destGA, _event, _Rawvalue, _inputDpt, _devicename, _outputtopic, _oNode }) {
       let sPayloadmeasureunit = 'unknown'
       let sDptdesc = 'unknown'
       let sPayloadsubtypevalue = 'unknown'
@@ -1360,30 +1368,11 @@ return msg;`,
           }
         }
 
-        // Formatting the msg output value
-        if (_oNode !== null && jsValue !== null) {
-          if (typeof jsValue === 'number' && _oNode.formatmultiplyvalue !== undefined && _oNode.formatdecimalsvalue !== undefined && _oNode.formatnegativevalue !== undefined) {
-            // multiplier
-            jsValue = jsValue * _oNode.formatmultiplyvalue
-            // Number of decimals
-            if (_oNode.formatdecimalsvalue == 999) {
-              // Leave as is
-            } else {
-              // Round
-              // jsValue = +(Math.round(jsValue + "e+" + _oNode.formatdecimalsvalue) + "e-" + _oNode.formatdecimalsvalue);
-              const iMigliaia = parseInt('1' + '0'.repeat(_oNode.formatdecimalsvalue))
-              jsValue = Math.round(jsValue * iMigliaia) / iMigliaia
-            }
-            // leave, zero or abs
-            if (jsValue < 0) {
-              if (_oNode.formatnegativevalue == 'zero') {
-                jsValue = 0
-              } else if (_oNode.formatnegativevalue == 'abs') {
-                jsValue = Math.abs(jsValue)
-              }
-            }
-          }
-        }
+        // 19/01/2023 FORMATTING THE OUTPUT PAYLOAD (ROUND, ETC) BASED ON THE NODE CONFIG
+        //*********************************************************
+        jsValue = payloadRounder.Manipulate(_oNode, jsValue)
+        //*********************************************************
+
 
         if (dpt.subtype !== undefined) {
           sPayloadmeasureunit = dpt.subtype.unit !== undefined ? dpt.subtype.unit : 'unknown'
@@ -1430,7 +1419,7 @@ return msg;`,
       }
     };
 
-    function readCSV (_csvText) {
+    function readCSV(_csvText) {
       // 24/02/2020, in the middle of Coronavirus emergency in Italy. Check if it a CSV ETS Export of group addresses, or if it's an EFS
       if (_csvText.split('\n')[0].toUpperCase().indexOf('"') == -1) return readESF(_csvText)
 
@@ -1511,7 +1500,7 @@ return msg;`,
       }
     }
 
-    function readESF (_esfText) {
+    function readESF(_esfText) {
       // 24/02/2020 must do an EIS to DPT conversion.
       // https://www.loxone.com/dede/kb/eibknx-datentypen/
       // Format: Attuatori luci.Luci primo piano.0/0/1	Luce camera da letto	EIS 1 'Switching' (1 Bit)	Low
@@ -1543,38 +1532,25 @@ return msg;`,
             sGA = element.split('\t')[0].split('.')[2] || ''
             sDeviceName = element.split('\t')[1] || ''
             sEIS = element.split('\t')[2] || ''
+            sDPT = ''
             // Transform EIS to DPT
-            if (sEIS.toUpperCase().includes('EIS 1')) {
-              sDPT = '1.001'
-            } else if (sEIS.toUpperCase().includes('EIS 2')) {
-              sDPT = '3.007'
-            } else if (sEIS.toUpperCase().includes('EIS 3')) {
-              sDPT = '10.001'
-            } else if (sEIS.toUpperCase().includes('EIS 4')) {
-              sDPT = '11.001'
-            } else if (sEIS.toUpperCase().includes('EIS 5')) {
-              sDPT = '9.001'
-            } else if (sEIS.toUpperCase().includes('EIS 6')) {
-              sDPT = '5.001'
-            } else if (sEIS.toUpperCase().includes('EIS 7')) {
-              sDPT = '1.001'
-            } else if (sEIS.toUpperCase().includes('EIS 8')) {
-              sDPT = '2.001'
-            } else if (sEIS.toUpperCase().includes('EIS 9')) {
-              sDPT = '14.007'
-            } else if (sEIS.toUpperCase().includes('EIS 10')) {
-              sDPT = '7.001'
-            } else if (sEIS.toUpperCase().includes('EIS 11')) {
-              sDPT = '12.001'
-            } else if (sEIS.toUpperCase().includes('EIS 12')) {
-              sDPT = '15.000'
-            } else if (sEIS.toUpperCase().includes('EIS 13')) {
-              sDPT = '4.001'
-            } else if (sEIS.toUpperCase().includes('EIS 14')) {
-              sDPT = '5.001'
-            } else if (sEIS.toUpperCase().includes('EIS 15')) {
-              sDPT = '16.001'
-            } else if (sEIS.toUpperCase().includes('UNCERTAIN')) {
+            if (sEIS.toUpperCase().includes('EIS 1')) sDPT = '1.001'
+            if (sEIS.toUpperCase().includes('EIS 2')) sDPT = '3.007'
+            if (sEIS.toUpperCase().includes('EIS 3')) sDPT = '10.001'
+            if (sEIS.toUpperCase().includes('EIS 4')) sDPT = '11.001'
+            if (sEIS.toUpperCase().includes('EIS 5')) sDPT = '9.001'
+            if (sEIS.toUpperCase().includes('EIS 6')) sDPT = '5.001'
+            if (sEIS.toUpperCase().includes('EIS 7')) sDPT = '1.001'
+            if (sEIS.toUpperCase().includes('EIS 8')) sDPT = '2.001'
+            if (sEIS.toUpperCase().includes('EIS 9')) sDPT = '14.007'
+            if (sEIS.toUpperCase().includes('EIS 10')) sDPT = '7.001'
+            if (sEIS.toUpperCase().includes('EIS 11')) sDPT = '12.001'
+            if (sEIS.toUpperCase().includes('EIS 12')) sDPT = '15.000'
+            if (sEIS.toUpperCase().includes('EIS 13')) sDPT = '4.001'
+            if (sEIS.toUpperCase().includes('EIS 14')) sDPT = '5.001'
+            if (sEIS.toUpperCase().includes('EIS 15')) sDPT = '16.001'
+
+            if (sEIS.toUpperCase().includes('UNCERTAIN')) {
               if (sEIS.toUpperCase().includes('4 BYTE')) {
                 sDPT = '14.056'
               } else if (sEIS.toUpperCase().includes('2 BYTE')) {
@@ -1586,7 +1562,8 @@ return msg;`,
               } else {
                 sDPT = '5.004' // Maybe.
               }
-            } else {
+            }
+            if (sDPT === '') {
               if (node.stopETSImportIfNoDatapoint === 'stop') {
                 node.error('KNXUltimate-config: ABORT IMPORT OF ETS ESF FILE. To continue import, change the related setting, located in the config node in the ETS import section.')
                 return
@@ -1607,7 +1584,7 @@ return msg;`,
     }
 
     // 23/08/2019 Delete unwanted CRLF in the GA description
-    function correctCRLFInCSV (_csv) {
+    function correctCRLFInCSV(_csv) {
       let sOut = '' // fixed output text to return
       let sChar = ''
       let bStart = false
@@ -1640,7 +1617,7 @@ return msg;`,
     }
 
     // 26/02/2021 Used to send the messages if the node gateway is in EMULATION mode
-    function sendEmulatedTelegram (_msg) {
+    function sendEmulatedTelegram(_msg) {
       // INPUT IS
       // _msg = {
       //     grpaddr: '5/0/1',
@@ -1782,7 +1759,7 @@ return msg;`,
       } catch (error) { }
       if (node.timerClearTelegramQueue !== null) clearTimeout(node.timerClearTelegramQueue)
       node.telegramsQueue = []
-      node.nodeClients = [] // 05/04/2023 Nullify
+      node.nodeClients = [] // 05/04/2022 Nullify
       try {
         if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.destroy()
       } catch (error) { }
