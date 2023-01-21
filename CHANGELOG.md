@@ -6,8 +6,9 @@
 
 # CHANGELOG
 
+<p>
 <b>Version 1.4.12</b> - January 2022<br/>
-- FIX: fixed scene controller isssue.<br/>
+- FIX: fixed scene controller issue.<br/>
 </p>
 <p>
 <b>Version 1.4.11</b> - January 2022<br/>
