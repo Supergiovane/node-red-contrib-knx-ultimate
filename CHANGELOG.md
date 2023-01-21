@@ -6,6 +6,9 @@
 
 # CHANGELOG
 
+<b>Version 1.4.12</b> - January 2022<br/>
+- FIX: fixed scene controller isssue.<br/>
+</p>
 <p>
 <b>Version 1.4.11</b> - January 2022<br/>
 - FIX: fixed RBE output filter, for those Datapoints (like PPM) that doesn't follow the KNX specifications. (https://github.com/Supergiovane/node-red-contrib-knx-ultimate/issues/223) and when you use the "round, multiply, etc..." payload handling option in the node configuration.<br/>

@@ -31,7 +31,7 @@ exports.Manipulate = function roundPayload(_oNode, jsValue) {
             }
             return jsValue
         } else {
-            return null
+            return jsValue
         }
     } catch (error) {
         return jsValue
