@@ -11,110 +11,63 @@ const knxLog = require('./../KnxLog')
 
 const util = require('util')
 // kudos to http://croquetweak.blogspot.gr/2014/08/deconstructing-floats-frexp-and-ldexp.html
-// function ldexp(mantissa, exponent) {
-//   return exponent > 1023 // avoid multiplying by infinity
-//     ? mantissa * Math.pow(2, 1023) * Math.pow(2, exponent - 1023)
-//     : exponent < -1074 // avoid multiplying by zero
-//       ? mantissa * Math.pow(2, -1074) * Math.pow(2, exponent + 1074)
-//       : mantissa * Math.pow(2, exponent)
-// }
-
-// function frexp(value) {
-//   if (value === 0) return [value, 0]
-//   const data = new DataView(new ArrayBuffer(8))
-//   data.setFloat64(0, value)
-//   let bits = (data.getUint32(0) >>> 20) & 0x7FF
-//   if (bits === 0) {
-//     data.setFloat64(0, value * Math.pow(2, 64))
-//     bits = ((data.getUint32(0) >>> 20) & 0x7FF) - 64
-//   }
-//   const exponent = bits - 1022
-//   const mantissa = ldexp(value, -exponent)
-//   return [mantissa, exponent]
-// }
-
-function ldexp(mantissa, exponent) {
-  return exponent > 1023
-      ? mantissa * Math.pow(2, 1023) * Math.pow(2, exponent - 1023)
-      : exponent < -1074
-          ? mantissa * Math.pow(2, -1074) * Math.pow(2, exponent + 1074)
-          : mantissa * Math.pow(2, exponent);
+function ldexp (mantissa, exponent) {
+  return exponent > 1023 // avoid multiplying by infinity
+    ? mantissa * Math.pow(2, 1023) * Math.pow(2, exponent - 1023)
+    : exponent < -1074 // avoid multiplying by zero
+      ? mantissa * Math.pow(2, -1074) * Math.pow(2, exponent + 1074)
+      : mantissa * Math.pow(2, exponent)
 }
-function frexp(value) {
-  if (value === 0) {
-      return [value, 0];
-  }
-  const data = new DataView(new ArrayBuffer(8));
-  data.setFloat64(0, value);
-  let bits = (data.getUint32(0) >>> 20) & 0x7FF;
+
+function frexp (value) {
+  if (value === 0) return [value, 0]
+  const data = new DataView(new ArrayBuffer(8))
+  data.setFloat64(0, value)
+  let bits = (data.getUint32(0) >>> 20) & 0x7FF
   if (bits === 0) {
-      data.setFloat64(0, value * Math.pow(2, 64));
-      bits = ((data.getUint32(0) >>> 20) & 0x7FF) - 64;
+    data.setFloat64(0, value * Math.pow(2, 64))
+    bits = ((data.getUint32(0) >>> 20) & 0x7FF) - 64
   }
-  const exponent = bits - 1022, mantissa = ldexp(value, -exponent);
-  return [mantissa, exponent];
+  const exponent = bits - 1022
+  const mantissa = ldexp(value, -exponent)
+  return [mantissa, exponent]
 }
 
 exports.formatAPDU = function (value) {
   const apdu_data = Buffer.alloc(2)
-  const buf = Buffer.alloc(2);
-  let [mant, exp] = frexp(value);
-  const sign = mant < 0 ? 1 : 0;
-  let max_mantissa = 0;
-  let e;
-  for (e = exp; e >= -15; e--) {
-    max_mantissa = ldexp(100 * mant, e);
-    if (max_mantissa > -2048 && max_mantissa < 2047) {
-      break;
+  if (!isFinite(value)) {
+    knxLog.get().warn('DPT9: cannot write non-numeric or undefined value')
+  } else {
+    const arr = frexp(value)
+    const mantissa = arr[0]; const exponent = arr[1]
+    // find the minimum exponent that will upsize the normalized mantissa (0,5 to 1 range)
+    // in order to fit in 11 bits ([-2048, 2047])
+    max_mantissa = 0
+    for (e = exponent; e >= -15; e--) {
+      max_mantissa = ldexp(100 * mantissa, e)
+      if (max_mantissa > -2048 && max_mantissa < 2047) break
     }
+    const sign = (mantissa < 0) ? 1 : 0
+    const mant = (mantissa < 0) ? ~(max_mantissa ^ 2047) : max_mantissa
+    const exp = exponent - e
+    // yucks
+    apdu_data[0] = (sign << 7) + (exp << 3) + (mant >> 8)
+    apdu_data[1] = mant % 256
   }
-  mant = (mant < 0) ? ~(max_mantissa ^ 2047) : max_mantissa;
-  exp = exp - e;
-  buf.writeUInt8((sign << 7) + (exp << 3) + (mant >> 8), 0);
-  buf.writeUInt8(mant % 256, 1);
-  return buf;
-  // if (!isFinite(value)) {
-  //   knxLog.get().warn('DPT9: cannot write non-numeric or undefined value')
-  // } else {
-  //   const arr = frexp(value)
-  //   const mantissa = arr[0]; const exponent = arr[1]
-  //   // find the minimum exponent that will upsize the normalized mantissa (0,5 to 1 range)
-  //   // in order to fit in 11 bits ([-2048, 2047])
-  //   max_mantissa = 0
-  //   for (e = exponent; e >= -15; e--) {
-  //     max_mantissa = ldexp(100 * mantissa, e)
-  //     if (max_mantissa > -2048 && max_mantissa < 2047) break
-  //   }
-  //   const sign = (mantissa < 0) ? 1 : 0
-  //   const mant = (mantissa < 0) ? ~(max_mantissa ^ 2047) : max_mantissa
-  //   const exp = exponent - e
-  //   // yucks
-  //   apdu_data[0] = (sign << 7) + (exp << 3) + (mant >> 8)
-  //   apdu_data[1] = mant % 256
-  // }
-  // return apdu_data
+  return apdu_data
 }
 
-exports.fromBuffer = function (buffer) {
-  if (buffer.length !== 2) {
-    knxLog.get().warn('DPT9: cannot write non-numeric or undefined value')
+exports.fromBuffer = function (buf) {
+  if (buf.length != 2) {
+    knxLog.get().warn('DPT9.fromBuffer: buf should be 2 bytes long (got %d bytes)', buf.length)
+    return null
+  } else {
+    const sign = buf[0] >> 7
+    const exponent = (buf[0] & 0b01111000) >> 3
+    let mantissa = 256 * (buf[0] & 0b00000111) + buf[1]
+    mantissa = (sign == 1) ? ~(mantissa ^ 2047) : mantissa
+    return parseFloat(ldexp((0.01 * mantissa), exponent).toPrecision(15))
   }
-  const val = buffer.readUInt8(0);
-  const sign = val >> 7;
-  const exp = (val & 0b01111000) >> 3;
-  const mant = ((val & 0x07) << 8) + buffer.readUInt8(1);
-  const signedMant = sign === 1 ? ~(mant ^ 2047) : mant;
-  return ldexp((0.01 * signedMant), exp);
-  // if (buf.length != 2) {
-  //   knxLog.get().warn('DPT9.fromBuffer: buf should be 2 bytes long (got %d bytes)', buf.length)
-  //   return null
-  // } else {
-  //   const sign = buf[0] >> 7
-  //   const exponent = (buf[0] & 0b01111000) >> 3
-  //   let mantissa = 256 * (buf[0] & 0b00000111) + buf[1]
-  //   mantissa = (sign == 1) ? ~(mantissa ^ 2047) : mantissa
-  //   return parseFloat(ldexp((0.01 * mantissa), exponent).toPrecision(15))
-  // }
 }
 
 // DPT9 basetype info

@@ -7,6 +7,10 @@
 # CHANGELOG
 
 <p>
+<b>Version 1.4.13</b> - January 2022<br/>
+- FIX: Fixed Datapoint 9. There was too many decimals.<br/>
+</p>
+<p>
 <b>Version 1.4.12</b> - January 2022<br/>
 - FIX: fixed scene controller issue.<br/>
 </p>
