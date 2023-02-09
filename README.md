@@ -354,6 +354,9 @@ The API is named **KNXUltimate**. In the README page is well documented and ther
 <br/>
 <br/>
 
+<br/>
+A big THANK YOU to [svenflender](https://github.com/svenflender) for the logo and icon graphics!
+
 
 ![Logo](https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/flags/madeinitaly.png)
 
