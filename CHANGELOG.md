@@ -7,15 +7,19 @@
 # CHANGELOG
 
 <p>
-<b>Version 1.4.13</b> - January 2022<br/>
+<b>Version 1.4.14</b> - March 2023<br/>
+- NEW: Added Datapoint 29.xxx. Please see the sample in the node window, appearing after you select the datapoint.<br/>
+</p>
+<p>
+<b>Version 1.4.13</b> - January 2023<br/>
 - FIX: Fixed Datapoint 9. There was too many decimals.<br/>
 </p>
 <p>
-<b>Version 1.4.12</b> - January 2022<br/>
+<b>Version 1.4.12</b> - January 2023<br/>
 - FIX: fixed scene controller issue.<br/>
 </p>
 <p>
-<b>Version 1.4.11</b> - January 2022<br/>
+<b>Version 1.4.11</b> - January 2023<br/>
 - FIX: fixed RBE output filter, for those Datapoints (like PPM) that doesn't follow the KNX specifications. (https://github.com/Supergiovane/node-red-contrib-knx-ultimate/issues/223) and when you use the "round, multiply, etc..." payload handling option in the node configuration.<br/>
 - NEW: Added DPT28.001 UTF-8 string. Thanks @twod-davydemaegt.<br/>
 - FIX: Fixed a mistake (old one) in the ESF file import. Thanks @twod-davydemaegt.<br/>
