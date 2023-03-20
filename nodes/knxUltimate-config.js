@@ -1524,7 +1524,7 @@ return msg;`,
           let element = fileGA[index]
           element = element.replace(/\"/g, '') // Rimuovo evetuali virgolette
           element = element.replace(/\#/g, '') // Rimuovo evetuali #
-          element = element.replace(/[^\x00-\x7F]/g, '') // Remove non ascii chars
+          //element = element.replace(/[^\x00-\x7F]/g, '') // Remove non ascii chars
 
           if (element !== '') {
             sFirstGroupName = element.split('\t')[0].split('.')[0] || ''
