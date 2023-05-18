@@ -7,6 +7,10 @@
 # CHANGELOG
 
 <p>
+<b>Version 1.4.16</b> - Mai 2023<br/>
+- FIX: fixed an issue when you have more than one Global Cariable node.<br/>
+</p>
+<p>
 <b>Version 1.4.15</b> - March 2023<br/>
 - FIX: fidex an issue with unicode chars in the ESF imported file.<br/>
 - NEW: Added Datapoint 235.001 Tariff. Please see the sample in the node window, appearing after you select the datapoint.<br/>

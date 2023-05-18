@@ -78,7 +78,7 @@ module.exports = function (RED) {
 
     // exposeAsVariableREADWRITE
     // #region "WRITE TO BUS"
-    goTimerGo = () => {
+    node.goTimerGo = function () {
       if (node.timerExposedGAs !== null) clearTimeout(node.timerExposedGAs) // 21/03/2021
       node.timerExposedGAs = setTimeout(() => {
         let oContext = node.context().global.get(node.name + '_WRITE') || []
@@ -89,14 +89,14 @@ module.exports = function (RED) {
             node.setNodeStatus({ fill: 'RED', shape: 'dot', text: 'NO Group Address set', payload: '', GA: '', dpt: '', devicename: '' })
             RED.log.error('knxUltimateGlobalContext: No group address set in node ' + node.id)
             oContext = null // 21/03/2022
-            goTimerGo()
+            node.goTimerGo()
             return
           }
           if (!element.hasOwnProperty('payload')) {
             node.setNodeStatus({ fill: 'RED', shape: 'dot', text: 'NO payload set', payload: '', GA: '', dpt: '', devicename: '' })
             RED.log.error('knxUltimateGlobalContext: No payload set for address ' + element.address + ' in node ' + node.id)
             oContext = null // 21/03/2022
-            goTimerGo()
+            node.goTimerGo()
             return
           }
 
@@ -109,7 +109,7 @@ module.exports = function (RED) {
               node.setNodeStatus({ fill: 'RED', shape: 'dot', text: 'Datapoint not found in CSV for ' + element.address, payload: '', GA: '', dpt: '', devicename: '' })
               RED.log.error('knxUltimateGlobalContext: Datapoint not found in CSV for address ' + element.address + ' in node ' + node.id)
               oContext = null // 21/03/2022
-              goTimerGo()
+              node.goTimerGo()
               return
             }
           }
@@ -118,12 +118,12 @@ module.exports = function (RED) {
           node.server.writeQueueAdd({ grpaddr: element.address, payload: element.payload, dpt: element.dpt || '', outputtype: 'write', nodecallerid: node.id })
         }
         oContext = null // 21/03/2022
-        goTimerGo()
+        node.goTimerGo()
       }, node.writeExecutionInterval)
     }
     // 21/02/2021 timer for write to BUS
     if (node.exposeAsVariable === 'exposeAsVariableREADWRITE') {
-      goTimerGo()
+      node.goTimerGo()
       node.setNodeStatus({ fill: 'green', shape: 'dot', text: 'Start Writing', payload: '', GA: '', dpt: '', devicename: '' })
     } else {
       if (node.timerExposedGAs !== null) clearTimeout(node.timerExposedGAs)
