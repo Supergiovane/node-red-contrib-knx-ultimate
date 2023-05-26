@@ -8,7 +8,7 @@
 
 <p>
 <b>Version 1.4.16</b> - Mai 2023<br/>
-- FIX: fixed an issue when you have more than one Global Cariable node.<br/>
+- FIX: fixed an issue when you have more than one Global Variable node.<br/>
 </p>
 <p>
 <b>Version 1.4.15</b> - March 2023<br/>
