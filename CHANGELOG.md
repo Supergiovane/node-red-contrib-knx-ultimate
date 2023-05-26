@@ -7,6 +7,10 @@
 # CHANGELOG
 
 <p>
+<b>Version 1.4.18</b> - Mai 2023<br/>
+- NEW: Gateway Config Node: Starting from version 1.4.18, you can also simply enter the path to the ETS exported file (e.g.: /home/pi/mycsv.csv), instead of pasting it's content.<br/>
+</p>
+<p>
 <b>Version 1.4.16</b> - Mai 2023<br/>
 - FIX: fixed an issue when you have more than one Global Variable node.<br/>
 </p>

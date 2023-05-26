@@ -1420,6 +1420,20 @@ return msg;`,
     };
 
     function readCSV(_csvText) {
+
+      // 26/05/2023 check if the text is a file path
+      if (_csvText.toUpperCase().includes('.CSV') || _csvText.toUpperCase().includes('.ESF') ) {
+        // I'ts a file. Read it now and pass to the _csvText
+        let sFileName = _csvText
+        try {
+          _csvText = fs.readFileSync(sFileName,{encoding: 'utf8'})
+        } catch (error) {
+          if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error('KNXUltimate-config: ERROR: reading ETS file ' + error.message)
+          node.error('KNXUltimate-config: ERROR: reading ETS file ' + error.message)
+          return
+         }
+      }
+
       // 24/02/2020, in the middle of Coronavirus emergency in Italy. Check if it a CSV ETS Export of group addresses, or if it's an EFS
       if (_csvText.split('\n')[0].toUpperCase().indexOf('"') == -1) return readESF(_csvText)
 

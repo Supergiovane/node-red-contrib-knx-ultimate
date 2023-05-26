@@ -52,8 +52,8 @@
             "import_select_stop": "Blocca ed annulla l'importazione",
             "import_select_skip": "Salta l'importazione dell'indirizzo di gruppo",
             "import_select_fake": "Importa con un finto datapoint 1.001 (Non raccomandato)",
-            "ga_list_title": "Incolla qui il file esportato da ETS",
-            "ga_list_help": "Incolla qui il contenuto del file CSV o ESF esportato da ETS",
+            "ga_list_title": "Incolla qui il contenuto del file esportato da ETS, oppure il percorso del file (es: /home/pi/mycsv.csv)",
+            "ga_list_help": "Incolla qui il contenuto del file CSV o ESF esportato da ETS, oppure il percorso del file (es: /home/pi/mycsv.csv)",
             "deploywithETS":"Verranno eseguite alcune operazioni di controllo. Eventuali problemi verranno segnalati nella finestra di debug a destra.",
             "keyring":"Incolla qui il contenuto del file XML Keyring esportato da ETS",
             "youtubeKeyring": "Guarda come si esporta il Keyring XML su YouTube"

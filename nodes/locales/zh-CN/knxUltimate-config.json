@@ -48,8 +48,8 @@
             "import_select_stop": "停止并且中断导入",
             "import_select_skip": "跳过受影响的组地址",
             "import_select_fake": "导入并替代为一个 1.001 数据类型 (不建议)",
-            "ga_list_title": "将 ETS 导出的文件粘贴到此处",
-            "ga_list_help": "将 ETS 导出的 CSV 或 ESF 文件粘贴到此处",
+            "ga_list_title": "在此处粘贴从 ETS 导出的文件的内容，或文件的路径（例如：/home/pi/mycsv.csv）",
+            "ga_list_help": "在此处粘贴从 ETS 导出的文件的内容，或文件的路径（例如：/home/pi/mycsv.csv）",
             "deploywithETS": "将执行一些控制操作。 任何问题都会在右侧的调试窗口中报告.",
             "keyring":"在这里粘贴从 ETS 导出的 Keyring XML 文件的内容",
             "youtubeKeyring": "在 Youtube 上了解如何导出 Keyring XML 文件"
