@@ -1,6 +1,6 @@
 {
     "knxUltimateHueLight": {
-        "helplink": "&nbsp<i class=\"fa fa-question-circle\"></i>&nbsp<a target=\"_blank\" href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/it-GlobalVariable\"><u>Esempio</u></a>",
+        "helplink": "&nbsp<i class=\"fa fa-question-circle\"></i>&nbsp<a target=\"_blank\" href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/huesample\"><u>Esempio</u></a>",
         "title": "Nodo HUE",
         "node-input-name": "Nome",
         "node-input-nameLightSwitch": "Switch (bit)",

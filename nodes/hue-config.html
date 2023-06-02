@@ -3,7 +3,8 @@
         category: 'config',
         defaults: {
             host: { value: "" },
-            name: { value: "Hue Bridge" }
+            name: { value: "Hue Bridge" },
+            bridgeid: { value: "" }
         },
         credentials: {
             username: { type: "password" },
@@ -37,13 +38,14 @@
                                             this.disabled = true;
                                             return;
                                         }
+                                       
                                         // Expected { bridge: bridgeConfig, user: createdUser }
                                         $("#node-config-input-name").val(data.bridge.data.name);
                                         $("#node-config-input-host").val(data.bridge.data.ipaddress);
                                         $("#node-config-input-username").val(data.user.username);
                                         $("#node-config-input-clientkey").val(data.user.clientkey);
-
-
+                                        $("#node-config-input-bridgeid").val(data.bridge.data.bridgeid);
+                                        
                                     }).error(function (jqXHR, textStatus, errorThrown) {
                                         RED.notify("Something went wrong. Please create at least a KNX Gateway node first.",
                                             {
@@ -84,22 +86,31 @@
     <div class="form-row">
        <b><span data-i18n="hue-config.properties.title"></span></b>&nbsp&nbsp<span style="color:red" data-i18n="[html]hue-config.properties.helplink"></span>
 
-    <p align='center'> <img src='https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/huehub.jpg' width='50%'></p>
+    <p align='center'> <img src='https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/huehub.jpg' width='40%'></p>
 
-       <br/><br/>
+       
 
         <div class="form-row">
             <label><i class="fa fa-sign-in"></i>&nbsp&nbsp<span data-i18n="hue-config.properties.getinfocam"</span></label>
             <input type="button" id="getinfocam" class="ui-button ui-corner-all ui-widget" style="background-color:#AEE1FF;width:150px" value="CONNECT">
         </div>
 
-       <div class="form-row">
-        <label for="node-config-input-name">
-            <i class="fa fa-tag"></i>
-            <span data-i18n="hue-config.properties.node-config-input-name"</span>
-        </label>
-        <input type="text" id="node-config-input-name" ><data-i18n="[Title]hue-config.properties.node-config-input-name" style="margin-left:5px;">
+    <div class="form-row">
+    <label for="node-config-input-name">
+        <i class="fa fa-tag"></i>
+        <span data-i18n="hue-config.properties.node-config-input-name"</span>
+    </label>
+    <input type="text" id="node-config-input-name" ><data-i18n="[Title]hue-config.properties.node-config-input-name" style="margin-left:5px;">
     </div>
+    
+    <div class="form-row">
+    <label for="node-config-input-bridgeid">
+        <i class="fa fa-tag"></i>
+        Bridge ID
+    </label>
+    <input type="text" id="node-config-input-bridgeid" disabled>
+    </div>
+
     <div class="form-row">
         <label for="node-config-input-host">
             <i class="fa fa-server"></i>

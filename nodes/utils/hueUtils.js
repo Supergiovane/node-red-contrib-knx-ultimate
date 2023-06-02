@@ -5,12 +5,14 @@ const hueApiV2 = require('node-hue')
 const { EventEmitter } = require('events')
 
 class classHUE extends EventEmitter {
-  constructor(_HUEBridgeIP, _username, _clientkey) {
+  constructor(_HUEBridgeIP, _username, _clientkey, _bridgeid) {
     super()
     this.HUEBridgeIP = _HUEBridgeIP
     this.username = _username
     this.clientkey = _clientkey
+    this.bridgeid = _bridgeid
     this.startPushEvents()
+    this.timerWatchDog = undefined
   }
 
   getAllLights = async () => {
@@ -52,22 +54,45 @@ class classHUE extends EventEmitter {
     }
   }
 
+  // Check the bridge for disconnections
+  handleTheDog = async () => {
+    this.timerWatchDog = setInterval(async () => {
+      try {
+        //const hue = hueApiV2.connect({ host: this.HUEBridgeIP, key: this.username })
+        if (this.hue !== undefined) {
+          const sRet = await this.hue.getBridges()
+          if (sRet.filter(e => e.bridge_id.toString().toLowerCase() === this.bridgeid.toString().toLowerCase()).length === 0) {
+            /* oBridge doesn't contains the element we're looking for */
+            throw (new Error('This machine is online, but this bridgeid is not found: ' + this.bridgeid))
+          }
+        }
+      } catch (error) {
+        if (this.timerWatchDog !== null) clearInterval(this.timerWatchDog)
+        if (this.hue !== undefined) this.hue.close()
+        console.log('KNXUltimateHUEConfig: classHUE: timerWatchDog: ' + error.message)
+        this.startPushEvents()
+      }
+    }, 5000)
+  }
+
+  listener = (event) => {
+    event.data.forEach(oEvento => {
+      this.emit('event', oEvento)
+    })
+  }
+
   startPushEvents = async () => {
     try {
-      const listener = (event) => {
-        event.data.forEach(oEvento => {
-          this.emit('event', oEvento)
-        })
-        //console.log(JSON.stringify(event, 1, 1))
-      }
-      const hue = hueApiV2.connect({
+      this.hue = await hueApiV2.connect({
         host: this.HUEBridgeIP,
         key: this.username,
-        eventListener: listener // The eventlistener is given as option
+        eventListener: this.listener // The eventlistener is given as option
       })
     } catch (error) {
-
+      if (this.hue !== undefined) this.hue.close()
+      console.log('KNXUltimateHUEConfig: classHUE: ' + error.message)
     }
+    this.handleTheDog() // Start watchdog timer
   }
 }
 module.exports.classHUE = classHUE

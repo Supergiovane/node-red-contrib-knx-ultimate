@@ -1,0 +1,14 @@
+{
+    "knxUltimateHueLight": {
+        "helplink": "&nbsp<i class=\"fa fa-question-circle\"></i>&nbsp<a target=\"_blank\" href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/huesample\"><u>Sample</u></a>",
+        "title": "HUE node",
+        "node-input-name": "Name",
+        "node-input-nameLightSwitch": "Switch (bit)",
+        "node-input-GALightSwitch": "GA",
+        "node-input-dptLightSwitch": "dpt",
+        "node-input-nameLightState": "State (bit)",
+        "node-input-GALightState": "GA",
+        "node-input-dptLightState": "dpt",
+        "node-input-hueLight": "HUE light"
+    }
+}
