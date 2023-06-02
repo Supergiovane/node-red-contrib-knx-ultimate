@@ -35,6 +35,7 @@ msg.payload = {red:255, green:200, blue:30} // Put some colors in our life
 * **ALERTER node** [here](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/Alerter-Configuration). With the Alerter node you can signal to a display or to the node-red-contrib-tts-ultimate node (audio feedback), whenever the selected devices are alerted, i.e. they have payload **true**.
 * **LOAD CONTROL node** [here](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/LoadControl-Configuration). Control your loads (Oven, Washing machine, etc..) and avoit shutting down the main voltage due to too high power consumption.
 * **VIEWER node** [here](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/knxUltimateViewer). View all Group Addresses and values of your KNX BUS, in the Node-Red Dashboard.
+* **PHILIPS HUE nodeset** [here](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/en-hue-configuration). Link HUE lights and sensors to KNX in a simple way.
 
 <br>
 <br>
@@ -62,13 +63,10 @@ High knowledge of cryptography and KNX is needed.
 
 ## HELP, SAMPLES, TROUBLESHOOT, WIKI, FAQ, BEST PRACTICES
 
-Click your language to go to the documentation.<br/>
 <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/Overview"><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/flags/usa-today.png"/></a>
-<a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/de-Overview"><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/flags/germany.png"/></a>
-<a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/it-Overview"><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/flags/italy.png"/></a>
-<a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/cn-Overview"><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/flags/cn.png"/></a><br/>
 
-> Click a language above. Tons of documentation, samples, even for use in conjunction with <img width="90px" src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/homekit.png" > <img width="70px" src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/alexa.png" > <img width="90px" src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/googleassistant.png" >
+
+> Tons of documentation, samples, even for use in conjunction with <img width="90px" src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/homekit.png" > <img width="70px" src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/alexa.png" > <img width="90px" src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/googleassistant.png" >
 
 
 
