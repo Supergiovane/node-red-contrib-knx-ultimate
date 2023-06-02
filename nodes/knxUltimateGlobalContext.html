@@ -5,7 +5,7 @@
         defaults: {
             //buttonState: {value: true},
             server: { type: "knxUltimate-config", required: true },
-            name: { value: "KNXGlobalContext", validate: RED.validators.regex(/^[a-z]+$/i) },
+            name: { value: "KNXGlobalContext", validate: RED.validators.regex(/^[a-zA-Z]+$/) },
             exposeAsVariable: { value: "exposeAsVariableREADWRITE", required: false },
             writeExecutionInterval: { value: 1000 }
         },

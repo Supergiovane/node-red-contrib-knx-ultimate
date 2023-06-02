@@ -1,0 +1,121 @@
+<script type="text/javascript">
+    RED.nodes.registerType('hue-config', {
+        category: 'config',
+        defaults: {
+            host: { value: "" },
+            name: { value: "Hue Bridge" }
+        },
+        credentials: {
+            username: { type: "password" },
+            clientkey: { type: "password" }
+        },
+        oneditprepare: function () {
+
+
+            $("#getinfocam").click(function () {
+
+                var myNotification = RED.notify("Please press the Link button on the HUE Bridge / Pre favore, premi il pulsante sul bridge HUE",
+                    {
+                        modal: true,
+                        fixed: true,
+                        type: 'info',
+                        buttons: [
+                            {
+                                text: "OK",
+                                click: function (e) {
+                                    // Send the infos to Supergiovane
+                                    $.getJSON("KNXUltimateRegisterToHueBridge", (data) => {
+                                        this.value = "Connect";
+                                        this.disabled = false;
+                                        if (data.hasOwnProperty("error")) {
+                                            RED.notify(JSON.stringify(data.error),
+                                                {
+                                                    modal: true,
+                                                    fixed: false,
+                                                    type: 'error'
+                                                });
+                                            this.disabled = true;
+                                            return;
+                                        }
+                                        // Expected { bridge: bridgeConfig, user: createdUser }
+                                        $("#node-config-input-name").val(data.bridge.data.name);
+                                        $("#node-config-input-host").val(data.bridge.data.ipaddress);
+                                        $("#node-config-input-username").val(data.user.username);
+                                        $("#node-config-input-clientkey").val(data.user.clientkey);
+
+
+                                    }).error(function (jqXHR, textStatus, errorThrown) {
+                                        RED.notify("Something went wrong. Please create at least a KNX Gateway node first.",
+                                            {
+                                                modal: false,
+                                                fixed: false,
+                                                type: 'error'
+                                            })
+                                    });
+                                    myNotification.close();
+                                }
+                            },
+                            {
+                                text: "CANCEL",
+                                click: function (e) {
+                                    myNotification.close();
+                                }
+                            }]
+                    });
+
+
+
+
+            });
+
+
+        },
+        oneditsave: function () {
+
+        },
+        label: function () {
+            return typeof this.name === undefined ? "Hue Bridge " + this.host : this.name + " " + this.host;
+        }
+    });
+</script>
+
+
+<script type="text/x-red" data-template-name="hue-config">
+    <div class="form-row">
+       <b><span data-i18n="hue-config.properties.title"></span></b>&nbsp&nbsp<span style="color:red" data-i18n="[html]hue-config.properties.helplink"></span>
+
+    <p align='center'> <img src='https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/huehub.jpg' width='50%'></p>
+
+       <br/><br/>
+
+        <div class="form-row">
+            <label><i class="fa fa-sign-in"></i>&nbsp&nbsp<span data-i18n="hue-config.properties.getinfocam"</span></label>
+            <input type="button" id="getinfocam" class="ui-button ui-corner-all ui-widget" style="background-color:#AEE1FF;width:150px" value="CONNECT">
+        </div>
+
+       <div class="form-row">
+        <label for="node-config-input-name">
+            <i class="fa fa-tag"></i>
+            <span data-i18n="hue-config.properties.node-config-input-name"</span>
+        </label>
+        <input type="text" id="node-config-input-name" ><data-i18n="[Title]hue-config.properties.node-config-input-name" style="margin-left:5px;">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-host">
+            <i class="fa fa-server"></i>
+            <span data-i18n="hue-config.properties.host"</span>
+        </label>
+        <input type="text" id="node-config-input-host"><data-i18n="[Title]hue-config.properties.host_info" style="margin-left:5px;">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-username"> Username</label>
+        <input type="password" id="node-config-input-username" placeholder="">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-clientkey"> Bridge Key</label>
+        <input type="password" id="node-config-input-clientkey" placeholder="">
+    </div>
+
+    
+    
+</script>
