@@ -7,11 +7,11 @@
 # CHANGELOG
 
 <p>
-<b>Version 1.4.19</b> - June 2023<br/>
-- NEW Added HUE Light node<br/>
+<b>Version 2.0.0</b> - June 2023<br/>
+- NEW Added HUE Light node. More HUE nodes to come. Please feel free to try it.<br/>
 - Global context node: in the node name, only chas a-z are now allowed, to overcome syntax errors.<br/>
+- As i spend 50% of my time to translate all documentation and node texts to 4 languages, i'll leave only English as main language, so you will see the UI only in English.<br/>
 </p>
-<p>
 <b>Version 1.4.18</b> - Mai 2023<br/>
 - NEW: Gateway Config Node: Starting from version 1.4.18, you can also simply enter the path to the ETS exported file (e.g.: /home/pi/mycsv.csv), instead of pasting it's content.<br/>
 </p>
