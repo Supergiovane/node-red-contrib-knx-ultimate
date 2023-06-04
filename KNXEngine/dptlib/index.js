@@ -95,7 +95,7 @@ dpts.populateAPDU = function (value, apdu, dptid) {
       }
     }
     // generic APDU is assumed to convey an unsigned integer of arbitrary bitlength
-    if (dpt.basetype.hasOwnProperty('signedness') && dpt.basetype.signedness == 'signed') {
+    if (dpt.basetype.hasOwnProperty('signedness') && dpt.basetype.signedness === 'signed') {
       apdu.data.writeIntBE(tgtvalue, 0, nbytes)
     } else {
       apdu.data.writeUIntBE(tgtvalue, 0, nbytes)

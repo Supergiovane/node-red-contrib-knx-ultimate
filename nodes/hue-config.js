@@ -81,7 +81,7 @@ module.exports = (RED) => {
 
     // Init HUE Utility
     node.hueManager = new hueClass(node.host, node.credentials.username, node.credentials.clientkey, config.bridgeid)
-    
+
     // Event clip V2
     node.hueManager.on('event', _event => {
       node.nodeClients.forEach(_oClient => {
@@ -110,11 +110,7 @@ module.exports = (RED) => {
       }
     })
 
-    // Send to HUE
-    node.setLightState = (/** @type {string} */ _LightID, /** @type {any} */ _state = { on: true }) => {
-      node.hueManager.setLightState(_LightID, _state)
-    }
-
+  
     node.addClient = (_Node) => {
       // Check if node already exists
       if (node.nodeClients.filter(x => x.id === _Node.id).length === 0) {

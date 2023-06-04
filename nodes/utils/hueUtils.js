@@ -13,6 +13,7 @@ class classHUE extends EventEmitter {
     this.bridgeid = _bridgeid
     this.startPushEvents()
     this.timerWatchDog = undefined
+    this.hue = undefined
   }
 
   getAllLights = async () => {
@@ -49,6 +50,16 @@ class classHUE extends EventEmitter {
       // const bridgeHUE = await hueApi.v3.api.createLocal(this.HUEBridgeIP).connect(this.username)
       // const jRet = await bridgeHUE.lights.setLightState(_lightID, _state)
       // return jRet
+    } catch (error) {
+      return ({ error: error.message })
+    }
+  }
+
+  // Get light state
+  getLight = async (_LightID) => {
+    try {
+      const hue = hueApiV2.connect({ host: this.HUEBridgeIP, key: this.username })
+      return await hue.getLight(_LightID)
     } catch (error) {
       return ({ error: error.message })
     }

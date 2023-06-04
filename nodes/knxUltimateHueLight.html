@@ -20,6 +20,22 @@
             GALightDIM: { value: "" },
             dptLightDIM: { value: "" },
 
+            nameLightColor: { value: "" },
+            GALightColor: { value: "" },
+            dptLightColor: { value: "" },
+
+            nameLightColorState: { value: "" },
+            GALightColorState: { value: "" },
+            dptLightColorState: { value: "" },
+
+            nameLightBrightness: { value: "" },
+            GALightBrightness: { value: "" },
+            dptLightBrightness: { value: "" },
+
+            nameLightBrightnessState: { value: "" },
+            GALightBrightnessState: { value: "" },
+            dptLightBrightnessState: { value: "" },
+
             hueLight: { value: "" }
         },
         inputs: 0,
@@ -69,9 +85,11 @@
             // ########################
             $.getJSON('knxUltimateDpts', (data) => {
                 data.forEach(dpt => {
-                    $("#node-input-dptLightSwitch").append($("<option></option>")
-                        .attr("value", dpt.value)
-                        .text(dpt.text))
+                    if (dpt.value.startsWith("1.")) {
+                        $("#node-input-dptLightSwitch").append($("<option></option>")
+                            .attr("value", dpt.value)
+                            .text(dpt.text))
+                    }
                 });
                 $("#node-input-dptLightSwitch").val(this.dptLightSwitch)
             })
@@ -84,7 +102,7 @@
                     $.getJSON("knxUltimatecsv?nodeID=" + oNodeServer.id, (data) => {
                         response($.map(data, function (value, key) {
                             var sSearch = (value.ga + " (" + value.devicename + ") DPT" + value.dpt);
-                            if (fullSearch(sSearch, request.term)) {
+                            if (fullSearch(sSearch, request.term + " 1.")) {
                                 return {
                                     label: value.ga + " # " + value.devicename + " # " + value.dpt, // Label for Display
                                     value: value.ga // Value
@@ -102,7 +120,6 @@
                     } catch (error) {
                     }
                     $('#node-input-nameLightSwitch').val(sDevName);
-                    $('#node-input-name').val(sDevName);
                     var optVal = $("#node-input-dptLightSwitch option:contains('" + ui.item.label.split("#")[2].trim() + "')").attr('value');
                     // Select the option value 
                     $("#node-input-dptLightSwitch").val(optVal);
@@ -116,10 +133,13 @@
             // ########################
             $.getJSON('knxUltimateDpts', (data) => {
                 data.forEach(dpt => {
-                    $("#node-input-dptLightState").append($("<option></option>")
-                        .attr("value", dpt.value)
-                        .text(dpt.text))
+                    if (dpt.value.startsWith("1.")) {
+                        $("#node-input-dptLightState").append($("<option></option>")
+                            .attr("value", dpt.value)
+                            .text(dpt.text))
+                    }
                 });
+
                 $("#node-input-dptLightState").val(this.dptLightState)
             })
 
@@ -130,7 +150,7 @@
                     $.getJSON("knxUltimatecsv?nodeID=" + oNodeServer.id, (data) => {
                         response($.map(data, function (value, key) {
                             var sSearch = (value.ga + " (" + value.devicename + ") DPT" + value.dpt);
-                            if (fullSearch(sSearch, request.term)) {
+                            if (fullSearch(sSearch, request.term + " 1.")) {
                                 return {
                                     label: value.ga + " # " + value.devicename + " # " + value.dpt, // Label for Display
                                     value: value.ga // Value
@@ -159,11 +179,15 @@
             // ########################
             $.getJSON('knxUltimateDpts', (data) => {
                 data.forEach(dpt => {
-                    $("#node-input-dptLightDIM").append($("<option></option>")
-                        .attr("value", dpt.value)
-                        .text(dpt.text))
+                    if (dpt.value === "3.007") {
+                        $("#node-input-dptLightDIM").append($("<option></option>")
+                            .attr("value", dpt.value)
+                            .text(dpt.text))
+                    }
                 });
+
                 $("#node-input-dptLightDIM").val(this.dptLightDIM)
+
             })
 
             // Autocomplete suggestion with ETS csv File
@@ -173,7 +197,7 @@
                     $.getJSON("knxUltimatecsv?nodeID=" + oNodeServer.id, (data) => {
                         response($.map(data, function (value, key) {
                             var sSearch = (value.ga + " (" + value.devicename + ") DPT" + value.dpt);
-                            if (fullSearch(sSearch, request.term)) {
+                            if (fullSearch(sSearch, request.term + " 3.007")) {
                                 return {
                                     label: value.ga + " # " + value.devicename + " # " + value.dpt, // Label for Display
                                     value: value.ga // Value
@@ -198,6 +222,174 @@
             });
 
 
+            // DPT dptLightColor and dptLightColorStateƒ
+            // ########################
+            $.getJSON('knxUltimateDpts', (data) => {
+                data.forEach(dpt => {
+                    if (dpt.value === "232.600") {
+                        $("#node-input-dptLightColor").append($("<option></option>")
+                            .attr("value", dpt.value)
+                            .text(dpt.text))
+                        $("#node-input-dptLightColorState").append($("<option></option>")
+                            .attr("value", dpt.value)
+                            .text(dpt.text))
+                    }
+                });
+
+                $("#node-input-dptLightColor").val(this.dptLightColor)
+                $("#node-input-dptLightColorState").val(this.dptLightColorState)
+
+            })
+
+            // Autocomplete suggestion with ETS csv File
+            $("#node-input-GALightColor").autocomplete({
+                minLength: 1,
+                source: function (request, response) {
+                    $.getJSON("knxUltimatecsv?nodeID=" + oNodeServer.id, (data) => {
+                        response($.map(data, function (value, key) {
+                            var sSearch = (value.ga + " (" + value.devicename + ") DPT" + value.dpt);
+                            if (fullSearch(sSearch, request.term + " 232.600")) {
+                                return {
+                                    label: value.ga + " # " + value.devicename + " # " + value.dpt, // Label for Display
+                                    value: value.ga // Value
+                                }
+                            } else {
+                                return null;
+                            }
+                        }));
+                    });
+                }, select: function (event, ui) {
+                    // Sets Datapoint and device name automatically
+                    var sDevName = ui.item.label.split("#")[1].trim();
+                    try {
+                        sDevName = sDevName.substr(sDevName.indexOf(")") + 1).trim();
+                    } catch (error) {
+                    }
+                    $('#node-input-nameLightColor').val(sDevName);
+                    var optVal = $("#node-input-dptLightColor option:contains('" + ui.item.label.split("#")[2].trim() + "')").attr('value');
+                    // Select the option value 
+                    $("#node-input-dptLightColor").val(optVal);
+                }
+            });
+
+            // Autocomplete suggestion with ETS csv File
+            $("#node-input-GALightColorState").autocomplete({
+                minLength: 1,
+                source: function (request, response) {
+                    $.getJSON("knxUltimatecsv?nodeID=" + oNodeServer.id, (data) => {
+                        response($.map(data, function (value, key) {
+                            var sSearch = (value.ga + " (" + value.devicename + ") DPT" + value.dpt);
+                            if (fullSearch(sSearch, request.term + " 232.600")) {
+                                return {
+                                    label: value.ga + " # " + value.devicename + " # " + value.dpt, // Label for Display
+                                    value: value.ga // Value
+                                }
+                            } else {
+                                return null;
+                            }
+                        }));
+                    });
+                }, select: function (event, ui) {
+                    // Sets Datapoint and device name automatically
+                    var sDevName = ui.item.label.split("#")[1].trim();
+                    try {
+                        sDevName = sDevName.substr(sDevName.indexOf(")") + 1).trim();
+                    } catch (error) {
+                    }
+                    $('#node-input-nameLightColorState').val(sDevName);
+                    var optVal = $("#node-input-dptLightColorState option:contains('" + ui.item.label.split("#")[2].trim() + "')").attr('value');
+                    // Select the option value 
+                    $("#node-input-dptLightColorState").val(optVal);
+                }
+            });
+
+
+
+            // DPT dptLightBrightness and dptLightBrightnessState
+            // ########################
+            $.getJSON('knxUltimateDpts', (data) => {
+                data.forEach(dpt => {
+                    if (dpt.value === "5.001") {
+                        $("#node-input-dptLightBrightness").append($("<option></option>")
+                            .attr("value", dpt.value)
+                            .text(dpt.text))
+                        $("#node-input-dptLightBrightnessState").append($("<option></option>")
+                            .attr("value", dpt.value)
+                            .text(dpt.text))
+                    }
+                });
+
+                $("#node-input-dptLightBrightness").val(this.dptLightBrightness)
+                $("#node-input-dptLightBrightnessState").val(this.dptLightBrightnessState)
+
+            })
+
+            // Autocomplete suggestion with ETS csv File
+            $("#node-input-GALightBrightness").autocomplete({
+                minLength: 1,
+                source: function (request, response) {
+                    $.getJSON("knxUltimatecsv?nodeID=" + oNodeServer.id, (data) => {
+                        response($.map(data, function (value, key) {
+                            var sSearch = (value.ga + " (" + value.devicename + ") DPT" + value.dpt);
+                            if (fullSearch(sSearch, request.term + " 5.001")) {
+                                return {
+                                    label: value.ga + " # " + value.devicename + " # " + value.dpt, // Label for Display
+                                    value: value.ga // Value
+                                }
+                            } else {
+                                return null;
+                            }
+                        }));
+                    });
+                }, select: function (event, ui) {
+                    // Sets Datapoint and device name automatically
+                    var sDevName = ui.item.label.split("#")[1].trim();
+                    try {
+                        sDevName = sDevName.substr(sDevName.indexOf(")") + 1).trim();
+                    } catch (error) {
+                    }
+                    $('#node-input-nameLightBrightness').val(sDevName);
+                    var optVal = $("#node-input-dptLightBrightness option:contains('" + ui.item.label.split("#")[2].trim() + "')").attr('value');
+                    // Select the option value 
+                    $("#node-input-dptLightBrightness").val(optVal);
+                }
+            });
+
+            // Autocomplete suggestion with ETS csv File
+            $("#node-input-GALightBrightnessState").autocomplete({
+                minLength: 1,
+                source: function (request, response) {
+                    $.getJSON("knxUltimatecsv?nodeID=" + oNodeServer.id, (data) => {
+                        response($.map(data, function (value, key) {
+                            var sSearch = (value.ga + " (" + value.devicename + ") DPT" + value.dpt);
+                            if (fullSearch(sSearch, request.term + " 5.001")) {
+                                return {
+                                    label: value.ga + " # " + value.devicename + " # " + value.dpt, // Label for Display
+                                    value: value.ga // Value
+                                }
+                            } else {
+                                return null;
+                            }
+                        }));
+                    });
+                }, select: function (event, ui) {
+                    // Sets Datapoint and device name automatically
+                    var sDevName = ui.item.label.split("#")[1].trim();
+                    try {
+                        sDevName = sDevName.substr(sDevName.indexOf(")") + 1).trim();
+                    } catch (error) {
+                    }
+                    $('#node-input-nameLightBrightnessState').val(sDevName);
+                    var optVal = $("#node-input-dptLightBrightnessState option:contains('" + ui.item.label.split("#")[2].trim() + "')").attr('value');
+                    // Select the option value 
+                    $("#node-input-dptLightBrightnessState").val(optVal);
+                }
+            });
+
+
+
+
+
             // Autocomplete suggestion with HUE Lights
             $("#node-input-hueLight").autocomplete({
                 minLength: 1,
@@ -220,6 +412,7 @@
                     // Sets the field
                     var sDevName = ui.item.label;
                     $('#node-input-hueLight').val(sDevName);
+                    $('#node-input-name').val(sDevName.split("#")[0]);
                 }
             });
 
@@ -282,11 +475,12 @@
 </div>
 
 <br/>
-<p>
-<b>KONNEX</b>
-</p>
 
-<div id="GAandDPT">
+<p> <img src='https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/knx.png' width='32px'> -> <img src='https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/hue.png' width='32px'></p>
+
+<p>
+<b>KNX COMMANDS TO PHILIPS HUE</b>
+</p>
     <div class="form-row">
         <label for="node-input-nameLightSwitch" style="width:100px;"><i class="fa fa-play-circle-o"></i> <span data-i18n="knxUltimateHueLight.node-input-nameLightSwitch"></span></label>
 
@@ -300,6 +494,55 @@
         <label for="node-input-nameLightSwitch" style="width:50px; margin-left: 0px; text-align: right;"><span data-i18n="knxUltimateHueLight.node-input-name"></span></label>
         <input type="text" id="node-input-nameLightSwitch" style="width:200px;margin-left: 5px; text-align: left;">
     </div>
+    </div>
+        <div class="form-row">
+        <label for="node-input-nameLightDIM" style="width:100px;"><i class="fa fa-play-circle-o"></i>Dimming</label>
+
+        <label for="node-input-GALightDIM" style="width:20px;"><span data-i18n="knxUltimateHueLight.node-input-GALightState"></span></label>
+        <input type="text" id="node-input-GALightDIM" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
+       
+        <label for="node-input-dptLightDIM" style="width:40px; margin-left: 0px; text-align: right;">
+            <span data-i18n="knxUltimateHueLight.node-input-dptLightState"></span> </label>
+        <select id="node-input-dptLightDIM" style="width:140px;"></select>
+       
+        <label for="node-input-nameLightDIM" style="width:50px; margin-left: 0px; text-align: right;"><span data-i18n="knxUltimateHueLight.node-input-name"></span></label>
+        <input type="text" id="node-input-nameLightDIM" style="width:200px;margin-left: 5px; text-align: left;">
+    </div>
+    </div>
+        <div class="form-row">
+        <label for="node-input-nameLightColor" style="width:100px;"><i class="fa fa-play-circle-o"></i>&nbspColor</label>
+
+        <label for="node-input-GALightColor" style="width:20px;"><span data-i18n="knxUltimateHueLight.node-input-GALightState"></span></label>
+        <input type="text" id="node-input-GALightColor" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
+       
+        <label for="node-input-dptLightColor" style="width:40px; margin-left: 0px; text-align: right;">
+            <span data-i18n="knxUltimateHueLight.node-input-dptLightState"></span> </label>
+        <select id="node-input-dptLightColor" style="width:140px;"></select>
+       
+        <label for="node-input-nameLightColor" style="width:50px; margin-left: 0px; text-align: right;"><span data-i18n="knxUltimateHueLight.node-input-name"></span></label>
+        <input type="text" id="node-input-nameLightColor" style="width:200px;margin-left: 5px; text-align: left;">
+    </div>
+    </div>
+        </div>
+        <div class="form-row">
+        <label for="node-input-nameLightBrightness" style="width:100px;"><i class="fa fa-play-circle-o"></i>&nbspBrightness</label>
+
+        <label for="node-input-GALightBrightness" style="width:20px;"><span data-i18n="knxUltimateHueLight.node-input-GALightState"></span></label>
+        <input type="text" id="node-input-GALightBrightness" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
+       
+        <label for="node-input-dptLightBrightness" style="width:40px; margin-left: 0px; text-align: right;">
+            <span data-i18n="knxUltimateHueLight.node-input-dptLightState"></span> </label>
+        <select id="node-input-dptLightBrightness" style="width:140px;"></select>
+       
+        <label for="node-input-nameLightBrightness" style="width:50px; margin-left: 0px; text-align: right;"><span data-i18n="knxUltimateHueLight.node-input-name"></span></label>
+        <input type="text" id="node-input-nameLightBrightness" style="width:200px;margin-left: 5px; text-align: left;">
+    </div>
+
+<br/>
+<p>
+<b>PHILIPS HUE STATES TO KNX</b>
+</p>
+
     <div class="form-row">
         <label for="node-input-nameLightState" style="width:100px;"><i class="fa fa-play-circle-o"></i> <span data-i18n="knxUltimateHueLight.node-input-nameLightState"></span></label>
 
@@ -314,19 +557,41 @@
         <input type="text" id="node-input-nameLightState" style="width:200px;margin-left: 5px; text-align: left;">
     </div>
         <div class="form-row">
-        <label for="node-input-nameLightDIM" style="width:100px;"><i class="fa fa-play-circle-o"></i>&nbsp DIM (3.007)</label>
+        <label for="node-input-nameLightColorState" style="width:100px;"><i class="fa fa-play-circle-o"></i>&nbspColor State</label>
 
-        <label for="node-input-GALightDIM" style="width:20px;"><span data-i18n="knxUltimateHueLight.node-input-GALightState"></span></label>
-        <input type="text" id="node-input-GALightDIM" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
+        <label for="node-input-GALightColorState" style="width:20px;"><span data-i18n="knxUltimateHueLight.node-input-GALightState"></span></label>
+        <input type="text" id="node-input-GALightColorState" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
        
-        <label for="node-input-dptLightDIM" style="width:40px; margin-left: 0px; text-align: right;">
-            <span data-i18n="knxUltimateHueLight.node-input-dptLightDIM"></span> </label>
-        <select id="node-input-dptLightDIM" style="width:140px;"></select>
+        <label for="node-input-dptLightColorState" style="width:40px; margin-left: 0px; text-align: right;">
+            <span data-i18n="knxUltimateHueLight.node-input-dptLightState"></span> </label>
+        <select id="node-input-dptLightColorState" style="width:140px;"></select>
        
-        <label for="node-input-nameLightDIM" style="width:50px; margin-left: 0px; text-align: right;"><span data-i18n="knxUltimateHueLight.node-input-name"></span></label>
-        <input type="text" id="node-input-nameLightDIM" style="width:200px;margin-left: 5px; text-align: left;">
+        <label for="node-input-nameLightColorState" style="width:50px; margin-left: 0px; text-align: right;"><span data-i18n="knxUltimateHueLight.node-input-name"></span></label>
+        <input type="text" id="node-input-nameLightColorState" style="width:200px;margin-left: 5px; text-align: left;">
     </div>
-</div>
+        </div>
+        <div class="form-row">
+        <label for="node-input-nameLightBrightnessState" style="width:100px;"><i class="fa fa-play-circle-o"></i>&nbspBrightness State</label>
+
+        <label for="node-input-GALightBrightnessState" style="width:20px;"><span data-i18n="knxUltimateHueLight.node-input-GALightState"></span></label>
+        <input type="text" id="node-input-GALightBrightnessState" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
+       
+        <label for="node-input-dptLightBrightnessState" style="width:40px; margin-left: 0px; text-align: right;">
+            <span data-i18n="knxUltimateHueLight.node-input-dptLightState"></span> </label>
+        <select id="node-input-dptLightBrightnessState" style="width:140px;"></select>
+       
+        <label for="node-input-nameLightBrightnessState" style="width:50px; margin-left: 0px; text-align: right;"><span data-i18n="knxUltimateHueLight.node-input-name"></span></label>
+        <input type="text" id="node-input-nameLightBrightnessState" style="width:200px;margin-left: 5px; text-align: left;">
+    </div>
+
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
 
 
 </script>

@@ -14,7 +14,8 @@
     "xml2js": "0.5.0",
     "dns-sync": "0.2.1",
     "node-hue-api": "5.0.0-beta.16",
-    "node-hue": "1.0.3"
+    "node-hue": "1.0.3",
+    "color-convert": "2.0.1"
   },
   "node-red": {
     "nodes": {
