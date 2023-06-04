@@ -7,6 +7,10 @@
 # CHANGELOG
 
 <p>
+<b>Version 2.0.1</b> - June 2023<br/>
+- NEW: more KNX group addresses in the HUE Light node<br/>
+</p>
+<p>
 <b>Version 2.0.0</b> - June 2023<br/>
 - NEW Added HUE Light node. More HUE nodes to come. Please feel free to try it.<br/>
 - Global context node: in the node name, only chas a-z are now allowed, to overcome syntax errors.<br/>
