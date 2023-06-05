@@ -1,12 +1,12 @@
 <script type="text/javascript">
-    RED.nodes.registerType('knxUltimateHueLight', {
+    RED.nodes.registerType('knxUltimateHueButton', {
         category: "KNX Ultimate",
         color: '#C7E9C0',
         defaults: {
             //buttonState: {value: true},
             server: { type: "knxUltimate-config", required: true },
             serverHue: { type: "hue-config", required: true },
-            name: { value: "Hue Light" },
+            name: { value: "Hue Button" },
 
             nameLightSwitch: { value: "" },
             GALightSwitch: { value: "" },
@@ -44,7 +44,7 @@
         label: function () {
             return (this.name);
         },
-        paletteLabel: "Hue Light",
+        paletteLabel: "Hue Button",
         // button: {
         //     enabled: function() {
         //         // return whether or not the button is enabled, based on the current
@@ -432,17 +432,18 @@
 
 </script>
 
-<script type="text/x-red" data-template-name="knxUltimateHueLight">
+<script type="text/x-red" data-template-name="knxUltimateHueButton">
 
 
 <div class="form-row">
-    <b><span data-i18n="knxUltimateHueLight.title"></span></b>&nbsp&nbsp<span style="color:red"
-        data-i18n="[html]knxUltimateHueLight.helplink"></span>
+    <b><span data-i18n="knxUltimateHueButton.title"></span></b>&nbsp&nbsp<span style="color:red"
+        data-i18n="[html]knxUltimateHueButton.helplink"></span>
     <br />
+    <p><img src='https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/hueButton.png' width='32px'></p>
     <br />
     <label for="node-input-server" >
         <i class="fa fa-square-o"></i>
-        <span data-i18n="knxUltimateHueLight.advanced.node-input-server"></span>
+        <span data-i18n="knxUltimateHueButton.advanced.node-input-server"></span>
     </label>
     <input type="text" id="node-input-server" />
 </div>
@@ -450,7 +451,7 @@
 <div class="form-row">
     <label for="node-input-serverHue">
         <i class="fa fa-lightbulb-o"></i>
-        <span data-i18n="knxUltimateHueLight.advanced.node-input-serverHue"></span>
+        <span data-i18n="knxUltimateHueButton.advanced.node-input-serverHue"></span>
     </label>
     <input type="text" id="node-input-serverHue" />
 </div>
@@ -458,9 +459,9 @@
 <div class="form-row">
     <label for="node-input-name" >
         <i class="fa fa-tag"></i>
-        <span data-i18n="knxUltimateHueLight.node-input-name"></span>
+        <span data-i18n="knxUltimateHueButton.node-input-name"></span>
     </label>
-    <input style="width:35%;" type="text" id="node-input-name" data-i18n="[placeholder]knxUltimateHueLight.node-input-name" />
+    <input style="width:35%;" type="text" id="node-input-name" data-i18n="[placeholder]knxUltimateHueButton.node-input-name" />
 </div>
 
 <br/>
@@ -470,7 +471,7 @@
     
 <div class="form-row">
     <label for="node-input-hueLight" >
-        <i class="fa fa-lightbulb-o"></i>&nbsp<span data-i18n="knxUltimateHueLight.node-input-hueLight"></span></label>
+        <i class="fa fa-lightbulb-o"></i>&nbsp<span data-i18n="knxUltimateHueButton.node-input-hueLight"></span></label>
     <input type="text" id="node-input-hueLight" />
 </div>
 
@@ -482,44 +483,44 @@
 <b>KNX COMMANDS -> TO PHILIPS HUE</b>
 </p>
     <div class="form-row">
-        <label for="node-input-nameLightSwitch" style="width:100px;"><i class="fa fa-play-circle-o"></i> <span data-i18n="knxUltimateHueLight.node-input-nameLightSwitch"></span></label>
+        <label for="node-input-nameLightSwitch" style="width:100px;"><i class="fa fa-play-circle-o"></i> <span data-i18n="knxUltimateHueButton.node-input-nameLightSwitch"></span></label>
 
-        <label for="node-input-GALightSwitch" style="width:20px;"><span data-i18n="knxUltimateHueLight.node-input-GALightSwitch"></span></label>
+        <label for="node-input-GALightSwitch" style="width:20px;"><span data-i18n="knxUltimateHueButton.node-input-GALightSwitch"></span></label>
         <input type="text" id="node-input-GALightSwitch" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
        
         <label for="node-input-dptLightSwitch" style="width:40px; margin-left: 0px; text-align: right;">
-            <span data-i18n="knxUltimateHueLight.node-input-dptLightSwitch"></span> </label>
+            <span data-i18n="knxUltimateHueButton.node-input-dptLightSwitch"></span> </label>
         <select id="node-input-dptLightSwitch" style="width:140px;"></select>
        
-        <label for="node-input-nameLightSwitch" style="width:50px; margin-left: 0px; text-align: right;"><span data-i18n="knxUltimateHueLight.node-input-name"></span></label>
+        <label for="node-input-nameLightSwitch" style="width:50px; margin-left: 0px; text-align: right;"><span data-i18n="knxUltimateHueButton.node-input-name"></span></label>
         <input type="text" id="node-input-nameLightSwitch" style="width:200px;margin-left: 5px; text-align: left;">
     </div>
     </div>
         <div class="form-row">
         <label for="node-input-nameLightDIM" style="width:100px;"><i class="fa fa-play-circle-o"></i>&nbspDimming</label>
 
-        <label for="node-input-GALightDIM" style="width:20px;"><span data-i18n="knxUltimateHueLight.node-input-GALightState"></span></label>
+        <label for="node-input-GALightDIM" style="width:20px;"><span data-i18n="knxUltimateHueButton.node-input-GALightState"></span></label>
         <input type="text" id="node-input-GALightDIM" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
        
         <label for="node-input-dptLightDIM" style="width:40px; margin-left: 0px; text-align: right;">
-            <span data-i18n="knxUltimateHueLight.node-input-dptLightState"></span> </label>
+            <span data-i18n="knxUltimateHueButton.node-input-dptLightState"></span> </label>
         <select id="node-input-dptLightDIM" style="width:140px;"></select>
        
-        <label for="node-input-nameLightDIM" style="width:50px; margin-left: 0px; text-align: right;"><span data-i18n="knxUltimateHueLight.node-input-name"></span></label>
+        <label for="node-input-nameLightDIM" style="width:50px; margin-left: 0px; text-align: right;"><span data-i18n="knxUltimateHueButton.node-input-name"></span></label>
         <input type="text" id="node-input-nameLightDIM" style="width:200px;margin-left: 5px; text-align: left;">
     </div>
     </div>
         <div class="form-row">
         <label for="node-input-nameLightColor" style="width:100px;"><i class="fa fa-play-circle-o"></i>&nbspColor</label>
 
-        <label for="node-input-GALightColor" style="width:20px;"><span data-i18n="knxUltimateHueLight.node-input-GALightState"></span></label>
+        <label for="node-input-GALightColor" style="width:20px;"><span data-i18n="knxUltimateHueButton.node-input-GALightState"></span></label>
         <input type="text" id="node-input-GALightColor" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
        
         <label for="node-input-dptLightColor" style="width:40px; margin-left: 0px; text-align: right;">
-            <span data-i18n="knxUltimateHueLight.node-input-dptLightState"></span> </label>
+            <span data-i18n="knxUltimateHueButton.node-input-dptLightState"></span> </label>
         <select id="node-input-dptLightColor" style="width:140px;"></select>
        
-        <label for="node-input-nameLightColor" style="width:50px; margin-left: 0px; text-align: right;"><span data-i18n="knxUltimateHueLight.node-input-name"></span></label>
+        <label for="node-input-nameLightColor" style="width:50px; margin-left: 0px; text-align: right;"><span data-i18n="knxUltimateHueButton.node-input-name"></span></label>
         <input type="text" id="node-input-nameLightColor" style="width:200px;margin-left: 5px; text-align: left;">
     </div>
     </div>
@@ -527,14 +528,14 @@
         <div class="form-row">
         <label for="node-input-nameLightBrightness" style="width:100px;"><i class="fa fa-play-circle-o"></i>&nbspBrightness</label>
 
-        <label for="node-input-GALightBrightness" style="width:20px;"><span data-i18n="knxUltimateHueLight.node-input-GALightState"></span></label>
+        <label for="node-input-GALightBrightness" style="width:20px;"><span data-i18n="knxUltimateHueButton.node-input-GALightState"></span></label>
         <input type="text" id="node-input-GALightBrightness" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
        
         <label for="node-input-dptLightBrightness" style="width:40px; margin-left: 0px; text-align: right;">
-            <span data-i18n="knxUltimateHueLight.node-input-dptLightState"></span> </label>
+            <span data-i18n="knxUltimateHueButton.node-input-dptLightState"></span> </label>
         <select id="node-input-dptLightBrightness" style="width:140px;"></select>
        
-        <label for="node-input-nameLightBrightness" style="width:50px; margin-left: 0px; text-align: right;"><span data-i18n="knxUltimateHueLight.node-input-name"></span></label>
+        <label for="node-input-nameLightBrightness" style="width:50px; margin-left: 0px; text-align: right;"><span data-i18n="knxUltimateHueButton.node-input-name"></span></label>
         <input type="text" id="node-input-nameLightBrightness" style="width:200px;margin-left: 5px; text-align: left;">
     </div>
 
@@ -544,43 +545,43 @@
 </p>
 
     <div class="form-row">
-        <label for="node-input-nameLightState" style="width:100px;"><i class="fa fa-play-circle-o"></i> <span data-i18n="knxUltimateHueLight.node-input-nameLightState"></span></label>
+        <label for="node-input-nameLightState" style="width:100px;"><i class="fa fa-play-circle-o"></i> <span data-i18n="knxUltimateHueButton.node-input-nameLightState"></span></label>
 
-        <label for="node-input-GALightState" style="width:20px;"><span data-i18n="knxUltimateHueLight.node-input-GALightState"></span></label>
+        <label for="node-input-GALightState" style="width:20px;"><span data-i18n="knxUltimateHueButton.node-input-GALightState"></span></label>
         <input type="text" id="node-input-GALightState" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
        
         <label for="node-input-dptLightState" style="width:40px; margin-left: 0px; text-align: right;">
-            <span data-i18n="knxUltimateHueLight.node-input-dptLightState"></span> </label>
+            <span data-i18n="knxUltimateHueButton.node-input-dptLightState"></span> </label>
         <select id="node-input-dptLightState" style="width:140px;"></select>
        
-        <label for="node-input-nameLightState" style="width:50px; margin-left: 0px; text-align: right;"><span data-i18n="knxUltimateHueLight.node-input-name"></span></label>
+        <label for="node-input-nameLightState" style="width:50px; margin-left: 0px; text-align: right;"><span data-i18n="knxUltimateHueButton.node-input-name"></span></label>
         <input type="text" id="node-input-nameLightState" style="width:200px;margin-left: 5px; text-align: left;">
     </div>
         <div class="form-row">
         <label for="node-input-nameLightColorState" style="width:100px;"><i class="fa fa-play-circle-o"></i>&nbspColor State</label>
 
-        <label for="node-input-GALightColorState" style="width:20px;"><span data-i18n="knxUltimateHueLight.node-input-GALightState"></span></label>
+        <label for="node-input-GALightColorState" style="width:20px;"><span data-i18n="knxUltimateHueButton.node-input-GALightState"></span></label>
         <input type="text" id="node-input-GALightColorState" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
        
         <label for="node-input-dptLightColorState" style="width:40px; margin-left: 0px; text-align: right;">
-            <span data-i18n="knxUltimateHueLight.node-input-dptLightState"></span> </label>
+            <span data-i18n="knxUltimateHueButton.node-input-dptLightState"></span> </label>
         <select id="node-input-dptLightColorState" style="width:140px;"></select>
        
-        <label for="node-input-nameLightColorState" style="width:50px; margin-left: 0px; text-align: right;"><span data-i18n="knxUltimateHueLight.node-input-name"></span></label>
+        <label for="node-input-nameLightColorState" style="width:50px; margin-left: 0px; text-align: right;"><span data-i18n="knxUltimateHueButton.node-input-name"></span></label>
         <input type="text" id="node-input-nameLightColorState" style="width:200px;margin-left: 5px; text-align: left;">
     </div>
         </div>
         <div class="form-row">
         <label for="node-input-nameLightBrightnessState" style="width:100px;"><i class="fa fa-play-circle-o"></i>&nbspBrightness State</label>
 
-        <label for="node-input-GALightBrightnessState" style="width:20px;"><span data-i18n="knxUltimateHueLight.node-input-GALightState"></span></label>
+        <label for="node-input-GALightBrightnessState" style="width:20px;"><span data-i18n="knxUltimateHueButton.node-input-GALightState"></span></label>
         <input type="text" id="node-input-GALightBrightnessState" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
        
         <label for="node-input-dptLightBrightnessState" style="width:40px; margin-left: 0px; text-align: right;">
-            <span data-i18n="knxUltimateHueLight.node-input-dptLightState"></span> </label>
+            <span data-i18n="knxUltimateHueButton.node-input-dptLightState"></span> </label>
         <select id="node-input-dptLightBrightnessState" style="width:140px;"></select>
        
-        <label for="node-input-nameLightBrightnessState" style="width:50px; margin-left: 0px; text-align: right;"><span data-i18n="knxUltimateHueLight.node-input-name"></span></label>
+        <label for="node-input-nameLightBrightnessState" style="width:50px; margin-left: 0px; text-align: right;"><span data-i18n="knxUltimateHueButton.node-input-name"></span></label>
         <input type="text" id="node-input-nameLightBrightnessState" style="width:200px;margin-left: 5px; text-align: left;">
     </div>
 
