@@ -90,7 +90,7 @@ module.exports = (RED) => {
       })
     })
 
-    // Endpoint for connecting to HUE Bridge
+    // Endpoint frontend
     RED.httpAdmin.get('/KNXUltimateGetAllLightsHUE', RED.auth.needsPermission('hue-config.read'), function (req, res) {
       try {
         (async () => {
@@ -110,7 +110,25 @@ module.exports = (RED) => {
       }
     })
 
-  
+    RED.httpAdmin.get('/KNXUltimateGetDevicesHUE', RED.auth.needsPermission('hue-config.read'), function (req, res) {
+      try {
+        (async () => {
+          try {
+            // °°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+            const jRet = await node.hueManager.getDevices(req.query.rtype)
+            res.json(jRet)
+            // °°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+          } catch (err) {
+            RED.log.error('Errore KNXUltimategetButtonsHUE non gestito ' + err.message)
+            res.json({ error: err.message })
+          }
+        })()
+      } catch (err) {
+        RED.log.error('Errore KNXUltimategetButtons bsonto ' + err.message)
+        res.json({ error: err.message })
+      }
+    })
+
     node.addClient = (_Node) => {
       // Check if node already exists
       if (node.nodeClients.filter(x => x.id === _Node.id).length === 0) {

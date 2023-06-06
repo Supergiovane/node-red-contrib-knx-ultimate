@@ -29,7 +29,8 @@
       "knxUltimateLoadControl": "/nodes/knxUltimateLoadControl.js",
       "knxUltimateViewer": "/nodes/knxUltimateViewer.js",
       "hueConfig": "/nodes/hue-config.js",
-      "knxUltimateHueLight": "/nodes/knxUltimateHueLight.js"
+      "knxUltimateHueLight": "/nodes/knxUltimateHueLight.js",
+      "knxUltimateHueButton": "/nodes/knxUltimateHueButton.js"
     }
   },
   "repository": {

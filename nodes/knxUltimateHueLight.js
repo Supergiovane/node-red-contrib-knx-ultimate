@@ -3,13 +3,15 @@ module.exports = function (RED) {
   const hueColorConverter = require('./utils/hueColorConverter')
 
 
-  async function getLightState(node, config) {
+  async function getLightState(node, _lightID) {
     return new Promise((resolve, reject) => {
       try {
-        node.serverHue.hueManager.getLight(config.hueLight.split('#')[1]).then(ret => {
-          node.currentHUELight = ret[0]
-          resolve(ret)
-        })
+        if (node !== null && node.serverHue !== null && node.serverHue.hueManager !== null) {
+          node.serverHue.hueManager.getLight(_lightID).then(ret => {
+            node.currentHUEDevice = ret[0]
+            resolve(ret)
+          })
+        }
       } catch (error) {
         reject(error)
       }
@@ -45,7 +47,7 @@ module.exports = function (RED) {
 
     // Read the state of the light and store it in the holding object
     try {
-      getLightState(node, config)
+      if (config.hueDevice !== undefined && config.hueDevice !== '') getLightState(node, config.hueDevice.split('#')[1])
     } catch (error) {
     }
 
@@ -64,26 +66,26 @@ module.exports = function (RED) {
           case config.GALightSwitch:
             msg.payload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightSwitch))
             state = msg.payload === true ? { on: { on: true } } : { on: { on: false } }
-            node.serverHue.hueManager.setLightState(config.hueLight.split('#')[1], state)
+            node.serverHue.hueManager.setLightState(config.hueDevice.split('#')[1], state)
             break
           case config.GALightDIM:
             msg.payload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightDIM))
             state = msg.payload.decr_incr === 1 ? { dimming_delta: { action: 'up', brightness_delta: 20 } } : { dimming_delta: { action: 'down', brightness_delta: 20 } }
-            node.serverHue.hueManager.setLightState(config.hueLight.split('#')[1], state)
+            node.serverHue.hueManager.setLightState(config.hueDevice.split('#')[1], state)
             break
           case config.GALightBrightness:
             msg.payload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightBrightness))
             state = { dimming: { brightness: msg.payload } }
-            node.serverHue.hueManager.setLightState(config.hueLight.split('#')[1], state)
+            node.serverHue.hueManager.setLightState(config.hueDevice.split('#')[1], state)
             break
           case config.GALightColor:
             // Behavior like ISE HUE CONNECT, by setting the brightness and on/off as well
             msg.payload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightColor))
-            const gamut = node.currentHUELight.color.gamut_type || null
+            const gamut = node.currentHUEDevice.color.gamut_type || null
             const retXY = hueColorConverter.ColorConverter.rgbToXy(msg.payload.red, msg.payload.green, msg.payload.blue, gamut)
             const bright = hueColorConverter.ColorConverter.getBrightnessFromRGB(msg.payload.red, msg.payload.green, msg.payload.blue)
             bright > 0 ? state = { on: { on: true }, dimming: { brightness: bright }, color: { xy: retXY } } : state = { on: { on: false } }
-            node.serverHue.hueManager.setLightState(config.hueLight.split('#')[1], state)
+            node.serverHue.hueManager.setLightState(config.hueDevice.split('#')[1], state)
             break
           default:
             break
@@ -96,7 +98,7 @@ module.exports = function (RED) {
 
     node.handleSendHUE = _event => {
       try {
-        if (_event.id === config.hueLight.split('#')[1]) {
+        if (_event.id === config.hueDevice.split('#')[1]) {
           let knxMsgPayload = {}
           if (_event.hasOwnProperty('on')) {
             knxMsgPayload.ga = config.GALightState
@@ -106,7 +108,7 @@ module.exports = function (RED) {
           if (_event.hasOwnProperty('color')) {
             knxMsgPayload.ga = config.GALightColorState
             knxMsgPayload.dpt = config.dptLightColorState
-            knxMsgPayload.payload = hueColorConverter.ColorConverter.xyBriToRgb(_event.color.xy.x, _event.color.xy.y, node.currentHUELight.dimming.brightness)
+            knxMsgPayload.payload = hueColorConverter.ColorConverter.xyBriToRgb(_event.color.xy.x, _event.color.xy.y, node.currentHUEDevice.dimming.brightness)
           }
           if (_event.hasOwnProperty('dimming')) {
             knxMsgPayload.ga = config.GALightBrightnessState

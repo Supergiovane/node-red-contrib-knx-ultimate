@@ -36,7 +36,7 @@
             GALightBrightnessState: { value: "" },
             dptLightBrightnessState: { value: "" },
 
-            hueLight: { value: "" }
+            hueDevice: { value: "" }
         },
         inputs: 0,
         outputs: 0,
@@ -62,11 +62,18 @@
         oneditprepare: function () {
             var node = this;
             var oNodeServer = RED.nodes.node($("#node-input-server").val()); // Store the config-node
+            var oNodeServerHue = RED.nodes.node($("#node-input-serverHue").val()); // Store the config-node
 
             // 19/02/2020 Used to get the server sooner als deploy.
             $("#node-input-server").change(function () {
                 try {
                     oNodeServer = RED.nodes.node($(this).val());
+                } catch (error) { }
+            });
+            // 19/02/2020 Used to get the server sooner als deploy.
+            $("#node-input-serverHue").change(function () {
+                try {
+                    oNodeServerHue = RED.nodes.node($(this).val());
                 } catch (error) { }
             });
 
@@ -391,17 +398,17 @@
 
 
             // Autocomplete suggestion with HUE Lights
-            $("#node-input-hueLight").autocomplete({
+            $("#node-input-name").autocomplete({
                 minLength: 1,
                 source: function (request, response) {
-                    $.getJSON("KNXUltimateGetAllLightsHUE", (data) => {
-                        response($.map(data.lights, function (value, key) {
+                    $.getJSON("KNXUltimateGetDevicesHUE?rtype=light&nodeID=" + oNodeServerHue.id, (data) => {
+                        response($.map(data.devices, function (value, key) {
                             //alert(JSON.stringify(value) + " "+ key)
-                            var sSearch = (value.metadata.name + " (" + value.metadata.archetype + " " + value.type + ") #" + value.id);
+                            var sSearch = (value.metadata.name + " (" + value.product_data.product_name + ")");
                             if (fullSearch(sSearch, request.term)) {
                                 return {
-                                    label: value.metadata.name + " (" + value.metadata.archetype + " " + value.type + ") #" + value.id, // Label for Display
-                                    value: value.metadata.name + " (" + value.metadata.archetype + " " + value.type + ") #" + value.id // Value
+                                    hueDevice: value.id, // Label for Display
+                                    value: value.metadata.name + " (" + value.product_data.product_name + ")" // Value
                                 }
                             } else {
                                 return null;
@@ -409,10 +416,8 @@
                         }));
                     });
                 }, select: function (event, ui) {
-                    // Sets the field
-                    var sDevName = ui.item.label;
-                    $('#node-input-hueLight').val(sDevName);
-                    $('#node-input-name').val(sDevName.split("#")[0]);
+                    // Sets the fields
+                    $('#node-input-hueDevice').val(ui.item.hueDevice);
                 }
             });
 
@@ -436,13 +441,14 @@
 
 
 <div class="form-row">
-    <b><span data-i18n="knxUltimateHueLight.title"></span></b>&nbsp&nbsp<span style="color:red"
-        data-i18n="[html]knxUltimateHueLight.helplink"></span>
+    <b>HUE Light</b>&nbsp&nbsp<span style="color:red"
+    &nbsp<i class="fa fa-question-circle"></i></span>
+    &nbsp<a target="_blank" href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/en-hue-configuration"><u>Configuration</u></a> 
     <br />
     <br />
     <label for="node-input-server" >
         <i class="fa fa-square-o"></i>
-        <span data-i18n="knxUltimateHueLight.advanced.node-input-server"></span>
+        KNX GW
     </label>
     <input type="text" id="node-input-server" />
 </div>
@@ -450,18 +456,11 @@
 <div class="form-row">
     <label for="node-input-serverHue">
         <i class="fa fa-lightbulb-o"></i>
-        <span data-i18n="knxUltimateHueLight.advanced.node-input-serverHue"></span>
+        HUE Bridge
     </label>
     <input type="text" id="node-input-serverHue" />
 </div>
 
-<div class="form-row">
-    <label for="node-input-name" >
-        <i class="fa fa-tag"></i>
-        <span data-i18n="knxUltimateHueLight.node-input-name"></span>
-    </label>
-    <input style="width:35%;" type="text" id="node-input-name" data-i18n="[placeholder]knxUltimateHueLight.node-input-name" />
-</div>
 
 <br/>
 <p>
@@ -469,9 +468,10 @@
 </p>
     
 <div class="form-row">
-    <label for="node-input-hueLight" >
-        <i class="fa fa-lightbulb-o"></i>&nbsp<span data-i18n="knxUltimateHueLight.node-input-hueLight"></span></label>
-    <input type="text" id="node-input-hueLight" />
+    <label for="node-input-hueDevice" >
+    <i class="fa fa-lightbulb-o"></i>&nbspName</label>
+    <input type="text" id="node-input-name" data-i18n="[placeholder]knxUltimateHueLight.node-input-name" />
+    <input type="hidden" id="node-input-hueDevice"/>
 </div>
 
 <br/>

@@ -1,6 +1,6 @@
 'use strict'
 
-//const hueApi = require('node-hue-api')
+// const hueApi = require('node-hue-api')
 const hueApiV2 = require('node-hue')
 const { EventEmitter } = require('events')
 
@@ -16,28 +16,16 @@ class classHUE extends EventEmitter {
     this.hue = undefined
   }
 
-  getAllLights = async () => {
+  getDevices = async (_rtype) => {
     try {
       // V2
       const hue = hueApiV2.connect({ host: this.HUEBridgeIP, key: this.username })
-      const allLights = await hue.getLights()
-      //  allLights.forEach(light => {
-      //    console.log(JSON.stringify(light))
-      //    console.log("\n")
-      //    console.log("\n")
-      //  })
-
-      // V2
-      // const bridgeHUE = await hueApi.v3.api.createLocal(this.HUEBridgeIP).connect(this.username)
-      // const allLights = await bridgeHUE.lights.getAll()
-      // allLights.forEach(light => {
-      //   console.log(light.toStringDetailed())
-      // })
-
-      return { lights: allLights }
+      const allDevices = await hue.getDevices()
+      const newArray = allDevices.filter(x => x.services.find(y => y.rtype === _rtype))
+      return { devices: newArray }
     } catch (error) {
-      console.log('KNXUltimateHue: classHUE: error ' + error.message)
-      return ({ lights: error.message })
+      console.log('KNXUltimateHue: classHUE: getDevices: error ' + error.message)
+      return ({ devices: error.message })
     }
   }
 
@@ -69,7 +57,7 @@ class classHUE extends EventEmitter {
   handleTheDog = async () => {
     this.timerWatchDog = setInterval(async () => {
       try {
-        //const hue = hueApiV2.connect({ host: this.HUEBridgeIP, key: this.username })
+        // const hue = hueApiV2.connect({ host: this.HUEBridgeIP, key: this.username })
         if (this.hue !== undefined) {
           const sRet = await this.hue.getBridges()
           if (sRet.filter(e => e.bridge_id.toString().toLowerCase() === this.bridgeid.toString().toLowerCase()).length === 0) {
@@ -107,4 +95,3 @@ class classHUE extends EventEmitter {
   }
 }
 module.exports.classHUE = classHUE
-

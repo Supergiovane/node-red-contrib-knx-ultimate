@@ -7,6 +7,10 @@
 # CHANGELOG
 
 <p>
+<b>Version 2.0.2</b> - June 2023<br/>
+- NEW: HUE Button node<br/>
+</p>
+<p>
 <b>Version 2.0.1</b> - June 2023<br/>
 - NEW: more KNX group addresses in the HUE Light node<br/>
 </p>
