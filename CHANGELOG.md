@@ -7,7 +7,7 @@
 # CHANGELOG
 
 <p>
-<b>Version 2.0.3</b> - June 2023<br/>
+<b>Version 2.0.4</b> - June 2023<br/>
 - NEW: HUE Button node. All HUE integrations are in BETA.<br/>
 - Slowly integrating the help in the node-red help section.<br/>
 </p>
