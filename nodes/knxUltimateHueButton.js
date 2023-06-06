@@ -42,12 +42,18 @@ module.exports = function (RED) {
     node.formatmultiplyvalue = 1
     node.formatnegativevalue = 'leave'
     node.formatdecimalsvalue = 2
-
+    node.toggle1 = false
+    node.toggle2 = false // up or down if repeat field is set to DIM
+    node.toggle3 = false
+    node.toggle4 = false
+    node.toggle4 = false
+    node.toggle5 = false
+    node.toggle5 = false
 
 
     // Read the state of the light and store it in the holding object
     try {
-      if (config.hueLight !== undefined && config.hueLight !== '') getLightState(node, config.hueLight.split('#')[1])
+      if (config.hueLight !== undefined && config.hueLight !== '') getLightState(node, config.hueLight)
     } catch (error) {
     }
 
@@ -60,65 +66,61 @@ module.exports = function (RED) {
 
     // This function is called by the knx-ultimate config node, to output a msg.payload.
     node.handleSend = msg => {
-      let state = {}
-      try {
-        switch (msg.knx.destination) {
-          case config.GALightSwitch:
-            msg.payload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightSwitch))
-            state = msg.payload === true ? { on: { on: true } } : { on: { on: false } }
-            node.serverHue.hueManager.setLightState(config.hueLight.split('#')[1], state)
-            break
-          case config.GALightDIM:
-            msg.payload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightDIM))
-            state = msg.payload.decr_incr === 1 ? { dimming_delta: { action: 'up', brightness_delta: 20 } } : { dimming_delta: { action: 'down', brightness_delta: 20 } }
-            node.serverHue.hueManager.setLightState(config.hueLight.split('#')[1], state)
-            break
-          case config.GALightBrightness:
-            msg.payload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightBrightness))
-            state = { dimming: { brightness: msg.payload } }
-            node.serverHue.hueManager.setLightState(config.hueLight.split('#')[1], state)
-            break
-          case config.GALightColor:
-            // Behavior like ISE HUE CONNECT, by setting the brightness and on/off as well
-            msg.payload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightColor))
-            const gamut = node.currentHUEDevice.color.gamut_type || null
-            const retXY = hueColorConverter.ColorConverter.rgbToXy(msg.payload.red, msg.payload.green, msg.payload.blue, gamut)
-            const bright = hueColorConverter.ColorConverter.getBrightnessFromRGB(msg.payload.red, msg.payload.green, msg.payload.blue)
-            bright > 0 ? state = { on: { on: true }, dimming: { brightness: bright }, color: { xy: retXY } } : state = { on: { on: false } }
-            node.serverHue.hueManager.setLightState(config.hueLight.split('#')[1], state)
-            break
-          default:
-            break
-        }
-      } catch (error) {
-        node.status({ fill: 'red', shape: 'dot', text: 'KNX->HUE error ' + error.message + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' })
-      }
-      // node.exposedGAs.push({ address: msg.knx.destination, addressRAW: sAddressRAW, dpt: msg.knx.dpt, payload: msg.payload, devicename: sDeviceName, lastupdate: new Date(), rawPayload: 'HEX Raw: ' + msg.knx.rawValue.toString('hex') || '?', payloadmeasureunit: (msg.payloadmeasureunit !== 'unknown' ? ' ' + msg.payloadmeasureunit : '') })
     }
 
     node.handleSendHUE = _event => {
       try {
-        if (_event.id === config.hueLight.split('#')[1]) {
-          let knxMsgPayload = {}
-          if (_event.hasOwnProperty('on')) {
-            knxMsgPayload.ga = config.GALightState
-            knxMsgPayload.dpt = config.dptLightState
-            knxMsgPayload.payload = _event.on.on
+        if (_event.id === config.hueDevice) {
+          const knxMsgPayload = {}
+          if (_event.button.last_event === 'initial_press') {
+            knxMsgPayload.ga = config.GAinitial_press
+            knxMsgPayload.dpt = config.dptinitial_press
+            config.toggleValues ? node.toggle1 = !node.toggle1 : node.toggle1 = true
+            knxMsgPayload.payload = node.toggle1
+            // Toggle the DIM direction
+            config.toggleValues ? node.toggle2 = !node.toggle2 : node.toggle2 = true
           }
-          if (_event.hasOwnProperty('color')) {
-            knxMsgPayload.ga = config.GALightColorState
-            knxMsgPayload.dpt = config.dptLightColorState
-            knxMsgPayload.payload = hueColorConverter.ColorConverter.xyBriToRgb(_event.color.xy.x, _event.color.xy.y, node.currentHUEDevice.dimming.brightness)
+          if (_event.button.last_event === 'repeat') {
+            knxMsgPayload.ga = config.GArepeat
+            knxMsgPayload.dpt = config.dptrepeat
+            // True/False or DIM
+            if (knxMsgPayload.dpt.startsWith('1.')) {
+              config.toggleValues ? node.toggle2 = !node.toggle2 : node.toggle2 = true
+              knxMsgPayload.payload = node.toggle2
+            }
+            if (knxMsgPayload.dpt.startsWith('3.007')) {
+              if (!config.toggleValues) node.toggle2 = true
+              knxMsgPayload.payload = node.toggle2 ? { decr_incr: 1, data: 5 } : { decr_incr: 0, data: 5 }
+            }
           }
-          if (_event.hasOwnProperty('dimming')) {
-            knxMsgPayload.ga = config.GALightBrightnessState
-            knxMsgPayload.dpt = config.dptLightBrightnessState
-            knxMsgPayload.payload = _event.dimming.brightness
+          if (_event.button.last_event === 'short_release') {
+            knxMsgPayload.ga = config.GAshort_release
+            knxMsgPayload.dpt = config.dptshort_release
+            config.toggleValues ? node.toggle3 = !node.toggle3 : node.toggle3 = true
+            knxMsgPayload.payload = node.toggle3
+          }
+          if (_event.button.last_event === 'long_release') {
+            knxMsgPayload.ga = config.GAlong_release
+            knxMsgPayload.dpt = config.dptlong_release
+            config.toggleValues ? node.toggle4 = !node.toggle4 : node.toggle4 = true
+            knxMsgPayload.payload = node.toggle4
+          }
+          if (_event.button.last_event === 'double_short_release') {
+            knxMsgPayload.ga = config.GAdouble_short_release
+            knxMsgPayload.dpt = config.dptdouble_short_release
+            config.toggleValues ? node.toggle5 = !node.toggle5 : node.toggle5 = true
+            knxMsgPayload.payload = node.toggle5
+          }
+          if (_event.button.last_event === 'long_press') {
+            knxMsgPayload.ga = config.GAlong_press
+            knxMsgPayload.dpt = config.dptlong_press
+            config.toggleValues ? node.toggle6 = !node.toggle6 : node.toggle6 = true
+            knxMsgPayload.payload = node.toggle6
           }
           // Send to KNX bus
           if (knxMsgPayload.ga !== undefined) {
-            node.status({ fill: 'green', shape: 'dot', text: 'HUE->KNX State ' + JSON.stringify(knxMsgPayload.payload) + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' })
-            if (config.GALightState !== '') node.server.writeQueueAdd({ grpaddr: knxMsgPayload.ga, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
+            node.status({ fill: 'green', shape: 'dot', text: 'HUE->KNX ' + _event.button.last_event + ' ' + JSON.stringify(knxMsgPayload.payload) + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' })
+            if (knxMsgPayload.ga !== '' && knxMsgPayload.ga !== undefined) node.server.writeQueueAdd({ grpaddr: knxMsgPayload.ga, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
           }
         }
       } catch (error) {

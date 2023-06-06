@@ -6,36 +6,33 @@
             //buttonState: {value: true},
             server: { type: "knxUltimate-config", required: true },
             serverHue: { type: "hue-config", required: true },
-            name: { value: "Hue Button" },
+            name: { value: "Hue Button (beta)" },
 
-            nameLightSwitch: { value: "" },
-            GALightSwitch: { value: "" },
-            dptLightSwitch: { value: "" },
+            nameinitial_press: { value: "" },
+            GAinitial_press: { value: "" },
+            dptinitial_press: { value: "" },
 
-            nameLightState: { value: "" },
-            GALightState: { value: "" },
-            dptLightState: { value: "" },
+            namerepeat: { value: "" },
+            GArepeat: { value: "" },
+            dptrepeat: { value: "" },
 
-            nameLightDIM: { value: "" },
-            GALightDIM: { value: "" },
-            dptLightDIM: { value: "" },
+            nameshort_release: { value: "" },
+            GAshort_release: { value: "" },
+            dptshort_release: { value: "" },
 
-            nameLightColor: { value: "" },
-            GALightColor: { value: "" },
-            dptLightColor: { value: "" },
+            namelong_release: { value: "" },
+            GAlong_release: { value: "" },
+            dptlong_release: { value: "" },
 
-            nameLightColorState: { value: "" },
-            GALightColorState: { value: "" },
-            dptLightColorState: { value: "" },
+            namedouble_short_release: { value: "" },
+            GAdouble_short_release: { value: "" },
+            dptdouble_short_release: { value: "" },
 
-            nameLightBrightness: { value: "" },
-            GALightBrightness: { value: "" },
-            dptLightBrightness: { value: "" },
+            namelong_press: { value: "" },
+            GAlong_press: { value: "" },
+            dptlong_press: { value: "" },
 
-            nameLightBrightnessState: { value: "" },
-            GALightBrightnessState: { value: "" },
-            dptLightBrightnessState: { value: "" },
-
+            toggleValues: { value: true },
             hueDevice: { value: "" }
         },
         inputs: 0,
@@ -93,16 +90,16 @@
             $.getJSON('knxUltimateDpts', (data) => {
                 data.forEach(dpt => {
                     if (dpt.value.startsWith("1.")) {
-                        $("#node-input-dptLightSwitch").append($("<option></option>")
+                        $("#node-input-dptinitial_press").append($("<option></option>")
                             .attr("value", dpt.value)
                             .text(dpt.text))
                     }
                 });
-                $("#node-input-dptLightSwitch").val(this.dptLightSwitch)
+                $("#node-input-dptinitial_press").val(this.dptinitial_press)
             })
 
             // Autocomplete suggestion with ETS csv File
-            $("#node-input-GALightSwitch").autocomplete({
+            $("#node-input-GAinitial_press").autocomplete({
                 minLength: 1,
                 source: function (request, response) {
                     //$.getJSON("csv", request, function( data, status, xhr ) {
@@ -126,32 +123,81 @@
                         sDevName = sDevName.substr(sDevName.indexOf(")") + 1).trim();
                     } catch (error) {
                     }
-                    $('#node-input-nameLightSwitch').val(sDevName);
-                    var optVal = $("#node-input-dptLightSwitch option:contains('" + ui.item.label.split("#")[2].trim() + "')").attr('value');
+                    $('#node-input-nameinitial_press').val(sDevName);
+                    var optVal = $("#node-input-dptinitial_press option:contains('" + ui.item.label.split("#")[2].trim() + "')").attr('value');
                     // Select the option value 
-                    $("#node-input-dptLightSwitch").val(optVal);
+                    $("#node-input-dptinitial_press").val(optVal);
                 }
             });
             // ######################## 
 
 
 
-            // DPT State
+            // DPT repeat
             // ########################
             $.getJSON('knxUltimateDpts', (data) => {
                 data.forEach(dpt => {
-                    if (dpt.value.startsWith("1.")) {
-                        $("#node-input-dptLightState").append($("<option></option>")
+                    if (dpt.value.startsWith("1.") || dpt.value.startsWith("3.007")) {
+                        $("#node-input-dptrepeat").append($("<option></option>")
                             .attr("value", dpt.value)
                             .text(dpt.text))
                     }
                 });
 
-                $("#node-input-dptLightState").val(this.dptLightState)
+                $("#node-input-dptrepeat").val(this.dptrepeat)
             })
 
             // Autocomplete suggestion with ETS csv File
-            $("#node-input-GALightState").autocomplete({
+            $("#node-input-GArepeat").autocomplete({
+                minLength: 1,
+                source: function (request, response) {
+                    $.getJSON("knxUltimatecsv?nodeID=" + oNodeServer.id, (data) => {
+                        response($.map(data, function (value, key) {
+                            var sSearch = (value.ga + " (" + value.devicename + ") DPT" + value.dpt);
+                            if (fullSearch(sSearch, request.term)) {
+                                if (value.dpt.startsWith('1.') || value.dpt.startsWith('3.007')) {
+                                    return {
+                                        label: value.ga + " # " + value.devicename + " # " + value.dpt, // Label for Display
+                                        value: value.ga // Value
+                                    }
+                                } else { return null; }
+                            } else {
+                                return null;
+                            }
+                        }));
+                    });
+                }, select: function (event, ui) {
+                    // Sets Datapoint and device name automatically
+                    var sDevName = ui.item.label.split("#")[1].trim();
+                    try {
+                        sDevName = sDevName.substr(sDevName.indexOf(")") + 1).trim();
+                    } catch (error) {
+                    }
+                    $('#node-input-namerepeat').val(sDevName);
+                    var optVal = $("#node-input-dptrepeat option:contains('" + ui.item.label.split("#")[2].trim() + "')").attr('value');
+                    // Select the option value 
+                    $("#node-input-dptrepeat").val(optVal);
+                }
+            });
+
+
+            // DPT dptshort_release
+            // ########################
+            $.getJSON('knxUltimateDpts', (data) => {
+                data.forEach(dpt => {
+                    if (dpt.value.startsWith('1.')) {
+                        $("#node-input-dptshort_release").append($("<option></option>")
+                            .attr("value", dpt.value)
+                            .text(dpt.text))
+                    }
+                });
+
+                $("#node-input-dptshort_release").val(this.dptshort_release)
+
+            })
+
+            // Autocomplete suggestion with ETS csv File
+            $("#node-input-GAshort_release").autocomplete({
                 minLength: 1,
                 source: function (request, response) {
                     $.getJSON("knxUltimatecsv?nodeID=" + oNodeServer.id, (data) => {
@@ -174,37 +220,41 @@
                         sDevName = sDevName.substr(sDevName.indexOf(")") + 1).trim();
                     } catch (error) {
                     }
-                    $('#node-input-nameLightState').val(sDevName);
-                    var optVal = $("#node-input-dptLightState option:contains('" + ui.item.label.split("#")[2].trim() + "')").attr('value');
+                    $('#node-input-nameshort_release').val(sDevName);
+                    var optVal = $("#node-input-dptshort_release option:contains('" + ui.item.label.split("#")[2].trim() + "')").attr('value');
                     // Select the option value 
-                    $("#node-input-dptLightState").val(optVal);
+                    $("#node-input-dptshort_release").val(optVal);
                 }
             });
 
 
-            // DPT dptLightDIM
+            // DPT dptlong_release and dptLightColorStateƒ
             // ########################
             $.getJSON('knxUltimateDpts', (data) => {
                 data.forEach(dpt => {
-                    if (dpt.value === "3.007") {
-                        $("#node-input-dptLightDIM").append($("<option></option>")
+                    if (dpt.value.startsWith('1.')) {
+                        $("#node-input-dptlong_release").append($("<option></option>")
+                            .attr("value", dpt.value)
+                            .text(dpt.text))
+                        $("#node-input-dptdouble_short_release").append($("<option></option>")
                             .attr("value", dpt.value)
                             .text(dpt.text))
                     }
                 });
 
-                $("#node-input-dptLightDIM").val(this.dptLightDIM)
+                $("#node-input-dptlong_release").val(this.dptlong_release)
+                $("#node-input-dptdouble_short_release").val(this.dptdouble_short_release)
 
             })
 
             // Autocomplete suggestion with ETS csv File
-            $("#node-input-GALightDIM").autocomplete({
+            $("#node-input-GAlong_release").autocomplete({
                 minLength: 1,
                 source: function (request, response) {
                     $.getJSON("knxUltimatecsv?nodeID=" + oNodeServer.id, (data) => {
                         response($.map(data, function (value, key) {
                             var sSearch = (value.ga + " (" + value.devicename + ") DPT" + value.dpt);
-                            if (fullSearch(sSearch, request.term + " 3.007")) {
+                            if (fullSearch(sSearch, request.term + " 1.")) {
                                 return {
                                     label: value.ga + " # " + value.devicename + " # " + value.dpt, // Label for Display
                                     value: value.ga // Value
@@ -221,41 +271,69 @@
                         sDevName = sDevName.substr(sDevName.indexOf(")") + 1).trim();
                     } catch (error) {
                     }
-                    $('#node-input-nameLightDIM').val(sDevName);
-                    var optVal = $("#node-input-dptLightDIM option:contains('" + ui.item.label.split("#")[2].trim() + "')").attr('value');
+                    $('#node-input-namelong_release').val(sDevName);
+                    var optVal = $("#node-input-dptlong_release option:contains('" + ui.item.label.split("#")[2].trim() + "')").attr('value');
                     // Select the option value 
-                    $("#node-input-dptLightDIM").val(optVal);
+                    $("#node-input-dptlong_release").val(optVal);
+                }
+            });
+
+            // Autocomplete suggestion with ETS csv File
+            $("#node-input-GAdouble_short_release").autocomplete({
+                minLength: 1,
+                source: function (request, response) {
+                    $.getJSON("knxUltimatecsv?nodeID=" + oNodeServer.id, (data) => {
+                        response($.map(data, function (value, key) {
+                            var sSearch = (value.ga + " (" + value.devicename + ") DPT" + value.dpt);
+                            if (fullSearch(sSearch, request.term + " 1.")) {
+                                return {
+                                    label: value.ga + " # " + value.devicename + " # " + value.dpt, // Label for Display
+                                    value: value.ga // Value
+                                }
+                            } else {
+                                return null;
+                            }
+                        }));
+                    });
+                }, select: function (event, ui) {
+                    // Sets Datapoint and device name automatically
+                    var sDevName = ui.item.label.split("#")[1].trim();
+                    try {
+                        sDevName = sDevName.substr(sDevName.indexOf(")") + 1).trim();
+                    } catch (error) {
+                    }
+                    $('#node-input-namedouble_short_release').val(sDevName);
+                    var optVal = $("#node-input-dptdouble_short_release option:contains('" + ui.item.label.split("#")[2].trim() + "')").attr('value');
+                    // Select the option value 
+                    $("#node-input-dptdouble_short_release").val(optVal);
                 }
             });
 
 
-            // DPT dptLightColor and dptLightColorStateƒ
+
+            // DPT dptlong_press 
             // ########################
             $.getJSON('knxUltimateDpts', (data) => {
                 data.forEach(dpt => {
-                    if (dpt.value === "232.600") {
-                        $("#node-input-dptLightColor").append($("<option></option>")
-                            .attr("value", dpt.value)
-                            .text(dpt.text))
-                        $("#node-input-dptLightColorState").append($("<option></option>")
+                    if (dpt.value.startsWith('1.')) {
+                        $("#node-input-dptlong_press").append($("<option></option>")
                             .attr("value", dpt.value)
                             .text(dpt.text))
                     }
                 });
 
-                $("#node-input-dptLightColor").val(this.dptLightColor)
-                $("#node-input-dptLightColorState").val(this.dptLightColorState)
+                $("#node-input-dptlong_press").val(this.dptlong_press)
 
             })
 
             // Autocomplete suggestion with ETS csv File
-            $("#node-input-GALightColor").autocomplete({
+            $("#node-input-GAlong_press").autocomplete({
                 minLength: 1,
                 source: function (request, response) {
                     $.getJSON("knxUltimatecsv?nodeID=" + oNodeServer.id, (data) => {
                         response($.map(data, function (value, key) {
                             var sSearch = (value.ga + " (" + value.devicename + ") DPT" + value.dpt);
-                            if (fullSearch(sSearch, request.term + " 232.600")) {
+                            if (fullSearch(sSearch, request.term + " 1.")) {
                                 return {
                                     label: value.ga + " # " + value.devicename + " # " + value.dpt, // Label for Display
                                     value: value.ga // Value
@@ -272,143 +350,30 @@
                         sDevName = sDevName.substr(sDevName.indexOf(")") + 1).trim();
                     } catch (error) {
                     }
-                    $('#node-input-nameLightColor').val(sDevName);
-                    var optVal = $("#node-input-dptLightColor option:contains('" + ui.item.label.split("#")[2].trim() + "')").attr('value');
+                    $('#node-input-namelong_press').val(sDevName);
+                    var optVal = $("#node-input-dptlong_press option:contains('" + ui.item.label.split("#")[2].trim() + "')").attr('value');
                     // Select the option value 
-                    $("#node-input-dptLightColor").val(optVal);
+                    $("#node-input-dptlong_press").val(optVal);
                 }
             });
 
-            // Autocomplete suggestion with ETS csv File
-            $("#node-input-GALightColorState").autocomplete({
-                minLength: 1,
-                source: function (request, response) {
-                    $.getJSON("knxUltimatecsv?nodeID=" + oNodeServer.id, (data) => {
-                        response($.map(data, function (value, key) {
-                            var sSearch = (value.ga + " (" + value.devicename + ") DPT" + value.dpt);
-                            if (fullSearch(sSearch, request.term + " 232.600")) {
-                                return {
-                                    label: value.ga + " # " + value.devicename + " # " + value.dpt, // Label for Display
-                                    value: value.ga // Value
-                                }
-                            } else {
-                                return null;
-                            }
-                        }));
-                    });
-                }, select: function (event, ui) {
-                    // Sets Datapoint and device name automatically
-                    var sDevName = ui.item.label.split("#")[1].trim();
-                    try {
-                        sDevName = sDevName.substr(sDevName.indexOf(")") + 1).trim();
-                    } catch (error) {
-                    }
-                    $('#node-input-nameLightColorState').val(sDevName);
-                    var optVal = $("#node-input-dptLightColorState option:contains('" + ui.item.label.split("#")[2].trim() + "')").attr('value');
-                    // Select the option value 
-                    $("#node-input-dptLightColorState").val(optVal);
-                }
-            });
-
-
-
-            // DPT dptLightBrightness and dptLightBrightnessState
-            // ########################
-            $.getJSON('knxUltimateDpts', (data) => {
-                data.forEach(dpt => {
-                    if (dpt.value === "5.001") {
-                        $("#node-input-dptLightBrightness").append($("<option></option>")
-                            .attr("value", dpt.value)
-                            .text(dpt.text))
-                        $("#node-input-dptLightBrightnessState").append($("<option></option>")
-                            .attr("value", dpt.value)
-                            .text(dpt.text))
-                    }
-                });
-
-                $("#node-input-dptLightBrightness").val(this.dptLightBrightness)
-                $("#node-input-dptLightBrightnessState").val(this.dptLightBrightnessState)
-
-            })
-
-            // Autocomplete suggestion with ETS csv File
-            $("#node-input-GALightBrightness").autocomplete({
-                minLength: 1,
-                source: function (request, response) {
-                    $.getJSON("knxUltimatecsv?nodeID=" + oNodeServer.id, (data) => {
-                        response($.map(data, function (value, key) {
-                            var sSearch = (value.ga + " (" + value.devicename + ") DPT" + value.dpt);
-                            if (fullSearch(sSearch, request.term + " 5.001")) {
-                                return {
-                                    label: value.ga + " # " + value.devicename + " # " + value.dpt, // Label for Display
-                                    value: value.ga // Value
-                                }
-                            } else {
-                                return null;
-                            }
-                        }));
-                    });
-                }, select: function (event, ui) {
-                    // Sets Datapoint and device name automatically
-                    var sDevName = ui.item.label.split("#")[1].trim();
-                    try {
-                        sDevName = sDevName.substr(sDevName.indexOf(")") + 1).trim();
-                    } catch (error) {
-                    }
-                    $('#node-input-nameLightBrightness').val(sDevName);
-                    var optVal = $("#node-input-dptLightBrightness option:contains('" + ui.item.label.split("#")[2].trim() + "')").attr('value');
-                    // Select the option value 
-                    $("#node-input-dptLightBrightness").val(optVal);
-                }
-            });
-
-            // Autocomplete suggestion with ETS csv File
-            $("#node-input-GALightBrightnessState").autocomplete({
-                minLength: 1,
-                source: function (request, response) {
-                    $.getJSON("knxUltimatecsv?nodeID=" + oNodeServer.id, (data) => {
-                        response($.map(data, function (value, key) {
-                            var sSearch = (value.ga + " (" + value.devicename + ") DPT" + value.dpt);
-                            if (fullSearch(sSearch, request.term + " 5.001")) {
-                                return {
-                                    label: value.ga + " # " + value.devicename + " # " + value.dpt, // Label for Display
-                                    value: value.ga // Value
-                                }
-                            } else {
-                                return null;
-                            }
-                        }));
-                    });
-                }, select: function (event, ui) {
-                    // Sets Datapoint and device name automatically
-                    var sDevName = ui.item.label.split("#")[1].trim();
-                    try {
-                        sDevName = sDevName.substr(sDevName.indexOf(")") + 1).trim();
-                    } catch (error) {
-                    }
-                    $('#node-input-nameLightBrightnessState').val(sDevName);
-                    var optVal = $("#node-input-dptLightBrightnessState option:contains('" + ui.item.label.split("#")[2].trim() + "')").attr('value');
-                    // Select the option value 
-                    $("#node-input-dptLightBrightnessState").val(optVal);
-                }
-            });
 
 
 
 
 
             // Autocomplete suggestion with HUE Lights
-            $("#node-input-hueDevice").autocomplete({
+            $("#node-input-name").autocomplete({
                 minLength: 1,
                 source: function (request, response) {
                     $.getJSON("KNXUltimateGetDevicesHUE?rtype=button&nodeID=" + oNodeServerHue.id, (data) => {
                         response($.map(data.devices, function (value, key) {
                             //alert(JSON.stringify(value) + " "+ key)
-                            var sSearch = (value.metadata.name + " (" + value.product_data.product_name + " " + value.product_data.product_archetype + ")");
+                            var sSearch = (value.name);
                             if (fullSearch(sSearch, request.term)) {
                                 return {
-                                    label: value.metadata.name + " (" + value.product_data.product_name + " " + value.product_data.product_archetype + ")", // Label for Display
-                                    value: value.id // Value
+                                    hueDevice: value.id, // Label for Display
+                                    value: value.name // Value
                                 }
                             } else {
                                 return null;
@@ -416,10 +381,8 @@
                         }));
                     });
                 }, select: function (event, ui) {
-                    // Sets the field
-                    var sDevName = ui.item.label;
-                    $('#node-input-hueDevice').val(sDevName + " #" + ui.item.value);
-                    $('#node-input-name').val(sDevName);
+                    // Sets the fields
+                    $('#node-input-hueDevice').val(ui.item.hueDevice);
                 }
             });
 
@@ -447,29 +410,21 @@
     &nbsp<i class="fa fa-question-circle"></i></span>
     &nbsp<a target="_blank" href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/en-hue-configuration"><u>Configuration</u></a> 
     <br />
-    <p align="center"><img src='https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/hueButton.png' width='96px'></p>
+    <p align="center"><img src='https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/hueButton.png'></p>
     <br />
     <label for="node-input-server" >
-        <i class="fa fa-square-o"></i>
-        <span data-i18n="knxUltimateHueButton.advanced.node-input-server"></span>
+        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAKnRFWHRDcmVhdGlvbiBUaW1lAEZyIDYgQXVnIDIwMTAgMjE6NTI6MTkgKzAxMDD84aS8AAAAB3RJTUUH3gYYCicNV+4WIQAAAAlwSFlzAAALEgAACxIB0t1+/AAAAARnQU1BAACxjwv8YQUAAACUSURBVHjaY2CgFZg5c+Z/ZEyWAZ8+f/6/ZsWs/xoamqMGkGrA6Wla/1+fVARjEBuGsSoGmY4eZSCNL59d/g8DIDbIAHR14OgFGQByKjIGKX5+6/T///8gGMQGiV1+/B0Fg70GIkD+RMYgxf/O5/7//2MSmAZhkBi6OrgB6Bg5DGB4ajr3f2xqsYYLSDE2THJUDg0AAAqyDVd4tp4YAAAAAElFTkSuQmCC"></img>
+        KNX GW
     </label>
     <input type="text" id="node-input-server" />
 </div>
 
 <div class="form-row">
     <label for="node-input-serverHue">
-        <i class="fa fa-lightbulb-o"></i>
-        <span data-i18n="knxUltimateHueButton.advanced.node-input-serverHue"></span>
+        <img src="data:image/png;base64, iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAEKADAAQAAAABAAAAEAAAAAA0VXHyAAABFUlEQVQ4EZWSsWoCQRCG1yiENEFEi6QSkjqWWoqFoBYJ+Br6JHkMn8Iibd4ihQpaJIhWNkry/ZtdGZY78Qa+m39nZ+dm9s4550awglNBluS/gVtAX6KgDclf68w2OThgfR9iT/jnoEv4TtByDThWTCDKW4SSZTf/zj9/eZbN+izTDuKGimu0vPF8B/YN8aC8LmcOj/AAn9CFTEs70Js/oGqy79C69bqJ5XbQI2kGO5N8QL9D08S8zBtBF5ZaVsznpCMoqJnVdjTpb1Db0fwIWmQV6BLXzFOYgA6/gDVfQN9bBWp2J2hdWDPoBV5FrKnAJutHikk/CHHR8i7x4iG7qQ720IYvu3GFbpHjx3pFrOFYkA354z/5bkK826phyAAAAABJRU5ErkJggg=="/>
+        HUE Bridge
     </label>
     <input type="text" id="node-input-serverHue" />
-</div>
-
-<div class="form-row">
-    <label for="node-input-name" >
-        <i class="fa fa-tag"></i>
-        <span data-i18n="knxUltimateHueButton.node-input-name"></span>
-    </label>
-    <input style="width:35%;" type="text" id="node-input-name" data-i18n="[placeholder]knxUltimateHueButton.node-input-name" />
 </div>
 
 <br/>
@@ -479,8 +434,9 @@
     
 <div class="form-row">
     <label for="node-input-hueDevice" >
-        <i class="fa fa-lightbulb-o"></i>&nbsp<span data-i18n="knxUltimateHueButton.node-input-hueDevice"></span></label>
-    <input type="text" id="node-input-hueDevice" />
+        <i class="fa fa-play-circle"></i>&nbspHue Button</label>
+        <input type="text" id="node-input-name" placeholder="Enter your hue device name" />
+    <input type="hidden" id="node-input-hueDevice" />
 </div>
 
 <br/>
@@ -488,110 +444,98 @@
 <!-- <p> <img src='https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/knx.png' width='32px'> -> <img src='https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/hue.png' width='32px'></p> -->
 
 <p>
-<b>KNX COMMANDS -> TO PHILIPS HUE</b>
-</p>
-    <div class="form-row">
-        <label for="node-input-nameLightSwitch" style="width:100px;"><i class="fa fa-play-circle-o"></i> <span data-i18n="knxUltimateHueButton.node-input-nameLightSwitch"></span></label>
-
-        <label for="node-input-GALightSwitch" style="width:20px;"><span data-i18n="knxUltimateHueButton.node-input-GALightSwitch"></span></label>
-        <input type="text" id="node-input-GALightSwitch" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
-       
-        <label for="node-input-dptLightSwitch" style="width:40px; margin-left: 0px; text-align: right;">
-            <span data-i18n="knxUltimateHueButton.node-input-dptLightSwitch"></span> </label>
-        <select id="node-input-dptLightSwitch" style="width:140px;"></select>
-       
-        <label for="node-input-nameLightSwitch" style="width:50px; margin-left: 0px; text-align: right;"><span data-i18n="knxUltimateHueButton.node-input-name"></span></label>
-        <input type="text" id="node-input-nameLightSwitch" style="width:200px;margin-left: 5px; text-align: left;">
-    </div>
-    </div>
-        <div class="form-row">
-        <label for="node-input-nameLightDIM" style="width:100px;"><i class="fa fa-play-circle-o"></i>&nbspDimming</label>
-
-        <label for="node-input-GALightDIM" style="width:20px;"><span data-i18n="knxUltimateHueButton.node-input-GALightState"></span></label>
-        <input type="text" id="node-input-GALightDIM" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
-       
-        <label for="node-input-dptLightDIM" style="width:40px; margin-left: 0px; text-align: right;">
-            <span data-i18n="knxUltimateHueButton.node-input-dptLightState"></span> </label>
-        <select id="node-input-dptLightDIM" style="width:140px;"></select>
-       
-        <label for="node-input-nameLightDIM" style="width:50px; margin-left: 0px; text-align: right;"><span data-i18n="knxUltimateHueButton.node-input-name"></span></label>
-        <input type="text" id="node-input-nameLightDIM" style="width:200px;margin-left: 5px; text-align: left;">
-    </div>
-    </div>
-        <div class="form-row">
-        <label for="node-input-nameLightColor" style="width:100px;"><i class="fa fa-play-circle-o"></i>&nbspColor</label>
-
-        <label for="node-input-GALightColor" style="width:20px;"><span data-i18n="knxUltimateHueButton.node-input-GALightState"></span></label>
-        <input type="text" id="node-input-GALightColor" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
-       
-        <label for="node-input-dptLightColor" style="width:40px; margin-left: 0px; text-align: right;">
-            <span data-i18n="knxUltimateHueButton.node-input-dptLightState"></span> </label>
-        <select id="node-input-dptLightColor" style="width:140px;"></select>
-       
-        <label for="node-input-nameLightColor" style="width:50px; margin-left: 0px; text-align: right;"><span data-i18n="knxUltimateHueButton.node-input-name"></span></label>
-        <input type="text" id="node-input-nameLightColor" style="width:200px;margin-left: 5px; text-align: left;">
-    </div>
-    </div>
-        </div>
-        <div class="form-row">
-        <label for="node-input-nameLightBrightness" style="width:100px;"><i class="fa fa-play-circle-o"></i>&nbspBrightness</label>
-
-        <label for="node-input-GALightBrightness" style="width:20px;"><span data-i18n="knxUltimateHueButton.node-input-GALightState"></span></label>
-        <input type="text" id="node-input-GALightBrightness" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
-       
-        <label for="node-input-dptLightBrightness" style="width:40px; margin-left: 0px; text-align: right;">
-            <span data-i18n="knxUltimateHueButton.node-input-dptLightState"></span> </label>
-        <select id="node-input-dptLightBrightness" style="width:140px;"></select>
-       
-        <label for="node-input-nameLightBrightness" style="width:50px; margin-left: 0px; text-align: right;"><span data-i18n="knxUltimateHueButton.node-input-name"></span></label>
-        <input type="text" id="node-input-nameLightBrightness" style="width:200px;margin-left: 5px; text-align: left;">
-    </div>
-
-<br/>
-<p>
-<b>PHILIPS HUE STATES -> TO KNX</b>
+<b>PHILIPS HUE BUTTON EVENTS -> TO KNX</b>
 </p>
 
     <div class="form-row">
-        <label for="node-input-nameLightState" style="width:100px;"><i class="fa fa-play-circle-o"></i> <span data-i18n="knxUltimateHueButton.node-input-nameLightState"></span></label>
+        <label for="node-input-nameinitial_press" style="width:100px;"><i class="fa fa-play-circle-o"></i> Initial press</span></label>
 
-        <label for="node-input-GALightState" style="width:20px;"><span data-i18n="knxUltimateHueButton.node-input-GALightState"></span></label>
-        <input type="text" id="node-input-GALightState" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
-       
-        <label for="node-input-dptLightState" style="width:40px; margin-left: 0px; text-align: right;">
-            <span data-i18n="knxUltimateHueButton.node-input-dptLightState"></span> </label>
-        <select id="node-input-dptLightState" style="width:140px;"></select>
-       
-        <label for="node-input-nameLightState" style="width:50px; margin-left: 0px; text-align: right;"><span data-i18n="knxUltimateHueButton.node-input-name"></span></label>
-        <input type="text" id="node-input-nameLightState" style="width:200px;margin-left: 5px; text-align: left;">
+        <label for="node-input-GAinitial_press" style="width:20px;">GA</label>
+        <input type="text" id="node-input-GAinitial_press" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
+    
+        <label for="node-input-dptinitial_press" style="width:40px; margin-left: 0px; text-align: right;">dpt</label>
+        <select id="node-input-dptinitial_press" style="width:140px;"></select>
+    
+        <label for="node-input-nameinitial_press" style="width:50px; margin-left: 0px; text-align: right;">Name</label>
+        <input type="text" id="node-input-nameinitial_press" style="width:200px;margin-left: 5px; text-align: left;">
     </div>
-        <div class="form-row">
-        <label for="node-input-nameLightColorState" style="width:100px;"><i class="fa fa-play-circle-o"></i>&nbspColor State</label>
 
-        <label for="node-input-GALightColorState" style="width:20px;"><span data-i18n="knxUltimateHueButton.node-input-GALightState"></span></label>
-        <input type="text" id="node-input-GALightColorState" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
-       
-        <label for="node-input-dptLightColorState" style="width:40px; margin-left: 0px; text-align: right;">
-            <span data-i18n="knxUltimateHueButton.node-input-dptLightState"></span> </label>
-        <select id="node-input-dptLightColorState" style="width:140px;"></select>
-       
-        <label for="node-input-nameLightColorState" style="width:50px; margin-left: 0px; text-align: right;"><span data-i18n="knxUltimateHueButton.node-input-name"></span></label>
-        <input type="text" id="node-input-nameLightColorState" style="width:200px;margin-left: 5px; text-align: left;">
-    </div>
-        </div>
-        <div class="form-row">
-        <label for="node-input-nameLightBrightnessState" style="width:100px;"><i class="fa fa-play-circle-o"></i>&nbspBrightness State</label>
+    <div class="form-row">
+        <label for="node-input-namerepeat" style="width:100px;"><i class="fa fa-play-circle-o"></i> Repeat</span></label>
 
-        <label for="node-input-GALightBrightnessState" style="width:20px;"><span data-i18n="knxUltimateHueButton.node-input-GALightState"></span></label>
-        <input type="text" id="node-input-GALightBrightnessState" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
+        <label for="node-input-GArepeat" style="width:20px;">GA</label>
+        <input type="text" id="node-input-GArepeat" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
        
-        <label for="node-input-dptLightBrightnessState" style="width:40px; margin-left: 0px; text-align: right;">
-            <span data-i18n="knxUltimateHueButton.node-input-dptLightState"></span> </label>
-        <select id="node-input-dptLightBrightnessState" style="width:140px;"></select>
+        <label for="node-input-dptrepeat" style="width:40px; margin-left: 0px; text-align: right;">dpt</label>
+        <select id="node-input-dptrepeat" style="width:140px;"></select>
        
-        <label for="node-input-nameLightBrightnessState" style="width:50px; margin-left: 0px; text-align: right;"><span data-i18n="knxUltimateHueButton.node-input-name"></span></label>
-        <input type="text" id="node-input-nameLightBrightnessState" style="width:200px;margin-left: 5px; text-align: left;">
+        <label for="node-input-namerepeat" style="width:50px; margin-left: 0px; text-align: right;">Name</label>
+        <input type="text" id="node-input-namerepeat" style="width:200px;margin-left: 5px; text-align: left;">
     </div>
+    
+    <div class="form-row">
+        <label for="node-input-nameshort_release" style="width:100px;"><i class="fa fa-play-circle-o"></i>&nbspShort release</label>
+
+        <label for="node-input-GAhort_release" style="width:20px;">GA</label>
+        <input type="text" id="node-input-GAshort_release" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
+       
+        <label for="node-input-dptshort_release" style="width:40px; margin-left: 0px; text-align: right;">dpt</label>
+        <select id="node-input-dptshort_release" style="width:140px;"></select>
+       
+        <label for="node-input-nameshort_release" style="width:50px; margin-left: 0px; text-align: right;">Name</label>
+        <input type="text" id="node-input-nameshort_release" style="width:200px;margin-left: 5px; text-align: left;">
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-namelong_release" style="width:100px;"><i class="fa fa-play-circle-o"></i>&nbspLong release</label>
+
+        <label for="node-input-GAhort_release" style="width:20px;">GA</label>
+        <input type="text" id="node-input-GAlong_release" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
+       
+        <label for="node-input-dptlong_release" style="width:40px; margin-left: 0px; text-align: right;">dpt</label>
+        <select id="node-input-dptlong_release" style="width:140px;"></select>
+       
+        <label for="node-input-namelong_release" style="width:50px; margin-left: 0px; text-align: right;">Name</label>
+        <input type="text" id="node-input-namelong_release" style="width:200px;margin-left: 5px; text-align: left;">
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-namedouble_short_release" style="width:100px;"><i class="fa fa-play-circle-o"></i>&nbspDouble short release</label>
+
+        <label for="node-input-GAdouble_short_release" style="width:20px;">GA</label>
+        <input type="text" id="node-input-GAdouble_short_release" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
+       
+        <label for="node-input-dptdouble_short_release" style="width:40px; margin-left: 0px; text-align: right;">dpt</label>
+        <select id="node-input-dptdouble_short_release" style="width:140px;"></select>
+       
+        <label for="node-input-namedouble_short_release" style="width:50px; margin-left: 0px; text-align: right;"><span data-i18n="knxUltimateHueButton.node-input-name"></span></label>
+        <input type="text" id="node-input-namedouble_short_release" style="width:200px;margin-left: 5px; text-align: left;">
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-namelong_press" style="width:100px;"><i class="fa fa-play-circle-o"></i>&nbspLong press</label>
+
+        <label for="node-input-GAhort_release" style="width:20px;">GA</label>
+        <input type="text" id="node-input-GAlong_press" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
+       
+        <label for="node-input-dptlong_press" style="width:40px; margin-left: 0px; text-align: right;">dpt</label>
+        <select id="node-input-dptlong_press" style="width:140px;"></select>
+       
+        <label for="node-input-namelong_press" style="width:50px; margin-left: 0px; text-align: right;">Name</label>
+        <input type="text" id="node-input-namelong_press" style="width:200px;margin-left: 5px; text-align: left;">
+    </div>
+    
+    <div class="form-row">
+        <input type="checkbox" id="node-input-toggleValues" style="display:inline-block; width:auto; vertical-align:top;" />
+        <label style="width:auto" for="node-input-toggleValues">
+            <img
+                src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAACXBIWXMAAB7CAAAewgFu0HU+AAAFGmlUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNS42LWMxNDggNzkuMTY0MDM2LCAyMDE5LzA4LzEzLTAxOjA2OjU3ICAgICAgICAiPiA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPiA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtbG5zOmRjPSJodHRwOi8vcHVybC5vcmcvZGMvZWxlbWVudHMvMS4xLyIgeG1sbnM6cGhvdG9zaG9wPSJodHRwOi8vbnMuYWRvYmUuY29tL3Bob3Rvc2hvcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RFdnQ9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZUV2ZW50IyIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgMjEuMSAoTWFjaW50b3NoKSIgeG1wOkNyZWF0ZURhdGU9IjIwMjAtMDMtMjNUMTY6MjM6MjMrMDE6MDAiIHhtcDpNb2RpZnlEYXRlPSIyMDIwLTAzLTIzVDE2OjI1OjM0KzAxOjAwIiB4bXA6TWV0YWRhdGFEYXRlPSIyMDIwLTAzLTIzVDE2OjI1OjM0KzAxOjAwIiBkYzpmb3JtYXQ9ImltYWdlL3BuZyIgcGhvdG9zaG9wOkNvbG9yTW9kZT0iMyIgcGhvdG9zaG9wOklDQ1Byb2ZpbGU9InNSR0IgSUVDNjE5NjYtMi4xIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOmJmNGM3NWVjLTIwNGYtNGY1YS05YTMxLTQ5NTU5YWJmZDE4NSIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDpiZjRjNzVlYy0yMDRmLTRmNWEtOWEzMS00OTU1OWFiZmQxODUiIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDpiZjRjNzVlYy0yMDRmLTRmNWEtOWEzMS00OTU1OWFiZmQxODUiPiA8eG1wTU06SGlzdG9yeT4gPHJkZjpTZXE+IDxyZGY6bGkgc3RFdnQ6YWN0aW9uPSJjcmVhdGVkIiBzdEV2dDppbnN0YW5jZUlEPSJ4bXAuaWlkOmJmNGM3NWVjLTIwNGYtNGY1YS05YTMxLTQ5NTU5YWJmZDE4NSIgc3RFdnQ6d2hlbj0iMjAyMC0wMy0yM1QxNjoyMzoyMyswMTowMCIgc3RFdnQ6c29mdHdhcmVBZ2VudD0iQWRvYmUgUGhvdG9zaG9wIDIxLjEgKE1hY2ludG9zaCkiLz4gPC9yZGY6U2VxPiA8L3htcE1NOkhpc3Rvcnk+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+nhtLUgAAAE9JREFUKJG1UMsOACAIgub//7IdqvVQtjrExU1EEQLuiGCvgTNgl5D74MmVZPu4wIxQAgm+/sDec2VhgQPgf0sq1unjMlYJE/3MZrvy+kMFZQkZEWfC7ikAAAAASUVORK5CYII="></img>
+            Toggle values
+        </label>
+    </div>
+
+</div>
+        
 
 <br/>
 <br/>
@@ -604,3 +548,39 @@
 
 
 </script>
+
+<script type="text/markdown" data-help-name="knxUltimateHueButton">
+
+[Find it useful?](https://www.paypal.me/techtoday)
+
+This node lets you get the events of your HUE button.<br/>
+There are many event you can choose from. The relevants one are *short release* and *repeat*.<br/>
+In *short release* you can send true/false to your KNX group address to, for example, toggle a light.<br/>
+In *repeat* event, you can DIM a KNX light.<br/>
+The **toggle values** option is enabled by default. This option toggles the value of each KNX group address (*true/false, increase/decrease dim*))
+
+**General**
+|Property|Description|
+|--|--|
+| KNX GW | Select the KNX gateway to be used |
+| HUE Bridge | Select the HUE Bridge to be used |
+| Hue Button | HUE button to be used. The avaiable buttons start showing up while you're typing.|
+
+<br/>
+
+**PHILIPS HUE BUTTON EVENTS -> TO KNX**
+Here you can get the HUE button events.<br/>
+Start typing in the GA field, the name or group address of your KNX device, the avaiable devices start showing up while you're typing.
+
+|Property|Description|
+|--|--|
+| Initial press | As soon as you press your HUE button, this event fires|
+| Repeat | This command is used either to send DIM (increase/decrease) or true/false commands to the KNX group address |
+| Short release | Rapid push of the button, fired as soon as you release your finger from the button. Usually used to toggle a KNX light true/false |
+| Long release | Long press of the button, fired as soon as you release your finger from the button |
+| Long press | Long press of the button, fired as soon as you long press the button |
+| Toggle values | Enable or disable toggling values. If enabled, all values toggles, otherwise, all values are sent as *true* or *increase dim*, to the selected KNX group address. |
+
+
+<br/>
+    </script>

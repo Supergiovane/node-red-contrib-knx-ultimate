@@ -47,7 +47,7 @@ module.exports = function (RED) {
 
     // Read the state of the light and store it in the holding object
     try {
-      if (config.hueDevice !== undefined && config.hueDevice !== '') getLightState(node, config.hueDevice.split('#')[1])
+      if (config.hueDevice !== undefined && config.hueDevice !== '') getLightState(node, config.hueDevice)
     } catch (error) {
     }
 
@@ -66,17 +66,17 @@ module.exports = function (RED) {
           case config.GALightSwitch:
             msg.payload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightSwitch))
             state = msg.payload === true ? { on: { on: true } } : { on: { on: false } }
-            node.serverHue.hueManager.setLightState(config.hueDevice.split('#')[1], state)
+            node.serverHue.hueManager.setLightState(config.hueDevice, state)
             break
           case config.GALightDIM:
             msg.payload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightDIM))
             state = msg.payload.decr_incr === 1 ? { dimming_delta: { action: 'up', brightness_delta: 20 } } : { dimming_delta: { action: 'down', brightness_delta: 20 } }
-            node.serverHue.hueManager.setLightState(config.hueDevice.split('#')[1], state)
+            node.serverHue.hueManager.setLightState(config.hueDevice, state)
             break
           case config.GALightBrightness:
             msg.payload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightBrightness))
             state = { dimming: { brightness: msg.payload } }
-            node.serverHue.hueManager.setLightState(config.hueDevice.split('#')[1], state)
+            node.serverHue.hueManager.setLightState(config.hueDevice, state)
             break
           case config.GALightColor:
             // Behavior like ISE HUE CONNECT, by setting the brightness and on/off as well
@@ -85,7 +85,7 @@ module.exports = function (RED) {
             const retXY = hueColorConverter.ColorConverter.rgbToXy(msg.payload.red, msg.payload.green, msg.payload.blue, gamut)
             const bright = hueColorConverter.ColorConverter.getBrightnessFromRGB(msg.payload.red, msg.payload.green, msg.payload.blue)
             bright > 0 ? state = { on: { on: true }, dimming: { brightness: bright }, color: { xy: retXY } } : state = { on: { on: false } }
-            node.serverHue.hueManager.setLightState(config.hueDevice.split('#')[1], state)
+            node.serverHue.hueManager.setLightState(config.hueDevice, state)
             break
           default:
             break
@@ -98,7 +98,7 @@ module.exports = function (RED) {
 
     node.handleSendHUE = _event => {
       try {
-        if (_event.id === config.hueDevice.split('#')[1]) {
+        if (_event.id === config.hueDevice) {
           let knxMsgPayload = {}
           if (_event.hasOwnProperty('on')) {
             knxMsgPayload.ga = config.GALightState
@@ -118,7 +118,7 @@ module.exports = function (RED) {
           // Send to KNX bus
           if (knxMsgPayload.ga !== undefined) {
             node.status({ fill: 'green', shape: 'dot', text: 'HUE->KNX State ' + JSON.stringify(knxMsgPayload.payload) + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' })
-            if (config.GALightState !== '') node.server.writeQueueAdd({ grpaddr: knxMsgPayload.ga, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
+            if (knxMsgPayload.ga !== '' && knxMsgPayload.ga !== undefined) node.server.writeQueueAdd({ grpaddr: knxMsgPayload.ga, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
           }
         }
       } catch (error) {

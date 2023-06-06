@@ -6,7 +6,7 @@
             //buttonState: {value: true},
             server: { type: "knxUltimate-config", required: true },
             serverHue: { type: "hue-config", required: true },
-            name: { value: "Hue Light" },
+            name: { value: "Hue Light (beta)" },
 
             nameLightSwitch: { value: "" },
             GALightSwitch: { value: "" },
@@ -404,11 +404,11 @@
                     $.getJSON("KNXUltimateGetDevicesHUE?rtype=light&nodeID=" + oNodeServerHue.id, (data) => {
                         response($.map(data.devices, function (value, key) {
                             //alert(JSON.stringify(value) + " "+ key)
-                            var sSearch = (value.metadata.name + " (" + value.product_data.product_name + ")");
+                            var sSearch = (value.name);
                             if (fullSearch(sSearch, request.term)) {
                                 return {
                                     hueDevice: value.id, // Label for Display
-                                    value: value.metadata.name + " (" + value.product_data.product_name + ")" // Value
+                                    value: value.name // Value
                                 }
                             } else {
                                 return null;
@@ -448,7 +448,7 @@
     <p align="center"><img src='https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/hueLight.png'></p>
     <br />
     <label for="node-input-server" >
-        <i class="fa fa-square-o"></i>
+        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAKnRFWHRDcmVhdGlvbiBUaW1lAEZyIDYgQXVnIDIwMTAgMjE6NTI6MTkgKzAxMDD84aS8AAAAB3RJTUUH3gYYCicNV+4WIQAAAAlwSFlzAAALEgAACxIB0t1+/AAAAARnQU1BAACxjwv8YQUAAACUSURBVHjaY2CgFZg5c+Z/ZEyWAZ8+f/6/ZsWs/xoamqMGkGrA6Wla/1+fVARjEBuGsSoGmY4eZSCNL59d/g8DIDbIAHR14OgFGQByKjIGKX5+6/T///8gGMQGiV1+/B0Fg70GIkD+RMYgxf/O5/7//2MSmAZhkBi6OrgB6Bg5DGB4ajr3f2xqsYYLSDE2THJUDg0AAAqyDVd4tp4YAAAAAElFTkSuQmCC"></img>
         KNX GW
     </label>
     <input type="text" id="node-input-server" />
@@ -456,7 +456,7 @@
 
 <div class="form-row">
     <label for="node-input-serverHue">
-        <i class="fa fa-lightbulb-o"></i>
+        <img src="data:image/png;base64, iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAEKADAAQAAAABAAAAEAAAAAA0VXHyAAABFUlEQVQ4EZWSsWoCQRCG1yiENEFEi6QSkjqWWoqFoBYJ+Br6JHkMn8Iibd4ihQpaJIhWNkry/ZtdGZY78Qa+m39nZ+dm9s4550awglNBluS/gVtAX6KgDclf68w2OThgfR9iT/jnoEv4TtByDThWTCDKW4SSZTf/zj9/eZbN+izTDuKGimu0vPF8B/YN8aC8LmcOj/AAn9CFTEs70Js/oGqy79C69bqJ5XbQI2kGO5N8QL9D08S8zBtBF5ZaVsznpCMoqJnVdjTpb1Db0fwIWmQV6BLXzFOYgA6/gDVfQN9bBWp2J2hdWDPoBV5FrKnAJutHikk/CHHR8i7x4iG7qQ720IYvu3GFbpHjx3pFrOFYkA354z/5bkK826phyAAAAABJRU5ErkJggg=="/>
         HUE Bridge
     </label>
     <input type="text" id="node-input-serverHue" />
@@ -470,8 +470,8 @@
     
 <div class="form-row">
     <label for="node-input-hueDevice" >
-    <i class="fa fa-lightbulb-o"></i>&nbspName</label>
-    <input type="text" id="node-input-name" data-i18n="[placeholder]knxUltimateHueLight.node-input-name" />
+        <i class="fa fa-play-circle"></i>&nbspName</label>
+    <input type="text" id="node-input-name" placeholder="Enter your hue device name"/>
     <input type="hidden" id="node-input-hueDevice"/>
 </div>
 
@@ -541,13 +541,13 @@
 
 <br/>
 <p>
-<b>PHILIPS HUE STATES -> TO KNX</b>
+<b>PHILIPS HUE LIGHT STATE -> TO KNX</b>
 </p>
 
     <div class="form-row">
-        <label for="node-input-nameLightState" style="width:100px;"><i class="fa fa-play-circle-o"></i> <span data-i18n="knxUltimateHueLight.node-input-nameLightState"></span></label>
+        <label for="node-input-nameLightState" style="width:100px;"><i class="fa fa-play-circle-o"></i> Switch</label>
 
-        <label for="node-input-GALightState" style="width:20px;"><span data-i18n="knxUltimateHueLight.node-input-GALightState"></span></label>
+        <label for="node-input-GALightState" style="width:20px;">GA</label>
         <input type="text" id="node-input-GALightState" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
        
         <label for="node-input-dptLightState" style="width:40px; margin-left: 0px; text-align: right;">
@@ -558,7 +558,7 @@
         <input type="text" id="node-input-nameLightState" style="width:200px;margin-left: 5px; text-align: left;">
     </div>
         <div class="form-row">
-        <label for="node-input-nameLightColorState" style="width:100px;"><i class="fa fa-play-circle-o"></i>&nbspColor State</label>
+        <label for="node-input-nameLightColorState" style="width:100px;"><i class="fa fa-play-circle-o"></i>&nbspColor</label>
 
         <label for="node-input-GALightColorState" style="width:20px;"><span data-i18n="knxUltimateHueLight.node-input-GALightState"></span></label>
         <input type="text" id="node-input-GALightColorState" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
@@ -572,7 +572,7 @@
     </div>
         </div>
         <div class="form-row">
-        <label for="node-input-nameLightBrightnessState" style="width:100px;"><i class="fa fa-play-circle-o"></i>&nbspBrightness State</label>
+        <label for="node-input-nameLightBrightnessState" style="width:100px;"><i class="fa fa-play-circle-o"></i>&nbspBrightness</label>
 
         <label for="node-input-GALightBrightnessState" style="width:20px;"><span data-i18n="knxUltimateHueLight.node-input-GALightState"></span></label>
         <input type="text" id="node-input-GALightBrightnessState" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
@@ -595,4 +595,46 @@
 <br/>
 
 
+</script>
+
+
+<script type="text/markdown" data-help-name="knxUltimateHueLight">
+
+[Find it useful?](https://www.paypal.me/techtoday)
+
+This node lets you control your Philips HUE light and also get the states of this lights.
+
+**General**
+|Property|Description|
+|--|--|
+| KNX GW | Select the KNX gateway to be used |
+| HUE Bridge | Select the HUE Bridge to be used |
+| Name | HUE light to be used. The avaiable lights start showing up while you're typing.|
+
+<br/>
+
+**KNX COMMANDS -> TO PHILIPS HUE**
+Here you can choose the KNX addresses to be linked to the avaiable HUE light commands.<br/>
+Start typing in the GA field, the name or group address of your KNX device, the avaiable devices start showing up while you're typing.
+
+|Property|Description|
+|--|--|
+| Switch | This command is used to turn on/off the HUE light via a boolean KNX value true/false|
+| Dimming | This command is used to DIM the HUE light via a KNX relative DIM datapoint |
+| Color | This command is used to change the HUE light's color. Accepted datapoint is RGB triplet (r,g,b)|
+| Brightness | This command is used to change the absolute HUE light's brightness |
+
+<br/>
+
+**PHILIPS HUE LIGHT STATE -> TO KNX**
+Here you can link the state changes of your HUE light, to any KNX group address you want.<br/>
+Start typing in the GA field, the name or group address of your KNX device, the avaiable devices start showing up while you're typing.
+
+|Property|Description|
+|--|--|
+| Switch | This state is used to send on/off value to the selected KNX group address |
+| Color | This state is used to send changes of the HUE light's color. Accepted datapoint is RGB triplet (r,g,b)|
+| Brightness | This state is used to send changes of your absolute HUE light's brightness, to a KNX group address |
+
+<br/>
 </script>

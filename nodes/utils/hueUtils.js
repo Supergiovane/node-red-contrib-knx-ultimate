@@ -16,15 +16,33 @@ class classHUE extends EventEmitter {
     this.hue = undefined
   }
 
+  // Get all devices and join it with relative rooms, by adding the room name to the device name
   getDevices = async (_rtype) => {
     try {
       // V2
       const hue = hueApiV2.connect({ host: this.HUEBridgeIP, key: this.username })
-      const allDevices = await hue.getDevices()
-      const newArray = allDevices.filter(x => x.services.find(y => y.rtype === _rtype))
-      return { devices: newArray }
+      const retArray = []
+      const allResources = await hue.getResources()
+      const allRooms = await hue.getRooms()
+      const newArray = allResources.filter(x => x.type === _rtype)
+      // Add room name to the device name
+      newArray.forEach(device => {
+        // const Room = allRooms.find(room => {
+        //   return room.children.find(child => child.rid === device.id)
+        // })
+        const Room = allRooms.find(room => room.children.find(child => child.rid === device.owner.rid))
+        const linkedDevName = allResources.find(dev => dev.type === 'device' && dev.services.find(serv => serv.rid === device.id)).metadata.name || ''
+        if (_rtype === 'button') {
+          const controlID = device.metadata !== undefined ? (device.metadata.control_id || '') : ''
+          retArray.push({ name: linkedDevName + (controlID !== '' ? ', button ' + controlID : '') + (Room !== undefined ? ', room ' + Room.metadata.name : ''), id: device.id })
+        }
+        if (_rtype === 'light') {
+          retArray.push({ name: linkedDevName + (Room !== undefined ? ', room ' + Room.metadata.name : ''), id: device.id })
+        }
+      })
+      return { devices: retArray }
     } catch (error) {
-      console.log('KNXUltimateHue: classHUE: getDevices: error ' + error.message)
+      console.log('KNXUltimateHue: HueUtils: classHUE: getDevices: error ' + error.message)
       return ({ devices: error.message })
     }
   }
