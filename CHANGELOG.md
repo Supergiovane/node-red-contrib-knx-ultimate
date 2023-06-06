@@ -8,7 +8,8 @@
 
 <p>
 <b>Version 2.0.2</b> - June 2023<br/>
-- NEW: HUE Button node<br/>
+- NEW: HUE Button node. All HUE integrations are in BETA.<br/>
+- Slowly integrating the help in the node-red help section.<br/>
 </p>
 <p>
 <b>Version 2.0.1</b> - June 2023<br/>
