@@ -18,6 +18,7 @@
     "color-convert": "2.0.1"
   },
   "node-red": {
+    "version": ">=2.0.0",
     "nodes": {
       "knxUltimate": "/nodes/knxUltimate.js",
       "knxUltimateSceneController": "/nodes/knxUltimateSceneController.js",
@@ -55,5 +56,10 @@
   },
   "scripts": {
     "test": "standard"
+  },
+  {
+    "engines": {
+      "node": ">=14.0.0"
+    }
   }
 }
