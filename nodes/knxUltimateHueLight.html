@@ -44,7 +44,7 @@
         label: function () {
             return (this.name);
         },
-        paletteLabel: "Hue Light",
+        paletteLabel: "Hue Light (beta)",
         // button: {
         //     enabled: function() {
         //         // return whether or not the button is enabled, based on the current
@@ -621,7 +621,7 @@ Start typing in the GA field, the name or group address of your KNX device, the 
 |--|--|
 | Switch | This command is used to turn on/off the HUE light via a boolean KNX value true/false|
 | Dimming | This command is used to DIM the HUE light via a KNX relative DIM datapoint |
-| Color | This command is used to change the HUE light's color. Accepted datapoint is RGB triplet (r,g,b)|
+| Color | This command is used to change the HUE light's color. Accepted datapoint is RGB triplet (r,g,b). The node handles the gamut color correction. As soon as you send a color KNX telegran, the light turns on and sets color and brightness, derived from the brightness human perception. As soon as you send a KNX telegram with r,g,b set to zero, the light turns off |
 | Brightness | This command is used to change the absolute HUE light's brightness |
 
 <br/>
