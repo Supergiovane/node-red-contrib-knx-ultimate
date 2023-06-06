@@ -1,6 +1,9 @@
 {
   "name": "node-red-contrib-knx-ultimate",
-  "version": "2.0.5",
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "version": "2.0.6",
   "description": "Control your KNX intallation via Node-Red! Single Node KNX IN/OUT with optional ETS group address importer. Easy to use and highly configurable. With integrated Philips HUE devices handling.",
   "dependencies": {
     "mkdirp": "1.0.4",
@@ -56,8 +59,5 @@
   },
   "scripts": {
     "test": "standard"
-  },
-  "engines": {
-    "node": ">=14.0.0"
   }
 }
