@@ -17,10 +17,10 @@ class classHUE extends EventEmitter {
   }
 
   // Get all devices and join it with relative rooms, by adding the room name to the device name
-  getDevices = async (_rtype) => {
+  getDevices = async (_rtype, _host, _username) => {
     try {
       // V2
-      const hue = hueApiV2.connect({ host: this.HUEBridgeIP, key: this.username })
+      const hue = hueApiV2.connect({ host: _host, key: _username })
       const retArray = []
       const allResources = await hue.getResources()
       const allRooms = await hue.getRooms()

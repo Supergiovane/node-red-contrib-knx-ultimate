@@ -32,11 +32,12 @@
             GAlong_press: { value: "" },
             dptlong_press: { value: "" },
 
+            outputSimpleMode: { value: true },
             toggleValues: { value: true },
             hueDevice: { value: "" }
         },
         inputs: 0,
-        outputs: 0,
+        outputs: 1,
         icon: "node-hue-icon.svg",
         label: function () {
             return (this.name);
@@ -533,7 +534,11 @@
             Toggle values
         </label>
     </div>
-
+    <div class="form-row">
+        <input type="checkbox" id="node-input-outputSimpleMode" style="display:inline-block; width:auto; vertical-align:top;" />
+        <label style="width:auto" for="node-input-outputSimpleMode"><i class="fa fa-filter">Simple output mode</i></label>
+    </div>
+    
 </div>
         
 
@@ -579,7 +584,8 @@ Start typing in the GA field, the name or group address of your KNX device, the 
 | Short release | Rapid push of the button, fired as soon as you release your finger from the button. Usually used to toggle a KNX light true/false |
 | Long release | Long press of the button, fired as soon as you release your finger from the button |
 | Long press | Long press of the button, fired as soon as you long press the button |
-| Toggle values | Enable or disable toggling values. If enabled, all values toggles, otherwise, all values are sent as *true* or *increase dim*, to the selected KNX group address. |
+| Toggle values | Enable or disable toggling values. If enabled, all values toggles, otherwise, all values are sent as *true* or *increase dim*, to the selected KNX group address |
+| Simple output mode | Enables an RBE output on the payload *true/false*, independently from the HUE Button events type. *Repeat* messages are always repeated. When disabled, the node outputs a msg for every different HUE Button events |
 
 
 <br/>

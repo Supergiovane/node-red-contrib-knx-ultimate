@@ -25,7 +25,6 @@ module.exports = function (RED) {
     node.serverHue = RED.nodes.getNode(config.serverHue)
     node.topic = node.name
     node.name = config.name === undefined ? 'Hue' : config.name
-    node.outputtopic = node.name
     node.dpt = ''
     node.notifyreadrequest = false
     node.notifyreadrequestalsorespondtobus = 'false'
@@ -49,7 +48,7 @@ module.exports = function (RED) {
     node.toggle4 = false
     node.toggle5 = false
     node.toggle5 = false
-
+    node.rbeOutputPayload = undefined
 
     // Read the state of the light and store it in the holding object
     try {
@@ -121,6 +120,18 @@ module.exports = function (RED) {
           if (knxMsgPayload.ga !== undefined) {
             node.status({ fill: 'green', shape: 'dot', text: 'HUE->KNX ' + _event.button.last_event + ' ' + JSON.stringify(knxMsgPayload.payload) + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' })
             if (knxMsgPayload.ga !== '' && knxMsgPayload.ga !== undefined) node.server.writeQueueAdd({ grpaddr: knxMsgPayload.ga, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
+          }
+          // Setup the output msg
+          knxMsgPayload.topic = knxMsgPayload.ga
+          delete knxMsgPayload.ga
+          knxMsgPayload.name = node.name
+          knxMsgPayload.event = _event.button.last_event
+
+          // Applying rbe filter
+          if (config.outputSimpleMode && knxMsgPayload.payload !== node.rbeOutputPayload) {
+            node.rbeOutputPayload = knxMsgPayload.payload
+          } else {
+            node.send(knxMsgPayload)
           }
         }
       } catch (error) {

@@ -115,7 +115,8 @@ module.exports = (RED) => {
         (async () => {
           try {
             // °°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
-            const jRet = await node.hueManager.getDevices(req.query.rtype)
+            const _node = RED.nodes.getNode(req.query.nodeID)// Retrieve node.id of the config node.
+            const jRet = await node.hueManager.getDevices(req.query.rtype, _node.host, _node.credentials.username)
             res.json(jRet)
             // °°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
           } catch (err) {

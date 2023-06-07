@@ -7,6 +7,11 @@
 # CHANGELOG
 
 <p>
+<b>Version 2.0.7</b> - June 2023<br/>
+- HUE Button node: added an output PIN<br/>
+- HUE Button node: added an option to emit a simplified msg
+</p>
+<p>
 <b>Version 2.0.6</b> - June 2023<br/>
 - NEW: HUE Button node. All HUE integrations are in BETA.<br/>
 - Slowly integrating the help in the node-red help section.<br/>
