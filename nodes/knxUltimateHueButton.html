@@ -6,7 +6,7 @@
             //buttonState: {value: true},
             server: { type: "knxUltimate-config", required: false },
             serverHue: { type: "hue-config", required: true },
-            name: { value: "Hue Button (beta)" },
+            name: { value: "" },
 
             nameinitial_press: { value: "" },
             GAinitial_press: { value: "" },
@@ -363,7 +363,7 @@
 
 
 
-            // Autocomplete suggestion with HUE Lights
+            // Autocomplete suggestion with HUE
             $("#node-input-name").autocomplete({
                 minLength: 1,
                 source: function (request, response) {

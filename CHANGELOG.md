@@ -8,6 +8,10 @@
 
 <p>
 <b>Version 2.0.7</b> - June 2023<br/>
+- NEW: HUE Motion node<br/>
+</p>
+<p>
+<b>Version 2.0.7</b> - June 2023<br/>
 - HUE Button node: added an output PIN<br/>
 - HUE Button node: added an option to emit a simplified msg
 </p>
