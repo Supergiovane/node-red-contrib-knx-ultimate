@@ -39,6 +39,9 @@ class classHUE extends EventEmitter {
         if (_rtype === 'light') {
           retArray.push({ name: linkedDevName + (Room !== undefined ? ', room ' + Room.metadata.name : ''), id: device.id })
         }
+        if (_rtype === 'motion') {
+          retArray.push({ name: linkedDevName + (Room !== undefined ? ', room ' + Room.metadata.name : ''), id: device.id })
+        }
       })
       return { devices: retArray }
     } catch (error) {
@@ -101,6 +104,13 @@ class classHUE extends EventEmitter {
   startPushEvents = async () => {
     try {
       this.hue = await hueApiV2.connect({
+        log: {
+          trace: (msg) => { },
+          debug: (msg) => { },
+          info: (msg) => { },
+          warn: (msg) => { },
+          error: (msg) => { }
+        },
         host: this.HUEBridgeIP,
         key: this.username,
         eventListener: this.listener // The eventlistener is given as option

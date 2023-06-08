@@ -17,7 +17,7 @@
     "xml2js": "0.5.0",
     "dns-sync": "0.2.1",
     "node-hue-api": "5.0.0-beta.16",
-    "node-hue": "1.0.3",
+    "node-hue": "1.0.4",
     "color-convert": "2.0.1"
   },
   "node-red": {
@@ -34,7 +34,8 @@
       "knxUltimateViewer": "/nodes/knxUltimateViewer.js",
       "hueConfig": "/nodes/hue-config.js",
       "knxUltimateHueLight": "/nodes/knxUltimateHueLight.js",
-      "knxUltimateHueButton": "/nodes/knxUltimateHueButton.js"
+      "knxUltimateHueButton": "/nodes/knxUltimateHueButton.js",
+      "knxUltimateHueMotion": "/nodes/knxUltimateHueMotion.js"
     }
   },
   "repository": {

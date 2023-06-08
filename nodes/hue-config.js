@@ -90,25 +90,6 @@ module.exports = (RED) => {
       })
     })
 
-    // Endpoint frontend
-    RED.httpAdmin.get('/KNXUltimateGetAllLightsHUE', RED.auth.needsPermission('hue-config.read'), function (req, res) {
-      try {
-        (async () => {
-          try {
-            // °°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
-            const jRet = await node.hueManager.getAllLights()
-            res.json(jRet)
-            // °°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
-          } catch (err) {
-            RED.log.error('Errore KNXUltimateGetAllLightsHUE non gestito ' + err.message)
-            res.json({ error: err.message })
-          }
-        })()
-      } catch (err) {
-        RED.log.error('Errore KNXUltimateGetAllLightsHUE bsonto ' + err.message)
-        res.json({ error: err.message })
-      }
-    })
 
     RED.httpAdmin.get('/KNXUltimateGetDevicesHUE', RED.auth.needsPermission('hue-config.read'), function (req, res) {
       try {
@@ -120,12 +101,12 @@ module.exports = (RED) => {
             res.json(jRet)
             // °°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
           } catch (err) {
-            RED.log.error('Errore KNXUltimategetButtonsHUE non gestito ' + err.message)
+            RED.log.error('Errore KNXUltimateGetDevicesHUE non gestito ' + err.message)
             res.json({ error: err.message })
           }
         })()
       } catch (err) {
-        RED.log.error('Errore KNXUltimategetButtons bsonto ' + err.message)
+        RED.log.error('Errore KNXUltimateGetDevicesHUE bsonto ' + err.message)
         res.json({ error: err.message })
       }
     })

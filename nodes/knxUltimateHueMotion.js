@@ -1,21 +1,7 @@
 module.exports = function (RED) {
 
-  async function getLightState(node, _lightID) {
-    return new Promise((resolve, reject) => {
-      try {
-        if (node !== null && node.serverHue !== null && node.serverHue.hueManager !== null) {
-          node.serverHue.hueManager.getLight(_lightID).then(ret => {
-            node.currentHUEDevice = ret[0]
-            resolve(ret)
-          })
-        }
-      } catch (error) {
-        reject(error)
-      }
-    })
-  }
 
-  function knxUltimateHueButton(config) {
+  function knxUltimateHueMotion(config) {
     RED.nodes.createNode(this, config)
     const node = this
     node.server = RED.nodes.getNode(config.server)
@@ -46,13 +32,6 @@ module.exports = function (RED) {
     node.toggle5 = false
     node.toggle5 = false
     node.rbeOutputPayload = undefined
-
-    // Read the state of the light and store it in the holding object
-    try {
-      if (config.hueLight !== undefined && config.hueLight !== '') getLightState(node, config.hueLight)
-    } catch (error) {
-    }
-
 
 
     // Used to call the status update from the config node.
@@ -163,5 +142,5 @@ module.exports = function (RED) {
       node.server.addClient(node)
     }
   }
-  RED.nodes.registerType('knxUltimateHueButton', knxUltimateHueButton)
+  RED.nodes.registerType('knxUltimateHueMotion', knxUltimateHueMotion)
 }
