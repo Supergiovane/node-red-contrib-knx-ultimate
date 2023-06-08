@@ -81,7 +81,7 @@ module.exports = function (RED) {
           }
 
           // Send to KNX bus
-          if (knxMsgPayload.ga !== '' && knxMsgPayload.ga !== undefined) if (knxMsgPayload.ga !== '' && knxMsgPayload.ga !== undefined) node.server.writeQueueAdd({ grpaddr: knxMsgPayload.ga, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
+          if (knxMsgPayload.ga !== '' && knxMsgPayload.ga !== undefined) node.server.writeQueueAdd({ grpaddr: knxMsgPayload.ga, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
           node.status({ fill: 'green', shape: 'dot', text: 'HUE->KNX ' + JSON.stringify(knxMsgPayload.payload) + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' })
 
           // Setup the output msg
@@ -91,38 +91,32 @@ module.exports = function (RED) {
           knxMsgPayload.event = 'rotation ' + _event.relative_rotary.last_event.rotation.direction
           knxMsgPayload.payload = _event
           node.send(knxMsgPayload)
-
-        } catch (error) {
-          node.status({ fill: 'red', shape: 'dot', text: 'HUE->KNX error ' + error.message + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' })
         }
+      } catch (error) {
+        node.status({ fill: 'red', shape: 'dot', text: 'HUE->KNX error ' + error.message + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' })
       }
+    }
 
     // On each deploy, unsubscribe+resubscribe
     if (node.server) {
-        node.server.removeClient(node)
-        node.server.addClient(node)
-      }
-      if (node.serverHue) {
-        node.serverHue.removeClient(node)
-        node.serverHue.addClient(node)
-      }
+      node.server.removeClient(node)
+      node.server.addClient(node)
+    }
+    if (node.serverHue) {
+      node.serverHue.removeClient(node)
+      node.serverHue.addClient(node)
+    }
 
-      node.on('input', function (msg) {
+    node.on('input', function (msg) {
 
-      })
+    })
 
-      node.on('close', function (done) {
-        if (node.server) {
-          node.server.removeClient(node)
-        }
-        done()
-      })
-
-      // On each deploy, unsubscribe+resubscribe
+    node.on('close', function (done) {
       if (node.server) {
         node.server.removeClient(node)
-        node.server.addClient(node)
       }
-    }
-    RED.nodes.registerType('knxUltimateHueTapDial', knxUltimateHueTapDial)
+      done()
+    })
   }
+  RED.nodes.registerType('knxUltimateHueTapDial', knxUltimateHueTapDial)
+}
