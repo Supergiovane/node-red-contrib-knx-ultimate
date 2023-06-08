@@ -1,0 +1,269 @@
+<script type="text/javascript">
+    RED.nodes.registerType('knxUltimateHueTapDial', {
+        category: "KNX Ultimate",
+        color: '#C7E9C0',
+        defaults: {
+            //buttonState: {value: true},
+            server: { type: "knxUltimate-config", required: false },
+            serverHue: { type: "hue-config", required: true },
+            name: { value: "" },
+
+            namerepeat: { value: "" },
+            GArepeat: { value: "" },
+            dptrepeat: { value: "" },
+
+            hueDevice: { value: "" }
+        },
+        inputs: 0,
+        outputs: 1,
+        icon: "node-hue-icon.svg",
+        label: function () {
+            return (this.name);
+        },
+        paletteLabel: "Hue Tap Dial (beta)",
+        // button: {
+        //     enabled: function() {
+        //         // return whether or not the button is enabled, based on the current
+        //         // configuration of the node
+        //         return !this.changed
+        //     },
+        //     visible: function() {
+        //         // return whether or not the button is visible, based on the current
+        //         // configuration of the node
+        //         return this.hasButton
+        //     },
+        //     //toggle: "buttonState",
+        //     onclick: function() {}
+        // },
+        oneditprepare: function () {
+            var node = this;
+            var oNodeServer = RED.nodes.node($("#node-input-server").val()); // Store the config-node
+            var oNodeServerHue = RED.nodes.node($("#node-input-serverHue").val()); // Store the config-node
+
+            // 19/02/2020 Used to get the server sooner als deploy.
+            $("#node-input-server").change(function () {
+                try {
+                    oNodeServer = RED.nodes.node($(this).val());
+                } catch (error) { }
+            });
+            // 19/02/2020 Used to get the server sooner als deploy.
+            $("#node-input-serverHue").change(function () {
+                try {
+                    oNodeServerHue = RED.nodes.node($(this).val());
+                } catch (error) { }
+            });
+
+            // 31/03/2020 Search Helper
+            function fullSearch(sourceText, searchString) {
+                // This searches for all words in a string
+                var aSearchWords = searchString.toLowerCase().split(" ");
+                var i = 0;
+                for (let index = 0; index < aSearchWords.length; index++) {
+                    if (sourceText.toLowerCase().indexOf(aSearchWords[index]) > -1) i += 1;
+                }
+                return i == aSearchWords.length;
+            }
+
+
+            // DPT repeat
+            // ########################
+            $.getJSON('knxUltimateDpts', (data) => {
+                data.forEach(dpt => {
+                    if (dpt.value.startsWith("3.007") || dpt.value.startsWith("5.00")) {
+                        $("#node-input-dptrepeat").append($("<option></option>")
+                            .attr("value", dpt.value)
+                            .text(dpt.text))
+                    }
+                });
+
+                $("#node-input-dptrepeat").val(this.dptrepeat)
+            })
+
+            // Autocomplete suggestion with ETS csv File
+            $("#node-input-GArepeat").autocomplete({
+                minLength: 1,
+                source: function (request, response) {
+                    $.getJSON("knxUltimatecsv?nodeID=" + oNodeServer.id, (data) => {
+                        response($.map(data, function (value, key) {
+                            var sSearch = (value.ga + " (" + value.devicename + ") DPT" + value.dpt);
+                            if (fullSearch(sSearch, request.term)) {
+                                if (value.dpt.startsWith('5.001') || value.dpt.startsWith('3.007')) {
+                                    return {
+                                        label: value.ga + " # " + value.devicename + " # " + value.dpt, // Label for Display
+                                        value: value.ga // Value
+                                    }
+                                } else { return null; }
+                            } else {
+                                return null;
+                            }
+                        }));
+                    });
+                }, select: function (event, ui) {
+                    // Sets Datapoint and device name automatically
+                    var sDevName = ui.item.label.split("#")[1].trim();
+                    try {
+                        sDevName = sDevName.substr(sDevName.indexOf(")") + 1).trim();
+                    } catch (error) {
+                    }
+                    $('#node-input-namerepeat').val(sDevName);
+                    var optVal = $("#node-input-dptrepeat option:contains('" + ui.item.label.split("#")[2].trim() + "')").attr('value');
+                    // Select the option value 
+                    $("#node-input-dptrepeat").val(optVal);
+                }
+            });
+
+
+
+
+            // Autocomplete suggestion with HUE
+            $("#node-input-name").autocomplete({
+                minLength: 1,
+                source: function (request, response) {
+                    $.getJSON("KNXUltimateGetDevicesHUE?rtype=relative_rotary&nodeID=" + oNodeServerHue.id, (data) => {
+                        response($.map(data.devices, function (value, key) {
+                            //alert(JSON.stringify(value) + " "+ key)
+                            var sSearch = (value.name);
+                            if (fullSearch(sSearch, request.term)) {
+                                return {
+                                    hueDevice: value.id, // Label for Display
+                                    value: value.name // Value
+                                }
+                            } else {
+                                return null;
+                            }
+                        }));
+                    });
+                }, select: function (event, ui) {
+                    // Sets the fields
+                    $('#node-input-hueDevice').val(ui.item.hueDevice);
+                }
+            });
+
+
+            // ########################
+
+
+        },
+        oneditsave: function () {
+
+
+        },
+        oneditcancel: function () {
+
+        }
+    })
+
+</script>
+
+<script type="text/x-red" data-template-name="knxUltimateHueTapDial">
+
+
+<div class="form-row">
+    <b>HUE Light</b>&nbsp&nbsp<span style="color:red"
+    &nbsp<i class="fa fa-question-circle"></i></span>
+    &nbsp<a target="_blank" href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/en-hue-configuration"><u>Configuration</u></a> 
+    <br />
+    <p align="center"><img src='https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/hueTapDial.png'></p>
+    <br />
+    <label for="node-input-server" >
+        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAKnRFWHRDcmVhdGlvbiBUaW1lAEZyIDYgQXVnIDIwMTAgMjE6NTI6MTkgKzAxMDD84aS8AAAAB3RJTUUH3gYYCicNV+4WIQAAAAlwSFlzAAALEgAACxIB0t1+/AAAAARnQU1BAACxjwv8YQUAAACUSURBVHjaY2CgFZg5c+Z/ZEyWAZ8+f/6/ZsWs/xoamqMGkGrA6Wla/1+fVARjEBuGsSoGmY4eZSCNL59d/g8DIDbIAHR14OgFGQByKjIGKX5+6/T///8gGMQGiV1+/B0Fg70GIkD+RMYgxf/O5/7//2MSmAZhkBi6OrgB6Bg5DGB4ajr3f2xqsYYLSDE2THJUDg0AAAqyDVd4tp4YAAAAAElFTkSuQmCC"></img>
+        KNX GW
+    </label>
+    <input type="text" id="node-input-server" />
+</div>
+
+<div class="form-row">
+    <label for="node-input-serverHue">
+        <img src="data:image/png;base64, iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAEKADAAQAAAABAAAAEAAAAAA0VXHyAAABFUlEQVQ4EZWSsWoCQRCG1yiENEFEi6QSkjqWWoqFoBYJ+Br6JHkMn8Iibd4ihQpaJIhWNkry/ZtdGZY78Qa+m39nZ+dm9s4550awglNBluS/gVtAX6KgDclf68w2OThgfR9iT/jnoEv4TtByDThWTCDKW4SSZTf/zj9/eZbN+izTDuKGimu0vPF8B/YN8aC8LmcOj/AAn9CFTEs70Js/oGqy79C69bqJ5XbQI2kGO5N8QL9D08S8zBtBF5ZaVsznpCMoqJnVdjTpb1Db0fwIWmQV6BLXzFOYgA6/gDVfQN9bBWp2J2hdWDPoBV5FrKnAJutHikk/CHHR8i7x4iG7qQ720IYvu3GFbpHjx3pFrOFYkA354z/5bkK826phyAAAAABJRU5ErkJggg=="/>
+        HUE Bridge
+    </label>
+    <input type="text" id="node-input-serverHue" />
+</div>
+
+<br/>
+<p>
+<b>Philips HUE</b>
+</p>
+    
+<div class="form-row">
+    <label for="node-input-hueDevice" >
+        <i class="fa fa-play-circle"></i>&nbspHue Device</label>
+        <input type="text" id="node-input-name" placeholder="Enter your hue device name" />
+    <input type="hidden" id="node-input-hueDevice" />
+</div>
+
+<br/>
+
+<p>
+<b>PHILIPS HUE BUTTON EVENTS -> TO KNX</b>
+</p>
+
+    <div class="form-row">
+        <label for="node-input-namerepeat" style="width:100px;"><i class="fa fa-play-circle-o"></i> Rotate</span></label>
+
+        <label for="node-input-GArepeat" style="width:20px;">GA</label>
+        <input type="text" id="node-input-GArepeat" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
+       
+        <label for="node-input-dptrepeat" style="width:40px; margin-left: 0px; text-align: right;">dpt</label>
+        <select id="node-input-dptrepeat" style="width:140px;"></select>
+       
+        <label for="node-input-namerepeat" style="width:50px; margin-left: 0px; text-align: right;">Name</label>
+        <input type="text" id="node-input-namerepeat" style="width:200px;margin-left: 5px; text-align: left;">
+    </div>
+    
+    
+</div>
+        
+
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+
+
+</script>
+
+<script type="text/markdown" data-help-name="knxUltimateHueTapDial">
+<p> This node lets you get the events from your HUE rotary, for example Tap Dial.<br/>
+
+The Tap Dial button has 4 buttons and 1 rotary knob.  
+You can find the 4 buttons in the **Button node**, not here!
+The rotary service of the Tap Dial button, can send a DIM (Datapoint 3.007) or absolute brightness (Datapoint 5.001) to the KNX bus,
+to the selected group address.
+
+**General**
+|Property|Description|
+|--|--|
+| KNX GW | Select the KNX gateway to be used |
+| HUE Bridge | Select the HUE Bridge to be used |
+| Hue Button | HUE button to be used. The avaiable buttons start showing up while you're typing.|
+
+<br/>
+
+**PHILIPS HUE BUTTON EVENTS -> TO KNX**
+Here you can get the HUE rotary service events.<br/>
+Start typing in the GA field, the name or group address of your KNX device, the avaiable devices start showing up while you're typing.
+
+|Property|Description|
+|--|--|
+| Rotate | This command is used either to send DIM (increase/decrease) or true/false commands to the KNX group address. Only as info, in the HUE event chain, this is called *repeat* |
+
+### Outputs
+
+1. Standard output
+: payload (string|object) : the standard output of the command.
+
+### Details
+
+`msg.payload` is used as the payload of the published message.
+If it contains an Object it will be converted to a JSON string before being sent.
+
+[Find it useful?](https://www.paypal.me/techtoday)
+
+<br/>
+
+    </script>

@@ -44,18 +44,21 @@ module.exports = function (RED) {
           knxMsgPayload.dpt = config.dptmotion
           knxMsgPayload.payload = _event.motion.motion
 
-          // Send to KNX bus
-          node.status({ fill: 'green', shape: 'dot', text: 'HUE->KNX ' + JSON.stringify(knxMsgPayload.payload) + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' })
-          if (knxMsgPayload.ga !== '' && knxMsgPayload.ga !== undefined) node.server.writeQueueAdd({ grpaddr: knxMsgPayload.ga, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
+          if (_event.hasOwnProperty('motion') && _event.motion.hasOwnProperty('motion')) {
+            // Send to KNX bus
+            if (knxMsgPayload.ga !== '' && knxMsgPayload.ga !== undefined) node.server.writeQueueAdd({ grpaddr: knxMsgPayload.ga, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
+            node.status({ fill: 'green', shape: 'dot', text: 'HUE->KNX ' + JSON.stringify(knxMsgPayload.payload) + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' })
 
-          // Setup the output msg
-          knxMsgPayload.topic = knxMsgPayload.ga
-          delete knxMsgPayload.ga
-          knxMsgPayload.name = node.name
-          knxMsgPayload.event = 'motion'
+            // Setup the output msg
+            knxMsgPayload.topic = knxMsgPayload.ga
+            delete knxMsgPayload.ga
+            knxMsgPayload.name = node.name
+            knxMsgPayload.event = 'motion'
 
-          // Applying rbe filter
-          node.send(knxMsgPayload)
+            // Send payload
+            knxMsgPayload.rawEvent = _event
+            node.send(knxMsgPayload)
+          }
         }
       } catch (error) {
         node.status({ fill: 'red', shape: 'dot', text: 'HUE->KNX error ' + error.message + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' })
@@ -82,12 +85,6 @@ module.exports = function (RED) {
       }
       done()
     })
-
-    // On each deploy, unsubscribe+resubscribe
-    if (node.server) {
-      node.server.removeClient(node)
-      node.server.addClient(node)
-    }
   }
   RED.nodes.registerType('knxUltimateHueMotion', knxUltimateHueMotion)
 }

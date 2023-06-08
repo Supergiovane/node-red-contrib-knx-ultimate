@@ -42,6 +42,9 @@ class classHUE extends EventEmitter {
         if (_rtype === 'motion') {
           retArray.push({ name: linkedDevName + (Room !== undefined ? ', room ' + Room.metadata.name : ''), id: device.id })
         }
+        if (_rtype === 'relative_rotary') {
+          retArray.push({ name: linkedDevName + (Room !== undefined ? ', room ' + Room.metadata.name : ''), id: device.id })
+        }
       })
       return { devices: retArray }
     } catch (error) {

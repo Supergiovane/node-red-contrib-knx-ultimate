@@ -1,20 +1,5 @@
 module.exports = function (RED) {
 
-  async function getLightState(node, _lightID) {
-    return new Promise((resolve, reject) => {
-      try {
-        if (node !== null && node.serverHue !== null && node.serverHue.hueManager !== null) {
-          node.serverHue.hueManager.getLight(_lightID).then(ret => {
-            node.currentHUEDevice = ret[0]
-            resolve(ret)
-          })
-        }
-      } catch (error) {
-        reject(error)
-      }
-    })
-  }
-
   function knxUltimateHueButton(config) {
     RED.nodes.createNode(this, config)
     const node = this
@@ -45,15 +30,7 @@ module.exports = function (RED) {
     node.toggle4 = false
     node.toggle5 = false
     node.toggle5 = false
-    node.rbeOutputPayload = undefined
-
-    // Read the state of the light and store it in the holding object
-    try {
-      if (config.hueLight !== undefined && config.hueLight !== '') getLightState(node, config.hueLight)
-    } catch (error) {
-    }
-
-
+    node.toggle6 = false
 
     // Used to call the status update from the config node.
     node.setNodeStatus = ({ fill, shape, text, payload }) => {
@@ -114,22 +91,18 @@ module.exports = function (RED) {
             knxMsgPayload.payload = node.toggle6
           }
           // Send to KNX bus
-          if (knxMsgPayload.ga !== undefined) {
-            node.status({ fill: 'green', shape: 'dot', text: 'HUE->KNX ' + _event.button.last_event + ' ' + JSON.stringify(knxMsgPayload.payload) + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' })
-            if (knxMsgPayload.ga !== '' && knxMsgPayload.ga !== undefined) node.server.writeQueueAdd({ grpaddr: knxMsgPayload.ga, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
+          if (knxMsgPayload.ga !== '' && knxMsgPayload.ga !== undefined) {
+            node.server.writeQueueAdd({ grpaddr: knxMsgPayload.ga, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
           }
+          node.status({ fill: 'green', shape: 'dot', text: 'HUE->KNX ' + _event.button.last_event + ' ' + JSON.stringify(knxMsgPayload.payload) + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' })
+
           // Setup the output msg
           knxMsgPayload.topic = knxMsgPayload.ga
           delete knxMsgPayload.ga
           knxMsgPayload.name = node.name
           knxMsgPayload.event = _event.button.last_event
-
-          // Applying rbe filter
-          if (config.outputSimpleMode && knxMsgPayload.payload !== node.rbeOutputPayload) {
-            node.rbeOutputPayload = knxMsgPayload.payload
-          } else {
-            node.send(knxMsgPayload)
-          }
+          knxMsgPayload.rawEvent = _event
+          node.send(knxMsgPayload)
         }
       } catch (error) {
         node.status({ fill: 'red', shape: 'dot', text: 'HUE->KNX error ' + error.message + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' })
@@ -156,12 +129,6 @@ module.exports = function (RED) {
       }
       done()
     })
-
-    // On each deploy, unsubscribe+resubscribe
-    if (node.server) {
-      node.server.removeClient(node)
-      node.server.addClient(node)
-    }
   }
   RED.nodes.registerType('knxUltimateHueButton', knxUltimateHueButton)
 }

@@ -35,7 +35,8 @@
       "hueConfig": "/nodes/hue-config.js",
       "knxUltimateHueLight": "/nodes/knxUltimateHueLight.js",
       "knxUltimateHueButton": "/nodes/knxUltimateHueButton.js",
-      "knxUltimateHueMotion": "/nodes/knxUltimateHueMotion.js"
+      "knxUltimateHueMotion": "/nodes/knxUltimateHueMotion.js",
+      "knxUltimateHueTapDial": "/nodes/knxUltimateHueTapDial.js"
     }
   },
   "repository": {
