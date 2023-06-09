@@ -44,7 +44,7 @@ module.exports = function (RED) {
           knxMsgPayload.dpt = config.dptlightsensor
 
           if (_event.hasOwnProperty('light') && _event.light.hasOwnProperty('light_level')) {
-            knxMsgPayload.payload = 10 ** ((_event.light.light_level - 1) / 10000)
+            knxMsgPayload.payload = Math.round(10 ** ((_event.light.light_level - 1) / 10000))
             // Send to KNX bus
             if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.server.writeQueueAdd({ grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
             node.status({ fill: 'green', shape: 'dot', text: 'HUE->KNX ' + JSON.stringify(knxMsgPayload.payload) + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' })
