@@ -77,7 +77,7 @@ module.exports = function (RED) {
             knxMsgPayload.topic = config.GArepeat
             knxMsgPayload.dpt = config.dptrepeat
             if (!config.toggleValues) node.toggleGArepeat = true
-            knxMsgPayload.payload = node.toggleGArepeat ? { decr_incr: 1, data: 5 } : { decr_incr: 0, data: 5 }
+            knxMsgPayload.payload = node.toggleGArepeat ? { decr_incr: 1, data: 3 } : { decr_incr: 0, data: 3 }
             node.status({ fill: 'green', shape: 'dot', text: 'HUE->KNX ' + _event.button.last_event + ' ' + JSON.stringify(knxMsgPayload.payload) + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' })
           }
 

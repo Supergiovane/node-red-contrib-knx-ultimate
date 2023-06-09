@@ -1,5 +1,5 @@
 <script type="text/javascript">
-    RED.nodes.registerType('knxUltimateHueMotion', {
+    RED.nodes.registerType('knxUltimateHueLightSensor', {
         category: "KNX Ultimate",
         color: '#C7E9C0',
         defaults: {
@@ -8,9 +8,9 @@
             serverHue: { type: "hue-config", required: true },
             name: { value: "" },
 
-            namemotion: { value: "" },
-            GAmotion: { value: "" },
-            dptmotion: { value: "" },
+            namelightsensor: { value: "" },
+            GAlightsensor: { value: "" },
+            dptlightsensor: { value: "" },
 
             hueDevice: { value: "" }
         },
@@ -20,7 +20,7 @@
         label: function () {
             return (this.name);
         },
-        paletteLabel: "Hue Motion (beta)",
+        paletteLabel: "Hue Light Sensor (beta)",
         // button: {
         //     enabled: function() {
         //         // return whether or not the button is enabled, based on the current
@@ -68,24 +68,24 @@
             // ########################
             $.getJSON('knxUltimateDpts', (data) => {
                 data.forEach(dpt => {
-                    if (dpt.value.startsWith("1.")) {
-                        $("#node-input-dptmotion").append($("<option></option>")
+                    if (dpt.value.startsWith("9.004")) {
+                        $("#node-input-dptlightsensor").append($("<option></option>")
                             .attr("value", dpt.value)
                             .text(dpt.text))
                     }
                 });
-                $("#node-input-dptmotion").val(this.dptmotion)
+                $("#node-input-dptlightsensor").val(this.dptlightsensor)
             })
 
             // Autocomplete suggestion with ETS csv File
-            $("#node-input-GAmotion").autocomplete({
+            $("#node-input-GAlightsensor").autocomplete({
                 minLength: 1,
                 source: function (request, response) {
                     //$.getJSON("csv", request, function( data, status, xhr ) {
                     $.getJSON("knxUltimatecsv?nodeID=" + oNodeServer.id, (data) => {
                         response($.map(data, function (value, key) {
                             var sSearch = (value.ga + " (" + value.devicename + ") DPT" + value.dpt);
-                            if (fullSearch(sSearch, request.term + " 1.")) {
+                            if (fullSearch(sSearch, request.term + " 9.004")) {
                                 return {
                                     label: value.ga + " # " + value.devicename + " # " + value.dpt, // Label for Display
                                     value: value.ga // Value
@@ -102,10 +102,10 @@
                         sDevName = sDevName.substr(sDevName.indexOf(")") + 1).trim();
                     } catch (error) {
                     }
-                    $('#node-input-namemotion').val(sDevName);
-                    var optVal = $("#node-input-dptmotion option:contains('" + ui.item.label.split("#")[2].trim() + "')").attr('value');
+                    $('#node-input-namelightsensor').val(sDevName);
+                    var optVal = $("#node-input-dptlightsensor option:contains('" + ui.item.label.split("#")[2].trim() + "')").attr('value');
                     // Select the option value 
-                    $("#node-input-dptmotion").val(optVal);
+                    $("#node-input-dptlightsensor").val(optVal);
                 }
             });
             // ######################## 
@@ -117,7 +117,7 @@
             $("#node-input-name").autocomplete({
                 minLength: 1,
                 source: function (request, response) {
-                    $.getJSON("KNXUltimateGetDevicesHUE?rtype=motion&nodeID=" + oNodeServerHue.id, (data) => {
+                    $.getJSON("KNXUltimateGetDevicesHUE?rtype=light_level&nodeID=" + oNodeServerHue.id, (data) => {
                         response($.map(data.devices, function (value, key) {
                             //alert(JSON.stringify(value) + " "+ key)
                             var sSearch = (value.name);
@@ -153,11 +153,11 @@
 
 </script>
 
-<script type="text/x-red" data-template-name="knxUltimateHueMotion">
+<script type="text/x-red" data-template-name="knxUltimateHueLightSensor">
 
 
 <div class="form-row">
-    <b>HUE Motion node</b>&nbsp&nbsp<span style="color:red"
+    <b>HUE Light Sensor node</b>&nbsp&nbsp<span style="color:red"
     &nbsp<i class="fa fa-question-circle"></i></span>
     &nbsp<a target="_blank" href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/en-hue-configuration"><u>Configuration</u></a> 
     <br />
@@ -193,20 +193,20 @@
 <br/>
 
 <p>
-<b>PHILIPS HUE MOTION EVENTS -> TO KNX</b>
+<b>PHILIPS HUE LIGHT EVENTS -> TO KNX</b>
 </p>
 
     <div class="form-row">
-        <label for="node-input-namemotion" style="width:100px;"><i class="fa fa-play-circle-o"></i> Motion</span></label>
+        <label for="node-input-namelightsensor" style="width:100px;"><i class="fa fa-play-circle-o"></i> Lux</span></label>
 
-        <label for="node-input-GAmotion" style="width:20px;">GA</label>
-        <input type="text" id="node-input-GAmotion" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
+        <label for="node-input-GAlightsensor" style="width:20px;">GA</label>
+        <input type="text" id="node-input-GAlightsensor" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
     
-        <label for="node-input-dptmotion" style="width:40px; margin-left: 0px; text-align: right;">DPT</label>
-        <select id="node-input-dptmotion" style="width:140px;"></select>
+        <label for="node-input-dptlightsensor" style="width:40px; margin-left: 0px; text-align: right;">DPT</label>
+        <select id="node-input-dptlightsensor" style="width:140px;"></select>
     
-        <label for="node-input-namemotion" style="width:50px; margin-left: 0px; text-align: right;">Name</label>
-        <input type="text" id="node-input-namemotion" style="width:200px;margin-left: 5px; text-align: left;">
+        <label for="node-input-namelightsensor" style="width:50px; margin-left: 0px; text-align: right;">Name</label>
+        <input type="text" id="node-input-namelightsensor" style="width:200px;margin-left: 5px; text-align: left;">
     </div>
    
 </div>
@@ -219,10 +219,10 @@
 
 </script>
 
-<script type="text/markdown" data-help-name="knxUltimateHueMotion">
+<script type="text/markdown" data-help-name="knxUltimateHueLightSensor">
 <p> This node lets you get the events from your HUE motion device.<br/>
 
-Here you can get the HUE motion events.<br/>
+Here you can get the HUE Light Sensors light events, that represents a lux value, evetytime the ambient light changes.<br/>
 Start typing in the GA field, the name or group address of your KNX device, the avaiable devices start showing up while you're typing.
 
 **General**
@@ -232,22 +232,20 @@ Start typing in the GA field, the name or group address of your KNX device, the 
 | HUE Bridge | Select the HUE Bridge to be used |
 | Hue Sensor | HUE sensor to be used. The avaiable buttons start showing up while you're typing.|
 
-**PHILIPS HUE MOTION EVENTS -> TO KNX**
-
+**PHILIPS HUE LIGHT EVENTS -> TO KNX**
 |Property|Description|
 |--|--|
-| Motion | As soon as someone moves in the motion device's range |
+| Lux | Lux value |
 
 ### Outputs
 
 1. Standard output
-: payload (boolean) : the standard output of the command. **true** for motion | **false** for motion end.
+: payload (integer) : the standard output of the command.
 
 ### Details
 
 `msg.payload` is used as the payload of the published message.  
 It contains the detailed event sent by your Hue devicem so you can use it for whatever you want.  
-It contains the detailed event sent by your Hue devicem so you can use it for whatever you want.
 
 <br/>
 

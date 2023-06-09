@@ -34,17 +34,21 @@ class classHUE extends EventEmitter {
         const linkedDevName = allResources.find(dev => dev.type === 'device' && dev.services.find(serv => serv.rid === device.id)).metadata.name || ''
         if (_rtype === 'button') {
           const controlID = device.metadata !== undefined ? (device.metadata.control_id || '') : ''
-          retArray.push({ name: linkedDevName + (controlID !== '' ? ', button ' + controlID : '') + (Room !== undefined ? ', room ' + Room.metadata.name : ''), id: device.id })
+          retArray.push({ name: 'Button: ' + linkedDevName + (controlID !== '' ? ', button ' + controlID : '') + (Room !== undefined ? ', room ' + Room.metadata.name : ''), id: device.id })
         }
         if (_rtype === 'light') {
-          retArray.push({ name: linkedDevName + (Room !== undefined ? ', room ' + Room.metadata.name : ''), id: device.id })
+          retArray.push({ name: 'Light: ' + linkedDevName + (Room !== undefined ? ', room ' + Room.metadata.name : ''), id: device.id })
         }
         if (_rtype === 'motion') {
-          retArray.push({ name: linkedDevName + (Room !== undefined ? ', room ' + Room.metadata.name : ''), id: device.id })
+          retArray.push({ name: 'Motion: ' + linkedDevName + (Room !== undefined ? ', room ' + Room.metadata.name : ''), id: device.id })
         }
         if (_rtype === 'relative_rotary') {
-          retArray.push({ name: linkedDevName + (Room !== undefined ? ', room ' + Room.metadata.name : ''), id: device.id })
+          retArray.push({ name: 'Rotary: ' + linkedDevName + (Room !== undefined ? ', room ' + Room.metadata.name : ''), id: device.id })
         }
+        if (_rtype === 'light_level') {
+          retArray.push({ name: 'Light Level: ' + linkedDevName + (Room !== undefined ? ', room ' + Room.metadata.name : ''), id: device.id })
+        }
+
       })
       return { devices: retArray }
     } catch (error) {

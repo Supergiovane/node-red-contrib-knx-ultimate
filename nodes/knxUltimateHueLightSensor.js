@@ -1,7 +1,7 @@
 module.exports = function (RED) {
 
 
-  function knxUltimateHueMotion(config) {
+  function knxUltimateHueLightSensor(config) {
     RED.nodes.createNode(this, config)
     const node = this
     node.server = RED.nodes.getNode(config.server)
@@ -40,18 +40,18 @@ module.exports = function (RED) {
       try {
         if (_event.id === config.hueDevice) {
           const knxMsgPayload = {}
-          knxMsgPayload.topic = config.GAmotion
-          knxMsgPayload.dpt = config.dptmotion
+          knxMsgPayload.topic = config.GAlightsensor
+          knxMsgPayload.dpt = config.dptlightsensor
 
-          if (_event.hasOwnProperty('motion') && _event.motion.hasOwnProperty('motion')) {
-            knxMsgPayload.payload = _event.motion.motion
+          if (_event.hasOwnProperty('light') && _event.light.hasOwnProperty('light_level')) {
+            knxMsgPayload.payload = 10 ** ((_event.light.light_level - 1) / 10000)
             // Send to KNX bus
             if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.server.writeQueueAdd({ grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
             node.status({ fill: 'green', shape: 'dot', text: 'HUE->KNX ' + JSON.stringify(knxMsgPayload.payload) + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' })
 
             // Setup the output msg
             knxMsgPayload.name = node.name
-            knxMsgPayload.event = 'motion'
+            knxMsgPayload.event = 'light_level'
 
             // Send payload
             knxMsgPayload.rawEvent = _event
@@ -84,5 +84,5 @@ module.exports = function (RED) {
       done()
     })
   }
-  RED.nodes.registerType('knxUltimateHueMotion', knxUltimateHueMotion)
+  RED.nodes.registerType('knxUltimateHueLightSensor', knxUltimateHueLightSensor)
 }

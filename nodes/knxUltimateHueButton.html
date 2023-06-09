@@ -281,7 +281,7 @@
                     });
                 }, select: function (event, ui) {
                     // Sets the fields
-                    $('#node-input-hueDevice').val(ui.item.hueDevice);
+                    $('#node-input-hueDevice').val(ui.item.hueDevice)
                 }
             });
 
@@ -414,7 +414,6 @@ Link the Group Adresses you want, to the respective events.
 All fields are optional.  
 The **toggle values** option is enabled by default. This option toggles the value of each KNX group address (*true/false, increase/decrease dim*)  
 
-
 **General**
 |Property|Description|
 |--|--|
@@ -447,6 +446,8 @@ This allows the internal logic to be aware of external devices, like wall switch
 `msg.payload` is used as the payload of the published message.
 If it contains an Object it will be converted to a JSON string before being sent.  
 It contains the detailed event sent by your Hue devicem so you can use it for whatever you want.
+
+<br/>
 
 [Find it useful?](https://www.paypal.me/techtoday)
 

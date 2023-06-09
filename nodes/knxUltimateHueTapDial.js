@@ -65,7 +65,7 @@ module.exports = function (RED) {
           knxMsgPayload.dpt = config.dptrepeat
           if (_event.relative_rotary.last_event.rotation.direction === 'clock_wise') {
             if (knxMsgPayload.dpt.startsWith('3.007')) {
-              knxMsgPayload.payload = { decr_incr: 1, data: 5 }
+              knxMsgPayload.payload = { decr_incr: 1, data: 3 }
             } else if (knxMsgPayload.dpt.startsWith('5.001')) {
               //0 – maximum: 32767
               node.brightnessState < 100 ? node.brightnessState += 20 : node.brightnessState = 100
@@ -73,7 +73,7 @@ module.exports = function (RED) {
             }
           } else if (_event.relative_rotary.last_event.rotation.direction === 'counter_clock_wise') {
             if (knxMsgPayload.dpt.startsWith('3.007')) {
-              knxMsgPayload.payload = { decr_incr: 0, data: 5 }
+              knxMsgPayload.payload = { decr_incr: 0, data: 3 }
             } else if (knxMsgPayload.dpt.startsWith('5.001')) {
               node.brightnessState > 0 ? node.brightnessState -= 20 : node.brightnessState = 0
               knxMsgPayload.payload = node.brightnessState
