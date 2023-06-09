@@ -16,9 +16,9 @@
             GAshort_release: { value: "" },
             dptshort_release: { value: "1.001" },
 
-            namedouble_short_release: { value: "" },
-            GAdouble_short_release: { value: "" },
-            dptdouble_short_release: { value: "1.001" },
+            nameshort_releaseStatus: { value: "" },
+            GAshort_releaseStatus: { value: "" },
+            dptshort_releaseStatus: { value: "1.001" },
 
             toggleValues: { value: true },
             hueDevice: { value: "" }
@@ -129,12 +129,6 @@
                             .attr("value", dpt.value)
                             .text(dpt.text))
                         $("#node-input-dptshort_releaseStatus").append($("<option></option>")
-                            .attr("value", dpt.value)
-                            .text(dpt.text))
-                        $("#node-input-dptdouble_short_release").append($("<option></option>")
-                            .attr("value", dpt.value)
-                            .text(dpt.text))
-                        $("#node-input-dptdouble_short_releaseStatus").append($("<option></option>")
                             .attr("value", dpt.value)
                             .text(dpt.text))
                     }
@@ -380,33 +374,6 @@
     <br/>
 
     <div class="form-row">
-        <label  style="width:100px;"><i class="fa fa-play-circle-o"></i> Double tap</label>
-
-        <label for="node-input-GAdouble_short_release" style="width:20px;">GA</label>
-        <input type="text" id="node-input-GAdouble_short_release" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
-       
-        <label for="node-input-dptdouble_short_release" style="width:40px; margin-left: 0px; text-align: right;">DPT</label>
-        <select id="node-input-dptdouble_short_release" style="width:140px;"></select>
-       
-        <label for="node-input-namedouble_short_release" style="width:50px; margin-left: 0px; text-align: right;"> Name</label>
-        <input type="text" id="node-input-namedouble_short_release" style="width:200px;margin-left: 5px; text-align: left;">
-    </div>
-    <div class="form-row">
-        <label style="width:100px;"><i class="fa fa-play-circle-o"></i> Double tap Status</label>
-
-        <label for="node-input-GAdouble_short_releaseStatus" style="width:20px;">GA</label>
-        <input type="text" id="node-input-GAdouble_short_releaseStatus" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
-       
-        <label for="node-input-dptdouble_short_releaseStatus" style="width:40px; margin-left: 0px; text-align: right;">DPT</label>
-        <select id="node-input-dptdouble_short_releaseStatus" style="width:140px;"></select>
-       
-        <label for="node-input-namedouble_short_releaseStatus" style="width:50px; margin-left: 0px; text-align: right;"> Name</label>
-        <input type="text" id="node-input-namedouble_short_releaseStatus" style="width:200px;margin-left: 5px; text-align: left;">
-    </div>
-    <br/>
-    <br/>
-
-    <div class="form-row">
         <label style="width:100px;"><i class="fa fa-play-circle-o"></i> Dim</span></label>
 
         <label for="node-input-GArepeat" style="width:20px;">GA</label>
@@ -467,8 +434,6 @@ This allows the internal logic to be aware of external devices, like wall switch
 |--|--|
 | Switch | As soon as you quickly press and release your HUE button, this event fires |
 | Switch Status | To allow internal logic to take care of the external KNX devices, for example an external wall switch, you should set this group address |
-| Double tap | As soon as you quickly press and release two times your HUE button, this event fires |
-| Double tap Status | To allow internal logic to take care of the external KNX devices, for example an external wall switch, you should set this group address |
 | Repeat | This event is used either to send DIM (increase/decrease) or true/false commands to the KNX group address |
 | Toggle values | Enable or disable toggling values. If enabled, all values toggles, otherwise, all values are sent as *true* or *increase dim*, to the selected KNX group address |
 

@@ -9,6 +9,12 @@
 <p>
 <b>Version 2.0.10</b> - June 2023<br/>
 - HUE: CAUTION BREAKING CHANGES TO THE HUE NODES. PLEASE BE AWARE THAT HUE NODES ARE STILL IN BETA<br/>
+- Hotfix for Hue Button node, not retain property in config window.<br/>
+- Removed "Double Tap" event, because it doesn't exists yet.<br/>
+</p>
+<p>
+<b>Version 2.0.10</b> - June 2023<br/>
+- HUE: CAUTION BREAKING CHANGES TO THE HUE NODES. PLEASE BE AWARE THAT HUE NODES ARE STILL IN BETA<br/>
 - Hue Button node redesign.<br/>
 - Other hue nodes fixes<br/>
 </p>
