@@ -93,7 +93,6 @@ module.exports = function (RED) {
       } catch (error) {
         node.status({ fill: 'red', shape: 'dot', text: 'KNX->HUE error ' + error.message + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' })
       }
-      // node.exposedGAs.push({ address: msg.knx.destination, addressRAW: sAddressRAW, dpt: msg.knx.dpt, payload: msg.payload, devicename: sDeviceName, lastupdate: new Date(), rawPayload: 'HEX Raw: ' + msg.knx.rawValue.toString('hex') || '?', payloadmeasureunit: (msg.payloadmeasureunit !== 'unknown' ? ' ' + msg.payloadmeasureunit : '') })
     }
 
     node.handleSendHUE = _event => {
@@ -101,22 +100,22 @@ module.exports = function (RED) {
         if (_event.id === config.hueDevice) {
           let knxMsgPayload = {}
           if (_event.hasOwnProperty('on')) {
-            knxMsgPayload.ga = config.GALightState
+            knxMsgPayload.topic = config.GALightState
             knxMsgPayload.dpt = config.dptLightState
             knxMsgPayload.payload = _event.on.on
           }
           if (_event.hasOwnProperty('color')) {
-            knxMsgPayload.ga = config.GALightColorState
+            knxMsgPayload.topic = config.GALightColorState
             knxMsgPayload.dpt = config.dptLightColorState
             knxMsgPayload.payload = hueColorConverter.ColorConverter.xyBriToRgb(_event.color.xy.x, _event.color.xy.y, node.currentHUEDevice.dimming.brightness)
           }
           if (_event.hasOwnProperty('dimming')) {
-            knxMsgPayload.ga = config.GALightBrightnessState
+            knxMsgPayload.topic = config.GALightBrightnessState
             knxMsgPayload.dpt = config.dptLightBrightnessState
             knxMsgPayload.payload = _event.dimming.brightness
           }
           // Send to KNX bus
-          if (knxMsgPayload.ga !== '' && knxMsgPayload.ga !== undefined) node.server.writeQueueAdd({ grpaddr: knxMsgPayload.ga, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
+          if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.server.writeQueueAdd({ grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
           node.status({ fill: 'green', shape: 'dot', text: 'HUE->KNX State ' + JSON.stringify(knxMsgPayload.payload) + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' })
 
         }

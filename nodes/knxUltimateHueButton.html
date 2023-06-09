@@ -8,29 +8,17 @@
             serverHue: { type: "hue-config", required: true },
             name: { value: "" },
 
-            nameinitial_press: { value: "" },
-            GAinitial_press: { value: "" },
-            dptinitial_press: { value: "" },
-
             namerepeat: { value: "" },
             GArepeat: { value: "" },
-            dptrepeat: { value: "" },
+            dptrepeat: { value: "3.007" },
 
             nameshort_release: { value: "" },
             GAshort_release: { value: "" },
-            dptshort_release: { value: "" },
-
-            namelong_release: { value: "" },
-            GAlong_release: { value: "" },
-            dptlong_release: { value: "" },
+            dptshort_release: { value: "1.001" },
 
             namedouble_short_release: { value: "" },
             GAdouble_short_release: { value: "" },
-            dptdouble_short_release: { value: "" },
-
-            namelong_press: { value: "" },
-            GAlong_press: { value: "" },
-            dptlong_press: { value: "" },
+            dptdouble_short_release: { value: "1.001" },
 
             toggleValues: { value: true },
             hueDevice: { value: "" }
@@ -85,65 +73,16 @@
                 return i == aSearchWords.length;
             }
 
-            // DPT Switch command
-            // ########################
-            $.getJSON('knxUltimateDpts', (data) => {
-                data.forEach(dpt => {
-                    if (dpt.value.startsWith("1.")) {
-                        $("#node-input-dptinitial_press").append($("<option></option>")
-                            .attr("value", dpt.value)
-                            .text(dpt.text))
-                    }
-                });
-                $("#node-input-dptinitial_press").val(this.dptinitial_press)
-            })
-
-            // Autocomplete suggestion with ETS csv File
-            $("#node-input-GAinitial_press").autocomplete({
-                minLength: 1,
-                source: function (request, response) {
-                    //$.getJSON("csv", request, function( data, status, xhr ) {
-                    $.getJSON("knxUltimatecsv?nodeID=" + oNodeServer.id, (data) => {
-                        response($.map(data, function (value, key) {
-                            var sSearch = (value.ga + " (" + value.devicename + ") DPT" + value.dpt);
-                            if (fullSearch(sSearch, request.term + " 1.")) {
-                                return {
-                                    label: value.ga + " # " + value.devicename + " # " + value.dpt, // Label for Display
-                                    value: value.ga // Value
-                                }
-                            } else {
-                                return null;
-                            }
-                        }));
-                    });
-                }, select: function (event, ui) {
-                    // Sets Datapoint and device name automatically
-                    var sDevName = ui.item.label.split("#")[1].trim();
-                    try {
-                        sDevName = sDevName.substr(sDevName.indexOf(")") + 1).trim();
-                    } catch (error) {
-                    }
-                    $('#node-input-nameinitial_press').val(sDevName);
-                    var optVal = $("#node-input-dptinitial_press option:contains('" + ui.item.label.split("#")[2].trim() + "')").attr('value');
-                    // Select the option value 
-                    $("#node-input-dptinitial_press").val(optVal);
-                }
-            });
-            // ######################## 
-
-
-
             // DPT repeat
             // ########################
             $.getJSON('knxUltimateDpts', (data) => {
                 data.forEach(dpt => {
-                    if (dpt.value.startsWith("1.") || dpt.value.startsWith("3.007")) {
+                    if (dpt.value.startsWith("3.007")) {
                         $("#node-input-dptrepeat").append($("<option></option>")
                             .attr("value", dpt.value)
                             .text(dpt.text))
                     }
                 });
-
                 $("#node-input-dptrepeat").val(this.dptrepeat)
             })
 
@@ -155,7 +94,7 @@
                         response($.map(data, function (value, key) {
                             var sSearch = (value.ga + " (" + value.devicename + ") DPT" + value.dpt);
                             if (fullSearch(sSearch, request.term)) {
-                                if (value.dpt.startsWith('1.') || value.dpt.startsWith('3.007')) {
+                                if (value.dpt.startsWith('3.007')) {
                                     return {
                                         label: value.ga + " # " + value.devicename + " # " + value.dpt, // Label for Display
                                         value: value.ga // Value
@@ -189,11 +128,18 @@
                         $("#node-input-dptshort_release").append($("<option></option>")
                             .attr("value", dpt.value)
                             .text(dpt.text))
+                        $("#node-input-dptshort_releaseStatus").append($("<option></option>")
+                            .attr("value", dpt.value)
+                            .text(dpt.text))
+                        $("#node-input-dptdouble_short_release").append($("<option></option>")
+                            .attr("value", dpt.value)
+                            .text(dpt.text))
+                        $("#node-input-dptdouble_short_releaseStatus").append($("<option></option>")
+                            .attr("value", dpt.value)
+                            .text(dpt.text))
                     }
                 });
-
                 $("#node-input-dptshort_release").val(this.dptshort_release)
-
             })
 
             // Autocomplete suggestion with ETS csv File
@@ -227,28 +173,8 @@
                 }
             });
 
-
-            // DPT dptlong_release and dptLightColorStateƒ
-            // ########################
-            $.getJSON('knxUltimateDpts', (data) => {
-                data.forEach(dpt => {
-                    if (dpt.value.startsWith('1.')) {
-                        $("#node-input-dptlong_release").append($("<option></option>")
-                            .attr("value", dpt.value)
-                            .text(dpt.text))
-                        $("#node-input-dptdouble_short_release").append($("<option></option>")
-                            .attr("value", dpt.value)
-                            .text(dpt.text))
-                    }
-                });
-
-                $("#node-input-dptlong_release").val(this.dptlong_release)
-                $("#node-input-dptdouble_short_release").val(this.dptdouble_short_release)
-
-            })
-
             // Autocomplete suggestion with ETS csv File
-            $("#node-input-GAlong_release").autocomplete({
+            $("#node-input-GAshort_releaseStatus").autocomplete({
                 minLength: 1,
                 source: function (request, response) {
                     $.getJSON("knxUltimatecsv?nodeID=" + oNodeServer.id, (data) => {
@@ -271,12 +197,13 @@
                         sDevName = sDevName.substr(sDevName.indexOf(")") + 1).trim();
                     } catch (error) {
                     }
-                    $('#node-input-namelong_release').val(sDevName);
-                    var optVal = $("#node-input-dptlong_release option:contains('" + ui.item.label.split("#")[2].trim() + "')").attr('value');
+                    $('#node-input-nameshort_releaseStatus').val(sDevName);
+                    var optVal = $("#node-input-dptshort_releaseStatus option:contains('" + ui.item.label.split("#")[2].trim() + "')").attr('value');
                     // Select the option value 
-                    $("#node-input-dptlong_release").val(optVal);
+                    $("#node-input-dptshort_releaseStatus").val(optVal);
                 }
             });
+
 
             // Autocomplete suggestion with ETS csv File
             $("#node-input-GAdouble_short_release").autocomplete({
@@ -309,25 +236,8 @@
                 }
             });
 
-
-
-            // DPT dptlong_press 
-            // ########################
-            $.getJSON('knxUltimateDpts', (data) => {
-                data.forEach(dpt => {
-                    if (dpt.value.startsWith('1.')) {
-                        $("#node-input-dptlong_press").append($("<option></option>")
-                            .attr("value", dpt.value)
-                            .text(dpt.text))
-                    }
-                });
-
-                $("#node-input-dptlong_press").val(this.dptlong_press)
-
-            })
-
             // Autocomplete suggestion with ETS csv File
-            $("#node-input-GAlong_press").autocomplete({
+            $("#node-input-GAdouble_short_releaseStatus").autocomplete({
                 minLength: 1,
                 source: function (request, response) {
                     $.getJSON("knxUltimatecsv?nodeID=" + oNodeServer.id, (data) => {
@@ -350,17 +260,12 @@
                         sDevName = sDevName.substr(sDevName.indexOf(")") + 1).trim();
                     } catch (error) {
                     }
-                    $('#node-input-namelong_press').val(sDevName);
-                    var optVal = $("#node-input-dptlong_press option:contains('" + ui.item.label.split("#")[2].trim() + "')").attr('value');
+                    $('#node-input-namedouble_short_releaseStatus').val(sDevName);
+                    var optVal = $("#node-input-dptdouble_short_releaseStatus option:contains('" + ui.item.label.split("#")[2].trim() + "')").attr('value');
                     // Select the option value 
-                    $("#node-input-dptlong_press").val(optVal);
+                    $("#node-input-dptdouble_short_releaseStatus").val(optVal);
                 }
             });
-
-
-
-
-
 
             // Autocomplete suggestion with HUE
             $("#node-input-name").autocomplete({
@@ -406,7 +311,7 @@
 
 
 <div class="form-row">
-    <b>HUE Light</b>&nbsp&nbsp<span style="color:red"
+    <b>HUE Button node</b>&nbsp&nbsp<span style="color:red"
     &nbsp<i class="fa fa-question-circle"></i></span>
     &nbsp<a target="_blank" href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/en-hue-configuration"><u>Configuration</u></a> 
     <br />
@@ -444,87 +349,78 @@
 <!-- <p> <img src='https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/knx.png' width='32px'> -> <img src='https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/hue.png' width='32px'></p> -->
 
 <p>
-<b>PHILIPS HUE BUTTON EVENTS -> TO KNX</b>
+<b>KNX DATAPOINTS</b>
 </p>
 
     <div class="form-row">
-        <label for="node-input-nameinitial_press" style="width:100px;"><i class="fa fa-play-circle-o"></i> Initial press</span></label>
+        <label for="node-input-nameshort_release" style="width:100px;"><i class="fa fa-play-circle-o"></i> Switch</label>
 
-        <label for="node-input-GAinitial_press" style="width:20px;">GA</label>
-        <input type="text" id="node-input-GAinitial_press" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
+        <label for="node-input-GAhort_release" style="width:20px;">GA</label>
+        <input type="text" id="node-input-GAshort_release" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
     
-        <label for="node-input-dptinitial_press" style="width:40px; margin-left: 0px; text-align: right;">dpt</label>
-        <select id="node-input-dptinitial_press" style="width:140px;"></select>
+        <label for="node-input-dptshort_release" style="width:40px; margin-left: 0px; text-align: right;">DPT</label>
+        <select id="node-input-dptshort_release" style="width:140px;"></select>
     
-        <label for="node-input-nameinitial_press" style="width:50px; margin-left: 0px; text-align: right;">Name</label>
-        <input type="text" id="node-input-nameinitial_press" style="width:200px;margin-left: 5px; text-align: left;">
+        <label for="node-input-nameshort_release" style="width:50px; margin-left: 0px; text-align: right;">Name</label>
+        <input type="text" id="node-input-nameshort_release" style="width:200px;margin-left: 5px; text-align: left;">
     </div>
+    <div class="form-row">
+        <label style="width:100px;"><i class="fa fa-play-circle-o"></i> Switch Status</label>
+
+        <label for="node-input-GAshort_releaseStatus" style="width:20px;">GA</label>
+        <input type="text" id="node-input-GAshort_releaseStatus" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
+    
+        <label for="node-input-dptshort_releaseStatus" style="width:40px; margin-left: 0px; text-align: right;">DPT</label>
+        <select id="node-input-dptshort_releaseStatus" style="width:140px;"></select>
+    
+        <label for="node-input-nameshort_releaseStatus" style="width:50px; margin-left: 0px; text-align: right;">Name</label>
+        <input type="text" id="node-input-nameshort_releaseStatus" style="width:200px;margin-left: 5px; text-align: left;">
+    </div>
+    <br/>
+    <br/>
 
     <div class="form-row">
-        <label for="node-input-namerepeat" style="width:100px;"><i class="fa fa-play-circle-o"></i> Repeat</span></label>
+        <label  style="width:100px;"><i class="fa fa-play-circle-o"></i> Double tap</label>
+
+        <label for="node-input-GAdouble_short_release" style="width:20px;">GA</label>
+        <input type="text" id="node-input-GAdouble_short_release" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
+       
+        <label for="node-input-dptdouble_short_release" style="width:40px; margin-left: 0px; text-align: right;">DPT</label>
+        <select id="node-input-dptdouble_short_release" style="width:140px;"></select>
+       
+        <label for="node-input-namedouble_short_release" style="width:50px; margin-left: 0px; text-align: right;"> Name</label>
+        <input type="text" id="node-input-namedouble_short_release" style="width:200px;margin-left: 5px; text-align: left;">
+    </div>
+    <div class="form-row">
+        <label style="width:100px;"><i class="fa fa-play-circle-o"></i> Double tap Status</label>
+
+        <label for="node-input-GAdouble_short_releaseStatus" style="width:20px;">GA</label>
+        <input type="text" id="node-input-GAdouble_short_releaseStatus" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
+       
+        <label for="node-input-dptdouble_short_releaseStatus" style="width:40px; margin-left: 0px; text-align: right;">DPT</label>
+        <select id="node-input-dptdouble_short_releaseStatus" style="width:140px;"></select>
+       
+        <label for="node-input-namedouble_short_releaseStatus" style="width:50px; margin-left: 0px; text-align: right;"> Name</label>
+        <input type="text" id="node-input-namedouble_short_releaseStatus" style="width:200px;margin-left: 5px; text-align: left;">
+    </div>
+    <br/>
+    <br/>
+
+    <div class="form-row">
+        <label style="width:100px;"><i class="fa fa-play-circle-o"></i> Dim</span></label>
 
         <label for="node-input-GArepeat" style="width:20px;">GA</label>
         <input type="text" id="node-input-GArepeat" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
        
-        <label for="node-input-dptrepeat" style="width:40px; margin-left: 0px; text-align: right;">dpt</label>
+        <label for="node-input-dptrepeat" style="width:40px; margin-left: 0px; text-align: right;">DPT</label>
         <select id="node-input-dptrepeat" style="width:140px;"></select>
        
         <label for="node-input-namerepeat" style="width:50px; margin-left: 0px; text-align: right;">Name</label>
         <input type="text" id="node-input-namerepeat" style="width:200px;margin-left: 5px; text-align: left;">
     </div>
-    
-    <div class="form-row">
-        <label for="node-input-nameshort_release" style="width:100px;"><i class="fa fa-play-circle-o"></i>&nbspShort release</label>
+    <br/>
+    <br/>
 
-        <label for="node-input-GAhort_release" style="width:20px;">GA</label>
-        <input type="text" id="node-input-GAshort_release" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
-       
-        <label for="node-input-dptshort_release" style="width:40px; margin-left: 0px; text-align: right;">dpt</label>
-        <select id="node-input-dptshort_release" style="width:140px;"></select>
-       
-        <label for="node-input-nameshort_release" style="width:50px; margin-left: 0px; text-align: right;">Name</label>
-        <input type="text" id="node-input-nameshort_release" style="width:200px;margin-left: 5px; text-align: left;">
-    </div>
-
-    <div class="form-row">
-        <label for="node-input-namelong_release" style="width:100px;"><i class="fa fa-play-circle-o"></i>&nbspLong release</label>
-
-        <label for="node-input-GAhort_release" style="width:20px;">GA</label>
-        <input type="text" id="node-input-GAlong_release" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
-       
-        <label for="node-input-dptlong_release" style="width:40px; margin-left: 0px; text-align: right;">dpt</label>
-        <select id="node-input-dptlong_release" style="width:140px;"></select>
-       
-        <label for="node-input-namelong_release" style="width:50px; margin-left: 0px; text-align: right;">Name</label>
-        <input type="text" id="node-input-namelong_release" style="width:200px;margin-left: 5px; text-align: left;">
-    </div>
-
-    <div class="form-row">
-        <label for="node-input-namedouble_short_release" style="width:100px;"><i class="fa fa-play-circle-o"></i>&nbspDouble short release</label>
-
-        <label for="node-input-GAdouble_short_release" style="width:20px;">GA</label>
-        <input type="text" id="node-input-GAdouble_short_release" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
-       
-        <label for="node-input-dptdouble_short_release" style="width:40px; margin-left: 0px; text-align: right;">dpt</label>
-        <select id="node-input-dptdouble_short_release" style="width:140px;"></select>
-       
-        <label for="node-input-namedouble_short_release" style="width:50px; margin-left: 0px; text-align: right;"><span data-i18n="knxUltimateHueButton.node-input-name"></span></label>
-        <input type="text" id="node-input-namedouble_short_release" style="width:200px;margin-left: 5px; text-align: left;">
-    </div>
-
-    <div class="form-row">
-        <label for="node-input-namelong_press" style="width:100px;"><i class="fa fa-play-circle-o"></i>&nbspLong press</label>
-
-        <label for="node-input-GAhort_release" style="width:20px;">GA</label>
-        <input type="text" id="node-input-GAlong_press" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
-       
-        <label for="node-input-dptlong_press" style="width:40px; margin-left: 0px; text-align: right;">dpt</label>
-        <select id="node-input-dptlong_press" style="width:140px;"></select>
-       
-        <label for="node-input-namelong_press" style="width:50px; margin-left: 0px; text-align: right;">Name</label>
-        <input type="text" id="node-input-namelong_press" style="width:200px;margin-left: 5px; text-align: left;">
-    </div>
-    
     <div class="form-row">
         <input type="checkbox" id="node-input-toggleValues" style="display:inline-block; width:auto; vertical-align:top;" />
         <label style="width:auto" for="node-input-toggleValues">
@@ -540,11 +436,6 @@
 <br/>
 <br/>
 <br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
 
 
 </script>
@@ -552,11 +443,9 @@
 <script type="text/markdown" data-help-name="knxUltimateHueButton">
 <p> This node lets you get the events from your HUE button.<br/>
 
-There are many event you can choose from. The relevants one are *Initial press* and *repeat*.  
-In *Initial press* you can send true/false to your KNX group address to, for example, toggle a light.  
-In *repeat* event, you can DIM a KNX light.  
+Link the Group Adresses you want, to the respective events.  
+All fields are optional.  
 The **toggle values** option is enabled by default. This option toggles the value of each KNX group address (*true/false, increase/decrease dim*)  
-If you want to simply switch on and off a KNX load or light, use the *Initial press* group address and be sure that the *Toggle values* is enabled.
 
 
 **General**
@@ -568,17 +457,19 @@ If you want to simply switch on and off a KNX load or light, use the *Initial pr
 
 <br/>
 
-**PHILIPS HUE BUTTON EVENTS -> TO KNX**
+**KNX DATAPOINTS**
 Here you can get the HUE button events.<br/>
 Start typing in the GA field, the name or group address of your KNX device, the avaiable devices start showing up while you're typing.
+The Status fields need to be filled only if you set the *Toggle values* option.  
+This allows the internal logic to be aware of external devices, like wall switches.
 
 |Property|Description|
 |--|--|
-| Initial press | As soon as you press your HUE button, this event fires|
+| Switch | As soon as you quickly press and release your HUE button, this event fires |
+| Switch Status | To allow internal logic to take care of the external KNX devices, for example an external wall switch, you should set this group address |
+| Double tap | As soon as you quickly press and release two times your HUE button, this event fires |
+| Double tap Status | To allow internal logic to take care of the external KNX devices, for example an external wall switch, you should set this group address |
 | Repeat | This event is used either to send DIM (increase/decrease) or true/false commands to the KNX group address |
-| Short release | Rapid push of the button, fired as soon as you release your finger from the button. Usually used to toggle a KNX light true/false |
-| Long release | Long press of the button, fired as soon as you release your finger from the button |
-| Long press | Long press of the button, fired as soon as you long press the button |
 | Toggle values | Enable or disable toggling values. If enabled, all values toggles, otherwise, all values are sent as *true* or *increase dim*, to the selected KNX group address |
 
 ### Outputs
@@ -589,7 +480,8 @@ Start typing in the GA field, the name or group address of your KNX device, the 
 ### Details
 
 `msg.payload` is used as the payload of the published message.
-If it contains an Object it will be converted to a JSON string before being sent.
+If it contains an Object it will be converted to a JSON string before being sent.  
+It contains the detailed event sent by your Hue devicem so you can use it for whatever you want.
 
 [Find it useful?](https://www.paypal.me/techtoday)
 

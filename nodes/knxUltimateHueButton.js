@@ -1,4 +1,5 @@
 module.exports = function (RED) {
+  const dptlib = require('./../KNXEngine/dptlib')
 
   function knxUltimateHueButton(config) {
     RED.nodes.createNode(this, config)
@@ -23,14 +24,9 @@ module.exports = function (RED) {
     node.formatmultiplyvalue = 1
     node.formatnegativevalue = 'leave'
     node.formatdecimalsvalue = 2
-    node.toggle1 = false
-    node.toggle2 = false // up or down if repeat field is set to DIM
-    node.toggle3 = false
-    node.toggle4 = false
-    node.toggle4 = false
-    node.toggle5 = false
-    node.toggle5 = false
-    node.toggle6 = false
+    node.toggleGArepeat = false // up or down if repeat field is set to DIM
+    node.toggleGAshort_release = false
+    node.toggleGAdouble_short_release = false
 
     // Used to call the status update from the config node.
     node.setNodeStatus = ({ fill, shape, text, payload }) => {
@@ -39,66 +35,63 @@ module.exports = function (RED) {
 
     // This function is called by the knx-ultimate config node, to output a msg.payload.
     node.handleSend = msg => {
+      const state = {}
+      try {
+        switch (msg.knx.destination) {
+          case config.GAshort_release:
+            msg.payload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptshort_release))
+            node.toggleGAshort_release = msg.payload
+            break
+          case config.GArepeat:
+            msg.payload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptrepeat))
+            node.toggleGArepeat = msg.payload.decr_incr === 1
+            break
+          case config.GAdouble_short_release:
+            msg.payload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptdouble_short_release))
+            node.toggleGAdouble_short_release = msg.payload
+            break
+          default:
+            break
+        }
+        node.status({ fill: 'blue', shape: 'dot', text: 'Updated ' + msg.knx.destination + ' ' + JSON.stringify(msg.payload) + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' })
+      } catch (error) {
+        node.status({ fill: 'red', shape: 'dot', text: 'KNX->HUE error ' + error.message + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' })
+      }
     }
 
     node.handleSendHUE = _event => {
       try {
         if (_event.id === config.hueDevice) {
           const knxMsgPayload = {}
-          if (_event.button.last_event === 'initial_press') {
-            knxMsgPayload.ga = config.GAinitial_press
-            knxMsgPayload.dpt = config.dptinitial_press
-            config.toggleValues ? node.toggle1 = !node.toggle1 : node.toggle1 = true
-            knxMsgPayload.payload = node.toggle1
-            // Toggle the DIM direction
-            config.toggleValues ? node.toggle2 = !node.toggle2 : node.toggle2 = true
-          }
-          if (_event.button.last_event === 'repeat') {
-            knxMsgPayload.ga = config.GArepeat
-            knxMsgPayload.dpt = config.dptrepeat
-            // True/False or DIM
-            if (knxMsgPayload.dpt.startsWith('1.')) {
-              config.toggleValues ? node.toggle2 = !node.toggle2 : node.toggle2 = true
-              knxMsgPayload.payload = node.toggle2
-            }
-            if (knxMsgPayload.dpt.startsWith('3.007')) {
-              if (!config.toggleValues) node.toggle2 = true
-              knxMsgPayload.payload = node.toggle2 ? { decr_incr: 1, data: 5 } : { decr_incr: 0, data: 5 }
-            }
-          }
+
+          // Switch
           if (_event.button.last_event === 'short_release') {
-            knxMsgPayload.ga = config.GAshort_release
+            knxMsgPayload.topic = config.GAshort_release
             knxMsgPayload.dpt = config.dptshort_release
-            config.toggleValues ? node.toggle3 = !node.toggle3 : node.toggle3 = true
-            knxMsgPayload.payload = node.toggle3
+            config.toggleValues ? (node.toggleGAshort_release = !node.toggleGAshort_release) : node.toggleGAshort_release = true
           }
-          if (_event.button.last_event === 'long_release') {
-            knxMsgPayload.ga = config.GAlong_release
-            knxMsgPayload.dpt = config.dptlong_release
-            config.toggleValues ? node.toggle4 = !node.toggle4 : node.toggle4 = true
-            knxMsgPayload.payload = node.toggle4
+          // Dim
+          if (_event.button.last_event === 'repeat') {
+            knxMsgPayload.topic = config.GArepeat
+            knxMsgPayload.dpt = config.dptrepeat
+            if (!config.toggleValues) node.toggleGArepeat = true
+            knxMsgPayload.payload = node.toggleGArepeat ? { decr_incr: 1, data: 5 } : { decr_incr: 0, data: 5 }
           }
+          // Double Tap
           if (_event.button.last_event === 'double_short_release') {
-            knxMsgPayload.ga = config.GAdouble_short_release
+            knxMsgPayload.topic = config.GAdouble_short_release
             knxMsgPayload.dpt = config.dptdouble_short_release
-            config.toggleValues ? node.toggle5 = !node.toggle5 : node.toggle5 = true
-            knxMsgPayload.payload = node.toggle5
+            config.toggleValues ? node.toggleGAdouble_short_release = !node.toggleGAdouble_short_release : node.toggleGAdouble_short_release = true
+            knxMsgPayload.payload = node.toggleGAdouble_short_release
           }
-          if (_event.button.last_event === 'long_press') {
-            knxMsgPayload.ga = config.GAlong_press
-            knxMsgPayload.dpt = config.dptlong_press
-            config.toggleValues ? node.toggle6 = !node.toggle6 : node.toggle6 = true
-            knxMsgPayload.payload = node.toggle6
-          }
+
           // Send to KNX bus
-          if (knxMsgPayload.ga !== '' && knxMsgPayload.ga !== undefined) {
-            node.server.writeQueueAdd({ grpaddr: knxMsgPayload.ga, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
+          if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) {
+            node.server.writeQueueAdd({ grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
           }
           node.status({ fill: 'green', shape: 'dot', text: 'HUE->KNX ' + _event.button.last_event + ' ' + JSON.stringify(knxMsgPayload.payload) + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' })
 
           // Setup the output msg
-          knxMsgPayload.topic = knxMsgPayload.ga
-          delete knxMsgPayload.ga
           knxMsgPayload.name = node.name
           knxMsgPayload.event = _event.button.last_event
           knxMsgPayload.rawEvent = _event

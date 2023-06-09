@@ -61,7 +61,7 @@ module.exports = function (RED) {
       try {
         if (_event.id === config.hueDevice) {
           const knxMsgPayload = {}
-          knxMsgPayload.ga = config.GArepeat
+          knxMsgPayload.topic = config.GArepeat
           knxMsgPayload.dpt = config.dptrepeat
           if (_event.relative_rotary.last_event.rotation.direction === 'clock_wise') {
             if (knxMsgPayload.dpt.startsWith('3.007')) {
@@ -81,12 +81,10 @@ module.exports = function (RED) {
           }
 
           // Send to KNX bus
-          if (knxMsgPayload.ga !== '' && knxMsgPayload.ga !== undefined) node.server.writeQueueAdd({ grpaddr: knxMsgPayload.ga, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
+          if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.server.writeQueueAdd({ grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
           node.status({ fill: 'green', shape: 'dot', text: 'HUE->KNX ' + JSON.stringify(knxMsgPayload.payload) + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' })
 
           // Setup the output msg
-          knxMsgPayload.topic = knxMsgPayload.ga
-          delete knxMsgPayload.ga
           knxMsgPayload.name = node.name
           knxMsgPayload.event = 'rotation ' + _event.relative_rotary.last_event.rotation.direction
           knxMsgPayload.payload = _event

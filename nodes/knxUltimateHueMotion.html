@@ -157,7 +157,7 @@
 
 
 <div class="form-row">
-    <b>HUE Light</b>&nbsp&nbsp<span style="color:red"
+    <b>HUE Motion node</b>&nbsp&nbsp<span style="color:red"
     &nbsp<i class="fa fa-question-circle"></i></span>
     &nbsp<a target="_blank" href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/en-hue-configuration"><u>Configuration</u></a> 
     <br />
@@ -202,7 +202,7 @@
         <label for="node-input-GAmotion" style="width:20px;">GA</label>
         <input type="text" id="node-input-GAmotion" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
     
-        <label for="node-input-dptmotion" style="width:40px; margin-left: 0px; text-align: right;">dpt</label>
+        <label for="node-input-dptmotion" style="width:40px; margin-left: 0px; text-align: right;">DPT</label>
         <select id="node-input-dptmotion" style="width:140px;"></select>
     
         <label for="node-input-namemotion" style="width:50px; margin-left: 0px; text-align: right;">Name</label>
@@ -212,11 +212,6 @@
 </div>
         
 
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
 <br/>
 <br/>
 <br/>
@@ -242,7 +237,8 @@ Start typing in the GA field, the name or group address of your KNX device, the 
 
 ### Details
 
-`msg.payload` is used as the payload of the published message.
+`msg.payload` is used as the payload of the published message.  
+It contains the detailed event sent by your Hue devicem so you can use it for whatever you want.
 
 [Find it useful?](https://www.paypal.me/techtoday)
 

@@ -159,7 +159,7 @@
 
 
 <div class="form-row">
-    <b>HUE Light</b>&nbsp&nbsp<span style="color:red"
+    <b>HUE Tap Dial node (rotary)</b>&nbsp&nbsp<span style="color:red"
     &nbsp<i class="fa fa-question-circle"></i></span>
     &nbsp<a target="_blank" href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/en-hue-configuration"><u>Configuration</u></a> 
     <br />
@@ -204,7 +204,7 @@
         <label for="node-input-GArepeat" style="width:20px;">GA</label>
         <input type="text" id="node-input-GArepeat" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
        
-        <label for="node-input-dptrepeat" style="width:40px; margin-left: 0px; text-align: right;">dpt</label>
+        <label for="node-input-dptrepeat" style="width:40px; margin-left: 0px; text-align: right;">DPT</label>
         <select id="node-input-dptrepeat" style="width:140px;"></select>
        
         <label for="node-input-namerepeat" style="width:50px; margin-left: 0px; text-align: right;">Name</label>
@@ -218,21 +218,16 @@
 <br/>
 <br/>
 <br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
 
 
 </script>
 
 <script type="text/markdown" data-help-name="knxUltimateHueTapDial">
-<p> This node lets you get the events from your HUE rotary, for example Tap Dial.<br/>
+<p> This node lets you get the events from your HUE rotary device, for example the Tap Dial.<br/>
 
-The Tap Dial button has 4 buttons and 1 rotary knob.  
-You can find the 4 buttons in the **Button node**, not here!  
-The rotary service of the Tap Dial button, can send a DIM (Datapoint 3.007) or absolute brightness (Datapoint 5.001) to the KNX bus,
+The Tap Dial device has 4 buttons and 1 rotary knob.  
+You can find the 4 buttons in the **Hue Button node**, not here!  
+The rotary service of the Tap Dial, can send a DIM (Datapoint 3.007) or absolute brightness (Datapoint 5.001) to the KNX bus,
 to the selected group address.
 
 **General**
@@ -260,7 +255,8 @@ Start typing in the GA field, the name or group address of your KNX device, the 
 ### Details
 
 `msg.payload` is used as the payload of the published message.
-If it contains an Object it will be converted to a JSON string before being sent.
+If it contains an Object it will be converted to a JSON string before being sent.  
+It contains the detailed event sent by your Hue devicem so you can use it for whatever you want.
 
 [Find it useful?](https://www.paypal.me/techtoday)
 
