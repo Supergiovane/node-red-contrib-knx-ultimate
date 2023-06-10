@@ -91,22 +91,22 @@ module.exports = (RED) => {
     })
 
 
-    RED.httpAdmin.get('/KNXUltimateGetDevicesHUE', RED.auth.needsPermission('hue-config.read'), function (req, res) {
+    RED.httpAdmin.get('/KNXUltimateGetResourcesHUE', RED.auth.needsPermission('hue-config.read'), function (req, res) {
       try {
         (async () => {
           try {
             // °°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
             const _node = RED.nodes.getNode(req.query.nodeID)// Retrieve node.id of the config node.
-            const jRet = await node.hueManager.getDevices(req.query.rtype, _node.host, _node.credentials.username)
+            const jRet = await node.hueManager.getResources(req.query.rtype, _node.host, _node.credentials.username)
             res.json(jRet)
             // °°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
           } catch (err) {
-            RED.log.error('Errore KNXUltimateGetDevicesHUE non gestito ' + err.message)
+            RED.log.error('Errore KNXUltimateGetResourcesHUE non gestito ' + err.message)
             res.json({ error: err.message })
           }
         })()
       } catch (err) {
-        RED.log.error('Errore KNXUltimateGetDevicesHUE bsonto ' + err.message)
+        RED.log.error('Errore KNXUltimateGetResourcesHUE bsonto ' + err.message)
         res.json({ error: err.message })
       }
     })

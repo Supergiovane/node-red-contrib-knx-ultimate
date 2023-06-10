@@ -1,5 +1,5 @@
 <script type="text/javascript">
-    RED.nodes.registerType('knxUltimateHueTapDial', {
+    RED.nodes.registerType('knxUltimateHueTemperatureSensor', {
         category: "KNX Ultimate",
         color: '#C7E9C0',
         defaults: {
@@ -8,9 +8,9 @@
             serverHue: { type: "hue-config", required: true },
             name: { value: "" },
 
-            namerepeat: { value: "" },
-            GArepeat: { value: "" },
-            dptrepeat: { value: "" },
+            nametemperaturesensor: { value: "" },
+            GAtemperaturesensor: { value: "" },
+            dpttemperaturesensor: { value: "" },
 
             hueDevice: { value: "" }
         },
@@ -20,7 +20,7 @@
         label: function () {
             return (this.name);
         },
-        paletteLabel: "Hue Tap Dial (beta)",
+        paletteLabel: "Hue Temperature Sensor (beta)",
         // button: {
         //     enabled: function() {
         //         // return whether or not the button is enabled, based on the current
@@ -64,35 +64,32 @@
                 return i == aSearchWords.length;
             }
 
-
-            // DPT repeat
+            // DPT 
             // ########################
             $.getJSON('knxUltimateDpts', (data) => {
                 data.forEach(dpt => {
-                    if (dpt.value.startsWith("3.007") || dpt.value.startsWith("5.00")) {
-                        $("#node-input-dptrepeat").append($("<option></option>")
+                    if (dpt.value.startsWith("9.001")) {
+                        $("#node-input-dpttemperaturesensor").append($("<option></option>")
                             .attr("value", dpt.value)
                             .text(dpt.text))
                     }
                 });
-
-                $("#node-input-dptrepeat").val(this.dptrepeat)
+                $("#node-input-dpttemperaturesensor").val(this.dpttemperaturesensor)
             })
 
             // Autocomplete suggestion with ETS csv File
-            $("#node-input-GArepeat").autocomplete({
+            $("#node-input-GAtemperaturesensor").autocomplete({
                 minLength: 1,
                 source: function (request, response) {
+                    //$.getJSON("csv", request, function( data, status, xhr ) {
                     $.getJSON("knxUltimatecsv?nodeID=" + oNodeServer.id, (data) => {
                         response($.map(data, function (value, key) {
                             var sSearch = (value.ga + " (" + value.devicename + ") DPT" + value.dpt);
-                            if (fullSearch(sSearch, request.term)) {
-                                if (value.dpt.startsWith('5.001') || value.dpt.startsWith('3.007')) {
-                                    return {
-                                        label: value.ga + " # " + value.devicename + " # " + value.dpt, // Label for Display
-                                        value: value.ga // Value
-                                    }
-                                } else { return null; }
+                            if (fullSearch(sSearch, request.term + " 9.001")) {
+                                return {
+                                    label: value.ga + " # " + value.devicename + " # " + value.dpt, // Label for Display
+                                    value: value.ga // Value
+                                }
                             } else {
                                 return null;
                             }
@@ -105,12 +102,13 @@
                         sDevName = sDevName.substr(sDevName.indexOf(")") + 1).trim();
                     } catch (error) {
                     }
-                    $('#node-input-namerepeat').val(sDevName);
-                    var optVal = $("#node-input-dptrepeat option:contains('" + ui.item.label.split("#")[2].trim() + "')").attr('value');
+                    $('#node-input-nametemperaturesensor').val(sDevName);
+                    var optVal = $("#node-input-dpttemperaturesensor option:contains('" + ui.item.label.split("#")[2].trim() + "')").attr('value');
                     // Select the option value 
-                    $("#node-input-dptrepeat").val(optVal);
+                    $("#node-input-dpttemperaturesensor").val(optVal);
                 }
             });
+            // ######################## 
 
 
 
@@ -119,7 +117,7 @@
             $("#node-input-name").autocomplete({
                 minLength: 1,
                 source: function (request, response) {
-                    $.getJSON("KNXUltimateGetResourcesHUE?rtype=relative_rotary&nodeID=" + oNodeServerHue.id, (data) => {
+                    $.getJSON("KNXUltimateGetResourcesHUE?rtype=temperature&nodeID=" + oNodeServerHue.id, (data) => {
                         response($.map(data.devices, function (value, key) {
                             //alert(JSON.stringify(value) + " "+ key)
                             var sSearch = (value.name);
@@ -155,15 +153,15 @@
 
 </script>
 
-<script type="text/x-red" data-template-name="knxUltimateHueTapDial">
+<script type="text/x-red" data-template-name="knxUltimateHueTemperatureSensor">
 
 
 <div class="form-row">
-    <b>HUE Tap Dial node (rotary)</b>&nbsp&nbsp<span style="color:red"
+    <b>HUE Light Sensor node</b>&nbsp&nbsp<span style="color:red"
     &nbsp<i class="fa fa-question-circle"></i></span>
     &nbsp<a target="_blank" href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/en-hue-configuration"><u>Configuration</u></a> 
     <br />
-    <p align="center"><img src='https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/hueTapDial.png'></p>
+    <p align="center"><img src='https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/hueMotion.png'></p>
     <br />
     <label for="node-input-server" >
         <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAKnRFWHRDcmVhdGlvbiBUaW1lAEZyIDYgQXVnIDIwMTAgMjE6NTI6MTkgKzAxMDD84aS8AAAAB3RJTUUH3gYYCicNV+4WIQAAAAlwSFlzAAALEgAACxIB0t1+/AAAAARnQU1BAACxjwv8YQUAAACUSURBVHjaY2CgFZg5c+Z/ZEyWAZ8+f/6/ZsWs/xoamqMGkGrA6Wla/1+fVARjEBuGsSoGmY4eZSCNL59d/g8DIDbIAHR14OgFGQByKjIGKX5+6/T///8gGMQGiV1+/B0Fg70GIkD+RMYgxf/O5/7//2MSmAZhkBi6OrgB6Bg5DGB4ajr3f2xqsYYLSDE2THJUDg0AAAqyDVd4tp4YAAAAAElFTkSuQmCC"></img>
@@ -187,7 +185,7 @@
     
 <div class="form-row">
     <label for="node-input-hueDevice" >
-        <i class="fa fa-play-circle"></i>&nbspHue Device</label>
+        <i class="fa fa-play-circle"></i>&nbspHue Sensor</label>
         <input type="text" id="node-input-name" placeholder="Enter your hue device name" />
     <input type="hidden" id="node-input-hueDevice" />
 </div>
@@ -195,23 +193,22 @@
 <br/>
 
 <p>
-<b>PHILIPS HUE BUTTON EVENTS -> TO KNX</b>
+<b>PHILIPS HUE LIGHT EVENTS -> TO KNX</b>
 </p>
 
     <div class="form-row">
-        <label for="node-input-namerepeat" style="width:100px;"><i class="fa fa-play-circle-o"></i> Rotate</span></label>
+        <label for="node-input-nametemperaturesensor" style="width:100px;"><i class="fa fa-play-circle-o"></i> Temp °C</span></label>
 
-        <label for="node-input-GArepeat" style="width:20px;">GA</label>
-        <input type="text" id="node-input-GArepeat" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
-       
-        <label for="node-input-dptrepeat" style="width:40px; margin-left: 0px; text-align: right;">DPT</label>
-        <select id="node-input-dptrepeat" style="width:140px;"></select>
-       
-        <label for="node-input-namerepeat" style="width:50px; margin-left: 0px; text-align: right;">Name</label>
-        <input type="text" id="node-input-namerepeat" style="width:200px;margin-left: 5px; text-align: left;">
+        <label for="node-input-GAtemperaturesensor" style="width:20px;">GA</label>
+        <input type="text" id="node-input-GAtemperaturesensor" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
+    
+        <label for="node-input-dpttemperaturesensor" style="width:40px; margin-left: 0px; text-align: right;">DPT</label>
+        <select id="node-input-dpttemperaturesensor" style="width:140px;"></select>
+    
+        <label for="node-input-nametemperaturesensor" style="width:50px; margin-left: 0px; text-align: right;">Name</label>
+        <input type="text" id="node-input-nametemperaturesensor" style="width:200px;margin-left: 5px; text-align: left;">
     </div>
-    
-    
+   
 </div>
         
 
@@ -222,41 +219,33 @@
 
 </script>
 
-<script type="text/markdown" data-help-name="knxUltimateHueTapDial">
-<p> This node lets you get the events from your HUE rotary device, for example the Tap Dial.<br/>
+<script type="text/markdown" data-help-name="knxUltimateHueTemperatureSensor">
+<p> This node lets you get the events from your HUE temperature device.<br/>
 
-The Tap Dial device has 4 buttons and 1 rotary knob.  
-You can find the 4 buttons in the **Hue Button node**, not here!  
-The rotary service of the Tap Dial, can send a DIM (Datapoint 3.007) or absolute brightness (Datapoint 5.001) to the KNX bus,
-to the selected group address.
+Here you can get the HUE temperature events, that represents a celsius value, evetytime the ambient temp changes.<br/>
+Start typing in the GA field, the name or group address of your KNX device, the avaiable devices start showing up while you're typing.
 
 **General**
 |Property|Description|
 |--|--|
 | KNX GW | Select the KNX gateway to be used |
 | HUE Bridge | Select the HUE Bridge to be used |
-| Hue Button | HUE button to be used. The avaiable buttons start showing up while you're typing.|
+| Hue Sensor | HUE sensor to be used. The avaiable buttons start showing up while you're typing.|
 
-<br/>
-
-**PHILIPS HUE BUTTON EVENTS -> TO KNX**
-Here you can get the HUE rotary service events.<br/>
-Start typing in the GA field, the name or group address of your KNX device, the avaiable devices start showing up while you're typing.
-
+**PHILIPS HUE LIGHT EVENTS -> TO KNX**
 |Property|Description|
 |--|--|
-| Rotate | This command is used either to send DIM (increase/decrease) or true/false commands to the KNX group address. Only as info, in the HUE event chain, this is called *repeat* |
+| Temp | temperature value, in Celsius degrees |
 
 ### Outputs
 
 1. Standard output
-: payload (string|object) : the standard output of the command.
+: payload (integer) : the standard output of the command.
 
 ### Details
 
-`msg.payload` is used as the payload of the published message.
-If it contains an Object it will be converted to a JSON string before being sent.  
-It contains the detailed event sent by your Hue devicem so you can use it for whatever you want.
+`msg.payload` is used as the payload of the published message.  
+It contains the detailed event sent by your Hue devicem so you can use it for whatever you want.  
 
 <br/>
 

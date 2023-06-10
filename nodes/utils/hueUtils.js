@@ -17,7 +17,7 @@ class classHUE extends EventEmitter {
   }
 
   // Get all devices and join it with relative rooms, by adding the room name to the device name
-  getDevices = async (_rtype, _host, _username) => {
+  getResources = async (_rtype, _host, _username) => {
     try {
       // V2
       const hue = hueApiV2.connect({ host: _host, key: _username })
@@ -48,7 +48,13 @@ class classHUE extends EventEmitter {
         if (_rtype === 'light_level') {
           retArray.push({ name: 'Light Level: ' + linkedDevName + (Room !== undefined ? ', room ' + Room.metadata.name : ''), id: device.id })
         }
-
+        if (_rtype === 'temperature') {
+          retArray.push({ name: 'Temp: ' + linkedDevName + (Room !== undefined ? ', room ' + Room.metadata.name : ''), id: device.id })
+        }
+        if (_rtype === 'scene') {
+          retArray.push({ name: 'Temp: ' + linkedDevName + (Room !== undefined ? ', room ' + Room.metadata.name : ''), id: device.id })
+        }
+        
       })
       return { devices: retArray }
     } catch (error) {
