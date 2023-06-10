@@ -103,21 +103,37 @@ module.exports = function (RED) {
             knxMsgPayload.topic = config.GALightState
             knxMsgPayload.dpt = config.dptLightState
             knxMsgPayload.payload = _event.on.on
+            // Send to KNX bus
+            if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.server.writeQueueAdd({ grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
+            // ISE Connect Hue emulation, send brightness
+            knxMsgPayload.topic = config.GALightBrightnessState
+            knxMsgPayload.dpt = config.dptLightBrightnessState
+            _event.on.on === true ? knxMsgPayload.payload = 100 : 0
+            // Send to KNX bus
+            if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.server.writeQueueAdd({ grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
           }
           if (_event.hasOwnProperty('color')) {
             knxMsgPayload.topic = config.GALightColorState
             knxMsgPayload.dpt = config.dptLightColorState
             knxMsgPayload.payload = hueColorConverter.ColorConverter.xyBriToRgb(_event.color.xy.x, _event.color.xy.y, node.currentHUEDevice.dimming.brightness)
+            // Send to KNX bus
+            if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.server.writeQueueAdd({ grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
           }
           if (_event.hasOwnProperty('dimming')) {
             knxMsgPayload.topic = config.GALightBrightnessState
             knxMsgPayload.dpt = config.dptLightBrightnessState
             knxMsgPayload.payload = _event.dimming.brightness
-          }
-          // Send to KNX bus
-          if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.server.writeQueueAdd({ grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
-          node.status({ fill: 'green', shape: 'dot', text: 'HUE->KNX State ' + JSON.stringify(knxMsgPayload.payload) + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' })
+            // Send to KNX bus
+            if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.server.writeQueueAdd({ grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
+            // ISE Connect Hue emulation, send true/false to switch state
+            knxMsgPayload.topic = config.GALightState
+            knxMsgPayload.dpt = config.dptLightState
+            _event.dimming.brightness > 0 ? knxMsgPayload.payload = true : false
+            // Send to KNX bus
+            if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.server.writeQueueAdd({ grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
 
+          }
+          node.status({ fill: 'green', shape: 'dot', text: 'HUE->KNX State ' + JSON.stringify(knxMsgPayload.payload) + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' })
         }
       } catch (error) {
         node.status({ fill: 'red', shape: 'dot', text: 'HUE->KNX error ' + error.message + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' })

@@ -480,7 +480,7 @@
 <!-- <p> <img src='https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/knx.png' width='32px'> -> <img src='https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/hue.png' width='32px'></p> -->
 
 <p>
-<b>KNX COMMANDS -> TO PHILIPS HUE</b>
+<b>KNX LINK</b>
 </p>
     <div class="form-row">
         <label for="node-input-nameLightSwitch" style="width:100px;"><i class="fa fa-play-circle-o"></i> <span data-i18n="knxUltimateHueLight.node-input-nameLightSwitch"></span></label>
@@ -494,6 +494,19 @@
         <label for="node-input-nameLightSwitch" style="width:50px; margin-left: 0px; text-align: right;"><span data-i18n="knxUltimateHueLight.node-input-name"></span></label>
         <input type="text" id="node-input-nameLightSwitch" style="width:200px;margin-left: 5px; text-align: left;">
     </div>
+    <div class="form-row">
+        <label for="node-input-nameLightState" style="width:100px;"><i class="fa fa-play-circle-o"></i> Switch Status</label>
+
+        <label for="node-input-GALightState" style="width:20px;">GA</label>
+        <input type="text" id="node-input-GALightState" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
+       
+        <label for="node-input-dptLightState" style="width:40px; margin-left: 0px; text-align: right;">DPT</label>
+        <select id="node-input-dptLightState" style="width:140px;"></select>
+       
+        <label for="node-input-nameLightState" style="width:50px; margin-left: 0px; text-align: right;"><span data-i18n="knxUltimateHueLight.node-input-name"></span></label>
+        <input type="text" id="node-input-nameLightState" style="width:200px;margin-left: 5px; text-align: left;">
+    </div>
+   <br/>
     </div>
         <div class="form-row">
         <label for="node-input-nameLightDIM" style="width:100px;"><i class="fa fa-play-circle-o"></i>&nbspDimming</label>
@@ -507,6 +520,7 @@
         <label for="node-input-nameLightDIM" style="width:50px; margin-left: 0px; text-align: right;"><span data-i18n="knxUltimateHueLight.node-input-name"></span></label>
         <input type="text" id="node-input-nameLightDIM" style="width:200px;margin-left: 5px; text-align: left;">
     </div>
+<br/>
     </div>
         <div class="form-row">
         <label for="node-input-nameLightColor" style="width:100px;"><i class="fa fa-play-circle-o"></i>&nbspColor</label>
@@ -520,6 +534,19 @@
         <label for="node-input-nameLightColor" style="width:50px; margin-left: 0px; text-align: right;"><span data-i18n="knxUltimateHueLight.node-input-name"></span></label>
         <input type="text" id="node-input-nameLightColor" style="width:200px;margin-left: 5px; text-align: left;">
     </div>
+        <div class="form-row">
+        <label for="node-input-nameLightColorState" style="width:100px;"><i class="fa fa-play-circle-o"></i> Color Status</label>
+
+        <label for="node-input-GALightColorState" style="width:20px;"><span data-i18n="knxUltimateHueLight.node-input-GALightState"></span></label>
+        <input type="text" id="node-input-GALightColorState" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
+       
+        <label for="node-input-dptLightColorState" style="width:40px; margin-left: 0px; text-align: right;">DPT</label>
+        <select id="node-input-dptLightColorState" style="width:140px;"></select>
+       
+        <label for="node-input-nameLightColorState" style="width:50px; margin-left: 0px; text-align: right;"><span data-i18n="knxUltimateHueLight.node-input-name"></span></label>
+        <input type="text" id="node-input-nameLightColorState" style="width:200px;margin-left: 5px; text-align: left;">
+    </div>
+   <br/>
     </div>
         </div>
         <div class="form-row">
@@ -534,37 +561,7 @@
         <label for="node-input-nameLightBrightness" style="width:50px; margin-left: 0px; text-align: right;"><span data-i18n="knxUltimateHueLight.node-input-name"></span></label>
         <input type="text" id="node-input-nameLightBrightness" style="width:200px;margin-left: 5px; text-align: left;">
     </div>
-
-<br/>
-<p>
-<b>PHILIPS HUE LIGHT STATE -> TO KNX</b>
-</p>
-
-    <div class="form-row">
-        <label for="node-input-nameLightState" style="width:100px;"><i class="fa fa-play-circle-o"></i> Switch Status</label>
-
-        <label for="node-input-GALightState" style="width:20px;">GA</label>
-        <input type="text" id="node-input-GALightState" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
-       
-        <label for="node-input-dptLightState" style="width:40px; margin-left: 0px; text-align: right;">DPT</label>
-        <select id="node-input-dptLightState" style="width:140px;"></select>
-       
-        <label for="node-input-nameLightState" style="width:50px; margin-left: 0px; text-align: right;"><span data-i18n="knxUltimateHueLight.node-input-name"></span></label>
-        <input type="text" id="node-input-nameLightState" style="width:200px;margin-left: 5px; text-align: left;">
-    </div>
-        <div class="form-row">
-        <label for="node-input-nameLightColorState" style="width:100px;"><i class="fa fa-play-circle-o"></i> Color Status</label>
-
-        <label for="node-input-GALightColorState" style="width:20px;"><span data-i18n="knxUltimateHueLight.node-input-GALightState"></span></label>
-        <input type="text" id="node-input-GALightColorState" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
-       
-        <label for="node-input-dptLightColorState" style="width:40px; margin-left: 0px; text-align: right;">DPT</label>
-        <select id="node-input-dptLightColorState" style="width:140px;"></select>
-       
-        <label for="node-input-nameLightColorState" style="width:50px; margin-left: 0px; text-align: right;"><span data-i18n="knxUltimateHueLight.node-input-name"></span></label>
-        <input type="text" id="node-input-nameLightColorState" style="width:200px;margin-left: 5px; text-align: left;">
-    </div>
-        </div>
+  </div>
         <div class="form-row">
         <label for="node-input-nameLightBrightnessState" style="width:100px;"><i class="fa fa-play-circle-o"></i>Brightness Status</label>
 
@@ -585,7 +582,7 @@
 
 
 <script type="text/markdown" data-help-name="knxUltimateHueLight">
-<p>This node lets you control your Philips HUE light and also get the states of this lights.
+<p>This node lets you control your Philips HUE light and also get the states of this lights, to be sent to the KNX bus.
 
 **General**
 |Property|Description|
@@ -596,28 +593,20 @@
 
 <br/>
 
-**KNX COMMANDS -> TO PHILIPS HUE**
-Here you can choose the KNX addresses to be linked to the avaiable HUE light commands.<br/>
+**KNX LINK**
+
+Here you can choose the KNX addresses to be linked to the avaiable HUE light commands/states.<br/>
 Start typing in the GA field, the name or group address of your KNX device, the avaiable devices start showing up while you're typing.
 
 |Property|Description|
 |--|--|
-| Switch | This command is used to turn on/off the HUE light via a boolean KNX value true/false|
-| Dimming | This command is used to DIM the HUE light via a KNX relative DIM datapoint |
+| Switch | This GA is used to turn on/off the HUE light via a boolean KNX value true/false|
+| Switch Status| Link this to the light's switch status group address|
+| Dimming | Relative DIM the HUE light |
 | Color | This command is used to change the HUE light's color. Accepted datapoint is RGB triplet (r,g,b). The node handles the gamut color correction. As soon as you send a color KNX telegran, the light turns on and sets color and brightness, derived from the brightness human perception. As soon as you send a KNX telegram with r,g,b set to zero, the light turns off |
+| Color Status | Link this to the light's color status group address. Accepted datapoint is RGB triplet (r,g,b)|
 | Brightness | This command is used to change the absolute HUE light's brightness |
-
-<br/>
-
-**PHILIPS HUE LIGHT STATE -> TO KNX**
-Here you can link the state changes of your HUE light, to any KNX group address you want.<br/>
-Start typing in the GA field, the name or group address of your KNX device, the avaiable devices start showing up while you're typing.
-
-|Property|Description|
-|--|--|
-| Switch Status| This state is used to send on/off value to the selected KNX group address |
-| Color Status | This state is used to send changes of the HUE light's color. Accepted datapoint is RGB triplet (r,g,b)|
-| Brightness Status| This state is used to send changes of your absolute HUE light's brightness, to a KNX group address |
+| Brightness Status| Link this to the light's brightness status group address |
 
 <br/>
 

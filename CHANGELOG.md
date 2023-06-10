@@ -7,9 +7,10 @@
 # CHANGELOG
 
 <p>
-<b>Version 2.0.14</b> - June 2023<br/>
+<b>Version 2.0.15</b> - June 2023<br/>
 - HUE: CAUTION POSSIBLE BREAKING CHANGES TO THE HUE NODES. PLEASE BE AWARE THAT HUE NODES ARE STILL IN BETA<br/>
 - NEW: Temperature sensor.<br/>
+- Changes to HUE Light node, to mime the ISE KNX CONNECT HUE beavior.<br/>
 </p>
 <p>
 <b>Version 2.0.13</b> - June 2023<br/>
