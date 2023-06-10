@@ -7,6 +7,11 @@
 # CHANGELOG
 
 <p>
+<b>Version 2.0.13</b> - June 2023<br/>
+- HUE: CAUTION BREAKING CHANGES TO THE HUE NODES. PLEASE BE AWARE THAT HUE NODES ARE STILL IN BETA<br/>
+- Hue Button node: fixed missing events in output msg.<br/>
+</p>
+<p>
 <b>Version 2.0.12</b> - June 2023<br/>
 - HUE: CAUTION BREAKING CHANGES TO THE HUE NODES. PLEASE BE AWARE THAT HUE NODES ARE STILL IN BETA<br/>
 - NEW: Hue light sensor node.<br/>

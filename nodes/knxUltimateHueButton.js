@@ -63,27 +63,48 @@ module.exports = function (RED) {
       try {
         if (_event.id === config.hueDevice) {
           const knxMsgPayload = {}
-
-          // Switch
-          if (_event.button.last_event === 'short_release') {
-            knxMsgPayload.topic = config.GAshort_release
-            knxMsgPayload.dpt = config.dptshort_release
-            config.toggleValues ? (node.toggleGAshort_release = !node.toggleGAshort_release) : node.toggleGAshort_release = true
-            knxMsgPayload.payload = node.toggleGAshort_release
-            node.status({ fill: 'green', shape: 'dot', text: 'HUE->KNX ' + _event.button.last_event + ' ' + JSON.stringify(knxMsgPayload.payload) + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' })
-          }
-          // Dim
-          if (_event.button.last_event === 'repeat') {
-            knxMsgPayload.topic = config.GArepeat
-            knxMsgPayload.dpt = config.dptrepeat
-            if (!config.toggleValues) node.toggleGArepeat = true
-            knxMsgPayload.payload = node.toggleGArepeat ? { decr_incr: 1, data: 3 } : { decr_incr: 0, data: 3 }
-            node.status({ fill: 'green', shape: 'dot', text: 'HUE->KNX ' + _event.button.last_event + ' ' + JSON.stringify(knxMsgPayload.payload) + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' })
-          }
-
-          // Send to KNX bus
-          if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) {
-            node.server.writeQueueAdd({ grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
+          // Handling events with toggles
+          switch (_event.button.last_event) {
+            case 'initial_press':
+              if (node.initial_pressValue === undefined) node.initial_pressValue = false
+              config.toggleValues ? node.initial_pressValue = !node.initial_pressValue : node.initial_pressValue = true
+              knxMsgPayload.payload = node.initial_pressValue
+              break
+            case 'long_release':
+               if (node.long_releaseValue === undefined) node.long_releaseValue = false
+              config.toggleValues ? node.long_releaseValue = !node.long_releaseValue : node.long_releaseValue = true
+              knxMsgPayload.payload = node.long_releaseValue
+              break
+            case 'double_short_release':
+              if (node.double_short_releaseValue === undefined) node.double_short_releaseValue = false
+              config.toggleValues ? node.double_short_releaseValue = !node.double_short_releaseValue : node.double_short_releaseValue = true
+              knxMsgPayload.payload = node.double_short_releaseValue
+              break
+            case 'long_press':
+              if (node.long_pressValue === undefined) node.long_pressValue = false
+              config.toggleValues ? node.long_pressValue = !node.long_pressValue : node.long_pressValue = true
+              knxMsgPayload.payload = node.long_pressValue
+              break
+            case 'short_release':
+              knxMsgPayload.topic = config.GAshort_release
+              knxMsgPayload.dpt = config.dptshort_release
+              config.toggleValues ? (node.toggleGAshort_release = !node.toggleGAshort_release) : node.toggleGAshort_release = true
+              knxMsgPayload.payload = node.toggleGAshort_release
+              node.status({ fill: 'green', shape: 'dot', text: 'HUE->KNX ' + _event.button.last_event + ' ' + JSON.stringify(knxMsgPayload.payload) + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' })
+              // Send to KNX bus
+              if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.server.writeQueueAdd({ grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
+              break
+            case 'repeat':
+              knxMsgPayload.topic = config.GArepeat
+              knxMsgPayload.dpt = config.dptrepeat
+              if (!config.toggleValues) node.toggleGArepeat = true
+              knxMsgPayload.payload = node.toggleGArepeat ? { decr_incr: 1, data: 3 } : { decr_incr: 0, data: 3 }
+              node.status({ fill: 'green', shape: 'dot', text: 'HUE->KNX ' + _event.button.last_event + ' ' + JSON.stringify(knxMsgPayload.payload) + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' })
+              // Send to KNX bus
+              if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.server.writeQueueAdd({ grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
+              break
+            default:
+              break
           }
 
           // Setup the output msg
