@@ -7,6 +7,11 @@
 # CHANGELOG
 
 <p>
+<b>Version 2.0.19</b> - June 2023<br/>
+- HUE: CAUTION POSSIBLE BREAKING CHANGES TO THE HUE NODES. PLEASE BE AWARE THAT HUE NODES ARE STILL IN BETA<br/>
+- Fixed reading initial state of hue lamps.<br/>
+</p>
+<p>
 <b>Version 2.0.18</b> - June 2023<br/>
 - HUE: CAUTION POSSIBLE BREAKING CHANGES TO THE HUE NODES. PLEASE BE AWARE THAT HUE NODES ARE STILL IN BETA<br/>
 - Fixed HUE telegram speed, according to the HUE Api V2 recommendation.<br/>

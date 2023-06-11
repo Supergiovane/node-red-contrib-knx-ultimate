@@ -162,12 +162,12 @@ module.exports = function (RED) {
         try {
           if (node !== null && node.serverHue !== null && node.serverHue.hueManager !== null) {
             node.serverHue.hueManager.getLight(config.hueDevice).then(ret => {
-              node.currentHUEDevice = ret[0]
+              if (ret.length > 0) node.currentHUEDevice = ret[0]
               //console.log("retrieving node.currentHUEDevice" + node.currentHUEDevice.metadata.name)
             })
           }
         } catch (error) {
-          throw (error)
+          console.log('Error: knxUltimateHueLight: node.serverHue.hueManager.getLight: ' + error.message)
         }
       }, 1000);
 

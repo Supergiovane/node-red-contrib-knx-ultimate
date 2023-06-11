@@ -94,7 +94,7 @@ class classHUE extends EventEmitter {
       //const hue = hueApiV2.connect({ host: this.HUEBridgeIP, key: this.username })
       return await this.hue.getLight(_LightID)
     } catch (error) {
-      throw (error)
+      console.log('KNXUltimateHUEConfig: classHUE: getLight: ' + error.message)
     }
   }
 
@@ -107,7 +107,7 @@ class classHUE extends EventEmitter {
           const sRet = await this.hue.getBridges()
           if (sRet.filter(e => e.bridge_id.toString().toLowerCase() === this.bridgeid.toString().toLowerCase()).length === 0) {
             /* oBridge doesn't contains the element we're looking for */
-            throw (new Error('This machine is online, but this bridgeid is not found: ' + this.bridgeid))
+            return (new Error('This machine is online, but this bridgeid is not found: ' + this.bridgeid))
           }
         }
       } catch (error) {
