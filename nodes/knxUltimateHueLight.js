@@ -162,7 +162,7 @@ module.exports = function (RED) {
         try {
           if (node !== null && node.serverHue !== null && node.serverHue.hueManager !== null) {
             node.serverHue.hueManager.getLight(config.hueDevice).then(ret => {
-              if (ret.length > 0) node.currentHUEDevice = ret[0]
+              if (ret !== undefined && ret.length > 0) node.currentHUEDevice = ret[0]
               //console.log("retrieving node.currentHUEDevice" + node.currentHUEDevice.metadata.name)
             })
           }

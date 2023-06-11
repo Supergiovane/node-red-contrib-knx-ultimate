@@ -7,6 +7,11 @@
 # CHANGELOG
 
 <p>
+<b>Version 2.0.20</b> - June 2023<br/>
+- HUE: CAUTION POSSIBLE BREAKING CHANGES TO THE HUE NODES. PLEASE BE AWARE THAT HUE NODES ARE STILL IN BETA<br/>
+- Fixed API issue, when no HUE bridges present.<br/>
+</p>
+<p>
 <b>Version 2.0.19</b> - June 2023<br/>
 - HUE: CAUTION POSSIBLE BREAKING CHANGES TO THE HUE NODES. PLEASE BE AWARE THAT HUE NODES ARE STILL IN BETA<br/>
 - Fixed reading initial state of hue lamps.<br/>
