@@ -7,13 +7,38 @@ const { EventEmitter } = require('events')
 class classHUE extends EventEmitter {
   constructor(_HUEBridgeIP, _username, _clientkey, _bridgeid) {
     super()
+    this.setup(_HUEBridgeIP, _username, _clientkey, _bridgeid)
+  }
+
+  setup = async (_HUEBridgeIP, _username, _clientkey, _bridgeid) => {
     this.HUEBridgeIP = _HUEBridgeIP
     this.username = _username
     this.clientkey = _clientkey
     this.bridgeid = _bridgeid
     this.timerWatchDog = undefined
-    this.startPushEvents()    
+    this.commandQueue = []
+    this.startPushEvents()
+    // The Hue bridge allows about 10 telegram per second, so i need to make a queue manager
+    this.timerwriteQueueAdd = setTimeout(this.handleQueue, 2000)
   }
+
+
+  handleQueue = async () => {
+    if (this.commandQueue.length > 0) {
+      const jRet = this.commandQueue.shift()
+      try {
+        //const hue = hueApiV2.connect({ host: this.HUEBridgeIP, key: this.username })
+        const ok = await this.hue.setLight(jRet._lightID, jRet._state)
+      } catch (error) {
+        return ({ error: error.message })
+      }
+    }
+    setTimeout(this.handleQueue, 100)
+  }
+  writeHueQueueAdd = async (_lightID, _state) => {
+    this.commandQueue.push({ _lightID, _state })
+  }
+
 
   // Get all devices and join it with relative rooms, by adding the room name to the device name
   getResources = async (_rtype, _host, _username) => {
@@ -53,7 +78,7 @@ class classHUE extends EventEmitter {
         if (_rtype === 'scene') {
           retArray.push({ name: 'Temp: ' + linkedDevName + (Room !== undefined ? ', room ' + Room.metadata.name : ''), id: device.id })
         }
-        
+
       })
       return { devices: retArray }
     } catch (error) {
@@ -62,19 +87,6 @@ class classHUE extends EventEmitter {
     }
   }
 
-  setLightState = async (_lightID, _state = { on: { on: true } }) => {
-    try {
-      //const hue = hueApiV2.connect({ host: this.HUEBridgeIP, key: this.username })
-      const ok = await this.hue.setLight(_lightID, _state)
-      return ok
-      // _state = new hueApi.model.LightState().on(true).bri_inc(50)
-      // const bridgeHUE = await hueApi.v3.api.createLocal(this.HUEBridgeIP).connect(this.username)
-      // const jRet = await bridgeHUE.lights.setLightState(_lightID, _state)
-      // return jRet
-    } catch (error) {
-      return ({ error: error.message })
-    }
-  }
 
   // Get light state
   getLight = async (_LightID) => {

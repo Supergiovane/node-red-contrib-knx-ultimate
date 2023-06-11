@@ -27,7 +27,7 @@ module.exports = function (RED) {
     node.formatmultiplyvalue = 1
     node.formatnegativevalue = 'leave'
     node.formatdecimalsvalue = 2
-    node.currentHUEDevice = {}
+    node.currentHUEDevice = undefined
 
     // Used to call the status update from the config node.
     node.setNodeStatus = ({ fill, shape, text, payload }) => {
@@ -42,7 +42,7 @@ module.exports = function (RED) {
           case config.GALightSwitch:
             msg.payload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightSwitch))
             state = msg.payload === true ? { on: { on: true } } : { on: { on: false } }
-            node.serverHue.hueManager.setLightState(config.hueDevice, state)
+            node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, state)
             break
           case config.GALightDIM:
             // { decr_incr: 1, data: 1 } : Start increasing until { decr_incr: 0, data: 0 } is received.
@@ -59,16 +59,17 @@ module.exports = function (RED) {
           case config.GALightBrightness:
             msg.payload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightBrightness))
             state = { dimming: { brightness: msg.payload } }
-            node.serverHue.hueManager.setLightState(config.hueDevice, state)
+            node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, state)
             break
           case config.GALightColor:
             // Behavior like ISE HUE CONNECT, by setting the brightness and on/off as well
+            if (node.currentHUEDevice === undefined) return
             msg.payload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightColor))
             const gamut = node.currentHUEDevice.color.gamut_type || null
             const retXY = hueColorConverter.ColorConverter.rgbToXy(msg.payload.red, msg.payload.green, msg.payload.blue, gamut)
             const bright = hueColorConverter.ColorConverter.getBrightnessFromRGB(msg.payload.red, msg.payload.green, msg.payload.blue)
             state = bright > 0 ? { on: { on: true }, dimming: { brightness: bright }, color: { xy: retXY } } : { on: { on: false } }
-            node.serverHue.hueManager.setLightState(config.hueDevice, state)
+            node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, state)
             break
           default:
             break
@@ -97,7 +98,7 @@ module.exports = function (RED) {
       node.timerDim = setInterval(() => {
         node.timeoutDim += 1
         if (node.timeoutDim > 100) { node.timeoutDim = 0; clearInterval(node.timerDim) }
-        node.serverHue.hueManager.setLightState(config.hueDevice, node.dimDirection)
+        node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, node.dimDirection)
       }, 300);
     }
 
@@ -121,6 +122,7 @@ module.exports = function (RED) {
             if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.server.writeQueueAdd({ grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
           }
           if (_event.hasOwnProperty('color')) {
+            if (node.currentHUEDevice === undefined) return
             knxMsgPayload.topic = config.GALightColorState
             knxMsgPayload.dpt = config.dptLightColorState
             knxMsgPayload.payload = hueColorConverter.ColorConverter.xyBriToRgb(_event.color.xy.x, _event.color.xy.y, node.currentHUEDevice.dimming.brightness)
@@ -144,7 +146,7 @@ module.exports = function (RED) {
           node.status({ fill: 'green', shape: 'dot', text: 'HUE->KNX State ' + JSON.stringify(knxMsgPayload.payload) + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' })
         }
       } catch (error) {
-        node.status({ fill: 'red', shape: 'dot', text: 'HUE->KNX error ' + error.message + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' })
+        node.status({ fill: 'red', shape: 'dot', text: 'HUE->KNX error ' + knxMsgPayload.topic + ' ' + error.message || '' + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' })
       }
     }
 
@@ -156,18 +158,19 @@ module.exports = function (RED) {
     if (node.serverHue) {
       node.serverHue.removeClient(node)
       node.serverHue.addClient(node)
-      setInterval(() => {
-        // Get light state
+      setTimeout(() => {
         try {
           if (node !== null && node.serverHue !== null && node.serverHue.hueManager !== null) {
             node.serverHue.hueManager.getLight(config.hueDevice).then(ret => {
               node.currentHUEDevice = ret[0]
+              //console.log("retrieving node.currentHUEDevice" + node.currentHUEDevice.metadata.name)
             })
           }
         } catch (error) {
           throw (error)
         }
-      }, 1000);      
+      }, 1000);
+
     }
 
 
