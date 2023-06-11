@@ -69,9 +69,16 @@ module.exports = function (RED) {
             node.serverHue.hueManager.setLightState(config.hueDevice, state)
             break
           case config.GALightDIM:
+            // { decr_incr: 1, data: 1 } : Start increasing until { decr_incr: 0, data: 0 } is received.
+            // { decr_incr: 0, data: 1 } : Start decreasing until { decr_incr: 0, data: 0 } is received.
             msg.payload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightDIM))
-            state = msg.payload.decr_incr === 1 ? { dimming_delta: { action: 'up', brightness_delta: 20 } } : { dimming_delta: { action: 'down', brightness_delta: 20 } }
-            node.serverHue.hueManager.setLightState(config.hueDevice, state)
+            if (msg.payload.data > 0) {
+              let dimDirection = 'down'
+              dimDirection = msg.payload.decr_incr === 1 ? 'up' : 'down'
+              node.startDim(dimDirection)
+            } else {
+              node.startDim('stop')
+            }
             break
           case config.GALightBrightness:
             msg.payload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightBrightness))
@@ -94,6 +101,31 @@ module.exports = function (RED) {
         node.status({ fill: 'red', shape: 'dot', text: 'KNX->HUE error ' + error.message + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' })
       }
     }
+    // Start dimming
+    node.timerDim = undefined
+    node.dimDirection = {}
+    node.timeoutDim = 0
+    node.startDim = function (_direction) {
+      clearInterval(node.timerDim)
+      if (_direction === "stop") return
+      switch (_direction) {
+        case 'up':
+          node.dimDirection = { dimming_delta: { action: 'up', brightness_delta: 5 } }
+          break
+        case 'down':
+          node.dimDirection = { dimming_delta: { action: 'down', brightness_delta: 5 } }
+          break
+        default:
+          break
+      }
+      node.timerDim = setInterval(() => {
+        node.timeoutDim += 1
+        if (node.timeoutDim > 100) { node.timeoutDim = 0; clearInterval(node.timerDim) }
+        node.serverHue.hueManager.setLightState(config.hueDevice, node.dimDirection)
+      }, 50);
+    }
+
+
 
     node.handleSendHUE = _event => {
       try {

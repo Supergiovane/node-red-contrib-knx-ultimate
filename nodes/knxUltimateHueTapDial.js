@@ -39,6 +39,7 @@ module.exports = function (RED) {
     node.formatnegativevalue = 'leave'
     node.formatdecimalsvalue = 2
     node.brightnessState = 0
+    node.isTimerDimStopRunning = false
 
     // Read the state of the light and store it in the holding object
     try {
@@ -63,9 +64,16 @@ module.exports = function (RED) {
           const knxMsgPayload = {}
           knxMsgPayload.topic = config.GArepeat
           knxMsgPayload.dpt = config.dptrepeat
+
           if (_event.relative_rotary.last_event.rotation.direction === 'clock_wise') {
             if (knxMsgPayload.dpt.startsWith('3.007')) {
-              knxMsgPayload.payload = { decr_incr: 1, data: 3 }
+              if (node.isTimerDimStopRunning === false) {
+                // Set KNX Dim up/down start
+                knxMsgPayload.payload = { decr_incr: 1, data: 3 }  // Send to KNX bus
+                if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.server.writeQueueAdd({ grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
+                if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.status({ fill: 'green', shape: 'dot', text: 'HUE->KNX start Dim' + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' })
+              }
+              node.startDimStopper(knxMsgPayload)
             } else if (knxMsgPayload.dpt.startsWith('5.001')) {
               //0 – maximum: 32767
               node.brightnessState < 100 ? node.brightnessState += 20 : node.brightnessState = 100
@@ -73,16 +81,18 @@ module.exports = function (RED) {
             }
           } else if (_event.relative_rotary.last_event.rotation.direction === 'counter_clock_wise') {
             if (knxMsgPayload.dpt.startsWith('3.007')) {
-              knxMsgPayload.payload = { decr_incr: 0, data: 3 }
+              if (node.isTimerDimStopRunning === false) {
+                // Set KNX Dim up/down start
+                knxMsgPayload.payload = { decr_incr: 0, data: 3 }  // Send to KNX bus
+                if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.server.writeQueueAdd({ grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
+                if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.status({ fill: 'green', shape: 'dot', text: 'HUE->KNX start Dim' + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' })
+              }
+              node.startDimStopper(knxMsgPayload)
             } else if (knxMsgPayload.dpt.startsWith('5.001')) {
               node.brightnessState > 0 ? node.brightnessState -= 20 : node.brightnessState = 0
               knxMsgPayload.payload = node.brightnessState
             }
           }
-
-          // Send to KNX bus
-          if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.server.writeQueueAdd({ grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
-          node.status({ fill: 'green', shape: 'dot', text: 'HUE->KNX ' + JSON.stringify(knxMsgPayload.payload) + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' })
 
           // Setup the output msg
           knxMsgPayload.name = node.name
@@ -93,6 +103,20 @@ module.exports = function (RED) {
       } catch (error) {
         node.status({ fill: 'red', shape: 'dot', text: 'HUE->KNX error ' + error.message + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' })
       }
+    }
+
+    // Timer to stop the dimming sequence
+    node.startDimStopper = function (knxMsgPayload) {
+      if (node.timerDimStop !== undefined) clearInterval(node.timerDimStop)
+      node.isTimerDimStopRunning = true
+      node.timerDimStop = setTimeout(() => {
+        // KNX Stop DIM
+        knxMsgPayload.payload = { decr_incr: 0, data: 0 } // Payload for the output msg
+        // Send to KNX bus
+        if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.server.writeQueueAdd({ grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
+        if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.status({ fill: 'green', shape: 'dot', text: 'HUE->KNX Stop DIM' + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' })
+        node.isTimerDimStopRunning = false
+      }, 500);
     }
 
     // On each deploy, unsubscribe+resubscribe

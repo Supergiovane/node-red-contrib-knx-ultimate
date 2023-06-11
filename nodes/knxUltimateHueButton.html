@@ -8,7 +8,7 @@
             serverHue: { type: "hue-config", required: true },
             name: { value: "" },
 
-            namerepeat: { value: "" },
+            nameDim: { value: "" },
             GArepeat: { value: "" },
             dptrepeat: { value: "3.007" },
 
@@ -73,7 +73,7 @@
                 return i == aSearchWords.length;
             }
 
-            // DPT repeat
+            // DPT Dim
             // ########################
             $.getJSON('knxUltimateDpts', (data) => {
                 data.forEach(dpt => {
@@ -112,7 +112,7 @@
                         sDevName = sDevName.substr(sDevName.indexOf(")") + 1).trim();
                     } catch (error) {
                     }
-                    $('#node-input-namerepeat').val(sDevName);
+                    $('#node-input-nameDim').val(sDevName);
                     var optVal = $("#node-input-dptrepeat option:contains('" + ui.item.label.split("#")[2].trim() + "')").attr('value');
                     // Select the option value 
                     $("#node-input-dptrepeat").val(optVal);
@@ -382,8 +382,8 @@
         <label for="node-input-dptrepeat" style="width:40px; margin-left: 0px; text-align: right;">DPT</label>
         <select id="node-input-dptrepeat" style="width:140px;"></select>
        
-        <label for="node-input-namerepeat" style="width:50px; margin-left: 0px; text-align: right;">Name</label>
-        <input type="text" id="node-input-namerepeat" style="width:200px;margin-left: 5px; text-align: left;">
+        <label for="node-input-nameDim" style="width:50px; margin-left: 0px; text-align: right;">Name</label>
+        <input type="text" id="node-input-nameDim" style="width:200px;margin-left: 5px; text-align: left;">
     </div>
     <br/>
     <br/>
@@ -433,7 +433,7 @@ This allows the internal logic to be aware of external devices, like wall switch
 |--|--|
 | Switch | As soon as you quickly press and release your HUE button, this event fires |
 | Switch Status | To allow internal logic to take care of the external KNX devices, for example an external wall switch, you should set this group address |
-| Repeat | This event is used either to send DIM (increase/decrease) or true/false commands to the KNX group address |
+| Dim | This event is used either to send DIM (increase/decrease) or true/false commands to the KNX group address |
 | Toggle values | Enable or disable toggling values. If enabled, all values toggles, otherwise, all values are sent as *true* or *increase dim*, to the selected KNX group address |
 
 ### Outputs

@@ -7,6 +7,11 @@
 # CHANGELOG
 
 <p>
+<b>Version 2.0.16</b> - June 2023<br/>
+- HUE: CAUTION POSSIBLE BREAKING CHANGES TO THE HUE NODES. PLEASE BE AWARE THAT HUE NODES ARE STILL IN BETA<br/>
+- Fixed issues with dimming in the hue button and hue tap dial nodes.<br/>
+</p>
+<p>
 <b>Version 2.0.15</b> - June 2023<br/>
 - HUE: CAUTION POSSIBLE BREAKING CHANGES TO THE HUE NODES. PLEASE BE AWARE THAT HUE NODES ARE STILL IN BETA<br/>
 - NEW: Temperature sensor.<br/>
