@@ -11,19 +11,18 @@ class classHUE extends EventEmitter {
     this.username = _username
     this.clientkey = _clientkey
     this.bridgeid = _bridgeid
-    this.startPushEvents()
     this.timerWatchDog = undefined
-    this.hue = undefined
+    this.startPushEvents()    
   }
 
   // Get all devices and join it with relative rooms, by adding the room name to the device name
   getResources = async (_rtype, _host, _username) => {
     try {
       // V2
-      const hue = hueApiV2.connect({ host: _host, key: _username })
+      //const hue =  hueApiV2.connect({ host: _host, key: _username })
       const retArray = []
-      const allResources = await hue.getResources()
-      const allRooms = await hue.getRooms()
+      const allResources = await this.hue.getResources()
+      const allRooms = await this.hue.getRooms()
       const newArray = allResources.filter(x => x.type === _rtype)
       // Add room name to the device name
       newArray.forEach(device => {
@@ -65,8 +64,8 @@ class classHUE extends EventEmitter {
 
   setLightState = async (_lightID, _state = { on: { on: true } }) => {
     try {
-      const hue = hueApiV2.connect({ host: this.HUEBridgeIP, key: this.username })
-      const ok = await hue.setLight(_lightID, _state)
+      //const hue = hueApiV2.connect({ host: this.HUEBridgeIP, key: this.username })
+      const ok = await this.hue.setLight(_lightID, _state)
       return ok
       // _state = new hueApi.model.LightState().on(true).bri_inc(50)
       // const bridgeHUE = await hueApi.v3.api.createLocal(this.HUEBridgeIP).connect(this.username)
@@ -80,10 +79,10 @@ class classHUE extends EventEmitter {
   // Get light state
   getLight = async (_LightID) => {
     try {
-      const hue = hueApiV2.connect({ host: this.HUEBridgeIP, key: this.username })
-      return await hue.getLight(_LightID)
+      //const hue = hueApiV2.connect({ host: this.HUEBridgeIP, key: this.username })
+      return await this.hue.getLight(_LightID)
     } catch (error) {
-      return ({ error: error.message })
+      throw (error)
     }
   }
 
@@ -100,7 +99,7 @@ class classHUE extends EventEmitter {
           }
         }
       } catch (error) {
-        if (this.timerWatchDog !== null) clearInterval(this.timerWatchDog)
+        if (this.timerWatchDog !== undefined) clearInterval(this.timerWatchDog)
         if (this.hue !== undefined) this.hue.close()
         console.log('KNXUltimateHUEConfig: classHUE: timerWatchDog: ' + error.message)
         this.startPushEvents()
