@@ -4,35 +4,98 @@
 const hueApiV2 = require('node-hue')
 const { EventEmitter } = require('events')
 
+
+const https = require('https');
+
+
+
+
+
 class classHUE extends EventEmitter {
-  constructor(_HUEBridgeIP, _username, _clientkey, _bridgeid) {
+  constructor(_hueBridgeIP, _username, _clientkey, _bridgeid) {
     super()
-    this.setup(_HUEBridgeIP, _username, _clientkey, _bridgeid)
+    this.setup(_hueBridgeIP, _username, _clientkey, _bridgeid)
   }
 
-  setup = async (_HUEBridgeIP, _username, _clientkey, _bridgeid) => {
-    this.HUEBridgeIP = _HUEBridgeIP
+  setup = async (_hueBridgeIP, _username, _clientkey, _bridgeid) => {
+    this.hueBridgeIP = _hueBridgeIP
     this.username = _username
     this.clientkey = _clientkey
     this.bridgeid = _bridgeid
-    this.timerWatchDog = undefined
     this.commandQueue = []
-    this.startPushEvents()
-    // The Hue bridge allows about 10 telegram per second, so i need to make a queue manager
-    this.timerwriteQueueAdd = setTimeout(this.handleQueue, 2000)
+    this.timerwriteQueueAdd = setTimeout(this.handleQueue, 3000) // First start
+
+    // start the SSE Stream Receiver
+    const options = {
+      host: _hueBridgeIP, // Indirizzo IP del tuo bridge Philips Hue
+      path: '/eventstream/clip/v2', // Il percorso dell'API per gli eventi
+      method: 'GET',
+      headers: {
+        'Connection': 'keep-alive',
+        'hue-application-key': _username
+        //'Accept': 'text/event-stream'
+      },
+      rejectUnauthorized: false
+    }
+
+    // Funzione per la gestione della risposta
+    const handleResponse = (response) => {
+      let data = '';
+
+      response.on('data', (chunk) => {
+        data += chunk;
+      });
+
+      response.on('end', () => {
+        try {
+          const events = JSON.parse(data)
+          // An array event "Container", can have multiple events.
+          // for..loop is more efficent. We need speed.
+          for (let index = 0; index < events.length; index++) {
+            const oEvento = events[index]
+            if (oEvento.type === 'update') {
+              for (let index = 0; index < oEvento.data.length; index++) {
+                const element = oEvento.data[index]
+                this.emit('event', element)
+              }
+            }
+          }
+        } catch (error) {
+          console.log('KNXUltimateHUEConfig: classHUE: response.on(end): ' + error.message)
+        }
+        req();
+      });
+    };
+    // Funzione per richiedere gli eventi
+    const req = () => {
+      const request = https.request(options, handleResponse);
+      request.on('error', (error) => {
+        console.log('KNXUltimateHUEConfig: classHUE: request.on(error): ' + error.message)
+        // Restart the connection
+        setTimeout(() => {
+          req();
+        }, 2000);
+      });
+      request.end();
+    };
+
+    // Starts the connection for the first time
+    req();
   }
 
-
+  // Handle the sed queue
   handleQueue = async () => {
     if (this.commandQueue.length > 0) {
       const jRet = this.commandQueue.shift()
       try {
-        //const hue = hueApiV2.connect({ host: this.HUEBridgeIP, key: this.username })
-        const ok = await this.hue.setLight(jRet._lightID, jRet._state)
+        const hue = hueApiV2.connect({ host: this.hueBridgeIP, key: this.username })
+        const ok = await hue.setLight(jRet._lightID, jRet._state)
       } catch (error) {
+        console.log('KNXUltimateHUEConfig: classHUE: handleQueue: ' + error.message)
         return ({ error: error.message })
       }
     }
+    // The Hue bridge allows about 10 telegram per second, so i need to make a queue manager
     setTimeout(this.handleQueue, 100)
   }
   writeHueQueueAdd = async (_lightID, _state) => {
@@ -44,10 +107,10 @@ class classHUE extends EventEmitter {
   getResources = async (_rtype, _host, _username) => {
     try {
       // V2
-      //const hue =  hueApiV2.connect({ host: _host, key: _username })
+      const hue = hueApiV2.connect({ host: _host, key: _username })
       const retArray = []
-      const allResources = await this.hue.getResources()
-      const allRooms = await this.hue.getRooms()
+      const allResources = await hue.getResources()
+      const allRooms = await hue.getRooms()
       const newArray = allResources.filter(x => x.type === _rtype)
       // Add room name to the device name
       newArray.forEach(device => {
@@ -91,59 +154,12 @@ class classHUE extends EventEmitter {
   // Get light state
   getLight = async (_LightID) => {
     try {
-      //const hue = hueApiV2.connect({ host: this.HUEBridgeIP, key: this.username })
-      return await this.hue.getLight(_LightID)
+      const hue = hueApiV2.connect({ host: this.hueBridgeIP, key: this.username })
+      return await hue.getLight(_LightID)
     } catch (error) {
       console.log('KNXUltimateHUEConfig: classHUE: getLight: ' + error.message)
     }
   }
-
-  // Check the bridge for disconnections
-  handleTheDog = async () => {
-    this.timerWatchDog = setInterval(async () => {
-      try {
-        // const hue = hueApiV2.connect({ host: this.HUEBridgeIP, key: this.username })
-        if (this.hue !== undefined) {
-          const sRet = await this.hue.getBridges()
-          if (sRet.filter(e => e.bridge_id.toString().toLowerCase() === this.bridgeid.toString().toLowerCase()).length === 0) {
-            /* oBridge doesn't contains the element we're looking for */
-            return (new Error('This machine is online, but this bridgeid is not found: ' + this.bridgeid))
-          }
-        }
-      } catch (error) {
-        if (this.timerWatchDog !== undefined) clearInterval(this.timerWatchDog)
-        if (this.hue !== undefined) this.hue.close()
-        console.log('KNXUltimateHUEConfig: classHUE: timerWatchDog: ' + error.message)
-        this.startPushEvents()
-      }
-    }, 5000)
-  }
-
-  listener = (event) => {
-    event.data.forEach(oEvento => {
-      this.emit('event', oEvento)
-    })
-  }
-
-  startPushEvents = async () => {
-    try {
-      this.hue = await hueApiV2.connect({
-        log: {
-          trace: (msg) => { },
-          debug: (msg) => { },
-          info: (msg) => { },
-          warn: (msg) => { },
-          error: (msg) => { }
-        },
-        host: this.HUEBridgeIP,
-        key: this.username,
-        eventListener: this.listener // The eventlistener is given as option
-      })
-    } catch (error) {
-      if (this.hue !== undefined) this.hue.close()
-      console.log('KNXUltimateHUEConfig: classHUE: ' + error.message)
-    }
-    this.handleTheDog() // Start watchdog timer
-  }
+  
 }
 module.exports.classHUE = classHUE

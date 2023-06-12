@@ -57,14 +57,7 @@ module.exports = (RED) => {
         .sort(sortBy('base'))
         .reduce(toConcattedSubtypes, [])
 
-    res.json(dpts)
-    // Utilità per visualizzare i datapoints, da copiare in README
-    // var stringa = "";
-    // for (let index = 0; index < dpts.length; index++) {
-    //     const element = dpts[index];
-    //     stringa += element.text + "<br/>\n";
-    // }
-    // if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.warn(stringa)
+    res.json(dpts)   
   })
 
   function hueConfig(config) {
@@ -86,7 +79,11 @@ module.exports = (RED) => {
     node.hueManager.on('event', _event => {
       node.nodeClients.forEach(_oClient => {
         const oClient = RED.nodes.getNode(_oClient.id)
-        oClient.handleSendHUE(_event)
+        try {
+          oClient.handleSendHUE(_event)
+        } catch (error) {
+          if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error('Errore node.hueManager.on(event): ' + error.message)
+        }
       })
     })
 

@@ -7,6 +7,12 @@
 # CHANGELOG
 
 <p>
+<b>Version 2.0.21</b> - June 2023<br/>
+- HUE: CAUTION POSSIBLE BREAKING CHANGES TO THE HUE NODES. PLEASE BE AWARE THAT HUE NODES ARE STILL IN BETA<br/>
+- Revamped hue clipv2 push event client.<br/>
+- New service icons.<br/>
+</p>
+<p>
 <b>Version 2.0.20</b> - June 2023<br/>
 - HUE: CAUTION POSSIBLE BREAKING CHANGES TO THE HUE NODES. PLEASE BE AWARE THAT HUE NODES ARE STILL IN BETA<br/>
 - Fixed API issue, when no HUE bridges present.<br/>

@@ -38,15 +38,6 @@ const convertSubtype = (baseType) => (kv) => {
   }
 }
 
-// 06/02/2020 To be tested
-// convertSubtype = (baseType) => (kv) => {
-//     let value = `${baseType.base}.${kv[0]}`
-//     return {
-//         value: value
-//         , text: value + ` (${kv[1].name}${kv[1].unit !== undefined?" - " + kv[1].unit:""})`
-//     }
-// }
-
 const toConcattedSubtypes = (acc, baseType) => {
   const subtypes =
     Object.entries(baseType.subtypes)
