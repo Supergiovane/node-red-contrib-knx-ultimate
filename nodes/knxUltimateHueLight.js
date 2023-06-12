@@ -71,6 +71,23 @@ module.exports = function (RED) {
             state = bright > 0 ? { on: { on: true }, dimming: { brightness: bright }, color: { xy: retXY } } : { on: { on: false } }
             node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, state)
             break
+          case config.GALightBlink:
+            const gaVal = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightSwitch))
+            if (gaVal) {
+              node.timerBlink = setInterval(() => {
+                if (node.blinkValue === undefined) node.blinkValue = true
+                node.blinkValue = !node.blinkValue
+                msg.payload = node.blinkValue
+                //state = msg.payload === true ? { on: { on: true } } : { on: { on: false } }
+                state = msg.payload === true ? { on: { on: true }, dimming: { brightness: 100 } } : { on: { on: false } }
+                node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, state)
+                node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, state)
+              }, 600);
+            } else {
+              if (node.timerBlink !== undefined) clearInterval(node.timerBlink)
+              node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, { on: { on: false } })
+            }
+            break
           default:
             break
         }

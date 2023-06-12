@@ -36,6 +36,10 @@
             GALightBrightnessState: { value: "" },
             dptLightBrightnessState: { value: "" },
 
+            nameLightBlink: { value: "" },
+            GALightBlink: { value: "" },
+            dptLightBlink: { value: "" },
+
             hueDevice: { value: "" }
         },
         inputs: 0,
@@ -395,6 +399,52 @@
 
 
 
+            // DPT Blink command
+            // ########################
+            $.getJSON('knxUltimateDpts', (data) => {
+                data.forEach(dpt => {
+                    if (dpt.value.startsWith("1.")) {
+                        $("#node-input-dptLightBlink").append($("<option></option>")
+                            .attr("value", dpt.value)
+                            .text(dpt.text))
+                    }
+                });
+                $("#node-input-dptLightBlink").val(this.dptLightSwitch)
+            })
+
+            // Autocomplete suggestion with ETS csv File
+            $("#node-input-GALightBlink").autocomplete({
+                minLength: 1,
+                source: function (request, response) {
+                    //$.getJSON("csv", request, function( data, status, xhr ) {
+                    $.getJSON("knxUltimatecsv?nodeID=" + oNodeServer.id, (data) => {
+                        response($.map(data, function (value, key) {
+                            var sSearch = (value.ga + " (" + value.devicename + ") DPT" + value.dpt);
+                            if (fullSearch(sSearch, request.term + " 1.")) {
+                                return {
+                                    label: value.ga + " # " + value.devicename + " # " + value.dpt, // Label for Display
+                                    value: value.ga // Value
+                                }
+                            } else {
+                                return null;
+                            }
+                        }));
+                    });
+                }, select: function (event, ui) {
+                    // Sets Datapoint and device name automatically
+                    var sDevName = ui.item.label.split("#")[1].trim();
+                    try {
+                        sDevName = sDevName.substr(sDevName.indexOf(")") + 1).trim();
+                    } catch (error) {
+                    }
+                    $('#node-input-nameLightBlink').val(sDevName);
+                    var optVal = $("#node-input-dptLightBlink option:contains('" + ui.item.label.split("#")[2].trim() + "')").attr('value');
+                    // Select the option value 
+                    $("#node-input-dptLightBlink").val(optVal);
+                }
+            });
+            // ########################
+
 
 
             // Autocomplete suggestion with HUE Lights
@@ -567,7 +617,7 @@
     </div>
   </div>
         <div class="form-row">
-        <label for="node-input-nameLightBrightnessState" style="width:100px;"><i class="fa fa-play-circle-o"></i>Brightness Status</label>
+        <label for="node-input-nameLightBrightnessState" style="width:100px;"><i class="fa fa-play-circle-o"></i> Brightness Status</label>
 
         <label for="node-input-GALightBrightnessState" style="width:20px;"><span data-i18n="knxUltimateHueLight.node-input-GALightState"></span></label>
         <input type="text" id="node-input-GALightBrightnessState" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
@@ -577,6 +627,21 @@
        
         <label for="node-input-nameLightBrightnessState" style="width:50px; margin-left: 0px; text-align: right;"><span data-i18n="knxUltimateHueLight.node-input-name"></span></label>
         <input type="text" id="node-input-nameLightBrightnessState" style="width:200px;margin-left: 5px; text-align: left;">
+    </div>
+    <br/>
+    <br/>
+    </div>
+        <div class="form-row">
+        <label for="node-input-nameLightBlink" style="width:100px;"><i class="fa fa-play-circle-o"></i> Blink</label>
+
+        <label for="node-input-GALightBlink" style="width:20px;"><span data-i18n="knxUltimateHueLight.node-input-GALightState"></span></label>
+        <input type="text" id="node-input-GALightBlink" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
+       
+        <label for="node-input-dptLightBlink" style="width:40px; margin-left: 0px; text-align: right;">DPT</label>
+        <select id="node-input-dptLightBlink" style="width:140px;"></select>
+       
+        <label for="node-input-nameLightBlink" style="width:50px; margin-left: 0px; text-align: right;"><span data-i18n="knxUltimateHueLight.node-input-name"></span></label>
+        <input type="text" id="node-input-nameLightBlink" style="width:200px;margin-left: 5px; text-align: left;">
     </div>
 
 <br/>
@@ -611,6 +676,7 @@ Start typing in the GA field, the name or group address of your KNX device, the 
 | Color Status | Link this to the light's color status group address. Accepted datapoint is RGB triplet (r,g,b)|
 | Brightness | This command is used to change the absolute HUE light's brightness |
 | Brightness Status| Link this to the light's brightness status group address |
+| Blink| *true* Blink the light, *false* Stop blinking. Blinks the light on and off. Useful for signalling. It is compatible with all HUE lights. |
 
 <br/>
 
