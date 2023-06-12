@@ -136,10 +136,10 @@ class classHUE extends EventEmitter {
           retArray.push({ name: 'Light Level: ' + linkedDevName + (Room !== undefined ? ', room ' + Room.metadata.name : ''), id: device.id })
         }
         if (_rtype === 'temperature') {
-          retArray.push({ name: 'Temp: ' + linkedDevName + (Room !== undefined ? ', room ' + Room.metadata.name : ''), id: device.id })
+          retArray.push({ name: 'Temperature: ' + linkedDevName + (Room !== undefined ? ', room ' + Room.metadata.name : ''), id: device.id })
         }
         if (_rtype === 'scene') {
-          retArray.push({ name: 'Temp: ' + linkedDevName + (Room !== undefined ? ', room ' + Room.metadata.name : ''), id: device.id })
+          retArray.push({ name: 'Scene: ' + linkedDevName + (Room !== undefined ? ', room ' + Room.metadata.name : ''), id: device.id })
         }
 
       })

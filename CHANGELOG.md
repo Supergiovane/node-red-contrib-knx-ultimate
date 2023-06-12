@@ -7,6 +7,10 @@
 # CHANGELOG
 
 <p>
+<b>Version 2.1.0</b> - June 2023<br/>
+- HUE nodes exited the BETA version. You can now start using HUE nodes.<br/>
+</p>
+<p>
 <b>Version 2.0.21</b> - June 2023<br/>
 - HUE: CAUTION POSSIBLE BREAKING CHANGES TO THE HUE NODES. PLEASE BE AWARE THAT HUE NODES ARE STILL IN BETA<br/>
 - Revamped hue clipv2 push event client.<br/>
