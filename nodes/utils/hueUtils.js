@@ -54,8 +54,8 @@ class classHUE extends EventEmitter {
           for (let index = 0; index < events.length; index++) {
             const oEvento = events[index]
             if (oEvento.type === 'update') {
-              for (let index = 0; index < oEvento.data.length; index++) {
-                const element = oEvento.data[index]
+              for (let i = 0; i < oEvento.data.length; i++) {
+                const element = oEvento.data[i]
                 this.emit('event', element)
               }
             }

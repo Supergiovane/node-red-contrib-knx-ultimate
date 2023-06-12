@@ -7,6 +7,10 @@
 # CHANGELOG
 
 <p>
+<b>Version 2.1.3</b> - June 2023<br/>
+- Bugfix.<br/>
+</p>
+<p>
 <b>Version 2.1.2</b> - June 2023<br/>
 - NEW: Hue Hue Light node, added BLINK option.<br/>
 </p>
