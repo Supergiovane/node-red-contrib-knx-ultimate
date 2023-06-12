@@ -7,6 +7,10 @@
 # CHANGELOG
 
 <p>
+<b>Version 2.1.1</b> - June 2023<br/>
+- NEW: Hue Tap Dial node: setting a color datapoint(232.600), the rotary dial will send a random color to the KNX group address.<br/>
+</p>
+<p>
 <b>Version 2.1.0</b> - June 2023<br/>
 - HUE nodes exited the BETA version. You can now start using HUE nodes.<br/>
 </p>

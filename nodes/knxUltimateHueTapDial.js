@@ -78,6 +78,17 @@ module.exports = function (RED) {
               //0 – maximum: 32767
               node.brightnessState < 100 ? node.brightnessState += 20 : node.brightnessState = 100
               knxMsgPayload.payload = node.brightnessState
+            } else if (knxMsgPayload.dpt.startsWith('232.600')) {
+              // Random color
+              knxMsgPayload.payload = { red: getRandomIntInclusive(0, 255), green: getRandomIntInclusive(0, 255), blue: getRandomIntInclusive(0, 255) }
+              function getRandomIntInclusive(min, max) {
+                min = Math.ceil(min);
+                max = Math.floor(max);
+                return Math.floor(Math.random() * (max - min + 1) + min); // The maximum is inclusive and the minimum is inclusive
+              }
+              // Send to KNX bus
+              if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.server.writeQueueAdd({ grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
+              if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.status({ fill: 'green', shape: 'dot', text: 'HUE->KNX start Dim' + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' })
             }
           } else if (_event.relative_rotary.last_event.rotation.direction === 'counter_clock_wise') {
             if (knxMsgPayload.dpt.startsWith('3.007')) {
@@ -91,6 +102,17 @@ module.exports = function (RED) {
             } else if (knxMsgPayload.dpt.startsWith('5.001')) {
               node.brightnessState > 0 ? node.brightnessState -= 20 : node.brightnessState = 0
               knxMsgPayload.payload = node.brightnessState
+            } else if (knxMsgPayload.dpt.startsWith('232.600')) {
+              // Random color
+              knxMsgPayload.payload = { red: getRandomIntInclusive(0, 255), green: getRandomIntInclusive(0, 255), blue: getRandomIntInclusive(0, 255) } 
+              function getRandomIntInclusive(min, max) {
+                min = Math.ceil(min);
+                max = Math.floor(max);
+                return Math.floor(Math.random() * (max - min + 1) + min); // The maximum is inclusive and the minimum is inclusive
+              }
+              // Send to KNX bus
+              if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.server.writeQueueAdd({ grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
+              if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.status({ fill: 'green', shape: 'dot', text: 'HUE->KNX start Dim' + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' })
             }
           }
 

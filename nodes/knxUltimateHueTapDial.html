@@ -69,7 +69,7 @@
             // ########################
             $.getJSON('knxUltimateDpts', (data) => {
                 data.forEach(dpt => {
-                    if (dpt.value.startsWith("3.007") || dpt.value.startsWith("5.00")) {
+                    if (dpt.value.startsWith("3.007") || dpt.value.startsWith("5.001") || dpt.value.startsWith("232.600")) {
                         $("#node-input-dptrepeat").append($("<option></option>")
                             .attr("value", dpt.value)
                             .text(dpt.text))
@@ -87,7 +87,7 @@
                         response($.map(data, function (value, key) {
                             var sSearch = (value.ga + " (" + value.devicename + ") DPT" + value.dpt);
                             if (fullSearch(sSearch, request.term)) {
-                                if (value.dpt.startsWith('5.001') || value.dpt.startsWith('3.007')) {
+                                if (value.dpt.startsWith('5.001') || value.dpt.startsWith('3.007') || value.dpt.startsWith("232.600")) {
                                     return {
                                         label: value.ga + " # " + value.devicename + " # " + value.dpt, // Label for Display
                                         value: value.ga // Value
@@ -231,8 +231,8 @@
 
 The Tap Dial device has 4 buttons and 1 rotary knob.  
 You can find the 4 buttons in the **Hue Button node**, not here!  
-The rotary service of the Tap Dial, can send a DIM (Datapoint 3.007) or absolute brightness (Datapoint 5.001) to the KNX bus,
-to the selected group address.
+The rotary service of the Tap Dial, can send a DIM (Datapoint 3.007), absolute brightness (Datapoint 5.001) to the KNX bus,  
+or a random color (Datapoint 232.600) to the selected group address.
 
 **General**
 |Property|Description|
@@ -249,7 +249,7 @@ Start typing in the GA field, the name or group address of your KNX device, the 
 
 |Property|Description|
 |--|--|
-| Rotate | This command is used either to send DIM (increase/decrease) or true/false commands to the KNX group address. Only as info, in the HUE event chain, this is called *repeat* |
+| Rotate | This command is used either to send DIM (increase/decrease), aboslute brightness, or a random color, depending on the selected datapoint. |
 
 ### Outputs
 
