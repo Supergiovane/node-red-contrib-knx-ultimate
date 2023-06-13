@@ -7,7 +7,7 @@
 # CHANGELOG
 
 <p>
-<b>Version 2.1.5</b> - June 2023<br/>
+<b>Version 2.1.6</b> - June 2023<br/>
 - Several fixes for reading the correct GAMUT color.<br/>
 </p>
 <p>
