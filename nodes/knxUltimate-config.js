@@ -11,6 +11,7 @@ const path = require('path')
 const fs = require('fs')
 // const { Server } = require('http')
 const payloadRounder = require('./utils/payloadManipulation')
+const loggerEngine = require('./utils/sysLogger.js')
 
 // Helpers
 const sortBy = (field) => (a, b) => {
@@ -127,7 +128,7 @@ return msg;`,
     node.loglevel = config.loglevel !== undefined ? config.loglevel : 'error' // 18/02/2020 Loglevel default error
     node.sysLogger = null // 20/03/2022 Default
     try {
-      node.sysLogger = require('./utils/sysLogger.js').get({ loglevel: node.loglevel }) // 08/04/2021 new logger to adhere to the loglevel selected in the config-window
+      node.sysLogger = loggerEngine.get({ loglevel: node.loglevel }) // 08/04/2021 new logger to adhere to the loglevel selected in the config-window
     } catch (error) { }
     // 12/11/2021 Connect at start delay
     node.autoReconnect = true // 20/03/2022 Default
@@ -1840,7 +1841,7 @@ return msg;`,
       node.telegramsQueue = []
       node.nodeClients = [] // 05/04/2022 Nullify
       try {
-        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.destroy()
+        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger = null; loggerEngine.destroy()
       } catch (error) { }
       done()
     })

@@ -1,7 +1,7 @@
 
 const dptlib = require('./../KNXEngine/dptlib')
 const hueClass = require('./utils/hueUtils').classHUE
-
+const loggerEngine = require('./utils/sysLogger.js')
 // Helpers
 const sortBy = (field) => (a, b) => {
   if (a[field] > b[field]) { return 1 } else { return -1 }
@@ -57,7 +57,7 @@ module.exports = (RED) => {
         .sort(sortBy('base'))
         .reduce(toConcattedSubtypes, [])
 
-    res.json(dpts)   
+    res.json(dpts)
   })
 
   function hueConfig(config) {
@@ -68,7 +68,7 @@ module.exports = (RED) => {
     node.loglevel = config.loglevel !== undefined ? config.loglevel : 'error' // 18/02/2020 Loglevel default error
     node.sysLogger = null // 20/03/2022 Default
     try {
-      node.sysLogger = require('./utils/sysLogger.js').get({ loglevel: node.loglevel }) // 08/04/2021 new logger to adhere to the loglevel selected in the config-window
+      node.sysLogger = loggerEngine.get({ loglevel: node.loglevel }) // 08/04/2021 new logger to adhere to the loglevel selected in the config-window
     } catch (error) { }
     node.name = (config.name === undefined || config.name === '') ? node.host : config.name // 12/08/2021
 
@@ -80,7 +80,7 @@ module.exports = (RED) => {
       node.nodeClients.forEach(_oClient => {
         const oClient = RED.nodes.getNode(_oClient.id)
         try {
-          oClient.handleSendHUE(_event)
+          if (oClient.handleSendHUE !== undefined) oClient.handleSendHUE(_event)
         } catch (error) {
           if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error('Errore node.hueManager.on(event): ' + error.message)
         }
@@ -112,7 +112,7 @@ module.exports = (RED) => {
       // Check if node already exists
       if (node.nodeClients.filter(x => x.id === _Node.id).length === 0) {
         // Add _Node to the clients array
-        _Node.setNodeStatus({ fill: 'grey', shape: 'ring', text: 'Hue initialized.', payload: '', GA: '', dpt: '', devicename: '' })
+        _Node.setNodeStatusHue({ fill: 'grey', shape: 'ring', text: 'Hue initialized.' })
         // 01/06/2023 Add node to the array
         const jNode = {}
         jNode.id = _Node.id
@@ -130,10 +130,19 @@ module.exports = (RED) => {
 
     node.on('close', function (done) {
       try {
-        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.destroy()
+        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger = null; loggerEngine.destroy()
         node.nodeClients = []
-      } catch (error) { }
-      done()
+        node.hueManager.removeAllListeners();
+        (async () => {
+          await node.hueManager.close()
+          node.hueManager = null;
+          delete node.hueManager;
+          done()
+        })()
+      } catch (error) {
+        done()
+        console.log(error.message)
+      }
     })
   }
 

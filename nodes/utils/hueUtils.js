@@ -23,6 +23,7 @@ class classHUE extends EventEmitter {
     this.clientkey = _clientkey
     this.bridgeid = _bridgeid
     this.commandQueue = []
+    this.closePushEventStream = false
     this.timerwriteQueueAdd = setTimeout(this.handleQueue, 3000) // First start
 
     // start the SSE Stream Receiver
@@ -68,6 +69,7 @@ class classHUE extends EventEmitter {
     };
     // Funzione per richiedere gli eventi
     const req = () => {
+      if (this.closePushEventStream) return // I'm destroying the class
       const request = https.request(options, handleResponse);
       request.on('error', (error) => {
         console.log('KNXUltimateHUEConfig: classHUE: request.on(error): ' + error.message)
@@ -160,6 +162,20 @@ class classHUE extends EventEmitter {
       console.log('KNXUltimateHUEConfig: classHUE: getLight: ' + error.message)
     }
   }
-  
+
+  close = async () => {
+    return new Promise((resolve, reject) => {
+      try {
+        this.closePushEventStream = true
+        setTimeout(() => {
+          resolve(true)
+        }, 1000);
+      } catch (error) {
+        reject(error)
+      }
+    })
+
+
+  }
 }
 module.exports.classHUE = classHUE

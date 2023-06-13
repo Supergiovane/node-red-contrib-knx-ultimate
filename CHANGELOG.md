@@ -7,6 +7,13 @@
 # CHANGELOG
 
 <p>
+<b>Version 2.1.4</b> - June 2023<br/>
+- NEW: Hue light node: added random color cycle effect group address.<br/>
+- Fixed destroying KNX nodes.<br/>
+- Fixed destroying HUE nodes.<br/>
+- Several HUE bugfixes.<br/>
+</p>
+<p>
 <b>Version 2.1.3</b> - June 2023<br/>
 - Bugfix.<br/>
 </p>

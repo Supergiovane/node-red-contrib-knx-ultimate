@@ -33,6 +33,11 @@ module.exports = function (RED) {
     node.setNodeStatus = ({ fill, shape, text, payload }) => {
 
     }
+    // Used to call the status update from the HUE config node.
+    node.setNodeStatusHue = ({ fill, shape, text }) => {
+      const dDate = new Date()
+      node.status({ fill: fill, shape: shape, text: text + ' (' + dDate.getDate() + ', ' + dDate.toLocaleTimeString() + ')' })
+    }
 
     // This function is called by the knx-ultimate config node, to output a msg.payload.
     node.handleSend = msg => {
@@ -81,10 +86,34 @@ module.exports = function (RED) {
                 //state = msg.payload === true ? { on: { on: true } } : { on: { on: false } }
                 state = msg.payload === true ? { on: { on: true }, dimming: { brightness: 100 } } : { on: { on: false } }
                 node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, state)
-                node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, state)
+                node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, state) // It's ok twice, so the light turns off immeridaley
               }, 600);
             } else {
               if (node.timerBlink !== undefined) clearInterval(node.timerBlink)
+              node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, { on: { on: false } })
+            }
+            break
+          case config.GALightColorCycle:
+            const gaValColorCycle = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightSwitch))
+            if (gaValColorCycle) {
+              node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, { on: { on: true } })
+              node.timerColorCycle = setInterval(() => {
+                function getRandomIntInclusive(min, max) {
+                  min = Math.ceil(min);
+                  max = Math.floor(max);
+                  return Math.floor(Math.random() * (max - min + 1) + min); // The maximum is inclusive and the minimum is inclusive
+                }
+                const red = getRandomIntInclusive(0, 255)
+                const green = getRandomIntInclusive(0, 255)
+                const blue = getRandomIntInclusive(0, 255)
+                const gamut = node.currentHUEDevice.color.gamut_type || null
+                const retXY = hueColorConverter.ColorConverter.rgbToXy(red, green, blue, gamut)
+                const bright = hueColorConverter.ColorConverter.getBrightnessFromRGB(red, green, blue)
+                state = bright > 0 ? { on: { on: true }, dimming: { brightness: bright }, color: { xy: retXY } } : { on: { on: false } }
+                node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, state)
+              }, 10000);
+            } else {
+              if (node.timerColorCycle !== undefined) clearInterval(node.timerColorCycle)
               node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, { on: { on: false } })
             }
             break
@@ -189,7 +218,7 @@ module.exports = function (RED) {
         } catch (error) {
           console.log('Error: knxUltimateHueLight: node.serverHue.hueManager.getLight: ' + error.message)
         }
-      }, 1000);
+      }, 5000);
 
     }
 
@@ -201,6 +230,9 @@ module.exports = function (RED) {
     node.on('close', function (done) {
       if (node.server) {
         node.server.removeClient(node)
+      }
+      if (node.serverHue) {
+        node.serverHue.removeClient(node)
       }
       done()
     })
