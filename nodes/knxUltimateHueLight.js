@@ -47,7 +47,7 @@ module.exports = function (RED) {
           case config.GALightSwitch:
             msg.payload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightSwitch))
             state = msg.payload === true ? { on: { on: true } } : { on: { on: false } }
-            node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, state)
+            node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, state, 'setLight')
             break
           case config.GALightDIM:
             // { decr_incr: 1, data: 1 } : Start increasing until { decr_incr: 0, data: 0 } is received.
@@ -64,17 +64,16 @@ module.exports = function (RED) {
           case config.GALightBrightness:
             msg.payload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightBrightness))
             state = { dimming: { brightness: msg.payload } }
-            node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, state)
+            node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, state, 'setLight')
             break
           case config.GALightColor:
             // Behavior like ISE HUE CONNECT, by setting the brightness and on/off as well
-            if (node.currentHUEDevice === undefined) return
             msg.payload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightColor))
-            const gamut = node.currentHUEDevice.color.gamut_type || null
+            const gamut = node.currentHUEDevice !== undefined ? node.currentHUEDevice.color.gamut_type : null
             const retXY = hueColorConverter.ColorConverter.rgbToXy(msg.payload.red, msg.payload.green, msg.payload.blue, gamut)
             const bright = hueColorConverter.ColorConverter.getBrightnessFromRGB(msg.payload.red, msg.payload.green, msg.payload.blue)
             state = bright > 0 ? { on: { on: true }, dimming: { brightness: bright }, color: { xy: retXY } } : { on: { on: false } }
-            node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, state)
+            node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, state, 'setLight')
             break
           case config.GALightBlink:
             const gaVal = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightSwitch))
@@ -85,36 +84,42 @@ module.exports = function (RED) {
                 msg.payload = node.blinkValue
                 //state = msg.payload === true ? { on: { on: true } } : { on: { on: false } }
                 state = msg.payload === true ? { on: { on: true }, dimming: { brightness: 100 } } : { on: { on: false } }
-                node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, state)
-                node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, state) // It's ok twice, so the light turns off immeridaley
+                node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, state, 'setLight')
+                node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, state, 'setLight') // It's ok twice, so the light turns off immeridaley
               }, 600);
             } else {
               if (node.timerBlink !== undefined) clearInterval(node.timerBlink)
-              node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, { on: { on: false } })
+              node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, { on: { on: false } }, 'setLight')
             }
             break
           case config.GALightColorCycle:
             const gaValColorCycle = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightSwitch))
             if (gaValColorCycle) {
-              node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, { on: { on: true } })
+
+              node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, { on: { on: true } }, 'setLight')
               node.timerColorCycle = setInterval(() => {
-                function getRandomIntInclusive(min, max) {
-                  min = Math.ceil(min);
-                  max = Math.floor(max);
-                  return Math.floor(Math.random() * (max - min + 1) + min); // The maximum is inclusive and the minimum is inclusive
+                try {
+                  function getRandomIntInclusive(min, max) {
+                    min = Math.ceil(min);
+                    max = Math.floor(max);
+                    return Math.floor(Math.random() * (max - min + 1) + min); // The maximum is inclusive and the minimum is inclusive
+                  }
+                  const red = getRandomIntInclusive(0, 255)
+                  const green = getRandomIntInclusive(0, 255)
+                  const blue = getRandomIntInclusive(0, 255)
+                  const gamut = node.currentHUEDevice !== undefined ? node.currentHUEDevice.color.gamut_type : null
+                  const retXY = hueColorConverter.ColorConverter.rgbToXy(red, green, blue, gamut)
+                  const bright = hueColorConverter.ColorConverter.getBrightnessFromRGB(red, green, blue)
+                  state = bright > 0 ? { on: { on: true }, dimming: { brightness: bright }, color: { xy: retXY } } : { on: { on: false } }
+                  node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, state, 'setLight')
+                } catch (error) {
+
                 }
-                const red = getRandomIntInclusive(0, 255)
-                const green = getRandomIntInclusive(0, 255)
-                const blue = getRandomIntInclusive(0, 255)
-                const gamut = node.currentHUEDevice.color.gamut_type || null
-                const retXY = hueColorConverter.ColorConverter.rgbToXy(red, green, blue, gamut)
-                const bright = hueColorConverter.ColorConverter.getBrightnessFromRGB(red, green, blue)
-                state = bright > 0 ? { on: { on: true }, dimming: { brightness: bright }, color: { xy: retXY } } : { on: { on: false } }
-                node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, state)
               }, 10000);
+
             } else {
               if (node.timerColorCycle !== undefined) clearInterval(node.timerColorCycle)
-              node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, { on: { on: false } })
+              node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, { on: { on: false } }, 'setLight')
             }
             break
           default:
@@ -144,7 +149,7 @@ module.exports = function (RED) {
       node.timerDim = setInterval(() => {
         node.timeoutDim += 1
         if (node.timeoutDim > 100) { node.timeoutDim = 0; clearInterval(node.timerDim) }
-        node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, node.dimDirection)
+        node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, node.dimDirection, 'setLight')
       }, 300);
     }
 
@@ -168,10 +173,9 @@ module.exports = function (RED) {
             if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.server.writeQueueAdd({ grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
           }
           if (_event.hasOwnProperty('color')) {
-            if (node.currentHUEDevice === undefined) return
             knxMsgPayload.topic = config.GALightColorState
             knxMsgPayload.dpt = config.dptLightColorState
-            knxMsgPayload.payload = hueColorConverter.ColorConverter.xyBriToRgb(_event.color.xy.x, _event.color.xy.y, node.currentHUEDevice.dimming.brightness)
+            knxMsgPayload.payload = hueColorConverter.ColorConverter.xyBriToRgb(_event.color.xy.x, _event.color.xy.y, (node.currentHUEDevice !== undefined ? node.currentHUEDevice.dimming.brightness : 100))
             // Send to KNX bus
             if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.server.writeQueueAdd({ grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
           }
@@ -203,25 +207,21 @@ module.exports = function (RED) {
     }
     if (node.serverHue) {
       node.serverHue.removeClient(node)
-      node.serverHue.addClient(node)
-      setTimeout(() => {
-        try {
-          if (node !== null && node.serverHue !== null && node.serverHue.hueManager !== null) {
-            node.serverHue.hueManager.getLight(config.hueDevice).then(ret => {
-              try {
-                if (ret !== undefined && ret.length > 0) node.currentHUEDevice = ret[0]
-              } catch (error) {
-              }
-              //console.log("retrieving node.currentHUEDevice" + node.currentHUEDevice.metadata.name)
+      // I must get the light object, to store it in the node.currentHUEDevice variable
+      // I queue the state request, by passing the callback to call whenever the HUE bridge send me the light status async
+      if (node !== null && node.serverHue !== null && node.serverHue.hueManager !== null) {
+        (async () => {
+          try {
+            await node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, null, 'getLight', (jLight) => {
+              node.currentHUEDevice = jLight
+              node.serverHue.addClient(node)
             })
+          } catch (err) {
+            RED.log.error('Errore knxUltimateHueLight node.currentHUEDevice ' + err.message)
           }
-        } catch (error) {
-          console.log('Error: knxUltimateHueLight: node.serverHue.hueManager.getLight: ' + error.message)
-        }
-      }, 5000);
-
+        })()
+      }
     }
-
 
     node.on('input', function (msg) {
 

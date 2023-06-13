@@ -75,6 +75,7 @@ class classHUE extends EventEmitter {
         console.log('KNXUltimateHUEConfig: classHUE: request.on(error): ' + error.message)
         // Restart the connection
         setTimeout(() => {
+          this.commandQueue = []
           req();
         }, 2000);
       });
@@ -89,19 +90,33 @@ class classHUE extends EventEmitter {
   handleQueue = async () => {
     if (this.commandQueue.length > 0) {
       const jRet = this.commandQueue.shift()
-      try {
-        const hue = hueApiV2.connect({ host: this.hueBridgeIP, key: this.username })
-        const ok = await hue.setLight(jRet._lightID, jRet._state)
-      } catch (error) {
-        console.log('KNXUltimateHUEConfig: classHUE: handleQueue: ' + error.message)
-        return ({ error: error.message })
+      switch (jRet._operation) {
+        case 'setLight':
+          try {
+            const hue = hueApiV2.connect({ host: this.hueBridgeIP, key: this.username })
+            const ok = await hue.setLight(jRet._lightID, jRet._state)
+          } catch (error) {
+            console.log('KNXUltimateHUEConfig: classHUE: handleQueue: setLight: ' + error.message)
+          }
+          break;
+        case 'getLight':
+          try {
+            const hue = hueApiV2.connect({ host: this.hueBridgeIP, key: this.username })
+            const jReturn = await hue.getLight(jRet._lightID)
+            jRet._callback(jReturn[0]) // Need to call the callback, because the event is absolutely async
+          } catch (error) {
+            console.log('KNXUltimateHUEConfig: classHUE: handleQueue: getLight: ' + error.message)
+          }
+          break
+        default:
+          break;
       }
     }
     // The Hue bridge allows about 10 telegram per second, so i need to make a queue manager
     setTimeout(this.handleQueue, 100)
   }
-  writeHueQueueAdd = async (_lightID, _state) => {
-    this.commandQueue.push({ _lightID, _state })
+  writeHueQueueAdd = async (_lightID, _state, _operation = 'setLight', _callback) => {
+    this.commandQueue.push({ _lightID, _state, _operation, _callback })
   }
 
 
@@ -153,15 +168,7 @@ class classHUE extends EventEmitter {
   }
 
 
-  // Get light state
-  getLight = async (_LightID) => {
-    try {
-      const hue = hueApiV2.connect({ host: this.hueBridgeIP, key: this.username })
-      return await hue.getLight(_LightID)
-    } catch (error) {
-      console.log('KNXUltimateHUEConfig: classHUE: getLight: ' + error.message)
-    }
-  }
+
 
   close = async () => {
     return new Promise((resolve, reject) => {

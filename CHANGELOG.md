@@ -7,6 +7,10 @@
 # CHANGELOG
 
 <p>
+<b>Version 2.1.5</b> - June 2023<br/>
+- Several fixes for reading the correct GAMUT color.<br/>
+</p>
+<p>
 <b>Version 2.1.4</b> - June 2023<br/>
 - NEW: Hue light node: added random color cycle effect group address.<br/>
 - Fixed destroying KNX nodes.<br/>

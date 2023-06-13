@@ -1,19 +1,5 @@
 module.exports = function (RED) {
 
-  async function getLightState(node, _lightID) {
-    return new Promise((resolve, reject) => {
-      try {
-        if (node !== null && node.serverHue !== null && node.serverHue.hueManager !== null) {
-          node.serverHue.hueManager.getLight(_lightID).then(ret => {
-            node.currentHUEDevice = ret[0]
-            resolve(ret)
-          })
-        }
-      } catch (error) {
-        reject(error)
-      }
-    })
-  }
 
   function knxUltimateHueTapDial(config) {
     RED.nodes.createNode(this, config)
@@ -41,14 +27,6 @@ module.exports = function (RED) {
     node.brightnessState = 0
     node.isTimerDimStopRunning = false
 
-    // Read the state of the light and store it in the holding object
-    try {
-      if (config.hueLight !== undefined && config.hueLight !== '') getLightState(node, config.hueLight)
-    } catch (error) {
-    }
-
-
-
     // Used to call the status update from the config node.
     node.setNodeStatus = ({ fill, shape, text, payload }) => {
 
@@ -58,7 +36,7 @@ module.exports = function (RED) {
       const dDate = new Date()
       node.status({ fill: fill, shape: shape, text: text + ' (' + dDate.getDate() + ', ' + dDate.toLocaleTimeString() + ')' })
     }
-    
+
     // This function is called by the knx-ultimate config node, to output a msg.payload.
     node.handleSend = msg => {
     }
@@ -84,16 +62,20 @@ module.exports = function (RED) {
               node.brightnessState < 100 ? node.brightnessState += 20 : node.brightnessState = 100
               knxMsgPayload.payload = node.brightnessState
             } else if (knxMsgPayload.dpt.startsWith('232.600')) {
-              // Random color
-              knxMsgPayload.payload = { red: getRandomIntInclusive(0, 255), green: getRandomIntInclusive(0, 255), blue: getRandomIntInclusive(0, 255) }
-              function getRandomIntInclusive(min, max) {
-                min = Math.ceil(min);
-                max = Math.floor(max);
-                return Math.floor(Math.random() * (max - min + 1) + min); // The maximum is inclusive and the minimum is inclusive
+
+              if (_event.relative_rotary.last_event.action === 'start') {
+                // Random color
+                knxMsgPayload.payload = { red: getRandomIntInclusive(0, 255), green: getRandomIntInclusive(0, 255), blue: getRandomIntInclusive(0, 255) }
+                function getRandomIntInclusive(min, max) {
+                  min = Math.ceil(min);
+                  max = Math.floor(max);
+                  return Math.floor(Math.random() * (max - min + 1) + min); // The maximum is inclusive and the minimum is inclusive
+                }
+                // Send to KNX bus
+                if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.server.writeQueueAdd({ grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
+                if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.status({ fill: 'green', shape: 'dot', text: 'HUE->KNX Change color clockwise' + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' })
               }
-              // Send to KNX bus
-              if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.server.writeQueueAdd({ grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
-              if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.status({ fill: 'green', shape: 'dot', text: 'HUE->KNX Change color clockwise' + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' })
+
             }
           } else if (_event.relative_rotary.last_event.rotation.direction === 'counter_clock_wise') {
             if (knxMsgPayload.dpt.startsWith('3.007')) {
@@ -108,16 +90,15 @@ module.exports = function (RED) {
               node.brightnessState > 0 ? node.brightnessState -= 20 : node.brightnessState = 0
               knxMsgPayload.payload = node.brightnessState
             } else if (knxMsgPayload.dpt.startsWith('232.600')) {
-              // Random color
-              knxMsgPayload.payload = { red: getRandomIntInclusive(0, 255), green: getRandomIntInclusive(0, 255), blue: getRandomIntInclusive(0, 255) } 
-              function getRandomIntInclusive(min, max) {
-                min = Math.ceil(min);
-                max = Math.floor(max);
-                return Math.floor(Math.random() * (max - min + 1) + min); // The maximum is inclusive and the minimum is inclusive
+
+              if (_event.relative_rotary.last_event.action === 'start') {
+                // Set white color
+                knxMsgPayload.payload = { red: 255, green: 255, blue: 255 }
+                // Send to KNX bus
+                if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.server.writeQueueAdd({ grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
+                if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.status({ fill: 'green', shape: 'dot', text: 'HUE->KNX Change color counterclockwise' + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' })
               }
-              // Send to KNX bus
-              if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.server.writeQueueAdd({ grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
-              if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.status({ fill: 'green', shape: 'dot', text: 'HUE->KNX Change color counterclockwise' + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' })
+
             }
           }
 
