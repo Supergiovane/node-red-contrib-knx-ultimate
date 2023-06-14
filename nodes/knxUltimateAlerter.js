@@ -1,6 +1,6 @@
 
 module.exports = function (RED) {
-  function knxUltimateAlerter (config) {
+  function knxUltimateAlerter(config) {
     const fs = require('fs')
     const path = require('path')
     const mkdirp = require('mkdirp')
@@ -41,17 +41,22 @@ module.exports = function (RED) {
 
     // Used to call the status update from the config node.
     node.setNodeStatus = ({ fill, shape, text, payload, GA, dpt, devicename }) => {
-      if (node.server === null) return
-      // Log only service statuses, not the GA values
-      if (dpt !== undefined) return
-      if (dpt !== '') return
+      try {
+        if (node.server === null) return
+        // Log only service statuses, not the GA values
+        if (dpt !== undefined) return
+        if (dpt !== '') return
 
-      const dDate = new Date()
-      // 30/08/2019 Display only the things selected in the config
-      GA = (typeof GA === 'undefined' || GA == '') ? '' : '(' + GA + ') '
-      devicename = devicename || ''
-      dpt = (typeof dpt === 'undefined' || dpt == '') ? '' : ' DPT' + dpt
-      node.status({ fill, shape, text: GA + payload + ((node.listenallga && node.server.statusDisplayDeviceNameWhenALL) === true ? ' ' + devicename : '') + (node.server.statusDisplayDataPoint === true ? dpt : '') + (node.server.statusDisplayLastUpdate === true ? ' (' + dDate.getDate() + ', ' + dDate.toLocaleTimeString() + ')' : '') + ' ' + text })
+        const dDate = new Date()
+        // 30/08/2019 Display only the things selected in the config
+        GA = (typeof GA === 'undefined' || GA == '') ? '' : '(' + GA + ') '
+        devicename = devicename || ''
+        dpt = (typeof dpt === 'undefined' || dpt == '') ? '' : ' DPT' + dpt
+        payload = typeof payload === 'object' ? JSON.stringify(payload) : payload
+        node.status({ fill, shape, text: GA + payload + ((node.listenallga && node.server.statusDisplayDeviceNameWhenALL) === true ? ' ' + devicename : '') + (node.server.statusDisplayDataPoint === true ? dpt : '') + (node.server.statusDisplayLastUpdate === true ? ' (' + dDate.getDate() + ', ' + dDate.toLocaleTimeString() + ')' : '') + ' ' + text })
+      } catch (error) {
+
+      }
     }
 
     // Used to call the status update from the config node.

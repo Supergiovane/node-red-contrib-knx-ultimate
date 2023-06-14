@@ -28,13 +28,17 @@ module.exports = function (RED) {
 
     // Used to call the status update from the config node.
     node.setNodeStatus = ({ fill, shape, text, payload, GA, dpt, devicename }) => {
-      if (node.server == null) { node.status({ fill: 'red', shape: 'dot', text: '[NO GATEWAY SELECTED]' }); return }
-      const dDate = new Date()
-      // 30/08/2019 Display only the things selected in the config
-      GA = (typeof GA === 'undefined' || GA == '') ? '' : '(' + GA + ') '
-      devicename = devicename || ''
-      dpt = (typeof dpt === 'undefined' || dpt == '') ? '' : ' DPT' + dpt
-      node.status({ fill, shape, text: GA + payload + ((node.listenallga && node.server.statusDisplayDeviceNameWhenALL) === true ? ' ' + devicename : '') + (node.server.statusDisplayDataPoint === true ? dpt : '') + (node.server.statusDisplayLastUpdate === true ? ' (' + dDate.getDate() + ', ' + dDate.toLocaleTimeString() + ')' : '') + ' ' + text })
+      try {
+        if (node.server == null) { node.status({ fill: 'red', shape: 'dot', text: '[NO GATEWAY SELECTED]' }); return }
+        const dDate = new Date()
+        // 30/08/2019 Display only the things selected in the config
+        GA = (typeof GA === 'undefined' || GA == '') ? '' : '(' + GA + ') '
+        devicename = devicename || ''
+        dpt = (typeof dpt === 'undefined' || dpt == '') ? '' : ' DPT' + dpt
+        payload = typeof payload === 'object' ? JSON.stringify(payload) : payload
+        node.status({ fill, shape, text: GA + payload + ((node.listenallga && node.server.statusDisplayDeviceNameWhenALL) === true ? ' ' + devicename : '') + (node.server.statusDisplayDataPoint === true ? dpt : '') + (node.server.statusDisplayLastUpdate === true ? ' (' + dDate.getDate() + ', ' + dDate.toLocaleTimeString() + ')' : '') + ' ' + text })  
+      } catch (error) {        
+      }      
     }
 
     if (!node.server) return

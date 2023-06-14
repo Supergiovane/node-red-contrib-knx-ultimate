@@ -57,11 +57,16 @@ module.exports = function (RED) {
 
     // Used to call the status update from the config node.
     node.setNodeStatus = ({ fill, shape, text, payload, GA, dpt, devicename }) => {
-      if (node.server == null) { node.status({ fill: 'red', shape: 'dot', text: '[NO GATEWAY SELECTED]' }); return }
-      GA = GA === undefined ? '' : GA
-      payload = payload === undefined ? '' : payload
-      const dDate = new Date()
-      node.status({ fill, shape, text: GA + ' ' + payload + ' ' + text + ' (' + dDate.getDate() + ', ' + dDate.toLocaleTimeString() + ')' })
+      try {
+        if (node.server == null) { node.status({ fill: 'red', shape: 'dot', text: '[NO GATEWAY SELECTED]' }); return }
+        GA = GA === undefined ? '' : GA
+        payload = payload === undefined ? '' : payload
+        payload = typeof payload === 'object' ? JSON.stringify(payload) : payload
+        const dDate = new Date()
+        node.status({ fill, shape, text: GA + ' ' + payload + ' ' + text + ' (' + dDate.getDate() + ', ' + dDate.toLocaleTimeString() + ')' })
+      } catch (error) {
+      }
+
     }
 
     // 02/12/2022 Expose the complete ETS CSV as well

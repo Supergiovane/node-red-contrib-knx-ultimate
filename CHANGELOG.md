@@ -7,6 +7,10 @@
 # CHANGELOG
 
 <p>
+<b>Version 2.1.7</b> - June 2023<br/>
+- KNX nodes not correctly show status of JSON objects (like dimming, color, etc.).<br/>
+</p>
+<p>
 <b>Version 2.1.6</b> - June 2023<br/>
 - Several fixes for reading the correct GAMUT color.<br/>
 </p>

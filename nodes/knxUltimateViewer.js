@@ -29,11 +29,15 @@ module.exports = function (RED) {
 
     // Used to call the status update from the config node.
     node.setNodeStatus = ({ fill, shape, text, payload, GA, dpt, devicename }) => {
+      try {
       if (node.server == null) { node.status({ fill: 'red', shape: 'dot', text: '[NO GATEWAY SELECTED]' }); return }
       GA = GA === undefined ? '' : GA
       payload = payload === undefined ? '' : payload
+      payload = typeof payload === 'object' ? JSON.stringify(payload) : payload
       const dDate = new Date()
-      node.status({ fill, shape, text: GA + ' ' + payload + ' ' + text + ' (' + dDate.getDate() + ', ' + dDate.toLocaleTimeString() + ')' })
+        node.status({ fill, shape, text: GA + ' ' + payload + ' ' + text + ' (' + dDate.getDate() + ', ' + dDate.toLocaleTimeString() + ')' })
+      } catch (error) {
+      }
     }
 
     // This function is called by the knx-ultimate config node, to output a msg.payload.

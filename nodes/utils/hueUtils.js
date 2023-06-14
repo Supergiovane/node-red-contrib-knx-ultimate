@@ -27,6 +27,7 @@ class classHUE extends EventEmitter {
     this.timerwriteQueueAdd = setTimeout(this.handleQueue, 3000) // First start
 
     // start the SSE Stream Receiver
+    // #############################################
     const options = {
       host: _hueBridgeIP, // Indirizzo IP del tuo bridge Philips Hue
       path: '/eventstream/clip/v2', // Il percorso dell'API per gli eventi
@@ -85,8 +86,11 @@ class classHUE extends EventEmitter {
     // Starts the connection for the first time
     req();
   }
-
-  // Handle the sed queue
+// #############################################
+  
+  
+  // Handle the send queue
+  // ######################################
   handleQueue = async () => {
     if (this.commandQueue.length > 0) {
       const jRet = this.commandQueue.shift()
@@ -115,10 +119,10 @@ class classHUE extends EventEmitter {
     // The Hue bridge allows about 10 telegram per second, so i need to make a queue manager
     setTimeout(this.handleQueue, 100)
   }
-  writeHueQueueAdd = async (_lightID, _state, _operation = 'setLight', _callback) => {
+  writeHueQueueAdd = async (_lightID, _state, _operation, _callback) => {
     this.commandQueue.push({ _lightID, _state, _operation, _callback })
   }
-
+  // ######################################
 
   // Get all devices and join it with relative rooms, by adding the room name to the device name
   getResources = async (_rtype, _host, _username) => {
