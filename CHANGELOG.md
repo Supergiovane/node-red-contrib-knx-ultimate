@@ -7,6 +7,11 @@
 # CHANGELOG
 
 <p>
+<b>Version 2.1.10</b> - June 2023<br/>
+- KNX Gateway Node: Migrated documentation to the standard node-red documentation box.<br/>
+- KNXUltimate engine is now part of the published package https://www.npmjs.com/package/knxultimate.<br/>
+</p>
+<p>
 <b>Version 2.1.9</b> - June 2023<br/>
 - Start migrating documentation to the standard node-red documentation box.<br/>
 </p>

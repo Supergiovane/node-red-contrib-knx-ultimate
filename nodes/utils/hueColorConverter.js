@@ -1,6 +1,6 @@
 const convert = require('color-convert')
 class ColorConverter {
-  static getGamutRanges() {
+  static getGamutRanges () {
     const gamutA = {
       red: [0.704, 0.296],
       green: [0.2151, 0.7106],
@@ -28,7 +28,7 @@ class ColorConverter {
     return { gamutA, gamutB, gamutC, default: defaultGamut }
   }
 
-  static getLightColorGamutRange(gamutTypeABC = null) {
+  static getLightColorGamutRange (gamutTypeABC = null) {
     const ranges = ColorConverter.getGamutRanges()
     const gamutA = ranges.gamutA
     const gamutB = ranges.gamutB
@@ -47,8 +47,8 @@ class ColorConverter {
     return ranges.default
   }
 
-  static rgbToXy(red, green, blue, gamutTypeABC = null) {
-    function getGammaCorrectedValue(value) {
+  static rgbToXy (red, green, blue, gamutTypeABC = null) {
+    function getGammaCorrectedValue (value) {
       return (value > 0.04045) ? Math.pow((value + 0.055) / (1.0 + 0.055), 2.4) : (value / 12.92)
     }
 
@@ -78,18 +78,18 @@ class ColorConverter {
     return xy
   }
 
-  static getBrightnessFromRGB(red, green, blue) {
+  static getBrightnessFromRGB (red, green, blue) {
     const hsv = convert.rgb.hsv(red, green, blue)
     const brightness = hsv[2]
     return brightness
   }
 
-  static convert_1_255_ToPercentage(number) {
+  static convert_1_255_ToPercentage (number) {
     const percentage = (number / 255) * 100
     return percentage
   }
 
-  static xyIsInGamutRange(xy, gamut) {
+  static xyIsInGamutRange (xy, gamut) {
     gamut = gamut || ColorConverter.getGamutRanges().gamutC
     if (Array.isArray(xy)) {
       xy = {
@@ -116,12 +116,12 @@ class ColorConverter {
     return ((u >= 0) && (v >= 0) && (u + v < 1))
   }
 
-  static getClosestColor(xy, gamut) {
-    function getLineDistance(pointA, pointB) {
+  static getClosestColor (xy, gamut) {
+    function getLineDistance (pointA, pointB) {
       return Math.hypot(pointB.x - pointA.x, pointB.y - pointA.y)
     }
 
-    function getClosestPoint(xy, pointA, pointB) {
+    function getClosestPoint (xy, pointA, pointB) {
       const xy2a = [xy.x - pointA.x, xy.y - pointA.y]
       const a2b = [pointB.x - pointA.x, pointB.y - pointA.y]
       const a2bSqr = Math.pow(a2b[0], 2) + Math.pow(a2b[1], 2)
@@ -197,8 +197,8 @@ class ColorConverter {
     return closestColorPoints[closestColor]
   }
 
-  static xyBriToRgb(x, y, bri) {
-    function getReversedGammaCorrectedValue(value) {
+  static xyBriToRgb (x, y, bri) {
+    function getReversedGammaCorrectedValue (value) {
       return value <= 0.0031308 ? 12.92 * value : (1.0 + 0.055) * Math.pow(value, (1.0 / 2.4)) - 0.055
     }
 

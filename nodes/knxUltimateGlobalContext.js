@@ -26,7 +26,7 @@ module.exports = function (RED) {
   //     payload
   // }
 
-  function knxUltimateGlobalContext(config) {
+  function knxUltimateGlobalContext (config) {
     RED.nodes.createNode(this, config)
     const node = this
     node.server = RED.nodes.getNode(config.server)
@@ -66,7 +66,6 @@ module.exports = function (RED) {
         node.status({ fill, shape, text: GA + ' ' + payload + ' ' + text + ' (' + dDate.getDate() + ', ' + dDate.toLocaleTimeString() + ')' })
       } catch (error) {
       }
-
     }
 
     // 02/12/2022 Expose the complete ETS CSV as well
@@ -74,11 +73,9 @@ module.exports = function (RED) {
       try {
         node.server.csv.forEach(element => {
           node.exposedGAs.push({ address: element.ga, dpt: element.dpt, devicename: element.devicename, payload: undefined })
-        });
+        })
       } catch (error) {
       }
-
-
     }
 
     // exposeAsVariableREADWRITE

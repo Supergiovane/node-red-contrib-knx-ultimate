@@ -247,7 +247,7 @@
             <select id="node-config-input-hostProtocol" style="margin-left:5px; width:120px;">
                 <option value="TunnelUDP" >Tunnel UDP</option>
                 <option value="Multicast" >Multicast</option>
-                <option value="TunnelTCP" >Tunnel TCP</option>
+                <!-- <option value="TunnelTCP" >Tunnel TCP</option> -->
             </select>   
         </div>
     
@@ -446,4 +446,32 @@
         Copy this text, open a new github issue <a target="_blank" href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/issues/new?assignees=Supergiovane&labels=&template=bug_report.md&title=KNXDebugText"> ->by CLICKING HERE</a>, or paste it to an already open issue.
         <textarea rows="10" id="debugText" style="width:100%"></textarea>
     </div>
+</script>
+<script type="text/markdown" data-help-name="knxUltimate-config">
+<p>This node connects to your KNX/IP Gateway.
+
+**General**
+|Property|Description|
+|--|--|
+| Name | Node name. |
+| IP/Hostname | ETH/KNX Router multicast address or Interface unicast IP address. If you have an KNX/IP interface, use the interface's IP address, for example 1982.168.1.22, otherwise, if you have a KNX/IP router, put the multicast address 224.0.23.12. You can also type an Hostname instead of an IP. Type **EMULATE** instead of the IP address, to simulate a gateway. In this case, the node will not communicate with the KNX BUS. This option is useful for doing simulations. |
+| Port | The port. |
+| Protocol dropdown | *Tunnel UDP* is for KNX/IP interfaces, *Multicast UDP* is for KNX/IP Routers. |
+| Bind to local interface | The Node will use this local interface for communications. Leave "Auto" for automatic selection. If you have more than one lan connection, for example Ethernet and Wifi, it's strongly recommended to manually select the interface, otherwise not all UDP telegram will reach your computer, thus the Node may not work as expected. |
+| Automatically connect to KNX BUS at start | Auto connect to the bus at start. You want to leave it enabled. |
+| KNX Physical Address | The physical KNX address, example 1.1.200 |
+| Suppress repeated (R-Flag) telegrams fom BUS | Ignore repeated KNX telegrams coming from the bus. |
+| Suppress ACK request in tunneling mode | Enable it if you have a very old KNX/IP gateway. You want to leave it disabled. |
+| Delay between each telegram (in milliseconds) | Leave it 50ms, unless you're connecting to a remote KNX Gateway via a slow internet connection. |
+| and further multiply delay only between -read- telegrams | Multiply the delay for read requests to the KNX bus. Again, for slow KNX Gateways. |
+| Loglevel | Log level, in case you need to debug something with the dev. |
+| List of your nodes in all flows | This is a list of all configured node in your flow. You'll find it useful to manually fill the KNX Routers filters. |
+| ETS Group Address list import | Use this section to import your ETS CSV or ESF file. Please refer to the help links for further infos. |
+| Gather debug info for troubleshoot | Please click the button and add it to the gitHub issue you want to open, it will help me a lot to helping you. |
+
+<br/>
+
+
+[Find it useful?](https://www.paypal.me/techtoday)
+        
 </script>

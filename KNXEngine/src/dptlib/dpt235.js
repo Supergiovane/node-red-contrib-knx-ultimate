@@ -11,11 +11,11 @@ const knxLog = require('./../KnxLog')
 
 const util = require('util')
 
-function hex2bin(hex) {
+function hex2bin (hex) {
   return (parseInt(hex, 16).toString(2)).padStart(8, '0')
 }
 
-function ldexp(mantissa, exponent) {
+function ldexp (mantissa, exponent) {
   return exponent > 1023 // avoid multiplying by infinity
     ? mantissa * Math.pow(2, 1023) * Math.pow(2, exponent - 1023)
     : exponent < -1074 // avoid multiplying by zero
@@ -23,7 +23,7 @@ function ldexp(mantissa, exponent) {
       : mantissa * Math.pow(2, exponent)
 }
 
-function frexp(value) {
+function frexp (value) {
   try {
     if (value === 0) return [value, 0]
     const data = new DataView(new ArrayBuffer(8))
@@ -40,7 +40,7 @@ function frexp(value) {
   }
 }
 
-function GetHex(_value) {
+function GetHex (_value) {
   try {
     const arr = frexp(_value)
     const mantissa = arr[0]; const exponent = arr[1]
@@ -60,7 +60,6 @@ function GetHex(_value) {
   }
 }
 
-
 // 08/09/2020 Supergiovane
 // Send to BUS
 exports.formatAPDU = function (value) {
@@ -72,9 +71,8 @@ exports.formatAPDU = function (value) {
       value.hasOwnProperty('tariff') &&
       value.hasOwnProperty('validityTariff') &&
       value.hasOwnProperty('validityEnergy')) {
-
       // activeElectricalEnergy
-      let nbuff = Buffer.alloc(4)
+      const nbuff = Buffer.alloc(4)
       nbuff.writeInt32BE(value.activeElectricalEnergy)
       apdu_data[0] = nbuff[0]
       apdu_data[1] = nbuff[1]
@@ -86,7 +84,7 @@ exports.formatAPDU = function (value) {
       apdu_data[4] = tariff
 
       // Validity
-      const validity = parseInt('000000' + (value.validityTariff ? "1" : "0") + (value.validityEnergy ? "1" : "0"), 2)
+      const validity = parseInt('000000' + (value.validityTariff ? '1' : '0') + (value.validityEnergy ? '1' : '0'), 2)
       apdu_data[5] = validity
       return apdu_data
     } else {
@@ -95,7 +93,6 @@ exports.formatAPDU = function (value) {
   } catch (error) {
     knxLog.get().error('DPT235: exports.formatAPDU error ' + error.message)
   }
-
 }
 
 // RX from BUS
@@ -107,7 +104,7 @@ exports.fromBuffer = function (buf) {
     const validity = hex2bin(buf.slice(5, 6)[0].toString(16)) // Next 8 bit, only the latest 2 bits are used.
     const validityTariff = validity.substring(6, 7) === '1'
     const validityEnergy = validity.substring(7, 8) === '1'
-    return { activeElectricalEnergy: activeElectricalEnergy, tariff: tariff, validityTariff: validityTariff, validityEnergy: validityEnergy }
+    return { activeElectricalEnergy, tariff, validityTariff, validityEnergy }
   } catch (error) {
     knxLog.get().error('DPT235: exports.fromBuffer error ' + error.message)
   }
@@ -132,7 +129,7 @@ return msg;`,
 
 // DPT subtypes
 exports.subtypes = {
-  "001": {
+  '001': {
     desc: 'DPT_Tariff_ActiveEnergy',
     name: 'Tariff of active Energy (Energy+Tariff+Validity)',
     unit: 'Tariff'

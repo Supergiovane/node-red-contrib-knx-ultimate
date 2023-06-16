@@ -7,20 +7,19 @@
 // DPT29: 8-byte signed value
 //
 
-
 exports.formatAPDU = function (value) {
   if (typeof value === 'string') value = BigInt(value)
-  const apdu_data = Buffer.allocUnsafe(8);
+  const apdu_data = Buffer.allocUnsafe(8)
   // Writing big integer value into buffer
   // by using writeBigInt64BE() method
-  apdu_data.writeBigInt64BE(value, 0);
+  apdu_data.writeBigInt64BE(value, 0)
   return apdu_data
 }
 
 exports.fromBuffer = function (buf) {
   return buf.readBigInt64BE(0)
 
-  let bufInt = (buf.readUInt32BE(0) << 8) + buf.readUInt32BE(4);
+  const bufInt = (buf.readUInt32BE(0) << 8) + buf.readUInt32BE(4)
   return bufInt.toString(16)
 }
 
@@ -29,7 +28,7 @@ exports.basetype = {
   signedness: 'signed',
   valuetype: 'basic',
   desc: '8-byte V64 signed value',
-  //range: [-9223372036854775808, 9223372036854775807],
+  // range: [-9223372036854775808, 9223372036854775807],
   help:
     `// Send 8-byte signed value range: [-9223372036854775808, 9223372036854775807].
 // REMEMBER to add "n" after a big integer number, or pass the number as string

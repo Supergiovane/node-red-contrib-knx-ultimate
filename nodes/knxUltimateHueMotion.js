@@ -1,6 +1,4 @@
 module.exports = function (RED) {
-
-
   function knxUltimateHueMotion(config) {
     RED.nodes.createNode(this, config)
     const node = this
@@ -25,8 +23,6 @@ module.exports = function (RED) {
     node.formatnegativevalue = 'leave'
     node.formatdecimalsvalue = 2
 
-
-
     // Used to call the status update from the config node.
     node.setNodeStatus = ({ fill, shape, text, payload }) => {
 
@@ -34,9 +30,9 @@ module.exports = function (RED) {
     // Used to call the status update from the HUE config node.
     node.setNodeStatusHue = ({ fill, shape, text }) => {
       const dDate = new Date()
-      node.status({ fill: fill, shape: shape, text: text + ' (' + dDate.getDate() + ', ' + dDate.toLocaleTimeString() + ')' })
+      node.status({ fill, shape, text: text + ' (' + dDate.getDate() + ', ' + dDate.toLocaleTimeString() + ')' })
     }
-    
+
     // This function is called by the knx-ultimate config node, to output a msg.payload.
     node.handleSend = msg => {
     }

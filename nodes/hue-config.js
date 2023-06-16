@@ -1,5 +1,5 @@
 
-const dptlib = require('./../KNXEngine/dptlib')
+const dptlib = require('./../KNXEngine/src/dptlib')
 const hueClass = require('./utils/hueUtils').classHUE
 const loggerEngine = require('./utils/sysLogger.js')
 // Helpers
@@ -28,7 +28,6 @@ const convertSubtype = (baseType) => (kv) => {
   }
 }
 
-
 const toConcattedSubtypes = (acc, baseType) => {
   const subtypes =
     Object.entries(baseType.subtypes)
@@ -52,7 +51,7 @@ module.exports = (RED) => {
     res.json(dpts)
   })
 
-  function hueConfig(config) {
+  function hueConfig (config) {
     RED.nodes.createNode(this, config)
     const node = this
     node.host = config.host
@@ -78,7 +77,6 @@ module.exports = (RED) => {
         }
       })
     })
-
 
     RED.httpAdmin.get('/KNXUltimateGetResourcesHUE', RED.auth.needsPermission('hue-config.read'), function (req, res) {
       try {
@@ -127,8 +125,8 @@ module.exports = (RED) => {
         node.hueManager.removeAllListeners();
         (async () => {
           await node.hueManager.close()
-          node.hueManager = null;
-          delete node.hueManager;
+          node.hueManager = null
+          delete node.hueManager
           done()
         })()
       } catch (error) {

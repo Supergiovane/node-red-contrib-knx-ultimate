@@ -1,9 +1,8 @@
 module.exports = function (RED) {
-  const dptlib = require('./../KNXEngine/dptlib')
+  const dptlib = require('./../KNXEngine/src/dptlib')
   const hueColorConverter = require('./utils/hueColorConverter')
 
-
-  function knxUltimateHueLight(config) {
+  function knxUltimateHueLight (config) {
     RED.nodes.createNode(this, config)
     const node = this
     node.server = RED.nodes.getNode(config.server)
@@ -36,7 +35,7 @@ module.exports = function (RED) {
     // Used to call the status update from the HUE config node.
     node.setNodeStatusHue = ({ fill, shape, text }) => {
       const dDate = new Date()
-      node.status({ fill: fill, shape: shape, text: text + ' (' + dDate.getDate() + ', ' + dDate.toLocaleTimeString() + ')' })
+      node.status({ fill, shape, text: text + ' (' + dDate.getDate() + ', ' + dDate.toLocaleTimeString() + ')' })
     }
 
     // This function is called by the knx-ultimate config node, to output a msg.payload.
@@ -82,11 +81,11 @@ module.exports = function (RED) {
                 if (node.blinkValue === undefined) node.blinkValue = true
                 node.blinkValue = !node.blinkValue
                 msg.payload = node.blinkValue
-                //state = msg.payload === true ? { on: { on: true } } : { on: { on: false } }
+                // state = msg.payload === true ? { on: { on: true } } : { on: { on: false } }
                 state = msg.payload === true ? { on: { on: true }, dimming: { brightness: 100 } } : { on: { on: false } }
                 node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, state, 'setLight')
                 node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, state, 'setLight') // It's ok twice, so the light turns off immeridaley
-              }, 600);
+              }, 600)
             } else {
               if (node.timerBlink !== undefined) clearInterval(node.timerBlink)
               node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, { on: { on: false } }, 'setLight')
@@ -95,14 +94,13 @@ module.exports = function (RED) {
           case config.GALightColorCycle:
             const gaValColorCycle = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightSwitch))
             if (gaValColorCycle) {
-
               node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, { on: { on: true } }, 'setLight')
               node.timerColorCycle = setInterval(() => {
                 try {
-                  function getRandomIntInclusive(min, max) {
-                    min = Math.ceil(min);
-                    max = Math.floor(max);
-                    return Math.floor(Math.random() * (max - min + 1) + min); // The maximum is inclusive and the minimum is inclusive
+                  function getRandomIntInclusive (min, max) {
+                    min = Math.ceil(min)
+                    max = Math.floor(max)
+                    return Math.floor(Math.random() * (max - min + 1) + min) // The maximum is inclusive and the minimum is inclusive
                   }
                   const red = getRandomIntInclusive(0, 255)
                   const green = getRandomIntInclusive(0, 255)
@@ -115,8 +113,7 @@ module.exports = function (RED) {
                 } catch (error) {
 
                 }
-              }, 10000);
-
+              }, 10000)
             } else {
               if (node.timerColorCycle !== undefined) clearInterval(node.timerColorCycle)
               node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, { on: { on: false } }, 'setLight')
@@ -135,7 +132,7 @@ module.exports = function (RED) {
     node.timeoutDim = 0
     node.startDimStopper = function (_direction) {
       if (node.timerDim !== undefined) clearInterval(node.timerDim)
-      if (_direction === "stop") return
+      if (_direction === 'stop') return
       switch (_direction) {
         case 'up':
           node.dimDirection = { dimming_delta: { action: 'up', brightness_delta: 10 } }
@@ -150,15 +147,13 @@ module.exports = function (RED) {
         node.timeoutDim += 1
         if (node.timeoutDim > 100) { node.timeoutDim = 0; clearInterval(node.timerDim) }
         node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, node.dimDirection, 'setLight')
-      }, 300);
+      }, 300)
     }
-
-
 
     node.handleSendHUE = _event => {
       try {
         if (_event.id === config.hueDevice) {
-          let knxMsgPayload = {}
+          const knxMsgPayload = {}
           if (_event.hasOwnProperty('on')) {
             knxMsgPayload.topic = config.GALightState
             knxMsgPayload.dpt = config.dptLightState
@@ -188,10 +183,9 @@ module.exports = function (RED) {
             // ISE Connect Hue emulation, send true/false to switch state
             knxMsgPayload.topic = config.GALightState
             knxMsgPayload.dpt = config.dptLightState
-            knxMsgPayload.payload = _event.dimming.brightness > 0 ? true : false
+            knxMsgPayload.payload = _event.dimming.brightness > 0
             // Send to KNX bus
             if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.server.writeQueueAdd({ grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
-
           }
           node.status({ fill: 'green', shape: 'dot', text: 'HUE->KNX State ' + JSON.stringify(knxMsgPayload.payload) + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' })
         }

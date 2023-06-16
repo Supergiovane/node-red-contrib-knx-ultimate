@@ -91,15 +91,15 @@ exports.subtypes = {
     unit: 's'
   },
 
-   // 13.1200 DeltaVolumeLiquid_Litre
-   1200: {
+  // 13.1200 DeltaVolumeLiquid_Litre
+  1200: {
     desc: 'DeltaVolumeLiquid_Litre',
     name: 'Delta Volume Liquid (litre)',
     unit: 'l'
   },
-   
-   // 13.1201 DeltaVolume_m3
-   1201: {
+
+  // 13.1201 DeltaVolume_m3
+  1201: {
     desc: 'DeltaVolume_m3',
     name: 'Delta Volume m3',
     unit: 'm3'

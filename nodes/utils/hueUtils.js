@@ -3,10 +3,10 @@
 // const hueApi = require('node-hue-api')
 const hueApiV2 = require('node-hue')
 const { EventEmitter } = require('events')
-const https = require('https');
+const https = require('https')
 
 class classHUE extends EventEmitter {
-  constructor(_hueBridgeIP, _username, _clientkey, _bridgeid) {
+  constructor (_hueBridgeIP, _username, _clientkey, _bridgeid) {
     super()
     this.setup(_hueBridgeIP, _username, _clientkey, _bridgeid)
   }
@@ -19,7 +19,7 @@ class classHUE extends EventEmitter {
     this.commandQueue = []
     this.closePushEventStream = false
     this.timerwriteQueueAdd = setTimeout(this.handleQueue, 3000) // First start
-    //this.run()
+    // this.run()
     // start the SSE Stream Receiver
     // #############################################
     // const options = {
@@ -84,10 +84,10 @@ class classHUE extends EventEmitter {
     const runStreamReader = async () => {
       try {
         const listener = (event) => {
-          //console.log(event)
+          // console.log(event)
           event.data.forEach(element => {
             if (event.type === 'update') this.emit('event', element)
-          });        
+          })
         }
         const hueEventStream = hueApiV2.connect({
           host: this.hueBridgeIP,
@@ -100,14 +100,8 @@ class classHUE extends EventEmitter {
     }
     runStreamReader()
 
-
-
     // #############################################
   }
-
-
-
-
 
   // Handle the send queue
   // ######################################
@@ -122,7 +116,7 @@ class classHUE extends EventEmitter {
           } catch (error) {
             console.log('KNXUltimateHUEConfig: classHUE: handleQueue: setLight: ' + error.message)
           }
-          break;
+          break
         case 'getLight':
           try {
             const hue = hueApiV2.connect({ host: this.hueBridgeIP, key: this.username })
@@ -133,12 +127,13 @@ class classHUE extends EventEmitter {
           }
           break
         default:
-          break;
+          break
       }
     }
     // The Hue bridge allows about 10 telegram per second, so i need to make a queue manager
     setTimeout(this.handleQueue, 100)
   }
+
   writeHueQueueAdd = async (_lightID, _state, _operation, _callback) => {
     this.commandQueue.push({ _lightID, _state, _operation, _callback })
   }
@@ -182,7 +177,6 @@ class classHUE extends EventEmitter {
         if (_rtype === 'scene') {
           retArray.push({ name: 'Scene: ' + linkedDevName + (Room !== undefined ? ', room ' + Room.metadata.name : ''), id: device.id })
         }
-
       })
       return { devices: retArray }
     } catch (error) {
@@ -191,20 +185,17 @@ class classHUE extends EventEmitter {
     }
   }
 
-
   close = async () => {
     return new Promise((resolve, reject) => {
       try {
         this.closePushEventStream = true
         setTimeout(() => {
           resolve(true)
-        }, 1000);
+        }, 1000)
       } catch (error) {
         reject(error)
       }
     })
-
-
   }
 }
 module.exports.classHUE = classHUE

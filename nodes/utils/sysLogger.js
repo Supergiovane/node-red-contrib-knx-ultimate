@@ -57,7 +57,7 @@ module.exports = {
           }
         }
       })
-    }    
+    }
     return (logger)
   },
   destroy: function () {

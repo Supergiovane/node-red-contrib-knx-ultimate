@@ -1,11 +1,11 @@
 
 module.exports = function (RED) {
-  function knxUltimateAlerter(config) {
+  function knxUltimateAlerter (config) {
     const fs = require('fs')
     const path = require('path')
     const mkdirp = require('mkdirp')
-    //const Address = require('./../KNXEngine/protocol/KNXAddress')
-    //const KnxConstants = require('./../KNXEngine/protocol/KNXConstants')
+    // const Address = require('./../KNXEngine/src/protocol/KNXAddress')
+    // const KnxConstants = require('./../KNXEngine/src/protocol/KNXConstants')
 
     RED.nodes.createNode(this, config)
     const node = this
@@ -169,7 +169,7 @@ module.exports = function (RED) {
           grpaddr = rule.topic
           try {
             // Check if it's a group address
-            //const ret = Address.KNXAddress.createFromString(grpaddr, Address.KNXAddress.TYPE_GROUP)
+            // const ret = Address.KNXAddress.createFromString(grpaddr, Address.KNXAddress.TYPE_GROUP)
             node.setLocalStatus({ fill: 'grey', shape: 'dot', text: 'Read', payload: '', GA: grpaddr, dpt: '', devicename: rule.devicename })
             node.server.writeQueueAdd({ grpaddr, payload: '', dpt: '', outputtype: 'read', nodecallerid: node.id })
           } catch (error) {

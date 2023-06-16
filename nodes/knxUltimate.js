@@ -1,9 +1,9 @@
 module.exports = function (RED) {
   const _ = require('lodash')
-  const KNXUtils = require('./../KNXEngine/protocol/KNXUtils')
+  const KNXUtils = require('./../KNXEngine/src/protocol/KNXUtils')
   const payloadRounder = require('./utils/payloadManipulation')
 
-  function knxUltimate(config) {
+  function knxUltimate (config) {
     RED.nodes.createNode(this, config)
     const node = this
     node.server = RED.nodes.getNode(config.server)
@@ -59,7 +59,6 @@ module.exports = function (RED) {
         }
       } catch (error) {
       }
-
     }
 
     // Check if the node has a valid topic and dpt
@@ -202,14 +201,12 @@ module.exports = function (RED) {
         }
       } else {
         if (node.listenallga == false) {
-
           // 23/12/2020 Applying RBE filter
           if (node.outputRBE == true) {
-
             // 19/01/2023 CHECKING THE INPUT PAYLOAD (ROUND, ETC) BASED ON THE NODE CONFIG
-            //*********************************************************
-            let pTest = payloadRounder.Manipulate(node, msg.payload)
-            //*********************************************************
+            //* ********************************************************
+            const pTest = payloadRounder.Manipulate(node, msg.payload)
+            //* ********************************************************
 
             if (_.isEqual(node.currentPayload, pTest)) {
               // RBE kicks in, doesn't send the payload

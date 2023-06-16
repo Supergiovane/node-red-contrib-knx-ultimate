@@ -109,9 +109,9 @@ module.exports = function (RED) {
             const oError = { nodeid: node.id, topic: node.outputtopic, devicename, GA, text }
             node.server.reportToWatchdogCalledByKNXUltimateNode(oError)
           };
-        }; 
-      } catch (error) {        
-      }      
+        };
+      } catch (error) {
+      }
     }
 
     // 03/09/2021 Async function to allow await delay(x)

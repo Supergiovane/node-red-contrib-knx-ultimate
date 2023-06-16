@@ -1,7 +1,5 @@
 module.exports = function (RED) {
-
-
-  function knxUltimateHueTapDial(config) {
+  function knxUltimateHueTapDial (config) {
     RED.nodes.createNode(this, config)
     const node = this
     node.server = RED.nodes.getNode(config.server)
@@ -34,7 +32,7 @@ module.exports = function (RED) {
     // Used to call the status update from the HUE config node.
     node.setNodeStatusHue = ({ fill, shape, text }) => {
       const dDate = new Date()
-      node.status({ fill: fill, shape: shape, text: text + ' (' + dDate.getDate() + ', ' + dDate.toLocaleTimeString() + ')' })
+      node.status({ fill, shape, text: text + ' (' + dDate.getDate() + ', ' + dDate.toLocaleTimeString() + ')' })
     }
 
     // This function is called by the knx-ultimate config node, to output a msg.payload.
@@ -52,36 +50,34 @@ module.exports = function (RED) {
             if (knxMsgPayload.dpt.startsWith('3.007')) {
               if (node.isTimerDimStopRunning === false) {
                 // Set KNX Dim up/down start
-                knxMsgPayload.payload = { decr_incr: 1, data: 3 }  // Send to KNX bus
+                knxMsgPayload.payload = { decr_incr: 1, data: 3 } // Send to KNX bus
                 if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.server.writeQueueAdd({ grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
                 if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.status({ fill: 'green', shape: 'dot', text: 'HUE->KNX start Dim' + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' })
               }
               node.startDimStopper(knxMsgPayload)
             } else if (knxMsgPayload.dpt.startsWith('5.001')) {
-              //0 – maximum: 32767
+              // 0 – maximum: 32767
               node.brightnessState < 100 ? node.brightnessState += 20 : node.brightnessState = 100
               knxMsgPayload.payload = node.brightnessState
             } else if (knxMsgPayload.dpt.startsWith('232.600')) {
-
               if (_event.relative_rotary.last_event.action === 'start') {
                 // Random color
                 knxMsgPayload.payload = { red: getRandomIntInclusive(0, 255), green: getRandomIntInclusive(0, 255), blue: getRandomIntInclusive(0, 255) }
-                function getRandomIntInclusive(min, max) {
-                  min = Math.ceil(min);
-                  max = Math.floor(max);
-                  return Math.floor(Math.random() * (max - min + 1) + min); // The maximum is inclusive and the minimum is inclusive
+                function getRandomIntInclusive (min, max) {
+                  min = Math.ceil(min)
+                  max = Math.floor(max)
+                  return Math.floor(Math.random() * (max - min + 1) + min) // The maximum is inclusive and the minimum is inclusive
                 }
                 // Send to KNX bus
                 if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.server.writeQueueAdd({ grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
                 if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.status({ fill: 'green', shape: 'dot', text: 'HUE->KNX Change color clockwise' + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' })
               }
-
             }
           } else if (_event.relative_rotary.last_event.rotation.direction === 'counter_clock_wise') {
             if (knxMsgPayload.dpt.startsWith('3.007')) {
               if (node.isTimerDimStopRunning === false) {
                 // Set KNX Dim up/down start
-                knxMsgPayload.payload = { decr_incr: 0, data: 3 }  // Send to KNX bus
+                knxMsgPayload.payload = { decr_incr: 0, data: 3 } // Send to KNX bus
                 if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.server.writeQueueAdd({ grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
                 if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.status({ fill: 'green', shape: 'dot', text: 'HUE->KNX start Dim' + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' })
               }
@@ -90,7 +86,6 @@ module.exports = function (RED) {
               node.brightnessState > 0 ? node.brightnessState -= 20 : node.brightnessState = 0
               knxMsgPayload.payload = node.brightnessState
             } else if (knxMsgPayload.dpt.startsWith('232.600')) {
-
               if (_event.relative_rotary.last_event.action === 'start') {
                 // Set white color
                 knxMsgPayload.payload = { red: 255, green: 255, blue: 255 }
@@ -98,7 +93,6 @@ module.exports = function (RED) {
                 if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.server.writeQueueAdd({ grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
                 if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.status({ fill: 'green', shape: 'dot', text: 'HUE->KNX Change color counterclockwise' + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' })
               }
-
             }
           }
 
@@ -124,7 +118,7 @@ module.exports = function (RED) {
         if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.server.writeQueueAdd({ grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
         if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.status({ fill: 'green', shape: 'dot', text: 'HUE->KNX Stop DIM' + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' })
         node.isTimerDimStopRunning = false
-      }, 500);
+      }, 500)
     }
 
     // On each deploy, unsubscribe+resubscribe

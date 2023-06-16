@@ -1,4 +1,4 @@
-const KNXAddress = require('./../KNXEngine/protocol/KNXAddress').KNXAddress
+const KNXAddress = require('./../KNXEngine/src/protocol/KNXAddress').KNXAddress
 
 module.exports = function (RED) {
   function knxUltimateViewer (config) {
@@ -30,11 +30,11 @@ module.exports = function (RED) {
     // Used to call the status update from the config node.
     node.setNodeStatus = ({ fill, shape, text, payload, GA, dpt, devicename }) => {
       try {
-      if (node.server == null) { node.status({ fill: 'red', shape: 'dot', text: '[NO GATEWAY SELECTED]' }); return }
-      GA = GA === undefined ? '' : GA
-      payload = payload === undefined ? '' : payload
-      payload = typeof payload === 'object' ? JSON.stringify(payload) : payload
-      const dDate = new Date()
+        if (node.server == null) { node.status({ fill: 'red', shape: 'dot', text: '[NO GATEWAY SELECTED]' }); return }
+        GA = GA === undefined ? '' : GA
+        payload = payload === undefined ? '' : payload
+        payload = typeof payload === 'object' ? JSON.stringify(payload) : payload
+        const dDate = new Date()
         node.status({ fill, shape, text: GA + ' ' + payload + ' ' + text + ' (' + dDate.getDate() + ', ' + dDate.toLocaleTimeString() + ')' })
       } catch (error) {
       }

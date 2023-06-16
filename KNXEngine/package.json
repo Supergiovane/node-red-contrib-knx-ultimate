@@ -1,0 +1,54 @@
+{
+  "name": "knxultimate",
+  "description": "KNX IP protocol implementation for Node. This is the ENGINE of Node-Red KNX-Ultimate node.",
+  "version": "1.0.36",
+  "engines": {
+    "node": ">=14"
+  },
+  "private": false,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Supergiovane/KNXUltimate"
+  },
+  "scripts": {
+    "test": "",
+    "test-connection": ""
+  },
+  "license": "MIT",
+  "author": {
+    "name": "Max Supergiovane",
+    "email": "maxsupergiovane@icloud.com"
+  },
+  "maintainers": [
+    {
+      "name": "Max Supergiovane",
+      "email": "maxsupergiovane@icloud.com"
+    }
+  ],
+  "contributors": [],
+  "keywords": [
+    "knx",
+    "eib",
+    "knx-ultimate",
+    "knxultimate",
+    "iot"
+  ],
+  "dependencies": {
+    "fs": "0.0.1-security",
+    "mkdirp": "^0.5.1",
+    "os": "0.1.1",
+    "ping": "0.4.1",
+    "@types/node": "^6.14.4",
+    "binary-parser": "1.1.5",
+    "binary-protocol": "0.0.0",
+    "ipaddr.js": "2.0.0",
+    "log-driver": "1.2.7",
+    "lodash": "4.17.21",
+    "caller-id": "^0.1.0",
+    "path": "0.12.7",
+    "crypto-js": "4.1.1",
+    "xml2js": "0.4.23",
+    "aes-cbc-mac": "1.0.1"
+  },
+  "devDependencies": {}
+}

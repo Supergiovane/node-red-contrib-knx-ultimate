@@ -1,5 +1,5 @@
 module.exports = function (RED) {
-  const dptlib = require('./../KNXEngine/dptlib')
+  const dptlib = require('./../KNXEngine/src/dptlib')
 
   function knxUltimateHueButton(config) {
     RED.nodes.createNode(this, config)
@@ -34,9 +34,9 @@ module.exports = function (RED) {
     // Used to call the status update from the HUE config node.
     node.setNodeStatusHue = ({ fill, shape, text }) => {
       const dDate = new Date()
-      node.status({ fill: fill, shape: shape, text: text + ' (' + dDate.getDate() + ', ' + dDate.toLocaleTimeString() + ')' })
+      node.status({ fill, shape, text: text + ' (' + dDate.getDate() + ', ' + dDate.toLocaleTimeString() + ')' })
     }
-    
+
     // This function is called by the knx-ultimate config node, to output a msg.payload.
     node.handleSend = msg => {
       const state = {}
@@ -143,7 +143,7 @@ module.exports = function (RED) {
         if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.server.writeQueueAdd({ grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
         if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.status({ fill: 'green', shape: 'dot', text: 'HUE->KNX Stop DIM' + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' })
         node.isTimerDimStopRunning = false
-      }, 700);
+      }, 700)
     }
 
     // On each deploy, unsubscribe+resubscribe

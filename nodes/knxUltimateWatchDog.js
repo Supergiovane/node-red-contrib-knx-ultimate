@@ -1,7 +1,7 @@
 const ping = require('ping')
 
 module.exports = function (RED) {
-  function knxUltimateWatchDog(config) {
+  function knxUltimateWatchDog (config) {
     RED.nodes.createNode(this, config)
     const node = this
     node.server = RED.nodes.getNode(config.server)
@@ -46,7 +46,7 @@ module.exports = function (RED) {
 
     if (!node.server) return
 
-    function handleTheDog() {
+    function handleTheDog () {
       node.beatNumber += 1
       if (node.beatNumber > node.maxRetry) {
         // Confirmed connection error
