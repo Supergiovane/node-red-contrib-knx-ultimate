@@ -52,10 +52,10 @@
             if (oNodeServer === undefined) {
                 // Show the DEPLOY FIRST message
                 $("#divDeployFirst").show();
-                $("#divMain").hide();                
-            }else{
+                $("#divMain").hide();
+            } else {
                 $("#divDeployFirst").hide();
-                $("#divMain").show();        
+                $("#divMain").show();
             }
 
             if (oNodeServer.knxSecureSelected) {
@@ -367,9 +367,9 @@
 <input id="isETSFileLoaded" name="isETSFileLoaded" type="hidden" value="false" />
 
 <div class="form-row">
-    <b><span data-i18n="knxUltimate.title"></span></b>&nbsp&nbsp<span style="color:red"
-        data-i18n="[html]knxUltimate.helplink"></span>
-    <br /><br />
+    <b>KNX Device node</b>
+    <br/>
+    <br/>
 
     <label for="node-input-server">
         <span id="divknxsecure">
@@ -417,7 +417,8 @@
         <input type="text" id="node-input-outputtopic" data-i18n="[placeholder]knxUltimate.placeholder.leaveempty" />
     </div>
     <div class="form-row">
-        <input type="checkbox" id="node-input-listenallga" style="display:inline-block; width:auto; vertical-align:top;" />
+        <input type="checkbox" id="node-input-listenallga"
+            style="display:inline-block; width:auto; vertical-align:top;" />
         <label style="width:auto" for="node-input-listenallga">
             <img
                 src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAACXBIWXMAAB7CAAAewgFu0HU+AAAFGmlUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNS42LWMxNDggNzkuMTY0MDM2LCAyMDE5LzA4LzEzLTAxOjA2OjU3ICAgICAgICAiPiA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPiA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtbG5zOmRjPSJodHRwOi8vcHVybC5vcmcvZGMvZWxlbWVudHMvMS4xLyIgeG1sbnM6cGhvdG9zaG9wPSJodHRwOi8vbnMuYWRvYmUuY29tL3Bob3Rvc2hvcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RFdnQ9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZUV2ZW50IyIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgMjEuMSAoTWFjaW50b3NoKSIgeG1wOkNyZWF0ZURhdGU9IjIwMjAtMDMtMjNUMTY6MjM6MjMrMDE6MDAiIHhtcDpNb2RpZnlEYXRlPSIyMDIwLTAzLTIzVDE2OjI1OjM0KzAxOjAwIiB4bXA6TWV0YWRhdGFEYXRlPSIyMDIwLTAzLTIzVDE2OjI1OjM0KzAxOjAwIiBkYzpmb3JtYXQ9ImltYWdlL3BuZyIgcGhvdG9zaG9wOkNvbG9yTW9kZT0iMyIgcGhvdG9zaG9wOklDQ1Byb2ZpbGU9InNSR0IgSUVDNjE5NjYtMi4xIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOmJmNGM3NWVjLTIwNGYtNGY1YS05YTMxLTQ5NTU5YWJmZDE4NSIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDpiZjRjNzVlYy0yMDRmLTRmNWEtOWEzMS00OTU1OWFiZmQxODUiIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDpiZjRjNzVlYy0yMDRmLTRmNWEtOWEzMS00OTU1OWFiZmQxODUiPiA8eG1wTU06SGlzdG9yeT4gPHJkZjpTZXE+IDxyZGY6bGkgc3RFdnQ6YWN0aW9uPSJjcmVhdGVkIiBzdEV2dDppbnN0YW5jZUlEPSJ4bXAuaWlkOmJmNGM3NWVjLTIwNGYtNGY1YS05YTMxLTQ5NTU5YWJmZDE4NSIgc3RFdnQ6d2hlbj0iMjAyMC0wMy0yM1QxNjoyMzoyMyswMTowMCIgc3RFdnQ6c29mdHdhcmVBZ2VudD0iQWRvYmUgUGhvdG9zaG9wIDIxLjEgKE1hY2ludG9zaCkiLz4gPC9yZGY6U2VxPiA8L3htcE1NOkhpc3Rvcnk+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+nhtLUgAAAE9JREFUKJG1UMsOACAIgub//7IdqvVQtjrExU1EEQLuiGCvgTNgl5D74MmVZPu4wIxQAgm+/sDec2VhgQPgf0sq1unjMlYJE/3MZrvy+kMFZQkZEWfC7ikAAAAASUVORK5CYII="></img>
@@ -533,7 +534,8 @@
                         &nbsp;&nbsp;<input type="checkbox" id="node-input-notifyreadrequestalsorespondtobus"
                             style="display:inline-block; width:auto; vertical-align:top;" />
                         <label style="width:85%" for="node-input-notifyreadrequestalsorespondtobus">
-                            <span data-i18n="knxUltimate.properties.node-input-notifyreadrequestalsorespondtobus"></span>
+                            <span
+                                data-i18n="knxUltimate.properties.node-input-notifyreadrequestalsorespondtobus"></span>
                         </label>
                     </div>
                     <div class="form-row">
@@ -604,10 +606,107 @@
     </div>
 </div>
 
-<div id ="divDeployFirst">
+<div id="divDeployFirst">
     <div class="form-tips" style="margin-top:11px">
         <span data-i18n="knxUltimate.deployfirst"></span>
     </div>
 </div>
 <br /><br />
+</script>
+<script type="text/markdown" data-help-name="knxUltimate">
+<p>This node lets you control a KNX Group Address, this is the most used node.
+
+**General**
+|Property|Description|
+|--|--|
+| Gateway | Select the KNX gateway to be used |
+| Group Addr. | The KNX Group Address you want to control. If you've imported the ETS group addresses file, you can just start typing in your device name. |
+| Datapoint | The datapoint belonging to your node.|
+| Node name | Self explaining. |
+| Topic | The msg output topic. Leave it blank to have it set to your Group Address. |
+| Universal mode (listen to all Group Addresses) | By setting this, the node will read and control ALL group addresses. |
+| Help example of the selected datapoint | This will give it a hint on what to write in a function, if you want to control the node via a Node-Red function node. |
+| Input msg passthrough | If set, you can pass the input mgs to the output msg. |
+| Output Type | *write* to send write telegram (usually, you want that), otherwise you can choose the telegram's type to react to. |
+| Send payload to BUS only if changed (RBE filter) | *Report by change* filter. If set, only the msg input (from the Flow) having different values each time, will be sent to the KNX bus. If you intend to send everytime the same value, turn it off. |
+| Send a GrpValue read once on connection/reconnect | This sends a *read* request to the selected group address, every time Node-Red starts and at every reconnection to the KNX Gateway. The node stores all group address values to a file, so you can choose wether to read from it or from the KNX bus. |
+| React only if payload from BUS is changed (RBE filter) | *Report by change* filter. If set, only the msg output (to KNX bus) having different values each time, will be sent to the msg output's flow. If you intend to send everytime the same value, leave it off. |
+| React to event GroupValue write | The node will react (will send a msg to the flow) each time it receives a *write* telegram from the KNX bus. Usually, you want that. |
+| React to event GroupValue response | The node will react (will send a msg to the flow) each time it receives a *response* telegram from the KNX bus. Usually, you want that for particular scenarios. |
+| React to event GroupValue read | The node will react (will send a msg to the flow) each time it receives a *read* telegram from the KNX bus. Usually, you want that if you're want to send a custom value to the KNX BUS. |
+| Format INPUT (datagram coming from the KNX BUS) | Allow you to format numeric values received from the KNX Bus. |
+
+<br/>
+
+### Inputs
+
+: destination (string) : the destination group address, for example 1/1/0. Only 3-level is allowed.  
+: payload (any) : the payload to be sent. Can be for example true or false, or an object.
+: event (string) : can be *GroupValue_Write* to write the telegram to the KNX BUS, *GroupValue_Response* to send a response telegram to the KNX BUS, *Update_NoWrite*. *Update_NoWrite* sends nothings to the KNX BUS, just updates the internal value of the KNX-Ultimate node. This is useful if you wanna only store the value into the node and read it later with a read request.
+: readstatus (boolean) : issue a read request to the KNX bus. Pass *true* everytime (msg.readstatus = true).
+: dpt (string) : For example "1.001". Sets the Datapoint.
+: writeraw (buffer): is used to send a value to the KNX bus, as buffer. Use in conjunction with *bitlenght*.
+: bitlenght (int): specifies the lenght of the *writeraw* buffer. Use in conjunction with *writeraw*.
+: resetRBE (boolean) : resets the internal RBE filters (*use msg.resetRBE = true*).
+: config (json) : programmatically change the KNX-Ultimate Device node configuration. See details.
+
+### Details
+
+`msg.config`: It's possible to programmatically change the KNX-Ultimate node configuration, by sending msg.setConfig object to the node.
+The new configuration will be retained until next msg.setConfig or until restart/redeploy.
+All properties are optional, that means, you can change only the properties you need.  
+Use it like that, in a functon node:    
+
+```json
+// Change the node properties as follows:
+// setGroupAddress: set the new group address.
+// setDPT: set the new Datapoint, as you can see in the dropdown list (the numeric part, for example "1.001", "237.600", etc...)
+var config= {
+    setGroupAddress: "0/1/2",
+    setDPT: "1.001"
+};
+msg.setConfig = config;
+return msg;
+```
+
+### Outputs
+
+1. Standard output
+: payload (string|number|object) : Pin 1 is the standard output of the command.
+
+2. Errors
+: error (object) : Pin 2 Contains the detailed error message. 
+
+### Details
+
+`msg.payload` is used as the payload of the published message.
+If it contains an Object it will be converted to a JSON string before being sent.  
+
+```json
+msg = {
+    topic: "0/1/2" // (Contains the node's topic, for example "MyTopic". If the node's topic is not set, contains the Group Address, for example "0/1/2")
+    payload: false 
+    previouspayload: true // (Previous node payload value.)
+    payloadmeasureunit: "%" // (payload's measure unit)
+    payloadsubtypevalue: "Start" // (Subtype's decoded value, for exampe, On/Off, Ramp/NoRamp, Start/Stop, Alarm/NoAlarm)
+    devicename: "Dinning table lamp" // (Contains the node's name)
+    knx: {
+        event: "GroupValue_Write" // (or "GroupValue_Response", or "GroupValue_Read")
+        dpt: "1.001"
+        dptdesc: "Humidity" // (payload's measure unit description)
+        source: "15.15.22"
+        destination: "0/1/2" // (Contains the Group Address of the incoming telegram)
+        rawValue: buffer[1]raw // (or null, if "GroupValue_Read")
+            0: 0x0 // (This is the RAW undecoded value)
+    },
+    emulate : true // If the gateway is in simulation mode (see the gateway documentation), otherwise this property is not present.
+}
+````
+
+<br/><a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-SamplesHome" target="_blank"><i class="fa fa-code"></i> Samples</a>
+
+[Find it useful?](https://www.paypal.me/techtoday)
+
+
+
 </script>

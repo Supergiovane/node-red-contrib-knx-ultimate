@@ -7,6 +7,10 @@
 # CHANGELOG
 
 <p>
+<b>Version 2.1.9</b> - June 2023<br/>
+- Start migrating documentation to the standard node-red documentation box.<br/>
+</p>
+<p>
 <b>Version 2.1.8</b> - June 2023<br/>
 - HUE event stream reader revamped.<br/>
 </p>
