@@ -7,6 +7,14 @@
 # CHANGELOG
 
 <p>
+<b>Version 2.1.12</b> - June 2023<br/>
+- Hue Light node: added tunable white.<br/>
+</p>
+<p>
+<b>Version 2.1.11</b> - June 2023<br/>
+- KNX Global Context node: added the optional datastore to choose from.<br/>
+</p>
+<p>
 <b>Version 2.1.10</b> - June 2023<br/>
 - KNX Gateway Node: Migrated documentation to the standard node-red documentation box.<br/>
 - KNXUltimate engine is now part of the published package https://www.npmjs.com/package/knxultimate.<br/>

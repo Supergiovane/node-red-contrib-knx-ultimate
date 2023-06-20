@@ -2,7 +2,7 @@ module.exports = function (RED) {
   const dptlib = require('./../KNXEngine/src/dptlib')
   const hueColorConverter = require('./utils/hueColorConverter')
 
-  function knxUltimateHueLight (config) {
+  function knxUltimateHueLight(config) {
     RED.nodes.createNode(this, config)
     const node = this
     node.server = RED.nodes.getNode(config.server)
@@ -60,6 +60,21 @@ module.exports = function (RED) {
               node.startDimStopper('stop')
             }
             break
+          case config.GALightHSV:
+            if (config.dptLightHSV === '3.007') {
+              // MDT smartbutton will dim the color temperature
+              // { decr_incr: 1, data: 1 } : Start increasing until { decr_incr: 0, data: 0 } is received.
+              // { decr_incr: 0, data: 1 } : Start decreasing until { decr_incr: 0, data: 0 } is received.
+              msg.payload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightHSV))
+              if (msg.payload.data > 0) {
+                let dimDirectionTunableWhite = 'down'
+                dimDirectionTunableWhite = msg.payload.decr_incr === 1 ? 'up' : 'down'
+                node.startDimStopperTunableWhite(dimDirectionTunableWhite)
+              } else {
+                node.startDimStopperTunableWhite('stop')
+              }
+            }
+            break
           case config.GALightBrightness:
             msg.payload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightBrightness))
             state = { dimming: { brightness: msg.payload } }
@@ -97,7 +112,7 @@ module.exports = function (RED) {
               node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, { on: { on: true } }, 'setLight')
               node.timerColorCycle = setInterval(() => {
                 try {
-                  function getRandomIntInclusive (min, max) {
+                  function getRandomIntInclusive(min, max) {
                     min = Math.ceil(min)
                     max = Math.floor(max)
                     return Math.floor(Math.random() * (max - min + 1) + min) // The maximum is inclusive and the minimum is inclusive
@@ -150,6 +165,29 @@ module.exports = function (RED) {
       }, 300)
     }
 
+    // Start dimming tunable white
+    // mirek: required(integer – minimum: 153 – maximum: 500)
+    node.timerDimTunableWhite = undefined
+    node.dimDirectionTunableWhite = {}
+    node.startDimStopperTunableWhite = function (_direction) {
+      if (node.timerDimTunableWhite !== undefined) clearInterval(node.timerDimTunableWhite)
+      if (_direction === 'stop') return
+      switch (_direction) {
+        case 'up':
+          node.dimDirectionTunableWhite = { color_temperature_delta: { action: 'up', mirek_delta: 10 } }
+          break
+        case 'down':
+          node.dimDirectionTunableWhite = { color_temperature_delta: { action: 'down', mirek_delta: 10 } }
+          break
+        default:
+          break
+      }
+      node.timerDimTunableWhite = setInterval(() => {
+        node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, node.dimDirectionTunableWhite, 'setLight')
+      }, 300)
+
+    }
+
     node.handleSendHUE = _event => {
       try {
         if (_event.id === config.hueDevice) {
@@ -184,6 +222,17 @@ module.exports = function (RED) {
             knxMsgPayload.topic = config.GALightState
             knxMsgPayload.dpt = config.dptLightState
             knxMsgPayload.payload = _event.dimming.brightness > 0
+            // Send to KNX bus
+            if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.server.writeQueueAdd({ grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
+          }
+          if (_event.hasOwnProperty('color_temperature')) {
+            knxMsgPayload.topic = config.GALightHSVState
+            knxMsgPayload.dpt = config.dptLightHSVState
+            if (config.dptLightHSVState === '5.001') {
+              //NewValue = (((OldValue - OldMin) * (NewMax - NewMin)) / (OldMax - OldMin)) + NewMin
+              let NewValue = (((_event.color_temperature.mirek - 153) * (100 - 0)) / (500 - 153)) + 0
+              knxMsgPayload.payload = NewValue
+            }
             // Send to KNX bus
             if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.server.writeQueueAdd({ grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
           }

@@ -26,7 +26,7 @@ module.exports = function (RED) {
   //     payload
   // }
 
-  function knxUltimateGlobalContext (config) {
+  function knxUltimateGlobalContext(config) {
     RED.nodes.createNode(this, config)
     const node = this
     node.server = RED.nodes.getNode(config.server)
@@ -50,7 +50,7 @@ module.exports = function (RED) {
     node.formatnegativevalue = 'leave'
     node.formatdecimalsvalue = 999
     node.writeExecutionInterval = config.writeExecutionInterval === undefined ? 1000 : config.writeExecutionInterval
-
+    node.contextStorage = config.contextStorage !== undefined ? config.contextStorage : ''
     node.exposeAsVariable = config.exposeAsVariable !== undefined ? config.exposeAsVariable : 'exposeAsVariableREADONLY' // Should expose the Group Addresses to the Global Context?
     node.exposedGAs = []
     node.timerExposedGAs = null
@@ -83,8 +83,8 @@ module.exports = function (RED) {
     node.goTimerGo = function () {
       if (node.timerExposedGAs !== null) clearTimeout(node.timerExposedGAs) // 21/03/2021
       node.timerExposedGAs = setTimeout(() => {
-        let oContext = node.context().global.get(node.name + '_WRITE') || []
-        node.context().global.set(node.name + '_WRITE', []) // Delete the var
+        let oContext = node.context().global.get(node.name + '_WRITE', node.contextStorage) || []
+        node.context().global.set(node.name + '_WRITE', [], node.contextStorage) // Delete the var
         for (let index = 0; index < oContext.length; index++) {
           const element = oContext[index]
           if (!element.hasOwnProperty('address')) {
@@ -129,7 +129,7 @@ module.exports = function (RED) {
       node.setNodeStatus({ fill: 'green', shape: 'dot', text: 'Start Writing', payload: '', GA: '', dpt: '', devicename: '' })
     } else {
       if (node.timerExposedGAs !== null) clearTimeout(node.timerExposedGAs)
-      node.context().global.set(node.name + '_WRITE', []) // Delete the var
+      node.context().global.set(node.name + '_WRITE', [], node.contextStorage) // Delete the var
     }
     // #endregion
 
@@ -149,14 +149,14 @@ module.exports = function (RED) {
         }
         // Save into the global Context
         try {
-          node.context().global.set(node.name + '_READ', node.exposedGAs)
+          node.context().global.set(node.name + '_READ', node.exposedGAs, node.contextStorage)
         } catch (error) {
           console.log(error)
         }
         oGa = null // 21/03/2022
       } else {
         node.exposedGAs = []
-        node.context().global.set(node.name + '_READ', node.exposedGAs)
+        node.context().global.set(node.name + '_READ', node.exposedGAs, node.contextStorage)
       }
     }
 

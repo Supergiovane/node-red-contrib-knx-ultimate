@@ -4,9 +4,10 @@
 const hueApiV2 = require('node-hue')
 const { EventEmitter } = require('events')
 const https = require('https')
+const EventSource = require('eventsource');
 
 class classHUE extends EventEmitter {
-  constructor (_hueBridgeIP, _username, _clientkey, _bridgeid) {
+  constructor(_hueBridgeIP, _username, _clientkey, _bridgeid) {
     super()
     this.setup(_hueBridgeIP, _username, _clientkey, _bridgeid)
   }
@@ -19,6 +20,8 @@ class classHUE extends EventEmitter {
     this.commandQueue = []
     this.closePushEventStream = false
     this.timerwriteQueueAdd = setTimeout(this.handleQueue, 3000) // First start
+    this.connect()
+
     // this.run()
     // start the SSE Stream Receiver
     // #############################################
@@ -80,28 +83,84 @@ class classHUE extends EventEmitter {
     // // Starts the connection for the first time
     // req();
 
+
     // Eventstream Reader using hueApiV2
-    const runStreamReader = async () => {
-      try {
-        const listener = (event) => {
-          // console.log(event)
-          event.data.forEach(element => {
-            if (event.type === 'update') this.emit('event', element)
-          })
-        }
-        const hueEventStream = hueApiV2.connect({
-          host: this.hueBridgeIP,
-          key: this.username,
-          eventListener: listener
-        })
-      } catch (error) {
-        console.log('KNXUltimateHUEConfig: classHUE: const run = async: ' + error.message)
-      }
-    }
-    runStreamReader()
+    // const runStreamReader = async () => {
+    //   try {
+    //     const listener = (event) => {
+    //       // console.log(event)
+    //       event.data.forEach(element => {
+    //         if (event.type === 'update') this.emit('event', element)
+    //       })
+    //     }
+    //     const hueEventStream = hueApiV2.connect({
+    //       host: this.hueBridgeIP,
+    //       key: this.username,
+    //       eventListener: listener
+    //     })
+    //   } catch (error) {
+    //     console.log('KNXUltimateHUEConfig: classHUE: const run = async: ' + error.message)
+    //   }
+    // }
+    // runStreamReader()
+
+
 
     // #############################################
   }
+
+
+  connect() {
+    // #############################################
+    const options = {
+      headers: {
+        'hue-application-key': this.username,
+      },
+      https: {
+        rejectUnauthorized: false,
+      },
+    };
+
+    this.es = new EventSource('https://' + this.hueBridgeIP + '/eventstream/clip/v2', options);
+
+    this.es.onmessage = (event) => {
+      try {
+        if (event && event.type === 'message' && event.data) {
+          const data = JSON.parse(event.data);
+          data.forEach(element => {
+            if (element.type === 'update') {
+              element.data.forEach(ev => {
+                this.emit('event', ev)
+              })
+            }
+          })
+        }
+      } catch (error) {
+        console.log('KNXUltimateHUEConfig: classHUE: this.es.onmessage: ' + error.message)
+      }
+
+    };
+
+    this.es.onopen = () => {
+      //console.log('KNXUltimateHUEConfig: classHUE: SSE-Connected')
+      //this.emit('connected');
+    }
+    this.es.onerror = (error) => {
+      try {
+        this.es.close()
+        this.es = null
+        console.log('KNXUltimateHUEConfig: classHUE: request.on(error): ' + error.message)
+        setTimeout(() => {
+          this.connect()
+        }, 5000);
+      } catch (error) {
+
+      }
+      //this.emit('error', err)
+    };
+  }
+  // #############################################
+
 
   // Handle the send queue
   // ######################################
@@ -131,7 +190,7 @@ class classHUE extends EventEmitter {
       }
     }
     // The Hue bridge allows about 10 telegram per second, so i need to make a queue manager
-    setTimeout(this.handleQueue, 100)
+    setTimeout(this.handleQueue, 150)
   }
 
   writeHueQueueAdd = async (_lightID, _state, _operation, _callback) => {
@@ -185,10 +244,22 @@ class classHUE extends EventEmitter {
     }
   }
 
+  // Get the light details
+  getLightStatus = async (_rid) => { 
+    try {
+      const hue = hueApiV2.connect({ host: this.hueBridgeIP, key: this.username })
+      const oLight = await hue.getLight(_rid)
+      return oLight[0]
+    } catch (error) {      
+    }    
+  }
+
   close = async () => {
     return new Promise((resolve, reject) => {
       try {
         this.closePushEventStream = true
+        this.es.close();
+        this.es = null;
         setTimeout(() => {
           resolve(true)
         }, 1000)

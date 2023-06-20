@@ -7,7 +7,8 @@
             server: { type: "knxUltimate-config", required: true },
             name: { value: "KNXGlobalContext", validate: RED.validators.regex(/^[a-zA-Z]+$/) },
             exposeAsVariable: { value: "exposeAsVariableREADWRITE", required: false },
-            writeExecutionInterval: { value: 1000 }
+            writeExecutionInterval: { value: 1000 },
+            contextStorage: { value: "" }
         },
         inputs: 0,
         outputs: 0,
@@ -98,5 +99,11 @@
     </select>
 </div>
 
+<div class="form-row">
+    <label for="node-input-contextStorage" style="width:60%;">
+        <i class="fa fa-tag"></i> Context storage
+    </label>
+    <input style="width:35%;" type="text" id="node-input-contextStorage" placeholder="Optional context storage name" />
+</div>
 
 </script>
