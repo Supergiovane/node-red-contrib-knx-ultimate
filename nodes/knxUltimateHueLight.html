@@ -52,6 +52,13 @@
             GALightColorCycle: { value: "" },
             dptLightColorCycle: { value: "" },
 
+            colorAtSwitchOnDayTime: { value: '{"red":255, "green":255, "blue":255}' },
+            colorAtSwitchOnNightTime: { value: '{"red":23, "green":4, "blue":0}' },
+
+            nameDaylightSensor: { value: "" },
+            GADaylightSensor: { value: "" },
+            dptDaylightSensor: { value: "" },
+
             hueDevice: { value: "" }
         },
         inputs: 0,
@@ -607,6 +614,53 @@
             // ########################
 
 
+            // DPT Day/Time sensor
+            // ########################
+            $.getJSON('knxUltimateDpts', (data) => {
+                data.forEach(dpt => {
+                    if (dpt.value.startsWith("1.")) {
+                        $("#node-input-dptDaylightSensor").append($("<option></option>")
+                            .attr("value", dpt.value)
+                            .text(dpt.text))
+                    }
+                });
+                $("#node-input-dptDaylightSensor").val(this.dptDaylightSensor)
+            })
+
+            // Autocomplete suggestion with ETS csv File
+            $("#node-input-GADaylightSensor").autocomplete({
+                minLength: 1,
+                source: function (request, response) {
+                    //$.getJSON("csv", request, function( data, status, xhr ) {
+                    $.getJSON("knxUltimatecsv?nodeID=" + oNodeServer.id, (data) => {
+                        response($.map(data, function (value, key) {
+                            var sSearch = (value.ga + " (" + value.devicename + ") DPT" + value.dpt);
+                            if (fullSearch(sSearch, request.term + " 1.")) {
+                                return {
+                                    label: value.ga + " # " + value.devicename + " # " + value.dpt, // Label for Display
+                                    value: value.ga // Value
+                                }
+                            } else {
+                                return null;
+                            }
+                        }));
+                    });
+                }, select: function (event, ui) {
+                    // Sets Datapoint and device name automatically
+                    var sDevName = ui.item.label.split("#")[1].trim();
+                    try {
+                        sDevName = sDevName.substr(sDevName.indexOf(")") + 1).trim();
+                    } catch (error) {
+                    }
+                    $('#node-input-nameDaylightSensor').val(sDevName);
+                    var optVal = $("#node-input-dptDaylightSensor option:contains('" + ui.item.label.split("#")[2].trim() + "')").attr('value');
+                    // Select the option value 
+                    $("#node-input-dptDaylightSensor").val(optVal);
+                }
+            });
+            // ########################
+
+
 
             // Autocomplete suggestion with HUE Lights
             $("#node-input-name").autocomplete({
@@ -727,6 +781,33 @@
             <label for="node-input-nameLightState" style="width:50px; margin-left: 0px; text-align: right;"><span data-i18n="knxUltimateHueLight.node-input-name"></span></label>
             <input type="text" id="node-input-nameLightState" style="width:200px;margin-left: 5px; text-align: left;">
         </div>
+        
+        <div class="form-row">
+            <label for="node-input-nameDaylightSensor" style="width:100px;"><i class="fa fa-clock-o"></i> Day/Night</label>
+
+            <label for="node-input-GADaylightSensor" style="width:20px;">GA</label>
+            <input type="text" id="node-input-GADaylightSensor" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
+        
+            <label for="node-input-dptDaylightSensor" style="width:40px; margin-left: 0px; text-align: right;">DPT</label>
+            <select id="node-input-dptDaylightSensor" style="width:140px;"></select>
+        
+            <label for="node-input-nameDaylightSensor" style="width:50px; margin-left: 0px; text-align: right;"><span data-i18n="knxUltimateHueLight.node-input-name"></span></label>
+            <input type="text" id="node-input-nameDaylightSensor" style="width:200px;margin-left: 5px; text-align: left;">
+        </div>
+
+        <div class="form-row">
+            <label for="node-input-colorAtSwitchOnDayTime" style="width:200px">
+                <i class="fa fa-sun-o"></i> Switch on color at Daytime
+            </label>
+            <input type="text" id="node-input-colorAtSwitchOnDayTime" placeholder='{"red":255, "green":255, "blue":255}' style="width:250px">            
+        </div>
+        <div class="form-row">
+            <label for="node-input-colorAtSwitchOnNightTime" style="width:200px">
+                <i class="fa fa-moon-o"></i> Switch on color at Nighttime
+            </label>
+            <input type="text" id="node-input-colorAtSwitchOnNightTime" placeholder='{"red":100, "green":0, "blue":50}' style="width:250px">            
+        </div>
+        
       </p>
     </div>
     <div id="tabs-2">
@@ -891,7 +972,9 @@ Start typing in the GA field, the name or group address of your KNX device, the 
 | Brightness Status| Link this to the light's brightness status group address |
 | Blink| *true* Blink the light, *false* Stop blinking. Blinks the light on and off. Useful for signalling. Works with all HUE lights. |
 | Color Cycle| *true* start cycle, *false* Stop cycle. Randomly changes the HUE light's color at regular interval. Works with all HUE lights having color capabilities. |
-
+| Day/Night | *true* if daytime, *false* if nighttime. This GA is used to change some behaviours at day or night. |
+| Switch on color at Daytime | You can choose the color/brightness of your light, at switch on, on night time. Set it as JSON object, like { "red": 255, "green": 255, "blue": 255 } |
+| Switch on color at Nighttime | You can choose the color/brightness of your light, at switch on, on night time. Set it as JSON object, like { "red": 100, "green": 0, "blue": 0 } |
 <br/>
 
 [Find it useful?](https://www.paypal.me/techtoday)

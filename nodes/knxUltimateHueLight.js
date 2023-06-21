@@ -27,6 +27,7 @@ module.exports = function (RED) {
     node.formatnegativevalue = 'leave'
     node.formatdecimalsvalue = 2
     node.currentHUEDevice = undefined
+    node.DayTime = true
 
     // Used to call the status update from the config node.
     node.setNodeStatus = ({ fill, shape, text, payload }) => {
@@ -45,7 +46,20 @@ module.exports = function (RED) {
         switch (msg.knx.destination) {
           case config.GALightSwitch:
             msg.payload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightSwitch))
-            state = msg.payload === true ? { on: { on: true },dimming: { brightness: 100 } } : { on: { on: false }, dimming: { brightness: 0 }}
+            if (msg.payload) {
+              let jColorChoosen = { red: 255, green: 255, blue: 255 }
+              if (node.DayTime) {
+                jColorChoosen = JSON.parse(config.colorAtSwitchOnDayTime || '{ "red": 255, "green": 255, "blue": 255 }')
+              } else {
+                jColorChoosen = JSON.parse(config.colorAtSwitchOnNightTime || '{ "red": 255, "green": 255, "blue": 255 }')
+              }
+              let dgamut = node.currentHUEDevice !== undefined ? node.currentHUEDevice.color.gamut_type : null
+              let dretXY = hueColorConverter.ColorConverter.rgbToXy(jColorChoosen.red, jColorChoosen.green, jColorChoosen.blue, dgamut)
+              let dbright = hueColorConverter.ColorConverter.getBrightnessFromRGB(jColorChoosen.red, jColorChoosen.green, jColorChoosen.blue)
+              state = dbright > 0 ? { on: { on: true }, dimming: { brightness: dbright }, color: { xy: dretXY } } : { on: { on: false } }
+            } else {
+              state = { on: { on: false } }
+            }
             node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, state, 'setLight')
             break
           case config.GALightDIM:
@@ -58,6 +72,9 @@ module.exports = function (RED) {
             } else {
               node.startDimStopper('stop')
             }
+            break
+          case config.GADaylightSensor:
+            node.DayTime = Boolean(dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptDaylightSensor)))
             break
           case config.GALightHSV:
             if (config.dptLightHSV === '3.007') {
