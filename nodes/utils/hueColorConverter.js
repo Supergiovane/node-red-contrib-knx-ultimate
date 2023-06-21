@@ -233,5 +233,14 @@ class ColorConverter {
       blue: Math.floor(b * 255)
     }
   }
+
+  // Linear interpolation of input y given starting and ending ranges
+  static scale(y, range1 = [0,100], range2 = [0,255]) {
+    const [xMin, xMax] = range2;
+    const [yMin, yMax] = range1;
+    const percent = (y - yMin) / (yMax - yMin);
+    const ans = percent * (xMax - xMin) + xMin;
+    return Math.round(ans);
+  }
 }
 exports.ColorConverter = ColorConverter

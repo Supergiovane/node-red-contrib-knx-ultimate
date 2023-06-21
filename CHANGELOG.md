@@ -7,6 +7,11 @@
 # CHANGELOG
 
 <p>
+<b>Version 2.1.13</b> - June 2023<br/>
+- Hue Light node: fixed inversion in the color temp state.<br/>
+- Hue Light node: switching on/off the light, now sets the DIM to 100%/0% as well.<br/>
+</p>
+<p>
 <b>Version 2.1.12</b> - June 2023<br/>
 - Hue Light node: added tunable white.<br/>
 </p>

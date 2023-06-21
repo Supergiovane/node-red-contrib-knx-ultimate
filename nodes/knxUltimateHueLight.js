@@ -45,7 +45,7 @@ module.exports = function (RED) {
         switch (msg.knx.destination) {
           case config.GALightSwitch:
             msg.payload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightSwitch))
-            state = msg.payload === true ? { on: { on: true } } : { on: { on: false } }
+            state = msg.payload === true ? { on: { on: true },dimming: { brightness: 100 } } : { on: { on: false }, dimming: { brightness: 0 }}
             node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, state, 'setLight')
             break
           case config.GALightDIM:
@@ -53,8 +53,7 @@ module.exports = function (RED) {
             // { decr_incr: 0, data: 1 } : Start decreasing until { decr_incr: 0, data: 0 } is received.
             msg.payload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightDIM))
             if (msg.payload.data > 0) {
-              let dimDirection = 'down'
-              dimDirection = msg.payload.decr_incr === 1 ? 'up' : 'down'
+              let dimDirection = msg.payload.decr_incr === 1 ? 'up' : 'down'
               node.startDimStopper(dimDirection)
             } else {
               node.startDimStopper('stop')
@@ -67,8 +66,7 @@ module.exports = function (RED) {
               // { decr_incr: 0, data: 1 } : Start decreasing until { decr_incr: 0, data: 0 } is received.
               msg.payload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightHSV))
               if (msg.payload.data > 0) {
-                let dimDirectionTunableWhite = 'down'
-                dimDirectionTunableWhite = msg.payload.decr_incr === 1 ? 'up' : 'down'
+                let dimDirectionTunableWhite = msg.payload.decr_incr === 1 ? 'up' : 'down'
                 node.startDimStopperTunableWhite(dimDirectionTunableWhite)
               } else {
                 node.startDimStopperTunableWhite('stop')
@@ -203,7 +201,7 @@ module.exports = function (RED) {
             knxMsgPayload.dpt = config.dptLightBrightnessState
             knxMsgPayload.payload = _event.on.on === true ? 100 : 0
             // Send to KNX bus
-            if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.server.writeQueueAdd({ grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
+            //if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.server.writeQueueAdd({ grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
           }
           if (_event.hasOwnProperty('color')) {
             knxMsgPayload.topic = config.GALightColorState
@@ -229,9 +227,10 @@ module.exports = function (RED) {
             knxMsgPayload.topic = config.GALightHSVState
             knxMsgPayload.dpt = config.dptLightHSVState
             if (config.dptLightHSVState === '5.001') {
+              const retPercent = hueColorConverter.ColorConverter.scale(_event.color_temperature.mirek, [153, 500], [0, 100])
               //NewValue = (((OldValue - OldMin) * (NewMax - NewMin)) / (OldMax - OldMin)) + NewMin
-              let NewValue = (((_event.color_temperature.mirek - 153) * (100 - 0)) / (500 - 153)) + 0
-              knxMsgPayload.payload = NewValue
+              //let NewValue = 100 - ((((_event.color_temperature.mirek - 153) * (100 - 0)) / (500 - 153)) + 0)
+              knxMsgPayload.payload = 100 - retPercent
             }
             // Send to KNX bus
             if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.server.writeQueueAdd({ grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
