@@ -99,7 +99,7 @@ return msg;`,
     res.json(jRet)
   })
 
-  function knxUltimateConfigNode (config) {
+  function knxUltimateConfigNode(config) {
     RED.nodes.createNode(this, config)
     const node = this
     node.host = config.host
@@ -170,7 +170,7 @@ return msg;`,
     }
 
     node.setAllClientsStatus = (_status, _color, _text) => {
-      function nextStatus (_oClient) {
+      function nextStatus(_oClient) {
         let oClient = RED.nodes.getNode(_oClient.id)
         oClient.setNodeStatus({ fill: _color, shape: 'dot', text: _status + ' ' + _text, payload: '', GA: oClient.topic, dpt: '', devicename: '' })
         oClient = null
@@ -216,7 +216,7 @@ return msg;`,
     // 04/04/2021 Supergiovane, creates the service paths where the persistent files are created.
     // The values file is stored only upon disconnection/close
     // ************************
-    function setupDirectory (_aPath) {
+    function setupDirectory(_aPath) {
       if (!fs.existsSync(_aPath)) {
         // Create the path
         try {
@@ -236,7 +236,7 @@ return msg;`,
       if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info('KNXUltimate-config: payload cache set to ' + path.join(node.userDir, 'knxpersistvalues'))
     }
 
-    function saveExposedGAs () {
+    function saveExposedGAs() {
       const sFile = path.join(node.userDir, 'knxpersistvalues', 'knxpersist' + node.id + '.json')
       try {
         if (node.exposedGAs.length > 0) {
@@ -247,7 +247,7 @@ return msg;`,
         if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error('KNXUltimate-config: unable to write peristent values to the file ' + sFile + ' ' + err.message)
       }
     }
-    function loadExposedGAs () {
+    function loadExposedGAs() {
       const sFile = path.join(node.userDir, 'knxpersistvalues', 'knxpersist' + node.id + '.json')
       try {
         node.exposedGAs = JSON.parse(fs.readFileSync(sFile, 'utf8'))
@@ -262,6 +262,10 @@ return msg;`,
     // Endpoint for connecting to HUE Bridge
     RED.httpAdmin.get('/KNXUltimateRegisterToHueBridge', RED.auth.needsPermission('knxUltimate-config.read'), function (req, res) {
       try {
+        if (typeof req.query.nodeID !== 'undefined' && req.query.nodeID !== null && req.query.nodeID !== '') {
+          const _node = RED.nodes.getNode(req.query.nodeID)// Retrieve node.id of the config node.
+          if (_node !== null) res.json(RED.nodes.getNode(_node.id).csv)
+        }
         (async () => {
           try {
             // °°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
@@ -272,20 +276,21 @@ return msg;`,
             const appName = 'KNXUltimate'
             const deviceName = 'Node-Red'
 
-            async function discoverBridge () {
-              const discoveryResults = await discovery.nupnpSearch()
+            // async function discoverBridge() {
+            //   const discoveryResults = await discovery.nupnpSearch()
 
-              if (discoveryResults.length === 0) {
-                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error('Failed to resolve any Hue Bridges')
-                return null
-              } else {
-                // Ignoring that you could have more than one Hue Bridge on a network as this is unlikely in 99.9% of users situations
-                return discoveryResults[0].ipaddress
-              }
-            }
+            //   if (discoveryResults.length === 0) {
+            //     if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error('Failed to resolve any Hue Bridges')
+            //     return null
+            //   } else {
+            //     // Ignoring that you could have more than one Hue Bridge on a network as this is unlikely in 99.9% of users situations
+            //     return discoveryResults[0].ipaddress
+            //   }
+            // }
 
-            async function discoverAndCreateUser () {
-              const ipAddress = await discoverBridge()
+            async function discoverAndCreateUser() {
+              // const ipAddress = await discoverBridge()
+              const ipAddress = req.query.IP
 
               // Create an unauthenticated instance of the Hue API so that we can create a new user
               const unauthenticatedApi = await hueApi.createLocal(ipAddress).connect()
@@ -533,7 +538,7 @@ return msg;`,
     }
 
     // 17/02/2020 Do initial read (called by node.timerDoInitialRead timer)
-    function DoInitialReadFromKNXBusOrFile () {
+    function DoInitialReadFromKNXBusOrFile() {
       if (node.linkStatus !== 'connected') return // 29/08/2019 If not connected, exit
       loadExposedGAs() // 04/04/2021 load the current values of GA payload
       try {
@@ -893,7 +898,7 @@ return msg;`,
 
     // Handle BUS events
     // ---------------------------------------------------------------------------------------
-    function handleBusEvents (_datagram, _echoed) {
+    function handleBusEvents(_datagram, _echoed) {
       // console.time('handleBusEvents');
 
       let _rawValue = null
@@ -1161,7 +1166,7 @@ return msg;`,
       node.telegramsQueue.unshift(_clonedMessage) // Add _clonedMessage as first in the queue pile
     }
 
-    function handleTelegramQueue () {
+    function handleTelegramQueue() {
       if (node.knxConnection !== null || node.host.toUpperCase() === 'EMULATE') {
         if (node.lockHandleTelegramQueue === true) return // Exits if the funtion is busy
         node.lockHandleTelegramQueue = true // Lock the function. It cannot be called again until finished.
@@ -1310,14 +1315,14 @@ return msg;`,
     }
 
     // 14/08/2019 If the node has payload same as the received telegram, return false
-    function checkRBEInputFromKNXBusAllowSend (_node, _KNXTelegramPayload) {
+    function checkRBEInputFromKNXBusAllowSend(_node, _KNXTelegramPayload) {
       if (_node.inputRBE !== true) return true
 
       return !_.isEqual(_node.currentPayload, _KNXTelegramPayload)
     }
 
     // 26/10/2019 Try to figure out the datapoint type from raw value
-    function tryToFigureOutDataPointFromRawValue (_rawValue) {
+    function tryToFigureOutDataPointFromRawValue(_rawValue) {
       // 25/10/2019 Try some Datapoints
       if (_rawValue === null) return '1.001'
       if (_rawValue.length === 1) {
@@ -1363,7 +1368,7 @@ return msg;`,
       }
     }
 
-    function buildInputMessage ({ _srcGA, _destGA, _event, _Rawvalue, _inputDpt, _devicename, _outputtopic, _oNode }) {
+    function buildInputMessage({ _srcGA, _destGA, _event, _Rawvalue, _inputDpt, _devicename, _outputtopic, _oNode }) {
       let sPayloadmeasureunit = 'unknown'
       let sDptdesc = 'unknown'
       let sPayloadsubtypevalue = 'unknown'
@@ -1470,7 +1475,7 @@ return msg;`,
       }
     };
 
-    function readCSV (_csvText) {
+    function readCSV(_csvText) {
       // 26/05/2023 check if the text is a file path
       if (_csvText.toUpperCase().includes('.CSV') || _csvText.toUpperCase().includes('.ESF')) {
         // I'ts a file. Read it now and pass to the _csvText
@@ -1564,7 +1569,7 @@ return msg;`,
       }
     }
 
-    function readESF (_esfText) {
+    function readESF(_esfText) {
       // 24/02/2020 must do an EIS to DPT conversion.
       // https://www.loxone.com/dede/kb/eibknx-datentypen/
       // Format: Attuatori luci.Luci primo piano.0/0/1	Luce camera da letto	EIS 1 'Switching' (1 Bit)	Low
@@ -1648,7 +1653,7 @@ return msg;`,
     }
 
     // 23/08/2019 Delete unwanted CRLF in the GA description
-    function correctCRLFInCSV (_csv) {
+    function correctCRLFInCSV(_csv) {
       let sOut = '' // fixed output text to return
       let sChar = ''
       let bStart = false
@@ -1681,7 +1686,7 @@ return msg;`,
     }
 
     // 26/02/2021 Used to send the messages if the node gateway is in EMULATION mode
-    function sendEmulatedTelegram (_msg) {
+    function sendEmulatedTelegram(_msg) {
       // INPUT IS
       // _msg = {
       //     grpaddr: '5/0/1',

@@ -245,20 +245,20 @@ class classHUE extends EventEmitter {
   }
 
   // Get the light details
-  getLightStatus = async (_rid) => { 
+  getLightStatus = async (_rid) => {
     try {
       const hue = hueApiV2.connect({ host: this.hueBridgeIP, key: this.username })
       const oLight = await hue.getLight(_rid)
       return oLight[0]
-    } catch (error) {      
-    }    
+    } catch (error) {
+    }
   }
 
   close = async () => {
     return new Promise((resolve, reject) => {
       try {
         this.closePushEventStream = true
-        this.es.close();
+        if (this.es !== null) this.es.close();
         this.es = null;
         setTimeout(() => {
           resolve(true)

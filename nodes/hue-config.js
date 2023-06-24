@@ -51,7 +51,7 @@ module.exports = (RED) => {
     res.json(dpts)
   })
 
-  function hueConfig (config) {
+  function hueConfig(config) {
     RED.nodes.createNode(this, config)
     const node = this
     node.host = config.host
@@ -124,9 +124,12 @@ module.exports = (RED) => {
         node.nodeClients = []
         node.hueManager.removeAllListeners();
         (async () => {
-          await node.hueManager.close()
-          node.hueManager = null
-          delete node.hueManager
+          try {
+            await node.hueManager.close()
+            node.hueManager = null
+            delete node.hueManager
+          } catch (error) {
+          }
           done()
         })()
       } catch (error) {

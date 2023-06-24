@@ -7,6 +7,10 @@
 # CHANGELOG
 
 <p>
+<b>Version 2.1.15</b> - June 2023<br/>
+- Fix an issue with auto discovery of not registered HUE bridges. Now you must first set the IP, then click CONNECT.<br/>
+</p>
+<p>
 <b>Version 2.1.14</b> - June 2023<br/>
 - Hue Light node: added day/night behaviour.<br/>
 </p>
