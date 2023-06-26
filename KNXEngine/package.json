@@ -35,20 +35,17 @@
   ],
   "dependencies": {
     "fs": "0.0.1-security",
-    "mkdirp": "^0.5.1",
+    "mkdirp": "3.0.1",
     "os": "0.1.1",
-    "ping": "0.4.1",
-    "@types/node": "^6.14.4",
-    "binary-parser": "1.1.5",
-    "binary-protocol": "0.0.0",
-    "ipaddr.js": "2.0.0",
+    "ping": "0.4.4",
+    "@types/node": "20.3.1",
+    "binary-parser": "2.2.1",
+    "ipaddr.js": "2.1.0",
     "log-driver": "1.2.7",
     "lodash": "4.17.21",
-    "caller-id": "^0.1.0",
     "path": "0.12.7",
     "crypto-js": "4.1.1",
-    "xml2js": "0.5.0",
-    "aes-cbc-mac": "1.0.1"
+    "xml2js": "0.6.0"
   },
   "devDependencies": {}
 }
