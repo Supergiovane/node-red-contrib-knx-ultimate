@@ -133,7 +133,7 @@ class KNXClient extends EventEmitter {
       let conn = this
       this._clientSocket.bind({ address: this._options.localIPAddress, port: this._options._peerPort }, function () {
         try {
-          conn._clientSocket.setTTL(128)
+          conn._clientSocket.setTTL(250)
         } catch (error) {
           if (conn.sysLogger !== undefined && conn.sysLogger !== null) conn.sysLogger.error('UDP:  Error setting SetTTL ' + error.message || '')
         }
@@ -161,7 +161,7 @@ class KNXClient extends EventEmitter {
       this._clientSocket.on(SocketEvents.close, info => this.emit(KNXClientEvents.close, info))
       this._clientSocket.bind(this._peerPort, function () {
         try {
-          conn._clientSocket.setMulticastTTL(128)
+          conn._clientSocket.setMulticastTTL(250)
           conn._clientSocket.setMulticastInterface(conn._options.localIPAddress)
         } catch (error) {
           if (conn.sysLogger !== undefined && conn.sysLogger !== null) conn.sysLogger.error('Multicast: Error setting SetTTL ' + error.message || '')
@@ -330,13 +330,13 @@ class KNXClient extends EventEmitter {
     const srcAddress = this._options.physAddr
 
     if (this._options.hostProtocol === 'Multicast') {
-      // Multicast
+      // Multicast. 
       const cEMIMessage = CEMIFactory.CEMIFactory.newLDataIndicationMessage('write', srcAddress, dstAddress, data)
       cEMIMessage.control.ack = 0
       cEMIMessage.control.broadcast = 1
       cEMIMessage.control.priority = 3
       cEMIMessage.control.addressType = 1
-      cEMIMessage.control.hopCount = 6
+      cEMIMessage.control.hopCount = 6 // i telegrammi multicast vengono inviati con numero di hop = 6
       const knxPacketRequest = KNXProtocol.KNXProtocol.newKNXRoutingIndication(cEMIMessage)
       this.send(knxPacketRequest)
       // 06/12/2021 Multivast automaticalli echoes telegrams
@@ -348,7 +348,7 @@ class KNXClient extends EventEmitter {
       cEMIMessage.control.broadcast = 1
       cEMIMessage.control.priority = 3
       cEMIMessage.control.addressType = 1
-      cEMIMessage.control.hopCount = 6
+      cEMIMessage.control.hopCount = 7 // i telegrammi unicast e broadcast vengono inviati con numero di hop = 7
       const seqNum = this._incSeqNumber() // 26/12/2021
       const knxPacketRequest = KNXProtocol.KNXProtocol.newKNXTunnelingRequest(this._channelID, seqNum, cEMIMessage)
       if (!this._options.suppress_ack_ldatareq) this._setTimerWaitingForACK(knxPacketRequest)

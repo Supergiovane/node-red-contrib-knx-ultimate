@@ -1,7 +1,7 @@
 {
   "name": "knxultimate",
   "description": "KNX IP protocol implementation for Node. This is the ENGINE of Node-Red KNX-Ultimate node.",
-  "version": "1.0.36",
+  "version": "1.0.38",
   "engines": {
     "node": ">=14"
   },

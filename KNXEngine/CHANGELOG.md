@@ -7,6 +7,16 @@
 # CHANGELOG
 
 <p>
+<b>Version 1.0.38</b> - June 2023<br/>
+- Bump dependencies versions.<br/>
+- Increased TTL of dgram socket, from 128 to 250.<br/>
+- Set max hop count in tunneling/broadcast, from 6 to 7.<br/>
+<p>
+<p>
+<b>Version 1.0.37</b> - June 2023<br/>
+- Dependencies versions bump.<br/>
+</p>
+<p>
 <b>Version 1.0.36</b> - June 2023<br/>
 - Some internal changes due to integration with NOde-Red node.<br/>
 </p>

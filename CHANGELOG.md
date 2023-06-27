@@ -7,6 +7,11 @@
 # CHANGELOG
 
 <p>
+<b>Version 2.1.16</b> - June 2023<br/>
+- Bump dependencies versions.<br/>
+- Increased TTL of dgram socket, from 128 to 250.<br/>
+- Set max hop count in tunneling/broadcast, from 6 to 7.<br/>
+<p>
 <b>Version 2.1.15</b> - June 2023<br/>
 - Fix an issue with auto discovery of not registered HUE bridges. Now you must first set the IP, then click CONNECT.<br/>
 </p>
