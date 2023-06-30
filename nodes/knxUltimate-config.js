@@ -718,34 +718,33 @@ return msg;`,
         localIPAddress: '' // Riempito da KNXEngine
       }
       // 11/07/2022 Test if the IP is a valid one or is a DNS Name
-      if (node.host.toUpperCase() !== 'EMULATE') {
-        switch (net.isIP(node.host)) {
-          case 0:
-            // Invalid IP, resolve the DNS name.
-            const dns = require('dns-sync')
-            let resolvedIP = null
-            try {
-              resolvedIP = dns.resolve(node.host)
-            } catch (error) {
-              throw new Error('net.isIP: INVALID IP OR DNS NAME. Error checking the Gateway Host in Config node. ' + error.message)
-            }
-            if (resolvedIP === null || net.isIP(resolvedIP) === 0) {
-              // Error in resolving DNS Name
-              if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error('knxUltimate-config: net.isIP: INVALID IP OR DNS NAME. Check the Gateway Host in Config node ' + node.name + ' ' + node.host)
-              throw new Error('net.isIP: INVALID IP OR DNS NAME. Check the Gateway Host in Config node.')
-            }
-            if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info('knxUltimate-config: net.isIP: The gateway is not specified as IP. The DNS resolver pointed me to the IP ' + node.host + ', in Config node ' + node.name)
-            node.knxConnectionProperties.ipAddr = resolvedIP
-          case 4:
-            // It's an IPv4
-            break
-          case 6:
-            // It's an IPv6
-            break
-          default:
-            break
-        }
+      switch (net.isIP(node.host)) {
+        case 0:
+          // Invalid IP, resolve the DNS name.
+          const dns = require('dns-sync')
+          let resolvedIP = null
+          try {
+            resolvedIP = dns.resolve(node.host)
+          } catch (error) {
+            throw new Error('net.isIP: INVALID IP OR DNS NAME. Error checking the Gateway Host in Config node. ' + error.message)
+          }
+          if (resolvedIP === null || net.isIP(resolvedIP) === 0) {
+            // Error in resolving DNS Name
+            if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error('knxUltimate-config: net.isIP: INVALID IP OR DNS NAME. Check the Gateway Host in Config node ' + node.name + ' ' + node.host)
+            throw new Error('net.isIP: INVALID IP OR DNS NAME. Check the Gateway Host in Config node.')
+          }
+          if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info('knxUltimate-config: net.isIP: The gateway is not specified as IP. The DNS resolver pointed me to the IP ' + node.host + ', in Config node ' + node.name)
+          node.knxConnectionProperties.ipAddr = resolvedIP
+        case 4:
+          // It's an IPv4
+          break
+        case 6:
+          // It's an IPv6
+          break
+        default:
+          break
       }
+
 
       if (node.KNXEthInterface !== 'Auto') {
         let sIfaceName = ''
@@ -790,18 +789,6 @@ return msg;`,
         } catch (error) { }
       }
 
-      // 26/01/2021 Emulation mode
-      if (node.host.toUpperCase() === 'EMULATE') {
-        node.knxConnection = true // Must not be null
-        node.telegramsQueue = [] // 01/10/2020 Supergiovane: clear the telegram queue
-        node.linkStatus = 'connected'
-        node.setAllClientsStatus('Emulation', 'green', 'Waiting for telegram.')
-        // Start the timer to do initial read.
-        if (node.timerDoInitialRead !== null) clearTimeout(node.timerDoInitialRead)
-        node.timerDoInitialRead = setTimeout(DoInitialReadFromKNXBusOrFile, 3000) // 17/02/2020 Do initial read of all nodes requesting initial read, after all nodes have been registered to the sercer
-        return
-      }
-
       try {
         // 02/01/2022 This is important to free the tunnel in case of hard disconnection.
         node.Disconnect()
@@ -820,6 +807,7 @@ return msg;`,
           if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info('BANANA ERRORINO', error)
         }
 
+        //node.knxConnectionProperties.localSocketAddress = { address: '192.168.2.2', port: 59000 }
         node.knxConnection = new knx.KNXClient(node.knxConnectionProperties)
 
         // Setting handlers
@@ -889,7 +877,10 @@ return msg;`,
           throw (error)
         }
       } catch (error) {
-        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error('KNXUltimate-config: Error in instantiating knxConnection ' + error.message + ' Node ' + node.name)
+        if (node.sysLogger !== undefined && node.sysLogger !== null) {
+          node.sysLogger.error('KNXUltimate-config: Error in instantiating knxConnection ' + error.message + ' Node ' + node.name)
+          node.error('KNXUltimate-config: Error in instantiating knxConnection ' + error.message + ' Node ' + node.name)
+        }
         node.linkStatus = 'disconnected'
         // 21/03/2022 fixed possible memory leak. Previously was setTimeout without "let t = ".
         const t = setTimeout(() => node.setAllClientsStatus('Error in instantiating knxConnection ' + error.message, 'red', 'Error'), 200)
@@ -1167,7 +1158,7 @@ return msg;`,
     }
 
     function handleTelegramQueue() {
-      if (node.knxConnection !== null || node.host.toUpperCase() === 'EMULATE') {
+      if (node.knxConnection !== null) {
         if (node.lockHandleTelegramQueue === true) return // Exits if the funtion is busy
         node.lockHandleTelegramQueue = true // Lock the function. It cannot be called again until finished.
 
@@ -1178,14 +1169,12 @@ return msg;`,
         }
 
         // 26/12/2021 If the KNXEngine is busy waiting for telegram's ACK, exit
-        if (node.host.toUpperCase() !== 'EMULATE') {
-          if (!node.knxConnection._getClearToSend()) {
-            node.lockHandleTelegramQueue = false // Unlock the function
-            if (node.telegramsQueue.length > 0) {
-              if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.warn('knxUltimate-config: handleTelegramQueue: the KNXEngine is busy or is waiting for a telegram ACK with seqNumner ' + node.knxConnection._getSeqNumber() + '. Delay handling queue.')
-            }
-            return
+        if (!node.knxConnection._getClearToSend()) {
+          node.lockHandleTelegramQueue = false // Unlock the function
+          if (node.telegramsQueue.length > 0) {
+            if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.warn('knxUltimate-config: handleTelegramQueue: the KNXEngine is busy or is waiting for a telegram ACK with seqNumner ' + node.knxConnection._getSeqNumber() + '. Delay handling queue.')
           }
+          return
         }
 
         // Retrieving oKNXMessage  { grpaddr, payload,dpt,outputtype (write or response),nodecallerid (node caller)}. 06/03/2020 "Read" request does have the lower priority in the queue, so firstly, i search for "read" telegrams and i move it on the top of the queue pile.
@@ -1213,12 +1202,7 @@ return msg;`,
 
         if (oKNXMessage.outputtype === 'response') {
           try {
-            if (node.host.toUpperCase() === 'EMULATE') {
-              // The gateway is in EMULATION mode
-              sendEmulatedTelegram(oKNXMessage)
-            } else {
-              node.knxConnection.respond(oKNXMessage.grpaddr, oKNXMessage.payload, oKNXMessage.dpt)
-            }
+            node.knxConnection.respond(oKNXMessage.grpaddr, oKNXMessage.payload, oKNXMessage.dpt)
           } catch (error) {
             try {
               const oNode = RED.nodes.getNode(oKNXMessage.nodecallerid) // 05/04/2022 Get the real node
@@ -1227,12 +1211,7 @@ return msg;`,
           }
         } else if (oKNXMessage.outputtype === 'read') {
           try {
-            if (node.host.toUpperCase() === 'EMULATE') {
-              // The gateway is in EMULATION mode
-              sendEmulatedTelegram(oKNXMessage)
-            } else {
-              node.knxConnection.read(oKNXMessage.grpaddr)
-            }
+            node.knxConnection.read(oKNXMessage.grpaddr)
           } catch (error) { }
         } else if (oKNXMessage.outputtype === 'update') {
           // 05/01/2021 Update don't send anything to the bus, but instead updates the values of all nodes belonging to the group address passed
@@ -1289,12 +1268,7 @@ return msg;`,
         } else {
           // Write
           try {
-            if (node.host.toUpperCase() === 'EMULATE') {
-              // The gateway is in EMULATION mode
-              sendEmulatedTelegram(oKNXMessage)
-            } else {
-              node.knxConnection.write(oKNXMessage.grpaddr, oKNXMessage.payload, oKNXMessage.dpt)
-            }
+            node.knxConnection.write(oKNXMessage.grpaddr, oKNXMessage.payload, oKNXMessage.dpt)
           } catch (error) {
             try {
               const oNode = RED.nodes.getNode(oKNXMessage.nodecallerid) // 05/04/2022 Get the real node
@@ -1685,98 +1659,6 @@ return msg;`,
       return sOut
     }
 
-    // 26/02/2021 Used to send the messages if the node gateway is in EMULATION mode
-    function sendEmulatedTelegram(_msg) {
-      // INPUT IS
-      // _msg = {
-      //     grpaddr: '5/0/1',
-      //     payload: true,
-      //     dpt: '1.001'
-      //   }
-
-      // OUTPUT MUST BE:
-      // {
-      //     "topic": "2/4/3",
-      //     "payload": 0,
-      //     "devicename": "",
-      //     "payloadmeasureunit": "W",
-      //     "payloadsubtypevalue": "unknown",
-      //     "knx": {
-      //       "event": "GroupValue_Write",
-      //       "dpt": "14.056",
-      //       "dptdesc": "DPT_Value_Power",
-      //       "source": "1.1.53",
-      //       "destination": "2/4/3",
-      //       "rawValue": [
-      //         0,
-      //         0,
-      //         0,
-      //         0
-      //       ]
-      //     },
-      //     "_msgid": "c5e3a9f1.ced418"
-      //   }
-
-      try {
-        // Complete the properties mancanti
-        let sEvent = 'GroupValue_Write'
-        if (_msg.outputtype === 'write') sEvent = 'GroupValue_Write'
-        if (_msg.outputtype === 'response') sEvent = 'GroupValue_Response'
-        if (_msg.outputtype === 'read') sEvent = 'GroupValue_Read'
-
-        node.nodeClients.forEach(_input => {
-          const input = RED.nodes.getNode(_input.id) // 05/04/2022 Get the real node
-
-          // 19/03/2020 in the middle of coronavirus. Whole italy is red zone, closed down. Scene Controller implementation
-          if (input.hasOwnProperty('isSceneController')) {
-
-          } else if (input.hasOwnProperty('isLogger')) { // 26/03/2020 Coronavirus is slightly decreasing the affected numer of people. Logger Node
-
-          } else if (input.listenallga === true) {
-            // Get the DPT
-            let oGA
-            try {
-              oGA = node.csv.filter(sga => sga.ga == _msg.grpaddr)[0]
-            } catch (error) { }
-
-            const msg = {
-              topic: _msg.grpaddr, // input.topic,
-              devicename: (typeof oGA === 'undefined') ? input.name || '' : oGA.devicename,
-              payload: _msg.payload,
-              knx: { event: sEvent, dpt: _msg.dpt, destination: _msg.grpaddr },
-              emulated: true
-            }
-
-            input.setNodeStatus({ fill: 'green', shape: 'ring', text: 'Emulated', payload: msg.payload, GA: input.topic, dpt: input.dpt, devicename: '' })
-            input.handleSend(msg)
-          } else if (input.topic == _msg.grpaddr) {
-            if (input.hasOwnProperty('isWatchDog')) { // 04/02/2020 Watchdog implementation
-              // Is a watchdog node
-
-            } else {
-              const msg = {
-                topic: input.outputtopic,
-                devicename: input.name ? input.name : '',
-                payload: _msg.payload,
-                knx: { event: sEvent, dpt: _msg.dpt, destination: _msg.grpaddr },
-                emulated: true
-              }
-
-              // Check RBE INPUT from KNX Bus, to avoid send the payload to the flow, if it's equal to the current payload
-              if (!checkRBEInputFromKNXBusAllowSend(input, msg.payload)) {
-                input.setNodeStatus({ fill: 'grey', shape: 'ring', text: 'rbe block (' + msg.payload + ') from KNX', payload: '', GA: '', dpt: '', devicename: '' })
-                return
-              };
-
-              msg.previouspayload = typeof input.currentPayload !== 'undefined' ? input.currentPayload : '' // 24/01/2020 Added previous payload
-              input.currentPayload = msg.payload// Set the current value for the RBE input
-              input.setNodeStatus({ fill: 'green', shape: 'ring', text: 'Emulated', payload: msg.payload, GA: input.topic, dpt: input.dpt, devicename: '' })
-              input.handleSend(msg)
-            };
-          };
-        })
-      } catch (error) { }
-    }
 
     // 08/10/2021 Every xx seconds, i check if the connection is up and running
     if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info('KNXUltimate-config: Autoconnection: ' + (node.autoReconnect === false ? 'no.' : 'yes') + ' Node ' + node.name)

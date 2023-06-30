@@ -90,12 +90,20 @@ class KNXClient extends EventEmitter {
     }
 
     super()
+
+    //this._clientTunnelSeqNumber = -1
+    this._channelID = null
+    this._connectionState = STATE.DISCONNECTED
+    this._timerWaitingForACK = null
+    this._numFailedTelegramACK = 0 // 25/12/2021 Keep count of the failed tunnelig ACK telegrams
+
     this._clientTunnelSeqNumber = -1
     this._options = options// Object.assign(optionsDefaults, options);
     this._options.connectionKeepAliveTimeout = KNXConstants.KNX_CONSTANTS.CONNECTION_ALIVE_TIME
     // this._localPort = null;
     this._peerHost = this._options.ipAddr
     this._peerPort = this._options.ipPort
+    this._options.localSocketAddress = options.localSocketAddress
     this._connectionTimeoutTimer = null
     this._heartbeatFailures = 0
     this.max_HeartbeatFailures = 3
@@ -125,20 +133,21 @@ class KNXClient extends EventEmitter {
     this.removeAllListeners()
     // 07/12/2021 Based on protocol instantiate the right socket
     if (this._options.hostProtocol === 'TunnelUDP') {
+      let conn = this
       this._clientSocket = dgram.createSocket({ type: 'udp4', reuseAddr: false })
       this._clientSocket.removeAllListeners() // 12/03/2022 Remove all listeners
-      this._clientSocket.on(SocketEvents.message, this._processInboundMessage)
-      this._clientSocket.on(SocketEvents.error, error => this.emit(KNXClientEvents.error, error))
-      this._clientSocket.on(SocketEvents.close, info => this.emit(KNXClientEvents.close, info))
-      let conn = this
-      this._clientSocket.bind({ address: this._options.localIPAddress, port: this._options._peerPort }, function () {
+      this._clientSocket.bind({ port: null, address: this._options.localIPAddress }, function () {
         try {
           conn._clientSocket.setTTL(250)
+        if (conn._options.localSocketAddress === undefined) conn._options.localSocketAddress = conn._clientSocket.address()
         } catch (error) {
           if (conn.sysLogger !== undefined && conn.sysLogger !== null) conn.sysLogger.error('UDP:  Error setting SetTTL ' + error.message || '')
         }
         conn = null
       })
+      this._clientSocket.on(SocketEvents.message, this._processInboundMessage)
+      this._clientSocket.on(SocketEvents.error, error => this.emit(KNXClientEvents.error, error))
+      this._clientSocket.on(SocketEvents.close, info => this.emit(KNXClientEvents.close, info))
     } else if (this._options.hostProtocol === 'TunnelTCP') {
       // TCP
       this._clientSocket = new net.Socket()
@@ -177,15 +186,10 @@ class KNXClient extends EventEmitter {
           return
         }
         conn = null
-        // this._localPort = this._clientSocket.address().port;// 07/12/2021 Get the local port used bu the socket
       })
     }
 
-    this._clientTunnelSeqNumber = -1
-    this._channelID = null
-    this._connectionState = STATE.DISCONNECTED
-    this._timerWaitingForACK = null
-    this._numFailedTelegramACK = 0 // 25/12/2021 Keep count of the failed tunnelig ACK telegrams
+
   }
 
   get channelID() {
@@ -238,21 +242,6 @@ class KNXClient extends EventEmitter {
     return new KNXDataBuffer(adpu.data, IDataPoint)
   }
 
-  // bindSocketPortAsync(port = KNXConstants.KNX_CONSTANTS.KNX_PORT, host = '0.0.0.0') {
-  //     return new Promise((resolve, reject) => {
-  //         try {
-  //             this._clientSocket.bind(port, host, () => {
-  //                 this._clientSocket.setMulticastInterface(host);
-  //                 this._clientSocket.setMulticastTTL(128);
-  //                 this._options.localIPAddress = host;
-  //                 resolve();
-  //             });
-  //         }
-  //         catch (err) {
-  //             reject(err);
-  //         }
-  //     });
-  // }
   send(knxPacket) {
     // Logging
     if (this.sysLogger !== undefined && this.sysLogger !== null) {
@@ -579,7 +568,11 @@ class KNXClient extends EventEmitter {
       this._awaitingResponseType = KNXConstants.KNX_CONSTANTS.CONNECT_RESPONSE
       this._clientTunnelSeqNumber = -1
       try {
-        this._sendConnectRequestMessage(new TunnelCRI.TunnelCRI(knxLayer))
+        // 27/06/2023, leave some time to the dgram, do do the bind and read local ip and local port
+        const t = setTimeout(() => {
+          this._sendConnectRequestMessage(new TunnelCRI.TunnelCRI(knxLayer))
+        }, 2000);
+
       } catch (error) { }
     } else if (this._options.hostProtocol === 'TunnelTCP') {
       // TCP
@@ -811,11 +804,12 @@ class KNXClient extends EventEmitter {
 
           // 16/03/2022
           if (this._timerWaitingForACK !== null) clearTimeout(this._timerWaitingForACK)
+
+          this._channelID = knxConnectResponse.channelID
+          this._connectionState = STATE.CONNECTED
           this._numFailedTelegramACK = 0 // 16/03/2022 Reset the failed ACK counter
           this._clearToSend = true // 16/03/2022 allow to send
 
-          this._connectionState = STATE.CONNECTED
-          this._channelID = knxConnectResponse.channelID
           try {
             if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.debug('Received KNX packet: CONNECT_RESPONSE, ChannelID:' + this._channelID + ' Host:' + this._options.ipAddr + ':' + this._options.ipPort)
           } catch (error) { }
@@ -1007,15 +1001,33 @@ class KNXClient extends EventEmitter {
   }
 
   _sendConnectRequestMessage(cri) {
-    this.send(KNXProtocol.KNXProtocol.newKNXConnectRequest(cri))
+    try {
+      const oHPAI = new HPAI.HPAI(this._options.localSocketAddress.address, this._options.localSocketAddress.port, this._options.hostProtocol === 'TunnelTCP' ? KNXConstants.KNX_CONSTANTS.IPV4_TCP : KNXConstants.KNX_CONSTANTS.IPV4_UDP)
+      this.send(KNXProtocol.KNXProtocol.newKNXConnectRequest(cri, oHPAI, oHPAI))
+    } catch (error) {
+      this.send(KNXProtocol.KNXProtocol.newKNXConnectRequest(cri))
+    }
+    // this.send(KNXProtocol.KNXProtocol.newKNXConnectRequest(cri))
   }
 
   _sendConnectionStateRequestMessage(channelID) {
-    this.send(KNXProtocol.KNXProtocol.newKNXConnectionStateRequest(channelID))
+    try {
+      const oHPAI = new HPAI.HPAI(this._options.localSocketAddress.address, this._options.localSocketAddress.port, this._options.hostProtocol === 'TunnelTCP' ? KNXConstants.KNX_CONSTANTS.IPV4_TCP : KNXConstants.KNX_CONSTANTS.IPV4_UDP)
+      this.send(KNXProtocol.KNXProtocol.newKNXConnectionStateRequest(channelID, oHPAI))
+    } catch (error) {
+      this.send(KNXProtocol.KNXProtocol.newKNXConnectionStateRequest(channelID))
+    }
+    //this.send(KNXProtocol.KNXProtocol.newKNXConnectionStateRequest(channelID))
   }
 
   _sendDisconnectRequestMessage(channelID) {
-    this.send(KNXProtocol.KNXProtocol.newKNXDisconnectRequest(channelID))
+    try {
+      const oHPAI = new HPAI.HPAI(this._options.localSocketAddress.address, this._options.localSocketAddress.port, this._options.hostProtocol === 'TunnelTCP' ? KNXConstants.KNX_CONSTANTS.IPV4_TCP : KNXConstants.KNX_CONSTANTS.IPV4_UDP)
+      this.send(KNXProtocol.KNXProtocol.newKNXDisconnectRequest(channelID, oHPAI))
+    } catch (error) {
+      this.send(KNXProtocol.KNXProtocol.newKNXDisconnectRequest(channelID))
+    }
+    //this.send(KNXProtocol.KNXProtocol.newKNXDisconnectRequest(channelID))
   }
 
   _sendDisconnectResponseMessage(channelID, status = KNXConstants.ConnectionStatus.E_NO_ERROR) {

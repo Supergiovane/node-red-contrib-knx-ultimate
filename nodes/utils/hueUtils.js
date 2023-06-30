@@ -185,6 +185,29 @@ class classHUE extends EventEmitter {
             console.log('KNXUltimateHUEConfig: classHUE: handleQueue: getLight: ' + error.message)
           }
           break
+        case 'setScene':
+          try {
+            const hue = hueApiV2.connect({ host: this.hueBridgeIP, key: this.username })
+            const sceneID = jRet._lightID
+            const ok = await hue.setScene(sceneID, jRet._state)
+          } catch (error) {
+            console.log('KNXUltimateHUEConfig: classHUE: handleQueue: setScene: ' + error.message)
+          }
+          break
+        case 'stopScene':
+          try {
+            const hue = hueApiV2.connect({ host: this.hueBridgeIP, key: this.username })
+            const allResources = await hue.getResources()
+            const sceneID = jRet._lightID
+            const jScene = allResources.find(res => res.id === sceneID) || ''
+            const linkedLight = allResources.find(res => res.id === jScene.group.rid).children || ''
+            linkedLight.forEach(light => {
+              this.writeHueQueueAdd(light.rid, jRet._state, 'setLight')
+            });     
+          } catch (error) {
+            console.log('KNXUltimateHUEConfig: classHUE: handleQueue: stopScene: ' + error.message)
+          }
+          break
         default:
           break
       }
@@ -207,34 +230,33 @@ class classHUE extends EventEmitter {
       const allResources = await hue.getResources()
       const allRooms = await hue.getRooms()
       const newArray = allResources.filter(x => x.type === _rtype)
-      // Add room name to the device name
-      newArray.forEach(device => {
-        // const Room = allRooms.find(room => {
-        //   return room.children.find(child => child.rid === device.id)
-        // })
-        const Room = allRooms.find(room => room.children.find(child => child.rid === device.owner.rid))
-        const linkedDevName = allResources.find(dev => dev.type === 'device' && dev.services.find(serv => serv.rid === device.id)).metadata.name || ''
-        if (_rtype === 'button') {
-          const controlID = device.metadata !== undefined ? (device.metadata.control_id || '') : ''
-          retArray.push({ name: 'Button: ' + linkedDevName + (controlID !== '' ? ', button ' + controlID : '') + (Room !== undefined ? ', room ' + Room.metadata.name : ''), id: device.id })
-        }
-        if (_rtype === 'light') {
-          retArray.push({ name: 'Light: ' + linkedDevName + (Room !== undefined ? ', room ' + Room.metadata.name : ''), id: device.id })
-        }
-        if (_rtype === 'motion') {
-          retArray.push({ name: 'Motion: ' + linkedDevName + (Room !== undefined ? ', room ' + Room.metadata.name : ''), id: device.id })
-        }
-        if (_rtype === 'relative_rotary') {
-          retArray.push({ name: 'Rotary: ' + linkedDevName + (Room !== undefined ? ', room ' + Room.metadata.name : ''), id: device.id })
-        }
-        if (_rtype === 'light_level') {
-          retArray.push({ name: 'Light Level: ' + linkedDevName + (Room !== undefined ? ', room ' + Room.metadata.name : ''), id: device.id })
-        }
-        if (_rtype === 'temperature') {
-          retArray.push({ name: 'Temperature: ' + linkedDevName + (Room !== undefined ? ', room ' + Room.metadata.name : ''), id: device.id })
-        }
+
+      newArray.forEach(jResource => {
         if (_rtype === 'scene') {
-          retArray.push({ name: 'Scene: ' + linkedDevName + (Room !== undefined ? ', room ' + Room.metadata.name : ''), id: device.id })
+          const linkedZone = allResources.find(res => res.id === jResource.group.rid) || ''
+          retArray.push({ name: 'Scene: ' + jResource.metadata.name + (linkedZone !== undefined ? ', zone ' + linkedZone.metadata.name : ''), id: jResource.id })
+        } else {
+          const Room = allRooms.find(room => room.children.find(child => child.rid === jResource.owner.rid))
+          const linkedDevName = allResources.find(dev => dev.type === 'device' && dev.services.find(serv => serv.rid === jResource.id)).metadata.name || ''
+          if (_rtype === 'button') {
+            const controlID = jResource.metadata !== undefined ? (jResource.metadata.control_id || '') : ''
+            retArray.push({ name: 'Button: ' + linkedDevName + (controlID !== '' ? ', button ' + controlID : '') + (Room !== undefined ? ', room ' + Room.metadata.name : ''), id: jResource.id })
+          }
+          if (_rtype === 'light') {
+            retArray.push({ name: 'Light: ' + linkedDevName + (Room !== undefined ? ', room ' + Room.metadata.name : ''), id: jResource.id })
+          }
+          if (_rtype === 'motion') {
+            retArray.push({ name: 'Motion: ' + linkedDevName + (Room !== undefined ? ', room ' + Room.metadata.name : ''), id: jResource.id })
+          }
+          if (_rtype === 'relative_rotary') {
+            retArray.push({ name: 'Rotary: ' + linkedDevName + (Room !== undefined ? ', room ' + Room.metadata.name : ''), id: jResource.id })
+          }
+          if (_rtype === 'light_level') {
+            retArray.push({ name: 'Light Level: ' + linkedDevName + (Room !== undefined ? ', room ' + Room.metadata.name : ''), id: jResource.id })
+          }
+          if (_rtype === 'temperature') {
+            retArray.push({ name: 'Temperature: ' + linkedDevName + (Room !== undefined ? ', room ' + Room.metadata.name : ''), id: jResource.id })
+          }
         }
       })
       return { devices: retArray }

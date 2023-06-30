@@ -7,11 +7,15 @@
 # CHANGELOG
 
 <p>
-<b>Version 1.0.38</b> - June 2023<br/>
+<b>Version 1.0.41</b> - July 2023<br/>
+- Enabled compatibility with KNX Virtual software (BETA).<br/>
+</p>
+<p>
+<b>Version 1.0.39</b> - June 2023<br/>
 - Bump dependencies versions.<br/>
 - Increased TTL of dgram socket, from 128 to 250.<br/>
 - Set max hop count in tunneling/broadcast, from 6 to 7.<br/>
-<p>
+</p>
 <p>
 <b>Version 1.0.37</b> - June 2023<br/>
 - Dependencies versions bump.<br/>

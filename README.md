@@ -99,10 +99,9 @@ If you import your ETS CSV or ESF file, just begin typing the group address or t
 Just pass a normal payload to the node (true, false, a string or any nymber) and just receive a normal payload (true, false, a string or any nymber) to use in your flow.
 
 </details>
-<details><summary>As single device, as Universal node or as Emulation of a real KNX device</summary>
+<details><summary>As single device, as Universal node.</summary>
 
 The node can act as a single device (for example having Group Address 0/0/1), or can be used as universal node, catching all messages coming from KNX Bus (in this case the node will output a comprehensive msg to the flow, containing group address, device name, automatic decoded payload and other useful infos). The node can act as universal KNX sender as well (you can pass a message to the node, containing the destination group address, the datapont type and the payload).
-You can even use the node to emulate a phisically non existent KNX device. The node will behave exactly as a normal KNX Device and will also respond to read requests coming from the KNX bus, by sending the current payload value to the KNX bus.
 
 </details>
 <details><summary>Contextual help for formatting input messages</summary>
@@ -135,11 +134,7 @@ Full support for IP Interfaces as well for IP Routers. It's recommended the use 
 You can send RAW buffers directly to the bus.
 
 </details>
-<details><summary>Gateway simulation</summary>
 
-By putting **EMULATE** in the IP field, the gateway node will not write to the KNX BUS. Useful for simulations and classsrooms.
-
-</details>
 
 
 ## WORKING WITH THE ETS CSV FILE OR WITH ESF FILE

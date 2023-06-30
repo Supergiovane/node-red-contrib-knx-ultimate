@@ -39,7 +39,7 @@ module.exports = function (RED) {
       node.status({ fill, shape, text: text + ' (' + dDate.getDate() + ', ' + dDate.toLocaleTimeString() + ')' })
     }
 
-    // This function is called by the knx-ultimate config node, to output a msg.payload.
+    // This function is called by the knx-hue
     node.handleSend = msg => {
       let state = {}
       try {

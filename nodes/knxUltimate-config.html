@@ -283,10 +283,6 @@
         </div>
       </div> -->
 
-    <div class="form-tips" style="margin-top:11px">
-        <span data-i18n="knxUltimate-config.advanced.tiphost"></span>
-    </div>
-
     <br/>
     <div class="form-row">
         <label for="node-config-input-KNXEthInterface" style="width: 200px">
@@ -454,7 +450,7 @@
 |Property|Description|
 |--|--|
 | Name | Node name. |
-| IP/Hostname | ETH/KNX Router multicast address or Interface unicast IP address. If you have an KNX/IP interface, use the interface's IP address, for example 1982.168.1.22, otherwise, if you have a KNX/IP router, put the multicast address 224.0.23.12. You can also type an Hostname instead of an IP. Type **EMULATE** instead of the IP address, to simulate a gateway. In this case, the node will not communicate with the KNX BUS. This option is useful for doing simulations. |
+| IP/Hostname | ETH/KNX Router multicast address or Interface unicast IP address. If you have an KNX/IP interface, use the interface's IP address, for example 1982.168.1.22, otherwise, if you have a KNX/IP router, put the multicast address 224.0.23.12. You can also type an **Hostname** instead of an IP. |
 | Port | The port. |
 | Protocol dropdown | *Tunnel UDP* is for KNX/IP interfaces, *Multicast UDP* is for KNX/IP Routers. |
 | Bind to local interface | The Node will use this local interface for communications. Leave "Auto" for automatic selection. If you have more than one lan connection, for example Ethernet and Wifi, it's strongly recommended to manually select the interface, otherwise not all UDP telegram will reach your computer, thus the Node may not work as expected. |
