@@ -8,7 +8,7 @@
             "node-input-topic": "Group Addr.",
             "node-input-outputtopic": "Topic",
             "node-input-dpt": "Datapoint",
-            "node-input-initialread": "Send a GrpValue read once on connection/reconnect",
+            "node-input-initialread": "Read status upon connection",
             "node-input-initialread0": "No",
             "node-input-initialread1": "Read from KNX BUS (to receive the response from BUS, enable also -React to event GroupValue response-)",
             "node-input-initialread2": "Read the last value saved to file prior to disconnection",

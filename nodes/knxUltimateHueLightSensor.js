@@ -1,5 +1,5 @@
 module.exports = function (RED) {
-  function knxUltimateHueLightSensor (config) {
+  function knxUltimateHueLightSensor(config) {
     RED.nodes.createNode(this, config)
     const node = this
     node.server = RED.nodes.getNode(config.server)
@@ -28,8 +28,9 @@ module.exports = function (RED) {
 
     }
     // Used to call the status update from the HUE config node.
-    node.setNodeStatusHue = ({ fill, shape, text }) => {
+    node.setNodeStatusHue = ({ fill, shape, text, payload }) => {
       const dDate = new Date()
+      payload = typeof payload === 'object' ? JSON.stringify(payload) : payload
       node.status({ fill, shape, text: text + ' (' + dDate.getDate() + ', ' + dDate.toLocaleTimeString() + ')' })
     }
 
@@ -57,6 +58,7 @@ module.exports = function (RED) {
             // Send payload
             knxMsgPayload.rawEvent = _event
             node.send(knxMsgPayload)
+            node.setNodeStatusHue({ fill: 'blue', shape: 'ring', text: 'HUE->KNX', payload: knxMsgPayload.payload })
           }
         }
       } catch (error) {

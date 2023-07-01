@@ -32,8 +32,9 @@ module.exports = function (RED) {
 
     }
     // Used to call the status update from the HUE config node.
-    node.setNodeStatusHue = ({ fill, shape, text }) => {
+    node.setNodeStatusHue = ({ fill, shape, text, payload }) => {
       const dDate = new Date()
+      payload = typeof payload === 'object' ? JSON.stringify(payload) : payload
       node.status({ fill, shape, text: text + ' (' + dDate.getDate() + ', ' + dDate.toLocaleTimeString() + ')' })
     }
 
@@ -48,6 +49,7 @@ module.exports = function (RED) {
             setTimeout(() => {
               node.status({ fill: 'blue', shape: 'dot', text: 'Updated Switch ' + msg.knx.destination + ' ' + JSON.stringify(msg.payload) + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' })
             }, 500)
+            node.setNodeStatusHue({ fill: 'green', shape: 'dot', text: 'KNX->HUE', payload: msg.payload })
             break
           case config.GArepeatStatus:
             msg.payload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptrepeat))
@@ -55,6 +57,7 @@ module.exports = function (RED) {
             setTimeout(() => {
               node.status({ fill: 'blue', shape: 'dot', text: 'Updated Dim ' + msg.knx.destination + ' ' + JSON.stringify(msg.payload) + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' })
             }, 500)
+            node.setNodeStatusHue({ fill: 'green', shape: 'dot', text: 'KNX->HUE', payload: msg.payload })
             break
           default:
             break
@@ -126,6 +129,7 @@ module.exports = function (RED) {
           flowMsg.rawEvent = _event
           flowMsg.payload = flowMsgPayload
           node.send(flowMsg)
+          node.setNodeStatusHue({ fill: 'blue', shape: 'ring', text: 'HUE->KNX', payload: flowMsg.payload })
         }
       } catch (error) {
         node.status({ fill: 'red', shape: 'dot', text: 'HUE->KNX error ' + error.message + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' })

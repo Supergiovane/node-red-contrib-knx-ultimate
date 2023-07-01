@@ -54,6 +54,7 @@
 
             colorAtSwitchOnDayTime: { value: '{"red":255, "green":255, "blue":255}' },
             colorAtSwitchOnNightTime: { value: '{"red":23, "green":4, "blue":0}' },
+            invertDayNight: { value: false },
 
             nameDaylightSensor: { value: "" },
             GADaylightSensor: { value: "" },
@@ -794,6 +795,12 @@
             <label for="node-input-nameDaylightSensor" style="width:50px; margin-left: 0px; text-align: right;"><span data-i18n="knxUltimateHueLight.node-input-name"></span></label>
             <input type="text" id="node-input-nameDaylightSensor" style="width:200px;margin-left: 5px; text-align: left;">
         </div>
+        <div  class="form-row">
+            <label for="node-input-invertDayNight">            
+            </label>
+            <input type="checkbox" id="node-input-invertDayNight" style="display:inline-block; width:auto; vertical-align:top;" />
+            <i class="fa fa-moon-o"></i> Invert day/night            
+        </div>
 
         <div class="form-row">
             <label for="node-input-colorAtSwitchOnDayTime" style="width:200px">
@@ -959,22 +966,49 @@
 Here you can choose the KNX addresses to be linked to the avaiable HUE light commands/states.<br/>
 Start typing in the GA field, the name or group address of your KNX device, the avaiable devices start showing up while you're typing.
 
+**Switching**
 |Property|Description|
 |--|--|
 | Switch | This GA is used to turn on/off the HUE light via a boolean KNX value true/false|
 | Switch Status| Link this to the light's switch status group address|
-| Dimming | Relative DIM the HUE light |
-| Color | This command is used to change the HUE light's color. Accepted datapoint is RGB triplet (r,g,b). The node handles the gamut color correction. As soon as you send a color KNX telegran, the light turns on and sets color and brightness, derived from the brightness human perception. As soon as you send a KNX telegram with r,g,b set to zero, the light turns off |
-| Color Status | Link this to the light's color status group address. Accepted datapoint is RGB triplet (r,g,b)|
-| Tunable white | This command is used to change the HUE light's white temperature. Datapoint is 3.007 dimming. |
-| Tunable white Status | Link this to the light temperature status group address. Datapoint is 5.001 absolute value|
-| Brightness | This command is used to change the absolute HUE light's brightness |
-| Brightness Status| Link this to the light's brightness status group address |
-| Blink| *true* Blink the light, *false* Stop blinking. Blinks the light on and off. Useful for signalling. Works with all HUE lights. |
-| Color Cycle| *true* start cycle, *false* Stop cycle. Randomly changes the HUE light's color at regular interval. Works with all HUE lights having color capabilities. |
 | Day/Night | *true* if daytime, *false* if nighttime. This GA is used to change some behaviours at day or night. |
+| Invert day/night | Invert the status of *Day/Night* group address. |
 | Switch on color at Daytime | You can choose the color/brightness of your light, at switch on, on night time. Set it as JSON object, like { "red": 255, "green": 255, "blue": 255 } |
 | Switch on color at Nighttime | You can choose the color/brightness of your light, at switch on, on night time. Set it as JSON object, like { "red": 100, "green": 0, "blue": 0 } |
+
+<br/>
+
+**Dimming/Brightness**
+|Property|Description|
+|--|--|
+| Dimming | Relative DIM the HUE light |
+| Brightness | This command is used to change the absolute HUE light's brightness |
+| Brightness Status| Link this to the light's brightness status group address |
+
+<br/>
+
+**Tunable white**
+|Property|Description|
+|--|--|
+| Tunable white | This command is used to change the HUE light's white temperature. Datapoint is 3.007 dimming. |
+| Tunable white Status | Link this to the light temperature status group address. Datapoint is 5.001 absolute value|
+
+<br/>
+
+**Colors**
+|Property|Description|
+|--|--|
+| Color | This command is used to change the HUE light's color. Accepted datapoint is RGB triplet (r,g,b). The node handles the gamut color correction. As soon as you send a color KNX telegran, the light turns on and sets color and brightness, derived from the brightness human perception. As soon as you send a KNX telegram with r,g,b set to zero, the light turns off |
+| Color Status | Link this to the light's color status group address. Accepted datapoint is RGB triplet (r,g,b)|
+
+<br/>
+
+**Effects**
+|Property|Description|
+|--|--|
+| Blink| *true* Blink the light, *false* Stop blinking. Blinks the light on and off. Useful for signalling. Works with all HUE lights. |
+| Color Cycle| *true* start cycle, *false* Stop cycle. Randomly changes the HUE light's color at regular interval. Works with all HUE lights having color capabilities. |
+
 <br/>
 
 [Find it useful?](https://www.paypal.me/techtoday)

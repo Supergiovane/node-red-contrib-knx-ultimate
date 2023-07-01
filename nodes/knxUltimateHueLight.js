@@ -34,9 +34,10 @@ module.exports = function (RED) {
 
     }
     // Used to call the status update from the HUE config node.
-    node.setNodeStatusHue = ({ fill, shape, text }) => {
+    node.setNodeStatusHue = ({ fill, shape, text, payload }) => {
       const dDate = new Date()
-      node.status({ fill, shape, text: text + ' (' + dDate.getDate() + ', ' + dDate.toLocaleTimeString() + ')' })
+      payload = typeof payload === 'object' ? JSON.stringify(payload) : payload
+      node.status({ fill, shape, text: text + ' ' + payload + ' (' + dDate.getDate() + ', ' + dDate.toLocaleTimeString() + ')' })
     }
 
     // This function is called by the knx-hue
@@ -61,6 +62,7 @@ module.exports = function (RED) {
               state = { on: { on: false } }
             }
             node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, state, 'setLight')
+            node.setNodeStatusHue({ fill: 'green', shape: 'dot', text: 'KNX->HUE', payload: state })
             break
           case config.GALightDIM:
             // { decr_incr: 1, data: 1 } : Start increasing until { decr_incr: 0, data: 0 } is received.
@@ -72,9 +74,12 @@ module.exports = function (RED) {
             } else {
               node.startDimStopper('stop')
             }
+            node.setNodeStatusHue({ fill: 'green', shape: 'dot', text: 'KNX->HUE', payload: msg.payload })
             break
           case config.GADaylightSensor:
             node.DayTime = Boolean(dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptDaylightSensor)))
+            if (config.invertDayNight !== undefined && config.invertDayNight === true) node.DayTime = !node.DayTime
+            node.setNodeStatusHue({ fill: 'green', shape: 'dot', text: 'KNX->HUE Daytime', payload: node.DayTime })
             break
           case config.GALightHSV:
             if (config.dptLightHSV === '3.007') {
@@ -89,11 +94,13 @@ module.exports = function (RED) {
                 node.startDimStopperTunableWhite('stop')
               }
             }
+            node.setNodeStatusHue({ fill: 'green', shape: 'dot', text: 'KNX->HUE', payload: msg.payload })
             break
           case config.GALightBrightness:
             msg.payload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightBrightness))
             state = { dimming: { brightness: msg.payload } }
             node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, state, 'setLight')
+            node.setNodeStatusHue({ fill: 'green', shape: 'dot', text: 'KNX->HUE', payload: state })
             break
           case config.GALightColor:
             // Behavior like ISE HUE CONNECT, by setting the brightness and on/off as well
@@ -103,6 +110,7 @@ module.exports = function (RED) {
             const bright = hueColorConverter.ColorConverter.getBrightnessFromRGB(msg.payload.red, msg.payload.green, msg.payload.blue)
             state = bright > 0 ? { on: { on: true }, dimming: { brightness: bright }, color: { xy: retXY } } : { on: { on: false } }
             node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, state, 'setLight')
+            node.setNodeStatusHue({ fill: 'green', shape: 'dot', text: 'KNX->HUE', payload: state })
             break
           case config.GALightBlink:
             const gaVal = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightSwitch))
@@ -120,6 +128,7 @@ module.exports = function (RED) {
               if (node.timerBlink !== undefined) clearInterval(node.timerBlink)
               node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, { on: { on: false } }, 'setLight')
             }
+            node.setNodeStatusHue({ fill: 'green', shape: 'dot', text: 'KNX->HUE', payload: gaVal })
             break
           case config.GALightColorCycle:
             const gaValColorCycle = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightSwitch))
@@ -148,6 +157,7 @@ module.exports = function (RED) {
               if (node.timerColorCycle !== undefined) clearInterval(node.timerColorCycle)
               node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, { on: { on: false } }, 'setLight')
             }
+            node.setNodeStatusHue({ fill: 'green', shape: 'dot', text: 'KNX->HUE', payload: gaValColorCycle })
             break
           default:
             break
@@ -252,7 +262,7 @@ module.exports = function (RED) {
             // Send to KNX bus
             if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.server.writeQueueAdd({ grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
           }
-          node.status({ fill: 'green', shape: 'dot', text: 'HUE->KNX State ' + JSON.stringify(knxMsgPayload.payload) + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' })
+          node.setNodeStatusHue({ fill: 'blue', shape: 'ring', text: 'HUE->KNX State', payload: knxMsgPayload.payload })
         }
       } catch (error) {
         node.status({ fill: 'red', shape: 'dot', text: 'HUE->KNX error ' + knxMsgPayload.topic + ' ' + error.message || '' + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' })

@@ -7,6 +7,12 @@
 # CHANGELOG
 
 <p>
+<b>Version 2.1.17</b> - July 2023<br/>
+- Revamped UI of KNX-Ultimate device node.<br/>
+- HUE light: added "invert" option to the Day/Night sensor.<br/>
+- More verbose status for all nodes.<br/>
+</p>
+<p>
 <b>Version 2.1.16</b> - June 2023<br/>
 - NEW: Hue scene. You can now call a HUE scene.<br/>
 - Bump dependencies versions.<br/>
@@ -15,6 +21,7 @@
 - Enabled compatibility with KNX Virtual (BETA).<br/>
 - Continue migrating the Help from gitHub to the standard Node-Red help box. You could find some discrepancies in help text. Sorry for that.<br/>
 - **BREAKING CHANGE*** removed the emulation capability, because it's a complicated thing to mantain. If you don't know what it is, just don't care about that.<br/>
+</p>
 <p>
 <b>Version 2.1.15</b> - June 2023<br/>
 - Fix an issue with auto discovery of not registered HUE bridges. Now you must first set the IP, then click CONNECT.<br/>

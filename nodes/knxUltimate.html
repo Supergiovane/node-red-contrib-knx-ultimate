@@ -458,9 +458,8 @@
                     </dt>
                 </div>
                 <div class="form-row" id="divNode-input-initialread">
-                    &nbsp;&nbsp;<label style="width:70%" for="node-input-initialread">
-                        <i class="fa fa-question-circle-o"></i>
-                        <span data-i18n="knxUltimate.properties.node-input-initialread"></span>
+                    &nbsp;&nbsp;<label style="width:50%" for="node-input-initialread">
+                        <i class="fa fa-question-circle-o"></i> Read status upon connection
                     </label>
                     <select style="width:100px" id="node-input-initialread">
                         <option value=0 data-i18n="knxUltimate.properties.node-input-initialread0"></option>
@@ -610,12 +609,12 @@
 | Input msg passthrough | If set, you can pass the input mgs to the output msg. |
 | Output Type | *write* to send write telegram (usually, you want that), otherwise you can choose the telegram's type to react to. |
 | Send payload to BUS only if changed (RBE filter) | *Report by change* filter. If set, only the msg input (from the Flow) having different values each time, will be sent to the KNX bus. If you intend to send everytime the same value, turn it off. |
-| Send a GrpValue read once on connection/reconnect | This sends a *read* request to the selected group address, every time Node-Red starts and at every reconnection to the KNX Gateway. The node stores all group address values to a file, so you can choose wether to read from it or from the KNX bus. |
+| Read status upon connection | Read group address status, every time Node-Red starts and at every reconnection to the KNX Gateway. The node stores all group address values to a file, so you can choose wether to read from file or from the KNX bus. |
 | React only if payload from BUS is changed (RBE filter) | *Report by change* filter. If set, only the msg output (to KNX bus) having different values each time, will be sent to the msg output's flow. If you intend to send everytime the same value, leave it off. |
 | React to event GroupValue write | The node will react (will send a msg to the flow) each time it receives a *write* telegram from the KNX bus. Usually, you want that. |
 | React to event GroupValue response | The node will react (will send a msg to the flow) each time it receives a *response* telegram from the KNX bus. Usually, you want that for particular scenarios. |
 | React to event GroupValue read | The node will react (will send a msg to the flow) each time it receives a *read* telegram from the KNX bus. Usually, you want that if you're want to send a custom value to the KNX BUS. |
-| Format INPUT (datagram coming from the KNX BUS) | Allow you to format numeric values received from the KNX Bus. |
+| Format input | Allow you to format numeric values received from the KNX Bus. |
 
 <br/>
 

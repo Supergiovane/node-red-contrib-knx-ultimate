@@ -30,8 +30,9 @@ module.exports = function (RED) {
 
     }
     // Used to call the status update from the HUE config node.
-    node.setNodeStatusHue = ({ fill, shape, text }) => {
+    node.setNodeStatusHue = ({ fill, shape, text, payload }) => {
       const dDate = new Date()
+      payload = typeof payload === 'object' ? JSON.stringify(payload) : payload
       node.status({ fill, shape, text: text + ' (' + dDate.getDate() + ', ' + dDate.toLocaleTimeString() + ')' })
     }
 
@@ -101,6 +102,7 @@ module.exports = function (RED) {
           knxMsgPayload.event = 'rotation ' + _event.relative_rotary.last_event.rotation.direction
           knxMsgPayload.payload = _event
           node.send(knxMsgPayload)
+          node.setNodeStatusHue({ fill: 'blue', shape: 'rong', text: 'HUE->KNX', payload: knxMsgPayload.payload })
         }
       } catch (error) {
         node.status({ fill: 'red', shape: 'dot', text: 'HUE->KNX error ' + error.message + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' })

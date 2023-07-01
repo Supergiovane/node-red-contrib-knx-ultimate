@@ -30,8 +30,9 @@ module.exports = function (RED) {
 
     }
     // Used to call the status update from the HUE config node.
-    node.setNodeStatusHue = ({ fill, shape, text }) => {
+    node.setNodeStatusHue = ({ fill, shape, text, payload }) => {
       const dDate = new Date()
+      payload = typeof payload === 'object' ? JSON.stringify(payload) : payload
       node.status({ fill, shape, text: text + ' (' + dDate.getDate() + ', ' + dDate.toLocaleTimeString() + ')' })
     }
 
@@ -55,6 +56,7 @@ module.exports = function (RED) {
                 }
               })()
             }
+            node.setNodeStatusHue({ fill: 'green', shape: 'dot', text: 'KNX->HUE', payload: msg.payload })
             break
           default:
             break
