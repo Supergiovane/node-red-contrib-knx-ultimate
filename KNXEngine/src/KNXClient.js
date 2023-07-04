@@ -139,7 +139,7 @@ class KNXClient extends EventEmitter {
       this._clientSocket.bind({ port: null, address: this._options.localIPAddress }, function () {
         try {
           conn._clientSocket.setTTL(250)
-        if (conn._options.localSocketAddress === undefined) conn._options.localSocketAddress = conn._clientSocket.address()
+          if (conn._options.localSocketAddress === undefined) conn._options.localSocketAddress = conn._clientSocket.address()
         } catch (error) {
           if (conn.sysLogger !== undefined && conn.sysLogger !== null) conn.sysLogger.error('UDP:  Error setting SetTTL ' + error.message || '')
         }
@@ -325,7 +325,7 @@ class KNXClient extends EventEmitter {
       cEMIMessage.control.broadcast = 1
       cEMIMessage.control.priority = 3
       cEMIMessage.control.addressType = 1
-      cEMIMessage.control.hopCount = 6 // i telegrammi multicast vengono inviati con numero di hop = 6
+      cEMIMessage.control.hopCount = 6
       const knxPacketRequest = KNXProtocol.KNXProtocol.newKNXRoutingIndication(cEMIMessage)
       this.send(knxPacketRequest)
       // 06/12/2021 Multivast automaticalli echoes telegrams
@@ -337,7 +337,7 @@ class KNXClient extends EventEmitter {
       cEMIMessage.control.broadcast = 1
       cEMIMessage.control.priority = 3
       cEMIMessage.control.addressType = 1
-      cEMIMessage.control.hopCount = 7 // i telegrammi unicast e broadcast vengono inviati con numero di hop = 7
+      cEMIMessage.control.hopCount = 6
       const seqNum = this._incSeqNumber() // 26/12/2021
       const knxPacketRequest = KNXProtocol.KNXProtocol.newKNXTunnelingRequest(this._channelID, seqNum, cEMIMessage)
       if (!this._options.suppress_ack_ldatareq) this._setTimerWaitingForACK(knxPacketRequest)
@@ -1001,33 +1001,33 @@ class KNXClient extends EventEmitter {
   }
 
   _sendConnectRequestMessage(cri) {
-    try {
-      const oHPAI = new HPAI.HPAI(this._options.localSocketAddress.address, this._options.localSocketAddress.port, this._options.hostProtocol === 'TunnelTCP' ? KNXConstants.KNX_CONSTANTS.IPV4_TCP : KNXConstants.KNX_CONSTANTS.IPV4_UDP)
-      this.send(KNXProtocol.KNXProtocol.newKNXConnectRequest(cri, oHPAI, oHPAI))
-    } catch (error) {
-      this.send(KNXProtocol.KNXProtocol.newKNXConnectRequest(cri))
-    }
-    // this.send(KNXProtocol.KNXProtocol.newKNXConnectRequest(cri))
+    // try {
+    //   const oHPAI = new HPAI.HPAI(this._options.localSocketAddress.address, this._options.localSocketAddress.port, this._options.hostProtocol === 'TunnelTCP' ? KNXConstants.KNX_CONSTANTS.IPV4_TCP : KNXConstants.KNX_CONSTANTS.IPV4_UDP)
+    //   this.send(KNXProtocol.KNXProtocol.newKNXConnectRequest(cri, null, oHPAI))
+    // } catch (error) {
+    //   this.send(KNXProtocol.KNXProtocol.newKNXConnectRequest(cri))
+    // }
+    this.send(KNXProtocol.KNXProtocol.newKNXConnectRequest(cri))
   }
 
   _sendConnectionStateRequestMessage(channelID) {
-    try {
-      const oHPAI = new HPAI.HPAI(this._options.localSocketAddress.address, this._options.localSocketAddress.port, this._options.hostProtocol === 'TunnelTCP' ? KNXConstants.KNX_CONSTANTS.IPV4_TCP : KNXConstants.KNX_CONSTANTS.IPV4_UDP)
-      this.send(KNXProtocol.KNXProtocol.newKNXConnectionStateRequest(channelID, oHPAI))
-    } catch (error) {
-      this.send(KNXProtocol.KNXProtocol.newKNXConnectionStateRequest(channelID))
-    }
-    //this.send(KNXProtocol.KNXProtocol.newKNXConnectionStateRequest(channelID))
+    // try {
+    //   const oHPAI = new HPAI.HPAI(this._options.localSocketAddress.address, this._options.localSocketAddress.port, this._options.hostProtocol === 'TunnelTCP' ? KNXConstants.KNX_CONSTANTS.IPV4_TCP : KNXConstants.KNX_CONSTANTS.IPV4_UDP)
+    //   this.send(KNXProtocol.KNXProtocol.newKNXConnectionStateRequest(channelID, oHPAI))
+    // } catch (error) {
+    //   this.send(KNXProtocol.KNXProtocol.newKNXConnectionStateRequest(channelID))
+    // }
+    this.send(KNXProtocol.KNXProtocol.newKNXConnectionStateRequest(channelID))
   }
 
   _sendDisconnectRequestMessage(channelID) {
-    try {
-      const oHPAI = new HPAI.HPAI(this._options.localSocketAddress.address, this._options.localSocketAddress.port, this._options.hostProtocol === 'TunnelTCP' ? KNXConstants.KNX_CONSTANTS.IPV4_TCP : KNXConstants.KNX_CONSTANTS.IPV4_UDP)
-      this.send(KNXProtocol.KNXProtocol.newKNXDisconnectRequest(channelID, oHPAI))
-    } catch (error) {
-      this.send(KNXProtocol.KNXProtocol.newKNXDisconnectRequest(channelID))
-    }
-    //this.send(KNXProtocol.KNXProtocol.newKNXDisconnectRequest(channelID))
+    // try {
+    //   const oHPAI = new HPAI.HPAI(this._options.localSocketAddress.address, this._options.localSocketAddress.port, this._options.hostProtocol === 'TunnelTCP' ? KNXConstants.KNX_CONSTANTS.IPV4_TCP : KNXConstants.KNX_CONSTANTS.IPV4_UDP)
+    //   this.send(KNXProtocol.KNXProtocol.newKNXDisconnectRequest(channelID, oHPAI))
+    // } catch (error) {
+    //   this.send(KNXProtocol.KNXProtocol.newKNXDisconnectRequest(channelID))
+    // }
+    this.send(KNXProtocol.KNXProtocol.newKNXDisconnectRequest(channelID))
   }
 
   _sendDisconnectResponseMessage(channelID, status = KNXConstants.ConnectionStatus.E_NO_ERROR) {

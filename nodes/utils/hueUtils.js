@@ -203,7 +203,7 @@ class classHUE extends EventEmitter {
             const linkedLight = allResources.find(res => res.id === jScene.group.rid).children || ''
             linkedLight.forEach(light => {
               this.writeHueQueueAdd(light.rid, jRet._state, 'setLight')
-            });     
+            });
           } catch (error) {
             console.log('KNXUltimateHUEConfig: classHUE: handleQueue: stopScene: ' + error.message)
           }
@@ -213,10 +213,11 @@ class classHUE extends EventEmitter {
       }
     }
     // The Hue bridge allows about 10 telegram per second, so i need to make a queue manager
-    setTimeout(this.handleQueue, 150)
+    setTimeout(this.handleQueue, 100)
   }
 
   writeHueQueueAdd = async (_lightID, _state, _operation, _callback) => {
+    // Add the new item
     this.commandQueue.push({ _lightID, _state, _operation, _callback })
   }
   // ######################################
@@ -284,7 +285,7 @@ class classHUE extends EventEmitter {
         this.es = null;
         setTimeout(() => {
           resolve(true)
-        }, 1000)
+        }, 500)
       } catch (error) {
         reject(error)
       }

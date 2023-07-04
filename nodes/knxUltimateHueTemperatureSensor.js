@@ -29,9 +29,10 @@ module.exports = function (RED) {
     }
     // Used to call the status update from the HUE config node.
     node.setNodeStatusHue = ({ fill, shape, text, payload }) => {
+      if (payload === undefined) return
       const dDate = new Date()
-      payload = typeof payload === 'object' ? JSON.stringify(payload) : payload
-      node.status({ fill, shape, text: text + ' (' + dDate.getDate() + ', ' + dDate.toLocaleTimeString() + ')' })
+      payload = typeof payload === 'object' ? JSON.stringify(payload) : payload.toString()
+      node.status({ fill, shape, text: text + ' ' + payload + ' (' + dDate.getDate() + ', ' + dDate.toLocaleTimeString() + ')' })
     }
 
     // This function is called by the knx-ultimate config node, to output a msg.payload.
@@ -58,7 +59,7 @@ module.exports = function (RED) {
             // Send payload
             knxMsgPayload.rawEvent = _event
             node.send(knxMsgPayload)
-            node.setNodeStatusHue({ fill: 'blue', shape: 'rong', text: 'HUE->KNX', payload: knxMsgPayload.payload })
+            node.setNodeStatusHue({ fill: 'blue', shape: 'ring', text: 'HUE->KNX', payload: knxMsgPayload.payload })
           }
         }
       } catch (error) {

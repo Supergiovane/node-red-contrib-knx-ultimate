@@ -171,9 +171,14 @@ return msg;`,
 
     node.setAllClientsStatus = (_status, _color, _text) => {
       function nextStatus(_oClient) {
-        let oClient = RED.nodes.getNode(_oClient.id)
-        oClient.setNodeStatus({ fill: _color, shape: 'dot', text: _status + ' ' + _text, payload: '', GA: oClient.topic, dpt: '', devicename: '' })
-        oClient = null
+        try {
+          let oClient = RED.nodes.getNode(_oClient.id)
+          oClient.setNodeStatus({ fill: _color, shape: 'dot', text: _status + ' ' + _text, payload: '', GA: oClient.topic, dpt: '', devicename: '' })
+          oClient = null  
+        } catch (error) { 
+          if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.warn('Wow setAllClientsStatus error ' + error.message)
+        }
+        
       }
       node.nodeClients.map(nextStatus)
     }

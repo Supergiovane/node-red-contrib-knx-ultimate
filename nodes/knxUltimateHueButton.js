@@ -33,9 +33,10 @@ module.exports = function (RED) {
     }
     // Used to call the status update from the HUE config node.
     node.setNodeStatusHue = ({ fill, shape, text, payload }) => {
+      if (payload === undefined) return
       const dDate = new Date()
-      payload = typeof payload === 'object' ? JSON.stringify(payload) : payload
-      node.status({ fill, shape, text: text + ' (' + dDate.getDate() + ', ' + dDate.toLocaleTimeString() + ')' })
+      payload = typeof payload === 'object' ? JSON.stringify(payload) : payload.toString()
+      node.status({ fill, shape, text: text + ' ' + payload + ' (' + dDate.getDate() + ', ' + dDate.toLocaleTimeString() + ')' })
     }
 
     // This function is called by the knx-ultimate config node, to output a msg.payload.
@@ -46,24 +47,18 @@ module.exports = function (RED) {
           case config.GAshort_releaseStatus:
             msg.payload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptshort_release))
             node.short_releaseValue = msg.payload
-            setTimeout(() => {
-              node.status({ fill: 'blue', shape: 'dot', text: 'Updated Switch ' + msg.knx.destination + ' ' + JSON.stringify(msg.payload) + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' })
-            }, 500)
-            node.setNodeStatusHue({ fill: 'green', shape: 'dot', text: 'KNX->HUE', payload: msg.payload })
+            node.setNodeStatusHue({ fill: 'blue', shape: 'dot', text: 'KNX->HUE Short Release Status', payload: msg.payload })
             break
           case config.GArepeatStatus:
             msg.payload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptrepeat))
             node.toggleGArepeat = msg.payload.decr_incr === 1
-            setTimeout(() => {
-              node.status({ fill: 'blue', shape: 'dot', text: 'Updated Dim ' + msg.knx.destination + ' ' + JSON.stringify(msg.payload) + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' })
-            }, 500)
-            node.setNodeStatusHue({ fill: 'green', shape: 'dot', text: 'KNX->HUE', payload: msg.payload })
+            node.setNodeStatusHue({ fill: 'blue', shape: 'dot', text: 'KNX->HUE Repeat Status', payload: msg.payload })
             break
           default:
             break
         }
       } catch (error) {
-        node.status({ fill: 'red', shape: 'dot', text: 'KNX->HUE error ' + error.message + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' })
+        node.setNodeStatusHue({ fill: 'red', shape: 'dot', text: 'KNX->HUE error ' + error.message, payload: '' })
       }
     }
 
@@ -84,6 +79,12 @@ module.exports = function (RED) {
               break
             case 'long_release':
               flowMsgPayload = node.long_pressValue
+              // if the dimmer was running, send the STOP telegram to the KNX bus wires, using the GArepeat Group address and dpt.
+              if (node.isTimerDimStopRunning) {
+                knxMsgPayload.topic = config.GArepeat
+                knxMsgPayload.dpt = config.dptrepeat
+                node.stopDIM(knxMsgPayload)
+              }
               break
             case 'double_short_release':
               if (node.double_short_releaseValue === undefined) node.double_short_releaseValue = false
@@ -98,25 +99,29 @@ module.exports = function (RED) {
             case 'short_release':
               node.short_releaseValue = config.toggleValues ? !node.short_releaseValue : true
               flowMsgPayload = node.short_releaseValue
-              knxMsgPayload.topic = config.GAshort_release
-              knxMsgPayload.dpt = config.dptshort_release
-              knxMsgPayload.payload = node.short_releaseValue
-              // Send to KNX bus
-              if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.server.writeQueueAdd({ grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
-              if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.status({ fill: 'green', shape: 'dot', text: 'HUE->KNX ' + _event.button.last_event + ' ' + JSON.stringify(knxMsgPayload.payload) + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' })
+              if (config.GAshort_release !== undefined && config.GAshort_release !== '') {
+                knxMsgPayload.topic = config.GAshort_release
+                knxMsgPayload.dpt = config.dptshort_release
+                knxMsgPayload.payload = node.short_releaseValue
+                // Send to KNX bus
+                if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.server.writeQueueAdd({ grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
+                if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.setNodeStatusHue({ fill: 'green', shape: 'dot', text: 'HUE->KNX ' + _event.button.last_event, payload: knxMsgPayload.payload })
+              }
               break
             case 'repeat':
               flowMsgPayload = true
-              if (node.isTimerDimStopRunning === false) {
-                // Set KNX Dim up/down start
-                knxMsgPayload.topic = config.GArepeat
-                knxMsgPayload.dpt = config.dptrepeat
-                knxMsgPayload.payload = node.long_pressValue ? { decr_incr: 0, data: 3 } : { decr_incr: 1, data: 3 } // If the light is turned on, the initial DIM direction must be down, otherwise, up
-                // Send to KNX bus
-                if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.server.writeQueueAdd({ grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
-                if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.status({ fill: 'green', shape: 'dot', text: 'HUE->KNX start Dim' + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' })
+              if (config.GArepeat !== undefined && config.GArepeat !== '') {
+                if (node.isTimerDimStopRunning === false) {
+                  // Set KNX Dim up/down start
+                  knxMsgPayload.topic = config.GArepeat
+                  knxMsgPayload.dpt = config.dptrepeat
+                  knxMsgPayload.payload = node.long_pressValue ? { decr_incr: 0, data: 3 } : { decr_incr: 1, data: 3 } // If the light is turned on, the initial DIM direction must be down, otherwise, up
+                  // Send to KNX bus
+                  if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.server.writeQueueAdd({ grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
+                  if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.setNodeStatusHue({ fill: 'green', shape: 'dot', text: 'HUE->KNX START DIM', payload: '' })
+                }
+                node.startDimStopper(knxMsgPayload)
               }
-              node.startDimStopper(knxMsgPayload)
               break
             default:
               break
@@ -129,25 +134,30 @@ module.exports = function (RED) {
           flowMsg.rawEvent = _event
           flowMsg.payload = flowMsgPayload
           node.send(flowMsg)
-          node.setNodeStatusHue({ fill: 'blue', shape: 'ring', text: 'HUE->KNX', payload: flowMsg.payload })
+          node.setNodeStatusHue({ fill: 'blue', shape: 'ring', text: 'HUE->KNX', payload: flowMsg.rawEvent + ' ' + flowMsg.payload })
         }
       } catch (error) {
-        node.status({ fill: 'red', shape: 'dot', text: 'HUE->KNX error ' + error.message + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' })
+        node.setNodeStatusHue({ fill: 'red', shape: 'dot', text: 'HUE->KNX error ' + error.message, payload: '' })
       }
     }
 
     // Timer to stop the dimming sequence
     node.startDimStopper = function (knxMsgPayload) {
-      if (node.timerDimStop !== undefined) clearInterval(node.timerDimStop)
+      if (node.timerDimStop !== undefined) clearTimeout(node.timerDimStop)
       node.isTimerDimStopRunning = true
       node.timerDimStop = setTimeout(() => {
-        // KNX Stop DIM
-        knxMsgPayload.payload = { decr_incr: 0, data: 0 } // Payload for the output msg
-        // Send to KNX bus
-        if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.server.writeQueueAdd({ grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
-        if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.status({ fill: 'green', shape: 'dot', text: 'HUE->KNX Stop DIM' + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' })
-        node.isTimerDimStopRunning = false
-      }, 700)
+        node.stopDIM(knxMsgPayload)
+      }, 2000)
+    }
+
+    node.stopDIM = function (knxMsgPayload) {
+      // KNX Stop DIM
+      if (node.timerDimStop !== undefined) clearTimeout(node.timerDimStop)
+      node.isTimerDimStopRunning = false
+      knxMsgPayload.payload = { decr_incr: 0, data: 0 } // Payload for the output msg
+      // Send to KNX bus
+      if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.server.writeQueueAdd({ grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
+      if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.setNodeStatusHue({ fill: 'grey', shape: 'ring', text: 'HUE->KNX STOP DIM', payload: knxMsgPayload.payload })
     }
 
     // On each deploy, unsubscribe+resubscribe

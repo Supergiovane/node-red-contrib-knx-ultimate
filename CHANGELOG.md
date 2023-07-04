@@ -7,6 +7,15 @@
 # CHANGELOG
 
 <p>
+<b>Version 2.1.19</b> - July 2023<br/>
+- Hue light and Hue button optimization.<br/>
+</p>
+<p>
+<p>
+<b>Version 2.1.18</b> - July 2023<br/>
+- Quick fix for MDT and Wienzler interfaces.<br/>
+</p>
+<p>
 <b>Version 2.1.17</b> - July 2023<br/>
 - Revamped UI of KNX-Ultimate device node.<br/>
 - HUE light: added "invert" option to the Day/Night sensor.<br/>

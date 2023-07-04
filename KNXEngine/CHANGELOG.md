@@ -7,6 +7,10 @@
 # CHANGELOG
 
 <p>
+<b>Version 1.0.42</b> - July 2023<br/>
+- Quick fix for MDT and Wienzler interfaces.<br/>
+</p>
+<p>
 <b>Version 1.0.41</b> - July 2023<br/>
 - Enabled compatibility with KNX Virtual software (BETA).<br/>
 </p>

@@ -35,8 +35,9 @@ module.exports = function (RED) {
     }
     // Used to call the status update from the HUE config node.
     node.setNodeStatusHue = ({ fill, shape, text, payload }) => {
+      if (payload === undefined) return
       const dDate = new Date()
-      payload = typeof payload === 'object' ? JSON.stringify(payload) : payload
+      payload = typeof payload === 'object' ? JSON.stringify(payload) : payload.toString()
       node.status({ fill, shape, text: text + ' ' + payload + ' (' + dDate.getDate() + ', ' + dDate.toLocaleTimeString() + ')' })
     }
 
@@ -171,8 +172,11 @@ module.exports = function (RED) {
     node.dimDirection = {}
     node.timeoutDim = 0
     node.startDimStopper = function (_direction) {
+      node.timeoutDim = 0
       if (node.timerDim !== undefined) clearInterval(node.timerDim)
-      if (_direction === 'stop') return
+      if (_direction === 'stop') {
+        return
+      }
       switch (_direction) {
         case 'up':
           node.dimDirection = { dimming_delta: { action: 'up', brightness_delta: 10 } }
@@ -185,16 +189,18 @@ module.exports = function (RED) {
       }
       node.timerDim = setInterval(() => {
         node.timeoutDim += 1
-        if (node.timeoutDim > 100) { node.timeoutDim = 0; clearInterval(node.timerDim) }
+        if (node.timeoutDim > 150) { node.timeoutDim = 0; clearInterval(node.timerDim) }
         node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, node.dimDirection, 'setLight')
-      }, 300)
+      }, 700)
     }
 
     // Start dimming tunable white
     // mirek: required(integer – minimum: 153 – maximum: 500)
     node.timerDimTunableWhite = undefined
     node.dimDirectionTunableWhite = {}
+    node.timeoutDimTunableWhite = 0
     node.startDimStopperTunableWhite = function (_direction) {
+      node.timeoutDimTunableWhite = 0
       if (node.timerDimTunableWhite !== undefined) clearInterval(node.timerDimTunableWhite)
       if (_direction === 'stop') return
       switch (_direction) {
@@ -208,9 +214,10 @@ module.exports = function (RED) {
           break
       }
       node.timerDimTunableWhite = setInterval(() => {
+        node.timeoutDimTunableWhite += 1
+        if (node.timeoutDimTunableWhite > 150) { node.timeoutDimTunableWhite = 0; clearInterval(node.timerDimTunableWhite) }
         node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, node.dimDirectionTunableWhite, 'setLight')
-      }, 300)
-
+      }, 700)
     }
 
     node.handleSendHUE = _event => {
@@ -218,49 +225,55 @@ module.exports = function (RED) {
         if (_event.id === config.hueDevice) {
           const knxMsgPayload = {}
           if (_event.hasOwnProperty('on')) {
-            knxMsgPayload.topic = config.GALightState
-            knxMsgPayload.dpt = config.dptLightState
-            knxMsgPayload.payload = _event.on.on
-            // Send to KNX bus
-            if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.server.writeQueueAdd({ grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
-            // ISE Connect Hue emulation, send brightness
-            knxMsgPayload.topic = config.GALightBrightnessState
-            knxMsgPayload.dpt = config.dptLightBrightnessState
-            knxMsgPayload.payload = _event.on.on === true ? 100 : 0
-            // Send to KNX bus
-            //if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.server.writeQueueAdd({ grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
+            if (config.GALightState !== undefined && config.GALightState !== '') {
+              knxMsgPayload.topic = config.GALightState
+              knxMsgPayload.dpt = config.dptLightState
+              knxMsgPayload.payload = _event.on.on
+              // Send to KNX bus
+              if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.server.writeQueueAdd({ grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
+              // ISE Connect Hue emulation, send brightness
+              knxMsgPayload.topic = config.GALightBrightnessState
+              knxMsgPayload.dpt = config.dptLightBrightnessState
+              knxMsgPayload.payload = _event.on.on === true ? 100 : 0
+              // Send to KNX bus
+              //if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.server.writeQueueAdd({ grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
+            }
           }
           if (_event.hasOwnProperty('color')) {
-            knxMsgPayload.topic = config.GALightColorState
-            knxMsgPayload.dpt = config.dptLightColorState
-            knxMsgPayload.payload = hueColorConverter.ColorConverter.xyBriToRgb(_event.color.xy.x, _event.color.xy.y, (node.currentHUEDevice !== undefined ? node.currentHUEDevice.dimming.brightness : 100))
-            // Send to KNX bus
-            if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.server.writeQueueAdd({ grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
+            if (config.GALightColorState !== undefined && config.GALightColorState !== '') {
+              knxMsgPayload.topic = config.GALightColorState
+              knxMsgPayload.dpt = config.dptLightColorState
+              knxMsgPayload.payload = hueColorConverter.ColorConverter.xyBriToRgb(_event.color.xy.x, _event.color.xy.y, (node.currentHUEDevice !== undefined ? node.currentHUEDevice.dimming.brightness : 100))
+              // Send to KNX bus
+              if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.server.writeQueueAdd({ grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
+            }
           }
           if (_event.hasOwnProperty('dimming')) {
-            knxMsgPayload.topic = config.GALightBrightnessState
-            knxMsgPayload.dpt = config.dptLightBrightnessState
-            knxMsgPayload.payload = _event.dimming.brightness
-            // Send to KNX bus
-            if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.server.writeQueueAdd({ grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
-            // ISE Connect Hue emulation, send true/false to switch state
-            knxMsgPayload.topic = config.GALightState
-            knxMsgPayload.dpt = config.dptLightState
-            knxMsgPayload.payload = _event.dimming.brightness > 0
-            // Send to KNX bus
-            if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.server.writeQueueAdd({ grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
+            if (config.GALightBrightnessState !== undefined && config.GALightBrightnessState !== '') {
+              knxMsgPayload.topic = config.GALightBrightnessState
+              knxMsgPayload.dpt = config.dptLightBrightnessState
+              knxMsgPayload.payload = _event.dimming.brightness
+              // Send to KNX bus
+              if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.server.writeQueueAdd({ grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
+              // ISE Connect Hue emulation, send true/false to switch state
+              knxMsgPayload.topic = config.GALightState
+              knxMsgPayload.dpt = config.dptLightState
+              knxMsgPayload.payload = _event.dimming.brightness > 0
+              // Send to KNX bus
+              if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.server.writeQueueAdd({ grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
+            }
           }
           if (_event.hasOwnProperty('color_temperature')) {
-            knxMsgPayload.topic = config.GALightHSVState
-            knxMsgPayload.dpt = config.dptLightHSVState
-            if (config.dptLightHSVState === '5.001') {
-              const retPercent = hueColorConverter.ColorConverter.scale(_event.color_temperature.mirek, [153, 500], [0, 100])
-              //NewValue = (((OldValue - OldMin) * (NewMax - NewMin)) / (OldMax - OldMin)) + NewMin
-              //let NewValue = 100 - ((((_event.color_temperature.mirek - 153) * (100 - 0)) / (500 - 153)) + 0)
-              knxMsgPayload.payload = 100 - retPercent
+            if (config.GALightHSVState !== undefined && config.GALightHSVState !== '') {
+              knxMsgPayload.topic = config.GALightHSVState
+              knxMsgPayload.dpt = config.dptLightHSVState
+              if (config.dptLightHSVState === '5.001') {
+                const retPercent = hueColorConverter.ColorConverter.scale(_event.color_temperature.mirek, [153, 500], [0, 100])
+                knxMsgPayload.payload = 100 - retPercent
+              }
+              // Send to KNX bus
+              if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.server.writeQueueAdd({ grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
             }
-            // Send to KNX bus
-            if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.server.writeQueueAdd({ grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
           }
           node.setNodeStatusHue({ fill: 'blue', shape: 'ring', text: 'HUE->KNX State', payload: knxMsgPayload.payload })
         }
