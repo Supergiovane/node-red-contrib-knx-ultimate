@@ -204,7 +204,7 @@ module.exports = function (RED) {
     }
 
     // Start dimming tunable white
-    // mirek: required(integer – minimum: 153 – maximum: 500)
+    // mirek: required(integer minimum: 153, maximum: 500)
     node.timerDimTunableWhite = undefined
     node.dimDirectionTunableWhite = {}
     node.timeoutDimTunableWhite = 0
@@ -240,6 +240,7 @@ module.exports = function (RED) {
               knxMsgPayload.payload = _event.on.on
               // Send to KNX bus
               if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.server.writeQueueAdd({ grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
+              if (node.currentHUEDevice !== undefined) node.currentHUEDevice.on = _event.on // Update the internal object representing the current light
             }
           }
           if (_event.hasOwnProperty('color')) {
@@ -249,6 +250,7 @@ module.exports = function (RED) {
               knxMsgPayload.payload = hueColorConverter.ColorConverter.xyBriToRgb(_event.color.xy.x, _event.color.xy.y, (node.currentHUEDevice !== undefined ? node.currentHUEDevice.dimming.brightness : 100))
               // Send to KNX bus
               if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.server.writeQueueAdd({ grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
+              if (node.currentHUEDevice !== undefined) node.currentHUEDevice.color = _event.color // Update the internal object representing the current light
             }
           }
           if (_event.hasOwnProperty('dimming')) {
@@ -258,16 +260,17 @@ module.exports = function (RED) {
               knxMsgPayload.payload = _event.dimming.brightness
               // Send to KNX bus
               if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.server.writeQueueAdd({ grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
-
-              if (config.updateSwitchStatusOnBrightness === 'yes' || config.updateSwitchStatusOnBrightness === undefined) {
-                // ISE Connect Hue emulation, send true/false to switch state
-                knxMsgPayload.topic = config.GALightState
-                knxMsgPayload.dpt = config.dptLightState
-                knxMsgPayload.payload = _event.dimming.brightness > 0
+              if (node.currentHUEDevice !== undefined) node.currentHUEDevice.dimming = _event.dimming // Update the internal object representing the current light
+            }
+            if (config.updateSwitchStatusOnBrightness === 'yes' || config.updateSwitchStatusOnBrightness === undefined) {
+              // ISE Connect Hue emulation, send true/false to switch state
+              knxMsgPayload.topic = config.GALightState
+              knxMsgPayload.dpt = config.dptLightState
+              knxMsgPayload.payload = _event.dimming.brightness > 0
+              if (node.currentHUEDevice === undefined || node.currentHUEDevice.on.on !== knxMsgPayload.payload) { // Check not to have already sent the value
                 // Send to KNX bus
                 if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.server.writeQueueAdd({ grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
               }
-
             }
           }
           if (_event.hasOwnProperty('color_temperature')) {
@@ -280,6 +283,7 @@ module.exports = function (RED) {
               }
               // Send to KNX bus
               if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.server.writeQueueAdd({ grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
+              if (node.currentHUEDevice !== undefined) node.currentHUEDevice.color_temperature = _event.color_temperature // Update the internal object representing the current light
             }
           }
           node.setNodeStatusHue({ fill: 'blue', shape: 'ring', text: 'HUE->KNX State', payload: knxMsgPayload.payload })
@@ -298,7 +302,7 @@ module.exports = function (RED) {
       node.serverHue.removeClient(node)
       // I must get the light object, to store it in the node.currentHUEDevice variable
       // I queue the state request, by passing the callback to call whenever the HUE bridge send me the light status async
-      if (node !== null && node.serverHue !== null && node.serverHue.hueManager !== null) {
+      if (node.serverHue !== null && node.serverHue.hueManager !== null) {
         (async () => {
           try {
             await node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, null, 'getLight', (jLight) => {
