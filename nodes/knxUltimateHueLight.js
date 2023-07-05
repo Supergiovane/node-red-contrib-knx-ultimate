@@ -259,7 +259,7 @@ module.exports = function (RED) {
               // Send to KNX bus
               if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.server.writeQueueAdd({ grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
 
-              if (config.updateSwitchStatusOnBrightness === 'yes') {
+              if (config.updateSwitchStatusOnBrightness === 'yes' || config.updateSwitchStatusOnBrightness === undefined) {
                 // ISE Connect Hue emulation, send true/false to switch state
                 knxMsgPayload.topic = config.GALightState
                 knxMsgPayload.dpt = config.dptLightState

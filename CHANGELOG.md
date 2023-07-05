@@ -7,6 +7,10 @@
 # CHANGELOG
 
 <p>
+<b>Version 2.1.23</b> - July 2023<br/>
+- NEW: Hue Light: Update KNX Switch Status on HUE brighness change, now is the default.<br/>
+</p>
+<p>
 <b>Version 2.1.22</b> - July 2023<br/>
 - NEW: Hue Light: UI optimization and allow to set the switch on light, even it Night Lighting is unselected.<br/>
 </p>
