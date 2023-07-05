@@ -47,12 +47,12 @@ module.exports = function (RED) {
           case config.GAshort_releaseStatus:
             msg.payload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptshort_release))
             node.short_releaseValue = msg.payload
-            node.setNodeStatusHue({ fill: 'blue', shape: 'dot', text: 'KNX->HUE Short Release Status', payload: msg.payload })
+            node.setNodeStatusHue({ fill: 'green', shape: 'dot', text: 'KNX->HUE Short Release Status', payload: msg.payload })
             break
           case config.GArepeatStatus:
             msg.payload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptrepeat))
             node.toggleGArepeat = msg.payload.decr_incr === 1
-            node.setNodeStatusHue({ fill: 'blue', shape: 'dot', text: 'KNX->HUE Repeat Status', payload: msg.payload })
+            node.setNodeStatusHue({ fill: 'green', shape: 'dot', text: 'KNX->HUE Repeat Status', payload: msg.payload })
             break
           default:
             break
@@ -105,7 +105,7 @@ module.exports = function (RED) {
                 knxMsgPayload.payload = node.short_releaseValue
                 // Send to KNX bus
                 if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.server.writeQueueAdd({ grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
-                if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.setNodeStatusHue({ fill: 'green', shape: 'dot', text: 'HUE->KNX ' + _event.button.last_event, payload: knxMsgPayload.payload })
+                if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.setNodeStatusHue({ fill: 'blue', shape: 'dot', text: 'HUE->KNX ' + _event.button.last_event, payload: knxMsgPayload.payload })
               }
               break
             case 'repeat':
@@ -118,7 +118,7 @@ module.exports = function (RED) {
                   knxMsgPayload.payload = node.long_pressValue ? { decr_incr: 0, data: 3 } : { decr_incr: 1, data: 3 } // If the light is turned on, the initial DIM direction must be down, otherwise, up
                   // Send to KNX bus
                   if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.server.writeQueueAdd({ grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
-                  if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.setNodeStatusHue({ fill: 'green', shape: 'dot', text: 'HUE->KNX START DIM', payload: '' })
+                  if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.setNodeStatusHue({ fill: 'blue', shape: 'dot', text: 'HUE->KNX START DIM', payload: '' })
                 }
                 node.startDimStopper(knxMsgPayload)
               }
@@ -134,7 +134,7 @@ module.exports = function (RED) {
           flowMsg.rawEvent = _event
           flowMsg.payload = flowMsgPayload
           node.send(flowMsg)
-          node.setNodeStatusHue({ fill: 'blue', shape: 'ring', text: 'HUE->KNX', payload: flowMsg.rawEvent + ' ' + flowMsg.payload })
+          //node.setNodeStatusHue({ fill: 'blue', shape: 'ring', text: 'HUE->KNX', payload: flowMsg.rawEvent + ' ' + flowMsg.payload })
         }
       } catch (error) {
         node.setNodeStatusHue({ fill: 'red', shape: 'dot', text: 'HUE->KNX error ' + error.message, payload: '' })

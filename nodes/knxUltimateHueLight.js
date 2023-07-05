@@ -41,24 +41,28 @@ module.exports = function (RED) {
       node.status({ fill, shape, text: text + ' ' + payload + ' (' + dDate.getDate() + ', ' + dDate.toLocaleTimeString() + ')' })
     }
 
-    // This function is called by the knx-hue
+    // This function is called by the hue-config.js
     node.handleSend = msg => {
       let state = {}
       try {
         switch (msg.knx.destination) {
           case config.GALightSwitch:
             msg.payload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightSwitch))
-            if (msg.payload) {
-              let jColorChoosen = { red: 255, green: 255, blue: 255 }
-              if (node.DayTime) {
-                jColorChoosen = JSON.parse(config.colorAtSwitchOnDayTime || '{ "red": 255, "green": 255, "blue": 255 }')
+            if (msg.payload === true) {
+              if (config.enableDayNightLighting === true) {
+                let jColorChoosen = { red: 255, green: 255, blue: 255 }
+                if (node.DayTime) {
+                  jColorChoosen = JSON.parse(config.colorAtSwitchOnDayTime || '{ "red": 255, "green": 255, "blue": 255 }')
+                } else {
+                  jColorChoosen = JSON.parse(config.colorAtSwitchOnNightTime || '{ "red": 255, "green": 255, "blue": 255 }')
+                }
+                let dgamut = node.currentHUEDevice !== undefined ? node.currentHUEDevice.color.gamut_type : null
+                let dretXY = hueColorConverter.ColorConverter.rgbToXy(jColorChoosen.red, jColorChoosen.green, jColorChoosen.blue, dgamut)
+                let dbright = hueColorConverter.ColorConverter.getBrightnessFromRGB(jColorChoosen.red, jColorChoosen.green, jColorChoosen.blue)
+                state = dbright > 0 ? { on: { on: true }, dimming: { brightness: dbright }, color: { xy: dretXY } } : { on: { on: false } }
               } else {
-                jColorChoosen = JSON.parse(config.colorAtSwitchOnNightTime || '{ "red": 255, "green": 255, "blue": 255 }')
+                state = { on: { on: true } }
               }
-              let dgamut = node.currentHUEDevice !== undefined ? node.currentHUEDevice.color.gamut_type : null
-              let dretXY = hueColorConverter.ColorConverter.rgbToXy(jColorChoosen.red, jColorChoosen.green, jColorChoosen.blue, dgamut)
-              let dbright = hueColorConverter.ColorConverter.getBrightnessFromRGB(jColorChoosen.red, jColorChoosen.green, jColorChoosen.blue)
-              state = dbright > 0 ? { on: { on: true }, dimming: { brightness: dbright }, color: { xy: dretXY } } : { on: { on: false } }
             } else {
               state = { on: { on: false } }
             }
@@ -231,12 +235,6 @@ module.exports = function (RED) {
               knxMsgPayload.payload = _event.on.on
               // Send to KNX bus
               if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.server.writeQueueAdd({ grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
-              // ISE Connect Hue emulation, send brightness
-              knxMsgPayload.topic = config.GALightBrightnessState
-              knxMsgPayload.dpt = config.dptLightBrightnessState
-              knxMsgPayload.payload = _event.on.on === true ? 100 : 0
-              // Send to KNX bus
-              //if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.server.writeQueueAdd({ grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
             }
           }
           if (_event.hasOwnProperty('color')) {
@@ -255,12 +253,16 @@ module.exports = function (RED) {
               knxMsgPayload.payload = _event.dimming.brightness
               // Send to KNX bus
               if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.server.writeQueueAdd({ grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
-              // ISE Connect Hue emulation, send true/false to switch state
-              knxMsgPayload.topic = config.GALightState
-              knxMsgPayload.dpt = config.dptLightState
-              knxMsgPayload.payload = _event.dimming.brightness > 0
-              // Send to KNX bus
-              if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.server.writeQueueAdd({ grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
+
+              if (config.updateSwitchStatusOnBrightness === 'yes') {
+                // ISE Connect Hue emulation, send true/false to switch state
+                knxMsgPayload.topic = config.GALightState
+                knxMsgPayload.dpt = config.dptLightState
+                knxMsgPayload.payload = _event.dimming.brightness > 0
+                // Send to KNX bus
+                if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.server.writeQueueAdd({ grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
+              }
+
             }
           }
           if (_event.hasOwnProperty('color_temperature')) {

@@ -52,7 +52,7 @@ module.exports = function (RED) {
             if (knxMsgPayload.dpt.startsWith('3.007')) {
               if (node.isTimerDimStopRunning === false) {
                 // Set KNX Dim up/down start
-                knxMsgPayload.payload = { decr_incr: 1, data: 3 } // Send to KNX bus
+                knxMsgPayload.payload = { decr_incr: 1, data: 5 } // Send to KNX bus
                 if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.server.writeQueueAdd({ grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
                 if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.status({ fill: 'green', shape: 'dot', text: 'HUE->KNX start Dim' + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' })
               }
@@ -79,7 +79,7 @@ module.exports = function (RED) {
             if (knxMsgPayload.dpt.startsWith('3.007')) {
               if (node.isTimerDimStopRunning === false) {
                 // Set KNX Dim up/down start
-                knxMsgPayload.payload = { decr_incr: 0, data: 3 } // Send to KNX bus
+                knxMsgPayload.payload = { decr_incr: 0, data: 5 } // Send to KNX bus
                 if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.server.writeQueueAdd({ grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
                 if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.status({ fill: 'green', shape: 'dot', text: 'HUE->KNX start Dim' + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' })
               }
@@ -112,16 +112,17 @@ module.exports = function (RED) {
 
     // Timer to stop the dimming sequence
     node.startDimStopper = function (knxMsgPayload) {
-      if (node.timerDimStop !== undefined) clearInterval(node.timerDimStop)
+      if (node.timerDimStop !== undefined) clearTimeout(node.timerDimStop)
       node.isTimerDimStopRunning = true
       node.timerDimStop = setTimeout(() => {
+        console.log("Stop banana")
         // KNX Stop DIM
         knxMsgPayload.payload = { decr_incr: 0, data: 0 } // Payload for the output msg
         // Send to KNX bus
         if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.server.writeQueueAdd({ grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
         if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.status({ fill: 'green', shape: 'dot', text: 'HUE->KNX Stop DIM' + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' })
         node.isTimerDimStopRunning = false
-      }, 500)
+      }, 1500)
     }
 
     // On each deploy, unsubscribe+resubscribe
