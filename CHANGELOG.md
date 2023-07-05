@@ -7,9 +7,8 @@
 # CHANGELOG
 
 <p>
-<b>Version 2.1.21</b> - July 2023<br/>
+<b>Version 2.1.22</b> - July 2023<br/>
 - NEW: Hue Light: UI optimization and allow to set the switch on light, even it Night Lighting is unselected.<br/>
-- NEW: Hue Light: you can now choose some options in the new Behaviours configuration tab.<br/>
 </p>
 <p>
 <b>Version 2.1.20</b> - July 2023<br/>

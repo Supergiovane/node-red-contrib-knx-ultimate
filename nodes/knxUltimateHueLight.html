@@ -801,7 +801,7 @@
         </div>
         <div class="form-row">
             <label for="node-input-colorAtSwitchOnDayTime" style="width:250px">
-                <i class="fa fa-sun-o"></i> Switch on color/brightness
+                <i class="fa fa-sun-o"></i> Switch On - color/brightness
             </label>
             <input type="text" id="node-input-colorAtSwitchOnDayTime" placeholder='Leave blank or, for example, {"red":255, "green":255, "blue":255}'
                 style="width:260px">
@@ -815,7 +815,7 @@
         <div id="DivEnableDayNightLighting">
             <div class="form-row">
                 <label for="node-input-colorAtSwitchOnNightTime" style="width:250px">
-                    <i class="fa fa-moon-o"></i> Switch on color/brightness at Night
+                    <i class="fa fa-moon-o"></i> Switch On - color/brightness at Night
                 </label>
                 <input type="text" id="node-input-colorAtSwitchOnNightTime" placeholder='Example {"red":100, "green":0, "blue":50}'
                     style="width:260px">
@@ -1009,9 +1009,9 @@ Start typing in the GA field, the name or group address of your KNX device, the 
 |--|--|
 | Switch | This GA is used to turn on/off the HUE light via a boolean KNX value true/false|
 | Switch Status | Link this to the light's switch status group address|
-| Switch on color/brightness | You can choose the color/brightness of your light, at switch on. Set it as JSON object, for example **{ "red": 255, "green": 255, "blue": 255 }**. Leave blank to disable. |
+| Switch On - color/brightness | You can choose the color/brightness of your light, at switch on. Set it as JSON object, for example **{ "red": 255, "green": 255, "blue": 255 }**. Leave blank to disable. |
 | Night Lighting | It allows to set a particular light color/brightness at nighttime. If **checked**, a further set of option shows up and the light changes the behaviour based on these options, everytime you switch the light *on*. |
-| Switch on color/brightness at Nighttime | You can choose the color/brightness of your light, at switch on, on night time. Set it as JSON object. Default value if you leave blank is **{ "red": 100, "green": 0, "blue": 0 }** |
+| Switch On - color/brightness at Nighttime | You can choose the color/brightness of your light, at switch on, on night time. Set it as JSON object. Default value if you leave blank is **{ "red": 100, "green": 0, "blue": 0 }** |
 | Day/Night | Select the group address used to set the day/night behaviour. The group address value is *true* if daytime, *false* if nighttime. |
 | Invert day/night values | Invert the values of *Day/Night* group address. Default value is **unchecked**.|
 
