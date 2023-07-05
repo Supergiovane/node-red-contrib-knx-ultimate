@@ -798,14 +798,28 @@
         
             <label for="node-input-nameLightState" style="width:50px; margin-left: 0px; text-align: right;"><span data-i18n="knxUltimateHueLight.node-input-name"></span></label>
             <input type="text" id="node-input-nameLightState" style="width:200px;margin-left: 5px; text-align: left;">
-        </div>        
+        </div>
         <div class="form-row">
-            <label style="width:150px" for="node-input-enableDayNightLighting">
-                <i class="fa fa-clone"></i> Day/Night Lighting
+            <label for="node-input-colorAtSwitchOnDayTime" style="width:250px">
+                <i class="fa fa-sun-o"></i> Switch on color/brightness
+            </label>
+            <input type="text" id="node-input-colorAtSwitchOnDayTime" placeholder='Leave blank or, for example, {"red":255, "green":255, "blue":255}'
+                style="width:260px">
+        </div>
+        <div class="form-row">
+            <label style="width:170px" for="node-input-enableDayNightLighting">
+                <i class="fa fa-clone"></i> Night Lighting
             </label>
             <input type="checkbox" id="node-input-enableDayNightLighting" style="display:inline-block; width:auto; vertical-align:top;" />            
         </div>        
         <div id="DivEnableDayNightLighting">
+            <div class="form-row">
+                <label for="node-input-colorAtSwitchOnNightTime" style="width:250px">
+                    <i class="fa fa-moon-o"></i> Switch on color/brightness at Night
+                </label>
+                <input type="text" id="node-input-colorAtSwitchOnNightTime" placeholder='Example {"red":100, "green":0, "blue":50}'
+                    style="width:260px">
+            </div>
             <div class="form-row">
                 <label for="node-input-nameDaylightSensor" style="width:100px;"><i class="fa fa-clock-o"></i> Day/Night</label>
 
@@ -824,19 +838,6 @@
                 </label>
                 <input type="checkbox" id="node-input-invertDayNight" style="display:inline-block; width:auto; vertical-align:top;" />
                         
-            </div>
-
-            <div class="form-row">
-                <label for="node-input-colorAtSwitchOnDayTime" style="width:200px">
-                    <i class="fa fa-sun-o"></i> Switch on color at Daytime
-                </label>
-                <input type="text" id="node-input-colorAtSwitchOnDayTime" placeholder='{"red":255, "green":255, "blue":255}' style="width:250px">            
-            </div>
-            <div class="form-row">
-                <label for="node-input-colorAtSwitchOnNightTime" style="width:200px">
-                    <i class="fa fa-moon-o"></i> Switch on color at Nighttime
-                </label>
-                <input type="text" id="node-input-colorAtSwitchOnNightTime" placeholder='{"red":100, "green":0, "blue":50}' style="width:250px">            
             </div>
         </div>
       </p>
@@ -968,7 +969,6 @@
             </div>
         </p>      
     </div>
-
     <div id="tabs-6">
         <p>
             <br/>
@@ -1009,11 +1009,11 @@ Start typing in the GA field, the name or group address of your KNX device, the 
 |--|--|
 | Switch | This GA is used to turn on/off the HUE light via a boolean KNX value true/false|
 | Switch Status | Link this to the light's switch status group address|
-| Day/Night Lighting | It allows to set a particular light color/brightness based on daytime and nighttime. If **checked**, a further set of option shows up and the light changes the behaviour based on these options, everytime you switch the light *on*. If **unchecked**, the light behaviour and brightness/color values remain unchanged. |
+| Switch on color/brightness | You can choose the color/brightness of your light, at switch on. Set it as JSON object, for example **{ "red": 255, "green": 255, "blue": 255 }**. Leave blank to disable. |
+| Night Lighting | It allows to set a particular light color/brightness at nighttime. If **checked**, a further set of option shows up and the light changes the behaviour based on these options, everytime you switch the light *on*. |
+| Switch on color/brightness at Nighttime | You can choose the color/brightness of your light, at switch on, on night time. Set it as JSON object. Default value if you leave blank is **{ "red": 100, "green": 0, "blue": 0 }** |
 | Day/Night | Select the group address used to set the day/night behaviour. The group address value is *true* if daytime, *false* if nighttime. |
 | Invert day/night values | Invert the values of *Day/Night* group address. Default value is **unchecked**.|
-| Switch on color at Daytime | You can choose the color/brightness of your light, at switch on, on night time. Set it as JSON object. Default value is **{ "red": 255, "green": 255, "blue": 255 }** |
-| Switch on color at Nighttime | You can choose the color/brightness of your light, at switch on, on night time. Set it as JSON object. Default value is **{ "red": 100, "green": 0, "blue": 0 }** |
 
 <br/>
 

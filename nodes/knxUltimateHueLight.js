@@ -49,19 +49,24 @@ module.exports = function (RED) {
           case config.GALightSwitch:
             msg.payload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightSwitch))
             if (msg.payload === true) {
-              if (config.enableDayNightLighting === true) {
+              if (config.colorAtSwitchOnDayTime !== undefined && config.colorAtSwitchOnDayTime.toString().trim() !== '') {
+                // The user selected specific color/brightness at switch on.
                 let jColorChoosen = { red: 255, green: 255, blue: 255 }
-                if (node.DayTime) {
-                  jColorChoosen = JSON.parse(config.colorAtSwitchOnDayTime || '{ "red": 255, "green": 255, "blue": 255 }')
-                } else {
-                  jColorChoosen = JSON.parse(config.colorAtSwitchOnNightTime || '{ "red": 255, "green": 255, "blue": 255 }')
-                }
+                jColorChoosen = JSON.parse(config.colorAtSwitchOnDayTime || '{ "red": 255, "green": 255, "blue": 255 }')
                 let dgamut = node.currentHUEDevice !== undefined ? node.currentHUEDevice.color.gamut_type : null
                 let dretXY = hueColorConverter.ColorConverter.rgbToXy(jColorChoosen.red, jColorChoosen.green, jColorChoosen.blue, dgamut)
                 let dbright = hueColorConverter.ColorConverter.getBrightnessFromRGB(jColorChoosen.red, jColorChoosen.green, jColorChoosen.blue)
                 state = dbright > 0 ? { on: { on: true }, dimming: { brightness: dbright }, color: { xy: dretXY } } : { on: { on: false } }
               } else {
                 state = { on: { on: true } }
+              }
+              if (config.enableDayNightLighting === true && !node.DayTime) {
+                let jColorChoosen = { red: 23, green: 4, blue: 0 }
+                jColorChoosen = JSON.parse(config.colorAtSwitchOnNightTime || '{ "red": 23, "green": 4, "blue": 0 }')
+                let dgamut = node.currentHUEDevice !== undefined ? node.currentHUEDevice.color.gamut_type : null
+                let dretXY = hueColorConverter.ColorConverter.rgbToXy(jColorChoosen.red, jColorChoosen.green, jColorChoosen.blue, dgamut)
+                let dbright = hueColorConverter.ColorConverter.getBrightnessFromRGB(jColorChoosen.red, jColorChoosen.green, jColorChoosen.blue)
+                state = dbright > 0 ? { on: { on: true }, dimming: { brightness: dbright }, color: { xy: dretXY } } : { on: { on: false } }
               }
             } else {
               state = { on: { on: false } }
@@ -108,12 +113,12 @@ module.exports = function (RED) {
             node.setNodeStatusHue({ fill: 'green', shape: 'dot', text: 'KNX->HUE', payload: state })
             break
           case config.GALightColor:
-            // Behavior like ISE HUE CONNECT, by setting the brightness and on/off as well
             msg.payload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightColor))
             const gamut = node.currentHUEDevice !== undefined ? node.currentHUEDevice.color.gamut_type : null
             const retXY = hueColorConverter.ColorConverter.rgbToXy(msg.payload.red, msg.payload.green, msg.payload.blue, gamut)
             const bright = hueColorConverter.ColorConverter.getBrightnessFromRGB(msg.payload.red, msg.payload.green, msg.payload.blue)
-            state = bright > 0 ? { on: { on: true }, dimming: { brightness: bright }, color: { xy: retXY } } : { on: { on: false } }
+            //state = bright > 0 ? { on: { on: true }, dimming: { brightness: bright }, color: { xy: retXY } } : { on: { on: false } }
+            state = { dimming: { brightness: bright }, color: { xy: retXY } }
             node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, state, 'setLight')
             node.setNodeStatusHue({ fill: 'green', shape: 'dot', text: 'KNX->HUE', payload: state })
             break
