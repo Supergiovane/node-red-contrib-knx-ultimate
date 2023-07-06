@@ -58,7 +58,7 @@ module.exports = function (RED) {
               }
               node.startDimStopper(knxMsgPayload)
             } else if (knxMsgPayload.dpt.startsWith('5.001')) {
-              // 0 – maximum: 32767
+              // 0 - maximum: 32767
               node.brightnessState < 100 ? node.brightnessState += 20 : node.brightnessState = 100
               knxMsgPayload.payload = node.brightnessState
             } else if (knxMsgPayload.dpt.startsWith('232.600')) {

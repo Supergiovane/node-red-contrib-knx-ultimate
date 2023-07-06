@@ -49,7 +49,7 @@ module.exports = function (RED) {
         devicename = devicename || ''
         dpt = (typeof dpt === 'undefined' || dpt == '') ? '' : ' DPT' + dpt
         payload = typeof payload === 'object' ? JSON.stringify(payload) : payload
-        node.status({ fill, shape, text: GA + payload + ((node.listenallga && node.server.statusDisplayDeviceNameWhenALL) === true ? ' ' + devicename : '') + (node.server.statusDisplayDataPoint === true ? dpt : '') + (node.server.statusDisplayLastUpdate === true ? ' (' + dDate.getDate() + ', ' + dDate.toLocaleTimeString() + ')' : '') + ' ' + text })
+        node.status({ fill, shape, text: GA + payload + (node.listenallga === true ? ' ' + devicename : '') + ' (' + dDate.getDate() + ', ' + dDate.toLocaleTimeString() + ' ' + text })
         // 16/02/2020 signal errors to the server
         if (fill.toUpperCase() === 'RED') {
           if (node.server) {

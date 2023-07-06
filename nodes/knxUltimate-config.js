@@ -110,9 +110,6 @@ return msg;`,
     node.nodeClients = [] // Stores the registered clients
     node.KNXEthInterface = typeof config.KNXEthInterface === 'undefined' ? 'Auto' : config.KNXEthInterface
     node.KNXEthInterfaceManuallyInput = typeof config.KNXEthInterfaceManuallyInput === 'undefined' ? '' : config.KNXEthInterfaceManuallyInput // If you manually set the interface name, it will be wrote here
-    node.statusDisplayLastUpdate = typeof config.statusDisplayLastUpdate === 'undefined' ? true : config.statusDisplayLastUpdate
-    node.statusDisplayDeviceNameWhenALL = typeof config.statusDisplayDeviceNameWhenALL === 'undefined' ? false : config.statusDisplayDeviceNameWhenALL
-    node.statusDisplayDataPoint = typeof config.statusDisplayDataPoint === 'undefined' ? false : config.statusDisplayDataPoint
     node.telegramsQueue = [] // 02/01/2020 Queue containing telegrams
     node.timerSendTelegramFromQueue = null
     node.delaybetweentelegramsfurtherdelayREAD = (typeof config.delaybetweentelegramsfurtherdelayREAD === 'undefined' || Number(config.delaybetweentelegramsfurtherdelayREAD < 1)) ? 1 : Number(config.delaybetweentelegramsfurtherdelayREAD) // 18/05/2020 delay multiplicator only for "read" telegrams.
@@ -383,99 +380,6 @@ return msg;`,
         })
       } catch (error) { }
       res.json(jListInterfaces)
-    })
-
-    // 14/02/2020 Endpoint for retrieving all nodes in all flows
-    RED.httpAdmin.get('/nodeList', RED.auth.needsPermission('knxUltimate-config.read'), function (req, res) {
-      let sNodeID = req.query.nodeID // Retrieve node.id of the config node.
-      const _node = RED.nodes.getNode(sNodeID)
-      if (_node === null) {
-        // 27/09/2020 Something wrong
-        return
-      }
-      let sNodes = '"Group Address"\t"Datapoint"\t"Node ID"\t"Device Name"\t"Options"\n' // Contains the text with nodes
-      let sGA = ''
-      let sDPT = ''
-      let sName = ''
-      let sOptions = ''
-      try {
-        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info('KNXUltimate-config: Total knx-ultimate nodes: ' + _node.nodeClients.length || 0)
-        _node.nodeClients
-          // .map( a => a.topic.indexOf("/") !== -1 ? a.topic.split('/').map( n => +n+100000 ).join('/'):0 ).sort().map( a => a.topic.indexOf("/") !== -1 ? a.topic.split('/').map( n => +n-100000 ).join('/'):0 )
-          .sort((a, b) => {
-            if (a.topic !== undefined && b.topic !== undefined) {
-              if (a.topic.indexOf('/') === -1) return -1
-              if (b.topic.indexOf('/') === -1) return -1
-              let date1 = a.topic.split('/')
-              let date2 = b.topic.split('/')
-              date1 = date1[0].padStart(2, '0') + date1[1].padStart(2, '0') + date1[2].padStart(2, '0')
-              date2 = date2[0].padStart(2, '0') + date2[1].padStart(2, '0') + date2[2].padStart(2, '0')
-              return date1.localeCompare(date2)
-            } else { return -1 }
-          })
-          .forEach(_input => {
-            const input = RED.nodes.getNode(_input.id)
-            sNodeID = '"' + input.id + '"'
-            sName = '"' + (input.name !== undefined ? input.name : '') + '"'
-            sOptions = '"' + '"'
-            if (input.listenallga === true) {
-              if (input.hasOwnProperty('isSceneController')) {
-                // Is a Scene Controller
-                sGA = '"Scene Controller"'
-                sDPT = '"Any"'
-              } else if (input.hasOwnProperty('isLogger')) {
-                // Is a Scene Controller
-                sGA = '"Logger"'
-                sDPT = '"Any"'
-              } else if (input.hasOwnProperty('isalertnode')) {
-                // Is a Scene Controller
-                sGA = '"Alerter"'
-                sDPT = '"Any"'
-              } else if (input.hasOwnProperty('isLoadControlNode')) {
-                // Is a Load Controller
-                sGA = '"LoadControl"'
-                sDPT = '"Any"'
-              } else {
-                // Is a ListenallGA
-                sGA = '"Universal Node"'
-                sDPT = '"Any"'
-                sOptions = '"' + 'No Initial Read' + ', '
-
-                sOptions += (input.notifywrite === true ? 'React to Write' : 'No React to Write') + ', '
-                sOptions += (input.notifyresponse === true ? 'React to Response' : 'No React to Response') + ', '
-                sOptions += (input.notifyreadrequest === true ? 'React to Read' : 'No React to Read') + ', '
-                sOptions += 'No Autorespond to Read Requests' + ', '
-
-                sOptions += 'Output type ' + input.outputtype + ', '
-                sOptions += 'No RBE on Output to Bus' + ', '
-                sOptions += 'No RBE on Input from Bus' + '"'
-              }
-            } else {
-              sGA = '"' + (input.topic !== undefined ? input.topic : '') + '"'
-              sDPT = '"' + (input.dpt !== undefined ? input.dpt : '') + '"'
-
-              if (input.hasOwnProperty('isWatchDog')) {
-                // Is a watchdog node
-
-              } else {
-                // Is a device node
-                sOptions = '"' + (Number(input.initialread) > 0 ? 'Initial Read' : 'No Initial Read') + ', '
-                sOptions += (input.notifywrite === true ? 'React to Write' : 'No React to Write') + ', '
-                sOptions += (input.notifyresponse === true ? 'React to Response' : 'No React to Response') + ', '
-                sOptions += (input.notifyreadrequest === true ? 'React to Read' : 'No React to Read') + ', '
-                sOptions += (input.notifyreadrequestalsorespondtobus === true ? 'Autorespond to Read Requests' : 'No Autorespond to Read Requests') + ', '
-
-                sOptions += 'Output type ' + input.outputtype + ', '
-                sOptions += (input.outputRBE === true ? 'RBE on Output to Bus' : 'No RBE on Output to Bus') + ', '
-                sOptions += (input.inputRBE === true ? 'RBE on Input from Bus' : 'No RBE on Input from Bus') + '"'
-              };
-            };
-            sNodes += sGA + '\t' + sDPT + '\t' + sNodeID + '\t' + sName + '\t' + sOptions + '\n'
-          })
-        res.json(sNodes)
-      } catch (error) {
-        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.warn('D ' + error)
-      }
     })
 
     // 12/08/2021 Endpoint for deleting the GA persistent file for the current gateway

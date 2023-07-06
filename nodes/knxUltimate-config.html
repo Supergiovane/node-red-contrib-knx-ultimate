@@ -12,9 +12,6 @@
             csv: { value: "", required: false },
             KNXEthInterface: { value: "Auto" },
             KNXEthInterfaceManuallyInput: { value: "" },
-            statusDisplayLastUpdate: { value: true },
-            statusDisplayDeviceNameWhenALL: { value: true },
-            statusDisplayDataPoint: { value: false },
             stopETSImportIfNoDatapoint: { value: "stop" },
             loglevel: { value: "error" },
             name: { value: "KNX Gateway" },
@@ -112,10 +109,6 @@
                 });
             });
 
-            // 14/02/2020 San Valentino. Retrieve all nodes and show here. Requested by use Alloc in knx-user-forum.de
-            $.getJSON("nodeList?nodeID=" + node.id, (data) => {
-                $("#nodeList").val(data);
-            });
 
             // 14/08/2021 Elimino il file delle persistenze di questo nodo
             $.getJSON("deletePersistGAFile?nodeID=" + node.id, (data) => {
@@ -134,21 +127,12 @@
                 //     })
             });
 
-            // 07/01/2020 Collapsible script
+            // 06/07/2023 Tabs
             // *****************************
-            $("#advancedOptionsAccordion").accordion({
-                header: "h3",
-                heightStyle: "content",
-                collapsible: true,
-                active: false
-            });
-            $("#etsCSVListBox").accordion({
-                header: "h3",
-                heightStyle: "content",
-                collapsible: true,
-                active: false
-            });
+            $("#tabs").tabs();
             // *****************************
+
+
 
             var sRetDebugText = "";
             $("#getinfocam").click(function () {
@@ -220,6 +204,8 @@
         color: #459e00;
     }
 </style>
+
+
 <script type="text/html" data-template-name="knxUltimate-config">
     <div class="form-row">
        <b><span data-i18n="knxUltimate-config.properties.title"></span></b>&nbsp&nbsp<span style="color:red" data-i18n="[html]knxUltimate-config.properties.helplink"></span>
@@ -282,73 +268,64 @@
             </p>   
         </div>
       </div> -->
-
-    <br/>
-    <div class="form-row">
-        <label for="node-config-input-KNXEthInterface" style="width: 200px">
-            <i class="fa fa-wifi"></i>
-            <span data-i18n="knxUltimate-config.properties.bind_local_int"></span>
-        </label>
-        <select id="node-config-input-KNXEthInterface"></select>
-    </div>
-    <div class="form-row" id="divKNXEthInterfaceManuallyInput" style="display: none;">
-        <label for="node-config-input-KNXEthInterfaceManuallyInput">Interface name:</label>
-        <input type="text" id="node-config-input-KNXEthInterfaceManuallyInput" placeholder="Interface name, ex: eth0 or ens1 or Ethernet 1 and so on..."></input>
-    </div>
-    <div class="form-row">
-        <label for="node-config-input-autoReconnect" style="width: 200px">
-            <i class="fa fa-plug"></i>
-            <span data-i18n="knxUltimate-config.properties.autoReconnect"></span>
-        </label>
-        <select id="node-config-input-autoReconnect">
-            <option value="yes" data-i18n="knxUltimate-config.properties.autoReconnect_yes"></option>
-            <option value="no" data-i18n="knxUltimate-config.properties.autoReconnect_no"></option>
-        </select>
-    </div>
     
-    <div id="advancedOptionsAccordion">
-        <h3><span data-i18n="knxUltimate-config.properties.adv_options"></span></h3>
-        <div>
+      <br/>
+
+<div id="tabs">
+    <ul>
+        <li><a href="#tabs-1"><i class="fa fa-list-ol"></i> Configuration</a></li>
+        <li><a href="#tabs-2"><i class="fa fa-braille"></i> Advanced</a></li>
+        <li><a href="#tabs-3"><i class="fa fa-code"></i> ETS file import</a></li>
+        <li><a href="#tabs-4"><i class="fa fa-key"></i> Maintenance</a></li>
+    </ul>
+    <div id="tabs-1">
+        <p>
             <div class="form-row">
-                <label for="node-config-input-physAddr" style="width:auto">
+                <label for="node-config-input-physAddr" style="width: 200px">
                     <i class="fa fa-microchip"></i>
                     <span data-i18n="knxUltimate-config.advanced.knx_phy_addr"></span>
                 </label>
                 <input type="text" id="node-config-input-physAddr" style="width:30%">
             </div>
-            
+
             <div class="form-row">
-                <input type="checkbox" id="node-config-input-localEchoInTunneling" style="display:inline-block; width:auto; vertical-align:top;">
+                <label for="node-config-input-KNXEthInterface" style="width: 200px">
+                    <i class="fa fa-wifi"></i>
+                    <span data-i18n="knxUltimate-config.properties.bind_local_int"></span>
+                </label>
+                <select id="node-config-input-KNXEthInterface"></select>
+            </div>
+            <div class="form-row" id="divKNXEthInterfaceManuallyInput" style="display: none;">
+                <label for="node-config-input-KNXEthInterfaceManuallyInput">Interface name:</label>
+                <input type="text" id="node-config-input-KNXEthInterfaceManuallyInput"
+                    placeholder="Interface name, ex: eth0 or ens1 or Ethernet 1 and so on...">
+            </div>
+            <div class="form-row">
+                <label for="node-config-input-autoReconnect" style="width: 200px">
+                    <i class="fa fa-plug"></i>
+                    <span data-i18n="knxUltimate-config.properties.autoReconnect"></span>
+                </label>
+                <select id="node-config-input-autoReconnect">
+                    <option value="yes" data-i18n="knxUltimate-config.properties.autoReconnect_yes"></option>
+                    <option value="no" data-i18n="knxUltimate-config.properties.autoReconnect_no"></option>
+                </select>
+            </div>
+        </p>
+    </div>
+    <div id="tabs-2">
+        <p>
+            <div class="form-row">
+                <input type="checkbox" id="node-config-input-localEchoInTunneling"
+                    style="display:inline-block; width:auto; vertical-align:top;">
                 <label style="width:85%" for="node-config-input-localEchoInTunneling">
                     <i class="fa fa-bullhorn"></i>
                     <span data-i18n="knxUltimate-config.advanced.localEchoInTunneling"></span>
                 </label>
             </div>
-            
-            <div class="form-row">
-                <input type="checkbox" id="node-config-input-statusDisplayLastUpdate" style="display:inline-block; width:auto; vertical-align:top;">
-                <label style="width:85%" for="node-config-input-statusDisplayLastUpdate">
-                    <i class="fa fa-comment-o"></i>
-                    <span data-i18n="knxUltimate-config.advanced.show_date_status"></span>
-                </label>
-            </div>
-            <div class="form-row">
-                <input type="checkbox" id="node-config-input-statusDisplayDeviceNameWhenALL" style="display:inline-block; width:auto; vertical-align:top;">
-                <label style="width:85%" for="node-config-input-statusDisplayDeviceNameWhenALL">
-                    <i class="fa fa-comment-o"></i>
-                    <span data-i18n="knxUltimate-config.advanced.show_device_status"></span>
-                </label>
-            </div>
-            <div class="form-row">
-                <input type="checkbox" id="node-config-input-statusDisplayDataPoint" style="display:inline-block; width:auto; vertical-align:top;">
-                <label style="width:85%" for="node-config-input-statusDisplayDataPoint">
-                    <i class="fa fa-comment-o"></i>
-                    <span data-i18n="knxUltimate-config.advanced.show_datapoint_status"></span>
-                </label>
-            </div>
 
             <div class="form-row">
-                <input type="checkbox" id="node-config-input-ignoreTelegramsWithRepeatedFlag" style="display:inline-block; width:auto; vertical-align:top;">
+                <input type="checkbox" id="node-config-input-ignoreTelegramsWithRepeatedFlag"
+                    style="display:inline-block; width:auto; vertical-align:top;">
                 <label style="width:85%" for="node-config-input-ignoreTelegramsWithRepeatedFlag">
                     <i class="fa fa-ban"></i>
                     <span data-i18n="knxUltimate-config.advanced.ignoreTelegramsWithRepeatedFlag"></span>
@@ -356,23 +333,22 @@
             </div>
 
             <div class="form-row">
-                <input type="checkbox" id="node-config-input-suppressACKRequest" style="display:inline-block; width:auto; vertical-align:top;">
+                <input type="checkbox" id="node-config-input-suppressACKRequest"
+                    style="display:inline-block; width:auto; vertical-align:top;">
                 <label style="width:85%" for="node-config-input-suppressACKRequest">
                     <i class="fa fa-ban"></i>
                     <span data-i18n="knxUltimate-config.advanced.suppress_ack"></span>
                 </label>
-                <div id="helpallga" class="form-tips" style="margin-top:11px">
-                    <span data-i18n="knxUltimate-config.advanced.suppress_ack_help"></span>
-                </div>
             </div>
-            
+
             <div class="form-row">
                 <label for="node-config-input-delaybetweentelegrams" style="width:auto">
                     <i class="fa fa-hourglass-start"></i>
                     <span data-i18n="knxUltimate-config.advanced.delaybetweentelegrams"></span>
                 </label>
                 <input type="number" id="node-config-input-delaybetweentelegrams" style="width:20%">
-                <span data-i18n="knxUltimate-config.advanced.delaybetweentelegramsfurtherdelayREAD"></span><input type="number" id="node-config-input-delaybetweentelegramsfurtherdelayREAD" style="width:15%">X
+                <span data-i18n="knxUltimate-config.advanced.delaybetweentelegramsfurtherdelayREAD"></span><input type="number"
+                    id="node-config-input-delaybetweentelegramsfurtherdelayREAD" style="width:15%">X
             </div>
 
             <div class="form-row">
@@ -389,59 +365,69 @@
                     <option value="trace" data-i18n="knxUltimate-config.advanced.select_trace"></option>
                 </select>
                 <!-- <div class="form-tips" style="margin-top: 11px;background-color:#FFEEEE;text-align:center">
-                    <b><span data-i18n="knxUltimate-config.properties.restart_hint"></span></b>
-                </div> -->
+                                <b><span data-i18n="knxUltimate-config.properties.restart_hint"></span></b>
+                            </div> -->
             </div>
-            <p>
-                <span data-i18n="knxUltimate-config.advanced.nodes_list_title"></span>
-                <textarea rows="20" id="nodeList" style="width:100%" data-i18n="[placeholder]knxUltimate-config.advanced.nodes_list_help"></textarea>
-            </p>
-        </div>
+        </p>
     </div>
 
-    <div id="etsCSVListBox">
-        <h3><span data-i18n="knxUltimate-config.properties.ets_import"></span></h3>
-        <div>
-            <div class="form-row">
-                <span data-i18n="knxUltimate-config.ets.description"></span>
-            </div>
-            <div class="form-row">
-                <span style="color:red" data-i18n="[html]knxUltimate-config.ets.instruction"></span>
-            </div>
-            <div class="form-row">
-                <span style="color:red" data-i18n="[html]knxUltimate-config.ets.youtube"></span>                
-            </div>
-            <div class="form-row">
-                <label style="width:auto" for="node-config-input-stopETSImportIfNoDatapoint">
-                    <i class="fa fa-question-circle"></i>
-                    <span data-i18n="knxUltimate-config.ets.help_ga"></span>
-                </label>
-                <select id="node-config-input-stopETSImportIfNoDatapoint" style="width:100%">
-                    <option value="stop" data-i18n="knxUltimate-config.ets.import_select_stop"></option>
-                    <option value="fake" data-i18n="knxUltimate-config.ets.import_select_fake"></option>
-                    <option value="skip" data-i18n="knxUltimate-config.ets.import_select_skip"></option>
-                </select>
-            </div>
-            <div class="form-row">
-                <label style="width:auto" for="node-config-input-csv">
-                    <i class="fa fa-th-list"></i>
-                    <span data-i18n="knxUltimate-config.ets.ga_list_title"></span>
-                </label>
-            </div>
-            <div class="form-row">
-                <textarea rows="20" id="node-config-input-csv" style="width:100%" data-i18n="[placeholder]knxUltimate-config.ets.ga_list_help"></textarea>
-            </div>
-        </div>
+
+    <div id="tabs-3">
+        <p>
+            <div id="etsCSVListBox">
+                <h3><span data-i18n="knxUltimate-config.properties.ets_import"></span></h3>
+                <div>
+                    <div class="form-row">
+                        <span data-i18n="knxUltimate-config.ets.description"></span>
+                    </div>
+                    <div class="form-row">
+                        <span style="color:red" data-i18n="[html]knxUltimate-config.ets.instruction"></span>
+                    </div>
+                    <div class="form-row">
+                        <span style="color:red" data-i18n="[html]knxUltimate-config.ets.youtube"></span>
+                    </div>
+                    <div class="form-row">
+                        <label for="node-config-input-stopETSImportIfNoDatapoint" style="width:250px">
+                            <i class="fa fa-question-circle"></i>
+                            <span data-i18n="knxUltimate-config.ets.help_ga"></span>
+                        </label>
+                        <select id="node-config-input-stopETSImportIfNoDatapoint" style="width:210px">
+                            <option value="stop" data-i18n="knxUltimate-config.ets.import_select_stop"></option>
+                            <option value="fake" data-i18n="knxUltimate-config.ets.import_select_fake"></option>
+                            <option value="skip" data-i18n="knxUltimate-config.ets.import_select_skip"></option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <label style="width:auto" for="node-config-input-csv">
+                            <i class="fa fa-th-list"></i> ETS group address list
+                        </label>
+                    </div>
+                    <div class="form-row">
+                        <textarea rows="20" id="node-config-input-csv" style="width:100%"
+                            data-i18n="[placeholder]knxUltimate-config.ets.ga_list_help"></textarea>
+                    </div>
+                </div>
+            </div>                       
+        </p>
     </div>
-<br/>
-    <div class="form-row">
-        <label style="width:300px"><i class="fa fa-sign-in"></i> Gather debug info for troubleshoot</label>
-        <input type="button" id="getinfocam" class="ui-button ui-corner-all ui-widget" style="background-color:#AEE1FF;width:150px" value="Read">
+
+    <div id="tabs-4">
+        <p>
+            <div class="form-row">
+                <label style="width:300px"><i class="fa fa-sign-in"></i> Gather debug info for troubleshoot</label>
+                <input type="button" id="getinfocam" class="ui-button ui-corner-all ui-widget"
+                    style="background-color:#AEE1FF;width:150px" value="Read">
+            </div>
+            <div class="form-row" id="divDebugText" style="display: none;">
+                Copy this text, open a new github issue <a target="_blank"
+                    href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/issues/new?assignees=Supergiovane&labels=&template=bug_report.md&title=KNXDebugText">
+                    ->by CLICKING HERE</a>, or paste it to an already open issue.
+                <textarea rows="10" id="debugText" style="width:100%"></textarea>
+            </div>
+        </p>
     </div>
-    <div class="form-row" id="divDebugText" style="display: none;">
-        Copy this text, open a new github issue <a target="_blank" href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/issues/new?assignees=Supergiovane&labels=&template=bug_report.md&title=KNXDebugText"> ->by CLICKING HERE</a>, or paste it to an already open issue.
-        <textarea rows="10" id="debugText" style="width:100%"></textarea>
-    </div>
+</div>
+  
 </script>
 <script type="text/markdown" data-help-name="knxUltimate-config">
 <p>This node connects to your KNX/IP Gateway.
@@ -453,16 +439,40 @@
 | IP/Hostname | ETH/KNX Router multicast address or Interface unicast IP address. If you have an KNX/IP interface, use the interface's IP address, for example 1982.168.1.22, otherwise, if you have a KNX/IP router, put the multicast address 224.0.23.12. You can also type an **Hostname** instead of an IP. |
 | Port | The port. |
 | Protocol dropdown | *Tunnel UDP* is for KNX/IP interfaces, *Multicast UDP* is for KNX/IP Routers. |
+
+<br/>
+
+**Configuration**
+|Property|Description|
+|--|--|
 | Bind to local interface | The Node will use this local interface for communications. Leave "Auto" for automatic selection. If you have more than one lan connection, for example Ethernet and Wifi, it's strongly recommended to manually select the interface, otherwise not all UDP telegram will reach your computer, thus the Node may not work as expected. |
 | Automatically connect to KNX BUS at start | Auto connect to the bus at start. You want to leave it enabled. |
 | KNX Physical Address | The physical KNX address, example 1.1.200 |
+
+<br/>
+
+**Advanced**
+|Property|Description|
+|--|--|
 | Suppress repeated (R-Flag) telegrams fom BUS | Ignore repeated KNX telegrams coming from the bus. |
 | Suppress ACK request in tunneling mode | Enable it if you have a very old KNX/IP gateway. You want to leave it disabled. |
 | Delay between each telegram (in milliseconds) | Leave it 50ms, unless you're connecting to a remote KNX Gateway via a slow internet connection. |
 | and further multiply delay only between -read- telegrams | Multiply the delay for read requests to the KNX bus. Again, for slow KNX Gateways. |
 | Loglevel | Log level, in case you need to debug something with the dev. |
-| List of your nodes in all flows | This is a list of all configured node in your flow. You'll find it useful to manually fill the KNX Routers filters. |
-| ETS Group Address list import | Use this section to import your ETS CSV or ESF file. Please refer to the help links for further infos. |
+
+<br/>
+
+**ETS file import**
+|Property|Description|
+|--|--|
+| If Group Address has no Datapoint | If a group address doesn't have a datapoint, it allow to choose wether to stop import, import quth a fake datapoint of 1.001 or to skip import of that group address | 
+| ETS group address list | Use this section to import your ETS CSV or ESF file. You can either **paste the CSV or ESF file content** or **set the file path**, for example *./pi/homecsv.csv*. Please refer to the help links for further infos. |
+
+<br/>
+
+**Maintenance**
+|Property|Description|
+|--|--|
 | Gather debug info for troubleshoot | Please click the button and add it to the gitHub issue you want to open, it will help me a lot to helping you. |
 
 <br/>

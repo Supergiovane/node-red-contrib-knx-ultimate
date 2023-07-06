@@ -192,7 +192,10 @@ module.exports = function (RED) {
         node.status({ fill: 'red', shape: 'dot', text: 'KNX->HUE error ' + error.message + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' })
       }
     }
+
+    
     // Start dimming
+    // ***********************************************************
     node.timerDim = undefined
     node.dimDirection = {}
     node.timeoutDim = 0
@@ -218,9 +221,12 @@ module.exports = function (RED) {
         node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, node.dimDirection, 'setLight')
       }, 700)
     }
+    // ***********************************************************
+
 
     // Start dimming tunable white
     // mirek: required(integer minimum: 153, maximum: 500)
+    // ***********************************************************
     node.timerDimTunableWhite = undefined
     node.dimDirectionTunableWhite = {}
     node.timeoutDimTunableWhite = 0
@@ -244,6 +250,8 @@ module.exports = function (RED) {
         node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, node.dimDirectionTunableWhite, 'setLight')
       }, 700)
     }
+    // ***********************************************************
+
 
     node.handleSendHUE = _event => {
       try {
