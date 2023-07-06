@@ -7,6 +7,10 @@
 # CHANGELOG
 
 <p>
+<b>Version 2.1.25</b> - July 2023<br/>
+- Hue Light: added the option to update the KNX Brightness status when turn on/off the HUE light.<br/>
+</p>
+<p>
 <b>Version 2.1.24</b> - July 2023<br/>
 - Hue Light: fix brightness not sending true/false to the KNX switch status, if no brightness GA present. Set the RBE filter on that.<br/>
 </p>

@@ -61,7 +61,8 @@
             GADaylightSensor: { value: "" },
             dptDaylightSensor: { value: "" },
 
-            updateSwitchStatusOnBrightness: { value: "yes" },
+            updateGALightStateOnHUEBrightnessChange: { value: "yes" },
+            updateGALightBrightnessStateOnHUELightStatusChange: { value: "yes" },
 
             hueDevice: { value: "" }
         },
@@ -973,13 +974,22 @@
             <br/>
             <b> HUE to KNX</b>
             <div class="form-row">
-                <label for="node-input-updateSwitchStatusOnBrightness" style="width:400px;">
-                    <i class="fa fa-tag"></i> Update KNX Switch Status GA on HUE brightness change
+                <label for="node-input-updateGALightStateOnHUEBrightnessChange" style="width:400px;">
+                    <i class="fa fa-tag"></i> HUE brightness changes KNX Switch Status
                 </label>
-                <select id="node-input-updateSwitchStatusOnBrightness">
+                <select id="node-input-updateGALightStateOnHUEBrightnessChange">
                     <option value="yes">Yes</option>
                     <option value="no">No</option>
                 </select>            
+            </div>
+            <div class="form-row">
+                <label for="node-input-updateGALightBrightnessStateOnHUELightStatusChange" style="width:400px;">
+                    <i class="fa fa-tag"></i> HUE light status changes KNX Brightness Status
+                </label>
+                <select id="node-input-updateGALightBrightnessStateOnHUELightStatusChange">
+                    <option value="yes">Yes</option>
+                    <option value="no">No</option>
+                </select>
             </div>            
         </p>
     </div>    
@@ -1055,8 +1065,8 @@ HUE to KNX
 
 |Property|Description|
 |--|--|
-| Update KNX Switch Status GA on HUE brightness change | It updates the KNX *Switch Status* group address on every HUE light's brightness change. If the brighness is > 0, it sends *true*, otherwise, *false*. Default value is **Yes**. |
-
+| HUE brightness changes KNX Switch Status | It updates the KNX *Switch Status* group address on each HUE light's brightness change. If the HUE brighness is > 0, a *true* telegram is sent to the KNX group address of the *Switch Status*, otherwise, a *false* telegram is sent. Default value is **Yes**. |
+| HUE light status changes KNX Brightness Status | It updates the KNX *Brightness Status* group address, each HUE light on/off status change. If the HUE status is *on*, a 100% brightness is sent to the KNX *Brightness Status* group address, otherwise, a 0% is sent. Default value is **Yes**.
 <br/>
 
 [Find it useful?](https://www.paypal.me/techtoday)
