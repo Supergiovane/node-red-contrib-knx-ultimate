@@ -84,7 +84,6 @@ module.exports = function (RED) {
 
               // First, switch on the light if off
               if (node.currentHUEDevice !== undefined && node.currentHUEDevice.on.on === false) {
-                node.disableBSC = true // Temporary disable sending the 100% to the KNX brightness state group address.
                 node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, { on: { on: true } }, 'setLight')
               }
 
@@ -120,15 +119,13 @@ module.exports = function (RED) {
 
             //If the brightness is not zero, must send true to the "on" property of the HUE lamp.
             if (node.currentHUEDevice !== undefined && node.currentHUEDevice.on.on === false && msg.payload > 0) {
-              node.disableBSC = true
               node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, { on: { on: true } }, 'setLight')
               setTimeout(() => {
-                // Wait to the light to turn on and disable the node.disableBSC, then send the brightness %
                 node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, state, 'setLight')
               }, 1000);
             } else {
-              node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, state, 'setLight')  
-            }            
+              node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, state, 'setLight')
+            }
             node.setNodeStatusHue({ fill: 'green', shape: 'dot', text: 'KNX->HUE', payload: state })
             break
           case config.GALightColor:
@@ -253,10 +250,9 @@ module.exports = function (RED) {
         if (_event.id === config.hueDevice) {
           if (_event.hasOwnProperty('on')) {
             node.updateKNXLightState(_event.on.on)
-            if (!node.disableBSC && (config.updateGALightBrightnessStateOnHUELightStatusChange === undefined || config.updateGALightBrightnessStateOnHUELightStatusChange === 'yes')) {
-              node.disableBSC = false // Reset the flag
-              // Mimic KNX by sending 100% brightness
-              node.updateKNXBrightnessState(_event.on.on === true ? 100 : 0)              
+            if (config.updateGALightBrightnessStateOnHUELightStatusChange === undefined || config.updateGALightBrightnessStateOnHUELightStatusChange === 'yes') {
+              // Mimic KNX by sending 100% or 0% brightness
+              node.updateKNXBrightnessState(_event.on.on === true ? 100 : 0)
             }
             if (node.currentHUEDevice !== undefined) node.currentHUEDevice.on = _event.on // Update the internal object representing the current light
           }

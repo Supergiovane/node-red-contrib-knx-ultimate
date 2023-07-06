@@ -7,6 +7,10 @@
 # CHANGELOG
 
 <p>
+<b>Version 2.1.26</b> - July 2023<br/>
+- Hue Light:  fixed brightness states issue.<br/>
+</p>
+<p>
 <b>Version 2.1.25</b> - July 2023<br/>
 - Hue Light: added the option to update the KNX Brightness status when turn on/off the HUE light.<br/>
 </p>
