@@ -279,7 +279,12 @@ module.exports = function (RED) {
             if (node.currentHUEDevice !== undefined) node.currentHUEDevice.color = _event.color // Update the internal object representing the current light
           }
           if (_event.hasOwnProperty('dimming')) {
+            // Every once time, the light transmit the brightness value of 0.39.
+            // To avoid wrongly turn light state on, exit
+            if (_event.dimming.brightness < 1) _event.dimming.brightness = 0
+            if (node.currentHUEDevice !== undefined && node.currentHUEDevice.hasOwnProperty('dimming') && node.currentHUEDevice.dimming.brightness === _event.dimming.brightness) return
             if (_event.dimming.brightness === undefined) return
+            
             node.updateKNXBrightnessState(_event.dimming.brightness)
             // Send true/false to switch state
             node.updateKNXLightState(_event.dimming.brightness > 0)

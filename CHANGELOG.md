@@ -7,6 +7,10 @@
 # CHANGELOG
 
 <p>
+<b>Version 2.1.29</b> - July 2023<br/>
+- FIX: HUE Light: fixed an issue involving brightness. The HUE HUB, randomly, sends a 0.39 dimming value as hue status. This cause an ON telegram to be sent to the KNX bus.<br/>
+</p>
+<p>
 <b>Version 2.1.28</b> - July 2023<br/>
 - HUE Light: fixed DIM behaviour.<br/>
 </p>
