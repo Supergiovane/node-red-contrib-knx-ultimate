@@ -7,6 +7,10 @@
 # CHANGELOG
 
 <p>
+<b>Version 2.1.28</b> - July 2023<br/>
+- HUE Light: fixed DIM behaviour.<br/>
+</p>
+<p>
 <b>Version 2.1.27</b> - July 2023<br/>
 - Trashed some old unuseful code and status options.<br/>
 - Keep moving help to the help box of node-red.<br/>

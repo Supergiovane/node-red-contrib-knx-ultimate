@@ -59,7 +59,11 @@ module.exports = function (RED) {
                 let dbright = hueColorConverter.ColorConverter.getBrightnessFromRGB(jColorChoosen.red, jColorChoosen.green, jColorChoosen.blue)
                 state = dbright > 0 ? { on: { on: true }, dimming: { brightness: dbright }, color: { xy: dretXY } } : { on: { on: false } }
               } else {
-                state = { on: { on: true } }
+                if (config.linkBrightnessToSwitchStatus === undefined || config.linkBrightnessToSwitchStatus === 'yes') {
+                  state = { on: { on: true }, dimming: { brightness: 100 } }
+                } else {
+                  state = { on: { on: true } }
+                }
               }
               if (config.enableDayNightLighting === true && !node.DayTime) {
                 let jColorChoosen = { red: 23, green: 4, blue: 0 }
@@ -70,7 +74,11 @@ module.exports = function (RED) {
                 state = dbright > 0 ? { on: { on: true }, dimming: { brightness: dbright }, color: { xy: dretXY } } : { on: { on: false } }
               }
             } else {
-              state = { on: { on: false } }
+              if (config.linkBrightnessToSwitchStatus === undefined || config.linkBrightnessToSwitchStatus === 'yes') {
+                state = { on: { on: false }, dimming: { brightness: 0 }, dynamics: { duration: 2000 } }
+              } else {
+                state = { on: { on: false } }
+              }
             }
             node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, state, 'setLight')
             node.setNodeStatusHue({ fill: 'green', shape: 'dot', text: 'KNX->HUE', payload: state })
@@ -83,8 +91,15 @@ module.exports = function (RED) {
               let dimDirection = msg.payload.decr_incr === 1 ? 'up' : 'down'
 
               // First, switch on the light if off
-              if (node.currentHUEDevice !== undefined && node.currentHUEDevice.on.on === false) {
-                node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, { on: { on: true } }, 'setLight')
+              if (node.currentHUEDevice !== undefined && node.currentHUEDevice.on.on === false && dimDirection === 'up') {
+                if (config.linkBrightnessToSwitchStatus === undefined || config.linkBrightnessToSwitchStatus === 'yes') {
+                  // Starts from minimum of 5
+                  node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, { on: { on: true }, dimming: { brightness: 5 } }, 'setLight')
+                } else {
+                  // Read the last HUE brightness status and starts from there
+                  const lastDimVal = node.currentHUEDevice !== undefined ? node.currentHUEDevice.dimming.brightness : 5
+                  node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, { on: { on: true }, dimming: { brightness: lastDimVal } }, 'setLight')
+                }
               }
 
               node.startDimStopper(dimDirection)
@@ -146,10 +161,9 @@ module.exports = function (RED) {
                 node.blinkValue = !node.blinkValue
                 msg.payload = node.blinkValue
                 // state = msg.payload === true ? { on: { on: true } } : { on: { on: false } }
-                state = msg.payload === true ? { on: { on: true }, dimming: { brightness: 100 } } : { on: { on: false } }
+                state = msg.payload === true ? { on: { on: true }, dimming: { brightness: 100 }, dynamics: { duration: 0 } } : { on: { on: false }, dynamics: { duration: 0 } }
                 node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, state, 'setLight')
-                node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, state, 'setLight') // It's ok twice, so the light turns off immeridaley
-              }, 600)
+              }, 700)
             } else {
               if (node.timerBlink !== undefined) clearInterval(node.timerBlink)
               node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, { on: { on: false } }, 'setLight')
@@ -193,7 +207,7 @@ module.exports = function (RED) {
       }
     }
 
-    
+
     // Start dimming
     // ***********************************************************
     node.timerDim = undefined
@@ -258,10 +272,6 @@ module.exports = function (RED) {
         if (_event.id === config.hueDevice) {
           if (_event.hasOwnProperty('on')) {
             node.updateKNXLightState(_event.on.on)
-            if (config.updateGALightBrightnessStateOnHUELightStatusChange === undefined || config.updateGALightBrightnessStateOnHUELightStatusChange === 'yes') {
-              // Mimic KNX by sending 100% or 0% brightness
-              node.updateKNXBrightnessState(_event.on.on === true ? 100 : 0)
-            }
             if (node.currentHUEDevice !== undefined) node.currentHUEDevice.on = _event.on // Update the internal object representing the current light
           }
           if (_event.hasOwnProperty('color')) {
@@ -271,10 +281,9 @@ module.exports = function (RED) {
           if (_event.hasOwnProperty('dimming')) {
             if (_event.dimming.brightness === undefined) return
             node.updateKNXBrightnessState(_event.dimming.brightness)
-            if (config.updateGALightStateOnHUEBrightnessChange === 'yes' || config.updateGALightStateOnHUEBrightnessChange === undefined) {
-              // Send true/false to switch state
-              node.updateKNXLightState(_event.dimming.brightness > 0)
-            }
+            // Send true/false to switch state
+            node.updateKNXLightState(_event.dimming.brightness > 0)
+
             // If the brightness reaches zero, the hue lamp "on" property must be set to zero as well
             if (_event.dimming.brightness === 0) node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, { on: { on: false } }, 'setLight')
 
