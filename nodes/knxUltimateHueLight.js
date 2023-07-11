@@ -154,7 +154,7 @@ module.exports = function (RED) {
             node.setNodeStatusHue({ fill: 'green', shape: 'dot', text: 'KNX->HUE', payload: state })
             break
           case config.GALightBlink:
-            const gaVal = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightSwitch))
+            const gaVal = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightBlink))
             if (gaVal) {
               node.timerBlink = setInterval(() => {
                 if (node.blinkValue === undefined) node.blinkValue = true
@@ -171,8 +171,8 @@ module.exports = function (RED) {
             node.setNodeStatusHue({ fill: 'green', shape: 'dot', text: 'KNX->HUE', payload: gaVal })
             break
           case config.GALightColorCycle:
-            const gaValColorCycle = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightSwitch))
-            if (gaValColorCycle) {
+            const gaValColorCycle = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightColorCycle))
+            if (gaValColorCycle === true) {
               node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, { on: { on: true } }, 'setLight')
               node.timerColorCycle = setInterval(() => {
                 try {
@@ -190,7 +190,6 @@ module.exports = function (RED) {
                   state = bright > 0 ? { on: { on: true }, dimming: { brightness: bright }, color: { xy: retXY } } : { on: { on: false } }
                   node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, state, 'setLight')
                 } catch (error) {
-
                 }
               }, 10000)
             } else {
@@ -284,7 +283,7 @@ module.exports = function (RED) {
             if (_event.dimming.brightness < 1) _event.dimming.brightness = 0
             if (node.currentHUEDevice !== undefined && node.currentHUEDevice.hasOwnProperty('dimming') && node.currentHUEDevice.dimming.brightness === _event.dimming.brightness) return
             if (_event.dimming.brightness === undefined) return
-            
+
             node.updateKNXBrightnessState(_event.dimming.brightness)
             // Send true/false to switch state
             node.updateKNXLightState(_event.dimming.brightness > 0)
