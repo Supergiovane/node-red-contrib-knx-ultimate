@@ -171,6 +171,7 @@ module.exports = function (RED) {
             node.setNodeStatusHue({ fill: 'green', shape: 'dot', text: 'KNX->HUE', payload: gaVal })
             break
           case config.GALightColorCycle:
+            if (node.timerColorCycle !== undefined) clearInterval(node.timerColorCycle)
             const gaValColorCycle = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightColorCycle))
             if (gaValColorCycle === true) {
               node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, { on: { on: true } }, 'setLight')
@@ -193,7 +194,6 @@ module.exports = function (RED) {
                 }
               }, 10000)
             } else {
-              if (node.timerColorCycle !== undefined) clearInterval(node.timerColorCycle)
               node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, { on: { on: false } }, 'setLight')
             }
             node.setNodeStatusHue({ fill: 'green', shape: 'dot', text: 'KNX->HUE', payload: gaValColorCycle })

@@ -7,7 +7,7 @@
 # CHANGELOG
 
 <p>
-<b>Version 2.1.30</b> - July 2023<br/>
+<b>Version 2.1.31</b> - July 2023<br/>
 - FIX: HUE Light: fixed wrong datapoint in the color cycle effect.<br/>
 </p>
 <p>
