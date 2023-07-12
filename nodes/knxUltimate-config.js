@@ -343,7 +343,7 @@ return msg;`,
       }
     })
 
-    // Endpoint for reading csv from the other nodes
+    // Endpoint for reading csv/esf by the other nodes
     RED.httpAdmin.get('/knxUltimatecsv', RED.auth.needsPermission('knxUltimate-config.read'), function (req, res) {
       if (typeof req.query.nodeID !== 'undefined' && req.query.nodeID !== null && req.query.nodeID !== '') {
         const _node = RED.nodes.getNode(req.query.nodeID)// Retrieve node.id of the config node.
