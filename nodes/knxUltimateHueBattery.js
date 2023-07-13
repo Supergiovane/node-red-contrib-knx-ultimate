@@ -1,5 +1,5 @@
 module.exports = function (RED) {
-  function knxUltimateHueTemperatureSensor (config) {
+  function knxUltimateHueBattery(config) {
     RED.nodes.createNode(this, config)
     const node = this
     node.server = RED.nodes.getNode(config.server)
@@ -43,18 +43,17 @@ module.exports = function (RED) {
       try {
         if (_event.id === config.hueDevice) {
           const knxMsgPayload = {}
-          knxMsgPayload.topic = config.GAtemperaturesensor
-          knxMsgPayload.dpt = config.dpttemperaturesensor
+          knxMsgPayload.topic = config.GAbatterysensor
+          knxMsgPayload.dpt = config.dptbatterysensor
 
-          if (_event.hasOwnProperty('temperature') && _event.temperature.hasOwnProperty('temperature')) {
-            knxMsgPayload.payload = _event.temperature.temperature
+          if (_event.hasOwnProperty('power_state') && _event.power_state.hasOwnProperty('battery_level')) {
+            knxMsgPayload.payload = _event.power_state.battery_level
             // Send to KNX bus
             if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.server.writeQueueAdd({ grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
-            node.status({ fill: 'green', shape: 'dot', text: 'HUE->KNX ' + JSON.stringify(knxMsgPayload.payload) + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' })
-
+            
             // Setup the output msg
             knxMsgPayload.name = node.name
-            knxMsgPayload.event = 'temperature'
+            knxMsgPayload.event = 'power_state'
 
             // Send payload
             knxMsgPayload.rawEvent = _event
@@ -79,7 +78,7 @@ module.exports = function (RED) {
       if (node.serverHue !== null && node.serverHue.hueManager !== null) {
         (async () => {
           try {
-            await node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, null, 'getTemperature', (jLight) => {
+            await node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, null, 'getBattery', (jLight) => {
               node.serverHue.addClient(node)
               node.handleSendHUE(jLight)
             })
@@ -104,5 +103,5 @@ module.exports = function (RED) {
       done()
     })
   }
-  RED.nodes.registerType('knxUltimateHueTemperatureSensor', knxUltimateHueTemperatureSensor)
+  RED.nodes.registerType('knxUltimateHueBattery', knxUltimateHueBattery)
 }

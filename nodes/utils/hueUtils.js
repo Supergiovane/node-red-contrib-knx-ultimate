@@ -21,92 +21,6 @@ class classHUE extends EventEmitter {
     this.closePushEventStream = false
     this.timerwriteQueueAdd = setTimeout(this.handleQueue, 3000) // First start
     this.connect()
-
-    // this.run()
-    // start the SSE Stream Receiver
-    // #############################################
-    // const options = {
-    //   host: _hueBridgeIP, // Indirizzo IP del tuo bridge Philips Hue
-    //   path: '/eventstream/clip/v2', // Il percorso dell'API per gli eventi
-    //   method: 'GET',
-    //   headers: {
-    //     'Connection': 'keep-alive',
-    //     'hue-application-key': _username
-    //     //'Accept': 'text/event-stream'
-    //   },
-    //   rejectUnauthorized: false
-    // }
-
-    // // Funzione per la gestione della risposta
-    // const handleResponse = (response) => {
-    //   let data = '';
-
-    //   response.on('data', (chunk) => {
-    //     data += chunk;
-    //   });
-
-    //   response.on('end', () => {
-    //     try {
-    //       const events = JSON.parse(data)
-    //       // An array event "Container", can have multiple events.
-    //       // for..loop is more efficent. We need speed.
-    //       for (let index = 0; index < events.length; index++) {
-    //         const oEvento = events[index]
-    //         if (oEvento.type === 'update') {
-    //           for (let i = 0; i < oEvento.data.length; i++) {
-    //             const element = oEvento.data[i]
-    //             this.emit('event', element)
-    //           }
-    //         }
-    //       }
-    //     } catch (error) {
-    //       console.log('KNXUltimateHUEConfig: classHUE: response.on(end): ' + error.message)
-    //     }
-    //     req();
-    //   });
-    // };
-    // // Funzione per richiedere gli eventi
-    // const req = () => {
-    //   if (this.closePushEventStream) return // I'm destroying the class
-    //   const request = https.request(options, handleResponse);
-    //   request.on('error', (error) => {
-    //     console.log('KNXUltimateHUEConfig: classHUE: request.on(error): ' + error.message)
-    //     // Restart the connection
-    //     setTimeout(() => {
-    //       this.commandQueue = []
-    //       req();
-    //     }, 2000);
-    //   });
-    //   request.end();
-    // };
-
-    // // Starts the connection for the first time
-    // req();
-
-
-    // Eventstream Reader using hueApiV2
-    // const runStreamReader = async () => {
-    //   try {
-    //     const listener = (event) => {
-    //       // console.log(event)
-    //       event.data.forEach(element => {
-    //         if (event.type === 'update') this.emit('event', element)
-    //       })
-    //     }
-    //     const hueEventStream = hueApiV2.connect({
-    //       host: this.hueBridgeIP,
-    //       key: this.username,
-    //       eventListener: listener
-    //     })
-    //   } catch (error) {
-    //     console.log('KNXUltimateHUEConfig: classHUE: const run = async: ' + error.message)
-    //   }
-    // }
-    // runStreamReader()
-
-
-
-    // #############################################
   }
 
 
@@ -208,6 +122,32 @@ class classHUE extends EventEmitter {
             console.log('KNXUltimateHUEConfig: classHUE: handleQueue: stopScene: ' + error.message)
           }
           break
+        case 'getBattery':
+          try {
+            const hue = hueApiV2.connect({ host: this.hueBridgeIP, key: this.username })
+            const jReturn = await hue.getDevicePower(jRet._lightID)
+            jRet._callback(jReturn[0]) // Need to call the callback, because the event is absolutely async
+          } catch (error) {
+            console.log('KNXUltimateHUEConfig: classHUE: handleQueue: getBattery: ' + error.message)
+          }
+        case 'getLightLevel':
+          try {
+            const hue = hueApiV2.connect({ host: this.hueBridgeIP, key: this.username })
+            const jReturn = await hue.getLightLevel(jRet._lightID)
+            jRet._callback(jReturn[0]) // Need to call the callback, because the event is absolutely async
+          } catch (error) {
+            console.log('KNXUltimateHUEConfig: classHUE: handleQueue: getLightLevel: ' + error.message)
+          }
+          break
+        case 'getTemperature':
+          try {
+            const hue = hueApiV2.connect({ host: this.hueBridgeIP, key: this.username })
+            const jReturn = await hue.getTemperature(jRet._lightID)
+            jRet._callback(jReturn[0]) // Need to call the callback, because the event is absolutely async
+          } catch (error) {
+            console.log('KNXUltimateHUEConfig: classHUE: handleQueue: getTemperature: ' + error.message)
+          }
+          break
         default:
           break
       }
@@ -257,6 +197,9 @@ class classHUE extends EventEmitter {
           }
           if (_rtype === 'temperature') {
             retArray.push({ name: 'Temperature: ' + linkedDevName + (Room !== undefined ? ', room ' + Room.metadata.name : ''), id: jResource.id })
+          }
+          if (_rtype === 'device_power') {
+            retArray.push({ name: 'Battery: ' + linkedDevName + (Room !== undefined ? ', room ' + Room.metadata.name : ''), id: jResource.id })
           }
         }
       })

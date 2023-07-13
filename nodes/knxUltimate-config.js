@@ -1591,7 +1591,7 @@ return msg;`,
         if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.debug('knxUltimate-config: Waiting next cycle to reconect. node.LinkStatus: ' + node.linkStatus + ', node.autoReconnect:' + node.autoReconnect)
         // node.initKNXConnection();
       }
-    }, 10000)
+    }, 4000)
 
     node.Disconnect = (_sNodeStatus = '', _sColor = 'grey') => {
       if (node.linkStatus === 'disconnected') {

@@ -7,6 +7,12 @@
 # CHANGELOG
 
 <p>
+<b>Version 2.1.32</b> - July 2023<br/>
+- NEW: Hue Battery Sensor: you can now get the battery level of all your battery powered HUE devices.<br/>
+- The sensors now read the value at startup.<br/>
+- Minor fixes.<br/>
+</p>
+<p>
 <b>Version 2.1.31</b> - July 2023<br/>
 - FIX: HUE Light: fixed wrong datapoint in the color cycle effect.<br/>
 </p>

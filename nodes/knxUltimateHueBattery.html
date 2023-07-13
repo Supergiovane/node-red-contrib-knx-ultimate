@@ -1,5 +1,5 @@
 <script type="text/javascript">
-    RED.nodes.registerType('knxUltimateHueMotion', {
+    RED.nodes.registerType('knxUltimateHueBattery', {
         category: "KNX Ultimate",
         color: '#C7E9C0',
         defaults: {
@@ -8,19 +8,19 @@
             serverHue: { type: "hue-config", required: true },
             name: { value: "" },
 
-            namemotion: { value: "" },
-            GAmotion: { value: "" },
-            dptmotion: { value: "" },
+            namebatterysensor: { value: "" },
+            GAbatterysensor: { value: "" },
+            dptbatterysensor: { value: "" },
 
             hueDevice: { value: "" }
         },
         inputs: 0,
-        outputs: 1,
+        outputs: 0,
         icon: "node-hue-icon.svg",
         label: function () {
             return (this.name);
         },
-        paletteLabel: "Hue Motion",
+        paletteLabel: "Hue Battery Sensor",
         // button: {
         //     enabled: function() {
         //         // return whether or not the button is enabled, based on the current
@@ -68,24 +68,24 @@
             // ########################
             $.getJSON('knxUltimateDpts', (data) => {
                 data.forEach(dpt => {
-                    if (dpt.value.startsWith("1.")) {
-                        $("#node-input-dptmotion").append($("<option></option>")
+                    if (dpt.value.startsWith("5.001")) {
+                        $("#node-input-dptbatterysensor").append($("<option></option>")
                             .attr("value", dpt.value)
                             .text(dpt.text))
                     }
                 });
-                $("#node-input-dptmotion").val(this.dptmotion)
+                $("#node-input-dptbatterysensor").val(this.dptbatterysensor)
             })
 
             // Autocomplete suggestion with ETS csv File
-            $("#node-input-GAmotion").autocomplete({
+            $("#node-input-GAbatterysensor").autocomplete({
                 minLength: 1,
                 source: function (request, response) {
                     //$.getJSON("csv", request, function( data, status, xhr ) {
                     $.getJSON("knxUltimatecsv?nodeID=" + oNodeServer.id, (data) => {
                         response($.map(data, function (value, key) {
                             var sSearch = (value.ga + " (" + value.devicename + ") DPT" + value.dpt);
-                            if (fullSearch(sSearch, request.term + " 1.")) {
+                            if (fullSearch(sSearch, request.term + " 5.001")) {
                                 return {
                                     label: value.ga + " # " + value.devicename + " # " + value.dpt, // Label for Display
                                     value: value.ga // Value
@@ -102,10 +102,10 @@
                         sDevName = sDevName.substr(sDevName.indexOf(")") + 1).trim();
                     } catch (error) {
                     }
-                    $('#node-input-namemotion').val(sDevName);
-                    var optVal = $("#node-input-dptmotion option:contains('" + ui.item.label.split("#")[2].trim() + "')").attr('value');
+                    $('#node-input-namebatterysensor').val(sDevName);
+                    var optVal = $("#node-input-dptbatterysensor option:contains('" + ui.item.label.split("#")[2].trim() + "')").attr('value');
                     // Select the option value 
-                    $("#node-input-dptmotion").val(optVal);
+                    $("#node-input-dptbatterysensor").val(optVal);
                 }
             });
             // ######################## 
@@ -117,7 +117,7 @@
             $("#node-input-name").autocomplete({
                 minLength: 1,
                 source: function (request, response) {
-                    $.getJSON("KNXUltimateGetResourcesHUE?rtype=motion&nodeID=" + oNodeServerHue.id, (data) => {
+                    $.getJSON("KNXUltimateGetResourcesHUE?rtype=device_power&nodeID=" + oNodeServerHue.id, (data) => {
                         response($.map(data.devices, function (value, key) {
                             //alert(JSON.stringify(value) + " "+ key)
                             var sSearch = (value.name);
@@ -153,17 +153,17 @@
 
 </script>
 
-<script type="text/html" data-template-name="knxUltimateHueMotion">
+<script type="text/html" data-template-name="knxUltimateHueBattery">
 
 
 <div class="form-row">
-    <b>HUE Motion node</b>&nbsp&nbsp<span style="color:red"
+    <b>HUE Battery Sensor node</b>&nbsp&nbsp<span style="color:red"
     &nbsp<i class="fa fa-question-circle"></i></span>
     &nbsp<a target="_blank" href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/en-hue-configuration"><u>Configuration</u></a> 
     <br />
     <br />
     <p align="center">
-       <i class="fa-solid fa-person-walking fa-shake fa-8x"></i>
+    <i class="fa-solid fa-battery-half fa-beat-fade fa-8x"></i>
     </p>
     <br />
     <label for="node-input-server" >
@@ -198,16 +198,16 @@
 </p>
 
     <div class="form-row">
-        <label for="node-input-namemotion" style="width:100px;"><i class="fa fa-play-circle-o"></i> Motion</span></label>
+        <label for="node-input-namebatterysensor" style="width:100px;"><i class="fa fa-play-circle-o"></i> Level</span></label>
 
-        <label for="node-input-GAmotion" style="width:20px;">GA</label>
-        <input type="text" id="node-input-GAmotion" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
+        <label for="node-input-GAbatterysensor" style="width:20px;">GA</label>
+        <input type="text" id="node-input-GAbatterysensor" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
     
-        <label for="node-input-dptmotion" style="width:40px; margin-left: 0px; text-align: right;">DPT</label>
-        <select id="node-input-dptmotion" style="width:140px;"></select>
+        <label for="node-input-dptbatterysensor" style="width:40px; margin-left: 0px; text-align: right;">DPT</label>
+        <select id="node-input-dptbatterysensor" style="width:140px;"></select>
     
-        <label for="node-input-namemotion" style="width:50px; margin-left: 0px; text-align: right;">Name</label>
-        <input type="text" id="node-input-namemotion" style="width:200px;margin-left: 5px; text-align: left;">
+        <label for="node-input-namebatterysensor" style="width:50px; margin-left: 0px; text-align: right;">Name</label>
+        <input type="text" id="node-input-namebatterysensor" style="width:200px;margin-left: 5px; text-align: left;">
     </div>
    
 </div>
@@ -221,10 +221,10 @@
 </script>
 <script src="https://kit.fontawesome.com/11f26b4500.js" crossorigin="anonymous"></script>
 
-<script type="text/markdown" data-help-name="knxUltimateHueMotion">
-<p> This node lets you get the events from your HUE motion device.<br/>
+<script type="text/markdown" data-help-name="knxUltimateHueBattery">
+<p> This node lets you get the battery level from your HUE device.<br/>
 
-Here you can get the HUE motion events.<br/>
+Here you can get the HUE battery level events, that represents a percentage 0-100% value, evetytime the battery level changes.<br/>
 Start typing in the GA field, the name or group address of your KNX device, the avaiable devices start showing up while you're typing.
 
 **General**
@@ -232,22 +232,12 @@ Start typing in the GA field, the name or group address of your KNX device, the 
 |--|--|
 | KNX GW | Select the KNX gateway to be used |
 | HUE Bridge | Select the HUE Bridge to be used |
-| Hue Sensor | HUE sensor to be used. The avaiable buttons start showing up while you're typing.|
+| Hue Sensor | HUE sensor to be used. The avaiable devices start showing up while you're typing.|
 
 |Property|Description|
 |--|--|
-| Motion | As soon as someone moves in the motion device's range, a *true* KNX value is sent to this group address, otherwise *false* is sent. |
+| Level | The battery level group address. The group address must be a percentage 0-100% (5.001) |
 
-### Outputs
-
-1. Standard output
-: payload (boolean) : the standard output of the command. **true** for motion | **false** for motion end.
-
-### Details
-
-`msg.payload` is used as the payload of the published message.  
-It contains the detailed event sent by your Hue devicem so you can use it for whatever you want.  
-It contains the detailed event sent by your Hue devicem so you can use it for whatever you want.
 
 <br/>
 
