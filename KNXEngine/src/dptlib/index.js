@@ -29,10 +29,10 @@ for (let i = 0; i < dirEntries.length; i++) {
 // DPTs might come in as 9/"9"/"9.001"/"DPT9.001"
 dpts.resolve = function (dptid) {
   const m = dptid.toString().toUpperCase().match(/^(?:DPT)?(\d+)(\.(\d+))?$/)
-  if (m === null) { throw 'Invalid DPT format: ' + dptid }
+  if (m === null) { throw new Error('Invalid DPT format: ' + dptid) }
 
   const dpt = dpts[util.format('DPT%s', m[1])]
-  if (!dpt) { throw 'Unsupported DPT: ' + dptid }
+  if (!dpt) { throw new Error('Unsupported DPT: ' + dptid) }
 
   const cloned_dpt = cloneDpt(dpt)
   if (m[3]) {
@@ -65,8 +65,8 @@ dpts.populateAPDU = function (value, apdu, dptid) {
     // knxLog.get().trace('<<< custom formatAPDU(%s): %j', dptid, apdu.data);
   } else {
     if (!isFinite(value)) {
-      throw util.format('Invalid value, expected a %s',
-        dpt.desc)
+      throw new Error(util.format('Invalid value, expected a %s',
+        dpt.desc))
     }
     // check if value is in range, be it explicitly defined or implied from bitlength
     const range = (dpt.basetype.hasOwnProperty('range'))

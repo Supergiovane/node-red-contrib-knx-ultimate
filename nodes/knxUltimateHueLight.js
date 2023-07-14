@@ -29,6 +29,8 @@ module.exports = function (RED) {
     node.currentHUEDevice = undefined // At start, this value is filled by a call to HUE api. It stores a value representing the current light status.
     node.currentKNXGALightState = false // Stores the current KNX value for the GA
     node.DayTime = true
+    node.isGrouped_light = config.hueDevice.split('#')[1] === 'grouped_light'
+    config.hueDevice = config.hueDevice.split('#')[0]
 
     // Used to call the status update from the config node.
     node.setNodeStatus = ({ fill, shape, text, payload }) => {
@@ -50,28 +52,39 @@ module.exports = function (RED) {
           case config.GALightSwitch:
             msg.payload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightSwitch))
             if (msg.payload === true) {
-              if (config.colorAtSwitchOnDayTime !== undefined && config.colorAtSwitchOnDayTime.toString().trim() !== '') {
-                // The user selected specific color/brightness at switch on.
-                let jColorChoosen = { red: 255, green: 255, blue: 255 }
-                jColorChoosen = JSON.parse(config.colorAtSwitchOnDayTime || '{ "red": 255, "green": 255, "blue": 255 }')
-                let dgamut = node.currentHUEDevice !== undefined ? node.currentHUEDevice.color.gamut_type : null
-                let dretXY = hueColorConverter.ColorConverter.rgbToXy(jColorChoosen.red, jColorChoosen.green, jColorChoosen.blue, dgamut)
-                let dbright = hueColorConverter.ColorConverter.getBrightnessFromRGB(jColorChoosen.red, jColorChoosen.green, jColorChoosen.blue)
-                state = dbright > 0 ? { on: { on: true }, dimming: { brightness: dbright }, color: { xy: dretXY } } : { on: { on: false } }
-              } else {
-                if (config.linkBrightnessToSwitchStatus === undefined || config.linkBrightnessToSwitchStatus === 'yes') {
-                  state = { on: { on: true }, dimming: { brightness: 100 } }
+              if (node.DayTime) {
+                // Day Time
+                if (config.colorAtSwitchOnDayTime !== undefined && config.colorAtSwitchOnDayTime.toString().trim() !== '') {
+                  // The user selected specific color/brightness at switch on.
+                  let jColorChoosen = { red: 255, green: 255, blue: 255 }
+                  jColorChoosen = JSON.parse(config.colorAtSwitchOnDayTime || '{ "red": 255, "green": 255, "blue": 255 }')
+                  let gamut = null
+                  if (node.currentHUEDevice !== undefined && node.currentHUEDevice.hasOwnProperty('color') && node.currentHUEDevice.color.hasOwnProperty('gamut_type')) {
+                    gamut = node.currentHUEDevice.color.gamut_type
+                  }
+                  let dretXY = hueColorConverter.ColorConverter.rgbToXy(jColorChoosen.red, jColorChoosen.green, jColorChoosen.blue, gamut)
+                  let dbright = hueColorConverter.ColorConverter.getBrightnessFromRGB(jColorChoosen.red, jColorChoosen.green, jColorChoosen.blue)
+                  state = dbright > 0 ? { on: { on: true }, dimming: { brightness: dbright }, color: { xy: dretXY } } : { on: { on: false } }
                 } else {
-                  state = { on: { on: true } }
+                  if (config.linkBrightnessToSwitchStatus === undefined || config.linkBrightnessToSwitchStatus === 'yes') {
+                    state = { on: { on: true }, dimming: { brightness: 100 } }
+                  } else {
+                    state = { on: { on: true } }
+                  }
                 }
-              }
-              if (config.enableDayNightLighting === true && !node.DayTime) {
-                let jColorChoosen = { red: 23, green: 4, blue: 0 }
-                jColorChoosen = JSON.parse(config.colorAtSwitchOnNightTime || '{ "red": 23, "green": 4, "blue": 0 }')
-                let dgamut = node.currentHUEDevice !== undefined ? node.currentHUEDevice.color.gamut_type : null
-                let dretXY = hueColorConverter.ColorConverter.rgbToXy(jColorChoosen.red, jColorChoosen.green, jColorChoosen.blue, dgamut)
-                let dbright = hueColorConverter.ColorConverter.getBrightnessFromRGB(jColorChoosen.red, jColorChoosen.green, jColorChoosen.blue)
-                state = dbright > 0 ? { on: { on: true }, dimming: { brightness: dbright }, color: { xy: dretXY } } : { on: { on: false } }
+              } else {
+                // Night Time
+                if (config.enableDayNightLighting === true) {
+                  let jColorChoosen = { red: 23, green: 4, blue: 0 }
+                  jColorChoosen = JSON.parse(config.colorAtSwitchOnNightTime || '{ "red": 23, "green": 4, "blue": 0 }')
+                  let gamut = null
+                  if (node.currentHUEDevice !== undefined && node.currentHUEDevice.hasOwnProperty('color') && node.currentHUEDevice.color.hasOwnProperty('gamut_type')) {
+                    gamut = node.currentHUEDevice.color.gamut_type
+                  }
+                  let dretXY = hueColorConverter.ColorConverter.rgbToXy(jColorChoosen.red, jColorChoosen.green, jColorChoosen.blue, gamut)
+                  let dbright = hueColorConverter.ColorConverter.getBrightnessFromRGB(jColorChoosen.red, jColorChoosen.green, jColorChoosen.blue)
+                  state = dbright > 0 ? { on: { on: true }, dimming: { brightness: dbright }, color: { xy: dretXY } } : { on: { on: false } }
+                }
               }
             } else {
               if (config.linkBrightnessToSwitchStatus === undefined || config.linkBrightnessToSwitchStatus === 'yes') {
@@ -80,7 +93,7 @@ module.exports = function (RED) {
                 state = { on: { on: false } }
               }
             }
-            node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, state, 'setLight')
+            node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, state, (node.isGrouped_light === false ? 'setLight' : 'setGroupedLight'))
             node.setNodeStatusHue({ fill: 'green', shape: 'dot', text: 'KNX->HUE', payload: state })
             break
           case config.GALightDIM:
@@ -89,19 +102,17 @@ module.exports = function (RED) {
             msg.payload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightDIM))
             if (msg.payload.data > 0) {
               let dimDirection = msg.payload.decr_incr === 1 ? 'up' : 'down'
-
               // First, switch on the light if off
               if (node.currentHUEDevice !== undefined && node.currentHUEDevice.on.on === false && dimDirection === 'up') {
                 if (config.linkBrightnessToSwitchStatus === undefined || config.linkBrightnessToSwitchStatus === 'yes') {
                   // Starts from minimum of 5
-                  node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, { on: { on: true }, dimming: { brightness: 5 } }, 'setLight')
+                  node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, { on: { on: true }, dimming: { brightness: 5 } }, (node.isGrouped_light === false ? 'setLight' : 'setGroupedLight'))
                 } else {
                   // Read the last HUE brightness status and starts from there
                   const lastDimVal = node.currentHUEDevice !== undefined ? node.currentHUEDevice.dimming.brightness : 5
-                  node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, { on: { on: true }, dimming: { brightness: lastDimVal } }, 'setLight')
+                  node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, { on: { on: true }, dimming: { brightness: lastDimVal } }, (node.isGrouped_light === false ? 'setLight' : 'setGroupedLight'))
                 }
               }
-
               node.startDimStopper(dimDirection)
             } else {
               node.startDimStopper('stop')
@@ -109,9 +120,13 @@ module.exports = function (RED) {
             node.setNodeStatusHue({ fill: 'green', shape: 'dot', text: 'KNX->HUE', payload: msg.payload })
             break
           case config.GADaylightSensor:
-            node.DayTime = Boolean(dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptDaylightSensor)))
-            if (config.invertDayNight !== undefined && config.invertDayNight === true) node.DayTime = !node.DayTime
-            node.setNodeStatusHue({ fill: 'green', shape: 'dot', text: 'KNX->HUE Daytime', payload: node.DayTime })
+            if (config.enableDayNightLighting === true) {
+              node.DayTime = Boolean(dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptDaylightSensor)))
+              if (config.invertDayNight !== undefined && config.invertDayNight === true) node.DayTime = !node.DayTime
+              node.setNodeStatusHue({ fill: 'green', shape: 'dot', text: 'KNX->HUE Daytime', payload: node.DayTime })
+            } else {
+              node.DayTime = true
+            }
             break
           case config.GALightHSV:
             if (config.dptLightHSV === '3.007') {
@@ -131,26 +146,36 @@ module.exports = function (RED) {
           case config.GALightBrightness:
             msg.payload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightBrightness))
             state = { dimming: { brightness: msg.payload } }
-
-            //If the brightness is not zero, must send true to the "on" property of the HUE lamp.
-            if (node.currentHUEDevice !== undefined && node.currentHUEDevice.on.on === false && msg.payload > 0) {
-              node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, { on: { on: true } }, 'setLight')
-              setTimeout(() => {
-                node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, state, 'setLight')
-              }, 1000);
+            if (node.currentHUEDevice === undefined) {
+              // Grouped light
+              state.on = { on: msg.payload > 0 }
             } else {
-              node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, state, 'setLight')
+              // Light
+              if (node.currentHUEDevice.on.on === false && msg.payload > 0) state.on = { on: true }
+              if (node.currentHUEDevice.on.on === true && msg.payload === 0) state.on = { on: false }
             }
+            node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, state, (node.isGrouped_light === false ? 'setLight' : 'setGroupedLight'))
             node.setNodeStatusHue({ fill: 'green', shape: 'dot', text: 'KNX->HUE', payload: state })
             break
           case config.GALightColor:
             msg.payload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightColor))
-            const gamut = node.currentHUEDevice !== undefined ? node.currentHUEDevice.color.gamut_type : null
+            let gamut = null
+            if (node.currentHUEDevice !== undefined && node.currentHUEDevice.hasOwnProperty('color') && node.currentHUEDevice.color.hasOwnProperty('gamut_type')) {
+              gamut = node.currentHUEDevice.color.gamut_type
+            }
             const retXY = hueColorConverter.ColorConverter.rgbToXy(msg.payload.red, msg.payload.green, msg.payload.blue, gamut)
             const bright = hueColorConverter.ColorConverter.getBrightnessFromRGB(msg.payload.red, msg.payload.green, msg.payload.blue)
             //state = bright > 0 ? { on: { on: true }, dimming: { brightness: bright }, color: { xy: retXY } } : { on: { on: false } }
             state = { dimming: { brightness: bright }, color: { xy: retXY } }
-            node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, state, 'setLight')
+            if (node.currentHUEDevice === undefined) {
+              // Grouped light
+              state.on = { on: bright > 0 }
+            } else {
+              // Light
+              if (node.currentHUEDevice.on.on === false && bright > 0) state.on = { on: true }
+              if (node.currentHUEDevice.on.on === true && bright === 0) state = { on: { on: false }, dimming: { brightness: bright } }
+            }
+            node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, state, (node.isGrouped_light === false ? 'setLight' : 'setGroupedLight'))
             node.setNodeStatusHue({ fill: 'green', shape: 'dot', text: 'KNX->HUE', payload: state })
             break
           case config.GALightBlink:
@@ -162,11 +187,11 @@ module.exports = function (RED) {
                 msg.payload = node.blinkValue
                 // state = msg.payload === true ? { on: { on: true } } : { on: { on: false } }
                 state = msg.payload === true ? { on: { on: true }, dimming: { brightness: 100 }, dynamics: { duration: 0 } } : { on: { on: false }, dynamics: { duration: 0 } }
-                node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, state, 'setLight')
+                node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, state, (node.isGrouped_light === false ? 'setLight' : 'setGroupedLight'))
               }, 700)
             } else {
               if (node.timerBlink !== undefined) clearInterval(node.timerBlink)
-              node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, { on: { on: false } }, 'setLight')
+              node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, { on: { on: false } }, (node.isGrouped_light === false ? 'setLight' : 'setGroupedLight'))
             }
             node.setNodeStatusHue({ fill: 'green', shape: 'dot', text: 'KNX->HUE', payload: gaVal })
             break
@@ -174,7 +199,7 @@ module.exports = function (RED) {
             if (node.timerColorCycle !== undefined) clearInterval(node.timerColorCycle)
             const gaValColorCycle = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightColorCycle))
             if (gaValColorCycle === true) {
-              node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, { on: { on: true } }, 'setLight')
+              node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, { on: { on: true } }, (node.isGrouped_light === false ? 'setLight' : 'setGroupedLight'))
               node.timerColorCycle = setInterval(() => {
                 try {
                   function getRandomIntInclusive(min, max) {
@@ -185,16 +210,19 @@ module.exports = function (RED) {
                   const red = getRandomIntInclusive(0, 255)
                   const green = getRandomIntInclusive(0, 255)
                   const blue = getRandomIntInclusive(0, 255)
-                  const gamut = node.currentHUEDevice !== undefined ? node.currentHUEDevice.color.gamut_type : null
+                  let gamut = null
+                  if (node.currentHUEDevice !== undefined && node.currentHUEDevice.hasOwnProperty('color') && node.currentHUEDevice.color.hasOwnProperty('gamut_type')) {
+                    gamut = node.currentHUEDevice.color.gamut_type
+                  }
                   const retXY = hueColorConverter.ColorConverter.rgbToXy(red, green, blue, gamut)
                   const bright = hueColorConverter.ColorConverter.getBrightnessFromRGB(red, green, blue)
                   state = bright > 0 ? { on: { on: true }, dimming: { brightness: bright }, color: { xy: retXY } } : { on: { on: false } }
-                  node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, state, 'setLight')
+                  node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, state, (node.isGrouped_light === false ? 'setLight' : 'setGroupedLight'))
                 } catch (error) {
                 }
               }, 10000)
             } else {
-              node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, { on: { on: false } }, 'setLight')
+              node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, { on: { on: false } }, (node.isGrouped_light === false ? 'setLight' : 'setGroupedLight'))
             }
             node.setNodeStatusHue({ fill: 'green', shape: 'dot', text: 'KNX->HUE', payload: gaValColorCycle })
             break
@@ -202,7 +230,7 @@ module.exports = function (RED) {
             break
         }
       } catch (error) {
-        node.status({ fill: 'red', shape: 'dot', text: 'KNX->HUE error ' + error.message + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' })
+        node.status({ fill: 'red', shape: 'dot', text: 'KNX->HUE error ' + (error.message || error) + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' })
       }
     }
 
@@ -231,7 +259,7 @@ module.exports = function (RED) {
       node.timerDim = setInterval(() => {
         node.timeoutDim += 1
         if (node.timeoutDim > 150) { node.timeoutDim = 0; clearInterval(node.timerDim) }
-        node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, node.dimDirection, 'setLight')
+        node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, node.dimDirection, (node.isGrouped_light === false ? 'setLight' : 'setGroupedLight'))
       }, 700)
     }
     // ***********************************************************
@@ -260,7 +288,7 @@ module.exports = function (RED) {
       node.timerDimTunableWhite = setInterval(() => {
         node.timeoutDimTunableWhite += 1
         if (node.timeoutDimTunableWhite > 150) { node.timeoutDimTunableWhite = 0; clearInterval(node.timerDimTunableWhite) }
-        node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, node.dimDirectionTunableWhite, 'setLight')
+        node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, node.dimDirectionTunableWhite, (node.isGrouped_light === false ? 'setLight' : 'setGroupedLight'))
       }, 700)
     }
     // ***********************************************************
@@ -289,7 +317,7 @@ module.exports = function (RED) {
             node.updateKNXLightState(_event.dimming.brightness > 0)
 
             // If the brightness reaches zero, the hue lamp "on" property must be set to zero as well
-            if (_event.dimming.brightness === 0) node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, { on: { on: false } }, 'setLight')
+            if (_event.dimming.brightness === 0) node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, { on: { on: false } }, (node.isGrouped_light === false ? 'setLight' : 'setGroupedLight'))
 
             if (node.currentHUEDevice !== undefined) node.currentHUEDevice.dimming = _event.dimming // Update the internal object representing the current light
           }
@@ -373,7 +401,7 @@ module.exports = function (RED) {
       if (node.serverHue !== null && node.serverHue.hueManager !== null) {
         (async () => {
           try {
-            await node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, null, 'getLight', (jLight) => {
+            await node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, null, (node.isGrouped_light === false ? 'getLight' : 'getGroupedLight'), (jLight) => {
               node.currentHUEDevice = jLight
               node.serverHue.addClient(node)
             })

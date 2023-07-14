@@ -61,6 +61,7 @@ module.exports = function (RED) {
               // 0 - maximum: 32767
               node.brightnessState < 100 ? node.brightnessState += 20 : node.brightnessState = 100
               knxMsgPayload.payload = node.brightnessState
+              if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.server.writeQueueAdd({ grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
             } else if (knxMsgPayload.dpt.startsWith('232.600')) {
               if (_event.relative_rotary.last_event.action === 'start') {
                 // Random color
@@ -87,6 +88,7 @@ module.exports = function (RED) {
             } else if (knxMsgPayload.dpt.startsWith('5.001')) {
               node.brightnessState > 0 ? node.brightnessState -= 20 : node.brightnessState = 0
               knxMsgPayload.payload = node.brightnessState
+              if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.server.writeQueueAdd({ grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
             } else if (knxMsgPayload.dpt.startsWith('232.600')) {
               if (_event.relative_rotary.last_event.action === 'start') {
                 // Set white color

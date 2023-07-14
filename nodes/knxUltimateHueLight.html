@@ -697,8 +697,12 @@
                         }));
                     });
                 }, select: function (event, ui) {
-                    // Sets the fields
-                    $('#node-input-hueDevice').val(ui.item.hueDevice);
+                    // Distinguish between group of lights an single light.
+                    if (ui.item.value.startsWith('Grouped_light')) {
+                        $('#node-input-hueDevice').val(ui.item.hueDevice + "#grouped_light");
+                    } else {
+                        $('#node-input-hueDevice').val(ui.item.hueDevice + "#light");
+                    }
                 }
             });
 
@@ -723,7 +727,7 @@
 
 
 <div class="form-row">
-    <b>HUE Light node</b>&nbsp&nbsp<span style="color:red"
+    <b>HUE Light/Group node</b>&nbsp&nbsp<span style="color:red"
     &nbsp
     &nbsp<i class="fa fa-youtube"></i></span>&nbsp<a target="_blank" href="https://youtu.be/3M02Du2gero"><u>Youtube sample</u></a> 
     <br />
@@ -985,14 +989,14 @@
 </script>
 
 <script type="text/markdown" data-help-name="knxUltimateHueLight">
-<p>This node lets you control your Philips HUE light and also get the states of this lights, to be sent to the KNX bus.</p>
+<p>This node lets you control your Philips HUE light and grouped lights and also gets the states of this lights, to be sent to the KNX bus.</p>
 
 **General**
 |Property|Description|
 |--|--|
 | KNX GW | Select the KNX gateway to be used |
 | HUE Bridge | Select the HUE Bridge to be used |
-| Name | HUE light to be used. The avaiable lights start showing up while you're typing.|
+| Name | HUE light or HUE grouped light to be used. The avaiable lights and groups start showing up while you're typing.|
 
 <br/>
 

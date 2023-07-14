@@ -7,6 +7,16 @@
 # CHANGELOG
 
 <p>
+<b>Version 2.1.34</b> - July 2023<br/>
+- NEW: Hue light node now supports the grouped lights.<br/>
+- Tap Dial node: fixed an issue with datapoint 5.001.<br/>
+- Full rewrite of the HUE engine, to reduce the http traffic with the HUE Bridge as much as possible.<br/>
+</p>
+<p>
+<b>Version 2.1.33</b> - July 2023<br/>
+- HUE Light: fix for lights not supporting GAMUT.<br/>
+</p>
+<p>
 <b>Version 2.1.32</b> - July 2023<br/>
 - NEW: Hue Battery Sensor: you can now get the battery level of all your battery powered HUE devices.<br/>
 - The sensors now read the value at startup.<br/>
