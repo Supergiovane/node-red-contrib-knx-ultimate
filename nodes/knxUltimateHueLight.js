@@ -188,7 +188,7 @@ module.exports = function (RED) {
                 // state = msg.payload === true ? { on: { on: true } } : { on: { on: false } }
                 state = msg.payload === true ? { on: { on: true }, dimming: { brightness: 100 }, dynamics: { duration: 0 } } : { on: { on: false }, dynamics: { duration: 0 } }
                 node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, state, (node.isGrouped_light === false ? 'setLight' : 'setGroupedLight'))
-              }, 700)
+              }, 1000)
             } else {
               if (node.timerBlink !== undefined) clearInterval(node.timerBlink)
               node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, { on: { on: false } }, (node.isGrouped_light === false ? 'setLight' : 'setGroupedLight'))

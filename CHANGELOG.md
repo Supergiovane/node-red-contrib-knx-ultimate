@@ -7,6 +7,10 @@
 # CHANGELOG
 
 <p>
+<b>Version 2.1.35</b> - July 2023<br/>
+- Maintenance release. Added a youtube link with samples, into every HUE node configuration's window.<br/>
+</p>
+<p>
 <b>Version 2.1.34</b> - July 2023<br/>
 - NEW: Hue light node now supports the grouped lights.<br/>
 - Tap Dial node: fixed an issue with datapoint 5.001.<br/>
