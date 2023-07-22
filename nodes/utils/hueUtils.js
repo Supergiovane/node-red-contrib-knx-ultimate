@@ -29,52 +29,69 @@ class classHUE extends EventEmitter {
       },
     };
 
-    this.es = new EventSource('https://' + this.hueBridgeIP + '/eventstream/clip/v2', options);
+    // Connect
+    this.connect = async () => {
 
-    this.es.onmessage = (event) => {
-      try {
-        if (event && event.type === 'message' && event.data) {
-          const data = JSON.parse(event.data);
-          data.forEach(element => {
-            if (element.type === 'update') {
-              element.data.forEach(ev => {
-                this.emit('event', ev)
-              })
-            }
-          })
+      this.es = new EventSource('https://' + this.hueBridgeIP + '/eventstream/clip/v2', options);
+
+      this.es.onmessage = (event) => {
+        try {
+          if (event && event.type === 'message' && event.data) {
+            const data = JSON.parse(event.data);
+            data.forEach(element => {
+              if (element.type === 'update') {
+                element.data.forEach(ev => {
+                  this.emit('event', ev)
+                })
+              }
+            })
+          }
+        } catch (error) {
+          console.log('KNXUltimateHUEUtils: classHUE: this.es.onmessage: ' + error.message)
         }
-      } catch (error) {
-        console.log('KNXUltimateHUEConfig: classHUE: this.es.onmessage: ' + error.message)
+
+      };
+
+      this.es.onopen = () => {
+        //console.log('KNXUltimateHUEUtils: classHUE: SSE-Connected')
+        //this.emit('connected');   
       }
 
-    };
+      this.es.onerror = (error) => {
+        try {
+          if (this.timerReconnect !== undefined) clearTimeout(this.timerReconnect)
+          this.timerReconnect = setTimeout(() => {
+            this.connect()
+          }, 5000)
+          this.es.close()
+          this.es = null
+          console.log('KNXUltimateHUEUtils: classHUE: request.on(error): ' + error.message)
+        } catch (error) {
+        }
+        //this.emit('error', err)
+      };
 
-    this.es.onopen = () => {
-      //console.log('KNXUltimateHUEConfig: classHUE: SSE-Connected')
-      //this.emit('connected');
-    }
-    this.es.onerror = (error) => {
+      // Initialize the http wrapper, to use the provided key.
+      // This http wrapper is used to get the data from HUE brigde
       try {
-        setTimeout(() => {
-          this.connect()
-        }, 5000);
-        this.es.close()
-        this.es = null
-        console.log('KNXUltimateHUEConfig: classHUE: request.on(error): ' + error.message)
+        this.hueApiV2 = await http.use({
+          key: this.username,
+          prefix: 'https://' + this.hueBridgeIP + '/clip/v2'
+        });
+        // Load all resources, to avoid too many call to the HUE bridge and speed up the showing of the device mnames, during typing in the config window
+        this.hueAllResources = await this.hueApiV2.get('/resource')
+        this.hueAllRooms = await this.hueApiV2.get('/resource/room')
+        this.hueAllDevices = await this.hueApiV2.get('/resource/device')
       } catch (error) {
+        if (this.timerReconnect !== undefined) clearTimeout(this.timerReconnect)
+        this.timerReconnect = setTimeout(() => {
+          this.connect()
+        }, 5000)
+        console.log('KNXUltimateHUEUtils: classHUE: this.hueApiV2 = await http.use: ' + error.message)
       }
-      //this.emit('error', err)
-    };
-    // Initialize the http wrapper, to use the provided key.
-    // This http wrapper is used to get the data from HUE brigde
-    this.hueApiV2 = await http.use({
-      key: this.username,
-      prefix: 'https://' + this.hueBridgeIP + '/clip/v2'
-    });
-    // Load all resources, to avoid too many call to the HUE bridge and speed up the showing of the device mnames, during typing in the config window
-    this.hueAllResources = await this.hueApiV2.get('/resource')
-    this.hueAllRooms = await this.hueApiV2.get('/resource/room')
-    this.hueAllDevices = await this.hueApiV2.get('/resource/device')
+    }
+    // First connection
+    this.connect()
   }
 
   // #############################################
@@ -91,14 +108,14 @@ class classHUE extends EventEmitter {
           try {
             const ok = await this.hueApiV2.put('/resource/light/' + jRet._lightID, jRet._state)
           } catch (error) {
-            console.log('KNXUltimateHUEConfig: classHUE: handleQueue: setLight light: ' + error.message)
+            console.log('KNXUltimateHUEUtils: classHUE: handleQueue: setLight light: ' + error.message)
           }
           break
         case 'setGroupedLight':
           try {
             const ok = await this.hueApiV2.put('/resource/grouped_light/' + jRet._lightID, jRet._state)
           } catch (error) {
-            console.log('KNXUltimateHUEConfig: classHUE: handleQueue: setLight grouped_light: ' + error.message)
+            console.log('KNXUltimateHUEUtils: classHUE: handleQueue: setLight grouped_light: ' + error.message)
           }
           break
         case 'getLight':
@@ -106,7 +123,7 @@ class classHUE extends EventEmitter {
             const jReturn = await this.hueApiV2.get('/resource/light/' + jRet._lightID)
             jRet._callback(jReturn[0]) // Need to call the callback, because the event is absolutely async
           } catch (error) {
-            console.log('KNXUltimateHUEConfig: classHUE: handleQueue: getLight light: ' + error.message)
+            console.log('KNXUltimateHUEUtils: classHUE: handleQueue: getLight light: ' + error.message)
           }
           break
         case 'getGroupedLight':
@@ -114,7 +131,7 @@ class classHUE extends EventEmitter {
             const jReturn = await this.hueApiV2.get('/resource/grouped_light/' + jRet._lightID)
             jRet._callback(jReturn[0]) // Need to call the callback, because the event is absolutely async
           } catch (error) {
-            console.log('KNXUltimateHUEConfig: classHUE: handleQueue: getLight grouped_light: ' + error.message)
+            console.log('KNXUltimateHUEUtils: classHUE: handleQueue: getLight grouped_light: ' + error.message)
           }
           break
         case 'setScene':
@@ -122,7 +139,7 @@ class classHUE extends EventEmitter {
             const sceneID = jRet._lightID
             const ok = await this.hueApiV2.put('/resource/scene/' + sceneID, jRet._state)
           } catch (error) {
-            console.log('KNXUltimateHUEConfig: classHUE: handleQueue: setScene: ' + error.message)
+            console.log('KNXUltimateHUEUtils: classHUE: handleQueue: setScene: ' + error.message)
           }
           break
         case 'stopScene':
@@ -135,7 +152,7 @@ class classHUE extends EventEmitter {
               this.writeHueQueueAdd(light.rid, jRet._state, 'setLight')
             });
           } catch (error) {
-            console.log('KNXUltimateHUEConfig: classHUE: handleQueue: stopScene: ' + error.message)
+            console.log('KNXUltimateHUEUtils: classHUE: handleQueue: stopScene: ' + error.message)
           }
           break
         case 'getBattery':
@@ -143,14 +160,14 @@ class classHUE extends EventEmitter {
             const jReturn = await this.hueApiV2.get('/resource/device_power/' + jRet._lightID)
             jRet._callback(jReturn[0]) // Need to call the callback, because the event is absolutely async
           } catch (error) {
-            console.log('KNXUltimateHUEConfig: classHUE: handleQueue: getBattery: ' + error.message)
+            console.log('KNXUltimateHUEUtils: classHUE: handleQueue: getBattery: ' + error.message)
           }
         case 'getLightLevel':
           try {
             const jReturn = await this.hueApiV2.get('/resource/light_level/' + jRet._lightID)
             jRet._callback(jReturn[0]) // Need to call the callback, because the event is absolutely async
           } catch (error) {
-            console.log('KNXUltimateHUEConfig: classHUE: handleQueue: getLightLevel: ' + error.message)
+            console.log('KNXUltimateHUEUtils: classHUE: handleQueue: getLightLevel: ' + error.message)
           }
           break
         case 'getTemperature':
@@ -158,7 +175,7 @@ class classHUE extends EventEmitter {
             const jReturn = await this.hueApiV2.get('/resource/temperature/' + jRet._lightID)
             jRet._callback(jReturn[0]) // Need to call the callback, because the event is absolutely async
           } catch (error) {
-            console.log('KNXUltimateHUEConfig: classHUE: handleQueue: getTemperature: ' + error.message)
+            console.log('KNXUltimateHUEUtils: classHUE: handleQueue: getTemperature: ' + error.message)
           }
           break
         default:
