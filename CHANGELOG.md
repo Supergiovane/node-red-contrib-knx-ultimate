@@ -8,7 +8,7 @@
 
 <p>
 <b>Version 2.1.36</b> - July 2023<br/>
-- Bugfix: in some cases, the eventsource lost the connection while in idle for more than 15 minutes. Fixed.<br/>
+- Bugfix: in some cases, the eventsource lost the connection while in idle for more than 15 minutes; fixed.<br/>
 </p>
 <p>
 <b>Version 2.1.35</b> - July 2023<br/>
