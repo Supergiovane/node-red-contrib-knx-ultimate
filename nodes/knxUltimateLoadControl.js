@@ -1,6 +1,6 @@
 
 module.exports = function (RED) {
-  function knxUltimateLoadControl (config) {
+  function knxUltimateLoadControl(config) {
     // const Address = require('./../KNXEngine/src/protocol/KNXAddress')
 
     RED.nodes.createNode(this, config)
@@ -338,6 +338,25 @@ module.exports = function (RED) {
       if ((msg.hasOwnProperty('readstatus') && msg.readstatus === true)) {
         node.initialReadAllDevicesInRules()
       }
+
+      // 'shed', 'unshed', 'auto'
+      // | `msg.shedding` | String. *shed* to start the formward shedding sequence, *unshed* to start reverse shedding. Use this msg to force the shedding timer to start/stop, ignoring the **Monitor Wh** group address. Set *auto* to enable again the **Monitor Wh** group address monitoring. |
+      if (msg.shedding !== undefined) {
+        switch (msg.shedding) {
+          case 'shed':
+            node.wattLimit = 1 // Faking to shed
+            break;
+          case 'unshed':
+            node.wattLimit = 100000 // Faking to unshed
+            break;
+          case 'auto':
+            node.wattLimit = config.wattLimit === undefined ? 3000 : Number(config.wattLimit)
+            break;
+          default:
+            break;
+        }
+      }
+
     })
 
     node.on('close', function (done) {

@@ -47,13 +47,13 @@ class classHUE extends EventEmitter {
             })
           }
         } catch (error) {
-          console.log('KNXUltimateHUEUtils: classHUE: this.es.onmessage: ' + error.message)
+          console.log('KNXUltimatehueEngine: classHUE: this.es.onmessage: ' + error.message)
         }
 
       };
 
       this.es.onopen = () => {
-        //console.log('KNXUltimateHUEUtils: classHUE: SSE-Connected')
+        //console.log('KNXUltimatehueEngine: classHUE: SSE-Connected')
         //this.emit('connected');   
       }
 
@@ -65,7 +65,7 @@ class classHUE extends EventEmitter {
           }, 5000)
           this.es.close()
           this.es = null
-          console.log('KNXUltimateHUEUtils: classHUE: request.on(error): ' + error.message)
+          console.log('KNXUltimatehueEngine: classHUE: request.on(error): ' + error.message)
         } catch (error) {
         }
         //this.emit('error', err)
@@ -87,7 +87,7 @@ class classHUE extends EventEmitter {
         this.timerReconnect = setTimeout(() => {
           this.connect()
         }, 5000)
-        console.log('KNXUltimateHUEUtils: classHUE: this.hueApiV2 = await http.use: ' + error.message)
+        console.log('KNXUltimatehueEngine: classHUE: this.hueApiV2 = await http.use: ' + error.message)
       }
     }
     // First connection
@@ -108,14 +108,14 @@ class classHUE extends EventEmitter {
           try {
             const ok = await this.hueApiV2.put('/resource/light/' + jRet._lightID, jRet._state)
           } catch (error) {
-            console.log('KNXUltimateHUEUtils: classHUE: handleQueue: setLight light: ' + error.message)
+            console.log('KNXUltimatehueEngine: classHUE: handleQueue: setLight light: ' + error.message)
           }
           break
         case 'setGroupedLight':
           try {
             const ok = await this.hueApiV2.put('/resource/grouped_light/' + jRet._lightID, jRet._state)
           } catch (error) {
-            console.log('KNXUltimateHUEUtils: classHUE: handleQueue: setLight grouped_light: ' + error.message)
+            console.log('KNXUltimatehueEngine: classHUE: handleQueue: setLight grouped_light: ' + error.message)
           }
           break
         case 'getLight':
@@ -123,7 +123,7 @@ class classHUE extends EventEmitter {
             const jReturn = await this.hueApiV2.get('/resource/light/' + jRet._lightID)
             jRet._callback(jReturn[0]) // Need to call the callback, because the event is absolutely async
           } catch (error) {
-            console.log('KNXUltimateHUEUtils: classHUE: handleQueue: getLight light: ' + error.message)
+            console.log('KNXUltimatehueEngine: classHUE: handleQueue: getLight light: ' + error.message)
           }
           break
         case 'getGroupedLight':
@@ -131,7 +131,7 @@ class classHUE extends EventEmitter {
             const jReturn = await this.hueApiV2.get('/resource/grouped_light/' + jRet._lightID)
             jRet._callback(jReturn[0]) // Need to call the callback, because the event is absolutely async
           } catch (error) {
-            console.log('KNXUltimateHUEUtils: classHUE: handleQueue: getLight grouped_light: ' + error.message)
+            console.log('KNXUltimatehueEngine: classHUE: handleQueue: getLight grouped_light: ' + error.message)
           }
           break
         case 'setScene':
@@ -139,7 +139,7 @@ class classHUE extends EventEmitter {
             const sceneID = jRet._lightID
             const ok = await this.hueApiV2.put('/resource/scene/' + sceneID, jRet._state)
           } catch (error) {
-            console.log('KNXUltimateHUEUtils: classHUE: handleQueue: setScene: ' + error.message)
+            console.log('KNXUltimatehueEngine: classHUE: handleQueue: setScene: ' + error.message)
           }
           break
         case 'stopScene':
@@ -152,7 +152,7 @@ class classHUE extends EventEmitter {
               this.writeHueQueueAdd(light.rid, jRet._state, 'setLight')
             });
           } catch (error) {
-            console.log('KNXUltimateHUEUtils: classHUE: handleQueue: stopScene: ' + error.message)
+            console.log('KNXUltimatehueEngine: classHUE: handleQueue: stopScene: ' + error.message)
           }
           break
         case 'getBattery':
@@ -160,14 +160,14 @@ class classHUE extends EventEmitter {
             const jReturn = await this.hueApiV2.get('/resource/device_power/' + jRet._lightID)
             jRet._callback(jReturn[0]) // Need to call the callback, because the event is absolutely async
           } catch (error) {
-            console.log('KNXUltimateHUEUtils: classHUE: handleQueue: getBattery: ' + error.message)
+            console.log('KNXUltimatehueEngine: classHUE: handleQueue: getBattery: ' + error.message)
           }
         case 'getLightLevel':
           try {
             const jReturn = await this.hueApiV2.get('/resource/light_level/' + jRet._lightID)
             jRet._callback(jReturn[0]) // Need to call the callback, because the event is absolutely async
           } catch (error) {
-            console.log('KNXUltimateHUEUtils: classHUE: handleQueue: getLightLevel: ' + error.message)
+            console.log('KNXUltimatehueEngine: classHUE: handleQueue: getLightLevel: ' + error.message)
           }
           break
         case 'getTemperature':
@@ -175,7 +175,7 @@ class classHUE extends EventEmitter {
             const jReturn = await this.hueApiV2.get('/resource/temperature/' + jRet._lightID)
             jRet._callback(jReturn[0]) // Need to call the callback, because the event is absolutely async
           } catch (error) {
-            console.log('KNXUltimateHUEUtils: classHUE: handleQueue: getTemperature: ' + error.message)
+            console.log('KNXUltimatehueEngine: classHUE: handleQueue: getTemperature: ' + error.message)
           }
           break
         default:
@@ -274,7 +274,7 @@ class classHUE extends EventEmitter {
       }
       return { devices: retArray }
     } catch (error) {
-      console.log('KNXUltimateHue: HueUtils: classHUE: getDevices: error ' + error.message)
+      console.log('KNXUltimateHue: hueEngine: classHUE: getDevices: error ' + error.message)
       return ({ devices: error.message })
     }
   }

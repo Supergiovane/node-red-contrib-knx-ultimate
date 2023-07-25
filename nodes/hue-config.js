@@ -1,6 +1,6 @@
 
 const dptlib = require('./../KNXEngine/src/dptlib')
-const hueClass = require('./utils/hueUtils').classHUE
+const hueClass = require('./utils/hueEngine').classHUE
 const loggerEngine = require('./utils/sysLogger.js')
 // Helpers
 const sortBy = (field) => (a, b) => {
