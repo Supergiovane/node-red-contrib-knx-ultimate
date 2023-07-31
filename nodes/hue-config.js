@@ -64,7 +64,7 @@ module.exports = (RED) => {
     node.name = (config.name === undefined || config.name === '') ? node.host : config.name // 12/08/2021
 
     // Init HUE Utility
-    node.hueManager = new hueClass(node.host, node.credentials.username, node.credentials.clientkey, config.bridgeid)
+    node.hueManager = new hueClass(node.host, node.credentials.username, node.credentials.clientkey, config.bridgeid, node.sysLogger)
 
     // Event clip V2
     node.hueManager.on('event', _event => {

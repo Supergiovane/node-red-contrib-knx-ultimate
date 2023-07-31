@@ -169,7 +169,7 @@ module.exports = function (RED) {
             }
           }
         }
-      }, 10000)
+      }, 20000)
     }
 
     // Start the timer

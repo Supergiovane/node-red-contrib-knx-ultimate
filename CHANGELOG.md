@@ -7,6 +7,11 @@
 # CHANGELOG
 
 <p>
+<b>Version 2.1.38</b> - August 2023<br/>
+- Strenghten HUE eventsource resiliency.<br/>
+- Implemented standard logging on all HUE nodes (there was temporary console.log statements).<br/>
+</p>
+<p>
 <b>Version 2.1.37</b> - July 2023<br/>
 - Load control: added msg.shedding to force shed/unshed.<br/>
 </p>
