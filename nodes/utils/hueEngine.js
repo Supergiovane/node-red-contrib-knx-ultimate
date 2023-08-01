@@ -92,7 +92,7 @@ class classHUE extends EventEmitter {
         } catch (error) {
         }
         this.connect()
-      }, 120000)
+      }, 300000)
 
     }
     // First connection
