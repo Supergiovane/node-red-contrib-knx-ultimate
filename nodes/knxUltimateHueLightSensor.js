@@ -74,17 +74,17 @@ module.exports = function (RED) {
     }
     if (node.serverHue) {
       node.serverHue.removeClient(node)
-      // I must get the object, to store read the battery status
+      // I must get the object, to store read the status
       // I queue the state request, by passing the callback to call whenever the HUE bridge send me the light status async
       if (node.serverHue !== null && node.serverHue.hueManager !== null) {
         (async () => {
+          node.serverHue.addClient(node)
           try {
-            await node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, null, 'getLightLevel', (jLight) => {
-              node.serverHue.addClient(node)
+             node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, null, 'getLightLevel', (jLight) => {              
               node.handleSendHUE(jLight)
             })
-          } catch (err) {
-            RED.log.error('Errore knxUltimateHueLight node.currentHUEDevice ' + err.message)
+          } catch (error) {
+            RED.log.error('Errore knxUltimateHueLightSensor subscribing: ' + error.message)
           }
         })()
       }

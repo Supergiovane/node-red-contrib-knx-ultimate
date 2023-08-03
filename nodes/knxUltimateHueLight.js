@@ -90,7 +90,7 @@ module.exports = function (RED) {
               if (config.linkBrightnessToSwitchStatus === undefined || config.linkBrightnessToSwitchStatus === 'yes') {
                 state = { on: { on: false }, dimming: { brightness: 0 }, dynamics: { duration: 2000 } }
               } else {
-                state = { on: { on: false } }
+                state = { on: { on: false }, dynamics: { duration: 2000 } }
               }
             }
             node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, state, (node.isGrouped_light === false ? 'setLight' : 'setGroupedLight'))
@@ -140,6 +140,15 @@ module.exports = function (RED) {
               } else {
                 node.startDimStopperTunableWhite('stop')
               }
+            }
+            if (config.dptLightHSV === '5.001') {
+              // 0-100% tunable white
+              msg.payload = 100 - dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightHSV))
+              const retMirek = hueColorConverter.ColorConverter.scale(msg.payload, [0, 100], [153, 500])
+              msg.payload = retMirek
+              state = { color_temperature: { mirek: msg.payload } }
+              node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, state, (node.isGrouped_light === false ? 'setLight' : 'setGroupedLight'))
+              node.setNodeStatusHue({ fill: 'green', shape: 'dot', text: 'KNX->HUE', payload: state })
             }
             node.setNodeStatusHue({ fill: 'green', shape: 'dot', text: 'KNX->HUE', payload: msg.payload })
             break
@@ -401,9 +410,10 @@ module.exports = function (RED) {
       if (node.serverHue !== null && node.serverHue.hueManager !== null) {
         (async () => {
           try {
+            node.serverHue.addClient(node)
             await node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, null, (node.isGrouped_light === false ? 'getLight' : 'getGroupedLight'), (jLight) => {
               node.currentHUEDevice = jLight
-              node.serverHue.addClient(node)
+              node.setNodeStatusHue({ fill: 'blue', shape: 'ring', text: 'Connected. Is on: ', payload: node.currentHUEDevice.on.on === true })
             })
           } catch (err) {
             RED.log.error('Errore knxUltimateHueLight node.currentHUEDevice ' + err.message)

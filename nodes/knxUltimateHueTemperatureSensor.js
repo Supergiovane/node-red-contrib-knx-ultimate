@@ -79,8 +79,8 @@ module.exports = function (RED) {
       if (node.serverHue !== null && node.serverHue.hueManager !== null) {
         (async () => {
           try {
+            node.serverHue.addClient(node)
             await node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, null, 'getTemperature', (jLight) => {
-              node.serverHue.addClient(node)
               node.handleSendHUE(jLight)
             })
           } catch (err) {

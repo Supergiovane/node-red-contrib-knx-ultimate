@@ -348,7 +348,7 @@
             // ########################
             $.getJSON('knxUltimateDpts', (data) => {
                 data.forEach(dpt => {
-                    if (dpt.value === "3.007") {
+                    if (dpt.value === "3.007" || dpt.value === "5.001") {
                         $("#node-input-dptLightHSV").append($("<option></option>")
                             .attr("value", dpt.value)
                             .text(dpt.text))
@@ -376,7 +376,7 @@
                 source: function (request, response) {
                     $.getJSON("knxUltimatecsv?nodeID=" + oNodeServer.id, (data) => {
                         response($.map(data, function (value, key) {
-                            if (value.dpt === "3.007") {
+                            if (value.dpt === "3.007" || value.dpt === "5.001") {
                                 var sSearch = (value.ga + " (" + value.devicename + ") DPT" + value.dpt);
                                 if (fullSearch(sSearch, request.term)) {
                                     return {
@@ -688,8 +688,8 @@
                             var sSearch = (value.name);
                             if (fullSearch(sSearch, request.term)) {
                                 return {
-                                    hueDevice: value.id, // Label for Display
-                                    value: value.name // Value
+                                    hueDevice: value.id,
+                                    value: value.name
                                 }
                             } else {
                                 return null;
@@ -706,6 +706,27 @@
                 }
             });
 
+            // Get the HUE capabilities to enable/disable UI parts
+            $.getJSON("KNXUltimateGetResourcesHUE?rtype=light&nodeID=" + oNodeServerHue.id, (data) => {
+                data.devices.forEach(element => {
+                    if (element.id === this.hueDevice.split('#')[0] && element.deviceObject !== undefined) {
+                        // Check dimming 
+                        if (element.deviceObject.dimming === undefined){
+                            $('#tabs').tabs("disable", "#tabs-2");
+                            $('#divColorsAtSwitchOn').hide()
+                            $('#divColorCycle').hide()
+                        } 
+                        // Check color
+                        if (element.deviceObject.color_temperature === undefined) $('#tabs').tabs("disable", "#tabs-3");
+                        if (element.deviceObject.color === undefined){
+                            $('#tabs').tabs("disable", "#tabs-4");
+                            $('#divColorsAtSwitchOn').hide()
+                            $('#divColorCycle').hide()
+                        } 
+                        return
+                    }
+                });
+            });
 
             // ########################
 
@@ -802,45 +823,47 @@
             <label for="node-input-nameLightState" style="width:50px; margin-left: 0px; text-align: right;"><span data-i18n="knxUltimateHueLight.node-input-name"></span></label>
             <input type="text" id="node-input-nameLightState" style="width:190px;margin-left: 5px; text-align: left;">
         </div>
-        <div class="form-row">
-            <label for="node-input-colorAtSwitchOnDayTime" style="width:260px">
-                <i class="fa fa-sun-o"></i> Switch On - color/brightness
-            </label>
-            <input type="text" id="node-input-colorAtSwitchOnDayTime" placeholder='Leave blank or, for example, {"red":255, "green":255, "blue":255}'
-                style="width:260px">
-        </div>
-        <div class="form-row">
-            <label style="width:170px" for="node-input-enableDayNightLighting">
-                <i class="fa fa-clone"></i> Night Lighting
-            </label>
-            <input type="checkbox" id="node-input-enableDayNightLighting" style="display:inline-block; width:auto; vertical-align:top;" />            
-        </div>        
-        <div id="DivEnableDayNightLighting">
+        <div id="divColorsAtSwitchOn">
             <div class="form-row">
-                <label for="node-input-colorAtSwitchOnNightTime" style="width:260px">
-                    <i class="fa fa-moon-o"></i> Switch On - color/brightness at Night
+                <label for="node-input-colorAtSwitchOnDayTime" style="width:260px">
+                    <i class="fa fa-sun-o"></i> Switch On - color/brightness
                 </label>
-                <input type="text" id="node-input-colorAtSwitchOnNightTime" placeholder='Example {"red":100, "green":0, "blue":50}'
+                <input type="text" id="node-input-colorAtSwitchOnDayTime" placeholder='Leave blank or, for example, {"red":255, "green":255, "blue":255}'
                     style="width:260px">
             </div>
             <div class="form-row">
-                <label for="node-input-nameDaylightSensor" style="width:110px;"><i class="fa fa-clock-o"></i> Day/Night</label>
-
-                <label for="node-input-GADaylightSensor" style="width:20px;">GA</label>
-                <input type="text" id="node-input-GADaylightSensor" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
-            
-                <label for="node-input-dptDaylightSensor" style="width:40px; margin-left: 0px; text-align: right;">DPT</label>
-                <select id="node-input-dptDaylightSensor" style="width:140px;"></select>
-            
-                <label for="node-input-nameDaylightSensor" style="width:50px; margin-left: 0px; text-align: right;"><span data-i18n="knxUltimateHueLight.node-input-name"></span></label>
-                <input type="text" id="node-input-nameDaylightSensor" style="width:190px;margin-left: 5px; text-align: left;">
-            </div>
-            <div  class="form-row">
-                <label style="width:170px" for="node-input-invertDayNight">
-                    <i class="fa fa-shuffle"></i> Invert day/night values
+                <label style="width:170px" for="node-input-enableDayNightLighting">
+                    <i class="fa fa-clone"></i> Night Lighting
                 </label>
-                <input type="checkbox" id="node-input-invertDayNight" style="display:inline-block; width:auto; vertical-align:top;" />
-                        
+                <input type="checkbox" id="node-input-enableDayNightLighting" style="display:inline-block; width:auto; vertical-align:top;" />            
+            </div>        
+            <div id="DivEnableDayNightLighting">
+                <div class="form-row">
+                    <label for="node-input-colorAtSwitchOnNightTime" style="width:260px">
+                        <i class="fa fa-moon-o"></i> Switch On - color/brightness at Night
+                    </label>
+                    <input type="text" id="node-input-colorAtSwitchOnNightTime" placeholder='Example {"red":100, "green":0, "blue":50}'
+                        style="width:260px">
+                </div>
+                <div class="form-row">
+                    <label for="node-input-nameDaylightSensor" style="width:110px;"><i class="fa fa-clock-o"></i> Day/Night</label>
+
+                    <label for="node-input-GADaylightSensor" style="width:20px;">GA</label>
+                    <input type="text" id="node-input-GADaylightSensor" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
+                
+                    <label for="node-input-dptDaylightSensor" style="width:40px; margin-left: 0px; text-align: right;">DPT</label>
+                    <select id="node-input-dptDaylightSensor" style="width:140px;"></select>
+                
+                    <label for="node-input-nameDaylightSensor" style="width:50px; margin-left: 0px; text-align: right;"><span data-i18n="knxUltimateHueLight.node-input-name"></span></label>
+                    <input type="text" id="node-input-nameDaylightSensor" style="width:190px;margin-left: 5px; text-align: left;">
+                </div>
+                <div  class="form-row">
+                    <label style="width:170px" for="node-input-invertDayNight">
+                        <i class="fa fa-shuffle"></i> Invert day/night values
+                    </label>
+                    <input type="checkbox" id="node-input-invertDayNight" style="display:inline-block; width:auto; vertical-align:top;" />
+                            
+                </div>
             </div>
         </div>
       </p>
@@ -958,17 +981,19 @@
             <input type="text" id="node-input-nameLightBlink" style="width:190px;margin-left: 5px; text-align: left;">
             </div>
         
-            <div class="form-row">
-            <label for="node-input-nameLightColorCycle" style="width:110px;"><i class="fa fa-play-circle-o"></i> Color Cycle</label>
-    
-            <label for="node-input-GALightColorCycle" style="width:20px;">GA</label>
-            <input type="text" id="node-input-GALightColorCycle" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
-            
-            <label for="node-input-dptLightColorCycle" style="width:40px; margin-left: 0px; text-align: right;">DPT</label>
-            <select id="node-input-dptLightColorCycle" style="width:140px;"></select>
-            
-            <label for="node-input-nameLightColorCycle" style="width:50px; margin-left: 0px; text-align: right;"><span data-i18n="knxUltimateHueLight.node-input-name"></span></label>
-            <input type="text" id="node-input-nameLightColorCycle" style="width:190px;margin-left: 5px; text-align: left;">
+            <div id="divColorCycle">
+                <div class="form-row">
+                <label for="node-input-nameLightColorCycle" style="width:110px;"><i class="fa fa-play-circle-o"></i> Color Cycle</label>
+        
+                <label for="node-input-GALightColorCycle" style="width:20px;">GA</label>
+                <input type="text" id="node-input-GALightColorCycle" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
+                
+                <label for="node-input-dptLightColorCycle" style="width:40px; margin-left: 0px; text-align: right;">DPT</label>
+                <select id="node-input-dptLightColorCycle" style="width:140px;"></select>
+                
+                <label for="node-input-nameLightColorCycle" style="width:50px; margin-left: 0px; text-align: right;"><span data-i18n="knxUltimateHueLight.node-input-name"></span></label>
+                <input type="text" id="node-input-nameLightColorCycle" style="width:190px;margin-left: 5px; text-align: left;">
+                </div>
             </div>
         </p>      
     </div>
@@ -1030,8 +1055,8 @@ Start typing in the GA field, the name or group address of your KNX device, the 
 **Tunable white**
 |Property|Description|
 |--|--|
-| Tunable white | This command is used to change the HUE light's white temperature. Datapoint is 3.007 dimming. |
-| Tunable white Status | Link this to the light temperature status group address. Datapoint is 5.001 absolute value|
+| Tunable white | This command is used to change the HUE light's white temperature. Datapoint is 3.007 dimming or 5.001 percentage. When set to 5.001, a value of 0 is full warm, a value of 100 is full cold .|
+| Tunable white Status | Link this to the light temperature status group address. Datapoint is 5.001 absolute value. 0 is full warm, 100 is full cold.|
 
 <br/>
 

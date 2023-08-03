@@ -13,7 +13,7 @@ module.exports = function (RED) {
       return
     }
     node.topic = config.topic
-    node.outputtopic = (typeof config.outputtopic === 'undefined' || config.outputtopic == '') ? config.topic : config.outputtopic // 07/02/2020 Importante, per retrocompatibilità
+    node.outputtopic = (config.outputtopic === undefined || config.outputtopic === '') ? config.topic : config.outputtopic // 07/02/2020 Importante, per retrocompatibilità
     node.dpt = config.dpt || '1.001'
     node.notifyreadrequest = config.notifyreadrequest || false
     node.notifyreadrequestalsorespondtobus = config.notifyreadrequestalsorespondtobus || 'false' // Auto respond if notifireadrequest is true

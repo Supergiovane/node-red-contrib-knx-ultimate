@@ -1154,7 +1154,7 @@ return msg;`,
 
                 } else {
                   const msg = {
-                    topic: input.topic,
+                    topic: input.outputtopic,
                     payload: oKNXMessage.payload,
                     devicename: input.name ? input.name : '',
                     event: 'Update_NoWrite',

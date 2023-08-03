@@ -17,7 +17,7 @@ class classHUE extends EventEmitter {
     this.bridgeid = _bridgeid
     this.commandQueue = []
     this.closePushEventStream = false
-    this.timerwriteQueueAdd = setTimeout(this.handleQueue, 5000) // First start
+    this.timerwriteQueueAdd = setTimeout(this.handleQueue, 15000) // First start. Allow the KNX to connect
     this.sysLogger = _sysLogger
 
     // #############################################
@@ -106,6 +106,7 @@ class classHUE extends EventEmitter {
   // ######################################
   handleQueue = async () => {
     if (this.commandQueue.length > 0) {
+      //const jRet = { ...this.commandQueue.shift() } //Clone the object by value
       const jRet = this.commandQueue.shift()
       switch (jRet._operation) {
         case 'setLight':
@@ -187,117 +188,120 @@ class classHUE extends EventEmitter {
           break
       }
     }
-    // The Hue bridge allows about 10 telegram per second, so i need to make a queue manager
-    setTimeout(this.handleQueue, 100)
+     // The Hue bridge allows about 10 telegram per second, so i need to make a queue manager
+    this.timerwriteQueueAdd = setTimeout(this.handleQueue, 100)
   }
 
-  writeHueQueueAdd = async (_lightID, _state, _operation, _callback) => {
-    // Add the new item
-    this.commandQueue.push({ _lightID, _state, _operation, _callback })
-  }
-  // ######################################
 
 
 
-  // Get all devices and join it with relative rooms, by adding the room name to the device name
-  getResources = async (_rtype, _host, _username) => {
-    try {
-      // Api V2
+writeHueQueueAdd = async (_lightID, _state, _operation, _callback) => {
+  // Add the new item
+  this.commandQueue.push({ _lightID, _state, _operation, _callback })
+}
+// ######################################
 
-      // Returns capitalized string
-      function capStr(s) {
-        if (typeof s !== 'string') return ''
-        return s.charAt(0).toUpperCase() + s.slice(1)
-      }
 
-      const retArray = []
-      let allResources = undefined
-      if (_rtype === 'light' || _rtype === 'grouped_light')
-        allResources = await this.hueAllResources.filter(a => a.type === 'light' || a.type === 'grouped_light')
-      else {
-        allResources = await this.hueAllResources.filter(a => a.type === _rtype)
-      }
-      for (let index = 0; index < allResources.length; index++) {
-        const resource = allResources[index];
-        // Get the owner
-        try {
-          let resourceName = ''
-          let sRoom = ''
-          if (_rtype === 'light' || _rtype === 'grouped_light') {
-            // It's a service, having a owner
-            const owners = await this.hueAllResources.filter(a => a.id === resource.owner.rid)
-            for (let index = 0; index < owners.length; index++) {
-              const owner = owners[index];
-              //resourceName += (owner.metadata !== undefined && owner.metadata.name !== undefined) ? owner.metadata.name + ' and ' : ' and '
-              resourceName += owner.metadata.name + ' and '
-              const room = await this.hueAllRooms.find(child => child.children.find(a => a.rid === owner.id))
-              sRoom += room !== undefined ? room.metadata.name + ' + ' : ' + '
-            }
-            sRoom = sRoom.slice(0, -(' + '.length))
-            resourceName = resourceName.slice(0, -(' and '.length))
-            resourceName += sRoom !== '' ? ' - Room: ' + sRoom : ''
-            retArray.push({ name: capStr(resource.type) + ': ' + resourceName, id: resource.id })
-          }
-          if (_rtype === 'scene') {
-            resourceName = resource.metadata.name || '**Name Not Found**'
-            // Get the linked zone
-            const zone = await this.hueAllResources.find(res => res.id === resource.group.rid)
-            resourceName += ' - ' + capStr(resource.group.rtype) + ': ' + zone.metadata.name
-            retArray.push({ name: capStr(_rtype) + ': ' + resourceName, id: resource.id })
-          }
-          if (_rtype === 'button') {
-            let linkedDevName = await this.hueAllResources.find(dev => dev.type === 'device' && dev.services.find(serv => serv.rid === resource.id)).metadata.name || ''
-            const controlID = resource.metadata !== undefined ? (resource.metadata.control_id || '') : ''
-            retArray.push({ name: capStr(_rtype) + ': ' + linkedDevName + ', button ' + controlID, id: resource.id })
-          }
-          if (_rtype === 'motion') {
-            let linkedDevName = await this.hueAllResources.find(dev => dev.type === 'device' && dev.services.find(serv => serv.rid === resource.id)).metadata.name || ''
-            retArray.push({ name: capStr(_rtype) + ': ' + linkedDevName, id: resource.id })
-          }
-          if (_rtype === 'relative_rotary') {
-            let linkedDevName = await this.hueAllResources.find(dev => dev.type === 'device' && dev.services.find(serv => serv.rid === resource.id)).metadata.name || ''
-            retArray.push({ name: 'Rotary: ' + linkedDevName, id: resource.id })
-          }
-          if (_rtype === 'light_level') {
-            let Room = await this.hueAllRooms.find(room => room.children.find(child => child.rid === resource.owner.rid))
-            let linkedDevName = await this.hueAllResources.find(dev => dev.type === 'device' && dev.services.find(serv => serv.rid === resource.id)).metadata.name || ''
-            retArray.push({ name: 'Light Level: ' + linkedDevName + (Room !== undefined ? ', room ' + Room.metadata.name : ''), id: resource.id })
-          }
-          if (_rtype === 'temperature') {
-            let Room = await this.hueAllRooms.find(room => room.children.find(child => child.rid === resource.owner.rid))
-            let linkedDevName = await this.hueAllResources.find(dev => dev.type === 'device' && dev.services.find(serv => serv.rid === resource.id)).metadata.name || ''
-            retArray.push({ name: 'Temperature: ' + linkedDevName + (Room !== undefined ? ', room ' + Room.metadata.name : ''), id: resource.id })
-          }
-          if (_rtype === 'device_power') {
-            let Room = await this.hueAllRooms.find(room => room.children.find(child => child.rid === resource.owner.rid))
-            let linkedDevName = await this.hueAllResources.find(dev => dev.type === 'device' && dev.services.find(serv => serv.rid === resource.id)).metadata.name || ''
-            retArray.push({ name: 'Battery: ' + linkedDevName + (Room !== undefined ? ', room ' + Room.metadata.name : ''), id: resource.id })
-          }
-        } catch (error) {
-          //retArray.push({ name: _rtype + ': ERROR ' + error.message, id: resource.id })
-        }
-      }
-      return { devices: retArray }
-    } catch (error) {
-      if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.error('KNXUltimateHue: hueEngine: classHUE: getDevices: error ' + error.message)
-      return ({ devices: error.message })
+
+// Get all devices and join it with relative rooms, by adding the room name to the device name
+getResources = async (_rtype, _host, _username) => {
+  try {
+    // Api V2
+
+    // Returns capitalized string
+    function capStr(s) {
+      if (typeof s !== 'string') return ''
+      return s.charAt(0).toUpperCase() + s.slice(1)
     }
-  }
 
-  close = async () => {
-    return new Promise((resolve, reject) => {
+    const retArray = []
+    let allResources = undefined
+    if (_rtype === 'light' || _rtype === 'grouped_light')
+      allResources = await this.hueAllResources.filter(a => a.type === 'light' || a.type === 'grouped_light')
+    else {
+      allResources = await this.hueAllResources.filter(a => a.type === _rtype)
+    }
+    for (let index = 0; index < allResources.length; index++) {
+      const resource = allResources[index];
+      // Get the owner
       try {
-        if (this.timerReconnect !== undefined) clearInterval(this.timerReconnect)
-        this.closePushEventStream = true
-        if (this.es !== null) this.es.close();
-        this.es = null;
-        setTimeout(() => {
-          resolve(true)
-        }, 500)
+        let resourceName = ''
+        let sRoom = ''
+        if (_rtype === 'light' || _rtype === 'grouped_light') {
+          // It's a service, having a owner
+          const owners = await this.hueAllResources.filter(a => a.id === resource.owner.rid)
+          for (let index = 0; index < owners.length; index++) {
+            const owner = owners[index];
+            //resourceName += (owner.metadata !== undefined && owner.metadata.name !== undefined) ? owner.metadata.name + ' and ' : ' and '
+            resourceName += owner.metadata.name + ' and '
+            const room = await this.hueAllRooms.find(child => child.children.find(a => a.rid === owner.id))
+            sRoom += room !== undefined ? room.metadata.name + ' + ' : ' + '
+          }
+          sRoom = sRoom.slice(0, -(' + '.length))
+          resourceName = resourceName.slice(0, -(' and '.length))
+          resourceName += sRoom !== '' ? ' - Room: ' + sRoom : ''
+          retArray.push({ name: capStr(resource.type) + ': ' + resourceName, id: resource.id, deviceObject:resource })
+        }
+        if (_rtype === 'scene') {
+          resourceName = resource.metadata.name || '**Name Not Found**'
+          // Get the linked zone
+          const zone = await this.hueAllResources.find(res => res.id === resource.group.rid)
+          resourceName += ' - ' + capStr(resource.group.rtype) + ': ' + zone.metadata.name
+          retArray.push({ name: capStr(_rtype) + ': ' + resourceName, id: resource.id })
+        }
+        if (_rtype === 'button') {
+          let linkedDevName = await this.hueAllResources.find(dev => dev.type === 'device' && dev.services.find(serv => serv.rid === resource.id)).metadata.name || ''
+          const controlID = resource.metadata !== undefined ? (resource.metadata.control_id || '') : ''
+          retArray.push({ name: capStr(_rtype) + ': ' + linkedDevName + ', button ' + controlID, id: resource.id })
+        }
+        if (_rtype === 'motion') {
+          let linkedDevName = await this.hueAllResources.find(dev => dev.type === 'device' && dev.services.find(serv => serv.rid === resource.id)).metadata.name || ''
+          retArray.push({ name: capStr(_rtype) + ': ' + linkedDevName, id: resource.id })
+        }
+        if (_rtype === 'relative_rotary') {
+          let linkedDevName = await this.hueAllResources.find(dev => dev.type === 'device' && dev.services.find(serv => serv.rid === resource.id)).metadata.name || ''
+          retArray.push({ name: 'Rotary: ' + linkedDevName, id: resource.id })
+        }
+        if (_rtype === 'light_level') {
+          let Room = await this.hueAllRooms.find(room => room.children.find(child => child.rid === resource.owner.rid))
+          let linkedDevName = await this.hueAllResources.find(dev => dev.type === 'device' && dev.services.find(serv => serv.rid === resource.id)).metadata.name || ''
+          retArray.push({ name: 'Light Level: ' + linkedDevName + (Room !== undefined ? ', room ' + Room.metadata.name : ''), id: resource.id })
+        }
+        if (_rtype === 'temperature') {
+          let Room = await this.hueAllRooms.find(room => room.children.find(child => child.rid === resource.owner.rid))
+          let linkedDevName = await this.hueAllResources.find(dev => dev.type === 'device' && dev.services.find(serv => serv.rid === resource.id)).metadata.name || ''
+          retArray.push({ name: 'Temperature: ' + linkedDevName + (Room !== undefined ? ', room ' + Room.metadata.name : ''), id: resource.id })
+        }
+        if (_rtype === 'device_power') {
+          let Room = await this.hueAllRooms.find(room => room.children.find(child => child.rid === resource.owner.rid))
+          let linkedDevName = await this.hueAllResources.find(dev => dev.type === 'device' && dev.services.find(serv => serv.rid === resource.id)).metadata.name || ''
+          retArray.push({ name: 'Battery: ' + linkedDevName + (Room !== undefined ? ', room ' + Room.metadata.name : ''), id: resource.id })
+        }
       } catch (error) {
-        reject(error)
+        //retArray.push({ name: _rtype + ': ERROR ' + error.message, id: resource.id })
       }
-    })
+    }
+    return { devices: retArray }
+  } catch (error) {
+    if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.error('KNXUltimateHue: hueEngine: classHUE: getDevices: error ' + error.message)
+    return ({ devices: error.message })
   }
+}
+
+close = async () => {
+  return new Promise((resolve, reject) => {
+    try {
+      if (this.timerReconnect !== undefined) clearInterval(this.timerReconnect)
+      this.closePushEventStream = true
+      if (this.es !== null) this.es.close();
+      this.es = null;
+      setTimeout(() => {
+        resolve(true)
+      }, 500)
+    } catch (error) {
+      reject(error)
+    }
+  })
+}
 }
 module.exports.classHUE = classHUE

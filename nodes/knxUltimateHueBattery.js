@@ -78,12 +78,12 @@ module.exports = function (RED) {
       if (node.serverHue !== null && node.serverHue.hueManager !== null) {
         (async () => {
           try {
+            node.serverHue.addClient(node)
             await node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, null, 'getBattery', (jLight) => {
-              node.serverHue.addClient(node)
               node.handleSendHUE(jLight)
             })
           } catch (err) {
-            RED.log.error('Errore knxUltimateHueLight node.currentHUEDevice ' + err.message)
+            RED.log.error('Errore knxUltimateHueBattery subscribe: ' + err.message)
           }
         })()
       }
