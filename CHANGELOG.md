@@ -8,7 +8,7 @@
 
 <p>
 <b>Version 2.1.39</b> - August 2023<br/>
-- KNX-Ultimate Node: fidex an issue with the topic, in case of update the value without writing on the KNX bus.<br/>
+- KNX-Ultimate Node: fixed an issue with the msg.topic sent to the flow.<br/>
 - NEW: HUE Light: now you can set the color temperature, using datapoint 5.001 as well.<br/>
 - NEW: HUE Light: the node will now disable parts of the UI, based on the capabilities of the HUE lamp.<br/>
 - HUE nodes now wait 15 seconds before getting status and updating KNX devices, after node-red restart. <br/>
