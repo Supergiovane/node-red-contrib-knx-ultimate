@@ -69,7 +69,7 @@ module.exports = (RED) => {
     // Event clip V2
     node.hueManager.on('event', _event => {
       node.nodeClients.forEach(_oClient => {
-        const oClient = RED.nodes.getNode(_oClient.id)
+        const oClient = _oClient
         try {
           if (oClient.handleSendHUE !== undefined) oClient.handleSendHUE(_event)
         } catch (error) {
@@ -103,11 +103,7 @@ module.exports = (RED) => {
       if (node.nodeClients.filter(x => x.id === _Node.id).length === 0) {
         // Add _Node to the clients array
         _Node.setNodeStatusHue({ fill: 'grey', shape: 'ring', text: 'Hue initialized.' })
-        // 01/06/2023 Add node to the array
-        const jNode = {}
-        jNode.id = _Node.id
-        jNode.topic = _Node.topic
-        node.nodeClients.push(jNode)
+        node.nodeClients.push(_Node)
       }
     }
 
