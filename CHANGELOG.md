@@ -6,6 +6,9 @@
 
 # CHANGELOG
 
+<b>Version 2.1.40</b> - August 2023<br/>
+- HUE Light: Buffix: color cycle continues to cycle color, even if a FALSE is sent from the group address.<br/>
+</p>
 <p>
 <b>Version 2.1.39</b> - August 2023<br/>
 - KNX-Ultimate Node: fixed an issue with the msg.topic sent to the flow.<br/>

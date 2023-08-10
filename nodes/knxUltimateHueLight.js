@@ -231,6 +231,7 @@ module.exports = function (RED) {
                 }
               }, 10000)
             } else {
+              if (node.timerColorCycle !== undefined) clearInterval(node.timerColorCycle)
               node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, { on: { on: false } }, (node.isGrouped_light === false ? 'setLight' : 'setGroupedLight'))
             }
             node.setNodeStatusHue({ fill: 'green', shape: 'dot', text: 'KNX->HUE', payload: gaValColorCycle })
