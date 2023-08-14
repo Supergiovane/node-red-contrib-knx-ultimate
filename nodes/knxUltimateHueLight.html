@@ -32,6 +32,10 @@
             GALightHSV: { value: "" },
             dptLightHSV: { value: "" },
 
+            nameLightHSVPercentage: { value: "" },
+            GALightHSVPercentage: { value: "" },
+            dptLightHSVPercentage: { value: "" },
+
             nameLightHSVState: { value: "" },
             GALightHSVState: { value: "" },
             dptLightHSVState: { value: "" },
@@ -117,268 +121,32 @@
                 return i == aSearchWords.length;
             }
 
-            // DPT Switch command
-            // ########################
-            $.getJSON('knxUltimateDpts', (data) => {
-                data.forEach(dpt => {
-                    if (dpt.value.startsWith("1.")) {
-                        $("#node-input-dptLightSwitch").append($("<option></option>")
-                            .attr("value", dpt.value)
-                            .text(dpt.text))
-                    }
-                });
-                $("#node-input-dptLightSwitch").val(this.dptLightSwitch)
-            })
 
-            // Autocomplete suggestion with ETS csv File
-            $("#node-input-GALightSwitch").autocomplete({
-                minLength: 1,
-                source: function (request, response) {
-                    //$.getJSON("csv", request, function( data, status, xhr ) {
-                    $.getJSON("knxUltimatecsv?nodeID=" + oNodeServer.id, (data) => {
-                        response($.map(data, function (value, key) {
-                            var sSearch = (value.ga + " (" + value.devicename + ") DPT" + value.dpt);
-                            if (fullSearch(sSearch, request.term + " 1.")) {
-                                return {
-                                    label: value.ga + " # " + value.devicename + " # " + value.dpt, // Label for Display
-                                    value: value.ga // Value
-                                }
-                            } else {
-                                return null;
-                            }
-                        }));
+            function getDPT(_dpt, _destinationWidget) {
+                // DPT Switch command
+                // ########################
+                $.getJSON('knxUltimateDpts', (data) => {
+                    data.forEach(dpt => {
+                        if (dpt.value.startsWith(_dpt)) {
+                            $(_destinationWidget).append($("<option></option>")
+                                .attr("value", dpt.value)
+                                .text(dpt.text))
+                        }
                     });
-                }, select: function (event, ui) {
-                    // Sets Datapoint and device name automatically
-                    var sDevName = ui.item.label.split("#")[1].trim();
-                    try {
-                        sDevName = sDevName.substr(sDevName.indexOf(")") + 1).trim();
-                    } catch (error) {
-                    }
-                    $('#node-input-nameLightSwitch').val(sDevName);
-                    var optVal = $("#node-input-dptLightSwitch option:contains('" + ui.item.label.split("#")[2].trim() + "')").attr('value');
-                    // Select the option value 
-                    $("#node-input-dptLightSwitch").val(optVal);
-                }
-            });
-            // ######################## 
+                    $(_destinationWidget).val(this + "." + _destinationWidget-replace("#node-input-",""))
+                })
+            }
 
 
-
-            // DPT State
-            // ########################
-            $.getJSON('knxUltimateDpts', (data) => {
-                data.forEach(dpt => {
-                    if (dpt.value.startsWith("1.")) {
-                        $("#node-input-dptLightState").append($("<option></option>")
-                            .attr("value", dpt.value)
-                            .text(dpt.text))
-                    }
-                });
-
-                $("#node-input-dptLightState").val(this.dptLightState)
-            })
-
-            // Autocomplete suggestion with ETS csv File
-            $("#node-input-GALightState").autocomplete({
-                minLength: 1,
-                source: function (request, response) {
-                    $.getJSON("knxUltimatecsv?nodeID=" + oNodeServer.id, (data) => {
-                        response($.map(data, function (value, key) {
-                            var sSearch = (value.ga + " (" + value.devicename + ") DPT" + value.dpt);
-                            if (fullSearch(sSearch, request.term + " 1.")) {
-                                return {
-                                    label: value.ga + " # " + value.devicename + " # " + value.dpt, // Label for Display
-                                    value: value.ga // Value
-                                }
-                            } else {
-                                return null;
-                            }
-                        }));
-                    });
-                }, select: function (event, ui) {
-                    // Sets Datapoint and device name automatically
-                    var sDevName = ui.item.label.split("#")[1].trim();
-                    try {
-                        sDevName = sDevName.substr(sDevName.indexOf(")") + 1).trim();
-                    } catch (error) {
-                    }
-                    $('#node-input-nameLightState').val(sDevName);
-                    var optVal = $("#node-input-dptLightState option:contains('" + ui.item.label.split("#")[2].trim() + "')").attr('value');
-                    // Select the option value 
-                    $("#node-input-dptLightState").val(optVal);
-                }
-            });
-
-
-            // DPT dptLightDIM
-            // ########################
-            $.getJSON('knxUltimateDpts', (data) => {
-                data.forEach(dpt => {
-                    if (dpt.value === "3.007") {
-                        $("#node-input-dptLightDIM").append($("<option></option>")
-                            .attr("value", dpt.value)
-                            .text(dpt.text))
-                    }
-                });
-
-                $("#node-input-dptLightDIM").val(this.dptLightDIM)
-
-            })
-
-            // Autocomplete suggestion with ETS csv File
-            $("#node-input-GALightDIM").autocomplete({
-                minLength: 1,
-                source: function (request, response) {
-                    $.getJSON("knxUltimatecsv?nodeID=" + oNodeServer.id, (data) => {
-                        response($.map(data, function (value, key) {
-                            var sSearch = (value.ga + " (" + value.devicename + ") DPT" + value.dpt);
-                            if (fullSearch(sSearch, request.term + " 3.007")) {
-                                return {
-                                    label: value.ga + " # " + value.devicename + " # " + value.dpt, // Label for Display
-                                    value: value.ga // Value
-                                }
-                            } else {
-                                return null;
-                            }
-                        }));
-                    });
-                }, select: function (event, ui) {
-                    // Sets Datapoint and device name automatically
-                    var sDevName = ui.item.label.split("#")[1].trim();
-                    try {
-                        sDevName = sDevName.substr(sDevName.indexOf(")") + 1).trim();
-                    } catch (error) {
-                    }
-                    $('#node-input-nameLightDIM').val(sDevName);
-                    var optVal = $("#node-input-dptLightDIM option:contains('" + ui.item.label.split("#")[2].trim() + "')").attr('value');
-                    // Select the option value 
-                    $("#node-input-dptLightDIM").val(optVal);
-                }
-            });
-
-
-            // DPT dptLightColor and dptLightColorState
-            // ########################
-            $.getJSON('knxUltimateDpts', (data) => {
-                data.forEach(dpt => {
-                    if (dpt.value === "232.600") {
-                        $("#node-input-dptLightColor").append($("<option></option>")
-                            .attr("value", dpt.value)
-                            .text(dpt.text))
-                        $("#node-input-dptLightColorState").append($("<option></option>")
-                            .attr("value", dpt.value)
-                            .text(dpt.text))
-                    }
-                });
-
-                $("#node-input-dptLightColor").val(this.dptLightColor)
-                $("#node-input-dptLightColorState").val(this.dptLightColorState)
-
-            })
-
-            // Autocomplete suggestion with ETS csv File
-            $("#node-input-GALightColor").autocomplete({
-                minLength: 1,
-                source: function (request, response) {
-                    $.getJSON("knxUltimatecsv?nodeID=" + oNodeServer.id, (data) => {
-                        response($.map(data, function (value, key) {
-                            var sSearch = (value.ga + " (" + value.devicename + ") DPT" + value.dpt);
-                            if (fullSearch(sSearch, request.term + " 232.600")) {
-                                return {
-                                    label: value.ga + " # " + value.devicename + " # " + value.dpt, // Label for Display
-                                    value: value.ga // Value
-                                }
-                            } else {
-                                return null;
-                            }
-                        }));
-                    });
-                }, select: function (event, ui) {
-                    // Sets Datapoint and device name automatically
-                    var sDevName = ui.item.label.split("#")[1].trim();
-                    try {
-                        sDevName = sDevName.substr(sDevName.indexOf(")") + 1).trim();
-                    } catch (error) {
-                    }
-                    $('#node-input-nameLightColor').val(sDevName);
-                    var optVal = $("#node-input-dptLightColor option:contains('" + ui.item.label.split("#")[2].trim() + "')").attr('value');
-                    // Select the option value 
-                    $("#node-input-dptLightColor").val(optVal);
-                }
-            });
-
-            // Autocomplete suggestion with ETS csv File
-            $("#node-input-GALightColorState").autocomplete({
-                minLength: 1,
-                source: function (request, response) {
-                    $.getJSON("knxUltimatecsv?nodeID=" + oNodeServer.id, (data) => {
-                        response($.map(data, function (value, key) {
-                            var sSearch = (value.ga + " (" + value.devicename + ") DPT" + value.dpt);
-                            if (fullSearch(sSearch, request.term + " 232.600")) {
-                                return {
-                                    label: value.ga + " # " + value.devicename + " # " + value.dpt, // Label for Display
-                                    value: value.ga // Value
-                                }
-                            } else {
-                                return null;
-                            }
-                        }));
-                    });
-                }, select: function (event, ui) {
-                    // Sets Datapoint and device name automatically
-                    var sDevName = ui.item.label.split("#")[1].trim();
-                    try {
-                        sDevName = sDevName.substr(sDevName.indexOf(")") + 1).trim();
-                    } catch (error) {
-                    }
-                    $('#node-input-nameLightColorState').val(sDevName);
-                    var optVal = $("#node-input-dptLightColorState option:contains('" + ui.item.label.split("#")[2].trim() + "')").attr('value');
-                    // Select the option value 
-                    $("#node-input-dptLightColorState").val(optVal);
-                }
-            });
-
-
-
-
-
-
-            // DPT dptLightTunableWhite 
-            // ########################
-            $.getJSON('knxUltimateDpts', (data) => {
-                data.forEach(dpt => {
-                    if (dpt.value === "3.007" || dpt.value === "5.001") {
-                        $("#node-input-dptLightHSV").append($("<option></option>")
-                            .attr("value", dpt.value)
-                            .text(dpt.text))
-                    }
-                });
-
-                $("#node-input-dptLightHSV").val(this.dptLightHSV)
-            })
-
-            // DPT  dptLightTunableWhiteState
-            $.getJSON('knxUltimateDpts', (data) => {
-                data.forEach(dpt => {
-                    if (dpt.value === "5.001") {
-                        $("#node-input-dptLightHSVState").append($("<option></option>")
-                            .attr("value", dpt.value)
-                            .text(dpt.text))
-                    }
-                });
-                $("#node-input-dptLightHSVState").val(this.dptLightHSVState)
-            })
-
-            // Autocomplete suggestion with ETS csv File
-            $("#node-input-GALightHSV").autocomplete({
-                minLength: 1,
-                source: function (request, response) {
-                    $.getJSON("knxUltimatecsv?nodeID=" + oNodeServer.id, (data) => {
-                        response($.map(data, function (value, key) {
-                            if (value.dpt === "3.007" || value.dpt === "5.001") {
+            function getGroupAddress(_sourceWidgetAutocomplete, _destinationWidgetName, _destinationWidgetDPT, _additionalSearchTerm) {
+                $(_sourceWidgetAutocomplete).autocomplete({
+                    minLength: 1,
+                    source: function (request, response) {
+                        //$.getJSON("csv", request, function( data, status, xhr ) {
+                        $.getJSON("knxUltimatecsv?nodeID=" + oNodeServer.id, (data) => {
+                            response($.map(data, function (value, key) {
                                 var sSearch = (value.ga + " (" + value.devicename + ") DPT" + value.dpt);
-                                if (fullSearch(sSearch, request.term)) {
+                                if (fullSearch(sSearch, request.term + _additionalSearchTerm)) {
                                     return {
                                         label: value.ga + " # " + value.devicename + " # " + value.dpt, // Label for Display
                                         value: value.ga // Value
@@ -386,283 +154,62 @@
                                 } else {
                                     return null;
                                 }
-                            }
-                        }));
-                    });
-                }, select: function (event, ui) {
-                    // Sets Datapoint and device name automatically
-                    var sDevName = ui.item.label.split("#")[1].trim();
-                    try {
-                        sDevName = sDevName.substr(sDevName.indexOf(")") + 1).trim();
-                    } catch (error) {
-                    }
-                    $('#node-input-nameLightHSV').val(sDevName);
-                    var optVal = $("#node-input-dptLightHSV option:contains('" + ui.item.label.split("#")[2].trim() + "')").attr('value');
-                    // Select the option value 
-                    $("#node-input-dptLightHSV").val(optVal);
-                }
-            });
-
-            // Autocomplete suggestion with ETS csv File
-            $("#node-input-GALightHSVState").autocomplete({
-                minLength: 1,
-                source: function (request, response) {
-                    $.getJSON("knxUltimatecsv?nodeID=" + oNodeServer.id, (data) => {
-                        response($.map(data, function (value, key) {
-                            if (value.dpt === "5.001") {
-                                var sSearch = (value.ga + " (" + value.devicename + ") DPT" + value.dpt);
-                                if (fullSearch(sSearch, request.term)) {
-                                    return {
-                                        label: value.ga + " # " + value.devicename + " # " + value.dpt, // Label for Display
-                                        value: value.ga // Value
-                                    }
-                                } else {
-                                    return null;
-                                }
-                            }
-                        }));
-                    });
-                }, select: function (event, ui) {
-                    // Sets Datapoint and device name automatically
-                    var sDevName = ui.item.label.split("#")[1].trim();
-                    try {
-                        sDevName = sDevName.substr(sDevName.indexOf(")") + 1).trim();
-                    } catch (error) {
-                    }
-                    $('#node-input-nameLightHSVState').val(sDevName);
-                    var optVal = $("#node-input-dptLightHSVState option:contains('" + ui.item.label.split("#")[2].trim() + "')").attr('value');
-                    // Select the option value 
-                    $("#node-input-dptLightHSVState").val(optVal);
-                }
-            });
-            // ########################
-
-
-
-
-            // DPT dptLightBrightness and dptLightBrightnessState
-            // ########################
-            $.getJSON('knxUltimateDpts', (data) => {
-                data.forEach(dpt => {
-                    if (dpt.value === "5.001") {
-                        $("#node-input-dptLightBrightness").append($("<option></option>")
-                            .attr("value", dpt.value)
-                            .text(dpt.text))
-                        $("#node-input-dptLightBrightnessState").append($("<option></option>")
-                            .attr("value", dpt.value)
-                            .text(dpt.text))
+                            }));
+                        });
+                    }, select: function (event, ui) {
+                        // Sets Datapoint and device name automatically
+                        var sDevName = ui.item.label.split("#")[1].trim();
+                        try {
+                            sDevName = sDevName.substr(sDevName.indexOf(")") + 1).trim();
+                        } catch (error) {
+                        }
+                        $(_destinationWidgetName).val(sDevName);
+                        var optVal = $(_destinationWidgetDPT + " option:contains('" + ui.item.label.split("#")[2].trim() + "')").attr('value');
+                        // Select the option value 
+                        $(_destinationWidgetDPT).val(optVal);
                     }
                 });
+            }
 
-                $("#node-input-dptLightBrightness").val(this.dptLightBrightness)
-                $("#node-input-dptLightBrightnessState").val(this.dptLightBrightnessState)
+            getDPT("1.", "#node-input-dptLightSwitch")
+            getGroupAddress("#node-input-GALightSwitch", "#node-input-nameLightSwitch", "#node-input-dptLightSwitch", " 1.")
+            
+            getDPT("1.", "#node-input-dptLightState")
+            getGroupAddress("#node-input-GALightState", "#node-input-nameLightState", "#node-input-dptLightState", " 1.")
 
-            })
+            getDPT("3.007", "#node-input-dptLightDIM")
+            getGroupAddress("#node-input-GALightDIM", "#node-input-nameLightDIM", "#node-input-dptLightDIM", " 3.007")
+            
+            getDPT("5.001", "#node-input-dptLightBrightness")
+            getGroupAddress("#node-input-GALightBrightness", "#node-input-nameLightBrightness", "#node-input-dptLightBrightness", " 5.001")
+            
+            getDPT("5.001", "#node-input-dptLightBrightnessState")
+            getGroupAddress("#node-input-GALightBrightnessState", "#node-input-nameLightBrightnessState", "#node-input-dptLightBrightnessState", " 5.001")
 
-            // Autocomplete suggestion with ETS csv File
-            $("#node-input-GALightBrightness").autocomplete({
-                minLength: 1,
-                source: function (request, response) {
-                    $.getJSON("knxUltimatecsv?nodeID=" + oNodeServer.id, (data) => {
-                        response($.map(data, function (value, key) {
-                            var sSearch = (value.ga + " (" + value.devicename + ") DPT" + value.dpt);
-                            if (fullSearch(sSearch, request.term + " 5.001")) {
-                                return {
-                                    label: value.ga + " # " + value.devicename + " # " + value.dpt, // Label for Display
-                                    value: value.ga // Value
-                                }
-                            } else {
-                                return null;
-                            }
-                        }));
-                    });
-                }, select: function (event, ui) {
-                    // Sets Datapoint and device name automatically
-                    var sDevName = ui.item.label.split("#")[1].trim();
-                    try {
-                        sDevName = sDevName.substr(sDevName.indexOf(")") + 1).trim();
-                    } catch (error) {
-                    }
-                    $('#node-input-nameLightBrightness').val(sDevName);
-                    var optVal = $("#node-input-dptLightBrightness option:contains('" + ui.item.label.split("#")[2].trim() + "')").attr('value');
-                    // Select the option value 
-                    $("#node-input-dptLightBrightness").val(optVal);
-                }
-            });
+            getDPT("232.600", "#node-input-dptLightColor")
+            getGroupAddress("#node-input-GALightColor", "#node-input-nameLightColor", "#node-input-dptLightColor", " 232.600")
 
-            // Autocomplete suggestion with ETS csv File
-            $("#node-input-GALightBrightnessState").autocomplete({
-                minLength: 1,
-                source: function (request, response) {
-                    $.getJSON("knxUltimatecsv?nodeID=" + oNodeServer.id, (data) => {
-                        response($.map(data, function (value, key) {
-                            var sSearch = (value.ga + " (" + value.devicename + ") DPT" + value.dpt);
-                            if (fullSearch(sSearch, request.term + " 5.001")) {
-                                return {
-                                    label: value.ga + " # " + value.devicename + " # " + value.dpt, // Label for Display
-                                    value: value.ga // Value
-                                }
-                            } else {
-                                return null;
-                            }
-                        }));
-                    });
-                }, select: function (event, ui) {
-                    // Sets Datapoint and device name automatically
-                    var sDevName = ui.item.label.split("#")[1].trim();
-                    try {
-                        sDevName = sDevName.substr(sDevName.indexOf(")") + 1).trim();
-                    } catch (error) {
-                    }
-                    $('#node-input-nameLightBrightnessState').val(sDevName);
-                    var optVal = $("#node-input-dptLightBrightnessState option:contains('" + ui.item.label.split("#")[2].trim() + "')").attr('value');
-                    // Select the option value 
-                    $("#node-input-dptLightBrightnessState").val(optVal);
-                }
-            });
+            getDPT("232.600", "#node-input-dptLightColorState")
+            getGroupAddress("#node-input-GALightColorState", "#node-input-nameLightColorState", "#node-input-dptLightColorState", " 232.600")
 
+            getDPT("3.007", "#node-input-dptLightHSV")
+            getGroupAddress("#node-input-GALightHSV", "#node-input-nameLightHSV", "#node-input-dptLightHSV", " 3.007")
 
+            getDPT("5.001", "#node-input-dptLightHSVPercentage")
+            getGroupAddress("#node-input-GALightHSVPercentage", "#node-input-nameLightHSVPercentage", "#node-input-dptLightHSVPercentage", " 5.001")
 
-            // DPT Blink command
-            // ########################
-            $.getJSON('knxUltimateDpts', (data) => {
-                data.forEach(dpt => {
-                    if (dpt.value.startsWith("1.")) {
-                        $("#node-input-dptLightBlink").append($("<option></option>")
-                            .attr("value", dpt.value)
-                            .text(dpt.text))
-                    }
-                });
-                $("#node-input-dptLightBlink").val(this.dptLightSwitch)
-            })
+            getDPT("5.001", "#node-input-dptLightHSVState")
+            getGroupAddress("#node-input-GALightHSVState", "#node-input-nameLightHSVState", "#node-input-dptLightHSVState", " 5.001")
 
-            // Autocomplete suggestion with ETS csv File
-            $("#node-input-GALightBlink").autocomplete({
-                minLength: 1,
-                source: function (request, response) {
-                    //$.getJSON("csv", request, function( data, status, xhr ) {
-                    $.getJSON("knxUltimatecsv?nodeID=" + oNodeServer.id, (data) => {
-                        response($.map(data, function (value, key) {
-                            var sSearch = (value.ga + " (" + value.devicename + ") DPT" + value.dpt);
-                            if (fullSearch(sSearch, request.term + " 1.")) {
-                                return {
-                                    label: value.ga + " # " + value.devicename + " # " + value.dpt, // Label for Display
-                                    value: value.ga // Value
-                                }
-                            } else {
-                                return null;
-                            }
-                        }));
-                    });
-                }, select: function (event, ui) {
-                    // Sets Datapoint and device name automatically
-                    var sDevName = ui.item.label.split("#")[1].trim();
-                    try {
-                        sDevName = sDevName.substr(sDevName.indexOf(")") + 1).trim();
-                    } catch (error) {
-                    }
-                    $('#node-input-nameLightBlink').val(sDevName);
-                    var optVal = $("#node-input-dptLightBlink option:contains('" + ui.item.label.split("#")[2].trim() + "')").attr('value');
-                    // Select the option value 
-                    $("#node-input-dptLightBlink").val(optVal);
-                }
-            });
-            // ########################
+            getDPT("1.", "#node-input-dptLightBlink")
+            getGroupAddress("#node-input-GALightBlink", "#node-input-nameLightBlink", "#node-input-dptLightBlink", " 1.")
 
+            getDPT("1.", "#node-input-dptLightColorCycle")
+            getGroupAddress("#node-input-GALightColorCycle", "#node-input-nameLightColorCycle", "#node-input-dptLightColorCycle", " 1.")
+            
+            getDPT("1.", "#node-input-dptDaylightSensor")
+            getGroupAddress("#node-input-GADaylightSensor", "#node-input-nameDaylightSensor", "#node-input-dptDaylightSensor", " 1.")
 
-
-            // DPT Cycle Colors
-            // ########################
-            $.getJSON('knxUltimateDpts', (data) => {
-                data.forEach(dpt => {
-                    if (dpt.value.startsWith("1.")) {
-                        $("#node-input-dptLightColorCycle").append($("<option></option>")
-                            .attr("value", dpt.value)
-                            .text(dpt.text))
-                    }
-                });
-                $("#node-input-dptLightColorCycle").val(this.dptLightColorCycle)
-            })
-
-            // Autocomplete suggestion with ETS csv File
-            $("#node-input-GALightColorCycle").autocomplete({
-                minLength: 1,
-                source: function (request, response) {
-                    //$.getJSON("csv", request, function( data, status, xhr ) {
-                    $.getJSON("knxUltimatecsv?nodeID=" + oNodeServer.id, (data) => {
-                        response($.map(data, function (value, key) {
-                            var sSearch = (value.ga + " (" + value.devicename + ") DPT" + value.dpt);
-                            if (fullSearch(sSearch, request.term + " 1.")) {
-                                return {
-                                    label: value.ga + " # " + value.devicename + " # " + value.dpt, // Label for Display
-                                    value: value.ga // Value
-                                }
-                            } else {
-                                return null;
-                            }
-                        }));
-                    });
-                }, select: function (event, ui) {
-                    // Sets Datapoint and device name automatically
-                    var sDevName = ui.item.label.split("#")[1].trim();
-                    try {
-                        sDevName = sDevName.substr(sDevName.indexOf(")") + 1).trim();
-                    } catch (error) {
-                    }
-                    $('#node-input-nameLightColorCycle').val(sDevName);
-                    var optVal = $("#node-input-dptLightColorCycle option:contains('" + ui.item.label.split("#")[2].trim() + "')").attr('value');
-                    // Select the option value 
-                    $("#node-input-dptLightColorCycle").val(optVal);
-                }
-            });
-            // ########################
-
-
-            // DPT Day/Time sensor
-            // ########################
-            $.getJSON('knxUltimateDpts', (data) => {
-                data.forEach(dpt => {
-                    if (dpt.value.startsWith("1.")) {
-                        $("#node-input-dptDaylightSensor").append($("<option></option>")
-                            .attr("value", dpt.value)
-                            .text(dpt.text))
-                    }
-                });
-                $("#node-input-dptDaylightSensor").val(this.dptDaylightSensor)
-            })
-
-            // Autocomplete suggestion with ETS csv File
-            $("#node-input-GADaylightSensor").autocomplete({
-                minLength: 1,
-                source: function (request, response) {
-                    //$.getJSON("csv", request, function( data, status, xhr ) {
-                    $.getJSON("knxUltimatecsv?nodeID=" + oNodeServer.id, (data) => {
-                        response($.map(data, function (value, key) {
-                            var sSearch = (value.ga + " (" + value.devicename + ") DPT" + value.dpt);
-                            if (fullSearch(sSearch, request.term + " 1.")) {
-                                return {
-                                    label: value.ga + " # " + value.devicename + " # " + value.dpt, // Label for Display
-                                    value: value.ga // Value
-                                }
-                            } else {
-                                return null;
-                            }
-                        }));
-                    });
-                }, select: function (event, ui) {
-                    // Sets Datapoint and device name automatically
-                    var sDevName = ui.item.label.split("#")[1].trim();
-                    try {
-                        sDevName = sDevName.substr(sDevName.indexOf(")") + 1).trim();
-                    } catch (error) {
-                    }
-                    $('#node-input-nameDaylightSensor').val(sDevName);
-                    var optVal = $("#node-input-dptDaylightSensor option:contains('" + ui.item.label.split("#")[2].trim() + "')").attr('value');
-                    // Select the option value 
-                    $("#node-input-dptDaylightSensor").val(optVal);
-                }
-            });
-            // ########################
 
             // Show/Hide and enable/disable day/night Lighting behaviour
             if (this.enableDayNightLighting === true) {
@@ -711,18 +258,18 @@
                 data.devices.forEach(element => {
                     if (element.id === this.hueDevice.split('#')[0] && element.deviceObject !== undefined) {
                         // Check dimming 
-                        if (element.deviceObject.dimming === undefined){
+                        if (element.deviceObject.dimming === undefined) {
                             $('#tabs').tabs("disable", "#tabs-2");
                             $('#divColorsAtSwitchOn').hide()
                             $('#divColorCycle').hide()
-                        } 
+                        }
                         // Check color
                         if (element.deviceObject.color_temperature === undefined) $('#tabs').tabs("disable", "#tabs-3");
-                        if (element.deviceObject.color === undefined){
+                        if (element.deviceObject.color === undefined) {
                             $('#tabs').tabs("disable", "#tabs-4");
                             $('#divColorsAtSwitchOn').hide()
                             $('#divColorCycle').hide()
-                        } 
+                        }
                         return
                     }
                 });
@@ -812,7 +359,7 @@
             <input type="text" id="node-input-nameLightSwitch" style="width:190px;margin-left: 5px; text-align: left;">
         </div>
         <div class="form-row">
-            <label for="node-input-nameLightState" style="width:110px;"><i class="fa fa-play-circle-o"></i> Switch Status</label>
+            <label for="node-input-nameLightState" style="width:110px;"><i class="fa fa-play-circle-o"></i> Status</label>
 
             <label for="node-input-GALightState" style="width:20px;">GA</label>
             <input type="text" id="node-input-GALightState" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
@@ -871,7 +418,7 @@
     <div id="tabs-2">
       <p>
         <div class="form-row">
-        <label for="node-input-nameLightDIM" style="width:110px;"><i class="fa fa-play-circle-o"></i>&nbspDimming</label>
+        <label for="node-input-nameLightDIM" style="width:110px;"><i class="fa fa-play-circle-o"></i> Dimming</label>
 
         <label for="node-input-GALightDIM" style="width:20px;"><span data-i18n="knxUltimateHueLight.node-input-GALightState"></span></label>
         <input type="text" id="node-input-GALightDIM" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
@@ -883,7 +430,7 @@
         <input type="text" id="node-input-nameLightDIM" style="width:190px;margin-left: 5px; text-align: left;">
         </div>
         <div class="form-row">
-        <label for="node-input-nameLightBrightness" style="width:110px;"><i class="fa fa-play-circle-o"></i>&nbspBrightness</label>
+        <label for="node-input-nameLightBrightness" style="width:110px;"><i class="fa fa-play-circle-o"></i> Percentage</label>
 
         <label for="node-input-GALightBrightness" style="width:20px;"><span data-i18n="knxUltimateHueLight.node-input-GALightState"></span></label>
         <input type="text" id="node-input-GALightBrightness" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
@@ -896,7 +443,7 @@
         </div>
     
         <div class="form-row">
-        <label for="node-input-nameLightBrightnessState" style="width:110px;"><i class="fa fa-play-circle-o"></i> Brightness Status</label>
+        <label for="node-input-nameLightBrightnessState" style="width:110px;"><i class="fa fa-play-circle-o"></i> Status</label>
 
         <label for="node-input-GALightBrightnessState" style="width:20px;"><span data-i18n="knxUltimateHueLight.node-input-GALightState"></span></label>
         <input type="text" id="node-input-GALightBrightnessState" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
@@ -912,19 +459,32 @@
     <div id="tabs-3">
       <p>
         <div class="form-row">
-            <label for="node-input-nameLightHSV" style="width:110px;"><i class="fa fa-play-circle-o"></i> Tunable white</label>
+            <label for="node-input-nameLightHSV" style="width:110px;"><i class="fa fa-play-circle-o"></i> Dimming</label>
     
-            <label for="node-input-GALightHSV" style="width:20px;"><span data-i18n="knxUltimateHueLight.node-input-GALightState"></span></label>
+            <label for="node-input-GALightHSV" style="width:20px;">GA</label>
             <input type="text" id="node-input-GALightHSV" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
     
             <label for="node-input-dptLightHSV" style="width:40px; margin-left: 0px; text-align: right;">DPT</label>
             <select id="node-input-dptLightHSV" style="width:140px;"></select>
     
-            <label for="node-input-nameLightHSV" style="width:50px; margin-left: 0px; text-align: right;"><span data-i18n="knxUltimateHueLight.node-input-name"></span></label>
+            <label for="node-input-nameLightHSV" style="width:50px; margin-left: 0px; text-align: right;">Name</label>
             <input type="text" id="node-input-nameLightHSV" style="width:190px;margin-left: 5px; text-align: left;">
         </div>
         <div class="form-row">
-            <label for="node-input-nameLightHSVState" style="width:110px;"><i class="fa fa-play-circle-o"></i> Tunable white Status</label>
+            <label for="node-input-nameLightHSVPercentage" style="width:110px;"><i class="fa fa-play-circle-o"></i> Percentage</label>
+        
+            <label for="node-input-GALightHSVPercentage" style="width:20px;">GA</label>
+            <input type="text" id="node-input-GALightHSVPercentage" placeholder="Ex: 1/1/1"
+                style="width:70px;margin-left: 5px; text-align: left;">
+        
+            <label for="node-input-dptLightHSVPercentage" style="width:40px; margin-left: 0px; text-align: right;">DPT</label>
+            <select id="node-input-dptLightHSVPercentage" style="width:140px;"></select>
+        
+            <label for="node-input-nameLightHSVPercentage" style="width:50px; margin-left: 0px; text-align: right;">Name</label>
+            <input type="text" id="node-input-nameLightHSVPercentage" style="width:190px;margin-left: 5px; text-align: left;">
+        </div>
+        <div class="form-row">
+            <label for="node-input-nameLightHSVState" style="width:110px;"><i class="fa fa-play-circle-o"></i> Status</label>
     
             <label for="node-input-GALightHSVState" style="width:20px;"><span data-i18n="knxUltimateHueLight.node-input-GALightState"></span></label>
             <input type="text" id="node-input-GALightHSVState" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
@@ -952,7 +512,7 @@
             <input type="text" id="node-input-nameLightColor" style="width:190px;margin-left: 5px; text-align: left;">
             </div>
             <div class="form-row">
-            <label for="node-input-nameLightColorState" style="width:110px;"><i class="fa fa-play-circle-o"></i> Color Status</label>
+            <label for="node-input-nameLightColorState" style="width:110px;"><i class="fa fa-play-circle-o"></i> Status</label>
     
             <label for="node-input-GALightColorState" style="width:20px;"><span data-i18n="knxUltimateHueLight.node-input-GALightState"></span></label>
             <input type="text" id="node-input-GALightColorState" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
@@ -1034,7 +594,7 @@ Start typing in the GA field, the name or group address of your KNX device, the 
 |Property|Description|
 |--|--|
 | Switch | This GA is used to turn on/off the HUE light via a boolean KNX value true/false|
-| Switch Status | Link this to the light's switch status group address|
+| Status | Link this to the light's switch status group address|
 | Switch On - color/brightness | You can choose the color/brightness of your light, at switch on. Set it as JSON object, for example **{ "red": 255, "green": 255, "blue": 255 }**. Leave blank to disable. |
 | Night Lighting | It allows to set a particular light color/brightness at nighttime. If **checked**, a further set of option shows up and the light changes the behaviour based on these options, everytime you switch the light *on*. |
 | Switch On - color/brightness at Nighttime | You can choose the color/brightness of your light, at switch on, on night time. Set it as JSON object. Default value if you leave blank is **{ "red": 100, "green": 0, "blue": 0 }** |
@@ -1047,16 +607,17 @@ Start typing in the GA field, the name or group address of your KNX device, the 
 |Property|Description|
 |--|--|
 | Dimming | Relative DIM the HUE light |
-| Brightness | This command is used to change the absolute HUE light's brightness |
-| Brightness Status| Link this to the light's brightness status group address |
+| Percentage | Changes the absolute HUE light's brightness (0-100%)|
+| Status| Link this to the light's brightness status group address |
 
 <br/>
 
 **Tunable white**
 |Property|Description|
 |--|--|
-| Tunable white | This command is used to change the HUE light's white temperature. Datapoint is 3.007 dimming or 5.001 percentage. When set to 5.001, a value of 0 is full warm, a value of 100 is full cold .|
-| Tunable white Status | Link this to the light temperature status group address. Datapoint is 5.001 absolute value. 0 is full warm, 100 is full cold.|
+| Dimming| Changes the HUE light's white temperature, using DPT 3.007 dimming.|
+| Percentage | Changes the HUE light's white temperature, using the DPT 5.001. A value of 0 is full warm, a value of 100 is full cold.|
+| Status | Link this to the light temperature status group address. Datapoint is 5.001 absolute value. 0 is full warm, 100 is full cold.|
 
 <br/>
 
@@ -1064,7 +625,7 @@ Start typing in the GA field, the name or group address of your KNX device, the 
 |Property|Description|
 |--|--|
 | Color | This command is used to change the HUE light's color. Accepted datapoint is RGB triplet (r,g,b). The node handles the gamut color correction. As soon as you send a color KNX telegran, the light turns on and sets color and brightness, derived from the brightness human perception. As soon as you send a KNX telegram with r,g,b set to zero, the light turns off |
-| Color Status | Link this to the light's color status group address. Accepted datapoint is RGB triplet (r,g,b)|
+| Status | Link this to the light's color status group address. Accepted datapoint is RGB triplet (r,g,b)|
 
 <br/>
 

@@ -232,10 +232,13 @@ getResources = async (_rtype, _host, _username) => {
           const owners = await this.hueAllResources.filter(a => a.id === resource.owner.rid)
           for (let index = 0; index < owners.length; index++) {
             const owner = owners[index];
-            //resourceName += (owner.metadata !== undefined && owner.metadata.name !== undefined) ? owner.metadata.name + ' and ' : ' and '
-            resourceName += owner.metadata.name + ' and '
-            const room = await this.hueAllRooms.find(child => child.children.find(a => a.rid === owner.id))
-            sRoom += room !== undefined ? room.metadata.name + ' + ' : ' + '
+            if (owner.type === 'bridge_home') {
+              resourceName += 'ALL GROUPS and '
+            } else {
+              resourceName += owner.metadata.name + ' and '  
+              const room = await this.hueAllRooms.find(child => child.children.find(a => a.rid === owner.id))
+              sRoom += room !== undefined ? room.metadata.name + ' + ' : ' + '
+            }
           }
           sRoom = sRoom.slice(0, -(' + '.length))
           resourceName = resourceName.slice(0, -(' and '.length))
@@ -278,7 +281,7 @@ getResources = async (_rtype, _host, _username) => {
           retArray.push({ name: 'Battery: ' + linkedDevName + (Room !== undefined ? ', room ' + Room.metadata.name : ''), id: resource.id })
         }
       } catch (error) {
-        //retArray.push({ name: _rtype + ': ERROR ' + error.message, id: resource.id })
+        retArray.push({ name: _rtype + ': ERROR ' + error.message, id: resource.id })
       }
     }
     return { devices: retArray }

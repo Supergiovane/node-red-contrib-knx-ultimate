@@ -7,8 +7,14 @@
 # CHANGELOG
 
 <p>
+<b>Version 2.1.41</b> - August 2023<br/>
+- NEW: HUE Light: you can now control ALL GROUPED LIGHT together.<br/>
+- HUE Light: fixed an issue with the "Link brightness to on/off switch" option, when a json color is selected at daylight or nighttime<br/>
+- HUE Light: New: now you can use both DPT 5.001 and 3.007 in the color temperature, at the same time.<br/>
+</p>
+<p>
 <b>Version 2.1.40</b> - August 2023<br/>
-- HUE Light: Buffix: color cycle continues to cycle color, even if a FALSE is sent from the group address.<br/>
+- HUE Light: Bugfix: color cycle continues to cycle color, even if a FALSE is sent from the group address.<br/>
 </p>
 <p>
 <b>Version 2.1.39</b> - August 2023<br/>

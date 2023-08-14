@@ -64,7 +64,11 @@ module.exports = function (RED) {
                   }
                   let dretXY = hueColorConverter.ColorConverter.rgbToXy(jColorChoosen.red, jColorChoosen.green, jColorChoosen.blue, gamut)
                   let dbright = hueColorConverter.ColorConverter.getBrightnessFromRGB(jColorChoosen.red, jColorChoosen.green, jColorChoosen.blue)
-                  state = dbright > 0 ? { on: { on: true }, dimming: { brightness: dbright }, color: { xy: dretXY } } : { on: { on: false } }
+                  if (config.linkBrightnessToSwitchStatus === undefined || config.linkBrightnessToSwitchStatus === 'yes') {
+                    state = dbright > 0 ? { on: { on: true }, dimming: { brightness: dbright }, color: { xy: dretXY } } : { on: { on: false } }
+                  } else {
+                    state = dbright > 0 ? { on: { on: true }, color: { xy: dretXY } } : { on: { on: false } }
+                  }
                 } else {
                   if (config.linkBrightnessToSwitchStatus === undefined || config.linkBrightnessToSwitchStatus === 'yes') {
                     state = { on: { on: true }, dimming: { brightness: 100 } }
@@ -83,7 +87,11 @@ module.exports = function (RED) {
                   }
                   let dretXY = hueColorConverter.ColorConverter.rgbToXy(jColorChoosen.red, jColorChoosen.green, jColorChoosen.blue, gamut)
                   let dbright = hueColorConverter.ColorConverter.getBrightnessFromRGB(jColorChoosen.red, jColorChoosen.green, jColorChoosen.blue)
-                  state = dbright > 0 ? { on: { on: true }, dimming: { brightness: dbright }, color: { xy: dretXY } } : { on: { on: false } }
+                  if (config.linkBrightnessToSwitchStatus === undefined || config.linkBrightnessToSwitchStatus === 'yes') {
+                    state = dbright > 0 ? { on: { on: true }, dimming: { brightness: dbright }, color: { xy: dretXY } } : { on: { on: false } }
+                  } else {
+                    state = dbright > 0 ? { on: { on: true }, color: { xy: dretXY } } : { on: { on: false } }
+                  }
                 }
               }
             } else {
@@ -141,9 +149,13 @@ module.exports = function (RED) {
                 node.startDimStopperTunableWhite('stop')
               }
             }
-            if (config.dptLightHSV === '5.001') {
+            node.setNodeStatusHue({ fill: 'green', shape: 'dot', text: 'KNX->HUE', payload: msg.payload })
+            break
+          case config.GALightHSVPercentage:
+            if (config.dptLightHSVPercentage === '5.001') {
               // 0-100% tunable white
-              msg.payload = 100 - dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightHSV))
+              msg.payload = 100 - dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightHSVPercentage))
+              //msg.payload = msg.payload <= 0 ? 1 : msg.payload
               const retMirek = hueColorConverter.ColorConverter.scale(msg.payload, [0, 100], [153, 500])
               msg.payload = retMirek
               state = { color_temperature: { mirek: msg.payload } }
