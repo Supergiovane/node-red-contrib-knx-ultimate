@@ -18,7 +18,7 @@
             }
             $("#getinfocam").click(function () {
 
-                var myNotification = RED.notify("Please press the Link button on the HUE Bridge / Pre favore, premi il pulsante sul bridge HUE",
+                var myNotification = RED.notify("Please press the Link button on the HUE Bridge",
                     {
                         modal: true,
                         fixed: true,
@@ -69,13 +69,7 @@
                                 }
                             }]
                     });
-
-
-
-
             });
-
-
         },
         oneditsave: function () {
 
@@ -96,9 +90,7 @@
    
     <div class="form-row">
         <label for="node-config-input-host">
-            <i class="fa fa-server"></i>
-            <span data-i18n="hue-config.properties.host" </span>
-        </label>
+            <i class="fa fa-server"></i> IP</label>
         <input type="text" id="node-config-input-host" placeholder="Write here the HUE bridge's IP, then click CONNECT">
     </div>
     <div class="form-row">
@@ -127,11 +119,11 @@
 
         <div class="form-row">
             <label for="node-config-input-username"> Username</label>
-            <input type="password" id="node-config-input-username" placeholder="">
+            <input type="password" id="node-config-input-username" placeholder="" disabled>
         </div>
         <div class="form-row">
             <label for="node-config-input-clientkey"> Bridge Key</label>
-            <input type="password" id="node-config-input-clientkey" placeholder="">
+            <input type="password" id="node-config-input-clientkey" placeholder="" disabled>
         </div>
     </div>
     

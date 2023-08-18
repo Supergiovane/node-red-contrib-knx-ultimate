@@ -82,7 +82,7 @@ module.exports = function (RED) {
         (async () => {
           node.serverHue.addClient(node)
           try {
-             node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, null, 'getLightLevel', (jLight) => {              
+            node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, null, 'getLightLevel', (jLight) => {
               node.handleSendHUE(jLight)
             })
           } catch (error) {

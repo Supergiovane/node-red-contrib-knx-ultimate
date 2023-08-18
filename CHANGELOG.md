@@ -7,6 +7,14 @@
 # CHANGELOG
 
 <p>
+<b>Version 2.1.43</b> - August 2023<br/>
+- HUE Light: Moved some options to the "Behaviour" tab and fixed a race condition in the color setting, when some options are in conflict each other.<br/>
+</p>
+<p>
+<b>Version 2.1.42</b> - August 2023<br/>
+- Fixed some issues in getting the hue device's names, when using some non LTS versions of node.js.<br/>
+</p>
+<p>
 <b>Version 2.1.41</b> - August 2023<br/>
 - NEW: HUE Light: you can now control ALL GROUPED LIGHT together.<br/>
 - HUE Light: fixed an issue with the "Link brightness to on/off switch" option, when a json color is selected at daylight or nighttime<br/>
