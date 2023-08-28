@@ -7,6 +7,10 @@
 # CHANGELOG
 
 <p>
+<b>Version 2.1.44</b> - August 2023<br/>
+- HUE Light: now it correctly sets the KNX brightness if you turn on/off the light via HUE app.<br/>
+</p>
+<p>
 <b>Version 2.1.43</b> - August 2023<br/>
 - HUE Light: Moved some options to the "Behaviour" tab and fixed a race condition in the color setting, when some options are in conflict each other.<br/>
 </p>
