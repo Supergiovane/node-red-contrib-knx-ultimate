@@ -7,8 +7,9 @@
 # CHANGELOG
 
 <p>
-<b>Version 2.1.44</b> - August 2023<br/>
+<b>Version 2.1.45</b> - August 2023<br/>
 - HUE Light: now it correctly sets the KNX brightness if you turn on/off the light via HUE app.<br/>
+- Fix a resource occupation while connecting to the HUE bridge and the bridge is not reachable for the first time.<br/>
 </p>
 <p>
 <b>Version 2.1.43</b> - August 2023<br/>

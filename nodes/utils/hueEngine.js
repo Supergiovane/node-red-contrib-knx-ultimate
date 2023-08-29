@@ -61,15 +61,16 @@ class classHUE extends EventEmitter {
       this.emit('connected');
     };
 
-    this.es.onerror = (error) => {
-      try {
-        this.es.close();
-        this.es = null;
-        if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.error(`KNXUltimatehueEngine: classHUE: request.on(error): ${error.message}`);
-      } catch (err) { /* empty */ }
-      this.Connect();
-      // this.emit('error', error)
-    };
+    // this.es.onerror = (error) => {
+    // 29/08/2023 NON riattivare, perchè alla disconnessione, va in loop e consuma tutto il pool di risorse.
+    //   try {
+    //     this.es.close();
+    //     this.es = null;
+    //     if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.error(`KNXUltimatehueEngine: classHUE: request.on(error): ${error.message}`);
+    //   } catch (err) { /* empty */ }
+    //   this.Connect();
+    //   // this.emit('error', error)
+    // };
 
     // 31/07/2023 Every now and then, restart the connection to the eventsource, because it can goes down without knowing that
     if (this.timerReconnect !== undefined) clearInterval(this.timerReconnect);
