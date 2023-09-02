@@ -9,5 +9,6 @@
         "ecmaVersion": "latest"
     },
     "rules": {
+        "quotes": "off"
     }
 }
