@@ -1,17 +1,21 @@
+/* eslint-disable no-inner-declarations */
 /* eslint-disable max-len */
-const dptlib = require('../KNXEngine/src/dptlib');
-const HueClass = require('./utils/hueEngine').classHUE;
-const loggerEngine = require('./utils/sysLogger');
+const dptlib = require("../KNXEngine/src/dptlib");
+const HueClass = require("./utils/hueEngine").classHUE;
+const loggerEngine = require("./utils/sysLogger");
 // Helpers
 const sortBy = (field) => (a, b) => {
-  if (a[field] > b[field]) { return 1; } return -1;
+  if (a[field] > b[field]) {
+    return 1;
+  }
+  return -1;
 };
 
-const onlyDptKeys = (kv) => kv[0].startsWith('DPT');
+const onlyDptKeys = (kv) => kv[0].startsWith("DPT");
 
 const extractBaseNo = (kv) => ({
   subtypes: kv[1].subtypes,
-  base: parseInt(kv[1].id.replace('DPT', '')),
+  base: parseInt(kv[1].id.replace("DPT", "")),
 });
 
 const convertSubtype = (baseType) => (kv) => {
@@ -25,20 +29,14 @@ const convertSubtype = (baseType) => (kv) => {
 };
 
 const toConcattedSubtypes = (acc, baseType) => {
-  const subtypes = Object.entries(baseType.subtypes)
-    .sort(sortBy(0))
-    .map(convertSubtype(baseType));
+  const subtypes = Object.entries(baseType.subtypes).sort(sortBy(0)).map(convertSubtype(baseType));
 
   return acc.concat(subtypes);
 };
 
 module.exports = (RED) => {
-  RED.httpAdmin.get('/knxUltimateDpts', RED.auth.needsPermission('hue-config.read'), (req, res) => {
-    const dpts = Object.entries(dptlib)
-      .filter(onlyDptKeys)
-      .map(extractBaseNo)
-      .sort(sortBy('base'))
-      .reduce(toConcattedSubtypes, []);
+  RED.httpAdmin.get("/knxUltimateDpts", RED.auth.needsPermission("hue-config.read"), (req, res) => {
+    const dpts = Object.entries(dptlib).filter(onlyDptKeys).map(extractBaseNo).sort(sortBy("base")).reduce(toConcattedSubtypes, []);
 
     res.json(dpts);
   });
@@ -48,12 +46,14 @@ module.exports = (RED) => {
     const node = this;
     node.host = config.host;
     node.nodeClients = []; // Stores the registered clients
-    node.loglevel = config.loglevel !== undefined ? config.loglevel : 'error'; // 18/02/2020 Loglevel default error
+    node.loglevel = config.loglevel !== undefined ? config.loglevel : "error"; // 18/02/2020 Loglevel default error
     node.sysLogger = null;
     try {
       node.sysLogger = loggerEngine.get({ loglevel: node.loglevel }); // New logger to adhere to the loglevel selected in the config-window
-    } catch (error) { /* empty */ }
-    node.name = (config.name === undefined || config.name === '') ? node.host : config.name;
+    } catch (error) {
+      /* empty */
+    }
+    node.name = config.name === undefined || config.name === "" ? node.host : config.name;
 
     // Init HUE Utility
     node.hueManager = new HueClass(node.host, node.credentials.username, node.credentials.clientkey, config.bridgeid, node.sysLogger);
@@ -64,8 +64,10 @@ module.exports = (RED) => {
       // Handle events
       try {
         node.hueManager.removeAllListeners();
-      } catch (error) { /* empty */ }
-      node.hueManager.on('event', (_event) => {
+      } catch (error) {
+        /* empty */
+      }
+      node.hueManager.on("event", (_event) => {
         node.nodeClients.forEach((_oClient) => {
           const oClient = _oClient;
           try {
@@ -76,18 +78,20 @@ module.exports = (RED) => {
         });
       });
       // Connected
-      node.hueManager.on('connected', () => {
-        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info('node.hueManager connected event');
+      node.hueManager.on("connected", () => {
+        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("node.hueManager connected event");
       });
       // Initialize the http wrapper, to use the provided key.
       // This http wrapper is used to get the data from HUE brigde
       try {
         // Load all resources, to avoid too many call to the HUE bridge and speed up the showing of the device mnames, during typing in the config window
-        node.hueAllResources = await node.hueManager.hueApiV2.get('/resource');
-        node.hueAllRooms = await node.hueManager.hueApiV2.get('/resource/room');
-        node.hueAllDevices = await node.hueManager.hueApiV2.get('/resource/device');
+        node.hueAllResources = await node.hueManager.hueApiV2.get("/resource");
+        node.hueAllRooms = await node.hueManager.hueApiV2.get("/resource/room");
+        node.hueAllDevices = await node.hueManager.hueApiV2.get("/resource/device");
       } catch (error) {
-        if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.error(`KNXUltimatehueEngine: classHUE: getting resources: ${error.message}`);
+        if (this.sysLogger !== undefined && this.sysLogger !== null) {
+          this.sysLogger.error(`KNXUltimatehueEngine: classHUE: getting resources: ${error.message}`);
+        }
       }
     };
 
@@ -95,10 +99,11 @@ module.exports = (RED) => {
       await node.ConnectToHueBridge();
     })();
 
-    RED.httpAdmin.get('/KNXUltimateGetResourcesHUE', RED.auth.needsPermission('hue-config.read'), (req, res) => {
+    RED.httpAdmin.get("/KNXUltimateGetResourcesHUE", RED.auth.needsPermission("hue-config.read"), (req, res) => {
       try {
         // °°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
-        const jRet = node.getResources(req.query.rtype);
+        const serverNode = RED.nodes.getNode(req.query.nodeID); // Retrieve node.id of the config node.
+        const jRet = serverNode.getResources(req.query.rtype);
         res.json(jRet);
         // °°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
       } catch (error) {
@@ -117,14 +122,14 @@ module.exports = (RED) => {
 
         // Returns capitalized string
         function capStr(s) {
-          if (typeof s !== 'string') return '';
+          if (typeof s !== "string") return "";
           return s.charAt(0).toUpperCase() + s.slice(1);
         }
 
         const retArray = [];
         let allResources;
-        if (_rtype === 'light' || _rtype === 'grouped_light') {
-          allResources = node.hueAllResources.filter((a) => a.type === 'light' || a.type === 'grouped_light');
+        if (_rtype === "light" || _rtype === "grouped_light") {
+          allResources = node.hueAllResources.filter((a) => a.type === "light" || a.type === "grouped_light");
         } else {
           allResources = node.hueAllResources.filter((a) => a.type === _rtype);
         }
@@ -132,69 +137,104 @@ module.exports = (RED) => {
           const resource = allResources[index];
           // Get the owner
           try {
-            let resourceName = '';
-            let sRoom = '';
-            if (_rtype === 'light' || _rtype === 'grouped_light') {
+            let resourceName = "";
+            let sRoom = "";
+            if (_rtype === "light" || _rtype === "grouped_light") {
               // It's a service, having a owner
               const owners = node.hueAllResources.filter((a) => a.id === resource.owner.rid);
               for (let index = 0; index < owners.length; index++) {
                 const owner = owners[index];
-                if (owner.type === 'bridge_home') {
-                  resourceName += 'ALL GROUPS and ';
+                if (owner.type === "bridge_home") {
+                  resourceName += "ALL GROUPS and ";
                 } else {
                   resourceName += `${owner.metadata.name} and `;
                   const room = node.hueAllRooms.find((child) => child.children.find((a) => a.rid === owner.id));
-                  sRoom += room !== undefined ? `${room.metadata.name} + ` : ' + ';
+                  sRoom += room !== undefined ? `${room.metadata.name} + ` : " + ";
                 }
               }
-              sRoom = sRoom.slice(0, -(' + '.length));
-              resourceName = resourceName.slice(0, -(' and '.length));
-              resourceName += sRoom !== '' ? ` - Room: ${sRoom}` : '';
-              retArray.push({ name: `${capStr(resource.type)}: ${resourceName}`, id: resource.id, deviceObject: resource });
+              sRoom = sRoom.slice(0, -" + ".length);
+              resourceName = resourceName.slice(0, -" and ".length);
+              resourceName += sRoom !== "" ? ` - Room: ${sRoom}` : "";
+              retArray.push({
+                name: `${capStr(resource.type)}: ${resourceName}`,
+                id: resource.id,
+                deviceObject: resource,
+              });
             }
-            if (_rtype === 'scene') {
-              resourceName = resource.metadata.name || '**Name Not Found**';
+            if (_rtype === "scene") {
+              resourceName = resource.metadata.name || "**Name Not Found**";
               // Get the linked zone
               const zone = node.hueAllResources.find((res) => res.id === resource.group.rid);
               resourceName += ` - ${capStr(resource.group.rtype)}: ${zone.metadata.name}`;
-              retArray.push({ name: `${capStr(_rtype)}: ${resourceName}`, id: resource.id });
+              retArray.push({
+                name: `${capStr(_rtype)}: ${resourceName}`,
+                id: resource.id,
+              });
             }
-            if (_rtype === 'button') {
-              const linkedDevName = node.hueAllResources.find((dev) => dev.type === 'device' && dev.services.find((serv) => serv.rid === resource.id)).metadata.name || '';
-              const controlID = resource.metadata !== undefined ? (resource.metadata.control_id || '') : '';
-              retArray.push({ name: `${capStr(_rtype)}: ${linkedDevName}, button ${controlID}`, id: resource.id });
+            if (_rtype === "button") {
+              const linkedDevName =
+                node.hueAllResources.find((dev) => dev.type === "device" && dev.services.find((serv) => serv.rid === resource.id)).metadata.name || "";
+              const controlID = resource.metadata !== undefined ? resource.metadata.control_id || "" : "";
+              retArray.push({
+                name: `${capStr(_rtype)}: ${linkedDevName}, button ${controlID}`,
+                id: resource.id,
+              });
             }
-            if (_rtype === 'motion') {
-              const linkedDevName = node.hueAllResources.find((dev) => dev.type === 'device' && dev.services.find((serv) => serv.rid === resource.id)).metadata.name || '';
-              retArray.push({ name: `${capStr(_rtype)}: ${linkedDevName}`, id: resource.id });
+            if (_rtype === "motion") {
+              const linkedDevName =
+                node.hueAllResources.find((dev) => dev.type === "device" && dev.services.find((serv) => serv.rid === resource.id)).metadata.name || "";
+              retArray.push({
+                name: `${capStr(_rtype)}: ${linkedDevName}`,
+                id: resource.id,
+              });
             }
-            if (_rtype === 'relative_rotary') {
-              const linkedDevName = node.hueAllResources.find((dev) => dev.type === 'device' && dev.services.find((serv) => serv.rid === resource.id)).metadata.name || '';
-              retArray.push({ name: `Rotary: ${linkedDevName}`, id: resource.id });
+            if (_rtype === "relative_rotary") {
+              const linkedDevName =
+                node.hueAllResources.find((dev) => dev.type === "device" && dev.services.find((serv) => serv.rid === resource.id)).metadata.name || "";
+              retArray.push({
+                name: `Rotary: ${linkedDevName}`,
+                id: resource.id,
+              });
             }
-            if (_rtype === 'light_level') {
+            if (_rtype === "light_level") {
               const Room = node.hueAllRooms.find((room) => room.children.find((child) => child.rid === resource.owner.rid));
-              const linkedDevName = node.hueAllResources.find((dev) => dev.type === 'device' && dev.services.find((serv) => serv.rid === resource.id)).metadata.name || '';
-              retArray.push({ name: `Light Level: ${linkedDevName}${Room !== undefined ? `, room ${Room.metadata.name}` : ''}`, id: resource.id });
+              const linkedDevName =
+                node.hueAllResources.find((dev) => dev.type === "device" && dev.services.find((serv) => serv.rid === resource.id)).metadata.name || "";
+              retArray.push({
+                name: `Light Level: ${linkedDevName}${Room !== undefined ? `, room ${Room.metadata.name}` : ""}`,
+                id: resource.id,
+              });
             }
-            if (_rtype === 'temperature') {
+            if (_rtype === "temperature") {
               const Room = node.hueAllRooms.find((room) => room.children.find((child) => child.rid === resource.owner.rid));
-              const linkedDevName = node.hueAllResources.find((dev) => dev.type === 'device' && dev.services.find((serv) => serv.rid === resource.id)).metadata.name || '';
-              retArray.push({ name: `Temperature: ${linkedDevName}${Room !== undefined ? `, room ${Room.metadata.name}` : ''}`, id: resource.id });
+              const linkedDevName =
+                node.hueAllResources.find((dev) => dev.type === "device" && dev.services.find((serv) => serv.rid === resource.id)).metadata.name || "";
+              retArray.push({
+                name: `Temperature: ${linkedDevName}${Room !== undefined ? `, room ${Room.metadata.name}` : ""}`,
+                id: resource.id,
+              });
             }
-            if (_rtype === 'device_power') {
+            if (_rtype === "device_power") {
               const Room = node.hueAllRooms.find((room) => room.children.find((child) => child.rid === resource.owner.rid));
-              const linkedDevName = node.hueAllResources.find((dev) => dev.type === 'device' && dev.services.find((serv) => serv.rid === resource.id)).metadata.name || '';
-              retArray.push({ name: `Battery: ${linkedDevName}${Room !== undefined ? `, room ${Room.metadata.name}` : ''}`, id: resource.id });
+              const linkedDevName =
+                node.hueAllResources.find((dev) => dev.type === "device" && dev.services.find((serv) => serv.rid === resource.id)).metadata.name || "";
+              retArray.push({
+                name: `Battery: ${linkedDevName}${Room !== undefined ? `, room ${Room.metadata.name}` : ""}`,
+                id: resource.id,
+              });
             }
           } catch (error) {
-            retArray.push({ name: `${_rtype}: ERROR ${error.message}`, id: resource.id });
+            retArray.push({
+              name: `${_rtype}: ERROR ${error.message}`,
+              id: resource.id,
+            });
           }
         }
         return { devices: retArray };
       } catch (error) {
-        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(`KNXUltimateHue: hueEngine: classHUE: getDevices: error ${error.message}`);
-        return ({ devices: error.message });
+        if (node.sysLogger !== undefined && node.sysLogger !== null)
+          node.sysLogger.error(`KNXUltimateHue: hueEngine: classHUE: getDevices: error ${error.message}`);
+        return { devices: error.message };
       }
     };
 
@@ -202,7 +242,11 @@ module.exports = (RED) => {
       // Check if node already exists
       if (node.nodeClients.filter((x) => x.id === _Node.id).length === 0) {
         // Add _Node to the clients array
-        _Node.setNodeStatusHue({ fill: 'grey', shape: 'ring', text: 'Hue initialized.' });
+        _Node.setNodeStatusHue({
+          fill: "grey",
+          shape: "ring",
+          text: "Hue initialized.",
+        });
         node.nodeClients.push(_Node);
       }
     };
@@ -211,12 +255,13 @@ module.exports = (RED) => {
       // Remove the client node from the clients array
       try {
         node.nodeClients = node.nodeClients.filter((x) => x.id !== _Node.id);
-      } catch (error) { }
+      } catch (error) {}
     };
 
-    node.on('close', (done) => {
+    node.on("close", (done) => {
       try {
-        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger = null; loggerEngine.destroy();
+        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger = null;
+        loggerEngine.destroy();
         node.nodeClients = [];
         node.hueManager.removeAllListeners();
         (async () => {
@@ -224,7 +269,9 @@ module.exports = (RED) => {
             await node.hueManager.close();
             node.hueManager = null;
             delete node.hueManager;
-          } catch (error) { /* empty */ }
+          } catch (error) {
+            /* empty */
+          }
           done();
         })();
       } catch (error) {
@@ -234,10 +281,10 @@ module.exports = (RED) => {
   }
 
   // RED.nodes.registerType("hue-config", hue-config);
-  RED.nodes.registerType('hue-config', hueConfig, {
+  RED.nodes.registerType("hue-config", hueConfig, {
     credentials: {
-      username: { type: 'password' },
-      clientkey: { type: 'password' },
+      username: { type: "password" },
+      clientkey: { type: "password" },
     },
   });
 };

@@ -3,14 +3,14 @@
 /* eslint-disable curly */
 /* eslint-disable max-len */
 /* eslint-disable prefer-arrow-callback */
-const knx = require("./../KNXEngine/src");
-const dptlib = require("./../KNXEngine/src/dptlib");
-
+const fs = require("fs");
+const path = require("path");
 const oOS = require("os");
 const net = require("net");
 const _ = require("lodash");
-const path = require("path");
-const fs = require("fs");
+const knx = require("../KNXEngine/src");
+const dptlib = require("../KNXEngine/src/dptlib");
+
 // const { Server } = require('http')
 const payloadRounder = require("./utils/payloadManipulation");
 const loggerEngine = require("./utils/sysLogger.js");
@@ -46,82 +46,61 @@ const convertSubtype = (baseType) => (kv) => {
 };
 
 const toConcattedSubtypes = (acc, baseType) => {
-  const subtypes = Object.entries(baseType.subtypes)
-    .sort(sortBy(0))
-    .map(convertSubtype(baseType));
+  const subtypes = Object.entries(baseType.subtypes).sort(sortBy(0)).map(convertSubtype(baseType));
 
   return acc.concat(subtypes);
 };
 
 module.exports = (RED) => {
-  "use strict";
-
-  RED.httpAdmin.get(
-    "/knxUltimateDpts",
-    RED.auth.needsPermission("knxUltimate-config.read"),
-    function (req, res) {
-      const dpts = Object.entries(dptlib)
-        .filter(onlyDptKeys)
-        .map(extractBaseNo)
-        .sort(sortBy("base"))
-        .reduce(toConcattedSubtypes, []);
-
-      res.json(dpts);
-      // Utilità per visualizzare i datapoints, da copiare in README
-      // var stringa = "";
-      // for (let index = 0; index < dpts.length; index++) {
-      //     const element = dpts[index];
-      //     stringa += element.text + "<br/>\n";
-      // }
-      // if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.warn(stringa)
-    }
-  );
+  RED.httpAdmin.get("/knxUltimateDpts", RED.auth.needsPermission("knxUltimate-config.read"), function (req, res) {
+    const dpts = Object.entries(dptlib).filter(onlyDptKeys).map(extractBaseNo).sort(sortBy("base")).reduce(toConcattedSubtypes, []);
+    res.json(dpts);
+    // Utilità per visualizzare i datapoints, da copiare in README
+    // var stringa = "";
+    // for (let index = 0; index < dpts.length; index++) {
+    //     const element = dpts[index];
+    //     stringa += element.text + "<br/>\n";
+    // }
+    // if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.warn(stringa)
+  });
 
   // 15/09/2020 Supergiovane, read datapoint help usage
-  RED.httpAdmin.get(
-    "/knxUltimateDptsGetHelp",
-    RED.auth.needsPermission("knxUltimate-config.read"),
-    function (req, res) {
-      const sDPT = req.query.dpt.split(".")[0]; // Takes only the main type
-      let jRet;
-      if (sDPT === "0") {
-        // Special fake datapoint, meaning "Universal Mode"
-        jRet = {
-          help: `// KNX-Ultimate set as UNIVERSAL NODE
+  RED.httpAdmin.get("/knxUltimateDptsGetHelp", RED.auth.needsPermission("knxUltimate-config.read"), function (req, res) {
+    const sDPT = req.query.dpt.split(".")[0]; // Takes only the main type
+    let jRet;
+    if (sDPT === "0") {
+      // Special fake datapoint, meaning "Universal Mode"
+      jRet = {
+        help: `// KNX-Ultimate set as UNIVERSAL NODE
 // Example of a function that sends a message to the KNX-Ultimate
 msg.destination = "0/0/1"; // Set the destination 
 msg.payload = false; // issues a write or response (based on the options Output Type above) to the KNX bus
 msg.event = "GroupValue_Write"; // "GroupValue_Write" or "GroupValue_Response", overrides the option Output Type above.
 msg.dpt = "1.001"; // for example "1.001", overrides the Datapoint option. (Datapoints can be sent as 9 , "9" , "9.001" or "DPT9.001")
 return msg;`,
-          helplink:
-            "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki",
-        };
-        res.json(jRet);
-        return;
-      }
-      jRet = {
-        help: "NO",
-        helplink:
-          "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-SamplesHome",
+        helplink: "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki",
       };
-      const dpts = Object.entries(dptlib).filter(onlyDptKeys);
-      for (let index = 0; index < dpts.length; index++) {
-        if (dpts[index][0].toUpperCase() === "DPT" + sDPT) {
-          jRet = {
-            help: dpts[index][1].basetype.hasOwnProperty("help")
-              ? dpts[index][1].basetype.help
-              : "NO",
-            helplink: dpts[index][1].basetype.hasOwnProperty("helplink")
-              ? dpts[index][1].basetype.helplink
-              : "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-SamplesHome",
-          };
-          break;
-        }
-      }
       res.json(jRet);
+      return;
     }
-  );
+    jRet = {
+      help: "NO",
+      helplink: "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-SamplesHome",
+    };
+    const dpts = Object.entries(dptlib).filter(onlyDptKeys);
+    for (let index = 0; index < dpts.length; index++) {
+      if (dpts[index][0].toUpperCase() === "DPT" + sDPT) {
+        jRet = {
+          help: dpts[index][1].basetype.hasOwnProperty("help") ? dpts[index][1].basetype.help : "NO",
+          helplink: dpts[index][1].basetype.hasOwnProperty("helplink")
+            ? dpts[index][1].basetype.helplink
+            : "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-SamplesHome",
+        };
+        break;
+      }
+    }
+    res.json(jRet);
+  });
 
   function knxUltimateConfigNode(config) {
     RED.nodes.createNode(this, config);
@@ -129,38 +108,22 @@ return msg;`,
     node.host = config.host;
     node.port = parseInt(config.port);
     node.physAddr = config.physAddr || "15.15.22"; // the KNX physical address we'd like to use
-    node.suppressACKRequest =
-      typeof config.suppressACKRequest === "undefined"
-        ? true
-        : config.suppressACKRequest; // enable this option to suppress the acknowledge flag with outgoing L_Data.req requests. LoxOne needs this
+    node.suppressACKRequest = typeof config.suppressACKRequest === "undefined" ? true : config.suppressACKRequest; // enable this option to suppress the acknowledge flag with outgoing L_Data.req requests. LoxOne needs this
     node.linkStatus = "disconnected"; // Can be: connected or disconnected
     node.nodeClients = []; // Stores the registered clients
-    node.KNXEthInterface =
-      typeof config.KNXEthInterface === "undefined"
-        ? "Auto"
-        : config.KNXEthInterface;
-    node.KNXEthInterfaceManuallyInput =
-      typeof config.KNXEthInterfaceManuallyInput === "undefined"
-        ? ""
-        : config.KNXEthInterfaceManuallyInput; // If you manually set the interface name, it will be wrote here
+    node.KNXEthInterface = typeof config.KNXEthInterface === "undefined" ? "Auto" : config.KNXEthInterface;
+    node.KNXEthInterfaceManuallyInput = typeof config.KNXEthInterfaceManuallyInput === "undefined" ? "" : config.KNXEthInterfaceManuallyInput; // If you manually set the interface name, it will be wrote here
     node.telegramsQueue = []; // 02/01/2020 Queue containing telegrams
     node.timerSendTelegramFromQueue = null;
     node.delaybetweentelegramsfurtherdelayREAD =
-      typeof config.delaybetweentelegramsfurtherdelayREAD === "undefined" ||
-      Number(config.delaybetweentelegramsfurtherdelayREAD < 1)
+      typeof config.delaybetweentelegramsfurtherdelayREAD === "undefined" || Number(config.delaybetweentelegramsfurtherdelayREAD < 1)
         ? 1
         : Number(config.delaybetweentelegramsfurtherdelayREAD); // 18/05/2020 delay multiplicator only for "read" telegrams.
     node.delaybetweentelegramsREADCount = 0; // 18/05/2020 delay multiplicator only for "read" telegrams.
     node.timerDoInitialRead = null; // 17/02/2020 Timer (timeout) to do initial read of all nodes requesting initial read, after all nodes have been registered to the sercer
-    node.stopETSImportIfNoDatapoint =
-      typeof config.stopETSImportIfNoDatapoint === "undefined"
-        ? "stop"
-        : config.stopETSImportIfNoDatapoint; // 09/01/2020 Stop, Import Fake or Skip the import if a group address has unset datapoint
+    node.stopETSImportIfNoDatapoint = typeof config.stopETSImportIfNoDatapoint === "undefined" ? "stop" : config.stopETSImportIfNoDatapoint; // 09/01/2020 Stop, Import Fake or Skip the import if a group address has unset datapoint
     node.csv = readCSV(config.csv); // Array from ETS CSV Group Addresses {ga:group address, dpt: datapoint, devicename: full device name with main and subgroups}
-    node.localEchoInTunneling =
-      typeof config.localEchoInTunneling !== "undefined"
-        ? config.localEchoInTunneling
-        : true;
+    node.localEchoInTunneling = typeof config.localEchoInTunneling !== "undefined" ? config.localEchoInTunneling : true;
     node.userDir = path.join(RED.settings.userDir, "knxultimatestorage"); // 04/04/2021 Supergiovane: Storage for service files
     node.exposedGAs = [];
     node.loglevel = config.loglevel !== undefined ? config.loglevel : "error"; // 18/02/2020 Loglevel default error
@@ -175,22 +138,11 @@ return msg;`,
     } else {
       node.autoReconnect = true;
     }
-    node.ignoreTelegramsWithRepeatedFlag =
-      config.ignoreTelegramsWithRepeatedFlag === undefined
-        ? false
-        : config.ignoreTelegramsWithRepeatedFlag;
+    node.ignoreTelegramsWithRepeatedFlag = config.ignoreTelegramsWithRepeatedFlag === undefined ? false : config.ignoreTelegramsWithRepeatedFlag;
     // 24/07/2021 KNX Secure checks...
-    node.keyringFileXML =
-      typeof config.keyringFileXML === "undefined" ||
-      config.keyringFileXML.trim() === ""
-        ? ""
-        : config.keyringFileXML;
-    node.knxSecureSelected =
-      typeof config.knxSecureSelected === "undefined"
-        ? false
-        : config.knxSecureSelected;
-    node.name =
-      config.name === undefined || config.name === "" ? node.host : config.name; // 12/08/2021
+    node.keyringFileXML = typeof config.keyringFileXML === "undefined" || config.keyringFileXML.trim() === "" ? "" : config.keyringFileXML;
+    node.knxSecureSelected = typeof config.knxSecureSelected === "undefined" ? false : config.knxSecureSelected;
+    node.name = config.name === undefined || config.name === "" ? node.host : config.name; // 12/08/2021
     node.timerKNXUltimateCheckState = null; // 08/10/2021 Check the state. If not connected and autoreconnect is true, retrig the connetion attempt.
     node.lockHandleTelegramQueue = false; // 12/11/2021 Lock sending telegrams if node disconnected or if already handling the queue
     node.knxConnectionProperties = null; // Retains the connection properties
@@ -217,13 +169,7 @@ return msg;`,
         // 11/07/2022
         node.hostProtocol = "TunnelUDP";
       }
-      if (node.sysLogger !== undefined && node.sysLogger !== null)
-        node.sysLogger.info(
-          "IP Protocol auto adapded to " +
-            node.hostProtocol +
-            ", based on IP " +
-            node.host
-        );
+      if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("IP Protocol auto adapded to " + node.hostProtocol + ", based on IP " + node.host);
     } else {
       node.hostProtocol = config.hostProtocol;
     }
@@ -243,10 +189,7 @@ return msg;`,
           });
           oClient = null;
         } catch (error) {
-          if (node.sysLogger !== undefined && node.sysLogger !== null)
-            node.sysLogger.warn(
-              "Wow setAllClientsStatus error " + error.message
-            );
+          if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.warn("Wow setAllClientsStatus error " + error.message);
         }
       }
       node.nodeClients.map(nextStatus);
@@ -275,10 +218,7 @@ return msg;`,
     try {
       (async () => {
         if (node.knxSecureSelected) {
-          node.jKNXSecureKeyring = await knx.KNXSecureKeyring.keyring.load(
-            node.keyringFileXML,
-            node.credentials.keyringFilePassword
-          );
+          node.jKNXSecureKeyring = await knx.KNXSecureKeyring.keyring.load(node.keyringFileXML, node.credentials.keyringFilePassword);
           RED.log.info(
             "KNX-Secure: Keyring for ETS proj " +
               node.jKNXSecureKeyring.ETSProjectName +
@@ -287,32 +227,17 @@ return msg;`,
               " on " +
               node.jKNXSecureKeyring.ETSCreated +
               " succesfully validated with provided password, using node " +
-              node.name || node.id
+              node.name || node.id,
           );
         } else {
-          RED.log.info(
-            "KNX-Unsecure: connection to insecure interface/router using node " +
-              node.name || node.id
-          );
+          RED.log.info("KNX-Unsecure: connection to insecure interface/router using node " + node.name || node.id);
         }
       })();
     } catch (error) {
-      if (node.sysLogger !== undefined && node.sysLogger !== null)
-        node.sysLogger.error(
-          "KNXUltimate-config: KNX Secure: error parsing the keyring XML: " +
-            error.message
-        );
+      if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("KNXUltimate-config: KNX Secure: error parsing the keyring XML: " + error.message);
       node.jKNXSecureKeyring = null;
       node.knxSecureSelected = false;
-      const t = setTimeout(
-        () =>
-          node.setAllClientsStatus(
-            "Error",
-            "red",
-            "KNX Secure " + error.message
-          ),
-        2000
-      ); // 21/03/2022 fixed possible memory leak. Previously was setTimeout without "let t = ".
+      const t = setTimeout(() => node.setAllClientsStatus("Error", "red", "KNX Secure " + error.message), 2000); // 21/03/2022 fixed possible memory leak. Previously was setTimeout without "let t = ".
     }
 
     // 04/04/2021 Supergiovane, creates the service paths where the persistent files are created.
@@ -332,361 +257,217 @@ return msg;`,
       }
     }
     if (!setupDirectory(node.userDir)) {
-      if (node.sysLogger !== undefined && node.sysLogger !== null)
-        node.sysLogger.error(
-          "KNXUltimate-config: Unable to set up MAIN directory: " + node.userDir
-        );
+      if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("KNXUltimate-config: Unable to set up MAIN directory: " + node.userDir);
     }
     if (!setupDirectory(path.join(node.userDir, "knxpersistvalues"))) {
-      if (node.sysLogger !== undefined && node.sysLogger !== null)
-        node.sysLogger.error(
-          "KNXUltimate-config: Unable to set up cache directory: " +
-            path.join(node.userDir, "knxpersistvalues")
-        );
+      if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("KNXUltimate-config: Unable to set up cache directory: " + path.join(node.userDir, "knxpersistvalues"));
     } else {
-      if (node.sysLogger !== undefined && node.sysLogger !== null)
-        node.sysLogger.info(
-          "KNXUltimate-config: payload cache set to " +
-            path.join(node.userDir, "knxpersistvalues")
-        );
+      if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("KNXUltimate-config: payload cache set to " + path.join(node.userDir, "knxpersistvalues"));
     }
 
     function saveExposedGAs() {
-      const sFile = path.join(
-        node.userDir,
-        "knxpersistvalues",
-        "knxpersist" + node.id + ".json"
-      );
+      const sFile = path.join(node.userDir, "knxpersistvalues", "knxpersist" + node.id + ".json");
       try {
         if (node.exposedGAs.length > 0) {
           fs.writeFileSync(sFile, JSON.stringify(node.exposedGAs));
-          if (node.sysLogger !== undefined && node.sysLogger !== null)
-            node.sysLogger.info(
-              "KNXUltimate-config: wrote peristent values to the file " + sFile
-            );
+          if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("KNXUltimate-config: wrote peristent values to the file " + sFile);
         }
       } catch (err) {
-        if (node.sysLogger !== undefined && node.sysLogger !== null)
-          node.sysLogger.error(
-            "KNXUltimate-config: unable to write peristent values to the file " +
-              sFile +
-              " " +
-              err.message
-          );
+        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("KNXUltimate-config: unable to write peristent values to the file " + sFile + " " + err.message);
       }
     }
     function loadExposedGAs() {
-      const sFile = path.join(
-        node.userDir,
-        "knxpersistvalues",
-        "knxpersist" + node.id + ".json"
-      );
+      const sFile = path.join(node.userDir, "knxpersistvalues", "knxpersist" + node.id + ".json");
       try {
         node.exposedGAs = JSON.parse(fs.readFileSync(sFile, "utf8"));
       } catch (err) {
         node.exposedGAs = [];
-        if (node.sysLogger !== undefined && node.sysLogger !== null)
-          node.sysLogger.warn(
-            "KNXUltimate-config: unable to read peristent file " +
-              sFile +
-              " " +
-              err.message
-          );
+        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.warn("KNXUltimate-config: unable to read peristent file " + sFile + " " + err.message);
       }
     }
 
     // ************************
 
     // Endpoint for connecting to HUE Bridge
-    RED.httpAdmin.get(
-      "/KNXUltimateRegisterToHueBridge",
-      RED.auth.needsPermission("knxUltimate-config.read"),
-      function (req, res) {
-        try {
-          if (
-            typeof req.query.nodeID !== "undefined" &&
-            req.query.nodeID !== null &&
-            req.query.nodeID !== ""
-          ) {
-            const _node = RED.nodes.getNode(req.query.nodeID); // Retrieve node.id of the config node.
-            if (_node !== null) res.json(RED.nodes.getNode(_node.id).csv);
-          }
-
-          (async () => {
-            try {
-              // °°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
-              const discovery = require("node-hue-api").discovery;
-              // If using this code outside of the examples directory, you will want to use the line below and remove the
-              // const discovery = require('node-hue-api').discovery
-              const hueApi = require("node-hue-api").api;
-              const appName = "KNXUltimate";
-              const deviceName = "Node-Red";
-
-              // async function discoverBridge() {
-              //   const discoveryResults = await discovery.nupnpSearch()
-
-              //   if (discoveryResults.length === 0) {
-              //     if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error('Failed to resolve any Hue Bridges')
-              //     return null
-              //   } else {
-              //     // Ignoring that you could have more than one Hue Bridge on a network as this is unlikely in 99.9% of users situations
-              //     return discoveryResults[0].ipaddress
-              //   }
-              // }
-              async function discoverAndCreateUser() {
-                // const ipAddress = await discoverBridge()
-                const ipAddress = req.query.IP;
-
-                // Create an unauthenticated instance of the Hue API so that we can create a new user
-                const unauthenticatedApi = await hueApi
-                  .createLocal(ipAddress)
-                  .connect();
-                let createdUser;
-                try {
-                  createdUser = await unauthenticatedApi.users.createUser(
-                    appName,
-                    deviceName
-                  );
-                  if (node.sysLogger !== undefined && node.sysLogger !== null)
-                    node.sysLogger.info(
-                      "*******************************************************************************\n"
-                    );
-                  if (node.sysLogger !== undefined && node.sysLogger !== null) {
-                    node.sysLogger.info(
-                      "User has been created on the Hue Bridge. The following username can be used to\n" +
-                        "authenticate with the Bridge and provide full local access to the Hue Bridge.\n" +
-                        "YOU SHOULD TREAT THIS LIKE A PASSWORD\n"
-                    );
-                  }
-                  if (node.sysLogger !== undefined && node.sysLogger !== null)
-                    node.sysLogger.info(
-                      `Hue Bridge User: ${createdUser.username}`
-                    );
-                  if (node.sysLogger !== undefined && node.sysLogger !== null)
-                    node.sysLogger.info(
-                      `Hue Bridge User Client Key: ${createdUser.clientkey}`
-                    );
-                  if (node.sysLogger !== undefined && node.sysLogger !== null)
-                    node.sysLogger.info(
-                      "*******************************************************************************\n"
-                    );
-
-                  // Create a new API instance that is authenticated with the new user we created
-                  const authenticatedApi = await hueApi
-                    .createLocal(ipAddress)
-                    .connect(createdUser.username);
-                  // Do something with the authenticated user/api
-                  const bridgeConfig =
-                    await authenticatedApi.configuration.getConfiguration();
-                  if (node.sysLogger !== undefined && node.sysLogger !== null)
-                    node.sysLogger.info(
-                      `Connected to Hue Bridge: ${bridgeConfig.name} :: ${bridgeConfig.ipaddress}`
-                    );
-                  return { bridge: bridgeConfig, user: createdUser };
-                } catch (err) {
-                  if (node.sysLogger !== undefined && node.sysLogger !== null)
-                    node.sysLogger.error(
-                      "The Link button on the bridge was not pressed. " +
-                        err.message
-                    );
-                  throw err;
-                  // return {
-                  //   error:
-                  //     "The Link button on the bridge was not pressed or an error has occurred. " +
-                  //     err.message,
-                  // };
-                }
-              }
-              async function discoverAndCreateUserInsecure() {
-                // const ipAddress = await discoverBridge()
-                const ipAddress = req.query.IP;
-
-                // Create an unauthenticated instance of the Hue API so that we can create a new user
-                const unauthenticatedApi = await hueApi
-                  .createInsecureLocal(ipAddress)
-                  .connect();
-                let createdUser;
-                try {
-                  createdUser = await unauthenticatedApi.users.createUser(
-                    appName,
-                    deviceName
-                  );
-                  if (node.sysLogger !== undefined && node.sysLogger !== null)
-                    node.sysLogger.info(
-                      "*******************************************************************************\n"
-                    );
-                  if (node.sysLogger !== undefined && node.sysLogger !== null) {
-                    node.sysLogger.info(
-                      "User has been created on the Hue Bridge. The following username can be used to\n" +
-                        "authenticate with the Bridge and provide full local access to the Hue Bridge.\n" +
-                        "YOU SHOULD TREAT THIS LIKE A PASSWORD\n"
-                    );
-                  }
-                  if (node.sysLogger !== undefined && node.sysLogger !== null)
-                    node.sysLogger.info(
-                      `Hue Bridge User: ${createdUser.username}`
-                    );
-                  if (node.sysLogger !== undefined && node.sysLogger !== null)
-                    node.sysLogger.info(
-                      `Hue Bridge User Client Key: ${createdUser.clientkey}`
-                    );
-                  if (node.sysLogger !== undefined && node.sysLogger !== null)
-                    node.sysLogger.info(
-                      "*******************************************************************************\n"
-                    );
-
-                  // Create a new API instance that is authenticated with the new user we created
-                  const authenticatedApi = await hueApi
-                    .createInsecureLocal(ipAddress)
-                    .connect(createdUser.username);
-                  // Do something with the authenticated user/api
-                  const bridgeConfig =
-                    await authenticatedApi.configuration.getConfiguration();
-                  if (node.sysLogger !== undefined && node.sysLogger !== null)
-                    node.sysLogger.info(
-                      `Connected to Hue Bridge: ${bridgeConfig.name} :: ${bridgeConfig.ipaddress}`
-                    );
-                  return { bridge: bridgeConfig, user: createdUser };
-                } catch (err) {
-                  if (node.sysLogger !== undefined && node.sysLogger !== null)
-                    node.sysLogger.error(
-                      "The Link button on the bridge was not pressed. " +
-                        err.message
-                    );
-                  return {
-                    error:
-                      "The Link button on the bridge was not pressed or an error has occurred. " +
-                      err.message,
-                  };
-                }
-              }
-
-              // Invoke the discovery and create user code
-              try {
-                const jRet = await discoverAndCreateUser();
-                res.json(jRet);
-              } catch (error) {
-                RED.log.error(
-                  "Errore KNXUltimateRegisterToHueBridge non gestito Secure " +
-                    error.message +
-                    ". Try with insecure http connection..."
-                );
-                // Try with insecureClient (avoid problems with expired https certificates)
-                try {
-                  const jRet = await discoverAndCreateUserInsecure();
-                  res.json(jRet);
-                } catch (error) {
-                  RED.log.error(
-                    "Errore KNXUltimateRegisterToHueBridge non gestito Insecure " +
-                      error.message +
-                      ". I give up."
-                  );
-                  res.json({ error: error.message });
-                }
-              }
-            } catch (err) {
-              RED.log.error(
-                "Errore KNXUltimateRegisterToHueBridge non gestito " +
-                  err.message
-              );
-            }
-          })();
-        } catch (err) {
-          RED.log.error(
-            "Errore KNXUltimateRegisterToHueBridge bsonto " + err.message
-          );
-          res.json({ error: err.message });
-        }
-      }
-    );
-
-    // Endpoint for reading csv/esf by the other nodes
-    RED.httpAdmin.get(
-      "/knxUltimatecsv",
-      RED.auth.needsPermission("knxUltimate-config.read"),
-      function (req, res) {
-        if (
-          typeof req.query.nodeID !== "undefined" &&
-          req.query.nodeID !== null &&
-          req.query.nodeID !== ""
-        ) {
+    RED.httpAdmin.get("/KNXUltimateRegisterToHueBridge", RED.auth.needsPermission("knxUltimate-config.read"), function (req, res) {
+      try {
+        if (typeof req.query.nodeID !== "undefined" && req.query.nodeID !== null && req.query.nodeID !== "") {
           const _node = RED.nodes.getNode(req.query.nodeID); // Retrieve node.id of the config node.
           if (_node !== null) res.json(RED.nodes.getNode(_node.id).csv);
-        } else {
-          // Get the first knxultimate-config having a valid csv
-          try {
-            if (node.sysLogger !== undefined && node.sysLogger !== null)
-              node.sysLogger.info(
-                "KNXUltimate-config: Requested csv maybe from visu-ultimate?"
-              );
-            RED.nodes.eachNode(function (_node) {
-              if (
-                _node.hasOwnProperty("csv") &&
-                _node.type == "knxUltimate-config" &&
-                _node.csv !== ""
-              ) {
-                res.json(RED.nodes.getNode(_node.id).csv);
-              }
-            });
-          } catch (error) {}
         }
-      }
-    );
 
-    // 14/08/2019 Endpoint for retrieving the ethernet interfaces
-    RED.httpAdmin.get(
-      "/knxUltimateETHInterfaces",
-      RED.auth.needsPermission("knxUltimate-config.read"),
-      function (req, res) {
-        const oiFaces = oOS.networkInterfaces();
-        const jListInterfaces = [];
+        (async () => {
+          try {
+            // °°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+            const discovery = require("node-hue-api").discovery;
+            // If using this code outside of the examples directory, you will want to use the line below and remove the
+            // const discovery = require('node-hue-api').discovery
+            const hueApi = require("node-hue-api").api;
+            const appName = "KNXUltimate";
+            const deviceName = "Node-Red";
+
+            // async function discoverBridge() {
+            //   const discoveryResults = await discovery.nupnpSearch()
+
+            //   if (discoveryResults.length === 0) {
+            //     if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error('Failed to resolve any Hue Bridges')
+            //     return null
+            //   } else {
+            //     // Ignoring that you could have more than one Hue Bridge on a network as this is unlikely in 99.9% of users situations
+            //     return discoveryResults[0].ipaddress
+            //   }
+            // }
+            async function discoverAndCreateUser() {
+              // const ipAddress = await discoverBridge()
+              const ipAddress = req.query.IP;
+
+              // Create an unauthenticated instance of the Hue API so that we can create a new user
+              const unauthenticatedApi = await hueApi.createLocal(ipAddress).connect();
+              let createdUser;
+              try {
+                createdUser = await unauthenticatedApi.users.createUser(appName, deviceName);
+                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("*******************************************************************************\n");
+                if (node.sysLogger !== undefined && node.sysLogger !== null) {
+                  node.sysLogger.info(
+                    "User has been created on the Hue Bridge. The following username can be used to\n" +
+                      "authenticate with the Bridge and provide full local access to the Hue Bridge.\n" +
+                      "YOU SHOULD TREAT THIS LIKE A PASSWORD\n",
+                  );
+                }
+                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info(`Hue Bridge User: ${createdUser.username}`);
+                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info(`Hue Bridge User Client Key: ${createdUser.clientkey}`);
+                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("*******************************************************************************\n");
+
+                // Create a new API instance that is authenticated with the new user we created
+                const authenticatedApi = await hueApi.createLocal(ipAddress).connect(createdUser.username);
+                // Do something with the authenticated user/api
+                const bridgeConfig = await authenticatedApi.configuration.getConfiguration();
+                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info(`Connected to Hue Bridge: ${bridgeConfig.name} :: ${bridgeConfig.ipaddress}`);
+                return { bridge: bridgeConfig, user: createdUser };
+              } catch (err) {
+                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("The Link button on the bridge was not pressed. " + err.message);
+                throw err;
+                // return {
+                //   error:
+                //     "The Link button on the bridge was not pressed or an error has occurred. " +
+                //     err.message,
+                // };
+              }
+            }
+            async function discoverAndCreateUserInsecure() {
+              // const ipAddress = await discoverBridge()
+              const ipAddress = req.query.IP;
+
+              // Create an unauthenticated instance of the Hue API so that we can create a new user
+              const unauthenticatedApi = await hueApi.createInsecureLocal(ipAddress).connect();
+              let createdUser;
+              try {
+                createdUser = await unauthenticatedApi.users.createUser(appName, deviceName);
+                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("*******************************************************************************\n");
+                if (node.sysLogger !== undefined && node.sysLogger !== null) {
+                  node.sysLogger.info(
+                    "User has been created on the Hue Bridge. The following username can be used to\n" +
+                      "authenticate with the Bridge and provide full local access to the Hue Bridge.\n" +
+                      "YOU SHOULD TREAT THIS LIKE A PASSWORD\n",
+                  );
+                }
+                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info(`Hue Bridge User: ${createdUser.username}`);
+                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info(`Hue Bridge User Client Key: ${createdUser.clientkey}`);
+                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("*******************************************************************************\n");
+
+                // Create a new API instance that is authenticated with the new user we created
+                const authenticatedApi = await hueApi.createInsecureLocal(ipAddress).connect(createdUser.username);
+                // Do something with the authenticated user/api
+                const bridgeConfig = await authenticatedApi.configuration.getConfiguration();
+                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info(`Connected to Hue Bridge: ${bridgeConfig.name} :: ${bridgeConfig.ipaddress}`);
+                return { bridge: bridgeConfig, user: createdUser };
+              } catch (err) {
+                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("The Link button on the bridge was not pressed. " + err.message);
+                return {
+                  error: "The Link button on the bridge was not pressed or an error has occurred. " + err.message,
+                };
+              }
+            }
+
+            // Invoke the discovery and create user code
+            try {
+              const jRet = await discoverAndCreateUser();
+              res.json(jRet);
+            } catch (error) {
+              RED.log.error("Errore KNXUltimateRegisterToHueBridge non gestito Secure " + error.message + ". Try with insecure http connection...");
+              // Try with insecureClient (avoid problems with expired https certificates)
+              try {
+                const jRet = await discoverAndCreateUserInsecure();
+                res.json(jRet);
+              } catch (error) {
+                RED.log.error("Errore KNXUltimateRegisterToHueBridge non gestito Insecure " + error.message + ". I give up.");
+                res.json({ error: error.message });
+              }
+            }
+          } catch (err) {
+            RED.log.error("Errore KNXUltimateRegisterToHueBridge non gestito " + err.message);
+          }
+        })();
+      } catch (err) {
+        RED.log.error("Errore KNXUltimateRegisterToHueBridge bsonto " + err.message);
+        res.json({ error: err.message });
+      }
+    });
+
+    // Endpoint for reading csv/esf by the other nodes
+    RED.httpAdmin.get("/knxUltimatecsv", RED.auth.needsPermission("knxUltimate-config.read"), function (req, res) {
+      if (typeof req.query.nodeID !== "undefined" && req.query.nodeID !== null && req.query.nodeID !== "") {
+        const _node = RED.nodes.getNode(req.query.nodeID); // Retrieve node.id of the config node.
+        if (_node !== null) res.json(RED.nodes.getNode(_node.id).csv);
+      } else {
+        // Get the first knxultimate-config having a valid csv
         try {
-          Object.keys(oiFaces).forEach((ifname) => {
-            // Interface with single IP
-            if (Object.keys(oiFaces[ifname]).length === 1) {
-              if (Object.keys(oiFaces[ifname])[0].internal === false)
-                jListInterfaces.push({
-                  name: ifname,
-                  address: Object.keys(oiFaces[ifname])[0].address,
-                });
-            } else {
-              let sAddresses = "";
-              oiFaces[ifname].forEach(function (iface) {
-                if (iface.internal === false) sAddresses += "+" + iface.address;
-              });
-              if (sAddresses !== "")
-                jListInterfaces.push({ name: ifname, address: sAddresses });
+          if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("KNXUltimate-config: Requested csv maybe from visu-ultimate?");
+          RED.nodes.eachNode(function (_node) {
+            if (_node.hasOwnProperty("csv") && _node.type == "knxUltimate-config" && _node.csv !== "") {
+              res.json(RED.nodes.getNode(_node.id).csv);
             }
           });
         } catch (error) {}
-        res.json(jListInterfaces);
       }
-    );
+    });
+
+    // 14/08/2019 Endpoint for retrieving the ethernet interfaces
+    RED.httpAdmin.get("/knxUltimateETHInterfaces", RED.auth.needsPermission("knxUltimate-config.read"), function (req, res) {
+      const oiFaces = oOS.networkInterfaces();
+      const jListInterfaces = [];
+      try {
+        Object.keys(oiFaces).forEach((ifname) => {
+          // Interface with single IP
+          if (Object.keys(oiFaces[ifname]).length === 1) {
+            if (Object.keys(oiFaces[ifname])[0].internal === false) jListInterfaces.push({
+              name: ifname,
+              address: Object.keys(oiFaces[ifname])[0].address,
+            });
+          } else {
+            let sAddresses = "";
+            oiFaces[ifname].forEach(function (iface) {
+              if (iface.internal === false) sAddresses += "+" + iface.address;
+            });
+            if (sAddresses !== "") jListInterfaces.push({ name: ifname, address: sAddresses });
+          }
+        });
+      } catch (error) {}
+      res.json(jListInterfaces);
+    });
 
     // 12/08/2021 Endpoint for deleting the GA persistent file for the current gateway
-    RED.httpAdmin.get(
-      "/deletePersistGAFile",
-      RED.auth.needsPermission("knxUltimate-config.read"),
-      function (req, res) {
-        if (
-          typeof req.query.nodeID !== "undefined" &&
-          req.query.nodeID !== null &&
-          req.query.nodeID !== ""
-        ) {
-          const sFile = path.join(
-            node.userDir,
-            "knxpersistvalues",
-            "knxpersist" + req.query.nodeID + ".json"
-          );
-          try {
-            fs.unlinkSync(sFile);
-          } catch (error) {}
-          res.json({ error: "No error" });
-        } else {
-          res.json({ error: "No NodeID specified" });
-        }
+    RED.httpAdmin.get("/deletePersistGAFile", RED.auth.needsPermission("knxUltimate-config.read"), function (req, res) {
+      if (typeof req.query.nodeID !== "undefined" && req.query.nodeID !== null && req.query.nodeID !== "") {
+        const sFile = path.join(node.userDir, "knxpersistvalues", "knxpersist" + req.query.nodeID + ".json");
+        try {
+          fs.unlinkSync(sFile);
+        } catch (error) {}
+        res.json({ error: "No error" });
+      } else {
+        res.json({ error: "No NodeID specified" });
       }
-    );
+    });
 
     // 16/02/2020 KNX-Ultimate nodes calls this function, then this funcion calls the same function on the Watchdog
     node.reportToWatchdogCalledByKNXUltimateNode = (_oError) => {
@@ -694,10 +475,7 @@ return msg;`,
       const readHistory = [];
       const delay = 0;
       node.nodeClients
-        .filter(
-          (_oClient) =>
-            _oClient.isWatchDog !== undefined && _oClient.isWatchDog === true
-        )
+        .filter((_oClient) => _oClient.isWatchDog !== undefined && _oClient.isWatchDog === true)
         .forEach((_oClient) => {
           const oClient = RED.nodes.getNode(_oClient.id);
           oClient.signalNodeErrorCalledByConfigNode(_oError);
@@ -733,8 +511,7 @@ return msg;`,
         const jNode = {};
         jNode.id = _Node.id;
         jNode.topic = _Node.topic;
-        if (_Node.hasOwnProperty("isWatchDog"))
-          jNode.isWatchDog = _Node.isWatchDog;
+        if (_Node.hasOwnProperty("isWatchDog")) jNode.isWatchDog = _Node.isWatchDog;
         jNode.initialread = _Node.initialread;
         jNode.notifywrite = _Node.notifywrite;
         jNode.notifyresponse = _Node.notifyresponse;
@@ -762,25 +539,15 @@ return msg;`,
       if (node.linkStatus !== "connected") return; // 29/08/2019 If not connected, exit
       loadExposedGAs(); // 04/04/2021 load the current values of GA payload
       try {
-        if (node.sysLogger !== undefined && node.sysLogger !== null)
-          node.sysLogger.info(
-            "KNXUltimate-config: Loaded saved GA values",
-            node.exposedGAs.length
-          );
+        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("KNXUltimate-config: Loaded saved GA values", node.exposedGAs.length);
       } catch (error) {}
-      if (node.sysLogger !== undefined && node.sysLogger !== null)
-        node.sysLogger.info(
-          "KNXUltimate-config: Do DoInitialReadFromKNXBusOrFile"
-        );
+      if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("KNXUltimate-config: Do DoInitialReadFromKNXBusOrFile");
       try {
         const readHistory = [];
 
         // First, read from file. This allow all virtual devices to get their values from file.
         node.nodeClients
-          .filter(
-            (_oClient) =>
-              _oClient.initialread === 2 || _oClient.initialread === 3
-          )
+          .filter((_oClient) => _oClient.initialread === 2 || _oClient.initialread === 3)
           .filter((_oClient) => _oClient.hasOwnProperty("isWatchDog") === false)
           .forEach((_oClient) => {
             const oClient = RED.nodes.getNode(_oClient.id); // 05/04/2022 Get the real node
@@ -793,9 +560,7 @@ return msg;`,
             } else {
               try {
                 if (node.exposedGAs.length > 0) {
-                  const oExposedGA = node.exposedGAs.find(
-                    (a) => a.ga === oClient.topic
-                  );
+                  const oExposedGA = node.exposedGAs.find((a) => a.ga === oClient.topic);
                   if (oExposedGA !== undefined) {
                     // Retrieve the value from exposedGAs
                     const msg = buildInputMessage({
@@ -822,9 +587,7 @@ return msg;`,
                     // 06/05/2021 If, after the rawdata has been savad to file, the user changes the datapoint, the buildInputMessage returns payload null, because it's unable to convert the value
                     if (msg.payload === null) {
                       // Delete the exposedGA
-                      node.exposedGAs = node.exposedGAs.filter(
-                        (item) => item.ga !== oClient.topic
-                      );
+                      node.exposedGAs = node.exposedGAs.filter((item) => item.ga !== oClient.topic);
                       oClient.setNodeStatus({
                         fill: "yellow",
                         shape: "dot",
@@ -834,20 +597,16 @@ return msg;`,
                         dpt: oClient.dpt,
                         devicename: oClient.devicename || "",
                       });
-                      if (
-                        node.sysLogger !== undefined &&
-                        node.sysLogger !== null
-                      )
-                        node.sysLogger.error(
-                          "knxUltimate-config: DoInitialReadFromKNXBusOrFile: Datapoint may have been changed, remove the value from persist file of " +
+                      if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(
+                        "knxUltimate-config: DoInitialReadFromKNXBusOrFile: Datapoint may have been changed, remove the value from persist file of " +
                             oClient.topic +
                             " Devicename " +
                             oClient.name +
                             " Currend DPT " +
                             oClient.dpt +
                             " Node.id " +
-                            oClient.id
-                        );
+                            oClient.id,
+                      );
                     } else {
                       if (oClient.notifyresponse) oClient.handleSend(msg);
                     }
@@ -855,14 +614,7 @@ return msg;`,
                     if (oClient.initialread === 3) {
                       // Not found, issue a READ to the bus
                       if (!readHistory.includes(oClient.topic)) {
-                        if (
-                          node.sysLogger !== undefined &&
-                          node.sysLogger !== null
-                        )
-                          node.sysLogger.debug(
-                            "KNXUltimate-config: DoInitialReadFromKNXBusOrFile 3: sent read request to GA " +
-                              oClient.topic
-                          );
+                        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.debug("KNXUltimate-config: DoInitialReadFromKNXBusOrFile 3: sent read request to GA " + oClient.topic);
                         oClient.setNodeStatus({
                           fill: "grey",
                           shape: "dot",
@@ -901,10 +653,7 @@ return msg;`,
             // 04/04/2020 selected READ FROM BUS 1
             if (oClient.hasOwnProperty("isalertnode") && oClient.isalertnode) {
               oClient.initialReadAllDevicesInRules();
-            } else if (
-              oClient.hasOwnProperty("isLoadControlNode") &&
-              oClient.isLoadControlNode
-            ) {
+            } else if (oClient.hasOwnProperty("isLoadControlNode") && oClient.isLoadControlNode) {
               oClient.initialReadAllDevicesInRules();
             } else if (oClient.listenallga === true) {
               for (let index = 0; index < node.csv.length; index++) {
@@ -918,11 +667,7 @@ return msg;`,
                     nodecallerid: element.id,
                   });
                   readHistory.push(element.ga);
-                  if (node.sysLogger !== undefined && node.sysLogger !== null)
-                    node.sysLogger.debug(
-                      "KNXUltimate-config: DoInitialReadFromKNXBusOrFile from Universal Node: sent read request to GA " +
-                        element.ga
-                    );
+                  if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.debug("KNXUltimate-config: DoInitialReadFromKNXBusOrFile from Universal Node: sent read request to GA " + element.ga);
                 }
               }
             } else {
@@ -935,11 +680,7 @@ return msg;`,
                   nodecallerid: oClient.id,
                 });
                 readHistory.push(oClient.topic);
-                if (node.sysLogger !== undefined && node.sysLogger !== null)
-                  node.sysLogger.debug(
-                    "KNXUltimate-config: DoInitialReadFromKNXBusOrFile: sent read request to GA " +
-                      oClient.topic
-                  );
+                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.debug("KNXUltimate-config: DoInitialReadFromKNXBusOrFile: sent read request to GA " + oClient.topic);
               }
             }
           });
@@ -954,30 +695,24 @@ return msg;`,
       /** @type {string} */ _sPhysicalAddress,
       /** @type {string} */ _sBindToEthernetInterface,
       /** @type {string} */ _Protocol,
-      /** @type {string} */ _CSV
+      /** @type {string} */ _CSV,
     ) => {
       if (typeof _sIP !== "undefined" && _sIP !== "") node.host = _sIP;
       if (typeof _iPort !== "undefined" && _iPort !== 0) node.port = _iPort;
-      if (typeof _sPhysicalAddress !== "undefined" && _sPhysicalAddress !== "")
-        node.physAddr = _sPhysicalAddress;
-      if (typeof _sBindToEthernetInterface !== "undefined")
-        node.KNXEthInterface = _sBindToEthernetInterface;
+      if (typeof _sPhysicalAddress !== "undefined" && _sPhysicalAddress !== "") node.physAddr = _sPhysicalAddress;
+      if (typeof _sBindToEthernetInterface !== "undefined") node.KNXEthInterface = _sBindToEthernetInterface;
       if (typeof _Protocol !== "undefined") node.hostProtocol = _Protocol;
       if (typeof _CSV !== "undefined" && _CSV !== "") {
         try {
           const sTemp = readCSV(_CSV); // 27/09/2022 Set the new CSV
           node.csv = sTemp;
         } catch (error) {
-          if (node.sysLogger !== undefined && node.sysLogger !== null)
-            node.sysLogger.info(
-              "Node's main config setting error. " + error.message || ""
-            );
+          if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("Node's main config setting error. " + error.message || "");
         }
       }
 
-      if (node.sysLogger !== undefined && node.sysLogger !== null)
-        node.sysLogger.info(
-          "Node's main config setting has been changed. New config: IP " +
+      if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info(
+        "Node's main config setting has been changed. New config: IP " +
             node.host +
             " Port " +
             node.port +
@@ -985,23 +720,14 @@ return msg;`,
             node.physAddr +
             " BindToInterface " +
             node.KNXEthInterface +
-            (typeof _CSV !== "undefined" && _CSV !== ""
-              ? ". A new group address CSV has been imported."
-              : "")
-        );
+            (typeof _CSV !== "undefined" && _CSV !== "" ? ". A new group address CSV has been imported." : ""),
+      );
 
       try {
         node.Disconnect();
         // node.setKnxConnectionProperties(); // 28/12/2021 Commented
-        node.setAllClientsStatus(
-          "CONFIG",
-          "yellow",
-          "KNXUltimage-config:setGatewayConfig: disconnected by new setting..."
-        );
-        if (node.sysLogger !== undefined && node.sysLogger !== null)
-          node.sysLogger.debug(
-            "KNXUltimage-config:setGatewayConfig: disconnected by setGatewayConfig."
-          );
+        node.setAllClientsStatus("CONFIG", "yellow", "KNXUltimage-config:setGatewayConfig: disconnected by new setting...");
+        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.debug("KNXUltimage-config:setGatewayConfig: disconnected by setGatewayConfig.");
       } catch (error) {}
     };
 
@@ -1009,28 +735,21 @@ return msg;`,
     // This new thing has been requested by proServ RealKNX staff.
     node.connectGateway = (_bConnection) => {
       if (_bConnection === undefined) return;
-      if (node.sysLogger !== undefined && node.sysLogger !== null)
-        node.sysLogger.info(
-          (_bConnection === true
-            ? "Forced connection from watchdog"
-            : "Forced disconnection from watchdog") +
+      if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info(
+        (_bConnection === true ? "Forced connection from watchdog" : "Forced disconnection from watchdog") +
             node.host +
             " Port " +
             node.port +
             " PhysicalAddress " +
             node.physAddr +
             " BindToInterface " +
-            node.KNXEthInterface
-        );
+            node.KNXEthInterface,
+      );
       if (_bConnection === true) {
         // CONNECT AND ENABLE RECONNECTION ATTEMPTS
         try {
           node.Disconnect();
-          node.setAllClientsStatus(
-            "CONFIG",
-            "yellow",
-            "Forced GW connection from watchdog."
-          );
+          node.setAllClientsStatus("CONFIG", "yellow", "Forced GW connection from watchdog.");
           node.autoReconnect = true;
         } catch (error) {}
       } else {
@@ -1040,11 +759,7 @@ return msg;`,
           node.Disconnect();
           const t = setTimeout(() => {
             // 21/03/2022 fixed possible memory leak. Previously was setTimeout without "let t = ".
-            node.setAllClientsStatus(
-              "CONFIG",
-              "yellow",
-              "Forced GW disconnection and stop reconnection attempts, from watchdog."
-            );
+            node.setAllClientsStatus("CONFIG", "yellow", "Forced GW disconnection and stop reconnection attempts, from watchdog.");
           }, 2000);
         } catch (error) {}
       }
@@ -1090,31 +805,21 @@ return msg;`,
           try {
             resolvedIP = dns.resolve(node.host);
           } catch (error) {
-            throw new Error(
-              "net.isIP: INVALID IP OR DNS NAME. Error checking the Gateway Host in Config node. " +
-                error.message
-            );
+            throw new Error("net.isIP: INVALID IP OR DNS NAME. Error checking the Gateway Host in Config node. " + error.message);
           }
           if (resolvedIP === null || net.isIP(resolvedIP) === 0) {
             // Error in resolving DNS Name
-            if (node.sysLogger !== undefined && node.sysLogger !== null)
-              node.sysLogger.error(
-                "knxUltimate-config: net.isIP: INVALID IP OR DNS NAME. Check the Gateway Host in Config node " +
-                  node.name +
-                  " " +
-                  node.host
-              );
-            throw new Error(
-              "net.isIP: INVALID IP OR DNS NAME. Check the Gateway Host in Config node."
+            if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(
+              "knxUltimate-config: net.isIP: INVALID IP OR DNS NAME. Check the Gateway Host in Config node " + node.name + " " + node.host,
             );
+            throw new Error("net.isIP: INVALID IP OR DNS NAME. Check the Gateway Host in Config node.");
           }
-          if (node.sysLogger !== undefined && node.sysLogger !== null)
-            node.sysLogger.info(
-              "knxUltimate-config: net.isIP: The gateway is not specified as IP. The DNS resolver pointed me to the IP " +
+          if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info(
+            "knxUltimate-config: net.isIP: The gateway is not specified as IP. The DNS resolver pointed me to the IP " +
                 node.host +
                 ", in Config node " +
-                node.name
-            );
+                node.name,
+          );
           node.knxConnectionProperties.ipAddr = resolvedIP;
         case 4:
           // It's an IPv4
@@ -1130,22 +835,12 @@ return msg;`,
         let sIfaceName = "";
         if (node.KNXEthInterface === "Manual") {
           sIfaceName = node.KNXEthInterfaceManuallyInput;
-          if (node.sysLogger !== undefined && node.sysLogger !== null)
-            node.sysLogger.info(
-              "KNXUltimate-config: Bind KNX Bus to interface : " +
-                sIfaceName +
-                " (Interface's name entered by hand). Node " +
-                node.name
-            );
+          if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("KNXUltimate-config: Bind KNX Bus to interface : " + sIfaceName + " (Interface's name entered by hand). Node " + node.name);
         } else {
           sIfaceName = node.KNXEthInterface;
-          if (node.sysLogger !== undefined && node.sysLogger !== null)
-            node.sysLogger.info(
-              "KNXUltimate-config: Bind KNX Bus to interface : " +
-                sIfaceName +
-                " (Interface's name selected from dropdown list). Node " +
-                node.name
-            );
+          if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info(
+            "KNXUltimate-config: Bind KNX Bus to interface : " + sIfaceName + " (Interface's name selected from dropdown list). Node " + node.name,
+          );
         }
         node.knxConnectionProperties.interface = sIfaceName;
       } else {
@@ -1153,11 +848,7 @@ return msg;`,
         try {
           delete node.knxConnectionProperties.interface;
         } catch (error) {}
-        if (node.sysLogger !== undefined && node.sysLogger !== null)
-          node.sysLogger.info(
-            "KNXUltimate-config: Bind KNX Bus to interface (Auto). Node " +
-              node.name
-          );
+        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("KNXUltimate-config: Bind KNX Bus to interface (Auto). Node " + node.name);
       }
     };
     // node.setKnxConnectionProperties(); 28/12/2021 Commented
@@ -1166,10 +857,7 @@ return msg;`,
       try {
         node.setKnxConnectionProperties(); // 28/12/2021 Added
       } catch (error) {
-        if (node.sysLogger !== undefined && node.sysLogger !== null)
-          node.sysLogger.error(
-            "knxUltimate-config: setKnxConnectionProperties: " + error.message
-          );
+        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("knxUltimate-config: setKnxConnectionProperties: " + error.message);
         if (node.linkStatus !== "disconnected") node.Disconnect();
         return;
       }
@@ -1178,10 +866,7 @@ return msg;`,
       // At start, initKNXConnection is already called only if the gateway has clients, but in the successive calls from the error handler, this check is not done.
       if (node.nodeClients.length === 0) {
         try {
-          if (node.sysLogger !== undefined && node.sysLogger !== null)
-            node.sysLogger.info(
-              "knxUltimate-config: No nodes linked to this gateway " + node.name
-            );
+          if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("knxUltimate-config: No nodes linked to this gateway " + node.name);
           try {
             if (node.linkStatus !== "disconnected") node.Disconnect();
           } catch (error) {}
@@ -1200,15 +885,11 @@ return msg;`,
         // Unsetting handlers if node.knxConnection was existing
         try {
           if (node.knxConnection !== null && node.knxConnection !== undefined) {
-            if (node.sysLogger !== undefined && node.sysLogger !== null)
-              node.sysLogger.debug(
-                "knxUltimate-config: removing old handlers. Node " + node.name
-              );
+            if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.debug("knxUltimate-config: removing old handlers. Node " + node.name);
             node.knxConnection.removeAllListeners();
           }
         } catch (error) {
-          if (node.sysLogger !== undefined && node.sysLogger !== null)
-            node.sysLogger.info("BANANA ERRORINO", error);
+          if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("BANANA ERRORINO", error);
         }
 
         //node.knxConnectionProperties.localSocketAddress = { address: '192.168.2.2', port: 59000 }
@@ -1216,168 +897,86 @@ return msg;`,
 
         // Setting handlers
         // ######################################
-        node.knxConnection.on(
-          knx.KNXClient.KNXClientEvents.indication,
-          handleBusEvents
-        );
+        node.knxConnection.on(knx.KNXClient.KNXClientEvents.indication, handleBusEvents);
         node.knxConnection.on(knx.KNXClient.KNXClientEvents.error, (err) => {
           try {
-            if (node.sysLogger !== undefined && node.sysLogger !== null)
-              node.sysLogger.error(
-                "knxUltimate-config: received KNXClientEvents.error: " +
-                  (err.message === undefined ? err : err.message)
-              );
+            if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("knxUltimate-config: received KNXClientEvents.error: " + (err.message === undefined ? err : err.message));
           } catch (error) {}
           // 31/03/2022 Don't care about some errors
-          if (
-            err.message !== undefined &&
-            (err.message === "ROUTING_LOST_MESSAGE" ||
-              err.message === "ROUTING_BUSY")
-          ) {
-            if (node.sysLogger !== undefined && node.sysLogger !== null)
-              node.sysLogger.error(
-                "knxUltimate-config: KNXClientEvents.error: " +
+          if (err.message !== undefined && (err.message === "ROUTING_LOST_MESSAGE" || err.message === "ROUTING_BUSY")) {
+            if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(
+              "knxUltimate-config: KNXClientEvents.error: " +
                   (err.message === undefined ? err : err.message) +
-                  " consider DECREASING the transmission speed, by increasing the telegram's DELAY in the gateway configuration node!"
-              );
+                  " consider DECREASING the transmission speed, by increasing the telegram's DELAY in the gateway configuration node!",
+            );
             return;
           }
-          node.Disconnect(
-            "Disconnected by error " +
-              (err.message === undefined ? err : err.message),
-            "red"
-          );
-          if (node.sysLogger !== undefined && node.sysLogger !== null)
-            node.sysLogger.error(
-              "knxUltimate-config: Disconnected by: " +
-                (err.message === undefined ? err : err.message)
-            );
+          node.Disconnect("Disconnected by error " + (err.message === undefined ? err : err.message), "red");
+          if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("knxUltimate-config: Disconnected by: " + (err.message === undefined ? err : err.message));
         });
         // Call discoverCB when a knx gateway has been discovered.
         // node.knxConnection.on(knx.KNXClient.KNXClientEvents.discover, info => {
         //     const [ip, port] = info.split(":");
         //     discoverCB(ip, port);
         // });
-        node.knxConnection.on(
-          knx.KNXClient.KNXClientEvents.disconnected,
-          (info) => {
-            node.startTimerClearTelegramQueue(); // 21/01/2022 Clear the telegram queue after a while
-            if (node.linkStatus !== "disconnected") {
-              node.linkStatus = "disconnected";
-              if (node.sysLogger !== undefined && node.sysLogger !== null)
-                node.sysLogger.warn(
-                  "knxUltimate-config: Disconnected event %s",
-                  info
-                );
-              node.Disconnect("Disconnected by event: " + info || "", "red"); // 11/03/2022
-            }
+        node.knxConnection.on(knx.KNXClient.KNXClientEvents.disconnected, (info) => {
+          node.startTimerClearTelegramQueue(); // 21/01/2022 Clear the telegram queue after a while
+          if (node.linkStatus !== "disconnected") {
+            node.linkStatus = "disconnected";
+            if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.warn("knxUltimate-config: Disconnected event %s", info);
+            node.Disconnect("Disconnected by event: " + info || "", "red"); // 11/03/2022
           }
-        );
-        node.knxConnection.on(knx.KNXClient.KNXClientEvents.close, (info) => {
-          if (node.sysLogger !== undefined && node.sysLogger !== null)
-            node.sysLogger.debug(
-              "knxUltimate-config: KNXClient socket closed."
-            );
         });
-        node.knxConnection.on(
-          knx.KNXClient.KNXClientEvents.connected,
-          (info) => {
-            if (node.timerClearTelegramQueue !== null) {
-              clearTimeout(node.timerClearTelegramQueue); // Connected. Stop the timer that clears the telegrams queue.
-              node.timerClearTelegramQueue = null;
-            }
-            // 12/11/2021 Starts the telegram out queue handler
-            if (node.timerSendTelegramFromQueue !== null)
-              clearInterval(node.timerSendTelegramFromQueue);
-            node.timerSendTelegramFromQueue = setInterval(
-              handleTelegramQueue,
-              config.delaybetweentelegrams === undefined ||
-                Number(config.delaybetweentelegrams) < 20
-                ? 20
-                : Number(config.delaybetweentelegrams)
-            ); // 02/01/2020 Start the timer that handles the queue of telegrams
-            node.linkStatus = "connected";
+        node.knxConnection.on(knx.KNXClient.KNXClientEvents.close, (info) => {
+          if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.debug("knxUltimate-config: KNXClient socket closed.");
+        });
+        node.knxConnection.on(knx.KNXClient.KNXClientEvents.connected, (info) => {
+          if (node.timerClearTelegramQueue !== null) {
+            clearTimeout(node.timerClearTelegramQueue); // Connected. Stop the timer that clears the telegrams queue.
+            node.timerClearTelegramQueue = null;
+          }
+          // 12/11/2021 Starts the telegram out queue handler
+          if (node.timerSendTelegramFromQueue !== null) clearInterval(node.timerSendTelegramFromQueue);
+          node.timerSendTelegramFromQueue = setInterval(
+            handleTelegramQueue,
+            config.delaybetweentelegrams === undefined || Number(config.delaybetweentelegrams) < 20 ? 20 : Number(config.delaybetweentelegrams),
+          ); // 02/01/2020 Start the timer that handles the queue of telegrams
+          node.linkStatus = "connected";
 
-            // Start the timer to do initial read.
-            if (node.timerDoInitialRead !== null)
-              clearTimeout(node.timerDoInitialRead);
-            node.timerDoInitialRead = setTimeout(
-              DoInitialReadFromKNXBusOrFile,
-              6000
-            ); // 17/02/2020 Do initial read of all nodes requesting initial read
-            const t = setTimeout(() => {
-              // 21/03/2022 fixed possible memory leak. Previously was setTimeout without "let t = ".
-              node.setAllClientsStatus("Connected.", "green", "On duty.");
-            }, 500);
-            if (node.sysLogger !== undefined && node.sysLogger !== null)
-              node.sysLogger.info("knxUltimate-config: Connected to %o", info);
-          }
-        );
-        node.knxConnection.on(
-          knx.KNXClient.KNXClientEvents.connecting,
-          (info) => {
-            node.linkStatus = "connecting";
-            if (node.sysLogger !== undefined && node.sysLogger !== null)
-              node.sysLogger.debug(
-                "knxUltimate-config: Connecting to" + info.ipAddr || ""
-              );
-            node.setAllClientsStatus(
-              info.ipAddr || "",
-              "grey",
-              "Connecting..."
-            );
-          }
-        );
+          // Start the timer to do initial read.
+          if (node.timerDoInitialRead !== null) clearTimeout(node.timerDoInitialRead);
+          node.timerDoInitialRead = setTimeout(DoInitialReadFromKNXBusOrFile, 6000); // 17/02/2020 Do initial read of all nodes requesting initial read
+          const t = setTimeout(() => {
+            // 21/03/2022 fixed possible memory leak. Previously was setTimeout without "let t = ".
+            node.setAllClientsStatus("Connected.", "green", "On duty.");
+          }, 500);
+          if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("knxUltimate-config: Connected to %o", info);
+        });
+        node.knxConnection.on(knx.KNXClient.KNXClientEvents.connecting, (info) => {
+          node.linkStatus = "connecting";
+          if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.debug("knxUltimate-config: Connecting to" + info.ipAddr || "");
+          node.setAllClientsStatus(info.ipAddr || "", "grey", "Connecting...");
+        });
         // ######################################
 
         node.setAllClientsStatus("Connecting... ", "grey", "");
-        if (node.sysLogger !== undefined && node.sysLogger !== null)
-          node.sysLogger.info(
-            "knxUltimate-config: perform websocket connection on " + node.name
-          );
+        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("knxUltimate-config: perform websocket connection on " + node.name);
         try {
-          if (node.sysLogger !== undefined && node.sysLogger !== null)
-            node.sysLogger.info(
-              "KNXUltimate-config: Connecting... " + node.name
-            );
+          if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("KNXUltimate-config: Connecting... " + node.name);
           node.knxConnection.Connect();
         } catch (error) {
-          if (node.sysLogger !== undefined && node.sysLogger !== null)
-            node.sysLogger.error(
-              "KNXUltimate-config: node.knxConnection.Connect() " +
-                node.name +
-                ": " +
-                error.message
-            );
+          if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("KNXUltimate-config: node.knxConnection.Connect() " + node.name + ": " + error.message);
           node.linkStatus = "disconnected";
           throw error;
         }
       } catch (error) {
         if (node.sysLogger !== undefined && node.sysLogger !== null) {
-          node.sysLogger.error(
-            "KNXUltimate-config: Error in instantiating knxConnection " +
-              error.message +
-              " Node " +
-              node.name
-          );
-          node.error(
-            "KNXUltimate-config: Error in instantiating knxConnection " +
-              error.message +
-              " Node " +
-              node.name
-          );
+          node.sysLogger.error("KNXUltimate-config: Error in instantiating knxConnection " + error.message + " Node " + node.name);
+          node.error("KNXUltimate-config: Error in instantiating knxConnection " + error.message + " Node " + node.name);
         }
         node.linkStatus = "disconnected";
         // 21/03/2022 fixed possible memory leak. Previously was setTimeout without "let t = ".
-        const t = setTimeout(
-          () =>
-            node.setAllClientsStatus(
-              "Error in instantiating knxConnection " + error.message,
-              "red",
-              "Error"
-            ),
-          200
-        );
+        const t = setTimeout(() => node.setAllClientsStatus("Error in instantiating knxConnection " + error.message, "red", "Error"), 200);
       }
     };
 
@@ -1395,8 +994,7 @@ return msg;`,
 
       let _evt = null;
       if (_datagram.cEMIMessage.npdu.isGroupRead) _evt = "GroupValue_Read";
-      if (_datagram.cEMIMessage.npdu.isGroupResponse)
-        _evt = "GroupValue_Response";
+      if (_datagram.cEMIMessage.npdu.isGroupResponse) _evt = "GroupValue_Response";
       if (_datagram.cEMIMessage.npdu.isGroupWrite) _evt = "GroupValue_Write";
 
       let _src = null;
@@ -1408,15 +1006,7 @@ return msg;`,
       const isRepeated = _datagram.cEMIMessage.control.repeat !== 1;
       // 06/06/2021 Supergiovane: check if i can handle the telegrams with "Repeated" flag
       if (node.ignoreTelegramsWithRepeatedFlag === true && isRepeated) {
-        if (node.sysLogger !== undefined && node.sysLogger !== null)
-          node.sysLogger.warn(
-            "KNXUltimate-config: Ignored telegram with Repeated Flag " +
-              _evt +
-              " Src:" +
-              _src +
-              " Dest:" +
-              _dest
-          );
+        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.warn("KNXUltimate-config: Ignored telegram with Repeated Flag " + _evt + " Src:" + _src + " Dest:" + _dest);
         return;
       }
 
@@ -1427,9 +1017,7 @@ return msg;`,
         // I'm sending a telegram to the BUS in Tunneling mode, with echo enabled.
         // Tunnel: TX to BUS: OK
         try {
-          const sCemiFromDatagram = _datagram.cEMIMessage
-            .toBuffer()
-            .toString("hex");
+          const sCemiFromDatagram = _datagram.cEMIMessage.toBuffer().toString("hex");
           _cemiETS = "2900BCD0" + sCemiFromDatagram.substr(8);
         } catch (error) {
           _cemiETS = "";
@@ -1448,11 +1036,7 @@ return msg;`,
       // #####################################################################
 
       // 04/04/2021 Supergiovane: save value to node.exposedGAs
-      if (
-        typeof _dest === "string" &&
-        _rawValue !== undefined &&
-        (_evt === "GroupValue_Write" || _evt === "GroupValue_Response")
-      ) {
+      if (typeof _dest === "string" && _rawValue !== undefined && (_evt === "GroupValue_Write" || _evt === "GroupValue_Response")) {
         try {
           node.exposedGAs = node.exposedGAs.filter((item) => item.ga !== _dest); // Remove previous
           node.exposedGAs.push({ ga: _dest, rawValue: _rawValue }); // add the new
@@ -1514,10 +1098,7 @@ return msg;`,
                     for (let i = 0; i < input.rules.length; i++) {
                       // rule is { topic: rowRuleTopic, devicename: rowRuleDeviceName, dpt:rowRuleDPT, send: rowRuleSend}
                       const oDevice = input.rules[i];
-                      if (
-                        typeof oDevice !== "undefined" &&
-                        oDevice.topic == _dest
-                      ) {
+                      if (typeof oDevice !== "undefined" && oDevice.topic == _dest) {
                         const msg = buildInputMessage({
                           _srcGA: _src,
                           _destGA: _dest,
@@ -1573,10 +1154,7 @@ return msg;`,
                   _event: _evt,
                   _Rawvalue: _rawValue,
                   _inputDpt: typeof oGA === "undefined" ? null : oGA.dpt,
-                  _devicename:
-                    typeof oGA === "undefined"
-                      ? input.name || ""
-                      : oGA.devicename,
+                  _devicename: typeof oGA === "undefined" ? input.name || "" : oGA.devicename,
                   _outputtopic: _dest,
                   _oNode: input,
                 });
@@ -1618,10 +1196,7 @@ return msg;`,
                     });
                     return;
                   }
-                  msg.previouspayload =
-                    typeof input.currentPayload !== "undefined"
-                      ? input.currentPayload
-                      : ""; // 24/01/2020 Added previous payload
+                  msg.previouspayload = typeof input.currentPayload !== "undefined" ? input.currentPayload : ""; // 24/01/2020 Added previous payload
                   input.currentPayload = msg.payload; // Set the current value for the RBE input
                   input.setNodeStatus({
                     fill: "green",
@@ -1668,10 +1243,7 @@ return msg;`,
                   _event: _evt,
                   _Rawvalue: _rawValue,
                   _inputDpt: typeof oGA === "undefined" ? null : oGA.dpt,
-                  _devicename:
-                    typeof oGA === "undefined"
-                      ? input.name || ""
-                      : oGA.devicename,
+                  _devicename: typeof oGA === "undefined" ? input.name || "" : oGA.devicename,
                   _outputtopic: _dest,
                   _oNode: input,
                 });
@@ -1712,10 +1284,7 @@ return msg;`,
                     });
                     return;
                   }
-                  msg.previouspayload =
-                    typeof input.currentPayload !== "undefined"
-                      ? input.currentPayload
-                      : ""; // 24/01/2020 Added previous payload
+                  msg.previouspayload = typeof input.currentPayload !== "undefined" ? input.currentPayload : ""; // 24/01/2020 Added previous payload
                   input.currentPayload = msg.payload; // Set the current value for the RBE input
                   input.setNodeStatus({
                     fill: "blue",
@@ -1763,10 +1332,7 @@ return msg;`,
                   _event: _evt,
                   _Rawvalue: null,
                   _inputDpt: typeof oGA === "undefined" ? null : oGA.dpt,
-                  _devicename:
-                    typeof oGA === "undefined"
-                      ? input.name || ""
-                      : oGA.devicename,
+                  _devicename: typeof oGA === "undefined" ? input.name || "" : oGA.devicename,
                   _outputtopic: _dest,
                   _oNode: input,
                 });
@@ -1796,25 +1362,14 @@ return msg;`,
                     _outputtopic: input.outputtopic,
                     _oNode: input,
                   });
-                  msg.previouspayload =
-                    typeof input.currentPayload !== "undefined"
-                      ? input.currentPayload
-                      : ""; // 24/01/2020 Reset previous payload
+                  msg.previouspayload = typeof input.currentPayload !== "undefined" ? input.currentPayload : ""; // 24/01/2020 Reset previous payload
                   // 24/09/2019 Autorespond to BUS
-                  if (
-                    input.hasOwnProperty("notifyreadrequestalsorespondtobus") &&
-                    input.notifyreadrequestalsorespondtobus === true
-                  ) {
-                    if (
-                      typeof input.currentPayload === "undefined" ||
-                      input.currentPayload === "" ||
-                      input.currentPayload === null
-                    ) {
+                  if (input.hasOwnProperty("notifyreadrequestalsorespondtobus") && input.notifyreadrequestalsorespondtobus === true) {
+                    if (typeof input.currentPayload === "undefined" || input.currentPayload === "" || input.currentPayload === null) {
                       // 14/08/2021 Added || input.currentPayload === null
                       node.writeQueueAdd({
                         grpaddr: _dest,
-                        payload:
-                          input.notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized,
+                        payload: input.notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized,
                         dpt: input.dpt,
                         outputtype: "response",
                         nodecallerid: input.id,
@@ -1823,8 +1378,7 @@ return msg;`,
                         fill: "blue",
                         shape: "ring",
                         text: "Read & Autorespond with default",
-                        payload:
-                          input.notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized,
+                        payload: input.notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized,
                         GA: input.topic,
                         dpt: msg.knx.dpt,
                         devicename: "",
@@ -1841,8 +1395,7 @@ return msg;`,
                         fill: "blue",
                         shape: "ring",
                         text: "Read & Autorespond with default",
-                        payload:
-                          input.notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized,
+                        payload: input.notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized,
                         GA: input.topic,
                         dpt: msg.knx.dpt,
                         devicename: "",
@@ -1893,10 +1446,7 @@ return msg;`,
         node.lockHandleTelegramQueue = true; // Lock the function. It cannot be called again until finished.
 
         // 16/08/2021 If not connected, exit
-        if (
-          node.linkStatus !== "connected" ||
-          node.telegramsQueue.length === 0
-        ) {
+        if (node.linkStatus !== "connected" || node.telegramsQueue.length === 0) {
           node.lockHandleTelegramQueue = false; // Unlock the function
           return;
         }
@@ -1905,28 +1455,22 @@ return msg;`,
         if (!node.knxConnection._getClearToSend()) {
           node.lockHandleTelegramQueue = false; // Unlock the function
           if (node.telegramsQueue.length > 0) {
-            if (node.sysLogger !== undefined && node.sysLogger !== null)
-              node.sysLogger.warn(
-                "knxUltimate-config: handleTelegramQueue: the KNXEngine is busy or is waiting for a telegram ACK with seqNumner " +
+            if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.warn(
+              "knxUltimate-config: handleTelegramQueue: the KNXEngine is busy or is waiting for a telegram ACK with seqNumner " +
                   node.knxConnection._getSeqNumber() +
-                  ". Delay handling queue."
-              );
+                  ". Delay handling queue.",
+            );
           }
           return;
         }
 
         // Retrieving oKNXMessage  { grpaddr, payload,dpt,outputtype (write or response),nodecallerid (node caller)}. 06/03/2020 "Read" request does have the lower priority in the queue, so firstly, i search for "read" telegrams and i move it on the top of the queue pile.
         let aTelegramsFiltered = [];
-        aTelegramsFiltered = node.telegramsQueue.filter(
-          (a) => a.outputtype !== "read"
-        );
+        aTelegramsFiltered = node.telegramsQueue.filter((a) => a.outputtype !== "read");
 
         if (aTelegramsFiltered.length == 0) {
           // There are no write nor response telegrams, handle the remaining "read", if any
-          if (
-            node.delaybetweentelegramsREADCount >=
-            node.delaybetweentelegramsfurtherdelayREAD
-          ) {
+          if (node.delaybetweentelegramsREADCount >= node.delaybetweentelegramsfurtherdelayREAD) {
             // 18/05/2020 delay multiplicator only for "read" telegrams.
             node.delaybetweentelegramsREADCount = 0;
             aTelegramsFiltered = node.telegramsQueue;
@@ -1943,19 +1487,12 @@ return msg;`,
 
         // 19/01/2023 FORMATTING THE OUTPUT PAYLOAD (ROUND, ETC) BASED ON THE NODE CONFIG
         //* ********************************************************
-        oKNXMessage.payload = payloadRounder.Manipulate(
-          RED.nodes.getNode(oKNXMessage.nodecallerid),
-          oKNXMessage.payload
-        );
+        oKNXMessage.payload = payloadRounder.Manipulate(RED.nodes.getNode(oKNXMessage.nodecallerid), oKNXMessage.payload);
         //* ********************************************************
 
         if (oKNXMessage.outputtype === "response") {
           try {
-            node.knxConnection.respond(
-              oKNXMessage.grpaddr,
-              oKNXMessage.payload,
-              oKNXMessage.dpt
-            );
+            node.knxConnection.respond(oKNXMessage.grpaddr, oKNXMessage.payload, oKNXMessage.dpt);
           } catch (error) {
             try {
               const oNode = RED.nodes.getNode(oKNXMessage.nodecallerid); // 05/04/2022 Get the real node
@@ -2008,8 +1545,7 @@ return msg;`,
                     payload: oKNXMessage.payload,
                     devicename: input.name ? input.name : "",
                     event: "Update_NoWrite",
-                    eventdesc:
-                      "The value has been updated from another node and hasn't been received from KNX BUS",
+                    eventdesc: "The value has been updated from another node and hasn't been received from KNX BUS",
                   };
                   // Check RBE INPUT from KNX Bus, to avoid send the payload to the flow, if it's equal to the current payload
                   if (!checkRBEInputFromKNXBusAllowSend(input, msg.payload)) {
@@ -2025,10 +1561,7 @@ return msg;`,
                     node.lockHandleTelegramQueue = false; // Unlock the function
                     return;
                   }
-                  msg.previouspayload =
-                    typeof input.currentPayload !== "undefined"
-                      ? input.currentPayload
-                      : ""; // 24/01/2020 Added previous payload
+                  msg.previouspayload = typeof input.currentPayload !== "undefined" ? input.currentPayload : ""; // 24/01/2020 Added previous payload
                   input.currentPayload = msg.payload; // Set the current value for the RBE input
                   input.setNodeStatus({
                     fill: "green",
@@ -2047,11 +1580,7 @@ return msg;`,
         } else {
           // Write
           try {
-            node.knxConnection.write(
-              oKNXMessage.grpaddr,
-              oKNXMessage.payload,
-              oKNXMessage.dpt
-            );
+            node.knxConnection.write(oKNXMessage.grpaddr, oKNXMessage.payload, oKNXMessage.dpt);
           } catch (error) {
             try {
               const oNode = RED.nodes.getNode(oKNXMessage.nodecallerid); // 05/04/2022 Get the real node
@@ -2106,11 +1635,7 @@ return msg;`,
         return "16.001"; // Text ?
       } else {
         // Dont' know, try until no errors
-        const dpts = Object.entries(dptlib)
-          .filter(onlyDptKeys)
-          .map(extractBaseNo)
-          .sort(sortBy("base"))
-          .reduce(toConcattedSubtypes, []);
+        const dpts = Object.entries(dptlib).filter(onlyDptKeys).map(extractBaseNo).sort(sortBy("base")).reduce(toConcattedSubtypes, []);
         for (let index = 0; index < dpts.length; index++) {
           const element = dpts[index];
           try {
@@ -2126,22 +1651,11 @@ return msg;`,
             }
           } catch (error) {}
         }
-        throw new Error(
-          "tryToFigureOutDataPointFromRawValue: no suitable datapoint found"
-        ); // 24/08/2021 Return error if no DPT
+        throw new Error("tryToFigureOutDataPointFromRawValue: no suitable datapoint found"); // 24/08/2021 Return error if no DPT
       }
     }
 
-    function buildInputMessage({
-      _srcGA,
-      _destGA,
-      _event,
-      _Rawvalue,
-      _inputDpt,
-      _devicename,
-      _outputtopic,
-      _oNode,
-    }) {
+    function buildInputMessage({ _srcGA, _destGA, _event, _Rawvalue, _inputDpt, _devicename, _outputtopic, _oNode }) {
       let sPayloadmeasureunit = "unknown";
       let sDptdesc = "unknown";
       let sPayloadsubtypevalue = "unknown";
@@ -2168,15 +1682,11 @@ return msg;`,
       // Resolve DPT and convert value if available
       if (_Rawvalue !== null) {
         try {
-          sInputDpt =
-            _inputDpt === null
-              ? tryToFigureOutDataPointFromRawValue(_Rawvalue)
-              : _inputDpt;
+          sInputDpt = _inputDpt === null ? tryToFigureOutDataPointFromRawValue(_Rawvalue) : _inputDpt;
         } catch (error) {
           // Here comes if no datapoint has beeen found
-          if (node.sysLogger !== undefined && node.sysLogger !== null)
-            node.sysLogger.error(
-              "knxUltimate-config: buildInputMessage: Error returning from tryToFigureOutDataPointFromRawValue. Device " +
+          if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(
+            "knxUltimate-config: buildInputMessage: Error returning from tryToFigureOutDataPointFromRawValue. Device " +
                 _srcGA +
                 " Destination " +
                 _destGA +
@@ -2191,20 +1701,17 @@ return msg;`,
                 " Topic " +
                 _outputtopic +
                 " " +
-                error.message
-            );
-          errorMessage.payload =
-            "UNKNOWN: ERROR tryToFigureOutDataPointFromRawValue:" +
-            error.message;
+                error.message,
+          );
+          errorMessage.payload = "UNKNOWN: ERROR tryToFigureOutDataPointFromRawValue:" + error.message;
           return errorMessage;
         }
 
         try {
           var dpt = dptlib.resolve(sInputDpt);
         } catch (error) {
-          if (node.sysLogger !== undefined && node.sysLogger !== null)
-            node.sysLogger.error(
-              "knxUltimate-config: buildInputMessage: Error returning from dptlib.resolve(sInputDpt). Device " +
+          if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(
+            "knxUltimate-config: buildInputMessage: Error returning from dptlib.resolve(sInputDpt). Device " +
                 _srcGA +
                 " Destination " +
                 _destGA +
@@ -2219,10 +1726,9 @@ return msg;`,
                 " Topic " +
                 _outputtopic +
                 " " +
-                error.message
-            );
-          errorMessage.payload =
-            "UNKNOWN: ERROR dptlib.resolve:" + error.messages;
+                error.message,
+          );
+          errorMessage.payload = "UNKNOWN: ERROR dptlib.resolve:" + error.messages;
           return errorMessage;
         }
 
@@ -2230,9 +1736,8 @@ return msg;`,
           try {
             jsValue = dptlib.fromBuffer(_Rawvalue, dpt);
             if (jsValue === null) {
-              if (node.sysLogger !== undefined && node.sysLogger !== null)
-                node.sysLogger.error(
-                  "knxUltimate-config: buildInputMessage: received a wrong datagram form KNX BUS, from device " +
+              if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(
+                "knxUltimate-config: buildInputMessage: received a wrong datagram form KNX BUS, from device " +
                     _srcGA +
                     " Destination " +
                     _destGA +
@@ -2247,13 +1752,12 @@ return msg;`,
                     " Topic " +
                     _outputtopic +
                     " NodeID " +
-                    _oNode.id || ""
-                );
+                    _oNode.id || "",
+              );
             }
           } catch (error) {
-            if (node.sysLogger !== undefined && node.sysLogger !== null)
-              node.sysLogger.error(
-                "knxUltimate-config: buildInputMessage: Error returning from DPT decoding. Device " +
+            if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(
+              "knxUltimate-config: buildInputMessage: Error returning from DPT decoding. Device " +
                   _srcGA +
                   " Destination " +
                   _destGA +
@@ -2270,10 +1774,9 @@ return msg;`,
                   " " +
                   error.message +
                   " NodeID " +
-                  _oNode.id || ""
-              );
-            errorMessage.payload =
-              "UNKNOWN: ERROR dptlib.fromBuffer:" + error.message;
+                  _oNode.id || "",
+            );
+            errorMessage.payload = "UNKNOWN: ERROR dptlib.fromBuffer:" + error.message;
             return errorMessage;
           }
         }
@@ -2284,13 +1787,8 @@ return msg;`,
         //* ********************************************************
 
         if (dpt.subtype !== undefined) {
-          sPayloadmeasureunit =
-            dpt.subtype.unit !== undefined ? dpt.subtype.unit : "unknown";
-          sDptdesc =
-            dpt.subtype.desc !== undefined
-              ? dpt.subtype.desc.charAt(0).toUpperCase() +
-                dpt.subtype.desc.slice(1)
-              : "unknown";
+          sPayloadmeasureunit = dpt.subtype.unit !== undefined ? dpt.subtype.unit : "unknown";
+          sDptdesc = dpt.subtype.desc !== undefined ? dpt.subtype.desc.charAt(0).toUpperCase() + dpt.subtype.desc.slice(1) : "unknown";
           if (dpt.subtype.enc !== undefined) {
             try {
               if (!jsValue) sPayloadsubtypevalue = dpt.subtype.enc[0];
@@ -2327,48 +1825,34 @@ return msg;`,
 
         return finalMessage;
       } catch (error) {
-        if (node.sysLogger !== undefined && node.sysLogger !== null)
-          node.sysLogger.error(
-            "knxUltimate-config: buildInputMessage error: " + error.message
-          );
+        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("knxUltimate-config: buildInputMessage error: " + error.message);
         return errorMessage;
       }
     }
 
     function readCSV(_csvText) {
       // 26/05/2023 check if the text is a file path
-      if (
-        _csvText.toUpperCase().includes(".CSV") ||
-        _csvText.toUpperCase().includes(".ESF")
-      ) {
+      if (_csvText.toUpperCase().includes(".CSV") || _csvText.toUpperCase().includes(".ESF")) {
         // I'ts a file. Read it now and pass to the _csvText
         const sFileName = _csvText;
         try {
           _csvText = fs.readFileSync(sFileName, { encoding: "utf8" });
         } catch (error) {
-          if (node.sysLogger !== undefined && node.sysLogger !== null)
-            node.sysLogger.error(
-              "KNXUltimate-config: ERROR: reading ETS file " + error.message
-            );
-          node.error(
-            "KNXUltimate-config: ERROR: reading ETS file " + error.message
-          );
+          if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("KNXUltimate-config: ERROR: reading ETS file " + error.message);
+          node.error("KNXUltimate-config: ERROR: reading ETS file " + error.message);
           return;
         }
       }
 
       // 24/02/2020, in the middle of Coronavirus emergency in Italy. Check if it a CSV ETS Export of group addresses, or if it's an EFS
-      if (_csvText.split("\n")[0].toUpperCase().indexOf('"') == -1)
-        return readESF(_csvText);
+      if (_csvText.split("\n")[0].toUpperCase().indexOf('"') == -1) return readESF(_csvText);
 
       const ajsonOutput = new Array(); // Array: qui va l'output totale con i nodi per node-red
 
       if (_csvText == "") {
-        if (node.sysLogger !== undefined && node.sysLogger !== null)
-          node.sysLogger.info("KNXUltimate-config: no csv ETS found");
+        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("KNXUltimate-config: no csv ETS found");
       } else {
-        if (node.sysLogger !== undefined && node.sysLogger !== null)
-          node.sysLogger.info("KNXUltimate-config: csv ETS found !");
+        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("KNXUltimate-config: csv ETS found !");
         // 23/08/2019 Delete inwanted CRLF in the GA description
         const sTemp = correctCRLFInCSV(_csvText);
 
@@ -2376,9 +1860,7 @@ return msg;`,
         const fileGA = sTemp.split("\n");
         // Controllo se le righe dei gruppi contengono il separatore di tabulazione
         if (fileGA[0].search("\t") == -1) {
-          node.error(
-            "KNXUltimate-config: ERROR: the csv ETS file must have the tabulation as separator"
-          );
+          node.error("KNXUltimate-config: ERROR: the csv ETS file must have the tabulation as separator");
           return;
         }
 
@@ -2405,15 +1887,12 @@ return msg;`,
               sFather = "(" + sFirstGroupName + "->" + sSecondGroupName + ") ";
             }
 
-            if (
-              element.split("\t")[1].search("-") == -1 &&
-              element.split("\t")[1].search("/") !== -1
-            ) {
+            if (element.split("\t")[1].search("-") == -1 && element.split("\t")[1].search("/") !== -1) {
               // Ho trovato una riga contenente un GA valido, cioè con 2 "/"
               if (element.split("\t")[5] == "") {
                 if (node.stopETSImportIfNoDatapoint === "stop") {
                   node.error(
-                    "KNXUltimate-config: ABORT IMPORT OF ETS CSV FILE. To skip the invalid datapoint and continue import, change the related setting, located in the config node in the ETS import section."
+                    "KNXUltimate-config: ABORT IMPORT OF ETS CSV FILE. To skip the invalid datapoint and continue import, change the related setting, located in the config node in the ETS import section.",
                   );
                   return;
                 }
@@ -2423,15 +1902,12 @@ return msg;`,
                     "KNXUltimate-config: WARNING IMPORT OF ETS CSV FILE. Datapoint not set. You choosed to continue import with a fake datapoint 1.001. -> " +
                       element.split("\t")[0] +
                       " " +
-                      element.split("\t")[1]
+                      element.split("\t")[1],
                   );
                   ajsonOutput.push({
                     ga: element.split("\t")[1],
                     dpt: "1.001",
-                    devicename:
-                      sFather +
-                      element.split("\t")[0] +
-                      " (DPT NOT SET IN ETS - FAKE DPT USED)",
+                    devicename: sFather + element.split("\t")[0] + " (DPT NOT SET IN ETS - FAKE DPT USED)",
                   });
                 } else {
                   // 31/03/2020 Skip import
@@ -2439,7 +1915,7 @@ return msg;`,
                     "KNXUltimate-config: WARNING IMPORT OF ETS CSV FILE. Datapoint not set. You choosed to skip -> " +
                       element.split("\t")[0] +
                       " " +
-                      element.split("\t")[1]
+                      element.split("\t")[1],
                   );
                 }
               } else {
@@ -2452,7 +1928,7 @@ return msg;`,
                       " " +
                       element.split("\t")[1] +
                       " Datapoint: " +
-                      element.split("\t")[5]
+                      element.split("\t")[5],
                   );
                   DPTb = "001"; // default
                 }
@@ -2485,13 +1961,11 @@ return msg;`,
       // Format: Attuatori luci.Luci primo piano.0/0/1	Luce camera da letto	EIS 1 'Switching' (1 Bit)	Low
       const ajsonOutput = new Array(); // Array: qui va l'output totale con i nodi per node-red
 
-      if (_esfText == "") {
-        if (node.sysLogger !== undefined && node.sysLogger !== null)
-          node.sysLogger.info("KNXUltimate-config: no ESF found");
+      if (_esfText === "") {
+        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("KNXUltimate-config: no ESF found");
         return;
       } else {
-        if (node.sysLogger !== undefined && node.sysLogger !== null)
-          node.sysLogger.info("KNXUltimate-config: esf ETS found !");
+        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("KNXUltimate-config: esf ETS found !");
         // Read and decode the CSV in an Array containing:  "group address", "DPT", "Device Name"
         const fileGA = _esfText.split("\n");
         let sGA = "";
@@ -2547,37 +2021,27 @@ return msg;`,
             if (sDPT === "") {
               if (node.stopETSImportIfNoDatapoint === "stop") {
                 node.error(
-                  "KNXUltimate-config: ABORT IMPORT OF ETS ESF FILE. To continue import, change the related setting, located in the config node in the ETS import section."
+                  "KNXUltimate-config: ABORT IMPORT OF ETS ESF FILE. To continue import, change the related setting, located in the config node in the ETS import section.",
                 );
                 return;
-              } else if (node.stopETSImportIfNoDatapoint === "fake") {
+              } if (node.stopETSImportIfNoDatapoint === "fake") {
                 sDPT = "5.004"; // Maybe.
                 node.error(
                   "KNXUltimate-config: ERROR: Found an UNCERTAIN datapoint in ESF ETS. You choosed to fake the datapoint -> " +
                     sGA +
                     ". An fake datapoint has been set: " +
-                    sDPT
+                    sDPT,
                 );
               } else {
                 sDPT = "SKIP";
-                node.error(
-                  "KNXUltimate-config: ERROR: Found an UNCERTAIN datapoint in ESF ETS. You choosed to skip -> " +
-                    sGA
-                );
+                node.error("KNXUltimate-config: ERROR: Found an UNCERTAIN datapoint in ESF ETS. You choosed to skip -> " + sGA);
               }
             }
-            if (sDPT !== "SKIP")
-              ajsonOutput.push({
-                ga: sGA,
-                dpt: sDPT,
-                devicename:
-                  "(" +
-                  sFirstGroupName +
-                  "->" +
-                  sSecondGroupName +
-                  ") " +
-                  sDeviceName,
-              });
+            if (sDPT !== "SKIP") ajsonOutput.push({
+              ga: sGA,
+              dpt: sDPT,
+              devicename: "(" + sFirstGroupName + "->" + sSecondGroupName + ") " + sDeviceName,
+            });
           }
         }
       }
@@ -2619,15 +2083,8 @@ return msg;`,
     }
 
     // 08/10/2021 Every xx seconds, i check if the connection is up and running
-    if (node.sysLogger !== undefined && node.sysLogger !== null)
-      node.sysLogger.info(
-        "KNXUltimate-config: Autoconnection: " +
-          (node.autoReconnect === false ? "no." : "yes") +
-          " Node " +
-          node.name
-      );
-    if (node.timerKNXUltimateCheckState !== null)
-      clearInterval(node.timerKNXUltimateCheckState);
+    if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("KNXUltimate-config: Autoconnection: " + (node.autoReconnect === false ? "no." : "yes") + " Node " + node.name);
+    if (node.timerKNXUltimateCheckState !== null) clearInterval(node.timerKNXUltimateCheckState);
     node.timerKNXUltimateCheckState = setInterval(() => {
       // If the node is disconnected, wait another cycle, then reconnects
       if (node.allowLauch_initKNXConnection && node.autoReconnect) {
@@ -2636,13 +2093,12 @@ return msg;`,
           // 21/03/2022 fixed possible memory leak. Previously was setTimeout without "let t = ".
           node.setAllClientsStatus("Auto reconnect in progress...", "grey", "");
         }, 100);
-        if (node.sysLogger !== undefined && node.sysLogger !== null)
-          node.sysLogger.debug(
-            "knxUltimate-config: Auto Reconect by timerKNXUltimateCheckState in progress. node.LinkStatus: " +
+        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.debug(
+          "knxUltimate-config: Auto Reconect by timerKNXUltimateCheckState in progress. node.LinkStatus: " +
               node.linkStatus +
               ", node.autoReconnect:" +
-              node.autoReconnect
-          );
+              node.autoReconnect,
+        );
         node.initKNXConnection();
         return;
       }
@@ -2652,68 +2108,46 @@ return msg;`,
           // 21/03/2022 fixed possible memory leak. Previously was setTimeout without "let t = ".
           node.setAllClientsStatus("Next cycle will reconnect...", "grey", "");
         }, 1000);
-        if (node.sysLogger !== undefined && node.sysLogger !== null)
-          node.sysLogger.debug(
-            "knxUltimate-config: Waiting next cycle to reconect. node.LinkStatus: " +
-              node.linkStatus +
-              ", node.autoReconnect:" +
-              node.autoReconnect
-          );
+        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.debug(
+          "knxUltimate-config: Waiting next cycle to reconect. node.LinkStatus: " + node.linkStatus + ", node.autoReconnect:" + node.autoReconnect,
+        );
         // node.initKNXConnection();
       }
     }, 4000);
 
     node.Disconnect = (_sNodeStatus = "", _sColor = "grey") => {
       if (node.linkStatus === "disconnected") {
-        if (node.sysLogger !== undefined && node.sysLogger !== null)
-          node.sysLogger.debug(
-            "knxUltimate-config: Disconnect: already not connected:" +
-              node.linkStatus +
-              ", node.autoReconnect:" +
-              node.autoReconnect
-          );
+        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.debug("knxUltimate-config: Disconnect: already not connected:" + node.linkStatus + ", node.autoReconnect:" + node.autoReconnect);
         return;
       }
-      if (node.timerSendTelegramFromQueue !== null)
-        clearInterval(node.timerSendTelegramFromQueue); // 02/01/2020 Stop queue timer
+      if (node.timerSendTelegramFromQueue !== null) clearInterval(node.timerSendTelegramFromQueue); // 02/01/2020 Stop queue timer
       node.linkStatus = "disconnected"; // 29/08/2019 signal disconnection
       node.lockHandleTelegramQueue = false; // Unlock the telegram handling function
-      if (node.timerDoInitialRead !== null)
-        clearTimeout(node.timerDoInitialRead); // 17/02/2020 Stop the initial read timer
+      if (node.timerDoInitialRead !== null) clearTimeout(node.timerDoInitialRead); // 17/02/2020 Stop the initial read timer
       try {
         if (node.knxConnection !== null) node.knxConnection.Disconnect();
       } catch (error) {
-        if (node.sysLogger !== undefined && node.sysLogger !== null)
-          node.sysLogger.debug(
-            "knxUltimate-config: Disconnected: node.knxConnection.Disconnect() " +
-              (error.message || "") +
-              " , node.autoReconnect:" +
-              node.autoReconnect
-          );
+        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.debug(
+          "knxUltimate-config: Disconnected: node.knxConnection.Disconnect() " + (error.message || "") + " , node.autoReconnect:" + node.autoReconnect,
+        );
       }
       node.startTimerClearTelegramQueue(); // 21/01/2022 Clear the telegram queue after a while
       node.setAllClientsStatus("Disconnected", _sColor, _sNodeStatus);
       saveExposedGAs(); // 04/04/2021 save the current values of GA payload
-      if (node.sysLogger !== undefined && node.sysLogger !== null)
-        node.sysLogger.debug(
-          "knxUltimate-config: Disconnected, node.autoReconnect:" +
-            node.autoReconnect
-        );
+      if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.debug("knxUltimate-config: Disconnected, node.autoReconnect:" + node.autoReconnect);
     };
 
     node.on("close", function (done) {
       try {
         node.Disconnect();
-      } catch (error) {}
-      if (node.timerClearTelegramQueue !== null)
-        clearTimeout(node.timerClearTelegramQueue);
+      } catch (error) { /* empty */ }
+      if (node.timerClearTelegramQueue !== null) clearTimeout(node.timerClearTelegramQueue);
       node.telegramsQueue = [];
       node.nodeClients = []; // 05/04/2022 Nullify
       try {
-        if (node.sysLogger !== undefined && node.sysLogger !== null)
-          node.sysLogger = null;
+        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger = null;
         loggerEngine.destroy();
-      } catch (error) {}
+      } catch (error) { /* empty */ }
       done();
     });
   }

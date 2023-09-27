@@ -7,6 +7,10 @@
 # CHANGELOG
 
 <p>
+<b>Version 2.1.47</b> - September 2023<br/>
+- HUE BRIDGE: fixed multiple HUE bridge handling.<br/>
+<br/>
+<p>
 <b>Version 2.1.46</b> - September 2023<br/>
 - HUE BRIDGE: In case of https problems (certificate expired, etc...), the node will try to connect to the HUE BRIDGE in insecure http mode.<br/>
 <br/>
