@@ -7,7 +7,7 @@
 # CHANGELOG
 
 <p>
-<b>Version 2.1.49</b> - October 2023<br/>
+<b>Version 2.1.50</b> - October 2023<br/>
 - KNXUltimateViewer node: fixed too large text in custom template..<br/>
 <br/>
 <p>
