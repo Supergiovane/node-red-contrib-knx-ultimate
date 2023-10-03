@@ -7,6 +7,10 @@
 # CHANGELOG
 
 <p>
+<b>Version 2.1.48</b> - October 2023<br/>
+- KNXUltimateViewer node: fixed too large text in custom template..<br/>
+<br/>
+<p>
 <b>Version 2.1.47</b> - September 2023<br/>
 - HUE BRIDGE: fixed multiple HUE bridge handling.<br/>
 <br/>
