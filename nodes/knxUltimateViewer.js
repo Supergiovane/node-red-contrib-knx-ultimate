@@ -109,7 +109,7 @@ module.exports = function (RED) {
           }
           sPayload += '<td>' + element.dpt + '</td>';
           sPayload += '<td>' + element.lastupdate.toLocaleString() + '</td>';
-          sPayload += '<td><font size="smaller">' + element.devicename + '</font></td></tr>';
+          sPayload += '<td><font style="font-size: smaller;">' + element.devicename + '</font></td></tr>';
         }
       } catch (error) {
 
