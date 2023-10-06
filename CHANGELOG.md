@@ -7,17 +7,19 @@
 # CHANGELOG
 
 <p>
+<b>Version 2.1.51</b> - October 2023<br/>
+- HUE Light node: fixed a possible switch on brightness issue.<br/>
+</p>
+<p>
 <b>Version 2.1.50</b> - October 2023<br/>
 - KNXUltimateViewer node: fixed too large text in custom template..<br/>
-<br/>
-<p>
+</p>
 <b>Version 2.1.47</b> - September 2023<br/>
 - HUE BRIDGE: fixed multiple HUE bridge handling.<br/>
-<br/>
-<p>
+</p>
 <b>Version 2.1.46</b> - September 2023<br/>
 - HUE BRIDGE: In case of https problems (certificate expired, etc...), the node will try to connect to the HUE BRIDGE in insecure http mode.<br/>
-<br/>
+</p>
 <p>
 <b>Version 2.1.45</b> - August 2023<br/>
 - HUE Light: now it correctly sets the KNX brightness if you turn on/off the light via HUE app.<br/>

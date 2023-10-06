@@ -78,7 +78,11 @@ module.exports = function (RED) {
                 } else if (config.linkBrightnessToSwitchStatus === undefined || config.linkBrightnessToSwitchStatus === 'yes') {
                   state = { on: { on: true }, dimming: { brightness: 100 } };
                 } else {
-                  state = { on: { on: true } };
+                  try {
+                    state = { on: { on: true }, dimming: { brightness: node.currentHUEDevice.dimming.brightness } };
+                  } catch (error) {
+                    state = { on: { on: true } };
+                  }
                 }
               } else {
                 // Night Time
