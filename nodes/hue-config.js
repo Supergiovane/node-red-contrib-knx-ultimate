@@ -138,7 +138,7 @@ module.exports = (RED) => {
           // Get the owner
           try {
             let resourceName = "";
-            let sRoom = "";
+            let sType = "";
             if (_rtype === "light" || _rtype === "grouped_light") {
               // It's a service, having a owner
               const owners = node.hueAllResources.filter((a) => a.id === resource.owner.rid);
@@ -148,13 +148,14 @@ module.exports = (RED) => {
                   resourceName += "ALL GROUPS and ";
                 } else {
                   resourceName += `${owner.metadata.name} and `;
-                  const room = node.hueAllRooms.find((child) => child.children.find((a) => a.rid === owner.id));
-                  sRoom += room !== undefined ? `${room.metadata.name} + ` : " + ";
+                  //const room = node.hueAllRooms.find((child) => child.children.find((a) => a.rid === owner.id));
+                  //sRoom += room !== undefined ? `${room.metadata.name} + ` : " + ";
+                  sType += capStr(owner.type) + ' + ';
                 }
               }
-              sRoom = sRoom.slice(0, -" + ".length);
+              sType = sType.slice(0, -" + ".length);
               resourceName = resourceName.slice(0, -" and ".length);
-              resourceName += sRoom !== "" ? ` - Room: ${sRoom}` : "";
+              resourceName += sType !== "" ? ' (' + sType + ')' : "";
               retArray.push({
                 name: `${capStr(resource.type)}: ${resourceName}`,
                 id: resource.id,
@@ -172,8 +173,7 @@ module.exports = (RED) => {
               });
             }
             if (_rtype === "button") {
-              const linkedDevName =
-                node.hueAllResources.find((dev) => dev.type === "device" && dev.services.find((serv) => serv.rid === resource.id)).metadata.name || "";
+              const linkedDevName = node.hueAllResources.find((dev) => dev.type === "device" && dev.services.find((serv) => serv.rid === resource.id)).metadata.name || "";
               const controlID = resource.metadata !== undefined ? resource.metadata.control_id || "" : "";
               retArray.push({
                 name: `${capStr(_rtype)}: ${linkedDevName}, button ${controlID}`,
@@ -181,16 +181,14 @@ module.exports = (RED) => {
               });
             }
             if (_rtype === "motion") {
-              const linkedDevName =
-                node.hueAllResources.find((dev) => dev.type === "device" && dev.services.find((serv) => serv.rid === resource.id)).metadata.name || "";
+              const linkedDevName = node.hueAllResources.find((dev) => dev.type === "device" && dev.services.find((serv) => serv.rid === resource.id)).metadata.name || "";
               retArray.push({
                 name: `${capStr(_rtype)}: ${linkedDevName}`,
                 id: resource.id,
               });
             }
             if (_rtype === "relative_rotary") {
-              const linkedDevName =
-                node.hueAllResources.find((dev) => dev.type === "device" && dev.services.find((serv) => serv.rid === resource.id)).metadata.name || "";
+              const linkedDevName = node.hueAllResources.find((dev) => dev.type === "device" && dev.services.find((serv) => serv.rid === resource.id)).metadata.name || "";
               retArray.push({
                 name: `Rotary: ${linkedDevName}`,
                 id: resource.id,
@@ -198,8 +196,7 @@ module.exports = (RED) => {
             }
             if (_rtype === "light_level") {
               const Room = node.hueAllRooms.find((room) => room.children.find((child) => child.rid === resource.owner.rid));
-              const linkedDevName =
-                node.hueAllResources.find((dev) => dev.type === "device" && dev.services.find((serv) => serv.rid === resource.id)).metadata.name || "";
+              const linkedDevName = node.hueAllResources.find((dev) => dev.type === "device" && dev.services.find((serv) => serv.rid === resource.id)).metadata.name || "";
               retArray.push({
                 name: `Light Level: ${linkedDevName}${Room !== undefined ? `, room ${Room.metadata.name}` : ""}`,
                 id: resource.id,
@@ -207,8 +204,7 @@ module.exports = (RED) => {
             }
             if (_rtype === "temperature") {
               const Room = node.hueAllRooms.find((room) => room.children.find((child) => child.rid === resource.owner.rid));
-              const linkedDevName =
-                node.hueAllResources.find((dev) => dev.type === "device" && dev.services.find((serv) => serv.rid === resource.id)).metadata.name || "";
+              const linkedDevName = node.hueAllResources.find((dev) => dev.type === "device" && dev.services.find((serv) => serv.rid === resource.id)).metadata.name || "";
               retArray.push({
                 name: `Temperature: ${linkedDevName}${Room !== undefined ? `, room ${Room.metadata.name}` : ""}`,
                 id: resource.id,
@@ -216,8 +212,7 @@ module.exports = (RED) => {
             }
             if (_rtype === "device_power") {
               const Room = node.hueAllRooms.find((room) => room.children.find((child) => child.rid === resource.owner.rid));
-              const linkedDevName =
-                node.hueAllResources.find((dev) => dev.type === "device" && dev.services.find((serv) => serv.rid === resource.id)).metadata.name || "";
+              const linkedDevName = node.hueAllResources.find((dev) => dev.type === "device" && dev.services.find((serv) => serv.rid === resource.id)).metadata.name || "";
               retArray.push({
                 name: `Battery: ${linkedDevName}${Room !== undefined ? `, room ${Room.metadata.name}` : ""}`,
                 id: resource.id,
@@ -255,7 +250,7 @@ module.exports = (RED) => {
       // Remove the client node from the clients array
       try {
         node.nodeClients = node.nodeClients.filter((x) => x.id !== _Node.id);
-      } catch (error) {}
+      } catch (error) { }
     };
 
     node.on("close", (done) => {

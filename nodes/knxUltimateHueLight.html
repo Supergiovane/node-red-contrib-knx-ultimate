@@ -535,7 +535,7 @@
         <p> 
             <div class="form-row">
                 <label for="node-input-linkBrightnessToSwitchStatus" style="width:260px;">
-                    <i class="fa fa-tag"></i> Link color/bright. to on/off switch
+                    <i class="fa fa-tag"></i> Specify switch on brightness
                 </label>
                 <select id="node-input-linkBrightnessToSwitchStatus">
                     <option value="yes">Yes</option>
@@ -660,8 +660,8 @@ Start typing in the GA field, the name or group address of your KNX device, the 
 
 |Property|Description|
 |--|--|
-| Link color/bright. to on/off switch | If checked, updates the *brightness and color values* on each light on/off status change. If light is switched *on*, a 100% brightness is also set, otherwise, if the light is switched off, a 0%  brightness is set. If **Switch On - color/brightness** option is not empty, every time the light is swiched on, this brightness/color are set instead. Default value is **Yes**. |
-| Switch On - color/brightness | You can choose the color/brightness of your light, at switch on. Set it as JSON object, for example **{ "red": 255, "green": 255, "blue": 255 }**. Leave blank to disable the brightness change and leave the last color selected. |
+| Specify switch on brightness | It enables the brightness value to follow the on/off status of the light. If you change the HUE brightness value to 0% (from the HUE App), an "off" telegram is also sent to the KNX bus; if you set it other than 0%, an "on" telegram is also sent to the KNX bus. This is valid also vice-versa: if you change the brightness via KNX bus, the HUE on/off value is also sent to the lamp. If you set it to **No**, the previous HUE light brightness value is retained. Default value is **Yes**. |
+| Switch On - color/brightness | You can choose the color/brightness of your light, at switch on. Set it as JSON object, for example **{ "red": 255, "green": 255, "blue": 255 }** |
 | Night Lighting | It allows to set a particular light color/brightness at nighttime. If **checked**, a further set of option shows up and the light changes the behaviour based on these options, everytime you switch the light *on*. |
 | Switch On - color/brightness at Nighttime | You can choose the color/brightness of your light, at switch on, on night time. Set it as JSON object. Default value if you leave blank is **{ "red": 100, "green": 0, "blue": 0 }** |
 | Day/Night | Select the group address used to set the day/night behaviour. The group address value is *true* if daytime, *false* if nighttime. |
