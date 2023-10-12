@@ -42,7 +42,7 @@
             var oNodeServer = RED.nodes.node($("#node-input-server").val()); // Store the config-node
             var oNodeServerHue = RED.nodes.node($("#node-input-serverHue").val()); // Store the config-node
 
-            for (let index = 0; index < 64; index++) {
+            for (let index = 1; index < 64; index++) {
                 $("#node-input-valscene").append($("<option></option>")
                     .attr("value", index)
                     .text("Scene n. " + index)
