@@ -7,8 +7,8 @@
 # CHANGELOG
 
 <p>
-<b>Version 2.1.53</b> - October 2023<br/>
-- Fixed descriptive error in case the HUE bridge's IP is wrong.<br/>
+<b>Version 2.1.54</b> - October 2023<br/>
+- HUE Scene: NEW: you can now use also the Datapoint 18.001, to recall a scene via a KNX scene pushbutton.<br/>
 </p>
 <p>
 <b>Version 2.1.52</b> - October 2023<br/>

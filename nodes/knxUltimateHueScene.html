@@ -11,6 +11,7 @@
             namescene: { value: "" },
             GAscene: { value: "" },
             dptscene: { value: "" },
+            valscene: { value: 0 }, // the scene number or true/false
 
             hueDevice: { value: "" },
             hueSceneRecallType: { value: "active" }
@@ -41,6 +42,14 @@
             var oNodeServer = RED.nodes.node($("#node-input-server").val()); // Store the config-node
             var oNodeServerHue = RED.nodes.node($("#node-input-serverHue").val()); // Store the config-node
 
+            for (let index = 0; index < 64; index++) {
+                $("#node-input-valscene").append($("<option></option>")
+                    .attr("value", index)
+                    .text("Scene n. " + index)
+                )
+            }
+            $("#node-input-valscene").val(node.valscene)
+
             // 19/02/2020 Used to get the server sooner als deploy.
             $("#node-input-server").change(function () {
                 try {
@@ -69,13 +78,14 @@
             // ########################
             $.getJSON('knxUltimateDpts', (data) => {
                 data.forEach(dpt => {
-                    if (dpt.value.startsWith("1.")) {
+                    if (dpt.value.startsWith("1.") || dpt.value.startsWith("18.")) {
                         $("#node-input-dptscene").append($("<option></option>")
                             .attr("value", dpt.value)
                             .text(dpt.text))
                     }
                 });
                 $("#node-input-dptscene").val(this.dptscene)
+                ShowHideValScene();
             })
 
             // Autocomplete suggestion with ETS csv File
@@ -86,11 +96,13 @@
                     $.getJSON("knxUltimatecsv?nodeID=" + oNodeServer.id, (data) => {
                         response($.map(data, function (value, key) {
                             var sSearch = (value.ga + " (" + value.devicename + ") DPT" + value.dpt);
-                            if (fullSearch(sSearch, request.term + " 1.")) {
-                                return {
-                                    label: value.ga + " # " + value.devicename + " # " + value.dpt, // Label for Display
-                                    value: value.ga // Value
-                                }
+                            if (fullSearch(sSearch, request.term)) {
+                                if (value.dpt.startsWith("1.") || value.dpt.startsWith("18.")) {
+                                    return {
+                                        label: value.ga + " # " + value.devicename + " # " + value.dpt, // Label for Display
+                                        value: value.ga // Value
+                                    }
+                                } else { return null; }
                             } else {
                                 return null;
                             }
@@ -111,8 +123,22 @@
             });
             // ######################## 
 
-
-
+            function ShowHideValScene() {
+                if ($("#node-input-dptscene").val() !== null) {
+                    // Adapt the scene value/true
+                    if ($("#node-input-dptscene").val().startsWith("1.")) {
+                        $("#divValScene").hide();
+                        //$("#node-input-valscene").attr("disabled", "disabled");
+                    } else {
+                        $("#divValScene").show()
+                        //$("#node-input-valscene").removeAttr("disabled");
+                    }
+                }
+            }
+            $("#node-input-dptscene").on("change", function () {
+                ShowHideValScene()
+            });
+            ShowHideValScene();
 
             // Autocomplete suggestion with HUE
             $("#node-input-name").autocomplete({
@@ -137,10 +163,7 @@
                     $('#node-input-hueDevice').val(ui.item.hueDevice);
                 }
             });
-
-
-            // ########################
-
+            // ########################            
 
         },
         oneditsave: function () {
@@ -188,7 +211,7 @@
     
 <div class="form-row">
     <label for="node-input-hueDevice" >
-        <i class="fa fa-play-circle"></i>&nbspHue Sceme</label>
+        <i class="fa fa-play-circle"></i>&nbspHue Scene</label>
         <input type="text" id="node-input-name" placeholder="Enter your hue device name" />
     <input type="hidden" id="node-input-hueDevice" />
 </div>
@@ -205,23 +228,28 @@
 
 <br/>
 
+<p>
+    <b>KNX</b>
 </p>
 
-    <div class="form-row">
-        <label for="node-input-namescene" style="width:100px;"><i class="fa fa-play-circle-o"></i> Scene</span></label>
+<div class="form-row">
+    <label for="node-input-namescene" style="width:100px;"><i class="fa fa-play-circle-o"></i> Recall</label>
 
-        <label for="node-input-GAscene" style="width:20px;">GA</label>
-        <input type="text" id="node-input-GAscene" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
-    
-        <label for="node-input-dptscene" style="width:40px; margin-left: 0px; text-align: right;">DPT</label>
-        <select id="node-input-dptscene" style="width:140px;"></select>
-    
-        <label for="node-input-namescene" style="width:50px; margin-left: 0px; text-align: right;">Name</label>
-        <input type="text" id="node-input-namescene" style="width:200px;margin-left: 5px; text-align: left;">
-    </div>
-   
+    <label for="node-input-GAscene" style="width:20px;">GA</label>
+    <input type="text" id="node-input-GAscene" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
+
+    <label for="node-input-dptscene" style="width:40px; margin-left: 0px; text-align: right;">DPT</label>
+    <select id="node-input-dptscene" style="width:140px;"></select>
+
+    <label for="node-input-namescene" style="width:50px; margin-left: 0px; text-align: right;">Name</label>
+    <input type="text" id="node-input-namescene" style="width:200px;margin-left: 5px; text-align: left;">       
 </div>
-        
+
+<div class="form-row" id="divValScene" hidden>
+    <label for="node-input-valscene" style="width:100px;"></label>
+    <label for="node-input-valscene" style="width:20px;">#</label>
+    <select id="node-input-valscene" style="width:180px;margin-left: 5px; text-align: left;"></select>
+</div>
 
 <br/>
 <br/>
@@ -246,7 +274,8 @@ Start typing in the GA field, the name or group address of your KNX device, the 
 
 |Property|Description|
 |--|--|
-| Scene | Choose your group address to be used for recalling the HUE scene. Send *true* to that group address to recall the scene, *false* to switch off all lights belonging to the scene. |
+| Recall | Choose your group address to be used for recalling the HUE scene. In case of Datapoint 1.x, send *true* to that group address to recall the scene, *false* to switch off all lights belonging to the scene. |
+| # | Select the KNX scene number. Visible only with datapoint 18.001. |
 
 <br/>
 
