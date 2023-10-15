@@ -118,8 +118,6 @@ module.exports = (RED) => {
     // Get all devices and join it with relative rooms, by adding the room name to the device name
     node.getResources = (_rtype) => {
       try {
-        // Api V2
-
         // Returns capitalized string
         function capStr(s) {
           if (typeof s !== "string") return "";

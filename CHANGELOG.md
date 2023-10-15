@@ -7,7 +7,7 @@
 # CHANGELOG
 
 <p>
-<b>Version 2.1.55</b> - October 2023<br/>
+<b>Version 2.1.56</b> - October 2023<br/>
 - HUE Scene: removed non existant scene 0.<br/>
 </p>
 <p>
