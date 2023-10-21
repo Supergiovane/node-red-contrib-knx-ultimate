@@ -7,6 +7,10 @@
 # CHANGELOG
 
 <p>
+<b>Version 1.0.43</b> - October 2023<br/>
+- Added help description for DPT 3.001 DIMMING stop telegram.<br/>
+</p>
+<p>
 <b>Version 1.0.42</b> - July 2023<br/>
 - Quick fix for MDT and Wienzler interfaces.<br/>
 </p>
