@@ -5,7 +5,11 @@
 <br/>
 
 # CHANGELOG
-
+<p>
+<b>Version 2.1.57</b> - October 2023<br/>
+- HUE Light: NEW Behaviour "KNX Brightness Status"<br/>
+- HUE Light: the light now remembers the last brightness value after switch off<br/>
+</p>
 <p>
 <b>Version 2.1.56</b> - October 2023<br/>
 - HUE Scene: removed non existant scene 0.<br/>

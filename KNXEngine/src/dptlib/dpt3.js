@@ -44,6 +44,7 @@ exports.basetype = {
 // The parameter "data" can be any integer value from 0 to 7
 // The parameter decr_incr:1 increases the light
 // The parameter decr_incr:0 decreases the light
+// The parameter data:0 stops the dimming
 msg.payload={decr_incr: 1, data: 5};
 return msg;`,
   helplink: 'https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Dimming'

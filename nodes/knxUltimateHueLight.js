@@ -44,82 +44,64 @@ module.exports = function (RED) {
       node.status({ fill, shape, text: `${text} ${payload} (${dDate.getDate()}, ${dDate.toLocaleTimeString()})` });
     };
 
+    node.setNodeStatusHue({
+      fill: "grey",
+      shape: "ring",
+      text: "Connecting to the Bridge...",
+      payload: ""
+    });
+
     // This function is called by the hue-config.js
     node.handleSend = (msg) => {
+      if (node.currentHUEDevice === undefined) {
+        node.setNodeStatusHue({
+          fill: "red",
+          shape: "ring",
+          text: "Rejected KNX message. I'm connecting to the Bridge...",
+          payload: ""
+        });
+        return;
+      }
       let state = {};
       try {
         switch (msg.knx.destination) {
           case config.GALightSwitch:
             msg.payload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightSwitch));
             if (msg.payload === true) {
-              if (node.DayTime) {
-                // Day Time
-                if (config.colorAtSwitchOnDayTime !== undefined && config.colorAtSwitchOnDayTime.toString().trim() !== "") {
-                  // The user selected specific color/brightness at switch on.
-                  let jColorChoosen = { red: 255, green: 255, blue: 255 };
-                  jColorChoosen = JSON.parse(config.colorAtSwitchOnDayTime || '{ "red": 255, "green": 255, "blue": 255 }');
-                  let gamut = null;
-                  if (
-                    node.currentHUEDevice !== undefined
-                    && node.currentHUEDevice.hasOwnProperty("color")
-                    && node.currentHUEDevice.color.hasOwnProperty("gamut_type")
-                  ) {
-                    gamut = node.currentHUEDevice.color.gamut_type;
-                  }
-                  const dretXY = hueColorConverter.ColorConverter.rgbToXy(jColorChoosen.red, jColorChoosen.green, jColorChoosen.blue, gamut);
-                  const dbright = hueColorConverter.ColorConverter.getBrightnessFromRGB(jColorChoosen.red, jColorChoosen.green, jColorChoosen.blue);
-                  node.currentHUEDevice.dimming.brightness = dbright;
-                  node.updateKNXBrightnessState(node.currentHUEDevice.dimming.brightness);
-                  if (config.linkBrightnessToSwitchStatus === undefined || config.linkBrightnessToSwitchStatus === "yes") {
-                    state = dbright > 0 ? { on: { on: true }, dimming: { brightness: dbright }, color: { xy: dretXY } } : { on: { on: false } };
-                  } else {
-                    state = dbright > 0 ? { on: { on: true }, color: { xy: dretXY } } : { on: { on: false } };
-                  }
-                } else if (config.linkBrightnessToSwitchStatus === undefined || config.linkBrightnessToSwitchStatus === "yes") {
-                  try {
-                    node.currentHUEDevice.dimming.brightness = 100;
-                    node.updateKNXBrightnessState(node.currentHUEDevice.dimming.brightness);
-                  } catch (error) { /* empty */ }
-                  state = { on: { on: true }, dimming: { brightness: node.currentHUEDevice.dimming.brightness } };
-                } else {
-                  try {
-                    state = { on: { on: true }, dimming: { brightness: node.currentHUEDevice.dimming.brightness } };
-                  } catch (error) {
-                    state = { on: { on: true } };
-                  }
+              // The user selected specific color/brightness at switch on.
+              let jColorChoosen = null;
+              if (node.DayTime === true && (config.specifySwitchOnBrightness === undefined || config.specifySwitchOnBrightness === "yes")) {
+                try {
+                  jColorChoosen = JSON.parse(config.colorAtSwitchOnDayTime);
+                } catch (error) {
+                  jColorChoosen = { red: 255, green: 255, blue: 255 };
                 }
-              } else {
-                // Night Time
-                if (config.enableDayNightLighting === true) {
-                  let jColorChoosen = { red: 23, green: 4, blue: 0 };
-                  jColorChoosen = JSON.parse(config.colorAtSwitchOnNightTime || '{ "red": 23, "green": 4, "blue": 0 }');
-                  let gamut = null;
-                  if (
-                    node.currentHUEDevice !== undefined
-                    && node.currentHUEDevice.hasOwnProperty("color")
-                    && node.currentHUEDevice.color.hasOwnProperty("gamut_type")
-                  ) {
-                    gamut = node.currentHUEDevice.color.gamut_type;
-                  }
-                  const dretXY = hueColorConverter.ColorConverter.rgbToXy(jColorChoosen.red, jColorChoosen.green, jColorChoosen.blue, gamut);
-                  const dbright = hueColorConverter.ColorConverter.getBrightnessFromRGB(jColorChoosen.red, jColorChoosen.green, jColorChoosen.blue);
-                  if (config.linkBrightnessToSwitchStatus === undefined || config.linkBrightnessToSwitchStatus === "yes") {
-                    node.currentHUEDevice.dimming.brightness = dbright;
-                    node.updateKNXBrightnessState(node.currentHUEDevice.dimming.brightness);
-                    state = dbright > 0 ? { on: { on: true }, dimming: { brightness: dbright }, color: { xy: dretXY } } : { on: { on: false } };
-                  } else {
-                    state = dbright > 0 ? { on: { on: true }, color: { xy: dretXY } } : { on: { on: false } };
-                  }
+              } else if (node.DayTime === false && config.enableDayNightLighting === "yes") {
+                try {
+                  jColorChoosen = JSON.parse(config.colorAtSwitchOnNightTime);
+                } catch (error) {
+                  jColorChoosen = { red: 10, green: 10, blue: 10 };
                 }
               }
-            } else if (config.linkBrightnessToSwitchStatus === undefined || config.linkBrightnessToSwitchStatus === "yes") {
-              try {
-                node.currentHUEDevice.dimming.brightness = 0;
+              if (jColorChoosen !== null) {
+                let gamut = null;
+                if (
+                  node.currentHUEDevice !== undefined
+                  && node.currentHUEDevice.hasOwnProperty("color")
+                  && node.currentHUEDevice.color.hasOwnProperty("gamut_type")
+                ) {
+                  gamut = node.currentHUEDevice.color.gamut_type;
+                }
+                const dretXY = hueColorConverter.ColorConverter.rgbToXy(jColorChoosen.red, jColorChoosen.green, jColorChoosen.blue, gamut);
+                const dbright = hueColorConverter.ColorConverter.getBrightnessFromRGB(jColorChoosen.red, jColorChoosen.green, jColorChoosen.blue);
+                node.currentHUEDevice.dimming.brightness = dbright;
                 node.updateKNXBrightnessState(node.currentHUEDevice.dimming.brightness);
-                state = { on: { on: false }, dimming: { brightness: node.currentHUEDevice.dimming.brightness }, dynamics: { duration: 2000 } };
-              } catch (error) { /* empty */ }
+                state = dbright > 0 ? { on: { on: true }, dimming: { brightness: dbright }, color: { xy: dretXY } } : { on: { on: false } };
+              } else {
+                state = { on: { on: true }, dimming: node.currentHUEDevice.dimming };
+              }
             } else {
-              state = { on: { on: false }, dynamics: { duration: 2000 } };
+              state = { on: { on: false } };
             }
             node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, state, node.isGrouped_light === false ? "setLight" : "setGroupedLight");
             node.setNodeStatusHue({
@@ -136,23 +118,20 @@ module.exports = function (RED) {
             if (msg.payload.data > 0) {
               const dimDirection = msg.payload.decr_incr === 1 ? "up" : "down";
               // First, switch on the light if off
-              if (node.currentHUEDevice !== undefined && node.currentHUEDevice.on.on === false && dimDirection === "up") {
-                if (config.linkBrightnessToSwitchStatus === undefined || config.linkBrightnessToSwitchStatus === "yes") {
-                  // Starts from minimum of 5
-                  node.serverHue.hueManager.writeHueQueueAdd(
-                    config.hueDevice,
-                    { on: { on: true }, dimming: { brightness: 5 } },
-                    node.isGrouped_light === false ? "setLight" : "setGroupedLight"
-                  );
-                } else {
-                  // Read the last HUE brightness status and starts from there
-                  const lastDimVal = node.currentHUEDevice !== undefined ? node.currentHUEDevice.dimming.brightness : 5;
-                  node.serverHue.hueManager.writeHueQueueAdd(
-                    config.hueDevice,
-                    { on: { on: true }, dimming: { brightness: lastDimVal } },
-                    node.isGrouped_light === false ? "setLight" : "setGroupedLight"
-                  );
-                }
+              if (node.currentHUEDevice.hasOwnProperty('on') !== undefined && node.currentHUEDevice.on.on === false && dimDirection === "up") {
+                // if (config.specifySwitchOnBrightness === undefined || config.specifySwitchOnBrightness === "yes") {
+                //   // Starts from minimum of 5
+                //   node.serverHue.hueManager.writeHueQueueAdd(
+                //     config.hueDevice,
+                //     { on: { on: true }, dimming: { brightness: 5 } },
+                //     node.isGrouped_light === false ? "setLight" : "setGroupedLight"
+                //   );
+                // } else {
+                // Read the last HUE brightness status and starts from there
+                //const lastDimVal = node.currentHUEDevice !== undefined ? node.currentHUEDevice.dimming.brightness : 5;
+                //node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, { on: { on: true }, dimming: { brightness: lastDimVal } }, node.isGrouped_light === false ? "setLight" : "setGroupedLight");
+                // }
+                node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, { on: { on: true } }, node.isGrouped_light === false ? "setLight" : "setGroupedLight");
               }
               node.startDimStopper(dimDirection);
             } else {
@@ -166,7 +145,7 @@ module.exports = function (RED) {
             });
             break;
           case config.GADaylightSensor:
-            if (config.enableDayNightLighting === true) {
+            if (config.enableDayNightLighting === "yes") {
               node.DayTime = Boolean(dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptDaylightSensor)));
               if (config.invertDayNight !== undefined && config.invertDayNight === true) node.DayTime = !node.DayTime;
               node.setNodeStatusHue({
@@ -281,7 +260,7 @@ module.exports = function (RED) {
                 // state = msg.payload === true ? { on: { on: true } } : { on: { on: false } }
                 state = msg.payload === true
                   ? { on: { on: true }, dimming: { brightness: 100 }, dynamics: { duration: 0 } }
-                  : { on: { on: false }, dynamics: { duration: 0 } };
+                  : { on: { on: false }, dimming: { brightness: 0 }, dynamics: { duration: 0 } };
                 node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, state, node.isGrouped_light === false ? "setLight" : "setGroupedLight");
               }, 1000);
             } else {
@@ -429,19 +408,26 @@ module.exports = function (RED) {
     node.handleSendHUE = (_event) => {
       try {
         if (_event.id === config.hueDevice) {
+          if (node.currentHUEDevice === undefined) {
+            node.setNodeStatusHue({
+              fill: "red",
+              shape: "ring",
+              text: "Rejected HUE message. I'm connecting to the Bridge...",
+              payload: ""
+            });
+            return;
+          }
           if (_event.hasOwnProperty("on")) {
             node.updateKNXLightState(_event.on.on);
-            if (config.linkBrightnessToSwitchStatus === undefined || config.linkBrightnessToSwitchStatus === "yes") {
-              // In case of switch off, set the dim to zero
-              if (_event.on.on === false) {
-                node.updateKNXBrightnessState(0);
-              } else {
-                // Restore the previous brightness value
-                try {
-                  node.updateKNXBrightnessState(node.currentHUEDevice.dimming.brightness);
-                } catch (error) {
-                  /* empty */
-                }
+            // In case of switch off, set the dim to zero
+            if (_event.on.on === false && (config.updateKNXBrightnessStatusOnHUEOnOff === undefined || config.updateKNXBrightnessStatusOnHUEOnOff === 'onhueoff')) {
+              node.updateKNXBrightnessState(0);
+            } else {
+              // Sends the previous brightness value
+              try {
+                node.updateKNXBrightnessState(node.currentHUEDevice.dimming.brightness);
+              } catch (error) {
+                /* empty */
               }
             }
             if (node.currentHUEDevice !== undefined) node.currentHUEDevice.on = _event.on; // Update the internal object representing the current light
@@ -453,15 +439,15 @@ module.exports = function (RED) {
             return;
           }
           if (_event.hasOwnProperty("dimming")) {
-            // Every once time, the light transmit the brightness value of 0.39.
+            // Every once on a time, the light transmit the brightness value of 0.39.
             // To avoid wrongly turn light state on, exit
-            if (_event.dimming.brightness === undefined) return;
             if (_event.dimming.brightness < 1) _event.dimming.brightness = 0;
+            if (node.currentHUEDevice.hasOwnProperty('on') && node.currentHUEDevice.on.on === false && _event.dimming.brightness === 0) return;
+            // if (config.specifySwitchOnBrightness === undefined || config.specifySwitchOnBrightness === "yes") {
+            if (node.currentHUEDevice.on.on === false) node.updateKNXLightState(_event.dimming.brightness > 0);
+            // }
             node.updateKNXBrightnessState(_event.dimming.brightness);
             if (node.currentHUEDevice !== undefined) node.currentHUEDevice.dimming = _event.dimming; // Update the internal object representing the current light
-            if (config.linkBrightnessToSwitchStatus === undefined || config.linkBrightnessToSwitchStatus === "yes") {
-              node.updateKNXLightState(_event.dimming.brightness > 0);
-            }
             // If the brightness reaches zero, the hue lamp "on" property must be set to zero as well
             if (_event.dimming.brightness === 0) {
               node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, { on: { on: false } }, node.isGrouped_light === false ? "setLight" : "setGroupedLight");
@@ -478,7 +464,7 @@ module.exports = function (RED) {
         node.status({
           fill: "red",
           shape: "dot",
-          text: `HUE->KNX error ${knxMsgPayload.topic} ${error.message} (${new Date().getDate()}, ${new Date().toLocaleTimeString()})`,
+          text: 'HUE->KNX error ' + node.id + ' ' + error.message
         });
       }
     };

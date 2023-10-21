@@ -56,7 +56,7 @@
             GALightColorCycle: { value: "" },
             dptLightColorCycle: { value: "" },
 
-            enableDayNightLighting: { value: false },
+            enableDayNightLighting: { value: "no" },
             colorAtSwitchOnDayTime: { value: '{"red":255, "green":255, "blue":255}' },
             colorAtSwitchOnNightTime: { value: '{"red":23, "green":4, "blue":0}' },
             invertDayNight: { value: false },
@@ -65,7 +65,8 @@
             GADaylightSensor: { value: "" },
             dptDaylightSensor: { value: "" },
 
-            linkBrightnessToSwitchStatus: { value: "yes" },
+            specifySwitchOnBrightness: { value: "yes" },
+            updateKNXBrightnessStatusOnHUEOnOff: { value: "onhueoff" },
 
             hueDevice: { value: "" }
         },
@@ -212,13 +213,13 @@
 
 
             // Show/Hide and enable/disable day/night Lighting behaviour
-            if (this.enableDayNightLighting === true) {
+            if (this.enableDayNightLighting === "yes") {
                 $("#DivEnableDayNightLighting").show()
             } else {
                 $("#DivEnableDayNightLighting").hide()
             }
             $("#node-input-enableDayNightLighting").on('change', function () {
-                if ($("#node-input-enableDayNightLighting").is(":checked")) {
+                if ($("#node-input-enableDayNightLighting").val() === 'yes') {
                     $("#DivEnableDayNightLighting").show()
                 } else {
                     $("#DivEnableDayNightLighting").hide()
@@ -226,16 +227,16 @@
             })
 
             // Show/Hide the div of the color at swich on
-            if (this.linkBrightnessToSwitchStatus === 'yes') {
+            if (this.specifySwitchOnBrightness === 'yes') {
                 $("#divcolorAtSwitchOnNightTime").show()
             } else {
                 $("#divcolorAtSwitchOnNightTime").hide()
                 $("#node-input-colorAtSwitchOnDayTime").val('')
             }
-            $("#node-input-linkBrightnessToSwitchStatus").on('change', function () {
-                if ($("#node-input-linkBrightnessToSwitchStatus").val() === 'yes') {
+            $("#node-input-specifySwitchOnBrightness").on('change', function () {
+                if ($("#node-input-specifySwitchOnBrightness").val() === 'yes') {
                     $("#divcolorAtSwitchOnNightTime").show()
-                    if ($("#node-input-colorAtSwitchOnDayTime").val() === '') $("#node-input-colorAtSwitchOnDayTime").val('{ "red": 255, "green": 255, "blue": 255 }') 
+                    if ($("#node-input-colorAtSwitchOnDayTime").val() === '') $("#node-input-colorAtSwitchOnDayTime").val('{ "red": 255, "green": 255, "blue": 255 }')
                 } else {
                     $("#divcolorAtSwitchOnNightTime").hide()
                     $("#node-input-colorAtSwitchOnDayTime").val('')
@@ -534,10 +535,19 @@
     <div id="tabs-6">
         <p> 
             <div class="form-row">
-                <label for="node-input-linkBrightnessToSwitchStatus" style="width:260px;">
+                <label for="node-input-updateKNXBrightnessStatusOnHUEOnOff" style="width:260px;">
+                    <i class="fa fa-tag"></i> KNX Brightness Status
+                </label>
+                <select id="node-input-updateKNXBrightnessStatusOnHUEOnOff">
+                    <option value="onhueoff">When HUE light is Off, send 0% (Default KNX behaviour)</option>
+                    <option value="no">Leave as is (default HUE behaviour)</option>
+                </select>
+            </div>
+            <div class="form-row">
+                <label for="node-input-specifySwitchOnBrightness" style="width:260px;">
                     <i class="fa fa-tag"></i> Specify switch on brightness
                 </label>
-                <select id="node-input-linkBrightnessToSwitchStatus">
+                <select id="node-input-specifySwitchOnBrightness">
                     <option value="yes">Yes</option>
                     <option value="no">No</option>
                 </select>
@@ -551,16 +561,18 @@
                         placeholder='Leave blank or, for example, {"red":255, "green":255, "blue":255}' style="width:260px">
                 </div>
                 <div class="form-row">
-                    <label style="width:170px" for="node-input-enableDayNightLighting">
+                    <label for="node-input-enableDayNightLighting" style="width:260px;">
                         <i class="fa fa-clone"></i> Night Lighting
                     </label>
-                    <input type="checkbox" id="node-input-enableDayNightLighting"
-                        style="display:inline-block; width:auto; vertical-align:top;" />
+                    <select id="node-input-enableDayNightLighting">
+                        <option value="yes">Yes</option>
+                        <option value="no">No</option>
+                    </select>
                 </div>
                 <div id="DivEnableDayNightLighting">
                     <div class="form-row">
                         <label for="node-input-colorAtSwitchOnNightTime" style="width:260px">
-                            <i class="fa fa-moon-o"></i> Switch On - color/brightness at Night
+                            <i class="fa fa-moon-o"></i> Switch On color/brigh. at Night
                         </label>
                         <input type="text" id="node-input-colorAtSwitchOnNightTime"
                             placeholder='Example {"red":100, "green":0, "blue":50}' style="width:260px">
@@ -593,7 +605,8 @@
                 </div>
             </div>          
         </p>
-    </div>    
+    </div>  
+  
 <br/>
 </script>
 
@@ -657,9 +670,10 @@ Start typing in the GA field, the name or group address of your KNX device, the 
 <br/>
 
 **Behaviour**
-
+  
 |Property|Description|
 |--|--|
+| KNX Brightness Status | Updates the KNX brightness group address whenever the HUE lamp is switched ON/OFF. The options are `When HUE light is Off, send 0% (Default KNX behaviour)` and `Leave as is (default HUE behaviour)` |
 | Specify switch on brightness | It enables the brightness value to follow the on/off status of the light. If you change the HUE brightness value to 0% (from the HUE App), an "off" telegram is also sent to the KNX bus; if you set it other than 0%, an "on" telegram is also sent to the KNX bus. This is valid also vice-versa: if you change the brightness via KNX bus, the HUE on/off value is also sent to the lamp. If you set it to **No**, the previous HUE light brightness value is retained. Default value is **Yes**. |
 | Switch On - color/brightness | You can choose the color/brightness of your light, at switch on. Set it as JSON object, for example **{ "red": 255, "green": 255, "blue": 255 }** |
 | Night Lighting | It allows to set a particular light color/brightness at nighttime. If **checked**, a further set of option shows up and the light changes the behaviour based on these options, everytime you switch the light *on*. |
