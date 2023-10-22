@@ -171,7 +171,7 @@ class classHUE extends EventEmitter {
       }
     }
     // The Hue bridge allows about 10 telegram per second, so i need to make a queue manager
-    this.timerwriteQueueAdd = setTimeout(this.handleQueue, 100);
+    this.timerwriteQueueAdd = setTimeout(this.handleQueue, 200);
   };
 
   writeHueQueueAdd = async (_lightID, _state, _operation, _callback) => {

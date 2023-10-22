@@ -119,18 +119,6 @@ module.exports = function (RED) {
               const dimDirection = msg.payload.decr_incr === 1 ? "up" : "down";
               // First, switch on the light if off
               if (node.currentHUEDevice.hasOwnProperty('on') !== undefined && node.currentHUEDevice.on.on === false && dimDirection === "up") {
-                // if (config.specifySwitchOnBrightness === undefined || config.specifySwitchOnBrightness === "yes") {
-                //   // Starts from minimum of 5
-                //   node.serverHue.hueManager.writeHueQueueAdd(
-                //     config.hueDevice,
-                //     { on: { on: true }, dimming: { brightness: 5 } },
-                //     node.isGrouped_light === false ? "setLight" : "setGroupedLight"
-                //   );
-                // } else {
-                // Read the last HUE brightness status and starts from there
-                //const lastDimVal = node.currentHUEDevice !== undefined ? node.currentHUEDevice.dimming.brightness : 5;
-                //node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, { on: { on: true }, dimming: { brightness: lastDimVal } }, node.isGrouped_light === false ? "setLight" : "setGroupedLight");
-                // }
                 node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, { on: { on: true } }, node.isGrouped_light === false ? "setLight" : "setGroupedLight");
               }
               node.startDimStopper(dimDirection);

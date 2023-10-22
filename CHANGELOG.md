@@ -6,6 +6,10 @@
 
 # CHANGELOG
 <p>
+<b>Version 2.1.58</b> - October 2023<br/>
+- HUE Light: NEW color picker. Just click a button to automatically fill the node's "color" properties<br/>
+</p>
+<p>
 <b>Version 2.1.57</b> - October 2023<br/>
 - HUE Light: NEW Behaviour "KNX Brightness Status"<br/>
 - HUE Light: the light now remembers the last brightness value after switch off<br/>

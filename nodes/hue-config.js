@@ -3,6 +3,8 @@
 const dptlib = require("../KNXEngine/src/dptlib");
 const HueClass = require("./utils/hueEngine").classHUE;
 const loggerEngine = require("./utils/sysLogger");
+const hueColorConverter = require("./utils/hueColorConverter");
+
 // Helpers
 const sortBy = (field) => (a, b) => {
   if (a[field] > b[field]) {
@@ -30,14 +32,12 @@ const convertSubtype = (baseType) => (kv) => {
 
 const toConcattedSubtypes = (acc, baseType) => {
   const subtypes = Object.entries(baseType.subtypes).sort(sortBy(0)).map(convertSubtype(baseType));
-
   return acc.concat(subtypes);
 };
 
 module.exports = (RED) => {
   RED.httpAdmin.get("/knxUltimateDpts", RED.auth.needsPermission("hue-config.read"), (req, res) => {
     const dpts = Object.entries(dptlib).filter(onlyDptKeys).map(extractBaseNo).sort(sortBy("base")).reduce(toConcattedSubtypes, []);
-
     res.json(dpts);
   });
 
@@ -53,6 +53,7 @@ module.exports = (RED) => {
     } catch (error) {
       /* empty */
     }
+
     node.name = config.name === undefined || config.name === "" ? node.host : config.name;
 
     // Init HUE Utility
@@ -83,37 +84,12 @@ module.exports = (RED) => {
       });
       // Initialize the http wrapper, to use the provided key.
       // This http wrapper is used to get the data from HUE brigde
-      try {
-        // Load all resources, to avoid too many call to the HUE bridge and speed up the showing of the device mnames, during typing in the config window
-        node.hueAllResources = await node.hueManager.hueApiV2.get("/resource");
-        node.hueAllRooms = await node.hueManager.hueApiV2.get("/resource/room");
-        node.hueAllDevices = await node.hueManager.hueApiV2.get("/resource/device");
-      } catch (error) {
-        if (this.sysLogger !== undefined && this.sysLogger !== null) {
-          this.sysLogger.error(`KNXUltimatehueEngine: classHUE: getting resources: ${error.message}`);
-        }
-      }
+      await node.refreshResources();
     };
 
     (async () => {
       await node.ConnectToHueBridge();
     })();
-
-    RED.httpAdmin.get("/KNXUltimateGetResourcesHUE", RED.auth.needsPermission("hue-config.read"), (req, res) => {
-      try {
-        // °°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
-        const serverNode = RED.nodes.getNode(req.query.nodeID); // Retrieve node.id of the config node.
-        const jRet = serverNode.getResources(req.query.rtype);
-        res.json(jRet);
-        // °°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
-      } catch (error) {
-        RED.log.error(`Errore KNXUltimateGetResourcesHUE non gestito ${error.message}`);
-        res.json({ devices: error.message });
-        (async () => {
-          await node.ConnectToHueBridge();
-        })();
-      }
-    });
 
     // Get all devices and join it with relative rooms, by adding the room name to the device name
     node.getResources = (_rtype) => {
@@ -123,7 +99,6 @@ module.exports = (RED) => {
           if (typeof s !== "string") return "";
           return s.charAt(0).toUpperCase() + s.slice(1);
         }
-
         const retArray = [];
         let allResources;
         if (_rtype === "light" || _rtype === "grouped_light") {
@@ -230,6 +205,40 @@ module.exports = (RED) => {
         return { devices: error.message };
       }
     };
+    node.refreshResources = () => new Promise((resolve, reject) => {
+      (async () => {
+        // Reload all resources
+        try {
+          node.hueAllResources = await node.hueManager.hueApiV2.get("/resource");
+          node.hueAllRooms = node.hueAllResources.filter((a) => a.type === "room");
+          resolve(true);
+        } catch (error) {
+          if (this.sysLogger !== undefined && this.sysLogger !== null) {
+            this.sysLogger.error(`KNXUltimatehueEngine: getting resources: ${error.message}`);
+            reject(error.message);
+          }
+        }
+      })();
+    });
+
+    // Get all devices and join it with relative rooms, by adding the room name to the device name
+    node.getColorFromHueLight = (_lightId) => new Promise((resolve, reject) => {
+      (async () => {
+        try {
+          await node.refreshResources();
+          const oLight = node.hueAllResources.filter((a) => a.id === _lightId)[0];
+          const ret = hueColorConverter.ColorConverter.xyBriToRgb(
+            oLight.color.xy.x,
+            oLight.color.xy.y,
+            oLight.dimming.brightness,
+          );
+          resolve(JSON.stringify(ret));
+        } catch (error) {
+          if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(`KNXUltimateHue: hueEngine: getColorFromHueLight: error ${error.message}`);
+          reject(error.message);
+        }
+      })();
+    });
 
     node.addClient = (_Node) => {
       // Check if node already exists
@@ -248,7 +257,7 @@ module.exports = (RED) => {
       // Remove the client node from the clients array
       try {
         node.nodeClients = node.nodeClients.filter((x) => x.id !== _Node.id);
-      } catch (error) { }
+      } catch (error) { /* empty */ }
     };
 
     node.on("close", (done) => {
@@ -269,6 +278,33 @@ module.exports = (RED) => {
         })();
       } catch (error) {
         done();
+      }
+    });
+
+    RED.httpAdmin.get("/knxUltimateGetHueColor", RED.auth.needsPermission("hue-config.read"), (req, res) => {
+      (async () => {
+        try {
+          const rgbColor = await node.getColorFromHueLight(req.query.id);
+          res.json(rgbColor);
+        } catch (error) {
+          res.json("Select the device first!");
+        }
+      })();
+    });
+
+    RED.httpAdmin.get("/KNXUltimateGetResourcesHUE", RED.auth.needsPermission("hue-config.read"), (req, res) => {
+      try {
+        // °°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+        const serverNode = RED.nodes.getNode(req.query.nodeID); // Retrieve node.id of the config node.
+        const jRet = serverNode.getResources(req.query.rtype);
+        res.json(jRet);
+        // °°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+      } catch (error) {
+        RED.log.error(`Errore KNXUltimateGetResourcesHUE non gestito ${error.message}`);
+        res.json({ devices: error.message });
+        (async () => {
+          await node.ConnectToHueBridge();
+        })();
       }
     });
   }

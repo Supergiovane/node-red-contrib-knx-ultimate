@@ -96,6 +96,13 @@
             var oNodeServer = RED.nodes.node($("#node-input-server").val()); // Store the config-node
             var oNodeServerHue = RED.nodes.node($("#node-input-serverHue").val()); // Store the config-node
 
+            // var colorPicker = new iro.ColorPicker("#picker", {
+            //     // Set the size of the color picker
+            //     width: 320,
+            //     // Set the initial color to pure red
+            //     color: "#f00"
+            // });
+
             $("#tabs").tabs();
 
             // 19/02/2020 Used to get the server sooner als deploy.
@@ -268,6 +275,7 @@
                     } else {
                         $('#node-input-hueDevice').val(ui.item.hueDevice + "#light");
                     }
+                    $('#tabs').show();
                 }
             });
 
@@ -293,8 +301,26 @@
                 });
             });
 
-            // ########################
 
+            $("#getHueColorButton").on("click", function () {
+                // Get the HUE capabilities to enable/disable UI parts
+                $("#getHueColorButton").text("Wait...")
+                $.getJSON("knxUltimateGetHueColor?id=" + $('#node-input-hueDevice').val().split('#')[0], (data) => {
+                    $('#node-input-colorAtSwitchOnDayTime').val(data.toString());
+                    $("#getHueColorButton").text("Get current")
+                });
+            });
+            $("#getColorAtSwitchOnNightTime").on("click", function () {
+                // Get the HUE capabilities to enable/disable UI parts
+                $("#getColorAtSwitchOnNightTime").text("Wait...")
+                $.getJSON("knxUltimateGetHueColor?id=" + $('#node-input-hueDevice').val().split('#')[0], (data) => {
+                    $('#node-input-colorAtSwitchOnNightTime').val(data.toString());
+                    $("#getColorAtSwitchOnNightTime").text("Get current")
+                });
+            });
+
+            // ########################
+            if (this.hueDevice !== "") $('#tabs').show();
 
         },
         oneditsave: function () {
@@ -308,6 +334,7 @@
 
 </script>
 <script src="https://kit.fontawesome.com/11f26b4500.js" crossorigin="anonymous"></script>
+<!-- <script src="https://cdn.jsdelivr.net/npm/@jaames/iro@5"></script> -->
 
 <script type="text/html" data-template-name="knxUltimateHueLight">
 
@@ -337,7 +364,6 @@
     <input type="text" id="node-input-serverHue" />
 </div>
 
-
 <br/>
 <p>
 <b>Philips HUE</b>
@@ -353,7 +379,7 @@
 <br/>
 
 
-<div id="tabs">
+<div id="tabs" style="width:680px" hidden>
     <ul>
         <li><a href="#tabs-1">Switching</a></li>
         <li><a href="#tabs-2">Dim/Brightness</a></li>
@@ -559,6 +585,7 @@
                     </label>
                     <input type="text" id="node-input-colorAtSwitchOnDayTime"
                         placeholder='Leave blank or, for example, {"red":255, "green":255, "blue":255}' style="width:260px">
+                        <button id="getHueColorButton" type="button" class="red-ui-button">Get current</button>
                 </div>
                 <div class="form-row">
                     <label for="node-input-enableDayNightLighting" style="width:260px;">
@@ -576,6 +603,7 @@
                         </label>
                         <input type="text" id="node-input-colorAtSwitchOnNightTime"
                             placeholder='Example {"red":100, "green":0, "blue":50}' style="width:260px">
+                            <button id="getColorAtSwitchOnNightTime" type="button" class="red-ui-button">Get current</button>
                     </div>
                     <div class="form-row">
                         <label for="node-input-nameDaylightSensor" style="width:110px;"><i class="fa fa-clock-o"></i>
