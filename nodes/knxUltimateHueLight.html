@@ -96,12 +96,113 @@
             var oNodeServer = RED.nodes.node($("#node-input-server").val()); // Store the config-node
             var oNodeServerHue = RED.nodes.node($("#node-input-serverHue").val()); // Store the config-node
 
-            // var colorPicker = new iro.ColorPicker("#picker", {
-            //     // Set the size of the color picker
-            //     width: 320,
-            //     // Set the initial color to pure red
-            //     color: "#f00"
-            // });
+
+
+            // Create the TAB in Node-Red
+            // ####################################
+            const content = `<html>
+
+<head>
+    <div class="red-ui-sidebar-header">Color Selector</div>
+</head>
+<div style='position:relative;height:100%;margin:10px'>
+    <p>Choose the desired color/temperature, copy the <b>Result RGB</b> text and paste it into the required fields.</p>
+    <div>
+        <h3>Color</h3>
+        <div id="colorPicker"></div>
+    </div>
+    </br>
+    <div>
+        <h3>Temperature</h3>
+        <div id="kelvinPicker"></div>
+    </div>
+    </br>
+    <div>
+        <h3>Result RGB</h3>
+        <div>
+            <input style="width:100%" type="text" id="resultRGB">
+        </div>
+    </div>
+    <div>
+        <button id="copyTextButton" type="button" class="red-ui-button">Copy to clipboard</button>
+     </div>  
+
+</div>
+</html>
+`;
+            RED.sidebar.addTab({
+                id: "tabNRColor",
+                label: "Color Picker",
+                name: "Color Picker",
+                iconClass: "fa fa-database",
+                content: content,
+                enableOnEdit: true
+            });
+            RED.sidebar.show("tabNRColor");
+
+            // Temperature
+            node.kelvinPicker = new iro.ColorPicker("#kelvinPicker", {
+                width: 250,
+                color: "rgb(255, 0, 0)",
+                borderWidth: 1,
+                borderColor: "#fff",
+                layoutDirection: 'vertical',
+                layout: [
+                    {
+                        component: iro.ui.Slider,
+                        options: {
+                            sliderType: 'kelvin',
+                            sliderSize: 20,
+                        }
+                    },
+                ]
+            });
+            // color:change callbacks receive the current color
+            node.kelvinPicker.on("color:change", function (color) {
+                const resultRGBForNode = '{"red": ' + color.rgb.r + ', "green": ' + color.rgb.g + ', "blue": ' + color.rgb.b + '}';
+                $("#resultRGB").val(resultRGBForNode)
+            });
+
+
+            // Color
+            node.colorPicker = new iro.ColorPicker("#colorPicker", {
+                width: 250,
+                color: "rgb(255, 0, 0)",
+                borderWidth: 1,
+                borderColor: "#fff",
+                layout: [
+                    {
+                        component: iro.ui.Box,
+                    },
+                    {
+                        component: iro.ui.Slider,
+                        options: {
+                            id: 'hue-slider',
+                            sliderType: 'hue'
+                        }
+                    }
+                ]
+            });
+            // color:change callbacks receive the current color
+            node.colorPicker.on("color:change", function (color) {
+                // Transform to compatible value for the node { "red": 255, "green": 255, "blue": 255 }
+                const resultRGBForNode = '{"red": ' + color.rgb.r + ', "green": ' + color.rgb.g + ', "blue": ' + color.rgb.b + '}';
+                $("#resultRGB").val(resultRGBForNode)
+            });
+
+            // Copy to clipboard button
+            $("#copyTextButton").on("click", function () {
+                let text = $("#resultRGB").val();
+                try {
+                    navigator.clipboard.writeText(text);
+
+                } catch (err) {
+                }
+            });
+            // ####################################
+
+
+
 
             $("#tabs").tabs();
 
@@ -272,8 +373,12 @@
                     // Distinguish between group of lights an single light.
                     if (ui.item.value.startsWith('Grouped_light')) {
                         $('#node-input-hueDevice').val(ui.item.hueDevice + "#grouped_light");
+                        $("#getHueColorButton").hide();
+                        $("#getColorAtSwitchOnNightTime").hide();
                     } else {
                         $('#node-input-hueDevice').val(ui.item.hueDevice + "#light");
+                        $("#getHueColorButton").show();
+                        $("#getColorAtSwitchOnNightTime").show();
                     }
                     $('#tabs').show();
                 }
@@ -307,6 +412,10 @@
                 $("#getHueColorButton").text("Wait...")
                 $.getJSON("knxUltimateGetHueColor?id=" + $('#node-input-hueDevice').val().split('#')[0], (data) => {
                     $('#node-input-colorAtSwitchOnDayTime').val(data.toString());
+                    $("#node-input-colorAtSwitchOnDayTime").css("background-color", "lightgreen");
+                    setTimeout(() => {
+                        $("#node-input-colorAtSwitchOnDayTime").css("background-color", "");
+                    }, 500);
                     $("#getHueColorButton").text("Get current")
                 });
             });
@@ -315,6 +424,10 @@
                 $("#getColorAtSwitchOnNightTime").text("Wait...")
                 $.getJSON("knxUltimateGetHueColor?id=" + $('#node-input-hueDevice').val().split('#')[0], (data) => {
                     $('#node-input-colorAtSwitchOnNightTime').val(data.toString());
+                    $("#node-input-colorAtSwitchOnNightTime").css("background-color", "lightgreen");
+                    setTimeout(() => {
+                        $("#node-input-colorAtSwitchOnNightTime").css("background-color", "");
+                    }, 500);
                     $("#getColorAtSwitchOnNightTime").text("Get current")
                 });
             });
@@ -322,19 +435,21 @@
             // ########################
             if (this.hueDevice !== "") $('#tabs').show();
 
+
         },
         oneditsave: function () {
-
-
+            RED.sidebar.removeTab("tabNRColor");
+            RED.sidebar.show("help")
         },
         oneditcancel: function () {
-
+            RED.sidebar.removeTab("tabNRColor");
+            RED.sidebar.show("help")
         }
     })
 
 </script>
 <script src="https://kit.fontawesome.com/11f26b4500.js" crossorigin="anonymous"></script>
-<!-- <script src="https://cdn.jsdelivr.net/npm/@jaames/iro@5"></script> -->
+<script src="https://cdn.jsdelivr.net/npm/@jaames/iro@5"></script>
 
 <script type="text/html" data-template-name="knxUltimateHueLight">
 
