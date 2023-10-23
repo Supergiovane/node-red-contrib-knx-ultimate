@@ -6,7 +6,7 @@
 
 # CHANGELOG
 <p>
-<b>Version 2.1.60</b> - October 2023<br/>
+<b>Version 2.1.61</b> - October 2023<br/>
 - HUE Light: NEW color picker. A Color picker is shown in the right TABS of node-red, as soon as you open the light node. You can choose the color you want, and paste the RGB color into the HUE light node.<br/>
 - HUE Light: the color getter is now not shown, whenever you select a grouped light. You can use the color picker instead.<br/>
 </p>

@@ -192,12 +192,34 @@
 
             // Copy to clipboard button
             $("#copyTextButton").on("click", function () {
-                var copyText = document.getElementById("resultRGB");
-                // Select the text field
-                copyText.select();
-                copyText.setSelectionRange(0, 99999); // For mobile devices
-                // Copy the text inside the text field
-                navigator.clipboard.writeText(copyText.value);
+                function someAsyncMethod() {
+                    return new Promise(async (resolve) => {
+                        resolve($("#resultRGB").val())
+                    })
+                }
+                const clipboardItem = new ClipboardItem({
+                    'text/plain': someAsyncMethod().then((result) => {
+                        /**
+                         * We have to return an empty string to the clipboard if something bad happens, otherwise the
+                         * return type for the ClipBoardItem is incorrect.
+                         */
+                        if (!result) {
+                            return new Promise(async (resolve) => {
+                                resolve(new Blob[``]())
+                            })
+                        }
+
+                        const copyText = result;
+                        return new Promise(async (resolve) => {
+                            $("#resultRGB").css("background-color", "lightgreen");
+                            setTimeout(() => {
+                                $("#resultRGB").css("background-color", "");
+                            }, 500);
+                            resolve(new Blob([copyText]))
+                        })
+                    }),
+                })
+                navigator.clipboard.write([clipboardItem])
             });
             // ####################################
 
@@ -405,8 +427,8 @@
                         if (element.deviceObject.type === "grouped_light") {
                             $("#getHueColorButton").hide();
                             $("#getColorAtSwitchOnNightTime").hide();
-                        }else{
-                             $("#getHueColorButton").show();
+                        } else {
+                            $("#getHueColorButton").show();
                             $("#getColorAtSwitchOnNightTime").show();
                         }
                         return
@@ -458,6 +480,7 @@
 </script>
 <script src="https://kit.fontawesome.com/11f26b4500.js" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/@jaames/iro@5"></script>
+<script src="https://wzrd.in/standalone/copy-to-clipboard@latest" async></script>
 
 <script type="text/html" data-template-name="knxUltimateHueLight">
 
