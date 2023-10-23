@@ -192,12 +192,12 @@
 
             // Copy to clipboard button
             $("#copyTextButton").on("click", function () {
-                let text = $("#resultRGB").val();
-                try {
-                    navigator.clipboard.writeText(text);
-
-                } catch (err) {
-                }
+                var copyText = document.getElementById("resultRGB");
+                // Select the text field
+                copyText.select();
+                copyText.setSelectionRange(0, 99999); // For mobile devices
+                // Copy the text inside the text field
+                navigator.clipboard.writeText(copyText.value);
             });
             // ####################################
 
@@ -400,6 +400,14 @@
                             $('#tabs').tabs("disable", "#tabs-4");
                             $('#divColorsAtSwitchOn').hide()
                             $('#divColorCycle').hide()
+                        }
+                        // Check if grouped, to hide/show the "Get current" buttons
+                        if (element.deviceObject.type === "grouped_light") {
+                            $("#getHueColorButton").hide();
+                            $("#getColorAtSwitchOnNightTime").hide();
+                        }else{
+                             $("#getHueColorButton").show();
+                            $("#getColorAtSwitchOnNightTime").show();
                         }
                         return
                     }
