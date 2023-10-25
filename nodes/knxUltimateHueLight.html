@@ -121,24 +121,27 @@
         <h3>Result RGB</h3>
         <div>
             <input style="width:100%" type="text" id="resultRGB">
+            <input type="hidden" id="tabNRColor_destinationTextbox">
         </div>
     </div>
-    <div>
-        <button id="copyTextButton" type="button" class="red-ui-button">Copy to clipboard</button>
+    <div id="tabNRColor_divApplyCancel" hidden>
+        <button id="tabNRColor_colorSelectorTABApplyTextButton" type="button" class="red-ui-button">Apply</button>
+         <button id="tabNRColor_colorSelectorTABCancelTextButton" type="button" class="red-ui-button">Cancel</button>
      </div>  
 
 </div>
 </html>
 `;
+
+            // COLOR BAR HANDLING ###########################
             RED.sidebar.addTab({
                 id: "tabNRColor",
                 label: "Color Picker",
                 name: "Color Picker",
-                iconClass: "fa fa-database",
+                iconClass: "fa fa-pencil",
                 content: content,
                 enableOnEdit: true
             });
-            RED.sidebar.show("tabNRColor");
 
             // Temperature
             node.kelvinPicker = new iro.ColorPicker("#kelvinPicker", {
@@ -189,44 +192,60 @@
                 const resultRGBForNode = '{"red": ' + color.rgb.r + ', "green": ' + color.rgb.g + ', "blue": ' + color.rgb.b + '}';
                 $("#resultRGB").val(resultRGBForNode)
             });
-
+            $("#resultRGB").on("keyup", function () {
+                setIroColor()
+            });
+            function setIroColor() {
+                try {
+                    const color = JSON.parse($("#resultRGB").val())
+                    node.colorPicker.color.setChannel('rgb', 'r', color.red);
+                    node.colorPicker.color.setChannel('rgb', 'g', color.green);
+                    node.colorPicker.color.setChannel('rgb', 'b', color.blue);
+                } catch (error) { }
+            }
             // Copy to clipboard button
-            $("#copyTextButton").on("click", function () {
-                function someAsyncMethod() {
-                    return new Promise(async (resolve) => {
-                        resolve($("#resultRGB").val())
-                    })
-                }
-                const clipboardItem = new ClipboardItem({
-                    'text/plain': someAsyncMethod().then((result) => {
-                        /**
-                         * We have to return an empty string to the clipboard if something bad happens, otherwise the
-                         * return type for the ClipBoardItem is incorrect.
-                         */
-                        if (!result) {
-                            return new Promise(async (resolve) => {
-                                resolve(new Blob[``]())
-                            })
-                        }
-
-                        const copyText = result;
-                        return new Promise(async (resolve) => {
-                            $("#resultRGB").css("background-color", "lightgreen");
-                            setTimeout(() => {
-                                $("#resultRGB").css("background-color", "");
-                            }, 500);
-                            resolve(new Blob([copyText]))
-                        })
-                    }),
-                })
-                navigator.clipboard.write([clipboardItem])
+            $("#tabNRColor_colorSelectorTABApplyTextButton").on("click", function () {
+                // const aa = $("#resultRGB").val()
+                // navigator.clipboard.writeText(aa)
+                const destTextBox = "#" + $("#tabNRColor_destinationTextbox").val()
+                const resultRGB = $("#resultRGB").val()
+                $(destTextBox).val(resultRGB)
+                // Flash the destination control
+                $(destTextBox).css("background-color", "lightgreen");
+                $("#tabNRColor_divApplyCancel").hide()
+                RED.sidebar.show("help")
+                setTimeout(() => {
+                    $(destTextBox).css("background-color", "");
+                }, 500);
+            });
+            $("#tabNRColor_colorSelectorTABCancelTextButton").on("click", function () {
+                $("#tabNRColor_destinationTextbox").val("")
+                RED.sidebar.show("help")
+                $("#tabNRColor_divApplyCancel").hide()
+            })
+            $("#node-input-colorAtSwitchOnDayTime").on("focus", function () {
+                RED.sidebar.show("tabNRColor"); // Node-Red custom color TAB
+                $("#tabNRColor_destinationTextbox").val("node-input-colorAtSwitchOnDayTime")
+                $("#tabNRColor_divApplyCancel").show()
+                const color = $("#node-input-colorAtSwitchOnDayTime").val()
+                $("#resultRGB").val(color)
+                setIroColor();
+            });
+            // $("#node-input-colorAtSwitchOnDayTime").on("blur", function () {
+            //     RED.sidebar.show("help");
+            // });
+            $("#node-input-colorAtSwitchOnNightTime").on("focus", function () {
+                RED.sidebar.show("tabNRColor"); // Node-Red custom color TAB
+                $("#tabNRColor_destinationTextbox").val("node-input-colorAtSwitchOnNightTime")
+                $("#tabNRColor_divApplyCancel").show()
+                const color = $("#node-input-colorAtSwitchOnNightTime").val()
+                $("#resultRGB").val(color)
+                setIroColor();
             });
             // ####################################
 
 
-
-
-            $("#tabs").tabs();
+            $("#tabs").tabs(); // Tabs gestione KNX
 
             // 19/02/2020 Used to get the server sooner als deploy.
             $("#node-input-server").change(function () {
@@ -252,7 +271,6 @@
                 return i == aSearchWords.length;
             }
 
-
             function getDPT(_dpt, _destinationWidget) {
                 // DPT Switch command
                 // ########################
@@ -267,7 +285,6 @@
                     $(_destinationWidget).val(this + "." + _destinationWidget - replace("#node-input-", ""))
                 })
             }
-
 
             function getGroupAddress(_sourceWidgetAutocomplete, _destinationWidgetName, _destinationWidgetDPT, _additionalSearchTerm) {
                 $(_sourceWidgetAutocomplete).autocomplete({
@@ -348,6 +365,7 @@
             } else {
                 $("#DivEnableDayNightLighting").hide()
             }
+
             $("#node-input-enableDayNightLighting").on('change', function () {
                 if ($("#node-input-enableDayNightLighting").val() === 'yes') {
                     $("#DivEnableDayNightLighting").show()
@@ -363,6 +381,7 @@
                 $("#divcolorAtSwitchOnNightTime").hide()
                 $("#node-input-colorAtSwitchOnDayTime").val('')
             }
+
             $("#node-input-specifySwitchOnBrightness").on('change', function () {
                 if ($("#node-input-specifySwitchOnBrightness").val() === 'yes') {
                     $("#divcolorAtSwitchOnNightTime").show()
@@ -393,14 +412,14 @@
                     });
                 }, select: function (event, ui) {
                     // Distinguish between group of lights an single light.
-                    if (ui.item.value.startsWith('Grouped_light')) {
+                    if (ui.item.value.toLowerCase().startsWith('grouped_light')) {
                         $('#node-input-hueDevice').val(ui.item.hueDevice + "#grouped_light");
-                        $("#getHueColorButton").hide();
-                        $("#getColorAtSwitchOnNightTime").hide();
+                        $("#getColorAtSwitchOnDayTimeButton").hide();
+                        $("#getColorAtSwitchOnNightTimeButton").hide();
                     } else {
                         $('#node-input-hueDevice').val(ui.item.hueDevice + "#light");
-                        $("#getHueColorButton").show();
-                        $("#getColorAtSwitchOnNightTime").show();
+                        $("#getColorAtSwitchOnDayTimeButton").show();
+                        $("#getColorAtSwitchOnNightTimeButton").show();
                     }
                     $('#tabs').show();
                 }
@@ -425,46 +444,43 @@
                         }
                         // Check if grouped, to hide/show the "Get current" buttons
                         if (element.deviceObject.type === "grouped_light") {
-                            $("#getHueColorButton").hide();
-                            $("#getColorAtSwitchOnNightTime").hide();
+                            $("#getColorAtSwitchOnDayTimeButton").hide();
+                            $("#getColorAtSwitchOnNightTimeButton").hide();
                         } else {
-                            $("#getHueColorButton").show();
-                            $("#getColorAtSwitchOnNightTime").show();
+                            $("#getColorAtSwitchOnDayTimeButton").show();
+                            $("#getColorAtSwitchOnNightTimeButton").show();
                         }
                         return
                     }
                 });
             });
 
-
-            $("#getHueColorButton").on("click", function () {
+            $("#getColorAtSwitchOnDayTimeButton").on("click", function () {
                 // Get the HUE capabilities to enable/disable UI parts
-                $("#getHueColorButton").text("Wait...")
+                $("#getColorAtSwitchOnDayTimeButton").text("Wait...")
                 $.getJSON("knxUltimateGetHueColor?id=" + $('#node-input-hueDevice').val().split('#')[0], (data) => {
                     $('#node-input-colorAtSwitchOnDayTime').val(data.toString());
                     $("#node-input-colorAtSwitchOnDayTime").css("background-color", "lightgreen");
                     setTimeout(() => {
                         $("#node-input-colorAtSwitchOnDayTime").css("background-color", "");
                     }, 500);
-                    $("#getHueColorButton").text("Get current")
+                    $("#getColorAtSwitchOnDayTimeButton").text("Get current")
                 });
             });
-            $("#getColorAtSwitchOnNightTime").on("click", function () {
+            $("#getColorAtSwitchOnNightTimeButton").on("click", function () {
                 // Get the HUE capabilities to enable/disable UI parts
-                $("#getColorAtSwitchOnNightTime").text("Wait...")
+                $("#getColorAtSwitchOnNightTimeButton").text("Wait...")
                 $.getJSON("knxUltimateGetHueColor?id=" + $('#node-input-hueDevice').val().split('#')[0], (data) => {
                     $('#node-input-colorAtSwitchOnNightTime').val(data.toString());
                     $("#node-input-colorAtSwitchOnNightTime").css("background-color", "lightgreen");
                     setTimeout(() => {
                         $("#node-input-colorAtSwitchOnNightTime").css("background-color", "");
                     }, 500);
-                    $("#getColorAtSwitchOnNightTime").text("Get current")
+                    $("#getColorAtSwitchOnNightTimeButton").text("Get current")
                 });
             });
 
-            // ########################
             if (this.hueDevice !== "") $('#tabs').show();
-
 
         },
         oneditsave: function () {
@@ -480,7 +496,7 @@
 </script>
 <script src="https://kit.fontawesome.com/11f26b4500.js" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/@jaames/iro@5"></script>
-<script src="https://wzrd.in/standalone/copy-to-clipboard@latest" async></script>
+<!-- <script src="https://wzrd.in/standalone/copy-to-clipboard@latest" async></script> -->
 
 <script type="text/html" data-template-name="knxUltimateHueLight">
 
@@ -730,8 +746,8 @@
                         <i class="fa fa-sun-o"></i> Switch On - color/brightness
                     </label>
                     <input type="text" id="node-input-colorAtSwitchOnDayTime"
-                        placeholder='Leave blank or, for example, {"red":255, "green":255, "blue":255}' style="width:260px">
-                        <button id="getHueColorButton" type="button" class="red-ui-button">Get current</button>
+                        placeholder='For example, {"red":255, "green":255, "blue":255}' style="width:260px">
+                        <button id="getColorAtSwitchOnDayTimeButton" type="button" class="red-ui-button">Get current</button>
                 </div>
                 <div class="form-row">
                     <label for="node-input-enableDayNightLighting" style="width:260px;">
@@ -749,7 +765,7 @@
                         </label>
                         <input type="text" id="node-input-colorAtSwitchOnNightTime"
                             placeholder='Example {"red":100, "green":0, "blue":50}' style="width:260px">
-                            <button id="getColorAtSwitchOnNightTime" type="button" class="red-ui-button">Get current</button>
+                            <button id="getColorAtSwitchOnNightTimeButton" type="button" class="red-ui-button">Get current</button>
                     </div>
                     <div class="form-row">
                         <label for="node-input-nameDaylightSensor" style="width:110px;"><i class="fa fa-clock-o"></i>

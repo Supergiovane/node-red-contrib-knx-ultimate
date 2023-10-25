@@ -6,6 +6,10 @@
 
 # CHANGELOG
 <p>
+<b>Version 2.1.63</b> - October 2023<br/>
+- HUE Light: optimized the GUI in select color TAB.<br/>
+</p>
+<p>
 <b>Version 2.1.62</b> - October 2023<br/>
 - HUE Light: FIX: a typo error could prevent the light to switch on, if the light was set to specified RGB color at switch on.<br/>
 </p>
