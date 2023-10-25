@@ -73,6 +73,7 @@ module.exports = function (RED) {
               if (node.DayTime === true && (config.specifySwitchOnBrightness === undefined || config.specifySwitchOnBrightness === "yes")) {
                 try {
                   jColorChoosen = JSON.parse(config.colorAtSwitchOnDayTime);
+                  if (jColorChoosen.green === undefined) jColorChoosen.green = jColorChoosen.hasOwnProperty("geen") ? jColorChoosen.geen : jColorChoosen.green;
                 } catch (error) {
                   jColorChoosen = { red: 255, green: 255, blue: 255 };
                 }
@@ -431,9 +432,7 @@ module.exports = function (RED) {
             // To avoid wrongly turn light state on, exit
             if (_event.dimming.brightness < 1) _event.dimming.brightness = 0;
             if (node.currentHUEDevice.hasOwnProperty('on') && node.currentHUEDevice.on.on === false && _event.dimming.brightness === 0) return;
-            // if (config.specifySwitchOnBrightness === undefined || config.specifySwitchOnBrightness === "yes") {
             if (node.currentHUEDevice.on.on === false) node.updateKNXLightState(_event.dimming.brightness > 0);
-            // }
             node.updateKNXBrightnessState(_event.dimming.brightness);
             if (node.currentHUEDevice !== undefined) node.currentHUEDevice.dimming = _event.dimming; // Update the internal object representing the current light
             // If the brightness reaches zero, the hue lamp "on" property must be set to zero as well
