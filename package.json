@@ -8,7 +8,7 @@
   "dependencies": {
     "binary-parser": "2.2.1",
     "color-convert": "2.0.1",
-    "crypto-js": "4.1.1",
+    "crypto-js": "4.2.0",
     "dns-sync": "0.2.1",
     "eventsource": "2.0.2",
     "lodash": "4.17.21",

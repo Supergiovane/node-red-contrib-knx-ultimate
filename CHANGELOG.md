@@ -6,6 +6,10 @@
 
 # CHANGELOG
 <p>
+<b>Version </b> - October 2023<br/>
+- Security fix: patched a vulnerability in crypto.js.<br/>
+</p>
+<p>
 <b>Version 2.1.63</b> - October 2023<br/>
 - HUE Light: optimized the GUI in select color TAB.<br/>
 </p>

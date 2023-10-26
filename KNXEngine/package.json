@@ -44,7 +44,7 @@
     "log-driver": "1.2.7",
     "lodash": "4.17.21",
     "path": "0.12.7",
-    "crypto-js": "4.1.1",
+    "crypto-js": "4.2.0",
     "xml2js": "0.6.0"
   },
   "devDependencies": {}
