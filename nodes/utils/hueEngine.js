@@ -1,7 +1,7 @@
 /* eslint-disable max-len */
 const { EventEmitter } = require('events');
 const EventSource = require('eventsource');
-const http = require('./http.js');
+const http = require('./http');
 
 class classHUE extends EventEmitter {
   constructor(_hueBridgeIP, _username, _clientkey, _bridgeid, _sysLogger) {
@@ -89,6 +89,7 @@ class classHUE extends EventEmitter {
     if (this.commandQueue.length > 0) {
       // const jRet = { ...this.commandQueue.shift() } //Clone the object by value
       const jRet = this.commandQueue.shift();
+      // jRet is ({ _lightID, _state, _operation });;
       switch (jRet._operation) {
         case 'setLight':
           // It can be a light or a grouped light
@@ -103,23 +104,6 @@ class classHUE extends EventEmitter {
             await this.hueApiV2.put(`/resource/grouped_light/${jRet._lightID}`, jRet._state);
           } catch (error) {
             if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.info(`KNXUltimatehueEngine: classHUE: handleQueue: setLight grouped_light: ${error.message}`);
-          }
-          break;
-        case 'getLight':
-          try {
-            const jReturn = await this.hueApiV2.get(`/resource/light/${jRet._lightID}`);
-            jRet._callback(jReturn[0]); // Need to call the callback, because the event is absolutely async
-          } catch (error) {
-            if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.info(`KNXUltimatehueEngine: classHUE: handleQueue: getLight light: ${error.message}`);
-          }
-          break;
-        case 'getGroupedLight':
-          try {
-            const jReturn = await this.hueApiV2.get(`/resource/grouped_light/${jRet._lightID}`);
-            // Need to call the callback, because the event is absolutely async
-            jRet._callback(jReturn[0]);
-          } catch (error) {
-            if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.info(`KNXUltimatehueEngine: classHUE: handleQueue: getLight grouped_light: ${error.message}`);
           }
           break;
         case 'setScene':
@@ -146,14 +130,13 @@ class classHUE extends EventEmitter {
         case 'getBattery':
           try {
             const jReturn = await this.hueApiV2.get(`/resource/device_power/${jRet._lightID}`);
-            jRet._callback(jReturn[0]); // Need to call the callback, because the event is absolutely async
           } catch (error) {
             if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.error(`KNXUltimatehueEngine: classHUE: handleQueue: getBattery: ${error.message}`);
           }
+          break;
         case 'getLightLevel':
           try {
             const jReturn = await this.hueApiV2.get(`/resource/light_level/${jRet._lightID}`);
-            jRet._callback(jReturn[0]); // Need to call the callback, because the event is absolutely async
           } catch (error) {
             if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.error(`KNXUltimatehueEngine: classHUE: handleQueue: getLightLevel: ${error.message}`);
           }
@@ -161,7 +144,6 @@ class classHUE extends EventEmitter {
         case 'getTemperature':
           try {
             const jReturn = await this.hueApiV2.get(`/resource/temperature/${jRet._lightID}`);
-            jRet._callback(jReturn[0]); // Need to call the callback, because the event is absolutely async
           } catch (error) {
             if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.error(`KNXUltimatehueEngine: classHUE: handleQueue: getTemperature: ${error.message}`);
           }
@@ -174,11 +156,9 @@ class classHUE extends EventEmitter {
     this.timerwriteQueueAdd = setTimeout(this.handleQueue, 200);
   };
 
-  writeHueQueueAdd = async (_lightID, _state, _operation, _callback) => {
+  writeHueQueueAdd = async (_lightID, _state, _operation) => {
     // Add the new item
-    this.commandQueue.push({
-      _lightID, _state, _operation, _callback,
-    });
+    this.commandQueue.push({ _lightID, _state, _operation });
   };
   // ######################################
 

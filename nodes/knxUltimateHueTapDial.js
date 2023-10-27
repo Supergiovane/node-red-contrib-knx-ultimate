@@ -147,7 +147,6 @@ module.exports = function (RED) {
       if (node.timerDimStop !== undefined) clearTimeout(node.timerDimStop);
       node.isTimerDimStopRunning = true;
       node.timerDimStop = setTimeout(() => {
-        console.log('Stop banana');
         // KNX Stop DIM
         knxMsgPayload.payload = { decr_incr: 0, data: 0 }; // Payload for the output msg
         // Send to KNX bus
@@ -158,7 +157,7 @@ module.exports = function (RED) {
         }
         if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.status({ fill: 'green', shape: 'dot', text: 'HUE->KNX Stop DIM' + ` (${new Date().getDate()}, ${new Date().toLocaleTimeString()})` });
         node.isTimerDimStopRunning = false;
-      }, 1500);
+      }, 500);
     };
 
     // On each deploy, unsubscribe+resubscribe

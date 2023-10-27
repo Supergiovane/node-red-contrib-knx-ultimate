@@ -6,7 +6,9 @@
 
 # CHANGELOG
 <p>
-<b>Version </b> - October 2023<br/>
+<b>Version 2.2.0</b> - October 2023<br/>
+- HEAVY REWRITE of the DIM function.<br/>
+- NEW: HUE Light: Added DIM time and many other options.<br/>
 - Security fix: patched a vulnerability in crypto.js.<br/>
 </p>
 <p>

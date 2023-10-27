@@ -67,6 +67,9 @@
 
             specifySwitchOnBrightness: { value: "yes" },
             updateKNXBrightnessStatusOnHUEOnOff: { value: "onhueoff" },
+            dimSpeed: { value: 5000, required: false, validate: RED.validators.number() },
+            minDimLevelLight: { value: 'useHueLightLevel', required: false },
+            maxDimLevelLight: { value: '100', required: false },
 
             hueDevice: { value: "" }
         },
@@ -282,7 +285,9 @@
                                 .text(dpt.text))
                         }
                     });
-                    $(_destinationWidget).val(this + "." + _destinationWidget - replace("#node-input-", ""))
+                    // Eval
+                    const format = "node." + _destinationWidget.replace("#node-input-", "");
+                    $(_destinationWidget).val(eval(format).toString());                   
                 })
             }
 
@@ -316,7 +321,7 @@
                         // Select the option value 
                         $(_destinationWidgetDPT).val(optVal);
                     }
-                });
+                });                               
             }
 
             getDPT("1.", "#node-input-dptLightSwitch")
@@ -376,18 +381,18 @@
 
             // Show/Hide the div of the color at swich on
             if (this.specifySwitchOnBrightness === 'yes') {
-                $("#divcolorAtSwitchOnNightTime").show()
+                $("#divColorsAtSwitchOn").show()
             } else {
-                $("#divcolorAtSwitchOnNightTime").hide()
+                $("#divColorsAtSwitchOn").hide()
                 $("#node-input-colorAtSwitchOnDayTime").val('')
             }
 
             $("#node-input-specifySwitchOnBrightness").on('change', function () {
                 if ($("#node-input-specifySwitchOnBrightness").val() === 'yes') {
-                    $("#divcolorAtSwitchOnNightTime").show()
+                    $("#divColorsAtSwitchOn").show()
                     if ($("#node-input-colorAtSwitchOnDayTime").val() === '') $("#node-input-colorAtSwitchOnDayTime").val('{ "red": 255, "green": 255, "blue": 255 }')
                 } else {
-                    $("#divcolorAtSwitchOnNightTime").hide()
+                    $("#divColorsAtSwitchOn").hide()
                     $("#node-input-colorAtSwitchOnDayTime").val('')
                 }
             })
@@ -480,8 +485,16 @@
                 });
             });
 
-            if (this.hueDevice !== "") $('#tabs').show();
+            for (let index = 1; index <= 90; index++) {
+                $('#node-input-minDimLevelLight').append($('<option>').val(index).text(index.toString() + "%"))
+            }
+            $('#node-input-minDimLevelLight').val(node.minDimLevelLight)
+            for (let index = 100; index >= 10; index--) {
+                $('#node-input-maxDimLevelLight').append($('<option>').val(index).text(index.toString() + "%"))
+            }
+            $('#node-input-maxDimLevelLight').val(node.maxDimLevelLight)
 
+            if (this.hueDevice !== "") $('#tabs').show();
         },
         oneditsave: function () {
             RED.sidebar.removeTab("tabNRColor");
@@ -496,7 +509,6 @@
 </script>
 <script src="https://kit.fontawesome.com/11f26b4500.js" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/@jaames/iro@5"></script>
-<!-- <script src="https://wzrd.in/standalone/copy-to-clipboard@latest" async></script> -->
 
 <script type="text/html" data-template-name="knxUltimateHueLight">
 
@@ -553,7 +565,7 @@
     <div id="tabs-1">
       <p>        
         <div class="form-row">
-            <label for="node-input-nameLightSwitch" style="width:110px;"><i class="fa fa-play-circle-o"></i> <span data-i18n="knxUltimateHueLight.node-input-nameLightSwitch"></span></label>
+            <label for="node-input-nameLightSwitch" style="width:110px;"><i class="fa fa-play-circle-o"></i> Control</label>
 
             <label for="node-input-GALightSwitch" style="width:20px;"><span data-i18n="knxUltimateHueLight.node-input-GALightSwitch"></span></label>
             <input type="text" id="node-input-GALightSwitch" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
@@ -581,7 +593,7 @@
     <div id="tabs-2">
       <p>
         <div class="form-row">
-        <label for="node-input-nameLightDIM" style="width:110px;"><i class="fa fa-play-circle-o"></i> Dimming</label>
+        <label for="node-input-nameLightDIM" style="width:110px;"><i class="fa fa-play-circle-o"></i> Control</label>
 
         <label for="node-input-GALightDIM" style="width:20px;"><span data-i18n="knxUltimateHueLight.node-input-GALightState"></span></label>
         <input type="text" id="node-input-GALightDIM" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
@@ -593,7 +605,7 @@
         <input type="text" id="node-input-nameLightDIM" style="width:190px;margin-left: 5px; text-align: left;">
         </div>
         <div class="form-row">
-        <label for="node-input-nameLightBrightness" style="width:110px;"><i class="fa fa-play-circle-o"></i> Percentage</label>
+        <label for="node-input-nameLightBrightness" style="width:110px;"><i class="fa fa-play-circle-o"></i> Control %</label>
 
         <label for="node-input-GALightBrightness" style="width:20px;"><span data-i18n="knxUltimateHueLight.node-input-GALightState"></span></label>
         <input type="text" id="node-input-GALightBrightness" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
@@ -622,7 +634,7 @@
     <div id="tabs-3">
       <p>
         <div class="form-row">
-            <label for="node-input-nameLightHSV" style="width:110px;"><i class="fa fa-play-circle-o"></i> Dimming</label>
+            <label for="node-input-nameLightHSV" style="width:110px;"><i class="fa fa-play-circle-o"></i> Control</label>
     
             <label for="node-input-GALightHSV" style="width:20px;">GA</label>
             <input type="text" id="node-input-GALightHSV" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
@@ -634,7 +646,7 @@
             <input type="text" id="node-input-nameLightHSV" style="width:190px;margin-left: 5px; text-align: left;">
         </div>
         <div class="form-row">
-            <label for="node-input-nameLightHSVPercentage" style="width:110px;"><i class="fa fa-play-circle-o"></i> Percentage</label>
+            <label for="node-input-nameLightHSVPercentage" style="width:110px;"><i class="fa fa-play-circle-o"></i> Control %</label>
         
             <label for="node-input-GALightHSVPercentage" style="width:20px;">GA</label>
             <input type="text" id="node-input-GALightHSVPercentage" placeholder="Ex: 1/1/1"
@@ -663,7 +675,7 @@
     <div id="tabs-4">
         <p>
             <div class="form-row">
-            <label for="node-input-nameLightColor" style="width:110px;"><i class="fa fa-play-circle-o"></i>&nbspColor</label>
+            <label for="node-input-nameLightColor" style="width:110px;"><i class="fa fa-play-circle-o"></i> Control</label>
     
             <label for="node-input-GALightColor" style="width:20px;"><span data-i18n="knxUltimateHueLight.node-input-GALightState"></span></label>
             <input type="text" id="node-input-GALightColor" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
@@ -739,9 +751,9 @@
                     <option value="yes">Yes</option>
                     <option value="no">No</option>
                 </select>
-            </div>  
-            <div id="divColorsAtSwitchOn">
-                <div class="form-row" id="divcolorAtSwitchOnNightTime">
+            </div>
+                <div id="divColorsAtSwitchOn">
+                <div class="form-row" >
                     <label for="node-input-colorAtSwitchOnDayTime" style="width:260px">
                         <i class="fa fa-sun-o"></i> Switch On - color/brightness
                     </label>
@@ -758,6 +770,7 @@
                         <option value="no">No</option>
                     </select>
                 </div>
+            
                 <div id="DivEnableDayNightLighting">
                     <div class="form-row">
                         <label for="node-input-colorAtSwitchOnNightTime" style="width:260px">
@@ -793,7 +806,28 @@
             
                     </div>
                 </div>
-            </div>          
+            </div>  
+            <div class="form-row">
+                <label for="node-input-dimSpeed" style="width:260px">
+                    <i class="fa fa-bolt"></i> Dim Speed (ms)
+                </label>
+                <input type="text" id="node-input-dimSpeed" placeholder='5000' style="width:260px">                
+            </div>
+            <div class="form-row">
+                <label for="node-input-minDimLevelLight" style="width:260px;">
+                    <i class="fa fa-clone"></i> Min Dim Brightness
+                </label>
+                <select id="node-input-minDimLevelLight">
+                    <option value="useHueLightLevel">Use minimum brightness specified in the HUE light</option>
+                </select>
+            </div>
+            <div class="form-row">
+                <label for="node-input-maxDimLevelLight" style="width:260px;">
+                    <i class="fa fa-clone"></i> Max Dim Brightness
+                </label>
+                <select id="node-input-maxDimLevelLight"></select>
+            </div>
+            
         </p>
     </div>  
   
@@ -820,7 +854,7 @@ Start typing in the GA field, the name or group address of your KNX device, the 
 **Switching**
 |Property|Description|
 |--|--|
-| Switch | This GA is used to turn on/off the HUE light via a boolean KNX value true/false|
+| Control | This GA is used to turn on/off the HUE light via a boolean KNX value true/false|
 | Status | Link this to the light's switch status group address|
 
 <br/>
@@ -828,8 +862,8 @@ Start typing in the GA field, the name or group address of your KNX device, the 
 **Dim/Brightness**
 |Property|Description|
 |--|--|
-| Dimming | Relative DIM the HUE light |
-| Percentage | Changes the absolute HUE light's brightness (0-100%)|
+| Control | Relative DIM the HUE light. You can set the dimming speed in the ***Behaviour*** tab. |
+| Control % | Changes the absolute HUE light's brightness (0-100%)|
 | Status| Link this to the light's brightness status group address |
 
 <br/>
@@ -837,8 +871,8 @@ Start typing in the GA field, the name or group address of your KNX device, the 
 **Tunable white**
 |Property|Description|
 |--|--|
-| Dimming| Changes the HUE light's white temperature, using DPT 3.007 dimming.|
-| Percentage | Changes the HUE light's white temperature, using the DPT 5.001. A value of 0 is full warm, a value of 100 is full cold.|
+| Control| Changes the HUE light's white temperature, using DPT 3.007 dimming. You can set the dimming speed in the ***Behaviour*** tab.|
+| Control % | Changes the HUE light's white temperature, using the DPT 5.001. A value of 0 is full warm, a value of 100 is full cold.|
 | Status | Link this to the light temperature status group address. Datapoint is 5.001 absolute value. 0 is full warm, 100 is full cold.|
 
 <br/>
@@ -846,7 +880,7 @@ Start typing in the GA field, the name or group address of your KNX device, the 
 **Colors**
 |Property|Description|
 |--|--|
-| Color | This command is used to change the HUE light's color. Accepted datapoint is RGB triplet (r,g,b). The node handles the gamut color correction. As soon as you send a color KNX telegran, the light turns on and sets color and brightness, derived from the brightness human perception. As soon as you send a KNX telegram with r,g,b set to zero, the light turns off |
+| Control | This command is used to change the HUE light's color. Accepted datapoint is RGB triplet (r,g,b). The node handles the gamut color correction. As soon as you send a color KNX telegran, the light turns on and sets color and brightness, derived from the brightness human perception. As soon as you send a KNX telegram with r,g,b set to zero, the light turns off |
 | Status | Link this to the light's color status group address. Accepted datapoint is RGB triplet (r,g,b)|
 
 <br/>
@@ -870,6 +904,12 @@ Start typing in the GA field, the name or group address of your KNX device, the 
 | Switch On - color/brightness at Nighttime | You can choose the color/brightness of your light, at switch on, on night time. Set it as JSON object. Default value if you leave blank is **{ "red": 100, "green": 0, "blue": 0 }** |
 | Day/Night | Select the group address used to set the day/night behaviour. The group address value is *true* if daytime, *false* if nighttime. |
 | Invert day/night values | Invert the values of *Day/Night* group address. Default value is **unchecked**.|
+| Dim Speed (ms) | The dimming speed, in Milliseconds. This applies to the **light** and also to the **tunable white** dimming datapoints. It' calculated from 0% to 100%.|
+| Min Dim brightness | Tha Minimum brightness that the lamp can reach. For example, if you are dimming the light down, the light will stop dimming at the specified brightness %. | 
+| Max Dim brightness | Tha Maximum brightness that the lamp can reach. For example, if you are dimming the light up, the light will stop dimming at the specified brightness %. | 
+
+### Note
+The Dimming function works in **KNX mode `start` and `stop`**. To start dimming, send only one "start" KNX telegram. To stop dimming, send a "stop" KNX telegram. Please **remember that**, when you set your wall swiches properties.
 
 <br/>
 

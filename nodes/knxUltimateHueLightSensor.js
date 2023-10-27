@@ -80,10 +80,10 @@ module.exports = function (RED) {
       // I queue the state request, by passing the callback to call whenever the HUE bridge send me the light status async
       if (node.serverHue !== null && node.serverHue.hueManager !== null) {
         (async () => {
-          node.serverHue.addClient(node)
+          node.serverHue.addClient(node);
           try {
             node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, null, 'getLightLevel', (jLight) => {
-              node.handleSendHUE(jLight)
+              node.handleSendHUE(jLight);
             })
           } catch (error) {
             RED.log.error('Errore knxUltimateHueLightSensor subscribing: ' + error.message)

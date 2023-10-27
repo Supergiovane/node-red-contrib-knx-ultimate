@@ -35,12 +35,13 @@ const toConcattedSubtypes = (acc, baseType) => {
   return acc.concat(subtypes);
 };
 
-module.exports = (RED) => {
-  RED.httpAdmin.get("/knxUltimateDpts", RED.auth.needsPermission("hue-config.read"), (req, res) => {
-    const dpts = Object.entries(dptlib).filter(onlyDptKeys).map(extractBaseNo).sort(sortBy("base")).reduce(toConcattedSubtypes, []);
-    res.json(dpts);
-  });
+function getRandomInt(min, max) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min) + min); // The maximum is exclusive and the minimum is inclusive
+}
 
+module.exports = (RED) => {
   function hueConfig(config) {
     RED.nodes.createNode(this, config);
     const node = this;
@@ -48,6 +49,7 @@ module.exports = (RED) => {
     node.nodeClients = []; // Stores the registered clients
     node.loglevel = config.loglevel !== undefined ? config.loglevel : "error"; // 18/02/2020 Loglevel default error
     node.sysLogger = null;
+    node.hueAllResources = null;
     try {
       node.sysLogger = loggerEngine.get({ loglevel: node.loglevel }); // New logger to adhere to the loglevel selected in the config-window
     } catch (error) {
@@ -80,20 +82,72 @@ module.exports = (RED) => {
       });
       // Connected
       node.hueManager.on("connected", () => {
+        (async () => {
+          try {
+            await node.loadResourcesFromHUEBridge(); // Then, you can use node.getResources, that works locally and doesn't query the HUE Bridge.
+          } catch (error) { /* empty */ }
+        })();
         if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("node.hueManager connected event");
       });
-      // Initialize the http wrapper, to use the provided key.
-      // This http wrapper is used to get the data from HUE brigde
-      await node.refreshResources();
     };
 
-    (async () => {
-      await node.ConnectToHueBridge();
-    })();
-
-    // Get all devices and join it with relative rooms, by adding the room name to the device name
+    // Query the HUE Bridge to return the resources
+    node.loadResourcesFromHUEBridge = (_callerNode = undefined) => new Promise((resolve, reject) => {
+      (async () => {
+        // Reload all resources
+        try {
+          if (_callerNode === undefined) {
+          node.hueAllResources = await node.hueManager.hueApiV2.get("/resource");
+          node.hueAllRooms = node.hueAllResources.filter((a) => a.type === "room");
+          // Update all KNX State of the nodes with the new hue device values
+            node.nodeClients.forEach((nodeClient) => {
+              if (nodeClient.hueDevice !== undefined) {
+                const oHUEDevice = node.hueAllResources.filter((a) => a.id === nodeClient.hueDevice)[0];
+                if (oHUEDevice !== undefined) {
+                  nodeClient.currentHUEDevice = oHUEDevice;
+                  for (const [key, value] of Object.entries(oHUEDevice)) {
+                    // Update KNX State
+                    let oProperty = { id: oHUEDevice.id }
+                    oProperty[key] = value;
+                    nodeClient.handleSendHUE(oProperty);
+                  }
+                }
+              }
+            });
+          } else {
+            // Update only one node. The node is requesting an update because it has beeb edited by the user
+            try {
+              // Please KEEP THE AWAIT, otherwise al posto dell'oggetto, a Promisse will be returned.
+              const oHUEDevice = await node.hueAllResources.filter((a) => a.id === _callerNode.hueDevice)[0];
+              if (oHUEDevice !== undefined) {
+                _callerNode.currentHUEDevice = oHUEDevice;
+                for (const [key, value] of Object.entries(oHUEDevice)) {
+                  // Update KNX State
+                  let oProperty = { id: oHUEDevice.id }
+                  oProperty[key] = value;
+                  _callerNode.handleSendHUE(oProperty);
+                }
+              }
+            } catch (error) {
+              if (this.sysLogger !== undefined && this.sysLogger !== null) {
+                this.sysLogger.error(`KNXUltimatehueEngine: loadResourcesFromHUEBridge, from a single node that has been edited: ${error.message}`);
+                reject(error.message);
+              }
+            }
+          }
+          resolve(true);
+        } catch (error) {
+          if (this.sysLogger !== undefined && this.sysLogger !== null) {
+            this.sysLogger.error(`KNXUltimatehueEngine: loadResourcesFromHUEBridge: ${error.message}`);
+            reject(error.message);
+          }
+        }
+      })();
+    });
+    // Returns the cached devices (node.hueAllResources) by type.
     node.getResources = (_rtype) => {
       try {
+        if (node.hueAllResources === undefined) return;
         // Returns capitalized string
         function capStr(s) {
           if (typeof s !== "string") return "";
@@ -200,32 +254,16 @@ module.exports = (RED) => {
         }
         return { devices: retArray };
       } catch (error) {
-        if (node.sysLogger !== undefined && node.sysLogger !== null)
-          node.sysLogger.error(`KNXUltimateHue: hueEngine: classHUE: getDevices: error ${error.message}`);
+        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(`KNXUltimateHue: hueEngine: classHUE: getResources: error ${error.message}`);
         return { devices: error.message };
       }
     };
-    node.refreshResources = () => new Promise((resolve, reject) => {
-      (async () => {
-        // Reload all resources
-        try {
-          node.hueAllResources = await node.hueManager.hueApiV2.get("/resource");
-          node.hueAllRooms = node.hueAllResources.filter((a) => a.type === "room");
-          resolve(true);
-        } catch (error) {
-          if (this.sysLogger !== undefined && this.sysLogger !== null) {
-            this.sysLogger.error(`KNXUltimatehueEngine: getting resources: ${error.message}`);
-            reject(error.message);
-          }
-        }
-      })();
-    });
 
-    // Get all devices and join it with relative rooms, by adding the room name to the device name
+    // Query HUE Bridge and get the updated color.
     node.getColorFromHueLight = (_lightId) => new Promise((resolve, reject) => {
       (async () => {
         try {
-          await node.refreshResources();
+          // await node.loadResourcesFromHUEBridge();
           const oLight = node.hueAllResources.filter((a) => a.id === _lightId)[0];
           const ret = hueColorConverter.ColorConverter.xyBriToRgb(
             oLight.color.xy.x,
@@ -307,9 +345,12 @@ module.exports = (RED) => {
         })();
       }
     });
-  }
 
-  // RED.nodes.registerType("hue-config", hue-config);
+    RED.httpAdmin.get("/knxUltimateDpts", RED.auth.needsPermission("hue-config.read"), (req, res) => {
+      const dpts = Object.entries(dptlib).filter(onlyDptKeys).map(extractBaseNo).sort(sortBy("base")).reduce(toConcattedSubtypes, []);
+      res.json(dpts);
+    });
+  }
   RED.nodes.registerType("hue-config", hueConfig, {
     credentials: {
       username: { type: "password" },

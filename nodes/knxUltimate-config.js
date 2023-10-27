@@ -121,6 +121,7 @@ return msg;`,
         : Number(config.delaybetweentelegramsfurtherdelayREAD); // 18/05/2020 delay multiplicator only for "read" telegrams.
     node.delaybetweentelegramsREADCount = 0; // 18/05/2020 delay multiplicator only for "read" telegrams.
     node.timerDoInitialRead = null; // 17/02/2020 Timer (timeout) to do initial read of all nodes requesting initial read, after all nodes have been registered to the sercer
+    node.timerCallConnectToHueBridgeOfAllHUEServers = null; // // Timer for the callConnectToHueBridgeOfAllHUEServers function
     node.stopETSImportIfNoDatapoint = typeof config.stopETSImportIfNoDatapoint === "undefined" ? "stop" : config.stopETSImportIfNoDatapoint; // 09/01/2020 Stop, Import Fake or Skip the import if a group address has unset datapoint
     node.csv = readCSV(config.csv); // Array from ETS CSV Group Addresses {ga:group address, dpt: datapoint, devicename: full device name with main and subgroups}
     node.localEchoInTunneling = typeof config.localEchoInTunneling !== "undefined" ? config.localEchoInTunneling : true;
@@ -130,7 +131,7 @@ return msg;`,
     node.sysLogger = null; // 20/03/2022 Default
     try {
       node.sysLogger = loggerEngine.get({ loglevel: node.loglevel }); // 08/04/2021 new logger to adhere to the loglevel selected in the config-window
-    } catch (error) {}
+    } catch (error) { }
     // 12/11/2021 Connect at start delay
     node.autoReconnect = true; // 20/03/2022 Default
     if (config.autoReconnect === "no" || config.autoReconnect === false) {
@@ -221,13 +222,13 @@ return msg;`,
           node.jKNXSecureKeyring = await knx.KNXSecureKeyring.keyring.load(node.keyringFileXML, node.credentials.keyringFilePassword);
           RED.log.info(
             "KNX-Secure: Keyring for ETS proj " +
-              node.jKNXSecureKeyring.ETSProjectName +
-              ", created by " +
-              node.jKNXSecureKeyring.ETSCreatedBy +
-              " on " +
-              node.jKNXSecureKeyring.ETSCreated +
-              " succesfully validated with provided password, using node " +
-              node.name || node.id,
+            node.jKNXSecureKeyring.ETSProjectName +
+            ", created by " +
+            node.jKNXSecureKeyring.ETSCreatedBy +
+            " on " +
+            node.jKNXSecureKeyring.ETSCreated +
+            " succesfully validated with provided password, using node " +
+            node.name || node.id,
           );
         } else {
           RED.log.info("KNX-Unsecure: connection to insecure interface/router using node " + node.name || node.id);
@@ -330,8 +331,8 @@ return msg;`,
                 if (node.sysLogger !== undefined && node.sysLogger !== null) {
                   node.sysLogger.info(
                     "User has been created on the Hue Bridge. The following username can be used to\n" +
-                      "authenticate with the Bridge and provide full local access to the Hue Bridge.\n" +
-                      "YOU SHOULD TREAT THIS LIKE A PASSWORD\n",
+                    "authenticate with the Bridge and provide full local access to the Hue Bridge.\n" +
+                    "YOU SHOULD TREAT THIS LIKE A PASSWORD\n",
                   );
                 }
                 if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info(`Hue Bridge User: ${createdUser.username}`);
@@ -367,8 +368,8 @@ return msg;`,
                 if (node.sysLogger !== undefined && node.sysLogger !== null) {
                   node.sysLogger.info(
                     "User has been created on the Hue Bridge. The following username can be used to\n" +
-                      "authenticate with the Bridge and provide full local access to the Hue Bridge.\n" +
-                      "YOU SHOULD TREAT THIS LIKE A PASSWORD\n",
+                    "authenticate with the Bridge and provide full local access to the Hue Bridge.\n" +
+                    "YOU SHOULD TREAT THIS LIKE A PASSWORD\n",
                   );
                 }
                 if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info(`Hue Bridge User: ${createdUser.username}`);
@@ -428,7 +429,7 @@ return msg;`,
               res.json(RED.nodes.getNode(_node.id).csv);
             }
           });
-        } catch (error) {}
+        } catch (error) { }
       }
     });
 
@@ -452,7 +453,7 @@ return msg;`,
             if (sAddresses !== "") jListInterfaces.push({ name: ifname, address: sAddresses });
           }
         });
-      } catch (error) {}
+      } catch (error) { }
       res.json(jListInterfaces);
     });
 
@@ -462,7 +463,7 @@ return msg;`,
         const sFile = path.join(node.userDir, "knxpersistvalues", "knxpersist" + req.query.nodeID + ".json");
         try {
           fs.unlinkSync(sFile);
-        } catch (error) {}
+        } catch (error) { }
         res.json({ error: "No error" });
       } else {
         res.json({ error: "No NodeID specified" });
@@ -524,13 +525,13 @@ return msg;`,
       // Remove the client node from the clients array
       try {
         node.nodeClients = node.nodeClients.filter((x) => x.id !== _Node.id);
-      } catch (error) {}
+      } catch (error) { /* empty */ }
 
       // If no clien nodes, disconnect from bus.
       if (node.nodeClients.length === 0) {
         try {
           node.Disconnect();
-        } catch (error) {}
+        } catch (error) { /* empty */ }
       }
     };
 
@@ -540,7 +541,7 @@ return msg;`,
       loadExposedGAs(); // 04/04/2021 load the current values of GA payload
       try {
         if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("KNXUltimate-config: Loaded saved GA values", node.exposedGAs.length);
-      } catch (error) {}
+      } catch (error) { }
       if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("KNXUltimate-config: Do DoInitialReadFromKNXBusOrFile");
       try {
         const readHistory = [];
@@ -597,16 +598,7 @@ return msg;`,
                         dpt: oClient.dpt,
                         devicename: oClient.devicename || "",
                       });
-                      if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(
-                        "knxUltimate-config: DoInitialReadFromKNXBusOrFile: Datapoint may have been changed, remove the value from persist file of " +
-                            oClient.topic +
-                            " Devicename " +
-                            oClient.name +
-                            " Currend DPT " +
-                            oClient.dpt +
-                            " Node.id " +
-                            oClient.id,
-                      );
+                      if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("knxUltimate-config: DoInitialReadFromKNXBusOrFile: Datapoint may have been changed, remove the value from persist file of " + oClient.topic + " Devicename " + oClient.name + " Currend DPT " + oClient.dpt + " Node.id " + oClient.id);
                     } else {
                       if (oClient.notifyresponse) oClient.handleSend(msg);
                     }
@@ -636,7 +628,7 @@ return msg;`,
                     }
                   }
                 }
-              } catch (error) {}
+              } catch (error) { }
             }
           });
 
@@ -684,9 +676,20 @@ return msg;`,
               }
             }
           });
-      } catch (error) {}
+      } catch (error) { }
     }
-
+    // Call the connect function of all hue-config nodes.
+    function callConnectToHueBridgeOfAllHUEServers() {
+      RED.nodes.eachNode((_node) => {
+        if (_node.type === 'hue-config') {
+          try {
+            RED.nodes.getNode(_node.id).ConnectToHueBridge();
+          } catch (error) {
+            if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("callConnectToHueBridgeOfAllHUEServers: Node " + _node.name + " " + error.message);
+          }
+        }
+      });
+    }
     // 01/02/2020 Dinamic change of the KNX Gateway IP, Port and Physical Address
     // This new thing has been requested by proServ RealKNX staff.
     node.setGatewayConfig = (
@@ -713,14 +716,14 @@ return msg;`,
 
       if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info(
         "Node's main config setting has been changed. New config: IP " +
-            node.host +
-            " Port " +
-            node.port +
-            " PhysicalAddress " +
-            node.physAddr +
-            " BindToInterface " +
-            node.KNXEthInterface +
-            (typeof _CSV !== "undefined" && _CSV !== "" ? ". A new group address CSV has been imported." : ""),
+        node.host +
+        " Port " +
+        node.port +
+        " PhysicalAddress " +
+        node.physAddr +
+        " BindToInterface " +
+        node.KNXEthInterface +
+        (typeof _CSV !== "undefined" && _CSV !== "" ? ". A new group address CSV has been imported." : ""),
       );
 
       try {
@@ -728,7 +731,7 @@ return msg;`,
         // node.setKnxConnectionProperties(); // 28/12/2021 Commented
         node.setAllClientsStatus("CONFIG", "yellow", "KNXUltimage-config:setGatewayConfig: disconnected by new setting...");
         if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.debug("KNXUltimage-config:setGatewayConfig: disconnected by setGatewayConfig.");
-      } catch (error) {}
+      } catch (error) { }
     };
 
     // 05/05/2021 force connection or disconnection from the KNX BUS and disable the autoreconenctions attempts.
@@ -737,13 +740,13 @@ return msg;`,
       if (_bConnection === undefined) return;
       if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info(
         (_bConnection === true ? "Forced connection from watchdog" : "Forced disconnection from watchdog") +
-            node.host +
-            " Port " +
-            node.port +
-            " PhysicalAddress " +
-            node.physAddr +
-            " BindToInterface " +
-            node.KNXEthInterface,
+        node.host +
+        " Port " +
+        node.port +
+        " PhysicalAddress " +
+        node.physAddr +
+        " BindToInterface " +
+        node.KNXEthInterface,
       );
       if (_bConnection === true) {
         // CONNECT AND ENABLE RECONNECTION ATTEMPTS
@@ -751,7 +754,7 @@ return msg;`,
           node.Disconnect();
           node.setAllClientsStatus("CONFIG", "yellow", "Forced GW connection from watchdog.");
           node.autoReconnect = true;
-        } catch (error) {}
+        } catch (error) { }
       } else {
         // DISCONNECT AND DISABLE RECONNECTION ATTEMPTS
         try {
@@ -761,7 +764,7 @@ return msg;`,
             // 21/03/2022 fixed possible memory leak. Previously was setTimeout without "let t = ".
             node.setAllClientsStatus("CONFIG", "yellow", "Forced GW disconnection and stop reconnection attempts, from watchdog.");
           }, 2000);
-        } catch (error) {}
+        } catch (error) { }
       }
     };
 
@@ -816,9 +819,9 @@ return msg;`,
           }
           if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info(
             "knxUltimate-config: net.isIP: The gateway is not specified as IP. The DNS resolver pointed me to the IP " +
-                node.host +
-                ", in Config node " +
-                node.name,
+            node.host +
+            ", in Config node " +
+            node.name,
           );
           node.knxConnectionProperties.ipAddr = resolvedIP;
         case 4:
@@ -847,7 +850,7 @@ return msg;`,
         // 08/10/2021 Delete the interface
         try {
           delete node.knxConnectionProperties.interface;
-        } catch (error) {}
+        } catch (error) { }
         if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("KNXUltimate-config: Bind KNX Bus to interface (Auto). Node " + node.name);
       }
     };
@@ -869,9 +872,9 @@ return msg;`,
           if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("knxUltimate-config: No nodes linked to this gateway " + node.name);
           try {
             if (node.linkStatus !== "disconnected") node.Disconnect();
-          } catch (error) {}
+          } catch (error) { }
           return;
-        } catch (error) {}
+        } catch (error) { }
       }
 
       try {
@@ -901,13 +904,13 @@ return msg;`,
         node.knxConnection.on(knx.KNXClient.KNXClientEvents.error, (err) => {
           try {
             if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("knxUltimate-config: received KNXClientEvents.error: " + (err.message === undefined ? err : err.message));
-          } catch (error) {}
+          } catch (error) { }
           // 31/03/2022 Don't care about some errors
           if (err.message !== undefined && (err.message === "ROUTING_LOST_MESSAGE" || err.message === "ROUTING_BUSY")) {
             if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(
               "knxUltimate-config: KNXClientEvents.error: " +
-                  (err.message === undefined ? err : err.message) +
-                  " consider DECREASING the transmission speed, by increasing the telegram's DELAY in the gateway configuration node!",
+              (err.message === undefined ? err : err.message) +
+              " consider DECREASING the transmission speed, by increasing the telegram's DELAY in the gateway configuration node!",
             );
             return;
           }
@@ -937,15 +940,14 @@ return msg;`,
           }
           // 12/11/2021 Starts the telegram out queue handler
           if (node.timerSendTelegramFromQueue !== null) clearInterval(node.timerSendTelegramFromQueue);
-          node.timerSendTelegramFromQueue = setInterval(
-            handleTelegramQueue,
-            config.delaybetweentelegrams === undefined || Number(config.delaybetweentelegrams) < 20 ? 20 : Number(config.delaybetweentelegrams),
+          node.timerSendTelegramFromQueue = setInterval(handleTelegramQueue, config.delaybetweentelegrams === undefined || Number(config.delaybetweentelegrams) < 20 ? 20 : Number(config.delaybetweentelegrams),
           ); // 02/01/2020 Start the timer that handles the queue of telegrams
           node.linkStatus = "connected";
 
           // Start the timer to do initial read.
           if (node.timerDoInitialRead !== null) clearTimeout(node.timerDoInitialRead);
           node.timerDoInitialRead = setTimeout(DoInitialReadFromKNXBusOrFile, 6000); // 17/02/2020 Do initial read of all nodes requesting initial read
+          node.timerCallConnectToHueBridgeOfAllHUEServers = setTimeout(callConnectToHueBridgeOfAllHUEServers, 10000); // connects all hue-config nodes to the HUE Bridge.
           const t = setTimeout(() => {
             // 21/03/2022 fixed possible memory leak. Previously was setTimeout without "let t = ".
             node.setAllClientsStatus("Connected.", "green", "On duty.");
@@ -1040,7 +1042,7 @@ return msg;`,
         try {
           node.exposedGAs = node.exposedGAs.filter((item) => item.ga !== _dest); // Remove previous
           node.exposedGAs.push({ ga: _dest, rawValue: _rawValue }); // add the new
-        } catch (error) {}
+        } catch (error) { }
       }
       switch (_evt) {
         case "GroupValue_Write":
@@ -1069,7 +1071,7 @@ return msg;`,
                           _oNode: null,
                         });
                         input.RecallScene(msgRecall.payload, false);
-                      } catch (error) {}
+                      } catch (error) { }
                     } // 12/08/2020 Do NOT use "else", because both topics must be evaluated in case both recall and save have same group address.
                     if (_dest === input.topicSave) {
                       try {
@@ -1084,13 +1086,13 @@ return msg;`,
                           _oNode: null,
                         });
                         input.SaveScene(msgSave.payload, false);
-                      } catch (error) {}
+                      } catch (error) { }
                     }
                     resolve(true); // fulfilled
                     // reject("error"); // rejected
                   })
-                    .then(function () {})
-                    .catch(function () {});
+                    .then(function () { })
+                    .catch(function () { });
                 } else {
                   // 19/03/2020 Check and Update value if the input is part of a scene controller
                   new Promise((resolve) => {
@@ -1125,8 +1127,8 @@ return msg;`,
                     resolve(true); // fulfilled
                     // reject("error"); // rejected
                   })
-                    .then(function () {})
-                    .catch(function () {});
+                    .then(function () { })
+                    .catch(function () { });
                 }
               } else if (input.hasOwnProperty("isLogger")) {
                 // 26/03/2020 Coronavirus is slightly decreasing the affected numer of people. Logger Node
@@ -1144,7 +1146,7 @@ return msg;`,
                 if (node.csv !== undefined) {
                   try {
                     oGA = node.csv.filter((sga) => sga.ga == _dest)[0];
-                  } catch (error) {}
+                  } catch (error) { }
                 }
 
                 // 25/10/2019 TRY TO AUTO DECODE IF Group address not found in the CSV
@@ -1235,7 +1237,7 @@ return msg;`,
                 let oGA;
                 try {
                   oGA = node.csv.filter((sga) => sga.ga == _dest)[0];
-                } catch (error) {}
+                } catch (error) { }
 
                 const msg = buildInputMessage({
                   _srcGA: _src,
@@ -1323,7 +1325,7 @@ return msg;`,
                 let oGA;
                 try {
                   oGA = node.csv.filter((sga) => sga.ga == _dest)[0];
-                } catch (error) {}
+                } catch (error) { }
 
                 // Read Request
                 const msg = buildInputMessage({
@@ -1457,8 +1459,8 @@ return msg;`,
           if (node.telegramsQueue.length > 0) {
             if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.warn(
               "knxUltimate-config: handleTelegramQueue: the KNXEngine is busy or is waiting for a telegram ACK with seqNumner " +
-                  node.knxConnection._getSeqNumber() +
-                  ". Delay handling queue.",
+              node.knxConnection._getSeqNumber() +
+              ". Delay handling queue.",
             );
           }
           return;
@@ -1505,12 +1507,12 @@ return msg;`,
                 dpt: oKNXMessage.dpt,
                 devicename: "",
               });
-            } catch (error) {}
+            } catch (error) { }
           }
         } else if (oKNXMessage.outputtype === "read") {
           try {
             node.knxConnection.read(oKNXMessage.grpaddr);
-          } catch (error) {}
+          } catch (error) { }
         } else if (oKNXMessage.outputtype === "update") {
           // 05/01/2021 Update don't send anything to the bus, but instead updates the values of all nodes belonging to the group address passed
           // oKNXMessage = {
@@ -1576,7 +1578,7 @@ return msg;`,
                 }
               }
             });
-          } catch (error) {}
+          } catch (error) { }
         } else {
           // Write
           try {
@@ -1593,7 +1595,7 @@ return msg;`,
                 dpt: oKNXMessage.dpt,
                 devicename: "",
               });
-            } catch (error) {}
+            } catch (error) { }
           }
         }
         // Remove current item in the main node.telegramsQueue array
@@ -1603,7 +1605,7 @@ return msg;`,
               return item;
             }
           });
-        } catch (error) {}
+        } catch (error) { }
         node.lockHandleTelegramQueue = false; // Unlock the function
       }
     }
@@ -1649,7 +1651,7 @@ return msg;`,
                 return element.value;
               }
             }
-          } catch (error) {}
+          } catch (error) { }
         }
         throw new Error("tryToFigureOutDataPointFromRawValue: no suitable datapoint found"); // 24/08/2021 Return error if no DPT
       }
@@ -1687,21 +1689,21 @@ return msg;`,
           // Here comes if no datapoint has beeen found
           if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(
             "knxUltimate-config: buildInputMessage: Error returning from tryToFigureOutDataPointFromRawValue. Device " +
-                _srcGA +
-                " Destination " +
-                _destGA +
-                " Event " +
-                _event +
-                " GA's Datapoint " +
-                (_inputDpt === null
-                  ? "THE ETS FILE HAS NOT BEEN IMPORTED, SO I'M TRYING TO FIGURE OUT WHAT DATAPOINT BELONGS THIS GROUP ADDRESS. DON'T BLAME ME IF I'M WRONG, INSTEAD, IMPORT THE ETS FILE!"
-                  : _inputDpt) +
-                " Devicename " +
-                _devicename +
-                " Topic " +
-                _outputtopic +
-                " " +
-                error.message,
+            _srcGA +
+            " Destination " +
+            _destGA +
+            " Event " +
+            _event +
+            " GA's Datapoint " +
+            (_inputDpt === null
+              ? "THE ETS FILE HAS NOT BEEN IMPORTED, SO I'M TRYING TO FIGURE OUT WHAT DATAPOINT BELONGS THIS GROUP ADDRESS. DON'T BLAME ME IF I'M WRONG, INSTEAD, IMPORT THE ETS FILE!"
+              : _inputDpt) +
+            " Devicename " +
+            _devicename +
+            " Topic " +
+            _outputtopic +
+            " " +
+            error.message,
           );
           errorMessage.payload = "UNKNOWN: ERROR tryToFigureOutDataPointFromRawValue:" + error.message;
           return errorMessage;
@@ -1712,21 +1714,21 @@ return msg;`,
         } catch (error) {
           if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(
             "knxUltimate-config: buildInputMessage: Error returning from dptlib.resolve(sInputDpt). Device " +
-                _srcGA +
-                " Destination " +
-                _destGA +
-                " Event " +
-                _event +
-                " GA's Datapoint " +
-                (_inputDpt === null
-                  ? "THE ETS FILE HAS NOT BEEN IMPORTED, SO I'M TRYING TO FIGURE OUT WHAT DATAPOINT BELONGS THIS GROUP ADDRESS. DON'T BLAME ME IF I'M WRONG, INSTEAD, IMPORT THE ETS FILE!"
-                  : _inputDpt) +
-                " Devicename " +
-                _devicename +
-                " Topic " +
-                _outputtopic +
-                " " +
-                error.message,
+            _srcGA +
+            " Destination " +
+            _destGA +
+            " Event " +
+            _event +
+            " GA's Datapoint " +
+            (_inputDpt === null
+              ? "THE ETS FILE HAS NOT BEEN IMPORTED, SO I'M TRYING TO FIGURE OUT WHAT DATAPOINT BELONGS THIS GROUP ADDRESS. DON'T BLAME ME IF I'M WRONG, INSTEAD, IMPORT THE ETS FILE!"
+              : _inputDpt) +
+            " Devicename " +
+            _devicename +
+            " Topic " +
+            _outputtopic +
+            " " +
+            error.message,
           );
           errorMessage.payload = "UNKNOWN: ERROR dptlib.resolve:" + error.messages;
           return errorMessage;
@@ -1738,43 +1740,43 @@ return msg;`,
             if (jsValue === null) {
               if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(
                 "knxUltimate-config: buildInputMessage: received a wrong datagram form KNX BUS, from device " +
-                    _srcGA +
-                    " Destination " +
-                    _destGA +
-                    " Event " +
-                    _event +
-                    " GA's Datapoint " +
-                    (_inputDpt === null
-                      ? "THE ETS FILE HAS NOT BEEN IMPORTED, SO I'M TRYING TO FIGURE OUT WHAT DATAPOINT BELONGS THIS GROUP ADDRESS. DON'T BLAME ME IF I'M WRONG, INSTEAD, IMPORT THE ETS FILE!"
-                      : _inputDpt) +
-                    " Devicename " +
-                    _devicename +
-                    " Topic " +
-                    _outputtopic +
-                    " NodeID " +
-                    _oNode.id || "",
+                _srcGA +
+                " Destination " +
+                _destGA +
+                " Event " +
+                _event +
+                " GA's Datapoint " +
+                (_inputDpt === null
+                  ? "THE ETS FILE HAS NOT BEEN IMPORTED, SO I'M TRYING TO FIGURE OUT WHAT DATAPOINT BELONGS THIS GROUP ADDRESS. DON'T BLAME ME IF I'M WRONG, INSTEAD, IMPORT THE ETS FILE!"
+                  : _inputDpt) +
+                " Devicename " +
+                _devicename +
+                " Topic " +
+                _outputtopic +
+                " NodeID " +
+                _oNode.id || "",
               );
             }
           } catch (error) {
             if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(
               "knxUltimate-config: buildInputMessage: Error returning from DPT decoding. Device " +
-                  _srcGA +
-                  " Destination " +
-                  _destGA +
-                  " Event " +
-                  _event +
-                  " GA's Datapoint " +
-                  (_inputDpt === null
-                    ? "THE ETS FILE HAS NOT BEEN IMPORTED, SO I'M TRYING TO FIGURE OUT WHAT DATAPOINT BELONGS THIS GROUP ADDRESS. DON'T BLAME ME IF I'M WRONG, INSTEAD, IMPORT THE ETS FILE!"
-                    : _inputDpt) +
-                  " Devicename " +
-                  _devicename +
-                  " Topic " +
-                  _outputtopic +
-                  " " +
-                  error.message +
-                  " NodeID " +
-                  _oNode.id || "",
+              _srcGA +
+              " Destination " +
+              _destGA +
+              " Event " +
+              _event +
+              " GA's Datapoint " +
+              (_inputDpt === null
+                ? "THE ETS FILE HAS NOT BEEN IMPORTED, SO I'M TRYING TO FIGURE OUT WHAT DATAPOINT BELONGS THIS GROUP ADDRESS. DON'T BLAME ME IF I'M WRONG, INSTEAD, IMPORT THE ETS FILE!"
+                : _inputDpt) +
+              " Devicename " +
+              _devicename +
+              " Topic " +
+              _outputtopic +
+              " " +
+              error.message +
+              " NodeID " +
+              _oNode.id || "",
             );
             errorMessage.payload = "UNKNOWN: ERROR dptlib.fromBuffer:" + error.message;
             return errorMessage;
@@ -1900,9 +1902,9 @@ return msg;`,
                   // 02/03/2020 Whould you like to continue without datapoint? Good. Here a totally fake datapoint
                   node.warn(
                     "KNXUltimate-config: WARNING IMPORT OF ETS CSV FILE. Datapoint not set. You choosed to continue import with a fake datapoint 1.001. -> " +
-                      element.split("\t")[0] +
-                      " " +
-                      element.split("\t")[1],
+                    element.split("\t")[0] +
+                    " " +
+                    element.split("\t")[1],
                   );
                   ajsonOutput.push({
                     ga: element.split("\t")[1],
@@ -1913,9 +1915,9 @@ return msg;`,
                   // 31/03/2020 Skip import
                   node.warn(
                     "KNXUltimate-config: WARNING IMPORT OF ETS CSV FILE. Datapoint not set. You choosed to skip -> " +
-                      element.split("\t")[0] +
-                      " " +
-                      element.split("\t")[1],
+                    element.split("\t")[0] +
+                    " " +
+                    element.split("\t")[1],
                   );
                 }
               } else {
@@ -1924,11 +1926,11 @@ return msg;`,
                 if (typeof DPTb === "undefined") {
                   node.warn(
                     "KNXUltimate-config: WARNING: Datapoint not fully set (there is only the main type). I applied a default .001, but please check if i'ts ok ->" +
-                      element.split("\t")[0] +
-                      " " +
-                      element.split("\t")[1] +
-                      " Datapoint: " +
-                      element.split("\t")[5],
+                    element.split("\t")[0] +
+                    " " +
+                    element.split("\t")[1] +
+                    " Datapoint: " +
+                    element.split("\t")[5],
                   );
                   DPTb = "001"; // default
                 }
@@ -2028,9 +2030,9 @@ return msg;`,
                 sDPT = "5.004"; // Maybe.
                 node.error(
                   "KNXUltimate-config: ERROR: Found an UNCERTAIN datapoint in ESF ETS. You choosed to fake the datapoint -> " +
-                    sGA +
-                    ". An fake datapoint has been set: " +
-                    sDPT,
+                  sGA +
+                  ". An fake datapoint has been set: " +
+                  sDPT,
                 );
               } else {
                 sDPT = "SKIP";
@@ -2095,9 +2097,9 @@ return msg;`,
         }, 100);
         if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.debug(
           "knxUltimate-config: Auto Reconect by timerKNXUltimateCheckState in progress. node.LinkStatus: " +
-              node.linkStatus +
-              ", node.autoReconnect:" +
-              node.autoReconnect,
+          node.linkStatus +
+          ", node.autoReconnect:" +
+          node.autoReconnect,
         );
         node.initKNXConnection();
         return;
