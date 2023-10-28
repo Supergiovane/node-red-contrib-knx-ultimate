@@ -314,8 +314,11 @@ module.exports = function (RED) {
     node.hueDimming = function hueDimming(_KNXaction, _KNXbrightness_delta, _dimSpeedInMillisecs = undefined) {
       let dimDirection = 'stop';
       let hueTelegram = {};
-      _dimSpeedInMillisecs = _dimSpeedInMillisecs === undefined ? 5000 : _dimSpeedInMillisecs;
+      _dimSpeedInMillisecs = (_dimSpeedInMillisecs === undefined || _dimSpeedInMillisecs === '') ? 5000 : _dimSpeedInMillisecs;
       let delta = 0;
+      const minDimLevelLight = config.minDimLevelLight === undefined ? 3 : config.minDimLevelLight;
+      const maxDimLevelLight = config.maxDimLevelLight === undefined ? 100 : config.maxDimLevelLight;
+
       // We have also minDimLevelLight and maxDimLevelLight to take care of.
 
       if (_KNXbrightness_delta === 0 && _KNXaction === 0) {
@@ -325,12 +328,12 @@ module.exports = function (RED) {
         return;
       }
       if (_KNXbrightness_delta > 0 && _KNXaction === 1) {
-        delta = 100 - Math.round(node.currentHUEDevice.dimming.brightness, 0) - (100 - Number(config.maxDimLevelLight));
+        delta = 100 - Math.round(node.currentHUEDevice.dimming.brightness, 0) - (100 - Number(maxDimLevelLight));
         dimDirection = 'up';
       }
       if (_KNXbrightness_delta > 0 && _KNXaction === 0) {
         // Set the minumum delta, taking care of the minimum brightness specified either in the HUE lamp itself, or specified by the user (parameter node.minDimLevelLight)
-        delta = Math.round(node.currentHUEDevice.dimming.brightness, 0) - (config.minDimLevelLight === 'useHueLightLevel' ? node.currentHUEDevice.dimming.min_dim_level : Number(config.minDimLevelLight));
+        delta = Math.round(node.currentHUEDevice.dimming.brightness, 0) - (minDimLevelLight === 'useHueLightLevel' ? node.currentHUEDevice.dimming.min_dim_level : Number(minDimLevelLight));
         dimDirection = 'down';
       }
       // Calculate the dimming time based on delta
@@ -353,7 +356,7 @@ module.exports = function (RED) {
     node.hueDimmingTunableWhite = function hueDimming(_KNXaction, _KNXbrightness_delta, _dimSpeedInMillisecs = undefined) {
       let dimDirection = 'stop';
       let hueTelegram = {};
-      _dimSpeedInMillisecs = _dimSpeedInMillisecs === undefined ? 5000 : _dimSpeedInMillisecs;
+      _dimSpeedInMillisecs = (_dimSpeedInMillisecs === undefined || _dimSpeedInMillisecs === '') ? 5000 : _dimSpeedInMillisecs;
       let delta = 0;
       if (!node.currentHUEDevice.color_temperature.hasOwnProperty("mirek")) delta = 347 - Math.round(173, 0); // Unable to read the mirek, set medium as default
       // We have also minDimLevelLight and maxDimLevelLight to take care of.

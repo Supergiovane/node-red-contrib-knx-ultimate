@@ -6,9 +6,10 @@
 
 # CHANGELOG
 <p>
-<b>Version 2.2.0</b> - October 2023<br/>
-- HEAVY REWRITE of the DIM function.<br/>
-- NEW: HUE Light: Added DIM time and many other options.<br/>
+<b>Version 2.2.1</b> - October 2023<br/>
+- Massive rewrite of the DIM function, for brightness and for color temperature.<br/>
+- NEW: HUE Light: Added dimming speed, minimum dim value and maximum dim value.<br/>
+- NEW: HUE Light: Read of the lamp status at node-red start and after deploy of a new node.<br/>
 - Security fix: patched a vulnerability in crypto.js.<br/>
 </p>
 <p>
