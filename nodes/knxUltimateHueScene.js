@@ -82,7 +82,7 @@ module.exports = function (RED) {
           // knxMsgPayload.dpt = config.dptmotion
 
           // if (_event.hasOwnProperty('motion') && _event.motion.hasOwnProperty('motion')) {
-          //   knxMsgPayload.payload = _event.motion.motion
+          //   knxMsgPayload.payload = _event.motion.motion_report.motion
           //   // Send to KNX bus
           //   if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.server.writeQueueAdd({ grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
           //   node.status({ fill: 'green', shape: 'dot', text: 'HUE->KNX ' + JSON.stringify(knxMsgPayload.payload) + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' })

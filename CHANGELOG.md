@@ -1,10 +1,18 @@
 ![Sample Node](img/logo.png)
 
-[![Donate via PayPal](https://img.shields.io/badge/Donate-PayPal-blue.svg?style=flat-square)](https://www.paypal.me/techtoday) 
+[![Donate via PayPal](https://img.shields.io/badge/Donate-PayPal-blue.svg?style=flat-square)](https://www.paypal.me/techtoday)
 
 <br/>
 
 # CHANGELOG
+
+<p>
+<b>Version 2.2.***************</b> - October 2023<br/>
+- NEW: HUE Motion: support HUE Camera motion events via the HUE Motion node.<br/>
+- HUE Light: some tweaking to the GUI.<br/> 
+- KNK Alerter node: <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/SampleAlerter">fixed the wiki sample page</a>.<br/> 
+- KNX Viewer: added the help pane in Node-Red.<br/> 
+</p>
 <p>
 <b>Version 2.2.1</b> - October 2023<br/>
 - Massive rewrite of the DIM function, for brightness and for color temperature.<br/>

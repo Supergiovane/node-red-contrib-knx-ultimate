@@ -94,12 +94,12 @@ module.exports = (RED) => {
     // Query the HUE Bridge to return the resources
     node.loadResourcesFromHUEBridge = (_callerNode = undefined) => new Promise((resolve, reject) => {
       (async () => {
-        // Reload all resources
+        // °°°°°° Load ALL resources
         try {
           if (_callerNode === undefined) {
-          node.hueAllResources = await node.hueManager.hueApiV2.get("/resource");
-          node.hueAllRooms = node.hueAllResources.filter((a) => a.type === "room");
-          // Update all KNX State of the nodes with the new hue device values
+            node.hueAllResources = await node.hueManager.hueApiV2.get("/resource");
+            node.hueAllRooms = node.hueAllResources.filter((a) => a.type === "room");
+            // Update all KNX State of the nodes with the new hue device values
             node.nodeClients.forEach((nodeClient) => {
               if (nodeClient.hueDevice !== undefined) {
                 const oHUEDevice = node.hueAllResources.filter((a) => a.id === nodeClient.hueDevice)[0];
@@ -107,7 +107,7 @@ module.exports = (RED) => {
                   nodeClient.currentHUEDevice = oHUEDevice;
                   for (const [key, value] of Object.entries(oHUEDevice)) {
                     // Update KNX State
-                    let oProperty = { id: oHUEDevice.id }
+                    const oProperty = { id: oHUEDevice.id };
                     oProperty[key] = value;
                     nodeClient.handleSendHUE(oProperty);
                   }
@@ -115,7 +115,7 @@ module.exports = (RED) => {
               }
             });
           } else {
-            // Update only one node. The node is requesting an update because it has beeb edited by the user
+            // °°°°°° Read ONE resource and update only one node. The node is requesting an update because it has been edited in Node-Red's window by the user
             try {
               // Please KEEP THE AWAIT, otherwise al posto dell'oggetto, a Promisse will be returned.
               const oHUEDevice = await node.hueAllResources.filter((a) => a.id === _callerNode.hueDevice)[0];
@@ -123,7 +123,7 @@ module.exports = (RED) => {
                 _callerNode.currentHUEDevice = oHUEDevice;
                 for (const [key, value] of Object.entries(oHUEDevice)) {
                   // Update KNX State
-                  let oProperty = { id: oHUEDevice.id }
+                  const oProperty = { id: oHUEDevice.id };
                   oProperty[key] = value;
                   _callerNode.handleSendHUE(oProperty);
                 }
@@ -175,14 +175,14 @@ module.exports = (RED) => {
                   resourceName += "ALL GROUPS and ";
                 } else {
                   resourceName += `${owner.metadata.name} and `;
-                  //const room = node.hueAllRooms.find((child) => child.children.find((a) => a.rid === owner.id));
-                  //sRoom += room !== undefined ? `${room.metadata.name} + ` : " + ";
-                  sType += capStr(owner.type) + ' + ';
+                  // const room = node.hueAllRooms.find((child) => child.children.find((a) => a.rid === owner.id));
+                  // sRoom += room !== undefined ? `${room.metadata.name} + ` : " + ";
+                  sType += `${capStr(owner.type)} + `;
                 }
               }
               sType = sType.slice(0, -" + ".length);
               resourceName = resourceName.slice(0, -" and ".length);
-              resourceName += sType !== "" ? ' (' + sType + ')' : "";
+              resourceName += sType !== "" ? ` (${sType})` : "";
               retArray.push({
                 name: `${capStr(resource.type)}: ${resourceName}`,
                 id: resource.id,
@@ -207,7 +207,7 @@ module.exports = (RED) => {
                 id: resource.id,
               });
             }
-            if (_rtype === "motion") {
+            if (_rtype === "motion" || _rtype === "camera_motion") {
               const linkedDevName = node.hueAllResources.find((dev) => dev.type === "device" && dev.services.find((serv) => serv.rid === resource.id)).metadata.name || "";
               retArray.push({
                 name: `${capStr(_rtype)}: ${linkedDevName}`,
@@ -347,7 +347,8 @@ module.exports = (RED) => {
     });
 
     RED.httpAdmin.get("/knxUltimateDpts", RED.auth.needsPermission("hue-config.read"), (req, res) => {
-      const dpts = Object.entries(dptlib).filter(onlyDptKeys).map(extractBaseNo).sort(sortBy("base")).reduce(toConcattedSubtypes, []);
+      const dpts = Object.entries(dptlib).filter(onlyDptKeys).map(extractBaseNo).sort(sortBy("base"))
+        .reduce(toConcattedSubtypes, []);
       res.json(dpts);
     });
   }

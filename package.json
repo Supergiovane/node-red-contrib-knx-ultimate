@@ -4,7 +4,7 @@
     "node": ">=16.0.0"
   },
   "version": "2.2.1",
-  "description": "Control your KNX intallation via Node-Red! Single Node KNX IN/OUT with optional ETS group address importer. Easy to use and highly configurable. With integrated Philips HUE devices handling.",
+  "description": "Control your KNX intallation via Node-Red! Single Node KNX IN/OUT with optional ETS group address importer. Easy to use and highly configurable. With integrated Philips HUE devices control.",
   "dependencies": {
     "binary-parser": "2.2.1",
     "color-convert": "2.0.1",
@@ -52,8 +52,6 @@
     "KNX",
     "ETS",
     "eib",
-    "eibd",
-    "knxd",
     "konnex",
     "IOT",
     "hue"
@@ -69,5 +67,28 @@
   },
   "scripts": {
     "test": "standard"
+  },
+  "Prettier": {
+    "arrowParens": "always",
+    "bracketSameLine": true,
+    "bracketSpacing": false,
+    "semi": true,
+    "singleQuote": true,
+    "jsxSingleQuote": false,
+    "quoteProps": "as-needed",
+    "trailingComma": "all",
+    "singleAttributePerLine": false,
+    "htmlWhitespaceSensitivity": "css",
+    "vueIndentScriptAndStyle": false,
+    "proseWrap": "preserve",
+    "insertPragma": false,
+    "printWidth": 80,
+    "requirePragma": false,
+    "tabWidth": 2,
+    "useTabs": true,
+    "embeddedLanguageFormatting": "auto",
+    "[html]": {
+      "editor.defaultFormatter": "vscode.html-language-features"
+    }
   }
 }
