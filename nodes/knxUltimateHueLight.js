@@ -37,13 +37,9 @@ module.exports = function (RED) {
     node.hueDevice = config.hueDevice.split("#")[0];
 
     // Used to call the status update from the config node.
-    node.setNodeStatus = ({
-      fill, shape, text, payload,
-    }) => { };
+    node.setNodeStatus = ({ fill, shape, text, payload }) => { };
     // Used to call the status update from the HUE config node.
-    node.setNodeStatusHue = ({
-      fill, shape, text, payload,
-    }) => {
+    node.setNodeStatusHue = ({ fill, shape, text, payload }) => {
       if (payload === undefined) return;
       const dDate = new Date();
       payload = typeof payload === "object" ? JSON.stringify(payload) : payload.toString();
@@ -93,9 +89,9 @@ module.exports = function (RED) {
               if (jColorChoosen !== null) {
                 let gamut = null;
                 if (
-                  node.currentHUEDevice !== undefined
-                  && node.currentHUEDevice.hasOwnProperty("color")
-                  && node.currentHUEDevice.color.hasOwnProperty("gamut_type")
+                  node.currentHUEDevice !== undefined &&
+                  node.currentHUEDevice.hasOwnProperty("color") &&
+                  node.currentHUEDevice.color.hasOwnProperty("gamut_type")
                 ) {
                   gamut = node.currentHUEDevice.color.gamut_type;
                 }
@@ -195,9 +191,9 @@ module.exports = function (RED) {
             msg.payload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightColor));
             let gamut = null;
             if (
-              node.currentHUEDevice !== undefined
-              && node.currentHUEDevice.hasOwnProperty("color")
-              && node.currentHUEDevice.color.hasOwnProperty("gamut_type")
+              node.currentHUEDevice !== undefined &&
+              node.currentHUEDevice.hasOwnProperty("color") &&
+              node.currentHUEDevice.color.hasOwnProperty("gamut_type")
             ) {
               gamut = node.currentHUEDevice.color.gamut_type;
             }
@@ -229,9 +225,10 @@ module.exports = function (RED) {
                 node.blinkValue = !node.blinkValue;
                 msg.payload = node.blinkValue;
                 // state = msg.payload === true ? { on: { on: true } } : { on: { on: false } }
-                state = msg.payload === true
-                  ? { on: { on: true }, dimming: { brightness: 100 }, dynamics: { duration: 0 } }
-                  : { on: { on: false }, dimming: { brightness: 0 }, dynamics: { duration: 0 } };
+                state =
+                  msg.payload === true
+                    ? { on: { on: true }, dimming: { brightness: 100 }, dynamics: { duration: 0 } }
+                    : { on: { on: false }, dimming: { brightness: 0 }, dynamics: { duration: 0 } };
                 node.serverHue.hueManager.writeHueQueueAdd(node.hueDevice, state, node.isGrouped_light === false ? "setLight" : "setGroupedLight");
               }, 1000);
             } else {
@@ -239,7 +236,7 @@ module.exports = function (RED) {
               node.serverHue.hueManager.writeHueQueueAdd(
                 node.hueDevice,
                 { on: { on: false } },
-                node.isGrouped_light === false ? "setLight" : "setGroupedLight",
+                node.isGrouped_light === false ? "setLight" : "setGroupedLight"
               );
             }
             node.setNodeStatusHue({
@@ -253,11 +250,7 @@ module.exports = function (RED) {
             if (node.timerColorCycle !== undefined) clearInterval(node.timerColorCycle);
             const gaValColorCycle = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightColorCycle));
             if (gaValColorCycle === true) {
-              node.serverHue.hueManager.writeHueQueueAdd(
-                node.hueDevice,
-                { on: { on: true } },
-                node.isGrouped_light === false ? "setLight" : "setGroupedLight",
-              );
+              node.serverHue.hueManager.writeHueQueueAdd(node.hueDevice, { on: { on: true } }, node.isGrouped_light === false ? "setLight" : "setGroupedLight");
               node.timerColorCycle = setInterval(() => {
                 try {
                   function getRandomIntInclusive(min, max) {
@@ -270,9 +263,9 @@ module.exports = function (RED) {
                   const blue = getRandomIntInclusive(0, 255);
                   let gamut = null;
                   if (
-                    node.currentHUEDevice !== undefined
-                    && node.currentHUEDevice.hasOwnProperty("color")
-                    && node.currentHUEDevice.color.hasOwnProperty("gamut_type")
+                    node.currentHUEDevice !== undefined &&
+                    node.currentHUEDevice.hasOwnProperty("color") &&
+                    node.currentHUEDevice.color.hasOwnProperty("gamut_type")
                   ) {
                     gamut = node.currentHUEDevice.color.gamut_type;
                   }
@@ -287,7 +280,7 @@ module.exports = function (RED) {
               node.serverHue.hueManager.writeHueQueueAdd(
                 node.hueDevice,
                 { on: { on: false } },
-                node.isGrouped_light === false ? "setLight" : "setGroupedLight",
+                node.isGrouped_light === false ? "setLight" : "setGroupedLight"
               );
             }
             node.setNodeStatusHue({
@@ -312,29 +305,30 @@ module.exports = function (RED) {
     // Start dimming
     // ***********************************************************
     node.hueDimming = function hueDimming(_KNXaction, _KNXbrightness_delta, _dimSpeedInMillisecs = undefined) {
-      let dimDirection = 'stop';
+      let dimDirection = "stop";
       let hueTelegram = {};
-      _dimSpeedInMillisecs = (_dimSpeedInMillisecs === undefined || _dimSpeedInMillisecs === '') ? 5000 : _dimSpeedInMillisecs;
       let delta = 0;
-      const minDimLevelLight = config.minDimLevelLight === undefined ? 3 : config.minDimLevelLight;
-      const maxDimLevelLight = config.maxDimLevelLight === undefined ? 100 : config.maxDimLevelLight;
+      _dimSpeedInMillisecs = _dimSpeedInMillisecs === undefined || _dimSpeedInMillisecs === "" ? 5000 : _dimSpeedInMillisecs;
 
       // We have also minDimLevelLight and maxDimLevelLight to take care of.
+      let minDimLevelLight = config.minDimLevelLight === undefined ? 10 : config.minDimLevelLight;
+      if (config.minDimLevelLight === "useHueLightLevel" && node.currentHUEDevice.dimming.min_dim_level === undefined) minDimLevelLight = 10;
+      const maxDimLevelLight = config.maxDimLevelLight === undefined ? 100 : config.maxDimLevelLight;
 
       if (_KNXbrightness_delta === 0 && _KNXaction === 0) {
-        dimDirection = 'stop';
+        dimDirection = "stop";
         hueTelegram = { dimming_delta: { action: dimDirection } };
         node.serverHue.hueManager.writeHueQueueAdd(node.hueDevice, hueTelegram, node.isGrouped_light === false ? "setLight" : "setGroupedLight");
         return;
       }
       if (_KNXbrightness_delta > 0 && _KNXaction === 1) {
         delta = 100 - Math.round(node.currentHUEDevice.dimming.brightness, 0) - (100 - Number(maxDimLevelLight));
-        dimDirection = 'up';
+        dimDirection = "up";
       }
       if (_KNXbrightness_delta > 0 && _KNXaction === 0) {
         // Set the minumum delta, taking care of the minimum brightness specified either in the HUE lamp itself, or specified by the user (parameter node.minDimLevelLight)
-        delta = Math.round(node.currentHUEDevice.dimming.brightness, 0) - (minDimLevelLight === 'useHueLightLevel' ? node.currentHUEDevice.dimming.min_dim_level : Number(minDimLevelLight));
-        dimDirection = 'down';
+        delta = Math.round(node.currentHUEDevice.dimming.brightness, 0) - (minDimLevelLight === "useHueLightLevel" ? node.currentHUEDevice.dimming.min_dim_level : Number(minDimLevelLight));
+        dimDirection = "down";
       }
       // Calculate the dimming time based on delta
       // 10000:x=100:delta
@@ -343,7 +337,7 @@ module.exports = function (RED) {
 
       hueTelegram = { dimming_delta: { action: dimDirection, brightness_delta: delta }, dynamics: { duration: _dimSpeedInMillisecs } };
       // Switch on the light if off
-      if (node.currentHUEDevice.hasOwnProperty('on') !== undefined && node.currentHUEDevice.on.on === false && dimDirection === "up") {
+      if (node.currentHUEDevice.hasOwnProperty("on") !== undefined && node.currentHUEDevice.on.on === false && dimDirection === "up") {
         hueTelegram.on = { on: true };
       }
       node.serverHue.hueManager.writeHueQueueAdd(node.hueDevice, hueTelegram, node.isGrouped_light === false ? "setLight" : "setGroupedLight");
@@ -354,28 +348,28 @@ module.exports = function (RED) {
     // mirek: required(integer minimum: 153, maximum: 500)
     // ***********************************************************
     node.hueDimmingTunableWhite = function hueDimming(_KNXaction, _KNXbrightness_delta, _dimSpeedInMillisecs = undefined) {
-      let dimDirection = 'stop';
+      let dimDirection = "stop";
       let hueTelegram = {};
-      _dimSpeedInMillisecs = (_dimSpeedInMillisecs === undefined || _dimSpeedInMillisecs === '') ? 5000 : _dimSpeedInMillisecs;
+      _dimSpeedInMillisecs = _dimSpeedInMillisecs === undefined || _dimSpeedInMillisecs === "" ? 5000 : _dimSpeedInMillisecs;
       let delta = 0;
       if (!node.currentHUEDevice.color_temperature.hasOwnProperty("mirek")) delta = 347 - Math.round(173, 0); // Unable to read the mirek, set medium as default
       // We have also minDimLevelLight and maxDimLevelLight to take care of.
       // Mirek limits are not taken in consideration.
       // Maximum mirek is 347
       if (_KNXbrightness_delta === 0 && _KNXaction === 0) {
-        dimDirection = 'stop';
+        dimDirection = "stop";
         hueTelegram = { color_temperature_delta: { action: dimDirection } };
         node.serverHue.hueManager.writeHueQueueAdd(node.hueDevice, hueTelegram, node.isGrouped_light === false ? "setLight" : "setGroupedLight");
         return;
       }
       if (_KNXbrightness_delta > 0 && _KNXaction === 1) {
         if (node.currentHUEDevice.color_temperature.hasOwnProperty("mirek")) delta = 347 - Math.round(node.currentHUEDevice.color_temperature.mirek, 0);
-        dimDirection = 'up';
+        dimDirection = "up";
       }
       if (_KNXbrightness_delta > 0 && _KNXaction === 0) {
         // Set the minumum delta, taking care of the minimum brightness specified either in the HUE lamp itself, or specified by the user (parameter node.minDimLevelLight)
         if (node.currentHUEDevice.color_temperature.hasOwnProperty("mirek")) delta = Math.round(node.currentHUEDevice.color_temperature.mirek, 0);
-        dimDirection = 'down';
+        dimDirection = "down";
       }
       // Calculate the dimming time based on delta
       // 10000:x=347:delta
@@ -384,7 +378,7 @@ module.exports = function (RED) {
 
       hueTelegram = { color_temperature_delta: { action: dimDirection, mirek_delta: delta }, dynamics: { duration: _dimSpeedInMillisecs } };
       // Switch on the light if off
-      if (node.currentHUEDevice.hasOwnProperty('on') !== undefined && node.currentHUEDevice.on.on === false && dimDirection === "up") {
+      if (node.currentHUEDevice.hasOwnProperty("on") !== undefined && node.currentHUEDevice.on.on === false && dimDirection === "up") {
         hueTelegram.on = { on: true };
       }
       node.serverHue.hueManager.writeHueQueueAdd(node.hueDevice, hueTelegram, node.isGrouped_light === false ? "setLight" : "setGroupedLight");
@@ -406,7 +400,10 @@ module.exports = function (RED) {
           if (_event.hasOwnProperty("on")) {
             node.updateKNXLightState(_event.on.on);
             // In case of switch off, set the dim to zero
-            if (_event.on.on === false && (config.updateKNXBrightnessStatusOnHUEOnOff === undefined || config.updateKNXBrightnessStatusOnHUEOnOff === 'onhueoff')) {
+            if (
+              _event.on.on === false &&
+              (config.updateKNXBrightnessStatusOnHUEOnOff === undefined || config.updateKNXBrightnessStatusOnHUEOnOff === "onhueoff")
+            ) {
               node.updateKNXBrightnessState(0);
             } else {
               // Sends the previous brightness value
@@ -424,12 +421,16 @@ module.exports = function (RED) {
             // Every once on a time, the light transmit the brightness value of 0.39.
             // To avoid wrongly turn light state on, exit
             if (_event.dimming.brightness < 1) _event.dimming.brightness = 0;
-            if (node.currentHUEDevice.hasOwnProperty('on') && node.currentHUEDevice.on.on === false && _event.dimming.brightness === 0) return;
+            if (node.currentHUEDevice.hasOwnProperty("on") && node.currentHUEDevice.on.on === false && _event.dimming.brightness === 0) return;
             if (node.currentHUEDevice.on.on === false) node.updateKNXLightState(_event.dimming.brightness > 0);
             node.updateKNXBrightnessState(_event.dimming.brightness);
             // If the brightness reaches zero, the hue lamp "on" property must be set to zero as well
             if (_event.dimming.brightness === 0) {
-              node.serverHue.hueManager.writeHueQueueAdd(node.hueDevice, { on: { on: false } }, node.isGrouped_light === false ? "setLight" : "setGroupedLight");
+              node.serverHue.hueManager.writeHueQueueAdd(
+                node.hueDevice,
+                { on: { on: false } },
+                node.isGrouped_light === false ? "setLight" : "setGroupedLight"
+              );
             }
           }
           if (_event.hasOwnProperty("color_temperature")) {
@@ -556,7 +557,7 @@ module.exports = function (RED) {
         knxMsgPayload.payload = hueColorConverter.ColorConverter.xyBriToRgb(
           _value.xy.x,
           _value.xy.y,
-          node.currentHUEDevice !== undefined ? node.currentHUEDevice.dimming.brightness : 100,
+          node.currentHUEDevice !== undefined ? node.currentHUEDevice.dimming.brightness : 100
         );
         // Send to KNX bus
         if (knxMsgPayload.topic !== "" && knxMsgPayload.topic !== undefined) {

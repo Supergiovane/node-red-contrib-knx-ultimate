@@ -486,14 +486,15 @@
           $("#getColorAtSwitchOnNightTimeButton").text("Get current");
         });
       });
-
+      
       // Fill options for minDimLevel and maxDimLevel
-      for (let index = 1; index <= 90; index++) {
-        $("#node-input-minDimLevelLight").append(
-          $("<option>")
-            .val(index)
-            .text(index.toString() + "%")
-        );
+      for (let index = 0; index <= 90; index++) {
+        if (index === 0){
+          $("#node-input-minDimLevelLight").append($("<option>").val(index).text(index.toString() + "% (Switch Off)"));
+        }else{
+          $("#node-input-minDimLevelLight").append($("<option>").val(index).text(index.toString() + "%"));
+        }
+        
       }
       $("#node-input-minDimLevelLight").val(node.minDimLevelLight);
       for (let index = 100; index >= 10; index--) {
