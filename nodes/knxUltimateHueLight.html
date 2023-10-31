@@ -1,4 +1,24 @@
 <script type="text/javascript">
+  RED.events.on('nodes:add', function (node) {
+    if (node.type === 'uibuilder') {
+      // Keep a list of uib nodes in the editor
+      // may be different to the deployed list
+      editorInstances[node.id] = node.url
+      // -- IF uibuilderInstances <> editorInstances THEN there are undeployed instances. --
+    }
+  })
+  RED.events.on('nodes:change', function (node) {
+    if (node.type === 'uibuilder') {
+      mylog('nodes:change:', node)
+      editorInstances[node.id] = node.url
+    }
+  })
+  RED.events.on('nodes:remove', function (node) {
+    if (node.type === 'uibuilder') {
+      mylog('>> nodes:remove >>', node)
+      delete editorInstances[node.id]
+    }
+  })
   RED.nodes.registerType("knxUltimateHueLight", {
     category: "KNX Ultimate",
     color: "#C0C7E9",
@@ -66,7 +86,7 @@
       dptDaylightSensor: { value: "" },
 
       specifySwitchOnBrightness: { value: "yes" },
-      updateKNXBrightnessStatusOnHUEOnOff: { value: "onhueoff" },
+      updateKNXBrightnessStatusOnHUEOnOff: { value: "no" },
       dimSpeed: { value: 5000, required: false },
       minDimLevelLight: { value: 10, required: false },
       maxDimLevelLight: { value: 100, required: false },
@@ -486,15 +506,15 @@
           $("#getColorAtSwitchOnNightTimeButton").text("Get current");
         });
       });
-      
+
       // Fill options for minDimLevel and maxDimLevel
       for (let index = 0; index <= 90; index++) {
-        if (index === 0){
+        if (index === 0) {
           $("#node-input-minDimLevelLight").append($("<option>").val(index).text(index.toString() + "% (Switch Off)"));
-        }else{
+        } else {
           $("#node-input-minDimLevelLight").append($("<option>").val(index).text(index.toString() + "%"));
         }
-        
+
       }
       $("#node-input-minDimLevelLight").val(node.minDimLevelLight);
       for (let index = 100; index >= 10; index--) {

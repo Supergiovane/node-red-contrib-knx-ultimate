@@ -6,6 +6,12 @@
 
 # CHANGELOG
 
+<b>Version 2.2.4</b> - October 2023<br/>
+- HUE Light: fixed some status hiccups and better handling of async hue bridge functions.<br/>
+</p>
+<b>Version 2.2.3</b> - October 2023<br/>
+- HUE Light: Again, rewrite of the DIM function to get rid of the dimming_delta.<br/>
+</p>
 <p>
 <b>Version 2.2.2</b> - October 2023<br/>
 - NEW: HUE Motion: support HUE Camera motion events via the HUE Motion node.<br/>

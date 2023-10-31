@@ -940,14 +940,16 @@ return msg;`,
           }
           // 12/11/2021 Starts the telegram out queue handler
           if (node.timerSendTelegramFromQueue !== null) clearInterval(node.timerSendTelegramFromQueue);
-          node.timerSendTelegramFromQueue = setInterval(handleTelegramQueue, config.delaybetweentelegrams === undefined || Number(config.delaybetweentelegrams) < 20 ? 20 : Number(config.delaybetweentelegrams),
-          ); // 02/01/2020 Start the timer that handles the queue of telegrams
+          node.timerSendTelegramFromQueue = setInterval(handleTelegramQueue, config.delaybetweentelegrams === undefined || Number(config.delaybetweentelegrams) < 20 ? 20 : Number(config.delaybetweentelegrams)); // 02/01/2020 Start the timer that handles the queue of telegrams
           node.linkStatus = "connected";
 
           // Start the timer to do initial read.
           if (node.timerDoInitialRead !== null) clearTimeout(node.timerDoInitialRead);
-          node.timerDoInitialRead = setTimeout(DoInitialReadFromKNXBusOrFile, 6000); // 17/02/2020 Do initial read of all nodes requesting initial read
-          node.timerCallConnectToHueBridgeOfAllHUEServers = setTimeout(callConnectToHueBridgeOfAllHUEServers, 10000); // connects all hue-config nodes to the HUE Bridge.
+          node.timerDoInitialRead = setTimeout(() => {
+            DoInitialReadFromKNXBusOrFile();
+            callConnectToHueBridgeOfAllHUEServers();
+          }, 6000); // 17/02/2020 Do initial read of all nodes requesting initial read
+          //node.timerCallConnectToHueBridgeOfAllHUEServers = setTimeout(callConnectToHueBridgeOfAllHUEServers, 6000); // connects all hue-config nodes to the HUE Bridge.
           const t = setTimeout(() => {
             // 21/03/2022 fixed possible memory leak. Previously was setTimeout without "let t = ".
             node.setAllClientsStatus("Connected.", "green", "On duty.");

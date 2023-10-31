@@ -31,7 +31,7 @@ module.exports = function (RED) {
     };
     // Used to call the status update from the HUE config node.
     node.setNodeStatusHue = ({ fill, shape, text, payload }) => {
-      if (payload === undefined) return;
+      if (payload === undefined) payload = '';
       const dDate = new Date();
       payload = typeof payload === 'object' ? JSON.stringify(payload) : payload.toString();
       node.status({ fill, shape, text: text + ' ' + payload + ' (' + dDate.getDate() + ', ' + dDate.toLocaleTimeString() + ')' });

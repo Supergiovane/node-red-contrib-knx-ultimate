@@ -1,9 +1,17 @@
+/* eslint-disable no-lonely-if */
+/* eslint-disable no-param-reassign */
 /* eslint-disable no-inner-declarations */
 /* eslint-disable max-len */
 const dptlib = require("../KNXEngine/src/dptlib");
 const HueClass = require("./utils/hueEngine").classHUE;
 const loggerEngine = require("./utils/sysLogger");
 const hueColorConverter = require("./utils/hueColorConverter");
+
+function getRandomIntInclusive(min, max) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min + 1) + min); // The maximum is inclusive and the minimum is inclusive
+}
 
 // Helpers
 const sortBy = (field) => (a, b) => {
@@ -47,6 +55,7 @@ module.exports = (RED) => {
     const node = this;
     node.host = config.host;
     node.nodeClients = []; // Stores the registered clients
+    node.nodeClientsAwaitingInit = []; // Stores the nodes client to be initialized
     node.loglevel = config.loglevel !== undefined ? config.loglevel : "error"; // 18/02/2020 Loglevel default error
     node.sysLogger = null;
     node.hueAllResources = null;
@@ -85,67 +94,51 @@ module.exports = (RED) => {
         (async () => {
           try {
             await node.loadResourcesFromHUEBridge(); // Then, you can use node.getResources, that works locally and doesn't query the HUE Bridge.
-          } catch (error) { /* empty */ }
+          } catch (error) {
+            /* empty */
+          }
         })();
         if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("node.hueManager connected event");
       });
     };
 
     // Query the HUE Bridge to return the resources
-    node.loadResourcesFromHUEBridge = (_callerNode = undefined) => new Promise((resolve, reject) => {
+    node.loadResourcesFromHUEBridge = () => {
       (async () => {
         // °°°°°° Load ALL resources
         try {
-          if (_callerNode === undefined) {
-            node.hueAllResources = await node.hueManager.hueApiV2.get("/resource");
-            node.hueAllRooms = node.hueAllResources.filter((a) => a.type === "room");
-            // Update all KNX State of the nodes with the new hue device values
-            node.nodeClients.forEach((nodeClient) => {
-              if (nodeClient.hueDevice !== undefined) {
-                const oHUEDevice = node.hueAllResources.filter((a) => a.id === nodeClient.hueDevice)[0];
-                if (oHUEDevice !== undefined) {
-                  nodeClient.currentHUEDevice = oHUEDevice;
-                  for (const [key, value] of Object.entries(oHUEDevice)) {
-                    // Update KNX State
-                    const oProperty = { id: oHUEDevice.id };
-                    oProperty[key] = value;
-                    nodeClient.handleSendHUE(oProperty);
-                  }
-                }
-              }
+          node.hueAllResources = await node.hueManager.hueApiV2.get("/resource");
+          node.hueAllRooms = node.hueAllResources.filter((a) => a.type === "room");
+          // Update all KNX State of the nodes with the new hue device values
+          if (node.nodeClientsAwaitingInit !== undefined) {
+            // Because the whole process is async, if the function await node.hueManager.hueApiV2.get("/resource") has not jet been called or is late, 
+            // the node/nodes belonging to this server, has been previously added to the nodeClientsAwaitingInit list.
+            node.nodeClientsAwaitingInit.forEach((nodeClient) => {
+              node.nodeClients.push(nodeClient);
             });
-          } else {
-            // °°°°°° Read ONE resource and update only one node. The node is requesting an update because it has been edited in Node-Red's window by the user
-            try {
-              // Please KEEP THE AWAIT, otherwise al posto dell'oggetto, a Promisse will be returned.
-              const oHUEDevice = await node.hueAllResources.filter((a) => a.id === _callerNode.hueDevice)[0];
+            node.nodeClientsAwaitingInit = [];
+          }
+          node.nodeClients.forEach((nodeClient) => {
+            if (nodeClient.hueDevice !== undefined) {
+              const oHUEDevice = node.hueAllResources.filter((a) => a.id === nodeClient.hueDevice)[0];
               if (oHUEDevice !== undefined) {
-                _callerNode.currentHUEDevice = oHUEDevice;
-                for (const [key, value] of Object.entries(oHUEDevice)) {
-                  // Update KNX State
-                  const oProperty = { id: oHUEDevice.id };
-                  oProperty[key] = value;
-                  _callerNode.handleSendHUE(oProperty);
-                }
-              }
-            } catch (error) {
-              if (this.sysLogger !== undefined && this.sysLogger !== null) {
-                this.sysLogger.error(`KNXUltimatehueEngine: loadResourcesFromHUEBridge, from a single node that has been edited: ${error.message}`);
-                reject(error.message);
+                nodeClient.currentHUEDevice = oHUEDevice;
+                nodeClient.handleSendHUE(oHUEDevice);
               }
             }
-          }
-          resolve(true);
+          });
         } catch (error) {
           if (this.sysLogger !== undefined && this.sysLogger !== null) {
             this.sysLogger.error(`KNXUltimatehueEngine: loadResourcesFromHUEBridge: ${error.message}`);
-            reject(error.message);
+            return (error.message);
           }
         }
+        return true;
       })();
-    });
+    };
+
     // Returns the cached devices (node.hueAllResources) by type.
-    node.getResources = (_rtype) => {
+    node.getResources = function getResources(_rtype) {
       try {
         if (node.hueAllResources === undefined) return;
         // Returns capitalized string
@@ -260,34 +253,43 @@ module.exports = (RED) => {
     };
 
     // Query HUE Bridge and get the updated color.
-    node.getColorFromHueLight = (_lightId) => new Promise((resolve, reject) => {
-      (async () => {
-        try {
-          // await node.loadResourcesFromHUEBridge();
-          const oLight = node.hueAllResources.filter((a) => a.id === _lightId)[0];
-          const ret = hueColorConverter.ColorConverter.xyBriToRgb(
-            oLight.color.xy.x,
-            oLight.color.xy.y,
-            oLight.dimming.brightness,
-          );
-          resolve(JSON.stringify(ret));
-        } catch (error) {
-          if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(`KNXUltimateHue: hueEngine: getColorFromHueLight: error ${error.message}`);
-          reject(error.message);
-        }
-      })();
-    });
+    node.getColorFromHueLight = (_lightId) => {
+      try {
+        // await node.loadResourcesFromHUEBridge();
+        const oLight = node.hueAllResources.filter((a) => a.id === _lightId)[0];
+        const ret = hueColorConverter.ColorConverter.xyBriToRgb(oLight.color.xy.x, oLight.color.xy.y, oLight.dimming.brightness);
+        return JSON.stringify(ret);
+      } catch (error) {
+        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(`KNXUltimateHue: hueEngine: getColorFromHueLight: error ${error.message}`);
+        return {};
+      }
+    };
 
     node.addClient = (_Node) => {
-      // Check if node already exists
-      if (node.nodeClients.filter((x) => x.id === _Node.id).length === 0) {
-        // Add _Node to the clients array
-        _Node.setNodeStatusHue({
-          fill: "grey",
-          shape: "ring",
-          text: "Hue initialized.",
-        });
-        node.nodeClients.push(_Node);
+      // Update the node hue device, as soon as a node register itself to hue-config nodeClients
+      if (node.hueAllResources !== null) {
+        if (node.nodeClients.filter((x) => x.id === _Node.id).length === 0) { // At first start, due to the async method for retrieving hueAllResources, hueAllResources is still null. The first start is handled in node.hueManager.on("connected")
+          const oHUEDevice = node.hueAllResources.filter((a) => a.id === _Node.hueDevice)[0];
+          _Node.currentHUEDevice = oHUEDevice;
+          if (oHUEDevice !== undefined) _Node.handleSendHUE(oHUEDevice);
+          node.nodeClients.push(_Node);
+          // Add _Node to the clients array
+          _Node.setNodeStatusHue({
+            fill: "green",
+            shape: "ring",
+            text: "Ready",
+          });
+        }
+      } else {
+        if (node.nodeClientsAwaitingInit.filter((x) => x.id === _Node.id).length === 0) {
+          // Put the node in the waiting list
+          node.nodeClientsAwaitingInit.push(_Node);
+          _Node.setNodeStatusHue({
+            fill: "grey",
+            shape: "dot",
+            text: "Awaiting HUE Resources",
+          });
+        }
       }
     };
 
@@ -295,7 +297,9 @@ module.exports = (RED) => {
       // Remove the client node from the clients array
       try {
         node.nodeClients = node.nodeClients.filter((x) => x.id !== _Node.id);
-      } catch (error) { /* empty */ }
+      } catch (error) {
+        /* empty */
+      }
     };
 
     node.on("close", (done) => {
@@ -320,14 +324,12 @@ module.exports = (RED) => {
     });
 
     RED.httpAdmin.get("/knxUltimateGetHueColor", RED.auth.needsPermission("hue-config.read"), (req, res) => {
-      (async () => {
-        try {
-          const rgbColor = await node.getColorFromHueLight(req.query.id);
-          res.json(rgbColor);
-        } catch (error) {
-          res.json("Select the device first!");
-        }
-      })();
+      try {
+        const rgbColor = node.getColorFromHueLight(req.query.id);
+        res.json(rgbColor);
+      } catch (error) {
+        res.json("Select the device first!");
+      }
     });
 
     RED.httpAdmin.get("/KNXUltimateGetResourcesHUE", RED.auth.needsPermission("hue-config.read"), (req, res) => {
@@ -347,8 +349,7 @@ module.exports = (RED) => {
     });
 
     RED.httpAdmin.get("/knxUltimateDpts", RED.auth.needsPermission("hue-config.read"), (req, res) => {
-      const dpts = Object.entries(dptlib).filter(onlyDptKeys).map(extractBaseNo).sort(sortBy("base"))
-        .reduce(toConcattedSubtypes, []);
+      const dpts = Object.entries(dptlib).filter(onlyDptKeys).map(extractBaseNo).sort(sortBy("base")).reduce(toConcattedSubtypes, []);
       res.json(dpts);
     });
   }
