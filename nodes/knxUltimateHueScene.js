@@ -24,6 +24,7 @@ module.exports = function (RED) {
     node.formatmultiplyvalue = 1;
     node.formatnegativevalue = 'leave';
     node.formatdecimalsvalue = 2;
+    node.hueDevice = config.hueDevice;
 
     // Used to call the status update from the config node.
     node.setNodeStatus = ({ fill, shape, text, payload }) => {

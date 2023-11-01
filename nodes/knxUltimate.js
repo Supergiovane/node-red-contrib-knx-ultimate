@@ -146,7 +146,7 @@ module.exports = function (RED) {
         node.inputmessage = RED.util.cloneMessage(msg); // 28/03/2020 Store the message to be passed through.
       }
 
-      // 25/07/2019 if payload is read or the output type is set to "read", do a read, otherwise, write to the bus
+      // 25/07/2019 if payload is read or the Telegram type is set to "read", do a read, otherwise, write to the bus
       if ((msg.hasOwnProperty('readstatus') && msg.readstatus === true) || node.outputtype === 'read') {
         // READ: Send a Read request to the bus
         let grpaddr = '';
@@ -156,7 +156,7 @@ module.exports = function (RED) {
           // 29/12/2020 Protection over circular references (for example, if you link two Ultimate Nodes toghether with the same group address), to prevent infinite loops
           if (msg.hasOwnProperty('knx')) {
             if (msg.knx.destination == grpaddr && ((msg.knx.event === 'GroupValue_Response' || msg.knx.event === 'GroupValue_Read'))) {
-              if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(`knxUltimate: Circular reference protection during READ. The node ${node.id} has been temporary disabled. Two nodes with same group address and reaction/output type are linked. See the FAQ in the Wiki. Msg:${JSON.stringify(msg)}`);
+              if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(`knxUltimate: Circular reference protection during READ. The node ${node.id} has been temporary disabled. Two nodes with same group address and reaction/Telegram type are linked. See the FAQ in the Wiki. Msg:${JSON.stringify(msg)}`);
               const t = setTimeout(() => { // 21/03/2022 fixed possible memory leak. Previously was setTimeout without "let t = ".
                 node.setNodeStatus({
                   fill: 'red', shape: 'ring', text: `DISABLED due to a circulare reference while READ (${grpaddr}).`, payload: '', GA: '', dpt: '', devicename: '',
@@ -178,7 +178,7 @@ module.exports = function (RED) {
             // 29/12/2020 Protection over circular references (for example, if you link two Ultimate Nodes toghether with the same group address), to prevent infinite loops
             if (msg.hasOwnProperty('knx')) {
               if (msg.knx.destination == grpaddr && ((msg.knx.event === 'GroupValue_Response' || msg.knx.event === 'GroupValue_Read'))) {
-                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(`knxUltimate: Circular reference protection during READ-2. The node ${node.id} has been temporary disabled. Two nodes with same group address and reaction/output type are linked. See the FAQ in the Wiki. Msg:${JSON.stringify(msg)}`);
+                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(`knxUltimate: Circular reference protection during READ-2. The node ${node.id} has been temporary disabled. Two nodes with same group address and reaction/Telegram type are linked. See the FAQ in the Wiki. Msg:${JSON.stringify(msg)}`);
                 const t = setTimeout(() => { // 21/03/2022 fixed possible memory leak. Previously was setTimeout without "let t = ".
                   node.setNodeStatus({
                     fill: 'red', shape: 'ring', text: `DISABLED due to a circulare reference while READ-2 (${grpaddr}).`, payload: '', GA: '', dpt: '', devicename: '',
@@ -201,7 +201,7 @@ module.exports = function (RED) {
                 // 29/12/2020 Protection over circular references (for example, if you link two Ultimate Nodes toghether with the same group address), to prevent infinite loops
                 if (msg.hasOwnProperty('knx')) {
                   if (msg.knx.destination == grpaddr && ((msg.knx.event === 'GroupValue_Response' || msg.knx.event === 'GroupValue_Read'))) {
-                    if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(`knxUltimate: Circular reference protection during READ-3. Node ${node.id} The read request hasn't been sent. Two nodes with same group address and reaction/output type are linked. See the FAQ in the Wiki. Msg:${JSON.stringify(msg)}`);
+                    if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(`knxUltimate: Circular reference protection during READ-3. Node ${node.id} The read request hasn't been sent. Two nodes with same group address and reaction/Telegram type are linked. See the FAQ in the Wiki. Msg:${JSON.stringify(msg)}`);
                     node.setNodeStatus({
                       fill: 'red', shape: 'ring', text: `NOT SENT due to a circulare reference while READ-3 (${grpaddr}).`, payload: '', GA: '', dpt: '', devicename: '',
                     });
@@ -322,7 +322,7 @@ module.exports = function (RED) {
           // Protection over circular references (for example, if you link two Ultimate Nodes toghether with the same group address), to prevent infinite loops
           if (msg.hasOwnProperty('knx')) {
             if (msg.knx.destination == grpaddr && ((msg.knx.event === 'GroupValue_Write' && outputtype === 'write') || (msg.knx.event === 'GroupValue_Response' && outputtype === 'response') || (msg.knx.event === 'GroupValue_Response' && outputtype === 'read') || (msg.knx.event === 'GroupValue_Read' && outputtype === 'read'))) {
-              if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(`knxUltimate: Circular reference protection. The node ${node.id} has been temporarely disabled. Two nodes with same group address and reaction/output type are linked. See the FAQ in the Wiki. Msg:${JSON.stringify(msg)}`);
+              if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(`knxUltimate: Circular reference protection. The node ${node.id} has been temporarely disabled. Two nodes with same group address and reaction/Telegram type are linked. See the FAQ in the Wiki. Msg:${JSON.stringify(msg)}`);
               const t = setTimeout(() => { // 21/03/2022 fixed possible memory leak. Previously was setTimeout without "let t = ".
                 node.setNodeStatus({
                   fill: 'red', shape: 'ring', text: `DISABLED due to a circulare reference (${grpaddr}).`, payload: '', GA: '', dpt: '', devicename: '',

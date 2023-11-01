@@ -334,7 +334,7 @@ module.exports = function (RED) {
         node.send({ topic: node.name || node.topic, operation: 'Enabled', payload: node.sheddingStage })
       }
 
-      // 24/04/2021 if payload is read or the output type is set to "read", do a read
+      // 24/04/2021 if payload is read or the Telegram type is set to "read", do a read
       if ((msg.hasOwnProperty('readstatus') && msg.readstatus === true)) {
         node.initialReadAllDevicesInRules()
       }

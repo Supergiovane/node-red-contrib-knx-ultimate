@@ -6,6 +6,9 @@
 
 # CHANGELOG
 
+<b>Version 2.2.5</b> - October 2023<br/>
+- Fix: fixed some HUE nodes not able to register to the event notification service.<br/>
+</p>
 <b>Version 2.2.4</b> - October 2023<br/>
 - HUE Light: fixed some status hiccups and better handling of async hue bridge functions.<br/>
 </p>
@@ -765,7 +768,7 @@
 </p>
 <p>
 <b>Version 1.2.33</b> - May 2021<br/>
-- Gateway configuration -> Advanced Options -> Node list in all flows: added more infos to each node in the list, to allow more control on the nodes overview. The options are: "No Initial Read, React to Write, React to Response, No React to Read, No Autorespond to Read Requests, Output type write, No RBE on Output to Bus, No RBE on Input from Bus"<br/>
+- Gateway configuration -> Advanced Options -> Node list in all flows: added more infos to each node in the list, to allow more control on the nodes overview. The options are: "No Initial Read, React to Write, React to Response, No React to Read, No Autorespond to Read Requests, Telegram type write, No RBE on Output to Bus, No RBE on Input from Bus"<br/>
 </p>
 <p>
 <b>Version 1.2.32</b> - May 2021<br/>
@@ -1067,7 +1070,7 @@
 </p>
 <p>
 <b>Version 1.1.64</b> - April 2020<br/>
-- NEW: Added output type "Read", to issue a read by simply pass a payload to the node. Thanks @waldbaer for the suggestion.<br/>
+- NEW: Added Telegram type "Read", to issue a read by simply pass a payload to the node. Thanks @waldbaer for the suggestion.<br/>
 </p>
 <p>
 <b>Version 1.1.63</b> - April 2020<br/>
@@ -1304,7 +1307,7 @@
 </p>
 <p>
 <b>Version 1.1.10</b><br/>
-- Auto send node value as response to the KNX Bus. It works in conjunction with React to event GroupValue read. When checked, whenever the node receives a read request from bus, it sends a response to the KNX Bus with the stored payload value.<br/>
+- Auto send node value as response to the KNX Bus. It works in conjunction with React to read telegrams. When checked, whenever the node receives a read request from bus, it sends a response to the KNX Bus with the stored payload value.<br/>
 - Fixed an issue where if you have a node set to Universal mode (listen to all Group Addresses) (with ETS CSV File set) and you create a new node having a Group Addr. not in the ETS CSV file, an exception is raised but not caught and the nodes may not receive the values from KNX BUS.<br/>
 </p>
 <p>
@@ -1413,7 +1416,7 @@
 </p>
 <p>
 <b>Version 0.0.6 BETA</b><br/>
-- Fixed Output Type unable to be set<br/>
+- Fixed Telegram type unable to be set<br/>
 - Added node status for response (blue) and read (grey)<br/>
 </p>
 <p>

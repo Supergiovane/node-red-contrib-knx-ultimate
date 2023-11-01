@@ -22,6 +22,7 @@ module.exports = function (RED) {
     node.formatmultiplyvalue = 1;
     node.formatnegativevalue = 'leave';
     node.formatdecimalsvalue = 2;
+    node.hueDevice = config.hueDevice;
 
     // Used to call the status update from the config node.
     node.setNodeStatus = ({ fill, shape, text, payload }) => {
@@ -76,11 +77,7 @@ module.exports = function (RED) {
     }
     if (node.serverHue) {
       node.serverHue.removeClient(node);
-      // I must get the object, to store read the status
-      // I queue the state request, by passing the callback to call whenever the HUE bridge send me the light status async
-      if (node.serverHue !== null && node.serverHue.hueManager !== null) {
-        node.serverHue.addClient(node);
-      }
+      node.serverHue.addClient(node);
     }
 
     node.on('input', function (msg) {

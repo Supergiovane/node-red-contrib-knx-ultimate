@@ -22,6 +22,7 @@ module.exports = function (RED) {
     node.formatmultiplyvalue = 1;
     node.formatnegativevalue = 'leave';
     node.formatdecimalsvalue = 2;
+    node.hueDevice = config.hueDevice;
 
     // Used to call the status update from the config node.
     node.setNodeStatus = ({
@@ -84,9 +85,7 @@ module.exports = function (RED) {
     }
     if (node.serverHue) {
       node.serverHue.removeClient(node);
-      if (node.serverHue !== null && node.serverHue.hueManager !== null) {
-        node.serverHue.addClient(node);
-      }
+      node.serverHue.addClient(node);
     }
 
     node.on('input', (msg) => {

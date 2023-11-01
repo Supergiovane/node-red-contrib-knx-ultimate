@@ -58,7 +58,7 @@ module.exports = function (RED) {
     node.handleSend = (msg) => {
       if (node.currentHUEDevice === undefined) {
         node.setNodeStatusHue({
-          fill: "grey",
+          fill: "red",
           shape: "ring",
           text: "Currently not ready.",
           payload: "",
@@ -621,13 +621,7 @@ module.exports = function (RED) {
     }
     if (node.serverHue) {
       node.serverHue.removeClient(node);
-      if (node.serverHue !== null && node.serverHue.hueManager !== null) {
-        try {
-          node.serverHue.addClient(node);
-        } catch (err) {
-          RED.log.error(`Errore knxUltimateHueLight node.currentHUEDevice ${err.message}`);
-        }
-      }
+      node.serverHue.addClient(node);
     }
 
     node.on("input", (msg) => { });

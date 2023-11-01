@@ -26,6 +26,7 @@ module.exports = function (RED) {
     node.formatdecimalsvalue = 2;
     node.short_releaseValue = false;
     node.isTimerDimStopRunning = false;
+    node.hueDevice = config.hueDevice;
 
     // Used to call the status update from the config node.
     node.setNodeStatus = ({

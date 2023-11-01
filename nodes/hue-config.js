@@ -122,6 +122,12 @@ module.exports = (RED) => {
             if (nodeClient.hueDevice !== undefined) {
               const oHUEDevice = node.hueAllResources.filter((a) => a.id === nodeClient.hueDevice)[0];
               if (oHUEDevice !== undefined) {
+                // Add _Node to the clients array
+                nodeClient.setNodeStatusHue({
+                  fill: "green",
+                  shape: "ring",
+                  text: "Ready :-)",
+                });
                 nodeClient.currentHUEDevice = oHUEDevice;
                 nodeClient.handleSendHUE(oHUEDevice);
               }
