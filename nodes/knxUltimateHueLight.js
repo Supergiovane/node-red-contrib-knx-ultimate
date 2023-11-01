@@ -35,6 +35,8 @@ module.exports = function (RED) {
     node.DayTime = true;
     node.isGrouped_light = config.hueDevice.split("#")[1] === "grouped_light";
     node.hueDevice = config.hueDevice.split("#")[0];
+    node.readStatusAtStartup = config.readStatusAtStartup;
+    if (config.readStatusAtStartup === undefined) node.readStatusAtStartup = "yes";
 
     // Used to call the status update from the config node.
     node.setNodeStatus = ({
@@ -419,6 +421,9 @@ module.exports = function (RED) {
             });
             return;
           }
+          // IMPORTANT: exit if no button last_event present.
+          if (_event.initializingAtStart === true && node.readStatusAtStartup === "no") return;
+
           if (_event.hasOwnProperty("on")) {
             node.updateKNXLightState(_event.on.on);
             // In case of switch off, set the dim to zero

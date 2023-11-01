@@ -6,6 +6,10 @@
 
 # CHANGELOG
 
+<b>Version 2.2.6</b> - October 2023<br/>
+- Fix: fixed HUE button sending a KNX telegram at startup. Fixed also other nodes.<br/>
+- HUE Nodes: added the option to inizialize at startup or not.<br/>
+</p>
 <b>Version 2.2.5</b> - October 2023<br/>
 - Fix: fixed some HUE nodes not able to register to the event notification service.<br/>
 - Restyle GUI of KNX Device node.<br/>

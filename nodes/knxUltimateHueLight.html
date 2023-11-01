@@ -90,6 +90,7 @@
       dimSpeed: { value: 5000, required: false },
       minDimLevelLight: { value: 10, required: false },
       maxDimLevelLight: { value: 100, required: false },
+      readStatusAtStartup: { value: "yes" },
 
       hueDevice: { value: "" },
     },
@@ -765,7 +766,14 @@
       <div id="tabs-6">
         <p>
           <div class="form-row">
-              <label for="node-input-updateKNXBrightnessStatusOnHUEOnOff" style="width:260px;">
+            <label style="width:260px;" for="node-input-readStatusAtStartup"><i class="fa fa-play-circle"></i> Read status at startup</label>
+            <select id="node-input-readStatusAtStartup">       
+            <option value="no">No</option>
+            <option value="yes">Yes, and emit KNX telegrams.</option>
+            </select>
+        </div>
+          <div class="form-row">
+              <label style="width:260px;" for="node-input-updateKNXBrightnessStatusOnHUEOnOff">
                   <i class="fa fa-tag"></i> KNX Brightness Status
               </label>
               <select id="node-input-updateKNXBrightnessStatusOnHUEOnOff">
@@ -935,6 +943,7 @@
   | Dim Speed (ms)                            | The dimming speed, in Milliseconds. This applies to the **light** and also to the **tunable white** dimming datapoints. It' calculated from 0% to 100%.                                                                                                                                                                                                                                                                                                                                              |
   | Min Dim brightness                        | Tha Minimum brightness that the lamp can reach. For example, if you are dimming the light down, the light will stop dimming at the specified brightness %.                                                                                                                                                                                                                                                                                                                                           |
   | Max Dim brightness                        | Tha Maximum brightness that the lamp can reach. For example, if you are dimming the light up, the light will stop dimming at the specified brightness %.                                                                                                                                                                                                                                                                                                                                             |
+  | Read status at startup | Read the status at startup and emit the event to the KNX bus at startup/reconnection. (Default "no")|
 
   ### Note
 

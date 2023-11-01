@@ -11,6 +11,7 @@
             namemotion: { value: "" },
             GAmotion: { value: "" },
             dptmotion: { value: "" },
+            readStatusAtStartup: { value: "no" },
 
             hueDevice: { value: "" }
         },
@@ -211,6 +212,14 @@
         <input type="text" id="node-input-namemotion" style="width:200px;margin-left: 5px; text-align: left;">
     </div>
    
+    <div class="form-row">
+        <label style="width:180px" for="node-input-readStatusAtStartup"><i class="fa fa-play-circle"></i> Read status at startup</label>
+        <select id="node-input-readStatusAtStartup">       
+        <option value="no">No</option>
+        <option value="yes">Yes, and emit KNX telegrams.</option>
+</select>
+    </div>
+
 <br/>
 <br/>
 <br/>
@@ -235,7 +244,8 @@ Start typing in the GA field, the name or group address of your KNX device, the 
 |Property|Description|
 |--|--|
 | Motion | As soon as someone moves in the motion device's range, a *true* KNX value is sent to this group address, otherwise *false* is sent. |
-
+| Read status at startup | Read the status at startup and emit the event to the KNX bus at startup/reconnection. (Default "no")|
+    
 ### Outputs
 
 1. Standard output

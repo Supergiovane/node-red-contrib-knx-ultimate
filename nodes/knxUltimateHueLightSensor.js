@@ -43,6 +43,11 @@ module.exports = function (RED) {
     node.handleSendHUE = _event => {
       try {
         if (_event.id === config.hueDevice) {
+
+          // IMPORTANT: exit if no event presen.
+          if (_event.initializingAtStart === true && (config.readStatusAtStartup === undefined || config.readStatusAtStartup === "no")) return;
+          if (!_event.hasOwnProperty('light') || _event.light.light_level === undefined) return;
+
           const knxMsgPayload = {};
           knxMsgPayload.topic = config.GAlightsensor;
           knxMsgPayload.dpt = config.dptlightsensor;

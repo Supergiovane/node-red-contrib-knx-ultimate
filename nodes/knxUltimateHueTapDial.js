@@ -49,6 +49,17 @@ module.exports = function (RED) {
     node.handleSendHUE = (_event) => {
       try {
         if (_event.id === config.hueDevice) {
+
+          // IMPORTANT: exit if no event presen.
+          if (_event.initializingAtStart === true && (config.readStatusAtStartup === undefined || config.readStatusAtStartup === "no")) return;
+          if (!_event.hasOwnProperty("relative_rotary")
+            || !_event.relative_rotary.hasOwnProperty("last_event")
+            || _event.relative_rotary.last_event === undefined
+            || !_event.relative_rotary.last_event.hasOwnProperty("rotation")
+            || !_event.relative_rotary.last_event.rotation.direction === undefined
+            || _event.relative_rotary.last_event.action === undefined) return;
+
+
           const knxMsgPayload = {};
           knxMsgPayload.topic = config.GArepeat;
           knxMsgPayload.dpt = config.dptrepeat;

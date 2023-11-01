@@ -76,6 +76,11 @@ module.exports = function (RED) {
     node.handleSendHUE = (_event) => {
       try {
         if (_event.id === config.hueDevice) {
+
+          // IMPORTANT: exit if no button last_event present.
+          if (_event.initializingAtStart === true && (config.readStatusAtStartup === undefined || config.readStatusAtStartup === "no")) return;
+          if (!_event.hasOwnProperty("button") || _event.button.last_event === undefined) return;
+
           const knxMsgPayload = {};
           let flowMsgPayload = true;
           // Handling events with toggles

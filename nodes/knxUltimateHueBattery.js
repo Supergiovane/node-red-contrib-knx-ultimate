@@ -47,30 +47,34 @@ module.exports = function (RED) {
     node.handleSendHUE = (_event) => {
       try {
         if (_event.id === config.hueDevice) {
+
+          // IMPORTANT: exit if no event presen.
+          if (_event.initializingAtStart === true && (config.readStatusAtStartup === undefined || config.readStatusAtStartup === "no")) return;
+          if (!_event.hasOwnProperty("power_state") || _event.power_state.battery_level === undefined) return;
+
           const knxMsgPayload = {};
           knxMsgPayload.topic = config.GAbatterysensor;
           knxMsgPayload.dpt = config.dptbatterysensor;
 
-          if (_event.hasOwnProperty('power_state') && _event.power_state.hasOwnProperty('battery_level')) {
-            knxMsgPayload.payload = _event.power_state.battery_level;
-            // Send to KNX bus
-            if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) {
-              node.server.writeQueueAdd({
-                grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id,
-              });
-            }
-
-            // Setup the output msg
-            knxMsgPayload.name = node.name;
-            knxMsgPayload.event = 'power_state';
-
-            // Send payload
-            knxMsgPayload.rawEvent = _event;
-            node.send(knxMsgPayload);
-            node.setNodeStatusHue({
-              fill: 'blue', shape: 'ring', text: 'HUE->KNX', payload: knxMsgPayload.payload,
+          knxMsgPayload.payload = _event.power_state.battery_level;
+          // Send to KNX bus
+          if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) {
+            node.server.writeQueueAdd({
+              grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id,
             });
           }
+
+          // Setup the output msg
+          knxMsgPayload.name = node.name;
+          knxMsgPayload.event = 'power_state';
+
+          // Send payload
+          knxMsgPayload.rawEvent = _event;
+          node.send(knxMsgPayload);
+          node.setNodeStatusHue({
+            fill: 'blue', shape: 'ring', text: 'HUE->KNX', payload: knxMsgPayload.payload,
+          });
+
         }
       } catch (error) {
         node.status({ fill: 'red', shape: 'dot', text: `HUE->KNX error ${error.message} (${new Date().getDate()}, ${new Date().toLocaleTimeString()})` });

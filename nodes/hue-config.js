@@ -58,7 +58,7 @@ module.exports = (RED) => {
     node.nodeClientsAwaitingInit = []; // Stores the nodes client to be initialized
     node.loglevel = config.loglevel !== undefined ? config.loglevel : "error"; // 18/02/2020 Loglevel default error
     node.sysLogger = null;
-    node.hueAllResources = null;
+    node.hueAllResources = undefined;
     try {
       node.sysLogger = loggerEngine.get({ loglevel: node.loglevel }); // New logger to adhere to the loglevel selected in the config-window
     } catch (error) {
@@ -129,6 +129,7 @@ module.exports = (RED) => {
                   text: "Ready :-)",
                 });
                 nodeClient.currentHUEDevice = oHUEDevice;
+                oHUEDevice.initializingAtStart = true; // Signalling first connection after restart.
                 nodeClient.handleSendHUE(oHUEDevice);
               }
             }
@@ -277,7 +278,8 @@ module.exports = (RED) => {
         if (node.nodeClients.filter((x) => x.id === _Node.id).length === 0) { // At first start, due to the async method for retrieving hueAllResources, hueAllResources is still null. The first start is handled in node.hueManager.on("connected")
           const oHUEDevice = node.hueAllResources.filter((a) => a.id === _Node.hueDevice)[0];
           _Node.currentHUEDevice = oHUEDevice;
-          if (oHUEDevice !== undefined) _Node.handleSendHUE(oHUEDevice);
+          oHUEDevice.initializingAtStart = true; // Signalling first connection after restart.
+          _Node.handleSendHUE(oHUEDevice);
           node.nodeClients.push(_Node);
           // Add _Node to the clients array
           _Node.setNodeStatusHue({

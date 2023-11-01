@@ -78,6 +78,10 @@ module.exports = function (RED) {
     node.handleSendHUE = _event => {
       try {
         if (_event.id === config.hueDevice) {
+
+          // IMPORTANT: exit if no event presen.
+          if (_event.initializingAtStart === true && (config.readStatusAtStartup === undefined || config.readStatusAtStartup === "no")) return;
+
           // const knxMsgPayload = {}
           // knxMsgPayload.topic = config.GAmotion
           // knxMsgPayload.dpt = config.dptmotion
