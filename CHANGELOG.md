@@ -8,6 +8,7 @@
 
 <b>Version 2.2.5</b> - October 2023<br/>
 - Fix: fixed some HUE nodes not able to register to the event notification service.<br/>
+- Restyle GUI of KNX Device node.<br/>
 </p>
 <b>Version 2.2.4</b> - October 2023<br/>
 - HUE Light: fixed some status hiccups and better handling of async hue bridge functions.<br/>
