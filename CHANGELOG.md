@@ -6,6 +6,11 @@
 
 # CHANGELOG
 
+<b>Version 2.2.7</b> - November 2023<br/>
+- HUE Light: NEW: color selection show now the temperature in kelvin.<br/>
+- HUE Light: NEW: Tunable White: added control and status in kelvin (DPT 7.600). This is in BETA testing.<br/>
+- Removed some options in button and scene nodes, because they are unnecessary.<br/>
+</p>
 <b>Version 2.2.6</b> - October 2023<br/>
 - Fix: fixed HUE button sending a KNX telegram at startup. Fixed also other nodes.<br/>
 - HUE Nodes: added the option to inizialize at startup or not.<br/>

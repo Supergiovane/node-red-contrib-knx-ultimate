@@ -42,7 +42,7 @@ module.exports = function (RED) {
         if (_event.id === config.hueDevice) {
 
           // IMPORTANT: exit if no event presen.
-          if (_event.initializingAtStart === true && (config.readStatusAtStartup === undefined || config.readStatusAtStartup === "no")) return;
+          if (_event.initializingAtStart === true) return;
           if (!_event.hasOwnProperty("motion") || _event.motion.motion === undefined) return;
 
 

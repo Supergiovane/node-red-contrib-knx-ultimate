@@ -85,6 +85,14 @@
       GADaylightSensor: { value: "" },
       dptDaylightSensor: { value: "" },
 
+      nameLightKelvin: { value: "" },
+      GALightKelvin: { value: "" },
+      dptLightKelvin: { value: "" },
+
+      nameLightKelvinState: { value: "" },
+      GALightKelvinState: { value: "" },
+      dptLightKelvinState: { value: "" },
+
       specifySwitchOnBrightness: { value: "yes" },
       updateKNXBrightnessStatusOnHUEOnOff: { value: "no" },
       dimSpeed: { value: 5000, required: false },
@@ -128,23 +136,25 @@
     <div class="red-ui-sidebar-header">Color Selector</div>
 </head>
 <div style='position:relative;height:100%;margin:10px'>
-    <p>Choose the desired color/temperature, copy the <b>Result RGB</b> text and paste it into the required fields.</p>
+    <p>Choose the desired color/temperature, then click <b>Apply</b></p>
     <div>
-        <h3>Color</h3>
+        <h3>Color RGB</h3>
         <div id="colorPicker"></div>
     </div>
-    </br>
+    </br> 
     <div>
-        <h3>Temperature</h3>
+        <input style="width:100%" type="text" id="resultRGB">
+        <input type="hidden" id="tabNRColor_destinationTextbox">
+    </div> 
+    </br>       
+    <div>
+        <h3>Temperature Kelvin</h3>
         <div id="kelvinPicker"></div>
     </div>
-    </br>
+    </br>  
     <div>
-        <h3>Result RGB</h3>
-        <div>
-            <input style="width:100%" type="text" id="resultRGB">
-            <input type="hidden" id="tabNRColor_destinationTextbox">
-        </div>
+        <input style="width:100%" type="text" id="resultKelvin">
+        <input type="hidden" id="tabNRColor_destinationTextbox">
     </div>
     <div id="tabNRColor_divApplyCancel" hidden>
         <button id="tabNRColor_colorSelectorTABApplyTextButton" type="button" class="red-ui-button">Apply</button>
@@ -186,7 +196,18 @@
       node.kelvinPicker.on("color:change", function (color) {
         const resultRGBForNode = '{"red": ' + color.rgb.r + ', "green": ' + color.rgb.g + ', "blue": ' + color.rgb.b + "}";
         $("#resultRGB").val(resultRGBForNode);
+        $("#resultKelvin").val(Math.round(color.kelvin, 0));
       });
+
+      $("#resultKelvin").on("keyup", function () {
+        setIroColorKelvin();
+      });
+      function setIroColorKelvin() {
+        try {
+          const color = JSON.parse($("#resultKelvin").val());
+          node.kelvinPicker.color.setChannel("kelvin", color);
+        } catch (error) { }
+      }
 
       // Color
       node.colorPicker = new iro.ColorPicker("#colorPicker", {
@@ -213,6 +234,7 @@
         const resultRGBForNode = '{"red": ' + color.rgb.r + ', "green": ' + color.rgb.g + ', "blue": ' + color.rgb.b + "}";
         $("#resultRGB").val(resultRGBForNode);
       });
+
       $("#resultRGB").on("keyup", function () {
         setIroColor();
       });
@@ -230,7 +252,12 @@
         // navigator.clipboard.writeText(aa)
         const destTextBox = "#" + $("#tabNRColor_destinationTextbox").val();
         const resultRGB = $("#resultRGB").val();
-        $(destTextBox).val(resultRGB);
+        const resultKelvin = node.kelvinPicker.colors[0].kelvin;
+        if (destTextBox === "#node-input-colorAtSwitchOnNightTime" || destTextBox === "#node-input-colorAtSwitchOnDayTime") {
+          $(destTextBox).val(resultRGB);
+        } else {
+          $(destTextBox).val(resultKelvin);
+        }
         // Flash the destination control
         $(destTextBox).css("background-color", "lightgreen");
         $("#tabNRColor_divApplyCancel").hide();
@@ -380,6 +407,13 @@
       getDPT("1.", "#node-input-dptDaylightSensor");
       getGroupAddress("#node-input-GADaylightSensor", "#node-input-nameDaylightSensor", "#node-input-dptDaylightSensor", " 1.");
 
+      getDPT("7.600", "#node-input-dptLightKelvin");
+      getGroupAddress("#node-input-GALightKelvin", "#node-input-nameLightKelvin", "#node-input-dptLightKelvin", " 7.600");
+
+      getDPT("7.600", "#node-input-dptLightKelvinState");
+      getGroupAddress("#node-input-GALightKelvinState", "#node-input-nameLightKelvinState", "#node-input-dptLightKelvinState", " 7.600");
+
+
       // Show/Hide and enable/disable day/night Lighting behaviour
       if (this.enableDayNightLighting === "yes") {
         $("#divEnableDayNightLighting").show();
@@ -484,7 +518,6 @@
       });
 
       $("#getColorAtSwitchOnDayTimeButton").on("click", function () {
-        // Get the HUE capabilities to enable/disable UI parts
         $("#getColorAtSwitchOnDayTimeButton").text("Wait...");
         $.getJSON("knxUltimateGetHueColor?id=" + $("#node-input-hueDevice").val().split("#")[0], (data) => {
           $("#node-input-colorAtSwitchOnDayTime").val(data.toString());
@@ -496,7 +529,6 @@
         });
       });
       $("#getColorAtSwitchOnNightTimeButton").on("click", function () {
-        // Get the HUE capabilities to enable/disable UI parts
         $("#getColorAtSwitchOnNightTimeButton").text("Wait...");
         $.getJSON("knxUltimateGetHueColor?id=" + $("#node-input-hueDevice").val().split("#")[0], (data) => {
           $("#node-input-colorAtSwitchOnNightTime").val(data.toString());
@@ -528,6 +560,8 @@
       $("#node-input-maxDimLevelLight").val(node.maxDimLevelLight);
 
       if (this.hueDevice !== "") $("#tabs").show();
+
+
     },
     oneditsave: function () {
       RED.sidebar.removeTab("tabNRColor");
@@ -665,43 +699,68 @@
       </div>
       <div id="tabs-3">
         <p>
-          <div class="form-row">
-              <label for="node-input-nameLightHSV" style="width:110px;"><i class="fa fa-play-circle-o"></i> Control</label>
+            <div class="form-row">
+                <label for="node-input-nameLightHSV" style="width:110px;"><i class="fa fa-play-circle-o"></i> Control dim</label>
 
-              <label for="node-input-GALightHSV" style="width:20px;">GA</label>
-              <input type="text" id="node-input-GALightHSV" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
+                <label for="node-input-GALightHSV" style="width:20px;">GA</label>
+                <input type="text" id="node-input-GALightHSV" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
 
-              <label for="node-input-dptLightHSV" style="width:40px; margin-left: 0px; text-align: right;">DPT</label>
-              <select id="node-input-dptLightHSV" style="width:140px;"></select>
+                <label for="node-input-dptLightHSV" style="width:40px; margin-left: 0px; text-align: right;">DPT</label>
+                <select id="node-input-dptLightHSV" style="width:140px;"></select>
 
-              <label for="node-input-nameLightHSV" style="width:50px; margin-left: 0px; text-align: right;">Name</label>
-              <input type="text" id="node-input-nameLightHSV" style="width:190px;margin-left: 5px; text-align: left;">
-          </div>
-          <div class="form-row">
-              <label for="node-input-nameLightHSVPercentage" style="width:110px;"><i class="fa fa-play-circle-o"></i> Control %</label>
+                <label for="node-input-nameLightHSV" style="width:50px; margin-left: 0px; text-align: right;">Name</label>
+                <input type="text" id="node-input-nameLightHSV" style="width:190px;margin-left: 5px; text-align: left;">
+            </div>
+            <div class="form-row">
+                <label for="node-input-nameLightHSVPercentage" style="width:110px;"><i class="fa fa-play-circle-o"></i> Control %</label>
 
-              <label for="node-input-GALightHSVPercentage" style="width:20px;">GA</label>
-              <input type="text" id="node-input-GALightHSVPercentage" placeholder="Ex: 1/1/1"
+                <label for="node-input-GALightHSVPercentage" style="width:20px;">GA</label>
+                <input type="text" id="node-input-GALightHSVPercentage" placeholder="Ex: 1/1/1"
+                    style="width:70px;margin-left: 5px; text-align: left;">
+
+                <label for="node-input-dptLightHSVPercentage" style="width:40px; margin-left: 0px; text-align: right;">DPT</label>
+                <select id="node-input-dptLightHSVPercentage" style="width:140px;"></select>
+
+                <label for="node-input-nameLightHSVPercentage" style="width:50px; margin-left: 0px; text-align: right;">Name</label>
+                <input type="text" id="node-input-nameLightHSVPercentage" style="width:190px;margin-left: 5px; text-align: left;">
+            </div>
+            <div class="form-row">
+              <label for="node-input-nameLightKelvin" style="width:110px;"><i class="fa fa-play-circle-o"></i> Control Kelvin</label>
+
+              <label for="node-input-GALightKelvin" style="width:20px;">GA</label>
+              <input type="text" id="node-input-GALightKelvin" placeholder="Ex: 1/1/1"
                   style="width:70px;margin-left: 5px; text-align: left;">
 
-              <label for="node-input-dptLightHSVPercentage" style="width:40px; margin-left: 0px; text-align: right;">DPT</label>
-              <select id="node-input-dptLightHSVPercentage" style="width:140px;"></select>
+              <label for="node-input-dptLightKelvin" style="width:40px; margin-left: 0px; text-align: right;">DPT</label>
+              <select id="node-input-dptLightKelvin" style="width:140px;"></select>
 
-              <label for="node-input-nameLightHSVPercentage" style="width:50px; margin-left: 0px; text-align: right;">Name</label>
-              <input type="text" id="node-input-nameLightHSVPercentage" style="width:190px;margin-left: 5px; text-align: left;">
+              <label for="node-input-nameLightKelvin" style="width:50px; margin-left: 0px; text-align: right;">Name</label>
+              <input type="text" id="node-input-nameLightKelvin" style="width:190px;margin-left: 5px; text-align: left;">
           </div>
-          <div class="form-row">
-              <label for="node-input-nameLightHSVState" style="width:110px;"><i class="fa fa-play-circle-o"></i> Status</label>
+            <div class="form-row">
+                <label for="node-input-nameLightHSVState" style="width:110px;"><i class="fa fa-play-circle-o"></i> Status %</label>
 
-              <label for="node-input-GALightHSVState" style="width:20px;"><span data-i18n="knxUltimateHueLight.node-input-GALightState"></span></label>
-              <input type="text" id="node-input-GALightHSVState" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
+                <label for="node-input-GALightHSVState" style="width:20px;"><span data-i18n="knxUltimateHueLight.node-input-GALightState"></span></label>
+                <input type="text" id="node-input-GALightHSVState" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
 
-              <label for="node-input-dptLightHSVState" style="width:40px; margin-left: 0px; text-align: right;">DPT</label>
-              <select id="node-input-dptLightHSVState" style="width:140px;"></select>
+                <label for="node-input-dptLightHSVState" style="width:40px; margin-left: 0px; text-align: right;">DPT</label>
+                <select id="node-input-dptLightHSVState" style="width:140px;"></select>
 
-              <label for="node-input-nameLightHSVState" style="width:50px; margin-left: 0px; text-align: right;"><span data-i18n="knxUltimateHueLight.node-input-name"></span></label>
-              <input type="text" id="node-input-nameLightHSVState" style="width:190px;margin-left: 5px; text-align: left;">
-          </div>
+                <label for="node-input-nameLightHSVState" style="width:50px; margin-left: 0px; text-align: right;">Name</label>
+                <input type="text" id="node-input-nameLightHSVState" style="width:190px;margin-left: 5px; text-align: left;">
+            </div>   
+           <div class="form-row">
+              <label for="node-input-nameLightKelvinState" style="width:110px;"><i class="fa fa-play-circle-o"></i> Status Kelvin</label>
+
+              <label for="node-input-GALightKelvinState" style="width:20px;">GA</label>
+              <input type="text" id="node-input-GALightKelvinState" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
+
+              <label for="node-input-dptLightKelvinState" style="width:40px; margin-left: 0px; text-align: right;">DPT</label>
+              <select id="node-input-dptLightKelvinState" style="width:140px;"></select>
+
+              <label for="node-input-nameLightKelvinState" style="width:50px; margin-left: 0px; text-align: right;">Name</label>
+              <input type="text" id="node-input-nameLightKelvinState" style="width:190px;margin-left: 5px; text-align: left;">
+          </div>       
         </p>
       </div>
       <div id="tabs-4">

@@ -19,7 +19,6 @@
             nameshort_releaseStatus: { value: "" },
             GAshort_releaseStatus: { value: "" },
             dptshort_releaseStatus: { value: "1.001" },
-            readStatusAtStartup: { value: "no" },
 
             toggleValues: { value: true },
             hueDevice: { value: "" }
@@ -397,13 +396,6 @@
             Toggle values
         </label>
     </div>
-    <div class="form-row">
-        <label style="width:180px" for="node-input-readStatusAtStartup"><i class="fa fa-play-circle"></i> Read status at startup</label>
-        <select id="node-input-readStatusAtStartup">       
-        <option value="no">No</option>
-        <option value="yes">Yes, and emit KNX telegrams.</option>
-</select>
-    </div>
         
 
 <br/>
@@ -439,7 +431,6 @@ This allows the internal logic to be aware of external devices, like wall switch
 | Switch Status | To allow internal logic to take care of the external KNX devices, for example an external wall switch, you should set this group address |
 | Dim | This event is used either to send DIM (increase/decrease) or true/false commands to the KNX group address |
 | Toggle values | Enable or disable toggling values. If enabled, all values toggles, otherwise, all values are sent as *true* or *increase dim*, to the selected KNX group address |
-| Read status at startup | Read the status at startup and emit the event to the KNX bus at startup/reconnection. (Default "no") |
 
 ### Outputs
 

@@ -12,7 +12,6 @@
             GAscene: { value: "" },
             dptscene: { value: "" },
             valscene: { value: 0 }, // the scene number or true/false
-            readStatusAtStartup: { value: "no" },
 
             hueDevice: { value: "" },
             hueSceneRecallType: { value: "active" }
@@ -252,13 +251,6 @@
     <select id="node-input-valscene" style="width:180px;margin-left: 5px; text-align: left;"></select>
 </div>
 
-<div class="form-row">
-    <label style="width:180px" for="node-input-readStatusAtStartup"><i class="fa fa-play-circle"></i> Read status at startup</label>
-    <select id="node-input-readStatusAtStartup">       
-    <option value="no">No</option>
-    <option value="yes">Yes, and emit KNX telegrams.</option>
-</select>
-</div>
 
 <br/>
 <br/>
@@ -285,7 +277,6 @@ Start typing in the GA field, the name or group address of your KNX device, the 
 |--|--|
 | Recall | Choose your group address to be used for recalling the HUE scene. In case of Datapoint 1.x, send *true* to that group address to recall the scene, *false* to switch off all lights belonging to the scene. |
 | # | Select the KNX scene number. Visible only with datapoint 18.001. |
-| Read status at startup | Read the status at startup and emit the event to the KNX bus at startup/reconnection. (Default "no")|
 
 <br/>
 

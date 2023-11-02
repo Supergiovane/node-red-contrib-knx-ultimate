@@ -78,7 +78,7 @@ module.exports = function (RED) {
         if (_event.id === config.hueDevice) {
 
           // IMPORTANT: exit if no button last_event present.
-          if (_event.initializingAtStart === true && (config.readStatusAtStartup === undefined || config.readStatusAtStartup === "no")) return;
+          if (_event.initializingAtStart === true) return;
           if (!_event.hasOwnProperty("button") || _event.button.last_event === undefined) return;
 
           const knxMsgPayload = {};
