@@ -126,6 +126,18 @@ module.exports = function (RED) {
               fill: "green", shape: "dot", text: "KNX->HUE", payload: JSON.stringify(msg.payload),
             });
             break;
+          case config.GALightKelvin:
+            msg.payload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightKelvin));
+            let retMirek = hueColorConverter.ColorConverter.scale(msg.payload, [0, 65535], [153, 500]);
+            state = { color_temperature: { mirek: retMirek } };
+            node.serverHue.hueManager.writeHueQueueAdd(node.hueDevice, state, node.isGrouped_light === false ? "setLight" : "setGroupedLight");
+            node.setNodeStatusHue({
+              fill: "green",
+              shape: "dot",
+              text: "KNX->HUE",
+              payload: state,
+            });
+            break;
           case config.GADaylightSensor:
             if (config.enableDayNightLighting === "yes") {
               node.DayTime = Boolean(dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptDaylightSensor)));
@@ -168,12 +180,6 @@ module.exports = function (RED) {
                 payload: state,
               });
             }
-            node.setNodeStatusHue({
-              fill: "green",
-              shape: "dot",
-              text: "KNX->HUE",
-              payload: msg.payload,
-            });
             break;
           case config.GALightBrightness:
             msg.payload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightBrightness));
@@ -433,13 +439,6 @@ module.exports = function (RED) {
             ) {
               node.updateKNXBrightnessState(0);
               node.currentHUEDevice.dimming.brightness = 0;
-            } else {
-              // // Sends the previous brightness value
-              // try {
-              //   node.updateKNXBrightnessState(node.currentHUEDevice.dimming.brightness);
-              // } catch (error) {
-              //   /* empty */
-              // }
             }
             node.currentHUEDevice.on.on = _event.on.on;
           }
@@ -473,24 +472,9 @@ module.exports = function (RED) {
           }
           if (_event.hasOwnProperty("color_temperature") && _event.color_temperature.mirek !== undefined) {
             node.updateKNXLightHSVState(_event.color_temperature.mirek);
+            node.updateKNXLightKelvinState(_event.color_temperature.mirek);
             node.currentHUEDevice.color_temperature.mirek = _event.color_temperature.mirek;
           }
-
-          // // Update the current HUE Device with the new _event
-          // function copiaOggettoRicorsivo(objDestinazione, objOrigine) {
-          //   for (const prop in objOrigine) {
-          //     if (typeof objOrigine[prop] === "object" && objOrigine[prop] !== null) {
-          //       // Se la proprietà è un oggetto, copiamola in modo ricorsivo
-          //       objDestinazione[prop] = objDestinazione[prop] || {};
-          //       copiaOggettoRicorsivo(objDestinazione[prop], objOrigine[prop]);
-          //     } else {
-          //       // Altrimenti, copia il valore della proprietà
-          //       objDestinazione[prop] = objOrigine[prop];
-          //     }
-          //   }
-          // }
-          // // Copia l'oggettoOrigine nell'oggettoDestinazione mantenendo le proprietà esistenti
-          // copiaOggettoRicorsivo(node.currentHUEDevice, _event);
         }
       } catch (error) {
         node.status({
@@ -617,7 +601,32 @@ module.exports = function (RED) {
       }
     };
 
-
+    node.updateKNXLightKelvinState = function updateKNXLightKelvinState(_value) {
+      if (config.GALightKelvinState !== undefined && config.GALightKelvinState !== "") {
+        const knxMsgPayload = {};
+        knxMsgPayload.topic = config.GALightKelvinState;
+        knxMsgPayload.dpt = config.dptLightKelvinState;
+        if (config.dptLightKelvinState === "7.600") {
+          knxMsgPayload.payload = hueColorConverter.ColorConverter.scale(_value, [153, 500], [0, 65535]);
+          // Send to KNX bus
+          if (knxMsgPayload.topic !== "" && knxMsgPayload.topic !== undefined) {
+            node.server.writeQueueAdd({
+              grpaddr: knxMsgPayload.topic,
+              payload: knxMsgPayload.payload,
+              dpt: knxMsgPayload.dpt,
+              outputtype: "write",
+              nodecallerid: node.id,
+            });
+          }
+          node.setNodeStatusHue({
+            fill: "blue",
+            shape: "ring",
+            text: "HUE->KNX HSV",
+            payload: knxMsgPayload.payload,
+          });
+        }
+      }
+    };
 
     // On each deploy, unsubscribe+resubscribe
     if (node.server) {

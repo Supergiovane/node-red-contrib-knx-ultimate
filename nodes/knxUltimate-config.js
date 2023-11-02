@@ -2110,7 +2110,7 @@ return msg;`,
         node.allowLauch_initKNXConnection = true; // Next cycle, launch initKNXConnection, so it pauses more and leave more time
         const t = setTimeout(() => {
           // 21/03/2022 fixed possible memory leak. Previously was setTimeout without "let t = ".
-          node.setAllClientsStatus("Next cycle will reconnect...", "grey", "");
+          node.setAllClientsStatus("Retry connection", "grey", "");
         }, 1000);
         if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.debug(
           "knxUltimate-config: Waiting next cycle to reconect. node.LinkStatus: " + node.linkStatus + ", node.autoReconnect:" + node.autoReconnect,

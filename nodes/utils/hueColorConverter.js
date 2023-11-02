@@ -1,6 +1,8 @@
 const convert = require('color-convert');
 
 class ColorConverter {
+
+
   static getGamutRanges() {
     const gamutA = {
       red: [0.704, 0.296],
