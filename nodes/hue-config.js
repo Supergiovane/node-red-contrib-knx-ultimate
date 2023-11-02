@@ -91,14 +91,15 @@ module.exports = (RED) => {
       });
       // Connected
       node.hueManager.on("connected", () => {
-        (async () => {
-          try {
-            await node.loadResourcesFromHUEBridge(); // Then, you can use node.getResources, that works locally and doesn't query the HUE Bridge.
-          } catch (error) {
-            /* empty */
-          }
-        })();
-        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("node.hueManager connected event");
+        setTimeout(() => {
+          (async () => {
+            try {
+              await node.loadResourcesFromHUEBridge(); // Then, you can use node.getResources, that works locally and doesn't query the HUE Bridge.
+            } catch (error) {
+              if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("hue-Config node.hueManager.on('connected' " + error.message);
+            }
+          })();
+        }, 5000);
       });
     };
 
@@ -119,7 +120,7 @@ module.exports = (RED) => {
             node.nodeClientsAwaitingInit = [];
           }
           node.nodeClients.forEach((nodeClient) => {
-            if (nodeClient.hueDevice !== undefined) {
+            if (nodeClient.hueDevice !== undefined && node.hueAllResources !== undefined) {
               const oHUEDevice = node.hueAllResources.filter((a) => a.id === nodeClient.hueDevice)[0];
               if (oHUEDevice !== undefined) {
                 // Add _Node to the clients array
@@ -274,7 +275,7 @@ module.exports = (RED) => {
 
     node.addClient = (_Node) => {
       // Update the node hue device, as soon as a node register itself to hue-config nodeClients
-      if (node.hueAllResources !== null) {
+      if (node.hueAllResources !== undefined && node.hueAllResources !== null) {
         if (node.nodeClients.filter((x) => x.id === _Node.id).length === 0) { // At first start, due to the async method for retrieving hueAllResources, hueAllResources is still null. The first start is handled in node.hueManager.on("connected")
           const oHUEDevice = node.hueAllResources.filter((a) => a.id === _Node.hueDevice)[0];
           _Node.currentHUEDevice = oHUEDevice;

@@ -60,9 +60,9 @@ module.exports = function (RED) {
     node.handleSend = (msg) => {
       if (node.currentHUEDevice === undefined) {
         node.setNodeStatusHue({
-          fill: "red",
+          fill: "grey",
           shape: "ring",
-          text: "Currently not ready.",
+          text: "Initializing. Please wait.",
           payload: "",
         });
         return;
@@ -634,8 +634,12 @@ module.exports = function (RED) {
       node.server.addClient(node);
     }
     if (node.serverHue) {
-      node.serverHue.removeClient(node);
-      node.serverHue.addClient(node);
+      try {
+        node.serverHue.removeClient(node);
+        node.serverHue.addClient(node);
+      } catch (error) {
+        RED.log.error("knxUltimateHueLight: if (node.server): " + error.message);
+      }
     }
 
     node.on("input", (msg) => { });
