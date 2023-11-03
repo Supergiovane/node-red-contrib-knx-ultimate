@@ -13,6 +13,10 @@
             dptscene: { value: "" },
             valscene: { value: 0 }, // the scene number or true/false
 
+            enableNodePINS: { value: "no" },
+            outputs: { value: 0 },
+            inputs: { value: 0 },
+
             hueDevice: { value: "" },
             hueSceneRecallType: { value: "active" }
         },
@@ -167,7 +171,13 @@
 
         },
         oneditsave: function () {
-
+            if ($("#node-input-enableNodePINS").val() === "yes") {
+                this.outputs = 1;
+                this.inputs = 1;
+            } else {
+                this.outputs = 0;
+                this.inputs = 0;
+            }
 
         },
         oneditcancel: function () {
@@ -251,6 +261,21 @@
     <select id="node-input-valscene" style="width:180px;margin-left: 5px; text-align: left;"></select>
 </div>
 
+<br/>
+<br/>
+
+<p>
+    <b>BEHAVIOUR</b>
+</p>
+
+<div class="form-row">
+<label for="node-input-enableNodePINS" style="width:240px;">
+    <i class="fa fa-square-o"></i> Node Input/Output PINs
+</label>
+<select id="node-input-enableNodePINS">
+    <option value="no">Hide</option>
+    <option value="yes">Show node input/output PINs</option>
+</select>
 
 <br/>
 <br/>
@@ -258,7 +283,7 @@
 
 
 </script>
-<script src="https://kit.fontawesome.com/11f26b4500.js" crossorigin="anonymous"></script>
+<script src="http://localhost:1880/resources/node-red-contrib-knx-ultimate/11f26b4500.js"></script>
 
 <script type="text/markdown" data-help-name="knxUltimateHueScene">
 This node lets you recall a HUE scene, via KNX.  
@@ -272,11 +297,18 @@ Start typing in the GA field, the name or group address of your KNX device, the 
 | HUE Bridge | Select the HUE Bridge to be used |
 | Hue Scene | HUE scene to control. The avaiable scenes start showing up while you're typing.|
 
+**KNX**
 
 |Property|Description|
 |--|--|
 | Recall | Choose your group address to be used for recalling the HUE scene. In case of Datapoint 1.x, send *true* to that group address to recall the scene, *false* to switch off all lights belonging to the scene. |
 | # | Select the KNX scene number. Visible only with datapoint 18.001. |
+
+**BEHAVIOUR**
+
+|Property|Description|
+|--|--|
+| Node Input/Output PINs | Hide or show the input/output PINs. Input/output PINS allow the node to accept msg input from the flow and send msg output to the flow. Input msg must follow the HUE API v.2 Standards. Please refer to the [official HUE Api page](https://developers.meethue.com/develop/hue-api-v2/api-reference/#resource_light__id__put) | 
 
 <br/>
 

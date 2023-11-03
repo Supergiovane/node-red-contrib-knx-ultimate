@@ -1,6 +1,5 @@
-
 module.exports = function (RED) {
-  function knxUltimateSceneController (config) {
+  function knxUltimateSceneController(config) {
     const fs = require('fs')
     const path = require('path')
     const mkdirp = require('mkdirp')
@@ -43,7 +42,7 @@ module.exports = function (RED) {
     })
 
     // 03/09/2021
-    async function delay (ms) {
+    async function delay(ms) {
       return new Promise(function (resolve, reject) {
         try {
           node.timerWait = setTimeout(resolve, ms)
@@ -53,7 +52,7 @@ module.exports = function (RED) {
       })
     }
 
-    function setupDirectory (aPath) {
+    function setupDirectory(aPath) {
       try {
         return fs.statSync(aPath).isDirectory()
       } catch (e) {
@@ -115,7 +114,7 @@ module.exports = function (RED) {
     }
 
     // 03/09/2021 Async function to allow await delay(x)
-    async function RecallSceneAsync (_Payload, _ForceEvenControllerIsDisabled) {
+    async function RecallSceneAsync(_Payload, _ForceEvenControllerIsDisabled) {
       let curVal
       var newVal
 

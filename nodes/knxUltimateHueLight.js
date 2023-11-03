@@ -430,6 +430,9 @@ module.exports = function (RED) {
           // IMPORTANT: exit if no button last_event present.
           if (_event.initializingAtStart === true && node.readStatusAtStartup === "no") return;
 
+          // Output the msg to the flow
+          node.send(_event);
+
           if (_event.hasOwnProperty("on")) {
             node.updateKNXLightState(_event.on.on);
             // In case of switch off, set the dim to zero
@@ -621,7 +624,7 @@ module.exports = function (RED) {
           node.setNodeStatusHue({
             fill: "blue",
             shape: "ring",
-            text: "HUE->KNX HSV",
+            text: "HUE->KNX Kelvin",
             payload: knxMsgPayload.payload,
           });
         }
@@ -642,7 +645,31 @@ module.exports = function (RED) {
       }
     }
 
-    node.on("input", (msg) => { });
+    node.on('input', (msg, send, done) => {
+      try {
+        const state = RED.util.cloneMessage(msg);
+        node.serverHue.hueManager.writeHueQueueAdd(node.hueDevice, state, node.isGrouped_light === false ? "setLight" : "setGroupedLight");
+        node.setNodeStatusHue({
+          fill: "green",
+          shape: "dot",
+          text: "->HUE",
+          payload: "Flow msg.",
+        });
+      } catch (error) {
+        node.setNodeStatusHue({
+          fill: "red",
+          shape: "dot",
+          text: "->HUE",
+          payload: error.message,
+        });
+      }
+      // Once finished, call 'done'.
+      // This call is wrapped in a check that 'done' exists
+      // so the node will work in earlier versions of Node-RED (<1.0)
+      if (done) {
+        done();
+      }
+    });
 
     node.on("close", (done) => {
       if (node.server) {

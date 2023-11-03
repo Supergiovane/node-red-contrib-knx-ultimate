@@ -99,7 +99,7 @@ module.exports = (RED) => {
               if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("hue-Config node.hueManager.on('connected' " + error.message);
             }
           })();
-        }, 5000);
+        }, 10000);
       });
     };
 
@@ -114,24 +114,24 @@ module.exports = (RED) => {
           if (node.nodeClientsAwaitingInit !== undefined) {
             // Because the whole process is async, if the function await node.hueManager.hueApiV2.get("/resource") has not jet been called or is late, 
             // the node/nodes belonging to this server, has been previously added to the nodeClientsAwaitingInit list.
-            node.nodeClientsAwaitingInit.forEach((nodeClient) => {
-              node.nodeClients.push(nodeClient);
+            node.nodeClientsAwaitingInit.forEach((_node) => {
+              node.nodeClients.push(_node);
             });
             node.nodeClientsAwaitingInit = [];
           }
-          node.nodeClients.forEach((nodeClient) => {
-            if (nodeClient.hueDevice !== undefined && node.hueAllResources !== undefined) {
-              const oHUEDevice = node.hueAllResources.filter((a) => a.id === nodeClient.hueDevice)[0];
+          node.nodeClients.forEach((_node) => {
+            if (_node.hueDevice !== undefined && node.hueAllResources !== undefined) {
+              const oHUEDevice = node.hueAllResources.filter((a) => a.id === _node.hueDevice)[0];
               if (oHUEDevice !== undefined) {
                 // Add _Node to the clients array
-                nodeClient.setNodeStatusHue({
+                _node.setNodeStatusHue({
                   fill: "green",
                   shape: "ring",
-                  text: "Ready :-)",
+                  text: "Ready from awaiting list :-)",
                 });
-                nodeClient.currentHUEDevice = oHUEDevice;
                 oHUEDevice.initializingAtStart = true; // Signalling first connection after restart.
-                nodeClient.handleSendHUE(oHUEDevice);
+                _node.currentHUEDevice = oHUEDevice;
+                _node.handleSendHUE(oHUEDevice);
               }
             }
           });
@@ -278,8 +278,8 @@ module.exports = (RED) => {
       if (node.hueAllResources !== undefined && node.hueAllResources !== null) {
         if (node.nodeClients.filter((x) => x.id === _Node.id).length === 0) { // At first start, due to the async method for retrieving hueAllResources, hueAllResources is still null. The first start is handled in node.hueManager.on("connected")
           const oHUEDevice = node.hueAllResources.filter((a) => a.id === _Node.hueDevice)[0];
-          _Node.currentHUEDevice = oHUEDevice;
           oHUEDevice.initializingAtStart = true; // Signalling first connection after restart.
+          _Node.currentHUEDevice = oHUEDevice;
           _Node.handleSendHUE(oHUEDevice);
           node.nodeClients.push(_Node);
           // Add _Node to the clients array
@@ -296,7 +296,7 @@ module.exports = (RED) => {
           _Node.setNodeStatusHue({
             fill: "grey",
             shape: "dot",
-            text: "Awaiting HUE Resources",
+            text: "I'm gointo to init awaiting list.",
           });
         }
       }

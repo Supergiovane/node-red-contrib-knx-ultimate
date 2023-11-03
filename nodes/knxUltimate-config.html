@@ -111,7 +111,7 @@
 
 
             // 14/08/2021 Elimino il file delle persistenze di questo nodo
-            $.getJSON("deletePersistGAFile?nodeID=" + node.id, (data) => {});
+            $.getJSON("deletePersistGAFile?nodeID=" + node.id, (data) => { });
 
             // 06/07/2023 Tabs
             // *****************************
@@ -178,7 +178,7 @@
     }
 
     .ui-tabs .ui-tabs-nav .ui-state-active {
-        background: transparent url(../img/frecciaperUIKnxSecure.png) no-repeat bottom center;
+        background: transparent no-repeat bottom center;
         border: none;
     }
 
@@ -201,7 +201,7 @@
             <i class="fa fa-tag"></i>
             <span data-i18n="knxUltimate-config.properties.node-config-input-name"></span>
         </label>
-        <input type="text" id="node-config-input-name" ><data-i18n="[Title]knxUltimate-config.properties.node-config-input-name" style="margin-left:5px;">
+        <input type="text" id="node-config-input-name" >Name
     </div>
    
         <div class="form-row">

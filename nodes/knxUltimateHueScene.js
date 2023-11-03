@@ -75,31 +75,16 @@ module.exports = function (RED) {
       }
     };
 
-    node.handleSendHUE = _event => {
+    node.handleSendHUE = (_event) => {
       try {
         if (_event.id === config.hueDevice) {
 
           // IMPORTANT: exit if no event presen.
           if (_event.initializingAtStart === true) return;
 
-          // const knxMsgPayload = {}
-          // knxMsgPayload.topic = config.GAmotion
-          // knxMsgPayload.dpt = config.dptmotion
+          // Output the msg to the flow
+          node.send(_event);
 
-          // if (_event.hasOwnProperty('motion') && _event.motion.hasOwnProperty('motion')) {
-          //   knxMsgPayload.payload = _event.motion.motion_report.motion
-          //   // Send to KNX bus
-          //   if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.server.writeQueueAdd({ grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id })
-          //   node.status({ fill: 'green', shape: 'dot', text: 'HUE->KNX ' + JSON.stringify(knxMsgPayload.payload) + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' })
-
-          //   // Setup the output msg
-          //   knxMsgPayload.name = node.name
-          //   knxMsgPayload.event = 'motion'
-
-          //   // Send payload
-          //   knxMsgPayload.rawEvent = _event
-          //   node.send(knxMsgPayload)
-          // }
         }
       } catch (error) {
         node.status({ fill: 'red', shape: 'dot', text: 'HUE->KNX error ' + error.message + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' });
@@ -116,10 +101,31 @@ module.exports = function (RED) {
       node.serverHue.addClient(node);
     }
 
-    node.on('input', function (msg) {
-
+    node.on('input', (msg, send, done) => {
+      try {
+        const state = RED.util.cloneMessage(msg);
+        node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, state, 'setScene');
+        node.setNodeStatusHue({
+          fill: "green",
+          shape: "dot",
+          text: "->HUE",
+          payload: "Flow msg.",
+        });
+      } catch (error) {
+        node.setNodeStatusHue({
+          fill: "red",
+          shape: "dot",
+          text: "->HUE",
+          payload: error.message,
+        });
+      }
+      // Once finished, call 'done'.
+      // This call is wrapped in a check that 'done' exists
+      // so the node will work in earlier versions of Node-RED (<1.0)
+      if (done) {
+        done();
+      }
     });
-
     node.on('close', function (done) {
       if (node.server) {
         node.server.removeClient(node);
