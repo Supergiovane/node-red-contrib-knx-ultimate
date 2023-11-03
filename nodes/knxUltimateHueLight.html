@@ -94,47 +94,14 @@
       return this.name;
     },
     paletteLabel: "Hue Light",
-    // button: {
-    //     enabled: function() {
-    //         // return whether or not the button is enabled, based on the current
-    //         // configuration of the node
-    //         return !node.changed
-    //     },
-    //     visible: function() {
-    //         // return whether or not the button is visible, based on the current
-    //         // configuration of the node
-    //         return node.hasButton
-    //     },
-    //     //toggle: "buttonState",
-    //     onclick: function() {}
-    // },
-    oneditprepare: prepareUI,
-    oneditsave: function () {
-      RED.sidebar.removeTab("tabNRColor");
-      RED.sidebar.show("help");
-      if ($("#node-input-enableNodePINS").val() === "yes") {
-        this.outputs = 1;
-        this.inputs = 1;
-      } else {
-        this.outputs = 0;
-        this.inputs = 0;
-      }
-    },
-    oneditcancel: function () {
-      RED.sidebar.removeTab("tabNRColor");
-      RED.sidebar.show("help");
-    }
-  });
+    oneditprepare: function () {
+      var node = this;
+      var oNodeServer = RED.nodes.node($("#node-input-server").val()); // Store the config-node
+      var oNodeServerHue = RED.nodes.node($("#node-input-serverHue").val()); // Store the config-node
 
-
-  function prepareUI() {
-    var node = this;
-    var oNodeServer = RED.nodes.node($("#node-input-server").val()); // Store the config-node
-    var oNodeServerHue = RED.nodes.node($("#node-input-serverHue").val()); // Store the config-node
-
-    // Create the TAB in Node-Red
-    // ####################################
-    const content = `<html>
+      // Create the TAB in Node-Red
+      // ####################################
+      const content = `<html>
 
 <head>
     <div class="red-ui-sidebar-header">Color Selector</div>
@@ -169,403 +136,430 @@
 </html>
 `;
 
-    // COLOR BAR HANDLING ###########################
-    RED.sidebar.addTab({
-      id: "tabNRColor",
-      label: "Color Picker",
-      name: "Color Picker",
-      iconClass: "fa fa-pencil",
-      content: content,
-      enableOnEdit: true,
-    });
-
-    // Temperature
-    this.kelvinPicker = new iro.ColorPicker("#kelvinPicker", {
-      width: 250,
-      color: "rgb(255, 0, 0)",
-      borderWidth: 1,
-      borderColor: "#fff",
-      layoutDirection: "vertical",
-      layout: [
-        {
-          component: iro.ui.Slider,
-          options: {
-            sliderType: "kelvin",
-            sliderSize: 20,
-          },
-        },
-      ],
-    });
-    // color:change callbacks receive the current color
-    this.kelvinPicker.on("color:change", function (color) {
-      const resultRGBForNode = '{"red": ' + color.rgb.r + ', "green": ' + color.rgb.g + ', "blue": ' + color.rgb.b + "}";
-      $("#resultRGB").val(resultRGBForNode);
-      $("#resultKelvin").val(Math.round(color.kelvin, 0));
-    });
-
-    $("#resultKelvin").on("keyup", function () {
-      setIroColorKelvin();
-    });
-    function setIroColorKelvin() {
-      try {
-        const color = JSON.parse($("#resultKelvin").val());
-        this.kelvinPicker.color.setChannel("kelvin", color);
-      } catch (error) { }
-    }
-
-    // Color
-    this.colorPicker = new iro.ColorPicker("#colorPicker", {
-      width: 250,
-      color: "rgb(255, 0, 0)",
-      borderWidth: 1,
-      borderColor: "#fff",
-      layout: [
-        {
-          component: iro.ui.Box,
-        },
-        {
-          component: iro.ui.Slider,
-          options: {
-            id: "hue-slider",
-            sliderType: "hue",
-          },
-        },
-      ],
-    });
-    // color:change callbacks receive the current color
-    this.colorPicker.on("color:change", function (color) {
-      // Transform to compatible value for the node { "red": 255, "green": 255, "blue": 255 }
-      const resultRGBForNode = '{"red": ' + color.rgb.r + ', "green": ' + color.rgb.g + ', "blue": ' + color.rgb.b + "}";
-      $("#resultRGB").val(resultRGBForNode);
-    });
-
-    $("#resultRGB").on("keyup", function () {
-      setIroColor();
-    });
-    function setIroColor() {
-      try {
-        const color = JSON.parse($("#resultRGB").val());
-        this.colorPicker.color.setChannel("rgb", "r", color.red);
-        this.colorPicker.color.setChannel("rgb", "g", color.green);
-        this.colorPicker.color.setChannel("rgb", "b", color.blue);
-      } catch (error) { }
-    }
-    // Copy to clipboard button
-    $("#tabNRColor_colorSelectorTABApplyTextButton").on("click", function () {
-      // const aa = $("#resultRGB").val()
-      // navigator.clipboard.writeText(aa)
-      const destTextBox = "#" + $("#tabNRColor_destinationTextbox").val();
-      const resultRGB = $("#resultRGB").val();
-      const resultKelvin = node.kelvinPicker.colors[0].kelvin;
-      if (destTextBox === "#node-input-colorAtSwitchOnNightTime" || destTextBox === "#node-input-colorAtSwitchOnDayTime") {
-        $(destTextBox).val(resultRGB);
-      } else {
-        $(destTextBox).val(resultKelvin);
-      }
-      // Flash the destination control
-      $(destTextBox).css("background-color", "lightgreen");
-      $("#tabNRColor_divApplyCancel").hide();
-      RED.sidebar.show("help");
-      setTimeout(() => {
-        $(destTextBox).css("background-color", "");
-      }, 500);
-    });
-    $("#tabNRColor_colorSelectorTABCancelTextButton").on("click", function () {
-      $("#tabNRColor_destinationTextbox").val("");
-      RED.sidebar.show("help");
-      $("#tabNRColor_divApplyCancel").hide();
-    });
-    $("#node-input-colorAtSwitchOnDayTime").on("focus", function () {
-      RED.sidebar.show("tabNRColor"); // Node-Red custom color TAB
-      $("#tabNRColor_destinationTextbox").val("node-input-colorAtSwitchOnDayTime");
-      $("#tabNRColor_divApplyCancel").show();
-      const color = $("#node-input-colorAtSwitchOnDayTime").val();
-      $("#resultRGB").val(color);
-      setIroColor();
-    });
-    // $("#node-input-colorAtSwitchOnDayTime").on("blur", function () {
-    //     RED.sidebar.show("help");
-    // });
-    $("#node-input-colorAtSwitchOnNightTime").on("focus", function () {
-      RED.sidebar.show("tabNRColor"); // Node-Red custom color TAB
-      $("#tabNRColor_destinationTextbox").val("node-input-colorAtSwitchOnNightTime");
-      $("#tabNRColor_divApplyCancel").show();
-      const color = $("#node-input-colorAtSwitchOnNightTime").val();
-      $("#resultRGB").val(color);
-      setIroColor();
-    });
-    // ####################################
-
-    $("#tabs").tabs(); // Tabs gestione KNX
-
-    // 19/02/2020 Used to get the server sooner als deploy.
-    $("#node-input-server").change(function () {
-      try {
-        oNodeServer = RED.nodes.node($(this).val());
-      } catch (error) { }
-    });
-    // 19/02/2020 Used to get the server sooner als deploy.
-    $("#node-input-serverHue").change(function () {
-      try {
-        oNodeServerHue = RED.nodes.node($(this).val());
-      } catch (error) { }
-    });
-
-    // 31/03/2020 Search Helper
-    function fullSearch(sourceText, searchString) {
-      // This searches for all words in a string
-      var aSearchWords = searchString.toLowerCase().split(" ");
-      var i = 0;
-      for (let index = 0; index < aSearchWords.length; index++) {
-        if (sourceText.toLowerCase().indexOf(aSearchWords[index]) > -1) i += 1;
-      }
-      return i == aSearchWords.length;
-    }
-
-    function getDPT(_dpt, _destinationWidget) {
-      // DPT Switch command
-      // ########################
-      $.getJSON("knxUltimateDpts", (data) => {
-        data.forEach((dpt) => {
-          if (dpt.value.startsWith(_dpt)) {
-            $(_destinationWidget).append($("<option></option>").attr("value", dpt.value).text(dpt.text));
-          }
-        });
-        // Eval
-        const format = "this." + _destinationWidget.replace("#node-input-", "");
-        $(_destinationWidget).val(eval(format).toString());
+      // COLOR BAR HANDLING ###########################
+      RED.sidebar.addTab({
+        id: "tabNRColor",
+        label: "Color Picker",
+        name: "Color Picker",
+        iconClass: "fa fa-pencil",
+        content: content,
+        enableOnEdit: true,
       });
-    }
 
-    function getGroupAddress(_sourceWidgetAutocomplete, _destinationWidgetName, _destinationWidgetDPT, _additionalSearchTerm) {
-      $(_sourceWidgetAutocomplete).autocomplete({
-        minLength: 1,
-        source: function (request, response) {
-          //$.getJSON("csv", request, function( data, status, xhr ) {
-          $.getJSON("knxUltimatecsv?nodeID=" + oNodeServer.id, (data) => {
-            response(
-              $.map(data, function (value, key) {
-                var sSearch = value.ga + " (" + value.devicename + ") DPT" + value.dpt;
-                if (fullSearch(sSearch, request.term + _additionalSearchTerm)) {
-                  return {
-                    label: value.ga + " # " + value.devicename + " # " + value.dpt, // Label for Display
-                    value: value.ga, // Value
-                  };
-                } else {
-                  return null;
-                }
-              })
-            );
+      // Temperature
+      this.kelvinPicker = new iro.ColorPicker("#kelvinPicker", {
+        width: 250,
+        color: "rgb(255, 0, 0)",
+        borderWidth: 1,
+        borderColor: "#fff",
+        layoutDirection: "vertical",
+        layout: [
+          {
+            component: iro.ui.Slider,
+            options: {
+              sliderType: "kelvin",
+              sliderSize: 20,
+            },
+          },
+        ],
+      });
+      // color:change callbacks receive the current color
+      this.kelvinPicker.on("color:change", function (color) {
+        const resultRGBForNode = '{"red": ' + color.rgb.r + ', "green": ' + color.rgb.g + ', "blue": ' + color.rgb.b + "}";
+        $("#resultRGB").val(resultRGBForNode);
+        $("#resultKelvin").val(Math.round(color.kelvin, 0));
+      });
+
+      $("#resultKelvin").on("keyup", function () {
+        setIroColorKelvin();
+      });
+      function setIroColorKelvin() {
+        try {
+          const color = JSON.parse($("#resultKelvin").val());
+          this.kelvinPicker.color.setChannel("kelvin", color);
+        } catch (error) { }
+      }
+
+      // Color
+      this.colorPicker = new iro.ColorPicker("#colorPicker", {
+        width: 250,
+        color: "rgb(255, 0, 0)",
+        borderWidth: 1,
+        borderColor: "#fff",
+        layout: [
+          {
+            component: iro.ui.Box,
+          },
+          {
+            component: iro.ui.Slider,
+            options: {
+              id: "hue-slider",
+              sliderType: "hue",
+            },
+          },
+        ],
+      });
+      // color:change callbacks receive the current color
+      this.colorPicker.on("color:change", function (color) {
+        // Transform to compatible value for the node { "red": 255, "green": 255, "blue": 255 }
+        const resultRGBForNode = '{"red": ' + color.rgb.r + ', "green": ' + color.rgb.g + ', "blue": ' + color.rgb.b + "}";
+        $("#resultRGB").val(resultRGBForNode);
+      });
+
+      $("#resultRGB").on("keyup", function () {
+        setIroColor();
+      });
+      function setIroColor() {
+        try {
+          const color = JSON.parse($("#resultRGB").val());
+          this.colorPicker.color.setChannel("rgb", "r", color.red);
+          this.colorPicker.color.setChannel("rgb", "g", color.green);
+          this.colorPicker.color.setChannel("rgb", "b", color.blue);
+        } catch (error) { }
+      }
+      // Copy to clipboard button
+      $("#tabNRColor_colorSelectorTABApplyTextButton").on("click", function () {
+        // const aa = $("#resultRGB").val()
+        // navigator.clipboard.writeText(aa)
+        const destTextBox = "#" + $("#tabNRColor_destinationTextbox").val();
+        const resultRGB = $("#resultRGB").val();
+        const resultKelvin = node.kelvinPicker.colors[0].kelvin;
+        if (destTextBox === "#node-input-colorAtSwitchOnNightTime" || destTextBox === "#node-input-colorAtSwitchOnDayTime") {
+          $(destTextBox).val(resultRGB);
+        } else {
+          $(destTextBox).val(resultKelvin);
+        }
+        // Flash the destination control
+        $(destTextBox).css("background-color", "lightgreen");
+        $("#tabNRColor_divApplyCancel").hide();
+        RED.sidebar.show("help");
+        setTimeout(() => {
+          $(destTextBox).css("background-color", "");
+        }, 500);
+      });
+      $("#tabNRColor_colorSelectorTABCancelTextButton").on("click", function () {
+        $("#tabNRColor_destinationTextbox").val("");
+        RED.sidebar.show("help");
+        $("#tabNRColor_divApplyCancel").hide();
+      });
+      $("#node-input-colorAtSwitchOnDayTime").on("focus", function () {
+        RED.sidebar.show("tabNRColor"); // Node-Red custom color TAB
+        $("#tabNRColor_destinationTextbox").val("node-input-colorAtSwitchOnDayTime");
+        $("#tabNRColor_divApplyCancel").show();
+        const color = $("#node-input-colorAtSwitchOnDayTime").val();
+        $("#resultRGB").val(color);
+        setIroColor();
+      });
+      // $("#node-input-colorAtSwitchOnDayTime").on("blur", function () {
+      //     RED.sidebar.show("help");
+      // });
+      $("#node-input-colorAtSwitchOnNightTime").on("focus", function () {
+        RED.sidebar.show("tabNRColor"); // Node-Red custom color TAB
+        $("#tabNRColor_destinationTextbox").val("node-input-colorAtSwitchOnNightTime");
+        $("#tabNRColor_divApplyCancel").show();
+        const color = $("#node-input-colorAtSwitchOnNightTime").val();
+        $("#resultRGB").val(color);
+        setIroColor();
+      });
+      // ####################################
+
+      $("#tabs").tabs(); // Tabs gestione KNX
+
+      // 19/02/2020 Used to get the server sooner als deploy.
+      $("#node-input-server").change(function () {
+        try {
+          oNodeServer = RED.nodes.node($(this).val());
+        } catch (error) { }
+      });
+      // 19/02/2020 Used to get the server sooner als deploy.
+      $("#node-input-serverHue").change(function () {
+        try {
+          oNodeServerHue = RED.nodes.node($(this).val());
+        } catch (error) { }
+      });
+
+      // 31/03/2020 Search Helper
+      function fullSearch(sourceText, searchString) {
+        // This searches for all words in a string
+        var aSearchWords = searchString.toLowerCase().split(" ");
+        var i = 0;
+        for (let index = 0; index < aSearchWords.length; index++) {
+          if (sourceText.toLowerCase().indexOf(aSearchWords[index]) > -1) i += 1;
+        }
+        return i == aSearchWords.length;
+      }
+
+      function getDPT(_dpt, _destinationWidget) {
+        // DPT Switch command
+        // ########################
+        $.getJSON("knxUltimateDpts", (data) => {
+          data.forEach((dpt) => {
+            if (dpt.value.startsWith(_dpt)) {
+              $(_destinationWidget).append($("<option></option>").attr("value", dpt.value).text(dpt.text));
+            }
           });
-        },
-        select: function (event, ui) {
-          // Sets Datapoint and device name automatically
-          var sDevName = ui.item.label.split("#")[1].trim();
-          try {
-            sDevName = sDevName.substr(sDevName.indexOf(")") + 1).trim();
-          } catch (error) { }
-          $(_destinationWidgetName).val(sDevName);
-          var optVal = $(_destinationWidgetDPT + " option:contains('" + ui.item.label.split("#")[2].trim() + "')").attr("value");
-          // Select the option value
-          $(_destinationWidgetDPT).val(optVal);
-        },
-      });
-    }
+          // Eval
+          const format = "node." + _destinationWidget.replace("#node-input-", "");
+          $(_destinationWidget).val(eval(format).toString());
+        });
+      }
 
-    getDPT("1.", "#node-input-dptLightSwitch");
-    getGroupAddress("#node-input-GALightSwitch", "#node-input-nameLightSwitch", "#node-input-dptLightSwitch", " 1.");
+      function getGroupAddress(_sourceWidgetAutocomplete, _destinationWidgetName, _destinationWidgetDPT, _additionalSearchTerm) {
+        $(_sourceWidgetAutocomplete).autocomplete({
+          minLength: 1,
+          source: function (request, response) {
+            //$.getJSON("csv", request, function( data, status, xhr ) {
+            $.getJSON("knxUltimatecsv?nodeID=" + oNodeServer.id, (data) => {
+              response(
+                $.map(data, function (value, key) {
+                  var sSearch = value.ga + " (" + value.devicename + ") DPT" + value.dpt;
+                  if (fullSearch(sSearch, request.term + _additionalSearchTerm)) {
+                    return {
+                      label: value.ga + " # " + value.devicename + " # " + value.dpt, // Label for Display
+                      value: value.ga, // Value
+                    };
+                  } else {
+                    return null;
+                  }
+                })
+              );
+            });
+          },
+          select: function (event, ui) {
+            // Sets Datapoint and device name automatically
+            var sDevName = ui.item.label.split("#")[1].trim();
+            try {
+              sDevName = sDevName.substr(sDevName.indexOf(")") + 1).trim();
+            } catch (error) { }
+            $(_destinationWidgetName).val(sDevName);
+            var optVal = $(_destinationWidgetDPT + " option:contains('" + ui.item.label.split("#")[2].trim() + "')").attr("value");
+            // Select the option value
+            $(_destinationWidgetDPT).val(optVal);
+          },
+        });
+      }
 
-    getDPT("1.", "#node-input-dptLightState");
-    getGroupAddress("#node-input-GALightState", "#node-input-nameLightState", "#node-input-dptLightState", " 1.");
+      getDPT("1.", "#node-input-dptLightSwitch");
+      getGroupAddress("#node-input-GALightSwitch", "#node-input-nameLightSwitch", "#node-input-dptLightSwitch", " 1.");
 
-    getDPT("3.007", "#node-input-dptLightDIM");
-    getGroupAddress("#node-input-GALightDIM", "#node-input-nameLightDIM", "#node-input-dptLightDIM", " 3.007");
+      getDPT("1.", "#node-input-dptLightState");
+      getGroupAddress("#node-input-GALightState", "#node-input-nameLightState", "#node-input-dptLightState", " 1.");
 
-    getDPT("5.001", "#node-input-dptLightBrightness");
-    getGroupAddress("#node-input-GALightBrightness", "#node-input-nameLightBrightness", "#node-input-dptLightBrightness", " 5.001");
+      getDPT("3.007", "#node-input-dptLightDIM");
+      getGroupAddress("#node-input-GALightDIM", "#node-input-nameLightDIM", "#node-input-dptLightDIM", " 3.007");
 
-    getDPT("5.001", "#node-input-dptLightBrightnessState");
-    getGroupAddress("#node-input-GALightBrightnessState", "#node-input-nameLightBrightnessState", "#node-input-dptLightBrightnessState", " 5.001");
+      getDPT("5.001", "#node-input-dptLightBrightness");
+      getGroupAddress("#node-input-GALightBrightness", "#node-input-nameLightBrightness", "#node-input-dptLightBrightness", " 5.001");
 
-    getDPT("232.600", "#node-input-dptLightColor");
-    getGroupAddress("#node-input-GALightColor", "#node-input-nameLightColor", "#node-input-dptLightColor", " 232.600");
+      getDPT("5.001", "#node-input-dptLightBrightnessState");
+      getGroupAddress("#node-input-GALightBrightnessState", "#node-input-nameLightBrightnessState", "#node-input-dptLightBrightnessState", " 5.001");
 
-    getDPT("232.600", "#node-input-dptLightColorState");
-    getGroupAddress("#node-input-GALightColorState", "#node-input-nameLightColorState", "#node-input-dptLightColorState", " 232.600");
+      getDPT("232.600", "#node-input-dptLightColor");
+      getGroupAddress("#node-input-GALightColor", "#node-input-nameLightColor", "#node-input-dptLightColor", " 232.600");
 
-    getDPT("3.007", "#node-input-dptLightHSV");
-    getGroupAddress("#node-input-GALightHSV", "#node-input-nameLightHSV", "#node-input-dptLightHSV", " 3.007");
+      getDPT("232.600", "#node-input-dptLightColorState");
+      getGroupAddress("#node-input-GALightColorState", "#node-input-nameLightColorState", "#node-input-dptLightColorState", " 232.600");
 
-    getDPT("5.001", "#node-input-dptLightHSVPercentage");
-    getGroupAddress("#node-input-GALightHSVPercentage", "#node-input-nameLightHSVPercentage", "#node-input-dptLightHSVPercentage", " 5.001");
+      getDPT("3.007", "#node-input-dptLightHSV");
+      getGroupAddress("#node-input-GALightHSV", "#node-input-nameLightHSV", "#node-input-dptLightHSV", " 3.007");
 
-    getDPT("5.001", "#node-input-dptLightHSVState");
-    getGroupAddress("#node-input-GALightHSVState", "#node-input-nameLightHSVState", "#node-input-dptLightHSVState", " 5.001");
+      getDPT("5.001", "#node-input-dptLightHSVPercentage");
+      getGroupAddress("#node-input-GALightHSVPercentage", "#node-input-nameLightHSVPercentage", "#node-input-dptLightHSVPercentage", " 5.001");
 
-    getDPT("1.", "#node-input-dptLightBlink");
-    getGroupAddress("#node-input-GALightBlink", "#node-input-nameLightBlink", "#node-input-dptLightBlink", " 1.");
+      getDPT("5.001", "#node-input-dptLightHSVState");
+      getGroupAddress("#node-input-GALightHSVState", "#node-input-nameLightHSVState", "#node-input-dptLightHSVState", " 5.001");
 
-    getDPT("1.", "#node-input-dptLightColorCycle");
-    getGroupAddress("#node-input-GALightColorCycle", "#node-input-nameLightColorCycle", "#node-input-dptLightColorCycle", " 1.");
+      getDPT("1.", "#node-input-dptLightBlink");
+      getGroupAddress("#node-input-GALightBlink", "#node-input-nameLightBlink", "#node-input-dptLightBlink", " 1.");
 
-    getDPT("1.", "#node-input-dptDaylightSensor");
-    getGroupAddress("#node-input-GADaylightSensor", "#node-input-nameDaylightSensor", "#node-input-dptDaylightSensor", " 1.");
+      getDPT("1.", "#node-input-dptLightColorCycle");
+      getGroupAddress("#node-input-GALightColorCycle", "#node-input-nameLightColorCycle", "#node-input-dptLightColorCycle", " 1.");
 
-    getDPT("7.600", "#node-input-dptLightKelvin");
-    getGroupAddress("#node-input-GALightKelvin", "#node-input-nameLightKelvin", "#node-input-dptLightKelvin", " 7.600");
+      getDPT("1.", "#node-input-dptDaylightSensor");
+      getGroupAddress("#node-input-GADaylightSensor", "#node-input-nameDaylightSensor", "#node-input-dptDaylightSensor", " 1.");
 
-    getDPT("7.600", "#node-input-dptLightKelvinState");
-    getGroupAddress("#node-input-GALightKelvinState", "#node-input-nameLightKelvinState", "#node-input-dptLightKelvinState", " 7.600");
+      getDPT("7.600", "#node-input-dptLightKelvin");
+      getGroupAddress("#node-input-GALightKelvin", "#node-input-nameLightKelvin", "#node-input-dptLightKelvin", " 7.600");
+
+      getDPT("7.600", "#node-input-dptLightKelvinState");
+      getGroupAddress("#node-input-GALightKelvinState", "#node-input-nameLightKelvinState", "#node-input-dptLightKelvinState", " 7.600");
 
 
-    // Show/Hide and enable/disable day/night Lighting behaviour
-    if (this.enableDayNightLighting === "yes") {
-      $("#divEnableDayNightLighting").show();
-      $("#divCCSBoxayNightLighting").css({ border: "1px solid dimgrey", "border-radius": "12px", padding: "5px" }); // Add little box to better understand the property page
-    } else {
-      $("#divEnableDayNightLighting").hide();
-      $("#divCCSBoxayNightLighting").css({ border: "", "border-radius": "", padding: "" });
-    }
-
-    $("#node-input-enableDayNightLighting").on("change", function () {
-      if ($("#node-input-enableDayNightLighting").val() === "yes") {
+      // Show/Hide and enable/disable day/night Lighting behaviour
+      if (this.enableDayNightLighting === "yes") {
         $("#divEnableDayNightLighting").show();
         $("#divCCSBoxayNightLighting").css({ border: "1px solid dimgrey", "border-radius": "12px", padding: "5px" }); // Add little box to better understand the property page
       } else {
         $("#divEnableDayNightLighting").hide();
         $("#divCCSBoxayNightLighting").css({ border: "", "border-radius": "", padding: "" });
       }
-    });
 
-    // Show/Hide the div of the color at swich on
-    if (this.specifySwitchOnBrightness === "yes") {
-      $("#divColorsAtSwitchOn").show();
-    } else {
-      $("#divColorsAtSwitchOn").hide();
-      $("#node-input-colorAtSwitchOnDayTime").val("");
-    }
+      $("#node-input-enableDayNightLighting").on("change", function () {
+        if ($("#node-input-enableDayNightLighting").val() === "yes") {
+          $("#divEnableDayNightLighting").show();
+          $("#divCCSBoxayNightLighting").css({ border: "1px solid dimgrey", "border-radius": "12px", padding: "5px" }); // Add little box to better understand the property page
+        } else {
+          $("#divEnableDayNightLighting").hide();
+          $("#divCCSBoxayNightLighting").css({ border: "", "border-radius": "", padding: "" });
+        }
+      });
 
-    $("#node-input-specifySwitchOnBrightness").on("change", function () {
-      if ($("#node-input-specifySwitchOnBrightness").val() === "yes") {
+      // Show/Hide the div of the color at swich on
+      if (this.specifySwitchOnBrightness === "yes") {
         $("#divColorsAtSwitchOn").show();
-        if ($("#node-input-colorAtSwitchOnDayTime").val() === "") $("#node-input-colorAtSwitchOnDayTime").val('{ "red": 255, "green": 255, "blue": 255 }');
       } else {
         $("#divColorsAtSwitchOn").hide();
         $("#node-input-colorAtSwitchOnDayTime").val("");
       }
-    });
 
-    // Autocomplete suggestion with HUE Lights
-    $("#node-input-name").autocomplete({
-      minLength: 1,
-      source: function (request, response) {
-        $.getJSON("KNXUltimateGetResourcesHUE?rtype=light&nodeID=" + oNodeServerHue.id, (data) => {
-          response(
-            $.map(data.devices, function (value, key) {
-              //alert(JSON.stringify(value) + " "+ key)
-              var sSearch = value.name;
-              if (fullSearch(sSearch, request.term)) {
-                return {
-                  hueDevice: value.id,
-                  value: value.name,
-                };
-              } else {
-                return null;
-              }
-            })
-          );
-        });
-      },
-      select: function (event, ui) {
-        // Distinguish between group of lights an single light.
-        if (ui.item.value.toLowerCase().startsWith("grouped_light")) {
-          $("#node-input-hueDevice").val(ui.item.hueDevice + "#grouped_light");
-          $("#getColorAtSwitchOnDayTimeButton").hide();
-          $("#getColorAtSwitchOnNightTimeButton").hide();
+      $("#node-input-specifySwitchOnBrightness").on("change", function () {
+        if ($("#node-input-specifySwitchOnBrightness").val() === "yes") {
+          $("#divColorsAtSwitchOn").show();
+          if ($("#node-input-colorAtSwitchOnDayTime").val() === "") $("#node-input-colorAtSwitchOnDayTime").val('{ "red": 255, "green": 255, "blue": 255 }');
         } else {
-          $("#node-input-hueDevice").val(ui.item.hueDevice + "#light");
-          $("#getColorAtSwitchOnDayTimeButton").show();
-          $("#getColorAtSwitchOnNightTimeButton").show();
+          $("#divColorsAtSwitchOn").hide();
+          $("#node-input-colorAtSwitchOnDayTime").val("");
         }
-        $("#tabs").show();
-      },
-    });
+      });
 
-    // Get the HUE capabilities to enable/disable UI parts
-    $.getJSON("KNXUltimateGetResourcesHUE?rtype=light&nodeID=" + oNodeServerHue.id, (data) => {
-      data.devices.forEach((element) => {
-        if (element.id === this.hueDevice.split("#")[0] && element.deviceObject !== undefined) {
-          // Check dimming
-          if (element.deviceObject.dimming === undefined) {
-            $("#tabs").tabs("disable", "#tabs-2");
-            $("#divColorsAtSwitchOn").hide();
-            $("#divColorCycle").hide();
-          }
-          // Check color
-          if (element.deviceObject.color_temperature === undefined) $("#tabs").tabs("disable", "#tabs-3");
-          if (element.deviceObject.color === undefined) {
-            $("#tabs").tabs("disable", "#tabs-4");
-            $("#divColorsAtSwitchOn").hide();
-            $("#divColorCycle").hide();
-          }
-          // Check if grouped, to hide/show the "Get current" buttons
-          if (element.deviceObject.type === "grouped_light") {
+      // Autocomplete suggestion with HUE Lights
+      $("#node-input-name").autocomplete({
+        minLength: 1,
+        source: function (request, response) {
+          $.getJSON("KNXUltimateGetResourcesHUE?rtype=light&nodeID=" + oNodeServerHue.id, (data) => {
+            response(
+              $.map(data.devices, function (value, key) {
+                //alert(JSON.stringify(value) + " "+ key)
+                var sSearch = value.name;
+                if (!value.name.includes("I'm still connecting")) {
+                  if (fullSearch(sSearch, request.term)) {
+                    return {
+                      hueDevice: value.id,
+                      value: value.name,
+                    };
+                  } else {
+                    return null;
+                  }
+                } else {
+                  return {
+                    hueDevice: value.id,
+                    value: value.name,
+                  };
+                }
+              })
+            );
+          });
+        },
+        select: function (event, ui) {
+          // Distinguish between group of lights an single light.
+          if (ui.item.value.toLowerCase().startsWith("grouped_light")) {
+            $("#node-input-hueDevice").val(ui.item.hueDevice + "#grouped_light");
             $("#getColorAtSwitchOnDayTimeButton").hide();
             $("#getColorAtSwitchOnNightTimeButton").hide();
           } else {
+            $("#node-input-hueDevice").val(ui.item.hueDevice + "#light");
             $("#getColorAtSwitchOnDayTimeButton").show();
             $("#getColorAtSwitchOnNightTimeButton").show();
           }
-          return;
+          $("#tabs").show();
+        },
+      });
+
+      // Get the HUE capabilities to enable/disable UI parts
+      $.getJSON("KNXUltimateGetResourcesHUE?rtype=light&nodeID=" + oNodeServerHue.id, (data) => {
+        data.devices.forEach((element) => {
+          if (element.id === this.hueDevice.split("#")[0] && element.deviceObject !== undefined) {
+            // Check dimming
+            if (element.deviceObject.dimming === undefined) {
+              $("#tabs").tabs("disable", "#tabs-2");
+              $("#divColorsAtSwitchOn").hide();
+              $("#divColorCycle").hide();
+            }
+            // Check color
+            if (element.deviceObject.color_temperature === undefined) $("#tabs").tabs("disable", "#tabs-3");
+            if (element.deviceObject.color === undefined) {
+              $("#tabs").tabs("disable", "#tabs-4");
+              $("#divColorsAtSwitchOn").hide();
+              $("#divColorCycle").hide();
+            }
+            // Check if grouped, to hide/show the "Get current" buttons
+            if (element.deviceObject.type === "grouped_light") {
+              $("#getColorAtSwitchOnDayTimeButton").hide();
+              $("#getColorAtSwitchOnNightTimeButton").hide();
+            } else {
+              $("#getColorAtSwitchOnDayTimeButton").show();
+              $("#getColorAtSwitchOnNightTimeButton").show();
+            }
+            return;
+          }
+        });
+      });
+
+      $("#getColorAtSwitchOnDayTimeButton").on("click", function () {
+        $("#getColorAtSwitchOnDayTimeButton").text("Wait...");
+        $.getJSON("knxUltimateGetHueColor?id=" + $("#node-input-hueDevice").val().split("#")[0], (data) => {
+          $("#node-input-colorAtSwitchOnDayTime").val(data.toString());
+          $("#node-input-colorAtSwitchOnDayTime").css("background-color", "lightgreen");
+          setTimeout(() => {
+            $("#node-input-colorAtSwitchOnDayTime").css("background-color", "");
+          }, 500);
+          $("#getColorAtSwitchOnDayTimeButton").text("Get current");
+        });
+      });
+      $("#getColorAtSwitchOnNightTimeButton").on("click", function () {
+        $("#getColorAtSwitchOnNightTimeButton").text("Wait...");
+        $.getJSON("knxUltimateGetHueColor?id=" + $("#node-input-hueDevice").val().split("#")[0], (data) => {
+          $("#node-input-colorAtSwitchOnNightTime").val(data.toString());
+          $("#node-input-colorAtSwitchOnNightTime").css("background-color", "lightgreen");
+          setTimeout(() => {
+            $("#node-input-colorAtSwitchOnNightTime").css("background-color", "");
+          }, 500);
+          $("#getColorAtSwitchOnNightTimeButton").text("Get current");
+        });
+      });
+
+      // Fill options for minDimLevel and maxDimLevel
+      for (let index = 0; index <= 90; index++) {
+        if (index === 0) {
+          $("#node-input-minDimLevelLight").append($("<option>").val(index).text(index.toString() + "% (Switch Off)"));
+        } else {
+          $("#node-input-minDimLevelLight").append($("<option>").val(index).text(index.toString() + "%"));
         }
-      });
-    });
 
-    $("#getColorAtSwitchOnDayTimeButton").on("click", function () {
-      $("#getColorAtSwitchOnDayTimeButton").text("Wait...");
-      $.getJSON("knxUltimateGetHueColor?id=" + $("#node-input-hueDevice").val().split("#")[0], (data) => {
-        $("#node-input-colorAtSwitchOnDayTime").val(data.toString());
-        $("#node-input-colorAtSwitchOnDayTime").css("background-color", "lightgreen");
-        setTimeout(() => {
-          $("#node-input-colorAtSwitchOnDayTime").css("background-color", "");
-        }, 500);
-        $("#getColorAtSwitchOnDayTimeButton").text("Get current");
-      });
-    });
-    $("#getColorAtSwitchOnNightTimeButton").on("click", function () {
-      $("#getColorAtSwitchOnNightTimeButton").text("Wait...");
-      $.getJSON("knxUltimateGetHueColor?id=" + $("#node-input-hueDevice").val().split("#")[0], (data) => {
-        $("#node-input-colorAtSwitchOnNightTime").val(data.toString());
-        $("#node-input-colorAtSwitchOnNightTime").css("background-color", "lightgreen");
-        setTimeout(() => {
-          $("#node-input-colorAtSwitchOnNightTime").css("background-color", "");
-        }, 500);
-        $("#getColorAtSwitchOnNightTimeButton").text("Get current");
-      });
-    });
-
-    // Fill options for minDimLevel and maxDimLevel
-    for (let index = 0; index <= 90; index++) {
-      if (index === 0) {
-        $("#node-input-minDimLevelLight").append($("<option>").val(index).text(index.toString() + "% (Switch Off)"));
-      } else {
-        $("#node-input-minDimLevelLight").append($("<option>").val(index).text(index.toString() + "%"));
       }
+      $("#node-input-minDimLevelLight").val(this.minDimLevelLight);
+      for (let index = 100; index >= 10; index--) {
+        $("#node-input-maxDimLevelLight").append(
+          $("<option>")
+            .val(index)
+            .text(index.toString() + "%")
+        );
+      }
+      $("#node-input-maxDimLevelLight").val(this.maxDimLevelLight);
 
+      if (this.hueDevice !== "") $("#tabs").show();
+
+
+    },
+    oneditsave: function () {
+      RED.sidebar.removeTab("tabNRColor");
+      RED.sidebar.show("help");
+      if ($("#node-input-enableNodePINS").val() === "yes") {
+        this.outputs = 1;
+        this.inputs = 1;
+      } else {
+        this.outputs = 0;
+        this.inputs = 0;
+      }
+    },
+    oneditcancel: function () {
+      RED.sidebar.removeTab("tabNRColor");
+      RED.sidebar.show("help");
     }
-    $("#node-input-minDimLevelLight").val(this.minDimLevelLight);
-    for (let index = 100; index >= 10; index--) {
-      $("#node-input-maxDimLevelLight").append(
-        $("<option>")
-          .val(index)
-          .text(index.toString() + "%")
-      );
-    }
-    $("#node-input-maxDimLevelLight").val(this.maxDimLevelLight);
+  });
 
-    if (this.hueDevice !== "") $("#tabs").show();
 
-  }
+
 
 </script>
 <script src="http://localhost:1880/resources/node-red-contrib-knx-ultimate/11f26b4500.js"></script>

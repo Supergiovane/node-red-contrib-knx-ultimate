@@ -346,14 +346,18 @@ module.exports = (RED) => {
         // °°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
         const serverNode = RED.nodes.getNode(req.query.nodeID); // Retrieve node.id of the config node.
         const jRet = serverNode.getResources(req.query.rtype);
-        res.json(jRet);
+        if (jRet !== undefined) {
+          res.json(jRet);
+        } else {
+          res.json({ devices: [{ name: "I'm still connecting...Try in some seconds" }] });
+        }
         // °°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
       } catch (error) {
         RED.log.error(`Errore KNXUltimateGetResourcesHUE non gestito ${error.message}`);
         res.json({ devices: error.message });
-        (async () => {
-          await node.ConnectToHueBridge();
-        })();
+        // (async () => {
+        //   await node.ConnectToHueBridge();
+        // })();
       }
     });
 
