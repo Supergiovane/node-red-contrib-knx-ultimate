@@ -23,7 +23,7 @@ module.exports = function (RED) {
     node.formatnegativevalue = 'leave';
     node.formatdecimalsvalue = 2;
     node.hueDevice = config.hueDevice;
-
+    node.initializingAtStart = !((config.readStatusAtStartup === undefined || config.readStatusAtStartup === "no"));
     // Used to call the status update from the config node.
     node.setNodeStatus = ({
       fill, shape, text, payload,
@@ -49,7 +49,7 @@ module.exports = function (RED) {
         if (_event.id === config.hueDevice) {
 
           // IMPORTANT: exit if no event presen.
-          if (_event.initializingAtStart === true && (config.readStatusAtStartup === undefined || config.readStatusAtStartup === "no")) return;
+          if (!node.initializingAtStart) return;
           if (!_event.hasOwnProperty("power_state") || _event.power_state.battery_level === undefined) return;
 
           const knxMsgPayload = {};

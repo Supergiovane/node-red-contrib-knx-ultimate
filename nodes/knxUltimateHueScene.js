@@ -25,6 +25,7 @@ module.exports = function (RED) {
     node.formatnegativevalue = 'leave';
     node.formatdecimalsvalue = 2;
     node.hueDevice = config.hueDevice;
+    node.initializingAtStart = false;
 
     // Used to call the status update from the config node.
     node.setNodeStatus = ({ fill, shape, text, payload }) => {
@@ -78,13 +79,9 @@ module.exports = function (RED) {
     node.handleSendHUE = (_event) => {
       try {
         if (_event.id === config.hueDevice) {
-
-          // IMPORTANT: exit if no event presen.
-          if (_event.initializingAtStart === true) return;
-
+          if (!node.initializingAtStart) return;
           // Output the msg to the flow
           node.send(_event);
-
         }
       } catch (error) {
         node.status({ fill: 'red', shape: 'dot', text: 'HUE->KNX error ' + error.message + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' });

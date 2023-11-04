@@ -27,6 +27,7 @@ module.exports = function (RED) {
     node.short_releaseValue = false;
     node.isTimerDimStopRunning = false;
     node.hueDevice = config.hueDevice;
+    node.initializingAtStart = false;
 
     // Used to call the status update from the config node.
     node.setNodeStatus = ({
@@ -78,7 +79,7 @@ module.exports = function (RED) {
         if (_event.id === config.hueDevice) {
 
           // IMPORTANT: exit if no button last_event present.
-          if (_event.initializingAtStart === true) return;
+          if (!node.initializingAtStart) return;
           if (!_event.hasOwnProperty("button") || _event.button.last_event === undefined) return;
 
           const knxMsgPayload = {};

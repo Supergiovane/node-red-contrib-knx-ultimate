@@ -35,8 +35,7 @@ module.exports = function (RED) {
     node.DayTime = true;
     node.isGrouped_light = config.hueDevice.split("#")[1] === "grouped_light";
     node.hueDevice = config.hueDevice.split("#")[0];
-    node.readStatusAtStartup = config.readStatusAtStartup;
-    if (config.readStatusAtStartup === undefined) node.readStatusAtStartup = "yes";
+    node.initializingAtStart = (config.readStatusAtStartup === undefined || config.readStatusAtStartup === "yes");
 
     // Used to call the status update from the config node.
     node.setNodeStatus = ({
@@ -60,7 +59,7 @@ module.exports = function (RED) {
     node.handleSend = (msg) => {
       if (node.currentHUEDevice === undefined) {
         node.setNodeStatusHue({
-          fill: "grey",
+          fill: "yellow",
           shape: "ring",
           text: "Initializing. Please wait.",
           payload: "",
@@ -428,7 +427,7 @@ module.exports = function (RED) {
             return;
           }
           // IMPORTANT: exit if no button last_event present.
-          if (_event.initializingAtStart === true && node.readStatusAtStartup === "no") return;
+          if (!node.initializingAtStart) return;
 
           // Output the msg to the flow
           node.send(_event);

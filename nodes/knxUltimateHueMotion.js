@@ -23,6 +23,7 @@ module.exports = function (RED) {
     node.formatnegativevalue = "leave";
     node.formatdecimalsvalue = 2;
     node.hueDevice = config.hueDevice;
+    node.initializingAtStart = false;
 
     // Used to call the status update from the config node.
     node.setNodeStatus = ({ fill, shape, text, payload }) => { };
@@ -42,7 +43,7 @@ module.exports = function (RED) {
         if (_event.id === config.hueDevice) {
 
           // IMPORTANT: exit if no event presen.
-          if (_event.initializingAtStart === true) return;
+          if (!node.initializingAtStart) return;
           if (!_event.hasOwnProperty("motion") || _event.motion.motion === undefined) return;
 
 

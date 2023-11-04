@@ -55,27 +55,46 @@ module.exports = (RED) => {
     const node = this;
     node.host = config.host;
     node.nodeClients = []; // Stores the registered clients
-    node.nodeClientsAwaitingInit = []; // Stores the nodes client to be initialized
     node.loglevel = config.loglevel !== undefined ? config.loglevel : "error"; // 18/02/2020 Loglevel default error
     node.sysLogger = null;
     node.hueAllResources = undefined;
+    node.timerHUEConfigCheckState = null; // Timer that check the connection to the hue bridge every xx seconds
+    node.linkStatus = "disconnected";
     try {
       node.sysLogger = loggerEngine.get({ loglevel: node.loglevel }); // New logger to adhere to the loglevel selected in the config-window
     } catch (error) {
       /* empty */
     }
-
     node.name = config.name === undefined || config.name === "" ? node.host : config.name;
 
-    // Init HUE Utility
-    node.hueManager = new HueClass(node.host, node.credentials.username, node.credentials.clientkey, config.bridgeid, node.sysLogger);
+    // Call the connect function of all hue-config nodes.
+    // function callinitHUEConnectionOfAllHUEServers() {
+    //   RED.nodes.eachNode((_node) => {
+    //     if (_node.type === 'hue-config') {
+    //       try {
+    //         RED.nodes.getNode(_node.id).initHUEConnection();
+    //       } catch (error) {
+    //         if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("callinitHUEConnectionOfAllHUEServers: Node " + _node.name + " " + error.message);
+    //       }
+    //     }
+    //   });
+    // }
 
     // Connect to Bridge and get the resources
-    node.ConnectToHueBridge = async () => {
-      await node.hueManager.Connect();
+    node.initHUEConnection = async () => {
+      try {
+        if (node.hueManager !== undefined) node.hueManager.close();
+      } catch (error) { }
+      try {
+        if (node.hueManager !== undefined) node.hueManager.removeAllListeners();
+      } catch (error) { }
       // Handle events
       try {
-        node.hueManager.removeAllListeners();
+        try {
+          // Init HUE Utility
+          node.hueManager = new HueClass(node.host, node.credentials.username, node.credentials.clientkey, config.bridgeid, node.sysLogger);
+        } catch (error) { }
+        await node.hueManager.Connect();
       } catch (error) {
         /* empty */
       }
@@ -91,17 +110,30 @@ module.exports = (RED) => {
       });
       // Connected
       node.hueManager.on("connected", () => {
-        setTimeout(() => {
-          (async () => {
-            try {
-              await node.loadResourcesFromHUEBridge(); // Then, you can use node.getResources, that works locally and doesn't query the HUE Bridge.
-            } catch (error) {
-              if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("hue-Config node.hueManager.on('connected' " + error.message);
-            }
-          })();
-        }, 10000);
+        node.linkStatus = "connected";
+        // Start the timer to do initial read.
+        if (node.timerDoInitialRead !== null) clearTimeout(node.timerDoInitialRead);
+        node.timerDoInitialRead = setTimeout(() => {
+          node.loadResourcesFromHUEBridge();
+        }, 6000); // 17/02/2020 Do initial read of all nodes requesting initial read
       });
     };
+
+    node.startWatchdogTimer = () => {
+      node.timerHUEConfigCheckState = setTimeout(() => {
+        (async () => {
+          if (node.linkStatus === "disconnected") {
+            await node.initHUEConnection();
+          } else {
+            // Check wether the hue connection is still alive
+            const ret = await node.hueManager.isConnected();
+            if (!ret) node.linkStatus = "disconnected";
+          }
+          node.startWatchdogTimer();
+        })();
+      }, 10000);
+    };
+    node.startWatchdogTimer();
 
     // Query the HUE Bridge to return the resources
     node.loadResourcesFromHUEBridge = () => {
@@ -109,32 +141,27 @@ module.exports = (RED) => {
         // °°°°°° Load ALL resources
         try {
           node.hueAllResources = await node.hueManager.hueApiV2.get("/resource");
-          node.hueAllRooms = node.hueAllResources.filter((a) => a.type === "room");
-          // Update all KNX State of the nodes with the new hue device values
-          if (node.nodeClientsAwaitingInit !== undefined) {
-            // Because the whole process is async, if the function await node.hueManager.hueApiV2.get("/resource") has not jet been called or is late, 
-            // the node/nodes belonging to this server, has been previously added to the nodeClientsAwaitingInit list.
-            node.nodeClientsAwaitingInit.forEach((_node) => {
-              node.nodeClients.push(_node);
-            });
-            node.nodeClientsAwaitingInit = [];
-          }
-          node.nodeClients.forEach((_node) => {
-            if (_node.hueDevice !== undefined && node.hueAllResources !== undefined) {
-              const oHUEDevice = node.hueAllResources.filter((a) => a.id === _node.hueDevice)[0];
-              if (oHUEDevice !== undefined) {
-                // Add _Node to the clients array
-                _node.setNodeStatusHue({
-                  fill: "green",
-                  shape: "ring",
-                  text: "Ready from awaiting list :-)",
-                });
-                oHUEDevice.initializingAtStart = true; // Signalling first connection after restart.
-                _node.currentHUEDevice = oHUEDevice;
-                _node.handleSendHUE(oHUEDevice);
+          if (node.hueAllResources !== undefined) {
+            node.hueAllRooms = node.hueAllResources.filter((a) => a.type === "room");
+            // Update all KNX State of the nodes with the new hue device values
+            node.nodeClients.forEach((_node) => {
+              if (_node.hueDevice !== undefined && node.hueAllResources !== undefined) {
+                const oHUEDevice = node.hueAllResources.filter((a) => a.id === _node.hueDevice)[0];
+                if (oHUEDevice !== undefined) {
+                  // Add _Node to the clients array
+                  _node.setNodeStatusHue({
+                    fill: "green",
+                    shape: "ring",
+                    text: "Ready :-)",
+                  });
+                  _node.currentHUEDevice = oHUEDevice;
+                  if (_node.initializingAtStart === true) _node.handleSendHUE(oHUEDevice);
+                }
               }
-            }
-          });
+            });
+          } else {
+            // The config node cannot read the resources. Signalling disconnected
+          }
         } catch (error) {
           if (this.sysLogger !== undefined && this.sysLogger !== null) {
             this.sysLogger.error(`KNXUltimatehueEngine: loadResourcesFromHUEBridge: ${error.message}`);
@@ -275,28 +302,27 @@ module.exports = (RED) => {
 
     node.addClient = (_Node) => {
       // Update the node hue device, as soon as a node register itself to hue-config nodeClients
-      if (node.hueAllResources !== undefined && node.hueAllResources !== null) {
-        if (node.nodeClients.filter((x) => x.id === _Node.id).length === 0) { // At first start, due to the async method for retrieving hueAllResources, hueAllResources is still null. The first start is handled in node.hueManager.on("connected")
+      if (node.nodeClients.filter((x) => x.id === _Node.id).length === 0) {
+        node.nodeClients.push(_Node);
+        if (node.hueAllResources !== undefined && node.hueAllResources !== null && _Node.initializingAtStart === true) {
           const oHUEDevice = node.hueAllResources.filter((a) => a.id === _Node.hueDevice)[0];
-          oHUEDevice.initializingAtStart = true; // Signalling first connection after restart.
-          _Node.currentHUEDevice = oHUEDevice;
-          _Node.handleSendHUE(oHUEDevice);
-          node.nodeClients.push(_Node);
+          if (oHUEDevice !== undefined) {
+            _Node.currentHUEDevice = oHUEDevice;
+            _Node.handleSendHUE(oHUEDevice);
+            // Add _Node to the clients array
+            _Node.setNodeStatusHue({
+              fill: "yellow",
+              shape: "dot",
+              text: "Initializing. Please Wait.",
+            });
+          }
+        } else {
+          node.linkStatus = "disconnected";
           // Add _Node to the clients array
           _Node.setNodeStatusHue({
-            fill: "green",
-            shape: "ring",
-            text: "Ready",
-          });
-        }
-      } else {
-        if (node.nodeClientsAwaitingInit.filter((x) => x.id === _Node.id).length === 0) {
-          // Put the node in the waiting list
-          node.nodeClientsAwaitingInit.push(_Node);
-          _Node.setNodeStatusHue({
             fill: "grey",
-            shape: "dot",
-            text: "I'm gointo to init awaiting list.",
+            shape: "ring",
+            text: "Waiting for connection",
           });
         }
       }
@@ -356,7 +382,7 @@ module.exports = (RED) => {
         RED.log.error(`Errore KNXUltimateGetResourcesHUE non gestito ${error.message}`);
         res.json({ devices: error.message });
         // (async () => {
-        //   await node.ConnectToHueBridge();
+        //   await node.initHUEConnection();
         // })();
       }
     });

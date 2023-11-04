@@ -41,7 +41,13 @@ class classHUE extends EventEmitter {
     } catch (error) {
       /* empty */
     }
-    this.es = new EventSource(`https://${this.hueBridgeIP}/eventstream/clip/v2`, options);
+
+    try {
+      this.es = new EventSource(`https://${this.hueBridgeIP}/eventstream/clip/v2`, options);
+    } catch (error) {
+      console.log("hue-config: ew EventSource:" + error.message);
+    }
+
 
     this.es.onmessage = (event) => {
       try {
@@ -86,7 +92,9 @@ class classHUE extends EventEmitter {
       } catch (error) {
         /* empty */
       }
-      this.Connect();
+      try {
+        this.Connect();
+      } catch (error) { }
     }, 300000);
   };
 
@@ -176,12 +184,24 @@ class classHUE extends EventEmitter {
   };
   // ######################################
 
+  isConnected = async () => {
+    try {
+      await this.hueApiV2.get('/resource/bridge');
+      return true;
+    } catch (error) {
+      console.log("hueEngine: isConnected: " + error.message)
+      return false;
+    }
+  };
+
   close = async () =>
     new Promise((resolve, reject) => {
       try {
         if (this.timerReconnect !== undefined) clearInterval(this.timerReconnect);
         this.closePushEventStream = true;
-        if (this.es !== null) this.es.close();
+        try {
+          if (this.es !== null && this.es !== undefined) this.es.close();
+        } catch (error) { }
         this.es = null;
         setTimeout(() => {
           resolve(true);

@@ -6,7 +6,7 @@
 
 # CHANGELOG
 
-<b>Version 2.2.11</b> - November 2023<br/>
+<b>Version 2.2.12</b> - November 2023<br/>
 <p>
 - NEW: Hue Light: you can now enable the input/output PINs and send/receive commands to/from the light, via the msg flow, like msg.on={"on":true}. The option is "Node Input/Output PINs".<br/>
 - NEW: Hue Scene: you can now enable the input/output PINs and send/receive commands to/from the light, via the msg flow. The option is "Node Input/Output PINs".<br/>

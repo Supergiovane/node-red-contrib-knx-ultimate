@@ -26,6 +26,7 @@ module.exports = function (RED) {
     node.brightnessState = 0;
     node.isTimerDimStopRunning = false;
     node.hueDevice = config.hueDevice;
+    node.initializingAtStart = false;
 
     // Used to call the status update from the config node.
     node.setNodeStatus = ({
@@ -51,7 +52,7 @@ module.exports = function (RED) {
         if (_event.id === config.hueDevice) {
 
           // IMPORTANT: exit if no event presen.
-          if (_event.initializingAtStart === true) return;
+          if (!node.initializingAtStart) return;
           if (!_event.hasOwnProperty("relative_rotary")
             || !_event.relative_rotary.hasOwnProperty("last_event")
             || _event.relative_rotary.last_event === undefined

@@ -115,13 +115,9 @@ return msg;`,
     node.KNXEthInterfaceManuallyInput = typeof config.KNXEthInterfaceManuallyInput === "undefined" ? "" : config.KNXEthInterfaceManuallyInput; // If you manually set the interface name, it will be wrote here
     node.telegramsQueue = []; // 02/01/2020 Queue containing telegrams
     node.timerSendTelegramFromQueue = null;
-    node.delaybetweentelegramsfurtherdelayREAD =
-      typeof config.delaybetweentelegramsfurtherdelayREAD === "undefined" || Number(config.delaybetweentelegramsfurtherdelayREAD < 1)
-        ? 1
-        : Number(config.delaybetweentelegramsfurtherdelayREAD); // 18/05/2020 delay multiplicator only for "read" telegrams.
+    node.delaybetweentelegramsfurtherdelayREAD = typeof config.delaybetweentelegramsfurtherdelayREAD === "undefined" || Number(config.delaybetweentelegramsfurtherdelayREAD < 1) ? 1 : Number(config.delaybetweentelegramsfurtherdelayREAD); // 18/05/2020 delay multiplicator only for "read" telegrams.
     node.delaybetweentelegramsREADCount = 0; // 18/05/2020 delay multiplicator only for "read" telegrams.
     node.timerDoInitialRead = null; // 17/02/2020 Timer (timeout) to do initial read of all nodes requesting initial read, after all nodes have been registered to the sercer
-    node.timerCallConnectToHueBridgeOfAllHUEServers = null; // // Timer for the callConnectToHueBridgeOfAllHUEServers function
     node.stopETSImportIfNoDatapoint = typeof config.stopETSImportIfNoDatapoint === "undefined" ? "stop" : config.stopETSImportIfNoDatapoint; // 09/01/2020 Stop, Import Fake or Skip the import if a group address has unset datapoint
     node.csv = readCSV(config.csv); // Array from ETS CSV Group Addresses {ga:group address, dpt: datapoint, devicename: full device name with main and subgroups}
     node.localEchoInTunneling = typeof config.localEchoInTunneling !== "undefined" ? config.localEchoInTunneling : true;
@@ -678,18 +674,7 @@ return msg;`,
           });
       } catch (error) { }
     }
-    // Call the connect function of all hue-config nodes.
-    function callConnectToHueBridgeOfAllHUEServers() {
-      RED.nodes.eachNode((_node) => {
-        if (_node.type === 'hue-config') {
-          try {
-            RED.nodes.getNode(_node.id).ConnectToHueBridge();
-          } catch (error) {
-            if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("callConnectToHueBridgeOfAllHUEServers: Node " + _node.name + " " + error.message);
-          }
-        }
-      });
-    }
+
     // 01/02/2020 Dinamic change of the KNX Gateway IP, Port and Physical Address
     // This new thing has been requested by proServ RealKNX staff.
     node.setGatewayConfig = (
@@ -947,9 +932,7 @@ return msg;`,
           if (node.timerDoInitialRead !== null) clearTimeout(node.timerDoInitialRead);
           node.timerDoInitialRead = setTimeout(() => {
             DoInitialReadFromKNXBusOrFile();
-            callConnectToHueBridgeOfAllHUEServers();
           }, 6000); // 17/02/2020 Do initial read of all nodes requesting initial read
-          //node.timerCallConnectToHueBridgeOfAllHUEServers = setTimeout(callConnectToHueBridgeOfAllHUEServers, 6000); // connects all hue-config nodes to the HUE Bridge.
           const t = setTimeout(() => {
             // 21/03/2022 fixed possible memory leak. Previously was setTimeout without "let t = ".
             node.setAllClientsStatus("Connected.", "green", "On duty.");
