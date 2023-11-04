@@ -1,3 +1,6 @@
+<script src="resources/node-red-contrib-knx-ultimate/11f26b4500.js"></script>
+<script src="resources/node-red-contrib-knx-ultimate/iro@5"></script>
+
 <script type="text/javascript">
 
   RED.nodes.registerType("knxUltimateHueLight", {
@@ -300,7 +303,10 @@
           });
           // Eval
           const format = "node." + _destinationWidget.replace("#node-input-", "");
-          $(_destinationWidget).val(eval(format).toString());
+          try {
+            if (format !== undefined) $(_destinationWidget).val(eval(format).toString());
+          } catch (error) { }
+
         });
       }
 
@@ -562,8 +568,8 @@
 
 
 </script>
-<script src="http://localhost:1880/resources/node-red-contrib-knx-ultimate/11f26b4500.js"></script>
-<script src="http://localhost:1880/resources/node-red-contrib-knx-ultimate/iro@5"></script>
+<script src="resources/node-red-contrib-knx-ultimate/11f26b4500.js"></script>
+<script src="resources/node-red-contrib-knx-ultimate/iro@5"></script>
 
 <script type="text/html" data-template-name="knxUltimateHueLight">
 
