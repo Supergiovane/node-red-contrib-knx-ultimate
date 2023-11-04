@@ -11,6 +11,7 @@
             nametemperaturesensor: { value: "" },
             GAtemperaturesensor: { value: "" },
             dpttemperaturesensor: { value: "" },
+            readStatusAtStartup: { value: "no" },
 
             hueDevice: { value: "" }
         },
@@ -210,7 +211,15 @@
         <label for="node-input-nametemperaturesensor" style="width:50px; margin-left: 0px; text-align: right;">Name</label>
         <input type="text" id="node-input-nametemperaturesensor" style="width:200px;margin-left: 5px; text-align: left;">
     </div>
-   
+
+    <br/>
+    <div class="form-row">
+        <label style="width:180px" for="node-input-readStatusAtStartup"><i class="fa fa-play-circle"></i> Read status at startup</label>
+        <select id="node-input-readStatusAtStartup">       
+        <option value="no">No</option>
+        <option value="yes">Yes, and emit KNX telegrams.</option>   
+        </select>
+    </div>
 
 <br/>
 <br/>
@@ -232,6 +241,8 @@ you're typing.
 | KNX GW | Select the KNX gateway to be used |
 | HUE Bridge | Select the HUE Bridge to be used |
 | Hue Sensor | HUE sensor to be used. The avaiable buttons start showing up while you're typing.|
+| Read status at startup | Read the status at startup and emit the event to the KNX bus at startup/reconnection.
+(Default "no")|
 
 **KNX**
 |Property|Description|

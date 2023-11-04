@@ -23,6 +23,7 @@ module.exports = function (RED) {
     node.formatnegativevalue = 'leave';
     node.formatdecimalsvalue = 2;
     node.hueDevice = config.hueDevice;
+    node.initializingAtStart = !((config.readStatusAtStartup === undefined || config.readStatusAtStartup === "no"));
 
     // Used to call the status update from the config node.
     node.setNodeStatus = ({

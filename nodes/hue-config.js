@@ -123,11 +123,17 @@ module.exports = (RED) => {
       node.timerHUEConfigCheckState = setTimeout(() => {
         (async () => {
           if (node.linkStatus === "disconnected") {
-            await node.initHUEConnection();
+            try {
+              await node.initHUEConnection();
+            } catch (error) {
+              node.linkStatus = "disconnected";
+            }
           } else {
-            // Check wether the hue connection is still alive
-            const ret = await node.hueManager.isConnected();
-            if (!ret) node.linkStatus = "disconnected";
+            try {
+              // Check wether the hue connection is still alive
+              const ret = await node.hueManager.isConnected();
+              if (!ret) node.linkStatus = "disconnected";
+            } catch (error) { node.linkStatus = "disconnected"; }
           }
           node.startWatchdogTimer();
         })();
@@ -311,9 +317,9 @@ module.exports = (RED) => {
             _Node.handleSendHUE(oHUEDevice);
             // Add _Node to the clients array
             _Node.setNodeStatusHue({
-              fill: "yellow",
+              fill: "green",
               shape: "dot",
-              text: "Initializing. Please Wait.",
+              text: "I'm new and ready.",
             });
           }
         } else {
@@ -388,8 +394,10 @@ module.exports = (RED) => {
     });
 
     RED.httpAdmin.get("/knxUltimateDpts", RED.auth.needsPermission("hue-config.read"), (req, res) => {
-      const dpts = Object.entries(dptlib).filter(onlyDptKeys).map(extractBaseNo).sort(sortBy("base")).reduce(toConcattedSubtypes, []);
-      res.json(dpts);
+      try {
+        const dpts = Object.entries(dptlib).filter(onlyDptKeys).map(extractBaseNo).sort(sortBy("base")).reduce(toConcattedSubtypes, []);
+        res.json(dpts);
+      } catch (error) { }
     });
   }
   RED.nodes.registerType("hue-config", hueConfig, {
