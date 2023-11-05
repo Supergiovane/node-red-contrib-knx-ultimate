@@ -56,7 +56,7 @@ module.exports = function (RED) {
 
     // This function is called by the hue-config.js
     node.handleSend = (msg) => {
-      if (node.currentHUEDevice === undefined) {
+      if (node.currentHUEDevice === undefined && node.serverHue.linkStatus === "connected") {
         node.setNodeStatusHue({
           fill: "yellow",
           shape: "ring",

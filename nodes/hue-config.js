@@ -81,7 +81,7 @@ module.exports = (RED) => {
     // }
 
     // Connect to Bridge and get the resources
-    node.initHUEConnection = () => {
+    node.initHUEConnection = async () => {
       try {
         if (node.hueManager !== undefined) node.hueManager.close();
       } catch (error) { }
@@ -115,7 +115,24 @@ module.exports = (RED) => {
         // Start the timer to do initial read.
         if (node.timerDoInitialRead !== null) clearTimeout(node.timerDoInitialRead);
         node.timerDoInitialRead = setTimeout(() => {
-          node.loadResourcesFromHUEBridge();
+          (async () => {
+            try {
+              await node.loadResourcesFromHUEBridge();
+            } catch (error) {
+              node.linkStatus = "disconnected";
+              node.nodeClients.forEach((_oClient) => {
+                setTimeout(() => {
+                  _oClient.setNodeStatusHue({
+                    fill: "red",
+                    shape: "ring",
+                    text: "HUE",
+                    payload: error.message,
+                  });
+                }, 1000);
+              });
+            }
+            node.startWatchdogTimer();
+          })();
         }, 6000); // 17/02/2020 Do initial read of all nodes requesting initial read
       });
 
@@ -133,11 +150,12 @@ module.exports = (RED) => {
     };
 
     node.startWatchdogTimer = () => {
+      if (node.timerHUEConfigCheckState !== undefined) clearTimeout(node.timerHUEConfigCheckState);
       node.timerHUEConfigCheckState = setTimeout(() => {
         (async () => {
           if (node.linkStatus === "disconnected") {
             try {
-              node.initHUEConnection();
+              await node.initHUEConnection();
             } catch (error) {
               node.linkStatus = "disconnected";
             }
@@ -149,41 +167,41 @@ module.exports = (RED) => {
     node.startWatchdogTimer();
 
     // Query the HUE Bridge to return the resources
-    node.loadResourcesFromHUEBridge = () => {
+    node.loadResourcesFromHUEBridge = async () => {
       if (node.linkStatus === "disconnected") return;
-      (async () => {
-        // °°°°°° Load ALL resources
-        try {
-          node.hueAllResources = await node.hueManager.hueApiV2.get("/resource");
-          if (node.hueAllResources !== undefined) {
-            node.hueAllRooms = node.hueAllResources.filter((a) => a.type === "room");
-            // Update all KNX State of the nodes with the new hue device values
-            node.nodeClients.forEach((_node) => {
-              if (_node.hueDevice !== undefined && node.hueAllResources !== undefined) {
-                const oHUEDevice = node.hueAllResources.filter((a) => a.id === _node.hueDevice)[0];
-                if (oHUEDevice !== undefined) {
-                  // Add _Node to the clients array
-                  _node.setNodeStatusHue({
-                    fill: "green",
-                    shape: "ring",
-                    text: "Ready :-)",
-                  });
-                  _node.currentHUEDevice = oHUEDevice;
-                  if (_node.initializingAtStart === true) _node.handleSendHUE(oHUEDevice);
-                }
+      //(async () => {
+      // °°°°°° Load ALL resources
+      try {
+        node.hueAllResources = await node.hueManager.hueApiV2.get("/resource");
+        if (node.hueAllResources !== undefined) {
+          node.hueAllRooms = node.hueAllResources.filter((a) => a.type === "room");
+          // Update all KNX State of the nodes with the new hue device values
+          node.nodeClients.forEach((_node) => {
+            if (_node.hueDevice !== undefined && node.hueAllResources !== undefined) {
+              const oHUEDevice = node.hueAllResources.filter((a) => a.id === _node.hueDevice)[0];
+              if (oHUEDevice !== undefined) {
+                // Add _Node to the clients array
+                _node.setNodeStatusHue({
+                  fill: "green",
+                  shape: "ring",
+                  text: "Ready :-)",
+                });
+                _node.currentHUEDevice = oHUEDevice;
+                if (_node.initializingAtStart === true) _node.handleSendHUE(oHUEDevice);
               }
-            });
-          } else {
-            // The config node cannot read the resources. Signalling disconnected
-          }
-        } catch (error) {
-          if (this.sysLogger !== undefined && this.sysLogger !== null) {
-            this.sysLogger.error(`KNXUltimatehueEngine: loadResourcesFromHUEBridge: ${error.message}`);
-            return (error.message);
-          }
+            }
+          });
+        } else {
+          // The config node cannot read the resources. Signalling disconnected
         }
-        return true;
-      })();
+      } catch (error) {
+        if (this.sysLogger !== undefined && this.sysLogger !== null) {
+          this.sysLogger.error(`KNXUltimatehueEngine: loadResourcesFromHUEBridge: ${error.message}`);
+          throw (error);
+        }
+      }
+
+      //})();
     };
 
     // Returns the cached devices (node.hueAllResources) by type.
@@ -304,7 +322,6 @@ module.exports = (RED) => {
     // Query HUE Bridge and get the updated color.
     node.getColorFromHueLight = (_lightId) => {
       try {
-        // await node.loadResourcesFromHUEBridge();
         const oLight = node.hueAllResources.filter((a) => a.id === _lightId)[0];
         const ret = hueColorConverter.ColorConverter.xyBriToRgb(oLight.color.xy.x, oLight.color.xy.y, oLight.dimming.brightness);
         return JSON.stringify(ret);
