@@ -10,6 +10,7 @@
 <p>
 - HUE Bugfix.<br/>
 </p>
+
 <b>Version 2.2.18</b> - November 2023<br/>
 <p>
 - HUE Bugfix.<br/>
