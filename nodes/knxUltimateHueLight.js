@@ -31,7 +31,6 @@ module.exports = function (RED) {
     node.formatnegativevalue = "leave";
     node.formatdecimalsvalue = 2;
     node.currentHUEDevice = undefined; // At start, this value is filled by a call to HUE api. It stores a value representing the current light status.
-    node.currentKNXGALightState = false; // Stores the current KNX value for the GA
     node.DayTime = true;
     node.isGrouped_light = config.hueDevice.split("#")[1] === "grouped_light";
     node.hueDevice = config.hueDevice.split("#")[0];
@@ -426,8 +425,6 @@ module.exports = function (RED) {
             });
             return;
           }
-          // IMPORTANT: exit if no button last_event present.
-          if (!node.initializingAtStart) return;
 
           // Output the msg to the flow
           node.send(_event);
@@ -458,7 +455,7 @@ module.exports = function (RED) {
             if (node.currentHUEDevice.hasOwnProperty("on") && node.currentHUEDevice.on.on === false && _event.dimming.brightness === 0) {
               // Do nothing, because the light is off and the dimming also is 0
             } else {
-              if (node.currentHUEDevice.on.on === false) node.updateKNXLightState(_event.dimming.brightness > 0);
+              if (node.currentHUEDevice.on.on === false && (!_event.hasOwnProperty("on") || (_event.hasOwnProperty("on") && _event.on.on === true))) node.updateKNXLightState(_event.dimming.brightness > 0);
               node.updateKNXBrightnessState(_event.dimming.brightness);
               // If the brightness reaches zero, the hue lamp "on" property must be set to zero as well
               if (_event.dimming.brightness === 0) {
@@ -520,27 +517,25 @@ module.exports = function (RED) {
         knxMsgPayload.dpt = config.dptLightState;
         knxMsgPayload.payload = _value;
         if (config.GALightState !== undefined && config.GALightState !== "") {
-          if (node.currentKNXGALightState !== knxMsgPayload.payload) {
-            // Check not to have already sent the value
-            // Send to KNX bus
-            if (knxMsgPayload.topic !== "" && knxMsgPayload.topic !== undefined) {
-              node.server.writeQueueAdd({
-                grpaddr: knxMsgPayload.topic,
-                payload: knxMsgPayload.payload,
-                dpt: knxMsgPayload.dpt,
-                outputtype: "write",
-                nodecallerid: node.id,
-              });
-            }
-            node.setNodeStatusHue({
-              fill: "blue",
-              shape: "ring",
-              text: "HUE->KNX On/Off",
+
+          // Check not to have already sent the value
+          // Send to KNX bus
+          if (knxMsgPayload.topic !== "" && knxMsgPayload.topic !== undefined) {
+            node.server.writeQueueAdd({
+              grpaddr: knxMsgPayload.topic,
               payload: knxMsgPayload.payload,
+              dpt: knxMsgPayload.dpt,
+              outputtype: "write",
+              nodecallerid: node.id,
             });
           }
+          node.setNodeStatusHue({
+            fill: "blue",
+            shape: "ring",
+            text: "HUE->KNX On/Off",
+            payload: knxMsgPayload.payload,
+          });
         }
-        node.currentKNXGALightState = knxMsgPayload.payload; // Stores the current value
       } catch (error) {
         /* empty */
       }

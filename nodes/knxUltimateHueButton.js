@@ -79,7 +79,6 @@ module.exports = function (RED) {
         if (_event.id === config.hueDevice) {
 
           // IMPORTANT: exit if no button last_event present.
-          if (!node.initializingAtStart) return;
           if (!_event.hasOwnProperty("button") || _event.button.last_event === undefined) return;
 
           const knxMsgPayload = {};

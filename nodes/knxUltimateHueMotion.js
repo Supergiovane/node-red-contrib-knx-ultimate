@@ -42,8 +42,6 @@ module.exports = function (RED) {
       try {
         if (_event.id === config.hueDevice) {
 
-          // IMPORTANT: exit if no event presen.
-          if (!node.initializingAtStart) return;
           if (!_event.hasOwnProperty("motion") || _event.motion.motion === undefined) return;
 
 

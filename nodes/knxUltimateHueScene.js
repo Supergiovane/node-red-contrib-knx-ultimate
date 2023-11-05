@@ -79,7 +79,6 @@ module.exports = function (RED) {
     node.handleSendHUE = (_event) => {
       try {
         if (_event.id === config.hueDevice) {
-          if (!node.initializingAtStart) return;
           // Output the msg to the flow
           node.send(_event);
         }

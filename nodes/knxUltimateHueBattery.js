@@ -49,7 +49,6 @@ module.exports = function (RED) {
         if (_event.id === config.hueDevice) {
 
           // IMPORTANT: exit if no event presen.
-          if (!node.initializingAtStart) return;
           if (!_event.hasOwnProperty("power_state") || _event.power_state.battery_level === undefined) return;
 
           const knxMsgPayload = {};

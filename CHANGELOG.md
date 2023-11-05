@@ -6,6 +6,11 @@
 
 # CHANGELOG
 
+<b>Version 2.2.18</b> - November 2023<br/>
+<p>
+- HUE Bugfix.<br/>
+- New connection check for HUE bridge.<br/>
+</p>
 <b>Version 2.2.16</b> - November 2023<br/>
 <p>
 - NEW: Hue Light: you can now enable the input/output PINs and send/receive commands to/from the light, via the msg flow, like msg.on={"on":true}. The option is "Node Input/Output PINs".<br/>

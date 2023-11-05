@@ -45,8 +45,6 @@ module.exports = function (RED) {
       try {
         if (_event.id === config.hueDevice) {
 
-          // IMPORTANT: exit if no event presen.
-          if (!node.initializingAtStart) return;
           if (!_event.hasOwnProperty('light') || _event.light.light_level === undefined) return;
 
           const knxMsgPayload = {};

@@ -13,11 +13,14 @@ class classHUE extends EventEmitter {
     this.commandQueue = [];
     this.closePushEventStream = false;
     // eslint-disable-next-line max-len
-    this.timerwriteQueueAdd = setTimeout(this.handleQueue, 15000); // First start. Allow the KNX to connect
+    this.timerwriteQueueAdd = setTimeout(this.handleQueue, 10000); // First start. Allow the KNX to connect
     this.sysLogger = _sysLogger;
+    this.timerCheckConnected = undefined;
+
   }
 
-  Connect = async () => {
+  Connect = () => {
+
     const options = {
       headers: {
         "hue-application-key": this.username,
@@ -70,6 +73,12 @@ class classHUE extends EventEmitter {
     this.es.onopen = () => {
       // if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.error('KNXUltimatehueEngine: classHUE: SSE-Connected')
       this.emit("connected");
+
+      // Check wether the hue bridge is connected or not
+      if (this.timerCheckConnected !== undefined) clearInterval(this.timerCheckConnected);
+      this.timerCheckConnected = setInterval(() => {
+        this.writeHueQueueAdd(null, null, "Ping");
+      }, 30000);
     };
 
     // this.es.onerror = (error) => {
@@ -146,28 +155,14 @@ class classHUE extends EventEmitter {
               this.sysLogger.error(`KNXUltimatehueEngine: classHUE: handleQueue: stopScene: ${error.message}`);
           }
           break;
-        case "getBattery":
+        case "Ping":
           try {
-            const jReturn = await this.hueApiV2.get(`/resource/device_power/${jRet._lightID}`);
+            const jReturn = await this.hueApiV2.get('/resource/bridge');
           } catch (error) {
-            if (this.sysLogger !== undefined && this.sysLogger !== null)
-              this.sysLogger.error(`KNXUltimatehueEngine: classHUE: handleQueue: getBattery: ${error.message}`);
-          }
-          break;
-        case "getLightLevel":
-          try {
-            const jReturn = await this.hueApiV2.get(`/resource/light_level/${jRet._lightID}`);
-          } catch (error) {
-            if (this.sysLogger !== undefined && this.sysLogger !== null)
-              this.sysLogger.error(`KNXUltimatehueEngine: classHUE: handleQueue: getLightLevel: ${error.message}`);
-          }
-          break;
-        case "getTemperature":
-          try {
-            const jReturn = await this.hueApiV2.get(`/resource/temperature/${jRet._lightID}`);
-          } catch (error) {
-            if (this.sysLogger !== undefined && this.sysLogger !== null)
-              this.sysLogger.error(`KNXUltimatehueEngine: classHUE: handleQueue: getTemperature: ${error.message}`);
+            if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.error(`KNXUltimatehueEngine: classHUE: handleQueue: Ping: ${error.message}`);
+            if (this.timerCheckConnected !== undefined) clearInterval(this.timerCheckConnected);
+            this.commandQueue.length = [];
+            this.emit("disconnected");
           }
           break;
         default:
@@ -175,6 +170,7 @@ class classHUE extends EventEmitter {
       }
     }
     // The Hue bridge allows about 10 telegram per second, so i need to make a queue manager
+    //await new Promise(resolve => setTimeout(resolve, 2000));
     this.timerwriteQueueAdd = setTimeout(this.handleQueue, 200);
   };
 
@@ -183,16 +179,6 @@ class classHUE extends EventEmitter {
     this.commandQueue.push({ _lightID, _state, _operation });
   };
   // ######################################
-
-  isConnected = async () => {
-    try {
-      await this.hueApiV2.get('/resource/bridge');
-      return true;
-    } catch (error) {
-      console.log("hueEngine: isConnected: " + error.message)
-      return false;
-    }
-  };
 
   close = async () =>
     new Promise((resolve, reject) => {

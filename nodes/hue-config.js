@@ -81,7 +81,7 @@ module.exports = (RED) => {
     // }
 
     // Connect to Bridge and get the resources
-    node.initHUEConnection = async () => {
+    node.initHUEConnection = () => {
       try {
         if (node.hueManager !== undefined) node.hueManager.close();
       } catch (error) { }
@@ -94,9 +94,10 @@ module.exports = (RED) => {
           // Init HUE Utility
           node.hueManager = new HueClass(node.host, node.credentials.username, node.credentials.clientkey, config.bridgeid, node.sysLogger);
         } catch (error) { }
-        await node.hueManager.Connect();
+        node.hueManager.Connect();
       } catch (error) {
-        /* empty */
+        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(`Errore hue-config: node.initHUEConnection: ${error.message}`);
+        node.linkStatus = "disconnected";
       }
       node.hueManager.on("event", (_event) => {
         node.nodeClients.forEach((_oClient) => {
@@ -117,6 +118,18 @@ module.exports = (RED) => {
           node.loadResourcesFromHUEBridge();
         }, 6000); // 17/02/2020 Do initial read of all nodes requesting initial read
       });
+
+      node.hueManager.on("disconnected", () => {
+        node.linkStatus = "disconnected";
+        node.nodeClients.forEach((_oClient) => {
+          _oClient.setNodeStatusHue({
+            fill: "red",
+            shape: "ring",
+            text: "HUE Disconnected",
+            payload: "",
+          });
+        });
+      });
     };
 
     node.startWatchdogTimer = () => {
@@ -124,16 +137,10 @@ module.exports = (RED) => {
         (async () => {
           if (node.linkStatus === "disconnected") {
             try {
-              await node.initHUEConnection();
+              node.initHUEConnection();
             } catch (error) {
               node.linkStatus = "disconnected";
             }
-          } else {
-            try {
-              // Check wether the hue connection is still alive
-              const ret = await node.hueManager.isConnected();
-              if (!ret) node.linkStatus = "disconnected";
-            } catch (error) { node.linkStatus = "disconnected"; }
           }
           node.startWatchdogTimer();
         })();
@@ -143,6 +150,7 @@ module.exports = (RED) => {
 
     // Query the HUE Bridge to return the resources
     node.loadResourcesFromHUEBridge = () => {
+      if (node.linkStatus === "disconnected") return;
       (async () => {
         // °°°°°° Load ALL resources
         try {

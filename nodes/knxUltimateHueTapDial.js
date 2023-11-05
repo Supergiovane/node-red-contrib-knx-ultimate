@@ -51,8 +51,7 @@ module.exports = function (RED) {
       try {
         if (_event.id === config.hueDevice) {
 
-          // IMPORTANT: exit if no event presen.
-          if (!node.initializingAtStart) return;
+
           if (!_event.hasOwnProperty("relative_rotary")
             || !_event.relative_rotary.hasOwnProperty("last_event")
             || _event.relative_rotary.last_event === undefined
