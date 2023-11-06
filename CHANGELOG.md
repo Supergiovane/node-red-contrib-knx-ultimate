@@ -6,6 +6,9 @@
 
 # CHANGELOG
 
+**Version 2.2.20** - November 2023<br/>
+- Fixed a cross site js script loading, affecting the node running under HomeAssistant.<br/>
+
 **Version 2.2.19** - November 2023<br/>
 - HUE Bugfix.<br/>
 
