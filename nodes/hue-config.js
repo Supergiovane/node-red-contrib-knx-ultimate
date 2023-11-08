@@ -327,7 +327,7 @@ module.exports = (RED) => {
         const ret = "#" + hueColorConverter.ColorConverter.rgbHex(retRGB.r, retRGB.g, retRGB.b).toString();
         return ret;
       } catch (error) {
-        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(`KNXUltimateHue: hueEngine: getColorFromHueLight: error ${error.message}`);
+        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.warn(`KNXUltimateHue: hueEngine: getColorFromHueLight: error ${error.message}`);
         return {};
       }
     };
