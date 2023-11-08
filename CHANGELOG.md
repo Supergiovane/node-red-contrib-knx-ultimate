@@ -6,7 +6,7 @@
 
 # CHANGELOG
 
-**Version 2.2.23** - November 2023<br/>
+**Version 2.2.24** - November 2023<br/>
 - HUE Light: added DPT 9.002 for direct kelvin selection, with HUE range (2000K-6535K). There is another DPT 7.600 with the KNX scale (0K-6553K) avaiable.<br/>
 - NEW: HUE Light: now you can choose the "switch on" behaviour between color and temperature (in Kelvin) + brightness.<br/>
 - The fontawesome JS is now locally referenced.<br/>

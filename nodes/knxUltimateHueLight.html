@@ -73,11 +73,11 @@
       GALightKelvinState: { value: "" },
       dptLightKelvinState: { value: "" },
 
-      specifySwitchOnBrightness: { value: "yes" },
-      colorAtSwitchOnDayTime: { value: '{"red":255, "green":200, "blue":180}' },
+      specifySwitchOnBrightness: { value: "temperature" },
+      colorAtSwitchOnDayTime: { value: '{"kelvin":3000, "brightness":100 }' },
 
       enableDayNightLighting: { value: "no" },
-      colorAtSwitchOnNightTime: { value: '{"red":23, "green":4, "blue":0}' },
+      colorAtSwitchOnNightTime: { value: '{ "kelvin":2700, "brightness":20 }' },
 
       invertDayNight: { value: false },
 
@@ -454,6 +454,8 @@
 
       // Calculate kelvin/color
       let json;
+      this.colorAtSwitchOnDayTime = this.colorAtSwitchOnDayTime.replace("geen", "green"); // Old bug in "geen" property
+      this.colorAtSwitchOnNightTime = this.colorAtSwitchOnNightTime.replace("geen", "green"); // Old bug in "geen" property
       try {
         json = JSON.parse(this.colorAtSwitchOnDayTime);
       } catch (error) { }
@@ -461,13 +463,19 @@
         // Kelvin
         $("#comboTemperatureAtSwitchOn").val(json.kelvin);
         $("#comboBrightnessAtSwitchOn").val(json.brightness);
+        if (this.specifySwitchOnBrightness !== 'no') $("#node-input-specifySwitchOnBrightness").val('temperature'); // Adjust in case of mismatch (from old geen bug)
       } else if (json !== undefined && json.red !== undefined) {
         // Must transform RGB into HTML HEX color
-        $("#node-input-colorAtSwitchOnDayTime").val("#" + rgbHex(json.red, json.green, json.blue));
+        try {
+          $("#node-input-colorAtSwitchOnDayTime").val("#" + rgbHex(json.red, json.green, json.blue));
+        } catch (error) {
+        }
         $("#colorPickerDay").val($("#node-input-colorAtSwitchOnDayTime").val());
+        if (this.specifySwitchOnBrightness !== 'no') $("#node-input-specifySwitchOnBrightness").val('yes'); // Adjust in case of mismatch (from old geen bug)
       } else {
         // It's already an HEX color
         $("#colorPickerDay").val(this.colorAtSwitchOnDayTime);
+        if (this.specifySwitchOnBrightness !== 'no') $("#node-input-specifySwitchOnBrightness").val('yes'); // Adjust in case of mismatch (from old geen bug)
       }
       //Night
       json = undefined;
@@ -478,14 +486,21 @@
         // Kelvin
         $("#comboTemperatureAtSwitchOnNightTime").val(json.kelvin);
         $("#comboBrightnessAtSwitchOnNightTime").val(json.brightness);
+        if (this.enableDayNightLighting !== 'no') $("#node-input-enableDayNightLighting").val('temperature'); // Adjust in case of mismatch (from old geen bug)
       } else if (json !== undefined && json.red !== undefined) {
         // Must transform RGB into HTML HEX color
-        $("#node-input-colorAtSwitchOnNightTime").val("#" + rgbHex(json.red, json.green, json.blue));
+        try {
+          $("#node-input-colorAtSwitchOnNightTime").val("#" + rgbHex(json.red, json.green, json.blue));
+        } catch (error) {
+        }
         $("#colorPickerNight").val($("#node-input-colorAtSwitchOnNightTime").val());
+        if (this.enableDayNightLighting !== 'no') $("#node-input-enableDayNightLighting").val('yes'); // Adjust in case of mismatch (from old geen bug)
       } else {
         // It's already an HEX color
         $("#colorPickerNight").val(this.colorAtSwitchOnNightTime);
+        if (this.enableDayNightLighting !== 'no') $("#node-input-enableDayNightLighting").val('yes'); // Adjust in case of mismatch (from old geen bug)
       }
+
 
       $("#comboTemperatureAtSwitchOn, #comboBrightnessAtSwitchOn").on("change", function () {
         $("#node-input-colorAtSwitchOnDayTime").val('{ "kelvin":' + $("#comboTemperatureAtSwitchOn").val() + ', "brightness":' + $("#comboBrightnessAtSwitchOn").val() + ' }');
