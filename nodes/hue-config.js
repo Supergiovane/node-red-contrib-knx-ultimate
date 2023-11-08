@@ -319,14 +319,26 @@ module.exports = (RED) => {
       }
     };
 
-    // Query HUE Bridge and get the updated color.
+    // Get current color in HEX (used in html)
     node.getColorFromHueLight = (_lightId) => {
       try {
         const oLight = node.hueAllResources.filter((a) => a.id === _lightId)[0];
-        const ret = hueColorConverter.ColorConverter.xyBriToRgb(oLight.color.xy.x, oLight.color.xy.y, oLight.dimming.brightness);
-        return JSON.stringify(ret);
+        const retRGB = hueColorConverter.ColorConverter.xyBriToRgb(oLight.color.xy.x, oLight.color.xy.y, oLight.dimming.brightness);
+        const ret = "#" + hueColorConverter.ColorConverter.rgbHex(retRGB.r, retRGB.g, retRGB.b).toString();
+        return ret;
       } catch (error) {
         if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(`KNXUltimateHue: hueEngine: getColorFromHueLight: error ${error.message}`);
+        return {};
+      }
+    };
+    // Get current Kelvin (used in html)
+    node.getKelvinFromHueLight = (_lightId) => {
+      try {
+        const oLight = node.hueAllResources.filter((a) => a.id === _lightId)[0];
+        const ret = { kelvin: hueColorConverter.ColorConverter.mirekToKelvin(oLight.color_temperature.mirek), brightness: Math.round(oLight.dimming.brightness, 0) };
+        return JSON.stringify(ret);
+      } catch (error) {
+        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(`KNXUltimateHue: hueEngine: getKelvinFromHueLight: error ${error.message}`);
         return {};
       }
     };
@@ -391,8 +403,16 @@ module.exports = (RED) => {
 
     RED.httpAdmin.get("/knxUltimateGetHueColor", RED.auth.needsPermission("hue-config.read"), (req, res) => {
       try {
-        const rgbColor = node.getColorFromHueLight(req.query.id);
-        res.json(rgbColor);
+        const hexColor = node.getColorFromHueLight(req.query.id);
+        res.json(hexColor);
+      } catch (error) {
+        res.json("Select the device first!");
+      }
+    });
+    RED.httpAdmin.get("/knxUltimateGetKelvinColor", RED.auth.needsPermission("hue-config.read"), (req, res) => {
+      try {
+        const jKelvin = node.getKelvinFromHueLight(req.query.id);
+        res.json(jKelvin);
       } catch (error) {
         res.json("Select the device first!");
       }

@@ -6,6 +6,12 @@
 
 # CHANGELOG
 
+**Version 2.2.21** - November 2023<br/>
+- HUE Light: added DPT 9.002 for direkt kelvin selection, with HUE range (2000K-6535K). There is another DPT 7.600 with the KNX scale (0K-6553K) avaiable.<br/>
+- NEW: HUE Light: now you can choose the "switch on" behaviour between color and temperature (in Kelvin) + brightness.<br/>
+- The fontawesome JS is now locally referenced<br/>
+- WARNING: the new HUE Light options are to be considered BETA (= in testing with user feedback)<br/>
+
 **Version 2.2.20** - November 2023<br/>
 - Fixed a cross site js script loading, affecting the node running under HomeAssistant.<br/>
 
