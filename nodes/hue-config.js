@@ -422,6 +422,10 @@ module.exports = (RED) => {
       try {
         // °°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
         const serverNode = RED.nodes.getNode(req.query.nodeID); // Retrieve node.id of the config node.
+        if (serverNode === null) {
+          RED.log.error(`Warn KNXUltimateGetResourcesHUE serverNode is null`);
+          res.json({ devices: `serverNode not set` });
+        }
         const jRet = serverNode.getResources(req.query.rtype);
         if (jRet !== undefined) {
           res.json(jRet);
@@ -430,7 +434,7 @@ module.exports = (RED) => {
         }
         // °°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
       } catch (error) {
-        RED.log.error(`Errore KNXUltimateGetResourcesHUE non gestito ${error.message}`);
+        //RED.log.error(`Errore KNXUltimateGetResourcesHUE non gestito ${error.message}`);
         res.json({ devices: error.message });
         // (async () => {
         //   await node.initHUEConnection();

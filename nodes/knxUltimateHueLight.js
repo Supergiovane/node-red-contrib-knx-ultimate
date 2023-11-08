@@ -35,30 +35,33 @@ module.exports = function (RED) {
     node.isGrouped_light = config.hueDevice.split("#")[1] === "grouped_light";
     node.hueDevice = config.hueDevice.split("#")[0];
     node.initializingAtStart = (config.readStatusAtStartup === undefined || config.readStatusAtStartup === "yes");
-    config.specifySwitchOnBrightness === undefined ? "yes" : config.specifySwitchOnBrightness;
+    config.specifySwitchOnBrightness = (config.specifySwitchOnBrightness === undefined || config.specifySwitchOnBrightness === '') ? "temperature" : config.specifySwitchOnBrightness;
+    config.specifySwitchOnBrightnessNightTime = (config.specifySwitchOnBrightnessNightTime === undefined || config.specifySwitchOnBrightnessNightTime === '') ? "no" : config.specifySwitchOnBrightnessNightTime;
+    config.colorAtSwitchOnDayTime = (config.colorAtSwitchOnDayTime === '' || config.colorAtSwitchOnDayTime === undefined) ? '{ "kelvin":3000, "brightness":100 }' : config.colorAtSwitchOnDayTime;
+    config.colorAtSwitchOnNightTime = (config.colorAtSwitchOnNightTime === '' || config.colorAtSwitchOnNightTime === undefined) ? '{ "kelvin":2700, "brightness":20 }' : config.colorAtSwitchOnNightTime;
+
     // Transform HEX in RGB and stringified json in json oblects.
     if (config.colorAtSwitchOnDayTime.indexOf("#") !== -1) {
-      // Transform to rgb. 
+      // Transform to rgb.
       try {
         config.colorAtSwitchOnDayTime = hueColorConverter.ColorConverter.hexRgb(config.colorAtSwitchOnDayTime.replace("#", ""));
       } catch (error) {
-        config.colorAtSwitchOnDayTime = { red: 255, green: 255, blue: 255 };
+        config.colorAtSwitchOnDayTime = { kelvin: 3000, brightness: 100 };
       }
     } else {
       config.colorAtSwitchOnDayTime = JSON.parse(config.colorAtSwitchOnDayTime);
     }
     // Same thing, but with night color
     if (config.colorAtSwitchOnNightTime.indexOf("#") !== -1) {
-      // Transform to rgb. 
+      // Transform to rgb.
       try {
         config.colorAtSwitchOnNightTime = hueColorConverter.ColorConverter.hexRgb(config.colorAtSwitchOnNightTime.replace("#", ""));
       } catch (error) {
-        config.colorAtSwitchOnNightTime = { red: 12, green: 0, blue: 10 };
+        config.colorAtSwitchOnNightTime = { kelvin: 2700, brightness: 20 };
       }
     } else {
       config.colorAtSwitchOnNightTime = JSON.parse(config.colorAtSwitchOnNightTime);
     }
-
 
     // Used to call the status update from the config node.
     node.setNodeStatus = ({
@@ -486,10 +489,10 @@ module.exports = function (RED) {
             if (node.currentHUEDevice.hasOwnProperty("on") && node.currentHUEDevice.on.on === false && _event.dimming.brightness === 0) {
               // Do nothing, because the light is off and the dimming also is 0
             } else {
-              if (node.currentHUEDevice.on.on === false && (!_event.hasOwnProperty("on") || (_event.hasOwnProperty("on") && _event.on.on === true))) node.updateKNXLightState(_event.dimming.brightness > 0);
+              if (node.currentHUEDevice.hasOwnProperty("on") && node.currentHUEDevice.on.on === false && (!_event.hasOwnProperty("on") || (_event.hasOwnProperty("on") && _event.on.on === true))) node.updateKNXLightState(_event.dimming.brightness > 0);
               node.updateKNXBrightnessState(_event.dimming.brightness);
               // If the brightness reaches zero, the hue lamp "on" property must be set to zero as well
-              if (_event.dimming.brightness === 0) {
+              if (_event.dimming.brightness === 0 && node.currentHUEDevice.hasOwnProperty("on") && node.currentHUEDevice.on.on === true) {
                 node.serverHue.hueManager.writeHueQueueAdd(
                   node.hueDevice,
                   { on: { on: false } },
@@ -512,6 +515,7 @@ module.exports = function (RED) {
           shape: "dot",
           text: `HUE->KNX error ${node.id} ${error.message}`,
         });
+        RED.log.error(`knxUltimateHueLight: node.handleSendHUE = (_event): ${error.message}`);
       }
     };
 
