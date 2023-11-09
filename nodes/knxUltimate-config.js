@@ -1244,7 +1244,7 @@ return msg;`,
                   devicename: msg.devicename,
                 });
                 input.handleSend(msg);
-              } else if (input.topic == _dest) {
+              } else if (input.topic === _dest) {
                 // 04/02/2020 Watchdog implementation
                 if (input.hasOwnProperty("isWatchDog")) {
                   // Is a watchdog node
@@ -1333,7 +1333,7 @@ return msg;`,
                   devicename: msg.devicename,
                 });
                 input.handleSend(msg);
-              } else if (input.topic == _dest) {
+              } else if (input.topic === _dest) {
                 // 04/02/2020 Watchdog implementation
                 if (input.hasOwnProperty("isWatchDog")) {
                   // Is a watchdog node

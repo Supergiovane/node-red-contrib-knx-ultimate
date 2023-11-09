@@ -15,7 +15,7 @@ module.exports = function (RED) {
     node.name = config.name === undefined ? "Hue" : config.name;
     node.outputtopic = node.name;
     node.dpt = "";
-    node.notifyreadrequest = false;
+    node.notifyreadrequest = true;
     node.notifyreadrequestalsorespondtobus = "false";
     node.notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized = "";
     node.notifyresponse = false;
@@ -335,6 +335,36 @@ module.exports = function (RED) {
           default:
             break;
         }
+
+        // I must respond to query requests (read request) sent from the KNX BUS
+
+        if (msg.knx.event === "GroupValue_Read" && node.currentHUEDevice !== undefined) {
+          let ret;
+          switch (msg.knx.destination) {
+            case config.GALightState:
+              ret = node.currentHUEDevice.on.on;
+              if (ret !== undefined) node.updateKNXLightState(ret, "response");
+              break;
+            case config.GALightColorState:
+              ret = node.currentHUEDevice.color.xy;
+              if (ret !== undefined) node.updateKNXLightColorState(node.currentHUEDevice.color, "response");
+              break;
+            case config.GALightHSVState:
+              ret = node.currentHUEDevice.color_temperature.mirek;
+              if (ret !== undefined) node.updateKNXLightHSVState(ret, "response");
+              break;
+            case config.GALightBrightnessState:
+              ret = node.currentHUEDevice.dimming.brightness;
+              if (ret !== undefined) node.updateKNXBrightnessState(ret, "response");
+              break;
+            case config.GALightKelvinState:
+              ret = node.currentHUEDevice.color_temperature.mirek;
+              if (ret !== undefined) node.updateKNXLightKelvinState(ret, "response");
+              break;
+            default:
+              break;
+          }
+        }
       } catch (error) {
         node.status({
           fill: "red",
@@ -464,6 +494,22 @@ module.exports = function (RED) {
           // Output the msg to the flow
           node.send(_event);
 
+          // As grouped_light doesn't contain all requested properties, i find the first light in the group, and use this below in the code
+          // If the event type is grouped light, and there are missing properties, i infer these missing properties from the first light in the group!
+          if ((_event.hasOwnProperty("color") || _event.hasOwnProperty("dimming")) && _event.type === 'grouped_light') {
+            try {
+              const firstLightInGroup = node.serverHue.getFirstLightInGroup(_event.id);
+              if (firstLightInGroup !== null && firstLightInGroup !== undefined) {
+                if (_event.color === undefined || Object.keys(_event.color).length === 0) {
+                  _event.color = firstLightInGroup.color;
+                }
+                if (_event.color_temperature === undefined || Object.keys(_event.color_temperature).length === 0) {
+                  _event.color_temperature = firstLightInGroup.color_temperature;
+                }
+              }
+            } catch (error) { }
+          }
+
           if (_event.hasOwnProperty("on")) {
             node.updateKNXLightState(_event.on.on);
             // In case of switch off, set the dim to zero
@@ -472,17 +518,16 @@ module.exports = function (RED) {
               && (config.updateKNXBrightnessStatusOnHUEOnOff === undefined || config.updateKNXBrightnessStatusOnHUEOnOff === "onhueoff")
             ) {
               node.updateKNXBrightnessState(0);
-              node.currentHUEDevice.dimming.brightness = 0;
+              //node.currentHUEDevice.dimming.brightness = 0;
             }
             node.currentHUEDevice.on.on = _event.on.on;
           }
+
           if (_event.hasOwnProperty("color")) {
-            if (_event.type !== 'grouped_light') {
-              // In grouped lights, there is group color, but each light has it's own color.
-              node.updateKNXLightColorState(_event.color);
-              node.currentHUEDevice.color = _event.color;
-            }
+            node.updateKNXLightColorState(_event.color);
+            node.currentHUEDevice.color = _event.color;
           }
+
           if (_event.hasOwnProperty("dimming") && _event.dimming.brightness !== undefined) {
             // Every once on a time, the light transmit the brightness value of 0.39.
             // To avoid wrongly turn light state on, exit
@@ -521,7 +566,7 @@ module.exports = function (RED) {
     };
 
     // Leave the name after "function", to avoid <anonymous function> in the stack trace, in caso of errors.
-    node.updateKNXBrightnessState = function updateKNXBrightnessState(_value) {
+    node.updateKNXBrightnessState = function updateKNXBrightnessState(_value, _outputtype = "write") {
       if (config.GALightBrightnessState !== undefined && config.GALightBrightnessState !== "") {
         const knxMsgPayload = {};
         knxMsgPayload.topic = config.GALightBrightnessState;
@@ -529,13 +574,15 @@ module.exports = function (RED) {
         knxMsgPayload.payload = _value;
         // Send to KNX bus
         if (knxMsgPayload.topic !== "" && knxMsgPayload.topic !== undefined) {
-          node.server.writeQueueAdd({
-            grpaddr: knxMsgPayload.topic,
-            payload: knxMsgPayload.payload,
-            dpt: knxMsgPayload.dpt,
-            outputtype: "write",
-            nodecallerid: node.id,
-          });
+          if (node.server !== null && node.server !== undefined) {
+            node.server.writeQueueAdd({
+              grpaddr: knxMsgPayload.topic,
+              payload: knxMsgPayload.payload,
+              dpt: knxMsgPayload.dpt,
+              outputtype: _outputtype,
+              nodecallerid: node.id,
+            });
+          }
         }
         node.setNodeStatusHue({
           fill: "blue",
@@ -546,7 +593,7 @@ module.exports = function (RED) {
       }
     };
 
-    node.updateKNXLightState = function updateKNXBrightnessState(_value) {
+    node.updateKNXLightState = function updateKNXLightState(_value, _outputtype = "write") {
       try {
         const knxMsgPayload = {};
         knxMsgPayload.topic = config.GALightState;
@@ -557,13 +604,15 @@ module.exports = function (RED) {
           // Check not to have already sent the value
           // Send to KNX bus
           if (knxMsgPayload.topic !== "" && knxMsgPayload.topic !== undefined) {
-            node.server.writeQueueAdd({
-              grpaddr: knxMsgPayload.topic,
-              payload: knxMsgPayload.payload,
-              dpt: knxMsgPayload.dpt,
-              outputtype: "write",
-              nodecallerid: node.id,
-            });
+            if (node.server !== null && node.server !== undefined) {
+              node.server.writeQueueAdd({
+                grpaddr: knxMsgPayload.topic,
+                payload: knxMsgPayload.payload,
+                dpt: knxMsgPayload.dpt,
+                outputtype: _outputtype,
+                nodecallerid: node.id,
+              });
+            }
           }
           node.setNodeStatusHue({
             fill: "blue",
@@ -577,7 +626,7 @@ module.exports = function (RED) {
       }
     };
 
-    node.updateKNXLightHSVState = function updateKNXLightState(_value) {
+    node.updateKNXLightHSVState = function updateKNXLightHSVState(_value, _outputtype = "write") {
       if (config.GALightHSVState !== undefined && config.GALightHSVState !== "") {
         const knxMsgPayload = {};
         knxMsgPayload.topic = config.GALightHSVState;
@@ -588,13 +637,15 @@ module.exports = function (RED) {
         }
         // Send to KNX bus
         if (knxMsgPayload.topic !== "" && knxMsgPayload.topic !== undefined) {
-          node.server.writeQueueAdd({
-            grpaddr: knxMsgPayload.topic,
-            payload: knxMsgPayload.payload,
-            dpt: knxMsgPayload.dpt,
-            outputtype: "write",
-            nodecallerid: node.id,
-          });
+          if (node.server !== null && node.server !== undefined) {
+            node.server.writeQueueAdd({
+              grpaddr: knxMsgPayload.topic,
+              payload: knxMsgPayload.payload,
+              dpt: knxMsgPayload.dpt,
+              outputtype: _outputtype,
+              nodecallerid: node.id,
+            });
+          }
         }
         node.setNodeStatusHue({
           fill: "blue",
@@ -605,7 +656,7 @@ module.exports = function (RED) {
       }
     };
 
-    node.updateKNXLightColorState = function updateKNXLightColorState(_value) {
+    node.updateKNXLightColorState = function updateKNXLightColorState(_value, _outputtype = "write") {
       if (config.GALightColorState !== undefined && config.GALightColorState !== "") {
         const knxMsgPayload = {};
         knxMsgPayload.topic = config.GALightColorState;
@@ -615,15 +666,18 @@ module.exports = function (RED) {
           _value.xy.y,
           node.currentHUEDevice !== undefined ? node.currentHUEDevice.dimming.brightness : 100,
         );
+        knxMsgPayload.payload = { red: knxMsgPayload.payload.r, green: knxMsgPayload.payload.g, blue: knxMsgPayload.payload.b };
         // Send to KNX bus
         if (knxMsgPayload.topic !== "" && knxMsgPayload.topic !== undefined) {
-          node.server.writeQueueAdd({
-            grpaddr: knxMsgPayload.topic,
-            payload: knxMsgPayload.payload,
-            dpt: knxMsgPayload.dpt,
-            outputtype: "write",
-            nodecallerid: node.id,
-          });
+          if (node.server !== null && node.server !== undefined) {
+            node.server.writeQueueAdd({
+              grpaddr: knxMsgPayload.topic,
+              payload: knxMsgPayload.payload,
+              dpt: knxMsgPayload.dpt,
+              outputtype: _outputtype,
+              nodecallerid: node.id,
+            });
+          }
         }
         node.setNodeStatusHue({
           fill: "blue",
@@ -634,7 +688,7 @@ module.exports = function (RED) {
       }
     };
 
-    node.updateKNXLightKelvinState = function updateKNXLightKelvinState(_value) {
+    node.updateKNXLightKelvinState = function updateKNXLightKelvinState(_value, _outputtype = "write") {
       if (config.GALightKelvinState !== undefined && config.GALightKelvinState !== "") {
         const knxMsgPayload = {};
         knxMsgPayload.topic = config.GALightKelvinState;
@@ -646,13 +700,15 @@ module.exports = function (RED) {
         }
         // Send to KNX bus
         if (knxMsgPayload.topic !== "" && knxMsgPayload.topic !== undefined) {
-          node.server.writeQueueAdd({
-            grpaddr: knxMsgPayload.topic,
-            payload: knxMsgPayload.payload,
-            dpt: knxMsgPayload.dpt,
-            outputtype: "write",
-            nodecallerid: node.id,
-          });
+          if (node.server !== null && node.server !== undefined) {
+            node.server.writeQueueAdd({
+              grpaddr: knxMsgPayload.topic,
+              payload: knxMsgPayload.payload,
+              dpt: knxMsgPayload.dpt,
+              outputtype: _outputtype,
+              nodecallerid: node.id,
+            });
+          }
 
           node.setNodeStatusHue({
             fill: "blue",

@@ -105,6 +105,27 @@
       var oNodeServer = RED.nodes.node($("#node-input-server").val()); // Store the config-node
       var oNodeServerHue = RED.nodes.node($("#node-input-serverHue").val()); // Store the config-node
 
+      // TIMER BLINK ####################################################
+      let blinkStatus = 2;
+      let timerBlinkBackground;
+      function blinkBackground(_elementIDwithHashAtTheBeginning) {
+        if (timerBlinkBackground !== undefined) clearInterval(timerBlinkBackground);
+        timerBlinkBackground = setInterval(() => {
+          if (isEven(blinkStatus)) $(_elementIDwithHashAtTheBeginning).css("background-color", "lightgreen");
+          if (!isEven(blinkStatus)) $(_elementIDwithHashAtTheBeginning).css("background-color", "");
+          blinkStatus += 1;
+          if (blinkStatus >= 14) {
+            clearInterval(timerBlinkBackground);
+            blinkStatus = 2;
+            $(_elementIDwithHashAtTheBeginning).css("background-color", "");
+          }
+        }, 100);
+      }
+      function isEven(n) {
+        return (n % 2 == 0);
+      }
+      // ################################################################
+
       $("#tabs").tabs(); // Tabs gestione KNX
 
       // 19/02/2020 Used to get the server sooner als deploy.
@@ -259,6 +280,7 @@
         if ($("#node-input-specifySwitchOnBrightness").val() === "yes") {
           $("#divColorsAtSwitchOn").show();
           $("#divTemperatureAtSwitchOn").hide();
+          blinkBackground("#colorPickerDay");
         } else if ($("#node-input-specifySwitchOnBrightness").val() === "temperature") {
           $("#divColorsAtSwitchOn").hide();
           $("#divTemperatureAtSwitchOn").show();
@@ -290,6 +312,8 @@
           $("#divCCSBoxAtNightLighting").css({ border: "1px solid dimgrey", "border-radius": "12px", padding: "5px" }); // Add little box to better understand the property page
           $("#divColorsAtSwitchOnNightTime").show();
           $("#divTemperatureAtSwitchOnNightTime").hide();
+          blinkBackground("#colorPickerNight")
+          $("#getColorAtSwitchOnDayTimeButton").text("Get again");
         } else if ($("#node-input-enableDayNightLighting").val() === "temperature") {
           $("#divEnableDayNightLighting").show();
           $("#divCCSBoxAtNightLighting").css({ border: "1px solid dimgrey", "border-radius": "12px", padding: "5px" }); // Add little box to better understand the property page
@@ -385,10 +409,7 @@
         $.getJSON(sQuery + "?id=" + $("#node-input-hueDevice").val().split("#")[0], (data) => {
           $("#node-input-colorAtSwitchOnDayTime").val(data);
           $("#colorPickerDay").val(data);
-          $("#colorPickerDay").css("background-color", "lightgreen");
-          setTimeout(() => {
-            $("#colorPickerDay").css("background-color", "");
-          }, 500);
+          blinkBackground("#colorPickerDay")
           $("#getColorAtSwitchOnDayTimeButton").text("Get again");
         });
       });
@@ -402,10 +423,7 @@
         $.getJSON(sQuery + "?id=" + $("#node-input-hueDevice").val().split("#")[0], (data) => {
           $("#node-input-colorAtSwitchOnNightTime").val(data);
           $("#colorPickerNight").val(data);
-          $("#colorPickerNight").css("background-color", "lightgreen");
-          setTimeout(() => {
-            $("#colorPickerNight").css("background-color", "");
-          }, 500);
+          blinkBackground("#colorPickerNight")
           $("#getColorAtSwitchOnNightTimeButton").text("Get again");
         });
       });
@@ -924,7 +942,7 @@
         <i class="fa fa-tag"></i> KNX Brightness Status
       </label>
       <select id="node-input-updateKNXBrightnessStatusOnHUEOnOff">
-        <option value="onhueoff">When HUE light is Off, send 0% (Default KNX behaviour)</option>
+        <option value="onhueoff">When HUE light is Off send 0%. When HUE On, restore previous value (Default KNX behaviour)</option>
         <option value="no">Leave as is (default HUE behaviour)</option>
       </select>
     </div>
@@ -1103,9 +1121,9 @@ Start typing in the GA field, the name or group address of your KNX device, the 
 
 | Property                                  | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | ----------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| KNX Brightness Status                     | Updates the KNX brightness group address status, whenever the HUE lamp is switched ON/OFF. The options are **When HUE light is Off, send 0% (Default KNX behaviour)** and **Leave as is (default HUE behaviour)**                                                                                                                                                                                                                                                                                                |
-| Switch on behaviour                       | It sets the behaviour of your lights when switched on. You can choose from differents behaviours.<br/>**Select color:** the light will be switched on with the color of your choice.<br/>**Select temperature and brightness:** the light will be switched on with the temperature (Kelvin) and brightness (0-100) of your choice.<br>**Last status:** the light will be switched on in the last status. |
-| Night Lighting                            | It allows to set a particular light color/brightness at nighttime. If **checked**, a further set of option shows up and the light changes the behaviour based on these options, everytime you switch the light _on_.                                                                                                                                                                                                                                                                                 |
+| KNX Brightness Status                     | Updates the KNX brightness group address status, whenever the HUE lamp is switched ON/OFF. The options are **When HUE light is Off send 0%. When HUE On, restore previous value (Default KNX behaviour)** and **Leave as is (default HUE behaviour)**. If you have KNX dimmer with brightness status, like MDT, the suggested option is ***When HUE light is Off send 0%. When HUE On, restore previous value (Default KNX behaviour)*** |
+| Switch on behaviour                       | It sets the behaviour of your lights when switched on. You can choose from differents behaviours.<br/>**Select color:** the light will be switched on with the color of your choice. To change color, just CLICK on the color selector (under the *Select color* control).<br/>**Select temperature and brightness:** the light will be switched on with the temperature (Kelvin) and brightness (0-100) of your choice.<br>**Last status:** the light will be switched on in the last status. |
+| Night Lighting                            | It allows to set a particular light color/brightness at nighttime. The options are the same as the daytime. You could select either a temperature/brightness or color. A cozy temperature of 2700 Kelvin, with a brightness of 10% or 20%, is a good choice for  bathroom's night light.|
 | Day/Night                                 | Select the group address used to set the day/night behaviour. The group address value is _true_ if daytime, _false_ if nighttime.                                                                                                                                                                                                                                                                                                                                                                    |
 | Invert day/night values                   | Invert the values of _Day/Night_ group address. Default value is **unchecked**.                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | Dim Speed (ms)                            | The dimming speed, in Milliseconds. This applies to the **light** and also to the **tunable white** dimming datapoints. It' calculated from 0% to 100%.                                                                                                                                                                                                                                                                                                                                              |

@@ -104,7 +104,7 @@ class classHUE extends EventEmitter {
       try {
         this.Connect();
       } catch (error) { }
-    }, 300000);
+    }, 10 * (60 * 1000)); // 10 minutes
   };
 
   // Handle the send queue

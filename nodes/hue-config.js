@@ -111,29 +111,30 @@ module.exports = (RED) => {
       });
       // Connected
       node.hueManager.on("connected", () => {
-        node.linkStatus = "connected";
-        // Start the timer to do initial read.
-        if (node.timerDoInitialRead !== null) clearTimeout(node.timerDoInitialRead);
-        node.timerDoInitialRead = setTimeout(() => {
-          (async () => {
-            try {
-              await node.loadResourcesFromHUEBridge();
-            } catch (error) {
-              node.linkStatus = "disconnected";
-              node.nodeClients.forEach((_oClient) => {
-                setTimeout(() => {
-                  _oClient.setNodeStatusHue({
-                    fill: "red",
-                    shape: "ring",
-                    text: "HUE",
-                    payload: error.message,
-                  });
-                }, 1000);
-              });
-            }
-            node.startWatchdogTimer();
-          })();
-        }, 6000); // 17/02/2020 Do initial read of all nodes requesting initial read
+        if (node.linkStatus === "disconnected") {
+          node.linkStatus = "connected";
+          // Start the timer to do initial read.
+          if (node.timerDoInitialRead !== null) clearTimeout(node.timerDoInitialRead);
+          node.timerDoInitialRead = setTimeout(() => {
+            (async () => {
+              try {
+                await node.loadResourcesFromHUEBridge();
+              } catch (error) {
+                node.linkStatus = "disconnected";
+                node.nodeClients.forEach((_oClient) => {
+                  setTimeout(() => {
+                    _oClient.setNodeStatusHue({
+                      fill: "red",
+                      shape: "ring",
+                      text: "HUE",
+                      payload: error.message,
+                    });
+                  }, 1000);
+                });
+              }
+            })();
+          }, 6000); // 17/02/2020 Do initial read of all nodes requesting initial read
+        }
       });
 
       node.hueManager.on("disconnected", () => {
@@ -202,6 +203,25 @@ module.exports = (RED) => {
       }
 
       //})();
+    };
+
+    node.getFirstLightInGroup = function getFirstLightInGroup(_groupID) {
+      if (node.hueAllResources === undefined) return;
+      // Find the group
+      const group = node.hueAllResources.filter((a) => a.id === _groupID)[0];
+      if (group === null || group === undefined) return;
+      const owner = node.hueAllResources.filter((a) => a.id === group.owner.rid)[0];
+      if (owner.children !== undefined && owner.children.length > 0) {
+        const firstLightId = owner.children.find((a) => a.rtype === "light").rid;
+        if (firstLightId !== undefined && firstLightId !== null) {
+          const firstLight = node.hueAllResources.find((a) => a.id === firstLightId);
+          if (firstLight !== null && firstLight !== undefined) {
+            return firstLight;
+          } else {
+            return;
+          }
+        }
+      }
     };
 
     // Returns the cached devices (node.hueAllResources) by type.
@@ -425,6 +445,7 @@ module.exports = (RED) => {
         if (serverNode === null) {
           RED.log.error(`Warn KNXUltimateGetResourcesHUE serverNode is null`);
           res.json({ devices: `serverNode not set` });
+          return;
         }
         const jRet = serverNode.getResources(req.query.rtype);
         if (jRet !== undefined) {

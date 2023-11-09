@@ -6,6 +6,13 @@
 
 # CHANGELOG
 
+**Version 2.2.25** - November 2023<br/>
+- HUE Light: fixed settings of some behaviour options.<br/>
+- You can now query the HUE Light node stati, via a "read" telegram sent to the KNX stati group address. ("Status" is Latin, not English, so the plural is "stati" and not "statuses" nor "status"). Other HUE nodes will follow asap.<br/>
+- Fixed some little bugs.<br/>
+- Fixed an issue where in some circumstances, the HUE Light turn off by itself.<br/>
+- WARNING: the new HUE Light options are to be considered **BETA (= in testing with user feedback)**.<br/>
+
 **Version 2.2.24** - November 2023<br/>
 - HUE Light: added DPT 9.002 for direct kelvin selection, with HUE range (2000K-6535K). There is another DPT 7.600 with the KNX scale (0K-6553K) avaiable.<br/>
 - NEW: HUE Light: now you can choose the "switch on" behaviour between color and temperature (in Kelvin) + brightness.<br/>
