@@ -174,6 +174,24 @@ module.exports = (RED) => {
       // °°°°°° Load ALL resources
       try {
         node.hueAllResources = await node.hueManager.hueApiV2.get("/resource");
+
+        // // DEBUG
+        // try {
+        //   const fs = require('fs');
+        //   const { resolve } = require('path');
+        //   const content = JSON.stringify(node.hueAllResources);
+        //   try {
+        //     fs.writeFileSync('resources.json', content);
+        //     RED.log.info("******************************* FILE WROTE IN resources.json " + resolve("resources.json"))
+        //     // file written successfully
+        //   } catch (error) {
+        //     RED.log.error("********************************************* const content = JSON.stringify(node.hueAllResources)2222: " + error.message)
+        //   }
+        // } catch (error) {
+        //   RED.log.error("********************************************* const content = JSON.stringify(node.hueAllResources): " + error.message)
+        // }
+
+
         if (node.hueAllResources !== undefined) {
           node.hueAllRooms = node.hueAllResources.filter((a) => a.type === "room");
           // Update all KNX State of the nodes with the new hue device values
@@ -206,21 +224,25 @@ module.exports = (RED) => {
     };
 
     node.getFirstLightInGroup = function getFirstLightInGroup(_groupID) {
-      if (node.hueAllResources === undefined) return;
-      // Find the group
-      const group = node.hueAllResources.filter((a) => a.id === _groupID)[0];
-      if (group === null || group === undefined) return;
-      const owner = node.hueAllResources.filter((a) => a.id === group.owner.rid)[0];
-      if (owner.children !== undefined && owner.children.length > 0) {
-        const firstLightId = owner.children.find((a) => a.rtype === "light").rid;
-        if (firstLightId !== undefined && firstLightId !== null) {
-          const firstLight = node.hueAllResources.find((a) => a.id === firstLightId);
-          if (firstLight !== null && firstLight !== undefined) {
-            return firstLight;
-          } else {
-            return;
+      if (node.hueAllResources === undefined || node.hueAllResources === null) return;
+      try {
+        // Find the group
+        const group = node.hueAllResources.filter((a) => a.id === _groupID)[0];
+        if (group === null || group === undefined) return;
+        const owner = node.hueAllResources.filter((a) => a.id === group.owner.rid)[0];
+        if (owner.children !== undefined && owner.children.length > 0) {
+          const firstLightId = owner.children.find((a) => a.rtype === "light").rid;
+          if (firstLightId !== undefined && firstLightId !== null) {
+            const firstLight = node.hueAllResources.find((a) => a.id === firstLightId);
+            if (firstLight !== null && firstLight !== undefined) {
+              return firstLight;
+            } else {
+              return;
+            }
           }
         }
+      } catch (error) {
+
       }
     };
 
@@ -443,7 +465,7 @@ module.exports = (RED) => {
         // °°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
         const serverNode = RED.nodes.getNode(req.query.nodeID); // Retrieve node.id of the config node.
         if (serverNode === null) {
-          RED.log.error(`Warn KNXUltimateGetResourcesHUE serverNode is null`);
+          RED.log.warn(`Warn KNXUltimateGetResourcesHUE serverNode is null`);
           res.json({ devices: `serverNode not set` });
           return;
         }
@@ -457,6 +479,7 @@ module.exports = (RED) => {
       } catch (error) {
         //RED.log.error(`Errore KNXUltimateGetResourcesHUE non gestito ${error.message}`);
         res.json({ devices: error.message });
+        RED.log.error(`Err KNXUltimateGetResourcesHUE: ${error.message}`);
         // (async () => {
         //   await node.initHUEConnection();
         // })();

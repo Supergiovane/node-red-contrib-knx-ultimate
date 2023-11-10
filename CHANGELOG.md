@@ -6,6 +6,15 @@
 
 # CHANGELOG
 
+**Version 2.2.26** - November 2023<br/>
+This is an interim version, to quick fix some issues. Please report any issue with HUE Nodes, on gitHub.<br/>
+- HUE Light: fixed some spurious node status errors.<br/>
+- HUE Light: now the brightness status is ever transmitted over the KNX bus, whenever the light is switched on.<br/>
+- HUE Battery: the node can respond to KNX read request, by sending the stored value as response to the KNX bus.<br/>
+- HUE light level: the node can respond to KNX read request, by sending the stored value as response to the KNX bus.<br/>
+- HUE temperature sensor: the node can respond to KNX read request, by sending the stored value as response to the KNX bus.<br/>
+- WARNING: the new HUE Light options are to be considered **BETA (= in testing with user feedback)**.<br/>
+
 **Version 2.2.25** - November 2023<br/>
 - HUE Light: fixed settings of some behaviour options.<br/>
 - You can now query the HUE Light node stati, via a "read" telegram sent to the KNX stati group address. ("Status" is Latin, not English, so the plural is "stati" and not "statuses" nor "status"). Other HUE nodes will follow asap.<br/>

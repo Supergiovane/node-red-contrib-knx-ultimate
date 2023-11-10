@@ -481,7 +481,7 @@ module.exports = function (RED) {
     node.handleSendHUE = (_event) => {
       try {
         if (_event.id === node.hueDevice) {
-          if (node.currentHUEDevice === undefined) {
+          if (node.currentHUEDevice === undefined || node.serverHue === null || node.serverHue === undefined) {
             node.setNodeStatusHue({
               fill: "red",
               shape: "ring",
@@ -494,9 +494,15 @@ module.exports = function (RED) {
           // Output the msg to the flow
           node.send(_event);
 
+          // // DEBUG
+          //delete _event.dimming;
+          //delete _event.color;
+          //delete _event.color_temperature;
+          //delete _event.color_temperature_delta;
+
           // As grouped_light doesn't contain all requested properties, i find the first light in the group, and use this below in the code
           // If the event type is grouped light, and there are missing properties, i infer these missing properties from the first light in the group!
-          if ((_event.hasOwnProperty("color") || _event.hasOwnProperty("dimming")) && _event.type === 'grouped_light') {
+          if ((_event.color !== undefined || _event.dimming !== undefined || _event.color_temperature !== undefined) && _event.type === 'grouped_light') {
             try {
               const firstLightInGroup = node.serverHue.getFirstLightInGroup(_event.id);
               if (firstLightInGroup !== null && firstLightInGroup !== undefined) {
@@ -513,17 +519,19 @@ module.exports = function (RED) {
           if (_event.hasOwnProperty("on")) {
             node.updateKNXLightState(_event.on.on);
             // In case of switch off, set the dim to zero
-            if (
-              _event.on.on === false
-              && (config.updateKNXBrightnessStatusOnHUEOnOff === undefined || config.updateKNXBrightnessStatusOnHUEOnOff === "onhueoff")
-            ) {
+            if (_event.on.on === false && (config.updateKNXBrightnessStatusOnHUEOnOff === undefined || config.updateKNXBrightnessStatusOnHUEOnOff === "onhueoff")) {
               node.updateKNXBrightnessState(0);
               //node.currentHUEDevice.dimming.brightness = 0;
+            } else if (_event.on.on === true && node.currentHUEDevice.on.on === false) {
+              // Turn on always update the dimming KNX Status value as well.
+              let brightVal = 100;
+              if (node.currentHUEDevice.dimming !== undefined && node.currentHUEDevice.dimming.brightness !== undefined) brightVal = node.currentHUEDevice.dimming.brightness;
+              node.updateKNXBrightnessState(brightVal);
             }
             node.currentHUEDevice.on.on = _event.on.on;
           }
 
-          if (_event.hasOwnProperty("color")) {
+          if (_event.color !== undefined) { // fixed https://github.com/Supergiovane/node-red-contrib-knx-ultimate/issues/287
             node.updateKNXLightColorState(_event.color);
             node.currentHUEDevice.color = _event.color;
           }
@@ -658,33 +666,36 @@ module.exports = function (RED) {
 
     node.updateKNXLightColorState = function updateKNXLightColorState(_value, _outputtype = "write") {
       if (config.GALightColorState !== undefined && config.GALightColorState !== "") {
+        if (!_value.hasOwnProperty('xy') || _value.xy.x === undefined) return;
         const knxMsgPayload = {};
         knxMsgPayload.topic = config.GALightColorState;
         knxMsgPayload.dpt = config.dptLightColorState;
-        knxMsgPayload.payload = hueColorConverter.ColorConverter.xyBriToRgb(
-          _value.xy.x,
-          _value.xy.y,
-          node.currentHUEDevice !== undefined ? node.currentHUEDevice.dimming.brightness : 100,
-        );
-        knxMsgPayload.payload = { red: knxMsgPayload.payload.r, green: knxMsgPayload.payload.g, blue: knxMsgPayload.payload.b };
-        // Send to KNX bus
-        if (knxMsgPayload.topic !== "" && knxMsgPayload.topic !== undefined) {
-          if (node.server !== null && node.server !== undefined) {
-            node.server.writeQueueAdd({
-              grpaddr: knxMsgPayload.topic,
-              payload: knxMsgPayload.payload,
-              dpt: knxMsgPayload.dpt,
-              outputtype: _outputtype,
-              nodecallerid: node.id,
-            });
+        try {
+          knxMsgPayload.payload = hueColorConverter.ColorConverter.xyBriToRgb(
+            _value.xy.x,
+            _value.xy.y,
+            node.currentHUEDevice !== undefined && node.currentHUEDevice.dimming !== undefined && node.currentHUEDevice.dimming.brightness === undefined ? node.currentHUEDevice.dimming.brightness : 100,
+          );
+          knxMsgPayload.payload = { red: knxMsgPayload.payload.r, green: knxMsgPayload.payload.g, blue: knxMsgPayload.payload.b };
+          // Send to KNX bus
+          if (knxMsgPayload.topic !== "" && knxMsgPayload.topic !== undefined) {
+            if (node.server !== null && node.server !== undefined) {
+              node.server.writeQueueAdd({
+                grpaddr: knxMsgPayload.topic,
+                payload: knxMsgPayload.payload,
+                dpt: knxMsgPayload.dpt,
+                outputtype: _outputtype,
+                nodecallerid: node.id,
+              });
+            }
           }
-        }
-        node.setNodeStatusHue({
-          fill: "blue",
-          shape: "ring",
-          text: "HUE->KNX Color",
-          payload: knxMsgPayload.payload,
-        });
+          node.setNodeStatusHue({
+            fill: "blue",
+            shape: "ring",
+            text: "HUE->KNX Color",
+            payload: knxMsgPayload.payload,
+          });
+        } catch (error) { }
       }
     };
 

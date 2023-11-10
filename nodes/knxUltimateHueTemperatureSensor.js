@@ -7,7 +7,7 @@ module.exports = function (RED) {
     node.topic = node.name;
     node.name = config.name === undefined ? 'Hue' : config.name;
     node.dpt = '';
-    node.notifyreadrequest = false;
+    node.notifyreadrequest = true;
     node.notifyreadrequestalsorespondtobus = 'false';
     node.notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized = '';
     node.notifyresponse = false;
@@ -23,7 +23,8 @@ module.exports = function (RED) {
     node.formatnegativevalue = 'leave';
     node.formatdecimalsvalue = 2;
     node.hueDevice = config.hueDevice;
-    node.initializingAtStart = !((config.readStatusAtStartup === undefined || config.readStatusAtStartup === "no"));
+    node.initializingAtStart = !((config.readStatusAtStartup === undefined || config.readStatusAtStartup === "yes"));
+    node.currentDeviceValue = 0;
 
     // Used to call the status update from the config node.
     node.setNodeStatus = ({
@@ -43,6 +44,17 @@ module.exports = function (RED) {
 
     // This function is called by the knx-ultimate config node, to output a msg.payload.
     node.handleSend = (msg) => {
+      // Respond to KNX read telegram, by sending the current value as response telegram.
+      if (msg.knx.event === "GroupValue_Read") {
+        switch (msg.knx.destination) {
+          case config.GAtemperaturesensor:
+            // To the KNX bus wires
+            node.sendResponseToKNX(node.currentDeviceValue);
+            break;
+          default:
+            break;
+        }
+      }
     };
 
     node.handleSendHUE = (_event) => {
@@ -60,6 +72,8 @@ module.exports = function (RED) {
                 grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id,
               });
             }
+            node.currentDeviceValue = knxMsgPayload.payload;
+
             node.status({ fill: 'green', shape: 'dot', text: `HUE->KNX ${JSON.stringify(knxMsgPayload.payload)} (${new Date().getDate()}, ${new Date().toLocaleTimeString()})` });
 
             // Setup the output msg
@@ -78,6 +92,22 @@ module.exports = function (RED) {
         node.status({ fill: 'red', shape: 'dot', text: `HUE->KNX error ${error.message} (${new Date().getDate()}, ${new Date().toLocaleTimeString()})` });
       }
     };
+
+
+    node.sendResponseToKNX = (_level) => {
+      const knxMsgPayload = {};
+      knxMsgPayload.topic = config.GAtemperaturesensor;
+      knxMsgPayload.dpt = config.dpttemperaturesensor;
+
+      knxMsgPayload.payload = _level;
+      // Send to KNX bus
+      if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) {
+        node.server.writeQueueAdd({
+          grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'response', nodecallerid: node.id,
+        });
+      }
+    };
+
 
     // On each deploy, unsubscribe+resubscribe
     if (node.server) {

@@ -194,8 +194,6 @@ module.exports = function (RED) {
         node.server.writeQueueAdd({
           grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id,
         });
-      }
-      if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) {
         node.setNodeStatusHue({
           fill: 'grey', shape: 'ring', text: 'HUE->KNX STOP DIM', payload: knxMsgPayload.payload,
         });
