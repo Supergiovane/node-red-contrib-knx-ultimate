@@ -138,7 +138,7 @@ module.exports = function (RED) {
                 node.currentHUEDevice.dimming.brightness = Math.round(dbright, 0);
                 node.updateKNXBrightnessState(node.currentHUEDevice.dimming.brightness);
                 state = dbright > 0 ? { on: { on: true }, dimming: { brightness: dbright }, color: { xy: dretXY } } : { on: { on: false } };
-              } if (temperatureChoosen !== undefined) {
+              } else if (temperatureChoosen !== undefined) {
                 // Kelvin
                 const mirek = hueColorConverter.ColorConverter.kelvinToMirek(temperatureChoosen);
                 node.currentHUEDevice.color_temperature.mirek = mirek;
@@ -148,6 +148,8 @@ module.exports = function (RED) {
                 state = brightnessChoosen > 0 ? { on: { on: true }, dimming: { brightness: brightnessChoosen }, color_temperature: { mirek: mirek } } : { on: { on: false } };
               } else if (brightnessChoosen !== undefined) {
                 state = brightnessChoosen > 0 ? { on: { on: true }, dimming: { brightness: brightnessChoosen } } : { on: { on: false } };
+              } else {
+                state = { on: { on: true } };
               }
             } else {
               state = { on: { on: false } };
@@ -524,10 +526,10 @@ module.exports = function (RED) {
             try {
               const firstLightInGroup = node.serverHue.getFirstLightInGroup(_event.id);
               if (firstLightInGroup !== null && firstLightInGroup !== undefined) {
-                if (_event.color === undefined || Object.keys(_event.color).length === 0) {
+                if (_event.color === undefined) {
                   _event.color = firstLightInGroup.color;
                 }
-                if (_event.color_temperature === undefined || Object.keys(_event.color_temperature).length === 0) {
+                if (_event.color_temperature === undefined) {
                   _event.color_temperature = firstLightInGroup.color_temperature;
                 }
               }
@@ -555,7 +557,7 @@ module.exports = function (RED) {
           }
 
           if (_event.hasOwnProperty("dimming") && _event.dimming.brightness !== undefined) {
-            // Every once on a time, the light transmit the brightness value of 0.39.
+            // Once upon n a time, the light transmit the brightness value of 0.39.
             // To avoid wrongly turn light state on, exit
             if (_event.dimming.brightness < 1) _event.dimming.brightness = 0;
             if (node.currentHUEDevice.hasOwnProperty("on") && node.currentHUEDevice.on.on === false && _event.dimming.brightness === 0) {

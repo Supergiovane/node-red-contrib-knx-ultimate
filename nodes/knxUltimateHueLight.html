@@ -1,109 +1,14 @@
 <!-- <script type="application/javascript;charset=utf-8" src="https://kit.fontawesome.com/11f26b4500.js" crossorigin="anonymous"></script>
 <script type="application/javascript;charset=utf-8" src="https://cdn.jsdelivr.net/npm/@jaames/iro@5"></script> -->
+
+'use strict'
 <script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/11f26b4500.js"></script>
 
 <script type="text/javascript">
+  (function () {
 
-  RED.nodes.registerType("knxUltimateHueLight", {
-    category: "KNX Ultimate",
-    color: "#C0C7E9",
-    defaults: {
-      //buttonState: {value: true},
-      server: { type: "knxUltimate-config", required: false },
-      serverHue: { type: "hue-config", required: true },
-      name: { value: "" },
-
-      nameLightSwitch: { value: "" },
-      GALightSwitch: { value: "" },
-      dptLightSwitch: { value: "" },
-
-      nameLightState: { value: "" },
-      GALightState: { value: "" },
-      dptLightState: { value: "" },
-
-      nameLightDIM: { value: "" },
-      GALightDIM: { value: "" },
-      dptLightDIM: { value: "" },
-
-      nameLightColor: { value: "" },
-      GALightColor: { value: "" },
-      dptLightColor: { value: "" },
-
-      nameLightColorState: { value: "" },
-      GALightColorState: { value: "" },
-      dptLightColorState: { value: "" },
-
-      nameLightHSV: { value: "" },
-      GALightHSV: { value: "" },
-      dptLightHSV: { value: "" },
-
-      nameLightHSVPercentage: { value: "" },
-      GALightHSVPercentage: { value: "" },
-      dptLightHSVPercentage: { value: "" },
-
-      nameLightHSVState: { value: "" },
-      GALightHSVState: { value: "" },
-      dptLightHSVState: { value: "" },
-
-      nameLightBrightness: { value: "" },
-      GALightBrightness: { value: "" },
-      dptLightBrightness: { value: "" },
-
-      nameLightBrightnessState: { value: "" },
-      GALightBrightnessState: { value: "" },
-      dptLightBrightnessState: { value: "" },
-
-      nameLightBlink: { value: "" },
-      GALightBlink: { value: "" },
-      dptLightBlink: { value: "" },
-
-      nameLightColorCycle: { value: "" },
-      GALightColorCycle: { value: "" },
-      dptLightColorCycle: { value: "" },
-
-      nameDaylightSensor: { value: "" },
-      GADaylightSensor: { value: "" },
-      dptDaylightSensor: { value: "" },
-
-      nameLightKelvin: { value: "" },
-      GALightKelvin: { value: "" },
-      dptLightKelvin: { value: "" },
-
-      nameLightKelvinState: { value: "" },
-      GALightKelvinState: { value: "" },
-      dptLightKelvinState: { value: "" },
-
-      specifySwitchOnBrightness: { value: "temperature" },
-      colorAtSwitchOnDayTime: { value: '{"kelvin":3000, "brightness":100 }' },
-
-      enableDayNightLighting: { value: "no" },
-      colorAtSwitchOnNightTime: { value: '{ "kelvin":2700, "brightness":20 }' },
-
-      invertDayNight: { value: false },
-
-      updateKNXBrightnessStatusOnHUEOnOff: { value: "no" },
-      dimSpeed: { value: 5000, required: false },
-      minDimLevelLight: { value: 10, required: false },
-      maxDimLevelLight: { value: 100, required: false },
-      readStatusAtStartup: { value: "yes" },
-      enableNodePINS: { value: "no" },
-
-      outputs: { value: 0 },
-      inputs: { value: 0 },
-
-      hueDevice: { value: "" },
-      hueDeviceObject: { value: {} },
-    },
-    inputs: 0,
-    outputs: 0,
-    icon: "node-hue-icon.svg",
-    label: function () {
-      return this.name;
-    },
-    paletteLabel: "Hue Light (beta)",
-    oneditprepare: function () {
-
-      var node = this;
+    function onEditPrepare(node) {
+      // var node = node;
       var oNodeServer = RED.nodes.node($("#node-input-server").val()); // Store the config-node
       var oNodeServerHue = RED.nodes.node($("#node-input-serverHue").val()); // Store the config-node
 
@@ -135,19 +40,19 @@
       // 19/02/2020 Used to get the server sooner als deploy.
       $("#node-input-server").change(function () {
         try {
-          oNodeServer = RED.nodes.node($(this).val());
+          oNodeServer = RED.nodes.node($(node).val());
         } catch (error) { }
       });
       // 19/02/2020 Used to get the server sooner als deploy.
       $("#node-input-serverHue").change(function () {
         try {
-          oNodeServerHue = RED.nodes.node($(this).val());
+          oNodeServerHue = RED.nodes.node($(node).val());
         } catch (error) { }
       });
 
       // 31/03/2020 Search Helper
       function fullSearch(sourceText, searchString) {
-        // This searches for all words in a string
+        // node searches for all words in a string
         var aSearchWords = searchString.toLowerCase().split(" ");
         var i = 0;
         for (let index = 0; index < aSearchWords.length; index++) {
@@ -159,6 +64,7 @@
       function getDPT(_dpt, _destinationWidget) {
         // DPT Switch command
         // ########################
+        $(_destinationWidget).empty();
         $.getJSON("knxUltimateDpts", (data) => {
           data.forEach((dpt) => {
             if (dpt.value.startsWith(_dpt)) {
@@ -173,7 +79,7 @@
             }
           });
           // Eval
-          const format = "this." + _destinationWidget.replace("#node-input-", "");
+          const format = "node." + _destinationWidget.replace("#node-input-", "");
           try {
             if (format !== undefined) $(_destinationWidget).val(eval(format).toString());
           } catch (error) { }
@@ -268,98 +174,59 @@
       getGroupAddress("#node-input-GALightKelvinState", "#node-input-nameLightKelvinState", "#node-input-dptLightKelvinState", " 9.002");
 
 
-
-      // Show/Hide the div of the color at swich on
-      if (this.specifySwitchOnBrightness === "yes") {
-        $("#divColorsAtSwitchOn").show();
-        $("#divTemperatureAtSwitchOn").hide();
-      } else if (this.specifySwitchOnBrightness === "temperature") {
-        $("#divColorsAtSwitchOn").hide();
-        $("#divTemperatureAtSwitchOn").show();
-      } else {
-        $("#divColorsAtSwitchOn").hide();
-        $("#divTemperatureAtSwitchOn").hide();
-      }
-
-      $("#node-input-specifySwitchOnBrightness").on("change", function () {
-        if ($("#node-input-specifySwitchOnBrightness").val() === "yes") {
-          $("#divColorsAtSwitchOn").show();
-          $("#divTemperatureAtSwitchOn").hide();
-          blinkBackground("#colorPickerDay");
-        } else if ($("#node-input-specifySwitchOnBrightness").val() === "temperature") {
-          $("#divColorsAtSwitchOn").hide();
-          $("#divTemperatureAtSwitchOn").show();
-        } else {
-          $("#divColorsAtSwitchOn").hide();
-          $("#divTemperatureAtSwitchOn").hide();
-        }
-      });
-
-      // Show/Hide and enable/disable day/night Lighting behaviour
-      if (this.enableDayNightLighting === "yes") {
-        $("#divEnableDayNightLighting").show();
-        $("#divCCSBoxAtNightLighting").css({ border: "1px solid dimgrey", "border-radius": "12px", padding: "5px" }); // Add little box to better understand the property page
-        $("#divColorsAtSwitchOnNightTime").show();
-        $("#divTemperatureAtSwitchOnNightTime").hide();
-      } else if (this.enableDayNightLighting === "temperature") {
-        $("#divEnableDayNightLighting").show();
-        $("#divCCSBoxAtNightLighting").css({ border: "1px solid dimgrey", "border-radius": "12px", padding: "5px" }); // Add little box to better understand the property page
-        $("#divColorsAtSwitchOnNightTime").hide();
-        $("#divTemperatureAtSwitchOnNightTime").show();
-      } else {
-        $("#divEnableDayNightLighting").hide();
-        $("#divCCSBoxAtNightLighting").css({ border: "", "border-radius": "", padding: "" });
-      }
-
-      $("#node-input-enableDayNightLighting").on("change", function () {
-        if ($("#node-input-enableDayNightLighting").val() === "yes") {
-          $("#divEnableDayNightLighting").show();
-          $("#divCCSBoxAtNightLighting").css({ border: "1px solid dimgrey", "border-radius": "12px", padding: "5px" }); // Add little box to better understand the property page
-          $("#divColorsAtSwitchOnNightTime").show();
-          $("#divTemperatureAtSwitchOnNightTime").hide();
-          blinkBackground("#colorPickerNight")
-          $("#getColorAtSwitchOnDayTimeButton").text("Get current");
-        } else if ($("#node-input-enableDayNightLighting").val() === "temperature") {
-          $("#divEnableDayNightLighting").show();
-          $("#divCCSBoxAtNightLighting").css({ border: "1px solid dimgrey", "border-radius": "12px", padding: "5px" }); // Add little box to better understand the property page
-          $("#divColorsAtSwitchOnNightTime").hide();
-          $("#divTemperatureAtSwitchOnNightTime").show();
-        } else {
-          $("#divEnableDayNightLighting").hide();
-          $("#divCCSBoxAtNightLighting").css({ border: "", "border-radius": "", padding: "" });
-        }
-      });
-
-
       // Get the HUE capabilities to enable/disable UI parts
       $.getJSON("knxUltimateGetLightObject?id=" + $("#node-input-hueDevice").val().split("#")[0], (data) => {
         let oLight = data;
         // Check if grouped, to hide/show the "Get current" buttons
         if (oLight.type === "grouped_light") {
-          $("#getColorAtSwitchOnDayTimeButton").hide();
-          $("#getColorAtSwitchOnNightTimeButton").hide();
-          $("#node-input-specifySwitchOnBrightness").append(
-            $("<option>")
-              .val("yes")
-              .text("Select color")
-          ).append(
-            $("<option>")
-              .val("temperature")
-              .text("Select temperature and brightness")
-          );
-          $("#node-input-enableDayNightLighting").append(
-            $("<option>")
-              .val("yes")
-              .text("Select color")
-          ).append(
-            $("<option>")
-              .val("temperature")
-              .text("Select temperature and brightness")
-          );
-          return;
-        } else {
+          $("#tabs").tabs("enable", "#tabs-4");
+          $("#tabs").tabs("enable", "#tabs-3");
+          $("#tabs").tabs("enable", "#tabs-2");
           $("#getColorAtSwitchOnDayTimeButton").show();
           $("#getColorAtSwitchOnNightTimeButton").show();
+          $("#node-input-specifySwitchOnBrightness").empty().append(
+            $("<option>")
+              .val("no")
+              .text("Last status")
+          ).append(
+            $("<option>")
+              .val("yes")
+              .text("Select color")
+          ).append(
+            $("<option>")
+              .val("temperature")
+              .text("Select temperature and brightness")
+          );
+          $("#node-input-enableDayNightLighting").empty().append(
+            $("<option>")
+              .val("no")
+              .text("No")
+          ).append(
+            $("<option>")
+              .val("yes")
+              .text("Select color")
+          ).append(
+            $("<option>")
+              .val("temperature")
+              .text("Select temperature and brightness")
+          );
+          $("#node-input-specifySwitchOnBrightness").val(node.specifySwitchOnBrightness).trigger('change');
+          $("#node-input-enableDayNightLighting").val(node.enableDayNightLighting).trigger('change');
+          return;
+        } else {
+
+          $("#getColorAtSwitchOnDayTimeButton").show();
+          $("#getColorAtSwitchOnNightTimeButton").show();
+          $("#node-input-specifySwitchOnBrightness").empty().append(
+            $("<option>")
+              .val("no")
+              .text("Last status")
+          );
+          $("#node-input-enableDayNightLighting").empty().append(
+            $("<option>")
+              .val("no")
+              .text("No")
+          );
         }
         $("#tabs").tabs("disable", "#tabs-4");
         $("#tabs").tabs("disable", "#tabs-3");
@@ -371,6 +238,8 @@
         $("#divColorCycle").hide();
         $("#divUpdateKNXBrightnessStatusOnHUEOnOff").hide();
         $("#divMinMaxBrightness").hide();
+        $("#comboTemperatureAtSwitchOn").hide();
+        $("#comboTemperatureAtSwitchOnNightTime").hide();
 
         // Enable options/tabs one by one
         if (oLight.color !== undefined) {
@@ -407,6 +276,8 @@
           $("#divTemperatureAtSwitchOnNightTime").show();
           $("#divUpdateKNXBrightnessStatusOnHUEOnOff").show();
           $("#divMinMaxBrightness").show();
+          $("#comboTemperatureAtSwitchOn").show();
+          $("#comboTemperatureAtSwitchOnNightTime").show();
         } else {
           $("#tabs").tabs("enable", "#tabs-2");
           $("#node-input-specifySwitchOnBrightness").append(
@@ -419,8 +290,6 @@
               .val("temperature")
               .text("Select brightness")
           );
-          $("#comboTemperatureAtSwitchOn").hide();
-          $("#comboTemperatureAtSwitchOnNightTime").hide();
           $("#comboTemperatureAtSwitchOn").val(0);
           $("#comboTemperatureAtSwitchOnNightTime").val(0);
           $("#divTemperatureAtSwitchOn").show();
@@ -428,10 +297,69 @@
           $("#divUpdateKNXBrightnessStatusOnHUEOnOff").show();
           $("#divMinMaxBrightness").show();
         }
-        $("#node-input-specifySwitchOnBrightness").val(this.specifySwitchOnBrightness).trigger('change');
-        $("#node-input-enableDayNightLighting").val(this.enableDayNightLighting).trigger('change');
+        $("#node-input-specifySwitchOnBrightness").val(node.specifySwitchOnBrightness).trigger('change');
+        $("#node-input-enableDayNightLighting").val(node.enableDayNightLighting).trigger('change');
+      });
 
-        return;
+      // Show/Hide the div of the color at swich on
+      if (node.specifySwitchOnBrightness === "yes") {
+        $("#divColorsAtSwitchOn").show();
+        $("#divTemperatureAtSwitchOn").hide();
+      } else if (node.specifySwitchOnBrightness === "temperature") {
+        $("#divColorsAtSwitchOn").hide();
+        $("#divTemperatureAtSwitchOn").show();
+      } else {
+        $("#divColorsAtSwitchOn").hide();
+        $("#divTemperatureAtSwitchOn").hide();
+      }
+
+      $("#node-input-specifySwitchOnBrightness").on("change", function () {
+        if ($("#node-input-specifySwitchOnBrightness").val() === "yes") {
+          $("#divColorsAtSwitchOn").show();
+          $("#divTemperatureAtSwitchOn").hide();
+          blinkBackground("#colorPickerDay");
+        } else if ($("#node-input-specifySwitchOnBrightness").val() === "temperature") {
+          $("#divColorsAtSwitchOn").hide();
+          $("#divTemperatureAtSwitchOn").show();
+        } else {
+          $("#divColorsAtSwitchOn").hide();
+          $("#divTemperatureAtSwitchOn").hide();
+        }
+      });
+
+      // Show/Hide and enable/disable day/night Lighting behaviour
+      if (node.enableDayNightLighting === "yes") {
+        $("#divEnableDayNightLighting").show();
+        $("#divCCSBoxAtNightLighting").css({ border: "1px solid dimgrey", "border-radius": "12px", padding: "5px" }); // Add little box to better understand the property page
+        $("#divColorsAtSwitchOnNightTime").show();
+        $("#divTemperatureAtSwitchOnNightTime").hide();
+      } else if (node.enableDayNightLighting === "temperature") {
+        $("#divEnableDayNightLighting").show();
+        $("#divCCSBoxAtNightLighting").css({ border: "1px solid dimgrey", "border-radius": "12px", padding: "5px" }); // Add little box to better understand the property page
+        $("#divColorsAtSwitchOnNightTime").hide();
+        $("#divTemperatureAtSwitchOnNightTime").show();
+      } else {
+        $("#divEnableDayNightLighting").hide();
+        $("#divCCSBoxAtNightLighting").css({ border: "", "border-radius": "", padding: "" });
+      }
+
+      $("#node-input-enableDayNightLighting").on("change", function () {
+        if ($("#node-input-enableDayNightLighting").val() === "yes") {
+          $("#divEnableDayNightLighting").show();
+          $("#divCCSBoxAtNightLighting").css({ border: "1px solid dimgrey", "border-radius": "12px", padding: "5px" }); // Add little box to better understand the property page
+          $("#divColorsAtSwitchOnNightTime").show();
+          $("#divTemperatureAtSwitchOnNightTime").hide();
+          blinkBackground("#colorPickerNight")
+          $("#getColorAtSwitchOnDayTimeButton").text("Get current");
+        } else if ($("#node-input-enableDayNightLighting").val() === "temperature") {
+          $("#divEnableDayNightLighting").show();
+          $("#divCCSBoxAtNightLighting").css({ border: "1px solid dimgrey", "border-radius": "12px", padding: "5px" }); // Add little box to better understand the property page
+          $("#divColorsAtSwitchOnNightTime").hide();
+          $("#divTemperatureAtSwitchOnNightTime").show();
+        } else {
+          $("#divEnableDayNightLighting").hide();
+          $("#divCCSBoxAtNightLighting").css({ border: "", "border-radius": "", padding: "" });
+        }
       });
 
       $("#getColorAtSwitchOnDayTimeButton").on("click", function () {
@@ -463,7 +391,7 @@
       });
 
       // Fill options for minDimLevel and maxDimLevel and comboBrightnessAtSwitchOn (for color brightness at switch on, with temperature toghedher)
-      for (let index = 0; index <= 100; index += 5) {
+      for (let index = 100; index >= 0; index -= 5) {
         if (index === 0) {
           $("#node-input-minDimLevelLight").append($("<option>").val(index).text(index.toString() + "% (Switch Off)"));
           $("#comboBrightnessAtSwitchOn").append($("<option>").val(index).text(index.toString() + "% (Switch Off)"));
@@ -506,18 +434,18 @@
 
       // Calculate kelvin/color
       let json;
-      this.colorAtSwitchOnDayTime = this.colorAtSwitchOnDayTime.replace("geen", "green"); // Old bug in "geen" property
-      this.colorAtSwitchOnNightTime = this.colorAtSwitchOnNightTime.replace("geen", "green"); // Old bug in "geen" property
+      node.colorAtSwitchOnDayTime = node.colorAtSwitchOnDayTime.replace("geen", "green"); // Old bug in "geen" property
+      node.colorAtSwitchOnNightTime = node.colorAtSwitchOnNightTime.replace("geen", "green"); // Old bug in "geen" property
       try {
-        json = JSON.parse(this.colorAtSwitchOnDayTime);
+        json = JSON.parse(node.colorAtSwitchOnDayTime);
       } catch (error) {
-        console.log("json = JSON.parse(this.colorAtSwitchOnDayTime) in HTML: " + error.message)
+        console.log("json = JSON.parse(node.colorAtSwitchOnDayTime) in HTML: " + error.message)
       }
       if (json !== undefined && json.kelvin !== undefined) {
         // Kelvin
         $("#comboTemperatureAtSwitchOn").val(json.kelvin);
         $("#comboBrightnessAtSwitchOn").val(json.brightness);
-        if (this.specifySwitchOnBrightness !== 'no') $("#node-input-specifySwitchOnBrightness").val('temperature'); // Adjust in case of mismatch (from old geen bug)
+        if (node.specifySwitchOnBrightness !== 'no') $("#node-input-specifySwitchOnBrightness").val('temperature'); // Adjust in case of mismatch (from old geen bug)
       } else if (json !== undefined && json.red !== undefined) {
         // Must transform RGB into HTML HEX color
         try {
@@ -525,22 +453,22 @@
         } catch (error) {
         }
         $("#colorPickerDay").val($("#node-input-colorAtSwitchOnDayTime").val());
-        if (this.specifySwitchOnBrightness !== 'no') $("#node-input-specifySwitchOnBrightness").val('yes'); // Adjust in case of mismatch (from old geen bug)
+        if (node.specifySwitchOnBrightness !== 'no') $("#node-input-specifySwitchOnBrightness").val('yes'); // Adjust in case of mismatch (from old geen bug)
       } else {
         // It's already an HEX color
-        $("#colorPickerDay").val(this.colorAtSwitchOnDayTime);
-        if (this.specifySwitchOnBrightness !== 'no') $("#node-input-specifySwitchOnBrightness").val('yes'); // Adjust in case of mismatch (from old geen bug)
+        $("#colorPickerDay").val(node.colorAtSwitchOnDayTime);
+        if (node.specifySwitchOnBrightness !== 'no') $("#node-input-specifySwitchOnBrightness").val('yes'); // Adjust in case of mismatch (from old geen bug)
       }
       //Night
       json = undefined;
       try {
-        json = JSON.parse(this.colorAtSwitchOnNightTime);
+        json = JSON.parse(node.colorAtSwitchOnNightTime);
       } catch (error) { }
       if (json !== undefined && json.kelvin !== undefined) {
         // Kelvin
         $("#comboTemperatureAtSwitchOnNightTime").val(json.kelvin);
         $("#comboBrightnessAtSwitchOnNightTime").val(json.brightness);
-        if (this.enableDayNightLighting !== 'no') $("#node-input-enableDayNightLighting").val('temperature'); // Adjust in case of mismatch (from old geen bug)
+        if (node.enableDayNightLighting !== 'no') $("#node-input-enableDayNightLighting").val('temperature'); // Adjust in case of mismatch (from old geen bug)
       } else if (json !== undefined && json.red !== undefined) {
         // Must transform RGB into HTML HEX color
         try {
@@ -548,11 +476,11 @@
         } catch (error) {
         }
         $("#colorPickerNight").val($("#node-input-colorAtSwitchOnNightTime").val());
-        if (this.enableDayNightLighting !== 'no') $("#node-input-enableDayNightLighting").val('yes'); // Adjust in case of mismatch (from old geen bug)
+        if (node.enableDayNightLighting !== 'no') $("#node-input-enableDayNightLighting").val('yes'); // Adjust in case of mismatch (from old geen bug)
       } else {
         // It's already an HEX color
-        $("#colorPickerNight").val(this.colorAtSwitchOnNightTime);
-        if (this.enableDayNightLighting !== 'no') $("#node-input-enableDayNightLighting").val('yes'); // Adjust in case of mismatch (from old geen bug)
+        $("#colorPickerNight").val(node.colorAtSwitchOnNightTime);
+        if (node.enableDayNightLighting !== 'no') $("#node-input-enableDayNightLighting").val('yes'); // Adjust in case of mismatch (from old geen bug)
       }
 
 
@@ -572,7 +500,7 @@
       });
 
 
-      $("#node-input-minDimLevelLight").val(this.minDimLevelLight);
+      $("#node-input-minDimLevelLight").val(node.minDimLevelLight);
       for (let index = 100; index >= 10; index--) {
         $("#node-input-maxDimLevelLight").append(
           $("<option>")
@@ -580,9 +508,10 @@
             .text(index.toString() + "%")
         );
       }
-      $("#node-input-maxDimLevelLight").val(this.maxDimLevelLight);
+      $("#node-input-maxDimLevelLight").val(node.maxDimLevelLight);
 
-      if (this.hueDevice !== "") $("#tabs").show(); // Light options
+      if (node.hueDevice !== "") $("#tabs").show(); // Light options
+
 
 
       // Autocomplete suggestion with HUE Lights
@@ -620,107 +549,206 @@
           } else {
             $("#node-input-hueDevice").val(ui.item.hueDevice + "#light");
           }
-
+          onEditPrepare(node);
           $("#tabs").show();
         },
       });
-
-
-    },
-    oneditsave: function () {
-      //RED.sidebar.removeTab("tabNRColor");
-      //RED.sidebar.show("help");
-      if ($("#node-input-enableNodePINS").val() === "yes") {
-        this.outputs = 1;
-        this.inputs = 1;
-      } else {
-        this.outputs = 0;
-        this.inputs = 0;
-      }
-    },
-    oneditcancel: function () {
-      //RED.sidebar.removeTab("tabNRColor");
-      //RED.sidebar.show("help");
     }
-  });
 
+    RED.nodes.registerType("knxUltimateHueLight", {
+      category: "KNX Ultimate",
+      color: "#C0C7E9",
+      defaults: {
+        //buttonState: {value: true},
+        server: { type: "knxUltimate-config", required: false },
+        serverHue: { type: "hue-config", required: true },
+        name: { value: "" },
 
+        nameLightSwitch: { value: "" },
+        GALightSwitch: { value: "" },
+        dptLightSwitch: { value: "" },
 
+        nameLightState: { value: "" },
+        GALightState: { value: "" },
+        dptLightState: { value: "" },
 
-  function rgbHex(red, green, blue, alpha) {
-    const toHex = (red, green, blue, alpha) => ((blue | green << 8 | red << 16) | 1 << 24).toString(16).slice(1) + alpha;
-    const parseCssRgbString = (input) => {
-      const parts = input.replace(/rgba?\(([^)]+)\)/, '$1').split(/[,\s/]+/).filter(Boolean);
-      if (parts.length < 3) {
-        return;
+        nameLightDIM: { value: "" },
+        GALightDIM: { value: "" },
+        dptLightDIM: { value: "" },
+
+        nameLightColor: { value: "" },
+        GALightColor: { value: "" },
+        dptLightColor: { value: "" },
+
+        nameLightColorState: { value: "" },
+        GALightColorState: { value: "" },
+        dptLightColorState: { value: "" },
+
+        nameLightHSV: { value: "" },
+        GALightHSV: { value: "" },
+        dptLightHSV: { value: "" },
+
+        nameLightHSVPercentage: { value: "" },
+        GALightHSVPercentage: { value: "" },
+        dptLightHSVPercentage: { value: "" },
+
+        nameLightHSVState: { value: "" },
+        GALightHSVState: { value: "" },
+        dptLightHSVState: { value: "" },
+
+        nameLightBrightness: { value: "" },
+        GALightBrightness: { value: "" },
+        dptLightBrightness: { value: "" },
+
+        nameLightBrightnessState: { value: "" },
+        GALightBrightnessState: { value: "" },
+        dptLightBrightnessState: { value: "" },
+
+        nameLightBlink: { value: "" },
+        GALightBlink: { value: "" },
+        dptLightBlink: { value: "" },
+
+        nameLightColorCycle: { value: "" },
+        GALightColorCycle: { value: "" },
+        dptLightColorCycle: { value: "" },
+
+        nameDaylightSensor: { value: "" },
+        GADaylightSensor: { value: "" },
+        dptDaylightSensor: { value: "" },
+
+        nameLightKelvin: { value: "" },
+        GALightKelvin: { value: "" },
+        dptLightKelvin: { value: "" },
+
+        nameLightKelvinState: { value: "" },
+        GALightKelvinState: { value: "" },
+        dptLightKelvinState: { value: "" },
+
+        specifySwitchOnBrightness: { value: "temperature" },
+        colorAtSwitchOnDayTime: { value: '{"kelvin":3000, "brightness":100 }' },
+
+        enableDayNightLighting: { value: "no" },
+        colorAtSwitchOnNightTime: { value: '{ "kelvin":2700, "brightness":20 }' },
+
+        invertDayNight: { value: false },
+
+        updateKNXBrightnessStatusOnHUEOnOff: { value: "no" },
+        dimSpeed: { value: 5000, required: false },
+        minDimLevelLight: { value: 10, required: false },
+        maxDimLevelLight: { value: 100, required: false },
+        readStatusAtStartup: { value: "yes" },
+        enableNodePINS: { value: "no" },
+
+        outputs: { value: 0 },
+        inputs: { value: 0 },
+
+        hueDevice: { value: "" },
+        hueDeviceObject: { value: {} },
+      },
+      inputs: 0,
+      outputs: 0,
+      icon: "node-hue-icon.svg",
+      label: function () {
+        return this.name;
+      },
+      paletteLabel: "Hue Light (beta)",
+      oneditprepare: function () {
+        onEditPrepare(this);
+      },
+      oneditsave: function () {
+        //RED.sidebar.removeTab("tabNRColor");
+        //RED.sidebar.show("help");
+        if ($("#node-input-enableNodePINS").val() === "yes") {
+          this.outputs = 1;
+          this.inputs = 1;
+        } else {
+          this.outputs = 0;
+          this.inputs = 0;
+        }
+      },
+      oneditcancel: function () {
+        //RED.sidebar.removeTab("tabNRColor");
+        //RED.sidebar.show("help");
       }
+    });
 
-      const parseValue = (value, max) => {
-        value = value.trim();
 
-        if (value.endsWith('%')) {
-          return Math.min(Number.parseFloat(value) * max / 100, max);
+
+
+    function rgbHex(red, green, blue, alpha) {
+      const toHex = (red, green, blue, alpha) => ((blue | green << 8 | red << 16) | 1 << 24).toString(16).slice(1) + alpha;
+      const parseCssRgbString = (input) => {
+        const parts = input.replace(/rgba?\(([^)]+)\)/, '$1').split(/[,\s/]+/).filter(Boolean);
+        if (parts.length < 3) {
+          return;
         }
 
-        return Math.min(Number.parseFloat(value), max);
+        const parseValue = (value, max) => {
+          value = value.trim();
+
+          if (value.endsWith('%')) {
+            return Math.min(Number.parseFloat(value) * max / 100, max);
+          }
+
+          return Math.min(Number.parseFloat(value), max);
+        };
+
+        const red = parseValue(parts[0], 255);
+        const green = parseValue(parts[1], 255);
+        const blue = parseValue(parts[2], 255);
+        let alpha;
+
+        if (parts.length === 4) {
+          alpha = parseValue(parts[3], 1);
+        }
+
+        return [red, green, blue, alpha];
       };
 
-      const red = parseValue(parts[0], 255);
-      const green = parseValue(parts[1], 255);
-      const blue = parseValue(parts[2], 255);
-      let alpha;
+      let isPercent = (red + (alpha || '')).toString().includes('%');
 
-      if (parts.length === 4) {
-        alpha = parseValue(parts[3], 1);
+      if (typeof red === 'string' && !green) { // Single string parameter.
+        const parsed = parseCssRgbString(red);
+        if (!parsed) {
+          throw new TypeError('Invalid or unsupported color format.');
+        }
+
+        isPercent = false;
+        [red, green, blue, alpha] = parsed;
+      } else if (alpha !== undefined) {
+        alpha = Number.parseFloat(alpha);
       }
 
-      return [red, green, blue, alpha];
-    };
-
-    let isPercent = (red + (alpha || '')).toString().includes('%');
-
-    if (typeof red === 'string' && !green) { // Single string parameter.
-      const parsed = parseCssRgbString(red);
-      if (!parsed) {
-        throw new TypeError('Invalid or unsupported color format.');
+      if (typeof red !== 'number'
+        || typeof green !== 'number'
+        || typeof blue !== 'number'
+        || red > 255
+        || green > 255
+        || blue > 255
+      ) {
+        throw new TypeError('Expected three numbers below 256');
       }
 
-      isPercent = false;
-      [red, green, blue, alpha] = parsed;
-    } else if (alpha !== undefined) {
-      alpha = Number.parseFloat(alpha);
-    }
+      if (typeof alpha === 'number') {
+        if (!isPercent && alpha >= 0 && alpha <= 1) {
+          alpha = Math.round(255 * alpha);
+        } else if (isPercent && alpha >= 0 && alpha <= 100) {
+          alpha = Math.round(255 * alpha / 100);
+        } else {
+          throw new TypeError(`Expected alpha value (${alpha}) as a fraction or percentage`);
+        }
 
-    if (typeof red !== 'number'
-      || typeof green !== 'number'
-      || typeof blue !== 'number'
-      || red > 255
-      || green > 255
-      || blue > 255
-    ) {
-      throw new TypeError('Expected three numbers below 256');
-    }
-
-    if (typeof alpha === 'number') {
-      if (!isPercent && alpha >= 0 && alpha <= 1) {
-        alpha = Math.round(255 * alpha);
-      } else if (isPercent && alpha >= 0 && alpha <= 100) {
-        alpha = Math.round(255 * alpha / 100);
+        alpha = (alpha | 1 << 8).toString(16).slice(1); // eslint-disable-line no-mixed-operators
       } else {
-        throw new TypeError(`Expected alpha value (${alpha}) as a fraction or percentage`);
+        alpha = '';
       }
 
-      alpha = (alpha | 1 << 8).toString(16).slice(1); // eslint-disable-line no-mixed-operators
-    } else {
-      alpha = '';
+      return toHex(red, green, blue, alpha);
     }
 
-    return toHex(red, green, blue, alpha);
-  }
-
+  }())
 
 </script>
-
 
 <script type="text/html" data-template-name="knxUltimateHueLight">
 
@@ -1048,8 +1076,8 @@
     <div class="form-row" id="divTemperatureAtSwitchOn" hidden>
       <label for="node-input-colorAtSwitchOnDayTime" style="width:260px">
       </label>
-      <select style="width:180px;" id="comboTemperatureAtSwitchOn"></select>
-      <select  style="width:180px;" id="comboBrightnessAtSwitchOn"></select>      
+      <select style="width:12%;" id="comboTemperatureAtSwitchOn"></select>
+      <select  style="width:25%;" id="comboBrightnessAtSwitchOn"></select>      
     </div>
 
     <div id="divCCSBoxAtNightLighting">
@@ -1139,7 +1167,10 @@
   <br />
   </script>
 
+
 <script type="text/markdown" data-help-name="knxUltimateHueLight">
+
+
 <p>This node lets you control your Philips HUE light and grouped lights and also gets the states of this lights, to be sent to the KNX bus.</p>
 
 **General**
@@ -1223,4 +1254,4 @@ The Dimming function works in **KNX mode `start` and `stop`**. To start dimming,
 [Find it useful?](https://www.paypal.me/techtoday)
 
 <br/>
-</script>-
+</script>

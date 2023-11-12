@@ -6,6 +6,12 @@
 
 # CHANGELOG
 
+**Version 2.2.27** - November 2023<br/>
+This is an interim version, to quick fix some issues. Please report any issue with HUE Nodes, on gitHub.<br/>
+- HUE Light: the UI now changes, to adapt to lamp type.<br/>
+- HUE Light: "Get current" color button, now works for grouped light as well, by reading the first light belongin to the group.<br/>
+- WARNING: the new HUE Light options are to be considered **BETA (= in testing with user feedback)**.<br/>
+
 **Version 2.2.26** - November 2023<br/>
 This is an interim version, to quick fix some issues. Please report any issue with HUE Nodes, on gitHub.<br/>
 - HUE Light: fixed some spurious node status errors.<br/>

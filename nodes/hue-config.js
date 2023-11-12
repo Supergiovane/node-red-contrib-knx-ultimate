@@ -227,24 +227,19 @@ module.exports = (RED) => {
     node.getFirstLightInGroup = function getFirstLightInGroup(_groupID) {
       if (node.hueAllResources === undefined || node.hueAllResources === null) return;
       try {
-        // Find the group
         const group = node.hueAllResources.filter((a) => a.id === _groupID)[0];
-        if (group === null || group === undefined) return;
         const owner = node.hueAllResources.filter((a) => a.id === group.owner.rid)[0];
-        if (owner.children !== undefined && owner.children.length > 0) {
-          const firstLightId = owner.children.find((a) => a.rtype === "light").rid;
-          if (firstLightId !== undefined && firstLightId !== null) {
-            const firstLight = node.hueAllResources.find((a) => a.id === firstLightId);
-            if (firstLight !== null && firstLight !== undefined) {
-              return firstLight;
-            } else {
-              return;
-            }
+        if (owner.children !== undefined) {
+          const dev = node.hueAllResources.filter((a) => a.id === owner.children[0].rid)[0];
+          if (dev.type === "device" && dev.services !== undefined) {
+            const lightID = dev.services.filter((a) => a.rtype === 'light')[0].rid;
+            const oLight = node.hueAllResources.filter((a) => a.id === lightID)[0];
+            return oLight;
+          } else if (dev.type === "light") {
+            return dev;
           }
         }
-      } catch (error) {
-
-      }
+      } catch (error) { }
     };
 
     // Returns the cached devices (node.hueAllResources) by type.
@@ -446,19 +441,37 @@ module.exports = (RED) => {
 
     RED.httpAdmin.get("/knxUltimateGetHueColor", RED.auth.needsPermission("hue-config.read"), (req, res) => {
       try {
-        const hexColor = node.getColorFromHueLight(req.query.id);
-        res.json(hexColor);
+        // find wether the light is a light or is grouped_light
+        let hexColor;
+        const _oDevice = node.hueAllResources.filter((a) => a.id === req.query.id)[0];
+        if (_oDevice.type === "light") {
+          hexColor = node.getColorFromHueLight(req.query.id);
+        } else {
+          // grouped_light, get the first light in the group
+          const oLight = node.getFirstLightInGroup(_oDevice.id);
+          hexColor = node.getColorFromHueLight(oLight.id);
+        }
+        res.json(hexColor !== undefined ? hexColor : "Select the device first!");
       } catch (error) {
         res.json("Select the device first!");
       }
     });
     RED.httpAdmin.get("/knxUltimateGetKelvinColor", RED.auth.needsPermission("hue-config.read"), (req, res) => {
       try {
-        const jKelvin = node.getKelvinFromHueLight(req.query.id);
-        res.json(jKelvin);
+        // find wether the light is a light or is grouped_light
+        let kelvinValue;
+        const _oDevice = node.hueAllResources.filter((a) => a.id === req.query.id)[0];
+        if (_oDevice.type === "light") {
+          kelvinValue = node.getKelvinFromHueLight(req.query.id);
+        } else {
+          // grouped_light, get the first light in the group
+          const oLight = node.getFirstLightInGroup(_oDevice.id);
+          kelvinValue = node.getKelvinFromHueLight(oLight.id);
+        }
+        res.json(kelvinValue !== undefined ? kelvinValue : "Select the device first!");
       } catch (error) {
         res.json("Select the device first!");
-      }
+      };
     });
 
     RED.httpAdmin.get("/knxUltimateGetLightObject", RED.auth.needsPermission("hue-config.read"), (req, res) => {
@@ -512,6 +525,15 @@ module.exports = (RED) => {
         // (async () => {
         //   await node.initHUEConnection();
         // })();
+      }
+    });
+
+    RED.httpAdmin.get("/knxUltimateGetFirstLightInGroup", RED.auth.needsPermission("hue-config.read"), (req, res) => {
+      try {
+        res.json(node.getFirstLightInGroup(req.query.id));
+      } catch (error) {
+        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(`KNXUltimateHue: hueEngine: knxUltimateGetFirstLightInGroup: error ${error.message}`);
+        res.json({});
       }
     });
 
