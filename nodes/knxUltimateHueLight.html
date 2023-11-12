@@ -102,6 +102,7 @@
     },
     paletteLabel: "Hue Light (beta)",
     oneditprepare: function () {
+
       var node = this;
       var oNodeServer = RED.nodes.node($("#node-input-server").val()); // Store the config-node
       var oNodeServerHue = RED.nodes.node($("#node-input-serverHue").val()); // Store the config-node
@@ -268,51 +269,6 @@
 
 
 
-      // Autocomplete suggestion with HUE Lights
-      $("#node-input-name").autocomplete({
-        minLength: 1,
-        source: function (request, response) {
-          $.getJSON("KNXUltimateGetResourcesHUE?rtype=light&nodeID=" + oNodeServerHue.id, (data) => {
-            response(
-              $.map(data.devices, function (value, key) {
-                //alert(JSON.stringify(value) + " "+ key)
-                var sSearch = value.name;
-                if (!value.name.includes("I'm still connecting")) {
-                  if (fullSearch(sSearch, request.term)) {
-                    return {
-                      hueDevice: value.id,
-                      value: value.name,
-                    };
-                  } else {
-                    return null;
-                  }
-                } else {
-                  return {
-                    hueDevice: value.id,
-                    value: value.name,
-                  };
-                }
-              })
-            );
-          });
-        },
-        select: function (event, ui) {
-          // Distinguish between group of lights an single light.
-          if (ui.item.value.toLowerCase().startsWith("grouped_light")) {
-            $("#node-input-hueDevice").val(ui.item.hueDevice + "#grouped_light");
-            $("#getColorAtSwitchOnDayTimeButton").hide();
-            $("#getColorAtSwitchOnNightTimeButton").hide();
-          } else {
-            $("#node-input-hueDevice").val(ui.item.hueDevice + "#light");
-            $("#getColorAtSwitchOnDayTimeButton").show();
-            $("#getColorAtSwitchOnNightTimeButton").show();
-          }
-          $("#tabs").show();
-        },
-      });
-
-
-
       // Show/Hide the div of the color at swich on
       if (this.specifySwitchOnBrightness === "yes") {
         $("#divColorsAtSwitchOn").show();
@@ -376,75 +332,106 @@
 
 
       // Get the HUE capabilities to enable/disable UI parts
-      $.getJSON("KNXUltimateGetResourcesHUE?rtype=light&nodeID=" + oNodeServerHue.id, (data) => {
-        data.devices.forEach((element) => {
-          if (element.id === this.hueDevice.split("#")[0] && element.deviceObject !== undefined) {
+      $.getJSON("knxUltimateGetLightObject?id=" + $("#node-input-hueDevice").val().split("#")[0], (data) => {
+        let oLight = data;
+        // Check if grouped, to hide/show the "Get current" buttons
+        if (oLight.type === "grouped_light") {
+          $("#getColorAtSwitchOnDayTimeButton").hide();
+          $("#getColorAtSwitchOnNightTimeButton").hide();
+          $("#node-input-specifySwitchOnBrightness").append(
+            $("<option>")
+              .val("yes")
+              .text("Select color")
+          ).append(
+            $("<option>")
+              .val("temperature")
+              .text("Select temperature and brightness")
+          );
+          $("#node-input-enableDayNightLighting").append(
+            $("<option>")
+              .val("yes")
+              .text("Select color")
+          ).append(
+            $("<option>")
+              .val("temperature")
+              .text("Select temperature and brightness")
+          );
+          return;
+        } else {
+          $("#getColorAtSwitchOnDayTimeButton").show();
+          $("#getColorAtSwitchOnNightTimeButton").show();
+        }
+        $("#tabs").tabs("disable", "#tabs-4");
+        $("#tabs").tabs("disable", "#tabs-3");
+        $("#tabs").tabs("disable", "#tabs-2");
+        $("#divColorsAtSwitchOn").hide();
+        $("#divColorsAtSwitchOnNightTime").hide();
+        $("#divTemperatureAtSwitchOn").hide();
+        $("#divTemperatureAtSwitchOnNightTime").hide();
+        $("#divColorCycle").hide();
+        $("#divUpdateKNXBrightnessStatusOnHUEOnOff").hide();
+        $("#divMinMaxBrightness").hide();
 
-            // Check color
-            if (element.deviceObject.color_temperature === undefined) $("#tabs").tabs("disable", "#tabs-3");
-            if (element.deviceObject.color === undefined || JSON.stringify(deviceObject.color) === "{}") {
-              $("#tabs").tabs("disable", "#tabs-4");
-              $("#divColorsAtSwitchOn").hide();
-              $("#divColorCycle").hide();
-              $("#node-input-specifySwitchOnBrightness").empty().append(
-                $("<option>")
-                  .val("no")
-                  .text("Last status")
-              ).append(
-                $("<option>")
-                  .val("temperature")
-                  .text("Select temperature and brightness")
-              );
-              $("#node-input-specifySwitchOnBrightness").val(this.specifySwitchOnBrightness).trigger('change');
+        // Enable options/tabs one by one
+        if (oLight.color !== undefined) {
+          $("#tabs").tabs("enable", "#tabs-4");
+          $("#divColorsAtSwitchOn").show();
+          $("#divColorsAtSwitchOnNightTime").show();
+          $("#divColorCycle").show();
+          $("#node-input-specifySwitchOnBrightness").append(
+            $("<option>")
+              .val("yes")
+              .text("Select color")
+          );
+          $("#node-input-enableDayNightLighting").append(
+            $("<option>")
+              .val("yes")
+              .text("Select color")
+          );
+        }
+        // Check temperature (if the light supports temperature, it support dimming as well)
+        if (oLight.color_temperature !== undefined) {
+          $("#tabs").tabs("enable", "#tabs-3");
+          $("#tabs").tabs("enable", "#tabs-2");
+          $("#node-input-specifySwitchOnBrightness").append(
+            $("<option>")
+              .val("temperature")
+              .text("Select temperature and brightness")
+          );
+          $("#node-input-enableDayNightLighting").append(
+            $("<option>")
+              .val("temperature")
+              .text("Select temperature and brightness")
+          );
+          $("#divTemperatureAtSwitchOn").show();
+          $("#divTemperatureAtSwitchOnNightTime").show();
+          $("#divUpdateKNXBrightnessStatusOnHUEOnOff").show();
+          $("#divMinMaxBrightness").show();
+        } else {
+          $("#tabs").tabs("enable", "#tabs-2");
+          $("#node-input-specifySwitchOnBrightness").append(
+            $("<option>")
+              .val("temperature")
+              .text("Select brightness")
+          );
+          $("#node-input-enableDayNightLighting").append(
+            $("<option>")
+              .val("temperature")
+              .text("Select brightness")
+          );
+          $("#comboTemperatureAtSwitchOn").hide();
+          $("#comboTemperatureAtSwitchOnNightTime").hide();
+          $("#comboTemperatureAtSwitchOn").val(0);
+          $("#comboTemperatureAtSwitchOnNightTime").val(0);
+          $("#divTemperatureAtSwitchOn").show();
+          $("#divTemperatureAtSwitchOnNightTime").show();
+          $("#divUpdateKNXBrightnessStatusOnHUEOnOff").show();
+          $("#divMinMaxBrightness").show();
+        }
+        $("#node-input-specifySwitchOnBrightness").val(this.specifySwitchOnBrightness).trigger('change');
+        $("#node-input-enableDayNightLighting").val(this.enableDayNightLighting).trigger('change');
 
-              $("#node-input-enableDayNightLighting").empty().append(
-                $("<option>")
-                  .val("no")
-                  .text("Last status")
-              ).append(
-                $("<option>")
-                  .val("temperature")
-                  .text("Select temperature and brightness")
-              );
-              $("#node-input-enableDayNightLighting").val(this.enableDayNightLighting).trigger('change');
-            }
-
-            // Check dimming
-            if (element.deviceObject.dimming === undefined) {
-              $("#tabs").tabs("disable", "#tabs-2");
-              $("#divColorsAtSwitchOn").hide();
-              $("#divColorCycle").hide();
-              $("#divUpdateKNXBrightnessStatusOnHUEOnOff").hide();
-              $("#divCCSBoxAtNightLighting").hide();
-              $("#node-input-specifySwitchOnBrightness").val("no");
-              $("#node-input-enableDayNightLighting").val("no");
-              $("#divMinMaxBrightness").hide();
-              $("#node-input-specifySwitchOnBrightness").empty().append(
-                $("<option>")
-                  .val("no")
-                  .text("Last status")
-              )
-              $("#node-input-specifySwitchOnBrightness").val(this.specifySwitchOnBrightness).trigger('change');
-
-              $("#node-input-enableDayNightLighting").empty().append(
-                $("<option>")
-                  .val("no")
-                  .text("Last status")
-              )
-            }
-            $("#node-input-enableDayNightLighting").val(this.enableDayNightLighting).trigger('change');
-
-            // Check if grouped, to hide/show the "Get current" buttons
-            if (element.deviceObject.type === "grouped_light") {
-              $("#getColorAtSwitchOnDayTimeButton").hide();
-              $("#getColorAtSwitchOnNightTimeButton").hide();
-            } else {
-              $("#getColorAtSwitchOnDayTimeButton").show();
-              $("#getColorAtSwitchOnNightTimeButton").show();
-            }
-            return;
-          }
-        });
+        return;
       });
 
       $("#getColorAtSwitchOnDayTimeButton").on("click", function () {
@@ -596,6 +583,48 @@
       $("#node-input-maxDimLevelLight").val(this.maxDimLevelLight);
 
       if (this.hueDevice !== "") $("#tabs").show(); // Light options
+
+
+      // Autocomplete suggestion with HUE Lights
+      $("#node-input-name").autocomplete({
+        minLength: 1,
+        source: function (request, response) {
+          $.getJSON("KNXUltimateGetResourcesHUE?rtype=light&nodeID=" + oNodeServerHue.id, (data) => {
+            response(
+              $.map(data.devices, function (value, key) {
+                //alert(JSON.stringify(value) + " "+ key)
+                var sSearch = value.name;
+                if (!value.name.includes("I'm still connecting")) {
+                  if (fullSearch(sSearch, request.term)) {
+                    return {
+                      hueDevice: value.id,
+                      value: value.name,
+                    };
+                  } else {
+                    return null;
+                  }
+                } else {
+                  return {
+                    hueDevice: value.id,
+                    value: value.name,
+                  };
+                }
+              })
+            );
+          });
+        },
+        select: function (event, ui) {
+          // Distinguish between group of lights an single light.
+          if (ui.item.value.toLowerCase().startsWith("grouped_light")) {
+            $("#node-input-hueDevice").val(ui.item.hueDevice + "#grouped_light");
+          } else {
+            $("#node-input-hueDevice").val(ui.item.hueDevice + "#light");
+          }
+
+          $("#tabs").show();
+        },
+      });
+
 
     },
     oneditsave: function () {
@@ -1003,9 +1032,9 @@
         <i class="fa fa-tag"></i> Switch on behaviour
       </label>
       <select id="node-input-specifySwitchOnBrightness">
-        <option value="temperature">Select temperature and brightness</option>
-        <option value="yes">Select color</option>
         <option value="no">Last status</option>
+        <!-- <option value="temperature">Select temperature and brightness</option>
+        <option value="yes">Select color</option> -->
       </select>
     </div>
 
@@ -1029,9 +1058,9 @@
           <i class="fa fa-clone"></i> Night Lighting
         </label>
         <select id="node-input-enableDayNightLighting">
-          <option value="temperature">Select temperature and brightness</option>
-          <option value="yes">Select color</option>
           <option value="no">No night lighting</option>
+          <!-- <option value="temperature">Select temperature and brightness</option>
+          <option value="yes">Select color</option> -->
         </select>
       </div>
 

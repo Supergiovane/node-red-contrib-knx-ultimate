@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 /* eslint-disable no-lonely-if */
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-inner-declarations */
@@ -170,7 +171,7 @@ module.exports = (RED) => {
     // Query the HUE Bridge to return the resources
     node.loadResourcesFromHUEBridge = async () => {
       if (node.linkStatus === "disconnected") return;
-      //(async () => {
+      // (async () => {
       // °°°°°° Load ALL resources
       try {
         node.hueAllResources = await node.hueManager.hueApiV2.get("/resource");
@@ -457,6 +458,34 @@ module.exports = (RED) => {
         res.json(jKelvin);
       } catch (error) {
         res.json("Select the device first!");
+      }
+    });
+
+    RED.httpAdmin.get("/knxUltimateGetLightObject", RED.auth.needsPermission("hue-config.read"), (req, res) => {
+      try {
+        const _lightId = req.query.id;
+        const oLight = node.hueAllResources.filter((a) => a.id === _lightId)[0];
+        // Infer some useful info, so the HTML part cann avoid to query the server
+        // Kelvin
+        try {
+          if (oLight.color_temperature !== undefined && oLight.color_temperature.mirek !== undefined) {
+            oLight.calculatedKelvin = hueColorConverter.ColorConverter.mirekToKelvin(oLight.color_temperature.mirek);
+          }
+        } catch (error) {
+          oLight.calculatedKelvin = undefined;
+        }
+        // HEX value from XYBri
+        try {
+          const retRGB = hueColorConverter.ColorConverter.xyBriToRgb(oLight.color.xy.x, oLight.color.xy.y, oLight.dimming.brightness);
+          const ret = "#" + hueColorConverter.ColorConverter.rgbHex(retRGB.r, retRGB.g, retRGB.b).toString();
+          oLight.calculatedHEXColor = ret;
+        } catch (error) {
+          oLight.calculatedHEXColor = undefined;
+        }
+        res.json(oLight);
+      } catch (error) {
+        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(`KNXUltimateHue: hueEngine: knxUltimateGetLightObject: error ${error.message}`);
+        res.json({});
       }
     });
 

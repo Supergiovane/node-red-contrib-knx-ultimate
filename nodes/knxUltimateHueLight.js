@@ -99,37 +99,55 @@ module.exports = function (RED) {
           case config.GALightSwitch:
             msg.payload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightSwitch));
             if (msg.payload === true) {
-              // Check wether the user selected specific color/brightness at switch on.
-              let jColorChoosen = null;
-              if (node.DayTime === true && (config.specifySwitchOnBrightness === "yes" || config.specifySwitchOnBrightness === "temperature")) {
-                jColorChoosen = config.colorAtSwitchOnDayTime;
-              } else if (node.DayTime === false && (config.enableDayNightLighting === "yes" || config.enableDayNightLighting === "temperature")) {
-                jColorChoosen = config.colorAtSwitchOnNightTime;
+              let colorChoosen;
+              let temperatureChoosen;
+              let brightnessChoosen;
+              // The light must support the temperature (in this case, colorAtSwitchOnNightTime is an object {kelvin:xx, brightness:yy})
+              if (node.currentHUEDevice.color_temperature !== undefined) {
+                if (node.DayTime === true && config.specifySwitchOnBrightness === "temperature") {
+                  temperatureChoosen = config.colorAtSwitchOnDayTime.kelvin;
+                } else if (node.DayTime === false && config.enableDayNightLighting === "temperature") {
+                  temperatureChoosen = config.colorAtSwitchOnNightTime.kelvin;
+                }
+              }
+              if (node.currentHUEDevice.dimming !== undefined) {
+                // Check wether the user selected specific brightness at switch on (in this case, colorAtSwitchOnNightTime is an object {kelvin:xx, brightness:yy})
+                if (node.DayTime === true && config.specifySwitchOnBrightness === "temperature") {
+                  brightnessChoosen = config.colorAtSwitchOnDayTime.brightness;
+                } else if (node.DayTime === false && config.enableDayNightLighting === "temperature") {
+                  brightnessChoosen = config.colorAtSwitchOnNightTime.brightness;
+                }
+              }
+              if (node.currentHUEDevice.color !== undefined) {
+                // Check wether the user selected specific color at switch on (in this case, colorAtSwitchOnDayTime is a text with HTML web color)
+                if (node.DayTime === true && config.specifySwitchOnBrightness === "yes") {
+                  colorChoosen = config.colorAtSwitchOnDayTime;
+                } else if (node.DayTime === false && config.enableDayNightLighting === "yes") {
+                  colorChoosen = config.colorAtSwitchOnNightTime;
+                }
               }
 
-              // Now we have a jColorChoosen. Proceed illuminating the light
-              if (jColorChoosen !== null && jColorChoosen.kelvin === undefined) {
-                // RGB
+              if (colorChoosen !== undefined) {
+                // Now we have a jColorChoosen. Proceed illuminating the light
                 let gamut = null;
-                if (node.currentHUEDevice !== undefined && node.currentHUEDevice.hasOwnProperty("color") && node.currentHUEDevice.color.hasOwnProperty("gamut_type")) {
+                if (node.currentHUEDevice.color.gamut_type !== undefined) {
                   gamut = node.currentHUEDevice.color.gamut_type;
                 }
-                const dretXY = hueColorConverter.ColorConverter.rgbToXy(jColorChoosen.red, jColorChoosen.green, jColorChoosen.blue, gamut);
-                const dbright = hueColorConverter.ColorConverter.getBrightnessFromRGBOrHex(jColorChoosen.red, jColorChoosen.green, jColorChoosen.blue);
+                const dretXY = hueColorConverter.ColorConverter.rgbToXy(colorChoosen.red, colorChoosen.green, colorChoosen.blue, gamut);
+                const dbright = hueColorConverter.ColorConverter.getBrightnessFromRGBOrHex(colorChoosen.red, colorChoosen.green, colorChoosen.blue);
                 node.currentHUEDevice.dimming.brightness = Math.round(dbright, 0);
                 node.updateKNXBrightnessState(node.currentHUEDevice.dimming.brightness);
                 state = dbright > 0 ? { on: { on: true }, dimming: { brightness: dbright }, color: { xy: dretXY } } : { on: { on: false } };
-              } if (jColorChoosen !== null && jColorChoosen.kelvin !== undefined) {
+              } if (temperatureChoosen !== undefined) {
                 // Kelvin
-                const dbright = jColorChoosen.brightness;
-                const mirek = hueColorConverter.ColorConverter.kelvinToMirek(jColorChoosen.kelvin);
+                const mirek = hueColorConverter.ColorConverter.kelvinToMirek(temperatureChoosen);
                 node.currentHUEDevice.color_temperature.mirek = mirek;
-                node.currentHUEDevice.dimming.brightness = dbright;
+                node.currentHUEDevice.dimming.brightness = brightnessChoosen;
                 node.updateKNXBrightnessState(node.currentHUEDevice.dimming.brightness);
                 // Kelvin temp
-                state = dbright > 0 ? { on: { on: true }, dimming: { brightness: dbright }, color_temperature: { mirek: mirek } } : { on: { on: false } };
-              } else if (jColorChoosen === null || jColorChoosen === undefined) {
-                state = { on: { on: true } };
+                state = brightnessChoosen > 0 ? { on: { on: true }, dimming: { brightness: brightnessChoosen }, color_temperature: { mirek: mirek } } : { on: { on: false } };
+              } else if (brightnessChoosen !== undefined) {
+                state = brightnessChoosen > 0 ? { on: { on: true }, dimming: { brightness: brightnessChoosen } } : { on: { on: false } };
               }
             } else {
               state = { on: { on: false } };
