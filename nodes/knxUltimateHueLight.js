@@ -93,138 +93,69 @@ module.exports = function (RED) {
         });
         return;
       }
-      let state = {};
-      try {
-        switch (msg.knx.destination) {
-          case config.GALightSwitch:
-            msg.payload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightSwitch));
-            if (msg.payload === true) {
-              let colorChoosen;
-              let temperatureChoosen;
-              let brightnessChoosen;
-              // The light must support the temperature (in this case, colorAtSwitchOnNightTime is an object {kelvin:xx, brightness:yy})
-              if (node.currentHUEDevice.color_temperature !== undefined) {
-                if (node.DayTime === true && config.specifySwitchOnBrightness === "temperature") {
-                  temperatureChoosen = config.colorAtSwitchOnDayTime.kelvin;
-                } else if (node.DayTime === false && config.enableDayNightLighting === "temperature") {
-                  temperatureChoosen = config.colorAtSwitchOnNightTime.kelvin;
+      if (msg.knx.event !== "GroupValue_Read" && node.currentHUEDevice !== undefined) {
+        let state = {};
+        try {
+          switch (msg.knx.destination) {
+            case config.GALightSwitch:
+              msg.payload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightSwitch));
+              if (msg.payload === true) {
+                let colorChoosen;
+                let temperatureChoosen;
+                let brightnessChoosen;
+                // The light must support the temperature (in this case, colorAtSwitchOnNightTime is an object {kelvin:xx, brightness:yy})
+                if (node.currentHUEDevice.color_temperature !== undefined) {
+                  if (node.DayTime === true && config.specifySwitchOnBrightness === "temperature") {
+                    temperatureChoosen = config.colorAtSwitchOnDayTime.kelvin;
+                  } else if (node.DayTime === false && config.enableDayNightLighting === "temperature") {
+                    temperatureChoosen = config.colorAtSwitchOnNightTime.kelvin;
+                  }
                 }
-              }
-              if (node.currentHUEDevice.dimming !== undefined) {
-                // Check wether the user selected specific brightness at switch on (in this case, colorAtSwitchOnNightTime is an object {kelvin:xx, brightness:yy})
-                if (node.DayTime === true && config.specifySwitchOnBrightness === "temperature") {
-                  brightnessChoosen = config.colorAtSwitchOnDayTime.brightness;
-                } else if (node.DayTime === false && config.enableDayNightLighting === "temperature") {
-                  brightnessChoosen = config.colorAtSwitchOnNightTime.brightness;
+                if (node.currentHUEDevice.dimming !== undefined) {
+                  // Check wether the user selected specific brightness at switch on (in this case, colorAtSwitchOnNightTime is an object {kelvin:xx, brightness:yy})
+                  if (node.DayTime === true && config.specifySwitchOnBrightness === "temperature") {
+                    brightnessChoosen = config.colorAtSwitchOnDayTime.brightness;
+                  } else if (node.DayTime === false && config.enableDayNightLighting === "temperature") {
+                    brightnessChoosen = config.colorAtSwitchOnNightTime.brightness;
+                  }
                 }
-              }
-              if (node.currentHUEDevice.color !== undefined) {
-                // Check wether the user selected specific color at switch on (in this case, colorAtSwitchOnDayTime is a text with HTML web color)
-                if (node.DayTime === true && config.specifySwitchOnBrightness === "yes") {
-                  colorChoosen = config.colorAtSwitchOnDayTime;
-                } else if (node.DayTime === false && config.enableDayNightLighting === "yes") {
-                  colorChoosen = config.colorAtSwitchOnNightTime;
+                if (node.currentHUEDevice.color !== undefined) {
+                  // Check wether the user selected specific color at switch on (in this case, colorAtSwitchOnDayTime is a text with HTML web color)
+                  if (node.DayTime === true && config.specifySwitchOnBrightness === "yes") {
+                    colorChoosen = config.colorAtSwitchOnDayTime;
+                  } else if (node.DayTime === false && config.enableDayNightLighting === "yes") {
+                    colorChoosen = config.colorAtSwitchOnNightTime;
+                  }
                 }
-              }
 
-              if (colorChoosen !== undefined) {
-                // Now we have a jColorChoosen. Proceed illuminating the light
-                let gamut = null;
-                if (node.currentHUEDevice.color.gamut_type !== undefined) {
-                  gamut = node.currentHUEDevice.color.gamut_type;
+                if (colorChoosen !== undefined) {
+                  // Now we have a jColorChoosen. Proceed illuminating the light
+                  let gamut = null;
+                  if (node.currentHUEDevice.color.gamut_type !== undefined) {
+                    gamut = node.currentHUEDevice.color.gamut_type;
+                  }
+                  const dretXY = hueColorConverter.ColorConverter.rgbToXy(colorChoosen.red, colorChoosen.green, colorChoosen.blue, gamut);
+                  const dbright = hueColorConverter.ColorConverter.getBrightnessFromRGBOrHex(colorChoosen.red, colorChoosen.green, colorChoosen.blue);
+                  node.currentHUEDevice.dimming.brightness = Math.round(dbright, 0);
+                  node.updateKNXBrightnessState(node.currentHUEDevice.dimming.brightness);
+                  state = dbright > 0 ? { on: { on: true }, dimming: { brightness: dbright }, color: { xy: dretXY } } : { on: { on: false } };
+                } else if (temperatureChoosen !== undefined) {
+                  // Kelvin
+                  const mirek = hueColorConverter.ColorConverter.kelvinToMirek(temperatureChoosen);
+                  node.currentHUEDevice.color_temperature.mirek = mirek;
+                  node.currentHUEDevice.dimming.brightness = brightnessChoosen;
+                  node.updateKNXBrightnessState(node.currentHUEDevice.dimming.brightness);
+                  // Kelvin temp
+                  state = brightnessChoosen > 0 ? { on: { on: true }, dimming: { brightness: brightnessChoosen }, color_temperature: { mirek: mirek } } : { on: { on: false } };
+                } else if (brightnessChoosen !== undefined) {
+                  state = brightnessChoosen > 0 ? { on: { on: true }, dimming: { brightness: brightnessChoosen } } : { on: { on: false } };
+                } else {
+                  state = { on: { on: true } };
                 }
-                const dretXY = hueColorConverter.ColorConverter.rgbToXy(colorChoosen.red, colorChoosen.green, colorChoosen.blue, gamut);
-                const dbright = hueColorConverter.ColorConverter.getBrightnessFromRGBOrHex(colorChoosen.red, colorChoosen.green, colorChoosen.blue);
-                node.currentHUEDevice.dimming.brightness = Math.round(dbright, 0);
-                node.updateKNXBrightnessState(node.currentHUEDevice.dimming.brightness);
-                state = dbright > 0 ? { on: { on: true }, dimming: { brightness: dbright }, color: { xy: dretXY } } : { on: { on: false } };
-              } else if (temperatureChoosen !== undefined) {
-                // Kelvin
-                const mirek = hueColorConverter.ColorConverter.kelvinToMirek(temperatureChoosen);
-                node.currentHUEDevice.color_temperature.mirek = mirek;
-                node.currentHUEDevice.dimming.brightness = brightnessChoosen;
-                node.updateKNXBrightnessState(node.currentHUEDevice.dimming.brightness);
-                // Kelvin temp
-                state = brightnessChoosen > 0 ? { on: { on: true }, dimming: { brightness: brightnessChoosen }, color_temperature: { mirek: mirek } } : { on: { on: false } };
-              } else if (brightnessChoosen !== undefined) {
-                state = brightnessChoosen > 0 ? { on: { on: true }, dimming: { brightness: brightnessChoosen } } : { on: { on: false } };
               } else {
-                state = { on: { on: true } };
+                state = { on: { on: false } };
               }
-            } else {
-              state = { on: { on: false } };
-            }
 
-            node.serverHue.hueManager.writeHueQueueAdd(node.hueDevice, state, node.isGrouped_light === false ? "setLight" : "setGroupedLight");
-            node.setNodeStatusHue({
-              fill: "green",
-              shape: "dot",
-              text: "KNX->HUE",
-              payload: state,
-            });
-            break;
-          case config.GALightDIM:
-            // { decr_incr: 1, data: 1 } : Start increasing until { decr_incr: 0, data: 0 } is received.
-            // { decr_incr: 0, data: 1 } : Start decreasing until { decr_incr: 0, data: 0 } is received.
-            msg.payload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightDIM));
-            node.hueDimming(msg.payload.decr_incr, msg.payload.data, config.dimSpeed);
-            node.setNodeStatusHue({
-              fill: "green", shape: "dot", text: "KNX->HUE", payload: JSON.stringify(msg.payload),
-            });
-            break;
-          case config.GALightKelvin:
-            let retMirek;
-            msg.payload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightKelvin));
-            if (config.dptLightKelvin === "7.600") {
-              if (msg.payload > 65535) msg.payload = 65535;
-              if (msg.payload < 0) msg.payload = 0;
-              retMirek = hueColorConverter.ColorConverter.scale(msg.payload, [0, 65535], [500, 153]);
-            } else if (config.dptLightKelvin === "9.002") {
-              // Relative temperature in Kelvin. Use HUE scale.
-              if (msg.payload > 6535) msg.payload = 6535;
-              if (msg.payload < 2000) msg.payload = 2000;
-              retMirek = hueColorConverter.ColorConverter.scale(msg.payload, [2000, 6535], [500, 153]);
-            }
-            state = { color_temperature: { mirek: retMirek } };
-            node.serverHue.hueManager.writeHueQueueAdd(node.hueDevice, state, node.isGrouped_light === false ? "setLight" : "setGroupedLight");
-            node.setNodeStatusHue({
-              fill: "green",
-              shape: "dot",
-              text: "KNX->HUE",
-              payload: msg.payload,
-            });
-            break;
-          case config.GADaylightSensor:
-            node.DayTime = Boolean(dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptDaylightSensor)));
-            if (config.invertDayNight !== undefined && config.invertDayNight === true) node.DayTime = !node.DayTime;
-            node.setNodeStatusHue({
-              fill: "green",
-              shape: "dot",
-              text: "KNX->HUE Daytime",
-              payload: node.DayTime,
-            });
-
-            break;
-          case config.GALightHSV:
-            if (config.dptLightHSV === "3.007") {
-              // MDT smartbutton will dim the color temperature
-              // { decr_incr: 1, data: 1 } : Start increasing until { decr_incr: 0, data: 0 } is received.
-              // { decr_incr: 0, data: 1 } : Start decreasing until { decr_incr: 0, data: 0 } is received.
-              msg.payload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightHSV));
-              node.hueDimmingTunableWhite(msg.payload.decr_incr, msg.payload.data, config.dimSpeed);
-              node.setNodeStatusHue({
-                fill: "green", shape: "dot", text: "KNX->HUE", payload: JSON.stringify(msg.payload),
-              });
-            }
-            break;
-          case config.GALightHSVPercentage:
-            if (config.dptLightHSVPercentage === "5.001") {
-              // 0-100% tunable white
-              msg.payload = 100 - dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightHSVPercentage));
-              // msg.payload = msg.payload <= 0 ? 1 : msg.payload
-              const retMirek = hueColorConverter.ColorConverter.scale(msg.payload, [0, 100], [153, 500]);
-              msg.payload = retMirek;
-              state = { color_temperature: { mirek: msg.payload } };
               node.serverHue.hueManager.writeHueQueueAdd(node.hueDevice, state, node.isGrouped_light === false ? "setLight" : "setGroupedLight");
               node.setNodeStatusHue({
                 fill: "green",
@@ -232,112 +163,142 @@ module.exports = function (RED) {
                 text: "KNX->HUE",
                 payload: state,
               });
-            }
-            break;
-          case config.GALightBrightness:
-            msg.payload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightBrightness));
-            state = { dimming: { brightness: msg.payload } };
-            if (node.currentHUEDevice === undefined) {
-              // Grouped light
-              state.on = { on: msg.payload > 0 };
-            } else {
-              // Light
-              if (node.currentHUEDevice.on.on === false && msg.payload > 0) state.on = { on: true };
-              if (node.currentHUEDevice.on.on === true && msg.payload === 0) state.on = { on: false };
-            }
-            node.serverHue.hueManager.writeHueQueueAdd(node.hueDevice, state, node.isGrouped_light === false ? "setLight" : "setGroupedLight");
-            node.setNodeStatusHue({
-              fill: "green",
-              shape: "dot",
-              text: "KNX->HUE",
-              payload: state,
-            });
-            break;
-          case config.GALightColor:
-            msg.payload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightColor));
-            let gamut = null;
-            if (
-              node.currentHUEDevice !== undefined
-              && node.currentHUEDevice.color !== undefined
-              && node.currentHUEDevice.color.gamut_type !== undefined
-            ) {
-              gamut = node.currentHUEDevice.color.gamut_type;
-            }
-            const retXY = hueColorConverter.ColorConverter.rgbToXy(msg.payload.red, msg.payload.green, msg.payload.blue, gamut);
-            const bright = hueColorConverter.ColorConverter.getBrightnessFromRGBOrHex(msg.payload.red, msg.payload.green, msg.payload.blue);
-            // state = bright > 0 ? { on: { on: true }, dimming: { brightness: bright }, color: { xy: retXY } } : { on: { on: false } }
-            state = { dimming: { brightness: bright }, color: { xy: retXY } };
-            if (node.currentHUEDevice === undefined) {
-              // Grouped light
-              state.on = { on: bright > 0 };
-            } else {
-              // Light
-              if (node.currentHUEDevice.on.on === false && bright > 0) state.on = { on: true };
-              if (node.currentHUEDevice.on.on === true && bright === 0) state = { on: { on: false }, dimming: { brightness: bright } };
-            }
-            node.serverHue.hueManager.writeHueQueueAdd(node.hueDevice, state, node.isGrouped_light === false ? "setLight" : "setGroupedLight");
-            node.setNodeStatusHue({
-              fill: "green",
-              shape: "dot",
-              text: "KNX->HUE",
-              payload: state,
-            });
-            break;
-          case config.GALightBlink:
-            const gaVal = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightBlink));
-            if (gaVal) {
-              node.timerBlink = setInterval(() => {
-                if (node.blinkValue === undefined) node.blinkValue = true;
-                node.blinkValue = !node.blinkValue;
-                msg.payload = node.blinkValue;
-                // state = msg.payload === true ? { on: { on: true } } : { on: { on: false } }
-                state = msg.payload === true
-                  ? { on: { on: true }, dimming: { brightness: 100 }, dynamics: { duration: 0 } }
-                  : { on: { on: false }, dimming: { brightness: 0 }, dynamics: { duration: 0 } };
+              break;
+            case config.GALightDIM:
+              // { decr_incr: 1, data: 1 } : Start increasing until { decr_incr: 0, data: 0 } is received.
+              // { decr_incr: 0, data: 1 } : Start decreasing until { decr_incr: 0, data: 0 } is received.
+              msg.payload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightDIM));
+              node.hueDimming(msg.payload.decr_incr, msg.payload.data, config.dimSpeed);
+              node.setNodeStatusHue({
+                fill: "green", shape: "dot", text: "KNX->HUE", payload: JSON.stringify(msg.payload),
+              });
+              break;
+            case config.GALightKelvin:
+              let retMirek;
+              msg.payload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightKelvin));
+              if (config.dptLightKelvin === "7.600") {
+                if (msg.payload > 65535) msg.payload = 65535;
+                if (msg.payload < 0) msg.payload = 0;
+                retMirek = hueColorConverter.ColorConverter.scale(msg.payload, [0, 65535], [500, 153]);
+              } else if (config.dptLightKelvin === "9.002") {
+                // Relative temperature in Kelvin. Use HUE scale.
+                if (msg.payload > 6535) msg.payload = 6535;
+                if (msg.payload < 2000) msg.payload = 2000;
+                retMirek = hueColorConverter.ColorConverter.scale(msg.payload, [2000, 6535], [500, 153]);
+              }
+              state = { color_temperature: { mirek: retMirek } };
+              node.serverHue.hueManager.writeHueQueueAdd(node.hueDevice, state, node.isGrouped_light === false ? "setLight" : "setGroupedLight");
+              node.setNodeStatusHue({
+                fill: "green",
+                shape: "dot",
+                text: "KNX->HUE",
+                payload: msg.payload,
+              });
+              break;
+            case config.GADaylightSensor:
+              node.DayTime = Boolean(dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptDaylightSensor)));
+              if (config.invertDayNight !== undefined && config.invertDayNight === true) node.DayTime = !node.DayTime;
+              node.setNodeStatusHue({
+                fill: "green",
+                shape: "dot",
+                text: "KNX->HUE Daytime",
+                payload: node.DayTime,
+              });
+
+              break;
+            case config.GALightHSV:
+              if (config.dptLightHSV === "3.007") {
+                // MDT smartbutton will dim the color temperature
+                // { decr_incr: 1, data: 1 } : Start increasing until { decr_incr: 0, data: 0 } is received.
+                // { decr_incr: 0, data: 1 } : Start decreasing until { decr_incr: 0, data: 0 } is received.
+                msg.payload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightHSV));
+                node.hueDimmingTunableWhite(msg.payload.decr_incr, msg.payload.data, config.dimSpeed);
+                node.setNodeStatusHue({
+                  fill: "green", shape: "dot", text: "KNX->HUE", payload: JSON.stringify(msg.payload),
+                });
+              }
+              break;
+            case config.GALightHSVPercentage:
+              if (config.dptLightHSVPercentage === "5.001") {
+                // 0-100% tunable white
+                msg.payload = 100 - dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightHSVPercentage));
+                // msg.payload = msg.payload <= 0 ? 1 : msg.payload
+                const retMirek = hueColorConverter.ColorConverter.scale(msg.payload, [0, 100], [153, 500]);
+                msg.payload = retMirek;
+                state = { color_temperature: { mirek: msg.payload } };
                 node.serverHue.hueManager.writeHueQueueAdd(node.hueDevice, state, node.isGrouped_light === false ? "setLight" : "setGroupedLight");
-              }, 1000);
-            } else {
-              if (node.timerBlink !== undefined) clearInterval(node.timerBlink);
-              node.serverHue.hueManager.writeHueQueueAdd(
-                node.hueDevice,
-                { on: { on: false } },
-                node.isGrouped_light === false ? "setLight" : "setGroupedLight",
-              );
-            }
-            node.setNodeStatusHue({
-              fill: "green",
-              shape: "dot",
-              text: "KNX->HUE",
-              payload: gaVal,
-            });
-            break;
-          case config.GALightColorCycle:
-            {
-              if (node.timerColorCycle !== undefined) clearInterval(node.timerColorCycle);
-              const gaValColorCycle = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightColorCycle));
-              if (gaValColorCycle === true) {
-                node.serverHue.hueManager.writeHueQueueAdd(node.hueDevice, { on: { on: true } }, node.isGrouped_light === false ? "setLight" : "setGroupedLight");
-                node.timerColorCycle = setInterval(() => {
-                  try {
-                    const red = getRandomIntInclusive(0, 255);
-                    const green = getRandomIntInclusive(0, 255);
-                    const blue = getRandomIntInclusive(0, 255);
-                    let gamut = null;
-                    if (
-                      node.currentHUEDevice !== undefined
-                      && node.currentHUEDevice.color !== undefined
-                      && node.currentHUEDevice.color.gamut_type !== undefined
-                    ) {
-                      gamut = node.currentHUEDevice.color.gamut_type;
-                    }
-                    const retXY = hueColorConverter.ColorConverter.rgbToXy(red, green, blue, gamut);
-                    const bright = hueColorConverter.ColorConverter.getBrightnessFromRGBOrHex(red, green, blue);
-                    state = bright > 0 ? { on: { on: true }, dimming: { brightness: bright }, color: { xy: retXY } } : { on: { on: false } };
-                    node.serverHue.hueManager.writeHueQueueAdd(node.hueDevice, state, node.isGrouped_light === false ? "setLight" : "setGroupedLight");
-                  } catch (error) { }
-                }, 10000);
+                node.setNodeStatusHue({
+                  fill: "green",
+                  shape: "dot",
+                  text: "KNX->HUE",
+                  payload: state,
+                });
+              }
+              break;
+            case config.GALightBrightness:
+              msg.payload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightBrightness));
+              state = { dimming: { brightness: msg.payload } };
+              if (node.currentHUEDevice === undefined) {
+                // Grouped light
+                state.on = { on: msg.payload > 0 };
               } else {
-                if (node.timerColorCycle !== undefined) clearInterval(node.timerColorCycle);
+                // Light
+                if (node.currentHUEDevice.on.on === false && msg.payload > 0) state.on = { on: true };
+                if (node.currentHUEDevice.on.on === true && msg.payload === 0) state.on = { on: false };
+              }
+              node.serverHue.hueManager.writeHueQueueAdd(node.hueDevice, state, node.isGrouped_light === false ? "setLight" : "setGroupedLight");
+              node.setNodeStatusHue({
+                fill: "green",
+                shape: "dot",
+                text: "KNX->HUE",
+                payload: state,
+              });
+              break;
+            case config.GALightColor:
+              msg.payload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightColor));
+              let gamut = null;
+              if (
+                node.currentHUEDevice !== undefined
+                && node.currentHUEDevice.color !== undefined
+                && node.currentHUEDevice.color.gamut_type !== undefined
+              ) {
+                gamut = node.currentHUEDevice.color.gamut_type;
+              }
+              const retXY = hueColorConverter.ColorConverter.rgbToXy(msg.payload.red, msg.payload.green, msg.payload.blue, gamut);
+              const bright = hueColorConverter.ColorConverter.getBrightnessFromRGBOrHex(msg.payload.red, msg.payload.green, msg.payload.blue);
+              // state = bright > 0 ? { on: { on: true }, dimming: { brightness: bright }, color: { xy: retXY } } : { on: { on: false } }
+              state = { dimming: { brightness: bright }, color: { xy: retXY } };
+              if (node.currentHUEDevice === undefined) {
+                // Grouped light
+                state.on = { on: bright > 0 };
+              } else {
+                // Light
+                if (node.currentHUEDevice.on.on === false && bright > 0) state.on = { on: true };
+                if (node.currentHUEDevice.on.on === true && bright === 0) state = { on: { on: false }, dimming: { brightness: bright } };
+              }
+              node.serverHue.hueManager.writeHueQueueAdd(node.hueDevice, state, node.isGrouped_light === false ? "setLight" : "setGroupedLight");
+              node.setNodeStatusHue({
+                fill: "green",
+                shape: "dot",
+                text: "KNX->HUE",
+                payload: state,
+              });
+              break;
+            case config.GALightBlink:
+              const gaVal = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightBlink));
+              if (gaVal) {
+                node.timerBlink = setInterval(() => {
+                  if (node.blinkValue === undefined) node.blinkValue = true;
+                  node.blinkValue = !node.blinkValue;
+                  msg.payload = node.blinkValue;
+                  // state = msg.payload === true ? { on: { on: true } } : { on: { on: false } }
+                  state = msg.payload === true
+                    ? { on: { on: true }, dimming: { brightness: 100 }, dynamics: { duration: 0 } }
+                    : { on: { on: false }, dimming: { brightness: 0 }, dynamics: { duration: 0 } };
+                  node.serverHue.hueManager.writeHueQueueAdd(node.hueDevice, state, node.isGrouped_light === false ? "setLight" : "setGroupedLight");
+                }, 1000);
+              } else {
+                if (node.timerBlink !== undefined) clearInterval(node.timerBlink);
                 node.serverHue.hueManager.writeHueQueueAdd(
                   node.hueDevice,
                   { on: { on: false } },
@@ -348,16 +309,65 @@ module.exports = function (RED) {
                 fill: "green",
                 shape: "dot",
                 text: "KNX->HUE",
-                payload: gaValColorCycle,
+                payload: gaVal,
               });
-            }
-            break;
-          default:
-            break;
+              break;
+            case config.GALightColorCycle:
+              {
+                if (node.timerColorCycle !== undefined) clearInterval(node.timerColorCycle);
+                const gaValColorCycle = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightColorCycle));
+                if (gaValColorCycle === true) {
+                  node.serverHue.hueManager.writeHueQueueAdd(node.hueDevice, { on: { on: true } }, node.isGrouped_light === false ? "setLight" : "setGroupedLight");
+                  node.timerColorCycle = setInterval(() => {
+                    try {
+                      const red = getRandomIntInclusive(0, 255);
+                      const green = getRandomIntInclusive(0, 255);
+                      const blue = getRandomIntInclusive(0, 255);
+                      let gamut = null;
+                      if (
+                        node.currentHUEDevice !== undefined
+                        && node.currentHUEDevice.color !== undefined
+                        && node.currentHUEDevice.color.gamut_type !== undefined
+                      ) {
+                        gamut = node.currentHUEDevice.color.gamut_type;
+                      }
+                      const retXY = hueColorConverter.ColorConverter.rgbToXy(red, green, blue, gamut);
+                      const bright = hueColorConverter.ColorConverter.getBrightnessFromRGBOrHex(red, green, blue);
+                      state = bright > 0 ? { on: { on: true }, dimming: { brightness: bright }, color: { xy: retXY } } : { on: { on: false } };
+                      node.serverHue.hueManager.writeHueQueueAdd(node.hueDevice, state, node.isGrouped_light === false ? "setLight" : "setGroupedLight");
+                    } catch (error) { }
+                  }, 10000);
+                } else {
+                  if (node.timerColorCycle !== undefined) clearInterval(node.timerColorCycle);
+                  node.serverHue.hueManager.writeHueQueueAdd(
+                    node.hueDevice,
+                    { on: { on: false } },
+                    node.isGrouped_light === false ? "setLight" : "setGroupedLight",
+                  );
+                }
+                node.setNodeStatusHue({
+                  fill: "green",
+                  shape: "dot",
+                  text: "KNX->HUE",
+                  payload: gaValColorCycle,
+                });
+              }
+              break;
+            default:
+              break;
+          }
+        } catch (error) {
+          node.status({
+            fill: "red",
+            shape: "dot",
+            text: `KNX->HUE errorRead ${error.message} (${new Date().getDate()}, ${new Date().toLocaleTimeString()})`,
+          });
+          RED.log.error(`knxUltimateHueLight: node.handleSend:  if (msg.knx.event !== "GroupValue_Read"): ${error.message} : ${error.stack || ""} `);
         }
+      }
 
-        // I must respond to query requests (read request) sent from the KNX BUS
-
+      // I must respond to query requests (read request) sent from the KNX BUS
+      try {
         if (msg.knx.event === "GroupValue_Read" && node.currentHUEDevice !== undefined) {
           let ret;
           switch (msg.knx.destination) {
@@ -389,8 +399,9 @@ module.exports = function (RED) {
         node.status({
           fill: "red",
           shape: "dot",
-          text: `KNX->HUE error ${error.message || error} (${new Date().getDate()}, ${new Date().toLocaleTimeString()})`,
+          text: `KNX->HUE error :-( ${error.message} (${new Date().getDate()}, ${new Date().toLocaleTimeString()})`,
         });
+        RED.log.error(`knxUltimateHueLight: node.handleSend: if (msg.knx.event === "GroupValue_Read" && node.currentHUEDevice !== undefined): ${error.message} : ${error.stack || ""} `);
       }
     };
 
@@ -588,7 +599,7 @@ module.exports = function (RED) {
         node.status({
           fill: "red",
           shape: "dot",
-          text: `HUE->KNX error ${node.id} ${error.message}`,
+          text: `HUE->KNX error ${node.id} ${error.message}. Seee Log`,
         });
         RED.log.error(`knxUltimateHueLight: node.handleSendHUE = (_event): ${error.message}`);
       }
@@ -801,6 +812,6 @@ module.exports = function (RED) {
       }
       done();
     });
-  }
+  };
   RED.nodes.registerType("knxUltimateHueLight", knxUltimateHueLight);
 };

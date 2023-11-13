@@ -258,6 +258,7 @@ module.exports = (RED) => {
         } else {
           allResources = node.hueAllResources.filter((a) => a.type === _rtype);
         }
+        if (allResources === null) return;
         for (let index = 0; index < allResources.length; index++) {
           const resource = allResources[index];
           // Get the owner
@@ -267,15 +268,17 @@ module.exports = (RED) => {
             if (_rtype === "light" || _rtype === "grouped_light") {
               // It's a service, having a owner
               const owners = node.hueAllResources.filter((a) => a.id === resource.owner.rid);
-              for (let index = 0; index < owners.length; index++) {
-                const owner = owners[index];
-                if (owner.type === "bridge_home") {
-                  resourceName += "ALL GROUPS and ";
-                } else {
-                  resourceName += `${owner.metadata.name} and `;
-                  // const room = node.hueAllRooms.find((child) => child.children.find((a) => a.rid === owner.id));
-                  // sRoom += room !== undefined ? `${room.metadata.name} + ` : " + ";
-                  sType += `${capStr(owner.type)} + `;
+              if (owners !== null) {
+                for (let index = 0; index < owners.length; index++) {
+                  const owner = owners[index];
+                  if (owner.type === "bridge_home") {
+                    resourceName += "ALL GROUPS and ";
+                  } else {
+                    resourceName += `${owner.metadata.name} and `;
+                    // const room = node.hueAllRooms.find((child) => child.children.find((a) => a.rid === owner.id));
+                    // sRoom += room !== undefined ? `${room.metadata.name} + ` : " + ";
+                    sType += `${capStr(owner.type)} + `;
+                  }
                 }
               }
               sType = sType.slice(0, -" + ".length);

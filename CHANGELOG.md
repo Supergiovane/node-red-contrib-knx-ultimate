@@ -6,6 +6,11 @@
 
 # CHANGELOG
 
+**Version 2.2.29** - November 2023<br/>
+This is an interim version, to quick fix some issues. Please report any issue with HUE Nodes, on gitHub.<br/>
+- HUE Light: fixed an issue causing the node status to signal an error. Filtered the groupvalue_read from imbound KNX messages.<br/>
+- WARNING: the new HUE Light options are to be considered **BETA (= in testing with user feedback)**.<br/>
+
 **Version 2.2.28** - November 2023<br/>
 This is an interim version, to quick fix some issues. Please report any issue with HUE Nodes, on gitHub.<br/>
 - HUE Light: fixed an issue where dimming down with the light switched off, causes the brightness status to jump to 100%, thus the light remains off.<br/>
