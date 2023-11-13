@@ -6,6 +6,12 @@
 
 # CHANGELOG
 
+**Version 2.2.28** - November 2023<br/>
+This is an interim version, to quick fix some issues. Please report any issue with HUE Nodes, on gitHub.<br/>
+- HUE Light: fixed an issue where dimming down with the light switched off, causes the brightness status to jump to 100%, thus the light remains off.<br/>
+- HUE Light: Fixed some errors, if all devices belonging to a group, have only the dimming capability.<br/>
+- WARNING: the new HUE Light options are to be considered **BETA (= in testing with user feedback)**.<br/>
+
 **Version 2.2.27** - November 2023<br/>
 This is an interim version, to quick fix some issues. Please report any issue with HUE Nodes, on gitHub.<br/>
 - HUE Light: the UI now changes, to adapt to lamp type.<br/>

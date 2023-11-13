@@ -497,7 +497,7 @@ module.exports = (RED) => {
         }
         res.json(oLight);
       } catch (error) {
-        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(`KNXUltimateHue: hueEngine: knxUltimateGetLightObject: error ${error.message}`);
+        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(`KNXUltimateHue: hueEngine: knxUltimateGetLightObject: error ${error.message}. Resources still loading. Try later.`);
         res.json({});
       }
     });
