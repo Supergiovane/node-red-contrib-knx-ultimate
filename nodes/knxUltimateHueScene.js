@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 const dptlib = require('./../KNXEngine/src/dptlib');
 
 module.exports = function (RED) {
@@ -26,6 +27,14 @@ module.exports = function (RED) {
     node.formatdecimalsvalue = 2;
     node.hueDevice = config.hueDevice;
     node.initializingAtStart = false;
+    node.sysLogger = require('./utils/sysLogger.js').get({ loglevel: node.server.loglevel || 'error' }); // 08/04/2021 new logger to adhere to the loglevel selected in the config-window
+
+    // Multi scene
+    config.GAsceneMulti = config.GAsceneMulti === undefined ? '' : config.GAsceneMulti;
+    config.namesceneMulti = config.namesceneMulti === undefined ? '' : config.namesceneMulti;
+    config.dptsceneMulti = config.dptsceneMulti === undefined ? '' : config.dptsceneMulti;
+    config.rules = config.rules === undefined ? [] : config.rules;
+    config.selectedModeTabNumber = config.selectedModeTabNumber === undefined ? 0 : Number(config.selectedModeTabNumber); // Transform as number
 
     // Used to call the status update from the config node.
     node.setNodeStatus = ({ fill, shape, text, payload }) => {
@@ -42,45 +51,102 @@ module.exports = function (RED) {
     // This function is called by the knx-hue config node
     node.handleSend = msg => {
       let state = {};
-      try {
-        switch (msg.knx.destination) {
-          case config.GAscene:
-            msg.payload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptscene));
-            if (config.dptscene.startsWith("1.")) {
-              if (msg.payload === true) {
-                state = { recall: { action: config.hueSceneRecallType } };
-                node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, state, 'setScene');
+      if (config.selectedModeTabNumber === 0) {
+        // Sigle
+        try {
+          switch (msg.knx.destination) {
+            case config.GAscene:
+              msg.payload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptscene));
+              if (config.dptscene.startsWith("1.")) {
+                if (msg.payload === true) {
+                  state = { recall: { action: config.hueSceneRecallType } };
+                  node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, state, 'setScene');
+                } else {
+                  // Turn off all light belonging to the scene
+                  (async () => {
+                    try {
+                      node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, { on: { on: false } }, 'stopScene');
+                    } catch (error) {
+                      if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info('KNXUltimateHUEConfig: classHUE: handleQueue: stopScene: ' + error.message);
+                    }
+                  })();
+                }
               } else {
-                // Turn off all light belonging to the scene
-                (async () => {
-                  try {
-                    node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, { on: { on: false } }, 'stopScene');
-                  } catch (error) {
-                    RED.log.error('KNXUltimateHUEConfig: classHUE: handleQueue: stopScene: ' + error.message);
-                  }
-                })();
+                if (Number(config.valscene) === msg.payload.scenenumber && msg.payload.save_recall === 0) {
+                  state = { recall: { action: config.hueSceneRecallType } };
+                  node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, state, 'setScene');
+                }
               }
-            } else {
-              if (Number(config.valscene) === msg.payload.scenenumber && msg.payload.save_recall === 0) {
-                state = { recall: { action: config.hueSceneRecallType } };
-                node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, state, 'setScene');
-              }
-            }
-            node.setNodeStatusHue({ fill: 'green', shape: 'dot', text: 'KNX->HUE', payload: msg.payload });
-            break;
-          default:
-            break;
+              node.setNodeStatusHue({ fill: 'green', shape: 'dot', text: 'KNX->HUE', payload: msg.payload });
+              break;
+            default:
+              break;
+          }
+        } catch (error) {
+          node.status({ fill: 'red', shape: 'dot', text: 'KNX->HUE single: ' + error.message + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' });
         }
-      } catch (error) {
-        node.status({ fill: 'red', shape: 'dot', text: 'KNX->HUE error ' + error.message + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' });
+      } else if (config.selectedModeTabNumber === 1) {
+        // Multi
+        try {
+          if (config.GAsceneMulti !== undefined && config.dptsceneMulti !== undefined && config.rules.length !== 0) {
+            if (config.GAsceneMulti === msg.knx.destination) {
+              msg.payload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptsceneMulti));
+              // row is: { rowRuleKNXSceneNumber: rowRuleKNXSceneNumber, rowRuleHUESceneName: rowRuleHUESceneName, rowRuleHUESceneID:rowRuleHUESceneID, rowRuleRecallAs:rowRuleRecallAs}
+              config.rules.forEach(row => {
+                if (row.rowRuleKNXSceneNumber !== undefined
+                  && row.rowRuleHUESceneID !== undefined
+                  && row.rowRuleRecallAs !== undefined
+                  && Number(row.rowRuleKNXSceneNumber) === Number(msg.payload.scenenumber)
+                  && Number(msg.payload.save_recall) === 0
+                  && node.serverHue.hueManager !== undefined) {
+                  state = { recall: { action: row.rowRuleRecallAs } };
+                  node.serverHue.hueManager.writeHueQueueAdd(row.rowRuleHUESceneID, state, 'setScene');
+                  node.setNodeStatusHue({ fill: 'green', shape: 'dot', text: 'KNX->HUE', payload: msg.payload });
+                }
+              });
+            }
+          }
+        } catch (error) {
+          node.status({ fill: 'red', shape: 'dot', text: 'KNX->HUE multi: ' + error.message + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' });
+        }
       }
     };
 
     node.handleSendHUE = (_event) => {
       try {
-        if (_event.id === config.hueDevice) {
-          // Output the msg to the flow
-          node.send(_event);
+        if (Number(config.selectedModeTabNumber) === 0 && config.hueDevice !== undefined && _event.id === config.hueDevice) {
+          // Single mode
+          const knxMsgPayload = {};
+          knxMsgPayload.topic = config.GAsceneStatus;
+          knxMsgPayload.dpt = config.dptsceneStatus;
+          if (_event.hasOwnProperty("status") && _event.status.hasOwnProperty("active")) {
+            knxMsgPayload.payload = _event.status.active !== "inactive";
+            // Send to KNX bus
+            if (knxMsgPayload.topic !== "" && knxMsgPayload.topic !== undefined && node.server !== undefined) {
+              node.server.writeQueueAdd({
+                grpaddr: knxMsgPayload.topic,
+                payload: knxMsgPayload.payload,
+                dpt: knxMsgPayload.dpt,
+                outputtype: "write",
+                nodecallerid: node.id,
+              });
+            }
+            node.status({
+              fill: "blue",
+              shape: "dot",
+              text: `HUE->KNX ${JSON.stringify(knxMsgPayload.payload)} (${new Date().getDate()}, ${new Date().toLocaleTimeString()})`,
+            });
+            // Output the msg to the flow
+            node.send(_event);
+          }
+        } else if (Number(config.selectedModeTabNumber) === 1 && config.rules !== undefined) {
+          // Multi mode
+          config.rules.forEach(row => {
+            if (row.rowRuleHUESceneID !== undefined && _event.id === row.rowRuleHUESceneID) {
+              // Output the msg to the flow
+              node.send(_event);
+            }
+          });
         }
       } catch (error) {
         node.status({ fill: 'red', shape: 'dot', text: 'HUE->KNX error ' + error.message + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' });

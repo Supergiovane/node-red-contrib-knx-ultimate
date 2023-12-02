@@ -10,25 +10,39 @@
             serverHue: { type: "hue-config", required: true },
             name: { value: "" },
 
+            // Single scene
             namescene: { value: "" },
             GAscene: { value: "" },
             dptscene: { value: "" },
             valscene: { value: 0 }, // the scene number or true/false
+            namesceneStatus: { value: "" },
+            GAsceneStatus: { value: "" },
+            dptsceneStatus: { value: "" },
 
             enableNodePINS: { value: "no" },
             outputs: { value: 0 },
             inputs: { value: 0 },
 
             hueDevice: { value: "" },
-            hueSceneRecallType: { value: "active" }
+            hueSceneRecallType: { value: "active" },
+
+            // Multi scene
+            GAsceneMulti: { value: "" },
+            namesceneMulti: { value: "" },
+            dptsceneMulti: { value: "" },
+            rules: { value: [{ t: "eq", v: "", vt: "str" }] },
+            selectedModeTabNumber: { value: 0 }
+
         },
         inputs: 0,
         outputs: 0,
         icon: "node-hue-icon.svg",
         label: function () {
-            return (this.name);
+            if (this.selectedModeTabNumber === undefined) return this.name;
+            if (Number(this.selectedModeTabNumber) === 0) return this.name;
+            if (Number(this.selectedModeTabNumber) === 1) return this.namesceneMulti;
         },
-        paletteLabel: "Hue Scene",
+        paletteLabel: "Hue Scene (Beta)",
         // button: {
         //     enabled: function() {
         //         // return whether or not the button is enabled, based on the current
@@ -89,8 +103,20 @@
                             .attr("value", dpt.value)
                             .text(dpt.text))
                     }
+                    if (dpt.value.startsWith("18.")) {
+                        $("#node-input-dptsceneMulti").append($("<option></option>")
+                            .attr("value", dpt.value)
+                            .text(dpt.text))
+                    }
+                    if (dpt.value.startsWith("1.")) {
+                        $("#node-input-dptsceneStatus").append($("<option></option>")
+                            .attr("value", dpt.value)
+                            .text(dpt.text))
+                    }
                 });
                 $("#node-input-dptscene").val(this.dptscene)
+                $("#node-input-dptsceneStatus").val(this.dptsceneStatus)
+                $("#node-input-dptsceneMulti").val(this.dptsceneMulti)
                 ShowHideValScene();
             })
 
@@ -125,6 +151,73 @@
                     var optVal = $("#node-input-dptscene option:contains('" + ui.item.label.split("#")[2].trim() + "')").attr('value');
                     // Select the option value 
                     $("#node-input-dptscene").val(optVal);
+                    ShowHideValScene();
+                }
+            });
+            $("#node-input-GAsceneStatus").autocomplete({
+                minLength: 1,
+                source: function (request, response) {
+                    //$.getJSON("csv", request, function( data, status, xhr ) {
+                    $.getJSON("knxUltimatecsv?nodeID=" + oNodeServer.id, (data) => {
+                        response($.map(data, function (value, key) {
+                            var sSearch = (value.ga + " (" + value.devicename + ") DPT" + value.dpt);
+                            if (fullSearch(sSearch, request.term)) {
+                                if (value.dpt.startsWith("1.")) {
+                                    return {
+                                        label: value.ga + " # " + value.devicename + " # " + value.dpt, // Label for Display
+                                        value: value.ga // Value
+                                    }
+                                } else { return null; }
+                            } else {
+                                return null;
+                            }
+                        }));
+                    });
+                }, select: function (event, ui) {
+                    // Sets Datapoint and device name automatically
+                    var sDevName = ui.item.label.split("#")[1].trim();
+                    try {
+                        sDevName = sDevName.substr(sDevName.indexOf(")") + 1).trim();
+                    } catch (error) {
+                    }
+                    $('#node-input-namesceneStatus').val(sDevName);
+                    var optVal = $("#node-input-dptsceneStatus option:contains('" + ui.item.label.split("#")[2].trim() + "')").attr('value');
+                    // Select the option value 
+                    $("#node-input-dptsceneStatus").val(optVal);
+                    ShowHideValScene();
+                }
+            });
+            $("#node-input-GAsceneMulti").autocomplete({
+                minLength: 1,
+                source: function (request, response) {
+                    //$.getJSON("csv", request, function( data, status, xhr ) {
+                    $.getJSON("knxUltimatecsv?nodeID=" + oNodeServer.id, (data) => {
+                        response($.map(data, function (value, key) {
+                            var sSearch = (value.ga + " (" + value.devicename + ") DPT" + value.dpt);
+                            if (fullSearch(sSearch, request.term)) {
+                                if (value.dpt.startsWith("18.")) {
+                                    return {
+                                        label: value.ga + " # " + value.devicename + " # " + value.dpt, // Label for Display
+                                        value: value.ga // Value
+                                    }
+                                } else { return null; }
+                            } else {
+                                return null;
+                            }
+                        }));
+                    });
+                }, select: function (event, ui) {
+                    // Sets Datapoint and device name automatically
+                    var sDevName = ui.item.label.split("#")[1].trim();
+                    try {
+                        sDevName = sDevName.substr(sDevName.indexOf(")") + 1).trim();
+                    } catch (error) {
+                    }
+                    $('#node-input-namesceneMulti').val(sDevName);
+                    var optVal = $("#node-input-dptsceneMulti option:contains('" + ui.item.label.split("#")[2].trim() + "')").attr('value');
+                    // Select the option value 
+                    $("#node-input-dptsceneMulti").val(optVal);
+                    ShowHideValScene();
                 }
             });
             // ######################## 
@@ -141,6 +234,7 @@
                     }
                 }
             }
+
             $("#node-input-dptscene").on("change", function () {
                 ShowHideValScene()
             });
@@ -169,8 +263,138 @@
                     $('#node-input-hueDevice').val(ui.item.hueDevice);
                 }
             });
-            // ########################            
+            // ########################  
 
+
+
+            // -----------------------------------------------------------------------
+            // MULTI SCENE
+            // ######################## 
+            function resizeRule(rule) { }
+            function setTableTitle(_selectedIndex) {
+                // Save only the tab 0 or 1
+                if (_selectedIndex === undefined) _selectedIndex = 0;
+                if (Number(_selectedIndex) <= 1) {
+                    $("#node-input-selectedModeTabNumber").val(Number(_selectedIndex));
+                    if (Number(_selectedIndex) === 0) {
+                        $('#tabs ul:first li:eq(0) a').html('<i class="fa fa-check" aria-hidden="true"></i> Single mode');
+                        $('#tabs ul:first li:eq(1) a').text('Multi mode');
+                    } else if (Number(_selectedIndex) === 1) {
+                        $('#tabs ul:first li:eq(0) a').text('Sigle mode');
+                        $('#tabs ul:first li:eq(1) a').html('<i class="fa fa-check" aria-hidden="true"></i> Multi mode');
+                    }
+                }
+            }
+
+            $("#node-input-rule-container").css('min-height', '200px').css('min-width', '450px').editableList({
+                scrollOnAdd: true,
+                //header: $("<div>").append($.parseHTML("<div style='width:5%; display: inline-grid'>Sort</div><div style='width:15%; display: inline-grid'>KNX Scene number</div><div style='width:60%; display: inline-grid'>HUE Scene name</div><div style='width:15%; display: inline-grid'>Recall scene as</div><div style='width:5%; display: inline-grid'>Delete</div>")),
+                addItem: function (container, i, opt) { // row, index, data
+                    // opt.r is: { rowRuleKNXSceneNumber: rowRuleKNXSceneNumber, rowRuleHUESceneName: rowRuleHUESceneName, rowRuleHUESceneID:rowRuleHUESceneID, rowRuleRecallAs:rowRuleRecallAs}
+
+                    if (!opt.hasOwnProperty('r')) {
+                        opt.r = {};
+                    }
+                    var rule = opt.r;
+                    if (!opt.hasOwnProperty('i')) {
+                        opt._i = Math.floor((0x99999 - 0x10000) * Math.random()).toString();
+                    }
+
+                    container.css({
+                        overflow: 'hidden',
+                        whiteSpace: 'nowrap'
+                    });
+
+                    var row = $('<div class="form-row"/>').appendTo(container);
+                    var rowRuleKNXSceneNumber = $('<select/>', { class: "rowRuleKNXSceneNumber", type: "text", style: "width:25%; margin-left: 5px; text-align: left;" }).appendTo(row);
+                    var rowRuleHUESceneName = $("<input/>", { class: "rowRuleHUESceneName", type: "text", placeholder: "HUE device name", style: "width:45%; margin-left: 5px; text-align: left;" }).appendTo(row);
+                    var rowRuleHUESceneID = $("<input/>", { class: "rowRuleHUESceneID", type: "hidden", placeholder: "HUE device name", style: "width:0px; margin-left: 5px; text-align: left;" }).appendTo(row);
+                    var rowRuleRecallAs = $('<select/>', { class: "rowRuleRecallAs", type: "text", style: "width:25%; margin-left: 5px; text-align: left;" }).appendTo(row);
+                    var finalspan = $('<span/>', { style: "" }).appendTo(row);
+                    finalspan.append('<span class="node-input-rule-index"></span> ');
+
+                    for (let index = 1; index < 64; index++) {
+                        rowRuleKNXSceneNumber.append(
+                            $("<option>")
+                                .val(index)
+                                .text("KNX Scene n." + index.toString())
+                        );
+                        rowRuleKNXSceneNumber.val(rule.rowRuleKNXSceneNumber);
+                    }
+                    rowRuleRecallAs.append(
+                        $("<option>")
+                            .val("active")
+                            .text("Recall as Active")
+                    );
+                    rowRuleRecallAs.append(
+                        $("<option>")
+                            .val("dynamic_palette")
+                            .text("Recall as Dynamic")
+                    );
+                    rowRuleRecallAs.append(
+                        $("<option>")
+                            .val("static")
+                            .text("Recall as Static")
+                    );
+                    rowRuleRecallAs.val(rule.rowRuleRecallAs);
+                    rowRuleHUESceneName.autocomplete({
+                        minLength: 1,
+                        source: function (request, response) {
+                            $.getJSON("KNXUltimateGetResourcesHUE?rtype=scene&nodeID=" + oNodeServerHue.id, (data) => {
+                                response($.map(data.devices, function (value, key) {
+                                    //alert(JSON.stringify(value) + " "+ key)
+                                    var sSearch = (value.name);
+                                    if (fullSearch(sSearch, request.term)) {
+                                        return {
+                                            hueDevice: value.id, // Label for Display
+                                            value: value.name // Value
+                                        }
+                                    } else {
+                                        return null;
+                                    }
+                                }));
+                            });
+                        }, select: function (event, ui) {
+                            // Sets Datapoint and device name automatically
+                            rowRuleHUESceneID.val(ui.item.hueDevice);
+                        }
+                    });
+                    rowRuleRecallAs.val(rule.rowRuleRecallAs)
+                    rowRuleHUESceneName.val(rule.rowRuleHUESceneName);
+                    rowRuleHUESceneID.val(rule.rowRuleHUESceneID);
+                },
+                removeItem: function (opt) {
+
+                },
+                resizeItem: resizeRule,
+                sortItems: function (rules) {
+                },
+                sortable: true,
+                removable: true
+            });
+
+            // Put some spaces after the container
+            $('<br/><br/><br/>').insertAfter($("#node-input-rule-container"));
+
+            // For each rule, create a row
+            if (this.rules !== undefined) {
+                for (var i = 0; i < this.rules.length; i++) {
+                    var rule = this.rules[i];
+                    $("#node-input-rule-container").editableList('addItem', { r: rule, i: i });
+                }
+            }
+
+            // ######################## 
+            // MULTI SCENE
+            // -----------------------------------------------------------------------
+            this.selectedModeTabNumber === undefined ? 0 : this.selectedModeTabNumber;
+            $("#tabs").tabs({
+                activate: function (event, ui) {
+                    setTableTitle(ui.newTab.index());
+                }
+            });
+            $("#tabs").tabs("option", "active", this.selectedModeTabNumber);
+            setTableTitle(this.selectedModeTabNumber);
         },
         oneditsave: function () {
             if ($("#node-input-enableNodePINS").val() === "yes") {
@@ -181,8 +405,23 @@
                 this.inputs = 0;
             }
 
+            var node = this;
+            // opt.r is: { rowRuleKNXSceneNumber: rowRuleKNXSceneNumber, rowRuleHUESceneName: rowRuleHUESceneName, rowRuleHUESceneID:rowRuleHUESceneID, rowRuleRecallAs:rowRuleRecallAs}
+            var rules = $("#node-input-rule-container").editableList('items');
+            node.rules = [];
+            rules.each(function (i) {
+                var rule = $(this);
+                var rowRuleKNXSceneNumber = rule.find(".rowRuleKNXSceneNumber").val();
+                var rowRuleHUESceneName = rule.find(".rowRuleHUESceneName").val();
+                var rowRuleHUESceneID = rule.find(".rowRuleHUESceneID").val();
+                var rowRuleRecallAs = rule.find(".rowRuleRecallAs").val();
+                node.rules.push({ rowRuleKNXSceneNumber: rowRuleKNXSceneNumber, rowRuleHUESceneName: rowRuleHUESceneName, rowRuleHUESceneID: rowRuleHUESceneID, rowRuleRecallAs: rowRuleRecallAs });
+            });
         },
         oneditcancel: function () {
+
+        },
+        oneditresize: function (size) {
 
         }
     })
@@ -191,14 +430,14 @@
 
 <script type="text/html" data-template-name="knxUltimateHueScene">
 
-
 <div class="form-row">
+    <input type="hidden" id="node-input-selectedModeTabNumber"> 
     <b>HUE Scene node</b>&nbsp&nbsp<span style="color:red"
    &nbsp<i class="fa fa-youtube"></i></span>&nbsp<a target="_blank" href="https://youtu.be/jjEUI1J8bkA"><u>Youtube sample</u></a>
     <br />
     <br />
     <p align="center">       
-        <i class="fa fa-tv fa-fade fa-8x"></i>
+        <i class="fa fa-tv fa-fade fa-4x"></i>
     </p>
     <br />
     <label for="node-input-server" >
@@ -217,96 +456,161 @@
 </div>
 
 <br/>
-<p>
-<b>Philips HUE</b>
-</p>
+<div id="tabs">
     
-<div class="form-row">
-    <label for="node-input-hueDevice" >
-        <i class="fa fa-play-circle"></i>&nbspHue Scene</label>
-        <input type="text" id="node-input-name" placeholder="Enter your hue device name" />
-    <input type="hidden" id="node-input-hueDevice" />
-</div>
-<div class="form-row">
-    <label for="node-input-hueSceneRecallType">
-        <i class="fa fa-minus-circle"></i> Recall as
-    </label>
-    <select  id="node-input-hueSceneRecallType">
-        <option value="active">Active</option>
-        <option value="dynamic_palette">Dynamic</option>
-        <option value="static">Static</option>
-    </select>
-</div>
+    <ul>
+        <li><a href="#tabs-1"> Single scene</a></li>
+        <li><a href="#tabs-2"> Multi scene</a></li>
+        <li><a href="#tabs-3"> Behaviour</a></li>
+    </ul>
+    <div id="tabs-1">
+        <br/>
+        <p>
+            <b>Philips HUE</b>
+        </p>
+            
+        <div class="form-row">
+            <label for="node-input-hueDevice" >
+                <i class="fa fa-play-circle"></i>&nbspHue Scene</label>
+                <input type="text" id="node-input-name" placeholder="Enter your hue device name" />
+            <input type="hidden" id="node-input-hueDevice" />
+        </div>
+        <div class="form-row">
+            <label for="node-input-hueSceneRecallType">
+                <i class="fa fa-minus-circle"></i> Recall as
+            </label>
+            <select  id="node-input-hueSceneRecallType">
+                <option value="active">Recall as Active</option>
+                <option value="dynamic_palette">Recall as Dynamic</option>
+                <option value="static">Recall as Static</option>
+            </select>
+        </div>
 
-<br/>
+        <br/>
+        <p>
+            <b>KNX</b>
+        </p>
+        <div class="form-row">
+            <label for="node-input-namescene" style="width:100px;"><i class="fa fa-play-circle-o"></i> Recall</label>
 
-<p>
-    <b>KNX</b>
-</p>
+            <label for="node-input-GAscene" style="width:20px;">GA</label>
+            <input type="text" id="node-input-GAscene" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
 
-<div class="form-row">
-    <label for="node-input-namescene" style="width:100px;"><i class="fa fa-play-circle-o"></i> Recall</label>
+            <label for="node-input-dptscene" style="width:40px; margin-left: 0px; text-align: right;">DPT</label>
+            <select id="node-input-dptscene" style="width:140px;"></select>
 
-    <label for="node-input-GAscene" style="width:20px;">GA</label>
-    <input type="text" id="node-input-GAscene" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
+            <label for="node-input-namescene" style="width:50px; margin-left: 0px; text-align: right;">Name</label>
+            <input type="text" id="node-input-namescene" style="width:200px;margin-left: 5px; text-align: left;">       
+        </div>
+        <div class="form-row" id="divValScene" hidden>
+            <label for="node-input-valscene" style="width:100px;"></label>
+            <label for="node-input-valscene" style="width:20px;">#</label>
+            <select id="node-input-valscene" style="width:180px;margin-left: 5px; text-align: left;"></select>
+        </div>
+        <div class="form-row">
+            <label for="node-input-namesceneStatus" style="width:100px;"><i class="fa fa-play-circle-o"></i> Status</label>
 
-    <label for="node-input-dptscene" style="width:40px; margin-left: 0px; text-align: right;">DPT</label>
-    <select id="node-input-dptscene" style="width:140px;"></select>
+            <label for="node-input-GAsceneStatus" style="width:20px;">GA</label>
+            <input type="text" id="node-input-GAsceneStatus" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
 
-    <label for="node-input-namescene" style="width:50px; margin-left: 0px; text-align: right;">Name</label>
-    <input type="text" id="node-input-namescene" style="width:200px;margin-left: 5px; text-align: left;">       
-</div>
+            <label for="node-input-dptsceneStatus" style="width:40px; margin-left: 0px; text-align: right;">DPT</label>
+            <select id="node-input-dptsceneStatus" style="width:140px;"></select>
 
-<div class="form-row" id="divValScene" hidden>
-    <label for="node-input-valscene" style="width:100px;"></label>
-    <label for="node-input-valscene" style="width:20px;">#</label>
-    <select id="node-input-valscene" style="width:180px;margin-left: 5px; text-align: left;"></select>
-</div>
+            <label for="node-input-namesceneStatus" style="width:50px; margin-left: 0px; text-align: right;">Name</label>
+            <input type="text" id="node-input-namesceneStatus" style="width:200px;margin-left: 5px; text-align: left;">       
+        </div>
+        <br/>
+        <br/>
+    </div> <!-- // End Tab 1 -->
+   
+    <div id="tabs-2">
+        <br/>
+        <div class="form-row">
+            <label for="node-input-namesceneMulti" style="width:100px;"><i class="fa fa-play-circle-o"></i> Recall</label>
 
-<br/>
-<br/>
+            <label for="node-input-GAsceneMulti" style="width:20px;">GA</label>
+            <input type="text" id="node-input-GAsceneMulti" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
 
-<p>
-    <b>BEHAVIOUR</b>
-</p>
+            <label for="node-input-dptsceneMulti" style="width:40px; margin-left: 0px; text-align: right;">DPT</label>
+            <select id="node-input-dptsceneMulti" style="width:140px;"></select>
 
-<div class="form-row">
-<label for="node-input-enableNodePINS" style="width:240px;">
-    <i class="fa fa-square-o"></i> Node Input/Output PINs
-</label>
-<select id="node-input-enableNodePINS">
-    <option value="no">Hide</option>
-    <option value="yes">Show node input/output PINs</option>
-</select>
+            <label for="node-input-namesceneMulti" style="width:50px; margin-left: 0px; text-align: right;">Name</label>
+            <input type="text" id="node-input-namesceneMulti" style="width:200px;margin-left: 5px; text-align: left;">       
+        </div>
 
-<br/>
-<br/>
-<br/>
-
+       <div>
+            <dt><i class="fa fa-code-fork"></i> Scene selector</dt>
+            <div class="form-row node-input-rule-container-row">
+                <ol id="node-input-rule-container"></ol>
+            </div>
+            <div class="form-row">
+                <p></p>
+            </div>            
+        </div>
+    <br/>
+    </div> <!-- // End Tab 2 -->
+   
+    <div id="tabs-3">
+        <br/>
+        <div class="form-row">
+            <label for="node-input-enableNodePINS" style="width:240px;">
+                <i class="fa fa-circle"></i> Node Input/Output PINs
+            </label>
+            <select id="node-input-enableNodePINS">
+                <option value="no">Hide</option>
+                <option value="yes">Show node input/output PINs</option>
+            </select>  
+        </div>      
+    </div> <!-- // End Tab 3 -->
+    
+</div> <!-- // End TABS -->
 
 </script>
 
 <script type="text/markdown" data-help-name="knxUltimateHueScene">
 This node lets you recall a HUE scene, via KNX.  
 
-Start typing in the GA field, the name or group address of your KNX device, the avaiable devices start showing up while you're typing.
+The node has 2 operating options: Simple mode and Multi mode.  
+**Simple mode** is the simplest mode, where you can activate one HUE scene using either a boolean Datapoint or a KNX scene Datapoint.  
+**Multi mode** is the more powerful one, where for multiple KNX scene numbers, you can activate multiple HUE scenes.
+Start typing in the GA field, the name or group address of your KNX device, the avaiable devices start showing up while you're typing.  
+This works also with the HUE scene text field.
 
 **General**
 |Property|Description|
 |--|--|
 | KNX GW | Select the KNX gateway to be used |
 | HUE Bridge | Select the HUE Bridge to be used |
+
+
+**Single mode tab**
+|Property|Description|
+|--|--|
 | Hue Scene | HUE scene to control. The avaiable scenes start showing up while you're typing.|
+| Recall as | This sets the calling mode. |
 
 **KNX**
-
 |Property|Description|
 |--|--|
 | Recall | Choose your group address to be used for recalling the HUE scene. In case of Datapoint 1.x, send *true* to that group address to recall the scene, *false* to switch off all lights belonging to the scene. |
 | # | Select the KNX scene number. Visible only with datapoint 18.001. |
+| Status | It's the scene status. *True* when the scene is active, *false* when the scene is not active. |
 
-**BEHAVIOUR**
 
+**Multi mode tab**
+|Property|Description|
+|--|--|
+| Recall | Choose your group address and datapoint to be used for recalling the HUE scene. |
+
+**Scene selector**  
+
+The scene selector list, contains all scenes, ativated for each KNX Scene number.  
+Click the <code>+add</code> button at the bottom of the list, to add a row.  
+Click the <code>X</code> on the far right of each row, to delete the row.  
+Drag the <code>toast</code> (the icon with three lines) at the far left of a row, to reorder the item in the list.
+
+
+**Behaviour tab**
 |Property|Description|
 |--|--|
 | Node Input/Output PINs | Hide or show the input/output PINs. Input/output PINS allow the node to accept msg input from the flow and send msg output to the flow. Input msg must follow the HUE API v.2 Standards. Please refer to the [official HUE Api page](https://developers.meethue.com/develop/hue-api-v2/api-reference/#resource_light__id__put) | 

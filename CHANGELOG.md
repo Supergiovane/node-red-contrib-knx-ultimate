@@ -6,6 +6,17 @@
 
 # CHANGELOG
 
+**Version 2.2.31** - December 2023<br/>
+- NEW: HUE Scene node: added the status GA and Datapoint, for the scene to send true/false if active/not active. This currently works only for "Single mode".<br/>
+- WARNING: the new HUE Scene node is to be considered **BETA (= in testing with user feedback)**.<br/>
+
+
+**Version 2.2.30** - December 2023<br/>
+- NEW: HUE Scene node: added a "Multi scene" section, more powerful.<br/>
+- HUE Scene: when selecting a group address for the scene, the scene number dropdown list doesn't show up.<br/>
+- WARNING: the new HUE Light node is to be considered **RELEASED (= production ready, but please report anyway any issue)**.<br/>
+- WARNING: the new HUE Scene node is to be considered **BETA (= in testing with user feedback)**.<br/>
+
 **Version 2.2.29** - November 2023<br/>
 This is an interim version, to quick fix some issues. Please report any issue with HUE Nodes, on gitHub.<br/>
 - HUE Light: fixed an issue causing the node status to signal an error. Filtered the groupvalue_read from imbound KNX messages.<br/>

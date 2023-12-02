@@ -43,8 +43,6 @@ module.exports = function (RED) {
         if (_event.id === config.hueDevice) {
 
           if (!_event.hasOwnProperty("motion") || _event.motion.motion === undefined) return;
-
-
           const knxMsgPayload = {};
           knxMsgPayload.topic = config.GAmotion;
           knxMsgPayload.dpt = config.dptmotion;
