@@ -175,16 +175,20 @@ module.exports = function (RED) {
               break;
             case config.GALightKelvin:
               let retMirek;
+              let kelvinValue = 0;
               msg.payload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightKelvin));
               if (config.dptLightKelvin === "7.600") {
                 if (msg.payload > 65535) msg.payload = 65535;
                 if (msg.payload < 0) msg.payload = 0;
-                retMirek = hueColorConverter.ColorConverter.scale(msg.payload, [0, 65535], [500, 153]);
+                // kelvinValue = hueColorConverter.ColorConverter.mirekToKelvin(_value);
+                // knxMsgPayload.payload = hueColorConverter.ColorConverter.scale(kelvinValue, [2000, 6535], [0, 65535]);
+                kelvinValue = hueColorConverter.ColorConverter.scale(msg.payload, [0, 65535], [2000, 6535]);
+                retMirek = hueColorConverter.ColorConverter.kelvinToMirek(kelvinValue);
               } else if (config.dptLightKelvin === "9.002") {
                 // Relative temperature in Kelvin. Use HUE scale.
                 if (msg.payload > 6535) msg.payload = 6535;
                 if (msg.payload < 2000) msg.payload = 2000;
-                retMirek = hueColorConverter.ColorConverter.scale(msg.payload, [2000, 6535], [500, 153]);
+                retMirek = hueColorConverter.ColorConverter.kelvinToMirek(msg.payload);
               }
               state = { color_temperature: { mirek: retMirek } };
               node.serverHue.hueManager.writeHueQueueAdd(node.hueDevice, state, node.isGrouped_light === false ? "setLight" : "setGroupedLight");
@@ -192,7 +196,7 @@ module.exports = function (RED) {
                 fill: "green",
                 shape: "dot",
                 text: "KNX->HUE",
-                payload: msg.payload,
+                payload: kelvinValue,
               });
               break;
             case config.GADaylightSensor:
@@ -526,7 +530,7 @@ module.exports = function (RED) {
           // Output the msg to the flow
           node.send(_event);
 
-          // // DEBUG
+          // // DEBUG testing enable/disable HTML UI Tabs
           //delete _event.dimming;
           //delete _event.color;
           //delete _event.color_temperature;
@@ -734,12 +738,14 @@ module.exports = function (RED) {
     node.updateKNXLightKelvinState = function updateKNXLightKelvinState(_value, _outputtype = "write") {
       if (config.GALightKelvinState !== undefined && config.GALightKelvinState !== "") {
         const knxMsgPayload = {};
+        let kelvinValue = 0;
         knxMsgPayload.topic = config.GALightKelvinState;
         knxMsgPayload.dpt = config.dptLightKelvinState;
         if (config.dptLightKelvinState === "7.600") {
-          knxMsgPayload.payload = hueColorConverter.ColorConverter.scale(_value, [153, 500], [65535, 0]);
+          kelvinValue = hueColorConverter.ColorConverter.mirekToKelvin(_value);
+          knxMsgPayload.payload = hueColorConverter.ColorConverter.scale(kelvinValue, [2000, 6535], [0, 65535]);
         } else if (config.dptLightKelvinState === "9.002") {
-          knxMsgPayload.payload = hueColorConverter.ColorConverter.scale(_value, [153, 500], [6535, 2000]);
+          knxMsgPayload.payload = hueColorConverter.ColorConverter.mirekToKelvin(_value);
         }
         // Send to KNX bus
         if (knxMsgPayload.topic !== "" && knxMsgPayload.topic !== undefined) {
@@ -757,7 +763,7 @@ module.exports = function (RED) {
             fill: "blue",
             shape: "ring",
             text: "HUE->KNX Kelvin",
-            payload: knxMsgPayload.payload,
+            payload: kelvinValue,
           });
         }
       }

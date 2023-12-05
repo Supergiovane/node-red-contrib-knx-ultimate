@@ -24,11 +24,11 @@ class ColorConverter {
   }
 
   static kelvinToMirek(_kelvin) {
-    return Math.round(1000000 / _kelvin, 0);
+    return Math.floor(1000000 / _kelvin);
   }
 
   static mirekToKelvin(_mirek) {
-    return Math.round(1000000 / _mirek, 0);
+    return Math.floor(1000000 / _mirek);
   }
 
   // Linear interpolation of input y given starting and ending ranges

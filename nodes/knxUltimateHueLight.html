@@ -70,9 +70,11 @@
             if (dpt.value.startsWith(_dpt)) {
               // Adjustment for HUE Temperature
               if (dpt.value.startsWith("7.600")) {
-                $(_destinationWidget).append($("<option></option>").attr("value", dpt.value).text(dpt.text + " - KNX Kelvin range (0K-65535K)"));
+                $(_destinationWidget).append($("<option></option>").attr("value", dpt.value).text(dpt.text + " - KNX Kelvin range 0-65535k (Homeassistant color_temperature_mode: absolute)"));
               } else if (dpt.value.startsWith("9.002")) {
-                $(_destinationWidget).append($("<option></option>").attr("value", dpt.value).text(dpt.text + " - HUE Kelvin range (Default 2000K-6535K"));
+                $(_destinationWidget).append($("<option></option>").attr("value", dpt.value).text(dpt.text + " - HUE Kelvin range 2000-6535k (Homeassistant color_temperature_mode: absolute_float)"));
+              } else if (dpt.value.startsWith("5.001")) {
+                $(_destinationWidget).append($("<option></option>").attr("value", dpt.value).text(dpt.text + " - Homeassistant color_temperature_mode: relative"));
               } else {
                 $(_destinationWidget).append($("<option></option>").attr("value", dpt.value).text(dpt.text));
               }

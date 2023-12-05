@@ -6,6 +6,14 @@
 
 # CHANGELOG
 
+**Version 2.2.33** - December 2023<br/>
+- Quickfix: HUE Light: fixed an issue in the conversion of tunable white from Datapint 7.600 to mired and vice versa.<br/>
+- WARNING: the new HUE Scene node is to be considered **BETA (= in testing with user feedback)**.<br/>
+
+**Version 2.2.32** - December 2023<br/>
+- Quickfix: HUE Light: fixed an issue in the conversion of tunable white from Datapoint 9.002 to mired and vice versa.<br/>
+- WARNING: the new HUE Scene node is to be considered **BETA (= in testing with user feedback)**.<br/>
+
 **Version 2.2.31** - December 2023<br/>
 - NEW: HUE Scene node: added the status GA and Datapoint, for the scene to send true/false if active/not active. This currently works only for "Single mode".<br/>
 - WARNING: the new HUE Scene node is to be considered **BETA (= in testing with user feedback)**.<br/>

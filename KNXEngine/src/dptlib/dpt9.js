@@ -11,7 +11,7 @@ const knxLog = require('./../KnxLog')
 
 const util = require('util')
 // kudos to http://croquetweak.blogspot.gr/2014/08/deconstructing-floats-frexp-and-ldexp.html
-function ldexp (mantissa, exponent) {
+function ldexp(mantissa, exponent) {
   return exponent > 1023 // avoid multiplying by infinity
     ? mantissa * Math.pow(2, 1023) * Math.pow(2, exponent - 1023)
     : exponent < -1074 // avoid multiplying by zero
@@ -19,7 +19,7 @@ function ldexp (mantissa, exponent) {
       : mantissa * Math.pow(2, exponent)
 }
 
-function frexp (value) {
+function frexp(value) {
   if (value === 0) return [value, 0]
   const data = new DataView(new ArrayBuffer(8))
   data.setFloat64(0, value)
@@ -62,6 +62,16 @@ exports.fromBuffer = function (buf) {
     knxLog.get().warn('DPT9.fromBuffer: buf should be 2 bytes long (got %d bytes)', buf.length)
     return null
   } else {
+
+    // Homeassistant:
+    // let data = (buf[0] * 256) + buf[1]
+    // let esponente = (data >> 11) & 0x0F
+    // let significand = data & 0x7FF
+    // let segno = data >> 15
+    // if (segno === 1) { significand = significand - 2048 }
+    // let value = Number.parseFloat(significand << esponente) / 100
+    // return value;
+
     const sign = buf[0] >> 7
     const exponent = (buf[0] & 0b01111000) >> 3
     let mantissa = 256 * (buf[0] & 0b00000111) + buf[1]
