@@ -6,6 +6,11 @@
 
 # CHANGELOG
 
+**Version 2.2.34** - December 2023<br/>
+- NEW: HUE Light Node: there is a new tab that auto-generates the light entity for Home Assistant.<br/>
+- HUE Light: resuming the last daytime status after nighttime, if the switch on behaviour at daytime is set to None.<br/>
+- The new HUE Scene node has exited the BETA status and is now considered safe to be used.<br/>
+
 **Version 2.2.33** - December 2023<br/>
 - Quickfix: HUE Light: fixed an issue in the conversion of tunable white from Datapint 7.600 to mired and vice versa.<br/>
 - WARNING: the new HUE Scene node is to be considered **BETA (= in testing with user feedback)**.<br/>

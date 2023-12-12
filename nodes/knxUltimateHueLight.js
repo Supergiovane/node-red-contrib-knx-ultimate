@@ -2,6 +2,8 @@
 /* eslint-disable camelcase */
 /* eslint-disable max-len */
 /* eslint-disable no-lonely-if */
+const cloneDeep = require("lodash/cloneDeep");
+
 module.exports = function (RED) {
   const dptlib = require("../KNXEngine/src/dptlib");
   const hueColorConverter = require("./utils/hueColorConverter");
@@ -31,6 +33,7 @@ module.exports = function (RED) {
     node.formatnegativevalue = "leave";
     node.formatdecimalsvalue = 2;
     node.currentHUEDevice = undefined; // At start, this value is filled by a call to HUE api. It stores a value representing the current light status.
+    node.HUEDeviceWhileDaytime = null;// This retains the HUE device status while daytime, to be restored after nighttime elapsed.
     node.DayTime = true;
     node.isGrouped_light = config.hueDevice.split("#")[1] === "grouped_light";
     node.hueDevice = config.hueDevice.split("#")[0];
@@ -100,57 +103,68 @@ module.exports = function (RED) {
             case config.GALightSwitch:
               msg.payload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightSwitch));
               if (msg.payload === true) {
-                let colorChoosen;
-                let temperatureChoosen;
-                let brightnessChoosen;
-                // The light must support the temperature (in this case, colorAtSwitchOnNightTime is an object {kelvin:xx, brightness:yy})
-                if (node.currentHUEDevice.color_temperature !== undefined) {
-                  if (node.DayTime === true && config.specifySwitchOnBrightness === "temperature") {
-                    temperatureChoosen = config.colorAtSwitchOnDayTime.kelvin;
-                  } else if (node.DayTime === false && config.enableDayNightLighting === "temperature") {
-                    temperatureChoosen = config.colorAtSwitchOnNightTime.kelvin;
-                  }
-                }
-                if (node.currentHUEDevice.dimming !== undefined) {
-                  // Check wether the user selected specific brightness at switch on (in this case, colorAtSwitchOnNightTime is an object {kelvin:xx, brightness:yy})
-                  if (node.DayTime === true && config.specifySwitchOnBrightness === "temperature") {
-                    brightnessChoosen = config.colorAtSwitchOnDayTime.brightness;
-                  } else if (node.DayTime === false && config.enableDayNightLighting === "temperature") {
-                    brightnessChoosen = config.colorAtSwitchOnNightTime.brightness;
-                  }
-                }
-                if (node.currentHUEDevice.color !== undefined) {
-                  // Check wether the user selected specific color at switch on (in this case, colorAtSwitchOnDayTime is a text with HTML web color)
-                  if (node.DayTime === true && config.specifySwitchOnBrightness === "yes") {
-                    colorChoosen = config.colorAtSwitchOnDayTime;
-                  } else if (node.DayTime === false && config.enableDayNightLighting === "yes") {
-                    colorChoosen = config.colorAtSwitchOnNightTime;
-                  }
-                }
-
-                if (colorChoosen !== undefined) {
-                  // Now we have a jColorChoosen. Proceed illuminating the light
-                  let gamut = null;
-                  if (node.currentHUEDevice.color.gamut_type !== undefined) {
-                    gamut = node.currentHUEDevice.color.gamut_type;
-                  }
-                  const dretXY = hueColorConverter.ColorConverter.rgbToXy(colorChoosen.red, colorChoosen.green, colorChoosen.blue, gamut);
-                  const dbright = hueColorConverter.ColorConverter.getBrightnessFromRGBOrHex(colorChoosen.red, colorChoosen.green, colorChoosen.blue);
-                  node.currentHUEDevice.dimming.brightness = Math.round(dbright, 0);
-                  node.updateKNXBrightnessState(node.currentHUEDevice.dimming.brightness);
-                  state = dbright > 0 ? { on: { on: true }, dimming: { brightness: dbright }, color: { xy: dretXY } } : { on: { on: false } };
-                } else if (temperatureChoosen !== undefined) {
-                  // Kelvin
-                  const mirek = hueColorConverter.ColorConverter.kelvinToMirek(temperatureChoosen);
-                  node.currentHUEDevice.color_temperature.mirek = mirek;
-                  node.currentHUEDevice.dimming.brightness = brightnessChoosen;
-                  node.updateKNXBrightnessState(node.currentHUEDevice.dimming.brightness);
-                  // Kelvin temp
-                  state = brightnessChoosen > 0 ? { on: { on: true }, dimming: { brightness: brightnessChoosen }, color_temperature: { mirek: mirek } } : { on: { on: false } };
-                } else if (brightnessChoosen !== undefined) {
-                  state = brightnessChoosen > 0 ? { on: { on: true }, dimming: { brightness: brightnessChoosen } } : { on: { on: false } };
+                // From HUE Api core concepts:
+                // If you try and control multiple conflicting parameters at once e.g. {"color": {"xy": {"x":0.5,"y":0.5}}, "color_temperature": {"mirek": 250}}
+                // the lights can only physically do one, for this we apply the rule that xy beats ct. Simple.
+                // color_temperature.mirek: color temperature in mirek is null when the light color is not in the ct spectrum
+                if (node.DayTime === true && config.specifySwitchOnBrightness === "no" && node.HUEDeviceWhileDaytime !== null) {
+                  // The DayNight has switched into day, so restore the previous light status
+                  state = { on: { on: true }, dimming: node.HUEDeviceWhileDaytime.dimming, color: node.HUEDeviceWhileDaytime.color, color_temperature: node.HUEDeviceWhileDaytime.color_temperature };
+                  if (node.HUEDeviceWhileDaytime.color_temperature.mirek === null) delete state.color_temperature; // Otherwise the lamp will not turn on due to an error. color_temperature.mirek: color temperature in mirek is null when the light color is not in the ct spectrum
+                  node.HUEDeviceWhileDaytime = null; // Nullize the object.
                 } else {
-                  state = { on: { on: true } };
+                  let colorChoosen;
+                  let temperatureChoosen;
+                  let brightnessChoosen;
+                  // The light must support the temperature (in this case, colorAtSwitchOnNightTime is an object {kelvin:xx, brightness:yy})
+                  if (node.currentHUEDevice.color_temperature !== undefined) {
+                    if (node.DayTime === true && config.specifySwitchOnBrightness === "temperature") {
+                      temperatureChoosen = config.colorAtSwitchOnDayTime.kelvin;
+                    } else if (node.DayTime === false && config.enableDayNightLighting === "temperature") {
+                      temperatureChoosen = config.colorAtSwitchOnNightTime.kelvin;
+                    }
+                  }
+                  if (node.currentHUEDevice.dimming !== undefined) {
+                    // Check wether the user selected specific brightness at switch on (in this case, colorAtSwitchOnNightTime is an object {kelvin:xx, brightness:yy})
+                    if (node.DayTime === true && config.specifySwitchOnBrightness === "temperature") {
+                      brightnessChoosen = config.colorAtSwitchOnDayTime.brightness;
+                    } else if (node.DayTime === false && config.enableDayNightLighting === "temperature") {
+                      brightnessChoosen = config.colorAtSwitchOnNightTime.brightness;
+                    }
+                  }
+                  if (node.currentHUEDevice.color !== undefined) {
+                    // Check wether the user selected specific color at switch on (in this case, colorAtSwitchOnDayTime is a text with HTML web color)
+                    if (node.DayTime === true && config.specifySwitchOnBrightness === "yes") {
+                      colorChoosen = config.colorAtSwitchOnDayTime;
+                    } else if (node.DayTime === false && config.enableDayNightLighting === "yes") {
+                      colorChoosen = config.colorAtSwitchOnNightTime;
+                    }
+                  }
+                  // Create the HUE command
+                  if (colorChoosen !== undefined) {
+                    // Now we have a jColorChoosen. Proceed illuminating the light
+                    let gamut = null;
+                    if (node.currentHUEDevice.color.gamut_type !== undefined) {
+                      gamut = node.currentHUEDevice.color.gamut_type;
+                    }
+                    const dretXY = hueColorConverter.ColorConverter.rgbToXy(colorChoosen.red, colorChoosen.green, colorChoosen.blue, gamut);
+                    const dbright = hueColorConverter.ColorConverter.getBrightnessFromRGBOrHex(colorChoosen.red, colorChoosen.green, colorChoosen.blue);
+                    node.currentHUEDevice.dimming.brightness = Math.round(dbright, 0);
+                    node.updateKNXBrightnessState(node.currentHUEDevice.dimming.brightness);
+                    state = dbright > 0 ? { on: { on: true }, dimming: { brightness: dbright }, color: { xy: dretXY } } : { on: { on: false } };
+                  } else if (temperatureChoosen !== undefined) {
+                    // Kelvin
+                    const mirek = hueColorConverter.ColorConverter.kelvinToMirek(temperatureChoosen);
+                    node.currentHUEDevice.color_temperature.mirek = mirek;
+                    node.currentHUEDevice.dimming.brightness = brightnessChoosen;
+                    node.updateKNXBrightnessState(node.currentHUEDevice.dimming.brightness);
+                    // Kelvin temp
+                    state = brightnessChoosen > 0 ? { on: { on: true }, dimming: { brightness: brightnessChoosen }, color_temperature: { mirek: mirek } } : { on: { on: false } };
+                  } else if (brightnessChoosen !== undefined) {
+                    state = brightnessChoosen > 0 ? { on: { on: true }, dimming: { brightness: brightnessChoosen } } : { on: { on: false } };
+                  } else {
+                    state = { on: { on: true } };
+                  }
                 }
               } else {
                 state = { on: { on: false } };
@@ -202,6 +216,15 @@ module.exports = function (RED) {
             case config.GADaylightSensor:
               node.DayTime = Boolean(dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptDaylightSensor)));
               if (config.invertDayNight !== undefined && config.invertDayNight === true) node.DayTime = !node.DayTime;
+              if (config.specifySwitchOnBrightness === "no") {
+                // This retains the HUE device status while daytime, to be restored after nighttime elapsed. https://github.com/Supergiovane/node-red-contrib-knx-ultimate/issues/298
+                if (node.DayTime === false) {
+                  // DayTime has switched to false: save the currentHUEDevice into the HUEDeviceWhileDaytime
+                  node.HUEDeviceWhileDaytime = cloneDeep(node.currentHUEDevice);
+                }
+              } else {
+                node.HUEDeviceWhileDaytime = null;
+              }
               node.setNodeStatusHue({
                 fill: "green",
                 shape: "dot",
