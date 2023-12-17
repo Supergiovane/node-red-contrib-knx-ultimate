@@ -34,6 +34,7 @@ module.exports = function (RED) {
     node.formatdecimalsvalue = 2;
     node.currentHUEDevice = undefined; // At start, this value is filled by a call to HUE api. It stores a value representing the current light status.
     node.HUEDeviceWhileDaytime = null;// This retains the HUE device status while daytime, to be restored after nighttime elapsed.
+    node.HUELightsBelongingToGroupWhileDaytime = null; // Array contains all light belonging to the grouped_light (if grouped_light is selected)
     node.DayTime = true;
     node.isGrouped_light = config.hueDevice.split("#")[1] === "grouped_light";
     node.hueDevice = config.hueDevice.split("#")[0];
@@ -107,11 +108,36 @@ module.exports = function (RED) {
                 // If you try and control multiple conflicting parameters at once e.g. {"color": {"xy": {"x":0.5,"y":0.5}}, "color_temperature": {"mirek": 250}}
                 // the lights can only physically do one, for this we apply the rule that xy beats ct. Simple.
                 // color_temperature.mirek: color temperature in mirek is null when the light color is not in the ct spectrum
-                if (node.DayTime === true && config.specifySwitchOnBrightness === "no" && node.HUEDeviceWhileDaytime !== null) {
-                  // The DayNight has switched into day, so restore the previous light status
-                  state = { on: { on: true }, dimming: node.HUEDeviceWhileDaytime.dimming, color: node.HUEDeviceWhileDaytime.color, color_temperature: node.HUEDeviceWhileDaytime.color_temperature };
-                  if (node.HUEDeviceWhileDaytime.color_temperature.mirek === null) delete state.color_temperature; // Otherwise the lamp will not turn on due to an error. color_temperature.mirek: color temperature in mirek is null when the light color is not in the ct spectrum
-                  node.HUEDeviceWhileDaytime = null; // Nullize the object.
+                if (node.DayTime === true && config.specifySwitchOnBrightness === "no") {
+                  if (node.isGrouped_light === false && node.HUEDeviceWhileDaytime !== null) {
+                    // The DayNight has switched into day, so restore the previous light status
+                    state = { on: { on: true }, dimming: node.HUEDeviceWhileDaytime.dimming, color: node.HUEDeviceWhileDaytime.color, color_temperature: node.HUEDeviceWhileDaytime.color_temperature };
+                    if (node.HUEDeviceWhileDaytime.color_temperature.mirek === null) delete state.color_temperature; // Otherwise the lamp will not turn on due to an error. color_temperature.mirek: color temperature in mirek is null when the light color is not in the ct spectrum
+                    node.HUEDeviceWhileDaytime = null; // Nullize the object.
+                    node.serverHue.hueManager.writeHueQueueAdd(node.hueDevice, state, node.isGrouped_light === false ? "setLight" : "setGroupedLight");
+                    node.setNodeStatusHue({
+                      fill: "green",
+                      shape: "dot",
+                      text: "KNX->HUE",
+                      payload: "Restore light status",
+                    });
+                  } else if (node.isGrouped_light === true && node.HUELightsBelongingToGroupWhileDaytime !== null) {
+                    // The DayNight has switched into day, so restore the previous light state, belonging to the group
+                    for (let index = 0; index < node.HUELightsBelongingToGroupWhileDaytime.length; index++) {
+                      const element = node.HUELightsBelongingToGroupWhileDaytime[index].light[0];
+                      state = { on: { on: true }, dimming: element.dimming, color: element.color, color_temperature: element.color_temperature };
+                      if (element.color_temperature.mirek === null) delete state.color_temperature; // Otherwise the lamp will not turn on due to an error. color_temperature.mirek: color temperature in mirek is null when the light color is not in the ct spectrum
+                      node.serverHue.hueManager.writeHueQueueAdd(element.id, state, "setLight");
+                    }
+                    node.HUELightsBelongingToGroupWhileDaytime = null; // Nullize the object.
+                    node.setNodeStatusHue({
+                      fill: "green",
+                      shape: "dot",
+                      text: "KNX->HUE",
+                      payload: "Resuming all group's light",
+                    });
+                    return;
+                  }
                 } else {
                   let colorChoosen;
                   let temperatureChoosen;
@@ -219,11 +245,19 @@ module.exports = function (RED) {
               if (config.specifySwitchOnBrightness === "no") {
                 // This retains the HUE device status while daytime, to be restored after nighttime elapsed. https://github.com/Supergiovane/node-red-contrib-knx-ultimate/issues/298
                 if (node.DayTime === false) {
-                  // DayTime has switched to false: save the currentHUEDevice into the HUEDeviceWhileDaytime
-                  node.HUEDeviceWhileDaytime = cloneDeep(node.currentHUEDevice);
+                  if (node.isGrouped_light === false) node.HUEDeviceWhileDaytime = cloneDeep(node.currentHUEDevice); // DayTime has switched to false: save the currentHUEDevice into the HUEDeviceWhileDaytime
+                  if (node.isGrouped_light === true) {
+                    (async () => {
+                      try {
+                        const retLights = await node.serverHue.getAllLightsBelongingToTheGroup(node.hueDevice);
+                        node.HUELightsBelongingToGroupWhileDaytime = cloneDeep(retLights); // DayTime has switched to false: save the lights belonging to the group into the HUELightsBelongingToGroupWhileDaytime array
+                      } catch (error) { }
+                    })();
+                  }
                 }
               } else {
                 node.HUEDeviceWhileDaytime = null;
+                node.HUELightsBelongingToGroupWhileDaytime = null;
               }
               node.setNodeStatusHue({
                 fill: "green",

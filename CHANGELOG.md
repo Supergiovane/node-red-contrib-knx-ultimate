@@ -6,6 +6,9 @@
 
 # CHANGELOG
 
+**Version 2.2.35** - December 2023<br/>
+- NEW: HUE Light Node: now it resumes the old status of all lights belonging to the selected group.<br/>
+
 **Version 2.2.34** - December 2023<br/>
 - NEW: HUE Light Node: there is a new tab that auto-generates the light entity for Home Assistant.<br/>
 - HUE Light: resuming the last daytime status after nighttime, if the switch on behaviour at daytime is set to None.<br/>

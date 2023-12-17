@@ -242,6 +242,32 @@ module.exports = (RED) => {
       } catch (error) { }
     };
 
+    // Return an array of light belonging to the groupID
+    node.getAllLightsBelongingToTheGroup = async function getAllLightsBelongingToTheGroup(_groupID) {
+      if (node.hueAllResources === undefined || node.hueAllResources === null) return;
+      const retArr = [];
+      try {
+        await node.loadResourcesFromHUEBridge();
+        node.hueAllResources.forEach((res) => {
+          if (res.services !== undefined && res.services.length > 0) {
+            res.services.forEach((serv) => {
+              if (serv.rid === _groupID) {
+                if (res.children !== undefined) {
+                  const children = res.children.filter((a) => a.rtype === "light");
+                  for (let index = 0; index < children.length; index++) {
+                    const element = children[index];
+                    const oLight = node.hueAllResources.filter((a) => a.id === element.rid);
+                    if (oLight !== null && oLight !== undefined) retArr.push({ groupID: _groupID, light: oLight });
+                  }
+                }
+              }
+            });
+          }
+        });
+        return retArr;
+      } catch (error) { /* empty */ }
+    };
+
     // Returns the cached devices (node.hueAllResources) by type.
     node.getResources = function getResources(_rtype) {
       try {
