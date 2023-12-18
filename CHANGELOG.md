@@ -6,6 +6,9 @@
 
 # CHANGELOG
 
+**Version 2.2.36** - December 2023<br/>
+- HUE Light Node: Ensure at least one liht belonging to a group was on before switching to nighttime. Otherwise turn all lights on at daytime.<br/>
+
 **Version 2.2.35** - December 2023<br/>
 - NEW: HUE Light Node: now it resumes the old status of all lights belonging to the selected group.<br/>
 

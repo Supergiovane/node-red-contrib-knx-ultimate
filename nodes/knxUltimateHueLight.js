@@ -108,12 +108,11 @@ module.exports = function (RED) {
                 // If you try and control multiple conflicting parameters at once e.g. {"color": {"xy": {"x":0.5,"y":0.5}}, "color_temperature": {"mirek": 250}}
                 // the lights can only physically do one, for this we apply the rule that xy beats ct. Simple.
                 // color_temperature.mirek: color temperature in mirek is null when the light color is not in the ct spectrum
-                if (node.DayTime === true && config.specifySwitchOnBrightness === "no") {
+                if ((node.DayTime === true && config.specifySwitchOnBrightness === "no") && ((node.isGrouped_light === false && node.HUEDeviceWhileDaytime !== null) || (node.isGrouped_light === true && node.HUELightsBelongingToGroupWhileDaytime !== null))) {
                   if (node.isGrouped_light === false && node.HUEDeviceWhileDaytime !== null) {
                     // The DayNight has switched into day, so restore the previous light status
                     state = { on: { on: true }, dimming: node.HUEDeviceWhileDaytime.dimming, color: node.HUEDeviceWhileDaytime.color, color_temperature: node.HUEDeviceWhileDaytime.color_temperature };
                     if (node.HUEDeviceWhileDaytime.color_temperature.mirek === null) delete state.color_temperature; // Otherwise the lamp will not turn on due to an error. color_temperature.mirek: color temperature in mirek is null when the light color is not in the ct spectrum
-                    node.HUEDeviceWhileDaytime = null; // Nullize the object.
                     node.serverHue.hueManager.writeHueQueueAdd(node.hueDevice, state, node.isGrouped_light === false ? "setLight" : "setGroupedLight");
                     node.setNodeStatusHue({
                       fill: "green",
@@ -121,21 +120,35 @@ module.exports = function (RED) {
                       text: "KNX->HUE",
                       payload: "Restore light status",
                     });
+                    node.HUEDeviceWhileDaytime = null; // Nullize the object.
                   } else if (node.isGrouped_light === true && node.HUELightsBelongingToGroupWhileDaytime !== null) {
                     // The DayNight has switched into day, so restore the previous light state, belonging to the group
+                    let bAtLeastOneIsOn = false;
+                    for (let index = 0; index < node.HUELightsBelongingToGroupWhileDaytime.length; index++) { // Ensure, at least 1 lamp was on, otherwise turn all lamps on
+                      const element = node.HUELightsBelongingToGroupWhileDaytime[index].light[0];
+                      if (element.on.on === true) {
+                        bAtLeastOneIsOn = true;
+                        break;
+                      }
+                    }
                     for (let index = 0; index < node.HUELightsBelongingToGroupWhileDaytime.length; index++) {
                       const element = node.HUELightsBelongingToGroupWhileDaytime[index].light[0];
-                      state = { on: { on: true }, dimming: element.dimming, color: element.color, color_temperature: element.color_temperature };
+                      if (bAtLeastOneIsOn === true) {
+                        state = { on: element.on, dimming: element.dimming, color: element.color, color_temperature: element.color_temperature };
+                      } else {
+                        // Failsafe all on
+                        state = { on: { on: true }, dimming: element.dimming, color: element.color, color_temperature: element.color_temperature };
+                      }
                       if (element.color_temperature.mirek === null) delete state.color_temperature; // Otherwise the lamp will not turn on due to an error. color_temperature.mirek: color temperature in mirek is null when the light color is not in the ct spectrum
                       node.serverHue.hueManager.writeHueQueueAdd(element.id, state, "setLight");
                     }
-                    node.HUELightsBelongingToGroupWhileDaytime = null; // Nullize the object.
                     node.setNodeStatusHue({
                       fill: "green",
                       shape: "dot",
                       text: "KNX->HUE",
                       payload: "Resuming all group's light",
                     });
+                    node.HUELightsBelongingToGroupWhileDaytime = null; // Nullize the object.
                     return;
                   }
                 } else {
