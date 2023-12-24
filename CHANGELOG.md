@@ -6,6 +6,12 @@
 
 # CHANGELOG
 
+**Version 2.2.38** - December 2023<br/>
+- NEW: HUE Light Node: added support for the HUE SMART PLUG.<br/>
+
+**Version 2.2.37** - December 2023<br/>
+- HUE Light Node: you can now set the DIM direction for tunable white lights. Fixed some issues as well.<br/>
+
 **Version 2.2.36** - December 2023<br/>
 - HUE Light Node: Ensure at least one liht belonging to a group was on before switching to nighttime. Otherwise turn all lights on at daytime.<br/>
 

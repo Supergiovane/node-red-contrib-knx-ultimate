@@ -1,6 +1,3 @@
-<!-- <script type="application/javascript;charset=utf-8" src="https://kit.fontawesome.com/11f26b4500.js" crossorigin="anonymous"></script>
-<script type="application/javascript;charset=utf-8" src="https://cdn.jsdelivr.net/npm/@jaames/iro@5"></script> -->
-
 'use strict'
 <script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/11f26b4500.js"></script>
 
@@ -33,9 +30,7 @@
       }
       // ################################################################
 
-
       $("#tabs").tabs(); // Tabs gestione KNX
-
 
       // 19/02/2020 Used to get the server sooner als deploy.
       $("#node-input-server").change(function () {
@@ -230,6 +225,7 @@
               .text("No")
           );
         }
+
         $("#tabs").tabs("disable", "#tabs-4");
         $("#tabs").tabs("disable", "#tabs-3");
         $("#tabs").tabs("disable", "#tabs-2");
@@ -239,11 +235,15 @@
         $("#divTemperatureAtSwitchOnNightTime").hide();
         $("#divColorCycle").hide();
         $("#divUpdateKNXBrightnessStatusOnHUEOnOff").hide();
-        $("#divMinMaxBrightness").hide();
+        $("#divBehaviourBrightness").hide();
         $("#comboTemperatureAtSwitchOn").hide();
         $("#comboTemperatureAtSwitchOnNightTime").hide();
 
         // Enable options/tabs one by one
+        if (oLight.dimming !== undefined) {
+          $("#tabs").tabs("enable", "#tabs-2");
+          $("#divBehaviourBrightness").show();
+        }
         if (oLight.color !== undefined) {
           $("#tabs").tabs("enable", "#tabs-4");
           $("#divColorsAtSwitchOn").show();
@@ -263,7 +263,7 @@
         // Check temperature (if the light supports temperature, it support dimming as well)
         if (oLight.color_temperature !== undefined) {
           $("#tabs").tabs("enable", "#tabs-3");
-          $("#tabs").tabs("enable", "#tabs-2");
+          //$("#tabs").tabs("enable", "#tabs-2");
           $("#node-input-specifySwitchOnBrightness").append(
             $("<option>")
               .val("temperature")
@@ -277,11 +277,11 @@
           $("#divTemperatureAtSwitchOn").show();
           $("#divTemperatureAtSwitchOnNightTime").show();
           $("#divUpdateKNXBrightnessStatusOnHUEOnOff").show();
-          $("#divMinMaxBrightness").show();
+          $("#divBehaviourBrightness").show();
           $("#comboTemperatureAtSwitchOn").show();
           $("#comboTemperatureAtSwitchOnNightTime").show();
         } else {
-          $("#tabs").tabs("enable", "#tabs-2");
+          //$("#tabs").tabs("enable", "#tabs-2");
           $("#node-input-specifySwitchOnBrightness").append(
             $("<option>")
               .val("temperature")
@@ -297,7 +297,7 @@
           $("#divTemperatureAtSwitchOn").show();
           $("#divTemperatureAtSwitchOnNightTime").show();
           $("#divUpdateKNXBrightnessStatusOnHUEOnOff").show();
-          $("#divMinMaxBrightness").show();
+          //$("#divBehaviourBrightness").show();
         }
         $("#node-input-specifySwitchOnBrightness").val(node.specifySwitchOnBrightness).trigger('change');
         $("#node-input-enableDayNightLighting").val(node.enableDayNightLighting).trigger('change');
@@ -633,6 +633,7 @@
         colorAtSwitchOnNightTime: { value: '{ "kelvin":2700, "brightness":20 }' },
 
         invertDayNight: { value: false },
+        invertDimTunableWhiteDirection: { value: false },
 
         updateKNXBrightnessStatusOnHUEOnOff: { value: "no" },
         dimSpeed: { value: 5000, required: false },
@@ -820,6 +821,8 @@
 
 </script>
 
+
+
 <script type="text/html" data-template-name="knxUltimateHueLight">
 
 <div class="form-row">
@@ -862,8 +865,7 @@
 
 <br />
 
-
-<div id="tabs" hidden>
+<div id="tabs" hidden">
   <ul>
     <li><a href="#tabs-1"><i class="fa-solid fa-toggle-on fa-beat"></i> Switching</a></li>
     <li><a href="#tabs-2"><i class="fa-solid fa-arrow-up-wide-short fa-beat"></i> Dim/Brightness</a></li>
@@ -953,7 +955,27 @@
           data-i18n="knxUltimateHueLight.node-input-name"></span></label>
       <input type="text" id="node-input-nameLightBrightnessState"
         style="width:190px;margin-left: 5px; text-align: left;">
+    </div>   
+    <div class="form-row">
+      <label for="node-input-dimSpeed" style="width:260px">
+        <i class="fa fa-bolt"></i> Dim Speed (ms)
+      </label>
+      <input type="text" id="node-input-dimSpeed" placeholder='Default is 5000' style="width:210px">
     </div>
+    <div class="form-row">
+      <label for="node-input-minDimLevelLight" style="width:260px;">
+        <i class="fa fa-clone"></i> Min Dim Brightness
+      </label>
+      <select id="node-input-minDimLevelLight">
+        <option value="useHueLightLevel">Use minimum brightness specified in the HUE light</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <label for="node-input-maxDimLevelLight" style="width:260px;">
+        <i class="fa fa-clone"></i> Max Dim Brightness
+      </label>
+      <select id="node-input-maxDimLevelLight"></select>
+    </div>    
     </p>
   </div>
   <div id="tabs-3">
@@ -1027,6 +1049,13 @@
 
       <label for="node-input-nameLightKelvinState" style="width:50px; margin-left: 0px; text-align: right;">Name</label>
       <input type="text" id="node-input-nameLightKelvinState" style="width:190px;margin-left: 5px; text-align: left;">
+    </div>
+    <div class="form-row">
+      <label style="width:170px" for="node-input-invertDimTunableWhiteDirection">
+        <i class="fa fa-shuffle"></i> Invert DIM direction
+      </label>
+      <input type="checkbox" id="node-input-invertDimTunableWhiteDirection"
+        style="display:inline-block; width:auto; vertical-align:top;" />
     </div>
     </p>
   </div>
@@ -1121,102 +1150,82 @@
         <option value="no">Leave as is (default HUE behaviour)</option>
       </select>
     </div>
-    <div class="form-row">
-      <label for="node-input-specifySwitchOnBrightness" style="width:260px;">
-        <i class="fa fa-tag"></i> Switch on behaviour
-      </label>
-      <select id="node-input-specifySwitchOnBrightness">
-        <option value="no">None</option>
-        <!-- <option value="temperature">Select temperature and brightness</option>
-        <option value="yes">Select color</option> -->
-      </select>
-    </div>
-
-    <div class="form-row" id="divColorsAtSwitchOn">
-      <label for="node-input-colorAtSwitchOnDayTime" style="width:260px">
-      </label>
-      <input type="hidden" id="node-input-colorAtSwitchOnDayTime">
-      <input type="color" id="colorPickerDay" style="width:260px">
-      <button id="getColorAtSwitchOnDayTimeButton" type="button" class="red-ui-button">Get current</button>
-    </div>
-    <div class="form-row" id="divTemperatureAtSwitchOn" hidden>
-      <label for="node-input-colorAtSwitchOnDayTime" style="width:260px">
-      </label>
-      <select style="width:12%;" id="comboTemperatureAtSwitchOn"></select>
-      <select  style="width:25%;" id="comboBrightnessAtSwitchOn"></select>      
-    </div>
-
-    <div id="divCCSBoxAtNightLighting">
+    <div id ="divBehaviourBrightness">
       <div class="form-row">
-        <label for="node-input-enableDayNightLighting" style="width:260px;">
-          <i class="fa fa-clone"></i> Night Lighting
+        <label for="node-input-specifySwitchOnBrightness" style="width:260px;">
+          <i class="fa fa-tag"></i> Switch on behaviour
         </label>
-        <select id="node-input-enableDayNightLighting">
-          <option value="no">No night lighting</option>
+        <select id="node-input-specifySwitchOnBrightness">
+          <option value="no">None</option>
           <!-- <option value="temperature">Select temperature and brightness</option>
           <option value="yes">Select color</option> -->
         </select>
       </div>
 
-      <div id="divEnableDayNightLighting">
+      <div class="form-row" id="divColorsAtSwitchOn">
+        <label for="node-input-colorAtSwitchOnDayTime" style="width:260px">
+        </label>
+        <input type="hidden" id="node-input-colorAtSwitchOnDayTime">
+        <input type="color" id="colorPickerDay" style="width:260px">
+        <button id="getColorAtSwitchOnDayTimeButton" type="button" class="red-ui-button">Get current</button>
+      </div>
+      <div class="form-row" id="divTemperatureAtSwitchOn" hidden>
+        <label for="node-input-colorAtSwitchOnDayTime" style="width:260px">
+        </label>
+        <select style="width:12%;" id="comboTemperatureAtSwitchOn"></select>
+        <select  style="width:25%;" id="comboBrightnessAtSwitchOn"></select>      
+      </div>
 
-        <div class="form-row" id="divColorsAtSwitchOnNightTime">
-          <label for="node-input-colorAtSwitchOnNightTime" style="width:260px"></label>
-          <input type="hidden" id="node-input-colorAtSwitchOnNightTime">
-          <input type="color" id="colorPickerNight" style="width:260px">
-          <button id="getColorAtSwitchOnNightTimeButton" type="button" class="red-ui-button">Get current</button>
-        </div>
-        <div class="form-row" id="divTemperatureAtSwitchOnNightTime" hidden>
-          <label for="node-input-colorAtSwitchOnNightTime" style="width:260px"></label>
-          <select style="width:25%;" id="comboTemperatureAtSwitchOnNightTime"></select>
-          <select style="width:25%;" id="comboBrightnessAtSwitchOnNightTime"></select>      
-        </div>
-
+      <div id="divCCSBoxAtNightLighting">
         <div class="form-row">
-          <label for="node-input-nameDaylightSensor" style="width:110px;"><i class="fa fa-clock-o"></i>
-            Day/Night</label>
-          <label for="node-input-GADaylightSensor" style="width:20px;">GA</label>
-          <input type="text" id="node-input-GADaylightSensor" placeholder="Ex: 1/1/1"
-            style="width:70px;margin-left: 5px; text-align: left;">
-
-          <label for="node-input-dptDaylightSensor" style="width:40px; margin-left: 0px; text-align: right;">DPT</label>
-          <select id="node-input-dptDaylightSensor" style="width:140px;"></select>
-
-          <label for="node-input-nameDaylightSensor" style="width:50px; margin-left: 0px; text-align: right;"><span
-              data-i18n="knxUltimateHueLight.node-input-name"></span></label>
-          <input type="text" id="node-input-nameDaylightSensor" style="width:190px;margin-left: 5px; text-align: left;">
-        </div>
-        <div class="form-row">
-          <label style="width:170px" for="node-input-invertDayNight">
-            <i class="fa fa-shuffle"></i> Invert day/night values
+          <label for="node-input-enableDayNightLighting" style="width:260px;">
+            <i class="fa fa-clone"></i> Night Lighting
           </label>
-          <input type="checkbox" id="node-input-invertDayNight"
-            style="display:inline-block; width:auto; vertical-align:top;" />
+          <select id="node-input-enableDayNightLighting">
+            <option value="no">No night lighting</option>
+            <!-- <option value="temperature">Select temperature and brightness</option>
+            <option value="yes">Select color</option> -->
+          </select>
+        </div>
+
+        <div id="divEnableDayNightLighting">
+
+          <div class="form-row" id="divColorsAtSwitchOnNightTime">
+            <label for="node-input-colorAtSwitchOnNightTime" style="width:260px"></label>
+            <input type="hidden" id="node-input-colorAtSwitchOnNightTime">
+            <input type="color" id="colorPickerNight" style="width:260px">
+            <button id="getColorAtSwitchOnNightTimeButton" type="button" class="red-ui-button">Get current</button>
+          </div>
+          <div class="form-row" id="divTemperatureAtSwitchOnNightTime" hidden>
+            <label for="node-input-colorAtSwitchOnNightTime" style="width:260px"></label>
+            <select style="width:25%;" id="comboTemperatureAtSwitchOnNightTime"></select>
+            <select style="width:25%;" id="comboBrightnessAtSwitchOnNightTime"></select>      
+          </div>
+
+          <div class="form-row">
+            <label for="node-input-nameDaylightSensor" style="width:110px;"><i class="fa fa-clock-o"></i>
+              Day/Night</label>
+            <label for="node-input-GADaylightSensor" style="width:20px;">GA</label>
+            <input type="text" id="node-input-GADaylightSensor" placeholder="Ex: 1/1/1"
+              style="width:70px;margin-left: 5px; text-align: left;">
+
+            <label for="node-input-dptDaylightSensor" style="width:40px; margin-left: 0px; text-align: right;">DPT</label>
+            <select id="node-input-dptDaylightSensor" style="width:140px;"></select>
+
+            <label for="node-input-nameDaylightSensor" style="width:50px; margin-left: 0px; text-align: right;"><span
+                data-i18n="knxUltimateHueLight.node-input-name"></span></label>
+            <input type="text" id="node-input-nameDaylightSensor" style="width:190px;margin-left: 5px; text-align: left;">
+          </div>
+          <div class="form-row">
+            <label style="width:170px" for="node-input-invertDayNight">
+              <i class="fa fa-shuffle"></i> Invert day/night values
+            </label>
+            <input type="checkbox" id="node-input-invertDayNight"
+              style="display:inline-block; width:auto; vertical-align:top;" />
+          </div>
         </div>
       </div>
-    </div>
-    <br />
-    <div class="form-row">
-      <label for="node-input-dimSpeed" style="width:260px">
-        <i class="fa fa-bolt"></i> Dim Speed (ms)
-      </label>
-      <input type="text" id="node-input-dimSpeed" placeholder='Default is 5000' style="width:260px">
-    </div>
-    <div id ="divMinMaxBrightness">
-      <div class="form-row">
-        <label for="node-input-minDimLevelLight" style="width:260px;">
-          <i class="fa fa-clone"></i> Min Dim Brightness
-        </label>
-        <select id="node-input-minDimLevelLight">
-          <option value="useHueLightLevel">Use minimum brightness specified in the HUE light</option>
-        </select>
-      </div>
-      <div class="form-row">
-        <label for="node-input-maxDimLevelLight" style="width:260px;">
-          <i class="fa fa-clone"></i> Max Dim Brightness
-        </label>
-        <select id="node-input-maxDimLevelLight"></select>
-      </div>
+      <br/>
     </div>
     <div class="form-row">
       <label for="node-input-enableNodePINS" style="width:260px;">
@@ -1271,7 +1280,10 @@ Start typing in the GA field, the name or group address of your KNX device, the 
 |--|--|
 | Control | Relative DIM the HUE light. You can set the dimming speed in the **_Behaviour_** tab. |
 | Control % | Changes the absolute HUE light's brightness (0-100%)|
-| Status| Link this to the light's brightness status group address |
+| Status| Link this to the light's brightness status KNX group address |
+| Dim Speed (ms)                            | The dimming speed, in Milliseconds. This applies to the **light** and also to the **tunable white** dimming datapoints. It' calculated from 0% to 100%.                                                                                                                                                                                                                                                                                                                                              |
+| Min Dim brightness                        | Tha Minimum brightness that the lamp can reach. For example, if you are dimming the light down, the light will stop dimming at the specified brightness %.                                                                                                                                                                                                                                                                                                                                           |
+| Max Dim brightness                        | Tha Maximum brightness that the lamp can reach. For example, if you are dimming the light up, the light will stop dimming at the specified brightness %.                                                                                                                                                                                                                                                                                                                                             |
 
 <br/>
 
@@ -1283,7 +1295,7 @@ Start typing in the GA field, the name or group address of your KNX device, the 
 | Control kelvin | **DPT 7.600:** set the HUE light's temperature in Kelvin degrees, using the KNX range from 0 to 65536. This range will be then transformed in mirek.<br/>**DPT 9.002:** set the temperature using Philips HUE range: 2000K - 6535K (Ambiance range starts at 2200K). Please be aware, conversion may produce slightly changes in Kelvin degrees value, due to KNX RGB or Kelvin degrees to HUE mirek degrees conversion.|
 | Status %| Link this to the light temperature status group address. Datapoint is 5.001 absolute value. 0 is full warm, 100 is full cold.|
 | Status kelvin | **DPT 7.600:** get the HUE light's temperature in Kelvin degrees, using the KNX range from 0 to 65536. This range will be then transformed in kelvin degrees.<br/>**DPT 9.002:** get the temperature using Philips HUE range: 2000K - 6535K (Ambiance range starts at 2200K). Please be aware, conversion may produce slightly changes in Kelvin degrees value, due to KNX RGB or Kelvin degrees to HUE mirek degrees conversion. |
-
+| Invert DIM direction | Inverts the DIM direction. |
 <br/>
 
 **Colors**
@@ -1311,9 +1323,6 @@ Start typing in the GA field, the name or group address of your KNX device, the 
 | Night Lighting                            | It allows to set a particular light color/brightness at nighttime. The options are the same as the daytime. You could select either a temperature/brightness or color. A cozy temperature of 2700 Kelvin, with a brightness of 10% or 20%, is a good choice for  bathroom's night light.|
 | Day/Night                                 | Select the group address used to set the day/night behaviour. The group address value is _true_ if daytime, _false_ if nighttime.                                                                                                                                                                                                                                                                                                                                                                    |
 | Invert day/night values                   | Invert the values of _Day/Night_ group address. Default value is **unchecked**.                                                                                                                                                                                                                                                                                                                                                                                                                      |
-| Dim Speed (ms)                            | The dimming speed, in Milliseconds. This applies to the **light** and also to the **tunable white** dimming datapoints. It' calculated from 0% to 100%.                                                                                                                                                                                                                                                                                                                                              |
-| Min Dim brightness                        | Tha Minimum brightness that the lamp can reach. For example, if you are dimming the light down, the light will stop dimming at the specified brightness %.                                                                                                                                                                                                                                                                                                                                           |
-| Max Dim brightness                        | Tha Maximum brightness that the lamp can reach. For example, if you are dimming the light up, the light will stop dimming at the specified brightness %.                                                                                                                                                                                                                                                                                                                                             |
 | Read status at startup | Read the status at startup and emit the event to the KNX bus at startup/reconnection. (Default "no")|
 | Node Input/Output PINs | Hide or show the input/output PINs. Input/output PINS allow the node to accept msg input from the flow and send msg output to the flow. Input msg must follow the HUE API v.2 Standards. This is an example msg, that turns on the light: <code>msg.on = {"on":true}</code>. Please refer to the [official HUE Api page](https://developers.meethue.com/develop/hue-api-v2/api-reference/#resource_light__id__put) | 
 ### Note

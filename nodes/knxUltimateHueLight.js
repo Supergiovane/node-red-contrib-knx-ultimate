@@ -45,6 +45,9 @@ module.exports = function (RED) {
     config.colorAtSwitchOnNightTime = (config.colorAtSwitchOnNightTime === '' || config.colorAtSwitchOnNightTime === undefined) ? '{ "kelvin":2700, "brightness":20 }' : config.colorAtSwitchOnNightTime;
     config.colorAtSwitchOnDayTime = config.colorAtSwitchOnDayTime.replace("geen", "green");
     config.colorAtSwitchOnNightTime = config.colorAtSwitchOnNightTime.replace("geen", "green");
+    config.dimSpeed = config.dimSpeed === undefined ? 5000 : Number(config.dimSpeed);
+    config.invertDimTunableWhiteDirection = config.invertDimTunableWhiteDirection === undefined ? false : true;
+
     // Transform HEX in RGB and stringified json in json oblects.
     if (config.colorAtSwitchOnDayTime.indexOf("#") !== -1) {
       // Transform to rgb.
@@ -112,7 +115,7 @@ module.exports = function (RED) {
                   if (node.isGrouped_light === false && node.HUEDeviceWhileDaytime !== null) {
                     // The DayNight has switched into day, so restore the previous light status
                     state = { on: { on: true }, dimming: node.HUEDeviceWhileDaytime.dimming, color: node.HUEDeviceWhileDaytime.color, color_temperature: node.HUEDeviceWhileDaytime.color_temperature };
-                    if (node.HUEDeviceWhileDaytime.color_temperature.mirek === null) delete state.color_temperature; // Otherwise the lamp will not turn on due to an error. color_temperature.mirek: color temperature in mirek is null when the light color is not in the ct spectrum
+                    if (node.HUEDeviceWhileDaytime.color_temperature !== undefined && node.HUEDeviceWhileDaytime.color_temperature.mirek === null) delete state.color_temperature; // Otherwise the lamp will not turn on due to an error. color_temperature.mirek: color temperature in mirek is null when the light color is not in the ct spectrum
                     node.serverHue.hueManager.writeHueQueueAdd(node.hueDevice, state, node.isGrouped_light === false ? "setLight" : "setGroupedLight");
                     node.setNodeStatusHue({
                       fill: "green",
@@ -139,7 +142,7 @@ module.exports = function (RED) {
                         // Failsafe all on
                         state = { on: { on: true }, dimming: element.dimming, color: element.color, color_temperature: element.color_temperature };
                       }
-                      if (element.color_temperature.mirek === null) delete state.color_temperature; // Otherwise the lamp will not turn on due to an error. color_temperature.mirek: color temperature in mirek is null when the light color is not in the ct spectrum
+                      if (element.color_temperature !== undefined && element.color_temperature.mirek === null) delete state.color_temperature; // Otherwise the lamp will not turn on due to an error. color_temperature.mirek: color temperature in mirek is null when the light color is not in the ct spectrum
                       node.serverHue.hueManager.writeHueQueueAdd(element.id, state, "setLight");
                     }
                     node.setNodeStatusHue({
@@ -286,7 +289,7 @@ module.exports = function (RED) {
                 // { decr_incr: 1, data: 1 } : Start increasing until { decr_incr: 0, data: 0 } is received.
                 // { decr_incr: 0, data: 1 } : Start decreasing until { decr_incr: 0, data: 0 } is received.
                 msg.payload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightHSV));
-                node.hueDimmingTunableWhite(msg.payload.decr_incr, msg.payload.data, config.dimSpeed);
+                node.hueDimmingTunableWhite(msg.payload.decr_incr, msg.payload.data, 5000);
                 node.setNodeStatusHue({
                   fill: "green", shape: "dot", text: "KNX->HUE", payload: JSON.stringify(msg.payload),
                 });
@@ -481,106 +484,137 @@ module.exports = function (RED) {
 
     // Start dimming
     // ***********************************************************
-    node.hueDimming = function hueDimming(_KNXaction, _KNXbrightness_delta, _dimSpeedInMillisecs = undefined) {
-      // 31/10/2023 after many attempts to use dimming_delta function of the HueApeV2, loosing days of my life, without a decent success
+    node.hueDimming = function hueDimming(_KNXaction, _KNXbrightness_Direction, _dimSpeedInMillisecs = undefined) {
+      // 31/10/2023 after many attempts to use dimming_delta function of the HueApeV2, loosing days of my life, without a decent success, will use the standard dimming calculations
       // i decide to go to the "step brightness" way.
-      let hueTelegram = {};
-      const numStep = 10; // Steps from 0 to 100 by 10
-      if (_dimSpeedInMillisecs === undefined || _dimSpeedInMillisecs === '') _dimSpeedInMillisecs = 5000;
+      try {
+        let hueTelegram = {};
+        let numStep = 10; // Steps from 0 to 100 by 10
 
-      if (_KNXbrightness_delta === 0 && _KNXaction === 0) {
-        // STOP DIM
-        if (node.timerStepDim !== undefined) clearInterval(node.timerStepDim);
-        node.brightnessStep = null;
-        return;
-      }
+        if (_KNXbrightness_Direction === 0 && _KNXaction === 0) {
+          // STOP DIM
+          if (node.timerStepDim !== undefined) clearInterval(node.timerStepDim);
+          node.brightnessStep = null;
+          return;
+        }
 
-      // Set the actual brightness to start with
-      if (node.brightnessStep === null || node.brightnessStep === undefined) node.brightnessStep = node.currentHUEDevice.dimming.brightness || 50;
-      node.brightnessStep = Math.ceil(Number(node.brightnessStep));
+        // Set the actual brightness to start with
+        if (node.brightnessStep === null || node.brightnessStep === undefined) node.brightnessStep = node.currentHUEDevice.dimming.brightness || 50;
+        node.brightnessStep = Math.ceil(Number(node.brightnessStep));
 
-      // Set the speed
-      _dimSpeedInMillisecs /= numStep;
+        // Set the speed
+        _dimSpeedInMillisecs /= numStep;
+        numStep = Math.round((config.maxDimLevelLight - config.minDimLevelLight) / numStep, 0);
 
-      // We have also minDimLevelLight and maxDimLevelLight to take care of.
-      let minDimLevelLight = config.minDimLevelLight === undefined ? 10 : Number(config.minDimLevelLight);
-      if (config.minDimLevelLight === "useHueLightLevel" && node.currentHUEDevice.dimming.min_dim_level === undefined) minDimLevelLight = 10;
-      const maxDimLevelLight = config.maxDimLevelLight === undefined ? 100 : Number(config.maxDimLevelLight);
+        // We have also minDimLevelLight and maxDimLevelLight to take care of.
+        let minDimLevelLight = config.minDimLevelLight === undefined ? 10 : Number(config.minDimLevelLight);
+        if (config.minDimLevelLight === "useHueLightLevel" && node.currentHUEDevice.dimming.min_dim_level === undefined) minDimLevelLight = 10;
+        const maxDimLevelLight = config.maxDimLevelLight === undefined ? 100 : Number(config.maxDimLevelLight);
 
-      if (_KNXbrightness_delta > 0 && _KNXaction === 1) {
-        // DIM UP
-        if (node.timerStepDim !== undefined) clearInterval(node.timerStepDim);
-        node.timerStepDim = setInterval(() => {
-          node.updateKNXBrightnessState(node.brightnessStep); // Unnecessary, but necessary to set the KNX Status in real time.
-          node.brightnessStep += numStep;
-          if (node.brightnessStep > maxDimLevelLight) node.brightnessStep = maxDimLevelLight;
-          hueTelegram = { dimming: { brightness: node.brightnessStep }, dynamics: { duration: _dimSpeedInMillisecs } };
-          // Switch on the light if off
-          if (node.currentHUEDevice.on !== undefined && node.currentHUEDevice.on.on === false) {
-            hueTelegram.on = { on: true };
-          }
-          node.serverHue.hueManager.writeHueQueueAdd(node.hueDevice, hueTelegram, node.isGrouped_light === false ? "setLight" : "setGroupedLight");
-          if (node.brightnessStep >= maxDimLevelLight) clearInterval(node.timerStepDim);
-        }, _dimSpeedInMillisecs);
-      }
-      if (_KNXbrightness_delta > 0 && _KNXaction === 0) {
-        if (node.currentHUEDevice.on.on === false) return; // Don't dim down, if the light is already off.
-        // DIM DOWN
-        if (node.timerStepDim !== undefined) clearInterval(node.timerStepDim);
-        node.timerStepDim = setInterval(() => {
-          node.updateKNXBrightnessState(node.brightnessStep); // Unnecessary, but necessary to set the KNX Status in real time.
-          node.brightnessStep -= numStep;
-          if (node.brightnessStep < minDimLevelLight) node.brightnessStep = minDimLevelLight;
-          hueTelegram = { dimming: { brightness: node.brightnessStep }, dynamics: { duration: _dimSpeedInMillisecs } };
-          // Switch off the light if on
-          if (node.currentHUEDevice.on !== undefined && node.currentHUEDevice.on.on === true && node.brightnessStep === 0) {
-            hueTelegram.on = { on: false };
-          }
-          node.serverHue.hueManager.writeHueQueueAdd(node.hueDevice, hueTelegram, node.isGrouped_light === false ? "setLight" : "setGroupedLight");
-          if (node.brightnessStep <= minDimLevelLight) clearInterval(node.timerStepDim);
-        }, _dimSpeedInMillisecs);
-      }
+        if (_KNXbrightness_Direction > 0 && _KNXaction === 1) {
+          // DIM UP
+          if (node.timerStepDim !== undefined) clearInterval(node.timerStepDim);
+          node.timerStepDim = setInterval(() => {
+            node.updateKNXBrightnessState(node.brightnessStep); // Unnecessary, but necessary to set the KNX Status in real time.
+            node.brightnessStep += numStep;
+            if (node.brightnessStep > maxDimLevelLight) node.brightnessStep = maxDimLevelLight;
+            hueTelegram = { dimming: { brightness: node.brightnessStep }, dynamics: { duration: _dimSpeedInMillisecs + 100 } }; // + 100 is to avoid ladder effect
+            // Switch on the light if off
+            if (node.currentHUEDevice.on !== undefined && node.currentHUEDevice.on.on === false) {
+              hueTelegram.on = { on: true };
+            }
+            node.serverHue.hueManager.writeHueQueueAdd(node.hueDevice, hueTelegram, node.isGrouped_light === false ? "setLight" : "setGroupedLight");
+            if (node.brightnessStep >= maxDimLevelLight) clearInterval(node.timerStepDim);
+          }, _dimSpeedInMillisecs);
+        }
+        if (_KNXbrightness_Direction > 0 && _KNXaction === 0) {
+          if (node.currentHUEDevice.on.on === false) return; // Don't dim down, if the light is already off.
+          // DIM DOWN
+          if (node.timerStepDim !== undefined) clearInterval(node.timerStepDim);
+          node.timerStepDim = setInterval(() => {
+            node.updateKNXBrightnessState(node.brightnessStep); // Unnecessary, but necessary to set the KNX Status in real time.
+            node.brightnessStep -= numStep;
+            if (node.brightnessStep < minDimLevelLight) node.brightnessStep = minDimLevelLight;
+            hueTelegram = { dimming: { brightness: node.brightnessStep }, dynamics: { duration: _dimSpeedInMillisecs + 100 } };// + 100 is to avoid ladder effect
+            // Switch off the light if on
+            if (node.currentHUEDevice.on !== undefined && node.currentHUEDevice.on.on === true && node.brightnessStep === 0) {
+              hueTelegram.on = { on: false };
+            }
+            node.serverHue.hueManager.writeHueQueueAdd(node.hueDevice, hueTelegram, node.isGrouped_light === false ? "setLight" : "setGroupedLight");
+            if (node.brightnessStep <= minDimLevelLight) clearInterval(node.timerStepDim);
+          }, _dimSpeedInMillisecs);
+        }
+      } catch (error) { }
     };
     // ***********************************************************
 
     // Start dimming tunable white
     // mirek: required(integer minimum: 153, maximum: 500)
     // ***********************************************************
-    node.hueDimmingTunableWhite = function hueDimming(_KNXaction, _KNXbrightness_delta, _dimSpeedInMillisecs = undefined) {
-      let dimDirection = "stop";
-      let hueTelegram = {};
-      _dimSpeedInMillisecs = _dimSpeedInMillisecs === undefined || _dimSpeedInMillisecs === "" ? 5000 : _dimSpeedInMillisecs;
-      let delta = 0;
-      if (node.currentHUEDevice.color_temperature.mirek === undefined) delta = 347 - Math.round(173, 0); // Unable to read the mirek, set medium as default
-      // We have also minDimLevelLight and maxDimLevelLight to take care of.
-      // Mirek limits are not taken in consideration.
-      // Maximum mirek is 347
-      if (_KNXbrightness_delta === 0 && _KNXaction === 0) {
-        dimDirection = "stop";
-        hueTelegram = { color_temperature_delta: { action: dimDirection } };
-        node.serverHue.hueManager.writeHueQueueAdd(node.hueDevice, hueTelegram, node.isGrouped_light === false ? "setLight" : "setGroupedLight");
-        return;
-      }
-      if (_KNXbrightness_delta > 0 && _KNXaction === 1) {
-        if (node.currentHUEDevice.color_temperature.mirek !== undefined) delta = 347 - Math.round(node.currentHUEDevice.color_temperature.mirek, 0);
-        dimDirection = "up";
-      }
-      if (_KNXbrightness_delta > 0 && _KNXaction === 0) {
-        // Set the minumum delta, taking care of the minimum brightness specified either in the HUE lamp itself, or specified by the user (parameter node.minDimLevelLight)
-        if (node.currentHUEDevice.color_temperature.mirek !== undefined) delta = Math.round(node.currentHUEDevice.color_temperature.mirek, 0);
-        dimDirection = "down";
-      }
-      // Calculate the dimming time based on delta
-      // 10000:x=347:delta
-      // x = (10000 * delta) / 347
-      _dimSpeedInMillisecs = Math.round((_dimSpeedInMillisecs * delta) / 347, 0);
+    node.hueDimmingTunableWhite = function hueDimming(_KNXaction, _KNXbrightness_DirectionTunableWhite, _dimSpeedInMillisecsTunableWhite = undefined) {
+      // 23/23/2023 after many attempts to use dimming_delta function of the HueApeV2, loosing days of my life, without a decent success, will use the standard dimming calculations
+      // i decide to go to the "step brightness" way.
+      try {
 
-      hueTelegram = { color_temperature_delta: { action: dimDirection, mirek_delta: delta }, dynamics: { duration: _dimSpeedInMillisecs } };
-      // Switch on the light if off
-      if (node.currentHUEDevice.on !== undefined && node.currentHUEDevice.on.on === false && dimDirection === "up") {
-        hueTelegram.on = { on: true };
-      }
-      node.serverHue.hueManager.writeHueQueueAdd(node.hueDevice, hueTelegram, node.isGrouped_light === false ? "setLight" : "setGroupedLight");
+        if (_KNXbrightness_DirectionTunableWhite === 0 && _KNXaction === 0) {
+          // STOP DIM
+          if (node.timerStepDimTunableWhite !== undefined) clearInterval(node.timerStepDimTunableWhite);
+          node.brightnessStepTunableWhite = null;
+          return;
+        }
+
+        let numStepTunableWhite = 10; // Steps from 153 to 500
+        if (config.invertDimTunableWhiteDirection === true) {
+          if (_KNXaction === 1) { _KNXaction = 0; } else { _KNXaction = 1; }
+        }
+
+        // Set the actual brightness to start with
+        if (node.brightnessStepTunableWhite === null || node.brightnessStepTunableWhite === undefined) node.brightnessStepTunableWhite = node.currentHUEDevice.color_temperature.mirek || 372;
+        node.brightnessStepTunableWhite = Math.ceil(Number(node.brightnessStepTunableWhite));
+
+        // Set the speed
+        _dimSpeedInMillisecsTunableWhite = Math.ceil(_dimSpeedInMillisecsTunableWhite / numStepTunableWhite);
+
+        const minDimLevelLightTunableWhite = 153;
+        const maxDimLevelLightTunableWhite = 500;
+        //numStepTunableWhite = hueColorConverter.ColorConverter.scale(numStepTunableWhite, [0, 100], [minDimLevelLightTunableWhite, maxDimLevelLightTunableWhite]);
+        //numStepTunableWhite = hueColorConverter.ColorConverter.scale(numStepTunableWhite, [node.brightnessStepTunableWhite, maxDimLevelLightTunableWhite], [node.brightnessStepTunableWhite, maxDimLevelLightTunableWhite]);
+        numStepTunableWhite = Math.round((maxDimLevelLightTunableWhite - minDimLevelLightTunableWhite) / numStepTunableWhite, 0);
+
+        if (_KNXbrightness_DirectionTunableWhite > 0 && _KNXaction === 1) {
+          // DIM UP
+          if (node.timerStepDimTunableWhite !== undefined) clearInterval(node.timerStepDimTunableWhite);
+          node.timerStepDimTunableWhite = setInterval(() => {
+            node.updateKNXLightHSVState(node.brightnessStepTunableWhite); // Unnecessary, but necessary to set the KNX Status in real time.
+            node.brightnessStepTunableWhite += numStepTunableWhite; // *2 to speed up the things
+            if (node.brightnessStepTunableWhite > maxDimLevelLightTunableWhite) node.brightnessStepTunableWhite = maxDimLevelLightTunableWhite;
+            const hueTelegram = { color_temperature: { mirek: node.brightnessStepTunableWhite }, dynamics: { duration: _dimSpeedInMillisecsTunableWhite } };
+            // Switch on the light if off
+            if (node.currentHUEDevice.on !== undefined && node.currentHUEDevice.on.on === false) {
+              hueTelegram.on = { on: true };
+            }
+            node.serverHue.hueManager.writeHueQueueAdd(node.hueDevice, hueTelegram, node.isGrouped_light === false ? "setLight" : "setGroupedLight");
+            if (node.brightnessStepTunableWhite >= maxDimLevelLightTunableWhite) clearInterval(node.timerStepDimTunableWhite);
+          }, _dimSpeedInMillisecsTunableWhite);
+        }
+        if (_KNXbrightness_DirectionTunableWhite > 0 && _KNXaction === 0) {
+          if (node.currentHUEDevice.on.on === false) return; // Don't dim down, if the light is already off.
+          // DIM DOWN
+          if (node.timerStepDimTunableWhite !== undefined) clearInterval(node.timerStepDimTunableWhite);
+          node.timerStepDimTunableWhite = setInterval(() => {
+            node.updateKNXLightHSVState(node.brightnessStepTunableWhite); // Unnecessary, but necessary to set the KNX Status in real time.
+            node.brightnessStepTunableWhite -= numStepTunableWhite; // *2 to speed up the things
+            if (node.brightnessStepTunableWhite < minDimLevelLightTunableWhite) node.brightnessStepTunableWhite = minDimLevelLightTunableWhite;
+            const hueTelegram = { color_temperature: { mirek: node.brightnessStepTunableWhite }, dynamics: { duration: _dimSpeedInMillisecsTunableWhite } };
+            // Switch off the light if on
+            if (node.currentHUEDevice.on !== undefined && node.currentHUEDevice.on.on === true && node.brightnessStepTunableWhite === 0) {
+              hueTelegram.on = { on: false };
+            }
+            node.serverHue.hueManager.writeHueQueueAdd(node.hueDevice, hueTelegram, node.isGrouped_light === false ? "setLight" : "setGroupedLight");
+            if (node.brightnessStepTunableWhite <= minDimLevelLightTunableWhite) clearInterval(node.timerStepDimTunableWhite);
+          }, _dimSpeedInMillisecsTunableWhite);
+        }
+      } catch (error) { }
     };
     // ***********************************************************
 
