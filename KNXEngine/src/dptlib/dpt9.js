@@ -38,6 +38,7 @@ exports.formatAPDU = function (value) {
   if (!isFinite(value)) {
     knxLog.get().warn('DPT9: cannot write non-numeric or undefined value')
   } else {
+    value = value.toFixed(2); // Fix issue with float having too many decimals.
     const arr = frexp(value)
     const mantissa = arr[0]; const exponent = arr[1]
     // find the minimum exponent that will upsize the normalized mantissa (0,5 to 1 range)
