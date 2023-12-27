@@ -7,6 +7,10 @@
 # CHANGELOG
 
 <p>
+<b>Version 1.0.43</b> - December 2023<br/>
+- Fixed DPT 9.001 issue when sending numberso having > 2 decimals.<br/>
+</p>
+<p>
 <b>Version 1.0.43</b> - October 2023<br/>
 - Added help description for DPT 3.001 DIMMING stop telegram.<br/>
 </p>
