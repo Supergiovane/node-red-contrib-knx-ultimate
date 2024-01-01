@@ -6,8 +6,8 @@
 
 # CHANGELOG
 
-**Version 2.2.38** - December 2023<br/>
-- NEW: HUE Light Node: added support for the HUE SMART PLUG.<br/>
+**Version 2.2.39** - Jan 2024<br/>
+- Fixed DPT 9.001 issue when sending numbers having > 2 decimals.<br/>
 
 **Version 2.2.37** - December 2023<br/>
 - HUE Light Node: you can now set the DIM direction for tunable white lights. Fixed some issues as well.<br/>
