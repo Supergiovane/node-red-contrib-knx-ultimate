@@ -667,7 +667,7 @@ module.exports = function (RED) {
             // In case of switch off, set the dim to zero
             if (_event.on.on === false && (config.updateKNXBrightnessStatusOnHUEOnOff === undefined || config.updateKNXBrightnessStatusOnHUEOnOff === "onhueoff")) {
               node.updateKNXBrightnessState(0);
-              //node.currentHUEDevice.dimming.brightness = 0;
+              if (_event.dimming !== undefined) delete _event.dimming; // Remove event.dimming, because has beem handled by this function and i don't want the function below to take care of it.
             } else if (_event.on.on === true && node.currentHUEDevice.on.on === false) {
               // Turn on always update the dimming KNX Status value as well.
               let brightVal = 50;
@@ -715,7 +715,7 @@ module.exports = function (RED) {
           shape: "dot",
           text: `HUE->KNX error ${node.id} ${error.message}. Seee Log`,
         });
-        RED.log.error(`knxUltimateHueLight: node.handleSendHUE = (_event): ${error.message}`);
+        RED.log.error(`knxUltimateHueLight: node.handleSendHUE = (_event): ${error.stack}`);
       }
     };
 

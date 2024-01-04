@@ -7,6 +7,7 @@ const dptlib = require("../KNXEngine/src/dptlib");
 const HueClass = require("./utils/hueEngine").classHUE;
 const loggerEngine = require("./utils/sysLogger");
 const hueColorConverter = require("./utils/hueColorConverter");
+const cloneDeep = require("lodash/cloneDeep");
 
 function getRandomIntInclusive(min, max) {
   min = Math.ceil(min);
@@ -206,7 +207,7 @@ module.exports = (RED) => {
                   shape: "ring",
                   text: "Ready :-)",
                 });
-                _node.currentHUEDevice = oHUEDevice;
+                _node.currentHUEDevice = cloneDeep(oHUEDevice);
                 if (_node.initializingAtStart === true) _node.handleSendHUE(oHUEDevice);
               }
             }
@@ -417,7 +418,7 @@ module.exports = (RED) => {
         if (node.hueAllResources !== undefined && node.hueAllResources !== null && _Node.initializingAtStart === true) {
           const oHUEDevice = node.hueAllResources.filter((a) => a.id === _Node.hueDevice)[0];
           if (oHUEDevice !== undefined) {
-            _Node.currentHUEDevice = oHUEDevice;
+            _Node.currentHUEDevice = cloneDeep(oHUEDevice);
             _Node.handleSendHUE(oHUEDevice);
             // Add _Node to the clients array
             _Node.setNodeStatusHue({
