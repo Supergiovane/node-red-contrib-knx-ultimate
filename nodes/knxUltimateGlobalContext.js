@@ -87,14 +87,14 @@ module.exports = function (RED) {
         node.context().global.set(node.name + '_WRITE', [], node.contextStorage) // Delete the var
         for (let index = 0; index < oContext.length; index++) {
           const element = oContext[index]
-          if (!element.hasOwnProperty('address')) {
+          if (element.hasOwnProperty('address') === false) {
             node.setNodeStatus({ fill: 'RED', shape: 'dot', text: 'NO Group Address set', payload: '', GA: '', dpt: '', devicename: '' })
             RED.log.error('knxUltimateGlobalContext: No group address set in node ' + node.id)
             oContext = null // 21/03/2022
             node.goTimerGo()
             return
           }
-          if (!element.hasOwnProperty('payload')) {
+          if (element.hasOwnProperty('payload') === false) {
             node.setNodeStatus({ fill: 'RED', shape: 'dot', text: 'NO payload set', payload: '', GA: '', dpt: '', devicename: '' })
             RED.log.error('knxUltimateGlobalContext: No payload set for address ' + element.address + ' in node ' + node.id)
             oContext = null // 21/03/2022
@@ -103,7 +103,7 @@ module.exports = function (RED) {
           }
 
           // 13/09/2021 retrieve the datapoint if not specified
-          if (!element.hasOwnProperty('dpt') || element.dpt === undefined || element.dpt === '') {
+          if (element.hasOwnProperty('dpt') === false || element.dpt === undefined || element.dpt === '') {
             try {
               const sDPT = node.server.csv.find(item => item.ga === element.address).dpt
               element.dpt = sDPT

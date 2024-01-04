@@ -689,7 +689,7 @@ module.exports = function (RED) {
             if (node.currentHUEDevice.on !== undefined && node.currentHUEDevice.on.on === false && _event.dimming.brightness === 0) {
               // Do nothing, because the light is off and the dimming also is 0
             } else {
-              if (node.currentHUEDevice.on !== undefined && node.currentHUEDevice.on.on === false && (!_event.on !== undefined || (_event.on !== undefined && _event.on.on === true))) node.updateKNXLightState(_event.dimming.brightness > 0);
+              if (node.currentHUEDevice.on !== undefined && node.currentHUEDevice.on.on === false && (_event.on === undefined || (_event.on !== undefined && _event.on.on === true))) node.updateKNXLightState(_event.dimming.brightness > 0);
               node.updateKNXBrightnessState(_event.dimming.brightness);
               // If the brightness reaches zero, the hue lamp "on" property must be set to zero as well
               if (_event.dimming.brightness === 0 && node.currentHUEDevice.on !== undefined && node.currentHUEDevice.on.on === true) {

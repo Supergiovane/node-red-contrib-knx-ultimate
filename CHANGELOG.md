@@ -6,6 +6,9 @@
 
 # CHANGELOG
 
+**Version 2.2.40** - Jan 2024<br/>
+- HUE Light: fixed an issue with initial status read from HUE Bridge (on/off status was incorrectly set).<br/>
+
 **Version 2.2.39** - Jan 2024<br/>
 - Fixed DPT 9.001 issue when sending numbers having > 2 decimals.<br/>
 - HUE Light node: fixed an issue in dimming, when the minimum dim level is set to the minimum level defined by the HUE bridge.<br/>
