@@ -502,14 +502,20 @@ module.exports = function (RED) {
         if (node.brightnessStep === null || node.brightnessStep === undefined) node.brightnessStep = node.currentHUEDevice.dimming.brightness || 50;
         node.brightnessStep = Math.ceil(Number(node.brightnessStep));
 
+        // We have also minDimLevelLight and maxDimLevelLight to take care of.
+        let minDimLevelLight;
+        if (config.minDimLevelLight === undefined) {
+          minDimLevelLight = 10;
+        } else if (config.minDimLevelLight === "useHueLightLevel") {
+          minDimLevelLight = node.currentHUEDevice.dimming.min_dim_level === undefined ? 10 : node.currentHUEDevice.dimming.min_dim_level;
+        } else {
+          minDimLevelLight = Number(config.minDimLevelLight);
+        }
+        const maxDimLevelLight = config.maxDimLevelLight === undefined ? 100 : Number(config.maxDimLevelLight);
+
         // Set the speed
         _dimSpeedInMillisecs /= numStep;
-        numStep = Math.round((config.maxDimLevelLight - config.minDimLevelLight) / numStep, 0);
-
-        // We have also minDimLevelLight and maxDimLevelLight to take care of.
-        let minDimLevelLight = config.minDimLevelLight === undefined ? 10 : Number(config.minDimLevelLight);
-        if (config.minDimLevelLight === "useHueLightLevel" && node.currentHUEDevice.dimming.min_dim_level === undefined) minDimLevelLight = 10;
-        const maxDimLevelLight = config.maxDimLevelLight === undefined ? 100 : Number(config.maxDimLevelLight);
+        numStep = Math.round((maxDimLevelLight - minDimLevelLight) / numStep, 0);
 
         if (_KNXbrightness_Direction > 0 && _KNXaction === 1) {
           // DIM UP

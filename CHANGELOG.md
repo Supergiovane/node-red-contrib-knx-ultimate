@@ -8,6 +8,7 @@
 
 **Version 2.2.39** - Jan 2024<br/>
 - Fixed DPT 9.001 issue when sending numbers having > 2 decimals.<br/>
+- HUE Light node: fixed an issue in dimming, when the minimum dim level is set to the minimum level defined by the HUE bridge.<br/>
 
 **Version 2.2.37** - December 2023<br/>
 - HUE Light Node: you can now set the DIM direction for tunable white lights. Fixed some issues as well.<br/>
