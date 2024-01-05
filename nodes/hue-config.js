@@ -506,6 +506,9 @@ module.exports = (RED) => {
 
     RED.httpAdmin.get("/knxUltimateGetLightObject", RED.auth.needsPermission("hue-config.read"), (req, res) => {
       try {
+        if (node.hueAllResources === undefined) {
+          throw (new Error("Resource not yet loaded"));
+        }
         const _lightId = req.query.id;
         const oLight = node.hueAllResources.filter((a) => a.id === _lightId)[0];
         // Infer some useful info, so the HTML part can avoid to query the server
@@ -527,7 +530,7 @@ module.exports = (RED) => {
         }
         res.json(oLight);
       } catch (error) {
-        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(`KNXUltimateHue: hueEngine: knxUltimateGetLightObject: error ${error.message}. Resources still loading. Try later.`);
+        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(`KNXUltimateHue: hueEngine: knxUltimateGetLightObject: error ${error.message}.`);
         res.json({});
       }
     });

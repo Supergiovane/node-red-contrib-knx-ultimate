@@ -1,4 +1,5 @@
 'use strict'
+
 <script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/11f26b4500.js"></script>
 
 <script type="text/javascript">
@@ -175,8 +176,12 @@
       if ($("#node-input-hueDevice").val() === '') {
         $("#tabs").hide();
       } else {
-        $.getJSON("knxUltimateGetLightObject?id=" + $("#node-input-hueDevice").val().split("#")[0] + " &" + { _: new Date().getTime() }, (data) => {
+        $.getJSON("knxUltimateGetLightObject?id=" + $("#node-input-hueDevice").val().split("#")[0] + "&" + { _: new Date().getTime() }, (data) => {
           let oLight = data;
+          if (JSON.stringify(data) === "{}") {
+            $("#mainWindow").hide();
+            RED.notify("Please close and reload this window in few seconds. Still querying the HUE Bridge.", { type: "warning", timeout: 8000 });
+          }
           // Check if grouped, to hide/show the "Get current" buttons
           if (oLight.type === "grouped_light") {
             $("#tabs").tabs("enable", "#tabs-4");
@@ -523,7 +528,7 @@
       $("#node-input-name").autocomplete({
         minLength: 1,
         source: function (request, response) {
-          $.getJSON("KNXUltimateGetResourcesHUE?rtype=light&nodeID=" + oNodeServerHue.id, (data) => {
+          $.getJSON("KNXUltimateGetResourcesHUE?rtype=light&nodeID=" + oNodeServerHue.id + "&" + { _: new Date().getTime() }, (data) => {
             response(
               $.map(data.devices, function (value, key) {
                 //alert(JSON.stringify(value) + " "+ key)
@@ -827,428 +832,428 @@
 
 
 <script type="text/html" data-template-name="knxUltimateHueLight">
+<div  id="mainWindow">
+  <div class="form-row">
+    <b>HUE Light/Group node</b>&nbsp&nbsp<span style="color:red" &nbsp &nbsp<i class="fa fa-youtube"></i></span>&nbsp<a
+      target="_blank" href="https://youtu.be/jjEUI1J8bkA"><u>Youtube sample</u></a>
+    <br />
+    <br />
+    <p align="center">
+      <i class="fa-regular fa-lightbulb fa-bounce fa-4x"></i>
+    </p>
+    <br />
+    <label for="node-input-server">
+      <img
+        src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAKnRFWHRDcmVhdGlvbiBUaW1lAEZyIDYgQXVnIDIwMTAgMjE6NTI6MTkgKzAxMDD84aS8AAAAB3RJTUUH3gYYCicNV+4WIQAAAAlwSFlzAAALEgAACxIB0t1+/AAAAARnQU1BAACxjwv8YQUAAACUSURBVHjaY2CgFZg5c+Z/ZEyWAZ8+f/6/ZsWs/xoamqMGkGrA6Wla/1+fVARjEBuGsSoGmY4eZSCNL59d/g8DIDbIAHR14OgFGQByKjIGKX5+6/T///8gGMQGiV1+/B0Fg70GIkD+RMYgxf/O5/7//2MSmAZhkBi6OrgB6Bg5DGB4ajr3f2xqsYYLSDE2THJUDg0AAAqyDVd4tp4YAAAAAElFTkSuQmCC"></img>
+      KNX GW
+    </label>
+    <input type="text" id="node-input-server" />
+  </div>
 
-<div class="form-row">
-  <b>HUE Light/Group node</b>&nbsp&nbsp<span style="color:red" &nbsp &nbsp<i class="fa fa-youtube"></i></span>&nbsp<a
-    target="_blank" href="https://youtu.be/jjEUI1J8bkA"><u>Youtube sample</u></a>
+  <div class="form-row">
+    <label for="node-input-serverHue">
+      <img
+        src="data:image/png;base64, iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAEKADAAQAAAABAAAAEAAAAAA0VXHyAAABFUlEQVQ4EZWSsWoCQRCG1yiENEFEi6QSkjqWWoqFoBYJ+Br6JHkMn8Iibd4ihQpaJIhWNkry/ZtdGZY78Qa+m39nZ+dm9s4550awglNBluS/gVtAX6KgDclf68w2OThgfR9iT/jnoEv4TtByDThWTCDKW4SSZTf/zj9/eZbN+izTDuKGimu0vPF8B/YN8aC8LmcOj/AAn9CFTEs70Js/oGqy79C69bqJ5XbQI2kGO5N8QL9D08S8zBtBF5ZaVsznpCMoqJnVdjTpb1Db0fwIWmQV6BLXzFOYgA6/gDVfQN9bBWp2J2hdWDPoBV5FrKnAJutHikk/CHHR8i7x4iG7qQ720IYvu3GFbpHjx3pFrOFYkA354z/5bkK826phyAAAAABJRU5ErkJggg==" />
+      HUE Bridge
+    </label>
+    <input type="text" id="node-input-serverHue" />
+  </div>
+
   <br />
-  <br />
-  <p align="center">
-    <i class="fa-regular fa-lightbulb fa-bounce fa-4x"></i>
+  <p>
+    <b>Philips HUE</b>
   </p>
+
+  <div class="form-row">
+    <label for="node-input-hueDevice">
+      <i class="fa fa-play-circle"></i>&nbspName</label>
+    <input type="text" id="node-input-name" placeholder="Enter your hue device name" />
+    <input type="hidden" id="node-input-hueDevice" />
+  </div>
+
   <br />
-  <label for="node-input-server">
-    <img
-      src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAKnRFWHRDcmVhdGlvbiBUaW1lAEZyIDYgQXVnIDIwMTAgMjE6NTI6MTkgKzAxMDD84aS8AAAAB3RJTUUH3gYYCicNV+4WIQAAAAlwSFlzAAALEgAACxIB0t1+/AAAAARnQU1BAACxjwv8YQUAAACUSURBVHjaY2CgFZg5c+Z/ZEyWAZ8+f/6/ZsWs/xoamqMGkGrA6Wla/1+fVARjEBuGsSoGmY4eZSCNL59d/g8DIDbIAHR14OgFGQByKjIGKX5+6/T///8gGMQGiV1+/B0Fg70GIkD+RMYgxf/O5/7//2MSmAZhkBi6OrgB6Bg5DGB4ajr3f2xqsYYLSDE2THJUDg0AAAqyDVd4tp4YAAAAAElFTkSuQmCC"></img>
-    KNX GW
-  </label>
-  <input type="text" id="node-input-server" />
-</div>
 
-<div class="form-row">
-  <label for="node-input-serverHue">
-    <img
-      src="data:image/png;base64, iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAEKADAAQAAAABAAAAEAAAAAA0VXHyAAABFUlEQVQ4EZWSsWoCQRCG1yiENEFEi6QSkjqWWoqFoBYJ+Br6JHkMn8Iibd4ihQpaJIhWNkry/ZtdGZY78Qa+m39nZ+dm9s4550awglNBluS/gVtAX6KgDclf68w2OThgfR9iT/jnoEv4TtByDThWTCDKW4SSZTf/zj9/eZbN+izTDuKGimu0vPF8B/YN8aC8LmcOj/AAn9CFTEs70Js/oGqy79C69bqJ5XbQI2kGO5N8QL9D08S8zBtBF5ZaVsznpCMoqJnVdjTpb1Db0fwIWmQV6BLXzFOYgA6/gDVfQN9bBWp2J2hdWDPoBV5FrKnAJutHikk/CHHR8i7x4iG7qQ720IYvu3GFbpHjx3pFrOFYkA354z/5bkK826phyAAAAABJRU5ErkJggg==" />
-    HUE Bridge
-  </label>
-  <input type="text" id="node-input-serverHue" />
-</div>
-
-<br />
-<p>
-  <b>Philips HUE</b>
-</p>
-
-<div class="form-row">
-  <label for="node-input-hueDevice">
-    <i class="fa fa-play-circle"></i>&nbspName</label>
-  <input type="text" id="node-input-name" placeholder="Enter your hue device name" />
-  <input type="hidden" id="node-input-hueDevice" />
-</div>
-
-<br />
-
-<div id="tabs" hidden">
-  <ul>
-    <li><a href="#tabs-1"><i class="fa-solid fa-toggle-on fa-beat"></i> Switching</a></li>
-    <li><a href="#tabs-2"><i class="fa-solid fa-arrow-up-wide-short fa-beat"></i> Dim/Brightness</a></li>
-    <li><a href="#tabs-3"><i class="fa-solid fa-temperature-quarter fa-beat"></i> Tunable white</a></li>
-    <li><a href="#tabs-4"><i class="fa-solid fa-palette fa-beat"></i> Colors</a></li>
-    <li><a href="#tabs-5"><i class="fa-solid fa-heart-circle-check fa-beat"></i> Effects</a></li>
-    <li><a href="#tabs-6"><i class="fa-solid fa-code-merge fa-beat"></i> Behaviour</a></li>
-    <li><a href="#tabs-7"><i class="fa-solid fa-house fa-beat"></i> Home Assistant Export (beta)</a></li>
-  </ul>
-  <div id="tabs-1">
-    <p>
-    <div class="form-row">
-      <label for="node-input-nameLightSwitch" style="width:110px;"><i class="fa fa-play-circle-o"></i> Control</label>
-
-      <label for="node-input-GALightSwitch" style="width:20px;">GA</label>
-      <input type="text" id="node-input-GALightSwitch" placeholder="Ex: 1/1/1"
-        style="width:70px;margin-left: 5px; text-align: left;">
-
-      <label for="node-input-dptLightSwitch" style="width:40px; margin-left: 0px; text-align: right;">DPT</label>
-      <select id="node-input-dptLightSwitch" style="width:140px;"></select>
-
-      <label for="node-input-nameLightSwitch" style="width:50px; margin-left: 0px; text-align: right;">Name</label>
-      <input type="text" id="node-input-nameLightSwitch" style="width:190px;margin-left: 5px; text-align: left;">
-    </div>
-    <div class="form-row">
-      <label for="node-input-nameLightState" style="width:110px;"><i class="fa fa-play-circle-o"></i> Status</label>
-
-      <label for="node-input-GALightState" style="width:20px;">GA</label>
-      <input type="text" id="node-input-GALightState" placeholder="Ex: 1/1/1"
-        style="width:70px;margin-left: 5px; text-align: left;">
-
-      <label for="node-input-dptLightState" style="width:40px; margin-left: 0px; text-align: right;">DPT</label>
-      <select id="node-input-dptLightState" style="width:140px;"></select>
-
-      <label for="node-input-nameLightState" style="width:50px; margin-left: 0px; text-align: right;"><span
-          data-i18n="knxUltimateHueLight.node-input-name"></span></label>
-      <input type="text" id="node-input-nameLightState" style="width:190px;margin-left: 5px; text-align: left;">
-    </div>
-    </p>
-  </div>
-  <div id="tabs-2">
-    <p>
-    <div class="form-row">
-      <label for="node-input-nameLightDIM" style="width:110px;"><i class="fa fa-play-circle-o"></i> Control</label>
-
-      <label for="node-input-GALightDIM" style="width:20px;">GA</label>
-      <input type="text" id="node-input-GALightDIM" placeholder="Ex: 1/1/1"
-        style="width:70px;margin-left: 5px; text-align: left;">
-
-      <label for="node-input-dptLightDIM" style="width:40px; margin-left: 0px; text-align: right;">DPT</label>
-      <select id="node-input-dptLightDIM" style="width:140px;"></select>
-
-      <label for="node-input-nameLightDIM" style="width:50px; margin-left: 0px; text-align: right;"><span
-          data-i18n="knxUltimateHueLight.node-input-name"></span></label>
-      <input type="text" id="node-input-nameLightDIM" style="width:190px;margin-left: 5px; text-align: left;">
-    </div>
-    <div class="form-row">
-      <label for="node-input-nameLightBrightness" style="width:110px;"><i class="fa fa-play-circle-o"></i> Control
-        %</label>
-
-      <label for="node-input-GALightBrightness" style="width:20px;">GA</label>
-      <input type="text" id="node-input-GALightBrightness" placeholder="Ex: 1/1/1"
-        style="width:70px;margin-left: 5px; text-align: left;">
-
-      <label for="node-input-dptLightBrightness" style="width:40px; margin-left: 0px; text-align: right;">DPT</label>
-      <select id="node-input-dptLightBrightness" style="width:140px;"></select>
-
-      <label for="node-input-nameLightBrightness" style="width:50px; margin-left: 0px; text-align: right;"><span
-          data-i18n="knxUltimateHueLight.node-input-name"></span></label>
-      <input type="text" id="node-input-nameLightBrightness" style="width:190px;margin-left: 5px; text-align: left;">
-    </div>
-
-    <div class="form-row">
-      <label for="node-input-nameLightBrightnessState" style="width:110px;"><i class="fa fa-play-circle-o"></i>
-        Status</label>
-
-      <label for="node-input-GALightBrightnessState" style="width:20px;"><span
-          data-i18n="knxUltimateHueLight.node-input-GALightState"></span></label>
-      <input type="text" id="node-input-GALightBrightnessState" placeholder="Ex: 1/1/1"
-        style="width:70px;margin-left: 5px; text-align: left;">
-
-      <label for="node-input-dptLightBrightnessState"
-        style="width:40px; margin-left: 0px; text-align: right;">DPT</label>
-      <select id="node-input-dptLightBrightnessState" style="width:140px;"></select>
-
-      <label for="node-input-nameLightBrightnessState" style="width:50px; margin-left: 0px; text-align: right;"><span
-          data-i18n="knxUltimateHueLight.node-input-name"></span></label>
-      <input type="text" id="node-input-nameLightBrightnessState"
-        style="width:190px;margin-left: 5px; text-align: left;">
-    </div>   
-    <div class="form-row">
-      <label for="node-input-dimSpeed" style="width:260px">
-        <i class="fa fa-bolt"></i> Dim Speed (ms)
-      </label>
-      <input type="text" id="node-input-dimSpeed" placeholder='Default is 5000' style="width:210px">
-    </div>
-    <div class="form-row">
-      <label for="node-input-minDimLevelLight" style="width:260px;">
-        <i class="fa fa-clone"></i> Min Dim Brightness
-      </label>
-      <select id="node-input-minDimLevelLight">
-        <option value="useHueLightLevel">Use minimum brightness specified in the HUE light</option>
-      </select>
-    </div>
-    <div class="form-row">
-      <label for="node-input-maxDimLevelLight" style="width:260px;">
-        <i class="fa fa-clone"></i> Max Dim Brightness
-      </label>
-      <select id="node-input-maxDimLevelLight"></select>
-    </div>    
-    </p>
-  </div>
-  <div id="tabs-3">
-    <p>
-    <div class="form-row">
-      <label for="node-input-nameLightHSV" style="width:110px;"><i class="fa fa-play-circle-o"></i> Control dim</label>
-
-      <label for="node-input-GALightHSV" style="width:20px;">GA</label>
-      <input type="text" id="node-input-GALightHSV" placeholder="Ex: 1/1/1"
-        style="width:70px;margin-left: 5px; text-align: left;">
-
-      <label for="node-input-dptLightHSV" style="width:40px; margin-left: 0px; text-align: right;">DPT</label>
-      <select id="node-input-dptLightHSV" style="width:140px;"></select>
-
-      <label for="node-input-nameLightHSV" style="width:50px; margin-left: 0px; text-align: right;">Name</label>
-      <input type="text" id="node-input-nameLightHSV" style="width:190px;margin-left: 5px; text-align: left;">
-    </div>
-    <div class="form-row">
-      <label for="node-input-nameLightHSVPercentage" style="width:110px;"><i class="fa fa-play-circle-o"></i> Control
-        %</label>
-
-      <label for="node-input-GALightHSVPercentage" style="width:20px;">GA</label>
-      <input type="text" id="node-input-GALightHSVPercentage" placeholder="Ex: 1/1/1"
-        style="width:70px;margin-left: 5px; text-align: left;">
-
-      <label for="node-input-dptLightHSVPercentage" style="width:40px; margin-left: 0px; text-align: right;">DPT</label>
-      <select id="node-input-dptLightHSVPercentage" style="width:140px;"></select>
-
-      <label for="node-input-nameLightHSVPercentage"
-        style="width:50px; margin-left: 0px; text-align: right;">Name</label>
-      <input type="text" id="node-input-nameLightHSVPercentage" style="width:190px;margin-left: 5px; text-align: left;">
-    </div>
-    <div class="form-row">
-      <label for="node-input-nameLightKelvin" style="width:110px;"><i class="fa fa-play-circle-o"></i> Control
-        Kelvin</label>
-
-      <label for="node-input-GALightKelvin" style="width:20px;">GA</label>
-      <input type="text" id="node-input-GALightKelvin" placeholder="Ex: 1/1/1"
-        style="width:70px;margin-left: 5px; text-align: left;">
-
-      <label for="node-input-dptLightKelvin" style="width:40px; margin-left: 0px; text-align: right;">DPT</label>
-      <select id="node-input-dptLightKelvin" style="width:140px;"></select>
-
-      <label for="node-input-nameLightKelvin" style="width:50px; margin-left: 0px; text-align: right;">Name</label>
-      <input type="text" id="node-input-nameLightKelvin" style="width:190px;margin-left: 5px; text-align: left;">
-    </div>
-    <div class="form-row">
-      <label for="node-input-nameLightHSVState" style="width:110px;"><i class="fa fa-play-circle-o"></i> Status
-        %</label>
-
-      <label for="node-input-GALightHSVState" style="width:20px;">GA</label>
-      <input type="text" id="node-input-GALightHSVState" placeholder="Ex: 1/1/1"
-        style="width:70px;margin-left: 5px; text-align: left;">
-
-      <label for="node-input-dptLightHSVState" style="width:40px; margin-left: 0px; text-align: right;">DPT</label>
-      <select id="node-input-dptLightHSVState" style="width:140px;"></select>
-
-      <label for="node-input-nameLightHSVState" style="width:50px; margin-left: 0px; text-align: right;">Name</label>
-      <input type="text" id="node-input-nameLightHSVState" style="width:190px;margin-left: 5px; text-align: left;">
-    </div>
-    <div class="form-row">
-      <label for="node-input-nameLightKelvinState" style="width:110px;"><i class="fa fa-play-circle-o"></i> Status
-        Kelvin</label>
-
-      <label for="node-input-GALightKelvinState" style="width:20px;">GA</label>
-      <input type="text" id="node-input-GALightKelvinState" placeholder="Ex: 1/1/1"
-        style="width:70px;margin-left: 5px; text-align: left;">
-
-      <label for="node-input-dptLightKelvinState" style="width:40px; margin-left: 0px; text-align: right;">DPT</label>
-      <select id="node-input-dptLightKelvinState" style="width:140px;"></select>
-
-      <label for="node-input-nameLightKelvinState" style="width:50px; margin-left: 0px; text-align: right;">Name</label>
-      <input type="text" id="node-input-nameLightKelvinState" style="width:190px;margin-left: 5px; text-align: left;">
-    </div>
-    <div class="form-row">
-      <label style="width:170px" for="node-input-invertDimTunableWhiteDirection">
-        <i class="fa fa-shuffle"></i> Invert DIM direction
-      </label>
-      <input type="checkbox" id="node-input-invertDimTunableWhiteDirection"
-        style="display:inline-block; width:auto; vertical-align:top;" />
-    </div>
-    </p>
-  </div>
-  <div id="tabs-4">
-    <p>
-    <div class="form-row">
-      <label for="node-input-nameLightColor" style="width:110px;"><i class="fa fa-play-circle-o"></i> Control</label>
-
-      <label for="node-input-GALightColor" style="width:20px;"><span
-          data-i18n="knxUltimateHueLight.node-input-GALightState"></span></label>
-      <input type="text" id="node-input-GALightColor" placeholder="Ex: 1/1/1"
-        style="width:70px;margin-left: 5px; text-align: left;">
-
-      <label for="node-input-dptLightColor" style="width:40px; margin-left: 0px; text-align: right;">DPT</label>
-      <select id="node-input-dptLightColor" style="width:140px;"></select>
-
-      <label for="node-input-nameLightColor" style="width:50px; margin-left: 0px; text-align: right;"><span
-          data-i18n="knxUltimateHueLight.node-input-name"></span></label>
-      <input type="text" id="node-input-nameLightColor" style="width:190px;margin-left: 5px; text-align: left;">
-    </div>
-    <div class="form-row">
-      <label for="node-input-nameLightColorState" style="width:110px;"><i class="fa fa-play-circle-o"></i>
-        Status</label>
-
-      <label for="node-input-GALightColorState" style="width:20px;"><span
-          data-i18n="knxUltimateHueLight.node-input-GALightState"></span></label>
-      <input type="text" id="node-input-GALightColorState" placeholder="Ex: 1/1/1"
-        style="width:70px;margin-left: 5px; text-align: left;">
-
-      <label for="node-input-dptLightColorState" style="width:40px; margin-left: 0px; text-align: right;">DPT</label>
-      <select id="node-input-dptLightColorState" style="width:140px;"></select>
-
-      <label for="node-input-nameLightColorState" style="width:50px; margin-left: 0px; text-align: right;"><span
-          data-i18n="knxUltimateHueLight.node-input-name"></span></label>
-      <input type="text" id="node-input-nameLightColorState" style="width:190px;margin-left: 5px; text-align: left;">
-    </div>
-    </p>
-  </div>
-  <div id="tabs-5">
-    <p>
-    <div class="form-row">
-      <label for="node-input-nameLightBlink" style="width:110px;"><i class="fa fa-play-circle-o"></i> Blink</label>
-
-      <label for="node-input-GALightBlink" style="width:20px;"><span
-          data-i18n="knxUltimateHueLight.node-input-GALightState"></span></label>
-      <input type="text" id="node-input-GALightBlink" placeholder="Ex: 1/1/1"
-        style="width:70px;margin-left: 5px; text-align: left;">
-
-      <label for="node-input-dptLightBlink" style="width:40px; margin-left: 0px; text-align: right;">DPT</label>
-      <select id="node-input-dptLightBlink" style="width:140px;"></select>
-
-      <label for="node-input-nameLightBlink" style="width:50px; margin-left: 0px; text-align: right;"><span
-          data-i18n="knxUltimateHueLight.node-input-name"></span></label>
-      <input type="text" id="node-input-nameLightBlink" style="width:190px;margin-left: 5px; text-align: left;">
-    </div>
-
-    <div id="divColorCycle">
+  <div id="tabs" hidden">
+    <ul>
+      <li><a href="#tabs-1"><i class="fa-solid fa-toggle-on fa-beat"></i> Switching</a></li>
+      <li><a href="#tabs-2"><i class="fa-solid fa-arrow-up-wide-short fa-beat"></i> Dim/Brightness</a></li>
+      <li><a href="#tabs-3"><i class="fa-solid fa-temperature-quarter fa-beat"></i> Tunable white</a></li>
+      <li><a href="#tabs-4"><i class="fa-solid fa-palette fa-beat"></i> Colors</a></li>
+      <li><a href="#tabs-5"><i class="fa-solid fa-heart-circle-check fa-beat"></i> Effects</a></li>
+      <li><a href="#tabs-6"><i class="fa-solid fa-code-merge fa-beat"></i> Behaviour</a></li>
+      <li><a href="#tabs-7"><i class="fa-solid fa-house fa-beat"></i> Home Assistant Export (beta)</a></li>
+    </ul>
+    <div id="tabs-1">
+      <p>
       <div class="form-row">
-        <label for="node-input-nameLightColorCycle" style="width:110px;"><i class="fa fa-play-circle-o"></i> Color
-          Cycle</label>
+        <label for="node-input-nameLightSwitch" style="width:110px;"><i class="fa fa-play-circle-o"></i> Control</label>
 
-        <label for="node-input-GALightColorCycle" style="width:20px;">GA</label>
-        <input type="text" id="node-input-GALightColorCycle" placeholder="Ex: 1/1/1"
+        <label for="node-input-GALightSwitch" style="width:20px;">GA</label>
+        <input type="text" id="node-input-GALightSwitch" placeholder="Ex: 1/1/1"
           style="width:70px;margin-left: 5px; text-align: left;">
 
-        <label for="node-input-dptLightColorCycle" style="width:40px; margin-left: 0px; text-align: right;">DPT</label>
-        <select id="node-input-dptLightColorCycle" style="width:140px;"></select>
+        <label for="node-input-dptLightSwitch" style="width:40px; margin-left: 0px; text-align: right;">DPT</label>
+        <select id="node-input-dptLightSwitch" style="width:140px;"></select>
 
-        <label for="node-input-nameLightColorCycle" style="width:50px; margin-left: 0px; text-align: right;"><span
-            data-i18n="knxUltimateHueLight.node-input-name"></span></label>
-        <input type="text" id="node-input-nameLightColorCycle" style="width:190px;margin-left: 5px; text-align: left;">
+        <label for="node-input-nameLightSwitch" style="width:50px; margin-left: 0px; text-align: right;">Name</label>
+        <input type="text" id="node-input-nameLightSwitch" style="width:190px;margin-left: 5px; text-align: left;">
       </div>
-    </div>
-    </p>
-  </div>
-  <div id="tabs-6">
-    <p>
-    <div class="form-row">
-      <label style="width:260px;" for="node-input-readStatusAtStartup"><i class="fa fa-play-circle"></i> Read status at
-        startup</label>
-      <select id="node-input-readStatusAtStartup">
-        <option value="no">No</option>
-        <option value="yes">Yes, and emit KNX telegrams.</option>
-      </select>
-    </div>
-    <div class="form-row" id="divUpdateKNXBrightnessStatusOnHUEOnOff">
-      <label style="width:260px;" for="node-input-updateKNXBrightnessStatusOnHUEOnOff">
-        <i class="fa fa-tag"></i> KNX Brightness Status
-      </label>
-      <select id="node-input-updateKNXBrightnessStatusOnHUEOnOff">
-        <option value="onhueoff">When HUE light is Off send 0%. When HUE On, restore previous value (Default KNX behaviour)</option>
-        <option value="no">Leave as is (default HUE behaviour)</option>
-      </select>
-    </div>
-    <div id ="divBehaviourBrightness">
       <div class="form-row">
-        <label for="node-input-specifySwitchOnBrightness" style="width:260px;">
-          <i class="fa fa-tag"></i> Switch on behaviour
+        <label for="node-input-nameLightState" style="width:110px;"><i class="fa fa-play-circle-o"></i> Status</label>
+
+        <label for="node-input-GALightState" style="width:20px;">GA</label>
+        <input type="text" id="node-input-GALightState" placeholder="Ex: 1/1/1"
+          style="width:70px;margin-left: 5px; text-align: left;">
+
+        <label for="node-input-dptLightState" style="width:40px; margin-left: 0px; text-align: right;">DPT</label>
+        <select id="node-input-dptLightState" style="width:140px;"></select>
+
+        <label for="node-input-nameLightState" style="width:50px; margin-left: 0px; text-align: right;"><span
+            data-i18n="knxUltimateHueLight.node-input-name"></span></label>
+        <input type="text" id="node-input-nameLightState" style="width:190px;margin-left: 5px; text-align: left;">
+      </div>
+      </p>
+    </div>
+    <div id="tabs-2">
+      <p>
+      <div class="form-row">
+        <label for="node-input-nameLightDIM" style="width:110px;"><i class="fa fa-play-circle-o"></i> Control</label>
+
+        <label for="node-input-GALightDIM" style="width:20px;">GA</label>
+        <input type="text" id="node-input-GALightDIM" placeholder="Ex: 1/1/1"
+          style="width:70px;margin-left: 5px; text-align: left;">
+
+        <label for="node-input-dptLightDIM" style="width:40px; margin-left: 0px; text-align: right;">DPT</label>
+        <select id="node-input-dptLightDIM" style="width:140px;"></select>
+
+        <label for="node-input-nameLightDIM" style="width:50px; margin-left: 0px; text-align: right;"><span
+            data-i18n="knxUltimateHueLight.node-input-name"></span></label>
+        <input type="text" id="node-input-nameLightDIM" style="width:190px;margin-left: 5px; text-align: left;">
+      </div>
+      <div class="form-row">
+        <label for="node-input-nameLightBrightness" style="width:110px;"><i class="fa fa-play-circle-o"></i> Control
+          %</label>
+
+        <label for="node-input-GALightBrightness" style="width:20px;">GA</label>
+        <input type="text" id="node-input-GALightBrightness" placeholder="Ex: 1/1/1"
+          style="width:70px;margin-left: 5px; text-align: left;">
+
+        <label for="node-input-dptLightBrightness" style="width:40px; margin-left: 0px; text-align: right;">DPT</label>
+        <select id="node-input-dptLightBrightness" style="width:140px;"></select>
+
+        <label for="node-input-nameLightBrightness" style="width:50px; margin-left: 0px; text-align: right;"><span
+            data-i18n="knxUltimateHueLight.node-input-name"></span></label>
+        <input type="text" id="node-input-nameLightBrightness" style="width:190px;margin-left: 5px; text-align: left;">
+      </div>
+
+      <div class="form-row">
+        <label for="node-input-nameLightBrightnessState" style="width:110px;"><i class="fa fa-play-circle-o"></i>
+          Status</label>
+
+        <label for="node-input-GALightBrightnessState" style="width:20px;"><span
+            data-i18n="knxUltimateHueLight.node-input-GALightState"></span></label>
+        <input type="text" id="node-input-GALightBrightnessState" placeholder="Ex: 1/1/1"
+          style="width:70px;margin-left: 5px; text-align: left;">
+
+        <label for="node-input-dptLightBrightnessState"
+          style="width:40px; margin-left: 0px; text-align: right;">DPT</label>
+        <select id="node-input-dptLightBrightnessState" style="width:140px;"></select>
+
+        <label for="node-input-nameLightBrightnessState" style="width:50px; margin-left: 0px; text-align: right;"><span
+            data-i18n="knxUltimateHueLight.node-input-name"></span></label>
+        <input type="text" id="node-input-nameLightBrightnessState"
+          style="width:190px;margin-left: 5px; text-align: left;">
+      </div>   
+      <div class="form-row">
+        <label for="node-input-dimSpeed" style="width:260px">
+          <i class="fa fa-bolt"></i> Dim Speed (ms)
         </label>
-        <select id="node-input-specifySwitchOnBrightness">
-          <option value="no">None</option>
-          <!-- <option value="temperature">Select temperature and brightness</option>
-          <option value="yes">Select color</option> -->
+        <input type="text" id="node-input-dimSpeed" placeholder='Default is 5000' style="width:210px">
+      </div>
+      <div class="form-row">
+        <label for="node-input-minDimLevelLight" style="width:260px;">
+          <i class="fa fa-clone"></i> Min Dim Brightness
+        </label>
+        <select id="node-input-minDimLevelLight">
+          <option value="useHueLightLevel">Use minimum brightness specified in the HUE light</option>
         </select>
       </div>
-
-      <div class="form-row" id="divColorsAtSwitchOn">
-        <label for="node-input-colorAtSwitchOnDayTime" style="width:260px">
+      <div class="form-row">
+        <label for="node-input-maxDimLevelLight" style="width:260px;">
+          <i class="fa fa-clone"></i> Max Dim Brightness
         </label>
-        <input type="hidden" id="node-input-colorAtSwitchOnDayTime">
-        <input type="color" id="colorPickerDay" style="width:260px">
-        <button id="getColorAtSwitchOnDayTimeButton" type="button" class="red-ui-button">Get current</button>
+        <select id="node-input-maxDimLevelLight"></select>
+      </div>    
+      </p>
+    </div>
+    <div id="tabs-3">
+      <p>
+      <div class="form-row">
+        <label for="node-input-nameLightHSV" style="width:110px;"><i class="fa fa-play-circle-o"></i> Control dim</label>
+
+        <label for="node-input-GALightHSV" style="width:20px;">GA</label>
+        <input type="text" id="node-input-GALightHSV" placeholder="Ex: 1/1/1"
+          style="width:70px;margin-left: 5px; text-align: left;">
+
+        <label for="node-input-dptLightHSV" style="width:40px; margin-left: 0px; text-align: right;">DPT</label>
+        <select id="node-input-dptLightHSV" style="width:140px;"></select>
+
+        <label for="node-input-nameLightHSV" style="width:50px; margin-left: 0px; text-align: right;">Name</label>
+        <input type="text" id="node-input-nameLightHSV" style="width:190px;margin-left: 5px; text-align: left;">
       </div>
-      <div class="form-row" id="divTemperatureAtSwitchOn" hidden>
-        <label for="node-input-colorAtSwitchOnDayTime" style="width:260px">
+      <div class="form-row">
+        <label for="node-input-nameLightHSVPercentage" style="width:110px;"><i class="fa fa-play-circle-o"></i> Control
+          %</label>
+
+        <label for="node-input-GALightHSVPercentage" style="width:20px;">GA</label>
+        <input type="text" id="node-input-GALightHSVPercentage" placeholder="Ex: 1/1/1"
+          style="width:70px;margin-left: 5px; text-align: left;">
+
+        <label for="node-input-dptLightHSVPercentage" style="width:40px; margin-left: 0px; text-align: right;">DPT</label>
+        <select id="node-input-dptLightHSVPercentage" style="width:140px;"></select>
+
+        <label for="node-input-nameLightHSVPercentage"
+          style="width:50px; margin-left: 0px; text-align: right;">Name</label>
+        <input type="text" id="node-input-nameLightHSVPercentage" style="width:190px;margin-left: 5px; text-align: left;">
+      </div>
+      <div class="form-row">
+        <label for="node-input-nameLightKelvin" style="width:110px;"><i class="fa fa-play-circle-o"></i> Control
+          Kelvin</label>
+
+        <label for="node-input-GALightKelvin" style="width:20px;">GA</label>
+        <input type="text" id="node-input-GALightKelvin" placeholder="Ex: 1/1/1"
+          style="width:70px;margin-left: 5px; text-align: left;">
+
+        <label for="node-input-dptLightKelvin" style="width:40px; margin-left: 0px; text-align: right;">DPT</label>
+        <select id="node-input-dptLightKelvin" style="width:140px;"></select>
+
+        <label for="node-input-nameLightKelvin" style="width:50px; margin-left: 0px; text-align: right;">Name</label>
+        <input type="text" id="node-input-nameLightKelvin" style="width:190px;margin-left: 5px; text-align: left;">
+      </div>
+      <div class="form-row">
+        <label for="node-input-nameLightHSVState" style="width:110px;"><i class="fa fa-play-circle-o"></i> Status
+          %</label>
+
+        <label for="node-input-GALightHSVState" style="width:20px;">GA</label>
+        <input type="text" id="node-input-GALightHSVState" placeholder="Ex: 1/1/1"
+          style="width:70px;margin-left: 5px; text-align: left;">
+
+        <label for="node-input-dptLightHSVState" style="width:40px; margin-left: 0px; text-align: right;">DPT</label>
+        <select id="node-input-dptLightHSVState" style="width:140px;"></select>
+
+        <label for="node-input-nameLightHSVState" style="width:50px; margin-left: 0px; text-align: right;">Name</label>
+        <input type="text" id="node-input-nameLightHSVState" style="width:190px;margin-left: 5px; text-align: left;">
+      </div>
+      <div class="form-row">
+        <label for="node-input-nameLightKelvinState" style="width:110px;"><i class="fa fa-play-circle-o"></i> Status
+          Kelvin</label>
+
+        <label for="node-input-GALightKelvinState" style="width:20px;">GA</label>
+        <input type="text" id="node-input-GALightKelvinState" placeholder="Ex: 1/1/1"
+          style="width:70px;margin-left: 5px; text-align: left;">
+
+        <label for="node-input-dptLightKelvinState" style="width:40px; margin-left: 0px; text-align: right;">DPT</label>
+        <select id="node-input-dptLightKelvinState" style="width:140px;"></select>
+
+        <label for="node-input-nameLightKelvinState" style="width:50px; margin-left: 0px; text-align: right;">Name</label>
+        <input type="text" id="node-input-nameLightKelvinState" style="width:190px;margin-left: 5px; text-align: left;">
+      </div>
+      <div class="form-row">
+        <label style="width:170px" for="node-input-invertDimTunableWhiteDirection">
+          <i class="fa fa-shuffle"></i> Invert DIM direction
         </label>
-        <select style="width:12%;" id="comboTemperatureAtSwitchOn"></select>
-        <select  style="width:25%;" id="comboBrightnessAtSwitchOn"></select>      
+        <input type="checkbox" id="node-input-invertDimTunableWhiteDirection"
+          style="display:inline-block; width:auto; vertical-align:top;" />
+      </div>
+      </p>
+    </div>
+    <div id="tabs-4">
+      <p>
+      <div class="form-row">
+        <label for="node-input-nameLightColor" style="width:110px;"><i class="fa fa-play-circle-o"></i> Control</label>
+
+        <label for="node-input-GALightColor" style="width:20px;"><span
+            data-i18n="knxUltimateHueLight.node-input-GALightState"></span></label>
+        <input type="text" id="node-input-GALightColor" placeholder="Ex: 1/1/1"
+          style="width:70px;margin-left: 5px; text-align: left;">
+
+        <label for="node-input-dptLightColor" style="width:40px; margin-left: 0px; text-align: right;">DPT</label>
+        <select id="node-input-dptLightColor" style="width:140px;"></select>
+
+        <label for="node-input-nameLightColor" style="width:50px; margin-left: 0px; text-align: right;"><span
+            data-i18n="knxUltimateHueLight.node-input-name"></span></label>
+        <input type="text" id="node-input-nameLightColor" style="width:190px;margin-left: 5px; text-align: left;">
+      </div>
+      <div class="form-row">
+        <label for="node-input-nameLightColorState" style="width:110px;"><i class="fa fa-play-circle-o"></i>
+          Status</label>
+
+        <label for="node-input-GALightColorState" style="width:20px;"><span
+            data-i18n="knxUltimateHueLight.node-input-GALightState"></span></label>
+        <input type="text" id="node-input-GALightColorState" placeholder="Ex: 1/1/1"
+          style="width:70px;margin-left: 5px; text-align: left;">
+
+        <label for="node-input-dptLightColorState" style="width:40px; margin-left: 0px; text-align: right;">DPT</label>
+        <select id="node-input-dptLightColorState" style="width:140px;"></select>
+
+        <label for="node-input-nameLightColorState" style="width:50px; margin-left: 0px; text-align: right;"><span
+            data-i18n="knxUltimateHueLight.node-input-name"></span></label>
+        <input type="text" id="node-input-nameLightColorState" style="width:190px;margin-left: 5px; text-align: left;">
+      </div>
+      </p>
+    </div>
+    <div id="tabs-5">
+      <p>
+      <div class="form-row">
+        <label for="node-input-nameLightBlink" style="width:110px;"><i class="fa fa-play-circle-o"></i> Blink</label>
+
+        <label for="node-input-GALightBlink" style="width:20px;"><span
+            data-i18n="knxUltimateHueLight.node-input-GALightState"></span></label>
+        <input type="text" id="node-input-GALightBlink" placeholder="Ex: 1/1/1"
+          style="width:70px;margin-left: 5px; text-align: left;">
+
+        <label for="node-input-dptLightBlink" style="width:40px; margin-left: 0px; text-align: right;">DPT</label>
+        <select id="node-input-dptLightBlink" style="width:140px;"></select>
+
+        <label for="node-input-nameLightBlink" style="width:50px; margin-left: 0px; text-align: right;"><span
+            data-i18n="knxUltimateHueLight.node-input-name"></span></label>
+        <input type="text" id="node-input-nameLightBlink" style="width:190px;margin-left: 5px; text-align: left;">
       </div>
 
-      <div id="divCCSBoxAtNightLighting">
+      <div id="divColorCycle">
         <div class="form-row">
-          <label for="node-input-enableDayNightLighting" style="width:260px;">
-            <i class="fa fa-clone"></i> Night Lighting
+          <label for="node-input-nameLightColorCycle" style="width:110px;"><i class="fa fa-play-circle-o"></i> Color
+            Cycle</label>
+
+          <label for="node-input-GALightColorCycle" style="width:20px;">GA</label>
+          <input type="text" id="node-input-GALightColorCycle" placeholder="Ex: 1/1/1"
+            style="width:70px;margin-left: 5px; text-align: left;">
+
+          <label for="node-input-dptLightColorCycle" style="width:40px; margin-left: 0px; text-align: right;">DPT</label>
+          <select id="node-input-dptLightColorCycle" style="width:140px;"></select>
+
+          <label for="node-input-nameLightColorCycle" style="width:50px; margin-left: 0px; text-align: right;"><span
+              data-i18n="knxUltimateHueLight.node-input-name"></span></label>
+          <input type="text" id="node-input-nameLightColorCycle" style="width:190px;margin-left: 5px; text-align: left;">
+        </div>
+      </div>
+      </p>
+    </div>
+    <div id="tabs-6">
+      <p>
+      <div class="form-row">
+        <label style="width:260px;" for="node-input-readStatusAtStartup"><i class="fa fa-play-circle"></i> Read status at
+          startup</label>
+        <select id="node-input-readStatusAtStartup">
+          <option value="no">No</option>
+          <option value="yes">Yes, and emit KNX telegrams.</option>
+        </select>
+      </div>
+      <div class="form-row" id="divUpdateKNXBrightnessStatusOnHUEOnOff">
+        <label style="width:260px;" for="node-input-updateKNXBrightnessStatusOnHUEOnOff">
+          <i class="fa fa-tag"></i> KNX Brightness Status
+        </label>
+        <select id="node-input-updateKNXBrightnessStatusOnHUEOnOff">
+          <option value="onhueoff">When HUE light is Off send 0%. When HUE On, restore previous value (Default KNX behaviour)</option>
+          <option value="no">Leave as is (default HUE behaviour)</option>
+        </select>
+      </div>
+      <div id ="divBehaviourBrightness">
+        <div class="form-row">
+          <label for="node-input-specifySwitchOnBrightness" style="width:260px;">
+            <i class="fa fa-tag"></i> Switch on behaviour
           </label>
-          <select id="node-input-enableDayNightLighting">
-            <option value="no">No night lighting</option>
+          <select id="node-input-specifySwitchOnBrightness">
+            <option value="no">None</option>
             <!-- <option value="temperature">Select temperature and brightness</option>
             <option value="yes">Select color</option> -->
           </select>
         </div>
 
-        <div id="divEnableDayNightLighting">
+        <div class="form-row" id="divColorsAtSwitchOn">
+          <label for="node-input-colorAtSwitchOnDayTime" style="width:260px">
+          </label>
+          <input type="hidden" id="node-input-colorAtSwitchOnDayTime">
+          <input type="color" id="colorPickerDay" style="width:260px">
+          <button id="getColorAtSwitchOnDayTimeButton" type="button" class="red-ui-button">Get current</button>
+        </div>
+        <div class="form-row" id="divTemperatureAtSwitchOn" hidden>
+          <label for="node-input-colorAtSwitchOnDayTime" style="width:260px">
+          </label>
+          <select style="width:12%;" id="comboTemperatureAtSwitchOn"></select>
+          <select  style="width:25%;" id="comboBrightnessAtSwitchOn"></select>      
+        </div>
 
-          <div class="form-row" id="divColorsAtSwitchOnNightTime">
-            <label for="node-input-colorAtSwitchOnNightTime" style="width:260px"></label>
-            <input type="hidden" id="node-input-colorAtSwitchOnNightTime">
-            <input type="color" id="colorPickerNight" style="width:260px">
-            <button id="getColorAtSwitchOnNightTimeButton" type="button" class="red-ui-button">Get current</button>
-          </div>
-          <div class="form-row" id="divTemperatureAtSwitchOnNightTime" hidden>
-            <label for="node-input-colorAtSwitchOnNightTime" style="width:260px"></label>
-            <select style="width:25%;" id="comboTemperatureAtSwitchOnNightTime"></select>
-            <select style="width:25%;" id="comboBrightnessAtSwitchOnNightTime"></select>      
-          </div>
-
+        <div id="divCCSBoxAtNightLighting">
           <div class="form-row">
-            <label for="node-input-nameDaylightSensor" style="width:110px;"><i class="fa fa-clock-o"></i>
-              Day/Night</label>
-            <label for="node-input-GADaylightSensor" style="width:20px;">GA</label>
-            <input type="text" id="node-input-GADaylightSensor" placeholder="Ex: 1/1/1"
-              style="width:70px;margin-left: 5px; text-align: left;">
-
-            <label for="node-input-dptDaylightSensor" style="width:40px; margin-left: 0px; text-align: right;">DPT</label>
-            <select id="node-input-dptDaylightSensor" style="width:140px;"></select>
-
-            <label for="node-input-nameDaylightSensor" style="width:50px; margin-left: 0px; text-align: right;"><span
-                data-i18n="knxUltimateHueLight.node-input-name"></span></label>
-            <input type="text" id="node-input-nameDaylightSensor" style="width:190px;margin-left: 5px; text-align: left;">
-          </div>
-          <div class="form-row">
-            <label style="width:170px" for="node-input-invertDayNight">
-              <i class="fa fa-shuffle"></i> Invert day/night values
+            <label for="node-input-enableDayNightLighting" style="width:260px;">
+              <i class="fa fa-clone"></i> Night Lighting
             </label>
-            <input type="checkbox" id="node-input-invertDayNight"
-              style="display:inline-block; width:auto; vertical-align:top;" />
+            <select id="node-input-enableDayNightLighting">
+              <option value="no">No night lighting</option>
+              <!-- <option value="temperature">Select temperature and brightness</option>
+              <option value="yes">Select color</option> -->
+            </select>
+          </div>
+
+          <div id="divEnableDayNightLighting">
+
+            <div class="form-row" id="divColorsAtSwitchOnNightTime">
+              <label for="node-input-colorAtSwitchOnNightTime" style="width:260px"></label>
+              <input type="hidden" id="node-input-colorAtSwitchOnNightTime">
+              <input type="color" id="colorPickerNight" style="width:260px">
+              <button id="getColorAtSwitchOnNightTimeButton" type="button" class="red-ui-button">Get current</button>
+            </div>
+            <div class="form-row" id="divTemperatureAtSwitchOnNightTime" hidden>
+              <label for="node-input-colorAtSwitchOnNightTime" style="width:260px"></label>
+              <select style="width:25%;" id="comboTemperatureAtSwitchOnNightTime"></select>
+              <select style="width:25%;" id="comboBrightnessAtSwitchOnNightTime"></select>      
+            </div>
+
+            <div class="form-row">
+              <label for="node-input-nameDaylightSensor" style="width:110px;"><i class="fa fa-clock-o"></i>
+                Day/Night</label>
+              <label for="node-input-GADaylightSensor" style="width:20px;">GA</label>
+              <input type="text" id="node-input-GADaylightSensor" placeholder="Ex: 1/1/1"
+                style="width:70px;margin-left: 5px; text-align: left;">
+
+              <label for="node-input-dptDaylightSensor" style="width:40px; margin-left: 0px; text-align: right;">DPT</label>
+              <select id="node-input-dptDaylightSensor" style="width:140px;"></select>
+
+              <label for="node-input-nameDaylightSensor" style="width:50px; margin-left: 0px; text-align: right;"><span
+                  data-i18n="knxUltimateHueLight.node-input-name"></span></label>
+              <input type="text" id="node-input-nameDaylightSensor" style="width:190px;margin-left: 5px; text-align: left;">
+            </div>
+            <div class="form-row">
+              <label style="width:170px" for="node-input-invertDayNight">
+                <i class="fa fa-shuffle"></i> Invert day/night values
+              </label>
+              <input type="checkbox" id="node-input-invertDayNight"
+                style="display:inline-block; width:auto; vertical-align:top;" />
+            </div>
           </div>
         </div>
+        <br/>
       </div>
-      <br/>
+      <div class="form-row">
+        <label for="node-input-enableNodePINS" style="width:260px;">
+          <i class="fa fa-circle"></i> Node Input/Output PINs
+        </label>
+        <select id="node-input-enableNodePINS">
+          <option value="no">Hide</option>
+          <option value="yes">Show node input/output PINs</option>
+        </select>
+      </div>
+      </p>
     </div>
-    <div class="form-row">
-      <label for="node-input-enableNodePINS" style="width:260px;">
-        <i class="fa fa-circle"></i> Node Input/Output PINs
-      </label>
-      <select id="node-input-enableNodePINS">
-        <option value="no">Hide</option>
-        <option value="yes">Show node input/output PINs</option>
-      </select>
+    <div id="tabs-7">
+      <p>
+        <br/> <b>YAML</b> <br/>
+        <div style="height: 220px; min-height:150px;" class="node-text-editor" id="aceEditor"></div>
+        <!-- <button type="button" class="red-ui-button">Button</button> -->
+      </p>
     </div>
-    </p>
   </div>
-  <div id="tabs-7">
-    <p>
-      <br/> <b>YAML</b> <br/>
-      <div style="height: 220px; min-height:150px;" class="node-text-editor" id="aceEditor"></div>
-      <!-- <button type="button" class="red-ui-button">Button</button> -->
-    </p>
-  </div>
-
   <br />
   </script>
 

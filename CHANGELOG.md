@@ -6,7 +6,10 @@
 
 # CHANGELOG
 
-**Version 2.3.1** - Jan 2024<br/>
+**Version 2.3.3** - Jan 2024<br/>
+- HUE Light: added a warning if you double click a node, with the node still querying the HUE Bridge for the device.<br/>
+
+**Version 2.3.2** - Jan 2024<br/>
 - HUE Light: minor fixes.
 
 **Version 2.3.0** - Jan 2024<br/>
