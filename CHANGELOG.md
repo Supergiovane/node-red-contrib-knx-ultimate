@@ -6,6 +6,9 @@
 
 # CHANGELOG
 
+**Version 2.3.1** - Jan 2024<br/>
+- HUE Light: minor fixes.
+
 **Version 2.3.0** - Jan 2024<br/>
 - HUE Light: partially rewrote code to cloneDeep(oHUEDevice) not to duplicate the brightness status of a single ligh, at node-red restart. https://github.com/Supergiovane/node-red-contrib-knx-ultimate/issues/312#issue-2064480332 <br/>
 

@@ -508,7 +508,7 @@ module.exports = (RED) => {
       try {
         const _lightId = req.query.id;
         const oLight = node.hueAllResources.filter((a) => a.id === _lightId)[0];
-        // Infer some useful info, so the HTML part cann avoid to query the server
+        // Infer some useful info, so the HTML part can avoid to query the server
         // Kelvin
         try {
           if (oLight.color_temperature !== undefined && oLight.color_temperature.mirek !== undefined) {
