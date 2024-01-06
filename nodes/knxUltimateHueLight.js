@@ -13,6 +13,22 @@ module.exports = function (RED) {
     const node = this;
     node.server = RED.nodes.getNode(config.server);
     node.serverHue = RED.nodes.getNode(config.serverHue);
+
+    // Convert for backward compatibility
+    if (config.nameLightKelvinDIM === undefined) {
+      config.nameLightKelvinDIM = config.nameLightHSV;
+      config.GALightKelvinDIM = config.GALightHSV;
+      config.dptLightKelvinDIM = config.dptLightHSV;
+
+      config.nameLightKelvinPercentage = config.nameLightHSVPercentage;
+      config.GALightKelvinPercentage = config.GALightHSVPercentage;
+      config.dptLightKelvinPercentage = config.dptLightHSVPercentage;
+
+      config.nameLightKelvinPercentageState = config.nameLightHSVState;
+      config.GALightKelvinPercentageState = config.GALightHSVState;
+      config.dptLightKelvinPercentageState = config.dptLightHSVState;
+    }
+
     node.topic = node.name;
     node.name = config.name === undefined ? "Hue" : config.name;
     node.outputtopic = node.name;
@@ -283,22 +299,22 @@ module.exports = function (RED) {
               });
 
               break;
-            case config.GALightHSV:
-              if (config.dptLightHSV === "3.007") {
+            case config.GALightKelvinDIM:
+              if (config.dptLightKelvinDIM === "3.007") {
                 // MDT smartbutton will dim the color temperature
                 // { decr_incr: 1, data: 1 } : Start increasing until { decr_incr: 0, data: 0 } is received.
                 // { decr_incr: 0, data: 1 } : Start decreasing until { decr_incr: 0, data: 0 } is received.
-                msg.payload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightHSV));
+                msg.payload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightKelvinDIM));
                 node.hueDimmingTunableWhite(msg.payload.decr_incr, msg.payload.data, 5000);
                 node.setNodeStatusHue({
                   fill: "green", shape: "dot", text: "KNX->HUE", payload: JSON.stringify(msg.payload),
                 });
               }
               break;
-            case config.GALightHSVPercentage:
-              if (config.dptLightHSVPercentage === "5.001") {
+            case config.GALightKelvinPercentage:
+              if (config.dptLightKelvinPercentage === "5.001") {
                 // 0-100% tunable white
-                msg.payload = 100 - dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightHSVPercentage));
+                msg.payload = 100 - dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightKelvinPercentage));
                 // msg.payload = msg.payload <= 0 ? 1 : msg.payload
                 const retMirek = hueColorConverter.ColorConverter.scale(msg.payload, [0, 100], [153, 500]);
                 msg.payload = retMirek;
@@ -456,9 +472,9 @@ module.exports = function (RED) {
               ret = node.currentHUEDevice.color.xy;
               if (ret !== undefined) node.updateKNXLightColorState(node.currentHUEDevice.color, "response");
               break;
-            case config.GALightHSVState:
+            case config.GALightKelvinPercentageState:
               ret = node.currentHUEDevice.color_temperature.mirek;
-              if (ret !== undefined) node.updateKNXLightHSVState(ret, "response");
+              if (ret !== undefined) node.updateKNXLightKelvinPercentageState(ret, "response");
               break;
             case config.GALightBrightnessState:
               ret = node.currentHUEDevice.dimming.brightness;
@@ -591,7 +607,7 @@ module.exports = function (RED) {
           // DIM UP
           if (node.timerStepDimTunableWhite !== undefined) clearInterval(node.timerStepDimTunableWhite);
           node.timerStepDimTunableWhite = setInterval(() => {
-            node.updateKNXLightHSVState(node.brightnessStepTunableWhite); // Unnecessary, but necessary to set the KNX Status in real time.
+            node.updateKNXLightKelvinPercentageState(node.brightnessStepTunableWhite); // Unnecessary, but necessary to set the KNX Status in real time.
             node.brightnessStepTunableWhite += numStepTunableWhite; // *2 to speed up the things
             if (node.brightnessStepTunableWhite > maxDimLevelLightTunableWhite) node.brightnessStepTunableWhite = maxDimLevelLightTunableWhite;
             const hueTelegram = { color_temperature: { mirek: node.brightnessStepTunableWhite }, dynamics: { duration: _dimSpeedInMillisecsTunableWhite } };
@@ -608,7 +624,7 @@ module.exports = function (RED) {
           // DIM DOWN
           if (node.timerStepDimTunableWhite !== undefined) clearInterval(node.timerStepDimTunableWhite);
           node.timerStepDimTunableWhite = setInterval(() => {
-            node.updateKNXLightHSVState(node.brightnessStepTunableWhite); // Unnecessary, but necessary to set the KNX Status in real time.
+            node.updateKNXLightKelvinPercentageState(node.brightnessStepTunableWhite); // Unnecessary, but necessary to set the KNX Status in real time.
             node.brightnessStepTunableWhite -= numStepTunableWhite; // *2 to speed up the things
             if (node.brightnessStepTunableWhite < minDimLevelLightTunableWhite) node.brightnessStepTunableWhite = minDimLevelLightTunableWhite;
             const hueTelegram = { color_temperature: { mirek: node.brightnessStepTunableWhite }, dynamics: { duration: _dimSpeedInMillisecsTunableWhite } };
@@ -705,7 +721,7 @@ module.exports = function (RED) {
             }
           }
           if (deviceByRef.color_temperature !== undefined && deviceByRef.color_temperature.mirek !== undefined) {
-            node.updateKNXLightHSVState(deviceByRef.color_temperature.mirek);
+            node.updateKNXLightKelvinPercentageState(deviceByRef.color_temperature.mirek);
             node.updateKNXLightKelvinState(deviceByRef.color_temperature.mirek);
             node.currentHUEDevice.color_temperature.mirek = deviceByRef.color_temperature.mirek;
           }
@@ -781,12 +797,12 @@ module.exports = function (RED) {
       }
     };
 
-    node.updateKNXLightHSVState = function updateKNXLightHSVState(_value, _outputtype = "write") {
-      if (config.GALightHSVState !== undefined && config.GALightHSVState !== "") {
+    node.updateKNXLightKelvinPercentageState = function updateKNXLightKelvinPercentageState(_value, _outputtype = "write") {
+      if (config.GALightKelvinPercentageState !== undefined && config.GALightKelvinPercentageState !== "") {
         const knxMsgPayload = {};
-        knxMsgPayload.topic = config.GALightHSVState;
-        knxMsgPayload.dpt = config.dptLightHSVState;
-        if (config.dptLightHSVState === "5.001") {
+        knxMsgPayload.topic = config.GALightKelvinPercentageState;
+        knxMsgPayload.dpt = config.dptLightKelvinPercentageState;
+        if (config.dptLightKelvinPercentageState === "5.001") {
           const retPercent = hueColorConverter.ColorConverter.scale(_value, [153, 500], [0, 100]);
           knxMsgPayload.payload = 100 - retPercent;
         }
@@ -805,7 +821,7 @@ module.exports = function (RED) {
         node.setNodeStatusHue({
           fill: "blue",
           shape: "ring",
-          text: "HUE->KNX HSV",
+          text: "HUE->KNX Tunable White",
           payload: knxMsgPayload.payload,
         });
       }

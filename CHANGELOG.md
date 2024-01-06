@@ -6,6 +6,9 @@
 
 # CHANGELOG
 
+**Version 2.3.5** - Jan 2024<br/>
+- HUE Light: fixed multi HUE Bridge GUI issue.<br/>
+
 **Version 2.3.4** - Jan 2024<br/>
 - HUE Light: fixex tab "DIM/Brightness" inaccessible, when "KNX Brightness Status" was set to use the default knx behaviour.<br/>
 

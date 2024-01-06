@@ -141,14 +141,14 @@
       getDPT("232.600", "#node-input-dptLightColorState");
       getGroupAddress("#node-input-GALightColorState", "#node-input-nameLightColorState", "#node-input-dptLightColorState", " 232.600");
 
-      getDPT("3.007", "#node-input-dptLightHSV");
-      getGroupAddress("#node-input-GALightHSV", "#node-input-nameLightHSV", "#node-input-dptLightHSV", " 3.007");
+      getDPT("3.007", "#node-input-dptLightKelvinDIM");
+      getGroupAddress("#node-input-GALightKelvinDIM", "#node-input-nameLightKelvinDIM", "#node-input-dptLightKelvinDIM", " 3.007");
 
-      getDPT("5.001", "#node-input-dptLightHSVPercentage");
-      getGroupAddress("#node-input-GALightHSVPercentage", "#node-input-nameLightHSVPercentage", "#node-input-dptLightHSVPercentage", " 5.001");
+      getDPT("5.001", "#node-input-dptLightKelvinPercentage");
+      getGroupAddress("#node-input-GALightKelvinPercentage", "#node-input-nameLightKelvinPercentage", "#node-input-dptLightKelvinPercentage", " 5.001");
 
-      getDPT("5.001", "#node-input-dptLightHSVState");
-      getGroupAddress("#node-input-GALightHSVState", "#node-input-nameLightHSVState", "#node-input-dptLightHSVState", " 5.001");
+      getDPT("5.001", "#node-input-dptLightKelvinPercentageState");
+      getGroupAddress("#node-input-GALightKelvinPercentageState", "#node-input-nameLightKelvinPercentageState", "#node-input-dptLightKelvinPercentageState", " 5.001");
 
       getDPT("1.", "#node-input-dptLightBlink");
       getGroupAddress("#node-input-GALightBlink", "#node-input-nameLightBlink", "#node-input-dptLightBlink", " 1.");
@@ -173,15 +173,13 @@
 
 
       // Get the HUE capabilities to enable/disable UI parts
+      var getJsonPromise;
       if ($("#node-input-hueDevice").val() === '') {
         $("#tabs").hide();
       } else {
-        $.getJSON("knxUltimateGetLightObject?id=" + $("#node-input-hueDevice").val().split("#")[0] + "&" + { _: new Date().getTime() }, (data) => {
+        if (getJsonPromise !== undefined) getJsonPromise.abort();
+        getJsonPromise = $.getJSON("knxUltimateGetLightObject?id=" + $("#node-input-hueDevice").val().split("#")[0] + "&" + { _: new Date().getTime() }, (data) => {
           let oLight = data;
-          if (JSON.stringify(data) === "{}") {
-            $("#mainWindow").hide();
-            RED.notify("Please close and reload this window in few seconds. Still querying the HUE Bridge.", { type: "warning", timeout: 8000 });
-          }
           // Check if grouped, to hide/show the "Get current" buttons
           if (oLight.type === "grouped_light") {
             $("#tabs").tabs("enable", "#tabs-4");
@@ -310,6 +308,7 @@
           $("#node-input-specifySwitchOnBrightness").val(node.specifySwitchOnBrightness).trigger('change');
           $("#node-input-enableDayNightLighting").val(node.enableDayNightLighting).trigger('change');
         });
+        setTimeout(function () { if (getJsonPromise !== undefined) getJsonPromise.abort(); }, 10000);
       }
       // Show/Hide the div of the color at swich on
       if (node.specifySwitchOnBrightness === "yes") {
@@ -560,7 +559,7 @@
             $("#node-input-hueDevice").val(ui.item.hueDevice + "#light");
           }
           onEditPrepare(node);
-          $("#tabs").show();
+          //$("#tabs").show();
         },
       });
     }
@@ -594,17 +593,25 @@
         GALightColorState: { value: "" },
         dptLightColorState: { value: "" },
 
-        nameLightHSV: { value: "" },
-        GALightHSV: { value: "" },
-        dptLightHSV: { value: "" },
+        nameLightKelvinDIM: { value: "" },
+        GALightKelvinDIM: { value: "" },
+        dptLightKelvinDIM: { value: "" },
 
-        nameLightHSVPercentage: { value: "" },
-        GALightHSVPercentage: { value: "" },
-        dptLightHSVPercentage: { value: "" },
+        nameLightKelvinPercentage: { value: "" },
+        GALightKelvinPercentage: { value: "" },
+        dptLightKelvinPercentage: { value: "" },
 
-        nameLightHSVState: { value: "" },
-        GALightHSVState: { value: "" },
-        dptLightHSVState: { value: "" },
+        nameLightKelvinPercentageState: { value: "" },
+        GALightKelvinPercentageState: { value: "" },
+        dptLightKelvinPercentageState: { value: "" },
+
+        nameLightKelvin: { value: "" },
+        GALightKelvin: { value: "" },
+        dptLightKelvin: { value: "" },
+
+        nameLightKelvinState: { value: "" },
+        GALightKelvinState: { value: "" },
+        dptLightKelvinState: { value: "" },
 
         nameLightBrightness: { value: "" },
         GALightBrightness: { value: "" },
@@ -625,14 +632,6 @@
         nameDaylightSensor: { value: "" },
         GADaylightSensor: { value: "" },
         dptDaylightSensor: { value: "" },
-
-        nameLightKelvin: { value: "" },
-        GALightKelvin: { value: "" },
-        dptLightKelvin: { value: "" },
-
-        nameLightKelvinState: { value: "" },
-        GALightKelvinState: { value: "" },
-        dptLightKelvinState: { value: "" },
 
         specifySwitchOnBrightness: { value: "temperature" },
         colorAtSwitchOnDayTime: { value: '{"kelvin":3000, "brightness":100 }' },
@@ -781,12 +780,12 @@
 
         //#region color_temperature_mode
         // ----------------------------
-        if ($("#node-input-GALightHSVPercentage").val !== '') {
+        if ($("#node-input-GALightKelvinPercentage").val !== '') {
 
           // color_temperature_mode: relative
           sYaml += '  color_temperature_mode: relative' + '\n';
-          sYaml += '  color_temperature_address: "' + $("#node-input-GALightHSVPercentage").val() + '"\n';
-          sYaml += $("#node-input-GALightHSVState").val() != '' ? '  color_temperature_state_address: "' + $("#node-input-GALightHSVState").val() + '"' + "\n" : '';
+          sYaml += '  color_temperature_address: "' + $("#node-input-GALightKelvinPercentage").val() + '"\n';
+          sYaml += $("#node-input-GALightKelvinPercentageState").val() != '' ? '  color_temperature_state_address: "' + $("#node-input-GALightKelvinPercentageState").val() + '"' + "\n" : '';
           sYaml += '  min_kelvin: 2200' + '\n';
           sYaml += '  max_kelvin: 6500' + '\n';
 
@@ -899,7 +898,7 @@
         <input type="text" id="node-input-nameLightSwitch" style="width:190px;margin-left: 5px; text-align: left;">
       </div>
       <div class="form-row">
-        <label for="node-input-nameLightState" style="width:110px;"><i class="fa fa-play-circle-o"></i> Status</label>
+        <label for="node-input-nameLightState" style="width:110px;"><i class="fa fa-question-circle"></i> Status</label>
 
         <label for="node-input-GALightState" style="width:20px;">GA</label>
         <input type="text" id="node-input-GALightState" placeholder="Ex: 1/1/1"
@@ -947,8 +946,7 @@
       </div>
 
       <div class="form-row">
-        <label for="node-input-nameLightBrightnessState" style="width:110px;"><i class="fa fa-play-circle-o"></i>
-          Status</label>
+        <label for="node-input-nameLightBrightnessState" style="width:110px;"><i class="fa fa-question-circle"></i> Status</label>
 
         <label for="node-input-GALightBrightnessState" style="width:20px;"><span
             data-i18n="knxUltimateHueLight.node-input-GALightState"></span></label>
@@ -989,32 +987,32 @@
     <div id="tabs-3">
       <p>
       <div class="form-row">
-        <label for="node-input-nameLightHSV" style="width:110px;"><i class="fa fa-play-circle-o"></i> Control dim</label>
+        <label for="node-input-nameLightKelvinDIM" style="width:110px;"><i class="fa fa-play-circle-o"></i> Control dim</label>
 
-        <label for="node-input-GALightHSV" style="width:20px;">GA</label>
-        <input type="text" id="node-input-GALightHSV" placeholder="Ex: 1/1/1"
+        <label for="node-input-GALightKelvinDIM" style="width:20px;">GA</label>
+        <input type="text" id="node-input-GALightKelvinDIM" placeholder="Ex: 1/1/1"
           style="width:70px;margin-left: 5px; text-align: left;">
 
-        <label for="node-input-dptLightHSV" style="width:40px; margin-left: 0px; text-align: right;">DPT</label>
-        <select id="node-input-dptLightHSV" style="width:140px;"></select>
+        <label for="node-input-dptLightKelvinDIM" style="width:40px; margin-left: 0px; text-align: right;">DPT</label>
+        <select id="node-input-dptLightKelvinDIM" style="width:140px;"></select>
 
-        <label for="node-input-nameLightHSV" style="width:50px; margin-left: 0px; text-align: right;">Name</label>
-        <input type="text" id="node-input-nameLightHSV" style="width:190px;margin-left: 5px; text-align: left;">
+        <label for="node-input-nameLightKelvinDIM" style="width:50px; margin-left: 0px; text-align: right;">Name</label>
+        <input type="text" id="node-input-nameLightKelvinDIM" style="width:190px;margin-left: 5px; text-align: left;">
       </div>
       <div class="form-row">
-        <label for="node-input-nameLightHSVPercentage" style="width:110px;"><i class="fa fa-play-circle-o"></i> Control
+        <label for="node-input-nameLightKelvinPercentage" style="width:110px;"><i class="fa fa-play-circle-o"></i> Control
           %</label>
 
-        <label for="node-input-GALightHSVPercentage" style="width:20px;">GA</label>
-        <input type="text" id="node-input-GALightHSVPercentage" placeholder="Ex: 1/1/1"
+        <label for="node-input-GALightKelvinPercentage" style="width:20px;">GA</label>
+        <input type="text" id="node-input-GALightKelvinPercentage" placeholder="Ex: 1/1/1"
           style="width:70px;margin-left: 5px; text-align: left;">
 
-        <label for="node-input-dptLightHSVPercentage" style="width:40px; margin-left: 0px; text-align: right;">DPT</label>
-        <select id="node-input-dptLightHSVPercentage" style="width:140px;"></select>
+        <label for="node-input-dptLightKelvinPercentage" style="width:40px; margin-left: 0px; text-align: right;">DPT</label>
+        <select id="node-input-dptLightKelvinPercentage" style="width:140px;"></select>
 
-        <label for="node-input-nameLightHSVPercentage"
+        <label for="node-input-nameLightKelvinPercentage"
           style="width:50px; margin-left: 0px; text-align: right;">Name</label>
-        <input type="text" id="node-input-nameLightHSVPercentage" style="width:190px;margin-left: 5px; text-align: left;">
+        <input type="text" id="node-input-nameLightKelvinPercentage" style="width:190px;margin-left: 5px; text-align: left;">
       </div>
       <div class="form-row">
         <label for="node-input-nameLightKelvin" style="width:110px;"><i class="fa fa-play-circle-o"></i> Control
@@ -1031,21 +1029,21 @@
         <input type="text" id="node-input-nameLightKelvin" style="width:190px;margin-left: 5px; text-align: left;">
       </div>
       <div class="form-row">
-        <label for="node-input-nameLightHSVState" style="width:110px;"><i class="fa fa-play-circle-o"></i> Status
+        <label for="node-input-nameLightKelvinPercentageState" style="width:110px;"><i class="fa fa-question-circle"></i> Status
           %</label>
 
-        <label for="node-input-GALightHSVState" style="width:20px;">GA</label>
-        <input type="text" id="node-input-GALightHSVState" placeholder="Ex: 1/1/1"
+        <label for="node-input-GALightKelvinPercentageState" style="width:20px;">GA</label>
+        <input type="text" id="node-input-GALightKelvinPercentageState" placeholder="Ex: 1/1/1"
           style="width:70px;margin-left: 5px; text-align: left;">
 
-        <label for="node-input-dptLightHSVState" style="width:40px; margin-left: 0px; text-align: right;">DPT</label>
-        <select id="node-input-dptLightHSVState" style="width:140px;"></select>
+        <label for="node-input-dptLightKelvinPercentageState" style="width:40px; margin-left: 0px; text-align: right;">DPT</label>
+        <select id="node-input-dptLightKelvinPercentageState" style="width:140px;"></select>
 
-        <label for="node-input-nameLightHSVState" style="width:50px; margin-left: 0px; text-align: right;">Name</label>
-        <input type="text" id="node-input-nameLightHSVState" style="width:190px;margin-left: 5px; text-align: left;">
+        <label for="node-input-nameLightKelvinPercentageState" style="width:50px; margin-left: 0px; text-align: right;">Name</label>
+        <input type="text" id="node-input-nameLightKelvinPercentageState" style="width:190px;margin-left: 5px; text-align: left;">
       </div>
       <div class="form-row">
-        <label for="node-input-nameLightKelvinState" style="width:110px;"><i class="fa fa-play-circle-o"></i> Status
+        <label for="node-input-nameLightKelvinState" style="width:110px;"><i class="fa fa-question-circle"></i> Status
           Kelvin</label>
 
         <label for="node-input-GALightKelvinState" style="width:20px;">GA</label>
@@ -1085,8 +1083,7 @@
         <input type="text" id="node-input-nameLightColor" style="width:190px;margin-left: 5px; text-align: left;">
       </div>
       <div class="form-row">
-        <label for="node-input-nameLightColorState" style="width:110px;"><i class="fa fa-play-circle-o"></i>
-          Status</label>
+        <label for="node-input-nameLightColorState" style="width:110px;"><i class="fa fa-question-circle"></i> Status</label>
 
         <label for="node-input-GALightColorState" style="width:20px;"><span
             data-i18n="knxUltimateHueLight.node-input-GALightState"></span></label>
@@ -1142,7 +1139,7 @@
     <div id="tabs-6">
       <p>
       <div class="form-row">
-        <label style="width:260px;" for="node-input-readStatusAtStartup"><i class="fa fa-play-circle"></i> Read status at
+        <label style="width:260px;" for="node-input-readStatusAtStartup"><i class="fa fa-question-circle"></i> Read status at
           startup</label>
         <select id="node-input-readStatusAtStartup">
           <option value="no">No</option>
