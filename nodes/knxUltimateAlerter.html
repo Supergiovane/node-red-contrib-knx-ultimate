@@ -60,8 +60,8 @@
             // Scene configuration
             var previousValueType = { value: "prev", label: this._("switch.previous"), hasValue: false };
             function resizeRule(rule) {
-                
-             }
+
+            }
             $("#node-input-rule-container").css('min-height', '350px').css('min-width', '450px').editableList({
                 addItem: function (container, i, opt) { // row, index, data
 
@@ -80,7 +80,7 @@
                     var oTopicField = $("<input/>", { class: "rowRuleTopic", type: "text", placeholder: "GA or devicename", style: "width:20%; margin-left: 5px; text-align: left;" }).appendTo(row);
                     var finalspan = $('<span/>', { style: "" }).appendTo(row);
                     finalspan.append(' <span class="node-input-rule-index"></span> ');
-                    var orowRuleDeviceName = $('<input/>', {  maxlength: "14", class: "rowRuleDeviceName", type: "text", style: "width:30%; margin-left: 0px; text-align: left;font-style: italic;", placeholder: "Name (max 14 chars)" }).appendTo(row);
+                    var orowRuleDeviceName = $('<input/>', { maxlength: "14", class: "rowRuleDeviceName", type: "text", style: "width:30%; margin-left: 0px; text-align: left;font-style: italic;", placeholder: "Name (max 14 chars)" }).appendTo(row);
                     var orowRuleLongDeviceName = $('<input/>', { class: "rowRuleLongDeviceName", type: "text", style: "width:45%; margin-left: 0px; text-align: left;", placeholder: "Long name" }).appendTo(row);
 
                     oTopicField.on("change", function () {
@@ -110,7 +110,7 @@
                             var sDevName = ui.item.label.split("#")[1].trim();
                             try {
                                 sDevName = sDevName.substr(sDevName.indexOf(")") + 1).trim();
-                                orowRuleDeviceName.val(sDevName.substr(0,14));
+                                orowRuleDeviceName.val(sDevName.substr(0, 14));
                                 orowRuleLongDeviceName.val(sDevName);
                             } catch (error) {
                             }
@@ -121,7 +121,7 @@
                     oTopicField.val(rule.topic);
                     orowRuleDeviceName.val(rule.devicename);
                     orowRuleLongDeviceName.val(rule.longdevicename);
-                    oTopicField.change();                   
+                    oTopicField.change();
 
                 },
                 removeItem: function (opt) {
@@ -197,8 +197,8 @@
 <div class="form-row">
     <label for="node-input-whentostart"><i class="fa fa-repeat"></i> <span data-i18n="knxUltimateAlerter.properties.node-input-whentostart"></span> </label>
     <select id="node-input-whentostart">
-        <option value="manualstart" data-i18n="knxUltimateAlerter.selectlists.manualstart"></option>
-        <option value="ifnewalert" data-i18n="knxUltimateAlerter.selectlists.ifnewalert"></option>        
+        <option value="manualstart">Start alert cycle manually via incoming message></option>
+        <option value="ifnewalert">Start the alert cycle with each new alerted device</option>    
     </select>
 </div>
 

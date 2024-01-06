@@ -626,7 +626,8 @@ module.exports = function (RED) {
 
     node.handleSendHUE = (_event) => {
       try {
-        if (_event.id === node.hueDevice) {
+        let deviceByRef = cloneDeep(_event);
+        if (deviceByRef.id === node.hueDevice) {
           if (node.currentHUEDevice === undefined || node.serverHue === null || node.serverHue === undefined) {
             node.setNodeStatusHue({
               fill: "red",
@@ -638,7 +639,7 @@ module.exports = function (RED) {
           }
 
           // Output the msg to the flow
-          node.send(_event);
+          node.send(deviceByRef);
 
           // // DEBUG testing enable/disable HTML UI Tabs
           //delete _event.dimming;
@@ -648,51 +649,51 @@ module.exports = function (RED) {
 
           // As grouped_light doesn't contain all requested properties, i find the first light in the group, and use this below in the code
           // If the event type is grouped light, and there are missing properties, i infer these missing properties from the first light in the group!
-          if ((_event.color !== undefined || _event.dimming !== undefined || _event.color_temperature !== undefined) && _event.type === 'grouped_light') {
+          if ((deviceByRef.color !== undefined || deviceByRef.dimming !== undefined || deviceByRef.color_temperature !== undefined) && deviceByRef.type === 'grouped_light') {
             try {
-              const firstLightInGroup = node.serverHue.getFirstLightInGroup(_event.id);
+              const firstLightInGroup = node.serverHue.getFirstLightInGroup(deviceByRef.id);
               if (firstLightInGroup !== null && firstLightInGroup !== undefined) {
-                if (_event.color === undefined) {
-                  _event.color = firstLightInGroup.color;
+                if (deviceByRef.color === undefined) {
+                  deviceByRef.color = firstLightInGroup.color;
                 }
-                if (_event.color_temperature === undefined) {
-                  _event.color_temperature = firstLightInGroup.color_temperature;
+                if (deviceByRef.color_temperature === undefined) {
+                  deviceByRef.color_temperature = firstLightInGroup.color_temperature;
                 }
               }
             } catch (error) { }
           }
 
-          if (_event.on !== undefined) {
-            node.updateKNXLightState(_event.on.on);
+          if (deviceByRef.on !== undefined) {
+            node.updateKNXLightState(deviceByRef.on.on);
             // In case of switch off, set the dim to zero
-            if (_event.on.on === false && (config.updateKNXBrightnessStatusOnHUEOnOff === undefined || config.updateKNXBrightnessStatusOnHUEOnOff === "onhueoff")) {
+            if (deviceByRef.on.on === false && (config.updateKNXBrightnessStatusOnHUEOnOff === undefined || config.updateKNXBrightnessStatusOnHUEOnOff === "onhueoff")) {
               node.updateKNXBrightnessState(0);
-              if (_event.dimming !== undefined) delete _event.dimming; // Remove event.dimming, because has beem handled by this function and i don't want the function below to take care of it.
-            } else if (_event.on.on === true && node.currentHUEDevice.on.on === false) {
+              if (deviceByRef.dimming !== undefined) delete deviceByRef.dimming; // Remove event.dimming, because has beem handled by this function and i don't want the function below to take care of it.
+            } else if (deviceByRef.on.on === true && node.currentHUEDevice.on.on === false) {
               // Turn on always update the dimming KNX Status value as well.
               let brightVal = 50;
               if (node.currentHUEDevice.dimming !== undefined && node.currentHUEDevice.dimming.brightness !== undefined) brightVal = node.currentHUEDevice.dimming.brightness;
               node.updateKNXBrightnessState(brightVal);
             }
-            node.currentHUEDevice.on.on = _event.on.on;
+            node.currentHUEDevice.on.on = deviceByRef.on.on;
           }
 
-          if (_event.color !== undefined) { // fixed https://github.com/Supergiovane/node-red-contrib-knx-ultimate/issues/287
-            node.updateKNXLightColorState(_event.color);
-            node.currentHUEDevice.color = _event.color;
+          if (deviceByRef.color !== undefined) { // fixed https://github.com/Supergiovane/node-red-contrib-knx-ultimate/issues/287
+            node.updateKNXLightColorState(deviceByRef.color);
+            node.currentHUEDevice.color = deviceByRef.color;
           }
 
-          if (_event.dimming !== undefined && _event.dimming.brightness !== undefined) {
+          if (deviceByRef.dimming !== undefined && deviceByRef.dimming.brightness !== undefined) {
             // Once upon n a time, the light transmit the brightness value of 0.39.
             // To avoid wrongly turn light state on, exit
-            if (_event.dimming.brightness < 1) _event.dimming.brightness = 0;
-            if (node.currentHUEDevice.on !== undefined && node.currentHUEDevice.on.on === false && _event.dimming.brightness === 0) {
+            if (deviceByRef.dimming.brightness < 1) deviceByRef.dimming.brightness = 0;
+            if (node.currentHUEDevice.on !== undefined && node.currentHUEDevice.on.on === false && deviceByRef.dimming.brightness === 0) {
               // Do nothing, because the light is off and the dimming also is 0
             } else {
-              if (node.currentHUEDevice.on !== undefined && node.currentHUEDevice.on.on === false && (_event.on === undefined || (_event.on !== undefined && _event.on.on === true))) node.updateKNXLightState(_event.dimming.brightness > 0);
-              node.updateKNXBrightnessState(_event.dimming.brightness);
+              if (node.currentHUEDevice.on !== undefined && node.currentHUEDevice.on.on === false && (deviceByRef.on === undefined || (deviceByRef.on !== undefined && deviceByRef.on.on === true))) node.updateKNXLightState(deviceByRef.dimming.brightness > 0);
+              node.updateKNXBrightnessState(deviceByRef.dimming.brightness);
               // If the brightness reaches zero, the hue lamp "on" property must be set to zero as well
-              if (_event.dimming.brightness === 0 && node.currentHUEDevice.on !== undefined && node.currentHUEDevice.on.on === true) {
+              if (deviceByRef.dimming.brightness === 0 && node.currentHUEDevice.on !== undefined && node.currentHUEDevice.on.on === true) {
                 node.serverHue.hueManager.writeHueQueueAdd(
                   node.hueDevice,
                   { on: { on: false } },
@@ -700,13 +701,13 @@ module.exports = function (RED) {
                 );
                 node.currentHUEDevice.on.on = false;
               }
-              node.currentHUEDevice.dimming.brightness = _event.dimming.brightness;
+              node.currentHUEDevice.dimming.brightness = deviceByRef.dimming.brightness;
             }
           }
-          if (_event.color_temperature !== undefined && _event.color_temperature.mirek !== undefined) {
-            node.updateKNXLightHSVState(_event.color_temperature.mirek);
-            node.updateKNXLightKelvinState(_event.color_temperature.mirek);
-            node.currentHUEDevice.color_temperature.mirek = _event.color_temperature.mirek;
+          if (deviceByRef.color_temperature !== undefined && deviceByRef.color_temperature.mirek !== undefined) {
+            node.updateKNXLightHSVState(deviceByRef.color_temperature.mirek);
+            node.updateKNXLightKelvinState(deviceByRef.color_temperature.mirek);
+            node.currentHUEDevice.color_temperature.mirek = deviceByRef.color_temperature.mirek;
           }
         }
       } catch (error) {

@@ -6,6 +6,9 @@
 
 # CHANGELOG
 
+**Version 2.3.4** - Jan 2024<br/>
+- HUE Light: fixex tab "DIM/Brightness" inaccessible, when "KNX Brightness Status" was set to use the default knx behaviour.<br/>
+
 **Version 2.3.3** - Jan 2024<br/>
 - HUE Light: added a warning if you double click a node, with the node still querying the HUE Bridge for the device.<br/>
 

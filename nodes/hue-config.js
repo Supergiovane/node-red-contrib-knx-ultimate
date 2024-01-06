@@ -207,8 +207,8 @@ module.exports = (RED) => {
                   shape: "ring",
                   text: "Ready :-)",
                 });
-                _node.currentHUEDevice = cloneDeep(oHUEDevice);
-                if (_node.initializingAtStart === true) _node.handleSendHUE(oHUEDevice);
+                _node.currentHUEDevice = cloneDeep(oHUEDevice); // Copy by Value and not by ref
+                if (_node.initializingAtStart === true) _node.handleSendHUE(oHUEDevice); // Pass by value
               }
             }
           });
