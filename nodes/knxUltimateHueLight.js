@@ -225,6 +225,10 @@ module.exports = function (RED) {
                   }
                 }
               } else {
+                // Stop color cycle
+                if (node.timerColorCycle !== undefined) clearInterval(node.timerColorCycle);
+                // Stop Blinking
+                if (node.timerBlink !== undefined) clearInterval(node.timerBlink);
                 state = { on: { on: false } };
               }
 
@@ -250,11 +254,9 @@ module.exports = function (RED) {
               let kelvinValue = 0;
               msg.payload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightKelvin));
               if (config.dptLightKelvin === "7.600") {
-                if (msg.payload > 65535) msg.payload = 65535;
-                if (msg.payload < 0) msg.payload = 0;
-                // kelvinValue = hueColorConverter.ColorConverter.mirekToKelvin(_value);
-                // knxMsgPayload.payload = hueColorConverter.ColorConverter.scale(kelvinValue, [2000, 6535], [0, 65535]);
-                kelvinValue = hueColorConverter.ColorConverter.scale(msg.payload, [0, 65535], [2000, 6535]);
+                if (msg.payload > 6535) msg.payload = 6535;
+                if (msg.payload < 2000) msg.payload = 2000;
+                kelvinValue = msg.payload;//hueColorConverter.ColorConverter.scale(msg.payload, [0, 65535], [2000, 6535]);
                 retMirek = hueColorConverter.ColorConverter.kelvinToMirek(kelvinValue);
               } else if (config.dptLightKelvin === "9.002") {
                 // Relative temperature in Kelvin. Use HUE scale.
@@ -389,7 +391,7 @@ module.exports = function (RED) {
                     ? { on: { on: true }, dimming: { brightness: 100 }, dynamics: { duration: 0 } }
                     : { on: { on: false }, dimming: { brightness: 0 }, dynamics: { duration: 0 } };
                   node.serverHue.hueManager.writeHueQueueAdd(node.hueDevice, state, node.isGrouped_light === false ? "setLight" : "setGroupedLight");
-                }, 1000);
+                }, 1500);
               } else {
                 if (node.timerBlink !== undefined) clearInterval(node.timerBlink);
                 node.serverHue.hueManager.writeHueQueueAdd(

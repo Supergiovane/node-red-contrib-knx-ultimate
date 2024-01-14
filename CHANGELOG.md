@@ -6,6 +6,11 @@
 
 # CHANGELOG
 
+**Version 2.3.6** - Jan 2024<br/>
+- HUE Light: fixed https://github.com/Supergiovane/node-red-contrib-knx-ultimate/issues/317<br/>
+- HUE Light: corrected the 7.600 kelvin range https://github.com/Supergiovane/node-red-contrib-knx-ultimate/issues/316<br/>
+- HUE Light: blinking effect and color cyle are now stopped, whenever an FALSE KNX telegram is received by the light switching group address.<br/>
+
 **Version 2.3.5** - Jan 2024<br/>
 - HUE Light: fixed multi HUE Bridge GUI issue.<br/>
 

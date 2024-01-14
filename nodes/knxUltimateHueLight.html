@@ -66,7 +66,7 @@
             if (dpt.value.startsWith(_dpt)) {
               // Adjustment for HUE Temperature
               if (dpt.value.startsWith("7.600")) {
-                $(_destinationWidget).append($("<option></option>").attr("value", dpt.value).text(dpt.text + " - KNX Kelvin range 0-65535k (Homeassistant color_temperature_mode: absolute)"));
+                $(_destinationWidget).append($("<option></option>").attr("value", dpt.value).text(dpt.text + " - KNX Kelvin range 2000-6535k (Homeassistant color_temperature_mode: absolute)"));
               } else if (dpt.value.startsWith("9.002")) {
                 $(_destinationWidget).append($("<option></option>").attr("value", dpt.value).text(dpt.text + " - HUE Kelvin range 2000-6535k (Homeassistant color_temperature_mode: absolute_float)"));
               } else if (dpt.value.startsWith("5.001")) {
@@ -94,14 +94,15 @@
               response(
                 $.map(data, function (value, key) {
                   var sSearch = value.ga + " (" + value.devicename + ") DPT" + value.dpt;
-                  if (fullSearch(sSearch, request.term + _additionalSearchTerm)) {
-                    return {
-                      label: value.ga + " # " + value.devicename + " # " + value.dpt, // Label for Display
-                      value: value.ga, // Value
-                    };
-                  } else {
-                    return null;
-                  }
+                  for (let index = 0; index < _additionalSearchTerm.length; index++) {
+                    const sDPT = _additionalSearchTerm[index];
+                    if (fullSearch(sSearch, request.term + " " + sDPT)) {
+                      return {
+                        label: value.ga + " # " + value.devicename + " # " + value.dpt, // Label for Display
+                        value: value.ga, // Value
+                      };
+                    }
+                  };
                 })
               );
             });
@@ -121,55 +122,50 @@
       }
 
       getDPT("1.", "#node-input-dptLightSwitch");
-      getGroupAddress("#node-input-GALightSwitch", "#node-input-nameLightSwitch", "#node-input-dptLightSwitch", " 1.");
+      getGroupAddress("#node-input-GALightSwitch", "#node-input-nameLightSwitch", "#node-input-dptLightSwitch", ["1."]);
 
       getDPT("1.", "#node-input-dptLightState");
-      getGroupAddress("#node-input-GALightState", "#node-input-nameLightState", "#node-input-dptLightState", " 1.");
+      getGroupAddress("#node-input-GALightState", "#node-input-nameLightState", "#node-input-dptLightState", ["1."]);
 
       getDPT("3.007", "#node-input-dptLightDIM");
-      getGroupAddress("#node-input-GALightDIM", "#node-input-nameLightDIM", "#node-input-dptLightDIM", " 3.007");
+      getGroupAddress("#node-input-GALightDIM", "#node-input-nameLightDIM", "#node-input-dptLightDIM", ["3.007"]);
 
       getDPT("5.001", "#node-input-dptLightBrightness");
-      getGroupAddress("#node-input-GALightBrightness", "#node-input-nameLightBrightness", "#node-input-dptLightBrightness", " 5.001");
+      getGroupAddress("#node-input-GALightBrightness", "#node-input-nameLightBrightness", "#node-input-dptLightBrightness", ["5.001"]);
 
       getDPT("5.001", "#node-input-dptLightBrightnessState");
-      getGroupAddress("#node-input-GALightBrightnessState", "#node-input-nameLightBrightnessState", "#node-input-dptLightBrightnessState", " 5.001");
+      getGroupAddress("#node-input-GALightBrightnessState", "#node-input-nameLightBrightnessState", "#node-input-dptLightBrightnessState", ["5.001"]);
 
       getDPT("232.600", "#node-input-dptLightColor");
-      getGroupAddress("#node-input-GALightColor", "#node-input-nameLightColor", "#node-input-dptLightColor", " 232.600");
+      getGroupAddress("#node-input-GALightColor", "#node-input-nameLightColor", "#node-input-dptLightColor", ["232.600"]);
 
       getDPT("232.600", "#node-input-dptLightColorState");
-      getGroupAddress("#node-input-GALightColorState", "#node-input-nameLightColorState", "#node-input-dptLightColorState", " 232.600");
+      getGroupAddress("#node-input-GALightColorState", "#node-input-nameLightColorState", "#node-input-dptLightColorState", ["232.600"]);
 
       getDPT("3.007", "#node-input-dptLightKelvinDIM");
-      getGroupAddress("#node-input-GALightKelvinDIM", "#node-input-nameLightKelvinDIM", "#node-input-dptLightKelvinDIM", " 3.007");
+      getGroupAddress("#node-input-GALightKelvinDIM", "#node-input-nameLightKelvinDIM", "#node-input-dptLightKelvinDIM", ["3.007"]);
 
       getDPT("5.001", "#node-input-dptLightKelvinPercentage");
-      getGroupAddress("#node-input-GALightKelvinPercentage", "#node-input-nameLightKelvinPercentage", "#node-input-dptLightKelvinPercentage", " 5.001");
+      getGroupAddress("#node-input-GALightKelvinPercentage", "#node-input-nameLightKelvinPercentage", "#node-input-dptLightKelvinPercentage", ["5.001"]);
 
       getDPT("5.001", "#node-input-dptLightKelvinPercentageState");
-      getGroupAddress("#node-input-GALightKelvinPercentageState", "#node-input-nameLightKelvinPercentageState", "#node-input-dptLightKelvinPercentageState", " 5.001");
+      getGroupAddress("#node-input-GALightKelvinPercentageState", "#node-input-nameLightKelvinPercentageState", "#node-input-dptLightKelvinPercentageState", ["5.001"]);
 
       getDPT("1.", "#node-input-dptLightBlink");
-      getGroupAddress("#node-input-GALightBlink", "#node-input-nameLightBlink", "#node-input-dptLightBlink", " 1.");
+      getGroupAddress("#node-input-GALightBlink", "#node-input-nameLightBlink", "#node-input-dptLightBlink", ["1."]);
 
       getDPT("1.", "#node-input-dptLightColorCycle");
-      getGroupAddress("#node-input-GALightColorCycle", "#node-input-nameLightColorCycle", "#node-input-dptLightColorCycle", " 1.");
+      getGroupAddress("#node-input-GALightColorCycle", "#node-input-nameLightColorCycle", "#node-input-dptLightColorCycle", ["1."]);
 
       getDPT("1.", "#node-input-dptDaylightSensor");
-      getGroupAddress("#node-input-GADaylightSensor", "#node-input-nameDaylightSensor", "#node-input-dptDaylightSensor", " 1.");
+      getGroupAddress("#node-input-GADaylightSensor", "#node-input-nameDaylightSensor", "#node-input-dptDaylightSensor", ["1."]);
 
       getDPT("7.600", "#node-input-dptLightKelvin");
-      getGroupAddress("#node-input-GALightKelvin", "#node-input-nameLightKelvin", "#node-input-dptLightKelvin", " 7.600");
-
-      getDPT("7.600", "#node-input-dptLightKelvinState");
-      getGroupAddress("#node-input-GALightKelvinState", "#node-input-nameLightKelvinState", "#node-input-dptLightKelvinState", " 7.600");
-
       getDPT("9.002", "#node-input-dptLightKelvin");
-      getGroupAddress("#node-input-GALightKelvin", "#node-input-nameLightKelvin", "#node-input-dptLightKelvin", " 9.002");
-
       getDPT("9.002", "#node-input-dptLightKelvinState");
-      getGroupAddress("#node-input-GALightKelvinState", "#node-input-nameLightKelvinState", "#node-input-dptLightKelvinState", " 9.002");
+      getDPT("7.600", "#node-input-dptLightKelvinState");
+      getGroupAddress("#node-input-GALightKelvin", "#node-input-nameLightKelvin", "#node-input-dptLightKelvin", ["7.600", "9.002"]);
+      getGroupAddress("#node-input-GALightKelvinState", "#node-input-nameLightKelvinState", "#node-input-dptLightKelvinState", ["7.600", "9.002"]);
 
 
       // Get the HUE capabilities to enable/disable UI parts
@@ -1297,9 +1293,9 @@ Start typing in the GA field, the name or group address of your KNX device, the 
 |--|--|
 | Control dim | Changes the HUE light's white temperature, using DPT 3.007 dimming. You can set the dimming speed in the **_Behaviour_** tab.|
 | Control % | Changes the HUE light's white temperature, using the DPT 5.001. A value of 0 is full warm, a value of 100 is full cold.|
-| Control kelvin | **DPT 7.600:** set the HUE light's temperature in Kelvin degrees, using the KNX range from 0 to 65536. This range will be then transformed in mirek.<br/>**DPT 9.002:** set the temperature using Philips HUE range: 2000K - 6535K (Ambiance range starts at 2200K). Please be aware, conversion may produce slightly changes in Kelvin degrees value, due to KNX RGB or Kelvin degrees to HUE mirek degrees conversion.|
+| Control kelvin | **DPT 7.600:** set the HUE light's temperature in Kelvin degrees, using the KNX range from 2000 to 6535. This range will be then transformed in mirek.<br/>**DPT 9.002:** set the temperature using Philips HUE range: 2000K - 6535K (Ambiance range starts at 2200K). Please be aware, conversion may produce slightly changes in Kelvin degrees value, due to KNX RGB or Kelvin degrees to HUE mirek degrees conversion.|
 | Status %| Link this to the light temperature status group address. Datapoint is 5.001 absolute value. 0 is full warm, 100 is full cold.|
-| Status kelvin | **DPT 7.600:** get the HUE light's temperature in Kelvin degrees, using the KNX range from 0 to 65536. This range will be then transformed in kelvin degrees.<br/>**DPT 9.002:** get the temperature using Philips HUE range: 2000K - 6535K (Ambiance range starts at 2200K). Please be aware, conversion may produce slightly changes in Kelvin degrees value, due to KNX RGB or Kelvin degrees to HUE mirek degrees conversion. |
+| Status kelvin | **DPT 7.600:** get the HUE light's temperature in Kelvin degrees, using the KNX range from 2000 to 6535. This range will be then transformed in kelvin degrees.<br/>**DPT 9.002:** get the temperature using Philips HUE range: 2000K - 6535K (Ambiance range starts at 2200K). Please be aware, conversion may produce slightly changes in Kelvin degrees value, due to KNX RGB or Kelvin degrees to HUE mirek degrees conversion. |
 | Invert DIM direction | Inverts the DIM direction. |
 <br/>
 
