@@ -31,15 +31,7 @@ module.exports = function (RED) {
     node.icountMessageInWindow = 0
     node.disabled = false // 21/09/2020 you can now disable the scene controller
 
-    // 11/03/2020 Delete scene saved file, from html
-    RED.httpAdmin.get('/knxultimatescenecontrollerdelete', RED.auth.needsPermission('knxUltimateSceneController.read'), function (req, res) {
-      // Delete the file
-      try {
-        const newPath = node.userDir + '/scenecontroller/SceneController_' + req.query.FileName
-        fs.unlinkSync(newPath)
-      } catch (error) { if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.warn('e ' + error) }
-      res.json({ status: 220 })
-    })
+
 
     // 03/09/2021
     async function delay(ms) {

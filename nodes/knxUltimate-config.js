@@ -5,7 +5,6 @@
 /* eslint-disable prefer-arrow-callback */
 const fs = require("fs");
 const path = require("path");
-const oOS = require("os");
 const net = require("net");
 const _ = require("lodash");
 const knx = require("../KNXEngine/src");
@@ -16,7 +15,8 @@ const payloadRounder = require("./utils/payloadManipulation");
 const loggerEngine = require("./utils/sysLogger.js");
 
 
-// Helpers
+// DATAPONT MANIPULATION HELPERS
+// ####################
 const sortBy = (field) => (a, b) => {
   if (a[field] > b[field]) {
     return 1;
@@ -51,57 +51,12 @@ const toConcattedSubtypes = (acc, baseType) => {
 
   return acc.concat(subtypes);
 };
+// ####################
+
+
 
 module.exports = (RED) => {
-  RED.httpAdmin.get("/knxUltimateDpts", RED.auth.needsPermission("knxUltimate-config.read"), function (req, res) {
-    const dpts = Object.entries(dptlib).filter(onlyDptKeys).map(extractBaseNo).sort(sortBy("base")).reduce(toConcattedSubtypes, []);
-    res.json(dpts);
-    // Utilità per visualizzare i datapoints, da copiare in README
-    // var stringa = "";
-    // for (let index = 0; index < dpts.length; index++) {
-    //     const element = dpts[index];
-    //     stringa += element.text + "<br/>\n";
-    // }
-    // if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.warn(stringa)
-  });
 
-  // 15/09/2020 Supergiovane, read datapoint help usage
-  RED.httpAdmin.get("/knxUltimateDptsGetHelp", RED.auth.needsPermission("knxUltimate-config.read"), function (req, res) {
-    const sDPT = req.query.dpt.split(".")[0]; // Takes only the main type
-    let jRet;
-    if (sDPT === "0") {
-      // Special fake datapoint, meaning "Universal Mode"
-      jRet = {
-        help: `// KNX-Ultimate set as UNIVERSAL NODE
-// Example of a function that sends a message to the KNX-Ultimate
-msg.destination = "0/0/1"; // Set the destination 
-msg.payload = false; // issues a write or response (based on the options Telegram type above) to the KNX bus
-msg.event = "GroupValue_Write"; // "GroupValue_Write" or "GroupValue_Response", overrides the option Telegram type above.
-msg.dpt = "1.001"; // for example "1.001", overrides the Datapoint option. (Datapoints can be sent as 9 , "9" , "9.001" or "DPT9.001")
-return msg;`,
-        helplink: "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki",
-      };
-      res.json(jRet);
-      return;
-    }
-    jRet = {
-      help: "NO",
-      helplink: "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-SamplesHome",
-    };
-    const dpts = Object.entries(dptlib).filter(onlyDptKeys);
-    for (let index = 0; index < dpts.length; index++) {
-      if (dpts[index][0].toUpperCase() === "DPT" + sDPT) {
-        jRet = {
-          help: dpts[index][1].basetype.hasOwnProperty("help") ? dpts[index][1].basetype.help : "NO",
-          helplink: dpts[index][1].basetype.hasOwnProperty("helplink")
-            ? dpts[index][1].basetype.helplink
-            : "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-SamplesHome",
-        };
-        break;
-      }
-    }
-    res.json(jRet);
-  });
 
   function knxUltimateConfigNode(config) {
     RED.nodes.createNode(this, config);
@@ -286,186 +241,7 @@ return msg;`,
 
     // ************************
 
-    // Endpoint for connecting to HUE Bridge
-    RED.httpAdmin.get("/KNXUltimateRegisterToHueBridge", RED.auth.needsPermission("knxUltimate-config.read"), function (req, res) {
-      try {
-        if (typeof req.query.nodeID !== "undefined" && req.query.nodeID !== null && req.query.nodeID !== "") {
-          const _node = RED.nodes.getNode(req.query.nodeID); // Retrieve node.id of the config node.
-          if (_node !== null) res.json(RED.nodes.getNode(_node.id).csv);
-        }
 
-        (async () => {
-          try {
-            // °°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
-            const discovery = require("node-hue-api").discovery;
-            // If using this code outside of the examples directory, you will want to use the line below and remove the
-            // const discovery = require('node-hue-api').discovery
-            const hueApi = require("node-hue-api").api;
-            const appName = "KNXUltimate";
-            const deviceName = "Node-Red";
-
-            // async function discoverBridge() {
-            //   const discoveryResults = await discovery.nupnpSearch()
-
-            //   if (discoveryResults.length === 0) {
-            //     if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error('Failed to resolve any Hue Bridges')
-            //     return null
-            //   } else {
-            //     // Ignoring that you could have more than one Hue Bridge on a network as this is unlikely in 99.9% of users situations
-            //     return discoveryResults[0].ipaddress
-            //   }
-            // }
-            async function discoverAndCreateUser() {
-              // const ipAddress = await discoverBridge()
-              const ipAddress = req.query.IP;
-
-              // Create an unauthenticated instance of the Hue API so that we can create a new user
-              const unauthenticatedApi = await hueApi.createLocal(ipAddress).connect();
-              let createdUser;
-              try {
-                createdUser = await unauthenticatedApi.users.createUser(appName, deviceName);
-                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("*******************************************************************************\n");
-                if (node.sysLogger !== undefined && node.sysLogger !== null) {
-                  node.sysLogger.info(
-                    "User has been created on the Hue Bridge. The following username can be used to\n" +
-                    "authenticate with the Bridge and provide full local access to the Hue Bridge.\n" +
-                    "YOU SHOULD TREAT THIS LIKE A PASSWORD\n",
-                  );
-                }
-                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info(`Hue Bridge User: ${createdUser.username}`);
-                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info(`Hue Bridge User Client Key: ${createdUser.clientkey}`);
-                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("*******************************************************************************\n");
-
-                // Create a new API instance that is authenticated with the new user we created
-                const authenticatedApi = await hueApi.createLocal(ipAddress).connect(createdUser.username);
-                // Do something with the authenticated user/api
-                const bridgeConfig = await authenticatedApi.configuration.getConfiguration();
-                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info(`Connected to Hue Bridge: ${bridgeConfig.name} :: ${bridgeConfig.ipaddress}`);
-                return { bridge: bridgeConfig, user: createdUser };
-              } catch (err) {
-                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("The Link button on the bridge was not pressed. " + err.message);
-                throw err;
-                // return {
-                //   error:
-                //     "The Link button on the bridge was not pressed or an error has occurred. " +
-                //     err.message,
-                // };
-              }
-            }
-            async function discoverAndCreateUserInsecure() {
-              // const ipAddress = await discoverBridge()
-              const ipAddress = req.query.IP;
-
-              // Create an unauthenticated instance of the Hue API so that we can create a new user
-              const unauthenticatedApi = await hueApi.createInsecureLocal(ipAddress).connect();
-              let createdUser;
-              try {
-                createdUser = await unauthenticatedApi.users.createUser(appName, deviceName);
-                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("*******************************************************************************\n");
-                if (node.sysLogger !== undefined && node.sysLogger !== null) {
-                  node.sysLogger.info(
-                    "User has been created on the Hue Bridge. The following username can be used to\n" +
-                    "authenticate with the Bridge and provide full local access to the Hue Bridge.\n" +
-                    "YOU SHOULD TREAT THIS LIKE A PASSWORD\n",
-                  );
-                }
-                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info(`Hue Bridge User: ${createdUser.username}`);
-                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info(`Hue Bridge User Client Key: ${createdUser.clientkey}`);
-                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("*******************************************************************************\n");
-
-                // Create a new API instance that is authenticated with the new user we created
-                const authenticatedApi = await hueApi.createInsecureLocal(ipAddress).connect(createdUser.username);
-                // Do something with the authenticated user/api
-                const bridgeConfig = await authenticatedApi.configuration.getConfiguration();
-                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info(`Connected to Hue Bridge: ${bridgeConfig.name} :: ${bridgeConfig.ipaddress}`);
-                return { bridge: bridgeConfig, user: createdUser };
-              } catch (err) {
-                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("The Link button on the bridge was not pressed. " + err.message);
-                return {
-                  error: "The Link button on the bridge was not pressed or an error has occurred. " + err.message,
-                };
-              }
-            }
-
-            // Invoke the discovery and create user code
-            try {
-              const jRet = await discoverAndCreateUser();
-              res.json(jRet);
-            } catch (error) {
-              RED.log.error("Errore KNXUltimateRegisterToHueBridge non gestito Secure " + error.message + ". Try with insecure http connection...");
-              // Try with insecureClient (avoid problems with expired https certificates)
-              try {
-                const jRet = await discoverAndCreateUserInsecure();
-                res.json(jRet);
-              } catch (error) {
-                RED.log.error("Errore KNXUltimateRegisterToHueBridge non gestito Insecure " + error.message + ". I give up.");
-                res.json({ error: error.message });
-              }
-            }
-          } catch (err) {
-            RED.log.error("Errore KNXUltimateRegisterToHueBridge non gestito " + err.message);
-          }
-        })();
-      } catch (err) {
-        RED.log.error("Errore KNXUltimateRegisterToHueBridge bsonto " + err.message);
-        res.json({ error: err.message });
-      }
-    });
-
-    // Endpoint for reading csv/esf by the other nodes
-    RED.httpAdmin.get("/knxUltimatecsv", RED.auth.needsPermission("knxUltimate-config.read"), function (req, res) {
-      if (typeof req.query.nodeID !== "undefined" && req.query.nodeID !== null && req.query.nodeID !== "") {
-        const _node = RED.nodes.getNode(req.query.nodeID); // Retrieve node.id of the config node.
-        if (_node !== null) res.json(RED.nodes.getNode(_node.id).csv);
-      } else {
-        // Get the first knxultimate-config having a valid csv
-        try {
-          if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("KNXUltimate-config: Requested csv maybe from visu-ultimate?");
-          RED.nodes.eachNode(function (_node) {
-            if (_node.hasOwnProperty("csv") && _node.type == "knxUltimate-config" && _node.csv !== "") {
-              res.json(RED.nodes.getNode(_node.id).csv);
-            }
-          });
-        } catch (error) { }
-      }
-    });
-
-    // 14/08/2019 Endpoint for retrieving the ethernet interfaces
-    RED.httpAdmin.get("/knxUltimateETHInterfaces", RED.auth.needsPermission("knxUltimate-config.read"), function (req, res) {
-      const oiFaces = oOS.networkInterfaces();
-      const jListInterfaces = [];
-      try {
-        Object.keys(oiFaces).forEach((ifname) => {
-          // Interface with single IP
-          if (Object.keys(oiFaces[ifname]).length === 1) {
-            if (Object.keys(oiFaces[ifname])[0].internal === false) jListInterfaces.push({
-              name: ifname,
-              address: Object.keys(oiFaces[ifname])[0].address,
-            });
-          } else {
-            let sAddresses = "";
-            oiFaces[ifname].forEach(function (iface) {
-              if (iface.internal === false) sAddresses += "+" + iface.address;
-            });
-            if (sAddresses !== "") jListInterfaces.push({ name: ifname, address: sAddresses });
-          }
-        });
-      } catch (error) { }
-      res.json(jListInterfaces);
-    });
-
-    // 12/08/2021 Endpoint for deleting the GA persistent file for the current gateway
-    RED.httpAdmin.get("/deletePersistGAFile", RED.auth.needsPermission("knxUltimate-config.read"), function (req, res) {
-      if (typeof req.query.nodeID !== "undefined" && req.query.nodeID !== null && req.query.nodeID !== "") {
-        const sFile = path.join(node.userDir, "knxpersistvalues", "knxpersist" + req.query.nodeID + ".json");
-        try {
-          fs.unlinkSync(sFile);
-        } catch (error) { }
-        res.json({ error: "No error" });
-      } else {
-        res.json({ error: "No NodeID specified" });
-      }
-    });
 
     // 16/02/2020 KNX-Ultimate nodes calls this function, then this funcion calls the same function on the Watchdog
     node.reportToWatchdogCalledByKNXUltimateNode = (_oError) => {

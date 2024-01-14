@@ -28,7 +28,7 @@
                                 text: "OK",
                                 click: function (e) {
                                     // Send the infos to Supergiovane
-                                    $.getJSON("KNXUltimateRegisterToHueBridge?IP=" + $("#node-config-input-host").val(), (data) => {
+                                    $.getJSON("KNXUltimateRegisterToHueBridge?IP=" + $("#node-config-input-host").val() + "&serverId=" + this.id, (data) => {
                                         this.value = "Connect";
                                         this.disabled = false;
                                         if (data.hasOwnProperty("error")) {
@@ -125,10 +125,7 @@
             <label for="node-config-input-clientkey"> Bridge Key</label>
             <input type="password" id="node-config-input-clientkey" placeholder="" disabled>
         </div>
-        <div class="form-row">
-            <label for="node-config-input-debug"> Bridge Key</label>
-            <input rows="20" style="width:100%" type="textarea" id="node-config-input-debug" placeholder="" disabled>
-        </div>
+       
     </div>
     
     

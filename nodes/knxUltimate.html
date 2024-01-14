@@ -78,7 +78,7 @@
 
             // 15/09/2020 Supergiovane, set the help sample based on Datapoint
             function knxUltimateDptsGetHelp(_dpt, _forceClose) {
-                $.getJSON("knxUltimateDptsGetHelp?dpt=" + _dpt, (data) => {
+                $.getJSON("knxUltimateDptsGetHelp?dpt=" + _dpt + "&serverId=" + $("#node-input-server").val(), (data) => {
                     try {
                         $("#example-editor").html("");
                         $("#sampleCodeEditor").html();
@@ -133,7 +133,7 @@
             // ###########################
 
 
-            $.getJSON("knxUltimateDpts", (data) => {
+            $.getJSON("knxUltimateDpts?serverId=" + $("#node-input-server").val(), (data) => {
                 data.forEach(dpt => {
                     $("#node-input-dpt").append($("<option></option>")
                         .attr("value", dpt.value)

@@ -96,7 +96,7 @@
 
             // DPT 
             // ########################
-            $.getJSON('knxUltimateDpts', (data) => {
+            $.getJSON('knxUltimateDpts?serverId=' + $("#node-input-server").val(), (data) => {
                 data.forEach(dpt => {
                     if (dpt.value.startsWith("1.") || dpt.value.startsWith("18.")) {
                         $("#node-input-dptscene").append($("<option></option>")
@@ -244,7 +244,7 @@
             $("#node-input-name").autocomplete({
                 minLength: 1,
                 source: function (request, response) {
-                    $.getJSON("KNXUltimateGetResourcesHUE?rtype=scene&nodeID=" + oNodeServerHue.id, (data) => {
+                    $.getJSON("KNXUltimateGetResourcesHUE?rtype=scene&serverId=" + oNodeServerHue.id, (data) => {
                         response($.map(data.devices, function (value, key) {
                             //alert(JSON.stringify(value) + " "+ key)
                             var sSearch = (value.name);
@@ -340,7 +340,7 @@
                     rowRuleHUESceneName.autocomplete({
                         minLength: 1,
                         source: function (request, response) {
-                            $.getJSON("KNXUltimateGetResourcesHUE?rtype=scene&nodeID=" + oNodeServerHue.id, (data) => {
+                            $.getJSON("KNXUltimateGetResourcesHUE?rtype=scene&serverId=" + oNodeServerHue.id, (data) => {
                                 response($.map(data.devices, function (value, key) {
                                     //alert(JSON.stringify(value) + " "+ key)
                                     var sSearch = (value.name);

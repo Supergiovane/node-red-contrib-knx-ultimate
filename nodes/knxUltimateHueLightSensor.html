@@ -69,7 +69,7 @@
 
             // DPT 
             // ########################
-            $.getJSON('knxUltimateDpts', (data) => {
+            $.getJSON('knxUltimateDpts?serverId=' + $("#node-input-server").val(), (data) => {
                 data.forEach(dpt => {
                     if (dpt.value.startsWith("9.004")) {
                         $("#node-input-dptlightsensor").append($("<option></option>")
@@ -120,7 +120,7 @@
             $("#node-input-name").autocomplete({
                 minLength: 1,
                 source: function (request, response) {
-                    $.getJSON("KNXUltimateGetResourcesHUE?rtype=light_level&nodeID=" + oNodeServerHue.id, (data) => {
+                    $.getJSON("KNXUltimateGetResourcesHUE?rtype=light_level&serverId=" + oNodeServerHue.id, (data) => {
                         response($.map(data.devices, function (value, key) {
                             //alert(JSON.stringify(value) + " "+ key)
                             var sSearch = (value.name);

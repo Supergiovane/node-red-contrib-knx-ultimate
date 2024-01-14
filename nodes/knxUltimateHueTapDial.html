@@ -69,7 +69,7 @@
 
             // DPT repeat
             // ########################
-            $.getJSON('knxUltimateDpts', (data) => {
+            $.getJSON('knxUltimateDpts?serverId=' + $("#node-input-server").val(), (data) => {
                 data.forEach(dpt => {
                     if (dpt.value.startsWith("3.007") || dpt.value.startsWith("5.001") || dpt.value.startsWith("232.600")) {
                         $("#node-input-dptrepeat").append($("<option></option>")
@@ -121,7 +121,7 @@
             $("#node-input-name").autocomplete({
                 minLength: 1,
                 source: function (request, response) {
-                    $.getJSON("KNXUltimateGetResourcesHUE?rtype=relative_rotary&nodeID=" + oNodeServerHue.id, (data) => {
+                    $.getJSON("KNXUltimateGetResourcesHUE?rtype=relative_rotary&serverId=" + oNodeServerHue.id, (data) => {
                         response($.map(data.devices, function (value, key) {
                             //alert(JSON.stringify(value) + " "+ key)
                             var sSearch = (value.name);

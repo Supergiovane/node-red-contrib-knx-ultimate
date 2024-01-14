@@ -516,8 +516,14 @@ module.exports = function (RED) {
           return;
         }
 
+        // If i'm dimming up while the light is off, start the dim with the initial brightness set to zero
+        if (_KNXbrightness_Direction > 0 && _KNXaction === 1 && node.currentHUEDevice.on !== undefined && node.currentHUEDevice.on.on === false) {
+          node.brightnessStep = null;
+          node.currentHUEDevice.dimming.brightness = 0;
+        }
+
         // Set the actual brightness to start with
-        if (node.brightnessStep === null || node.brightnessStep === undefined) node.brightnessStep = node.currentHUEDevice.dimming.brightness || 50;
+        if (node.brightnessStep === null || node.brightnessStep === undefined) node.brightnessStep = node.currentHUEDevice.dimming.brightness !== undefined ? node.currentHUEDevice.dimming.brightness : 50;
         node.brightnessStep = Math.ceil(Number(node.brightnessStep));
 
         // We have also minDimLevelLight and maxDimLevelLight to take care of.
@@ -542,7 +548,7 @@ module.exports = function (RED) {
             node.updateKNXBrightnessState(node.brightnessStep); // Unnecessary, but necessary to set the KNX Status in real time.
             node.brightnessStep += numStep;
             if (node.brightnessStep > maxDimLevelLight) node.brightnessStep = maxDimLevelLight;
-            hueTelegram = { dimming: { brightness: node.brightnessStep }, dynamics: { duration: _dimSpeedInMillisecs + 100 } }; // + 100 is to avoid ladder effect
+            hueTelegram = { dimming: { brightness: node.brightnessStep }, dynamics: { duration: _dimSpeedInMillisecs + 300 } }; // + 100 is to avoid ladder effect
             // Switch on the light if off
             if (node.currentHUEDevice.on !== undefined && node.currentHUEDevice.on.on === false) {
               hueTelegram.on = { on: true };
@@ -559,7 +565,7 @@ module.exports = function (RED) {
             node.updateKNXBrightnessState(node.brightnessStep); // Unnecessary, but necessary to set the KNX Status in real time.
             node.brightnessStep -= numStep;
             if (node.brightnessStep < minDimLevelLight) node.brightnessStep = minDimLevelLight;
-            hueTelegram = { dimming: { brightness: node.brightnessStep }, dynamics: { duration: _dimSpeedInMillisecs + 100 } };// + 100 is to avoid ladder effect
+            hueTelegram = { dimming: { brightness: node.brightnessStep }, dynamics: { duration: _dimSpeedInMillisecs + 300 } };// + 100 is to avoid ladder effect
             // Switch off the light if on
             if (node.currentHUEDevice.on !== undefined && node.currentHUEDevice.on.on === true && node.brightnessStep === 0) {
               hueTelegram.on = { on: false };

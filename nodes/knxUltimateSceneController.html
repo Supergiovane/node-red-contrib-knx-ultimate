@@ -63,7 +63,7 @@
 
             // DPT of Scene Recall
             // ########################
-            $.getJSON('knxUltimateDpts', (data) => {
+            $.getJSON('knxUltimateDpts?serverId=' + $("#node-input-server").val(), (data) => {
                 data.forEach(dpt => {
                     $("#node-input-dpt").append($("<option></option>")
                         .attr("value", dpt.value)
@@ -185,7 +185,7 @@
 
             // DPT of Scene Save
             // ########################
-            $.getJSON('knxUltimateDpts', (data) => {
+            $.getJSON('knxUltimateDpts?serverId=' + $("#node-input-server").val(), (data) => {
                 data.forEach(dpt => {
                     $("#node-input-dptSave").append($("<option></option>")
                         .attr("value", dpt.value)
@@ -297,7 +297,7 @@
                         opt.r = {};
                         // Delete saved scene
                         // ##########################################################
-                        $.getJSON("knxultimatescenecontrollerdelete?FileName=" + node.id, new Date().getTime(), (data) => { });
+                        $.getJSON("knxultimatescenecontrollerdelete?FileName=" + node.id + "&serverId=" + $("node-input-server").val(), new Date().getTime(), (data) => { });
                         // ##########################################################
                     }
                     var rule = opt.r;
@@ -324,7 +324,7 @@
                         resizeRule(container);
                     });
 
-                    $.getJSON('knxUltimateDpts', (data) => {
+                    $.getJSON('knxUltimateDpts?serverId=' + $("#node-input-server").val(), (data) => {
                         data.forEach(dpt => {
                             oDPTField.append($("<option></option>")
                                 .attr("value", dpt.value)
@@ -381,8 +381,8 @@
                 removable: true
             });
 
-             // Put some spaces after the container
-             $('<br/><br/><br/>').insertAfter($("#node-input-rule-container"));
+            // Put some spaces after the container
+            $('<br/><br/><br/>').insertAfter($("#node-input-rule-container"));
 
             // 10/03/2020 For each rule, create a row
             for (var i = 0; i < this.rules.length; i++) {

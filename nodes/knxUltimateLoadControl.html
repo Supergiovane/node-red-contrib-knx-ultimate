@@ -90,7 +90,7 @@
                 return i == aSearchWords.length;
             }
 
-            $.getJSON("knxUltimateDpts", (data) => {
+            $.getJSON("knxUltimateDpts?serverId=" + $("#node-input-server").val(), (data) => {
                 data.forEach(dpt => {
                     $("#node-input-dpt").append($("<option></option>").attr("value", dpt.value).text(dpt.text));
                     for (let index = 1; index < 6; index++) {

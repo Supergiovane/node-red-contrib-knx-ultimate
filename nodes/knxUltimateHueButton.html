@@ -77,7 +77,7 @@
 
             // DPT Dim
             // ########################
-            $.getJSON('knxUltimateDpts', (data) => {
+            $.getJSON('knxUltimateDpts?serverId=' + $("#node-input-server").val(), (data) => {
                 data.forEach(dpt => {
                     if (dpt.value.startsWith("3.007")) {
                         $("#node-input-dptrepeat").append($("<option></option>")
@@ -124,7 +124,7 @@
 
             // DPT dptshort_release
             // ########################
-            $.getJSON('knxUltimateDpts', (data) => {
+            $.getJSON('knxUltimateDpts?serverId=' + $("#node-input-server").val(), (data) => {
                 data.forEach(dpt => {
                     if (dpt.value.startsWith('1.')) {
                         $("#node-input-dptshort_release").append($("<option></option>")
@@ -267,7 +267,7 @@
             $("#node-input-name").autocomplete({
                 minLength: 1,
                 source: function (request, response) {
-                    $.getJSON("KNXUltimateGetResourcesHUE?rtype=button&nodeID=" + oNodeServerHue.id, (data) => {
+                    $.getJSON("KNXUltimateGetResourcesHUE?rtype=button&serverId=" + oNodeServerHue.id, (data) => {
                         response($.map(data.devices, function (value, key) {
                             //alert(JSON.stringify(value) + " "+ key)
                             var sSearch = (value.name);

@@ -68,7 +68,7 @@
 
             // DPT 
             // ########################
-            $.getJSON('knxUltimateDpts', (data) => {
+            $.getJSON('knxUltimateDpts?serverId=' + $("#node-input-server").val(), (data) => {
                 data.forEach(dpt => {
                     if (dpt.value.startsWith("1.")) {
                         $("#node-input-dptmotion").append($("<option></option>")
@@ -119,7 +119,7 @@
             $("#node-input-name").autocomplete({
                 minLength: 1,
                 source: function (request, response) {
-                    $.getJSON("KNXUltimateGetResourcesHUE?rtype=motion&nodeID=" + oNodeServerHue.id, (data) => {
+                    $.getJSON("KNXUltimateGetResourcesHUE?rtype=motion&serverId=" + oNodeServerHue.id, (data) => {
                         response($.map(data.devices, function (value, key) {
                             //alert(JSON.stringify(value) + " "+ key)
                             var sSearch = (value.name);
