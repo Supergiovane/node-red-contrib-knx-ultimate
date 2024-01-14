@@ -1,6 +1,6 @@
 ---
 name: Bug report
-about: Create a report to help us improve
+about: Signal a bug
 title: ''
 labels: ''
 assignees: Supergiovane
@@ -10,26 +10,26 @@ assignees: Supergiovane
 **Salutation (i'll not respond to users that doesn’t wrote at least "Hello")**
 
 **Describe the bug**
-A clear and concise description of what the bug is.
+Write here a clear and concise description of what the bug is.
 
 **To Reproduce**
-Steps to reproduce the behavior:
+Write here the steps to reproduce the behavior, for example:
 1. Go to '...'
 2. Click on '....'
 3. Scroll down to '....'
 4. See error
 
 **Expected behavior**
-A clear and concise description of what you expected to happen.
+Write here a clear and concise description of what you expected to happen.
 
 **Screenshots**
-If applicable, add screenshots to help explain your problem.
+Here, if applicable, add screenshots to help explain your problem.
 
 **Knx-Ultimate Version**
- - Eg. 1.1.95
+ - Eg. 2.3.5
 
 **Are you running node-red behind homematic, docker or anything similar?**
  - Eg. Node-Red running alone in RaspberryPi
 
 **Additional context**
-Add any other context about the problem here.
+Write here any other context about the problem here.
