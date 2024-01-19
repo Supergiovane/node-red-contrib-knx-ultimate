@@ -6,6 +6,15 @@
 
 # CHANGELOG
 
+**Version 2.4.0-beta.1** - Jan 2024<br/>
+- This is a public installable beta.<br/>
+- HUE Light: fixed https://github.com/Supergiovane/node-red-contrib-knx-ultimate/issues/317<br/>
+- HUE Light: corrected the 7.600 kelvin range https://github.com/Supergiovane/node-red-contrib-knx-ultimate/issues/316<br/>
+- HUE Light: blinking effect and color cyle are now stopped, whenever an FALSE KNX telegram is received by the light switching group address.<br/>
+- HUE Light: when the light is off, the dim up sequence starts now with initial brightness = zero.<br/>
+- KNX Engine: moved all HTTP calls to a single js file, loaded at startup, to avoid multi KNX gateway or multi HUE bridges issues.<br/>
+- Minor fixes.<br/>
+
 **Version 2.4.0-beta.0** - Jan 2024<br/>
 - THIS IS A BETA VERSION. INSTALL ONLY IF YOU HAVE MANY HUE BRIDGES.<br/>
 - HUE Light: fixed https://github.com/Supergiovane/node-red-contrib-knx-ultimate/issues/317<br/>

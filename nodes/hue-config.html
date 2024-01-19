@@ -27,6 +27,8 @@
                             {
                                 text: "OK",
                                 click: function (e) {
+                                    $("#mainWindow").hide();
+                                    $("#waitWindow").show();
                                     // Send the infos to Supergiovane
                                     $.getJSON("KNXUltimateRegisterToHueBridge?IP=" + $("#node-config-input-host").val() + "&serverId=" + this.id, (data) => {
                                         this.value = "Connect";
@@ -40,6 +42,8 @@
                                                 });
                                             this.disabled = false;
                                             $("#divDetails").hide()
+                                            $("#mainWindow").show();
+                                            $("#waitWindow").hide();
                                             return;
                                         }
 
@@ -49,6 +53,8 @@
                                         $("#node-config-input-username").val(data.user.username);
                                         $("#node-config-input-clientkey").val(data.user.clientkey);
                                         $("#node-config-input-bridgeid").val(data.bridge.data.bridgeid);
+                                        $("#mainWindow").show();
+                                        $("#waitWindow").hide();
                                         $("#divDetails").show()
 
                                     }).error(function (jqXHR, textStatus, errorThrown) {
@@ -58,6 +64,8 @@
                                                 fixed: false,
                                                 type: 'error'
                                             })
+                                        $("#mainWindow").show();
+                                        $("#waitWindow").hide();
                                     });
                                     myNotification.close();
                                 }
@@ -66,6 +74,8 @@
                                 text: "CANCEL",
                                 click: function (e) {
                                     myNotification.close();
+                                    $("#mainWindow").show();
+                                    $("#waitWindow").hide();
                                 }
                             }]
                     });
@@ -82,53 +92,62 @@
 
 
 <script type="text/html" data-template-name="hue-config">
-    <div class="form-row">
-       <b><span data-i18n="hue-config.properties.title"></span></b>&nbsp&nbsp<span style="color:red" data-i18n="[html]hue-config.properties.helplink"></span>
 
-    <p align='center'> <img src='https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/huehub.jpg' width='40%'></p>
-
-   
-    <div class="form-row">
-        <label for="node-config-input-host">
-            <i class="fa fa-server"></i> IP</label>
-        <input type="text" id="node-config-input-host" placeholder="Write here the HUE bridge's IP, then click CONNECT">
+    <div id="waitWindow" hidden>
+        <br/><br/><p align="center"><i class="fa-solid fa-hourglass-start fa-spin-pulse fa-4x"></i><br/><br/>
+        Wait, i'm talking to your HUE bridge...
+        </p>
     </div>
-    <div class="form-row">
-        <label><i class="fa fa-sign-in"></i>&nbspRegister</label>
-        <input type="button" id="getinfocam" class="ui-button ui-corner-all ui-widget"
-            style="background-color:#AEE1FF;width:150px" value="CONNECT">
-    </div>
-   
-    <div id="divDetails" hidden>
-        <div class="form-row">
-            <label for="node-config-input-name">
-                <i class="fa fa-tag"></i>
-                <span data-i18n="hue-config.properties.node-config-input-name" </span>
-            </label>
-            <input type="text" id="node-config-input-name"><data-i18n="[Title]hue-config.properties.node-config-input-name"
-                style="margin-left:5px;">
-        </div>
 
+    <div id="mainWindow">
         <div class="form-row">
-            <label for="node-config-input-bridgeid">
-                <i class="fa fa-tag"></i>
-                Bridge ID
-            </label>
-            <input type="text" id="node-config-input-bridgeid" disabled>
-        </div>
+         <b><span data-i18n="hue-config.properties.title"></span></b>&nbsp&nbsp<span style="color:red" data-i18n="[html]hue-config.properties.helplink"></span>
 
-        <div class="form-row">
-            <label for="node-config-input-username"> Username</label>
-            <input type="password" id="node-config-input-username" placeholder="" disabled>
+         <p align='center'> <img src='https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/huehub.jpg' width='40%'></p>
         </div>
-        <div class="form-row">
-            <label for="node-config-input-clientkey"> Bridge Key</label>
-            <input type="password" id="node-config-input-clientkey" placeholder="" disabled>
-        </div>
-       
-    </div>
     
+        <div class="form-row">
+            <label for="node-config-input-host">
+                <i class="fa fa-server"></i> IP</label>
+            <input type="text" id="node-config-input-host" placeholder="Write here the HUE bridge's IP, then click CONNECT">
+        </div>
+        <div class="form-row">
+            <label><i class="fa fa-sign-in"></i>&nbspRegister</label>
+            <input type="button" id="getinfocam" class="ui-button ui-corner-all ui-widget"
+                style="background-color:#AEE1FF;width:150px" value="CONNECT">
+        </div>
     
+        <div id="divDetails" hidden>
+            <div class="form-row">
+                <label for="node-config-input-name">
+                    <i class="fa fa-tag"></i>
+                    <span data-i18n="hue-config.properties.node-config-input-name" </span>
+                </label>
+                <input type="text" id="node-config-input-name"><data-i18n="[Title]hue-config.properties.node-config-input-name"
+                    style="margin-left:5px;">
+            </div>
+
+            <div class="form-row">
+                <label for="node-config-input-bridgeid">
+                    <i class="fa fa-tag"></i>
+                    Bridge ID
+                </label>
+                <input type="text" id="node-config-input-bridgeid" disabled>
+            </div>
+
+            <div class="form-row">
+                <label for="node-config-input-username"> Username</label>
+                <input type="password" id="node-config-input-username" placeholder="" disabled>
+            </div>
+            <div class="form-row">
+                <label for="node-config-input-clientkey"> Bridge Key</label>
+                <input type="password" id="node-config-input-clientkey" placeholder="" disabled>
+            </div>
+        
+        </div>    
+    </div>
+ 
+
 </script>
 <script type="text/markdown" data-help-name="hue-config" This node registers to the Hue Bridge. Just set the Bridge's IP
     and click **CONNECT** button. [Find it useful?](https://www.paypal.me/techtoday) <br />

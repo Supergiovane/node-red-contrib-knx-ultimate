@@ -90,7 +90,6 @@ module.exports = function (RED) {
                     const serverId = RED.nodes.getNode(req.query.serverId); // Retrieve node.id of the config node.
 
                     // °°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
-                    const { discovery } = require("node-hue-api");
                     // If using this code outside of the examples directory, you will want to use the line below and remove the
                     // const discovery = require('node-hue-api').discovery
                     const hueApi = require("node-hue-api").api;
@@ -111,11 +110,10 @@ module.exports = function (RED) {
                     async function discoverAndCreateUser() {
                         // const ipAddress = await discoverBridge()
                         const ipAddress = req.query.IP;
-
                         // Create an unauthenticated instance of the Hue API so that we can create a new user
-                        const unauthenticatedApi = await hueApi.createLocal(ipAddress).connect();
-                        let createdUser;
                         try {
+                            const unauthenticatedApi = await hueApi.createLocal(ipAddress).connect();
+                            let createdUser;
                             createdUser = await unauthenticatedApi.users.createUser(appName, deviceName);
                             if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("*******************************************************************************\n");
                             if (node.sysLogger !== undefined && node.sysLogger !== null) {
@@ -149,10 +147,10 @@ module.exports = function (RED) {
                         // const ipAddress = await discoverBridge()
                         const ipAddress = req.query.IP;
 
-                        // Create an unauthenticated instance of the Hue API so that we can create a new user
-                        const unauthenticatedApi = await hueApi.createInsecureLocal(ipAddress).connect();
-                        let createdUser;
+                        // Create an unauthenticated instance of the Hue API so that we can create a new user                       
                         try {
+                            const unauthenticatedApi = await hueApi.createInsecureLocal(ipAddress).connect();
+                            let createdUser;
                             createdUser = await unauthenticatedApi.users.createUser(appName, deviceName);
                             if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("*******************************************************************************\n");
                             if (node.sysLogger !== undefined && node.sysLogger !== null) {
@@ -173,9 +171,9 @@ module.exports = function (RED) {
                             if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info(`Connected to Hue Bridge: ${bridgeConfig.name} :: ${bridgeConfig.ipaddress}`);
                             return { bridge: bridgeConfig, user: createdUser };
                         } catch (err) {
-                            if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(`The Link button on the bridge was not pressed. ${err.message}`);
+                            if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(`The Link button on the bridge was not pressed. ` + err.stack);
                             return {
-                                error: `The Link button on the bridge was not pressed or an error has occurred. ${err.message}`,
+                                error: `The Link button on the bridge was not pressed or an error has occurred.`,
                             };
                         }
                     }
@@ -392,7 +390,7 @@ module.exports = function (RED) {
             help: "NO",
             helplink: "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-SamplesHome",
         };
-        const dpts = Object.entries(serverId.dptlib).filter(serverId.onlyDptKeys);
+        const dpts = Object.entries(dptlib).filter(onlyDptKeys);
         for (let index = 0; index < dpts.length; index++) {
             if (dpts[index][0].toUpperCase() === `DPT${sDPT}`) {
                 jRet = {

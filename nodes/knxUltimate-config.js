@@ -666,7 +666,8 @@ module.exports = (RED) => {
         node.knxConnection.on(knx.KNXClient.KNXClientEvents.error, (err) => {
           try {
             if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("knxUltimate-config: received KNXClientEvents.error: " + (err.message === undefined ? err : err.message));
-          } catch (error) { }
+          } catch (error) {
+          }
           // 31/03/2022 Don't care about some errors
           if (err.message !== undefined && (err.message === "ROUTING_LOST_MESSAGE" || err.message === "ROUTING_BUSY")) {
             if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(
@@ -708,7 +709,11 @@ module.exports = (RED) => {
           // Start the timer to do initial read.
           if (node.timerDoInitialRead !== null) clearTimeout(node.timerDoInitialRead);
           node.timerDoInitialRead = setTimeout(() => {
-            DoInitialReadFromKNXBusOrFile();
+            try {
+              DoInitialReadFromKNXBusOrFile();
+            } catch (error) {
+              if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("knxUltimate-config: DoInitialReadFromKNXBusOrFile " + error.stack);
+            }
           }, 6000); // 17/02/2020 Do initial read of all nodes requesting initial read
           const t = setTimeout(() => {
             // 21/03/2022 fixed possible memory leak. Previously was setTimeout without "let t = ".
