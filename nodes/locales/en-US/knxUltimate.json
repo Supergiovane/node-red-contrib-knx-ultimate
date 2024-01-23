@@ -1,7 +1,7 @@
 {
     "knxUltimate": {
-        "deployfirst": "PLEASE CREATE YOUR FIRST GATEWAY, THEN DEPLOY, THEN REOPEN THIS WINDOW.",
-        "helplink" : "&nbsp<i class=\"fa fa-question-circle\"></i>&nbsp<a target=\"_blank\" href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/2.-Node-Configuration\"><u>Help for configuration</u></a>",
+        "deployfirst": "PLEASE CREATE YOUR GATEWAY FIRST.",
+        "helplink": "&nbsp<i class=\"fa fa-question-circle\"></i>&nbsp<a target=\"_blank\" href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/2.-Node-Configuration\"><u>Help for configuration</u></a>",
         "title": "KNX Device",
         "properties": {
             "node-input-server": "Gateway",
@@ -48,7 +48,6 @@
             "notify-DPT222": "You selected an 3x16 Bit Datapoint. Please <a target='_blank' href='https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---DPT222'>click here to view this sample</a> and learn how to handle such payload.",
             "divVediEsempi": "<a href='https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-SamplesHome' target='_blank'><i class='fa fa-code'></i>&nbsp PLEASE TAKE 5 MINUTES TO SEE SOME SAMPLES</a>",
             "Sample": "Help example of the selected datapoint"
-
         },
         "selectlists": {
             "Output_write": "Write",

@@ -50,21 +50,6 @@
             var oNodeServer = RED.nodes.node($("#node-input-server").val()); // Store the config-node
             $("#tabs").tabs();
 
-            if (oNodeServer === undefined) {
-                // Show the DEPLOY FIRST message
-                $("#divDeployFirst").show();
-                $("#divMain").hide();
-            } else {
-                $("#divDeployFirst").hide();
-                $("#divMain").show();
-            }
-
-            if (oNodeServer.knxSecureSelected) {
-                $("#divknxsecure").show();
-            } else {
-                $("#divknxsecure").hide();
-            }
-
             // 31/03/2020 Search Helper
             function fullSearch(sourceText, searchString) {
                 // This searches for all words in a string
@@ -78,40 +63,217 @@
 
             // 15/09/2020 Supergiovane, set the help sample based on Datapoint
             function knxUltimateDptsGetHelp(_dpt, _forceClose) {
-                $.getJSON("knxUltimateDptsGetHelp?dpt=" + _dpt + "&serverId=" + $("#node-input-server").val(), (data) => {
+                if ($("#node-input-server").val() !== "_ADD_" && $("#node-input-server").val() !== '' && _dpt !== null && _dpt !== '') {
+                    $.getJSON("knxUltimateDptsGetHelp?dpt=" + _dpt + "&serverId=" + $("#node-input-server").val() + "&" + { _: new Date().getTime() }, (data) => {
+                        try {
+                            $("#example-editor").html("");
+                            $("#sampleCodeEditor").html();
+                            node.sampleEditor.destroy();
+                            delete node.sampleEditor;
+                        } catch (error) {
+                        }
+                        try {
+                            if (data.help !== "NO") {
+                                node.sampleEditor = RED.editor.createEditor({
+                                    id: 'example-editor',
+                                    mode: 'ace/mode/javascript',
+                                    value: data.help//this.exampleText
+                                }).renderer.setShowGutter(false);//A.setReadOnly(true).setShowPrintMargin(false);                    
+                                if (data.helplink !== "") $("#sampleCodeEditor").html("&nbsp<i class=\"fa fa-question-circle\"></i>&nbsp<a target=\"_blank\" href=\"" + data.helplink + "\"><u>Link example of " + _dpt + "</u></a>");
+                            } else {
+                                // No help avaiable
+                                node.sampleEditor = RED.editor.createEditor({
+                                    id: 'example-editor',
+                                    mode: 'ace/mode/javascript',
+                                    value: "Currently, no sample payload is avaiable, sorry."
+                                }).renderer.setShowGutter(false);//B.setReadOnly(true).setShowPrintMargin(false);
+                                if (data.helplink !== "") $("#sampleCodeEditor").html("&nbsp<i class=\"fa fa-question-circle\"></i>&nbsp<a target=\"_blank\" href=\"" + data.helplink + "\"><u>Link to wiki</u></a>");
+                            }
+                        } catch (error) {
+                        }
+                    })
+                }
+            }
+
+            function checkUI() {
+                oNodeServer = RED.nodes.node($("#node-input-server").val());
+                if (oNodeServer === undefined) {
+                    // Show the DEPLOY FIRST message
+                    $("#divDeployFirst").show();
+                    $("#divMain").hide();
+                } else {
+                    $("#divDeployFirst").hide();
+                    $("#divMain").show();
                     try {
-                        $("#example-editor").html("");
-                        $("#sampleCodeEditor").html();
-                        node.sampleEditor.destroy();
-                        delete node.sampleEditor;
+                        if (typeof oNodeServer.csv !== "undefined" && oNodeServer.csv !== "") {
+                            $("#isETSFileLoaded").val("si");
+                        } else {
+                            $("#isETSFileLoaded").val("no");
+                        }
                     } catch (error) {
+                        $("#isETSFileLoaded").val("no");
                     }
-                    if (data.help !== "NO") {
-                        node.sampleEditor = RED.editor.createEditor({
-                            id: 'example-editor',
-                            mode: 'ace/mode/javascript',
-                            value: data.help//this.exampleText
-                        }).renderer.setShowGutter(false);//.setReadOnly(true).setShowPrintMargin(false);                    
-                        if (data.helplink !== "") $("#sampleCodeEditor").html("&nbsp<i class=\"fa fa-question-circle\"></i>&nbsp<a target=\"_blank\" href=\"" + data.helplink + "\"><u>Link example of " + _dpt + "</u></a>");
+                    if (oNodeServer.knxSecureSelected) {
+                        $("#divknxsecure").show();
                     } else {
-                        // No help avaiable
-                        node.sampleEditor = RED.editor.createEditor({
-                            id: 'example-editor',
-                            mode: 'ace/mode/javascript',
-                            value: "Currently, no sample payload is avaiable, sorry."
-                        }).renderer.setShowGutter(false);//.setReadOnly(true).setShowPrintMargin(false);
-                        if (data.helplink !== "") $("#sampleCodeEditor").html("&nbsp<i class=\"fa fa-question-circle\"></i>&nbsp<a target=\"_blank\" href=\"" + data.helplink + "\"><u>Link to wiki</u></a>");
+                        $("#divknxsecure").hide();
                     }
-                })
+
+                    if ($("#node-input-server").val() !== "_ADD_" && $("#node-input-server").val() !== '') {
+                        $.getJSON("knxUltimateDpts?serverId=" + $("#node-input-server").val() + "&_=" + new Date().getTime(), (data) => {
+                            data.forEach(dpt => {
+                                $("#node-input-dpt").append($("<option></option>")
+                                    .attr("value", dpt.value)
+                                    .text(dpt.text))
+                            });
+                            $("#node-input-dpt").val(node.dpt);
+                            // Load help sample
+                            knxUltimateDptsGetHelp(node.dpt, true);
+                        })
+                    }
+
+                    // Add write and response as default for existing nodes like was default before
+                    if (node.notifywrite === undefined) {
+                        node.notifywrite = true
+                        node.notifyresponse = true
+                        $("#node-input-notifywrite").prop("checked", true)
+                        $("#node-input-notifyresponse").prop("checked", true)
+                    }
+
+                    // Add Write as default for existing clients output
+                    if (node.outputtype === undefined) {
+                        node.outputtype = "write"
+                        $("#node-input-outputtype").val("write")
+                    }
+
+                    $("#node-input-notifyreadrequest").on('change', function () {
+                        if ($("#node-input-notifyreadrequest").is(":checked")) {
+                            if ($("#node-input-listenallga").is(":checked")) {
+                            } else {
+                                $("#divnotifyreadrequestautoreact").show();
+                            }
+                        } else {
+                            $("#divnotifyreadrequestautoreact").hide();
+                        }
+                    })
+
+                    $("#node-input-listenallga").on('change', function () {
+                        if ($("#node-input-listenallga").is(":checked")) {
+                            $("#GAandDPT").hide()
+                            $("#divOutputRBE").hide()
+                            $("#node-input-outputRBE").prop('checked', false)
+                            $("#divInputRBE").hide()
+                            $("#node-input-inputRBE").prop('checked', false)
+                            $("#divnotifyreadrequestautoreact").hide();
+                            $("#helpallga").show();
+                            $("#divTopic").hide()
+
+                            // Call a fake datapoint to load a sample "Universal Node"
+                            knxUltimateDptsGetHelp("0.000", true); // 15/09/2020 Supergiovane, load sample help
+
+                            if ($("#helpallga").html == "") {
+                                // There is a ETS csv file, show the init read option
+                                $("#divNode-input-initialread").show()
+                            } else {
+                                // There isn't a ETS csv file, hide and deselect the init read option
+                                $("#divNode-input-initialread").hide();
+                                $("#node-input-initialread").val(0);
+                            }
+                        } else {
+
+                            // 15/09/2020 Supergiovane, load the help sample of the current datapoint
+                            knxUltimateDptsGetHelp($("#node-input-dpt").val(), false); // 15/09/2020 Supergiovane, load sample help
+
+                            $("#GAandDPT").show()
+                            $("#divOutputRBE").show()
+                            $("#divInputRBE").show()
+                            $("#divTopic").show()
+                            if ($("#node-input-notifyreadrequest").is(":checked")) {
+                                $("#divnotifyreadrequestautoreact").show();
+                            } else {
+                                $("#divnotifyreadrequestautoreact").hide();
+                            }
+                            $("#helpallga").hide()
+                            $("#divNode-input-initialread").show();
+                        }
+                    })
+
+                    // Autocomplete suggestion with ETS csv File
+                    $("#node-input-topic").autocomplete({
+                        minLength: 1,
+                        source: function (request, response) {
+                            $.getJSON("knxUltimatecsv?nodeID=" + oNodeServer.id + "&" + { _: new Date().getTime() }, (data) => {
+                                response($.map(data, function (value, key) {
+                                    var sSearch = (value.ga + " (" + value.devicename + ") DPT" + value.dpt);
+                                    if (fullSearch(sSearch, request.term)) {
+                                        return {
+                                            label: value.ga + " # " + value.devicename + " # " + value.dpt, // Label for Display
+                                            value: value.ga // Value
+                                        }
+                                    } else {
+                                        return null;
+                                    }
+                                }));
+                            });
+                        }, select: function (event, ui) {
+                            // Sets Datapoint and device name automatically
+                            var sDevName = ui.item.label.split("#")[1].trim();
+                            try {
+                                sDevName = sDevName.substr(sDevName.indexOf(")") + 1).trim();
+                            } catch (error) {
+                            }
+                            $('#node-input-name').val(sDevName);
+                            var optVal = $("#node-input-dpt option:contains('" + ui.item.label.split("#")[2].trim() + "')").attr('value');
+                            // Select the option value 
+                            $("#node-input-dpt").val(optVal);
+                            $("#node-input-dpt").trigger("change");
+                        }
+                    });
+
+                    // Hide or show the GA and DPT fields if Notify on all Group Addresses is checked
+                    if (oNodeServer !== undefined && oNodeServer !== null) {
+                        if (oNodeServer.csv !== undefined && oNodeServer.csv !== "") {
+                            $("#helpallga").html("");
+                            // There is a ETS csv file, show the init read option
+                            $("#divNode-input-initialread").show()
+                        } else {
+                            // 25/10/2019 Warn user that the node will node encode/decode datagram, if Listen All GA's if the config node doesn't contain the csv
+                            $("#helpallga").html("<i> " + node._("knxUltimate.advanced.noETSWarning") + " </i>");
+                            if ($("#node-input-listenallga").is(":checked")) {
+                                // There isn't a ETS csv file, hide and deselect the init read option
+                                $("#divNode-input-initialread").hide();
+                                $("#node-input-initialread").val(0);
+                            } else {
+                                $("#divNode-input-initialread").show()
+                            }
+                        }
+                    } else {
+                        $("#node-input-listenallga").prop("checked", false)
+                        $("#divTopic").show()
+                        $("#GAandDPT").show()
+                        $("#divOutputRBE").show()
+                        $("#divInputRBE").show()
+                        $("#helpallga").hide()
+                        $("#divNode-input-initialread").show()
+                    }
+
+                    // *****************************
+
+                    setTimeout(() => {
+                        if (node.listenallga === true) {
+                            // Call a fake datapoint to load a sample "Universal Node"
+                            knxUltimateDptsGetHelp("0.000", true); // 15/09/2020 Supergiovane, load sample help
+                        }
+                    }, 300);
+
+                }
             }
 
             // 02/04/2020 Alert user about data type
             // ###########################
-            $("#node-input-dpt").on("change", function () {
-
+            $("#node-input-dpt").on("change", function (event) {
                 // Load help sample
-                knxUltimateDptsGetHelp($(this).val(), false);
-
+                knxUltimateDptsGetHelp(event.target.value, false);
             });
             // ###########################
 
@@ -119,164 +281,9 @@
             // 19/02/2020 Used to alert the user if the CSV file has not been loaded and to get the server sooner als deploy
             // ###########################
             $("#node-input-server").change(function () {
-                try {
-                    oNodeServer = RED.nodes.node($(this).val());
-                    if (typeof oNodeServer.csv !== "undefined" && oNodeServer.csv !== "") {
-                        $("#isETSFileLoaded").val("si");
-                    } else {
-                        $("#isETSFileLoaded").val("no");
-                    }
-                } catch (error) {
-                    $("#isETSFileLoaded").val("no");
-                }
+                checkUI();
             });
             // ###########################
-
-
-            $.getJSON("knxUltimateDpts?serverId=" + $("#node-input-server").val(), (data) => {
-                data.forEach(dpt => {
-                    $("#node-input-dpt").append($("<option></option>")
-                        .attr("value", dpt.value)
-                        .text(dpt.text))
-                });
-                $("#node-input-dpt").val(this.dpt);
-                // Load help sample
-                knxUltimateDptsGetHelp(this.dpt, true);
-            })
-
-            // Add write and response as default for existing nodes like was default before
-            if (typeof this.notifywrite === 'undefined') {
-                this.notifywrite = true
-                this.notifyresponse = true
-                $("#node-input-notifywrite").prop("checked", true)
-                $("#node-input-notifyresponse").prop("checked", true)
-            }
-
-            // Add Write as default for existing clients output
-            if (typeof this.outputtype === 'undefined') {
-                this.outputtype = "write"
-                $("#node-input-outputtype").val("write")
-            }
-
-            $("#node-input-notifyreadrequest").on('change', function () {
-                if ($("#node-input-notifyreadrequest").is(":checked")) {
-                    if ($("#node-input-listenallga").is(":checked")) {
-                    } else {
-                        $("#divnotifyreadrequestautoreact").show();
-                    }
-                } else {
-                    $("#divnotifyreadrequestautoreact").hide();
-                }
-            })
-
-            $("#node-input-listenallga").on('change', function () {
-                if ($("#node-input-listenallga").is(":checked")) {
-                    $("#GAandDPT").hide()
-                    $("#divOutputRBE").hide()
-                    $("#node-input-outputRBE").prop('checked', false)
-                    $("#divInputRBE").hide()
-                    $("#node-input-inputRBE").prop('checked', false)
-                    $("#divnotifyreadrequestautoreact").hide();
-                    $("#helpallga").show();
-                    $("#divTopic").hide()
-
-                    // Call a fake datapoint to load a sample "Universal Node"
-                    knxUltimateDptsGetHelp("0.000", true); // 15/09/2020 Supergiovane, load sample help
-
-                    if ($("#helpallga").html == "") {
-                        // There is a ETS csv file, show the init read option
-                        $("#divNode-input-initialread").show()
-                    } else {
-                        // There isn't a ETS csv file, hide and deselect the init read option
-                        $("#divNode-input-initialread").hide();
-                        $("#node-input-initialread").val(0);
-                    }
-                } else {
-
-                    // 15/09/2020 Supergiovane, load the help sample of the current datapoint
-                    knxUltimateDptsGetHelp($("#node-input-dpt").val(), false); // 15/09/2020 Supergiovane, load sample help
-
-                    $("#GAandDPT").show()
-                    $("#divOutputRBE").show()
-                    $("#divInputRBE").show()
-                    $("#divTopic").show()
-                    if ($("#node-input-notifyreadrequest").is(":checked")) {
-                        $("#divnotifyreadrequestautoreact").show();
-                    } else {
-                        $("#divnotifyreadrequestautoreact").hide();
-                    }
-                    $("#helpallga").hide()
-                    $("#divNode-input-initialread").show();
-                }
-            })
-
-            // Autocomplete suggestion with ETS csv File
-            $("#node-input-topic").autocomplete({
-                minLength: 1,
-                source: function (request, response) {
-                    $.getJSON("knxUltimatecsv?nodeID=" + oNodeServer.id, (data) => {
-                        response($.map(data, function (value, key) {
-                            var sSearch = (value.ga + " (" + value.devicename + ") DPT" + value.dpt);
-                            if (fullSearch(sSearch, request.term)) {
-                                return {
-                                    label: value.ga + " # " + value.devicename + " # " + value.dpt, // Label for Display
-                                    value: value.ga // Value
-                                }
-                            } else {
-                                return null;
-                            }
-                        }));
-                    });
-                }, select: function (event, ui) {
-                    // Sets Datapoint and device name automatically
-                    var sDevName = ui.item.label.split("#")[1].trim();
-                    try {
-                        sDevName = sDevName.substr(sDevName.indexOf(")") + 1).trim();
-                    } catch (error) {
-                    }
-                    $('#node-input-name').val(sDevName);
-                    var optVal = $("#node-input-dpt option:contains('" + ui.item.label.split("#")[2].trim() + "')").attr('value');
-                    // Select the option value 
-                    $("#node-input-dpt").val(optVal);
-                    $("#node-input-dpt").trigger("change");
-                }
-            });
-
-            // Hide or show the GA and DPT fields if Notify on all Group Addresses is checked
-            if (this.server) {
-                if (typeof RED.nodes.node(this.server).csv !== 'undefined' && RED.nodes.node(this.server).csv != "") {
-                    $("#helpallga").html("");
-                    // There is a ETS csv file, show the init read option
-                    $("#divNode-input-initialread").show()
-                } else {
-                    // 25/10/2019 Warn user that the node will node encode/decode datagram, if Listen All GA's if the config node doesn't contain the csv
-                    $("#helpallga").html("<i> " + node._("knxUltimate.advanced.noETSWarning") + " </i>");
-                    if ($("#node-input-listenallga").is(":checked")) {
-                        // There isn't a ETS csv file, hide and deselect the init read option
-                        $("#divNode-input-initialread").hide();
-                        $("#node-input-initialread").val(0);
-                    } else {
-                        $("#divNode-input-initialread").show()
-                    }
-                }
-            } else {
-                $("#node-input-listenallga").prop("checked", false)
-                $("#divTopic").show()
-                $("#GAandDPT").show()
-                $("#divOutputRBE").show()
-                $("#divInputRBE").show()
-                $("#helpallga").hide()
-                $("#divNode-input-initialread").show()
-            }
-
-            // *****************************
-
-            setTimeout(() => {
-                if (this.listenallga === true) {
-                    // Call a fake datapoint to load a sample "Universal Node"
-                    knxUltimateDptsGetHelp("0.000", true); // 15/09/2020 Supergiovane, load sample help
-                }
-            }, 300);
 
         },
         oneditsave: function () {
@@ -311,6 +318,7 @@
             // 15/09/2020 Supergiovane, Detele the sample help editor
             try {
                 node.sampleEditor.destroy();
+                RED.editor.destroy(); // 23/01/2024 added
                 delete node.sampleEditor;
             } catch (error) { }
 
@@ -319,6 +327,7 @@
             // 15/09/2020 Supergiovane, Detele the sample help editor
             try {
                 node.sampleEditor.destroy();
+                RED.editor.destroy(); // 23/01/2024 added
                 delete node.sampleEditor;
             } catch (error) { }
         }

@@ -19,9 +19,8 @@ exports.formatAPDU = function (value) {
     const economy = dpt9.formatAPDU(value.economy);
     const buildingProtection = dpt9.formatAPDU(value.buildingProtection);
     return Buffer.concat([comfort, standby, economy, buildingProtection]);
-  } else {
-    knxLog.get().error('DPT275.formatAPDU: Must supply all values, for example {comfort:22, standby:21.5, economy:21, buildingProtection:15}');
   }
+  knxLog.get().error('DPT275.formatAPDU: Must supply all values, for example {comfort:22, standby:21.5, economy:21, buildingProtection:15}');
 }
 
 exports.fromBuffer = function (buf) {
@@ -34,8 +33,7 @@ exports.fromBuffer = function (buf) {
   const standby = dpt9.fromBuffer(buf.slice(2, 4));
   const economy = dpt9.fromBuffer(buf.slice(4, 6));
   const buildingProtection = dpt9.fromBuffer(buf.slice(6, 8));
-  return { comfort: comfort, standby: standby, economy: economy, buildingProtection: buildingProtection }
-}
+  return { comfort: comfort, standby: standby, economy: economy, buildingProtection: buildingProtection };
 }
 
 // DPT275 basetype info
@@ -46,13 +44,12 @@ exports.basetype = {
   help:
     `// Send comfort, standby, economy mode and buildingProtection temperatures, as n.4 DPT9.001.
   msg.payload = {comfort:22, standby:21.5, economy:21, buildingProtection:15};
-  return msg;`
+  return msg;`,
 }
 
 // DPT9 subtypes
 exports.subtypes = {
-  // 9.001 temperature (oC)
-  '100': {
+  100: {
     name: 'Quadruple setpoints (comfort,standby,economy,buildingProtection) (4 float with 16 Bit)',
     desc: 'DPT_TempRoomSetpSetF16[4]',
     unit: '°C',

@@ -148,7 +148,7 @@
             // DPT Switch command
             // ########################
             $(_destinationWidget).empty();
-            $.getJSON("knxUltimateDpts?serverId=" + $("#node-input-server").val(), (data) => {
+            $.getJSON("knxUltimateDpts?serverId=" + $("#node-input-server").val() + "&" + { _: new Date().getTime() }, (data) => {
               data.forEach((dpt) => {
                 if (dpt.value.startsWith(_dpt)) {
                   // Adjustment for HUE Temperature
@@ -177,7 +177,7 @@
               minLength: 1,
               source: function (request, response) {
                 //$.getJSON("csv", request, function( data, status, xhr ) {
-                $.getJSON("knxUltimatecsv?nodeID=" + $("#node-input-server").val(), (data) => {
+                $.getJSON("knxUltimatecsv?nodeID=" + $("#node-input-server").val() + "&" + { _: new Date().getTime() }, (data) => {
                   response(
                     $.map(data, function (value, key) {
                       var sSearch = value.ga + " (" + value.devicename + ") DPT" + value.dpt;
@@ -462,7 +462,7 @@
             let sQuery;
             if ($("#node-input-specifySwitchOnBrightness").val() === "yes") sQuery = "knxUltimateGetHueColor";
             if ($("#node-input-specifySwitchOnBrightness").val() === "temperature") sQuery = "knxUltimateGetKelvinColor";
-            $.getJSON(sQuery + "?id=" + $("#node-input-hueDevice").val().split("#")[0] + "&serverId=" + $("#node-input-serverHue").val(), (data) => {
+            $.getJSON(sQuery + "?id=" + $("#node-input-hueDevice").val().split("#")[0] + "&serverId=" + $("#node-input-serverHue").val() + "&" + { _: new Date().getTime() }, (data) => {
               $("#node-input-colorAtSwitchOnDayTime").val(data);
               $("#colorPickerDay").val(data);
               blinkBackground("#colorPickerDay")
@@ -476,7 +476,7 @@
             let sQuery;
             if ($("#node-input-enableDayNightLighting").val() === "yes") sQuery = "knxUltimateGetHueColor";
             if ($("#node-input-enableDayNightLighting").val() === "temperature") sQuery = "knxUltimateGetKelvinColor";
-            $.getJSON(sQuery + "?id=" + $("#node-input-hueDevice").val().split("#")[0], (data) => {
+            $.getJSON(sQuery + "?id=" + $("#node-input-hueDevice").val().split("#")[0] + "&" + { _: new Date().getTime() }, (data) => {
               $("#node-input-colorAtSwitchOnNightTime").val(data);
               $("#colorPickerNight").val(data);
               blinkBackground("#colorPickerNight")
@@ -703,7 +703,7 @@
             }
             // Check wether the HUE node has is connected and the devices have already been read.
             // ##########################################################
-            $.getJSON("knxultimateCheckHueConnected?serverId=" + $("#node-input-serverHue").val(), new Date().getTime(), (data) => {
+            $.getJSON("knxultimateCheckHueConnected?serverId=" + $("#node-input-serverHue").val() + "&" + { _: new Date().getTime() }, (data) => {
               if (data.ready === true) {
                 Go();
               } else {
