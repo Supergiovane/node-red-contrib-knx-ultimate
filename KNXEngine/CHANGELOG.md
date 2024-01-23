@@ -7,7 +7,11 @@
 # CHANGELOG
 
 <p>
-<b>Version 1.0.43</b> - December 2023<br/>
+<b>Version 1.0.45</b> - January 2024<br/>
+- NEW: added DPT 275.100.<br/>
+</p>
+<p>
+<b>Version 1.0.44</b> - December 2023<br/>
 - Fixed DPT 9.001 issue when sending numberso having > 2 decimals.<br/>
 </p>
 <p>
