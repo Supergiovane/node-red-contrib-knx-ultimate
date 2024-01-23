@@ -1545,7 +1545,7 @@ module.exports = (RED) => {
               " NodeID " +
               _oNode.id || "",
             );
-            errorMessage.payload = "UNKNOWN: ERROR dptlib.fromBuffer:" + error.message;
+            errorMessage.payload = "UNKNOWN: ERROR dptlib.fromBuffer:" + error.stack;
             return errorMessage;
           }
         }
