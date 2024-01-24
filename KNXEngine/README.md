@@ -161,16 +161,24 @@ knxUltimateClient.on(knx.KNXClient.KNXClientEvents.indication, function (_datagr
     let _dst = _datagram.cEMIMessage.dstAddress.toString()
     // Get the RAW Value
     let _Rawvalue = _datagram.cEMIMessage.npdu.dataValue;
-    
+
     // Decode the telegram. 
     if (_dst === "0/1/1") {
-        // We know that 0/1/1 is a boolean DPT 1.001
+        // We know, for example, that 0/1/1 is a boolean DPT 1.001
         dpt = dptlib.resolve("1.001");
         jsValue = dptlib.fromBuffer(_Rawvalue, dpt)
     } else if (_dst === "0/1/2") {
-        // We know that 0/1/2 is a boolean DPT 232.600 Color RGB
+        // We know , for example, that 0/1/2 is a DPT 232.600 Color RGB
         dpt = dptlib.resolve("232.600");
         jsValue = dptlib.fromBuffer(_Rawvalue, dpt)
+    } else {
+        // All others... assume they are boolean
+        dpt = dptlib.resolve("1.001");
+        jsValue = dptlib.fromBuffer(_Rawvalue, dpt)
+        if (jsValue === null) {
+            // Opppsss, it's null. It means that the datapoint isn't 1.001
+            // Raise whatever error you want.
+        }
     }
     console.log("src: " + _src + " dest: " + _dst, " event: " + _evt, " value: " + jsValue);
 
@@ -184,6 +192,10 @@ knxUltimateClient.on(knx.KNXClient.KNXClientEvents.connected, info => {
 });
 
 // Connect
+try {
+    knxUltimateClient.removeAllListeners();
+} catch (error) {
+}
 knxUltimateClient.Connect();
 ```
 
@@ -280,8 +292,18 @@ let knxUltimateClientProperties = {
     KNXEthInterface: "Auto", // Bind to the first avaiable local interfavce. "Manual" if you wish to specify the interface (for example eth1); in this case, set the property interface to the interface name (interface:"eth1")
 };
 
+var knxUltimateClient;
+
+// If you're reinstantiating a new knxUltimateClient object, you must remove all listeners.
+// If this is the first time you instantiate tne knxUltimateClient object, this part of code throws an error into the try...catch.
+try {
+    if (knxUltimateClient !== null) knxUltimateClient.removeAllListeners();
+} catch (error) {
+    // New connection, do nothing.
+}
+
 // Let's go
-var knxUltimateClient = new knx.KNXClient(knxUltimateClientProperties);
+knxUltimateClient = new knx.KNXClient(knxUltimateClientProperties);
 
 // Setting handlers
 // ######################################
@@ -368,6 +390,15 @@ function handleBusEvents(_datagram, _echoed) {
         // We know that 0/1/2 is a boolean DPT 232.600 Color RGB
         dpt = dptlib.resolve("232.600");
         jsValue = dptlib.fromBuffer(_Rawvalue, dpt)
+    } else {
+        // All others... assume they are boolean
+        dpt = dptlib.resolve("1.001");
+        jsValue = dptlib.fromBuffer(_Rawvalue, dpt)
+        if (jsValue === null) {
+            // Is null, try if it's a numerical value
+            dpt = dptlib.resolve("5.001");
+            jsValue = dptlib.fromBuffer(_Rawvalue, dpt)
+        }
     }
     console.log("src: " + _src + " dest: " + _dst, " event: " + _evt, " value: " + jsValue);
 
