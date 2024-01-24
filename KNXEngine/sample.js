@@ -84,9 +84,18 @@ let knxUltimateClientProperties = {
     KNXEthInterface: "Auto", // Bind to the first avaiable local interfavce. "Manual" if you wish to specify the interface (for example eth1); in this case, set the property interface to the interface name (interface:"eth1")
 };
 
+var knxUltimateClient;
+
+// If you're reinstantiating a new knxUltimateClient object, you must remove all listeners.
+// If this is the first time you instantiate tne knxUltimateClient object, this part of code throws an error into the try...catch.
+try {
+    if (knxUltimateClient !== null) knxUltimateClient.removeAllListeners();
+} catch (error) {
+    // New connection, do nothing.
+}
 
 // Let's go
-var knxUltimateClient = new knx.KNXClient(knxUltimateClientProperties);
+knxUltimateClient = new knx.KNXClient(knxUltimateClientProperties);
 
 // Setting handlers
 // ######################################

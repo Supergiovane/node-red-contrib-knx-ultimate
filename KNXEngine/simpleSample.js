@@ -40,11 +40,11 @@ knxUltimateClient.on(knx.KNXClient.KNXClientEvents.indication, function (_datagr
 
     // Decode the telegram. 
     if (_dst === "0/1/1") {
-        // We know that 0/1/1 is a boolean DPT 1.001
+        // We know, for example, that 0/1/1 is a boolean DPT 1.001
         dpt = dptlib.resolve("1.001");
         jsValue = dptlib.fromBuffer(_Rawvalue, dpt)
     } else if (_dst === "0/1/2") {
-        // We know that 0/1/2 is a boolean DPT 232.600 Color RGB
+        // We know , for example, that 0/1/2 is a DPT 232.600 Color RGB
         dpt = dptlib.resolve("232.600");
         jsValue = dptlib.fromBuffer(_Rawvalue, dpt)
     } else {
@@ -52,9 +52,8 @@ knxUltimateClient.on(knx.KNXClient.KNXClientEvents.indication, function (_datagr
         dpt = dptlib.resolve("1.001");
         jsValue = dptlib.fromBuffer(_Rawvalue, dpt)
         if (jsValue === null) {
-            // Is null, try if it's a numerical value
-            dpt = dptlib.resolve("5.001");
-            jsValue = dptlib.fromBuffer(_Rawvalue, dpt)
+            // Opppsss, it's null. It means that the datapoint isn't 1.001
+            // Raise whatever error you want.
         }
     }
     console.log("src: " + _src + " dest: " + _dst, " event: " + _evt, " value: " + jsValue);
@@ -69,5 +68,9 @@ knxUltimateClient.on(knx.KNXClient.KNXClientEvents.connected, info => {
 });
 
 // Connect
+try {
+    knxUltimateClient.removeAllListeners();
+} catch (error) {
+}
 knxUltimateClient.Connect();
 
