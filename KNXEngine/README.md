@@ -421,7 +421,6 @@ Loading, decrypting and validating Keyring file has been done.<br/>
 I'm working on the first secure handshake now.<br/>
 
 ```javascript
-
 const knx = require("./index.js");
 const KNXsecureKeyring = require("./src/KNXsecureKeyring.js");
 const dptlib = require('./src/dptlib');
