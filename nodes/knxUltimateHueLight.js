@@ -202,10 +202,10 @@ module.exports = function (RED) {
                   if (colorChoosen !== undefined) {
                     // Now we have a jColorChoosen. Proceed illuminating the light
                     let gamut = null;
-                    if (node.currentHUEDevice.color.gamut_type !== undefined) {
-                      gamut = node.currentHUEDevice.color.gamut_type;
+                    if (node.currentHUEDevice.color.gamut !== undefined) {
+                      gamut = node.currentHUEDevice.color.gamut;
                     }
-                    const dretXY = hueColorConverter.ColorConverter.rgbToXy(colorChoosen.red, colorChoosen.green, colorChoosen.blue, gamut);
+                    const dretXY = hueColorConverter.ColorConverter.calculateXYFromRGB(colorChoosen.red, colorChoosen.green, colorChoosen.blue, gamut);
                     const dbright = hueColorConverter.ColorConverter.getBrightnessFromRGBOrHex(colorChoosen.red, colorChoosen.green, colorChoosen.blue);
                     node.currentHUEDevice.dimming.brightness = Math.round(dbright, 0);
                     node.updateKNXBrightnessState(node.currentHUEDevice.dimming.brightness);
@@ -355,11 +355,11 @@ module.exports = function (RED) {
               if (
                 node.currentHUEDevice !== undefined
                 && node.currentHUEDevice.color !== undefined
-                && node.currentHUEDevice.color.gamut_type !== undefined
+                && node.currentHUEDevice.color.gamut !== undefined
               ) {
-                gamut = node.currentHUEDevice.color.gamut_type;
+                gamut = node.currentHUEDevice.color.gamut;
               }
-              const retXY = hueColorConverter.ColorConverter.rgbToXy(msg.payload.red, msg.payload.green, msg.payload.blue, gamut);
+              const retXY = hueColorConverter.ColorConverter.calculateXYFromRGB(msg.payload.red, msg.payload.green, msg.payload.blue, gamut);
               const bright = hueColorConverter.ColorConverter.getBrightnessFromRGBOrHex(msg.payload.red, msg.payload.green, msg.payload.blue);
               // state = bright > 0 ? { on: { on: true }, dimming: { brightness: bright }, color: { xy: retXY } } : { on: { on: false } }
               state = { dimming: { brightness: bright }, color: { xy: retXY } };
@@ -422,11 +422,11 @@ module.exports = function (RED) {
                       if (
                         node.currentHUEDevice !== undefined
                         && node.currentHUEDevice.color !== undefined
-                        && node.currentHUEDevice.color.gamut_type !== undefined
+                        && node.currentHUEDevice.color.gamut !== undefined
                       ) {
-                        gamut = node.currentHUEDevice.color.gamut_type;
+                        gamut = node.currentHUEDevice.color.gamut;
                       }
-                      const retXY = hueColorConverter.ColorConverter.rgbToXy(red, green, blue, gamut);
+                      const retXY = hueColorConverter.ColorConverter.calculateXYFromRGB(red, green, blue, gamut);
                       const bright = hueColorConverter.ColorConverter.getBrightnessFromRGBOrHex(red, green, blue);
                       state = bright > 0 ? { on: { on: true }, dimming: { brightness: bright }, color: { xy: retXY } } : { on: { on: false } };
                       node.serverHue.hueManager.writeHueQueueAdd(node.hueDevice, state, node.isGrouped_light === false ? "setLight" : "setGroupedLight");

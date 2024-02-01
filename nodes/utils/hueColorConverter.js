@@ -1,4 +1,6 @@
 // Part of this code, thanks to https://github.com/Shnoo/js-CIE-1931-rgb-color-converter
+const XYFromRGB = require("./colorManipulators/XYFromRGB_Supergiovane"); // Pick the specific hue color converter
+
 class ColorConverter {
   // static getBrightnessFromRGBOrHex(red, green, blue) {
   //   const hsv = convert.rgb.hsv(red, green, blue);
@@ -6,16 +8,14 @@ class ColorConverter {
   //   return brightness;
   // }
 
-
   static getBrightnessFromRGBOrHex(Rint, Gint, Bint) { // takes sRGB channels as 8 bit integers
+    const Rlin = (Rint / 255.0) ** 2.218; // Convert int to decimal 0-1 and linearize
+    const Glin = (Gint / 255.0) ** 2.218; // ** is the exponentiation operator, older JS needs Math.pow() instead
+    const Blin = (Bint / 255.0) ** 2.218; // 2.218 Gamma for sRGB linearization. 2.218 sets unity with the piecewise sRGB at #777 .... 2.2 or 2.223 could be used instead
 
-    var Rlin = (Rint / 255.0) ** 2.218;   // Convert int to decimal 0-1 and linearize
-    var Glin = (Gint / 255.0) ** 2.218;   // ** is the exponentiation operator, older JS needs Math.pow() instead
-    var Blin = (Bint / 255.0) ** 2.218;   // 2.218 Gamma for sRGB linearization. 2.218 sets unity with the piecewise sRGB at #777 .... 2.2 or 2.223 could be used instead
+    const Ylum = Rlin * 0.2126 + Glin * 0.7156 + Blin * 0.0722; // convert to Luminance Y
 
-    var Ylum = Rlin * 0.2126 + Glin * 0.7156 + Blin * 0.0722;   // convert to Luminance Y
-
-    return Math.pow(Ylum, 0.43) * 100;  // Convert to lightness (0 to 100)
+    return Ylum ** 0.43 * 100; // Convert to lightness (0 to 100)
   }
 
   static convert_1_255_ToPercentage(number) {
@@ -37,7 +37,9 @@ class ColorConverter {
     const [yMin, yMax] = range1;
     const percent = (y - yMin) / (yMax - yMin);
     const ans = percent * (xMax - xMin) + xMin;
-    return Math.round(ans);
+    //const roundedVal = Math.round((ans + Number.EPSILON) * 10000) / 10000;// Round by 4 decimals
+    const roundedVal = ans;
+    return roundedVal;
   }
 
   // Thanks to: https://github.com/sindresorhus/rgb-hex
@@ -53,10 +55,10 @@ class ColorConverter {
         value = value.trim();
 
         if (value.endsWith('%')) {
-          return Math.min(Number.parseFloat(value) * max / 100, max);
+          return Math.min(Number.parselet(value) * max / 100, max);
         }
 
-        return Math.min(Number.parseFloat(value), max);
+        return Math.min(Number.parselet(value), max);
       };
 
       const red = parseValue(parts[0], 255);
@@ -82,7 +84,7 @@ class ColorConverter {
       isPercent = false;
       [red, green, blue, alpha] = parsed;
     } else if (alpha !== undefined) {
-      alpha = Number.parseFloat(alpha);
+      alpha = Number.parselet(alpha);
     }
 
     if (typeof red !== 'number'
@@ -161,250 +163,326 @@ class ColorConverter {
     };
   }
 
-  static getGamutRanges() {
-    const gamutA = {
-      red: [0.704, 0.296],
-      green: [0.2151, 0.7106],
-      blue: [0.138, 0.08],
-    };
-
-    const gamutB = {
-      red: [0.675, 0.322],
-      green: [0.409, 0.518],
-      blue: [0.167, 0.04],
-    };
-
-    const gamutC = {
-      red: [0.692, 0.308],
-      green: [0.17, 0.7],
-      blue: [0.153, 0.048],
-    };
-
-    const defaultGamut = {
-      red: [1.0, 0],
-      green: [0.0, 1.0],
-      blue: [0.0, 0.0],
-    };
-
-    return {
-      gamutA, gamutB, gamutC, default: defaultGamut,
-    };
+  /**
+   * Checked 01/02/2024
+   * PERFETTO 
+  * Calculate XY color points for a given RGB value.
+  * @param {number} red RGB red value (0-255)
+  * @param {number} green RGB green value (0-255)
+  * @param {number} blue RGB blue value (0-255)
+  * @param {object} lampGamut Hue bulb gamut range (the lamp provides a gamut object red:{x:1,y:1}, etc)
+  * @returns {number[]}
+  */
+  static calculateXYFromRGB(red, green, blue, lampGamut) {
+    return XYFromRGB.calculateXYFromRGB(red, green, blue, lampGamut);
   }
 
-  static getLightColorGamutRange(modelId = null) {
-    const ranges = ColorConverter.getGamutRanges();
-    const { gamutA } = ranges;
-    const { gamutB } = ranges;
-    const { gamutC } = ranges;
-
-    const philipsModels = {
-      LST001: gamutA,
-      LLC010: gamutA,
-      LLC011: gamutA,
-      LLC012: gamutA,
-      LLC006: gamutA,
-      LLC005: gamutA,
-      LLC007: gamutA,
-      LLC014: gamutA,
-      LLC013: gamutA,
-
-      LCT001: gamutB,
-      LCT007: gamutB,
-      LCT002: gamutB,
-      LCT003: gamutB,
-      LLM001: gamutB,
-
-      LCT010: gamutC,
-      LCT014: gamutC,
-      LCT015: gamutC,
-      LCT016: gamutC,
-      LCT011: gamutC,
-      LLC020: gamutC,
-      LST002: gamutC,
-      LCT012: gamutC,
-    };
-
-    if (philipsModels[modelId]) {
-      return philipsModels[modelId];
-    }
-
-    return ranges.default;
-  }
-
-  static rgbToXy(red, green, blue, modelId = null) {
-    function getGammaCorrectedValue(value) {
-      return (value > 0.04045) ? ((value + 0.055) / (1.0 + 0.055)) ** 2.4 : (value / 12.92);
-    }
-
-    const colorGamut = ColorConverter.getLightColorGamutRange(modelId);
-
-    red = parseFloat(red / 255);
-    green = parseFloat(green / 255);
-    blue = parseFloat(blue / 255);
-
-    red = getGammaCorrectedValue(red);
-    green = getGammaCorrectedValue(green);
-    blue = getGammaCorrectedValue(blue);
-
-    const x = red * 0.649926 + green * 0.103455 + blue * 0.197109;
-    const y = red * 0.234327 + green * 0.743075 + blue * 0.022598;
-    const z = red * 0.0000000 + green * 0.053077 + blue * 1.035763;
-
-    let xy = {
-      x: x / (x + y + z),
-      y: y / (x + y + z),
-    };
-
-    if (!ColorConverter.xyIsInGamutRange(xy, colorGamut)) {
-      xy = ColorConverter.getClosestColor(xy, colorGamut);
-    }
-
-    return xy;
-  }
-
-  static xyIsInGamutRange(xy, gamut) {
-    gamut = gamut || ColorConverter.getGamutRanges().gamutC;
-    if (Array.isArray(xy)) {
-      xy = {
-        x: xy[0],
-        y: xy[1],
-      };
-    }
-
-    const v0 = [gamut.blue[0] - gamut.red[0], gamut.blue[1] - gamut.red[1]];
-    const v1 = [gamut.green[0] - gamut.red[0], gamut.green[1] - gamut.red[1]];
-    const v2 = [xy.x - gamut.red[0], xy.y - gamut.red[1]];
-
-    const dot00 = (v0[0] * v0[0]) + (v0[1] * v0[1]);
-    const dot01 = (v0[0] * v1[0]) + (v0[1] * v1[1]);
-    const dot02 = (v0[0] * v2[0]) + (v0[1] * v2[1]);
-    const dot11 = (v1[0] * v1[0]) + (v1[1] * v1[1]);
-    const dot12 = (v1[0] * v2[0]) + (v1[1] * v2[1]);
-
-    const invDenom = 1 / (dot00 * dot11 - dot01 * dot01);
-
-    const u = (dot11 * dot02 - dot01 * dot12) * invDenom;
-    const v = (dot00 * dot12 - dot01 * dot02) * invDenom;
-
-    return ((u >= 0) && (v >= 0) && (u + v < 1));
-  }
-
-  static getClosestColor(xy, gamut) {
-    function getLineDistance(pointA, pointB) {
-      return Math.hypot(pointB.x - pointA.x, pointB.y - pointA.y);
-    }
-
-    function getClosestPoint(xy, pointA, pointB) {
-      const xy2a = [xy.x - pointA.x, xy.y - pointA.y];
-      const a2b = [pointB.x - pointA.x, pointB.y - pointA.y];
-      const a2bSqr = a2b[0] ** 2 + a2b[1] ** 2;
-      const xy2a_dot_a2b = xy2a[0] * a2b[0] + xy2a[1] * a2b[1];
-      const t = xy2a_dot_a2b / a2bSqr;
-
-      return {
-        x: pointA.x + a2b[0] * t,
-        y: pointA.y + a2b[1] * t,
-      };
-    }
-
-    const greenBlue = {
-      a: {
-        x: gamut.green[0],
-        y: gamut.green[1],
-      },
-      b: {
-        x: gamut.blue[0],
-        y: gamut.blue[1],
-      },
-    };
-
-    const greenRed = {
-      a: {
-        x: gamut.green[0],
-        y: gamut.green[1],
-      },
-      b: {
-        x: gamut.red[0],
-        y: gamut.red[1],
-      },
-    };
-
-    const blueRed = {
-      a: {
-        x: gamut.red[0],
-        y: gamut.red[1],
-      },
-      b: {
-        x: gamut.blue[0],
-        y: gamut.blue[1],
-      },
-    };
-
-    const closestColorPoints = {
-      greenBlue: getClosestPoint(xy, greenBlue.a, greenBlue.b),
-      greenRed: getClosestPoint(xy, greenRed.a, greenRed.b),
-      blueRed: getClosestPoint(xy, blueRed.a, blueRed.b),
-    };
-
-    const distance = {
-      greenBlue: getLineDistance(xy, closestColorPoints.greenBlue),
-      greenRed: getLineDistance(xy, closestColorPoints.greenRed),
-      blueRed: getLineDistance(xy, closestColorPoints.blueRed),
-    };
-
-    let closestDistance;
-    let closestColor;
-    for (const i in distance) {
-      if (distance.hasOwnProperty(i)) {
-        if (!closestDistance) {
-          closestDistance = distance[i];
-          closestColor = i;
-        }
-
-        if (closestDistance > distance[i]) {
-          closestDistance = distance[i];
-          closestColor = i;
-        }
+  /**
+   * Converts an XY + brightness color value to RGB. Conversion formula
+   * Checked 01/02/2024
+   * QUASI PERFETTO !!! Preso da qui: 
+   * adapted from http://en.wikipedia.org/wiki/HSV_color_space.
+   * Assumes x, and y are contained in the set [0, 1] and bri [0,1]
+   * returns a Json with r,g,b
+   *
+   * @param   Number  x       The x [0,1]
+   * @param   Number  y       The y [0,1]
+   * @param   Number  bri     The brightness [0,1]
+   * @return  json           The r,g,b [0,255]
+   */
+  static xyBriToRgb(x, y, bri, colorGamut) {
+    if (colorGamut !== null && colorGamut !== undefined) {
+      if (!xyIsInGamutRange({ x, y }, colorGamut)) {
+        const xy = getClosestColor({ x, y }, colorGamut);
+        x = xy.x;
+        y = xy.y;
       }
     }
-    return closestColorPoints[closestColor];
-  }
-
-  static xyBriToRgb(x, y, bri) {
     function getReversedGammaCorrectedValue(value) {
-      return value <= 0.0031308 ? 12.92 * value : (1.0 + 0.055) * value ** (1.0 / 2.4) - 0.055;
+      return Math.abs(value) <= 0.0031308 ? 12.92 * value : (1.0 + 0.055) * Math.pow(value, (1.0 / 2.4)) - 0.055;
     }
 
-    const z = 1.0 - x - y;
-    const Y = bri / 255;
-    const X = (Y / y) * x;
-    const Z = (Y / y) * z;
-    let r = X * 1.656492 - Y * 0.354851 - Z * 0.255038;
-    let g = -X * 0.707196 + Y * 1.655397 + Z * 0.036152;
-    let b = X * 0.051713 - Y * 0.121364 + Z * 1.011530;
+    // To make RGB more similar to what ISE Connect HUE does, think to add here the row: bri = bri / 4.5
+    let z = 1.0 - x - y;
+    //let Y = bri / 4.5;
+    let Y = Math.min(x, y) * bri;
+    let X = (Y / y) * x;
+    let Z = (Y / y) * z;
 
-    r = getReversedGammaCorrectedValue(r);
-    g = getReversedGammaCorrectedValue(g);
-    b = getReversedGammaCorrectedValue(b);
+    // let r = 3.2404542 * X - 1.5371385 * Y - 0.4985314 * Z
+    // let g = -0.9692660 * X + 1.8760108 * Y + 0.0415560 * Z
+    // let b = 0.0556434 * X - 0.2040259 * Y + 1.0572252 * Z
 
-    // Bring all negative components to zero
-    r = Math.max(r, 0);
-    g = Math.max(g, 0);
-    b = Math.max(b, 0);
+    let r = X * 1.656492 + Y * -0.354851 + Z * -0.255038;
+    let g = X * -0.707196 + Y * 1.655397 + Z * 0.036152;
+    let b = X * 0.051713 + Y * -0.121364 + Z * 1.011530;
 
-    // If one component is greater than 1, weight components by that value
-    const max = Math.max(r, g, b);
-    if (max > 1) {
+    // Correction for negative values is missing from Philips' documentation.
+    let min = Math.min(r, Math.min(g, b));
+    if (min < 0.0) {
+      r -= min;
+      g -= min;
+      b -= min;
+    }
+
+    // Rescale
+    let max = Math.max(r, Math.max(g, b));
+    if (max > 1.0) {
       r /= max;
       g /= max;
       b /= max;
     }
 
+    r = getReversedGammaCorrectedValue(r);
+    g = getReversedGammaCorrectedValue(g);
+    b = getReversedGammaCorrectedValue(b);
+
+    // Rescale again
+    max = Math.max(r, Math.max(g, b));
+    if (max > 1.0) {
+      r /= max;
+      g /= max;
+      b /= max;
+    }
+
+    // // Bring all negative components to zero
+    // r = Math.max(r, 0);
+    // g = Math.max(g, 0);
+    // b = Math.max(b, 0);
+
+    // // If one component is greater than 1, weight components by that value
+    // let max = Math.max(r, g, b);
+    // if (max > 1) {
+    //   r = r / max;
+    //   g = g / max;
+    //   b = b / max;
+    // }
+
     return {
-      r: Math.floor(r * 255),
-      g: Math.floor(g * 255),
-      b: Math.floor(b * 255),
+      r: Math.floor(r * 255.0),
+      g: Math.floor(g * 255.0),
+      b: Math.floor(b * 255.0),
     };
+  }
+
+  /**
+   * Converts an RGB color value to HSV. Conversion formula  
+   * Checked 31/01/2024  
+   * PERFETTO !!!!!!  
+   * adapted from http://en.wikipedia.org/wiki/HSV_color_space.  
+   * Assumes r, g, and b are contained in the set [0, 255] and  
+   * returns the HSV representation {hPercent:0-100%, hGrad:0-360°, s:0-100%, v(brightness):0-100%}
+   *
+   * @param   Number  r       The red color value
+   * @param   Number  g       The green color value
+   * @param   Number  b       The blue color value
+   * @return  Object          The HSV representation {hPercent:0-100%, hGrad:0-360°, s:0-100%, v(brightness):0-100%}
+   */
+  static rgbToHsv(r, g, b) {
+    // Sample
+    // ISE comando RGB: 182,0,20 HSV: 353°, 100%, 71% (HSV è stato calcolato da ETS automaticamente)
+    // Questa funzione restituisce l'HSV preciso.
+
+    r /= 255, g /= 255, b /= 255;
+
+    const max = Math.max(r, g, b); const
+      min = Math.min(r, g, b);
+    let h;
+    let s;
+    const v = max;
+
+    const d = max - min;
+    s = max === 0 ? 0 : d / max;
+
+    if (max === min) {
+      h = 0; // achromatic
+    } else {
+      switch (max) {
+        case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+        case g: h = (b - r) / d + 2; break;
+        case b: h = (r - g) / d + 4; break;
+        default:
+      }
+
+      h /= 6;
+    }
+    const hPercent_rounded = Math.round((h + Number.EPSILON) * 10000) / 100;
+    const s_rounded = Math.round((s + Number.EPSILON) * 10000) / 100;
+    const v_rounded = Math.round((v + Number.EPSILON) * 10000) / 100;
+    const hGrad_rounded = ColorConverter.scale(hPercent_rounded, [0, 100], [0, 360]);
+    return { hPercent: Math.floor(hPercent_rounded), hGrad: Math.floor(hGrad_rounded), s: Math.floor(s_rounded), v: Math.floor(v_rounded) };
+  }
+
+  /**
+   * Converts an HSV color value to RGB. Conversion formula
+   * Checked 30/01/2024
+   * PERFETTO !!!!!!!!!!!!!  
+   * adapted from http://en.wikipedia.org/wiki/HSV_color_space.
+   * Assumes h, s, and v are contained in the set [0, 1] and
+   * returns r, g, and b in the set [0, 255].
+   *
+   * @param   Number  h       The hue
+   * @param   Number  s       The saturation
+   * @param   Number  v       The value
+   * @return  Array           The RGB representation
+   */
+  static hsvToRgb(h, s, v) {
+    let r;
+    let g;
+    let b;
+
+    const i = Math.floor(h * 6);
+    const f = h * 6 - i;
+    const p = v * (1 - s);
+    const q = v * (1 - f * s);
+    const t = v * (1 - (1 - f) * s);
+
+    switch (i % 6) {
+      case 0: r = v, g = t, b = p; break;
+      case 1: r = q, g = v, b = p; break;
+      case 2: r = p, g = v, b = t; break;
+      case 3: r = p, g = q, b = v; break;
+      case 4: r = t, g = p, b = v; break;
+      case 5: r = v, g = p, b = q; break;
+      default:
+    }
+
+    // Round!
+    r = Math.round(r * 255);
+    g = Math.round(g * 255);
+    b = Math.round(b * 255);
+    if (r > 255) r = 255;
+    if (r < 0) r = 0;
+    if (g > 255) g = 255;
+    if (g < 0) g = 0;
+    if (b > 255) b = 255;
+    if (b < 0) b = 0;
+
+    return { r, g, b };
+  }
+
+  /**
+   * Converts an XY and Brightness color value to XY. Conversion formula
+   * adapted from http://en.wikipedia.org/wiki/HSV_color_space.
+   * returns x, and y in the set [0, 1] and brightness [0, 1].
+   *
+   * @param   Number  x       The x
+   * @param   Number  y       The y
+   * @param   Number  brightness       The brightness
+   * @return  json           The HSV representation
+   */
+  static xyBrightnessToHsv(x, y, brightness) {
+    const rgb = ColorConverter.xyBriToRgb(x, y, brightness);
+    const hsv = ColorConverter.rgbToHsv(rgb.r, rgb.g, rgb.b);
+    return hsv;
   }
 }
 exports.ColorConverter = ColorConverter;
+
+function xyIsInGamutRange(xy, gamut) {
+  if (Array.isArray(xy)) {
+    xy = {
+      x: xy[0],
+      y: xy[1]
+    };
+  }
+
+  let v0 = [gamut.blue[0] - gamut.red[0], gamut.blue[1] - gamut.red[1]];
+  let v1 = [gamut.green[0] - gamut.red[0], gamut.green[1] - gamut.red[1]];
+  let v2 = [xy.x - gamut.red[0], xy.y - gamut.red[1]];
+
+  let dot00 = (v0[0] * v0[0]) + (v0[1] * v0[1]);
+  let dot01 = (v0[0] * v1[0]) + (v0[1] * v1[1]);
+  let dot02 = (v0[0] * v2[0]) + (v0[1] * v2[1]);
+  let dot11 = (v1[0] * v1[0]) + (v1[1] * v1[1]);
+  let dot12 = (v1[0] * v2[0]) + (v1[1] * v2[1]);
+
+  let invDenom = 1 / (dot00 * dot11 - dot01 * dot01);
+
+  let u = (dot11 * dot02 - dot01 * dot12) * invDenom;
+  let v = (dot00 * dot12 - dot01 * dot02) * invDenom;
+
+  return ((u >= 0) && (v >= 0) && (u + v < 1));
+}
+
+function getClosestColor(xy, gamut) {
+  function getLineDistance(pointA, pointB) {
+    return Math.hypot(pointB.x - pointA.x, pointB.y - pointA.y);
+  }
+
+  function getClosestPoint(xy, pointA, pointB) {
+    let xy2a = [xy.x - pointA.x, xy.y - pointA.y];
+    let a2b = [pointB.x - pointA.x, pointB.y - pointA.y];
+    let a2bSqr = Math.pow(a2b[0], 2) + Math.pow(a2b[1], 2);
+    let xy2a_dot_a2b = xy2a[0] * a2b[0] + xy2a[1] * a2b[1];
+    let t = xy2a_dot_a2b / a2bSqr;
+
+    return {
+      x: pointA.x + a2b[0] * t,
+      y: pointA.y + a2b[1] * t
+    }
+  }
+
+  let greenBlue = {
+    a: {
+      x: gamut.green.x,
+      y: gamut.green.y
+    },
+    b: {
+      x: gamut.blue.x,
+      y: gamut.blue.y
+    }
+  };
+
+  let greenRed = {
+    a: {
+      x: gamut.green.x,
+      y: gamut.green.y
+    },
+    b: {
+      x: gamut.red.x,
+      y: gamut.red.y
+    }
+  };
+
+  let blueRed = {
+    a: {
+      x: gamut.red.x,
+      y: gamut.red.y
+    },
+    b: {
+      x: gamut.blue.x,
+      y: gamut.blue.y
+    }
+  };
+
+  let closestColorPoints = {
+    greenBlue: getClosestPoint(xy, greenBlue.a, greenBlue.b),
+    greenRed: getClosestPoint(xy, greenRed.a, greenRed.b),
+    blueRed: getClosestPoint(xy, blueRed.a, blueRed.b)
+  };
+
+  let distance = {
+    greenBlue: getLineDistance(xy, closestColorPoints.greenBlue),
+    greenRed: getLineDistance(xy, closestColorPoints.greenRed),
+    blueRed: getLineDistance(xy, closestColorPoints.blueRed)
+  };
+
+  let closestDistance;
+  let closestColor;
+  for (let i in distance) {
+    if (distance.hasOwnProperty(i)) {
+      if (!closestDistance) {
+        closestDistance = distance[i];
+        closestColor = i;
+      }
+
+      if (closestDistance > distance[i]) {
+        closestDistance = distance[i];
+        closestColor = i;
+      }
+    }
+
+  }
+  return closestColorPoints[closestColor];
+}

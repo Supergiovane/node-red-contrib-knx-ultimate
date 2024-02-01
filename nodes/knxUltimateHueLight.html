@@ -39,6 +39,7 @@
         GALightDIM: { value: "" },
         dptLightDIM: { value: "" },
 
+        // TAB Color ---------------------------
         nameLightColor: { value: "" },
         GALightColor: { value: "" },
         dptLightColor: { value: "" },
@@ -46,6 +47,34 @@
         nameLightColorState: { value: "" },
         GALightColorState: { value: "" },
         dptLightColorState: { value: "" },
+
+        // HSV H hue Color change
+        nameLightHSV_H_DIM: { value: "" },
+        GALightHSV_H_DIM: { value: "" },
+        dptLightHSV_H_DIM: { value: "" },
+
+        nameLightHSV_H_State: { value: "" },
+        GALightHSV_H_State: { value: "" },
+        dptLightHSV_H_State: { value: "" },
+
+        // HSV S saturation change
+        nameLightHSV_S_DIM: { value: "" },
+        GALightHSV_S_DIM: { value: "" },
+        dptLightHSV_S_DIM: { value: "" },
+
+        nameLightHSV_S_State: { value: "" },
+        GALightHSV_S_State: { value: "" },
+        dptLightHSV_S_State: { value: "" },
+
+        // HSV V Brightness change
+        nameLightHSV_V_DIM: { value: "" },
+        GALightHSV_V_DIM: { value: "" },
+        dptLightHSV_V_DIM: { value: "" },
+
+        nameLightHSV_V_State: { value: "" },
+        GALightHSV_V_State: { value: "" },
+        dptLightHSV_V_State: { value: "" },
+        // -------------------------------------
 
         nameLightKelvinDIM: { value: "" },
         GALightKelvinDIM: { value: "" },
@@ -254,6 +283,28 @@
           getGroupAddress("#node-input-GALightKelvin", "#node-input-nameLightKelvin", "#node-input-dptLightKelvin", ["7.600", "9.002"]);
           getGroupAddress("#node-input-GALightKelvinState", "#node-input-nameLightKelvinState", "#node-input-dptLightKelvinState", ["7.600", "9.002"]);
 
+          // HSV ----------------------
+          // H
+          getDPT("3.007", "#node-input-dptLightHSV_H_DIM");
+          getGroupAddress("#node-input-GALightHSV_H_DIM", "#node-input-nameLightHSV_H_DIM", "#node-input-dptLightHSV_H_DIM", ["3.007"]);
+
+          getDPT("5.001", "#node-input-dptLightHSV_H_State");
+          getGroupAddress("#node-input-GALightHSV_H_State", "#node-input-nameLightHSV_H_State", "#node-input-dptLightHSV_H_State", ["5.001"]);
+
+          // S
+          getDPT("3.007", "#node-input-dptLightHSV_S_DIM");
+          getGroupAddress("#node-input-GALightHSV_S_DIM", "#node-input-nameLightHSV_S_DIM", "#node-input-dptLightHSV_S_DIM", ["3.007"]);
+
+          getDPT("5.001", "#node-input-dptLightHSV_S_State");
+          getGroupAddress("#node-input-GALightHSV_S_State", "#node-input-nameLightHSV_S_State", "#node-input-dptLightHSV_S_State", ["5.001"]);
+
+          // V
+          getDPT("3.007", "#node-input-dptLightHSV_V_DIM");
+          getGroupAddress("#node-input-GALightHSV_V_DIM", "#node-input-nameLightHSV_V_DIM", "#node-input-dptLightHSV_V_DIM", ["3.007"]);
+
+          getDPT("5.001", "#node-input-dptLightHSV_V_State");
+          getGroupAddress("#node-input-GALightHSV_V_State", "#node-input-nameLightHSV_V_State", "#node-input-dptLightHSV_V_State", ["5.001"]);
+          // END HSV ----------------------
 
           // Get the HUE capabilities to enable/disable UI parts
           var getJsonPromise;
@@ -735,6 +786,10 @@
       oneditcancel: function () {
         //RED.sidebar.removeTab("tabNRColor");
         //RED.sidebar.show("help");
+      },
+      oneditresize: function (size) {
+        //var height = size.height;    
+        //$('.editor-tray-content').css({ "width": "2700px" });
       }
     });
 
@@ -916,12 +971,12 @@
 
     <br />
 
-    <div id="tabs" hidden">
+    <div id="tabs" hidden" style="width: 900px;">
       <ul>
-        <li><a href="#tabs-1"><i class="fa-solid fa-toggle-on fa-beat"></i> Switching</a></li>
-        <li><a href="#tabs-2"><i class="fa-solid fa-arrow-up-wide-short fa-beat"></i> Dim/Brightness</a></li>
+        <li><a href="#tabs-1"><i class="fa-solid fa-toggle-on fa-beat"></i> Switch</a></li>
+        <li><a href="#tabs-2"><i class="fa-solid fa-arrow-up-wide-short fa-beat"></i> Dim</a></li>
         <li><a href="#tabs-3"><i class="fa-solid fa-temperature-quarter fa-beat"></i> Tunable white</a></li>
-        <li><a href="#tabs-4"><i class="fa-solid fa-palette fa-beat"></i> Colors</a></li>
+        <li><a href="#tabs-4"><i class="fa-solid fa-palette fa-beat"></i> RGB/HSV</a></li>
         <li><a href="#tabs-5"><i class="fa-solid fa-heart-circle-check fa-beat"></i> Effects</a></li>
         <li><a href="#tabs-6"><i class="fa-solid fa-code-merge fa-beat"></i> Behaviour</a></li>
         <li><a href="#tabs-7"><i class="fa-solid fa-house fa-beat"></i> Home Assistant Export (beta)</a></li>
@@ -959,6 +1014,7 @@
       </div>
       <div id="tabs-2">
         <p>
+          <img src="resources/node-red-contrib-knx-ultimate/dim.png" style="width: 900px;">
         <div class="form-row">
           <label for="node-input-nameLightDIM" style="width:110px;"><i class="fa fa-play-circle-o"></i> Control</label>
 
@@ -990,7 +1046,7 @@
         </div>
 
         <div class="form-row">
-          <label for="node-input-nameLightBrightnessState" style="width:110px;"><i class="fa fa-question-circle"></i> Status</label>
+          <label for="node-input-nameLightBrightnessState" style="width:110px;"><i class="fa fa-question-circle"></i> Status %</label>
 
           <label for="node-input-GALightBrightnessState" style="width:20px;"><span
               data-i18n="knxUltimateHueLight.node-input-GALightState"></span></label>
@@ -1030,6 +1086,7 @@
       </div>
       <div id="tabs-3">
         <p>
+          <img src="resources/node-red-contrib-knx-ultimate/tunablewhite.png" style="width: 900px;">
         <div class="form-row">
           <label for="node-input-nameLightKelvinDIM" style="width:110px;"><i class="fa fa-play-circle-o"></i> Control dim</label>
 
@@ -1059,20 +1116,6 @@
           <input type="text" id="node-input-nameLightKelvinPercentage" style="width:190px;margin-left: 5px; text-align: left;">
         </div>
         <div class="form-row">
-          <label for="node-input-nameLightKelvin" style="width:110px;"><i class="fa fa-play-circle-o"></i> Control
-            Kelvin</label>
-
-          <label for="node-input-GALightKelvin" style="width:20px;">GA</label>
-          <input type="text" id="node-input-GALightKelvin" placeholder="Ex: 1/1/1"
-            style="width:70px;margin-left: 5px; text-align: left;">
-
-          <label for="node-input-dptLightKelvin" style="width:40px; margin-left: 0px; text-align: right;">DPT</label>
-          <select id="node-input-dptLightKelvin" style="width:140px;"></select>
-
-          <label for="node-input-nameLightKelvin" style="width:50px; margin-left: 0px; text-align: right;">Name</label>
-          <input type="text" id="node-input-nameLightKelvin" style="width:190px;margin-left: 5px; text-align: left;">
-        </div>
-        <div class="form-row">
           <label for="node-input-nameLightKelvinPercentageState" style="width:110px;"><i class="fa fa-question-circle"></i> Status
             %</label>
 
@@ -1086,6 +1129,20 @@
           <label for="node-input-nameLightKelvinPercentageState" style="width:50px; margin-left: 0px; text-align: right;">Name</label>
           <input type="text" id="node-input-nameLightKelvinPercentageState" style="width:190px;margin-left: 5px; text-align: left;">
         </div>
+        <div class="form-row">
+          <label for="node-input-nameLightKelvin" style="width:110px;"><i class="fa fa-play-circle-o"></i> Control
+            Kelvin</label>
+
+          <label for="node-input-GALightKelvin" style="width:20px;">GA</label>
+          <input type="text" id="node-input-GALightKelvin" placeholder="Ex: 1/1/1"
+            style="width:70px;margin-left: 5px; text-align: left;">
+
+          <label for="node-input-dptLightKelvin" style="width:40px; margin-left: 0px; text-align: right;">DPT</label>
+          <select id="node-input-dptLightKelvin" style="width:140px;"></select>
+
+          <label for="node-input-nameLightKelvin" style="width:50px; margin-left: 0px; text-align: right;">Name</label>
+          <input type="text" id="node-input-nameLightKelvin" style="width:190px;margin-left: 5px; text-align: left;">
+        </div>        
         <div class="form-row">
           <label for="node-input-nameLightKelvinState" style="width:110px;"><i class="fa fa-question-circle"></i> Status
             Kelvin</label>
@@ -1102,7 +1159,7 @@
         </div>
         <div class="form-row">
           <label style="width:170px" for="node-input-invertDimTunableWhiteDirection">
-            <i class="fa fa-shuffle"></i> Invert DIM direction
+            <i class="fa fa-shuffle"></i> Invert dim direction
           </label>
           <input type="checkbox" id="node-input-invertDimTunableWhiteDirection"
             style="display:inline-block; width:auto; vertical-align:top;" />
@@ -1111,8 +1168,10 @@
       </div>
       <div id="tabs-4">
         <p>
-        <div class="form-row">
-          <label for="node-input-nameLightColor" style="width:110px;"><i class="fa fa-play-circle-o"></i> Control</label>
+          <img src="resources/node-red-contrib-knx-ultimate/rgb.png" style="width: 900px;">
+          <p><b> RGB section</b></p>
+          <div class="form-row">
+          <label for="node-input-nameLightColor" style="width:110px;"><i class="fa fa-play-circle-o"></i> Control rgb</label>
 
           <label for="node-input-GALightColor" style="width:20px;"><span
               data-i18n="knxUltimateHueLight.node-input-GALightState"></span></label>
@@ -1127,7 +1186,7 @@
           <input type="text" id="node-input-nameLightColor" style="width:190px;margin-left: 5px; text-align: left;">
         </div>
         <div class="form-row">
-          <label for="node-input-nameLightColorState" style="width:110px;"><i class="fa fa-question-circle"></i> Status</label>
+          <label for="node-input-nameLightColorState" style="width:110px;"><i class="fa fa-question-circle"></i> Status rgb</label>
 
           <label for="node-input-GALightColorState" style="width:20px;"><span
               data-i18n="knxUltimateHueLight.node-input-GALightState"></span></label>
@@ -1141,6 +1200,121 @@
               data-i18n="knxUltimateHueLight.node-input-name"></span></label>
           <input type="text" id="node-input-nameLightColorState" style="width:190px;margin-left: 5px; text-align: left;">
         </div>
+
+        <p><b> HSV section</b></p>
+        <!-- // HSV Color change
+        // nameLightHSV_H_DIM: { value: "" },
+        // GALightHSV_H_DIM: { value: "" },
+        // dptLightHSV_H_DIM: { value: "" }, -->
+        <div class="form-row">
+          <label for="node-input-nameLightHSV_H_DIM" style="width:110px;"><i class="fa fa-play-circle-o"></i> Control H dim</label>
+
+          <label for="node-input-GALightHSV_H_DIM" style="width:20px;"><span
+              data-i18n="knxUltimateHueLight.node-input-GALightState"></span></label>
+          <input type="text" id="node-input-GALightHSV_H_DIM" placeholder="Ex: 1/1/1"
+            style="width:70px;margin-left: 5px; text-align: left;">
+ 
+          <label for="node-input-dptLightHSV_H_DIM" style="width:40px; margin-left: 0px; text-align: right;">DPT</label>
+          <select id="node-input-dptLightHSV_H_DIM" style="width:140px;"></select>
+
+          <label for="node-input-nameLightHSV_H_DIM" style="width:50px; margin-left: 0px; text-align: right;"><span
+              data-i18n="knxUltimateHueLight.node-input-name"></span></label>
+          <input type="text" id="node-input-nameLightHSV_H_DIM" style="width:190px;margin-left: 5px; text-align: left;">
+        </div>
+        <div class="form-row">
+          <label for="node-input-nameLightHSV_H_State" style="width:110px;"><i class="fa fa-question-circle"></i> Status H %</label>
+
+          <label for="node-input-GALightHSV_H_State" style="width:20px;"><span
+              data-i18n="knxUltimateHueLight.node-input-GALightState"></span></label>
+          <input type="text" id="node-input-GALightHSV_H_State" placeholder="Ex: 1/1/1"
+            style="width:70px;margin-left: 5px; text-align: left;">
+
+          <label for="node-input-dptLightHSV_H_State" style="width:40px; margin-left: 0px; text-align: right;">DPT</label>
+          <select id="node-input-dptLightHSV_H_State" style="width:140px;"></select>
+
+          <label for="node-input-nameLightHSV_H_State" style="width:50px; margin-left: 0px; text-align: right;"><span
+              data-i18n="knxUltimateHueLight.node-input-name"></span></label>
+          <input type="text" id="node-input-nameLightHSV_H_State" style="width:190px;margin-left: 5px; text-align: left;">
+        </div>
+
+        <!-- // HSV Saturation change
+        nameLightHSV_S_DIM: { value: "" },
+        GALightHSV_S_DIM: { value: "" },
+        dptLightHSV_S_DIM: { value: "" },
+        nameLightHSV_S_State: { value: "" },
+        GALightHSV_S_State: { value: "" },
+        dptLightHSV_S_State: { value: "" }, -->
+        <div class="form-row">
+          <label for="node-input-nameLightHSV_S_DIM" style="width:110px;"><i class="fa fa-play-circle-o"></i> Control S dim</label>
+
+          <label for="node-input-GALightHSV_S_DIM" style="width:20px;"><span
+              data-i18n="knxUltimateHueLight.node-input-GALightState"></span></label>
+          <input type="text" id="node-input-GALightHSV_S_DIM" placeholder="Ex: 1/1/1"
+            style="width:70px;margin-left: 5px; text-align: left;">
+ 
+          <label for="node-input-dptLightHSV_S_DIM" style="width:40px; margin-left: 0px; text-align: right;">DPT</label>
+          <select id="node-input-dptLightHSV_S_DIM" style="width:140px;"></select>
+
+          <label for="node-input-nameLightHSV_S_DIM" style="width:50px; margin-left: 0px; text-align: right;"><span
+              data-i18n="knxUltimateHueLight.node-input-name"></span></label>
+          <input type="text" id="node-input-nameLightHSV_S_DIM" style="width:190px;margin-left: 5px; text-align: left;">
+        </div>
+        <div class="form-row">
+          <label for="node-input-nameLightHSV_S_State" style="width:110px;"><i class="fa fa-question-circle"></i> Status S %</label>
+
+          <label for="node-input-GALightHSV_S_State" style="width:20px;"><span
+              data-i18n="knxUltimateHueLight.node-input-GALightState"></span></label>
+          <input type="text" id="node-input-GALightHSV_S_State" placeholder="Ex: 1/1/1"
+            style="width:70px;margin-left: 5px; text-align: left;">
+
+          <label for="node-input-dptLightHSV_S_State" style="width:40px; margin-left: 0px; text-align: right;">DPT</label>
+          <select id="node-input-dptLightHSV_S_State" style="width:140px;"></select>
+
+          <label for="node-input-nameLightHSV_S_State" style="width:50px; margin-left: 0px; text-align: right;"><span
+              data-i18n="knxUltimateHueLight.node-input-name"></span></label>
+          <input type="text" id="node-input-nameLightHSV_S_State" style="width:190px;margin-left: 5px; text-align: left;">
+        </div>
+
+        <!-- // HSV V Brightness change
+        nameLightHSV_V_DIM: { value: "" },
+        GALightHSV_V_DIM: { value: "" },
+        dptLightHSV_V_DIM: { value: "" },
+        nameLightHSV_V_State: { value: "" },
+        GALightHSV_V_State: { value: "" },
+        dptLightHSV_V_State: { value: "" }, -->
+        <div class="form-row">
+          <label for="node-input-nameLightHSV_V_DIM" style="width:110px;"><i class="fa fa-play-circle-o"></i> Control V dim</label>
+
+          <label for="node-input-GALightHSV_V_DIM" style="width:20px;"><span
+              data-i18n="knxUltimateHueLight.node-input-GALightState"></span></label>
+          <input type="text" id="node-input-GALightHSV_V_DIM" placeholder="Ex: 1/1/1"
+            style="width:70px;margin-left: 5px; text-align: left;">
+
+          <label for="node-input-dptLightHSV_V_DIM"
+            style="width:40px; margin-left: 0px; text-align: right;">DPT</label>
+          <select id="node-input-dptLightHSV_V_DIM" style="width:140px;"></select>
+
+          <label for="node-input-nameLightHSV_V_DIM" style="width:50px; margin-left: 0px; text-align: right;"><span
+              data-i18n="knxUltimateHueLight.node-input-name"></span></label>
+          <input type="text" id="node-input-nameLightHSV_V_DIM"
+            style="width:190px;margin-left: 5px; text-align: left;">
+        </div>   
+        <div class="form-row">
+          <label for="node-input-nameLightHSV_V_State" style="width:110px;"><i class="fa fa-question-circle"></i> Status V %</label>
+
+          <label for="node-input-GALightHSV_V_State" style="width:20px;"><span
+              data-i18n="knxUltimateHueLight.node-input-GALightState"></span></label>
+          <input type="text" id="node-input-GALightHSV_V_State" placeholder="Ex: 1/1/1"
+            style="width:70px;margin-left: 5px; text-align: left;">
+
+          <label for="node-input-dptLightHSV_V_State" style="width:40px; margin-left: 0px; text-align: right;">DPT</label>
+          <select id="node-input-dptLightHSV_V_State" style="width:140px;"></select>
+
+          <label for="node-input-nameLightHSV_V_State" style="width:50px; margin-left: 0px; text-align: right;"><span
+              data-i18n="knxUltimateHueLight.node-input-name"></span></label>
+          <input type="text" id="node-input-nameLightHSV_V_State" style="width:190px;margin-left: 5px; text-align: left;">
+        </div>
+
         </p>
       </div>
       <div id="tabs-5">
@@ -1317,7 +1491,7 @@
 Here you can choose the KNX addresses to be linked to the avaiable HUE light commands/states.<br/>
 Start typing in the GA field, the name or group address of your KNX device, the avaiable devices start showing up while you're typing.
 
-**Switching**
+**Switch**
 |Property|Description|
 |--|--|
 | Control | This GA is used to turn on/off the HUE light via a boolean KNX value true/false|
@@ -1325,12 +1499,12 @@ Start typing in the GA field, the name or group address of your KNX device, the 
 
 <br/>
 
-**Dim/Brightness**
+**Dim**
 |Property|Description|
 |--|--|
 | Control | Relative DIM the HUE light. You can set the dimming speed in the **_Behaviour_** tab. |
 | Control % | Changes the absolute HUE light's brightness (0-100%)|
-| Status| Link this to the light's brightness status KNX group address |
+| Status % | Link this to the light's brightness status KNX group address |
 | Dim Speed (ms)                            | The dimming speed, in Milliseconds. This applies to the **light** and also to the **tunable white** dimming datapoints. It' calculated from 0% to 100%.                                                                                                                                                                                                                                                                                                                                              |
 | Min Dim brightness                        | Tha Minimum brightness that the lamp can reach. For example, if you are dimming the light down, the light will stop dimming at the specified brightness %.                                                                                                                                                                                                                                                                                                                                           |
 | Max Dim brightness                        | Tha Maximum brightness that the lamp can reach. For example, if you are dimming the light up, the light will stop dimming at the specified brightness %.                                                                                                                                                                                                                                                                                                                                             |
@@ -1342,17 +1516,25 @@ Start typing in the GA field, the name or group address of your KNX device, the 
 |--|--|
 | Control dim | Changes the HUE light's white temperature, using DPT 3.007 dimming. You can set the dimming speed in the **_Behaviour_** tab.|
 | Control % | Changes the HUE light's white temperature, using the DPT 5.001. A value of 0 is full warm, a value of 100 is full cold.|
+| Status %| The light temperature status group address. Datapoint is 5.001 absolute value. 0 is full warm, 100 is full cold.|
 | Control kelvin | **DPT 7.600:** set the HUE light's temperature in Kelvin degrees, using the KNX range from 2000 to 6535. This range will be then transformed in mirek.<br/>**DPT 9.002:** set the temperature using Philips HUE range: 2000K - 6535K (Ambiance range starts at 2200K). Please be aware, conversion may produce slightly changes in Kelvin degrees value, due to KNX RGB or Kelvin degrees to HUE mirek degrees conversion.|
-| Status %| Link this to the light temperature status group address. Datapoint is 5.001 absolute value. 0 is full warm, 100 is full cold.|
 | Status kelvin | **DPT 7.600:** get the HUE light's temperature in Kelvin degrees, using the KNX range from 2000 to 6535. This range will be then transformed in kelvin degrees.<br/>**DPT 9.002:** get the temperature using Philips HUE range: 2000K - 6535K (Ambiance range starts at 2200K). Please be aware, conversion may produce slightly changes in Kelvin degrees value, due to KNX RGB or Kelvin degrees to HUE mirek degrees conversion. |
-| Invert DIM direction | Inverts the DIM direction. |
+| Invert dim direction | Inverts the DIM direction. |
 <br/>
 
-**Colors**
+**RGB/HSV**
 |Property|Description|
 |--|--|
-| Control | This command is used to change the HUE light's color. Accepted datapoint is RGB triplet (r,g,b). The node handles the gamut color correction. As soon as you send a color KNX telegran, the light turns on and sets color and brightness, derived from the brightness human perception. As soon as you send a KNX telegram with r,g,b set to zero, the light turns off |
-| Status | Link this to the light's color status group address. Accepted datapoint is RGB triplet (r,g,b)|
+| **RGB section** ||
+| Control rgb| This command is used to change the HUE light's color. Accepted datapoint is RGB triplet (r,g,b). The node handles the gamut color correction. As soon as you send a color KNX telegran, the light turns on and sets color and brightness, derived from the brightness human perception. As soon as you send a KNX telegram with r,g,b set to zero, the light turns off |
+| Status rgb | The light's color status group address. Accepted datapoint is RGB triplet (r,g,b)|
+| **HSV section** ||
+| Color H dim | Cycle through the HSV chromatic circle (HUE), using DPT 3.007 dimming. You can set the dimming speed in the **_Behaviour_** tab.|
+| Status H %| Status of the HSV chromatic circle.|
+| Control S dim | Changes the light's color saturation, using DPT 3.007 dimming. You can set the dimming speed in the **_Behaviour_** tab.|
+| Status S %| The light color saturation status group address.|
+| Control V dim | Changes the light's brightness, using DPT 3.007 dimming. You can set the dimming speed in the **_Behaviour_** tab.|
+| Status V %| The light color brightness status group address.|
 
 <br/>
 
