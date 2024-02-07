@@ -1,5 +1,5 @@
 // Part of this code, thanks to https://github.com/Shnoo/js-CIE-1931-rgb-color-converter
-const XYFromRGB = require("./colorManipulators/XYFromRGB_Supergiovane"); // Pick the specific hue color converter
+const XYFromRGB = require("./XYFromRGB_Supergiovane"); // Pick the specific hue color converter
 
 class ColorConverter {
   // static getBrightnessFromRGBOrHex(red, green, blue) {
@@ -271,12 +271,12 @@ class ColorConverter {
    * PERFETTO !!!!!!  
    * adapted from http://en.wikipedia.org/wiki/HSV_color_space.  
    * Assumes r, g, and b are contained in the set [0, 255] and  
-   * returns the HSV representation {hPercent:0-100%, hGrad:0-360°, s:0-100%, v(brightness):0-100%}
+   * returns the HSV representation {hPercent:0-100%, h:0-360°, s:0-100%, v(brightness):0-100%}
    *
    * @param   Number  r       The red color value
    * @param   Number  g       The green color value
    * @param   Number  b       The blue color value
-   * @return  Object          The HSV representation {hPercent:0-100%, hGrad:0-360°, s:0-100%, v(brightness):0-100%}
+   * @return  Object          The HSV representation {hPercent:0-100%, h:0-360°, s:0-100%, v(brightness):0-100%}
    */
   static rgbToHsv(r, g, b) {
     // Sample
@@ -309,8 +309,8 @@ class ColorConverter {
     const hPercent_rounded = Math.round((h + Number.EPSILON) * 10000) / 100;
     const s_rounded = Math.round((s + Number.EPSILON) * 10000) / 100;
     const v_rounded = Math.round((v + Number.EPSILON) * 10000) / 100;
-    const hGrad_rounded = ColorConverter.scale(hPercent_rounded, [0, 100], [0, 360]);
-    return { hPercent: Math.floor(hPercent_rounded), hGrad: Math.floor(hGrad_rounded), s: Math.floor(s_rounded), v: Math.floor(v_rounded) };
+    //const hGrad_rounded = ColorConverter.scale(hPercent_rounded, [0, 100], [0, 360]);
+    return { h: Math.floor(hPercent_rounded), s: Math.floor(s_rounded), v: Math.floor(v_rounded) };
   }
 
   /**
@@ -362,19 +362,47 @@ class ColorConverter {
   }
 
   /**
+   * Converts an HSV color value to XY Bri. Conversion formula  
+   * adapted from http://en.wikipedia.org/wiki/HSV_color_space.  
+   * returns h,s,v in object  
+   *
+   * @param   Object An object {h,s,v} in 0-100% values
+   * @return  Object The JSON Object XYBri representation
+   */
+  static hsvToxyBrightness(_hsvInput, _oGamut) {
+    // Get the XY from HSV
+    try {
+      const hsvInput = {};
+      hsvInput.h = ColorConverter.scale(_hsvInput.h, [0, 100], [0, 1]);
+      hsvInput.s = ColorConverter.scale(_hsvInput.s, [0, 100], [0, 1]);
+      hsvInput.v = ColorConverter.scale(_hsvInput.v, [0, 100], [0, 1]);
+      const hsvToRgb = ColorConverter.hsvToRgb(hsvInput.h, hsvInput.s, hsvInput.v);
+      // Get the XY
+      return ColorConverter.calculateXYFromRGB(hsvToRgb.r, hsvToRgb.g, hsvToRgb.b, _oGamut);
+    } catch (error) { /* empty */ }
+  }
+
+  /**
    * Converts an XY and Brightness color value to XY. Conversion formula
    * adapted from http://en.wikipedia.org/wiki/HSV_color_space.
    * returns x, and y in the set [0, 1] and brightness [0, 1].
    *
-   * @param   Number  x       The x
-   * @param   Number  y       The y
-   * @param   Number  brightness       The brightness
-   * @return  json           The HSV representation
+   * @param   Number  x       The x (see _xyInScaleZeroUndred)
+   * @param   Number  y       The y (see _xyInScaleZeroUndred)
+   * @param   Number  brightness The brightness with scale 0-100%
+  * @param   Boolean  _xyInScaleZeroUndred If true, the x and y will be scaled from 0-100 to 0-1, else, x and y remains as is (0-1)
+  * @return  Object           The HSV {h,s,v} representation, all in 0-10
    */
-  static xyBrightnessToHsv(x, y, brightness) {
-    const rgb = ColorConverter.xyBriToRgb(x, y, brightness);
-    const hsv = ColorConverter.rgbToHsv(rgb.r, rgb.g, rgb.b);
-    return hsv;
+  static xyBrightnessToHsv(x, y, brightness, _xyInScaleZeroUndred = true) {
+    try {
+      if (_xyInScaleZeroUndred) {
+        x = ColorConverter.scale(x, [0, 100], [0, 1]);
+        y = ColorConverter.scale(y, [0, 100], [0, 1]);
+      }
+      const rgb = ColorConverter.xyBriToRgb(x, y, brightness);
+      const hsv = ColorConverter.rgbToHsv(rgb.r, rgb.g, rgb.b);
+      return hsv;
+    } catch (error) { }
   }
 }
 exports.ColorConverter = ColorConverter;

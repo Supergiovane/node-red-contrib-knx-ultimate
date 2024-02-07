@@ -3,53 +3,10 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-inner-declarations */
 /* eslint-disable max-len */
-const dptlib = require("../KNXEngine/src/dptlib");
+const cloneDeep = require("lodash/cloneDeep");
 const HueClass = require("./utils/hueEngine").classHUE;
 const loggerEngine = require("./utils/sysLogger");
-const hueColorConverter = require("./utils/hueColorConverter");
-const cloneDeep = require("lodash/cloneDeep");
-
-function getRandomIntInclusive(min, max) {
-  min = Math.ceil(min);
-  max = Math.floor(max);
-  return Math.floor(Math.random() * (max - min + 1) + min); // The maximum is inclusive and the minimum is inclusive
-}
-
-// Helpers
-const sortBy = (field) => (a, b) => {
-  if (a[field] > b[field]) {
-    return 1;
-  }
-  return -1;
-};
-
-const onlyDptKeys = (kv) => kv[0].startsWith("DPT");
-
-const extractBaseNo = (kv) => ({
-  subtypes: kv[1].subtypes,
-  base: parseInt(kv[1].id.replace("DPT", "")),
-});
-
-const convertSubtype = (baseType) => (kv) => {
-  const value = `${baseType.base}.${kv[0]}`;
-  // let sRet = value + " " + kv[1].name + (kv[1].unit === undefined ? "" : " (" + kv[1].unit + ")");
-  const sRet = `${value} ${kv[1].name}`;
-  return {
-    value,
-    text: sRet,
-  };
-};
-
-const toConcattedSubtypes = (acc, baseType) => {
-  const subtypes = Object.entries(baseType.subtypes).sort(sortBy(0)).map(convertSubtype(baseType));
-  return acc.concat(subtypes);
-};
-
-function getRandomInt(min, max) {
-  min = Math.ceil(min);
-  max = Math.floor(max);
-  return Math.floor(Math.random() * (max - min) + min); // The maximum is exclusive and the minimum is inclusive
-}
+const hueColorConverter = require("./utils/colorManipulators/hueColorConverter");
 
 module.exports = (RED) => {
   function hueConfig(config) {
@@ -69,33 +26,20 @@ module.exports = (RED) => {
     }
     node.name = config.name === undefined || config.name === "" ? node.host : config.name;
 
-    // Call the connect function of all hue-config nodes.
-    // function callinitHUEConnectionOfAllHUEServers() {
-    //   RED.nodes.eachNode((_node) => {
-    //     if (_node.type === 'hue-config') {
-    //       try {
-    //         RED.nodes.getNode(_node.id).initHUEConnection();
-    //       } catch (error) {
-    //         if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("callinitHUEConnectionOfAllHUEServers: Node " + _node.name + " " + error.message);
-    //       }
-    //     }
-    //   });
-    // }
-
     // Connect to Bridge and get the resources
     node.initHUEConnection = async () => {
       try {
         if (node.hueManager !== undefined) node.hueManager.close();
-      } catch (error) { }
+      } catch (error) { /* empty */ }
       try {
         if (node.hueManager !== undefined) node.hueManager.removeAllListeners();
-      } catch (error) { }
+      } catch (error) { /* empty */ }
       // Handle events
       try {
         try {
           // Init HUE Utility
           node.hueManager = new HueClass(node.host, node.credentials.username, node.credentials.clientkey, config.bridgeid, node.sysLogger);
-        } catch (error) { }
+        } catch (error) { /* empty */ }
         node.hueManager.Connect();
       } catch (error) {
         if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(`Errore hue-config: node.initHUEConnection: ${error.message}`);

@@ -3,7 +3,7 @@
   "engines": {
     "node": ">=16.0.0"
   },
-  "version": "2.4.5-beta.0",
+  "version": "2.4.5-beta.1",
   "description": "Control your KNX intallation via Node-Red! A bunch of KNX nodes, with integrated Philips HUE control and ETS group address importer. Easy to use and highly configurable.",
   "dependencies": {
     "binary-parser": "2.2.1",
@@ -61,37 +61,7 @@
   ],
   "author": "Supergiovane",
   "license": "MIT",
-  "devDependencies": {
-    "eslint": "^8.47.0",
-    "eslint-config-airbnb-base": "^15.0.0",
-    "eslint-config-prettier": "^9.0.0",
-    "eslint-plugin-import": "^2.28.0",
-    "standard": "*"
-  },
   "scripts": {
     "test": "standard"
-  },
-  "Prettier": {
-    "arrowParens": "always",
-    "bracketSameLine": true,
-    "bracketSpacing": false,
-    "semi": true,
-    "singleQuote": true,
-    "jsxSingleQuote": false,
-    "quoteProps": "as-needed",
-    "trailingComma": "all",
-    "singleAttributePerLine": false,
-    "htmlWhitespaceSensitivity": "css",
-    "vueIndentScriptAndStyle": false,
-    "proseWrap": "preserve",
-    "insertPragma": false,
-    "printWidth": 80,
-    "requirePragma": false,
-    "tabWidth": 2,
-    "useTabs": true,
-    "embeddedLanguageFormatting": "auto",
-    "[html]": {
-      "editor.defaultFormatter": "vscode.html-language-features"
-    }
   }
 }

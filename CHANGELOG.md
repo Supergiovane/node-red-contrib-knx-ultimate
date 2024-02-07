@@ -6,10 +6,13 @@
 
 # CHANGELOG
 
-**Version 2.4.5-beta.1** - Feb 2024<br/>
+**Version 2.4.5-beta.1 PUBLIC BETA** - Feb 2024<br/>
 - WARNING: this version uses the Node-Red plugin system; the  Node-Red version must be **equals or major than 3.1.1**<br/>
-- HUE: Optimized color translation between xyBri and RGB and vice versa.<br/>
+- HUE: Optimized color translation between xyBri and RGB.<br/>
 - NEW: HUE Light node: added the HSV controls.<br/>
+- HUE Light node: stopping the dim sequence, now clears also the HUE bridge queue commands, to allow stopping the dimmer quickly.<br/>
+- HUE Light node: smoother dimming.<br/>
+- PLEASE TRY THIS VERSION AND GIVE ME ANY FEEDBACK ABOUT ISSUES YOU FIND. THANKS.<br/>
 
 **Version 2.4.5-beta.0** - Jan 2024<br/>
 - WARNING: this version uses the Node-Red plugin system; the  Node-Red version must be **equals or major than 3.1.1**<br/>

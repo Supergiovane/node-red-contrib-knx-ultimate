@@ -1,8 +1,5 @@
-const hueColorConverter = require("./nodes/utils/hueColorConverter");
+const hueColorConverter = require("./nodes/utils/colorManipulators/hueColorConverter");
 
-console.log("\n");
-console.log("\n");
-console.log("DA KNX A HUE");
 // 0 - INPUT Da HSV ricevuto da KNX (tutto in formato 0-100% perchè dpt 5.001), a XY di Hue
 // PERFETTO!!!!!! 31/01/2023
 const hsvInput = { h: 98.3287, s: 100, v: 71 }; // --->>> input da KNX 98 equivale all'angolo 353 dell' ISE comando: 182,0,20 HSV: 353°, 100%, 71%

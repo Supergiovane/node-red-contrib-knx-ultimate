@@ -178,6 +178,16 @@ class classHUE extends EventEmitter {
     // Add the new item
     this.commandQueue.push({ _lightID, _state, _operation });
   };
+
+  /**
+ * Clears all items fo _lightID from the HUE sending queue. Useful to clear unwanted dimming commands
+ * @param {string} _lightID HUE Light ID
+ * @returns {}
+ */
+  deleteHueQueue = async (_lightID) => {
+    // Add the new item
+    this.commandQueue = this.commandQueue.filter((el) => el._lightID !== _lightID);
+  };
   // ######################################
 
   close = async () =>
