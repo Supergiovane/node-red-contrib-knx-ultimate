@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-lonely-if */
 /* eslint-disable no-param-reassign */
@@ -120,24 +121,6 @@ module.exports = (RED) => {
       // °°°°°° Load ALL resources
       try {
         node.hueAllResources = await node.hueManager.hueApiV2.get("/resource");
-
-        // // DEBUG
-        // try {
-        //   const fs = require('fs');
-        //   const { resolve } = require('path');
-        //   const content = JSON.stringify(node.hueAllResources);
-        //   try {
-        //     fs.writeFileSync('resources.json', content);
-        //     RED.log.info("******************************* FILE WROTE IN resources.json " + resolve("resources.json"))
-        //     // file written successfully
-        //   } catch (error) {
-        //     RED.log.error("********************************************* const content = JSON.stringify(node.hueAllResources)2222: " + error.message)
-        //   }
-        // } catch (error) {
-        //   RED.log.error("********************************************* const content = JSON.stringify(node.hueAllResources): " + error.message)
-        // }
-
-
         if (node.hueAllResources !== undefined) {
           node.hueAllRooms = node.hueAllResources.filter((a) => a.type === "room");
           // Update all KNX State of the nodes with the new hue device values
@@ -149,10 +132,12 @@ module.exports = (RED) => {
                 _node.setNodeStatusHue({
                   fill: "green",
                   shape: "ring",
-                  text: "Ready :-)",
+                  text: "Ready",
                 });
                 _node.currentHUEDevice = cloneDeep(oHUEDevice); // Copy by Value and not by ref
-                if (_node.initializingAtStart === true) _node.handleSendHUE(oHUEDevice); // Pass by value
+                if (_node.initializingAtStart === true) {
+                  _node.handleSendHUE(oHUEDevice); // Pass by value
+                }
               }
             }
           });
@@ -316,6 +301,21 @@ module.exports = (RED) => {
                 name: `Battery: ${linkedDevName}${Room !== undefined ? `, room ${Room.metadata.name}` : ""}`,
                 id: resource.id,
               });
+            }
+            if (_rtype === "zigbee_connectivity") {
+              const Room = node.hueAllRooms.find((room) => room.children.find((child) => child.rid === resource.owner.rid));
+              const linkedDevName = node.hueAllResources.find((dev) => dev.type === "device" && dev.services.find((serv) => serv.rid === resource.id)).metadata.name || "";
+              retArray.push({
+                name: `Zigbee Connectivity: ${linkedDevName}${Room !== undefined ? `, room ${Room.metadata.name}` : ""}`,
+                id: resource.id,
+              });
+              // Get zigbee_connectivituy
+              // const bridgeId = node.hueAllResources.filter((a) => a.bridge_id === config.bridgeid).owner.rid;
+              // const zigbee_ConnectivityID = node.hueAllResources.filter((a) => a.id === bridgeId).services.filter((a) => a.rtype === "zigbee_connectivity").rid;
+              // // connected, disconnected, connectivity_issue, unidirectional_incoming
+              // const oZigbeeConnectivityStatus = node.hueAllResources.filter((a) => a.id === zigbee_ConnectivityID).status;
+              //const zigbee = node.hueAllResources.filter((a) => a.services !== undefined).find((a) => a.services.rtype === "zigbee_connectivity");
+              //const devs = zigbee.filter((a) => a.rtype === "zigbee_connectivity");
             }
           } catch (error) {
             retArray.push({

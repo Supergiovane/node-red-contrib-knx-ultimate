@@ -1,5 +1,5 @@
 module.exports = function (RED) {
-  function knxUltimateHueTemperatureSensor(config) {
+  function knxUltimateHueZigbeeConnectivity(config) {
     RED.nodes.createNode(this, config);
     const node = this;
     node.server = RED.nodes.getNode(config.server);
@@ -47,7 +47,7 @@ module.exports = function (RED) {
       // Respond to KNX read telegram, by sending the current value as response telegram.
       if (msg.knx.event === "GroupValue_Read") {
         switch (msg.knx.destination) {
-          case config.GAtemperaturesensor:
+          case config.GAzigbeeconnectivity:
             // To the KNX bus wires
             node.sendResponseToKNX(node.currentDeviceValue);
             break;
@@ -59,34 +59,32 @@ module.exports = function (RED) {
 
     node.handleSendHUE = (_event) => {
       try {
+        // Event status: one of connected, disconnected, connectivity_issue, unidirectional_incoming
         if (_event.id === config.hueDevice) {
+          if (!_event.hasOwnProperty("status") || _event.status === undefined) return;
+
           const knxMsgPayload = {};
-          knxMsgPayload.topic = config.GAtemperaturesensor;
-          knxMsgPayload.dpt = config.dpttemperaturesensor;
+          knxMsgPayload.topic = config.GAzigbeeconnectivity;
+          knxMsgPayload.dpt = config.dptzigbeeconnectivity;
 
-          if (_event.hasOwnProperty('temperature') && _event.temperature.hasOwnProperty('temperature')) {
-            knxMsgPayload.payload = _event.temperature.temperature;
-            // Send to KNX bus
-            if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) {
-              node.server.writeQueueAdd({
-                grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id,
-              });
-            }
-            node.currentDeviceValue = knxMsgPayload.payload;
-
-            node.status({ fill: 'green', shape: 'dot', text: `HUE->KNX ${JSON.stringify(knxMsgPayload.payload)} (${new Date().getDate()}, ${new Date().toLocaleTimeString()})` });
-
-            // Setup the output msg
-            knxMsgPayload.name = node.name;
-            knxMsgPayload.event = 'temperature';
-
-            // Send payload
-            knxMsgPayload.rawEvent = _event;
-            node.send(knxMsgPayload);
-            node.setNodeStatusHue({
-              fill: 'blue', shape: 'ring', text: 'HUE->KNX', payload: knxMsgPayload.payload,
+          knxMsgPayload.payload = (_event.status === "connected");
+          // Send to KNX bus
+          if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) {
+            node.server.writeQueueAdd({
+              grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id,
             });
           }
+          node.currentDeviceValue = knxMsgPayload.payload;
+          // Setup the output msg
+          knxMsgPayload.name = node.name;
+          knxMsgPayload.status = _event.status;
+          knxMsgPayload.event = 'zigbee_connectivity';
+          // Send payload
+          knxMsgPayload.rawEvent = _event;
+          node.send(knxMsgPayload);
+          node.setNodeStatusHue({
+            fill: 'blue', shape: 'ring', text: 'HUE->KNX', payload: knxMsgPayload.payload,
+          });
         }
       } catch (error) {
         node.status({ fill: 'red', shape: 'dot', text: `HUE->KNX error ${error.message} (${new Date().getDate()}, ${new Date().toLocaleTimeString()})` });
@@ -96,8 +94,8 @@ module.exports = function (RED) {
 
     node.sendResponseToKNX = (_level) => {
       const knxMsgPayload = {};
-      knxMsgPayload.topic = config.GAtemperaturesensor;
-      knxMsgPayload.dpt = config.dpttemperaturesensor;
+      knxMsgPayload.topic = config.GAzigbeeconnectivity;
+      knxMsgPayload.dpt = config.dptzigbeeconnectivity;
 
       knxMsgPayload.payload = _level;
       // Send to KNX bus
@@ -107,7 +105,6 @@ module.exports = function (RED) {
         });
       }
     };
-
 
     // On each deploy, unsubscribe+resubscribe
     if (node.server) {
@@ -133,5 +130,5 @@ module.exports = function (RED) {
       done();
     });
   }
-  RED.nodes.registerType('knxUltimateHueTemperatureSensor', knxUltimateHueTemperatureSensor);
+  RED.nodes.registerType('knxUltimateHueZigbeeConnectivity', knxUltimateHueZigbeeConnectivity);
 };

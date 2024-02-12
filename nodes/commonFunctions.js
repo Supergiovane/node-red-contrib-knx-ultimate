@@ -237,9 +237,9 @@ module.exports = (RED) => {
 
         // 14/08/2019 Endpoint for retrieving the ethernet interfaces
         RED.httpAdmin.get("/knxUltimateETHInterfaces", (req, res) => {
+            const jListInterfaces = [];
             try {
                 const oiFaces = oOS.networkInterfaces();
-                const jListInterfaces = [];
                 Object.keys(oiFaces).forEach((ifname) => {
                     // Interface with single IP
                     if (Object.keys(oiFaces[ifname]).length === 1) {

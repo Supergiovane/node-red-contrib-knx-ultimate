@@ -6,6 +6,13 @@
 
 # CHANGELOG
 
+**Version 2.4.5-beta.3 PUBLIC BETA** - Feb 2024<br/>
+- HUE: Fixed "read at startup" option, not working for some HUE nodes.<br/>
+- NEW: HUE: added node Zigbee Connectivity.<br/>
+
+**Version 2.4.5-beta.2 PUBLIC BETA** - Feb 2024<br/>
+- Fix the listing of ethernet interfaces in the gateway config window.<br/>
+
 **Version 2.4.5-beta.1 PUBLIC BETA** - Feb 2024<br/>
 - WARNING: this version uses the Node-Red plugin system; the  Node-Red version must be **equals or major than 3.1.1**<br/>
 - HUE: Optimized color translation between xyBri and RGB.<br/>
