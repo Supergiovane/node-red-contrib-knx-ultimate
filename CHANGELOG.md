@@ -6,6 +6,26 @@
 
 # CHANGELOG
 
+**Version 2.4.5** - Feb 2024<br/>
+- WARNING: this version uses the Node-Red plugin system; the  Node-Red version must be **equals or major than 3.1.1**<br/>
+- NEW: Added KNX Datapoint 275.100<br/>
+- HUE Light: fixed https://github.com/Supergiovane/node-red-contrib-knx-ultimate/issues/317<br/>
+- HUE Light: corrected the 7.600 kelvin range https://github.com/Supergiovane/node-red-contrib-knx-ultimate/issues/316<br/>
+- HUE Light: blinking effect and color cyle are now stopped, whenever an FALSE KNX telegram is received by the light switching group address.<br/>
+- HUE Light: when the light is off, the dim up sequence starts now with initial brightness = zero.<br/>
+- KNX Engine: moved all HTTP calls to a single js file plugin, loaded at startup, to avoid multi KNX gateway or multi HUE bridges issues.<br/>
+- HUE: Optimized color translation between xyBri and RGB.<br/>
+- NEW: HUE Light node: added the HSV controls.<br/>
+- HUE Light node: stopping the dim sequence, now clears also the HUE bridge queue commands, to allow stopping the dimmer quickly.<br/>
+- HUE Light node: smoother dimming.<br/>
+- Fix the listing of ethernet interfaces in the gateway config window.<br/>
+- HUE: Fixed "read at startup" option, not working for some HUE nodes.<br/>
+- NEW: HUE: added node Zigbee Connectivity.<br/>
+- PLEASE TRY THIS VERSION AND GIVE ME ANY FEEDBACK ABOUT ISSUES YOU FIND. THANKS.<br/>
+
+**Version 2.4.5-beta.4 PUBLIC BETA** - Feb 2024<br/>
+- Maintenance release.<br/>
+
 **Version 2.4.5-beta.3 PUBLIC BETA** - Feb 2024<br/>
 - HUE: Fixed "read at startup" option, not working for some HUE nodes.<br/>
 - NEW: HUE: added node Zigbee Connectivity.<br/>

@@ -7,6 +7,11 @@
 # CHANGELOG
 
 <p>
+<b>Version 1.0.48</b> - February 2024<br/>
+- Maintenance release.<br/>
+</p>
+
+<p>
 <b>Version 1.0.47</b> - January 2024<br/>
 - NEW: added DPT 275.100.<br/>
 </p>
