@@ -6,6 +6,10 @@
 
 # CHANGELOG
 
+**Version 2.4.6** - Feb 2024<br/>
+- WARNING: this version uses the Node-Red plugin system; the  Node-Red version must be **equals or major than 3.1.1**<br/>
+- Changed the KNX Engine keep alive CONNECTIONSTATUS_REQUEST interval from 60 to 30 secs, to allow some KNX/IP interfaces (not strictly following the KNX standard) to work properly.<br/>
+
 **Version 2.4.5** - Feb 2024<br/>
 - WARNING: this version uses the Node-Red plugin system; the  Node-Red version must be **equals or major than 3.1.1**<br/>
 - NEW: Added KNX Datapoint 275.100<br/>
