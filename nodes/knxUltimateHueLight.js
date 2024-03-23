@@ -210,7 +210,8 @@ module.exports = function (RED) {
                     const dbright = hueColorConverter.ColorConverter.getBrightnessFromRGBOrHex(colorChoosen.red, colorChoosen.green, colorChoosen.blue);
                     node.currentHUEDevice.dimming.brightness = Math.round(dbright, 0);
                     node.updateKNXBrightnessState(node.currentHUEDevice.dimming.brightness);
-                    state = dbright > 0 ? { on: { on: true }, dimming: { brightness: dbright }, color: { xy: dretXY } } : { on: { on: false } };
+                    //state = dbright > 0 ? { on: { on: true }, dimming: { brightness: dbright }, color: { xy: dretXY } } : { on: { on: false }, color: { xy: dretXY } };
+                    state = { on: { on: true }, dimming: { brightness: dbright }, color: { xy: dretXY } };
                   } else if (temperatureChoosen !== undefined) {
                     // Kelvin
                     const mirek = hueColorConverter.ColorConverter.kelvinToMirek(temperatureChoosen);
@@ -218,9 +219,11 @@ module.exports = function (RED) {
                     node.currentHUEDevice.dimming.brightness = brightnessChoosen;
                     node.updateKNXBrightnessState(node.currentHUEDevice.dimming.brightness);
                     // Kelvin temp
-                    state = brightnessChoosen > 0 ? { on: { on: true }, dimming: { brightness: brightnessChoosen }, color_temperature: { mirek: mirek } } : { on: { on: false } };
+                    //state = brightnessChoosen > 0 ? { on: { on: true }, dimming: { brightness: brightnessChoosen }, color_temperature: { mirek: mirek } } : { on: { on: false }, color_temperature: { mirek: mirek } };
+                    state = { on: { on: true }, dimming: { brightness: brightnessChoosen }, color_temperature: { mirek: mirek } };
                   } else if (brightnessChoosen !== undefined) {
-                    state = brightnessChoosen > 0 ? { on: { on: true }, dimming: { brightness: brightnessChoosen } } : { on: { on: false } };
+                    //state = brightnessChoosen > 0 ? { on: { on: true }, dimming: { brightness: brightnessChoosen } } : { on: { on: false } };
+                    state = { on: { on: true }, dimming: { brightness: brightnessChoosen } };
                   } else {
                     state = { on: { on: true } };
                   }
