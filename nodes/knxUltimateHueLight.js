@@ -209,9 +209,10 @@ module.exports = function (RED) {
                     const dretXY = hueColorConverter.ColorConverter.calculateXYFromRGB(colorChoosen.red, colorChoosen.green, colorChoosen.blue, gamut);
                     const dbright = hueColorConverter.ColorConverter.getBrightnessFromRGBOrHex(colorChoosen.red, colorChoosen.green, colorChoosen.blue);
                     node.currentHUEDevice.dimming.brightness = Math.round(dbright, 0);
+                    if (node.currentHUEDevice.color !== undefined) node.currentHUEDevice.color.xy = dretXY; // 26/03/2024
                     node.updateKNXBrightnessState(node.currentHUEDevice.dimming.brightness);
-                    //state = dbright > 0 ? { on: { on: true }, dimming: { brightness: dbright }, color: { xy: dretXY } } : { on: { on: false }, color: { xy: dretXY } };
-                    state = { on: { on: true }, dimming: { brightness: dbright }, color: { xy: dretXY } };
+                    state = dbright > 0 ? { on: { on: true }, dimming: { brightness: dbright }, color: { xy: dretXY } } : { on: { on: false } };
+                    // state = { on: { on: true }, dimming: { brightness: dbright }, color: { xy: dretXY } };
                   } else if (temperatureChoosen !== undefined) {
                     // Kelvin
                     const mirek = hueColorConverter.ColorConverter.kelvinToMirek(temperatureChoosen);
@@ -219,11 +220,11 @@ module.exports = function (RED) {
                     node.currentHUEDevice.dimming.brightness = brightnessChoosen;
                     node.updateKNXBrightnessState(node.currentHUEDevice.dimming.brightness);
                     // Kelvin temp
-                    //state = brightnessChoosen > 0 ? { on: { on: true }, dimming: { brightness: brightnessChoosen }, color_temperature: { mirek: mirek } } : { on: { on: false }, color_temperature: { mirek: mirek } };
-                    state = { on: { on: true }, dimming: { brightness: brightnessChoosen }, color_temperature: { mirek: mirek } };
+                    state = brightnessChoosen > 0 ? { on: { on: true }, dimming: { brightness: brightnessChoosen }, color_temperature: { mirek: mirek } } : { on: { on: false } };
+                    // state = { on: { on: true }, dimming: { brightness: brightnessChoosen }, color_temperature: { mirek: mirek } };
                   } else if (brightnessChoosen !== undefined) {
-                    //state = brightnessChoosen > 0 ? { on: { on: true }, dimming: { brightness: brightnessChoosen } } : { on: { on: false } };
-                    state = { on: { on: true }, dimming: { brightness: brightnessChoosen } };
+                    state = brightnessChoosen > 0 ? { on: { on: true }, dimming: { brightness: brightnessChoosen } } : { on: { on: false } };
+                    // state = { on: { on: true }, dimming: { brightness: brightnessChoosen } };
                   } else {
                     state = { on: { on: true } };
                   }
@@ -307,7 +308,7 @@ module.exports = function (RED) {
                       try {
                         const retLights = await node.serverHue.getAllLightsBelongingToTheGroup(node.hueDevice);
                         node.HUELightsBelongingToGroupWhileDaytime = cloneDeep(retLights); // DayTime has switched to false: save the lights belonging to the group into the HUELightsBelongingToGroupWhileDaytime array
-                      } catch (error) { }
+                      } catch (error) { /* empty */ }
                     })();
                   }
                 }
@@ -530,6 +531,7 @@ module.exports = function (RED) {
       try {
         let hueTelegram = {};
         let numStep = 10; // Steps from 0 to 100 by 10
+        const extendedConf = {};
 
         if (_KNXbrightness_Direction === 0 && _KNXaction === 0) {
           // STOP DIM
@@ -537,6 +539,12 @@ module.exports = function (RED) {
           node.brightnessStep = null;
           node.serverHue.hueManager.deleteHueQueue(node.hueDevice); // Clear dimming queue.
           return;
+        }
+
+        // 26/03/2024 set the extended configuration as well, because the light was off (so i've been unable to set it up elsewhere)
+        if (node.currentHUEDevice.on !== undefined && node.currentHUEDevice.on.on === false) {
+          // if (node.currentHUEDevice.color !== undefined) extendedConf.color = { xy: node.currentHUEDevice.color.xy }; // DO NOT ADD THE COLOR, BECAUSE THE COLOR HAS ALSO THE BRIGHTNESS, SO ALL THE DATA NEEDED TO BE SWITCHED ON CORRECLY
+          if (node.currentHUEDevice.color_temperature !== undefined) extendedConf.color_temperature = { mirek: node.currentHUEDevice.color_temperature.mirek };
         }
 
         // If i'm dimming up while the light is off, start the dim with the initial brightness set to zero
@@ -575,7 +583,9 @@ module.exports = function (RED) {
             // Switch on the light if off
             if (node.currentHUEDevice.on !== undefined && node.currentHUEDevice.on.on === false) {
               hueTelegram.on = { on: true };
+              Object.assign(hueTelegram, extendedConf); // 26/03/2024 add extended conf
             }
+            //console.log(hueTelegram)
             node.serverHue.hueManager.writeHueQueueAdd(node.hueDevice, hueTelegram, node.isGrouped_light === false ? "setLight" : "setGroupedLight");
             if (node.brightnessStep >= maxDimLevelLight) clearInterval(node.timerStepDim);
           }, _dimSpeedInMillisecs);
@@ -851,7 +861,7 @@ module.exports = function (RED) {
 
     node.handleSendHUE = (_event) => {
       try {
-        let deviceByRef = cloneDeep(_event);
+        const deviceByRef = cloneDeep(_event);
         if (deviceByRef.id === node.hueDevice) {
           if (node.currentHUEDevice === undefined || node.serverHue === null || node.serverHue === undefined) {
             node.setNodeStatusHue({
@@ -1107,11 +1117,11 @@ module.exports = function (RED) {
     //     };
 
     /**
-* Update the KNC colors and HSV states group addresses
-* @param {object} _value {xy:{x,y}} in 0-1 scale
-* @param {string} _outputtype "write" is the default KNX command
-* @returns {}
-*/
+  * Update the KNC colors and HSV states group addresses
+  * @param {object} _value {xy:{x,y}} in 0-1 scale
+  * @param {string} _outputtype "write" is the default KNX command
+  * @returns {}
+  */
     node.updateKNXLightColorState = function updateKNXLightColorState(_value, _outputtype = "write") {
       if (config.GALightColorState !== undefined && config.GALightColorState !== "") {
         if (_value.xy === undefined || _value.xy.x === undefined) return;
