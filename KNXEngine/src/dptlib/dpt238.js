@@ -33,13 +33,22 @@ exports.basetype = {
 }
 
 exports.subtypes = {
-  // 20.102 HVAC mode
+  // .102 HVAC mode
   102: {
     name: 'HVAC_Mode',
     desc: '',
     unit: '',
     scalar_range: [,],
-    range: [,]
+    range: [,],
+    help:
+      `// Datapoint for HVAC Mode.
+      msg.payload = 0; // Auto
+      return msg;
+      // 0-Auto
+      // 1-Heat
+      // 3-Cool
+      // 9-Fan
+      // 14-Dry`
   },
 
   // 5.003 angle (degrees 0=0, ff=360)
