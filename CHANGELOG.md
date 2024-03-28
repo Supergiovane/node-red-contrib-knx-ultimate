@@ -6,7 +6,7 @@
 
 # CHANGELOG
 
-**Version 2.4.8** - March 2024<br/>
+**Version 2.4.9** - March 2024<br/>
 - WARNING: this version uses the Node-Red plugin system; the  Node-Red version must be **equals or major than 3.1.1**<br/>
 - Fixed [this](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/issues/338).<br/>
 
