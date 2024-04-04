@@ -1,3 +1,6 @@
+<!-- <script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/jquery.searchableSelect.js"></script> -->
+
+
 <script type="text/javascript">
     RED.nodes.registerType('knxUltimate', {
         category: "KNX Ultimate",
@@ -17,8 +20,8 @@
             listenallga: { value: false },
             name: { value: "" },
             outputtype: { value: "write" },
-            outputRBE: { value: true },
-            inputRBE: { value: false },
+            outputRBE: { value: "true" },
+            inputRBE: { value: "false" },
             formatmultiplyvalue: { value: 1 },
             formatnegativevalue: { value: "leave" },
             formatdecimalsvalue: { value: 999 },
@@ -28,7 +31,7 @@
         outputs: 1,
         icon: "node-knx-icon.svg",
         label: function () {
-            return (this.outputRBE == true ? "|rbe| " : "") + (this.name || this.topic || "KNX Device") + (this.inputRBE == true ? " |rbe|" : "")
+            return (this.outputRBE === "true" ? "|rbe| " : "") + (this.name || this.topic || "KNX Device") + (this.inputRBE === "true" ? " |rbe|" : "")
         },
         paletteLabel: "KNX DEVICE",
         // button: {
@@ -49,7 +52,6 @@
             var node = this;
             var oNodeServer = RED.nodes.node($("#node-input-server").val()); // Store the config-node
             $("#tabs").tabs();
-
             // 31/03/2020 Search Helper
             function fullSearch(sourceText, searchString) {
                 // This searches for all words in a string
@@ -161,9 +163,9 @@
                         if ($("#node-input-listenallga").is(":checked")) {
                             $("#GAandDPT").hide()
                             $("#divOutputRBE").hide()
-                            $("#node-input-outputRBE").prop('checked', false)
+                            $("#node-input-outputRBE").val("false")
                             $("#divInputRBE").hide()
-                            $("#node-input-inputRBE").prop('checked', false)
+                            $("#node-input-inputRBE").val("false")
                             $("#divnotifyreadrequestautoreact").hide();
                             $("#helpallga").show();
                             $("#divTopic").hide()
@@ -387,6 +389,17 @@
         <input type="text" id="node-input-outputtopic" data-i18n="[placeholder]knxUltimate.placeholder.leaveempty" />
     </div>
     <div class="form-row">
+        <label for="node-input-passthrough">
+            <i class="fa fa-long-arrow-right"></i> Passthrough
+        </label>
+        <select id="node-input-passthrough">
+            <option value="no">No</option>
+            <option value="yes">Yes, pass the input msg to the output msg</option>
+            <option value="yesownprop">Yes, but put the input msg into msg.inputmessage property of the output msg
+            </option>
+        </select>
+    </div>
+    <div class="form-row">
         <input type="checkbox" id="node-input-listenallga"
             style="display:inline-block; width:auto; vertical-align:top;" />
         <label style="width:auto" for="node-input-listenallga">
@@ -407,16 +420,6 @@
         <div id="tabs-1">
             <div class="form-row" style="padding:10px">
                 <div class="form-row">
-                    <label style="width:180px" for="node-input-passthrough">
-                        <i class="fa fa-long-arrow-right"></i> Msg passthrough
-                    </label>
-                    <select id="node-input-passthrough">
-                        <option value="no" data-i18n="knxUltimate.selectlists.passthrough_No"></option>
-                        <option value="yes" data-i18n="knxUltimate.selectlists.passthrough_Leave"></option>
-                        <option value="yesownprop" data-i18n="knxUltimate.selectlists.passthrough_OwnProp"></option>
-                    </select>
-                </div>
-                <div class="form-row">
                     <dt>
                         <i class="fa fa-arrow-right"></i> CONTROL (payload to KNX bus)
                     </dt>
@@ -433,11 +436,13 @@
                     </select>
                 </div>
                 <div class="form-row" id="divOutputRBE">
-                    <input type="checkbox" id="node-input-outputRBE"
-                        style="display:inline-block; width:auto; vertical-align:top;" />
-                    <label style="width:85%" for="node-input-outputRBE">
-                        <i class="fa fa-filter"></i> Send payload to KNX only if changed (RBE filter)
+                    <label style="width:180px" for="node-input-outputRBE">
+                        <i class="fa fa-filter"></i> RBE filter
                     </label>
+                    <select id="node-input-outputRBE">
+                        <option value="true">Enable (send the payload to KNX only if changed)</option>
+                        <option value="false">Disable</option>
+                    </select>
                 </div>
                 <br />
                 <div class="form-row">
@@ -458,11 +463,13 @@
 
                 </div>
                 <div class="form-row" id="divInputRBE">
-                    <input type="checkbox" id="node-input-inputRBE"
-                        style="display:inline-block; width:auto; vertical-align:top;" />
-                    <label style="width:85%" for="node-input-inputRBE">
-                        <i class="fa fa-filter"></i> React only by changed payload (RBE filter)
+                    <label style="width:180px" for="node-input-inputRBE">
+                        <i class="fa fa-filter"></i> RBE filter
                     </label>
+                    <select id="node-input-inputRBE">
+                        <option value="true">Enable (react only if payload changes)</option>
+                        <option value="false">Disable</option>
+                    </select>
                 </div>
                 <div class="form-row">
                     <input type="checkbox" id="node-input-notifywrite"
@@ -581,9 +588,11 @@
 <br /><br />
 </script>
 <script type="text/markdown" data-help-name="knxUltimate">
-<p>This node lets you control a KNX Group Address, this is the most used node.
+<p>This node lets you control a KNX Group Address, this is the most used node.  
+    
+[<i class="fa fa-code"></i> Here you'll find some samples](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-SamplesHome)
 
-**General**
+**Configuration**
 |Property|Description|
 |--|--|
 | Gateway | Select the KNX gateway to be used |
@@ -591,17 +600,35 @@
 | Datapoint | The datapoint belonging to your node.|
 | Node name | Self explaining. |
 | Topic | The msg output topic. Leave it blank to have it set to your Group Address. |
+| Passthrough | If set, you can pass the input mgs to the output msg. |
 | Universal mode (listen to all Group Addresses) | By setting this, the node will read and control ALL group addresses. |
-| Sample Function | This will give it a hint on what to write in a function, if you want to control the node via a Node-Red function node. |
-| Input msg passthrough | If set, you can pass the input mgs to the output msg. |
+
+
+**Advanced options**
+|Property|Description|
+|--|--|
+||**CONTROL (payload to KNX bus)**|
 | Telegram type | *write* to send write telegram (usually, you want that), otherwise you can choose the telegram's type to react to. |
-| Send payload to KNX only if changed (RBE filter) | *Report by change* filter. If set, only the msg input (from the Flow) having different values each time, will be sent to the KNX bus. If you intend to send everytime the same value, turn it off. |
+| RBE filter (in the CONTROL section) | *Report by change* filter. If set, only the msg input (from the Flow) having different values each time, will be sent to the KNX bus. If you intend to send everytime the same value, turn it off. |
+||**STATUS (payload from KNX BUS)**|
 | Read status on start | Read group address status, every time Node-Red starts and at every reconnection to the KNX Gateway. The node stores all group address values to a file, so you can choose wether to read from file or from the KNX bus. |
-| React only by changed payload (RBE filter) | *Report by change* filter. If set, only the msg output (to KNX bus) having different values each time, will be sent to the msg output's flow. If you intend to send everytime the same value, leave it off. |
+| RBE filter (in the STATUS section)| *Report by change* filter. If set, only the msg output (to KNX bus) having different values each time, will be sent to the msg output's flow. If you intend to send everytime the same value, leave it off. |
 | React to write telegrams | The node will react (will send a msg to the flow) each time it receives a *write* telegram from the KNX bus. Usually, you want that. |
 | React to response telegrams | The node will react (will send a msg to the flow) each time it receives a *response* telegram from the KNX bus. Usually, you want that for particular scenarios. |
 | React to read telegrams | The node will react (will send a msg to the flow) each time it receives a *read* telegram from the KNX bus. Usually, you want that if you're want to send a custom value to the KNX BUS. |
-| Format input | Allow you to format numeric values received from the KNX Bus. |
+
+
+**Format input**
+|Property|Description|
+|--|--|
+| Multiply | Multiplies or divides the payload value |
+| Decimals | Round or handle decimals in any way |
+| Negatives | Handles the negative values |
+
+**Payload sample**
+|Property|Description|
+|--|--|
+| Sample | This will give it a hint on what to write in a function, if you want to control the node via a Node-Red function node. |
 
 <br/>
 
@@ -669,9 +696,9 @@ msg = {
 }
 ````
 
-<br/><a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-SamplesHome" target="_blank"><i class="fa fa-code"></i> Samples</a>
+<br/>
 
-[Find it useful?](https://www.paypal.me/techtoday)
+[DONATE HERE, THANK YOU!](https://www.paypal.me/techtoday)
 
 
 

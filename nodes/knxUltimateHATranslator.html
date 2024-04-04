@@ -1,0 +1,74 @@
+<script type="text/javascript">
+	RED.nodes.registerType('knxUltimateHATranslator', {
+		category: 'KNX Ultimate',
+		defaults: {
+			name: { value: "" },
+			payloadPropName: { value: "payload", required: false },
+			commandText: { value: 'on:true\noff:false\nactive:true\ninactive:false\nopen:true\nclosed:false\nclose:false\n1:true\n0:false\ntrue:true\nfalse:false\nhome:true\nnot_home:false', required: false }
+		},
+		inputs: 1,
+		outputs: 1,
+		icon: "node-ha-icon.svg",
+		label: function () {
+			return (this.name || 'HA Translator');
+		},
+		color: '#AED6F1',
+		paletteLabel: "Homeassistant translator",
+		oneditprepare: function () {
+			var node = this;
+			node.editor = RED.editor.createEditor({
+				id: 'node-input-editorcommandText',
+				mode: 'ace/mode/text',
+				value: node.commandText
+			});
+		},
+		oneditsave: function () {
+			var node = this;
+			node.commandText = node.editor.getValue();
+			node.editor.destroy();
+			delete node.editor;
+		},
+		oneditcancel: function () {
+			var node = this;
+			node.editor.destroy();
+			delete node.editor;
+		},
+	});
+</script>
+
+<script type="text/html" data-template-name="knxUltimateHATranslator">
+    <div class="form-row">
+        <label for="node-config-input-name">
+            <i class="fa fa-tag"></i> Name
+        </label>
+        <input type="text" id="node-config-input-name">
+    </div>
+	<div class="form-row">
+        <label for="node-input-payloadPropName"><i class="fa fa-ellipsis-h"></i> Input</label>
+		<input type="text" id="node-input-payloadPropName">
+    </div>
+    <div class="form-row">
+        <label style="width:300px;" for="node-input-commandText"><i class="fa fa-tasks"></i> Translate (Homassistant:KNX)</label>
+        <div style="height: 250px; min-height:150px;" class="node-text-editor" id="node-input-editorcommandText"></div>
+    </div>
+</script>
+
+<script type="text/markdown" data-help-name="knxUltimateHATranslator">
+<p>This node translates the input msg to valid true/false values.<p>
+
+
+It can translate an input payload, to a true/false boolean values.<br />
+Each row in the text box, represents a translation command. <br/>
+You can add your own translation row.<br/>
+
+|Property|Description|
+|--|--|
+| Name | The node name. |
+| Input | The input msg property to be evaluated and translated. |
+| Translate | Add, delete or edit your own translation command. The row's translation command must be **input string from HA:KNX value** (*KNX value* as true or false). For example: <code>open:true</code> <code>closed:false</code>. |
+
+<br/>
+
+
+[Find it useful?](https://www.paypal.me/techtoday)
+</script>

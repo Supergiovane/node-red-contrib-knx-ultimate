@@ -38,6 +38,8 @@ msg.payload = {red:255, green:200, blue:30} // Put some colors in our life
 * **LOAD CONTROL node** [here](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/LoadControl-Configuration). Control your loads (Oven, Washing machine, etc..) and avoit shutting down the main voltage due to too high power consumption.
 * **VIEWER node** [here](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/knxUltimateViewer). View all Group Addresses and values of your KNX BUS, in the Node-Red Dashboard.
 * **PHILIPS HUE nodeset** [here](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/en-hue-configuration). Link HUE devices to KNX in a simple way.
+* **Homeassistant translator node** translates the HA input msg, to a KNX value. Comes with a built.in translation table, that's user editable.
+
 
 <br>
 <br>

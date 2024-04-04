@@ -29,26 +29,27 @@ exports.basetype = {
   bitlength: 8,
   range: [,],
   valuetype: 'basic',
-  desc: '1-byte'
+  desc: '1-byte',
+  help:
+    `// Datapoint for 1 byte.
+    // For example, for DPT 238.102, HVAC Mode, the values are as following:
+    // 0-Auto
+    // 1-Heat
+    // 3-Cool
+    // 9-Fan
+    // 14-Dry
+    msg.payload = 0; // Auto
+    return msg;`
 }
 
 exports.subtypes = {
   // .102 HVAC mode
-  102: {
+  '102': {
     name: 'HVAC_Mode',
     desc: '',
     unit: '',
     scalar_range: [,],
-    range: [,],
-    help:
-      `// Datapoint for HVAC Mode.
-      msg.payload = 0; // Auto
-      return msg;
-      // 0-Auto
-      // 1-Heat
-      // 3-Cool
-      // 9-Fan
-      // 14-Dry`
+    range: [,]
   },
 
   // 5.003 angle (degrees 0=0, ff=360)
