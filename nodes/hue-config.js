@@ -317,6 +317,14 @@ module.exports = (RED) => {
               //const zigbee = node.hueAllResources.filter((a) => a.services !== undefined).find((a) => a.services.rtype === "zigbee_connectivity");
               //const devs = zigbee.filter((a) => a.rtype === "zigbee_connectivity");
             }
+            if (_rtype === 'contact') {
+              const Room = node.hueAllRooms.find((room) => room.children.find((child) => child.rid === resource.owner.rid))
+              const linkedDevName = node.hueAllResources.find((dev) => dev.type === 'device' && dev.services.find((serv) => serv.rid === resource.id)).metadata.name || ''
+              retArray.push({
+                name: `Contact: ${linkedDevName}${Room !== undefined ? `, room ${Room.metadata.name}` : ''}`,
+                id: resource.id,
+              });
+            }
           } catch (error) {
             retArray.push({
               name: `${_rtype}: ERROR ${error.message}`,
