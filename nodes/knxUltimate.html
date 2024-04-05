@@ -31,7 +31,7 @@
         outputs: 1,
         icon: "node-knx-icon.svg",
         label: function () {
-            return (this.outputRBE === "true" ? "|rbe| " : "") + (this.name || this.topic || "KNX Device") + (this.inputRBE === "true" ? " |rbe|" : "")
+            return ((this.outputRBE === "true" || this.outputRBE === true) ? "|rbe| " : "") + (this.name || this.topic || "KNX Device") + ((this.inputRBE === "true" || this.inputRBE === true) ? " |rbe|" : "")
         },
         paletteLabel: "KNX DEVICE",
         // button: {
@@ -49,6 +49,7 @@
         //     onclick: function() {}
         // },
         oneditprepare: function () {
+
             var node = this;
             var oNodeServer = RED.nodes.node($("#node-input-server").val()); // Store the config-node
             $("#tabs").tabs();
@@ -99,23 +100,26 @@
             }
 
             function checkUI() {
+
                 // Backward compatibility
-                if (node.outputRBE === true) {
+                if (node.outputRBE === true || $("#node-input-outputRBE").val() === true) {
                     node.outputRBE = 'true';
                     $("#node-input-outputRBE").val("true")
                 }
-                if (node.outputRBE === false) {
+                if (node.outputRBE === false || $("#node-input-outputRBE").val() === false) {
                     node.outputRBE = 'false';
                     $("#node-input-outputRBE").val("false")
                 }
-                if (node.inputRBE === true) {
+                if (node.inputRBE === true || $("#node-input-inputRBE").val() === true) {
                     node.inputRBE = 'true';
                     $("#node-input-inputRBE").val("true")
                 }
-                if (node.inputRBE === false) {
+                if (node.inputRBE === false || $("#node-input-inputRBE").val() === false) {
                     node.inputRBE = 'false';
                     $("#node-input-inputRBE").val("false")
                 }
+
+
 
                 oNodeServer = RED.nodes.node($("#node-input-server").val());
                 if (oNodeServer === undefined) {
@@ -353,6 +357,12 @@
             } catch (error) { }
         }
     })
+
+    // RED.events.on("nodes:change", function (node) {
+
+    //     checkUI();
+
+    // });
 
 </script>
 

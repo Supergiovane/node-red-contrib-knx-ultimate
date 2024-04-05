@@ -6,7 +6,7 @@
 
 # CHANGELOG
 
-**Version 2.4.15** - April 2024<br/>
+**Version 2.4.16** - April 2024<br/>
 - Warning: this version uses the Node-Red plugin system; the  Node-Red version must be **equals or major than 3.1.1**<br/>
 - NEW: Home Assistant translator node: translates the HA input msg, to a KNX value. Comes with a built-in translation table, that's user editable.<br/>
 - NEW: HUE Contact Sensor node.<br/>
