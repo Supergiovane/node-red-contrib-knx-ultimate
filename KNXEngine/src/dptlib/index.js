@@ -161,13 +161,17 @@ dpts.fromBuffer = function (buf, dpt) {
   //  knxLog.get().trace('generic fromBuffer buf=%j, value=%j', buf, value);
   return value;
 };
-
 function cloneDpt(d) {
   let result = {};
-  result = JSON.parse(JSON.stringify(d));
-  result.fromBuffer = d.fromBuffer;
-  result.formatAPDU = d.formatAPDU;
-  return result;
+  try {
+    result = JSON.parse(JSON.stringify(d));
+    result.fromBuffer = d.fromBuffer;
+    result.formatAPDU = d.formatAPDU;
+    return result;
+  } catch (error) {
+
+  }
+
 }
 
 module.exports = dpts;

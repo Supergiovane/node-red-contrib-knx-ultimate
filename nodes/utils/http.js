@@ -28,14 +28,18 @@ module.exports.use = (config) => {
                     } else {
                         // log.trace('http data ' + data);
                         if (res.statusCode >= 100 && res.statusCode < 400) {
-                            let result = JSON.parse(data);
-                            if (result.errors && result.errors.length > 0) {
-                                reject(new Error("The response for " + opt.url + " returned errors " + JSON.stringify(result.errors)));
+                            try {
+                                let result = JSON.parse(data);
+                                if (result.errors && result.errors.length > 0) {
+                                    reject(new Error("The response for " + opt.url + " returned errors " + JSON.stringify(result.errors)));
+                                }
+                                if (!result.data) {
+                                    reject(new Error("Unexpected result with no data. " + JSON.stringify(result)));
+                                }
+                                resolve(result.data);
+                            } catch (error) {
+                                RED.log.error(`utils.https: config.http.call: let result = JSON.parse(data); =: ${error.message} : ${error.stack || ""} `);
                             }
-                            if (!result.data) {
-                                reject(new Error("Unexpected result with no data. " + JSON.stringify(result)));
-                            }
-                            resolve(result.data);
                         } else {
                             reject(new Error("Error response for " + opt.url + " with status " + res.statusCode + " " + res.statusMessage));
                         }

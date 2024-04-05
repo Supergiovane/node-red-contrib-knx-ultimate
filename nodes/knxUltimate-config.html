@@ -122,10 +122,25 @@
 
             var sRetDebugText = "";
             $("#getinfocam").click(function () {
+                sRetDebugText = "";
                 $("#divDebugText").show();
                 for (const [key, value] of Object.entries(node)) {
                     sRetDebugText += (`-> ${key}: ${value}\r`);
                 }
+                sRetDebugText = 'Open a new github issue and paste this text into it. https://github.com/Supergiovane/node-red-contrib-knx-ultimate/issues/new?assignees=Supergiovane&labels=&template=bug_report.md&title=KNXDebugText\r\r' + sRetDebugText;
+                $("#debugText").val(sRetDebugText); // Store the config-node);
+            });
+            $("#getallgaused").click(function () {
+                sRetDebugText = "";
+                $("#divDebugText").show();
+                let aFound = [];
+                RED.nodes.eachNode(function (node) {
+                    if (!aFound.includes(node.topic)) {
+                        aFound.push(node.topic);
+                        sRetDebugText += node.topic + "\r"
+                    }
+                });
+                sRetDebugText = 'Copy these group addresses in your routing table list of your KNX/IP router.\r' + sRetDebugText;
                 $("#debugText").val(sRetDebugText); // Store the config-node);
             });
 
@@ -265,7 +280,7 @@
         <li><a href="#tabs-1"><i class="fa fa-list-ol"></i> Configuration</a></li>
         <li><a href="#tabs-2"><i class="fa fa-braille"></i> Advanced</a></li>
         <li><a href="#tabs-3"><i class="fa fa-code"></i> ETS file import</a></li>
-        <li><a href="#tabs-4"><i class="fa fa-key"></i> Maintenance</a></li>
+        <li><a href="#tabs-4"><i class="fa fa-key"></i> Utility</a></li>
     </ul>
     <div id="tabs-1">
         <p>
@@ -359,8 +374,6 @@
             </div>
         </p>
     </div>
-
-
     <div id="tabs-3">
         <p>
             <div id="etsCSVListBox">
@@ -407,10 +420,12 @@
                 <input type="button" id="getinfocam" class="ui-button ui-corner-all ui-widget"
                     style="background-color:#AEE1FF;width:150px" value="Read">
             </div>
-            <div class="form-row" id="divDebugText" style="display: none;">
-                Copy this text, open a new github issue <a target="_blank"
-                    href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/issues/new?assignees=Supergiovane&labels=&template=bug_report.md&title=KNXDebugText">
-                    ->by CLICKING HERE</a>, or paste it to an already open issue.
+            <div class="form-row">
+                <label style="width:300px"><i class="fa fa-sign-in"></i> Get all used GA for KNX routing filter</label>
+                <input type="button" id="getallgaused" class="ui-button ui-corner-all ui-widget"
+                    style="background-color:#AEE1FF;width:150px" value="Read">
+            </div>
+            <div class="form-row" id="divDebugText" style="display: none;">                
                 <textarea rows="10" id="debugText" style="width:100%"></textarea>
             </div>
         </p>
@@ -459,10 +474,11 @@
 
 <br/>
 
-**Maintenance**
+**Utility**
 |Property|Description|
 |--|--|
 | Gather debug info for troubleshoot | Please click the button and add it to the gitHub issue you want to open, it will help me a lot to helping you. |
+| Get all used GA for KNX routing filter | Press READ to retrieve a plain text list of all group address belonging to this gateway, that has been used in the flows. You can use this list to populate your KNX/IP router filter table. |
 
 <br/>
 

@@ -74,7 +74,12 @@ module.exports = function (RED) {
         config.colorAtSwitchOnDayTime = { kelvin: 3000, brightness: 100 };
       }
     } else {
-      config.colorAtSwitchOnDayTime = JSON.parse(config.colorAtSwitchOnDayTime);
+      try {
+        config.colorAtSwitchOnDayTime = JSON.parse(config.colorAtSwitchOnDayTime);
+      } catch (error) {
+        RED.log.error(`knxUltimateHueLight:  config.colorAtSwitchOnDayTime = JSON.parse(config.colorAtSwitchOnDayTime): ${error.message} : ${error.stack || ""} `);
+        config.colorAtSwitchOnDayTime = "";
+      }
     }
     // Same thing, but with night color
     if (config.colorAtSwitchOnNightTime.indexOf("#") !== -1) {
@@ -85,7 +90,13 @@ module.exports = function (RED) {
         config.colorAtSwitchOnNightTime = { kelvin: 2700, brightness: 20 };
       }
     } else {
-      config.colorAtSwitchOnNightTime = JSON.parse(config.colorAtSwitchOnNightTime);
+      try {
+        config.colorAtSwitchOnNightTime = JSON.parse(config.colorAtSwitchOnNightTime);
+      } catch (error) {
+        RED.log.error(`knxUltimateHueLight:  config.colorAtSwitchOnDayTime = JSON.parse(config.colorAtSwitchOnNightTime): ${error.message} : ${error.stack || ""} `);
+        config.colorAtSwitchOnNightTime = "";
+      }
+
     }
 
     // Used to call the status update from the config node.
