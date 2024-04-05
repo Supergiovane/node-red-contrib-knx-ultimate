@@ -106,7 +106,7 @@
                     node.outputRBE = 'true';
                     $("#node-input-outputRBE").val("true")
                 }
-                if (node.outputRBE === false || $("#node-input-outputRBE").val() === false) {
+                if (node.outputRBE === undefined || node.outputRBE === false || $("#node-input-outputRBE").val() === false) {
                     node.outputRBE = 'false';
                     $("#node-input-outputRBE").val("false")
                 }
@@ -114,12 +114,18 @@
                     node.inputRBE = 'true';
                     $("#node-input-inputRBE").val("true")
                 }
-                if (node.inputRBE === false || $("#node-input-inputRBE").val() === false) {
+                if (node.inputRBE === undefined || node.inputRBE === false || $("#node-input-inputRBE").val() === false) {
                     node.inputRBE = 'false';
                     $("#node-input-inputRBE").val("false")
                 }
-
-
+                if (node.passthrough === undefined) {
+                    node.passthrough = 'no';
+                    $("#node-input-passthrough").val("no")
+                }
+                if (node.initialread === undefined || node.initialread === false) {
+                    node.initialread = 0;
+                    $("#node-input-initialread").val(0)
+                }
 
                 oNodeServer = RED.nodes.node($("#node-input-server").val());
                 if (oNodeServer === undefined) {

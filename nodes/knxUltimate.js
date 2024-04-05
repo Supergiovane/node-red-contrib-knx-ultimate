@@ -23,6 +23,7 @@ module.exports = function (RED) {
     node.notifywrite = config.notifywrite;
     node.initialread = config.initialread || 0;
     if (node.initialread === true) node.initialread = 1; // 04/04/2021 Backward compatibility
+    if (node.initialread === false) node.initialread = 0; // 04/04/2021 Backward compatibility
     node.initialread = Number(config.initialread);
     node.listenallga = config.listenallga || false;
     node.outputtype = config.outputtype || 'write';// When the node is used as output

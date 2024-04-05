@@ -1,0 +1,55 @@
+[
+    {
+        "id": "bbc41a15b589edd3",
+        "type": "knxUltimate",
+        "z": "a108904.7aa037",
+        "server": "a01c5d80.1bbb78",
+        "topic": "3/1/18",
+        "outputtopic": "",
+        "dpt": "1.009",
+        "initialread": false,
+        "notifyreadrequest": false,
+        "notifyresponse": false,
+        "notifywrite": true,
+        "notifyreadrequestalsorespondtobus": false,
+        "notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized": "",
+        "listenallga": false,
+        "name": "Porta REI apri/chiudi [ON/OFF]",
+        "outputtype": "write",
+        "outputRBE": true,
+        "inputRBE": true,
+        "formatmultiplyvalue": "1",
+        "formatnegativevalue": "leave",
+        "formatdecimalsvalue": "999",
+        "passthrough": "no",
+        "x": 700,
+        "y": 1580,
+        "wires": [
+            []
+        ]
+    }
+]
+
+
+[
+    {
+        "id": "48937ee6.d1bac",
+        "type": "knxUltimate",
+        "z": "10f01cd3.a2c053",
+        "server": "a01c5d80.1bbb78",
+        "topic": "0/1/0",
+        "dpt": "1.001",
+        "initialread": false,
+        "notifyreadrequest": false,
+        "notifyresponse": false,
+        "notifywrite": true,
+        "listenallga": false,
+        "name": "Corridoio e scala luce",
+        "outputtype": "write",
+        "x": 900,
+        "y": 2980,
+        "wires": [
+            []
+        ]
+    }
+]
