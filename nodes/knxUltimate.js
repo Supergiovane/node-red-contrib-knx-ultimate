@@ -28,6 +28,12 @@ module.exports = function (RED) {
     node.outputtype = config.outputtype || 'write';// When the node is used as output
     node.outputRBE = config.outputRBE || 'false'; // Apply or not RBE to the output (Messages coming from flow)
     node.inputRBE = config.inputRBE || 'false'; // Apply or not RBE to the input (Messages coming from BUS)
+    // Backward compatibility
+    if (node.outputRBE === true) node.outputRBE = 'true';
+    if (node.outputRBE === false) node.outputRBE = 'false';
+    if (node.inputRBE === true) node.inputRBE = 'true';
+    if (node.inputRBE === false) node.inputRBE = 'false';
+
     node.currentPayload = ''; // Current value for the RBE input and for the .previouspayload msg
     node.icountMessageInWindow = 0; // Used to prevent looping messages
     node.messageQueue = []; // 01/01/2020 All messages from the flow to the node, will be queued and will be sent separated by 60 milliseconds each. Use uf the underlying api "minimumDelay" is not possible because the telegram order isn't mantained.
@@ -38,6 +44,8 @@ module.exports = function (RED) {
     node.inputmessage = {}; // Stores the input message to be passed through
     node.timerTTLInputMessage = null; // The stored node.inputmessage has a ttl.
     node.sysLogger = require('./utils/sysLogger.js').get({ loglevel: node.server.loglevel || 'error' }); // 08/04/2021 new logger to adhere to the loglevel selected in the config-window
+
+
 
     // Used to call the status update from the config node.
     node.setNodeStatus = ({

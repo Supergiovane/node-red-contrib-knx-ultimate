@@ -63,6 +63,25 @@
                 return i == aSearchWords.length;
             }
 
+            // Backward compatibility
+            if (node.outputRBE === true) {
+                node.outputRBE = 'true';
+                $("#node-input-outputRBE").val("true")
+            }
+            if (node.outputRBE === false) {
+                node.outputRBE = 'false';
+                $("#node-input-outputRBE").val("false")
+            }
+            if (node.inputRBE === true) {
+                node.inputRBE = 'true';
+                $("#node-input-inputRBE").val("true")
+            }
+            if (node.inputRBE === false) {
+                node.inputRBE = 'false';
+                $("#node-input-inputRBE").val("false")
+            }
+
+
             // 15/09/2020 Supergiovane, set the help sample based on Datapoint
             function knxUltimateDptsGetHelp(_dpt, _forceClose) {
                 if ($("#node-input-server").val() !== "_ADD_" && $("#node-input-server").val() !== '' && _dpt !== null && _dpt !== '') {
