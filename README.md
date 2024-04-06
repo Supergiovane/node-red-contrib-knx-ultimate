@@ -16,7 +16,8 @@
 
 <p align='center'>
 <img width="110px" src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/KNX_CERTI_MARK_RGB.jpg" ></br>
-Authorized KNX logo by KNX Association
+Authorized KNX logo by KNX Association</br>
+The author <i>Massimo "Supergiovane" Saccani</i> has been authorized to use the KNX logo.
 </p>
 
 </br>
@@ -50,20 +51,19 @@ msg.payload = {red:255, green:200, blue:30} // Put some colors in our life
 
 * See <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/blob/master/CHANGELOG.md">here the changelog</a>
 
-<br>
+<br/>
+
+## LESSONS FROM BEGINNER TO CERTIFIED KNX-ULTIMATE GURU STATUS
+
+[Lesson 01 - Introduction to KNX Device](https://youtu.be/4rjrMqszhP8)
+
+...more to come...
 
 
-## HELP, SAMPLES, TROUBLESHOOT, WIKI, FAQ, BEST PRACTICES
+<br/>
+<br/>
 
-<a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/Overview"><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/flags/usa-today.png"/></a>
-
-
-> Tons of documentation, samples, even for use in conjunction with <img width="90px" src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/homekit.png" > <img width="70px" src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/alexa.png" > <img width="90px" src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/googleassistant.png" >
-
-
-
-
-## STARTER PACK
+## DOCUMENTATION
 
 * [Wiki and Help](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki)
 * [Youtube channel](https://www.youtube.com/playlist?list=PL9Yh1bjbLAYpfy1Auz6CKDfXUusgMwOQr)
@@ -116,11 +116,6 @@ The Node protects you, from mistakes you can do. [Node Protections](https://gith
 You can select to activate or deactivate it. If active, the node reacts only if payload from KNX Bus or from input msg is changed.
 
 </details>
-<details><summary>Automatic KNX interface type detection</summary>
-
-Full support for IP Interfaces as well for IP Routers. It's recommended the use of IP Routers because of simple setup and stability in a large environment.
-
-</details>
 <details><summary>RAW message directly to the BUS</summary>
 
 You can send RAW buffers directly to the bus.
@@ -132,9 +127,10 @@ You can send RAW buffers directly to the bus.
 ## WORKING WITH THE ETS CSV FILE OR WITH ESF FILE
 
 Instead of create a knx-ultimate node for each Group Address to control, you can import your ETS csv or esf group addresses file.  
-Thanks to that, the knx-ultimate node where you selected **Universal mode (listen to all Group Addresses)**, becomes an universal input/output node, aware of all Datapoints, Group Addresses and Device's name (ex: Living Room Lamp). Just send the payload to the knx-ultimate node, and it'll encode it with the right datapoint and send it to the bus. Likewise, when the knx-ultimate node receives a telegram from the bus, it outputs a right decoded payload using the datapoint specified in the ETS file.
+Thanks to that, the knx-ultimate node where you selected **Universal mode (listen to all Group Addresses)**, becomes an universal input/output node, aware of all Datapoints, Group Addresses and Device's name (ex: Living Room Lamp). Just send the payload to the knx-ultimate node, and it'll encode it with the right datapoint and send it to the bus. Likewise, when the knx-ultimate node receives a telegram from the bus, it outputs a right decoded payload using the datapoint specified in the ETS file.  
 
-<details><summary>Sample ETS csv file to paste into the ETS field of your config node.</summary>
+
+<details><summary>Click here for a sample ETS csv file to paste into the ETS field of your config node.</summary>
 
 > Copy/Paste this into your configuration node.
 
@@ -173,7 +169,7 @@ Thanks to that, the knx-ultimate node where you selected **Universal mode (liste
 </details>
 
 
-<details><summary>Sample ETS esf file to paste into the ETS field of your config node.</summary>
+<details><summary>Click here for a sample ETS esf file to paste into the ETS field of your config node.</summary>
 
 > Copy/Paste this into your configuration node.
 
@@ -209,54 +205,13 @@ Attuatori luci.Luci primo piano.0/0/21	LED cambiacolori RGB scala	EIS 1 'Switchi
 
 </details>
 
-> You can work with a mix of knx-ultimate nodes, some with **Universal mode (listen to all Group Addresses)** checked and some not. You are absolutely free! See this youtube video,
+<br/>
 
 <a href="https://youtu.be/egRbR_KwP9I" target="_blank"><img src='https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/yt.png' width='60%'></a>
 
 <br/>
 
 
-# <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki">Click here for comprehensive samples</a>
-**Turn on/off a Lamp**
-
-```javascript
-
-return {payload:true}
-
-```
-
-```javascript
-
-return {payload:false}
-
-```
-
-**Increase the light/open blind**
-
-```javascript
-
-// The parameter "data" indicates the relative amount of the dimming commmand (how much to dim).
-// The parameter "data" can be any integer value from 0 to 7
-// The parameter decr_incr:1 increases the light
-// The parameter decr_incr:0 decreases the light
-msg.payload = {decr_incr: 1, data: 5};
-return msg;
-
-```
-
-**Set RGBW color**
-
-```javascript
-
-// Each color in a range between 0 and 255
-msg.payload = {red:90, green:200, blue:30, white:120, mR:1, mG:1, mB:1, mW:1};
-return msg;
-
-```
-
---> [MORE Samples and documentation....](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki)
-
-<br/>
 
 
 ## COMMERCIAL COMPANIES USING KNX-ULTIMATE
@@ -345,6 +300,11 @@ A big THANK YOU to [@svenflender](https://github.com/svenflender) for the logo a
 <br/>
 
 ![Logo](https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/flags/madeinitaly.png)
+<p align='left'>
+<img width="110px" src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/KNX_CERTI_MARK_RGB.jpg" ></br>
+Authorized KNX logo by KNX Association</br>
+The author <i>Massimo "Supergiovane" Saccani</i> has been authorized to use the KNX logo.
+</p>
 
 [license-image]: https://img.shields.io/badge/license-MIT-blue.svg
 [license-url]: https://github.com/Supergiovane/node-red-contrib-knx-ultimate/master/LICENSE
