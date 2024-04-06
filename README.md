@@ -15,7 +15,8 @@
 
 
 <p align='center'>
-<img width="90px" src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/KNX_CERTI_MARK_RGB.jpg)" >
+<img width="95px" src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/KNX_CERTI_MARK_RGB.jpg" ></br>
+Authorized KNX logo by KNX Association
 </p>
 
 
