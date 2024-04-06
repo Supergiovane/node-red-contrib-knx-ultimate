@@ -13,9 +13,12 @@
 
 ![Sample Node](img/readmemain.png)
 
-Control your KNX intallation via Node-Red!<br/>
-A bunch of KNX nodes, with integrated Philips HUE control and ETS group address importer.<br/>
-Easy to use and highly configurable.
+
+<p align='center'>
+<img width="90px" src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/KNX_CERTI_MARK_RGB.jpg)" >
+</p>
+
+
 
 **You can use it immediately!**
 
@@ -40,8 +43,6 @@ msg.payload = {red:255, green:200, blue:30} // Put some colors in our life
 * **PHILIPS HUE nodeset** [here](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/en-hue-configuration). Link HUE devices to KNX in a simple way.
 * **HOME ASSISTANT translator node** translates the HA input msg, to a KNX value. Comes with a built-in translation table, that's user editable.
 
-
-<br>
 <br>
 
 ## CHANGELOG
@@ -49,20 +50,6 @@ msg.payload = {red:255, green:200, blue:30} // Put some colors in our life
 * See <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/blob/master/CHANGELOG.md">here the changelog</a>
 
 <br>
-<br>
-
-## VOLUNTEER NEEDED FOR KNX SECURE
-
-**************************************************
-KNX-Secure is under development.<br/>
-I need volunteer helping in development of KNX Secure.<br/>
-High knowledge of cryptography and KNX is needed.
-**************************************************
-
-<br>
-<br>
-
-
 
 
 ## HELP, SAMPLES, TROUBLESHOOT, WIKI, FAQ, BEST PRACTICES
