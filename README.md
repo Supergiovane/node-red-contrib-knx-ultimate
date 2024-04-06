@@ -15,11 +15,11 @@
 
 
 <p align='center'>
-<img width="95px" src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/KNX_CERTI_MARK_RGB.jpg" ></br>
+<img width="110px" src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/KNX_CERTI_MARK_RGB.jpg" ></br>
 Authorized KNX logo by KNX Association
 </p>
 
-
+</br>
 
 **You can use it immediately!**
 
