@@ -17,7 +17,8 @@
 <p align='center'>
 <img width="110px" src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/KNX_CERTI_MARK_RGB.jpg" ></br>
 Authorized KNX logo by KNX Association</br>
-The author <i>Massimo "Supergiovane" Saccani</i> has been authorized to use the KNX logo.
+<i>The author <b>Massimo Saccani</b> has been authorized to use the KNX logo.
+<br/>Forks of the knx-ultimate node are not implicitly allowed to use the KNX logo.</i>
 </p>
 
 </br>
@@ -55,7 +56,11 @@ msg.payload = {red:255, green:200, blue:30} // Put some colors in our life
 
 ## LESSONS FROM BEGINNER TO CERTIFIED KNX-ULTIMATE GURU STATUS
 
-[Lesson 01 - Introduction to KNX Device](https://youtu.be/4rjrMqszhP8)
+* <a href="https://www.youtube.com/watch?v=4rjrMqszhP8" target="_blank">Lesson 01 - Introduction to KNX Device<br/>
+<img width="200px" src="https://img.youtube.com/vi/4rjrMqszhP8/0.jpg" ></a>
+
+
+
 
 ...more to come...
 
@@ -303,7 +308,8 @@ A big THANK YOU to [@svenflender](https://github.com/svenflender) for the logo a
 <p align='left'>
 <img width="110px" src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/KNX_CERTI_MARK_RGB.jpg" ></br>
 Authorized KNX logo by KNX Association</br>
-The author <i>Massimo "Supergiovane" Saccani</i> has been authorized to use the KNX logo.
+<i>The author <b>Massimo Saccani</b> has been authorized to use the KNX logo.
+<br/>Forks of the knx-ultimate node are not implicitly allowed to use the KNX logo.</i>
 </p>
 
 [license-image]: https://img.shields.io/badge/license-MIT-blue.svg
