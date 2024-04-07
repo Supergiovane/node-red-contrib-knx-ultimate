@@ -16,7 +16,7 @@
 
 <p align='center'>
 <img width="110px" src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/KNX_CERTI_MARK_RGB.jpg" ></br>
-<span style="font-size:0.7em;color:grey;">Authorized KNX logo by KNX Association</span>
+<span style="font-size:0.7em;color:grey;">Authorized KNX logo by KNX Association*</span>
 </p>
 
 </br>
@@ -307,7 +307,7 @@ A big THANK YOU to [@svenflender](https://github.com/svenflender) for the logo a
 <p align='left'>
 <img width="110px" src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/KNX_CERTI_MARK_RGB.jpg" ></br>
 Authorized KNX logo by KNX Association</br>
-<i>The author <b>Massimo Saccani</b> has been authorized to use the KNX logo.
+*<i>The author <b>Massimo Saccani</b> has been authorized to use the KNX logo.
 <br/>Forks of the knx-ultimate node are not implicitly allowed to use the KNX logo.</i>
 </p>
 
