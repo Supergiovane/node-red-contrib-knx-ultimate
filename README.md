@@ -14,7 +14,7 @@
 ![Sample Node](img/readmemain.png)
 
 
-<p align='center' style="color:grey;font-size:xx-small">
+<p align='center' style="color:grey;font-size:0.5em">
 <img width="110px" src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/KNX_CERTI_MARK_RGB.jpg" ></br>
 Authorized KNX logo by KNX Association
 </p>
