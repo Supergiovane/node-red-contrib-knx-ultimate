@@ -56,10 +56,11 @@ msg.payload = {red:255, green:200, blue:30} // Put some colors in our life
 
 ## LESSONS FROM BEGINNER TO CERTIFIED KNX-ULTIMATE GURU STATUS
 
-* <a href="https://www.youtube.com/watch?v=4rjrMqszhP8" target="_blank">Lesson 01 - Introduction to KNX Device<br/>
+* <a href="https://youtu.be/4rjrMqszhP8" target="_blank">Lesson 01 - Introduction to KNX Device<br/>
 <img width="200px" src="https://img.youtube.com/vi/4rjrMqszhP8/0.jpg" ></a>
 
-
+* <a href="https://youtu.be/sRW5sHPnYi0" target="_blank">Lesson 02 - Working with ETS file importer<br/>
+<img width="200px" src="https://img.youtube.com/vi/sRW5sHPnYi0/0.jpg" ></a>
 
 
 ...more to come...

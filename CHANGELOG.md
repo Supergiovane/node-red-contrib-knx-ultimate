@@ -6,6 +6,10 @@
 
 # CHANGELOG
 
+**Version 2.4.189* - April 2024<br/>
+- Warning: this version uses the Node-Red plugin system; the  Node-Red version must be **equals or major than 3.1.1**<br/>
+- Start adding youtube lessons and tutorials and linking it with the nodes.<br/>
+
 **Version 2.4.18** - April 2024<br/>
 - Warning: this version uses the Node-Red plugin system; the  Node-Red version must be **equals or major than 3.1.1**<br/>
 - Fixed some backward compatibility glitches in the KNX-Device's UI.<br/>
