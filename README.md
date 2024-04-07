@@ -61,7 +61,7 @@ msg.payload = {red:255, green:200, blue:30} // Put some colors in our life
 <img width="200px" src="https://img.youtube.com/vi/sRW5sHPnYi0/0.jpg" ></a>
 
 
-...more to come...
+[More to come...](https://github.com/Supergiovane/node-red-contrib-knx-ultimate)
 
 
 <br/>
