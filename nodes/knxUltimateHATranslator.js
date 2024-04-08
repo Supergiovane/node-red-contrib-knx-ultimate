@@ -44,7 +44,7 @@ module.exports = function (RED) {
       try {
         bRes = utils.ToBoolean(
           sPayload,
-          RED.nodes.getNode(config.translatorConfig) // Retrieve the config node. It can be null, but it's handled in utils.js; // 15/11/2021 Convert input to boolean.);
+          node.config // Retrieve the config node. It can be null, but it's handled in utils.js; // 15/11/2021 Convert input to boolean.);
         );
       } catch (error) { }
       if (bRes === undefined || bRes === null) {

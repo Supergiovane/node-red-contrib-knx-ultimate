@@ -6,6 +6,10 @@
 
 # CHANGELOG
 
+**Version 2.4.21** - April 2024<br/>
+- Warning: this version uses the Node-Red plugin system; the  Node-Red version must be **equals or major than 3.1.1**<br/>
+- Home Assistant translator node: fixed an issue where user added translations does not work.<br/>
+
 **Version 2.4.20** - April 2024<br/>
 - Warning: this version uses the Node-Red plugin system; the  Node-Red version must be **equals or major than 3.1.1**<br/>
 - DPT9: auto transform a string value, to a numeric value.<br/>
