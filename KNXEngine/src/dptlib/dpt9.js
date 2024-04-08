@@ -36,8 +36,9 @@ function frexp(value) {
 exports.formatAPDU = function (value) {
   const apdu_data = Buffer.alloc(2)
   if (!isFinite(value)) {
-    knxLog.get().warn('DPT9: cannot write non-numeric or undefined value')
+    knxLog.get().error('DPT9: cannot write non-numeric or undefined value');
   } else {
+    value = Number(value); // Sometime a number is passed as string.
     value = value.toFixed(2); // Fix issue with float having too many decimals.
     const arr = frexp(value)
     const mantissa = arr[0]; const exponent = arr[1]

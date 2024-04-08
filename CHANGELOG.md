@@ -6,7 +6,11 @@
 
 # CHANGELOG
 
-**Version 2.4.189* - April 2024<br/>
+**Version 2.4.20** - April 2024<br/>
+- Warning: this version uses the Node-Red plugin system; the  Node-Red version must be **equals or major than 3.1.1**<br/>
+- DPT9: auto transform a string value, to a numeric value.<br/>
+
+**Version 2.4.19** - April 2024<br/>
 - Warning: this version uses the Node-Red plugin system; the  Node-Red version must be **equals or major than 3.1.1**<br/>
 - Start adding youtube lessons and tutorials and linking it with the nodes.<br/>
 
