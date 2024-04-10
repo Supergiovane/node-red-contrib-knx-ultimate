@@ -23,7 +23,10 @@
             dptshort_releaseStatus: { value: "1.001" },
 
             toggleValues: { value: true },
-            hueDevice: { value: "" }
+            hueDevice: { value: "" },
+
+            switchSend: { value: true },
+            dimSend: { value: "up" },
         },
         inputs: 0,
         outputs: 1,
@@ -63,6 +66,33 @@
                     oNodeServerHue = RED.nodes.node($(this).val());
                 } catch (error) { }
             });
+
+            $("#node-input-toggleValues").change(function () {
+                if ($("#node-input-toggleValues").is(":checked")) {
+
+                    $("#divFixedValue").hide();
+                    $("#divStatus").show();
+                } else {
+                    $("#divFixedValue").show();
+                    $("#divStatus").hide();
+                }
+            });
+
+            // Testing typedInput how it works
+            $("#node-input-switchSend").typedInput({
+                type: 'bool',
+                types: ['bool']
+            })
+            $("#node-input-dimSend").typedInput({
+                type: "direction", types: [{
+                    value: "direction",
+                    options: [
+                        { value: "up", label: "Up" },
+                        { value: "down", label: "Down" },
+                        { value: "stop", label: "Stop" },
+                    ]
+                }]
+            })
 
             // 31/03/2020 Search Helper
             function fullSearch(sourceText, searchString) {
@@ -360,7 +390,7 @@
         <label for="node-input-nameshort_release" style="width:50px; margin-left: 0px; text-align: right;">Name</label>
         <input type="text" id="node-input-nameshort_release" style="width:200px;margin-left: 5px; text-align: left;">
     </div>
-    <div class="form-row">
+    <div class="form-row" id="divStatus">
         <label style="width:100px;"><i class="fa fa-question-circle"></i> Switch Status</label>
 
         <label for="node-input-GAshort_releaseStatus" style="width:20px;">GA</label>
@@ -371,10 +401,8 @@
     
         <label for="node-input-nameshort_releaseStatus" style="width:50px; margin-left: 0px; text-align: right;">Name</label>
         <input type="text" id="node-input-nameshort_releaseStatus" style="width:200px;margin-left: 5px; text-align: left;">
+        <br/>  
     </div>
-    <br/>
-    <br/>
-
     <div class="form-row">
         <label style="width:100px;"><i class="fa fa-play-circle-o"></i> Dim</span></label>
 
@@ -388,8 +416,6 @@
         <input type="text" id="node-input-nameDim" style="width:200px;margin-left: 5px; text-align: left;">
     </div>
     <br/>
-    <br/>
-
     <div class="form-row">
         <input type="checkbox" id="node-input-toggleValues" style="display:inline-block; width:auto; vertical-align:top;" />
         <label style="width:auto" for="node-input-toggleValues">
@@ -398,11 +424,19 @@
             Toggle values
         </label>
     </div>
-        
+    <div id="divFixedValue" hidden>
+        <div class="form-row" >
+            <label for="node-input-switchSend" style="width:100px;"><i class="fa fa-play-circle-o"></i> Switch send</span></label>
+            <input type="text" id="node-input-switchSend">
+        </div>
+        <div class="form-row" >
+            <label for="node-input-dimSend" style="width:100px;"><i class="fa fa-play-circle-o"></i> Dim send</span></label>
+            <input type="text" id="node-input-dimSend">
+        </div>
+    </div>
+<br/>
+<br/>
 
-<br/>
-<br/>
-<br/>
 
 
 </script>
@@ -431,7 +465,9 @@ This allows the internal logic to be aware of external devices, like wall switch
 | Switch | As soon as you quickly press and release your HUE button, this event fires |
 | Switch Status | To allow internal logic to take care of the external KNX devices, for example an external wall switch, you should set this group address |
 | Dim | This event is used either to send DIM (increase/decrease) or true/false commands to the KNX group address |
-| Toggle values | Enable or disable toggling values. If enabled, all values toggles, otherwise, all values are sent as *true* or *increase dim*, to the selected KNX group address |
+| Toggle values | Enable or disable toggling values. If enabled, all values toggles, otherwise, all values are sent as *true* or *increase dim*, to the selected KNX group address. If unchecked, you'll able to select the payload to be sent to KNX bus every time you press the button. |
+| Switch send | Only visible when *Toggle values* is *false*. Set the value to be sent when pushing the button. |
+| Dim send | Only visible when *Toggle values* is *false*. Set the dimming direction to be sent when dimming. |
 
 ### Outputs
 

@@ -6,6 +6,10 @@
 
 # CHANGELOG
 
+**Version 2.4.22** - April 2024<br/>
+- Warning: this version uses the Node-Red plugin system; the  Node-Red version must be **equals or major than 3.1.1**<br/>
+- HUE button node: NEW: now you can select the value and the dim direction to be transmitted, when Toggle Status is set to unchecked. Thanks @cybersmart-eu for the suggestion.<br/>
+
 **Version 2.4.21** - April 2024<br/>
 - Warning: this version uses the Node-Red plugin system; the  Node-Red version must be **equals or major than 3.1.1**<br/>
 - Home Assistant translator node: fixed an issue where user added translations does not work.<br/>

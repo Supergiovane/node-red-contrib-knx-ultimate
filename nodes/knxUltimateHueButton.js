@@ -29,6 +29,14 @@ module.exports = function (RED) {
     node.hueDevice = config.hueDevice;
     node.initializingAtStart = false;
 
+    // When toggle status is disabled, uses these values
+    node.switchSend = config.switchSend === undefined ? 'true' : config.switchSend;
+    node.switchSend = node.switchSend === 'true'; // The typedvalue in the html returns a string, so i convert it to bool
+    node.dimSend = config.dimSend === undefined ? 'up' : config.dimSend;
+    if (node.dimSend === 'up') node.dimSend = { decr_incr: 1, data: 3 };
+    if (node.dimSend === 'down') node.dimSend = { decr_incr: 0, data: 3 };
+    if (node.dimSend === 'stop') node.dimSend = { decr_incr: 0, data: 0 };
+
     // Used to call the status update from the config node.
     node.setNodeStatus = ({
       fill, shape, text, payload,
@@ -47,7 +55,6 @@ module.exports = function (RED) {
 
     // This function is called by the knx-ultimate config node, to output a msg.payload.
     node.handleSend = (msg) => {
-      const state = {};
       try {
         switch (msg.knx.destination) {
           case config.GAshort_releaseStatus:
@@ -90,7 +97,7 @@ module.exports = function (RED) {
           switch (_event.button.last_event) {
             case 'initial_press':
               if (node.initial_pressValue === undefined) node.initial_pressValue = false;
-              node.initial_pressValue = config.toggleValues ? !node.initial_pressValue : true;
+              node.initial_pressValue = config.toggleValues ? !node.initial_pressValue : node.switchSend;
               flowMsgPayload = node.initial_pressValue;
               break;
             case 'long_release':
@@ -104,16 +111,16 @@ module.exports = function (RED) {
               break;
             case 'double_short_release':
               if (node.double_short_releaseValue === undefined) node.double_short_releaseValue = false;
-              node.double_short_releaseValue = config.toggleValues ? !node.double_short_releaseValue : true;
+              node.double_short_releaseValue = config.toggleValues ? !node.double_short_releaseValue : node.switchSend;
               flowMsgPayload = node.double_short_releaseValue;
               break;
             case 'long_press':
               if (node.long_pressValue === undefined) node.long_pressValue = false;
-              node.long_pressValue = config.toggleValues ? !node.long_pressValue : true;
+              node.long_pressValue = config.toggleValues ? !node.long_pressValue : node.dimSend;
               flowMsgPayload = node.long_pressValue;
               break;
             case 'short_release':
-              node.short_releaseValue = config.toggleValues ? !node.short_releaseValue : true;
+              node.short_releaseValue = config.toggleValues ? !node.short_releaseValue : node.switchSend;
               flowMsgPayload = node.short_releaseValue;
               if (config.GAshort_release !== undefined && config.GAshort_release !== '') {
                 knxMsgPayload.topic = config.GAshort_release;
@@ -133,13 +140,17 @@ module.exports = function (RED) {
               }
               break;
             case 'repeat':
-              flowMsgPayload = true;
+              flowMsgPayload = node.long_pressValue;
               if (config.GArepeat !== undefined && config.GArepeat !== '') {
                 if (node.isTimerDimStopRunning === false) {
                   // Set KNX Dim up/down start
                   knxMsgPayload.topic = config.GArepeat;
                   knxMsgPayload.dpt = config.dptrepeat;
-                  knxMsgPayload.payload = node.long_pressValue ? { decr_incr: 0, data: 3 } : { decr_incr: 1, data: 3 }; // If the light is turned on, the initial DIM direction must be down, otherwise, up
+                  if (typeof (node.long_pressValue) === 'object') {
+                    knxMsgPayload.payload = node.long_pressValue; // Send fixed value when toggleValues is false
+                  } else {
+                    knxMsgPayload.payload = node.long_pressValue ? { decr_incr: 0, data: 3 } : { decr_incr: 1, data: 3 }; // If the light is turned on, the initial DIM direction must be down, otherwise, up
+                  }
                   // Send to KNX bus
                   if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) {
                     node.server.writeQueueAdd({
