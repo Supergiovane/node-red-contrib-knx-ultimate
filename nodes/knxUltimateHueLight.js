@@ -1229,8 +1229,8 @@ module.exports = function (RED) {
         knxMsgPayload.topic = config.GALightKelvinState;
         knxMsgPayload.dpt = config.dptLightKelvinState;
         if (config.dptLightKelvinState === "7.600") {
-          kelvinValue = hueColorConverter.ColorConverter.mirekToKelvin(_value);
-          knxMsgPayload.payload = hueColorConverter.ColorConverter.scale(kelvinValue, [2000, 6535], [0, 65535]);
+          knxMsgPayload.payload = hueColorConverter.ColorConverter.mirekToKelvin(_value);
+          //knxMsgPayload.payload = hueColorConverter.ColorConverter.scale(kelvinValue, [2000, 6535], [0, 65535]);
         } else if (config.dptLightKelvinState === "9.002") {
           knxMsgPayload.payload = hueColorConverter.ColorConverter.mirekToKelvin(_value);
         }

@@ -6,10 +6,14 @@
 
 # CHANGELOG
 
+**Version 2.4.24** - Mai 2024<br/>
+- Warning: Node-Red version **equals or major than 3.1.1** is needed to run this node.<br/>
+- HUE light node: fixed kelvin temp status with datapoint 7.600, that sent wrong values to the bus.<br/>
+
 **Version 2.4.23** - Mai 2024<br/>
 - Warning: Node-Red version **equals or major than 3.1.1** is needed to run this node.<br/>
 - HUE Scene node: fixed max scene count to 64.<br/>
-
+ 
 **Version 2.4.22** - April 2024<br/>
 - Warning: this version uses the Node-Red plugin system; the  Node-Red version must be **equals or major than 3.1.1**<br/>
 - HUE button node: NEW: now you can select the value and the dim direction to be transmitted, when Toggle Status is set to unchecked. Thanks @cybersmart-eu for the suggestion.<br/>
