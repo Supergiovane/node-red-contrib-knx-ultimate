@@ -6,6 +6,16 @@
 
 # CHANGELOG
 
+**Version 2.4.26** - Mai 2024<br/>
+- Warning: Node-Red version **equals or major than 3.1.1** is needed to run this node.<br/>
+- HUE light node: fixed status refresh of kelvin and brightness of a light belonging to a grouped_light.<br/>
+- KNOW ISSUE: HUE light node: grouped_lights: the status group address is updated multiple times, equals to the lights contained in the grouped_light. To avoid repeating the same telegram multiple times, simply enable the RBE filter on the KNX node. <br/>
+
+**Version 2.4.25** - Mai 2024<br/>
+- Warning: Node-Red version **equals or major than 3.1.1** is needed to run this node.<br/>
+- HUE light node: fixed status sent to the KNX bus after issuing a read request for grouped_lights.<br/>
+- KNOW ISSUE: HUE light node: grouped_lights: the status group address is updated multiple times, equals to the lights contained in the grouped_light. To avoid repeating the same telegram multiple times, simply enable the RBE filter on the KNX node. <br/>
+
 **Version 2.4.24** - Mai 2024<br/>
 - Warning: Node-Red version **equals or major than 3.1.1** is needed to run this node.<br/>
 - HUE light node: fixed kelvin temp status with datapoint 7.600, that sent wrong values to the bus.<br/>
