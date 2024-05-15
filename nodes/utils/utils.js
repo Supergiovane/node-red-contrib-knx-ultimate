@@ -53,6 +53,5 @@ module.exports.fetchFromObject = function fetchFromObject(
   if (typeof _msg[_payloadPropName] === "object") return undefined;
   return _msg[_payloadPropName];
 };
-
 const DEFAULTTRANSLATIONINPUT =
   "on:true\noff:false\nactive:true\ninactive:false\nopen:true\nclosed:false\nclose:false\n1:true\n0:false\ntrue:true\nfalse:false\nhome:true\nnot_home:false\nnormal:false\nviolated:true";

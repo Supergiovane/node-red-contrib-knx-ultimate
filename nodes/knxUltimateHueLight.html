@@ -129,6 +129,8 @@
 
         hueDevice: { value: "" },
         hueDeviceObject: { value: {} },
+
+        restoreDayMode: { value: "no" }
       },
       inputs: 0,
       outputs: 0,
@@ -1406,10 +1408,20 @@
               </div>
               <div class="form-row">
                 <label style="width:170px" for="node-input-invertDayNight">
-                  <i class="fa fa-shuffle"></i> Invert day/night values
+                  <i class="fa fa-shuffle"></i> Invert day/night value
                 </label>
                 <input type="checkbox" id="node-input-invertDayNight"
                   style="display:inline-block; width:auto; vertical-align:top;" />
+              </div>
+              <div class="form-row">
+                <label for="node-input-restoreDayMode" style="width:260px;">
+                  <i class="fa fa-circle"></i> Override night mode
+                </label>
+                <select id="node-input-restoreDayMode">
+                  <option value="no">No</option>
+                  <option value="setDayByFastSwitchLightSingle">Switch to DAY mode by rapid switching the ligth off then on. (This light only)</option>
+                  <option value="setDayByFastSwitchLightALL">Switch to DAY mode by rapid switching the ligth off then on (apply yo ALL light nodes)</option>
+                </select>
               </div>
             </div>
           </div>
@@ -1521,8 +1533,9 @@ For controlling the "V" (brightness) of the HSV, please use the standard control
 | Switch on behaviour                       | It sets the behaviour of your lights when switched on. You can choose from differents behaviours.<br/>**Select color:** the light will be switched on with the color of your choice. To change color, just CLICK on the color selector (under the *Select color* control).<br/>**Select temperature and brightness:** the light will be switched on with the temperature (Kelvin) and brightness (0-100) of your choice.<br/>**None:** the light will retain its last status. In case you've enable the night lighting, after the night time ends, the lamp will resume the color/temperature/brightness state set at day time.  |
 | Night Lighting                            | It allows to set a particular light color/brightness at nighttime. The options are the same as the daytime. You could select either a temperature/brightness or color. A cozy temperature of 2700 Kelvin, with a brightness of 10% or 20%, is a good choice for  bathroom's night light.|
 | Day/Night                                 | Select the group address used to set the day/night behaviour. The group address value is _true_ if daytime, _false_ if nighttime.                                                                                                                                                                                                                                                                                                                                                                    |
-| Invert day/night values                   | Invert the values of _Day/Night_ group address. Default value is **unchecked**.                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| Invert day/night value                   | Invert the values of _Day/Night_ group address. Default value is **unchecked**.                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | Read status at startup | Read the status at startup and emit the event to the KNX bus at startup/reconnection. (Default "no")|
+| Override night mode | You can override the night mode by manually switching the light as described here:  **Switch to DAY mode by rapid switching the ligth off then on (This light only)** does what described and acts only on this light. **Switch to DAY mode by rapid switching the ligth off then on (apply yo ALL light nodes)** acts to ALL Light nodes, by setting the Day/Night group address to Day mode. |
 | Node Input/Output PINs | Hide or show the input/output PINs. Input/output PINS allow the node to accept msg input from the flow and send msg output to the flow. Input msg must follow the HUE API v.2 Standards. This is an example msg, that turns on the light: <code>msg.on = {"on":true}</code>. Please refer to the [official HUE Api page](https://developers.meethue.com/develop/hue-api-v2/api-reference/#resource_light__id__put) | 
 
 ### Note

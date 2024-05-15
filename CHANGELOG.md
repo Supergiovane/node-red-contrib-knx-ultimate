@@ -6,6 +6,15 @@
 
 # CHANGELOG
 
+**Version 2.5.1** - Mai 2024<br/>
+- Warning: Node-Red version **equals or major than 3.1.1** is needed to run this node.<br/>
+- NEW: HUE light node: you can now override the day/night mode by setting the day mode temporary, whenever you fast toggles the light switch on then off within 10 seconds. There are multiple choiches to select from. <br/>
+
+**Version 2.5.0** - Mai 2024<br/>
+- Warning: Node-Red version **equals or major than 3.1.1** is needed to run this node.<br/>
+- HUE light node: internally calculate the average color xy and temp in kelvin, for group_lights (not emitted by the HUE Bridge).<br/>
+- KNOW ISSUE: HUE light node: grouped_lights: the status group address is updated multiple times, equals to the lights contained in the grouped_light. To avoid repeating the same telegram multiple times, simply enable the RBE filter on the KNX node. <br/>
+
 **Version 2.4.27** - Mai 2024<br/>
 - Warning: Node-Red version **equals or major than 3.1.1** is needed to run this node.<br/>
 - HUE light node: fixed status refresh of kelvin and brightness of a light belonging to a grouped_light.<br/>

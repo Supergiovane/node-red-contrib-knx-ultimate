@@ -53,7 +53,7 @@ module.exports = (RED) => {
           try {
             // if (_event.type === "light" || _event.type === "grouped_light") {
             //   console.log(_event);
-            // }
+            // }            
             if (oClient.handleSendHUE !== undefined) oClient.handleSendHUE(_event);
           } catch (error) {
             if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(`Errore node.hueManager.on(event): ${error.message}`);
@@ -69,11 +69,9 @@ module.exports = (RED) => {
           node.timerDoInitialRead = setTimeout(() => {
             (async () => {
               try {
-                if (node.hueAllResources === undefined) {
-                  if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info(`HTTP getting resource from HUE bridge : ${node.name}`);
-                  await node.loadResourcesFromHUEBridge();
-                  if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info(`Total HUE resources count : ${node.hueAllResources.length}`);
-                }
+                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info(`HTTP getting resource from HUE bridge : ${node.name}`);
+                await node.loadResourcesFromHUEBridge();
+                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info(`Total HUE resources count : ${node.hueAllResources.length}`);
               } catch (error) {
                 node.linkStatus = "disconnected";
                 node.nodeClients.forEach((_oClient) => {
@@ -145,7 +143,7 @@ module.exports = (RED) => {
                 });
                 _node.currentHUEDevice = cloneDeep(oHUEDevice); // Copy by Value and not by ref
                 if (_node.initializingAtStart === true) {
-                  _node.handleSendHUE(_node.currentHUEDevice); // Pass by value
+                  _node.handleSendHUE(oHUEDevice); // Pass by value
                 }
               }
             }
@@ -185,10 +183,19 @@ module.exports = (RED) => {
     node.getAllLightsBelongingToTheGroup = async function getAllLightsBelongingToTheGroup(_groupID, refreshResourcesFromBridge = true) {
       if (node.hueAllResources === undefined || node.hueAllResources === null) return;
       const retArr = [];
+      let filteredResource;
       try {
         if (refreshResourcesFromBridge === true) {
           await node.loadResourcesFromHUEBridge();
         }
+        // filteredResource = node.hueAllResources.filter((a) => a.id === _groupID);
+        // if (filteredResource[0].type === "grouped_light") {
+        //   filteredResource = node.hueAllResources.filter((a) => a.services);
+        //   filteredResource = filteredResource.filter((a) => a.services).filter((b) => b.type === "light");
+        //   if (filteredResource.length > 0) {
+        //     console.log(filteredResource)
+        //   }
+        // }
         node.hueAllResources.forEach((res) => {
           if (res.services !== undefined && res.services.length > 0) {
             res.services.forEach((serv) => {
@@ -376,10 +383,10 @@ module.exports = (RED) => {
     };
 
     /**
-   * Get average color XY from a light array
-   * @param {array} _arrayLights - Light array
-   * @returns { x,y,mirek,brightness } - Object containing all infos
-   */
+    * Get average color XY from a light array
+    * @param {array} _arrayLights - Light array
+    * @returns { x,y,mirek,brightness } - Object containing all infos
+    */
     node.getAverageColorsXYBrightnessAndTemperature = async function getAverageColorsXYBrightnessAndTemperature(_arrayLights) {
       let x; let y; let mirek; let brightness;
       let countColor = 0, countColor_Temperature = 0, countDimming = 0;

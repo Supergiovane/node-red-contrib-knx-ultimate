@@ -62,7 +62,10 @@ module.exports = function (RED) {
     config.colorAtSwitchOnNightTime = config.colorAtSwitchOnNightTime.replace("geen", "green");
     config.dimSpeed = (config.dimSpeed === undefined || config.dimSpeed === '') ? 5000 : Number(config.dimSpeed);
     config.HSVDimSpeed = (config.HSVDimSpeed === undefined || config.HSVDimSpeed === '') ? 5000 : Number(config.HSVDimSpeed);
-    config.invertDimTunableWhiteDirection = config.invertDimTunableWhiteDirection === undefined ? false : true;
+    config.invertDimTunableWhiteDirection = config.invertDimTunableWhiteDirection !== undefined;
+    config.restoreDayMode = config.restoreDayMode === undefined ? "no" : config.restoreDayMode; // no or setDayByFastSwitchLightSingle or setDayByFastSwitchLightALL
+    node.timerCheckForFastLightSwitch = null;
+    config.invertDayNight = config.invertDayNight === undefined ? false : config.invertDayNight;
     node.HSVObject = null; //{ h, s, v };// Store the current light calculated HSV
 
     // Transform HEX in RGB and stringified json in json oblects.
@@ -96,7 +99,6 @@ module.exports = function (RED) {
         RED.log.error(`knxUltimateHueLight:  config.colorAtSwitchOnDayTime = JSON.parse(config.colorAtSwitchOnNightTime): ${error.message} : ${error.stack || ""} `);
         config.colorAtSwitchOnNightTime = "";
       }
-
     }
 
     // Used to call the status update from the config node.
@@ -134,6 +136,42 @@ module.exports = function (RED) {
           switch (msg.knx.destination) {
             case config.GALightSwitch:
               msg.payload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightSwitch));
+
+              // 15/05/2024 Supergiovane: check the Override to Day option
+              // config.restoreDayMode can be: no or setDayByFastSwitchLightSingle or setDayByFastSwitchLightALL
+              // ----------------------------------------------------------
+              if (config.restoreDayMode === "setDayByFastSwitchLightSingle" || config.restoreDayMode === "setDayByFastSwitchLightALL") {
+                if (node.DayTime === false) {
+                  if (msg.payload === true) {
+                    if (node.timerCheckForFastLightSwitch === null) {
+                      node.timerCheckForFastLightSwitch = setTimeout(() => {
+                        node.DayTime = false;
+                        RED.log.debug("knxUltimateHueLight: node.timerCheckForFastLightSwitch: set daytime to false after node.timerCheckForFastLightSwitch elapsed");
+                        node.timerCheckForFastLightSwitch = null;
+                      }, 10000); // 10 seconds
+                    } else {
+                      if (config.restoreDayMode === "setDayByFastSwitchLightALL") {
+                        // Turn off the Day/Night group address
+                        if (config.GADaylightSensor !== undefined && config.GADaylightSensor !== "") {
+                          if (node.timerCheckForFastLightSwitch !== null) { clearTimeout(node.timerCheckForFastLightSwitch); node.timerCheckForFastLightSwitch = null; }
+                          RED.log.debug(`knxUltimateHueLight: node.timerCheckForFastLightSwitch: set daytime the group address ${config.GADaylightSensor}`);
+                          node.server.writeQueueAdd({
+                            grpaddr: config.GADaylightSensor,
+                            payload: config.invertDayNight === false,
+                            dpt: config.dptDaylightSensor,
+                            outputtype: "write",
+                            nodecallerid: node.id,
+                          });
+                        }
+                      }
+                      node.DayTime = true;
+                      RED.log.debug("knxUltimateHueLight: node.timerCheckForFastLightSwitch: set daytime to true");
+                    }
+                  }
+                }
+              }
+              // ----------------------------------------------------------
+
               if (msg.payload === true) {
                 // From HUE Api core concepts:
                 // If you try and control multiple conflicting parameters at once e.g. {"color": {"xy": {"x":0.5,"y":0.5}}, "color_temperature": {"mirek": 250}}
@@ -156,14 +194,14 @@ module.exports = function (RED) {
                     // The DayNight has switched into day, so restore the previous light state, belonging to the group
                     let bAtLeastOneIsOn = false;
                     for (let index = 0; index < node.HUELightsBelongingToGroupWhileDaytime.length; index++) { // Ensure, at least 1 lamp was on, otherwise turn all lamps on
-                      const element = node.HUELightsBelongingToGroupWhileDaytime[index];
+                      const element = node.HUELightsBelongingToGroupWhileDaytime[index].light[0];
                       if (element.on.on === true) {
                         bAtLeastOneIsOn = true;
                         break;
                       }
                     }
                     for (let index = 0; index < node.HUELightsBelongingToGroupWhileDaytime.length; index++) {
-                      const element = node.HUELightsBelongingToGroupWhileDaytime[index];
+                      const element = node.HUELightsBelongingToGroupWhileDaytime[index].light[0];
                       if (bAtLeastOneIsOn === true) {
                         state = { on: element.on, dimming: element.dimming, color: element.color, color_temperature: element.color_temperature };
                       } else {
@@ -309,7 +347,7 @@ module.exports = function (RED) {
               break;
             case config.GADaylightSensor:
               node.DayTime = Boolean(dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptDaylightSensor)));
-              if (config.invertDayNight !== undefined && config.invertDayNight === true) node.DayTime = !node.DayTime;
+              if (config.invertDayNight === true) node.DayTime = !node.DayTime;
               if (config.specifySwitchOnBrightness === "no") {
                 // This retains the HUE device status while daytime, to be restored after nighttime elapsed. https://github.com/Supergiovane/node-red-contrib-knx-ultimate/issues/298
                 if (node.DayTime === false) {
@@ -931,64 +969,70 @@ module.exports = function (RED) {
         }
 
         const receivedHUEObject = cloneDeep(_event);
-        let canContinue = false;
-        // If the current node is a grouped lights, i must check wether the receivedHUEObject (containing a light) belongs to the node lights collection.
-        if (node.isGrouped_light === true && receivedHUEObject.type === 'grouped_light' && receivedHUEObject.id === node.hueDevice) {
-          canContinue = true;
-        } else if (node.isGrouped_light === true && receivedHUEObject.type === 'light') {
+
+        //#region "CALCULATE COLOR AND COLOR TEMPERATURE OF THE LIGHTS BELONGING TO THE GROUPED_LIGHT"
+        // Check wether the incoming _event belongs to a light belonging to the group_light
+        if (node.isGrouped_light === true && receivedHUEObject.type === 'light') {
           // Handling of not by HUE handled Color Temperature and ColorXY
-          // let groupChilds = undefined;
-          // let AverageColorsXYBrightnessAndTemperature = undefined; // Average color xy and color temp if the node is a grouped light.
-          // // If the current node is a grouped lights, i must check wether the receivedHUEObject (containing a light) belongs to the node lights collection.
-          // try {
-          //   // Find all the lights in the collection, having the color_temperature capabilities, belonging to the group.
-          //   const devices = await node.serverHue.getAllLightsBelongingToTheGroup(node.hueDevice, true);
-          //   groupChilds = [];
-          //   for (let index = 0; index < devices.length; index++) {
-          //     const element = devices[index];
-          //     if (receivedHUEObject.id === element.id) {
-          //       //if (groupChilds === undefined) groupChilds = [];
-          //       // groupChilds.push(element);
-          //       let modifiedLight = cloneDeep(element);
-          //       // The dimming is not necessary, beacause the HUE API already sends a group_light event with the average brightness //if (receivedHUEObject.dimming !== undefined) modifiedLight.dimming = { brightness: receivedHUEObject.dimming.brightness };
-          //       if (receivedHUEObject.color !== undefined && receivedHUEObject.color.xy !== undefined) modifiedLight.color = receivedHUEObject.color;
-          //       if (receivedHUEObject.color_temperature !== undefined) modifiedLight.color_temperature = receivedHUEObject.color_temperature;
-          //       groupChilds.push(modifiedLight);
-          //     } else {
-          //       // Simply ppend the light
-          //       groupChilds.push(element);
-          //     }
-          //   }
+          let modifiedLight;
+          const groupChilds = [];
+          let AverageColorsXYBrightnessAndTemperature; // Average color xy and color temp if the node is a grouped light.
+          // If the current node is a grouped lights, i must check wether the receivedHUEObject (containing a light) belongs to the node lights collection.
+          // Find all the lights in the collection, having the color_temperature capabilities, belonging to the group.
+          const devices = await node.serverHue.getAllLightsBelongingToTheGroup(node.hueDevice, false);
+          if (devices.length === 0) {
+            devices.push(receivedHUEObject);
+          }
 
-          //   // Use the arithmetic average of color xy, brightness and color temperature "averageColorXYandKelvinOfGroupedLights"
-          //   if (groupChilds !== undefined) AverageColorsXYBrightnessAndTemperature = await node.serverHue.getAverageColorsXYBrightnessAndTemperature(groupChilds);
+          for (let index = 0; index < devices.length; index++) {
+            const element = devices[index];
+            if (receivedHUEObject.id === element.id) {
+              modifiedLight = element;
+              // The dimming is not necessary, beacause the HUE API already sends a group_light event with the average brightness //if (receivedHUEObject.dimming !== undefined) modifiedLight.dimming = { brightness: receivedHUEObject.dimming.brightness };
+              if (receivedHUEObject.color !== undefined && receivedHUEObject.color.xy !== undefined) modifiedLight.color = receivedHUEObject.color;
+              if (receivedHUEObject.color_temperature !== undefined) modifiedLight.color_temperature = receivedHUEObject.color_temperature;
+              groupChilds.push(modifiedLight);
+            } else {
+              // Simply append the light
+              if ((element.color_temperature !== undefined && element.color_temperature.mirek !== undefined)
+                || (element.color !== undefined && element.color.xy !== undefined)) {
+                groupChilds.push(element);
+              }
+            }
+          }
 
-          //   // Set the new values based on average calculated above
-          //   try {
-          //     // CHECK FIRST THE COLOR_TEMPERATURE, because it can be undefined, because the current selected color
-          //     // is out of the mirek range, so it cannot be represented with the colore temperature.
-          //     if (receivedHUEObject.color_temperature !== undefined && AverageColorsXYBrightnessAndTemperature.mirek !== undefined) {
-          //       receivedHUEObject.color_temperature = { mirek: AverageColorsXYBrightnessAndTemperature.mirek };
-          //     } else if (receivedHUEObject.color !== undefined && AverageColorsXYBrightnessAndTemperature.x !== undefined) {
-          //       receivedHUEObject.color = {
-          //         xy: { x: AverageColorsXYBrightnessAndTemperature.x, y: AverageColorsXYBrightnessAndTemperature.y }
-          //       };
-          //     }
-          //     // The dimming is not necessary, beacause the HUE API already sends a group_light event with the average brightness 
-          //     // if (receivedHUEObject.dimming !== undefined && AverageColorsXYBrightnessAndTemperature.brightness !== undefined) {
-          //     //   receivedHUEObject.dimming = { brightness: AverageColorsXYBrightnessAndTemperature.brightness };
-          //     // }
-          //   } catch (error) { /* empty */ }
+          // Use the arithmetic average of color xy, brightness and color temperature "averageColorXYandKelvinOfGroupedLights"
+          if (groupChilds !== undefined) AverageColorsXYBrightnessAndTemperature = await node.serverHue.getAverageColorsXYBrightnessAndTemperature(groupChilds);
 
-          canContinue = true;
-          //} catch (error) { /* empty */ }
-        } else if (node.isGrouped_light === false && receivedHUEObject.type === 'light' && receivedHUEObject.id === node.hueDevice) {
-          canContinue = true;
+          // Set the new values based on average calculated above            
+          // CHECK FIRST THE COLOR_TEMPERATURE, because it can be undefined, because the current selected color
+          // is out of the mirek range, so it cannot be represented with the colore temperature.
+          if (receivedHUEObject.color_temperature !== undefined && AverageColorsXYBrightnessAndTemperature.mirek !== undefined) {
+            receivedHUEObject.color_temperature.mirek = AverageColorsXYBrightnessAndTemperature.mirek;
+            node.currentHUEDevice.color_temperature.mirek = AverageColorsXYBrightnessAndTemperature.mirek;
+            node.updateKNXLightKelvinPercentageState(receivedHUEObject.color_temperature.mirek);
+            node.updateKNXLightKelvinState(receivedHUEObject.color_temperature.mirek);
+          } else if (receivedHUEObject.color !== undefined && receivedHUEObject.color.xy !== undefined && AverageColorsXYBrightnessAndTemperature.x !== undefined) {
+            receivedHUEObject.color.xy.x = AverageColorsXYBrightnessAndTemperature.x;
+            receivedHUEObject.color.xy.y = AverageColorsXYBrightnessAndTemperature.y;
+            node.currentHUEDevice.color.xy.x = AverageColorsXYBrightnessAndTemperature.x;
+            node.currentHUEDevice.color.xy.y = AverageColorsXYBrightnessAndTemperature.y;
+            node.updateKNXLightColorState(receivedHUEObject.color);
+          }
+          // The dimming is not necessary, beacause the HUE API already sends a group_light event with the average brightness 
+          // if (receivedHUEObject.dimming !== undefined && AverageColorsXYBrightnessAndTemperature.brightness !== undefined) {
+          //   receivedHUEObject.dimming = { brightness: AverageColorsXYBrightnessAndTemperature.brightness };
+          // }
+          // --------------------------------------------------------------------------------------------------
+          if (modifiedLight !== undefined && modifiedLight.metadata !== undefined && modifiedLight.metadata.name !== undefined) {
+            receivedHUEObject.lightName = modifiedLight.metadata.name;
+          }
+          node.send(receivedHUEObject);
+          return;
         }
+        //#endregion
 
-        // --------------------------------------------------------------------------------------------------
-
-        if (canContinue === true) {
+        if (receivedHUEObject.id === node.hueDevice) {
           // Output the msg to the flow
           node.send(receivedHUEObject);
 
@@ -1046,7 +1090,7 @@ module.exports = function (RED) {
             node.updateKNXLightKelvinPercentageState(receivedHUEObject.color_temperature.mirek);
             node.updateKNXLightKelvinState(receivedHUEObject.color_temperature.mirek);
             node.currentHUEDevice.color_temperature.mirek = receivedHUEObject.color_temperature.mirek;
-          };
+          }
         }
       } catch (error) {
         node.status({
@@ -1056,162 +1100,9 @@ module.exports = function (RED) {
         });
         RED.log.error(`knxUltimateHueLight: node.handleSendHUE = (_event): ${error.stack}`);
       }
-      //})();
+      // })();
     };
 
-
-    // node.handleSendHUE = async (_event) => {
-    //   if (_event === undefined) return;
-    //   if (_event.type !== 'grouped_light' && _event.type !== 'light') return;
-
-    //   // if the node is a grouped_light, the only values required, thus present, by HUE apis are "on" and "dimming".
-    //   // For all others properties like for example color and tunable white, i must get the data from one of the child lights.
-    //   //(async () => {
-    //   // Check and set canContinue true or false ------------------------------------------------------------
-    //   try {
-    //     if (node.currentHUEDevice === undefined || node.serverHue === null || node.serverHue === undefined) {
-    //       node.setNodeStatusHue({
-    //         fill: "red",
-    //         shape: "ring",
-    //         text: "Rejected HUE light settings. I'm still not ready...",
-    //         payload: "",
-    //       });
-    //       return;
-    //     }
-
-    //     const receivedHUEObject = cloneDeep(_event);
-    //     let groupChilds = undefined;
-    //     let AverageColorsXYBrightnessAndTemperature = undefined; // Average color and temp if the node is a grouped light.
-    //     let canContinue = false;
-    //     // If the current node is a grouped lights, i must check wether the receivedHUEObject (containing a light) belongs to the node lights collection.
-    //     if (node.isGrouped_light === true) {
-    //       try {
-    //         // Find all the lights in the collection, having the color_temperature capabilities, belonging to the group.
-    //         if (receivedHUEObject.type === "grouped_light") {
-    //           groupChilds = await node.serverHue.getAllLightsBelongingToTheGroup(node.hueDevice, false);
-    //         } else {
-    //           const devices = await node.serverHue.getAllLightsBelongingToTheGroup(node.hueDevice, false);
-    //           groupChilds = [];
-    //           for (let index = 0; index < devices.length; index++) {
-    //             const element = devices[index];
-    //             if (receivedHUEObject.id === element.id) {
-    //               //if (groupChilds === undefined) groupChilds = [];
-    //               // groupChilds.push(element);
-    //               let modifiedLight = cloneDeep(element);
-    //               if (receivedHUEObject.dimming !== undefined) modifiedLight.dimming = { brightness: receivedHUEObject.dimming.brightness };
-    //               if (receivedHUEObject.color !== undefined) modifiedLight.color = receivedHUEObject.color;
-    //               if (receivedHUEObject.color_temperature !== undefined) modifiedLight.color_temperature = receivedHUEObject.color_temperature;
-    //               groupChilds.push(modifiedLight);
-    //             } else {
-    //               // Simply ppend the light
-    //               groupChilds.push(element);
-    //             }
-    //           }
-    //         }
-    //         if (groupChilds !== undefined) AverageColorsXYBrightnessAndTemperature = await node.serverHue.getAverageColorsXYBrightnessAndTemperature(groupChilds);
-
-    //         // Set the new values based on average calculated above
-    //         try {
-    //           // Use the arithmetic average of color xy, brightness and color temperature "averageColorXYandKelvinOfGroupedLights"
-    //           if (receivedHUEObject.color !== undefined && AverageColorsXYBrightnessAndTemperature.x !== undefined) {
-    //             receivedHUEObject.color = {
-    //               xy: { x: AverageColorsXYBrightnessAndTemperature.x, y: AverageColorsXYBrightnessAndTemperature.y }
-    //             };
-    //           }
-    //           if (receivedHUEObject.color_temperature !== undefined && AverageColorsXYBrightnessAndTemperature.mirek !== undefined) {
-    //             receivedHUEObject.color_temperature = { mirek: AverageColorsXYBrightnessAndTemperature.mirek };
-    //           }
-    //           if (receivedHUEObject.dimming !== undefined && AverageColorsXYBrightnessAndTemperature.brightness !== undefined) {
-    //             receivedHUEObject.dimming = { brightness: AverageColorsXYBrightnessAndTemperature.brightness };
-    //           }
-    //         } catch (error) { /* empty */ }
-
-    //         canContinue = true;
-    //       } catch (error) { /* empty */ }
-    //     } else {
-    //       if (receivedHUEObject.type !== "light") return;
-    //       if (receivedHUEObject.id === node.hueDevice) {
-    //         canContinue = true;
-    //       }
-    //     }
-    //     // --------------------------------------------------------------------------------------------------
-
-    //     if (canContinue === true) {
-
-    //       // Output the msg to the flow
-    //       node.send(receivedHUEObject);
-
-    //       // // DEBUG testing enable/disable HTML UI Tabs
-    //       //delete _event.dimming;
-    //       //delete _event.color;
-    //       //delete _event.color_temperature;
-    //       //delete _event.color_temperature_delta;
-
-
-    //       if (receivedHUEObject.on !== undefined) {
-    //         node.updateKNXLightState(receivedHUEObject.on.on);
-    //         // In case of switch off, set the dim to zero
-    //         if (receivedHUEObject.on.on === false && (config.updateKNXBrightnessStatusOnHUEOnOff === undefined || config.updateKNXBrightnessStatusOnHUEOnOff === "onhueoff")) {
-    //           node.updateKNXBrightnessState(0);
-    //           if (receivedHUEObject.dimming !== undefined) delete receivedHUEObject.dimming; // Remove event.dimming, because has beem handled by this function and i don't want the function below to take care of it.
-    //         } else if (receivedHUEObject.on.on === true && node.currentHUEDevice.on.on === false) {
-    //           let brightVal = 50;
-    //           if (node.currentHUEDevice.type === "light") {
-    //             // Turn on always update the dimming KNX Status value as well.               
-    //             if (node.currentHUEDevice.dimming !== undefined && node.currentHUEDevice.dimming.brightness !== undefined) {
-    //               brightVal = node.currentHUEDevice.dimming.brightness;
-    //             }
-    //           } else if (node.currentHUEDevice.type === "grouped_light") {
-    //             brightVal = AverageColorsXYBrightnessAndTemperature;
-    //           }
-    //           node.updateKNXBrightnessState(brightVal);
-    //         }
-    //         node.currentHUEDevice.on.on = receivedHUEObject.on.on;
-    //       }
-
-    //       if (receivedHUEObject.color !== undefined) { // fixed https://github.com/Supergiovane/node-red-contrib-knx-ultimate/issues/287
-    //         node.updateKNXLightColorState(receivedHUEObject.color);
-    //         node.currentHUEDevice.color = receivedHUEObject.color;
-    //       }
-
-    //       if (receivedHUEObject.dimming !== undefined && receivedHUEObject.dimming.brightness !== undefined) {
-    //         // Once upon n a time, the light transmit the brightness value of 0.39.
-    //         // To avoid wrongly turn light state on, exit
-    //         if (receivedHUEObject.dimming.brightness < 1) receivedHUEObject.dimming.brightness = 0;
-    //         if (node.currentHUEDevice.on !== undefined && node.currentHUEDevice.on.on === false && receivedHUEObject.dimming.brightness === 0) {
-    //           // Do nothing, because the light is off and the dimming also is 0
-    //         } else {
-    //           if (node.currentHUEDevice.on !== undefined && node.currentHUEDevice.on.on === false && (receivedHUEObject.on === undefined || (receivedHUEObject.on !== undefined && receivedHUEObject.on.on === true))) node.updateKNXLightState(receivedHUEObject.dimming.brightness > 0);
-    //           node.updateKNXBrightnessState(receivedHUEObject.dimming.brightness);
-    //           // If the brightness reaches zero, the hue lamp "on" property must be set to zero as well
-    //           if (receivedHUEObject.dimming.brightness === 0 && node.currentHUEDevice.on !== undefined && node.currentHUEDevice.on.on === true) {
-    //             node.serverHue.hueManager.writeHueQueueAdd(
-    //               node.hueDevice,
-    //               { on: { on: false } },
-    //               node.isGrouped_light === false ? "setLight" : "setGroupedLight",
-    //             );
-    //             node.currentHUEDevice.on.on = false;
-    //           }
-    //           node.currentHUEDevice.dimming.brightness = receivedHUEObject.dimming.brightness;
-    //         }
-    //       }
-
-    //       if (receivedHUEObject.color_temperature !== undefined) {
-    //         node.updateKNXLightKelvinPercentageState(receivedHUEObject.color_temperature.mirek);
-    //         node.updateKNXLightKelvinState(receivedHUEObject.color_temperature.mirek);
-    //         node.currentHUEDevice.color_temperature.mirek = receivedHUEObject.color_temperature.mirek;
-    //       };
-    //     }
-    //   } catch (error) {
-    //     node.status({
-    //       fill: "red",
-    //       shape: "dot",
-    //       text: `HUE->KNX error ${node.id} ${error.message}. Seee Log`,
-    //     });
-    //     RED.log.error(`knxUltimateHueLight: node.handleSendHUE = (_event): ${error.stack}`);
-    //   }
-    //   //})();
-    // };
 
     // Leave the name after "function", to avoid <anonymous function> in the stack trace, in caso of errors.
     node.updateKNXBrightnessState = function updateKNXBrightnessState(_value, _outputtype = "write") {
@@ -1552,6 +1443,6 @@ module.exports = function (RED) {
       }
       done();
     });
-  };
+  }
   RED.nodes.registerType("knxUltimateHueLight", knxUltimateHueLight);
 };
