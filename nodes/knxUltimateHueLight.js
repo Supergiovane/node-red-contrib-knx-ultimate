@@ -956,7 +956,6 @@ module.exports = function (RED) {
       // !!!! >>> For all others properties like for example color and tunable white, i must get the data from one of the child lights.
 
       //(async () => {
-      // Check and set canContinue true or false ------------------------------------------------------------
       try {
         if (node.currentHUEDevice === undefined || node.serverHue === null || node.serverHue === undefined) {
           node.setNodeStatusHue({
