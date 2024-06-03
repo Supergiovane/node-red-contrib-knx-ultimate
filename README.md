@@ -57,9 +57,10 @@ msg.payload = {red:255, green:200, blue:30} // Put some colors in our life
 |--|--|
 | KNX Tunnelling | ![](https://placehold.co/200x20/green/white?text=YES) |
 | KNX Routing | ![](https://placehold.co/200x20/green/white?text=YES) |
+| Philips Hue v2 | ![](https://placehold.co/200x20/green/white?text=YES) |
 | KNX Secure Tunnelling | ![](https://placehold.co/200x20/orange/white?text=UNDER+DEVELOPMENT) |
 | KNX Secure Routing | ![](https://placehold.co/200x20/red/white?text=NO) |
-| KNX 3rd PARTY IOT API client | ![](https://placehold.co/200x20/orange/white?text=UNDER+DEVELOPMENT) |
+| KNX 3rd PARTY IOT API client | ![](https://placehold.co/200x20/red/white?text=DELAYED) |
 | Matter | ![](https://placehold.co/200x20/blue/white?text=UNDER+BRAINSTORMING) |
 
 <br/>
