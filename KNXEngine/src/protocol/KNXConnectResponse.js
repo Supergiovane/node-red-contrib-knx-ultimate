@@ -39,6 +39,8 @@ class KNXConnectResponse extends KNXPacket.KNXPacket {
         return 'Invalid Connection Option'
       case KNXConstants.KNX_CONSTANTS.E_NO_MORE_CONNECTIONS:
         return 'No More Connections'
+      case KNXConstants.KNX_CONSTANTS.E_NO_MORE_UNIQUE_CONNECTIONS:
+        return 'No More Unique Connections';
       case KNXConstants.KNX_CONSTANTS.E_DATA_CONNECTION:
         return 'Invalid Data Connection'
       case KNXConstants.KNX_CONSTANTS.E_KNX_CONNECTION:
