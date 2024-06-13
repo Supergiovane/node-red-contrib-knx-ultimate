@@ -1,5 +1,7 @@
 <script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/11f26b4500.js"></script>
 
+<script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/htmlUtils.js"></script>
+
 <script type="text/javascript">
     RED.nodes.registerType('knxUltimateHueButton', {
         category: "KNX Ultimate",
@@ -94,16 +96,7 @@
                 }]
             })
 
-            // 31/03/2020 Search Helper
-            function fullSearch(sourceText, searchString) {
-                // This searches for all words in a string
-                var aSearchWords = searchString.toLowerCase().split(" ");
-                var i = 0;
-                for (let index = 0; index < aSearchWords.length; index++) {
-                    if (sourceText.toLowerCase().indexOf(aSearchWords[index]) > -1) i += 1;
-                }
-                return i == aSearchWords.length;
-            }
+
 
             // DPT Dim
             // ########################
@@ -120,12 +113,12 @@
 
             // Autocomplete suggestion with ETS csv File
             $("#node-input-GArepeat").autocomplete({
-                minLength: 1,
+                minLength: 0,
                 source: function (request, response) {
                     $.getJSON("knxUltimatecsv?nodeID=" + oNodeServer.id, (data) => {
                         response($.map(data, function (value, key) {
                             var sSearch = (value.ga + " (" + value.devicename + ") DPT" + value.dpt);
-                            if (fullSearch(sSearch, request.term)) {
+                            if (htmlUtilsfullCSVSearch(sSearch, request.term)) {
                                 if (value.dpt.startsWith('3.007')) {
                                     return {
                                         label: value.ga + " # " + value.devicename + " # " + value.dpt, // Label for Display
@@ -149,6 +142,8 @@
                     // Select the option value 
                     $("#node-input-dptrepeat").val(optVal);
                 }
+            }).focus(function () {
+                $(this).autocomplete('search', $(this).val() + 'exactmatch');
             });
 
 
@@ -170,12 +165,12 @@
 
             // Autocomplete suggestion with ETS csv File
             $("#node-input-GAshort_release").autocomplete({
-                minLength: 1,
+                minLength: 0,
                 source: function (request, response) {
                     $.getJSON("knxUltimatecsv?nodeID=" + oNodeServer.id, (data) => {
                         response($.map(data, function (value, key) {
                             var sSearch = (value.ga + " (" + value.devicename + ") DPT" + value.dpt);
-                            if (fullSearch(sSearch, request.term + " 1.")) {
+                            if (htmlUtilsfullCSVSearch(sSearch, request.term + " 1.")) {
                                 return {
                                     label: value.ga + " # " + value.devicename + " # " + value.dpt, // Label for Display
                                     value: value.ga // Value
@@ -197,16 +192,18 @@
                     // Select the option value 
                     $("#node-input-dptshort_release").val(optVal);
                 }
+            }).focus(function () {
+                $(this).autocomplete('search', $(this).val() + 'exactmatch');
             });
 
             // Autocomplete suggestion with ETS csv File
             $("#node-input-GAshort_releaseStatus").autocomplete({
-                minLength: 1,
+                minLength: 0,
                 source: function (request, response) {
                     $.getJSON("knxUltimatecsv?nodeID=" + oNodeServer.id, (data) => {
                         response($.map(data, function (value, key) {
                             var sSearch = (value.ga + " (" + value.devicename + ") DPT" + value.dpt);
-                            if (fullSearch(sSearch, request.term + " 1.")) {
+                            if (htmlUtilsfullCSVSearch(sSearch, request.term + " 1.")) {
                                 return {
                                     label: value.ga + " # " + value.devicename + " # " + value.dpt, // Label for Display
                                     value: value.ga // Value
@@ -228,17 +225,19 @@
                     // Select the option value 
                     $("#node-input-dptshort_releaseStatus").val(optVal);
                 }
+            }).focus(function () {
+                $(this).autocomplete('search', $(this).val() + 'exactmatch');
             });
 
 
             // Autocomplete suggestion with ETS csv File
             $("#node-input-GAdouble_short_release").autocomplete({
-                minLength: 1,
+                minLength: 0,
                 source: function (request, response) {
                     $.getJSON("knxUltimatecsv?nodeID=" + oNodeServer.id, (data) => {
                         response($.map(data, function (value, key) {
                             var sSearch = (value.ga + " (" + value.devicename + ") DPT" + value.dpt);
-                            if (fullSearch(sSearch, request.term + " 1.")) {
+                            if (htmlUtilsfullCSVSearch(sSearch, request.term + " 1.")) {
                                 return {
                                     label: value.ga + " # " + value.devicename + " # " + value.dpt, // Label for Display
                                     value: value.ga // Value
@@ -260,16 +259,18 @@
                     // Select the option value 
                     $("#node-input-dptdouble_short_release").val(optVal);
                 }
+            }).focus(function () {
+                $(this).autocomplete('search', $(this).val() + 'exactmatch');
             });
 
             // Autocomplete suggestion with ETS csv File
             $("#node-input-GAdouble_short_releaseStatus").autocomplete({
-                minLength: 1,
+                minLength: 0,
                 source: function (request, response) {
                     $.getJSON("knxUltimatecsv?nodeID=" + oNodeServer.id, (data) => {
                         response($.map(data, function (value, key) {
                             var sSearch = (value.ga + " (" + value.devicename + ") DPT" + value.dpt);
-                            if (fullSearch(sSearch, request.term + " 1.")) {
+                            if (htmlUtilsfullCSVSearch(sSearch, request.term + " 1.")) {
                                 return {
                                     label: value.ga + " # " + value.devicename + " # " + value.dpt, // Label for Display
                                     value: value.ga // Value
@@ -291,17 +292,19 @@
                     // Select the option value 
                     $("#node-input-dptdouble_short_releaseStatus").val(optVal);
                 }
+            }).focus(function () {
+                $(this).autocomplete('search', $(this).val() + 'exactmatch');
             });
 
             // Autocomplete suggestion with HUE
             $("#node-input-name").autocomplete({
-                minLength: 1,
+                minLength: 0,
                 source: function (request, response) {
                     $.getJSON("KNXUltimateGetResourcesHUE?rtype=button&serverId=" + oNodeServerHue.id, (data) => {
                         response($.map(data.devices, function (value, key) {
                             //alert(JSON.stringify(value) + " "+ key)
                             var sSearch = (value.name);
-                            if (fullSearch(sSearch, request.term)) {
+                            if (htmlUtilsfullCSVSearch(sSearch, request.term)) {
                                 return {
                                     hueDevice: value.id, // Label for Display
                                     value: value.name // Value
@@ -315,6 +318,8 @@
                     // Sets the fields
                     $('#node-input-hueDevice').val(ui.item.hueDevice)
                 }
+            }).focus(function () {
+                $(this).autocomplete('search', $(this).val() + 'exactmatch');
             });
 
 

@@ -1,3 +1,5 @@
+<script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/htmlUtils.js"></script>
+
 <script type="text/javascript">
     RED.nodes.registerType('knxUltimateWatchDog', {
         category: "KNX Ultimate",
@@ -16,7 +18,7 @@
         outputLabels: ["Output"],
         icon: "node-watchdog-icon.svg",
         label: function () {
-            return ((this.name || "KNX Watchdog") + " " + (this.checkLevel == "Ethernet" ? "Gateway IP": this.topic));
+            return ((this.name || "KNX Watchdog") + " " + (this.checkLevel == "Ethernet" ? "Gateway IP" : this.topic));
         },
         paletteLabel: "KNX WatchDog",
         oneditprepare: function () {

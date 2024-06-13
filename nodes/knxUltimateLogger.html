@@ -1,3 +1,5 @@
+<script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/htmlUtils.js"></script>
+
 <script type="text/javascript">
     RED.nodes.registerType('knxUltimateLogger', {
         category: "KNX Ultimate",
@@ -11,7 +13,7 @@
             maxRowsInETSXML: { value: 0, required: true, validate: RED.validators.number() },
             autoStartTimerTelegramCounter: { value: false },
             intervalTelegramCount: { value: 60, required: false, validate: RED.validators.number() }
-            
+
         },
         inputs: 1,
         outputs: 2,

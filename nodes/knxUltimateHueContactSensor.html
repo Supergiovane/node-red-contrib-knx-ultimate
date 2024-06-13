@@ -1,5 +1,7 @@
 <script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/11f26b4500.js"></script>
 
+<script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/htmlUtils.js"></script>
+
 <script type="text/javascript">
     RED.nodes.registerType('knxUltimateHueContactSensor', {
         category: 'KNX Ultimate',
@@ -83,13 +85,13 @@
 
             // Autocomplete suggestion with ETS csv File
             $('#node-input-GAcontact').autocomplete({
-                minLength: 1,
+                minLength: 0,
                 source: function (request, response) {
                     //$.getJSON("csv", request, function( data, status, xhr ) {
                     $.getJSON('knxUltimatecsv?nodeID=' + oNodeServer.id, (data) => {
                         response($.map(data, function (value, key) {
                             var sSearch = (value.ga + ' (' + value.devicename + ') DPT' + value.dpt)
-                            if (fullSearch(sSearch, request.term + ' 1.')) {
+                            if (htmlUtilsfullCSVSearch(sSearch, request.term + ' 1.')) {
                                 return {
                                     label: value.ga + ' # ' + value.devicename + ' # ' + value.dpt, // Label for Display
                                     value: value.ga, // Value
@@ -111,19 +113,21 @@
                     // Select the option value
                     $('#node-input-dptcontact').val(optVal)
                 },
-            })
+            }).focus(function () {
+                $(this).autocomplete('search', $(this).val() + 'exactmatch');
+            });
             // ########################
 
 
             // Autocomplete suggestion with HUE
             $('#node-input-name').autocomplete({
-                minLength: 1,
+                minLength: 0,
                 source: function (request, response) {
                     $.getJSON('KNXUltimateGetResourcesHUE?rtype=contact&serverId=' + oNodeServerHue.id, (data) => {
                         response($.map(data.devices, function (value, key) {
                             //alert(JSON.stringify(value) + " "+ key)
                             var sSearch = (value.name)
-                            if (fullSearch(sSearch, request.term)) {
+                            if (htmlUtilsfullCSVSearch(sSearch, request.term)) {
                                 return {
                                     hueDevice: value.id, // Label for Display
                                     value: value.name, // Value
@@ -137,9 +141,9 @@
                     // Sets the fields
                     $('#node-input-hueDevice').val(ui.item.hueDevice)
                 },
-            })
-
-
+            }).focus(function () {
+                $(this).autocomplete('search', $(this).val() + 'exactmatch');
+            });
             // ########################
 
 

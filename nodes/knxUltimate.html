@@ -1,6 +1,8 @@
 <!-- <script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/jquery.searchableSelect.js"></script> -->
 
 
+<script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/htmlUtils.js"></script>
+
 <script type="text/javascript">
     RED.nodes.registerType('knxUltimate', {
         category: "KNX Ultimate",
@@ -53,16 +55,7 @@
             var node = this;
             var oNodeServer = RED.nodes.node($("#node-input-server").val()); // Store the config-node
             $("#tabs").tabs();
-            // 31/03/2020 Search Helper
-            function fullSearch(sourceText, searchString) {
-                // This searches for all words in a string
-                var aSearchWords = searchString.toLowerCase().split(" ");
-                var i = 0;
-                for (let index = 0; index < aSearchWords.length; index++) {
-                    if (sourceText.toLowerCase().indexOf(aSearchWords[index]) > -1) i += 1;
-                }
-                return i == aSearchWords.length;
-            }
+
 
 
             // 15/09/2020 Supergiovane, set the help sample based on Datapoint
@@ -232,12 +225,12 @@
 
                     // Autocomplete suggestion with ETS csv File
                     $("#node-input-topic").autocomplete({
-                        minLength: 1,
+                        minLength: 0,
                         source: function (request, response) {
                             $.getJSON("knxUltimatecsv?nodeID=" + oNodeServer.id + "&" + { _: new Date().getTime() }, (data) => {
                                 response($.map(data, function (value, key) {
                                     var sSearch = (value.ga + " (" + value.devicename + ") DPT" + value.dpt);
-                                    if (fullSearch(sSearch, request.term)) {
+                                    if (htmlUtilsfullCSVSearch(sSearch, request.term)) {
                                         return {
                                             label: value.ga + " # " + value.devicename + " # " + value.dpt, // Label for Display
                                             value: value.ga // Value
@@ -260,6 +253,8 @@
                             $("#node-input-dpt").val(optVal);
                             $("#node-input-dpt").trigger("change");
                         }
+                    }).focus(function () {
+                        $(this).autocomplete('search', $(this).val() + 'exactmatch');
                     });
 
                     // Hide or show the GA and DPT fields if Notify on all Group Addresses is checked

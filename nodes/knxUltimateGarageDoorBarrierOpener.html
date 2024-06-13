@@ -1,3 +1,5 @@
+<script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/htmlUtils.js"></script>
+
 <script type="text/javascript">
     RED.nodes.registerType('knxUltimateGarageDoorBarrierOpener', {
         category: "KNX Ultimate",
@@ -48,7 +50,7 @@
 
             function getGroupAddressSimple(_sourceWidgetAutocomplete, _additionalSearchTerm) {
                 $(_sourceWidgetAutocomplete).autocomplete({
-                    minLength: 1,
+                    minLength: 0,
                     source: function (request, response) {
                         //$.getJSON("csv", request, function( data, status, xhr ) {
                         $.getJSON("knxUltimatecsv?nodeID=" + $("#node-input-server").val() + "&" + { _: new Date().getTime() }, (data) => {
@@ -57,7 +59,7 @@
                                     var sSearch = value.ga + " (" + value.devicename + ") DPT" + value.dpt;
                                     for (let index = 0; index < _additionalSearchTerm.length; index++) {
                                         const sDPT = _additionalSearchTerm[index];
-                                        if (fullSearch(sSearch, request.term + " " + sDPT)) {
+                                        if (htmlUtilsfullCSVSearch(sSearch, request.term + " " + sDPT)) {
                                             return {
                                                 label: value.ga + " # " + value.devicename + " # " + value.dpt, // Label for Display
                                                 value: value.ga + " # " + value.devicename + " # " + value.dpt, // Label for Display
@@ -73,19 +75,12 @@
                         const sDevName = ui.item.value.trim();
                         $(_sourceWidgetAutocomplete).val(sDevName);
                     },
+                }).focus(function () {
+                    $(this).autocomplete('search', $(this).val() + 'exactmatch');
                 });
             }
 
-            // 31/03/2020 Search Helper
-            function fullSearch(sourceText, searchString) {
-                // This searches for all words in a string
-                var aSearchWords = searchString.toLowerCase().split(" ");
-                var i = 0;
-                for (let index = 0; index < aSearchWords.length; index++) {
-                    if (sourceText.toLowerCase().indexOf(aSearchWords[index]) > -1) i += 1;
-                }
-                return i == aSearchWords.length;
-            }
+
 
             if (oNodeServer === undefined) {
                 // Hide the UI
