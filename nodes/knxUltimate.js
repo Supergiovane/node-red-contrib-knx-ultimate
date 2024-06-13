@@ -1,7 +1,7 @@
 /* eslint-disable max-len */
 module.exports = function (RED) {
   const _ = require('lodash');
-  const KNXUtils = require('../KNXEngine/src/protocol/KNXUtils');
+  const KNXUtils = require('knxultimate');
   const payloadRounder = require('./utils/payloadManipulation');
 
   function knxUltimate(config) {

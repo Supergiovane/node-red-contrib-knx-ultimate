@@ -1,7 +1,7 @@
 
 module.exports = function (RED) {
   function knxUltimateLoadControl(config) {
-    // const Address = require('./../KNXEngine/src/protocol/KNXAddress')
+    // const Address = require('knxultimate')
 
     RED.nodes.createNode(this, config)
     const node = this

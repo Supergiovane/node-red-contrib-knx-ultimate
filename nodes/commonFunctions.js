@@ -5,7 +5,7 @@ const fs = require("fs");
 const path = require("path");
 const yaml = require('js-yaml');
 const loggerEngine = require("./utils/sysLogger.js");
-const dptlib = require("../KNXEngine/src/dptlib");
+const dptlib = require('knxultimate').dptlib;
 
 
 
@@ -376,7 +376,7 @@ module.exports = (RED) => {
 
         RED.httpAdmin.get("/knxUltimateDpts", (req, res) => {
             try {
-                const dpts = Object.entries(dptlib).filter(onlyDptKeys).map(extractBaseNo).sort(sortBy("base"))
+                const dpts = Object.entries(dptlib.dpts).filter(onlyDptKeys).map(extractBaseNo).sort(sortBy("base"))
                     .reduce(toConcattedSubtypes, []);
                 res.json(dpts);
             } catch (error) { }
@@ -408,7 +408,7 @@ module.exports = (RED) => {
                     help: "NO",
                     helplink: "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-SamplesHome",
                 };
-                const dpts = Object.entries(dptlib).filter(onlyDptKeys);
+                const dpts = Object.entries(dptlib.dpts).filter(onlyDptKeys);
                 for (let index = 0; index < dpts.length; index++) {
                     if (dpts[index][0].toUpperCase() === `DPT${sDPT}`) {
                         jRet = {

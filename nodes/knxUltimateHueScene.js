@@ -1,7 +1,8 @@
 /* eslint-disable max-len */
-const dptlib = require('./../KNXEngine/src/dptlib');
+const dptlib = require('knxultimate').dptlib;//require('knxultimate').dptlib;
 
 module.exports = function (RED) {
+
   function knxUltimateHueScene(config) {
     RED.nodes.createNode(this, config);
     const node = this;

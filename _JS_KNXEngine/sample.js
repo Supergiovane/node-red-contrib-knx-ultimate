@@ -125,24 +125,24 @@ knxUltimateClient.on(knx.KNXClient.KNXClientEvents.connected, info => {
     // Check wether knxUltimateClient is clear to send the next telegram.
     // This should be called bevore any .write, .response, and .read request.
     // If not clear to send, retry later because the knxUltimateClient is busy in sending another telegram.
-    console.log("Clear to send: " + knxUltimateClient._getClearToSend())
+    console.log("Clear to send: " + knxUltimateClient.clearToSend)
 
     // // Send a WRITE telegram to the KNX BUS
     // // You need: group address, payload (true/false/or any message), datapoint as string
     let payload = false;
-    if (knxUltimateClient._getClearToSend()) knxUltimateClient.write("0/1/1", payload, "1.001");
+    if (knxUltimateClient.clearToSend) knxUltimateClient.write("0/1/1", payload, "1.001");
 
     // Send a color RED to an RGB datapoint
     payload = { red: 125, green: 0, blue: 0 };
-    if (knxUltimateClient._getClearToSend()) knxUltimateClient.write("0/1/2", payload, "232.600");
+    if (knxUltimateClient.clearToSend) knxUltimateClient.write("0/1/2", payload, "232.600");
 
     // // Send a READ request to the KNX BUS
-    if (knxUltimateClient._getClearToSend()) knxUltimateClient.read("0/0/1");
+    if (knxUltimateClient.clearToSend) knxUltimateClient.read("0/0/1");
 
     // Send a RESPONSE telegram to the KNX BUS
     // You need: group address, payload (true/false/or any message), datapoint as string
     payload = false;
-    if (knxUltimateClient._getClearToSend()) knxUltimateClient.respond("0/0/1", payload, "1.001");
+    if (knxUltimateClient.clearToSend) knxUltimateClient.respond("0/0/1", payload, "1.001");
 
 });
 knxUltimateClient.on(knx.KNXClient.KNXClientEvents.connecting, info => {

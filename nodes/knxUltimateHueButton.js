@@ -1,5 +1,5 @@
 module.exports = function (RED) {
-  const dptlib = require("../KNXEngine/src/dptlib");
+  const dptlib = require('knxultimate').dptlib;
 
   function knxUltimateHueButton(config) {
     RED.nodes.createNode(this, config);

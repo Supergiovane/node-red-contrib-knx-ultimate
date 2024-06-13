@@ -3,7 +3,7 @@
 /* eslint-disable max-len */
 /* eslint-disable no-lonely-if */
 const cloneDeep = require("lodash/cloneDeep");
-const dptlib = require("../KNXEngine/src/dptlib");
+const dptlib = require('knxultimate').dptlib;
 const hueColorConverter = require("./utils/colorManipulators/hueColorConverter");
 
 module.exports = function (RED) {

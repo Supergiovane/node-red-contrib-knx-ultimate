@@ -736,12 +736,12 @@ class KNXClient extends EventEmitter {
           }
           this._clearToSend = true
           this.emit(KNXClientEvents.error, timeoutErr)
-          if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.error('KNXClient: _setTimerWaitingForACK: ' + (timeoutErr.message || 'Undef error') + ' no ACK received. ABORT sending datagram with seqNumber ' + this._getSeqNumber() + ' from ' + knxTunnelingRequest.cEMIMessage.srcAddress.toString() + ' to ' + knxTunnelingRequest.cEMIMessage.dstAddress.toString())
+          if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.error('KNXClient: _setTimerWaitingForACK: ' + (timeoutErr.message || 'Undef error') + ' no ACK received. ABORT sending datagram with seqNumber ' + this.getSeqNumber() + ' from ' + knxTunnelingRequest.cEMIMessage.srcAddress.toString() + ' to ' + knxTunnelingRequest.cEMIMessage.dstAddress.toString())
         } else {
           // 26/12/2021 // If no ACK received, resend the datagram once with the same sequence number
           this._setTimerWaitingForACK(knxTunnelingRequest)
           this.send(knxTunnelingRequest)
-          if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.error('KNXClient: _setTimerWaitingForACK: ' + (timeoutErr.message || 'Undef error') + ' no ACK received. Retransmit datagram with seqNumber ' + this._getSeqNumber() + ' from ' + knxTunnelingRequest.cEMIMessage.srcAddress.toString() + ' to ' + knxTunnelingRequest.cEMIMessage.dstAddress.toString())
+          if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.error('KNXClient: _setTimerWaitingForACK: ' + (timeoutErr.message || 'Undef error') + ' no ACK received. Retransmit datagram with seqNumber ' + this.getSeqNumber() + ' from ' + knxTunnelingRequest.cEMIMessage.srcAddress.toString() + ' to ' + knxTunnelingRequest.cEMIMessage.dstAddress.toString())
         }
       } catch (error) { }
     }, KNXConstants.KNX_CONSTANTS.TUNNELING_REQUEST_TIMEOUT * 1000)
@@ -907,7 +907,7 @@ class KNXClient extends EventEmitter {
 
         // Check the received ACK sequence number
         if (!this._options.suppress_ack_ldatareq) {
-          if (knxTunnelingAck.seqCounter === this._getSeqNumber()) {
+          if (knxTunnelingAck.seqCounter === this.getSeqNumber()) {
             if (this._timerWaitingForACK !== null) clearTimeout(this._timerWaitingForACK)
             this._numFailedTelegramACK = 0 // 25/12/2021 clear the current ACK failed telegram number
             this._clearToSend = true // I'm ready to send a new datagram now

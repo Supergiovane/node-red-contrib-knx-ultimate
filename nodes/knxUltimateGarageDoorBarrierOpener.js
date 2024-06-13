@@ -1,7 +1,7 @@
 /* eslint-disable max-len */
-const dptlib = require("../KNXEngine/src/dptlib");
+const dptlib = require('knxultimate').dptlib;
 const _ = require('lodash');
-const KNXUtils = require('../KNXEngine/src/protocol/KNXUtils');
+const KNXUtils = require('knxultimate').KNXUtils;
 const payloadRounder = require('./utils/payloadManipulation');
 
 module.exports = function (RED) {

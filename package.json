@@ -6,6 +6,7 @@
   "version": "2.5.1",
   "description": "Control your KNX intallation via Node-Red! A bunch of KNX nodes, with integrated Philips HUE control and ETS group address importer. Easy to use and highly configurable.",
   "dependencies": {
+    "knxultimate": ">=2.2.0",
     "binary-parser": "2.2.1",
     "crypto-js": "4.2.0",
     "dns-sync": "0.2.1",

@@ -88,7 +88,7 @@ async function go() {
         // The client is connected
         console.log("Connected. On Duty", info)
         // Write something to the BUS
-        if (knxUltimateClient._getClearToSend()) knxUltimateClient.write("0/1/1", false, "1.001");
+        if (knxUltimateClient.clearToSend) knxUltimateClient.write("0/1/1", false, "1.001");
     });
     knxUltimateClient.on(knx.KNXClient.KNXClientEvents.connecting, info => {
         // The client is setting up the connection

@@ -7,8 +7,9 @@ const fs = require("fs");
 const path = require("path");
 const net = require("net");
 const _ = require("lodash");
-const knx = require("../KNXEngine/src");
-const dptlib = require("../KNXEngine/src/dptlib");
+const knx = require("knxultimate");
+//const dptlib = require('knxultimate').dptlib;
+const dptlib = require('knxultimate').dptlib;
 
 // const { Server } = require('http')
 const payloadRounder = require("./utils/payloadManipulation");
@@ -662,8 +663,8 @@ module.exports = (RED) => {
 
         // Setting handlers
         // ######################################
-        node.knxConnection.on(knx.KNXClient.KNXClientEvents.indication, handleBusEvents);
-        node.knxConnection.on(knx.KNXClient.KNXClientEvents.error, (err) => {
+        node.knxConnection.on(knx.KNXClientEvents.indication, handleBusEvents);
+        node.knxConnection.on(knx.KNXClientEvents.error, (err) => {
           try {
             if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("knxUltimate-config: received KNXClientEvents.error: " + (err.message === undefined ? err : err.message));
           } catch (error) {
@@ -681,11 +682,11 @@ module.exports = (RED) => {
           if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("knxUltimate-config: Disconnected by: " + (err.message === undefined ? err : err.message));
         });
         // Call discoverCB when a knx gateway has been discovered.
-        // node.knxConnection.on(knx.KNXClient.KNXClientEvents.discover, info => {
+        // node.knxConnection.on(knx.KNXClientEvents.discover, info => {
         //     const [ip, port] = info.split(":");
         //     discoverCB(ip, port);
         // });
-        node.knxConnection.on(knx.KNXClient.KNXClientEvents.disconnected, (info) => {
+        node.knxConnection.on(knx.KNXClientEvents.disconnected, (info) => {
           node.startTimerClearTelegramQueue(); // 21/01/2022 Clear the telegram queue after a while
           if (node.linkStatus !== "disconnected") {
             node.linkStatus = "disconnected";
@@ -693,10 +694,10 @@ module.exports = (RED) => {
             node.Disconnect("Disconnected by event: " + info || "", "red"); // 11/03/2022
           }
         });
-        node.knxConnection.on(knx.KNXClient.KNXClientEvents.close, (info) => {
+        node.knxConnection.on(knx.KNXClientEvents.close, (info) => {
           if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.debug("knxUltimate-config: KNXClient socket closed.");
         });
-        node.knxConnection.on(knx.KNXClient.KNXClientEvents.connected, (info) => {
+        node.knxConnection.on(knx.KNXClientEvents.connected, (info) => {
           if (node.timerClearTelegramQueue !== null) {
             clearTimeout(node.timerClearTelegramQueue); // Connected. Stop the timer that clears the telegrams queue.
             node.timerClearTelegramQueue = null;
@@ -721,7 +722,7 @@ module.exports = (RED) => {
           }, 500);
           if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("knxUltimate-config: Connected to %o", info);
         });
-        node.knxConnection.on(knx.KNXClient.KNXClientEvents.connecting, (info) => {
+        node.knxConnection.on(knx.KNXClientEvents.connecting, (info) => {
           node.linkStatus = "connecting";
           if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.debug("knxUltimate-config: Connecting to" + info.ipAddr || "");
           node.setAllClientsStatus(info.ipAddr || "", "grey", "Connecting...");
@@ -740,7 +741,7 @@ module.exports = (RED) => {
         }
       } catch (error) {
         if (node.sysLogger !== undefined && node.sysLogger !== null) {
-          node.sysLogger.error("KNXUltimate-config: Error in instantiating knxConnection " + error.message + " Node " + node.name);
+          node.sysLogger.error("KNXUltimate-config: Error in instantiating knxConnection " + error.stack + " Node " + node.name);
           node.error("KNXUltimate-config: Error in instantiating knxConnection " + error.message + " Node " + node.name);
         }
         node.linkStatus = "disconnected";
@@ -1221,12 +1222,12 @@ module.exports = (RED) => {
         }
 
         // 26/12/2021 If the KNXEngine is busy waiting for telegram's ACK, exit
-        if (!node.knxConnection._getClearToSend()) {
+        if (!node.knxConnection.clearToSend) {
           node.lockHandleTelegramQueue = false; // Unlock the function
           if (node.telegramsQueue.length > 0) {
             if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.warn(
               "knxUltimate-config: handleTelegramQueue: the KNXEngine is busy or is waiting for a telegram ACK with seqNumner " +
-              node.knxConnection._getSeqNumber() +
+              node.knxConnection.getSeqNumber() +
               ". Delay handling queue.",
             );
           }

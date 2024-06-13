@@ -152,6 +152,7 @@
 
                     if ($("#node-input-server").val() !== "_ADD_" && $("#node-input-server").val() !== '') {
                         $.getJSON("knxUltimateDpts?serverId=" + $("#node-input-server").val() + "&_=" + new Date().getTime(), (data) => {
+                            $("#node-input-dpt").empty();
                             data.forEach(dpt => {
                                 $("#node-input-dpt").append($("<option></option>")
                                     .attr("value", dpt.value)

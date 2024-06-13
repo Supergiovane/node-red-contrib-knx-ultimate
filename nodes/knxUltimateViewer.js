@@ -1,4 +1,4 @@
-const KNXAddress = require('./../KNXEngine/src/protocol/KNXAddress').KNXAddress;
+const KNXAddress = require('knxultimate').KNXAddress;
 
 module.exports = function (RED) {
   function knxUltimateViewer(config) {

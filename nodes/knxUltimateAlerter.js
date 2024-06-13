@@ -4,8 +4,8 @@ module.exports = function (RED) {
     const fs = require('fs');
     const path = require('path');
     const mkdirp = require('mkdirp');
-    // const Address = require('./../KNXEngine/src/protocol/KNXAddress')
-    // const KnxConstants = require('./../KNXEngine/src/protocol/KNXConstants')
+    // const Address = require('knxultimate')
+    // const KnxConstants = require('knxultimate/protocol/KNXConstants')
 
     RED.nodes.createNode(this, config);
     const node = this;
