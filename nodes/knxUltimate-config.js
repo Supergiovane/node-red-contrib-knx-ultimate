@@ -295,7 +295,7 @@ module.exports = (RED) => {
       }
     };
 
-    node.removeClient = (_Node) => {
+    node.removeClient = async (_Node) => {
       // Remove the client node from the clients array
       try {
         node.nodeClients = node.nodeClients.filter((x) => x.id !== _Node.id);
@@ -304,7 +304,7 @@ module.exports = (RED) => {
       // If no clien nodes, disconnect from bus.
       if (node.nodeClients.length === 0) {
         try {
-          node.Disconnect();
+          await node.Disconnect();
         } catch (error) { /* empty */ }
       }
     };
@@ -455,7 +455,7 @@ module.exports = (RED) => {
 
     // 01/02/2020 Dinamic change of the KNX Gateway IP, Port and Physical Address
     // This new thing has been requested by proServ RealKNX staff.
-    node.setGatewayConfig = (
+    node.setGatewayConfig = async (
       /** @type {string} */ _sIP,
       /** @type {number} */ _iPort,
       /** @type {string} */ _sPhysicalAddress,
@@ -490,7 +490,7 @@ module.exports = (RED) => {
       );
 
       try {
-        node.Disconnect();
+        await node.Disconnect();
         // node.setKnxConnectionProperties(); // 28/12/2021 Commented
         node.setAllClientsStatus("CONFIG", "yellow", "KNXUltimage-config:setGatewayConfig: disconnected by new setting...");
         if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.debug("KNXUltimage-config:setGatewayConfig: disconnected by setGatewayConfig.");
@@ -499,7 +499,7 @@ module.exports = (RED) => {
 
     // 05/05/2021 force connection or disconnection from the KNX BUS and disable the autoreconenctions attempts.
     // This new thing has been requested by proServ RealKNX staff.
-    node.connectGateway = (_bConnection) => {
+    node.connectGateway = async (_bConnection) => {
       if (_bConnection === undefined) return;
       if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info(
         (_bConnection === true ? "Forced connection from watchdog" : "Forced disconnection from watchdog") +
@@ -514,7 +514,7 @@ module.exports = (RED) => {
       if (_bConnection === true) {
         // CONNECT AND ENABLE RECONNECTION ATTEMPTS
         try {
-          node.Disconnect();
+          await node.Disconnect();
           node.setAllClientsStatus("CONFIG", "yellow", "Forced GW connection from watchdog.");
           node.autoReconnect = true;
         } catch (error) { }
@@ -522,7 +522,7 @@ module.exports = (RED) => {
         // DISCONNECT AND DISABLE RECONNECTION ATTEMPTS
         try {
           node.autoReconnect = false;
-          node.Disconnect();
+          await node.Disconnect();
           const t = setTimeout(() => {
             // 21/03/2022 fixed possible memory leak. Previously was setTimeout without "let t = ".
             node.setAllClientsStatus("CONFIG", "yellow", "Forced GW disconnection and stop reconnection attempts, from watchdog.");
@@ -619,12 +619,12 @@ module.exports = (RED) => {
     };
     // node.setKnxConnectionProperties(); 28/12/2021 Commented
 
-    node.initKNXConnection = () => {
+    node.initKNXConnection = async () => {
       try {
         node.setKnxConnectionProperties(); // 28/12/2021 Added
       } catch (error) {
         if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("knxUltimate-config: setKnxConnectionProperties: " + error.message);
-        if (node.linkStatus !== "disconnected") node.Disconnect();
+        if (node.linkStatus !== "disconnected") await node.Disconnect();
         return;
       }
 
@@ -634,7 +634,7 @@ module.exports = (RED) => {
         try {
           if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("knxUltimate-config: No nodes linked to this gateway " + node.name);
           try {
-            if (node.linkStatus !== "disconnected") node.Disconnect();
+            if (node.linkStatus !== "disconnected") await node.Disconnect();
           } catch (error) { }
           return;
         } catch (error) { }
@@ -642,7 +642,7 @@ module.exports = (RED) => {
 
       try {
         // 02/01/2022 This is important to free the tunnel in case of hard disconnection.
-        node.Disconnect();
+        await node.Disconnect();
       } catch (error) {
         // if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info(error)
       }
@@ -1885,7 +1885,7 @@ module.exports = (RED) => {
       }
     }, 4000);
 
-    node.Disconnect = (_sNodeStatus = "", _sColor = "grey") => {
+    node.Disconnect = async (_sNodeStatus = "", _sColor = "grey") => {
       if (node.linkStatus === "disconnected") {
         if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.debug("knxUltimate-config: Disconnect: already not connected:" + node.linkStatus + ", node.autoReconnect:" + node.autoReconnect);
         return;
@@ -1895,7 +1895,7 @@ module.exports = (RED) => {
       node.lockHandleTelegramQueue = false; // Unlock the telegram handling function
       if (node.timerDoInitialRead !== null) clearTimeout(node.timerDoInitialRead); // 17/02/2020 Stop the initial read timer
       try {
-        if (node.knxConnection !== null) node.knxConnection.Disconnect();
+        if (node.knxConnection !== null) await node.knxConnection.Disconnect();
       } catch (error) {
         if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.debug(
           "knxUltimate-config: Disconnected: node.knxConnection.Disconnect() " + (error.message || "") + " , node.autoReconnect:" + node.autoReconnect,
@@ -1907,9 +1907,9 @@ module.exports = (RED) => {
       if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.debug("knxUltimate-config: Disconnected, node.autoReconnect:" + node.autoReconnect);
     };
 
-    node.on("close", function (done) {
+    node.on("close", async function (done) {
       try {
-        node.Disconnect();
+        await node.Disconnect();
       } catch (error) { /* empty */ }
       if (node.timerClearTelegramQueue !== null) clearTimeout(node.timerClearTelegramQueue);
       node.telegramsQueue = [];
