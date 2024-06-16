@@ -295,6 +295,13 @@ module.exports = (RED) => {
       }
     };
 
+    node.updateClient = (_Node) => {
+      // 16/06/2024 Update the node contained in the nodeClient list
+      const clients = node.nodeClients.filter((x) => x.id === _Node.id);
+      if (clients.length !== 0) {
+        clients[0].topic = _Node.topic;
+      }
+    }
     node.removeClient = async (_Node) => {
       // Remove the client node from the clients array
       try {

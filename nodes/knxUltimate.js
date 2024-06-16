@@ -71,6 +71,15 @@ module.exports = function (RED) {
             node.server.reportToWatchdogCalledByKNXUltimateNode(oError);
           }
         }
+        // Validate the Address to advise the user. The address can be undefined, because the
+        // group address can be set via setConfig
+        try {
+          KNXUtils.validateKNXAddress(node.topic, true);
+        } catch (error) {
+          node.setNodeStatus({
+            fill: 'grey', shape: 'ring', text: "DISABLED: " + error.message, payload: '', GA: node.topic, dpt: '', devicename: '',
+          });
+        }
       } catch (error) {
       }
     };
@@ -85,7 +94,8 @@ module.exports = function (RED) {
       }
       // Validate the Address
       try {
-        KNXUtils.validateKNXAddress(node.topic, true);
+        // Disable address control, otherwise if the topic is not set, the node will not be registered and the setConfig does not work https://github.com/Supergiovane/node-red-contrib-knx-ultimate/issues/363
+        // KNXUtils.validateKNXAddress(node.topic, true);
       } catch (error) {
         node.setNodeStatus({
           fill: 'red', shape: 'dot', text: error.message, payload: '', GA: node.topic, dpt: '', devicename: '',
@@ -129,13 +139,29 @@ module.exports = function (RED) {
         }
         if (msg.setConfig.hasOwnProperty('setGroupAddress')) {
           node.topic = msg.setConfig.setGroupAddress;
+          node.outputtopic = (config.outputtopic === undefined || config.outputtopic === '') ? msg.setConfig.setGroupAddress : config.outputtopic; // 07/02/2020 Importante, per retrocompatibilità
           if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info(`knxUltimate: new GroupAddress set by msg: ${node.topic}`);
-          node.setNodeStatus({
-            fill: 'grey', shape: 'ring', text: `GroupAddress changed to ${node.topic}`, payload: '', GA: '', dpt: '', devicename: '',
-          });
+          setTimeout(() => {
+            node.setNodeStatus({
+              fill: 'blue', shape: 'ring', text: `GroupAddress changed to ${node.topic}`, payload: '', GA: '', dpt: '', devicename: '',
+            });
+          }, 1000);
         }
+        node.server.updateClient(node); // Update che data in the node's server list
+        return;
       }
       // *********************************
+
+      // 16/06/2024 Check wether the node has a group address set.
+      // Validate the Address
+      try {
+        KNXUtils.validateKNXAddress(node.topic, true);
+      } catch (error) {
+        node.setNodeStatus({
+          fill: 'red', shape: 'dot', text: error.message, payload: '', GA: node.topic, dpt: '', devicename: '',
+        });
+        return;
+      }
 
       // 19/06/2022 Reset the RBE filter https://github.com/Supergiovane/node-red-contrib-knx-ultimate/issues/191
       // *********************************
