@@ -679,16 +679,32 @@
 
 `msg.setConfig`: It's possible to programmatically change the KNX-Ultimate node configuration, by sending msg.setConfig object to the node.
 The new configuration will be retained until next msg.setConfig or until restart/redeploy.
-All properties are optional, that means, you can change only the properties you need.  
+All properties **are optional**, that means, you can change only the properties you need.  
 Use it like that, in a functon node:    
+
+** Set both GA and DPT **
 
 ```json
 // Change the node properties as follows:
 // setGroupAddress: set the new group address.
-// setDPT: set the new Datapoint, as you can see in the dropdown list (the numeric part, for example "1.001", "237.600", etc...)
+// setDPT: set the new Datapoint, as you can see in the dropdown list (the numeric part, for example "1.001", "237.600", etc...). If set to **auto**, the datapoint will be read from the ETS file (if present).
 var config= {
     setGroupAddress: "0/1/2",
     setDPT: "1.001"
+};
+msg.setConfig = config;
+return msg;
+```
+
+** Set GA and read the datapoint from the ETS file ** 
+
+```json
+// Change the node properties as follows:
+// setGroupAddress: set the new group address.
+// setDPT: set the new Datapoint, as you can see in the dropdown list (the numeric part, for example "1.001", "237.600", etc...). If set to "auto", the datapoint will be read from the ETS file (if present).
+var config= {
+    setGroupAddress: "0/1/2",
+    setDPT: "auto"
 };
 msg.setConfig = config;
 return msg;

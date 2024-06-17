@@ -14,6 +14,7 @@ module.exports = function (RED) {
       return;
     }
     node.topic = config.topic;
+    node.name = config.name;
     node.outputtopic = (config.outputtopic === undefined || config.outputtopic === '') ? config.topic : config.outputtopic; // 07/02/2020 Importante, per retrocompatibilità
     node.dpt = config.dpt || '1.001';
     node.notifyreadrequest = config.notifyreadrequest || false;
@@ -126,16 +127,38 @@ module.exports = function (RED) {
       if (msg.hasOwnProperty('setConfig')) {
         if (msg.setConfig.hasOwnProperty('setDPT')) {
           node.dpt = msg.setConfig.setDPT;
-          if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info(`knxUltimate: new datapoint set by msg: ${node.dpt}`);
+          config.dpt = msg.setConfig.setDPT;
         }
         if (msg.setConfig.hasOwnProperty('setGroupAddress')) {
           node.topic = msg.setConfig.setGroupAddress;
+          config.topic = msg.setConfig.setGroupAddress
           node.outputtopic = (config.outputtopic === undefined || config.outputtopic === '') ? msg.setConfig.setGroupAddress : config.outputtopic; // 07/02/2020 Importante, per retrocompatibilità
-          if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info(`knxUltimate: new GroupAddress set by msg: ${node.topic}`);
+          config.outputtopic = node.outputtopic;
         }
-        node.setNodeStatus({
-          fill: 'blue', shape: 'ring', text: `Config changed. Current GA: ${node.topic} DPT: ${node.dpt}`, payload: '', GA: '', dpt: '', devicename: '',
-        });
+        // Read from the ETS file, the missing props
+        if (msg.setConfig.setGroupAddress !== undefined && msg.setConfig.setDPT !== undefined && (node.server.csv !== undefined && node.server.csv !== null)) {
+          // Read it from ETS File
+          const found = node.server.csv.find(item => item.ga === msg.setConfig.setGroupAddress);
+          if (found !== undefined) {
+            if (msg.setConfig.setDPT === 'auto') {
+              node.dpt = found.dpt;
+              config.dpt = found.dpt;
+            }
+            node.name = found.devicename;
+            config.name = found.devicename;
+          }
+        }
+        if (node.dpt === 'auto') {
+          // Unable to retrieve the datapoint
+          node.setNodeStatus({
+            fill: 'red', shape: 'ring', text: `Unable to retrieve the datapoint from the ETS file`, payload: '', GA: '', dpt: '', devicename: '',
+          });
+          if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(`knxUltimate: setConfig: Node.id: ${node.id} error: Unable to retrieve the datapoint from the ETS file`);
+        } else {
+          node.setNodeStatus({
+            fill: 'blue', shape: 'ring', text: `Config changed. Current GA: ${node.topic} DPT: ${node.dpt}`, payload: '', GA: '', dpt: '', devicename: node.name,
+          });
+        }
         return;
       }
       // *********************************
