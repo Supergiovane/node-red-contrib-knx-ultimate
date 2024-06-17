@@ -1361,6 +1361,9 @@ module.exports = (RED) => {
           } catch (error) {
             try {
               const oNode = RED.nodes.getNode(oKNXMessage.nodecallerid); // 05/04/2022 Get the real node
+              if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(
+                "knxUltimate-config: node.knxConnection.write: Payload: " + oKNXMessage.payload + " GA:" + oKNXMessage.grpaddr + " DPT:" + oKNXMessage.dpt + " " + error.stack
+              );
               oNode.setNodeStatus({
                 fill: "red",
                 shape: "dot",

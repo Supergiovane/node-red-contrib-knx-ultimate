@@ -627,7 +627,7 @@
 |Property|Description|
 |--|--|
 | Gateway | Select the KNX gateway to be used |
-| Group Addr. | The KNX Group Address you want to control. If you've imported the ETS group addresses file, you can just start typing in your device name. |
+| Group Addr. | The KNX Group Address you want to control. If you've imported the ETS group addresses file, you can just start typing in your device name. You can leave it empty if you wish set it with *msg.setConfig* input message. |
 | Datapoint | The datapoint belonging to your node.|
 | Node name | Self explaining. |
 | Topic | The msg output topic. Leave it blank to have it set to your Group Address. |
@@ -673,11 +673,11 @@
 : writeraw (buffer): is used to send a value to the KNX bus, as buffer. Use in conjunction with *bitlenght*.
 : bitlenght (int): specifies the lenght of the *writeraw* buffer. Use in conjunction with *writeraw*.
 : resetRBE (boolean) : resets the internal RBE filters (*use msg.resetRBE = true*).
-: config (json) : programmatically change the KNX-Ultimate Device node configuration. See details.
+: setConfig (json) : programmatically change the KNX-Ultimate Device node configuration. See details.
 
 ### Details
 
-`msg.config`: It's possible to programmatically change the KNX-Ultimate node configuration, by sending msg.setConfig object to the node.
+`msg.setConfig`: It's possible to programmatically change the KNX-Ultimate node configuration, by sending msg.setConfig object to the node.
 The new configuration will be retained until next msg.setConfig or until restart/redeploy.
 All properties are optional, that means, you can change only the properties you need.  
 Use it like that, in a functon node:    

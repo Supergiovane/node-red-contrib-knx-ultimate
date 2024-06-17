@@ -73,32 +73,26 @@ module.exports = function (RED) {
         }
         // Validate the Address to advise the user. The address can be undefined, because the
         // group address can be set via setConfig
-        try {
-          KNXUtils.validateKNXAddress(node.topic, true);
-        } catch (error) {
-          node.setNodeStatus({
-            fill: 'grey', shape: 'ring', text: "DISABLED: " + error.message, payload: '', GA: node.topic, dpt: '', devicename: '',
-          });
+        if (node.listenallga === false) {
+          try {
+            KNXUtils.validateKNXAddress(node.topic, true);
+          } catch (error) {
+            node.setNodeStatus({
+              fill: 'grey', shape: 'ring', text: "DISABLED: " + error.message, payload: '', GA: node.topic, dpt: '', devicename: '',
+            });
+          }
         }
+
       } catch (error) {
       }
+
     };
 
-    // Check if the node has a valid topic and dpt
+    // Check if the node has a valid dpt
     if (node.listenallga === false) {
-      if (node.topic === undefined || node.dpt === undefined) {
+      if (node.dpt === undefined || node.dpt === '') {
         node.setNodeStatus({
-          fill: 'red', shape: 'dot', text: 'Empty Group Addr. or datapoint.', payload: '', GA: '', dpt: '', devicename: '',
-        });
-        return;
-      }
-      // Validate the Address
-      try {
-        // Disable address control, otherwise if the topic is not set, the node will not be registered and the setConfig does not work https://github.com/Supergiovane/node-red-contrib-knx-ultimate/issues/363
-        // KNXUtils.validateKNXAddress(node.topic, true);
-      } catch (error) {
-        node.setNodeStatus({
-          fill: 'red', shape: 'dot', text: error.message, payload: '', GA: node.topic, dpt: '', devicename: '',
+          fill: 'red', shape: 'dot', text: 'The Datapoint cannot be empty.', payload: '', GA: '', dpt: '', devicename: '',
         });
         return;
       }
@@ -154,13 +148,15 @@ module.exports = function (RED) {
 
       // 16/06/2024 Check wether the node has a group address set.
       // Validate the Address
-      try {
-        KNXUtils.validateKNXAddress(node.topic, true);
-      } catch (error) {
-        node.setNodeStatus({
-          fill: 'red', shape: 'dot', text: error.message, payload: '', GA: node.topic, dpt: '', devicename: '',
-        });
-        return;
+      if (node.listenallga === false) {
+        try {
+          KNXUtils.validateKNXAddress(node.topic, true);
+        } catch (error) {
+          node.setNodeStatus({
+            fill: 'red', shape: 'dot', text: error.message, payload: '', GA: node.topic, dpt: '', devicename: '',
+          });
+          return;
+        }
       }
 
       // 19/06/2022 Reset the RBE filter https://github.com/Supergiovane/node-red-contrib-knx-ultimate/issues/191
@@ -267,7 +263,7 @@ module.exports = function (RED) {
           }
         }
       } else {
-        if (node.listenallga == false) {
+        if (node.listenallga === false) {
           // 23/12/2020 Applying RBE filter
           if (node.outputRBE === "true") {
             // 19/01/2023 CHECKING THE INPUT PAYLOAD (ROUND, ETC) BASED ON THE NODE CONFIG
@@ -313,7 +309,7 @@ module.exports = function (RED) {
             if (msg.event === 'Update_NoWrite') outputtype = 'update'; // 05/01/2021 Doesn't send anything to the bus. Only updates the node currentPayload
           }
 
-          if (node.listenallga == true) {
+          if (node.listenallga === true) {
             // The node is set to Universal mode (listen to all Group Addresses). Some fields are needed
             if (msg.hasOwnProperty('destination')) {
               grpaddr = msg.destination;
@@ -323,7 +319,7 @@ module.exports = function (RED) {
               });
               return;
             }
-            if (msg.hasOwnProperty('dpt')) {
+            if (msg.hasOwnProperty('dpt') && msg.dpt !== undefined && msg.dpt !== '') {
               dpt = msg.dpt;
             } else {
               // No datapoint set. If the CSV is loaded, try to get it from there.
@@ -351,7 +347,7 @@ module.exports = function (RED) {
             }
           } else {
             grpaddr = msg.hasOwnProperty('destination') ? msg.destination : node.topic;
-            dpt = msg.hasOwnProperty('dpt') ? msg.dpt : node.dpt;
+            dpt = (msg.hasOwnProperty('dpt') && msg.dpt !== undefined && msg.dpt !== '') ? msg.dpt : node.dpt;
           }
 
           // Protection over circular references (for example, if you link two Ultimate Nodes toghether with the same group address), to prevent infinite loops
