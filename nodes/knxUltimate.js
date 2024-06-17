@@ -127,21 +127,15 @@ module.exports = function (RED) {
         if (msg.setConfig.hasOwnProperty('setDPT')) {
           node.dpt = msg.setConfig.setDPT;
           if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info(`knxUltimate: new datapoint set by msg: ${node.dpt}`);
-          node.setNodeStatus({
-            fill: 'grey', shape: 'ring', text: `Datapoint changed to ${node.dpt}`, payload: '', GA: '', dpt: '', devicename: '',
-          });
         }
         if (msg.setConfig.hasOwnProperty('setGroupAddress')) {
           node.topic = msg.setConfig.setGroupAddress;
           node.outputtopic = (config.outputtopic === undefined || config.outputtopic === '') ? msg.setConfig.setGroupAddress : config.outputtopic; // 07/02/2020 Importante, per retrocompatibilità
           if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info(`knxUltimate: new GroupAddress set by msg: ${node.topic}`);
-          setTimeout(() => {
-            node.setNodeStatus({
-              fill: 'blue', shape: 'ring', text: `GroupAddress changed to ${node.topic}`, payload: '', GA: '', dpt: '', devicename: '',
-            });
-          }, 1000);
         }
-        node.server.updateClient(node); // Update che data in the node's server list
+        node.setNodeStatus({
+          fill: 'blue', shape: 'ring', text: `Config changed. Current GA: ${node.topic} DPT: ${node.dpt}`, payload: '', GA: '', dpt: '', devicename: '',
+        });
         return;
       }
       // *********************************

@@ -129,10 +129,9 @@ module.exports = (RED) => {
     }
 
     node.setAllClientsStatus = (_status, _color, _text) => {
-      function nextStatus(_oClient) {
+      node.nodeClients.forEach((oClient) => {
         try {
-          let oClient = RED.nodes.getNode(_oClient.id);
-          oClient.setNodeStatus({
+          if (oClient.setNodeStatus !== undefined) oClient.setNodeStatus({
             fill: _color,
             shape: "dot",
             text: _status + " " + _text,
@@ -141,12 +140,10 @@ module.exports = (RED) => {
             dpt: "",
             devicename: "",
           });
-          oClient = null;
         } catch (error) {
           if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.warn("Wow setAllClientsStatus error " + error.message);
         }
-      }
-      node.nodeClients.map(nextStatus);
+      });
     };
 
     // 21/01/2022 TTL Timer for clearung the node.telegramsQueue if the connection stays down for long time
@@ -252,8 +249,7 @@ module.exports = (RED) => {
       node.nodeClients
         .filter((_oClient) => _oClient.isWatchDog !== undefined && _oClient.isWatchDog === true)
         .forEach((_oClient) => {
-          const oClient = RED.nodes.getNode(_oClient.id);
-          oClient.signalNodeErrorCalledByConfigNode(_oError);
+          _oClient.signalNodeErrorCalledByConfigNode(_oError);
         });
     };
 
@@ -282,26 +278,10 @@ module.exports = (RED) => {
             devicename: "",
           });
         }
-        // 05/04/2022 create the Json variable and add it to the list
-        const jNode = {};
-        jNode.id = _Node.id;
-        jNode.topic = _Node.topic;
-        if (_Node.hasOwnProperty("isWatchDog")) jNode.isWatchDog = _Node.isWatchDog;
-        jNode.initialread = _Node.initialread;
-        jNode.notifywrite = _Node.notifywrite;
-        jNode.notifyresponse = _Node.notifyresponse;
-        jNode.notifyreadrequest = _Node.notifyreadrequest;
-        node.nodeClients.push(jNode);
+        node.nodeClients.push(_Node);
       }
     };
 
-    node.updateClient = (_Node) => {
-      // 16/06/2024 Update the node contained in the nodeClient list
-      const clients = node.nodeClients.filter((x) => x.id === _Node.id);
-      if (clients.length !== 0) {
-        clients[0].topic = _Node.topic;
-      }
-    }
     node.removeClient = async (_Node) => {
       // Remove the client node from the clients array
       try {
@@ -332,79 +312,78 @@ module.exports = (RED) => {
           .filter((_oClient) => _oClient.initialread === 2 || _oClient.initialread === 3)
           .filter((_oClient) => _oClient.hasOwnProperty("isWatchDog") === false)
           .forEach((_oClient) => {
-            const oClient = RED.nodes.getNode(_oClient.id); // 05/04/2022 Get the real node
 
             if (node.linkStatus !== "connected") return; // 16/08/2021 If not connected, exit
 
             // 04/04/2020 selected READ FROM FILE 2 or from file then from bus 3
-            if (oClient.listenallga === true) {
+            if (_oClient.listenallga === true) {
               // 13/12/2021 DA FARE
             } else {
               try {
                 if (node.exposedGAs.length > 0) {
-                  const oExposedGA = node.exposedGAs.find((a) => a.ga === oClient.topic);
+                  const oExposedGA = node.exposedGAs.find((a) => a.ga === _oClient.topic);
                   if (oExposedGA !== undefined) {
                     // Retrieve the value from exposedGAs
                     const msg = buildInputMessage({
                       _srcGA: "",
-                      _destGA: oClient.topic,
+                      _destGA: _oClient.topic,
                       _event: "GroupValue_Response",
                       _Rawvalue: Buffer.from(oExposedGA.rawValue.data),
-                      _inputDpt: oClient.dpt,
-                      _devicename: oClient.name ? oClient.name : "",
-                      _outputtopic: oClient.outputtopic,
-                      _oNode: oClient,
+                      _inputDpt: _oClient.dpt,
+                      _devicename: _oClient.name ? _oClient.name : "",
+                      _outputtopic: _oClient.outputtopic,
+                      _oNode: _oClient,
                     });
-                    oClient.previouspayload = ""; // 05/04/2021 Added previous payload
-                    oClient.currentPayload = msg.payload;
-                    oClient.setNodeStatus({
+                    _oClient.previouspayload = ""; // 05/04/2021 Added previous payload
+                    _oClient.currentPayload = msg.payload;
+                    _oClient.setNodeStatus({
                       fill: "grey",
                       shape: "dot",
                       text: "Update value from persist file",
-                      payload: oClient.currentPayload,
-                      GA: oClient.topic,
-                      dpt: oClient.dpt,
-                      devicename: oClient.name || "",
+                      payload: _oClient.currentPayload,
+                      GA: _oClient.topic,
+                      dpt: _oClient.dpt,
+                      devicename: _oClient.name || "",
                     });
                     // 06/05/2021 If, after the rawdata has been savad to file, the user changes the datapoint, the buildInputMessage returns payload null, because it's unable to convert the value
                     if (msg.payload === null) {
                       // Delete the exposedGA
-                      node.exposedGAs = node.exposedGAs.filter((item) => item.ga !== oClient.topic);
-                      oClient.setNodeStatus({
+                      node.exposedGAs = node.exposedGAs.filter((item) => item.ga !== _oClient.topic);
+                      _oClient.setNodeStatus({
                         fill: "yellow",
                         shape: "dot",
                         text: "Datapoint has been changed, remove the value from persist file",
-                        payload: oClient.currentPayload,
-                        GA: oClient.topic,
-                        dpt: oClient.dpt,
-                        devicename: oClient.devicename || "",
+                        payload: _oClient.currentPayload,
+                        GA: _oClient.topic,
+                        dpt: _oClient.dpt,
+                        devicename: _oClient.devicename || "",
                       });
-                      if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("knxUltimate-config: DoInitialReadFromKNXBusOrFile: Datapoint may have been changed, remove the value from persist file of " + oClient.topic + " Devicename " + oClient.name + " Currend DPT " + oClient.dpt + " Node.id " + oClient.id);
+                      if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("knxUltimate-config: DoInitialReadFromKNXBusOrFile: Datapoint may have been changed, remove the value from persist file of " + _oClient.topic + " Devicename " + _oClient.name + " Currend DPT " + _oClient.dpt + " Node.id " + _oClient.id);
                     } else {
-                      if (oClient.notifyresponse) oClient.handleSend(msg);
+                      if (_oClient.notifyresponse) _oClient.handleSend(msg);
                     }
                   } else {
-                    if (oClient.initialread === 3) {
+                    if (_oClient.initialread === 3) {
                       // Not found, issue a READ to the bus
-                      if (!readHistory.includes(oClient.topic)) {
-                        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.debug("KNXUltimate-config: DoInitialReadFromKNXBusOrFile 3: sent read request to GA " + oClient.topic);
-                        oClient.setNodeStatus({
+                      if (!readHistory.includes(_oClient.topic)) {
+                        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.debug("KNXUltimate-config: DoInitialReadFromKNXBusOrFile 3: sent read request to GA " + _oClient.topic);
+                        _oClient.setNodeStatus({
                           fill: "grey",
                           shape: "dot",
                           text: "Persist value not found, issuing READ request to BUS",
-                          payload: oClient.currentPayload,
-                          GA: oClient.topic,
-                          dpt: oClient.dpt,
-                          devicename: oClient.devicename || "",
+                          payload: _oClient.currentPayload,
+                          GA: _oClient.topic,
+                          dpt: _oClient.dpt,
+                          devicename: _oClient.devicename || "",
                         });
                         node.writeQueueAdd({
-                          grpaddr: oClient.topic,
+                          grpaddr: _oClient.topic,
                           payload: "",
                           dpt: "",
                           outputtype: "read",
-                          nodecallerid: oClient.id,
+                          nodecallerid: _oClient.id,
                         });
-                        readHistory.push(oClient.topic);
+                        readHistory.push(_oClient.topic);
                       }
                     }
                   }
@@ -419,16 +398,15 @@ module.exports = (RED) => {
           .filter((_oClient) => _oClient.initialread === 1)
           .filter((_oClient) => _oClient.hasOwnProperty("isWatchDog") === false)
           .forEach((_oClient) => {
-            const oClient = RED.nodes.getNode(_oClient.id); // 05/04/2022 Get the real node
 
             if (node.linkStatus !== "connected") return; // 16/08/2021 If not connected, exit
 
             // 04/04/2020 selected READ FROM BUS 1
-            if (oClient.hasOwnProperty("isalertnode") && oClient.isalertnode) {
-              oClient.initialReadAllDevicesInRules();
-            } else if (oClient.hasOwnProperty("isLoadControlNode") && oClient.isLoadControlNode) {
-              oClient.initialReadAllDevicesInRules();
-            } else if (oClient.listenallga === true) {
+            if (_oClient.hasOwnProperty("isalertnode") && _oClient.isalertnode) {
+              _oClient.initialReadAllDevicesInRules();
+            } else if (_oClient.hasOwnProperty("isLoadControlNode") && _oClient.isLoadControlNode) {
+              _oClient.initialReadAllDevicesInRules();
+            } else if (_oClient.listenallga === true) {
               for (let index = 0; index < node.csv.length; index++) {
                 const element = node.csv[index];
                 if (!readHistory.includes(element.ga)) {
@@ -444,16 +422,16 @@ module.exports = (RED) => {
                 }
               }
             } else {
-              if (!readHistory.includes(oClient.topic)) {
+              if (!readHistory.includes(_oClient.topic)) {
                 node.writeQueueAdd({
-                  grpaddr: oClient.topic,
+                  grpaddr: _oClient.topic,
                   payload: "",
                   dpt: "",
                   outputtype: "read",
-                  nodecallerid: oClient.id,
+                  nodecallerid: _oClient.id,
                 });
-                readHistory.push(oClient.topic);
-                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.debug("KNXUltimate-config: DoInitialReadFromKNXBusOrFile: sent read request to GA " + oClient.topic);
+                readHistory.push(_oClient.topic);
+                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.debug("KNXUltimate-config: DoInitialReadFromKNXBusOrFile: sent read request to GA " + _oClient.topic);
               }
             }
           });
@@ -825,42 +803,41 @@ module.exports = (RED) => {
           node.nodeClients
             .filter((_input) => _input.notifywrite === true)
             .forEach((_input) => {
-              const input = RED.nodes.getNode(_input.id); // 05/04/2022 Get the real node
 
               // 19/03/2020 in the middle of coronavirus. Whole italy is red zone, closed down. Scene Controller implementation
-              if (input.hasOwnProperty("isSceneController")) {
+              if (_input.hasOwnProperty("isSceneController")) {
                 // 12/08/2020 Check wether is a learn (save) command or a activate (play) command.
-                if (_dest === input.topic || _dest === input.topicSave) {
+                if (_dest === _input.topic || _dest === _input.topicSave) {
                   // Prepare the two messages to be evaluated directly into the Scene Controller node.
                   new Promise((resolve) => {
-                    if (_dest === input.topic) {
+                    if (_dest === _input.topic) {
                       try {
                         const msgRecall = buildInputMessage({
                           _srcGA: _src,
                           _destGA: _dest,
                           _event: _evt,
                           _Rawvalue: _rawValue,
-                          _inputDpt: input.dpt,
-                          _devicename: input.name ? input.name : "",
-                          _outputtopic: input.outputtopic,
+                          _inputDpt: _input.dpt,
+                          _devicename: _input.name ? _input.name : "",
+                          _outputtopic: _input.outputtopic,
                           _oNode: null,
                         });
-                        input.RecallScene(msgRecall.payload, false);
+                        _input.RecallScene(msgRecall.payload, false);
                       } catch (error) { }
                     } // 12/08/2020 Do NOT use "else", because both topics must be evaluated in case both recall and save have same group address.
-                    if (_dest === input.topicSave) {
+                    if (_dest === _input.topicSave) {
                       try {
                         const msgSave = buildInputMessage({
                           _srcGA: _src,
                           _destGA: _dest,
                           _event: _evt,
                           _Rawvalue: _rawValue,
-                          _inputDpt: input.dptSave,
-                          _devicename: input.name ? input.name : "",
+                          _inputDpt: _input.dptSave,
+                          _devicename: _input.name ? _input.name : "",
                           _outputtopic: _dest,
                           _oNode: null,
                         });
-                        input.SaveScene(msgSave.payload, false);
+                        _input.SaveScene(msgSave.payload, false);
                       } catch (error) { }
                     }
                     resolve(true); // fulfilled
@@ -872,9 +849,9 @@ module.exports = (RED) => {
                   // 19/03/2020 Check and Update value if the input is part of a scene controller
                   new Promise((resolve) => {
                     // Check and update the values of each device in the scene and update the rule array accordingly.
-                    for (let i = 0; i < input.rules.length; i++) {
+                    for (let i = 0; i < _input.rules.length; i++) {
                       // rule is { topic: rowRuleTopic, devicename: rowRuleDeviceName, dpt:rowRuleDPT, send: rowRuleSend}
-                      const oDevice = input.rules[i];
+                      const oDevice = _input.rules[i];
                       if (typeof oDevice !== "undefined" && oDevice.topic == _dest) {
                         const msg = buildInputMessage({
                           _srcGA: _src,
@@ -882,12 +859,12 @@ module.exports = (RED) => {
                           _event: _evt,
                           _Rawvalue: _rawValue,
                           _inputDpt: oDevice.dpt,
-                          _devicename: oDevice.name ? input.name : "",
+                          _devicename: oDevice.name ? _input.name : "",
                           _outputtopic: oDevice.outputtopic,
                           _oNode: null,
                         });
                         oDevice.currentPayload = msg.payload;
-                        input.setNodeStatus({
+                        _input.setNodeStatus({
                           fill: "grey",
                           shape: "dot",
                           text: "Update dev in scene",
@@ -905,17 +882,17 @@ module.exports = (RED) => {
                     .then(function () { })
                     .catch(function () { });
                 }
-              } else if (input.hasOwnProperty("isLogger")) {
+              } else if (_input.hasOwnProperty("isLogger")) {
                 // 26/03/2020 Coronavirus is slightly decreasing the affected numer of people. Logger Node
                 // 24/03/2021 Logger Node, i'll pass cemiETS
                 if (_cemiETS !== undefined) {
                   // new Promise((resolve, reject) => {
-                  input.handleSend(_cemiETS);
+                  _input.handleSend(_cemiETS);
                   //    resolve(true); // fulfilled
                   // reject("error"); // rejected
                   // }).then(function () { }).catch(function () { });
                 }
-              } else if (input.listenallga === true) {
+              } else if (_input.listenallga === true) {
                 // Get the GA from CVS
                 let oGA;
                 if (node.csv !== undefined) {
@@ -931,11 +908,11 @@ module.exports = (RED) => {
                   _event: _evt,
                   _Rawvalue: _rawValue,
                   _inputDpt: typeof oGA === "undefined" ? null : oGA.dpt,
-                  _devicename: typeof oGA === "undefined" ? input.name || "" : oGA.devicename,
+                  _devicename: typeof oGA === "undefined" ? _input.name || "" : oGA.devicename,
                   _outputtopic: _dest,
-                  _oNode: input,
+                  _oNode: _input,
                 });
-                input.setNodeStatus({
+                _input.setNodeStatus({
                   fill: "green",
                   shape: "dot",
                   text: typeof oGA === "undefined" ? "Try to decode" : "",
@@ -944,9 +921,9 @@ module.exports = (RED) => {
                   dpt: msg.knx.dpt,
                   devicename: msg.devicename,
                 });
-                input.handleSend(msg);
-              } else if (input.topic == _dest) {
-                if (input.hasOwnProperty("isWatchDog")) {
+                _input.handleSend(msg);
+              } else if (_input.topic == _dest) {
+                if (_input.hasOwnProperty("isWatchDog")) {
                   // 04/02/2020 Watchdog implementation
                   // Is a watchdog node
                 } else {
@@ -955,14 +932,14 @@ module.exports = (RED) => {
                     _destGA: _dest,
                     _event: _evt,
                     _Rawvalue: _rawValue,
-                    _inputDpt: input.dpt,
-                    _devicename: input.name ? input.name : "",
-                    _outputtopic: input.outputtopic,
-                    _oNode: input,
+                    _inputDpt: _input.dpt,
+                    _devicename: _input.name ? _input.name : "",
+                    _outputtopic: _input.outputtopic,
+                    _oNode: _input,
                   });
                   // Check RBE INPUT from KNX Bus, to avoid send the payload to the flow, if it's equal to the current payload
-                  if (!checkRBEInputFromKNXBusAllowSend(input, msg.payload)) {
-                    input.setNodeStatus({
+                  if (!checkRBEInputFromKNXBusAllowSend(_input, msg.payload)) {
+                    _input.setNodeStatus({
                       fill: "grey",
                       shape: "ring",
                       text: "rbe block (" + msg.payload + ") from KNX",
@@ -973,18 +950,18 @@ module.exports = (RED) => {
                     });
                     return;
                   }
-                  msg.previouspayload = typeof input.currentPayload !== "undefined" ? input.currentPayload : ""; // 24/01/2020 Added previous payload
-                  input.currentPayload = msg.payload; // Set the current value for the RBE input
-                  input.setNodeStatus({
+                  msg.previouspayload = typeof _input.currentPayload !== "undefined" ? _input.currentPayload : ""; // 24/01/2020 Added previous payload
+                  _input.currentPayload = msg.payload; // Set the current value for the RBE input
+                  _input.setNodeStatus({
                     fill: "green",
                     shape: "dot",
                     text: "",
                     payload: msg.payload,
-                    GA: input.topic,
-                    dpt: input.dpt,
+                    GA: _input.topic,
+                    dpt: _input.dpt,
                     devicename: "",
                   });
-                  input.handleSend(msg);
+                  _input.handleSend(msg);
                 }
               }
             });
@@ -995,19 +972,18 @@ module.exports = (RED) => {
           node.nodeClients
             .filter((_input) => _input.notifyresponse === true)
             .forEach((_input) => {
-              const input = RED.nodes.getNode(_input.id); // 05/04/2022 Get the real node
 
-              if (input.hasOwnProperty("isLogger")) {
+              if (_input.hasOwnProperty("isLogger")) {
                 // 26/03/2020 Coronavirus is slightly decreasing the affected numer of people. Logger Node
                 // 24/03/2021 Logger Node, i'll pass cemiETS
                 if (_cemiETS !== undefined) {
                   // new Promise((resolve, reject) => {
-                  input.handleSend(_cemiETS);
+                  _input.handleSend(_cemiETS);
                   //    resolve(true); // fulfilled
                   // reject("error"); // rejected
                   // }).then(function () { }).catch(function () { });
                 }
-              } else if (input.listenallga === true) {
+              } else if (_input.listenallga === true) {
                 // Get the DPT
                 let oGA;
                 try {
@@ -1020,11 +996,11 @@ module.exports = (RED) => {
                   _event: _evt,
                   _Rawvalue: _rawValue,
                   _inputDpt: typeof oGA === "undefined" ? null : oGA.dpt,
-                  _devicename: typeof oGA === "undefined" ? input.name || "" : oGA.devicename,
+                  _devicename: typeof oGA === "undefined" ? _input.name || "" : oGA.devicename,
                   _outputtopic: _dest,
-                  _oNode: input,
+                  _oNode: _input,
                 });
-                input.setNodeStatus({
+                _input.setNodeStatus({
                   fill: "blue",
                   shape: "dot",
                   text: typeof oGA === "undefined" ? "Try to decode" : "",
@@ -1033,26 +1009,26 @@ module.exports = (RED) => {
                   dpt: msg.knx.dpt,
                   devicename: msg.devicename,
                 });
-                input.handleSend(msg);
-              } else if (input.topic === _dest) {
+                _input.handleSend(msg);
+              } else if (_input.topic === _dest) {
                 // 04/02/2020 Watchdog implementation
-                if (input.hasOwnProperty("isWatchDog")) {
+                if (_input.hasOwnProperty("isWatchDog")) {
                   // Is a watchdog node
-                  input.watchDogTimerReset();
+                  _input.watchDogTimerReset();
                 } else {
                   const msg = buildInputMessage({
                     _srcGA: _src,
                     _destGA: _dest,
                     _event: _evt,
                     _Rawvalue: _rawValue,
-                    _inputDpt: input.dpt,
-                    _devicename: input.name ? input.name : "",
-                    _outputtopic: input.outputtopic,
-                    _oNode: input,
+                    _inputDpt: _input.dpt,
+                    _devicename: _input.name ? _input.name : "",
+                    _outputtopic: _input.outputtopic,
+                    _oNode: _input,
                   });
                   // Check RBE INPUT from KNX Bus, to avoid send the payload to the flow, if it's equal to the current payload
-                  if (!checkRBEInputFromKNXBusAllowSend(input, msg.payload)) {
-                    input.setNodeStatus({
+                  if (!checkRBEInputFromKNXBusAllowSend(_input, msg.payload)) {
+                    _input.setNodeStatus({
                       fill: "grey",
                       shape: "ring",
                       text: "rbe INPUT filter applied on " + msg.payload,
@@ -1061,18 +1037,18 @@ module.exports = (RED) => {
                     });
                     return;
                   }
-                  msg.previouspayload = typeof input.currentPayload !== "undefined" ? input.currentPayload : ""; // 24/01/2020 Added previous payload
-                  input.currentPayload = msg.payload; // Set the current value for the RBE input
-                  input.setNodeStatus({
+                  msg.previouspayload = typeof _input.currentPayload !== "undefined" ? _input.currentPayload : ""; // 24/01/2020 Added previous payload
+                  _input.currentPayload = msg.payload; // Set the current value for the RBE input
+                  _input.setNodeStatus({
                     fill: "blue",
                     shape: "dot",
                     text: "",
                     payload: msg.payload,
-                    GA: input.topic,
+                    GA: _input.topic,
                     dpt: msg.knx.dpt,
                     devicename: msg.devicename,
                   });
-                  input.handleSend(msg);
+                  _input.handleSend(msg);
                 }
               }
             });
@@ -1082,20 +1058,19 @@ module.exports = (RED) => {
           node.nodeClients
             .filter((_input) => _input.notifyreadrequest === true)
             .forEach((_input) => {
-              const input = RED.nodes.getNode(_input.id); // 05/04/2022 Get the real node
 
-              if (input.hasOwnProperty("isLogger")) {
+              if (_input.hasOwnProperty("isLogger")) {
                 // 26/03/2020 Coronavirus is slightly decreasing the affected numer of people. Logger Node
                 // if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("BANANA isLogger", _evt, _src, _dest, _rawValue, _cemiETS);
                 // 24/03/2021 Logger Node, i'll pass cemiETS
                 if (_cemiETS !== undefined) {
                   // new Promise((resolve, reject) => {
-                  input.handleSend(_cemiETS);
+                  _input.handleSend(_cemiETS);
                   //    resolve(true); // fulfilled
                   // reject("error"); // rejected
                   // }).then(function () { }).catch(function () { });
                 }
-              } else if (input.listenallga === true) {
+              } else if (_input.listenallga === true) {
                 // Get the DPT
                 let oGA;
                 try {
@@ -1109,11 +1084,11 @@ module.exports = (RED) => {
                   _event: _evt,
                   _Rawvalue: null,
                   _inputDpt: typeof oGA === "undefined" ? null : oGA.dpt,
-                  _devicename: typeof oGA === "undefined" ? input.name || "" : oGA.devicename,
+                  _devicename: typeof oGA === "undefined" ? _input.name || "" : oGA.devicename,
                   _outputtopic: _dest,
-                  _oNode: input,
+                  _oNode: _input,
                 });
-                input.setNodeStatus({
+                _input.setNodeStatus({
                   fill: "grey",
                   shape: "dot",
                   text: "Read",
@@ -1122,10 +1097,10 @@ module.exports = (RED) => {
                   dpt: msg.knx.dpt,
                   devicename: msg.devicename,
                 });
-                input.handleSend(msg);
-              } else if (input.topic === _dest) {
+                _input.handleSend(msg);
+              } else if (_input.topic === _dest) {
                 // 04/02/2020 Watchdog implementation
-                if (input.hasOwnProperty("isWatchDog")) {
+                if (_input.hasOwnProperty("isWatchDog")) {
                   // Is a watchdog node
                 } else {
                   // Read Request
@@ -1134,62 +1109,62 @@ module.exports = (RED) => {
                     _destGA: _dest,
                     _event: _evt,
                     _Rawvalue: null,
-                    _inputDpt: input.dpt,
-                    _devicename: input.name ? input.name : "",
-                    _outputtopic: input.outputtopic,
-                    _oNode: input,
+                    _inputDpt: _input.dpt,
+                    _devicename: _input.name ? _input.name : "",
+                    _outputtopic: _input.outputtopic,
+                    _oNode: _input,
                   });
-                  msg.previouspayload = typeof input.currentPayload !== "undefined" ? input.currentPayload : ""; // 24/01/2020 Reset previous payload
+                  msg.previouspayload = typeof _input.currentPayload !== "undefined" ? _input.currentPayload : ""; // 24/01/2020 Reset previous payload
                   // 24/09/2019 Autorespond to BUS
-                  if (input.hasOwnProperty("notifyreadrequestalsorespondtobus") && input.notifyreadrequestalsorespondtobus === true) {
-                    if (typeof input.currentPayload === "undefined" || input.currentPayload === "" || input.currentPayload === null) {
+                  if (_input.hasOwnProperty("notifyreadrequestalsorespondtobus") && _input.notifyreadrequestalsorespondtobus === true) {
+                    if (typeof _input.currentPayload === "undefined" || _input.currentPayload === "" || _input.currentPayload === null) {
                       // 14/08/2021 Added || input.currentPayload === null
                       node.writeQueueAdd({
                         grpaddr: _dest,
-                        payload: input.notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized,
-                        dpt: input.dpt,
+                        payload: _input.notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized,
+                        dpt: _input.dpt,
                         outputtype: "response",
-                        nodecallerid: input.id,
+                        nodecallerid: _input.id,
                       });
-                      input.setNodeStatus({
+                      _input.setNodeStatus({
                         fill: "blue",
                         shape: "ring",
                         text: "Read & Autorespond with default",
-                        payload: input.notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized,
-                        GA: input.topic,
+                        payload: _input.notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized,
+                        GA: _input.topic,
                         dpt: msg.knx.dpt,
                         devicename: "",
                       });
                     } else {
                       node.writeQueueAdd({
                         grpaddr: _dest,
-                        payload: input.currentPayload,
-                        dpt: input.dpt,
+                        payload: _input.currentPayload,
+                        dpt: _input.dpt,
                         outputtype: "response",
-                        nodecallerid: input.id,
+                        nodecallerid: _input.id,
                       });
-                      input.setNodeStatus({
+                      _input.setNodeStatus({
                         fill: "blue",
                         shape: "ring",
                         text: "Read & Autorespond with default",
-                        payload: input.notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized,
-                        GA: input.topic,
+                        payload: _input.notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized,
+                        GA: _input.topic,
                         dpt: msg.knx.dpt,
                         devicename: "",
                       });
                     }
                   } else {
-                    input.setNodeStatus({
+                    _input.setNodeStatus({
                       fill: "grey",
                       shape: "dot",
                       text: "Read",
                       payload: msg.payload,
-                      GA: input.topic,
+                      GA: _input.topic,
                       dpt: msg.knx.dpt,
                       devicename: "",
                     });
                   }
-                  input.handleSend(msg);
+                  _input.handleSend(msg);
                 }
               }
             });
@@ -1299,7 +1274,6 @@ module.exports = (RED) => {
           //   }
           try {
             node.nodeClients.forEach((_input) => {
-              const input = RED.nodes.getNode(_input.id); // 05/04/2022 Get the real node
 
               // 16/08/2021 If not connected, exit
               if (node.linkStatus !== "connected") {
@@ -1308,25 +1282,25 @@ module.exports = (RED) => {
               }
 
               // 19/03/2020 in the middle of coronavirus. Whole italy is red zone, closed down. Scene Controller implementation
-              if (input.hasOwnProperty("isSceneController")) {
-              } else if (input.hasOwnProperty("isLogger")) {
+              if (_input.hasOwnProperty("isSceneController")) {
+              } else if (_input.hasOwnProperty("isLogger")) {
                 // 26/03/2020 Coronavirus is slightly decreasing the affected numer of people. Logger Node
-              } else if (input.listenallga === true) {
-              } else if (input.topic == oKNXMessage.grpaddr) {
-                if (input.hasOwnProperty("isWatchDog")) {
+              } else if (_input.listenallga === true) {
+              } else if (_input.topic == oKNXMessage.grpaddr) {
+                if (_input.hasOwnProperty("isWatchDog")) {
                   // 04/02/2020 Watchdog implementation
                   // Is a watchdog node
                 } else {
                   const msg = {
-                    topic: input.outputtopic,
+                    topic: _input.outputtopic,
                     payload: oKNXMessage.payload,
-                    devicename: input.name ? input.name : "",
+                    devicename: _input.name ? _input.name : "",
                     event: "Update_NoWrite",
                     eventdesc: "The value has been updated from another node and hasn't been received from KNX BUS",
                   };
                   // Check RBE INPUT from KNX Bus, to avoid send the payload to the flow, if it's equal to the current payload
-                  if (!checkRBEInputFromKNXBusAllowSend(input, msg.payload)) {
-                    input.setNodeStatus({
+                  if (!checkRBEInputFromKNXBusAllowSend(_input, msg.payload)) {
+                    _input.setNodeStatus({
                       fill: "grey",
                       shape: "ring",
                       text: "rbe block (" + msg.payload + ") from KNX",
@@ -1338,18 +1312,18 @@ module.exports = (RED) => {
                     node.lockHandleTelegramQueue = false; // Unlock the function
                     return;
                   }
-                  msg.previouspayload = typeof input.currentPayload !== "undefined" ? input.currentPayload : ""; // 24/01/2020 Added previous payload
-                  input.currentPayload = msg.payload; // Set the current value for the RBE input
-                  input.setNodeStatus({
+                  msg.previouspayload = typeof _input.currentPayload !== "undefined" ? _input.currentPayload : ""; // 24/01/2020 Added previous payload
+                  _input.currentPayload = msg.payload; // Set the current value for the RBE input
+                  _input.setNodeStatus({
                     fill: "green",
                     shape: "dot",
                     text: "",
                     payload: msg.payload,
-                    GA: input.topic,
-                    dpt: input.dpt,
+                    GA: _input.topic,
+                    dpt: _input.dpt,
                     devicename: "",
                   });
-                  input.handleSend(msg);
+                  _input.handleSend(msg);
                 }
               }
             });
