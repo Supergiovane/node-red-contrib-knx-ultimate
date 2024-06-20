@@ -1,3 +1,4 @@
+
 /* eslint-disable max-len */
 module.exports = function (RED) {
   const _ = require('lodash');
@@ -13,41 +14,6 @@ module.exports = function (RED) {
       node.status({ fill: 'red', shape: 'dot', text: '[THE GATEWAY NODE HAS BEEN DISABLED]' });
       return;
     }
-    node.topic = config.topic;
-    node.name = config.name;
-    node.outputtopic = (config.outputtopic === undefined || config.outputtopic === '') ? config.topic : config.outputtopic; // 07/02/2020 Importante, per retrocompatibilità
-    node.dpt = config.dpt || '1.001';
-    node.notifyreadrequest = config.notifyreadrequest || false;
-    node.notifyreadrequestalsorespondtobus = config.notifyreadrequestalsorespondtobus || 'false'; // Auto respond if notifireadrequest is true
-    node.notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized = config.notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized || '';
-    node.notifyresponse = config.notifyresponse || false;
-    node.notifywrite = config.notifywrite;
-    node.initialread = config.initialread || 0;
-    if (node.initialread === true) node.initialread = 1; // 04/04/2021 Backward compatibility
-    if (node.initialread === false) node.initialread = 0; // 04/04/2021 Backward compatibility
-    node.initialread = Number(config.initialread);
-    node.listenallga = config.listenallga || false;
-    node.outputtype = config.outputtype || 'write';// When the node is used as output
-    node.outputRBE = config.outputRBE || 'false'; // Apply or not RBE to the output (Messages coming from flow)
-    node.inputRBE = config.inputRBE || 'false'; // Apply or not RBE to the input (Messages coming from BUS)
-    // Backward compatibility
-    if (node.outputRBE === true) node.outputRBE = 'true';
-    if (node.outputRBE === false) node.outputRBE = 'false';
-    if (node.inputRBE === true) node.inputRBE = 'true';
-    if (node.inputRBE === false) node.inputRBE = 'false';
-
-    node.currentPayload = ''; // Current value for the RBE input and for the .previouspayload msg
-    node.icountMessageInWindow = 0; // Used to prevent looping messages
-    node.messageQueue = []; // 01/01/2020 All messages from the flow to the node, will be queued and will be sent separated by 60 milliseconds each. Use uf the underlying api "minimumDelay" is not possible because the telegram order isn't mantained.
-    node.formatmultiplyvalue = (typeof config.formatmultiplyvalue === 'undefined' ? 1 : config.formatmultiplyvalue);
-    node.formatnegativevalue = (typeof config.formatnegativevalue === 'undefined' ? 'leave' : config.formatnegativevalue);
-    node.formatdecimalsvalue = (typeof config.formatdecimalsvalue === 'undefined' ? 999 : config.formatdecimalsvalue);
-    node.passthrough = (typeof config.passthrough === 'undefined' ? 'no' : config.passthrough);
-    node.inputmessage = {}; // Stores the input message to be passed through
-    node.timerTTLInputMessage = null; // The stored node.inputmessage has a ttl.
-    node.sysLogger = require('./utils/sysLogger.js').get({ loglevel: node.server.loglevel || 'error' }); // 08/04/2021 new logger to adhere to the loglevel selected in the config-window
-
-
 
     // Used to call the status update from the config node.
     node.setNodeStatus = ({
@@ -89,6 +55,72 @@ module.exports = function (RED) {
 
     };
 
+
+
+    // Get the Group Address from various sources
+    if (config.setTopicType === undefined || config.setTopicType === 'str') {
+      node.topic = config.topic;
+      node.dpt = config.dpt || '1.001';
+    } else if (config.setTopicType === 'flow') {
+      try {
+        node.topic = node.context().flow.get(config.topic);
+        node.dpt = 'auto';
+        payloadRounder.KNXULtimateChangeConfigByInputMSG({ setConfig: { setGroupAddress: node.topic, setDPT: node.dpt } }, node, config);
+      } catch (error) {
+        node.topic = undefined;
+      }
+    } else if (config.setTopicType === 'global') {
+      try {
+        node.topic = node.context().global.get(config.topic);
+        node.dpt = 'auto';
+        payloadRounder.KNXULtimateChangeConfigByInputMSG({ setConfig: { setGroupAddress: node.topic, setDPT: node.dpt } }, node, config);
+      } catch (error) {
+        node.topic = undefined;
+      }
+    } else if (config.setTopicType === 'env') {
+      try {
+        node.topic = RED.util.getSetting(node, config.topic); // takes care of the subflow's env vairables
+        node.dpt = 'auto';
+        payloadRounder.KNXULtimateChangeConfigByInputMSG({ setConfig: { setGroupAddress: node.topic, setDPT: node.dpt } }, node, config);
+      } catch (error) {
+        node.topic = undefined;
+      }
+    }
+
+
+    node.outputtopic = (config.outputtopic === undefined || config.outputtopic === '') ? node.topic : config.outputtopic; // 07/02/2020 Importante, per retrocompatibilità
+    node.name = config.name;
+    node.notifyreadrequest = config.notifyreadrequest || false;
+    node.notifyreadrequestalsorespondtobus = config.notifyreadrequestalsorespondtobus || 'false'; // Auto respond if notifireadrequest is true
+    node.notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized = config.notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized || '';
+    node.notifyresponse = config.notifyresponse || false;
+    node.notifywrite = config.notifywrite;
+    node.initialread = config.initialread || 0;
+    if (node.initialread === true) node.initialread = 1; // 04/04/2021 Backward compatibility
+    if (node.initialread === false) node.initialread = 0; // 04/04/2021 Backward compatibility
+    node.initialread = Number(config.initialread);
+    node.listenallga = config.listenallga || false;
+    node.outputtype = config.outputtype || 'write';// When the node is used as output
+    node.outputRBE = config.outputRBE || 'false'; // Apply or not RBE to the output (Messages coming from flow)
+    node.inputRBE = config.inputRBE || 'false'; // Apply or not RBE to the input (Messages coming from BUS)
+    // Backward compatibility
+    if (node.outputRBE === true) node.outputRBE = 'true';
+    if (node.outputRBE === false) node.outputRBE = 'false';
+    if (node.inputRBE === true) node.inputRBE = 'true';
+    if (node.inputRBE === false) node.inputRBE = 'false';
+
+    node.currentPayload = ''; // Current value for the RBE input and for the .previouspayload msg
+    node.icountMessageInWindow = 0; // Used to prevent looping messages
+    node.messageQueue = []; // 01/01/2020 All messages from the flow to the node, will be queued and will be sent separated by 60 milliseconds each. Use uf the underlying api "minimumDelay" is not possible because the telegram order isn't mantained.
+    node.formatmultiplyvalue = (typeof config.formatmultiplyvalue === 'undefined' ? 1 : config.formatmultiplyvalue);
+    node.formatnegativevalue = (typeof config.formatnegativevalue === 'undefined' ? 'leave' : config.formatnegativevalue);
+    node.formatdecimalsvalue = (typeof config.formatdecimalsvalue === 'undefined' ? 999 : config.formatdecimalsvalue);
+    node.passthrough = (typeof config.passthrough === 'undefined' ? 'no' : config.passthrough);
+    node.inputmessage = {}; // Stores the input message to be passed through
+    node.timerTTLInputMessage = null; // The stored node.inputmessage has a ttl.
+    node.sysLogger = require('./utils/sysLogger.js').get({ loglevel: node.server.loglevel || 'error' }); // 08/04/2021 new logger to adhere to the loglevel selected in the config-window
+
+
     // Check if the node has a valid dpt
     if (node.listenallga === false) {
       if (node.dpt === undefined || node.dpt === '') {
@@ -118,6 +150,7 @@ module.exports = function (RED) {
       node.send(msg);
     };
 
+
     node.on('input', (msg) => {
       if (typeof msg === 'undefined') return;
       if (!node.server) return; // 29/08/2019 Server not instantiate
@@ -125,43 +158,11 @@ module.exports = function (RED) {
       // 11/01/2021 Accept properties change from msg
       // *********************************
       if (msg.hasOwnProperty('setConfig')) {
-        if (msg.setConfig.hasOwnProperty('setDPT')) {
-          node.dpt = msg.setConfig.setDPT;
-          config.dpt = msg.setConfig.setDPT;
-        }
-        if (msg.setConfig.hasOwnProperty('setGroupAddress')) {
-          node.topic = msg.setConfig.setGroupAddress;
-          config.topic = msg.setConfig.setGroupAddress
-          node.outputtopic = (config.outputtopic === undefined || config.outputtopic === '') ? msg.setConfig.setGroupAddress : config.outputtopic; // 07/02/2020 Importante, per retrocompatibilità
-          config.outputtopic = node.outputtopic;
-        }
-        // Read from the ETS file, the missing props
-        if (msg.setConfig.setGroupAddress !== undefined && msg.setConfig.setDPT !== undefined && (node.server.csv !== undefined && node.server.csv !== null)) {
-          // Read it from ETS File
-          const found = node.server.csv.find(item => item.ga === msg.setConfig.setGroupAddress);
-          if (found !== undefined) {
-            if (msg.setConfig.setDPT === 'auto') {
-              node.dpt = found.dpt;
-              config.dpt = found.dpt;
-            }
-            node.name = found.devicename;
-            config.name = found.devicename;
-          }
-        }
-        if (node.dpt === 'auto') {
-          // Unable to retrieve the datapoint
-          node.setNodeStatus({
-            fill: 'red', shape: 'ring', text: `Unable to retrieve the datapoint from the ETS file`, payload: '', GA: '', dpt: '', devicename: '',
-          });
-          if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(`knxUltimate: setConfig: Node.id: ${node.id} error: Unable to retrieve the datapoint from the ETS file`);
-        } else {
-          node.setNodeStatus({
-            fill: 'blue', shape: 'ring', text: `Config changed. Current GA: ${node.topic} DPT: ${node.dpt}`, payload: '', GA: '', dpt: '', devicename: node.name,
-          });
-        }
+        payloadRounder.KNXULtimateChangeConfigByInputMSG(msg, node, config);
         return;
       }
       // *********************************
+
 
       // 16/06/2024 Check wether the node has a group address set.
       // Validate the Address

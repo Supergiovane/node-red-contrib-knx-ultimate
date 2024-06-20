@@ -11,6 +11,7 @@
             //buttonState: {value: true},
             server: { type: "knxUltimate-config", required: true },
             topic: { value: "" },
+            setTopicType: { value: "str" },
             outputtopic: { value: "" },
             dpt: { value: "" },
             initialread: { value: 0 },
@@ -223,39 +224,75 @@
                         }
                     })
 
-                    // Autocomplete suggestion with ETS csv File
-                    $("#node-input-topic").autocomplete({
-                        minLength: 0,
-                        source: function (request, response) {
-                            $.getJSON("knxUltimatecsv?nodeID=" + oNodeServer.id + "&" + { _: new Date().getTime() }, (data) => {
-                                response($.map(data, function (value, key) {
-                                    var sSearch = (value.ga + " (" + value.devicename + ") DPT" + value.dpt);
-                                    if (htmlUtilsfullCSVSearch(sSearch, request.term)) {
-                                        return {
-                                            label: value.ga + " # " + value.devicename + " # " + value.dpt, // Label for Display
-                                            value: value.ga // Value
-                                        }
-                                    } else {
-                                        return null;
-                                    }
-                                }));
-                            });
-                        }, select: function (event, ui) {
-                            // Sets Datapoint and device name automatically
-                            var sDevName = ui.item.label.split("#")[1].trim();
-                            try {
-                                sDevName = sDevName.substr(sDevName.indexOf(")") + 1).trim();
-                            } catch (error) {
-                            }
-                            $('#node-input-name').val(sDevName);
-                            var optVal = $("#node-input-dpt option:contains('" + ui.item.label.split("#")[2].trim() + "')").attr('value');
-                            // Select the option value 
-                            $("#node-input-dpt").val(optVal);
-                            $("#node-input-dpt").trigger("change");
+                    // Set the group address type
+                    if (node.setTopicType === undefined) {
+                        node.setTopicType = 'str';
+                        $("#node-input-setTopicType").val('str');
+                    }
+                    // $("#node-input-topic").typedInput(
+                    //     {
+                    //         default: node.setTopicType || 'str',
+                    //         types: [{ value: 'str', label: "str", icon: 'red/images/typedInput/az.svg', autocomplete: autoCompleteGA }, 'flow', 'global', 'env'],
+                    //         typeField: "#node-input-setTopicType"
+                    //     });
+                    // var autoCompleteGA = function () {
+                    //     alert(value)
+                    //     return [{ value: "Ciso", label: "maso" }]
+                    // }
+
+
+                    $("#node-input-setTopicType").on('change', function () {
+                        try {
+                            $("#node-input-topic").autocomplete('destroy');
+                            $("#node-input-topic").off(); // Rimuovi tutti gli eventi associati
+                            $("#node-input-topic").val(''); // Pulisce il valore del campo di input, se necessario
+                            $("#node-input-topic").prop('disabled', false); // Assicura che il campo non sia disabilitato
+                            $("#node-input-topic").removeClass(); // Rimuove eventuali classi aggiunte dall'autocompletamento                           
+                        } catch (error) {
                         }
-                    }).focus(function () {
-                        $(this).autocomplete('search', $(this).val() + 'exactmatch');
+                        if ($("#node-input-setTopicType").val() === 'str') {
+                            $("#node-input-topic").prop('placeholder', 'Select your GA');
+                            // Autocomplete suggestion with ETS csv File
+                            $("#node-input-topic").autocomplete({
+                                minLength: 0,
+                                source: function (request, response) {
+                                    $.getJSON("knxUltimatecsv?nodeID=" + oNodeServer.id + "&" + { _: new Date().getTime() }, (data) => {
+                                        response($.map(data, function (value, key) {
+                                            var sSearch = (value.ga + " (" + value.devicename + ") DPT" + value.dpt);
+                                            if (htmlUtilsfullCSVSearch(sSearch, request.term)) {
+                                                return {
+                                                    label: value.ga + " # " + value.devicename + " # " + value.dpt, // Label for Display
+                                                    value: value.ga // Value
+                                                }
+                                            } else {
+                                                return null;
+                                            }
+                                        }));
+                                    });
+                                }, select: function (event, ui) {
+                                    // Sets Datapoint and device name automatically
+                                    var sDevName = ui.item.label.split("#")[1].trim();
+                                    try {
+                                        sDevName = sDevName.substr(sDevName.indexOf(")") + 1).trim();
+                                    } catch (error) {
+                                    }
+                                    $('#node-input-name').val(sDevName);
+                                    var optVal = $("#node-input-dpt option:contains('" + ui.item.label.split("#")[2].trim() + "')").attr('value');
+                                    // Select the option value 
+                                    $("#node-input-dpt").val(optVal);
+                                    $("#node-input-dpt").trigger("change");
+                                }
+                            }).focus(function () {
+                                $(this).autocomplete('search', $(this).val() + 'exactmatch');
+                            });
+                            $("#divDatapointSelection").show();
+                        } else {
+                            $("#node-input-topic").prop('placeholder', $("#node-input-setTopicType").val());
+                            if ($("#node-input-topic").val() === '') $("#node-input-topic").val('MyVariable');
+                            $("#divDatapointSelection").hide();
+                        }
                     });
+
 
                     // Hide or show the GA and DPT fields if Notify on all Group Addresses is checked
                     if (oNodeServer !== undefined && oNodeServer !== null) {
@@ -315,6 +352,8 @@
         },
         oneditsave: function () {
             var node = this;
+
+            //this.propertyType = $("#node-input-property").typedInput('type');
 
             // 19/02/2020 Warn user that the node will node encode/decode datagram, if Listen All GA's if the config node doesn't contain the csv
             if ($("#isETSFileLoaded").val() === "no") {
@@ -387,15 +426,22 @@
 <div id="divMain">
 
     <div id="GAandDPT">
+
         <div class="form-row">
             <label for="node-input-topic">
                 <img
                     src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAACXBIWXMAAB7CAAAewgFu0HU+AAAF6WlUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNS42LWMxNDggNzkuMTY0MDM2LCAyMDE5LzA4LzEzLTAxOjA2OjU3ICAgICAgICAiPiA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPiA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtbG5zOmRjPSJodHRwOi8vcHVybC5vcmcvZGMvZWxlbWVudHMvMS4xLyIgeG1sbnM6cGhvdG9zaG9wPSJodHRwOi8vbnMuYWRvYmUuY29tL3Bob3Rvc2hvcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RFdnQ9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZUV2ZW50IyIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgMjEuMSAoTWFjaW50b3NoKSIgeG1wOkNyZWF0ZURhdGU9IjIwMjAtMDMtMjNUMTY6MjE6MDkrMDE6MDAiIHhtcDpNb2RpZnlEYXRlPSIyMDIwLTAzLTIzVDE2OjI4OjI3KzAxOjAwIiB4bXA6TWV0YWRhdGFEYXRlPSIyMDIwLTAzLTIzVDE2OjI4OjI3KzAxOjAwIiBkYzpmb3JtYXQ9ImltYWdlL3BuZyIgcGhvdG9zaG9wOkNvbG9yTW9kZT0iMyIgcGhvdG9zaG9wOklDQ1Byb2ZpbGU9InNSR0IgSUVDNjE5NjYtMi4xIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOjc4M2I5OWIxLTkwMjYtNGQ2OC05N2FmLTRkM2E2ZWY4Zjk2OCIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDo4N2E3YTg0NS0xMDljLTRkMTMtOGEzOS04OWVhOTMyMDQ0ZWMiIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDo4N2E3YTg0NS0xMDljLTRkMTMtOGEzOS04OWVhOTMyMDQ0ZWMiPiA8eG1wTU06SGlzdG9yeT4gPHJkZjpTZXE+IDxyZGY6bGkgc3RFdnQ6YWN0aW9uPSJjcmVhdGVkIiBzdEV2dDppbnN0YW5jZUlEPSJ4bXAuaWlkOjg3YTdhODQ1LTEwOWMtNGQxMy04YTM5LTg5ZWE5MzIwNDRlYyIgc3RFdnQ6d2hlbj0iMjAyMC0wMy0yM1QxNjoyMTowOSswMTowMCIgc3RFdnQ6c29mdHdhcmVBZ2VudD0iQWRvYmUgUGhvdG9zaG9wIDIxLjEgKE1hY2ludG9zaCkiLz4gPHJkZjpsaSBzdEV2dDphY3Rpb249InNhdmVkIiBzdEV2dDppbnN0YW5jZUlEPSJ4bXAuaWlkOjc4M2I5OWIxLTkwMjYtNGQ2OC05N2FmLTRkM2E2ZWY4Zjk2OCIgc3RFdnQ6d2hlbj0iMjAyMC0wMy0yM1QxNjoyODoyNyswMTowMCIgc3RFdnQ6c29mdHdhcmVBZ2VudD0iQWRvYmUgUGhvdG9zaG9wIDIxLjEgKE1hY2ludG9zaCkiIHN0RXZ0OmNoYW5nZWQ9Ii8iLz4gPC9yZGY6U2VxPiA8L3htcE1NOkhpc3Rvcnk+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+DGyPFQAAAE9JREFUKJG1UEEOACAIgub/v2yHalnJVoe4uIEKSgccJ9jroVmjA0+ujZtWku3DgZmgBiT4egN9CmmEAAfA/5HUW0OQu7dKmOCzmM3k9YYKZv8ZEZ/YgNsAAAAASUVORK5CYII="></img>
-                <span data-i18n="knxUltimate.properties.node-input-topic"></span>
-            </label>
-            <input type="text" id="node-input-topic" placeholder="Sample: Dinning light" />
+                Group Addr.</label>
+            <select id="node-input-setTopicType" style="width:120px">
+                <option value="str">3-Levels</option>
+                <option value="flow">Flow</option>
+                <option value="global">Gobal</option>
+                <option value="env">$Env variable</option>
+            </select>
+            <input type="text" id="node-input-topic" placeholder="Start typing to search" style="width:180px" />
         </div>
-        <div class="form-row">
+
+        <div class="form-row" id="divDatapointSelection">
             <label for="node-input-dpt">
                 <img
                     src="data:image/png;base64,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"></img>
@@ -627,6 +673,7 @@
 |Property|Description|
 |--|--|
 | Gateway | Select the KNX gateway to be used |
+| GA Type dropdown list | The group address type. **3-Levels** is the default, where you can type the *3 level group address* or the *group address name* (if you've upload the ETS file), or **Global**, for reading the GA at startup from a global variable, or **Flow** that do the same as the *Global*, but at flow level. Select **$Env variable** to read the group address from an environment variable. |
 | Group Addr. | The KNX Group Address you want to control. If you've imported the ETS group addresses file, you can just start typing in your device name. You can leave it empty if you wish set it with *msg.setConfig* input message. |
 | Datapoint | The datapoint belonging to your node.|
 | Node name | Self explaining. |
@@ -673,13 +720,13 @@
 : writeraw (buffer): is used to send a value to the KNX bus, as buffer. Use in conjunction with *bitlenght*.
 : bitlenght (int): specifies the lenght of the *writeraw* buffer. Use in conjunction with *writeraw*.
 : resetRBE (boolean) : resets the internal RBE filters (*use msg.resetRBE = true*).
-: setConfig (json) : programmatically change the KNX-Ultimate Device node configuration. See details.
+: setConfig (json) : programmatically change the KNX-Ultimate Device node Group Address and Datapoint. See details.
 
 ### Details
 
 `msg.setConfig`: It's possible to programmatically change the KNX-Ultimate node configuration, by sending msg.setConfig object to the node.
 The new configuration will be retained until next msg.setConfig or until restart/redeploy.
-All properties **are optional**, that means, you can change only the properties you need.  
+All properties (*setGroupAddress* and *setDPT*) **are mandatory**..  
 Use it like that, in a functon node:    
 
 ** Set both GA and DPT **
