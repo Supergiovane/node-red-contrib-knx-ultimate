@@ -12,6 +12,7 @@
 - FEATURE: KNX Ultimate node: you can now set the group address from a global, flow or $env variable, beside the standard 3-level format. <br/>
 - FEATURE: KNX Ultimate node: if you imported the ETS file, as soon as you click to the Group Address field, the list shows up immediately. <br/>
 - FEATURE: KNX Ultimate node: msg.setConfig passed to the node, now can read the group address name and datapoint automatically, based on the group address (require the ETS file to be imported). <br/>
+- FEATURE: KNX Ultimate node: the object property *gainfo* has been added to the msg output. Refer to the help panel for further infos. <br/>
 
 
 **Version 2.5.1** - Mai 2024<br/>
