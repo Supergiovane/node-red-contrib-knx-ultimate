@@ -833,7 +833,7 @@ module.exports = (RED) => {
                           _event: _evt,
                           _Rawvalue: _rawValue,
                           _inputDpt: _input.dptSave,
-                          _devicename: _input.name ? _input.name : "",
+                          _devicename: _input.name || "",
                           _outputtopic: _dest,
                           _oNode: null,
                         });
@@ -859,7 +859,7 @@ module.exports = (RED) => {
                           _event: _evt,
                           _Rawvalue: _rawValue,
                           _inputDpt: oDevice.dpt,
-                          _devicename: oDevice.name ? _input.name : "",
+                          _devicename: oDevice.name || "",
                           _outputtopic: oDevice.outputtopic,
                           _oNode: null,
                         });
@@ -893,13 +893,6 @@ module.exports = (RED) => {
                   // }).then(function () { }).catch(function () { });
                 }
               } else if (_input.listenallga === true) {
-                // Get the GA from CVS
-                let oGA;
-                if (node.csv !== undefined) {
-                  try {
-                    oGA = node.csv.filter((sga) => sga.ga == _dest)[0];
-                  } catch (error) { }
-                }
 
                 // 25/10/2019 TRY TO AUTO DECODE IF Group address not found in the CSV
                 const msg = buildInputMessage({
@@ -907,15 +900,13 @@ module.exports = (RED) => {
                   _destGA: _dest,
                   _event: _evt,
                   _Rawvalue: _rawValue,
-                  _inputDpt: typeof oGA === "undefined" ? null : oGA.dpt,
-                  _devicename: typeof oGA === "undefined" ? _input.name || "" : oGA.devicename,
                   _outputtopic: _dest,
-                  _oNode: _input,
+                  _oNode: _input
                 });
                 _input.setNodeStatus({
                   fill: "green",
                   shape: "dot",
-                  text: typeof oGA === "undefined" ? "Try to decode" : "",
+                  text: "",
                   payload: msg.payload,
                   GA: msg.knx.destination,
                   dpt: msg.knx.dpt,
@@ -984,26 +975,19 @@ module.exports = (RED) => {
                   // }).then(function () { }).catch(function () { });
                 }
               } else if (_input.listenallga === true) {
-                // Get the DPT
-                let oGA;
-                try {
-                  oGA = node.csv.filter((sga) => sga.ga == _dest)[0];
-                } catch (error) { }
 
                 const msg = buildInputMessage({
                   _srcGA: _src,
                   _destGA: _dest,
                   _event: _evt,
                   _Rawvalue: _rawValue,
-                  _inputDpt: typeof oGA === "undefined" ? null : oGA.dpt,
-                  _devicename: typeof oGA === "undefined" ? _input.name || "" : oGA.devicename,
                   _outputtopic: _dest,
-                  _oNode: _input,
+                  _oNode: _input
                 });
                 _input.setNodeStatus({
                   fill: "blue",
                   shape: "dot",
-                  text: typeof oGA === "undefined" ? "Try to decode" : "",
+                  text: "",
                   payload: msg.payload,
                   GA: msg.knx.destination,
                   dpt: msg.knx.dpt,
@@ -1071,11 +1055,6 @@ module.exports = (RED) => {
                   // }).then(function () { }).catch(function () { });
                 }
               } else if (_input.listenallga === true) {
-                // Get the DPT
-                let oGA;
-                try {
-                  oGA = node.csv.filter((sga) => sga.ga == _dest)[0];
-                } catch (error) { }
 
                 // Read Request
                 const msg = buildInputMessage({
@@ -1083,10 +1062,8 @@ module.exports = (RED) => {
                   _destGA: _dest,
                   _event: _evt,
                   _Rawvalue: null,
-                  _inputDpt: typeof oGA === "undefined" ? null : oGA.dpt,
-                  _devicename: typeof oGA === "undefined" ? _input.name || "" : oGA.devicename,
                   _outputtopic: _dest,
-                  _oNode: _input,
+                  _oNode: _input
                 });
                 _input.setNodeStatus({
                   fill: "grey",
@@ -1110,7 +1087,7 @@ module.exports = (RED) => {
                     _event: _evt,
                     _Rawvalue: null,
                     _inputDpt: _input.dpt,
-                    _devicename: _input.name ? _input.name : "",
+                    _devicename: _input.name || "",
                     _outputtopic: _input.outputtopic,
                     _oNode: _input,
                   });
@@ -1409,12 +1386,53 @@ module.exports = (RED) => {
       }
     }
 
+
     function buildInputMessage({ _srcGA, _destGA, _event, _Rawvalue, _inputDpt, _devicename, _outputtopic, _oNode }) {
       let sPayloadmeasureunit = "unknown";
       let sDptdesc = "unknown";
       let sPayloadsubtypevalue = "unknown";
       let jsValue = null;
       let sInputDpt = "unknown";
+      let gainfo = "unknown";
+      let oGA;
+
+      // Construct the gainfo from _devicename ("(Ingressi logici->Sensori) Camera armadi lux")
+      if (node.csv !== undefined) {
+        try {
+          oGA = node.csv.filter((sga) => sga.ga == _destGA)[0];
+          const regexGA = /^(.*)\/(.*)\/(.*)$/;
+          const regexName = /^\((.*)->(.*)\) (.*)$/;
+          const matchGA = oGA.ga.match(regexGA);
+          const matchName = oGA.devicename.match(regexName);
+          gainfo = {
+            maingroupname: matchName[1],
+            middlegroupname: matchName[2],
+            ganame: matchName[3],
+            maingroupnumber: matchGA[1],
+            middlegroupnumber: matchGA[2],
+            ganumber: matchGA[3]
+          }
+        } catch (error) {
+          // Dont' care
+        }
+      }
+
+      // 20/06/2024 set both if undefined
+      if (_inputDpt === undefined) {
+        try {
+          _inputDpt = oGA === undefined ? null : oGA.dpt;
+        } catch (error) {
+          _inputDpt = null;
+        }
+
+      }
+      if (_devicename === undefined) {
+        try {
+          _devicename = oGA === undefined ? _oNode.name || "" : oGA.devicename;
+        } catch (error) {
+          _devicename = undefined;
+        }
+      }
 
       const errorMessage = {
         topic: _outputtopic,
@@ -1425,7 +1443,6 @@ module.exports = (RED) => {
         knx: {
           event: _event,
           dpt: "unknown",
-          //, details: dpt
           dptdesc: "",
           source: _srcGA,
           destination: _destGA,
@@ -1552,6 +1569,7 @@ module.exports = (RED) => {
             }
           }
         }
+
       } else {
         // Don't care, it's a READ REQUEST
       }
@@ -1564,15 +1582,15 @@ module.exports = (RED) => {
           payload: jsValue,
           payloadmeasureunit: sPayloadmeasureunit,
           payloadsubtypevalue: sPayloadsubtypevalue,
+          gainfo: gainfo,
           knx: {
             event: _event,
             dpt: sInputDpt,
-            //, details: dpt
             dptdesc: sDptdesc,
             source: _srcGA,
             destination: _destGA,
-            rawValue: _Rawvalue,
-          },
+            rawValue: _Rawvalue
+          }
         };
         // 11/11/2021 jsValue is null, as well as _Rawvalue, in case of READ REQUEST message.
         // if (jsValue !== null) finalMessage.payload = jsValue;

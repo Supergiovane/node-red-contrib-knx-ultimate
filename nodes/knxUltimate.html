@@ -34,7 +34,7 @@
         outputs: 1,
         icon: "node-knx-icon.svg",
         label: function () {
-            return ((this.outputRBE === "true" || this.outputRBE === true) ? "|rbe| " : "") + (this.name || this.topic || "KNX Device") + ((this.inputRBE === "true" || this.inputRBE === true) ? " |rbe|" : "")
+            return ((this.outputRBE === "true" || this.outputRBE === true) ? "|rbe| " : "") + (this.name || this.topic || "KNX Device") + (this.setTopicType === 'str' || this.setTopicType === undefined ? '' : ' [' + this.setTopicType + ']') + ((this.inputRBE === "true" || this.inputRBE === true) ? " |rbe|" : "")
         },
         paletteLabel: "KNX DEVICE",
         // button: {
@@ -767,23 +767,31 @@ return msg;
 
 ### Details
 
-`msg.payload` is used as the payload of the published message.
-If it contains an Object it will be converted to a JSON string before being sent.  
+`msg.payload` is used as the payload of the group address (the group address value).
+This is, instead, an example of the complete msg object.  
 
 ```json
 msg = {
     topic: "0/1/2" // (Contains the node's topic, for example "MyTopic". If the node's topic is not set, contains the Group Address, for example "0/1/2")
     payload: false 
-    previouspayload: true // (Previous node payload value.)
-    payloadmeasureunit: "%" // (payload's measure unit)
-    payloadsubtypevalue: "Start" // (Subtype's decoded value, for exampe, On/Off, Ramp/NoRamp, Start/Stop, Alarm/NoAlarm)
-    devicename: "Dinning table lamp" // (Contains the node's name)
-    knx: {
+    previouspayload: true // Previous node payload value.
+    payloadmeasureunit: "%" // Payload's measure unit.
+    payloadsubtypevalue: "Start" // Subtype's decoded value, for exampe, On/Off, Ramp/NoRamp, Start/Stop, Alarm/NoAlarm
+    devicename: "Dinning table lamp" // If the node is in **universal mode**, it contains the full path (main, middle,name) of the group address name, otherwise, the node name.
+    gainfo: { // Contains the details about the group address name and number. This object is only present if the node is set in **universal mode** and with the **ETS file** been imported. If something wrong, it contains the string **unknown**.
+        maingroupname:"Light actuators"
+        middlegroupname:"First flow lights"
+        ganame:"Table Light"
+        maingroupnumber:"1"
+        middlegroupnumber:"1"
+        ganumber:"0"
+    }
+    knx: { // This is a representation of the KNX BUS telegram, coming from BUS
         event: "GroupValue_Write" // (or "GroupValue_Response", or "GroupValue_Read")
         dpt: "1.001"
-        dptdesc: "Humidity" // (payload's measure unit description)
+        dptdesc: "Humidity" // Payload's measure unit description
         source: "15.15.22"
-        destination: "0/1/2" // (Contains the Group Address of the incoming telegram)
+        destination: "0/1/2" // Contains the Group Address
         rawValue: buffer[1]raw // (or null, if "GroupValue_Read")
             0: 0x0 // (This is the RAW undecoded value)
     }
