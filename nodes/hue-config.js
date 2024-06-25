@@ -344,6 +344,14 @@ module.exports = (RED) => {
                 id: resource.id,
               });
             }
+            if (_rtype === 'device_software_update') {
+              const Room = node.hueAllRooms.find((room) => room.children.find((child) => child.rid === resource.owner.rid))
+              const linkedDevName = node.hueAllResources.find((dev) => dev.type === 'device' && dev.services.find((serv) => serv.rid === resource.id)).metadata.name || ''
+              retArray.push({
+                name: `Software status: ${linkedDevName}${Room !== undefined ? `, room ${Room.metadata.name}` : ''}`,
+                id: resource.id,
+              });
+            }
           } catch (error) {
             retArray.push({
               name: `${_rtype}: ERROR ${error.message}`,

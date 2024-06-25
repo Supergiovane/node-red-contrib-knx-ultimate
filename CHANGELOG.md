@@ -6,7 +6,11 @@
 
 # CHANGELOG
 
-**Version 3.0.0** - Juni 2024<br/>
+**Version 3.0.0-beta2** - Juni 2024<br/>
+- Warning: Node-Red version **equals or major than 3.1.1** is needed to run this node.<br/>
+- NEW: Hue Node Software Update Status for the HUE devices. <br/>
+
+**Version 3.0.0-beta1** - Juni 2024<br/>
 - Warning: Node-Red version **equals or major than 3.1.1** is needed to run this node.<br/>
 - FEATURE CAUTION: rewrote the KNX engine in Typescript. If you encounter problems, please open a gitub issue. You can revert by installing the older version 2.5.1 <br/>
 - FEATURE: KNX Ultimate node: you can now set the group address from a global, flow or $env variable, beside the standard 3-level format. <br/>

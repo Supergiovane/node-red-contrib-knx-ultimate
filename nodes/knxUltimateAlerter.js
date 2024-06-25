@@ -209,6 +209,7 @@ module.exports = function (RED) {
         node.setLocalStatus({ fill: 'grey', shape: 'dot', text: 'ERROR: You must provide payload (true/false)', payload: '', GA: '', dpt: '', devicename: '' });
         return;
       }
+
       msg.knx = { dpt: '1.001' };
       node.handleSend(msg);
     });
