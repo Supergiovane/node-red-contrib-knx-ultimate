@@ -498,7 +498,7 @@
             <div class="form-row" style="padding:10px">
                 <div class="form-row">
                     <dt>
-                        <i class="fa fa-arrow-right"></i> CONTROL (payload to KNX bus)
+                        <i class="fa fa-arrow-right"></i> SEND msg to KNX BUS
                     </dt>
                 </div>
                 <div class="form-row">
@@ -524,7 +524,7 @@
                 <br />
                 <div class="form-row">
                     <dt>
-                        |<i class="fa fa-arrow-right"></i> STATUS (payload from KNX BUS)
+                        |<i class="fa fa-arrow-right"></i> RECEIVE msg from KNX BUS
                     </dt>
                 </div>
                 <div class="form-row" id="divNode-input-initialread">
@@ -685,10 +685,10 @@
 **Advanced options**
 |Property|Description|
 |--|--|
-||**CONTROL (payload to KNX bus)**|
+||**SEND msg to KNX BUS**|
 | Telegram type | *write* to send write telegram (usually, you want that), otherwise you can choose the telegram's type to react to. |
 | RBE filter (in the CONTROL section) | *Report by change* filter. If set, only the msg input (from the Flow) having different values each time, will be sent to the KNX bus. If you intend to send everytime the same value, turn it off. |
-||**STATUS (payload from KNX BUS)**|
+||**RECEIVE msg from KNX BUS**|
 | Read status on start | Read group address status, every time Node-Red starts and at every reconnection to the KNX Gateway. The node stores all group address values to a file, so you can choose wether to read from file or from the KNX bus. |
 | RBE filter (in the STATUS section)| *Report by change* filter. If set, only the msg output (to KNX bus) having different values each time, will be sent to the msg output's flow. If you intend to send everytime the same value, leave it off. |
 | React to write telegrams | The node will react (will send a msg to the flow) each time it receives a *write* telegram from the KNX bus. Usually, you want that. |
