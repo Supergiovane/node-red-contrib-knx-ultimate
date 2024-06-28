@@ -10,14 +10,17 @@
             name: { value: "KNXViewer", required: false }
         },
         inputs: 0,
-        outputs: 2,
+        outputs: 3,
         outputLabels: function (i) {
             switch (i) {
                 case 0:
-                    return "Formatted Payload";
+                    return "Dashboard Group Addresses";
                     break;
                 case 1:
-                    return "Simple Array";
+                    return "Simple Array Json for data recording";
+                    break;
+                case 2:
+                    return "Dashboard Telegrams queue";
                     break;
                 default:
                     break;
@@ -85,10 +88,10 @@
 </script>
 
 <script type="text/markdown" data-help-name="knxUltimateViewer">
-View all group addresses and their values in a Dashboard widget.  
+View all group addresses and their values in a Dashboard widget, as well as JSON Oblect output and KNX transmission queue congestion.  
 
-This node works in conjunction with the Node-Red dashboard UI Template node.
-View all group addresses and their values in a Dashboard widget.
+For all output pins marked as "Dashboard.. ", the node works in conjunction with the Node-Red dashboard UI Template node.
+
 
 **General**
 |Property|Description|
@@ -98,12 +101,28 @@ View all group addresses and their values in a Dashboard widget.
 |
 <br/>
 
-### Outputs
+### Outputs PINS
 
-1. Standard output
-: payload (json) : formatted payload. Connect it directly with the Template UI node.
-2. Array of objects
+1. Dashboard Group Addresses
+: payload (html) : Connect it directly with the Template UI node. It creates a table with all Group Addresses and their values.
+2. Simple Array JSON for data recording
 : payload (array) : An array containing all the GA. You can use the array to do your own format and reordering.
+2. Dashboard telegrams queue
+: payload (html) : Connect it directly with the Template UI node. It creates a table with the KNX transmission queue for monitoring BUS congestion.
+
+<br/>
+<br/>
+
+## SAMPLE
+
+<img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/viewer2.png" width="90%"><br/>
+
+In this example, you can see how the Viewer works.<br/>
+Just put a Viewer node in your flow and attach a Template UI node behind it.<br/>
+The **template** node (Dashboard's Template UI) contains the default text:<br/>
+The Output is something as follows:<br/>
+
+<img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/viewer1.png" width="90%"><br/>
 
 <br/>
 

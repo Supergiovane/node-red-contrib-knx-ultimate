@@ -6,6 +6,11 @@
 
 # CHANGELOG
 
+**Version 3.0.0-beta3** - Juni 2024<br/>
+- Warning: Node-Red version **equals or major than 3.1.1** is needed to run this node.<br/>
+- Chore: "betterized" the description for some captions in the KNX Device node. </br>
+- NEW: KNX Viewer node: added an output PIN (third) you can use to monitor the KNX BUS congestion.</br>
+
 **Version 3.0.0-beta2** - Juni 2024<br/>
 - Warning: Node-Red version **equals or major than 3.1.1** is needed to run this node.<br/>
 - NEW: Hue Node Software Update Status for the HUE devices. <br/>
