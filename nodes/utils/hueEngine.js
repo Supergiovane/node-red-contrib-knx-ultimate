@@ -2,8 +2,10 @@
 const { EventEmitter } = require("events");
 const EventSource = require("eventsource");
 const http = require("./http");
+const pleaseWait = t => new Promise((resolve, reject) => setTimeout(resolve, t))
 
 class classHUE extends EventEmitter {
+
   constructor(_hueBridgeIP, _username, _clientkey, _bridgeid, _sysLogger) {
     super();
     this.hueBridgeIP = _hueBridgeIP;
@@ -13,10 +15,9 @@ class classHUE extends EventEmitter {
     this.commandQueue = [];
     this.closePushEventStream = false;
     // eslint-disable-next-line max-len
-    this.timerwriteQueueAdd = setTimeout(this.handleQueue, 10000); // First start. Allow the KNX to connect
+    setTimeout(this.handleQueue, 10000); // First start. Allow the KNX to connect
     this.sysLogger = _sysLogger;
-    this.timerCheckConnected = undefined;
-
+    this.timerCheckConnected = null;
   }
 
   Connect = () => {
@@ -75,7 +76,7 @@ class classHUE extends EventEmitter {
       this.emit("connected");
 
       // Check wether the hue bridge is connected or not
-      if (this.timerCheckConnected !== undefined) clearInterval(this.timerCheckConnected);
+      if (this.timerCheckConnected !== null) clearInterval(this.timerCheckConnected);
       this.timerCheckConnected = setInterval(() => {
         this.writeHueQueueAdd(null, null, "Ping");
       }, 30000);
@@ -120,8 +121,9 @@ class classHUE extends EventEmitter {
           try {
             const ok = await this.hueApiV2.put(`/resource/light/${jRet._lightID}`, jRet._state);
           } catch (error) {
-            if (this.sysLogger !== undefined && this.sysLogger !== null)
-              this.sysLogger.info(`KNXUltimatehueEngine: classHUE: handleQueue: setLight light: ${error.message}`);
+            if (this.sysLogger !== undefined && this.sysLogger !== null) {
+              this.sysLogger.info(`KNXUltimatehueEngine: classHUE: handleQueue: setLight light: ${error.message}. CHECK WETHER THE DEVICE IS POWERED ON`);
+            }
           }
           break;
         case "setGroupedLight":
@@ -160,7 +162,7 @@ class classHUE extends EventEmitter {
             const jReturn = await this.hueApiV2.get('/resource/bridge');
           } catch (error) {
             if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.error(`KNXUltimatehueEngine: classHUE: handleQueue: Ping: ${error.message}`);
-            if (this.timerCheckConnected !== undefined) clearInterval(this.timerCheckConnected);
+            if (this.timerCheckConnected !== null) clearInterval(this.timerCheckConnected);
             this.commandQueue.length = [];
             this.emit("disconnected");
           }
@@ -170,8 +172,8 @@ class classHUE extends EventEmitter {
       }
     }
     // The Hue bridge allows about 10 telegram per second, so i need to make a queue manager
-    //await new Promise(resolve => setTimeout(resolve, 2000));
-    this.timerwriteQueueAdd = setTimeout(this.handleQueue, 200);
+    await pleaseWait(150); // Waits
+    if (this.closePushEventStream === false) this.handleQueue();
   };
 
   writeHueQueueAdd = async (_lightID, _state, _operation) => {
@@ -180,10 +182,10 @@ class classHUE extends EventEmitter {
   };
 
   /**
- * Clears all items fo _lightID from the HUE sending queue. Useful to clear unwanted dimming commands
- * @param {string} _lightID HUE Light ID
- * @returns {}
- */
+  * Clears all items fo _lightID from the HUE sending queue. Useful to clear unwanted dimming commands
+  * @param {string} _lightID HUE Light ID
+  * @returns {}
+  */
   deleteHueQueue = async (_lightID) => {
     // Add the new item
     this.commandQueue = this.commandQueue.filter((el) => el._lightID !== _lightID);
@@ -194,7 +196,7 @@ class classHUE extends EventEmitter {
     new Promise((resolve, reject) => {
       try {
         if (this.timerReconnect !== undefined) clearInterval(this.timerReconnect);
-        this.closePushEventStream = true;
+        this.closePushEventStream = true; // Signal to exit all loops
         try {
           if (this.es !== null && this.es !== undefined) this.es.close();
         } catch (error) { }
