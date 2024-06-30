@@ -8,7 +8,7 @@
             port: { value: 3671, required: true, validate: RED.validators.number() },
             // the KNX physical address we'd like to use
             physAddr: { value: "15.15.22", required: true },
-            hostProtocol: { value: "Multicast", required: false }, // TunnelUDP/TunnelTCP/Multicast
+            hostProtocol: { value: "Auto", required: false }, // TunnelUDP/TunnelTCP/Multicast
             // enable this option to suppress the acknowledge flag with outgoing L_Data.req requests. LoxOne needs this
             suppressACKRequest: { value: false },
             csv: { value: "", required: false },
@@ -47,43 +47,6 @@
                 .attr("value", "Manual")
                 .text("Manually enter interface's name")
             );
-
-            // Auto set the tunnel type, if hostProtocol is null (comes from older versions not having such property)
-            if ($("#node-config-input-hostProtocol").val() === null) {
-                $("#node-config-input-hostProtocol").val($("#node-config-input-host").val() === "224.0.23.12" ? "Multicast" : "TunnelUDP");
-            }
-
-            // Auto set protocol based on IP
-
-            $("#node-config-input-host").on('focusout', function () {
-                let suggestedProtocol = "";
-                // 11/07/2022 only if the previous value was undefined, automatic set the protocol
-                if ($("#node-config-input-host").val().startsWith("224.") ||
-                    $("#node-config-input-host").val().startsWith("225.") ||
-                    $("#node-config-input-host").val().startsWith("232.") ||
-                    $("#node-config-input-host").val().startsWith("233.") ||
-                    $("#node-config-input-host").val().startsWith("234.") ||
-                    $("#node-config-input-host").val().startsWith("235.") ||
-                    $("#node-config-input-host").val().startsWith("239.")) {
-                    suggestedProtocol = "Multicast.";
-                } else {
-                    suggestedProtocol = "TunnelUDP or TunnelTCP (if the interface is KNX-Secure).";
-                }
-                var myNotification = RED.notify("The suggested protocol based on your input, is " + suggestedProtocol,
-                    {
-                        modal: false,
-                        fixed: false,
-                        type: 'info',
-                        buttons: [
-                            {
-                                text: "Ok",
-                                click: function (e) {
-                                    myNotification.close();
-                                }
-                            }]
-                    })
-
-            });
 
             $.getJSON('knxUltimateETHInterfaces', (data) => {
                 data.sort().forEach(iFace => {
@@ -215,32 +178,18 @@
 <script type="text/html" data-template-name="knxUltimate-config">
     <div class="form-row">
        <b><span data-i18n="knxUltimate-config.properties.title"></span></b>&nbsp&nbsp<span style="color:red" data-i18n="[html]knxUltimate-config.properties.helplink"></span>
-        <br/><br/>
-       <div class="form-row">
-        <label for="node-config-input-name" style="width: 50px" >
-            <i class="fa fa-tag"></i>
-            <span data-i18n="knxUltimate-config.properties.node-config-input-name"></span>
-        </label>
-        <input type="text" id="node-config-input-name" >Name
+        <br/><br/>       
     </div>
    
         <div class="form-row">
-            <label for="node-config-input-host" style="width: 110px">
-                <i class="fa fa-server"></i>
-                <span data-i18n="knxUltimate-config.properties.host"></span>
-            </label>
-            <input type="text" id="node-config-input-host" style="width: 120px"><data-i18n="[Title]knxUltimate-config.properties.host_info" style="margin-left:5px;">
-    
-            <label for="node-config-input-port" style="margin-left:5px; width:35px;">
-                <span data-i18n="knxUltimate-config.properties.port"></span>
-            </label>
-            <input type="text" id="node-config-input-port" style="width: 50px"><data-i18n="[Title]knxUltimate-config.properties.port_info" style="margin-left:5px;">
-            
-            <select id="node-config-input-hostProtocol" style="margin-left:5px; width:120px;">
-                <option value="TunnelUDP" >Tunnel UDP</option>
-                <option value="Multicast" >Multicast</option>
-                <!-- <option value="TunnelTCP" >Tunnel TCP</option> -->
-            </select>   
+            <label for="node-config-input-name" style="width: 200px" >
+                <i class="fa fa-tag"></i> Name </label>
+            <input type="text" id="node-config-input-name" style="width: 200px">
+        </div>
+        <div class="form-row">
+            <label for="node-config-input-host" style="width: 200px">
+                <i class="fa fa-server"></i> IP/Hostname</label>
+            <input type="text" id="node-config-input-host" style="width: 200px">
         </div>
     
     <!-- KNX Secure / Unsecure tabbed selector-->
@@ -286,12 +235,30 @@
     </ul>
     <div id="tabs-1">
         <p>
+
+            <div class="form-row">
+                <label for="node-config-input-port" style="width: 200px">
+                   IP Port
+                </label>
+                <input type="text" id="node-config-input-port" style="width: 100px">
+            </div>
+            <div class="form-row">
+                <label for="node-config-input-hostProtocol" style="width: 200px">
+                   IP Protocol
+                </label>
+                <select id="node-config-input-hostProtocol" >
+                    <option value="Auto" >Auto</option>
+                    <option value="TunnelUDP" >Tunnel UDP (KNX/IP Interface)</option>
+                    <option value="Multicast" >Multicast (KNX/IP Router)</option>
+                    <!-- <option value="TunnelTCP" >Tunnel TCP</option> -->
+                </select>   
+            </div>
             <div class="form-row">
                 <label for="node-config-input-physAddr" style="width: 200px">
                     <i class="fa fa-microchip"></i>
                     <span data-i18n="knxUltimate-config.advanced.knx_phy_addr"></span>
                 </label>
-                <input type="text" id="node-config-input-physAddr" style="width:30%">
+                <input type="text" id="node-config-input-physAddr" style="width:100px">
             </div>
 
             <div class="form-row">
@@ -443,14 +410,14 @@
 |--|--|
 | Name | Node name. |
 | IP/Hostname | ETH/KNX Router multicast address or Interface unicast IP address. If you have an KNX/IP interface, use the interface's IP address, for example 1982.168.1.22, otherwise, if you have a KNX/IP router, put the multicast address 224.0.23.12. You can also type an **Hostname** instead of an IP. |
-| Port | The port. |
-| Protocol dropdown | *Tunnel UDP* is for KNX/IP interfaces, *Multicast UDP* is for KNX/IP Routers. |
 
 <br/>
 
 **Configuration**
 |Property|Description|
 |--|--|
+| IP Port | The port. |
+| IP Protocol | *Tunnel UDP* is for KNX/IP interfaces, *Multicast UDP* is for KNX/IP Routers. Leave **Auto** for auto detect. |
 | Bind to local interface | The Node will use this local interface for communications. Leave "Auto" for automatic selection. If you have more than one lan connection, for example Ethernet and Wifi, it's strongly recommended to manually select the interface, otherwise not all UDP telegram will reach your computer, thus the Node may not work as expected. |
 | Automatically connect to KNX BUS at start | Auto connect to the bus at start. You want to leave it enabled. |
 | KNX Physical Address | The physical KNX address, example 1.1.200 |

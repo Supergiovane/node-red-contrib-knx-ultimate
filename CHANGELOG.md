@@ -6,6 +6,10 @@
 
 # CHANGELOG
 
+**Version 3.0.1** - Juli 2024<br/>
+- Warning: Node-Red version **equals or major than 3.1.1** is needed to run this node.<br/>
+- FEATURE: Due to multiple users not well knowing the KNX Protocol, by default new nodes have "Auto" in the protocol field. The node will automatically detect and apply the correct protocol. This is the real AI.<br/>
+
 **Version 3.0.0** - Juli 2024<br/>
 - Warning: Node-Red version **equals or major than 3.1.1** is needed to run this node.<br/>
 - FEATURE CAUTION: rewrote the KNX engine in Typescript. If you encounter problems, please open a gitub issue. You can revert by installing the older version 2.5.1 <br/>

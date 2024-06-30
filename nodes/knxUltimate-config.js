@@ -102,12 +102,12 @@ module.exports = (RED) => {
     node.knxConnectionProperties = null; // Retains the connection properties
     node.allowLauch_initKNXConnection = true; // See the node.timerKNXUltimateCheckState function
     node.timerClearTelegramQueue = null; // Timer to clear the telegram's queue after long disconnection
-    node.hostProtocol = "TunnelUDP"; // 20/03/2022 Default
+    node.hostProtocol = config.hostProtocol === undefined ? "Auto" : config.hostProtocol; // 20/03/2022 Default
     node.knxConnection = null; // 20/03/2022 Default
     // 15/12/2021
 
     // 05/12/2021 Set the protocol (this is undefined if coming from ild versions
-    if (config.hostProtocol === undefined) {
+    if (config.hostProtocol === "Auto") {
       // Auto set protocol based on IP
       if (
         node.host.startsWith("224.") ||
@@ -120,12 +120,9 @@ module.exports = (RED) => {
       ) {
         node.hostProtocol = "Multicast";
       } else {
-        // 11/07/2022
         node.hostProtocol = "TunnelUDP";
       }
-      if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("IP Protocol auto adapded to " + node.hostProtocol + ", based on IP " + node.host);
-    } else {
-      node.hostProtocol = config.hostProtocol;
+      if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("IP Protocol AUTO SET to " + node.hostProtocol + ", based on IP " + node.host);
     }
 
     node.setAllClientsStatus = (_status, _color, _text) => {
