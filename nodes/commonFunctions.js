@@ -354,7 +354,9 @@ module.exports = (RED) => {
                 const serverId = RED.nodes.getNode(req.query.serverId); // Retrieve node.id of the config node.
                 if (serverId === null) {
                     RED.log.warn(`Warn KNXUltimateGetResourcesHUE serverId is null`);
-                    res.json({ devices: `serverId not set` });
+                    const jRet = [];
+                    jRet.push({ name: 'PLEASE DEPLOY FIRST: then try again.', id: 'error' })
+                    res.json({ devices: jRet });
                     return;
                 }
                 const jRet = serverId.getResources(req.query.rtype);

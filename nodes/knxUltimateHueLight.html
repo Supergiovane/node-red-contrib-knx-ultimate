@@ -728,11 +728,18 @@
             timerWaitBackEndCounter++;
             if (timerWaitBackEndCounter > 40) {
               timerWaitBackEndCounter = 0;
-              RED.notify("Something went wrong. Please make sure the HUE bridge connection is up and properly configured.",
+              const myNotification = RED.notify("Something went wrong. Please make sure the HUE bridge connection is properly configured. For further info, see the node-red log. IF YOU ARE CREATING A NEW HUE CONFIGURATION NODE, PLEASE DEPLOY AND RETRY.",
                 {
                   modal: false,
-                  fixed: false,
-                  type: 'error'
+                  fixed: true,
+                  type: 'error',
+                  buttons: [
+                    {
+                      text: "OK",
+                      click: function (e) {
+                        myNotification.close();
+                      }
+                    }]
                 })
               $("#waitWindow").hide();
               $("#mainWindow").show();
