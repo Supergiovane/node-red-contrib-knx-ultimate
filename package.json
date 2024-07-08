@@ -3,7 +3,7 @@
   "engines": {
     "node": ">=16.0.0"
   },
-  "version": "3.0.2",
+  "version": "3.0.3",
   "description": "Control your KNX intallation via Node-Red! A bunch of KNX nodes, with integrated Philips HUE control and ETS group address importer. Easy to use and highly configurable.",
   "dependencies": {
     "binary-parser": "2.2.1",
@@ -11,7 +11,7 @@
     "dns-sync": "0.2.1",
     "eventsource": "2.0.2",
     "js-yaml": "4.1.0",
-    "knxultimate": ">=2.3.3",
+    "knxultimate": ">=2.3.5",
     "lodash": "4.17.21",
     "log-driver": "1.2.7",
     "mkdirp": "3.0.1",

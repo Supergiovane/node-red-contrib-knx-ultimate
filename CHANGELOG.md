@@ -6,6 +6,10 @@
 
 # CHANGELOG
 
+**Version 3.0.3** - Juli 2024<br/>
+- Warning: Node-Red version **equals or major than 3.1.1** is needed to run this node.<br/>
+- FIX: fix crash when no more KNX tunnels avaiable.<br/>
+
 **Version 3.0.2** - Juli 2024<br/>
 - Warning: Node-Red version **equals or major than 3.1.1** is needed to run this node.<br/>
 - HUE BRIDGE: added the message to DEPLOY the flow prior to proceed, when you're creating a new HUE CONFIG node.<br/>

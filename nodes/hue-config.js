@@ -353,6 +353,7 @@ module.exports = (RED) => {
               });
             }
           } catch (error) {
+            console.log("KNXHue-config: getResources error ", error.trace);
             retArray.push({
               name: `${_rtype}: ERROR ${error.message}`,
               id: resource.id,
