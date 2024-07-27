@@ -1,0 +1,112 @@
+<script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/htmlUtils.js"></script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('knxUltimateAutoResponder', {
+        category: "KNX Ultimate",
+        color: '#C7E9C0',
+        defaults: {
+            //buttonState: {value: true},
+            server: { type: "knxUltimate-config", required: true },
+            name: { value: "Auto responder", required: false },
+            commandText: { value: '1/1/0:true\n2/2/x:Source Radio 1\n3/0/x:100\n', required: false }
+        },
+        inputs: 0,
+        outputs: 0,
+        icon: "node-knx-icon.svg",
+        label: function () {
+            return (this.name + ' (BETA)' || "Auto Responder (BETA)");
+        },
+        paletteLabel: "Auto Responder (BETA)",
+        // button: {
+        //     enabled: function() {
+        //         // return whether or not the button is enabled, based on the current
+        //         // configuration of the node
+        //         return !this.changed
+        //     },
+        //     visible: function() {
+        //         // return whether or not the button is visible, based on the current
+        //         // configuration of the node
+        //         return this.hasButton
+        //     },
+        //     //toggle: "buttonState",
+        //     onclick: function() {}
+        // },
+        oneditprepare: function () {
+            var node = this;
+            node.editor = RED.editor.createEditor({
+                id: 'node-input-editorcommandText',
+                mode: 'ace/mode/text',
+                value: node.commandText
+            });
+
+        },
+        oneditsave: function () {
+            var node = this;
+            node.commandText = node.editor.getValue();
+            node.editor.destroy();
+            delete node.editor;
+
+        },
+        oneditcancel: function () {
+            var node = this;
+            node.editor.destroy();
+            delete node.editor;
+        }
+    })
+
+</script>
+
+<script type="text/html" data-template-name="knxUltimateAutoResponder">
+
+
+<div class="form-row">
+    <b>Auto Responder</b>
+    <br />
+    <label for="node-input-server">
+        <img
+            src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAKnRFWHRDcmVhdGlvbiBUaW1lAEZyIDYgQXVnIDIwMTAgMjE6NTI6MTkgKzAxMDD84aS8AAAAB3RJTUUH3gYYCicNV+4WIQAAAAlwSFlzAAALEgAACxIB0t1+/AAAAARnQU1BAACxjwv8YQUAAACUSURBVHjaY2CgFZg5c+Z/ZEyWAZ8+f/6/ZsWs/xoamqMGkGrA6Wla/1+fVARjEBuGsSoGmY4eZSCNL59d/g8DIDbIAHR14OgFGQByKjIGKX5+6/T///8gGMQGiV1+/B0Fg70GIkD+RMYgxf/O5/7//2MSmAZhkBi6OrgB6Bg5DGB4ajr3f2xqsYYLSDE2THJUDg0AAAqyDVd4tp4YAAAAAElFTkSuQmCC"></img>
+        Gateway
+    </label>
+    <input type="text" id="node-input-server" />
+</div>
+
+<div class="form-row">
+    <label for="node-input-name" >
+        <i class="fa fa-tag"></i> Name
+    </label>
+    <input  type="text" id="node-input-name" data-i18n="[placeholder]knxUltimateAutoResponder.node-input-name" />
+</div>
+
+<div class="form-row">
+    <label style="width:300px;" for="node-input-commandText"><i class="fa fa-tasks"></i> Respond to</label>
+    <div style="height: 250px; min-height:150px;" class="node-text-editor" id="node-input-editorcommandText"></div>
+</div>
+
+</script>
+
+<script type="text/markdown" data-help-name="knxUltimateAutoResponder">
+<p>This node will respond to read requests from the KNX BUS. If the group address to be read has no value yet, the node will respond with a default value.
+    
+[<i class="fa fa-code"></i> Here you'll find some samples](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-SamplesHome)
+
+**Configuration**
+|Property|Description|
+|--|--|
+| Gateway | Select the KNX gateway to be used |
+| Respond to | The node will respond to group addresses specified in this list. The format is **GA:default value**. See below for further infos. |
+
+<br/>
+
+**Accepted formats in the 'Respond to' list**
+You can use the *x* wildchard to specify all values from 0 to 257  
+You must specify a default value to be sent to the KNX BUS, if the group address hasn't yet any value.  
+**For example**  
+```` 1/1/0:true````  will send a telegram having the GA's 1/1/0 value. If the 1/1/0 hasn't yet a value, the node will respond with **true**  
+```` 2/1/x:false````  will send a telegram having the GA's 2/1/0..257 value If the GA hasn't yet a value, the node will respond with **false**  
+  
+Please take care not to do any error, because there's yet no checks on the text's list.
+<br/>
+
+[DONATE HERE, THANK YOU!](https://www.paypal.me/techtoday)
+    
+    </script>

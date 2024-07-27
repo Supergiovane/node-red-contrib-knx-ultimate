@@ -6,19 +6,23 @@
 
 # CHANGELOG
 
-**Version 3.0.3** - Juli 2024<br/>
+**Version 3.0.4** - August 2024<br/>
+- Warning: Node-Red version **equals or major than 3.1.1** is needed to run this node.<br/>
+- NEW: KNX Auto Responder node: The node will respond to read request coming from the KNX BUS, with the current GA value.<br/>
+
+**Version 3.0.3** - July 2024<br/>
 - Warning: Node-Red version **equals or major than 3.1.1** is needed to run this node.<br/>
 - FIX: fix crash when no more KNX tunnels avaiable.<br/>
 
-**Version 3.0.2** - Juli 2024<br/>
+**Version 3.0.2** - July 2024<br/>
 - Warning: Node-Red version **equals or major than 3.1.1** is needed to run this node.<br/>
 - HUE BRIDGE: added the message to DEPLOY the flow prior to proceed, when you're creating a new HUE CONFIG node.<br/>
 
-**Version 3.0.1** - Juli 2024<br/>
+**Version 3.0.1** - July 2024<br/>
 - Warning: Node-Red version **equals or major than 3.1.1** is needed to run this node.<br/>
 - FEATURE: Due to multiple users not well knowing the KNX Protocol, by default new nodes have "Auto" in the protocol field. The node will automatically detect and apply the correct protocol. This is the real AI.<br/>
 
-**Version 3.0.0** - Juli 2024<br/>
+**Version 3.0.0** - July 2024<br/>
 - Warning: Node-Red version **equals or major than 3.1.1** is needed to run this node.<br/>
 - FEATURE CAUTION: rewrote the KNX engine in Typescript. If you encounter problems, please open a gitub issue. You can revert by installing the older version 2.5.1 <br/>
 - FEATURE: KNX Ultimate node: you can now set the group address from a global, flow or $env variable, beside the standard 3-level format. <br/>
