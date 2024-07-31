@@ -43,7 +43,7 @@ msg.payload = {red:255, green:200, blue:30} // Put some colors in our life
 * **VIEWER node** [here](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/knxUltimateViewer). View all Group Addresses and values of your KNX BUS, in the Node-Red Dashboard.
 * **PHILIPS HUE nodeset** [here](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/en-hue-configuration). Link HUE devices to KNX in a simple way.
 * **HOME ASSISTANT translator node** translates the HA input msg, to a KNX value. Comes with a built-in translation table, that's user editable.
-
+* **AUTO RESPONDER node** responds to read requests coming from the bus. Used mainly for virtual group addresses.
 <br>
 
 ## CHANGELOG
