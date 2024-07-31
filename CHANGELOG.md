@@ -6,9 +6,13 @@
 
 # CHANGELOG
 
+**Version 3.0.5** - August 2024<br/>
+- Warning: Node-Red version **equals or major than 3.1.1** is needed to run this node.<br/>
+- KNX Auto Responder node (BETA): changed to JSON array instead of plain text and updated the help. Please be aware that until the node exits beta, there can be breaking changes.<br/>
+
 **Version 3.0.4** - August 2024<br/>
 - Warning: Node-Red version **equals or major than 3.1.1** is needed to run this node.<br/>
-- NEW: KNX Auto Responder node: The node will respond to read request coming from the KNX BUS, with the current GA value.<br/>
+- NEW: KNX Auto Responder node (BETA): The node will respond to read request coming from the KNX BUS, with the current GA value. Please be aware that until the node exits beta, there can be breaking changes.<br/>
 
 **Version 3.0.3** - July 2024<br/>
 - Warning: Node-Red version **equals or major than 3.1.1** is needed to run this node.<br/>
