@@ -45,7 +45,6 @@ module.exports = function (RED) {
     node.inputRBE = 'false' // Apply or not RBE to the input (Messages coming from BUS)
     node.exposedGAs = [];
     node.commandText = []; // Raw list Respond To
-    node.decodedRespondToList = [];
     node.sysLogger = require('./utils/sysLogger.js').get({ loglevel: node.server.loglevel || 'error' }); // 08/04/2021 new logger to adhere to the loglevel selected in the config-window
 
     // Used to call the status update from the config node.
@@ -66,7 +65,7 @@ module.exports = function (RED) {
       //return;
     } else {
       node.server.csv.forEach(element => {
-        node.exposedGAs.push({ address: element.ga, dpt: element.dpt, devicename: element.devicename, payload: undefined })
+        node.exposedGAs.push({ address: element.ga, dpt: element.dpt, default: undefined, payload: undefined })
       })
       node.status({ fill: 'green', shape: 'ring', text: 'ETS file loaded', payload: '', dpt: '', devicename: '' });
     }
@@ -84,18 +83,30 @@ module.exports = function (RED) {
     node.commandText.forEach(element => {
       if (element.ga !== undefined && element.default !== undefined) {
         let defaultVal = element.default;
+        let dpt = element.dpt;
         if (element.ga.includes('..')) {
           const start = Number(element.ga.substring(element.ga.lastIndexOf("/") + 1, element.ga.indexOf("..")));
           const end = Number(element.ga.substring(element.ga.indexOf("..") + 2));
           const twoLevel = element.ga.substring(0, element.ga.lastIndexOf("/") + 1);
           for (let index = start; index < end; index++) {
             const decAdd = twoLevel + index;
-            node.decodedRespondToList.push({ address: decAdd, default: defaultVal });
+            // Add also to the exposedGAs list, if not already present
+            let curGa = node.exposedGAs.find(a => a.address === decAdd);
+            if (curGa === undefined) {
+              node.exposedGAs.push({ address: decAdd, dpt: dpt, default: defaultVal, payload: undefined });
+            } else {
+              if (dpt !== undefined) curGa.dpt = dpt; // Take the Datapoint from the commandText directive, replacing from ETS CSV file, if exists.
+            }
           }
         } else {
-          node.decodedRespondToList.push({ address: element.ga, default: defaultVal })
+          let curGa = node.exposedGAs.find(a => a.address === element.ga);
+          if (curGa === undefined) {
+            node.exposedGAs.push({ address: element.ga, dpt: dpt, default: defaultVal, payload: undefined });
+          } else {
+            if (dpt !== undefined) curGa.dpt = dpt; // Take the Datapoint from the commandText directive, replacing from ETS CSV file, if exists.
+          }
         }
-        node.status({ fill: 'green', shape: 'ring', text: 'JSON parsed: ' + node.decodedRespondToList.length + " directive(s).", payload: '', dpt: '', devicename: '' });
+        node.status({ fill: 'green', shape: 'ring', text: 'JSON parsed: ' + node.commandText.length + " directive(s).", payload: '', dpt: '', devicename: '' });
       } else {
         // Error
         node.status({ fill: 'red', shape: 'dot', text: 'JSON error: ga or default keys not set. Abort.', payload: '', dpt: '', devicename: '' });
@@ -111,69 +122,36 @@ module.exports = function (RED) {
 
         // Save the value
         try {
-          var oGa = node.exposedGAs.find(ga => ga.address === msg.knx.destination)
+          var oGa = node.exposedGAs.find(ga => ga.address === msg.knx.destination);
         } catch (error) {
           if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(`knxUltimateAutoResponder: var oGa = node.exposedGAs.find(ga => ga.address === msg.knx.destination) ${error.stack}`);
         }
-        if (oGa === undefined) {
-          let datapoint;
-          let decodedPayload;
-          if (msg.knx !== undefined && msg.knx.dpt !== undefined) {
-            // There is the CSV file imported
-            datapoint = msg.knx.dpt;
-            decodedPayload = msg.payload;
-          } else {
-            // Must get the dpt from the decodedRespondToList list, then decode the payload
-            try {
-              datapoint = node.decodedRespondToList.find(x => x.address === msg.knx.destination).dpt;
-              const dpt = dptlib.resolve(datapoint);
-              const decodedPayload = dptlib.fromBuffer(msg.knx.rawValue, dpt);
-            } catch (error) {
-              node.status({ fill: 'red', shape: 'dot', text: 'datapoint = node.decodedRespondToList ' + error.message, payload: '', dpt: '', devicename: '' });
-              if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(`knxUltimateAutoResponder: datapoint = node.decodedRespondToList.find(x => x.address === msg.knx.destination).dpt ${error.stack}`);
-            }
+        if (oGa !== undefined) {
+          try {
+            // Don't care about the decoded payload, because knxUltimate-config could pass a TryToFindDatapoint from raw data
+            // Take only RAW data and decode it with the dpt specified by the commandText directive
+            const decodedPayload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(oGa.dpt));
+          } catch (error) {
+            node.status({ fill: 'red', shape: 'dot', text: 'datapoint = node.decodedRespondToList ' + error.message, payload: '', dpt: '', devicename: '' });
+            if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(`knxUltimateAutoResponder: datapoint = node.decodedRespondToList.find(x => x.address === msg.knx.destination).dpt ${error.stack}`);
           }
-          if (decodedPayload !== undefined && datapoint !== undefined) node.exposedGAs.push({ address: msg.knx.destination, devicename: undefined, dpt: datapoint, payload: decodedPayload })
-
-        } else {
-          oGa.dpt = msg.knx.dpt
-          oGa.payload = msg.payload
+          oGa.payload = decodedPayload
         }
       } else {
-
-        // Send the response to the bus
-        var defaultValue; // Default value if no payload in the exposedGA list
-        var bFound = false;
-        // Can i handle the incoming message?
-        try {
-          for (let index = 0; index < node.decodedRespondToList.length; index++) {
-            const element = node.decodedRespondToList[index];
-            if (msg.knx.destination === element.address) {
-              defaultValue = element.default;
-              bFound = true;
-              break;
-            }
-          }
-        } catch (error) {
-          if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(`knxUltimateAutoResponder: before bFound ${error.stack}`);
-        }
-        if (!bFound) return;
 
         try {
           let retVal;
           let oFoundGA = node.exposedGAs.find(ga => ga.address === msg.knx.destination);
           if (oFoundGA === undefined) return;
           if (oFoundGA.payload === undefined) {
-            if (defaultValue === 'true') defaultValue = true;
-            if (defaultValue === 'false') defaultValue = false;
-            retVal = defaultValue;
+            retVal = oFoundGA.default;
           } else {
             retVal = oFoundGA.payload;
           }
           if (retVal !== undefined) {
             const dDate = new Date()
             node.status({ fill: 'blue', shape: 'dot', text: 'Respond ' + oFoundGA.address + ' => ' + retVal + ' (' + dDate.getDate() + ', ' + dDate.toLocaleTimeString() + ')' })
-            node.server.writeQueueAdd({ grpaddr: oFoundGA.address, payload: retVal, dpt: oFoundGA.dpt || '', outputtype: 'response', nodecallerid: node.id });
+            node.server.writeQueueAdd({ grpaddr: oFoundGA.address, payload: retVal, dpt: oFoundGA.dpt, outputtype: 'response', nodecallerid: node.id });
           }
         } catch (error) {
           if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(`knxUltimateAutoResponder: after bFound ${error.stack}`);
