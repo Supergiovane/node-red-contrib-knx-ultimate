@@ -31,7 +31,7 @@ msg.payload = {red:255, green:200, blue:30} // Put some colors in our life
 ```
 
 
-## NODE LIST
+## NODE'S LIST
 
 * **KNX-ULTIMATE node** [here](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/2.-Node-Configuration), allow you to control your *KNX installation* via Node-Red. You can control all your KNX devices as well as create a *Virtual Device* in Node-Red, to link external *non KNX* devices, and make it compatible with your KNX installation. I'ts very SIMPLE TO USE thus very customizable.  
 * **SCENE CONTROLLER node** [here](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/SceneController-Configuration), The scene controller node can act as a real scene controller, with recall and save of the current scene.
@@ -41,9 +41,10 @@ msg.payload = {red:255, green:200, blue:30} // Put some colors in our life
 * **ALERTER node** [here](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/Alerter-Configuration). With the Alerter node you can signal to a display or to the node-red-contrib-tts-ultimate node (audio feedback), whenever the selected devices are alerted, i.e. they have payload **true**.
 * **LOAD CONTROL node** [here](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/LoadControl-Configuration). Control your loads (Oven, Washing machine, etc..) and avoit shutting down the main voltage due to too high power consumption.
 * **VIEWER node** [here](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/knxUltimateViewer). View all Group Addresses and values of your KNX BUS, in the Node-Red Dashboard.
+* **AUTO RESPONDER node** responds to read requests coming from the bus. Used mainly for virtual group addresses.
 * **PHILIPS HUE nodeset** [here](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/en-hue-configuration). Link HUE devices to KNX in a simple way.
 * **HOME ASSISTANT translator node** translates the HA input msg, to a KNX value. Comes with a built-in translation table, that's user editable.
-* **AUTO RESPONDER node** responds to read requests coming from the bus. Used mainly for virtual group addresses.
+
 <br>
 
 ## CHANGELOG
