@@ -6,6 +6,10 @@
 
 # CHANGELOG
 
+**Version 3.0.7** - August 2024<br/>
+- Warning: Node-Red version **equals or major than 3.1.1** is needed to run this node.<br/>
+- KNX Auto Responder node (BETA): at start, it loads the last states saved in a persistent file. Please be aware that until the node exits beta, there can be breaking changes.<br/>
+
 **Version 3.0.6** - August 2024<br/>
 - Warning: Node-Red version **equals or major than 3.1.1** is needed to run this node.<br/>
 - KNX Auto Responder node (BETA): fixed some issues when the ETS file has not been imported. Please be aware that until the node exits beta, there can be breaking changes.<br/>

@@ -1,5 +1,8 @@
 module.exports = function (RED) {
   const dptlib = require('knxultimate').dptlib;
+  const fs = require("fs");
+  const path = require("path");
+
   // msg is:
   //  // Build final input message object
   //  return {
@@ -60,12 +63,44 @@ module.exports = function (RED) {
       // }
     }
 
+    node.saveExposedGAs = () => {
+      const sFile = path.join(node.server.userDir, "knxpersistvalues", "knxpersist" + node.id + ".json");
+      try {
+        if (node.exposedGAs.length > 0) {
+          fs.writeFileSync(sFile, JSON.stringify(node.exposedGAs));
+          if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("knxUltimateAutoResponder: wrote peristent values to the file " + sFile);
+        }
+      } catch (err) {
+        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("knxUltimateAutoResponder: unable to write peristent values to the file " + sFile + " " + err.message);
+      }
+    }
+    node.loadExposedGAs = () => {
+      const sFile = path.join(node.server.userDir, "knxpersistvalues", "knxpersist" + node.id + ".json");
+      try {
+        node.exposedGAs = JSON.parse(fs.readFileSync(sFile, "utf8"));
+      } catch (err) {
+        node.exposedGAs = [];
+        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.warn("knxUltimateAutoResponder: unable to read peristent file " + sFile + " " + err.message);
+      }
+    }
+
+    // Load persistent file
+    try {
+      node.loadExposedGAs()
+    } catch (error) {
+    }
+
+
+    // Add the ETS CSV file list to exposedGAs
     if (node.server.csv === undefined || node.server.csv === '' || node.server.csv.length === 0) {
       node.status({ fill: 'grey', shape: 'ring', text: 'No ETS file imported', payload: '', dpt: '', devicename: '' });
       //return;
     } else {
       node.server.csv.forEach(element => {
-        node.exposedGAs.push({ address: element.ga, dpt: element.dpt, default: undefined, payload: undefined })
+        const curGa = node.exposedGAs.find(a => a.address === element.ga);
+        if (curGa === undefined) {
+          node.exposedGAs.push({ address: element.ga, dpt: element.dpt, default: undefined, payload: undefined });
+        }
       })
       node.status({ fill: 'green', shape: 'ring', text: 'ETS file loaded', payload: '', dpt: '', devicename: '' });
     }
@@ -132,8 +167,8 @@ module.exports = function (RED) {
             // Take only RAW data and decode it with the dpt specified by the commandText directive
             const decodedPayload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(oGa.dpt));
           } catch (error) {
-            node.status({ fill: 'red', shape: 'dot', text: 'datapoint = node.decodedRespondToList ' + error.message, payload: '', dpt: '', devicename: '' });
-            if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(`knxUltimateAutoResponder: datapoint = node.decodedRespondToList.find(x => x.address === msg.knx.destination).dpt ${error.stack}`);
+            node.status({ fill: 'red', shape: 'dot', text: 'const decodedPayload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(oGa.dpt)); ' + error.message, payload: '', dpt: '', devicename: '' });
+            if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(`knxUltimateAutoResponder: const decodedPayload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(oGa.dpt)); ${error.stack}`);
           }
           oGa.payload = decodedPayload
         }
@@ -164,8 +199,12 @@ module.exports = function (RED) {
     })
 
     node.on('close', function (done) {
+      try {
+        node.saveExposedGAs();
+      } catch (error) {
+      }
+
       node.exposedGAs = [];
-      node.decodedRespondToList = [];
       if (node.server) {
         node.server.removeClient(node)
       }

@@ -794,6 +794,7 @@ module.exports = (RED) => {
           node.exposedGAs.push({ ga: _dest, rawValue: _rawValue }); // add the new
         } catch (error) { }
       }
+
       switch (_evt) {
         case "GroupValue_Write":
           // console.time('GroupValue_Write'); // 05/04/2022 Fatto test velocità tra for..loop e forEach. E' risultato sempre comunque più veloce il forEach!
