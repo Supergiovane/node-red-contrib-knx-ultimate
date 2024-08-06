@@ -99,7 +99,7 @@ module.exports = function (RED) {
       node.server.csv.forEach(element => {
         const curGa = node.exposedGAs.find(a => a.address === element.ga);
         if (curGa === undefined) {
-          node.exposedGAs.push({ address: element.ga, dpt: element.dpt, default: undefined, payload: undefined });
+          node.exposedGAs.push({ address: element.ga, dpt: element.dpt, default: undefined, payload: undefined, enabled: false }); // "enabled" will be used to filter only the node.commandText directiver
         }
       })
       node.status({ fill: 'green', shape: 'ring', text: 'ETS file loaded', payload: '', dpt: '', devicename: '' });
@@ -128,19 +128,24 @@ module.exports = function (RED) {
             // Add also to the exposedGAs list, if not already present
             let curGa = node.exposedGAs.find(a => a.address === decAdd);
             if (curGa === undefined) {
-              node.exposedGAs.push({ address: decAdd, dpt: dpt, default: defaultVal, payload: undefined });
+              node.exposedGAs.push({ address: decAdd, dpt: dpt, default: defaultVal, payload: undefined, enabled: true });
             } else {
               if (dpt !== undefined) curGa.dpt = dpt; // Take the Datapoint from the commandText directive, replacing from ETS CSV file, if exists.
+              curGa.enabled = true;
             }
           }
         } else {
           let curGa = node.exposedGAs.find(a => a.address === element.ga);
           if (curGa === undefined) {
-            node.exposedGAs.push({ address: element.ga, dpt: dpt, default: defaultVal, payload: undefined });
+            node.exposedGAs.push({ address: element.ga, dpt: dpt, default: defaultVal, payload: undefined, enabled: true });
           } else {
             if (dpt !== undefined) curGa.dpt = dpt; // Take the Datapoint from the commandText directive, replacing from ETS CSV file, if exists.
+            curGa.enabled = true;
           }
         }
+        // Delete all not wanted GAs, that aren't in the node.commandText directive list.
+        node.exposedGAs = node.exposedGAs.filter(a => a.enabled === true || a.enabled === undefined);
+
         node.status({ fill: 'green', shape: 'ring', text: 'JSON parsed: ' + node.commandText.length + " directive(s).", payload: '', dpt: '', devicename: '' });
       } else {
         // Error
