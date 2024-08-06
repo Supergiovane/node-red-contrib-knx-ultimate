@@ -162,10 +162,11 @@ module.exports = function (RED) {
           if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(`knxUltimateAutoResponder: var oGa = node.exposedGAs.find(ga => ga.address === msg.knx.destination) ${error.stack}`);
         }
         if (oGa !== undefined) {
+          let decodedPayload;
           try {
             // Don't care about the decoded payload, because knxUltimate-config could pass a TryToFindDatapoint from raw data
             // Take only RAW data and decode it with the dpt specified by the commandText directive
-            const decodedPayload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(oGa.dpt));
+            decodedPayload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(oGa.dpt));
           } catch (error) {
             node.status({ fill: 'red', shape: 'dot', text: 'const decodedPayload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(oGa.dpt)); ' + error.message, payload: '', dpt: '', devicename: '' });
             if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(`knxUltimateAutoResponder: const decodedPayload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(oGa.dpt)); ${error.stack}`);
@@ -185,8 +186,12 @@ module.exports = function (RED) {
           }
           if (retVal !== undefined) {
             const dDate = new Date()
-            node.status({ fill: 'blue', shape: 'dot', text: 'Respond ' + oFoundGA.address + ' => ' + retVal + ' (' + dDate.getDate() + ', ' + dDate.toLocaleTimeString() + ')' })
-            node.server.writeQueueAdd({ grpaddr: oFoundGA.address, payload: retVal, dpt: oFoundGA.dpt, outputtype: 'response', nodecallerid: node.id });
+            if (oFoundGA.address !== undefined && oFoundGA.dpt !== undefined && retVal !== undefined) {
+              node.server.writeQueueAdd({ grpaddr: oFoundGA.address, payload: retVal, dpt: oFoundGA.dpt, outputtype: 'response', nodecallerid: node.id });
+              node.status({ fill: 'blue', shape: 'dot', text: 'Respond ' + oFoundGA.address + ' => ' + retVal + ' (' + dDate.getDate() + ', ' + dDate.toLocaleTimeString() + ')' })
+            } else {
+              node.status({ fill: 'yellow', shape: 'ring', text: 'Issue responding ' + oFoundGA.address + ' => ' + retVal + ' (' + dDate.getDate() + ', ' + dDate.toLocaleTimeString() + ')' })
+            }
           }
         } catch (error) {
           if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(`knxUltimateAutoResponder: after bFound ${error.stack}`);
