@@ -6,6 +6,10 @@
 
 # CHANGELOG
 
+**Version 3.0.10** - August 2024<br/>
+- Warning: Node-Red version **equals or major than 3.1.1** is needed to run this node.<br/>
+- KNX Auto Responder node (BETA): fixed issue with unused saved values. Please be aware that until the node exits beta, there can be breaking changes.<br/>
+
 **Version 3.0.9** - August 2024<br/>
 - Warning: Node-Red version **equals or major than 3.1.1** is needed to run this node.<br/>
 - KNX Auto Responder node (BETA): fixed issue with malformed responses. Please be aware that until the node exits beta, there can be breaking changes.<br/>

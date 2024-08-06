@@ -87,6 +87,10 @@ module.exports = function (RED) {
     // Load persistent file
     try {
       node.loadExposedGAs()
+      // Set all saved GAs to disabled. Will be enabled later (directive's list)
+      node.exposedGAs.forEach(element => {
+        element.enabled = false;
+      })
     } catch (error) {
     }
 
@@ -100,6 +104,8 @@ module.exports = function (RED) {
         const curGa = node.exposedGAs.find(a => a.address === element.ga);
         if (curGa === undefined) {
           node.exposedGAs.push({ address: element.ga, dpt: element.dpt, default: undefined, payload: undefined, enabled: false }); // "enabled" will be used to filter only the node.commandText directiver
+        } else {
+          curGa.enabled = false;
         }
       })
       node.status({ fill: 'green', shape: 'ring', text: 'ETS file loaded', payload: '', dpt: '', devicename: '' });
@@ -144,7 +150,7 @@ module.exports = function (RED) {
           }
         }
         // Delete all not wanted GAs, that aren't in the node.commandText directive list.
-        node.exposedGAs = node.exposedGAs.filter(a => a.enabled === true || a.enabled === undefined);
+        node.exposedGAs = node.exposedGAs.filter(a => (a.enabled !== undefined && a.enabled === true));
 
         node.status({ fill: 'green', shape: 'ring', text: 'JSON parsed: ' + node.commandText.length + " directive(s).", payload: '', dpt: '', devicename: '' });
       } else {
