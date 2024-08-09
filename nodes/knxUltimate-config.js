@@ -107,7 +107,7 @@ module.exports = (RED) => {
     // 15/12/2021
 
     // 05/12/2021 Set the protocol (this is undefined if coming from ild versions
-    if (config.hostProtocol === "Auto") {
+    if (node.hostProtocol === "Auto") {
       // Auto set protocol based on IP
       if (
         node.host.startsWith("224.") ||
