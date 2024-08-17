@@ -28,7 +28,9 @@
             formatmultiplyvalue: { value: 1 },
             formatnegativevalue: { value: "leave" },
             formatdecimalsvalue: { value: 999 },
-            passthrough: { value: "no" }
+            passthrough: { value: "no" },
+            outputFunctionCode: { value: "" },
+            inputFunctionCode: { value: "" }
         },
         inputs: 1,
         outputs: 1,
@@ -56,8 +58,6 @@
             var node = this;
             var oNodeServer = RED.nodes.node($("#node-input-server").val()); // Store the config-node
             $("#tabs").tabs();
-
-
 
             // 15/09/2020 Supergiovane, set the help sample based on Datapoint
             function knxUltimateDptsGetHelp(_dpt, _forceClose) {
@@ -92,6 +92,25 @@
                     })
                 }
             }
+
+
+            try {
+                node.outputFunctionCodeEditor.destroy();
+                delete node.outputFunctionCodeEditor;
+            } catch (error) {
+            }
+            node.outputFunctionCodeEditor = RED.editor.createEditor({
+                id: 'outputFunctionCode-editor',
+                mode: 'ace/mode/javascript',
+                value: node.outputFunctionCode
+            });//.renderer.setShowGutter(false);//A.setReadOnly(true).setShowPrintMargin(false);                    
+            node.inputFunctionCodeEditor = RED.editor.createEditor({
+                id: 'inputFunctionCode-editor',
+                mode: 'ace/mode/javascript',
+                value: node.inputFunctionCode
+            });//.renderer.setShowGutter(false);//A.setReadOnly(true).setShowPrintMargin(false);                    
+
+
 
             function checkUI() {
 
@@ -486,19 +505,17 @@
         </label>
         <!-- <div id="helpallga">Some Content Here</div> -->
     </div>
-
-
     <div id="tabs">
         <ul>
             <li><a href="#tabs-1"><i class="fa fa-braille"></i> Advanced options</a></li>
-            <li><a href="#tabs-2"><i class="fa fa-list-ol"></i> Format input</a></li>
-            <li><a href="#tabs-3"><i class="fa fa-code"></i> Payload Sample</a></li>
+            <li><a href="#tabs-2"><i class="fa fa-code"></i> KNX Function</a></li>
+            <li><a href="#tabs-3"><i class="fa fa-medkit"></i> Payload Sample</a></li>
         </ul>
         <div id="tabs-1">
             <div class="form-row" style="padding:10px">
                 <div class="form-row">
                     <dt>
-                        <i class="fa fa-arrow-right"></i> SEND msg to KNX BUS
+                        <i class="fa fa-arrow-right"></i>| SEND msg to KNX BUS
                     </dt>
                 </div>
                 <div class="form-row">
@@ -521,7 +538,7 @@
                         <option value="false">Disable</option>
                     </select>
                 </div>
-                <br />
+                <hr>
                 <div class="form-row">
                     <dt>
                         |<i class="fa fa-arrow-right"></i> RECEIVE msg from KNX BUS
@@ -569,7 +586,6 @@
                         <i class="fa fa-sign-in"></i> React to read telegrams
                     </label>
                 </div>
-
                 <div id="divnotifyreadrequestautoreact">
                     <dd>
                         <div class="form-row">
@@ -591,23 +607,17 @@
                         </div>
                     </dd>
                 </div>
-            </div>
-        </div>
-
-        <div id="tabs-2">
-            <div class="form-row" style="padding:10px">
                 <div class="form-row">
                     <dt>
                         <i class="fa fa-sort-numeric-asc"></i> Format numeric values coming from the KNX BUS
                     </dt>
                 </div>
-
                 <div class="form-row">
-                    <label style="width:30%" for="node-input-formatmultiplyvalue">
+                    <label style="width:180px" for="node-input-formatmultiplyvalue">
                         <i class="fa fa-calculator"></i>
                         <span data-i18n="knxUltimate.properties.node-input-formatmultiplyvalue"></span>
                     </label>
-                    <select style="width:65%" id="node-input-formatmultiplyvalue">
+                    <select id="node-input-formatmultiplyvalue">
                         <option value=1 data-i18n="knxUltimate.selectlists.Multiply_leave"></option>
                         <option value=0.001 data-i18n="knxUltimate.selectlists.Multiply_divide1000"></option>
                         <option value=0.01 data-i18n="knxUltimate.selectlists.Multiply_divide100"></option>
@@ -618,11 +628,11 @@
                     </select>
                 </div>
                 <div class="form-row">
-                    <label style="width:30%" for="node-input-formatdecimalsvalue">
+                    <label style="width:180px" for="node-input-formatdecimalsvalue">
                         <i class="fa fa-expand"></i>
                         <span data-i18n="knxUltimate.properties.node-input-formatdecimalsvalue"></span>
                     </label>
-                    <select style="width:65%" id="node-input-formatdecimalsvalue">
+                    <select id="node-input-formatdecimalsvalue">
                         <option value=999 data-i18n="knxUltimate.selectlists.Decimals_leave"></option>
                         <option value=0 data-i18n="knxUltimate.selectlists.Decimals_roundint"></option>
                         <option value=1 data-i18n="knxUltimate.selectlists.Decimals_round1"></option>
@@ -632,29 +642,49 @@
                     </select>
                 </div>
                 <div class="form-row">
-                    <label style="width:30%" for="node-input-formatnegativevalue">
+                    <label style="width:180px" for="node-input-formatnegativevalue">
                         <i class="fa fa-minus-circle"></i>
                         <span data-i18n="knxUltimate.properties.node-input-formatnegativevalue"></span>
                     </label>
-                    <select style="width:65%" id="node-input-formatnegativevalue">
+                    <select id="node-input-formatnegativevalue">
                         <option value="leave" data-i18n="knxUltimate.selectlists.Negatives_leave"></option>
                         <option value="zero" data-i18n="knxUltimate.selectlists.Negatives_zero"></option>
                         <option value="abs" data-i18n="knxUltimate.selectlists.Negatives_abs"></option>
                     </select>
                 </div>
             </div>
-
         </div>
+
+        <div id="tabs-2">
+            <div class="form-row" style="padding:10px">
+                <div class="form-row">
+                    <dt>
+                        <i class="fa fa-arrow-right"></i>| SEND msg to KNX BUS
+                    </dt>
+                </div>
+                <div style="height:200px;min-height:150px;padding:0px;">
+                    <div style="height:100%;width:100%;padding:0px;" class="node-text-editor"
+                        id="outputFunctionCode-editor"></div>
+                </div>
+                <hr>
+                <div class="form-row">
+                    <dt>
+                        |<i class="fa fa-arrow-right"></i> RECEIVE msg from KNX BUS
+                    </dt>
+                </div>
+                <div style="height:200px;min-height:150px;padding:0px;">
+                    <div style="height:100%;width:100%;padding:0px;" class="node-text-editor"
+                        id="inputFunctionCode-editor"></div>
+                </div>
+            </div>
+        </div>
+
         <div id="tabs-3">
             <div style="height:200px;min-height:150px;padding:0px;">
                 <div style="height:100%;width:100%;padding:0px;" class="node-text-editor" id="example-editor"></div>
             </div>
         </div>
     </div>
-
-
-
-
 </div>
 
 <div id="divDeployFirst">

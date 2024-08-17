@@ -4,6 +4,7 @@ module.exports = function (RED) {
   const _ = require('lodash');
   const KNXUtils = require('knxultimate');
   const payloadRounder = require('./utils/payloadManipulation');
+  const dptlib = require('knxultimate').dptlib;
 
   function knxUltimate(config) {
     RED.nodes.createNode(this, config);
@@ -119,7 +120,7 @@ module.exports = function (RED) {
     node.inputmessage = {}; // Stores the input message to be passed through
     node.timerTTLInputMessage = null; // The stored node.inputmessage has a ttl.
     node.sysLogger = require('./utils/sysLogger.js').get({ loglevel: node.server.loglevel || 'error' }); // 08/04/2021 new logger to adhere to the loglevel selected in the config-window
-
+    node.outputFunctionCode = config.outputFunctionCode || undefined;
 
     // Check if the node has a valid dpt
     if (node.listenallga === false) {
@@ -147,7 +148,47 @@ module.exports = function (RED) {
           node.inputmessage = {};
         }
       } catch (error) { }
-      node.send(msg);
+
+      // Inject the msg to the JS code, then output msg to the flow
+      // -+++++++++++++++++++++++++++++++++++++++++++
+      let getPayloadValueFromRaw = function getPayloadValueFromRaw(_rawValue, _dpt) {
+        try {
+          return dptlib.fromBuffer(_rawValue, dptlib.resolve(_dpt));
+        } catch (error) {
+          return error.stack;
+        }
+      }
+      let getGAValue = function getGAValue(ga = undefined, _dpt = undefined) {
+        try {
+          if (ga === undefined) return;
+          // Is there a GA in the server's exposedGAs?
+          const found = node.server.exposedGAs.find(a => a.ga === ga);
+          if (found !== undefined) {
+            if (_dpt === undefined && found.dpt === undefined) throw new Error('No CSV file imported. Please provide the dpt manually.');
+            return dptlib.fromBuffer(found.rawValue, dptlib.resolve(_dpt || found.dpt));
+          } else {
+            throw new Error('Group Address not yet read, try later.');
+          }
+        } catch (error) {
+          throw error;
+        }
+      }
+      if (node.outputFunctionCode !== undefined) {
+        try {
+          let outputFunction = new Function('msg', 'getGAValue', `
+          msg.banana=true;
+          msg.pera = getGAValue('0/0/10','1.001');
+        return msg;`)
+          msg = outputFunction(msg, getGAValue);
+
+        } catch (error) {
+          RED.log.error('knxUltimate: outputFunction: node ID:' + node.id + ' ' + error.message);
+          if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(`knxUltimate: outputFunction: node id ${node.id} ` || ' ' + error.stack);
+          return;
+        }
+      }
+      // -+++++++++++++++++++++++++++++++++++++++++++
+      if (msg !== undefined) node.send(msg);
     };
 
 
@@ -194,6 +235,8 @@ module.exports = function (RED) {
         node.timerTTLInputMessage = setTimeout(() => { node.inputmessage = {}; }, 3000);
         node.inputmessage = RED.util.cloneMessage(msg); // 28/03/2020 Store the message to be passed through.
       }
+
+
 
       // 25/07/2019 if payload is read or the Telegram type is set to "read", do a read, otherwise, write to the bus
       if ((msg.hasOwnProperty('readstatus') && msg.readstatus === true) || node.outputtype === 'read') {

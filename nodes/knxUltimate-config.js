@@ -790,8 +790,17 @@ module.exports = (RED) => {
       // 04/04/2021 Supergiovane: save value to node.exposedGAs
       if (typeof _dest === "string" && _rawValue !== undefined && (_evt === "GroupValue_Write" || _evt === "GroupValue_Response")) {
         try {
+          const ret = { ga: _dest, rawValue: _rawValue, dpt: undefined, devicename: undefined };
           node.exposedGAs = node.exposedGAs.filter((item) => item.ga !== _dest); // Remove previous
-          node.exposedGAs.push({ ga: _dest, rawValue: _rawValue }); // add the new
+          if (node.csv !== undefined && node.csv !== '' && node.csv.length !== 0) {
+            // Add the dpt
+            const found = node.csv.find(a => a.ga === _dest);
+            if (found !== undefined) {
+              ret.dpt = found.dpt;
+              ret.devicename = found.devicename;
+            }
+          }
+          node.exposedGAs.push(ret); // add the new
         } catch (error) { }
       }
 
