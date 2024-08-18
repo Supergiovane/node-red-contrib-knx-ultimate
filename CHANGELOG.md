@@ -6,6 +6,9 @@
 
 # CHANGELOG
 
+**Version 3.1.0** - August 2024<br/>
+- NEW: KNX Function code editor in the device node: you can now write you own script to handle inbound and outboud KNX messages.<br/>
+
 **Version 3.0.10** - August 2024<br/>
 - Warning: Node-Red version **equals or major than 3.1.1** is needed to run this node.<br/>
 - KNX Auto Responder node (BETA): fixed issue with unused saved values. Please be aware that until the node exits beta, there can be breaking changes.<br/>

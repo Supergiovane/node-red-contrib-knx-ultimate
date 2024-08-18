@@ -76,7 +76,7 @@
                                     id: 'example-editor',
                                     mode: 'ace/mode/javascript',
                                     value: data.help//this.exampleText
-                                }).renderer.setShowGutter(false);//A.setReadOnly(true).setShowPrintMargin(false);                    
+                                })//.renderer.setShowGutter(false);//A.setReadOnly(true).setShowPrintMargin(false);                    
                                 if (data.helplink !== "") $("#sampleCodeEditor").html("&nbsp<i class=\"fa fa-question-circle\"></i>&nbsp<a target=\"_blank\" href=\"" + data.helplink + "\"><u>Link example of " + _dpt + "</u></a>");
                             } else {
                                 // No help avaiable
@@ -84,7 +84,7 @@
                                     id: 'example-editor',
                                     mode: 'ace/mode/javascript',
                                     value: "Currently, no sample payload is avaiable, sorry."
-                                }).renderer.setShowGutter(false);//B.setReadOnly(true).setShowPrintMargin(false);
+                                })//.renderer.setShowGutter(false);//B.setReadOnly(true).setShowPrintMargin(false);
                                 if (data.helplink !== "") $("#sampleCodeEditor").html("&nbsp<i class=\"fa fa-question-circle\"></i>&nbsp<a target=\"_blank\" href=\"" + data.helplink + "\"><u>Link to wiki</u></a>");
                             }
                         } catch (error) {
@@ -93,24 +93,62 @@
                 }
             }
 
-
-            try {
-                node.outputFunctionCodeEditor.destroy();
-                delete node.outputFunctionCodeEditor;
-            } catch (error) {
-            }
             node.outputFunctionCodeEditor = RED.editor.createEditor({
                 id: 'outputFunctionCode-editor',
-                mode: 'ace/mode/javascript',
+                mode: 'ace/mode/nrjavascript',
                 value: node.outputFunctionCode
-            });//.renderer.setShowGutter(false);//A.setReadOnly(true).setShowPrintMargin(false);                    
+            });
             node.inputFunctionCodeEditor = RED.editor.createEditor({
                 id: 'inputFunctionCode-editor',
-                mode: 'ace/mode/javascript',
+                mode: 'ace/mode/nrjavascript',
                 value: node.inputFunctionCode
-            });//.renderer.setShowGutter(false);//A.setReadOnly(true).setShowPrintMargin(false);                    
-
-
+            });
+            // Snippets
+            $("#snippetOne").on("click", function (event) {
+                node.outputFunctionCodeEditor.session.setValue(`// @ts-nocheck
+// Replace 'x/x/x' with the real status group address.
+const statusGA = getGAValue('x/x/x','1.001');
+if (msg.payload !== statusGA){ // " !==" means " not equal"
+    return msg;
+ }else{
+// Both values are identical, so i don't send the msg. 
+    return; 
+}`);
+            });
+            $("#snippetTwo").on("click", function (event) {
+                node.inputFunctionCodeEditor.session.setValue(`// This is a sample of the msg received from the KNX BUS
+const inputMSG = {
+    topic: '0/0/10',
+        devicename: 'Plafoniera soggiorno [switch]',
+            payload: false,
+                payloadmeasureunit: 'unknown',
+                    payloadsubtypevalue: 'Off',
+                        gainfo: {
+        maingroupname: 'Attuatori luci',
+            middlegroupname: 'Luci primo piano',
+                ganame: 'Plafoniera soggiorno [switch]',
+                    maingroupnumber: '0',
+                        middlegroupnumber: '0',
+                            ganumber: '10'
+    },
+    knx: {
+        event: 'GroupValue_Write',
+            dpt: '1.001',
+                dptdesc: 'Switch',
+                    source: '15.15.22',
+                        destination: '0/0/10',
+                            rawValue: 'bufferValue'
+  },
+    previouspayload: false
+}
+return msg`);
+            });
+            $("#snippetThree").on("click", function (event) {
+                node.inputFunctionCodeEditor.session.setValue(`// @ts-nocheck
+// The current msg contains the internal temperature in the "msg.payload" property, but we want to emit the external temperature as well.
+msg.externalTemperature = getGAValue('0/0/10'); // In case the ETS file is missing, you must specify the dpt as well: getGAValue('0/0/10','9.001')
+return msg;`);
+            });
 
             function checkUI() {
 
@@ -371,7 +409,8 @@
         },
         oneditsave: function () {
             var node = this;
-
+            this.outputFunctionCode = this.outputFunctionCodeEditor.getValue();
+            this.inputFunctionCode = this.inputFunctionCodeEditor.getValue();
             //this.propertyType = $("#node-input-property").typedInput('type');
 
             // 19/02/2020 Warn user that the node will node encode/decode datagram, if Listen All GA's if the config node doesn't contain the csv
@@ -397,14 +436,18 @@
                 // $("#GAandDPT").show()
                 // $("#divOutputRBE").show()
                 // $("#divInputRBE").show()
-                $("#helpallga").show()
+                //$("#helpallga").show()
             }
 
             // 15/09/2020 Supergiovane, Detele the sample help editor
             try {
                 node.sampleEditor.destroy();
-                RED.editor.destroy(); // 23/01/2024 added
                 delete node.sampleEditor;
+                node.outputFunctionCodeEditor.destroy();
+                delete node.outputFunctionCodeEditor;
+                node.inputFunctionCodeEditor.destroy();
+                delete node.inputFunctionCodeEditor;
+                //RED.editor.destroy(); // 23/01/2024 added  
             } catch (error) { }
 
         },
@@ -412,8 +455,12 @@
             // 15/09/2020 Supergiovane, Detele the sample help editor
             try {
                 node.sampleEditor.destroy();
-                RED.editor.destroy(); // 23/01/2024 added
                 delete node.sampleEditor;
+                node.outputFunctionCodeEditor.destroy();
+                delete node.outputFunctionCodeEditor;
+                node.inputFunctionCodeEditor.destroy();
+                delete node.inputFunctionCodeEditor;
+                RED.editor.destroy(); // 23/01/2024 added  
             } catch (error) { }
         }
     })
@@ -508,7 +555,7 @@
     <div id="tabs">
         <ul>
             <li><a href="#tabs-1"><i class="fa fa-braille"></i> Advanced options</a></li>
-            <li><a href="#tabs-2"><i class="fa fa-code"></i> KNX Function</a></li>
+            <li><a href="#tabs-2"><i class="fa fa-code"></i> KNX Function (BETA)</a></li>
             <li><a href="#tabs-3"><i class="fa fa-medkit"></i> Payload Sample</a></li>
         </ul>
         <div id="tabs-1">
@@ -666,6 +713,8 @@
                     <div style="height:100%;width:100%;padding:0px;" class="node-text-editor"
                         id="outputFunctionCode-editor"></div>
                 </div>
+                <i class="fa fa-code"></i> Select a snippet to be inserted<br />
+                <button type="button" id="snippetOne" class="red-ui-button">Status GA check</button>
                 <hr>
                 <div class="form-row">
                     <dt>
@@ -676,6 +725,10 @@
                     <div style="height:100%;width:100%;padding:0px;" class="node-text-editor"
                         id="inputFunctionCode-editor"></div>
                 </div>
+                <i class="fa fa-code"></i> Select a snippet to be inserted<br />
+                <button type="button" id="snippetTwo" class="red-ui-button">Show msg constructor</button>
+                <button type="button" id="snippetThree" class="red-ui-button">Add property to msg</button>
+
             </div>
         </div>
 
@@ -711,6 +764,8 @@
 | Passthrough | If set, you can pass the input mgs to the output msg. |
 | Universal mode (listen to all Group Addresses) | By setting this, the node will read and control ALL group addresses. |
 
+<br/>
+<br/>
 
 **Advanced options**
 |Property|Description|
@@ -724,20 +779,76 @@
 | React to write telegrams | The node will react (will send a msg to the flow) each time it receives a *write* telegram from the KNX bus. Usually, you want that. |
 | React to response telegrams | The node will react (will send a msg to the flow) each time it receives a *response* telegram from the KNX bus. Usually, you want that for particular scenarios. |
 | React to read telegrams | The node will react (will send a msg to the flow) each time it receives a *read* telegram from the KNX bus. Usually, you want that if you're want to send a custom value to the KNX BUS. |
+| Multiply | Multiplies or divides the payload value. Works only if the value is a number. |
+| Decimals | Round or handle decimals in any way. Works only if the value is a number. |
+| Negatives | Handles the negative values. Works only if the value is a number. |
 
+<br/>
+<br/>
 
-**Format input**
-|Property|Description|
-|--|--|
-| Multiply | Multiplies or divides the payload value |
-| Decimals | Round or handle decimals in any way |
-| Negatives | Handles the negative values |
+**KNX Function**
+
+You can use Javascript to modify the behaviour of the input msg coming from the flow and the output telegram sent to the KNX bus.  
+The embedded code editor provides useful objects and functions to retrieve the value of all group addresses, both with the imported ETS file and without (specifying the datapoint).  
+The script is called everytime the node receives a msg from the flow or a telegram from the KNX BUS.
+
+### SEND msg to KNX BUS
+
+List of object and functions you can use in the code
+
+: msg (object) : The current msg object received by the node from the flow. 
+: getGAValue (GA as string, DPT as string) : Function. Get the specified GA's value, for example '1/0/1'. **DPT** is optional if you've imported the ETS file, otherwise you must specify it, for example '1.001'. 
+: return (msg) : Mandatory `return msg;`, if you want to emit the msg to the KNX BUS. Otherwise, using `return;` will not emit any message. 
+
+In this sample, we'll send the input msg to the KNX BUS only if another GA has opposite value.  
+We'll turn on the light only if it's status GA is off, and vice versa. 
+```javascript
+const statusGA = getGAValue('0/0/09','1.001');
+if (msg.payload !== statusGA){ // "!==" means "not equal"
+    return msg;
+}else{
+    // Both values are identical, so i don't send the msg.
+    return;
+}
+```
+
+### RECEIVE msg from KNX BUS
+
+List of object and functions you can use in the code
+
+: msg (object) : The current msg object received by the node from the KNX BUS. 
+: getGAValue (GA as string, DPT as string) : Function. Get the specified GA's value, for example '1/0/1'. **DPT** is optional if you've imported the ETS file, otherwise you must specify it, for example '1.001'. 
+: return (msg) : Mandatory `return msg;`, if you want to emit the msg to the flow. Otherwise, using `return;` will not emit any message. 
+
+In this sample, we'll emit the msg object to the flow, by appending the value of another GA to the output msg.  
+The ouput msg to the flow will have also the external temp in the property `msg.externalTemperature`  
+```javascript
+// The current msg contains the internal temperature in the "msg.payload" property, but we want to emit the external temperature as well.
+msg.externalTemperature = getGAValue('0/0/10'); // In case the ETS file is missing, you must specify the dpt as well: getGAValue('0/0/10','9.001')
+return msg;
+```
+
+In this other sample, we'll not emit a msg to the flow, in case msg.payload and another GA value are both false.  
+```javascript
+if (msg.payload === false && getGAValue('0/0/11','1.001') === false){
+    // Both false, don't emit the msg to the flow.
+    return;
+}else{
+    // Ok, emit it.
+    return msg;
+}
+```
+
+<br/>
+<br/>
 
 **Payload sample**
 |Property|Description|
 |--|--|
-| Sample | This will give it a hint on what to write in a function, if you want to control the node via a Node-Red function node. |
+| Sample | This will give it a hint on what to write in an external function node, if you want to control the node via a Node-Red function node. |
 
+<br/>
+<br/>
 <br/>
 
 ### Inputs
