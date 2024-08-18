@@ -2,6 +2,7 @@
 
 
 <script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/htmlUtils.js"></script>
+<script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/KNXFunctionCodeSnippets.js"></script>
 
 <script type="text/javascript">
     RED.nodes.registerType('knxUltimate', {
@@ -36,7 +37,9 @@
         outputs: 1,
         icon: "node-knx-icon.svg",
         label: function () {
-            return ((this.outputRBE === "true" || this.outputRBE === true) ? "|rbe| " : "") + (this.name || this.topic || "KNX Device") + (this.setTopicType === 'str' || this.setTopicType === undefined ? '' : ' [' + this.setTopicType + ']') + ((this.inputRBE === "true" || this.inputRBE === true) ? " |rbe|" : "")
+            const functionSendMsgToKNXCode = (this.sendMsgToKNXCode !== undefined && this.sendMsgToKNXCode !== '') ? "f(x) " : "";
+            const functionreceiveMsgFromKNXCode = (this.receiveMsgFromKNXCode !== undefined && this.receiveMsgFromKNXCode !== '') ? " f(x)" : "";
+            return ((this.outputRBE === "true" || this.outputRBE === true) ? "|rbe| " : "") + functionSendMsgToKNXCode + (this.name || this.topic || "KNX Device") + (this.setTopicType === 'str' || this.setTopicType === undefined ? '' : ' [' + this.setTopicType + ']') + functionreceiveMsgFromKNXCode + ((this.inputRBE === "true" || this.inputRBE === true) ? " |rbe|" : "")
         },
         paletteLabel: "KNX DEVICE",
         // button: {
@@ -105,49 +108,13 @@
             });
             // Snippets
             $("#snippetOne").on("click", function (event) {
-                node.sendMsgToKNXCodeEditor.session.setValue(`// @ts-nocheck
-// Replace 'x/x/x' with the real status group address.
-const statusGA = getGAValue('x/x/x','1.001');
-if (msg.payload !== statusGA){ // " !==" means " not equal"
-    return msg;
- }else{
-// Both values are identical, so i don't send the msg. 
-    return; 
-}`);
+                node.sendMsgToKNXCodeEditor.session.setValue(KNXFunctionSnippetOne);
             });
             $("#snippetTwo").on("click", function (event) {
-                node.receiveMsgFromKNXCodeEditor.session.setValue(`// This is a sample of the msg received from the KNX BUS
-const inputMSG = {
-    topic: '0/0/10',
-        devicename: 'Plafoniera soggiorno [switch]',
-            payload: false,
-                payloadmeasureunit: 'unknown',
-                    payloadsubtypevalue: 'Off',
-                        gainfo: {
-        maingroupname: 'Attuatori luci',
-            middlegroupname: 'Luci primo piano',
-                ganame: 'Plafoniera soggiorno [switch]',
-                    maingroupnumber: '0',
-                        middlegroupnumber: '0',
-                            ganumber: '10'
-    },
-    knx: {
-        event: 'GroupValue_Write',
-            dpt: '1.001',
-                dptdesc: 'Switch',
-                    source: '15.15.22',
-                        destination: '0/0/10',
-                            rawValue: 'bufferValue'
-  },
-    previouspayload: false
-}
-return msg`);
+                node.receiveMsgFromKNXCodeEditor.session.setValue(KNXFunctionSnippetTwo);
             });
             $("#snippetThree").on("click", function (event) {
-                node.receiveMsgFromKNXCodeEditor.session.setValue(`// @ts-nocheck
-// The current msg contains the internal temperature in the "msg.payload" property, but we want to emit the external temperature as well.
-msg.externalTemperature = getGAValue('0/0/10'); // In case the ETS file is missing, you must specify the dpt as well: getGAValue('0/0/10','9.001')
-return msg;`);
+                node.receiveMsgFromKNXCodeEditor.session.setValue(KNXFunctionSnippetThree);
             });
 
             function checkUI() {
@@ -562,7 +529,7 @@ return msg;`);
             <div class="form-row" style="padding:10px">
                 <div class="form-row">
                     <dt>
-                        <i class="fa fa-arrow-right"></i>| SEND msg to KNX BUS
+                        <i class="fa fa-arrow-right"></i>| From node's INPUT PIN to KNX BUS
                     </dt>
                 </div>
                 <div class="form-row">
@@ -588,7 +555,7 @@ return msg;`);
                 <hr>
                 <div class="form-row">
                     <dt>
-                        |<i class="fa fa-arrow-right"></i> RECEIVE msg from KNX BUS
+                        |<i class="fa fa-arrow-right"></i> From KNX BUS to node's ouput PIN
                     </dt>
                 </div>
                 <div class="form-row" id="divNode-input-initialread">
@@ -706,7 +673,7 @@ return msg;`);
             <div class="form-row" style="padding:10px">
                 <div class="form-row">
                     <dt>
-                        <i class="fa fa-arrow-right"></i>| SEND msg to KNX BUS
+                        <i class="fa fa-arrow-right"></i>| From node's INPUT PIN to KNX BUS
                     </dt>
                 </div>
                 <div style="height:200px;min-height:150px;padding:0px;">
@@ -718,7 +685,7 @@ return msg;`);
                 <hr>
                 <div class="form-row">
                     <dt>
-                        |<i class="fa fa-arrow-right"></i> RECEIVE msg from KNX BUS
+                        |<i class="fa fa-arrow-right"></i> From KNX BUS to node's OUTPUT PIN
                     </dt>
                 </div>
                 <div style="height:200px;min-height:150px;padding:0px;">
@@ -770,12 +737,12 @@ return msg;`);
 **Advanced options**
 |Property|Description|
 |--|--|
-||**SEND msg to KNX BUS**|
+||**From node's INPUT PIN to KNX BUS**|
 | Telegram type | *write* to send write telegram (usually, you want that), otherwise you can choose the telegram's type to react to. |
-| RBE filter (in the CONTROL section) | *Report by change* filter. If set, only the msg input (from the Flow) having different values each time, will be sent to the KNX bus. If you intend to send everytime the same value, turn it off. |
-||**RECEIVE msg from KNX BUS**|
+| RBE filter | *Report by change* filter. If set, only the msg input (from the Flow) having different values each time, will be sent to the KNX bus. If you intend to send everytime the same value, turn it off. If enabled, "rbe" indication will be added to node's name.|
+||**From KNX BUS to node's ouput PIN**|
 | Read status on start | Read group address status, every time Node-Red starts and at every reconnection to the KNX Gateway. The node stores all group address values to a file, so you can choose wether to read from file or from the KNX bus. |
-| RBE filter (in the STATUS section)| *Report by change* filter. If set, only the msg output (to KNX bus) having different values each time, will be sent to the msg output's flow. If you intend to send everytime the same value, leave it off. |
+| RBE filter | *Report by change* filter. If set, only the msg output (to KNX bus) having different values each time, will be sent to the msg output's flow. If you intend to send everytime the same value, leave it off.  If enabled, "rbe" indication will be added to node's name. |
 | React to write telegrams | The node will react (will send a msg to the flow) each time it receives a *write* telegram from the KNX bus. Usually, you want that. |
 | React to response telegrams | The node will react (will send a msg to the flow) each time it receives a *response* telegram from the KNX bus. Usually, you want that for particular scenarios. |
 | React to read telegrams | The node will react (will send a msg to the flow) each time it receives a *read* telegram from the KNX bus. Usually, you want that if you're want to send a custom value to the KNX BUS. |
@@ -790,9 +757,10 @@ return msg;`);
 
 You can use Javascript to modify the behaviour of the input msg coming from the flow and the output telegram sent to the KNX bus.  
 The embedded code editor provides useful objects and functions to retrieve the value of all group addresses, both with the imported ETS file and without (specifying the datapoint).  
-The script is called everytime the node receives a msg from the flow or a telegram from the KNX BUS.
+The script is called everytime the node receives a msg from the flow or a telegram from the KNX BUS.  
+If enabled, "f(x)" indication will be added to node's name.
 
-### SEND msg to KNX BUS
+### From KNX BUS to node's OUTPUT PIN
 
 List of object and functions you can use in the code
 
@@ -814,7 +782,7 @@ if (msg.payload !== statusGA){ // "!==" means "not equal"
 }
 ```
 
-### RECEIVE msg from KNX BUS
+### From KNX BUS to node's ouput PIN
 
 List of object and functions you can use in the code
 
