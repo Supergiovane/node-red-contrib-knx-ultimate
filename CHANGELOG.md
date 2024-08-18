@@ -6,6 +6,9 @@
 
 # CHANGELOG
 
+**Version 3.1.1** - August 2024<br/>
+- NEW: KNX Function code editor in the device node: you can now write you own script to handle inbound and outboud KNX messages. Added "node" and "RED" object to the function's context. CAUTION, KNX FUNCTION IS STILL IN BETA AND SUBJECT TO CHANGES.<br/>
+
 **Version 3.1.0** - August 2024<br/>
 - NEW: KNX Function code editor in the device node: you can now write you own script to handle inbound and outboud KNX messages.<br/>
 

@@ -29,8 +29,8 @@
             formatnegativevalue: { value: "leave" },
             formatdecimalsvalue: { value: 999 },
             passthrough: { value: "no" },
-            outputFunctionCode: { value: "" },
-            inputFunctionCode: { value: "" }
+            sendMsgToKNXCode: { value: "" },
+            receiveMsgFromKNXCode: { value: "" }
         },
         inputs: 1,
         outputs: 1,
@@ -93,19 +93,19 @@
                 }
             }
 
-            node.outputFunctionCodeEditor = RED.editor.createEditor({
-                id: 'outputFunctionCode-editor',
+            node.sendMsgToKNXCodeEditor = RED.editor.createEditor({
+                id: 'sendMsgToKNXCode-editor',
                 mode: 'ace/mode/nrjavascript',
-                value: node.outputFunctionCode
+                value: node.sendMsgToKNXCode
             });
-            node.inputFunctionCodeEditor = RED.editor.createEditor({
-                id: 'inputFunctionCode-editor',
+            node.receiveMsgFromKNXCodeEditor = RED.editor.createEditor({
+                id: 'receiveMsgFromKNXCode-editor',
                 mode: 'ace/mode/nrjavascript',
-                value: node.inputFunctionCode
+                value: node.receiveMsgFromKNXCode
             });
             // Snippets
             $("#snippetOne").on("click", function (event) {
-                node.outputFunctionCodeEditor.session.setValue(`// @ts-nocheck
+                node.sendMsgToKNXCodeEditor.session.setValue(`// @ts-nocheck
 // Replace 'x/x/x' with the real status group address.
 const statusGA = getGAValue('x/x/x','1.001');
 if (msg.payload !== statusGA){ // " !==" means " not equal"
@@ -116,7 +116,7 @@ if (msg.payload !== statusGA){ // " !==" means " not equal"
 }`);
             });
             $("#snippetTwo").on("click", function (event) {
-                node.inputFunctionCodeEditor.session.setValue(`// This is a sample of the msg received from the KNX BUS
+                node.receiveMsgFromKNXCodeEditor.session.setValue(`// This is a sample of the msg received from the KNX BUS
 const inputMSG = {
     topic: '0/0/10',
         devicename: 'Plafoniera soggiorno [switch]',
@@ -144,7 +144,7 @@ const inputMSG = {
 return msg`);
             });
             $("#snippetThree").on("click", function (event) {
-                node.inputFunctionCodeEditor.session.setValue(`// @ts-nocheck
+                node.receiveMsgFromKNXCodeEditor.session.setValue(`// @ts-nocheck
 // The current msg contains the internal temperature in the "msg.payload" property, but we want to emit the external temperature as well.
 msg.externalTemperature = getGAValue('0/0/10'); // In case the ETS file is missing, you must specify the dpt as well: getGAValue('0/0/10','9.001')
 return msg;`);
@@ -409,8 +409,8 @@ return msg;`);
         },
         oneditsave: function () {
             var node = this;
-            this.outputFunctionCode = this.outputFunctionCodeEditor.getValue();
-            this.inputFunctionCode = this.inputFunctionCodeEditor.getValue();
+            this.sendMsgToKNXCode = this.sendMsgToKNXCodeEditor.getValue();
+            this.receiveMsgFromKNXCode = this.receiveMsgFromKNXCodeEditor.getValue();
             //this.propertyType = $("#node-input-property").typedInput('type');
 
             // 19/02/2020 Warn user that the node will node encode/decode datagram, if Listen All GA's if the config node doesn't contain the csv
@@ -443,10 +443,10 @@ return msg;`);
             try {
                 node.sampleEditor.destroy();
                 delete node.sampleEditor;
-                node.outputFunctionCodeEditor.destroy();
-                delete node.outputFunctionCodeEditor;
-                node.inputFunctionCodeEditor.destroy();
-                delete node.inputFunctionCodeEditor;
+                node.sendMsgToKNXCodeEditor.destroy();
+                delete node.sendMsgToKNXCodeEditor;
+                node.receiveMsgFromKNXCodeEditor.destroy();
+                delete node.receiveMsgFromKNXCodeEditor;
                 //RED.editor.destroy(); // 23/01/2024 added  
             } catch (error) { }
 
@@ -456,10 +456,10 @@ return msg;`);
             try {
                 node.sampleEditor.destroy();
                 delete node.sampleEditor;
-                node.outputFunctionCodeEditor.destroy();
-                delete node.outputFunctionCodeEditor;
-                node.inputFunctionCodeEditor.destroy();
-                delete node.inputFunctionCodeEditor;
+                node.sendMsgToKNXCodeEditor.destroy();
+                delete node.sendMsgToKNXCodeEditor;
+                node.receiveMsgFromKNXCodeEditor.destroy();
+                delete node.receiveMsgFromKNXCodeEditor;
                 RED.editor.destroy(); // 23/01/2024 added  
             } catch (error) { }
         }
@@ -711,7 +711,7 @@ return msg;`);
                 </div>
                 <div style="height:200px;min-height:150px;padding:0px;">
                     <div style="height:100%;width:100%;padding:0px;" class="node-text-editor"
-                        id="outputFunctionCode-editor"></div>
+                        id="sendMsgToKNXCode-editor"></div>
                 </div>
                 <i class="fa fa-code"></i> Select a snippet to be inserted<br />
                 <button type="button" id="snippetOne" class="red-ui-button">Status GA check</button>
@@ -723,7 +723,7 @@ return msg;`);
                 </div>
                 <div style="height:200px;min-height:150px;padding:0px;">
                     <div style="height:100%;width:100%;padding:0px;" class="node-text-editor"
-                        id="inputFunctionCode-editor"></div>
+                        id="receiveMsgFromKNXCode-editor"></div>
                 </div>
                 <i class="fa fa-code"></i> Select a snippet to be inserted<br />
                 <button type="button" id="snippetTwo" class="red-ui-button">Show msg constructor</button>
@@ -798,6 +798,8 @@ List of object and functions you can use in the code
 
 : msg (object) : The current msg object received by the node from the flow. 
 : getGAValue (GA as string, DPT as string) : Function. Get the specified GA's value, for example '1/0/1'. **DPT** is optional if you've imported the ETS file, otherwise you must specify it, for example '1.001'. 
+: node (object) : The node object.
+: RED (Node-Red object) : The Node-Red's RED object.
 : return (msg) : Mandatory `return msg;`, if you want to emit the msg to the KNX BUS. Otherwise, using `return;` will not emit any message. 
 
 In this sample, we'll send the input msg to the KNX BUS only if another GA has opposite value.  
@@ -818,6 +820,8 @@ List of object and functions you can use in the code
 
 : msg (object) : The current msg object received by the node from the KNX BUS. 
 : getGAValue (GA as string, DPT as string) : Function. Get the specified GA's value, for example '1/0/1'. **DPT** is optional if you've imported the ETS file, otherwise you must specify it, for example '1.001'. 
+: node (object) : The node object.
+: RED (Node-Red object) : The Node-Red's RED object.
 : return (msg) : Mandatory `return msg;`, if you want to emit the msg to the flow. Otherwise, using `return;` will not emit any message. 
 
 In this sample, we'll emit the msg object to the flow, by appending the value of another GA to the output msg.  

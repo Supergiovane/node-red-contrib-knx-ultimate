@@ -120,10 +120,10 @@ module.exports = function (RED) {
     node.inputmessage = {}; // Stores the input message to be passed through
     node.timerTTLInputMessage = null; // The stored node.inputmessage has a ttl.
     node.sysLogger = require('./utils/sysLogger.js').get({ loglevel: node.server.loglevel || 'error' }); // 08/04/2021 new logger to adhere to the loglevel selected in the config-window
-    node.outputFunctionCode = config.outputFunctionCode || undefined;
-    node.inputFunctionCode = config.inputFunctionCode || undefined;
-    if (node.outputFunctionCode === '') node.outputFunctionCode = undefined
-    if (node.inputFunctionCode === '') node.inputFunctionCode = undefined
+    node.sendMsgToKNXCode = config.sendMsgToKNXCode || undefined;
+    node.receiveMsgFromKNXCode = config.receiveMsgFromKNXCode || undefined;
+    if (node.sendMsgToKNXCode === '') node.sendMsgToKNXCode = undefined
+    if (node.receiveMsgFromKNXCode === '') node.receiveMsgFromKNXCode = undefined
 
     // Check if the node has a valid dpt
     if (node.listenallga === false) {
@@ -171,13 +171,13 @@ module.exports = function (RED) {
 
       // #region "Inject the msg to the JS code, then output msg to the flow"
       // -+++++++++++++++++++++++++++++++++++++++++++
-      if (node.outputFunctionCode !== undefined) {
+      if (node.receiveMsgFromKNXCode !== undefined) {
         try {
-          let outputFunction = new Function('msg', 'getGAValue', node.outputFunctionCode)
-          msg = outputFunction(msg, getGAValue);
+          let receiveMsgFromKNXCode = new Function('msg', 'getGAValue', 'node', 'RED', node.receiveMsgFromKNXCode)
+          msg = receiveMsgFromKNXCode(msg, getGAValue, node, RED);
         } catch (error) {
-          RED.log.error('knxUltimate: outputFunction: node ID:' + node.id + ' ' + error.message);
-          if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(`knxUltimate: outputFunction: node id ${node.id} ` || ' ' + error.stack);
+          RED.log.error('knxUltimate: receiveMsgFromKNXCode: node ID:' + node.id + ' ' + error.message);
+          if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(`knxUltimate: receiveMsgFromKNXCode: node id ${node.id} ` || ' ' + error.stack);
           return;
         }
       }
@@ -234,14 +234,14 @@ module.exports = function (RED) {
 
       // #region "Inject the msg to the JS code, then output msg to the flow"
       // -+++++++++++++++++++++++++++++++++++++++++++
-      if (node.inputFunctionCode !== undefined) {
+      if (node.sendMsgToKNXCode !== undefined) {
         try {
-          let inputFunction = new Function('msg', 'getGAValue', node.inputFunctionCode)
-          msg = inputFunction(msg, getGAValue);
+          let sendMsgToKNXCode = new Function('msg', 'getGAValue', 'node', 'RED', node.sendMsgToKNXCode)
+          msg = sendMsgToKNXCode(msg, getGAValue, node, RED);
           if (msg === undefined) return;
         } catch (error) {
-          RED.log.error('knxUltimate: inputFunction: node ID:' + node.id + ' ' + error.message);
-          if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(`knxUltimate: inputFunction: node id ${node.id} ` || ' ' + error.stack);
+          RED.log.error('knxUltimate: sendMsgToKNXCode: node ID:' + node.id + ' ' + error.message);
+          if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(`knxUltimate: sendMsgToKNXCode: node id ${node.id} ` || ' ' + error.stack);
           return;
         }
       }
