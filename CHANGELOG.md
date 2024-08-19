@@ -6,6 +6,10 @@
 
 # CHANGELOG
 
+**Version 3.1.5** - August 2024<br/>
+- KNX Node: fixed some UI glitches while switching from universal mode to 3-level group Group Address.<br/>
+- KNX Function code editor: exited BETA.<br/>
+
 **Version 3.1.4** - August 2024<br/>
 - KNX Node: added a group address search helper in the KNX Function TAB.<br/>
 - Updated documentation.<br/>
