@@ -39,5 +39,5 @@ return msg`;
 
 const KNXFunctionSnippetThree = `// @ts-nocheck
 // The current msg contains the internal temperature in the "msg.payload" property, but we want to emit the external temperature as well.
-msg.externalTemperature = getGAValue('0/0/10'); // In case the ETS file is missing, you must specify the dpt as well: getGAValue('0/0/10','9.001')
+msg.externalTemperature = getGAValue('0/0/10 Garden temperature sensor'); // In case the ETS file is missing, you must specify the dpt as well: getGAValue('0/0/10','9.001')
 return msg;`;

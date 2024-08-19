@@ -156,11 +156,14 @@
                     try {
                         if (typeof oNodeServer.csv !== "undefined" && oNodeServer.csv !== "") {
                             $("#isETSFileLoaded").val("si");
+                            $("#divknxFunctionHelperGAList").show();
                         } else {
                             $("#isETSFileLoaded").val("no");
+                            $("#divknxFunctionHelperGAList").hide();
                         }
                     } catch (error) {
                         $("#isETSFileLoaded").val("no");
+                        $("#divknxFunctionHelperGAList").hide();
                     }
                     if (oNodeServer.knxSecureSelected) {
                         $("#divknxsecure").show();
@@ -212,16 +215,37 @@
                         node.setTopicType = 'str';
                         $("#node-input-setTopicType").val('str');
                     }
-                    // $("#node-input-topic").typedInput(
-                    //     {
-                    //         default: node.setTopicType || 'str',
-                    //         types: [{ value: 'str', label: "str", icon: 'red/images/typedInput/az.svg', autocomplete: autoCompleteGA }, 'flow', 'global', 'env'],
-                    //         typeField: "#node-input-setTopicType"
-                    //     });
-                    // var autoCompleteGA = function () {
-                    //     alert(value)
-                    //     return [{ value: "Ciso", label: "maso" }]
-                    // }
+
+                    // KNX Function helper: search for a GA and devicename
+                    // ----------------------------------------------------------
+                    try {
+                        $("#node-input-knxFunctionHelperGAList").autocomplete('destroy');
+                        $("#node-input-knxFunctionHelperGAList").removeClass(); // Rimuove eventuali classi aggiunte dall'autocompletamento  
+                    } catch (error) { }
+                    $("#node-input-knxFunctionHelperGAList").off(); // Rimuovi tutti gli eventi associati
+                    $("#node-input-knxFunctionHelperGAList").val(''); // Pulisce il valore del campo di input, se necessario
+                    $("#node-input-knxFunctionHelperGAList").autocomplete({
+                        minLength: 0,
+                        source: function (request, response) {
+                            $.getJSON("knxUltimatecsv?nodeID=" + oNodeServer.id + "&" + { _: new Date().getTime() }, (data) => {
+                                response($.map(data, function (value, key) {
+                                    var sSearch = (value.ga + " (" + value.devicename + ") DPT" + value.dpt);
+                                    if (htmlUtilsfullCSVSearch(sSearch, request.term)) {
+                                        return {
+                                            label: value.ga + " # " + value.devicename + " # " + value.dpt, // Label for Display
+                                            value: value.ga + " " + value.devicename // Value
+                                        }
+                                    } else {
+                                        return null;
+                                    }
+                                }));
+                            });
+                        }, select: function (event, ui) {
+                        }
+                    }).focus(function () {
+                        $(this).autocomplete('search', $(this).val() + 'exactmatch');
+                    });
+                    // ----------------------------------------------------------
 
 
                     $("#node-input-setTopicType").on('change', function () {
@@ -693,6 +717,15 @@
 
         <div id="tabs-2">
             <div class="form-row" style="padding:10px">
+
+                <div class="form-row" id="divknxFunctionHelperGAList">
+                    <label for="node-input-knxFunctionHelperGAList">
+                        <i class="fa fa-search"></i> Search GA
+                    </label>
+                    <input type="text" id="node-input-knxFunctionHelperGAList" placeholder="Start typing to search" />
+                </div>
+
+
                 <div class="form-row">
                     <dt>
                         <i class="fa fa-arrow-right"></i>| From node's INPUT PIN to KNX BUS
@@ -782,12 +815,18 @@ The embedded code editor provides useful objects and functions to retrieve the v
 The script is called everytime the node receives a msg from the flow or a telegram from the KNX BUS.  
 If enabled, "f(x)" indication will be added to node's name.
 
+|Property|Description|
+|--|--|
+| Search GA | It's a helper only avaiable if the ETS file has been imported. Start typing and select the group address you wish to add to the code. Then copy the full field and paste it into the getGAValue function. <br/> **getGAValue('0/0/1 table nord lamp')** |
+
+<br/>
+
 ### From KNX BUS to node's OUTPUT PIN
 
 List of object and functions you can use in the code
 
 : msg (object) : The current msg object received by the node from the flow. 
-: getGAValue (GA as string, DPT as string) : Function. Get the specified GA's value, for example '1/0/1'. **DPT** is optional if you've imported the ETS file, otherwise you must specify it, for example '1.001'. 
+: getGAValue (string GA , optional string DPT) : The function to get the specified GA's value, for example **'1/0/1'**, or also **'1/0/1 Bed table light'** (All text after a blank space will be ignored by the function. This is useful if you want to add the GA name as a reminder. With the ETS file imported, you can also copy and paste the GA and GA Name directly from the **Search GA** field.). **DPT** is optional if you've imported the ETS file, otherwise you must specify it, for example '1.001'. 
 : node (object) : The node object.
 : RED (Node-Red object) : The Node-Red's RED object.
 : return (msg) : Mandatory `return msg;`, if you want to emit the msg to the KNX BUS. Otherwise, using `return;` will not emit any message. 
@@ -809,7 +848,7 @@ if (msg.payload !== statusGA){ // "!==" means "not equal"
 List of object and functions you can use in the code
 
 : msg (object) : The current msg object received by the node from the KNX BUS. 
-: getGAValue (GA as string, DPT as string) : Function. Get the specified GA's value, for example '1/0/1'. **DPT** is optional if you've imported the ETS file, otherwise you must specify it, for example '1.001'. 
+: getGAValue (string GA , optional string DPT) : The function to get the specified GA's value, for example **'1/0/1'**, or also **'1/0/1 Bed table light'** (All text after a blank space will be ignored by the function. This is useful if you want to add the GA name as a reminder. With the ETS file imported, you can also copy and paste the GA and GA Name directly from the **Search GA** field.). **DPT** is optional if you've imported the ETS file, otherwise you must specify it, for example '1.001'. 
 : node (object) : The node object.
 : RED (Node-Red object) : The Node-Red's RED object.
 : return (msg) : Mandatory `return msg;`, if you want to emit the msg to the flow. Otherwise, using `return;` will not emit any message. 

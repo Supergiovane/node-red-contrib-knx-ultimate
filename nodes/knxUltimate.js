@@ -136,11 +136,15 @@ module.exports = function (RED) {
     }
 
     // Used in the KNX Function TAB
-    let getGAValue = function getGAValue(ga = undefined, _dpt = undefined) {
+    let getGAValue = function getGAValue(_ga = undefined, _dpt = undefined) {
       try {
-        if (ga === undefined) return;
+        if (_ga === undefined) return;
+        // The GA can have the devicename as well, separated by a blank space (1/1/0 light table ovest),
+        // I must take the GA only
+        const blankSpacePosition = _ga.indexOf(" ");
+        if (blankSpacePosition > -1) _ga = _ga.substring(0, blankSpacePosition);
         // Is there a GA in the server's exposedGAs?
-        const found = node.server.exposedGAs.find(a => a.ga === ga);
+        const found = node.server.exposedGAs.find(a => a.ga === _ga);
         if (found !== undefined) {
           if (_dpt === undefined && found.dpt === undefined) throw new Error('No CSV file imported. Please provide the dpt manually.');
           return dptlib.fromBuffer(found.rawValue, dptlib.resolve(_dpt || found.dpt));
