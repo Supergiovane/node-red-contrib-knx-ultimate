@@ -21,7 +21,6 @@
             notifywrite: { value: true },
             notifyreadrequestalsorespondtobus: { value: false },
             notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized: { value: "0" },
-            listenallga: { value: false },
             name: { value: "" },
             outputtype: { value: "write" },
             outputRBE: { value: "true" },
@@ -31,7 +30,8 @@
             formatdecimalsvalue: { value: 999 },
             passthrough: { value: "no" },
             sendMsgToKNXCode: { value: "" },
-            receiveMsgFromKNXCode: { value: "" }
+            receiveMsgFromKNXCode: { value: "" },
+            listenallga: { value: "" }
         },
         inputs: 1,
         outputs: 1,
@@ -39,7 +39,7 @@
         label: function () {
             const functionSendMsgToKNXCode = (this.sendMsgToKNXCode !== undefined && this.sendMsgToKNXCode !== '') ? "f(x) " : "";
             const functionreceiveMsgFromKNXCode = (this.receiveMsgFromKNXCode !== undefined && this.receiveMsgFromKNXCode !== '') ? " f(x)" : "";
-            return ((this.outputRBE === "true" || this.outputRBE === true) ? "|rbe| " : "") + functionSendMsgToKNXCode + (this.name || this.topic || "KNX Device") + (this.setTopicType === 'str' || this.setTopicType === undefined ? '' : ' [' + this.setTopicType + ']') + functionreceiveMsgFromKNXCode + ((this.inputRBE === "true" || this.inputRBE === true) ? " |rbe|" : "")
+            return ((this.outputRBE === "true" || this.outputRBE === true) ? "|rbe| " : "") + functionSendMsgToKNXCode + (this.name || this.topic || "KNX Device") + (this.setTopicType === 'str' || this.setTopicType === undefined ? '' : ' [' + (this.setTopicType === 'listenAllGA' ? 'Universal' : this.setTopicType) + ']') + functionreceiveMsgFromKNXCode + ((this.inputRBE === "true" || this.inputRBE === true) ? " |rbe|" : "")
         },
         paletteLabel: "KNX DEVICE",
         // button: {
@@ -198,53 +198,12 @@
 
                     $("#node-input-notifyreadrequest").on('change', function () {
                         if ($("#node-input-notifyreadrequest").is(":checked")) {
-                            if ($("#node-input-listenallga").is(":checked")) {
+                            if ($("#node-input-setTopicType").val() === "listenAllGA") {
                             } else {
                                 $("#divnotifyreadrequestautoreact").show();
                             }
                         } else {
                             $("#divnotifyreadrequestautoreact").hide();
-                        }
-                    })
-
-                    $("#node-input-listenallga").on('change', function () {
-                        if ($("#node-input-listenallga").is(":checked")) {
-                            $("#GAandDPT").hide()
-                            $("#divOutputRBE").hide()
-                            $("#node-input-outputRBE").val("false")
-                            $("#divInputRBE").hide()
-                            $("#node-input-inputRBE").val("false")
-                            $("#divnotifyreadrequestautoreact").hide();
-                            $("#helpallga").show();
-                            $("#divTopic").hide()
-
-                            // Call a fake datapoint to load a sample "Universal Node"
-                            knxUltimateDptsGetHelp("0.000", true); // 15/09/2020 Supergiovane, load sample help
-
-                            if ($("#helpallga").html == "") {
-                                // There is a ETS csv file, show the init read option
-                                $("#divNode-input-initialread").show()
-                            } else {
-                                // There isn't a ETS csv file, hide and deselect the init read option
-                                $("#divNode-input-initialread").hide();
-                                $("#node-input-initialread").val(0);
-                            }
-                        } else {
-
-                            // 15/09/2020 Supergiovane, load the help sample of the current datapoint
-                            knxUltimateDptsGetHelp($("#node-input-dpt").val(), false); // 15/09/2020 Supergiovane, load sample help
-
-                            $("#GAandDPT").show()
-                            $("#divOutputRBE").show()
-                            $("#divInputRBE").show()
-                            $("#divTopic").show()
-                            if ($("#node-input-notifyreadrequest").is(":checked")) {
-                                $("#divnotifyreadrequestautoreact").show();
-                            } else {
-                                $("#divnotifyreadrequestautoreact").hide();
-                            }
-                            $("#helpallga").hide()
-                            $("#divNode-input-initialread").show();
                         }
                     })
 
@@ -267,6 +226,7 @@
 
                     $("#node-input-setTopicType").on('change', function () {
                         try {
+                            $("#node-input-topic").show();
                             $("#node-input-topic").autocomplete('destroy');
                             $("#node-input-topic").off(); // Rimuovi tutti gli eventi associati
                             $("#node-input-topic").val(''); // Pulisce il valore del campo di input, se necessario
@@ -310,7 +270,45 @@
                                 $(this).autocomplete('search', $(this).val() + 'exactmatch');
                             });
                             $("#divDatapointSelection").show();
+                        } else if ($("#node-input-setTopicType").val() === 'listenAllGA') {
+                            $("#node-input-topic").hide();
+                            $("#GAandDPT").hide()
+                            $("#divOutputRBE").hide()
+                            $("#node-input-outputRBE").val("false")
+                            $("#divInputRBE").hide()
+                            $("#node-input-inputRBE").val("false")
+                            $("#divnotifyreadrequestautoreact").hide();
+                            $("#helpallga").show();
+                            $("#divTopic").hide()
+
+                            // Call a fake datapoint to load a sample "Universal Node"
+                            knxUltimateDptsGetHelp("0.000", true); // 15/09/2020 Supergiovane, load sample help
+
+                            if ($("#helpallga").html == "") {
+                                // There is a ETS csv file, show the init read option
+                                $("#divNode-input-initialread").show()
+                            } else {
+                                // There isn't a ETS csv file, hide and deselect the init read option
+                                $("#divNode-input-initialread").hide();
+                                $("#node-input-initialread").val(0);
+                            }
                         } else {
+
+                            // 15/09/2020 Supergiovane, load the help sample of the current datapoint
+                            knxUltimateDptsGetHelp($("#node-input-dpt").val(), false); // 15/09/2020 Supergiovane, load sample help
+
+                            $("#GAandDPT").show()
+                            $("#divOutputRBE").show()
+                            $("#divInputRBE").show()
+                            $("#divTopic").show()
+                            if ($("#node-input-notifyreadrequest").is(":checked")) {
+                                $("#divnotifyreadrequestautoreact").show();
+                            } else {
+                                $("#divnotifyreadrequestautoreact").hide();
+                            }
+                            $("#helpallga").hide()
+                            $("#divNode-input-initialread").show();
+
                             $("#node-input-topic").prop('placeholder', $("#node-input-setTopicType").val());
                             if ($("#node-input-topic").val() === '') $("#node-input-topic").val('MyVariable');
                             $("#divDatapointSelection").hide();
@@ -327,7 +325,7 @@
                         } else {
                             // 25/10/2019 Warn user that the node will node encode/decode datagram, if Listen All GA's if the config node doesn't contain the csv
                             $("#helpallga").html("<i> " + node._("knxUltimate.advanced.noETSWarning") + " </i>");
-                            if ($("#node-input-listenallga").is(":checked")) {
+                            if ($("#node-input-setTopicType").val() === 'listenAllGA') {
                                 // There isn't a ETS csv file, hide and deselect the init read option
                                 $("#divNode-input-initialread").hide();
                                 $("#node-input-initialread").val(0);
@@ -336,7 +334,7 @@
                             }
                         }
                     } else {
-                        $("#node-input-listenallga").prop("checked", false)
+                        $("#node-input-setTopicType").val('str')
                         $("#divTopic").show()
                         $("#GAandDPT").show()
                         $("#divOutputRBE").show()
@@ -348,7 +346,7 @@
                     // *****************************
 
                     setTimeout(() => {
-                        if (node.listenallga === true) {
+                        if ($("#node-input-setTopicType").val() === 'listenAllGA') {
                             // Call a fake datapoint to load a sample "Universal Node"
                             knxUltimateDptsGetHelp("0.000", true); // 15/09/2020 Supergiovane, load sample help
                         }
@@ -365,6 +363,17 @@
             });
             // ###########################
 
+            // If KNX Function is populated, set focus on the KNX Function tab.
+            if (this.sendMsgToKNXCodeEditor.getValue() !== '' || this.receiveMsgFromKNXCodeEditor.getValue()) {
+                $("#tabs").tabs(
+                    { active: 1 }
+                );
+            }
+
+            // Backwart compatibility listenAllGA
+            if (node.listenallga === true) {
+                $("#node-input-setTopicType").val('listenAllGA');
+            }
 
             // 19/02/2020 Used to alert the user if the CSV file has not been loaded and to get the server sooner als deploy
             // ###########################
@@ -378,12 +387,17 @@
             var node = this;
             this.sendMsgToKNXCode = this.sendMsgToKNXCodeEditor.getValue();
             this.receiveMsgFromKNXCode = this.receiveMsgFromKNXCodeEditor.getValue();
+            if ($("#node-input-setTopicType").val() === "listenAllGA") {
+                this.listenallga = true;
+            } else {
+                this.listenallga = false;
+            }
             //this.propertyType = $("#node-input-property").typedInput('type');
 
             // 19/02/2020 Warn user that the node will node encode/decode datagram, if Listen All GA's if the config node doesn't contain the csv
             if ($("#isETSFileLoaded").val() === "no") {
                 // Notify the user
-                if ($("#node-input-listenallga").is(":checked")) {
+                if ($("#node-input-setTopicType").val() === 'listenAllGA') {
                     var checkResult = node._("knxUltimate.advanced.notify-NoETSFile");
                     var myNotification = RED.notify(checkResult,
                         {
@@ -458,22 +472,22 @@
 
 <div id="divMain">
 
+    <div class="form-row">
+        <label for="node-input-topic">
+            <img
+                src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAACXBIWXMAAB7CAAAewgFu0HU+AAAF6WlUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNS42LWMxNDggNzkuMTY0MDM2LCAyMDE5LzA4LzEzLTAxOjA2OjU3ICAgICAgICAiPiA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPiA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtbG5zOmRjPSJodHRwOi8vcHVybC5vcmcvZGMvZWxlbWVudHMvMS4xLyIgeG1sbnM6cGhvdG9zaG9wPSJodHRwOi8vbnMuYWRvYmUuY29tL3Bob3Rvc2hvcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RFdnQ9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZUV2ZW50IyIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgMjEuMSAoTWFjaW50b3NoKSIgeG1wOkNyZWF0ZURhdGU9IjIwMjAtMDMtMjNUMTY6MjE6MDkrMDE6MDAiIHhtcDpNb2RpZnlEYXRlPSIyMDIwLTAzLTIzVDE2OjI4OjI3KzAxOjAwIiB4bXA6TWV0YWRhdGFEYXRlPSIyMDIwLTAzLTIzVDE2OjI4OjI3KzAxOjAwIiBkYzpmb3JtYXQ9ImltYWdlL3BuZyIgcGhvdG9zaG9wOkNvbG9yTW9kZT0iMyIgcGhvdG9zaG9wOklDQ1Byb2ZpbGU9InNSR0IgSUVDNjE5NjYtMi4xIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOjc4M2I5OWIxLTkwMjYtNGQ2OC05N2FmLTRkM2E2ZWY4Zjk2OCIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDo4N2E3YTg0NS0xMDljLTRkMTMtOGEzOS04OWVhOTMyMDQ0ZWMiIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDo4N2E3YTg0NS0xMDljLTRkMTMtOGEzOS04OWVhOTMyMDQ0ZWMiPiA8eG1wTU06SGlzdG9yeT4gPHJkZjpTZXE+IDxyZGY6bGkgc3RFdnQ6YWN0aW9uPSJjcmVhdGVkIiBzdEV2dDppbnN0YW5jZUlEPSJ4bXAuaWlkOjg3YTdhODQ1LTEwOWMtNGQxMy04YTM5LTg5ZWE5MzIwNDRlYyIgc3RFdnQ6d2hlbj0iMjAyMC0wMy0yM1QxNjoyMTowOSswMTowMCIgc3RFdnQ6c29mdHdhcmVBZ2VudD0iQWRvYmUgUGhvdG9zaG9wIDIxLjEgKE1hY2ludG9zaCkiLz4gPHJkZjpsaSBzdEV2dDphY3Rpb249InNhdmVkIiBzdEV2dDppbnN0YW5jZUlEPSJ4bXAuaWlkOjc4M2I5OWIxLTkwMjYtNGQ2OC05N2FmLTRkM2E2ZWY4Zjk2OCIgc3RFdnQ6d2hlbj0iMjAyMC0wMy0yM1QxNjoyODoyNyswMTowMCIgc3RFdnQ6c29mdHdhcmVBZ2VudD0iQWRvYmUgUGhvdG9zaG9wIDIxLjEgKE1hY2ludG9zaCkiIHN0RXZ0OmNoYW5nZWQ9Ii8iLz4gPC9yZGY6U2VxPiA8L3htcE1NOkhpc3Rvcnk+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+DGyPFQAAAE9JREFUKJG1UEEOACAIgub/v2yHalnJVoe4uIEKSgccJ9jroVmjA0+ujZtWku3DgZmgBiT4egN9CmmEAAfA/5HUW0OQu7dKmOCzmM3k9YYKZv8ZEZ/YgNsAAAAASUVORK5CYII="></img>
+            Group Addr.</label>
+        <select id="node-input-setTopicType" style="width:120px">
+            <option value="str">3-Levels</option>
+            <option value="listenAllGA">Universal mode (listen to all Group Addresses)</option>
+            <option value="flow">Flow</option>
+            <option value="global">Gobal</option>
+            <option value="env">$Env variable</option>
+        </select>
+        <input type="text" id="node-input-topic" placeholder="Start typing to search" style="width:180px" />
+    </div>
+
     <div id="GAandDPT">
-
-        <div class="form-row">
-            <label for="node-input-topic">
-                <img
-                    src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAACXBIWXMAAB7CAAAewgFu0HU+AAAF6WlUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNS42LWMxNDggNzkuMTY0MDM2LCAyMDE5LzA4LzEzLTAxOjA2OjU3ICAgICAgICAiPiA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPiA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtbG5zOmRjPSJodHRwOi8vcHVybC5vcmcvZGMvZWxlbWVudHMvMS4xLyIgeG1sbnM6cGhvdG9zaG9wPSJodHRwOi8vbnMuYWRvYmUuY29tL3Bob3Rvc2hvcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RFdnQ9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZUV2ZW50IyIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgMjEuMSAoTWFjaW50b3NoKSIgeG1wOkNyZWF0ZURhdGU9IjIwMjAtMDMtMjNUMTY6MjE6MDkrMDE6MDAiIHhtcDpNb2RpZnlEYXRlPSIyMDIwLTAzLTIzVDE2OjI4OjI3KzAxOjAwIiB4bXA6TWV0YWRhdGFEYXRlPSIyMDIwLTAzLTIzVDE2OjI4OjI3KzAxOjAwIiBkYzpmb3JtYXQ9ImltYWdlL3BuZyIgcGhvdG9zaG9wOkNvbG9yTW9kZT0iMyIgcGhvdG9zaG9wOklDQ1Byb2ZpbGU9InNSR0IgSUVDNjE5NjYtMi4xIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOjc4M2I5OWIxLTkwMjYtNGQ2OC05N2FmLTRkM2E2ZWY4Zjk2OCIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDo4N2E3YTg0NS0xMDljLTRkMTMtOGEzOS04OWVhOTMyMDQ0ZWMiIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDo4N2E3YTg0NS0xMDljLTRkMTMtOGEzOS04OWVhOTMyMDQ0ZWMiPiA8eG1wTU06SGlzdG9yeT4gPHJkZjpTZXE+IDxyZGY6bGkgc3RFdnQ6YWN0aW9uPSJjcmVhdGVkIiBzdEV2dDppbnN0YW5jZUlEPSJ4bXAuaWlkOjg3YTdhODQ1LTEwOWMtNGQxMy04YTM5LTg5ZWE5MzIwNDRlYyIgc3RFdnQ6d2hlbj0iMjAyMC0wMy0yM1QxNjoyMTowOSswMTowMCIgc3RFdnQ6c29mdHdhcmVBZ2VudD0iQWRvYmUgUGhvdG9zaG9wIDIxLjEgKE1hY2ludG9zaCkiLz4gPHJkZjpsaSBzdEV2dDphY3Rpb249InNhdmVkIiBzdEV2dDppbnN0YW5jZUlEPSJ4bXAuaWlkOjc4M2I5OWIxLTkwMjYtNGQ2OC05N2FmLTRkM2E2ZWY4Zjk2OCIgc3RFdnQ6d2hlbj0iMjAyMC0wMy0yM1QxNjoyODoyNyswMTowMCIgc3RFdnQ6c29mdHdhcmVBZ2VudD0iQWRvYmUgUGhvdG9zaG9wIDIxLjEgKE1hY2ludG9zaCkiIHN0RXZ0OmNoYW5nZWQ9Ii8iLz4gPC9yZGY6U2VxPiA8L3htcE1NOkhpc3Rvcnk+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+DGyPFQAAAE9JREFUKJG1UEEOACAIgub/v2yHalnJVoe4uIEKSgccJ9jroVmjA0+ujZtWku3DgZmgBiT4egN9CmmEAAfA/5HUW0OQu7dKmOCzmM3k9YYKZv8ZEZ/YgNsAAAAASUVORK5CYII="></img>
-                Group Addr.</label>
-            <select id="node-input-setTopicType" style="width:120px">
-                <option value="str">3-Levels</option>
-                <option value="flow">Flow</option>
-                <option value="global">Gobal</option>
-                <option value="env">$Env variable</option>
-            </select>
-            <input type="text" id="node-input-topic" placeholder="Start typing to search" style="width:180px" />
-        </div>
-
         <div class="form-row" id="divDatapointSelection">
             <label for="node-input-dpt">
                 <img
@@ -484,32 +498,7 @@
             <span id="sampleCodeEditor" style="color:red;" />
         </div>
     </div>
-    <div class="form-row">
-        <label for="node-input-name">
-            <i class="fa fa-tag"></i>
-            <span data-i18n="knxUltimate.properties.node-input-name"></span>
-        </label>
-        <input type="text" id="node-input-name" data-i18n="[placeholder]knxUltimate.properties.node-input-name" />
-    </div>
-    <div class="form-row" id="divTopic">
-        <label for="node-input-outputtopic">
-            <i class="fa fa-tasks"></i>
-            <span data-i18n="knxUltimate.properties.node-input-outputtopic"></span>
-        </label>
-        <input type="text" id="node-input-outputtopic" data-i18n="[placeholder]knxUltimate.placeholder.leaveempty" />
-    </div>
-    <div class="form-row">
-        <label for="node-input-passthrough">
-            <i class="fa fa-long-arrow-right"></i> Passthrough
-        </label>
-        <select id="node-input-passthrough">
-            <option value="no">No</option>
-            <option value="yes">Yes, pass the input msg to the output msg</option>
-            <option value="yesownprop">Yes, but put the input msg into msg.inputmessage property of the output msg
-            </option>
-        </select>
-    </div>
-    <div class="form-row">
+    <!-- <div class="form-row">
         <input type="checkbox" id="node-input-listenallga"
             style="display:inline-block; width:auto; vertical-align:top;" />
         <label style="width:auto" for="node-input-listenallga">
@@ -517,8 +506,7 @@
                 src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAACXBIWXMAAB7CAAAewgFu0HU+AAAFGmlUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNS42LWMxNDggNzkuMTY0MDM2LCAyMDE5LzA4LzEzLTAxOjA2OjU3ICAgICAgICAiPiA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPiA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtbG5zOmRjPSJodHRwOi8vcHVybC5vcmcvZGMvZWxlbWVudHMvMS4xLyIgeG1sbnM6cGhvdG9zaG9wPSJodHRwOi8vbnMuYWRvYmUuY29tL3Bob3Rvc2hvcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RFdnQ9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZUV2ZW50IyIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgMjEuMSAoTWFjaW50b3NoKSIgeG1wOkNyZWF0ZURhdGU9IjIwMjAtMDMtMjNUMTY6MjM6MjMrMDE6MDAiIHhtcDpNb2RpZnlEYXRlPSIyMDIwLTAzLTIzVDE2OjI1OjM0KzAxOjAwIiB4bXA6TWV0YWRhdGFEYXRlPSIyMDIwLTAzLTIzVDE2OjI1OjM0KzAxOjAwIiBkYzpmb3JtYXQ9ImltYWdlL3BuZyIgcGhvdG9zaG9wOkNvbG9yTW9kZT0iMyIgcGhvdG9zaG9wOklDQ1Byb2ZpbGU9InNSR0IgSUVDNjE5NjYtMi4xIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOmJmNGM3NWVjLTIwNGYtNGY1YS05YTMxLTQ5NTU5YWJmZDE4NSIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDpiZjRjNzVlYy0yMDRmLTRmNWEtOWEzMS00OTU1OWFiZmQxODUiIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDpiZjRjNzVlYy0yMDRmLTRmNWEtOWEzMS00OTU1OWFiZmQxODUiPiA8eG1wTU06SGlzdG9yeT4gPHJkZjpTZXE+IDxyZGY6bGkgc3RFdnQ6YWN0aW9uPSJjcmVhdGVkIiBzdEV2dDppbnN0YW5jZUlEPSJ4bXAuaWlkOmJmNGM3NWVjLTIwNGYtNGY1YS05YTMxLTQ5NTU5YWJmZDE4NSIgc3RFdnQ6d2hlbj0iMjAyMC0wMy0yM1QxNjoyMzoyMyswMTowMCIgc3RFdnQ6c29mdHdhcmVBZ2VudD0iQWRvYmUgUGhvdG9zaG9wIDIxLjEgKE1hY2ludG9zaCkiLz4gPC9yZGY6U2VxPiA8L3htcE1NOkhpc3Rvcnk+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+nhtLUgAAAE9JREFUKJG1UMsOACAIgub//7IdqvVQtjrExU1EEQLuiGCvgTNgl5D74MmVZPu4wIxQAgm+/sDec2VhgQPgf0sq1unjMlYJE/3MZrvy+kMFZQkZEWfC7ikAAAAASUVORK5CYII="></img>
             <span data-i18n="knxUltimate.properties.node-input-listenallga"></span>
         </label>
-        <!-- <div id="helpallga">Some Content Here</div> -->
-    </div>
+    </div> -->
     <div id="tabs">
         <ul>
             <li><a href="#tabs-1"><i class="fa fa-braille"></i> Advanced options</a></li>
@@ -527,6 +515,40 @@
         </ul>
         <div id="tabs-1">
             <div class="form-row" style="padding:10px">
+                <div class="form-row">
+                    <dt>
+                        <i class="fa fa-desktop"></i> General properties
+                    </dt>
+                </div>
+                <div class="form-row">
+                    <label for="node-input-name">
+                        <i class="fa fa-tag"></i>
+                        <span data-i18n="knxUltimate.properties.node-input-name"></span>
+                    </label>
+                    <input type="text" id="node-input-name"
+                        data-i18n="[placeholder]knxUltimate.properties.node-input-name" />
+                </div>
+                <div class="form-row" id="divTopic">
+                    <label for="node-input-outputtopic">
+                        <i class="fa fa-tasks"></i>
+                        <span data-i18n="knxUltimate.properties.node-input-outputtopic"></span>
+                    </label>
+                    <input type="text" id="node-input-outputtopic"
+                        data-i18n="[placeholder]knxUltimate.placeholder.leaveempty" />
+                </div>
+                <div class="form-row">
+                    <label for="node-input-passthrough">
+                        <i class="fa fa-long-arrow-right"></i> Passthrough
+                    </label>
+                    <select id="node-input-passthrough">
+                        <option value="no">No</option>
+                        <option value="yes">Yes, pass the input msg to the output msg</option>
+                        <option value="yesownprop">Yes, but put the input msg into msg.inputmessage property of the
+                            output msg
+                        </option>
+                    </select>
+                </div>
+                <hr>
                 <div class="form-row">
                     <dt>
                         <i class="fa fa-arrow-right"></i>| From node's INPUT PIN to KNX BUS
@@ -723,13 +745,9 @@
 |Property|Description|
 |--|--|
 | Gateway | Select the KNX gateway to be used |
-| GA Type dropdown list | The group address type. **3-Levels** is the default, where you can type the *3 level group address* or the *group address name* (if you've upload the ETS file), or **Global**, for reading the GA at startup from a global variable, or **Flow** that do the same as the *Global*, but at flow level. Select **$Env variable** to read the group address from an environment variable. |
+| GA Type dropdown list | The group address type. **3-Levels** is the default, where you can type the *3 level group address* or the *group address name* (if you've upload the ETS file), or **Global**, for reading the GA at startup from a global variable, or **Flow** that do the same as the *Global*, but at flow level. Select **$Env variable** to read the group address from an environment variable. Select **Universal mode (listen to all Group Addresses)** to react to ALL group addresses.|
 | Group Addr. | The KNX Group Address you want to control. If you've imported the ETS group addresses file, you can just start typing in your device name. You can leave it empty if you wish set it with *msg.setConfig* input message. |
 | Datapoint | The datapoint belonging to your node.|
-| Node name | Self explaining. |
-| Topic | The msg output topic. Leave it blank to have it set to your Group Address. |
-| Passthrough | If set, you can pass the input mgs to the output msg. |
-| Universal mode (listen to all Group Addresses) | By setting this, the node will read and control ALL group addresses. |
 
 <br/>
 <br/>
@@ -737,6 +755,10 @@
 **Advanced options**
 |Property|Description|
 |--|--|
+||**General properties**|
+| Node name | Self explaining. |
+| Topic | The msg output topic. Leave it blank to have it set to your Group Address. |
+| Passthrough | If set, you can pass the input mgs to the output msg. |
 ||**From node's INPUT PIN to KNX BUS**|
 | Telegram type | *write* to send write telegram (usually, you want that), otherwise you can choose the telegram's type to react to. |
 | RBE filter | *Report by change* filter. If set, only the msg input (from the Flow) having different values each time, will be sent to the KNX bus. If you intend to send everytime the same value, turn it off. If enabled, "rbe" indication will be added to node's name.|

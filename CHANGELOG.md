@@ -6,6 +6,12 @@
 
 # CHANGELOG
 
+**Version 3.1.3** - August 2024<br/>
+- KNX Node: now the property page opens directly on KNX Function tab, if js code is present. CAUTION, KNX FUNCTION IS STILL IN BETA AND SUBJECT TO CHANGES.<br/>
+- KNX Node: Universal mode is now selectable in the dropdown list of GA Types.<br/>
+- KNX Node: better UI controls placements.<br/>
+- Updated documentation.<br/>
+
 **Version 3.1.2** - August 2024<br/>
 - NEW: KNX Function code editor: minor fixes. CAUTION, KNX FUNCTION IS STILL IN BETA AND SUBJECT TO CHANGES.<br/>
 
