@@ -8,6 +8,8 @@
 
 **Version 3.1.6** - August 2024<br/>
 - KNX Node: KNX Function: added "self", "toggle" and "setGAValue" function. See the help.<br/>
+- KNX Node: KNX Function: the code runs now in async/await mode.<br/>
+- The wiki has been revamped and will be implemented with HUE samples, in the upcoming release.<br/>
 
 **Version 3.1.5** - August 2024<br/>
 - KNX Node: fixed some UI glitches while switching from universal mode to 3-level group Group Address.<br/>
