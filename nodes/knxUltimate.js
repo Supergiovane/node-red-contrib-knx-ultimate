@@ -146,13 +146,76 @@ module.exports = function (RED) {
         // Is there a GA in the server's exposedGAs?
         const found = node.server.exposedGAs.find(a => a.ga === _ga);
         if (found !== undefined) {
-          if (_dpt === undefined && found.dpt === undefined) throw new Error('No CSV file imported. Please provide the dpt manually.');
+          if (_dpt === undefined && found.dpt === undefined) {
+            const errM = 'knxUltimate: getGaValue: node ID:' + node.id + ' ' + 'No CSV file imported. Please provide the dpt manually';
+            RED.log.error(errM);
+            if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(errM);
+            return;
+          };
           return dptlib.fromBuffer(found.rawValue, dptlib.resolve(_dpt || found.dpt));
         } else {
-          throw new Error('Group Address not yet read, try later.');
+          const errM = 'knxUltimate: getGaValue: node ID:' + node.id + ' ' + 'Group Address not yet read, try later.';
+          RED.log.error(errM);
+          if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(errM);
+          return;
         }
       } catch (error) {
-        throw error;
+        const errM = 'knxUltimate: getGaValue: node ID:' + node.id + ' ' + error.stack;
+        RED.log.error(errM);
+        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(errM);
+      }
+    }
+    // Used in the KNX Function TAB
+    let setGAValue = function setGAValue(_ga = undefined, _value = undefined, _dpt = undefined) {
+      try {
+        if (_ga === undefined) return;
+        // The GA can have the devicename as well, separated by a blank space (1/1/0 light table ovest),
+        // I must take the GA only
+        const blankSpacePosition = _ga.indexOf(" ");
+        if (blankSpacePosition > -1) _ga = _ga.substring(0, blankSpacePosition);
+        if (_dpt === undefined) {
+          // Try getting dpt from ETS CSV
+          const found = node.server.exposedGAs.find(a => a.ga === _ga);
+          if (found === undefined || found.dpt === undefined) {
+            const errM = 'knxUltimate: setGAValue: node ID:' + node.id + ' ' + 'No CSV file imported. Please provide the dpt manually';
+            RED.log.error(errM);
+            if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(errM);
+            return;
+          }
+        }
+        node.server.writeQueueAdd({
+          grpaddr: _ga, payload: _value, dpt: _dpt, outputtype: 'write', nodecallerid: node.id,
+        });
+      } catch (error) {
+        const errM = 'knxUltimate: setGAValue: node ID:' + node.id + ' ' + error.stack;
+        RED.log.error(errM);
+        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(errM);
+      }
+    }
+    // Used in the KNX Function TAB
+    let self = function self(_value) {
+      try {
+        node.server.writeQueueAdd({
+          grpaddr: node.topic, payload: _value, dpt: node.dpt, outputtype: 'write', nodecallerid: node.id,
+        });
+      } catch (error) {
+        const errM = 'knxUltimate: self: node ID:' + node.id + ' ' + error.stack;
+        RED.log.error(errM);
+        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(errM);
+      }
+    }
+    // Used in the KNX Function TAB
+    let toggle = function toggle() {
+      if (node.currentPayload === true || node.currentPayload === false) {
+        try {
+          node.server.writeQueueAdd({
+            grpaddr: node.topic, payload: !node.currentPayload, dpt: node.dpt, outputtype: 'write', nodecallerid: node.id,
+          });
+        } catch (error) {
+          const errM = 'knxUltimate: toggle: node ID:' + node.id + ' ' + error.stack;
+          RED.log.error(errM);
+          if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(errM);
+        }
       }
     }
 
@@ -177,8 +240,8 @@ module.exports = function (RED) {
       // -+++++++++++++++++++++++++++++++++++++++++++
       if (node.receiveMsgFromKNXCode !== undefined) {
         try {
-          let receiveMsgFromKNXCode = new Function('msg', 'getGAValue', 'node', 'RED', node.receiveMsgFromKNXCode)
-          msg = receiveMsgFromKNXCode(msg, getGAValue, node, RED);
+          let receiveMsgFromKNXCode = new Function('msg', 'getGAValue', 'node', 'RED', 'self', 'toggle', 'setGAValue', node.receiveMsgFromKNXCode)
+          msg = receiveMsgFromKNXCode(msg, getGAValue, node, RED, self, toggle, setGAValue);
         } catch (error) {
           RED.log.error('knxUltimate: receiveMsgFromKNXCode: node ID:' + node.id + ' ' + error.message);
           if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(`knxUltimate: receiveMsgFromKNXCode: node id ${node.id} ` || ' ' + error.stack);
@@ -240,8 +303,8 @@ module.exports = function (RED) {
       // -+++++++++++++++++++++++++++++++++++++++++++
       if (node.sendMsgToKNXCode !== undefined) {
         try {
-          let sendMsgToKNXCode = new Function('msg', 'getGAValue', 'node', 'RED', node.sendMsgToKNXCode)
-          msg = sendMsgToKNXCode(msg, getGAValue, node, RED);
+          let sendMsgToKNXCode = new Function('msg', 'getGAValue', 'node', 'RED', 'self', 'toggle', 'setGAValue', node.sendMsgToKNXCode)
+          msg = sendMsgToKNXCode(msg, getGAValue, node, RED, self, toggle, setGAValue);
           if (msg === undefined) return;
         } catch (error) {
           RED.log.error('knxUltimate: sendMsgToKNXCode: node ID:' + node.id + ' ' + error.message);

@@ -782,7 +782,8 @@
 <br/>
 <br/>
 
-**Advanced options**
+## TAB Advanced options
+
 |Property|Description|
 |--|--|
 ||**General properties**|
@@ -805,7 +806,7 @@
 <br/>
 <br/>
 
-**KNX Function**
+## TAB KNX Function
 
 You can use Javascript to modify the behaviour of the input msg coming from the flow and the output telegram sent to the KNX bus.  
 The embedded code editor provides useful objects and functions to retrieve the value of all group addresses, both with the imported ETS file and without (specifying the datapoint).  
@@ -818,15 +819,18 @@ If enabled, "f(x)" indication will be added to node's name.
 
 <br/>
 
-### From KNX BUS to node's OUTPUT PIN
+### List of common object and functions you can use in the code
 
-List of object and functions you can use in the code
-
-: msg (object) : The current msg object received by the node from the flow. 
-: getGAValue (string GA , optional string DPT) : The function to get the specified GA's value, for example **'1/0/1'**, or also **'1/0/1 Bed table light'** (All text after a blank space will be ignored by the function. This is useful if you want to add the GA name as a reminder. With the ETS file imported, you can also copy and paste the GA and GA Name directly from the **Search GA** field.). **DPT** is optional if you've imported the ETS file, otherwise you must specify it, for example '1.001'. 
+: msg (object) : The current msg object received by the node . 
+: getGAValue (string GA, optional string DPT) : Get the specified GA's value, for example **'1/0/1'**, or also **'1/0/1 Bed table light'** (All text after a blank space will be ignored by the function. This is useful if you want to add the GA name as a reminder. With the ETS file imported, you can also copy and paste the GA and GA Name directly from the **Search GA** field.). **DPT** is optional if you've imported the ETS file, otherwise you must specify it, for example '1.001'. 
+: setGAValue (string GA, any value, optional string DPT) : Set the specified GA's value. The GA con be wrote for example **'1/0/1'**, or also **'1/0/1 Bed table light'** (All text after a blank space will be ignored by the function. This is useful if you want to add the GA name as a reminder. With the ETS file imported, you can also copy and paste the GA and GA Name directly from the **Search GA** field.). The **value** is mandatory, can be a boolean or number or string, **DPT** is optional if you've imported the ETS file, otherwise you must specify it, for example '1.001'. 
+: self (any value) : Set the currend node's value and sends the value to the KNX BUS as well. For example, *self(false)*. Caution using **self** function in the *From KNX BUS to node's OUTPUT PIN* code, because the code will be executed everytime a KNX telegram is received, so you coud have recurrency loops.
+: toggle (nothing) : Toggle the currend node's value and sends the value to the KNX BUS as well. For example, *toggle()*. Caution using **toggle** function in the *From KNX BUS to node's OUTPUT PIN* code, because the code will be executed everytime a KNX telegram is received, so you coud have recurrency loops.
 : node (object) : The node object.
 : RED (Node-Red object) : The Node-Red's RED object.
-: return (msg) : Mandatory `return msg;`, if you want to emit the msg to the KNX BUS. Otherwise, using `return;` will not emit any message. 
+: return (msg) : Mandatory `return msg;`, if you want to emit the message. Otherwise, using `return;` will not emit any message. 
+
+### From KNX BUS to node's OUTPUT PIN
 
 In this sample, we'll send the input msg to the KNX BUS only if another GA has opposite value.  
 We'll turn on the light only if it's status GA is off, and vice versa. 
@@ -840,15 +844,18 @@ if (msg.payload !== statusGA){ // "!==" means "not equal"
 }
 ```
 
+Here, if someone switches on the light, we turn on another light 0/1/8 and after 2 seconds we switch off the lamp connected to the node.  
+```javascript
+if (msg.payload){ 
+    setGAValue('0/1/8',true)
+    setTimeout(function() {
+        self(off);
+    }, 2000);
+}
+return msg;
+```
+
 ### From KNX BUS to node's ouput PIN
-
-List of object and functions you can use in the code
-
-: msg (object) : The current msg object received by the node from the KNX BUS. 
-: getGAValue (string GA , optional string DPT) : The function to get the specified GA's value, for example **'1/0/1'**, or also **'1/0/1 Bed table light'** (All text after a blank space will be ignored by the function. This is useful if you want to add the GA name as a reminder. With the ETS file imported, you can also copy and paste the GA and GA Name directly from the **Search GA** field.). **DPT** is optional if you've imported the ETS file, otherwise you must specify it, for example '1.001'. 
-: node (object) : The node object.
-: RED (Node-Red object) : The Node-Red's RED object.
-: return (msg) : Mandatory `return msg;`, if you want to emit the msg to the flow. Otherwise, using `return;` will not emit any message. 
 
 In this sample, we'll emit the msg object to the flow, by appending the value of another GA to the output msg.  
 The ouput msg to the flow will have also the external temp in the property `msg.externalTemperature`  
@@ -872,7 +879,8 @@ if (msg.payload === false && getGAValue('0/0/11','1.001') === false){
 <br/>
 <br/>
 
-**Payload sample**
+## TAB Payload sample
+
 |Property|Description|
 |--|--|
 | Sample | This will give it a hint on what to write in an external function node, if you want to control the node via a Node-Red function node. |

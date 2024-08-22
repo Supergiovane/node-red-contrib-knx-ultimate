@@ -6,6 +6,9 @@
 
 # CHANGELOG
 
+**Version 3.1.6** - August 2024<br/>
+- KNX Node: KNX Function: added "self", "toggle" and "setGAValue" function. See the help.<br/>
+
 **Version 3.1.5** - August 2024<br/>
 - KNX Node: fixed some UI glitches while switching from universal mode to 3-level group Group Address.<br/>
 - KNX Function code editor: exited BETA.<br/>

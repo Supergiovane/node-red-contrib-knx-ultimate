@@ -66,17 +66,12 @@ msg.payload = {red:255, green:200, blue:30} // Put some colors in our life
 
 <br/>
 
-## LESSONS FROM BEGINNER TO CERTIFIED KNX-ULTIMATE GURU STATUS
+## YOUTUBE CHANNEL
 
-* <a href="https://youtu.be/4rjrMqszhP8" target="_blank">Lesson 01 - Introduction to KNX Device<br/>
-<img width="200px" src="https://img.youtube.com/vi/4rjrMqszhP8/0.jpg" ></a>
+<a href="https://www.youtube.com/playlist?list=PL9Yh1bjbLAYpfy1Auz6CKDfXUusgMwOQr" target="_blank"><br/>
+<img width="200px" src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/youtube-logo.jpg" ></a>
 
-* <a href="https://youtu.be/sRW5sHPnYi0" target="_blank">Lesson 02 - Working with ETS file importer<br/>
-<img width="200px" src="https://img.youtube.com/vi/sRW5sHPnYi0/0.jpg" ></a>
-
-
-[More to come...](https://github.com/Supergiovane/node-red-contrib-knx-ultimate)
-
+Please subscribe to the [Youtube channel](https://www.youtube.com/playlist?list=PL9Yh1bjbLAYpfy1Auz6CKDfXUusgMwOQr) and watch the node in action. 
 
 <br/>
 <br/>
@@ -84,7 +79,6 @@ msg.payload = {red:255, green:200, blue:30} // Put some colors in our life
 ## DOCUMENTATION
 
 * [Wiki and Help](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki)
-* [Youtube channel](https://www.youtube.com/playlist?list=PL9Yh1bjbLAYpfy1Auz6CKDfXUusgMwOQr)
 * [FAQ + Troubleshoot](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/5.-FAQ-Troubleshoot)
 * [Security best practices](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/SECURITY)
 

@@ -6,7 +6,8 @@ const statusGA = getGAValue('x/x/x','1.001');
 if (msg.payload !== statusGA){ // " !==" means " not equal"
     return msg;
  }else{
-// Both values are identical, so i don't send the msg. 
+// Both values are identical, so i don't send the msg.
+    node.status({fill:"grey",shape:"dot",text:"Not sent"}); 
     return; 
 }`;
 
