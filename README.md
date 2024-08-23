@@ -30,8 +30,6 @@ msg.payload = {red:255, green:200, blue:30} // Put some colors in our life
 
 ```
 
-> [!TIP]
-> I'm putting many effort, money and free time to this node, so please consider [making a little donation](https://www.paypal.me/techtoday) if you're using KNX-Ultimate. Thanks!
 
 
 ## NODE'S LIST
