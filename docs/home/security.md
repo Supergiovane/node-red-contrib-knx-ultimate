@@ -1,3 +1,9 @@
+---
+cover: >-
+  https://images.unsplash.com/photo-1493129922668-fcb1a8514643?crop=entropy&cs=srgb&fm=jpg&ixid=M3wxOTcwMjR8MHwxfHNlYXJjaHw4fHxsb2NrfGVufDB8fHx8MTcyNDQwODE2Mnww&ixlib=rb-4.0.3&q=85
+coverY: 0
+---
+
 # Security Policy
 
 Home automation is not a joke. Please consider all dangers involving the use of this repository to control your home or building. A single light that remains ON while you're not at home, for example, **can become a serious danger of fire**.\
