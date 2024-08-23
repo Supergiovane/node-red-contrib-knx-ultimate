@@ -18,7 +18,6 @@
   * [Viewer configuration](other-knx-nodes/knxultimateviewer.md)
 * [PHILIPS HUE NODES](hue-bridge-configuration/README.md)
   * [HUE Light](hue-bridge-configuration/hue-light.md)
-* [LOGGER SAMPLES](Logger-Sample.md)
 * [SAMPLES](samples/README.md)
   * [DATE / TIME TO THE KNX BUS](samples/date-time-to-the-knx-bus.md)
   * [Datapoint 2](samples/datapoint-2.md)
@@ -44,3 +43,4 @@
   * [Global Context Node Sample](samples/global-context-node-sample.md)
   * [Scene actuator controller](scene-actuator-controller.md)
   * [Subtype Value Sample](subtype-value-sample.md)
+  * [ETS Logger sample](samples/logger-sample.md)
