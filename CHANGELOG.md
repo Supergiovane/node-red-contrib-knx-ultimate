@@ -6,6 +6,9 @@
 
 # CHANGELOG
 
+**Version 3.1.7** - August 2024<br/>
+- KNX Node: KNX Function: async/await caused some race condition issues, so the code is now sync.<br/>
+
 **Version 3.1.6** - August 2024<br/>
 - KNX Node: KNX Function: added "self", "toggle" and "setGAValue" function. See the help.<br/>
 - KNX Node: KNX Function: the code runs now in async/await mode.<br/>

@@ -239,16 +239,14 @@ module.exports = function (RED) {
       // #region "Inject the msg to the JS code, then output msg to the flow"
       // -+++++++++++++++++++++++++++++++++++++++++++
       if (node.receiveMsgFromKNXCode !== undefined) {
-        (async () => {
-          try {
-            let receiveMsgFromKNXCode = new Function('msg', 'getGAValue', 'node', 'RED', 'self', 'toggle', 'setGAValue', node.receiveMsgFromKNXCode)
-            msg = await receiveMsgFromKNXCode(msg, getGAValue, node, RED, self, toggle, setGAValue);
-          } catch (error) {
-            RED.log.error('knxUltimate: receiveMsgFromKNXCode: node ID:' + node.id + ' ' + error.message);
-            if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(`knxUltimate: receiveMsgFromKNXCode: node id ${node.id} ` || ' ' + error.stack);
-            return;
-          }
-        })();
+        try {
+          let receiveMsgFromKNXCode = new Function('msg', 'getGAValue', 'node', 'RED', 'self', 'toggle', 'setGAValue', node.receiveMsgFromKNXCode)
+          msg = receiveMsgFromKNXCode(msg, getGAValue, node, RED, self, toggle, setGAValue);
+        } catch (error) {
+          RED.log.error('knxUltimate: receiveMsgFromKNXCode: node ID:' + node.id + ' ' + error.message);
+          if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(`knxUltimate: receiveMsgFromKNXCode: node id ${node.id} ` || ' ' + error.stack);
+          return;
+        }
       }
       // -+++++++++++++++++++++++++++++++++++++++++++
       //#endregion
@@ -304,17 +302,15 @@ module.exports = function (RED) {
       // #region "Inject the msg to the JS code, then output msg to the flow"
       // -+++++++++++++++++++++++++++++++++++++++++++
       if (node.sendMsgToKNXCode !== undefined) {
-        (async () => {
-          try {
-            let sendMsgToKNXCode = new Function('msg', 'getGAValue', 'node', 'RED', 'self', 'toggle', 'setGAValue', node.sendMsgToKNXCode)
-            msg = await sendMsgToKNXCode(msg, getGAValue, node, RED, self, toggle, setGAValue);
-            if (msg === undefined) return;
-          } catch (error) {
-            RED.log.error('knxUltimate: sendMsgToKNXCode: node ID:' + node.id + ' ' + error.message);
-            if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(`knxUltimate: sendMsgToKNXCode: node id ${node.id} ` || ' ' + error.stack);
-            return;
-          }
-        })();
+        try {
+          let sendMsgToKNXCode = new Function('msg', 'getGAValue', 'node', 'RED', 'self', 'toggle', 'setGAValue', node.sendMsgToKNXCode)
+          msg = sendMsgToKNXCode(msg, getGAValue, node, RED, self, toggle, setGAValue);
+          if (msg === undefined) return;
+        } catch (error) {
+          RED.log.error('knxUltimate: sendMsgToKNXCode: node ID:' + node.id + ' ' + error.message);
+          if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(`knxUltimate: sendMsgToKNXCode: node id ${node.id} ` || ' ' + error.stack);
+          return;
+        }
       }
       // -+++++++++++++++++++++++++++++++++++++++++++
       //#endregion
