@@ -1,59 +1,60 @@
-<!-- <img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/simple2.png" width="40%"><br/> -->
-## ALERTER NODE CONFIGURATION
+# Alerter configuration
+
+### ALERTER NODE CONFIGURATION
+
+With the Alerter node you can signal to a display or to the node-red-contrib-tts-ultimate node (audio feedback) if the selected devices are alerted, i.e. they have payload **true**. The node issues messages at specified intervals (one message at a time) containing the details of each alerted device. For example, the node can tell you how many and which windows are open.\
+The node receives the values of the devices directly from the KNX BUS. Furthermore, you can send personalized messages to the node, not linked to KNX devices.\
+The example page explains how to use the node.\
 
 
-With the Alerter node you can signal to a display or to the node-red-contrib-tts-ultimate node (audio feedback) if the selected devices are alerted, i.e. they have payload **true**.
-The node issues messages at specified intervals (one message at a time) containing the details of each alerted device. For example, the node can tell you how many and which windows are open. <br/>
-The node receives the values of the devices directly from the KNX BUS. Furthermore, you can send personalized messages to the node, not linked to KNX devices. <br/>
-The example page explains how to use the node. <br/>
-
-- **Gateway**
+* **Gateway**
 
 > KNX gateway selected. It is also possible not to select any gateway; in this case, only incoming messages to the node will be considered.
 
-
-- **Name**
+* **Name**
 
 > Node name.
 
-- **Alerting cycle start type**
+* **Alerting cycle start type**
 
 > Here you can select the event that will skip the start of sending messages from alerted devices.
 
-- **Interval between each MSG (in seconds)**
+* **Interval between each MSG (in seconds)**
 
 > Interval between each outgoing message from the node.
 
-## DEVICES TO MONITOR
+### DEVICES TO MONITOR
 
-Here you can add devices to monitor. <br/>
-Enter the device name or its group address. <br/>
+Here you can add devices to monitor.\
+Enter the device name or its group address.\
 
-- **Read value of each device on connection/reconnect**
+
+* **Read value of each device on connection/reconnect**
 
 > On connection/reconnection, the node will send a 'read' request each device belonging to the list.
 
-- **ADD button**
+* **ADD button**
 
 > Add a row to the list.
 
-- **Device's rows**
+* **Device's rows**
 
 > The first field is the group address (but you can also enter any text, which you can use with inbound messages, see the example page), the second is the device name **(MAX 14 CHARS)**, the third is the long device name.
 
-- **DELETE button**
+* **DELETE button**
 
 > Removes a device from the list.
 
+\
+\
 
-<br/>
-<br/>
 
-## MESSAGE OUT OF THE NODE
+### MESSAGE OUT OF THE NODE
 
-PIN1: The node emits a message for each alerted device, at selectable intervals.<br/>
-PIN2: The node emits a unique message containing all alerted devices.<br/>
-PIN3: The node emits a message containing only the last alerted device.<br/>
+PIN1: The node emits a message for each alerted device, at selectable intervals.\
+PIN2: The node emits a unique message containing all alerted devices.\
+PIN3: The node emits a message containing only the last alerted device.\
+
 
 **PIN1**
 
@@ -113,11 +114,11 @@ msg = {
 
 ```
 
-<br/>
-<br/>
+\
+\
 
-## MESSAGE INTO THE NODE
 
+### MESSAGE INTO THE NODE
 
 ```javascript
 msg.readstatus = true
@@ -125,19 +126,19 @@ msg.readstatus = true
 
 Read the value of each device belonging to the list.
 
-
 ```javascript
 msg.start = true
 ```
 
 The sending cycle of all alerted devices begins. The cycle ends with the last alerted device. To repeat the cycle, send this inbound message again.
 
-<br/>
+\
 
-**Custom device alert** <br/>
+
+**Custom device alert**\
+
 
 To update the true/false value of a custom device, you can send this inbound message
-
 
 ```javascript
 
@@ -148,12 +149,13 @@ msg = {
 
 ```
 
-<br/>
+\
 
-## SAMPLE
 
-<a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/SampleAlerter">CLICK HERE FOR THE EXAMPLE</a>
+### SAMPLE
 
-<br/>
-<br/>
-<br/>
+[CLICK HERE FOR THE EXAMPLE](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/SampleAlerter)
+
+\
+\
+\

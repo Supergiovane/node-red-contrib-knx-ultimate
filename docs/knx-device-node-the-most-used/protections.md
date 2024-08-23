@@ -1,20 +1,19 @@
 # Node self protection
 
-KNX-Ultimate has two types of internal protection, to protect your KNX Bus from being flooded and your Node-RED GUI from being unresponsive, if you make some mistake in your flows.<br/>
-Let's have **some fun** with these protections!<br/>
+KNX-Ultimate has two types of internal protection, to protect your KNX Bus from being flooded and your Node-RED GUI from being unresponsive, if you make some mistake in your flows.\
+Let's have **some fun** with these protections!\
 
 
 ## FLOOD PROTECTION
 
-Flood protection avoids your node-red UI to become unresponsive, due to a too high amount of messages sent to te input pin of the node in a specified time frame of 1 second.<br/>
-The max number of msg you can send to a node is 120 each second. If you need to send a lot of msg to the node, please consider a "delay" node, to delay each message a bit.<br/>
+Flood protection avoids your node-red UI to become unresponsive, due to a too high amount of messages sent to te input pin of the node in a specified time frame of 1 second.\
+The max number of msg you can send to a node is 120 each second. If you need to send a lot of msg to the node, please consider a "delay" node, to delay each message a bit.\
 
-<img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/floodprotection.png" width="90%"><br/>
+
+![](https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/floodprotection.png)\
 
 
 **Copy this code and paste it into your flow**
-
-
 
 ```javascript
 
@@ -22,19 +21,19 @@ The max number of msg you can send to a node is 120 each second. If you need to 
 
 ```
 
-<br/>
+\
+
 
 ## CIRCULAR REFERENCE PROTECTION
 
-Circular reference protection avoids your node-red UI to become unresponsive and your KNX installation to be flooded, by disabling two nodes with same Group Address link toghether.<br/>
-For example, if you link the **output** pin of a node having Group Address 0/1/1, to the **input** ping of another node having the same Group Address 0/1/1, the protection will kicks in.<br/>
+Circular reference protection avoids your node-red UI to become unresponsive and your KNX installation to be flooded, by disabling two nodes with same Group Address link toghether.\
+For example, if you link the **output** pin of a node having Group Address 0/1/1, to the **input** ping of another node having the same Group Address 0/1/1, the protection will kicks in.\
 
-<img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/circularreferenceprotection.png" width="90%"><br/>
+
+![](https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/circularreferenceprotection.png)\
 
 
 **Copy this code and paste it into your flow**
-
-
 
 ```javascript
 
@@ -42,7 +41,6 @@ For example, if you link the **output** pin of a node having Group Address 0/1/1
 
 ```
 
-
-<br/>
-<br/>
-<br/>
+\
+\
+\

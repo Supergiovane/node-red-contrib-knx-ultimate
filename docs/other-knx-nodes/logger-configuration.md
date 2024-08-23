@@ -1,63 +1,69 @@
-<!-- <img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/simple2.png" width="40%"><br/> -->
-# Logger
+# ETS Logger configuration
+
+## Logger
 
 **What does it do?**
 
-The Logger node records all telegrams and outputs it in an ETS bus monitor XML compatible file. <br/>
-You can save the file on disk or send it to an FTP server, for example. The file can be then read by your ETS, for example for diagnostic or for a replay of the telegrams.
-<br/>
-The node can also count telegrams per second (or any interval you want).
-<br/> <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/Logger-Sample" target="_blank">Examples are here.</a>
+The Logger node records all telegrams and outputs it in an ETS bus monitor XML compatible file.\
+You can save the file on disk or send it to an FTP server, for example. The file can be then read by your ETS, for example for diagnostic or for a replay of the telegrams.\
+The node can also count telegrams per second (or any interval you want).\
+[Examples are here.](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/Logger-Sample)
 
-
-## SETTINGS
+### SETTINGS
 
 * **Gateway**
+
 > Selected KNX gateway.
 
 * **Topic**
+
 > The topic of the node.
 
 * **Name**
+
 > Node's name.
 
-## ETS compatible BUS Diagnostic File
-
+### ETS compatible BUS Diagnostic File
 
 * **Auto start timer**
+
 > Starts the timer automatically on deploy or on node-red start.
 
 * **Output new XML every (in minutes)**
+
 > The time, in minutes, which the Logger will output the ETS XML bus monitor compatible file.
 
 * **Max number of rows in XML (0 = no limit)**
+
 > This represents the maximum number of line, that the XML file can contain in the interval specified above. Put 0 not to limit the number of rows in the file.
 
-<br/>
-<br/>
+\
+\
 
-## KNX Telegram Counter
+
+### KNX Telegram Counter
+
 ***
 
 * **Auto start timer**
+
 > Starts the timer automatically on deploy or on node-red start.
 
 * **Count interval (in seconds)**
+
 > How often emit a msg to the flow, containing the KNX telegrams count. In Seconds.
 
-<br/>
-<br/>
+\
+\
 
 
----
+***
 
-# MESSAGE OUTPUT FROM THE LOGGER
-
+## MESSAGE OUTPUT FROM THE LOGGER
 
 **PIN 1: XML ETS bus monitor compatible file File**
 
 You can use a file node to save the payload to the filesystem, or you can send it, for example, to an FTP server.
-
 
 ```javascript
 
@@ -67,13 +73,14 @@ msg = {
     } 
 
 ```
-<br/><br/>
+
+\
+\
 
 
 **PIN 2: KNX Telegram Counter**
 
 Each count, the node will emit a telegram like this:
-
 
 ```javascript
 
@@ -85,18 +92,20 @@ msg = {
     } 
 
 ```
-<br/>
 
----
+\
 
-# INPUT FLOW MESSAGE
 
+***
+
+## INPUT FLOW MESSAGE
 
 You can control the Logger in some ways.
 
-## ETS XML compatible BUS monitor file
+### ETS XML compatible BUS monitor file
 
-**START TIMER** <br/>
+**START TIMER**\
+
 
 ```javascript
 
@@ -106,7 +115,8 @@ return msg;
 
 ```
 
-**STOP TIMER** <br/>
+**STOP TIMER**\
+
 
 ```javascript
 
@@ -116,7 +126,8 @@ return msg;
 
 ```
 
-**IMMEDIATELY OUTPUT A PAYLOAD WITH THE ETS FILE** <br/>
+**IMMEDIATELY OUTPUT A PAYLOAD WITH THE ETS FILE**\
+
 
 ```javascript
 
@@ -126,9 +137,10 @@ return msg;
 
 ```
 
-## KNX TELEGRAM COUNTER
+### KNX TELEGRAM COUNTER
 
-**START TIMER** <br/>
+**START TIMER**\
+
 
 ```javascript
 
@@ -138,7 +150,8 @@ return msg;
 
 ```
 
-**STOP TIMER** <br/>
+**STOP TIMER**\
+
 
 ```javascript
 
@@ -148,7 +161,8 @@ return msg;
 
 ```
 
-**IMMEDIATELY OUTPUT TELEGRAM COUNT MESSAGE** <br/>
+**IMMEDIATELY OUTPUT TELEGRAM COUNT MESSAGE**\
+
 
 ```javascript
 
@@ -158,12 +172,7 @@ return msg;
 
 ```
 
+### SEE ALSO
 
-
-
-
-
-
-## SEE ALSO
-* *SAMPLES*
-    * [Sample Logger](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/Logger-Sample)
+* _SAMPLES_
+  * [Sample Logger](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/Logger-Sample)
