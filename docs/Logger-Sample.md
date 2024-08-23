@@ -1,15 +1,15 @@
 # LOGGER SAMPLES
 
-
-<img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/Logger.png" width="90%"><br/>
+![](https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/Logger.png)\
 
 
 **Copy this code and paste it into your flow**
 
-<details><summary>View code</summary>
+<details>
 
-> Adjust the nodes according to your setup and set **the path into the file node**.
+<summary>View code</summary>
 
+Adjust the nodes according to your setup and set **the path into the file node**.
 
 ```javascript
 
@@ -70,4 +70,5 @@
 ]
 
 ```
+
 </details>
