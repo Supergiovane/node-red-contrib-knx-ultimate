@@ -313,6 +313,7 @@ The API is named **KNXUltimate**. In the README page is well documented and ther
 
 A big THANK YOU to [@svenflender](https://github.com/svenflender) for the logo and icon graphics!
 <br/>
+We support [GitBook](https://www.gitbook.com)
 
 ![Logo](https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/flags/madeinitaly.png)
 <p align='left'>
