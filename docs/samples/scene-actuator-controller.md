@@ -1,2 +1,0 @@
-# Scene actuator controller
-

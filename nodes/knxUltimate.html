@@ -767,7 +767,7 @@
 <br /><br />
 </script>
 <script type="text/markdown" data-help-name="knxUltimate">
-<p>This node lets you control a KNX Group Address, this is the most used node.  
+<p>This node lets you control a KNX Group Address, this is the most used node.</p>  
     
 [<i class="fa fa-code"></i> Here you'll find some samples](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-SamplesHome)
 
@@ -821,14 +821,16 @@ If enabled, "f(x)" indication will be added to node's name.
 
 ### List of common object and functions you can use in the code
 
-: msg (object) : The current msg object received by the node . 
-: getGAValue (string GA, optional string DPT) : Get the specified GA's value, for example **'1/0/1'**, or also **'1/0/1 Bed table light'** (All text after a blank space will be ignored by the function. This is useful if you want to add the GA name as a reminder. With the ETS file imported, you can also copy and paste the GA and GA Name directly from the **Search GA** field.). **DPT** is optional if you've imported the ETS file, otherwise you must specify it, for example '1.001'. 
-: setGAValue (string GA, any value, optional string DPT) : Set the specified GA's value. The GA con be wrote for example **'1/0/1'**, or also **'1/0/1 Bed table light'** (All text after a blank space will be ignored by the function. This is useful if you want to add the GA name as a reminder. With the ETS file imported, you can also copy and paste the GA and GA Name directly from the **Search GA** field.). The **value** is mandatory, can be a boolean or number or string, **DPT** is optional if you've imported the ETS file, otherwise you must specify it, for example '1.001'. 
-: self (any value) : Set the currend node's value and sends the value to the KNX BUS as well. For example, *self(false)*. Caution using **self** function in the *From KNX BUS to node's OUTPUT PIN* code, because the code will be executed everytime a KNX telegram is received, so you coud have recurrency loops.
-: toggle (nothing) : Toggle the currend node's value and sends the value to the KNX BUS as well. For example, *toggle()*. Caution using **toggle** function in the *From KNX BUS to node's OUTPUT PIN* code, because the code will be executed everytime a KNX telegram is received, so you coud have recurrency loops.
-: node (object) : The node object.
-: RED (Node-Red object) : The Node-Red's RED object.
-: return (msg) : Mandatory `return msg;`, if you want to emit the message. Otherwise, using `return;` will not emit any message. 
+|Object or Function|Description|
+|--|--|
+| msg (object) | The current msg object received by the node. | 
+| getGAValue (string GA, optional string DPT) | Get the specified GA's value, for example **'1/0/1'**, or also **'1/0/1 Bed table light'** (All text after a blank space will be ignored by the function. This is useful if you want to add the GA name as a reminder. With the ETS file imported, you can also copy and paste the GA and GA Name directly from the **Search GA** field.). **DPT** is optional if you've imported the ETS file, otherwise you must specify it, for example '1.001'. |
+| setGAValue (string GA, any value, optional string DPT) | Set the specified GA's value. The GA con be wrote for example **'1/0/1'**, or also **'1/0/1 Bed table light'** (All text after a blank space will be ignored by the function. This is useful if you want to add the GA name as a reminder. With the ETS file imported, you can also copy and paste the GA and GA Name directly from the **Search GA** field.). The **value** is mandatory, can be a boolean or number or string, **DPT** is optional if you've imported the ETS file, otherwise you must specify it, for example '1.001'. |
+| self (any value) | Set the currend node's value and sends the value to the KNX BUS as well. For example, *self(false)*. Caution using **self** function in the *From KNX BUS to node's OUTPUT PIN* code, because the code will be executed everytime a KNX telegram is received, so you coud have recurrency loops. |
+| toggle (nothing) | Toggle the currend node's value and sends the value to the KNX BUS as well. For example, *toggle()*. Caution using **toggle** function in the *From KNX BUS to node's OUTPUT PIN* code, because the code will be executed everytime a KNX telegram is received, so you coud have recurrency loops. |
+| node (object) | The node object. |
+| RED (Node-Red object) | The Node-Red's RED object. |
+| return (msg) | Mandatory `return msg;`, if you want to emit the message. Otherwise, using `return;` will not emit any message. |
 
 ### From KNX BUS to node's OUTPUT PIN
 

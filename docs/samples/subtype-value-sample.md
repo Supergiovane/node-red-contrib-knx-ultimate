@@ -1,2 +1,0 @@
-# Subtype Value Sample
-

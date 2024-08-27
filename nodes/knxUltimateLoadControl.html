@@ -347,6 +347,8 @@
 
 
 <script type="text/markdown" data-help-name="knxUltimateLoadControl">
+# KNX LOAD CONTROL NODE
+
 <p>With the Load Control node you can automatically manage the disconnection of loads (washing machine, oven, etc.) when the current consumption exceeds a certain threshold.  
 
 The devices are turned off intelligently, checking the possible consumption of the device to determine whether to turn it off together with others. <br/>
@@ -372,7 +374,7 @@ Choose the device to turn off. Enter the device name or its group address. <br/>
 Enter any group address that indicates the consumption of the device chosen in the first line. **This is an optional parameter**. If the device is consuming more than a certain number of Watts, it means that it is in use. If it consumes less, the device will be considered "not in use" and both this and the next will be turned off at once.<br/>
 If *Automatic recovery* is enabled, the device is automatically reactivated when the "reset delay" expires.
 
-### Inputs
+## Inputs
 
 |Property|Description|
 |--|--|
@@ -383,28 +385,28 @@ If *Automatic recovery* is enabled, the device is automatically reactivated when
 | `msg.shedding` | String. *shed* to start the formward shedding sequence, *unshed* to start reverse shedding. Use this msg to force the shedding timer to start/stop, ignoring the **Monitor Wh** group address. Set *auto* to enable again the **Monitor Wh** group address monitoring. |
 
 
-### Outputs
+## Outputs
 
 1. Standard output
 : payload (string|object) : the standard output of the command.
 
-### Details
+## Details
 
 ```javascript
 
 msg = {
-  "topic": "Home Total Consumption", // Node Name
-  "operation": "Increase Shedding" or "Decrease Shedding" or operation reflecting the input message (disable, enable, reset), // Operation
-  "device": "Washing machine", // Device shedded
-  "ga": "", // Group address of the shedded device
-  "totalPowerConsumption": 3100, // Current power consumption
-  "wattLimit": 3000, // Limit you set in the config window
-  "payload": 1, // Current shedding stage
+    "topic": "Home Total Consumption", // Node Name
+    "operation": "Increase Shedding" or "Decrease Shedding" or operation reflecting the input message (disable, enable, reset), // Operation
+    "device": "Washing machine", // Device shedded
+    "ga": "", // Group address of the shedded device
+    "totalPowerConsumption": 3100, // Current power consumption
+    "wattLimit": 3000, // Limit you set in the config window
+    "payload": 1, // Current shedding stage
 }
 
 ```
 
-### Sample
+# Sample
 
 <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/SampleLoadControl">CLICK HERE FOR THE EXAMPLE</a>
 

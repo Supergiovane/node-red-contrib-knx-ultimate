@@ -1101,7 +1101,7 @@ This is an interim version, to quick fix some issues. Please report any issue wi
 
 
 **Version 1.2.34** - June 2021<br/>
-- Gateway configuration: added option Suppress repeated (R-Flag) telegrams fom BUS. When enabled, this option suppress the telegrams marked as "repeated" (with R-Flag) coming from the bus. See here: https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/1.-Gateway-configuration<br/>
+- Gateway configuration: added option Suppress repeated (R-Flag) telegrams fom BUS. When enabled, this option suppress the telegrams marked as "repeated" (with R-Flag) coming from the bus. See here: https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/Gateway-configuration<br/>
 
 
 **Version 1.2.33** - May 2021<br/>
