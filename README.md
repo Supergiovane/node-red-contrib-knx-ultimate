@@ -8,7 +8,7 @@
 [![MIT License][license-image]][license-url]
 [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
 [![Youtube][youtube-image]][youtube-url]
-[![Donate via PayPal](https://img.shields.io/badge/Donate-PayPal-blue.svg?style=flat-square)](https://www.paypal.me/techtoday) 
+[![Donate via PayPal](https://img.shields.io/badge/Donate-PayPal-blue.svg?style=flat-square)](https://www.paypal.com/donate/?hosted_button_id=S8SKPUBSPK758) 
 
 
 ![Sample Node](img/readmemain.png)
@@ -33,7 +33,7 @@ msg.payload = {red:255, green:200, blue:30} // Put some colors in our life
 <br/>
 
 > [!TIP]
-> I'm putting many effort, money and free time to this node, so please consider [MAKING A LITTLE DONATION](https://www.paypal.me/techtoday) if you're using KNX-Ultimate. Thanks!
+> I'm putting many effort, money and free time to this node, so please consider [MAKING A LITTLE DONATION](https://www.paypal.com/donate/?hosted_button_id=S8SKPUBSPK758) if you're using KNX-Ultimate. Thanks!
 
 <br/>
 

@@ -1,6 +1,6 @@
 ![Sample Node](img/logo.png)
 
-[![Donate via PayPal](https://img.shields.io/badge/Donate-PayPal-blue.svg?style=flat-square)](https://www.paypal.me/techtoday)
+[![Donate via PayPal](https://img.shields.io/badge/Donate-PayPal-blue.svg?style=flat-square)](https://www.paypal.com/donate/?hosted_button_id=S8SKPUBSPK758)
 
 <br/>
 
