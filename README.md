@@ -327,7 +327,8 @@ Authorized KNX logo by KNX Association</br>
 </p>
 
 
-[![Donate via PayPal](https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/CodiceQR.png)](https://www.paypal.com/donate/?hosted_button_id=S8SKPUBSPK758) 
+ 
+[![Donate via PayPal](https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/CodiceQR.png)](https://www.paypal.com/donate/?hosted_button_id=S8SKPUBSPK758)
 
 
 [license-image]: https://img.shields.io/badge/license-MIT-blue.svg
