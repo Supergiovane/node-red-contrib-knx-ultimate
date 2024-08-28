@@ -8,7 +8,6 @@
 [![MIT License][license-image]][license-url]
 [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
 [![Youtube][youtube-image]][youtube-url]
-[![Donate via PayPal](https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/CodiceQR.png)](https://www.paypal.com/donate/?hosted_button_id=S8SKPUBSPK758) 
 
 
 ![Sample Node](img/readmemain.png)
@@ -326,6 +325,10 @@ Authorized KNX logo by KNX Association</br>
 *<i>The author <b>Massimo Saccani</b> has been authorized to use the KNX logo.
 <br/>Forks of the knx-ultimate node are not implicitly allowed to use the KNX logo.</i>
 </p>
+
+
+[![Donate via PayPal](https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/CodiceQR.png)](https://www.paypal.com/donate/?hosted_button_id=S8SKPUBSPK758) 
+
 
 [license-image]: https://img.shields.io/badge/license-MIT-blue.svg
 [license-url]: https://github.com/Supergiovane/node-red-contrib-knx-ultimate/master/LICENSE

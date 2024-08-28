@@ -1,6 +1,6 @@
 ![Sample Node](img/logo.png)
 
-[![Donate via PayPal](https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/CodiceQR.png)](https://www.paypal.com/donate/?hosted_button_id=S8SKPUBSPK758)
+[Donate via PayPal](https://www.paypal.com/donate/?hosted_button_id=S8SKPUBSPK758)
 
 <br/>
 
