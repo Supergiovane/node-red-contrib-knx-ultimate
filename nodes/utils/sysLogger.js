@@ -3,7 +3,7 @@
 */
 const util = require('util')
 const possibleLEvels = ['silent', 'error', 'warn', 'info', 'debug', 'trace']
-let logger
+let logger = undefined;
 
 /*
  * Logger-Level importance levels:
@@ -29,36 +29,39 @@ const determineLogLevel = options => {
 
 module.exports = {
   get: function (options) {
-    if (!logger) {
+    if (logger === undefined) {
       // console.log('BANANA new logger, level',determineLogLevel(options),(options && options.debug && 'debug') ||
       // (options && options.loglevel) ||
-      // 'error');
-      logger = require('log-driver')({
-        levels: ['silent', 'error', 'warn', 'info', 'debug', 'trace'],
-        level: determineLogLevel(options),
-        format: function () {
-          // arguments[0] is the log level ie 'debug'
-          const a = Array.from(arguments)
-          let ts
-          const dt = new Date()
-          try {
-            ts = dt.toLocaleString().replace(/T/, ' ').replace(/Z$/, '') + '.' + dt.getMilliseconds()
-          } catch (error) {
-            ts = dt.toISOString().replace(/T/, ' ').replace(/Z$/, '') + '.' + dt.getMilliseconds()
-          }
-
-          if (a.length > 2) {
-            // if more than one item to log, assume a fmt string is given
-            const fmtargs = ['[%s] %s ' + a[1], a[0], ts].concat(a.slice(2))
-            return util.format.apply(util, fmtargs)
-          } else {
-            // arguments[1] is a plain string
-            return util.format('[%s] %s %s', a[0], ts, a[1])
-          }
-        }
-      })
+      return undefined;
     }
     return (logger)
+  },
+  set: function (options) {
+    logger = require('log-driver')({
+      levels: ['silent', 'error', 'warn', 'info', 'debug', 'trace'],
+      level: determineLogLevel(options),
+      format: function () {
+        // arguments[0] is the log level ie 'debug'
+        const a = Array.from(arguments)
+        let ts
+        const dt = new Date()
+        try {
+          ts = dt.toLocaleString().replace(/T/, ' ').replace(/Z$/, '') + '.' + dt.getMilliseconds()
+        } catch (error) {
+          ts = dt.toISOString().replace(/T/, ' ').replace(/Z$/, '') + '.' + dt.getMilliseconds()
+        }
+
+        if (a.length > 2) {
+          // if more than one item to log, assume a fmt string is given
+          const fmtargs = ['[%s] %s ' + a[1], a[0], ts].concat(a.slice(2))
+          return util.format.apply(util, fmtargs)
+        } else {
+          // arguments[1] is a plain string
+          return util.format('[%s] %s %s', a[0], ts, a[1])
+        }
+      }
+    })
+    return logger;
   },
   destroy: function () {
     // 16/08/2020 Supergiovane Destruction of the logger

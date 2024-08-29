@@ -22,7 +22,7 @@ module.exports = (RED) => {
     node.timerHUEConfigCheckState = null; // Timer that check the connection to the hue bridge every xx seconds
     node.linkStatus = "disconnected";
     try {
-      node.sysLogger = loggerEngine.get({ loglevel: node.loglevel }); // New logger to adhere to the loglevel selected in the config-window
+      node.sysLogger = loggerEngine.set({ loglevel: node.loglevel }); // New logger to adhere to the loglevel selected in the config-window
     } catch (error) {
       /* empty */
     }

@@ -4,7 +4,6 @@ const oOS = require("os");
 const fs = require("fs");
 const path = require("path");
 const yaml = require('js-yaml');
-const loggerEngine = require("./utils/sysLogger.js");
 const dptlib = require('knxultimate').dptlib;
 
 
@@ -61,10 +60,6 @@ module.exports = (RED) => {
 
     function commonFunctions() {
         var node = this;
-
-        try {
-            node.sysLogger = loggerEngine.get({ loglevel: node.loglevel }); // 08/04/2021 new logger to adhere to the loglevel selected in the config-window
-        } catch (error) { }
 
         // 11/03/2020 Delete scene saved file, from html
         RED.httpAdmin.get('/knxultimateCheckHueConnected', (req, res) => {
