@@ -6,6 +6,10 @@
 
 # CHANGELOG
 
+**Version 3.1.8** - September 2024<br/>
+- Wiki: completed the wiki for all nodes.<br/>
+- Node-Red help panel: completed the help for all nodes.<br/>
+
 **Version 3.1.7** - August 2024<br/>
 - KNX Node: KNX Function: async/await caused some race condition issues, so the code is now sync.<br/>
 
