@@ -57,8 +57,8 @@ Please subscribe to the [Youtube channel](https://www.youtube.com/playlist?list=
 * **LOAD CONTROL node** [here](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/LoadControl-Configuration). Control your loads (Oven, Washing machine, etc..) and avoit shutting down the main voltage due to too high power consumption.
 * **VIEWER node** [here](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/knxUltimateViewer). View all Group Addresses and values of your KNX BUS, in the Node-Red Dashboard.
 * **AUTO RESPONDER node** responds to read requests coming from the bus. Used mainly for virtual group addresses.
-* **PHILIPS HUE nodeset** [here](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/en-hue-configuration). Link HUE devices to KNX in a simple way.
-* **HOME ASSISTANT translator node** translates the HA input msg, to a KNX value. Comes with a built-in translation table, that's user editable.
+* **PHILIPS HUE nodeset** [here](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/HUE+Bridge+configuration). Link HUE devices to KNX in a simple way.
+* **HOME ASSISTANT translator node** [here](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/HATranslator) translates the HA input msg, to a KNX value. Comes with a built-in translation table, that's user editable.
 
 <br>
 
