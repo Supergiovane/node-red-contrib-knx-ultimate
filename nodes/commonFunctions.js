@@ -5,7 +5,7 @@ const fs = require("fs");
 const path = require("path");
 const yaml = require('js-yaml');
 const dptlib = require('knxultimate').dptlib;
-
+const customHTTP = require('./utils/http');
 
 
 // DATAPONT MANIPULATION HELPERS
@@ -61,6 +61,7 @@ module.exports = (RED) => {
     function commonFunctions() {
         var node = this;
 
+
         // 11/03/2020 Delete scene saved file, from html
         RED.httpAdmin.get('/knxultimateCheckHueConnected', (req, res) => {
             try {
@@ -85,6 +86,52 @@ module.exports = (RED) => {
             } catch (error) { if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.warn(`e ${error}`); }
             res.json({ status: 220 });
         };
+
+        // // Find all HUE Bridges in the network
+        // RED.httpAdmin.get('/KNXUltimateDiscoverHueBridges'), (req, res) => {
+        //     const url = 'https://discovery.meethue.com'; // Use HUE broker server discover process by visiting
+        //     async function fetchData() {
+        //         try {
+        //             const response = await fetch(url);  // Effettua la richiesta
+        //             const dataArray = await response.json();  // Parsing dei dati JSON
+        //             // Mostra l'array risultante
+        //             res.json(dataArray);
+        //         } catch (error) {
+        //             if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(`Error fetching discovery.meethue.com ${error.stack}`);
+        //             res.json("");
+        //         }
+        //     }
+        // fetchData();
+        // };
+
+        // Find all HUE Bridges in the network
+        RED.httpAdmin.get('/KNXUltimateGetHueBridgeInfo', RED.auth.needsPermission("hue-config.read"), (req, res) => {
+            async function fetchData() {
+                try {
+
+                    const response = await customHTTP.getBridgeDetails(req.query.IP)
+                    // Mostra l'array risultante
+                    res.json(response);
+                } catch (error) {
+                    if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(`Error fetching discovery.meethue.com ${error.stack}`);
+                    res.json({ error: error.message });
+                }
+            }
+            fetchData();
+        });
+
+
+        // Find all HUE Bridges in the network
+        RED.httpAdmin.get('/KNXUltimateGetPlainHueBridgeCredentials', RED.auth.needsPermission("hue-config.read"), (req, res) => {
+            try {
+                const serverId = RED.nodes.getNode(req.query.serverId); // Retrieve node.id of the config node.
+                const username = serverId.credentials.username;
+                const clientkey = serverId.credentials.clientkey;
+                res.json({ username: username, clientkey: clientkey });
+            } catch (error) {
+                res.json({ error: error.message })
+            }
+        });
 
         // Endpoint for connecting to HUE Bridge
         RED.httpAdmin.get("/KNXUltimateRegisterToHueBridge", (req, res) => {

@@ -36,7 +36,7 @@ class classHUE extends EventEmitter {
     // Init the http to use the username and bridge ip
     this.hueApiV2 = http.use({
       key: this.username,
-      prefix: `https://${this.hueBridgeIP}/clip/v2`,
+      prefix: `https://${this.hueBridgeIP}/clip/v2`
     });
 
     try {

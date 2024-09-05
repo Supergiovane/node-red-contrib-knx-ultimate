@@ -726,7 +726,7 @@
           if (this.timerBlinkBackground !== undefined) clearTimeout(this.timerBlinkBackground);
           this.timerBlinkBackground = setTimeout(() => {
             timerWaitBackEndCounter++;
-            if (timerWaitBackEndCounter > 40) {
+            if (timerWaitBackEndCounter > 20) {
               timerWaitBackEndCounter = 0;
               const myNotification = RED.notify("Something went wrong. Please make sure the HUE bridge connection is properly configured. For further info, see the node-red log. IF YOU ARE CREATING A NEW HUE CONFIGURATION NODE, PLEASE DEPLOY AND RETRY.",
                 {

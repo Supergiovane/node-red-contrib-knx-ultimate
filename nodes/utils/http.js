@@ -101,3 +101,42 @@ module.exports.use = (config) => {
 
     return http;
 };
+
+/**
+* Get Bridgedetails
+* 
+* @param _ip The target ip.
+*/
+module.exports.getBridgeDetails = async (_ip) => {
+    return new Promise((resolve, reject) => {
+        const opt = {};
+        opt.method = 'GET';
+        opt.rejectUnauthorized = false;
+        opt.url = 'https://' + _ip + '/api/0/config';
+        simpleget.concat(opt, (err, res, data) => {
+            try {
+                if (err) {
+                    reject(err);
+                } else {
+                    // log.trace('http data ' + data);
+                    if (res.statusCode >= 100 && res.statusCode < 400) {
+                        try {
+                            let result = JSON.parse(data);
+                            if (result.errors && result.errors.length > 0) {
+                                reject(new Error("The response for " + opt.url + " returned errors " + JSON.stringify(result.errors)));
+                            }
+                            if (!result) {
+                                reject(new Error("Unexpected result with no data. " + JSON.stringify(result)));
+                            }
+                            resolve(result);
+                        } catch (error) {
+                            RED.log.error(`utils.https: config.http.call: let result = JSON.parse(data); =: ${error.message} : ${error.stack || ""} `);
+                        }
+                    } else {
+                        reject(new Error("Error response for " + opt.url + " with status " + res.statusCode + " " + res.statusMessage));
+                    }
+                }
+            } catch (error) { }
+        });
+    });
+};

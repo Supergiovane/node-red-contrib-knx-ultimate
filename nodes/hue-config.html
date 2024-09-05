@@ -14,75 +14,134 @@
             clientkey: { type: "password" }
         },
         oneditprepare: function () {
+
+            var node = this;
+
             if (this.bridgeid === undefined || this.bridgeid === '') {
                 $("#divDetails").hide()
             } else {
                 $("#divDetails").show()
             }
-            $("#getinfocam").click(function () {
 
-                var myNotification = RED.notify("Please press the Link button on the HUE Bridge. Once pressed, click OK.",
-                    {
-                        modal: true,
-                        fixed: true,
-                        type: 'info',
-                        buttons: [
+            // #region "CONNECTION TO THE BRIDGE"
+            $("#getinfocam").click(function () {
+                $.getJSON("KNXUltimateGetHueBridgeInfo?IP=" + $("#node-config-input-host").val() + "&serverId=" + node.id, (data) => {
+                    if (data.hasOwnProperty("error")) {
+                        RED.notify(JSON.stringify(data.error),
                             {
-                                text: "OK",
-                                click: function (e) {
-                                    $("#mainWindow").hide();
-                                    $("#waitWindow").show();
-                                    // Send the infos to Supergiovane
-                                    $.getJSON("KNXUltimateRegisterToHueBridge?IP=" + $("#node-config-input-host").val() + "&serverId=" + this.id, (data) => {
-                                        this.value = "Connect";
-                                        this.disabled = false;
-                                        if (data.hasOwnProperty("error")) {
-                                            RED.notify(JSON.stringify(data.error),
-                                                {
-                                                    modal: true,
-                                                    fixed: false,
-                                                    type: 'error'
-                                                });
+                                modal: true,
+                                fixed: false,
+                                type: 'error'
+                            });
+                        return;
+                    }
+                    $("#node-config-input-bridgeid").val(data.bridgeid);
+                    $("#node-config-input-name").val(data.name);
+                    var myNotification = RED.notify("Please press the Link button on the HUE Bridge, then click OK. \nYou can also set the credentials manually by cliking SET CREDENTIALS MANUALLY.",
+                        {
+                            modal: true,
+                            fixed: true,
+                            type: 'info',
+                            buttons: [
+                                {
+                                    text: "OK",
+                                    click: function (e) {
+                                        $("#mainWindow").hide();
+                                        $("#waitWindow").show();
+                                        // Send the infos to Supergiovane
+                                        $.getJSON("KNXUltimateRegisterToHueBridge?IP=" + $("#node-config-input-host").val() + "&serverId=" + node.id, (data) => {
+                                            this.value = "Connect";
                                             this.disabled = false;
-                                            $("#divDetails").hide()
+                                            if (data.hasOwnProperty("error")) {
+                                                RED.notify(JSON.stringify(data.error),
+                                                    {
+                                                        modal: true,
+                                                        fixed: false,
+                                                        type: 'error'
+                                                    });
+                                                this.disabled = false;
+                                                $("#divDetails").hide()
+                                                $("#mainWindow").show();
+                                                $("#waitWindow").hide();
+                                                return;
+                                            }
+
+                                            // Expected { bridge: bridgeConfig, user: createdUser }
+                                            $("#node-config-input-name").val(data.bridge.data.name);
+                                            // $("#node-config-input-host").val(data.bridge.data.ipaddress);
+                                            $("#node-config-input-username").val(data.user.username);
+                                            $("#node-config-input-clientkey").val(data.user.clientkey);
+                                            $("#node-config-input-bridgeid").val(data.bridge.data.bridgeid);
                                             $("#mainWindow").show();
                                             $("#waitWindow").hide();
-                                            return;
-                                        }
+                                            $("#divDetails").show()
 
-                                        // Expected { bridge: bridgeConfig, user: createdUser }
-                                        $("#node-config-input-name").val(data.bridge.data.name);
-                                        // $("#node-config-input-host").val(data.bridge.data.ipaddress);
-                                        $("#node-config-input-username").val(data.user.username);
-                                        $("#node-config-input-clientkey").val(data.user.clientkey);
-                                        $("#node-config-input-bridgeid").val(data.bridge.data.bridgeid);
+                                        }).error(function (jqXHR, textStatus, errorThrown) {
+                                            RED.notify("Something went wrong. Please create at least a KNX Gateway node first.",
+                                                {
+                                                    modal: false,
+                                                    fixed: false,
+                                                    type: 'error'
+                                                })
+                                            $("#mainWindow").show();
+                                            $("#waitWindow").hide();
+                                        });
+                                        myNotification.close();
+                                    }
+                                },
+                                {
+                                    text: "SET CREDENTIALS MANUALLY",
+                                    click: function (e) {
+                                        myNotification.close();
                                         $("#mainWindow").show();
-                                        $("#waitWindow").hide();
+                                        $("#node-config-input-clientkey").removeAttr('disabled');
+                                        $("#node-config-input-username").removeAttr('disabled');
+                                        $("#DIVrevealBridgeSecrets").hide();
+                                        $("#BUTTONrevealBridgeSecrets").hide()
                                         $("#divDetails").show()
-
-                                    }).error(function (jqXHR, textStatus, errorThrown) {
-                                        RED.notify("Something went wrong. Please create at least a KNX Gateway node first.",
-                                            {
-                                                modal: false,
-                                                fixed: false,
-                                                type: 'error'
-                                            })
+                                        $("#waitWindow").hide();
+                                        $("#divConnectButton").hide();
+                                    }
+                                },
+                                {
+                                    text: "CANCEL",
+                                    click: function (e) {
+                                        myNotification.close();
                                         $("#mainWindow").show();
                                         $("#waitWindow").hide();
-                                    });
-                                    myNotification.close();
-                                }
-                            },
-                            {
-                                text: "CANCEL",
-                                click: function (e) {
-                                    myNotification.close();
-                                    $("#mainWindow").show();
-                                    $("#waitWindow").hide();
-                                }
-                            }]
-                    });
+                                        //$("#DIVrevealBridgeSecrets").hide()
+                                        //$("#BUTTONrevealBridgeSecrets").hide()
+                                    }
+                                }]
+                        });
+                }).error(function (jqXHR, textStatus, errorThrown) {
+                    RED.notify("Something went wrong. Please check the bridge's IP.",
+                        {
+                            modal: false,
+                            fixed: false,
+                            type: 'error'
+                        })
+                    return;
+                });
             });
+            //#endregion
+
+
+            $("#revealBridgeSecrets").click(function () {
+                $("#DIVrevealBridgeSecrets").hide();
+                $.getJSON("KNXUltimateGetPlainHueBridgeCredentials?serverId=" + node.id, (data) => {
+                    $("#TEXTrevealBridgeSecrets").val("Username:" + data.username + "\nClientkey:" + data.clientkey);
+                    $("#DIVrevealBridgeSecrets").show();
+                }).error(function (jqXHR, textStatus, errorThrown) {
+                    RED.notify("Something went wrong " + errorThrown,
+                        {
+                            modal: false,
+                            fixed: false,
+                            type: 'error'
+                        })
+                    $("#DIVrevealBridgeSecrets").hide();
+                });
+            })
         },
         oneditsave: function () {
 
@@ -114,8 +173,8 @@
                 <i class="fa fa-server"></i> IP</label>
             <input type="text" id="node-config-input-host" placeholder="Write here the HUE bridge's IP, then click CONNECT">
         </div>
-        <div class="form-row">
-            <label><i class="fa fa-sign-in"></i>&nbspRegister</label>
+        <div class="form-row" id="divConnectButton">
+            <label><i class="fa fa-sign-in"></i> Register</label>
             <input type="button" id="getinfocam" class="ui-button ui-corner-all ui-widget"
                 style="background-color:#AEE1FF;width:150px" value="CONNECT">
         </div>
@@ -135,7 +194,7 @@
                     <i class="fa fa-tag"></i>
                     Bridge ID
                 </label>
-                <input type="text" id="node-config-input-bridgeid" disabled>
+                <input type="text" id="node-config-input-bridgeid">
             </div>
 
             <div class="form-row">
@@ -143,22 +202,37 @@
                 <input type="password" id="node-config-input-username" placeholder="" disabled>
             </div>
             <div class="form-row">
-                <label for="node-config-input-clientkey"> Bridge Key</label>
+                <label for="node-config-input-clientkey"> Client Key</label>
                 <input type="password" id="node-config-input-clientkey" placeholder="" disabled>
             </div>
-        
+            <div class="form-row" id="BUTTONrevealBridgeSecrets">
+                <label><i class="fa fa-magic"></i> Secrets</label>
+                <input type="button" id="revealBridgeSecrets" class="ui-button ui-corner-all ui-widget"
+                    style="background-color:#ffb1ae;width:150px" value="Reveal">
+            </div>
+            <div class="form-row" id="DIVrevealBridgeSecrets" hidden>
+                <label><i class="fa fa-file-text-o"></i> -> </label>
+                <textarea type="textarea" rows="3" cols="250" id="TEXTrevealBridgeSecrets"></textarea>
+            </div>
+            
         </div>    
     </div>
  
 
 </script>
 <script type="text/markdown" data-help-name="hue-config">
-This node registers to the Hue Bridge. Just set the Bridge's IP and click **CONNECT** button.
+This node registers to the Hue Bridge.
+
+Just set the Bridge's IP and click **CONNECT**.  
+You can also manually set the credentials.
+
 
 **General**
 |Property|Description|
 |--|--|
 | IP | Put here the bridge's IP (the IP must be fixed) |
+| CONNECT | This button will start the registering process with HUE Bridge. The bridge ID field is automatically read from the bridge after pressing **CONNECT**. You can then choose to register new credentials, or to **SET CREDENTIALS MANUALLY**. If you choose to set credentials manually, just fill in the fields. |
 | Name | The bridge's name |
+| Reveal | Reveals the secret key pair Username and Client Key, so you can copy and use it wherever you want. |
     
 </script>
