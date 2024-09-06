@@ -2,7 +2,11 @@
 const { EventEmitter } = require("events");
 const EventSource = require("eventsource");
 const http = require("./http");
-const pleaseWait = t => new Promise((resolve, reject) => setTimeout(resolve, t))
+// const pleaseWait = t => new Promise((resolve, reject) => setTimeout(resolve, t))
+const { RateLimiter } = require('limiter');
+//const { forEach } = require("lodash");
+// Configura il rate limiter
+const limiter = new RateLimiter({ tokensPerInterval: 1, interval: 150 }); // HUE telegram interval
 
 class classHUE extends EventEmitter {
 
@@ -108,12 +112,10 @@ class classHUE extends EventEmitter {
     }, 10 * (60 * 1000)); // 10 minutes
   };
 
-  // Handle the send queue
-  // ######################################
-  handleQueue = async () => {
-    if (this.commandQueue.length > 0) {
-      // const jRet = { ...this.commandQueue.shift() } //Clone the object by value
-      const jRet = this.commandQueue.shift();
+  // Process single item in the queue
+  processQueueItem = async () => {
+    try {
+      const jRet = this.commandQueue.pop();
       // jRet is ({ _lightID, _state, _operation });;
       switch (jRet._operation) {
         case "setLight":
@@ -153,8 +155,7 @@ class classHUE extends EventEmitter {
               this.writeHueQueueAdd(light.rid, jRet._state, "setLight");
             });
           } catch (error) {
-            if (this.sysLogger !== undefined && this.sysLogger !== null)
-              this.sysLogger.error(`KNXUltimatehueEngine: classHUE: handleQueue: stopScene: ${error.message}`);
+            if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.error(`KNXUltimatehueEngine: classHUE: handleQueue: stopScene: ${error.message}`);
           }
           break;
         case "Ping":
@@ -170,10 +171,29 @@ class classHUE extends EventEmitter {
         default:
           break;
       }
+    } catch (error) {
+      if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.error(`KNXUltimatehueEngine: classHUE: processQueueItem: ${error.trace}`);
     }
-    // The Hue bridge allows about 10 telegram per second, so i need to make a queue manager
-    await pleaseWait(150); // Waits
-    if (this.closePushEventStream === false) this.handleQueue();
+  };
+
+  // // Handle the send queue
+  // // ######################################
+  handleQueue = async () => {
+    // Verifica se è possibile eseguire una nuova richiesta
+    do {
+      const remainingRequests = await limiter.removeTokens(1);
+      if (this.commandQueue.length > 0) {
+        //if (remainingRequests >= 0) {
+        // OK, i can send
+        //console.log("\x1b[32m Messaggio. remainingRequests=" + remainingRequests + "\x1b[0m " + new Date().toTimeString(), this.commandQueue.length, "remainingRequests " + remainingRequests);
+        await this.processQueueItem();
+        //} else {
+        // Limit reached, skip this round.
+        //console.log("\x1b[41m HO DETTO SPETA. remainingRequests=" + remainingRequests + "\x1b[0m " + new Date().toTimeString(), this.commandQueue.length, "remainingRequests " + remainingRequests);
+        //}
+      }
+    } while (this.closePushEventStream === false);
+    //console.log("\x1b[42m End processing commandQueue \x1b[0m " + new Date().toTimeString(), this.commandQueue.length);
   };
 
   writeHueQueueAdd = async (_lightID, _state, _operation) => {

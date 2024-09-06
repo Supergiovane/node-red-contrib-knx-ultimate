@@ -6,6 +6,10 @@
 
 # CHANGELOG
 
+**Version 3.2.0** - September 2024<br/>
+- Major Version.<br/>
+- HUE engine: implemented a new "limiter" package for better calculate the maximum numbers of telegrams accepted by HUE Bridge.<br/>
+
 **Version 3.1.9** - September 2024<br/>
 - HUE Bridge: you can now register to a bridge with your own credentials.<br/>
 - HUE Bridge: you can reveal the encrypted bridge's credentials (there is a button for that).<br/>

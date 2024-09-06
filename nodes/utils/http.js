@@ -1,10 +1,13 @@
-/**
- * Promise wrapper around simple get. 
- * Modified code based on: https://github.com/rodney42/node-hue/blob/main/lib/http.js
- * Thank you rodney42
- */
+
 const simpleget = require('simple-get');
 
+/**
+* Parameters.
+*
+* @param config.key the credentualskey.
+* @param config.prefix the bridge's URL
+* @param config.url the resource url
+*/
 module.exports.use = (config) => {
     let http = {};
 
@@ -24,6 +27,7 @@ module.exports.use = (config) => {
             simpleget.concat(opt, (err, res, data) => {
                 try {
                     if (err) {
+                        RED.log.error(`utils.https: config.http.call: simpleget.concat ${err.message} : ${err.stack || ""} `);
                         reject(err);
                     } else {
                         // log.trace('http data ' + data);
@@ -31,6 +35,7 @@ module.exports.use = (config) => {
                             try {
                                 let result = JSON.parse(data);
                                 if (result.errors && result.errors.length > 0) {
+                                    //console.log("\x1b[41m OrroreUno \x1b[0m result.errors ", result.errors, " " + new Date().toTimeString(), this.commandQueue.length, "remainingRequests " + remainingRequests);
                                     reject(new Error("The response for " + opt.url + " returned errors " + JSON.stringify(result.errors)));
                                 }
                                 if (!result.data) {
@@ -41,6 +46,7 @@ module.exports.use = (config) => {
                                 RED.log.error(`utils.https: config.http.call: let result = JSON.parse(data); =: ${error.message} : ${error.stack || ""} `);
                             }
                         } else {
+                            RED.log.error(`utils.https: config.http.call: simpleget.concat: Error response: status code: ${res.statusCode || undefined}`);
                             reject(new Error("Error response for " + opt.url + " with status " + res.statusCode + " " + res.statusMessage));
                         }
                     }
