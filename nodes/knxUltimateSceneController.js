@@ -1,3 +1,10 @@
+// 10/09/2024 Setup the color logger
+loggerSetup = (options) => {
+  let clog = require("node-color-log").createNamedLogger(options.setPrefix);
+  clog.setLevel(options.loglevel);
+  clog.setDate(() => (new Date()).toLocaleString());
+  return clog;
+}
 module.exports = function (RED) {
   function knxUltimateSceneController(config) {
     const fs = require('fs')
@@ -6,7 +13,7 @@ module.exports = function (RED) {
 
     RED.nodes.createNode(this, config)
     const node = this
-    node.server = RED.nodes.getNode(config.server)
+    node.serverKNX = RED.nodes.getNode(config.server)
     node.name = config.name || 'KNX Scene Controller'
     node.outputtopic = typeof config.outputtopic === 'undefined' ? '' : config.outputtopic
     node.topic = config.topic || ''
@@ -26,7 +33,7 @@ module.exports = function (RED) {
     node.rules = config.rules || [{}]
     node.isSceneController = true // Signal to config node, that this is a node scene controller
     node.userDir = path.join(RED.settings.userDir, 'knxultimatestorage') // 09/03/2020 Storage of ttsultimate (otherwise, at each upgrade to a newer version, the node path is wiped out and recreated, loosing all custom files)
-    node.sysLogger = require('./utils/sysLogger.js').get({ loglevel: node.server.loglevel || 'error' }) // 08/04/2021 new logger to adhere to the loglevel selected in the config-window
+    node.sysLogger = loggerSetup({ loglevel: node.serverKNX.loglevel, setPrefix: "knxUltimateLoadControl.js" }); // 08/04/2021 new logger to adhere to the loglevel selected in the config-window
     node.timerWait = null
     node.icountMessageInWindow = 0
     node.disabled = false // 21/09/2020 you can now disable the scene controller
@@ -84,7 +91,7 @@ module.exports = function (RED) {
     // Used to call the status update from the config node.
     node.setNodeStatus = ({ fill, shape, text, payload, GA, dpt, devicename }) => {
       try {
-        if (node.server == null) { node.status({ fill: 'red', shape: 'dot', text: '[NO GATEWAY SELECTED]' }); return }
+        if (node.serverKNX === null) { node.status({ fill: 'red', shape: 'dot', text: '[NO GATEWAY SELECTED]' }); return }
         if (node.icountMessageInWindow == -999) return // Locked out
         if (node.disabled === true) fill = 'grey' // 21/09/2020 if disabled, color is grey
         const dDate = new Date()
@@ -96,9 +103,9 @@ module.exports = function (RED) {
         node.status({ fill, shape, text: GA + payload + (node.listenallga === true ? ' ' + devicename : '') + ' (' + dDate.getDate() + ', ' + dDate.toLocaleTimeString() + ' ' + text })
         // 16/02/2020 signal errors to the server
         if (fill.toUpperCase() === 'RED') {
-          if (node.server) {
+          if (node.serverKNX) {
             const oError = { nodeid: node.id, topic: node.outputtopic, devicename, GA, text }
-            node.server.reportToWatchdogCalledByKNXUltimateNode(oError)
+            node.serverKNX.reportToWatchdogCalledByKNXUltimateNode(oError)
           };
         };
       } catch (error) {
@@ -234,7 +241,7 @@ module.exports = function (RED) {
           }
         } else {
           // Topic is Group Address
-          node.server.writeQueueAdd({ grpaddr: rule.topic, payload: oPayload, dpt: rule.dpt, outputtype: 'write', nodecallerid: node.id })
+          node.serverKNX.sendKNXTelegramToKNXEngine({ grpaddr: rule.topic, payload: oPayload, dpt: rule.dpt, outputtype: 'write', nodecallerid: node.id })
         }
       }
       const t = setTimeout(() => { // 21/03/2022 fixed possible memory leak. Previously was setTimeout without "let t = ".
@@ -366,8 +373,8 @@ module.exports = function (RED) {
     node.on('input', function (msg) {
       if (typeof msg === 'undefined') return
 
-      if (!node.server) return // 29/08/2019 Server not instantiate
-      if (node.server.linkStatus !== 'connected') {
+      if (!node.serverKNX) return // 29/08/2019 Server not instantiate
+      if (node.serverKNX.linkStatus !== 'connected') {
         if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error('knxUltimateSceneController: Lost link due to a connection error')
         return // 29/08/2019 If not connected, exit
       }
@@ -401,16 +408,16 @@ module.exports = function (RED) {
     })
 
     node.on('close', function (done) {
-      if (node.server) {
-        node.server.removeClient(node)
+      if (node.serverKNX) {
+        node.serverKNX.removeClient(node)
       }
       done()
     })
 
     // On each deploy, unsubscribe+resubscribe
-    if (node.server) {
-      node.server.removeClient(node)
-      node.server.addClient(node)
+    if (node.serverKNX) {
+      node.serverKNX.removeClient(node)
+      node.serverKNX.addClient(node)
     }
   }
   RED.nodes.registerType('knxUltimateSceneController', knxUltimateSceneController)

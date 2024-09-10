@@ -1,4 +1,13 @@
 
+// 10/09/2024 Setup the color logger
+loggerSetup = (options) => {
+  let clog = require("node-color-log").createNamedLogger(options.setPrefix);
+  clog.setLevel(options.loglevel);
+  clog.setDate(() => (new Date()).toLocaleString());
+  return clog;
+}
+
+
 /* eslint-disable max-len */
 module.exports = function (RED) {
   const _ = require('lodash');
@@ -9,9 +18,9 @@ module.exports = function (RED) {
   function knxUltimate(config) {
     RED.nodes.createNode(this, config);
     const node = this;
-    node.server = RED.nodes.getNode(config.server);
+    node.serverKNX = RED.nodes.getNode(config.server);
     // 11/11/2021 Is the node server disabled by the flow "disable" command?
-    if (node.server === null) {
+    if (node.serverKNX === null) {
       node.status({ fill: 'red', shape: 'dot', text: '[THE GATEWAY NODE HAS BEEN DISABLED]' });
       return;
     }
@@ -21,7 +30,7 @@ module.exports = function (RED) {
       fill, shape, text, payload, GA, dpt, devicename,
     }) => {
       try {
-        if (node.server == null) { node.status({ fill: 'red', shape: 'dot', text: '[NO GATEWAY SELECTED]' }); return; }
+        if (node.serverKNX === null) { node.status({ fill: 'red', shape: 'dot', text: '[NO GATEWAY SELECTED]' }); return; }
         if (node.icountMessageInWindow == -999) return; // Locked out, doesn't change status.
         const dDate = new Date();
         // 30/08/2019 Display only the things selected in the config
@@ -32,11 +41,11 @@ module.exports = function (RED) {
         node.status({ fill, shape, text: `${GA + payload + (node.listenallga === true ? ` ${devicename}` : '')} (${dDate.getDate()}, ${dDate.toLocaleTimeString()} ${text}` });
         // 16/02/2020 signal errors to the server
         if (fill.toUpperCase() === 'RED') {
-          if (node.server) {
+          if (node.serverKNX) {
             const oError = {
               nodeid: node.id, topic: node.outputtopic, devicename, GA, text,
             };
-            node.server.reportToWatchdogCalledByKNXUltimateNode(oError);
+            node.serverKNX.reportToWatchdogCalledByKNXUltimateNode(oError);
           }
         }
         // Validate the Address to advise the user. The address can be undefined, because the
@@ -119,7 +128,7 @@ module.exports = function (RED) {
     node.passthrough = (typeof config.passthrough === 'undefined' ? 'no' : config.passthrough);
     node.inputmessage = {}; // Stores the input message to be passed through
     node.timerTTLInputMessage = null; // The stored node.inputmessage has a ttl.
-    node.sysLogger = require('./utils/sysLogger.js').get({ loglevel: node.server.loglevel || 'error' }); // 08/04/2021 new logger to adhere to the loglevel selected in the config-window
+    node.sysLogger = loggerSetup({ loglevel: node.serverKNX.loglevel, setPrefix: "knxUltimate.js" }); // 08/04/2021 new logger to adhere to the loglevel selected in the config-window
     node.sendMsgToKNXCode = config.sendMsgToKNXCode || undefined;
     node.receiveMsgFromKNXCode = config.receiveMsgFromKNXCode || undefined;
     if (node.sendMsgToKNXCode === '') node.sendMsgToKNXCode = undefined
@@ -144,7 +153,7 @@ module.exports = function (RED) {
         const blankSpacePosition = _ga.indexOf(" ");
         if (blankSpacePosition > -1) _ga = _ga.substring(0, blankSpacePosition);
         // Is there a GA in the server's exposedGAs?
-        const found = node.server.exposedGAs.find(a => a.ga === _ga);
+        const found = node.serverKNX.exposedGAs.find(a => a.ga === _ga);
         if (found !== undefined) {
           if (_dpt === undefined && found.dpt === undefined) {
             const errM = 'knxUltimate: getGaValue: node ID:' + node.id + ' ' + 'No CSV file imported. Please provide the dpt manually';
@@ -175,7 +184,7 @@ module.exports = function (RED) {
         if (blankSpacePosition > -1) _ga = _ga.substring(0, blankSpacePosition);
         if (_dpt === undefined) {
           // Try getting dpt from ETS CSV
-          const found = node.server.exposedGAs.find(a => a.ga === _ga);
+          const found = node.serverKNX.exposedGAs.find(a => a.ga === _ga);
           if (found === undefined || found.dpt === undefined) {
             const errM = 'knxUltimate: setGAValue: node ID:' + node.id + ' ' + 'No CSV file imported. Please provide the dpt manually';
             RED.log.error(errM);
@@ -183,7 +192,7 @@ module.exports = function (RED) {
             return;
           }
         }
-        node.server.writeQueueAdd({
+        node.serverKNX.sendKNXTelegramToKNXEngine({
           grpaddr: _ga, payload: _value, dpt: _dpt, outputtype: 'write', nodecallerid: node.id,
         });
       } catch (error) {
@@ -195,7 +204,7 @@ module.exports = function (RED) {
     // Used in the KNX Function TAB
     let self = function self(_value) {
       try {
-        node.server.writeQueueAdd({
+        node.serverKNX.sendKNXTelegramToKNXEngine({
           grpaddr: node.topic, payload: _value, dpt: node.dpt, outputtype: 'write', nodecallerid: node.id,
         });
       } catch (error) {
@@ -208,7 +217,7 @@ module.exports = function (RED) {
     let toggle = function toggle() {
       if (node.currentPayload === true || node.currentPayload === false) {
         try {
-          node.server.writeQueueAdd({
+          node.serverKNX.sendKNXTelegramToKNXEngine({
             grpaddr: node.topic, payload: !node.currentPayload, dpt: node.dpt, outputtype: 'write', nodecallerid: node.id,
           });
         } catch (error) {
@@ -257,7 +266,7 @@ module.exports = function (RED) {
 
     node.on('input', (msg) => {
       if (typeof msg === 'undefined') return;
-      if (!node.server) return; // 29/08/2019 Server not instantiate
+      if (!node.serverKNX) return; // 29/08/2019 Server not instantiate
 
       // 11/01/2021 Accept properties change from msg
       // *********************************
@@ -339,7 +348,7 @@ module.exports = function (RED) {
           node.setNodeStatus({
             fill: 'grey', shape: 'dot', text: 'Read', payload: '', GA: grpaddr, dpt: '', devicename: '',
           });
-          node.server.writeQueueAdd({
+          node.serverKNX.sendKNXTelegramToKNXEngine({
             grpaddr, payload: '', dpt: '', outputtype: 'read', nodecallerid: node.id,
           });
         } else { // Listen all GAs
@@ -358,16 +367,16 @@ module.exports = function (RED) {
                 return;
               }
             }
-            node.server.writeQueueAdd({
+            node.serverKNX.sendKNXTelegramToKNXEngine({
               grpaddr, payload: '', dpt: '', outputtype: 'read', nodecallerid: node.id,
             });
           } else {
             // Issue read to all group addresses
             // 25/10/2019 the user is able not import the csv, so i need to check for it. This option should be unckecked by the knxUltimate html config, but..
-            if (typeof node.server.csv !== 'undefined') {
+            if (typeof node.serverKNX.csv !== 'undefined') {
               let delay = 0;
-              for (let index = 0; index < node.server.csv.length; index++) {
-                const element = node.server.csv[index];
+              for (let index = 0; index < node.serverKNX.csv.length; index++) {
+                const element = node.serverKNX.csv[index];
                 const grpaddr = element.ga;
                 // 29/12/2020 Protection over circular references (for example, if you link two Ultimate Nodes toghether with the same group address), to prevent infinite loops
                 if (msg.hasOwnProperty('knx')) {
@@ -378,7 +387,7 @@ module.exports = function (RED) {
                     });
                   }
                 } else {
-                  node.server.writeQueueAdd({
+                  node.serverKNX.sendKNXTelegramToKNXEngine({
                     grpaddr, payload: '', dpt: '', outputtype: 'read', nodecallerid: node.id,
                   });
                   const t = setTimeout(() => { // 21/03/2022 fixed possible memory leak. Previously was setTimeout without "let t = ".
@@ -437,7 +446,7 @@ module.exports = function (RED) {
         node.icountMessageInWindow += 1;
 
         // OUTPUT: Send message to the bus (write/response)
-        if (node.server.knxConnection) {
+        if (node.serverKNX.knxConnection) {
           let { outputtype } = node;
           let grpaddr = '';
           let dpt = '';
@@ -465,8 +474,8 @@ module.exports = function (RED) {
               // No datapoint set. If the CSV is loaded, try to get it from there.
               if (!msg.hasOwnProperty('writeraw')) { // In raw mode, Datapoint is useless
                 // Get the datapoint from the CSV
-                if (typeof node.server.csv !== 'undefined') {
-                  const oGA = node.server.csv.filter((sga) => sga.ga == grpaddr)[0];
+                if (typeof node.serverKNX.csv !== 'undefined') {
+                  const oGA = node.serverKNX.csv.filter((sga) => sga.ga == grpaddr)[0];
                   if (oGA !== undefined) {
                     dpt = oGA.dpt;
                   } else {
@@ -513,9 +522,9 @@ module.exports = function (RED) {
           if (msg.hasOwnProperty('writeraw') && msg.hasOwnProperty('writeraw') !== null) {
             try {
               if (msg.hasOwnProperty('bitlenght') && msg.bitlenght !== null) {
-                node.server.knxConnection.writeRaw(grpaddr, msg.writeraw, msg.bitlenght);
+                node.serverKNX.knxConnection.writeRaw(grpaddr, msg.writeraw, msg.bitlenght);
               } else {
-                node.server.knxConnection.writeRaw(grpaddr, msg.writeraw);
+                node.serverKNX.knxConnection.writeRaw(grpaddr, msg.writeraw);
               }
               node.setNodeStatus({
                 fill: 'green', shape: 'dot', text: 'RAW Write', payload: '', GA: grpaddr, dpt: '', devicename: '',
@@ -531,7 +540,7 @@ module.exports = function (RED) {
           if (outputtype == 'response') {
             try {
               node.currentPayload = msg.payload;// 31/12/2019 Set the current value (because, if the node is a virtual device, then it'll never fire "GroupValue_Write" in the server node, causing the currentPayload to never update)
-              node.server.writeQueueAdd({
+              node.serverKNX.sendKNXTelegramToKNXEngine({
                 grpaddr, payload: msg.payload, dpt, outputtype, nodecallerid: node.id,
               });
               node.setNodeStatus({
@@ -542,7 +551,7 @@ module.exports = function (RED) {
             // 05/01/2021 Updates only the internal currentPayload value.
             try {
               node.currentPayload = msg.payload;
-              node.server.writeQueueAdd({
+              node.serverKNX.sendKNXTelegramToKNXEngine({
                 grpaddr, payload: msg.payload, dpt, outputtype, nodecallerid: node.id,
               });
               node.setNodeStatus({
@@ -552,8 +561,8 @@ module.exports = function (RED) {
           } else {
             try {
               node.currentPayload = msg.payload;// 31/12/2019 Set the current value (because, if the node is a virtual device, then it'll never fire "GroupValue_Write" in the server node, causing the currentPayload to never update)
-              // if (node.server.linkStatus === "connected") {
-              node.server.writeQueueAdd({
+              // if (node.serverKNX.linkStatus === "connected") {
+              node.serverKNX.sendKNXTelegramToKNXEngine({
                 grpaddr, payload: msg.payload, dpt, outputtype, nodecallerid: node.id,
               });
               node.setNodeStatus({
@@ -571,8 +580,8 @@ module.exports = function (RED) {
     node.on('close', (done) => {
       if (node.timerTTLInputMessage !== null) clearTimeout(node.timerTTLInputMessage);
       node.inputmessage = {};
-      if (node.server) {
-        node.server.removeClient(node);
+      if (node.serverKNX) {
+        node.serverKNX.removeClient(node);
         try {
           if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info(`knxUltimate: Close: node id ${node.id} with topic ${node.topic || ''} has been removed from the server.`);
         } catch (error) { }
@@ -581,15 +590,15 @@ module.exports = function (RED) {
     });
 
     // On each deploy, add the node to the server list
-    if (node.server) {
-      node.server.addClient(node);
+    if (node.serverKNX) {
+      node.serverKNX.addClient(node);
       if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info(`knxUltimate: addClient: node id ${node.id}` || '' + ` with topic ${node.topic || ''} has been added to the server.`);
       // 05/11/2021 if the node is set to read from bus, issue a read.
       // "node-input-initialread0": "No",
       // "node-input-initialread1": "Leggi dal BUS KNX",
       // "node-input-initialread2": "Leggi l'ultimo valore salvato su file prima della disconnessione.",
       // "node-input-initialread3": "Leggi l'ultimo valore salvato su file prima della disconnessione. Se inesistente, leggi dal BUS KNX",
-      if (node.server.linkStatus === 'connected' && node.initialread === 1 || node.initialread === 3) {
+      if (node.serverKNX.linkStatus === 'connected' && node.initialread === 1 || node.initialread === 3) {
         node.setNodeStatus({
           fill: 'yellow', shape: 'dot', text: 'Get value from BUS.', payload: '', GA: node.topic || '', dpt: '', devicename: '',
         });

@@ -4,14 +4,22 @@ const _ = require('lodash');
 const KNXUtils = require('knxultimate').KNXUtils;
 const payloadRounder = require('./utils/payloadManipulation');
 
+// 10/09/2024 Setup the color logger
+loggerSetup = (options) => {
+  let clog = require("node-color-log").createNamedLogger(options.setPrefix);
+  clog.setLevel(options.loglevel);
+  clog.setDate(() => (new Date()).toLocaleString());
+  return clog;
+}
+
 module.exports = function (RED) {
 
   function knxUltimateGarageDoorBarrierOpener(config) {
     RED.nodes.createNode(this, config);
     const node = this;
-    node.server = RED.nodes.getNode(config.server);
+    node.serverKNX = RED.nodes.getNode(config.server);
     // 11/11/2021 Is the node server disabled by the flow "disable" command?
-    if (node.server === null) {
+    if (node.serverKNX === null) {
       node.status({ fill: 'red', shape: 'dot', text: '[THE GATEWAY NODE HAS BEEN DISABLED]' });
       return;
     }
@@ -26,7 +34,7 @@ module.exports = function (RED) {
     node.initialread = false;
     node.listenallga = true; // Don't remove
     node.outputtype = 'write';
-    node.sysLogger = require('./utils/sysLogger.js').get({ loglevel: node.server.loglevel || 'error' }); // 08/04/2021 new logger to adhere to the loglevel selected in the config-window
+    node.sysLogger = loggerSetup({ loglevel: node.serverKNX.loglevel, setPrefix: "knxUltimateGarageDoorOpener.js" }); // 08/04/2021 new logger to adhere to the loglevel selected in the config-window
 
     // From KNX to the node
     node.GACommand = config.GACommand === undefined ? "" : config.GACommand;
@@ -70,7 +78,7 @@ module.exports = function (RED) {
       fill, shape, text, payload, GA, dpt, devicename,
     }) => {
       try {
-        if (node.server == null) { node.status({ fill: 'red', shape: 'dot', text: '[NO GATEWAY SELECTED]' }); return; }
+        if (node.serverKNX === null) { node.status({ fill: 'red', shape: 'dot', text: '[NO GATEWAY SELECTED]' }); return; }
         const dDate = new Date();
         // 30/08/2019 Display only the things selected in the config
         GA = (typeof GA === 'undefined' || GA === '') ? '' : `(${GA}) `;
@@ -97,7 +105,7 @@ module.exports = function (RED) {
               node.setNodeStatus({
                 fill: 'yellow', shape: 'dot', text: status, payload: '',
               });
-              node.server.writeQueueAdd({
+              node.serverKNX.sendKNXTelegramToKNXEngine({
                 grpaddr: node.GAImpulse, payload: true, dpt: '1.001', outputtype: 'write', nodecallerid: node.id
               });
               if (node.timerMovement !== null) clearTimeout(node.timerMovement);
@@ -127,12 +135,12 @@ module.exports = function (RED) {
 
     node.on('input', (msg) => {
       if (typeof msg === 'undefined') return;
-      if (!node.server) return; // 29/08/2019 Server not instantiate
+      if (!node.serverKNX) return; // 29/08/2019 Server not instantiate
     });
 
     node.on('close', (done) => {
-      if (node.server) {
-        node.server.removeClient(node);
+      if (node.serverKNX) {
+        node.serverKNX.removeClient(node);
         try {
           if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info(`knxUltimateGarageDoorBarrierOpener: Close: node id ${node.id} with topic ${node.topic || ''} has been removed from the server.`);
         } catch (error) { }

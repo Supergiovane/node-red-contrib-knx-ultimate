@@ -5,7 +5,7 @@ module.exports = function (RED) {
   function knxUltimateViewer(config) {
     RED.nodes.createNode(this, config);
     const node = this;
-    node.server = RED.nodes.getNode(config.server);
+    node.serverKNX = RED.nodes.getNode(config.server);
     node.topic = node.name;
     node.name = config.name === undefined ? 'KNXViewer' : config.name;
     node.outputtopic = node.name;
@@ -31,7 +31,7 @@ module.exports = function (RED) {
     // Used to call the status update from the config node.
     node.setNodeStatus = ({ fill, shape, text, payload, GA, dpt, devicename }) => {
       try {
-        if (node.server == null) { node.status({ fill: 'red', shape: 'dot', text: '[NO GATEWAY SELECTED]' }); return; }
+        if (node.serverKNX === null) { node.status({ fill: 'red', shape: 'dot', text: '[NO GATEWAY SELECTED]' }); return; }
         GA = GA === undefined ? '' : GA;
         payload = payload === undefined ? '' : payload;
         payload = typeof payload === 'object' ? JSON.stringify(payload) : payload;
@@ -140,7 +140,7 @@ module.exports = function (RED) {
       //   outputtype: "read",
       //   nodecallerid: _oClient.id,
       // });
-      const aItems = _.clone(node.server.telegramsQueue);
+      const aItems = _.clone(node.serverKNX.telegramsQueue);
       let sPayload = '';
 
       const sHead = `<div class="main"><table><caption>Queue of outgoing telegrams to the KNX BUS. The more the count,</br>the more congested is the KNX BUS.</caption>
@@ -206,16 +206,16 @@ module.exports = function (RED) {
 
     node.on('close', function (done) {
       if (timerPIN3 !== null) clearInterval(timerPIN3);
-      if (node.server) {
-        node.server.removeClient(node);
+      if (node.serverKNX) {
+        node.serverKNX.removeClient(node);
       }
       done();
     });
 
     // On each deploy, unsubscribe+resubscribe
-    if (node.server) {
-      node.server.removeClient(node);
-      node.server.addClient(node);
+    if (node.serverKNX) {
+      node.serverKNX.removeClient(node);
+      node.serverKNX.addClient(node);
     }
   }
   RED.nodes.registerType('knxUltimateViewer', knxUltimateViewer);

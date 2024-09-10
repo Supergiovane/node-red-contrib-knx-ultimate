@@ -29,7 +29,7 @@ module.exports = function (RED) {
   function knxUltimateGlobalContext(config) {
     RED.nodes.createNode(this, config)
     const node = this
-    node.server = RED.nodes.getNode(config.server)
+    node.serverKNX = RED.nodes.getNode(config.server)
     node.topic = node.name
     node.name = config.name === undefined ? 'KNXGlobalContext' : config.name
     node.outputtopic = node.name
@@ -58,7 +58,7 @@ module.exports = function (RED) {
     // Used to call the status update from the config node.
     node.setNodeStatus = ({ fill, shape, text, payload, GA, dpt, devicename }) => {
       try {
-        if (node.server == null) { node.status({ fill: 'red', shape: 'dot', text: '[NO GATEWAY SELECTED]' }); return }
+        if (node.serverKNX === null) { node.status({ fill: 'red', shape: 'dot', text: '[NO GATEWAY SELECTED]' }); return }
         GA = GA === undefined ? '' : GA
         payload = payload === undefined ? '' : payload
         payload = typeof payload === 'object' ? JSON.stringify(payload) : payload
@@ -71,7 +71,7 @@ module.exports = function (RED) {
     // 02/12/2022 Expose the complete ETS CSV as well
     if (node.exposeAsVariable !== 'exposeAsVariableNO') {
       try {
-        node.server.csv.forEach(element => {
+        node.serverKNX.csv.forEach(element => {
           node.exposedGAs.push({ address: element.ga, dpt: element.dpt, devicename: element.devicename, payload: undefined })
         })
       } catch (error) {
@@ -105,7 +105,7 @@ module.exports = function (RED) {
           // 13/09/2021 retrieve the datapoint if not specified
           if (element.hasOwnProperty('dpt') === false || element.dpt === undefined || element.dpt === '') {
             try {
-              const sDPT = node.server.csv.find(item => item.ga === element.address).dpt
+              const sDPT = node.serverKNX.csv.find(item => item.ga === element.address).dpt
               element.dpt = sDPT
             } catch (error) {
               node.setNodeStatus({ fill: 'RED', shape: 'dot', text: 'Datapoint not found in CSV for ' + element.address, payload: '', GA: '', dpt: '', devicename: '' })
@@ -117,7 +117,7 @@ module.exports = function (RED) {
           }
 
           node.setNodeStatus({ fill: 'green', shape: 'dot', text: 'Write', payload: element.payload, GA: element.address, dpt: element.dpt || '', devicename: '' })
-          node.server.writeQueueAdd({ grpaddr: element.address, payload: element.payload, dpt: element.dpt || '', outputtype: 'write', nodecallerid: node.id })
+          node.serverKNX.sendKNXTelegramToKNXEngine({ grpaddr: element.address, payload: element.payload, dpt: element.dpt || '', outputtype: 'write', nodecallerid: node.id })
         }
         oContext = null // 21/03/2022
         node.goTimerGo()
@@ -167,16 +167,16 @@ module.exports = function (RED) {
     node.on('close', function (done) {
       if (node.timerExposedGAs !== null) clearTimeout(node.timerExposedGAs)
       node.exposedGAs = []
-      if (node.server) {
-        node.server.removeClient(node)
+      if (node.serverKNX) {
+        node.serverKNX.removeClient(node)
       }
       done()
     })
 
     // On each deploy, unsubscribe+resubscribe
-    if (node.server) {
-      node.server.removeClient(node)
-      node.server.addClient(node)
+    if (node.serverKNX) {
+      node.serverKNX.removeClient(node)
+      node.serverKNX.addClient(node)
     }
   }
   RED.nodes.registerType('knxUltimateGlobalContext', knxUltimateGlobalContext)

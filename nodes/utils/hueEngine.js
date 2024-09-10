@@ -164,8 +164,9 @@ class classHUE extends EventEmitter {
           } catch (error) {
             if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.error(`KNXUltimatehueEngine: classHUE: handleQueue: Ping: ${error.message}`);
             if (this.timerCheckConnected !== null) clearInterval(this.timerCheckConnected);
-            this.commandQueue.length = [];
+            this.commandQueue = [];
             this.emit("disconnected");
+            this.close();
           }
           break;
         default:
@@ -181,12 +182,18 @@ class classHUE extends EventEmitter {
   handleQueue = async () => {
     // Verifica se è possibile eseguire una nuova richiesta
     do {
-      const remainingRequests = await limiter.removeTokens(1);
-      if (this.commandQueue.length > 0) {
+      try {
+        const remainingRequests = await limiter.removeTokens(1);
+      } catch (error) {
+      }
+      if (this.commandQueue !== undefined && this.commandQueue.length > 0) {
         //if (remainingRequests >= 0) {
         // OK, i can send
         //console.log("\x1b[32m Messaggio. remainingRequests=" + remainingRequests + "\x1b[0m " + new Date().toTimeString(), this.commandQueue.length, "remainingRequests " + remainingRequests);
-        await this.processQueueItem();
+        try {
+          await this.processQueueItem();
+        } catch (error) {
+        }
         //} else {
         // Limit reached, skip this round.
         //console.log("\x1b[41m HO DETTO SPETA. remainingRequests=" + remainingRequests + "\x1b[0m " + new Date().toTimeString(), this.commandQueue.length, "remainingRequests " + remainingRequests);
@@ -198,7 +205,7 @@ class classHUE extends EventEmitter {
 
   writeHueQueueAdd = async (_lightID, _state, _operation) => {
     // Add the new item
-    this.commandQueue.push({ _lightID, _state, _operation });
+    this.commandQueue.unshift({ _lightID, _state, _operation });
   };
 
   /**

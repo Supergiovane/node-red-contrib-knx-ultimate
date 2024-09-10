@@ -2,7 +2,7 @@ module.exports = function (RED) {
   function knxUltimateHueTemperatureSensor(config) {
     RED.nodes.createNode(this, config);
     const node = this;
-    node.server = RED.nodes.getNode(config.server);
+    node.serverKNX = RED.nodes.getNode(config.server);
     node.serverHue = RED.nodes.getNode(config.serverHue);
     node.topic = node.name;
     node.name = config.name === undefined ? 'Hue' : config.name;
@@ -68,7 +68,7 @@ module.exports = function (RED) {
             knxMsgPayload.payload = _event.temperature.temperature;
             // Send to KNX bus
             if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) {
-              node.server.writeQueueAdd({
+              node.serverKNX.sendKNXTelegramToKNXEngine({
                 grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id,
               });
             }
@@ -102,7 +102,7 @@ module.exports = function (RED) {
       knxMsgPayload.payload = _level;
       // Send to KNX bus
       if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) {
-        node.server.writeQueueAdd({
+        node.serverKNX.sendKNXTelegramToKNXEngine({
           grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'response', nodecallerid: node.id,
         });
       }
@@ -110,9 +110,9 @@ module.exports = function (RED) {
 
 
     // On each deploy, unsubscribe+resubscribe
-    if (node.server) {
-      node.server.removeClient(node);
-      node.server.addClient(node);
+    if (node.serverKNX) {
+      node.serverKNX.removeClient(node);
+      node.serverKNX.addClient(node);
     }
     if (node.serverHue) {
       node.serverHue.removeClient(node);
@@ -124,8 +124,8 @@ module.exports = function (RED) {
     });
 
     node.on('close', (done) => {
-      if (node.server) {
-        node.server.removeClient(node);
+      if (node.serverKNX) {
+        node.serverKNX.removeClient(node);
       }
       if (node.serverHue) {
         node.serverHue.removeClient(node);

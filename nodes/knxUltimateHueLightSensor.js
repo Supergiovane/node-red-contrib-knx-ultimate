@@ -2,7 +2,7 @@ module.exports = function (RED) {
   function knxUltimateHueLightSensor(config) {
     RED.nodes.createNode(this, config);
     const node = this;
-    node.server = RED.nodes.getNode(config.server);
+    node.serverKNX = RED.nodes.getNode(config.server);
     node.serverHue = RED.nodes.getNode(config.serverHue);
     node.topic = node.name;
     node.name = config.name === undefined ? 'Hue' : config.name;
@@ -70,7 +70,7 @@ module.exports = function (RED) {
             //console.log(_event.light.light_level === 0 ? 0 : Math.round(Math.pow(10, (_event.light.light_level - 1) / 10000)))
             knxMsgPayload.payload = _event.light.light_level === 0 ? 0 : Math.round(Math.pow(10, (_event.light.light_level - 1) / 10000));
             // Send to KNX bus
-            if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.server.writeQueueAdd({ grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id });
+            if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.serverKNX.sendKNXTelegramToKNXEngine({ grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id });
             node.currentDeviceValue = knxMsgPayload.payload;
 
             node.status({ fill: 'green', shape: 'dot', text: 'HUE->KNX ' + JSON.stringify(knxMsgPayload.payload) + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' });
@@ -98,16 +98,16 @@ module.exports = function (RED) {
       knxMsgPayload.payload = _level;
       // Send to KNX bus
       if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) {
-        node.server.writeQueueAdd({
+        node.serverKNX.sendKNXTelegramToKNXEngine({
           grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'response', nodecallerid: node.id,
         });
       }
     };
 
     // On each deploy, unsubscribe+resubscribe
-    if (node.server) {
-      node.server.removeClient(node);
-      node.server.addClient(node);
+    if (node.serverKNX) {
+      node.serverKNX.removeClient(node);
+      node.serverKNX.addClient(node);
     }
     if (node.serverHue) {
       node.serverHue.removeClient(node);
@@ -119,8 +119,8 @@ module.exports = function (RED) {
     });
 
     node.on('close', function (done) {
-      if (node.server) {
-        node.server.removeClient(node);
+      if (node.serverKNX) {
+        node.serverKNX.removeClient(node);
       }
       if (node.serverHue) {
         node.serverHue.removeClient(node);

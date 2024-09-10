@@ -1,4 +1,5 @@
 
+
 module.exports = function (RED) {
   function knxUltimateAlerter(config) {
     const fs = require('fs');
@@ -9,7 +10,7 @@ module.exports = function (RED) {
 
     RED.nodes.createNode(this, config);
     const node = this;
-    node.server = RED.nodes.getNode(config.server);
+    node.serverKNX = RED.nodes.getNode(config.server);
     node.name = config.name || 'KNX Alerter';
     node.listenallga = true; // Dont' remove this.
     node.notifyreadrequest = false;
@@ -27,22 +28,17 @@ module.exports = function (RED) {
     node.timerSend = null;
     node.whentostart = config.whentostart === undefined ? 'ifnewalert' : config.whentostart;
     node.timerinterval = (config.timerinterval === undefined || config.timerinterval == '') ? '2' : config.timerinterval;
+
     if (config.initialreadGAInRules === undefined) {
       node.initialread = true;
     } else {
       node.initialread = config.initialreadGAInRules !== '0';
     }
 
-    try {
-      node.sysLogger = require('./utils/sysLogger.js').get({ loglevel: node.server.loglevel || 'error' }); // 08/04/2021 new logger to adhere to the loglevel selected in the config-window
-    } catch (error) {
-      node.sysLogger = 'error';
-    }
-
     // Used to call the status update from the config node.
     node.setNodeStatus = ({ fill, shape, text, payload, GA, dpt, devicename }) => {
       try {
-        if (node.server === null) return;
+        if (node.serverKNX === null) return;
         // Log only service statuses, not the GA values
         if (dpt !== undefined) return;
         if (dpt !== '') return;
@@ -159,7 +155,7 @@ module.exports = function (RED) {
 
     // 24/04/2021 perform a read on all GA in the rule list. Called both from node.on("input") and knxUltimate-config
     node.initialReadAllDevicesInRules = () => {
-      if (node.server) {
+      if (node.serverKNX) {
         let grpaddr = '';
         for (let i = 0; i < node.rules.length; i++) {
           // rule is { topic: rowRuleTopic, devicename: rowRuleDeviceName, longdevicename: rowRuleLongDeviceName}
@@ -170,7 +166,7 @@ module.exports = function (RED) {
             // Check if it's a group address
             // const ret = Address.KNXAddress.createFromString(grpaddr, Address.KNXAddress.TYPE_GROUP)
             node.setLocalStatus({ fill: 'grey', shape: 'dot', text: 'Read', payload: '', GA: grpaddr, dpt: '', devicename: rule.devicename });
-            node.server.writeQueueAdd({ grpaddr, payload: '', dpt: '', outputtype: 'read', nodecallerid: node.id });
+            node.serverKNX.sendKNXTelegramToKNXEngine({ grpaddr, payload: '', dpt: '', outputtype: 'read', nodecallerid: node.id });
           } catch (error) {
             node.setLocalStatus({ fill: 'grey', shape: 'dot', text: 'Not a KNX GA ' + error.message, payload: '', GA: grpaddr, dpt: '', devicename: rule.devicename });
           }
@@ -216,8 +212,8 @@ module.exports = function (RED) {
 
     node.on('close', function (done) {
       clearTimeout(node.timerSend);
-      if (node.server) {
-        node.server.removeClient(node);
+      if (node.serverKNX) {
+        node.serverKNX.removeClient(node);
       }
       done();
     });
@@ -276,10 +272,10 @@ module.exports = function (RED) {
     node.sendNoMoreDevices();
 
     // On each deploy, unsubscribe+resubscribe
-    if (node.server) {
-      node.server.removeClient(node);
+    if (node.serverKNX) {
+      node.serverKNX.removeClient(node);
       if (node.topic !== '' || node.topicSave !== '') {
-        node.server.addClient(node);
+        node.serverKNX.addClient(node);
       }
     }
   }

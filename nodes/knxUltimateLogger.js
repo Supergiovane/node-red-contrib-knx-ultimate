@@ -2,7 +2,7 @@ module.exports = function (RED) {
   function knxUltimateLogger(config) {
     RED.nodes.createNode(this, config)
     const node = this
-    node.server = RED.nodes.getNode(config.server)
+    node.serverKNX = RED.nodes.getNode(config.server)
     node.notifyreadrequestalsorespondtobus = 'false'
     node.notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized = ''
     node.notifyreadrequest = true
@@ -29,7 +29,7 @@ module.exports = function (RED) {
     // Used to call the status update from the config node.
     node.setNodeStatus = ({ fill, shape, text, payload, GA, dpt, devicename }) => {
       try {
-        if (node.server == null) { node.status({ fill: 'red', shape: 'dot', text: '[NO GATEWAY SELECTED]' }); return }
+        if (node.serverKNX === null) { node.status({ fill: 'red', shape: 'dot', text: '[NO GATEWAY SELECTED]' }); return }
         const dDate = new Date()
         // 30/08/2019 Display only the things selected in the config
         GA = (typeof GA === 'undefined' || GA == '') ? '' : '(' + GA + ') '
@@ -41,7 +41,7 @@ module.exports = function (RED) {
       }
     }
 
-    if (!node.server) return
+    if (!node.serverKNX) return
 
     // 26/03/2020 Create and output the XML for ETS bus monitor
     function createETSXML() {
@@ -133,19 +133,19 @@ module.exports = function (RED) {
     node.on('close', function (done) {
       if (node.timerCreateETSXML !== null) clearInterval(node.timerCreateETSXML)
       if (node.timerTelegramCount !== null) clearInterval(node.timerTelegramCount)
-      if (node.server) {
-        node.server.removeClient(node)
+      if (node.serverKNX) {
+        node.serverKNX.removeClient(node)
       };
       done()
     })
 
     // On each deploy, unsubscribe+resubscribe
     // Unsubscribe(Subscribe)
-    if (node.server) {
+    if (node.serverKNX) {
       if (node.timerCreateETSXML !== null) clearInterval(node.timerCreateETSXML)
       if (node.timerTelegramCount !== null) clearInterval(node.timerTelegramCount)
-      node.server.removeClient(node)
-      node.server.addClient(node)
+      node.serverKNX.removeClient(node)
+      node.serverKNX.addClient(node)
       if (node.autoStartTimerCreateETSXML) node.StartETSXMLTimer() // autoStartTimerCreateETSXML ETS timer
       if (node.autoStartTimerTelegramCounter) node.StartTelegramCounterTimer()
     }

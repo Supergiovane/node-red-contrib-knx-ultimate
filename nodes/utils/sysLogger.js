@@ -1,70 +1,33 @@
 /**
-* (C) 2021 Supergiovane
+* (C) 2024 Supergiovane
 */
-const util = require('util')
-const possibleLEvels = ['silent', 'error', 'warn', 'info', 'debug', 'trace']
-let logger = undefined;
 
-/*
- * Logger-Level importance levels:
- *  trace < info < warn < error
- */
+class loggerEngine {
+  constructor() {
+    const possibleLEvels = ['success', 'error', 'warn', 'info', 'debug']
 
-const determineLogLevel = options => {
-  let level
-
-  // 24/03/2021 Supergiovane fixed logLevel capitalization to lowercase
-  if (options) {
-    if (options.loglevel) {
-      level = options.loglevel
-    } else {
-      options.debug ? level = 'debug' : level = 'info'
-    }
-  } else {
-    level = 'info'
   }
-  if (!possibleLEvels.includes(level)) level = 'error'
-  return level
-}
-
-module.exports = {
-  get: function (options) {
-    if (logger === undefined) {
-      // console.log('BANANA new logger, level',determineLogLevel(options),(options && options.debug && 'debug') ||
-      // (options && options.loglevel) ||
-      return undefined;
-    }
-    return (logger)
-  },
-  set: function (options) {
-    logger = require('log-driver')({
-      levels: ['silent', 'error', 'warn', 'info', 'debug', 'trace'],
-      level: determineLogLevel(options),
-      format: function () {
-        // arguments[0] is the log level ie 'debug'
-        const a = Array.from(arguments)
-        let ts
-        const dt = new Date()
-        try {
-          ts = dt.toLocaleString().replace(/T/, ' ').replace(/Z$/, '') + '.' + dt.getMilliseconds()
-        } catch (error) {
-          ts = dt.toISOString().replace(/T/, ' ').replace(/Z$/, '') + '.' + dt.getMilliseconds()
-        }
-
-        if (a.length > 2) {
-          // if more than one item to log, assume a fmt string is given
-          const fmtargs = ['[%s] %s ' + a[1], a[0], ts].concat(a.slice(2))
-          return util.format.apply(util, fmtargs)
-        } else {
-          // arguments[1] is a plain string
-          return util.format('[%s] %s %s', a[0], ts, a[1])
-        }
+  get = (options) => {
+    let logger = require('node-color-log');
+    try {
+      //levels: ['silent', 'error', 'warn', 'info', 'debug', 'trace'],     
+      if (options.setPrefix !== undefined) {
+        logger = logger.createNamedLogger(options.setPrefix);
       }
-    })
-    return logger;
-  },
-  destroy: function () {
+      if (options.loglevel === 'trace') options.loglevel = 'debug' // Backwart compatibility
+      if (options.loglevel === 'silent') options.loglevel = 'disable' // Backwart compatibility
+      logger.setLevel(options.loglevel);
+      logger.setDate(() => (new Date()).toLocaleString())
+      return logger
+    } catch (error) {
+      return logger
+    }
+  }
+  destroy = () => {
     // 16/08/2020 Supergiovane Destruction of the logger
     logger = null
   }
+
 }
+const colorlog = new loggerEngine();
+module.exports = colorlog;

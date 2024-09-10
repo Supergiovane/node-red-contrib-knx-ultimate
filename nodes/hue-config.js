@@ -6,8 +6,16 @@
 /* eslint-disable max-len */
 const cloneDeep = require("lodash/cloneDeep");
 const HueClass = require("./utils/hueEngine").classHUE;
-const loggerEngine = require("./utils/sysLogger");
 const hueColorConverter = require("./utils/colorManipulators/hueColorConverter");
+
+
+// 10/09/2024 Setup the color logger
+loggerSetup = (options) => {
+  let clog = require("node-color-log").createNamedLogger(options.setPrefix);
+  clog.setLevel(options.loglevel);
+  clog.setDate(() => (new Date()).toLocaleString());
+  return clog;
+}
 
 
 module.exports = (RED) => {
@@ -16,16 +24,14 @@ module.exports = (RED) => {
     const node = this;
     node.host = config.host;
     node.nodeClients = []; // Stores the registered clients
-    node.loglevel = config.loglevel !== undefined ? config.loglevel : "error"; // 18/02/2020 Loglevel default error
+    node.loglevel = config.loglevel !== undefined ? config.loglevel : "error"; // loglevel doesn'e exists yet
     node.sysLogger = null;
     node.hueAllResources = undefined;
     node.timerHUEConfigCheckState = null; // Timer that check the connection to the hue bridge every xx seconds
     node.linkStatus = "disconnected";
     try {
-      node.sysLogger = loggerEngine.set({ loglevel: node.loglevel }); // New logger to adhere to the loglevel selected in the config-window
-    } catch (error) {
-      /* empty */
-    }
+      node.sysLogger = loggerSetup({ loglevel: node.loglevel, setPrefix: "hue-config.js" });
+    } catch (error) { console.log(error.stack) }
     node.name = config.name === undefined || config.name === "" ? node.host : config.name;
 
     // Connect to Bridge and get the resources

@@ -10,7 +10,7 @@ module.exports = function (RED) {
   function knxUltimateHueLight(config) {
     RED.nodes.createNode(this, config);
     const node = this;
-    node.server = RED.nodes.getNode(config.server);
+    node.serverKNX = RED.nodes.getNode(config.server);
     node.serverHue = RED.nodes.getNode(config.serverHue);
 
     // Convert for backward compatibility
@@ -155,7 +155,7 @@ module.exports = function (RED) {
                         if (config.GADaylightSensor !== undefined && config.GADaylightSensor !== "") {
                           if (node.timerCheckForFastLightSwitch !== null) { clearTimeout(node.timerCheckForFastLightSwitch); node.timerCheckForFastLightSwitch = null; }
                           RED.log.debug(`knxUltimateHueLight: node.timerCheckForFastLightSwitch: set daytime the group address ${config.GADaylightSensor}`);
-                          node.server.writeQueueAdd({
+                          node.serverKNX.sendKNXTelegramToKNXEngine({
                             grpaddr: config.GADaylightSensor,
                             payload: config.invertDayNight === false,
                             dpt: config.dptDaylightSensor,
@@ -1112,8 +1112,8 @@ module.exports = function (RED) {
         knxMsgPayload.payload = _value;
         // Send to KNX bus
         if (knxMsgPayload.topic !== "" && knxMsgPayload.topic !== undefined) {
-          if (node.server !== null && node.server !== undefined) {
-            node.server.writeQueueAdd({
+          if (node.serverKNX !== null && node.serverKNX !== undefined) {
+            node.serverKNX.sendKNXTelegramToKNXEngine({
               grpaddr: knxMsgPayload.topic,
               payload: knxMsgPayload.payload,
               dpt: knxMsgPayload.dpt,
@@ -1142,8 +1142,8 @@ module.exports = function (RED) {
           // Check not to have already sent the value
           // Send to KNX bus
           if (knxMsgPayload.topic !== "" && knxMsgPayload.topic !== undefined) {
-            if (node.server !== null && node.server !== undefined) {
-              node.server.writeQueueAdd({
+            if (node.serverKNX !== null && node.serverKNX !== undefined) {
+              node.serverKNX.sendKNXTelegramToKNXEngine({
                 grpaddr: knxMsgPayload.topic,
                 payload: knxMsgPayload.payload,
                 dpt: knxMsgPayload.dpt,
@@ -1175,8 +1175,8 @@ module.exports = function (RED) {
         }
         // Send to KNX bus
         if (knxMsgPayload.topic !== "" && knxMsgPayload.topic !== undefined) {
-          if (node.server !== null && node.server !== undefined) {
-            node.server.writeQueueAdd({
+          if (node.serverKNX !== null && node.serverKNX !== undefined) {
+            node.serverKNX.sendKNXTelegramToKNXEngine({
               grpaddr: knxMsgPayload.topic,
               payload: knxMsgPayload.payload,
               dpt: knxMsgPayload.dpt,
@@ -1210,8 +1210,8 @@ module.exports = function (RED) {
     //         }
     //         // Send to KNX bus
     //         if (knxMsgPayload.topic !== "" && knxMsgPayload.topic !== undefined) {
-    //           if (node.server !== null && node.server !== undefined) {
-    //             node.server.writeQueueAdd({
+    //           if (node.serverKNX !== null && node.serverKNX !== undefined) {
+    //             node.serverKNX.sendKNXTelegramToKNXEngine({
     //               grpaddr: knxMsgPayload.topic,
     //               payload: knxMsgPayload.payload,
     //               dpt: knxMsgPayload.dpt,
@@ -1245,8 +1245,8 @@ module.exports = function (RED) {
     //         }
     //         // Send to KNX bus
     //         if (knxMsgPayload.topic !== "" && knxMsgPayload.topic !== undefined) {
-    //           if (node.server !== null && node.server !== undefined) {
-    //             node.server.writeQueueAdd({
+    //           if (node.serverKNX !== null && node.serverKNX !== undefined) {
+    //             node.serverKNX.sendKNXTelegramToKNXEngine({
     //               grpaddr: knxMsgPayload.topic,
     //               payload: knxMsgPayload.payload,
     //               dpt: knxMsgPayload.dpt,
@@ -1285,8 +1285,8 @@ module.exports = function (RED) {
           knxMsgPayload.payload = { red: knxMsgPayload.payload.r, green: knxMsgPayload.payload.g, blue: knxMsgPayload.payload.b };
           // Send to KNX bus
           if (knxMsgPayload.topic !== "" && knxMsgPayload.topic !== undefined) {
-            if (node.server !== null && node.server !== undefined) {
-              node.server.writeQueueAdd({
+            if (node.serverKNX !== null && node.serverKNX !== undefined) {
+              node.serverKNX.sendKNXTelegramToKNXEngine({
                 grpaddr: knxMsgPayload.topic,
                 payload: knxMsgPayload.payload,
                 dpt: knxMsgPayload.dpt,
@@ -1313,8 +1313,8 @@ module.exports = function (RED) {
         }
         // Send to KNX bus
         if (knxMsgPayload.topic !== "" && knxMsgPayload.topic !== undefined) {
-          if (node.server !== null && node.server !== undefined) {
-            node.server.writeQueueAdd({
+          if (node.serverKNX !== null && node.serverKNX !== undefined) {
+            node.serverKNX.sendKNXTelegramToKNXEngine({
               grpaddr: knxMsgPayload.topic,
               payload: knxMsgPayload.payload,
               dpt: knxMsgPayload.dpt,
@@ -1340,8 +1340,8 @@ module.exports = function (RED) {
         }
         // Send to KNX bus
         if (knxMsgPayload.topic !== "" && knxMsgPayload.topic !== undefined) {
-          if (node.server !== null && node.server !== undefined) {
-            node.server.writeQueueAdd({
+          if (node.serverKNX !== null && node.serverKNX !== undefined) {
+            node.serverKNX.sendKNXTelegramToKNXEngine({
               grpaddr: knxMsgPayload.topic,
               payload: knxMsgPayload.payload,
               dpt: knxMsgPayload.dpt,
@@ -1373,8 +1373,8 @@ module.exports = function (RED) {
         }
         // Send to KNX bus
         if (knxMsgPayload.topic !== "" && knxMsgPayload.topic !== undefined) {
-          if (node.server !== null && node.server !== undefined) {
-            node.server.writeQueueAdd({
+          if (node.serverKNX !== null && node.serverKNX !== undefined) {
+            node.serverKNX.sendKNXTelegramToKNXEngine({
               grpaddr: knxMsgPayload.topic,
               payload: knxMsgPayload.payload,
               dpt: knxMsgPayload.dpt,
@@ -1394,16 +1394,16 @@ module.exports = function (RED) {
     };
 
     // On each deploy, unsubscribe+resubscribe
-    if (node.server) {
-      node.server.removeClient(node);
-      node.server.addClient(node);
+    if (node.serverKNX) {
+      node.serverKNX.removeClient(node);
+      node.serverKNX.addClient(node);
     }
     if (node.serverHue) {
       try {
         node.serverHue.removeClient(node);
         node.serverHue.addClient(node);
       } catch (error) {
-        RED.log.error("knxUltimateHueLight: if (node.server): " + error.message);
+        RED.log.error("knxUltimateHueLight: if (node.serverKNX): " + error.message);
       }
     }
 
@@ -1434,8 +1434,8 @@ module.exports = function (RED) {
     });
 
     node.on("close", (done) => {
-      if (node.server) {
-        node.server.removeClient(node);
+      if (node.serverKNX) {
+        node.serverKNX.removeClient(node);
       }
       if (node.serverHue) {
         node.serverHue.removeClient(node);

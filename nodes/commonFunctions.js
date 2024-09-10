@@ -46,7 +46,6 @@ const toConcattedSubtypes = (acc, baseType) => {
 };
 // ####################
 
-
 module.exports = (RED) => {
     RED.plugins.registerPlugin("commonFunctions", {
         type: "foo",

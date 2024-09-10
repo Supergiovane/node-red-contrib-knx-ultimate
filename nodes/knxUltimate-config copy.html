@@ -18,7 +18,8 @@
             loglevel: { value: "error" },
             name: { value: "KNX Gateway" },
             localEchoInTunneling: { value: true },
-            delaybetweentelegrams: { value: 25, required: false },
+            delaybetweentelegrams: { value: 50, required: false },
+            delaybetweentelegramsfurtherdelayREAD: { value: 1, required: false },
             ignoreTelegramsWithRepeatedFlag: { value: false, required: false },
             keyringFileXML: { value: "" },
             knxSecureSelected: { value: false },
@@ -319,6 +320,8 @@
                     <span data-i18n="knxUltimate-config.advanced.delaybetweentelegrams"></span>
                 </label>
                 <input type="number" id="node-config-input-delaybetweentelegrams" style="width:20%">
+                <span data-i18n="knxUltimate-config.advanced.delaybetweentelegramsfurtherdelayREAD"></span><input type="number"
+                    id="node-config-input-delaybetweentelegramsfurtherdelayREAD" style="width:15%">X
             </div>
 
             <div class="form-row">
@@ -327,13 +330,15 @@
                     <span data-i18n="knxUltimate-config.advanced.log_level"></span>
                 </label>
                 <select id="node-config-input-loglevel" style="width:40%;">
-                    <option value="disable" data-i18n="knxUltimate-config.advanced.select_silent"></option>
-                    <option value="error" data-i18n="knxUltimate-config.advanced.select_error"></option> 
+                    <option value="silent" data-i18n="knxUltimate-config.advanced.select_silent"></option>
+                    <option value="error" data-i18n="knxUltimate-config.advanced.select_error"></option>
                     <option value="warn" data-i18n="knxUltimate-config.advanced.select_warning"></option>
                     <option value="info" data-i18n="knxUltimate-config.advanced.select_info"></option>
                     <option value="debug" data-i18n="knxUltimate-config.advanced.select_debug"></option>
+                    <option value="trace" data-i18n="knxUltimate-config.advanced.select_trace"></option>
                 </select>
-                <!-- <// DEBUG LEVELS: success < debug < info < warn < error < disable
+                <!-- <div class="form-tips" style="margin-top: 11px;background-color:#FFEEEE;text-align:center">
+                                <b><span data-i18n="knxUltimate-config.properties.restart_hint"></span></b>
                             </div> -->
             </div>
         </p>

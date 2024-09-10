@@ -27,7 +27,6 @@ module.exports.use = (config) => {
             simpleget.concat(opt, (err, res, data) => {
                 try {
                     if (err) {
-                        RED.log.error(`utils.https: config.http.call: simpleget.concat ${err.message} : ${err.stack || ""} `);
                         reject(err);
                     } else {
                         // log.trace('http data ' + data);

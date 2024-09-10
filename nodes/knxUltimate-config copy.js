@@ -13,6 +13,7 @@ const dptlib = require('knxultimate').dptlib;
 
 // const { Server } = require('http')
 const payloadRounder = require("./utils/payloadManipulation");
+const loggerEngine = require("./utils/sysLogger.js");
 
 
 // DATAPONT MANIPULATION HELPERS
@@ -53,16 +54,11 @@ const toConcattedSubtypes = (acc, baseType) => {
 };
 // ####################
 
-// 10/09/2024 Setup the color logger
-loggerSetup = (options) => {
-  let clog = require("node-color-log").createNamedLogger(options.setPrefix);
-  clog.setLevel(options.loglevel);
-  clog.setDate(() => (new Date()).toLocaleString());
-  return clog;
-}
 
 
 module.exports = (RED) => {
+
+
   function knxUltimateConfigNode(config) {
     RED.nodes.createNode(this, config);
     const node = this;
@@ -74,6 +70,10 @@ module.exports = (RED) => {
     node.nodeClients = []; // Stores the registered clients
     node.KNXEthInterface = typeof config.KNXEthInterface === "undefined" ? "Auto" : config.KNXEthInterface;
     node.KNXEthInterfaceManuallyInput = typeof config.KNXEthInterfaceManuallyInput === "undefined" ? "" : config.KNXEthInterfaceManuallyInput; // If you manually set the interface name, it will be wrote here
+    node.telegramsQueue = []; // 02/01/2020 Queue containing telegrams
+    node.timerSendTelegramFromQueue = null;
+    node.delaybetweentelegramsfurtherdelayREAD = typeof config.delaybetweentelegramsfurtherdelayREAD === "undefined" || Number(config.delaybetweentelegramsfurtherdelayREAD < 1) ? 1 : Number(config.delaybetweentelegramsfurtherdelayREAD); // 18/05/2020 delay multiplicator only for "read" telegrams.
+    node.delaybetweentelegramsREADCount = 0; // 18/05/2020 delay multiplicator only for "read" telegrams.
     node.timerDoInitialRead = null; // 17/02/2020 Timer (timeout) to do initial read of all nodes requesting initial read, after all nodes have been registered to the sercer
     node.stopETSImportIfNoDatapoint = typeof config.stopETSImportIfNoDatapoint === "undefined" ? "stop" : config.stopETSImportIfNoDatapoint; // 09/01/2020 Stop, Import Fake or Skip the import if a group address has unset datapoint
     node.csv = readCSV(config.csv); // Array from ETS CSV Group Addresses {ga:group address, dpt: datapoint, devicename: full device name with main and subgroups}
@@ -81,12 +81,9 @@ module.exports = (RED) => {
     node.userDir = path.join(RED.settings.userDir, "knxultimatestorage"); // 04/04/2021 Supergiovane: Storage for service files
     node.exposedGAs = [];
     node.loglevel = config.loglevel !== undefined ? config.loglevel : "error"; // 18/02/2020 Loglevel default error
-    if (node.loglevel === 'trace') node.loglevel = 'debug'; // Backward compatibility
-    if (node.loglevel === 'silent') node.loglevel = 'disable'; // Backward compatibility
-    node.sysLogger = null; // 20/03/2022 Default    
     try {
-      node.sysLogger = loggerSetup({ loglevel: node.loglevel, setPrefix: "knxUltimate-config.js" });
-    } catch (error) { console.log(error.stack) }
+      node.sysLogger = loggerEngine.get({ loglevel: node.loglevel }); // 08/04/2021 new logger to adhere to the loglevel selected in the config-window
+    } catch (error) { node.sysLogger = null }
     // 12/11/2021 Connect at start delay
     node.autoReconnect = true; // 20/03/2022 Default
     if (config.autoReconnect === "no" || config.autoReconnect === false) {
@@ -100,11 +97,13 @@ module.exports = (RED) => {
     node.knxSecureSelected = typeof config.knxSecureSelected === "undefined" ? false : config.knxSecureSelected;
     node.name = config.name === undefined || config.name === "" ? node.host : config.name; // 12/08/2021
     node.timerKNXUltimateCheckState = null; // 08/10/2021 Check the state. If not connected and autoreconnect is true, retrig the connetion attempt.
+    node.lockHandleTelegramQueue = false; // 12/11/2021 Lock sending telegrams if node disconnected or if already handling the queue
     node.knxConnectionProperties = null; // Retains the connection properties
     node.allowLauch_initKNXConnection = true; // See the node.timerKNXUltimateCheckState function
+    node.timerClearTelegramQueue = null; // Timer to clear the telegram's queue after long disconnection
     node.hostProtocol = config.hostProtocol === undefined ? "Auto" : config.hostProtocol; // 20/03/2022 Default
     node.knxConnection = null; // 20/03/2022 Default
-    node.delaybetweentelegrams = config.delaybetweentelegrams === undefined ? 25 : config.delaybetweentelegrams;
+    // 15/12/2021
 
     // 05/12/2021 Set the protocol (this is undefined if coming from ild versions
     if (node.hostProtocol === "Auto") {
@@ -141,6 +140,20 @@ module.exports = (RED) => {
           if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.warn("Wow setAllClientsStatus error " + error.message);
         }
       });
+    };
+
+    // 21/01/2022 TTL Timer for clearung the node.telegramsQueue if the connection stays down for long time
+    node.startTimerClearTelegramQueue = () => {
+      if (node.timerClearTelegramQueue === null) {
+        node.timerClearTelegramQueue = setTimeout(() => {
+          const t = setTimeout(() => {
+            // 21/03/2022 fixed possible memory leak. Previously was setTimeout without "let t = ".
+            node.setAllClientsStatus("Queue", "grey", "Deleted TX");
+          }, 200);
+          node.telegramsQueue = [];
+          node.timerClearTelegramQueue = null;
+        }, 30000);
+      }
     };
 
     //
@@ -359,7 +372,7 @@ module.exports = (RED) => {
                           dpt: _oClient.dpt,
                           devicename: _oClient.devicename || "",
                         });
-                        node.sendKNXTelegramToKNXEngine({
+                        node.writeQueueAdd({
                           grpaddr: _oClient.topic,
                           payload: "",
                           dpt: "",
@@ -393,7 +406,7 @@ module.exports = (RED) => {
               for (let index = 0; index < node.csv.length; index++) {
                 const element = node.csv[index];
                 if (!readHistory.includes(element.ga)) {
-                  node.sendKNXTelegramToKNXEngine({
+                  node.writeQueueAdd({
                     grpaddr: element.ga,
                     payload: "",
                     dpt: "",
@@ -406,7 +419,7 @@ module.exports = (RED) => {
               }
             } else {
               if (!readHistory.includes(_oClient.topic)) {
-                node.sendKNXTelegramToKNXEngine({
+                node.writeQueueAdd({
                   grpaddr: _oClient.topic,
                   payload: "",
                   dpt: "",
@@ -529,7 +542,6 @@ module.exports = (RED) => {
         isSecureKNXEnabled: node.knxSecureSelected,
         jKNXSecureKeyring: node.jKNXSecureKeyring,
         localIPAddress: "", // Riempito da KNXEngine
-        KNXQueueSendIntervalMilliseconds: Number(node.delaybetweentelegrams)
       };
       // 11/07/2022 Test if the IP is a valid one or is a DNS Name
       switch (net.isIP(node.host)) {
@@ -620,7 +632,6 @@ module.exports = (RED) => {
         // Unsetting handlers if node.knxConnection was existing
         try {
           if (node.knxConnection !== null && node.knxConnection !== undefined) {
-            await node.knxConnection.Disconnect();
             if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.debug("knxUltimate-config: removing old handlers. Node " + node.name);
             node.knxConnection.removeAllListeners();
           }
@@ -657,6 +668,7 @@ module.exports = (RED) => {
         //     discoverCB(ip, port);
         // });
         node.knxConnection.on(knx.KNXClientEvents.disconnected, (info) => {
+          node.startTimerClearTelegramQueue(); // 21/01/2022 Clear the telegram queue after a while
           if (node.linkStatus !== "disconnected") {
             node.linkStatus = "disconnected";
             if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.warn("knxUltimate-config: Disconnected event %s", info);
@@ -665,10 +677,15 @@ module.exports = (RED) => {
         });
         node.knxConnection.on(knx.KNXClientEvents.close, (info) => {
           if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.debug("knxUltimate-config: KNXClient socket closed.");
-          node.linkStatus = "disconnected";
         });
         node.knxConnection.on(knx.KNXClientEvents.connected, (info) => {
-
+          if (node.timerClearTelegramQueue !== null) {
+            clearTimeout(node.timerClearTelegramQueue); // Connected. Stop the timer that clears the telegrams queue.
+            node.timerClearTelegramQueue = null;
+          }
+          // 12/11/2021 Starts the telegram out queue handler
+          if (node.timerSendTelegramFromQueue !== null) clearInterval(node.timerSendTelegramFromQueue);
+          node.timerSendTelegramFromQueue = setInterval(handleTelegramQueue, config.delaybetweentelegrams === undefined || Number(config.delaybetweentelegrams) < 20 ? 20 : Number(config.delaybetweentelegrams)); // 02/01/2020 Start the timer that handles the queue of telegrams
           node.linkStatus = "connected";
 
           // Start the timer to do initial read.
@@ -1085,7 +1102,7 @@ module.exports = (RED) => {
                   if (_input.hasOwnProperty("notifyreadrequestalsorespondtobus") && _input.notifyreadrequestalsorespondtobus === true) {
                     if (typeof _input.currentPayload === "undefined" || _input.currentPayload === "" || _input.currentPayload === null) {
                       // 14/08/2021 Added || input.currentPayload === null
-                      node.sendKNXTelegramToKNXEngine({
+                      node.writeQueueAdd({
                         grpaddr: _dest,
                         payload: _input.notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized,
                         dpt: _input.dpt,
@@ -1102,7 +1119,7 @@ module.exports = (RED) => {
                         devicename: "",
                       });
                     } else {
-                      node.sendKNXTelegramToKNXEngine({
+                      node.writeQueueAdd({
                         grpaddr: _dest,
                         payload: _input.currentPayload,
                         dpt: _input.dpt,
@@ -1143,128 +1160,190 @@ module.exports = (RED) => {
     }
     // END Handle BUS events---------------------------------------------------------------------------------------
 
-    node.sendKNXTelegramToKNXEngine = (_oKNXMessage) => {
-      if (node.knxConnection === null || node.linkStatus !== "connected") return;
+    // 02/01/2020 All sent messages are queued, to allow at least 50 milliseconds between each telegram sent to the bus
+    node.writeQueueAdd = (_oKNXMessage) => {
+      const _clonedMessage = RED.util.cloneMessage(_oKNXMessage);
+      // if (node.linkStatus !== "connected") {
+      //     try {
+      //         if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("knxUltimate-config: writeQueueAdd Discarded " + JSON.stringify(_clonedMessage));
+      //     } catch (error) {
 
-      // 26/12/2021 The KNXEngine is busy waiting for telegram's ACK. Strange.
-      if (!node.knxConnection.clearToSend) {
-        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.warn(
-          "knxUltimate-config: handleTelegramQueue: the KNXEngine is busy or is waiting for a telegram ACK with seqNumner " +
-          node.knxConnection.getSeqNumber() +
-          ". Delay handling queue. YOUR COMPUTER COULD BE TOO SLOW OR BUSY TO KEEP UP WITH THE STRICT TIMING, REQUIRED FOR KNX TO FUNCTION PROPERLY.",
-        );
-      }
+      //     }
+      //     return;
+      // }
+      // _clonedMessage is { grpaddr, payload,dpt,outputtype (write or response),nodecallerid (id of the node sending adding the telegram to the queue)}
+      node.telegramsQueue.unshift(_clonedMessage); // Add _clonedMessage as first in the queue pile
+    };
 
-      // oKNXMessage is { grpaddr, payload,dpt,outputtype (write or response),nodecallerid (node caller)}. 06/03/2020 "Read" request does have the lower priority in the queue, so firstly, i search for "read" telegrams and i move it on the top of the queue pile.
+    function handleTelegramQueue() {
+      if (node.knxConnection !== null) {
+        if (node.lockHandleTelegramQueue === true) return; // Exits if the funtion is busy
+        node.lockHandleTelegramQueue = true; // Lock the function. It cannot be called again until finished.
 
-      // 19/01/2023 FORMATTING THE OUTPUT PAYLOAD (ROUND, ETC) BASED ON THE NODE CONFIG
-      //* ********************************************************
-      _oKNXMessage.payload = payloadRounder.Manipulate(RED.nodes.getNode(_oKNXMessage.nodecallerid), _oKNXMessage.payload);
-      //* ********************************************************
-
-      if (_oKNXMessage.outputtype === "response") {
-        try {
-          node.knxConnection.respond(_oKNXMessage.grpaddr, _oKNXMessage.payload, _oKNXMessage.dpt);
-        } catch (error) {
-          try {
-            const oNode = RED.nodes.getNode(_oKNXMessage.nodecallerid); // 05/04/2022 Get the real node
-            oNode.setNodeStatus({
-              fill: "red",
-              shape: "dot",
-              text: "Send response " + error,
-              payload: _oKNXMessage.payload,
-              GA: _oKNXMessage.grpaddr,
-              dpt: _oKNXMessage.dpt,
-              devicename: "",
-            });
-          } catch (error) { }
+        // 16/08/2021 If not connected, exit
+        if (node.linkStatus !== "connected" || node.telegramsQueue.length === 0) {
+          node.lockHandleTelegramQueue = false; // Unlock the function
+          return;
         }
-      } else if (_oKNXMessage.outputtype === "read") {
-        try {
-          node.knxConnection.read(_oKNXMessage.grpaddr);
-        } catch (error) { }
-      } else if (_oKNXMessage.outputtype === "update") {
-        // 05/01/2021 Update don't send anything to the bus, but instead updates the values of all nodes belonging to the group address passed
-        // oKNXMessage = {
-        //     grpaddr: '5/0/1',
-        //     payload: true,
-        //     dpt: '1.001',
-        //     outputtype: 'update',
-        //     nodecallerid: 'd104af91.31da18'
-        //   }
-        try {
-          node.nodeClients.forEach((_input) => {
 
-            // 19/03/2020 in the middle of coronavirus. Whole italy is red zone, closed down. Scene Controller implementation
-            if (_input.hasOwnProperty("isSceneController")) {
-            } else if (_input.hasOwnProperty("isLogger")) {
-              // 26/03/2020 Coronavirus is slightly decreasing the affected numer of people. Logger Node
-            } else if (_input.listenallga === true) {
-            } else if (_input.topic == _oKNXMessage.grpaddr) {
-              if (_input.hasOwnProperty("isWatchDog")) {
-                // 04/02/2020 Watchdog implementation
-                // Is a watchdog node
-              } else {
-                const msg = {
-                  topic: _input.outputtopic,
-                  payload: _oKNXMessage.payload,
-                  devicename: _input.name ? _input.name : "",
-                  event: "Update_NoWrite",
-                  eventdesc: "The value has been updated from another node and hasn't been received from KNX BUS",
-                };
-                // Check RBE INPUT from KNX Bus, to avoid send the payload to the flow, if it's equal to the current payload
-                if (!checkRBEInputFromKNXBusAllowSend(_input, msg.payload)) {
+        // 26/12/2021 If the KNXEngine is busy waiting for telegram's ACK, exit
+        if (!node.knxConnection.clearToSend) {
+          node.lockHandleTelegramQueue = false; // Unlock the function
+          if (node.telegramsQueue.length > 0) {
+            if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.warn(
+              "knxUltimate-config: handleTelegramQueue: the KNXEngine is busy or is waiting for a telegram ACK with seqNumner " +
+              node.knxConnection.getSeqNumber() +
+              ". Delay handling queue. YOUR COMPUTER COULD BE TOO SLOW OR BUSY TO KEEP UP WITH THE STRICT TIMING, REQUIRED FOR KNX TO FUNCTION PROPERLY.",
+            );
+          }
+          return;
+        }
+
+        // Retrieving oKNXMessage  { grpaddr, payload,dpt,outputtype (write or response),nodecallerid (node caller)}. 06/03/2020 "Read" request does have the lower priority in the queue, so firstly, i search for "read" telegrams and i move it on the top of the queue pile.
+        let aTelegramsFiltered = [];
+        aTelegramsFiltered = node.telegramsQueue.filter((a) => a.outputtype !== "read");
+
+        if (aTelegramsFiltered.length == 0) {
+          // There are no write nor response telegrams, handle the remaining "read", if any
+          if (node.delaybetweentelegramsREADCount >= node.delaybetweentelegramsfurtherdelayREAD) {
+            // 18/05/2020 delay multiplicator only for "read" telegrams.
+            node.delaybetweentelegramsREADCount = 0;
+            aTelegramsFiltered = node.telegramsQueue;
+          } else {
+            node.delaybetweentelegramsREADCount += 1;
+          }
+        }
+        if (aTelegramsFiltered.length == 0) {
+          node.lockHandleTelegramQueue = false; // Unlock the function
+          return;
+        }
+
+        const oKNXMessage = aTelegramsFiltered[aTelegramsFiltered.length - 1]; // Get the last message in the queue
+
+        // 19/01/2023 FORMATTING THE OUTPUT PAYLOAD (ROUND, ETC) BASED ON THE NODE CONFIG
+        //* ********************************************************
+        oKNXMessage.payload = payloadRounder.Manipulate(RED.nodes.getNode(oKNXMessage.nodecallerid), oKNXMessage.payload);
+        //* ********************************************************
+
+        if (oKNXMessage.outputtype === "response") {
+          try {
+            node.knxConnection.respond(oKNXMessage.grpaddr, oKNXMessage.payload, oKNXMessage.dpt);
+          } catch (error) {
+            try {
+              const oNode = RED.nodes.getNode(oKNXMessage.nodecallerid); // 05/04/2022 Get the real node
+              oNode.setNodeStatus({
+                fill: "red",
+                shape: "dot",
+                text: "Send response " + error,
+                payload: oKNXMessage.payload,
+                GA: oKNXMessage.grpaddr,
+                dpt: oKNXMessage.dpt,
+                devicename: "",
+              });
+            } catch (error) { }
+          }
+        } else if (oKNXMessage.outputtype === "read") {
+          try {
+            node.knxConnection.read(oKNXMessage.grpaddr);
+          } catch (error) { }
+        } else if (oKNXMessage.outputtype === "update") {
+          // 05/01/2021 Update don't send anything to the bus, but instead updates the values of all nodes belonging to the group address passed
+          // oKNXMessage = {
+          //     grpaddr: '5/0/1',
+          //     payload: true,
+          //     dpt: '1.001',
+          //     outputtype: 'update',
+          //     nodecallerid: 'd104af91.31da18'
+          //   }
+          try {
+            node.nodeClients.forEach((_input) => {
+
+              // 16/08/2021 If not connected, exit
+              if (node.linkStatus !== "connected") {
+                node.lockHandleTelegramQueue = false; // Unlock the function
+                return;
+              }
+
+              // 19/03/2020 in the middle of coronavirus. Whole italy is red zone, closed down. Scene Controller implementation
+              if (_input.hasOwnProperty("isSceneController")) {
+              } else if (_input.hasOwnProperty("isLogger")) {
+                // 26/03/2020 Coronavirus is slightly decreasing the affected numer of people. Logger Node
+              } else if (_input.listenallga === true) {
+              } else if (_input.topic == oKNXMessage.grpaddr) {
+                if (_input.hasOwnProperty("isWatchDog")) {
+                  // 04/02/2020 Watchdog implementation
+                  // Is a watchdog node
+                } else {
+                  const msg = {
+                    topic: _input.outputtopic,
+                    payload: oKNXMessage.payload,
+                    devicename: _input.name ? _input.name : "",
+                    event: "Update_NoWrite",
+                    eventdesc: "The value has been updated from another node and hasn't been received from KNX BUS",
+                  };
+                  // Check RBE INPUT from KNX Bus, to avoid send the payload to the flow, if it's equal to the current payload
+                  if (!checkRBEInputFromKNXBusAllowSend(_input, msg.payload)) {
+                    _input.setNodeStatus({
+                      fill: "grey",
+                      shape: "ring",
+                      text: "rbe block (" + msg.payload + ") from KNX",
+                      payload: "",
+                      GA: "",
+                      dpt: "",
+                      devicename: "",
+                    });
+                    node.lockHandleTelegramQueue = false; // Unlock the function
+                    return;
+                  }
+                  msg.previouspayload = typeof _input.currentPayload !== "undefined" ? _input.currentPayload : ""; // 24/01/2020 Added previous payload
+                  _input.currentPayload = msg.payload; // Set the current value for the RBE input
                   _input.setNodeStatus({
-                    fill: "grey",
-                    shape: "ring",
-                    text: "rbe block (" + msg.payload + ") from KNX",
-                    payload: "",
-                    GA: "",
-                    dpt: "",
+                    fill: "green",
+                    shape: "dot",
+                    text: "",
+                    payload: msg.payload,
+                    GA: _input.topic,
+                    dpt: _input.dpt,
                     devicename: "",
                   });
-                  return;
+                  _input.handleSend(msg);
                 }
-                msg.previouspayload = typeof _input.currentPayload !== "undefined" ? _input.currentPayload : ""; // 24/01/2020 Added previous payload
-                _input.currentPayload = msg.payload; // Set the current value for the RBE input
-                _input.setNodeStatus({
-                  fill: "green",
-                  shape: "dot",
-                  text: "",
-                  payload: msg.payload,
-                  GA: _input.topic,
-                  dpt: _input.dpt,
-                  devicename: "",
-                });
-                _input.handleSend(msg);
               }
+            });
+          } catch (error) { }
+        } else {
+          // Write
+          try {
+            node.knxConnection.write(oKNXMessage.grpaddr, oKNXMessage.payload, oKNXMessage.dpt);
+          } catch (error) {
+            try {
+              const oNode = RED.nodes.getNode(oKNXMessage.nodecallerid); // 05/04/2022 Get the real node
+              if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(
+                "knxUltimate-config: node.knxConnection.write: Payload: " + oKNXMessage.payload + " GA:" + oKNXMessage.grpaddr + " DPT:" + oKNXMessage.dpt + " " + error.stack
+              );
+              oNode.setNodeStatus({
+                fill: "red",
+                shape: "dot",
+                text: "Send write " + error,
+                payload: oKNXMessage.payload,
+                GA: oKNXMessage.grpaddr,
+                dpt: oKNXMessage.dpt,
+                devicename: "",
+              });
+            } catch (error) { }
+          }
+        }
+        // Remove current item in the main node.telegramsQueue array
+        try {
+          node.telegramsQueue = node.telegramsQueue.filter((item) => {
+            if (item !== oKNXMessage) {
+              return item;
             }
           });
         } catch (error) { }
-      } else {
-        // Write
-        try {
-          node.knxConnection.write(_oKNXMessage.grpaddr, _oKNXMessage.payload, _oKNXMessage.dpt);
-        } catch (error) {
-          try {
-            const oNode = RED.nodes.getNode(_oKNXMessage.nodecallerid); // 05/04/2022 Get the real node
-            if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(
-              "knxUltimate-config: node.knxConnection.write: Payload: " + _oKNXMessage.payload + " GA:" + _oKNXMessage.grpaddr + " DPT:" + _oKNXMessage.dpt + " " + error.stack
-            );
-            oNode.setNodeStatus({
-              fill: "red",
-              shape: "dot",
-              text: "Send write " + error,
-              payload: _oKNXMessage.payload,
-              GA: _oKNXMessage.grpaddr,
-              dpt: _oKNXMessage.dpt,
-              devicename: "",
-            });
-          } catch (error) { }
-        }
+        node.lockHandleTelegramQueue = false; // Unlock the function
       }
     }
-
 
     // 14/08/2019 If the node has payload same as the received telegram, return false
     function checkRBEInputFromKNXBusAllowSend(_node, _KNXTelegramPayload) {
@@ -1819,7 +1898,9 @@ module.exports = (RED) => {
         if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.debug("knxUltimate-config: Disconnect: already not connected:" + node.linkStatus + ", node.autoReconnect:" + node.autoReconnect);
         return;
       }
+      if (node.timerSendTelegramFromQueue !== null) clearInterval(node.timerSendTelegramFromQueue); // 02/01/2020 Stop queue timer
       node.linkStatus = "disconnected"; // 29/08/2019 signal disconnection
+      node.lockHandleTelegramQueue = false; // Unlock the telegram handling function
       if (node.timerDoInitialRead !== null) clearTimeout(node.timerDoInitialRead); // 17/02/2020 Stop the initial read timer
       try {
         if (node.knxConnection !== null) await node.knxConnection.Disconnect();
@@ -1828,6 +1909,7 @@ module.exports = (RED) => {
           "knxUltimate-config: Disconnected: node.knxConnection.Disconnect() " + (error.message || "") + " , node.autoReconnect:" + node.autoReconnect,
         );
       }
+      node.startTimerClearTelegramQueue(); // 21/01/2022 Clear the telegram queue after a while
       node.setAllClientsStatus("Disconnected", _sColor, _sNodeStatus);
       saveExposedGAs(); // 04/04/2021 save the current values of GA payload
       if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.debug("knxUltimate-config: Disconnected, node.autoReconnect:" + node.autoReconnect);
@@ -1837,6 +1919,8 @@ module.exports = (RED) => {
       try {
         await node.Disconnect();
       } catch (error) { /* empty */ }
+      if (node.timerClearTelegramQueue !== null) clearTimeout(node.timerClearTelegramQueue);
+      node.telegramsQueue = [];
       node.nodeClients = []; // 05/04/2022 Nullify
       try {
         if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger = null;

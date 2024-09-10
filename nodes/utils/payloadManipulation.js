@@ -60,9 +60,9 @@ module.exports.KNXULtimateChangeConfigByInputMSG = function KNXULtimateChangeCon
   config.outputtopic = node.outputtopic;
 
   // Read from the ETS file, the missing props
-  if (node.server.csv !== undefined && node.server.csv !== null) {
+  if (node.serverKNX.csv !== undefined && node.serverKNX.csv !== null) {
     // Read it from ETS File
-    const found = node.server.csv.find(item => item.ga === msg.setConfig.setGroupAddress);
+    const found = node.serverKNX.csv.find(item => item.ga === msg.setConfig.setGroupAddress);
     if (found !== undefined) {
       if (msg.setConfig.setDPT === 'auto') {
         node.dpt = found.dpt; // SET THE DPT

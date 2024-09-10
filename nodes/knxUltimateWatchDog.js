@@ -4,7 +4,7 @@ module.exports = function (RED) {
   function knxUltimateWatchDog(config) {
     RED.nodes.createNode(this, config)
     const node = this
-    node.server = RED.nodes.getNode(config.server)
+    node.serverKNX = RED.nodes.getNode(config.server)
     node.dpt = '1.001'
     node.notifyreadrequestalsorespondtobus = 'false'
     node.notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized = ''
@@ -31,7 +31,7 @@ module.exports = function (RED) {
     // Used to call the status update from the config node.
     node.setNodeStatus = ({ fill, shape, text, payload, GA, dpt, devicename }) => {
       try {
-        if (node.server == null) { node.status({ fill: 'red', shape: 'dot', text: '[NO GATEWAY SELECTED]' }); return }
+        if (node.serverKNX === null) { node.status({ fill: 'red', shape: 'dot', text: '[NO GATEWAY SELECTED]' }); return }
         if (node.icountMessageInWindow == -999) return // Locked out, doesn't change status.
         const dDate = new Date()
         // 30/08/2019 Display only the things selected in the config
@@ -44,7 +44,7 @@ module.exports = function (RED) {
       }
     }
 
-    if (!node.server) return
+    if (!node.serverKNX) return
 
     function handleTheDog() {
       node.beatNumber += 1
@@ -65,7 +65,7 @@ module.exports = function (RED) {
           const cfg = {
             timeout: 2
           }
-          ping.sys.probe(node.server.host, function (isAlive) {
+          ping.sys.probe(node.serverKNX.host, function (isAlive) {
             if (isAlive) {
               node.watchDogTimerReset()
             } else {
@@ -74,8 +74,8 @@ module.exports = function (RED) {
           }, cfg)
         } else {
           // Issue a read request
-          if (node.server.knxConnection) {
-            node.server.writeQueueAdd({ grpaddr: node.topic, payload: '', dpt: '', outputtype: 'read' })
+          if (node.serverKNX.knxConnection) {
+            node.serverKNX.sendKNXTelegramToKNXEngine({ grpaddr: node.topic, payload: '', dpt: '', outputtype: 'read' })
             node.setNodeStatus({ fill: 'grey', shape: 'dot', text: 'Checking level ' + node.checkLevel + ', with beat telegram ' + node.beatNumber + ' of ' + node.maxRetry, payload: '', GA: '', dpt: '', devicename: '' })
           };
         }
@@ -151,12 +151,12 @@ module.exports = function (RED) {
         };
       };
 
-      if (node.server === undefined) return
+      if (node.serverKNX === undefined) return
 
       // 01/02/2020 Dinamic change of the KNX Gateway IP, Port and Physical Address
       // This new thing has been requested by proServ RealKNX staff.
       if (msg.hasOwnProperty('setGatewayConfig')) {
-        node.server.setGatewayConfig(msg.setGatewayConfig.IP, msg.setGatewayConfig.Port, msg.setGatewayConfig.PhysicalAddress, msg.setGatewayConfig.BindToEthernetInterface, msg.setGatewayConfig.Protocol, msg.setGatewayConfig.importCSV)
+        node.serverKNX.setGatewayConfig(msg.setGatewayConfig.IP, msg.setGatewayConfig.Port, msg.setGatewayConfig.PhysicalAddress, msg.setGatewayConfig.BindToEthernetInterface, msg.setGatewayConfig.Protocol, msg.setGatewayConfig.importCSV)
         const ret = {
           type: 'setGatewayConfig',
           checkPerformed: 'The Watchdog node changed the gateway configuration.',
@@ -170,7 +170,7 @@ module.exports = function (RED) {
 
       // 05/05/2021 force connection/disconnectio of the gateway
       if (msg.hasOwnProperty('connectGateway')) {
-        node.server.connectGateway(msg.connectGateway)
+        node.serverKNX.connectGateway(msg.connectGateway)
         const ret = {
           type: 'connectGateway',
           checkPerformed: 'The Watchdog issued a connection/disconnection to the gateway.',
@@ -185,19 +185,19 @@ module.exports = function (RED) {
 
     node.on('close', function (done) {
       if (node.timerWatchDog !== null) clearInterval(node.timerWatchDog)
-      if (node.server) {
-        node.server.removeClient(node)
+      if (node.serverKNX) {
+        node.serverKNX.removeClient(node)
       };
       done()
     })
 
     // On each deploy, unsubscribe+resubscribe
     // Unsubscribe(Subscribe)
-    if (node.server) {
+    if (node.serverKNX) {
       if (node.timerWatchDog !== null) clearInterval(node.timerWatchDog)
-      node.server.removeClient(node)
+      node.serverKNX.removeClient(node)
       if (node.topic || node.listenallga) {
-        node.server.addClient(node)
+        node.serverKNX.addClient(node)
         if (node.autoStart) node.StartWatchDogTimer() // Autostart watchdog
       }
     }

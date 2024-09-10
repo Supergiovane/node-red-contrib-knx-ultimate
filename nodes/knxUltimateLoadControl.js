@@ -1,11 +1,18 @@
 
+// 10/09/2024 Setup the color logger
+loggerSetup = (options) => {
+  let clog = require("node-color-log").createNamedLogger(options.setPrefix);
+  clog.setLevel(options.loglevel);
+  clog.setDate(() => (new Date()).toLocaleString());
+  return clog;
+}
 module.exports = function (RED) {
   function knxUltimateLoadControl(config) {
     // const Address = require('knxultimate')
 
     RED.nodes.createNode(this, config)
     const node = this
-    node.server = RED.nodes.getNode(config.server)
+    node.serverKNX = RED.nodes.getNode(config.server)
     node.name = config.name || 'KNX Load Control'
     node.topic = config.topic
     node.dpt = config.dpt
@@ -31,6 +38,8 @@ module.exports = function (RED) {
     node.mainTimer = null
     node.totalWatt = 0 // Current total watt consumption
     node.wattLimit = config.wattLimit === undefined ? 3000 : Number(config.wattLimit)
+    node.sysLogger = loggerSetup({ loglevel: node.serverKNX.loglevel, setPrefix: "knxUltimateLoadControl.js" }); // 08/04/2021 new logger to adhere to the loglevel selected in the config-window
+
     node.deviceList = []
     for (let index = 1; index < 6; index++) {
       // Eval, the magic. Fill in the device list. DEFINITION DEVICELIST
@@ -46,15 +55,9 @@ module.exports = function (RED) {
       })
     }
 
-    try {
-      node.sysLogger = require('./utils/sysLogger.js').get({ loglevel: node.server.loglevel || 'error' }) // 08/04/2021 new logger to adhere to the loglevel selected in the config-window
-    } catch (error) {
-      node.sysLogger = 'error'
-    }
-
     // Used to call the status update from the config node.
     node.setNodeStatus = ({ fill, shape, text, payload, GA, dpt, devicename }) => {
-      if (node.server === null) return
+      if (node.serverKNX === null) return
       // Log only service statuses, not the GA values
       try {
         if (dpt !== '') return
@@ -117,9 +120,9 @@ module.exports = function (RED) {
 
     // 03/02/2022 perform a read on all GA in the list
     node.initialReadAllDevicesInRules = () => {
-      if (node.server) {
+      if (node.serverKNX) {
         // Read status of the Total Power GA
-        if (node.topic !== undefined && node.topic !== null && node.topic !== '') node.server.writeQueueAdd({ grpaddr: node.topic, payload: '', dpt: '', outputtype: 'read', nodecallerid: node.id })
+        if (node.topic !== undefined && node.topic !== null && node.topic !== '') node.serverKNX.sendKNXTelegramToKNXEngine({ grpaddr: node.topic, payload: '', dpt: '', outputtype: 'read', nodecallerid: node.id })
 
         for (let i = 0; i < node.deviceList.length; i++) {
           const grpaddr = node.deviceList[i].monitorGA
@@ -128,7 +131,7 @@ module.exports = function (RED) {
               // Check if it's a group address
               // const ret = Address.KNXAddress.createFromString(grpaddr, Address.KNXAddress.TYPE_GROUP)
               // node.setLocalStatus({ fill: "grey", shape: "dot", text: "Read Power from BUS" });
-              node.server.writeQueueAdd({ grpaddr, payload: '', dpt: '', outputtype: 'read', nodecallerid: node.id })
+              node.serverKNX.sendKNXTelegramToKNXEngine({ grpaddr, payload: '', dpt: '', outputtype: 'read', nodecallerid: node.id })
             } catch (error) {
               node.setLocalStatus({ fill: 'grey', shape: 'dot', text: 'Not a KNX GA ' + error.message })
             }
@@ -177,7 +180,7 @@ module.exports = function (RED) {
       // Increase shedding timer (Switch off devices)
       if (node.timerIncreaseShedding !== null) clearTimeout(node.timerIncreaseShedding)
       node.timerIncreaseShedding = setTimeout(() => {
-        if (node.server) {
+        if (node.serverKNX) {
           // Check consumption
           if (node.totalWatt > node.wattLimit) {
             // Start increasing shedding!
@@ -195,7 +198,7 @@ module.exports = function (RED) {
       // Decrease shedding timer (Switch devices on again)
       if (node.timerDecreaseShedding !== null) clearTimeout(node.timerDecreaseShedding)
       node.timerDecreaseShedding = setTimeout(() => {
-        if (node.server) {
+        if (node.serverKNX) {
           // Check consumption
           if (node.totalWatt <= node.wattLimit) {
             // Start decreasing shedding!
@@ -230,7 +233,7 @@ module.exports = function (RED) {
       if (oRow.ga !== undefined && oRow.ga !== '' && oRow.ga !== null) {
         // Check if the device is in use. If not, turn off the device and further increase the shedding stage to turn off the next one.
         node.setLocalStatus({ fill: 'red', shape: 'dot', text: 'OFF ' + oRow.name })
-        node.server.writeQueueAdd({ grpaddr: oRow.ga, payload: false, dpt: oRow.dpt, outputtype: 'write', nodecallerid: node.id })
+        node.serverKNX.sendKNXTelegramToKNXEngine({ grpaddr: oRow.ga, payload: false, dpt: oRow.dpt, outputtype: 'write', nodecallerid: node.id })
       } else {
         node.setLocalStatus({ fill: 'grey', shape: 'dot', text: 'No GA defined' })
       }
@@ -271,7 +274,7 @@ module.exports = function (RED) {
         if (oRow.autoRestore === true) {
           // Check if the device is in use. If not, turn off the device and further increase the shedding stage to turn off the next one.
           node.setLocalStatus({ fill: 'green', shape: 'dot', text: 'ON ' + oRow.name })
-          node.server.writeQueueAdd({ grpaddr: oRow.ga, payload: true, dpt: oRow.dpt, outputtype: 'write', nodecallerid: node.id })
+          node.serverKNX.sendKNXTelegramToKNXEngine({ grpaddr: oRow.ga, payload: true, dpt: oRow.dpt, outputtype: 'write', nodecallerid: node.id })
         } else {
           // Cannot auto switch on the load.
           node.setLocalStatus({ fill: 'yellow', shape: 'dot', text: 'Auto Restore disabled ' + oRow.name })
@@ -303,7 +306,7 @@ module.exports = function (RED) {
         node.sheddingStage = 0
         for (let index = 0; index < node.deviceList.length; index++) {
           const oRow = node.deviceList[index]
-          if (oRow.autoRestore === true) node.server.writeQueueAdd({ grpaddr: oRow.ga, payload: true, dpt: oRow.dpt, outputtype: 'write', nodecallerid: node.id })
+          if (oRow.autoRestore === true) node.serverKNX.sendKNXTelegramToKNXEngine({ grpaddr: oRow.ga, payload: true, dpt: oRow.dpt, outputtype: 'write', nodecallerid: node.id })
         }
         const t = setTimeout(() => { // 21/03/2022 fixed possible memory leak. Previously was setTimeout without "let t = ".
           node.setLocalStatus({ fill: 'green', shape: 'dot', text: 'All loads have been restored' })
@@ -363,17 +366,17 @@ module.exports = function (RED) {
       if (node.mainTimer !== null) clearInterval(node.mainTimer)
       if (node.timerDecreaseShedding !== null) clearTimeout(node.timerDecreaseShedding)
       if (node.timerIncreaseShedding !== null) clearTimeout(node.timerIncreaseShedding)
-      if (node.server) {
-        node.server.removeClient(node)
+      if (node.serverKNX) {
+        node.serverKNX.removeClient(node)
       }
       done()
     })
 
     // On each deploy, unsubscribe+resubscribe
-    if (node.server) {
-      node.server.removeClient(node)
+    if (node.serverKNX) {
+      node.serverKNX.removeClient(node)
       if (node.topic !== '') {
-        node.server.addClient(node)
+        node.serverKNX.addClient(node)
       }
     }
   }

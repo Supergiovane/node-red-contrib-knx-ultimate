@@ -6,6 +6,10 @@
 
 # CHANGELOG
 
+**Version 3.2.1** - September 2024<br/>
+- Major Version.<br/>
+- HUE engine: fixed an issue preventing the reconnection to the bridge after an network error.<br/>
+
 **Version 3.2.0** - September 2024<br/>
 - Major Version.<br/>
 - HUE engine: implemented a new "limiter" package for better calculate the maximum numbers of telegrams accepted by HUE Bridge.<br/>

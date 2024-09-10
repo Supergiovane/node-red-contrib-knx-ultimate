@@ -1,3 +1,11 @@
+// 10/09/2024 Setup the color logger
+loggerSetup = (options) => {
+  let clog = require("node-color-log").createNamedLogger(options.setPrefix);
+  clog.setLevel(options.loglevel);
+  clog.setDate(() => (new Date()).toLocaleString());
+  return clog;
+}
+
 module.exports = function (RED) {
   const dptlib = require('knxultimate').dptlib;
   const fs = require("fs");
@@ -33,7 +41,7 @@ module.exports = function (RED) {
   function knxUltimateAutoResponder(config) {
     RED.nodes.createNode(this, config)
     const node = this
-    node.server = RED.nodes.getNode(config.server)
+    node.serverKNX = RED.nodes.getNode(config.server)
     node.topic = node.name
     node.name = config.name === undefined ? 'Auto responder' : config.name
     node.outputtopic = node.name
@@ -48,12 +56,12 @@ module.exports = function (RED) {
     node.inputRBE = 'false' // Apply or not RBE to the input (Messages coming from BUS)
     node.exposedGAs = [];
     node.commandText = []; // Raw list Respond To
-    node.sysLogger = require('./utils/sysLogger.js').get({ loglevel: node.server.loglevel || 'error' }); // 08/04/2021 new logger to adhere to the loglevel selected in the config-window
+    node.sysLogger = loggerSetup({ loglevel: node.serverKNX.loglevel, setPrefix: "knxUltimateAutoResponder.js" }); // 08/04/2021 new logger to adhere to the loglevel selected in the config-window
 
     // Used to call the status update from the config node.
     node.setNodeStatus = ({ fill, shape, text, payload, GA, dpt, devicename }) => {
       // try {
-      //   if (node.server == null) { node.status({ fill: 'red', shape: 'dot', text: '[NO GATEWAY SELECTED]' }); return }
+      //   if (node.serverKNX === null) { node.status({ fill: 'red', shape: 'dot', text: '[NO GATEWAY SELECTED]' }); return }
       //   GA = GA === undefined ? '' : GA
       //   payload = payload === undefined ? '' : payload
       //   payload = typeof payload === 'object' ? JSON.stringify(payload) : payload
@@ -64,7 +72,7 @@ module.exports = function (RED) {
     }
 
     node.saveExposedGAs = () => {
-      const sFile = path.join(node.server.userDir, "knxpersistvalues", "knxpersist" + node.id + ".json");
+      const sFile = path.join(node.serverKNX.userDir, "knxpersistvalues", "knxpersist" + node.id + ".json");
       try {
         if (node.exposedGAs.length > 0) {
           fs.writeFileSync(sFile, JSON.stringify(node.exposedGAs));
@@ -75,7 +83,7 @@ module.exports = function (RED) {
       }
     }
     node.loadExposedGAs = () => {
-      const sFile = path.join(node.server.userDir, "knxpersistvalues", "knxpersist" + node.id + ".json");
+      const sFile = path.join(node.serverKNX.userDir, "knxpersistvalues", "knxpersist" + node.id + ".json");
       try {
         node.exposedGAs = JSON.parse(fs.readFileSync(sFile, "utf8"));
       } catch (err) {
@@ -96,11 +104,11 @@ module.exports = function (RED) {
 
 
     // Add the ETS CSV file list to exposedGAs
-    if (node.server.csv === undefined || node.server.csv === '' || node.server.csv.length === 0) {
+    if (node.serverKNX.csv === undefined || node.serverKNX.csv === '' || node.serverKNX.csv.length === 0) {
       node.status({ fill: 'grey', shape: 'ring', text: 'No ETS file imported', payload: '', dpt: '', devicename: '' });
       //return;
     } else {
-      node.server.csv.forEach(element => {
+      node.serverKNX.csv.forEach(element => {
         const curGa = node.exposedGAs.find(a => a.address === element.ga);
         if (curGa === undefined) {
           node.exposedGAs.push({ address: element.ga, dpt: element.dpt, default: undefined, payload: undefined, enabled: false }); // "enabled" will be used to filter only the node.commandText directiver
@@ -198,7 +206,7 @@ module.exports = function (RED) {
           if (retVal !== undefined) {
             const dDate = new Date()
             if (oFoundGA.address !== undefined && oFoundGA.dpt !== undefined && retVal !== undefined) {
-              node.server.writeQueueAdd({ grpaddr: oFoundGA.address, payload: retVal, dpt: oFoundGA.dpt, outputtype: 'response', nodecallerid: node.id });
+              node.serverKNX.sendKNXTelegramToKNXEngine({ grpaddr: oFoundGA.address, payload: retVal, dpt: oFoundGA.dpt, outputtype: 'response', nodecallerid: node.id });
               node.status({ fill: 'blue', shape: 'dot', text: 'Respond ' + oFoundGA.address + ' => ' + retVal + ' (' + dDate.getDate() + ', ' + dDate.toLocaleTimeString() + ')' })
             } else {
               node.status({ fill: 'yellow', shape: 'ring', text: 'Issue responding ' + oFoundGA.address + ' => ' + retVal + ' (' + dDate.getDate() + ', ' + dDate.toLocaleTimeString() + ')' })
@@ -221,16 +229,16 @@ module.exports = function (RED) {
       }
 
       node.exposedGAs = [];
-      if (node.server) {
-        node.server.removeClient(node)
+      if (node.serverKNX) {
+        node.serverKNX.removeClient(node)
       }
       done()
     })
 
     // On each deploy, unsubscribe+resubscribe
-    if (node.server) {
-      node.server.removeClient(node)
-      node.server.addClient(node)
+    if (node.serverKNX) {
+      node.serverKNX.removeClient(node)
+      node.serverKNX.addClient(node)
     }
   }
   RED.nodes.registerType('knxUltimateAutoResponder', knxUltimateAutoResponder)

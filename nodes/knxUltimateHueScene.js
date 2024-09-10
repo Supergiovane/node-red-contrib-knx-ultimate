@@ -1,12 +1,20 @@
 /* eslint-disable max-len */
 const dptlib = require('knxultimate').dptlib;//require('knxultimate').dptlib;
 
+// 10/09/2024 Setup the color logger
+loggerSetup = (options) => {
+  let clog = require("node-color-log").createNamedLogger(options.setPrefix);
+  clog.setLevel(options.loglevel);
+  clog.setDate(() => (new Date()).toLocaleString());
+  return clog;
+}
+
 module.exports = function (RED) {
 
   function knxUltimateHueScene(config) {
     RED.nodes.createNode(this, config);
     const node = this;
-    node.server = RED.nodes.getNode(config.server);
+    node.serverKNX = RED.nodes.getNode(config.server);
     node.serverHue = RED.nodes.getNode(config.serverHue);
     node.topic = node.name;
     node.name = config.name === undefined ? 'Hue' : config.name;
@@ -28,7 +36,7 @@ module.exports = function (RED) {
     node.formatdecimalsvalue = 2;
     node.hueDevice = config.hueDevice;
     node.initializingAtStart = false;
-    node.sysLogger = require('./utils/sysLogger.js').get({ loglevel: node.server.loglevel || 'error' }); // 08/04/2021 new logger to adhere to the loglevel selected in the config-window
+    node.sysLogger = loggerSetup({ loglevel: node.serverKNX.loglevel || 'error', setPrefix: "knxUltimateHueScene.js" }); // 08/04/2021 new logger to adhere to the loglevel selected in the config-window
 
     // Multi scene
     config.GAsceneMulti = config.GAsceneMulti === undefined ? '' : config.GAsceneMulti;
@@ -123,8 +131,8 @@ module.exports = function (RED) {
           if (_event.hasOwnProperty("status") && _event.status.hasOwnProperty("active")) {
             knxMsgPayload.payload = _event.status.active !== "inactive";
             // Send to KNX bus
-            if (knxMsgPayload.topic !== "" && knxMsgPayload.topic !== undefined && node.server !== undefined) {
-              node.server.writeQueueAdd({
+            if (knxMsgPayload.topic !== "" && knxMsgPayload.topic !== undefined && node.serverKNX !== undefined) {
+              node.serverKNX.sendKNXTelegramToKNXEngine({
                 grpaddr: knxMsgPayload.topic,
                 payload: knxMsgPayload.payload,
                 dpt: knxMsgPayload.dpt,
@@ -155,9 +163,9 @@ module.exports = function (RED) {
     };
 
     // On each deploy, unsubscribe+resubscribe
-    if (node.server) {
-      node.server.removeClient(node);
-      node.server.addClient(node);
+    if (node.serverKNX) {
+      node.serverKNX.removeClient(node);
+      node.serverKNX.addClient(node);
     }
     if (node.serverHue) {
       node.serverHue.removeClient(node);
@@ -190,8 +198,8 @@ module.exports = function (RED) {
       }
     });
     node.on('close', function (done) {
-      if (node.server) {
-        node.server.removeClient(node);
+      if (node.serverKNX) {
+        node.serverKNX.removeClient(node);
       }
       if (node.serverHue) {
         node.serverHue.removeClient(node);
