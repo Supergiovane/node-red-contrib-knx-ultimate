@@ -9,10 +9,12 @@
 
 **Version 3.2.1-beta.0** - September 2024<br/>
 - Rewrote the logger engine and fixed some issues in the KNXUltimate package.<br/>
+- KNX engine: implemented a new "limiter" package for better calculate the maximum numbers of telegrams accepted by the KNX BUS.<br/>
 
 **Version 3.2.0** - September 2024<br/>
 - Major Version.<br/>
-- HUE engine: implemented a new "limiter" package for better calculate the maximum numbers of telegrams accepted by HUE Bridge.<br/>
+- HUE engine: implemented a new "limiter" package for better calculate the maximum numbers of telegrams accepted by the HUE Bridge.<br/>
+
 
 **Version 3.1.9** - September 2024<br/>
 - HUE Bridge: you can now register to a bridge with your own credentials.<br/>
