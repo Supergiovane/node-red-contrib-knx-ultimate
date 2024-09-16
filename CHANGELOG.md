@@ -6,6 +6,8 @@
 
 # CHANGELOG
 
+**Version 3.2.2** - September 2024<br/>
+- KNX engine: Bump to 3.0.2: fixed an issue with the KNX queue.<br/>
 
 **Version 3.2.1-beta.0** - September 2024<br/>
 - Rewrote the logger engine and fixed some issues in the KNXUltimate package.<br/>
