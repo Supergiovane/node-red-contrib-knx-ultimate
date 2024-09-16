@@ -216,7 +216,7 @@ module.exports = (RED) => {
         node.exposedGAs = JSON.parse(fs.readFileSync(sFile, "utf8"));
       } catch (err) {
         node.exposedGAs = [];
-        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.warn("KNXUltimate-config: unable to read peristent file " + sFile + " " + err.message);
+        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("KNXUltimate-config: unable to read peristent file " + sFile + " " + err.message);
       }
     }
 
@@ -513,7 +513,8 @@ module.exports = (RED) => {
     //     localEchoInTunneling: true,
     //     localIPAddress: "",
     //     jKNXSecureKeyring: node.jKNXSecureKeyring
-    //     interface: ""
+    //     interface: "",
+    //     KNXQueueSendIntervalMilliseconds: Number(node.delaybetweentelegrams)
     // };
 
     node.setKnxConnectionProperties = () => {
@@ -679,7 +680,7 @@ module.exports = (RED) => {
             } catch (error) {
               if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("knxUltimate-config: DoInitialReadFromKNXBusOrFile " + error.stack);
             }
-          }, 6000); // 17/02/2020 Do initial read of all nodes requesting initial read
+          }, 1000); // 17/02/2020 Do initial read of all nodes requesting initial read
           const t = setTimeout(() => {
             // 21/03/2022 fixed possible memory leak. Previously was setTimeout without "let t = ".
             node.setAllClientsStatus("Connected.", "green", "On duty.");
@@ -1151,7 +1152,7 @@ module.exports = (RED) => {
         if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.warn(
           "knxUltimate-config: handleTelegramQueue: the KNXEngine is busy or is waiting for a telegram ACK with seqNumner " +
           node.knxConnection.getSeqNumber() +
-          ". Delay handling queue. YOUR COMPUTER COULD BE TOO SLOW OR BUSY TO KEEP UP WITH THE STRICT TIMING, REQUIRED FOR KNX TO FUNCTION PROPERLY.",
+          ". Delay handling queue. YOUR COMPUTER COULD BE TOO SLOW OR BUSY TO KEEP UP ADDED TELEGRAM TO COMMANDQUEUE. Len: 3",
         );
       }
 
