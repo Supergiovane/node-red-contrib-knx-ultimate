@@ -104,7 +104,8 @@ module.exports = (RED) => {
     node.allowLauch_initKNXConnection = true; // See the node.timerKNXUltimateCheckState function
     node.hostProtocol = config.hostProtocol === undefined ? "Auto" : config.hostProtocol; // 20/03/2022 Default
     node.knxConnection = null; // 20/03/2022 Default
-    node.delaybetweentelegrams = config.delaybetweentelegrams === undefined ? 25 : config.delaybetweentelegrams;
+    node.delaybetweentelegrams = (config.delaybetweentelegrams === undefined || config.delaybetweentelegrams === null) ? 25 : Number(config.delaybetweentelegrams);
+    if (node.delaybetweentelegrams < 20) node.delaybetweentelegrams = 20; // Protection avoiding handleKNXQueue hangs
 
     // 05/12/2021 Set the protocol (this is undefined if coming from ild versions
     if (node.hostProtocol === "Auto") {

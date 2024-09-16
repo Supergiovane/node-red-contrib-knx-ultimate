@@ -18,7 +18,7 @@
             loglevel: { value: "error" },
             name: { value: "KNX Gateway" },
             localEchoInTunneling: { value: true },
-            delaybetweentelegrams: { value: 25, required: false },
+            delaybetweentelegrams: { value: 25, required: false, validate: RED.validators.number() },
             ignoreTelegramsWithRepeatedFlag: { value: false, required: false },
             keyringFileXML: { value: "" },
             knxSecureSelected: { value: false },

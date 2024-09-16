@@ -6,6 +6,9 @@
 
 # CHANGELOG
 
+**Version 3.2.4** - September 2024<br/>
+- KNX engine: fix oldest invalid KNX queue interval, by defaulting it to 25ms.<br/>
+
 **Version 3.2.2** - September 2024<br/>
 - KNX engine: Bump to 3.0.2: fixed an issue with the KNX queue.<br/>
 
