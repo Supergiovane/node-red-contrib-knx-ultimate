@@ -6,6 +6,9 @@
 
 # CHANGELOG
 
+**Version 3.2.5** - September 2024<br/>
+- KNXViewer: fixed an issue with the PIN3.<br/>
+
 **Version 3.2.4** - September 2024<br/>
 - KNX engine: fix oldest invalid KNX queue interval, by defaulting it to 25ms.<br/>
 

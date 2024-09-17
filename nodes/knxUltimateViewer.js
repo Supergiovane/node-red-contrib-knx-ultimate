@@ -140,21 +140,24 @@ module.exports = function (RED) {
       //   outputtype: "read",
       //   nodecallerid: _oClient.id,
       // });
-      const aItems = _.clone(node.serverKNX.telegramsQueue);
+      let sHead = '';
+      let sFooter = '';
       let sPayload = '';
+      try {
+        const aItems = _.clone(node.serverKNX.knxConnection.commandQueue);
+        if (aItems === undefined) return;
 
-      const sHead = `<div class="main"><table><caption>Queue of outgoing telegrams to the KNX BUS. The more the count,</br>the more congested is the KNX BUS.</caption>
+        sHead = `<div class="main"><table><caption>Queue of outgoing telegrams to the KNX BUS. The more the count,</br>the more congested is the KNX BUS.</caption>
             <thead>
               <tr>
-                <th> GA </th>
-                <th> Value </th>
-                <th> DPT </th>
-                <th> Output Type </th>
-                <th> Caller Node (id) </th>
+                <th> Channel ID </th>
+                <th> Sequence counter </th>
+                <th> Type of packet</th>
+                <th> Status </th>
               </tr>
             </thead>
             <tbody>`;
-      const sFooter = `</tbody><tfoot>
+        sFooter = `</tbody><tfoot>
               <tr>
                 <th scope="row">Count</th>
                 <td>` + aItems.length + `</td>
@@ -162,31 +165,13 @@ module.exports = function (RED) {
             </tfoot>
             </table></div>`;
 
-      try {
+
         for (let index = 0; index < aItems.length; index++) {
           const element = aItems[index];
-          sPayload += '<tr><td>' + element.grpaddr + '</td>';
-          if (typeof element.payload === 'boolean' && element.payload === true) {
-            sPayload += '<td><b><font color=green>True</font></b></td>';
-          } else if (typeof element.payload === 'boolean' && element.payload === false) {
-            sPayload += '<td><font color=red>False</font></td>';
-          } else if (typeof element.payload === 'object' && !isNaN(Date.parse(element.payload))) {
-            // The payload is a datetime
-            sPayload += '<td>' + element.payload.toLocaleString() + '</td>';
-          } else if (typeof element.payload === 'object') {
-            // Is maybe a JSON?
-            try {
-              // sPayload += '<td>' + JSON.stringify(element.payload) + '</td>'
-              sPayload += '<td><i>' + element.rawPayload + '</i></td>';
-            } catch (error) {
-              sPayload += '<td>' + element.payload + '</td>';
-            }
-          } else {
-            sPayload += '<td>' + element.payload + element.payloadmeasureunit + '</td>';
-          }
-          sPayload += '<td>' + element.dpt + '</td>';
-          sPayload += '<td>' + element.outputtype + '</td>';
-          sPayload += '<td><font style="font-size: smaller;">' + element.nodecallerid + '</font></td></tr>';
+          sPayload += '<tr><td>' + element.knxPacket.channelID + '</td>';
+          sPayload += '<td><b><font color=green>' + element.knxPacket.seqCounter + '</font></b></td>';
+          sPayload += '<td>' + element.knxPacket.type + '</td>';
+          sPayload += '<td>' + element.knxPacket.status + '</td></tr>';
         }
       } catch (error) {
 
