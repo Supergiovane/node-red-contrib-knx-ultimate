@@ -6,7 +6,7 @@
 
 # CHANGELOG
 
-**Version 3.2.5** - September 2024<br/>
+**Version 3.2.6** - September 2024<br/>
 - KNXViewer: fixed an issue with the PIN3.<br/>
 
 **Version 3.2.4** - September 2024<br/>
