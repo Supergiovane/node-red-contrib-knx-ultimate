@@ -317,6 +317,7 @@ module.exports = (RED) => {
                       _devicename: _oClient.name ? _oClient.name : "",
                       _outputtopic: _oClient.outputtopic,
                       _oNode: _oClient,
+                      _echoed: _echoed
                     });
                     _oClient.previouspayload = ""; // 05/04/2021 Added previous payload
                     _oClient.currentPayload = msg.payload;
@@ -739,6 +740,8 @@ module.exports = (RED) => {
       let _dest = null;
       _dest = _datagram.cEMIMessage.dstAddress.toString();
 
+      _echoed = _echoed || false;
+
       const isRepeated = _datagram.cEMIMessage.control.repeat !== 1;
       // 06/06/2021 Supergiovane: check if i can handle the telegrams with "Repeated" flag
       if (node.ignoreTelegramsWithRepeatedFlag === true && isRepeated) {
@@ -812,6 +815,7 @@ module.exports = (RED) => {
                           _devicename: _input.name ? _input.name : "",
                           _outputtopic: _input.outputtopic,
                           _oNode: null,
+                          _echoed: _echoed
                         });
                         _input.RecallScene(msgRecall.payload, false);
                       } catch (error) { }
@@ -827,6 +831,7 @@ module.exports = (RED) => {
                           _devicename: _input.name || "",
                           _outputtopic: _dest,
                           _oNode: null,
+                          _echoed: _echoed
                         });
                         _input.SaveScene(msgSave.payload, false);
                       } catch (error) { }
@@ -853,6 +858,7 @@ module.exports = (RED) => {
                           _devicename: oDevice.name || "",
                           _outputtopic: oDevice.outputtopic,
                           _oNode: null,
+                          _echoed: _echoed
                         });
                         oDevice.currentPayload = msg.payload;
                         _input.setNodeStatus({
@@ -892,7 +898,8 @@ module.exports = (RED) => {
                   _event: _evt,
                   _Rawvalue: _rawValue,
                   _outputtopic: _dest,
-                  _oNode: _input
+                  _oNode: _input,
+                  _echoed: _echoed
                 });
                 _input.setNodeStatus({
                   fill: "green",
@@ -918,6 +925,7 @@ module.exports = (RED) => {
                     _devicename: _input.name ? _input.name : "",
                     _outputtopic: _input.outputtopic,
                     _oNode: _input,
+                    _echoed: _echoed
                   });
                   // Check RBE INPUT from KNX Bus, to avoid send the payload to the flow, if it's equal to the current payload
                   if (!checkRBEInputFromKNXBusAllowSend(_input, msg.payload)) {
@@ -973,7 +981,8 @@ module.exports = (RED) => {
                   _event: _evt,
                   _Rawvalue: _rawValue,
                   _outputtopic: _dest,
-                  _oNode: _input
+                  _oNode: _input,
+                  _echoed: _echoed
                 });
                 _input.setNodeStatus({
                   fill: "blue",
@@ -1000,6 +1009,7 @@ module.exports = (RED) => {
                     _devicename: _input.name ? _input.name : "",
                     _outputtopic: _input.outputtopic,
                     _oNode: _input,
+                    _echoed: _echoed
                   });
                   // Check RBE INPUT from KNX Bus, to avoid send the payload to the flow, if it's equal to the current payload
                   if (!checkRBEInputFromKNXBusAllowSend(_input, msg.payload)) {
@@ -1054,7 +1064,8 @@ module.exports = (RED) => {
                   _event: _evt,
                   _Rawvalue: null,
                   _outputtopic: _dest,
-                  _oNode: _input
+                  _oNode: _input,
+                  _echoed: _echoed
                 });
                 _input.setNodeStatus({
                   fill: "grey",
@@ -1081,6 +1092,7 @@ module.exports = (RED) => {
                     _devicename: _input.name || "",
                     _outputtopic: _input.outputtopic,
                     _oNode: _input,
+                    _echoed: _echoed
                   });
                   msg.previouspayload = typeof _input.currentPayload !== "undefined" ? _input.currentPayload : ""; // 24/01/2020 Reset previous payload
                   // 24/09/2019 Autorespond to BUS
@@ -1316,7 +1328,7 @@ module.exports = (RED) => {
     }
 
 
-    function buildInputMessage({ _srcGA, _destGA, _event, _Rawvalue, _inputDpt, _devicename, _outputtopic, _oNode }) {
+    function buildInputMessage({ _srcGA, _destGA, _event, _Rawvalue, _inputDpt, _devicename, _outputtopic, _oNode, _echoed = false }) {
       let sPayloadmeasureunit = "unknown";
       let sDptdesc = "unknown";
       let sPayloadsubtypevalue = "unknown";
@@ -1512,6 +1524,7 @@ module.exports = (RED) => {
           payloadmeasureunit: sPayloadmeasureunit,
           payloadsubtypevalue: sPayloadsubtypevalue,
           gainfo: gainfo,
+          echoed: _echoed,
           knx: {
             event: _event,
             dpt: sInputDpt,

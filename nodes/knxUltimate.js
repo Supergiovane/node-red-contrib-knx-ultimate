@@ -259,7 +259,11 @@ module.exports = function (RED) {
       }
       // -+++++++++++++++++++++++++++++++++++++++++++
       //#endregion
-
+      // if (msg.echoed !== undefined && msg.echoed === true) {
+      //   node.setNodeStatus({
+      //     fill: 'grey', shape: 'dot', text: 'Output echoed msg', payload: '', GA: node.topic, dpt: '', devicename: '',
+      //   });
+      // }
       if (msg !== undefined) node.send(msg);
     };
 
@@ -561,13 +565,14 @@ module.exports = function (RED) {
           } else {
             try {
               node.currentPayload = msg.payload;// 31/12/2019 Set the current value (because, if the node is a virtual device, then it'll never fire "GroupValue_Write" in the server node, causing the currentPayload to never update)
+              node.setNodeStatus({
+                fill: 'green', shape: 'dot', text: 'Writing', payload: msg.payload, GA: grpaddr, dpt, devicename: '',
+              });
               // if (node.serverKNX.linkStatus === "connected") {
               node.serverKNX.sendKNXTelegramToKNXEngine({
                 grpaddr, payload: msg.payload, dpt, outputtype, nodecallerid: node.id,
               });
-              node.setNodeStatus({
-                fill: 'green', shape: 'dot', text: 'Writing', payload: msg.payload, GA: grpaddr, dpt, devicename: '',
-              });
+
               // } else {
               //    node.setNodeStatus({ fill: "grey", shape: "dot", text: "Disconnected", payload: msg.payload, GA: grpaddr, dpt: dpt, devicename: "" });
               // }

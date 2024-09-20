@@ -966,7 +966,8 @@ msg = {
         maingroupnumber:"1"
         middlegroupnumber:"1"
         ganumber:"0"
-    }
+    },
+    echoed:true, // True if the msg is coming from the input PIN, otherwise false if the msg is coming form the KNX BUS.
     knx: { // This is a representation of the KNX BUS telegram, coming from BUS
         event: "GroupValue_Write" // (or "GroupValue_Response", or "GroupValue_Read")
         dpt: "1.001"
