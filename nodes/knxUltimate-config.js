@@ -1157,6 +1157,7 @@ module.exports = (RED) => {
     }
     // END Handle BUS events---------------------------------------------------------------------------------------
 
+    // oKNXMessage is { grpaddr, payload,dpt,outputtype (write or response),nodecallerid (node caller)}. 06/03/2020 "Read" request does have the lower priority in the queue, so firstly, i search for "read" telegrams and i move it on the top of the queue pile.
     node.sendKNXTelegramToKNXEngine = (_oKNXMessage) => {
       if (node.knxConnection === null || node.linkStatus !== "connected") return;
 
@@ -1169,7 +1170,6 @@ module.exports = (RED) => {
         );
       }
 
-      // oKNXMessage is { grpaddr, payload,dpt,outputtype (write or response),nodecallerid (node caller)}. 06/03/2020 "Read" request does have the lower priority in the queue, so firstly, i search for "read" telegrams and i move it on the top of the queue pile.
 
       // 19/01/2023 FORMATTING THE OUTPUT PAYLOAD (ROUND, ETC) BASED ON THE NODE CONFIG
       //* ********************************************************

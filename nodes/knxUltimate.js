@@ -38,7 +38,7 @@ module.exports = function (RED) {
         devicename = devicename || '';
         dpt = (typeof dpt === 'undefined' || dpt == '') ? '' : ` DPT${dpt}`;
         payload = typeof payload === 'object' ? JSON.stringify(payload) : payload;
-        node.status({ fill, shape, text: `${GA + payload + (node.listenallga === true ? ` ${devicename}` : '')} (${dDate.getDate()}, ${dDate.toLocaleTimeString()} ${text}` });
+        node.status({ fill, shape, text: `${GA + payload + (node.listenallga === true ? ` ${devicename}` : '')} (day ${dDate.getDate()}, ${dDate.toLocaleTimeString()}) ${text}` });
         // 16/02/2020 signal errors to the server
         if (fill.toUpperCase() === 'RED') {
           if (node.serverKNX) {
@@ -570,12 +570,8 @@ module.exports = function (RED) {
               });
               // if (node.serverKNX.linkStatus === "connected") {
               node.serverKNX.sendKNXTelegramToKNXEngine({
-                grpaddr, payload: msg.payload, dpt, outputtype, nodecallerid: node.id,
+                grpaddr: grpaddr, payload: msg.payload, dpt: dpt, outputtype: outputtype, nodecallerid: node.id,
               });
-
-              // } else {
-              //    node.setNodeStatus({ fill: "grey", shape: "dot", text: "Disconnected", payload: msg.payload, GA: grpaddr, dpt: dpt, devicename: "" });
-              // }
             } catch (error) { }
           }
         }

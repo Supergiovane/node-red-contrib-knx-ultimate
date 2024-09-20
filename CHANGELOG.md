@@ -6,6 +6,9 @@
 
 # CHANGELOG
 
+**Version 3.2.7** - September 2024<br/>
+- KNX Node: added "echoed" property to the flow's msg output. See help for further infos.<br/>
+
 **Version 3.2.6** - September 2024<br/>
 - KNXViewer: fixed an issue with the PIN3.<br/>
 
