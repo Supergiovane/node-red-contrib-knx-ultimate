@@ -295,6 +295,9 @@
                                 $(this).autocomplete('search', $(this).val() + 'exactmatch');
                             });
                             $("#divDatapointSelection").show();
+                            $("#divNode-input-initialread").show();
+                            $("#divOutputRBE").show()
+                            $("#divInputRBE").show()
                         } else if ($("#node-input-setTopicType").val() === 'listenAllGA') {
                             $("#node-input-topic").hide();
                             $("#divDatapointSelection").hide()
@@ -303,20 +306,12 @@
                             $("#divInputRBE").hide()
                             $("#node-input-inputRBE").val("false")
                             $("#divnotifyreadrequestautoreact").hide();
-                            $("#helpallga").show();
                             $("#divTopic").hide()
+                            $("#divNode-input-initialread").hide();
 
                             // Call a fake datapoint to load a sample "Universal Node"
                             knxUltimateDptsGetHelp("0.000", true); // 15/09/2020 Supergiovane, load sample help
 
-                            if ($("#helpallga").html == "") {
-                                // There is a ETS csv file, show the init read option
-                                $("#divNode-input-initialread").show()
-                            } else {
-                                // There isn't a ETS csv file, hide and deselect the init read option
-                                $("#divNode-input-initialread").hide();
-                                $("#node-input-initialread").val(0);
-                            }
                         } else {
 
                             // 15/09/2020 Supergiovane, load the help sample of the current datapoint
@@ -329,7 +324,6 @@
                             } else {
                                 $("#divnotifyreadrequestautoreact").hide();
                             }
-                            $("#helpallga").hide()
                             $("#divNode-input-initialread").show();
 
                             $("#node-input-topic").prop('placeholder', $("#node-input-setTopicType").val());
@@ -342,12 +336,10 @@
                     // Hide or show the GA and DPT fields if Notify on all Group Addresses is checked
                     if (oNodeServer !== undefined && oNodeServer !== null) {
                         if (oNodeServer.csv !== undefined && oNodeServer.csv !== "") {
-                            $("#helpallga").html("");
                             // There is a ETS csv file, show the init read option
                             $("#divNode-input-initialread").show()
                         } else {
                             // 25/10/2019 Warn user that the node will node encode/decode datagram, if Listen All GA's if the config node doesn't contain the csv
-                            $("#helpallga").html("<i> " + node._("knxUltimate.advanced.noETSWarning") + " </i>");
                             if ($("#node-input-setTopicType").val() === 'listenAllGA') {
                                 // There isn't a ETS csv file, hide and deselect the init read option
                                 $("#divNode-input-initialread").hide();
@@ -362,7 +354,6 @@
                         $("#divDatapointSelection").show()
                         $("#divOutputRBE").show()
                         $("#divInputRBE").show()
-                        $("#helpallga").hide()
                         $("#divNode-input-initialread").show()
                     }
 
@@ -438,8 +429,7 @@
                 }
                 // $("#node-input-listenallga").prop("checked", false)
                 // $("#divOutputRBE").show()
-                // $("#divInputRBE").show()
-                //$("#helpallga").show()
+                // $("#divInputRBE").show()               
             }
 
             // 15/09/2020 Supergiovane, Detele the sample help editor

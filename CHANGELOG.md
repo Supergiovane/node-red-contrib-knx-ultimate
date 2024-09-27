@@ -6,6 +6,9 @@
 
 # CHANGELOG
 
+**Version 3.2.8** - October 2024<br/>
+- KNX Node: fixed "read status at startup" field not showing up in very old versions.<br/>
+
 **Version 3.2.7** - September 2024<br/>
 - KNX Node: added "echoed" property to the flow's msg output. See help for further infos.<br/>
 
