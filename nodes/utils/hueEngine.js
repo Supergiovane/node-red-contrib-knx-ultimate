@@ -44,8 +44,11 @@ class classHUE extends EventEmitter {
     });
 
     try {
-      this.es.close();
-      this.es = null;
+      if (this.es !== null && this.es !== undefined) {
+        this.es.removeEventListener();
+        this.es.close();
+        this.es = null;
+      }
     } catch (error) {
       /* empty */
     }
@@ -99,19 +102,6 @@ class classHUE extends EventEmitter {
     //   // this.emit('error', error)
     // };
 
-    // 31/07/2023 Every now and then, restart the connection to the eventsource, because it can goes down without knowing that
-    if (this.timerReconnect !== undefined) clearInterval(this.timerReconnect);
-    this.timerReconnect = setInterval(() => {
-      try {
-        this.es.close();
-        this.es = null;
-      } catch (error) {
-        /* empty */
-      }
-      try {
-        this.Connect();
-      } catch (error) { }
-    }, 10 * (60 * 1000)); // 10 minutes
   };
 
   // Process single item in the queue
@@ -224,15 +214,14 @@ class classHUE extends EventEmitter {
   close = async () =>
     new Promise((resolve, reject) => {
       try {
-        if (this.timerReconnect !== undefined) clearInterval(this.timerReconnect);
-        this.closePushEventStream = true; // Signal to exit all loops
-        try {
-          if (this.es !== null && this.es !== undefined) this.es.close();
-        } catch (error) { }
-        this.es = null;
+        this.closePushEventStream = true; // Signal to exit all loops        
         setTimeout(() => {
+          try {
+            if (this.es !== null && this.es !== undefined) this.es.close();
+          } catch (error) { }
+          this.es = null;
           resolve(true);
-        }, 500);
+        }, 2000);
       } catch (error) {
         reject(error);
       }

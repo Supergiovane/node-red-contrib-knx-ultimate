@@ -723,6 +723,10 @@
         let timerWaitBackEndCounter = 0;
         function checkConnection() {
           if (this.timerWaitBackEnd !== undefined) clearTimeout(this.timerWaitBackEnd);
+          if ($("#node-input-serverHue").val() === undefined) {
+            // Someone has FULL deployed node-red, exit.
+            return;
+          }
           this.timerWaitBackEnd = setTimeout(() => {
             timerWaitBackEndCounter++;
             if (timerWaitBackEndCounter > 20) {

@@ -477,18 +477,17 @@ module.exports = (RED) => {
     node.on("close", (done) => {
       try {
         if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger = null;
-        loggerEngine.destroy();
         node.nodeClients = [];
-        node.hueManager.removeAllListeners();
+        if (node.hueManager !== undefined && node.hueManager !== null) node.hueManager.removeAllListeners();
         (async () => {
           try {
             await node.hueManager.close();
             node.hueManager = null;
             delete node.hueManager;
+            done();
           } catch (error) {
-            /* empty */
+            done();
           }
-          done();
         })();
       } catch (error) {
         done();
