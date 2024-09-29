@@ -121,7 +121,7 @@ module.exports.getBridgeDetails = async (_ip) => {
         simpleget.concat(opt, (err, res, data) => {
             try {
                 if (err) {
-                    reject(err);
+                    reject(new Error(err.message || 'getBridgeDetails general error'));
                 } else {
                     // log.trace('http data ' + data);
                     if (res.statusCode >= 100 && res.statusCode < 400) {

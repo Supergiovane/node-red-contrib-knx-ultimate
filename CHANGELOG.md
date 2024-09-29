@@ -6,6 +6,9 @@
 
 # CHANGELOG
 
+**Version 3.2.9** - October 2024<br/>
+- Maintenance release: added some log to better identify problems.<br/>
+
 **Version 3.2.8** - October 2024<br/>
 - KNX Node: fixed "read status at startup" field not showing up in very old versions.<br/>
 

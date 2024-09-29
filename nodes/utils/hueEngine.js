@@ -78,7 +78,7 @@ class classHUE extends EventEmitter {
     this.es.onopen = () => {
       // if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.error('KNXUltimatehueEngine: classHUE: SSE-Connected')
       this.emit("connected");
-
+      if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.info(`KNXUltimatehueEngine: classHUE: this.es.onopen: connected`);
       // Check wether the hue bridge is connected or not
       if (this.timerCheckConnected !== null) clearInterval(this.timerCheckConnected);
       this.timerCheckConnected = setInterval(() => {
@@ -86,7 +86,9 @@ class classHUE extends EventEmitter {
       }, 30000);
     };
 
-    // this.es.onerror = (error) => {
+    this.es.onerror = (error) => {
+      if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.error(`KNXUltimatehueEngine: classHUE: this.es.onopen:  ${error.status || ''} ${error.message}`);
+    };
     // 29/08/2023 NON riattivare, perchè alla disconnessione, va in loop e consuma tutto il pool di risorse.
     //   try {
     //     this.es.close();

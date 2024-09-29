@@ -720,11 +720,10 @@
         });
 
         // Timer connection to backend ####################################################
-        this.timerWaitBackEnd;
         let timerWaitBackEndCounter = 0;
         function checkConnection() {
-          if (this.timerBlinkBackground !== undefined) clearTimeout(this.timerBlinkBackground);
-          this.timerBlinkBackground = setTimeout(() => {
+          if (this.timerWaitBackEnd !== undefined) clearTimeout(this.timerWaitBackEnd);
+          this.timerWaitBackEnd = setTimeout(() => {
             timerWaitBackEndCounter++;
             if (timerWaitBackEndCounter > 20) {
               timerWaitBackEndCounter = 0;
