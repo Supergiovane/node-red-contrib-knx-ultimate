@@ -6,6 +6,9 @@
 
 # CHANGELOG
 
+**Version 3.2.11** - October 2024<br/>
+- Fixed help texts in various nodes.<br/>
+
 **Version 3.2.10** - October 2024<br/>
 - Fixed a race condition happening whenever FULL DEPLOY is pressed in the node-red interface, preventing the HUE bridge node to gracefully disconnect from the HUE Bridge.<br/>
 
