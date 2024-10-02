@@ -15,6 +15,11 @@
 		color: '#AED6F1',
 		paletteLabel: "Home Assistant translator",
 		oneditprepare: function () {
+			// Go to the help panel
+			try {
+				RED.sidebar.show("help");
+			} catch (error) { }
+
 			var node = this;
 			node.editor = RED.editor.createEditor({
 				id: 'node-input-editorcommandText',
@@ -29,6 +34,11 @@
 			delete node.editor;
 		},
 		oneditcancel: function () {
+			// Return to the info tab
+			try {
+				RED.sidebar.show("info");
+			} catch (error) { }
+
 			var node = this;
 			node.editor.destroy();
 			delete node.editor;

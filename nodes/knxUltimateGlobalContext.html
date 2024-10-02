@@ -34,14 +34,29 @@
         //     onclick: function() {}
         // },
         oneditprepare: function () {
+            // Go to the help panel
+            try {
+                RED.sidebar.show("help");
+            } catch (error) { }
+
 
 
         },
         oneditsave: function () {
+            // Return to the info tab
+            try {
+                RED.sidebar.show("info");
+            } catch (error) { }
+
 
 
         },
         oneditcancel: function () {
+            // Return to the info tab
+            try {
+                RED.sidebar.show("info");
+            } catch (error) { }
+
 
         }
     })

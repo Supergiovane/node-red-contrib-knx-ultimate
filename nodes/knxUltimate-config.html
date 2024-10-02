@@ -28,6 +28,11 @@
             keyringFilePassword: { type: "password" }
         },
         oneditprepare: function () {
+            // Go to the help panel
+            try {
+                RED.sidebar.show("help");
+            } catch (error) { }
+
             var node = this;
 
             // 22/07/2021 Main tab
@@ -112,6 +117,11 @@
 
         },
         oneditsave: function () {
+            // Return to the info tab
+            try {
+                RED.sidebar.show("info");
+            } catch (error) { }
+
             var node = this;
             // Check if the csv file contains errors
             if (($("#node-config-input-csv").val() != 'undefined' && $("#node-config-input-csv").val() != "") || ($("#node-config-input-keyring").val() != 'undefined' && $("#node-config-input-keyring").val() != "")) {

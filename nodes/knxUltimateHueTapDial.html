@@ -40,6 +40,11 @@
         //     onclick: function() {}
         // },
         oneditprepare: function () {
+            // Go to the help panel
+            try {
+                RED.sidebar.show("help");
+            } catch (error) { }
+
             var node = this;
             var oNodeServer = RED.nodes.node($("#node-input-server").val()); // Store the config-node
             var oNodeServerHue = RED.nodes.node($("#node-input-serverHue").val()); // Store the config-node
@@ -144,10 +149,20 @@
 
         },
         oneditsave: function () {
+            // Return to the info tab
+            try {
+                RED.sidebar.show("info");
+            } catch (error) { }
+
 
 
         },
         oneditcancel: function () {
+            // Return to the info tab
+            try {
+                RED.sidebar.show("info");
+            } catch (error) { }
+
 
         }
     })

@@ -129,6 +129,11 @@
       },
       paletteLabel: "Hue Light",
       oneditprepare: function () {
+        // Go to the help panel
+        try {
+          RED.sidebar.show("help");
+        } catch (error) { }
+
 
         var node = this;
 
@@ -771,6 +776,11 @@
       },
 
       oneditsave: function () {
+        // Return to the info tab
+        try {
+          RED.sidebar.show("info");
+        } catch (error) { }
+
         //RED.sidebar.removeTab("tabNRColor");
         if ($("#node-input-enableNodePINS").val() === "yes") {
           this.outputs = 1;
@@ -781,8 +791,13 @@
         }
       },
       oneditcancel: function () {
+        // Return to the info tab
+        try {
+          RED.sidebar.show("info");
+        } catch (error) { }
         //RED.sidebar.removeTab("tabNRColor");
         //RED.sidebar.show("help");
+
       },
       oneditresize: function (size) {
         //var height = size.height;    

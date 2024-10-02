@@ -37,6 +37,11 @@
         //     onclick: function() {}
         // },
         oneditprepare: function () {
+            // Go to the help panel
+            try {
+                RED.sidebar.show("help");
+            } catch (error) { }
+
             var node = this;
             var oNodeServer = RED.nodes.node($("#node-input-server").val()); // Store the config-node
 
@@ -141,6 +146,11 @@
 
         },
         oneditsave: function () {
+            // Return to the info tab
+            try {
+                RED.sidebar.show("info");
+            } catch (error) { }
+
             var node = this;
 
             var rules = $("#node-input-rule-container").editableList('items');

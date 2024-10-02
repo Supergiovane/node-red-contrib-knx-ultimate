@@ -14,6 +14,11 @@
             clientkey: { type: "password" }
         },
         oneditprepare: function () {
+            // Go to the help panel
+            try {
+                RED.sidebar.show("help");
+            } catch (error) { }
+
 
             var node = this;
 
@@ -144,6 +149,11 @@
             })
         },
         oneditsave: function () {
+            // Return to the info tab
+            try {
+                RED.sidebar.show("info");
+            } catch (error) { }
+
 
         },
         label: function () {
