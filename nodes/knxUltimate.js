@@ -1,12 +1,4 @@
-
-// 10/09/2024 Setup the color logger
-loggerSetup = (options) => {
-  let clog = require("node-color-log").createNamedLogger(options.setPrefix);
-  clog.setLevel(options.loglevel);
-  clog.setDate(() => (new Date()).toLocaleString());
-  return clog;
-}
-
+const loggerClass = require('./utils/sysLogger')
 
 /* eslint-disable max-len */
 module.exports = function (RED) {
@@ -128,7 +120,9 @@ module.exports = function (RED) {
     node.passthrough = (typeof config.passthrough === 'undefined' ? 'no' : config.passthrough);
     node.inputmessage = {}; // Stores the input message to be passed through
     node.timerTTLInputMessage = null; // The stored node.inputmessage has a ttl.
-    node.sysLogger = loggerSetup({ loglevel: node.serverKNX.loglevel, setPrefix: "knxUltimate.js" }); // 08/04/2021 new logger to adhere to the loglevel selected in the config-window
+    try {
+      node.sysLogger = new loggerClass({ loglevel: node.serverKNX.loglevel, setPrefix: node.type + " <" + (node.name || node.id || '') + ">" });
+    } catch (error) { console.log(error.stack) }
     node.sendMsgToKNXCode = config.sendMsgToKNXCode || undefined;
     node.receiveMsgFromKNXCode = config.receiveMsgFromKNXCode || undefined;
     if (node.sendMsgToKNXCode === '') node.sendMsgToKNXCode = undefined
@@ -156,20 +150,20 @@ module.exports = function (RED) {
         const found = node.serverKNX.exposedGAs.find(a => a.ga === _ga);
         if (found !== undefined) {
           if (_dpt === undefined && found.dpt === undefined) {
-            const errM = 'knxUltimate: getGaValue: node ID:' + node.id + ' ' + 'No CSV file imported. Please provide the dpt manually';
+            const errM = 'getGaValue: node ID:' + node.id + ' ' + 'No CSV file imported. Please provide the dpt manually';
             RED.log.error(errM);
             if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(errM);
             return;
           };
           return dptlib.fromBuffer(found.rawValue, dptlib.resolve(_dpt || found.dpt));
         } else {
-          const errM = 'knxUltimate: getGaValue: node ID:' + node.id + ' ' + 'Group Address not yet read, try later.';
+          const errM = 'getGaValue: node ID:' + node.id + ' ' + 'Group Address not yet read, try later.';
           RED.log.error(errM);
           if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(errM);
           return;
         }
       } catch (error) {
-        const errM = 'knxUltimate: getGaValue: node ID:' + node.id + ' ' + error.stack;
+        const errM = 'getGaValue: node ID:' + node.id + ' ' + error.stack;
         RED.log.error(errM);
         if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(errM);
       }
@@ -186,7 +180,7 @@ module.exports = function (RED) {
           // Try getting dpt from ETS CSV
           const found = node.serverKNX.exposedGAs.find(a => a.ga === _ga);
           if (found === undefined || found.dpt === undefined) {
-            const errM = 'knxUltimate: setGAValue: node ID:' + node.id + ' ' + 'No CSV file imported. Please provide the dpt manually';
+            const errM = 'setGAValue: node ID:' + node.id + ' ' + 'No CSV file imported. Please provide the dpt manually';
             RED.log.error(errM);
             if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(errM);
             return;
@@ -196,7 +190,7 @@ module.exports = function (RED) {
           grpaddr: _ga, payload: _value, dpt: _dpt, outputtype: 'write', nodecallerid: node.id,
         });
       } catch (error) {
-        const errM = 'knxUltimate: setGAValue: node ID:' + node.id + ' ' + error.stack;
+        const errM = 'setGAValue: node ID:' + node.id + ' ' + error.stack;
         RED.log.error(errM);
         if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(errM);
       }
@@ -208,7 +202,7 @@ module.exports = function (RED) {
           grpaddr: node.topic, payload: _value, dpt: node.dpt, outputtype: 'write', nodecallerid: node.id,
         });
       } catch (error) {
-        const errM = 'knxUltimate: self: node ID:' + node.id + ' ' + error.stack;
+        const errM = 'self: node ID:' + node.id + ' ' + error.stack;
         RED.log.error(errM);
         if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(errM);
       }
@@ -221,7 +215,7 @@ module.exports = function (RED) {
             grpaddr: node.topic, payload: !node.currentPayload, dpt: node.dpt, outputtype: 'write', nodecallerid: node.id,
           });
         } catch (error) {
-          const errM = 'knxUltimate: toggle: node ID:' + node.id + ' ' + error.stack;
+          const errM = 'toggle: node ID:' + node.id + ' ' + error.stack;
           RED.log.error(errM);
           if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(errM);
         }
@@ -253,7 +247,7 @@ module.exports = function (RED) {
           msg = receiveMsgFromKNXCode(msg, getGAValue, node, RED, self, toggle, setGAValue);
         } catch (error) {
           RED.log.error('knxUltimate: receiveMsgFromKNXCode: node ID:' + node.id + ' ' + error.message);
-          if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(`knxUltimate: receiveMsgFromKNXCode: node id ${node.id} ` || ' ' + error.stack);
+          if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(`receiveMsgFromKNXCode: node id ${node.id} ` || ' ' + error.stack);
           return;
         }
       }
@@ -321,7 +315,7 @@ module.exports = function (RED) {
           if (msg === undefined) return;
         } catch (error) {
           RED.log.error('knxUltimate: sendMsgToKNXCode: node ID:' + node.id + ' ' + error.message);
-          if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(`knxUltimate: sendMsgToKNXCode: node id ${node.id} ` || ' ' + error.stack);
+          if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(`sendMsgToKNXCode: node id ${node.id} ` || ' ' + error.stack);
           return;
         }
       }
@@ -340,7 +334,7 @@ module.exports = function (RED) {
           // 29/12/2020 Protection over circular references (for example, if you link two Ultimate Nodes toghether with the same group address), to prevent infinite loops
           if (msg.hasOwnProperty('knx')) {
             if (msg.knx.destination == grpaddr && ((msg.knx.event === 'GroupValue_Response' || msg.knx.event === 'GroupValue_Read'))) {
-              if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(`knxUltimate: Circular reference protection during READ. The node ${node.id} has been temporary disabled. Two nodes with same group address and reaction/Telegram type are linked. See the FAQ in the Wiki. Msg:${JSON.stringify(msg)}`);
+              if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(`Circular reference protection during READ. The node ${node.id} has been temporary disabled. Two nodes with same group address and reaction/Telegram type are linked. See the FAQ in the Wiki. Msg:${JSON.stringify(msg)}`);
               const t = setTimeout(() => { // 21/03/2022 fixed possible memory leak. Previously was setTimeout without "let t = ".
                 node.setNodeStatus({
                   fill: 'red', shape: 'ring', text: `DISABLED due to a circulare reference while READ (${grpaddr}).`, payload: '', GA: '', dpt: '', devicename: '',
@@ -362,7 +356,7 @@ module.exports = function (RED) {
             // 29/12/2020 Protection over circular references (for example, if you link two Ultimate Nodes toghether with the same group address), to prevent infinite loops
             if (msg.hasOwnProperty('knx')) {
               if (msg.knx.destination == grpaddr && ((msg.knx.event === 'GroupValue_Response' || msg.knx.event === 'GroupValue_Read'))) {
-                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(`knxUltimate: Circular reference protection during READ-2. The node ${node.id} has been temporary disabled. Two nodes with same group address and reaction/Telegram type are linked. See the FAQ in the Wiki. Msg:${JSON.stringify(msg)}`);
+                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(`Circular reference protection during READ-2. The node ${node.id} has been temporary disabled. Two nodes with same group address and reaction/Telegram type are linked. See the FAQ in the Wiki. Msg:${JSON.stringify(msg)}`);
                 const t = setTimeout(() => { // 21/03/2022 fixed possible memory leak. Previously was setTimeout without "let t = ".
                   node.setNodeStatus({
                     fill: 'red', shape: 'ring', text: `DISABLED due to a circulare reference while READ-2 (${grpaddr}).`, payload: '', GA: '', dpt: '', devicename: '',
@@ -385,7 +379,7 @@ module.exports = function (RED) {
                 // 29/12/2020 Protection over circular references (for example, if you link two Ultimate Nodes toghether with the same group address), to prevent infinite loops
                 if (msg.hasOwnProperty('knx')) {
                   if (msg.knx.destination == grpaddr && ((msg.knx.event === 'GroupValue_Response' || msg.knx.event === 'GroupValue_Read'))) {
-                    if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(`knxUltimate: Circular reference protection during READ-3. Node ${node.id} The read request hasn't been sent. Two nodes with same group address and reaction/Telegram type are linked. See the FAQ in the Wiki. Msg:${JSON.stringify(msg)}`);
+                    if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(`Circular reference protection during READ-3. Node ${node.id} The read request hasn't been sent. Two nodes with same group address and reaction/Telegram type are linked. See the FAQ in the Wiki. Msg:${JSON.stringify(msg)}`);
                     node.setNodeStatus({
                       fill: 'red', shape: 'ring', text: `NOT SENT due to a circulare reference while READ-3 (${grpaddr}).`, payload: '', GA: '', dpt: '', devicename: '',
                     });
@@ -442,7 +436,7 @@ module.exports = function (RED) {
               node.setNodeStatus({
                 fill: 'red', shape: 'ring', text: 'DISABLED! Flood protection! Too many msg at the same time.', payload: '', GA: '', dpt: '', devicename: '',
               });
-              if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(`knxUltimate: Node ${node.id} has been disabled due to Flood Protection. Too many messages in a timeframe. Check your flow's design or use RBE option.`);
+              if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(`Node ${node.id} has been disabled due to Flood Protection. Too many messages in a timeframe. Check your flow's design or use RBE option.`);
               node.icountMessageInWindow = -999; // Lock out node
             } else { node.icountMessageInWindow = -1; }
           }, 1000);
@@ -486,14 +480,14 @@ module.exports = function (RED) {
                     node.setNodeStatus({
                       fill: 'red', shape: 'dot', text: 'msg.dpt not set and not found in the CSV!', payload: '', GA: '', dpt: '', devicename: '',
                     });
-                    if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(`knxUltimate: node id: ${node.id} ` + 'msg.dpt not set and not found in the CSV!');
+                    if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(`node id: ${node.id} ` + 'msg.dpt not set and not found in the CSV!');
                     return;
                   }
                 } else {
                   node.setNodeStatus({
                     fill: 'red', shape: 'dot', text: "msg.dpt not set and there's no CSV to search for!", payload: '', GA: '', dpt: '', devicename: '',
                   });
-                  if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(`knxUltimate: node id: ${node.id} ` + 'msg.dpt not set and there\'s no CSV to search for!');
+                  if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(`node id: ${node.id} ` + 'msg.dpt not set and there\'s no CSV to search for!');
                   return;
                 }
               }
@@ -506,7 +500,7 @@ module.exports = function (RED) {
           // Protection over circular references (for example, if you link two Ultimate Nodes toghether with the same group address), to prevent infinite loops
           if (msg.hasOwnProperty('knx')) {
             if (msg.knx.destination == grpaddr && ((msg.knx.event === 'GroupValue_Write' && outputtype === 'write') || (msg.knx.event === 'GroupValue_Response' && outputtype === 'response') || (msg.knx.event === 'GroupValue_Response' && outputtype === 'read') || (msg.knx.event === 'GroupValue_Read' && outputtype === 'read'))) {
-              if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(`knxUltimate: Circular reference protection. The node ${node.id} has been temporarely disabled. Two nodes with same group address and reaction/Telegram type are linked. See the FAQ in the Wiki. Msg:${JSON.stringify(msg)}`);
+              if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(`Circular reference protection. The node ${node.id} has been temporarely disabled. Two nodes with same group address and reaction/Telegram type are linked. See the FAQ in the Wiki. Msg:${JSON.stringify(msg)}`);
               const t = setTimeout(() => { // 21/03/2022 fixed possible memory leak. Previously was setTimeout without "let t = ".
                 node.setNodeStatus({
                   fill: 'red', shape: 'ring', text: `DISABLED due to a circulare reference (${grpaddr}).`, payload: '', GA: '', dpt: '', devicename: '',
@@ -584,7 +578,7 @@ module.exports = function (RED) {
       if (node.serverKNX) {
         node.serverKNX.removeClient(node);
         try {
-          if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info(`knxUltimate: Close: node id ${node.id} with topic ${node.topic || ''} has been removed from the server.`);
+          if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info(`Close: node id ${node.id} with topic ${node.topic || ''} has been removed from the server.`);
         } catch (error) { }
       }
       done();
@@ -593,7 +587,7 @@ module.exports = function (RED) {
     // On each deploy, add the node to the server list
     if (node.serverKNX) {
       node.serverKNX.addClient(node);
-      if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info(`knxUltimate: addClient: node id ${node.id}` || '' + ` with topic ${node.topic || ''} has been added to the server.`);
+      if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info(`addClient: node id ${node.id}` || '' + ` with topic ${node.topic || ''} has been added to the server.`);
       // 05/11/2021 if the node is set to read from bus, issue a read.
       // "node-input-initialread0": "No",
       // "node-input-initialread1": "Leggi dal BUS KNX",

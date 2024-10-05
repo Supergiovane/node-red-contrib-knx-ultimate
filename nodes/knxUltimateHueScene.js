@@ -1,14 +1,6 @@
 /* eslint-disable max-len */
 const dptlib = require('knxultimate').dptlib;//require('knxultimate').dptlib;
-
-// 10/09/2024 Setup the color logger
-loggerSetup = (options) => {
-  let clog = require("node-color-log").createNamedLogger(options.setPrefix);
-  clog.setLevel(options.loglevel);
-  clog.setDate(() => (new Date()).toLocaleString());
-  return clog;
-}
-
+const loggerClass = require('./utils/sysLogger')
 module.exports = function (RED) {
 
   function knxUltimateHueScene(config) {
@@ -36,8 +28,9 @@ module.exports = function (RED) {
     node.formatdecimalsvalue = 2;
     node.hueDevice = config.hueDevice;
     node.initializingAtStart = false;
-    node.sysLogger = loggerSetup({ loglevel: node.serverKNX.loglevel || 'error', setPrefix: "knxUltimateHueScene.js" }); // 08/04/2021 new logger to adhere to the loglevel selected in the config-window
-
+    try {
+      node.sysLogger = new loggerClass({ loglevel: node.serverKNX.loglevel, setPrefix: node.type + " <" + (node.name || node.id || '') + ">" });
+    } catch (error) { console.log(error.stack) }
     // Multi scene
     config.GAsceneMulti = config.GAsceneMulti === undefined ? '' : config.GAsceneMulti;
     config.namesceneMulti = config.namesceneMulti === undefined ? '' : config.namesceneMulti;

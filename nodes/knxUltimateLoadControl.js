@@ -1,11 +1,6 @@
 
 // 10/09/2024 Setup the color logger
-loggerSetup = (options) => {
-  let clog = require("node-color-log").createNamedLogger(options.setPrefix);
-  clog.setLevel(options.loglevel);
-  clog.setDate(() => (new Date()).toLocaleString());
-  return clog;
-}
+const loggerClass = require('./utils/sysLogger')
 module.exports = function (RED) {
   function knxUltimateLoadControl(config) {
     // const Address = require('knxultimate')
@@ -38,8 +33,9 @@ module.exports = function (RED) {
     node.mainTimer = null
     node.totalWatt = 0 // Current total watt consumption
     node.wattLimit = config.wattLimit === undefined ? 3000 : Number(config.wattLimit)
-    node.sysLogger = loggerSetup({ loglevel: node.serverKNX.loglevel, setPrefix: "knxUltimateLoadControl.js" }); // 08/04/2021 new logger to adhere to the loglevel selected in the config-window
-
+    try {
+      node.sysLogger = new loggerClass({ loglevel: node.serverKNX.loglevel, setPrefix: node.type + " <" + (node.name || node.id || '') + ">" });
+    } catch (error) { console.log(error.stack) }
     node.deviceList = []
     for (let index = 1; index < 6; index++) {
       // Eval, the magic. Fill in the device list. DEFINITION DEVICELIST

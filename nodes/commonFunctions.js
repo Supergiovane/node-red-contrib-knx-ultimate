@@ -307,6 +307,18 @@ module.exports = (RED) => {
             res.json(jListInterfaces);
         });
 
+        // 14/08/2019 Endpoint for retrieving the ethernet interfaces
+        RED.httpAdmin.get("/KNUltimateGetLogFile", (req, res) => {
+            try {
+                const log = fs.readFileSync('./KNXUltimateDebugLog.txt')
+                res.json(log.toString());
+            } catch (error) {
+                res.json(error.message);
+            }
+
+        });
+
+
         // 12/08/2021 Endpoint for deleting the GA persistent file for the current gateway
         RED.httpAdmin.get("/deletePersistGAFile", RED.auth.needsPermission("knxUltimate-config.read"), (req, res) => {
             try {

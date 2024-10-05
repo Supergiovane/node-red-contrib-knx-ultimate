@@ -1,10 +1,4 @@
-// 10/09/2024 Setup the color logger
-loggerSetup = (options) => {
-  let clog = require("node-color-log").createNamedLogger(options.setPrefix);
-  clog.setLevel(options.loglevel);
-  clog.setDate(() => (new Date()).toLocaleString());
-  return clog;
-}
+const loggerClass = require('./utils/sysLogger')
 
 module.exports = function (RED) {
   const dptlib = require('knxultimate').dptlib;
@@ -56,8 +50,9 @@ module.exports = function (RED) {
     node.inputRBE = 'false' // Apply or not RBE to the input (Messages coming from BUS)
     node.exposedGAs = [];
     node.commandText = []; // Raw list Respond To
-    node.sysLogger = loggerSetup({ loglevel: node.serverKNX.loglevel, setPrefix: "knxUltimateAutoResponder.js" }); // 08/04/2021 new logger to adhere to the loglevel selected in the config-window
-
+    try {
+      node.sysLogger = new loggerClass({ loglevel: node.serverKNX.loglevel, setPrefix: node.type + " <" + (node.name || node.id || '') + ">" });
+    } catch (error) { console.log(error.stack) }
     // Used to call the status update from the config node.
     node.setNodeStatus = ({ fill, shape, text, payload, GA, dpt, devicename }) => {
       // try {

@@ -1,10 +1,5 @@
-// 10/09/2024 Setup the color logger
-loggerSetup = (options) => {
-  let clog = require("node-color-log").createNamedLogger(options.setPrefix);
-  clog.setLevel(options.loglevel);
-  clog.setDate(() => (new Date()).toLocaleString());
-  return clog;
-}
+const loggerClass = require('./utils/sysLogger')
+
 module.exports = function (RED) {
   function knxUltimateSceneController(config) {
     const fs = require('fs')
@@ -33,7 +28,9 @@ module.exports = function (RED) {
     node.rules = config.rules || [{}]
     node.isSceneController = true // Signal to config node, that this is a node scene controller
     node.userDir = path.join(RED.settings.userDir, 'knxultimatestorage') // 09/03/2020 Storage of ttsultimate (otherwise, at each upgrade to a newer version, the node path is wiped out and recreated, loosing all custom files)
-    node.sysLogger = loggerSetup({ loglevel: node.serverKNX.loglevel, setPrefix: "knxUltimateLoadControl.js" }); // 08/04/2021 new logger to adhere to the loglevel selected in the config-window
+    try {
+      node.sysLogger = new loggerClass({ loglevel: node.serverKNX.loglevel, setPrefix: node.type + " <" + (node.name || node.id || '') + ">" });
+    } catch (error) { console.log(error.stack) }
     node.timerWait = null
     node.icountMessageInWindow = 0
     node.disabled = false // 21/09/2020 you can now disable the scene controller

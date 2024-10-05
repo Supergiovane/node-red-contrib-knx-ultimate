@@ -96,8 +96,13 @@
                 for (const [key, value] of Object.entries(node)) {
                     sRetDebugText += (`-> ${key}: ${value}\r`);
                 }
-                sRetDebugText = 'Open a new github issue and paste this text into it. https://github.com/Supergiovane/node-red-contrib-knx-ultimate/issues/new?assignees=Supergiovane&labels=&template=bug_report.md&title=KNXDebugText\r\r' + sRetDebugText;
-                $("#debugText").val(sRetDebugText); // Store the config-node);
+                // Add log file
+                $.getJSON("KNUltimateGetLogFile", (data) => {
+                    sRetDebugText += "\r\r" + data;
+                    sRetDebugText = 'INSTRUCTIONS: COPY THE LINK BELOW AND PASTE IT INTO THE ADDRESS BAR OF YOUR BROWSER.\rhttps://github.com/Supergiovane/node-red-contrib-knx-ultimate/issues/new?assignees=Supergiovane&labels=&template=bug_report.md&title=KNXDebugText\r\r THEN PASTE THIS TEXT INTO THE ISSUE\'S BODY, USING THE <> BRACKETS.\r\r' + sRetDebugText;
+                    $("#debugText").val(sRetDebugText); // Store the config-node);
+                });
+
             });
             $("#getallgaused").click(function () {
                 sRetDebugText = "";
@@ -390,7 +395,7 @@
     <div id="tabs-4">
         <p>
             <div class="form-row">
-                <label style="width:300px"><i class="fa fa-sign-in"></i> Gather debug info for troubleshoot</label>
+                <label style="width:300px"><i class="fa fa-sign-in"></i> Gather debug and log for troubleshoot</label>
                 <input type="button" id="getinfocam" class="ui-button ui-corner-all ui-widget"
                     style="background-color:#AEE1FF;width:150px" value="Read">
             </div>
