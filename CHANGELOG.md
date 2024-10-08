@@ -6,6 +6,9 @@
 
 # CHANGELOG
 
+**Version 3.2.12** - October 2024<br/>
+- Bump knxultimate engine to v. 3.0.4.<br/>
+
 **Version 3.2.11** - October 2024<br/>
 - Fixed help texts in various nodes.<br/>
 - When you open a node, the node red's site bar goest into the help panel. Then, it goes into the info panel once closed.<br/>

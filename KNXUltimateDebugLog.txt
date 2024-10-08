@@ -65,3 +65,90 @@ START LOG FILE --------------------------------------------
 -> 10/7/2024, 8:37:07 AM [knxUltimate <Universal KNX>] [info] Close: node id 94644e7ae5ca6002 with topic  has been removed from the server. 
 -> 10/7/2024, 8:37:07 AM [knxUltimate-config <KNX Gateway senza csv>] [info] Disconnect: already not connected:disconnected, node.autoReconnect:true 
 -> 10/7/2024, 8:37:07 AM [knxUltimate-config <KNX Gateway senza csv>] [info] KNXClient socket closed. 
+-> 10/8/2024, 8:11:23 AM [knxUltimate-config <KNX Gateway senza csv>] NEW LOG SESSION --------------------------------------------
+-> 10/8/2024, 8:11:23 AM [knxUltimate-config <KNX Gateway senza csv>] [info] payload cache set to /Users/massimosaccani/.node-red/knxultimatestorage/knxpersistvalues 
+-> 10/8/2024, 8:11:23 AM [knxUltimate-config <KNX Gateway senza csv>] [info] Autoconnection: yes Node KNX Gateway senza csv 
+-> 10/8/2024, 8:11:23 AM [knxUltimate <08b25df88e6668d3>] NEW LOG SESSION --------------------------------------------
+-> 10/8/2024, 8:11:23 AM [knxUltimate <Universal KNX>] NEW LOG SESSION --------------------------------------------
+-> 10/8/2024, 8:11:27 AM [knxUltimate-config <KNX Gateway senza csv>] [info] Auto Reconect by timerKNXUltimateCheckState in progress. node.LinkStatus: disconnected, node.autoReconnect:true 
+-> 10/8/2024, 8:11:27 AM [knxUltimate-config <KNX Gateway senza csv>] [info] Bind KNX Bus to interface (Auto). Node KNX Gateway senza csv 
+-> 10/8/2024, 8:11:27 AM [knxUltimate-config <KNX Gateway senza csv>] [info] Disconnect: already not connected:disconnected, node.autoReconnect:true 
+-> 10/8/2024, 8:11:27 AM [knxUltimate-config <KNX Gateway senza csv>] [info] perform websocket connection on KNX Gateway senza csv 
+-> 10/8/2024, 8:11:27 AM [knxUltimate-config <KNX Gateway senza csv>] [info] Connecting... KNX Gateway senza csv 
+-> 10/8/2024, 8:11:27 AM [knxUltimate-config <KNX Gateway senza csv>] [info] Connecting to224.0.23.12 
+-> 10/8/2024, 8:11:27 AM [knxUltimate-config <KNX Gateway senza csv>] [info] Connected to %o {"physAddr":"15.15.22","connectionKeepAliveTimeout":60,"ipAddr":"224.0.23.12","ipPort":3671,"hostProtocol":"Multicast","isSecureKNXEnabled":false,"suppress_ack_ldatareq":false,"loglevel":"info","localEchoInTunneling":true,"localIPAddress":"192.168.1.198","interface":"","jKNXSecureKeyring":null,"KNXQueueSendIntervalMilliseconds":25} 
+-> 10/8/2024, 8:11:28 AM [knxUltimate-config <KNX Gateway senza csv>] [info] Loaded saved GA values 166 
+-> 10/8/2024, 8:11:28 AM [knxUltimate-config <KNX Gateway senza csv>] [info] Do DoInitialReadFromKNXBusOrFile 
+-> 10/8/2024, 8:13:19 AM [knxUltimate <b3e73a4f0615889e>] NEW LOG SESSION --------------------------------------------
+-> 10/8/2024, 8:13:30 AM [knxUltimate <b3e73a4f0615889e>] [info] Close: node id b3e73a4f0615889e with topic temper has been removed from the server. 
+-> 10/8/2024, 8:13:30 AM [knxUltimate <b3e73a4f0615889e>] NEW LOG SESSION --------------------------------------------
+-> 10/8/2024, 8:15:13 AM [knxUltimate-config <KNX Gateway senza csv>] [info] buildInputMessage: received a wrong datagram form KNX BUS, from device 15.15.22 Destination 5/6/7 Event GroupValue_Write GA's Datapoint 1.001 Devicename  Topic 5/6/7 NodeID 08b25df88e6668d3 
+-> 10/8/2024, 8:15:27 AM [knxUltimate-config <KNX Gateway senza csv>] [info] node.knxConnection.write: Payload: 21.5 GA:5/6/7 DPT:9.001 TypeError: value.toFixed is not a function
+    at Object.formatAPDU (/Users/massimosaccani/Documents/GitHub/KNXUltimate/src/dptlib/dpt9.ts:21:18)
+    at Object.populateAPDU (/Users/massimosaccani/Documents/GitHub/KNXUltimate/src/dptlib/index.ts:168:19)
+    at KNXClient.getKNXDataBuffer (/Users/massimosaccani/Documents/GitHub/KNXUltimate/src/KNXClient.ts:378:10)
+    at KNXClient.write (/Users/massimosaccani/Documents/GitHub/KNXUltimate/src/KNXClient.ts:615:26)
+    at knxUltimateConfigNode.node.sendKNXTelegramToKNXEngine (/Users/massimosaccani/Documents/GitHub/node-red-contrib-knx-ultimate/nodes/knxUltimate-config.js:1253:30)
+    at knxUltimate._inputCallback (/Users/massimosaccani/Documents/GitHub/node-red-contrib-knx-ultimate/nodes/knxUltimate.js:566:30)
+    at /usr/local/lib/node_modules/node-red/node_modules/@node-red/runtime/lib/nodes/Node.js:214:26
+    at Object.trigger (/usr/local/lib/node_modules/node-red/node_modules/@node-red/util/lib/hooks.js:166:13)
+    at knxUltimate.Node._emitInput (/usr/local/lib/node_modules/node-red/node_modules/@node-red/runtime/lib/nodes/Node.js:206:11)
+    at knxUltimate.Node.emit (/usr/local/lib/node_modules/node-red/node_modules/@node-red/runtime/lib/nodes/Node.js:190:25) 
+-> 10/8/2024, 8:17:29 AM [knxUltimate <b3e73a4f0615889e>] [info] Close: node id b3e73a4f0615889e with topic 5/6/7 has been removed from the server. 
+-> 10/8/2024, 8:17:29 AM [knxUltimate <b3e73a4f0615889e>] NEW LOG SESSION --------------------------------------------
+-> 10/8/2024, 8:17:31 AM [knxUltimate-config <KNX Gateway senza csv>] [info] node.knxConnection.write: Payload: 21.5 GA:5/6/7 DPT:9.001 TypeError: value.toFixed is not a function
+    at Object.formatAPDU (/Users/massimosaccani/Documents/GitHub/KNXUltimate/src/dptlib/dpt9.ts:21:18)
+    at Object.populateAPDU (/Users/massimosaccani/Documents/GitHub/KNXUltimate/src/dptlib/index.ts:168:19)
+    at KNXClient.getKNXDataBuffer (/Users/massimosaccani/Documents/GitHub/KNXUltimate/src/KNXClient.ts:378:10)
+    at KNXClient.write (/Users/massimosaccani/Documents/GitHub/KNXUltimate/src/KNXClient.ts:615:26)
+    at knxUltimateConfigNode.node.sendKNXTelegramToKNXEngine (/Users/massimosaccani/Documents/GitHub/node-red-contrib-knx-ultimate/nodes/knxUltimate-config.js:1253:30)
+    at knxUltimate._inputCallback (/Users/massimosaccani/Documents/GitHub/node-red-contrib-knx-ultimate/nodes/knxUltimate.js:566:30)
+    at /usr/local/lib/node_modules/node-red/node_modules/@node-red/runtime/lib/nodes/Node.js:214:26
+    at Object.trigger (/usr/local/lib/node_modules/node-red/node_modules/@node-red/util/lib/hooks.js:166:13)
+    at knxUltimate.Node._emitInput (/usr/local/lib/node_modules/node-red/node_modules/@node-red/runtime/lib/nodes/Node.js:206:11)
+    at knxUltimate.Node.emit (/usr/local/lib/node_modules/node-red/node_modules/@node-red/runtime/lib/nodes/Node.js:190:25) 
+-> 10/8/2024, 8:20:42 AM [knxUltimate-config <KNX Gateway senza csv>] [info] buildInputMessage: received a wrong datagram form KNX BUS, from device 15.15.22 Destination 5/6/7 Event GroupValue_Write GA's Datapoint 1.001 Devicename  Topic 5/6/7 NodeID 08b25df88e6668d3 
+-> 10/8/2024, 8:20:59 AM [knxUltimate <08b25df88e6668d3>] [info] Close: node id 08b25df88e6668d3 with topic 5/6/7 has been removed from the server. 
+-> 10/8/2024, 8:20:59 AM [knxUltimate <Universal KNX>] [info] Close: node id 94644e7ae5ca6002 with topic  has been removed from the server. 
+-> 10/8/2024, 8:20:59 AM [knxUltimate <b3e73a4f0615889e>] [info] Close: node id b3e73a4f0615889e with topic 5/6/7 has been removed from the server. 
+-> 10/8/2024, 8:20:59 AM [knxUltimate-config <KNX Gateway senza csv>] [info] Disconnect: already not connected:disconnected, node.autoReconnect:true 
+-> 10/8/2024, 8:20:59 AM [knxUltimate-config <KNX Gateway senza csv>] [info] KNXClient socket closed. 
+-> 10/8/2024, 8:21:06 AM [knxUltimate-config <KNX Gateway senza csv>] NEW LOG SESSION --------------------------------------------
+-> 10/8/2024, 8:21:06 AM [knxUltimate-config <KNX Gateway senza csv>] [info] payload cache set to /Users/massimosaccani/.node-red/knxultimatestorage/knxpersistvalues 
+-> 10/8/2024, 8:21:06 AM [knxUltimate-config <KNX Gateway senza csv>] [info] Autoconnection: yes Node KNX Gateway senza csv 
+-> 10/8/2024, 8:21:06 AM [knxUltimate <08b25df88e6668d3>] NEW LOG SESSION --------------------------------------------
+-> 10/8/2024, 8:21:06 AM [knxUltimate <Universal KNX>] NEW LOG SESSION --------------------------------------------
+-> 10/8/2024, 8:21:06 AM [knxUltimate <b3e73a4f0615889e>] NEW LOG SESSION --------------------------------------------
+-> 10/8/2024, 8:21:10 AM [knxUltimate-config <KNX Gateway senza csv>] [info] Auto Reconect by timerKNXUltimateCheckState in progress. node.LinkStatus: disconnected, node.autoReconnect:true 
+-> 10/8/2024, 8:21:10 AM [knxUltimate-config <KNX Gateway senza csv>] [info] Bind KNX Bus to interface (Auto). Node KNX Gateway senza csv 
+-> 10/8/2024, 8:21:10 AM [knxUltimate-config <KNX Gateway senza csv>] [info] Disconnect: already not connected:disconnected, node.autoReconnect:true 
+-> 10/8/2024, 8:21:10 AM [knxUltimate-config <KNX Gateway senza csv>] [info] perform websocket connection on KNX Gateway senza csv 
+-> 10/8/2024, 8:21:10 AM [knxUltimate-config <KNX Gateway senza csv>] [info] Connecting... KNX Gateway senza csv 
+-> 10/8/2024, 8:21:10 AM [knxUltimate-config <KNX Gateway senza csv>] [info] Connecting to224.0.23.12 
+-> 10/8/2024, 8:21:10 AM [knxUltimate-config <KNX Gateway senza csv>] [info] Connected to %o {"physAddr":"15.15.22","connectionKeepAliveTimeout":60,"ipAddr":"224.0.23.12","ipPort":3671,"hostProtocol":"Multicast","isSecureKNXEnabled":false,"suppress_ack_ldatareq":false,"loglevel":"info","localEchoInTunneling":true,"localIPAddress":"192.168.1.198","interface":"","jKNXSecureKeyring":null,"KNXQueueSendIntervalMilliseconds":25} 
+-> 10/8/2024, 8:21:12 AM [knxUltimate-config <KNX Gateway senza csv>] [info] Loaded saved GA values 174 
+-> 10/8/2024, 8:21:12 AM [knxUltimate-config <KNX Gateway senza csv>] [info] Do DoInitialReadFromKNXBusOrFile 
+-> 10/8/2024, 8:21:12 AM [knxUltimate-config <KNX Gateway senza csv>] [info] buildInputMessage: received a wrong datagram form KNX BUS, from device 15.15.22 Destination 5/6/7 Event GroupValue_Write GA's Datapoint 1.001 Devicename  Topic 5/6/7 NodeID 08b25df88e6668d3 
+-> 10/8/2024, 8:22:08 AM [knxUltimate <08b25df88e6668d3>] [info] Close: node id 08b25df88e6668d3 with topic 5/6/7 has been removed from the server. 
+-> 10/8/2024, 8:26:06 AM [knxUltimate <Universal KNX>] [info] Close: node id 94644e7ae5ca6002 with topic  has been removed from the server. 
+-> 10/8/2024, 8:26:06 AM [knxUltimate <b3e73a4f0615889e>] [info] Close: node id b3e73a4f0615889e with topic 5/6/7 has been removed from the server. 
+-> 10/8/2024, 8:26:06 AM [knxUltimate-config <KNX Gateway senza csv>] [info] Disconnect: already not connected:disconnected, node.autoReconnect:true 
+-> 10/8/2024, 8:26:06 AM [knxUltimate-config <KNX Gateway senza csv>] [info] KNXClient socket closed. 
+-> 10/8/2024, 8:28:41 AM [knxUltimate-config <KNX Gateway senza csv>] NEW LOG SESSION --------------------------------------------
+-> 10/8/2024, 8:28:41 AM [knxUltimate-config <KNX Gateway senza csv>] [info] payload cache set to /Users/massimosaccani/.node-red/knxultimatestorage/knxpersistvalues 
+-> 10/8/2024, 8:28:41 AM [knxUltimate-config <KNX Gateway senza csv>] [info] Autoconnection: yes Node KNX Gateway senza csv 
+-> 10/8/2024, 8:28:41 AM [knxUltimate <Universal KNX>] NEW LOG SESSION --------------------------------------------
+-> 10/8/2024, 8:28:41 AM [knxUltimate <b3e73a4f0615889e>] NEW LOG SESSION --------------------------------------------
+-> 10/8/2024, 8:28:45 AM [knxUltimate-config <KNX Gateway senza csv>] [info] Auto Reconect by timerKNXUltimateCheckState in progress. node.LinkStatus: disconnected, node.autoReconnect:true 
+-> 10/8/2024, 8:28:45 AM [knxUltimate-config <KNX Gateway senza csv>] [info] Bind KNX Bus to interface (Auto). Node KNX Gateway senza csv 
+-> 10/8/2024, 8:28:45 AM [knxUltimate-config <KNX Gateway senza csv>] [info] Disconnect: already not connected:disconnected, node.autoReconnect:true 
+-> 10/8/2024, 8:28:45 AM [knxUltimate-config <KNX Gateway senza csv>] [info] perform websocket connection on KNX Gateway senza csv 
+-> 10/8/2024, 8:28:45 AM [knxUltimate-config <KNX Gateway senza csv>] [info] Connecting... KNX Gateway senza csv 
+-> 10/8/2024, 8:28:45 AM [knxUltimate-config <KNX Gateway senza csv>] [info] Connecting to224.0.23.12 
+-> 10/8/2024, 8:28:45 AM [knxUltimate-config <KNX Gateway senza csv>] [info] Connected to %o {"physAddr":"15.15.22","connectionKeepAliveTimeout":60,"ipAddr":"224.0.23.12","ipPort":3671,"hostProtocol":"Multicast","isSecureKNXEnabled":false,"suppress_ack_ldatareq":false,"loglevel":"info","localEchoInTunneling":true,"localIPAddress":"192.168.1.198","interface":"","jKNXSecureKeyring":null,"KNXQueueSendIntervalMilliseconds":25} 
+-> 10/8/2024, 8:28:46 AM [knxUltimate-config <KNX Gateway senza csv>] [info] Loaded saved GA values 175 
+-> 10/8/2024, 8:28:46 AM [knxUltimate-config <KNX Gateway senza csv>] [info] Do DoInitialReadFromKNXBusOrFile 
+-> 10/8/2024, 8:28:50 AM [knxUltimate <Universal KNX>] [info] Close: node id 94644e7ae5ca6002 with topic  has been removed from the server. 
+-> 10/8/2024, 8:28:50 AM [knxUltimate <b3e73a4f0615889e>] [info] Close: node id b3e73a4f0615889e with topic 5/6/7 has been removed from the server. 
+-> 10/8/2024, 8:28:50 AM [knxUltimate-config <KNX Gateway senza csv>] [info] Disconnect: already not connected:disconnected, node.autoReconnect:true 
+-> 10/8/2024, 8:28:50 AM [knxUltimate-config <KNX Gateway senza csv>] [info] KNXClient socket closed. 
