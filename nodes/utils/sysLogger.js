@@ -78,7 +78,7 @@ class loggerClass {
   destroy = () => {
     // 16/08/2020 Supergiovane Destruction of the logger
     try {
-      addLineToFile("-------------------------------------------- END LOG SESSION")
+      //addLineToFile("-------------------------------------------- END LOG SESSION")
     } catch (error) {
     }
     logger = null
@@ -87,27 +87,27 @@ class loggerClass {
   success = (...args) => {
     this.logger.success(...args);
     // Log to file as well, limited in line numbers
-    this.addLineToFile(...args);
+    //this.addLineToFile(...args);
   }
   debug = (...args) => {
     this.logger.debug(...args);
     // Log to file as well, limited in line numbers
-    this.addLineToFile(...args);
+    //this.addLineToFile(...args);
   }
   info = (...args) => {
     this.logger.info(...args);
     // Log to file as well, limited in line numbers
-    this.addLineToFile(...args);
+    //this.addLineToFile(...args);
   }
   warn = (...args) => {
     this.logger.warn(...args);
     // Log to file as well, limited in line numbers
-    this.addLineToFile(...args);
+    //this.addLineToFile(...args);
   }
   error = (...args) => {
     this.logger.error(...args);
     // Log to file as well, limited in line numbers
-    this.addLineToFile(...args);
+    //this.addLineToFile(...args);
   }
 
 

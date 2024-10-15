@@ -6,12 +6,15 @@
 
 # CHANGELOG
 
+**Version 3.2.13** - October 2024<br/>
+- Revert back from gathering the debug log. It doesn't like me.<br/>
+
 **Version 3.2.12** - October 2024<br/>
 - Bump knxultimate engine to v. 3.0.4.<br/>
 
 **Version 3.2.11** - October 2024<br/>
 - Fixed help texts in various nodes.<br/>
-- When you open a node, the node red's site bar goest into the help panel. Then, it goes into the info panel once closed.<br/>
+- When you open a node, the node red's site bar goes into the help panel. Then, it goes into the info panel once closed.<br/>
 - Gather debug infos + log to be pasted into a new gitHub Issue. See the "Utility" TAB of the KNX Gateway config node. See DISCUSSIONS on gitHub.<br/>
 
 **Version 3.2.10** - October 2024<br/>
