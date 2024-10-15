@@ -136,6 +136,20 @@
 
 
         var node = this;
+        if ($("#node-input-server").val() === "_ADD_") {
+          // Node-Red 4.0.x has a bug not selecting the default server node
+          try {
+            $("#node-input-server").prop("selectedIndex", 0);
+          } catch (error) {
+          }
+        }
+        if ($("#node-input-serverHue").val() === "_ADD_") {
+          // Node-Red 4.0.x has a bug not selecting the default server node
+          try {
+            $("#node-input-serverHue").prop("selectedIndex", 0);
+          } catch (error) {
+          }
+        }
 
         function onEditPrepare() {
           // TIMER BLINK ####################################################

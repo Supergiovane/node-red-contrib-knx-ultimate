@@ -1158,7 +1158,7 @@ module.exports = (RED) => {
         if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.warn(
           "handleTelegramQueue: the KNXEngine is busy or is waiting for a telegram ACK with seqNumner " +
           node.knxConnection.getSeqNumber() +
-          ". Delay handling queue. YOUR COMPUTER COULD BE TOO SLOW OR BUSY TO KEEP UP ADDED TELEGRAM TO COMMANDQUEUE. Len: 3",
+          ". Delay handling queue. Len: 3",
         );
       }
 

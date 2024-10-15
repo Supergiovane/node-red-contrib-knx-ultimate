@@ -64,6 +64,13 @@
 
 
             var node = this;
+            if ($("#node-input-server").val() === "_ADD_") {
+                // Node-Red 4.0.x has a bug not selecting the default server node
+                try {
+                    $("#node-input-server").prop("selectedIndex", 0);
+                } catch (error) {
+                }
+            }
             var oNodeServer = RED.nodes.node($("#node-input-server").val()); // Store the config-node
             $("#tabs").tabs();
 

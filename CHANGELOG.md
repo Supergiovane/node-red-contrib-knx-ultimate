@@ -6,6 +6,9 @@
 
 # CHANGELOG
 
+**Version 3.2.14** - October 2024<br/>
+- Workarouded bug in node-red 4.0.x not selecting the default server's node.<br/>
+
 **Version 3.2.13** - October 2024<br/>
 - Revert back from gathering the debug log. It doesn't like me.<br/>
 
