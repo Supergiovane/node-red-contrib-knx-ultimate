@@ -1006,16 +1006,15 @@ module.exports = function (RED) {
           // Set the new values based on average calculated above            
           // CHECK FIRST THE COLOR_TEMPERATURE, because it can be undefined, because the current selected color
           // is out of the mirek range, so it cannot be represented with the colore temperature.
-          if (receivedHUEObject.color_temperature !== undefined && AverageColorsXYBrightnessAndTemperature.mirek !== undefined) {
+          if (receivedHUEObject.color_temperature !== undefined && AverageColorsXYBrightnessAndTemperature.mirek !== undefined && receivedHUEObject.color_temperature.mirel_valid === true) {
             receivedHUEObject.color_temperature.mirek = AverageColorsXYBrightnessAndTemperature.mirek;
-            node.currentHUEDevice.color_temperature.mirek = AverageColorsXYBrightnessAndTemperature.mirek;
+            node.currentHUEDevice.color_temperature = { mirek: AverageColorsXYBrightnessAndTemperature.mirek };
             node.updateKNXLightKelvinPercentageState(receivedHUEObject.color_temperature.mirek);
             node.updateKNXLightKelvinState(receivedHUEObject.color_temperature.mirek);
           } else if (receivedHUEObject.color !== undefined && receivedHUEObject.color.xy !== undefined && AverageColorsXYBrightnessAndTemperature.x !== undefined) {
             receivedHUEObject.color.xy.x = AverageColorsXYBrightnessAndTemperature.x;
             receivedHUEObject.color.xy.y = AverageColorsXYBrightnessAndTemperature.y;
-            node.currentHUEDevice.color.xy.x = AverageColorsXYBrightnessAndTemperature.x;
-            node.currentHUEDevice.color.xy.y = AverageColorsXYBrightnessAndTemperature.y;
+            node.currentHUEDevice.color = { xy: { x: AverageColorsXYBrightnessAndTemperature.x, y: AverageColorsXYBrightnessAndTemperature.y } }
             node.updateKNXLightColorState(receivedHUEObject.color);
           }
           // The dimming is not necessary, beacause the HUE API already sends a group_light event with the average brightness 

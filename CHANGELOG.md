@@ -6,6 +6,9 @@
 
 # CHANGELOG
 
+**Version 3.2.15** - October 2024<br/>
+- Hue Light: fixed an issue with old lightstrip causing an error in setting mirek.<br/>
+
 **Version 3.2.14** - October 2024<br/>
 - Workarouded bug in node-red 4.0.x not selecting the default server's node.<br/>
 

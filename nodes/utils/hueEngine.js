@@ -116,7 +116,7 @@ class classHUE extends EventEmitter {
             const ok = await this.hueApiV2.put(`/resource/light/${jRet._lightID}`, jRet._state);
           } catch (error) {
             if (this.sysLogger !== undefined && this.sysLogger !== null) {
-              this.sysLogger.error(`KNXUltimatehueEngine: classHUE: handleQueue: setLight light: ${error.message}. CHECK WETHER THE DEVICE IS POWERED ON`);
+              this.sysLogger.error(`KNXUltimatehueEngine: classHUE: handleQueue: setLight light: ${error.message}.`);
             }
           }
           break;
