@@ -790,8 +790,17 @@ module.exports = (RED) => {
             .filter((_input) => _input.notifywrite === true)
             .forEach((_input) => {
 
-              // 19/03/2020 in the middle of coronavirus. Whole italy is red zone, closed down. Scene Controller implementation
-              if (_input.hasOwnProperty("isSceneController")) {
+              // 21/10/2024 check wether is a HUE device
+              if (_input.type.includes('knxUltimateHue')) {
+                const msg = {
+                  knx: {
+                    event: _evt,
+                    destination: _dest,
+                    rawValue: _rawValue,
+                  }
+                };
+                _input.handleSend(msg);
+              } else if (_input.hasOwnProperty("isSceneController")) {// 19/03/2020 in the middle of coronavirus. Whole italy is red zone, closed down. Scene Controller implementation
                 // 12/08/2020 Check wether is a learn (save) command or a activate (play) command.
                 if (_dest === _input.topic || _dest === _input.topicSave) {
                   // Prepare the two messages to be evaluated directly into the Scene Controller node.
@@ -881,8 +890,8 @@ module.exports = (RED) => {
                   // reject("error"); // rejected
                   // }).then(function () { }).catch(function () { });
                 }
-              } else if (_input.listenallga === true) {
 
+              } else if (_input.listenallga === true) {
                 // 25/10/2019 TRY TO AUTO DECODE IF Group address not found in the CSV
                 const msg = buildInputMessage({
                   _srcGA: _src,

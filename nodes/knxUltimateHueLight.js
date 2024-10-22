@@ -432,7 +432,8 @@ module.exports = function (RED) {
                 gamut = node.currentHUEDevice.color.gamut;
               }
               const retXY = hueColorConverter.ColorConverter.calculateXYFromRGB(msg.payload.red, msg.payload.green, msg.payload.blue, gamut);
-              const bright = hueColorConverter.ColorConverter.getBrightnessFromRGBOrHex(msg.payload.red, msg.payload.green, msg.payload.blue);
+              let bright = hueColorConverter.ColorConverter.getBrightnessFromRGBOrHex(msg.payload.red, msg.payload.green, msg.payload.blue);
+              bright = bright > 100 ? 100 : bright; // Otherwise it hangs and the light doesn't react anymore.
               // state = bright > 0 ? { on: { on: true }, dimming: { brightness: bright }, color: { xy: retXY } } : { on: { on: false } }
               state = { dimming: { brightness: bright }, color: { xy: retXY } };
               if (node.currentHUEDevice === undefined) {
