@@ -15,7 +15,13 @@ class ColorConverter {
 
     const Ylum = Rlin * 0.2126 + Glin * 0.7156 + Blin * 0.0722; // convert to Luminance Y
 
-    return Ylum ** 0.43 * 100; // Convert to lightness (0 to 100)
+    let ret = Ylum ** 0.43 * 100;// Convert to lightness (0 to 100)
+
+    // Boundary Check (min 0, max 100)
+    ret = ret < 0 ? 0 : ret;
+    ret = ret > 100 ? 100 : ret;
+
+    return ret;
   }
 
   static convert_1_255_ToPercentage(number) {

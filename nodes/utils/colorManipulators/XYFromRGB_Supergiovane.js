@@ -53,6 +53,13 @@ module.exports = {
         }
         xy[0] = precision(xy[0]);
         xy[1] = precision(xy[1]);
+
+        // Check boundary (min 0, max 1)
+        xy[0] = xy[0] < 0 ? 0 : xy[0];
+        xy[0] = xy[0] > 1 ? 1 : xy[0];
+        xy[1] = xy[1] < 0 ? 0 : xy[1];
+        xy[1] = xy[1] > 1 ? 1 : xy[1];
+
         return { x: xy[0], y: xy[1] };
     },
 };

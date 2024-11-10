@@ -6,6 +6,9 @@
 
 # CHANGELOG
 
+**Version 3.2.17** - October 2024<br/>
+- Hue devices: globally check for boundary limits, when calculating brightness and colorYX from an RGB or HEX KNX input.<br/>
+
 **Version 3.2.16** - October 2024<br/>
 - Hue devices: fixed an issue with the ETS CSV file, when a HUE device's GA isn't contained in the CSV.<br/>
 - Hue Light: fixed an issue in setting RGB to 255,255,255, caused by an out of boundary of the calculater brightness value.<br/>
