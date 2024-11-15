@@ -2,11 +2,10 @@
 const { EventEmitter } = require("events");
 const EventSource = require("eventsource");
 const http = require("./http");
-// const pleaseWait = t => new Promise((resolve, reject) => setTimeout(resolve, t))
-const { RateLimiter } = require('limiter');
+const pleaseWait = t => new Promise((resolve, reject) => setTimeout(resolve, t))
 //const { forEach } = require("lodash");
 // Configura il rate limiter
-const limiter = new RateLimiter({ tokensPerInterval: 1, interval: 150 }); // HUE telegram interval
+//const limiter = new RateLimiter({ tokensPerInterval: 1, interval: 150 }); // HUE telegram interval
 
 class classHUE extends EventEmitter {
 
@@ -116,7 +115,7 @@ class classHUE extends EventEmitter {
             const ok = await this.hueApiV2.put(`/resource/light/${jRet._lightID}`, jRet._state);
           } catch (error) {
             if (this.sysLogger !== undefined && this.sysLogger !== null) {
-              this.sysLogger.error(`KNXUltimatehueEngine: classHUE: handleQueue: setLight light: ${error.message}.`);
+              this.sysLogger.error(`KNXUltimatehueEngine: classHUE: processQueueItem: setLight light: ${error.message}.`);
             }
           }
           break;
@@ -125,7 +124,7 @@ class classHUE extends EventEmitter {
             await this.hueApiV2.put(`/resource/grouped_light/${jRet._lightID}`, jRet._state);
           } catch (error) {
             if (this.sysLogger !== undefined && this.sysLogger !== null)
-              this.sysLogger.info(`KNXUltimatehueEngine: classHUE: handleQueue: setLight grouped_light: ${error.message}`);
+              this.sysLogger.info(`KNXUltimatehueEngine: classHUE: processQueueItem: setLight grouped_light: ${error.message}`);
           }
           break;
         case "setScene":
@@ -134,7 +133,7 @@ class classHUE extends EventEmitter {
             await this.hueApiV2.put(`/resource/scene/${sceneID}`, jRet._state);
           } catch (error) {
             if (this.sysLogger !== undefined && this.sysLogger !== null)
-              this.sysLogger.info(`KNXUltimatehueEngine: classHUE: handleQueue: setScene: ${error.message}`);
+              this.sysLogger.info(`KNXUltimatehueEngine: classHUE: processQueueItem: setScene: ${error.message}`);
           }
           break;
         case "stopScene":
@@ -147,14 +146,14 @@ class classHUE extends EventEmitter {
               this.writeHueQueueAdd(light.rid, jRet._state, "setLight");
             });
           } catch (error) {
-            if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.error(`KNXUltimatehueEngine: classHUE: handleQueue: stopScene: ${error.message}`);
+            if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.error(`KNXUltimatehueEngine: classHUE: processQueueItem: stopScene: ${error.message}`);
           }
           break;
         case "Ping":
           try {
             const jReturn = await this.hueApiV2.get('/resource/bridge');
           } catch (error) {
-            if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.error(`KNXUltimatehueEngine: classHUE: handleQueue: Ping: ${error.message}`);
+            if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.error(`KNXUltimatehueEngine: classHUE: processQueueItem: Ping: ${error.message}`);
             if (this.timerCheckConnected !== null) clearInterval(this.timerCheckConnected);
             this.commandQueue = [];
             this.emit("disconnected");
@@ -174,10 +173,6 @@ class classHUE extends EventEmitter {
   handleQueue = async () => {
     // Verifica se è possibile eseguire una nuova richiesta
     do {
-      try {
-        const remainingRequests = await limiter.removeTokens(1);
-      } catch (error) {
-      }
       if (this.commandQueue !== undefined && this.commandQueue.length > 0) {
         //if (remainingRequests >= 0) {
         // OK, i can send
@@ -191,6 +186,7 @@ class classHUE extends EventEmitter {
         //console.log("\x1b[41m HO DETTO SPETA. remainingRequests=" + remainingRequests + "\x1b[0m " + new Date().toTimeString(), this.commandQueue.length, "remainingRequests " + remainingRequests);
         //}
       }
+      await pleaseWait(150);
     } while (this.closePushEventStream === false);
     //console.log("\x1b[42m End processing commandQueue \x1b[0m " + new Date().toTimeString(), this.commandQueue.length);
   };

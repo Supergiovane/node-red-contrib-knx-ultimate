@@ -96,8 +96,9 @@ module.exports = (RED) => {
     node.allowLauch_initKNXConnection = true; // See the node.timerKNXUltimateCheckState function
     node.hostProtocol = config.hostProtocol === undefined ? "Auto" : config.hostProtocol; // 20/03/2022 Default
     node.knxConnection = null; // 20/03/2022 Default
-    node.delaybetweentelegrams = (config.delaybetweentelegrams === undefined || config.delaybetweentelegrams === null) ? 25 : Number(config.delaybetweentelegrams);
-    if (node.delaybetweentelegrams < 20) node.delaybetweentelegrams = 20; // Protection avoiding handleKNXQueue hangs
+    node.delaybetweentelegrams = (config.delaybetweentelegrams === undefined || config.delaybetweentelegrams === null || config.delaybetweentelegrams === '') ? 25 : Number(config.delaybetweentelegrams);
+    if (node.delaybetweentelegrams < 25) node.delaybetweentelegrams = 25; // Protection avoiding handleKNXQueue hangs
+    if (node.delaybetweentelegrams > 100) node.delaybetweentelegrams = 100; // Protection avoiding handleKNXQueue hangs
 
     // 05/12/2021 Set the protocol (this is undefined if coming from ild versions
     if (node.hostProtocol === "Auto") {
@@ -209,7 +210,7 @@ module.exports = (RED) => {
         node.exposedGAs = JSON.parse(fs.readFileSync(sFile, "utf8"));
       } catch (err) {
         node.exposedGAs = [];
-        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("unable to read peristent file " + sFile + " " + err.message);
+        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("unable to read peristent file " + sFile + " " + err.message);
       }
     }
 
@@ -1165,16 +1166,25 @@ module.exports = (RED) => {
       // 26/12/2021 The KNXEngine is busy waiting for telegram's ACK. Strange.
       if (!node.knxConnection.clearToSend) {
         if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.warn(
-          "handleTelegramQueue: the KNXEngine is busy or is waiting for a telegram ACK with seqNumner " +
+          "sendKNXTelegramToKNXEngine: the KNXEngine is busy or is waiting for a telegram ACK with seqNumner " +
           node.knxConnection.getSeqNumber() +
-          ". Delay handling queue. Len: 3",
+          ". Delay handling queue.",
         );
       }
 
 
       // 19/01/2023 FORMATTING THE OUTPUT PAYLOAD (ROUND, ETC) BASED ON THE NODE CONFIG
       //* ********************************************************
-      _oKNXMessage.payload = payloadRounder.Manipulate(RED.nodes.getNode(_oKNXMessage.nodecallerid), _oKNXMessage.payload);
+      if (_oKNXMessage.outputtype === "read") {
+        try {
+          _oKNXMessage.payload = payloadRounder.Manipulate(RED.nodes.getNode(_oKNXMessage.nodecallerid), _oKNXMessage.payload);
+        } catch (error) {
+          if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(
+            "sendKNXTelegramToKNXEngine: Sacripante Manipulate payload: " + error.message
+          );
+        }
+
+      }
       //* ********************************************************
 
       if (_oKNXMessage.outputtype === "response") {
@@ -1805,7 +1815,7 @@ module.exports = (RED) => {
       if (node.allowLauch_initKNXConnection && node.autoReconnect) {
         node.allowLauch_initKNXConnection = false;
         const t = setTimeout(() => {
-          // 21/03/2022 fixed possible memory leak. Previously was setTimeout without "let t = ".
+          // 21/03/2022 fixed possible memory leak. Previously was setTimeout without "const t = ".
           node.setAllClientsStatus("Auto reconnect in progress...", "grey", "");
         }, 100);
         if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.debug(
@@ -1828,7 +1838,7 @@ module.exports = (RED) => {
         );
         // node.initKNXConnection();
       }
-    }, 4000);
+    }, 30000);
 
     node.Disconnect = async (_sNodeStatus = "", _sColor = "grey") => {
       if (node.linkStatus === "disconnected") {

@@ -427,7 +427,7 @@
 |Property|Description|
 |--|--|
 | IP Port | The port. Default is 3671. |
-| IP Protocol | *Tunnel UDP* is for KNX/IP interfaces, *Multicast UDP* is for KNX/IP Routers. Leave **Auto** for auto detect. Default is "Auto". |
+| IP Protocol | *Tunnel UDP* is for KNX/IP interfaces, *Multicast UDP* is for KNX/IP Routers. Leave **Auto** for auto detect. CAUTION: **Auto** won't work with hostnames (for example myknx.home.com), but only with IP addresses. Default is "Auto". |
 | KNX Physical Address | The physical KNX address, example 1.1.200. Default is "15.15.22".|
 | Bind to local interface | The Node will use this local interface for communications. Leave "Auto" for automatic selection. If you have more than one lan connection, for example Ethernet and Wifi, it's strongly recommended to manually select the interface, otherwise not all UDP telegram will reach your computer, thus the Node may not work as expected. Default is "Auto". |
 | Automatically connect to KNX BUS at start | Auto connect to the bus at start. Default is "Yes". |
@@ -440,7 +440,7 @@
 | Echo sent message to all node with same Group Address | Send the msg input coming from the flow, to all nodes having the same group address. The nodes will receive the new msg as if it's coming from the KNX bus. This is useful in case of using the KNX emulation and in case the connection to the KNX bus is not established. **This option will be deprecated in the next version and defaulted to checked.** Default is checked. |
 | Suppress repeated (R-Flag) telegrams fom BUS | Ignore repeated KNX telegrams coming from the bus. Default is unchecked. |
 | Suppress ACK request in tunneling mode | Enable it if you have a very old KNX/IP gateway. It ignores the ACK procedure and accepts all telegrams. Default is unchecked.|
-| Delay between each telegram (in milliseconds) | KNX specs states, that the maximum telegram sending speed is 50 telegrams per second. A speed between 25 and 50ms should be fine, unless you're connecting to a remote KNX Gateway via a slow internet connection (in this case, you should increase the value by, for example, 200 to 500ms or more). |
+| Delay between each telegram (in milliseconds) | KNX specs states, that the maximum telegram sending speed is 50 telegrams per second. A speed between 25 and 50ms should be fine, unless you're connecting to a remote KNX Gateway via a slow internet connection (in this case, you should increase the value by, for example, 100 to 200ms). Don't exeed 200ms. |
 | Loglevel | Log level, in case you need to debug something with the dev. Default is "Error", |
 
 <br/>
