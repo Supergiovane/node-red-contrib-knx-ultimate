@@ -43,6 +43,31 @@
                 }
             });
 
+            // Autocomplete with KNX IP Interfaces
+            // let aKNXInterfaces = [];
+            // $.getJSON("knxUltimateDiscoverKNXGateways?" + { _: new Date().getTime() }, (data) => {
+            //     for (let index = 0; index < data.length; index++) {
+            //         const element = data[index];
+            //         aKNXInterfaces.push({
+            //             name: value.ip + " # " + value.name + " " + value.physAddr,
+            //             value: value.ip,
+            //         });
+            //     }
+            //     alert("IK")
+            //     alert(aKNXInterfaces[0].name)
+            //     $("#node-config-input-host").autocomplete({
+            //         minLength: 0,
+            //         source: aKNXInterfaces,
+            //         select: function (event, ui) {
+            //             $("#node-config-input-host").val(ui.item.value);
+            //         },
+            //         focus: function (event, ui) {
+            //             $(this).autocomplete('search', $(this).val() + 'exactmatch');
+            //         }
+            //     })
+            // });
+
+
             $("#node-config-input-KNXEthInterface").append($("<option></option>")
                 .attr("value", "Auto")
                 .text("Auto")
@@ -96,13 +121,7 @@
                 for (const [key, value] of Object.entries(node)) {
                     sRetDebugText += (`-> ${key}: ${value}\r`);
                 }
-                // Add log file
-                $.getJSON("KNUltimateGetLogFile", (data) => {
-                    sRetDebugText += "\r\r" + data;
-                    sRetDebugText = 'INSTRUCTIONS: COPY THE LINK BELOW AND PASTE IT INTO THE ADDRESS BAR OF YOUR BROWSER.\rhttps://github.com/Supergiovane/node-red-contrib-knx-ultimate/issues/new?assignees=Supergiovane&labels=&template=bug_report.md&title=KNXDebugText\r\r THEN PASTE THIS TEXT INTO THE ISSUE\'S BODY, USING THE <> BRACKETS.\r\r' + sRetDebugText;
-                    $("#debugText").val(sRetDebugText); // Store the config-node);
-                });
-
+                $("#debugText").val(sRetDebugText); // Store the config-node);
             });
             $("#getallgaused").click(function () {
                 sRetDebugText = "";

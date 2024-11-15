@@ -6,6 +6,10 @@
 
 # CHANGELOG
 
+**Version 3.3.0** - November 2024<br/>
+- KNX Engine: explicitly set the local port of the unicast socket on 3671 and the local IP of the multicast to 0.0.0.0.<br/>
+- KNX Engine: many engine adaptation for the upcoming KNX-Secure implementation.<br/>
+
 **Version 3.2.17** - October 2024<br/>
 - Hue devices: globally check for boundary limits, when calculating brightness and colorYX from an RGB or HEX KNX input.<br/>
 

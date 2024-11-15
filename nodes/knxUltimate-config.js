@@ -1810,7 +1810,7 @@ module.exports = (RED) => {
     // 08/10/2021 Every xx seconds, i check if the connection is up and running
     if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("Autoconnection: " + (node.autoReconnect === false ? "no." : "yes") + " Node " + node.name);
     if (node.timerKNXUltimateCheckState !== null) clearInterval(node.timerKNXUltimateCheckState);
-    node.timerKNXUltimateCheckState = setInterval(() => {
+    node.timerKNXUltimateCheckState = setInterval(async () => {
       // If the node is disconnected, wait another cycle, then reconnects
       if (node.allowLauch_initKNXConnection && node.autoReconnect) {
         node.allowLauch_initKNXConnection = false;
@@ -1824,7 +1824,7 @@ module.exports = (RED) => {
           ", node.autoReconnect:" +
           node.autoReconnect,
         );
-        node.initKNXConnection();
+        await node.initKNXConnection();
         return;
       }
       if (node.linkStatus === "disconnected" && node.autoReconnect) {
@@ -1838,7 +1838,7 @@ module.exports = (RED) => {
         );
         // node.initKNXConnection();
       }
-    }, 30000);
+    }, 5000);
 
     node.Disconnect = async (_sNodeStatus = "", _sColor = "grey") => {
       if (node.linkStatus === "disconnected") {
