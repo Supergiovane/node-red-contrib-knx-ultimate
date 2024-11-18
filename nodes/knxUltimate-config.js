@@ -525,7 +525,8 @@ module.exports = (RED) => {
         isSecureKNXEnabled: node.knxSecureSelected,
         jKNXSecureKeyring: node.jKNXSecureKeyring,
         localIPAddress: "", // Riempito da KNXEngine
-        KNXQueueSendIntervalMilliseconds: Number(node.delaybetweentelegrams)
+        KNXQueueSendIntervalMilliseconds: Number(node.delaybetweentelegrams),
+        connectionKeepAliveTimeout: 30 // Every 30 seconds, send a connectionstatus_request
       };
       // 11/07/2022 Test if the IP is a valid one or is a DNS Name
       switch (net.isIP(node.host)) {
