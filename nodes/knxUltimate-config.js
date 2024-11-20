@@ -13,7 +13,7 @@ const dptlib = require('knxultimate').dptlib;
 const loggerClass = require('./utils/sysLogger')
 // const { Server } = require('http')
 const payloadRounder = require("./utils/payloadManipulation");
-
+const utils = require('./utils/utils');
 
 // DATAPONT MANIPULATION HELPERS
 // ####################
@@ -118,6 +118,9 @@ module.exports = (RED) => {
       }
       if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("IP Protocol AUTO SET to " + node.hostProtocol + ", based on IP " + node.host);
     }
+
+    // Gather infos about all interfaces on the lan and provides a static variable utils.aDiscoveredknxGateways
+    utils.DiscoverKNXGateways()
 
     node.setAllClientsStatus = (_status, _color, _text) => {
       node.nodeClients.forEach((oClient) => {
@@ -648,11 +651,7 @@ module.exports = (RED) => {
           node.Disconnect("Disconnected by error " + (err.message === undefined ? err : err.message), "red");
           if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("Disconnected by: " + (err.message === undefined ? err : err.message));
         });
-        // Call discoverCB when a knx gateway has been discovered.
-        // node.knxConnection.on(knx.KNXClientEvents.discover, info => {
-        //     const [ip, port] = info.split(":");
-        //     discoverCB(ip, port);
-        // });
+
         node.knxConnection.on(knx.KNXClientEvents.disconnected, (info) => {
           if (node.linkStatus !== "disconnected") {
             node.linkStatus = "disconnected";

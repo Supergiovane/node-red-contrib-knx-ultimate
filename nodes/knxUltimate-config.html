@@ -34,6 +34,32 @@
             } catch (error) { }
 
             var node = this;
+            // TIMER BLINK ####################################################
+            let blinkStatus = 2;
+            let timerBlinkBackground;
+            function blinkBackgroundArray(_arrayElementIDwithHashAtTheBeginning) {
+                if (timerBlinkBackground !== undefined) clearInterval(timerBlinkBackground);
+                timerBlinkBackground = setInterval(() => {
+                    for (let index = 0; index < _arrayElementIDwithHashAtTheBeginning.length; index++) {
+                        const _elementIDwithHashAtTheBeginning = _arrayElementIDwithHashAtTheBeginning[index];
+                        if (isEven(blinkStatus)) $(_elementIDwithHashAtTheBeginning).css("background-color", "lightgreen");
+                        if (!isEven(blinkStatus)) $(_elementIDwithHashAtTheBeginning).css("background-color", "");
+                    }
+                    blinkStatus += 1;
+                    if (blinkStatus >= 14) {
+                        clearInterval(timerBlinkBackground);
+                        blinkStatus = 2;
+                        for (let index = 0; index < _arrayElementIDwithHashAtTheBeginning.length; index++) {
+                            const _elementIDwithHashAtTheBeginning = _arrayElementIDwithHashAtTheBeginning[index];
+                            $(_elementIDwithHashAtTheBeginning).css("background-color", "");
+                        }
+                    }
+                }, 100);
+            }
+            function isEven(n) {
+                return (n % 2 == 0);
+            }
+            // ################################################################
 
             // 22/07/2021 Main tab
             $("#tabsMain").tabs({
@@ -44,28 +70,52 @@
             });
 
             // Autocomplete with KNX IP Interfaces
-            // let aKNXInterfaces = [];
-            // $.getJSON("knxUltimateDiscoverKNXGateways?" + { _: new Date().getTime() }, (data) => {
-            //     for (let index = 0; index < data.length; index++) {
-            //         const element = data[index];
-            //         aKNXInterfaces.push({
-            //             name: value.ip + " # " + value.name + " " + value.physAddr,
-            //             value: value.ip,
-            //         });
-            //     }
-            //     alert("IK")
-            //     alert(aKNXInterfaces[0].name)
-            //     $("#node-config-input-host").autocomplete({
-            //         minLength: 0,
-            //         source: aKNXInterfaces,
-            //         select: function (event, ui) {
-            //             $("#node-config-input-host").val(ui.item.value);
-            //         },
-            //         focus: function (event, ui) {
-            //             $(this).autocomplete('search', $(this).val() + 'exactmatch');
-            //         }
-            //     })
-            // });
+            let aKNXInterfaces = [];
+            $.getJSON("knxUltimateDiscoverKNXGateways?" + { _: new Date().getTime() }, (data) => {
+                for (let index = 0; index < data.length; index++) {
+                    const element = data[index];
+                    const [ip, port, name, address] = element.split(':');
+                    // Aggiungi l'elemento con descrizione e valore
+                    aKNXInterfaces.push({
+                        label: `${name} -> ${ip}:${port} phys addr:${address}`, // Testo visibile nella lista
+                        value: element                     // Valore selezionato
+                    });
+                }
+                $("#interfaces-count").text(`${aKNXInterfaces.length} interfaces found.`);
+                // Configura l'autocompletamento per il campo di input
+                $("#node-config-input-host").autocomplete({
+                    minLength: 0, // Mostra suggerimenti subito
+                    source: aKNXInterfaces, // Dati per il completamento
+                    select: function (event, ui) {
+                        // Quando l'utente seleziona un elemento, aggiorna il valore del campo
+                        const [ip, port, name, address] = ui.item.value.split(':');
+                        $("#node-config-input-host").val(ip);
+                        $("#node-config-input-port").val(port);
+                        $("#node-config-input-name").val(name);
+                        $("#node-config-input-physAddr").val(address.split(".")[0] + '.' + address.split(".")[1] + '.' + Math.floor(Math.random() * 256));
+                        blinkBackgroundArray(["#node-config-input-host", "#node-config-input-port", "#node-config-input-name", "#node-config-input-physAddr"]);
+                        return false; // Evita il comportamento predefinito del browser
+                    },
+                    focus: function (event, ui) {
+                        // Mantieni il valore corrente durante il focus, ma non cambiare il valore effettivo
+                        $("#node-config-input-host").val(ui.item.value.split(":"[0]));
+                        return false; // Evita di aggiornare il campo con il valore selezionato
+                    }
+                }).on("focus", function () {
+                    // Apri l'autocomplete quando il campo riceve il focus
+                    $(this).autocomplete("search", "");
+                }).on("click", function () {
+                    // Apri l'autocomplete quando il campo riceve il focus
+                    $(this).autocomplete("search", "");
+                }).autocomplete("instance")._renderItem = function (ul, item) {
+                    // Personalizza l'aspetto degli elementi della lista
+                    const [ip, port, name, address] = item.value.split(':');
+                    const color = (ip === "224.0.23.12") ? "gray" : "green"; // Condizione
+                    return $("<li>")
+                        .append(`<div style="color: ${color};"><b>${ip}:${port}</b> -> ${name} - Address:${address}</div>`) // Mostra la descrizione completa
+                        .appendTo(ul);
+                }
+            });
 
 
             $("#node-config-input-KNXEthInterface").append($("<option></option>")
@@ -220,9 +270,9 @@
             <input type="text" id="node-config-input-name" style="width: 200px">
         </div>
         <div class="form-row">
-            <label for="node-config-input-host" style="width: 200px">
-                <i class="fa fa-server"></i> IP/Hostname</label>
-            <input type="text" id="node-config-input-host" style="width: 200px">
+            <label for="node-config-input-host" style="width: 200px"><i class="fa fa-server"></i> IP/Hostname</label>
+                <input type="text" id="node-config-input-host" style="width: 200px"><br/>
+                <span id="interfaces-count" style="font-size: 12px; color:#377e00 ; margin-top: 2px;"></span>
         </div>
     
     <!-- KNX Secure / Unsecure tabbed selector-->

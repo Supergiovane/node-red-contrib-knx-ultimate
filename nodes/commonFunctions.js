@@ -310,29 +310,7 @@ module.exports = (RED) => {
 
         // 14/08/2019 Endpoint for retrieving the ethernet interfaces
         RED.httpAdmin.get("/knxUltimateDiscoverKNXGateways", RED.auth.needsPermission("knxUltimate-config.read"), async function (req, res) {
-            try {
-                async function search() {
-                    let jRet = [];
-                    try {
-                        const knxGateways = await KNXClient.discover();
-                        // For each discovered gateway, get all possible device descriptions (usually only one)
-                        // A description is a JSON object containing all details of the device and also what type of connection (Multicast, unicast, etc), it suppports
-                        for (let index = 0; index < knxGateways.length; index++) {
-                            const element = knxGateways[index];
-                            const [ip, port] = element.split(':')
-                            const descriptionsJSON = await KNXClient.getGatewayDescription(ip, port, 5000)
-                            for (let index = 0; index < descriptionsJSON.length; index++) {
-                                const element = descriptionsJSON[index];
-                                jRet.push({ ip: ip, port: port, name: element.deviceInfo.name, physAddr: element.deviceInfo.formattedAddress });
-                            }
-                        }
-                        res.json(jRet);
-                    } catch (error) { }
-                }
-                search();
-            } catch (error) {
-                res.json({ error: error.stack });
-            }
+            res.json(require("./utils/utils").aDiscoveredknxGateways);
         });
 
         // 12/08/2021 Endpoint for deleting the GA persistent file for the current gateway

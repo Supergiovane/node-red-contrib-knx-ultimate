@@ -6,6 +6,11 @@
 
 # CHANGELOG
 
+**Version 3.3.3** - November 2024<br/>
+- KNX Config Node: Automatic KNX Gateway discover in the gateway node config window.<br/>
+- KNX Engine: new: new telegram sequencer waiter, for more accurate timing in slow or sliggish computers.<br/>
+- KNX Engine: bunp 4.0.0-beta.7 .<br/>
+
 **Version 3.3.0** - November 2024<br/>
 - KNX Engine: explicitly set the local port of the unicast socket on 3671 and the local IP of the multicast to 0.0.0.0.<br/>
 - KNX Engine: many engine adaptation for the upcoming KNX-Secure implementation.<br/>

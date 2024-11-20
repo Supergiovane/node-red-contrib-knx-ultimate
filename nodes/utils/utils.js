@@ -58,4 +58,31 @@ module.exports.fetchFromObject = function fetchFromObject(
 const DEFAULTTRANSLATIONINPUT =
   "on:true\noff:false\nactive:true\ninactive:false\nopen:true\nclosed:false\nclose:false\n1:true\n0:false\ntrue:true\nfalse:false\nhome:true\nnot_home:false\nnormal:false\nviolated:true";
 
+// 14/08/2019 Endpoint for retrieving the ethernet interfaces
 
+module.exports.DiscoverKNXGateways = async function DiscoverKNXGateways() {
+  if (bDiscoverKNXGatewaysRunning) return;
+  bDiscoverKNXGatewaysRunning = true;
+  const KNXClient = require('knxultimate');
+  try {
+    if (this.aDiscoveredknxGateways === undefined) {
+      this.aDiscoveredknxGateways = await KNXClient.KNXClient.discover(2000);
+      this.aDiscoveredknxGateways.push('224.0.23.12:3671:Multicast Address:15.15.199')
+      bDiscoverKNXGatewaysRunning = false;
+      return this.aDiscoveredknxGateways;
+    } else {
+      bDiscoverKNXGatewaysRunning = false;
+      return this.aDiscoveredknxGateways;
+    }
+  } catch (error) { bDiscoverKNXGatewaysRunning = false; this.aDiscoveredknxGateways = []; return this.aDiscoveredknxGateways; }
+}
+let bDiscoverKNXGatewaysRunning = false;
+module.exports.aDiscoveredknxGateways;
+
+module.exports.getDiscoveredknxGateways = function () {
+  return module.exports.aDiscoveredknxGateways;
+};
+
+module.exports.setDiscoveredknxGateways = function (value) {
+  module.exports.aDiscoveredknxGateways = value;
+};
