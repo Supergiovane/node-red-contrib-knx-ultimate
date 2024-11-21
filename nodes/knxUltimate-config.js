@@ -1838,7 +1838,7 @@ module.exports = (RED) => {
         );
         // node.initKNXConnection();
       }
-    }, 5000);
+    }, 30000);
 
     node.Disconnect = async (_sNodeStatus = "", _sColor = "grey") => {
       if (node.linkStatus === "disconnected") {
