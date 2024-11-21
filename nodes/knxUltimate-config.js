@@ -119,8 +119,6 @@ module.exports = (RED) => {
       if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info("IP Protocol AUTO SET to " + node.hostProtocol + ", based on IP " + node.host);
     }
 
-    // Gather infos about all interfaces on the lan and provides a static variable utils.aDiscoveredknxGateways
-    utils.DiscoverKNXGateways()
 
     node.setAllClientsStatus = (_status, _color, _text) => {
       node.nodeClients.forEach((oClient) => {

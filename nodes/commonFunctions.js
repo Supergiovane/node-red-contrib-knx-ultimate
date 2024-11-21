@@ -61,6 +61,14 @@ module.exports = (RED) => {
     function commonFunctions() {
         var node = this;
 
+        // Gather infos about all interfaces on the lan and provides a static variable utils.aDiscoveredknxGateways
+        try {
+            require('./utils/utils').DiscoverKNXGateways()
+        } catch (error) {
+
+        }
+
+
 
         // 11/03/2020 Delete scene saved file, from html
         RED.httpAdmin.get('/knxultimateCheckHueConnected', (req, res) => {
