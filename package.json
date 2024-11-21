@@ -11,7 +11,7 @@
     "dns-sync": "0.2.1",
     "eventsource": "2.0.2",
     "js-yaml": "4.1.0",
-    "knxultimate": "4.0.0-beta.6",
+    "knxultimate": "4.1.0-beta.1",
     "lodash": "4.17.21",
     "node-color-log": "12.0.1",
     "mkdirp": "3.0.1",
