@@ -2,7 +2,7 @@
 const { EventEmitter } = require("events");
 const EventSource = require("eventsource");
 const http = require("./http");
-const pleaseWait = t => new Promise((resolve, reject) => setTimeout(resolve, t))
+const { setTimeout: pleaseWait } = require('timers/promises');
 //const { forEach } = require("lodash");
 // Configura il rate limiter
 //const limiter = new RateLimiter({ tokensPerInterval: 1, interval: 150 }); // HUE telegram interval
