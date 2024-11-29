@@ -17,6 +17,11 @@
         },
         inputs: 1,
         outputs: 3,
+        outputLabels: function (index) {
+            if (index === 0) return "Emits a message for each alerted device, at selectable intervals.";
+            if (index === 1) return "Emits a unique message containing all alerted devices.";
+            if (index === 2) return "Emits a message containing only the last alerted device.";
+        },
         icon: "node-alerter-icon.svg",
         label: function () {
             return (this.outputRBE == true ? "|rbe| " : "") + (this.name || this.topic || "KNX Alerter") + (this.inputRBE == true ? " |rbe|" : "")
@@ -236,3 +241,60 @@
 </div>
 
 </script>
+
+
+<script type="text/markdown" data-help-name="knxUltimateAlerter">
+With the Alerter node you can signal to a display or to the node-red-contrib-tts-ultimate node (audio feedback) if the selected devices are alerted, i.e. they have payload **true**.
+The node issues messages at specified intervals (one message at a time) containing the details of each alerted device. For example, the node can tell you how many and which windows are open. <br/>
+The node receives the values of the devices directly from the KNX BUS. Furthermore, you can send personalized messages to the node, not linked to KNX devices. <br/>
+The example page explains how to use the node. <br/>
+
+- **Gateway**
+
+> KNX gateway selected. It is also possible not to select any gateway; in this case, only incoming messages to the node will be considered.
+
+
+- **Name**
+
+> Node name.
+
+- **Alerting cycle start type**
+
+> Here you can select the event that will skip the start of sending messages from alerted devices.
+
+- **Interval between each MSG (in seconds)**
+
+> Interval between each outgoing message from the node.
+
+## DEVICES TO MONITOR
+
+Here you can add devices to monitor. <br/>
+Enter the device name or its group address. <br/>
+
+- **Read value of each device on connection/reconnect**
+
+> On connection/reconnection, the node will send a 'read' request each device belonging to the list.
+
+- **ADD button**
+
+> Add a row to the list.
+
+- **Device's rows**
+
+> The first field is the group address (but you can also enter any text, which you can use with inbound messages, see the example page), the second is the device name **(MAX 14 CHARS)**, the third is the long device name.
+
+- **DELETE button**
+
+> Removes a device from the list.
+    
+<p> 
+    <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/Alerter-Configuration" target="_blank"><i class="fa fa-info-circle"></i>&nbsp Config help</a><br/> 
+    <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/SampleAlerter" target="_blank"><i class="fa fa-code"></i>&nbsp Samples</a>.       
+</p>
+
+<p>
+    <a href="https://www.paypal.com/donate/?hosted_button_id=S8SKPUBSPK758" target="_blank">
+        <img src='https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/CodiceQR.png' width='30%'>
+    </a>
+</p>
+    </script>

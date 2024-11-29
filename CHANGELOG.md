@@ -6,6 +6,9 @@
 
 # CHANGELOG
 
+**Version 3.3.3** - December 2024<br/>
+- KNX Alerter Node: now the node works even if no ETS file has been imported.<br/>
+
 **Version 3.3.3** - November 2024<br/>
 - KNX Config Node: Automatic KNX Gateway discover in the gateway node config window.<br/>
 - KNX Engine: new: new telegram sequencer waiter, for more accurate timing in slow or sliggish computers.<br/>

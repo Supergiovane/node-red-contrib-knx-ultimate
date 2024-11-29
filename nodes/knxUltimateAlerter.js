@@ -16,7 +16,7 @@ module.exports = function (RED) {
     node.notifyreadrequest = false;
     node.notifyresponse = true;
     node.notifywrite = true; // Dont' remove this.
-    node.initialread = false;
+    node.initialread = 0;
     node.outputtype = 'write';
     node.outputRBE = 'false';
     node.inputRBE = 'false';
@@ -30,9 +30,9 @@ module.exports = function (RED) {
     node.timerinterval = (config.timerinterval === undefined || config.timerinterval == '') ? '2' : config.timerinterval;
 
     if (config.initialreadGAInRules === undefined) {
-      node.initialread = true;
+      node.initialread = 1;
     } else {
-      node.initialread = config.initialreadGAInRules !== '0';
+      node.initialread = Number(config.initialreadGAInRules);
     }
 
     // Used to call the status update from the config node.
@@ -69,11 +69,6 @@ module.exports = function (RED) {
 
     // This function is called by the knx-ultimate config node, to output a msg.payload.
     node.handleSend = msg => {
-      try {
-        if (!msg.knx.dpt.startsWith('1.')) return;
-      } catch (error) {
-        return;
-      }
       let bFound = false; // 24/04/2021 true if the cycle below found a match, otherwise false
 
       // Update the node.rules with the values taken from the file, if any, otherwise leave the default value
@@ -165,7 +160,9 @@ module.exports = function (RED) {
           try {
             // Check if it's a group address
             // const ret = Address.KNXAddress.createFromString(grpaddr, Address.KNXAddress.TYPE_GROUP)
-            node.setLocalStatus({ fill: 'grey', shape: 'dot', text: 'Read', payload: '', GA: grpaddr, dpt: '', devicename: rule.devicename });
+            setTimeout(() => {
+              node.setLocalStatus({ fill: 'blue', shape: 'dot', text: 'Read', payload: '', GA: grpaddr, dpt: '', devicename: rule.devicename });
+            }, 500);
             node.serverKNX.sendKNXTelegramToKNXEngine({ grpaddr, payload: '', dpt: '', outputtype: 'read', nodecallerid: node.id });
           } catch (error) {
             node.setLocalStatus({ fill: 'grey', shape: 'dot', text: 'Not a KNX GA ' + error.message, payload: '', GA: grpaddr, dpt: '', devicename: rule.devicename });
