@@ -6,6 +6,9 @@
 
 # CHANGELOG
 
+**Version 3.3.6** - December 2024<br/>
+- KNX Alerter Node: read status after deploy even of a single node.<br/>
+
 **Version 3.3.5** - December 2024<br/>
 - KNX Alerter Node: now the node works even if no ETS file has been imported.<br/>
 

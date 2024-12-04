@@ -151,6 +151,8 @@ module.exports = function (RED) {
     // 24/04/2021 perform a read on all GA in the rule list. Called both from node.on("input") and knxUltimate-config
     node.initialReadAllDevicesInRules = () => {
       if (node.serverKNX) {
+        node.setLocalStatus({ fill: 'grey', shape: 'ring', text: 'Reasy', payload: '', GA: '', dpt: '', devicename: '' });
+
         let grpaddr = '';
         for (let i = 0; i < node.rules.length; i++) {
           // rule is { topic: rowRuleTopic, devicename: rowRuleDeviceName, longdevicename: rowRuleLongDeviceName}
@@ -273,6 +275,7 @@ module.exports = function (RED) {
       node.serverKNX.removeClient(node);
       if (node.topic !== '' || node.topicSave !== '') {
         node.serverKNX.addClient(node);
+        node.initialReadAllDevicesInRules();
       }
     }
   }
