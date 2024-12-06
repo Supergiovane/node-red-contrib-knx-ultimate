@@ -6,6 +6,9 @@
 
 # CHANGELOG
 
+**Version 3.3.7** - December 2024<br/>
+- DPT18.x: fixed scene validation 1 to 64.<br/>
+
 **Version 3.3.6** - December 2024<br/>
 - KNX Alerter Node: read status after deploy even of a single node.<br/>
 
