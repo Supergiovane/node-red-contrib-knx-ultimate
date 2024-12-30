@@ -6,6 +6,9 @@
 
 # CHANGELOG
 
+**Version 3.3.9** - December 2024<br/>
+- CHRISTMAS FIX: issue on iterable interfaces error in raspberry pi.<br/>
+
 **Version 3.3.8** - December 2024<br/>
 - HOT FIX: fixed compilation problem in the knx engine, causing the node to stop working.<br/>
 
