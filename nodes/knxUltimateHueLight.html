@@ -125,9 +125,9 @@
       outputs: 0,
       icon: "node-hue-icon.svg",
       label: function () {
-        return this.name;
+        return this.name || "Hue Light/Outlet";
       },
-      paletteLabel: "Hue Light",
+      paletteLabel: "Hue Light/Outlet",
       oneditprepare: function () {
         // Go to the help panel
         try {
@@ -1484,26 +1484,26 @@
 
 
 <script type="text/markdown" data-help-name="knxUltimateHueLight">
-<p>This node lets you control your Philips HUE light and grouped lights and also gets the states of this lights, to be sent to the KNX bus.</p>
+<p>This node lets you control your Philips HUE lights, grouped lights, Outlets and also gets their states to be sent to the KNX bus.</p>
 
 **General**
 |Property|Description|
 |--|--|
 | KNX GW | Select the KNX gateway to be used |
 | HUE Bridge | Select the HUE Bridge to be used |
-| Name | HUE light or HUE grouped light to be used. The avaiable lights and groups start showing up while you're typing.|
+| Name | HUE light or HUE grouped light or Hue Outlets to be used. The avaiable lights and groups start showing up while you're typing.|
 
 <br/>
 
 **OPTIONS**
 
-Here you can choose the KNX addresses to be linked to the avaiable HUE light commands/states.<br/>
+Here you can choose the KNX addresses to be linked to the avaiable device's commands/states.<br/>
 Start typing in the GA field, the name or group address of your KNX device, the avaiable devices start showing up while you're typing.
 
 **Switch**
 |Property|Description|
 |--|--|
-| Control | This GA is used to turn on/off the HUE light via a boolean KNX value true/false|
+| Control | This GA is used to turn on/off the device via a boolean KNX value true/false|
 | Status | Link this to the light's switch status group address|
 
 <br/>
@@ -1511,8 +1511,8 @@ Start typing in the GA field, the name or group address of your KNX device, the 
 **Dim**
 |Property|Description|
 |--|--|
-| Control dim | Relative DIM the HUE light. You can set the dimming speed in the **_Behaviour_** tab. |
-| Control % | Changes the absolute HUE light's brightness (0-100%)|
+| Control dim | Relative DIM the device. You can set the dimming speed in the **_Behaviour_** tab. |
+| Control % | Changes the absolute device's brightness (0-100%)|
 | Status % | Link this to the light's brightness status KNX group address |
 | Dim Speed (ms)                            | The dimming speed, in Milliseconds. This applies to the **light** and also to the **tunable white** dimming datapoints. It' calculated from 0% to 100%.       |
 | Min Dim brightness                        | Tha Minimum brightness that the lamp can reach. For example, if you are dimming the light down, the light will stop dimming at the specified brightness %.    |
@@ -1523,11 +1523,11 @@ Start typing in the GA field, the name or group address of your KNX device, the 
 **Tunable white**
 |Property|Description|
 |--|--|
-| Control dim | Changes the HUE light's white temperature, using DPT 3.007 dimming. You can set the dimming speed in the **_Behaviour_** tab.|
-| Control % | Changes the HUE light's white temperature, using the DPT 5.001. A value of 0 is full warm, a value of 100 is full cold.|
+| Control dim | Changes the device's white temperature, using DPT 3.007 dimming. You can set the dimming speed in the **_Behaviour_** tab.|
+| Control % | Changes the device's white temperature, using the DPT 5.001. A value of 0 is full warm, a value of 100 is full cold.|
 | Status %| The light temperature status group address. Datapoint is 5.001 absolute value. 0 is full warm, 100 is full cold.|
-| Control kelvin | **DPT 7.600:** set the HUE light's temperature in Kelvin degrees, using the KNX range from 2000 to 6535. This range will be then transformed in mirek.<br/>**DPT 9.002:** set the temperature using Philips HUE range: 2000K - 6535K (Ambiance range starts at 2200K). Please be aware, conversion may produce slightly changes in Kelvin degrees value, due to KNX RGB or Kelvin degrees to HUE mirek degrees conversion.|
-| Status kelvin | **DPT 7.600:** get the HUE light's temperature in Kelvin degrees, using the KNX range from 2000 to 6535. This range will be then transformed in kelvin degrees.<br/>**DPT 9.002:** get the temperature using Philips HUE range: 2000K - 6535K (Ambiance range starts at 2200K). Please be aware, conversion may produce slightly changes in Kelvin degrees value, due to KNX RGB or Kelvin degrees to HUE mirek degrees conversion. |
+| Control kelvin | **DPT 7.600:** set the device's temperature in Kelvin degrees, using the KNX range from 2000 to 6535. This range will be then transformed in mirek.<br/>**DPT 9.002:** set the temperature using Philips HUE range: 2000K - 6535K (Ambiance range starts at 2200K). Please be aware, conversion may produce slightly changes in Kelvin degrees value, due to KNX RGB or Kelvin degrees to HUE mirek degrees conversion.|
+| Status kelvin | **DPT 7.600:** get the device's temperature in Kelvin degrees, using the KNX range from 2000 to 6535. This range will be then transformed in kelvin degrees.<br/>**DPT 9.002:** get the temperature using Philips HUE range: 2000K - 6535K (Ambiance range starts at 2200K). Please be aware, conversion may produce slightly changes in Kelvin degrees value, due to KNX RGB or Kelvin degrees to HUE mirek degrees conversion. |
 | Invert dim direction | Inverts the DIM direction. |
 <br/>
 
@@ -1535,7 +1535,7 @@ Start typing in the GA field, the name or group address of your KNX device, the 
 |Property|Description|
 |--|--|
 | **RGB section** ||
-| Control rgb| This command is used to change the HUE light's color. Accepted datapoint is RGB triplet (r,g,b). The node handles the gamut color correction. As soon as you send a color KNX telegran, the light turns on and sets color and brightness, derived from the brightness human perception. As soon as you send a KNX telegram with r,g,b set to zero, the light turns off |
+| Control rgb| This command is used to change the device's color. Accepted datapoint is RGB triplet (r,g,b). The node handles the gamut color correction. As soon as you send a color KNX telegran, the light turns on and sets color and brightness, derived from the brightness human perception. As soon as you send a KNX telegram with r,g,b set to zero, the light turns off |
 | Status rgb | The light's color status group address. Accepted datapoint is RGB triplet (r,g,b)|
 | **HSV section** ||
 | Color H dim | Cycle through the HSV chromatic circle (HUE), using DPT 3.007 dimming. You can set the dimming speed in the **_Behaviour_** tab.|
@@ -1552,8 +1552,8 @@ For controlling the "V" (brightness) of the HSV, please use the standard control
 **Effects**
 |Property|Description|
 |--|--|
-| Blink | _true_ Blink the light, _false_ Stop blinking. Blinks the light on and off. Useful for signalling. Works with all HUE lights. |
-| Color Cycle | _true_ start cycle, _false_ Stop cycle. Randomly changes the HUE light's color at regular interval. Works with all HUE lights having color capabilities. The color effect will start 10 seconds after set. |
+| Blink | _true_ Blink the light, _false_ Stop blinking. Blinks the light on and off. Useful for signalling. Works with all devices. |
+| Color Cycle | _true_ start cycle, _false_ Stop cycle. Randomly changes the device's color at regular interval. Works with all devices having color capabilities. The color effect will start 10 seconds after set. |
 
 <br/>
 
@@ -1561,8 +1561,8 @@ For controlling the "V" (brightness) of the HSV, please use the standard control
 
 | Property                                  | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | ----------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Read status at startup | Read the HUE light status at node-red's startup or node-red's full deploy, and send that status to the KNX BUS |
-| KNX Brightness Status                     | Updates the KNX brightness group address status, whenever the HUE lamp is switched ON/OFF. The options are **When HUE light is Off send 0%. When HUE On, restore previous value (Default KNX behaviour)** and **Leave as is (default HUE behaviour)**. If you have KNX dimmer with brightness status, like MDT, the suggested option is ***When HUE light is Off send 0%. When HUE On, restore previous value (Default KNX behaviour)*** |
+| Read status at startup | Read the device status at node-red's startup or node-red's full deploy, and send that status to the KNX BUS |
+| KNX Brightness Status                     | Updates the KNX brightness group address status, whenever the HUE lamp is switched ON/OFF. The options are **When device is Off send 0%. When HUE On, restore previous value (Default KNX behaviour)** and **Leave as is (default HUE behaviour)**. If you have KNX dimmer with brightness status, like MDT, the suggested option is ***When device is Off send 0%. When HUE On, restore previous value (Default KNX behaviour)*** |
 | Switch on behaviour                       | It sets the behaviour of your lights when switched on. You can choose from differents behaviours.<br/>**Select color:** the light will be switched on with the color of your choice. To change color, just CLICK on the color selector (under the *Select color* control).<br/>**Select temperature and brightness:** the light will be switched on with the temperature (Kelvin) and brightness (0-100) of your choice.<br/>**None:** the light will retain its last status. In case you've enable the night lighting, after the night time ends, the lamp will resume the color/temperature/brightness state set at day time.  |
 | Night Lighting                            | It allows to set a particular light color/brightness at nighttime. The options are the same as the daytime. You could select either a temperature/brightness or color. A cozy temperature of 2700 Kelvin, with a brightness of 10% or 20%, is a good choice for  bathroom's night light.|
 | Day/Night                                 | Select the group address used to set the day/night behaviour. The group address value is _true_ if daytime, _false_ if nighttime.                                                                                                                                                                                                                                                                                                                                                                    |

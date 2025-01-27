@@ -246,6 +246,7 @@ module.exports = (RED) => {
           try {
             let resourceName = "";
             let sType = "";
+            let sArchetype = "";
             if (_rtype === "light" || _rtype === "grouped_light") {
               // It's a service, having a owner
               const owners = node.hueAllResources.filter((a) => a.id === resource.owner.rid);
@@ -256,6 +257,7 @@ module.exports = (RED) => {
                     resourceName += "ALL GROUPS and ";
                   } else {
                     resourceName += `${owner.metadata.name} and `;
+                    sArchetype += `${owner.metadata.archetype === undefined ? "" : owner.metadata.archetype} and `;
                     // const room = node.hueAllRooms.find((child) => child.children.find((a) => a.rid === owner.id));
                     // sRoom += room !== undefined ? `${room.metadata.name} + ` : " + ";
                     sType += `${capStr(owner.type)} + `;
@@ -263,8 +265,9 @@ module.exports = (RED) => {
                 }
               }
               sType = sType.slice(0, -" + ".length);
+              if (sArchetype !== '') sArchetype = sArchetype.slice(0, -" and ".length);
               resourceName = resourceName.slice(0, -" and ".length);
-              resourceName += sType !== "" ? ` (${sType})` : "";
+              resourceName += sType !== "" ? ` (${sType}:${sArchetype})` : "";
               retArray.push({
                 name: `${capStr(resource.type)}: ${resourceName}`,
                 id: resource.id,
