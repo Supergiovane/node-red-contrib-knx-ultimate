@@ -6,7 +6,10 @@
 
 # CHANGELOG
 
-**Version 3.3.11** - January 2025<br/>
+**Version 3.3.14** - January 2025<br/>
+- NEW: Added all subtypes to KNX Datapoint 20.x.<br/>
+
+**Version 3.3.13** - January 2025<br/>
 - NEW: Hue light now handles Hue Outlets as well.<br/>
 
 **Version 3.3.9** - December 2024<br/>
