@@ -78,8 +78,8 @@
     </div>
     <div class="form-row" id="divHost">
         <label for="node-input-topic"><i class="fa fa-tasks"></i> <span data-i18n="knxUltimateWatchDog.properties.node-input-topic"></span></label>
-        <input type="text" id="node-input-topic" data-i18n="[placeholder]knxUltimateWatchDog.placeholder.monitor">
-    </div>
+        <input style="width:90px;" type="text" id="node-input-topic" data-i18n="[placeholder]knxUltimateWatchDog.placeholder.monitor"> the DPT must be DPT1.x (Boolean)
+    </div>  
     <div class="form-row">
         <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="knxUltimateWatchDog.properties.node-input-name"></span> </label>
         <input type="text" id="node-input-name" data-i18n="[placeholder]knxUltimateWatchDog.properties.node-input-name">
@@ -134,7 +134,7 @@ You can send an Email to the KNX installer responsible to your Building, or you 
 | Property                      | Description                                                                                         |
 | ----------------------------- | --------------------------------------------------------------------------------------------------- |
 | Gateway                       | Selected KNX gateway.                                                                               |
-| Group Address to monitor      | The node will send a telegram to this address and monitors the message flowing through the KNX BUS. |
+| Group Address to monitor      | The node will send a telegram to this address and monitors the message flowing through the KNX BUS. The Datapoint must be DPT 1.x (boolean). |
 | Name                          | Node Name                                                                                           |
 | Auto start the watchdog timer | The watchdog timer starts automatically on deploy or on node-red start.                             |
 | Check level                   | See below                                                                                           |
