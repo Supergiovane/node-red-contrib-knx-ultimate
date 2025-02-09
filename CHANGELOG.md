@@ -6,6 +6,9 @@
 
 # CHANGELOG
 
+**Version 3.3.15** - February 2025<br/>
+- Housekeeping and added some warnings on Watchdog node and configuration nodes.<br/>
+
 **Version 3.3.14** - January 2025<br/>
 - NEW: Added all subtypes to KNX Datapoint 20.x.<br/>
 
