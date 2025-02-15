@@ -48,7 +48,6 @@ module.exports = (RED) => {
           // Init HUE Utility
           node.hueManager = new HueClass(node.host, node.credentials.username, node.credentials.clientkey, config.bridgeid, node.sysLogger);
         } catch (error) { /* empty */ }
-        node.hueManager.Connect();
       } catch (error) {
         if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(`Errore hue-config: node.initHUEConnection: ${error.message}`);
         node.linkStatus = "disconnected";
@@ -57,9 +56,6 @@ module.exports = (RED) => {
         node.nodeClients.forEach((_oClient) => {
           const oClient = _oClient;
           try {
-            // if (_event.type === "light" || _event.type === "grouped_light") {
-            //   console.log(_event);
-            // }            
             if (oClient.handleSendHUE !== undefined) oClient.handleSendHUE(_event);
           } catch (error) {
             if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(`Errore node.hueManager.on(event): ${error.message}`);
@@ -107,6 +103,10 @@ module.exports = (RED) => {
           });
         });
       });
+      try {
+        node.hueManager.Connect();
+      } catch (error) { }
+
     };
 
     node.startWatchdogTimer = () => {

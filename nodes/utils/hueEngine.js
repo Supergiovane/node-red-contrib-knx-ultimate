@@ -152,12 +152,15 @@ class classHUE extends EventEmitter {
         case "Ping":
           try {
             const jReturn = await this.hueApiV2.get('/resource/bridge');
+            if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.debug(`KNXUltimatehueEngine: classHUE: processQueueItem: Ping OK: Bridge id:${jReturn[0].bridge_id}`);
           } catch (error) {
-            if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.error(`KNXUltimatehueEngine: classHUE: processQueueItem: Ping: ${error.message}`);
+            if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.error(`KNXUltimatehueEngine: classHUE: processQueueItem: Ping ERROR: ${error.message}`);
             if (this.timerCheckConnected !== null) clearInterval(this.timerCheckConnected);
             this.commandQueue = [];
+            try {
+              this.close();
+            } catch (error) { }
             this.emit("disconnected");
-            this.close();
           }
           break;
         default:

@@ -6,6 +6,10 @@
 
 # CHANGELOG
 
+**Version 3.3.16** - February 2025<br/>
+- HUE config node: moved the connect directive after events declarations.<br/>
+- HUE engine: optimized the disconnection detection procedure.<br/>
+
 **Version 3.3.15** - February 2025<br/>
 - Housekeeping and added some warnings on Watchdog node and configuration nodes.<br/>
 
