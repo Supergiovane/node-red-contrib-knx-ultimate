@@ -106,6 +106,7 @@ module.exports = function (RED) {
       fill, shape, text, payload,
     }) => {
       try {
+        if (node.currentHUEDevice?.on?.on === true) { fill = "blue"; shape = "dot" } else { fill = "blue"; shape = "ring" };
         if (payload === undefined) payload = '';
         const dDate = new Date();
         payload = typeof payload === "object" ? JSON.stringify(payload) : payload.toString();
@@ -116,6 +117,7 @@ module.exports = function (RED) {
     // Used to call the status update from the HUE config node.
     node.setNodeStatusHue = ({ fill, shape, text, payload }) => {
       try {
+        if (node.currentHUEDevice?.on?.on === true) { fill = "blue"; shape = "dot" } else { fill = "blue"; shape = "ring" };
         if (payload === undefined) payload = '';
         const dDate = new Date();
         payload = typeof payload === "object" ? JSON.stringify(payload) : payload.toString();

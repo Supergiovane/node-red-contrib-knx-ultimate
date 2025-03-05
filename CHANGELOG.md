@@ -6,6 +6,9 @@
 
 # CHANGELOG
 
+**Version 3.3.19** - March 2025<br/>
+- HUE light nodes now have the colored status icon that follows the light status on/off. Blue fill dot is ON, blue ring is OFF<br/>
+
 **Version 3.3.18** - March 2025<br/>
 - For all HUE nodes, added both the HUE and KNX status in the node's status text.<br/>
 - HUE engine: fixed a reconnection issue occurring sometimes, in some circumstances.<br/>
