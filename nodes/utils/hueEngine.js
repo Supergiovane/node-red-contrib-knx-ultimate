@@ -11,12 +11,13 @@ class classHUE extends EventEmitter {
 
   constructor(_hueBridgeIP, _username, _clientkey, _bridgeid, _sysLogger) {
     super();
+    this.HUEBridgeConnectionStatus = "disconnected";
+    this.exitAllQueues = false;
     this.hueBridgeIP = _hueBridgeIP;
     this.username = _username;
     this.clientkey = _clientkey;
     this.bridgeid = _bridgeid;
     this.commandQueue = [];
-    this.closePushEventStream = false;
     // eslint-disable-next-line max-len
     setTimeout(this.handleQueue, 10000); // First start. Allow the KNX to connect
     this.sysLogger = _sysLogger;
@@ -24,6 +25,9 @@ class classHUE extends EventEmitter {
   }
 
   Connect = () => {
+    if (this.timerCheckConnected !== null) clearInterval(this.timerCheckConnected);
+    this.HUEBridgeConnectionStatus = "disconnected";
+    this.exitAllQueues = false;
 
     const options = {
       headers: {
@@ -80,12 +84,29 @@ class classHUE extends EventEmitter {
     this.es.onopen = () => {
       // if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.error('KNXUltimatehueEngine: classHUE: SSE-Connected')
       this.emit("connected");
+      this.HUEBridgeConnectionStatus = "connected";
       if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.info(`KNXUltimatehueEngine: classHUE: this.es.onopen: connected`);
       // Check wether the hue bridge is connected or not
       if (this.timerCheckConnected !== null) clearInterval(this.timerCheckConnected);
       this.timerCheckConnected = setInterval(() => {
-        this.writeHueQueueAdd(null, null, "Ping");
-      }, 30000);
+        (async () => {
+          try {
+            if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.debug(`KNXUltimatehueEngine: classHUE: processQueueItem: Pinging...`);
+            const jReturn = await this.hueApiV2.get('/resource/bridge');
+            if (!Array.isArray(jReturn) || jReturn.length < 1) throw new Error("jReturn: not an array or array empty")
+            this.HUEBridgeConnectionStatus = "connected";
+            if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.debug(`KNXUltimatehueEngine: classHUE: processQueueItem: Ping OK`);
+          } catch (error) {
+            if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.error(`KNXUltimatehueEngine: classHUE: processQueueItem: Ping ERROR: ${error.message}`);
+            if (this.timerCheckConnected !== null) clearInterval(this.timerCheckConnected);
+            this.commandQueue = [];
+            this.emit("disconnected");
+            try {
+              this.close();
+            } catch (error) { }
+          }
+        })();
+      }, 20000);
     };
 
     this.es.onerror = (error) => {
@@ -149,20 +170,6 @@ class classHUE extends EventEmitter {
             if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.error(`KNXUltimatehueEngine: classHUE: processQueueItem: stopScene: ${error.message}`);
           }
           break;
-        case "Ping":
-          try {
-            const jReturn = await this.hueApiV2.get('/resource/bridge');
-            if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.debug(`KNXUltimatehueEngine: classHUE: processQueueItem: Ping OK: Bridge id:${jReturn[0].bridge_id}`);
-          } catch (error) {
-            if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.error(`KNXUltimatehueEngine: classHUE: processQueueItem: Ping ERROR: ${error.message}`);
-            if (this.timerCheckConnected !== null) clearInterval(this.timerCheckConnected);
-            this.commandQueue = [];
-            try {
-              this.close();
-            } catch (error) { }
-            this.emit("disconnected");
-          }
-          break;
         default:
           break;
       }
@@ -190,7 +197,7 @@ class classHUE extends EventEmitter {
         //}
       }
       await pleaseWait(150);
-    } while (this.closePushEventStream === false);
+    } while (!this.exitAllQueues);
     //console.log("\x1b[42m End processing commandQueue \x1b[0m " + new Date().toTimeString(), this.commandQueue.length);
   };
 
@@ -212,8 +219,10 @@ class classHUE extends EventEmitter {
 
   close = async () =>
     new Promise((resolve, reject) => {
+      if (this.timerCheckConnected !== null) clearInterval(this.timerCheckConnected);
       try {
-        this.closePushEventStream = true; // Signal to exit all loops        
+        this.HUEBridgeConnectionStatus = "disconnected";
+        this.exitAllQueues = true;
         setTimeout(() => {
           try {
             if (this.es !== null && this.es !== undefined) this.es.close();

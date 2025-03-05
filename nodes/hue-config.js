@@ -28,11 +28,18 @@ module.exports = (RED) => {
     node.sysLogger = null;
     node.hueAllResources = undefined;
     node.timerHUEConfigCheckState = null; // Timer that check the connection to the hue bridge every xx seconds
-    node.linkStatus = "disconnected";
     try {
       node.sysLogger = loggerSetup({ loglevel: node.loglevel, setPrefix: "hue-config.js" });
     } catch (error) { console.log(error.stack) }
     node.name = config.name === undefined || config.name === "" ? node.host : config.name;
+
+    // Helper not to write everytime the "node.hueManager === null || node.hueManager === "undefined" || node.hueManager.HUEBridgeConnectionStatus === undefined"
+    Object.defineProperty(node, "linkStatus", {
+      get: function () {
+        return node.hueManager?.HUEBridgeConnectionStatus ?? "disconnected";
+      }
+    });
+
 
     // Connect to Bridge and get the resources
     node.initHUEConnection = async () => {
@@ -44,13 +51,11 @@ module.exports = (RED) => {
       } catch (error) { /* empty */ }
       // Handle events
       try {
-        try {
-          // Init HUE Utility
-          node.hueManager = new HueClass(node.host, node.credentials.username, node.credentials.clientkey, config.bridgeid, node.sysLogger);
-        } catch (error) { /* empty */ }
+        // Init HUE Utility
+        node.hueManager = new HueClass(node.host, node.credentials.username, node.credentials.clientkey, config.bridgeid, node.sysLogger);
       } catch (error) {
         if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(`Errore hue-config: node.initHUEConnection: ${error.message}`);
-        node.linkStatus = "disconnected";
+        throw (error)
       }
       node.hueManager.on("event", (_event) => {
         node.nodeClients.forEach((_oClient) => {
@@ -65,7 +70,6 @@ module.exports = (RED) => {
       // Connected
       node.hueManager.on("connected", () => {
         if (node.linkStatus === "disconnected") {
-          node.linkStatus = "connected";
           // Start the timer to do initial read.
           if (node.timerDoInitialRead !== null) clearTimeout(node.timerDoInitialRead);
           node.timerDoInitialRead = setTimeout(() => {
@@ -75,7 +79,6 @@ module.exports = (RED) => {
                 await node.loadResourcesFromHUEBridge();
                 if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info(`Total HUE resources count : ${node.hueAllResources.length}`);
               } catch (error) {
-                node.linkStatus = "disconnected";
                 node.nodeClients.forEach((_oClient) => {
                   setTimeout(() => {
                     _oClient.setNodeStatusHue({
@@ -93,7 +96,6 @@ module.exports = (RED) => {
       });
 
       node.hueManager.on("disconnected", () => {
-        node.linkStatus = "disconnected";
         node.nodeClients.forEach((_oClient) => {
           _oClient.setNodeStatusHue({
             fill: "red",
@@ -114,10 +116,11 @@ module.exports = (RED) => {
       node.timerHUEConfigCheckState = setTimeout(() => {
         (async () => {
           if (node.linkStatus === "disconnected") {
+            // The hueEngine is already connected to the HUE Bridge
             try {
               await node.initHUEConnection();
             } catch (error) {
-              node.linkStatus = "disconnected";
+              if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(`Errore hue-config: node.startWatchdogTimer: ${error.message}`);
             }
           }
           node.startWatchdogTimer();
@@ -125,6 +128,7 @@ module.exports = (RED) => {
       }, 10000);
     };
     node.startWatchdogTimer();
+
 
     // Functions called from the nodes ----------------------------------------------------------------
     // Query the HUE Bridge to return the resources
@@ -457,7 +461,6 @@ module.exports = (RED) => {
             });
           }
         } else {
-          node.linkStatus = "disconnected";
           // Add _Node to the clients array
           _Node.setNodeStatusHue({
             fill: "grey",

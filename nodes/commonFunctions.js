@@ -76,15 +76,18 @@ module.exports = (RED) => {
                 const serverId = RED.nodes.getNode(req.query.serverId); // Retrieve node.id of the config node.
                 if (serverId.hueAllResources === null || serverId.hueAllResources === undefined) {
                     (async function main() {
-                        await serverId.loadResourcesFromHUEBridge();
+                        try {
+                            await serverId.loadResourcesFromHUEBridge();
+                        } catch (error) {
+                            RED.log.error(`Errore RED.httpAdmin.get('/knxultimateCheckHueConnected' ${error.stack}`);
+                        }
                         res.json({ ready: false });
                     }()).catch();
                 } else {
                     res.json({ ready: true });
                 }
             } catch (error) {
-                RED.log.error(`Errore RED.httpAdmin.get('/knxultimateCheckHueConnected' ${error.message}`);
-
+                RED.log.error(`Errore RED.httpAdmin.get('/knxultimateCheckHueConnected' ${error.stack}`);
                 res.json({ ready: false });
             }
         });

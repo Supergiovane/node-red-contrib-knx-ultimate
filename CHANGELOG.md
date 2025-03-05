@@ -6,6 +6,11 @@
 
 # CHANGELOG
 
+**Version 3.3.18** - March 2025<br/>
+- For all HUE nodes, added both the HUE and KNX status in the node's status text.<br/>
+- HUE engine: fixed a reconnection issue occurring sometimes, in some circumstances.<br/>
+- KNX engine: speed up the connection, from 30 to 10 seconds.<br/>
+
 **Version 3.3.16** - February 2025<br/>
 - HUE config node: moved the connect directive after events declarations.<br/>
 - HUE engine: optimized the disconnection detection procedure.<br/>

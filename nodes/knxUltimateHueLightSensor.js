@@ -27,15 +27,26 @@ module.exports = function (RED) {
     node.currentDeviceValue = 0;
 
     // Used to call the status update from the config node.
-    node.setNodeStatus = ({ fill, shape, text, payload }) => {
-
+    node.setNodeStatus = ({
+      fill, shape, text, payload,
+    }) => {
+      try {
+        if (payload === undefined) payload = '';
+        const dDate = new Date();
+        payload = typeof payload === "object" ? JSON.stringify(payload) : payload.toString();
+        node.sKNXNodeStatusText = `|KNX: ${text} ${payload} (${dDate.getDate()}, ${dDate.toLocaleTimeString()})`;
+        node.status({ fill, shape, text: (node.sHUENodeStatusText || '') + ' ' + (node.sKNXNodeStatusText || '') });
+      } catch (error) { }
     };
     // Used to call the status update from the HUE config node.
     node.setNodeStatusHue = ({ fill, shape, text, payload }) => {
-      if (payload === undefined) payload = '';
-      const dDate = new Date();
-      payload = typeof payload === 'object' ? JSON.stringify(payload) : payload.toString();
-      node.status({ fill, shape, text: text + ' ' + payload + ' (' + dDate.getDate() + ', ' + dDate.toLocaleTimeString() + ')' });
+      try {
+        if (payload === undefined) payload = '';
+        const dDate = new Date();
+        payload = typeof payload === "object" ? JSON.stringify(payload) : payload.toString();
+        node.sHUENodeStatusText = `|HUE: ${text} ${payload} (${dDate.getDate()}, ${dDate.toLocaleTimeString()})`;
+        node.status({ fill, shape, text: node.sHUENodeStatusText + ' ' + (node.sKNXNodeStatusText || '') });
+      } catch (error) { }
     };
 
     // This function is called by the knx-ultimate config node, to output a msg.payload.
