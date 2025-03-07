@@ -260,7 +260,7 @@ module.exports = function (RED) {
         return
       }
 
-      node.sheddingStage--
+      node.sheddingStage--;
       let iRowIndex = node.sheddingStage // Array is base 0
       if (iRowIndex < 0) iRowIndex = 0
       if (iRowIndex > node.deviceList.length - 1) return
@@ -344,12 +344,15 @@ module.exports = function (RED) {
         switch (msg.shedding) {
           case 'shed':
             node.wattLimit = 1 // Faking to shed
+            node.setLocalStatus({ fill: 'red', shape: 'dot', text: 'msg.shedding: SHED received.' });
             break;
           case 'unshed':
             node.wattLimit = 100000 // Faking to unshed
+            node.setLocalStatus({ fill: 'green', shape: 'dot', text: 'msg.shedding: UNSHED received.' });
             break;
           case 'auto':
-            node.wattLimit = config.wattLimit === undefined ? 3000 : Number(config.wattLimit)
+            node.wattLimit = config.wattLimit === undefined ? 3000 : Number(config.wattLimit);
+            node.setLocalStatus({ fill: 'green', shape: 'ring', text: 'msg.shedding: AUTO received.' });
             break;
           default:
             break;

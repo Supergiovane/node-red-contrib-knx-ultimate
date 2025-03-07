@@ -6,6 +6,9 @@
 
 # CHANGELOG
 
+**Version 3.3.20** - March 2025<br/>
+- Load control node: fixed a malfunction in the flow's msg.shedding procedure.<br/>
+
 **Version 3.3.19** - March 2025<br/>
 - HUE light nodes now have the colored status icon that follows the light status on/off. Blue fill dot is ON, blue ring is OFF<br/>
 
