@@ -134,7 +134,7 @@ You can send an Email to the KNX installer responsible to your Building, or you 
 | Property                      | Description                                                                                         |
 | ----------------------------- | --------------------------------------------------------------------------------------------------- |
 | Gateway                       | Selected KNX gateway.                                                                               |
-| Group Address to monitor      | The node will send a telegram to this address and monitors the message flowing through the KNX BUS. The Datapoint must be DPT 1.x (boolean). |
+| Group Address to monitor      | The node will send a telegram to this address and monitors the message flowing through the KNX BUS. The Datapoint must be DPT 1.x (boolean).|
 | Name                          | Node Name                                                                                           |
 | Auto start the watchdog timer | The watchdog timer starts automatically on deploy or on node-red start.                             |
 | Check level                   | See below                                                                                           |
@@ -286,11 +286,8 @@ The Config-Node will change the settings and reconnect with new parameters.<br /
 
 Be careful, if you restart node-red, the new settings are reverted to the settings specified in the Config-Node.<br />
 
-ALL parameters are OPTIONAL <br />
+**ALL parameters are OPTIONAL** <br />
 
-Please <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---WatchDog"
-
-    target="_blank">see here for other examples.</a>.
 
 ```javascript
 
@@ -307,7 +304,8 @@ msg.setGatewayConfig={IP:"224.0.23.12",Port:3671,PhysicalAddress:"15.15.1",BindT
 Protocol:"Multicast", importCSV:`"Group name" "Address" "Central" "Unfiltered" "Description" "DatapointType" "Security"
 "Attuatori luci" "0/-/-" "" "" "" "" "Auto"
 "Luci primo piano" "0/0/-" "" "" "" "" "Auto"
-"Luce camera da letto" "0/0/1" "" "" "" "DPST-1-1" "Auto"};`
+"Luce camera da letto" "0/0/1" "" "" "" "DPST-1-1" "Auto"};`}
+
 return msg;
 
 ```
@@ -345,4 +343,5 @@ return msg;
 ## SEE ALSO
 
 [Sample WatchDog](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---WatchDog)
-</script>
+
+    
