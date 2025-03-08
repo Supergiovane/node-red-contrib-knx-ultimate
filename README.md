@@ -276,6 +276,11 @@ List of commercial companies, which have given us permission to be mentioned on 
 [![](https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/c/innovationsystem.png)](https://www.onsystem-iot.com/)
 </td> 
 
+<td style="valign:center; border: 0px; padding: 15px;">
+
+[![](https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/c/inventife.png)](https://inventife.com)
+</td> 
+
 </tr> 
 </table> 
 
@@ -289,7 +294,7 @@ List of commercial companies, which have given us permission to be mentioned on 
 * [Altis - Energy and utilities provider](https://altis.swiss)
 * [Can'nX France - KNX Device Manufacturer and integrator](https://can-nx.com)
 * [Innovation System - System integrators](https://www.onsystem-iot.com)
-
+* [Inventife - Smart building and accident detection](https://www.inventife.com)
 <br/>
 
 ## FRIENDLY COMMUNITIES AROUND THE WORLD
