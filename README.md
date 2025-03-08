@@ -273,7 +273,7 @@ List of commercial companies, which have given us permission to be mentioned on 
 }
 </style>
 
-<table border="0"> 
+<table> 
 <tr> 
 <td style="valign:center; border: 0px; padding: 15px;">
 
