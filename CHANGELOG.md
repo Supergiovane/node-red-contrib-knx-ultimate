@@ -7,6 +7,9 @@
 # CHANGELOG
 
 **Version 3.3.20** - March 2025<br/>
+- KNX Engine: fixed an unmeaningful error while validating DPTs.<br/>
+
+**Version 3.3.20** - March 2025<br/>
 - Load control node: fixed a malfunction in the flow's msg.shedding procedure.<br/>
 
 **Version 3.3.19** - March 2025<br/>
