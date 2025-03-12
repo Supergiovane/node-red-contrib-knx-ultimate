@@ -6,7 +6,7 @@
 
 # CHANGELOG
 
-**Version 3.3.20** - March 2025<br/>
+**Version 3.3.21** - March 2025<br/>
 - KNX Engine: fixed an unmeaningful error while validating DPTs.<br/>
 
 **Version 3.3.20** - March 2025<br/>
