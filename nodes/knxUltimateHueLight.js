@@ -10,8 +10,8 @@ module.exports = function (RED) {
   function knxUltimateHueLight(config) {
     RED.nodes.createNode(this, config);
     const node = this;
-    node.serverKNX = RED.nodes.getNode(config.server);
-    node.serverHue = RED.nodes.getNode(config.serverHue);
+    node.serverKNX = RED.nodes.getNode(config.server) || undefined;
+    node.serverHue = RED.nodes.getNode(config.serverHue) || undefined;
 
     // Convert for backward compatibility
     if (config.nameLightKelvinDIM === undefined) {

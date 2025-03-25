@@ -29,7 +29,7 @@ module.exports = function (RED) {
   function knxUltimateGlobalContext(config) {
     RED.nodes.createNode(this, config)
     const node = this
-    node.serverKNX = RED.nodes.getNode(config.server)
+    node.serverKNX = RED.nodes.getNode(config.server) || undefined
     node.topic = node.name
     node.name = config.name === undefined ? 'KNXGlobalContext' : config.name
     node.outputtopic = node.name

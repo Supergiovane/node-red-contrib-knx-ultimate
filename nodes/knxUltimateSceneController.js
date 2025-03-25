@@ -8,7 +8,7 @@ module.exports = function (RED) {
 
     RED.nodes.createNode(this, config)
     const node = this
-    node.serverKNX = RED.nodes.getNode(config.server)
+    node.serverKNX = RED.nodes.getNode(config.server) || undefined
     node.name = config.name || 'KNX Scene Controller'
     node.outputtopic = typeof config.outputtopic === 'undefined' ? '' : config.outputtopic
     node.topic = config.topic || ''

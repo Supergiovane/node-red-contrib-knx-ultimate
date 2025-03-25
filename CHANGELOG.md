@@ -6,6 +6,10 @@
 
 # CHANGELOG
 
+**Version 3.3.22** - March 2025<br/>
+- HUE Button: fixed random unresponsive button event.<br/>
+- Housekeeping<br/>
+
 **Version 3.3.21** - March 2025<br/>
 - KNX Engine: fixed an unmeaningful error while validating DPTs.<br/>
 

@@ -4,7 +4,7 @@ module.exports = function (RED) {
   function knxUltimateWatchDog(config) {
     RED.nodes.createNode(this, config)
     const node = this
-    node.serverKNX = RED.nodes.getNode(config.server)
+    node.serverKNX = RED.nodes.getNode(config.server) || undefined
     node.dpt = '1.001'
     node.notifyreadrequestalsorespondtobus = 'false'
     node.notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized = ''

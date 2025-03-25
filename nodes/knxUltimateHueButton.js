@@ -4,8 +4,8 @@ module.exports = function (RED) {
   function knxUltimateHueButton(config) {
     RED.nodes.createNode(this, config);
     const node = this;
-    node.serverKNX = RED.nodes.getNode(config.server);
-    node.serverHue = RED.nodes.getNode(config.serverHue);
+    node.serverKNX = RED.nodes.getNode(config.server) || undefined;
+    node.serverHue = RED.nodes.getNode(config.serverHue) || undefined;
     node.topic = node.name;
     node.name = config.name === undefined ? 'Hue' : config.name;
     node.dpt = '';
@@ -93,7 +93,7 @@ module.exports = function (RED) {
         if (_event.id === config.hueDevice) {
 
           // IMPORTANT: exit if no button last_event present.
-          if (!_event.hasOwnProperty("button") || _event.button.last_event === undefined) return;
+          if (!_event.hasOwnProperty("button") || _event.button?.last_event === undefined) return;
 
           const knxMsgPayload = {};
           let flowMsgPayload = true;
@@ -134,7 +134,7 @@ module.exports = function (RED) {
                 knxMsgPayload.dpt = config.dptshort_release;
                 knxMsgPayload.payload = node.short_releaseValue;
                 // Send to KNX bus
-                if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) {
+                if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined && node.serverKNX !== undefined) {
                   node.serverKNX.sendKNXTelegramToKNXEngine({
                     grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id,
                   });
@@ -159,7 +159,7 @@ module.exports = function (RED) {
                     knxMsgPayload.payload = node.long_pressValue ? { decr_incr: 0, data: 3 } : { decr_incr: 1, data: 3 }; // If the light is turned on, the initial DIM direction must be down, otherwise, up
                   }
                   // Send to KNX bus
-                  if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) {
+                  if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined && node.serverKNX !== undefined) {
                     node.serverKNX.sendKNXTelegramToKNXEngine({
                       grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id,
                     });
@@ -184,7 +184,7 @@ module.exports = function (RED) {
           flowMsg.rawEvent = _event;
           flowMsg.payload = flowMsgPayload;
           node.send(flowMsg);
-          // node.setNodeStatusHue({ fill: 'blue', shape: 'ring', text: 'HUE->KNX', payload: flowMsg.rawEvent + ' ' + flowMsg.payload })
+          if (node.serverKNX === undefined) node.setNodeStatusHue({ fill: 'green', shape: 'dot', text: '', payload: flowMsg.event })
         }
       } catch (error) {
         node.setNodeStatusHue({
@@ -208,7 +208,7 @@ module.exports = function (RED) {
       node.isTimerDimStopRunning = false;
       knxMsgPayload.payload = { decr_incr: 0, data: 0 }; // Payload for the output msg
       // Send to KNX bus
-      if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) {
+      if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined && node.serverKNX !== undefined) {
         node.serverKNX.sendKNXTelegramToKNXEngine({
           grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id,
         });
