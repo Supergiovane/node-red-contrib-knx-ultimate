@@ -6,6 +6,10 @@
 
 # CHANGELOG
 
+**Version 3.3.23** - April 2025<br/>
+- HUE nodes: fixed no-reconnection after disconnection, due to a bug in the connection handler.<br/>
+- Housekeeping<br/>
+
 **Version 3.3.22** - March 2025<br/>
 - HUE Button: fixed random unresponsive button event.<br/>
 - Housekeeping<br/>
