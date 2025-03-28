@@ -54,7 +54,7 @@ module.exports = (RED) => {
         // Init HUE Utility
         node.hueManager = new HueClass(node.host, node.credentials.username, node.credentials.clientkey, config.bridgeid, node.sysLogger);
       } catch (error) {
-        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(`Errore hue-config: node.initHUEConnection: ${error.message}`);
+        node.sysLogger?.error(`Errore hue-config: node.initHUEConnection: ${error.message}`);
         throw (error)
       }
       node.hueManager.on("event", (_event) => {
@@ -63,7 +63,7 @@ module.exports = (RED) => {
           try {
             if (oClient.handleSendHUE !== undefined) oClient.handleSendHUE(_event);
           } catch (error) {
-            if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(`Errore node.hueManager.on(event): ${error.message}`);
+            node.sysLogger?.error(`Errore node.hueManager.on(event): ${error.message}`);
           }
         });
       });
@@ -75,9 +75,9 @@ module.exports = (RED) => {
           node.timerDoInitialRead = setTimeout(() => {
             (async () => {
               try {
-                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info(`HTTP getting resource from HUE bridge : ${node.name}`);
+                node.sysLogger?.info(`HTTP getting resource from HUE bridge : ${node.name}`);
                 await node.loadResourcesFromHUEBridge();
-                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info(`Total HUE resources count : ${node.hueAllResources.length}`);
+                node.sysLogger?.info(`Total HUE resources count : ${node.hueAllResources.length}`);
               } catch (error) {
                 node.nodeClients.forEach((_oClient) => {
                   setTimeout(() => {
@@ -112,7 +112,7 @@ module.exports = (RED) => {
     };
 
     node.startWatchdogTimer = () => {
-      if (node.timerHUEConfigCheckState !== undefined) clearTimeout(node.timerHUEConfigCheckState);
+      if (node.timerHUEConfigCheckState !== null) clearTimeout(node.timerHUEConfigCheckState);
       node.timerHUEConfigCheckState = setTimeout(() => {
         (async () => {
           if (node.linkStatus === "disconnected") {
@@ -120,7 +120,7 @@ module.exports = (RED) => {
             try {
               await node.initHUEConnection();
             } catch (error) {
-              if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(`Errore hue-config: node.startWatchdogTimer: ${error.message}`);
+              node.sysLogger?.error(`Errore hue-config: node.startWatchdogTimer: ${error.message}`);
             }
           }
           node.startWatchdogTimer();
@@ -375,7 +375,7 @@ module.exports = (RED) => {
         }
         return { devices: retArray };
       } catch (error) {
-        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(`KNXUltimateHue: hueEngine: classHUE: getResources: error ${error.message}`);
+        node.sysLogger?.error(`KNXUltimateHue: hueEngine: classHUE: getResources: error ${error.message}`);
         return { devices: error.message };
       }
     };
@@ -388,7 +388,7 @@ module.exports = (RED) => {
         const ret = "#" + hueColorConverter.ColorConverter.rgbHex(retRGB.r, retRGB.g, retRGB.b).toString();
         return ret;
       } catch (error) {
-        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.warn(`KNXUltimateHue: hueEngine: getColorFromHueLight: error ${error.message}`);
+        node.sysLogger?.warn(`KNXUltimateHue: hueEngine: getColorFromHueLight: error ${error.message}`);
         return {};
       }
     };
@@ -399,7 +399,7 @@ module.exports = (RED) => {
         const ret = { kelvin: hueColorConverter.ColorConverter.mirekToKelvin(oLight.color_temperature.mirek), brightness: Math.round(oLight.dimming.brightness, 0) };
         return JSON.stringify(ret);
       } catch (error) {
-        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(`KNXUltimateHue: hueEngine: getKelvinFromHueLight: error ${error.message}`);
+        node.sysLogger?.error(`KNXUltimateHue: hueEngine: getKelvinFromHueLight: error ${error.message}`);
         return {};
       }
     };
