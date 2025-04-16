@@ -6,6 +6,9 @@
 
 # CHANGELOG
 
+**Version 3.3.24** - April 2025<br/>
+- NEW: Added Datapoint 14.1200<br/>
+
 **Version 3.3.23** - April 2025<br/>
 - HUE nodes: fixed no-reconnection after disconnection, due to a bug in the connection handler.<br/>
 - Housekeeping<br/>
