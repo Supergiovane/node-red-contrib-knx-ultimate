@@ -19,9 +19,9 @@ class classHUE extends EventEmitter {
     this.bridgeid = _bridgeid;
     this.commandQueue = [];
     // eslint-disable-next-line max-len
-    setTimeout(this.handleQueue, 10000); // First start. Allow the KNX to connect
     this.sysLogger = _sysLogger;
     this.timerCheckConnected = null;
+    this.handleQueue();
   }
 
   Connect = () => {
@@ -59,7 +59,7 @@ class classHUE extends EventEmitter {
     try {
       this.es = new EventSource(`https://${this.hueBridgeIP}/eventstream/clip/v2`, options);
     } catch (error) {
-      console.log("hue-config: ew EventSource:" + error.message);
+      if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.error(`hueEngine: ew EventSource: ${error.message}`);
     }
 
 
@@ -91,37 +91,41 @@ class classHUE extends EventEmitter {
       this.timerCheckConnected = setInterval(() => {
         (async () => {
           try {
-            if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.debug(`KNXUltimatehueEngine: classHUE: processQueueItem: Pinging...`);
+            if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.debug(`KNXUltimatehueEngine: classHUE: Pinging...`);
             const jReturn = await this.hueApiV2.get('/resource/bridge');
             if (!Array.isArray(jReturn) || jReturn.length < 1) throw new Error("jReturn: not an array or array empty")
             this.HUEBridgeConnectionStatus = "connected";
-            if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.debug(`KNXUltimatehueEngine: classHUE: processQueueItem: Ping OK`);
+            if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.debug(`KNXUltimatehueEngine: classHUE: Ping OK`);
           } catch (error) {
-            if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.error(`KNXUltimatehueEngine: classHUE: processQueueItem: Ping ERROR: ${error.message}`);
+            if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.error(`KNXUltimatehueEngine: classHUE: Ping ERROR: ${error.message}`);
             if (this.timerCheckConnected !== null) clearInterval(this.timerCheckConnected);
             this.commandQueue = [];
-            this.emit("disconnected");
             try {
-              this.close();
+              await this.close();
             } catch (error) { }
+            this.emit("disconnected");
           }
         })();
-      }, 20000);
+      }, 60000);
     };
 
     this.es.onerror = (error) => {
-      if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.error(`KNXUltimatehueEngine: classHUE: this.es.onopen:  ${error.status || ''} ${error.message}`);
-    };
-    // 29/08/2023 NON riattivare, perchè alla disconnessione, va in loop e consuma tutto il pool di risorse.
-    //   try {
-    //     this.es.close();
-    //     this.es = null;
-    //     if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.error(`KNXUltimatehueEngine: classHUE: request.on(error): ${error.message}`);
-    //   } catch (err) { /* empty */ }
-    //   this.Connect();
-    //   // this.emit('error', error)
-    // };
+      if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.error(`KNXUltimatehueEngine: classHUE: this.es.onopen: ${error.message}`);
+      (async () => {
+        await this.close();
+        if (this.HUEBridgeConnectionStatus === 'connected') this.emit('disconnected');
+      })();
 
+      // 29/08/2023 NON riattivare, perchè alla disconnessione, va in loop e consuma tutto il pool di risorse.
+      //   try {
+      //     this.es.close();
+      //     this.es = null;
+      //     if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.error(`KNXUltimatehueEngine: classHUE: request.on(error): ${error.message}`);
+      //   } catch (err) { /* empty */ }
+      //   this.Connect();
+      //   // this.emit('error', error)
+      // };
+    };
   };
 
   // Process single item in the queue
@@ -201,6 +205,7 @@ class classHUE extends EventEmitter {
     //console.log("\x1b[42m End processing commandQueue \x1b[0m " + new Date().toTimeString(), this.commandQueue.length);
   };
 
+
   writeHueQueueAdd = async (_lightID, _state, _operation) => {
     // Add the new item
     this.commandQueue.unshift({ _lightID, _state, _operation });
@@ -226,6 +231,7 @@ class classHUE extends EventEmitter {
         setTimeout(() => {
           try {
             if (this.es !== null && this.es !== undefined) this.es.close();
+            if (this.es !== null && this.es !== undefined) this.es.removeEventListener();
           } catch (error) { }
           this.es = null;
           resolve(true);

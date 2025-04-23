@@ -6,6 +6,9 @@
 
 # CHANGELOG
 
+**Version 3.3.25** - April 2025<br/>
+- HUE: fixed a saltuary bug preventing reconnection after HUE bridge has been restarted and there is no KNX Gateway configured.<br/>
+
 **Version 3.3.24** - April 2025<br/>
 - NEW: Added Datapoint 14.1200<br/>
 

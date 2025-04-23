@@ -43,13 +43,10 @@ module.exports = (RED) => {
 
     // Connect to Bridge and get the resources
     node.initHUEConnection = async () => {
+      await node.closeConnection();
       try {
-        if (node.hueManager !== undefined) node.hueManager.close();
+        if (node.hueManager !== undefined) await node.hueManager.close();
       } catch (error) { /* empty */ }
-      try {
-        if (node.hueManager !== undefined) node.hueManager.removeAllListeners();
-      } catch (error) { /* empty */ }
-      // Handle events
       try {
         // Init HUE Utility
         node.hueManager = new HueClass(node.host, node.credentials.username, node.credentials.clientkey, config.bridgeid, node.sysLogger);
@@ -87,11 +84,11 @@ module.exports = (RED) => {
                       text: "HUE",
                       payload: error.message,
                     });
-                  }, 1000);
+                  }, 200);
                 });
               }
             })();
-          }, 6000); // 17/02/2020 Do initial read of all nodes requesting initial read
+          }, 10000); // 17/02/2020 Do initial read of all nodes requesting initial read
         }
       });
 
@@ -106,12 +103,12 @@ module.exports = (RED) => {
         });
       });
       try {
-        node.hueManager.Connect();
+        await node.hueManager.Connect();
       } catch (error) { }
 
     };
 
-    node.startWatchdogTimer = () => {
+    node.startWatchdogTimer = async () => {
       if (node.timerHUEConfigCheckState !== null) clearTimeout(node.timerHUEConfigCheckState);
       node.timerHUEConfigCheckState = setTimeout(() => {
         (async () => {
@@ -123,12 +120,14 @@ module.exports = (RED) => {
               node.sysLogger?.error(`Errore hue-config: node.startWatchdogTimer: ${error.message}`);
             }
           }
-          node.startWatchdogTimer();
+          await node.startWatchdogTimer();
         })();
-      }, 10000);
+      }, 20000);
     };
-    node.startWatchdogTimer();
 
+    (async () => {
+      await node.startWatchdogTimer();
+    })();
 
     // Functions called from the nodes ----------------------------------------------------------------
     // Query the HUE Bridge to return the resources
@@ -480,11 +479,16 @@ module.exports = (RED) => {
       }
     };
 
+    node.closeConnection = async () => {
+      node.hueManager?.removeAllListeners();
+      node.linkStatus === "disconnected";
+    }
+
     node.on("close", (done) => {
       try {
-        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger = null;
+        node.sysLogger = null;
         node.nodeClients = [];
-        if (node.hueManager !== undefined && node.hueManager !== null) node.hueManager.removeAllListeners();
+        node.closeConnection();
         (async () => {
           try {
             await node.hueManager.close();
