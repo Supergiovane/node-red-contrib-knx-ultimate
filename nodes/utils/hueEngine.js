@@ -27,8 +27,6 @@ class classHUE extends EventEmitter {
 
   Connect = () => {
     if (this.timerCheckConnected !== null) clearInterval(this.timerCheckConnected);
-    this.HUEBridgeConnectionStatus = "disconnected";
-    this.exitAllQueues = false;
 
     const options = {
       headers: {
@@ -49,9 +47,10 @@ class classHUE extends EventEmitter {
 
     try {
       if (this.es !== null && this.es !== undefined) {
-        this.es.removeEventListener();
-        this.es.close();
-        this.es = null;
+        (async () => {
+          await this.close();
+          this.exitAllQueues = false;
+        })();
       }
     } catch (error) {
       /* empty */
@@ -93,10 +92,11 @@ class classHUE extends EventEmitter {
         (async () => {
           try {
             this.restartSSECounter += 1;
-            if (this.restartSSECounter >= 2) {
+            if (this.restartSSECounter >= 6) {
               // Restart SSE client, due to silent disconnection affecting the SSE server
               this.restartSSECounter = 0;
-              // this.es.close(); NON RIATTIVARE, altrimenti perde gli handler
+              if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.debug(`KNXUltimatehueEngine: classHUE:this.timerCheckConnected = setInterval: reconnection to the eventsource`);
+              this.es.close();
               this.es = new EventSource(`https://${this.hueBridgeIP}/eventstream/clip/v2`, options);
             }
 
@@ -122,10 +122,10 @@ class classHUE extends EventEmitter {
 
     this.es.onerror = (error) => {
       if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.error(`KNXUltimatehueEngine: classHUE: this.es.onopen: ${error.message}`);
-      (async () => {
-        await this.close();
-        if (this.HUEBridgeConnectionStatus === 'connected') this.emit('disconnected');
-      })();
+      // (async () => {
+      //   await this.close();
+      //   if (this.HUEBridgeConnectionStatus === 'connected') this.emit('disconnected');
+      // })();
 
       // 29/08/2023 NON riattivare, perchè alla disconnessione, va in loop e consuma tutto il pool di risorse.
       //   try {
@@ -237,14 +237,15 @@ class classHUE extends EventEmitter {
     new Promise((resolve, reject) => {
       if (this.timerCheckConnected !== null) clearInterval(this.timerCheckConnected);
       try {
-        this.HUEBridgeConnectionStatus = "disconnected";
         this.exitAllQueues = true;
+        this.restartSSECounter = 0;
         setTimeout(() => {
           try {
             if (this.es !== null && this.es !== undefined) this.es.close();
             if (this.es !== null && this.es !== undefined) this.es.removeEventListener();
           } catch (error) { }
           this.es = null;
+          this.HUEBridgeConnectionStatus = "disconnected";
           resolve(true);
         }, 2000);
       } catch (error) {

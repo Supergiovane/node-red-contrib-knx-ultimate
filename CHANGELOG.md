@@ -6,8 +6,8 @@
 
 # CHANGELOG
 
-**Version 3.3.27** - April 2025<br/>
-- BREAKING CHANGE: node must be >=18.0.0 (needed before was >=16.0.0).<br/>
+**Version 3.3.29** - April 2025<br/>
+- **BREAKING CHANGE** **!!!!!!!**: node must be >=18.0.0 (needed before was >=16.0.0).**!!!!!!!** **BREAKING CHANGE**<br/>
 - HUE: fixed SSE Hue Bridge silent disconnection issue.<br/>
 
 **Version 3.3.25** - April 2025<br/>
