@@ -21,6 +21,7 @@ class classHUE extends EventEmitter {
     // eslint-disable-next-line max-len
     this.sysLogger = _sysLogger;
     this.timerCheckConnected = null;
+    this.restartSSECounter = 0; // To auto reset the SSE Connection
     this.handleQueue();
   }
 
@@ -91,11 +92,20 @@ class classHUE extends EventEmitter {
       this.timerCheckConnected = setInterval(() => {
         (async () => {
           try {
+            this.restartSSECounter += 1;
+            if (this.restartSSECounter >= 2) {
+              // Restart SSE client, due to silent disconnection affecting the SSE server
+              this.restartSSECounter = 0;
+              // this.es.close(); NON RIATTIVARE, altrimenti perde gli handler
+              this.es = new EventSource(`https://${this.hueBridgeIP}/eventstream/clip/v2`, options);
+            }
+
             if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.debug(`KNXUltimatehueEngine: classHUE: Pinging...`);
             const jReturn = await this.hueApiV2.get('/resource/bridge');
             if (!Array.isArray(jReturn) || jReturn.length < 1) throw new Error("jReturn: not an array or array empty")
             this.HUEBridgeConnectionStatus = "connected";
             if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.debug(`KNXUltimatehueEngine: classHUE: Ping OK`);
+
           } catch (error) {
             if (this.sysLogger !== undefined && this.sysLogger !== null) this.sysLogger.error(`KNXUltimatehueEngine: classHUE: Ping ERROR: ${error.message}`);
             if (this.timerCheckConnected !== null) clearInterval(this.timerCheckConnected);
@@ -103,10 +113,11 @@ class classHUE extends EventEmitter {
             try {
               await this.close();
             } catch (error) { }
+            this.restartSSECounter = 0;
             this.emit("disconnected");
           }
         })();
-      }, 60000);
+      }, 120000);
     };
 
     this.es.onerror = (error) => {

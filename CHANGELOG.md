@@ -6,6 +6,10 @@
 
 # CHANGELOG
 
+**Version 3.3.26** - April 2025<br/>
+- BREAKING CHANGE: node must be >=18.0.0 (needed before was >=16.0.0).<br/>
+- HUE: fixed SSE Hue Bridge silent disconnection issue.<br/>
+
 **Version 3.3.25** - April 2025<br/>
 - HUE: fixed a saltuary bug preventing reconnection after HUE bridge has been restarted and there is no KNX Gateway configured.<br/>
 
