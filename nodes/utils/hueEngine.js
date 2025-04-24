@@ -31,8 +31,8 @@ class classHUE extends EventEmitter {
     const options = {
       headers: {
         "hue-application-key": this.username,
-        pragma: "no-cache",
-        "cache-control": "no-cache,no-store, must-revalidate",
+        "Cache-control": "no-cache",
+        'Accept': 'text/event-stream'
       },
       https: {
         rejectUnauthorized: false,

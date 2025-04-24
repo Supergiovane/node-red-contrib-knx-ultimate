@@ -122,12 +122,16 @@ module.exports = (RED) => {
           }
           await node.startWatchdogTimer();
         })();
-      }, 20000);
+      }, 60000);
     };
 
-    (async () => {
-      await node.startWatchdogTimer();
-    })();
+    setTimeout(() => {
+      (async () => {
+        await node.initHUEConnection();
+        node.startWatchdogTimer();
+      })();
+    }, 5000);
+
 
     // Functions called from the nodes ----------------------------------------------------------------
     // Query the HUE Bridge to return the resources
