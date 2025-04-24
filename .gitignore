@@ -1,5 +1,7 @@
 node_modules
 .DS_Store
 .code-workspace
+.vscode
 package-lock.json
 KNXUltimateDebugLog.txt
+.vscode
