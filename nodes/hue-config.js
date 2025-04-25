@@ -5,7 +5,7 @@
 /* eslint-disable no-inner-declarations */
 /* eslint-disable max-len */
 const cloneDeep = require("lodash/cloneDeep");
-const HueClass = require("./utils/hueEngine").classHUE;
+//const classHUE = require("./utils/hueEngine").classHUE;
 const hueColorConverter = require("./utils/colorManipulators/hueColorConverter");
 
 
@@ -47,64 +47,67 @@ module.exports = (RED) => {
       try {
         if (node.hueManager !== undefined) await node.hueManager.close();
       } catch (error) { /* empty */ }
-      try {
-        // Init HUE Utility
-        node.hueManager = new HueClass(node.host, node.credentials.username, node.credentials.clientkey, config.bridgeid, node.sysLogger);
-      } catch (error) {
-        node.sysLogger?.error(`Errore hue-config: node.initHUEConnection: ${error.message}`);
-        throw (error)
-      }
-      node.hueManager.on("event", (_event) => {
-        node.nodeClients.forEach((_oClient) => {
-          const oClient = _oClient;
-          try {
-            if (oClient.handleSendHUE !== undefined) oClient.handleSendHUE(_event);
-          } catch (error) {
-            node.sysLogger?.error(`Errore node.hueManager.on(event): ${error.message}`);
-          }
-        });
-      });
-      // Connected
-      node.hueManager.on("connected", () => {
-        if (node.linkStatus === "disconnected") {
-          // Start the timer to do initial read.
-          if (node.timerDoInitialRead !== null) clearTimeout(node.timerDoInitialRead);
-          node.timerDoInitialRead = setTimeout(() => {
-            (async () => {
-              try {
-                node.sysLogger?.info(`HTTP getting resource from HUE bridge : ${node.name}`);
-                await node.loadResourcesFromHUEBridge();
-                node.sysLogger?.info(`Total HUE resources count : ${node.hueAllResources.length}`);
-              } catch (error) {
-                node.nodeClients.forEach((_oClient) => {
-                  setTimeout(() => {
-                    _oClient.setNodeStatusHue({
-                      fill: "red",
-                      shape: "ring",
-                      text: "HUE",
-                      payload: error.message,
-                    });
-                  }, 200);
-                });
-              }
-            })();
-          }, 10000); // 17/02/2020 Do initial read of all nodes requesting initial read
-        }
-      });
 
-      node.hueManager.on("disconnected", () => {
-        node.nodeClients.forEach((_oClient) => {
-          _oClient.setNodeStatusHue({
-            fill: "red",
-            shape: "ring",
-            text: "HUE Disconnected",
-            payload: "",
+      (async () => {
+        try {
+          const { classHUE } = await import('./utils/hueEngine.mjs');
+          node.hueManager = new classHUE(node.host, node.credentials.username, node.credentials.clientkey, config.bridgeid, node.sysLogger);
+        } catch (error) {
+          node.sysLogger?.error(`Errore hue-config: node.initHUEConnection: ${error.message}`);
+          throw (error)
+        }
+        node.hueManager.on("event", (_event) => {
+          node.nodeClients.forEach((_oClient) => {
+            const oClient = _oClient;
+            try {
+              if (oClient.handleSendHUE !== undefined) oClient.handleSendHUE(_event);
+            } catch (error) {
+              node.sysLogger?.error(`Errore node.hueManager.on(event): ${error.message}`);
+            }
           });
         });
-      });
-      try {
-        await node.hueManager.Connect();
-      } catch (error) { }
+        // Connected
+        node.hueManager.on("connected", () => {
+          if (node.linkStatus === "disconnected") {
+            // Start the timer to do initial read.
+            if (node.timerDoInitialRead !== null) clearTimeout(node.timerDoInitialRead);
+            node.timerDoInitialRead = setTimeout(() => {
+              (async () => {
+                try {
+                  node.sysLogger?.info(`HTTP getting resource from HUE bridge : ${node.name}`);
+                  await node.loadResourcesFromHUEBridge();
+                  node.sysLogger?.info(`Total HUE resources count : ${node.hueAllResources.length}`);
+                } catch (error) {
+                  node.nodeClients.forEach((_oClient) => {
+                    setTimeout(() => {
+                      _oClient.setNodeStatusHue({
+                        fill: "red",
+                        shape: "ring",
+                        text: "HUE",
+                        payload: error.message,
+                      });
+                    }, 200);
+                  });
+                }
+              })();
+            }, 10000); // 17/02/2020 Do initial read of all nodes requesting initial read
+          }
+        });
+
+        node.hueManager.on("disconnected", () => {
+          node.nodeClients.forEach((_oClient) => {
+            _oClient.setNodeStatusHue({
+              fill: "red",
+              shape: "ring",
+              text: "HUE Disconnected",
+              payload: "",
+            });
+          });
+        });
+        try {
+          await node.hueManager.Connect();
+        } catch (error) { }
+      })();
 
     };
 
