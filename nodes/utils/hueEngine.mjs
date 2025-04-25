@@ -63,7 +63,7 @@ class classHUE extends EventEmitter {
         (async () => {
           try {
             this.restartSSECounter += 1;
-            if (this.restartSSECounter >= 2) {
+            if (this.restartSSECounter >= 4) {
               this.sysLogger?.debug(`Restarted SSE Client, per sicurezza, altrimenti potrebbe addormentarsi`);
               this.restartSSECounter = 0;
               this.eventStreamAbort.abort();
@@ -82,7 +82,7 @@ class classHUE extends EventEmitter {
             this.emit("disconnected");
           }
         })();
-      }, 12000);
+      }, 120000);
 
       let buffer = '';
       const textDecoder = new TextDecoder();

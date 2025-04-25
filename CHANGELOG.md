@@ -6,6 +6,10 @@
 
 # CHANGELOG
 
+**Version 3.3.34** - April 2025<br/>
+- **BREAKING CHANGE** **!!!!!!!**: node must be >=20.1.1 (needed before was >=20.0.0).**!!!!!!!** **BREAKING CHANGE**<br/>
+- housekeeping.<br/>
+
 **Version 3.3.33** - April 2025<br/>
 - **BREAKING CHANGE** **!!!!!!!**: node must be >=20.0.0 (needed before was >=18.0.0).**!!!!!!!** **BREAKING CHANGE**<br/>
 - HUE: getting rid of the Eventsource package, due to sleepy connections not recognized.<br/>
