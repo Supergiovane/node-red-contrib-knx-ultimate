@@ -6,6 +6,10 @@
 
 # CHANGELOG
 
+**Version 3.3.35** - May 2025<br/>
+- **BREAKING CHANGE** **!!!!!!!**: node must be >=20.1.1 (needed before was >=20.0.0).**!!!!!!!** **BREAKING CHANGE**<br/>
+- Fixed an issue preventing KNX Engine queue to further processing the KNX queue, in case of lack of ACK reception of a non-existent group address.<br/>
+
 **Version 3.3.34** - April 2025<br/>
 - **BREAKING CHANGE** **!!!!!!!**: node must be >=20.1.1 (needed before was >=20.0.0).**!!!!!!!** **BREAKING CHANGE**<br/>
 - housekeeping.<br/>
