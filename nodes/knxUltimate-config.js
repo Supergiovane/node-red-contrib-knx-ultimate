@@ -1165,7 +1165,7 @@ module.exports = (RED) => {
       if (!node.knxConnection.clearToSend) {
         node.sysLogger?.warn(
           "sendKNXTelegramToKNXEngine: the KNXEngine is busy or is waiting for a telegram ACK with seqNumner " +
-          node.knxConnection.getSeqNumber() +
+          node.knxConnection.getCurrentItemHandledByTheQueue() +
           ". Delay handling queue.",
         );
       }

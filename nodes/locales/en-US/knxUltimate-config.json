@@ -1,7 +1,7 @@
 {
     "knxUltimate-config": {
         "properties": {
-            "helplink" : "&nbsp<i class=\"fa fa-question-circle\"></i>&nbsp<a target=\"_blank\" href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/1.-Gateway-configuration\"><u>Help for configuration</u></a>",
+            "helplink": "&nbsp<i class=\"fa fa-question-circle\"></i>&nbsp<a target=\"_blank\" href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/Gateway-configuration\"><u>Help for configuration</u></a>",
             "title": "KNX/IP Gateway Configuration",
             "host": "IP/Hostname",
             "host_info": "Default setting is the Multicast address of KNX/IP (224.0.23.12)",
@@ -12,11 +12,11 @@
             "adv_options": "Advanced options",
             "ets_import": "ETS Group Address list import",
             "node-config-input-name": "Name",
-            "unsecureKNX" : "Simple KNX connection",
-            "secureKNX" : "Secure KNX connection",
-            "autoReconnect" : "Automatically connect to KNX BUS at start",
-            "autoReconnect_yes" : "Yes",
-            "autoReconnect_no" : "No (To connect, pass msg.connectGateway = true to a Watchdog node)"
+            "unsecureKNX": "Simple KNX connection",
+            "secureKNX": "Secure KNX connection",
+            "autoReconnect": "Automatically connect to KNX BUS at start",
+            "autoReconnect_yes": "Yes",
+            "autoReconnect_no": "No (To connect, pass msg.connectGateway = true to a Watchdog node)"
         },
         "advanced": {
             "knx_phy_addr": "KNX Physical Address",
@@ -38,13 +38,12 @@
             "localEchoInTunneling": "Echo sent message to all node with same Group Address.",
             "tiphost": "Write EMULATE instead of the IP address, to simulate a gateway (the gateway will not connect to the KNX BUS)",
             "delaybetweentelegrams": "Delay between each telegram (in milliseconds)",
-            "delaybetweentelegramsfurtherdelayREAD" : "and further multiply delay only between -read- telegrams"
-            
+            "delaybetweentelegramsfurtherdelayREAD": "and further multiply delay only between -read- telegrams"
         },
         "ets": {
             "description": "You can import either an ETS CSV group address list, or an ESF group address list. Please prefer the ETS CSV group address list, as the datapoints are more complete.",
-            "instruction" : "&nbsp<i class=\"fa fa-question-circle\"></i>&nbsp<a target=\"_blank\" href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/1.-Gateway-configuration\"><u>Click for instruction on how to export ETS CSV group address list.</u></a>",
-            "youtube" : "&nbsp<i class=\"fa fa-youtube-play\"></i>&nbsp<a target=\"_blank\" href=\"https://youtu.be/egRbR_KwP9I\"><u>See how to export the CSV on Youtube.</u></a>",
+            "instruction": "&nbsp<i class=\"fa fa-question-circle\"></i>&nbsp<a target=\"_blank\" href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/Gateway-configuration\"><u>Click for instruction on how to export ETS CSV group address list.</u></a>",
+            "youtube": "&nbsp<i class=\"fa fa-youtube-play\"></i>&nbsp<a target=\"_blank\" href=\"https://youtu.be/egRbR_KwP9I\"><u>See how to export the CSV on Youtube.</u></a>",
             "help_ga": "If Group Address has no Datapoint",
             "import_select_stop": "Stop and abort import",
             "import_select_skip": "Skip the affected group address",
@@ -52,7 +51,7 @@
             "ga_list_title": "Paste here the content of the file exported from ETS, or the path to the file (e.g.: /home/pi/mycsv.csv)",
             "ga_list_help": "Paste here the content of the file exported from ETS, or the path to the file (e.g.: /home/pi/mycsv.csv)",
             "deploywithETS": "Some control operations will be performed. Any problems will be reported in the debug window on the right.",
-            "keyring":"Paste here the content of the Keyring XML file, exported from ETS",
+            "keyring": "Paste here the content of the Keyring XML file, exported from ETS",
             "youtubeKeyring": "See how to export the Keyring XML file on Youtube"
         }
     }
