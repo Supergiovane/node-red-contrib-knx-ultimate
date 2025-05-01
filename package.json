@@ -1,7 +1,7 @@
 {
   "name": "node-red-contrib-knx-ultimate",
   "engines": {
-    "node": ">=20.1.1"
+    "node": ">=20.18.1"
   },
   "version": "3.3.35",
   "description": "Control your KNX intallation via Node-Red! A bunch of KNX nodes, with integrated Philips HUE control and ETS group address importer. Easy to use and highly configurable.",
