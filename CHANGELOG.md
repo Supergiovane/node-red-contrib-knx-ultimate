@@ -6,6 +6,9 @@
 
 # CHANGELOG
 
+**Version 3.3.36** - April 2025<br/>
+- Node.js must be >=20.18.1 to allow installation of KNX Ultimate.<br/>
+
 **Version 3.3.35** - May 2025<br/>
 - Fixed an issue preventing KNX Engine queue to further processing the KNX queue, in case of lack of ACK reception of a non-existent group address.<br/>
 
