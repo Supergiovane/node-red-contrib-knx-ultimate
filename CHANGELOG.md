@@ -6,6 +6,9 @@
 
 # CHANGELOG
 
+**Version 3.3.37** - May 2025<br/>
+- FIX: fixed an issue preventing the nodes from loading the presistent data from file, after node-red restarting or gateway reconnection.<br/>
+
 **Version 3.3.36** - April 2025<br/>
 - Node.js must be >=20.18.1 to allow installation of KNX Ultimate.<br/>
 

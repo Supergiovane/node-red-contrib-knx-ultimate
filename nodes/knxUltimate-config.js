@@ -278,9 +278,8 @@ module.exports = (RED) => {
     function DoInitialReadFromKNXBusOrFile() {
       if (node.linkStatus !== "connected") return; // 29/08/2019 If not connected, exit
       loadExposedGAs(); // 04/04/2021 load the current values of GA payload
-      try {
-        node.sysLogger?.info("Loaded saved GA values", node.exposedGAs.length);
-      } catch (error) { }
+
+      node.sysLogger?.info("Loaded saved GA values", node.exposedGAs?.length);
       node.sysLogger?.info("Do DoInitialReadFromKNXBusOrFile");
       try {
         const readHistory = [];
@@ -311,7 +310,7 @@ module.exports = (RED) => {
                       _devicename: _oClient.name ? _oClient.name : "",
                       _outputtopic: _oClient.outputtopic,
                       _oNode: _oClient,
-                      _echoed: _echoed
+                      _echoed: false
                     });
                     _oClient.previouspayload = ""; // 05/04/2021 Added previous payload
                     _oClient.currentPayload = msg.payload;
@@ -367,7 +366,9 @@ module.exports = (RED) => {
                     }
                   }
                 }
-              } catch (error) { }
+              } catch (error) {
+                node.sysLogger?.error("DoInitialReadFromKNXBusOrFile: " + error.stack);
+              }
             }
           });
 
