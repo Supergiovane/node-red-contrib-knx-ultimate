@@ -1789,8 +1789,8 @@ module.exports = (RED) => {
           sOut += sChar;
         } else {
           if (bStart) {
-            // i'm in the phrase, delimited by "". No CRLF should be there
-            if (sChar !== "\n" && sChar !== "\r") {
+            // i'm in the phrase, delimited by "". No CRLF nor TABulators should be there
+            if (sChar !== "\n" && sChar !== "\r" && sChar !== "\t") {
               sOut += sChar;
             } else {
               sOut += " "; // Where it was a CRLF, i put a space

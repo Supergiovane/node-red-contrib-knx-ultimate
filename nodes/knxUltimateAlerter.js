@@ -11,6 +11,10 @@ module.exports = function (RED) {
     RED.nodes.createNode(this, config);
     const node = this;
     node.serverKNX = RED.nodes.getNode(config.server) || undefined;
+    if (node.serverKNX === undefined) {
+      node.status({ fill: 'red', shape: 'dot', text: '[THE GATEWAY NODE HAS BEEN DISABLED]' });
+      return;
+    }
     node.name = config.name || 'KNX Alerter';
     node.listenallga = true; // Dont' remove this.
     node.notifyreadrequest = false;

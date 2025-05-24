@@ -6,6 +6,10 @@
 
 # CHANGELOG
 
+**Version 3.3.38** - May 2025<br/>
+- FIX: fixed possible issue having tabulator chars in the group address names.<br/>
+- KNX Engine: better handling of disconnections telegrams.<br/>
+
 **Version 3.3.37** - May 2025<br/>
 - FIX: fixed an issue preventing the nodes from loading the presistent data from file, after node-red restarting or gateway reconnection.<br/>
 

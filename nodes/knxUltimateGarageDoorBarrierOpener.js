@@ -18,11 +18,11 @@ module.exports = function (RED) {
     RED.nodes.createNode(this, config);
     const node = this;
     node.serverKNX = RED.nodes.getNode(config.server) || undefined;
-    // 11/11/2021 Is the node server disabled by the flow "disable" command?
-    if (node.serverKNX === null) {
+    if (node.serverKNX === undefined) {
       node.status({ fill: 'red', shape: 'dot', text: '[THE GATEWAY NODE HAS BEEN DISABLED]' });
       return;
     }
+
 
     node.topic = config.topic;
     node.dpt = '1.001';
