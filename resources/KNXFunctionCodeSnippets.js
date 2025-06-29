@@ -42,3 +42,24 @@ const KNXFunctionSnippetThree = `// @ts-nocheck
 // The current msg contains the internal temperature in the "msg.payload" property, but we want to emit the external temperature as well.
 msg.externalTemperature = getGAValue('0/0/10 Garden temperature sensor'); // In case the ETS file is missing, you must specify the dpt as well: getGAValue('0/0/10','9.001')
 return msg;`;
+
+const KNXFunctionSnippetFour = `// @ts-nocheck
+// After 5000 milliseconds, toggle.
+setTimeout(function() {
+    toggle();
+}, 5000);
+return msg;`;
+
+const KNXFunctionSnippetFive = `// @ts-nocheck
+// After 5000 milliseconds, send false.
+setTimeout(function () {
+    self(false);
+}, 5000);
+return msg;`;
+
+const KNXFunctionSnippetSix = `// @ts-nocheck
+// Send 20% to the GA 1/0/1 having DPT 5.001
+if (msg.payload === true){
+    setGAValue('1/0/1',20,'5.001') 
+}
+return msg;`;

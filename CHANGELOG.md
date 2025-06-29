@@ -6,6 +6,9 @@
 
 # CHANGELOG
 
+**Version 3.3.39** - Juli 2025<br/>
+- Added other snippets to the KNX Device function tab.<br/>
+
 **Version 3.3.38** - May 2025<br/>
 - FIX: fixed possible issue having tabulator chars in the group address names.<br/>
 - KNX Engine: better handling of disconnections telegrams.<br/>
