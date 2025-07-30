@@ -6,7 +6,11 @@
 
 # CHANGELOG
 
-**Version 3.3.39** - Juli 2025<br/>
+**Version 3.3.40** - August 2025<br/>
+- KNX Peristent value files are now saved every 5 seconds, other than at the node disconnection.<br/>
+- Fixed an issue preventing the AutoResponder node to start, if the imported ETS file contains malformed structure.<br/>
+
+**Version 3.3.39** - July 2025<br/>
 - Added other snippets to the KNX Device function tab.<br/>
 
 **Version 3.3.38** - May 2025<br/>

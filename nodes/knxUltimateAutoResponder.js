@@ -35,7 +35,7 @@ module.exports = function (RED) {
   function knxUltimateAutoResponder(config) {
     RED.nodes.createNode(this, config)
     const node = this
-    node.serverKNX = RED.nodes.getNode(config.server) || undefined
+    node.serverKNX = RED.nodes.getNode(config.server)
     node.topic = node.name
     node.name = config.name === undefined ? 'Auto responder' : config.name
     node.outputtopic = node.name
@@ -50,6 +50,9 @@ module.exports = function (RED) {
     node.inputRBE = 'false' // Apply or not RBE to the input (Messages coming from BUS)
     node.exposedGAs = [];
     node.commandText = []; // Raw list Respond To
+    node.timerSaveExposedGAs = null;
+    if (node.serverKNX === null) { node.status({ fill: 'red', shape: 'dot', text: '[NO GATEWAY SELECTED]' }); return; }
+
     try {
       node.sysLogger = new loggerClass({ loglevel: node.serverKNX.loglevel, setPrefix: node.type + " <" + (node.name || node.id || '') + ">" });
     } catch (error) { console.log(error.stack) }
@@ -66,7 +69,7 @@ module.exports = function (RED) {
       // }
     }
 
-    node.saveExposedGAs = () => {
+    node.saveExposedGAs = async () => {
       const sFile = path.join(node.serverKNX.userDir, "knxpersistvalues", "knxpersist" + node.id + ".json");
       try {
         if (node.exposedGAs.length > 0) {
@@ -77,6 +80,7 @@ module.exports = function (RED) {
         if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error("knxUltimateAutoResponder: unable to write peristent values to the file " + sFile + " " + err.message);
       }
     }
+
     node.loadExposedGAs = () => {
       const sFile = path.join(node.serverKNX.userDir, "knxpersistvalues", "knxpersist" + node.id + ".json");
       try {
@@ -94,9 +98,13 @@ module.exports = function (RED) {
       node.exposedGAs.forEach(element => {
         element.enabled = false;
       })
+      if (node.timerSaveExposedGAs !== null) clearInterval(node.timerSaveExposedGAs);
+      node.sysLogger?.info("Started timerSaveExposedGAs with array lenght ", node.exposedGAs?.length);
+      node.timerSaveExposedGAs = setInterval(async () => {
+        await node.saveExposedGAs();
+      }, 5000);
     } catch (error) {
     }
-
 
     // Add the ETS CSV file list to exposedGAs
     if (node.serverKNX.csv === undefined || node.serverKNX.csv === '' || node.serverKNX.csv.length === 0) {
@@ -219,6 +227,7 @@ module.exports = function (RED) {
 
     node.on('close', function (done) {
       try {
+        if (node.timerSaveExposedGAs !== null) clearInterval(node.timerSaveExposedGAs);
         node.saveExposedGAs();
       } catch (error) {
       }

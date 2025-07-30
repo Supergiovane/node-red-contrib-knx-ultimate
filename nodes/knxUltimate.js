@@ -121,7 +121,7 @@ module.exports = function (RED) {
     node.inputmessage = {}; // Stores the input message to be passed through
     node.timerTTLInputMessage = null; // The stored node.inputmessage has a ttl.
     try {
-      node.sysLogger = new loggerClass({ loglevel: node.serverKNX.loglevel, setPrefix: node.type + " <" + (node.name || node.id || '') + ">" });
+      node.sysLogger = new loggerClass({ loglevel: node.serverKNX.loglevel || 'error', setPrefix: node.type + " <" + (node.name || node.id || '') + ">" });
     } catch (error) { console.log(error.stack) }
     node.sendMsgToKNXCode = config.sendMsgToKNXCode || undefined;
     node.receiveMsgFromKNXCode = config.receiveMsgFromKNXCode || undefined;

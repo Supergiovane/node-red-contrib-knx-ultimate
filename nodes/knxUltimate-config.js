@@ -68,7 +68,6 @@ module.exports = (RED) => {
     node.KNXEthInterfaceManuallyInput = typeof config.KNXEthInterfaceManuallyInput === "undefined" ? "" : config.KNXEthInterfaceManuallyInput; // If you manually set the interface name, it will be wrote here
     node.timerDoInitialRead = null; // 17/02/2020 Timer (timeout) to do initial read of all nodes requesting initial read, after all nodes have been registered to the sercer
     node.stopETSImportIfNoDatapoint = typeof config.stopETSImportIfNoDatapoint === "undefined" ? "stop" : config.stopETSImportIfNoDatapoint; // 09/01/2020 Stop, Import Fake or Skip the import if a group address has unset datapoint
-    node.csv = readCSV(config.csv); // Array from ETS CSV Group Addresses {ga:group address, dpt: datapoint, devicename: full device name with main and subgroups}
     node.localEchoInTunneling = typeof config.localEchoInTunneling !== "undefined" ? config.localEchoInTunneling : true;
     node.userDir = path.join(RED.settings.userDir, "knxultimatestorage"); // 04/04/2021 Supergiovane: Storage for service files
     node.exposedGAs = [];
@@ -79,6 +78,8 @@ module.exports = (RED) => {
     try {
       node.sysLogger = new loggerClass({ loglevel: node.loglevel, setPrefix: node.type + " <" + (node.name || node.id || '') + ">" });
     } catch (error) { console.log(error.stack) }
+    node.csv = readCSV(config.csv); // Array from ETS CSV Group Addresses {ga:group address, dpt: datapoint, devicename: full device name with main and subgroups}
+
     // 12/11/2021 Connect at start delay
     node.autoReconnect = true; // 20/03/2022 Default
     if (config.autoReconnect === "no" || config.autoReconnect === false) {
@@ -99,6 +100,7 @@ module.exports = (RED) => {
     node.delaybetweentelegrams = (config.delaybetweentelegrams === undefined || config.delaybetweentelegrams === null || config.delaybetweentelegrams === '') ? 25 : Number(config.delaybetweentelegrams);
     if (node.delaybetweentelegrams < 25) node.delaybetweentelegrams = 25; // Protection avoiding handleKNXQueue hangs
     if (node.delaybetweentelegrams > 100) node.delaybetweentelegrams = 100; // Protection avoiding handleKNXQueue hangs
+    node.timerSaveExposedGAs = null; // Timer to save the exposed GA every once in a while
 
     // 05/12/2021 Set the protocol (this is undefined if coming from ild versions
     if (node.hostProtocol === "Auto") {
@@ -194,7 +196,7 @@ module.exports = (RED) => {
       node.sysLogger?.info("payload cache set to " + path.join(node.userDir, "knxpersistvalues"));
     }
 
-    function saveExposedGAs() {
+    async function saveExposedGAs() {
       const sFile = path.join(node.userDir, "knxpersistvalues", "knxpersist" + node.id + ".json");
       try {
         if (node.exposedGAs.length > 0) {
@@ -277,10 +279,16 @@ module.exports = (RED) => {
     // 17/02/2020 Do initial read (called by node.timerDoInitialRead timer)
     function DoInitialReadFromKNXBusOrFile() {
       if (node.linkStatus !== "connected") return; // 29/08/2019 If not connected, exit
-      loadExposedGAs(); // 04/04/2021 load the current values of GA payload
-
-      node.sysLogger?.info("Loaded saved GA values", node.exposedGAs?.length);
       node.sysLogger?.info("Do DoInitialReadFromKNXBusOrFile");
+      loadExposedGAs(); // 04/04/2021 load the current values of GA payload
+      node.sysLogger?.info("Loaded persist GA values", node.exposedGAs?.length);
+
+      if (node.timerSaveExposedGAs !== null) clearInterval(node.timerSaveExposedGAs);
+      node.timerSaveExposedGAs = setInterval(async () => {
+        await saveExposedGAs();
+      }, 5000);
+      node.sysLogger?.info("Started timerSaveExposedGAs with array lenght ", node.exposedGAs?.length);
+
       try {
         const readHistory = [];
 
@@ -1592,87 +1600,92 @@ module.exports = (RED) => {
         let sSecondGroupName = "";
         let sFather = "";
         for (let index = 0; index < fileGA.length; index++) {
-          let element = fileGA[index];
-          element = element.replace(/\"/g, ""); // Rimuovo le virgolette
-          element = element.replace(/\#/g, ""); // Rimuovo evetuali #
+          try {
+            let element = fileGA[index];
+            element = element.replace(/\"/g, ""); // Rimuovo le virgolette
+            element = element.replace(/\#/g, ""); // Rimuovo evetuali #
 
-          if (element !== "") {
-            // Main and secondary group names
-            if ((element.split("\t")[1].match(/-/g) || []).length == 2) {
-              // Found main group family name (Example Light Actuators)
-              sFirstGroupName = element.split("\t")[0] || "";
-              sSecondGroupName = "";
-            }
-            if ((element.split("\t")[1].match(/-/g) || []).length == 1) {
-              // Found second group family name (Example First Floor light)
-              sSecondGroupName = element.split("\t")[0] || "";
-            }
-            if (sFirstGroupName !== "" && sSecondGroupName !== "") {
-              sFather = "(" + sFirstGroupName + "->" + sSecondGroupName + ") ";
-            }
+            if (element !== "") {
+              // Main and secondary group names
+              if ((element.split("\t")[1].match(/-/g) || []).length == 2) {
+                // Found main group family name (Example Light Actuators)
+                sFirstGroupName = element.split("\t")[0] || "";
+                sSecondGroupName = "";
+              }
+              if ((element.split("\t")[1].match(/-/g) || []).length == 1) {
+                // Found second group family name (Example First Floor light)
+                sSecondGroupName = element.split("\t")[0] || "";
+              }
+              if (sFirstGroupName !== "" && sSecondGroupName !== "") {
+                sFather = "(" + sFirstGroupName + "->" + sSecondGroupName + ") ";
+              }
 
-            if (element.split("\t")[1].search("-") == -1 && element.split("\t")[1].search("/") !== -1) {
-              // Ho trovato una riga contenente un GA valido, cioè con 2 "/"
-              if (element.split("\t")[5] == "") {
-                if (node.stopETSImportIfNoDatapoint === "stop") {
-                  node.error(
-                    "KNXUltimate-config: ABORT IMPORT OF ETS CSV FILE. To skip the invalid datapoint and continue import, change the related setting, located in the config node in the ETS import section.",
-                  );
-                  return;
-                }
-                if (node.stopETSImportIfNoDatapoint === "fake") {
-                  // 02/03/2020 Whould you like to continue without datapoint? Good. Here a totally fake datapoint
-                  node.warn(
-                    "KNXUltimate-config: WARNING IMPORT OF ETS CSV FILE. Datapoint not set. You choosed to continue import with a fake datapoint 1.001. -> " +
-                    element.split("\t")[0] +
-                    " " +
-                    element.split("\t")[1],
-                  );
+              if (element.split("\t")[1].search("-") == -1 && element.split("\t")[1].search("/") !== -1) {
+                // Ho trovato una riga contenente un GA valido, cioè con 2 "/"
+                if (element.split("\t")[5] == "") {
+                  if (node.stopETSImportIfNoDatapoint === "stop") {
+                    node.error(
+                      "KNXUltimate-config: ABORT IMPORT OF ETS CSV FILE. To skip the invalid datapoint and continue import, change the related setting, located in the config node in the ETS import section.",
+                    );
+                    return;
+                  }
+                  if (node.stopETSImportIfNoDatapoint === "fake") {
+                    // 02/03/2020 Whould you like to continue without datapoint? Good. Here a totally fake datapoint
+                    node.warn(
+                      "KNXUltimate-config: WARNING IMPORT OF ETS CSV FILE. Datapoint not set. You choosed to continue import with a fake datapoint 1.001. -> " +
+                      element.split("\t")[0] +
+                      " " +
+                      element.split("\t")[1],
+                    );
+                    ajsonOutput.push({
+                      ga: element.split("\t")[1],
+                      dpt: "1.001",
+                      devicename: sFather + element.split("\t")[0] + " (DPT NOT SET IN ETS - FAKE DPT USED)",
+                    });
+                  } else {
+                    // 31/03/2020 Skip import
+                    node.warn(
+                      "KNXUltimate-config: WARNING IMPORT OF ETS CSV FILE. Datapoint not set. You choosed to skip -> " +
+                      element.split("\t")[0] +
+                      " " +
+                      element.split("\t")[1],
+                    );
+                  }
+                } else {
+                  const DPTa = element.split("\t")[5].split("-")[1];
+                  let DPTb = element.split("\t")[5].split("-")[2];
+                  if (typeof DPTb === "undefined") {
+                    node.warn(
+                      "KNXUltimate-config: WARNING: Datapoint not fully set (there is only the main type). I applied a default .001, but please check if i'ts ok ->" +
+                      element.split("\t")[0] +
+                      " " +
+                      element.split("\t")[1] +
+                      " Datapoint: " +
+                      element.split("\t")[5],
+                    );
+                    DPTb = "001"; // default
+                  }
+                  // Trailing zeroes
+                  if (DPTb.length == 1) {
+                    DPTb = "00" + DPTb;
+                  } else if (DPTb.length == 2) {
+                    DPTb = "0" + DPTb;
+                  }
+                  if (DPTb.length == 3) {
+                    DPTb = "" + DPTb; // stupid, but for readability
+                  }
                   ajsonOutput.push({
                     ga: element.split("\t")[1],
-                    dpt: "1.001",
-                    devicename: sFather + element.split("\t")[0] + " (DPT NOT SET IN ETS - FAKE DPT USED)",
+                    dpt: DPTa + "." + DPTb,
+                    devicename: sFather + element.split("\t")[0],
                   });
-                } else {
-                  // 31/03/2020 Skip import
-                  node.warn(
-                    "KNXUltimate-config: WARNING IMPORT OF ETS CSV FILE. Datapoint not set. You choosed to skip -> " +
-                    element.split("\t")[0] +
-                    " " +
-                    element.split("\t")[1],
-                  );
                 }
-              } else {
-                const DPTa = element.split("\t")[5].split("-")[1];
-                let DPTb = element.split("\t")[5].split("-")[2];
-                if (typeof DPTb === "undefined") {
-                  node.warn(
-                    "KNXUltimate-config: WARNING: Datapoint not fully set (there is only the main type). I applied a default .001, but please check if i'ts ok ->" +
-                    element.split("\t")[0] +
-                    " " +
-                    element.split("\t")[1] +
-                    " Datapoint: " +
-                    element.split("\t")[5],
-                  );
-                  DPTb = "001"; // default
-                }
-                // Trailing zeroes
-                if (DPTb.length == 1) {
-                  DPTb = "00" + DPTb;
-                } else if (DPTb.length == 2) {
-                  DPTb = "0" + DPTb;
-                }
-                if (DPTb.length == 3) {
-                  DPTb = "" + DPTb; // stupid, but for readability
-                }
-                ajsonOutput.push({
-                  ga: element.split("\t")[1],
-                  dpt: DPTa + "." + DPTb,
-                  devicename: sFather + element.split("\t")[0],
-                });
               }
             }
+          } catch (error) {
+            node.sysLogger?.error("readCSV " + " ROW:" + fileGA[index] + " Error:" + error.stack);
           }
+
         }
 
         return ajsonOutput;
@@ -1840,6 +1853,7 @@ module.exports = (RED) => {
     }, 10000);
 
     node.Disconnect = async (_sNodeStatus = "", _sColor = "grey") => {
+      if (node.timerSaveExposedGAs !== null) clearInterval(node.timerSaveExposedGAs);
       if (node.linkStatus === "disconnected") {
         node.sysLogger?.debug("Disconnect: already not connected:" + node.linkStatus + ", node.autoReconnect:" + node.autoReconnect);
         return;
@@ -1854,7 +1868,7 @@ module.exports = (RED) => {
         );
       }
       node.setAllClientsStatus("Disconnected", _sColor, _sNodeStatus);
-      saveExposedGAs(); // 04/04/2021 save the current values of GA payload
+      await saveExposedGAs(); // 04/04/2021 save the current values of GA payload
       node.sysLogger?.debug("Disconnected, node.autoReconnect:" + node.autoReconnect);
     };
 
