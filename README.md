@@ -15,6 +15,7 @@
 
 <p align='center'>
 <img width="110px" src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/KNX_CERTI_MARK_RGB.jpg" ></br>
+<img width="110px" src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/knxsecure.png" ></br>
 <span style="font-size:0.7em;color:grey;">Authorized KNX logo by KNX Association*</span>
 </p>
 
@@ -74,10 +75,10 @@ Please subscribe to the [Youtube channel](https://www.youtube.com/playlist?list=
 | KNX Tunnelling | ![](https://placehold.co/200x20/green/white?text=YES) |
 | KNX Routing | ![](https://placehold.co/200x20/green/white?text=YES) |
 | Philips Hue v2 | ![](https://placehold.co/200x20/green/white?text=YES) |
-| KNX Secure Tunnelling | ![](https://placehold.co/200x20/orange/white?text=UNDER+DEVELOPMENT) |
-| KNX Secure Routing | ![](https://placehold.co/200x20/red/white?text=NO) |
-| KNX 3rd PARTY IOT API client | ![](https://placehold.co/200x20/red/white?text=DELAYED) |
-| Matter | ![](https://placehold.co/200x20/red/white?text=NO+TOO+IMMATURE) |
+| KNX Secure Tunnelling | ![](https://placehold.co/200x20/green/white?text=BETA-TESTING) |
+| KNX Secure Routing | ![](https://placehold.co/200x20/orange/white?text=DEVELOPING) |
+| KNX 3rd PARTY IOT API client | ![](https://placehold.co/200x20/red/white?text=NO) |
+| Matter | ![](https://placehold.co/200x20/red/white?text=NO) |
 
 <br/>
 
