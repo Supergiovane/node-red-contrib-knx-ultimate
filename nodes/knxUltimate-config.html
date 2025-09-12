@@ -17,7 +17,6 @@
             stopETSImportIfNoDatapoint: { value: "fake" },
             loglevel: { value: "error" },
             name: { value: "KNX Gateway" },
-            localEchoInTunneling: { value: true },
             delaybetweentelegrams: { value: 25, required: false, validate: RED.validators.number() },
             ignoreTelegramsWithRepeatedFlag: { value: false, required: false },
             keyringFileXML: { value: "" },
@@ -71,13 +70,15 @@
 
             // Autocomplete with KNX IP Interfaces
             let aKNXInterfaces = [];
-            $.getJSON("knxUltimateDiscoverKNXGateways?" + { _: new Date().getTime() }, (data) => {
+            $("#interfaces-count").html('<i class="fa fa-circle-o-notch fa-spin"></i> Discovering...');
+            $.getJSON("knxUltimateDiscoverKNXGateways", { _: new Date().getTime() }, (data) => {
                 for (let index = 0; index < data.length; index++) {
                     const element = data[index];
                     const [ip, port, name, address] = element.split(':');
                     // Aggiungi l'elemento con descrizione e valore
+                    const addrLabel = (typeof address === 'string' && address !== '' && address !== 'undefined') ? address : 'n/a';
                     aKNXInterfaces.push({
-                        label: `${name} -> ${ip}:${port} phys addr:${address}`, // Testo visibile nella lista
+                        label: `${name || ''} -> ${ip || ''}:${port || ''} phys addr:${addrLabel}`, // Testo visibile nella lista
                         value: element                     // Valore selezionato
                     });
                 }
@@ -91,14 +92,32 @@
                         const [ip, port, name, address] = ui.item.value.split(':');
                         $("#node-config-input-host").val(ip);
                         $("#node-config-input-port").val(port);
-                        $("#node-config-input-name").val(name);
-                        $("#node-config-input-physAddr").val(address.split(".")[0] + '.' + address.split(".")[1] + '.' + Math.floor(Math.random() * 256));
+                        $("#node-config-input-name").val(name || "");
+                        // Selezione tunneling vs router: per tunneling lascia vuoto il physAddr; per router valorizza
+                        if (ip && ip !== '224.0.23.12') {
+                            // Tunneling: l'utente deve inserire manualmente la physical address
+                            $("#node-config-input-physAddr").val('');
+                        } else {
+                            // Router (multicast): imposta la physical address
+                            // Se l'address del gateway manca, riusa i primi 2 byte dall'attuale valore del form; altrimenti usa quelli del gateway.
+                            let prefix = '';
+                            if (typeof address === 'string' && address.includes('.')) {
+                                const parts = address.split('.');
+                                prefix = `${parts[0]}.${parts[1]}`;
+                            } else {
+                                const currentPhys = $("#node-config-input-physAddr").val() || '';
+                                const m = String(currentPhys).trim().match(/^(\d{1,2})\.(\d{1,3})/);
+                                prefix = m ? `${m[1]}.${m[2]}` : '15.15';
+                            }
+                            const phys = `${prefix}.${Math.floor(Math.random() * 256)}`;
+                            $("#node-config-input-physAddr").val(phys);
+                        }
                         blinkBackgroundArray(["#node-config-input-host", "#node-config-input-port", "#node-config-input-name", "#node-config-input-physAddr"]);
                         return false; // Evita il comportamento predefinito del browser
                     },
                     focus: function (event, ui) {
                         // Mantieni il valore corrente durante il focus, ma non cambiare il valore effettivo
-                        $("#node-config-input-host").val(ui.item.value.split(":"[0]));
+                        $("#node-config-input-host").val(ui.item.value.split(':')[0]);
                         return false; // Evita di aggiornare il campo con il valore selezionato
                     }
                 }).on("focus", function () {
@@ -111,10 +130,13 @@
                     // Personalizza l'aspetto degli elementi della lista
                     const [ip, port, name, address] = item.value.split(':');
                     const color = (ip === "224.0.23.12") ? "gray" : "green"; // Condizione
+                    const addrLabel = (typeof address === 'string' && address !== '' && address !== 'undefined') ? address : 'n/a';
                     return $("<li>")
-                        .append(`<div style="color: ${color};"><b>${ip}:${port}</b> -> ${name} - Address:${address}</div>`) // Mostra la descrizione completa
+                        .append(`<div style="color: ${color};"><b>${ip || ''}:${port || ''}</b> -> ${name || ''} - Address:${addrLabel}</div>`) // Mostra la descrizione completa
                         .appendTo(ul);
                 }
+            }).fail(function () {
+                $("#interfaces-count").text('Discovery failed.');
             });
 
 
@@ -275,20 +297,17 @@
                 <span id="interfaces-count" style="font-size: 12px; color:#377e00 ; margin-top: 2px;"></span>
         </div>
     
-    <!-- KNX Secure / Unsecure tabbed selector-->
-    <!-- <div id="tabsMain" style="display: none;"> -->
-   <!--  <div id="tabsMain">
+    <!-- KNX Secure / Unsecure tabbed selector -->
+    <div id="tabsMain">
         <ul>
           <li><a href="#unsecureKNX"><i class="fa fa-circle-o"></i>&nbsp;<span data-i18n="knxUltimate-config.properties.unsecureKNX"></span></a></li>
           <li><a href="#SecureKNX"><i class="fa fa-shield"></i>&nbsp;<span data-i18n="knxUltimate-config.properties.secureKNX"></span></a></li>
         </ul>
         <div id="unsecureKNX" style="margin: 5px 5px 5px 5px;">
-            <p>
-            </p>
-         </div>
+            <p></p>
+        </div>
         <div id="SecureKNX" style="margin: 5px 5px 5px 5px;" >
             <p>
-                <p>WARNING: KNX SECURE IS STILL UNDER DEVELOPMENT</p>
                 <div class="form-row">
                     <i class="fa fa-youtube"></i>
                     <a href="https://youtu.be/OpR7ZQTlMRU" target="_blank">
@@ -296,7 +315,7 @@
                     </a>
                 </div>
                 <div class="form-row">
-                    Keyring file
+                    <label for="node-config-input-keyringFileXML">Keyring file</label>
                     <textarea rows="5" id="node-config-input-keyringFileXML" style="width:100%" data-i18n="[placeholder]knxUltimate-config.ets.keyring"></textarea>
                 </div>
                 <div class="form-row">
@@ -305,7 +324,7 @@
                 </div>
             </p>   
         </div>
-      </div> -->
+    </div>
     
       <br/>
 
@@ -331,9 +350,9 @@
                 </label>
                 <select id="node-config-input-hostProtocol" >
                     <option value="Auto" >Auto</option>
-                    <option value="TunnelUDP" >Tunnel UDP (KNX/IP Interface)</option>
-                    <option value="Multicast" >Multicast (KNX/IP Router)</option>
-                    <!-- <option value="TunnelTCP" >Tunnel TCP</option> -->
+                    <option value="TunnelUDP" >Tunnel UDP</option>
+                    <option value="Multicast" >Multicast</option>
+                    <option value="TunnelTCP" >Tunnel TCP</option>
                 </select>   
             </div>
             <div class="form-row">
@@ -370,15 +389,7 @@
     </div>
     <div id="tabs-2">
         <p>
-            <div class="form-row">
-                <input type="checkbox" id="node-config-input-localEchoInTunneling"
-                    style="display:inline-block; width:auto; vertical-align:top;">
-                <label style="width:85%" for="node-config-input-localEchoInTunneling">
-                    <i class="fa fa-bullhorn"></i>
-                    <span data-i18n="knxUltimate-config.advanced.localEchoInTunneling"></span>
-                </label>
-            </div>
-
+            
             <div class="form-row">
                 <input type="checkbox" id="node-config-input-ignoreTelegramsWithRepeatedFlag"
                     style="display:inline-block; width:auto; vertical-align:top;">

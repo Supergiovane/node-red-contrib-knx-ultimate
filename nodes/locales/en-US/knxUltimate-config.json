@@ -35,7 +35,6 @@
             "select_info": "Info",
             "select_warning": "Warning",
             "select_error": "Error (Default)",
-            "localEchoInTunneling": "Echo sent message to all node with same Group Address.",
             "tiphost": "Write EMULATE instead of the IP address, to simulate a gateway (the gateway will not connect to the KNX BUS)",
             "delaybetweentelegrams": "Delay between each telegram (in milliseconds)",
             "delaybetweentelegramsfurtherdelayREAD": "and further multiply delay only between -read- telegrams"

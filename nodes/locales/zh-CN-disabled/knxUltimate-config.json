@@ -35,7 +35,6 @@
             "select_info": "信息",
             "select_warning": "警告",
             "select_error": "错误 (默认值)",
-            "localEchoInTunneling": "向所有具有相同组地址的节点发送消息.",
             "tiphost": "写 EMULATE 而不是 IP 地址，模拟网关（网关不会连接到 KNX BUS）",
             "delaybetweentelegrams": "数据发送间隔时间 (毫秒)",
             "delaybetweentelegramsfurtherdelayREAD" : "并且仅在读取电报之间进一步增加延迟"      

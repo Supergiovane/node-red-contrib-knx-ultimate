@@ -68,7 +68,6 @@ module.exports = (RED) => {
     node.KNXEthInterfaceManuallyInput = typeof config.KNXEthInterfaceManuallyInput === "undefined" ? "" : config.KNXEthInterfaceManuallyInput; // If you manually set the interface name, it will be wrote here
     node.timerDoInitialRead = null; // 17/02/2020 Timer (timeout) to do initial read of all nodes requesting initial read, after all nodes have been registered to the sercer
     node.stopETSImportIfNoDatapoint = typeof config.stopETSImportIfNoDatapoint === "undefined" ? "stop" : config.stopETSImportIfNoDatapoint; // 09/01/2020 Stop, Import Fake or Skip the import if a group address has unset datapoint
-    node.localEchoInTunneling = typeof config.localEchoInTunneling !== "undefined" ? config.localEchoInTunneling : true;
     node.userDir = path.join(RED.settings.userDir, "knxultimatestorage"); // 04/04/2021 Supergiovane: Storage for service files
     node.exposedGAs = [];
     node.loglevel = config.loglevel !== undefined ? config.loglevel : "error"; // 18/02/2020 Loglevel default error
@@ -534,7 +533,6 @@ module.exports = (RED) => {
         physAddr: node.physAddr, // the KNX physical address we'd like to use
         suppress_ack_ldatareq: node.suppressACKRequest,
         loglevel: node.loglevel,
-        localEchoInTunneling: node.localEchoInTunneling, // 14/03/2020 local echo in tunneling mode (see API Supergiovane)
         hostProtocol: node.hostProtocol,
         isSecureKNXEnabled: node.knxSecureSelected,
         jKNXSecureKeyring: node.jKNXSecureKeyring,

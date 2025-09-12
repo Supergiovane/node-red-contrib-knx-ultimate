@@ -35,7 +35,6 @@
             "select_info": "Information",
             "select_warning": "Warnung",
             "select_error": "Fehler (Standard)",
-            "localEchoInTunneling":"Echo von gesendeten Telegram an alle Nodes mit gleichen Gruppenadressen",
             "tiphost": "Schreiben Sie EMULATE anstelle der IP-Adresse, um ein Gateway zu simulieren (das Gateway stellt keine Verbindung zum KNX-BUS her).",
             "delaybetweentelegrams": "Verzögerung zwischen jedem Telegramm (in Millisekunden)",
             "delaybetweentelegramsfurtherdelayREAD" : "und weitere Verzögerung nur zwischen -lese- Telegrammen multiplizieren",

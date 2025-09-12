@@ -61,12 +61,12 @@ module.exports = (RED) => {
     function commonFunctions() {
         var node = this;
 
-        // Gather infos about all interfaces on the lan and provides a static variable utils.aDiscoveredknxGateways
-        try {
-            require('./utils/utils').DiscoverKNXGateways()
-        } catch (error) {
+        // // Gather infos about all interfaces on the lan and provides a static variable utils.aDiscoveredknxGateways
+        // try {
+        //     require('./utils/utils').DiscoverKNXGateways()
+        // } catch (error) {
 
-        }
+        // }
 
 
 
@@ -319,9 +319,17 @@ module.exports = (RED) => {
             res.json(jListInterfaces);
         });
 
-        // 14/08/2019 Endpoint for retrieving the ethernet interfaces
+        // Discover KNX/IP gateways on demand and return cached results
         RED.httpAdmin.get("/knxUltimateDiscoverKNXGateways", RED.auth.needsPermission("knxUltimate-config.read"), async function (req, res) {
-            res.json(require("./utils/utils").aDiscoveredknxGateways);
+            try {
+                const utils = require("./utils/utils");
+                // Always trigger discovery on request to ensure fresh data
+                const list = await utils.DiscoverKNXGateways();
+                res.json(Array.isArray(list) ? list : []);
+            } catch (error) {
+                try { RED.log.error(`KNX gateway discovery failed: ${error.message}`); } catch (e) { /* noop */ }
+                res.json([]);
+            }
         });
 
         // 12/08/2021 Endpoint for deleting the GA persistent file for the current gateway
