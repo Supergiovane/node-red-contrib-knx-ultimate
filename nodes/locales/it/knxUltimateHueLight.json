@@ -1,0 +1,16 @@
+{
+    "knxUltimateHueLight": {
+        "title": "Nodo HUE Luce/Gruppo",
+        "helplink": "&nbsp<i class=\"fa fa-question-circle\"></i>&nbsp<a target=\"_blank\" href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/huesample\"><u>Esempio</u></a>",
+        "title": "Nodo HUE",
+        "node-input-name": "Nome",
+        "node-input-nameLightSwitch": "Switch (bit)",
+        "node-input-GALightSwitch": "GA",
+        "node-input-dptLightSwitch": "dpt",
+        "node-input-nameLightState": "Stato (bit)",
+        "node-input-GALightState": "GA",
+        "node-input-dptLightState": "dpt",
+        "node-input-hueLight": "Luce HUE",
+        "paletteLabel": "Hue Luce/Prese"
+    }
+}

@@ -1,0 +1,22 @@
+{
+    "knxUltimateLoadControl": {
+        "paletteLabel": "KNX 负载控制",
+        "helplink": "&nbsp<i class=\"fa fa-question-circle\"></i>&nbsp<a target=\"_blank\" href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/cn-LoadControl-Configuration\"><u>Help Config</u></a>",
+        "title": "Load control",
+        "primoaldistacco": "(this is the first to be switched off)",
+        "properties": {
+            "node-input-server": "Gateway",
+            "node-input-name": "Name",
+            "node-input-dpt": "Datapoint",
+            "node-input-topic": "Monitor W",
+            "node-input-controlGA": "Load",
+            "node-input-monitorGA": "In use",
+            "node-input-wattLimit": "Limit W",
+            "node-input-sheddingCheckInterval": "Delay switch off (s)",
+            "node-input-sheddingRestoreDelay": "Delay switch on (s)",
+            "node-input-autoRestore": "Automatic recovery"
+        },
+        "selectlists": {},
+        "other": {}
+    }
+}

@@ -357,6 +357,8 @@
 
 
 <script type="text/markdown" data-help-name="knxUltimateLoadControl">
+# KNX LOAD CONTROL NODE
+
 <p>With the Load Control node you can automatically manage the disconnection of loads (washing machine, oven, etc.) when the current consumption exceeds a certain threshold.  
 
 The devices are turned off intelligently, checking the possible consumption of the device to determine whether to turn it off together with others. <br/>
@@ -403,13 +405,13 @@ If *Automatic recovery* is enabled, the device is automatically reactivated when
 ```javascript
 
 msg = {
-    "topic": "Home Total Consumption", // Node Name
-    "operation": "Increase Shedding" or "Decrease Shedding" or operation reflecting the input message (disable, enable, reset), // Operation
-    "device": "Washing machine", // Device shedded
-    "ga": "", // Group address of the shedded device
-    "totalPowerConsumption": 3100, // Current power consumption
-    "wattLimit": 3000, // Limit you set in the config window
-    "payload": 1, // Current shedding stage
+  "topic": "Home Total Consumption", // Node Name
+  "operation": "Increase Shedding" or "Decrease Shedding" or operation reflecting the input message (disable, enable, reset), // Operation
+  "device": "Washing machine", // Device shedded
+  "ga": "", // Group address of the shedded device
+  "totalPowerConsumption": 3100, // Current power consumption
+  "wattLimit": 3000, // Limit you set in the config window
+  "payload": 1, // Current shedding stage
 }
 
 ```

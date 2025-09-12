@@ -1,0 +1,25 @@
+{
+    "knxUltimateWatchDog": {
+        "paletteLabel": "KNX 看门狗",
+        "helplink" : "&nbsp<i class=\"fa fa-question-circle\"></i>&nbsp<a target=\"_blank\" href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/cn-7.-WatchDog-Configuration\"><u>配置帮助文档</u></a>",
+        "title": "看门狗",
+     
+        "properties": {
+            "node-input-server": "网关",
+            "node-input-checkLevel": "检查等级 (请查阅wiki)",
+            "node-input-topic": "需要监控的组地址",
+            "node-input-name": "节点名称",
+            "node-input-autoStart": "自动启动看门狗定时器",
+            "advancedOptionsAccordion": "高级选项",
+            "node-input-retryInterval": "重试间隔 (秒)",
+            "node-input-maxRetry": "出错前的重试次数"
+        },
+        "placeholder": {
+            "monitor": " 对于“仅以太网”检查，请使用不存在的组地址.例如：12/0/0。"
+        },
+        "selectlists": {
+            "Ethernet": "仅以太网单播（默认），使用 ping。 仅适用于 KNX 接口（而非路由器）",
+            "EthKNX": "以太网 + KNX 双绞线，使用真正的 KNX 设备"
+        }
+    }
+}

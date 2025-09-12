@@ -1,5 +1,6 @@
 {
     "knxUltimateLoadControl": {
+        "paletteLabel": "KNX Load Control",
         "helplink": "&nbsp<i class=\"fa fa-question-circle\"></i>&nbsp<a target=\"_blank\" href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/LoadControl-Configuration\"><u>Help Config</u></a>",
         "title": "Load control",
         "primoaldistacco": "(this is the first to be switched off)",

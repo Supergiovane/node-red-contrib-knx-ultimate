@@ -1,5 +1,6 @@
 {
     "knxUltimate": {
+        "paletteLabel": "KNX DEVICE",
         "deployfirst": "PLEASE CREATE YOUR GATEWAY FIRST.",
         "helplink": "&nbsp<i class=\"fa fa-question-circle\"></i>&nbsp<a target=\"_blank\" href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/2.-Node-Configuration\"><u>Help for configuration</u></a>",
         "title": "KNX Device",

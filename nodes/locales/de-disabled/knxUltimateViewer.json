@@ -1,7 +1,0 @@
-{
-    "knxUltimateViewer": {
-        "helplink" : "&nbsp<i class=\"fa fa-question-circle\"></i>&nbsp<a target=\"_blank\" href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/de-knxUltimateViewer\"><u>Esempio</u></a>",
-        "title": "KNX Viewer",
-        "node-input-name": "Name"
-    }
-}

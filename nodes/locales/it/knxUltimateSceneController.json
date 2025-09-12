@@ -1,0 +1,32 @@
+{
+    "knxUltimateSceneController": {
+        "paletteLabel": "Controller Scene KNX",
+        "helplink" : "&nbsp<i class=\"fa fa-question-circle\"></i>&nbsp<a target=\"_blank\" href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/it-SceneController-Configuration\"><u>Aiuto per configurazione</u></a>",
+        "title": "Controller scena",
+      
+        "properties": {
+            "node-input-server": "Gateway",
+            "node-input-topic": "Richiama Scena",
+            "node-input-dpt": "Datapoint",
+            "node-input-topicTrigger": "Trigger",
+            "node-input-topicSave": "Salva Scena",
+            "node-input-name": "Nome nodo",
+            "node-input-outputtopic": "Topic"
+        },
+        "placeholder": {
+            "leaveempty": "Lascia vuoto per usare l'indirizzo di gruppo",
+            "valueexample": "Es: false, true, altrimenti qualsiasi valore"
+        },
+        "other": {
+            "sceneConfig": "Configurazione valori default della scena",
+            "add": "Permi Aggiungi, per aggiungere un dispositivo alla scena"
+        },
+        "advanced": {
+            "notify-DPT3007": "Hai selezionato un DIM relativo. Per favore <a target='_blank' href='https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Dimming'>clicca qui per vedere un esempio</a> e capire come gestire il relativo payload.",
+            "notify-DPT18001": "Hai selezionato un datapoint scena. Per favore <a target='_blank' href='https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Control-a-scene-actuator'>clicca qui per vedere un esempio</a> per capire come gestire il relatico payload."
+            ,"notify-DPT232600": "Hai selezionato un datapoint RGB. Per favore <a target='_blank' href='https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---RGB-Color'>clicca qui per vedere un esempio</a> per capire come gestire il relatico payload."
+            ,"notify-DPT251600":"Hai selezionato un datapoint RGBW. Per favore <a target='_blank' href='https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---RGBW-Color-plus-White'>clicca qui per vedere un esempio</a> per capire come gestire il relatico payload."
+           
+        }
+    }
+}

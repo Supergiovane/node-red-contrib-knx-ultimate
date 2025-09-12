@@ -1,0 +1,16 @@
+{
+    "hue-config": {
+        "properties": {
+            "helplink": "&nbsp<i class=\"fa fa-question-circle\"></i>&nbsp<a target=\"_blank\" href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/it-hue-configuration\"><u>Aiuto per configurazione</u></a>",
+            "title": "Philips Hue Bridge",
+            "host": "IP",
+            "node-config-input-name": "Nome",
+            "getinfocam":"Registrati sull'hub",
+            "bridge_id": "ID Bridge",
+            "username": "Username",
+            "client_key": "Client Key",
+            "secrets": "Segreti",
+            "reveal": "Mostra"
+        }
+    }
+}

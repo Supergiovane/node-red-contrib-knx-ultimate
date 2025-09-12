@@ -2,6 +2,11 @@
     "knxUltimateViewer": {
         "helplink" : "&nbsp<i class=\"fa fa-question-circle\"></i>&nbsp<a target=\"_blank\" href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/knxUltimateViewer\"><u>Esempio</u></a>",
         "title": "KNX Viewer",
-        "node-input-name": "Name"
+        "node-input-name": "Name",
+        "outputs": {
+            "ga_dashboard": "Dashboard Group Addresses",
+            "simple_array": "Simple Array Json for data recording",
+            "queue": "Dashboard Telegrams queue"
+        }
     }
 }

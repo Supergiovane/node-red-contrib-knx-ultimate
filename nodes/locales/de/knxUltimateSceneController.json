@@ -1,0 +1,31 @@
+{
+    "knxUltimateSceneController": {
+        "paletteLabel": "KNX Szenensteuerung",
+        "helplink" : "&nbsp<i class=\"fa fa-question-circle\"></i>&nbsp<a target=\"_blank\" href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/de-SceneController-Configuration\"><u>Hilfe für die Konfiguration</u></a>",
+        "title": "Szene Kontroller",
+        "properties": {
+            "node-input-server": "Gateway",
+            "node-input-topic": "Szenenrückruf",
+            "node-input-dpt": "Datenpunkt",
+            "node-input-topicTrigger": "Trigger",
+            "node-input-topicSave": "Szene speichern",
+            "node-input-name": "Node Name",
+            "node-input-outputtopic": "Topic"
+        },
+        "placeholder": {
+            "leaveempty": "Lassen Sie leer, um die Gruppenadresse zu verwenden",
+            "valueexample": "Beispiel: false, true, sonst ein beliebiger Wert"
+        },
+        "other": {
+            "sceneConfig": "Szenenkonfiguration, default Werte",
+            "add": "Drücken Sie Hinzufuegen, um ein Gerät zur Szene hinzuzufügen"
+        },
+        "advanced": {
+            "notify-DPT3007": "Du haßt ein relatives DIM ausgewählt. Bitte <a target='_blank' href='https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Dimming'>klicke hier, um dieses Beispiel anzuzeigen</a> und lernen, wie den Payload handeln.",
+            "notify-DPT18001": "Du haßt Szene Datenpunkt ausgewählt. Bitte <a target='_blank' href='https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Control-a-scene-actuator'>klicke hier, um dieses Beispiel anzuzeigen</a> und lernen, wie den Payload handeln."
+            ,"notify-DPT232600": "Du haßt einen RGB Datenpunkt ausgewählt. Bitte <a target='_blank' href='https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---RGB-Color'>klicke hier, um dieses Beispiel anzuzeigen</a> und lernen, wie den Payload handeln."
+            ,"notify-DPT251600":"Du haßt einen RGBW Datenpunkt ausgewählt. Bitte <a target='_blank' href='https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---RGBW-Color-plus-White'>klicke hier, um dieses Beispiel anzuzeigen</a> und lernen, wie den Payload handeln."
+           
+        }
+    }
+}

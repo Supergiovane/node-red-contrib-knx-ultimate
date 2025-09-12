@@ -1,0 +1,12 @@
+{
+    "knxUltimateViewer": {
+        "helplink" : "&nbsp<i class=\"fa fa-question-circle\"></i>&nbsp<a target=\"_blank\" href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/it-knxUltimateViewer\"><u>Esempio</u></a>",
+        "title": "KNX Viewer",
+        "node-input-name": "Nome",
+        "outputs": {
+            "ga_dashboard": "Dashboard Indirizzi di Gruppo",
+            "simple_array": "Semplice array JSON per registrazione dati",
+            "queue": "Coda telegrammi Dashboard"
+        }
+    }
+}

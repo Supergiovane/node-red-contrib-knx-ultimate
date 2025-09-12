@@ -203,23 +203,23 @@
             <div class="form-row">
                 <label for="node-config-input-bridgeid">
                     <i class="fa fa-tag"></i>
-                    Bridge ID
+                    <span data-i18n="hue-config.bridge_id"></span>
                 </label>
                 <input type="text" id="node-config-input-bridgeid">
             </div>
 
             <div class="form-row">
-                <label for="node-config-input-username"> Username</label>
+                <label for="node-config-input-username"> <span data-i18n="hue-config.username"></span></label>
                 <input type="password" id="node-config-input-username" placeholder="" disabled>
             </div>
             <div class="form-row">
-                <label for="node-config-input-clientkey"> Client Key</label>
+                <label for="node-config-input-clientkey"> <span data-i18n="hue-config.client_key"></span></label>
                 <input type="password" id="node-config-input-clientkey" placeholder="" disabled>
             </div>
             <div class="form-row" id="BUTTONrevealBridgeSecrets">
-                <label><i class="fa fa-magic"></i> Secrets</label>
+                <label><i class="fa fa-magic"></i> <span data-i18n="hue-config.secrets"></span></label>
                 <input type="button" id="revealBridgeSecrets" class="ui-button ui-corner-all ui-widget"
-                    style="background-color:#ffb1ae;width:150px" value="Reveal">
+                    style="background-color:#ffb1ae;width:150px" data-i18n="[value]hue-config.reveal">
             </div>
             <div class="form-row" id="DIVrevealBridgeSecrets" hidden>
                 <label><i class="fa fa-file-text-o"></i> -> </label>
@@ -232,6 +232,10 @@
 
 </script>
 <script type="text/markdown" data-help-name="hue-config">
+<H1><p align='center'>PHILIPS HUE NODES</p></H1>
+<br/>
+<p align='center'> <img src='https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/huehub.jpg' width='40%'></p>
+
 This node registers to the Hue Bridge.
 
 Just set the Bridge's IP and click **CONNECT**.  
@@ -245,5 +249,7 @@ You can also manually set the credentials.
 | CONNECT | This button will start the registering process with HUE Bridge. The bridge ID field is automatically read from the bridge after pressing **CONNECT**. You can then choose to register new credentials, or to **SET CREDENTIALS MANUALLY**. If you choose to set credentials manually, just fill in the fields. |
 | Name | The bridge's name |
 | Reveal | Reveals the secret key pair Username and Client Key, so you can copy and use it wherever you want. |
+
+![image.png](../img/hude-config.png)
     
 </script>

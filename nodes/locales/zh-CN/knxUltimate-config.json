@@ -1,0 +1,82 @@
+{
+    "knxUltimate-config": {
+        "properties": {
+            "helplink" : "&nbsp<i class=\"fa fa-question-circle\"></i>&nbsp<a target=\"_blank\" href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/cn-1.-Gateway-configuration\"><u>配置帮助文档</u></a>",
+            "title": "KNX/IP 网关配置",
+            "host": "网关 IP/Hostname",
+            "host_info": "默认设置为 KNX/IP 的组播地址 (224.0.23.12)",
+            "port": "端口号",
+            "port_info": "默认设置为 KNX/IP (3671)",
+            "bind_local_int": "绑定到本地接口",
+            "restart_hint": "! 更改以后重启node-red !",
+            "adv_options": "高级选项",
+            "ets_import": "ETS组地址列表导入",
+            "node-config-input-name": "名称",
+            "unsecureKNX" : "一般的 KNX 连接",
+            "secureKNX" : "加密的 KNX 连接",
+            "autoReconnect" : "在启动时自动链接到KNX总线",
+            "autoReconnect_yes" : "是",
+            "autoReconnect_no" : "否（发送 msg.connectGateway = true 到看门狗节点以此来链接KNX总线）",
+            "discovering": "正在发现...",
+            "interfaces_found": "个接口已发现。",
+            "discovery_failed": "发现失败。",
+            "address": "地址",
+            "iface_auto": "自动",
+            "iface_manual": "手动输入接口名称",
+            "iface_name": "接口名称：",
+            "iface_name_placeholder": "接口名称，例如：eth0、ens1 或 Ethernet 1 ...",
+            "ip_port": "IP 端口",
+            "ip_protocol": "IP 协议"
+        },
+        "tabs": {
+            "configuration": "配置",
+            "advanced": "高级",
+            "ets_import": "ETS 导入",
+            "utility": "工具"
+        },
+        "advanced": {
+            "knx_phy_addr": "KNX 物理地址",
+            "show_date_status": "在状态中显示上次更新日期和时间",
+            "show_device_status": "在状态中显示设备的名称 (需要 \"监听所有组地址\" )",
+            "show_datapoint_status": "在状态中显示数据类型",
+            "suppress_ack": "抑制 ACK 请求 in tunneling mode",
+            "suppress_ack_help": "上面的选项有助于旧的 KNX/IP 接口兼容性 Warning: the node may not notice the disconnection from the gateway. In this case, use the watchdog in Ethernet+KNX twisted pair mode.",
+            "ignoreTelegramsWithRepeatedFlag": "抑制重复的 (R-Flag) 来自总线的电报",
+            "log_level": "日志等级",
+            "nodes_list_title": "所有流中的节点列表",
+            "nodes_list_help": "这是你配置的所有 KNX 节点的列表。",
+            "select_silent": "没有日志输出",
+            "select_trace": "跟踪",
+            "select_debug": "调试",
+            "select_info": "信息",
+            "select_warning": "警告",
+            "select_error": "错误 (默认值)",
+            "tiphost": "写 EMULATE 而不是 IP 地址，模拟网关（网关不会连接到 KNX BUS）",
+            "delaybetweentelegrams": "数据发送间隔时间 (毫秒)",
+            "delaybetweentelegramsfurtherdelayREAD" : "并且仅在读取电报之间进一步增加延迟"      
+        },
+        "ets": {
+            "description": "您可以导入 ETS CSV 组地址列表或 ESF 组地址列表。 请优先选择 ETS CSV 组地址列表，因为数据类型更完整.",
+            "instruction" : "&nbsp<i class=\"fa fa-question-circle\"></i>&nbsp<a target=\"_blank\" href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/cn-1.-Gateway-configuration\"><u>单击以获取有关如何导出 ETS CSV 组地址列表的说明.</u></a>",
+            "youtube" : "&nbsp<i class=\"fa fa-youtube-play\"></i>&nbsp<a target=\"_blank\" href=\"https://youtu.be/egRbR_KwP9I\"><u>在Youtube上看怎么导入CSV文件.</u></a>",
+            "help_ga": "如果组地址没有数据类型",
+            "import_select_stop": "停止并且中断导入",
+            "import_select_skip": "跳过受影响的组地址",
+            "import_select_fake": "导入并替代为一个 1.001 数据类型 (不建议)",
+            "ga_list_title": "在此处粘贴从 ETS 导出的文件的内容，或文件的路径（例如：/home/pi/mycsv.csv）",
+            "ga_list_help": "在此处粘贴从 ETS 导出的文件的内容，或文件的路径（例如：/home/pi/mycsv.csv）",
+            "deploywithETS": "将执行一些控制操作。 任何问题都会在右侧的调试窗口中报告.",
+            "keyring":"在这里粘贴从 ETS 导出的 Keyring XML 文件的内容",
+            "youtubeKeyring": "在 Youtube 上了解如何导出 Keyring XML 文件",
+            "keyring_file": "Keyring 文件",
+            "password": "密码",
+            "ga_list_label": "ETS 组地址列表"
+        },
+        "utility": {
+            "gather_debug": "收集调试信息和日志以便排查",
+            "get_all_used_ga": "获取 KNX 路由过滤器使用的所有 GA",
+            "read_button": "读取",
+            "copy_ga_router": "将这些组地址复制到 KNX/IP 路由器的路由表中。"
+        }
+    }
+}

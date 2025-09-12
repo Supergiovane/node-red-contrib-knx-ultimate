@@ -1,0 +1,12 @@
+{
+    "knxUltimateViewer": {
+        "helplink" : "&nbsp<i class=\"fa fa-question-circle\"></i>&nbsp<a target=\"_blank\" href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/cn-knxUltimateViewer\"><u>Esempio</u></a>",
+        "title": "KNX Viewer",
+        "node-input-name": "节点名称",
+        "outputs": {
+            "ga_dashboard": "仪表板组地址",
+            "simple_array": "用于数据记录的简单数组 JSON",
+            "queue": "仪表板电报队列"
+        }
+    }
+}

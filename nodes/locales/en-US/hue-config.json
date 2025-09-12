@@ -5,7 +5,12 @@
             "title": "Philips Hue Bridge",
             "host": "IP",
             "node-config-input-name": "Name",
-            "getinfocam":"Register to HUB"
+            "getinfocam":"Register to HUB",
+            "bridge_id": "Bridge ID",
+            "username": "Username",
+            "client_key": "Client Key",
+            "secrets": "Secrets",
+            "reveal": "Reveal"
         }
     }
 }

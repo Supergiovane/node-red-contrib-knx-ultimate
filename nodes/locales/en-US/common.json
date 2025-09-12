@@ -1,0 +1,13 @@
+{
+  "common": {
+    "ga": "GA",
+    "dpt": "DPT",
+    "name": "Name",
+    "youtube_sample": "Youtube sample",
+    "knx_gw": "KNX GW",
+    "hue_bridge": "HUE Bridge",
+    "philips_hue": "Philips HUE",
+    "read": "Read"
+  }
+}
+

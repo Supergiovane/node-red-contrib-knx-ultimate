@@ -1,0 +1,17 @@
+{
+    "knxUltimateGlobalContext": {
+        "paletteLabel": "KNX 全局上下文",
+        "helplink" : "&nbsp<i class=\"fa fa-question-circle\"></i>&nbsp<a target=\"_blank\" href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/cn-GlobalVariable\"><u>案列</u></a>",
+        "title": "KNX 全局变量节点",
+        "node-input-name": "变量名 (不能有空格，只能用小写字母)",
+        "advanced": {
+            "exposeAsVariable" : "作为全局变量公开",
+            "exposeAsVariableNO" : "No",
+            "exposeAsVariableREADONLY" : "只读取",
+            "exposeAsVariableREADWRITE" : "读取/写入",
+            "node-input-server" : "网关",
+            "writeExecutionInterval" : "总线写入间隔时间",
+            "warning" : "警告：所有流之间共享单个节点。您不需要多个节点；不管它在哪里，你都可以看到变量 GLOBALLY."            
+        }
+    }
+}
