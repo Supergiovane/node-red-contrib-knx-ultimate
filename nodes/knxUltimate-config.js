@@ -60,7 +60,7 @@ module.exports = (RED) => {
     const node = this;
     node.host = config.host;
     node.port = parseInt(config.port);
-    node.physAddr = config.physAddr || "15.15.22"; // the KNX physical address we'd like to use
+    node.physAddr = config.physAddr  // the KNX physical address we'd like to use
     node.suppressACKRequest = typeof config.suppressACKRequest === "undefined" ? true : config.suppressACKRequest; // enable this option to suppress the acknowledge flag with outgoing L_Data.req requests. LoxOne needs this
     node.linkStatus = "disconnected"; // Can be: connected or disconnected
     node.nodeClients = []; // Stores the registered clients
@@ -149,17 +149,21 @@ module.exports = (RED) => {
     try {
       (async () => {
         if (node.knxSecureSelected) {
-          node.jKNXSecureKeyring = await knx.KNXSecureKeyring.keyring.load(node.keyringFileXML, node.credentials.keyringFilePassword);
-          RED.log.info(
-            "KNX-Secure: Keyring for ETS proj " +
-            node.jKNXSecureKeyring.ETSProjectName +
-            ", created by " +
-            node.jKNXSecureKeyring.ETSCreatedBy +
-            " on " +
-            node.jKNXSecureKeyring.ETSCreated +
-            " succesfully validated with provided password, using node " +
-            node.name || node.id,
-          );
+          try {
+            node.jKNXSecureKeyring = await knx.KNXSecureKeyring.keyring.load(node.keyringFileXML, node.credentials.keyringFilePassword);
+            RED.log.info(
+              "KNX-Secure: Keyring for ETS proj " +
+              node.jKNXSecureKeyring.ETSProjectName +
+              ", created by " +
+              node.jKNXSecureKeyring.ETSCreatedBy +
+              " on " +
+              node.jKNXSecureKeyring.ETSCreated +
+              " succesfully validated with provided password, using node " +
+              node.name || node.id,
+            );
+          } catch (error) {
+          }
+
         } else {
           RED.log.info("KNX-Unsecure: connection to insecure interface/router using node " + node.name || node.id);
         }
@@ -201,7 +205,7 @@ module.exports = (RED) => {
       try {
         if (node.exposedGAs.length > 0) {
           fs.writeFileSync(sFile, JSON.stringify(node.exposedGAs));
-          node.sysLogger?.info("wrote peristent values to the file " + sFile);
+          node.sysLogger?.debug("wrote peristent values to the file " + sFile);
         }
       } catch (err) {
         node.sysLogger?.error("unable to write peristent values to the file " + sFile + " " + err.message);
