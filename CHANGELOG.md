@@ -6,8 +6,8 @@
 
 # CHANGELOG
 
-**Version 5.0.0-BETA** - September 2025<br/>
-- NEW: KNX Secure has been implemented<br/>
+**Version 4.0.0** - September 2025<br/>
+- NEW: KNX Secure has arrived!!<br/>
 - Enhancements: enancements in the UI<br/>
 - Enhancements: enancements in the help tab of node-red<br/>
 - Enhancements: added localization IT EN DE CN<br/>
