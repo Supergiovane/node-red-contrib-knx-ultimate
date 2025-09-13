@@ -23,7 +23,7 @@
 
 **Try immediately the KNX Secure beta!**
 ```bash
-npm i node-red-contrib-knx-ultimate@4.0.0-beta.0
+npm i node-red-contrib-knx-ultimate@4.0.0-beta
 ```
 
 <p align='center'>

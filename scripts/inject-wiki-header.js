@@ -15,6 +15,7 @@ const path = require('path');
 const ROOT = process.cwd();
 const WIKI_DIR = path.resolve(ROOT, '..', 'node-red-contrib-knx-ultimate.wiki');
 const ABS = 'https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/';
+const MENU_CFG = path.join(__dirname, 'wiki-menu.json');
 
 function listMarkdown(dir) {
   const out = [];
@@ -79,47 +80,21 @@ const LABELS = {
 function buildHeader(lang) {
   const L = LABELS[lang];
   const mk = (t) => pageUrl(lang, t);
+  const cfg = JSON.parse(fs.readFileSync(MENU_CFG, 'utf8'));
+
   const lines = [];
-  // Home
   lines.push(`${L.nav}: [${L.home}](${mk('Home')})`);
-  // Overview
-  lines.push(`${L.overview}: [${L.changelog}](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/blob/master/CHANGELOG.md) • [${L.faq}](${mk('FAQ-Troubleshoot')}) • [${L.security}](${mk('SECURITY')}) • [${L.docsLang}](${pageUrl('en','Docs-Language-Bar')})`);
-  // KNX main
-  lines.push(`${L.knxMain}: [${L.gateway}](${mk('Gateway-configuration')}) • [${L.device}](${mk('KNX Node Configuration')}) • [${L.protections}](${mk('Protections')})`);
-  // KNX other
-  lines.push(`${L.knxOther}: [${L.scene}](${mk('SceneController-Configuration')}) • [${L.watchdog}](${mk('WatchDog-Configuration')}) • [${L.logger}](${mk('Logger-Configuration')}) • [${L.global}](${mk('GlobalVariable')}) • [${L.alerter}](${mk('Alerter-Configuration')}) • [${L.load}](${mk('LoadControl-Configuration')}) • [${L.viewer}](${mk('knxUltimateViewer')}) • [${L.autoresp}](${mk('KNXAutoResponder')}) • [${L.ha}](${mk('HATranslator')})`);
-  // HUE
-  lines.push(`${L.hue}: [${L.bridge}](${mk('HUE Bridge configuration')}) • [${L.light}](${mk('HUE Light')}) • [${L.battery}](${mk('HUE Battery')}) • [${L.button}](${mk('HUE Button')}) • [${L.contact}](${mk('HUE Contact sensor')}) • [${L.devsw}](${mk('HUE Device software update')}) • [${L.lightsensor}](${mk('HUE Light sensor')}) • [${L.motion}](${mk('HUE Motion')}) • [${L.sceneH}](${mk('HUE Scene')}) • [${L.tapdial}](${mk('HUE Tapdial')}) • [${L.temperature}](${mk('HUE Temperature sensor')}) • [${L.zigbee}](${mk('HUE Zigbee connectivity')})`);
-  // Samples: include multilingual Logger sample, then EN-only list
-  const samples = [];
-  samples.push(`[${L.logger}](${pageUrl(lang,'Logger-Sample')})`);
-  samples.push(`[Switch Light](${ABS}-Sample---Switch-light)`);
-  samples.push(`[Dimming](${ABS}-Sample---Dimming)`);
-  samples.push(`[RGB color](${ABS}-Sample---RGB-Color)`);
-  samples.push(`[RGBW color + White](${ABS}-Sample---RGBW-Color-plus-White)`);
-  samples.push(`[Command a scene actuator](${ABS}-Sample---Control-a-scene-actuator)`);
-  samples.push(`[Datapoint 213.x 4x Setpoint](${ABS}-Sample---DPT213)`);
-  samples.push(`[Datapoint 222.x 3x Setpoint](${ABS}-Sample---DPT222)`);
-  samples.push(`[Datapoint 237.x DALI diags](${ABS}-Sample---DPT237)`);
-  samples.push(`[Datapoint 2.x 1 bit proprity](${ABS}-Sample---DPT2)`);
-  samples.push(`[Datapoint 22.x RCHH Status](${ABS}-Sample---DPT22)`);
-  samples.push(`[Datetime to BUS](${ABS}-Sample---DateTime-to-BUS)`);
-  samples.push(`[Read Status](${ABS}-Sample---Read-value-from-Device)`);
-  samples.push(`[Virtual Device](${ABS}-Sample---Virtual-Device)`);
-  samples.push(`[Subtype decoded](${ABS}-Sample---Subtype)`);
-  samples.push(`[Alexa](${ABS}-Sample---Alexa)`);
-  samples.push(`[Apple Homekit](${ABS}-Sample---Apple-Homekit)`);
-  samples.push(`[Google Home](${ABS}-Sample---Google-Assistant)`);
-  samples.push(`[Switch on/off POE port of Unifi switch](${ABS}-Sample---UnifiPOE)`);
-  samples.push(`[Set configuration by msg](${ABS}-Sample-setConfig)`);
-  samples.push(`[Scene Controller node](${ABS}Sample-Scene-Node)`);
-  samples.push(`[WatchDog node](${ABS}-Sample---WatchDog)`);
-  samples.push(`[Global Context node](${ABS}SampleGlobalContextNode)`);
-  samples.push(`[Alerter node](${ABS}SampleAlerter)`);
-  samples.push(`[Load control node](${ABS}SampleLoadControl)`);
-  samples.push(`[Viewer node](${ABS}knxUltimateViewer)`);
-  samples.push(`[MySQL, InfluxDB, MQTT Sample](${ABS}Sample-KNX2MQTT-KNX2MySQL-KNX2InfluxDB)`);
-  lines.push(`${L.samples}: ${samples.join(' • ')}`);
+
+  for (const section of cfg.sections) {
+    const sLabel = section.labels[lang] || section.labels.en;
+    const parts = [];
+    for (const it of section.items) {
+      const label = (it.labels && (it.labels[lang] || it.labels.en)) || 'Link';
+      const href = it.type === 'url' ? it.url : mk(it.page);
+      parts.push(`[${label}](${href})`);
+    }
+    lines.push(`${sLabel}: ${parts.join(' • ')}`);
+  }
 
   return lines.join('\n');
 }

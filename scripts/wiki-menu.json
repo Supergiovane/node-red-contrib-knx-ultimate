@@ -2,90 +2,554 @@
   "sections": [
     {
       "key": "overview",
-      "labels": {"en": "Overview", "it": "Panoramica", "de": "Übersicht", "zh": "概览"},
+      "labels": {
+        "en": "Overview",
+        "it": "Panoramica",
+        "de": "Übersicht",
+        "zh": "概览"
+      },
       "items": [
-        {"type": "url", "labels": {"en": "Changelog", "it": "Changelog", "de": "Changelog", "zh": "Changelog"}, "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/blob/master/CHANGELOG.md"},
-        {"type": "page", "labels": {"en": "FAQ", "it": "FAQ", "de": "FAQ", "zh": "常见问题"}, "page": "FAQ-Troubleshoot"},
-        {"type": "page", "labels": {"en": "Security", "it": "Sicurezza", "de": "Sicherheit", "zh": "安全"}, "page": "SECURITY"},
-        {"type": "page", "labels": {"en": "Docs: Language bar", "it": "Docs: Barra lingue", "de": "Doku: Sprachleiste", "zh": "文档：语言栏"}, "page": "Docs-Language-Bar"},
-        {"type": "page", "labels": {"en": "Quick Start", "it": "Avvio rapido", "de": "Schnellstart", "zh": "快速开始"}, "page": "Quick-Start"}
+        {
+          "type": "url",
+          "labels": {
+            "en": "Changelog",
+            "it": "Changelog",
+            "de": "Changelog",
+            "zh": "Changelog"
+          },
+          "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/blob/master/CHANGELOG.md"
+        },
+        {
+          "type": "page",
+          "labels": {
+            "en": "FAQ",
+            "it": "FAQ",
+            "de": "FAQ",
+            "zh": "常见问题"
+          },
+          "page": "FAQ-Troubleshoot"
+        },
+        {
+          "type": "page",
+          "labels": {
+            "en": "Security",
+            "it": "Sicurezza",
+            "de": "Sicherheit",
+            "zh": "安全"
+          },
+          "page": "SECURITY"
+        },
+        {
+          "type": "page",
+          "labels": {
+            "en": "Docs: Language bar",
+            "it": "Docs: Barra lingue",
+            "de": "Doku: Sprachleiste",
+            "zh": "文档：语言栏"
+          },
+          "page": "Docs-Language-Bar"
+        }
       ]
     },
     {
       "key": "knxMain",
-      "labels": {"en": "KNX Device", "it": "Nodo KNX Dispositivo", "de": "KNX Geräteknoten", "zh": "KNX 设备"},
+      "labels": {
+        "en": "KNX Device",
+        "it": "Nodo KNX Dispositivo",
+        "de": "KNX Geräteknoten",
+        "zh": "KNX 设备"
+      },
       "items": [
-        {"type": "page", "labels": {"en": "Gateway", "it": "Gateway", "de": "Gateway", "zh": "网关"}, "page": "Gateway-configuration"},
-        {"type": "page", "labels": {"en": "Device", "it": "Dispositivo", "de": "Gerät", "zh": "设备"}, "page": "KNX Node Configuration"},
-        {"type": "page", "labels": {"en": "Protections", "it": "Protezioni", "de": "Knotenschutz", "zh": "节点保护"}, "page": "Protections"}
+        {
+          "type": "page",
+          "labels": {
+            "en": "Gateway",
+            "it": "Gateway",
+            "de": "Gateway",
+            "zh": "网关"
+          },
+          "page": "Gateway-configuration"
+        },
+        {
+          "type": "page",
+          "labels": {
+            "en": "Device",
+            "it": "Dispositivo",
+            "de": "Gerät",
+            "zh": "设备"
+          },
+          "page": "KNX Node Configuration"
+        },
+        {
+          "type": "page",
+          "labels": {
+            "en": "Protections",
+            "it": "Protezioni",
+            "de": "Knotenschutz",
+            "zh": "节点保护"
+          },
+          "page": "Protections"
+        }
       ]
     },
     {
       "key": "knxOther",
-      "labels": {"en": "Other KNX Nodes", "it": "Altri Nodi KNX", "de": "Weitere KNX‑Knoten", "zh": "其他 KNX 节点"},
+      "labels": {
+        "en": "Other KNX Nodes",
+        "it": "Altri Nodi KNX",
+        "de": "Weitere KNX‑Knoten",
+        "zh": "其他 KNX 节点"
+      },
       "items": [
-        {"type": "page", "labels": {"en": "Scene Controller", "it": "Scene Controller", "de": "Szenencontroller", "zh": "场景控制器"}, "page": "SceneController-Configuration"},
-        {"type": "page", "labels": {"en": "WatchDog", "it": "WatchDog", "de": "WatchDog", "zh": "看门狗"}, "page": "WatchDog-Configuration"},
-        {"type": "page", "labels": {"en": "Logger", "it": "Logger", "de": "Logger", "zh": "日志节点"}, "page": "Logger-Configuration"},
-        {"type": "page", "labels": {"en": "Global Context", "it": "Global Context", "de": "Global Context", "zh": "全局上下文"}, "page": "GlobalVariable"},
-        {"type": "page", "labels": {"en": "Alerter", "it": "Alerter", "de": "Alerter", "zh": "告警器"}, "page": "Alerter-Configuration"},
-        {"type": "page", "labels": {"en": "Load Control", "it": "Controllo Carico", "de": "Laststeuerung", "zh": "负载控制"}, "page": "LoadControl-Configuration"},
-        {"type": "page", "labels": {"en": "Viewer", "it": "Viewer", "de": "Viewer", "zh": "查看器"}, "page": "knxUltimateViewer"},
-        {"type": "page", "labels": {"en": "Auto Responder", "it": "Auto Responder", "de": "Auto‑Responder", "zh": "自动响应"}, "page": "KNXAutoResponder"},
-        {"type": "page", "labels": {"en": "HA Translator", "it": "Traduttore HA", "de": "HA‑Übersetzer", "zh": "HA 翻译器"}, "page": "HATranslator"}
+        {
+          "type": "page",
+          "labels": {
+            "en": "Scene Controller",
+            "it": "Scene Controller",
+            "de": "Szenencontroller",
+            "zh": "场景控制器"
+          },
+          "page": "SceneController-Configuration"
+        },
+        {
+          "type": "page",
+          "labels": {
+            "en": "WatchDog",
+            "it": "WatchDog",
+            "de": "WatchDog",
+            "zh": "看门狗"
+          },
+          "page": "WatchDog-Configuration"
+        },
+        {
+          "type": "page",
+          "labels": {
+            "en": "Logger",
+            "it": "Logger",
+            "de": "Logger",
+            "zh": "日志节点"
+          },
+          "page": "Logger-Configuration"
+        },
+        {
+          "type": "page",
+          "labels": {
+            "en": "Global Context",
+            "it": "Global Context",
+            "de": "Global Context",
+            "zh": "全局上下文"
+          },
+          "page": "GlobalVariable"
+        },
+        {
+          "type": "page",
+          "labels": {
+            "en": "Alerter",
+            "it": "Alerter",
+            "de": "Alerter",
+            "zh": "告警器"
+          },
+          "page": "Alerter-Configuration"
+        },
+        {
+          "type": "page",
+          "labels": {
+            "en": "Load Control",
+            "it": "Controllo Carico",
+            "de": "Laststeuerung",
+            "zh": "负载控制"
+          },
+          "page": "LoadControl-Configuration"
+        },
+        {
+          "type": "page",
+          "labels": {
+            "en": "Viewer",
+            "it": "Viewer",
+            "de": "Viewer",
+            "zh": "查看器"
+          },
+          "page": "knxUltimateViewer"
+        },
+        {
+          "type": "page",
+          "labels": {
+            "en": "Auto Responder",
+            "it": "Auto Responder",
+            "de": "Auto‑Responder",
+            "zh": "自动响应"
+          },
+          "page": "KNXAutoResponder"
+        },
+        {
+          "type": "page",
+          "labels": {
+            "en": "HA Translator",
+            "it": "Traduttore HA",
+            "de": "HA‑Übersetzer",
+            "zh": "HA 翻译器"
+          },
+          "page": "HATranslator"
+        }
       ]
     },
     {
       "key": "hue",
-      "labels": {"en": "HUE", "it": "HUE", "de": "HUE", "zh": "HUE"},
+      "labels": {
+        "en": "HUE",
+        "it": "HUE",
+        "de": "HUE",
+        "zh": "HUE"
+      },
       "items": [
-        {"type": "page", "labels": {"en": "Bridge", "it": "Bridge", "de": "Bridge", "zh": "Bridge"}, "page": "HUE Bridge configuration"},
-        {"type": "page", "labels": {"en": "Light", "it": "Luce", "de": "Licht", "zh": "灯"}, "page": "HUE Light"},
-        {"type": "page", "labels": {"en": "Battery", "it": "Batteria", "de": "Batterie", "zh": "电池"}, "page": "HUE Battery"},
-        {"type": "page", "labels": {"en": "Button", "it": "Pulsante", "de": "Taster", "zh": "按钮"}, "page": "HUE Button"},
-        {"type": "page", "labels": {"en": "Contact", "it": "Contatto", "de": "Kontakt", "zh": "接触"}, "page": "HUE Contact sensor"},
-        {"type": "page", "labels": {"en": "Device SW update", "it": "Aggiornamento SW", "de": "Geräte‑SW‑Update", "zh": "设备软件更新"}, "page": "HUE Device software update"},
-        {"type": "page", "labels": {"en": "Light sensor", "it": "Sensore Luce", "de": "Lichtsensor", "zh": "光照传感器"}, "page": "HUE Light sensor"},
-        {"type": "page", "labels": {"en": "Motion", "it": "Movimento", "de": "Bewegung", "zh": "运动"}, "page": "HUE Motion"},
-        {"type": "page", "labels": {"en": "Scene", "it": "Scena", "de": "Szene", "zh": "场景"}, "page": "HUE Scene"},
-        {"type": "page", "labels": {"en": "Tap Dial", "it": "Tap Dial", "de": "Tap Dial", "zh": "Tap Dial"}, "page": "HUE Tapdial"},
-        {"type": "page", "labels": {"en": "Temperature", "it": "Temperatura", "de": "Temperatur", "zh": "温度"}, "page": "HUE Temperature sensor"},
-        {"type": "page", "labels": {"en": "Zigbee connectivity", "it": "Connettività Zigbee", "de": "Zigbee‑Konnektivität", "zh": "Zigbee 连接"}, "page": "HUE Zigbee connectivity"}
+        {
+          "type": "page",
+          "labels": {
+            "en": "Bridge",
+            "it": "Bridge",
+            "de": "Bridge",
+            "zh": "Bridge"
+          },
+          "page": "HUE Bridge configuration"
+        },
+        {
+          "type": "page",
+          "labels": {
+            "en": "Light",
+            "it": "Luce",
+            "de": "Licht",
+            "zh": "灯"
+          },
+          "page": "HUE Light"
+        },
+        {
+          "type": "page",
+          "labels": {
+            "en": "Battery",
+            "it": "Batteria",
+            "de": "Batterie",
+            "zh": "电池"
+          },
+          "page": "HUE Battery"
+        },
+        {
+          "type": "page",
+          "labels": {
+            "en": "Button",
+            "it": "Pulsante",
+            "de": "Taster",
+            "zh": "按钮"
+          },
+          "page": "HUE Button"
+        },
+        {
+          "type": "page",
+          "labels": {
+            "en": "Contact",
+            "it": "Contatto",
+            "de": "Kontakt",
+            "zh": "接触"
+          },
+          "page": "HUE Contact sensor"
+        },
+        {
+          "type": "page",
+          "labels": {
+            "en": "Device SW update",
+            "it": "Aggiornamento SW",
+            "de": "Geräte‑SW‑Update",
+            "zh": "设备软件更新"
+          },
+          "page": "HUE Device software update"
+        },
+        {
+          "type": "page",
+          "labels": {
+            "en": "Light sensor",
+            "it": "Sensore Luce",
+            "de": "Lichtsensor",
+            "zh": "光照传感器"
+          },
+          "page": "HUE Light sensor"
+        },
+        {
+          "type": "page",
+          "labels": {
+            "en": "Motion",
+            "it": "Movimento",
+            "de": "Bewegung",
+            "zh": "运动"
+          },
+          "page": "HUE Motion"
+        },
+        {
+          "type": "page",
+          "labels": {
+            "en": "Scene",
+            "it": "Scena",
+            "de": "Szene",
+            "zh": "场景"
+          },
+          "page": "HUE Scene"
+        },
+        {
+          "type": "page",
+          "labels": {
+            "en": "Tap Dial",
+            "it": "Tap Dial",
+            "de": "Tap Dial",
+            "zh": "Tap Dial"
+          },
+          "page": "HUE Tapdial"
+        },
+        {
+          "type": "page",
+          "labels": {
+            "en": "Temperature",
+            "it": "Temperatura",
+            "de": "Temperatur",
+            "zh": "温度"
+          },
+          "page": "HUE Temperature sensor"
+        },
+        {
+          "type": "page",
+          "labels": {
+            "en": "Zigbee connectivity",
+            "it": "Connettività Zigbee",
+            "de": "Zigbee‑Konnektivität",
+            "zh": "Zigbee 连接"
+          },
+          "page": "HUE Zigbee connectivity"
+        }
       ]
     },
     {
       "key": "samples",
-      "labels": {"en": "Samples", "it": "Esempi", "de": "Beispiele", "zh": "示例"},
+      "labels": {
+        "en": "Samples",
+        "it": "Esempi",
+        "de": "Beispiele",
+        "zh": "示例"
+      },
       "items": [
-        {"type": "page", "labels": {"en": "Logger", "it": "Logger", "de": "Logger", "zh": "日志"}, "page": "Logger-Sample"},
-        {"type": "url", "labels": {"en": "Switch Light", "it": "Switch Light", "de": "Switch Light", "zh": "Switch Light"}, "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Switch-light"},
-        {"type": "url", "labels": {"en": "Dimming"}, "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Dimming"},
-        {"type": "url", "labels": {"en": "RGB color"}, "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---RGB-Color"},
-        {"type": "url", "labels": {"en": "RGBW color + White"}, "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---RGBW-Color-plus-White"},
-        {"type": "url", "labels": {"en": "Command a scene actuator"}, "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Control-a-scene-actuator"},
-        {"type": "url", "labels": {"en": "Datapoint 213.x 4x Setpoint"}, "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---DPT213"},
-        {"type": "url", "labels": {"en": "Datapoint 222.x 3x Setpoint"}, "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---DPT222"},
-        {"type": "url", "labels": {"en": "Datapoint 237.x DALI diags"}, "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---DPT237"},
-        {"type": "url", "labels": {"en": "Datapoint 2.x 1 bit proprity"}, "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---DPT2"},
-        {"type": "url", "labels": {"en": "Datapoint 22.x RCHH Status"}, "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---DPT22"},
-        {"type": "url", "labels": {"en": "Datetime to BUS"}, "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---DateTime-to-BUS"},
-        {"type": "url", "labels": {"en": "Read Status"}, "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Read-value-from-Device"},
-        {"type": "url", "labels": {"en": "Virtual Device"}, "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Virtual-Device"},
-        {"type": "url", "labels": {"en": "Subtype decoded"}, "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Subtype"},
-        {"type": "url", "labels": {"en": "Alexa"}, "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Alexa"},
-        {"type": "url", "labels": {"en": "Apple Homekit"}, "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Apple-Homekit"},
-        {"type": "url", "labels": {"en": "Google Home"}, "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Google-Assistant"},
-        {"type": "url", "labels": {"en": "Switch on/off POE port of Unifi switch"}, "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---UnifiPOE"},
-        {"type": "url", "labels": {"en": "Set configuration by msg"}, "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample-setConfig"},
-        {"type": "url", "labels": {"en": "Scene Controller node"}, "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/Sample-Scene-Node"},
-        {"type": "url", "labels": {"en": "WatchDog node"}, "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---WatchDog"},
-        {"type": "url", "labels": {"en": "Global Context node"}, "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/SampleGlobalContextNode"},
-        {"type": "url", "labels": {"en": "Alerter node"}, "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/SampleAlerter"},
-        {"type": "url", "labels": {"en": "Load control node"}, "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/SampleLoadControl"},
-        {"type": "url", "labels": {"en": "Viewer node"}, "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/knxUltimateViewer"},
-        {"type": "url", "labels": {"en": "MySQL, InfluxDB, MQTT Sample"}, "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/Sample-KNX2MQTT-KNX2MySQL-KNX2InfluxDB"}
+        {
+          "type": "page",
+          "labels": {
+            "en": "Logger",
+            "it": "Logger",
+            "de": "Logger",
+            "zh": "日志"
+          },
+          "page": "Logger-Sample"
+        },
+        {
+          "type": "url",
+          "labels": {
+            "en": "Switch Light",
+            "it": "Switch Light",
+            "de": "Switch Light",
+            "zh": "Switch Light"
+          },
+          "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Switch-light"
+        },
+        {
+          "type": "url",
+          "labels": {
+            "en": "Dimming"
+          },
+          "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Dimming"
+        },
+        {
+          "type": "url",
+          "labels": {
+            "en": "RGB color"
+          },
+          "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---RGB-Color"
+        },
+        {
+          "type": "url",
+          "labels": {
+            "en": "RGBW color + White"
+          },
+          "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---RGBW-Color-plus-White"
+        },
+        {
+          "type": "url",
+          "labels": {
+            "en": "Command a scene actuator"
+          },
+          "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Control-a-scene-actuator"
+        },
+        {
+          "type": "url",
+          "labels": {
+            "en": "Datapoint 213.x 4x Setpoint"
+          },
+          "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---DPT213"
+        },
+        {
+          "type": "url",
+          "labels": {
+            "en": "Datapoint 222.x 3x Setpoint"
+          },
+          "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---DPT222"
+        },
+        {
+          "type": "url",
+          "labels": {
+            "en": "Datapoint 237.x DALI diags"
+          },
+          "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---DPT237"
+        },
+        {
+          "type": "url",
+          "labels": {
+            "en": "Datapoint 2.x 1 bit proprity"
+          },
+          "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---DPT2"
+        },
+        {
+          "type": "url",
+          "labels": {
+            "en": "Datapoint 22.x RCHH Status"
+          },
+          "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---DPT22"
+        },
+        {
+          "type": "url",
+          "labels": {
+            "en": "Datetime to BUS"
+          },
+          "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---DateTime-to-BUS"
+        },
+        {
+          "type": "url",
+          "labels": {
+            "en": "Read Status"
+          },
+          "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Read-value-from-Device"
+        },
+        {
+          "type": "url",
+          "labels": {
+            "en": "Virtual Device"
+          },
+          "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Virtual-Device"
+        },
+        {
+          "type": "url",
+          "labels": {
+            "en": "Subtype decoded"
+          },
+          "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Subtype"
+        },
+        {
+          "type": "url",
+          "labels": {
+            "en": "Alexa"
+          },
+          "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Alexa"
+        },
+        {
+          "type": "url",
+          "labels": {
+            "en": "Apple Homekit"
+          },
+          "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Apple-Homekit"
+        },
+        {
+          "type": "url",
+          "labels": {
+            "en": "Google Home"
+          },
+          "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Google-Assistant"
+        },
+        {
+          "type": "url",
+          "labels": {
+            "en": "Switch on/off POE port of Unifi switch"
+          },
+          "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---UnifiPOE"
+        },
+        {
+          "type": "url",
+          "labels": {
+            "en": "Set configuration by msg"
+          },
+          "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample-setConfig"
+        },
+        {
+          "type": "url",
+          "labels": {
+            "en": "Scene Controller node"
+          },
+          "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/Sample-Scene-Node"
+        },
+        {
+          "type": "url",
+          "labels": {
+            "en": "WatchDog node"
+          },
+          "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---WatchDog"
+        },
+        {
+          "type": "url",
+          "labels": {
+            "en": "Global Context node"
+          },
+          "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/SampleGlobalContextNode"
+        },
+        {
+          "type": "url",
+          "labels": {
+            "en": "Alerter node"
+          },
+          "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/SampleAlerter"
+        },
+        {
+          "type": "url",
+          "labels": {
+            "en": "Load control node"
+          },
+          "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/SampleLoadControl"
+        },
+        {
+          "type": "url",
+          "labels": {
+            "en": "Viewer node"
+          },
+          "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/knxUltimateViewer"
+        },
+        {
+          "type": "url",
+          "labels": {
+            "en": "MySQL, InfluxDB, MQTT Sample"
+          },
+          "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/Sample-KNX2MQTT-KNX2MySQL-KNX2InfluxDB"
+        }
+      ]
+    },
+    {
+      "key": "ContributeWiki",
+      "labels": {
+        "en": "Contribute to Wiki",
+        "it": "Contribuisci alla Wiki",
+        "de": "",
+        "zh": ""
+      },
+      "items": [
+        {
+          "type": "page",
+          "labels": {
+            "en": "",
+            "it": "",
+            "de": "",
+            "zh": ""
+          },
+          "page": "Manage-Wiki"
+        }
       ]
     }
   ]
 }
-
