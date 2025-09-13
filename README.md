@@ -17,7 +17,6 @@
 <img width="110px" src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/KNX_CERTI_MARK_RGB.jpg" ></br>
 <span style="font-size:0.7em;color:grey;">Authorized KNX logo by KNX Association*</span></br></br>
 <img width="110px" src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/knxsecure.png" ></br>
-
 </p>
 
 </br>  
@@ -26,7 +25,14 @@
 ```bash
 npm i node-red-contrib-knx-ultimate@4.0.0-beta.0
 ```
-  
+
+<p align='center'>
+    <img width="110px" src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/c/agata.png"></br>
+<center>Many thanks to <a href="https://www.agatastore.it">Agata Store - Professional store and Certified KNX Partner</a>  
+for providing me with KNX Secure stuffs to test with.</center>
+</p>
+
+
 </br>
 </br>
 </br>
