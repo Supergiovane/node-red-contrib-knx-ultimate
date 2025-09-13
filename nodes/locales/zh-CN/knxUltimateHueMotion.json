@@ -2,6 +2,15 @@
   "knxUltimateHueMotion": {
     "title": "HUE 人体传感器节点",
     "paletteLabel": "Hue 人体传感器"
+  },
+  "common": {
+    "ga": "组地址",
+    "dpt": "数据点类型",
+    "name": "名称",
+    "youtube_sample": "YouTube 示例",
+    "knx_gw": "KNX 网关",
+    "hue_bridge": "HUE 网桥",
+    "philips_hue": "飞利浦 HUE",
+    "read": "读取"
   }
 }
-

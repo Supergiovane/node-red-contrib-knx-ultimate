@@ -239,6 +239,7 @@
             }).focus(function () {
               $(this).autocomplete('search', $(this).val() + 'exactmatch');
             });
+            try { var srv = RED.nodes.node($("#node-input-server").val()); if (srv && srv.id) KNX_enableSecureFormatting($(_sourceWidgetAutocomplete), srv.id); } catch (e) {}
           }
 
           getDPT("1.", "#node-input-dptLightSwitch");
@@ -952,8 +953,10 @@
 
 <script type="text/html" data-template-name="knxUltimateHueLight">
   <div id="waitWindow">
-    <br/><br/><p align="center"><i class="fa-solid fa-hourglass-start fa-spin-pulse fa-4x"></i><br/><br/>
-    Wait, i'm talking to your HUE bridge...
+    <br/><br/>
+    <p align="center">
+      <i class="fa-solid fa-hourglass-start fa-spin-pulse fa-4x"></i><br/><br/>
+      <span data-i18n="hue-config.properties.wait_message"></span>
     </p>
   </div>
   <div  id="mainWindow" hidden>
@@ -999,18 +1002,18 @@
 
     <div id="tabs" hidden" style="width: 900px;">
       <ul>
-        <li><a href="#tabs-1"><i class="fa-solid fa-toggle-on"></i> Switch</a></li>
-        <li><a href="#tabs-2"><i class="fa-solid fa-arrow-up-wide-short"></i> Dim</a></li>
-        <li><a href="#tabs-3"><i class="fa-solid fa-temperature-quarter"></i> Tunable white</a></li>
-        <li><a href="#tabs-4"><i class="fa-solid fa-palette"></i> RGB/HSV</a></li>
-        <li><a href="#tabs-5"><i class="fa-solid fa-heart-circle-check"></i> Effects</a></li>
-        <li><a href="#tabs-6"><i class="fa-solid fa-code-merge"></i> Behaviour</a></li>
-        <li><a href="#tabs-7"><i class="fa-solid fa-house"></i> Home Assistant Export (BETA)</a></li>
+        <li><a href="#tabs-1"><i class="fa-solid fa-toggle-on"></i> <span data-i18n="knxUltimateHueLight.tabs.switch"></span></a></li>
+        <li><a href="#tabs-2"><i class="fa-solid fa-arrow-up-wide-short"></i> <span data-i18n="knxUltimateHueLight.tabs.dim"></span></a></li>
+        <li><a href="#tabs-3"><i class="fa-solid fa-temperature-quarter"></i> <span data-i18n="knxUltimateHueLight.tabs.tunable_white"></span></a></li>
+        <li><a href="#tabs-4"><i class="fa-solid fa-palette"></i> <span data-i18n="knxUltimateHueLight.tabs.rgb_hsv"></span></a></li>
+        <li><a href="#tabs-5"><i class="fa-solid fa-heart-circle-check"></i> <span data-i18n="knxUltimateHueLight.tabs.effects"></span></a></li>
+        <li><a href="#tabs-6"><i class="fa-solid fa-code-merge"></i> <span data-i18n="knxUltimateHueLight.tabs.behaviour"></span></a></li>
+        <li><a href="#tabs-7"><i class="fa-solid fa-house"></i> <span data-i18n="knxUltimateHueLight.tabs.ha_export"></span></a></li>
       </ul>
       <div id="tabs-1">
         <p>
         <div class="form-row">
-          <label for="node-input-nameLightSwitch" style="width:110px;"><i class="fa fa-play-circle-o"></i> Control</label>
+          <label for="node-input-nameLightSwitch" style="width:110px;"><i class="fa fa-play-circle-o"></i> <span data-i18n="knxUltimateHueLight.control"></span></label>
 
           <label for="node-input-GALightSwitch" style="width:20px;"><span data-i18n="common.ga"></span></label>
           <input type="text" id="node-input-GALightSwitch" placeholder="Ex: 1/1/1"
@@ -1023,7 +1026,7 @@
           <input type="text" id="node-input-nameLightSwitch" style="width:190px;margin-left: 5px; text-align: left;">
         </div>
         <div class="form-row">
-          <label for="node-input-nameLightState" style="width:110px;"><i class="fa fa-question-circle"></i> Status</label>
+          <label for="node-input-nameLightState" style="width:110px;"><i class="fa fa-question-circle"></i> <span data-i18n="knxUltimateHueLight.status"></span></label>
 
           <label for="node-input-GALightState" style="width:20px;"><span data-i18n="common.ga"></span></label>
           <input type="text" id="node-input-GALightState" placeholder="Ex: 1/1/1"
@@ -1401,10 +1404,10 @@
           <div id="divCCSBoxAtNightLighting">
             <div class="form-row">
               <label for="node-input-enableDayNightLighting" style="width:260px;">
-                <i class="fa fa-clone"></i> Night Lighting
+                <i class="fa fa-clone"></i> <span data-i18n="knxUltimateHueLight.night_lighting"></span>
               </label>
               <select id="node-input-enableDayNightLighting">
-                <option value="no">No night lighting</option>
+                <option value="no" data-i18n="knxUltimateHueLight.no_night_lighting"></option>
                 <!-- <option value="temperature">Select temperature and brightness</option>
                 <option value="yes">Select color</option> -->
               </select>
@@ -1416,7 +1419,7 @@
                 <label for="node-input-colorAtSwitchOnNightTime" style="width:260px"></label>
                 <input type="hidden" id="node-input-colorAtSwitchOnNightTime">
                 <input type="color" id="colorPickerNight" style="width:260px">
-                <button id="getColorAtSwitchOnNightTimeButton" type="button" class="red-ui-button">Get current</button>
+                <button id="getColorAtSwitchOnNightTimeButton" type="button" class="red-ui-button"><span data-i18n="knxUltimateHueLight.get_current"></span></button>
               </div>
               <div class="form-row" id="divTemperatureAtSwitchOnNightTime" hidden>
                 <label for="node-input-colorAtSwitchOnNightTime" style="width:260px"></label>
@@ -1426,7 +1429,7 @@
 
               <div class="form-row">
                 <label for="node-input-nameDaylightSensor" style="width:110px;"><i class="fa fa-clock-o"></i>
-                  Day/Night</label>
+                  <span data-i18n="knxUltimateHueLight.day_night"></span></label>
                 <label for="node-input-GADaylightSensor" style="width:20px;"><span data-i18n="common.ga"></span></label>
                 <input type="text" id="node-input-GADaylightSensor" placeholder="Ex: 1/1/1"
                   style="width:70px;margin-left: 5px; text-align: left;">
@@ -1440,19 +1443,19 @@
               </div>
               <div class="form-row">
                 <label style="width:170px" for="node-input-invertDayNight">
-                  <i class="fa fa-shuffle"></i> Invert day/night value
+                  <i class="fa fa-shuffle"></i> <span data-i18n="knxUltimateHueLight.invert_day_night"></span>
                 </label>
                 <input type="checkbox" id="node-input-invertDayNight"
                   style="display:inline-block; width:auto; vertical-align:top;" />
               </div>
               <div class="form-row">
                 <label for="node-input-restoreDayMode" style="width:260px;">
-                  <i class="fa fa-circle"></i> Override night mode
+                  <i class="fa fa-circle"></i> <span data-i18n="knxUltimateHueLight.override_night_mode"></span>
                 </label>
                 <select id="node-input-restoreDayMode">
-                  <option value="no">No</option>
-                  <option value="setDayByFastSwitchLightSingle">Switch to DAY mode by rapid switching the ligth off then on. (This light only)</option>
-                  <option value="setDayByFastSwitchLightALL">Switch to DAY mode by rapid switching the ligth off then on (apply yo ALL light nodes)</option>
+                  <option value="no" data-i18n="knxUltimateHueLight.override_no"></option>
+                  <option value="setDayByFastSwitchLightSingle" data-i18n="knxUltimateHueLight.override_set_day_fast_this"></option>
+                  <option value="setDayByFastSwitchLightALL" data-i18n="knxUltimateHueLight.override_set_day_fast_all"></option>
                 </select>
               </div>
             </div>
@@ -1461,11 +1464,11 @@
         </div>
         <div class="form-row">
           <label for="node-input-enableNodePINS" style="width:260px;">
-            <i class="fa fa-circle"></i> Node Input/Output PINs
+            <i class="fa fa-circle"></i> <span data-i18n="knxUltimateHueLight.node_pins"></span>
           </label>
           <select id="node-input-enableNodePINS">
-            <option value="no">Hide</option>
-            <option value="yes">Show node input/output PINs</option>
+            <option value="no" data-i18n="knxUltimateHueLight.node_pins_hide"></option>
+            <option value="yes" data-i18n="knxUltimateHueLight.node_pins_show"></option>
           </select>
         </div>
         </p>

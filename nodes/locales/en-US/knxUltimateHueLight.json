@@ -1,8 +1,7 @@
 {
   "knxUltimateHueLight": {
-    "title": "HUE Light/Group node",
-    "helplink": "&nbsp<i class=\"fa fa-question-circle\"></i>&nbsp<a target=\"_blank\" href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/huesample\"><u>Sample</u></a>",
     "title": "HUE node",
+    "helplink": "&nbsp<i class=\"fa fa-question-circle\"></i>&nbsp<a target=\"_blank\" href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/huesample\"><u>Sample</u></a>",
     "node-input-name": "Name",
     "node-input-nameLightSwitch": "Switch (bit)",
     "node-input-GALightSwitch": "GA",
@@ -11,6 +10,39 @@
     "node-input-GALightState": "GA",
     "node-input-dptLightState": "dpt",
     "node-input-hueLight": "HUE light",
-    "paletteLabel": "Hue Light/Outlet"
+    "paletteLabel": "Hue Light/Outlet",
+    "tabs": {
+      "switch": "Switch",
+      "dim": "Dim",
+      "tunable_white": "Tunable white",
+      "rgb_hsv": "RGB/HSV",
+      "effects": "Effects",
+      "behaviour": "Behaviour",
+      "ha_export": "Home Assistant Export (BETA)"
+    },
+    "control": "Control",
+    "status": "Status",
+    "night_lighting": "Night Lighting",
+    "no_night_lighting": "No night lighting",
+    "get_current": "Get current",
+    "day_night": "Day/Night",
+    "invert_day_night": "Invert day/night value",
+    "override_night_mode": "Override night mode",
+    "override_no": "No",
+    "override_set_day_fast_this": "Switch to DAY mode by rapid switching the light off then on (this light only)",
+    "override_set_day_fast_all": "Switch to DAY mode by rapid switching the light off then on (apply to ALL light nodes)",
+    "node_pins": "Node Input/Output PINs",
+    "node_pins_hide": "Hide",
+    "node_pins_show": "Show node input/output PINs"
+  },
+  "common": {
+    "ga": "GA",
+    "dpt": "DPT",
+    "name": "Name",
+    "youtube_sample": "Youtube sample",
+    "knx_gw": "KNX GW",
+    "hue_bridge": "HUE Bridge",
+    "philips_hue": "Philips HUE",
+    "read": "Read"
   }
 }

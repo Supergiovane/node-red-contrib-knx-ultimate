@@ -26,7 +26,11 @@
             "iface_name": "Schnittstellenname:",
             "iface_name_placeholder": "Schnittstellenname, z. B.: eth0, ens1 oder Ethernet 1 ...",
             "ip_port": "IP-Port",
-            "ip_protocol": "IP-Protokoll"
+            "ip_protocol": "IP-Protokoll",
+            "tunnel_ia_label": "Tunnel‑Schnittstelle IA",
+            "tunnel_ia_mode_auto": "Automatisch",
+            "tunnel_ia_mode_manual": "Manuell",
+            "tunnel_ia_input_label": "Schnittstellen‑IA"
         },
         "tabs": {
             "configuration": "Konfiguration",

@@ -349,6 +349,49 @@ module.exports = (RED) => {
             }
         });
 
+        // 2025-09 List interfaces (IA) from KNX Secure keyring
+        RED.httpAdmin.get("/knxUltimateKeyringInterfaces", RED.auth.needsPermission("knxUltimate-config.read"), async (req, res) => {
+            try {
+                let keyringContent = (req.query.keyring || '').toString();
+                let password = (req.query.pwd || '').toString();
+                // If not provided, try to read from existing config node
+                if ((!keyringContent || !password) && req.query.serverId) {
+                    const cfg = RED.nodes.getNode(req.query.serverId);
+                    if (cfg) {
+                        try { keyringContent = cfg.keyringFileXML || keyringContent; } catch (e) { }
+                        try { password = (cfg.credentials && cfg.credentials.keyringFilePassword) ? cfg.credentials.keyringFilePassword : password; } catch (e) { }
+                    }
+                }
+                if (!keyringContent || !password) {
+                    return res.json([]);
+                }
+                let Keyring;
+                try {
+                    ({ Keyring } = require('knxultimate/build/secure/keyring'));
+                } catch (e) {
+                    try { RED.log.error(`KNXUltimate: cannot load Keyring module: ${e.message}`); } catch (err) { }
+                    return res.json([]);
+                }
+                const kr = new Keyring();
+                try {
+                    await kr.load(keyringContent, password);
+                } catch (e) {
+                    try { RED.log.error(`KNXUltimate: keyring load error: ${e.message}`); } catch (err) { }
+                    return res.json([]);
+                }
+                const out = [];
+                try {
+                    for (const [iaStr, iface] of kr.getInterfaces()) {
+                        out.push({ ia: iaStr, userId: iface?.userId });
+                    }
+                } catch (e) { }
+                res.json(out);
+            } catch (error) {
+                try { RED.log.error(`KNXUltimate: knxUltimateKeyringInterfaces error: ${error.message}`); } catch (e) { }
+                res.json([]);
+            }
+        });
+
         RED.httpAdmin.get("/knxUltimateGetHueColor", (req, res) => {
             try {
                 const serverId = RED.nodes.getNode(req.query.serverId); // Retrieve node.id of the config node.
@@ -365,6 +408,37 @@ module.exports = (RED) => {
                 res.json(hexColor !== undefined ? hexColor : "Select the device first!");
             } catch (error) {
                 res.json("Select the device first!");
+            }
+        });
+
+        // 2025-09 Secure: return list of Data Secure Group Addresses from keyring
+        RED.httpAdmin.get("/knxUltimateKeyringDataSecureGAs", RED.auth.needsPermission("knxUltimate-config.read"), async (req, res) => {
+            try {
+                let keyringContent = (req.query.keyring || '').toString();
+                let password = (req.query.pwd || '').toString();
+                // Try to use config node if not provided
+                if ((!keyringContent || !password) && req.query.serverId) {
+                    const cfg = RED.nodes.getNode(req.query.serverId);
+                    if (cfg) {
+                        try { keyringContent = cfg.keyringFileXML || keyringContent; } catch (e) { }
+                        try { password = (cfg.credentials && cfg.credentials.keyringFilePassword) ? cfg.credentials.keyringFilePassword : password; } catch (e) { }
+                    }
+                }
+                if (!keyringContent || !password) return res.json([]);
+                let Keyring;
+                try { ({ Keyring } = require('knxultimate/build/secure/keyring')); } catch (e) { return res.json([]); }
+                const kr = new Keyring();
+                try { await kr.load(keyringContent, password); } catch (e) { return res.json([]); }
+                const out = [];
+                try {
+                    for (const [gaStr, g] of kr.getGroupAddresses()) {
+                        if (g?.decryptedKey && g.decryptedKey.length > 0) out.push(gaStr);
+                    }
+                } catch (e) { }
+                res.json(out);
+            } catch (error) {
+                try { RED.log.error(`KNXUltimate: knxUltimateKeyringDataSecureGAs error: ${error.message}`); } catch (e) { }
+                res.json([]);
             }
         });
 

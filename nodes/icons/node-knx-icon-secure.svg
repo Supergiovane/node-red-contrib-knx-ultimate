@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg version="1.1" baseProfile="basic" xmlns="http://www.w3.org/2000/svg" x="0" y="0" viewBox="0 0 40 60" xml:space="preserve">
+  <!-- Transparent background, white shield only -->
+  <path fill="#e3ffe6ff" d="M20,8 l10,3 v8 c0,6 -5,11 -10,14 c-5,-3 -10,-8 -10,-14 v-8 l10,-3 z"/>
+  <text x="20" y="52" fill="#FFFFFF" font-size="16" font-family="sans-serif" text-anchor="middle">KNX</text>
+</svg>

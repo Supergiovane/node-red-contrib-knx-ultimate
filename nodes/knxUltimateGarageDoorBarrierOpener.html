@@ -99,6 +99,14 @@
                 getGroupAddressSimple("#node-input-GAImpulse", ["1."]);
                 getGroupAddressSimple("#node-input-GAObstructionDetected", ["1."]);
                 getGroupAddressSimple("#node-input-GABlocking", ["1."]);
+                try { if (oNodeServer && oNodeServer.id) {
+                    KNX_enableSecureFormatting($("#node-input-GACommand"), oNodeServer.id);
+                    KNX_enableSecureFormatting($("#node-input-GAStatus"), oNodeServer.id);
+                    KNX_enableSecureFormatting($("#node-input-GAMoving"), oNodeServer.id);
+                    KNX_enableSecureFormatting($("#node-input-GAImpulse"), oNodeServer.id);
+                    KNX_enableSecureFormatting($("#node-input-GAObstructionDetected"), oNodeServer.id);
+                    KNX_enableSecureFormatting($("#node-input-GABlocking"), oNodeServer.id);
+                } } catch (e) {}
             }
 
 

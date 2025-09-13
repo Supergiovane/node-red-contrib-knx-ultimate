@@ -104,6 +104,8 @@
             }).focus(function () {
                 $(this).autocomplete('search', $(this).val() + 'exactmatch');
             });
+            try { if (oNodeServer && oNodeServer.id) KNX_enableSecureFormatting($("#node-input-topicSave"), oNodeServer.id); } catch (e) {}
+            try { if (oNodeServer && oNodeServer.id) KNX_enableSecureFormatting($("#node-input-topic"), oNodeServer.id); } catch (e) {}
 
             // 19/03/2020 Adjust trigger value accordingly
             $("#node-input-dpt").on("change", function () {
@@ -366,6 +368,7 @@
                     }).focus(function () {
                         $(this).autocomplete('search', $(this).val() + 'exactmatch');
                     });
+                    try { if (oNodeServer && oNodeServer.id) KNX_enableSecureFormatting(oTopicField, oNodeServer.id); } catch (e) {}
 
                     oTopicField.val(rule.topic);
                     oSendField.val(rule.send);

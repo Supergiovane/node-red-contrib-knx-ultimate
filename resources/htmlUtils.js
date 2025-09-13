@@ -25,3 +25,55 @@ function htmlUtilsfullCSVSearch(sourceText, searchString) {
     }
     return i == aSearchWords.length;
 }
+
+// 2025-09 Secure KNX helpers for GA autocompletes
+// Cache for secure GA lists per serverId
+window.__knxSecureGAsCache = window.__knxSecureGAsCache || {};
+
+function KNX_fetchSecureGAs(serverId) {
+    return new Promise((resolve) => {
+        try {
+            if (window.__knxSecureGAsCache[serverId] instanceof Set) {
+                resolve(window.__knxSecureGAsCache[serverId]);
+                return;
+            }
+            $.getJSON("knxUltimateKeyringDataSecureGAs?serverId=" + serverId + "&_=" + new Date().getTime(), (data) => {
+                try {
+                    const set = new Set();
+                    if (Array.isArray(data)) data.forEach(ga => { if (typeof ga === 'string') set.add(ga); });
+                    window.__knxSecureGAsCache[serverId] = set;
+                    resolve(set);
+                } catch (e) { resolve(new Set()); }
+            }).fail(function(){ resolve(new Set()); });
+        } catch (e) { resolve(new Set()); }
+    });
+}
+
+function KNX_enableSecureFormatting($input, serverId) {
+    try {
+        KNX_fetchSecureGAs(serverId).then((secureSet) => {
+            try {
+                const inst = $input.autocomplete("instance");
+                if (!inst) return;
+                inst._renderItem = function (ul, item) {
+                    // Try to detect GA from item.ga or from item.value string
+                    let ga = item.ga;
+                    if (!ga && typeof item.value === 'string') {
+                        const m = item.value.match(/\b\d{1,2}\/\d{1,3}\/\d{1,3}\b/);
+                        if (m) ga = m[0];
+                    }
+                    const isSecure = ga ? secureSet.has(ga) : false;
+                    const colorStyle = isSecure ? 'color: green;' : '';
+                    const shield = isSecure ? '<i class="fa fa-shield"></i> ' : '';
+                    const label = (typeof item.label === 'string') ? item.label : (item.value || '');
+                    return $("<li>").append(`<div style="${colorStyle}">${shield}${label}</div>`).appendTo(ul);
+                };
+            } catch (e) { }
+        });
+    } catch (e) { }
+}
+
+// Expose helpers
+window.htmlUtilsfullCSVSearch = htmlUtilsfullCSVSearch;
+window.KNX_fetchSecureGAs = KNX_fetchSecureGAs;
+window.KNX_enableSecureFormatting = KNX_enableSecureFormatting;

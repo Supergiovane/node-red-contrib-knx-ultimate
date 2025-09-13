@@ -166,8 +166,10 @@
 <script type="text/html" data-template-name="hue-config">
 
     <div id="waitWindow" hidden>
-        <br/><br/><p align="center"><i class="fa-solid fa-hourglass-start fa-spin-pulse fa-4x"></i><br/><br/>
-        Wait, i'm talking to your HUE bridge...
+        <br/><br/>
+        <p align="center">
+            <i class="fa-solid fa-hourglass-start fa-spin-pulse fa-4x"></i><br/><br/>
+            <span data-i18n="hue-config.properties.wait_message"></span>
         </p>
     </div>
 
@@ -176,50 +178,49 @@
          <b><span data-i18n="hue-config.properties.title"></span></b>&nbsp&nbsp<span style="color:red" data-i18n="[html]hue-config.properties.helplink"></span>
 
          <p align='center'> <img src='https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/huehub.jpg' width='30%'></p>
-         <p><font color="red">CAUTION:</font> other coexisting third-party HUE nodes may cause problems and shall be uninstalled.</p>
+         <p><span data-i18n="hue-config.properties.caution"></span></p>
       
         </div>
         <div class="form-row">
             <label for="node-config-input-host">
-                <i class="fa fa-server"></i> IP</label>
-            <input type="text" id="node-config-input-host" placeholder="Write here the HUE bridge's IP, then click CONNECT">
+                <i class="fa fa-server"></i> <span data-i18n="hue-config.properties.host"></span></label>
+            <input type="text" id="node-config-input-host" data-i18n="[placeholder]hue-config.properties.host_placeholder" placeholder="Write here the HUE bridge's IP, then click CONNECT">
         </div>
         <div class="form-row" id="divConnectButton">
-            <label><i class="fa fa-sign-in"></i> Register</label>
+            <label><i class="fa fa-sign-in"></i> <span data-i18n="hue-config.properties.getinfocam"></span></label>
             <input type="button" id="getinfocam" class="ui-button ui-corner-all ui-widget"
-                style="background-color:#AEE1FF;width:150px" value="CONNECT">
+                style="background-color:#AEE1FF;width:150px" data-i18n="[value]hue-config.properties.connect" value="CONNECT">
         </div>
     
         <div id="divDetails" hidden>
             <div class="form-row">
                 <label for="node-config-input-name">
                     <i class="fa fa-tag"></i>
-                    <span data-i18n="hue-config.properties.node-config-input-name" </span>
+                    <span data-i18n="hue-config.properties.node-config-input-name"></span>
                 </label>
-                <input type="text" id="node-config-input-name"><data-i18n="[Title]hue-config.properties.node-config-input-name"
-                    style="margin-left:5px;">
+                <input type="text" id="node-config-input-name" style="margin-left:5px;">
             </div>
 
             <div class="form-row">
                 <label for="node-config-input-bridgeid">
                     <i class="fa fa-tag"></i>
-                    <span data-i18n="hue-config.bridge_id"></span>
+                    <span data-i18n="hue-config.properties.bridge_id"></span>
                 </label>
                 <input type="text" id="node-config-input-bridgeid">
             </div>
 
             <div class="form-row">
-                <label for="node-config-input-username"> <span data-i18n="hue-config.username"></span></label>
+                <label for="node-config-input-username"> <span data-i18n="hue-config.properties.username"></span></label>
                 <input type="password" id="node-config-input-username" placeholder="" disabled>
             </div>
             <div class="form-row">
-                <label for="node-config-input-clientkey"> <span data-i18n="hue-config.client_key"></span></label>
+                <label for="node-config-input-clientkey"> <span data-i18n="hue-config.properties.client_key"></span></label>
                 <input type="password" id="node-config-input-clientkey" placeholder="" disabled>
             </div>
             <div class="form-row" id="BUTTONrevealBridgeSecrets">
-                <label><i class="fa fa-magic"></i> <span data-i18n="hue-config.secrets"></span></label>
+                <label><i class="fa fa-magic"></i> <span data-i18n="hue-config.properties.secrets"></span></label>
                 <input type="button" id="revealBridgeSecrets" class="ui-button ui-corner-all ui-widget"
-                    style="background-color:#ffb1ae;width:150px" data-i18n="[value]hue-config.reveal">
+                    style="background-color:#ffb1ae;width:150px" data-i18n="[value]hue-config.properties.reveal">
             </div>
             <div class="form-row" id="DIVrevealBridgeSecrets" hidden>
                 <label><i class="fa fa-file-text-o"></i> -> </label>
@@ -239,7 +240,7 @@
 This node registers to the Hue Bridge.
 
 Just set the Bridge's IP and click **CONNECT**.  
-You can also manually set the credentials.
+You can also manually set the credentials, AFTER you clicked **CONNECT**.
 
 
 **General**

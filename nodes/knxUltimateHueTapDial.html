@@ -113,6 +113,7 @@
             }).focus(function () {
                 $(this).autocomplete('search', $(this).val() + 'exactmatch');
             });
+            try { if (oNodeServer && oNodeServer.id) KNX_enableSecureFormatting($("#node-input-GArepeat"), oNodeServer.id); } catch (e) {}
 
 
 

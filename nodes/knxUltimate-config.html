@@ -7,7 +7,7 @@
             host: { value: "224.0.23.12", required: true },
             port: { value: 3671, required: true, validate: RED.validators.number() },
             // the KNX physical address we'd like to use
-            physAddr: { value: "15.15.22", required: true },
+            physAddr: { value: "15.15.22", required: false },
             hostProtocol: { value: "Auto", required: false }, // TunnelUDP/TunnelTCP/Multicast
             // enable this option to suppress the acknowledge flag with outgoing L_Data.req requests. LoxOne needs this
             suppressACKRequest: { value: false },
@@ -21,6 +21,8 @@
             ignoreTelegramsWithRepeatedFlag: { value: false, required: false },
             keyringFileXML: { value: "" },
             knxSecureSelected: { value: false },
+            tunnelIASelection: { value: "Auto" },
+            tunnelIA: { value: "" },
             autoReconnect: { value: "yes" }
         },
         credentials: {
@@ -28,11 +30,11 @@
         },
         oneditprepare: function () {
             // Go to the help panel
-            try {
-                RED.sidebar.show("help");
-            } catch (error) { }
+                try {
+                    RED.sidebar.show("help");
+                } catch (error) { }
 
-            var node = this;
+                var node = this;
             // TIMER BLINK ####################################################
             let blinkStatus = 2;
             let timerBlinkBackground;
@@ -61,12 +63,106 @@
             // ################################################################
 
             // 22/07/2021 Main tab
+            // Initialize tabs strictly from saved config, not from keyring presence
             $("#tabsMain").tabs({
-                active: node.knxSecureSelected ? 1 : 0,
+                active: (node.knxSecureSelected === true || node.knxSecureSelected === 'true') ? 1 : 0,
                 activate: function (event, ui) {
                     node.knxSecureSelected = $(ui.newTab).index() === 1;
                 }
             });
+            // Ensure the correct tab is enforced after all UI init
+            try {
+                const initialActive = (node.knxSecureSelected === true || node.knxSecureSelected === 'true') ? 1 : 0;
+                setTimeout(() => { $("#tabsMain").tabs("option", "active", initialActive); }, 0);
+            } catch (e) { }
+
+            // Helper: enforce host protocol depending on Secure/Plain and IP
+            function enforceHostProtocol(isSecure, ip) {
+                try {
+                    const $sel = $("#node-config-input-hostProtocol");
+                    const isMulticast = (ip === '224.0.23.12');
+                    const forced = isSecure
+                        ? (isMulticast ? 'Multicast' : 'TunnelTCP')
+                        : (isMulticast ? 'Multicast' : 'TunnelUDP');
+                    // Set value
+                    $sel.val(forced);
+                    // Force selection and prevent changes for both Secure and Plain.
+                    $sel.prop('disabled', true);
+                    // Reset options visibility so that UI remains consistent if user reselects
+                    $sel.find("option").show().prop('disabled', false);
+                    if (isSecure) {
+                        // Keep only valid choices visible conceptually (info only)
+                        $sel.find("option[value='TunnelUDP']").prop('disabled', true).hide();
+                        $sel.find("option[value='Auto']").prop('disabled', true).hide();
+                    } else {
+                        // For plain, hide TunnelTCP which is not used
+                        $sel.find("option[value='TunnelTCP']").prop('disabled', true).hide();
+                        $sel.find("option[value='Auto']").prop('disabled', true).hide();
+                    }
+                } catch (e) { }
+            }
+
+            // List of IA from keyring and loader
+            let aTunnelIAs = [];
+            function populateTunnelIAList() {
+                try {
+                    const keyring = $("#node-config-input-keyringFileXML").val();
+                    const pwd = $("#node-config-input-keyringFilePassword").val();
+                    const params = { serverId: node.id };
+                    if (typeof keyring === 'string' && keyring.trim() !== '') params.keyring = keyring.trim();
+                    if (typeof pwd === 'string' && pwd.trim() !== '') params.pwd = pwd.trim();
+                    $.getJSON('knxUltimateKeyringInterfaces', params, (data) => {
+                        aTunnelIAs = [];
+                        if (Array.isArray(data)) {
+                            data.forEach(item => {
+                                const ia = item.ia || '';
+                                const userId = (item.userId !== undefined && item.userId !== null) ? item.userId : '';
+                                if (ia) {
+                                    aTunnelIAs.push({ label: userId !== '' ? `${ia} (user ${userId})` : ia, value: ia });
+                                }
+                            });
+                        }
+                        try {
+                            const $ia = $("#node-config-input-tunnelIA");
+                            if ($ia.data('ui-autocomplete')) {
+                                $ia.autocomplete('option', 'source', aTunnelIAs);
+                            }
+                        } catch (e) { }
+                    });
+                } catch (error) { }
+            }
+
+            // Secure: Tunnel IA selection
+            try {
+                $("#node-config-input-tunnelIASelection").val(typeof node.tunnelIASelection === 'undefined' ? 'Auto' : node.tunnelIASelection);
+                $("#node-config-input-tunnelIA").val(typeof node.tunnelIA === 'undefined' ? '' : node.tunnelIA);
+                const toggleTunnelIA = () => {
+                    if ($("#node-config-input-tunnelIASelection").val() === 'Manual') {
+                        $("#divTunnelIA").show();
+                        populateTunnelIAList();
+                    } else {
+                        $("#divTunnelIA").hide();
+                    }
+                };
+                $("#node-config-input-tunnelIASelection").on('change', toggleTunnelIA);
+                toggleTunnelIA();
+                // Also refresh IA list when user edits keyring/pwd
+                $("#node-config-input-keyringFileXML").on('change', function(){ if ($("#node-config-input-tunnelIASelection").val()==='Manual') populateTunnelIAList(); });
+                $("#node-config-input-keyringFilePassword").on('change', function(){ if ($("#node-config-input-tunnelIASelection").val()==='Manual') populateTunnelIAList(); });
+
+                // Autocomplete on IA input using the discovered IA list
+                try {
+                    $("#node-config-input-tunnelIA").autocomplete({
+                        minLength: 0,
+                        source: function(request, response){ response(aTunnelIAs); },
+                        focus: function(event, ui){ $(this).val(ui.item.value); return false; },
+                        select: function(event, ui){ $(this).val(ui.item.value); return false; }
+                    }).on('focus click', function(){
+                        // Show dropdown on focus/click
+                        $(this).autocomplete('search', '');
+                    });
+                } catch (e) { }
+            } catch (error) { }
 
             // Autocomplete with KNX IP Interfaces
             let aKNXInterfaces = [];
@@ -74,12 +170,18 @@
             $.getJSON("knxUltimateDiscoverKNXGateways", { _: new Date().getTime() }, (data) => {
                 for (let index = 0; index < data.length; index++) {
                     const element = data[index];
-                    const [ip, port, name, address] = element.split(':');
-                    // Aggiungi l'elemento con descrizione e valore
+                    const parts = String(element).split(':');
+                    const ip = parts[0];
+                    const port = parts[1];
+                    const name = parts[2];
+                    const address = parts[3];
+                    const secureFlag = parts[parts.length - 1];
+                    const isSecure = secureFlag === 'Secure KNX';
                     const addrLabel = (typeof address === 'string' && address !== '' && address !== 'undefined') ? address : 'n/a';
                     aKNXInterfaces.push({
-                        label: `${name || ''} -> ${ip || ''}:${port || ''} phys addr:${addrLabel}`, // Testo visibile nella lista
-                        value: element                     // Valore selezionato
+                        label: `${name || ''} -> ${ip || ''}:${port || ''} phys addr:${addrLabel}`,
+                        value: element,
+                        isSecure
                     });
                 }
                 $("#interfaces-count").text(`${aKNXInterfaces.length} ` + node._('knxUltimate-config.properties.interfaces_found'));
@@ -89,10 +191,24 @@
                     source: aKNXInterfaces, // Dati per il completamento
                     select: function (event, ui) {
                         // Quando l'utente seleziona un elemento, aggiorna il valore del campo
-                        const [ip, port, name, address] = ui.item.value.split(':');
+                        const parts = String(ui.item.value).split(':');
+                        const ip = parts[0];
+                        const port = parts[1];
+                        const name = parts[2];
+                        const address = parts[3];
+                        const secureFlag = parts[parts.length - 1];
+                        const isSecure = secureFlag === 'Secure KNX';
                         $("#node-config-input-host").val(ip);
                         $("#node-config-input-port").val(port);
                         $("#node-config-input-name").val(name || "");
+                        // Se è Secure KNX, attiva TAB Secure e consenti scelta tra TunnelTCP/Multicast; altrimenti set Plain (tunneling o multicast) e blocca la scelta
+                        if (isSecure) {
+                            try { $("#tabsMain").tabs("option", "active", 1); } catch (e) { }
+                            enforceHostProtocol(true, ip);
+                        } else {
+                            try { $("#tabsMain").tabs("option", "active", 0); } catch (e) { }
+                            enforceHostProtocol(false, ip);
+                        }
                         // Selezione tunneling vs router: per tunneling lascia vuoto il physAddr; per router valorizza
                         if (ip && ip !== '224.0.23.12') {
                             // Tunneling: l'utente deve inserire manualmente la physical address
@@ -128,11 +244,17 @@
                     $(this).autocomplete("search", "");
                 }).autocomplete("instance")._renderItem = function (ul, item) {
                     // Personalizza l'aspetto degli elementi della lista
-                    const [ip, port, name, address] = item.value.split(':');
-                    const color = (ip === "224.0.23.12") ? "gray" : "green"; // Condizione
+                    const parts = String(item.value).split(':');
+                    const ip = parts[0];
+                    const port = parts[1];
+                    const name = parts[2];
+                    const address = parts[3];
+                    const secureFlag = parts[parts.length - 1];
+                    const isSecure = secureFlag === 'Secure KNX';
                     const addrLabel = (typeof address === 'string' && address !== '' && address !== 'undefined') ? address : 'n/a';
+                    const colorStyle = isSecure ? 'color: green;' : '';
                     return $("<li>")
-                        .append(`<div style="color: ${color};"><b>${ip || ''}:${port || ''}</b> -> ${name || ''} - Address:${addrLabel}</div>`) // Mostra la descrizione completa
+                        .append(`<div style="${colorStyle}"><b>${ip || ''}:${port || ''}</b> -> ${name || ''} - Address:${addrLabel}${isSecure ? ' (Secure KNX)' : ''}</div>`) // Mostra la descrizione completa
                         .appendTo(ul);
                 }
             }).fail(function () {
@@ -174,6 +296,27 @@
                     }
                 });
             });
+
+            // Abilita manualmente la lista dei protocolli quando l'utente modifica l'IP a mano
+            try {
+                $("#node-config-input-host").on('input', function(){
+                    const isSecure = (function(){
+                        try { return $("#tabsMain").tabs("option", "active") === 1; } catch(e) { return !!node.knxSecureSelected; }
+                    })();
+                    const $sel = $("#node-config-input-hostProtocol");
+                    // Abilita select
+                    $sel.prop('disabled', false);
+                    // Mostra opzioni consentite in base a Secure/Plain
+                    $sel.find('option').show().prop('disabled', false);
+                    if (isSecure) {
+                        $sel.find("option[value='TunnelUDP']").prop('disabled', true).hide();
+                        $sel.find("option[value='Auto']").prop('disabled', true).hide();
+                    } else {
+                        $sel.find("option[value='TunnelTCP']").prop('disabled', true).hide();
+                        $sel.find("option[value='Auto']").prop('disabled', true).hide();
+                    }
+                });
+            } catch (e) { }
 
 
             // 14/08/2021 Elimino il file delle persistenze di questo nodo
@@ -321,6 +464,17 @@
                 <div class="form-row">
                     <label for="node-config-input-keyringFilePassword"><i class="fa fa-shield"></i> <span data-i18n="knxUltimate-config.ets.password"></span></label>
                     <input type="password" id="node-config-input-keyringFilePassword" style="width:200px;">               
+                </div>
+                <div class="form-row">
+                    <label for="node-config-input-tunnelIASelection"><i class="fa fa-exchange"></i> <span data-i18n="knxUltimate-config.properties.tunnel_ia_label"></span></label>
+                    <select id="node-config-input-tunnelIASelection" style="width: 150px;">
+                        <option value="Auto" data-i18n="knxUltimate-config.properties.tunnel_ia_mode_auto">Auto</option>
+                        <option value="Manual" data-i18n="knxUltimate-config.properties.tunnel_ia_mode_manual">Manual</option>
+                    </select>
+                </div>
+                <div class="form-row" id="divTunnelIA" style="display:none;">
+                    <label for="node-config-input-tunnelIA"><i class="fa fa-map-marker"></i> <span data-i18n="knxUltimate-config.properties.tunnel_ia_input_label"></span></label>
+                    <input type="text" id="node-config-input-tunnelIA" style="width:150px;" placeholder="1.1.1"/>
                 </div>
             </p>   
         </div>
@@ -646,6 +800,26 @@ If you can use both, please prefer the **ETS CSV Group address exported file**, 
             <td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/redring.png"></img></td>
             <td>Node DISABLED due to a circulare reference. <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki" target="_blank">See this page.</a></td>
         </tr>
+            // Populate IA list from keyring
+            function populateTunnelIAList() {
+                try {
+                    const keyring = $("#node-config-input-keyringFileXML").val();
+                    const pwd = $("#node-config-input-keyringFilePassword").val();
+                    const params = { serverId: node.id };
+                    if (typeof keyring === 'string' && keyring.trim() !== '') params.keyring = keyring.trim();
+                    if (typeof pwd === 'string' && pwd.trim() !== '') params.pwd = pwd.trim();
+                    $.getJSON('knxUltimateKeyringInterfaces', params, (data) => {
+                        const $dl = $("#datalistTunnelIA");
+                        $dl.empty();
+                        if (Array.isArray(data)) {
+                            data.forEach(item => {
+                                const ia = item.ia || '';
+                                if (ia) $dl.append(`<option value="${ia}"></option>`);
+                            });
+                        }
+                    });
+                } catch (error) { }
+            }
     </table>
 </p>
         

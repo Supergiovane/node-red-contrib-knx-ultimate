@@ -8,6 +8,14 @@ const path = require("path");
 const net = require("net");
 const _ = require("lodash");
 const knx = require("knxultimate");
+// 2025-09: Use KNXUltimate built-in keyring for KNX Secure validation
+let Keyring;
+try {
+  // Not exported by default; import from build path
+  ({ Keyring } = require("knxultimate/build/secure/keyring"));
+} catch (e) {
+  Keyring = null;
+}
 //const dptlib = require('knxultimate').dptlib;
 const dptlib = require('knxultimate').dptlib;
 const loggerClass = require('./utils/sysLogger')
@@ -90,6 +98,9 @@ module.exports = (RED) => {
     // 24/07/2021 KNX Secure checks...
     node.keyringFileXML = typeof config.keyringFileXML === "undefined" || config.keyringFileXML.trim() === "" ? "" : config.keyringFileXML;
     node.knxSecureSelected = typeof config.knxSecureSelected === "undefined" ? false : config.knxSecureSelected;
+    // 2025-09 Secure Tunnel Interface IA selection (Auto/Manual)
+    node.tunnelIASelection = typeof config.tunnelIASelection === "undefined" ? "Auto" : config.tunnelIASelection;
+    node.tunnelIA = typeof config.tunnelIA === "undefined" ? "" : config.tunnelIA;
     node.name = config.name === undefined || config.name === "" ? node.host : config.name; // 12/08/2021
     node.timerKNXUltimateCheckState = null; // 08/10/2021 Check the state. If not connected and autoreconnect is true, retrig the connetion attempt.
     node.knxConnectionProperties = null; // Retains the connection properties
@@ -141,38 +152,50 @@ module.exports = (RED) => {
 
     //
     // KNX-SECURE
-    // 15/11/2021 Function to load the keyring file exported from ETS
+    // Validate keyring (if available) and prepare secure configuration
     //
-    //
-    node.jKNXSecureKeyring = null;
-    try {
-      (async () => {
+    node.secureTunnelConfig = undefined;
+    (async () => {
+      try {
         if (node.knxSecureSelected) {
+          // Prepare secure config for KNXClient. The loader accepts either a
+          // filesystem path to .knxkeys or the raw XML/base64 content.
+          node.secureTunnelConfig = {
+            knxkeys_file_path: node.keyringFileXML || "",
+            knxkeys_password: node.credentials?.keyringFilePassword || "",
+          };
+          // Manual IA selection
           try {
-            node.jKNXSecureKeyring = await knx.KNXSecureKeyring.keyring.load(node.keyringFileXML, node.credentials.keyringFilePassword);
-            RED.log.info(
-              "KNX-Secure: Keyring for ETS proj " +
-              node.jKNXSecureKeyring.ETSProjectName +
-              ", created by " +
-              node.jKNXSecureKeyring.ETSCreatedBy +
-              " on " +
-              node.jKNXSecureKeyring.ETSCreated +
-              " succesfully validated with provided password, using node " +
-              node.name || node.id,
-            );
-          } catch (error) {
-          }
+            if (node.tunnelIASelection === "Manual" && typeof node.tunnelIA === "string" && node.tunnelIA.trim() !== "") {
+              node.secureTunnelConfig.tunnelInterfaceIndividualAddress = node.tunnelIA.trim();
+            }
+          } catch (e) { /* empty */ }
 
+          // Optional early validation to give immediate feedback (non-fatal)
+          if (Keyring && node.keyringFileXML && (node.credentials?.keyringFilePassword || "") !== "") {
+            try {
+              const kr = new Keyring();
+              await kr.load(node.keyringFileXML, node.credentials.keyringFilePassword);
+              const createdBy = kr.getCreatedBy?.() || "unknown";
+              const created = kr.getCreated?.() || "unknown";
+              RED.log.info(`KNX-Secure: Keyring validated (Created by ${createdBy} on ${created}) using node ${node.name || node.id}`);
+            } catch (err) {
+              node.sysLogger?.error("KNX Secure: keyring validation failed: " + err.message);
+              // Keep secure enabled: KNXClient will emit detailed errors on connect
+            }
+          } else {
+            RED.log.info("KNX-Secure: secure mode selected. Using provided keyring and password.");
+          }
         } else {
-          RED.log.info("KNX-Unsecure: connection to insecure interface/router using node " + node.name || node.id);
+          RED.log.info("KNX-Unsecure: connection to insecure interface/router using node " + (node.name || node.id));
         }
-      })();
-    } catch (error) {
-      node.sysLogger?.error("KNX Secure: error parsing the keyring XML: " + error.message);
-      node.jKNXSecureKeyring = null;
-      node.knxSecureSelected = false;
-      const t = setTimeout(() => node.setAllClientsStatus("Error", "red", "KNX Secure " + error.message), 2000); // 21/03/2022 fixed possible memory leak. Previously was setTimeout without "let t = ".
-    }
+      } catch (error) {
+        node.sysLogger?.error("KNX Secure: error preparing secure configuration: " + error.message);
+        node.secureTunnelConfig = undefined;
+        node.knxSecureSelected = false;
+        const t = setTimeout(() => node.setAllClientsStatus("Error", "red", "KNX Secure " + error.message), 2000);
+      }
+    })();
 
     // 04/04/2021 Supergiovane, creates the service paths where the persistent files are created.
     // The values file is stored only upon disconnection/close
@@ -204,7 +227,7 @@ module.exports = (RED) => {
       try {
         if (node.exposedGAs.length > 0) {
           fs.writeFileSync(sFile, JSON.stringify(node.exposedGAs));
-          node.sysLogger?.debug("wrote peristent values to the file " + sFile);
+          //node.sysLogger?.debug("wrote peristent values to the file " + sFile);
         }
       } catch (err) {
         node.sysLogger?.error("unable to write peristent values to the file " + sFile + " " + err.message);
@@ -507,24 +530,6 @@ module.exports = (RED) => {
       }
     };
 
-    // 08/10/2021
-    // node.knxConnectionProperties must be:
-    // const optionsDefaults = {
-    //     physAddr: '15.15.200',
-    //     connectionKeepAliveTimeout: KNXConstants.KNX_CONSTANTS.CONNECTION_ALIVE_TIME,
-    //     ipAddr: "224.0.23.12",
-    //     ipPort: 3671,
-    //     hostProtocol: "TunnelUDP", // TunnelUDP, TunnelTCP, Multicast
-    //     isSecureKNXEnabled: false,
-    //     suppress_ack_ldatareq: false,
-    //     loglevel: "info",
-    //     localEchoInTunneling: true,
-    //     localIPAddress: "",
-    //     jKNXSecureKeyring: node.jKNXSecureKeyring
-    //     interface: "",
-    //     KNXQueueSendIntervalMilliseconds: Number(node.delaybetweentelegrams)
-    // };
-
     node.setKnxConnectionProperties = () => {
       // 25/08/2021 Moved out of node.initKNXConnection
       node.knxConnectionProperties = {
@@ -535,7 +540,7 @@ module.exports = (RED) => {
         loglevel: node.loglevel,
         hostProtocol: node.hostProtocol,
         isSecureKNXEnabled: node.knxSecureSelected,
-        jKNXSecureKeyring: node.jKNXSecureKeyring,
+        secureTunnelConfig: node.knxSecureSelected ? node.secureTunnelConfig : undefined,
         localIPAddress: "", // Riempito da KNXEngine
         KNXQueueSendIntervalMilliseconds: Number(node.delaybetweentelegrams),
         connectionKeepAliveTimeout: 30 // Every 30 seconds, send a connectionstatus_request
@@ -735,7 +740,9 @@ module.exports = (RED) => {
       if (_datagram.cEMIMessage.npdu.isGroupRead) _evt = "GroupValue_Read";
       if (_datagram.cEMIMessage.npdu.isGroupResponse) _evt = "GroupValue_Response";
       if (_datagram.cEMIMessage.npdu.isGroupWrite) _evt = "GroupValue_Write";
-
+      if (_evt === null) {
+        console.log("Found unknown event: ", _datagram);
+      }; // Not a group read, write or response.
       let _src = null;
       _src = _datagram.cEMIMessage.srcAddress.toString();
 

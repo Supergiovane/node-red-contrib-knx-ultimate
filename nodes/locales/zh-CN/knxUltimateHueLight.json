@@ -12,5 +12,15 @@
         "node-input-dptLightState": "dpt",
         "node-input-hueLight": "HUE light",
         "paletteLabel": "Hue 灯/插座"
+    },
+    "common": {
+        "ga": "组地址",
+        "dpt": "数据点类型",
+        "name": "名称",
+        "youtube_sample": "YouTube 示例",
+        "knx_gw": "KNX 网关",
+        "hue_bridge": "HUE 网桥",
+        "philips_hue": "飞利浦 HUE",
+        "read": "读取"
     }
 }

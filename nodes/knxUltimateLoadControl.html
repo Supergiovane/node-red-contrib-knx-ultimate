@@ -150,9 +150,12 @@
             };
 
             $("#node-input-topic").autocomplete(this.autoComplete("name", "dpt"));
+            try { var srv = RED.nodes.node($("#node-input-server").val()); if (srv && srv.id) KNX_enableSecureFormatting($("#node-input-topic"), srv.id); } catch (e) {}
             for (let index = 1; index < 6; index++) {
                 $("#node-input-GA" + index).autocomplete(this.autoComplete("Name" + index, "DPT" + index));
                 $("#node-input-MonitorGA" + index).autocomplete(this.autoComplete("MonitorName" + index, "MonitorDPT" + index));
+                try { var srv2 = RED.nodes.node($("#node-input-server").val()); if (srv2 && srv2.id) KNX_enableSecureFormatting($("#node-input-GA" + index), srv2.id); } catch (e) {}
+                try { var srv3 = RED.nodes.node($("#node-input-server").val()); if (srv3 && srv3.id) KNX_enableSecureFormatting($("#node-input-MonitorGA" + index), srv3.id); } catch (e) {}
             }
 
 

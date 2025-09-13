@@ -2,6 +2,15 @@
   "knxUltimateHueScene": {
     "title": "Hue Szenen-Knoten",
     "paletteLabel": "Hue Szene"
+  },
+  "common": {
+    "ga": "GA",
+    "dpt": "DPT",
+    "name": "Name",
+    "youtube_sample": "YouTube-Beispiel",
+    "knx_gw": "KNX-Gateway",
+    "hue_bridge": "HUE-Bridge",
+    "philips_hue": "Philips HUE",
+    "read": "Lesen"
   }
 }
-

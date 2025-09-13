@@ -26,7 +26,11 @@
             "iface_name": "Interface name:",
             "iface_name_placeholder": "Interface name, ex: eth0 or ens1 or Ethernet 1 and so on...",
             "ip_port": "IP Port",
-            "ip_protocol": "IP Protocol"
+            "ip_protocol": "IP Protocol",
+            "tunnel_ia_label": "Tunnel Interface IA",
+            "tunnel_ia_mode_auto": "Auto",
+            "tunnel_ia_mode_manual": "Manual",
+            "tunnel_ia_input_label": "Interface IA"
         },
         "tabs": {
             "configuration": "Configuration",

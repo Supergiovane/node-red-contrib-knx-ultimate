@@ -110,6 +110,7 @@
             }).focus(function () {
                 $(this).autocomplete('search', $(this).val() + 'exactmatch');
             });
+            try { if (oNodeServer && oNodeServer.id) KNX_enableSecureFormatting($("#node-input-GAmotion"), oNodeServer.id); } catch (e) {}
             // ######################## 
 
 

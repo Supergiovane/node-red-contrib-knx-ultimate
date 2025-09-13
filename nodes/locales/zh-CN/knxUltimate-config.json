@@ -26,7 +26,11 @@
             "iface_name": "接口名称：",
             "iface_name_placeholder": "接口名称，例如：eth0、ens1 或 Ethernet 1 ...",
             "ip_port": "IP 端口",
-            "ip_protocol": "IP 协议"
+            "ip_protocol": "IP 协议",
+            "tunnel_ia_label": "隧道接口 IA",
+            "tunnel_ia_mode_auto": "自动",
+            "tunnel_ia_mode_manual": "手动",
+            "tunnel_ia_input_label": "接口 IA"
         },
         "tabs": {
             "configuration": "配置",

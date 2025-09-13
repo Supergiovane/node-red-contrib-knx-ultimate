@@ -31,11 +31,18 @@
             passthrough: { value: "no" },
             sendMsgToKNXCode: { value: "" },
             receiveMsgFromKNXCode: { value: "" },
-            listenallga: { value: "" }
+            listenallga: { value: "" },
+            gaSecure: { value: false }
         },
         inputs: 1,
         outputs: 1,
-        icon: "node-knx-icon.svg",
+        icon: function(){
+            try {
+                return (this.gaSecure === true || this.gaSecure === 'true') ? "node-knx-icon-secure.svg" : "node-knx-icon.svg";
+            } catch (e) {
+                return "node-knx-icon.svg";
+            }
+        },
         label: function () {
             const functionSendMsgToKNXCode = (this.sendMsgToKNXCode !== undefined && this.sendMsgToKNXCode !== '') ? "f(x) " : "";
             const functionreceiveMsgFromKNXCode = (this.receiveMsgFromKNXCode !== undefined && this.receiveMsgFromKNXCode !== '') ? " f(x)" : "";
@@ -72,6 +79,21 @@
                 }
             }
             var oNodeServer = RED.nodes.node($("#node-input-server").val()); // Store the config-node
+            // Secure GA cache from keyring
+            let secureGAs = new Set();
+            function refreshSecureGAs() {
+                try {
+                    const sid = $("#node-input-server").val();
+                    if (!sid || sid === '_ADD_') { secureGAs = new Set(); return; }
+                    $.getJSON("knxUltimateKeyringDataSecureGAs?serverId=" + sid + "&_=" + new Date().getTime(), (data) => {
+                        try {
+                            const set = new Set();
+                            if (Array.isArray(data)) data.forEach(ga => { if (typeof ga === 'string') set.add(ga); });
+                            secureGAs = set;
+                        } catch (e) { secureGAs = new Set(); }
+                    }).fail(function(){ secureGAs = new Set(); });
+                } catch (error) { secureGAs = new Set(); }
+            }
             $("#tabs").tabs();
 
             // 15/09/2020 Supergiovane, set the help sample based on Datapoint
@@ -193,6 +215,7 @@
                     }
 
                     if ($("#node-input-server").val() !== "_ADD_" && $("#node-input-server").val() !== '') {
+                        refreshSecureGAs();
                         $.getJSON("knxUltimateDpts?serverId=" + $("#node-input-server").val() + "&_=" + new Date().getTime(), (data) => {
                             $("#node-input-dpt").empty();
                             data.forEach(dpt => {
@@ -290,9 +313,14 @@
                                         response($.map(data, function (value, key) {
                                             var sSearch = (value.ga + " (" + value.devicename + ") DPT" + value.dpt);
                                             if (htmlUtilsfullCSVSearch(sSearch, request.term)) {
+                                                const isSecure = secureGAs.has(value.ga);
                                                 return {
-                                                    label: value.ga + " # " + value.devicename + " # " + value.dpt, // Label for Display
-                                                    value: value.ga // Value
+                                                    label: value.ga + " # " + value.devicename + " # " + value.dpt,
+                                                    value: value.ga,
+                                                    ga: value.ga,
+                                                    devicename: value.devicename,
+                                                    dpt: value.dpt,
+                                                    isSecure: isSecure
                                                 }
                                             } else {
                                                 return null;
@@ -301,20 +329,35 @@
                                     });
                                 }, select: function (event, ui) {
                                     // Sets Datapoint and device name automatically
-                                    var sDevName = ui.item.label.split("#")[1].trim();
-                                    try {
-                                        sDevName = sDevName.substr(sDevName.indexOf(")") + 1).trim();
-                                    } catch (error) {
-                                    }
+                                    var sDevName = ui.item.devicename || '';
+                                    try { sDevName = sDevName.substr(sDevName.indexOf(")") + 1).trim(); } catch (error) { }
                                     $('#node-input-name').val(sDevName);
-                                    var optVal = $("#node-input-dpt option:contains('" + ui.item.label.split("#")[2].trim() + "')").attr('value');
+                                    var optVal = $("#node-input-dpt option:contains('" + (ui.item.dpt || '').trim() + "')").attr('value');
                                     // Select the option value 
                                     $("#node-input-dpt").val(optVal);
                                     $("#node-input-dpt").trigger("change");
+                                    // Persist secure flag for dynamic icon
+                                    try {
+                                        $("#node-input-gaSecure").val(ui.item.isSecure ? 'true' : 'false');
+                                    } catch (e) { }
+                                    // Toggle shield near GA input
+                                    try {
+                                        if (ui.item.isSecure) {
+                                            $("#gaSecureShield").show();
+                                        } else {
+                                            $("#gaSecureShield").hide();
+                                        }
+                                    } catch (e) { }
                                 }
                             }).focus(function () {
                                 $(this).autocomplete('search', $(this).val() + 'exactmatch');
-                            });
+                            }).autocomplete("instance")._renderItem = function (ul, item) {
+                                const isSecure = !!item.isSecure;
+                                const colorStyle = isSecure ? 'color: green;' : '';
+                                const shield = isSecure ? '<i class="fa fa-shield"></i> ' : '';
+                                const label = `${shield}${item.ga || ''} # ${item.devicename || ''} # ${item.dpt || ''}`;
+                                return $("<li>").append(`<div style="${colorStyle}">${label}</div>`).appendTo(ul);
+                            };
                             $("#divDatapointSelection").show();
                             $("#divNode-input-initialread").show();
                             $("#divOutputRBE").show()
@@ -417,6 +460,16 @@
             });
             // ###########################
 
+            // Show GA shield on dialog open based on saved secure flag
+            try {
+                const initialSecure = (node.gaSecure === true || node.gaSecure === 'true');
+                if (initialSecure) {
+                    $("#gaSecureShield").show();
+                } else {
+                    $("#gaSecureShield").hide();
+                }
+            } catch (e) { }
+
         },
         oneditsave: function () {
             // Return to the info tab
@@ -501,6 +554,7 @@
 
     <!-- Setted by oneditprepare and used in oneditsave to warn user if no CSV file has been loaded -->
 <input id="isETSFileLoaded" name="isETSFileLoaded" type="hidden" value="false" />
+<input id="node-input-gaSecure" name="node-input-gaSecure" type="hidden" value="false" />
 
 <div class="form-row">
     <b>KNX Device node</b>
@@ -528,6 +582,7 @@
             <option value="env">$Env variable</option>
         </select>
         <input type="text" id="node-input-topic" placeholder="Start typing to search" style="width:180px" />
+        <span id="gaSecureShield" title="Data Secure" style="display:none;color:green;margin-left:6px;"><i class="fa fa-shield"></i></span>
     </div>
 
 

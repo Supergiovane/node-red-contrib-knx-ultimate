@@ -1,6 +1,15 @@
 {
   "knxUltimateHueBattery": {
     "paletteLabel": "Sensore batteria Hue"
+  },
+  "common": {
+    "ga": "GA",
+    "dpt": "DPT",
+    "name": "Nome",
+    "youtube_sample": "Esempio YouTube",
+    "knx_gw": "Gateway KNX",
+    "hue_bridge": "Bridge HUE",
+    "philips_hue": "Philips HUE",
+    "read": "Leggi"
   }
 }
-

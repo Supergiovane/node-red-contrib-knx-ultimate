@@ -1,16 +1,20 @@
 {
     "hue-config": {
         "properties": {
-            "helplink": "&nbsp<i class=\"fa fa-question-circle\"></i>&nbsp<a target=\"_blank\" href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/it-hue-configuration\"><u>Aiuto per configurazione</u></a>",
+            "helplink": "&nbsp<i class=\"fa fa-question-circle\"></i>&nbsp<a target=\"_blank\" href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/HUE+Bridge+configuration\"><u>Aiuto per configurazione</u></a>",
             "title": "Philips Hue Bridge",
             "host": "IP",
+            "host_placeholder": "Inserisci l'IP del Bridge Hue, poi clicca CONNETTI",
             "node-config-input-name": "Nome",
             "getinfocam":"Registrati sull'hub",
+            "connect": "CONNETTI",
             "bridge_id": "ID Bridge",
             "username": "Username",
             "client_key": "Client Key",
             "secrets": "Segreti",
-            "reveal": "Mostra"
+            "reveal": "Mostra",
+            "wait_message": "Attendi, sto comunicando con il tuo Bridge HUE...",
+            "caution": "ATTENZIONE: altri nodi HUE di terze parti installati possono causare problemi e devono essere rimossi."
         }
     }
 }

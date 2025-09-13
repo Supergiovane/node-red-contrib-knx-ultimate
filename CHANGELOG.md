@@ -6,6 +6,12 @@
 
 # CHANGELOG
 
+**Version 5.0.0** - September 2025<br/>
+- NEW: KNX Secure has been implemented<br/>
+- Enhancements: enancements in the UI<br/>
+- Enhancements: enancements in the help tab of node-red<br/>
+- Enhancements: added localization IT EN DE CN<br/>
+
 **Version 3.3.40** - August 2025<br/>
 - KNX Peristent value files are now saved every 5 seconds, other than at the node disconnection.<br/>
 - Fixed an issue preventing the AutoResponder node to start, if the imported ETS file contains malformed structure.<br/>

@@ -26,7 +26,11 @@
             "iface_name": "Nome interfaccia:",
             "iface_name_placeholder": "Nome interfaccia, es.: eth0, ens1 o Ethernet 1 ...",
             "ip_port": "Porta IP",
-            "ip_protocol": "Protocollo IP"
+            "ip_protocol": "Protocollo IP",
+            "tunnel_ia_label": "IA dell'interfaccia Tunnel",
+            "tunnel_ia_mode_auto": "Auto",
+            "tunnel_ia_mode_manual": "Manuale",
+            "tunnel_ia_input_label": "IA interfaccia"
         },
         "tabs": {
             "configuration": "Configurazione",

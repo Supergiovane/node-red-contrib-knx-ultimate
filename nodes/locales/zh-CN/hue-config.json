@@ -1,16 +1,20 @@
 {
     "hue-config": {
         "properties": {
-            "helplink": "&nbsp<i class=\"fa fa-question-circle\"></i>&nbsp<a target=\"_blank\" href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/en-hue-configuration\"><u>Help configuring</u></a>",
+            "helplink": "&nbsp<i class=\"fa fa-question-circle\"></i>&nbsp<a target=\"_blank\" href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/HUE+Bridge+configuration\"><u>Help configuring</u></a>",
             "title": "Philips Hue Bridge",
             "host": "IP",
+            "host_placeholder": "请输入 Hue 网桥的 IP，然后点击 连接",
             "node-config-input-name": "Name",
             "getinfocam":"注册到 HUB",
+            "connect": "连接",
             "bridge_id": "Bridge ID",
             "username": "用户名",
             "client_key": "客户端密钥",
             "secrets": "密钥",
-            "reveal": "显示"
+            "reveal": "显示",
+            "wait_message": "请稍候，正在与您的 HUE 网桥通信...",
+            "caution": "注意：其他第三方 HUE 节点可能会导致问题，建议卸载。"
         }
     }
 }

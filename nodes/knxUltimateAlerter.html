@@ -122,6 +122,7 @@
                     }).focus(function () {
                         $(this).autocomplete('search', $(this).val() + 'exactmatch');
                     });
+                    try { if (oNodeServer && oNodeServer.id) KNX_enableSecureFormatting(oTopicField, oNodeServer.id); } catch (e) {}
 
                     oTopicField.val(rule.topic);
                     orowRuleDeviceName.val(rule.devicename);

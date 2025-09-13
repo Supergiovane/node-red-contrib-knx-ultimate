@@ -66,8 +66,7 @@ module.exports.DiscoverKNXGateways = async function DiscoverKNXGateways() {
   const KNXClient = require('knxultimate');
   try {
     if (this.aDiscoveredknxGateways === undefined) {
-      this.aDiscoveredknxGateways = await KNXClient.KNXClient.discover(5000);
-      this.aDiscoveredknxGateways.push('224.0.23.12:3671:Multicast Address:15.15.199')
+      this.aDiscoveredknxGateways = await KNXClient.KNXClient.discover(6000);
       bDiscoverKNXGatewaysRunning = false;
       return this.aDiscoveredknxGateways;
     } else {

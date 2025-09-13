@@ -112,6 +112,7 @@
             }).focus(function () {
                 $(this).autocomplete('search', $(this).val() + 'exactmatch');
             });
+            try { if (oNodeServer && oNodeServer.id) KNX_enableSecureFormatting($("#node-input-GAdevice_software_update"), oNodeServer.id); } catch (e) {}
             // ######################## 
 
 

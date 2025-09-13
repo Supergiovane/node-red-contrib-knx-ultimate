@@ -111,6 +111,7 @@
             }).focus(function () {
                 $(this).autocomplete('search', $(this).val() + 'exactmatch');
             });
+            try { if (oNodeServer && oNodeServer.id) KNX_enableSecureFormatting($("#node-input-GAtemperaturesensor"), oNodeServer.id); } catch (e) {}
             // ######################## 
 
 

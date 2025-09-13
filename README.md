@@ -75,10 +75,9 @@ Please subscribe to the [Youtube channel](https://www.youtube.com/playlist?list=
 | KNX Tunnelling | ![](https://placehold.co/200x20/green/white?text=YES) |
 | KNX Routing | ![](https://placehold.co/200x20/green/white?text=YES) |
 | Philips Hue v2 | ![](https://placehold.co/200x20/green/white?text=YES) |
-| KNX Secure Tunnelling | ![](https://placehold.co/200x20/green/white?text=BETA-TESTING) |
-| KNX Secure Routing | ![](https://placehold.co/200x20/orange/white?text=DEVELOPING) |
-| KNX 3rd PARTY IOT API client | ![](https://placehold.co/200x20/red/white?text=NO) |
-| Matter | ![](https://placehold.co/200x20/red/white?text=NO) |
+| KNX Secure Tunnelling | ![](https://placehold.co/200x20/green/white?text=YES) |
+| KNX Secure Routing | ![](https://placehold.co/200x20/green/white?text=YES) |
+
 
 <br/>
 
