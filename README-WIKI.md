@@ -104,3 +104,5 @@ Troubleshooting
 - Header not updated: ensure `scripts/wiki-menu.json` contains the page (type:"page" and correct `page` title). Then run `npm run wiki:inject-header`.
 - Wrong/missing translations: re‑run `npm run translate-wiki` after adjusting the EN page. The script doesn’t overwrite existing translations; delete a specific translated file to force regeneration.
 - Language bar still relative on GitHub: run `npm run wiki:fix-langbar` and push the wiki repo.
+ - Migrate node help: `npm run wiki:help-migrate`
+   - One‑shot migration of inline help blocks from `nodes/*.html` to localized files in `nodes/locales/<lang>/<help-name>.html` using wiki content as source (fallback to inline text if wiki page is missing).

@@ -21,10 +21,6 @@
 
 </br>  
 
-**Try immediately the KNX Secure beta!**
-```bash
-npm i node-red-contrib-knx-ultimate@4.0.0-beta
-```
 
 <p align='center'>
     <img width="110px" src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/c/agata.png"></br>

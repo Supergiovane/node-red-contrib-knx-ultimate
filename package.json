@@ -3,7 +3,7 @@
   "engines": {
     "node": ">=20.18.1"
   },
-  "version": "4.0.0-beta.0",
+  "version": "4.0.0",
   "description": "Control your KNX intallation via Node-Red! A bunch of KNX nodes, with integrated Philips HUE control and ETS group address importer. Easy to use and highly configurable.",
   "dependencies": {
     "binary-parser": "2.2.1",
@@ -73,7 +73,8 @@
     "wiki:validate": "node scripts/validate-wiki-languagebar.js",
     "wiki:fix-langbar": "node scripts/validate-wiki-languagebar.js --fix",
     "wiki:inject-header": "node scripts/inject-wiki-header.js",
-    "wiki:menu-add": "node scripts/manage-wiki-menu.js"
+    "wiki:menu-add": "node scripts/manage-wiki-menu.js",
+    "wiki:help-migrate": "node scripts/migrate-node-help.js"
   },
   "devDependencies": {
     "translate-google": "^1.5.0"
