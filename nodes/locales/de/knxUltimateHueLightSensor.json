@@ -1,7 +1,10 @@
 {
   "knxUltimateHueLightSensor": {
     "title": "Hue Lichtsensor Knoten",
-    "paletteLabel": "Hue Lichtsensor"
+    "paletteLabel": "Hue Lichtsensor",
+    "read_status_startup": "Status beim Start lesen",
+    "opt_no": "Nein",
+    "opt_yes_emit": "Ja, und KNX-Telegramme senden."
   },
   "common": {
     "ga": "GA",

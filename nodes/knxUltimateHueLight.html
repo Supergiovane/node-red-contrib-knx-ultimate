@@ -331,28 +331,28 @@
                 $("#node-input-specifySwitchOnBrightness").empty().append(
                   $("<option>")
                     .val("no")
-                    .text("None")
+                    .text(node._("knxUltimateHueLight.none"))
                 ).append(
                   $("<option>")
                     .val("yes")
-                    .text("Select color")
+                    .text(node._("knxUltimateHueLight.select_color"))
                 ).append(
                   $("<option>")
                     .val("temperature")
-                    .text("Select temperature and brightness")
+                    .text(node._("knxUltimateHueLight.select_temperature_brightness"))
                 );
                 $("#node-input-enableDayNightLighting").empty().append(
                   $("<option>")
                     .val("no")
-                    .text("No")
+                    .text(node._("knxUltimateHueLight.opt_no"))
                 ).append(
                   $("<option>")
                     .val("yes")
-                    .text("Select color")
+                    .text(node._("knxUltimateHueLight.select_color"))
                 ).append(
                   $("<option>")
                     .val("temperature")
-                    .text("Select temperature and brightness")
+                    .text(node._("knxUltimateHueLight.select_temperature_brightness"))
                 );
                 $("#node-input-specifySwitchOnBrightness").val(node.specifySwitchOnBrightness).trigger('change');
                 $("#node-input-enableDayNightLighting").val(node.enableDayNightLighting).trigger('change');
@@ -364,12 +364,12 @@
                 $("#node-input-specifySwitchOnBrightness").empty().append(
                   $("<option>")
                     .val("no")
-                    .text("None")
+                    .text(node._("knxUltimateHueLight.none"))
                 );
                 $("#node-input-enableDayNightLighting").empty().append(
                   $("<option>")
                     .val("no")
-                    .text("No")
+                    .text(node._("knxUltimateHueLight.opt_no"))
                 );
               }
 
@@ -399,12 +399,12 @@
                 $("#node-input-specifySwitchOnBrightness").append(
                   $("<option>")
                     .val("yes")
-                    .text("Select color")
+                    .text(node._("knxUltimateHueLight.select_color"))
                 );
                 $("#node-input-enableDayNightLighting").append(
                   $("<option>")
                     .val("yes")
-                    .text("Select color")
+                    .text(node._("knxUltimateHueLight.select_color"))
                 );
               }
               // Check temperature (if the light supports temperature, it support dimming as well)
@@ -414,12 +414,12 @@
                 $("#node-input-specifySwitchOnBrightness").append(
                   $("<option>")
                     .val("temperature")
-                    .text("Select temperature and brightness")
+                    .text(node._("knxUltimateHueLight.select_temperature_brightness"))
                 );
                 $("#node-input-enableDayNightLighting").append(
                   $("<option>")
                     .val("temperature")
-                    .text("Select temperature and brightness")
+                    .text(node._("knxUltimateHueLight.select_temperature_brightness"))
                 );
                 $("#divTemperatureAtSwitchOn").show();
                 $("#divTemperatureAtSwitchOnNightTime").show();
@@ -432,12 +432,12 @@
                 $("#node-input-specifySwitchOnBrightness").append(
                   $("<option>")
                     .val("temperature")
-                    .text("Select brightness")
+                    .text(node._("knxUltimateHueLight.select_brightness"))
                 );
                 $("#node-input-enableDayNightLighting").append(
                   $("<option>")
                     .val("temperature")
-                    .text("Select brightness")
+                    .text(node._("knxUltimateHueLight.select_brightness"))
                 );
                 $("#comboTemperatureAtSwitchOn").val(0);
                 $("#comboTemperatureAtSwitchOnNightTime").val(0);
@@ -500,7 +500,7 @@
               $("#divColorsAtSwitchOnNightTime").show();
               $("#divTemperatureAtSwitchOnNightTime").hide();
               blinkBackground("#colorPickerNight")
-              $("#getColorAtSwitchOnDayTimeButton").text("Get current");
+              $("#getColorAtSwitchOnDayTimeButton").text(node._("knxUltimateHueLight.get_current"));
             } else if ($("#node-input-enableDayNightLighting").val() === "temperature") {
               $("#divEnableDayNightLighting").show();
               $("#divCCSBoxAtNightLighting").css({ border: "1px solid dimgrey", "border-radius": "12px", padding: "5px" }); // Add little box to better understand the property page
@@ -513,7 +513,7 @@
           });
 
           $("#getColorAtSwitchOnDayTimeButton").on("click", function () {
-            $("#getColorAtSwitchOnDayTimeButton").text("Wait...");
+            $("#getColorAtSwitchOnDayTimeButton").text(node._("knxUltimateHueLight.wait"));
             let jRet;
             let sQuery;
             if ($("#node-input-specifySwitchOnBrightness").val() === "yes") sQuery = "knxUltimateGetHueColor";
@@ -522,12 +522,12 @@
               $("#node-input-colorAtSwitchOnDayTime").val(data);
               $("#colorPickerDay").val(data);
               blinkBackground("#colorPickerDay")
-              $("#getColorAtSwitchOnDayTimeButton").text("Get again");
+              $("#getColorAtSwitchOnDayTimeButton").text(node._("knxUltimateHueLight.get_again"));
             });
           });
 
           $("#getColorAtSwitchOnNightTimeButton").on("click", function () {
-            $("#getColorAtSwitchOnNightTimeButton").text("Wait...");
+            $("#getColorAtSwitchOnNightTimeButton").text(node._("knxUltimateHueLight.wait"));
             let jRet;
             let sQuery;
             if ($("#node-input-enableDayNightLighting").val() === "yes") sQuery = "knxUltimateGetHueColor";
@@ -536,16 +536,16 @@
               $("#node-input-colorAtSwitchOnNightTime").val(data);
               $("#colorPickerNight").val(data);
               blinkBackground("#colorPickerNight")
-              $("#getColorAtSwitchOnNightTimeButton").text("Get again");
+              $("#getColorAtSwitchOnNightTimeButton").text(node._("knxUltimateHueLight.get_again"));
             });
           });
 
           // Fill options for minDimLevel and maxDimLevel and comboBrightnessAtSwitchOn (for color brightness at switch on, with temperature toghedher)
           for (let index = 100; index >= 0; index -= 5) {
             if (index === 0) {
-              $("#node-input-minDimLevelLight").append($("<option>").val(index).text(index.toString() + "% (Switch Off)"));
-              $("#comboBrightnessAtSwitchOn").append($("<option>").val(index).text(index.toString() + "% (Switch Off)"));
-              $("#comboBrightnessAtSwitchOnNightTime").append($("<option>").val(index).text(index.toString() + "% (Switch Off)"));
+              $("#node-input-minDimLevelLight").append($("<option>").val(index).text(index.toString() + "% " + node._("knxUltimateHueLight.switch_off")));
+              $("#comboBrightnessAtSwitchOn").append($("<option>").val(index).text(index.toString() + "% " + node._("knxUltimateHueLight.switch_off")));
+              $("#comboBrightnessAtSwitchOnNightTime").append($("<option>").val(index).text(index.toString() + "% " + node._("knxUltimateHueLight.switch_off")));
             } else {
               $("#node-input-minDimLevelLight").append($("<option>").val(index).text(index.toString() + "%"));
               $("#comboBrightnessAtSwitchOn").append($("<option>").val(index).text(index.toString() + "%"));
@@ -555,29 +555,29 @@
           // Temperatures, from 2000 to 6535K (circa)
           for (let index = 2000; index <= 6500; index += 100) {
             if (index === 2200) {
-              $("#comboTemperatureAtSwitchOn").append($("<option>").val(index).text(index.toString() + "K (start of philips white ambiance lights range)"));
-              $("#comboTemperatureAtSwitchOnNightTime").append($("<option>").val(index).text(index.toString() + "K (start of philips white ambiance lights range)"));
+              $("#comboTemperatureAtSwitchOn").append($("<option>").val(index).text(index.toString() + node._("knxUltimateHueLight.k_suffix") + " " + node._("knxUltimateHueLight.temp_desc_2200")));
+              $("#comboTemperatureAtSwitchOnNightTime").append($("<option>").val(index).text(index.toString() + node._("knxUltimateHueLight.k_suffix") + " " + node._("knxUltimateHueLight.temp_desc_2200")));
             } else if (index === 2700) {
-              $("#comboTemperatureAtSwitchOn").append($("<option>").val(index).text(index.toString() + "K (warm white, intimate, cozy, personal, for living rooms)"));
-              $("#comboTemperatureAtSwitchOnNightTime").append($("<option>").val(index).text(index.toString() + "K (warm white, intimate, cozy, personal, for living rooms)"));
+              $("#comboTemperatureAtSwitchOn").append($("<option>").val(index).text(index.toString() + node._("knxUltimateHueLight.k_suffix") + " " + node._("knxUltimateHueLight.temp_desc_2700")));
+              $("#comboTemperatureAtSwitchOnNightTime").append($("<option>").val(index).text(index.toString() + node._("knxUltimateHueLight.k_suffix") + " " + node._("knxUltimateHueLight.temp_desc_2700")));
             } else if (index === 3000) {
-              $("#comboTemperatureAtSwitchOn").append($("<option>").val(index).text(index.toString() + "K (soft white, warm, calming, for bathrooms and kitchens)"));
-              $("#comboTemperatureAtSwitchOnNightTime").append($("<option>").val(index).text(index.toString() + "K (soft white, warm, calming, for bathrooms and kitchens)"));
+              $("#comboTemperatureAtSwitchOn").append($("<option>").val(index).text(index.toString() + node._("knxUltimateHueLight.k_suffix") + " " + node._("knxUltimateHueLight.temp_desc_3000")));
+              $("#comboTemperatureAtSwitchOnNightTime").append($("<option>").val(index).text(index.toString() + node._("knxUltimateHueLight.k_suffix") + " " + node._("knxUltimateHueLight.temp_desc_3000")));
             } else if (index === 3500) {
-              $("#comboTemperatureAtSwitchOn").append($("<option>").val(index).text(index.toString() + "K (neutral white, balanced, friendly, inviting, for office spaces and retail)"));
-              $("#comboTemperatureAtSwitchOnNightTime").append($("<option>").val(index).text(index.toString() + "K (not recommended for night time - neutral white, for office spaces and retail)"));
+              $("#comboTemperatureAtSwitchOn").append($("<option>").val(index).text(index.toString() + node._("knxUltimateHueLight.k_suffix") + " " + node._("knxUltimateHueLight.temp_desc_3500_day")));
+              $("#comboTemperatureAtSwitchOnNightTime").append($("<option>").val(index).text(index.toString() + node._("knxUltimateHueLight.k_suffix") + " " + node._("knxUltimateHueLight.temp_desc_3500_night")));
             } else if (index === 4100) {
-              $("#comboTemperatureAtSwitchOn").append($("<option>").val(index).text(index.toString() + "K (cool white, precise, clean, focused, for garages and grocery stores)"));
-              $("#comboTemperatureAtSwitchOnNightTime").append($("<option>").val(index).text(index.toString() + "K (not recommended for night time - cool white, precise, clean, focused, for garages and grocery stores)"));
+              $("#comboTemperatureAtSwitchOn").append($("<option>").val(index).text(index.toString() + node._("knxUltimateHueLight.k_suffix") + " " + node._("knxUltimateHueLight.temp_desc_4100_day")));
+              $("#comboTemperatureAtSwitchOnNightTime").append($("<option>").val(index).text(index.toString() + node._("knxUltimateHueLight.k_suffix") + " " + node._("knxUltimateHueLight.temp_desc_4100_night")));
             } else if (index === 5000) {
-              $("#comboTemperatureAtSwitchOn").append($("<option>").val(index).text(index.toString() + "K (bright white, vibrant, crisp, for warehouses, sports stadiums and healthcare)"));
-              $("#comboTemperatureAtSwitchOnNightTime").append($("<option>").val(index).text(index.toString() + "K (not recommended for night time - bright white, vibrant, crisp, for warehouses, sports stadiums and healthcare)"));
+              $("#comboTemperatureAtSwitchOn").append($("<option>").val(index).text(index.toString() + node._("knxUltimateHueLight.k_suffix") + " " + node._("knxUltimateHueLight.temp_desc_5000_day")));
+              $("#comboTemperatureAtSwitchOnNightTime").append($("<option>").val(index).text(index.toString() + node._("knxUltimateHueLight.k_suffix") + " " + node._("knxUltimateHueLight.temp_desc_5000_night")));
             } else if (index === 6500) {
-              $("#comboTemperatureAtSwitchOn").append($("<option>").val(index).text(index.toString() + "K (daylight, alert, energetic, for indoor agriculture)"));
-              $("#comboTemperatureAtSwitchOnNightTime").append($("<option>").val(index).text(index.toString() + "K (not recommended for night time - daylight, alert, energetic, for indoor agriculture)"));
+              $("#comboTemperatureAtSwitchOn").append($("<option>").val(index).text(index.toString() + node._("knxUltimateHueLight.k_suffix") + " " + node._("knxUltimateHueLight.temp_desc_6500_day")));
+              $("#comboTemperatureAtSwitchOnNightTime").append($("<option>").val(index).text(index.toString() + node._("knxUltimateHueLight.k_suffix") + " " + node._("knxUltimateHueLight.temp_desc_6500_night")));
             } else {
-              $("#comboTemperatureAtSwitchOn").append($("<option>").val(index).text(index.toString() + "K"));
-              $("#comboTemperatureAtSwitchOnNightTime").append($("<option>").val(index).text(index.toString() + "K"));
+              $("#comboTemperatureAtSwitchOn").append($("<option>").val(index).text(index.toString() + node._("knxUltimateHueLight.k_suffix")));
+              $("#comboTemperatureAtSwitchOnNightTime").append($("<option>").val(index).text(index.toString() + node._("knxUltimateHueLight.k_suffix")));
             }
           }
 
@@ -1102,7 +1102,7 @@
             <i class="fa fa-clone"></i> Min Dim Brightness
           </label>
           <select id="node-input-minDimLevelLight">
-            <option value="useHueLightLevel">Use minimum brightness specified in the HUE light</option>
+            <option value="useHueLightLevel" data-i18n="knxUltimateHueLight.use_min_brightness"></option>
           </select>
         </div>
         <div class="form-row">
@@ -1359,31 +1359,30 @@
       <div id="tabs-6">
         <p>
         <div class="form-row">
-          <label style="width:260px;" for="node-input-readStatusAtStartup"><i class="fa fa-question-circle"></i> Read status at
-            startup</label>
+          <label style="width:260px;" for="node-input-readStatusAtStartup"><i class="fa fa-question-circle"></i> <span data-i18n="knxUltimateHueLight.read_status_startup"></span></label>
           <select id="node-input-readStatusAtStartup">
-            <option value="no">No</option>
-            <option value="yes">Yes, and emit KNX telegrams.</option>
+            <option value="no" data-i18n="knxUltimateHueLight.opt_no"></option>
+            <option value="yes" data-i18n="knxUltimateHueLight.opt_yes_emit"></option>
           </select>
         </div>
         <div class="form-row" id="divUpdateKNXBrightnessStatusOnHUEOnOff">
           <label style="width:260px;" for="node-input-updateKNXBrightnessStatusOnHUEOnOff">
-            <i class="fa fa-tag"></i> KNX Brightness Status
+            <i class="fa fa-tag"></i> <span data-i18n="knxUltimateHueLight.knx_brightness_status"></span>
           </label>
           <select id="node-input-updateKNXBrightnessStatusOnHUEOnOff">
-            <option value="onhueoff">When HUE light is Off send 0%. When HUE On, restore previous value (Default KNX behaviour)</option>
-            <option value="no">Leave as is (default HUE behaviour)</option>
+            <option value="onhueoff" data-i18n="knxUltimateHueLight.knx_brightness_onhueoff"></option>
+            <option value="no" data-i18n="knxUltimateHueLight.knx_brightness_no"></option>
           </select>
         </div>
         <div id ="divBehaviourBrightness">
           <div class="form-row">
             <label for="node-input-specifySwitchOnBrightness" style="width:260px;">
-              <i class="fa fa-tag"></i> Switch on behaviour
+              <i class="fa fa-tag"></i> <span data-i18n="knxUltimateHueLight.switch_on_behaviour"></span>
             </label>
             <select id="node-input-specifySwitchOnBrightness">
-              <option value="no">None</option>
-              <!-- <option value="temperature">Select temperature and brightness</option>
-              <option value="yes">Select color</option> -->
+              <option value="no" data-i18n="knxUltimateHueLight.none"></option>
+              <option value="temperature" data-i18n="knxUltimateHueLight.select_temperature_brightness"></option>
+              <option value="yes" data-i18n="knxUltimateHueLight.select_color"></option>
             </select>
           </div>
 
@@ -1392,7 +1391,7 @@
             </label>
             <input type="hidden" id="node-input-colorAtSwitchOnDayTime">
             <input type="color" id="colorPickerDay" style="width:260px">
-            <button id="getColorAtSwitchOnDayTimeButton" type="button" class="red-ui-button">Get current</button>
+            <button id="getColorAtSwitchOnDayTimeButton" type="button" class="red-ui-button"><span data-i18n="knxUltimateHueLight.get_current"></span></button>
           </div>
           <div class="form-row" id="divTemperatureAtSwitchOn" hidden>
             <label for="node-input-colorAtSwitchOnDayTime" style="width:260px">

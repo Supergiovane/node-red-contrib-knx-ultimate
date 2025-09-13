@@ -1,6 +1,9 @@
 {
   "knxUltimateHueZigbeeConnectivity": {
-    "paletteLabel": "Hue Zigbee-Konnektivität"
+    "paletteLabel": "Hue Zigbee-Konnektivität",
+    "read_status_startup": "Status beim Start lesen",
+    "opt_no": "Nein",
+    "opt_yes_emit": "Ja, und KNX-Telegramme senden."
   },
   "common": {
     "ga": "GA",

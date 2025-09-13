@@ -27,11 +27,17 @@
             "node-input-formatmultiplyvalue": "Multiply",
             "node-input-formatnegativevalue": "Negatives",
             "node-input-formatdecimalsvalue": "Decimals",
-            "node-input-passthrough": "Input msg passthrough"
+            "node-input-passthrough": "Input msg passthrough",
+            "rbe_filter": "RBE filter"
         },
         "placeholder": {
             "leaveempty": "Leave empty to use Group Address",
+            "search": "Start typing to search",
             "notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized": "Ex: 0 for false, 1 for true, otherwise any value"
+        },
+        "headings": {
+            "from_input_to_bus": "From node's INPUT PIN to KNX BUS",
+            "from_bus_to_output": "From KNX BUS to node's OUTPUT PIN"
         },
         "advanced": {
             "Advancedoptions": "Advanced options",
@@ -55,6 +61,11 @@
             "Output_response": "Response",
             "Output_read": "Read",
             "Output_update": "No output. Update only (updates the value without sending any telegram to the KNX BUS)",
+            "SetTopic_str": "3-Levels",
+            "SetTopic_listenAllGA": "Universal mode (listen to all Group Addresses)",
+            "SetTopic_flow": "Flow",
+            "SetTopic_global": "Global",
+            "SetTopic_env": "$Env variable",
             "Multiply_leave": "Leave unchanged (default)",
             "Multiply_divide1000": "Divide x 1000",
             "Multiply_divide100": "Divide x 100",
@@ -73,7 +84,11 @@
             "Negatives_abs": "Output absolute value (remove the minus sign)",
             "passthrough_No": "No",
             "passthrough_Leave": "Yes",
-            "passthrough_OwnProp": "Yes, but put the input msg into msg.inputmessage property of the output message"
+            "passthrough_OwnProp": "Yes, but put the input msg into msg.inputmessage property of the output message",
+            "RBE_out_enable": "Enable (send the payload to KNX only if changed)",
+            "RBE_out_disable": "Disable",
+            "RBE_in_enable": "Enable (react only if payload changes)",
+            "RBE_in_disable": "Disable"
         }
     }
 }

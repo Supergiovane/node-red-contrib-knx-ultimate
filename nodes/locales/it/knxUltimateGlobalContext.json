@@ -1,5 +1,5 @@
 {
-    "knxUltimateGlobalContext": {
+  "knxUltimateGlobalContext": {
         "paletteLabel": "Context Globale KNX",
         "helplink" : "&nbsp<i class=\"fa fa-question-circle\"></i>&nbsp<a target=\"_blank\" href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/it-GlobalVariable\"><u>Esempio</u></a>",
         "title": "Variabile Globale KNX",
@@ -11,7 +11,12 @@
             "exposeAsVariableREADWRITE" : "Lettura/Scrittura",
             "node-input-server" : "Gateway",
             "writeExecutionInterval" : "Intervallo scrittura su BUS",
-            "warning" : "Attenzione: è sufficiente UN SOLO NODO in tutto il progetto. La variabile verrà vista da tutti i flows, indipendentemente da dove sia stato messo il nodo."            
-        }
+            "warning" : "Attenzione: è sufficiente UN SOLO NODO in tutto il progetto. La variabile verrà vista da tutti i flows, indipendentemente da dove sia stato messo il nodo."
+        },
+        "interval_250ms": "250ms",
+        "interval_500ms": "500ms",
+        "interval_1000ms_default": "1000ms (Default)",
+        "interval_1500ms": "1500ms",
+        "interval_2000ms": "2000ms"
     }
 }

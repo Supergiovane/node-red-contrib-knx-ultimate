@@ -1,6 +1,11 @@
 {
   "knxUltimateGarageDoorBarrierOpener": {
-    "paletteLabel": "KNX 车库门开启器"
+    "paletteLabel": "KNX 车库门开启器",
+    "command_true_open_false_close": "True = 打开 / False = 关闭",
+    "command_true_close_false_open": "True = 关闭 / False = 打开",
+    "status_true_open_false_closed": "True = 打开 / False = 关闭",
+    "status_true_closed_false_open": "True = 关闭 / False = 打开",
+    "while_moving_ignore": "忽略接收到的命令",
+    "while_moving_obey": "停止移动，然后执行新命令"
   }
 }
-

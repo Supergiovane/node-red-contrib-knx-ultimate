@@ -1,7 +1,19 @@
 {
   "knxUltimateHueScene": {
     "title": "HUE 场景节点",
-    "paletteLabel": "Hue 场景"
+    "paletteLabel": "Hue 场景",
+    "hue_scene": "HUE 场景",
+    "recall_as": "调用方式",
+    "recall_active": "以“激活”调用",
+    "recall_dynamic": "以“动态”调用",
+    "recall_static": "以“静态”调用",
+    "recall": "调用",
+    "status": "状态",
+    "scene_selector": "场景选择器",
+    "knx_scene_n": "KNX 场景第",
+    "node_pins": "节点输入/输出引脚",
+    "node_pins_hide": "隐藏",
+    "node_pins_show": "显示输入/输出引脚"
   },
   "common": {
     "ga": "组地址",

@@ -27,12 +27,18 @@
             "node-input-formatmultiplyvalue": "Moltiplica",
             "node-input-formatnegativevalue": "Negativi",
             "node-input-formatdecimalsvalue": "Decimali",
-            "node-input-passthrough": "Passa msg di ingresso sull'uscita"
+            "node-input-passthrough": "Passa msg di ingresso sull'uscita",
+            "rbe_filter": "Filtro RBE"
         },
         "placeholder": {
             "leaveempty": "Lascia vuoto per usare l'indirizzo di gruppo",
+            "search": "Inizia a digitare per cercare",
             "notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized": "Es: 0 per false, 1 per true, altrimenti qualsiasi valore",
             "noETSWarning": "Non hai importato il file ETS. <br/> Il nodo tenterà di codificare/decodificare i telegrammi. <a href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/it-2.-Node-Configuration\" target='_blank'>Clicca qui per vedere l'help.</a>."
+        },
+        "headings": {
+            "from_input_to_bus": "Dal PIN di INPUT del nodo al BUS KNX",
+            "from_bus_to_output": "Dal BUS KNX al PIN di OUTPUT del nodo"
         },
         "advanced": {
             "Advancedoptions": "Opzioni avanzate",
@@ -54,6 +60,11 @@
             "Output_response": "Risposta",
             "Output_read": "Lettura",
             "Output_update": "Nessun output. Solo aggiornamento (aggiorna solo il valore del nodo, senza scrivere sul BUS KNX)",
+            "SetTopic_str": "3-Livelli",
+            "SetTopic_listenAllGA": "Modalità universale (ascolta tutti gli indirizzi di gruppo)",
+            "SetTopic_flow": "Flow",
+            "SetTopic_global": "Globale",
+            "SetTopic_env": "Variabile $Env",
             "Multiply_leave": "Lascia invariato (default)",
             "Multiply_divide1000": "Dividi x 1000",
             "Multiply_divide100": "Dividi x 100",
@@ -72,7 +83,11 @@
             "Negatives_abs": "Invia valore assoluto (togli il segno -)",
             "passthrough_No": "No",
             "passthrough_Leave": "Si",
-            "passthrough_OwnProp": "Si, ma metti il msg in ingresso, nella proprietà msg.inputmessage del messaggio in uscita"
+            "passthrough_OwnProp": "Si, ma metti il msg in ingresso, nella proprietà msg.inputmessage del messaggio in uscita",
+            "RBE_out_enable": "Abilita (invia il payload a KNX solo se modificato)",
+            "RBE_out_disable": "Disabilita",
+            "RBE_in_enable": "Abilita (reagisci solo se il payload cambia)",
+            "RBE_in_disable": "Disabilita"
         }
     }
 }

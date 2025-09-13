@@ -254,7 +254,7 @@
                     const addrLabel = (typeof address === 'string' && address !== '' && address !== 'undefined') ? address : 'n/a';
                     const colorStyle = isSecure ? 'color: green;' : '';
                     return $("<li>")
-                        .append(`<div style="${colorStyle}"><b>${ip || ''}:${port || ''}</b> -> ${name || ''} - Address:${addrLabel}${isSecure ? ' (Secure KNX)' : ''}</div>`) // Mostra la descrizione completa
+                        .append(`<div style="${colorStyle}"><b>${ip || ''}:${port || ''}</b> -> ${name || ''} - ${node._('knxUltimate-config.properties.address')}:${addrLabel}${isSecure ? ' (' + node._('knxUltimate-config.properties.secure_knx_label') + ')' : ''}</div>`) // Mostra la descrizione completa
                         .appendTo(ul);
                 }
             }).fail(function () {
@@ -468,13 +468,13 @@
                 <div class="form-row">
                     <label for="node-config-input-tunnelIASelection"><i class="fa fa-exchange"></i> <span data-i18n="knxUltimate-config.properties.tunnel_ia_label"></span></label>
                     <select id="node-config-input-tunnelIASelection" style="width: 150px;">
-                        <option value="Auto" data-i18n="knxUltimate-config.properties.tunnel_ia_mode_auto">Auto</option>
-                        <option value="Manual" data-i18n="knxUltimate-config.properties.tunnel_ia_mode_manual">Manual</option>
+                        <option value="Auto" data-i18n="knxUltimate-config.properties.tunnel_ia_mode_auto"></option>
+                        <option value="Manual" data-i18n="knxUltimate-config.properties.tunnel_ia_mode_manual"></option>
                     </select>
                 </div>
                 <div class="form-row" id="divTunnelIA" style="display:none;">
                     <label for="node-config-input-tunnelIA"><i class="fa fa-map-marker"></i> <span data-i18n="knxUltimate-config.properties.tunnel_ia_input_label"></span></label>
-                    <input type="text" id="node-config-input-tunnelIA" style="width:150px;" placeholder="1.1.1"/>
+                    <input type="text" id="node-config-input-tunnelIA" style="width:150px;" data-i18n="[placeholder]knxUltimate-config.properties.tunnel_ia_placeholder"/>
                 </div>
             </p>   
         </div>
@@ -503,10 +503,10 @@
                    <span data-i18n="knxUltimate-config.properties.ip_protocol"></span>
                 </label>
                 <select id="node-config-input-hostProtocol" >
-                    <option value="Auto" >Auto</option>
-                    <option value="TunnelUDP" >Tunnel UDP</option>
-                    <option value="Multicast" >Multicast</option>
-                    <option value="TunnelTCP" >Tunnel TCP</option>
+                    <option value="Auto" data-i18n="knxUltimate-config.properties.proto_auto"></option>
+                    <option value="TunnelUDP" data-i18n="knxUltimate-config.properties.proto_tunnel_udp"></option>
+                    <option value="Multicast" data-i18n="knxUltimate-config.properties.proto_multicast"></option>
+                    <option value="TunnelTCP" data-i18n="knxUltimate-config.properties.proto_tunnel_tcp"></option>
                 </select>   
             </div>
             <div class="form-row">

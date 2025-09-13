@@ -740,14 +740,16 @@ module.exports = (RED) => {
       if (_datagram.cEMIMessage.npdu.isGroupRead) _evt = "GroupValue_Read";
       if (_datagram.cEMIMessage.npdu.isGroupResponse) _evt = "GroupValue_Response";
       if (_datagram.cEMIMessage.npdu.isGroupWrite) _evt = "GroupValue_Write";
-      if (_evt === null) {
-        console.log("Found unknown event: ", _datagram);
-      }; // Not a group read, write or response.
+
       let _src = null;
       _src = _datagram.cEMIMessage.srcAddress.toString();
 
       let _dest = null;
       _dest = _datagram.cEMIMessage.dstAddress.toString();
+
+      if (_evt === null || _src === null || _dest === null) {
+        node.sysLogger?.error("HandleBusEvent: unable to parse telegram, ignored"); return
+      };
 
       _echoed = _echoed || false;
 

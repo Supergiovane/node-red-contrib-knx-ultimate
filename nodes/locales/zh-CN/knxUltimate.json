@@ -27,11 +27,17 @@
             "node-input-formatmultiplyvalue": "乘",
             "node-input-formatnegativevalue": "负数",
             "node-input-formatdecimalsvalue": "小数",
-            "node-input-passthrough": "输入直通"
+            "node-input-passthrough": "输入直通",
+            "rbe_filter": "RBE 过滤器"
         },
         "placeholder": {
             "leaveempty": "如果留空则使用组地址",
+            "search": "开始输入以搜索",
             "notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized": "案例: 0 是 false, 1 是 true, 否则是任意值"
+        },
+        "headings": {
+            "from_input_to_bus": "从节点输入引脚到 KNX 总线",
+            "from_bus_to_output": "从 KNX 总线到节点输出引脚"
         },
         "advanced": {
             "Advancedoptions": "高级选项",
@@ -56,6 +62,11 @@
             "Output_response": "响应",
             "Output_read": "读取",
             "Output_update": "没有输出。仅更新（更新值而不向 KNX 总线发送任何电报）",
+            "SetTopic_str": "三级",
+            "SetTopic_listenAllGA": "通用模式（侦听所有组地址）",
+            "SetTopic_flow": "Flow",
+            "SetTopic_global": "全局",
+            "SetTopic_env": "$Env 变量",
             "Multiply_leave": "保持不变(默认值)",
             "Multiply_divide1000": " 除以 1000",
             "Multiply_divide100": " 除以 100",
@@ -74,7 +85,11 @@
             "Negatives_abs": "输出绝对值 (去除负号)",
             "passthrough_No": "No",
             "passthrough_Leave": "Yes",
-            "passthrough_OwnProp": "是的，但将输入消息放入输出消息的 msg.inputmessage 属性中"
+            "passthrough_OwnProp": "是的，但将输入消息放入输出消息的 msg.inputmessage 属性中",
+            "RBE_out_enable": "启用（仅在负载变化时发送到 KNX）",
+            "RBE_out_disable": "禁用",
+            "RBE_in_enable": "启用（仅在负载变化时响应）",
+            "RBE_in_disable": "禁用"
         }
     }
 }

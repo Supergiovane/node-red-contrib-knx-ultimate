@@ -1,7 +1,19 @@
 {
   "knxUltimateHueScene": {
     "title": "Hue Szenen-Knoten",
-    "paletteLabel": "Hue Szene"
+    "paletteLabel": "Hue Szene",
+    "hue_scene": "HUE Szene",
+    "recall_as": "Abrufen als",
+    "recall_active": "Als Aktiv abrufen",
+    "recall_dynamic": "Als Dynamisch abrufen",
+    "recall_static": "Als Statisch abrufen",
+    "recall": "Abrufen",
+    "status": "Status",
+    "scene_selector": "Szenenwähler",
+    "knx_scene_n": "KNX Szene Nr.",
+    "node_pins": "Node Ein-/Ausgangs-PINs",
+    "node_pins_hide": "Ausblenden",
+    "node_pins_show": "Ein-/Ausgangs-PINs anzeigen"
   },
   "common": {
     "ga": "GA",

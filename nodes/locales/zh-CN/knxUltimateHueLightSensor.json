@@ -1,7 +1,9 @@
 {
   "knxUltimateHueLightSensor": {
     "title": "HUE 光照传感器节点",
-    "paletteLabel": "Hue 光照传感器"
+    "paletteLabel": "Hue 光照传感器",
+    "read_status_startup": "启动时读取状态",
+    "opt_no": "否",
+    "opt_yes_emit": "是，并发送 KNX 电报。"
   }
 }
-

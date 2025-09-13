@@ -27,11 +27,17 @@
             "node-input-formatmultiplyvalue": "Multiplizieren",
             "node-input-formatnegativevalue": "Negativ",
             "node-input-formatdecimalsvalue": "Dezimalstellen",
-            "node-input-passthrough": "Passthrough eingang msg"
+            "node-input-passthrough": "Passthrough eingang msg",
+            "rbe_filter": "RBE-Filter"
         },
         "placeholder": {
             "leaveempty": "Leer lassen, um die Gruppenadresse zu verwenden",
+            "search": "Tippen Sie, um zu suchen",
             "notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized": "Ex: 0 für false, 1 für true, andernfalls jeder Wert"
+        },
+        "headings": {
+            "from_input_to_bus": "Vom Eingangs-PIN des Knotens zum KNX-BUS",
+            "from_bus_to_output": "Vom KNX-BUS zum Ausgangs-PIN des Knotens"
         },
         "advanced": {
             "Advancedoptions": "Erweiterte Optionen",
@@ -54,6 +60,11 @@
             "Output_response": "Antworten",
             "Output_read": "Lesen",
             "Output_update": "Keine Zusendung. Nur Update (aktualisiert den Wert ohne ein Telegram auf den KNX Bus zu senden)",
+            "SetTopic_str": "3-Ebenen",
+            "SetTopic_listenAllGA": "Universeller Modus (alle Gruppenadressen abhören)",
+            "SetTopic_flow": "Flow",
+            "SetTopic_global": "Global",
+            "SetTopic_env": "$Env Variable",
             "Multiply_leave": "Unverändert lassen (Standard)",
             "Multiply_divide1000": "Teilen / 1000",
             "Multiply_divide100": "Teilen / 100",
@@ -72,7 +83,11 @@
             "Negatives_abs": "Absolutwert ausgeben (Minuszeichen entfernen)",
             "passthrough_No": "Nein",
             "passthrough_Leave": "Ja",
-            "passthrough_OwnProp": "Ja, aber fügen Sie den eingangmsg in die msg.inputmessage des Ausgabenmsg ein"
+            "passthrough_OwnProp": "Ja, aber fügen Sie den eingangmsg in die msg.inputmessage des Ausgabenmsg ein",
+            "RBE_out_enable": "Aktivieren (nur senden, wenn sich der Payload ändert)",
+            "RBE_out_disable": "Deaktivieren",
+            "RBE_in_enable": "Aktivieren (nur reagieren, wenn sich der Payload ändert)",
+            "RBE_in_disable": "Deaktivieren"
         }
     }
 }

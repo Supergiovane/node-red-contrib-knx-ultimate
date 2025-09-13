@@ -1,7 +1,10 @@
 {
   "knxUltimateHueLightSensor": {
     "title": "Nodo Sensore Luce HUE",
-    "paletteLabel": "Sensore luce Hue"
+    "paletteLabel": "Sensore luce Hue",
+    "read_status_startup": "Leggi lo stato all'avvio",
+    "opt_no": "No",
+    "opt_yes_emit": "Sì, ed emetti i telegrammi KNX."
   },
   "common": {
     "ga": "GA",

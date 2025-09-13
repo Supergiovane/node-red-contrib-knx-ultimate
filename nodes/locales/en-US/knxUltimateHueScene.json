@@ -1,7 +1,19 @@
 {
   "knxUltimateHueScene": {
     "title": "HUE Scene node",
-    "paletteLabel": "Hue Scene"
+    "paletteLabel": "Hue Scene",
+    "hue_scene": "HUE Scene",
+    "recall_as": "Recall as",
+    "recall_active": "Recall as Active",
+    "recall_dynamic": "Recall as Dynamic",
+    "recall_static": "Recall as Static",
+    "recall": "Recall",
+    "status": "Status",
+    "scene_selector": "Scene selector",
+    "knx_scene_n": "KNX Scene n.",
+    "node_pins": "Node Input/Output PINs",
+    "node_pins_hide": "Hide",
+    "node_pins_show": "Show node input/output PINs"
   },
   "common": {
     "ga": "GA",

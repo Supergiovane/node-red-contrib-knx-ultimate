@@ -1,6 +1,9 @@
 {
   "knxUltimateHueTemperatureSensor": {
-    "paletteLabel": "Sensore temperatura Hue"
+    "paletteLabel": "Sensore temperatura Hue",
+    "read_status_startup": "Leggi lo stato all'avvio",
+    "opt_no": "No",
+    "opt_yes_emit": "Sì, ed emetti i telegrammi KNX."
   },
   "common": {
     "ga": "GA",

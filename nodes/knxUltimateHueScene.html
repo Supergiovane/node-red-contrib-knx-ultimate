@@ -328,24 +328,24 @@
                         rowRuleKNXSceneNumber.append(
                             $("<option>")
                                 .val(index)
-                                .text("KNX Scene n." + index.toString())
+                                .text(node._("knxUltimateHueScene.knx_scene_n") + index.toString())
                         );
                         rowRuleKNXSceneNumber.val(rule.rowRuleKNXSceneNumber);
                     }
                     rowRuleRecallAs.append(
                         $("<option>")
                             .val("active")
-                            .text("Recall as Active")
+                            .text(node._("knxUltimateHueScene.recall_active"))
                     );
                     rowRuleRecallAs.append(
                         $("<option>")
                             .val("dynamic_palette")
-                            .text("Recall as Dynamic")
+                            .text(node._("knxUltimateHueScene.recall_dynamic"))
                     );
                     rowRuleRecallAs.append(
                         $("<option>")
                             .val("static")
-                            .text("Recall as Static")
+                            .text(node._("knxUltimateHueScene.recall_static"))
                     );
                     rowRuleRecallAs.val(rule.rowRuleRecallAs);
                     rowRuleHUESceneName.autocomplete({
@@ -494,18 +494,18 @@
             
         <div class="form-row">
             <label for="node-input-hueDevice" >
-                <i class="fa fa-play-circle"></i>&nbspHue Scene</label>
+                <i class="fa fa-play-circle"></i>&nbsp<span data-i18n="knxUltimateHueScene.hue_scene"></span></label>
                 <input type="text" id="node-input-name" placeholder="Enter your hue device name" />
             <input type="hidden" id="node-input-hueDevice" />
         </div>
         <div class="form-row">
             <label for="node-input-hueSceneRecallType">
-                <i class="fa fa-minus-circle"></i> Recall as
+                <i class="fa fa-minus-circle"></i> <span data-i18n="knxUltimateHueScene.recall_as"></span>
             </label>
             <select  id="node-input-hueSceneRecallType">
-                <option value="active">Recall as Active</option>
-                <option value="dynamic_palette">Recall as Dynamic</option>
-                <option value="static">Recall as Static</option>
+                <option value="active" data-i18n="knxUltimateHueScene.recall_active"></option>
+                <option value="dynamic_palette" data-i18n="knxUltimateHueScene.recall_dynamic"></option>
+                <option value="static" data-i18n="knxUltimateHueScene.recall_static"></option>
             </select>
         </div>
 
@@ -514,7 +514,7 @@
             <b>KNX</b>
         </p>
         <div class="form-row">
-            <label for="node-input-namescene" style="width:100px;"><i class="fa fa-play-circle-o"></i> Recall</label>
+            <label for="node-input-namescene" style="width:100px;"><i class="fa fa-play-circle-o"></i> <span data-i18n="knxUltimateHueScene.recall"></span></label>
 
             <label for="node-input-GAscene" style="width:20px;"><span data-i18n="common.ga"></span></label>
             <input type="text" id="node-input-GAscene" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
@@ -531,7 +531,7 @@
             <select id="node-input-valscene" style="width:180px;margin-left: 5px; text-align: left;"></select>
         </div>
         <div class="form-row">
-            <label for="node-input-namesceneStatus" style="width:100px;"><i class="fa fa-question-circle"></i> Status</label>
+            <label for="node-input-namesceneStatus" style="width:100px;"><i class="fa fa-question-circle"></i> <span data-i18n="knxUltimateHueScene.status"></span></label>
 
             <label for="node-input-GAsceneStatus" style="width:20px;"><span data-i18n="common.ga"></span></label>
             <input type="text" id="node-input-GAsceneStatus" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
@@ -549,7 +549,7 @@
     <div id="tabs-2">
         <br/>
         <div class="form-row">
-            <label for="node-input-namesceneMulti" style="width:100px;"><i class="fa fa-play-circle-o"></i> Recall</label>
+            <label for="node-input-namesceneMulti" style="width:100px;"><i class="fa fa-play-circle-o"></i> <span data-i18n="knxUltimateHueScene.recall"></span></label>
 
             <label for="node-input-GAsceneMulti" style="width:20px;"><span data-i18n="common.ga"></span></label>
             <input type="text" id="node-input-GAsceneMulti" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
@@ -562,7 +562,7 @@
         </div>
 
        <div>
-            <dt><i class="fa fa-code-fork"></i> Scene selector</dt>
+            <dt><i class="fa fa-code-fork"></i> <span data-i18n="knxUltimateHueScene.scene_selector"></span></dt>
             <div class="form-row node-input-rule-container-row">
                 <ol id="node-input-rule-container"></ol>
             </div>
@@ -577,11 +577,11 @@
         <br/>
         <div class="form-row">
             <label for="node-input-enableNodePINS" style="width:240px;">
-                <i class="fa fa-circle"></i> Node Input/Output PINs
+                <i class="fa fa-circle"></i> <span data-i18n="knxUltimateHueScene.node_pins"></span>
             </label>
             <select id="node-input-enableNodePINS">
-                <option value="no">Hide</option>
-                <option value="yes">Show node input/output PINs</option>
+                <option value="no" data-i18n="knxUltimateHueScene.node_pins_hide"></option>
+                <option value="yes" data-i18n="knxUltimateHueScene.node_pins_show"></option>
             </select>  
         </div>      
     </div> <!-- // End Tab 3 -->

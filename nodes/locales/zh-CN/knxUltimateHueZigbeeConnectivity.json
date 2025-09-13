@@ -1,6 +1,9 @@
 {
   "knxUltimateHueZigbeeConnectivity": {
-    "paletteLabel": "Hue Zigbee 连接"
+    "paletteLabel": "Hue Zigbee 连接",
+    "read_status_startup": "启动时读取状态",
+    "opt_no": "否",
+    "opt_yes_emit": "是，并发送 KNX 电报。"
   },
   "common": {
     "ga": "组地址",

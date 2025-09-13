@@ -1,6 +1,8 @@
 {
   "knxUltimateHueTemperatureSensor": {
-    "paletteLabel": "Hue Temperatursensor"
+    "paletteLabel": "Hue Temperatursensor",
+    "opt_no": "Nein",
+    "opt_yes_emit": "Ja, und KNX-Telegramme senden."
   },
   "common": {
     "ga": "GA",

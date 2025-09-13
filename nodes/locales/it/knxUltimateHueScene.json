@@ -1,7 +1,19 @@
 {
   "knxUltimateHueScene": {
     "title": "Nodo Scena HUE",
-    "paletteLabel": "Hue Scena"
+    "paletteLabel": "Hue Scena",
+    "hue_scene": "Scena HUE",
+    "recall_as": "Richiama come",
+    "recall_active": "Richiama come Attiva",
+    "recall_dynamic": "Richiama come Dinamica",
+    "recall_static": "Richiama come Statica",
+    "recall": "Richiama",
+    "status": "Stato",
+    "scene_selector": "Selettore scena",
+    "knx_scene_n": "Scena KNX n.",
+    "node_pins": "PIN di Input/Output del nodo",
+    "node_pins_hide": "Nascondi",
+    "node_pins_show": "Mostra PIN di input/output"
   },
   "common": {
     "ga": "GA",

@@ -1,6 +1,9 @@
 {
   "knxUltimateHueBattery": {
-    "paletteLabel": "Sensore batteria Hue"
+    "paletteLabel": "Sensore batteria Hue",
+    "read_status_startup": "Leggi lo stato all'avvio",
+    "opt_no": "No",
+    "opt_yes_emit": "Sì, ed emetti i telegrammi KNX."
   },
   "common": {
     "ga": "GA",

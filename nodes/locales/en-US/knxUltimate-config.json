@@ -27,10 +27,16 @@
             "iface_name_placeholder": "Interface name, ex: eth0 or ens1 or Ethernet 1 and so on...",
             "ip_port": "IP Port",
             "ip_protocol": "IP Protocol",
+            "proto_auto": "Auto",
+            "proto_tunnel_udp": "Tunnel UDP",
+            "proto_multicast": "Multicast",
+            "proto_tunnel_tcp": "Tunnel TCP",
             "tunnel_ia_label": "Tunnel Interface IA",
             "tunnel_ia_mode_auto": "Auto",
             "tunnel_ia_mode_manual": "Manual",
-            "tunnel_ia_input_label": "Interface IA"
+            "tunnel_ia_input_label": "Interface IA",
+            "tunnel_ia_placeholder": "1.1.1",
+            "secure_knx_label": "Secure KNX"
         },
         "tabs": {
             "configuration": "Configuration",

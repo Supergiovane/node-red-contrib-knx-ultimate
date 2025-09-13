@@ -1,5 +1,5 @@
 {
-    "knxUltimateGlobalContext": {
+  "knxUltimateGlobalContext": {
         "paletteLabel": "KNX 全局上下文",
         "helplink" : "&nbsp<i class=\"fa fa-question-circle\"></i>&nbsp<a target=\"_blank\" href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/cn-GlobalVariable\"><u>案列</u></a>",
         "title": "KNX 全局变量节点",
@@ -11,7 +11,12 @@
             "exposeAsVariableREADWRITE" : "读取/写入",
             "node-input-server" : "网关",
             "writeExecutionInterval" : "总线写入间隔时间",
-            "warning" : "警告：所有流之间共享单个节点。您不需要多个节点；不管它在哪里，你都可以看到变量 GLOBALLY."            
-        }
+            "warning" : "警告：所有流之间共享单个节点。您不需要多个节点；不管它在哪里，你都可以看到变量 GLOBALLY."
+        },
+        "interval_250ms": "250毫秒",
+        "interval_500ms": "500毫秒",
+        "interval_1000ms_default": "1000毫秒（默认）",
+        "interval_1500ms": "1500毫秒",
+        "interval_2000ms": "2000毫秒"
     }
 }

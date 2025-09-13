@@ -1,7 +1,10 @@
 {
   "knxUltimateHueLightSensor": {
     "title": "HUE Light Sensor node",
-    "paletteLabel": "Hue Light Sensor"
+    "paletteLabel": "Hue Light Sensor",
+    "read_status_startup": "Read status at startup",
+    "opt_no": "No",
+    "opt_yes_emit": "Yes, and emit KNX telegrams."
   },
   "common": {
     "ga": "GA",

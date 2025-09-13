@@ -1,6 +1,11 @@
 {
   "knxUltimateGarageDoorBarrierOpener": {
-    "paletteLabel": "KNX Garagenöffner"
+    "paletteLabel": "KNX Garagenöffner",
+    "command_true_open_false_close": "True = öffnen / False = schließen",
+    "command_true_close_false_open": "True = schließen / False = öffnen",
+    "status_true_open_false_closed": "True = offen / False = geschlossen",
+    "status_true_closed_false_open": "True = geschlossen / False = offen",
+    "while_moving_ignore": "Eingehende Befehle ignorieren",
+    "while_moving_obey": "Bewegung stoppen, dann neuen Befehl ausführen"
   }
 }
-
