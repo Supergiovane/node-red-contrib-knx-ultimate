@@ -15,10 +15,20 @@
 
 <p align='center'>
 <img width="110px" src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/KNX_CERTI_MARK_RGB.jpg" ></br>
+<span style="font-size:0.7em;color:grey;">Authorized KNX logo by KNX Association*</span></br></br>
 <img width="110px" src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/knxsecure.png" ></br>
-<span style="font-size:0.7em;color:grey;">Authorized KNX logo by KNX Association*</span>
+
 </p>
 
+</br>  
+
+**Try immediately the KNX Secure beta!**
+```bash
+npm i node-red-contrib-knx-ultimate@4.0.0-beta.0
+```
+  
+</br>
+</br>
 </br>
 
 **You can use it immediately!**
