@@ -1,0 +1,44 @@
+<script type="text/markdown" data-help-name="knxUltimateHueScene">
+<p>Questo nodo richiama scene HUE via KNX, mappando gli input KNX ad azioni HUE.</p>
+
+Due modalità: **Simple** e **Multi**.  
+In **Simple** richiami una singola scena HUE con DPT booleano o scena KNX.  
+In **Multi** associ più numeri scena KNX a più scene HUE.  
+Nel campo GA digita nome o indirizzo di gruppo per collegare la GA; l’autocompletamento vale anche per il campo scena HUE.
+
+**Generale**
+| Proprietà | Descrizione |
+|-|-|
+|KNX GW |Seleziona il gateway KNX da utilizzare |
+|Bridge Hue |Seleziona il ponte Hue da utilizzare |
+
+**Scheda Simple mode**
+| Proprietà | Descrizione |
+|-|-|
+| HUE Scene | Scena HUE da richiamare (autocompletamento) |
+| Recall as | Modalità di richiamo (boolean 1.x o scena 18.001) |
+
+**KNX**
+| Proprietà | Descrizione |
+|-|-|
+| Recall | GA KNX per il richiamo. Con DPT 1.x invia _true_ per richiamare, _false_ per spegnere le luci della scena |
+| # | Numero scena KNX (solo per DPT 18.001) |
+| Status | Stato scena: _true_ attiva, _false_ non attiva |
+
+**Scheda Multi mode**
+| Proprietà | Descrizione |
+|-|-|
+| Recall | GA e DPT per richiamare scene HUE tramite numero scena |
+
+**Selettore scene**
+
+Elenco di tutte le scene HUE mappate ai numeri scena KNX.
+Fai clic sul pulsante <code>+Aggiungi </code> nella parte inferiore dell'elenco, per aggiungere una riga.
+Fai clic sul <code> x </code> all'estrema destra di ogni riga, per eliminare la riga.
+Trascina il <code> toast </code> (l'icona con tre righe) all'estrema sinistra di una riga, per riordinare l'elemento nell'elenco.
+
+**Scheda Behaviour**
+| Proprietà | Descrizione |
+|-|-|
+| Pin di I/O del nodo | Mostra/Nascondi i PIN. L’input deve seguire HUE API v2 (vedi [HUE API](https://developers.meethue.com/develop/hue-api-v2/api-reference/#resource_light__id__put)) |
+</script>

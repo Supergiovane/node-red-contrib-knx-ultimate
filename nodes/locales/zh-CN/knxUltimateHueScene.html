@@ -1,0 +1,44 @@
+<script type="text/markdown" data-help-name="knxUltimateHueScene">
+<p>该节点通过 KNX 召回 HUE 场景，并将 KNX 输入映射到 HUE 场景操作。</p>
+
+提供两种模式：**Simple** 与 **Multi**。  
+在 **Simple** 模式下，可用布尔 DPT 或 KNX 场景 DPT 召回单个场景。  
+在 **Multi** 模式下，可将多个 KNX 场景编号映射到多个 HUE 场景。  
+在 GA 字段输入设备名或组地址（自动补全）；HUE 场景字段同样支持自动补全。
+
+**一般的**
+|属性|描述|
+|  -  |  -  |
+|KNX GW |选择要使用的KNX门户|
+|色相桥|选择要使用的色调桥|
+
+**Simple 模式**
+|属性|描述|
+|  -  |  -  |
+| HUE Scene | 要召回的 HUE 场景（自动补全） |
+| Recall as | 触发方式（布尔 1.x 或 场景 18.001） |
+
+**KNX**
+|属性|描述|
+|  -  |  -  |
+| Recall | KNX 组地址：DPT 1.x 时发送 _true_ 召回，_false_ 关闭场景灯 |
+| # | KNX 场景编号（仅 DPT 18.001） |
+| Status | 场景状态：_true_ 激活，_false_ 未激活 |
+
+**Multi 模式**
+|属性|描述|
+|  -  |  -  |
+| Recall | 通过 设置 KNX 组地址 + DPT，按场景编号召回 HUE 场景 |
+
+**场景选择器**
+
+列出所有映射到 KNX 场景编号的 HUE 场景。
+单击列表底部的<code>+添加</code>按钮以添加一行。
+单击每行最右边的<code> X </code>，以删除行。
+将<code> Toast </code>（带有三行的图标）拖动在一排的最左边，以重新排序列表中的项目。
+
+**Behaviour**
+|属性|描述|
+|  -  |  -  |
+| 节点 I/O 引脚 | 显示/隐藏引脚。输入需遵循 HUE API v2（见 [HUE API](https://developers.meethue.com/develop/hue-api-v2/api-reference/#resource_light__id__put)） |
+</script>

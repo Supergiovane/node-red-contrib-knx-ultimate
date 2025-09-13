@@ -1,0 +1,26 @@
+<script type="text/markdown" data-help-name="knxUltimateHueMotion">
+<p>This node reads motion events from a HUE motion sensor and maps them to KNX.</p>
+
+Start typing in the GA field (name or Group Address) to link the KNX GA; devices appear while you type.
+
+**General**
+|Property|Description|
+|--|--|
+| KNX GW | Select the KNX gateway to be used |
+| HUE Bridge | Select the HUE Bridge to be used |
+| HUE Sensor | HUE motion sensor to use (autocomplete while typing).|
+
+**Mapping**
+| Property | Description |
+|--|--|
+| Motion | Send _true_ when motion is detected, otherwise _false_. |
+
+### Outputs
+
+1. Standard output
+: payload (boolean): **true** on motion, **false** on motion end.
+
+### Details
+
+`msg.payload` carries the boolean motion state.
+</script>

@@ -1,0 +1,18 @@
+<script type="text/markdown" data-help-name="knxUltimateHueBattery">
+<p>This node exposes the battery level of a HUE device to KNX and emits events when it changes.</p>
+
+Start typing in the GA field the KNX device name or Group Address to map; devices appear while you type.
+
+**General**
+|Property|Description|
+|--|--|
+| KNX GW | KNX gateway used to publish the battery level. |
+| HUE Bridge | Target HUE Bridge. |
+| HUE Sensor | HUE device/sensor providing the battery level (autocomplete). |
+| Read status at startup | Read current level at startup/reconnection and emit to KNX. Default: “no”. |
+
+**Mapping**
+| Property | Description |
+|--|--|
+| Level | KNX GA for battery percentage (0–100%) — use DPT 5.001. |
+</script>

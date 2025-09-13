@@ -1,0 +1,25 @@
+<script type="text/markdown" data-help-name="knxUltimateHuedevice_software_update">
+<p>This node monitors whether a selected HUE device has a software update available and publishes the status to KNX.</p>
+    
+Start typing the name or group address of your KNX device in the GA field, the avaiable devices start showing up while
+you're typing.
+
+**General**
+|Property|Description|
+|--|--|
+| KNX GW | Select the KNX gateway to be used |
+| HUE Bridge | Select the HUE Bridge to be used |
+| HUE Device | HUE device to monitor for software updates (autocomplete while typing).|
+
+**Mapping**
+| Property | Description |
+|--|--|
+| Status | KNX GA reflecting update status. _true_ if an update is available/ready/being installed, otherwise _false_. |
+| Read status at startup | Read current status at startup/reconnection and emit to KNX (default “yes”). |
+
+### Outputs
+
+1. Standard output
+: payload (boolean): update flag.
+: status (string): one of **no_update, update_pending, ready_to_install, installing**.
+</script>

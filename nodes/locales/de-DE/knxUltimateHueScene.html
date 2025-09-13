@@ -1,0 +1,44 @@
+<script type="text/markdown" data-help-name="knxUltimateHueScene">
+<p>Dieser Node ruft HUE‑Szenen über KNX auf und ordnet KNX‑Eingänge den HUE‑Szenen zu.</p>
+
+Zwei Modi: **Einfach** und **Multi**.  
+Im **Einfach**‑Modus rufst du eine einzelne HUE‑Szene per Bool‑DPT oder KNX‑Szenen‑DPT auf.  
+Im **Multi**‑Modus verknüpfst du mehrere KNX‑Szenennummern mit mehreren HUE‑Szenen.  
+Im GA‑Feld Geräte‑Name oder GA eingeben (Autocomplete); gilt auch für das HUE‑Szenenfeld.
+
+**Allgemein**
+| Eigenschaft | Beschreibung |
+|-|-|
+|KNX GW |Wählen Sie das zu verwendende KNX -Gateway |
+|Hue Bridge |Wählen Sie die zu verwendende Farbtonbrücke aus |
+
+**Registerkarte Einfach**
+| Eigenschaft | Beschreibung |
+|-|-|
+| HUE Szene | Zu verwendende HUE‑Szene (Autocomplete) |
+| Recall as | Auslösemethode (Bool 1.x oder Szene 18.001) |
+
+**KNX**
+| Eigenschaft | Beschreibung |
+|-|-|
+| Recall | KNX‑GA zum Aufruf. Bei DPT 1.x _true_ = Szene aufrufen, _false_ = alle Szenenlichter aus |
+| # | KNX‑Szenennummer (nur mit DPT 18.001) |
+| Status | Szenenstatus‑GA: _true_ aktiv, _false_ inaktiv |
+
+**Registerkarte Multi**
+| Eigenschaft | Beschreibung |
+|-|-|
+| Recall | KNX‑GA und DPT zum Aufruf nach Szenennummer |
+
+**Szenenauswahl**
+
+Liste aller HUE‑Szenen, die KNX‑Szenennummern zugeordnet sind.
+Klicken Sie unten in der Liste auf die Schaltfläche <code>+add </code>, um eine Zeile hinzuzufügen.
+Klicken Sie ganz rechts in jeder Zeile auf den <code> x </code>, um die Zeile zu löschen.
+Ziehen Sie den <code> Toast </code> (das Symbol mit drei Zeilen) ganz links in einer Zeile, um das Element in der Liste neu zu ordnen.
+
+**Registerkarte Behaviour**
+| Eigenschaft | Beschreibung |
+|-|-|
+| Node‑I/O‑Pins | Ein-/Ausblenden der Pins. Input folgt HUE API v2 (siehe [HUE API](https://developers.meethue.com/develop/hue-api-v2/api-reference/#resource_light__id__put)) |
+</script>

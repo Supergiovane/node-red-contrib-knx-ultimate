@@ -235,38 +235,4 @@
 
 </script>
 
-<script type="text/markdown" data-help-name="knxUltimateHueTapDial">
-<p>This node lets you get the events from your HUE rotary device, for example the Tap Dial.</p>
 
-The Tap Dial device has 4 buttons and 1 rotary knob.  
-You can find the 4 buttons in the **Hue Button node**, not here!  
-The rotary service of the Tap Dial, can send a DIM (Datapoint 3.007), absolute brightness (Datapoint 5.001) to the KNX bus,  
-or a random color (Datapoint 232.600) to the selected group address.
-
-**General**
-|Property|Description|
-|--|--|
-| KNX GW | Select the KNX gateway to be used |
-| HUE Bridge | Select the HUE Bridge to be used |
-| Hue Button | HUE button to be used. The avaiable buttons start showing up while you're typing.|
-
-<br/>
-
-|Property|Description|
-|--|--|
-| Rotate | This command is used either to send DIM (increase/decrease), aboslute brightness, or a random color, depending on the selected datapoint. If the random color (datapoint 232.600) is selected, **clockwise rotation** changes random colors and **counterclockwise rotation** set the light to **white** |
-
-### Outputs
-
-1. Standard output
-: payload (string|object) : the standard output of the command.
-
-### Details
-
-`msg.payload` is used as the payload of the published message.
-If it contains an Object it will be converted to a JSON string before being sent.  
-It contains the detailed event sent by your Hue devicem so you can use it for whatever you want.
-
-
-
-    </script>

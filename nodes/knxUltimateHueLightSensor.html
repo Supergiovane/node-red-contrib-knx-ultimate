@@ -245,33 +245,4 @@
 </script>
 
 
-<script type="text/markdown" data-help-name="knxUltimateHueLightSensor">
-<p>This node lets you get the events from your HUE motion device.</p>
 
-Here you can get the HUE Light Sensors light events, that represents a lux value, evetytime the ambient light changes.<br/>
-Start typing in the GA field, the name or group address of your KNX device, the avaiable devices start showing up while you're typing.
-
-**General**
-|Property|Description|
-|--|--|
-| KNX GW | Select the KNX gateway to be used |
-| HUE Bridge | Select the HUE Bridge to be used |
-| Hue Sensor | HUE sensor to be used. The avaiable buttons start showing up while you're typing.|
-| Read status at startup | Read the status at startup and emit the event to the KNX bus at startup/reconnection. (Default "no")|
-
-|Property|Description|
-|--|--|
-| Lux | Lux value will be sent to this group address. |
-
-### Outputs
-
-1. Standard output
-: payload (integer) : the standard output of the command.
-
-### Details
-
-`msg.payload` is used as the payload of the published message.  
-It contains the detailed event sent by your Hue devicem so you can use it for whatever you want.  
-
-
-    </script>

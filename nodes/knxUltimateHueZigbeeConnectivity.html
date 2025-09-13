@@ -243,33 +243,4 @@
 
 </script>
 
-<script type="text/markdown" data-help-name="knxUltimateHueZigbeeConnectivity">
-<p>This node lets you get the zigbee connectivity status from your HUE device.</p>
-    
-Start typing the name or group address of your KNX device in the GA field, the avaiable devices start showing up while
-you're typing.
 
-**General**
-|Property|Description|
-|--|--|
-| KNX GW | Select the KNX gateway to be used |
-| HUE Bridge | Select the HUE Bridge to be used |
-| Hue Sensor | HUE sensor to be used. The avaiable devices start showing up while you're typing.|
-
-|Property|Description|
-|--|--|
-| Status | The zigbee connectivity status KNX group address. The status of this KNX group address, will change in *true* if connected, otherwise *false* |
-| Read status at startup | Read the status at startup and emit the event to the KNX bus at startup/reconnection. (Default "yes")|
-
-### Outputs
-
-1. Standard output
-: payload (boolean) : the standard output of the command.
-
-### Details
-
-`msg.payload` is used as the payload of the published message (trus/false).  
-`msg.status` contains the text representing the status. It can be: **connected, disconnected, connectivity_issue, unidirectional_incoming**.  
-
-
-</script>

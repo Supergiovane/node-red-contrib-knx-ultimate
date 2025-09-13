@@ -1,0 +1,30 @@
+<script type="text/markdown" data-help-name="knxUltimateHueTapDial">
+<p>Dieser Node liest Dreh‑Ereignisse des HUE Tap Dial und spiegelt sie nach KNX.</p>
+
+Das Tap Dial hat 4 Tasten und 1 Drehknopf.  
+Die Tasten werden im Node <b>HUE Button</b> behandelt – dieser Node verarbeitet nur die Drehfunktion.  
+Die Drehung kann auf folgende KNX‑Datapoints gemappt werden: <b>DPT 3.007</b> (relatives Dimmen hoch/runter), <b>DPT 5.001</b> (absolute Helligkeit 0–100 %), oder <b>232.600</b> (vendor‑Farbauswahl).
+
+**Allgemein**
+| Eigenschaft | Beschreibung |
+|--|--|
+| KNX GW | Zu verwendendes KNX‑Gateway |
+| HUE Bridge | Zu verwendende HUE Bridge |
+| HUE Button | Tap‑Dial‑Gerät (Autocomplete während der Eingabe) |
+
+<br/>
+
+**Mapping**
+| Eigenschaft | Beschreibung |
+|--|--|
+| Drehen | DPT 3.007 = Dimmen hoch/runter; DPT 5.001 = absolute Helligkeit (0–100 %); 232.600 = Farbe: Uhrzeigersinn → Zufallsfarben, Gegenuhrzeigersinn → Weiß |
+
+### Ausgänge
+
+1. Standardausgang
+: `msg.payload` (string|object): rohes HUE‑Ereignis (Objekte werden serialisiert)
+
+### Details
+
+`msg.payload` kann für eigene Logik verwendet werden.
+</script>

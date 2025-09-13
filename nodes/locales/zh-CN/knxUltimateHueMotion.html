@@ -1,0 +1,26 @@
+<script type="text/markdown" data-help-name="knxUltimateHueMotion">
+<p>该节点从 HUE 运动传感器读取运动事件并发布到 KNX。</p>
+
+在 GA 字段输入 KNX 设备名或组地址（自动补全）以进行关联。
+
+**一般的**
+|属性|描述|
+|  -  |  -  |
+|KNX GW |选择要使用的KNX门户|
+|色相桥|选择要使用的色调桥|
+| HUE Sensor | 要使用的 HUE 运动传感器（自动补全） |
+
+**映射**
+|属性|说明|
+|--|--|
+| 运动 | 侦测到运动时发送 _true_，否则发送 _false_ |
+
+### 输出
+
+1. 标准输出
+: payload (boolean)：侦测到运动为 **true**，运动结束为 **false**
+
+### 细节
+
+`msg.payload` 为布尔型运动状态。
+</script>

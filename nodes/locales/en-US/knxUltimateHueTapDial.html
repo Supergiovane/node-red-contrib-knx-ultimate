@@ -1,0 +1,30 @@
+<script type="text/markdown" data-help-name="knxUltimateHueTapDial">
+<p>This node reads rotary events from a HUE Tap Dial and maps them to KNX.</p>
+
+The Tap Dial has 4 buttons and 1 rotary knob.  
+Buttons are handled by the <b>HUE Button</b> node — this node only handles the rotary service.  
+Rotation can be mapped to one of the following KNX datapoints: <b>DPT 3.007</b> (relative dim up/down), <b>DPT 5.001</b> (absolute brightness 0–100%), or <b>232.600</b> (vendor color control).
+
+**General**
+|Property|Description|
+|--|--|
+| KNX GW | Select the KNX gateway to be used |
+| HUE Bridge | Select the HUE Bridge to be used |
+| HUE Button | HUE Tap Dial device (autocomplete while typing) |
+
+<br/>
+
+**Mapping**
+| Property | Description |
+|--|--|
+| Rotate | DPT 3.007 = dim up/down; DPT 5.001 = absolute brightness (0–100%); 232.600 = color: clockwise → random colors, counter‑clockwise → white |
+
+### Outputs
+
+1. Standard output
+: `msg.payload` (string|object): raw HUE event (objects are stringified)
+
+### Details
+
+Use `msg.payload` for custom logic if needed.
+</script>

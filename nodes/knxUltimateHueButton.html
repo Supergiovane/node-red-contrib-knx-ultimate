@@ -461,45 +461,4 @@
 
 </script>
 
-<script type="text/markdown" data-help-name="knxUltimateHueButton">
-<p>his node lets you get the events from your HUE button.</p>
 
-Link the Group Adresses you want, to the respective events.  
-All fields are optional.  
-The **toggle values** option is enabled by default. This option toggles the value of each KNX group address (*true/false, increase/decrease dim*)  
-Start typing in the GA field, the name or group address of your KNX device, the avaiable devices start showing up while you're typing.
-The Status fields need to be filled only if you set the *Toggle values* option.  
-This allows the internal logic to be aware of external devices, like wall switches.
-
-**General**
-|Property|Description|
-|--|--|
-| KNX GW | Select the KNX gateway to be used |
-| HUE Bridge | Select the HUE Bridge to be used |
-| Hue Button | HUE button to be used. The avaiable buttons start showing up while you're typing.|
-
-<br/>
-
-|Property|Description|
-|--|--|
-| Switch | As soon as you quickly press and release your HUE button, this event fires |
-| Switch Status | To allow internal logic to take care of the external KNX devices, for example an external wall switch, you should set this group address |
-| Dim | This event is used either to send DIM (increase/decrease) or true/false commands to the KNX group address |
-| Toggle values | Enable or disable toggling values. If enabled, all values toggles, otherwise, all values are sent as *true* or *increase dim*, to the selected KNX group address. If unchecked, you'll able to select the payload to be sent to KNX bus every time you press the button. |
-| Switch send | Only visible when *Toggle values* is *false*. Set the value to be sent when pushing the button. |
-| Dim send | Only visible when *Toggle values* is *false*. Set the dimming direction to be sent when dimming. |
-
-### Outputs
-
-1. Standard output
-: payload (string|object) : the standard output of the command.
-
-### Details
-
-`msg.payload` is used as the payload of the published message.
-If it contains an Object it will be converted to a JSON string before being sent.  
-It contains the detailed event sent by your Hue devicem so you can use it for whatever you want.
-
-
-
-    </script>

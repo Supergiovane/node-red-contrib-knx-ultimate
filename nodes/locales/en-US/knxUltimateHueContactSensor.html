@@ -1,0 +1,25 @@
+<script type="text/markdown" data-help-name="knxUltimateHueContactSensor">
+<p>This node forwards events from a HUE contact sensor and maps them to KNX group addresses.</p>
+
+Start typing in the GA field, the name or group address of your KNX device, the avaiable devices start showing up while you're typing.
+
+**General**
+|Property|Description|
+|--|--|
+| KNX GW | Select the KNX gateway to be used |
+| HUE Bridge | Select the HUE Bridge to be used |
+| HUE Sensor | HUE contact sensor to be used (autocomplete while typing).|
+
+| Property | Description |
+|--|--|
+| Contact | When the contact opens/closes, send KNX value: _true_ on active/open, otherwise _false_. |
+
+### Outputs
+
+1. Standard output
+   : payload (boolean) : the standard output of the command.
+
+### Details
+
+`msg.payload` carries the raw HUE event (boolean/object). Use it for custom logic if needed.
+</script>

@@ -1,0 +1,26 @@
+<script type="text/markdown" data-help-name="knxUltimateHueMotion">
+<p>Dieser Node liest Bewegungsereignisse eines HUE‑Bewegungssensors und spiegelt sie nach KNX.</p>
+
+Im GA‑Feld KNX‑Gerätenamen oder Gruppenadresse eingeben (Autocomplete), um die GA zu verknüpfen.
+
+**Allgemein**
+| Eigenschaft | Beschreibung |
+|-|-|
+|KNX GW |Wählen Sie das zu verwendende KNX -Gateway |
+|Hue Bridge |Wählen Sie die zu verwendende Farbtonbrücke aus |
+| HUE Sensor | Zu verwendender HUE‑Bewegungssensor (Autocomplete) |
+
+**Zuordnung**
+| Eigenschaft | Beschreibung |
+|--|--|
+| Bewegung | _true_ bei Bewegung, sonst _false_ |
+
+### Ausgänge
+
+1. Standardausgang
+: payload (boolean): **true** bei Bewegung, **false** bei Bewegungsende
+
+### Details
+
+`msg.payload` enthält den booleschen Bewegungszustand.
+</script>

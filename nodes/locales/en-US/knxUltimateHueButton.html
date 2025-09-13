@@ -1,0 +1,37 @@
+<script type="text/markdown" data-help-name="knxUltimateHueButton">
+<p>This node forwards events from a HUE button and maps them to KNX group addresses.</p>
+
+Link the Group Adresses you want, to the respective events.  
+All fields are optional.  
+The <b>Toggle values</b> option is enabled by default. It toggles the mapped KNX values (true/false, increase/decrease dim).  
+Start typing in the GA field, the name or group address of your KNX device, the avaiable devices start showing up while you're typing.
+The Status fields need to be filled only if you set the _Toggle values_ option.  
+This allows the internal logic to be aware of external devices, like wall switches.
+
+**General**
+|Property|Description|
+|--|--|
+| KNX GW | Select the KNX gateway to be used |
+| HUE Bridge | Select the HUE Bridge to be used |
+| Hue Button | HUE button to be used. The avaiable buttons start showing up while you're typing.|
+
+<br/>
+
+| Property      | Description |
+| ------------- | ----------- |
+| Switch        | Fires on a quick press/release of the HUE button; maps to a KNX GA. |
+| Switch Status | Optional GA when Toggle values is enabled; keeps in sync with external devices (e.g., wall switch). |
+| Dim           | Event for dimming: increase/decrease, or send true/false to the KNX GA. |
+| Toggle values | If enabled, KNX values toggle; otherwise values are sent as constant _true_ or _increase dim_. If disabled, you can select explicit payloads to send. |
+| Switch send   | Visible only if Toggle values is disabled. Value sent on press. |
+| Dim send      | Visible only if Toggle values is disabled. Dimming direction sent. |
+
+### Outputs
+
+1. Standard output
+   : payload (string|object) : the standard output of the command.
+
+### Details
+
+`msg.payload` carries the raw HUE event (object or string). Objects are stringified before sending. Use it for custom logic if needed.
+</script>

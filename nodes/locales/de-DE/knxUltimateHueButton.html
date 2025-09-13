@@ -1,0 +1,37 @@
+<script type="text/markdown" data-help-name="knxUltimateHueButton">
+<p>Dieser Node leitet Ereignisse eines HUE‑Buttons weiter und ordnet sie KNX‑Gruppenadressen zu.</p>
+
+Verknüpfen Sie die gewünschten Gruppenadressen mit den jeweiligen Ereignissen.
+Alle Felder sind optional.
+Die Option ** Wechselwerte ** ist standardmäßig aktiviert.Diese Option schaltet den Wert jeder KNX -Gruppenadresse um (_true/false, erhöhen/verringern Dim_)
+Tippen Sie in das Feld GA, die Name oder die Gruppenadresse Ihres KNX -Geräts, die avabaren Geräte werden beim Eingeben angezeigt.
+Die Statusfelder müssen nur ausgefüllt werden, wenn Sie die Option _toggle values_ festlegen.
+Auf diese Weise kann die interne Logik externe Geräte wie Wandschalter bewusst sein.
+
+**Allgemein**
+| Eigenschaft | Beschreibung |
+|-|-|
+| KNX GW | Zu verwendendes KNX‑Gateway |
+| HUE Bridge | Zu verwendender HUE Bridge |
+| HUE Button | Zu verwendender HUE‑Button (Autocomplete) |
+
+<br/>
+
+|Eigenschaft |Beschreibung |
+|-------------- |--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+| Schalter | Ereignis bei kurzem Druck/Loslassen; wird auf eine KNX‑GA gemappt |
+| Schalterstatus | Optionale GA zur Zustandsabgleiche bei aktiviertem Toggle (z. B. Wandschalter) |
+| Dim | Dimm‑Ereignis: Erhöhen/Verringern, oder True/False zur KNX‑GA |
+| Toggle values | Aktiviert: Werte toggeln; deaktiviert: konstante Werte (_true_ / _increase dim_). Deaktiviert: Payload explizit wählbar |
+| Switch send | Sichtbar nur bei deaktiviertem Toggle. Wert beim Drücken |
+| Dim send | Sichtbar nur bei deaktiviertem Toggle. Dimm‑Richtung |
+
+### Ausgänge
+
+1. Standardausgabe
+: Payload (Zeichenfolge | Objekt): Die Standardausgabe des Befehls.
+
+### Details
+
+`msg.payload` enthält das rohe HUE‑Ereignis (Objekt oder String). Objekte werden vor dem Senden serialisiert.
+</script>

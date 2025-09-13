@@ -1,0 +1,36 @@
+<script type="text/markdown" data-help-name="knxUltimateHueButton">
+<p>Questo nodo inoltra gli eventi di un pulsante HUE mappandoli su indirizzi di gruppo KNX.</p>
+
+Collega gli indirizzi di gruppo desiderati ai rispettivi eventi.  
+Tutti i campi sono opzionali.  
+L’opzione <b>Toggle values</b> è attiva di default: alterna i valori KNX (_true/false_, _increase/decrease dim_).  
+Nel campo GA digita nome o indirizzo di gruppo del dispositivo KNX (autocompletamento).  
+I campi “Status” servono solo con Toggle attivo, per tenere conto di stati esterni (es. interruttori a parete).
+
+**Generale**
+| Proprietà | Descrizione |
+|-|-|
+| KNX GW | Gateway KNX da usare |
+| HUE Bridge | HUE Bridge da usare |
+| HUE Button | Pulsante HUE da usare (autocompletamento) |
+
+<br/>
+
+|Proprietà |Descrizione |
+|------------- |---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Interruttore | Evento su pressione/rilascio rapido del pulsante; mappa a una GA KNX |
+| Stato interruttore | GA opzionale usata con Toggle per allineare lo stato con dispositivi esterni |
+| Dim | Evento di dimming: aumento/diminuzione, oppure invio true/false alla GA |
+| Toggle values | Se attivo, alterna i valori; altrimenti invia costanti (_true_ / _increase dim_). Disattivo: puoi scegliere il payload da inviare |
+| Switch send | Visibile solo se Toggle è disattivo. Valore inviato alla pressione |
+| Dim send | Visibile solo se Toggle è disattivo. Direzione di dimming inviata |
+
+### Output
+
+1. Output standard
+: payload (stringa | oggetto): l'output standard del comando.
+
+### Dettagli
+
+`msg.payload` contiene l’evento HUE (oggetto o stringa). Gli oggetti vengono serializzati in JSON prima dell’invio.
+</script>

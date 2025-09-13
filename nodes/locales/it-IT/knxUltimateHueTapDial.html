@@ -1,0 +1,30 @@
+<script type="text/markdown" data-help-name="knxUltimateHueTapDial">
+<p>Questo nodo legge gli eventi di rotazione del dispositivo HUE Tap Dial e li mappa su KNX.</p>
+
+Il Tap Dial ha 4 pulsanti e 1 manopola.  
+I pulsanti sono gestiti dal nodo <b>HUE Button</b>; qui è gestita solo la rotazione.  
+La rotazione può essere mappata a: <b>DPT 3.007</b> (dim relativo su/giù), <b>DPT 5.001</b> (luminosità assoluta 0–100%) oppure <b>232.600</b> (controllo colore vendor).
+
+**Generale**
+| Proprietà | Descrizione |
+|--|--|
+| KNX GW | Seleziona il gateway KNX da utilizzare |
+| Bridge HUE | Seleziona la HUE Bridge da utilizzare |
+| HUE Button | Dispositivo Tap Dial (autocompletamento durante la digitazione) |
+
+<br/>
+
+**Mappatura**
+| Proprietà | Descrizione |
+|--|--|
+| Rotate | DPT 3.007 = dim su/giù; DPT 5.001 = luminosità assoluta (0–100%); 232.600 = colore: orario → colori casuali, antiorario → bianco |
+
+### Output
+
+1. Uscita standard
+: `msg.payload` (string|object): evento HUE grezzo (gli oggetti sono serializzati)
+
+### Dettagli
+
+Usa `msg.payload` per eventuale logica personalizzata.
+</script>

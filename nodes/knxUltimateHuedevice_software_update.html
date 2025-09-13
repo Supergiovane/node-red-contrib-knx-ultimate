@@ -243,30 +243,4 @@
 
 </script>
 
-<script type="text/markdown" data-help-name="knxUltimateHuedevice_software_update">
-<p>This node monitors wether the selected device has a software update avaiable.</p>
-    
-Start typing the name or group address of your KNX device in the GA field, the avaiable devices start showing up while
-you're typing.
 
-**General**
-|Property|Description|
-|--|--|
-| KNX GW | Select the KNX gateway to be used |
-| HUE Bridge | Select the HUE Bridge to be used |
-| Hue Device | HUE Device to be monitored for software update. The avaiable devices start showing up while you're typing.|
-
-|Property|Description|
-|--|--|
-| Status | The software update status KNX group address. The payload of this KNX group address will change to *true* if a device has a software update avaiable or is installing the update, or if the update is ready to be installed, otherwise *false*. |
-| Read status at startup | Read the status at startup and emit the event to the KNX bus at startup/reconnection. (Default "yes")|
-
-### Outputs
-
-1. Standard output
-: payload (boolean) : the standard output of the command.
-: status (string) : the text representing the status. It can be: **no_update, update_pending, ready_to_install, installing**.
-
-
-
-</script>

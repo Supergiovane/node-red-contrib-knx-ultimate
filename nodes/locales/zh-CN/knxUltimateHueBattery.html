@@ -1,0 +1,18 @@
+<script type="text/markdown" data-help-name="knxUltimateHueBattery">
+<p>该节点将 HUE 设备的电池电量映射到 KNX，并在电量变化时发出事件。</p>
+
+在 GA 字段输入 KNX 设备名或组地址（自动补全）。
+
+**常规**
+|属性|说明|
+|--|--|
+| KNX GW | 用于发布电量的 KNX 网关 |
+| HUE Bridge | 目标 HUE Bridge |
+| HUE Sensor | 提供电量信息的 HUE 设备/传感器（自动补全） |
+| 启动时读取状态 | 启动/重连时读取并发布到 KNX。默认：“否”。|
+
+**映射**
+|属性|说明|
+|--|--|
+| 等级 | 电池百分比的 KNX 组地址（0–100%），使用 DPT 5.001。|
+</script>

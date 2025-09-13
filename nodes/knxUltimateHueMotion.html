@@ -233,33 +233,4 @@
 
 </script>
 
-<script type="text/markdown" data-help-name="knxUltimateHueMotion">
-<p>This node lets you get the events from your HUE motion device.</p>
 
-Here you can get the HUE motion events.   
-Start typing in the GA field, the name or group address of your KNX device, the avaiable devices start showing up while you're typing.
-
-**General**
-|Property|Description|
-|--|--|
-| KNX GW | Select the KNX gateway to be used |
-| HUE Bridge | Select the HUE Bridge to be used |
-| Hue Sensor | HUE sensor to be used. The avaiable buttons start showing up while you're typing.|
-
-|Property|Description|
-|--|--|
-| Motion | As soon as someone moves in the motion device's range, a *true* KNX value is sent to this group address, otherwise *false* is sent. |
-    
-### Outputs
-
-1. Standard output
-: payload (boolean) : the standard output of the command. **true** for motion | **false** for motion end.
-
-### Details
-
-`msg.payload` is used as the payload of the published message.  
-It contains the detailed event sent by your Hue devicem so you can use it for whatever you want.  
-
-
-
-    </script>

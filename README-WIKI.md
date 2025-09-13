@@ -25,15 +25,38 @@ NPM scripts
   - Prompts for a page (EN title, e.g., `Quick-Start`) and the target section.
   - Optionally creates a new section; if localized labels are left empty, auto‑translates from EN.
   - After saving, run `npm run wiki:inject-header` to propagate into all pages.
+  - Also generates/updates the localized Node‑RED help files (see below) if the page maps to a node.
 - Translate pages: `npm run translate-wiki`
   - Scans the wiki for base EN pages (no `it-`, `de-`, `zh-CN-` prefix) and creates missing translations.
   - Preserves code blocks, keeps URLs intact, and emits an absolute-URL language bar.
   - After translation, run `npm run wiki:inject-header` to add the localized header.
 
+Node help migration and generation
+- One‑time migrate (existing nodes): `node scripts/migrate-node-help.js`
+  - Finds inline node help blocks in `nodes/*.html` and moves them to localized files under:
+    - `nodes/locales/en-US/<help-name>.html`
+    - `nodes/locales/it-IT/<help-name>.html`
+    - `nodes/locales/de-DE/<help-name>.html`
+    - `nodes/locales/zh-CN/<help-name>.html`
+  - Content source: corresponding wiki pages (EN/IT/DE/zh‑CN). If a page is missing, uses the inline help as fallback.
+  - Removes the inline help from the node HTML file (keeps only templates and editor JS).
+- Auto‑generate from wiki when adding menu entries: `npm run wiki:menu-add`
+  - If the selected wiki page maps to a node (see mapping), the script will create/update the localized help files as above.
+
+Page ↔ node mapping (for help generation)
+- Mapping is defined inside `scripts/manage-wiki-menu.js` (WIKI_TO_HELP/HELP_TO_WIKI).
+- Example mappings:
+  - `HUE Bridge configuration` → `hue-config`
+  - `Gateway-configuration` → `knxUltimate-config`
+  - `KNX Node Configuration` → `knxUltimate`
+  - `Logger-Configuration` → `knxUltimateLogger`
+  - … and all HUE/KNX pages listed in the script.
+- If you add a brand new node and wiki page, update the mapping in `manage-wiki-menu.js` once; after that, `wiki:menu-add` can generate localized help automatically.
+
 Key files
 - scripts/validate-wiki-languagebar.js: verifies and optionally fixes the language bar on each page.
 - scripts/inject-wiki-header.js: generates the per‑page navigation header from `wiki-menu.json` (idempotent).
-- scripts/manage-wiki-menu.js: interactive tool to edit `wiki-menu.json` (add items/sections with auto‑translation).
+- scripts/manage-wiki-menu.js: interactive tool to edit `wiki-menu.json` (add items/sections with auto‑translation) and to generate localized node help files from wiki pages.
 - scripts/translate-wiki.js: creates IT/DE/zh‑CN pages from an EN page body.
 - scripts/wiki-menu.json: declarative definition of header sections and items. Supports `type: "page"` (localized links) and `type: "url"` (external/absolute links).
 
@@ -55,6 +78,22 @@ Quick start — add a new page to the wiki
 5) (Optional) Validate language bars
    - Run: `npm run wiki:validate`
 
+How to add a new node (with localized help)
+1) Create the node as usual under `nodes/`, including editor UI and templates.
+   - If you already wrote inline help (`<script type="text/markdown" data-help-name="…">`), you can leave it temporarily; it will be migrated.
+2) Create the EN wiki page for that node (e.g., `My Node.md`) with the proper title and content.
+   - You can use `npm run translate-wiki` to generate `it-`, `de-`, `zh-CN-` variants if missing.
+3) Add the wiki → node mapping (only for brand‑new entries)
+   - Edit `scripts/manage-wiki-menu.js` and add a mapping in `HELP_TO_WIKI`, e.g.:
+     - `['myNewNode', 'My Node']`
+4) Add the page to the menu
+   - Run: `npm run wiki:menu-add`, select the section, optionally create a new section, and accept auto‑translation of labels if desired.
+   - This will also generate/update localized help files under `nodes/locales/<lang>/<help-name>.html` for the node.
+5) (If you started with inline help) Migrate and clean up
+   - Run once: `node scripts/migrate-node-help.js` to remove inline help and ensure all nodes use localized help files.
+6) Verify in Node‑RED
+   - Restart Node‑RED and switch the UI language to see the localized help under the “Info” panel for the node.
+
 Conventions and notes
 - Language bar: first line of each page. Scripts will normalize it to absolute links: EN, IT (`it-`), DE (`de-`), zh‑CN (`zh-CN-`).
 - Header placement: inserted right below the language bar. Do not edit between the NAV markers; regenerate instead.
@@ -65,4 +104,3 @@ Troubleshooting
 - Header not updated: ensure `scripts/wiki-menu.json` contains the page (type:"page" and correct `page` title). Then run `npm run wiki:inject-header`.
 - Wrong/missing translations: re‑run `npm run translate-wiki` after adjusting the EN page. The script doesn’t overwrite existing translations; delete a specific translated file to force regeneration.
 - Language bar still relative on GitHub: run `npm run wiki:fix-langbar` and push the wiki repo.
-
