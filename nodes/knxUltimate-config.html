@@ -68,14 +68,97 @@
                 active: (node.knxSecureSelected === true || node.knxSecureSelected === 'true') ? 1 : 0,
                 activate: function (event, ui) {
                     node.knxSecureSelected = $(ui.newTab).index() === 1;
+                    try { updateTunnelIAVisibility(); updatePhysAddrVisibility(); updateSecureMulticastHint(); } catch(e){}
                 }
             });
             // Ensure the correct tab is enforced after all UI init
             try {
                 const initialActive = (node.knxSecureSelected === true || node.knxSecureSelected === 'true') ? 1 : 0;
-                setTimeout(() => { $("#tabsMain").tabs("option", "active", initialActive); }, 0);
+                setTimeout(() => { $("#tabsMain").tabs("option", "active", initialActive); updateTunnelIAVisibility(); updatePhysAddrVisibility(); updateSecureMulticastHint(); }, 0);
             } catch (e) { }
 
+            // Keyring ACE editor setup
+            try {
+                const initialKeyring = $("#node-config-input-keyringFileXML").val() || (node.keyringFileXML || '');
+                node._keyringEditor = RED.editor.createEditor({
+                    id: 'node-config-input-keyringFileXML-editor',
+                    mode: 'ace/mode/xml',
+                    value: initialKeyring
+                });
+                try { node._keyringEditor.getSession().setUseWrapMode(true); } catch (e) { }
+            } catch (e) { }
+            // ETS CSV editor setup (plain text)
+            try {
+                const initialCSV = $("#node-config-input-csv").val() || '';
+                node._csvEditor = RED.editor.createEditor({
+                    id: 'node-config-input-csv-editor',
+                    mode: 'ace/mode/text',
+                    value: initialCSV
+                });
+                try { node._csvEditor.getSession().setUseWrapMode(true); } catch (e) { }
+            } catch (e) { }
+
+            // Helper: show/hide Tunnel IA controls depending on mode
+            function updateTunnelIAVisibility() {
+                try {
+                    const isSecure = (node.knxSecureSelected === true || node.knxSecureSelected === 'true');
+                    const hostProtocol = $("#node-config-input-hostProtocol").val();
+                    const ip = $("#node-config-input-host").val();
+                    const isMulticast = (hostProtocol === 'Multicast') || (ip === '224.0.23.12');
+                    const showTunnelIA = isSecure && !isMulticast;
+                    if (showTunnelIA) {
+                        $("#rowTunnelIASelection").show();
+                        if ($("#node-config-input-tunnelIASelection").val() === 'Manual') {
+                            $("#divTunnelIA").show();
+                        } else {
+                            $("#divTunnelIA").hide();
+                        }
+                    } else {
+                        $("#rowTunnelIASelection").hide();
+                        $("#divTunnelIA").hide();
+                    }
+                } catch (e) { }
+            }
+            // Helper: ensure Physical Address row is visible (required also in multicast)
+            function updatePhysAddrVisibility() {
+                try { $("#rowPhysAddr").show(); } catch (e) { }
+            }
+            // Helper: show contextual hint for Secure + Multicast (Data Secure senders requirement)
+            function updateSecureMulticastHint() {
+                try {
+                    const isSecure = (node.knxSecureSelected === true || node.knxSecureSelected === 'true');
+                    const hostProtocol = $("#node-config-input-hostProtocol").val();
+                    const ip = $("#node-config-input-host").val();
+                    const isMulticast = (hostProtocol === 'Multicast') || (ip === '224.0.23.12');
+                    if (isSecure && isMulticast) {
+                        $("#hintSecureMulticast").show();
+                    } else {
+                        $("#hintSecureMulticast").hide();
+                    }
+                } catch (e) { }
+            }
+            // Helper: suggest a coherent physAddr from a gateway IA string like A.L.D
+            function suggestPhysAddrFromGatewayIA(gatewayIA) {
+                let prefix = '';
+                let gwIaParts = [];
+                if (typeof gatewayIA === 'string' && gatewayIA.includes('.')) {
+                    gwIaParts = gatewayIA.split('.');
+                    prefix = `${gwIaParts[0]}.${gwIaParts[1]}`;
+                } else {
+                    const currentPhys = $("#node-config-input-physAddr").val() || '';
+                    const m = String(currentPhys).trim().match(/^(\d{1,2})\.(\d{1,3})/);
+                    prefix = m ? `${m[1]}.${m[2]}` : '15.15';
+                }
+                let rnd = 200 + Math.floor(Math.random() * 55); // 200..254
+                try {
+                    const gwLast = parseInt(gwIaParts[2]);
+                    if (!isNaN(gwLast) && gwLast >= 200 && gwLast <= 254 && rnd === gwLast) {
+                        rnd = (gwLast < 254 ? gwLast + 1 : 200);
+                    }
+                } catch(e){}
+                const phys = `${prefix}.${rnd}`;
+                $("#node-config-input-physAddr").val(phys);
+            }
             // Helper: enforce host protocol depending on Secure/Plain and IP
             function enforceHostProtocol(isSecure, ip) {
                 try {
@@ -100,6 +183,9 @@
                         $sel.find("option[value='Auto']").prop('disabled', true).hide();
                     }
                 } catch (e) { }
+                updateTunnelIAVisibility();
+                updatePhysAddrVisibility();
+                updateSecureMulticastHint();
             }
 
             // List of IA from keyring and loader
@@ -144,8 +230,11 @@
                         $("#divTunnelIA").hide();
                     }
                 };
-                $("#node-config-input-tunnelIASelection").on('change', toggleTunnelIA);
+                $("#node-config-input-tunnelIASelection").on('change', function(){ toggleTunnelIA(); updateTunnelIAVisibility(); updateSecureMulticastHint(); });
                 toggleTunnelIA();
+                updateTunnelIAVisibility();
+                updateSecureMulticastHint();
+                updatePhysAddrVisibility();
                 // Also refresh IA list when user edits keyring/pwd
                 $("#node-config-input-keyringFileXML").on('change', function(){ if ($("#node-config-input-tunnelIASelection").val()==='Manual') populateTunnelIAList(); });
                 $("#node-config-input-keyringFilePassword").on('change', function(){ if ($("#node-config-input-tunnelIASelection").val()==='Manual') populateTunnelIAList(); });
@@ -164,102 +253,138 @@
                 } catch (e) { }
             } catch (error) { }
 
-            // Autocomplete with KNX IP Interfaces
+            // Autocomplete with KNX IP Interfaces + Refresh capability
             let aKNXInterfaces = [];
-            $("#interfaces-count").html('<i class="fa fa-circle-o-notch fa-spin"></i> ' + node._('knxUltimate-config.properties.discovering'));
-            $.getJSON("knxUltimateDiscoverKNXGateways", { _: new Date().getTime() }, (data) => {
-                for (let index = 0; index < data.length; index++) {
-                    const element = data[index];
-                    const parts = String(element).split(':');
-                    const ip = parts[0];
-                    const port = parts[1];
-                    const name = parts[2];
-                    const address = parts[3];
-                    const secureFlag = parts[parts.length - 1];
-                    const isSecure = secureFlag === 'Secure KNX';
-                    const addrLabel = (typeof address === 'string' && address !== '' && address !== 'undefined') ? address : 'n/a';
-                    aKNXInterfaces.push({
-                        label: `${name || ''} -> ${ip || ''}:${port || ''} phys addr:${addrLabel}`,
-                        value: element,
-                        isSecure
-                    });
-                }
-                $("#interfaces-count").text(`${aKNXInterfaces.length} ` + node._('knxUltimate-config.properties.interfaces_found'));
-                // Configura l'autocompletamento per il campo di input
-                $("#node-config-input-host").autocomplete({
-                    minLength: 0, // Mostra suggerimenti subito
-                    source: aKNXInterfaces, // Dati per il completamento
-                    select: function (event, ui) {
-                        // Quando l'utente seleziona un elemento, aggiorna il valore del campo
-                        const parts = String(ui.item.value).split(':');
+            function refreshKNXGateways(openDropdown) {
+                $("#interfaces-count").html('<i class="fa fa-circle-o-notch fa-spin"></i> ' + node._('knxUltimate-config.properties.discovering'));
+                aKNXInterfaces = [];
+                $.getJSON("knxUltimateDiscoverKNXGateways", { _: new Date().getTime() }, (data) => {
+                    for (let index = 0; index < data.length; index++) {
+                        const element = data[index];
+                        const parts = String(element).split(':');
                         const ip = parts[0];
                         const port = parts[1];
                         const name = parts[2];
                         const address = parts[3];
-                        const secureFlag = parts[parts.length - 1];
-                        const isSecure = secureFlag === 'Secure KNX';
-                        $("#node-config-input-host").val(ip);
-                        $("#node-config-input-port").val(port);
-                        $("#node-config-input-name").val(name || "");
-                        // Se è Secure KNX, attiva TAB Secure e consenti scelta tra TunnelTCP/Multicast; altrimenti set Plain (tunneling o multicast) e blocca la scelta
-                        if (isSecure) {
-                            try { $("#tabsMain").tabs("option", "active", 1); } catch (e) { }
-                            enforceHostProtocol(true, ip);
-                        } else {
-                            try { $("#tabsMain").tabs("option", "active", 0); } catch (e) { }
-                            enforceHostProtocol(false, ip);
-                        }
-                        // Selezione tunneling vs router: per tunneling lascia vuoto il physAddr; per router valorizza
-                        if (ip && ip !== '224.0.23.12') {
-                            // Tunneling: l'utente deve inserire manualmente la physical address
-                            $("#node-config-input-physAddr").val('');
-                        } else {
-                            // Router (multicast): imposta la physical address
-                            // Se l'address del gateway manca, riusa i primi 2 byte dall'attuale valore del form; altrimenti usa quelli del gateway.
-                            let prefix = '';
-                            if (typeof address === 'string' && address.includes('.')) {
-                                const parts = address.split('.');
-                                prefix = `${parts[0]}.${parts[1]}`;
-                            } else {
-                                const currentPhys = $("#node-config-input-physAddr").val() || '';
-                                const m = String(currentPhys).trim().match(/^(\d{1,2})\.(\d{1,3})/);
-                                prefix = m ? `${m[1]}.${m[2]}` : '15.15';
-                            }
-                            const phys = `${prefix}.${Math.floor(Math.random() * 256)}`;
-                            $("#node-config-input-physAddr").val(phys);
-                        }
-                        blinkBackgroundArray(["#node-config-input-host", "#node-config-input-port", "#node-config-input-name", "#node-config-input-physAddr"]);
-                        return false; // Evita il comportamento predefinito del browser
-                    },
-                    focus: function (event, ui) {
-                        // Mantieni il valore corrente durante il focus, ma non cambiare il valore effettivo
-                        $("#node-config-input-host").val(ui.item.value.split(':')[0]);
-                        return false; // Evita di aggiornare il campo con il valore selezionato
+                        const security = parts[4] || '';
+                        const protoRaw = parts[5] || '';
+                        const isSecure = security === 'Secure KNX';
+                        const proto = (protoRaw === 'TCP') ? 'TunnelTCP' : (protoRaw === 'UDP' ? 'TunnelUDP' : 'Multicast');
+                        const addrLabel = (typeof address === 'string' && address !== '' && address !== 'undefined') ? address : 'n/a';
+                        aKNXInterfaces.push({
+                            label: `${name || ''} -> ${ip || ''}:${port || ''} phys addr:${addrLabel}`,
+                            value: element,
+                            isSecure,
+                            proto
+                        });
                     }
-                }).on("focus", function () {
-                    // Apri l'autocomplete quando il campo riceve il focus
-                    $(this).autocomplete("search", "");
-                }).on("click", function () {
-                    // Apri l'autocomplete quando il campo riceve il focus
-                    $(this).autocomplete("search", "");
-                }).autocomplete("instance")._renderItem = function (ul, item) {
-                    // Personalizza l'aspetto degli elementi della lista
-                    const parts = String(item.value).split(':');
+                    $("#interfaces-count").text(`${aKNXInterfaces.length} ` + node._('knxUltimate-config.properties.interfaces_found'));
+                    try {
+                        $("#node-config-input-host").autocomplete('option', 'source', aKNXInterfaces);
+                        if (openDropdown === true) {
+                            $("#node-config-input-host").autocomplete("search", "");
+                        }
+                    } catch (e) { }
+                }).fail(function () {
+                    $("#interfaces-count").text(node._('knxUltimate-config.properties.discovery_failed'));
+                });
+            }
+            // Initialize autocomplete once
+            $("#node-config-input-host").autocomplete({
+                minLength: 0,
+                source: aKNXInterfaces,
+                select: function (event, ui) {
+                    const parts = String(ui.item.value).split(':');
                     const ip = parts[0];
                     const port = parts[1];
                     const name = parts[2];
                     const address = parts[3];
-                    const secureFlag = parts[parts.length - 1];
-                    const isSecure = secureFlag === 'Secure KNX';
-                    const addrLabel = (typeof address === 'string' && address !== '' && address !== 'undefined') ? address : 'n/a';
-                    const colorStyle = isSecure ? 'color: green;' : '';
-                    return $("<li>")
-                        .append(`<div style="${colorStyle}"><b>${ip || ''}:${port || ''}</b> -> ${name || ''} - ${node._('knxUltimate-config.properties.address')}:${addrLabel}${isSecure ? ' (' + node._('knxUltimate-config.properties.secure_knx_label') + ')' : ''}</div>`) // Mostra la descrizione completa
-                        .appendTo(ul);
+                    const security = parts[4] || '';
+                    const protoRaw = parts[5] || '';
+                    const isSecure = security === 'Secure KNX';
+                    const proto = (protoRaw === 'TCP') ? 'TunnelTCP' : (protoRaw === 'UDP' ? 'TunnelUDP' : 'Multicast');
+                    $("#node-config-input-host").val(ip);
+                    $("#node-config-input-port").val(port);
+                    $("#node-config-input-name").val(name || "");
+                    if (isSecure) { try { $("#tabsMain").tabs("option", "active", 1); } catch (e) { } }
+                    else { try { $("#tabsMain").tabs("option", "active", 0); } catch (e) { } }
+                    // Set protocol coming from discovery and lock selection
+                    try { const $sel = $("#node-config-input-hostProtocol"); $sel.val(proto); $sel.prop('disabled', true); } catch(e){}
+                    // Ensure UI visibility follows protocol choice
+                    updateTunnelIAVisibility();
+                    updatePhysAddrVisibility();
+                    updateSecureMulticastHint();
+                    // Suggest a physAddr coherent with gateway IA (area.line preserved)
+                    let prefix = '';
+                    let gwIaParts = [];
+                    if (typeof address === 'string' && address.includes('.')) {
+                        gwIaParts = address.split('.');
+                        prefix = `${gwIaParts[0]}.${gwIaParts[1]}`;
+                    } else {
+                        const currentPhys = $("#node-config-input-physAddr").val() || '';
+                        const m = String(currentPhys).trim().match(/^(\d{1,2})\.(\d{1,3})/);
+                        prefix = m ? `${m[1]}.${m[2]}` : '15.15';
+                    }
+                    // pick a last byte in the safer range 200..254
+                    let rnd = 200 + Math.floor(Math.random() * 55);
+                    // avoid same last byte as gateway IA if known and within range
+                    try {
+                        const gwLast = parseInt(gwIaParts[2]);
+                        if (!isNaN(gwLast) && gwLast >= 200 && gwLast <= 254 && rnd === gwLast) {
+                            rnd = (gwLast < 254 ? gwLast + 1 : 200);
+                        }
+                    } catch(e){}
+                    const phys = `${prefix}.${rnd}`;
+                    $("#node-config-input-physAddr").val(phys);
+                    blinkBackgroundArray(["#node-config-input-host", "#node-config-input-port", "#node-config-input-name", "#node-config-input-physAddr"]);
+                    return false;
+                },
+                focus: function (event, ui) {
+                    $("#node-config-input-host").val(ui.item.value.split(':')[0]);
+                    return false;
                 }
-            }).fail(function () {
-                $("#interfaces-count").text(node._('knxUltimate-config.properties.discovery_failed'));
-            });
+            }).on("focus click", function () {
+                $(this).autocomplete("search", "");
+            }).autocomplete("instance")._renderItem = function (ul, item) {
+                const parts = String(item.value).split(':');
+                const ip = parts[0];
+                const port = parts[1];
+                const name = parts[2];
+                const address = parts[3];
+                const security = parts[4] || '';
+                const protoRaw = parts[5] || '';
+                const isSecure = security === 'Secure KNX';
+                const addrLabel = (typeof address === 'string' && address !== '' && address !== 'undefined') ? address : 'n/a';
+                const colorStyle = isSecure ? 'color: green;' : '';
+                return $("<li>")
+                    .append(`<div style="${colorStyle}"><b>${ip || ''}:${port || ''}</b> [${protoRaw || ''}] -> ${name || ''} - ${node._('knxUltimate-config.properties.address')}:${addrLabel}${isSecure ? ' (' + node._('knxUltimate-config.properties.secure_knx_label') + ')' : ''}</div>`)
+                    .appendTo(ul);
+            }
+            // Initial discovery
+            refreshKNXGateways(false);
+            // Refresh button handler
+            try {
+                $("#refresh-interfaces").on('click', function(){ refreshKNXGateways(true); });
+            } catch (e) { }
+            // Track protocol changes to sync visibility and suggest physAddr when needed
+            try {
+                $("#node-config-input-hostProtocol").on('change', function(){
+                    updateTunnelIAVisibility();
+                    updatePhysAddrVisibility();
+                    updateSecureMulticastHint();
+                    try {
+                        const ipNow = String($("#node-config-input-host").val() || '').trim();
+                        if (!$("#node-config-input-physAddr").val()) {
+                            let gwIA = null;
+                            for (let i = 0; i < aKNXInterfaces.length; i++) {
+                                const parts = String(aKNXInterfaces[i].value).split(':');
+                                if (parts[0] === ipNow) { gwIA = parts[3] || null; break; }
+                            }
+                            suggestPhysAddrFromGatewayIA(gwIA);
+                        }
+                    } catch(e){}
+                });
+            } catch (e) { }
 
 
             $("#node-config-input-KNXEthInterface").append($("<option></option>")
@@ -315,6 +440,33 @@
                         $sel.find("option[value='TunnelTCP']").prop('disabled', true).hide();
                         $sel.find("option[value='Auto']").prop('disabled', true).hide();
                     }
+                    // Sync visibility when user types a multicast/unicast IP
+                    updateTunnelIAVisibility();
+                    updatePhysAddrVisibility();
+
+                    // Suggest physAddr when typing unicast IP and field is empty
+                    try {
+                        const ipTyped = String($(this).val() || '').trim();
+                        if (ipTyped) {
+                            let gwIA = null;
+                            let proto = null;
+                            for (let i = 0; i < aKNXInterfaces.length; i++) {
+                                const parts = String(aKNXInterfaces[i].value).split(':');
+                                if (parts[0] === ipTyped) {
+                                    gwIA = parts[3] || null;
+                                    const protoRaw = parts[5] || '';
+                                    proto = (protoRaw === 'TCP') ? 'TunnelTCP' : (protoRaw === 'UDP' ? 'TunnelUDP' : 'Multicast');
+                                    break;
+                                }
+                            }
+                            // Suggest phys only if empty
+                            if (!$("#node-config-input-physAddr").val()) {
+                                suggestPhysAddrFromGatewayIA(gwIA);
+                            }
+                            // If discovery knows protocol, preselect it (keep select enabled for manual override)
+                            if (proto) { $("#node-config-input-hostProtocol").val(proto); }
+                        }
+                    } catch(e){}
                 });
             } catch (e) { }
 
@@ -355,6 +507,12 @@
 
 
         },
+        oneditcancel: function() {
+            try {
+                if (this._keyringEditor) { this._keyringEditor.destroy(); this._keyringEditor = null; }
+                if (this._csvEditor) { this._csvEditor.destroy(); this._csvEditor = null; }
+            } catch (e) { }
+        },
         oneditsave: function () {
             // Return to the info tab
             try {
@@ -362,6 +520,18 @@
             } catch (error) { }
 
             var node = this;
+            try {
+                if (node._keyringEditor) {
+                    $("#node-config-input-keyringFileXML").val(node._keyringEditor.getValue());
+                    node._keyringEditor.destroy();
+                    node._keyringEditor = null;
+                }
+                if (node._csvEditor) {
+                    $("#node-config-input-csv").val(node._csvEditor.getValue());
+                    node._csvEditor.destroy();
+                    node._csvEditor = null;
+                }
+            } catch (e) { }
             // Check if the csv file contains errors
             if (($("#node-config-input-csv").val() != 'undefined' && $("#node-config-input-csv").val() != "") || ($("#node-config-input-keyring").val() != 'undefined' && $("#node-config-input-keyring").val() != "")) {
                 var checkResult = node._("knxUltimate-config.ets.deploywithETS");
@@ -436,8 +606,23 @@
         </div>
         <div class="form-row">
             <label for="node-config-input-host" style="width: 200px"><i class="fa fa-server"></i> <span data-i18n="knxUltimate-config.properties.host"></span></label>
-                <input type="text" id="node-config-input-host" style="width: 200px"><br/>
-                <span id="interfaces-count" style="font-size: 12px; color:#377e00 ; margin-top: 2px;"></span>
+                <input type="text" id="node-config-input-host" style="width: 200px">
+        </div>
+        <div class="form-row">
+            <label style="width: 200px"></label>
+            <span id="interfaces-count" style="font-size: 12px; color:#377e00; margin-top: 2px;"></span>
+            <i id="refresh-interfaces" class="fa fa-refresh" style="cursor:pointer; color:#377e00; margin-left:6px;" data-i18n="[title]knxUltimate-config.properties.refresh_interfaces"></i>
+        </div>
+        <div class="form-row" id="rowPhysAddr">
+            <label for="node-config-input-physAddr" style="width: 200px">
+                <i class="fa fa-microchip"></i>
+                <span data-i18n="knxUltimate-config.advanced.knx_phy_addr"></span>
+            </label>
+            <input type="text" id="node-config-input-physAddr" style="width:100px">
+        </div>
+        <div id="hintSecureMulticast" class="form-tips" style="display:none; margin-top:6px;">
+            <i class="fa fa-shield"></i>
+            <span data-i18n="knxUltimate-config.properties.secure_multicast_physaddr_hint"></span>
         </div>
     
     <!-- KNX Secure / Unsecure tabbed selector -->
@@ -459,13 +644,14 @@
                 </div>
                 <div class="form-row">
                     <label for="node-config-input-keyringFileXML"><span data-i18n="knxUltimate-config.ets.keyring_file"></span></label>
-                    <textarea rows="5" id="node-config-input-keyringFileXML" style="width:100%" data-i18n="[placeholder]knxUltimate-config.ets.keyring"></textarea>
+                    <div id="node-config-input-keyringFileXML-editor" class="node-text-editor" style="height:200px; min-height:140px; width:100%"></div>
+                    <input type="hidden" id="node-config-input-keyringFileXML" data-i18n="[placeholder]knxUltimate-config.ets.keyring" />
                 </div>
                 <div class="form-row">
                     <label for="node-config-input-keyringFilePassword"><i class="fa fa-shield"></i> <span data-i18n="knxUltimate-config.ets.password"></span></label>
                     <input type="password" id="node-config-input-keyringFilePassword" style="width:200px;">               
                 </div>
-                <div class="form-row">
+                <div class="form-row" id="rowTunnelIASelection">
                     <label for="node-config-input-tunnelIASelection"><i class="fa fa-exchange"></i> <span data-i18n="knxUltimate-config.properties.tunnel_ia_label"></span></label>
                     <select id="node-config-input-tunnelIASelection" style="width: 150px;">
                         <option value="Auto" data-i18n="knxUltimate-config.properties.tunnel_ia_mode_auto"></option>
@@ -509,13 +695,7 @@
                     <option value="TunnelTCP" data-i18n="knxUltimate-config.properties.proto_tunnel_tcp"></option>
                 </select>   
             </div>
-            <div class="form-row">
-                <label for="node-config-input-physAddr" style="width: 200px">
-                    <i class="fa fa-microchip"></i>
-                    <span data-i18n="knxUltimate-config.advanced.knx_phy_addr"></span>
-                </label>
-                <input type="text" id="node-config-input-physAddr" style="width:100px">
-            </div>
+            
 
             <div class="form-row">
                 <label for="node-config-input-KNXEthInterface" style="width: 200px">
@@ -618,8 +798,8 @@
                         </label>
                     </div>
                     <div class="form-row">
-                        <textarea rows="20" id="node-config-input-csv" style="width:100%"
-                            data-i18n="[placeholder]knxUltimate-config.ets.ga_list_help"></textarea>
+                        <div id="node-config-input-csv-editor" class="node-text-editor" style="height:300px; min-height:200px; width:100%"></div>
+                        <input type="hidden" id="node-config-input-csv" data-i18n="[placeholder]knxUltimate-config.ets.ga_list_help" />
                     </div>
                 </div>
             </div>                       
@@ -638,6 +818,7 @@
                 <input type="button" id="getallgaused" class="ui-button ui-corner-all ui-widget"
                     style="background-color:#AEE1FF;width:150px" data-i18n="[value]knxUltimate-config.utility.read_button">
             </div>
+            
             <div class="form-row" id="divDebugText" style="display: none;">                
                 <textarea rows="10" id="debugText" style="width:100%"></textarea>
             </div>
@@ -646,4 +827,3 @@
 </div>
   
 </script>
-

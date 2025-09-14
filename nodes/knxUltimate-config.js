@@ -168,6 +168,8 @@ module.exports = (RED) => {
           try {
             if (node.tunnelIASelection === "Manual" && typeof node.tunnelIA === "string" && node.tunnelIA.trim() !== "") {
               node.secureTunnelConfig.tunnelInterfaceIndividualAddress = node.tunnelIA.trim();
+            } else {
+              node.secureTunnelConfig.tunnelInterfaceIndividualAddress = ""; // Auto
             }
           } catch (e) { /* empty */ }
 

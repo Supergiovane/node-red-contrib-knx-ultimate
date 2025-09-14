@@ -36,7 +36,9 @@
             "tunnel_ia_mode_manual": "Manual",
             "tunnel_ia_input_label": "Interface IA",
             "tunnel_ia_placeholder": "1.1.1",
-            "secure_knx_label": "Secure KNX"
+            "secure_knx_label": "Secure KNX",
+            "refresh_interfaces": "Refresh",
+            "secure_multicast_physaddr_hint": "Secure + Multicast: the physical address you set will sign Data Secure telegrams. Ensure this IA is configured as a Sender for the addressed Group Addresses in ETS, or devices will reject messages."
         },
         "tabs": {
             "configuration": "Configuration",
