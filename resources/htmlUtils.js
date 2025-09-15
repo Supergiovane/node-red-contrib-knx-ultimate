@@ -77,3 +77,112 @@ function KNX_enableSecureFormatting($input, serverId) {
 window.htmlUtilsfullCSVSearch = htmlUtilsfullCSVSearch;
 window.KNX_fetchSecureGAs = KNX_fetchSecureGAs;
 window.KNX_enableSecureFormatting = KNX_enableSecureFormatting;
+
+// 2025-09: Make DPT selects searchable via jQuery UI Autocomplete
+function KNX_makeSelectSearchable($select) {
+    try {
+        if (!($select && $select.length)) return;
+        const id = $select.attr('id') || ('knx-dpt-' + Math.random().toString(36).slice(2));
+        $select.attr('id', id);
+        const prevCount = $select.data('knx-options-count');
+        const curCount = $select.find('option').length;
+        const already = $select.data('knx-searchable') === true;
+        const needsSync = already && prevCount !== curCount;
+
+        function buildSource() {
+            const items = [];
+            $select.find('option').each(function(){
+                const v = $(this).attr('value');
+                const t = $(this).text();
+                items.push({ label: t, value: v });
+            });
+            return items;
+        }
+
+        function syncFromSelect($input) {
+            try {
+                const val = $select.val();
+                const txt = ($select.find('option:selected').text()) || '';
+                if ($input) { $input.val(txt); }
+                // refresh source
+                if ($input && $input.data('ui-autocomplete')) {
+                    $input.autocomplete('option', 'source', buildSource());
+                }
+                $select.data('knx-options-count', curCount);
+            } catch (e) { }
+        }
+
+        if (!already) {
+            // Create input next to select
+            const width = $select.outerWidth() || 200;
+            const $input = $('<input type="text" class="knx-dpt-combobox" autocomplete="off" />')
+                .attr('id', id + '-search')
+                .css('width', width + 'px');
+            $select.after($input);
+            // Hide original select but keep in DOM for value binding
+            $select.hide();
+            // Init autocomplete
+            $input.autocomplete({
+                minLength: 0,
+                source: buildSource(),
+                select: function(event, ui){
+                    try { event.preventDefault(); } catch(e){}
+                    $input.val(ui.item.label);
+                    $select.val(ui.item.value).trigger('change');
+                },
+                focus: function(event, ui){
+                    try { event.preventDefault(); } catch(e){}
+                    $input.val(ui.item.label);
+                }
+            }).on('focus click', function(){
+                // Always show full list on click/focus
+                try { $(this).autocomplete('search', ''); } catch(e){}
+            });
+            // Initial sync
+            syncFromSelect($input);
+            // When select value changes programmatically, keep input in sync
+            $select.on('change', function(){ syncFromSelect($input); });
+            $select.data('knx-searchable', true);
+        } else if (needsSync) {
+            // Only refresh source and text
+            const $input = $('#' + id + '-search');
+            syncFromSelect($input);
+        }
+    } catch (e) { }
+}
+
+// Auto-enhance any select whose id contains 'dpt'
+(function(){
+    if (window.__knx_dptObserverSetup) return; window.__knx_dptObserverSetup = true;
+    function enhance(root){
+        try {
+            $(root).find('select[id*="dpt"]').each(function(){ KNX_makeSelectSearchable($(this)); });
+        } catch(e){}
+    }
+    try {
+        const observer = new MutationObserver(function(mutations){
+            mutations.forEach(function(m){
+                if (!m.addedNodes) return;
+                m.addedNodes.forEach(function(n){
+                    if (n.nodeType!==1) return;
+                    // If a select is added
+                    if (n.matches && n.matches('select[id*="dpt"]')) { enhance(n); return; }
+                    // If options are added to an existing select
+                    if (n.matches && n.matches('option')) {
+                        const sel = n.closest && n.closest('select');
+                        if (sel && sel.id && sel.id.indexOf('dpt')>-1) { KNX_makeSelectSearchable($(sel)); }
+                        return;
+                    }
+                    enhance(n);
+                });
+            });
+        });
+        observer.observe(document.body, { childList: true, subtree: true });
+        // Initial pass
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function(){ enhance(document.body); });
+        } else { enhance(document.body); }
+    } catch(e){}
+})();
+
+window.KNX_makeSelectSearchable = KNX_makeSelectSearchable;
