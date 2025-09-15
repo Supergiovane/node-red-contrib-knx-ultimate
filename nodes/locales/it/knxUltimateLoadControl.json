@@ -1,7 +1,6 @@
 {
     "knxUltimateLoadControl": {
         "paletteLabel": "Controllo carichi KNX",
-        "helplink": "&nbsp<i class=\"fa fa-question-circle\"></i>&nbsp<a target=\"_blank\" href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/it-LoadControl-Configuration\"><u>Aiuto per configurazione</u></a>",
         "title": "Controllo Carichi",
         "primoaldistacco": "(è il primo che verrà staccato)",
         "properties": {

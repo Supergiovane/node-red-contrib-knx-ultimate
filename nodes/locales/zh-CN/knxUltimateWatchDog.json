@@ -1,7 +1,6 @@
 {
     "knxUltimateWatchDog": {
         "paletteLabel": "KNX 看门狗",
-        "helplink" : "&nbsp<i class=\"fa fa-question-circle\"></i>&nbsp<a target=\"_blank\" href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/cn-7.-WatchDog-Configuration\"><u>配置帮助文档</u></a>",
         "title": "看门狗",
      
         "properties": {

@@ -2,7 +2,6 @@
     "knxUltimate": {
         "paletteLabel": "KNX 设备",
         "deployfirst": "请创建您的第一个网关，然后进行部署，然后重新打开此窗口。",
-        "helplink" : "&nbsp<i class=\"fa fa-question-circle\"></i>&nbsp<a target=\"_blank\" href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/cn-2.-Node-Configuration\"><u>配置帮助文档</u></a>",
         "title": "KNX 设备节点",
         "properties": {
             "node-input-server": "网关",

@@ -1,7 +1,6 @@
 {
   "knxUltimateGlobalContext": {
         "paletteLabel": "Context Globale KNX",
-        "helplink" : "&nbsp<i class=\"fa fa-question-circle\"></i>&nbsp<a target=\"_blank\" href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/it-GlobalVariable\"><u>Esempio</u></a>",
         "title": "Variabile Globale KNX",
         "node-input-name": "Nome variabile (no spazi, solo [a-z])",
         "advanced": {

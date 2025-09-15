@@ -1,7 +1,6 @@
 {
     "knxUltimateAlerter": {
         "paletteLabel": "Allertatore KNX",
-        "helplink" : "&nbsp<i class=\"fa fa-question-circle\"></i>&nbsp<a target=\"_blank\" href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/it-Alerter-Configuration\"><u>Aiuto per configurazione</u></a>",
         "title": "Nodo Alerter",
       
         "properties": {

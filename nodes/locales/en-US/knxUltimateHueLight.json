@@ -1,7 +1,6 @@
 {
   "knxUltimateHueLight": {
     "title": "HUE node",
-    "helplink": "&nbsp<i class=\"fa fa-question-circle\"></i>&nbsp<a target=\"_blank\" href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/huesample\"><u>Sample</u></a>",
     "node-input-name": "Name",
     "node-input-nameLightSwitch": "Switch (bit)",
     "node-input-GALightSwitch": "GA",

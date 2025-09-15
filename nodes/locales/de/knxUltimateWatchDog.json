@@ -1,7 +1,6 @@
 {
     "knxUltimateWatchDog": {
         "paletteLabel": "KNX WatchDog",
-        "helplink" : "&nbsp<i class=\"fa fa-question-circle\"></i>&nbsp<a target=\"_blank\" href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/de-7.-WatchDog-Configuration\"><u>Hilfe für die Konfiguration</u></a>",
         "title": "Watchdog",
         "properties": {
             "node-input-server": "Gateway",

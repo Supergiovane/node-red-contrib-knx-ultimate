@@ -2,7 +2,6 @@
     "knxUltimate": {
         "paletteLabel": "DISPOSITIVO KNX",
         "deployfirst": "PRIMA DI PROCEDERE DEVI CREARE IL TUO PRIMO GATEWAY.",
-        "helplink": "&nbsp<i class=\"fa fa-question-circle\"></i>&nbsp<a target=\"_blank\" href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/it-2.-Node-Configuration\"><u>Aiuto per configurazione</u></a>",
         "title": "Dispositivo KNX",
         "properties": {
             "node-input-server": "Gateway",

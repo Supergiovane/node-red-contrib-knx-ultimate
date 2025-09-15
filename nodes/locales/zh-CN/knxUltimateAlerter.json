@@ -1,7 +1,6 @@
 {
     "knxUltimateAlerter": {
         "paletteLabel": "KNX 警报器",
-        "helplink" : "&nbsp<i class=\"fa fa-question-circle\"></i>&nbsp<a target=\"_blank\" href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/cn-Alerter-Configuration\"><u>配置帮助文档</u></a>",
         "title": "KNX 警报节点",
       
         "properties": {

@@ -1,7 +1,6 @@
 {
     "knxUltimateLoadControl": {
         "paletteLabel": "KNX Laststeuerung",
-        "helplink": "&nbsp<i class=\"fa fa-question-circle\"></i>&nbsp<a target=\"_blank\" href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/de-LoadControl-Configuration\"><u>Help Config</u></a>",
         "title": "Load control",
         "primoaldistacco": "(this is the first to be switched off)",
         "properties": {

@@ -1,7 +1,6 @@
 {
     "knxUltimateSceneController": {
         "paletteLabel": "KNX Scene Controller",
-        "helplink" : "&nbsp<i class=\"fa fa-question-circle\"></i>&nbsp<a target=\"_blank\" href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/SceneController-Configuration\"><u>Help for configuration</u></a>",
         "title": "Scene controller",
         "properties": {
             "node-input-server": "Gateway",
