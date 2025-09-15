@@ -37,7 +37,8 @@
             "tunnel_ia_input_label": "Schnittstellen‑IA",
             "tunnel_ia_placeholder": "1.1.1",
             "secure_knx_label": "Sicheres KNX",
-            "secure_multicast_physaddr_hint": "Secure + Multicast: Die eingestellte physische Adresse signiert Data‑Secure‑Telegramme. Stellen Sie sicher, dass diese IA in ETS als Sender für die betroffenen Gruppenadressen konfiguriert ist, sonst werden Nachrichten von Geräten abgewiesen."
+            "secure_multicast_physaddr_hint": "Secure + Multicast: Die eingestellte physische Adresse signiert Data‑Secure‑Telegramme. Stellen Sie sicher, dass diese IA in ETS als Sender für die betroffenen Gruppenadressen konfiguriert ist, sonst werden Nachrichten von Geräten abgewiesen.",
+            "secure_multicast_physaddr_hint_toggle": "Information"
         },
         "tabs": {
             "configuration": "Konfiguration",

@@ -1,0 +1,46 @@
+[
+  {
+    "id": "log_cfg_1",
+    "type": "knxUltimate-config",
+    "z": "",
+    "host": "224.0.23.12",
+    "port": "3671",
+    "physAddr": "15.15.204",
+    "suppressACKRequest": false,
+    "csv": "",
+    "KNXEthInterface": "Auto",
+    "KNXEthInterfaceManuallyInput": "",
+    "autoReconnect": "yes"
+  },
+  {
+    "id": "logger_1",
+    "type": "knxUltimateLogger",
+    "z": "flow5",
+    "server": "log_cfg_1",
+    "topic": "",
+    "intervalCreateETSXML": 15,
+    "name": "KNX Logger",
+    "autoStartTimerCreateETSXML": true,
+    "maxRowsInETSXML": 0,
+    "autoStartTimerTelegramCounter": true,
+    "intervalTelegramCount": 60,
+    "x": 320,
+    "y": 180,
+    "wires": [["logger_dbg_ets"],[]]
+  },
+  {
+    "id": "logger_dbg_ets",
+    "type": "debug",
+    "z": "flow5",
+    "name": "ETS diag file",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "true",
+    "targetType": "full",
+    "x": 540,
+    "y": 180,
+    "wires": []
+  }
+]

@@ -1,0 +1,84 @@
+[{
+  "id": "um_cfg_1",
+  "type": "knxUltimate-config",
+  "z": "",
+  "host": "224.0.23.12",
+  "port": "3671",
+  "physAddr": "15.15.201",
+  "suppressACKRequest": false,
+  "csv": "",
+  "KNXEthInterface": "Auto",
+  "KNXEthInterfaceManuallyInput": "",
+  "autoReconnect": "yes"
+},
+{
+  "id": "um_node_all",
+  "type": "knxUltimate",
+  "z": "flow2",
+  "server": "um_cfg_1",
+  "topic": "0/0/0",
+  "dpt": "1.001",
+  "initialread": false,
+  "notifyreadrequest": false,
+  "notifyresponse": true,
+  "notifywrite": true,
+  "notifyreadrequestalsorespondtobus": false,
+  "notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized": "",
+  "listenallga": true,
+  "name": "Universal mode",
+  "outputtype": "write",
+  "outputRBE": false,
+  "inputRBE": false,
+  "x": 420,
+  "y": 280,
+  "wires": [["um_dbg"]]
+},
+{
+  "id": "um_inj_write_on",
+  "type": "inject",
+  "z": "flow2",
+  "name": "Write ON to 0/0/26",
+  "props": [
+    {"p":"payload","v":"true","vt":"bool"},
+    {"p":"destination","v":"0/0/26","vt":"str"},
+    {"p":"dpt","v":"1.001","vt":"str"}
+  ],
+  "repeat": "",
+  "once": false,
+  "onceDelay": 0.1,
+  "x": 170,
+  "y": 240,
+  "wires": [["um_node_all"]]
+},
+{
+  "id": "um_inj_read",
+  "type": "inject",
+  "z": "flow2",
+  "name": "READ 0/0/26",
+  "props": [
+    {"p":"readstatus","v":"true","vt":"bool"},
+    {"p":"destination","v":"0/0/26","vt":"str"}
+  ],
+  "repeat": "",
+  "once": false,
+  "onceDelay": 0.1,
+  "x": 150,
+  "y": 320,
+  "wires": [["um_node_all"]]
+},
+{
+  "id": "um_dbg",
+  "type": "debug",
+  "z": "flow2",
+  "name": "Universal out",
+  "active": true,
+  "tosidebar": true,
+  "console": false,
+  "tostatus": true,
+  "complete": "true",
+  "targetType": "full",
+  "x": 610,
+  "y": 280,
+  "wires": []
+}]
+

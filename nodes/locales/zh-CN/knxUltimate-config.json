@@ -37,7 +37,8 @@
             "tunnel_ia_input_label": "接口 IA",
             "tunnel_ia_placeholder": "1.1.1",
             "secure_knx_label": "安全 KNX",
-            "secure_multicast_physaddr_hint": "Secure + Multicast：你设置的物理地址将用于对 Data Secure 电报进行签名。请确保该 IA 已在 ETS 中被配置为相关组地址的发送者（Sender），否则设备会拒绝这些消息。"
+            "secure_multicast_physaddr_hint": "Secure + Multicast：你设置的物理地址将用于对 Data Secure 电报进行签名。请确保该 IA 已在 ETS 中被配置为相关组地址的发送者（Sender），否则设备会拒绝这些消息。",
+            "secure_multicast_physaddr_hint_toggle": "信息"
         },
         "tabs": {
             "configuration": "配置",

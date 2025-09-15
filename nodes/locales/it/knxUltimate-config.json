@@ -38,7 +38,8 @@
             "tunnel_ia_placeholder": "1.1.1",
             "secure_knx_label": "KNX Sicuro",
             "refresh_interfaces": "Ricarica",
-            "secure_multicast_physaddr_hint": "Secure + Multicast: l'indirizzo fisico impostato firma i telegrammi Data Secure. Assicurati che questa IA sia configurata come \"Sender\" delle GA interessate in ETS, altrimenti i dispositivi rifiuteranno i messaggi."
+            "secure_multicast_physaddr_hint": "Secure + Multicast: l'indirizzo fisico impostato firma i telegrammi Data Secure. Assicurati che questa IA sia configurata come \"Sender\" delle GA interessate in ETS, altrimenti i dispositivi rifiuteranno i messaggi.",
+            "secure_multicast_physaddr_hint_toggle": "Informazione"
         },
         "tabs": {
             "configuration": "Configurazione",
