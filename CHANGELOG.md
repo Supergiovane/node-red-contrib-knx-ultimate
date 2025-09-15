@@ -6,7 +6,8 @@
 
 # CHANGELOG
 
-**Version 4.0.0** - September 2025<br/>
+**Version 4.0.1** - September 2025<br/>
+- CAUTION - MAKE A BACKUP OF YOUR FLOW BEFORE UPGRADING<br/>
 - NEW: KNX Secure has arrived!!<br/>
 - Enhancements: enancements in the UI<br/>
 - Enhancements: enancements in the help tab of node-red<br/>
