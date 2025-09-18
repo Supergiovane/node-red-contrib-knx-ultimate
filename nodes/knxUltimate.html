@@ -2,7 +2,8 @@
 
 
 <script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/htmlUtils.js"></script>
-<script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/KNXFunctionCodeSnippets.js"></script>
+<script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/KNXSendSnippets.js"></script>
+<script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/KNXReceiveSnippets.js"></script>
 
 <script type="text/javascript">
     RED.nodes.registerType('knxUltimate', {
@@ -140,25 +141,67 @@
                 mode: 'ace/mode/nrjavascript',
                 value: node.receiveMsgFromKNXCode
             });
-            // Snippets
-            $("#snippetOne").on("click", function (event) {
-                node.sendMsgToKNXCodeEditor.session.setValue(KNXFunctionSnippetOne);
-            });
-            $("#snippetTwo").on("click", function (event) {
-                node.receiveMsgFromKNXCodeEditor.session.setValue(KNXFunctionSnippetTwo);
-            });
-            $("#snippetThree").on("click", function (event) {
-                node.receiveMsgFromKNXCodeEditor.session.setValue(KNXFunctionSnippetThree);
-            });
-            $("#snippetFour").on("click", function (event) {
-                node.sendMsgToKNXCodeEditor.session.setValue(KNXFunctionSnippetFour);
-            });
-            $("#snippetFive").on("click", function (event) {
-                node.sendMsgToKNXCodeEditor.session.setValue(KNXFunctionSnippetFive);
-            });
-            $("#snippetSix").on("click", function (event) {
-                node.sendMsgToKNXCodeEditor.session.setValue(KNXFunctionSnippetSix);
-            });
+            const configureSnippetPicker = (snippets, inputSelector, datalistSelector, applySnippet) => {
+                const inputEl = $(inputSelector)
+                const datalistEl = $(datalistSelector)
+                if (!inputEl.length || !datalistEl.length) return
+                const items = Array.isArray(snippets) ? snippets.slice() : []
+                const translate = key => {
+                    try {
+                        if (typeof RED !== 'undefined' && RED._) {
+                            return RED._(key)
+                        }
+                    } catch (error) { }
+                    return null
+                }
+
+                const populate = () => {
+                    datalistEl.empty()
+                    if (!items.length) {
+                        inputEl.val('')
+                        inputEl.prop('disabled', true)
+                        const emptyPlaceholder = inputEl.data('empty') || translate('knxUltimate.snippets.emptyPlaceholder') || ''
+                        inputEl.attr('placeholder', emptyPlaceholder)
+                        return
+                    }
+                    inputEl.prop('disabled', false)
+                    const defaultPlaceholder = inputEl.data('placeholder') || translate('knxUltimate.snippets.searchPlaceholder') || ''
+                    inputEl.attr('placeholder', defaultPlaceholder)
+                    items.forEach(snippet => {
+                        const opt = document.createElement('option')
+                        opt.value = snippet.title || snippet.id || 'Snippet'
+                        datalistEl.append(opt)
+                    })
+                }
+
+                populate()
+
+                const applySelectedSnippet = value => {
+                    if (!value) return
+                    const snippet = items.find(sn => (sn.title || sn.id) === value)
+                    if (!snippet) return
+                    applySnippet(snippet)
+                    inputEl.val('')
+                }
+
+                inputEl.on('change', function () {
+                    applySelectedSnippet($(this).val())
+                })
+
+                inputEl.on('keydown', function (evt) {
+                    if (evt.key === 'Enter') {
+                        evt.preventDefault()
+                        applySelectedSnippet($(this).val())
+                    }
+                })
+            }
+
+            configureSnippetPicker(window.KNXSendSnippets || [], '#sendSnippetPicker', '#sendSnippetOptions', snippet => {
+                node.sendMsgToKNXCodeEditor.session.setValue(snippet.code || '')
+            })
+            configureSnippetPicker(window.KNXReceiveSnippets || [], '#receiveSnippetPicker', '#receiveSnippetOptions', snippet => {
+                node.receiveMsgFromKNXCodeEditor.session.setValue(snippet.code || '')
+            })
 
             function checkUI() {
 
@@ -791,7 +834,7 @@
 
                 <div class="form-row" id="divknxFunctionHelperGAList">
                     <label for="node-input-knxFunctionHelperGAList">
-                        <i class="fa fa-search"></i> Search GA
+                        <i class="fa fa-search"></i> <span data-i18n="knxUltimate.snippets.searchGA"></span>
                     </label>
                     <input type="text" id="node-input-knxFunctionHelperGAList" data-i18n="[placeholder]knxUltimate.placeholder.search" />
                 </div>
@@ -799,31 +842,33 @@
 
                 <div class="form-row">
                     <dt>
-                        <i class="fa fa-arrow-right"></i>| From node's INPUT PIN to KNX BUS
+                        <i class="fa fa-arrow-right"></i>&nbsp;<span data-i18n="knxUltimate.headings.from_input_to_bus"></span>
                     </dt>
                 </div>
                 <div style="height:200px;min-height:150px;padding:0px;">
                     <div style="height:100%;width:100%;padding:0px;" class="node-text-editor"
                         id="sendMsgToKNXCode-editor"></div>
                 </div>
-                <i class="fa fa-code"></i> Select a snippet to be inserted<br />
-                <button type="button" id="snippetOne" class="red-ui-button">Status GA check</button>
-                <button type="button" id="snippetFour" class="red-ui-button">Toggle value</button>
-                <button type="button" id="snippetFive" class="red-ui-button">Send false after 5 secs</button>
-                <button type="button" id="snippetSix" class="red-ui-button">Send 20% to another GA</button>
+                <div class="snippet-picker">
+                    <i class="fa fa-code"></i> <span data-i18n="knxUltimate.snippets.select"></span><br />
+                    <input type="text" id="sendSnippetPicker" class="snippet-picker-input" list="sendSnippetOptions" style="width:100%;max-width:420px;margin-top:4px;" data-i18n="[placeholder]knxUltimate.snippets.searchPlaceholder;[data-placeholder]knxUltimate.snippets.searchPlaceholder;[data-empty]knxUltimate.snippets.emptyPlaceholder" />
+                    <datalist id="sendSnippetOptions"></datalist>
+                </div>
                 <hr>
                 <div class="form-row">
                     <dt>
-                        |<i class="fa fa-arrow-right"></i> From KNX BUS to node's OUTPUT PIN
+                        <i class="fa fa-arrow-right"></i>&nbsp;<span data-i18n="knxUltimate.headings.from_bus_to_output"></span>
                     </dt>
                 </div>
                 <div style="height:200px;min-height:150px;padding:0px;">
                     <div style="height:100%;width:100%;padding:0px;" class="node-text-editor"
                         id="receiveMsgFromKNXCode-editor"></div>
                 </div>
-                <i class="fa fa-code"></i> Select a snippet to be inserted<br />
-                <button type="button" id="snippetTwo" class="red-ui-button">Show msg constructor</button>
-                <button type="button" id="snippetThree" class="red-ui-button">Add property to msg</button>
+                <div class="snippet-picker">
+                    <i class="fa fa-code"></i> <span data-i18n="knxUltimate.snippets.select"></span><br />
+                    <input type="text" id="receiveSnippetPicker" class="snippet-picker-input" list="receiveSnippetOptions" style="width:100%;max-width:420px;margin-top:4px;" data-i18n="[placeholder]knxUltimate.snippets.searchPlaceholder;[data-placeholder]knxUltimate.snippets.searchPlaceholder;[data-empty]knxUltimate.snippets.emptyPlaceholder" />
+                    <datalist id="receiveSnippetOptions"></datalist>
+                </div>
 
             </div>
         </div>
@@ -843,4 +888,3 @@
 </div>
 <br /><br />
 </script>
-

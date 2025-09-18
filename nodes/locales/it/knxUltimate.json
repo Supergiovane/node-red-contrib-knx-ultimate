@@ -35,10 +35,16 @@
             "notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized": "Es: 0 per false, 1 per true, altrimenti qualsiasi valore",
             "noETSWarning": "Non hai importato il file ETS. <br/> Il nodo tenterà di codificare/decodificare i telegrammi. <a href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/it-2.-Node-Configuration\" target='_blank'>Clicca qui per vedere l'help.</a>."
         },
-        "headings": {
-            "from_input_to_bus": "Dal PIN di INPUT del nodo al BUS KNX",
-            "from_bus_to_output": "Dal BUS KNX al PIN di OUTPUT del nodo"
-        },
+  "headings": {
+    "from_input_to_bus": "Dal PIN di INPUT del nodo al BUS KNX",
+    "from_bus_to_output": "Dal BUS KNX al PIN di OUTPUT del nodo"
+  },
+  "snippets": {
+    "searchGA": "Cerca GA",
+    "select": "Seleziona uno snippet da inserire",
+    "searchPlaceholder": "Inizia a digitare per cercare...",
+    "emptyPlaceholder": "Nessuno snippet disponibile"
+  },
         "advanced": {
             "Advancedoptions": "Opzioni avanzate",
             "Formatting": "Formatta INPUT (datagrammi in arrivo dal BUS KNX)",

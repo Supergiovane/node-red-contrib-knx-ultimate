@@ -34,10 +34,16 @@
             "search": "开始输入以搜索",
             "notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized": "案例: 0 是 false, 1 是 true, 否则是任意值"
         },
-        "headings": {
-            "from_input_to_bus": "从节点输入引脚到 KNX 总线",
-            "from_bus_to_output": "从 KNX 总线到节点输出引脚"
-        },
+  "headings": {
+    "from_input_to_bus": "从节点输入引脚到 KNX 总线",
+    "from_bus_to_output": "从 KNX 总线到节点输出引脚"
+  },
+  "snippets": {
+    "searchGA": "搜索 GA",
+    "select": "选择要插入的代码片段",
+    "searchPlaceholder": "开始输入以搜索...",
+    "emptyPlaceholder": "暂无可用片段"
+  },
         "advanced": {
             "Advancedoptions": "高级选项",
             "Formatting": "格式化输入 (来自 KNX 总线的数据报)",

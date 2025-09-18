@@ -34,10 +34,16 @@
             "search": "Tippen Sie, um zu suchen",
             "notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized": "Ex: 0 für false, 1 für true, andernfalls jeder Wert"
         },
-        "headings": {
-            "from_input_to_bus": "Vom Eingangs-PIN des Knotens zum KNX-BUS",
-            "from_bus_to_output": "Vom KNX-BUS zum Ausgangs-PIN des Knotens"
-        },
+  "headings": {
+    "from_input_to_bus": "Vom Eingangs-PIN des Knotens zum KNX-BUS",
+    "from_bus_to_output": "Vom KNX-BUS zum Ausgangs-PIN des Knotens"
+  },
+  "snippets": {
+    "searchGA": "GA suchen",
+    "select": "Snippet zum Einfügen auswählen",
+    "searchPlaceholder": "Zum Suchen tippen...",
+    "emptyPlaceholder": "Keine Snippets verfügbar"
+  },
         "advanced": {
             "Advancedoptions": "Erweiterte Optionen",
             "Formatting": "Benutzerdefinierte Formatierung INPUT (Telegramme vom KNX-Bus)",

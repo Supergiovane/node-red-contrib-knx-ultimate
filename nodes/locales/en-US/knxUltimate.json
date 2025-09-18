@@ -34,10 +34,16 @@
             "search": "Start typing to search",
             "notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized": "Ex: 0 for false, 1 for true, otherwise any value"
         },
-        "headings": {
-            "from_input_to_bus": "From node's INPUT PIN to KNX BUS",
-            "from_bus_to_output": "From KNX BUS to node's OUTPUT PIN"
-        },
+  "headings": {
+    "from_input_to_bus": "From node's INPUT PIN to KNX BUS",
+    "from_bus_to_output": "From KNX BUS to node's OUTPUT PIN"
+  },
+  "snippets": {
+    "searchGA": "Search GA",
+    "select": "Select a snippet to be inserted",
+    "searchPlaceholder": "Start typing to search...",
+    "emptyPlaceholder": "No snippets available"
+  },
         "advanced": {
             "Advancedoptions": "Advanced options",
             "Formatting": "Format INPUT (datagram coming from the KNX BUS)",
