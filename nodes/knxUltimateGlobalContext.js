@@ -24,6 +24,8 @@ module.exports = function (RED) {
   //     address,
   //     dpt,
   //     payload
+  //     lastupdate
+  //     lastupdateLocale
   // }
 
   function knxUltimateGlobalContext(config) {
@@ -72,7 +74,7 @@ module.exports = function (RED) {
     if (node.exposeAsVariable !== 'exposeAsVariableNO') {
       try {
         node.serverKNX.csv.forEach(element => {
-          node.exposedGAs.push({ address: element.ga, dpt: element.dpt, devicename: element.devicename, payload: undefined })
+          node.exposedGAs.push({ address: element.ga, dpt: element.dpt, devicename: element.devicename, payload: undefined, lastupdate: undefined, lastupdateLocale: undefined })
         })
       } catch (error) {
       }
@@ -141,11 +143,16 @@ module.exports = function (RED) {
         } catch (error) {
           console.log(error)
         }
+        const dNow = new Date()
+        const lastupdate = dNow.toISOString()
+        const lastupdateLocale = dNow.toLocaleString()
         if (oGa === undefined) {
-          node.exposedGAs.push({ address: msg.knx.destination, devicename: undefined, dpt: msg.knx.dpt, payload: msg.payload })
+          node.exposedGAs.push({ address: msg.knx.destination, devicename: undefined, dpt: msg.knx.dpt, payload: msg.payload, lastupdate, lastupdateLocale })
         } else {
           oGa.dpt = msg.knx.dpt
           oGa.payload = msg.payload
+          oGa.lastupdate = lastupdate
+          oGa.lastupdateLocale = lastupdateLocale
         }
         // Save into the global Context
         try {
