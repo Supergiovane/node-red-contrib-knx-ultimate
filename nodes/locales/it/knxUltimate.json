@@ -45,6 +45,12 @@
     "searchPlaceholder": "Inizia a digitare per cercare...",
     "emptyPlaceholder": "Nessuno snippet disponibile"
   },
+  "dptDetails": {
+    "toggle": "Dettagli",
+    "noSample": "Nessun esempio disponibile al momento.",
+    "linkExample": "Maggiori dettagli per {{dpt}}",
+    "linkWiki": "Apri la wiki"
+  },
         "advanced": {
             "Advancedoptions": "Opzioni avanzate",
             "Formatting": "Formatta INPUT (datagrammi in arrivo dal BUS KNX)",

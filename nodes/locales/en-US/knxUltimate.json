@@ -44,6 +44,12 @@
     "searchPlaceholder": "Start typing to search...",
     "emptyPlaceholder": "No snippets available"
   },
+  "dptDetails": {
+    "toggle": "Details",
+    "noSample": "Currently, no sample payload is available.",
+    "linkExample": "More details for {{dpt}}",
+    "linkWiki": "Open wiki"
+  },
         "advanced": {
             "Advancedoptions": "Advanced options",
             "Formatting": "Format INPUT (datagram coming from the KNX BUS)",

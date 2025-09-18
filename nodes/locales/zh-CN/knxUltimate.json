@@ -44,6 +44,12 @@
     "searchPlaceholder": "开始输入以搜索...",
     "emptyPlaceholder": "暂无可用片段"
   },
+  "dptDetails": {
+    "toggle": "详情",
+    "noSample": "当前没有可用示例。",
+    "linkExample": "查看 {{dpt}} 的更多详情",
+    "linkWiki": "打开 Wiki"
+  },
         "advanced": {
             "Advancedoptions": "高级选项",
             "Formatting": "格式化输入 (来自 KNX 总线的数据报)",

@@ -37,7 +37,7 @@
         },
         inputs: 1,
         outputs: 1,
-        icon: function(){
+        icon: function () {
             try {
                 return (this.gaSecure === true || this.gaSecure === 'true') ? "node-knx-icon-secure.svg" : "node-knx-icon.svg";
             } catch (e) {
@@ -92,43 +92,73 @@
                             if (Array.isArray(data)) data.forEach(ga => { if (typeof ga === 'string') set.add(ga); });
                             secureGAs = set;
                         } catch (e) { secureGAs = new Set(); }
-                    }).fail(function(){ secureGAs = new Set(); });
+                    }).fail(function () { secureGAs = new Set(); });
                 } catch (error) { secureGAs = new Set(); }
             }
             $("#tabs").tabs();
 
             // 15/09/2020 Supergiovane, set the help sample based on Datapoint
             function knxUltimateDptsGetHelp(_dpt, _forceClose) {
-                if ($("#node-input-server").val() !== "_ADD_" && $("#node-input-server").val() !== '' && _dpt !== null && _dpt !== '') {
-                    $.getJSON("knxUltimateDptsGetHelp?dpt=" + _dpt + "&serverId=" + $("#node-input-server").val() + "&" + { _: new Date().getTime() }, (data) => {
-                        try {
-                            $("#example-editor").html("");
-                            $("#sampleCodeEditor").html();
-                            node.sampleEditor.destroy();
-                            delete node.sampleEditor;
-                        } catch (error) {
-                        }
-                        try {
-                            if (data.help !== "NO") {
-                                node.sampleEditor = RED.editor.createEditor({
-                                    id: 'example-editor',
-                                    mode: 'ace/mode/javascript',
-                                    value: data.help//this.exampleText
-                                })//.renderer.setShowGutter(false);//A.setReadOnly(true).setShowPrintMargin(false);                    
-                                if (data.helplink !== "") $("#sampleCodeEditor").html("&nbsp<i class=\"fa fa-question-circle\"></i>&nbsp<a target=\"_blank\" href=\"" + data.helplink + "\"><u>Link example of " + _dpt + "</u></a>");
-                            } else {
-                                // No help avaiable
-                                node.sampleEditor = RED.editor.createEditor({
-                                    id: 'example-editor',
-                                    mode: 'ace/mode/javascript',
-                                    value: "Currently, no sample payload is avaiable, sorry."
-                                })//.renderer.setShowGutter(false);//B.setReadOnly(true).setShowPrintMargin(false);
-                                if (data.helplink !== "") $("#sampleCodeEditor").html("&nbsp<i class=\"fa fa-question-circle\"></i>&nbsp<a target=\"_blank\" href=\"" + data.helplink + "\"><u>Link to wiki</u></a>");
-                            }
-                        } catch (error) {
-                        }
-                    })
+                const detailsContainer = $("#dptDetailsContainer")
+                if (_forceClose === true) {
+                    detailsContainer.hide()
                 }
+                const serverId = $("#node-input-server").val()
+                if (serverId === "_ADD_" || serverId === '' || _dpt === null || _dpt === '') return
+                $.getJSON("knxUltimateDptsGetHelp?dpt=" + _dpt + "&serverId=" + serverId + "&" + { _: new Date().getTime() }, (data) => {
+                    const helplinkContainer = $("#sampleCodeEditor")
+                    try {
+                        if (node.sampleEditor) {
+                            node.sampleEditor.destroy()
+                            delete node.sampleEditor
+                        }
+                    } catch (error) { }
+                    $("#example-editor").empty()
+                    helplinkContainer.empty()
+
+                    const translate = (key, opts) => {
+                        try {
+                            if (typeof RED !== 'undefined' && RED._) {
+                                return RED._(key, opts)
+                            }
+                        } catch (error) { }
+                        return null
+                    }
+
+                    const noSampleText = translate('knxUltimate.dptDetails.noSample') || 'Currently, no sample payload is available.'
+                    const createEditor = (value) => {
+                        node.sampleEditor = RED.editor.createEditor({
+                            id: 'example-editor',
+                            mode: 'ace/mode/javascript',
+                            value
+                        })
+                        try {
+                            node.sampleEditor.setReadOnly(true)
+                            node.sampleEditor.setShowPrintMargin(false)
+                        } catch (error) { }
+                    }
+
+                    try {
+                        const hasHelp = data.help !== 'NO'
+                        if (hasHelp) {
+                            createEditor(data.help)
+                            if (data.helplink) {
+                                const label = translate('Detail', { dpt: _dpt }) || ('More details for ' + _dpt)
+                                helplinkContainer.html(`&nbsp;<i class="fa fa-question-circle"></i>&nbsp;<a target="_blank" href="${data.helplink}"><u>${label}</u></a>`)
+                            }
+                        } else {
+                            createEditor(noSampleText)
+                            if (data.helplink) {
+                                const labelWiki = translate('Wiki') || 'Open wiki'
+                                helplinkContainer.html(`&nbsp;<i class="fa fa-question-circle"></i>&nbsp;<a target="_blank" href="${data.helplink}"><u>${labelWiki}</u></a>`)
+                            }
+                        }
+                    } catch (error) { }
+
+                    if (detailsContainer.is(':visible') && node.sampleEditor) {
+                        setTimeout(() => { try { node.sampleEditor.resize(true) } catch (error) { } }, 0)
+                    }
+                })
             }
 
             node.sendMsgToKNXCodeEditor = RED.editor.createEditor({
@@ -201,6 +231,17 @@
             })
             configureSnippetPicker(window.KNXReceiveSnippets || [], '#receiveSnippetPicker', '#receiveSnippetOptions', snippet => {
                 node.receiveMsgFromKNXCodeEditor.session.setValue(snippet.code || '')
+            })
+
+            const dptDetailsContainer = $('#dptDetailsContainer')
+            $('#toggleDptDetails').on('click', function (evt) {
+                evt.preventDefault()
+                if (!dptDetailsContainer.length) return
+                dptDetailsContainer.stop(true, true).slideToggle(200, function () {
+                    if (dptDetailsContainer.is(':visible') && node.sampleEditor) {
+                        try { node.sampleEditor.resize(true) } catch (error) { }
+                    }
+                })
             })
 
             function checkUI() {
@@ -624,8 +665,10 @@
             <option value="global" data-i18n="knxUltimate.selectlists.SetTopic_global"></option>
             <option value="env" data-i18n="knxUltimate.selectlists.SetTopic_env"></option>
         </select>
-        <input type="text" id="node-input-topic" data-i18n="[placeholder]knxUltimate.placeholder.search" style="width:180px" />
-        <span id="gaSecureShield" title="Data Secure" style="display:none;color:green;margin-left:6px;"><i class="fa fa-shield"></i></span>
+        <input type="text" id="node-input-topic" data-i18n="[placeholder]knxUltimate.placeholder.search"
+            style="width:180px" />
+        <span id="gaSecureShield" title="Data Secure" style="display:none;color:green;margin-left:6px;"><i
+                class="fa fa-shield"></i></span>
     </div>
 
 
@@ -636,7 +679,15 @@
             <span data-i18n="knxUltimate.properties.node-input-dpt"></span>
         </label>
         <select id="node-input-dpt"></select>
-        <span id="sampleCodeEditor" style="color:red;" />
+        <a href="#" id="toggleDptDetails" class="dpt-details-toggle" style="margin-left:10px;">
+            <i class="fa fa-info-circle"></i>&nbsp;<span data-i18n="knxUltimate.dptDetails.toggle"></span>
+        </a>
+    </div>
+    <div class="form-row">
+        <span id="dptDetailsContainer" style="display:none;width:100%;">
+            <div id="sampleCodeEditor" class="dpt-details-helplink" style="color:red;margin-bottom:4px;"></div>
+            <div class="node-text-editor" id="example-editor" style="height:200px;min-height:150px;padding:0px;"></div>
+        </span>
     </div>
     <!-- <div class="form-row">
         <input type="checkbox" id="node-input-listenallga"
@@ -651,7 +702,6 @@
         <ul>
             <li><a href="#tabs-1"><i class="fa fa-braille"></i> Advanced options</a></li>
             <li><a href="#tabs-2"><i class="fa fa-code"></i> KNX Function</a></li>
-            <li><a href="#tabs-3"><i class="fa fa-medkit"></i> Payload Sample</a></li>
         </ul>
         <div id="tabs-1">
             <div class="form-row" style="padding:10px">
@@ -678,7 +728,8 @@
                 </div>
                 <div class="form-row">
                     <label style="width:180px" for="node-input-passthrough">
-                        <i class="fa fa-long-arrow-right"></i> <span data-i18n="knxUltimate.properties.node-input-passthrough"></span>
+                        <i class="fa fa-long-arrow-right"></i> <span
+                            data-i18n="knxUltimate.properties.node-input-passthrough"></span>
                     </label>
                     <select id="node-input-passthrough">
                         <option value="no" data-i18n="knxUltimate.selectlists.passthrough_No"></option>
@@ -689,7 +740,8 @@
                 <hr>
                 <div class="form-row">
                     <dt>
-                        <i class="fa fa-arrow-right"></i>| <span data-i18n="knxUltimate.headings.from_input_to_bus"></span>
+                        <i class="fa fa-arrow-right"></i>| <span
+                            data-i18n="knxUltimate.headings.from_input_to_bus"></span>
                     </dt>
                 </div>
                 <div class="form-row">
@@ -715,12 +767,14 @@
                 <hr>
                 <div class="form-row">
                     <dt>
-                        |<i class="fa fa-arrow-right"></i> <span data-i18n="knxUltimate.headings.from_bus_to_output"></span>
+                        |<i class="fa fa-arrow-right"></i> <span
+                            data-i18n="knxUltimate.headings.from_bus_to_output"></span>
                     </dt>
                 </div>
                 <div class="form-row" id="divNode-input-initialread">
                     <label style="width:180px" for="node-input-initialread">
-                        <i class="fa fa-question-circle-o"></i> <span data-i18n="knxUltimate.properties.node-input-initialread"></span>
+                        <i class="fa fa-question-circle-o"></i> <span
+                            data-i18n="knxUltimate.properties.node-input-initialread"></span>
                     </label>
                     <select id="node-input-initialread">
                         <option value=0 data-i18n="knxUltimate.properties.node-input-initialread0"></option>
@@ -743,21 +797,24 @@
                     <input type="checkbox" id="node-input-notifywrite"
                         style="display:inline-block; width:auto; vertical-align:top;" />
                     <label style="width:85%" for="node-input-notifywrite">
-                        <i class="fa fa-sign-in"></i> <span data-i18n="knxUltimate.properties.node-input-notifywrite"></span>
+                        <i class="fa fa-sign-in"></i> <span
+                            data-i18n="knxUltimate.properties.node-input-notifywrite"></span>
                     </label>
                 </div>
                 <div class="form-row">
                     <input type="checkbox" id="node-input-notifyresponse"
                         style="display:inline-block; width:auto; vertical-align:top;" />
                     <label style="width:85%" for="node-input-notifyresponse">
-                        <i class="fa fa-sign-in"></i> <span data-i18n="knxUltimate.properties.node-input-notifyresponse"></span>
+                        <i class="fa fa-sign-in"></i> <span
+                            data-i18n="knxUltimate.properties.node-input-notifyresponse"></span>
                     </label>
                 </div>
                 <div class="form-row">
                     <input type="checkbox" id="node-input-notifyreadrequest"
                         style="display:inline-block; width:auto; vertical-align:top;" />
                     <label style="width:85%" for="node-input-notifyreadrequest">
-                        <i class="fa fa-sign-in"></i> <span data-i18n="knxUltimate.properties.node-input-notifyreadrequest"></span>
+                        <i class="fa fa-sign-in"></i> <span
+                            data-i18n="knxUltimate.properties.node-input-notifyreadrequest"></span>
                     </label>
                 </div>
                 <div id="divnotifyreadrequestautoreact">
@@ -836,13 +893,15 @@
                     <label for="node-input-knxFunctionHelperGAList">
                         <i class="fa fa-search"></i> <span data-i18n="knxUltimate.snippets.searchGA"></span>
                     </label>
-                    <input type="text" id="node-input-knxFunctionHelperGAList" data-i18n="[placeholder]knxUltimate.placeholder.search" />
+                    <input type="text" id="node-input-knxFunctionHelperGAList"
+                        data-i18n="[placeholder]knxUltimate.placeholder.search" />
                 </div>
 
 
                 <div class="form-row">
                     <dt>
-                        <i class="fa fa-arrow-right"></i>&nbsp;<span data-i18n="knxUltimate.headings.from_input_to_bus"></span>
+                        <i class="fa fa-arrow-right"></i>&nbsp;<span
+                            data-i18n="knxUltimate.headings.from_input_to_bus"></span>
                     </dt>
                 </div>
                 <div style="height:200px;min-height:150px;padding:0px;">
@@ -851,13 +910,16 @@
                 </div>
                 <div class="snippet-picker">
                     <i class="fa fa-code"></i> <span data-i18n="knxUltimate.snippets.select"></span><br />
-                    <input type="text" id="sendSnippetPicker" class="snippet-picker-input" list="sendSnippetOptions" style="width:100%;max-width:420px;margin-top:4px;" data-i18n="[placeholder]knxUltimate.snippets.searchPlaceholder;[data-placeholder]knxUltimate.snippets.searchPlaceholder;[data-empty]knxUltimate.snippets.emptyPlaceholder" />
+                    <input type="text" id="sendSnippetPicker" class="snippet-picker-input" list="sendSnippetOptions"
+                        style="width:100%;max-width:420px;margin-top:4px;"
+                        data-i18n="[placeholder]knxUltimate.snippets.searchPlaceholder;[data-placeholder]knxUltimate.snippets.searchPlaceholder;[data-empty]knxUltimate.snippets.emptyPlaceholder" />
                     <datalist id="sendSnippetOptions"></datalist>
                 </div>
                 <hr>
                 <div class="form-row">
                     <dt>
-                        <i class="fa fa-arrow-right"></i>&nbsp;<span data-i18n="knxUltimate.headings.from_bus_to_output"></span>
+                        <i class="fa fa-arrow-right"></i>&nbsp;<span
+                            data-i18n="knxUltimate.headings.from_bus_to_output"></span>
                     </dt>
                 </div>
                 <div style="height:200px;min-height:150px;padding:0px;">
@@ -866,18 +928,15 @@
                 </div>
                 <div class="snippet-picker">
                     <i class="fa fa-code"></i> <span data-i18n="knxUltimate.snippets.select"></span><br />
-                    <input type="text" id="receiveSnippetPicker" class="snippet-picker-input" list="receiveSnippetOptions" style="width:100%;max-width:420px;margin-top:4px;" data-i18n="[placeholder]knxUltimate.snippets.searchPlaceholder;[data-placeholder]knxUltimate.snippets.searchPlaceholder;[data-empty]knxUltimate.snippets.emptyPlaceholder" />
+                    <input type="text" id="receiveSnippetPicker" class="snippet-picker-input"
+                        list="receiveSnippetOptions" style="width:100%;max-width:420px;margin-top:4px;"
+                        data-i18n="[placeholder]knxUltimate.snippets.searchPlaceholder;[data-placeholder]knxUltimate.snippets.searchPlaceholder;[data-empty]knxUltimate.snippets.emptyPlaceholder" />
                     <datalist id="receiveSnippetOptions"></datalist>
                 </div>
 
             </div>
         </div>
 
-        <div id="tabs-3">
-            <div style="height:200px;min-height:150px;padding:0px;">
-                <div style="height:100%;width:100%;padding:0px;" class="node-text-editor" id="example-editor"></div>
-            </div>
-        </div>
     </div>
 </div>
 

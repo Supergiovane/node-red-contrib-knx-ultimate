@@ -7,7 +7,8 @@
 # CHANGELOG
 
 **Version 4.0.3** - September 2025<br/>
-- Coppa Cobram<br/>
+- GlobalContextNode: Added "lastupdate" property.<br/>
+- Device Node. Refractor snippet list and UI.<br/>
 
 **Version 4.0.2** - September 2025<br/>
 - CAUTION - MAKE A BACKUP OF YOUR FLOW BEFORE UPGRADING<br/>

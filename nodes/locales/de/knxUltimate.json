@@ -44,6 +44,12 @@
     "searchPlaceholder": "Zum Suchen tippen...",
     "emptyPlaceholder": "Keine Snippets verfügbar"
   },
+  "dptDetails": {
+    "toggle": "Details",
+    "noSample": "Derzeit ist kein Beispiel verfügbar.",
+    "linkExample": "Weitere Details zu {{dpt}}",
+    "linkWiki": "Wiki öffnen"
+  },
         "advanced": {
             "Advancedoptions": "Erweiterte Optionen",
             "Formatting": "Benutzerdefinierte Formatierung INPUT (Telegramme vom KNX-Bus)",

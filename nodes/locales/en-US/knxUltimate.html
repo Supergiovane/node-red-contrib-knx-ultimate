@@ -14,7 +14,7 @@
 | Gateway | Select the KNX gateway to be used |
 | GA Type dropdown list | The group address type. **3-Levels** is the default, where you can type the *3 level group address* or the *group address name* (if you've upload the ETS file), or **Global**, for reading the GA at startup from a global variable, or **Flow** that do the same as the *Global*, but at flow level. Select **$Env variable** to read the group address from an environment variable. Select **Universal mode (listen to all Group Addresses)** to react to ALL group addresses.|
 | Group Addr. | The KNX Group Address you want to control. If you've imported the ETS group addresses file, you can just start typing in your device name. You can leave it empty if you wish set it with *msg.setConfig* input message. |
-| Datapoint | The datapoint belonging to your node.|
+| Datapoint | The datapoint belonging to your node. Use the **Details** link below the selector to view sample payloads and reference links for the selected DPT.|
 
 <br/>
 <br/>
@@ -118,13 +118,10 @@ if (msg.payload === false && getGAValue('0/0/11','1.001') === false){
 <br/>
 <br/>
 
-## TAB Payload sample
+## Payload details
 
-|Property|Description|
-|--|--|
-| Sample | This will give it a hint on what to write in an external function node, if you want to control the node via a Node-Red function node. |
+Use the **Details** link under the datapoint selector to reveal sample payloads, example code and wiki resources aligned with the chosen datapoint.
 
-<br/>
 <br/>
 <br/>
 
