@@ -98,9 +98,11 @@ module.exports = (RED) => {
     // 24/07/2021 KNX Secure checks...
     node.keyringFileXML = typeof config.keyringFileXML === "undefined" || config.keyringFileXML.trim() === "" ? "" : config.keyringFileXML;
     node.knxSecureSelected = typeof config.knxSecureSelected === "undefined" ? false : config.knxSecureSelected;
+    node.secureCredentialsMode = typeof config.secureCredentialsMode === "undefined" ? "keyring" : config.secureCredentialsMode;
     // 2025-09 Secure Tunnel Interface IA selection (Auto/Manual)
     node.tunnelIASelection = typeof config.tunnelIASelection === "undefined" ? "Auto" : config.tunnelIASelection;
     node.tunnelIA = typeof config.tunnelIA === "undefined" ? "" : config.tunnelIA;
+    node.tunnelInterfaceIndividualAddress = typeof config.tunnelInterfaceIndividualAddress === "undefined" ? "" : config.tunnelInterfaceIndividualAddress;
     node.name = config.name === undefined || config.name === "" ? node.host : config.name; // 12/08/2021
     node.timerKNXUltimateCheckState = null; // 08/10/2021 Check the state. If not connected and autoreconnect is true, retrig the connetion attempt.
     node.knxConnectionProperties = null; // Retains the connection properties
@@ -158,35 +160,48 @@ module.exports = (RED) => {
     (async () => {
       try {
         if (node.knxSecureSelected) {
-          // Prepare secure config for KNXClient. The loader accepts either a
-          // filesystem path to .knxkeys or the raw XML/base64 content.
-          node.secureTunnelConfig = {
-            knxkeys_file_path: node.keyringFileXML || "",
-            knxkeys_password: node.credentials?.keyringFilePassword || "",
-          };
-          // Manual IA selection
-          try {
-            if (node.tunnelIASelection === "Manual" && typeof node.tunnelIA === "string" && node.tunnelIA.trim() !== "") {
-              node.secureTunnelConfig.tunnelInterfaceIndividualAddress = node.tunnelIA.trim();
-            } else {
-              node.secureTunnelConfig.tunnelInterfaceIndividualAddress = ""; // Auto
+          const secureMode = typeof node.secureCredentialsMode === "string" ? node.secureCredentialsMode : "keyring";
+          if (secureMode === "manual") {
+            // Manual credentials: no keyring, only IA + password
+            node.secureTunnelConfig = {
+              tunnelInterfaceIndividualAddress: (node.tunnelInterfaceIndividualAddress || "").trim(),
+              tunnelUserPassword: node.credentials?.tunnelUserPassword || "",
+            };
+            if (!node.secureTunnelConfig.tunnelInterfaceIndividualAddress) {
+              delete node.secureTunnelConfig.tunnelInterfaceIndividualAddress;
             }
-          } catch (e) { /* empty */ }
-
-          // Optional early validation to give immediate feedback (non-fatal)
-          if (Keyring && node.keyringFileXML && (node.credentials?.keyringFilePassword || "") !== "") {
-            try {
-              const kr = new Keyring();
-              await kr.load(node.keyringFileXML, node.credentials.keyringFilePassword);
-              const createdBy = kr.getCreatedBy?.() || "unknown";
-              const created = kr.getCreated?.() || "unknown";
-              RED.log.info(`KNX-Secure: Keyring validated (Created by ${createdBy} on ${created}) using node ${node.name || node.id}`);
-            } catch (err) {
-              node.sysLogger?.error("KNX Secure: keyring validation failed: " + err.message);
-              // Keep secure enabled: KNXClient will emit detailed errors on connect
-            }
+            RED.log.info("KNX-Secure: secure mode selected. Using manual tunnel credentials.");
           } else {
-            RED.log.info("KNX-Secure: secure mode selected. Using provided keyring and password.");
+            // Prepare secure config for KNXClient. The loader accepts either a
+            // filesystem path to .knxkeys or the raw XML/base64 content.
+            node.secureTunnelConfig = {
+              knxkeys_file_path: node.keyringFileXML || "",
+              knxkeys_password: node.credentials?.keyringFilePassword || "",
+            };
+            // Manual IA selection based on keyring content
+            try {
+              if (node.tunnelIASelection === "Manual" && typeof node.tunnelIA === "string" && node.tunnelIA.trim() !== "") {
+                node.secureTunnelConfig.tunnelInterfaceIndividualAddress = node.tunnelIA.trim();
+              } else {
+                node.secureTunnelConfig.tunnelInterfaceIndividualAddress = ""; // Auto
+              }
+            } catch (e) { /* empty */ }
+
+            // Optional early validation to give immediate feedback (non-fatal)
+            if (Keyring && node.keyringFileXML && (node.credentials?.keyringFilePassword || "") !== "") {
+              try {
+                const kr = new Keyring();
+                await kr.load(node.keyringFileXML, node.credentials.keyringFilePassword);
+                const createdBy = kr.getCreatedBy?.() || "unknown";
+                const created = kr.getCreated?.() || "unknown";
+                RED.log.info(`KNX-Secure: Keyring validated (Created by ${createdBy} on ${created}) using node ${node.name || node.id}`);
+              } catch (err) {
+                node.sysLogger?.error("KNX Secure: keyring validation failed: " + err.message);
+                // Keep secure enabled: KNXClient will emit detailed errors on connect
+              }
+            } else {
+              RED.log.info("KNX-Secure: secure mode selected. Using provided keyring and password.");
+            }
           }
         } else {
           RED.log.info("KNX-Unsecure: connection to insecure interface/router using node " + (node.name || node.id));

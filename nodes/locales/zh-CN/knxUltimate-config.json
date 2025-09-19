@@ -81,6 +81,12 @@
             "youtubeKeyring": "在 Youtube 上了解如何导出 Keyring XML 文件",
             "keyring_file": "Keyring 文件",
             "password": "密码",
+            "secure_credentials_mode": "安全凭据来源",
+            "secure_credentials_mode_keyring": "ETS 密钥环文件",
+            "secure_credentials_mode_manual": "手动凭据",
+            "tunnel_interface_individual_address": "隧道接口个人地址",
+            "tunnel_interface_individual_address_placeholder": "1.1.1",
+            "tunnel_user_password": "隧道用户密码",
             "ga_list_label": "ETS 组地址列表"
         },
         "utility": {

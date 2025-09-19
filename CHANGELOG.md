@@ -6,6 +6,9 @@
 
 # CHANGELOG
 
+**Version 4.0.4** - September 2025<br/>
+- NEW: you can now login to your secure gateway using only tunnel and password, without the keyring file.<br/>
+
 **Version 4.0.3** - September 2025<br/>
 - GlobalContextNode: Added "lastupdate" property.<br/>
 - Device Node. Refractor snippet list and UI.<br/>

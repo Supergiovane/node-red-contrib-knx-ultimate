@@ -85,6 +85,12 @@
             "youtubeKeyring": "Anleitung des XML Keyring Exports auf Youtube",
             "keyring_file": "Keyring-Datei",
             "password": "Passwort",
+            "secure_credentials_mode": "Quelle für Secure-Zugangsdaten",
+            "secure_credentials_mode_keyring": "ETS-Keyring-Datei",
+            "secure_credentials_mode_manual": "Manuelle Zugangsdaten",
+            "tunnel_interface_individual_address": "Individuelle Adresse der Tunnel-Schnittstelle",
+            "tunnel_interface_individual_address_placeholder": "1.1.1",
+            "tunnel_user_password": "Tunnel-Benutzerpasswort",
             "ga_list_label": "ETS-Gruppenadressliste"
         },
         "utility": {

@@ -19,6 +19,9 @@
 | KNX Physical Address | The physical KNX address, example 1.1.200. Default is "15.15.22".|
 | Bind to local interface | The Node will use this local interface for communications. Leave "Auto" for automatic selection. If you have more than one lan connection, for example Ethernet and Wifi, it's strongly recommended to manually select the interface, otherwise not all UDP telegram will reach your computer, thus the Node may not work as expected. Default is "Auto". |
 | Automatically connect to KNX BUS at start | Auto connect to the bus at start. Default is "Yes". |
+| Secure credentials source | Select **ETS keyring file** (default) to provide the `.knxkeys` content and password, or **Manual credentials** to enter the tunnel interface IA and password without a keyring. Switching mode shows only the relevant fields. |
+| Tunnel interface individual address | Visible when **Manual credentials** is selected. Optional KNX individual address of the secure tunnel interface (for example `1.1.1`). Leave empty to let KNX Ultimate negotiate it. |
+| Tunnel user password | Visible when **Manual credentials** is selected. Password of the secure tunnelling user configured in ETS. |
 
 <br/>
 

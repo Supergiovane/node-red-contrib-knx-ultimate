@@ -21,12 +21,15 @@
             ignoreTelegramsWithRepeatedFlag: { value: false, required: false },
             keyringFileXML: { value: "" },
             knxSecureSelected: { value: false },
+            secureCredentialsMode: { value: "keyring" },
             tunnelIASelection: { value: "Auto" },
             tunnelIA: { value: "" },
+            tunnelInterfaceIndividualAddress: { value: "" },
             autoReconnect: { value: "yes" }
         },
         credentials: {
-            keyringFilePassword: { type: "password" }
+            keyringFilePassword: { type: "password" },
+            tunnelUserPassword: { type: "password" }
         },
         oneditprepare: function () {
             // Go to the help panel
@@ -98,6 +101,28 @@
                 try { node._csvEditor.getSession().setUseWrapMode(true); } catch (e) { }
             } catch (e) { }
 
+            function getSecureCredentialsMode() {
+                try {
+                    const sel = $("#node-config-input-secureCredentialsMode").val();
+                    return (typeof sel === 'string' && sel.length > 0) ? sel : 'keyring';
+                } catch (e) {
+                    return 'keyring';
+                }
+            }
+
+            function updateSecureCredentialMode() {
+                try {
+                    const mode = getSecureCredentialsMode();
+                    const isKeyring = (mode === 'keyring');
+                    $("#secureKeyringFields").toggle(isKeyring);
+                    if (!isKeyring) {
+                        $("#rowTunnelIASelection").hide();
+                        $("#divTunnelIA").hide();
+                    }
+                } catch (e) { }
+                updateTunnelIAVisibility();
+            }
+
             // Helper: show/hide Tunnel IA controls depending on mode
             function updateTunnelIAVisibility() {
                 try {
@@ -105,7 +130,8 @@
                     const hostProtocol = $("#node-config-input-hostProtocol").val();
                     const ip = $("#node-config-input-host").val();
                     const isMulticast = (hostProtocol === 'Multicast') || (ip === '224.0.23.12');
-                    const showTunnelIA = isSecure && !isMulticast;
+                    const mode = getSecureCredentialsMode();
+                    const showTunnelIA = isSecure && !isMulticast && mode === 'keyring';
                     if (showTunnelIA) {
                         $("#rowTunnelIASelection").show();
                         if ($("#node-config-input-tunnelIASelection").val() === 'Manual') {
@@ -116,6 +142,14 @@
                     } else {
                         $("#rowTunnelIASelection").hide();
                         $("#divTunnelIA").hide();
+                    }
+                    const showManualTunnelFields = isSecure && !isMulticast && mode === 'manual';
+                    $("#rowTunnelInterfaceIndividualAddress").toggle(showManualTunnelFields);
+                    $("#rowTunnelUserPassword").toggle(showManualTunnelFields);
+                    if (!showManualTunnelFields) {
+                        try {
+                            $("#node-config-input-tunnelInterfaceIndividualAddress").removeClass('input-error');
+                        } catch (e) { }
                     }
                 } catch (e) { }
             }
@@ -203,6 +237,16 @@
             let aTunnelIAs = [];
             function populateTunnelIAList() {
                 try {
+                    if (getSecureCredentialsMode() !== 'keyring') {
+                        aTunnelIAs = [];
+                        try {
+                            const $ia = $("#node-config-input-tunnelIA");
+                            if ($ia.data('ui-autocomplete')) {
+                                $ia.autocomplete('option', 'source', aTunnelIAs);
+                            }
+                        } catch (e) { }
+                        return;
+                    }
                     const keyring = $("#node-config-input-keyringFileXML").val();
                     const pwd = $("#node-config-input-keyringFilePassword").val();
                     const params = { serverId: node.id };
@@ -262,6 +306,16 @@
                         $(this).autocomplete('search', '');
                     });
                 } catch (e) { }
+            } catch (error) { }
+
+            try {
+                $("#node-config-input-secureCredentialsMode").val(typeof node.secureCredentialsMode === 'undefined' ? 'keyring' : node.secureCredentialsMode);
+                $("#node-config-input-tunnelInterfaceIndividualAddress").val(typeof node.tunnelInterfaceIndividualAddress === 'undefined' ? '' : node.tunnelInterfaceIndividualAddress);
+                $("#node-config-input-secureCredentialsMode").on('change', function () {
+                    updateSecureCredentialMode();
+                    updateSecureMulticastHint();
+                });
+                updateSecureCredentialMode();
             } catch (error) { }
 
             // Autocomplete with KNX IP Interfaces + Refresh capability
@@ -676,6 +730,14 @@
                     </a>
                 </div>
                 <div class="form-row">
+                    <label for="node-config-input-secureCredentialsMode"><i class="fa fa-shield"></i> <span data-i18n="knxUltimate-config.ets.secure_credentials_mode"></span></label>
+                    <select id="node-config-input-secureCredentialsMode" style="width:200px;">
+                        <option value="keyring" data-i18n="knxUltimate-config.ets.secure_credentials_mode_keyring"></option>
+                        <option value="manual" data-i18n="knxUltimate-config.ets.secure_credentials_mode_manual"></option>
+                    </select>
+                </div>
+                <div id="secureKeyringFields">
+                <div class="form-row">
                     <label for="node-config-input-keyringFileXML"><span data-i18n="knxUltimate-config.ets.keyring_file"></span></label>
                     <div id="node-config-input-keyringFileXML-editor" class="node-text-editor" style="height:200px; min-height:140px; width:100%"></div>
                     <input type="hidden" id="node-config-input-keyringFileXML" data-i18n="[placeholder]knxUltimate-config.ets.keyring" />
@@ -694,6 +756,15 @@
                 <div class="form-row" id="divTunnelIA" style="display:none;">
                     <label for="node-config-input-tunnelIA"><i class="fa fa-map-marker"></i> <span data-i18n="knxUltimate-config.properties.tunnel_ia_input_label"></span></label>
                     <input type="text" id="node-config-input-tunnelIA" style="width:150px;" data-i18n="[placeholder]knxUltimate-config.properties.tunnel_ia_placeholder"/>
+                </div>
+                </div>
+                <div class="form-row" id="rowTunnelInterfaceIndividualAddress" style="display:none;">
+                    <label for="node-config-input-tunnelInterfaceIndividualAddress"><i class="fa fa-map-marker"></i> <span data-i18n="knxUltimate-config.ets.tunnel_interface_individual_address"></span></label>
+                    <input type="text" id="node-config-input-tunnelInterfaceIndividualAddress" style="width:150px;" data-i18n="[placeholder]knxUltimate-config.ets.tunnel_interface_individual_address_placeholder"/>
+                </div>
+                <div class="form-row" id="rowTunnelUserPassword" style="display:none;">
+                    <label for="node-config-input-tunnelUserPassword"><i class="fa fa-lock"></i> <span data-i18n="knxUltimate-config.ets.tunnel_user_password"></span></label>
+                    <input type="password" id="node-config-input-tunnelUserPassword" style="width:200px;" />
                 </div>
             </p>   
         </div>

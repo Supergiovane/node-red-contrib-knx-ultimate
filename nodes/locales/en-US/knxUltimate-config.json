@@ -82,6 +82,12 @@
             "youtubeKeyring": "See how to export the Keyring XML file on Youtube",
             "keyring_file": "Keyring file",
             "password": "Password",
+            "secure_credentials_mode": "Secure credentials source",
+            "secure_credentials_mode_keyring": "ETS keyring file",
+            "secure_credentials_mode_manual": "Manual credentials",
+            "tunnel_interface_individual_address": "Tunnel interface individual address",
+            "tunnel_interface_individual_address_placeholder": "1.1.1",
+            "tunnel_user_password": "Tunnel user password",
             "ga_list_label": "ETS group address list"
         },
         "utility": {

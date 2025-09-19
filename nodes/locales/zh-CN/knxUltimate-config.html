@@ -19,6 +19,9 @@
 | KNX Physical Address | 物理地址，如 `1.1.200`。默认 `15.15.22`。|
 | Bind to local interface | 使用的本地网络接口。"Auto" 自动选择。若有多网卡（以太网/无线），建议手动指定，避免 UDP 丢包。|
 | Automatically connect to KNX BUS at start | 启动时自动连接总线。默认 "Yes"。|
+| Secure credentials source | 选择 **ETS 密钥环文件**（默认）以提供 `.knxkeys` 内容与密码，或选择 **手动凭据** 直接输入隧道 IA 和密码而无需密钥环。切换后仅显示相关字段。|
+| Tunnel interface individual address | 仅在 **手动凭据** 模式下显示。可填写安全隧道接口的 KNX 个人地址（如 `1.1.1`），留空则由 KNX Ultimate 自动协商。|
+| Tunnel user password | 仅在 **手动凭据** 模式下显示。输入 ETS 中配置的安全隧道用户密码。|
 
 <br/>
 
