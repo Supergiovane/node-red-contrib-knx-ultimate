@@ -10,7 +10,7 @@
     "crypto-js": "4.2.0",
     "dns-sync": "0.2.1",
     "js-yaml": "4.1.0",
-    "knxultimate": "5.0.1",
+    "knxultimate": "5.1.0",
     "lodash": "4.17.21",
     "mkdirp": "3.0.1",
     "node-color-log": "12.0.1",
