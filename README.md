@@ -86,10 +86,8 @@ Please subscribe to the [Youtube channel](https://www.youtube.com/playlist?list=
 |--|--|
 | KNX Tunnelling | ![](https://placehold.co/200x20/green/white?text=YES) |
 | KNX Routing | ![](https://placehold.co/200x20/green/white?text=YES) |
+| KNX IP Secure/Data secure | ![](https://placehold.co/200x20/green/white?text=YES) |
 | Philips Hue v2 | ![](https://placehold.co/200x20/green/white?text=YES) |
-| KNX Secure Tunnelling | ![](https://placehold.co/200x20/green/white?text=YES) |
-| KNX Secure Routing | ![](https://placehold.co/200x20/green/white?text=YES) |
-
 
 <br/>
 
@@ -97,7 +95,7 @@ Please subscribe to the [Youtube channel](https://www.youtube.com/playlist?list=
 ## DOCUMENTATION
 
 * [Wiki and Help](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki)
-* [FAQ + Troubleshoot](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/5.-FAQ-Troubleshoot)
+* [FAQ + Troubleshoot](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/FAQ-Troubleshoot)
 * [Security best practices](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/SECURITY)
 
 
