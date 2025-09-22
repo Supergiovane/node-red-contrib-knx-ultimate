@@ -90,6 +90,7 @@
             "secure_credentials_mode_manual": "Manuelle Zugangsdaten",
             "tunnel_interface_individual_address": "Individuelle Adresse der Tunnel-Schnittstelle",
             "tunnel_interface_individual_address_placeholder": "1.1.1",
+            "tunnel_user_id": "Tunnel-Benutzer-ID",
             "tunnel_user_password": "Tunnel-Benutzerpasswort",
             "ga_list_label": "ETS-Gruppenadressliste"
         },

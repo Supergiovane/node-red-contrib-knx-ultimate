@@ -87,6 +87,7 @@
             "secure_credentials_mode_manual": "Manual credentials",
             "tunnel_interface_individual_address": "Tunnel interface individual address",
             "tunnel_interface_individual_address_placeholder": "1.1.1",
+            "tunnel_user_id": "Tunnel user ID",
             "tunnel_user_password": "Tunnel user password",
             "ga_list_label": "ETS group address list"
         },

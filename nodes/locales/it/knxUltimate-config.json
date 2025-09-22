@@ -91,6 +91,7 @@
             "secure_credentials_mode_manual": "Credenziali manuali",
             "tunnel_interface_individual_address": "Indirizzo individuale interfaccia tunnel",
             "tunnel_interface_individual_address_placeholder": "1.1.1",
+            "tunnel_user_id": "ID utente tunnel",
             "tunnel_user_password": "Password utente tunnel",
             "ga_list_label": "Lista indirizzi di gruppo ETS"
         },

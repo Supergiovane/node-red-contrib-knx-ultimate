@@ -103,6 +103,8 @@ module.exports = (RED) => {
     node.tunnelIASelection = typeof config.tunnelIASelection === "undefined" ? "Auto" : config.tunnelIASelection;
     node.tunnelIA = typeof config.tunnelIA === "undefined" ? "" : config.tunnelIA;
     node.tunnelInterfaceIndividualAddress = typeof config.tunnelInterfaceIndividualAddress === "undefined" ? "" : config.tunnelInterfaceIndividualAddress;
+    node.tunnelUserPassword = typeof config.tunnelUserPassword === "undefined" ? "" : config.tunnelUserPassword;
+    node.tunnelUserId = typeof config.tunnelUserId === "undefined" ? "" : config.tunnelUserId;
     node.name = config.name === undefined || config.name === "" ? node.host : config.name; // 12/08/2021
     node.timerKNXUltimateCheckState = null; // 08/10/2021 Check the state. If not connected and autoreconnect is true, retrig the connetion attempt.
     node.knxConnectionProperties = null; // Retains the connection properties
@@ -128,7 +130,8 @@ module.exports = (RED) => {
       ) {
         node.hostProtocol = "Multicast";
       } else {
-        node.hostProtocol = "TunnelUDP";
+        const isSecure = node.knxSecureSelected === true || node.knxSecureSelected === "true";
+        node.hostProtocol = isSecure ? "TunnelTCP" : "TunnelUDP";
       }
       node.sysLogger?.info("IP Protocol AUTO SET to " + node.hostProtocol + ", based on IP " + node.host);
     }
@@ -165,10 +168,14 @@ module.exports = (RED) => {
             // Manual credentials: no keyring, only IA + password
             node.secureTunnelConfig = {
               tunnelInterfaceIndividualAddress: (node.tunnelInterfaceIndividualAddress || "").trim(),
-              tunnelUserPassword: node.credentials?.tunnelUserPassword || "",
+              tunnelUserId: (node.tunnelUserId || "").trim(),
+              tunnelUserPassword: (node.tunnelUserPassword || ""),
             };
             if (!node.secureTunnelConfig.tunnelInterfaceIndividualAddress) {
               delete node.secureTunnelConfig.tunnelInterfaceIndividualAddress;
+            }
+            if (!node.secureTunnelConfig.tunnelUserId) {
+              delete node.secureTunnelConfig.tunnelUserId;
             }
             RED.log.info("KNX-Secure: secure mode selected. Using manual tunnel credentials.");
           } else {

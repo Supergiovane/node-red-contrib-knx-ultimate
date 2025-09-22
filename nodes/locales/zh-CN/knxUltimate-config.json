@@ -86,6 +86,7 @@
             "secure_credentials_mode_manual": "手动凭据",
             "tunnel_interface_individual_address": "隧道接口个人地址",
             "tunnel_interface_individual_address_placeholder": "1.1.1",
+            "tunnel_user_id": "隧道用户 ID",
             "tunnel_user_password": "隧道用户密码",
             "ga_list_label": "ETS 组地址列表"
         },
