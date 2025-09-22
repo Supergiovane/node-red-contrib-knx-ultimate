@@ -97,9 +97,12 @@
                     }
                     $('#node-input-name').val("Recall: " + sDevName + "/" + $('#node-input-name').val().split("/")[1]);
                     var optVal = $("#node-input-dpt option:contains('" + ui.item.label.split("#")[2].trim() + "')").attr('value');
-                    // Select the option value 
-                    $("#node-input-dpt").val(optVal);
-                    $("#node-input-dpt").trigger("change");
+                    var $dptSelect = $("#node-input-dpt");
+                    if (optVal !== undefined && optVal !== null) {
+                        $dptSelect.val(optVal).trigger('change');
+                    } else {
+                        $dptSelect.trigger('change');
+                    }
                 }
             }).focus(function () {
                 $(this).autocomplete('search', $(this).val() + 'exactmatch');
@@ -222,9 +225,12 @@
                     }
                     $('#node-input-name').val($('#node-input-name').val().split("/")[0] + "/Save: " + sDevName);
                     var optVal = $("#node-input-dptSave option:contains('" + ui.item.label.split("#")[2].trim() + "')").attr('value');
-                    // Select the option value 
-                    $("#node-input-dptSave").val(optVal);
-                    $("#node-input-dptSave").trigger("change");
+                    var $dptSelect = $("#node-input-dptSave");
+                    if (optVal !== undefined && optVal !== null) {
+                        $dptSelect.val(optVal).trigger('change');
+                    } else {
+                        $dptSelect.trigger('change');
+                    }
                 }
             }).focus(function () {
                 $(this).autocomplete('search', $(this).val() + 'exactmatch');
@@ -363,7 +369,12 @@
                             } catch (error) {
                             }
                             var optVal = $(".rowRuleDPT option:contains('" + ui.item.label.split("#")[2].trim() + "')").attr('value');
-                            oDPTField.val(optVal);
+                            var $dptSelect = oDPTField;
+                            if (optVal !== undefined && optVal !== null) {
+                                $dptSelect.val(optVal).trigger('change');
+                            } else {
+                                $dptSelect.trigger('change');
+                            }
                         }
                     }).focus(function () {
                         $(this).autocomplete('search', $(this).val() + 'exactmatch');
@@ -493,5 +504,3 @@
 </div>
 
 </script>
-
-

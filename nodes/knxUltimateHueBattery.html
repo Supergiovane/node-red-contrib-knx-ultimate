@@ -106,8 +106,12 @@
                     }
                     $('#node-input-namebatterysensor').val(sDevName);
                     var optVal = $("#node-input-dptbatterysensor option:contains('" + ui.item.label.split("#")[2].trim() + "')").attr('value');
-                    // Select the option value 
-                    $("#node-input-dptbatterysensor").val(optVal);
+                    var $dptSelect = $("#node-input-dptbatterysensor");
+                    if (optVal !== undefined && optVal !== null) {
+                        $dptSelect.val(optVal).trigger('change');
+                    } else {
+                        $dptSelect.trigger('change');
+                    }
                 }
             }).focus(function () {
                 $(this).autocomplete('search', $(this).val() + 'exactmatch');
@@ -242,5 +246,4 @@
 
 
 </script>
-
 

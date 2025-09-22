@@ -417,9 +417,12 @@
                                     try { sDevName = sDevName.substr(sDevName.indexOf(")") + 1).trim(); } catch (error) { }
                                     $('#node-input-name').val(sDevName);
                                     var optVal = $("#node-input-dpt option:contains('" + (ui.item.dpt || '').trim() + "')").attr('value');
-                                    // Select the option value 
-                                    $("#node-input-dpt").val(optVal);
-                                    $("#node-input-dpt").trigger("change");
+                                    var $dptSelect = $("#node-input-dpt");
+                                    if (optVal !== undefined && optVal !== null) {
+                                        $dptSelect.val(optVal).trigger('change');
+                                    } else {
+                                        $dptSelect.trigger('change');
+                                    }
                                     // Persist secure flag for dynamic icon
                                     try {
                                         $("#node-input-gaSecure").val(ui.item.isSecure ? 'true' : 'false');

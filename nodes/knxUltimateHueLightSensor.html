@@ -105,8 +105,12 @@
                     }
                     $('#node-input-namelightsensor').val(sDevName);
                     var optVal = $("#node-input-dptlightsensor option:contains('" + ui.item.label.split("#")[2].trim() + "')").attr('value');
-                    // Select the option value 
-                    $("#node-input-dptlightsensor").val(optVal);
+                    var $dptSelect = $("#node-input-dptlightsensor");
+                    if (optVal !== undefined && optVal !== null) {
+                        $dptSelect.val(optVal).trigger('change');
+                    } else {
+                        $dptSelect.trigger('change');
+                    }
                 }
             }).focus(function () {
                 $(this).autocomplete('search', $(this).val() + 'exactmatch');
@@ -243,6 +247,5 @@
 
 
 </script>
-
 
 

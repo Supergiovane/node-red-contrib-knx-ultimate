@@ -144,8 +144,12 @@
                     }
                     $('#node-input-nameDim').val(sDevName);
                     var optVal = $("#node-input-dptrepeat option:contains('" + ui.item.label.split("#")[2].trim() + "')").attr('value');
-                    // Select the option value 
-                    $("#node-input-dptrepeat").val(optVal);
+                    var $dptSelect = $("#node-input-dptrepeat");
+                    if (optVal !== undefined && optVal !== null) {
+                        $dptSelect.val(optVal).trigger('change');
+                    } else {
+                        $dptSelect.trigger('change');
+                    }
                 }
             }).focus(function () {
                 $(this).autocomplete('search', $(this).val() + 'exactmatch');
@@ -194,8 +198,12 @@
                     }
                     $('#node-input-nameshort_release').val(sDevName);
                     var optVal = $("#node-input-dptshort_release option:contains('" + ui.item.label.split("#")[2].trim() + "')").attr('value');
-                    // Select the option value 
-                    $("#node-input-dptshort_release").val(optVal);
+                    var $dptSelect = $("#node-input-dptshort_release");
+                    if (optVal !== undefined && optVal !== null) {
+                        $dptSelect.val(optVal).trigger('change');
+                    } else {
+                        $dptSelect.trigger('change');
+                    }
                 }
             }).focus(function () {
                 $(this).autocomplete('search', $(this).val() + 'exactmatch');
@@ -227,8 +235,12 @@
                     }
                     $('#node-input-nameshort_releaseStatus').val(sDevName);
                     var optVal = $("#node-input-dptshort_releaseStatus option:contains('" + ui.item.label.split("#")[2].trim() + "')").attr('value');
-                    // Select the option value 
-                    $("#node-input-dptshort_releaseStatus").val(optVal);
+                    var $dptSelect = $("#node-input-dptshort_releaseStatus");
+                    if (optVal !== undefined && optVal !== null) {
+                        $dptSelect.val(optVal).trigger('change');
+                    } else {
+                        $dptSelect.trigger('change');
+                    }
                 }
             }).focus(function () {
                 $(this).autocomplete('search', $(this).val() + 'exactmatch');
@@ -261,8 +273,12 @@
                     }
                     $('#node-input-namedouble_short_release').val(sDevName);
                     var optVal = $("#node-input-dptdouble_short_release option:contains('" + ui.item.label.split("#")[2].trim() + "')").attr('value');
-                    // Select the option value 
-                    $("#node-input-dptdouble_short_release").val(optVal);
+                    var $dptSelect = $("#node-input-dptdouble_short_release");
+                    if (optVal !== undefined && optVal !== null) {
+                        $dptSelect.val(optVal).trigger('change');
+                    } else {
+                        $dptSelect.trigger('change');
+                    }
                 }
             }).focus(function () {
                 $(this).autocomplete('search', $(this).val() + 'exactmatch');
@@ -294,8 +310,12 @@
                     }
                     $('#node-input-namedouble_short_releaseStatus').val(sDevName);
                     var optVal = $("#node-input-dptdouble_short_releaseStatus option:contains('" + ui.item.label.split("#")[2].trim() + "')").attr('value');
-                    // Select the option value 
-                    $("#node-input-dptdouble_short_releaseStatus").val(optVal);
+                    var $dptSelect = $("#node-input-dptdouble_short_releaseStatus");
+                    if (optVal !== undefined && optVal !== null) {
+                        $dptSelect.val(optVal).trigger('change');
+                    } else {
+                        $dptSelect.trigger('change');
+                    }
                 }
             }).focus(function () {
                 $(this).autocomplete('search', $(this).val() + 'exactmatch');
@@ -460,5 +480,3 @@
 
 
 </script>
-
-

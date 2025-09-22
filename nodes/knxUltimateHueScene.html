@@ -147,8 +147,12 @@
                     }
                     $('#node-input-namescene').val(sDevName);
                     var optVal = $("#node-input-dptscene option:contains('" + ui.item.label.split("#")[2].trim() + "')").attr('value');
-                    // Select the option value 
-                    $("#node-input-dptscene").val(optVal);
+                    var $dptSelect = $("#node-input-dptscene");
+                    if (optVal !== undefined && optVal !== null) {
+                        $dptSelect.val(optVal).trigger('change');
+                    } else {
+                        $dptSelect.trigger('change');
+                    }
                     ShowHideValScene();
                 }
             }).focus(function () {
@@ -184,8 +188,12 @@
                     }
                     $('#node-input-namesceneStatus').val(sDevName);
                     var optVal = $("#node-input-dptsceneStatus option:contains('" + ui.item.label.split("#")[2].trim() + "')").attr('value');
-                    // Select the option value 
-                    $("#node-input-dptsceneStatus").val(optVal);
+                    var $dptSelect = $("#node-input-dptsceneStatus");
+                    if (optVal !== undefined && optVal !== null) {
+                        $dptSelect.val(optVal).trigger('change');
+                    } else {
+                        $dptSelect.trigger('change');
+                    }
                     ShowHideValScene();
                 }
             }).focus(function () {
@@ -221,8 +229,12 @@
                     }
                     $('#node-input-namesceneMulti').val(sDevName);
                     var optVal = $("#node-input-dptsceneMulti option:contains('" + ui.item.label.split("#")[2].trim() + "')").attr('value');
-                    // Select the option value 
-                    $("#node-input-dptsceneMulti").val(optVal);
+                    var $dptSelect = $("#node-input-dptsceneMulti");
+                    if (optVal !== undefined && optVal !== null) {
+                        $dptSelect.val(optVal).trigger('change');
+                    } else {
+                        $dptSelect.trigger('change');
+                    }
                     ShowHideValScene();
                 }
             }).focus(function () {
@@ -589,5 +601,3 @@
 </div> <!-- // End TABS -->
 
 </script>
-
-

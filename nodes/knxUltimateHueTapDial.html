@@ -107,8 +107,12 @@
                     }
                     $('#node-input-namerepeat').val(sDevName);
                     var optVal = $("#node-input-dptrepeat option:contains('" + ui.item.label.split("#")[2].trim() + "')").attr('value');
-                    // Select the option value 
-                    $("#node-input-dptrepeat").val(optVal);
+                    var $dptSelect = $("#node-input-dptrepeat");
+                    if (optVal !== undefined && optVal !== null) {
+                        $dptSelect.val(optVal).trigger('change');
+                    } else {
+                        $dptSelect.trigger('change');
+                    }
                 }
             }).focus(function () {
                 $(this).autocomplete('search', $(this).val() + 'exactmatch');
@@ -234,5 +238,4 @@
 
 
 </script>
-
 

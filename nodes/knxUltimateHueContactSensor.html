@@ -115,8 +115,12 @@
                     }
                     $('#node-input-namecontact').val(sDevName)
                     var optVal = $('#node-input-dptcontact option:contains(\'' + ui.item.label.split('#')[2].trim() + '\')').attr('value')
-                    // Select the option value
-                    $('#node-input-dptcontact').val(optVal)
+                    var $dptSelect = $('#node-input-dptcontact')
+                    if (optVal !== undefined && optVal !== null) {
+                        $dptSelect.val(optVal).trigger('change')
+                    } else {
+                        $dptSelect.trigger('change')
+                    }
                 },
             }).focus(function () {
                 $(this).autocomplete('search', $(this).val() + 'exactmatch');
@@ -240,5 +244,4 @@
   <br />
   <br />
 </script>
-
 

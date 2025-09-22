@@ -141,9 +141,12 @@
                         }
 
                         var optVal = $("#node-input-dpt option:contains('" + ui.item.label.split("#")[2].trim() + "')").attr('value');
-                        // Select the option value 
-                        $("#node-input-" + _DPT).val(optVal);
-                        $("#node-input-" + _DPT).trigger("change");
+                        var $dptSelect = $("#node-input-" + _DPT);
+                        if (optVal !== undefined && optVal !== null) {
+                            $dptSelect.val(optVal).trigger('change');
+                        } else {
+                            $dptSelect.trigger('change');
+                        }
                     }
                 };
                 return paramAutoComplete;
@@ -357,5 +360,4 @@
 </br>
 </br>
 </script>
-
 
