@@ -897,56 +897,69 @@
     }
     function yamelize() {
       try {
-        // Get the HUE Node properties and transform it into yaml
-        let sYaml = '- name: "' + $("#node-input-name").val() + '"' + "\n";
-        sYaml += $("#node-input-GALightSwitch").val() != '' ? '  address: "' + $("#node-input-GALightSwitch").val() + '"' + "\n" : '';
-        sYaml += $("#node-input-GALightState").val() != '' ? '  state_address: "' + $("#node-input-GALightState").val() + '"' + "\n" : '';
-        sYaml += $("#node-input-GALightBrightness").val() != '' ? '  brightness_address: "' + $("#node-input-GALightBrightness").val() + '"' + "\n" : '';
-        sYaml += $("#node-input-GALightBrightnessState").val() != '' ? '  brightness_state_address: "' + $("#node-input-GALightBrightnessState").val() + '"' + "\n" : '';
+        const getVal = (selector) => {
+          const $el = $(selector);
+          if (!$el || !$el.length) return '';
+          const raw = $el.val();
+          if (raw === undefined || raw === null) return '';
+          return typeof raw === 'string' ? raw.trim() : String(raw);
+        };
+        const appendLine = (label, value) => {
+          if (value) {
+            sYaml += `  ${label}: "${value}"\n`;
+          }
+        };
 
-        //#region color_temperature_mode
-        // ----------------------------
-        if ($("#node-input-GALightKelvinPercentage").val !== '') {
+        const name = getVal('#node-input-name').replace(/"/g, '\\"');
+        let sYaml = `- name: "${name}"\n`;
 
-          // color_temperature_mode: relative
-          sYaml += '  color_temperature_mode: relative' + '\n';
-          sYaml += '  color_temperature_address: "' + $("#node-input-GALightKelvinPercentage").val() + '"\n';
-          sYaml += $("#node-input-GALightKelvinPercentageState").val() != '' ? '  color_temperature_state_address: "' + $("#node-input-GALightKelvinPercentageState").val() + '"' + "\n" : '';
-          sYaml += '  min_kelvin: 2200' + '\n';
-          sYaml += '  max_kelvin: 6500' + '\n';
+        appendLine('address', getVal('#node-input-GALightSwitch'));
+        appendLine('state_address', getVal('#node-input-GALightState'));
+        appendLine('brightness_address', getVal('#node-input-GALightBrightness'));
+        appendLine('brightness_state_address', getVal('#node-input-GALightBrightnessState'));
 
-        } else if ($("#node-input-GALightKelvin").val() !== '') {
-
-          if ($("#node-input-dptLightKelvin").val() === '7.600') {
-            sYaml += '  color_temperature_mode: absolute' + '\n';
-            sYaml += '  color_temperature_address: "' + $("#node-input-GALightKelvin").val() + '"\n';
-            if ($("#node-input-dptLightKelvinState").val() === '7.600') {
-              // Add the status only if also 7.600
-              sYaml += $("#node-input-GALightKelvinState").val() != '' ? '  color_temperature_state_address: "' + $("#node-input-GALightKelvinState").val() + '"' + "\n" : '';
+        // Color temperature handling -----------------------------------
+        let colorTemperatureConfigured = false;
+        const kelvinPercent = getVal('#node-input-GALightKelvinPercentage');
+        if (kelvinPercent) {
+          sYaml += '  color_temperature_mode: relative\n';
+          appendLine('color_temperature_address', kelvinPercent);
+          appendLine('color_temperature_state_address', getVal('#node-input-GALightKelvinPercentageState'));
+          colorTemperatureConfigured = true;
+        } else {
+          const kelvinAddress = getVal('#node-input-GALightKelvin');
+          if (kelvinAddress) {
+            const kelvinDpt = getVal('#node-input-dptLightKelvin');
+            if (kelvinDpt === '7.600') {
+              sYaml += '  color_temperature_mode: absolute\n';
+              appendLine('color_temperature_address', kelvinAddress);
+              if (getVal('#node-input-dptLightKelvinState') === '7.600') {
+                appendLine('color_temperature_state_address', getVal('#node-input-GALightKelvinState'));
+              }
+              colorTemperatureConfigured = true;
+            } else if (kelvinDpt === '9.002') {
+              sYaml += '  color_temperature_mode: absolute_float\n';
+              appendLine('color_temperature_address', kelvinAddress);
+              if (getVal('#node-input-dptLightKelvinState') === '9.002') {
+                appendLine('color_temperature_state_address', getVal('#node-input-GALightKelvinState'));
+              }
+              colorTemperatureConfigured = true;
             }
-            sYaml += '  min_kelvin: 2200' + '\n';
-            sYaml += '  max_kelvin: 6500' + '\n';
-
-          } else if ($("#node-input-dptLightKelvin").val() === '9.002') {
-
-            sYaml += '  color_temperature_mode: absolute_float' + '\n';
-            sYaml += '  color_temperature_address: "' + $("#node-input-GALightKelvin").val() + '"\n';
-            if ($("#node-input-dptLightKelvinState").val() === '9.002') {
-              // Add the status only if also 7.600
-              sYaml += $("#node-input-GALightKelvinState").val() != '' ? '  color_temperature_state_address: "' + $("#node-input-GALightKelvinState").val() + '"' + "\n" : '';
-            }
-            sYaml += '  min_kelvin: 2200' + '\n';
-            sYaml += '  max_kelvin: 6500' + '\n';
-
           }
         }
-        // ----------------------------
-        //#endregion
+        if (colorTemperatureConfigured) {
+          sYaml += '  min_kelvin: 2200\n';
+          sYaml += '  max_kelvin: 6500\n';
+        }
 
-        sYaml += $("#node-input-GALightColor").val() != '' ? '  color_address: "' + $("#node-input-GALightColor").val() + '"' + "\n" : '';
-        sYaml += $("#node-input-GALightColorState").val() != '' ? '  color_state_address: "' + $("#node-input-GALightColorState").val() + '"' + "\n" : '';
+        appendLine('color_address', getVal('#node-input-GALightColor'));
+        appendLine('color_state_address', getVal('#node-input-GALightColorState'));
+        appendLine('hue_address', getVal('#node-input-GALightHSV_H_DIM'));
+        appendLine('hue_state_address', getVal('#node-input-GALightHSV_H_State'));
+        appendLine('saturation_address', getVal('#node-input-GALightHSV_S_DIM'));
+        appendLine('saturation_state_address', getVal('#node-input-GALightHSV_S_State'));
 
-        return (sYaml);
+        return sYaml;
       } catch (error) { }
     }
 
@@ -1488,5 +1501,4 @@
   </div>
 <br />
 </script>
-
 

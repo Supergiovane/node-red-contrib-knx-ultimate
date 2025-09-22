@@ -6,6 +6,10 @@
 
 # CHANGELOG
 
+**Version 4.0.7** - September 2025<br/>
+- Fixed an issue where some secure fields were missing when creating a new config-node.<br/>
+- HUE Light: enhanced the Homeassistant export yaml.<br/>
+
 **Version 4.0.6** - September 2025<br/>
 - Fixed regression in automatic datapoint selection, based on group address DPT.<br/>
 
