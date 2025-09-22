@@ -214,7 +214,8 @@
                         $("#rowTunnelIASelection").hide();
                         $("#divTunnelIA").hide();
                     }
-                    const showManualTunnelFields = isSecure && !isMulticast && manualMode;
+                    // Allow manual/combined credentials to surface even before the user selects a unicast IP.
+                    const showManualTunnelFields = isSecure && manualMode;
                     $("#rowTunnelInterfaceIndividualAddress").toggle(showManualTunnelFields);
                     $("#rowTunnelUserPassword").toggle(showManualTunnelFields);
                     $("#rowTunnelUserId").toggle(showManualTunnelFields);
