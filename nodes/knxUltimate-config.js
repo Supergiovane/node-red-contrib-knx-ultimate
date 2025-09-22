@@ -101,8 +101,22 @@ module.exports = (RED) => {
     node.secureCredentialsMode = typeof config.secureCredentialsMode === "undefined" ? "keyring" : config.secureCredentialsMode;
     // 2025-09 Secure Tunnel Interface IA selection (Auto/Manual)
     node.tunnelIASelection = typeof config.tunnelIASelection === "undefined" ? "Auto" : config.tunnelIASelection;
-    node.tunnelIA = typeof config.tunnelIA === "undefined" ? "" : config.tunnelIA;
-    node.tunnelInterfaceIndividualAddress = typeof config.tunnelInterfaceIndividualAddress === "undefined" ? "" : config.tunnelInterfaceIndividualAddress;
+    node.tunnelIA = typeof config.tunnelIA === "undefined" || config.tunnelIA === null ? "" : String(config.tunnelIA);
+    node.tunnelInterfaceIndividualAddress = typeof config.tunnelInterfaceIndividualAddress === "undefined" || config.tunnelInterfaceIndividualAddress === null
+      ? ""
+      : String(config.tunnelInterfaceIndividualAddress);
+    const normalizedTunnelIA = (value) => {
+      if (typeof value !== "string") return "";
+      const trimmed = value.trim();
+      return trimmed === "undefined" ? "" : trimmed;
+    };
+    node.tunnelIA = normalizedTunnelIA(node.tunnelIA);
+    node.tunnelInterfaceIndividualAddress = normalizedTunnelIA(node.tunnelInterfaceIndividualAddress);
+    if (!node.tunnelInterfaceIndividualAddress && node.tunnelIA) {
+      node.tunnelInterfaceIndividualAddress = node.tunnelIA;
+    } else if (!node.tunnelIA && node.tunnelInterfaceIndividualAddress) {
+      node.tunnelIA = node.tunnelInterfaceIndividualAddress;
+    }
     node.tunnelUserPassword = typeof config.tunnelUserPassword === "undefined" ? "" : config.tunnelUserPassword;
     node.tunnelUserId = typeof config.tunnelUserId === "undefined" ? "" : config.tunnelUserId;
     node.name = config.name === undefined || config.name === "" ? node.host : config.name; // 12/08/2021
@@ -191,9 +205,10 @@ module.exports = (RED) => {
             secureConfig.knxkeys_password = node.credentials?.keyringFilePassword || "";
 
             try {
-              if (node.tunnelIASelection === "Manual" && typeof node.tunnelIA === "string" && node.tunnelIA.trim() !== "") {
+              const manualSelectionIA = normalizedTunnelIA(node.tunnelIA);
+              if (node.tunnelIASelection === "Manual" && manualSelectionIA) {
                 if (!secureConfig.tunnelInterfaceIndividualAddress) {
-                  secureConfig.tunnelInterfaceIndividualAddress = node.tunnelIA.trim();
+                  secureConfig.tunnelInterfaceIndividualAddress = manualSelectionIA;
                 }
               } else if (!secureConfig.tunnelInterfaceIndividualAddress) {
                 secureConfig.tunnelInterfaceIndividualAddress = ""; // Auto (let KNX stack select)
@@ -787,7 +802,8 @@ module.exports = (RED) => {
       _dest = _datagram.cEMIMessage.dstAddress.toString();
 
       if (_evt === null || _src === null || _dest === null) {
-        node.sysLogger?.error("HandleBusEvent: unable to parse telegram, ignored"); return
+        node.sysLogger?.warn(`HandleBusEvent: unable to parse telegram, ignored (evt=${_evt || 'n/a'} src=${_src || 'n/a'} dest=${_dest || 'n/a'})`);
+        return;
       };
 
       _echoed = _echoed || false;

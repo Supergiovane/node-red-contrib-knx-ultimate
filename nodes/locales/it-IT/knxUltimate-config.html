@@ -19,9 +19,14 @@ Questo nodo si connette al tuo KNX/IP Gateway.
 | KNX Physical Address | Indirizzo fisico KNX, es. `1.1.200`. Default: `15.15.22`. |
 | Bind to local interface | Interfaccia di rete locale usata dal nodo. Lascia "Auto" per selezione automatica. Se hai più interfacce (Ethernet/Wi‑Fi), è consigliato impostarla manualmente per evitare perdita di telegrammi UDP. Default: "Auto". |
 | Automatically connect to KNX BUS at start | Connessione automatica al BUS all’avvio. Default: "Yes". |
-| Secure credentials source | Scegli **File keyring ETS** (default) per fornire il contenuto `.knxkeys` e la password, oppure **Credenziali manuali** per usare indirizzo individuale e password del tunnel senza keyring. Il cambio modalità mostra solo i campi pertinenti. |
-| Tunnel interface individual address | Visibile solo con **Credenziali manuali**. Indirizzo individuale dell’interfaccia tunnel sicura (es. `1.1.1`). Lascia vuoto per negoziazione automatica da parte di KNX Ultimate. |
-| Tunnel user password | Visibile solo con **Credenziali manuali**. Password dell’utente di tunnelling sicuro configurato in ETS. |
+| Secure credentials source | Scegli come fornire i dati KNX Secure: **File keyring ETS** (le chiavi Data Secure e, se presenti, le credenziali di tunnelling arrivano dal keyring), **Credenziali manuali** (solo KNX IP Tunnelling Secure con utente inserito a mano) oppure **File keyring + password tunnel manuale** (le chiavi Data Secure dal keyring e l’utente/password del tunnel impostati manualmente). Ricorda: i telegrammi KNX Data Secure richiedono sempre un keyring. |
+| Tunnel interface individual address | Visibile quando la modalità selezionata prevede credenziali manuali (Credenziali manuali o File keyring + password tunnel manuale). Indirizzo individuale opzionale dell’interfaccia tunnel sicura (es. `1.1.1`); lascia vuoto per negoziazione automatica da parte di KNX Ultimate. |
+| Tunnel user ID | Visibile quando sono attive credenziali manuali. ID opzionale dell’utente tunnel KNX Secure definito in ETS. |
+| Tunnel user password | Visibile quando sono attive credenziali manuali. Password dell’utente tunnel KNX Secure configurata in ETS. |
+
+> **Nota su KNX Secure**  
+> • *KNX Data Secure* protegge i telegrammi sugli indirizzi di gruppo e richiede sempre un file keyring con le chiavi di gruppo.  
+> • *KNX IP Tunnelling Secure* protegge l’handshake di connessione tramite una password di commissioning, che può essere letta dal keyring oppure inserita manualmente in base alla modalità scelta.
 
 <br/>
 

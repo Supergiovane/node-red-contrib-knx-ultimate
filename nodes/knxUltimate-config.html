@@ -140,6 +140,26 @@
                 return first >= 224 && first <= 239;
             }
 
+            function normalizeTunnelIAValue(value) {
+                if (typeof value !== 'string') return '';
+                const trimmed = value.trim();
+                return (trimmed && trimmed !== 'undefined') ? trimmed : '';
+            }
+
+            function setTunnelIAValue(value) {
+                const normalized = normalizeTunnelIAValue(value || '');
+                try { $("#node-config-input-tunnelIA").val(normalized); } catch (e) { }
+                try { $("#node-config-input-tunnelInterfaceIndividualAddress").val(normalized); } catch (e) { }
+            }
+
+            function syncTunnelIAFromManual() {
+                try { setTunnelIAValue($("#node-config-input-tunnelInterfaceIndividualAddress").val()); } catch (e) { }
+            }
+
+            function syncTunnelIAFromKeyring() {
+                try { setTunnelIAValue($("#node-config-input-tunnelIA").val()); } catch (e) { }
+            }
+
             function enforceProtocolFromIP() {
                 try {
                     const ipTyped = String($("#node-config-input-host").val() || '').trim();
@@ -160,9 +180,10 @@
             function updateSecureCredentialMode() {
                 try {
                     const mode = getSecureCredentialsMode();
-                    const isKeyringMode = (mode === 'keyring' || mode === 'combined');
-                    $("#secureKeyringFields").toggle(isKeyringMode);
-                    if (!isKeyringMode) {
+                    const showKeyringFields = (mode === 'keyring' || mode === 'combined');
+                    const showKeyringIAControls = (mode === 'keyring');
+                    $("#secureKeyringFields").toggle(showKeyringFields);
+                    if (!showKeyringIAControls) {
                         $("#rowTunnelIASelection").hide();
                         $("#divTunnelIA").hide();
                     }
@@ -179,7 +200,7 @@
                     const ip = $("#node-config-input-host").val();
                     const isMulticast = (hostProtocol === 'Multicast') || (ip === '224.0.23.12');
                     const mode = getSecureCredentialsMode();
-                    const keyringMode = (mode === 'keyring' || mode === 'combined');
+                    const keyringMode = (mode === 'keyring');
                     const manualMode = (mode === 'manual' || mode === 'combined');
                     const showTunnelIA = isSecure && !isMulticast && keyringMode;
                     if (showTunnelIA) {
@@ -289,7 +310,7 @@
             function populateTunnelIAList() {
                 try {
                     const mode = getSecureCredentialsMode();
-                    const keyringMode = (mode === 'keyring' || mode === 'combined');
+                    const keyringMode = (mode === 'keyring');
                     if (!keyringMode) {
                         aTunnelIAs = [];
                         try {
@@ -328,8 +349,14 @@
 
             // Secure: Tunnel IA selection
             try {
+                const storedTunnelIA = (() => {
+                    const manualStored = normalizeTunnelIAValue(node.tunnelInterfaceIndividualAddress);
+                    const keyringStored = normalizeTunnelIAValue(node.tunnelIA);
+                    return manualStored || keyringStored;
+                })();
+                setTunnelIAValue(storedTunnelIA);
                 $("#node-config-input-tunnelIASelection").val(typeof node.tunnelIASelection === 'undefined' ? 'Auto' : node.tunnelIASelection);
-                $("#node-config-input-tunnelIA").val(typeof node.tunnelIA === 'undefined' ? '' : node.tunnelIA);
+                $("#node-config-input-tunnelIA").on('change input', syncTunnelIAFromKeyring);
                 const toggleTunnelIA = () => {
                     if ($("#node-config-input-tunnelIASelection").val() === 'Manual') {
                         $("#divTunnelIA").show();
@@ -352,8 +379,8 @@
                     $("#node-config-input-tunnelIA").autocomplete({
                         minLength: 0,
                         source: function (request, response) { response(aTunnelIAs); },
-                        focus: function (event, ui) { $(this).val(ui.item.value); return false; },
-                        select: function (event, ui) { $(this).val(ui.item.value); return false; }
+                        focus: function (event, ui) { setTunnelIAValue(ui.item.value); return false; },
+                        select: function (event, ui) { setTunnelIAValue(ui.item.value); return false; }
                     }).on('focus click', function () {
                         // Show dropdown on focus/click
                         $(this).autocomplete('search', '');
@@ -363,7 +390,7 @@
 
             try {
                 $("#node-config-input-secureCredentialsMode").val(typeof node.secureCredentialsMode === 'undefined' ? 'keyring' : node.secureCredentialsMode);
-                $("#node-config-input-tunnelInterfaceIndividualAddress").val(typeof node.tunnelInterfaceIndividualAddress === 'undefined' ? '' : node.tunnelInterfaceIndividualAddress);
+                $("#node-config-input-tunnelInterfaceIndividualAddress").on('change input', syncTunnelIAFromManual);
                 $("#node-config-input-tunnelUserPassword").val(typeof node.tunnelUserPassword === 'undefined' ? '' : node.tunnelUserPassword);
                 $("#node-config-input-tunnelUserId").val(typeof node.tunnelUserId === 'undefined' ? '' : node.tunnelUserId);
                 $("#node-config-input-secureCredentialsMode").on('change', function () {
@@ -669,6 +696,9 @@
                     node._csvEditor.destroy();
                     node._csvEditor = null;
                 }
+                try {
+                    $("#node-config-input-tunnelIA").val($("#node-config-input-tunnelInterfaceIndividualAddress").val());
+                } catch (e) { }
             } catch (e) { }
             // Check if the csv file contains errors
             if (($("#node-config-input-csv").val() != 'undefined' && $("#node-config-input-csv").val() != "") || ($("#node-config-input-keyring").val() != 'undefined' && $("#node-config-input-keyring").val() != "")) {

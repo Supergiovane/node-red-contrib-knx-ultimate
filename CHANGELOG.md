@@ -6,6 +6,9 @@
 
 # CHANGELOG
 
+**Version 4.0.5** - September 2025<br/>
+- NEW: You have now the choide to select multiple modes to authenticate to a KNX Gateway.<br/>
+
 **Version 4.0.4** - September 2025<br/>
 - NEW: you can now login to your secure gateway using only tunnel and password, without the keyring file.<br/>
 
