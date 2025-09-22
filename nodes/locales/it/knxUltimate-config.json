@@ -89,6 +89,7 @@
             "secure_credentials_mode": "Origine credenziali KNX Secure",
             "secure_credentials_mode_keyring": "File keyring ETS",
             "secure_credentials_mode_manual": "Credenziali manuali",
+            "secure_credentials_mode_combined": "File keyring + password tunnel manuale",
             "tunnel_interface_individual_address": "Indirizzo individuale interfaccia tunnel",
             "tunnel_interface_individual_address_placeholder": "1.1.1",
             "tunnel_user_id": "ID utente tunnel",

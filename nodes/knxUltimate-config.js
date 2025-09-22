@@ -164,33 +164,39 @@ module.exports = (RED) => {
       try {
         if (node.knxSecureSelected) {
           const secureMode = typeof node.secureCredentialsMode === "string" ? node.secureCredentialsMode : "keyring";
-          if (secureMode === "manual") {
-            // Manual credentials: no keyring, only IA + password
-            node.secureTunnelConfig = {
-              tunnelInterfaceIndividualAddress: (node.tunnelInterfaceIndividualAddress || "").trim(),
-              tunnelUserId: (node.tunnelUserId || "").trim(),
-              tunnelUserPassword: (node.tunnelUserPassword || ""),
-            };
-            if (!node.secureTunnelConfig.tunnelInterfaceIndividualAddress) {
-              delete node.secureTunnelConfig.tunnelInterfaceIndividualAddress;
+          const useManual = secureMode === "manual" || secureMode === "combined";
+          const useKeyring = secureMode === "keyring" || secureMode === "combined";
+
+          const secureConfig = {};
+          const modeParts = [];
+
+          if (useManual) {
+            const manualIA = (node.tunnelInterfaceIndividualAddress || "").trim();
+            const manualUserId = (node.tunnelUserId || "").trim();
+            const manualPwd = node.tunnelUserPassword || "";
+
+            if (manualIA) {
+              secureConfig.tunnelInterfaceIndividualAddress = manualIA;
             }
-            if (!node.secureTunnelConfig.tunnelUserId) {
-              delete node.secureTunnelConfig.tunnelUserId;
+            if (manualUserId) {
+              secureConfig.tunnelUserId = manualUserId;
             }
-            RED.log.info("KNX-Secure: secure mode selected. Using manual tunnel credentials.");
-          } else {
-            // Prepare secure config for KNXClient. The loader accepts either a
-            // filesystem path to .knxkeys or the raw XML/base64 content.
-            node.secureTunnelConfig = {
-              knxkeys_file_path: node.keyringFileXML || "",
-              knxkeys_password: node.credentials?.keyringFilePassword || "",
-            };
-            // Manual IA selection based on keyring content
+            // Always include password property so KNX library receives the intended value (even if empty)
+            secureConfig.tunnelUserPassword = manualPwd;
+            modeParts.push("manual tunnel credentials");
+          }
+
+          if (useKeyring) {
+            secureConfig.knxkeys_file_path = node.keyringFileXML || "";
+            secureConfig.knxkeys_password = node.credentials?.keyringFilePassword || "";
+
             try {
               if (node.tunnelIASelection === "Manual" && typeof node.tunnelIA === "string" && node.tunnelIA.trim() !== "") {
-                node.secureTunnelConfig.tunnelInterfaceIndividualAddress = node.tunnelIA.trim();
-              } else {
-                node.secureTunnelConfig.tunnelInterfaceIndividualAddress = ""; // Auto
+                if (!secureConfig.tunnelInterfaceIndividualAddress) {
+                  secureConfig.tunnelInterfaceIndividualAddress = node.tunnelIA.trim();
+                }
+              } else if (!secureConfig.tunnelInterfaceIndividualAddress) {
+                secureConfig.tunnelInterfaceIndividualAddress = ""; // Auto (let KNX stack select)
               }
             } catch (e) { /* empty */ }
 
@@ -206,9 +212,18 @@ module.exports = (RED) => {
                 node.sysLogger?.error("KNX Secure: keyring validation failed: " + err.message);
                 // Keep secure enabled: KNXClient will emit detailed errors on connect
               }
-            } else {
-              RED.log.info("KNX-Secure: secure mode selected. Using provided keyring and password.");
             }
+            modeParts.push("keyring file/password");
+          }
+
+          if (Object.keys(secureConfig).length > 0) {
+            node.secureTunnelConfig = secureConfig;
+          } else {
+            node.secureTunnelConfig = undefined;
+          }
+
+          if (modeParts.length > 0) {
+            RED.log.info(`KNX-Secure: secure mode selected (${modeParts.join(" + ")}). Node ${node.name || node.id}`);
           }
         } else {
           RED.log.info("KNX-Unsecure: connection to insecure interface/router using node " + (node.name || node.id));

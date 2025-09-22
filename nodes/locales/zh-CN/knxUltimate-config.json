@@ -84,6 +84,7 @@
             "secure_credentials_mode": "安全凭据来源",
             "secure_credentials_mode_keyring": "ETS 密钥环文件",
             "secure_credentials_mode_manual": "手动凭据",
+            "secure_credentials_mode_combined": "密钥环 + 手动隧道密码",
             "tunnel_interface_individual_address": "隧道接口个人地址",
             "tunnel_interface_individual_address_placeholder": "1.1.1",
             "tunnel_user_id": "隧道用户 ID",

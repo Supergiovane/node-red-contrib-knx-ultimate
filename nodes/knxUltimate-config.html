@@ -160,9 +160,9 @@
             function updateSecureCredentialMode() {
                 try {
                     const mode = getSecureCredentialsMode();
-                    const isKeyring = (mode === 'keyring');
-                    $("#secureKeyringFields").toggle(isKeyring);
-                    if (!isKeyring) {
+                    const isKeyringMode = (mode === 'keyring' || mode === 'combined');
+                    $("#secureKeyringFields").toggle(isKeyringMode);
+                    if (!isKeyringMode) {
                         $("#rowTunnelIASelection").hide();
                         $("#divTunnelIA").hide();
                     }
@@ -179,7 +179,9 @@
                     const ip = $("#node-config-input-host").val();
                     const isMulticast = (hostProtocol === 'Multicast') || (ip === '224.0.23.12');
                     const mode = getSecureCredentialsMode();
-                    const showTunnelIA = isSecure && !isMulticast && mode === 'keyring';
+                    const keyringMode = (mode === 'keyring' || mode === 'combined');
+                    const manualMode = (mode === 'manual' || mode === 'combined');
+                    const showTunnelIA = isSecure && !isMulticast && keyringMode;
                     if (showTunnelIA) {
                         $("#rowTunnelIASelection").show();
                         if ($("#node-config-input-tunnelIASelection").val() === 'Manual') {
@@ -191,7 +193,7 @@
                         $("#rowTunnelIASelection").hide();
                         $("#divTunnelIA").hide();
                     }
-                    const showManualTunnelFields = isSecure && !isMulticast && mode === 'manual';
+                    const showManualTunnelFields = isSecure && !isMulticast && manualMode;
                     $("#rowTunnelInterfaceIndividualAddress").toggle(showManualTunnelFields);
                     $("#rowTunnelUserPassword").toggle(showManualTunnelFields);
                     $("#rowTunnelUserId").toggle(showManualTunnelFields);
@@ -286,7 +288,9 @@
             let aTunnelIAs = [];
             function populateTunnelIAList() {
                 try {
-                    if (getSecureCredentialsMode() !== 'keyring') {
+                    const mode = getSecureCredentialsMode();
+                    const keyringMode = (mode === 'keyring' || mode === 'combined');
+                    if (!keyringMode) {
                         aTunnelIAs = [];
                         try {
                             const $ia = $("#node-config-input-tunnelIA");
@@ -785,6 +789,7 @@
                     <select id="node-config-input-secureCredentialsMode" style="width:200px;">
                         <option value="keyring" data-i18n="knxUltimate-config.ets.secure_credentials_mode_keyring"></option>
                         <option value="manual" data-i18n="knxUltimate-config.ets.secure_credentials_mode_manual"></option>
+                        <option value="combined" data-i18n="knxUltimate-config.ets.secure_credentials_mode_combined"></option>
                     </select>
                 </div>
                 <div id="secureKeyringFields">

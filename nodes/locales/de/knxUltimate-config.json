@@ -88,6 +88,7 @@
             "secure_credentials_mode": "Quelle für Secure-Zugangsdaten",
             "secure_credentials_mode_keyring": "ETS-Keyring-Datei",
             "secure_credentials_mode_manual": "Manuelle Zugangsdaten",
+            "secure_credentials_mode_combined": "Keyring + manuelles Tunnel-Passwort",
             "tunnel_interface_individual_address": "Individuelle Adresse der Tunnel-Schnittstelle",
             "tunnel_interface_individual_address_placeholder": "1.1.1",
             "tunnel_user_id": "Tunnel-Benutzer-ID",
