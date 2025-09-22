@@ -759,31 +759,77 @@
         border-bottom: 1px solid#377e00;
         outline: none;
     }
+
+    #knxUltimate-config-template .form-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 6px;
+    }
+
+    #knxUltimate-config-template .form-row > label {
+        flex: 0 0 230px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin: 0;
+    }
+
+    #knxUltimate-config-template .form-row > label + input,
+    #knxUltimate-config-template .form-row > label + select,
+    #knxUltimate-config-template .form-row > label + textarea {
+        flex: 1 1 auto;
+    }
+
+    #knxUltimate-config-template .form-row.form-row-offset {
+        display: block;
+        margin-left: 230px;
+    }
+
+    #knxUltimate-config-template .form-row.form-row-checkbox {
+        align-items: flex-start;
+    }
+
+    #knxUltimate-config-template .form-row.form-row-checkbox input[type="checkbox"] {
+        margin-top: 4px;
+    }
+
+    #knxUltimate-config-template .form-row.form-row-checkbox label {
+        flex: 1 1 auto;
+    }
+
+    #knxUltimate-config-template #hintSecureMulticast,
+    #knxUltimate-config-template .form-row .form-tips {
+        margin-left: 230px;
+    }
+
+    #knxUltimate-config-template .form-section-heading {
+        margin-bottom: 12px;
+    }
 </style>
 
 
 <script type="text/html" data-template-name="knxUltimate-config">
-    <div class="form-row">
-       <b><span data-i18n="knxUltimate-config.properties.title"></span></b>
-        <br/><br/>       
-    </div>
+    <div id="knxUltimate-config-template">
+        <div class="form-section-heading">
+            <b><span data-i18n="knxUltimate-config.properties.title"></span></b>
+        </div>
    
         <div class="form-row">
-            <label for="node-config-input-name" style="width: 200px" >
+            <label for="node-config-input-name">
                 <i class="fa fa-tag"></i> <span data-i18n="knxUltimate-config.properties.node-config-input-name"></span></label>
             <input type="text" id="node-config-input-name" style="width: 200px">
         </div>
         <div class="form-row">
-            <label for="node-config-input-host" style="width: 200px"><i class="fa fa-server"></i> <span data-i18n="knxUltimate-config.properties.host"></span></label>
-                <input type="text" id="node-config-input-host" style="width: 200px">
-                <i id="refresh-interfaces" class="fa fa-refresh" style="cursor:pointer; color:#377e00; margin-left:6px;" data-i18n="[title]knxUltimate-config.properties.refresh_interfaces"></i>
+            <label for="node-config-input-host"><i class="fa fa-server"></i> <span data-i18n="knxUltimate-config.properties.host"></span></label>
+            <input type="text" id="node-config-input-host" style="width: 200px">
+            <i id="refresh-interfaces" class="fa fa-refresh" style="cursor:pointer; color:#377e00; margin-left:6px;" data-i18n="[title]knxUltimate-config.properties.refresh_interfaces"></i>
         </div>
-        <div class="form-row">
-            <label style="width: 200px"></label>
+        <div class="form-row form-row-offset">
             <span id="interfaces-count" style="font-size: 12px; color:#377e00; margin-top: 2px;"></span>
         </div>
         <div class="form-row" id="rowPhysAddr">
-            <label for="node-config-input-physAddr" style="width: 200px">
+            <label for="node-config-input-physAddr">
                 <i class="fa fa-microchip"></i>
                 <span data-i18n="knxUltimate-config.advanced.knx_phy_addr"></span>
             </label>
@@ -874,13 +920,13 @@
         <p>
 
             <div class="form-row">
-                <label for="node-config-input-port" style="width: 200px">
+                <label for="node-config-input-port">
                    <span data-i18n="knxUltimate-config.properties.ip_port"></span>
                 </label>
                 <input type="text" id="node-config-input-port" style="width: 100px">
             </div>
             <div class="form-row">
-                <label for="node-config-input-hostProtocol" style="width: 200px">
+                <label for="node-config-input-hostProtocol">
                    <span data-i18n="knxUltimate-config.properties.ip_protocol"></span>
                 </label>
                 <select id="node-config-input-hostProtocol" >
@@ -893,7 +939,7 @@
             
 
             <div class="form-row">
-                <label for="node-config-input-KNXEthInterface" style="width: 200px">
+                <label for="node-config-input-KNXEthInterface">
                     <i class="fa fa-wifi"></i>
                     <span data-i18n="knxUltimate-config.properties.bind_local_int"></span>
                 </label>
@@ -905,7 +951,7 @@
                     data-i18n="[placeholder]knxUltimate-config.properties.iface_name_placeholder">
             </div>
             <div class="form-row">
-                <label for="node-config-input-autoReconnect" style="width: 200px">
+                <label for="node-config-input-autoReconnect">
                     <i class="fa fa-plug"></i>
                     <span data-i18n="knxUltimate-config.properties.autoReconnect"></span>
                 </label>
@@ -919,26 +965,26 @@
     <div id="tabs-2">
         <p>
             
-            <div class="form-row">
+            <div class="form-row form-row-checkbox">
                 <input type="checkbox" id="node-config-input-ignoreTelegramsWithRepeatedFlag"
                     style="display:inline-block; width:auto; vertical-align:top;">
-                <label style="width:85%" for="node-config-input-ignoreTelegramsWithRepeatedFlag">
+                <label for="node-config-input-ignoreTelegramsWithRepeatedFlag">
                     <i class="fa fa-ban"></i>
                     <span data-i18n="knxUltimate-config.advanced.ignoreTelegramsWithRepeatedFlag"></span>
                 </label>
             </div>
 
-            <div class="form-row">
+            <div class="form-row form-row-checkbox">
                 <input type="checkbox" id="node-config-input-suppressACKRequest"
                     style="display:inline-block; width:auto; vertical-align:top;">
-                <label style="width:85%" for="node-config-input-suppressACKRequest">
+                <label for="node-config-input-suppressACKRequest">
                     <i class="fa fa-ban"></i>
                     <span data-i18n="knxUltimate-config.advanced.suppress_ack"></span>
                 </label>
             </div>
 
             <div class="form-row">
-                <label for="node-config-input-delaybetweentelegrams" style="width:auto">
+                <label for="node-config-input-delaybetweentelegrams">
                     <i class="fa fa-hourglass-start"></i>
                     <span data-i18n="knxUltimate-config.advanced.delaybetweentelegrams"></span>
                 </label>
@@ -977,7 +1023,7 @@
                         <span style="color:red" data-i18n="[html]knxUltimate-config.ets.youtube"></span>
                     </div>
                     <div class="form-row">
-                        <label for="node-config-input-stopETSImportIfNoDatapoint" style="width:250px">
+                        <label for="node-config-input-stopETSImportIfNoDatapoint">
                             <i class="fa fa-question-circle"></i>
                             <span data-i18n="knxUltimate-config.ets.help_ga"></span>
                         </label>
@@ -988,7 +1034,7 @@
                         </select>
                     </div>
                     <div class="form-row">
-                        <label style="width:auto" for="node-config-input-csv">
+                        <label for="node-config-input-csv">
                             <i class="fa fa-th-list"></i> <span data-i18n="knxUltimate-config.ets.ga_list_label"></span>
                         </label>
                     </div>
@@ -1004,12 +1050,12 @@
     <div id="tabs-4">
         <p>
             <div class="form-row">
-                <label style="width:300px"><i class="fa fa-sign-in"></i> <span data-i18n="knxUltimate-config.utility.gather_debug"></span></label>
+                <label><i class="fa fa-sign-in"></i> <span data-i18n="knxUltimate-config.utility.gather_debug"></span></label>
                 <input type="button" id="getinfocam" class="ui-button ui-corner-all ui-widget"
                     style="background-color:#AEE1FF;width:150px" data-i18n="[value]knxUltimate-config.utility.read_button">
             </div>
             <div class="form-row">
-                <label style="width:300px"><i class="fa fa-sign-in"></i> <span data-i18n="knxUltimate-config.utility.get_all_used_ga"></span></label>
+                <label><i class="fa fa-sign-in"></i> <span data-i18n="knxUltimate-config.utility.get_all_used_ga"></span></label>
                 <input type="button" id="getallgaused" class="ui-button ui-corner-all ui-widget"
                     style="background-color:#AEE1FF;width:150px" data-i18n="[value]knxUltimate-config.utility.read_button">
             </div>
@@ -1019,6 +1065,8 @@
             </div>
         </p>
     </div>
-</div>
+    </div>
+
+    </div>
   
 </script>
