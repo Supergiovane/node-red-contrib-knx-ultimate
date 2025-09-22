@@ -233,8 +233,13 @@
                 } catch (error) { }
                 $(_destinationWidgetName).val(sDevName);
                 var optVal = $(_destinationWidgetDPT + " option:contains('" + ui.item.label.split("#")[2].trim() + "')").attr("value");
-                // Select the option value
-                $(_destinationWidgetDPT).val(optVal);
+                const $dptSelect = $(_destinationWidgetDPT);
+                if (optVal !== undefined && optVal !== null) {
+                  $dptSelect.val(optVal).trigger('change');
+                } else {
+                  // Ensure downstream widgets refresh even when the DPT is missing
+                  $dptSelect.trigger('change');
+                }
               },
             }).focus(function () {
               $(this).autocomplete('search', $(this).val() + 'exactmatch');
@@ -1483,6 +1488,5 @@
   </div>
 <br />
 </script>
-
 
 

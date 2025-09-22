@@ -6,6 +6,9 @@
 
 # CHANGELOG
 
+**Version 4.0.6** - September 2025<br/>
+- Fixed regression in automatic datapoint selection, based on group address DPT.<br/>
+
 **Version 4.0.5** - September 2025<br/>
 - NEW: You have now the choide to select multiple modes to authenticate to a KNX Gateway.<br/>
 

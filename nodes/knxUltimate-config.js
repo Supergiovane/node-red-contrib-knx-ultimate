@@ -1532,7 +1532,7 @@ module.exports = (RED) => {
           try {
             jsValue = dptlib.fromBuffer(_Rawvalue, dpt);
             if (jsValue === null) {
-              node.sysLogger?.error(
+              node.sysLogger?.warn(
                 "buildInputMessage: received a wrong datagram form KNX BUS, from device " +
                 _srcGA +
                 " Destination " +
