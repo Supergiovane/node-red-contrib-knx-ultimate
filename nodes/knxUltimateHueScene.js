@@ -29,7 +29,8 @@ module.exports = function (RED) {
     node.hueDevice = config.hueDevice;
     node.initializingAtStart = false;
     try {
-      node.sysLogger = new loggerClass({ loglevel: node.serverKNX.loglevel, setPrefix: node.type + " <" + (node.name || node.id || '') + ">" });
+      const baseLogLevel = (node.serverKNX && node.serverKNX.loglevel) ? node.serverKNX.loglevel : 'error';
+      node.sysLogger = new loggerClass({ loglevel: baseLogLevel, setPrefix: node.type + " <" + (node.name || node.id || '') + ">" });
     } catch (error) { console.log(error.stack) }
     // Multi scene
     config.GAsceneMulti = config.GAsceneMulti === undefined ? '' : config.GAsceneMulti;

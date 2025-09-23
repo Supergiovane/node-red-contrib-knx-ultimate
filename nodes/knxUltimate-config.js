@@ -393,17 +393,87 @@ module.exports = (RED) => {
                       sequenceNumber: typeof device.sequenceNumber === "number" ? device.sequenceNumber : "",
                       serialNumber: device.serialNumber || "",
                     }));
-                    const keyringDump = {
-                      rawXML: node.keyringFileXML,
-                      password: node.credentials?.keyringFilePassword || "",
-                      createdBy: kr.getCreatedBy?.() || "",
-                      created: kr.getCreated?.() || "",
-                      interfaces,
-                      backbones,
-                      groupAddresses,
-                      devices,
-                    };
-                    node.sysLogger?.debug("KNX Secure keyring debug dump:", JSON.stringify(keyringDump, null, 2));
+                    const lines = [];
+                    lines.push("================ KNX Secure keyring debug dump ================");
+                    lines.push(`Node: ${node.name || node.id || ""}`);
+                    lines.push(`Created By: ${kr.getCreatedBy?.() || ""}`);
+                    lines.push(`Created On: ${kr.getCreated?.() || ""}`);
+                    lines.push(`Password (node credentials): ${node.credentials?.keyringFilePassword || ""}`);
+                    lines.push("");
+
+                    lines.push("Interfaces:");
+                    if (interfaces.length === 0) {
+                      lines.push("  (none)");
+                    } else {
+                      interfaces.forEach((iface, idx) => {
+                        lines.push(`  [${idx + 1}] ${iface.individualAddress || "(unknown)"} (${iface.type || ""})`);
+                        lines.push(`       Host: ${iface.host || ""}`);
+                        lines.push(`       User ID: ${iface.userId === "" ? "" : iface.userId}`);
+                        lines.push(`       Password (encoded): ${iface.password || ""}`);
+                        lines.push(`       Password (decoded): ${iface.decryptedPassword || ""}`);
+                        lines.push(`       Authentication (encoded): ${iface.authentication || ""}`);
+                        lines.push(`       Authentication (decoded): ${iface.decryptedAuthentication || ""}`);
+                        if (!iface.groupAddresses || iface.groupAddresses.length === 0) {
+                          lines.push("       Group Addresses: (none)");
+                        } else {
+                          lines.push("       Group Addresses:");
+                          iface.groupAddresses.forEach((ga) => {
+                            const senders = ga.senders && ga.senders.length > 0 ? ga.senders.join(", ") : "(none)";
+                            lines.push(`         - ${ga.address}: senders ${senders}`);
+                          });
+                        }
+                        lines.push("");
+                      });
+                    }
+
+                    lines.push("Backbones:");
+                    if (backbones.length === 0) {
+                      lines.push("  (none)");
+                    } else {
+                      backbones.forEach((backbone, idx) => {
+                        lines.push(`  [${idx + 1}] Multicast: ${backbone.multicastAddress || ""}`);
+                        lines.push(`       Latency: ${backbone.latency === "" ? "" : backbone.latency}`);
+                        lines.push(`       Key (encoded): ${backbone.key || ""}`);
+                        lines.push(`       Key (decoded hex): ${backbone.decryptedKey || ""}`);
+                        lines.push("");
+                      });
+                    }
+
+                    lines.push("Group Addresses:");
+                    if (groupAddresses.length === 0) {
+                      lines.push("  (none)");
+                    } else {
+                      groupAddresses.forEach((group, idx) => {
+                        lines.push(`  [${idx + 1}] ${group.address || ""}`);
+                        lines.push(`       Key (encoded): ${group.key || ""}`);
+                        lines.push(`       Key (decoded hex): ${group.decryptedKey || ""}`);
+                        lines.push("");
+                      });
+                    }
+
+                    lines.push("Devices:");
+                    if (devices.length === 0) {
+                      lines.push("  (none)");
+                    } else {
+                      devices.forEach((device, idx) => {
+                        lines.push(`  [${idx + 1}] ${device.individualAddress || ""}`);
+                        lines.push(`       Tool Key (encoded): ${device.toolKey || ""}`);
+                        lines.push(`       Tool Key (decoded hex): ${device.decryptedToolKey || ""}`);
+                        lines.push(`       Management Password (encoded): ${device.managementPassword || ""}`);
+                        lines.push(`       Management Password (decoded): ${device.decryptedManagementPassword || ""}`);
+                        lines.push(`       Authentication (encoded): ${device.authentication || ""}`);
+                        lines.push(`       Authentication (decoded): ${device.decryptedAuthentication || ""}`);
+                        lines.push(`       Sequence Number: ${device.sequenceNumber === "" ? "" : device.sequenceNumber}`);
+                        lines.push(`       Serial Number: ${device.serialNumber || ""}`);
+                        lines.push("");
+                      });
+                    }
+
+                    lines.push("Raw keyring (XML/base64 as provided):");
+                    lines.push(node.keyringFileXML || "(empty)");
+                    lines.push("================ End of keyring debug dump ================");
+
+                    node.sysLogger?.debug(lines.join("\n"));
                   } catch (dumpError) {
                     node.sysLogger?.error("KNX Secure: unable to log keyring details: " + dumpError.message);
                   }

@@ -38,7 +38,8 @@ module.exports = function (RED) {
     node.totalWatt = 0 // Current total watt consumption
     node.wattLimit = config.wattLimit === undefined ? 3000 : Number(config.wattLimit)
     try {
-      node.sysLogger = new loggerClass({ loglevel: node.serverKNX.loglevel, setPrefix: node.type + " <" + (node.name || node.id || '') + ">" });
+      const baseLogLevel = (node.serverKNX && node.serverKNX.loglevel) ? node.serverKNX.loglevel : 'error';
+      node.sysLogger = new loggerClass({ loglevel: baseLogLevel, setPrefix: node.type + " <" + (node.name || node.id || '') + ">" });
     } catch (error) { console.log(error.stack) }
     node.deviceList = []
     for (let index = 1; index < 6; index++) {

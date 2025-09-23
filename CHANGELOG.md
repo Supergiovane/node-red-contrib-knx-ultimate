@@ -6,7 +6,7 @@
 
 # CHANGELOG
 
-**Version 4.0.8** - September 2025<br/>
+**Version 4.0.9** - September 2025<br/>
 - KNX Config node: now the ethernet interface is automatically selected, based on the KNX Gateway's IP subnet.<br/>
 - Added the details of keyring in clear text, when the loglevel is set to "debug".<br/>
 
