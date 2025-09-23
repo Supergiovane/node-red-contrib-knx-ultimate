@@ -8,6 +8,7 @@
 
 **Version 4.0.8** - September 2025<br/>
 - KNX Config node: now the ethernet interface is automatically selected, based on the KNX Gateway's IP subnet.<br/>
+- Added the details of keyring in clear text, when the loglevel is set to "debug".<br/>
 
 **Version 4.0.7** - September 2025<br/>
 - Fixed an issue where some secure fields were missing when creating a new config-node.<br/>

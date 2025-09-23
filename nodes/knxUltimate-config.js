@@ -343,6 +343,71 @@ module.exports = (RED) => {
               try {
                 const kr = new Keyring();
                 await kr.load(node.keyringFileXML, node.credentials.keyringFilePassword);
+                if (node.loglevel === "debug") {
+                  try {
+                    const toIAString = (value) => {
+                      if (!value) return "";
+                      return typeof value.toString === "function" ? value.toString() : String(value);
+                    };
+                    const toBufferString = (value) => {
+                      if (!value) return "";
+                      if (Buffer.isBuffer(value)) return value.toString("hex");
+                      return String(value);
+                    };
+                    const interfaceMap = kr.getInterfaces?.();
+                    const interfaces = Array.from(interfaceMap ? interfaceMap.values() : []).map((iface) => ({
+                      type: iface.type || "",
+                      individualAddress: toIAString(iface.individualAddress),
+                      host: toIAString(iface.host),
+                      userId: typeof iface.userId === "number" ? iface.userId : "",
+                      password: iface.password || "",
+                      decryptedPassword: iface.decryptedPassword || "",
+                      authentication: iface.authentication || "",
+                      decryptedAuthentication: iface.decryptedAuthentication || "",
+                      groupAddresses: Array.from(iface.groupAddresses ? iface.groupAddresses.entries() : []).map(([ga, senders]) => ({
+                        address: ga,
+                        senders: Array.isArray(senders) ? senders.map(toIAString) : [],
+                      })),
+                    }));
+                    const backbones = (kr.getBackbones?.() || []).map((backbone) => ({
+                      multicastAddress: backbone.multicastAddress || "",
+                      latency: typeof backbone.latency === "number" ? backbone.latency : "",
+                      key: backbone.key || "",
+                      decryptedKey: toBufferString(backbone.decryptedKey),
+                    }));
+                    const groupAddressMap = kr.getGroupAddresses?.();
+                    const groupAddresses = Array.from(groupAddressMap ? groupAddressMap.values() : []).map((group) => ({
+                      address: toIAString(group.address),
+                      key: group.key || "",
+                      decryptedKey: toBufferString(group.decryptedKey),
+                    }));
+                    const deviceMap = kr.getDevices?.();
+                    const devices = Array.from(deviceMap ? deviceMap.values() : []).map((device) => ({
+                      individualAddress: toIAString(device.individualAddress),
+                      toolKey: device.toolKey || "",
+                      decryptedToolKey: toBufferString(device.decryptedToolKey),
+                      managementPassword: device.managementPassword || "",
+                      decryptedManagementPassword: device.decryptedManagementPassword || "",
+                      authentication: device.authentication || "",
+                      decryptedAuthentication: device.decryptedAuthentication || "",
+                      sequenceNumber: typeof device.sequenceNumber === "number" ? device.sequenceNumber : "",
+                      serialNumber: device.serialNumber || "",
+                    }));
+                    const keyringDump = {
+                      rawXML: node.keyringFileXML,
+                      password: node.credentials?.keyringFilePassword || "",
+                      createdBy: kr.getCreatedBy?.() || "",
+                      created: kr.getCreated?.() || "",
+                      interfaces,
+                      backbones,
+                      groupAddresses,
+                      devices,
+                    };
+                    node.sysLogger?.debug("KNX Secure keyring debug dump:", JSON.stringify(keyringDump, null, 2));
+                  } catch (dumpError) {
+                    node.sysLogger?.error("KNX Secure: unable to log keyring details: " + dumpError.message);
+                  }
+                }
                 const createdBy = kr.getCreatedBy?.() || "unknown";
                 const created = kr.getCreated?.() || "unknown";
                 RED.log.info(`KNX-Secure: Keyring validated (Created by ${createdBy} on ${created}) using node ${node.name || node.id}`);
