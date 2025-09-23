@@ -140,6 +140,43 @@
                 return first >= 224 && first <= 239;
             }
 
+            const NETMASK_BIT_LOOKUP = (() => {
+                const lookup = new Array(256);
+                for (let i = 0; i < 256; i++) {
+                    let bits = 0;
+                    let value = i;
+                    while (value > 0) {
+                        bits += value & 1;
+                        value >>= 1;
+                    }
+                    lookup[i] = bits;
+                }
+                return lookup;
+            })();
+
+            function countNetmaskBits(maskOctets) {
+                if (!Array.isArray(maskOctets) || maskOctets.length !== 4) return 0;
+                let total = 0;
+                for (let i = 0; i < 4; i++) {
+                    const oct = maskOctets[i];
+                    if (!Number.isInteger(oct) || oct < 0 || oct > 255) return 0;
+                    total += NETMASK_BIT_LOOKUP[oct];
+                }
+                return total;
+            }
+
+            function computeIPv4NetworkKey(ipOctets, maskOctets) {
+                if (!Array.isArray(ipOctets) || ipOctets.length !== 4 || !Array.isArray(maskOctets) || maskOctets.length !== 4) return null;
+                const parts = [];
+                for (let i = 0; i < 4; i++) {
+                    const ipVal = ipOctets[i];
+                    const maskVal = maskOctets[i];
+                    if (!Number.isInteger(ipVal) || ipVal < 0 || ipVal > 255 || !Number.isInteger(maskVal) || maskVal < 0 || maskVal > 255) return null;
+                    parts.push(ipVal & maskVal);
+                }
+                return parts.join('.');
+            }
+
             function normalizeTunnelIAValue(value) {
                 if (typeof value !== 'string') return '';
                 const trimmed = value.trim();
@@ -499,6 +536,7 @@
                     } catch (e) { }
                     const phys = `${prefix}.${rnd}`;
                     $("#node-config-input-physAddr").val(phys);
+                    autoSelectEthernetInterfaceForHost({ force: true });
                     blinkBackgroundArray(["#node-config-input-host", "#node-config-input-port", "#node-config-input-name", "#node-config-input-physAddr"]);
                     return false;
                 },
@@ -552,40 +590,120 @@
                 });
             } catch (e) { }
 
+            const $knxEthInterfaceSelect = $("#node-config-input-KNXEthInterface");
+            const $knxEthInterfaceManualRow = $("#divKNXEthInterfaceManuallyInput");
+            const $knxEthInterfaceManualInput = $("#node-config-input-KNXEthInterfaceManuallyInput");
+            let ethernetInterfaces = [];
+            let suppressInterfaceSelectionChange = false;
+            let userLockedInterfaceSelection = false;
 
-            $("#node-config-input-KNXEthInterface").append($("<option></option>")
-                .attr("value", "Auto")
-                .text(node._('knxUltimate-config.properties.iface_auto'))
-            );
-            $("#node-config-input-KNXEthInterface").append($("<option></option>")
-                .attr("value", "Manual")
-                .text(node._('knxUltimate-config.properties.iface_manual'))
-            );
+            function updateEthernetManualVisibility(value) {
+                if (value === 'Manual') {
+                    $knxEthInterfaceManualRow.show();
+                } else {
+                    $knxEthInterfaceManualRow.hide();
+                }
+            }
+
+            function setEthernetInterfaceSelection(value, triggerChange) {
+                const finalValue = value || 'Auto';
+                if ($knxEthInterfaceSelect.val() === finalValue) {
+                    if (triggerChange) {
+                        suppressInterfaceSelectionChange = true;
+                        $knxEthInterfaceSelect.trigger('change');
+                        suppressInterfaceSelectionChange = false;
+                    }
+                    return;
+                }
+                suppressInterfaceSelectionChange = true;
+                $knxEthInterfaceSelect.val(finalValue);
+                if (triggerChange) {
+                    $knxEthInterfaceSelect.trigger('change');
+                }
+                suppressInterfaceSelectionChange = false;
+            }
+
+            function findEthernetInterfaceMatch(ipOctets) {
+                if (!Array.isArray(ipOctets) || ethernetInterfaces.length === 0) return null;
+                let bestMatch = null;
+                let bestMaskBits = -1;
+                ethernetInterfaces.forEach((iface) => {
+                    const entries = Array.isArray(iface.addresses) ? iface.addresses : [];
+                    entries.forEach((entry) => {
+                        if (!entry || entry.family !== 'IPv4') return;
+                        const ifaceOctets = parseIPv4Address(entry.address);
+                        const maskOctets = parseIPv4Address(entry.netmask || '');
+                        if (!ifaceOctets || !maskOctets) return;
+                        const ifaceNetwork = computeIPv4NetworkKey(ifaceOctets, maskOctets);
+                        const hostNetwork = computeIPv4NetworkKey(ipOctets, maskOctets);
+                        if (!ifaceNetwork || !hostNetwork || ifaceNetwork !== hostNetwork) return;
+                        const maskBits = countNetmaskBits(maskOctets);
+                        if (maskBits > bestMaskBits) {
+                            bestMaskBits = maskBits;
+                            bestMatch = iface;
+                        }
+                    });
+                });
+                return bestMatch;
+            }
+
+            function autoSelectEthernetInterfaceForHost(options = {}) {
+                const { force } = options;
+                if (!force && userLockedInterfaceSelection) return;
+                const hostValue = String($("#node-config-input-host").val() || '').trim();
+                const hostOctets = parseIPv4Address(hostValue);
+                if (!hostOctets || isMulticastIPv4(hostOctets)) return;
+                const match = findEthernetInterfaceMatch(hostOctets);
+                if (!match || !match.name) return;
+                if ($knxEthInterfaceSelect.val() === match.name) return;
+                setEthernetInterfaceSelection(match.name, true);
+            }
+
+            $knxEthInterfaceSelect.empty()
+                .append($("<option></option>")
+                    .attr("value", "Auto")
+                    .text(node._('knxUltimate-config.properties.iface_auto')))
+                .append($("<option></option>")
+                    .attr("value", "Manual")
+                    .text(node._('knxUltimate-config.properties.iface_manual')));
+
+            $knxEthInterfaceManualInput.val(typeof node.KNXEthInterfaceManuallyInput === "undefined" ? "" : node.KNXEthInterfaceManuallyInput);
+
+            $knxEthInterfaceSelect.on('change', function () {
+                const value = $knxEthInterfaceSelect.val();
+                updateEthernetManualVisibility(value);
+                if (!suppressInterfaceSelectionChange) {
+                    userLockedInterfaceSelection = !!value && value !== 'Auto';
+                }
+            });
 
             $.getJSON('knxUltimateETHInterfaces', (data) => {
-                data.sort().forEach(iFace => {
-                    $("#node-config-input-KNXEthInterface").append($("<option></option>")
+                ethernetInterfaces = Array.isArray(data) ? data.slice() : [];
+                ethernetInterfaces.sort((a, b) => {
+                    const nameA = (a && a.name) ? String(a.name) : '';
+                    const nameB = (b && b.name) ? String(b.name) : '';
+                    return nameA.localeCompare(nameB);
+                });
+                $knxEthInterfaceSelect.find('option').filter(function () {
+                    const val = $(this).val();
+                    return val !== 'Auto' && val !== 'Manual';
+                }).remove();
+                ethernetInterfaces.forEach((iFace) => {
+                    if (!iFace || !iFace.name) return;
+                    const labelAddress = (typeof iFace.address === 'string' && iFace.address.length > 0) ? iFace.address : '';
+                    const displayText = labelAddress ? `${iFace.name} (${labelAddress})` : iFace.name;
+                    const $opt = $("<option></option>")
                         .attr("value", iFace.name)
-                        .text(iFace.name + " (" + iFace.address + ")")
-                    )
+                        .text(displayText);
+                    $opt.data('iface', iFace);
+                    $knxEthInterfaceSelect.append($opt);
                 });
-                $("#node-config-input-KNXEthInterface").val(typeof node.KNXEthInterface === "undefined" ? "Auto" : node.KNXEthInterface)
-                if (node.KNXEthInterface === "Manual") {
-                    // Show input
-                    $("#divKNXEthInterfaceManuallyInput").show();
-                } else {
-                    $("#divKNXEthInterfaceManuallyInput").hide()
+                const initialValue = (typeof node.KNXEthInterface === "undefined") ? "Auto" : node.KNXEthInterface;
+                userLockedInterfaceSelection = initialValue !== 'Auto';
+                setEthernetInterfaceSelection(initialValue, true);
+                if (!userLockedInterfaceSelection) {
+                    autoSelectEthernetInterfaceForHost({ force: true });
                 }
-
-                $("#node-config-input-KNXEthInterface").on('change', function () {
-                    if ($("#node-config-input-KNXEthInterface").val() === "Manual") {
-                        // Show input
-                        $("#divKNXEthInterfaceManuallyInput").show();
-                    } else {
-                        // Hide input
-                        $("#divKNXEthInterfaceManuallyInput").hide()
-                    }
-                });
             });
 
             // Abilita manualmente la lista dei protocolli quando l'utente modifica l'IP a mano
@@ -633,6 +751,7 @@
                             if (octets && !isMulticastIPv4(octets)) enforceProtocolFromIP();
                         }
                     } catch (e) { }
+                    autoSelectEthernetInterfaceForHost();
                 });
             } catch (e) { }
 

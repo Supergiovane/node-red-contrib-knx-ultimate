@@ -299,21 +299,21 @@ module.exports = (RED) => {
             try {
                 const oiFaces = oOS.networkInterfaces();
                 Object.keys(oiFaces).forEach((ifname) => {
-                    // Interface with single IP
-                    if (Object.keys(oiFaces[ifname]).length === 1) {
-                        if (Object.keys(oiFaces[ifname])[0].internal === false) {
-                            jListInterfaces.push({
-                                name: ifname,
-                                address: Object.keys(oiFaces[ifname])[0].address,
-                            });
-                        }
-                    } else {
-                        let sAddresses = "";
-                        oiFaces[ifname].forEach((iface) => {
-                            if (iface.internal === false) sAddresses += `+${iface.address}`;
-                        });
-                        if (sAddresses !== "") jListInterfaces.push({ name: ifname, address: sAddresses });
-                    }
+                    const ifaceEntries = Array.isArray(oiFaces[ifname]) ? oiFaces[ifname] : [];
+                    const externalEntries = ifaceEntries.filter((iface) => iface && iface.internal === false);
+                    if (externalEntries.length === 0) return;
+                    const addresses = externalEntries.map((iface) => ({
+                        address: iface.address,
+                        family: iface.family,
+                        netmask: iface.netmask,
+                        cidr: iface.cidr || null,
+                    }));
+                    const displayAddress = addresses.map((entry) => entry.address).join(", ");
+                    jListInterfaces.push({
+                        name: ifname,
+                        address: displayAddress,
+                        addresses,
+                    });
                 });
             } catch (error) { }
             res.json(jListInterfaces);

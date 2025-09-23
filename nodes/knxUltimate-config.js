@@ -6,6 +6,7 @@
 const fs = require("fs");
 const path = require("path");
 const net = require("net");
+const os = require("os");
 const _ = require("lodash");
 const knx = require("knxultimate");
 // 2025-09: Use KNXUltimate built-in keyring for KNX Secure validation
@@ -60,6 +61,128 @@ const toConcattedSubtypes = (acc, baseType) => {
   return acc.concat(subtypes);
 };
 // ####################
+
+const BIT_COUNT_TABLE = Array.from({ length: 256 }, (_, value) => {
+  let count = 0;
+  let temp = value;
+  while (temp) {
+    temp &= temp - 1;
+    count++;
+  }
+  return count;
+});
+
+const parseIPv4Address = (str) => {
+  if (typeof str !== "string") return null;
+  const parts = str.trim().split('.');
+  if (parts.length !== 4) return null;
+  const octets = [];
+  for (let i = 0; i < parts.length; i++) {
+    const part = parts[i];
+    if (!/^\d+$/.test(part)) return null;
+    const value = Number(part);
+    if (!Number.isInteger(value) || value < 0 || value > 255) return null;
+    octets.push(value);
+  }
+  return octets;
+};
+
+const countNetmaskBits = (maskOctets) => {
+  if (!Array.isArray(maskOctets) || maskOctets.length !== 4) return 0;
+  let total = 0;
+  for (let i = 0; i < 4; i++) {
+    const oct = maskOctets[i];
+    if (!Number.isInteger(oct) || oct < 0 || oct > 255) return 0;
+    total += BIT_COUNT_TABLE[oct];
+  }
+  return total;
+};
+
+const computeIPv4NetworkKey = (ipOctets, maskOctets) => {
+  if (!Array.isArray(ipOctets) || ipOctets.length !== 4 || !Array.isArray(maskOctets) || maskOctets.length !== 4) return null;
+  const result = [];
+  for (let i = 0; i < 4; i++) {
+    const ipVal = ipOctets[i];
+    const maskVal = maskOctets[i];
+    if (!Number.isInteger(ipVal) || ipVal < 0 || ipVal > 255 || !Number.isInteger(maskVal) || maskVal < 0 || maskVal > 255) return null;
+    result.push(ipVal & maskVal);
+  }
+  return result.join('.');
+};
+
+const buildNetmaskOctetsFromPrefix = (prefix) => {
+  if (!Number.isInteger(prefix) || prefix < 0 || prefix > 32) return null;
+  const octets = [0, 0, 0, 0];
+  let remaining = prefix;
+  for (let i = 0; i < 4; i++) {
+    const bits = Math.max(0, Math.min(remaining, 8));
+    octets[i] = bits === 0 ? 0 : ((0xff << (8 - bits)) & 0xff);
+    remaining -= bits;
+  }
+  return octets;
+};
+
+const deriveNetmaskOctets = (iface) => {
+  if (!iface) return null;
+  const netmask = typeof iface.netmask === "string" && iface.netmask.trim() !== "" ? iface.netmask : null;
+  if (netmask) {
+    const octets = parseIPv4Address(netmask);
+    if (octets) return octets;
+  }
+  if (typeof iface.cidr === "string" && iface.cidr.includes('/')) {
+    const parts = iface.cidr.split('/');
+    if (parts.length === 2) {
+      const prefix = Number(parts[1]);
+      const octets = buildNetmaskOctetsFromPrefix(prefix);
+      if (octets) return octets;
+    }
+  }
+  return null;
+};
+
+const isMulticastIPv4 = (octets) => {
+  if (!Array.isArray(octets) || octets.length !== 4) return false;
+  const first = octets[0];
+  return first >= 224 && first <= 239;
+};
+
+const findAutoEthernetInterface = (targetIP) => {
+  const targetOctets = parseIPv4Address(targetIP);
+  if (!targetOctets || isMulticastIPv4(targetOctets)) return null;
+  const interfaces = os.networkInterfaces();
+  if (!interfaces || typeof interfaces !== "object") return null;
+
+  let bestMatch = null;
+  let bestMaskBits = -1;
+
+  Object.keys(interfaces).forEach((ifname) => {
+    const entries = Array.isArray(interfaces[ifname]) ? interfaces[ifname] : [];
+    entries.forEach((entry) => {
+      if (!entry || entry.internal) return;
+      const family = entry.family === 'IPv4' || entry.family === 4;
+      if (!family) return;
+      const ifaceOctets = parseIPv4Address(entry.address);
+      if (!ifaceOctets) return;
+      const maskOctets = deriveNetmaskOctets(entry);
+      if (!maskOctets) return;
+      const ifaceNetwork = computeIPv4NetworkKey(ifaceOctets, maskOctets);
+      const targetNetwork = computeIPv4NetworkKey(targetOctets, maskOctets);
+      if (!ifaceNetwork || !targetNetwork || ifaceNetwork !== targetNetwork) return;
+      const maskBits = countNetmaskBits(maskOctets);
+      if (maskBits > bestMaskBits) {
+        bestMaskBits = maskBits;
+        bestMatch = {
+          name: ifname,
+          address: entry.address,
+          netmask: maskOctets.join('.'),
+          maskBits,
+        };
+      }
+    });
+  });
+
+  return bestMatch;
+};
 
 
 module.exports = (RED) => {
@@ -647,11 +770,30 @@ module.exports = (RED) => {
         }
         node.knxConnectionProperties.interface = sIfaceName;
       } else {
-        // 08/10/2021 Delete the interface
+        // Remove any manual binding and try to auto-select based on subnet
         try {
           delete node.knxConnectionProperties.interface;
         } catch (error) { }
-        node.sysLogger?.info("Bind KNX Bus to interface (Auto). Node " + node.name);
+        const targetIP = node.knxConnectionProperties?.ipAddr || node.host;
+        const autoInterface = typeof targetIP === "string" ? findAutoEthernetInterface(targetIP) : null;
+        if (autoInterface && autoInterface.name) {
+          node.knxConnectionProperties.interface = autoInterface.name;
+          const maskInfo = autoInterface.netmask
+            ? autoInterface.netmask + (autoInterface.maskBits ? " (" + autoInterface.maskBits + ")" : "")
+            : (autoInterface.maskBits ? String(autoInterface.maskBits) : "mask unknown");
+          node.sysLogger?.info(
+            "Bind KNX Bus to interface (Auto) -> " +
+            autoInterface.name +
+            " (" + autoInterface.address + " " + maskInfo + ")" +
+            ". Node " + node.name,
+          );
+        } else {
+          node.sysLogger?.info(
+            "Bind KNX Bus to interface (Auto). Node " +
+            node.name +
+            (targetIP ? " - no matching local interface found for " + targetIP + "." : "."),
+          );
+        }
       }
     };
     // node.setKnxConnectionProperties(); 28/12/2021 Commented
