@@ -136,20 +136,15 @@
 
 
         var node = this;
-        if ($("#node-input-server").val() === "_ADD_") {
-          // Node-Red 4.0.x has a bug not selecting the default server node
+        const ensureConfigSelection = (selector) => {
+          if ($(selector).val() !== "_ADD_") return;
           try {
-            $("#node-input-server").prop("selectedIndex", 0);
+            $(selector).prop("selectedIndex", 0);
           } catch (error) {
+            // Ignore UI quirks for legacy Node-RED versions
           }
-        }
-        if ($("#node-input-serverHue").val() === "_ADD_") {
-          // Node-Red 4.0.x has a bug not selecting the default server node
-          try {
-            $("#node-input-serverHue").prop("selectedIndex", 0);
-          } catch (error) {
-          }
-        }
+        };
+        ["#node-input-server", "#node-input-serverHue"].forEach(ensureConfigSelection);
 
         function onEditPrepare() {
           // TIMER BLINK ####################################################
@@ -1501,4 +1496,3 @@
   </div>
 <br />
 </script>
-

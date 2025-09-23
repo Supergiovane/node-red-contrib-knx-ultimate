@@ -886,7 +886,7 @@
         margin-bottom: 6px;
     }
 
-    #knxUltimate-config-template .form-row > label {
+    #knxUltimate-config-template .form-row>label {
         flex: 0 0 230px;
         display: flex;
         align-items: center;
@@ -894,9 +894,9 @@
         margin: 0;
     }
 
-    #knxUltimate-config-template .form-row > label + input,
-    #knxUltimate-config-template .form-row > label + select,
-    #knxUltimate-config-template .form-row > label + textarea {
+    #knxUltimate-config-template .form-row>label+input,
+    #knxUltimate-config-template .form-row>label+select,
+    #knxUltimate-config-template .form-row>label+textarea {
         flex: 1 1 auto;
     }
 
@@ -920,6 +920,27 @@
     #knxUltimate-config-template #hintSecureMulticast,
     #knxUltimate-config-template .form-row .form-tips {
         margin-left: 230px;
+    }
+
+    #knxUltimate-config-template .form-row.form-row-no-label {
+        display: block;
+    }
+
+    #knxUltimate-config-template i.fa.fa-shield {
+        color: #0f5d16;
+    }
+
+    #node-config-input-keyringFileXML-editor .monaco-editor .minimap,
+    #node-config-input-csv-editor .monaco-editor .minimap {
+        display: none !important;
+    }
+
+    #node-config-input-keyringFileXML-editor .ace_gutter {
+        display: none !important;
+    }
+
+    #node-config-input-keyringFileXML-editor .ace_scroller {
+        left: 0 !important;
     }
 
     #knxUltimate-config-template .form-section-heading {
@@ -975,9 +996,9 @@
         <div id="SecureKNX" style="margin: 5px 5px 5px 5px;" >
             <p>
                 <div class="form-row">
-                    <i class="fa fa-youtube"></i>
+                    <i style="color:red" class="fa fa-youtube"></i>
                     <a href="https://youtu.be/OpR7ZQTlMRU" target="_blank">
-                        <span data-i18n="knxUltimate-config.ets.youtubeKeyring"></span>
+                    <span data-i18n="knxUltimate-config.ets.youtubeKeyring"></span>
                     </a>
                 </div>
                 <div class="form-row">
@@ -989,8 +1010,7 @@
                     </select>
                 </div>
                 <div id="secureKeyringFields">
-                <div class="form-row">
-                    <label for="node-config-input-keyringFileXML"><span data-i18n="knxUltimate-config.ets.keyring_file"></span></label>
+                <div class="form-row form-row-no-label">
                     <div id="node-config-input-keyringFileXML-editor" class="node-text-editor" style="height:200px; min-height:140px; width:100%"></div>
                     <input type="hidden" id="node-config-input-keyringFileXML" data-i18n="[placeholder]knxUltimate-config.ets.keyring" />
                 </div>
@@ -1134,9 +1154,6 @@
                 <div>
                     <div class="form-row">
                         <span data-i18n="knxUltimate-config.ets.description"></span>
-                    </div>
-                    <div class="form-row">
-                        <span style="color:red" data-i18n="[html]knxUltimate-config.ets.instruction"></span>
                     </div>
                     <div class="form-row">
                         <span style="color:red" data-i18n="[html]knxUltimate-config.ets.youtube"></span>

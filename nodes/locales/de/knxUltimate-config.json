@@ -72,7 +72,6 @@
         },
         "ets": {
             "description": "Sie können entweder eine ETS CSV-Gruppenadressliste oder eine ESF-Gruppenadressliste importieren. Bitte bevorzugen Sie die Adressliste der ETS CSV-Gruppe, da die Datenpunkte vollständiger sind.",
-            "instruction" : "&nbsp<i class=\"fa fa-question-circle\"></i>&nbsp<a target=\"_blank\" href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/de-1.-Gateway-configuration\"><u>Erlauterung ETS import.</u></a>",
             "youtube" : "&nbsp<i class=\"fa fa-youtube-play\"></i>&nbsp<a target=\"_blank\" href=\"https://youtu.be/egRbR_KwP9I\"><u>Anleitung des ETS CSV Exports auf Youtube.</u></a>",
             "help_ga": "Wenn die Gruppenadresse keinen Datenpunkt hat...",
             "import_select_stop": "Beenden und abbruch des Imports",
