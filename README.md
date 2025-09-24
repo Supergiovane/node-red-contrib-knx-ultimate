@@ -14,8 +14,10 @@
 
 
 <p align='center'>
-<img width="110px" src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/KNX_CERTI_MARK_RGB.jpg" ></br>
-<span style="font-size:0.7em;color:grey;">Authorized KNX logo by KNX Association*</span></br></br>
+<img width="110px" src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/KNX_CERTI_MARK_RGB.jpg" >
+</p>
+<p align='center'>
+<span style="font-size:0.7em;color:grey;">Authorized KNX logo by KNX Association*</span>
 <img width="110px" src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/knxsecure.png" ></br>
 </p>
 
