@@ -17,11 +17,9 @@
 <img width="110px" src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/KNX_CERTI_MARK_RGB.jpg" ></br>
 <span style="font-size:0.7em;color:grey;">Authorized KNX logo by KNX Association*</span>
 </p>
-
 <p align='center'>
 <img width="110px" src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/knxsecure.png" ></br>
 </p>
-
 </br>  
 
 
@@ -31,8 +29,6 @@
 for providing me with KNX Secure stuffs to test with.</center>
 </p>
 
-
-</br>
 </br>
 </br>
 
