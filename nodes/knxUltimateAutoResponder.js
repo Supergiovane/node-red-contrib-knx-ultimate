@@ -51,7 +51,22 @@ module.exports = function (RED) {
     node.exposedGAs = [];
     node.commandText = []; // Raw list Respond To
     node.timerSaveExposedGAs = null;
-    if (node.serverKNX === null) { node.status({ fill: 'red', shape: 'dot', text: '[NO GATEWAY SELECTED]' }); return; }
+
+    const shouldDisplayStatus = (color) => {
+      const provider = node.serverKNX;
+      if (provider && typeof provider.shouldDisplayStatus === 'function') {
+        return provider.shouldDisplayStatus(color);
+      }
+      return true;
+    };
+
+    const updateStatus = (status) => {
+      if (!status) return;
+      if (shouldDisplayStatus(status.fill)) {
+        node.status(status);
+      }
+    };
+    if (node.serverKNX === null) { updateStatus({ fill: 'red', shape: 'dot', text: '[NO GATEWAY SELECTED]' }); return; }
 
     try {
       const baseLogLevel = (node.serverKNX && node.serverKNX.loglevel) ? node.serverKNX.loglevel : 'error';
@@ -109,7 +124,7 @@ module.exports = function (RED) {
 
     // Add the ETS CSV file list to exposedGAs
     if (node.serverKNX.csv === undefined || node.serverKNX.csv === '' || node.serverKNX.csv.length === 0) {
-      node.status({ fill: 'grey', shape: 'ring', text: 'No ETS file imported', payload: '', dpt: '', devicename: '' });
+      updateStatus({ fill: 'grey', shape: 'ring', text: 'No ETS file imported', payload: '', dpt: '', devicename: '' });
       //return;
     } else {
       node.serverKNX.csv.forEach(element => {
@@ -120,14 +135,14 @@ module.exports = function (RED) {
           curGa.enabled = false;
         }
       })
-      node.status({ fill: 'green', shape: 'ring', text: 'ETS file loaded', payload: '', dpt: '', devicename: '' });
+      updateStatus({ fill: 'green', shape: 'ring', text: 'ETS file loaded', payload: '', dpt: '', devicename: '' });
     }
 
     // Fill the filter list
     try {
       node.commandText = JSON.parse(config.commandText);
     } catch (error) {
-      node.status({ fill: 'red', shape: 'dot', text: 'JSON error: ' + error.message, payload: '', dpt: '', devicename: '' });
+      updateStatus({ fill: 'red', shape: 'dot', text: 'JSON error: ' + error.message, payload: '', dpt: '', devicename: '' });
       if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(`knxUltimateAutoResponder: node.commandText = JSON.parse(config.commandText) ${error.stack}`);
       return;
     }
@@ -164,10 +179,10 @@ module.exports = function (RED) {
         // Delete all not wanted GAs, that aren't in the node.commandText directive list.
         node.exposedGAs = node.exposedGAs.filter(a => (a.enabled !== undefined && a.enabled === true));
 
-        node.status({ fill: 'green', shape: 'ring', text: 'JSON parsed: ' + node.commandText.length + " directive(s).", payload: '', dpt: '', devicename: '' });
+        updateStatus({ fill: 'green', shape: 'ring', text: 'JSON parsed: ' + node.commandText.length + " directive(s).", payload: '', dpt: '', devicename: '' });
       } else {
         // Error
-        node.status({ fill: 'red', shape: 'dot', text: 'JSON error: ga or default keys not set. Abort.', payload: '', dpt: '', devicename: '' });
+        updateStatus({ fill: 'red', shape: 'dot', text: 'JSON error: ga or default keys not set. Abort.', payload: '', dpt: '', devicename: '' });
         if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(`knxUltimateAutoResponder: node.commandText.forEach(element.. JSON error: ga or default keys not set. Abort.`);
         return;
       }
@@ -191,7 +206,7 @@ module.exports = function (RED) {
             // Take only RAW data and decode it with the dpt specified by the commandText directive
             decodedPayload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(oGa.dpt));
           } catch (error) {
-            node.status({ fill: 'red', shape: 'dot', text: 'const decodedPayload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(oGa.dpt)); ' + error.message, payload: '', dpt: '', devicename: '' });
+            updateStatus({ fill: 'red', shape: 'dot', text: 'const decodedPayload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(oGa.dpt)); ' + error.message, payload: '', dpt: '', devicename: '' });
             if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(`knxUltimateAutoResponder: const decodedPayload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(oGa.dpt)); ${error.stack}`);
           }
           oGa.payload = decodedPayload
@@ -211,9 +226,9 @@ module.exports = function (RED) {
             const dDate = new Date()
             if (oFoundGA.address !== undefined && oFoundGA.dpt !== undefined && retVal !== undefined) {
               node.serverKNX.sendKNXTelegramToKNXEngine({ grpaddr: oFoundGA.address, payload: retVal, dpt: oFoundGA.dpt, outputtype: 'response', nodecallerid: node.id });
-              node.status({ fill: 'blue', shape: 'dot', text: 'Respond ' + oFoundGA.address + ' => ' + retVal + ' (' + dDate.getDate() + ', ' + dDate.toLocaleTimeString() + ')' })
+              updateStatus({ fill: 'blue', shape: 'dot', text: 'Respond ' + oFoundGA.address + ' => ' + retVal + ' (' + dDate.getDate() + ', ' + dDate.toLocaleTimeString() + ')' })
             } else {
-              node.status({ fill: 'yellow', shape: 'ring', text: 'Issue responding ' + oFoundGA.address + ' => ' + retVal + ' (' + dDate.getDate() + ', ' + dDate.toLocaleTimeString() + ')' })
+              updateStatus({ fill: 'yellow', shape: 'ring', text: 'Issue responding ' + oFoundGA.address + ' => ' + retVal + ' (' + dDate.getDate() + ', ' + dDate.toLocaleTimeString() + ')' })
             }
           }
         } catch (error) {

@@ -26,7 +26,22 @@ module.exports = function (RED) {
     node.brightnessState = 0;
     node.isTimerDimStopRunning = false;
     node.hueDevice = config.hueDevice;
-    node.initializingAtStart = false;
+   node.initializingAtStart = false;
+
+    const shouldDisplayStatus = (color) => {
+      const provider = node.serverKNX;
+      if (provider && typeof provider.shouldDisplayStatus === 'function') {
+        return provider.shouldDisplayStatus(color);
+      }
+      return true;
+    };
+
+    const updateStatus = (status) => {
+      if (!status) return;
+      if (shouldDisplayStatus(status.fill)) {
+        node.status(status);
+      }
+    };
 
     // Used to call the status update from the config node.
     node.setNodeStatus = ({
@@ -37,7 +52,9 @@ module.exports = function (RED) {
         const dDate = new Date();
         payload = typeof payload === "object" ? JSON.stringify(payload) : payload.toString();
         node.sKNXNodeStatusText = `|KNX: ${text} ${payload} (${dDate.getDate()}, ${dDate.toLocaleTimeString()})`;
-        node.status({ fill, shape, text: (node.sHUENodeStatusText || '') + ' ' + (node.sKNXNodeStatusText || '') });
+        if (shouldDisplayStatus(fill)) {
+          node.status({ fill, shape, text: (node.sHUENodeStatusText || '') + ' ' + (node.sKNXNodeStatusText || '') });
+        }
       } catch (error) { }
     };
     // Used to call the status update from the HUE config node.
@@ -47,7 +64,9 @@ module.exports = function (RED) {
         const dDate = new Date();
         payload = typeof payload === "object" ? JSON.stringify(payload) : payload.toString();
         node.sHUENodeStatusText = `|HUE: ${text} ${payload} (${dDate.getDate()}, ${dDate.toLocaleTimeString()})`;
-        node.status({ fill, shape, text: node.sHUENodeStatusText + ' ' + (node.sKNXNodeStatusText || '') });
+        if (shouldDisplayStatus(fill)) {
+          node.status({ fill, shape, text: node.sHUENodeStatusText + ' ' + (node.sKNXNodeStatusText || '') });
+        }
       } catch (error) { }
     };
 
@@ -82,7 +101,7 @@ module.exports = function (RED) {
                     grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id,
                   });
                 }
-                if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.status({ fill: 'green', shape: 'dot', text: 'HUE->KNX start Dim' + ` (${new Date().getDate()}, ${new Date().toLocaleTimeString()})` });
+                if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) updateStatus({ fill: 'green', shape: 'dot', text: 'HUE->KNX start Dim' + ` (${new Date().getDate()}, ${new Date().toLocaleTimeString()})` });
               }
               node.startDimStopper(knxMsgPayload);
             } else if (knxMsgPayload.dpt.startsWith('5.001')) {
@@ -109,7 +128,7 @@ module.exports = function (RED) {
                     grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id,
                   });
                 }
-                if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.status({ fill: 'green', shape: 'dot', text: 'HUE->KNX Change color clockwise' + ` (${new Date().getDate()}, ${new Date().toLocaleTimeString()})` });
+                if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) updateStatus({ fill: 'green', shape: 'dot', text: 'HUE->KNX Change color clockwise' + ` (${new Date().getDate()}, ${new Date().toLocaleTimeString()})` });
               }
             }
           } else if (_event.relative_rotary.last_event.rotation.direction === 'counter_clock_wise') {
@@ -122,7 +141,7 @@ module.exports = function (RED) {
                     grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id,
                   });
                 }
-                if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.status({ fill: 'green', shape: 'dot', text: 'HUE->KNX start Dim' + ` (${new Date().getDate()}, ${new Date().toLocaleTimeString()})` });
+                if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) updateStatus({ fill: 'green', shape: 'dot', text: 'HUE->KNX start Dim' + ` (${new Date().getDate()}, ${new Date().toLocaleTimeString()})` });
               }
               node.startDimStopper(knxMsgPayload);
             } else if (knxMsgPayload.dpt.startsWith('5.001')) {
@@ -143,7 +162,7 @@ module.exports = function (RED) {
                     grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id,
                   });
                 }
-                if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.status({ fill: 'green', shape: 'dot', text: 'HUE->KNX Change color counterclockwise' + ` (${new Date().getDate()}, ${new Date().toLocaleTimeString()})` });
+                if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) updateStatus({ fill: 'green', shape: 'dot', text: 'HUE->KNX Change color counterclockwise' + ` (${new Date().getDate()}, ${new Date().toLocaleTimeString()})` });
               }
             }
           }
@@ -158,7 +177,7 @@ module.exports = function (RED) {
           });
         }
       } catch (error) {
-        node.status({ fill: 'red', shape: 'dot', text: `HUE->KNX error ${error.message} (${new Date().getDate()}, ${new Date().toLocaleTimeString()})` });
+        updateStatus({ fill: 'red', shape: 'dot', text: `HUE->KNX error ${error.message} (${new Date().getDate()}, ${new Date().toLocaleTimeString()})` });
       }
     };
 
@@ -175,7 +194,7 @@ module.exports = function (RED) {
             grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id,
           });
         }
-        if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.status({ fill: 'green', shape: 'dot', text: 'HUE->KNX Stop DIM' + ` (${new Date().getDate()}, ${new Date().toLocaleTimeString()})` });
+        if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) updateStatus({ fill: 'green', shape: 'dot', text: 'HUE->KNX Stop DIM' + ` (${new Date().getDate()}, ${new Date().toLocaleTimeString()})` });
         node.isTimerDimStopRunning = false;
       }, 500);
     };

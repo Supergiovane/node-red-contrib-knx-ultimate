@@ -33,6 +33,14 @@ module.exports = function (RED) {
     node.whentostart = config.whentostart === undefined ? 'ifnewalert' : config.whentostart;
     node.timerinterval = (config.timerinterval === undefined || config.timerinterval == '') ? '2' : config.timerinterval;
 
+    const shouldDisplayStatus = (color) => {
+      const provider = node.serverKNX;
+      if (provider && typeof provider.shouldDisplayStatus === 'function') {
+        return provider.shouldDisplayStatus(color);
+      }
+      return true;
+    };
+
     if (config.initialreadGAInRules === undefined) {
       node.initialread = 1;
     } else {
@@ -53,7 +61,9 @@ module.exports = function (RED) {
         devicename = devicename || '';
         dpt = (typeof dpt === 'undefined' || dpt == '') ? '' : ' DPT' + dpt;
         payload = typeof payload === 'object' ? JSON.stringify(payload) : payload;
-        node.status({ fill, shape, text: GA + payload + (node.listenallga === true ? ' ' + devicename : '') + ' (' + dDate.getDate() + ', ' + dDate.toLocaleTimeString() + ' ' + text });
+        if (shouldDisplayStatus(fill)) {
+          node.status({ fill, shape, text: GA + payload + (node.listenallga === true ? ' ' + devicename : '') + ' (' + dDate.getDate() + ', ' + dDate.toLocaleTimeString() + ' ' + text });
+        }
       } catch (error) {
       }
     };
@@ -66,7 +76,9 @@ module.exports = function (RED) {
       devicename = devicename || '';
       dpt = (typeof dpt === 'undefined' || dpt == '') ? '' : ' DPT' + dpt;
       try {
-        node.status({ fill, shape, text: GA + payload + (node.listenallga === true ? ' ' + devicename : '') + ' (' + dDate.getDate() + ', ' + dDate.toLocaleTimeString() + ' ' + text });
+        if (shouldDisplayStatus(fill)) {
+          node.status({ fill, shape, text: GA + payload + (node.listenallga === true ? ' ' + devicename : '') + ' (' + dDate.getDate() + ', ' + dDate.toLocaleTimeString() + ' ' + text });
+        }
       } catch (error) {
       }
     };

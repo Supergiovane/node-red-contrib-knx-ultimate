@@ -7,7 +7,7 @@ module.exports = function (RED) {
     const node = this;
     node.serverKNX = RED.nodes.getNode(config.server) || undefined;
     if (node.serverKNX === undefined) {
-      node.status({ fill: 'red', shape: 'dot', text: '[THE GATEWAY NODE HAS BEEN DISABLED]' });
+      updateStatus({ fill: 'red', shape: 'dot', text: '[THE GATEWAY NODE HAS BEEN DISABLED]' });
       return;
     }
     node.topic = node.name;
@@ -32,15 +32,30 @@ module.exports = function (RED) {
     node.timerPIN3 = null;
     node.exposedGAs = [];
 
+    const shouldDisplayStatus = (color) => {
+      const provider = node.serverKNX;
+      if (provider && typeof provider.shouldDisplayStatus === 'function') {
+        return provider.shouldDisplayStatus(color);
+      }
+      return true;
+    };
+
+    const updateStatus = (status) => {
+      if (!status) return;
+      if (shouldDisplayStatus(status.fill)) {
+        node.status(status);
+      }
+    };
+
     // Used to call the status update from the config node.
     node.setNodeStatus = ({ fill, shape, text, payload, GA, dpt, devicename }) => {
       try {
-        if (node.serverKNX === null) { node.status({ fill: 'red', shape: 'dot', text: '[NO GATEWAY SELECTED]' }); return; }
+        if (node.serverKNX === null) { updateStatus({ fill: 'red', shape: 'dot', text: '[NO GATEWAY SELECTED]' }); return; }
         GA = GA === undefined ? '' : GA;
         payload = payload === undefined ? '' : payload;
         payload = typeof payload === 'object' ? JSON.stringify(payload) : payload;
         const dDate = new Date();
-        node.status({ fill, shape, text: GA + ' ' + payload + ' ' + text + ' (' + dDate.getDate() + ', ' + dDate.toLocaleTimeString() + ')' });
+        updateStatus({ fill, shape, text: GA + ' ' + payload + ' ' + text + ' (' + dDate.getDate() + ', ' + dDate.toLocaleTimeString() + ')' });
       } catch (error) { /* empty */ }
     };
 

@@ -26,17 +26,32 @@ module.exports = function (RED) {
     node.telegramCount = 0
     node.timerTelegramCount = null
 
+    const shouldDisplayStatus = (color) => {
+      const provider = node.serverKNX;
+      if (provider && typeof provider.shouldDisplayStatus === 'function') {
+        return provider.shouldDisplayStatus(color);
+      }
+      return true;
+    };
+
+    const updateStatus = (status) => {
+      if (!status) return;
+      if (shouldDisplayStatus(status.fill)) {
+        node.status(status);
+      }
+    };
+
     // Used to call the status update from the config node.
     node.setNodeStatus = ({ fill, shape, text, payload, GA, dpt, devicename }) => {
       try {
-        if (node.serverKNX === null) { node.status({ fill: 'red', shape: 'dot', text: '[NO GATEWAY SELECTED]' }); return }
+        if (node.serverKNX === null) { updateStatus({ fill: 'red', shape: 'dot', text: '[NO GATEWAY SELECTED]' }); return }
         const dDate = new Date()
         // 30/08/2019 Display only the things selected in the config
         GA = (typeof GA === 'undefined' || GA == '') ? '' : '(' + GA + ') '
         devicename = devicename || ''
         dpt = (typeof dpt === 'undefined' || dpt == '') ? '' : ' DPT' + dpt
         payload = typeof payload === 'object' ? JSON.stringify(payload) : payload
-        node.status({ fill, shape, text: GA + payload + (node.listenallga === true ? ' ' + devicename : '') + ' (' + dDate.getDate() + ', ' + dDate.toLocaleTimeString() + ' ' + text })
+        updateStatus({ fill, shape, text: GA + payload + (node.listenallga === true ? ' ' + devicename : '') + ' (' + dDate.getDate() + ', ' + dDate.toLocaleTimeString() + ' ' + text })
       } catch (error) {
       }
     }

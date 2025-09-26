@@ -24,7 +24,22 @@ module.exports = function (RED) {
     node.formatdecimalsvalue = 2;
     node.hueDevice = config.hueDevice;
     node.initializingAtStart = (config.readStatusAtStartup === undefined || config.readStatusAtStartup === "yes");
-    node.currentDeviceValue = 0;
+   node.currentDeviceValue = 0;
+
+    const shouldDisplayStatus = (color) => {
+      const provider = node.serverKNX;
+      if (provider && typeof provider.shouldDisplayStatus === 'function') {
+        return provider.shouldDisplayStatus(color);
+      }
+      return true;
+    };
+
+    const updateStatus = (status) => {
+      if (!status) return;
+      if (shouldDisplayStatus(status.fill)) {
+        node.status(status);
+      }
+    };
 
     // Used to call the status update from the config node.
     node.setNodeStatus = ({
@@ -35,7 +50,9 @@ module.exports = function (RED) {
         const dDate = new Date();
         payload = typeof payload === "object" ? JSON.stringify(payload) : payload.toString();
         node.sKNXNodeStatusText = `|KNX: ${text} ${payload} (${dDate.getDate()}, ${dDate.toLocaleTimeString()})`;
-        node.status({ fill, shape, text: (node.sHUENodeStatusText || '') + ' ' + (node.sKNXNodeStatusText || '') });
+        if (shouldDisplayStatus(fill)) {
+          node.status({ fill, shape, text: (node.sHUENodeStatusText || '') + ' ' + (node.sKNXNodeStatusText || '') });
+        }
       } catch (error) { }
     };
     // Used to call the status update from the HUE config node.
@@ -45,7 +62,9 @@ module.exports = function (RED) {
         const dDate = new Date();
         payload = typeof payload === "object" ? JSON.stringify(payload) : payload.toString();
         node.sHUENodeStatusText = `|HUE: ${text} ${payload} (${dDate.getDate()}, ${dDate.toLocaleTimeString()})`;
-        node.status({ fill, shape, text: node.sHUENodeStatusText + ' ' + (node.sKNXNodeStatusText || '') });
+        if (shouldDisplayStatus(fill)) {
+          node.status({ fill, shape, text: node.sHUENodeStatusText + ' ' + (node.sKNXNodeStatusText || '') });
+        }
       } catch (error) { }
     };
 
@@ -94,7 +113,7 @@ module.exports = function (RED) {
           });
         }
       } catch (error) {
-        node.status({ fill: 'red', shape: 'dot', text: `HUE->KNX error ${error.message} (${new Date().getDate()}, ${new Date().toLocaleTimeString()})` });
+        updateStatus({ fill: 'red', shape: 'dot', text: `HUE->KNX error ${error.message} (${new Date().getDate()}, ${new Date().toLocaleTimeString()})` });
       }
     };
 

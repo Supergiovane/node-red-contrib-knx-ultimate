@@ -108,6 +108,21 @@ module.exports = function (RED) {
     node.timerCheckForFastLightSwitch = null;
     node.HSVObject = null; //{ h, s, v };// Store the current light calculated HSV
 
+    const shouldDisplayStatus = (color) => {
+      const provider = node.serverKNX;
+      if (provider && typeof provider.shouldDisplayStatus === 'function') {
+        return provider.shouldDisplayStatus(color);
+      }
+      return true;
+    };
+
+    const updateStatus = (status) => {
+      if (!status) return;
+      if (shouldDisplayStatus(status.fill)) {
+        node.status(status);
+      }
+    };
+
     // Used to call the status update from the config node.
     node.setNodeStatus = ({
       fill, shape, text, payload,
@@ -118,7 +133,7 @@ module.exports = function (RED) {
         const dDate = new Date();
         payload = typeof payload === "object" ? JSON.stringify(payload) : payload.toString();
         node.sKNXNodeStatusText = `|KNX: ${text} ${payload} (${dDate.getDate()}, ${dDate.toLocaleTimeString()})`;
-        node.status({ fill, shape, text: (node.sHUENodeStatusText || '') + ' ' + (node.sKNXNodeStatusText || '') });
+        updateStatus({ fill, shape, text: (node.sHUENodeStatusText || '') + ' ' + (node.sKNXNodeStatusText || '') });
       } catch (error) { }
     };
     // Used to call the status update from the HUE config node.
@@ -129,7 +144,7 @@ module.exports = function (RED) {
         const dDate = new Date();
         payload = typeof payload === "object" ? JSON.stringify(payload) : payload.toString();
         node.sHUENodeStatusText = `|HUE: ${text} ${payload} (${dDate.getDate()}, ${dDate.toLocaleTimeString()})`;
-        node.status({ fill, shape, text: node.sHUENodeStatusText + ' ' + (node.sKNXNodeStatusText || '') });
+        updateStatus({ fill, shape, text: node.sHUENodeStatusText + ' ' + (node.sKNXNodeStatusText || '') });
       } catch (error) { }
     };
 
@@ -538,7 +553,7 @@ module.exports = function (RED) {
               break;
           }
         } catch (error) {
-          node.status({
+          updateStatus({
             fill: "red",
             shape: "dot",
             text: `KNX->HUE errorRead ${error.message} (${new Date().getDate()}, ${new Date().toLocaleTimeString()})`,
@@ -617,7 +632,7 @@ module.exports = function (RED) {
           }
         }
       } catch (error) {
-        node.status({
+        updateStatus({
           fill: "red",
           shape: "dot",
           text: `KNX->HUE error :-( ${error.message} (${new Date().getDate()}, ${new Date().toLocaleTimeString()})`,
@@ -1105,7 +1120,7 @@ module.exports = function (RED) {
           }
         }
       } catch (error) {
-        node.status({
+        updateStatus({
           fill: "red",
           shape: "dot",
           text: `HUE->KNX error ${node.id} ${error.message}. Seee Log`,

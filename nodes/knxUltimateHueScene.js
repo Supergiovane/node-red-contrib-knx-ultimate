@@ -39,6 +39,21 @@ module.exports = function (RED) {
     config.rules = config.rules === undefined ? [] : config.rules;
     config.selectedModeTabNumber = config.selectedModeTabNumber === undefined ? 0 : Number(config.selectedModeTabNumber); // Transform as number
 
+    const shouldDisplayStatus = (color) => {
+      const provider = node.serverKNX;
+      if (provider && typeof provider.shouldDisplayStatus === 'function') {
+        return provider.shouldDisplayStatus(color);
+      }
+      return true;
+    };
+
+    const updateStatus = (status) => {
+      if (!status) return;
+      if (shouldDisplayStatus(status.fill)) {
+        node.status(status);
+      }
+    };
+
     // Used to call the status update from the config node.
     node.setNodeStatus = ({
       fill, shape, text, payload,
@@ -48,7 +63,7 @@ module.exports = function (RED) {
         const dDate = new Date();
         payload = typeof payload === "object" ? JSON.stringify(payload) : payload.toString();
         node.sKNXNodeStatusText = `|KNX: ${text} ${payload} (${dDate.getDate()}, ${dDate.toLocaleTimeString()})`;
-        node.status({ fill, shape, text: (node.sHUENodeStatusText || '') + ' ' + (node.sKNXNodeStatusText || '') });
+        updateStatus({ fill, shape, text: (node.sHUENodeStatusText || '') + ' ' + (node.sKNXNodeStatusText || '') });
       } catch (error) { }
     };
     // Used to call the status update from the HUE config node.
@@ -58,7 +73,7 @@ module.exports = function (RED) {
         const dDate = new Date();
         payload = typeof payload === "object" ? JSON.stringify(payload) : payload.toString();
         node.sHUENodeStatusText = `|HUE: ${text} ${payload} (${dDate.getDate()}, ${dDate.toLocaleTimeString()})`;
-        node.status({ fill, shape, text: node.sHUENodeStatusText + ' ' + (node.sKNXNodeStatusText || '') });
+        updateStatus({ fill, shape, text: node.sHUENodeStatusText + ' ' + (node.sKNXNodeStatusText || '') });
       } catch (error) { }
     };
 
@@ -97,7 +112,7 @@ module.exports = function (RED) {
               break;
           }
         } catch (error) {
-          node.status({ fill: 'red', shape: 'dot', text: 'KNX->HUE single: ' + error.message + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' });
+          updateStatus({ fill: 'red', shape: 'dot', text: 'KNX->HUE single: ' + error.message + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' });
         }
       } else if (config.selectedModeTabNumber === 1) {
         // Multi
@@ -121,7 +136,7 @@ module.exports = function (RED) {
             }
           }
         } catch (error) {
-          node.status({ fill: 'red', shape: 'dot', text: 'KNX->HUE multi: ' + error.message + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' });
+          updateStatus({ fill: 'red', shape: 'dot', text: 'KNX->HUE multi: ' + error.message + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' });
         }
       }
     };
@@ -145,7 +160,7 @@ module.exports = function (RED) {
                 nodecallerid: node.id,
               });
             }
-            node.status({
+            updateStatus({
               fill: "blue",
               shape: "dot",
               text: `HUE->KNX ${JSON.stringify(knxMsgPayload.payload)} (${new Date().getDate()}, ${new Date().toLocaleTimeString()})`,
@@ -163,7 +178,7 @@ module.exports = function (RED) {
           });
         }
       } catch (error) {
-        node.status({ fill: 'red', shape: 'dot', text: 'HUE->KNX error ' + error.message + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' });
+        updateStatus({ fill: 'red', shape: 'dot', text: 'HUE->KNX error ' + error.message + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' });
       }
     };
 

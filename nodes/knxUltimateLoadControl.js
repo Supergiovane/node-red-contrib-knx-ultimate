@@ -9,7 +9,7 @@ module.exports = function (RED) {
     const node = this
     node.serverKNX = RED.nodes.getNode(config.server) || undefined
     if (node.serverKNX === undefined) {
-      node.status({ fill: 'red', shape: 'dot', text: '[THE GATEWAY NODE HAS BEEN DISABLED]' });
+      updateStatus({ fill: 'red', shape: 'dot', text: '[THE GATEWAY NODE HAS BEEN DISABLED]' });
       return;
     }
     node.name = config.name || 'KNX Load Control'
@@ -37,6 +37,21 @@ module.exports = function (RED) {
     node.mainTimer = null
     node.totalWatt = 0 // Current total watt consumption
     node.wattLimit = config.wattLimit === undefined ? 3000 : Number(config.wattLimit)
+
+    const shouldDisplayStatus = (color) => {
+      const provider = node.serverKNX;
+      if (provider && typeof provider.shouldDisplayStatus === 'function') {
+        return provider.shouldDisplayStatus(color);
+      }
+      return true;
+    };
+
+    const updateStatus = (status) => {
+      if (!status) return;
+      if (shouldDisplayStatus(status.fill)) {
+        node.status(status);
+      }
+    };
     try {
       const baseLogLevel = (node.serverKNX && node.serverKNX.loglevel) ? node.serverKNX.loglevel : 'error';
       node.sysLogger = new loggerClass({ loglevel: baseLogLevel, setPrefix: node.type + " <" + (node.name || node.id || '') + ">" });
@@ -68,7 +83,7 @@ module.exports = function (RED) {
         devicename = devicename || ''
         dpt = (typeof dpt === 'undefined' || dpt == '') ? '' : ' DPT' + dpt
         payload = typeof payload === 'object' ? JSON.stringify(payload) : payload
-        node.status({ fill, shape, text: GA + payload + (node.listenallga === true ? ' ' + devicename : '') + ' (' + dDate.getDate() + ', ' + dDate.toLocaleTimeString() + ' ' + text })
+        updateStatus({ fill, shape, text: GA + payload + (node.listenallga === true ? ' ' + devicename : '') + ' (' + dDate.getDate() + ', ' + dDate.toLocaleTimeString() + ' ' + text })
       } catch (error) {
 
       }
@@ -79,7 +94,7 @@ module.exports = function (RED) {
       if (text !== '') text += '.'
       const dDate = new Date()
       try {
-        node.status({ fill, shape, text: text + ' Shed:' + node.sheddingStage + ' Power:' + node.totalWatt + 'W' + ' Limit:' + node.wattLimit + 'W (' + dDate.getDate() + ', ' + dDate.toLocaleTimeString() + ')' })
+        updateStatus({ fill, shape, text: text + ' Shed:' + node.sheddingStage + ' Power:' + node.totalWatt + 'W' + ' Limit:' + node.wattLimit + 'W (' + dDate.getDate() + ', ' + dDate.toLocaleTimeString() + ')' })
       } catch (error) {
       }
     }

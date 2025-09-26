@@ -30,7 +30,13 @@ module.exports = function (RED) {
         devicename = devicename || '';
         dpt = (typeof dpt === 'undefined' || dpt == '') ? '' : ` DPT${dpt}`;
         payload = typeof payload === 'object' ? JSON.stringify(payload) : payload;
-        node.status({ fill, shape, text: `${GA + payload + (node.listenallga === true ? ` ${devicename}` : '')} (day ${dDate.getDate()}, ${dDate.toLocaleTimeString()}) ${text}` });
+        const statusText = `${GA + payload + (node.listenallga === true ? ` ${devicename}` : '')} (day ${dDate.getDate()}, ${dDate.toLocaleTimeString()}) ${text}`;
+        const shouldUpdateStatus = (node.serverKNX && typeof node.serverKNX.shouldDisplayStatus === 'function')
+          ? node.serverKNX.shouldDisplayStatus(fill)
+          : true;
+        if (shouldUpdateStatus) {
+          node.status({ fill, shape, text: statusText });
+        }
         // 16/02/2020 signal errors to the server
         if (fill.toUpperCase() === 'RED') {
           if (node.serverKNX) {

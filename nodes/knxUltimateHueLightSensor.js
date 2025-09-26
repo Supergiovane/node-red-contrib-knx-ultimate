@@ -26,6 +26,14 @@ module.exports = function (RED) {
     node.initializingAtStart = (config.readStatusAtStartup === undefined || config.readStatusAtStartup === "yes");
     node.currentDeviceValue = 0;
 
+    const shouldDisplayStatus = (color) => {
+      const provider = node.serverKNX;
+      if (provider && typeof provider.shouldDisplayStatus === 'function') {
+        return provider.shouldDisplayStatus(color);
+      }
+      return true;
+    };
+
     // Used to call the status update from the config node.
     node.setNodeStatus = ({
       fill, shape, text, payload,
@@ -35,7 +43,9 @@ module.exports = function (RED) {
         const dDate = new Date();
         payload = typeof payload === "object" ? JSON.stringify(payload) : payload.toString();
         node.sKNXNodeStatusText = `|KNX: ${text} ${payload} (${dDate.getDate()}, ${dDate.toLocaleTimeString()})`;
-        node.status({ fill, shape, text: (node.sHUENodeStatusText || '') + ' ' + (node.sKNXNodeStatusText || '') });
+        if (shouldDisplayStatus(fill)) {
+          node.status({ fill, shape, text: (node.sHUENodeStatusText || '') + ' ' + (node.sKNXNodeStatusText || '') });
+        }
       } catch (error) { }
     };
     // Used to call the status update from the HUE config node.
@@ -45,7 +55,9 @@ module.exports = function (RED) {
         const dDate = new Date();
         payload = typeof payload === "object" ? JSON.stringify(payload) : payload.toString();
         node.sHUENodeStatusText = `|HUE: ${text} ${payload} (${dDate.getDate()}, ${dDate.toLocaleTimeString()})`;
-        node.status({ fill, shape, text: node.sHUENodeStatusText + ' ' + (node.sKNXNodeStatusText || '') });
+        if (shouldDisplayStatus(fill)) {
+          node.status({ fill, shape, text: node.sHUENodeStatusText + ' ' + (node.sKNXNodeStatusText || '') });
+        }
       } catch (error) { }
     };
 
@@ -84,7 +96,9 @@ module.exports = function (RED) {
             if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) node.serverKNX.sendKNXTelegramToKNXEngine({ grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id });
             node.currentDeviceValue = knxMsgPayload.payload;
 
-            node.status({ fill: 'green', shape: 'dot', text: 'HUE->KNX ' + JSON.stringify(knxMsgPayload.payload) + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' });
+            if (shouldDisplayStatus('green')) {
+              node.status({ fill: 'green', shape: 'dot', text: 'HUE->KNX ' + JSON.stringify(knxMsgPayload.payload) + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' });
+            }
 
             // Setup the output msg
             knxMsgPayload.name = node.name;
@@ -97,7 +111,9 @@ module.exports = function (RED) {
           }
         }
       } catch (error) {
-        node.status({ fill: 'red', shape: 'dot', text: 'HUE->KNX error ' + error.message + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' });
+        if (shouldDisplayStatus('red')) {
+          node.status({ fill: 'red', shape: 'dot', text: 'HUE->KNX error ' + error.message + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' });
+        }
       }
     };
 

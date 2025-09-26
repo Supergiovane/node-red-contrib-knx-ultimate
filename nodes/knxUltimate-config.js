@@ -24,6 +24,8 @@ const loggerClass = require('./utils/sysLogger')
 const payloadRounder = require("./utils/payloadManipulation");
 const utils = require('./utils/utils');
 
+const STATUS_DISPLAY_ALLOWED_COLORS = new Set(['red', 'yellow']);
+
 // DATAPONT MANIPULATION HELPERS
 // ####################
 const sortBy = (field) => (a, b) => {
@@ -218,6 +220,13 @@ module.exports = (RED) => {
       node.autoReconnect = true;
     }
     node.ignoreTelegramsWithRepeatedFlag = config.ignoreTelegramsWithRepeatedFlag === undefined ? false : config.ignoreTelegramsWithRepeatedFlag;
+    const policyFromConfig = typeof config.statusDisplayPolicy === "string" ? config.statusDisplayPolicy : "all";
+    node.statusDisplayPolicy = ['all', 'errors'].includes(policyFromConfig) ? policyFromConfig : "all";
+    node.shouldDisplayStatus = (fill) => {
+      if (node.statusDisplayPolicy !== 'errors') return true;
+      const normalizedFill = (typeof fill === 'string' ? fill : '').toLowerCase();
+      return STATUS_DISPLAY_ALLOWED_COLORS.has(normalizedFill);
+    };
     // 24/07/2021 KNX Secure checks...
     node.keyringFileXML = typeof config.keyringFileXML === "undefined" || config.keyringFileXML.trim() === "" ? "" : config.keyringFileXML;
     node.knxSecureSelected = typeof config.knxSecureSelected === "undefined" ? false : config.knxSecureSelected;

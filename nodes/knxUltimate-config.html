@@ -27,7 +27,8 @@
             tunnelInterfaceIndividualAddress: { value: "" },
             tunnelUserPassword: { value: "" },
             tunnelUserId: { value: "" },
-            autoReconnect: { value: "yes" }
+            autoReconnect: { value: "yes" },
+            statusDisplayPolicy: { value: "all" }
         },
         credentials: {
             keyringFilePassword: { type: "password" }
@@ -1144,6 +1145,17 @@
                 </select>
                 <!-- <// DEBUG LEVELS: success < debug < info < warn < error < disable
                             </div> -->
+            </div>
+
+            <div class="form-row">
+                <label for="node-config-input-statusDisplayPolicy">
+                    <i class="fa fa-eye"></i>
+                    <span data-i18n="knxUltimate-config.advanced.status_display_policy"></span>
+                </label>
+                <select id="node-config-input-statusDisplayPolicy" style="width:40%;">
+                    <option value="all" data-i18n="knxUltimate-config.advanced.status_display_all"></option>
+                    <option value="errors" data-i18n="knxUltimate-config.advanced.status_display_errors"></option>
+                </select>
             </div>
         </p>
     </div>
