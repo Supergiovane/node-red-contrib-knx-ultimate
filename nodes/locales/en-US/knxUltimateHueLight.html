@@ -65,10 +65,19 @@ For controlling the HSV “V” (brightness), use the standard controls under th
 <br/>
 
 **Effects**
+
+*Non-Hue basic effects*
 |Property|Description|
 |--|--|
 | Blink | _true_ Blink the light, _false_ Stop blinking. Blinks the light on and off. Useful for signalling. Works with all HUE lights. |
 | Color Cycle | _true_ start cycle, _false_ Stop cycle. Randomly changes the HUE light's color at regular interval. Works with all HUE lights having color capabilities. The color effect will start 10 seconds after set. |
+
+*Hue native effects*
+
+Use the **Hue native effects** table to map your KNX values to the effects supported by the selected lamp. Each row links a KNX value (boolean, numeric or text according to the datapoint you choose) to one of the effects returned by the bridge (for example `candle`, `fireplace`, `prism`). On the KNX side you can:
+
+- Send the mapped value to activate the corresponding effect;
+- Optionally provide a status group address: the node sends back the mapped value when the Hue bridge reports a change of effect; if no mapping exists the raw effect name is sent (requires a text DPT such as 16.xxx).
 
 <br/>
 

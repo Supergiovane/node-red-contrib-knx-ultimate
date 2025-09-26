@@ -65,10 +65,19 @@ Hinweis: Die HSV‑Helligkeit „V“ wird über die Standard‑**Dim**‑Steuer
 <br/>
 
 **Effekte**
+
+*Nicht-Hue-Basiseffekte*
 | Eigenschaft | Beschreibung |
 |--|--|
-| Blink | _true_ = blinken, _false_ = stoppen (Signal‑Zwecke; alle HUE‑Leuchten) |
-| Color Cycle | _true_ = Start, _false_ = Stopp; zufälliger Farbwechsel in Intervallen (nur Leuchten mit Farbfähigkeit; Start nach ca. 10 s) |
+| Blink | _true_ = blinken, _false_ = stoppen. Lässt die Leuchte ein/aus blinken – ideal für Signalisierung. Unterstützt von allen HUE-Leuchten. |
+| Color Cycle | _true_ = Start, _false_ = Stopp. Zufälliger Farbwechsel in Intervallen (nur für farbfähige Leuchten). Der Effekt startet nach ca. 10 s. |
+
+*Hue-native Effekte*
+
+In der Tabelle **Hue-native Effekte** ordnest du KNX-Werte den vom Bridge gemeldeten Effekten zu (z. B. `candle`, `fireplace`, `prism`). Jede Zeile verbindet einen KNX-Wert (Boolean, Zahl oder Text – abhängig vom gewählten Datenpunkt) mit einem Hue-Effekt. KNX-seitig kannst du:
+
+- den gemappten Wert senden, um den zugehörigen Effekt zu aktivieren;
+- optional eine Status-GA hinterlegen: der Node sendet beim Effektwechsel den gemappten Wert zurück. Ist keine Zuordnung vorhanden, wird der reine Effektname gesendet (erfordert einen Text-Datenpunkt wie 16.xxx).
 
 <br/>
 

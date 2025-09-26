@@ -59,7 +59,17 @@
     "switch_off": "(关)",
     "select_color": "选择颜色",
     "select_temperature_brightness": "选择色温和亮度",
-    "select_brightness": "选择亮度"
+    "select_brightness": "选择亮度",
+    "effect_command": "效果命令",
+    "effect_status": "效果状态",
+    "effect_mapping": "映射",
+    "effect_autofill": "填充可用效果",
+    "effect_tip": "配置 KNX 数值与 Hue 效果对，收到匹配的 KNX 数值时触发对应效果。",
+    "effect_tip_status": "若配置状态组地址，将把当前效果（映射值或效果名称）发送到 KNX。",
+    "effect_not_supported": "该灯具不支持 Hue 效果。",
+    "effect_knx_value_placeholder": "匹配值",
+    "effect_base_label": "非 Hue 基础效果",
+    "effect_native_label": "Hue 原生效果"
   },
   "common": {
     "ga": "组地址",

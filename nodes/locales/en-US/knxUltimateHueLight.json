@@ -59,7 +59,17 @@
     "switch_off": "(Switch Off)",
     "select_color": "Select color",
     "select_temperature_brightness": "Select temperature and brightness",
-    "select_brightness": "Select brightness"
+    "select_brightness": "Select brightness",
+    "effect_command": "Effect command",
+    "effect_status": "Effect status",
+    "effect_mapping": "Mappings",
+    "effect_autofill": "Fill with available effects",
+    "effect_tip": "Provide KNX value / Hue effect pairs. When the incoming KNX payload matches the value, the selected effect is applied to the light.",
+    "effect_tip_status": "If a status group address is configured, the current Hue effect is emitted using the mapped KNX value or the effect name.",
+    "effect_not_supported": "This light does not expose Hue effects.",
+    "effect_knx_value_placeholder": "Value to match",
+    "effect_base_label": "Non-Hue basic effects",
+    "effect_native_label": "Hue native effects"
   },
   "common": {
     "ga": "GA",

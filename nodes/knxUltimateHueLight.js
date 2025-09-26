@@ -32,6 +32,111 @@ function hydrateSwitchColor(value, fallback) {
   return safeJSONParse(cleaned, fallback);
 }
 
+function normalizeRuleKey(rawValue, dpt) {
+  if (rawValue === undefined || rawValue === null) return "";
+  const value = typeof rawValue === "string" ? rawValue.trim() : String(rawValue);
+  if (value === "") return "";
+  if (typeof dpt !== "string" || dpt === "") return value;
+  const prefix = dpt.split(".")[0];
+  switch (prefix) {
+    case "1":
+    case "2":
+      if (value === "1" || value.toLowerCase() === "true") return "true";
+      if (value === "0" || value.toLowerCase() === "false") return "false";
+      return value.toLowerCase();
+    case "5":
+    case "6":
+    case "7":
+    case "8":
+    case "9":
+    case "12":
+    case "13":
+    case "14":
+    case "20": {
+      const num = Number(value);
+      return Number.isNaN(num) ? value : String(num);
+    }
+    case "16":
+      return value;
+    default:
+      return value;
+  }
+}
+
+function normalizeIncomingValue(value, dpt) {
+  if (value === undefined || value === null) return "";
+  if (typeof value === "boolean") return value ? "true" : "false";
+  if (typeof value === "number") return Number.isNaN(value) ? "" : String(value);
+  if (typeof value === "string") return value.trim();
+  if (typeof value === "object") {
+    if (Object.prototype.hasOwnProperty.call(value, "value")) return normalizeIncomingValue(value.value, dpt);
+    if (Object.prototype.hasOwnProperty.call(value, "scene_number")) return normalizeIncomingValue(value.scene_number, dpt);
+    if (Object.prototype.hasOwnProperty.call(value, "scenenumber")) return normalizeIncomingValue(value.scenenumber, dpt);
+    if (Object.prototype.hasOwnProperty.call(value, "text")) return normalizeIncomingValue(value.text, dpt);
+    try {
+      return JSON.stringify(value);
+    } catch (error) {
+      return "";
+    }
+  }
+  return "";
+}
+
+function convertRuleValueForStatus(rawValue, dpt) {
+  if (rawValue === undefined || rawValue === null) return undefined;
+  if (typeof dpt !== "string" || dpt === "") {
+    return typeof rawValue === "string" ? rawValue.trim() : rawValue;
+  }
+  const valueStr = typeof rawValue === "string" ? rawValue.trim() : String(rawValue);
+  const prefix = dpt.split(".")[0];
+  switch (prefix) {
+    case "1":
+    case "2":
+      if (valueStr === "1" || valueStr.toLowerCase() === "true") return true;
+      if (valueStr === "0" || valueStr.toLowerCase() === "false") return false;
+      return undefined;
+    case "5":
+    case "6":
+    case "7":
+    case "8":
+    case "9":
+    case "12":
+    case "13":
+    case "14":
+    case "20": {
+      const num = Number(valueStr);
+      return Number.isNaN(num) ? undefined : num;
+    }
+    case "16":
+      return valueStr;
+    default:
+      return valueStr;
+  }
+}
+
+function buildEffectLookups(rules, commandDpt, statusDpt) {
+  const byKnxValue = new Map();
+  const byEffect = new Map();
+  if (!Array.isArray(rules)) return { byKnxValue, byEffect };
+  rules.forEach((entry) => {
+    if (!entry || typeof entry.hueEffect !== "string") return;
+    const effectName = entry.hueEffect.trim();
+    if (effectName === "") return;
+    const normalizedKey = normalizeRuleKey(entry.knxValue, commandDpt);
+    if (normalizedKey !== "" && !byKnxValue.has(normalizedKey)) {
+      byKnxValue.set(normalizedKey, effectName);
+    }
+    if (!byEffect.has(effectName)) {
+      const statusValue = convertRuleValueForStatus(entry.knxValue, statusDpt);
+      byEffect.set(effectName, {
+        knxValue: entry.knxValue,
+        statusValue,
+      });
+    }
+  });
+  return { byKnxValue, byEffect };
+}
+
 function prepareHueLightConfig(rawConfig) {
   const cfg = { ...rawConfig };
 
@@ -66,6 +171,17 @@ function prepareHueLightConfig(rawConfig) {
   cfg.restoreDayMode = cfg.restoreDayMode === undefined ? "no" : cfg.restoreDayMode;
   cfg.invertDayNight = cfg.invertDayNight === undefined ? false : Boolean(cfg.invertDayNight);
 
+  if (!Array.isArray(cfg.effectRules)) {
+    cfg.effectRules = safeJSONParse(cfg.effectRules, []);
+  }
+  if (!Array.isArray(cfg.effectRules)) cfg.effectRules = [];
+  cfg.effectRules = cfg.effectRules
+    .filter((rule) => rule && typeof rule.hueEffect === "string")
+    .map((rule) => ({
+      knxValue: rule.knxValue === undefined || rule.knxValue === null ? "" : String(rule.knxValue),
+      hueEffect: rule.hueEffect,
+    }));
+
   return cfg;
 }
 
@@ -78,6 +194,17 @@ module.exports = function (RED) {
 
     // Normalize legacy fields and defaults before using the configuration
     config = prepareHueLightConfig(config);
+
+    node.effectRules = Array.isArray(config.effectRules) ? cloneDeep(config.effectRules) : [];
+    node.effectRuleLookup = buildEffectLookups(node.effectRules, config.dptLightEffect, config.dptLightEffectStatus);
+    node.availableEffects = new Set();
+    if (config.hueDeviceObject && config.hueDeviceObject.effects && Array.isArray(config.hueDeviceObject.effects.status_values)) {
+      config.hueDeviceObject.effects.status_values.forEach((effect) => {
+        if (effect !== undefined && effect !== null && effect !== "") node.availableEffects.add(effect);
+      });
+    }
+    node.availableEffects.add('no_effect');
+    node.currentEffectStatus = undefined;
 
     node.topic = node.name;
     node.name = config.name === undefined ? "Hue" : config.name;
@@ -146,6 +273,16 @@ module.exports = function (RED) {
         node.sHUENodeStatusText = `|HUE: ${text} ${payload} (${dDate.getDate()}, ${dDate.toLocaleTimeString()})`;
         updateStatus({ fill, shape, text: node.sHUENodeStatusText + ' ' + (node.sKNXNodeStatusText || '') });
       } catch (error) { }
+    };
+
+    const updateAvailableEffects = (effectsArray) => {
+      if (!Array.isArray(effectsArray)) return;
+      const newSet = new Set();
+      effectsArray.forEach((effect) => {
+        if (effect !== undefined && effect !== null && effect !== "") newSet.add(effect);
+      });
+      newSet.add('no_effect');
+      node.availableEffects = newSet;
     };
 
     const hueQueueTarget = () => (node.isGrouped_light === false ? "setLight" : "setGroupedLight");
@@ -549,6 +686,64 @@ module.exports = function (RED) {
                 });
               }
               break;
+            case config.GALightEffect:
+              {
+                if (!config.dptLightEffect || config.dptLightEffect === "") {
+                  node.setNodeStatusHue({
+                    fill: "red",
+                    shape: "ring",
+                    text: "KNX->HUE Effect",
+                    payload: "Missing DPT",
+                  });
+                  break;
+                }
+                let payloadEffect;
+                try {
+                  payloadEffect = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightEffect));
+                } catch (error) {
+                  node.setNodeStatusHue({
+                    fill: "red",
+                    shape: "ring",
+                    text: "KNX->HUE Effect",
+                    payload: error.message,
+                  });
+                  break;
+                }
+                const normalizedEffectValue = normalizeIncomingValue(payloadEffect, config.dptLightEffect);
+                let effectToApply = node.effectRuleLookup.byKnxValue.get(normalizedEffectValue);
+                if (!effectToApply && typeof payloadEffect === "string") {
+                  const trimmed = payloadEffect.trim();
+                  if (trimmed !== "") effectToApply = trimmed;
+                }
+                if (!effectToApply && config.dptLightEffect && config.dptLightEffect.startsWith("16.") && normalizedEffectValue !== "") {
+                  effectToApply = normalizedEffectValue;
+                }
+                if (!effectToApply) {
+                  node.setNodeStatusHue({
+                    fill: "yellow",
+                    shape: "ring",
+                    text: "KNX->HUE Effect",
+                    payload: normalizedEffectValue,
+                  });
+                  break;
+                }
+                const hueState = { effects: { status: effectToApply } };
+                if (!(node.availableEffects instanceof Set)) node.availableEffects = new Set();
+                node.availableEffects.add(effectToApply);
+                queueHueCommand(hueState);
+                if (node.currentHUEDevice !== undefined) {
+                  if (!node.currentHUEDevice.effects) node.currentHUEDevice.effects = {};
+                  node.currentHUEDevice.effects.status = effectToApply;
+                }
+                node.currentEffectStatus = effectToApply;
+                node.setNodeStatusHue({
+                  fill: "green",
+                  shape: "dot",
+                  text: "KNX->HUE Effect",
+                  payload: effectToApply,
+                });
+              }
+              break;
             default:
               break;
           }
@@ -626,6 +821,14 @@ module.exports = function (RED) {
               //     } catch (error) { /* empty */ }
               //   })();
               // }
+              break;
+            case config.GALightEffectStatus:
+              if (node.currentHUEDevice && node.currentHUEDevice.effects) {
+                const effectStatus = node.currentHUEDevice.effects.status !== undefined
+                  ? node.currentHUEDevice.effects.status
+                  : "no_effect";
+                node.updateKNXLightEffectState(effectStatus, "response");
+              }
               break;
             default:
               break;
@@ -997,6 +1200,23 @@ module.exports = function (RED) {
         }
 
         const receivedHUEObject = cloneDeep(_event);
+
+        if (receivedHUEObject.effects !== undefined && receivedHUEObject.effects.status !== undefined) {
+          if (Array.isArray(receivedHUEObject.effects.status_values)) {
+            updateAvailableEffects(receivedHUEObject.effects.status_values);
+          }
+          if (node.currentHUEDevice !== undefined) {
+            if (!node.currentHUEDevice.effects) node.currentHUEDevice.effects = {};
+            node.currentHUEDevice.effects.status = receivedHUEObject.effects.status;
+            if (Array.isArray(receivedHUEObject.effects.status_values)) {
+              node.currentHUEDevice.effects.status_values = receivedHUEObject.effects.status_values;
+            }
+          }
+          if (node.currentEffectStatus !== receivedHUEObject.effects.status) {
+            node.currentEffectStatus = receivedHUEObject.effects.status;
+            node.updateKNXLightEffectState(receivedHUEObject.effects.status);
+          }
+        }
 
         //#region "CALCULATE COLOR AND COLOR TEMPERATURE OF THE LIGHTS BELONGING TO THE GROUPED_LIGHT"
         // Check wether the incoming _event belongs to a light belonging to the group_light
@@ -1418,6 +1638,39 @@ module.exports = function (RED) {
             payload: knxMsgPayload.payload,
           });
         }
+      }
+    };
+
+    node.updateKNXLightEffectState = function updateKNXLightEffectState(_effect, _outputtype = "write") {
+      if (config.GALightEffectStatus === undefined || config.GALightEffectStatus === "") return;
+      const effectValue = (_effect === undefined || _effect === null || _effect === "") ? "no_effect" : _effect;
+      const effectMapping = node.effectRuleLookup && node.effectRuleLookup.byEffect ? node.effectRuleLookup.byEffect.get(effectValue) : undefined;
+      let payload = effectMapping && effectMapping.statusValue !== undefined ? effectMapping.statusValue : undefined;
+
+      if (payload === undefined) {
+        if (!config.dptLightEffectStatus || config.dptLightEffectStatus.startsWith("16.")) {
+          payload = effectValue;
+        } else {
+          return;
+        }
+      }
+
+      if (config.GALightEffectStatus !== "" && config.GALightEffectStatus !== undefined) {
+        if (node.serverKNX !== null && node.serverKNX !== undefined) {
+          node.serverKNX.sendKNXTelegramToKNXEngine({
+            grpaddr: config.GALightEffectStatus,
+            payload,
+            dpt: config.dptLightEffectStatus,
+            outputtype: _outputtype,
+            nodecallerid: node.id,
+          });
+        }
+        node.setNodeStatusHue({
+          fill: "blue",
+          shape: "ring",
+          text: "HUE->KNX Effect",
+          payload,
+        });
       }
     };
 

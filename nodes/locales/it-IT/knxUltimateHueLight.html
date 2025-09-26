@@ -64,11 +64,20 @@ Per controllare la “V” (luminosità) dell’HSV, usa i controlli standard ne
 
 <br/>
 
-** Effetti **
+**Effetti**
+
+*Effetti base non HUE*
 | Proprietà | Descrizione |
 |-|-|
-|Blink |_true_ battito la luce, _false_ smettila di lampeggiare.Sbatte la luce accesa e spenta.Utile per la segnalazione.Funziona con tutte le luci da tonalità.|
-|Ciclo di colore |_True_ Ciclo di avvio, _False_ Ciclo di arresto.Cambia casualmente il colore della luce della tonalità a intervallo regolare.Funziona con tutte le luci Hue con capacità di colore.L'effetto colore inizierà 10 secondi dopo il set.|
+| Blink | _true_ fa lampeggiare la luce, _false_ ferma il lampeggio. Alterna acceso/spento; utile per segnalazioni. Funziona con tutte le luci HUE. |
+| Color Cycle | _true_ avvia il ciclo colori, _false_ lo interrompe. Cambia casualmente il colore della luce HUE a intervalli regolari. Funziona con le luci HUE che supportano il colore. L’effetto parte dopo 10 secondi. |
+
+*Effetti nativi HUE*
+
+La tabella **Effetti nativi HUE** permette di associare valori KNX agli effetti supportati dalla lampada selezionata. Ogni riga collega un valore KNX (booleano, numerico o testuale a seconda del datapoint scelto) a uno degli effetti restituiti dal bridge (ad esempio `candle`, `fireplace`, `prism`). Dal lato KNX puoi:
+
+- Inviare il valore mappato per attivare l’effetto corrispondente;
+- Facoltativamente impostare un indirizzo di stato: il nodo invia il valore mappato quando il bridge Hue comunica un cambiamento di effetto; se non trova una corrispondenza, invia il nome testuale dell’effetto (richiede un DPT testuale come 16.xxx).
 
 <br/>
 

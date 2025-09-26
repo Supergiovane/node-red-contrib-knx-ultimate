@@ -92,6 +92,16 @@
         GALightColorCycle: { value: "" },
         dptLightColorCycle: { value: "" },
 
+        nameLightEffect: { value: "" },
+        GALightEffect: { value: "" },
+        dptLightEffect: { value: "" },
+
+        nameLightEffectStatus: { value: "" },
+        GALightEffectStatus: { value: "" },
+        dptLightEffectStatus: { value: "" },
+
+        effectRules: { value: '[]' },
+
         nameDaylightSensor: { value: "" },
         GADaylightSensor: { value: "" },
         dptDaylightSensor: { value: "" },
@@ -146,7 +156,53 @@
         };
         ["#node-input-server", "#node-input-serverHue"].forEach(ensureConfigSelection);
 
+        function ensureVerticalTabsStyle() {
+          if ($('#knxUltimateHueLightVerticalTabs').length) return;
+          const style = `
+            <style id="knxUltimateHueLightVerticalTabs">
+              .hue-vertical-tabs.ui-tabs.ui-widget.ui-widget-content.ui-corner-all {
+                display: flex;
+              }
+              .hue-vertical-tabs > ul.ui-tabs-nav {
+                flex: 0 0 180px;
+                border-right: 1px solid #ccc;
+                padding: 0.5em 0.3em;
+              }
+              .hue-vertical-tabs > ul.ui-tabs-nav li {
+                float: none;
+                width: 100%;
+                margin: 0 0 2px 0;
+              }
+              .hue-vertical-tabs > ul.ui-tabs-nav li a {
+                display: block;
+                width: 100%;
+                white-space: normal;
+                position: relative;
+                border-bottom: none !important;
+              }
+              .hue-vertical-tabs > ul.ui-tabs-nav li.ui-tabs-active {
+                border-bottom: none !important;
+              }
+              .hue-vertical-tabs > ul.ui-tabs-nav li.ui-tabs-active a::after {
+                content: "";
+                position: absolute;
+                left: 0;
+                bottom: 0;
+                width: 50%;
+                height: 3px;
+                background: currentColor;
+              }
+              .hue-vertical-tabs .ui-tabs-panel {
+                flex: 1;
+                padding: 0.8em 1em;
+                box-sizing: border-box;
+              }
+            </style>`;
+          $('head').append(style);
+        }
+
         function onEditPrepare() {
+          ensureVerticalTabsStyle();
           // TIMER BLINK ####################################################
           let blinkStatus = 2;
           let timerBlinkBackground;
@@ -168,15 +224,193 @@
           }
           // ################################################################
 
-          $("#tabs").tabs(); // Tabs gestione KNX
+          const $effectStorage = $("#node-input-effectRules");
+          let parsedEffectRules = [];
+          if (Array.isArray(node.effectRules)) {
+            parsedEffectRules = JSON.parse(JSON.stringify(node.effectRules));
+          } else {
+            try {
+              parsedEffectRules = JSON.parse(node.effectRules || '[]');
+            } catch (error) {
+              parsedEffectRules = [];
+            }
+          }
+          if (!Array.isArray(parsedEffectRules)) parsedEffectRules = [];
+          node.effectRules = parsedEffectRules;
+          const $effectList = $("#node-input-effect-rule-container");
+          const syncEffectRulesStorage = () => {
+            try {
+              $effectStorage.val(JSON.stringify(node.effectRules || []));
+            } catch (error) {
+              $effectStorage.val('[]');
+            }
+          };
+          const rebuildEffectRulesFromUI = () => {
+            const collected = [];
+            try {
+              const items = $effectList.editableList('items');
+              items.each(function () {
+                const $row = $(this);
+                const knxValue = $row.find('.rowEffectKNXValue').val();
+                const hueEffect = $row.find('.rowEffectHueEffect').val();
+                if (hueEffect && hueEffect !== '') {
+                  collected.push({
+                    knxValue: knxValue !== undefined && knxValue !== null ? knxValue : '',
+                    hueEffect
+                  });
+                }
+              });
+            } catch (error) { }
+            node.effectRules = collected;
+            syncEffectRulesStorage();
+          };
+          const bindEffectRowEvents = ($row) => {
+            $row.find('.rowEffectKNXValue').on('input change', rebuildEffectRulesFromUI);
+            $row.find('.rowEffectHueEffect').on('change', rebuildEffectRulesFromUI);
+          };
+          syncEffectRulesStorage();
+          const $effectContainer = $("#divHueEffectsContainer");
+          const $effectContent = $("#divHueEffectsContent");
+          const $effectNoSupport = $("#divHueEffectsNoSupport");
+          let effectOptions = [];
+
+          function populateEffectSelect($select, selectedValue) {
+            const current = selectedValue !== undefined ? selectedValue : $select.val();
+            $select.empty();
+            if (effectOptions.length === 0) {
+              if (current) {
+                $select.append($("<option></option>").attr("value", current).text(current));
+                $select.val(current);
+              }
+              return;
+            }
+            effectOptions.forEach((effect) => {
+              $select.append($("<option></option>").attr("value", effect).text(effect));
+            });
+            if (current && !effectOptions.includes(current)) {
+              $select.append($("<option></option>").attr("value", current).text(current));
+            }
+            if (current) {
+              $select.val(current);
+            }
+          }
+
+          function decorateEffectValueInput() { }
+
+          function refreshEffectRows() {
+            if (!$effectList.data('effectListInitialized')) return;
+            const items = $effectList.editableList('items');
+            items.each(function () {
+              const $row = $(this);
+              const $select = $row.find('select.rowEffectHueEffect');
+              populateEffectSelect($select);
+              decorateEffectValueInput($row.find('.rowEffectKNXValue'));
+            });
+          }
+
+          function setAvailableEffects(effects) {
+            effectOptions = Array.isArray(effects) ? effects.filter((e) => e !== undefined && e !== null && e !== '') : [];
+            if (effectOptions.length > 0 && !effectOptions.includes('no_effect')) effectOptions.unshift('no_effect');
+            const hasMappings = Array.isArray(node.effectRules) && node.effectRules.length > 0;
+            const hasOptions = effectOptions.length > 0;
+
+            if (!hasOptions && !hasMappings) {
+              $effectContainer.show();
+              $effectContent.hide();
+              $effectNoSupport.show();
+            } else {
+              $effectContainer.show();
+              $effectContent.show();
+              $effectNoSupport.toggle(!hasOptions);
+            }
+
+            $("#node-input-effect-autofill").prop('disabled', !hasOptions);
+            refreshEffectRows();
+          }
+
+          function decorateEffectValueInput() { }
+
+          function ensureEffectEditableList() {
+            if ($effectList.data('effectListInitialized')) return;
+            $effectList.editableList({
+              addItem: function (container, i, opt) {
+                const data = opt && opt.rule ? opt.rule : (opt || {});
+                const row = $('<div/>', { class: 'form-row effect-rule-row' }).appendTo(container);
+                const $valueInput = $('<input/>', {
+                  class: 'rowEffectKNXValue',
+                  type: 'text',
+                  placeholder: node._('knxUltimateHueLight.effect_knx_value_placeholder') || 'Value',
+                  style: 'width:40%; margin-left:0; text-align:left;'
+                }).appendTo(row);
+                $valueInput.val(data.knxValue || '');
+                decorateEffectValueInput($valueInput);
+                $('<span/>', { html: '&nbsp;&rarr;&nbsp;', style: 'display:inline-block; margin:0 8px;' }).appendTo(row);
+                const $select = $('<select/>', {
+                  class: 'rowEffectHueEffect',
+                  style: 'width:45%;'
+                }).appendTo(row);
+                populateEffectSelect($select, data.hueEffect || '');
+                if (!data.hueEffect && effectOptions.length > 0) {
+                  $select.val(effectOptions[0]);
+                }
+                bindEffectRowEvents(row);
+              },
+              removable: true,
+              sortable: false,
+              removeItem: function () {
+                rebuildEffectRulesFromUI();
+              }
+            });
+            $effectList.data('effectListInitialized', true);
+          }
+
+          ensureEffectEditableList();
+          const initialEffects = (node.hueDeviceObject && node.hueDeviceObject.effects && Array.isArray(node.hueDeviceObject.effects.status_values))
+            ? node.hueDeviceObject.effects.status_values
+            : [];
+          setAvailableEffects(initialEffects);
+          if (Array.isArray(node.effectRules) && node.effectRules.length > 0) {
+            const items = $effectList.editableList('items');
+            items.each(function () { $(this).remove(); });
+            node.effectRules.forEach((rule) => {
+              $effectList.editableList('addItem', { rule });
+            });
+            refreshEffectRows();
+            rebuildEffectRulesFromUI();
+          }
+
+          $("#node-input-effect-autofill").off('click').on('click', function () {
+            if (effectOptions.length === 0) return;
+            const items = $effectList.editableList('items');
+            items.each(function () { $(this).remove(); });
+            effectOptions.forEach((effect) => {
+              $effectList.editableList('addItem', { rule: { knxValue: effect, hueEffect: effect } });
+            });
+            refreshEffectRows();
+            rebuildEffectRulesFromUI();
+          });
+
+          $('#node-input-dptLightEffect').on('change', () => {
+            const items = $effectList.editableList('items');
+            items.each(function () {
+              decorateEffectValueInput($(this).find('.rowEffectKNXValue'));
+            });
+          });
+
+          const $tabs = $("#tabs");
+          $tabs.addClass('hue-vertical-tabs');
+          $tabs.tabs(); // Tabs gestione KNX
+          $tabs.find('ul').addClass('ui-tabs-nav');
+          $tabs.find('li').removeClass('ui-corner-top').addClass('ui-corner-left');
 
           function getDPT(_dpt, _destinationWidget) {
             // DPT Switch command
             // ########################
+            const prefixes = Array.isArray(_dpt) ? _dpt : [_dpt];
             $(_destinationWidget).empty();
             $.getJSON("knxUltimateDpts?serverId=" + $("#node-input-server").val() + "&" + { _: new Date().getTime() }, (data) => {
               data.forEach((dpt) => {
-                if (dpt.value.startsWith(_dpt)) {
+                if (prefixes.some((prefix) => prefix === "" || dpt.value.startsWith(prefix))) {
                   // Adjustment for HUE Temperature
                   if (dpt.value.startsWith("7.600")) {
                     $(_destinationWidget).append($("<option></option>").attr("value", dpt.value).text(dpt.text + " - KNX Kelvin range 2000-6535k (Homeassistant color_temperature_mode: absolute)"));
@@ -194,7 +428,9 @@
               try {
                 if (format !== undefined) $(_destinationWidget).val(eval(format).toString());
               } catch (error) { }
-
+              if (_destinationWidget === '#node-input-dptLightEffect') {
+                $(_destinationWidget).trigger('change');
+              }
             });
           }
 
@@ -278,6 +514,13 @@
           getDPT("1.", "#node-input-dptLightColorCycle");
           getGroupAddress("#node-input-GALightColorCycle", "#node-input-nameLightColorCycle", "#node-input-dptLightColorCycle", ["1."]);
 
+          const effectDptPrefixes = ["1.", "2.", "5.", "6.", "7.", "8.", "9.", "16.", "20."];
+          getDPT(effectDptPrefixes, "#node-input-dptLightEffect");
+          getGroupAddress("#node-input-GALightEffect", "#node-input-nameLightEffect", "#node-input-dptLightEffect", effectDptPrefixes);
+
+          getDPT(effectDptPrefixes, "#node-input-dptLightEffectStatus");
+          getGroupAddress("#node-input-GALightEffectStatus", "#node-input-nameLightEffectStatus", "#node-input-dptLightEffectStatus", effectDptPrefixes);
+
           getDPT("1.", "#node-input-dptDaylightSensor");
           getGroupAddress("#node-input-GADaylightSensor", "#node-input-nameDaylightSensor", "#node-input-dptDaylightSensor", ["1."]);
 
@@ -321,6 +564,10 @@
             if (getJsonPromise !== undefined) getJsonPromise.abort();
             getJsonPromise = $.getJSON("knxUltimateGetLightObject?id=" + $("#node-input-hueDevice").val().split("#")[0] + "&serverId=" + $("#node-input-serverHue").val() + "&" + { _: new Date().getTime() }, (data) => {
               let oLight = data;
+              const effects = (oLight && oLight.effects && Array.isArray(oLight.effects.status_values))
+                ? oLight.effects.status_values
+                : [];
+              setAvailableEffects(effects);
               // Check if grouped, to hide/show the "Get current" buttons
               if (oLight.type === "grouped_light") {
                 $("#tabs").tabs("enable", "#tabs-4");
@@ -804,6 +1051,29 @@
           this.outputs = 0;
           this.inputs = 0;
         }
+
+        const nodeRef = this;
+        let collectedEffectRules = [];
+        try {
+          const effectItems = $("#node-input-effect-rule-container").editableList('items');
+          effectItems.each(function () {
+            const $row = $(this);
+            const knxValue = $row.find('.rowEffectKNXValue').val();
+            const hueEffect = $row.find('.rowEffectHueEffect').val();
+            if (hueEffect && hueEffect !== '') {
+              collectedEffectRules.push({
+                knxValue: knxValue !== undefined && knxValue !== null ? knxValue : '',
+                hueEffect
+              });
+            }
+          });
+        } catch (error) {
+          collectedEffectRules = [];
+        }
+        nodeRef.effectRules = collectedEffectRules;
+        const serialized = JSON.stringify(collectedEffectRules);
+        $("#node-input-effectRules").val(serialized);
+        this.effectRules = serialized;
       },
       oneditcancel: function () {
         // Return to the info tab
@@ -1334,6 +1604,10 @@
       </div>
       <div id="tabs-5">
         <p>
+        <div class="form-tips" style="margin-bottom:6px;">
+          <i class="fa fa-circle-info" style="color:forestgreen; margin-right:4px;"></i>
+          <span data-i18n="knxUltimateHueLight.effect_base_label"></span>
+        </div>
         <div class="form-row">
           <label for="node-input-nameLightBlink" style="width:110px;"><i class="fa fa-play-circle-o"></i> Blink</label>
 
@@ -1355,16 +1629,76 @@
             <label for="node-input-nameLightColorCycle" style="width:110px;"><i class="fa fa-play-circle-o"></i> Color
               Cycle</label>
 
-          <label for="node-input-GALightColorCycle" style="width:20px;"><span data-i18n="common.ga"></span></label>
+            <label for="node-input-GALightColorCycle" style="width:20px;"><span data-i18n="common.ga"></span></label>
             <input type="text" id="node-input-GALightColorCycle" placeholder="Ex: 1/1/1"
               style="width:70px;margin-left: 5px; text-align: left;">
 
-          <label for="node-input-dptLightColorCycle" style="width:40px; margin-left: 0px; text-align: right;"><span data-i18n="common.dpt"></span></label>
+            <label for="node-input-dptLightColorCycle" style="width:40px; margin-left: 0px; text-align: right;"><span data-i18n="common.dpt"></span></label>
             <select id="node-input-dptLightColorCycle" style="width:140px;"></select>
 
             <label for="node-input-nameLightColorCycle" style="width:50px; margin-left: 0px; text-align: right;"><span
                 data-i18n="knxUltimateHueLight.node-input-name"></span></label>
             <input type="text" id="node-input-nameLightColorCycle" style="width:190px;margin-left: 5px; text-align: left;">
+          </div>
+        </div>
+
+        <hr style="margin:12px 0;">
+
+        <div id="divHueEffectsContainer">
+          <div class="form-tips" style="margin-bottom:6px;">
+            <i class="fa fa-circle-info" style="color:forestgreen; margin-right:4px;"></i>
+            <span data-i18n="knxUltimateHueLight.effect_native_label"></span>
+          </div>
+          <div id="divHueEffectsNoSupport" class="form-tips" data-i18n="knxUltimateHueLight.effect_not_supported" style="display:none;"></div>
+          <div id="divHueEffectsContent" style="display:none;">
+            <div class="form-row">
+              <label for="node-input-nameLightEffect" style="width:110px;"><i class="fa fa-wand-magic-sparkles"></i> <span data-i18n="knxUltimateHueLight.effect_command"></span></label>
+
+              <label for="node-input-GALightEffect" style="width:20px;"><span data-i18n="common.ga"></span></label>
+              <input type="text" id="node-input-GALightEffect" placeholder="Ex: 1/1/1"
+                style="width:70px;margin-left: 5px; text-align: left;">
+
+              <label for="node-input-dptLightEffect" style="width:40px; margin-left: 0px; text-align: right;"><span data-i18n="common.dpt"></span></label>
+              <select id="node-input-dptLightEffect" style="width:140px;"></select>
+
+              <label for="node-input-nameLightEffect" style="width:50px; margin-left: 0px; text-align: right;"><span
+                  data-i18n="knxUltimateHueLight.node-input-name"></span></label>
+              <input type="text" id="node-input-nameLightEffect" style="width:190px;margin-left: 5px; text-align: left;">
+            </div>
+
+            <div class="form-row">
+              <label for="node-input-nameLightEffectStatus" style="width:110px;"><i class="fa fa-circle-info"></i> <span data-i18n="knxUltimateHueLight.effect_status"></span></label>
+
+              <label for="node-input-GALightEffectStatus" style="width:20px;"><span data-i18n="common.ga"></span></label>
+              <input type="text" id="node-input-GALightEffectStatus" placeholder="Ex: 1/1/1"
+                style="width:70px;margin-left: 5px; text-align: left;">
+
+              <label for="node-input-dptLightEffectStatus" style="width:40px; margin-left: 0px; text-align: right;"><span data-i18n="common.dpt"></span></label>
+              <select id="node-input-dptLightEffectStatus" style="width:140px;"></select>
+
+              <label for="node-input-nameLightEffectStatus" style="width:50px; margin-left: 0px; text-align: right;"><span
+                  data-i18n="knxUltimateHueLight.node-input-name"></span></label>
+              <input type="text" id="node-input-nameLightEffectStatus" style="width:190px;margin-left: 5px; text-align: left;">
+            </div>
+
+            <div class="form-row" id="divEffectMappings">
+              <label style="width:110px;"><i class="fa fa-list-check"></i> <span data-i18n="knxUltimateHueLight.effect_mapping"></span></label>
+              <div style="margin-left:5px; width: calc(100% - 120px);">
+                <input type="hidden" id="node-input-effectRules">
+                <ol id="node-input-effect-rule-container" style="margin:0; padding:0;"></ol>
+                <div style="margin-top:5px;">
+                  <button type="button" id="node-input-effect-autofill" class="red-ui-button"><span data-i18n="knxUltimateHueLight.effect_autofill"></span></button>
+                </div>
+                <div class="form-tips">
+                  <i class="fa fa-circle-info" style="color:forestgreen; margin-right:4px;"></i>
+                  <span data-i18n="knxUltimateHueLight.effect_tip"></span>
+                </div>
+                <div class="form-tips">
+                  <i class="fa fa-circle-info" style="color:forestgreen; margin-right:4px;"></i>
+                  <span data-i18n="knxUltimateHueLight.effect_tip_status"></span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
         </p>

@@ -59,7 +59,17 @@
     "switch_off": "(Ausschalten)",
     "select_color": "Farbe auswählen",
     "select_temperature_brightness": "Temperatur und Helligkeit auswählen",
-    "select_brightness": "Helligkeit auswählen"
+    "select_brightness": "Helligkeit auswählen",
+    "effect_command": "Effekt-Befehl",
+    "effect_status": "Effekt-Status",
+    "effect_mapping": "Zuordnungen",
+    "effect_autofill": "Mit verfügbaren Effekten füllen",
+    "effect_tip": "Hinterlege KNX-Wert/Hue-Effekt-Paare. Bei passendem KNX-Wert wird der ausgewählte Effekt ausgelöst.",
+    "effect_tip_status": "Ist eine Status-GA gesetzt, sendet der Knoten den aktuellen Effekt (zugeordneter Wert oder Name) auf den KNX-Bus.",
+    "effect_not_supported": "Diese Leuchte stellt keine Hue-Effekte bereit.",
+    "effect_knx_value_placeholder": "Abzugleichender Wert",
+    "effect_base_label": "Nicht-Hue-Basiseffekte",
+    "effect_native_label": "Hue-native Effekte"
   },
   "common": {
     "ga": "GA",

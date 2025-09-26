@@ -6,8 +6,12 @@
 
 # CHANGELOG
 
+**Version 4.0.11** - October 2025<br/>
+- HUE Light node: added configuration UI and runtime support for Hue lamp dynamic effects (candle, fireplace, etc.) with KNX mappings and status feedback.<br/>
+
 **Version 4.0.10** - October 2025<br/>
 - KNX Config node: you can now choose wether to display only the errors in the node statuses only errors.<br/>
+- HUE Light node: added configuration UI and runtime support for Hue lamp dynamic effects (candle, fireplace, etc.) with KNX mappings and status feedback.<br/>
 
 **Version 4.0.9** - September 2025<br/>
 - KNX Config node: now the ethernet interface is automatically selected, based on the KNX Gateway's IP subnet.<br/>
@@ -1961,4 +1965,3 @@ This is an interim version, to quick fix some issues. Please report any issue wi
 
 **Version 0.0.1 BETA**<br/>
 - Initial release<br/>
-

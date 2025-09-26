@@ -59,7 +59,17 @@
     "switch_off": "(Spegni)",
     "select_color": "Seleziona colore",
     "select_temperature_brightness": "Seleziona temperatura e luminosità",
-    "select_brightness": "Seleziona luminosità"
+    "select_brightness": "Seleziona luminosità",
+    "effect_command": "Comando effetti",
+    "effect_status": "Stato effetti",
+    "effect_mapping": "Associazioni",
+    "effect_autofill": "Compila con gli effetti disponibili",
+    "effect_tip": "Definisci le coppie valore KNX / effetto Hue. Quando il valore KNX ricevuto coincide, viene attivato l'effetto selezionato.",
+    "effect_tip_status": "Se configuri lo stato, il nodo invierà su KNX l'effetto corrente (valore associato o nome).",
+    "effect_not_supported": "Questa lampada non espone effetti Hue.",
+    "effect_knx_value_placeholder": "Valore da confrontare",
+    "effect_base_label": "Effetti base non HUE",
+    "effect_native_label": "Effetti nativi HUE"
   },
   "common": {
     "ga": "GA",
