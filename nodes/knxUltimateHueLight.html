@@ -162,10 +162,15 @@
             <style id="knxUltimateHueLightVerticalTabs">
               .hue-vertical-tabs.ui-tabs.ui-widget.ui-widget-content.ui-corner-all {
                 display: flex;
+                border: none;
+                padding: 0;
               }
               .hue-vertical-tabs > ul.ui-tabs-nav {
                 flex: 0 0 180px;
                 border-right: 1px solid #ccc;
+                border-left: none;
+                border-top: none;
+                border-bottom: none;
                 padding: 0.5em 0.3em;
               }
               .hue-vertical-tabs > ul.ui-tabs-nav li {
@@ -196,6 +201,18 @@
                 flex: 1;
                 padding: 0.8em 1em;
                 box-sizing: border-box;
+                border: none;
+                background: transparent;
+              }
+              .hue-vertical-tabs .form-row > dt {
+                flex: 1 1 auto;
+                margin: 0;
+              }
+              .hue-vertical-tabs hr {
+                width: 100%;
+                border: 0;
+                border-top: 1px solid #ccc;
+                margin: 8px 0;
               }
             </style>`;
           $('head').append(style);
