@@ -10,6 +10,7 @@
 - HUE Light node: added configuration UI and runtime support for Hue lamp dynamic effects (candle, fireplace, etc.) with KNX mappings and status feedback.<br/>
 - NEW: Added Hue Plug/Outlet node to map KNX on/off control to Philips Hue smart plugs.<br/>
 - NEW: Added Hue Humidity Sensor node to expose relative humidity readings from Hue bridges to KNX.<br/>
+- Docs: cleaned bold markdown spacing across KNX Ultimate help translations to avoid rendering glitches.<br/>
 
 **Version 4.0.10** - October 2025<br/>
 - KNX Config node: you can now choose wether to display only the errors in the node statuses only errors.<br/>
