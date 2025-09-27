@@ -114,7 +114,7 @@
             }).focus(function () {
                 $(this).autocomplete('search', $(this).val() + 'exactmatch');
             });
-            try { if (oNodeServer && oNodeServer.id) KNX_enableSecureFormatting($("#node-input-GAmotion"), oNodeServer.id); } catch (e) {}
+            try { if (oNodeServer && oNodeServer.id) KNX_enableSecureFormatting($("#node-input-GAmotion"), oNodeServer.id); } catch (e) { }
             // ######################## 
 
 
@@ -181,7 +181,7 @@
     <br />
     <br />
     <p align="center">
-       <i class="fa-solid fa-person-walking fa-shake fa-4x"></i>
+       <i class="fa-solid fa-person-walking fa-shake fa-2x"></i>
     </p>
     <br />
     <label for="node-input-server" >
@@ -236,4 +236,3 @@
 
 
 </script>
-

@@ -116,7 +116,7 @@
             }).focus(function () {
                 $(this).autocomplete('search', $(this).val() + 'exactmatch');
             });
-            try { if (oNodeServer && oNodeServer.id) KNX_enableSecureFormatting($("#node-input-GAdevice_software_update"), oNodeServer.id); } catch (e) {}
+            try { if (oNodeServer && oNodeServer.id) KNX_enableSecureFormatting($("#node-input-GAdevice_software_update"), oNodeServer.id); } catch (e) { }
             // ######################## 
 
 
@@ -184,7 +184,7 @@
     <br />
     <br />
     <p align="center">
-    <i class="fa-solid fa-tower-broadcast fa-beat fa-4x"></i>
+    <i class="fa-solid fa-tower-broadcast fa-beat fa-2x"></i>
     </p>
     <br />
     <label for="node-input-server" >
@@ -246,4 +246,3 @@
 
 
 </script>
-
