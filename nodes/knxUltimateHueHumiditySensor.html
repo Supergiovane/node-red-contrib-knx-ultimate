@@ -1,0 +1,581 @@
+<script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/11f26b4500.js"></script>
+
+<script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/htmlUtils.js"></script>
+
+<script type="text/javascript">
+  (function () {
+    let $tabs = null;
+    let $requiresBridgeElems = null;
+    let $knxSections = null;
+    let $readStatusRow = null;
+    let $deviceName = null;
+    let $refreshButton = null;
+    let $loadingIndicator = null;
+    let $dptSelect = null;
+    let cachedDevices = [];
+    let defaultDevicePlaceholder = '';
+    let showingNoDevicesPlaceholder = false;
+    let currentNode = null;
+    let $outputInfo = null;
+    let $enablePinsSelect = null;
+    const KNX_EMPTY_VALUES = new Set(['', 'none', '_ADD_', '__NONE__']);
+
+    const ensureVerticalTabsStyle = () => {
+      if ($('#knxUltimateHueLightVerticalTabs').length) return;
+      const style = `
+        <style id="knxUltimateHueLightVerticalTabs">
+          .hue-vertical-tabs.ui-tabs.ui-widget.ui-widget-content.ui-corner-all {
+            display: flex;
+            border: none;
+            padding: 0;
+          }
+          .hue-vertical-tabs > ul.ui-tabs-nav {
+            flex: 0 0 144px;
+            border-right: 1px solid #ccc;
+            border-left: none;
+            border-top: none;
+            border-bottom: none;
+            padding: 0.5em 0.3em;
+          }
+          .hue-vertical-tabs > ul.ui-tabs-nav li {
+            float: none;
+            width: 100%;
+            margin: 0 0 2px 0;
+          }
+          .hue-vertical-tabs > ul.ui-tabs-nav li a {
+            display: block;
+            width: 100%;
+            white-space: nowrap;
+            position: relative;
+            border-bottom: none !important;
+          }
+          .hue-vertical-tabs > ul.ui-tabs-nav li.ui-tabs-active {
+            border-bottom: none !important;
+          }
+          .hue-vertical-tabs > ul.ui-tabs-nav li.ui-tabs-active a::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 50%;
+            height: 3px;
+            background: currentColor;
+          }
+          .hue-vertical-tabs .ui-tabs-panel {
+            flex: 1;
+            padding: 0.8em 1em;
+            box-sizing: border-box;
+            border: none;
+            background: transparent;
+          }
+          .hue-vertical-tabs .form-row {
+            display: flex;
+            flex-wrap: nowrap;
+            align-items: center;
+            gap: 4px;
+          }
+          .hue-vertical-tabs .hue-form-tip {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            width: 100%;
+            margin-left: 0 !important;
+            max-width: none;
+            color: #1b7d33;
+            margin-bottom: 6px;
+            padding: 6px 10px;
+            box-sizing: border-box;
+          }
+          .hue-vertical-tabs .hue-form-tip .fa {
+            color: forestgreen;
+            flex: 0 0 auto;
+          }
+          .hue-vertical-tabs .hue-form-tip span {
+            flex: 1 1 auto;
+            min-width: 0;
+            white-space: normal;
+          }
+        </style>`;
+      $('head').append(style);
+    };
+
+    const detachHandlers = () => {
+      $('#node-input-server').off('.knxUltimateHueHumiditySensor');
+      $('#node-input-serverHue').off('.knxUltimateHueHumiditySensor');
+      $('.hue-refresh-devices').off('.knxUltimateHueHumiditySensor');
+      const $gaInput = $('#node-input-GAhumiditysensor');
+      $gaInput.off('.knxUltimateHueHumiditySensor');
+      if ($gaInput.data('ui-autocomplete')) {
+        try { $gaInput.autocomplete('destroy'); } catch (error) { /* empty */ }
+      }
+      if ($deviceName) {
+        $deviceName.off('.knxUltimateHueHumiditySensor');
+        if ($deviceName.data('ui-autocomplete')) {
+          try { $deviceName.autocomplete('destroy'); } catch (error) { /* empty */ }
+        }
+      }
+      if ($enablePinsSelect) {
+        $enablePinsSelect.off('.knxUltimateHueHumiditySensor');
+      }
+    };
+
+    const ensureConfigSelection = (selector) => {
+      if ($(selector).val() !== '_ADD_') return;
+      try { $(selector).prop('selectedIndex', 0); } catch (error) { /* empty */ }
+    };
+
+    const resolveServerId = (value) => {
+      if (value === undefined || value === null) return null;
+      if (typeof value === 'string' && KNX_EMPTY_VALUES.has(value)) return null;
+      if (value === false) return null;
+      return value;
+    };
+
+    const normalizePinsValue = (value) => {
+      if (value === undefined || value === null || value === '') return 'no';
+      if (value === true || value === 'true') return 'yes';
+      if (value === false || value === 'false') return 'no';
+      return value;
+    };
+
+    const applyNoDevicesPlaceholder = (hasDevices) => {
+      if (!$deviceName) return;
+      if (hasDevices) {
+        if (showingNoDevicesPlaceholder) {
+          showingNoDevicesPlaceholder = false;
+          $deviceName.attr('placeholder', defaultDevicePlaceholder);
+        }
+        return;
+      }
+      const message = RED._('node-red-contrib-knx-ultimate/knxUltimateHueHumiditySensor:knxUltimateHueHumiditySensor.no_devices');
+      showingNoDevicesPlaceholder = true;
+      $deviceName.attr('placeholder', message);
+      if (($deviceName.val() || '').trim() === '') {
+        $deviceName.val('');
+      }
+    };
+
+    const filterDevices = (devices, term) => {
+      const cleaned = (term || '').replace(/exactmatch/gi, '').trim();
+      return $.map(devices, (value) => {
+        const sSearch = value.name;
+        if (cleaned === '' || htmlUtilsfullCSVSearch(sSearch, cleaned)) {
+          return {
+            hueDevice: value.id,
+            value: value.name,
+            deviceObject: value.deviceObject || value,
+          };
+        }
+        return null;
+      });
+    };
+
+    const loadDPTOptions = (serverId, node) => {
+      if (!$dptSelect) return;
+      $dptSelect.empty();
+      const validId = resolveServerId(serverId);
+      if (!validId) {
+        return;
+      }
+      $.getJSON(`knxUltimateDpts?serverId=${validId}`, (data) => {
+        data.forEach((dpt) => {
+          if (dpt.value.startsWith('9.007')) {
+            $dptSelect.append($('<option></option>').attr('value', dpt.value).text(dpt.text));
+          }
+        });
+        const referenceNode = node || currentNode || {};
+        const targetDpt = (referenceNode.dpthumiditysensor && referenceNode.dpthumiditysensor !== '') ? referenceNode.dpthumiditysensor : '9.007';
+        if (targetDpt) {
+          $dptSelect.val(targetDpt);
+        }
+      });
+    };
+
+    const hasKNXServerSelected = () => {
+      let domValue = $('#node-input-server').val();
+      if (domValue === undefined) {
+        domValue = currentNode ? currentNode.server : null;
+      }
+      const knxServerId = resolveServerId(domValue);
+      return Boolean(knxServerId);
+    };
+
+    const getGroupAddress = ($sourceWidget, $nameWidget, $dptWidget) => {
+      $sourceWidget.off('.knxUltimateHueHumiditySensor');
+      $sourceWidget.autocomplete({
+        minLength: 0,
+        source(request, response) {
+          const serverId = $('#node-input-server').val();
+          const knxServerId = resolveServerId(serverId);
+          if (!knxServerId) { response([]); return; }
+          const server = RED.nodes.node(knxServerId);
+          if (!server) { response([]); return; }
+          $.getJSON(`knxUltimatecsv?nodeID=${server.id}`, (data) => {
+            response($.map(data, (value) => {
+              const sSearch = `${value.ga} (${value.devicename}) DPT${value.dpt}`;
+              if (htmlUtilsfullCSVSearch(sSearch, `${request.term} 9.007`)) {
+                return {
+                  label: `${value.ga} # ${value.devicename} # ${value.dpt}`,
+                  value: value.ga,
+                };
+              }
+              return null;
+            }));
+          });
+        },
+        select(event, ui) {
+          let sDevName = ui.item.label.split('#')[1].trim();
+          try {
+            sDevName = sDevName.substr(sDevName.indexOf(')') + 1).trim();
+          } catch (error) { /* empty */ }
+          $nameWidget.val(sDevName);
+          const optVal = $dptWidget.find(`option:contains('${ui.item.label.split('#')[2].trim()}')`).attr('value');
+          if (optVal !== undefined && optVal !== null) {
+            $dptWidget.val(optVal).trigger('change');
+          } else {
+            $dptWidget.trigger('change');
+          }
+        },
+      });
+      $sourceWidget.on('focus.knxUltimateHueHumiditySensor', function () {
+        $(this).autocomplete('search', `${$(this).val()}exactmatch`);
+      });
+      try {
+        const serverId = $('#node-input-server').val();
+        const server = RED.nodes.node(serverId);
+        if (server && server.id) KNX_enableSecureFormatting($sourceWidget, server.id);
+      } catch (error) { /* empty */ }
+    };
+
+    const fetchDevices = (hueServer, term, response, { forceRefresh = false } = {}) => {
+      if (!hueServer) {
+        applyNoDevicesPlaceholder(true);
+        response([]);
+        return;
+      }
+      if (!forceRefresh && cachedDevices.length > 0) {
+        applyNoDevicesPlaceholder(cachedDevices.length > 0);
+        response(filterDevices(cachedDevices, term));
+        return;
+      }
+      if ($loadingIndicator) $loadingIndicator.show();
+      $.getJSON(`KNXUltimateGetResourcesHUE?rtype=humidity&serverId=${hueServer.id}&_=${Date.now()}`, (data) => {
+        const listCandidates = Array.isArray(data) ? data : (Array.isArray(data?.devices) ? data.devices : []);
+        cachedDevices = listCandidates.map((value) => {
+          if (value.deviceObject) return value;
+          return {
+            id: value.id || value.rid,
+            name: value.name || value.metadata?.name || '',
+            deviceObject: value,
+          };
+        });
+        if (currentNode) currentNode._cachedHumidityDevices = cachedDevices;
+        applyNoDevicesPlaceholder(cachedDevices.length > 0);
+        response(filterDevices(cachedDevices, term));
+      }).always(() => {
+        if ($loadingIndicator) $loadingIndicator.hide();
+      }).fail(() => {
+        cachedDevices = [];
+        if (currentNode) currentNode._cachedHumidityDevices = cachedDevices;
+        applyNoDevicesPlaceholder(false);
+        response([]);
+      });
+    };
+
+    const updateTabsVisibility = () => {
+      if (!$tabs) return;
+      const hueServerId = resolveServerId($('#node-input-serverHue').val());
+      const knxSelected = hasKNXServerSelected();
+      if (hueServerId) {
+        $requiresBridgeElems.show();
+      } else {
+        $requiresBridgeElems.hide();
+      }
+
+      if (hueServerId && knxSelected) {
+        $tabs.show();
+        $tabs.tabs('refresh');
+      } else {
+        $tabs.hide();
+      }
+
+      if ($outputInfo) {
+        if (knxSelected) {
+          $outputInfo.hide();
+        } else {
+          $outputInfo.show();
+        }
+      }
+    };
+
+    const updateKNXVisibility = () => {
+      const knxSelected = hasKNXServerSelected();
+      if (knxSelected) {
+        $knxSections.show();
+        if ($readStatusRow) $readStatusRow.show();
+      } else {
+        $knxSections.hide();
+        if ($readStatusRow) $readStatusRow.hide();
+      }
+      if ($outputInfo) {
+        if (knxSelected) {
+          $outputInfo.hide();
+        } else {
+          $outputInfo.show();
+        }
+      }
+      updateTabsVisibility();
+    };
+
+    RED.nodes.registerType('knxUltimateHueHumiditySensor', {
+      category: 'KNX Ultimate',
+      color: '#C0C7E9',
+      defaults: {
+        server: { type: 'knxUltimate-config', required: false },
+        serverHue: { type: 'hue-config', required: true },
+        name: { value: '' },
+
+        namehumiditysensor: { value: '' },
+        GAhumiditysensor: { value: '' },
+        dpthumiditysensor: { value: '' },
+        readStatusAtStartup: { value: 'yes' },
+        enableNodePINS: { value: 'yes' },
+
+        hueDevice: { value: '' },
+        outputs: { value: 1 },
+      },
+      inputs: 0,
+      outputs: 1,
+      icon: 'node-hue-icon.svg',
+      label() {
+        return this.name || 'Hue Humidity Sensor';
+      },
+      paletteLabel: 'Hue Humidity Sensor',
+      oneditprepare() {
+        try { RED.sidebar.show('help'); } catch (error) { /* empty */ }
+        const node = this;
+        currentNode = node;
+
+        ensureConfigSelection('#node-input-serverHue');
+        ensureVerticalTabsStyle();
+
+        $tabs = $('#tabs');
+        $requiresBridgeElems = $('.hue-requires-bridge');
+        $knxSections = $('.hue-knx-section');
+        $readStatusRow = $('#node-input-readStatusAtStartup').closest('.form-row');
+        $deviceName = $('#node-input-name');
+        $refreshButton = $('.hue-refresh-devices');
+        $loadingIndicator = $('.hue-devices-loading');
+        $dptSelect = $('#node-input-dpthumiditysensor');
+        $outputInfo = $('.hue-output-info');
+        $enablePinsSelect = $('#node-input-enableNodePINS');
+
+        cachedDevices = Array.isArray(node._cachedHumidityDevices) ? node._cachedHumidityDevices : [];
+        node._cachedHumidityDevices = cachedDevices;
+
+        defaultDevicePlaceholder = $deviceName.attr('placeholder') || '';
+        showingNoDevicesPlaceholder = false;
+
+        $tabs.addClass('hue-vertical-tabs');
+        $tabs.tabs();
+        $tabs.find('li').removeClass('ui-corner-top').addClass('ui-corner-left');
+
+        const initialServerId = $('#node-input-server').val() || node.server;
+        loadDPTOptions(initialServerId, node);
+
+        const $gaInput = $('#node-input-GAhumiditysensor');
+        const $nameInput = $('#node-input-namehumiditysensor');
+        getGroupAddress($gaInput, $nameInput, $dptSelect);
+
+        if ($deviceName) {
+          $deviceName.off('.knxUltimateHueHumiditySensor');
+        }
+        $deviceName.autocomplete({
+          minLength: 0,
+          source(request, response) {
+            const hueServerId = resolveServerId($('#node-input-serverHue').val() || node.serverHue);
+            const hueServer = hueServerId ? RED.nodes.node(hueServerId) : null;
+            if (!hueServer) { response([]); return; }
+            fetchDevices(hueServer, request.term, response);
+          },
+          select(event, ui) {
+            $('#node-input-hueDevice').val(ui.item.hueDevice);
+          },
+        });
+        $deviceName.on('focus.knxUltimateHueHumiditySensor', function () {
+          $(this).autocomplete('search', `${$(this).val()}exactmatch`);
+        });
+
+        $refreshButton.on('click.knxUltimateHueHumiditySensor', () => {
+          cachedDevices = [];
+          node._cachedHumidityDevices = cachedDevices;
+          const hueServerId = resolveServerId($('#node-input-serverHue').val() || node.serverHue);
+          const hueServer = hueServerId ? RED.nodes.node(hueServerId) : null;
+          if (!hueServer) return;
+          fetchDevices(hueServer, '', () => {
+            $deviceName.autocomplete('search', `${$deviceName.val()}exactmatch`);
+          }, { forceRefresh: true });
+        });
+
+        $('#node-input-server').on('change.knxUltimateHueHumiditySensor', function () {
+          const serverId = $(this).val();
+          loadDPTOptions(serverId, node);
+          updateKNXVisibility();
+        });
+
+        $('#node-input-serverHue').on('change.knxUltimateHueHumiditySensor', function () {
+          const hueServerId = resolveServerId($(this).val());
+          cachedDevices = [];
+          node._cachedHumidityDevices = cachedDevices;
+          if ($loadingIndicator) $loadingIndicator.hide();
+          showingNoDevicesPlaceholder = false;
+          $deviceName.attr('placeholder', defaultDevicePlaceholder);
+          if (!hueServerId) {
+            applyNoDevicesPlaceholder(true);
+          }
+          updateTabsVisibility();
+        });
+
+        $('#node-input-readStatusAtStartup').val(node.readStatusAtStartup || 'yes');
+        if ($enablePinsSelect) {
+          const initialPins = normalizePinsValue(node.enableNodePINS || 'yes');
+          $enablePinsSelect.val(initialPins);
+          $enablePinsSelect.on('change.knxUltimateHueHumiditySensor', function () {
+            const val = normalizePinsValue($(this).val());
+            node.enableNodePINS = val;
+            node.outputs = val === 'yes' ? 1 : 0;
+          });
+          $enablePinsSelect.trigger('change');
+        }
+
+        updateKNXVisibility();
+      },
+      oneditsave() {
+        try { RED.sidebar.show('info'); } catch (error) { /* empty */ }
+        detachHandlers();
+        cachedDevices = [];
+        const pinsSelection = $enablePinsSelect ? normalizePinsValue($enablePinsSelect.val()) : 'yes';
+        this.enableNodePINS = pinsSelection;
+        this.outputs = pinsSelection === 'yes' ? 1 : 0;
+        this._cachedHumidityDevices = [];
+        currentNode = null;
+      },
+      oneditcancel() {
+        try { RED.sidebar.show('info'); } catch (error) { /* empty */ }
+        detachHandlers();
+        cachedDevices = [];
+        this._cachedHumidityDevices = [];
+        currentNode = null;
+      },
+    });
+  }());
+</script>
+
+<script type="text/html" data-template-name="knxUltimateHueHumiditySensor">
+  <div class="form-row">
+    <label for="node-input-server">
+      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAKnRFWHRDcmVhdGlvbiBUaW1lAEZyIDYgQXVnIDIwMTAgMjE6NTI6MTkgKzAxMDD84aS8AAAAB3RJTUUH3gYYCicNV+4WIQAAAAlwSFlzAAALEgAACxIB0t1+/AAAAARnQU1BAACxjwv8YQUAAACUSURBVHjaY2CgFZg5c+Z/ZEyWAZ8+f/6/ZsWs/xoamqMGkGrA6Wla/1+fVARjEBuGsSoGmY4eZSCNL59d/g8DIDbIAHR14OgFGQByKjIGKX5+6/T///8gGMQGiV1+/B0Fg70GIkD+RMYgxf/O5/7//2MSmAZhkBi6OrgB6Bg5DGB4ajr3f2xqsYYLSDE2THJUDg0AAAqyDVd4tp4YAAAAAElFTkSuQmCC" />
+      <span data-i18n="common.knx_gw"></span>
+    </label>
+    <input type="text" id="node-input-server">
+  </div>
+
+  <div class="form-row">
+    <label for="node-input-serverHue">
+      <img src="data:image/png;base64, iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAEKADAAQAAAABAAAAEAAAAAA0VXHyAAABFUlEQVQ4EZWSsWoCQRCG1yiENEFEi6QSkjqWWoqFoBYJ+Br6JHkMn8Iibd4ihQpaJIhWNkry/ZtdGZY78Qa+m39nZ+dm9s4550awglNBluS/gVtAX6KgDclf68w2OThgfR9iT/jnoEv4TtByDThWTCDKW4SSZTf/zj9/eZbN+izTDuKGimu0vPF8B/YN8aC8LmcOj/AAn9CFTEs70Js/oGqy79C69bqJ5XbQI2kGO5N8QL9D08S8zBtBF5ZaVsznpCMoqJnVdjTpb1Db0fwIWmQV6BLXzFOYgA6/gDVfQN9bBWp2J2hdWDPoBV5FrKnAJutHikk/CHHR8i7x4iG7qQ720IYvu3GFbpHjx3pFrOFYkA354z/5bkK826phyAAAAABJRU5ErkJggg=="/>
+      <span data-i18n="common.hue_bridge"></span>
+    </label>
+    <input type="text" id="node-input-serverHue">
+  </div>
+
+  <div class="form-row hue-requires-bridge">
+    <label for="node-input-name">
+      <i class="fa fa-tag"></i> <span data-i18n="knxUltimateHueHumiditySensor.hue_sensor"></span>
+    </label>
+    <input type="text" id="node-input-name" placeholder="Hue humidity sensor" style="flex:1 1 240px; min-width:240px; max-width:240px;">
+    <button type="button" class="red-ui-button hue-refresh-devices" style="margin-left:6px; color:#1b7d33; border-color:#1b7d33;">
+      <i class="fa fa-sync"></i>
+    </button>
+    <span class="hue-devices-loading" style="margin-left:6px; display:none; color:#1b7d33;">
+      <i class="fa fa-circle-notch fa-spin"></i>
+    </span>
+  </div>
+
+  <div id="tabs">
+    <ul>
+      <li><a href="#tabs-1"><i class="fa fa-tint"></i> <span data-i18n="knxUltimateHueHumiditySensor.tabs.humidity"></span></a></li>
+      <li><a href="#tabs-2"><i class="fa fa-gear"></i> <span data-i18n="knxUltimateHueHumiditySensor.tabs.behaviour"></span></a></li>
+    </ul>
+
+    <div id="tabs-1">
+      <div class="form-tips hue-form-tip hue-knx-section">
+        <i class="fa fa-circle-info"></i>
+        <span data-i18n="knxUltimateHueHumiditySensor.humidity_info"></span>
+      </div>
+      <div class="form-row hue-knx-section">
+        <label for="node-input-GAhumiditysensor" style="width:70px;"><span data-i18n="common.ga"></span></label>
+        <input type="text" id="node-input-GAhumiditysensor" placeholder="2/2/1" style="width:70px; text-align:left;">
+        <label for="node-input-dpthumiditysensor" style="width:32px; text-align:right;"><span data-i18n="common.dpt"></span></label>
+        <select id="node-input-dpthumiditysensor" style="width:110px;"></select>
+        <label for="node-input-namehumiditysensor" style="width:50px; text-align:right;"><span data-i18n="common.name"></span></label>
+        <input type="text" id="node-input-namehumiditysensor" style="flex:1 1 100px; min-width:100px; max-width:100%; text-align:left;" placeholder="Humidity hall">
+      </div>
+    </div>
+
+    <div id="tabs-2">
+      <div class="form-row">
+        <label for="node-input-readStatusAtStartup" style="width:220px;">
+          <i class="fa fa-question-circle"></i> <span data-i18n="knxUltimateHueHumiditySensor.read_status_startup"></span>
+        </label>
+        <select id="node-input-readStatusAtStartup" style="width:200px;">
+          <option value="yes" data-i18n="knxUltimateHueHumiditySensor.opt_yes_emit"></option>
+          <option value="no" data-i18n="knxUltimateHueHumiditySensor.opt_no"></option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label for="node-input-enableNodePINS" style="width:220px;">
+          <i class="fa fa-code"></i> <span data-i18n="knxUltimateHueHumiditySensor.node_pins"></span>
+        </label>
+        <select id="node-input-enableNodePINS" style="width:200px;">
+          <option value="no" data-i18n="knxUltimateHueHumiditySensor.node_pins_hide"></option>
+          <option value="yes" data-i18n="knxUltimateHueHumiditySensor.node_pins_show"></option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-tips hue-form-tip hue-output-info" style="display:none;">
+    <i class="fa fa-circle-info"></i>
+    <span data-i18n="knxUltimateHueHumiditySensor.output_info"></span>
+  </div>
+
+  <input type="hidden" id="node-input-hueDevice">
+</script>
+
+<script type="text/markdown" data-help-name="knxUltimateHueHumiditySensor">
+<p>This node reads relative humidity (%) from a HUE humidity sensor and maps it to KNX.</p>
+
+Start typing in the GA field (name or Group Address) to link the KNX GA; devices appear while you type.
+
+**General**
+|Property|Description|
+|--|--|
+| KNX GW | Select the KNX gateway to be used |
+| HUE Bridge | Select the HUE Bridge to be used |
+| HUE Sensor | HUE humidity sensor (autocomplete while typing) |
+| Read status at startup | On startup/reconnect, read current value and send it to KNX (default: no) |
+
+**Mapping**
+|Property|Description|
+|--|--|
+| Humidity | KNX GA for relative humidity %. Recommended DPT: <b>9.007</b> |
+
+### Outputs
+
+1. Standard output
+: `msg.payload` (number): current relative humidity in %
+
+### Details
+
+`msg.payload` carries the numeric humidity value (percentage).
+</script>

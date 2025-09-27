@@ -1,0 +1,30 @@
+{
+  "knxUltimateHueHumiditySensor": {
+    "paletteLabel": "Hue 湿度传感器",
+    "heading": "HUE 湿度传感器节点",
+    "hue_sensor": "HUE 传感器",
+    "no_devices": "没有可用的设备",
+    "tabs": {
+      "humidity": "湿度",
+      "behaviour": "行为"
+    },
+    "humidity_info": "关联 KNX 组地址以接收相对湿度 (%)。",
+    "node_pins": "输出引脚",
+    "node_pins_hide": "隐藏",
+    "node_pins_show": "显示 Node-RED 输出引脚",
+    "output_info": "未选择 KNX 网关。启用 Node-RED 输出引脚后，Hue 事件仍会发送到流程中。",
+    "read_status_startup": "启动时读取状态",
+    "opt_no": "否",
+    "opt_yes_emit": "是，并发送 KNX 报文。"
+  },
+  "common": {
+    "ga": "GA",
+    "dpt": "DPT",
+    "name": "名称",
+    "youtube_sample": "YouTube 示例",
+    "knx_gw": "KNX 网关",
+    "hue_bridge": "HUE Bridge",
+    "philips_hue": "Philips HUE",
+    "read": "读取"
+  }
+}

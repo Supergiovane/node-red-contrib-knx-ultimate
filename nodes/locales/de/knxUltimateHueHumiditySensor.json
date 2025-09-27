@@ -1,0 +1,30 @@
+{
+  "knxUltimateHueHumiditySensor": {
+    "paletteLabel": "Hue Luftfeuchtigkeitssensor",
+    "heading": "HUE Luftfeuchtigkeitssensor",
+    "hue_sensor": "HUE Sensor",
+    "no_devices": "Keine Geräte verfügbar",
+    "tabs": {
+      "humidity": "Luftfeuchtigkeit",
+      "behaviour": "Verhalten"
+    },
+    "humidity_info": "Verknüpfen Sie die KNX-Gruppenadresse, um die relative Luftfeuchtigkeit (%) zu erhalten.",
+    "node_pins": "Node-RED-Ausgang",
+    "node_pins_hide": "Ausblenden",
+    "node_pins_show": "Node-RED-Ausgang anzeigen",
+    "output_info": "Kein KNX-Gateway ausgewählt. Wenn der Node-RED-Ausgang aktiviert ist, werden Hue-Ereignisse weiterhin in den Flow gesendet.",
+    "read_status_startup": "Status beim Start auslesen",
+    "opt_no": "Nein",
+    "opt_yes_emit": "Ja, und KNX-Telegramme senden."
+  },
+  "common": {
+    "ga": "GA",
+    "dpt": "DPT",
+    "name": "Name",
+    "youtube_sample": "YouTube Beispiel",
+    "knx_gw": "KNX Gateway",
+    "hue_bridge": "HUE Bridge",
+    "philips_hue": "Philips HUE",
+    "read": "Lesen"
+  }
+}

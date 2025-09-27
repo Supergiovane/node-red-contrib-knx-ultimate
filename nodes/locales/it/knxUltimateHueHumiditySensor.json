@@ -1,0 +1,30 @@
+{
+  "knxUltimateHueHumiditySensor": {
+    "paletteLabel": "Sensore umidità Hue",
+    "heading": "Nodo sensore umidità HUE",
+    "hue_sensor": "Sensore HUE",
+    "no_devices": "Non ci sono apparecchi da visualizzare",
+    "tabs": {
+      "humidity": "Umidità",
+      "behaviour": "Comportamento"
+    },
+    "humidity_info": "Collega il GA KNX per ricevere la misura di umidità relativa (%).",
+    "node_pins": "Pin di output",
+    "node_pins_hide": "Nascondi",
+    "node_pins_show": "Mostra il pin di output Node-RED",
+    "output_info": "Nessun gateway KNX selezionato. Se il pin di output Node-RED è abilitato, gli eventi Hue vengono comunque inviati al flow.",
+    "read_status_startup": "Leggi lo stato all'avvio",
+    "opt_no": "No",
+    "opt_yes_emit": "Sì, ed emetti i telegrammi KNX."
+  },
+  "common": {
+    "ga": "GA",
+    "dpt": "DPT",
+    "name": "Nome",
+    "youtube_sample": "Esempio YouTube",
+    "knx_gw": "Gateway KNX",
+    "hue_bridge": "Bridge HUE",
+    "philips_hue": "Philips HUE",
+    "read": "Leggi"
+  }
+}
