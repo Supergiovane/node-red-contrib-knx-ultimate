@@ -1,0 +1,522 @@
+<script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/11f26b4500.js"></script>
+<script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/htmlUtils.js"></script>
+
+<script type="text/javascript">
+  (function () {
+    let $serverInput = null;
+    let $enablePinsSelect = null;
+    let $tabs = null;
+    let $requiresBridgeElems = null;
+    let $knxSections = null;
+    let $readStatusRow = null;
+    let cachedDevices = [];
+    let previousPins = 'no';
+
+    const KNX_EMPTY_VALUES = new Set(['', 'none', '_ADD_', '__NONE__']);
+
+    const detachHandlers = () => {
+      if ($serverInput) {
+        $serverInput.off('.knxUltimateHuePlug');
+      }
+      $('#node-input-serverHue').off('.knxUltimateHuePlug');
+      $('.hue-refresh-devices').off('.knxUltimateHuePlug');
+    };
+
+    const ensureVerticalTabsStyle = () => {
+      if ($('#knxUltimateHueLightVerticalTabs').length) return;
+      const style = `
+        <style id="knxUltimateHueLightVerticalTabs">
+          .hue-vertical-tabs.ui-tabs.ui-widget.ui-widget-content.ui-corner-all {
+            display: flex;
+          }
+          .hue-vertical-tabs > ul.ui-tabs-nav {
+            flex: 0 0 144px;
+            border-right: 1px solid #ccc;
+            padding: 0.5em 0.3em;
+          }
+          .hue-vertical-tabs > ul.ui-tabs-nav li {
+            float: none;
+            width: 100%;
+            margin: 0 0 2px 0;
+          }
+          .hue-vertical-tabs > ul.ui-tabs-nav li a {
+            display: block;
+            width: 100%;
+            white-space: nowrap;
+            position: relative;
+            border-bottom: none !important;
+          }
+          .hue-vertical-tabs > ul.ui-tabs-nav li.ui-tabs-active {
+            border-bottom: none !important;
+          }
+          .hue-vertical-tabs > ul.ui-tabs-nav li.ui-tabs-active a::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 50%;
+            height: 3px;
+            background: currentColor;
+          }
+          .hue-vertical-tabs .ui-tabs-panel {
+            flex: 1;
+            padding: 0.8em 1em;
+            box-sizing: border-box;
+          }
+          .hue-vertical-tabs .form-row {
+            display: flex;
+            flex-wrap: nowrap;
+            align-items: center;
+            gap: 4px;
+          }
+          .hue-vertical-tabs .hue-form-tip {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            width: 100%;
+            margin-left: 0 !important;
+            max-width: none;
+            color: #1b7d33;
+            margin-bottom: 6px;
+            padding: 6px 10px;
+            box-sizing: border-box;
+          }
+          .hue-vertical-tabs .hue-form-tip .fa {
+            color: forestgreen;
+            flex: 0 0 auto;
+          }
+          .hue-vertical-tabs .hue-form-tip span {
+            flex: 1 1 auto;
+            min-width: 0;
+            white-space: normal;
+          }
+        </style>`;
+      $('head').append(style);
+    };
+
+    const normalizePinsValue = (value) => {
+      if (value === undefined || value === null || value === '') return 'no';
+      if (value === true || value === 'true') return 'yes';
+      if (value === false || value === 'false') return 'no';
+      return value;
+    };
+
+    RED.nodes.registerType('knxUltimateHuePlug', {
+      category: 'KNX Ultimate',
+      color: '#C0C7E9',
+      defaults: {
+        server: { type: 'knxUltimate-config', required: false },
+        serverHue: { type: 'hue-config', required: true },
+        name: { value: '' },
+
+        namePlugSwitch: { value: '' },
+        GAPlugSwitch: { value: '' },
+        dptPlugSwitch: { value: '' },
+
+        namePlugState: { value: '' },
+        GAPlugState: { value: '' },
+        dptPlugState: { value: '' },
+
+        namePlugPowerState: { value: '' },
+        GAPlugPowerState: { value: '' },
+        dptPlugPowerState: { value: '' },
+
+        readStatusAtStartup: { value: 'yes' },
+        enableNodePINS: { value: 'no' },
+
+        outputs: { value: 0 },
+        inputs: { value: 0 },
+
+        hueDevice: { value: '' },
+        hueDeviceObject: { value: {} },
+      },
+      inputs: 0,
+      outputs: 0,
+      icon: 'node-hue-icon.svg',
+      label() {
+        return this.name || 'Hue Plug/Outlet';
+      },
+      paletteLabel: 'Hue Plug/Outlet',
+      oneditprepare() {
+        try { RED.sidebar.show('help'); } catch (error) { /* empty */ }
+        const node = this;
+
+        const ensureConfigSelection = (selector) => {
+          if ($(selector).val() !== '_ADD_') return;
+          try { $(selector).prop('selectedIndex', 0); } catch (error) { /* empty */ }
+        };
+        ['#node-input-serverHue'].forEach(ensureConfigSelection);
+        ensureVerticalTabsStyle();
+
+        $tabs = $('#tabs');
+        $requiresBridgeElems = $('.hue-requires-bridge');
+        $knxSections = $('.hue-knx-section');
+        $serverInput = $('#node-input-server');
+        $enablePinsSelect = $('#node-input-enableNodePINS');
+        $readStatusRow = $('#node-input-readStatusAtStartup').closest('.form-row');
+
+        cachedDevices = [];
+        previousPins = normalizePinsValue(node.enableNodePINS);
+
+        $tabs.addClass('hue-vertical-tabs');
+        $tabs.tabs();
+        $tabs.find('li').removeClass('ui-corner-top').addClass('ui-corner-left');
+
+        const hasHueBridgeSelected = () => {
+          const val = $('#node-input-serverHue').val();
+          return val && val !== '_ADD_';
+        };
+        const updateTabsVisibility = () => {
+          if (hasHueBridgeSelected()) {
+            $tabs.show();
+            $tabs.tabs('refresh');
+            $requiresBridgeElems.show();
+          } else {
+            $tabs.hide();
+            $requiresBridgeElems.hide();
+          }
+        };
+        updateTabsVisibility();
+
+        const resolveKNXServerValue = () => {
+          const domValue = $serverInput ? $serverInput.val() : undefined;
+          if (domValue !== undefined && domValue !== null) return domValue;
+          return node.server;
+        };
+
+        const hasKNXServerSelected = () => {
+          const val = resolveKNXServerValue();
+          if (val === undefined || val === null) return false;
+          if (typeof val === 'string' && KNX_EMPTY_VALUES.has(val)) return false;
+          if (val === false) return false;
+          return Boolean(val);
+        };
+
+        $enablePinsSelect.val(previousPins);
+
+        const updateKNXVisibility = () => {
+          if (hasKNXServerSelected()) {
+            $knxSections.show();
+            $readStatusRow.show();
+            $enablePinsSelect.prop('disabled', false);
+            $enablePinsSelect.val(previousPins);
+            $enablePinsSelect.trigger('change');
+            getDPT('1.', '#node-input-dptPlugSwitch');
+            getDPT('1.', '#node-input-dptPlugState');
+            getDPT('1.', '#node-input-dptPlugPowerState');
+          } else {
+            $knxSections.hide();
+            $readStatusRow.hide();
+            previousPins = normalizePinsValue(node.enableNodePINS);
+            $enablePinsSelect.val('yes');
+            $enablePinsSelect.prop('disabled', true);
+            $enablePinsSelect.trigger('change');
+          }
+        };
+
+        $('#node-input-enableNodePINS').on('change', function () {
+          const val = $(this).val();
+          node.enableNodePINS = val;
+          node.outputs = val === 'yes' ? 1 : 0;
+          node.inputs = val === 'yes' ? 1 : 0;
+          if (hasKNXServerSelected()) {
+            previousPins = val;
+          }
+          if (val === 'yes') {
+            $('#node-input-enableNodePINS').closest('.form-row').find('.form-tips').show();
+          } else {
+            $('#node-input-enableNodePINS').closest('.form-row').find('.form-tips').hide();
+          }
+        });
+
+        updateKNXVisibility();
+        $serverInput.on('change.knxUltimateHuePlug', () => {
+          updateKNXVisibility();
+        });
+
+        const oNodeServer = () => RED.nodes.node($('#node-input-server').val());
+        const oNodeServerHue = () => RED.nodes.node($('#node-input-serverHue').val());
+
+        function getDPT(prefix, destinationSelector) {
+          const $destination = $(destinationSelector);
+          $destination.empty();
+          const serverId = $('#node-input-server').val();
+          if (!serverId || serverId === '_ADD_') {
+            return;
+          }
+          $.getJSON(`knxUltimateDpts?serverId=${serverId}`, (data) => {
+            data.forEach((dpt) => {
+              if (dpt.value.startsWith(prefix)) {
+                $destination.append($('<option></option>').attr('value', dpt.value).text(dpt.text));
+              }
+            });
+            if (node[destinationSelector.replace('#node-input-', '')]) {
+              $destination.val(node[destinationSelector.replace('#node-input-', '')]).trigger('change');
+            }
+          });
+        }
+
+        function getGroupAddress($sourceWidget, $nameWidget, $dptWidget, dptPrefixes) {
+          $sourceWidget.autocomplete({
+            minLength: 0,
+            source(request, response) {
+              const server = oNodeServer();
+              if (!server) { response([]); return; }
+              $.getJSON(`knxUltimatecsv?nodeID=${server.id}`, (data) => {
+                response($.map(data, (value) => {
+                  const search = `${value.ga} (${value.devicename}) DPT${value.dpt}`;
+                  for (let i = 0; i < dptPrefixes.length; i += 1) {
+                    if (htmlUtilsfullCSVSearch(search, `${request.term} ${dptPrefixes[i]}`)) {
+                      return {
+                        label: `${value.ga} # ${value.devicename} # ${value.dpt}`,
+                        value: value.ga,
+                      };
+                    }
+                  }
+                  return null;
+                }));
+              });
+            },
+            select(event, ui) {
+              let sDevName = ui.item.label.split('#')[1].trim();
+              try {
+                sDevName = sDevName.substr(sDevName.indexOf(')') + 1).trim();
+              } catch (error) { /* empty */ }
+              $nameWidget.val(sDevName);
+              const optVal = $dptWidget.find(`option:contains('${ui.item.label.split('#')[2].trim()}')`).attr('value');
+              if (optVal !== undefined && optVal !== null) {
+                $dptWidget.val(optVal).trigger('change');
+              } else {
+                $dptWidget.trigger('change');
+              }
+            },
+          }).focus(function () {
+            $(this).autocomplete('search', `${$(this).val()}exactmatch`);
+          });
+          try {
+            const server = oNodeServer();
+            if (server && server.id) KNX_enableSecureFormatting($sourceWidget, server.id);
+          } catch (error) { /* empty */ }
+        }
+
+        getDPT('1.', '#node-input-dptPlugSwitch');
+        getDPT('1.', '#node-input-dptPlugState');
+        getDPT('1.', '#node-input-dptPlugPowerState');
+
+        getGroupAddress($('#node-input-GAPlugSwitch'), $('#node-input-namePlugSwitch'), $('#node-input-dptPlugSwitch'), ['1.']);
+        getGroupAddress($('#node-input-GAPlugState'), $('#node-input-namePlugState'), $('#node-input-dptPlugState'), ['1.']);
+        getGroupAddress($('#node-input-GAPlugPowerState'), $('#node-input-namePlugPowerState'), $('#node-input-dptPlugPowerState'), ['1.']);
+
+        const $deviceName = $('#node-input-name');
+        const $refreshButton = $('.hue-refresh-devices');
+        const $loadingIndicator = $('.hue-devices-loading');
+        cachedDevices = [];
+
+        function filterDevices(devices, term) {
+          const cleaned = (term || '').replace(/exactmatch/gi, '').trim();
+          return $.map(devices, (value) => {
+            const sSearch = value.name;
+            if (cleaned === '' || htmlUtilsfullCSVSearch(sSearch, cleaned)) {
+              return {
+                hueDevice: value.id,
+                hueType: value.type || value.deviceObject?.type || 'plug',
+                value: value.name,
+              };
+            }
+            return null;
+          });
+        }
+
+        function fetchDevices(hueServer, term, response, { forceRefresh = false } = {}) {
+          if (!hueServer) { response([]); return; }
+          if (!forceRefresh && cachedDevices.length > 0) {
+            response(filterDevices(cachedDevices, term));
+            return;
+          }
+          $loadingIndicator.show();
+          $.getJSON(`KNXUltimateGetResourcesHUE?rtype=plug&serverId=${hueServer.id}&_=${Date.now()}`, (data) => {
+            const listCandidates = Array.isArray(data) ? data : (Array.isArray(data?.devices) ? data.devices : (Array.isArray(data?.resources) ? data.resources : []));
+            cachedDevices = listCandidates.map((value) => {
+              if (value.deviceObject) return value;
+              const name = value.metadata?.name || value.name || '';
+              const type = value.type || value.rtype || value.resource_type || (value.deviceObject?.type);
+              return {
+                id: value.id || value.rid,
+                name,
+                type: type,
+                deviceObject: value,
+              };
+            });
+            response(filterDevices(cachedDevices, term));
+          }).always(() => {
+            $loadingIndicator.hide();
+          }).fail(() => {
+            cachedDevices = [];
+            response([]);
+          });
+        }
+
+        $deviceName.autocomplete({
+          minLength: 0,
+          source(request, response) {
+            const hueServer = oNodeServerHue();
+            if (!hueServer) { response([]); return; }
+            fetchDevices(hueServer, request.term, response);
+          },
+          select(event, ui) {
+            const hueType = ui.item.hueType || 'plug';
+            $('#node-input-hueDevice').val(`${ui.item.hueDevice}#${hueType}`);
+          },
+        }).focus(function () {
+          $(this).autocomplete('search', `${$(this).val()}exactmatch`);
+        });
+
+        $refreshButton.on('click.knxUltimateHuePlug', () => {
+          cachedDevices = [];
+          const hueServer = oNodeServerHue();
+          if (!hueServer) return;
+          fetchDevices(hueServer, '', () => {
+            $deviceName.autocomplete('search', `${$deviceName.val()}exactmatch`);
+          }, { forceRefresh: true });
+        });
+
+        $('#node-input-serverHue').on('change.knxUltimateHuePlug', () => {
+          cachedDevices = [];
+          updateTabsVisibility();
+          $loadingIndicator.hide();
+        });
+
+        $('#node-input-readStatusAtStartup').val(node.readStatusAtStartup || 'yes');
+        $('#node-input-enableNodePINS').val(normalizePinsValue(node.enableNodePINS || 'no')).trigger('change');
+      },
+      oneditsave() {
+        try { RED.sidebar.show('info'); } catch (error) { /* empty */ }
+        detachHandlers();
+        const pinsSelection = $('#node-input-enableNodePINS').val();
+        this.enableNodePINS = normalizePinsValue(pinsSelection);
+        this.outputs = this.enableNodePINS === 'yes' ? 1 : 0;
+        this.inputs = this.enableNodePINS === 'yes' ? 1 : 0;
+        cachedDevices = [];
+      },
+      oneditcancel() {
+        detachHandlers();
+        cachedDevices = [];
+        try { RED.sidebar.show('info'); } catch (error) { /* empty */ }
+      },
+    });
+  }());
+</script>
+
+<script type="text/html" data-template-name="knxUltimateHuePlug">
+  <div class="form-row">
+    <label for="node-input-server">
+      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAKnRFWHRDcmVhdGlvbiBUaW1lAEZyIDYgQXVnIDIwMTAgMjE6NTI6MTkgKzAxMDD84aS8AAAAB3RJTUUH3gYYCicNV+4WIQAAAAlwSFlzAAALEgAACxIB0t1+/AAAAARnQU1BAACxjwv8YQUAAACUSURBVHjaY2CgFZg5c+Z/ZEyWAZ8+f/6/ZsWs/xoamqMGkGrA6Wla/1+fVARjEBuGsSoGmY4eZSCNL59d/g8DIDbIAHR14OgFGQByKjIGKX5+6/T///8gGMQGiV1+/B0Fg70GIkD+RMYgxf/O5/7//2MSmAZhkBi6OrgB6Bg5DGB4ajr3f2xqsYYLSDE2THJUDg0AAAqyDVd4tp4YAAAAAElFTkSuQmCC" />
+      <span data-i18n="common.knx_gw"></span>
+    </label>
+    <input type="text" id="node-input-server">
+  </div>
+
+  <div class="form-row">
+    <label for="node-input-serverHue">
+      <img src="data:image/png;base64, iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAEKADAAQAAAABAAAAEAAAAAA0VXHyAAABFUlEQVQ4EZWSsWoCQRCG1yiENEFEi6QSkjqWWoqFoBYJ+Br6JHkMn8Iibd4ihQpaJIhWNkry/ZtdGZY78Qa+m39nZ+dm9s4550awglNBluS/gVtAX6KgDclf68w2OThgfR9iT/jnoEv4TtByDThWTCDKW4SSZTf/zj9/eZbN+izTDuKGimu0vPF8B/YN8aC8LmcOj/AAn9CFTEs70Js/oGqy79C69bqJ5XbQI2kGO5N8QL9D08S8zBtBF5ZaVsznpCMoqJnVdjTpb1Db0fwIWmQV6BLXzFOYgA6/gDVfQN9bBWp2J2hdWDPoBV5FrKnAJutHikk/CHHR8i7x4iG7qQ720IYvu3GFbpHjx3pFrOFYkA354z/5bkK826phyAAAAABJRU5ErkJggg=="/>
+      <span data-i18n="common.hue_bridge"></span>
+    </label>
+    <input type="text" id="node-input-serverHue">
+  </div>
+
+  <div class="form-row hue-requires-bridge">
+    <label for="node-input-name">
+      <i class="fa fa-tag"></i> <span data-i18n="common.name"></span>
+    </label>
+    <input type="text" id="node-input-name" placeholder="Hue plug name" style="flex:1 1 auto;">
+    <button type="button" class="red-ui-button hue-refresh-devices" style="margin-left:6px; color:#1b7d33; border-color:#1b7d33;">
+      <i class="fa fa-sync"></i>
+    </button>
+    <span class="hue-devices-loading" style="margin-left:6px; display:none; color:#1b7d33;">
+      <i class="fa fa-circle-notch fa-spin"></i>
+    </span>
+  </div>
+
+  <div id="tabs">
+    <ul>
+      <li><a href="#tabs-1"><i class="fa-solid fa-toggle-on"></i> <span data-i18n="knxUltimateHuePlug.tabs.switch"></span></a></li>
+      <li><a href="#tabs-2"><i class="fa-solid fa-gear"></i> <span data-i18n="knxUltimateHuePlug.tabs.behaviour"></span></a></li>
+    </ul>
+
+    <div id="tabs-1">
+      <div class="form-tips hue-form-tip hue-knx-section">
+        <i class="fa fa-circle-info"></i>
+        <span data-i18n="knxUltimateHuePlug.switch_info"></span>
+      </div>
+      <div class="form-row hue-knx-section">
+        <label for="node-input-namePlugSwitch" style="width:120px;">
+          <i class="fa fa-play-circle"></i> <span data-i18n="knxUltimateHuePlug.switch_control"></span>
+        </label>
+        <label for="node-input-GAPlugSwitch" style="width:20px;"><span data-i18n="common.ga"></span></label>
+        <input type="text" id="node-input-GAPlugSwitch" placeholder="1/1/1" style="width:80px; text-align:left;">
+        <label for="node-input-dptPlugSwitch" style="width:40px; text-align:right;"><span data-i18n="common.dpt"></span></label>
+        <select id="node-input-dptPlugSwitch" style="width:140px;"></select>
+        <label for="node-input-namePlugSwitch" style="width:60px; text-align:right;"><span data-i18n="knxUltimateHuePlug.node-input-name"></span></label>
+        <input type="text" id="node-input-namePlugSwitch" style="width:200px; text-align:left;">
+      </div>
+
+      <div class="form-row hue-knx-section">
+        <label for="node-input-namePlugState" style="width:120px;">
+          <i class="fa fa-circle-info"></i> <span data-i18n="knxUltimateHuePlug.switch_status"></span>
+        </label>
+        <label for="node-input-GAPlugState" style="width:20px;"><span data-i18n="common.ga"></span></label>
+        <input type="text" id="node-input-GAPlugState" placeholder="1/1/2" style="width:80px; text-align:left;">
+        <label for="node-input-dptPlugState" style="width:40px; text-align:right;"><span data-i18n="common.dpt"></span></label>
+        <select id="node-input-dptPlugState" style="width:140px;"></select>
+        <label for="node-input-namePlugState" style="width:60px; text-align:right;"><span data-i18n="knxUltimateHuePlug.node-input-name"></span></label>
+        <input type="text" id="node-input-namePlugState" style="width:200px; text-align:left;">
+      </div>
+
+      <div class="form-tips hue-form-tip hue-knx-section">
+        <i class="fa fa-circle-info"></i>
+        <span data-i18n="knxUltimateHuePlug.power_state_info"></span>
+      </div>
+      <div class="form-row hue-knx-section">
+        <label for="node-input-namePlugPowerState" style="width:120px;">
+          <i class="fa fa-bolt"></i> <span data-i18n="knxUltimateHuePlug.power_state"></span>
+        </label>
+        <label for="node-input-GAPlugPowerState" style="width:20px;"><span data-i18n="common.ga"></span></label>
+        <input type="text" id="node-input-GAPlugPowerState" placeholder="1/1/3" style="width:80px; text-align:left;">
+        <label for="node-input-dptPlugPowerState" style="width:40px; text-align:right;"><span data-i18n="common.dpt"></span></label>
+        <select id="node-input-dptPlugPowerState" style="width:140px;"></select>
+        <label for="node-input-namePlugPowerState" style="width:60px; text-align:right;"><span data-i18n="knxUltimateHuePlug.node-input-name"></span></label>
+        <input type="text" id="node-input-namePlugPowerState" style="width:200px; text-align:left;">
+      </div>
+    </div>
+
+    <div id="tabs-2">
+      <div class="form-row">
+        <label for="node-input-readStatusAtStartup" style="width:220px;">
+          <i class="fa fa-question-circle"></i> <span data-i18n="knxUltimateHuePlug.read_status_startup"></span>
+        </label>
+        <select id="node-input-readStatusAtStartup" style="width:120px;">
+          <option value="yes" data-i18n="knxUltimateHuePlug.opt_yes_emit"></option>
+          <option value="no" data-i18n="knxUltimateHuePlug.opt_no"></option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label for="node-input-enableNodePINS" style="width:220px;">
+          <i class="fa fa-code"></i> <span data-i18n="knxUltimateHuePlug.node_pins"></span>
+        </label>
+        <select id="node-input-enableNodePINS" style="width:120px;">
+          <option value="no" data-i18n="knxUltimateHuePlug.node_pins_hide"></option>
+          <option value="yes" data-i18n="knxUltimateHuePlug.node_pins_show"></option>
+        </select>
+        <div class="form-tips hue-form-tip" style="margin-left:4px; display:none;">
+          <i class="fa fa-circle-info"></i>
+          <span data-i18n="knxUltimateHuePlug.node_pins_help"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <input type="hidden" id="node-input-hueDevice">
+</script>
+
+<script type="text/markdown" data-help-name="knxUltimateHuePlug">
+</script>

@@ -154,7 +154,7 @@
             // Ignore UI quirks for legacy Node-RED versions
           }
         };
-        ["#node-input-server", "#node-input-serverHue"].forEach(ensureConfigSelection);
+        ["#node-input-serverHue"].forEach(ensureConfigSelection);
 
         function ensureVerticalTabsStyle() {
           if ($('#knxUltimateHueLightVerticalTabs').length) return;
@@ -203,6 +203,25 @@
 
         function onEditPrepare() {
           ensureVerticalTabsStyle();
+          const $knxServerInput = $("#node-input-server");
+          const KNX_EMPTY_VALUES = new Set(['', 'none', '_ADD_', '__NONE__']);
+
+          const resolveKnxServerValue = () => {
+            const domValue = $knxServerInput.val();
+            if (domValue !== undefined && domValue !== null && domValue !== '') {
+              return domValue;
+            }
+            if (node.server !== undefined && node.server !== null) {
+              return node.server;
+            }
+            return '';
+          };
+
+          const hasKnxServerSelected = () => {
+            const val = resolveKnxServerValue();
+            if (val === undefined || val === null) return false;
+            return !KNX_EMPTY_VALUES.has(val);
+          };
           // TIMER BLINK ####################################################
           let blinkStatus = 2;
           let timerBlinkBackground;
@@ -408,7 +427,11 @@
             // ########################
             const prefixes = Array.isArray(_dpt) ? _dpt : [_dpt];
             $(_destinationWidget).empty();
-            $.getJSON("knxUltimateDpts?serverId=" + $("#node-input-server").val() + "&" + { _: new Date().getTime() }, (data) => {
+            if (!hasKnxServerSelected()) {
+              return;
+            }
+            const serverId = resolveKnxServerValue();
+            $.getJSON(`knxUltimateDpts?serverId=${serverId}&_=${Date.now()}`, (data) => {
               data.forEach((dpt) => {
                 if (prefixes.some((prefix) => prefix === "" || dpt.value.startsWith(prefix))) {
                   // Adjustment for HUE Temperature
@@ -438,8 +461,12 @@
             $(_sourceWidgetAutocomplete).autocomplete({
               minLength: 0,
               source: function (request, response) {
-                //$.getJSON("csv", request, function( data, status, xhr ) {
-                $.getJSON("knxUltimatecsv?nodeID=" + $("#node-input-server").val() + "&" + { _: new Date().getTime() }, (data) => {
+                if (!hasKnxServerSelected()) {
+                  response([]);
+                  return;
+                }
+                const serverId = resolveKnxServerValue();
+                $.getJSON(`knxUltimatecsv?nodeID=${serverId}&_=${Date.now()}`, (data) => {
                   response(
                     $.map(data, function (value, key) {
                       var sSearch = value.ga + " (" + value.devicename + ") DPT" + value.dpt;
@@ -475,84 +502,97 @@
             }).focus(function () {
               $(this).autocomplete('search', $(this).val() + 'exactmatch');
             });
-            try { var srv = RED.nodes.node($("#node-input-server").val()); if (srv && srv.id) KNX_enableSecureFormatting($(_sourceWidgetAutocomplete), srv.id); } catch (e) {}
+            try {
+              if (hasKnxServerSelected()) {
+                const srv = RED.nodes.node(resolveKnxServerValue());
+                if (srv && srv.id) KNX_enableSecureFormatting($(_sourceWidgetAutocomplete), srv.id);
+              }
+            } catch (e) {}
           }
 
-          getDPT("1.", "#node-input-dptLightSwitch");
-          getGroupAddress("#node-input-GALightSwitch", "#node-input-nameLightSwitch", "#node-input-dptLightSwitch", ["1."]);
-
-          getDPT("1.", "#node-input-dptLightState");
-          getGroupAddress("#node-input-GALightState", "#node-input-nameLightState", "#node-input-dptLightState", ["1."]);
-
-          getDPT("3.007", "#node-input-dptLightDIM");
-          getGroupAddress("#node-input-GALightDIM", "#node-input-nameLightDIM", "#node-input-dptLightDIM", ["3.007"]);
-
-          getDPT("5.001", "#node-input-dptLightBrightness");
-          getGroupAddress("#node-input-GALightBrightness", "#node-input-nameLightBrightness", "#node-input-dptLightBrightness", ["5.001"]);
-
-          getDPT("5.001", "#node-input-dptLightBrightnessState");
-          getGroupAddress("#node-input-GALightBrightnessState", "#node-input-nameLightBrightnessState", "#node-input-dptLightBrightnessState", ["5.001"]);
-
-          getDPT("232.600", "#node-input-dptLightColor");
-          getGroupAddress("#node-input-GALightColor", "#node-input-nameLightColor", "#node-input-dptLightColor", ["232.600"]);
-
-          getDPT("232.600", "#node-input-dptLightColorState");
-          getGroupAddress("#node-input-GALightColorState", "#node-input-nameLightColorState", "#node-input-dptLightColorState", ["232.600"]);
-
-          getDPT("3.007", "#node-input-dptLightKelvinDIM");
-          getGroupAddress("#node-input-GALightKelvinDIM", "#node-input-nameLightKelvinDIM", "#node-input-dptLightKelvinDIM", ["3.007"]);
-
-          getDPT("5.001", "#node-input-dptLightKelvinPercentage");
-          getGroupAddress("#node-input-GALightKelvinPercentage", "#node-input-nameLightKelvinPercentage", "#node-input-dptLightKelvinPercentage", ["5.001"]);
-
-          getDPT("5.001", "#node-input-dptLightKelvinPercentageState");
-          getGroupAddress("#node-input-GALightKelvinPercentageState", "#node-input-nameLightKelvinPercentageState", "#node-input-dptLightKelvinPercentageState", ["5.001"]);
-
-          getDPT("1.", "#node-input-dptLightBlink");
-          getGroupAddress("#node-input-GALightBlink", "#node-input-nameLightBlink", "#node-input-dptLightBlink", ["1."]);
-
-          getDPT("1.", "#node-input-dptLightColorCycle");
-          getGroupAddress("#node-input-GALightColorCycle", "#node-input-nameLightColorCycle", "#node-input-dptLightColorCycle", ["1."]);
-
           const effectDptPrefixes = ["1.", "2.", "5.", "6.", "7.", "8.", "9.", "16.", "20."];
-          getDPT(effectDptPrefixes, "#node-input-dptLightEffect");
-          getGroupAddress("#node-input-GALightEffect", "#node-input-nameLightEffect", "#node-input-dptLightEffect", effectDptPrefixes);
 
-          getDPT(effectDptPrefixes, "#node-input-dptLightEffectStatus");
-          getGroupAddress("#node-input-GALightEffectStatus", "#node-input-nameLightEffectStatus", "#node-input-dptLightEffectStatus", effectDptPrefixes);
+          const refreshKnxBindings = () => {
+            getDPT("1.", "#node-input-dptLightSwitch");
+            getGroupAddress("#node-input-GALightSwitch", "#node-input-nameLightSwitch", "#node-input-dptLightSwitch", ["1."]);
 
-          getDPT("1.", "#node-input-dptDaylightSensor");
-          getGroupAddress("#node-input-GADaylightSensor", "#node-input-nameDaylightSensor", "#node-input-dptDaylightSensor", ["1."]);
+            getDPT("1.", "#node-input-dptLightState");
+            getGroupAddress("#node-input-GALightState", "#node-input-nameLightState", "#node-input-dptLightState", ["1."]);
 
-          getDPT("7.600", "#node-input-dptLightKelvin");
-          getDPT("9.002", "#node-input-dptLightKelvin");
-          getDPT("9.002", "#node-input-dptLightKelvinState");
-          getDPT("7.600", "#node-input-dptLightKelvinState");
-          getGroupAddress("#node-input-GALightKelvin", "#node-input-nameLightKelvin", "#node-input-dptLightKelvin", ["7.600", "9.002"]);
-          getGroupAddress("#node-input-GALightKelvinState", "#node-input-nameLightKelvinState", "#node-input-dptLightKelvinState", ["7.600", "9.002"]);
+            getDPT("3.007", "#node-input-dptLightDIM");
+            getGroupAddress("#node-input-GALightDIM", "#node-input-nameLightDIM", "#node-input-dptLightDIM", ["3.007"]);
 
-          // HSV ----------------------
-          // H
-          getDPT("3.007", "#node-input-dptLightHSV_H_DIM");
-          getGroupAddress("#node-input-GALightHSV_H_DIM", "#node-input-nameLightHSV_H_DIM", "#node-input-dptLightHSV_H_DIM", ["3.007"]);
+            getDPT("5.001", "#node-input-dptLightBrightness");
+            getGroupAddress("#node-input-GALightBrightness", "#node-input-nameLightBrightness", "#node-input-dptLightBrightness", ["5.001"]);
 
-          getDPT("5.001", "#node-input-dptLightHSV_H_State");
-          getGroupAddress("#node-input-GALightHSV_H_State", "#node-input-nameLightHSV_H_State", "#node-input-dptLightHSV_H_State", ["5.001"]);
+            getDPT("5.001", "#node-input-dptLightBrightnessState");
+            getGroupAddress("#node-input-GALightBrightnessState", "#node-input-nameLightBrightnessState", "#node-input-dptLightBrightnessState", ["5.001"]);
 
-          // S
-          getDPT("3.007", "#node-input-dptLightHSV_S_DIM");
-          getGroupAddress("#node-input-GALightHSV_S_DIM", "#node-input-nameLightHSV_S_DIM", "#node-input-dptLightHSV_S_DIM", ["3.007"]);
+            getDPT("232.600", "#node-input-dptLightColor");
+            getGroupAddress("#node-input-GALightColor", "#node-input-nameLightColor", "#node-input-dptLightColor", ["232.600"]);
 
-          getDPT("5.001", "#node-input-dptLightHSV_S_State");
-          getGroupAddress("#node-input-GALightHSV_S_State", "#node-input-nameLightHSV_S_State", "#node-input-dptLightHSV_S_State", ["5.001"]);
+            getDPT("232.600", "#node-input-dptLightColorState");
+            getGroupAddress("#node-input-GALightColorState", "#node-input-nameLightColorState", "#node-input-dptLightColorState", ["232.600"]);
 
-          // V
-          getDPT("3.007", "#node-input-dptLightHSV_V_DIM");
-          getGroupAddress("#node-input-GALightHSV_V_DIM", "#node-input-nameLightHSV_V_DIM", "#node-input-dptLightHSV_V_DIM", ["3.007"]);
+            getDPT("3.007", "#node-input-dptLightKelvinDIM");
+            getGroupAddress("#node-input-GALightKelvinDIM", "#node-input-nameLightKelvinDIM", "#node-input-dptLightKelvinDIM", ["3.007"]);
 
-          getDPT("5.001", "#node-input-dptLightHSV_V_State");
-          getGroupAddress("#node-input-GALightHSV_V_State", "#node-input-nameLightHSV_V_State", "#node-input-dptLightHSV_V_State", ["5.001"]);
-          // END HSV ----------------------
+            getDPT("5.001", "#node-input-dptLightKelvinPercentage");
+            getGroupAddress("#node-input-GALightKelvinPercentage", "#node-input-nameLightKelvinPercentage", "#node-input-dptLightKelvinPercentage", ["5.001"]);
+
+            getDPT("5.001", "#node-input-dptLightKelvinPercentageState");
+            getGroupAddress("#node-input-GALightKelvinPercentageState", "#node-input-nameLightKelvinPercentageState", "#node-input-dptLightKelvinPercentageState", ["5.001"]);
+
+            getDPT("1.", "#node-input-dptLightBlink");
+            getGroupAddress("#node-input-GALightBlink", "#node-input-nameLightBlink", "#node-input-dptLightBlink", ["1."]);
+
+            getDPT("1.", "#node-input-dptLightColorCycle");
+            getGroupAddress("#node-input-GALightColorCycle", "#node-input-nameLightColorCycle", "#node-input-dptLightColorCycle", ["1."]);
+
+            getDPT(effectDptPrefixes, "#node-input-dptLightEffect");
+            getGroupAddress("#node-input-GALightEffect", "#node-input-nameLightEffect", "#node-input-dptLightEffect", effectDptPrefixes);
+
+            getDPT(effectDptPrefixes, "#node-input-dptLightEffectStatus");
+            getGroupAddress("#node-input-GALightEffectStatus", "#node-input-nameLightEffectStatus", "#node-input-dptLightEffectStatus", effectDptPrefixes);
+
+            getDPT("1.", "#node-input-dptDaylightSensor");
+            getGroupAddress("#node-input-GADaylightSensor", "#node-input-nameDaylightSensor", "#node-input-dptDaylightSensor", ["1."]);
+
+            getDPT("7.600", "#node-input-dptLightKelvin");
+            getDPT("9.002", "#node-input-dptLightKelvin");
+            getDPT("9.002", "#node-input-dptLightKelvinState");
+            getDPT("7.600", "#node-input-dptLightKelvinState");
+            getGroupAddress("#node-input-GALightKelvin", "#node-input-nameLightKelvin", "#node-input-dptLightKelvin", ["7.600", "9.002"]);
+            getGroupAddress("#node-input-GALightKelvinState", "#node-input-nameLightKelvinState", "#node-input-dptLightKelvinState", ["7.600", "9.002"]);
+
+            // HSV ----------------------
+            // H
+            getDPT("3.007", "#node-input-dptLightHSV_H_DIM");
+            getGroupAddress("#node-input-GALightHSV_H_DIM", "#node-input-nameLightHSV_H_DIM", "#node-input-dptLightHSV_H_DIM", ["3.007"]);
+
+            getDPT("5.001", "#node-input-dptLightHSV_H_State");
+            getGroupAddress("#node-input-GALightHSV_H_State", "#node-input-nameLightHSV_H_State", "#node-input-dptLightHSV_H_State", ["5.001"]);
+
+            // S
+            getDPT("3.007", "#node-input-dptLightHSV_S_DIM");
+            getGroupAddress("#node-input-GALightHSV_S_DIM", "#node-input-nameLightHSV_S_DIM", "#node-input-dptLightHSV_S_DIM", ["3.007"]);
+
+            getDPT("5.001", "#node-input-dptLightHSV_S_State");
+            getGroupAddress("#node-input-GALightHSV_S_State", "#node-input-nameLightHSV_S_State", "#node-input-dptLightHSV_S_State", ["5.001"]);
+
+            // V
+            getDPT("3.007", "#node-input-dptLightHSV_V_DIM");
+            getGroupAddress("#node-input-GALightHSV_V_DIM", "#node-input-nameLightHSV_V_DIM", "#node-input-dptLightHSV_V_DIM", ["3.007"]);
+
+            getDPT("5.001", "#node-input-dptLightHSV_V_State");
+            getGroupAddress("#node-input-GALightHSV_V_State", "#node-input-nameLightHSV_V_State", "#node-input-dptLightHSV_V_State", ["5.001"]);
+            // END HSV ----------------------
+          };
+
+          refreshKnxBindings();
+          $knxServerInput.on('change.knxUltimateHueLight', () => {
+            refreshKnxBindings();
+          });
 
           // Get the HUE capabilities to enable/disable UI parts
           var getJsonPromise;

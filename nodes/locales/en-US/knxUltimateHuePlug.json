@@ -1,0 +1,33 @@
+{
+  "knxUltimateHuePlug": {
+    "title": "HUE Plug/Outlet",
+    "paletteLabel": "Hue Plug/Outlet",
+    "tabs": {
+      "switch": "Switch",
+      "behaviour": "Behaviour"
+    },
+    "node-input-name": "Name",
+    "switch_info": "Link your KNX switch address to control the Hue plug on/off state.",
+    "switch_control": "Control",
+    "switch_status": "Status",
+    "power_state": "Power state",
+    "power_state_info": "Optional. Track the Hue-reported power state (on/standby) on a KNX group address.",
+    "read_status_startup": "Read status at startup",
+    "opt_yes_emit": "Yes, and emit KNX telegrams.",
+    "opt_no": "No",
+    "node_pins": "Node Input/Output PINs",
+    "node_pins_hide": "Hide",
+    "node_pins_show": "Show node input/output PINs",
+    "node_pins_help": "Enable Node-RED input/output pins to send custom Hue API payloads or forward events to your flow."
+  },
+  "common": {
+    "ga": "GA",
+    "dpt": "DPT",
+    "name": "Name",
+    "youtube_sample": "Youtube sample",
+    "knx_gw": "KNX GW",
+    "hue_bridge": "HUE Bridge",
+    "philips_hue": "Philips HUE",
+    "read": "Read"
+  }
+}

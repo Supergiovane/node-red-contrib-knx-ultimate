@@ -1,0 +1,34 @@
+<script type="text/markdown" data-help-name="knxUltimateHuePlug">
+<p>Dieser Node verbindet eine Philips-Hue-Steckdose mit KNX-Gruppenadressen, sodass Ein/Aus-Steuerung und Statusrückmeldung direkt über den KNX-Bus erfolgen.</p>
+
+**Allgemein**
+|Eigenschaft|Beschreibung|
+|--|--|
+| KNX GW | Verwendetes KNX-Gateway |
+| Hue Bridge | Konfigurierte Hue-Bridge |
+| Name | Gewählte Hue-Steckdose (Autocomplete zeigt verfügbare Geräte) |
+
+<br/>
+
+**Schalten**
+|Eigenschaft|Beschreibung|
+|--|--|
+| Befehl | KNX-Gruppenadresse für Ein/Aus (typ. DPT 1.xxx). Wird an Hue weitergereicht. |
+| Status | Optionale GA, die den von Hue gemeldeten Ein/Aus-Zustand erhält. |
+| Power state | Optionale GA, die den Hue-Parameter `power_state` (on/standby) spiegelt. Verwende einen passenden DPT (Boolean/Text). |
+
+<br/>
+
+**Verhalten**
+|Eigenschaft|Beschreibung|
+|--|--|
+| Status beim Start lesen | Bei *Ja* sendet der Node den aktuellen Zustand bei Deploy/Neustart. |
+| Node I/O Pins | Aktiviert Node-RED Ein-/Ausgänge. Eingänge erwarten Hue-konforme Payloads (z. B. `{ on: { on: true } }`). Ausgänge leiten jedes Hue-Ereignis an den Flow weiter. |
+
+<br/>
+
+**Hinweise**
+- Befehle werden über die Hue v2 API (`/resource/plug/{id}`) ausgeführt.
+- Die Status-GA wird nur bei Änderungen beschrieben. Für periodische Aktualisierungen Option *Status beim Start lesen* aktiv belassen und/oder ein KNX-Read senden.
+- Der Power-state wird als `true` gemeldet, wenn Hue `on` zurückliefert, andernfalls `false` (z. B. `standby`).
+</script>

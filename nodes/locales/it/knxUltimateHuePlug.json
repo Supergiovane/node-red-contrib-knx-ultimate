@@ -1,0 +1,33 @@
+{
+  "knxUltimateHuePlug": {
+    "title": "Presa/Plug HUE",
+    "paletteLabel": "Hue Plug/Outlet",
+    "tabs": {
+      "switch": "On/Off",
+      "behaviour": "Comportamento"
+    },
+    "node-input-name": "Nome",
+    "switch_info": "Collega l'indirizzo KNX per comandare accensione e spegnimento della presa Hue.",
+    "switch_control": "Comando",
+    "switch_status": "Stato",
+    "power_state": "Power state",
+    "power_state_info": "Opzionale. Traccia lo stato di alimentazione restituito da Hue (on/standby) su un indirizzo KNX.",
+    "read_status_startup": "Leggi stato all'avvio",
+    "opt_yes_emit": "Sì, ed emetti i telegrammi KNX.",
+    "opt_no": "No",
+    "node_pins": "PIN di Input/Output del nodo",
+    "node_pins_hide": "Nascondi",
+    "node_pins_show": "Mostra PIN di input/output",
+    "node_pins_help": "Abilita i pin di input/output per inviare payload Hue personalizzati o propagare gli eventi al flow."
+  },
+  "common": {
+    "ga": "GA",
+    "dpt": "DPT",
+    "name": "Nome",
+    "youtube_sample": "Esempio YouTube",
+    "knx_gw": "Gateway KNX",
+    "hue_bridge": "Bridge HUE",
+    "philips_hue": "Philips HUE",
+    "read": "Leggi"
+  }
+}

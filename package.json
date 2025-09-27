@@ -49,7 +49,8 @@
       "knxUltimateHueZigbeeConnectivity": "/nodes/knxUltimateHueZigbeeConnectivity.js",
       "knxUltimateContactSensor": "/nodes/knxUltimateHueContactSensor.js",
       "knxUltimateHATranslator": "/nodes/knxUltimateHATranslator.js",
-      "knxUltimateHuedevice_software_update": "/nodes/knxUltimateHuedevice_software_update.js"
+      "knxUltimateHuedevice_software_update": "/nodes/knxUltimateHuedevice_software_update.js",
+      "knxUltimateHuePlug": "/nodes/knxUltimateHuePlug.js"
     }
   },
   "repository": {

@@ -246,6 +246,9 @@ module.exports = (RED) => {
         let allResources;
         if (_rtype === "light" || _rtype === "grouped_light") {
           allResources = node.hueAllResources.filter((a) => a.type === "light" || a.type === "grouped_light");
+        } else if (_rtype === "plug") {
+          allResources = node.hueAllResources.filter((a) => a.type === "plug" || a.type === "smartplug" || a.type === "smart_plug");
+          console.log('getResources plug raw resources', allResources.map((res) => ({ id: res.id, type: res.type, owner: res.owner?.rtype })));
         } else {
           allResources = node.hueAllResources.filter((a) => a.type === _rtype);
         }
@@ -324,6 +327,19 @@ module.exports = (RED) => {
                 id: resource.id,
               });
             }
+            if (_rtype === "plug") {
+              const linkedDevice = node.hueAllResources.find((dev) => dev.type === "device" && dev.services.find((serv) => serv.rid === resource.id));
+              const room = node.hueAllRooms?.find((roomItem) => roomItem.children?.find((child) => child.rid === linkedDevice?.id));
+              const plugName = linkedDevice?.metadata?.name || resource.metadata?.name || "Unnamed Plug";
+              const stateLabel = resource?.on?.on === true ? "on" : "off";
+              console.log('getResources plug direct resource', { id: resource.id, type: resource.type, name: plugName, linkedDevice: linkedDevice?.id });
+              retArray.push({
+                name: `Plug: ${plugName}${room !== undefined ? `, room ${room.metadata.name}` : ""} [${stateLabel}]`,
+                id: resource.id,
+                type: resource.type,
+                deviceObject: resource,
+              });
+            }
             if (_rtype === "temperature") {
               const Room = node.hueAllRooms.find((room) => room.children.find((child) => child.rid === resource.owner.rid));
               const linkedDevName = node.hueAllResources.find((dev) => dev.type === "device" && dev.services.find((serv) => serv.rid === resource.id)).metadata.name || "";
@@ -379,6 +395,38 @@ module.exports = (RED) => {
             });
           }
         }
+        if (_rtype === "plug" && retArray.length === 0) {
+          const plugDevices = node.hueAllResources.filter((dev) => {
+            if (dev.type !== "device" || !Array.isArray(dev.services)) return false;
+            const archetypePlug = dev.product_data?.product_archetype === 'plug' || dev.metadata?.archetype === 'plug' || /plug/i.test(dev.product_data?.product_name || '') || /plug/i.test(dev.metadata?.name || '');
+            const hasService = dev.services.some((serv) => ['plug', 'smartplug', 'smart_plug', 'light'].includes(serv.rtype || ''));
+            return archetypePlug && hasService;
+          });
+          plugDevices.forEach((device) => {
+            try {
+              const plugService = device.services.find((serv) => ['plug', 'smartplug', 'smart_plug', 'light'].includes(serv.rtype || ''));
+              if (!plugService) return;
+              const plugResource = node.hueAllResources.find((res) => res.id === plugService.rid) || {};
+              const room = node.hueAllRooms?.find((roomItem) => roomItem.children?.find((child) => child.rid === device.id));
+              const plugName = device.metadata?.name || plugResource.metadata?.name || "Unnamed Plug";
+              const stateLabel = plugResource?.on?.on === true ? "on" : (plugResource?.on?.on === false ? "off" : "");
+              retArray.push({
+                name: `Plug: ${plugName}${room !== undefined ? `, room ${room.metadata.name}` : ""}${stateLabel ? ` [${stateLabel}]` : ""}`,
+                id: plugService.rid || device.id,
+                type: plugService.rtype || plugResource.type || 'light',
+                deviceObject: plugResource.on ? plugResource : {
+                  id: plugService.rid || device.id,
+                  type: plugService.rtype || plugResource.type || 'light',
+                  on: plugResource.on,
+                  owner: { rid: device.id, rtype: 'device' },
+                },
+              });
+            } catch (err) {
+              node.sysLogger?.warn(`KNXUltimateHue: getResources plug fallback error ${err.message}`);
+            }
+          });
+        }
+        node.sysLogger?.debug(`getResources plug returning ${retArray.length}`);
         return { devices: retArray };
       } catch (error) {
         node.sysLogger?.error(`KNXUltimateHue: hueEngine: classHUE: getResources: error ${error.message}`);

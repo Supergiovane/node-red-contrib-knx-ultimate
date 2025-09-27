@@ -152,12 +152,18 @@ class classHUE extends EventEmitter {
         case "setLight":
           await this.hueApiV2.put(`/resource/light/${jRet._lightID}`, jRet._state);
           break;
-        case "setGroupedLight":
-          await this.hueApiV2.put(`/resource/grouped_light/${jRet._lightID}`, jRet._state);
-          break;
-        case "setScene":
-          await this.hueApiV2.put(`/resource/scene/${jRet._lightID}`, jRet._state);
-          break;
+      case "setGroupedLight":
+        await this.hueApiV2.put(`/resource/grouped_light/${jRet._lightID}`, jRet._state);
+        break;
+      case "setPlug":
+        {
+          const resourceType = jRet._resourceType || 'plug';
+          await this.hueApiV2.put(`/resource/${resourceType}/${jRet._lightID}`, jRet._state);
+        }
+        break;
+      case "setScene":
+        await this.hueApiV2.put(`/resource/scene/${jRet._lightID}`, jRet._state);
+        break;
         case "stopScene":
           const allResources = await this.hueApiV2.get("/resource");
           const jScene = allResources.find((res) => res.id === jRet._lightID);
@@ -185,8 +191,8 @@ class classHUE extends EventEmitter {
     } while (!this.exitAllQueues);
   };
 
-  writeHueQueueAdd = async (_lightID, _state, _operation) => {
-    this.commandQueue.unshift({ _lightID, _state, _operation });
+  writeHueQueueAdd = async (_lightID, _state, _operation, _resourceType) => {
+    this.commandQueue.unshift({ _lightID, _state, _operation, _resourceType });
   };
 
   deleteHueQueue = async (_lightID) => {

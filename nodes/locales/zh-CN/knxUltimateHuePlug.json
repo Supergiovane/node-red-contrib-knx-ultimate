@@ -1,0 +1,33 @@
+{
+  "knxUltimateHuePlug": {
+    "title": "HUE 插座",
+    "paletteLabel": "Hue Plug/Outlet",
+    "tabs": {
+      "switch": "开关",
+      "behaviour": "行为"
+    },
+    "node-input-name": "名称",
+    "switch_info": "把 KNX 的开关地址映射到 Hue 插座的开/关状态。",
+    "switch_control": "控制",
+    "switch_status": "状态",
+    "power_state": "电源状态",
+    "power_state_info": "可选：跟踪 Hue 返回的电源状态（on/standby），并写入 KNX 组地址。",
+    "read_status_startup": "启动时读取状态",
+    "opt_yes_emit": "是，并发送 KNX 电报。",
+    "opt_no": "否",
+    "node_pins": "节点输入/输出引脚",
+    "node_pins_hide": "隐藏",
+    "node_pins_show": "显示输入/输出引脚",
+    "node_pins_help": "启用 Node-RED 输入/输出引脚，以便发送自定义 Hue 载荷或将事件转发到 Flow。"
+  },
+  "common": {
+    "ga": "组地址",
+    "dpt": "DPT",
+    "name": "名称",
+    "youtube_sample": "YouTube 示例",
+    "knx_gw": "KNX 网关",
+    "hue_bridge": "HUE 网桥",
+    "philips_hue": "Philips HUE",
+    "read": "读取"
+  }
+}
