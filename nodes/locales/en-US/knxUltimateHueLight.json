@@ -16,8 +16,7 @@
       "tunable_white": "Tunable white",
       "rgb_hsv": "RGB/HSV",
       "effects": "Effects",
-      "behaviour": "Behaviour",
-      "ha_export": "Home Assistant Export (BETA)"
+      "behaviour": "Behaviour"
     },
     "control": "Control",
     "status": "Status",

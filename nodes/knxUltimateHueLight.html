@@ -976,17 +976,6 @@
             RED.sidebar.show("help");
           } catch (error) { }
           onEditPrepare();
-          node.yamlEditor = RED.editor.createEditor({
-            id: 'aceEditor',
-            mode: 'ace/mode/text'
-          });
-          node.yamlEditor.session.setValue(yamelize());
-          $('[id*="node-input-"]').on('keyup change autocompletechange', function () {
-            try {
-              node.yamlEditor.session.setValue(yamelize());
-            } catch (error) {
-            }
-          });
         }
 
 
@@ -1217,74 +1206,6 @@
 
       return toHex(red, green, blue, alpha);
     }
-    function yamelize() {
-      try {
-        const getVal = (selector) => {
-          const $el = $(selector);
-          if (!$el || !$el.length) return '';
-          const raw = $el.val();
-          if (raw === undefined || raw === null) return '';
-          return typeof raw === 'string' ? raw.trim() : String(raw);
-        };
-        const appendLine = (label, value) => {
-          if (value) {
-            sYaml += `  ${label}: "${value}"\n`;
-          }
-        };
-
-        const name = getVal('#node-input-name').replace(/"/g, '\\"');
-        let sYaml = `- name: "${name}"\n`;
-
-        appendLine('address', getVal('#node-input-GALightSwitch'));
-        appendLine('state_address', getVal('#node-input-GALightState'));
-        appendLine('brightness_address', getVal('#node-input-GALightBrightness'));
-        appendLine('brightness_state_address', getVal('#node-input-GALightBrightnessState'));
-
-        // Color temperature handling -----------------------------------
-        let colorTemperatureConfigured = false;
-        const kelvinPercent = getVal('#node-input-GALightKelvinPercentage');
-        if (kelvinPercent) {
-          sYaml += '  color_temperature_mode: relative\n';
-          appendLine('color_temperature_address', kelvinPercent);
-          appendLine('color_temperature_state_address', getVal('#node-input-GALightKelvinPercentageState'));
-          colorTemperatureConfigured = true;
-        } else {
-          const kelvinAddress = getVal('#node-input-GALightKelvin');
-          if (kelvinAddress) {
-            const kelvinDpt = getVal('#node-input-dptLightKelvin');
-            if (kelvinDpt === '7.600') {
-              sYaml += '  color_temperature_mode: absolute\n';
-              appendLine('color_temperature_address', kelvinAddress);
-              if (getVal('#node-input-dptLightKelvinState') === '7.600') {
-                appendLine('color_temperature_state_address', getVal('#node-input-GALightKelvinState'));
-              }
-              colorTemperatureConfigured = true;
-            } else if (kelvinDpt === '9.002') {
-              sYaml += '  color_temperature_mode: absolute_float\n';
-              appendLine('color_temperature_address', kelvinAddress);
-              if (getVal('#node-input-dptLightKelvinState') === '9.002') {
-                appendLine('color_temperature_state_address', getVal('#node-input-GALightKelvinState'));
-              }
-              colorTemperatureConfigured = true;
-            }
-          }
-        }
-        if (colorTemperatureConfigured) {
-          sYaml += '  min_kelvin: 2200\n';
-          sYaml += '  max_kelvin: 6500\n';
-        }
-
-        appendLine('color_address', getVal('#node-input-GALightColor'));
-        appendLine('color_state_address', getVal('#node-input-GALightColorState'));
-        appendLine('hue_address', getVal('#node-input-GALightHSV_H_DIM'));
-        appendLine('hue_state_address', getVal('#node-input-GALightHSV_H_State'));
-        appendLine('saturation_address', getVal('#node-input-GALightHSV_S_DIM'));
-        appendLine('saturation_state_address', getVal('#node-input-GALightHSV_S_State'));
-
-        return sYaml;
-      } catch (error) { }
-    }
-
   }())
 
 </script>
@@ -1348,7 +1269,6 @@
         <li><a href="#tabs-4"><i class="fa-solid fa-palette"></i> <span data-i18n="knxUltimateHueLight.tabs.rgb_hsv"></span></a></li>
         <li><a href="#tabs-5"><i class="fa-solid fa-heart-circle-check"></i> <span data-i18n="knxUltimateHueLight.tabs.effects"></span></a></li>
         <li><a href="#tabs-6"><i class="fa-solid fa-code-merge"></i> <span data-i18n="knxUltimateHueLight.tabs.behaviour"></span></a></li>
-        <li><a href="#tabs-7"><i class="fa-solid fa-house"></i> <span data-i18n="knxUltimateHueLight.tabs.ha_export"></span></a></li>
       </ul>
       <div id="tabs-1">
         <p>
@@ -1874,13 +1794,6 @@
             <option value="yes" data-i18n="knxUltimateHueLight.node_pins_show"></option>
           </select>
         </div>
-        </p>
-      </div>
-      <div id="tabs-7">
-        <p>
-          <br/> <b>YAML</b> <br/>
-          <div style="height: 220px; min-height:150px;" class="node-text-editor" id="aceEditor"></div>
-          <!-- <button type="button" class="red-ui-button">Button</button> -->
         </p>
       </div>
     </div>

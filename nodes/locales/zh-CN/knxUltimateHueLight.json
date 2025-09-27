@@ -16,8 +16,7 @@
       "tunable_white": "可调白光",
       "rgb_hsv": "RGB/HSV",
       "effects": "效果",
-      "behaviour": "行为",
-      "ha_export": "Home Assistant 导出 (测试版)"
+      "behaviour": "行为"
     },
     "control": "控制",
     "status": "状态",
