@@ -434,6 +434,10 @@
           });
 
           const $tabs = $("#tabs");
+          const $pinSectionRow = $("#node-input-enableNodePINS").closest('.form-row');
+          const $pinSelect = $("#node-input-enableNodePINS");
+          const $pinInfoRow = $pinSectionRow.next('.form-tips');
+          const $hueDeviceInput = $("#node-input-hueDevice");
           $tabs.addClass('hue-vertical-tabs');
           $tabs.tabs(); // Tabs gestione KNX
           $tabs.find('ul').addClass('ui-tabs-nav');
@@ -607,19 +611,61 @@
           };
 
           refreshKnxBindings();
+
+          const getHueDeviceValue = () => {
+            const domValue = $hueDeviceInput.val();
+            if (domValue !== undefined && domValue !== null && domValue !== '') {
+              return domValue;
+            }
+            if (node.hueDevice !== undefined && node.hueDevice !== null) {
+              return node.hueDevice;
+            }
+            return '';
+          };
+
+          const updateTabsVisibility = () => {
+            const knxSelected = hasKnxServerSelected();
+            const hueDeviceSelected = getHueDeviceValue() !== '';
+            const shouldShowTabs = knxSelected && hueDeviceSelected;
+
+            if (shouldShowTabs) {
+              $tabs.show();
+              try { $tabs.tabs('refresh'); } catch (error) { /* empty */ }
+            } else {
+              $tabs.hide();
+            }
+
+            if (!knxSelected && $pinSelect.length && $pinSelect.val() !== 'yes') {
+              $pinSelect.val('yes').trigger('change');
+            }
+
+            if ($pinSectionRow.length) {
+              $pinSectionRow.show();
+            }
+            if ($pinInfoRow.length) {
+              $pinInfoRow.show();
+            }
+          };
+          updateTabsVisibility();
+
           $knxServerInput.on('change.knxUltimateHueLight', () => {
             refreshKnxBindings();
+            updateTabsVisibility();
           });
+
+          $hueDeviceInput.on('change.knxUltimateHueLight input.knxUltimateHueLight', updateTabsVisibility);
 
           // Get the HUE capabilities to enable/disable UI parts
           var getJsonPromise;
-          if ($("#node-input-hueDevice").val() === '') {
-            $("#tabs").hide();
+          const initialHueDeviceRaw = getHueDeviceValue();
+          if (initialHueDeviceRaw === '') {
+            updateTabsVisibility();
             return;
           } else {
-            $("#tabs").show();
+            $hueDeviceInput.val(initialHueDeviceRaw);
+            updateTabsVisibility();
             if (getJsonPromise !== undefined) getJsonPromise.abort();
-            getJsonPromise = $.getJSON("knxUltimateGetLightObject?id=" + $("#node-input-hueDevice").val().split("#")[0] + "&serverId=" + $("#node-input-serverHue").val() + "&" + { _: new Date().getTime() }, (data) => {
+            getJsonPromise = $.getJSON("knxUltimateGetLightObject?id=" + initialHueDeviceRaw.split("#")[0] + "&serverId=" + $("#node-input-serverHue").val() + "&" + { _: new Date().getTime() }, (data) => {
               let oLight = data;
               const effects = (oLight && oLight.effects && Array.isArray(oLight.effects.status_values))
                 ? oLight.effects.status_values
@@ -713,9 +759,9 @@
               }
               // Check temperature (if the light supports temperature, it support dimming as well)
               if (oLight.color_temperature !== undefined) {
-                $("#tabs").tabs("enable", "#tabs-3");
-                //$("#tabs").tabs("enable", "#tabs-2");
-                $("#node-input-specifySwitchOnBrightness").append(
+              $("#tabs").tabs("enable", "#tabs-3");
+              //$("#tabs").tabs("enable", "#tabs-2");
+              $("#node-input-specifySwitchOnBrightness").append(
                   $("<option>")
                     .val("temperature")
                     .text(node._("knxUltimateHueLight.select_temperature_brightness"))
@@ -1021,11 +1067,19 @@
           },
           select: function (event, ui) {
             // Distinguish between group of lights an single light.
+            const $nameInput = $("#node-input-name");
+            $nameInput.val(ui.item.value || '');
+            node.name = ui.item.value || node.name;
             if (ui.item.value.toLowerCase().startsWith("grouped_light")) {
-              $("#node-input-hueDevice").val(ui.item.hueDevice + "#grouped_light");
+              const storedValue = ui.item.hueDevice + "#grouped_light";
+              $("#node-input-hueDevice").val(storedValue);
+              node.hueDevice = storedValue;
             } else {
-              $("#node-input-hueDevice").val(ui.item.hueDevice + "#light");
+              const storedValue = ui.item.hueDevice + "#light";
+              $("#node-input-hueDevice").val(storedValue);
+              node.hueDevice = storedValue;
             }
+            updateTabsVisibility();
             Go();
           }
         }).focus(function () {
@@ -1261,7 +1315,7 @@
 
     <br />
 
-    <div id="tabs" hidden" style="width: 900px;">
+    <div id="tabs" style="display:none; width: 900px;">
       <ul>
         <li><a href="#tabs-1"><i class="fa-solid fa-toggle-on"></i> <span data-i18n="knxUltimateHueLight.tabs.switch"></span></a></li>
         <li><a href="#tabs-2"><i class="fa-solid fa-arrow-up-wide-short"></i> <span data-i18n="knxUltimateHueLight.tabs.dim"></span></a></li>
