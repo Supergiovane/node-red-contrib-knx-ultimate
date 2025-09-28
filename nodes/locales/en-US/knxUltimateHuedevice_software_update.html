@@ -1,25 +1,29 @@
 <script type="text/markdown" data-help-name="knxUltimateHuedevice_software_update">
-<p>This node monitors whether a selected HUE device has a software update available and publishes the status to KNX.</p>
-    
-Start typing the name or group address of your KNX device in the GA field, the avaiable devices start showing up while
-you're typing.
+<p>Monitors the software-update status of a Hue device and publishes the result to KNX. Use the refresh icon beside “Hue device” to reload the bridge inventory after commissioning new hardware.</p>
 
 **General**
 |Property|Description|
 |--|--|
-| KNX GW | Select the KNX gateway to be used |
-| HUE Bridge | Select the HUE Bridge to be used |
-| HUE Device | HUE device to monitor for software updates (autocomplete while typing).|
+| KNX GW | KNX gateway that provides autocomplete for group addresses. |
+| HUE Bridge | Hue bridge that exposes the devices. |
+| Hue device | Device to monitor (autocomplete; refresh button reloads the list). |
 
 **Mapping**
-| Property | Description |
+|Property|Description|
 |--|--|
-| Status | KNX GA reflecting update status. _true_ if an update is available/ready/being installed, otherwise _false_. |
-| Read status at startup | Read current status at startup/reconnection and emit to KNX (default “yes”). |
+| Status GA | KNX GA that mirrors the update flag. _true_ when an update is pending/ready/installing, otherwise _false_. |
+
+**Behaviour**
+|Property|Description|
+|--|--|
+| Read status at startup | When “yes”, query the Hue bridge on deploy/reconnect and emit the current value to KNX. |
+| Node input/output pins | Show or hide the Node-RED output pin. Without a KNX gateway the pin stays enabled so Hue events keep reaching the flow. |
 
 ### Outputs
 
 1. Standard output
-: payload (boolean): update flag.
-: status (string): one of **no_update, update_pending, ready_to_install, installing**.
+: `msg.payload` (boolean) Update flag.  
+: `msg.status` (string) One of **no_update**, **update_pending**, **ready_to_install**, **installing**.
+
+> ℹ️ KNX-specific widgets appear only after selecting a KNX gateway; the Mapping tab stays hidden until both bridge and gateway are configured.
 </script>

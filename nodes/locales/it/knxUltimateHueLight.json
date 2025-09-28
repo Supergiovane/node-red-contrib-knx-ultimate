@@ -10,6 +10,7 @@
     "node-input-dptLightState": "dpt",
     "node-input-hueLight": "Luce HUE",
     "paletteLabel": "Hue Luce/Prese",
+    "no_devices": "Nessuna luce Hue trovata. Usa il refresh dopo aver associato una nuova luce.",
     "tabs": {
       "switch": "On/Off",
       "dim": "Dimmer",

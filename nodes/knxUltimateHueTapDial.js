@@ -26,7 +26,14 @@ module.exports = function (RED) {
     node.brightnessState = 0;
     node.isTimerDimStopRunning = false;
     node.hueDevice = config.hueDevice;
-   node.initializingAtStart = false;
+    const pinsSetting = (config.enableNodePINS === undefined || config.enableNodePINS === 'yes' || config.enableNodePINS === true);
+    node.enableNodePINS = pinsSetting ? 'yes' : 'no';
+    node.outputs = pinsSetting ? 1 : 0;
+    if (!node.serverKNX && node.outputs === 0) {
+      node.enableNodePINS = 'yes';
+      node.outputs = 1;
+    }
+    node.initializingAtStart = false;
 
     const shouldDisplayStatus = (color) => {
       const provider = node.serverKNX;

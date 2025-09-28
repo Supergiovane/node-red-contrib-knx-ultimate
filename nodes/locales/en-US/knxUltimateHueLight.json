@@ -10,6 +10,7 @@
     "node-input-dptLightState": "dpt",
     "node-input-hueLight": "HUE light",
     "paletteLabel": "Hue Light/Outlet",
+    "no_devices": "No Hue devices found. Click refresh after pairing a new light.",
     "tabs": {
       "switch": "Switch",
       "dim": "Dim",

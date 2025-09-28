@@ -1,6 +1,18 @@
 {
   "knxUltimateHuedevice_software_update": {
     "paletteLabel": "Hue Software Update",
+    "hue_device": "Hue device",
+    "tabs": {
+      "mapping": "Mapping",
+      "behaviour": "Behaviour"
+    },
+    "mapping_info": "Map the KNX address that reports the software-update status.",
+    "behaviour_info": "Control startup reads and the Node-RED output pin visibility.",
+    "node_pins": "Node input/output pins",
+    "node_pins_hide": "Hide pins",
+    "node_pins_show": "Show node input/output pins",
+    "output_info": "Without a KNX gateway the flow output stays enabled so Hue events continue to reach Node-RED.",
+    "no_devices": "No Hue devices found. Use the refresh icon after adding a new device.",
     "read_status_startup": "Read status at startup",
     "opt_no": "No",
     "opt_yes_emit": "Yes, and emit KNX telegrams."

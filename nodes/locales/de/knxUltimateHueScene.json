@@ -11,9 +11,22 @@
     "status": "Status",
     "scene_selector": "Szenenwähler",
     "knx_scene_n": "KNX Szene Nr.",
-    "node_pins": "Node Ein-/Ausgangs-PINs",
-    "node_pins_hide": "Ausblenden",
-    "node_pins_show": "Ein-/Ausgangs-PINs anzeigen"
+    "node_pins": "Node-Ein-/Ausgangspins",
+    "node_pins_hide": "Pins ausblenden",
+    "node_pins_show": "Ein-/Ausgangspins anzeigen",
+    "tabs": {
+      "single": "Einzelszene",
+      "multi": "Mehrfachszene",
+      "behaviour": "Verhalten"
+    },
+    "single_info": "Wählen Sie die Hue-Szene und legen Sie fest, wie sie bei einem KNX-Telegramm aufgerufen wird.",
+    "mapping_info": "Ordnen Sie die KNX-Gruppenadressen zu, die die Szene auslösen oder ihren Status melden.",
+    "multi_info": "Verknüpfen Sie KNX-Szenennummern mit Hue-Szenen. Jede Regel ruft eine andere Szene auf.",
+    "behaviour_info": "Bestimmen Sie, ob der Node-RED-Ausgang sichtbar bleibt, wenn keine KNX-Zuordnung aktiv ist.",
+    "status_ga": "Status-GA",
+    "output_info": "Ohne KNX-Gateway bleibt der Flow-Ausgang aktiv, damit Hue-Ereignisse weiterhin Node-RED erreichen.",
+    "no_scenes": "Keine Hue-Szenen gefunden. Verwenden Sie das Aktualisierungssymbol, nachdem neue Szenen hinzugefügt wurden.",
+    "multi_scene_placeholder": "Hue-Szenenname"
   },
   "common": {
     "ga": "GA",

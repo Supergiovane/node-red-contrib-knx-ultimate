@@ -12,8 +12,21 @@
     "scene_selector": "场景选择器",
     "knx_scene_n": "KNX 场景第",
     "node_pins": "节点输入/输出引脚",
-    "node_pins_hide": "隐藏",
-    "node_pins_show": "显示输入/输出引脚"
+    "node_pins_hide": "隐藏引脚",
+    "node_pins_show": "显示节点输入/输出引脚",
+    "tabs": {
+      "single": "单个场景",
+      "multi": "多场景",
+      "behaviour": "行为"
+    },
+    "single_info": "选择要使用的 Hue 场景，并定义收到 KNX 命令时的调度方式。",
+    "mapping_info": "配置用于调用场景或反馈状态的 KNX 组地址。",
+    "multi_info": "将 KNX 场景号与 Hue 场景关联，每条规则对应一个不同的 Hue 场景。",
+    "behaviour_info": "决定在禁用 KNX 映射时是否仍显示 Node-RED 输出引脚。",
+    "status_ga": "状态 GA",
+    "output_info": "没有 KNX 网关时仍保持向流程输出，以继续接收 Hue 事件。",
+    "no_scenes": "未找到 Hue 场景。添加新场景后请点击刷新图标。",
+    "multi_scene_placeholder": "Hue 场景名称"
   },
   "common": {
     "ga": "组地址",

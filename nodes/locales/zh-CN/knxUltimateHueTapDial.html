@@ -1,30 +1,28 @@
 <script type="text/markdown" data-help-name="knxUltimateHueTapDial">
-<p>此节点读取 HUE Tap Dial 的旋转事件，并将其映射到 KNX。</p>
+<p>将 Hue Tap Dial 的旋转服务映射到 KNX，并把原始 Hue 事件发送到流程。设备上的四个按钮由 <b>Hue Button</b> 节点处理；此节点仅处理旋转部分。配对新设备后，请点击“Hue Tap Dial”字段旁的刷新图标。</p>
 
-Tap Dial 具有 4 个按钮和 1 个旋钮。  
-按钮由 <b>HUE Button</b> 节点处理；此节点只处理旋转服务。  
-旋转可映射到以下 KNX 数据点：<b>DPT 3.007</b>（相对调光 上/下）、<b>DPT 5.001</b>（绝对亮度 0–100%）或 <b>232.600</b>（厂商颜色控制）。
-
-**一般的**
-|属性|描述|
+**通用**
+| 属性 | 描述 |
 |--|--|
-| KNX GW | 选择要使用的 KNX 网关 |
-| HUE Bridge | 选择要使用的 HUE Bridge |
-| HUE 按钮 | HUE Tap Dial 设备（输入时自动补全） |
-
-<br/>
+| KNX GW | 提供组地址自动补全的 KNX 网关。 |
+| HUE Bridge | 提供 Tap Dial 的 Hue 网桥。 |
+| Hue Tap Dial | 需要控制的旋钮设备（支持自动补全；刷新按钮会重新获取列表）。 |
 
 **映射**
-|属性|描述|
+| 属性 | 描述 |
 |--|--|
-| 旋转 | DPT 3.007 = 相对调光；DPT 5.001 = 绝对亮度（0–100%）；232.600 = 颜色：顺时针 → 随机颜色，逆时针 → 白光 |
+| 旋转 GA | 接收旋转事件的 KNX 组地址。支持 DPT 3.007（相对调光）、DPT 5.001（绝对亮度 0‑100%）以及 DPT 232.600（厂商颜色控制）。 |
+| 名称 | 对该组地址的说明名称。 |
+
+**行为**
+| 属性 | 描述 |
+|--|--|
+| 节点输入/输出引脚 | 显示或隐藏 Node-RED 输出引脚。如果未选择 KNX 网关，引脚仍会保持启用，以便继续接收 Hue 事件。 |
 
 ### 输出
 
 1. 标准输出
-: `msg.payload`（string|object）：原始 HUE 事件（对象会序列化为字符串）
+: `msg.payload`（对象）：Tap Dial 产生的原始 Hue 事件。
 
-### 详情
-
-可使用 `msg.payload` 实现自定义逻辑。
+> ℹ️ 仅在选择 KNX 网关后才显示 KNX 相关控件；在同时配置好 Hue 网桥和 KNX 网关之前，映射选项卡会保持隐藏。
 </script>

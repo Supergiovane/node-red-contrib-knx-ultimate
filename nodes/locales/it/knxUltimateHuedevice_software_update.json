@@ -1,6 +1,18 @@
 {
   "knxUltimateHuedevice_software_update": {
     "paletteLabel": "Aggiornamento software Hue",
+    "hue_device": "Dispositivo Hue",
+    "tabs": {
+      "mapping": "Mappatura",
+      "behaviour": "Comportamento"
+    },
+    "mapping_info": "Mappa la GA KNX che segnala lo stato dell'aggiornamento software.",
+    "behaviour_info": "Configura la lettura all'avvio e la visibilità del pin di output di Node-RED.",
+    "node_pins": "PIN di input/output del nodo",
+    "node_pins_hide": "Nascondi PIN",
+    "node_pins_show": "Mostra i PIN di input/output",
+    "output_info": "Senza gateway KNX l'uscita verso il flow rimane attiva per continuare a ricevere gli eventi Hue.",
+    "no_devices": "Nessun dispositivo Hue trovato. Usa l'icona di aggiornamento dopo averne aggiunto uno nuovo.",
     "read_status_startup": "Leggi lo stato all'avvio",
     "opt_no": "No",
     "opt_yes_emit": "Sì, ed emetti i telegrammi KNX."

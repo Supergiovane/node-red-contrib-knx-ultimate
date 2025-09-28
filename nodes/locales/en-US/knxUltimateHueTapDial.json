@@ -1,7 +1,19 @@
 {
   "knxUltimateHueTapDial": {
     "title": "HUE Tap Dial node (rotary)",
-    "paletteLabel": "Hue Tap Dial"
+    "paletteLabel": "Hue Tap Dial",
+    "hue_device": "Hue Tap Dial",
+    "tabs": {
+      "mapping": "Mapping",
+      "behaviour": "Behaviour"
+    },
+    "mapping_info": "Link the Hue Tap Dial rotation events to a KNX group address.",
+    "behaviour_info": "Decide whether the Node-RED output pin should remain visible when KNX delivery is disabled.",
+    "node_pins": "Node input/output pins",
+    "node_pins_hide": "Hide pins",
+    "node_pins_show": "Show node input/output pins",
+    "output_info": "Without a KNX gateway the flow output stays enabled so Hue events continue to reach Node-RED.",
+    "no_devices": "No Hue Tap Dial devices found. Use the refresh icon after pairing a new dial."
   },
   "common": {
     "ga": "GA",

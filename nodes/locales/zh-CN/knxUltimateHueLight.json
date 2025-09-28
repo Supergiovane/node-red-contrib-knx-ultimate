@@ -10,6 +10,7 @@
     "node-input-dptLightState": "dpt",
     "node-input-hueLight": "HUE light",
     "paletteLabel": "Hue 灯/插座",
+    "no_devices": "未找到 Hue 灯。配对新灯后请点击刷新图标。",
     "tabs": {
       "switch": "开关",
       "dim": "调光",

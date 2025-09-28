@@ -1,603 +1,889 @@
 <script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/11f26b4500.js"></script>
-
 <script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/htmlUtils.js"></script>
 
 <script type="text/javascript">
-    RED.nodes.registerType('knxUltimateHueScene', {
-        category: "KNX Ultimate",
-        color: '#C0C7E9',
-        defaults: {
-            //buttonState: {value: true},
-            server: { type: "knxUltimate-config", required: false },
-            serverHue: { type: "hue-config", required: true },
-            name: { value: "" },
+  (function () {
+    let $tabs = null;
+    let $requiresBridgeElems = null;
+    let $knxSections = null;
+    let $deviceName = null;
+    let $refreshButton = null;
+    let $loadingIndicator = null;
+    let $enablePinsSelect = null;
+    let $outputInfo = null;
+    let $modeHiddenInput = null;
+    let $dptSceneSelect = null;
+    let $dptSceneStatusSelect = null;
+    let $dptSceneMultiSelect = null;
+    let $sceneValueRow = null;
+    let cachedScenes = [];
+    let defaultDevicePlaceholder = '';
+    let showingNoDevicesPlaceholder = false;
+    let currentNode = null;
 
-            // Single scene
-            namescene: { value: "" },
-            GAscene: { value: "" },
-            dptscene: { value: "" },
-            valscene: { value: 0 }, // the scene number or true/false
-            namesceneStatus: { value: "" },
-            GAsceneStatus: { value: "" },
-            dptsceneStatus: { value: "" },
+    const EMPTY_SERVER_VALUES = new Set(['', 'none', '_add_', '__none__', '__null__', 'null', 'undefined']);
 
-            enableNodePINS: { value: "no" },
-            outputs: { value: 0 },
-            inputs: { value: 0 },
+    const ensureVerticalTabsStyle = () => {
+      if ($('#knxUltimateHueSceneVerticalTabs').length) return;
+      const style = `
+        <style id="knxUltimateHueSceneVerticalTabs">
+          .hue-vertical-tabs.ui-tabs.ui-widget.ui-widget-content.ui-corner-all {
+            display: flex;
+            border: none;
+            padding: 0;
+          }
+          .hue-vertical-tabs > ul.ui-tabs-nav {
+            flex: 0 0 160px;
+            border-right: 1px solid #ccc;
+            border-left: none;
+            border-top: none;
+            border-bottom: none;
+            padding: 0.5em 0.3em;
+          }
+          .hue-vertical-tabs > ul.ui-tabs-nav li {
+            float: none;
+            width: 100%;
+            margin: 0 0 2px 0;
+          }
+          .hue-vertical-tabs > ul.ui-tabs-nav li a {
+            display: block;
+            width: 100%;
+            white-space: nowrap;
+            position: relative;
+            border-bottom: none !important;
+          }
+          .hue-vertical-tabs > ul.ui-tabs-nav li.ui-tabs-active {
+            border-bottom: none !important;
+          }
+          .hue-vertical-tabs > ul.ui-tabs-nav li.ui-tabs-active a::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 50%;
+            height: 3px;
+            background: currentColor;
+          }
+          .hue-vertical-tabs .ui-tabs-panel {
+            flex: 1;
+            padding: 0.8em 1em;
+            box-sizing: border-box;
+            border: none;
+            background: transparent;
+          }
+          .hue-vertical-tabs .form-row {
+            display: flex;
+            flex-wrap: nowrap;
+            align-items: center;
+            gap: 4px;
+          }
+          .hue-vertical-tabs .node-input-rule-container-row {
+            align-items: stretch;
+          }
+          .hue-vertical-tabs #node-input-rule-container {
+            width: 100%;
+            min-height: 200px;
+          }
+          .hue-vertical-tabs .hue-form-tip {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            width: 100%;
+            margin-left: 0 !important;
+            max-width: none;
+            color: #1b7d33;
+            margin-bottom: 6px;
+            padding: 6px 10px;
+            box-sizing: border-box;
+          }
+          .hue-vertical-tabs .hue-form-tip .fa {
+            color: forestgreen;
+            flex: 0 0 auto;
+          }
+          .hue-vertical-tabs .hue-form-tip span {
+            flex: 1 1 auto;
+            min-width: 0;
+            white-space: normal;
+          }
+        </style>`;
+      $('head').append(style);
+    };
 
-            hueDevice: { value: "" },
-            hueSceneRecallType: { value: "active" },
-
-            // Multi scene
-            GAsceneMulti: { value: "" },
-            namesceneMulti: { value: "" },
-            dptsceneMulti: { value: "" },
-            rules: { value: [{ t: "eq", v: "", vt: "str" }] },
-            selectedModeTabNumber: { value: 0 }
-
-        },
-        inputs: 0,
-        outputs: 0,
-        icon: "node-hue-icon.svg",
-        label: function () {
-            if (this.selectedModeTabNumber === undefined) return this.name;
-            if (Number(this.selectedModeTabNumber) === 0) return this.name;
-            if (Number(this.selectedModeTabNumber) === 1) return this.namesceneMulti;
-        },
-        paletteLabel: "Hue Scene",
-        // button: {
-        //     enabled: function() {
-        //         // return whether or not the button is enabled, based on the current
-        //         // configuration of the node
-        //         return !this.changed
-        //     },
-        //     visible: function() {
-        //         // return whether or not the button is visible, based on the current
-        //         // configuration of the node
-        //         return this.hasButton
-        //     },
-        //     //toggle: "buttonState",
-        //     onclick: function() {}
-        // },
-        oneditprepare: function () {
-            // Go to the help panel
-            try {
-                RED.sidebar.show("help");
-            } catch (error) { }
-
-            var node = this;
-            var oNodeServer = RED.nodes.node($("#node-input-server").val()); // Store the config-node
-            var oNodeServerHue = RED.nodes.node($("#node-input-serverHue").val()); // Store the config-node
-
-            for (let index = 1; index <= 64; index++) {
-                $("#node-input-valscene").append($("<option></option>")
-                    .attr("value", index)
-                    .text("Scene n. " + index)
-                )
-            }
-            $("#node-input-valscene").val(node.valscene)
-
-            // 19/02/2020 Used to get the server sooner als deploy.
-            $("#node-input-server").change(function () {
-                try {
-                    oNodeServer = RED.nodes.node($(this).val());
-                } catch (error) { }
-            });
-            // 19/02/2020 Used to get the server sooner als deploy.
-            $("#node-input-serverHue").change(function () {
-                try {
-                    oNodeServerHue = RED.nodes.node($(this).val());
-                } catch (error) { }
-            });
-
-
-
-            // DPT 
-            // ########################
-            $.getJSON('knxUltimateDpts?serverId=' + $("#node-input-server").val(), (data) => {
-                data.forEach(dpt => {
-                    if (dpt.value.startsWith("1.") || dpt.value.startsWith("18.")) {
-                        $("#node-input-dptscene").append($("<option></option>")
-                            .attr("value", dpt.value)
-                            .text(dpt.text))
-                    }
-                    if (dpt.value.startsWith("18.")) {
-                        $("#node-input-dptsceneMulti").append($("<option></option>")
-                            .attr("value", dpt.value)
-                            .text(dpt.text))
-                    }
-                    if (dpt.value.startsWith("1.")) {
-                        $("#node-input-dptsceneStatus").append($("<option></option>")
-                            .attr("value", dpt.value)
-                            .text(dpt.text))
-                    }
-                });
-                $("#node-input-dptscene").val(this.dptscene)
-                $("#node-input-dptsceneStatus").val(this.dptsceneStatus)
-                $("#node-input-dptsceneMulti").val(this.dptsceneMulti)
-                ShowHideValScene();
-            })
-
-            // Autocomplete suggestion with ETS csv File
-            $("#node-input-GAscene").autocomplete({
-                minLength: 0,
-                source: function (request, response) {
-                    //$.getJSON("csv", request, function( data, status, xhr ) {
-                    $.getJSON("knxUltimatecsv?nodeID=" + oNodeServer.id, (data) => {
-                        response($.map(data, function (value, key) {
-                            var sSearch = (value.ga + " (" + value.devicename + ") DPT" + value.dpt);
-                            if (htmlUtilsfullCSVSearch(sSearch, request.term)) {
-                                if (value.dpt.startsWith("1.") || value.dpt.startsWith("18.")) {
-                                    return {
-                                        label: value.ga + " # " + value.devicename + " # " + value.dpt, // Label for Display
-                                        value: value.ga // Value
-                                    }
-                                } else { return null; }
-                            } else {
-                                return null;
-                            }
-                        }));
-                    });
-                }, select: function (event, ui) {
-                    // Sets Datapoint and device name automatically
-                    var sDevName = ui.item.label.split("#")[1].trim();
-                    try {
-                        sDevName = sDevName.substr(sDevName.indexOf(")") + 1).trim();
-                    } catch (error) {
-                    }
-                    $('#node-input-namescene').val(sDevName);
-                    var optVal = $("#node-input-dptscene option:contains('" + ui.item.label.split("#")[2].trim() + "')").attr('value');
-                    var $dptSelect = $("#node-input-dptscene");
-                    if (optVal !== undefined && optVal !== null) {
-                        $dptSelect.val(optVal).trigger('change');
-                    } else {
-                        $dptSelect.trigger('change');
-                    }
-                    ShowHideValScene();
-                }
-            }).focus(function () {
-                $(this).autocomplete('search', $(this).val() + 'exactmatch');
-            });
-            try { if (oNodeServer && oNodeServer.id) KNX_enableSecureFormatting($("#node-input-GAscene"), oNodeServer.id); } catch (e) { }
-
-            $("#node-input-GAsceneStatus").autocomplete({
-                minLength: 0,
-                source: function (request, response) {
-                    //$.getJSON("csv", request, function( data, status, xhr ) {
-                    $.getJSON("knxUltimatecsv?nodeID=" + oNodeServer.id, (data) => {
-                        response($.map(data, function (value, key) {
-                            var sSearch = (value.ga + " (" + value.devicename + ") DPT" + value.dpt);
-                            if (htmlUtilsfullCSVSearch(sSearch, request.term)) {
-                                if (value.dpt.startsWith("1.")) {
-                                    return {
-                                        label: value.ga + " # " + value.devicename + " # " + value.dpt, // Label for Display
-                                        value: value.ga // Value
-                                    }
-                                } else { return null; }
-                            } else {
-                                return null;
-                            }
-                        }));
-                    });
-                }, select: function (event, ui) {
-                    // Sets Datapoint and device name automatically
-                    var sDevName = ui.item.label.split("#")[1].trim();
-                    try {
-                        sDevName = sDevName.substr(sDevName.indexOf(")") + 1).trim();
-                    } catch (error) {
-                    }
-                    $('#node-input-namesceneStatus').val(sDevName);
-                    var optVal = $("#node-input-dptsceneStatus option:contains('" + ui.item.label.split("#")[2].trim() + "')").attr('value');
-                    var $dptSelect = $("#node-input-dptsceneStatus");
-                    if (optVal !== undefined && optVal !== null) {
-                        $dptSelect.val(optVal).trigger('change');
-                    } else {
-                        $dptSelect.trigger('change');
-                    }
-                    ShowHideValScene();
-                }
-            }).focus(function () {
-                $(this).autocomplete('search', $(this).val() + 'exactmatch');
-            });
-            try { if (oNodeServer && oNodeServer.id) KNX_enableSecureFormatting($("#node-input-GAsceneStatus"), oNodeServer.id); } catch (e) { }
-
-            $("#node-input-GAsceneMulti").autocomplete({
-                minLength: 0,
-                source: function (request, response) {
-                    //$.getJSON("csv", request, function( data, status, xhr ) {
-                    $.getJSON("knxUltimatecsv?nodeID=" + oNodeServer.id, (data) => {
-                        response($.map(data, function (value, key) {
-                            var sSearch = (value.ga + " (" + value.devicename + ") DPT" + value.dpt);
-                            if (htmlUtilsfullCSVSearch(sSearch, request.term)) {
-                                if (value.dpt.startsWith("18.")) {
-                                    return {
-                                        label: value.ga + " # " + value.devicename + " # " + value.dpt, // Label for Display
-                                        value: value.ga // Value
-                                    }
-                                } else { return null; }
-                            } else {
-                                return null;
-                            }
-                        }));
-                    });
-                }, select: function (event, ui) {
-                    // Sets Datapoint and device name automatically
-                    var sDevName = ui.item.label.split("#")[1].trim();
-                    try {
-                        sDevName = sDevName.substr(sDevName.indexOf(")") + 1).trim();
-                    } catch (error) {
-                    }
-                    $('#node-input-namesceneMulti').val(sDevName);
-                    var optVal = $("#node-input-dptsceneMulti option:contains('" + ui.item.label.split("#")[2].trim() + "')").attr('value');
-                    var $dptSelect = $("#node-input-dptsceneMulti");
-                    if (optVal !== undefined && optVal !== null) {
-                        $dptSelect.val(optVal).trigger('change');
-                    } else {
-                        $dptSelect.trigger('change');
-                    }
-                    ShowHideValScene();
-                }
-            }).focus(function () {
-                $(this).autocomplete('search', $(this).val() + 'exactmatch');
-            });
-            try { if (oNodeServer && oNodeServer.id) KNX_enableSecureFormatting($("#node-input-GAsceneMulti"), oNodeServer.id); } catch (e) { }
-            // ######################## 
-
-            function ShowHideValScene() {
-                if ($("#node-input-dptscene").val() !== null) {
-                    // Adapt the scene value/true
-                    if ($("#node-input-dptscene").val().startsWith("1.")) {
-                        $("#divValScene").hide();
-                        //$("#node-input-valscene").attr("disabled", "disabled");
-                    } else {
-                        $("#divValScene").show()
-                        //$("#node-input-valscene").removeAttr("disabled");
-                    }
-                }
-            }
-
-            $("#node-input-dptscene").on("change", function () {
-                ShowHideValScene()
-            });
-            ShowHideValScene();
-
-            // Autocomplete suggestion with HUE
-            $("#node-input-name").autocomplete({
-                minLength: 0,
-                source: function (request, response) {
-                    $.getJSON("KNXUltimateGetResourcesHUE?rtype=scene&serverId=" + oNodeServerHue.id, (data) => {
-                        response($.map(data.devices, function (value, key) {
-                            //alert(JSON.stringify(value) + " "+ key)
-                            var sSearch = (value.name);
-                            if (htmlUtilsfullCSVSearch(sSearch, request.term)) {
-                                return {
-                                    hueDevice: value.id, // Label for Display
-                                    value: value.name // Value
-                                }
-                            } else {
-                                return null;
-                            }
-                        }));
-                    });
-                }, select: function (event, ui) {
-                    // Sets the fields
-                    $('#node-input-hueDevice').val(ui.item.hueDevice);
-                }
-            }).focus(function () {
-                $(this).autocomplete('search', $(this).val() + 'exactmatch');
-            });
-            // ########################  
-
-
-
-            // -----------------------------------------------------------------------
-            // MULTI SCENE
-            // ######################## 
-            function resizeRule(rule) { }
-            function setTableTitle(_selectedIndex) {
-                // Save only the tab 0 or 1
-                if (_selectedIndex === undefined) _selectedIndex = 0;
-                if (Number(_selectedIndex) <= 1) {
-                    $("#node-input-selectedModeTabNumber").val(Number(_selectedIndex));
-                    if (Number(_selectedIndex) === 0) {
-                        $('#tabs ul:first li:eq(0) a').html('<i class="fa fa-check" aria-hidden="true"></i> Single mode');
-                        $('#tabs ul:first li:eq(1) a').text('Multi mode');
-                    } else if (Number(_selectedIndex) === 1) {
-                        $('#tabs ul:first li:eq(0) a').text('Sigle mode');
-                        $('#tabs ul:first li:eq(1) a').html('<i class="fa fa-check" aria-hidden="true"></i> Multi mode');
-                    }
-                }
-            }
-
-            $("#node-input-rule-container").css('min-height', '200px').css('min-width', '450px').editableList({
-                scrollOnAdd: true,
-                //header: $("<div>").append($.parseHTML("<div style='width:5%; display: inline-grid'>Sort</div><div style='width:15%; display: inline-grid'>KNX Scene number</div><div style='width:60%; display: inline-grid'>HUE Scene name</div><div style='width:15%; display: inline-grid'>Recall scene as</div><div style='width:5%; display: inline-grid'>Delete</div>")),
-                addItem: function (container, i, opt) { // row, index, data
-                    // opt.r is: { rowRuleKNXSceneNumber: rowRuleKNXSceneNumber, rowRuleHUESceneName: rowRuleHUESceneName, rowRuleHUESceneID:rowRuleHUESceneID, rowRuleRecallAs:rowRuleRecallAs}
-
-                    if (!opt.hasOwnProperty('r')) {
-                        opt.r = {};
-                    }
-                    var rule = opt.r;
-                    if (!opt.hasOwnProperty('i')) {
-                        opt._i = Math.floor((0x99999 - 0x10000) * Math.random()).toString();
-                    }
-
-                    container.css({
-                        overflow: 'hidden',
-                        whiteSpace: 'nowrap'
-                    });
-
-                    var row = $('<div class="form-row"/>').appendTo(container);
-                    var rowRuleKNXSceneNumber = $('<select/>', { class: "rowRuleKNXSceneNumber", type: "text", style: "width:25%; margin-left: 5px; text-align: left;" }).appendTo(row);
-                    var rowRuleHUESceneName = $("<input/>", { class: "rowRuleHUESceneName", type: "text", placeholder: "HUE device name", style: "width:45%; margin-left: 5px; text-align: left;" }).appendTo(row);
-                    var rowRuleHUESceneID = $("<input/>", { class: "rowRuleHUESceneID", type: "hidden", placeholder: "HUE device name", style: "width:0px; margin-left: 5px; text-align: left;" }).appendTo(row);
-                    var rowRuleRecallAs = $('<select/>', { class: "rowRuleRecallAs", type: "text", style: "width:25%; margin-left: 5px; text-align: left;" }).appendTo(row);
-                    var finalspan = $('<span/>', { style: "" }).appendTo(row);
-                    finalspan.append('<span class="node-input-rule-index"></span> ');
-
-                    for (let index = 1; index <= 64; index++) {
-                        rowRuleKNXSceneNumber.append(
-                            $("<option>")
-                                .val(index)
-                                .text(node._("knxUltimateHueScene.knx_scene_n") + index.toString())
-                        );
-                        rowRuleKNXSceneNumber.val(rule.rowRuleKNXSceneNumber);
-                    }
-                    rowRuleRecallAs.append(
-                        $("<option>")
-                            .val("active")
-                            .text(node._("knxUltimateHueScene.recall_active"))
-                    );
-                    rowRuleRecallAs.append(
-                        $("<option>")
-                            .val("dynamic_palette")
-                            .text(node._("knxUltimateHueScene.recall_dynamic"))
-                    );
-                    rowRuleRecallAs.append(
-                        $("<option>")
-                            .val("static")
-                            .text(node._("knxUltimateHueScene.recall_static"))
-                    );
-                    rowRuleRecallAs.val(rule.rowRuleRecallAs);
-                    rowRuleHUESceneName.autocomplete({
-                        minLength: 1,
-                        source: function (request, response) {
-                            $.getJSON("KNXUltimateGetResourcesHUE?rtype=scene&serverId=" + oNodeServerHue.id, (data) => {
-                                response($.map(data.devices, function (value, key) {
-                                    //alert(JSON.stringify(value) + " "+ key)
-                                    var sSearch = (value.name);
-                                    if (htmlUtilsfullCSVSearch(sSearch, request.term)) {
-                                        return {
-                                            hueDevice: value.id, // Label for Display
-                                            value: value.name // Value
-                                        }
-                                    } else {
-                                        return null;
-                                    }
-                                }));
-                            });
-                        }, select: function (event, ui) {
-                            // Sets Datapoint and device name automatically
-                            rowRuleHUESceneID.val(ui.item.hueDevice);
-                        }
-                    }).focus(function () {
-                        $(this).autocomplete('search', $(this).val() + 'exactmatch');
-                    });
-                    rowRuleRecallAs.val(rule.rowRuleRecallAs)
-                    rowRuleHUESceneName.val(rule.rowRuleHUESceneName);
-                    rowRuleHUESceneID.val(rule.rowRuleHUESceneID);
-                },
-                removeItem: function (opt) {
-
-                },
-                resizeItem: resizeRule,
-                sortItems: function (rules) {
-                },
-                sortable: true,
-                removable: true
-            });
-
-            // Put some spaces after the container
-            $('<br/><br/><br/>').insertAfter($("#node-input-rule-container"));
-
-            // For each rule, create a row
-            if (this.rules !== undefined) {
-                for (var i = 0; i < this.rules.length; i++) {
-                    var rule = this.rules[i];
-                    $("#node-input-rule-container").editableList('addItem', { r: rule, i: i });
-                }
-            }
-
-            // ######################## 
-            // MULTI SCENE
-            // -----------------------------------------------------------------------
-            this.selectedModeTabNumber === undefined ? 0 : this.selectedModeTabNumber;
-            $("#tabs").tabs({
-                activate: function (event, ui) {
-                    setTableTitle(ui.newTab.index());
-                }
-            });
-            $("#tabs").tabs("option", "active", this.selectedModeTabNumber);
-            setTableTitle(this.selectedModeTabNumber);
-        },
-        oneditsave: function () {
-            // Return to the info tab
-            try {
-                RED.sidebar.show("info");
-            } catch (error) { }
-
-            if ($("#node-input-enableNodePINS").val() === "yes") {
-                this.outputs = 1;
-                this.inputs = 1;
-            } else {
-                this.outputs = 0;
-                this.inputs = 0;
-            }
-
-            var node = this;
-            // opt.r is: { rowRuleKNXSceneNumber: rowRuleKNXSceneNumber, rowRuleHUESceneName: rowRuleHUESceneName, rowRuleHUESceneID:rowRuleHUESceneID, rowRuleRecallAs:rowRuleRecallAs}
-            var rules = $("#node-input-rule-container").editableList('items');
-            node.rules = [];
-            rules.each(function (i) {
-                var rule = $(this);
-                var rowRuleKNXSceneNumber = rule.find(".rowRuleKNXSceneNumber").val();
-                var rowRuleHUESceneName = rule.find(".rowRuleHUESceneName").val();
-                var rowRuleHUESceneID = rule.find(".rowRuleHUESceneID").val();
-                var rowRuleRecallAs = rule.find(".rowRuleRecallAs").val();
-                node.rules.push({ rowRuleKNXSceneNumber: rowRuleKNXSceneNumber, rowRuleHUESceneName: rowRuleHUESceneName, rowRuleHUESceneID: rowRuleHUESceneID, rowRuleRecallAs: rowRuleRecallAs });
-            });
-        },
-        oneditcancel: function () {
-            // Return to the info tab
-            try {
-                RED.sidebar.show("info");
-            } catch (error) { }
-
-
-        },
-        oneditresize: function (size) {
-
+    const detachHandlers = () => {
+      $('#node-input-server').off('.knxUltimateHueScene');
+      $('#node-input-serverHue').off('.knxUltimateHueScene');
+      if ($deviceName) {
+        $deviceName.off('.knxUltimateHueScene');
+        if ($deviceName.data('ui-autocomplete')) {
+          try { $deviceName.autocomplete('destroy'); } catch (error) { /* empty */ }
         }
-    })
+      }
+      if ($refreshButton) {
+        $refreshButton.off('.knxUltimateHueScene');
+      }
+      ['#node-input-GAscene', '#node-input-GAsceneStatus', '#node-input-GAsceneMulti'].forEach((selector) => {
+        const $input = $(selector);
+        if ($input.length) {
+          $input.off('.knxUltimateHueScene');
+          if ($input.data('ui-autocomplete')) {
+            try { $input.autocomplete('destroy'); } catch (error) { /* empty */ }
+          }
+        }
+      });
+      if ($enablePinsSelect) {
+        $enablePinsSelect.off('.knxUltimateHueScene');
+      }
+      if ($tabs && $tabs.data('ui-tabs')) {
+        try { $tabs.tabs('destroy'); } catch (error) { /* empty */ }
+      }
+    };
 
+    const ensureConfigSelection = (selector) => {
+      const $select = $(selector);
+      if (!$select.length) return;
+      if ($select.val() !== '_ADD_') return;
+      try { $select.prop('selectedIndex', 0); } catch (error) { /* empty */ }
+    };
+
+    const resolveServerId = (value) => {
+      if (value === undefined || value === null) return null;
+      if (value === false) return null;
+      if (typeof value === 'string') {
+        const trimmed = value.trim();
+        if (trimmed === '') return null;
+        if (EMPTY_SERVER_VALUES.has(trimmed.toLowerCase())) return null;
+        return trimmed;
+      }
+      const asString = String(value).trim();
+      if (asString === '' || EMPTY_SERVER_VALUES.has(asString.toLowerCase())) return null;
+      return value;
+    };
+
+    const getKnxServer = (allowFallback = true) => {
+      const resolved = resolveServerId($('#node-input-server').val());
+      if (resolved) return RED.nodes.node(resolved);
+      if (!allowFallback) return null;
+      const fallback = resolveServerId(currentNode ? currentNode.server : null);
+      return fallback ? RED.nodes.node(fallback) : null;
+    };
+
+    const getHueServer = (allowFallback = true) => {
+      const resolved = resolveServerId($('#node-input-serverHue').val());
+      if (resolved) return RED.nodes.node(resolved);
+      if (!allowFallback) return null;
+      const fallback = resolveServerId(currentNode ? currentNode.serverHue : null);
+      return fallback ? RED.nodes.node(fallback) : null;
+    };
+
+    const hasHueSelection = () => {
+      const resolved = resolveServerId($('#node-input-serverHue').val());
+      if (resolved) return true;
+      if ($('#node-input-serverHue').length) return false;
+      return resolveServerId(currentNode ? currentNode.serverHue : null) !== null;
+    };
+
+    const hasKnxSelection = () => {
+      const resolved = resolveServerId($('#node-input-server').val());
+      if (resolved) return true;
+      if ($('#node-input-server').length) return false;
+      return resolveServerId(currentNode ? currentNode.server : null) !== null;
+    };
+
+    const normalizePinsValue = (value) => {
+      if (value === undefined || value === null) return 'yes';
+      if (value === true || value === 'true') return 'yes';
+      if (value === false || value === 'false') return 'no';
+      return value === 'no' ? 'no' : 'yes';
+    };
+
+    const applyNoDevicesPlaceholder = (hasDevices) => {
+      if (!$deviceName) return;
+      const noDevicesText = RED._('node-red-contrib-knx-ultimate/knxUltimateHueScene:knxUltimateHueScene.no_scenes');
+      if (!hasDevices) {
+        if (!showingNoDevicesPlaceholder) {
+          $deviceName.attr('placeholder', noDevicesText);
+          showingNoDevicesPlaceholder = true;
+        }
+      } else if (showingNoDevicesPlaceholder) {
+        $deviceName.attr('placeholder', defaultDevicePlaceholder);
+        showingNoDevicesPlaceholder = false;
+      }
+    };
+
+    const filterScenes = (list, term) => {
+      const matcher = (term || '').replace(/exactmatch/gi, '').trim().toLowerCase();
+      return list
+        .filter((item) => (item.name || '').toLowerCase().includes(matcher))
+        .map((item) => ({
+          hueDevice: item.id,
+          value: item.name,
+        }));
+    };
+
+    const fetchScenes = (hueServer, term, reply, { forceRefresh = false } = {}) => {
+      if (!hueServer) {
+        applyNoDevicesPlaceholder(false);
+        reply([]);
+        return;
+      }
+      if (!forceRefresh && cachedScenes.length > 0) {
+        applyNoDevicesPlaceholder(cachedScenes.length > 0);
+        reply(filterScenes(cachedScenes, term));
+        return;
+      }
+      if ($loadingIndicator) $loadingIndicator.show();
+      $.getJSON(`KNXUltimateGetResourcesHUE?rtype=scene&serverId=${hueServer.id}&_=${Date.now()}`, (data) => {
+        const devices = Array.isArray(data) ? data : (Array.isArray(data?.devices) ? data.devices : []);
+        cachedScenes = devices.map((value) => ({
+          id: value.id || value.rid,
+          name: value.name || value.metadata?.name || '',
+        }));
+        if (currentNode) currentNode._cachedSceneDevices = cachedScenes;
+        applyNoDevicesPlaceholder(cachedScenes.length > 0);
+        reply(filterScenes(cachedScenes, term));
+      }).always(() => {
+        if ($loadingIndicator) $loadingIndicator.hide();
+      }).fail(() => {
+        cachedScenes = [];
+        if (currentNode) currentNode._cachedSceneDevices = cachedScenes;
+        applyNoDevicesPlaceholder(false);
+        reply([]);
+      });
+    };
+
+    const populateSceneValues = (node) => {
+      const $valSelect = $('#node-input-valscene');
+      if (!$valSelect.length) return;
+      $valSelect.empty();
+      for (let index = 1; index <= 64; index += 1) {
+        $valSelect.append($('<option></option>').attr('value', index).text(`Scene ${index}`));
+      }
+      const target = node?.valscene || '1';
+      $valSelect.val(target);
+    };
+
+    const toggleSceneValueVisibility = () => {
+      if (!$dptSceneSelect || !$sceneValueRow) return;
+      const current = $dptSceneSelect.val();
+      if (!current) {
+        $sceneValueRow.hide();
+        return;
+      }
+      if (current.startsWith('1.')) {
+        $sceneValueRow.hide();
+      } else {
+        $sceneValueRow.show();
+      }
+    };
+
+    const loadDPTOptions = (serverCandidate, nodeRef) => {
+      const server = (() => {
+        const resolved = resolveServerId(serverCandidate);
+        if (resolved) return RED.nodes.node(resolved);
+        return getKnxServer(false);
+      })();
+      if (!server) return;
+      const selects = [
+        { element: $dptSceneSelect, filter: (value) => value.startsWith('1.') || value.startsWith('18.'), target: nodeRef?.dptscene },
+        { element: $dptSceneStatusSelect, filter: (value) => value.startsWith('1.'), target: nodeRef?.dptsceneStatus },
+        { element: $dptSceneMultiSelect, filter: (value) => value.startsWith('18.'), target: nodeRef?.dptsceneMulti },
+      ];
+      selects.forEach(({ element }) => { if (element) element.empty(); });
+      $.getJSON(`knxUltimateDpts?serverId=${server.id}`, (data) => {
+        data.forEach((dpt) => {
+          selects.forEach(({ element, filter }) => {
+            if (!element || !filter(dpt.value)) return;
+            element.append($('<option></option>').attr('value', dpt.value).text(dpt.text));
+          });
+        });
+        selects.forEach(({ element, target }) => {
+          if (!element || !element.children().length) return;
+          const resolved = target && target !== '' ? target : element.children().first().attr('value');
+          if (resolved !== undefined) element.val(resolved);
+        });
+        toggleSceneValueVisibility();
+      });
+    };
+
+    const setupKnxAutocomplete = (options) => {
+      const {
+        inputSelector,
+        nameSelector,
+        dptSelector,
+        allowedPrefixes,
+      } = options;
+      const $input = $(inputSelector);
+      if (!$input.length) return;
+      const $name = nameSelector ? $(nameSelector) : null;
+      const $dptSelect = dptSelector ? $(dptSelector) : null;
+      if ($input.data('ui-autocomplete')) {
+        try { $input.autocomplete('destroy'); } catch (error) { /* empty */ }
+      }
+      $input.autocomplete({
+        minLength: 0,
+        source(request, response) {
+          const server = getKnxServer(false);
+          if (!server) {
+            response([]);
+            return;
+          }
+          $.getJSON(`knxUltimatecsv?nodeID=${server.id}`, (data) => {
+            const matches = [];
+            data.forEach((value) => {
+              if (!value.dpt) return;
+              if (Array.isArray(allowedPrefixes) && !allowedPrefixes.some((prefix) => value.dpt.startsWith(prefix))) return;
+              const sSearch = `${value.ga} (${value.devicename}) DPT${value.dpt}`;
+              if (htmlUtilsfullCSVSearch(sSearch, request.term)) {
+                matches.push({
+                  label: `${value.ga} # ${value.devicename} # ${value.dpt}`,
+                  value: value.ga,
+                });
+              }
+            });
+            response(matches);
+          });
+        },
+        select(event, ui) {
+          if ($name) {
+            let sDevName = ui.item.label.split('#')[1]?.trim() || '';
+            try {
+              sDevName = sDevName.substr(sDevName.indexOf(')') + 1).trim();
+            } catch (error) { /* empty */ }
+            $name.val(sDevName);
+          }
+          if ($dptSelect) {
+            const dptLabel = ui.item.label.split('#')[2]?.trim();
+            const optVal = dptLabel ? $dptSelect.find(`option:contains('${dptLabel}')`).attr('value') : undefined;
+            if (optVal !== undefined && optVal !== null) {
+              $dptSelect.val(optVal).trigger('change');
+            } else {
+              $dptSelect.trigger('change');
+            }
+          }
+        },
+      });
+      $input.on('focus.knxUltimateHueScene', function () {
+        $(this).autocomplete('search', `${$(this).val()}exactmatch`);
+      });
+      const server = getKnxServer(false);
+      if (server && server.id) {
+        try { KNX_enableSecureFormatting($input, server.id); } catch (error) { /* empty */ }
+      }
+    };
+
+    const setupEditableList = (node) => {
+      const $list = $('#node-input-rule-container');
+      if (!$list.length) return;
+      if ($list.data('editableList')) {
+        try { $list.editableList('destroy'); } catch (error) { /* empty */ }
+      }
+      const resizeRule = () => { /* empty */ };
+      $list.editableList({
+        addButton: true,
+        removable: true,
+        sortable: true,
+        scrollOnAdd: true,
+        addItem(container, i, opt) {
+          if (!opt.hasOwnProperty('r')) opt.r = {};
+          const rule = opt.r;
+          const row = $('<div class="form-row"/>').appendTo(container);
+          const rowRuleKNXSceneNumber = $('<select/>', {
+            class: 'rowRuleKNXSceneNumber',
+            style: 'width:25%; margin-left:5px; text-align:left;',
+          }).appendTo(row);
+          const rowRuleHUESceneName = $('<input/>', {
+            class: 'rowRuleHUESceneName',
+            type: 'text',
+            placeholder: RED._('node-red-contrib-knx-ultimate/knxUltimateHueScene:knxUltimateHueScene.multi_scene_placeholder'),
+            style: 'width:45%; margin-left:5px; text-align:left;',
+          }).appendTo(row);
+          const rowRuleHUESceneID = $('<input/>', {
+            class: 'rowRuleHUESceneID',
+            type: 'hidden',
+          }).appendTo(row);
+          const rowRuleRecallAs = $('<select/>', {
+            class: 'rowRuleRecallAs',
+            style: 'width:25%; margin-left:5px; text-align:left;',
+          }).appendTo(row);
+          const finalspan = $('<span/>').appendTo(row);
+          finalspan.append('<span class="node-input-rule-index"></span> ');
+
+          for (let index = 1; index <= 64; index += 1) {
+            rowRuleKNXSceneNumber.append(
+              $('<option></option>')
+                .val(index)
+                .text(node._('knxUltimateHueScene.knx_scene_n') + index.toString()),
+            );
+          }
+          rowRuleRecallAs.append(
+            $('<option></option>').val('active').text(node._('knxUltimateHueScene.recall_active')),
+          );
+          rowRuleRecallAs.append(
+            $('<option></option>').val('dynamic_palette').text(node._('knxUltimateHueScene.recall_dynamic')),
+          );
+          rowRuleRecallAs.append(
+            $('<option></option>').val('static').text(node._('knxUltimateHueScene.recall_static')),
+          );
+
+          rowRuleKNXSceneNumber.val(rule.rowRuleKNXSceneNumber);
+          rowRuleRecallAs.val(rule.rowRuleRecallAs);
+          rowRuleHUESceneName.val(rule.rowRuleHUESceneName);
+          rowRuleHUESceneID.val(rule.rowRuleHUESceneID);
+
+          rowRuleHUESceneName.autocomplete({
+            minLength: 0,
+            source(request, response) {
+              const hueServer = getHueServer(false);
+              if (!hueServer) { response([]); return; }
+              fetchScenes(hueServer, request.term, response);
+            },
+            select(event, ui) {
+              rowRuleHUESceneID.val(ui.item.hueDevice);
+            },
+          });
+          rowRuleHUESceneName.on('focus.knxUltimateHueScene', function () {
+            $(this).autocomplete('search', `${$(this).val()}exactmatch`);
+          });
+        },
+        removeItem() {},
+        resizeItem: resizeRule,
+        sortItems() {},
+      });
+
+      $list.editableList('empty');
+      if (Array.isArray(node.rules)) {
+        node.rules.forEach((rule, index) => {
+          $list.editableList('addItem', { r: rule, i: index });
+        });
+      }
+    };
+
+    const updateTabsVisibility = () => {
+      if (!$tabs) return;
+      const hueSelected = hasHueSelection();
+      const knxSelected = hasKnxSelection();
+      if ($requiresBridgeElems) {
+        if (hueSelected) {
+          $requiresBridgeElems.show();
+        } else {
+          $requiresBridgeElems.hide();
+        }
+      }
+      if (hueSelected && knxSelected) {
+        $tabs.show();
+        $tabs.tabs('refresh');
+      } else {
+        $tabs.hide();
+      }
+      if ($outputInfo) {
+        if (knxSelected) {
+          $outputInfo.hide();
+        } else {
+          $outputInfo.show();
+        }
+      }
+    };
+
+    const updateKnxVisibility = () => {
+      const knxSelected = hasKnxSelection();
+      if ($knxSections) {
+        if (knxSelected) {
+          $knxSections.show();
+        } else {
+          $knxSections.hide();
+        }
+      }
+      updateTabsVisibility();
+    };
+
+    const updatePinsState = () => {
+      if (!$enablePinsSelect || !currentNode) return;
+      const val = normalizePinsValue($enablePinsSelect.val());
+      currentNode.enableNodePINS = val;
+      currentNode.outputs = val === 'yes' ? 1 : 0;
+      currentNode.inputs = currentNode.outputs;
+    };
+
+    RED.nodes.registerType('knxUltimateHueScene', {
+      category: 'KNX Ultimate',
+      color: '#C0C7E9',
+      defaults: {
+        server: { type: 'knxUltimate-config', required: false },
+        serverHue: { type: 'hue-config', required: true },
+        name: { value: '' },
+        namescene: { value: '' },
+        GAscene: { value: '' },
+        dptscene: { value: '' },
+        valscene: { value: '1' },
+        namesceneStatus: { value: '' },
+        GAsceneStatus: { value: '' },
+        dptsceneStatus: { value: '' },
+        enableNodePINS: { value: 'no' },
+        outputs: { value: 0 },
+        inputs: { value: 0 },
+        hueDevice: { value: '' },
+        hueSceneRecallType: { value: 'active' },
+        GAsceneMulti: { value: '' },
+        namesceneMulti: { value: '' },
+        dptsceneMulti: { value: '' },
+        rules: { value: [{ t: 'eq', v: '', vt: 'str' }] },
+        selectedModeTabNumber: { value: 0 },
+      },
+      inputs: 0,
+      outputs: 0,
+      icon: 'node-hue-icon.svg',
+      label() {
+        if (this.selectedModeTabNumber === undefined) return this.name;
+        if (Number(this.selectedModeTabNumber) === 0) return this.name || this.namescene || 'Hue Scene';
+        if (Number(this.selectedModeTabNumber) === 1) return this.namesceneMulti || this.name || 'Hue Scene';
+        return this.name || 'Hue Scene';
+      },
+      paletteLabel: 'Hue Scene',
+      oneditprepare() {
+        const node = this;
+        try {
+          onEditPrepareCore.call(node);
+        } catch (error) {
+          try {
+            console.error('knxUltimateHueScene oneditprepare error', error);
+            RED.notify(`Hue Scene editor error: ${error.message || error}`, { type: 'error', timeout: 8000 });
+          } catch (notifyError) {
+            console.error('knxUltimateHueScene notify failure', notifyError);
+          }
+          throw error;
+        }
+      },
+      oneditsave() {
+        try { onEditSaveCore.call(this); } catch (error) {
+          console.error('knxUltimateHueScene oneditsave error', error);
+          throw error;
+        }
+      },
+      oneditcancel() {
+        try { onEditCancelCore.call(this); } catch (error) {
+          console.error('knxUltimateHueScene oneditcancel error', error);
+          throw error;
+        }
+      },
+      oneditresize() {},
+    });
+
+    function onEditPrepareCore() {
+      const node = this;
+      try { RED.sidebar.show('help'); } catch (error) { /* empty */ }
+      currentNode = node;
+
+      ensureConfigSelection('#node-input-serverHue');
+      ensureVerticalTabsStyle();
+
+      $tabs = $('#hue-scene-tabs');
+      $requiresBridgeElems = $('.hue-requires-bridge');
+      $knxSections = $('.hue-knx-section');
+      $deviceName = $('#node-input-name');
+      $refreshButton = $('.hue-refresh-devices');
+      $loadingIndicator = $('.hue-devices-loading');
+      $enablePinsSelect = $('#node-input-enableNodePINS');
+      $outputInfo = $('.hue-output-info');
+      $modeHiddenInput = $('#node-input-selectedModeTabNumber');
+      $dptSceneSelect = $('#node-input-dptscene');
+      $dptSceneStatusSelect = $('#node-input-dptsceneStatus');
+      $dptSceneMultiSelect = $('#node-input-dptsceneMulti');
+      $sceneValueRow = $('#divValScene');
+
+      cachedScenes = Array.isArray(node._cachedSceneDevices) ? node._cachedSceneDevices : [];
+      node._cachedSceneDevices = cachedScenes;
+
+      defaultDevicePlaceholder = $deviceName.attr('placeholder') || '';
+      showingNoDevicesPlaceholder = false;
+      applyNoDevicesPlaceholder(cachedScenes.length > 0);
+
+      populateSceneValues(node);
+
+      $tabs.addClass('hue-vertical-tabs');
+      const initialTab = Number(node.selectedModeTabNumber || 0);
+      if ($modeHiddenInput) {
+        $modeHiddenInput.val(Number.isNaN(initialTab) ? 0 : initialTab);
+      }
+      $tabs.tabs({
+        activate(event, ui) {
+          const index = ui.newTab.index();
+          if ($modeHiddenInput) $modeHiddenInput.val(index);
+          node.selectedModeTabNumber = index;
+        },
+        active: Number.isNaN(initialTab) ? 0 : initialTab,
+      });
+      $tabs.find('li').removeClass('ui-corner-top').addClass('ui-corner-left');
+
+      $('#node-input-hueSceneRecallType').val(node.hueSceneRecallType || 'active');
+
+      const initialServerDomValue = $('#node-input-server').val();
+      const initialServerId = initialServerDomValue === undefined ? node.server : initialServerDomValue;
+      loadDPTOptions(initialServerId, node);
+
+      setupKnxAutocomplete({
+        inputSelector: '#node-input-GAscene',
+        nameSelector: '#node-input-namescene',
+        dptSelector: '#node-input-dptscene',
+        allowedPrefixes: ['1.', '18.'],
+      });
+      setupKnxAutocomplete({
+        inputSelector: '#node-input-GAsceneStatus',
+        nameSelector: '#node-input-namesceneStatus',
+        dptSelector: '#node-input-dptsceneStatus',
+        allowedPrefixes: ['1.'],
+      });
+      setupKnxAutocomplete({
+        inputSelector: '#node-input-GAsceneMulti',
+        nameSelector: '#node-input-namesceneMulti',
+        dptSelector: '#node-input-dptsceneMulti',
+        allowedPrefixes: ['18.'],
+      });
+
+      $('#node-input-dptscene').on('change.knxUltimateHueScene', toggleSceneValueVisibility);
+      toggleSceneValueVisibility();
+
+      setupEditableList(node);
+
+      if ($deviceName) {
+        $deviceName.autocomplete({
+          minLength: 0,
+          source(request, response) {
+            const hueServer = getHueServer(false);
+            if (!hueServer) { response([]); return; }
+            fetchScenes(hueServer, request.term, response);
+          },
+          select(event, ui) {
+            $('#node-input-hueDevice').val(ui.item.hueDevice);
+            updateTabsVisibility();
+          },
+        });
+        $deviceName.on('focus.knxUltimateHueScene', function () {
+          $(this).autocomplete('search', `${$(this).val()}exactmatch`);
+        });
+      }
+
+      if ($refreshButton) {
+        $refreshButton.on('click.knxUltimateHueScene', () => {
+          cachedScenes = [];
+          if (currentNode) currentNode._cachedSceneDevices = cachedScenes;
+          const hueServer = getHueServer(false);
+          if (!hueServer) return;
+          fetchScenes(hueServer, '', () => {
+            if ($deviceName) {
+              $deviceName.autocomplete('search', `${$deviceName.val()}exactmatch`);
+            }
+          }, { forceRefresh: true });
+        });
+      }
+
+      if ($enablePinsSelect) {
+        $enablePinsSelect.val(normalizePinsValue(node.enableNodePINS));
+        $enablePinsSelect.on('change.knxUltimateHueScene', updatePinsState);
+        updatePinsState();
+      }
+
+      $('#node-input-server').on('change.knxUltimateHueScene', function () {
+        const serverId = $(this).val();
+        loadDPTOptions(serverId, node);
+        setupKnxAutocomplete({
+          inputSelector: '#node-input-GAscene',
+          nameSelector: '#node-input-namescene',
+          dptSelector: '#node-input-dptscene',
+          allowedPrefixes: ['1.', '18.'],
+        });
+        setupKnxAutocomplete({
+          inputSelector: '#node-input-GAsceneStatus',
+          nameSelector: '#node-input-namesceneStatus',
+          dptSelector: '#node-input-dptsceneStatus',
+          allowedPrefixes: ['1.'],
+        });
+        setupKnxAutocomplete({
+          inputSelector: '#node-input-GAsceneMulti',
+          nameSelector: '#node-input-namesceneMulti',
+          dptSelector: '#node-input-dptsceneMulti',
+          allowedPrefixes: ['18.'],
+        });
+        updateKnxVisibility();
+      });
+
+      $('#node-input-serverHue').on('change.knxUltimateHueScene', () => {
+        cachedScenes = [];
+        if (currentNode) currentNode._cachedSceneDevices = cachedScenes;
+        if ($deviceName) {
+          $deviceName.val('');
+          $('#node-input-hueDevice').val('');
+          applyNoDevicesPlaceholder(false);
+        }
+        updateTabsVisibility();
+      });
+
+      updateKnxVisibility();
+    }
+
+    function onEditSaveCore() {
+      try { RED.sidebar.show('info'); } catch (error) { /* empty */ }
+      detachHandlers();
+      cachedScenes = cachedScenes || [];
+      const pinsSelection = $enablePinsSelect ? normalizePinsValue($enablePinsSelect.val()) : 'no';
+      this.enableNodePINS = pinsSelection;
+      this.outputs = pinsSelection === 'yes' ? 1 : 0;
+      this.inputs = this.outputs;
+      this._cachedSceneDevices = cachedScenes;
+      if ($modeHiddenInput) {
+        const idx = parseInt($modeHiddenInput.val(), 10);
+        this.selectedModeTabNumber = Number.isNaN(idx) ? 0 : idx;
+      }
+      const self = this;
+      const rules = $('#node-input-rule-container').editableList('items');
+      self.rules = [];
+      rules.each(function () {
+        const rule = $(this);
+        const rowRuleKNXSceneNumber = rule.find('.rowRuleKNXSceneNumber').val();
+        const rowRuleHUESceneName = rule.find('.rowRuleHUESceneName').val();
+        const rowRuleHUESceneID = rule.find('.rowRuleHUESceneID').val();
+        const rowRuleRecallAs = rule.find('.rowRuleRecallAs').val();
+        self.rules.push({
+          rowRuleKNXSceneNumber,
+          rowRuleHUESceneName,
+          rowRuleHUESceneID,
+          rowRuleRecallAs,
+        });
+      });
+      currentNode = null;
+    }
+
+    function onEditCancelCore() {
+      try { RED.sidebar.show('info'); } catch (error) { /* empty */ }
+      detachHandlers();
+      cachedScenes = [];
+      if (currentNode) currentNode._cachedSceneDevices = cachedScenes;
+      currentNode = null;
+    }
+  }());
 </script>
 
 <script type="text/html" data-template-name="knxUltimateHueScene">
-
-<div class="form-row">
-    <input type="hidden" id="node-input-selectedModeTabNumber"> 
-    <b><span data-i18n="knxUltimateHueScene.title"></span></b>&nbsp&nbsp<span style="color:red"
-   &nbsp<i class="fa fa-youtube"></i></span>&nbsp<a target="_blank" href="https://youtu.be/jjEUI1J8bkA"><u><span data-i18n="common.youtube_sample"></span></u></a>
-    <br />
-    <br />
-    <p align="center">       
-        <i class="fa fa-tv fa-fade fa-2x"></i>
-    </p>
-    <br />
-    <label for="node-input-server" >
-        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAKnRFWHRDcmVhdGlvbiBUaW1lAEZyIDYgQXVnIDIwMTAgMjE6NTI6MTkgKzAxMDD84aS8AAAAB3RJTUUH3gYYCicNV+4WIQAAAAlwSFlzAAALEgAACxIB0t1+/AAAAARnQU1BAACxjwv8YQUAAACUSURBVHjaY2CgFZg5c+Z/ZEyWAZ8+f/6/ZsWs/xoamqMGkGrA6Wla/1+fVARjEBuGsSoGmY4eZSCNL59d/g8DIDbIAHR14OgFGQByKjIGKX5+6/T///8gGMQGiV1+/B0Fg70GIkD+RMYgxf/O5/7//2MSmAZhkBi6OrgB6Bg5DGB4ajr3f2xqsYYLSDE2THJUDg0AAAqyDVd4tp4YAAAAAElFTkSuQmCC"></img>
-        <span data-i18n="common.knx_gw"></span>
+  <input type="hidden" id="node-input-selectedModeTabNumber">
+  <div class="form-row">
+    <label for="node-input-server">
+      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAKnRFWHRDcmVhdGlvbiBUaW1lAEZyIDYgQXVnIDIwMTAgMjE6NTI6MTkgKzAxMDD84aS8AAAAB3RJTUUH3gYYCicNV+4WIQAAAAlwSFlzAAALEgAACxIB0t1+/AAAAARnQU1BAACxjwv8YQUAAACUSURBVHjaY2CgFZg5c+Z/ZEyWAZ8+f/6/ZsWs/xoamqMGkGrA6Wla/1+fVARjEBuGsSoGmY4eZSCNL59d/g8DIDbIAHR14OgFGQByKjIGKX5+6/T///8gGMQGiV1+/B0Fg70GIkD+RMYgxf/O5/7//2MSmAZhkBi6OrgB6Bg5DGB4ajr3f2xqsYYLSDE2THJUDg0AAAqyDVd4tp4YAAAAAElFTkSuQmCC" />
+      <span data-i18n="common.knx_gw"></span>
     </label>
-    <input type="text" id="node-input-server" />
-</div>
+    <input type="text" id="node-input-server">
+  </div>
 
-<div class="form-row">
+  <div class="form-row">
     <label for="node-input-serverHue">
-        <img src="data:image/png;base64, iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAEKADAAQAAAABAAAAEAAAAAA0VXHyAAABFUlEQVQ4EZWSsWoCQRCG1yiENEFEi6QSkjqWWoqFoBYJ+Br6JHkMn8Iibd4ihQpaJIhWNkry/ZtdGZY78Qa+m39nZ+dm9s4550awglNBluS/gVtAX6KgDclf68w2OThgfR9iT/jnoEv4TtByDThWTCDKW4SSZTf/zj9/eZbN+izTDuKGimu0vPF8B/YN8aC8LmcOj/AAn9CFTEs70Js/oGqy79C69bqJ5XbQI2kGO5N8QL9D08S8zBtBF5ZaVsznpCMoqJnVdjTpb1Db0fwIWmQV6BLXzFOYgA6/gDVfQN9bBWp2J2hdWDPoBV5FrKnAJutHikk/CHHR8i7x4iG7qQ720IYvu3GFbpHjx3pFrOFYkA354z/5bkK826phyAAAAABJRU5ErkJggg=="/>
-        <span data-i18n="common.hue_bridge"></span>
+      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAEKADAAQAAAABAAAAEAAAAAA0VXHyAAABFUlEQVQ4EZWSsWoCQRCG1yiENEFEi6QSkjqWWoqFoBYJ+Br6JHkMn8Iibd4ihQpaJIhWNkry/ZtdGZY78Qa+m39nZ+dm9s4550awglNBluS/gVtAX6KgDclf68w2OThgfR9iT/jnoEv4TtByDThWTCDKW4SSZTf/zj9/eZbN+izTDuKGimu0vPF8B/YN8aC8LmcOj/AAn9CFTEs70Js/oGqy79C69bqJ5XbQI2kGO5N8QL9D08S8zBtBF5ZaVsznpCMoqJnVdjTpb1Db0fwIWmQV6BLXzFOYgA6/gDVfQN9bBWp2J2hdWDPoBV5FrKnAJutHikk/CHHR8i7x4iG7qQ720IYvu3GFbpHjx3pFrOFYkA354z/5bkK826phyAAAAABJRU5ErkJggg=="/>
+      <span data-i18n="common.hue_bridge"></span>
     </label>
-    <input type="text" id="node-input-serverHue" />
-</div>
+    <input type="text" id="node-input-serverHue">
+  </div>
 
-<br/>
-<div id="tabs">
-    
+  <div class="form-row hue-requires-bridge">
+    <label for="node-input-name">
+      <i class="fa fa-play-circle"></i> <span data-i18n="knxUltimateHueScene.hue_scene"></span>
+    </label>
+    <input type="text" id="node-input-name" placeholder="Hue scene" style="flex:1 1 240px; min-width:240px; max-width:240px;">
+    <button type="button" class="red-ui-button hue-refresh-devices" style="margin-left:6px; color:#1b7d33; border-color:#1b7d33;">
+      <i class="fa fa-sync"></i>
+    </button>
+    <span class="hue-devices-loading" style="margin-left:6px; display:none; color:#1b7d33;">
+      <i class="fa fa-circle-notch fa-spin"></i>
+    </span>
+  </div>
+
+  <div id="hue-scene-tabs">
     <ul>
-        <li><a href="#tabs-1"> Single scene</a></li>
-        <li><a href="#tabs-2"> Multi scene</a></li>
-        <li><a href="#tabs-3"> Behaviour</a></li>
+      <li><a href="#hue-scene-tab-single"><i class="fa fa-map"></i> <span data-i18n="knxUltimateHueScene.tabs.single"></span></a></li>
+      <li><a href="#hue-scene-tab-multi"><i class="fa fa-list"></i> <span data-i18n="knxUltimateHueScene.tabs.multi"></span></a></li>
+      <li><a href="#hue-scene-tab-behaviour"><i class="fa fa-gear"></i> <span data-i18n="knxUltimateHueScene.tabs.behaviour"></span></a></li>
     </ul>
-    <div id="tabs-1">
-        <br/>
-        <p>
-            <b><span data-i18n="common.philips_hue"></span></b>
-        </p>
-            
-        <div class="form-row">
-            <label for="node-input-hueDevice" >
-                <i class="fa fa-play-circle"></i>&nbsp<span data-i18n="knxUltimateHueScene.hue_scene"></span></label>
-                <input type="text" id="node-input-name" placeholder="Enter your hue device name" />
-            <input type="hidden" id="node-input-hueDevice" />
-        </div>
-        <div class="form-row">
-            <label for="node-input-hueSceneRecallType">
-                <i class="fa fa-minus-circle"></i> <span data-i18n="knxUltimateHueScene.recall_as"></span>
-            </label>
-            <select  id="node-input-hueSceneRecallType">
-                <option value="active" data-i18n="knxUltimateHueScene.recall_active"></option>
-                <option value="dynamic_palette" data-i18n="knxUltimateHueScene.recall_dynamic"></option>
-                <option value="static" data-i18n="knxUltimateHueScene.recall_static"></option>
-            </select>
-        </div>
 
-        <br/>
-        <p>
-            <b>KNX</b>
-        </p>
-        <div class="form-row">
-            <label for="node-input-namescene" style="width:100px;"><i class="fa fa-play-circle-o"></i> <span data-i18n="knxUltimateHueScene.recall"></span></label>
+    <div id="hue-scene-tab-single">
+      <div class="form-tips hue-form-tip hue-requires-bridge">
+        <i class="fa fa-circle-info"></i>
+        <span data-i18n="knxUltimateHueScene.single_info"></span>
+      </div>
+      <div class="form-row hue-requires-bridge">
+        <label for="node-input-hueSceneRecallType" style="width:220px;">
+          <i class="fa fa-bolt"></i> <span data-i18n="knxUltimateHueScene.recall_as"></span>
+        </label>
+        <select id="node-input-hueSceneRecallType" style="width:200px;">
+          <option value="active" data-i18n="knxUltimateHueScene.recall_active"></option>
+          <option value="dynamic_palette" data-i18n="knxUltimateHueScene.recall_dynamic"></option>
+          <option value="static" data-i18n="knxUltimateHueScene.recall_static"></option>
+        </select>
+      </div>
 
-            <label for="node-input-GAscene" style="width:20px;"><span data-i18n="common.ga"></span></label>
-            <input type="text" id="node-input-GAscene" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
+      <div class="form-tips hue-form-tip hue-knx-section">
+        <i class="fa fa-circle-info"></i>
+        <span data-i18n="knxUltimateHueScene.mapping_info"></span>
+      </div>
+      <div class="form-row hue-knx-section">
+        <label for="node-input-GAscene" style="width:70px;"><span data-i18n="common.ga"></span></label>
+        <input type="text" id="node-input-GAscene" placeholder="1/1/1" style="width:80px; text-align:left;">
+        <label for="node-input-dptscene" style="width:40px; text-align:right;"><span data-i18n="common.dpt"></span></label>
+        <select id="node-input-dptscene" style="width:130px;"></select>
+        <label for="node-input-namescene" style="width:50px; text-align:right;"><span data-i18n="common.name"></span></label>
+        <input type="text" id="node-input-namescene" style="flex:1 1 140px; min-width:120px; text-align:left;" placeholder="Scene recall">
+      </div>
+      <div class="form-row hue-knx-section" id="divValScene" style="display:none;">
+        <label for="node-input-valscene" style="width:70px;">#</label>
+        <select id="node-input-valscene" style="width:130px;"></select>
+      </div>
+      <div class="form-row hue-knx-section">
+        <label for="node-input-GAsceneStatus" style="width:70px;"><span data-i18n="knxUltimateHueScene.status_ga"></span></label>
+        <input type="text" id="node-input-GAsceneStatus" placeholder="1/1/1" style="width:80px; text-align:left;">
+        <label for="node-input-dptsceneStatus" style="width:40px; text-align:right;"><span data-i18n="common.dpt"></span></label>
+        <select id="node-input-dptsceneStatus" style="width:130px;"></select>
+        <label for="node-input-namesceneStatus" style="width:50px; text-align:right;"><span data-i18n="common.name"></span></label>
+        <input type="text" id="node-input-namesceneStatus" style="flex:1 1 140px; min-width:120px; text-align:left;" placeholder="Scene status">
+      </div>
+    </div>
 
-            <label for="node-input-dptscene" style="width:40px; margin-left: 0px; text-align: right;"><span data-i18n="common.dpt"></span></label>
-            <select id="node-input-dptscene" style="width:140px;"></select>
+    <div id="hue-scene-tab-multi">
+      <div class="form-tips hue-form-tip hue-knx-section">
+        <i class="fa fa-circle-info"></i>
+        <span data-i18n="knxUltimateHueScene.multi_info"></span>
+      </div>
+      <div class="form-row hue-knx-section">
+        <label for="node-input-GAsceneMulti" style="width:70px;"><span data-i18n="common.ga"></span></label>
+        <input type="text" id="node-input-GAsceneMulti" placeholder="1/1/1" style="width:80px; text-align:left;">
+        <label for="node-input-dptsceneMulti" style="width:40px; text-align:right;"><span data-i18n="common.dpt"></span></label>
+        <select id="node-input-dptsceneMulti" style="width:130px;"></select>
+        <label for="node-input-namesceneMulti" style="width:50px; text-align:right;"><span data-i18n="common.name"></span></label>
+        <input type="text" id="node-input-namesceneMulti" style="flex:1 1 140px; min-width:120px; text-align:left;" placeholder="Multi-scene">
+      </div>
+      <div class="form-row hue-knx-section">
+        <label style="width:100%;"><i class="fa fa-code-fork"></i> <span data-i18n="knxUltimateHueScene.scene_selector"></span></label>
+      </div>
+      <div class="form-row hue-knx-section node-input-rule-container-row">
+        <ol id="node-input-rule-container"></ol>
+      </div>
+    </div>
 
-            <label for="node-input-namescene" style="width:50px; margin-left: 0px; text-align: right;"><span data-i18n="common.name"></span></label>
-            <input type="text" id="node-input-namescene" style="width:200px;margin-left: 5px; text-align: left;">       
-        </div>
-        <div class="form-row" id="divValScene" hidden>
-            <label for="node-input-valscene" style="width:100px;"></label>
-            <label for="node-input-valscene" style="width:20px;">#</label>
-            <select id="node-input-valscene" style="width:180px;margin-left: 5px; text-align: left;"></select>
-        </div>
-        <div class="form-row">
-            <label for="node-input-namesceneStatus" style="width:100px;"><i class="fa fa-question-circle"></i> <span data-i18n="knxUltimateHueScene.status"></span></label>
+    <div id="hue-scene-tab-behaviour">
+      <div class="form-tips hue-form-tip">
+        <i class="fa fa-circle-info"></i>
+        <span data-i18n="knxUltimateHueScene.behaviour_info"></span>
+      </div>
+      <div class="form-row">
+        <label for="node-input-enableNodePINS" style="width:220px;">
+          <i class="fa fa-code"></i> <span data-i18n="knxUltimateHueScene.node_pins"></span>
+        </label>
+        <select id="node-input-enableNodePINS" style="width:200px;">
+          <option value="yes" data-i18n="knxUltimateHueScene.node_pins_show"></option>
+          <option value="no" data-i18n="knxUltimateHueScene.node_pins_hide"></option>
+        </select>
+      </div>
+    </div>
+  </div>
 
-            <label for="node-input-GAsceneStatus" style="width:20px;"><span data-i18n="common.ga"></span></label>
-            <input type="text" id="node-input-GAsceneStatus" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
+  <div class="form-tips hue-form-tip hue-output-info" style="display:none;">
+    <i class="fa fa-circle-info"></i>
+    <span data-i18n="knxUltimateHueScene.output_info"></span>
+  </div>
 
-            <label for="node-input-dptsceneStatus" style="width:40px; margin-left: 0px; text-align: right;"><span data-i18n="common.dpt"></span></label>
-            <select id="node-input-dptsceneStatus" style="width:140px;"></select>
-
-            <label for="node-input-namesceneStatus" style="width:50px; margin-left: 0px; text-align: right;"><span data-i18n="common.name"></span></label>
-            <input type="text" id="node-input-namesceneStatus" style="width:200px;margin-left: 5px; text-align: left;">       
-        </div>
-        <br/>
-        <br/>
-    </div> <!-- // End Tab 1 -->
-   
-    <div id="tabs-2">
-        <br/>
-        <div class="form-row">
-            <label for="node-input-namesceneMulti" style="width:100px;"><i class="fa fa-play-circle-o"></i> <span data-i18n="knxUltimateHueScene.recall"></span></label>
-
-            <label for="node-input-GAsceneMulti" style="width:20px;"><span data-i18n="common.ga"></span></label>
-            <input type="text" id="node-input-GAsceneMulti" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
-
-            <label for="node-input-dptsceneMulti" style="width:40px; margin-left: 0px; text-align: right;"><span data-i18n="common.dpt"></span></label>
-            <select id="node-input-dptsceneMulti" style="width:140px;"></select>
-
-            <label for="node-input-namesceneMulti" style="width:50px; margin-left: 0px; text-align: right;"><span data-i18n="common.name"></span></label>
-            <input type="text" id="node-input-namesceneMulti" style="width:200px;margin-left: 5px; text-align: left;">       
-        </div>
-
-       <div>
-            <dt><i class="fa fa-code-fork"></i> <span data-i18n="knxUltimateHueScene.scene_selector"></span></dt>
-            <div class="form-row node-input-rule-container-row">
-                <ol id="node-input-rule-container"></ol>
-            </div>
-            <div class="form-row">
-                <p></p>
-            </div>            
-        </div>
-    <br/>
-    </div> <!-- // End Tab 2 -->
-   
-    <div id="tabs-3">
-        <br/>
-        <div class="form-row">
-            <label for="node-input-enableNodePINS" style="width:240px;">
-                <i class="fa fa-circle"></i> <span data-i18n="knxUltimateHueScene.node_pins"></span>
-            </label>
-            <select id="node-input-enableNodePINS">
-                <option value="no" data-i18n="knxUltimateHueScene.node_pins_hide"></option>
-                <option value="yes" data-i18n="knxUltimateHueScene.node_pins_show"></option>
-            </select>  
-        </div>      
-    </div> <!-- // End Tab 3 -->
-    
-</div> <!-- // End TABS -->
-
+  <input type="hidden" id="node-input-hueDevice">
 </script>

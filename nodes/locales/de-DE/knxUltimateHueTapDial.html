@@ -1,30 +1,28 @@
 <script type="text/markdown" data-help-name="knxUltimateHueTapDial">
-<p>Dieser Node liest Dreh‑Ereignisse des HUE Tap Dial und spiegelt sie nach KNX.</p>
-
-Das Tap Dial hat 4 Tasten und 1 Drehknopf.  
-Die Tasten werden im Node <b>HUE Button</b> behandelt – dieser Node verarbeitet nur die Drehfunktion.  
-Die Drehung kann auf folgende KNX‑Datapoints gemappt werden: <b>DPT 3.007</b> (relatives Dimmen hoch/runter), <b>DPT 5.001</b> (absolute Helligkeit 0–100 %), oder <b>232.600</b> (vendor‑Farbauswahl).
+<p>Verknüpft den Rotationsdienst des Hue Tap Dial mit KNX und liefert das unveränderte Hue-Ereignis an den Flow. Die vier Tasten des Geräts werden vom Node <b>Hue Button</b> verarbeitet; dieser Node kümmert sich ausschließlich um die Drehung. Nach dem Koppeln eines neuen Tap Dial bitte das Aktualisierungssymbol neben dem Geräteeingabefeld verwenden.</p>
 
 **Allgemein**
 | Eigenschaft | Beschreibung |
 |--|--|
-| KNX GW | Zu verwendendes KNX‑Gateway |
-| HUE Bridge | Zu verwendende HUE Bridge |
-| HUE Button | Tap‑Dial‑Gerät (Autocomplete während der Eingabe) |
-
-<br/>
+| KNX GW | KNX-Gateway, dessen Gruppenadressen für das Autocomplete verwendet werden. |
+| HUE Bridge | Hue-Bridge, die das Tap Dial bereitstellt. |
+| Hue Tap Dial | Drehgerät, das gesteuert werden soll (Autocomplete; Refresh-Button lädt die Liste neu). |
 
 **Mapping**
 | Eigenschaft | Beschreibung |
 |--|--|
-| Drehen | DPT 3.007 = Dimmen hoch/runter; DPT 5.001 = absolute Helligkeit (0–100 %); 232.600 = Farbe: Uhrzeigersinn → Zufallsfarben, Gegenuhrzeigersinn → Weiß |
+| Dreh-GA | KNX-Gruppenadresse für die Rotationsereignisse. Unterstützt DPT 3.007 (relatives Dimmen), DPT 5.001 (absoluter Wert 0‑100 %) sowie DPT 232.600 (vendor-spezifische Farbsteuerung). |
+| Name | Beschreibung für die gewählte GA. |
+
+**Verhalten**
+| Eigenschaft | Beschreibung |
+|--|--|
+| Node-Ein-/Ausgangspins | Blendet den Node-RED-Ausgang ein oder aus. Ohne KNX-Gateway bleibt der Ausgang erzwungen aktiv, damit Hue-Ereignisse weiterhin im Flow ankommen. |
 
 ### Ausgänge
 
 1. Standardausgang
-: `msg.payload` (string|object): rohes HUE‑Ereignis (Objekte werden serialisiert)
+: `msg.payload` (Objekt): rohes Hue-Ereignis, das vom Tap Dial gesendet wurde.
 
-### Details
-
-`msg.payload` kann für eigene Logik verwendet werden.
+> ℹ️ KNX-bezogene Steuerelemente erscheinen erst nach Auswahl eines KNX-Gateways; die Mapping-Reiter bleiben verborgen, bis sowohl Bridge als auch Gateway konfiguriert sind.
 </script>

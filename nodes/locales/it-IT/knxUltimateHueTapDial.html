@@ -1,30 +1,28 @@
 <script type="text/markdown" data-help-name="knxUltimateHueTapDial">
-<p>Questo nodo legge gli eventi di rotazione del dispositivo HUE Tap Dial e li mappa su KNX.</p>
-
-Il Tap Dial ha 4 pulsanti e 1 manopola.  
-I pulsanti sono gestiti dal nodo <b>HUE Button</b>; qui è gestita solo la rotazione.  
-La rotazione può essere mappata a: <b>DPT 3.007</b> (dim relativo su/giù), <b>DPT 5.001</b> (luminosità assoluta 0–100%) oppure <b>232.600</b> (controllo colore vendor).
+<p>Mappa il servizio di rotazione del Hue Tap Dial su KNX e inoltra gli eventi Hue grezzi al flow. I quattro pulsanti del dispositivo sono gestiti dal nodo <b>Hue Button</b>; qui viene gestita solo la parte rotativa. Dopo l’abbinamento di un nuovo Tap Dial usa l’icona di aggiornamento accanto al campo dispositivo.</p>
 
 **Generale**
 | Proprietà | Descrizione |
 |--|--|
-| KNX GW | Seleziona il gateway KNX da utilizzare |
-| Bridge HUE | Seleziona la HUE Bridge da utilizzare |
-| HUE Button | Dispositivo Tap Dial (autocompletamento durante la digitazione) |
-
-<br/>
+| KNX GW | Gateway KNX che fornisce l’elenco delle GA usato per l’autocompletamento. |
+| Bridge HUE | Bridge Hue che espone il Tap Dial. |
+| Hue Tap Dial | Dispositivo rotativo da controllare (autocomplete; il pulsante di refresh ricarica l’elenco). |
 
 **Mappatura**
 | Proprietà | Descrizione |
 |--|--|
-| Rotate | DPT 3.007 = dim su/giù; DPT 5.001 = luminosità assoluta (0–100%); 232.600 = colore: orario → colori casuali, antiorario → bianco |
+| GA rotazione | GA KNX che riceve gli eventi di rotazione. Supporta DPT 3.007 (dim su/giù), DPT 5.001 (livello assoluto 0‑100%) e DPT 232.600 (controllo colore vendor). |
+| Nome | Etichetta descrittiva per la GA. |
+
+**Comportamento**
+| Proprietà | Descrizione |
+|--|--|
+| PIN di input/output del nodo | Mostra o nasconde il pin di output di Node-RED. Se non è selezionato alcun gateway KNX il pin resta comunque attivo, così gli eventi Hue raggiungono il flow. |
 
 ### Output
 
 1. Uscita standard
-: `msg.payload` (string|object): evento HUE grezzo (gli oggetti sono serializzati)
+: `msg.payload` (oggetto): evento Hue originale emesso dal Tap Dial.
 
-### Dettagli
-
-Usa `msg.payload` per eventuale logica personalizzata.
+> ℹ️ I controlli legati a KNX vengono mostrati solo dopo aver scelto un gateway; le schede di mappatura restano nascoste finché non sono configurati sia il bridge Hue sia il gateway KNX.
 </script>

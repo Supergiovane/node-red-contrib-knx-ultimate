@@ -1,44 +1,32 @@
 <script type="text/markdown" data-help-name="knxUltimateHueScene">
-<p>This node recalls HUE scenes via KNX and maps KNX inputs to HUE scene actions.</p>
-
-The node has 2 operating options: Simple mode and Multi mode.  
-**Simple mode** activates a single HUE scene using either a boolean DPT or a KNX scene DPT.  
-**Multi mode** maps multiple KNX scene numbers to multiple HUE scenes.  
-Start typing in the GA field (name or Group Address) to link the KNX GA; autocomplete also applies to the HUE scene field.
+<p>Expose Hue scenes to KNX and optionally emit raw Hue events to the flow. The device list supports autocomplete; use the refresh button beside “Hue Scene” after adding scenes on the bridge.</p>
 
 **General**
 |Property|Description|
 |--|--|
-| KNX GW | Select the KNX gateway to be used |
-| HUE Bridge | Select the HUE Bridge to be used |
+| KNX GW | KNX gateway that provides the group-address catalogue used in the Mapping tabs. |
+| HUE Bridge | Hue bridge that hosts the scenes. |
+| Hue Scene | Scene to recall (autocomplete; refresh button reloads the bridge catalogue). |
 
-**Single mode tab**
+**Mapping tab**
 |Property|Description|
 |--|--|
-| Hue Scene | HUE scene to recall (autocomplete). |
-| Recall as | Select how to trigger (boolean 1.x or scene 18.001). |
+| Recall GA | KNX GA that recalls the scene. Use DPT 1.xxx for boolean control or DPT 18.xxx to invoke a KNX scene number. |
+| DPT | Datapoint type used to recall the scene. Options include 1.xxx or 18.001. |
+| Name | Friendly label for the recall GA. |
+| # | Available when a KNX scene DPT is selected; choose the scene number to send. |
+| Status GA | Optional GA that mirrors the active scene state (boolean). |
 
-**KNX**
+**Multi scene tab**
 |Property|Description|
 |--|--|
-| Recall | KNX GA to recall the HUE scene. With DPT 1.x send _true_ to recall, _false_ to switch off all scene lights. |
-| # | KNX scene number (only for DPT 18.001). |
-| Status | Scene status GA: _true_ when active, _false_ otherwise. |
-
-**Multi mode tab**
-|Property|Description|
-|--|--|
-| Recall | KNX GA and DPT to recall HUE scenes by scene number. |
-
-**Scene selector**
-
-The scene selector lists all HUE scenes mapped to KNX scene numbers.  
-Click the <code>+add</code> button at the bottom of the list, to add a row.  
-Click the <code>X</code> on the far right of each row, to delete the row.  
-Drag the <code>toast</code> (the icon with three lines) at the far left of a row, to reorder the item in the list.
+| Recall GA | KNX GA using DPT 18.001 to select scenes by number. |
+| Scene selector | Use the editable list to map KNX scene numbers to Hue scenes and choose whether to recall them as active, dynamic palette or static. |
 
 **Behaviour tab**
 |Property|Description|
 |--|--|
-| Node Input/Output PINs | Hide/show I/O pins. Input must follow HUE API v2. See the [official HUE API](https://developers.meethue.com/develop/hue-api-v2/api-reference/#resource_light__id__put). |
+| Node input/output pins | Show or hide the Node-RED output pin. The pin remains forced on when no KNX gateway is selected so Hue events still reach the flow. |
+
+> ℹ️ KNX-specific widgets remain hidden until a KNX gateway is selected. The editor also hides the Mapping tabs until both a Hue bridge and KNX gateway are configured.
 </script>

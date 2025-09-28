@@ -1,25 +1,29 @@
 <script type="text/markdown" data-help-name="knxUltimateHuedevice_software_update">
-<p>Dieser Node überwacht, ob ein HUE‑Gerät ein Software‑Update hat, und spiegelt den Status nach KNX.</p>
-    
-Geben Sie den Namen oder die Gruppenadresse Ihres KNX -Geräts im Feld GA ein.
-Sie tippen.
+<p>Überwacht den Software-Update-Status eines Hue-Geräts und spiegelt ihn auf KNX wider. Nach dem Hinzufügen neuer Geräte zur Bridge bitte das Aktualisierungssymbol neben „Hue-Gerät“ verwenden.</p>
 
 **Allgemein**
 | Eigenschaft | Beschreibung |
-|-|-|
-|KNX GW |Wählen Sie das zu verwendende KNX -Gateway |
-|Hue Bridge |Wählen Sie die zu verwendende Farbtonbrücke aus |
-| HUE Device | Zu überwachendes HUE‑Gerät (Autocomplete) |
+|--|--|
+| KNX GW | KNX-Gateway, das für die Autovervollständigung der Gruppenadressen verwendet wird. |
+| Hue Bridge | Hue-Bridge, die das Gerät bereitstellt. |
+| Hue-Gerät | Zu überwachendes Gerät (Autocomplete; Refresh lädt die Liste neu). |
 
 **Zuordnung**
 | Eigenschaft | Beschreibung |
 |--|--|
-| Status | KNX‑GA für Update‑Status: _true_, wenn verfügbar/bereit/in Installation, sonst _false_. |
-| Status beim Start lesen | Beim Start/Wiederverbindung lesen und an KNX ausgeben (Standard „Ja“). |
+| Status-GA | KNX-GA, die den Update-Status widerspiegelt. _true_, wenn ein Update verfügbar/bereit/installierend ist, sonst _false_. |
+
+**Verhalten**
+| Eigenschaft | Beschreibung |
+|--|--|
+| Status beim Start lesen | Bei „Ja“ wird die Bridge beim Deploy/bei der Wiederverbindung abgefragt und der aktuelle Wert auf KNX gesendet. |
+| Node-Ein-/Ausgangspins | Blendet den Node-RED-Ausgang ein oder aus. Ohne KNX-Gateway bleibt der Ausgang aktiv, sodass Hue-Ereignisse weiterhin den Flow erreichen. |
 
 ### Ausgänge
 
 1. Standardausgang
-: payload (boolean): Update‑Flag.
-: status (string): **no_update, update_pending, ready_to_install, installing**.
+: `msg.payload` (Boolean) Update-Flag.  
+: `msg.status` (String) Einer der Werte **no_update**, **update_pending**, **ready_to_install**, **installing**.
+
+> ℹ️ KNX-spezifische Bedienelemente erscheinen erst nach Auswahl eines KNX-Gateways; der Mapping-Reiter bleibt verborgen, bis sowohl Bridge als auch Gateway konfiguriert sind.
 </script>

@@ -1,6 +1,18 @@
 {
   "knxUltimateHuedevice_software_update": {
     "paletteLabel": "Hue 软件更新",
+    "hue_device": "Hue 设备",
+    "tabs": {
+      "mapping": "映射",
+      "behaviour": "行为"
+    },
+    "mapping_info": "映射用于报告软件更新状态的 KNX 组地址。",
+    "behaviour_info": "配置启动时读取以及 Node-RED 输出引脚的可见性。",
+    "node_pins": "节点输入/输出引脚",
+    "node_pins_hide": "隐藏引脚",
+    "node_pins_show": "显示节点输入/输出引脚",
+    "output_info": "没有 KNX 网关时仍保持向流程输出，以继续接收 Hue 事件。",
+    "no_devices": "未找到 Hue 设备。添加新设备后请点击刷新图标。",
     "read_status_startup": "启动时读取状态",
     "opt_no": "否",
     "opt_yes_emit": "是，并发送 KNX 电报。"

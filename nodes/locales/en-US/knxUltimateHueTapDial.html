@@ -1,30 +1,28 @@
 <script type="text/markdown" data-help-name="knxUltimateHueTapDial">
-<p>This node reads rotary events from a HUE Tap Dial and maps them to KNX.</p>
-
-The Tap Dial has 4 buttons and 1 rotary knob.  
-Buttons are handled by the <b>HUE Button</b> node — this node only handles the rotary service.  
-Rotation can be mapped to one of the following KNX datapoints: <b>DPT 3.007</b> (relative dim up/down), <b>DPT 5.001</b> (absolute brightness 0–100%), or <b>232.600</b> (vendor color control).
+<p>Maps the rotation service of a Hue Tap Dial to KNX and forwards the raw Hue events to the flow. Buttons on the device are handled by the <b>Hue Button</b> node. Use the refresh icon beside “Hue Tap Dial” after pairing a new device.</p>
 
 **General**
 |Property|Description|
 |--|--|
-| KNX GW | Select the KNX gateway to be used |
-| HUE Bridge | Select the HUE Bridge to be used |
-| HUE Button | HUE Tap Dial device (autocomplete while typing) |
-
-<br/>
+| KNX GW | KNX gateway whose group-address list is used for autocomplete. |
+| HUE Bridge | Hue bridge that exposes the Tap Dial device. |
+| Hue Tap Dial | Rotary device to control (autocomplete; refresh button reloads the list). |
 
 **Mapping**
-| Property | Description |
+|Property|Description|
 |--|--|
-| Rotate | DPT 3.007 = dim up/down; DPT 5.001 = absolute brightness (0–100%); 232.600 = color: clockwise → random colors, counter‑clockwise → white |
+| Rotate GA | KNX GA that receives rotation events. Supports DPT 3.007 (relative dim up/down), DPT 5.001 (absolute level 0‑100%) or DPT 232.600 (vendor colour control). |
+| Name | Friendly label for the KNX GA. |
+
+**Behaviour**
+|Property|Description|
+|--|--|
+| Node input/output pins | Show or hide the Node-RED output pin. When no KNX gateway is selected the pin remains enabled so Hue events continue to reach the flow. |
 
 ### Outputs
 
 1. Standard output
-: `msg.payload` (string|object): raw HUE event (objects are stringified)
+: `msg.payload` (object) the raw Hue event emitted by the Tap Dial.
 
-### Details
-
-Use `msg.payload` for custom logic if needed.
+> ℹ️ KNX-specific widgets are displayed only after a KNX gateway is chosen; the mapping tab is hidden until both bridge and gateway are configured.
 </script>

@@ -10,6 +10,7 @@
     "node-input-dptLightState": "dpt",
     "node-input-hueLight": "HUE light",
     "paletteLabel": "Hue Licht/Steckdose",
+    "no_devices": "Keine Hue-Leuchten gefunden. Verwenden Sie das Refresh-Symbol, nachdem eine neue Lampe gekoppelt wurde.",
     "tabs": {
       "switch": "Schalten",
       "dim": "Dimmen",

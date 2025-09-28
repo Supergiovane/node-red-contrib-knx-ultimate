@@ -1,44 +1,32 @@
 <script type="text/markdown" data-help-name="knxUltimateHueScene">
-<p>Questo nodo richiama scene HUE via KNX, mappando gli input KNX ad azioni HUE.</p>
-
-Due modalità: **Simple** e **Multi**.  
-In **Simple** richiami una singola scena HUE con DPT booleano o scena KNX.  
-In **Multi** associ più numeri scena KNX a più scene HUE.  
-Nel campo GA digita nome o indirizzo di gruppo per collegare la GA; l’autocompletamento vale anche per il campo scena HUE.
+<p>Espone le scene Hue verso KNX e, facoltativamente, inoltra gli eventi Hue al flow. Il campo “Hue Scene” supporta l’autocompletamento; utilizza il pulsante di aggiornamento accanto al campo dopo aver creato nuove scene sul bridge.</p>
 
 **Generale**
 | Proprietà | Descrizione |
-|-|-|
-|KNX GW |Seleziona il gateway KNX da utilizzare |
-|Bridge Hue |Seleziona il ponte Hue da utilizzare |
+|--|--|
+| KNX GW | Gateway KNX che fornisce l’elenco degli indirizzi di gruppo usato nelle schede di mappatura. |
+| Bridge Hue | Bridge Hue che ospita le scene. |
+| Hue Scene | Scena da richiamare (autocomplete; il pulsante di refresh ricarica il catalogo dal bridge). |
 
-**Scheda Simple mode**
+**Scheda Mappatura**
 | Proprietà | Descrizione |
-|-|-|
-| HUE Scene | Scena HUE da richiamare (autocompletamento) |
-| Recall as | Modalità di richiamo (boolean 1.x o scena 18.001) |
+|--|--|
+| GA richiamo | Indirizzo KNX che richiama la scena. Usa DPT 1.xxx per il comando booleano oppure DPT 18.xxx per richiamare una scena KNX. |
+| DPT | Tipo di datapoint utilizzato per il richiamo. Include 1.xxx e 18.001. |
+| Nome | Etichetta descrittiva per la GA di richiamo. |
+| # | Visibile quando selezioni un DPT scena KNX; scegli il numero scena da inviare. |
+| GA stato | GA opzionale che replica lo stato della scena (booleano). |
 
-**KNX**
+**Scheda Multi scena**
 | Proprietà | Descrizione |
-|-|-|
-| Recall | GA KNX per il richiamo. Con DPT 1.x invia _true_ per richiamare, _false_ per spegnere le luci della scena |
-| # | Numero scena KNX (solo per DPT 18.001) |
-| Status | Stato scena: _true_ attiva, _false_ non attiva |
+|--|--|
+| GA richiamo | GA KNX con DPT 18.001 per richiamare le scene tramite numero. |
+| Selettore scene | Usa la lista modificabile per associare numeri scena KNX a scene Hue e scegliere se richiamarle come attive, dynamic palette o static. |
 
-**Scheda Multi mode**
+**Scheda Comportamento**
 | Proprietà | Descrizione |
-|-|-|
-| Recall | GA e DPT per richiamare scene HUE tramite numero scena |
+|--|--|
+| PIN di input/output del nodo | Mostra o nasconde il pin di output di Node-RED. Se non è selezionato alcun gateway KNX il pin rimane comunque attivo per continuare a ricevere gli eventi Hue. |
 
-**Selettore scene**
-
-Elenco di tutte le scene HUE mappate ai numeri scena KNX.
-Fai clic sul pulsante <code>+Aggiungi </code> nella parte inferiore dell'elenco, per aggiungere una riga.
-Fai clic sul <code> x </code> all'estrema destra di ogni riga, per eliminare la riga.
-Trascina il <code> toast </code> (l'icona con tre righe) all'estrema sinistra di una riga, per riordinare l'elemento nell'elenco.
-
-**Scheda Behaviour**
-| Proprietà | Descrizione |
-|-|-|
-| Pin di I/O del nodo | Mostra/Nascondi i PIN. L’input deve seguire HUE API v2 (vedi [HUE API](https://developers.meethue.com/develop/hue-api-v2/api-reference/#resource_light__id__put)) |
+> ℹ️ Gli elementi KNX vengono visualizzati solo dopo aver scelto un gateway KNX. Le schede di mappatura restano nascoste finché non sono configurati sia il bridge Hue sia il gateway KNX.
 </script>

@@ -1,25 +1,29 @@
 <script type="text/markdown" data-help-name="knxUltimateHuedevice_software_update">
-<p>Questo nodo monitora se un dispositivo HUE ha un aggiornamento software disponibile e pubblica lo stato su KNX.</p>
-    
-Inizia a digitare il nome o l'indirizzo di gruppo del dispositivo KNX nel campo GA, i dispositivi disponibili iniziano a mostrare mentre
-stai digitando.
+<p>Monitora lo stato di aggiornamento software di un dispositivo Hue e ne pubblica l’esito su KNX. Dopo aver aggiunto nuovi dispositivi sulla bridge utilizza l’icona di aggiornamento accanto al campo “Dispositivo Hue”.</p>
 
 **Generale**
 | Proprietà | Descrizione |
-|-|-|
-|KNX GW |Seleziona il gateway KNX da utilizzare |
-|Bridge Hue |Seleziona il ponte Hue da utilizzare |
-| HUE Device | Dispositivo HUE da monitorare (autocompletamento) |
+|--|--|
+| KNX GW | Gateway KNX che fornisce le GA per l’autocompletamento. |
+| Bridge Hue | Bridge Hue che espone i dispositivi. |
+| Dispositivo Hue | Dispositivo da monitorare (autocomplete; il pulsante di refresh ricarica l’elenco). |
 
 **Mappatura**
 | Proprietà | Descrizione |
 |--|--|
-| Stato | GA KNX che riflette lo stato: _true_ se update disponibile/pronto/in installazione, altrimenti _false_. |
-| Leggi stato all’avvio | Leggi all’avvio/riconnessione ed emetti su KNX (default “Sì”). |
+| GA stato | Indirizzo KNX che riceve il flag di aggiornamento. Vale _true_ quando è presente un aggiornamento disponibile/pronto/in installazione, altrimenti _false_. |
+
+**Comportamento**
+| Proprietà | Descrizione |
+|--|--|
+| Leggi stato all’avvio | Se impostato su “Sì”, interroga la bridge all’avvio/riconnessione ed emette il valore corrente su KNX. |
+| PIN di input/output del nodo | Mostra o nasconde il pin di output di Node-RED. Senza gateway KNX il pin resta attivo, così gli eventi Hue raggiungono comunque il flow. |
 
 ### Output
 
 1. Uscita standard
-: payload (boolean): flag aggiornamento.
-: status (string): **no_update, update_pending, ready_to_install, installing**.
+: `msg.payload` (boolean) Flag aggiornamento.  
+: `msg.status` (string) Uno tra **no_update**, **update_pending**, **ready_to_install**, **installing**.
+
+> ℹ️ Gli elementi specifici KNX compaiono solo dopo aver selezionato un gateway; la scheda di mappatura rimane nascosta finché non sono configurati sia bridge sia gateway.
 </script>

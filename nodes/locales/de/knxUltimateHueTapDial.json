@@ -1,7 +1,19 @@
 {
   "knxUltimateHueTapDial": {
     "title": "Hue Tap Dial Knoten (Drehregler)",
-    "paletteLabel": "Hue Tap Dial"
+    "paletteLabel": "Hue Tap Dial",
+    "hue_device": "Hue Tap Dial",
+    "tabs": {
+      "mapping": "Zuordnung",
+      "behaviour": "Verhalten"
+    },
+    "mapping_info": "Verknüpfen Sie die Drehereignisse des Tap Dial mit einer KNX-Gruppenadresse.",
+    "behaviour_info": "Bestimmen Sie, ob der Node-RED-Ausgang sichtbar bleibt, wenn keine KNX-Zuordnung aktiv ist.",
+    "node_pins": "Node-Ein-/Ausgangspins",
+    "node_pins_hide": "Pins ausblenden",
+    "node_pins_show": "Ein-/Ausgangspins anzeigen",
+    "output_info": "Ohne KNX-Gateway bleibt der Flow-Ausgang aktiv, damit Hue-Ereignisse weiterhin Node-RED erreichen.",
+    "no_devices": "Kein Hue Tap Dial gefunden. Verwenden Sie das Aktualisierungssymbol, nachdem ein neuer Dial gekoppelt wurde."
   },
   "common": {
     "ga": "GA",

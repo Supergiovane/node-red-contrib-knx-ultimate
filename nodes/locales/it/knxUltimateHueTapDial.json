@@ -1,7 +1,19 @@
 {
   "knxUltimateHueTapDial": {
     "title": "Nodo Hue Tap Dial (rotary)",
-    "paletteLabel": "Hue Tap Dial"
+    "paletteLabel": "Hue Tap Dial",
+    "hue_device": "Hue Tap Dial",
+    "tabs": {
+      "mapping": "Mappatura",
+      "behaviour": "Comportamento"
+    },
+    "mapping_info": "Collega gli eventi di rotazione del Tap Dial alle GA KNX.",
+    "behaviour_info": "Decidi se mantenere visibile il pin di output di Node-RED quando la consegna KNX è disattivata.",
+    "node_pins": "PIN di input/output del nodo",
+    "node_pins_hide": "Nascondi PIN",
+    "node_pins_show": "Mostra i PIN di input/output",
+    "output_info": "Senza gateway KNX l'uscita verso il flow rimane attiva per ricevere gli eventi Hue.",
+    "no_devices": "Nessun dispositivo Hue Tap Dial trovato. Usa l'icona di aggiornamento dopo averne associato uno nuovo."
   },
   "common": {
     "ga": "GA",

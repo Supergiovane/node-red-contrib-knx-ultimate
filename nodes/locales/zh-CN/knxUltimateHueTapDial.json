@@ -1,7 +1,19 @@
 {
   "knxUltimateHueTapDial": {
     "title": "HUE 旋钮节点",
-    "paletteLabel": "Hue 旋钮开关"
+    "paletteLabel": "Hue 旋钮开关",
+    "hue_device": "Hue Tap Dial",
+    "tabs": {
+      "mapping": "映射",
+      "behaviour": "行为"
+    },
+    "mapping_info": "将 Tap Dial 的旋转事件映射到 KNX 组地址。",
+    "behaviour_info": "决定在停用 KNX 传输时是否仍显示 Node-RED 输出引脚。",
+    "node_pins": "节点输入/输出引脚",
+    "node_pins_hide": "隐藏引脚",
+    "node_pins_show": "显示节点输入/输出引脚",
+    "output_info": "没有 KNX 网关时仍保持向流程输出，以继续接收 Hue 事件。",
+    "no_devices": "未发现 Hue Tap Dial。配对新旋钮后请点击刷新图标。"
   },
   "common": {
     "ga": "组地址",

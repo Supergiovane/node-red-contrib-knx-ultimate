@@ -1,6 +1,18 @@
 {
   "knxUltimateHuedevice_software_update": {
     "paletteLabel": "Hue Softwareaktualisierung",
+    "hue_device": "Hue-Gerät",
+    "tabs": {
+      "mapping": "Zuordnung",
+      "behaviour": "Verhalten"
+    },
+    "mapping_info": "Ordnen Sie die KNX-Gruppenadresse zu, die den Update-Status meldet.",
+    "behaviour_info": "Konfigurieren Sie den Start-Scan und die Sichtbarkeit des Node-RED-Ausgangs.",
+    "node_pins": "Node-Ein-/Ausgangspins",
+    "node_pins_hide": "Pins ausblenden",
+    "node_pins_show": "Ein-/Ausgangspins anzeigen",
+    "output_info": "Ohne KNX-Gateway bleibt der Flow-Ausgang aktiv, damit Hue-Ereignisse weiterhin Node-RED erreichen.",
+    "no_devices": "Kein Hue-Gerät gefunden. Verwenden Sie das Aktualisierungssymbol, nachdem ein neues Gerät hinzugefügt wurde.",
     "read_status_startup": "Status beim Start lesen",
     "opt_no": "Nein",
     "opt_yes_emit": "Ja, und KNX-Telegramme senden."

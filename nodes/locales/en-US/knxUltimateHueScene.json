@@ -11,9 +11,22 @@
     "status": "Status",
     "scene_selector": "Scene selector",
     "knx_scene_n": "KNX Scene n.",
-    "node_pins": "Node Input/Output PINs",
-    "node_pins_hide": "Hide",
-    "node_pins_show": "Show node input/output PINs"
+    "node_pins": "Node input/output pins",
+    "node_pins_hide": "Hide pins",
+    "node_pins_show": "Show node input/output pins",
+    "tabs": {
+      "single": "Single scene",
+      "multi": "Multi scene",
+      "behaviour": "Behaviour"
+    },
+    "single_info": "Select the Hue scene and choose how it should be recalled when the KNX address is triggered.",
+    "mapping_info": "Map the KNX addresses that recall the scene or report its current state.",
+    "multi_info": "Associate KNX scene numbers with Hue scenes. Each rule recalls a different Hue scene.",
+    "behaviour_info": "Decide whether the Node-RED output pin should remain visible when KNX delivery is disabled.",
+    "status_ga": "Status GA",
+    "output_info": "Without a KNX gateway the flow output stays enabled so Hue events continue to reach Node-RED.",
+    "no_scenes": "No Hue scenes found. Use the refresh icon after adding new scenes.",
+    "multi_scene_placeholder": "Hue scene name"
   },
   "common": {
     "ga": "GA",

@@ -222,6 +222,16 @@
           ensureVerticalTabsStyle();
           const $knxServerInput = $("#node-input-server");
           const KNX_EMPTY_VALUES = new Set(['', 'none', '_ADD_', '__NONE__']);
+          const $hueServerInput = $("#node-input-serverHue");
+          const $hueDeviceInput = $("#node-input-hueDevice");
+          const $deviceNameInput = $("#node-input-name");
+          const $refreshDevicesButton = $(".hue-refresh-devices");
+          const $hueDevicesLoading = $(".hue-devices-loading");
+          let cachedHueDevices = Array.isArray(node._cachedHueLightDevices) ? node._cachedHueLightDevices : [];
+          node._cachedHueLightDevices = cachedHueDevices;
+          const defaultHueDevicePlaceholder = $deviceNameInput.attr('placeholder') || '';
+          let showingNoHueDevicesPlaceholder = false;
+          const HUE_EMPTY_SERVER_VALUES = new Set(['', 'none', '_add_', '__none__', '__null__', 'null', 'undefined']);
 
           const resolveKnxServerValue = () => {
             const domValue = $knxServerInput.val();
@@ -239,6 +249,117 @@
             if (val === undefined || val === null) return false;
             return !KNX_EMPTY_VALUES.has(val);
           };
+
+          const resolveHueServerValue = () => {
+            const domValue = $hueServerInput.val();
+            if (domValue !== undefined && domValue !== null) {
+              const trimmed = String(domValue).trim();
+              if (trimmed !== '' && !HUE_EMPTY_SERVER_VALUES.has(trimmed.toLowerCase())) return trimmed;
+            }
+            if (node.serverHue !== undefined && node.serverHue !== null) {
+              const stored = String(node.serverHue).trim();
+              if (stored !== '' && !HUE_EMPTY_SERVER_VALUES.has(stored.toLowerCase())) return stored;
+            }
+            return '';
+          };
+
+          const getHueServerConfig = () => {
+            const id = resolveHueServerValue();
+            if (id === '') return null;
+            try {
+              return RED.nodes.node(id) || null;
+            } catch (error) {
+              return null;
+            }
+          };
+
+          const resolveDeviceTypeSuffix = (deviceType) => {
+            const normalized = (deviceType || '').toLowerCase();
+            return normalized === 'grouped_light' ? '#grouped_light' : '#light';
+          };
+
+          const applyHueDevicesPlaceholder = (hasDevices) => {
+            if (!$deviceNameInput.length) return;
+            if (hasDevices) {
+              if (showingNoHueDevicesPlaceholder) {
+                showingNoHueDevicesPlaceholder = false;
+                $deviceNameInput.attr('placeholder', defaultHueDevicePlaceholder);
+              }
+              return;
+            }
+            const message = node._('knxUltimateHueLight.no_devices') || defaultHueDevicePlaceholder;
+            showingNoHueDevicesPlaceholder = true;
+            $deviceNameInput.attr('placeholder', message);
+            if (($deviceNameInput.val() || '').trim() === '') {
+              $deviceNameInput.val('');
+            }
+          };
+
+          const filterHueDevices = (devices, term) => {
+            const cleaned = (term || '').replace(/exactmatch/gi, '').trim();
+            return $.map(devices, (value) => {
+              if (!value || !value.id) return null;
+              const deviceName = value.name || value.id;
+              if (cleaned !== '' && !htmlUtilsfullCSVSearch(deviceName, cleaned)) {
+                return null;
+              }
+              const suffix = resolveDeviceTypeSuffix(value.deviceType);
+              return {
+                hueDevice: `${value.id}${suffix}`,
+                value: deviceName,
+                deviceObject: value.deviceObject || value,
+                deviceType: value.deviceType || 'light'
+              };
+            });
+          };
+
+          const fetchHueDevices = (term, respond, { forceRefresh = false } = {}) => {
+            const hueServer = getHueServerConfig();
+            if (!hueServer) {
+              applyHueDevicesPlaceholder(true);
+              if (typeof respond === 'function') respond([]);
+              return;
+            }
+            if (!forceRefresh && Array.isArray(cachedHueDevices) && cachedHueDevices.length > 0) {
+              applyHueDevicesPlaceholder(cachedHueDevices.length > 0);
+              if (typeof respond === 'function') respond(filterHueDevices(cachedHueDevices, term));
+              return;
+            }
+            if ($hueDevicesLoading.length) {
+              $hueDevicesLoading.show();
+            }
+            $.getJSON(`KNXUltimateGetResourcesHUE?rtype=light&serverId=${encodeURIComponent(hueServer.id)}&_=${Date.now()}`, (data) => {
+              const listCandidates = Array.isArray(data) ? data : (Array.isArray(data?.devices) ? data.devices : []);
+              cachedHueDevices = listCandidates.map((value) => {
+                const deviceObject = value.deviceObject || value;
+                const rawId = deviceObject?.id || value.id || value.rid || '';
+                const trimmedId = typeof rawId === 'string' ? rawId.trim() : rawId;
+                if (trimmedId === undefined || trimmedId === null || String(trimmedId).trim() === '') return null;
+                return {
+                  id: String(trimmedId).trim(),
+                  name: value.name || value.metadata?.name || deviceObject?.metadata?.name || '',
+                  deviceType: deviceObject?.type || value.type || '',
+                  deviceObject
+                };
+              }).filter(Boolean);
+              node._cachedHueLightDevices = cachedHueDevices;
+              applyHueDevicesPlaceholder(cachedHueDevices.length > 0);
+              if (typeof respond === 'function') respond(filterHueDevices(cachedHueDevices, term));
+            }).always(() => {
+              if ($hueDevicesLoading.length) {
+                $hueDevicesLoading.hide();
+              }
+            }).fail(() => {
+              cachedHueDevices = [];
+              node._cachedHueLightDevices = cachedHueDevices;
+              applyHueDevicesPlaceholder(false);
+              if ($hueDevicesLoading.length) {
+                $hueDevicesLoading.hide();
+              }
+              if (typeof respond === 'function') respond([]);
+            });
+          };
+
           // TIMER BLINK ####################################################
           let blinkStatus = 2;
           let timerBlinkBackground;
@@ -437,7 +558,6 @@
           const $pinSectionRow = $("#node-input-enableNodePINS").closest('.form-row');
           const $pinSelect = $("#node-input-enableNodePINS");
           const $pinInfoRow = $pinSectionRow.next('.form-tips');
-          const $hueDeviceInput = $("#node-input-hueDevice");
           $tabs.addClass('hue-vertical-tabs');
           $tabs.tabs(); // Tabs gestione KNX
           $tabs.find('ul').addClass('ui-tabs-nav');
@@ -654,6 +774,76 @@
           });
 
           $hueDeviceInput.on('change.knxUltimateHueLight input.knxUltimateHueLight', updateTabsVisibility);
+
+          if (($deviceNameInput.val() || '').trim() !== '') {
+            applyHueDevicesPlaceholder(true);
+          } else {
+            applyHueDevicesPlaceholder(cachedHueDevices.length > 0);
+          }
+
+          if ($deviceNameInput.length) {
+            if ($deviceNameInput.data('ui-autocomplete')) {
+              try { $deviceNameInput.autocomplete('destroy'); } catch (error) { /* empty */ }
+            }
+            $deviceNameInput.autocomplete({
+              minLength: 0,
+              source(request, response) {
+                fetchHueDevices(request.term, response);
+              },
+              select(event, ui) {
+                if (!ui.item || !ui.item.hueDevice || ui.item.hueDevice === 'error') {
+                  event.preventDefault();
+                  return;
+                }
+                $deviceNameInput.val(ui.item.value || '');
+                node.name = ui.item.value || node.name;
+                $hueDeviceInput.val(ui.item.hueDevice);
+                node.hueDevice = ui.item.hueDevice;
+                node.hueDeviceObject = ui.item.deviceObject || { type: ui.item.deviceType };
+                updateTabsVisibility();
+                setTimeout(() => {
+                  try { $deviceNameInput.autocomplete('close'); } catch (error) { /* empty */ }
+                  Go();
+                }, 0);
+              },
+              focus(event, ui) {
+                event.preventDefault();
+                $deviceNameInput.val(ui.item && ui.item.value ? ui.item.value : '');
+              }
+            }).focus(function () {
+              $(this).autocomplete('search', `${$(this).val()}exactmatch`);
+            }).on('input.knxUltimateHueLight', function () {
+              if ($(this).val().trim() === '') {
+                $hueDeviceInput.val('');
+                node.hueDevice = '';
+                updateTabsVisibility();
+              }
+            });
+          }
+
+          if ($refreshDevicesButton.length) {
+            $refreshDevicesButton.off('.knxUltimateHueLight').on('click.knxUltimateHueLight', () => {
+              cachedHueDevices = [];
+              node._cachedHueLightDevices = cachedHueDevices;
+              fetchHueDevices('', () => {
+                if ($deviceNameInput.length) {
+                  $deviceNameInput.autocomplete('search', `${$deviceNameInput.val()}exactmatch`);
+                }
+              }, { forceRefresh: true });
+            });
+          }
+
+          if ($hueServerInput.length) {
+            $hueServerInput.off('.knxUltimateHueLightDevices').on('change.knxUltimateHueLightDevices', () => {
+              cachedHueDevices = [];
+              node._cachedHueLightDevices = cachedHueDevices;
+              showingNoHueDevicesPlaceholder = false;
+              applyHueDevicesPlaceholder(true);
+              if ($hueDevicesLoading.length) {
+                $hueDevicesLoading.hide();
+              }
+            });
+          }
 
           // Get the HUE capabilities to enable/disable UI parts
           var getJsonPromise;
@@ -1038,54 +1228,6 @@
           } catch (error) { }
         });
 
-        // Autocomplete suggestion with HUE Lights
-        $("#node-input-name").autocomplete({
-          minLength: 0,
-          source: function (request, response) {
-            $.getJSON("KNXUltimateGetResourcesHUE?rtype=light&serverId=" + $("#node-input-serverHue").val() + "&" + { _: new Date().getTime() }, (data) => {
-              response(
-                $.map(data.devices, function (value, key) {
-                  var sSearch = value.name;
-                  if (!value.name.includes("I'm still connecting")) {
-                    if (htmlUtilsfullCSVSearch(sSearch, request.term)) {
-                      return {
-                        hueDevice: value.id,
-                        value: value.name,
-                      };
-                    } else {
-                      return null;
-                    }
-                  } else {
-                    return {
-                      hueDevice: value.id,
-                      value: value.name,
-                    };
-                  }
-                })
-              );
-            });
-          },
-          select: function (event, ui) {
-            // Distinguish between group of lights an single light.
-            const $nameInput = $("#node-input-name");
-            $nameInput.val(ui.item.value || '');
-            node.name = ui.item.value || node.name;
-            if (ui.item.value.toLowerCase().startsWith("grouped_light")) {
-              const storedValue = ui.item.hueDevice + "#grouped_light";
-              $("#node-input-hueDevice").val(storedValue);
-              node.hueDevice = storedValue;
-            } else {
-              const storedValue = ui.item.hueDevice + "#light";
-              $("#node-input-hueDevice").val(storedValue);
-              node.hueDevice = storedValue;
-            }
-            updateTabsVisibility();
-            Go();
-          }
-        }).focus(function () {
-          $(this).autocomplete('search', $(this).val() + 'exactmatch');
-        });
-
         // Timer connection to backend ####################################################
         let timerWaitBackEndCounter = 0;
         function checkConnection() {
@@ -1174,6 +1316,7 @@
         const serialized = JSON.stringify(collectedEffectRules);
         $("#node-input-effectRules").val(serialized);
         this.effectRules = serialized;
+        this._cachedHueLightDevices = [];
       },
       oneditcancel: function () {
         // Return to the info tab
@@ -1183,6 +1326,7 @@
         //RED.sidebar.removeTab("tabNRColor");
         //RED.sidebar.show("help");
 
+        this._cachedHueLightDevices = [];
       },
       oneditresize: function (size) {
         //var height = size.height;    
@@ -1307,9 +1451,18 @@
     </p>
 
     <div class="form-row">
-      <label for="node-input-hueDevice">
-        <i class="fa fa-play-circle"></i>&nbsp<span data-i18n="common.name"></span></label>
-      <input type="text" id="node-input-name" placeholder="Enter your hue device name" />
+      <label for="node-input-name">
+        <i class="fa fa-play-circle"></i> <span data-i18n="common.name"></span>
+      </label>
+      <input type="text" id="node-input-name" placeholder="Enter your hue device name"
+        style="flex:1 1 240px; min-width:240px; max-width:240px;" />
+      <button type="button" class="red-ui-button hue-refresh-devices"
+        style="margin-left:6px; color:#1b7d33; border-color:#1b7d33;">
+        <i class="fa fa-sync"></i>
+      </button>
+      <span class="hue-devices-loading" style="margin-left:6px; display:none; color:#1b7d33;">
+        <i class="fa fa-circle-notch fa-spin"></i>
+      </span>
       <input type="hidden" id="node-input-hueDevice" />
     </div>
 
