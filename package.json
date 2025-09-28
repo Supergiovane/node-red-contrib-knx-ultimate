@@ -51,7 +51,8 @@
       "knxUltimateHATranslator": "/nodes/knxUltimateHATranslator.js",
       "knxUltimateHuedevice_software_update": "/nodes/knxUltimateHuedevice_software_update.js",
       "knxUltimateHuePlug": "/nodes/knxUltimateHuePlug.js",
-      "knxUltimateHueHumiditySensor": "/nodes/knxUltimateHueHumiditySensor.js"
+      "knxUltimateHueHumiditySensor": "/nodes/knxUltimateHueHumiditySensor.js",
+      "knxUltimateHueCameraMotion": "/nodes/knxUltimateHueCameraMotion.js"
     }
   },
   "repository": {

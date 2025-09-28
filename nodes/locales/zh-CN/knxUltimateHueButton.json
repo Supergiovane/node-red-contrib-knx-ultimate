@@ -1,6 +1,25 @@
 {
   "knxUltimateHueButton": {
-    "paletteLabel": "Hue 按钮"
+    "paletteLabel": "Hue 按钮",
+    "hue_sensor": "Hue 按钮",
+    "no_devices": "没有可用的 Hue 按钮",
+    "tabs": {
+      "switch": "开关",
+      "dim": "调光",
+      "behaviour": "行为"
+    },
+    "switch_info": "关联短按触发的 KNX 组地址。",
+    "switch_status": "状态 GA",
+    "dim_info": "配置长按调光时使用的 KNX 组地址。",
+    "behaviour_info": "选择事件是自动切换数值还是发送固定负载。",
+    "toggle_values": "每次事件切换数值",
+    "toggle_values_hint": "启用后在 true/false 与调光方向之间切换；禁用后发送下方定义的固定负载。",
+    "switch_send": "开关负载",
+    "dim_send": "调光负载",
+    "dim_up": "增亮",
+    "dim_down": "变暗",
+    "dim_stop": "停止",
+    "output_info": "未选择 KNX 网关。事件仍会通过 Node-RED 输出引脚发送。"
   },
   "common": {
     "ga": "组地址",

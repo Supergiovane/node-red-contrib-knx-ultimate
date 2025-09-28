@@ -1,0 +1,30 @@
+{
+  "common": {
+    "ga": "GA",
+    "dpt": "DPT",
+    "name": "Name",
+    "youtube_sample": "Youtube sample",
+    "knx_gw": "KNX GW",
+    "hue_bridge": "HUE Bridge",
+    "philips_hue": "Philips HUE",
+    "read": "Read"
+  },
+  "knxUltimateHueCameraMotion": {
+    "paletteLabel": "Hue Camera Motion",
+    "heading": "HUE Camera Motion node",
+    "hue_sensor": "HUE Camera Motion",
+    "no_devices": "No camera motion devices available",
+    "tabs": {
+      "motion": "Motion",
+      "behaviour": "Behaviour"
+    },
+    "node_pins": "Node output pin",
+    "node_pins_hide": "Hide",
+    "node_pins_show": "Show Node-RED output pin",
+    "output_info": "No KNX gateway selected. When the Node-RED output pin is enabled, Hue camera motion events are still emitted to your flow.",
+    "read_status_startup": "Read status at startup",
+    "opt_no": "No",
+    "opt_yes_emit": "Yes, and emit KNX telegrams.",
+    "motion_info": "Link your KNX motion group address to receive the detected/not detected state."
+  }
+}

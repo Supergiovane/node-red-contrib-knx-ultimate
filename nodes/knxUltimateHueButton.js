@@ -107,8 +107,8 @@ module.exports = function (RED) {
       try {
         if (_event.id === config.hueDevice) {
 
-          // IMPORTANT: exit if no button last_event present.
-          if (!_event.hasOwnProperty("button") || _event.button?.last_event === undefined) return;
+          const buttonEvent = _event?.button?.button_report?.event || _event?.button?.last_event;
+          if (!_event.hasOwnProperty('button') || buttonEvent === undefined) return;
 
           const knxMsgPayload = {};
           let flowMsgPayload = true;
@@ -116,7 +116,7 @@ module.exports = function (RED) {
           // KNX Dimming reminder tips
           // { decr_incr: 1, data: 1 } : Start increasing until { decr_incr: 0, data: 0 } is received.
           // { decr_incr: 0, data: 1 } : Start decreasing until { decr_incr: 0, data: 0 } is received.
-          switch (_event.button.last_event) {
+          switch (buttonEvent) {
             case 'initial_press':
               if (node.initial_pressValue === undefined) node.initial_pressValue = false;
               node.initial_pressValue = config.toggleValues ? !node.initial_pressValue : node.switchSend;
@@ -156,7 +156,7 @@ module.exports = function (RED) {
                 }
                 if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) {
                   node.setNodeStatusHue({
-                    fill: 'blue', shape: 'dot', text: `HUE->KNX ${_event.button.last_event}`, payload: knxMsgPayload.payload,
+                    fill: 'blue', shape: 'dot', text: `HUE->KNX ${buttonEvent}`, payload: knxMsgPayload.payload,
                   });
                 }
               }
@@ -195,7 +195,8 @@ module.exports = function (RED) {
           // Setup the output msg
           const flowMsg = {};
           flowMsg.name = node.name;
-          flowMsg.event = _event.button.last_event;
+          flowMsg.event = buttonEvent;
+          if (_event.button?.button_report?.updated) flowMsg.updated = _event.button.button_report.updated;
           flowMsg.rawEvent = _event;
           flowMsg.payload = flowMsgPayload;
           node.send(flowMsg);

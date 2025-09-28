@@ -1,37 +1,39 @@
 <script type="text/markdown" data-help-name="knxUltimateHueButton">
-<p>Dieser Node leitet Ereignisse eines HUE‑Buttons weiter und ordnet sie KNX‑Gruppenadressen zu.</p>
+<p>Dieser Node spiegelt Hue-Taster-Ereignisse auf KNX und den Flow-Ausgang und nutzt das Hue-Attribut <code>button.button_report.event</code>.</p>
 
-Verknüpfen Sie die gewünschten Gruppenadressen mit den jeweiligen Ereignissen.
-Alle Felder sind optional.
-Die Option ** Wechselwerte ** ist standardmäßig aktiviert.Diese Option schaltet den Wert jeder KNX -Gruppenadresse um (_true/false, erhöhen/verringern Dim_)
-Tippen Sie in das Feld GA, die Name oder die Gruppenadresse Ihres KNX -Geräts, die avabaren Geräte werden beim Eingeben angezeigt.
-Die Statusfelder müssen nur ausgefüllt werden, wenn Sie die Option _toggle values_ festlegen.
-Auf diese Weise kann die interne Logik externe Geräte wie Wandschalter bewusst sein.
+Geben Sie im GA-Feld (Name oder Gruppenadresse) ein, um die KNX-GA zu verknüpfen; passende Einträge erscheinen während der Eingabe.
 
 **Allgemein**
-| Eigenschaft | Beschreibung |
-|-|-|
-| KNX GW | Zu verwendendes KNX‑Gateway |
-| HUE Bridge | Zu verwendender HUE Bridge |
-| HUE Button | Zu verwendender HUE‑Button (Autocomplete) |
+|Eigenschaft|Beschreibung|
+|--|--|
+| KNX-Gateway | Zu verwendendes KNX-Gateway |
+| HUE-Bridge | Zu verwendende HUE-Bridge |
+| Hue-Taster | Zu verwendender Hue-Taster (Autovervollständigung) |
 
-<br/>
+**Schalten**
+|Eigenschaft|Beschreibung|
+|--|--|
+| Schalter | GA, die vom Ereignis <code>short_release</code> (kurzer Druck) ausgelöst wird. |
+| Status-GA | Optionale Rückmelde-GA, wenn <em>Werte toggeln</em> aktiv ist; hält den internen Zustand synchron mit anderen Aktoren. |
 
-|Eigenschaft |Beschreibung |
-|-------------- |--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-| Schalter | Ereignis bei kurzem Druck/Loslassen; wird auf eine KNX‑GA gemappt |
-| Schalterstatus | Optionale GA zur Zustandsabgleiche bei aktiviertem Toggle (z. B. Wandschalter) |
-| Dim | Dimm‑Ereignis: Erhöhen/Verringern, oder True/False zur KNX‑GA |
-| Toggle values | Aktiviert: Werte toggeln; deaktiviert: konstante Werte (_true_ / _increase dim_). Deaktiviert: Payload explizit wählbar |
-| Switch send | Sichtbar nur bei deaktiviertem Toggle. Wert beim Drücken |
-| Dim send | Sichtbar nur bei deaktiviertem Toggle. Dimm‑Richtung |
+**Dimmen**
+|Eigenschaft|Beschreibung|
+|--|--|
+| Dimmen | GA, die bei <code>long_press</code>/<code>repeat</code>-Ereignissen für das Dimmen verwendet wird (typisch DPT 3.007). |
+
+**Verhalten**
+|Eigenschaft|Beschreibung|
+|--|--|
+| Werte toggeln | Aktiviert automatisches Umschalten zwischen <code>true/false</code> bzw. Dimmen hoch/runter. |
+| Schalt-Payload | Payload, der bei deaktiviertem Toggle an KNX/Flow gesendet wird. |
+| Dim-Payload | Richtung, die bei deaktiviertem Toggle an KNX/Flow gesendet wird. |
 
 ### Ausgänge
 
-1. Standardausgabe
-: Payload (Zeichenfolge | Objekt): Die Standardausgabe des Befehls.
+1. Standardausgang
+   : `msg.payload` enthält den boolean/dimm-Payload; `msg.event` die Hue-Ereignis-Zeichenfolge (z. B. `short_release`, `repeat`).
 
 ### Details
 
-`msg.payload` enthält das rohe HUE‑Ereignis (Objekt oder String). Objekte werden vor dem Senden serialisiert.
+`msg.event` entspricht `button.button_report.event`. Das ursprüngliche Hue-Payload finden Sie in `msg.rawEvent`. Verwenden Sie die optionale Status-GA, um den Toggle-Zustand mit externen Bedienelementen zu synchronisieren.
 </script>

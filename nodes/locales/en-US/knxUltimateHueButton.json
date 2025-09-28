@@ -1,6 +1,25 @@
 {
   "knxUltimateHueButton": {
-    "paletteLabel": "Hue Button"
+    "paletteLabel": "Hue Button",
+    "hue_sensor": "Hue Button",
+    "no_devices": "No Hue buttons available",
+    "tabs": {
+      "switch": "Switch",
+      "dim": "Dim",
+      "behaviour": "Behaviour"
+    },
+    "switch_info": "Link the KNX group address triggered by short presses.",
+    "switch_status": "Status GA",
+    "dim_info": "Configure the KNX dimming GA that handles repeat events during long presses.",
+    "behaviour_info": "Select whether events toggle values automatically or send fixed payloads.",
+    "toggle_values": "Toggle values on each event",
+    "toggle_values_hint": "Enable to alternate true/false and dim up/down; disable to send fixed payloads defined below.",
+    "switch_send": "Switch payload",
+    "dim_send": "Dim payload",
+    "dim_up": "Up",
+    "dim_down": "Down",
+    "dim_stop": "Stop",
+    "output_info": "No KNX gateway selected. Events are still emitted on the Node-RED output pin."
   },
   "common": {
     "ga": "GA",

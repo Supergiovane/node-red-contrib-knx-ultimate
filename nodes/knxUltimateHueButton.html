@@ -3,480 +3,674 @@
 <script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/htmlUtils.js"></script>
 
 <script type="text/javascript">
-    RED.nodes.registerType('knxUltimateHueButton', {
-        category: "KNX Ultimate",
-        color: '#C0C7E9',
-        defaults: {
-            //buttonState: {value: true},
-            server: { type: "knxUltimate-config", required: false },
-            serverHue: { type: "hue-config", required: true },
-            name: { value: "" },
+  (function () {
+    let $tabs = null;
+    let $requiresBridgeElems = null;
+    let $knxSections = null;
+    let $deviceName = null;
+    let $refreshButton = null;
+    let $loadingIndicator = null;
+    let $outputInfo = null;
+    let $toggleCheckbox = null;
+    let $statusRows = null;
+    let $fixedValueSection = null;
+    let $switchSendInput = null;
+    let $dimSendInput = null;
+    let $dptShortRelease = null;
+    let $dptShortReleaseStatus = null;
+    let $dptRepeat = null;
+    let $gaShortRelease = null;
+    let $gaShortReleaseStatus = null;
+    let $gaRepeat = null;
+    let cachedDevices = [];
+    let defaultDevicePlaceholder = '';
+    let showingNoDevicesPlaceholder = false;
+    let currentNode = null;
 
-            nameDim: { value: "" },
-            GArepeat: { value: "" },
-            dptrepeat: { value: "3.007" },
+    const KNX_EMPTY_VALUES = new Set(['', 'none', '_ADD_', '__NONE__']);
 
-            nameshort_release: { value: "" },
-            GAshort_release: { value: "" },
-            dptshort_release: { value: "1.001" },
+    const ensureVerticalTabsStyle = () => {
+      if ($('#knxUltimateHueButtonVerticalTabs').length) return;
+      const style = `
+        <style id="knxUltimateHueButtonVerticalTabs">
+          .hue-vertical-tabs.ui-tabs.ui-widget.ui-widget-content.ui-corner-all {
+            display: flex;
+            border: none;
+            padding: 0;
+          }
+          .hue-vertical-tabs > ul.ui-tabs-nav {
+            flex: 0 0 144px;
+            border-right: 1px solid #ccc;
+            border-left: none;
+            border-top: none;
+            border-bottom: none;
+            padding: 0.5em 0.3em;
+          }
+          .hue-vertical-tabs > ul.ui-tabs-nav li {
+            float: none;
+            width: 100%;
+            margin: 0 0 2px 0;
+          }
+          .hue-vertical-tabs > ul.ui-tabs-nav li a {
+            display: block;
+            width: 100%;
+            white-space: nowrap;
+            position: relative;
+            border-bottom: none !important;
+          }
+          .hue-vertical-tabs > ul.ui-tabs-nav li.ui-tabs-active {
+            border-bottom: none !important;
+          }
+          .hue-vertical-tabs > ul.ui-tabs-nav li.ui-tabs-active a::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 50%;
+            height: 3px;
+            background: currentColor;
+          }
+          .hue-vertical-tabs .ui-tabs-panel {
+            flex: 1;
+            padding: 0.8em 1em;
+            box-sizing: border-box;
+            border: none;
+            background: transparent;
+          }
+          .hue-vertical-tabs .form-row {
+            display: flex;
+            flex-wrap: nowrap;
+            align-items: center;
+            gap: 4px;
+          }
+          .hue-vertical-tabs .form-row > dt {
+            flex: 1 1 auto;
+            margin: 0;
+          }
+          .hue-vertical-tabs .hue-form-tip {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            width: 100%;
+            margin-left: 0 !important;
+            max-width: none;
+            color: #1b7d33;
+            margin-bottom: 6px;
+            padding: 6px 10px;
+            box-sizing: border-box;
+          }
+          .hue-vertical-tabs .hue-form-tip .fa {
+            color: forestgreen;
+            flex: 0 0 auto;
+          }
+          .hue-vertical-tabs .hue-form-tip span {
+            flex: 1 1 auto;
+            min-width: 0;
+            white-space: normal;
+          }
+        </style>`;
+      $('head').append(style);
+    };
 
-            nameshort_releaseStatus: { value: "" },
-            GAshort_releaseStatus: { value: "" },
-            dptshort_releaseStatus: { value: "1.001" },
-
-            toggleValues: { value: true },
-            hueDevice: { value: "" },
-
-            switchSend: { value: true },
-            dimSend: { value: "up" },
-        },
-        inputs: 0,
-        outputs: 1,
-        icon: "node-hue-icon.svg",
-        label: function () {
-            return (this.name);
-        },
-        paletteLabel: "Hue Button",
-        // button: {
-        //     enabled: function() {
-        //         // return whether or not the button is enabled, based on the current
-        //         // configuration of the node
-        //         return !this.changed
-        //     },
-        //     visible: function() {
-        //         // return whether or not the button is visible, based on the current
-        //         // configuration of the node
-        //         return this.hasButton
-        //     },
-        //     //toggle: "buttonState",
-        //     onclick: function() {}
-        // },
-        oneditprepare: function () {
-            // Go to the help panel
-            try {
-                RED.sidebar.show("help");
-            } catch (error) { }
-
-            var node = this;
-            var oNodeServer = RED.nodes.node($("#node-input-server").val()); // Store the config-node
-            var oNodeServerHue = RED.nodes.node($("#node-input-serverHue").val()); // Store the config-node
-
-            // 19/02/2020 Used to get the server sooner als deploy.
-            $("#node-input-server").change(function () {
-                try {
-                    oNodeServer = RED.nodes.node($(this).val());
-                } catch (error) { }
-            });
-            // 19/02/2020 Used to get the server sooner als deploy.
-            $("#node-input-serverHue").change(function () {
-                try {
-                    oNodeServerHue = RED.nodes.node($(this).val());
-                } catch (error) { }
-            });
-
-            $("#node-input-toggleValues").change(function () {
-                if ($("#node-input-toggleValues").is(":checked")) {
-
-                    $("#divFixedValue").hide();
-                    $("#divStatus").show();
-                } else {
-                    $("#divFixedValue").show();
-                    $("#divStatus").hide();
-                }
-            });
-
-            // Testing typedInput how it works
-            $("#node-input-switchSend").typedInput({
-                type: 'bool',
-                types: ['bool']
-            })
-            $("#node-input-dimSend").typedInput({
-                type: "direction", types: [{
-                    value: "direction",
-                    options: [
-                        { value: "up", label: "Up" },
-                        { value: "down", label: "Down" },
-                        { value: "stop", label: "Stop" },
-                    ]
-                }]
-            })
-
-
-
-            // DPT Dim
-            // ########################
-            $.getJSON('knxUltimateDpts?serverId=' + $("#node-input-server").val(), (data) => {
-                data.forEach(dpt => {
-                    if (dpt.value.startsWith("3.007")) {
-                        $("#node-input-dptrepeat").append($("<option></option>")
-                            .attr("value", dpt.value)
-                            .text(dpt.text))
-                    }
-                });
-                $("#node-input-dptrepeat").val(this.dptrepeat)
-            })
-
-            // Autocomplete suggestion with ETS csv File
-            $("#node-input-GArepeat").autocomplete({
-                minLength: 0,
-                source: function (request, response) {
-                    $.getJSON("knxUltimatecsv?nodeID=" + oNodeServer.id, (data) => {
-                        response($.map(data, function (value, key) {
-                            var sSearch = (value.ga + " (" + value.devicename + ") DPT" + value.dpt);
-                            if (htmlUtilsfullCSVSearch(sSearch, request.term)) {
-                                if (value.dpt.startsWith('3.007')) {
-                                    return {
-                                        label: value.ga + " # " + value.devicename + " # " + value.dpt, // Label for Display
-                                        value: value.ga // Value
-                                    }
-                                } else { return null; }
-                            } else {
-                                return null;
-                            }
-                        }));
-                    });
-                }, select: function (event, ui) {
-                    // Sets Datapoint and device name automatically
-                    var sDevName = ui.item.label.split("#")[1].trim();
-                    try {
-                        sDevName = sDevName.substr(sDevName.indexOf(")") + 1).trim();
-                    } catch (error) {
-                    }
-                    $('#node-input-nameDim').val(sDevName);
-                    var optVal = $("#node-input-dptrepeat option:contains('" + ui.item.label.split("#")[2].trim() + "')").attr('value');
-                    var $dptSelect = $("#node-input-dptrepeat");
-                    if (optVal !== undefined && optVal !== null) {
-                        $dptSelect.val(optVal).trigger('change');
-                    } else {
-                        $dptSelect.trigger('change');
-                    }
-                }
-            }).focus(function () {
-                $(this).autocomplete('search', $(this).val() + 'exactmatch');
-            });
-
-
-            // DPT dptshort_release
-            // ########################
-            $.getJSON('knxUltimateDpts?serverId=' + $("#node-input-server").val(), (data) => {
-                data.forEach(dpt => {
-                    if (dpt.value.startsWith('1.')) {
-                        $("#node-input-dptshort_release").append($("<option></option>")
-                            .attr("value", dpt.value)
-                            .text(dpt.text))
-                        $("#node-input-dptshort_releaseStatus").append($("<option></option>")
-                            .attr("value", dpt.value)
-                            .text(dpt.text))
-                    }
-                });
-                $("#node-input-dptshort_release").val(this.dptshort_release)
-            })
-
-            // Autocomplete suggestion with ETS csv File
-            $("#node-input-GAshort_release").autocomplete({
-                minLength: 0,
-                source: function (request, response) {
-                    $.getJSON("knxUltimatecsv?nodeID=" + oNodeServer.id, (data) => {
-                        response($.map(data, function (value, key) {
-                            var sSearch = (value.ga + " (" + value.devicename + ") DPT" + value.dpt);
-                            if (htmlUtilsfullCSVSearch(sSearch, request.term + " 1.")) {
-                                return {
-                                    label: value.ga + " # " + value.devicename + " # " + value.dpt, // Label for Display
-                                    value: value.ga // Value
-                                }
-                            } else {
-                                return null;
-                            }
-                        }));
-                    });
-                }, select: function (event, ui) {
-                    // Sets Datapoint and device name automatically
-                    var sDevName = ui.item.label.split("#")[1].trim();
-                    try {
-                        sDevName = sDevName.substr(sDevName.indexOf(")") + 1).trim();
-                    } catch (error) {
-                    }
-                    $('#node-input-nameshort_release').val(sDevName);
-                    var optVal = $("#node-input-dptshort_release option:contains('" + ui.item.label.split("#")[2].trim() + "')").attr('value');
-                    var $dptSelect = $("#node-input-dptshort_release");
-                    if (optVal !== undefined && optVal !== null) {
-                        $dptSelect.val(optVal).trigger('change');
-                    } else {
-                        $dptSelect.trigger('change');
-                    }
-                }
-            }).focus(function () {
-                $(this).autocomplete('search', $(this).val() + 'exactmatch');
-            });
-
-            // Autocomplete suggestion with ETS csv File
-            $("#node-input-GAshort_releaseStatus").autocomplete({
-                minLength: 0,
-                source: function (request, response) {
-                    $.getJSON("knxUltimatecsv?nodeID=" + oNodeServer.id, (data) => {
-                        response($.map(data, function (value, key) {
-                            var sSearch = (value.ga + " (" + value.devicename + ") DPT" + value.dpt);
-                            if (htmlUtilsfullCSVSearch(sSearch, request.term + " 1.")) {
-                                return {
-                                    label: value.ga + " # " + value.devicename + " # " + value.dpt, // Label for Display
-                                    value: value.ga // Value
-                                }
-                            } else {
-                                return null;
-                            }
-                        }));
-                    });
-                }, select: function (event, ui) {
-                    // Sets Datapoint and device name automatically
-                    var sDevName = ui.item.label.split("#")[1].trim();
-                    try {
-                        sDevName = sDevName.substr(sDevName.indexOf(")") + 1).trim();
-                    } catch (error) {
-                    }
-                    $('#node-input-nameshort_releaseStatus').val(sDevName);
-                    var optVal = $("#node-input-dptshort_releaseStatus option:contains('" + ui.item.label.split("#")[2].trim() + "')").attr('value');
-                    var $dptSelect = $("#node-input-dptshort_releaseStatus");
-                    if (optVal !== undefined && optVal !== null) {
-                        $dptSelect.val(optVal).trigger('change');
-                    } else {
-                        $dptSelect.trigger('change');
-                    }
-                }
-            }).focus(function () {
-                $(this).autocomplete('search', $(this).val() + 'exactmatch');
-            });
-
-
-            // Autocomplete suggestion with ETS csv File
-            $("#node-input-GAdouble_short_release").autocomplete({
-                minLength: 0,
-                source: function (request, response) {
-                    $.getJSON("knxUltimatecsv?nodeID=" + oNodeServer.id, (data) => {
-                        response($.map(data, function (value, key) {
-                            var sSearch = (value.ga + " (" + value.devicename + ") DPT" + value.dpt);
-                            if (htmlUtilsfullCSVSearch(sSearch, request.term + " 1.")) {
-                                return {
-                                    label: value.ga + " # " + value.devicename + " # " + value.dpt, // Label for Display
-                                    value: value.ga // Value
-                                }
-                            } else {
-                                return null;
-                            }
-                        }));
-                    });
-                }, select: function (event, ui) {
-                    // Sets Datapoint and device name automatically
-                    var sDevName = ui.item.label.split("#")[1].trim();
-                    try {
-                        sDevName = sDevName.substr(sDevName.indexOf(")") + 1).trim();
-                    } catch (error) {
-                    }
-                    $('#node-input-namedouble_short_release').val(sDevName);
-                    var optVal = $("#node-input-dptdouble_short_release option:contains('" + ui.item.label.split("#")[2].trim() + "')").attr('value');
-                    var $dptSelect = $("#node-input-dptdouble_short_release");
-                    if (optVal !== undefined && optVal !== null) {
-                        $dptSelect.val(optVal).trigger('change');
-                    } else {
-                        $dptSelect.trigger('change');
-                    }
-                }
-            }).focus(function () {
-                $(this).autocomplete('search', $(this).val() + 'exactmatch');
-            });
-
-            // Autocomplete suggestion with ETS csv File
-            $("#node-input-GAdouble_short_releaseStatus").autocomplete({
-                minLength: 0,
-                source: function (request, response) {
-                    $.getJSON("knxUltimatecsv?nodeID=" + oNodeServer.id, (data) => {
-                        response($.map(data, function (value, key) {
-                            var sSearch = (value.ga + " (" + value.devicename + ") DPT" + value.dpt);
-                            if (htmlUtilsfullCSVSearch(sSearch, request.term + " 1.")) {
-                                return {
-                                    label: value.ga + " # " + value.devicename + " # " + value.dpt, // Label for Display
-                                    value: value.ga // Value
-                                }
-                            } else {
-                                return null;
-                            }
-                        }));
-                    });
-                }, select: function (event, ui) {
-                    // Sets Datapoint and device name automatically
-                    var sDevName = ui.item.label.split("#")[1].trim();
-                    try {
-                        sDevName = sDevName.substr(sDevName.indexOf(")") + 1).trim();
-                    } catch (error) {
-                    }
-                    $('#node-input-namedouble_short_releaseStatus').val(sDevName);
-                    var optVal = $("#node-input-dptdouble_short_releaseStatus option:contains('" + ui.item.label.split("#")[2].trim() + "')").attr('value');
-                    var $dptSelect = $("#node-input-dptdouble_short_releaseStatus");
-                    if (optVal !== undefined && optVal !== null) {
-                        $dptSelect.val(optVal).trigger('change');
-                    } else {
-                        $dptSelect.trigger('change');
-                    }
-                }
-            }).focus(function () {
-                $(this).autocomplete('search', $(this).val() + 'exactmatch');
-            });
-
-            // Autocomplete suggestion with HUE
-            $("#node-input-name").autocomplete({
-                minLength: 0,
-                source: function (request, response) {
-                    $.getJSON("KNXUltimateGetResourcesHUE?rtype=button&serverId=" + oNodeServerHue.id, (data) => {
-                        response($.map(data.devices, function (value, key) {
-                            //alert(JSON.stringify(value) + " "+ key)
-                            var sSearch = (value.name);
-                            if (htmlUtilsfullCSVSearch(sSearch, request.term)) {
-                                return {
-                                    hueDevice: value.id, // Label for Display
-                                    value: value.name // Value
-                                }
-                            } else {
-                                return null;
-                            }
-                        }));
-                    });
-                }, select: function (event, ui) {
-                    // Sets the fields
-                    $('#node-input-hueDevice').val(ui.item.hueDevice)
-                }
-            }).focus(function () {
-                $(this).autocomplete('search', $(this).val() + 'exactmatch');
-            });
-
-
-            // ########################
-
-
-        },
-        oneditsave: function () {
-            // Return to the info tab
-            try {
-                RED.sidebar.show("info");
-            } catch (error) { }
-
-
-
-        },
-        oneditcancel: function () {
-            // Return to the info tab
-            try {
-                RED.sidebar.show("info");
-            } catch (error) { }
-
-
+    const detachHandlers = () => {
+      $('#node-input-server').off('.knxUltimateHueButton');
+      $('#node-input-serverHue').off('.knxUltimateHueButton');
+      if ($deviceName) {
+        $deviceName.off('.knxUltimateHueButton');
+        if ($deviceName.data('ui-autocomplete')) {
+          try { $deviceName.autocomplete('destroy'); } catch (error) { /* empty */ }
         }
-    })
+      }
+      if ($refreshButton) {
+        $refreshButton.off('.knxUltimateHueButton');
+      }
+      if ($toggleCheckbox) {
+        $toggleCheckbox.off('.knxUltimateHueButton');
+      }
+      const autocompleteTargets = [$gaShortRelease, $gaShortReleaseStatus, $gaRepeat];
+      autocompleteTargets.forEach(($input) => {
+        if ($input) {
+          $input.off('.knxUltimateHueButton');
+          if ($input.data('ui-autocomplete')) {
+            try { $input.autocomplete('destroy'); } catch (error) { /* empty */ }
+          }
+        }
+      });
+      if ($switchSendInput && $switchSendInput.data('typedInput')) {
+        try { $switchSendInput.typedInput('destroy'); } catch (error) { /* empty */ }
+      }
+      if ($dimSendInput && $dimSendInput.data('typedInput')) {
+        try { $dimSendInput.typedInput('destroy'); } catch (error) { /* empty */ }
+      }
+    };
 
+    const ensureConfigSelection = (selector) => {
+      if ($(selector).val() !== '_ADD_') return;
+      try { $(selector).prop('selectedIndex', 0); } catch (error) { /* empty */ }
+    };
+
+    const resolveServerId = (value) => {
+      if (value === undefined || value === null) return null;
+      if (typeof value === 'string' && KNX_EMPTY_VALUES.has(value)) return null;
+      if (value === false) return null;
+      return value;
+    };
+
+    const applyNoDevicesPlaceholder = (hasDevices) => {
+      if (!$deviceName) return;
+      if (hasDevices) {
+        if (showingNoDevicesPlaceholder) {
+          showingNoDevicesPlaceholder = false;
+          $deviceName.attr('placeholder', defaultDevicePlaceholder);
+        }
+        return;
+      }
+      const message = RED._('node-red-contrib-knx-ultimate/knxUltimateHueButton:knxUltimateHueButton.no_devices');
+      showingNoDevicesPlaceholder = true;
+      $deviceName.attr('placeholder', message);
+      if (($deviceName.val() || '').trim() === '') {
+        $deviceName.val('');
+      }
+    };
+
+    const filterDevices = (devices, term) => {
+      const cleaned = (term || '').replace(/exactmatch/gi, '').trim();
+      return $.map(devices, (value) => {
+        const sSearch = value.name;
+        if (cleaned === '' || htmlUtilsfullCSVSearch(sSearch, cleaned)) {
+          return {
+            hueDevice: value.id,
+            value: value.name,
+            deviceObject: value.deviceObject || value,
+          };
+        }
+        return null;
+      });
+    };
+
+    const fetchDevices = (hueServer, term, response, { forceRefresh = false } = {}) => {
+      if (!hueServer) {
+        applyNoDevicesPlaceholder(true);
+        response([]);
+        return;
+      }
+      if (!forceRefresh && cachedDevices.length > 0) {
+        applyNoDevicesPlaceholder(cachedDevices.length > 0);
+        response(filterDevices(cachedDevices, term));
+        return;
+      }
+      if ($loadingIndicator) $loadingIndicator.show();
+      $.getJSON(`KNXUltimateGetResourcesHUE?rtype=button&serverId=${hueServer.id}&_=${Date.now()}`, (data) => {
+        const listCandidates = Array.isArray(data) ? data : (Array.isArray(data?.devices) ? data.devices : []);
+        cachedDevices = listCandidates.map((value) => {
+          if (value.deviceObject) return value;
+          return {
+            id: value.id || value.rid,
+            name: value.name || value.metadata?.name || '',
+            deviceObject: value,
+          };
+        });
+        if (currentNode) currentNode._cachedButtonDevices = cachedDevices;
+        applyNoDevicesPlaceholder(cachedDevices.length > 0);
+        response(filterDevices(cachedDevices, term));
+      }).always(() => {
+        if ($loadingIndicator) $loadingIndicator.hide();
+      }).fail(() => {
+        cachedDevices = [];
+        if (currentNode) currentNode._cachedButtonDevices = cachedDevices;
+        applyNoDevicesPlaceholder(false);
+        response([]);
+      });
+    };
+
+    const loadDptOptions = (serverId, nodeRef) => {
+      if (!$dptShortRelease || !$dptShortReleaseStatus || !$dptRepeat) return;
+      $dptShortRelease.empty();
+      $dptShortReleaseStatus.empty();
+      $dptRepeat.empty();
+      const validId = resolveServerId(serverId);
+      if (!validId) {
+        return;
+      }
+      $.getJSON(`knxUltimateDpts?serverId=${validId}`, (data) => {
+        const referenceNode = nodeRef || currentNode || {};
+        const targetShort = referenceNode.dptshort_release || '1.001';
+        const targetShortStatus = referenceNode.dptshort_releaseStatus || referenceNode.dptshort_release || '1.001';
+        const targetRepeat = referenceNode.dptrepeat || '3.007';
+        data.forEach((dpt) => {
+          if (dpt.value.startsWith('1.')) {
+            const option = $('<option></option>').attr('value', dpt.value).text(dpt.text);
+            const optionStatus = option.clone();
+            $dptShortRelease.append(option);
+            $dptShortReleaseStatus.append(optionStatus);
+          }
+          if (dpt.value.startsWith('3.007')) {
+            $dptRepeat.append($('<option></option>').attr('value', dpt.value).text(dpt.text));
+          }
+        });
+        if ($dptShortRelease.children().length) {
+          $dptShortRelease.val(targetShort);
+        }
+        if ($dptShortReleaseStatus.children().length) {
+          $dptShortReleaseStatus.val(targetShortStatus);
+        }
+        if ($dptRepeat.children().length) {
+          $dptRepeat.val(targetRepeat);
+        }
+      });
+    };
+
+    const attachGroupAddressAutocomplete = ({ $input, $name, $dptSelect, filterFn }) => {
+      if (!$input || !$input.length) return;
+      $input.autocomplete({
+        minLength: 0,
+        source(request, response) {
+          const serverId = resolveServerId($('#node-input-server').val() || (currentNode ? currentNode.server : null));
+          const server = serverId ? RED.nodes.node(serverId) : null;
+          if (!server) { response([]); return; }
+          $.getJSON(`knxUltimatecsv?nodeID=${server.id}`, (data) => {
+            const matches = [];
+            data.forEach((value) => {
+              if (filterFn && !filterFn(value)) return;
+              const sSearch = `${value.ga} (${value.devicename}) DPT${value.dpt}`;
+              if (htmlUtilsfullCSVSearch(sSearch, request.term)) {
+                matches.push({
+                  label: `${value.ga} # ${value.devicename} # ${value.dpt}`,
+                  value: value.ga,
+                });
+              }
+            });
+            response(matches);
+          });
+        },
+        select(event, ui) {
+          let sDevName = ui.item.label.split('#')[1]?.trim() || '';
+          try {
+            sDevName = sDevName.substr(sDevName.indexOf(')') + 1).trim();
+          } catch (error) { /* empty */ }
+          if ($name) $name.val(sDevName);
+          if ($dptSelect) {
+            const dptLabel = ui.item.label.split('#')[2]?.trim();
+            const optVal = dptLabel ? $dptSelect.find(`option:contains('${dptLabel}')`).attr('value') : undefined;
+            if (optVal !== undefined && optVal !== null) {
+              $dptSelect.val(optVal).trigger('change');
+            } else {
+              $dptSelect.trigger('change');
+            }
+          }
+        },
+      });
+      $input.on('focus.knxUltimateHueButton', function () {
+        $(this).autocomplete('search', `${$(this).val()}exactmatch`);
+      });
+      try {
+        const serverId = resolveServerId($('#node-input-server').val() || (currentNode ? currentNode.server : null));
+        const server = serverId ? RED.nodes.node(serverId) : null;
+        if (server && server.id) KNX_enableSecureFormatting($input, server.id);
+      } catch (error) { /* empty */ }
+    };
+
+    const hasKNXServerSelected = () => {
+      let domValue = $('#node-input-server').val();
+      if (domValue === undefined && currentNode) domValue = currentNode.server;
+      const knxServerId = resolveServerId(domValue);
+      return Boolean(knxServerId);
+    };
+
+    const updateToggleSections = () => {
+      const toggled = $toggleCheckbox && $toggleCheckbox.is(':checked');
+      if ($statusRows) {
+        if (toggled) {
+          $statusRows.show();
+        } else {
+          $statusRows.hide();
+        }
+      }
+      if ($fixedValueSection) {
+        if (toggled) {
+          $fixedValueSection.hide();
+        } else {
+          $fixedValueSection.show();
+        }
+      }
+    };
+
+    const updateTabsVisibility = () => {
+      if (!$tabs) return;
+      const hueServerId = resolveServerId($('#node-input-serverHue').val() || (currentNode ? currentNode.serverHue : null));
+      const knxSelected = hasKNXServerSelected();
+      if (hueServerId) {
+        $requiresBridgeElems.show();
+      } else {
+        $requiresBridgeElems.hide();
+      }
+      if (hueServerId && knxSelected) {
+        $tabs.show();
+        $tabs.tabs('refresh');
+      } else {
+        $tabs.hide();
+      }
+      if ($outputInfo) {
+        if (knxSelected) {
+          $outputInfo.hide();
+        } else {
+          $outputInfo.show();
+        }
+      }
+    };
+
+    const updateKNXVisibility = () => {
+      const knxSelected = hasKNXServerSelected();
+      if (knxSelected) {
+        $knxSections.show();
+      } else {
+        $knxSections.hide();
+      }
+      updateTabsVisibility();
+    };
+
+    RED.nodes.registerType('knxUltimateHueButton', {
+      category: 'KNX Ultimate',
+      color: '#C0C7E9',
+      defaults: {
+        server: { type: 'knxUltimate-config', required: false },
+        serverHue: { type: 'hue-config', required: true },
+        name: { value: '' },
+        nameDim: { value: '' },
+        GArepeat: { value: '' },
+        dptrepeat: { value: '3.007' },
+        nameshort_release: { value: '' },
+        GAshort_release: { value: '' },
+        dptshort_release: { value: '1.001' },
+        nameshort_releaseStatus: { value: '' },
+        GAshort_releaseStatus: { value: '' },
+        dptshort_releaseStatus: { value: '1.001' },
+        toggleValues: { value: true },
+        hueDevice: { value: '' },
+        switchSend: { value: true },
+        dimSend: { value: 'up' },
+      },
+      inputs: 0,
+      outputs: 1,
+      icon: 'node-hue-icon.svg',
+      label() {
+        return this.name || 'Hue Button';
+      },
+      paletteLabel: 'Hue Button',
+      oneditprepare() {
+        try { RED.sidebar.show('help'); } catch (error) { /* empty */ }
+        const node = this;
+        currentNode = node;
+
+        ensureConfigSelection('#node-input-serverHue');
+        ensureVerticalTabsStyle();
+
+        $tabs = $('#hue-button-tabs');
+        $requiresBridgeElems = $('.hue-requires-bridge');
+        $knxSections = $('.hue-knx-section');
+        $deviceName = $('#node-input-name');
+        $refreshButton = $('.hue-refresh-devices');
+        $loadingIndicator = $('.hue-devices-loading');
+        $outputInfo = $('.hue-output-info');
+        $toggleCheckbox = $('#node-input-toggleValues');
+        $statusRows = $('.hue-status-row');
+        $fixedValueSection = $('.hue-fixed-values');
+        $switchSendInput = $('#node-input-switchSend');
+        $dimSendInput = $('#node-input-dimSend');
+        $dptShortRelease = $('#node-input-dptshort_release');
+        $dptShortReleaseStatus = $('#node-input-dptshort_releaseStatus');
+        $dptRepeat = $('#node-input-dptrepeat');
+        $gaShortRelease = $('#node-input-GAshort_release');
+        $gaShortReleaseStatus = $('#node-input-GAshort_releaseStatus');
+        $gaRepeat = $('#node-input-GArepeat');
+
+        cachedDevices = Array.isArray(node._cachedButtonDevices) ? node._cachedButtonDevices : [];
+        node._cachedButtonDevices = cachedDevices;
+
+        defaultDevicePlaceholder = $deviceName.attr('placeholder') || '';
+        showingNoDevicesPlaceholder = false;
+
+        $tabs.addClass('hue-vertical-tabs');
+        $tabs.tabs();
+        $tabs.find('li').removeClass('ui-corner-top').addClass('ui-corner-left');
+
+        const initialServerId = $('#node-input-server').val() || node.server;
+        loadDptOptions(initialServerId, node);
+
+        attachGroupAddressAutocomplete({
+          $input: $gaShortRelease,
+          $name: $('#node-input-nameshort_release'),
+          $dptSelect: $dptShortRelease,
+          filterFn: (value) => value.dpt && value.dpt.startsWith('1.'),
+        });
+        attachGroupAddressAutocomplete({
+          $input: $gaShortReleaseStatus,
+          $name: $('#node-input-nameshort_releaseStatus'),
+          $dptSelect: $dptShortReleaseStatus,
+          filterFn: (value) => value.dpt && value.dpt.startsWith('1.'),
+        });
+        attachGroupAddressAutocomplete({
+          $input: $gaRepeat,
+          $name: $('#node-input-nameDim'),
+          $dptSelect: $dptRepeat,
+          filterFn: (value) => value.dpt && value.dpt.startsWith('3.007'),
+        });
+
+        if ($switchSendInput) {
+          $switchSendInput.typedInput({
+            type: 'bool',
+            types: ['bool'],
+          });
+          const initialSwitch = node.switchSend === undefined ? true : node.switchSend;
+          $switchSendInput.typedInput('value', initialSwitch ? 'true' : 'false');
+        }
+
+        if ($dimSendInput) {
+          $dimSendInput.typedInput({
+            type: 'direction',
+            types: [{
+              value: 'direction',
+              options: [
+                { value: 'up', label: RED._('node-red-contrib-knx-ultimate/knxUltimateHueButton:knxUltimateHueButton.dim_up') || 'Up' },
+                { value: 'down', label: RED._('node-red-contrib-knx-ultimate/knxUltimateHueButton:knxUltimateHueButton.dim_down') || 'Down' },
+                { value: 'stop', label: RED._('node-red-contrib-knx-ultimate/knxUltimateHueButton:knxUltimateHueButton.dim_stop') || 'Stop' },
+              ],
+            }],
+          });
+          const initialDim = typeof node.dimSend === 'string' ? node.dimSend : 'up';
+          $dimSendInput.typedInput('value', initialDim || 'up');
+        }
+
+        const initialToggle = node.toggleValues !== false;
+        if ($toggleCheckbox) {
+          $toggleCheckbox.prop('checked', initialToggle);
+          $toggleCheckbox.on('change.knxUltimateHueButton', () => {
+            updateToggleSections();
+          });
+        }
+        updateToggleSections();
+
+        if ($deviceName) {
+          $deviceName.autocomplete({
+            minLength: 0,
+            source(request, response) {
+              const hueServerId = resolveServerId($('#node-input-serverHue').val() || node.serverHue);
+              const hueServer = hueServerId ? RED.nodes.node(hueServerId) : null;
+              if (!hueServer) { response([]); return; }
+              fetchDevices(hueServer, request.term, response);
+            },
+            select(event, ui) {
+              $('#node-input-hueDevice').val(ui.item.hueDevice);
+            },
+          });
+          $deviceName.on('focus.knxUltimateHueButton', function () {
+            $(this).autocomplete('search', `${$(this).val()}exactmatch`);
+          });
+        }
+
+        if ($refreshButton) {
+          $refreshButton.on('click.knxUltimateHueButton', () => {
+            cachedDevices = [];
+            node._cachedButtonDevices = cachedDevices;
+            const hueServerId = resolveServerId($('#node-input-serverHue').val() || node.serverHue);
+            const hueServer = hueServerId ? RED.nodes.node(hueServerId) : null;
+            if (!hueServer) return;
+            fetchDevices(hueServer, '', () => {
+              if ($deviceName) {
+                $deviceName.autocomplete('search', `${$deviceName.val()}exactmatch`);
+              }
+            }, { forceRefresh: true });
+          });
+        }
+
+        $('#node-input-server').on('change.knxUltimateHueButton', function () {
+          const serverId = $(this).val();
+          loadDptOptions(serverId, node);
+          updateKNXVisibility();
+        });
+
+        $('#node-input-serverHue').on('change.knxUltimateHueButton', function () {
+          const hueServerId = resolveServerId($(this).val());
+          cachedDevices = [];
+          node._cachedButtonDevices = cachedDevices;
+          if ($loadingIndicator) $loadingIndicator.hide();
+          showingNoDevicesPlaceholder = false;
+          if ($deviceName) {
+            $deviceName.attr('placeholder', defaultDevicePlaceholder);
+          }
+          if (!hueServerId) {
+            applyNoDevicesPlaceholder(true);
+          }
+          updateTabsVisibility();
+        });
+
+        updateKNXVisibility();
+      },
+      oneditsave() {
+        try { RED.sidebar.show('info'); } catch (error) { /* empty */ }
+        detachHandlers();
+        cachedDevices = [];
+        this._cachedButtonDevices = [];
+        this.toggleValues = $toggleCheckbox ? $toggleCheckbox.is(':checked') : true;
+        currentNode = null;
+      },
+      oneditcancel() {
+        try { RED.sidebar.show('info'); } catch (error) { /* empty */ }
+        detachHandlers();
+        cachedDevices = [];
+        this._cachedButtonDevices = [];
+        currentNode = null;
+      },
+    });
+  }());
 </script>
 
 <script type="text/html" data-template-name="knxUltimateHueButton">
-
-
-<div class="form-row">
-    <b>HUE Button node</b>&nbsp&nbsp<span style="color:red"
-    &nbsp<i class="fa fa-youtube"></i></span>&nbsp<a target="_blank" href="https://youtu.be/jjEUI1J8bkA"><u>Youtube sample</u></a>
-    <br />
-    <br />
-    <p align="center">
-        <i class="fa-regular fa-circle-dot fa-beat-fade fa-2x"></i>
-    </p>
-    <br />
-    <label for="node-input-server" >
-        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAKnRFWHRDcmVhdGlvbiBUaW1lAEZyIDYgQXVnIDIwMTAgMjE6NTI6MTkgKzAxMDD84aS8AAAAB3RJTUUH3gYYCicNV+4WIQAAAAlwSFlzAAALEgAACxIB0t1+/AAAAARnQU1BAACxjwv8YQUAAACUSURBVHjaY2CgFZg5c+Z/ZEyWAZ8+f/6/ZsWs/xoamqMGkGrA6Wla/1+fVARjEBuGsSoGmY4eZSCNL59d/g8DIDbIAHR14OgFGQByKjIGKX5+6/T///8gGMQGiV1+/B0Fg70GIkD+RMYgxf/O5/7//2MSmAZhkBi6OrgB6Bg5DGB4ajr3f2xqsYYLSDE2THJUDg0AAAqyDVd4tp4YAAAAAElFTkSuQmCC"></img>
-        KNX GW
+  <div class="form-row">
+    <label for="node-input-server">
+      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAKnRFWHRDcmVhdGlvbiBUaW1lAEZyIDYgQXVnIDIwMTAgMjE6NTI6MTkgKzAxMDD84aS8AAAAB3RJTUUH3gYYCicNV+4WIQAAAAlwSFlzAAALEgAACxIB0t1+/AAAAARnQU1BAACxjwv8YQUAAACUSURBVHjaY2CgFZg5c+Z/ZEyWAZ8+f/6/ZsWs/xoamqMGkGrA6Wla/1+fVARjEBuGsSoGmY4eZSCNL59d/g8DIDbIAHR14OgFGQByKjIGKX5+6/T///8gGMQGiV1+/B0Fg70GIkD+RMYgxf/O5/7//2MSmAZhkBi6OrgB6Bg5DGB4ajr3f2xqsYYLSDE2THJUDg0AAAqyDVd4tp4YAAAAAElFTkSuQmCC" />
+      <span data-i18n="common.knx_gw"></span>
     </label>
-    <input type="text" id="node-input-server" />
-</div>
+    <input type="text" id="node-input-server">
+  </div>
 
-<div class="form-row">
+  <div class="form-row">
     <label for="node-input-serverHue">
-        <img src="data:image/png;base64, iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAEKADAAQAAAABAAAAEAAAAAA0VXHyAAABFUlEQVQ4EZWSsWoCQRCG1yiENEFEi6QSkjqWWoqFoBYJ+Br6JHkMn8Iibd4ihQpaJIhWNkry/ZtdGZY78Qa+m39nZ+dm9s4550awglNBluS/gVtAX6KgDclf68w2OThgfR9iT/jnoEv4TtByDThWTCDKW4SSZTf/zj9/eZbN+izTDuKGimu0vPF8B/YN8aC8LmcOj/AAn9CFTEs70Js/oGqy79C69bqJ5XbQI2kGO5N8QL9D08S8zBtBF5ZaVsznpCMoqJnVdjTpb1Db0fwIWmQV6BLXzFOYgA6/gDVfQN9bBWp2J2hdWDPoBV5FrKnAJutHikk/CHHR8i7x4iG7qQ720IYvu3GFbpHjx3pFrOFYkA354z/5bkK826phyAAAAABJRU5ErkJggg=="/>
-        HUE Bridge
+      <img src="data:image/png;base64, iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAEKADAAQAAAABAAAAEAAAAAA0VXHyAAABFUlEQVQ4EZWSsWoCQRCG1yiENEFEi6QSkjqWWoqFoBYJ+Br6JHkMn8Iibd4ihQpaJIhWNkry/ZtdGZY78Qa+m39nZ+dm9s4550awglNBluS/gVtAX6KgDclf68w2OThgfR9iT/jnoEv4TtByDThWTCDKW4SSZTf/zj9/eZbN+izTDuKGimu0vPF8B/YN8aC8LmcOj/AAn9CFTEs70Js/oGqy79C69bqJ5XbQI2kGO5N8QL9D08S8zBtBF5ZaVsznpCMoqJnVdjTpb1Db0fwIWmQV6BLXzFOYgA6/gDVfQN9bBWp2J2hdWDPoBV5FrKnAJutHikk/CHHR8i7x4iG7qQ720IYvu3GFbpHjx3pFrOFYkA354z/5bkK826phyAAAAABJRU5ErkJggg=="/>
+      <span data-i18n="common.hue_bridge"></span>
     </label>
-    <input type="text" id="node-input-serverHue" />
-</div>
+    <input type="text" id="node-input-serverHue">
+  </div>
 
-<br/>
-<p>
-<b>Philips HUE</b>
-</p>
-    
-<div class="form-row">
-    <label for="node-input-hueDevice" >
-        <i class="fa fa-play-circle"></i>&nbspHue Button</label>
-        <input type="text" id="node-input-name" placeholder="Enter your hue device name" />
-    <input type="hidden" id="node-input-hueDevice" />
-</div>
+  <div class="form-row hue-requires-bridge">
+    <label for="node-input-name">
+      <i class="fa fa-tag"></i> <span data-i18n="knxUltimateHueButton.hue_sensor"></span>
+    </label>
+    <input type="text" id="node-input-name" placeholder="Hue button" style="flex:1 1 240px; min-width:240px; max-width:240px;">
+    <button type="button" class="red-ui-button hue-refresh-devices" style="margin-left:6px; color:#1b7d33; border-color:#1b7d33;">
+      <i class="fa fa-sync"></i>
+    </button>
+    <span class="hue-devices-loading" style="margin-left:6px; display:none; color:#1b7d33;">
+      <i class="fa fa-circle-notch fa-spin"></i>
+    </span>
+  </div>
 
-<br/>
+  <div id="hue-button-tabs">
+    <ul>
+      <li><a href="#hue-button-tab-switch"><i class="fa fa-toggle-on"></i> <span data-i18n="knxUltimateHueButton.tabs.switch"></span></a></li>
+      <li><a href="#hue-button-tab-dim"><i class="fa fa-sun"></i> <span data-i18n="knxUltimateHueButton.tabs.dim"></span></a></li>
+      <li><a href="#hue-button-tab-behaviour"><i class="fa fa-gear"></i> <span data-i18n="knxUltimateHueButton.tabs.behaviour"></span></a></li>
+    </ul>
 
-<p>
-    <b>KNX</b>
-</p>
-
-    <div class="form-row">
-        <label for="node-input-nameshort_release" style="width:100px;"><i class="fa fa-play-circle-o"></i> Switch</label>
-
-        <label for="node-input-GAhort_release" style="width:20px;"><span data-i18n="common.ga"></span></label>
-        <input type="text" id="node-input-GAshort_release" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
-    
-        <label for="node-input-dptshort_release" style="width:40px; margin-left: 0px; text-align: right;"><span data-i18n="common.dpt"></span></label>
-        <select id="node-input-dptshort_release" style="width:140px;"></select>
-    
-        <label for="node-input-nameshort_release" style="width:50px; margin-left: 0px; text-align: right;"><span data-i18n="common.name"></span></label>
-        <input type="text" id="node-input-nameshort_release" style="width:200px;margin-left: 5px; text-align: left;">
+    <div id="hue-button-tab-switch">
+      <div class="form-tips hue-form-tip hue-knx-section">
+        <i class="fa fa-circle-info"></i>
+        <span data-i18n="knxUltimateHueButton.switch_info"></span>
+      </div>
+      <div class="form-row hue-knx-section">
+        <label for="node-input-GAshort_release" style="width:70px;"><span data-i18n="common.ga"></span></label>
+        <input type="text" id="node-input-GAshort_release" style="width:80px; text-align:left;" placeholder="1/1/1">
+        <label for="node-input-dptshort_release" style="width:40px; text-align:right;"><span data-i18n="common.dpt"></span></label>
+        <select id="node-input-dptshort_release" style="width:120px;"></select>
+        <label for="node-input-nameshort_release" style="width:50px; text-align:right;"><span data-i18n="common.name"></span></label>
+        <input type="text" id="node-input-nameshort_release" style="flex:1 1 140px; min-width:120px; text-align:left;" placeholder="Switch action">
+      </div>
+      <div class="form-row hue-knx-section hue-status-row">
+        <label for="node-input-GAshort_releaseStatus" style="width:70px;"><span data-i18n="knxUltimateHueButton.switch_status"></span></label>
+        <input type="text" id="node-input-GAshort_releaseStatus" style="width:80px; text-align:left;" placeholder="1/1/2">
+        <label for="node-input-dptshort_releaseStatus" style="width:40px; text-align:right;"><span data-i18n="common.dpt"></span></label>
+        <select id="node-input-dptshort_releaseStatus" style="width:120px;"></select>
+        <label for="node-input-nameshort_releaseStatus" style="width:50px; text-align:right;"><span data-i18n="common.name"></span></label>
+        <input type="text" id="node-input-nameshort_releaseStatus" style="flex:1 1 140px; min-width:120px; text-align:left;" placeholder="Switch status">
+      </div>
     </div>
-    <div class="form-row" id="divStatus">
-        <label style="width:100px;"><i class="fa fa-question-circle"></i> Switch Status</label>
 
-        <label for="node-input-GAshort_releaseStatus" style="width:20px;"><span data-i18n="common.ga"></span></label>
-        <input type="text" id="node-input-GAshort_releaseStatus" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
-    
-        <label for="node-input-dptshort_releaseStatus" style="width:40px; margin-left: 0px; text-align: right;"><span data-i18n="common.dpt"></span></label>
-        <select id="node-input-dptshort_releaseStatus" style="width:140px;"></select>
-    
-        <label for="node-input-nameshort_releaseStatus" style="width:50px; margin-left: 0px; text-align: right;"><span data-i18n="common.name"></span></label>
-        <input type="text" id="node-input-nameshort_releaseStatus" style="width:200px;margin-left: 5px; text-align: left;">
-        <br/>  
+    <div id="hue-button-tab-dim">
+      <div class="form-tips hue-form-tip hue-knx-section">
+        <i class="fa fa-circle-info"></i>
+        <span data-i18n="knxUltimateHueButton.dim_info"></span>
+      </div>
+      <div class="form-row hue-knx-section">
+        <label for="node-input-GArepeat" style="width:70px;"><span data-i18n="common.ga"></span></label>
+        <input type="text" id="node-input-GArepeat" style="width:80px; text-align:left;" placeholder="1/1/3">
+        <label for="node-input-dptrepeat" style="width:40px; text-align:right;"><span data-i18n="common.dpt"></span></label>
+        <select id="node-input-dptrepeat" style="width:120px;"></select>
+        <label for="node-input-nameDim" style="width:50px; text-align:right;"><span data-i18n="common.name"></span></label>
+        <input type="text" id="node-input-nameDim" style="flex:1 1 140px; min-width:120px; text-align:left;" placeholder="Dim action">
+      </div>
     </div>
-    <div class="form-row">
-        <label style="width:100px;"><i class="fa fa-play-circle-o"></i> Dim</span></label>
 
-        <label for="node-input-GArepeat" style="width:20px;"><span data-i18n="common.ga"></span></label>
-        <input type="text" id="node-input-GArepeat" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
-       
-        <label for="node-input-dptrepeat" style="width:40px; margin-left: 0px; text-align: right;"><span data-i18n="common.dpt"></span></label>
-        <select id="node-input-dptrepeat" style="width:140px;"></select>
-       
-        <label for="node-input-nameDim" style="width:50px; margin-left: 0px; text-align: right;"><span data-i18n="common.name"></span></label>
-        <input type="text" id="node-input-nameDim" style="width:200px;margin-left: 5px; text-align: left;">
-    </div>
-    <br/>
-    <div class="form-row">
-        <input type="checkbox" id="node-input-toggleValues" style="display:inline-block; width:auto; vertical-align:top;" />
-        <label style="width:auto" for="node-input-toggleValues">
-            <img
-                src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAACXBIWXMAAB7CAAAewgFu0HU+AAAFGmlUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNS42LWMxNDggNzkuMTY0MDM2LCAyMDE5LzA4LzEzLTAxOjA2OjU3ICAgICAgICAiPiA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPiA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtbG5zOmRjPSJodHRwOi8vcHVybC5vcmcvZGMvZWxlbWVudHMvMS4xLyIgeG1sbnM6cGhvdG9zaG9wPSJodHRwOi8vbnMuYWRvYmUuY29tL3Bob3Rvc2hvcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RFdnQ9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZUV2ZW50IyIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgMjEuMSAoTWFjaW50b3NoKSIgeG1wOkNyZWF0ZURhdGU9IjIwMjAtMDMtMjNUMTY6MjM6MjMrMDE6MDAiIHhtcDpNb2RpZnlEYXRlPSIyMDIwLTAzLTIzVDE2OjI1OjM0KzAxOjAwIiB4bXA6TWV0YWRhdGFEYXRlPSIyMDIwLTAzLTIzVDE2OjI1OjM0KzAxOjAwIiBkYzpmb3JtYXQ9ImltYWdlL3BuZyIgcGhvdG9zaG9wOkNvbG9yTW9kZT0iMyIgcGhvdG9zaG9wOklDQ1Byb2ZpbGU9InNSR0IgSUVDNjE5NjYtMi4xIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOmJmNGM3NWVjLTIwNGYtNGY1YS05YTMxLTQ5NTU5YWJmZDE4NSIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDpiZjRjNzVlYy0yMDRmLTRmNWEtOWEzMS00OTU1OWFiZmQxODUiIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDpiZjRjNzVlYy0yMDRmLTRmNWEtOWEzMS00OTU1OWFiZmQxODUiPiA8eG1wTU06SGlzdG9yeT4gPHJkZjpTZXE+IDxyZGY6bGkgc3RFdnQ6YWN0aW9uPSJjcmVhdGVkIiBzdEV2dDppbnN0YW5jZUlEPSJ4bXAuaWlkOmJmNGM3NWVjLTIwNGYtNGY1YS05YTMxLTQ5NTU5YWJmZDE4NSIgc3RFdnQ6d2hlbj0iMjAyMC0wMy0yM1QxNjoyMzoyMyswMTowMCIgc3RFdnQ6c29mdHdhcmVBZ2VudD0iQWRvYmUgUGhvdG9zaG9wIDIxLjEgKE1hY2ludG9zaCkiLz4gPC9yZGY6U2VxPiA8L3htcE1NOkhpc3Rvcnk+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+nhtLUgAAAE9JREFUKJG1UMsOACAIgub//7IdqvVQtjrExU1EEQLuiGCvgTNgl5D74MmVZPu4wIxQAgm+/sDec2VhgQPgf0sq1unjMlYJE/3MZrvy+kMFZQkZEWfC7ikAAAAASUVORK5CYII="></img>
-            Toggle values
+    <div id="hue-button-tab-behaviour">
+      <div class="form-tips hue-form-tip">
+        <i class="fa fa-circle-info"></i>
+        <span data-i18n="knxUltimateHueButton.behaviour_info"></span>
+      </div>
+      <div class="form-row">
+        <input type="checkbox" id="node-input-toggleValues" style="width:auto;">
+        <label for="node-input-toggleValues" style="flex:1 1 auto;">
+          <span data-i18n="knxUltimateHueButton.toggle_values"></span>
         </label>
-    </div>
-    <div id="divFixedValue" hidden>
-        <div class="form-row" >
-            <label for="node-input-switchSend" style="width:100px;"><i class="fa fa-play-circle-o"></i> Switch send</span></label>
-            <input type="text" id="node-input-switchSend">
+      </div>
+      <div class="form-row hue-status-row" style="margin-left:24px;">
+        <span data-i18n="knxUltimateHueButton.toggle_values_hint"></span>
+      </div>
+      <div class="hue-fixed-values" style="margin-top:8px;">
+        <div class="form-row">
+          <label for="node-input-switchSend" style="width:130px;"><span data-i18n="knxUltimateHueButton.switch_send"></span></label>
+          <input type="text" id="node-input-switchSend" style="width:160px;">
         </div>
-        <div class="form-row" >
-            <label for="node-input-dimSend" style="width:100px;"><i class="fa fa-play-circle-o"></i> Dim send</span></label>
-            <input type="text" id="node-input-dimSend">
+        <div class="form-row">
+          <label for="node-input-dimSend" style="width:130px;"><span data-i18n="knxUltimateHueButton.dim_send"></span></label>
+          <input type="text" id="node-input-dimSend" style="width:160px;">
         </div>
+      </div>
     </div>
-<br/>
-<br/>
+  </div>
 
+  <div class="form-tips hue-form-tip hue-output-info" style="display:none;">
+    <i class="fa fa-circle-info"></i>
+    <span data-i18n="knxUltimateHueButton.output_info"></span>
+  </div>
 
-
+  <input type="hidden" id="node-input-hueDevice">
 </script>

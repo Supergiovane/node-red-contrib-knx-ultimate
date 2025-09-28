@@ -1,0 +1,27 @@
+<script type="text/markdown" data-help-name="knxUltimateHueCameraMotion">
+<p>Dieser Node hört auf Bewegungsereignisse von Philips-Hue-Kameras und spiegelt sie auf KNX.</p>
+
+Beginnen Sie im GA-Feld (Name oder Gruppenadresse) zu tippen, um die KNX-GA zu verknüpfen; passende Geräte werden während der Eingabe vorgeschlagen.
+
+**Allgemein**
+|Eigenschaft|Beschreibung|
+|--|--|
+| KNX-Gateway | Wählen Sie das zu verwendende KNX-Gateway |
+| HUE-Bridge | Wählen Sie die zu verwendende HUE-Bridge |
+| HUE-Sensor | Hue-Kamera-Bewegungssensor (Autovervollständigung während der Eingabe) |
+| Status beim Start auslesen | Liest beim Start/bei der Wiederverbindung den aktuellen Wert und sendet ihn an KNX (Standard: nein) |
+
+**Zuordnung**
+|Eigenschaft|Beschreibung|
+|--|--|
+| Bewegung | KNX-GA für die Kamerabewegung (Boolean). Empfohlener DPT: <b>1.001</b> |
+
+### Ausgaben
+
+1. Standardausgang
+: `msg.payload` (Boolean): `true`, wenn Bewegung erkannt wurde, sonst `false`
+
+### Details
+
+`msg.payload` enthält den zuletzt gemeldeten Bewegungsstatus des Hue-Kameradienstes.
+</script>

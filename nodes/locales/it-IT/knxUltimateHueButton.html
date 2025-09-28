@@ -1,36 +1,39 @@
 <script type="text/markdown" data-help-name="knxUltimateHueButton">
-<p>Questo nodo inoltra gli eventi di un pulsante HUE mappandoli su indirizzi di gruppo KNX.</p>
+<p>Questo nodo inoltra gli eventi del pulsante Hue verso KNX e verso l’uscita del flow usando l’attributo Hue <code>button.button_report.event</code>.</p>
 
-Collega gli indirizzi di gruppo desiderati ai rispettivi eventi.  
-Tutti i campi sono opzionali.  
-L’opzione <b>Toggle values</b> è attiva di default: alterna i valori KNX (_true/false_, _increase/decrease dim_).  
-Nel campo GA digita nome o indirizzo di gruppo del dispositivo KNX (autocompletamento).  
-I campi “Status” servono solo con Toggle attivo, per tenere conto di stati esterni (es. interruttori a parete).
+Nel campo GA inizia a digitare (nome o indirizzo di gruppo) per collegare la GA KNX; i dispositivi compaiono durante la digitazione.
 
 **Generale**
-| Proprietà | Descrizione |
-|-|-|
-| KNX GW | Gateway KNX da usare |
-| HUE Bridge | HUE Bridge da usare |
-| HUE Button | Pulsante HUE da usare (autocompletamento) |
+|Proprietà|Descrizione|
+|--|--|
+| Gateway KNX | Seleziona il gateway KNX da utilizzare |
+| Bridge HUE | Seleziona il bridge HUE da utilizzare |
+| Pulsante Hue | Pulsante Hue da usare (autocompletamento) |
 
-<br/>
+**Interruttore**
+|Proprietà|Descrizione|
+|--|--|
+| Interruttore | GA attivata dall’evento <code>short_release</code> (pressione rapida). |
+| GA stato | GA opzionale quando <em>Alterna valori</em> è attivo; mantiene lo stato interno allineato con altri attuatori. |
 
-|Proprietà |Descrizione |
-|------------- |---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Interruttore | Evento su pressione/rilascio rapido del pulsante; mappa a una GA KNX |
-| Stato interruttore | GA opzionale usata con Toggle per allineare lo stato con dispositivi esterni |
-| Dim | Evento di dimming: aumento/diminuzione, oppure invio true/false alla GA |
-| Toggle values | Se attivo, alterna i valori; altrimenti invia costanti (_true_ / _increase dim_). Disattivo: puoi scegliere il payload da inviare |
-| Switch send | Visibile solo se Toggle è disattivo. Valore inviato alla pressione |
-| Dim send | Visibile solo se Toggle è disattivo. Direzione di dimming inviata |
+**Dimmer**
+|Proprietà|Descrizione|
+|--|--|
+| Dim | GA usata durante gli eventi <code>long_press</code>/<code>repeat</code> per il dimming (tipicamente DPT 3.007). |
+
+**Comportamento**
+|Proprietà|Descrizione|
+|--|--|
+| Alterna valori | Se attivo, il nodo alterna automaticamente tra <code>true/false</code> e direzioni di dimmer. |
+| Payload interruttore | Payload inviato a KNX/flow quando Alterna valori è disattivato. |
+| Payload dimmer | Direzione inviata a KNX/flow quando Alterna valori è disattivato. |
 
 ### Output
 
-1. Output standard
-: payload (stringa | oggetto): l'output standard del comando.
+1. Uscita standard
+   : `msg.payload` contiene il valore booleano (o l’oggetto di dimmer) calcolato; `msg.event` riporta la stringa dell’evento Hue (es. `short_release`, `repeat`).
 
 ### Dettagli
 
-`msg.payload` contiene l’evento HUE (oggetto o stringa). Gli oggetti vengono serializzati in JSON prima dell’invio.
+`msg.event` replica `button.button_report.event`. Il payload originale di Hue è disponibile in `msg.rawEvent`. Utilizza la GA di stato opzionale per mantenere il toggle interno allineato con pulsanti o attuatori esterni.
 </script>

@@ -1,6 +1,25 @@
 {
   "knxUltimateHueButton": {
-    "paletteLabel": "Hue Taste"
+    "paletteLabel": "Hue-Taster",
+    "hue_sensor": "Hue-Taster",
+    "no_devices": "Keine Hue-Taster verfügbar",
+    "tabs": {
+      "switch": "Schalten",
+      "dim": "Dimmen",
+      "behaviour": "Verhalten"
+    },
+    "switch_info": "Verknüpfen Sie die KNX-GA für kurze Tastendrücke.",
+    "switch_status": "Status-GA",
+    "dim_info": "Konfigurieren Sie die KNX-GA für Dimmen bei langen Tastendrücken.",
+    "behaviour_info": "Legen Sie fest, ob Werte automatisch toggeln oder feste Payloads gesendet werden.",
+    "toggle_values": "Werte bei jedem Ereignis toggeln",
+    "toggle_values_hint": "Aktiviert: wechselt zwischen true/false bzw. Dimmen hoch/runter; deaktiviert: sendet feste Payloads.",
+    "switch_send": "Schalt-Payload",
+    "dim_send": "Dim-Payload",
+    "dim_up": "Rauf",
+    "dim_down": "Runter",
+    "dim_stop": "Stopp",
+    "output_info": "Kein KNX-Gateway ausgewählt. Ereignisse werden trotzdem am Node-RED-Ausgang ausgegeben."
   },
   "common": {
     "ga": "GA",
