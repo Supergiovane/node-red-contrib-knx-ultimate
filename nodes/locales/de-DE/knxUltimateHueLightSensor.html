@@ -1,27 +1,30 @@
 <script type="text/markdown" data-help-name="knxUltimateHueLightSensor">
-<p>Dieser Node liest Lux‑Ereignisse eines HUE‑Lichtsensors und spiegelt sie nach KNX.</p>
+<p>Dieser Node liest die Helligkeit eines Hue-Lichtsensors aus und veröffentlicht sie auf KNX bzw. an Ihren Node-RED-Flow.</p>
 
-Es wird die Umgebungshelligkeit (Lux) bei Änderungen ausgegeben. Im GA‑Feld den KNX‑Gerätenamen oder die GA eingeben (Autocomplete), um die GA zu verknüpfen.
+Die Umgebungshelligkeit (Lux) wird bei jeder Änderung ausgegeben. Im GA-Feld den KNX-Gerätenamen oder die Gruppenadresse eingeben; Vorschläge erscheinen beim Tippen. Das Aktualisieren-Symbol neben „Hue Sensor“ lädt die Geräteliste des Hue-Bridge neu.
 
 **Allgemein**
 | Eigenschaft | Beschreibung |
-|-|-|
-|KNX GW |Wählen Sie das zu verwendende KNX -Gateway |
-|Hue Bridge |Wählen Sie die zu verwendende Farbtonbrücke aus |
-| HUE Sensor | Zu verwendender HUE‑Lichtsensor (Autocomplete) |
-|Status bei Startup lesen |Lesen Sie den Status beim Start und geben Sie das Ereignis bei Startup/Wiederverbindung an den KNX -Bus aus.(Standard "nein") |
+|--|--|
+| KNX GW | KNX-Gateway, das den Lux-Wert erhält (erforderlich, damit KNX-Einstellungen sichtbar werden). |
+| Hue Bridge | Hue-Bridge, auf der der Sensor konfiguriert ist. |
+| Hue Sensor | Hue-Lichtsensor (unterstützt Autovervollständigung und Refresh). |
 
 **Zuordnung**
 | Eigenschaft | Beschreibung |
 |--|--|
-| Lux | KNX‑GA, die den Lux‑Wert erhält |
+| Lux | KNX-GA für den Lux-Wert. Empfohlener DPT: <b>9.004</b>. |
 
-### Ausgänge
+**Verhalten**
+| Eigenschaft | Beschreibung |
+|--|--|
+| Status bei Start lesen | Beim Deploy/Wiederverbinden aktuellen Wert lesen und an KNX senden. Standard: „ja“. |
+| Node-Ausgangspin | Node-RED-Ausgang ein-/ausblenden. Ohne KNX-Gateway bleibt der Ausgang aktiv, damit Hue-Messwerte weiterhin den Flow erreichen. |
 
-1. Standardausgang
-: payload (number): aktueller Lux‑Wert
+Die KNX-spezifischen Felder bleiben ausgeblendet, bis ein KNX-Gateway ausgewählt wurde – ideal, wenn der Node nur als Hue → Node-RED Messwertlieferant dient.
 
-### Details
+### Ausgang
 
-`msg.payload` enthält den numerischen Lux‑Wert.
+1. Standardausgang — `msg.payload` (number)
+: Aktueller Lux-Wert.
 </script>

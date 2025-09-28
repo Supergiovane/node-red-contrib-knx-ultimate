@@ -1,10 +1,4 @@
 {
-  "knxUltimateHueBattery": {
-    "paletteLabel": "Hue Battery Sensor",
-    "read_status_startup": "Read status at startup",
-    "opt_no": "No",
-    "opt_yes_emit": "Yes, and emit KNX telegrams."
-  },
   "common": {
     "ga": "GA",
     "dpt": "DPT",
@@ -14,5 +8,23 @@
     "hue_bridge": "HUE Bridge",
     "philips_hue": "Philips HUE",
     "read": "Read"
+  },
+  "knxUltimateHueBattery": {
+    "paletteLabel": "Hue Battery Sensor",
+    "hue_sensor": "Hue battery sensor",
+    "no_devices": "No battery devices available",
+    "tabs": {
+      "mapping": "Mapping",
+      "behaviour": "Behaviour"
+    },
+    "mapping_info": "Link the KNX group address that should emit the battery percentage.",
+    "behaviour_info": "Configure how the sensor behaves at startup and whether to expose the Node-RED output pin.",
+    "read_status_startup": "Read status at startup",
+    "opt_no": "No",
+    "opt_yes_emit": "Yes, and emit KNX telegrams.",
+    "node_pins": "Node output pin",
+    "node_pins_show": "Show Node-RED output pin",
+    "node_pins_hide": "Hide",
+    "output_info": "No KNX gateway selected. When the Node-RED output pin is enabled, Hue battery events are still emitted to your flow."
   }
 }

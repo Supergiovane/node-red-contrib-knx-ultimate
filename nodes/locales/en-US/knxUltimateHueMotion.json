@@ -1,8 +1,4 @@
 {
-  "knxUltimateHueMotion": {
-    "title": "HUE Motion node",
-    "paletteLabel": "Hue Motion"
-  },
   "common": {
     "ga": "GA",
     "dpt": "DPT",
@@ -12,5 +8,20 @@
     "hue_bridge": "HUE Bridge",
     "philips_hue": "Philips HUE",
     "read": "Read"
+  },
+  "knxUltimateHueMotion": {
+    "paletteLabel": "Hue Motion",
+    "hue_sensor": "Hue motion sensor",
+    "no_devices": "No motion sensors available",
+    "tabs": {
+      "mapping": "Mapping",
+      "behaviour": "Behaviour"
+    },
+    "mapping_info": "Link the KNX group address that should receive the motion detected state.",
+    "behaviour_info": "Toggle the Node-RED output pin when you want to process Hue motion events in a flow without KNX.",
+    "node_pins": "Node output pin",
+    "node_pins_show": "Show Node-RED output pin",
+    "node_pins_hide": "Hide",
+    "output_info": "No KNX gateway selected. When the Node-RED output pin is enabled, Hue motion events are still emitted to your flow."
   }
 }

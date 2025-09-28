@@ -1,25 +1,26 @@
 <script type="text/markdown" data-help-name="knxUltimateHueContactSensor">
-<p>Questo nodo inoltra gli eventi di un sensore di contatto HUE mappandoli su indirizzi di gruppo KNX.</p>
+<p>Questo nodo inoltra gli stati del sensore contatto Hue verso KNX.</p>
 
-Inizia a digitare nel campo GA, il nome o l'indirizzo di gruppo del dispositivo KNX, i dispositivi disponibili iniziano a mostrare mentre si digita.
+Nel campo GA (nome o indirizzo di gruppo) inizia a digitare per collegare la GA KNX; i dispositivi compaiono durante la digitazione.
 
 **Generale**
-| Proprietà | Descrizione |
-|-|-|
-|KNX GW |Seleziona il gateway KNX da utilizzare |
-|Bridge Hue |Seleziona il ponte Hue da utilizzare |
-| HUE Sensor | Sensore di contatto HUE da usare (autocompletamento)
+|Proprietà|Descrizione|
+|--|--|
+| Gateway KNX | Seleziona il gateway KNX da utilizzare |
+| Bridge HUE | Seleziona il bridge HUE da utilizzare |
+| Sensore contatto Hue | Sensore contatto Hue da usare (autocompletamento) |
 
-|Proprietà |Descrizione |
-|-------- |--------------------------------------------------------------------------------------------------------------------------------------
-| Contatto | All’apertura/chiusura, invia su KNX: _true_ se attivo/aperto, altrimenti _false_. |
+**Associazione**
+|Proprietà|Descrizione|
+|--|--|
+| Contatto | GA KNX che riceve <code>true</code> quando il contatto è chiuso e <code>false</code> quando è aperto. DPT consigliato: <b>1.019</b>. |
 
 ### Output
 
-1. Output standard
-: payload (booleano): l'output standard del comando.
+1. Uscita standard
+   : `msg.payload` (boolean) rappresenta lo stato del contatto; `msg.event` vale <code>contact</code>.
 
 ### Dettagli
 
-`msg.payload` contiene l’evento HUE (boolean/oggetto) per eventuale logica personalizzata.
+L’evento originale Hue è disponibile in `msg.rawEvent`. Se non viene configurato alcun gateway KNX, il pin di output di Node-RED continuerà a emettere gli eventi in modo da poterli gestire nel flow.
 </script>

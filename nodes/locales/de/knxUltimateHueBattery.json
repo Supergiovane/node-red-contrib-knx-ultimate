@@ -1,10 +1,4 @@
 {
-  "knxUltimateHueBattery": {
-    "paletteLabel": "Hue Batteriesensor",
-    "read_status_startup": "Status beim Start lesen",
-    "opt_no": "Nein",
-    "opt_yes_emit": "Ja, und KNX-Telegramme senden."
-  },
   "common": {
     "ga": "GA",
     "dpt": "DPT",
@@ -14,5 +8,23 @@
     "hue_bridge": "HUE-Bridge",
     "philips_hue": "Philips HUE",
     "read": "Lesen"
+  },
+  "knxUltimateHueBattery": {
+    "paletteLabel": "Hue Batteriesensor",
+    "hue_sensor": "Hue-Batteriesensor",
+    "no_devices": "Keine Batteriesensoren verfügbar",
+    "tabs": {
+      "mapping": "Zuordnung",
+      "behaviour": "Verhalten"
+    },
+    "mapping_info": "Verknüpfen Sie die KNX-Gruppenadresse, die den Batteriestand ausgeben soll.",
+    "behaviour_info": "Konfigurieren Sie das Verhalten beim Start sowie die Sichtbarkeit des Node-RED-Ausgangspins.",
+    "read_status_startup": "Status beim Start lesen",
+    "opt_no": "Nein",
+    "opt_yes_emit": "Ja, und KNX-Telegramme senden.",
+    "node_pins": "Node-Ausgangspin",
+    "node_pins_show": "Node-RED-Ausgangspin anzeigen",
+    "node_pins_hide": "Ausblenden",
+    "output_info": "Kein KNX-Gateway ausgewählt. Wenn der Node-RED-Ausgangspin aktiviert ist, sendet der Hue-Batteriesensor weiterhin Ereignisse in Ihren Flow."
   }
 }

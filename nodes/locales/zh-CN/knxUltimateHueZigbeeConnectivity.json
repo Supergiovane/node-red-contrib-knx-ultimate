@@ -1,10 +1,4 @@
 {
-  "knxUltimateHueZigbeeConnectivity": {
-    "paletteLabel": "Hue Zigbee 连接",
-    "read_status_startup": "启动时读取状态",
-    "opt_no": "否",
-    "opt_yes_emit": "是，并发送 KNX 电报。"
-  },
   "common": {
     "ga": "组地址",
     "dpt": "数据点类型",
@@ -14,5 +8,23 @@
     "hue_bridge": "HUE 网桥",
     "philips_hue": "飞利浦 HUE",
     "read": "读取"
+  },
+  "knxUltimateHueZigbeeConnectivity": {
+    "paletteLabel": "Hue Zigbee 连接",
+    "hue_sensor": "Hue Zigbee 连接",
+    "no_devices": "没有可用的 Zigbee 连接设备",
+    "tabs": {
+      "mapping": "映射",
+      "behaviour": "行为"
+    },
+    "mapping_info": "关联应表示 Zigbee 连接状态的 KNX 组地址。",
+    "behaviour_info": "配置启动时是否读取状态，以及是否显示 Node-RED 输出引脚。",
+    "read_status_startup": "启动时读取状态",
+    "opt_no": "否",
+    "opt_yes_emit": "是，并发送 KNX 电报。",
+    "node_pins": "节点输出引脚",
+    "node_pins_show": "显示 Node-RED 输出引脚",
+    "node_pins_hide": "隐藏",
+    "output_info": "未选择 KNX 网关。启用 Node-RED 输出引脚后，Hue 连接事件仍会发送到流程中。"
   }
 }

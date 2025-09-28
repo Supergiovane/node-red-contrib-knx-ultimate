@@ -23,8 +23,15 @@ module.exports = function (RED) {
     node.formatnegativevalue = 'leave';
     node.formatdecimalsvalue = 2;
     node.hueDevice = config.hueDevice;
-    node.initializingAtStart = (config.readStatusAtStartup === undefined || config.readStatusAtStartup === "yes");
+    node.initializingAtStart = (config.readStatusAtStartup === undefined || config.readStatusAtStartup === 'yes');
     node.currentDeviceValue = 0;
+    const pinsSetting = (config.enableNodePINS === undefined || config.enableNodePINS === 'yes' || config.enableNodePINS === true);
+    node.enableNodePINS = pinsSetting ? 'yes' : 'no';
+    node.outputs = pinsSetting ? 1 : 0;
+    if (!node.serverKNX && node.outputs === 0) {
+      node.enableNodePINS = 'yes';
+      node.outputs = 1;
+    }
 
     const shouldDisplayStatus = (color) => {
       const provider = node.serverKNX;

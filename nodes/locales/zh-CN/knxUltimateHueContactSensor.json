@@ -1,6 +1,13 @@
 {
   "knxUltimateHueContactSensor": {
-    "paletteLabel": "Hue 接触传感器"
+    "paletteLabel": "Hue 接触传感器",
+    "hue_sensor": "Hue 接触传感器",
+    "no_devices": "没有可用的 Hue 接触传感器",
+    "tabs": {
+      "mapping": "映射"
+    },
+    "mapping_info": "关联接触状态要写入的 KNX 组地址。",
+    "output_info": "未选择 KNX 网关。事件仍会通过 Node-RED 输出引脚发送。"
   },
   "common": {
     "ga": "组地址",

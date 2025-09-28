@@ -1,28 +1,30 @@
 <script type="text/markdown" data-help-name="knxUltimateHueZigbeeConnectivity">
-<p>该节点从 HUE 设备读取 Zigbee 连接状态，并发布到 KNX。</p>
+<p>该节点从 Hue 设备读取 Zigbee 连接状态，并将其同步到 KNX 和 Node-RED 流程。</p>
 
-在 GA 字段输入 KNX 设备名或组地址，输入时会自动联想。
+在 GA 字段输入 KNX 设备名称或组地址即可自动补全；“Hue 传感器”旁的刷新按钮可重新加载 Hue 设备列表。
 
 **常规**
 |属性|说明|
 |--|--|
-| KNX GW | 用于发布状态的 KNX 网关 |
-| HUE Bridge | 要使用的 HUE Bridge |
-| HUE Sensor | 提供 Zigbee 连接信息的 HUE 传感器/设备（自动补全） |
+| KNX GW | 发布状态的 KNX 网关（选择后才显示 KNX 映射选项）。|
+| Hue Bridge | 要查询的 Hue 网桥。|
+| Hue 传感器 | 提供 Zigbee 连接信息的 Hue 设备/传感器（支持自动补全与刷新）。|
 
 **映射**
 |属性|说明|
 |--|--|
-| 状态 | 映射 Zigbee 连接性的 KNX 组地址。连接时为 _true_，否则 _false_。|
-| 启动时读取状态 | 在启动/重连时读取并发布至 KNX。默认：“是”。|
+| 状态 | 映射 Zigbee 连接状态的 KNX 组地址（连接时为 `true`，否则为 `false`）。推荐使用布尔型 DPT 1.x。|
+
+**行为**
+|属性|说明|
+|--|--|
+| 启动时读取状态 | 部署/重连时读取当前状态并发布到 KNX。默认值：“是”。|
+| 节点输出引脚 | 显示或隐藏 Node-RED 输出。当未选择 KNX 网关时，输出引脚会保持启用，以便 Hue 事件仍能传入流程。|
+
+未选择 KNX 网关时，所有 KNX 字段会自动隐藏，便于将节点作为纯粹的 Hue → Node-RED 监视器使用。
 
 ### 输出
 
-1. 标准输出
-: payload (boolean)：连接状态。
-
-### 详情
-
-`msg.payload` 为 true/false。  
-`msg.status` 为文本：**connected, disconnected, connectivity_issue, unidirectional_incoming**。
+1. 标准输出 — `msg.payload` (boolean)
+: `true` 表示已连接，`false` 表示未连接。`msg.status` 会提供文本状态（`connected`、`disconnected`、`connectivity_issue`、`unidirectional_incoming`）。
 </script>

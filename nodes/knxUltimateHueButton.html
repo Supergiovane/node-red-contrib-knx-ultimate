@@ -27,7 +27,7 @@
     let showingNoDevicesPlaceholder = false;
     let currentNode = null;
 
-    const KNX_EMPTY_VALUES = new Set(['', 'none', '_ADD_', '__NONE__']);
+    const EMPTY_SERVER_VALUES = new Set(['', 'none', '_add_', '__none__', '__null__', 'null', 'undefined']);
 
     const ensureVerticalTabsStyle = () => {
       if ($('#knxUltimateHueButtonVerticalTabs').length) return;
@@ -151,9 +151,46 @@
 
     const resolveServerId = (value) => {
       if (value === undefined || value === null) return null;
-      if (typeof value === 'string' && KNX_EMPTY_VALUES.has(value)) return null;
       if (value === false) return null;
+      if (typeof value === 'string') {
+        const trimmed = value.trim();
+        if (trimmed === '') return null;
+        if (EMPTY_SERVER_VALUES.has(trimmed.toLowerCase())) return null;
+        return trimmed;
+      }
+      const asString = String(value).trim();
+      if (asString === '' || EMPTY_SERVER_VALUES.has(asString.toLowerCase())) return null;
       return value;
+    };
+
+    const getKnxServer = (allowFallback = true) => {
+      const resolved = resolveServerId($('#node-input-server').val());
+      if (resolved) return RED.nodes.node(resolved);
+      if (!allowFallback) return null;
+      const fallback = resolveServerId(currentNode ? currentNode.server : null);
+      return fallback ? RED.nodes.node(fallback) : null;
+    };
+
+    const getHueServer = (allowFallback = true) => {
+      const resolved = resolveServerId($('#node-input-serverHue').val());
+      if (resolved) return RED.nodes.node(resolved);
+      if (!allowFallback) return null;
+      const fallback = resolveServerId(currentNode ? currentNode.serverHue : null);
+      return fallback ? RED.nodes.node(fallback) : null;
+    };
+
+    const hasKnxSelection = () => {
+      const resolved = resolveServerId($('#node-input-server').val());
+      if (resolved) return true;
+      if ($('#node-input-server').length) return false;
+      return resolveServerId(currentNode ? currentNode.server : null) !== null;
+    };
+
+    const hasHueSelection = () => {
+      const resolved = resolveServerId($('#node-input-serverHue').val());
+      if (resolved) return true;
+      if ($('#node-input-serverHue').length) return false;
+      return resolveServerId(currentNode ? currentNode.serverHue : null) !== null;
     };
 
     const applyNoDevicesPlaceholder = (hasDevices) => {
@@ -265,7 +302,8 @@
       $input.autocomplete({
         minLength: 0,
         source(request, response) {
-          const serverId = resolveServerId($('#node-input-server').val() || (currentNode ? currentNode.server : null));
+          const rawValue = $('#node-input-server').val();
+          const serverId = resolveServerId(rawValue === undefined ? (currentNode ? currentNode.server : null) : rawValue);
           const server = serverId ? RED.nodes.node(serverId) : null;
           if (!server) { response([]); return; }
           $.getJSON(`knxUltimatecsv?nodeID=${server.id}`, (data) => {
@@ -337,7 +375,8 @@
 
     const updateTabsVisibility = () => {
       if (!$tabs) return;
-      const hueServerId = resolveServerId($('#node-input-serverHue').val() || (currentNode ? currentNode.serverHue : null));
+      const hueDomValue = $('#node-input-serverHue').val();
+      const hueServerId = resolveServerId(hueDomValue === undefined ? (currentNode ? currentNode.serverHue : null) : hueDomValue);
       const knxSelected = hasKNXServerSelected();
       if (hueServerId) {
         $requiresBridgeElems.show();
@@ -434,7 +473,8 @@
         $tabs.tabs();
         $tabs.find('li').removeClass('ui-corner-top').addClass('ui-corner-left');
 
-        const initialServerId = $('#node-input-server').val() || node.server;
+        const initialServerDomValue = $('#node-input-server').val();
+        const initialServerId = initialServerDomValue === undefined ? node.server : initialServerDomValue;
         loadDptOptions(initialServerId, node);
 
         attachGroupAddressAutocomplete({
@@ -494,7 +534,8 @@
           $deviceName.autocomplete({
             minLength: 0,
             source(request, response) {
-              const hueServerId = resolveServerId($('#node-input-serverHue').val() || node.serverHue);
+              const hueDomValue = $('#node-input-serverHue').val();
+              const hueServerId = resolveServerId(hueDomValue === undefined ? node.serverHue : hueDomValue);
               const hueServer = hueServerId ? RED.nodes.node(hueServerId) : null;
               if (!hueServer) { response([]); return; }
               fetchDevices(hueServer, request.term, response);
@@ -512,7 +553,8 @@
           $refreshButton.on('click.knxUltimateHueButton', () => {
             cachedDevices = [];
             node._cachedButtonDevices = cachedDevices;
-            const hueServerId = resolveServerId($('#node-input-serverHue').val() || node.serverHue);
+            const hueDomValue = $('#node-input-serverHue').val();
+            const hueServerId = resolveServerId(hueDomValue === undefined ? node.serverHue : hueDomValue);
             const hueServer = hueServerId ? RED.nodes.node(hueServerId) : null;
             if (!hueServer) return;
             fetchDevices(hueServer, '', () => {

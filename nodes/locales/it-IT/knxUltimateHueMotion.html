@@ -1,26 +1,29 @@
 <script type="text/markdown" data-help-name="knxUltimateHueMotion">
-<p>Questo nodo legge gli eventi del sensore di movimento HUE e li espone su KNX.</p>
+<p>Questo nodo riceve gli eventi da un sensore di movimento Hue e li inoltra a KNX (e, se desideri, anche al flow Node-RED).</p>
 
-Nel campo GA digita nome o indirizzo di gruppo per collegare la GA KNX (autocompletamento).
+Nel campo GA digita nome o indirizzo di gruppo KNX: i risultati vengono proposti durante la digitazione. Usa il pulsante di aggiornamento accanto a “Sensore Hue” per ricaricare la lista dal bridge Hue.
 
 **Generale**
 | Proprietà | Descrizione |
-|-|-|
-|KNX GW |Seleziona il gateway KNX da utilizzare |
-|Bridge Hue |Seleziona il ponte Hue da utilizzare |
-| HUE Sensor | Sensore di movimento HUE da usare (autocompletamento) |
+|--|--|
+| KNX GW | Gateway KNX che riceve gli aggiornamenti di movimento (obbligatorio per mostrare le impostazioni KNX). |
+| Bridge Hue | Bridge Hue da cui leggere il sensore. |
+| Sensore Hue | Sensore di movimento Hue da utilizzare (supporta autocompletamento e refresh). |
 
 **Mappatura**
 | Proprietà | Descrizione |
 |--|--|
-| Motion | Invia _true_ quando viene rilevato movimento, altrimenti _false_ |
+| Movimento | GA KNX che riceve `true` quando viene rilevato movimento e `false` quando l’area torna libera. DPT consigliato: <b>1.001</b>. |
+
+**Comportamento**
+| Proprietà | Descrizione |
+|--|--|
+| Pin di uscita del nodo | Mostra o nasconde l’uscita Node-RED. Se non è selezionato alcun gateway KNX, il pin resta attivo per continuare a inviare gli eventi Hue al flow. |
+
+Le sezioni KNX sono visualizzate solo dopo la scelta di un gateway KNX, così puoi usare il nodo come semplice listener Hue → Node-RED quando serve.
 
 ### Output
 
-1. Uscita standard
-: payload (boolean): **true** su movimento, **false** a fine movimento
-
-### Dettagli
-
-`msg.payload` contiene lo stato booleano di movimento.
+1. Uscita standard — `msg.payload` (boolean)
+: `true` quando viene rilevato movimento, `false` quando termina.
 </script>

@@ -1,28 +1,30 @@
 <script type="text/markdown" data-help-name="knxUltimateHueZigbeeConnectivity">
-<p>Dieser Node liest den Zigbee‑Konnektivitätsstatus eines HUE‑Geräts und spiegelt ihn nach KNX.</p>
+<p>Dieser Node liest den Zigbee-Konnektivitätsstatus eines Hue-Geräts aus und spiegelt ihn nach KNX (sowie optional in Ihren Flow).</p>
 
-Gib im GA‑Feld den Gerätenamen oder die Gruppenadresse ein; beim Tippen erscheinen Vorschläge.
+Im GA-Feld den Gerätnamen oder die Gruppenadresse eingeben – passende Einträge werden während der Eingabe vorgeschlagen. Mit dem Aktualisieren-Symbol neben „Hue Sensor“ lässt sich die Geräteliste der Hue-Bridge neu laden.
 
 **Allgemein**
 | Eigenschaft | Beschreibung |
 |--|--|
-| KNX GW | KNX‑Gateway, auf das veröffentlicht wird. |
-| HUE Bridge | Zu verwendender HUE Bridge. |
-| HUE Sensor | HUE‑Sensor/Gerät mit Zigbee‑Konnektivitätsinfo (Autocomplete). |
+| KNX GW | KNX-Gateway, das den Status empfängt (erforderlich, damit die KNX-Optionen eingeblendet werden). |
+| Hue Bridge | Abzufragende Hue-Bridge. |
+| Hue Sensor | Hue-Sensor/Gerät, das die Zigbee-Konnektivität liefert (unterstützt Autovervollständigung und Refresh). |
 
 **Zuordnung**
 | Eigenschaft | Beschreibung |
 |--|--|
-| Status | KNX‑GA, die die Zigbee‑Konnektivität abbildet. _true_ = verbunden, sonst _false_. |
-| Status beim Start lesen | Beim Start/bei Wiederverbindung Status lesen und an KNX ausgeben. Standard: „Ja“. |
+| Status | KNX-GA für den Verbindungszustand (`true` bei Verbindung, sonst `false`). Empfohlener DPT: boolescher 1.x. |
 
-### Ausgänge
+**Verhalten**
+| Eigenschaft | Beschreibung |
+|--|--|
+| Status beim Start lesen | Beim Deploy/Wiederverbinden den aktuellen Zustand lesen und an KNX senden. Standard: „ja“. |
+| Node-Ausgangspin | Node-RED-Ausgang anzeigen/ausblenden. Ohne KNX-Gateway bleibt der Ausgang aktiv, damit Hue-Ereignisse weiterhin den Flow erreichen. |
 
-1. Standardausgang
-: payload (boolean): Konnektivitätszustand.
+Die KNX-Bereiche bleiben ausgeblendet, bis ein KNX-Gateway gewählt wurde – so kann der Node auch als reiner Hue → Node-RED Monitor dienen.
 
-### Details
+### Ausgang
 
-`msg.payload` ist true/false.  
-`msg.status` ist Text: **connected, disconnected, connectivity_issue, unidirectional_incoming**.
+1. Standardausgang — `msg.payload` (boolean)
+: `true`, wenn das Gerät verbunden ist, sonst `false`. `msg.status` enthält den Textstatus (`connected`, `disconnected`, `connectivity_issue`, `unidirectional_incoming`).
 </script>

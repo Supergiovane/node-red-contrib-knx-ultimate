@@ -1,27 +1,30 @@
 <script type="text/markdown" data-help-name="knxUltimateHueTemperatureSensor">
-<p>This node reads temperature (°C) from a HUE temperature sensor and maps it to KNX.</p>
+<p>This node reads the ambient temperature from a Hue sensor and forwards it to KNX (and optionally to Node-RED).</p>
 
-Start typing in the GA field (name or Group Address) to link the KNX GA; devices appear while you type.
+Start typing in the GA field (name or Group Address) to pick the KNX GA; matches appear while you type. Use the refresh button next to “Hue sensor” if you add a new device to the bridge.
 
 **General**
 |Property|Description|
 |--|--|
-| KNX GW | Select the KNX gateway to be used |
-| HUE Bridge | Select the HUE Bridge to be used |
-| HUE Sensor | HUE temperature sensor (autocomplete while typing) |
-| Read status at startup | On startup/reconnect, read current value and send it to KNX (default: no) |
+| KNX GW | KNX gateway that receives the temperature (required to reveal KNX mapping options). |
+| HUE Bridge | Hue bridge hosting the temperature sensor. |
+| HUE Sensor | Hue temperature sensor (supports autocomplete and refresh). |
 
 **Mapping**
 |Property|Description|
 |--|--|
-| Temp | KNX GA for temperature in Celsius. Recommended DPT: <b>9.001</b> |
+| Temp | KNX GA that receives the temperature in °C. Recommended DPT: <b>9.001</b>. |
 
-### Outputs
+**Behaviour**
+|Property|Description|
+|--|--|
+| Read status at startup | On deploy/reconnect read the current temperature and send it to KNX. Default: “yes”. |
+| Node output pin | Show or hide the Node-RED output. When no KNX gateway is selected the output pin remains active so Hue readings still reach your flow. |
 
-1. Standard output
-: `msg.payload` (number): current temperature in °C
+KNX-specific widgets stay hidden until a KNX gateway is chosen, making it easy to use the node purely as a Hue → Node-RED temperature feed when required.
 
-### Details
+### Output
 
-`msg.payload` carries the numeric temperature value.
+1. Standard output — `msg.payload` (number)
+: Current temperature in °C.
 </script>

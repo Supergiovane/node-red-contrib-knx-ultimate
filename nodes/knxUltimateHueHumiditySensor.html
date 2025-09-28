@@ -18,7 +18,7 @@
     let currentNode = null;
     let $outputInfo = null;
     let $enablePinsSelect = null;
-    const KNX_EMPTY_VALUES = new Set(['', 'none', '_ADD_', '__NONE__']);
+    const EMPTY_SERVER_VALUES = new Set(['', 'none', '_add_', '__none__', '__null__', 'null', 'undefined']);
 
     const ensureVerticalTabsStyle = () => {
       if ($('#knxUltimateHueLightVerticalTabs').length) return;
@@ -136,8 +136,15 @@
 
     const resolveServerId = (value) => {
       if (value === undefined || value === null) return null;
-      if (typeof value === 'string' && KNX_EMPTY_VALUES.has(value)) return null;
       if (value === false) return null;
+      if (typeof value === 'string') {
+        const trimmed = value.trim();
+        if (trimmed === '') return null;
+        if (EMPTY_SERVER_VALUES.has(trimmed.toLowerCase())) return null;
+        return trimmed;
+      }
+      const asString = String(value).trim();
+      if (asString === '' || EMPTY_SERVER_VALUES.has(asString.toLowerCase())) return null;
       return value;
     };
 
@@ -390,7 +397,8 @@
         $tabs.tabs();
         $tabs.find('li').removeClass('ui-corner-top').addClass('ui-corner-left');
 
-        const initialServerId = $('#node-input-server').val() || node.server;
+        const initialServerDomValue = $('#node-input-server').val();
+        const initialServerId = initialServerDomValue === undefined ? node.server : initialServerDomValue;
         loadDPTOptions(initialServerId, node);
 
         const $gaInput = $('#node-input-GAhumiditysensor');
@@ -403,7 +411,8 @@
         $deviceName.autocomplete({
           minLength: 0,
           source(request, response) {
-            const hueServerId = resolveServerId($('#node-input-serverHue').val() || node.serverHue);
+            const hueDomValue = $('#node-input-serverHue').val();
+            const hueServerId = resolveServerId(hueDomValue === undefined ? node.serverHue : hueDomValue);
             const hueServer = hueServerId ? RED.nodes.node(hueServerId) : null;
             if (!hueServer) { response([]); return; }
             fetchDevices(hueServer, request.term, response);
@@ -419,7 +428,8 @@
         $refreshButton.on('click.knxUltimateHueHumiditySensor', () => {
           cachedDevices = [];
           node._cachedHumidityDevices = cachedDevices;
-          const hueServerId = resolveServerId($('#node-input-serverHue').val() || node.serverHue);
+          const hueDomValue = $('#node-input-serverHue').val();
+          const hueServerId = resolveServerId(hueDomValue === undefined ? node.serverHue : hueDomValue);
           const hueServer = hueServerId ? RED.nodes.node(hueServerId) : null;
           if (!hueServer) return;
           fetchDevices(hueServer, '', () => {

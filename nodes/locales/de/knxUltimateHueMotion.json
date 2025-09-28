@@ -1,8 +1,4 @@
 {
-  "knxUltimateHueMotion": {
-    "title": "Hue Bewegungssensor Knoten",
-    "paletteLabel": "Hue Bewegungssensor"
-  },
   "common": {
     "ga": "GA",
     "dpt": "DPT",
@@ -12,5 +8,20 @@
     "hue_bridge": "HUE-Bridge",
     "philips_hue": "Philips HUE",
     "read": "Lesen"
+  },
+  "knxUltimateHueMotion": {
+    "paletteLabel": "Hue Bewegungssensor",
+    "hue_sensor": "Hue-Bewegungssensor",
+    "no_devices": "Keine Bewegungssensoren verfügbar",
+    "tabs": {
+      "mapping": "Zuordnung",
+      "behaviour": "Verhalten"
+    },
+    "mapping_info": "Verknüpfen Sie die KNX-Gruppenadresse, die den Bewegungszustand erhalten soll.",
+    "behaviour_info": "Steuern Sie den Node-RED-Ausgangspin, wenn Sie Hue-Bewegungsereignisse ohne KNX weiterverarbeiten möchten.",
+    "node_pins": "Node-Ausgangspin",
+    "node_pins_show": "Node-RED-Ausgangspin anzeigen",
+    "node_pins_hide": "Ausblenden",
+    "output_info": "Kein KNX-Gateway ausgewählt. Wenn der Node-RED-Ausgangspin aktiviert ist, werden Hue-Bewegungsereignisse weiterhin an Ihren Flow gesendet."
   }
 }

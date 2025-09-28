@@ -1,9 +1,4 @@
 {
-  "knxUltimateHueTemperatureSensor": {
-    "paletteLabel": "Hue Temperatursensor",
-    "opt_no": "Nein",
-    "opt_yes_emit": "Ja, und KNX-Telegramme senden."
-  },
   "common": {
     "ga": "GA",
     "dpt": "DPT",
@@ -13,5 +8,23 @@
     "hue_bridge": "HUE-Bridge",
     "philips_hue": "Philips HUE",
     "read": "Lesen"
+  },
+  "knxUltimateHueTemperatureSensor": {
+    "paletteLabel": "Hue Temperatursensor",
+    "hue_sensor": "Hue-Temperatursensor",
+    "no_devices": "Keine Temperatursensoren verfügbar",
+    "tabs": {
+      "mapping": "Zuordnung",
+      "behaviour": "Verhalten"
+    },
+    "mapping_info": "Verknüpfen Sie die KNX-Gruppenadresse, die den Temperaturwert senden soll.",
+    "behaviour_info": "Konfigurieren Sie das Verhalten beim Start und die Sichtbarkeit des Node-RED-Ausgangspins.",
+    "read_status_startup": "Status beim Start lesen",
+    "opt_no": "Nein",
+    "opt_yes_emit": "Ja, und KNX-Telegramme senden.",
+    "node_pins": "Node-Ausgangspin",
+    "node_pins_show": "Node-RED-Ausgangspin anzeigen",
+    "node_pins_hide": "Ausblenden",
+    "output_info": "Kein KNX-Gateway ausgewählt. Wenn der Node-RED-Ausgangspin aktiviert ist, sendet der Hue-Temperatursensor weiterhin Werte an Ihren Flow."
   }
 }

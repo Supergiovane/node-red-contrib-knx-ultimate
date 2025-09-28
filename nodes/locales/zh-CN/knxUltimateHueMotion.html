@@ -1,26 +1,29 @@
 <script type="text/markdown" data-help-name="knxUltimateHueMotion">
-<p>该节点从 HUE 运动传感器读取运动事件并发布到 KNX。</p>
+<p>该节点订阅 Hue 运动传感器，并将事件同步到 KNX（同时可继续传递到 Node-RED 流程）。</p>
 
-在 GA 字段输入 KNX 设备名或组地址（自动补全）以进行关联。
+在 GA 字段输入 KNX 设备名称或组地址即可自动补全；“Hue 传感器”旁的刷新按钮可重新载入 Hue 设备列表。
 
-**一般的**
-|属性|描述|
-|  -  |  -  |
-|KNX GW |选择要使用的KNX门户|
-|色相桥|选择要使用的色调桥|
-| HUE Sensor | 要使用的 HUE 运动传感器（自动补全） |
+**常规**
+|属性|说明|
+|--|--|
+| KNX GW | 用于接收运动状态的 KNX 网关（选择后才显示 KNX 映射设置）。|
+| Hue Bridge | 对应的 Hue 网桥。|
+| Hue Sensor | 要使用的 Hue 运动传感器（支持自动补全与刷新）。|
 
 **映射**
 |属性|说明|
 |--|--|
-| 运动 | 侦测到运动时发送 _true_，否则发送 _false_ |
+| 运动 | 对应的 KNX 组地址：检测到运动时发送 `true`，否则发送 `false`。推荐 DPT：<b>1.001</b>。|
+
+**行为**
+|属性|说明|
+|--|--|
+| 节点输出引脚 | 显示或隐藏 Node-RED 输出。当未选择 KNX 网关时，输出引脚会自动保持启用，以便 Hue 事件继续进入流程。|
+
+未选择 KNX 网关时，所有 KNX 字段会自动隐藏，方便将节点作为纯 Hue → Node-RED 监听器使用。
 
 ### 输出
 
-1. 标准输出
-: payload (boolean)：侦测到运动为 **true**，运动结束为 **false**
-
-### 细节
-
-`msg.payload` 为布尔型运动状态。
+1. 标准输出 — `msg.payload` (boolean)
+: 检测到运动时为 `true`，恢复空闲时为 `false`。
 </script>

@@ -1,6 +1,13 @@
 {
   "knxUltimateHueContactSensor": {
-    "paletteLabel": "Sensore contatto Hue"
+    "paletteLabel": "Sensore contatto Hue",
+    "hue_sensor": "Sensore contatto Hue",
+    "no_devices": "Nessun sensore contatto Hue disponibile",
+    "tabs": {
+      "mapping": "Associazione"
+    },
+    "mapping_info": "Collega la GA KNX che deve ricevere lo stato del contatto.",
+    "output_info": "Nessun gateway KNX selezionato. Gli eventi vengono comunque emessi sul pin di output di Node-RED."
   },
   "common": {
     "ga": "GA",

@@ -1,27 +1,30 @@
 <script type="text/markdown" data-help-name="knxUltimateHueLightSensor">
-<p>This node reads lux events from a HUE Light Sensor and maps them to KNX.</p>
+<p>This node publishes the ambient illuminance reported by a Hue light sensor to KNX and/or your Node-RED flow.</p>
 
-It emits the ambient illuminance (lux) each time it changes. Start typing in the GA field (name or Group Address) to link the KNX GA; devices appear while you type.
+It emits the lux value whenever it changes. Start typing in the GA field (name or Group Address) to link the KNX GA; matches appear while you type. Use the refresh button next to “Hue sensor” if you have just added a new device on the bridge.
 
 **General**
 |Property|Description|
 |--|--|
-| KNX GW | Select the KNX gateway to be used |
-| HUE Bridge | Select the HUE Bridge to be used |
-| HUE Sensor | HUE Light Sensor to use (autocomplete while typing).|
-| Read status at startup | Read the status at startup and emit the event to the KNX bus at startup/reconnection. (Default "no")|
+| KNX GW | KNX gateway that receives the measured lux value (required to display KNX mapping fields). |
+| HUE Bridge | Hue bridge the sensor belongs to. |
+| HUE Sensor | Hue light sensor (supports autocomplete and refresh). |
 
 **Mapping**
-| Property | Description |
+|Property|Description|
 |--|--|
-| Lux | KNX GA that receives the lux value. |
+| Lux | KNX GA that receives the lux value. Recommended DPT: <b>9.004</b> (lux). |
 
-### Outputs
+**Behaviour**
+|Property|Description|
+|--|--|
+| Read status at startup | On deploy/reconnect read the current lux value and send it to KNX. Default: “yes”. |
+| Node output pin | Show or hide the Node-RED output. When no KNX gateway is selected the output pin stays enabled so Hue readings continue to reach your flow. |
 
-1. Standard output
-: payload (number): current lux value.
+The KNX-related widgets are hidden until a KNX gateway is selected, allowing you to use the node purely as a Hue → Node-RED illuminance feed if required.
 
-### Details
+### Output
 
-`msg.payload` carries the numeric lux value. Use it for custom logic if needed.
+1. Standard output — `msg.payload` (number)
+: Current illuminance in lux.
 </script>

@@ -1,26 +1,29 @@
 <script type="text/markdown" data-help-name="knxUltimateHueMotion">
-<p>This node reads motion events from a HUE motion sensor and maps them to KNX.</p>
+<p>This node listens to Hue motion sensors and mirrors their events to KNX (and optionally to Node-RED flows).</p>
 
-Start typing in the GA field (name or Group Address) to link the KNX GA; devices appear while you type.
+Start typing in the GA field (name or Group Address) to link the KNX GA; matches appear while you type. Use the refresh icon next to “Hue sensor” if you add a new sensor on the bridge.
 
 **General**
 |Property|Description|
 |--|--|
-| KNX GW | Select the KNX gateway to be used |
-| HUE Bridge | Select the HUE Bridge to be used |
-| HUE Sensor | HUE motion sensor to use (autocomplete while typing).|
+| KNX GW | KNX gateway that will receive the motion updates (required to reveal KNX mapping options). |
+| HUE Bridge | Hue bridge that exposes the motion sensor. |
+| HUE Sensor | Hue motion sensor to use (supports autocomplete and refresh). |
 
 **Mapping**
-| Property | Description |
+|Property|Description|
 |--|--|
-| Motion | Send _true_ when motion is detected, otherwise _false_. |
+| Motion | KNX GA that receives `true` on motion detected and `false` when the area is clear. Recommended DPT: <b>1.001</b>. |
 
-### Outputs
+**Behaviour**
+|Property|Description|
+|--|--|
+| Node output pin | Show or hide the Node-RED output. When no KNX gateway is configured, the output pin stays enabled so Hue events still reach your flow. |
 
-1. Standard output
-: payload (boolean): **true** on motion, **false** on motion end.
+The KNX widgets are hidden until a KNX gateway is selected, helping you configure the node as a pure Hue -> Node-RED listener when needed.
 
-### Details
+### Output
 
-`msg.payload` carries the boolean motion state.
+1. Standard output — `msg.payload` (boolean)
+: `true` when motion is detected, otherwise `false`.
 </script>

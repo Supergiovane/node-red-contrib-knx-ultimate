@@ -1,10 +1,4 @@
 {
-  "knxUltimateHueZigbeeConnectivity": {
-    "paletteLabel": "Connettività Zigbee Hue",
-    "read_status_startup": "Leggi lo stato all'avvio",
-    "opt_no": "No",
-    "opt_yes_emit": "Sì, ed emetti i telegrammi KNX."
-  },
   "common": {
     "ga": "GA",
     "dpt": "DPT",
@@ -14,5 +8,23 @@
     "hue_bridge": "Bridge HUE",
     "philips_hue": "Philips HUE",
     "read": "Leggi"
+  },
+  "knxUltimateHueZigbeeConnectivity": {
+    "paletteLabel": "Connettività Zigbee Hue",
+    "hue_sensor": "Connettività Zigbee Hue",
+    "no_devices": "Nessun dispositivo di connettività Zigbee disponibile",
+    "tabs": {
+      "mapping": "Mappatura",
+      "behaviour": "Comportamento"
+    },
+    "mapping_info": "Collega l'indirizzo di gruppo KNX che deve rappresentare lo stato della connettività Zigbee.",
+    "behaviour_info": "Decidi se leggere lo stato all'avvio e se mantenere visibile il pin di uscita Node-RED.",
+    "read_status_startup": "Leggi lo stato all'avvio",
+    "opt_no": "No",
+    "opt_yes_emit": "Sì, ed emetti i telegrammi KNX.",
+    "node_pins": "Pin di uscita del nodo",
+    "node_pins_show": "Mostra il pin di uscita Node-RED",
+    "node_pins_hide": "Nascondi",
+    "output_info": "Nessun gateway KNX selezionato. Quando il pin di uscita Node-RED è abilitato, gli eventi di connettività Hue continuano a essere inviati nel flow."
   }
 }

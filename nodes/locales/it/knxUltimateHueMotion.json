@@ -1,8 +1,4 @@
 {
-  "knxUltimateHueMotion": {
-    "title": "Nodo Sensore Movimento HUE",
-    "paletteLabel": "Sensore movimento Hue"
-  },
   "common": {
     "ga": "GA",
     "dpt": "DPT",
@@ -12,5 +8,20 @@
     "hue_bridge": "Bridge HUE",
     "philips_hue": "Philips HUE",
     "read": "Leggi"
+  },
+  "knxUltimateHueMotion": {
+    "paletteLabel": "Sensore movimento Hue",
+    "hue_sensor": "Sensore movimento Hue",
+    "no_devices": "Nessun sensore di movimento disponibile",
+    "tabs": {
+      "mapping": "Mappatura",
+      "behaviour": "Comportamento"
+    },
+    "mapping_info": "Collega l'indirizzo di gruppo KNX che deve ricevere lo stato di movimento rilevato.",
+    "behaviour_info": "Gestisci il pin di uscita Node-RED quando vuoi elaborare gli eventi di movimento Hue senza KNX.",
+    "node_pins": "Pin di uscita del nodo",
+    "node_pins_show": "Mostra il pin di uscita Node-RED",
+    "node_pins_hide": "Nascondi",
+    "output_info": "Nessun gateway KNX selezionato. Quando il pin di uscita Node-RED è abilitato, gli eventi di movimento Hue continuano ad essere inviati al flow."
   }
 }

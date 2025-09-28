@@ -1,248 +1,576 @@
 <script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/11f26b4500.js"></script>
-
 <script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/htmlUtils.js"></script>
 
 <script type="text/javascript">
-    RED.nodes.registerType('knxUltimateHueBattery', {
-        category: "KNX Ultimate",
-        color: '#C0C7E9',
-        defaults: {
-            //buttonState: {value: true},
-            server: { type: "knxUltimate-config", required: false },
-            serverHue: { type: "hue-config", required: true },
-            name: { value: "" },
+  (function () {
+    let $tabs = null;
+    let $requiresBridgeElems = null;
+    let $knxSections = null;
+    let $deviceName = null;
+    let $refreshButton = null;
+    let $loadingIndicator = null;
+    let $dptSelect = null;
+    let $readStatusSelect = null;
+    let $enablePinsSelect = null;
+    let $outputInfo = null;
+    let cachedDevices = [];
+    let defaultDevicePlaceholder = '';
+    let showingNoDevicesPlaceholder = false;
+    let currentNode = null;
 
-            namebatterysensor: { value: "" },
-            GAbatterysensor: { value: "" },
-            dptbatterysensor: { value: "" },
-            readStatusAtStartup: { value: "yes" },
+    const EMPTY_SERVER_VALUES = new Set(['', 'none', '_add_', '__none__', '__null__', 'null', 'undefined']);
 
+    const ensureVerticalTabsStyle = () => {
+      if ($('#knxUltimateHueBatteryVerticalTabs').length) return;
+      const style = `
+        <style id="knxUltimateHueBatteryVerticalTabs">
+          .hue-vertical-tabs.ui-tabs.ui-widget.ui-widget-content.ui-corner-all {
+            display: flex;
+            border: none;
+            padding: 0;
+          }
+          .hue-vertical-tabs > ul.ui-tabs-nav {
+            flex: 0 0 144px;
+            border-right: 1px solid #ccc;
+            border-left: none;
+            border-top: none;
+            border-bottom: none;
+            padding: 0.5em 0.3em;
+          }
+          .hue-vertical-tabs > ul.ui-tabs-nav li {
+            float: none;
+            width: 100%;
+            margin: 0 0 2px 0;
+          }
+          .hue-vertical-tabs > ul.ui-tabs-nav li a {
+            display: block;
+            width: 100%;
+            white-space: nowrap;
+            position: relative;
+            border-bottom: none !important;
+          }
+          .hue-vertical-tabs > ul.ui-tabs-nav li.ui-tabs-active {
+            border-bottom: none !important;
+          }
+          .hue-vertical-tabs > ul.ui-tabs-nav li.ui-tabs-active a::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 50%;
+            height: 3px;
+            background: currentColor;
+          }
+          .hue-vertical-tabs .ui-tabs-panel {
+            flex: 1;
+            padding: 0.8em 1em;
+            box-sizing: border-box;
+            border: none;
+            background: transparent;
+          }
+          .hue-vertical-tabs .form-row {
+            display: flex;
+            flex-wrap: nowrap;
+            align-items: center;
+            gap: 4px;
+          }
+          .hue-vertical-tabs .hue-form-tip {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            width: 100%;
+            margin-left: 0 !important;
+            max-width: none;
+            color: #1b7d33;
+            margin-bottom: 6px;
+            padding: 6px 10px;
+            box-sizing: border-box;
+          }
+          .hue-vertical-tabs .hue-form-tip .fa {
+            color: forestgreen;
+            flex: 0 0 auto;
+          }
+          .hue-vertical-tabs .hue-form-tip span {
+            flex: 1 1 auto;
+            min-width: 0;
+            white-space: normal;
+          }
+        </style>`;
+      $('head').append(style);
+    };
 
-            hueDevice: { value: "" }
-        },
-        inputs: 0,
-        outputs: 1,
-        icon: "node-hue-icon.svg",
-        label: function () {
-            return (this.name);
-        },
-        paletteLabel: "Hue Battery Sensor",
-        // button: {
-        //     enabled: function() {
-        //         // return whether or not the button is enabled, based on the current
-        //         // configuration of the node
-        //         return !this.changed
-        //     },
-        //     visible: function() {
-        //         // return whether or not the button is visible, based on the current
-        //         // configuration of the node
-        //         return this.hasButton
-        //     },
-        //     //toggle: "buttonState",
-        //     onclick: function() {}
-        // },
-        oneditprepare: function () {
-            // Go to the help panel
-            try {
-                RED.sidebar.show("help");
-            } catch (error) { }
-
-            var node = this;
-            var oNodeServer = RED.nodes.node($("#node-input-server").val()); // Store the config-node
-            var oNodeServerHue = RED.nodes.node($("#node-input-serverHue").val()); // Store the config-node
-
-            // 19/02/2020 Used to get the server sooner als deploy.
-            $("#node-input-server").change(function () {
-                try {
-                    oNodeServer = RED.nodes.node($(this).val());
-                } catch (error) { }
-            });
-            // 19/02/2020 Used to get the server sooner als deploy.
-            $("#node-input-serverHue").change(function () {
-                try {
-                    oNodeServerHue = RED.nodes.node($(this).val());
-                } catch (error) { }
-            });
-
-
-
-            // DPT 
-            // ########################
-            $.getJSON('knxUltimateDpts?serverId=' + $("#node-input-server").val(), (data) => {
-                data.forEach(dpt => {
-                    if (dpt.value.startsWith("5.001")) {
-                        $("#node-input-dptbatterysensor").append($("<option></option>")
-                            .attr("value", dpt.value)
-                            .text(dpt.text))
-                    }
-                });
-                $("#node-input-dptbatterysensor").val(this.dptbatterysensor)
-            })
-
-            // Autocomplete suggestion with ETS csv File
-            $("#node-input-GAbatterysensor").autocomplete({
-                minLength: 0,
-                source: function (request, response) {
-                    //$.getJSON("csv", request, function( data, status, xhr ) {
-                    $.getJSON("knxUltimatecsv?nodeID=" + oNodeServer.id, (data) => {
-                        response($.map(data, function (value, key) {
-                            var sSearch = (value.ga + " (" + value.devicename + ") DPT" + value.dpt);
-                            if (htmlUtilsfullCSVSearch(sSearch, request.term + " 5.001")) {
-                                return {
-                                    label: value.ga + " # " + value.devicename + " # " + value.dpt, // Label for Display
-                                    value: value.ga // Value
-                                }
-                            } else {
-                                return null;
-                            }
-                        }));
-                    });
-                }, select: function (event, ui) {
-                    // Sets Datapoint and device name automatically
-                    var sDevName = ui.item.label.split("#")[1].trim();
-                    try {
-                        sDevName = sDevName.substr(sDevName.indexOf(")") + 1).trim();
-                    } catch (error) {
-                    }
-                    $('#node-input-namebatterysensor').val(sDevName);
-                    var optVal = $("#node-input-dptbatterysensor option:contains('" + ui.item.label.split("#")[2].trim() + "')").attr('value');
-                    var $dptSelect = $("#node-input-dptbatterysensor");
-                    if (optVal !== undefined && optVal !== null) {
-                        $dptSelect.val(optVal).trigger('change');
-                    } else {
-                        $dptSelect.trigger('change');
-                    }
-                }
-            }).focus(function () {
-                $(this).autocomplete('search', $(this).val() + 'exactmatch');
-            });
-            try { if (oNodeServer && oNodeServer.id) KNX_enableSecureFormatting($("#node-input-GAbatterysensor"), oNodeServer.id); } catch (e) { }
-            // ######################## 
-
-
-
-
-            // Autocomplete suggestion with HUE
-            $("#node-input-name").autocomplete({
-                minLength: 0,
-                source: function (request, response) {
-                    $.getJSON("KNXUltimateGetResourcesHUE?rtype=device_power&serverId=" + oNodeServerHue.id, (data) => {
-                        response($.map(data.devices, function (value, key) {
-                            //alert(JSON.stringify(value) + " "+ key)
-                            var sSearch = (value.name);
-                            if (htmlUtilsfullCSVSearch(sSearch, request.term)) {
-                                return {
-                                    hueDevice: value.id, // Label for Display
-                                    value: value.name // Value
-                                }
-                            } else {
-                                return null;
-                            }
-                        }));
-                    });
-                }, select: function (event, ui) {
-                    // Sets the fields
-                    $('#node-input-hueDevice').val(ui.item.hueDevice);
-                }
-            }).focus(function () {
-                $(this).autocomplete('search', $(this).val() + 'exactmatch');
-            });
-
-
-            // ########################
-
-
-        },
-        oneditsave: function () {
-            // Return to the info tab
-            try {
-                RED.sidebar.show("info");
-            } catch (error) { }
-
-
-
-        },
-        oneditcancel: function () {
-            // Return to the info tab
-            try {
-                RED.sidebar.show("info");
-            } catch (error) { }
-
-
+    const detachHandlers = () => {
+      $('#node-input-server').off('.knxUltimateHueBattery');
+      $('#node-input-serverHue').off('.knxUltimateHueBattery');
+      if ($deviceName) {
+        $deviceName.off('.knxUltimateHueBattery');
+        if ($deviceName.data('ui-autocomplete')) {
+          try { $deviceName.autocomplete('destroy'); } catch (error) { /* empty */ }
         }
-    })
+      }
+      if ($refreshButton) {
+        $refreshButton.off('.knxUltimateHueBattery');
+      }
+      const $gaInput = $('#node-input-GAbatterysensor');
+      if ($gaInput.length) {
+        $gaInput.off('.knxUltimateHueBattery');
+        if ($gaInput.data('ui-autocomplete')) {
+          try { $gaInput.autocomplete('destroy'); } catch (error) { /* empty */ }
+        }
+      }
+      if ($enablePinsSelect) {
+        $enablePinsSelect.off('.knxUltimateHueBattery');
+      }
+    };
 
+    const ensureConfigSelection = (selector) => {
+      if ($(selector).val() !== '_ADD_') return;
+      try { $(selector).prop('selectedIndex', 0); } catch (error) { /* empty */ }
+    };
+
+    const resolveServerId = (value) => {
+      if (value === undefined || value === null) return null;
+      if (value === false) return null;
+      if (typeof value === 'string') {
+        const trimmed = value.trim();
+        if (trimmed === '') return null;
+        if (EMPTY_SERVER_VALUES.has(trimmed.toLowerCase())) return null;
+        return trimmed;
+      }
+      const asString = String(value).trim();
+      if (asString === '' || EMPTY_SERVER_VALUES.has(asString.toLowerCase())) return null;
+      return value;
+    };
+
+    const getKnxServer = (allowFallback = true) => {
+      const resolved = resolveServerId($('#node-input-server').val());
+      if (resolved) return RED.nodes.node(resolved);
+      if (!allowFallback) return null;
+      const fallback = resolveServerId(currentNode ? currentNode.server : null);
+      return fallback ? RED.nodes.node(fallback) : null;
+    };
+
+    const getHueServer = (allowFallback = true) => {
+      const resolved = resolveServerId($('#node-input-serverHue').val());
+      if (resolved) return RED.nodes.node(resolved);
+      if (!allowFallback) return null;
+      const fallback = resolveServerId(currentNode ? currentNode.serverHue : null);
+      return fallback ? RED.nodes.node(fallback) : null;
+    };
+
+    const hasKnxSelection = () => {
+      const resolved = resolveServerId($('#node-input-server').val());
+      if (resolved) return true;
+      if ($('#node-input-server').length) return false;
+      return resolveServerId(currentNode ? currentNode.server : null) !== null;
+    };
+
+    const hasHueSelection = () => {
+      const resolved = resolveServerId($('#node-input-serverHue').val());
+      if (resolved) return true;
+      if ($('#node-input-serverHue').length) return false;
+      return resolveServerId(currentNode ? currentNode.serverHue : null) !== null;
+    };
+
+    const normalizePinsValue = (value) => {
+      if (value === undefined || value === null || value === '') return 'yes';
+      if (value === true || value === 'true') return 'yes';
+      if (value === false || value === 'false') return 'no';
+      return value;
+    };
+
+    const applyNoDevicesPlaceholder = (hasDevices) => {
+      if (!$deviceName) return;
+      if (hasDevices) {
+        if (showingNoDevicesPlaceholder) {
+          showingNoDevicesPlaceholder = false;
+          $deviceName.attr('placeholder', defaultDevicePlaceholder);
+        }
+        return;
+      }
+      const message = RED._('node-red-contrib-knx-ultimate/knxUltimateHueBattery:knxUltimateHueBattery.no_devices');
+      showingNoDevicesPlaceholder = true;
+      $deviceName.attr('placeholder', message);
+      if (($deviceName.val() || '').trim() === '') {
+        $deviceName.val('');
+      }
+    };
+
+    const filterDevices = (devices, term) => {
+      const cleaned = (term || '').replace(/exactmatch/gi, '').trim();
+      return $.map(devices, (value) => {
+        const sSearch = value.name;
+        if (cleaned === '' || htmlUtilsfullCSVSearch(sSearch, cleaned)) {
+          return {
+            hueDevice: value.id,
+            value: value.name,
+            deviceObject: value.deviceObject || value,
+          };
+        }
+        return null;
+      });
+    };
+
+    const fetchDevices = (hueServer, term, response, { forceRefresh = false } = {}) => {
+      if (!hueServer) {
+        applyNoDevicesPlaceholder(true);
+        response([]);
+        return;
+      }
+      if (!forceRefresh && cachedDevices.length > 0) {
+        applyNoDevicesPlaceholder(cachedDevices.length > 0);
+        response(filterDevices(cachedDevices, term));
+        return;
+      }
+      if ($loadingIndicator) $loadingIndicator.show();
+      $.getJSON(`KNXUltimateGetResourcesHUE?rtype=device_power&serverId=${hueServer.id}&_=${Date.now()}`, (data) => {
+        const listCandidates = Array.isArray(data) ? data : (Array.isArray(data?.devices) ? data.devices : []);
+        cachedDevices = listCandidates.map((value) => ({
+          id: value.id || value.rid,
+          name: value.name || value.metadata?.name || '',
+          deviceObject: value.deviceObject || value,
+        }));
+        if (currentNode) currentNode._cachedBatteryDevices = cachedDevices;
+        applyNoDevicesPlaceholder(cachedDevices.length > 0);
+        response(filterDevices(cachedDevices, term));
+      }).always(() => {
+        if ($loadingIndicator) $loadingIndicator.hide();
+      }).fail(() => {
+        cachedDevices = [];
+        if (currentNode) currentNode._cachedBatteryDevices = cachedDevices;
+        applyNoDevicesPlaceholder(false);
+        response([]);
+      });
+    };
+
+    const loadDPTOptions = (serverCandidate, nodeRef) => {
+      if (!$dptSelect) return;
+      $dptSelect.empty();
+      const server = (() => {
+        const resolved = resolveServerId(serverCandidate);
+        if (resolved) return RED.nodes.node(resolved);
+        return getKnxServer(false);
+      })();
+      if (!server) return;
+      $.getJSON(`knxUltimateDpts?serverId=${server.id}`, (data) => {
+        data.forEach((dpt) => {
+          if (dpt.value.startsWith('5.001')) {
+            $dptSelect.append($('<option></option>').attr('value', dpt.value).text(dpt.text));
+          }
+        });
+        const referenceNode = nodeRef || currentNode || {};
+        const targetDpt = referenceNode.dptbatterysensor || '5.001';
+        if ($dptSelect.children().length) $dptSelect.val(targetDpt);
+      });
+    };
+
+    const attachGroupAddressAutocomplete = () => {
+      const $input = $('#node-input-GAbatterysensor');
+      const $nameWidget = $('#node-input-namebatterysensor');
+      if (!$input.length) return;
+      $input.autocomplete({
+        minLength: 0,
+        source(request, response) {
+          const server = getKnxServer(false);
+          if (!server) { response([]); return; }
+          $.getJSON(`knxUltimatecsv?nodeID=${server.id}`, (data) => {
+            const matches = [];
+            data.forEach((value) => {
+              if (!value.dpt || !value.dpt.startsWith('5.001')) return;
+              const sSearch = `${value.ga} (${value.devicename}) DPT${value.dpt}`;
+              if (htmlUtilsfullCSVSearch(sSearch, request.term)) {
+                matches.push({
+                  label: `${value.ga} # ${value.devicename} # ${value.dpt}`,
+                  value: value.ga,
+                });
+              }
+            });
+            response(matches);
+          });
+        },
+        select(event, ui) {
+          let sDevName = ui.item.label.split('#')[1]?.trim() || '';
+          try {
+            sDevName = sDevName.substr(sDevName.indexOf(')') + 1).trim();
+          } catch (error) { /* empty */ }
+          if ($nameWidget) $nameWidget.val(sDevName);
+          const dptLabel = ui.item.label.split('#')[2]?.trim();
+          const optVal = dptLabel ? $dptSelect.find(`option:contains('${dptLabel}')`).attr('value') : undefined;
+          if (optVal !== undefined && optVal !== null) {
+            $dptSelect.val(optVal).trigger('change');
+          } else {
+            $dptSelect.trigger('change');
+          }
+        },
+      });
+      $input.on('focus.knxUltimateHueBattery', function () {
+        $(this).autocomplete('search', `${$(this).val()}exactmatch`);
+      });
+      const server = getKnxServer(false);
+      if (server && server.id) KNX_enableSecureFormatting($input, server.id);
+    };
+
+    const updateKnxVisibility = () => {
+      const knxSelected = hasKnxSelection();
+      if (knxSelected) {
+        $knxSections.show();
+      } else {
+        $knxSections.hide();
+      }
+      updateTabsVisibility();
+    };
+
+    const updateTabsVisibility = () => {
+      if (!$tabs) return;
+      const hueSelected = hasHueSelection();
+      const knxSelected = hasKnxSelection();
+      if (hueSelected) {
+        $requiresBridgeElems.show();
+      } else {
+        $requiresBridgeElems.hide();
+      }
+      if (hueSelected && knxSelected) {
+        $tabs.show();
+        $tabs.tabs('refresh');
+      } else {
+        $tabs.hide();
+      }
+      if ($outputInfo) {
+        if (knxSelected) {
+          $outputInfo.hide();
+        } else {
+          $outputInfo.show();
+        }
+      }
+    };
+
+    const updatePinsState = () => {
+      if (!$enablePinsSelect || !currentNode) return;
+      const val = normalizePinsValue($enablePinsSelect.val());
+      currentNode.enableNodePINS = val;
+      currentNode.outputs = val === 'yes' ? 1 : 0;
+    };
+
+    RED.nodes.registerType('knxUltimateHueBattery', {
+      category: 'KNX Ultimate',
+      color: '#C0C7E9',
+      defaults: {
+        server: { type: 'knxUltimate-config', required: false },
+        serverHue: { type: 'hue-config', required: true },
+        name: { value: '' },
+        namebatterysensor: { value: '' },
+        GAbatterysensor: { value: '' },
+        dptbatterysensor: { value: '5.001' },
+        readStatusAtStartup: { value: 'yes' },
+        enableNodePINS: { value: 'yes' },
+        hueDevice: { value: '' },
+        outputs: { value: 1 },
+      },
+      inputs: 0,
+      outputs: 1,
+      icon: 'node-hue-icon.svg',
+      label() {
+        return this.name || RED._('node-red-contrib-knx-ultimate/knxUltimateHueBattery:knxUltimateHueBattery.paletteLabel');
+      },
+      paletteLabel: 'Hue Battery Sensor',
+      oneditprepare() {
+        try { RED.sidebar.show('help'); } catch (error) { /* empty */ }
+        const node = this;
+        currentNode = node;
+
+        ensureConfigSelection('#node-input-serverHue');
+        ensureVerticalTabsStyle();
+
+        $tabs = $('#hue-battery-tabs');
+        $requiresBridgeElems = $('.hue-requires-bridge');
+        $knxSections = $('.hue-knx-section');
+        $deviceName = $('#node-input-name');
+        $refreshButton = $('.hue-refresh-devices');
+        $loadingIndicator = $('.hue-devices-loading');
+        $dptSelect = $('#node-input-dptbatterysensor');
+        $readStatusSelect = $('#node-input-readStatusAtStartup');
+        $enablePinsSelect = $('#node-input-enableNodePINS');
+        $outputInfo = $('.hue-output-info');
+
+        cachedDevices = Array.isArray(node._cachedBatteryDevices) ? node._cachedBatteryDevices : [];
+        node._cachedBatteryDevices = cachedDevices;
+
+        defaultDevicePlaceholder = $deviceName.attr('placeholder') || '';
+        showingNoDevicesPlaceholder = false;
+
+        $tabs.addClass('hue-vertical-tabs');
+        $tabs.tabs();
+        $tabs.find('li').removeClass('ui-corner-top').addClass('ui-corner-left');
+
+        const initialServerDomValue = $('#node-input-server').val();
+        const initialServerId = initialServerDomValue === undefined ? node.server : initialServerDomValue;
+        loadDPTOptions(initialServerId, node);
+        attachGroupAddressAutocomplete();
+
+        if ($deviceName) {
+          $deviceName.autocomplete({
+            minLength: 0,
+            source(request, response) {
+              const hueServer = getHueServer(false);
+              if (!hueServer) { response([]); return; }
+              fetchDevices(hueServer, request.term, response);
+            },
+            select(event, ui) {
+              $('#node-input-hueDevice').val(ui.item.hueDevice);
+            },
+          });
+          $deviceName.on('focus.knxUltimateHueBattery', function () {
+            $(this).autocomplete('search', `${$(this).val()}exactmatch`);
+          });
+        }
+
+        if ($refreshButton) {
+          $refreshButton.on('click.knxUltimateHueBattery', () => {
+            cachedDevices = [];
+            node._cachedBatteryDevices = cachedDevices;
+            const hueServer = getHueServer(false);
+            if (!hueServer) return;
+            fetchDevices(hueServer, '', () => {
+              if ($deviceName) {
+                $deviceName.autocomplete('search', `${$deviceName.val()}exactmatch`);
+              }
+            }, { forceRefresh: true });
+          });
+        }
+
+        if ($readStatusSelect) {
+          $readStatusSelect.val(node.readStatusAtStartup || 'yes');
+        }
+
+        if ($enablePinsSelect) {
+          $enablePinsSelect.val(normalizePinsValue(node.enableNodePINS));
+          $enablePinsSelect.on('change.knxUltimateHueBattery', updatePinsState);
+          updatePinsState();
+        }
+
+        $('#node-input-server').on('change.knxUltimateHueBattery', function () {
+          const serverId = $(this).val();
+          loadDPTOptions(serverId, node);
+          attachGroupAddressAutocomplete();
+          updateKnxVisibility();
+        });
+
+        $('#node-input-serverHue').on('change.knxUltimateHueBattery', function () {
+          cachedDevices = [];
+          node._cachedBatteryDevices = cachedDevices;
+          if ($loadingIndicator) $loadingIndicator.hide();
+          showingNoDevicesPlaceholder = false;
+          if ($deviceName) $deviceName.attr('placeholder', defaultDevicePlaceholder);
+          if (!hasHueSelection()) {
+            applyNoDevicesPlaceholder(true);
+          }
+          updateTabsVisibility();
+        });
+
+        updateKnxVisibility();
+      },
+      oneditsave() {
+        try { RED.sidebar.show('info'); } catch (error) { /* empty */ }
+        detachHandlers();
+        cachedDevices = [];
+        const pinsSelection = $enablePinsSelect ? normalizePinsValue($enablePinsSelect.val()) : 'yes';
+        this.enableNodePINS = pinsSelection;
+        this.outputs = pinsSelection === 'yes' ? 1 : 0;
+        this._cachedBatteryDevices = [];
+        currentNode = null;
+      },
+      oneditcancel() {
+        try { RED.sidebar.show('info'); } catch (error) { /* empty */ }
+        detachHandlers();
+        cachedDevices = [];
+        this._cachedBatteryDevices = [];
+        currentNode = null;
+      },
+    });
+  }());
 </script>
 
 <script type="text/html" data-template-name="knxUltimateHueBattery">
-
-
-<div class="form-row">
-    <b>HUE Battery Sensor node</b>&nbsp&nbsp<span style="color:red"
-    &nbsp
-    &nbsp<i class="fa fa-youtube"></i></span>&nbsp<a target="_blank" href="https://youtu.be/jjEUI1J8bkA"><u>Youtube sample</u></a>
-    <br />
-    <br />
-    <p align="center">
-    <i class="fa-solid fa-battery-half fa-beat-fade fa-2x"></i>
-    </p>
-    <br />
-    <label for="node-input-server" >
-        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAKnRFWHRDcmVhdGlvbiBUaW1lAEZyIDYgQXVnIDIwMTAgMjE6NTI6MTkgKzAxMDD84aS8AAAAB3RJTUUH3gYYCicNV+4WIQAAAAlwSFlzAAALEgAACxIB0t1+/AAAAARnQU1BAACxjwv8YQUAAACUSURBVHjaY2CgFZg5c+Z/ZEyWAZ8+f/6/ZsWs/xoamqMGkGrA6Wla/1+fVARjEBuGsSoGmY4eZSCNL59d/g8DIDbIAHR14OgFGQByKjIGKX5+6/T///8gGMQGiV1+/B0Fg70GIkD+RMYgxf/O5/7//2MSmAZhkBi6OrgB6Bg5DGB4ajr3f2xqsYYLSDE2THJUDg0AAAqyDVd4tp4YAAAAAElFTkSuQmCC"></img>
-        KNX GW
+  <div class="form-row">
+    <label for="node-input-server">
+      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAKnRFWHRDcmVhdGlvbiBUaW1lAEZyIDYgQXVnIDIwMTAgMjE6NTI6MTkgKzAxMDD84aS8AAAAB3RJTUUH3gYYCicNV+4WIQAAAAlwSFlzAAALEgAACxIB0t1+/AAAAARnQU1BAACxjwv8YQUAAACUSURBVHjaY2CgFZg5c+Z/ZEyWAZ8+f/6/ZsWs/xoamqMGkGrA6Wla/1+fVARjEBuGsSoGmY4eZSCNL59d/g8DIDbIAHR14OgFGQByKjIGKX5+6/T///8gGMQGiV1+/B0Fg70GIkD+RMYgxf/O5/7//2MSmAZhkBi6OrgB6Bg5DGB4ajr3f2xqsYYLSDE2THJUDg0AAAqyDVd4tp4YAAAAAElFTkSuQmCC" />
+      <span data-i18n="common.knx_gw"></span>
     </label>
-    <input type="text" id="node-input-server" />
-</div>
+    <input type="text" id="node-input-server">
+  </div>
 
-<div class="form-row">
+  <div class="form-row">
     <label for="node-input-serverHue">
-        <img src="data:image/png;base64, iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAEKADAAQAAAABAAAAEAAAAAA0VXHyAAABFUlEQVQ4EZWSsWoCQRCG1yiENEFEi6QSkjqWWoqFoBYJ+Br6JHkMn8Iibd4ihQpaJIhWNkry/ZtdGZY78Qa+m39nZ+dm9s4550awglNBluS/gVtAX6KgDclf68w2OThgfR9iT/jnoEv4TtByDThWTCDKW4SSZTf/zj9/eZbN+izTDuKGimu0vPF8B/YN8aC8LmcOj/AAn9CFTEs70Js/oGqy79C69bqJ5XbQI2kGO5N8QL9D08S8zBtBF5ZaVsznpCMoqJnVdjTpb1Db0fwIWmQV6BLXzFOYgA6/gDVfQN9bBWp2J2hdWDPoBV5FrKnAJutHikk/CHHR8i7x4iG7qQ720IYvu3GFbpHjx3pFrOFYkA354z/5bkK826phyAAAAABJRU5ErkJggg=="/>
-        HUE Bridge
+      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAEKADAAQAAAABAAAAEAAAAAA0VXHyAAABFUlEQVQ4EZWSsWoCQRCG1yiENEFEi6QSkjqWWoqFoBYJ+Br6JHkMn8Iibd4ihQpaJIhWNkry/ZtdGZY78Qa+m39nZ+dm9s4550awglNBluS/gVtAX6KgDclf68w2OThgfR9iT/jnoEv4TtByDThWTCDKW4SSZTf/zj9/eZbN+izTDuKGimu0vPF8B/YN8aC8LmcOj/AAn9CFTEs70Js/oGqy79C69bqJ5XbQI2kGO5N8QL9D08S8zBtBF5ZaVsznpCMoqJnVdjTpb1Db0fwIWmQV6BLXzFOYgA6/gDVfQN9bBWp2J2hdWDPoBV5FrKnAJutHikk/CHHR8i7x4iG7qQ720IYvu3GFbpHjx3pFrOFYkA354z/5bkK826phyAAAAABJRU5ErkJggg=="/>
+      <span data-i18n="common.hue_bridge"></span>
     </label>
-    <input type="text" id="node-input-serverHue" />
-</div>
+    <input type="text" id="node-input-serverHue">
+  </div>
 
-<br/>
-<p>
-<b>Philips HUE</b>
-</p>
-    
-<div class="form-row">
-    <label for="node-input-hueDevice" >
-        <i class="fa fa-play-circle"></i>&nbspHue Sensor</label>
-        <input type="text" id="node-input-name" placeholder="Enter your hue device name" />
-    <input type="hidden" id="node-input-hueDevice" />
-</div>
+  <div class="form-row hue-requires-bridge">
+    <label for="node-input-name">
+      <i class="fa fa-battery-half"></i> <span data-i18n="knxUltimateHueBattery.hue_sensor"></span>
+    </label>
+    <input type="text" id="node-input-name" placeholder="Hue battery sensor" style="flex:1 1 240px; min-width:240px; max-width:240px;">
+    <button type="button" class="red-ui-button hue-refresh-devices" style="margin-left:6px; color:#1b7d33; border-color:#1b7d33;">
+      <i class="fa fa-sync"></i>
+    </button>
+    <span class="hue-devices-loading" style="margin-left:6px; display:none; color:#1b7d33;">
+      <i class="fa fa-circle-notch fa-spin"></i>
+    </span>
+  </div>
 
-<br/>
+  <div id="hue-battery-tabs">
+    <ul>
+      <li><a href="#hue-battery-tab-mapping"><i class="fa fa-map"></i> <span data-i18n="knxUltimateHueBattery.tabs.mapping"></span></a></li>
+      <li><a href="#hue-battery-tab-behaviour"><i class="fa fa-gear"></i> <span data-i18n="knxUltimateHueBattery.tabs.behaviour"></span></a></li>
+    </ul>
 
-<p>
-    <b>KNX</b>
-</p>
-
-    <div class="form-row">
-        <label for="node-input-namebatterysensor" style="width:100px;"><i class="fa fa-play-circle-o"></i> Level</span></label>
-
-        <label for="node-input-GAbatterysensor" style="width:20px;"><span data-i18n="common.ga"></span></label>
-        <input type="text" id="node-input-GAbatterysensor" placeholder="Ex: 1/1/1" style="width:70px;margin-left: 5px; text-align: left;">
-    
-        <label for="node-input-dptbatterysensor" style="width:40px; margin-left: 0px; text-align: right;"><span data-i18n="common.dpt"></span></label>
-        <select id="node-input-dptbatterysensor" style="width:140px;"></select>
-    
-        <label for="node-input-namebatterysensor" style="width:50px; margin-left: 0px; text-align: right;"><span data-i18n="common.name"></span></label>
-        <input type="text" id="node-input-namebatterysensor" style="width:200px;margin-left: 5px; text-align: left;">
+    <div id="hue-battery-tab-mapping">
+      <div class="form-tips hue-form-tip hue-knx-section">
+        <i class="fa fa-circle-info"></i>
+        <span data-i18n="knxUltimateHueBattery.mapping_info"></span>
+      </div>
+      <div class="form-row hue-knx-section">
+        <label for="node-input-GAbatterysensor" style="width:70px;"><span data-i18n="common.ga"></span></label>
+        <input type="text" id="node-input-GAbatterysensor" placeholder="1/1/1" style="width:80px; text-align:left;">
+        <label for="node-input-dptbatterysensor" style="width:40px; text-align:right;"><span data-i18n="common.dpt"></span></label>
+        <select id="node-input-dptbatterysensor" style="width:130px;"></select>
+        <label for="node-input-namebatterysensor" style="width:50px; text-align:right;"><span data-i18n="common.name"></span></label>
+        <input type="text" id="node-input-namebatterysensor" style="flex:1 1 140px; min-width:120px; text-align:left;" placeholder="Battery level">
+      </div>
     </div>
-   
-    <div class="form-row">
-        <label style="width:180px" for="node-input-readStatusAtStartup"><i class="fa fa-play-circle"></i> <span data-i18n="knxUltimateHueBattery.read_status_startup"></span></label>
-        <select id="node-input-readStatusAtStartup">
-            <option value="no" data-i18n="knxUltimateHueBattery.opt_no"></option>
-            <option value="yes" data-i18n="knxUltimateHueBattery.opt_yes_emit"></option>
+
+    <div id="hue-battery-tab-behaviour">
+      <div class="form-tips hue-form-tip">
+        <i class="fa fa-circle-info"></i>
+        <span data-i18n="knxUltimateHueBattery.behaviour_info"></span>
+      </div>
+      <div class="form-row">
+        <label for="node-input-readStatusAtStartup" style="width:220px;">
+          <i class="fa fa-question-circle"></i> <span data-i18n="knxUltimateHueBattery.read_status_startup"></span>
+        </label>
+        <select id="node-input-readStatusAtStartup" style="width:200px;">
+          <option value="yes" data-i18n="knxUltimateHueBattery.opt_yes_emit"></option>
+          <option value="no" data-i18n="knxUltimateHueBattery.opt_no"></option>
         </select>
+      </div>
+      <div class="form-row">
+        <label for="node-input-enableNodePINS" style="width:220px;">
+          <i class="fa fa-code"></i> <span data-i18n="knxUltimateHueBattery.node_pins"></span>
+        </label>
+        <select id="node-input-enableNodePINS" style="width:200px;">
+          <option value="yes" data-i18n="knxUltimateHueBattery.node_pins_show"></option>
+          <option value="no" data-i18n="knxUltimateHueBattery.node_pins_hide"></option>
+        </select>
+      </div>
     </div>
-<br/>
-<br/>
-<br/>
+  </div>
 
+  <div class="form-tips hue-form-tip hue-output-info" style="display:none;">
+    <i class="fa fa-circle-info"></i>
+    <span data-i18n="knxUltimateHueBattery.output_info"></span>
+  </div>
 
+  <input type="hidden" id="node-input-hueDevice">
 </script>

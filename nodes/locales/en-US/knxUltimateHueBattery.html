@@ -1,18 +1,25 @@
 <script type="text/markdown" data-help-name="knxUltimateHueBattery">
-<p>This node exposes the battery level of a HUE device to KNX and emits events when it changes.</p>
+<p>This node exposes the battery level of a Hue device to KNX and emits events whenever the value changes.</p>
 
-Start typing in the GA field the KNX device name or Group Address to map; devices appear while you type.
+Start typing in the GA field (name or Group Address) to pick a KNX group; matches appear while you type. Use the refresh button beside “Hue sensor” to reload the list from the Hue bridge.
 
 **General**
 |Property|Description|
 |--|--|
-| KNX GW | KNX gateway used to publish the battery level. |
-| HUE Bridge | Target HUE Bridge. |
-| HUE Sensor | HUE device/sensor providing the battery level (autocomplete). |
-| Read status at startup | Read current level at startup/reconnection and emit to KNX. Default: “no”. |
+| KNX GW | KNX gateway used to publish the battery level (required to show KNX mapping options). |
+| HUE Bridge | Target Hue bridge. |
+| HUE Sensor | Hue device/sensor providing the battery measurements (supports autocomplete and refresh). |
 
 **Mapping**
-| Property | Description |
+|Property|Description|
 |--|--|
-| Level | KNX GA for battery percentage (0–100%) — use DPT 5.001. |
+| Level | KNX GA for battery percentage (0–100%). Recommended DPT: <b>5.001</b>. |
+
+**Behaviour**
+|Property|Description|
+|--|--|
+| Read status at startup | On deploy/reconnect, read the current battery level and publish it to KNX. Default: “yes”. |
+| Node output pin | Show or hide the Node-RED output. When no KNX gateway is selected the output pin is enforced so events still reach the flow. |
+
+The KNX mapping widgets are hidden until a KNX gateway is selected, preventing accidental edits when the node is used only with Hue outputs.
 </script>
