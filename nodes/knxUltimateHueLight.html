@@ -431,25 +431,95 @@
           const $effectNoSupport = $("#divHueEffectsNoSupport");
           let effectOptions = [];
 
-          function populateEffectSelect($select, selectedValue) {
-            const current = selectedValue !== undefined ? selectedValue : $select.val();
-            $select.empty();
-            if (effectOptions.length === 0) {
-              if (current) {
-                $select.append($("<option></option>").attr("value", current).text(current));
-                $select.val(current);
+          const normalizeEffectEntry = (effect, { fallbackLabel } = {}) => {
+            if (effect === undefined || effect === null) return null;
+            if (typeof effect === 'string') {
+              const trimmed = effect.trim();
+              return trimmed === '' ? null : { value: trimmed, label: trimmed };
+            }
+            if (typeof effect === 'object') {
+              const nested = (candidate) => {
+                if (!candidate || typeof candidate !== 'object') return undefined;
+                return candidate.value ?? candidate.effect ?? candidate.id ?? candidate.code ?? candidate.type ?? candidate.name ?? candidate.title;
+              };
+              const statusCandidate = typeof effect.status === 'object' ? nested(effect.status) : undefined;
+              const rawValue = effect.value ?? effect.effect ?? statusCandidate ?? effect.status ?? effect.id ?? effect.type ?? effect.code;
+              const rawLabel = effect.label ?? effect.name ?? effect.title ?? effect.display ?? effect.display_name ?? effect.text ?? effect.description ?? (typeof effect.status === 'object' ? (effect.status.name ?? effect.status.title ?? effect.status.label) : undefined);
+              const value = rawValue !== undefined && rawValue !== null ? String(rawValue).trim() : '';
+              const labelSource = rawLabel !== undefined && rawLabel !== null ? rawLabel : (fallbackLabel !== undefined ? fallbackLabel : rawValue);
+              const label = labelSource !== undefined && labelSource !== null ? String(labelSource).trim() : '';
+              if (value === '') return null;
+              return { value, label: label === '' ? value : label };
+            }
+            const stringified = String(effect).trim();
+            return stringified === '' ? null : { value: stringified, label: stringified };
+          };
+
+          const collectEffectFallbacks = () => {
+            const fallback = [];
+            if (Array.isArray(node.effectRules)) {
+              node.effectRules.forEach((rule) => {
+                const entry = normalizeEffectEntry(rule ? rule.hueEffect : null);
+                if (entry) fallback.push(entry);
+              });
+            }
+            return fallback;
+          };
+
+          const collectHueDeviceObjectEffects = () => {
+            const fallback = [];
+            if (node.hueDeviceObject && node.hueDeviceObject.effects && Array.isArray(node.hueDeviceObject.effects.status_values)) {
+              node.hueDeviceObject.effects.status_values.forEach((raw) => {
+                const entry = normalizeEffectEntry(raw);
+                if (entry) fallback.push(entry);
+              });
+            }
+            return fallback;
+          };
+
+          const getAllEffectOptions = () => {
+            const combined = [];
+            const pushUnique = (entry, { forceFront = false } = {}) => {
+              if (!entry || !entry.value) return;
+              const existingIndex = combined.findIndex((candidate) => candidate.value === entry.value);
+              if (existingIndex !== -1) {
+                if (forceFront && existingIndex > 0) {
+                  const [existing] = combined.splice(existingIndex, 1);
+                  combined.unshift(existing);
+                }
+                return;
               }
-              return;
-            }
-            effectOptions.forEach((effect) => {
-              $select.append($("<option></option>").attr("value", effect).text(effect));
+              if (forceFront) {
+                combined.unshift(entry);
+              } else {
+                combined.push(entry);
+              }
+            };
+
+            pushUnique({ value: 'no_effect', label: 'no_effect' }, { forceFront: true });
+
+            effectOptions.forEach((option) => pushUnique(option));
+            collectHueDeviceObjectEffects().forEach((option) => pushUnique(option));
+            collectEffectFallbacks().forEach((option) => pushUnique(option));
+
+            return combined;
+          };
+
+          function populateEffectSelect($select, selectedValue) {
+            const targetValue = selectedValue !== undefined && selectedValue !== null
+              ? String(selectedValue).trim()
+              : '';
+            const entries = getAllEffectOptions();
+            $select.empty();
+            entries.forEach((entry) => {
+              $select.append($("<option></option>").attr("value", entry.value).text(entry.label));
             });
-            if (current && !effectOptions.includes(current)) {
-              $select.append($("<option></option>").attr("value", current).text(current));
+            if (targetValue && entries.some((entry) => entry.value === targetValue)) {
+              $select.val(targetValue);
+            } else if (!targetValue && entries.length > 0) {
+              $select.val(entries[0].value);
             }
-            if (current) {
-              $select.val(current);
-            }
+            return entries.map((entry) => entry.value);
           }
 
           function decorateEffectValueInput() { }
@@ -460,14 +530,21 @@
             items.each(function () {
               const $row = $(this);
               const $select = $row.find('select.rowEffectHueEffect');
-              populateEffectSelect($select);
+              const currentValue = $select.val();
+              populateEffectSelect($select, currentValue);
               decorateEffectValueInput($row.find('.rowEffectKNXValue'));
             });
           }
 
           function setAvailableEffects(effects) {
-            effectOptions = Array.isArray(effects) ? effects.filter((e) => e !== undefined && e !== null && e !== '') : [];
-            if (effectOptions.length > 0 && !effectOptions.includes('no_effect')) effectOptions.unshift('no_effect');
+            const sanitized = [];
+            if (Array.isArray(effects)) {
+              effects.forEach((raw) => {
+                const entry = normalizeEffectEntry(raw);
+                if (entry) sanitized.push(entry);
+              });
+            }
+            effectOptions = sanitized;
             const hasMappings = Array.isArray(node.effectRules) && node.effectRules.length > 0;
             const hasOptions = effectOptions.length > 0;
 
@@ -506,9 +583,9 @@
                   class: 'rowEffectHueEffect',
                   style: 'width:45%;'
                 }).appendTo(row);
-                populateEffectSelect($select, data.hueEffect || '');
-                if (!data.hueEffect && effectOptions.length > 0) {
-                  $select.val(effectOptions[0]);
+                const availableOptions = populateEffectSelect($select, data.hueEffect);
+                if ((!data || !data.hueEffect) && availableOptions.length > 0) {
+                  $select.val(availableOptions[0]);
                 }
                 bindEffectRowEvents(row);
               },
@@ -541,7 +618,8 @@
             const items = $effectList.editableList('items');
             items.each(function () { $(this).remove(); });
             effectOptions.forEach((effect) => {
-              $effectList.editableList('addItem', { rule: { knxValue: effect, hueEffect: effect } });
+              if (!effect || !effect.value) return;
+              $effectList.editableList('addItem', { rule: { knxValue: effect.value, hueEffect: effect.value } });
             });
             refreshEffectRows();
             rebuildEffectRulesFromUI();
