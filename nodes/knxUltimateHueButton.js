@@ -52,6 +52,19 @@ module.exports = function (RED) {
       }
     };
 
+    const safeSendToKNX = (telegram, context = 'write') => {
+      try {
+        if (!node.serverKNX || typeof node.serverKNX.sendKNXTelegramToKNXEngine !== 'function') {
+          const now = new Date();
+          updateStatus({ fill: 'red', shape: 'dot', text: `KNX server missing (${context}) (${now.getDate()}, ${now.toLocaleTimeString()})` });
+          return;
+        }
+        node.serverKNX.sendKNXTelegramToKNXEngine({ ...telegram, nodecallerid: node.id });
+      } catch (error) {
+        updateStatus({ fill: 'red', shape: 'dot', text: `KNX send error ${error.message}` });
+      }
+    };
+
     // Used to call the status update from the config node.
     node.setNodeStatus = ({
       fill, shape, text, payload,
@@ -149,10 +162,10 @@ module.exports = function (RED) {
                 knxMsgPayload.dpt = config.dptshort_release;
                 knxMsgPayload.payload = node.short_releaseValue;
                 // Send to KNX bus
-                if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined && node.serverKNX !== undefined) {
-                  node.serverKNX.sendKNXTelegramToKNXEngine({
-                    grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id,
-                  });
+                if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) {
+                  safeSendToKNX({
+                    grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write',
+                  }, 'write');
                 }
                 if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) {
                   node.setNodeStatusHue({
@@ -174,10 +187,10 @@ module.exports = function (RED) {
                     knxMsgPayload.payload = node.long_pressValue ? { decr_incr: 0, data: 3 } : { decr_incr: 1, data: 3 }; // If the light is turned on, the initial DIM direction must be down, otherwise, up
                   }
                   // Send to KNX bus
-                  if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined && node.serverKNX !== undefined) {
-                    node.serverKNX.sendKNXTelegramToKNXEngine({
-                      grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id,
-                    });
+                  if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) {
+                    safeSendToKNX({
+                      grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write',
+                    }, 'write');
                   }
                   if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) {
                     node.setNodeStatusHue({
@@ -224,10 +237,10 @@ module.exports = function (RED) {
       node.isTimerDimStopRunning = false;
       knxMsgPayload.payload = { decr_incr: 0, data: 0 }; // Payload for the output msg
       // Send to KNX bus
-      if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined && node.serverKNX !== undefined) {
-        node.serverKNX.sendKNXTelegramToKNXEngine({
-          grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id,
-        });
+      if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) {
+        safeSendToKNX({
+          grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write',
+        }, 'write');
         node.setNodeStatusHue({
           fill: 'grey', shape: 'ring', text: 'HUE->KNX STOP DIM', payload: knxMsgPayload.payload,
         });

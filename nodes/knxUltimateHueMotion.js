@@ -47,6 +47,19 @@ module.exports = function (RED) {
       }
     };
 
+    const safeSendToKNX = (telegram, context = 'write') => {
+      try {
+        if (!node.serverKNX || typeof node.serverKNX.sendKNXTelegramToKNXEngine !== 'function') {
+          const now = new Date();
+          updateStatus({ fill: 'red', shape: 'dot', text: `KNX server missing (${context}) (${now.getDate()}, ${now.toLocaleTimeString()})` });
+          return;
+        }
+        node.serverKNX.sendKNXTelegramToKNXEngine({ ...telegram, nodecallerid: node.id });
+      } catch (error) {
+        updateStatus({ fill: 'red', shape: 'dot', text: `KNX send error ${error.message}` });
+      }
+    };
+
     // Used to call the status update from the config node.
     node.setNodeStatus = ({
       fill, shape, text, payload,
@@ -90,13 +103,12 @@ module.exports = function (RED) {
             knxMsgPayload.payload = _event.motion.motion_report.motion;
             // Send to KNX bus
             if (knxMsgPayload.topic !== "" && knxMsgPayload.topic !== undefined) {
-              node.serverKNX.sendKNXTelegramToKNXEngine({
+              safeSendToKNX({
                 grpaddr: knxMsgPayload.topic,
                 payload: knxMsgPayload.payload,
                 dpt: knxMsgPayload.dpt,
                 outputtype: "write",
-                nodecallerid: node.id,
-              });
+              }, 'write');
             }
             updateStatus({
               fill: "green",

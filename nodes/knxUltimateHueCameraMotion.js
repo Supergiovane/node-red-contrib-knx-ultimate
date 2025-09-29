@@ -50,6 +50,19 @@ module.exports = function (RED) {
       }
     };
 
+    const safeSendToKNX = (telegram, context = 'write') => {
+      try {
+        if (!node.serverKNX || typeof node.serverKNX.sendKNXTelegramToKNXEngine !== 'function') {
+          const now = new Date();
+          updateStatus({ fill: 'red', shape: 'dot', text: `KNX server missing (${context}) (${now.getDate()}, ${now.toLocaleTimeString()})` });
+          return;
+        }
+        node.serverKNX.sendKNXTelegramToKNXEngine({ ...telegram, nodecallerid: node.id });
+      } catch (error) {
+        updateStatus({ fill: 'red', shape: 'dot', text: `KNX send error ${error.message}` });
+      }
+    };
+
     node.setNodeStatus = ({ fill, shape, text, payload }) => {
       try {
         if (payload === undefined) payload = '';
@@ -128,14 +141,13 @@ module.exports = function (RED) {
           rawEvent: _event,
         };
 
-        if (node.serverKNX && knxMsgPayload.topic) {
-          node.serverKNX.sendKNXTelegramToKNXEngine({
+        if (knxMsgPayload.topic) {
+          safeSendToKNX({
             grpaddr: knxMsgPayload.topic,
             payload: knxMsgPayload.payload,
             dpt: knxMsgPayload.dpt,
             outputtype: 'write',
-            nodecallerid: node.id,
-          });
+          }, 'write');
         }
         node.currentDeviceValue = knxMsgPayload.payload;
 
@@ -171,13 +183,12 @@ module.exports = function (RED) {
         payload: _level === true || _level === 1 || _level === '1' ? true : false,
       };
       if (knxMsgPayload.topic) {
-        node.serverKNX.sendKNXTelegramToKNXEngine({
+        safeSendToKNX({
           grpaddr: knxMsgPayload.topic,
           payload: knxMsgPayload.payload,
           dpt: knxMsgPayload.dpt,
           outputtype: 'response',
-          nodecallerid: node.id,
-        });
+        }, 'response');
       }
     };
 

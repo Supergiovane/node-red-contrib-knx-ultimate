@@ -41,6 +41,26 @@ module.exports = function (RED) {
       return true;
     };
 
+    const updateStatus = (status) => {
+      if (!status) return;
+      if (shouldDisplayStatus(status.fill)) {
+        node.status(status);
+      }
+    };
+
+    const safeSendToKNX = (telegram, context = 'write') => {
+      try {
+        if (!node.serverKNX || typeof node.serverKNX.sendKNXTelegramToKNXEngine !== 'function') {
+          const now = new Date();
+          updateStatus({ fill: 'red', shape: 'dot', text: `KNX server missing (${context}) (${now.getDate()}, ${now.toLocaleTimeString()})` });
+          return;
+        }
+        node.serverKNX.sendKNXTelegramToKNXEngine({ ...telegram, nodecallerid: node.id });
+      } catch (error) {
+        updateStatus({ fill: 'red', shape: 'dot', text: `KNX send error ${error.message}` });
+      }
+    };
+
     // Used to call the status update from the config node.
     node.setNodeStatus = ({
       fill, shape, text, payload,
@@ -96,9 +116,9 @@ module.exports = function (RED) {
           knxMsgPayload.payload = (_event.state !== "no_update");
           // Send to KNX bus
           if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) {
-            node.serverKNX.sendKNXTelegramToKNXEngine({
-              grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write', nodecallerid: node.id,
-            });
+            safeSendToKNX({
+              grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write',
+            }, 'write');
           }
           node.currentDeviceValue = knxMsgPayload.payload;
           // Setup the output msg
@@ -128,9 +148,9 @@ module.exports = function (RED) {
       knxMsgPayload.payload = _level;
       // Send to KNX bus
       if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) {
-        node.serverKNX.sendKNXTelegramToKNXEngine({
-          grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'response', nodecallerid: node.id,
-        });
+        safeSendToKNX({
+          grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'response',
+        }, 'response');
       }
     };
 

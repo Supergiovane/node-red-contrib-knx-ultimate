@@ -3,6 +3,10 @@
     "paletteLabel": "Sensore contatto Hue",
     "hue_sensor": "Sensore contatto Hue",
     "no_devices": "Nessun sensore contatto Hue disponibile",
+    "placeholders": {
+      "device": "Sensore contatto Hue",
+      "contact_ga": "Nome GA contatto"
+    },
     "tabs": {
       "mapping": "Associazione"
     },

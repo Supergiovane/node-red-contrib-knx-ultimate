@@ -54,6 +54,19 @@ module.exports = function (RED) {
       }
     };
 
+    const safeSendToKNX = (telegram, context = 'write') => {
+      try {
+        if (!node.serverKNX || typeof node.serverKNX.sendKNXTelegramToKNXEngine !== 'function') {
+          const now = new Date();
+          updateStatus({ fill: 'red', shape: 'dot', text: `KNX server missing (${context}) (${now.getDate()}, ${now.toLocaleTimeString()})` });
+          return;
+        }
+        node.serverKNX.sendKNXTelegramToKNXEngine({ ...telegram, nodecallerid: node.id });
+      } catch (error) {
+        updateStatus({ fill: 'red', shape: 'dot', text: `KNX send error ${error.message}` });
+      }
+    };
+
     node.setNodeStatus = ({
       fill, shape, text, payload,
     }) => {
@@ -82,14 +95,13 @@ module.exports = function (RED) {
       knxMsgPayload.topic = config.GAPlugState;
       knxMsgPayload.dpt = config.dptPlugState;
       knxMsgPayload.payload = Boolean(_value);
-      if (knxMsgPayload.topic && node.serverKNX) {
-        node.serverKNX.sendKNXTelegramToKNXEngine({
+      if (knxMsgPayload.topic) {
+        safeSendToKNX({
           grpaddr: knxMsgPayload.topic,
           payload: knxMsgPayload.payload,
           dpt: knxMsgPayload.dpt,
           outputtype: _outputtype,
-          nodecallerid: node.id,
-        });
+        }, _outputtype);
       }
       node.setNodeStatusHue({
         fill: 'blue',
@@ -105,14 +117,13 @@ module.exports = function (RED) {
       knxMsgPayload.topic = config.GAPlugPowerState;
       knxMsgPayload.dpt = config.dptPlugPowerState;
       knxMsgPayload.payload = Boolean(_value);
-      if (knxMsgPayload.topic && node.serverKNX) {
-        node.serverKNX.sendKNXTelegramToKNXEngine({
+      if (knxMsgPayload.topic) {
+        safeSendToKNX({
           grpaddr: knxMsgPayload.topic,
           payload: knxMsgPayload.payload,
           dpt: knxMsgPayload.dpt,
           outputtype: _outputtype,
-          nodecallerid: node.id,
-        });
+        }, _outputtype);
       }
       node.setNodeStatusHue({
         fill: 'blue',

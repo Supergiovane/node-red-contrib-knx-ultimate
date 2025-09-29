@@ -186,3 +186,30 @@ function KNX_makeSelectSearchable($select) {
 })();
 
 window.KNX_makeSelectSearchable = KNX_makeSelectSearchable;
+
+// Ensure autocomplete lists open immediately on focus/click
+(function($){
+    if (!$.ui || !$.ui.autocomplete) return;
+    const _create = $.ui.autocomplete.prototype._create;
+    $.ui.autocomplete.prototype._create = function(){
+        _create.call(this);
+        const self = this;
+        const showAll = (val) => {
+            if (self.options.disabled) return;
+            const term = (typeof val === 'string') ? val : self.element.val() || '';
+            const minLen = self.options.minLength || 0;
+            const query = term.length >= minLen ? term : '';
+            try {
+                self.search(query);
+            } catch (error) { }
+        };
+        this.element.on('focus.knxAutocomplete click.knxAutocomplete', function(){
+            clearTimeout(self._knxAutoTimer);
+            self._knxAutoTimer = setTimeout(function(){ showAll(); }, 0);
+        });
+        this.element.on('mousedown.knxAutocomplete', function(){
+            clearTimeout(self._knxAutoTimer);
+            self._knxAutoTimer = setTimeout(function(){ showAll(''); }, 0);
+        });
+    };
+})(jQuery);

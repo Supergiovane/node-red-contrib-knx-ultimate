@@ -3,6 +3,10 @@
     "paletteLabel": "Hue 接触传感器",
     "hue_sensor": "Hue 接触传感器",
     "no_devices": "没有可用的 Hue 接触传感器",
+    "placeholders": {
+      "device": "Hue 接触传感器",
+      "contact_ga": "接触 GA 名称"
+    },
     "tabs": {
       "mapping": "映射"
     },

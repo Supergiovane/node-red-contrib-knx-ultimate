@@ -54,6 +54,19 @@ module.exports = function (RED) {
       }
     };
 
+    const safeSendToKNX = (telegram, context = 'write') => {
+      try {
+        if (!node.serverKNX || typeof node.serverKNX.sendKNXTelegramToKNXEngine !== 'function') {
+          const now = new Date();
+          updateStatus({ fill: 'red', shape: 'dot', text: `KNX server missing (${context}) (${now.getDate()}, ${now.toLocaleTimeString()})` });
+          return;
+        }
+        node.serverKNX.sendKNXTelegramToKNXEngine({ ...telegram, nodecallerid: node.id });
+      } catch (error) {
+        updateStatus({ fill: 'red', shape: 'dot', text: `KNX send error ${error.message}` });
+      }
+    };
+
     // Used to call the status update from the config node.
     node.setNodeStatus = ({
       fill, shape, text, payload,
@@ -151,14 +164,13 @@ module.exports = function (RED) {
           if (_event.hasOwnProperty("status") && _event.status.hasOwnProperty("active")) {
             knxMsgPayload.payload = _event.status.active !== "inactive";
             // Send to KNX bus
-            if (knxMsgPayload.topic !== "" && knxMsgPayload.topic !== undefined && node.serverKNX !== undefined) {
-              node.serverKNX.sendKNXTelegramToKNXEngine({
+            if (knxMsgPayload.topic !== "" && knxMsgPayload.topic !== undefined) {
+              safeSendToKNX({
                 grpaddr: knxMsgPayload.topic,
                 payload: knxMsgPayload.payload,
                 dpt: knxMsgPayload.dpt,
                 outputtype: "write",
-                nodecallerid: node.id,
-              });
+              }, 'write');
             }
             updateStatus({
               fill: "blue",

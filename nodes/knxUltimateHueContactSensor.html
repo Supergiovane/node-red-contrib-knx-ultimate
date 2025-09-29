@@ -17,6 +17,8 @@
     let $outputInfo = null;
 
     const EMPTY_SERVER_VALUES = new Set(['', 'none', '_add_', '__none__', '__null__', 'null', 'undefined']);
+    const DEVICE_PLACEHOLDER_KEY = 'node-red-contrib-knx-ultimate/knxUltimateHueContactSensor:knxUltimateHueContactSensor.placeholders.device';
+    const NO_DEVICES_KEY = 'node-red-contrib-knx-ultimate/knxUltimateHueContactSensor:knxUltimateHueContactSensor.no_devices';
 
     const ensureVerticalTabsStyle = () => {
       if ($('#knxUltimateHueContactVerticalTabs').length) return;
@@ -143,7 +145,9 @@
         }
         return;
       }
-      const message = RED._('node-red-contrib-knx-ultimate/knxUltimateHueContactSensor:knxUltimateHueContactSensor.no_devices');
+      const translated = RED._(NO_DEVICES_KEY);
+      const fallback = RED._(DEVICE_PLACEHOLDER_KEY);
+      const message = (!translated || translated === NO_DEVICES_KEY) ? (fallback || defaultDevicePlaceholder) : translated;
       showingNoDevicesPlaceholder = true;
       $deviceName.attr('placeholder', message);
       if (($deviceName.val() || '').trim() === '') {
@@ -376,7 +380,10 @@
         cachedDevices = Array.isArray(node._cachedContactDevices) ? node._cachedContactDevices : [];
         node._cachedContactDevices = cachedDevices;
 
-        defaultDevicePlaceholder = $deviceName.attr('placeholder') || '';
+        defaultDevicePlaceholder = RED._(DEVICE_PLACEHOLDER_KEY) || $deviceName.attr('placeholder') || '';
+        if ($deviceName && defaultDevicePlaceholder) {
+          $deviceName.attr('placeholder', defaultDevicePlaceholder);
+        }
         showingNoDevicesPlaceholder = false;
 
         $tabs.addClass('hue-vertical-tabs');
@@ -433,7 +440,7 @@
           node._cachedContactDevices = cachedDevices;
           if ($loadingIndicator) $loadingIndicator.hide();
           showingNoDevicesPlaceholder = false;
-          if ($deviceName) {
+          if ($deviceName && defaultDevicePlaceholder) {
             $deviceName.attr('placeholder', defaultDevicePlaceholder);
           }
           if (!hasHueSelection()) {
@@ -483,7 +490,7 @@
     <label for="node-input-name">
       <i class="fa fa-tag"></i> <span data-i18n="knxUltimateHueContactSensor.hue_sensor"></span>
     </label>
-    <input type="text" id="node-input-name" placeholder="Hue contact sensor" style="flex:1 1 240px; min-width:240px; max-width:240px;">
+    <input type="text" id="node-input-name" placeholder="Hue contact sensor" data-i18n="[placeholder]node-red-contrib-knx-ultimate/knxUltimateHueContactSensor:knxUltimateHueContactSensor.placeholders.device" style="flex:1 1 240px; min-width:240px; max-width:240px;">
     <button type="button" class="red-ui-button hue-refresh-devices" style="margin-left:6px; color:#1b7d33; border-color:#1b7d33;">
       <i class="fa fa-sync"></i>
     </button>
@@ -508,7 +515,7 @@
         <label for="node-input-dptcontact" style="width:40px; text-align:right;"><span data-i18n="common.dpt"></span></label>
         <select id="node-input-dptcontact" style="width:130px;"></select>
         <label for="node-input-namecontact" style="width:50px; text-align:right;"><span data-i18n="common.name"></span></label>
-        <input type="text" id="node-input-namecontact" style="flex:1 1 140px; min-width:120px; text-align:left;" placeholder="Contact GA">
+        <input type="text" id="node-input-namecontact" style="flex:1 1 140px; min-width:120px; text-align:left;" placeholder="Contact GA" data-i18n="[placeholder]node-red-contrib-knx-ultimate/knxUltimateHueContactSensor:knxUltimateHueContactSensor.placeholders.contact_ga">
       </div>
     </div>
   </div>

@@ -3,6 +3,10 @@
     "paletteLabel": "Capteur de contact de la teinte",
     "hue_sensor": "Capteur de contact de la teinte",
     "no_devices": "Pas de capteurs de contact Hue disponibles",
+    "placeholders": {
+      "device": "Capteur de contact Hue",
+      "contact_ga": "Nom GA contact"
+    },
     "tabs": {
       "mapping": "Cartographie"
     },
