@@ -1,0 +1,28 @@
+{
+  "knxUltimateHueTapDial": {
+    "title": "Nodo de marcado de toque de tono (rotativo)",
+    "paletteLabel": "Dial de tono de tono",
+    "hue_device": "Dial de tono de tono",
+    "tabs": {
+      "mapping": "Cartografía",
+      "behaviour": "Comportamiento"
+    },
+    "mapping_info": "Enlace los eventos de rotación del dial de tono de tono a una dirección de grupo KNX.",
+    "behaviour_info": "Decida si el pin de salida de red de nodo debe permanecer visible cuando la entrega KNX está deshabilitada.",
+    "node_pins": "Pasadores de entrada/salida del nodo",
+    "node_pins_hide": "Esconderse",
+    "node_pins_show": "Mostrar pines de entrada/salida del nodo",
+    "output_info": "Sin una puerta de enlace KNX, la salida del flujo permanece habilitada para que los eventos de tono continúen alcanzando el nodo-rojo.",
+    "no_devices": "No se encuentran dispositivos de marcación de toque de tono. Use el icono de actualización después de combinar un nuevo dial."
+  },
+  "common": {
+    "ga": "Georgia",
+    "dpt": "DPT",
+    "name": "Nombre",
+    "youtube_sample": "Muestra de youtube",
+    "knx_gw": "KNX GW",
+    "hue_bridge": "Puente de tono",
+    "philips_hue": "Tono Philips",
+    "read": "Leer"
+  }
+}

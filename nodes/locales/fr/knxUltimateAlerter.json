@@ -1,0 +1,24 @@
+{
+  "knxUltimateAlerter": {
+    "paletteLabel": "Alerter KNX",
+    "title": "Nœud d'alerte",
+    "properties": {
+      "node-input-server": "Porte",
+      "node-input-name": "Nom",
+      "node-input-timerinterval": "Intervalle entre chaque MSG (en secondes)",
+      "node-input-whentostart": "Type de démarrage du cycle d'alerte",
+      "node-input-initialread": "Lire la valeur de chaque périphérique sur la connexion / reconnecter",
+      "node-input-initialread0": "Non",
+      "node-input-initialread1": "Lire depuis KNX Bus",
+      "node-input-initialreadGAInRules": "Lire les états au début / reconnexion"
+    },
+    "selectlists": {
+      "manualstart": "Démarrer le cycle d'alerte manuellement via un message entrant",
+      "ifnewalert": "Démarrez le cycle d'alerte avec chaque nouvel appareil alerté"
+    },
+    "other": {
+      "sceneConfig": "Appareils à surveiller (DPT doit être booléen)",
+      "add": "Appuyez sur Ajouter, pour ajouter un appareil"
+    }
+  }
+}

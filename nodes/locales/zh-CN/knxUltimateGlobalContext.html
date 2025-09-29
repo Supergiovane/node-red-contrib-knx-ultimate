@@ -1,15 +1,15 @@
 <script type="text/markdown" data-help-name="knxUltimateGlobalContext">
-<!-- <img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/simple2.png" width="40%"><br/> -->
 # KNX 全局变量
 
-该节点将从总线收到的组地址映射到全局上下文变量，  
+该节点将从总线收到的组地址映射到全局上下文变量，\
 并允许通过该变量向 KNX 总线写入。
 
 ## 概览
-- 将 Global Context 节点加入流程并命名；该名称作为全局变量的基础名。  
-- 读取使用后缀 `_READ`（如 `MyVar_READ`）。  
-- 写入使用后缀 `_WRITE`（如 `MyVar_WRITE`）。  
-- 可在配置中将变量暴露为只读或读/写。  
+
+- 将 Global Context 节点加入流程并命名；该名称作为全局变量的基础名。
+- 读取使用后缀 `_READ`（如 `MyVar_READ`）。
+- 写入使用后缀 `_WRITE`（如 `MyVar_WRITE`）。
+- 可在配置中将变量暴露为只读或读/写。
 - 出于安全考虑，请修改默认名称。
 
 注意：写入执行后，`<Name>_WRITE` 会被自动清空，避免反复写入。
@@ -30,17 +30,14 @@
   address: "0/0/1",
   dpt: "1.001",
   payload: true,
-  devicename: "Dinning Room->Table Light",
-  lastupdate: "2024-07-10T18:30:25.123Z",
-  lastupdateLocale: "2024/7/10 20:30:25"
+  devicename: "Dinning Room->Table Light"
 }
 ```
-
-`lastupdate` 采用 ISO 8601 格式，`lastupdateLocale` 则依据本地设置输出易读的日期时间。
 
 ## 快速用法
 
 ### 读取变量
+
 ```javascript
 const list = global.get("KNXContextBanana_READ") || [];
 node.send({ payload: list });
@@ -51,6 +48,7 @@ if (ga && ga.payload === false) return { payload: "FOUND AND FALSE" };
 ```
 
 ### 通过变量写入总线
+
 ```javascript
 const toSend = [];
 toSend.push({ address: "0/0/10", dpt: "1.001", payload: msg.payload });

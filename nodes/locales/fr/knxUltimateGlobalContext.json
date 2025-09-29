@@ -1,0 +1,21 @@
+{
+  "knxUltimateGlobalContext": {
+    "paletteLabel": "Contexte mondial KNX",
+    "title": "Contexte mondial KNX",
+    "node-input-name": "Nom variable (pas d'espaces, seulement Chars [A-Z])",
+    "advanced": {
+      "exposeAsVariable": "Exposer en tant que variable globale",
+      "exposeAsVariableNO": "Non",
+      "exposeAsVariableREADONLY": "Lire uniquement",
+      "exposeAsVariableREADWRITE": "Lire / écrire",
+      "node-input-server": "Porte",
+      "writeExecutionInterval": "Intervalle d'écriture de bus",
+      "warning": "Avertissement: un seul nœud est partagé entre tous les flux. Vous n'avez pas besoin de plus d'un nœud; Peu importe où il se trouve, vous pouvez voir la variable à l'échelle mondiale."
+    },
+    "interval_250ms": "250 ms",
+    "interval_500ms": "500 ms",
+    "interval_1000ms_default": "1000 ms (par défaut)",
+    "interval_1500ms": "1500 ms",
+    "interval_2000ms": "2000 ms"
+  }
+}

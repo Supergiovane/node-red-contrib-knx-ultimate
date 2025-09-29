@@ -1,0 +1,29 @@
+{
+  "knxUltimateSceneController": {
+    "paletteLabel": "Contrôleur de scène KNX",
+    "title": "Contrôleur de scène",
+    "properties": {
+      "node-input-server": "Porte",
+      "node-input-topic": "Rappel de la scène",
+      "node-input-dpt": "Point de données",
+      "node-input-topicTrigger": "Déclenchement",
+      "node-input-topicSave": "Sage à l'exception",
+      "node-input-name": "Nom de nœud",
+      "node-input-outputtopic": "Sujet"
+    },
+    "placeholder": {
+      "leaveempty": "Laisser vide pour utiliser l'adresse du groupe",
+      "valueexample": "Ex: faux, vrai, sinon toute valeur"
+    },
+    "other": {
+      "sceneConfig": "Configuration des valeurs par défaut de scène",
+      "add": "Appuyez sur Ajouter, pour ajouter un appareil dans la scène"
+    },
+    "advanced": {
+      "notify-DPT3007": "Vous avez sélectionné un dim relatif. Veuillez __ph_0__ cliquez ici pour afficher cet exemple__ph_1__ et apprenez à gérer une telle charge utile.",
+      "notify-DPT18001": "Vous avez sélectionné un point de données de scène. Veuillez __ph_0__ cliquez ici pour afficher cet exemple__ph_1__ et apprenez à gérer une telle charge utile.",
+      "notify-DPT232600": "Vous avez sélectionné un point de données RVB. Veuillez __ph_0__ cliquez ici pour afficher cet exemple__ph_1__ et apprenez à gérer une telle charge utile.",
+      "notify-DPT251600": "Vous avez sélectionné un point de données RGBW. Veuillez __ph_0__ cliquez ici pour afficher cet exemple__ph_1__ et apprenez à gérer une telle charge utile."
+    }
+  }
+}

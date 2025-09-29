@@ -1,0 +1,30 @@
+{
+  "knxUltimateHueHumiditySensor": {
+    "paletteLabel": "Capteur d'humidité de la teinte",
+    "heading": "Nœud de capteur d'humidité de la teinte",
+    "hue_sensor": "Capteur de teinte",
+    "no_devices": "Aucun appareil disponible",
+    "tabs": {
+      "humidity": "Humidité",
+      "behaviour": "Comportement"
+    },
+    "humidity_info": "Reliez votre adresse de groupe d'humidité KNX pour recevoir l'humidité relative (%).",
+    "node_pins": "Broche de sortie du nœud",
+    "node_pins_hide": "Cacher",
+    "node_pins_show": "Afficher la broche de sortie du nœud-rouge",
+    "output_info": "Aucune passerelle KNX sélectionnée. Lorsque la broche de sortie du nœud-rouge est activée, les événements Hue sont toujours émis dans votre flux.",
+    "read_status_startup": "Lire l'état au démarrage",
+    "opt_no": "Non",
+    "opt_yes_emit": "Oui, et émettez des télégrammes KNX."
+  },
+  "common": {
+    "ga": "Géorgie",
+    "dpt": "Dpt",
+    "name": "Nom",
+    "youtube_sample": "Échantillon YouTube",
+    "knx_gw": "KNX GW",
+    "hue_bridge": "Pont Hue",
+    "philips_hue": "Hue Philips",
+    "read": "Lire"
+  }
+}

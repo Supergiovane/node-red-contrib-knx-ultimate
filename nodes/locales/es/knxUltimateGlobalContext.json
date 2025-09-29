@@ -1,0 +1,21 @@
+{
+  "knxUltimateGlobalContext": {
+    "paletteLabel": "Contexto global de KNX",
+    "title": "Contexto global de KNX",
+    "node-input-name": "Nombre de la variable (sin espacios, solo chars [A-Z])",
+    "advanced": {
+      "exposeAsVariable": "Exponer como variable global",
+      "exposeAsVariableNO": "No",
+      "exposeAsVariableREADONLY": "Solo lectura",
+      "exposeAsVariableREADWRITE": "Leer/escribir",
+      "node-input-server": "Puerta",
+      "writeExecutionInterval": "Intervalo de escritura de autobús",
+      "warning": "Advertencia: se comparte un solo nodo entre todos los flujos. No necesitas más de un nodo; Independientemente de dónde esté, puede ver la variable a nivel mundial."
+    },
+    "interval_250ms": "250 ms",
+    "interval_500ms": "500 ms",
+    "interval_1000ms_default": "1000 ms (predeterminado)",
+    "interval_1500ms": "1500 ms",
+    "interval_2000ms": "2000 ms"
+  }
+}

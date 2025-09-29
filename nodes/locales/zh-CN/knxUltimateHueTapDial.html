@@ -1,28 +1,45 @@
 <script type="text/markdown" data-help-name="knxUltimateHueTapDial">
-<p>将 Hue Tap Dial 的旋转服务映射到 KNX，并把原始 Hue 事件发送到流程。设备上的四个按钮由 <b>Hue Button</b> 节点处理；此节点仅处理旋转部分。配对新设备后，请点击“Hue Tap Dial”字段旁的刷新图标。</p>
+🌐 语言: [简体中文](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/zh-CN-HUE+Tapdial) | [EN](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/HUE+Tapdial) | [IT](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/it-HUE+Tapdial) | [DE](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/de-HUE+Tapdial)
 
-**通用**
+<!-- NAV START -->
+导航: [首页](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/zh-CN-Home)
+概览: [Changelog](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/blob/master/CHANGELOG.md) • [常见问题](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/zh-CN-FAQ-Troubleshoot) • [安全](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/zh-CN-SECURITY) • [文档：语言栏](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/zh-CN-Docs-Language-Bar)
+KNX 设备: [网关](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/zh-CN-Gateway-configuration) • [设备](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/zh-CN-KNX+Node+Configuration) • [节点保护](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/zh-CN-Protections)
+其他 KNX 节点: [场景控制器](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/zh-CN-SceneController-Configuration) • [看门狗](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/zh-CN-WatchDog-Configuration) • [日志节点](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/zh-CN-Logger-Configuration) • [全局上下文](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/zh-CN-GlobalVariable) • [告警器](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/zh-CN-Alerter-Configuration) • [负载控制](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/zh-CN-LoadControl-Configuration) • [查看器](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/zh-CN-knxUltimateViewer) • [自动响应](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/zh-CN-KNXAutoResponder) • [HA 翻译器](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/zh-CN-HATranslator)
+HUE: [Bridge](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/zh-CN-HUE+Bridge+configuration) • [灯](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/zh-CN-HUE+Light) • [电池](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/zh-CN-HUE+Battery) • [按钮](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/zh-CN-HUE+Button) • [接触](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/zh-CN-HUE+Contact+sensor) • [设备软件更新](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/zh-CN-HUE+Device+software+update) • [光照传感器](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/zh-CN-HUE+Light+sensor) • [运动](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/zh-CN-HUE+Motion) • [场景](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/zh-CN-HUE+Scene) • [Tap Dial](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/zh-CN-HUE+Tapdial) • [温度](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/zh-CN-HUE+Temperature+sensor) • [Zigbee 连接](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/zh-CN-HUE+Zigbee+connectivity)
+示例: [日志](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/zh-CN-Logger-Sample) • [Switch Light](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Switch-light) • [Dimming](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Dimming) • [RGB color](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---RGB-Color) • [RGBW color + White](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---RGBW-Color-plus-White) • [Command a scene actuator](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Control-a-scene-actuator) • [Datapoint 213.x 4x Setpoint](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---DPT213) • [Datapoint 222.x 3x Setpoint](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---DPT222) • [Datapoint 237.x DALI diags](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---DPT237) • [Datapoint 2.x 1 bit proprity](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---DPT2) • [Datapoint 22.x RCHH Status](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---DPT22) • [Datetime to BUS](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---DateTime-to-BUS) • [Read Status](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Read-value-from-Device) • [Virtual Device](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Virtual-Device) • [Subtype decoded](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Subtype) • [Alexa](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Alexa) • [Apple Homekit](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Apple-Homekit) • [Google Home](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Google-Assistant) • [Switch on/off POE port of Unifi switch](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---UnifiPOE) • [Set configuration by msg](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample-setConfig) • [Scene Controller node](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/Sample-Scene-Node) • [WatchDog node](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---WatchDog) • [Global Context node](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/SampleGlobalContextNode) • [Alerter node](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/SampleAlerter) • [Load control node](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/SampleLoadControl) • [Viewer node](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/knxUltimateViewer) • [MySQL, InfluxDB, MQTT Sample](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/Sample-KNX2MQTT-KNX2MySQL-KNX2InfluxDB)
+Contribute to Wiki: [Link](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/zh-CN-Manage-Wiki)
+<!-- NAV END -->
+
+---
+
+**Hue Tap Dial** 节点将 Tap Dial 的旋转服务映射到 KNX，并把原始 Hue 事件发送到 Node-RED 流程。配对新设备后，请点击设备字段旁的刷新图标。
+
+### 选项卡
+
+- **映射** - 选择旋转事件对应的 KNX 组地址和 DPT，支持 DPT 3.007、5.001、232.600。
+- **行为** - 控制是否显示 Node-RED 输出引脚。未配置 KNX 网关时，引脚仍保持启用，以便事件继续进入流程。
+
+### 常规设置
+
 | 属性 | 描述 |
 |--|--|
-| KNX GW | 提供组地址自动补全的 KNX 网关。 |
-| HUE Bridge | 提供 Tap Dial 的 Hue 网桥。 |
-| Hue Tap Dial | 需要控制的旋钮设备（支持自动补全；刷新按钮会重新获取列表）。 |
+| KNX GW | 用于 GA 自动补全的 KNX 网关。 |
+| Hue Bridge | 提供 Tap Dial 的 Hue 网桥。 |
+| Hue Tap Dial | 旋钮设备（支持自动补全；刷新按钮重新获取列表）。 |
 
-**映射**
+### 映射选项卡
+
 | 属性 | 描述 |
 |--|--|
-| 旋转 GA | 接收旋转事件的 KNX 组地址。支持 DPT 3.007（相对调光）、DPT 5.001（绝对亮度 0‑100%）以及 DPT 232.600（厂商颜色控制）。 |
-| 名称 | 对该组地址的说明名称。 |
-
-**行为**
-| 属性 | 描述 |
-|--|--|
-| 节点输入/输出引脚 | 显示或隐藏 Node-RED 输出引脚。如果未选择 KNX 网关，引脚仍会保持启用，以便继续接收 Hue 事件。 |
+| 旋转 GA | 接收旋转事件的 KNX 组地址（支持 DPT 3.007、5.001、232.600）。 |
+| 名称 | GA 的说明名称。 |
 
 ### 输出
 
-1. 标准输出
-: `msg.payload`（对象）：Tap Dial 产生的原始 Hue 事件。
+|#|端口|Payload|
+|--|--|--|
+|1|标准输出|`msg.payload`（对象）Tap Dial 产生的原始 Hue 事件。|
 
-> ℹ️ 仅在选择 KNX 网关后才显示 KNX 相关控件；在同时配置好 Hue 网桥和 KNX 网关之前，映射选项卡会保持隐藏。
+> ℹ️ 仅在选择 KNX 网关后才会显示 KNX 相关控件；在同时配置好 Hue 网桥和 KNX 网关之前，映射选项卡会保持隐藏。
 </script>

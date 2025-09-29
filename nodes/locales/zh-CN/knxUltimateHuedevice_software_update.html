@@ -1,29 +1,25 @@
 <script type="text/markdown" data-help-name="knxUltimateHuedevice_software_update">
-<p>监控指定 Hue 设备的软件更新状态，并将结果同步到 KNX。在桥接器中添加新设备后，请点击“Hue 设备”字段旁的刷新图标。</p>
+<p>该节点监控 HUE 设备的软件更新状态，并发布到 KNX。</p>
 
-**通用**
-| 属性 | 描述 |
-|--|--|
-| KNX GW | 提供组地址自动补全的 KNX 网关。 |
-| Hue Bridge | 提供设备的 Hue 网桥。 |
-| Hue 设备 | 要监控的设备（支持自动补全；刷新按钮会重新获取列表）。 |
+开始在GA字段中键入KNX设备的名称或组地址，可用的设备开始显示
+您正在打字。
+
+**一般的**
+|属性|描述|
+| - | - |
+|KNX GW |选择要使用的KNX门户|
+|色相桥|选择要使用的色调桥|
+| HUE Device | 要监控的 HUE 设备（自动补全） |
 
 **映射**
-| 属性 | 描述 |
+|属性|说明|
 |--|--|
-| 状态 GA | 映射更新状态的 KNX 组地址：在更新可用/准备/安装中时为 _true_，否则为 _false_。 |
-
-**行为**
-| 属性 | 描述 |
-|--|--|
-| 启动时读取状态 | 选择“是”时，在部署或重新连接时向 Hue 网桥查询当前状态并发送到 KNX。 |
-| 节点输入/输出引脚 | 显示或隐藏 Node-RED 输出引脚。如果未选择 KNX 网关，引脚仍会保持启用，以继续接收 Hue 事件。 |
+| 状态 | 映射软件更新的 KNX 组地址：可用/准备/安装中为 _true_，否则 _false_ |
+| 启动时读取状态 | 启动/重连时读取并发布至 KNX（默认"是”） |
 
 ### 输出
 
 1. 标准输出
-: `msg.payload` (boolean) 更新标志。  
-: `msg.status` (string) 取值为 **no_update**、**update_pending**、**ready_to_install**、**installing** 之一。
-
-> ℹ️ 仅在选择 KNX 网关后才会显示 KNX 相关控件；在同时配置好 Hue 网桥和 KNX 网关之前，映射选项卡会保持隐藏。
+   : payload (boolean)：更新标志。
+   : status (string)： **no\_update, update\_pending, ready\_to\_install, installing** 。
 </script>

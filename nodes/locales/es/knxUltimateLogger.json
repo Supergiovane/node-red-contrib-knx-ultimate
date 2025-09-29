@@ -1,0 +1,19 @@
+{
+  "knxUltimateLogger": {
+    "paletteLabel": "Logger KNX",
+    "title": "Logger KNX para ETS",
+    "properties": {
+      "node-input-server": "Puerta",
+      "node-input-topic": "Tema",
+      "node-input-name": "Nombre de nodo",
+      "node-input-autoStartTimerCreateETSXML": "Temporizador de inicio automático",
+      "mlxETSFileAccordion": "Archivo de diagnóstico de bus compatible con ETS",
+      "node-input-intervalCreateETSXML": "Salir nuevo XML cada (en minutos)",
+      "node-input-maxRowsInETSXML": "Número máximo de filas en xml (0 = sin límite)",
+      "telegramCounter": "Contador de telegrama de knx",
+      "node-input-intervalTelegramCount": "Intervalo de conteo (en segundos)"
+    },
+    "placeholder": {},
+    "selectlists": {}
+  }
+}

@@ -1,34 +1,41 @@
 <script type="text/markdown" data-help-name="knxUltimateHuePlug">
-<p>该节点让您把飞利浦 Hue 智能插座与 KNX 组地址关联，从而直接在总线上控制开/关并接收状态。</p>
+# Hue 插座 / Plug
 
-**常规**
-|属性|说明|
+## 概述
+
+Hue Plug 节点将飞利浦 Hue 智能插座映射到 KNX 组地址，实现：
+
+- 总线上的开/关控制；
+- 来自 Hue 平台的状态反馈；
+- 可选的 `power_state`（on/standby）监控。
+
+## 配置
+
+|字段|说明|
 |--|--|
-| KNX GW | 所使用的 KNX 网关 |
-| Hue Bridge | 已配置的 Hue 网桥 |
-| 名称 | 要控制的 Hue 插座（输入时自动提示可选设备） |
+| KNX GW | 使用的 KNX 网关 |
+| Hue Bridge | 使用的 Hue 网桥 |
+| 名称 | 要控制的 Hue 插座（自动提示） |
+| 控制 | 发送开/关的 KNX 组地址（布尔 DPT） |
+| 状态 | Hue 报告的开/关状态接收地址 |
+| 电源状态 | 映射 Hue `power_state` 的可选组地址 |
+| 启动时读取状态 | 部署时立即发送当前状态 |
+| 引脚 | 启用 Node-RED 输入/输出引脚，用于高级控制或事件转发 |
 
-<br/>
+## KNX 建议
 
-**开关**
-|属性|说明|
-|--|--|
-| 控制 | 发送开/关指令的 KNX 组地址（通常 DPT 1.xxx），数值会转发给 Hue。 |
-| 状态 | 可选组地址，用于接收 Hue 返回的开/关状态。 |
-| 电源状态 | 可选组地址，用于同步 Hue 的 `power_state`（on/standby）。请选择合适的 DPT（布尔或文本）。 |
+- 控制与状态建议使用 DPT 1.xxx。
+- `power_state` 可映射为布尔值（true=on, false=standby），或使用文本类 DPT 显示原始字符串。
+- 接收到 KNX 读取 (`GroupValue_Read`) 时，节点返回缓存的 Hue 状态。
 
-<br/>
+## Flow 集成
 
-**行为**
-|属性|说明|
-|--|--|
-| 启动时读取状态 | 选择 *是* 时，部署或重连时会发送一次当前状态。 |
-| 引脚 | 启用 Node-RED 输入/输出引脚。输入须为 Hue API 兼容的载荷（例如 `{ on: { on: true } }`），输出会把每个 Hue 事件传给流程。 |
+当启用引脚时：
 
-<br/>
+- **输入** ：发送 Hue v2 载荷（如 `{ on: { on: true } }`）。
+- **输出** ：在每次 Hue 事件时输出 `{ payload, on, power_state, rawEvent }`。
 
-**注意事项**
-- 命令通过 Hue v2 API (`/resource/plug/{id}`) 下发。
-- 仅在状态变化时写入状态组地址。若需周期更新，可保持“启动时读取状态”开启并/或向该 GA 发送读取请求（节点会用缓存值回应）。
-- 当 Hue 报告 `on` 时，电源状态为 `true`；`standby` 等情况返回 `false`。
+## Hue API
+
+节点调用 `/resource/plug/{id}`。Hue 事件流用于捕获状态变化并同步到 KNX。
 </script>

@@ -1,0 +1,30 @@
+{
+  "common": {
+    "ga": "Georgia",
+    "dpt": "DPT",
+    "name": "Nombre",
+    "youtube_sample": "Muestra de youtube",
+    "knx_gw": "KNX GW",
+    "hue_bridge": "Puente de tono",
+    "philips_hue": "Tono Philips",
+    "read": "Leer"
+  },
+  "knxUltimateHueBattery": {
+    "paletteLabel": "Sensor de batería de tono",
+    "hue_sensor": "Sensor de batería de tono",
+    "no_devices": "No hay dispositivos de batería disponibles",
+    "tabs": {
+      "mapping": "Cartografía",
+      "behaviour": "Comportamiento"
+    },
+    "mapping_info": "Enlace la dirección del grupo KNX que debe emitir el porcentaje de batería.",
+    "behaviour_info": "Configure cómo se comporta el sensor al inicio y si se debe exponer el pin de salida de nodo-rojo.",
+    "read_status_startup": "Estado de lectura en el inicio",
+    "opt_no": "No",
+    "opt_yes_emit": "Sí, y emitir telegramas KNX.",
+    "node_pins": "Pin de salida de nodo",
+    "node_pins_show": "Mostrar pin de salida de nodo-rojo",
+    "node_pins_hide": "Esconder",
+    "output_info": "No se seleccionó KNX Gateway. Cuando se habilita el pin de salida de red de nodo, los eventos de batería de Hue todavía se emiten a su flujo."
+  }
+}

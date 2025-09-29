@@ -1,0 +1,41 @@
+{
+  "knxUltimateHueScene": {
+    "title": "Nodo de escena de tono",
+    "paletteLabel": "Escena de tono",
+    "hue_scene": "Escena de tono",
+    "recall_as": "Recordar como",
+    "recall_active": "Recuerde como activo",
+    "recall_dynamic": "Recordar como dinámico",
+    "recall_static": "Recordar como estática",
+    "recall": "Recordar",
+    "status": "Estado",
+    "scene_selector": "Selector de escenas",
+    "knx_scene_n": "Escena knx n.",
+    "node_pins": "Pasadores de entrada/salida del nodo",
+    "node_pins_hide": "Esconderse",
+    "node_pins_show": "Mostrar pines de entrada/salida del nodo",
+    "tabs": {
+      "single": "Escena individual",
+      "multi": "Múltiple escena",
+      "behaviour": "Comportamiento"
+    },
+    "single_info": "Seleccione la escena del tono y elija cómo se debe recuperar cuando se active la dirección KNX.",
+    "mapping_info": "Mapee las direcciones KNX que recuerdan la escena o informan su estado actual.",
+    "multi_info": "Asociar números de escena KNX con escenas de tono. Cada regla recuerda una escena de tono diferente.",
+    "behaviour_info": "Decida si el pin de salida de red de nodo debe permanecer visible cuando la entrega KNX está deshabilitada.",
+    "status_ga": "Estado GA",
+    "output_info": "Sin una puerta de enlace KNX, la salida del flujo permanece habilitada para que los eventos de tono continúen alcanzando el nodo-rojo.",
+    "no_scenes": "No se encontraron escenas de tono. Use el icono de actualización después de agregar nuevas escenas.",
+    "multi_scene_placeholder": "Nombre de la escena del tono"
+  },
+  "common": {
+    "ga": "Georgia",
+    "dpt": "DPT",
+    "name": "Nombre",
+    "youtube_sample": "Muestra de youtube",
+    "knx_gw": "KNX GW",
+    "hue_bridge": "Puente de tono",
+    "philips_hue": "Tono Philips",
+    "read": "Leer"
+  }
+}

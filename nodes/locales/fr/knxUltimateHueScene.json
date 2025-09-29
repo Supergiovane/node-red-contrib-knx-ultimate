@@ -1,0 +1,41 @@
+{
+  "knxUltimateHueScene": {
+    "title": "Node de la scène de la teinte",
+    "paletteLabel": "Scène de teinte",
+    "hue_scene": "Scène de teinte",
+    "recall_as": "Rappeler comme",
+    "recall_active": "Rappel comme actif",
+    "recall_dynamic": "Rappel comme dynamique",
+    "recall_static": "Rappel comme statique",
+    "recall": "Rappel",
+    "status": "Statut",
+    "scene_selector": "Sélecteur de scène",
+    "knx_scene_n": "Scène KNX n.",
+    "node_pins": "Broches d'entrée / sortie de nœud",
+    "node_pins_hide": "Cacher les broches",
+    "node_pins_show": "Afficher les broches d'entrée / sortie du nœud",
+    "tabs": {
+      "single": "Scène unique",
+      "multi": "Multicolatage",
+      "behaviour": "Comportement"
+    },
+    "single_info": "Sélectionnez la scène Hue et choisissez comment elle doit être rappelée lorsque l'adresse KNX est déclenchée.",
+    "mapping_info": "Carte les adresses KNX qui rappellent la scène ou signalent son état actuel.",
+    "multi_info": "Associez les numéros de scène KNX aux scènes de teinte. Chaque règle rappelle une scène de teinte différente.",
+    "behaviour_info": "Décidez si la broche de sortie du nœud-rouge doit rester visible lorsque la livraison KNX est désactivée.",
+    "status_ga": "Statut GA",
+    "output_info": "Sans une passerelle KNX, la sortie de débit reste activée, de sorte que les événements de teinte continuent d'atteindre le nœud-rouge.",
+    "no_scenes": "Pas de scènes de teintes trouvées. Utilisez l'icône d'actualisation après l'ajout de nouvelles scènes.",
+    "multi_scene_placeholder": "Nom de la scène Hue"
+  },
+  "common": {
+    "ga": "Géorgie",
+    "dpt": "Dpt",
+    "name": "Nom",
+    "youtube_sample": "Échantillon YouTube",
+    "knx_gw": "KNX GW",
+    "hue_bridge": "Pont Hue",
+    "philips_hue": "Hue Philips",
+    "read": "Lire"
+  }
+}

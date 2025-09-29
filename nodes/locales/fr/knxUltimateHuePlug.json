@@ -1,0 +1,33 @@
+{
+  "knxUltimateHuePlug": {
+    "title": "Plug / prise Hue",
+    "paletteLabel": "Plug / prise Hue",
+    "tabs": {
+      "switch": "Changer",
+      "behaviour": "Comportement"
+    },
+    "node-input-name": "Nom",
+    "switch_info": "Reliez votre adresse de commutation KNX pour contrôler l'état de la fiche Hue.",
+    "switch_control": "Contrôle",
+    "switch_status": "Statut",
+    "power_state": "État de puissance",
+    "power_state_info": "Facultatif. Suivez l'état de puissance signalé par Hue (ON / STANDBY) sur une adresse de groupe KNX.",
+    "read_status_startup": "Lire l'état au démarrage",
+    "opt_yes_emit": "Oui, et émettez des télégrammes KNX.",
+    "opt_no": "Non",
+    "node_pins": "Broches d'entrée / sortie de nœud",
+    "node_pins_hide": "Cacher",
+    "node_pins_show": "Afficher les broches d'entrée / sortie du nœud",
+    "node_pins_help": "Activez les broches d'entrée / sortie de Node-Red pour envoyer des charges utiles API Hue personnalisées ou des événements transférés à votre flux."
+  },
+  "common": {
+    "ga": "Géorgie",
+    "dpt": "Dpt",
+    "name": "Nom",
+    "youtube_sample": "Échantillon YouTube",
+    "knx_gw": "KNX GW",
+    "hue_bridge": "Pont Hue",
+    "philips_hue": "Hue Philips",
+    "read": "Lire"
+  }
+}

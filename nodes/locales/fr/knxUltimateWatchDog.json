@@ -1,0 +1,23 @@
+{
+  "knxUltimateWatchDog": {
+    "paletteLabel": "Chien de garde de KNX",
+    "title": "Chien de garde",
+    "properties": {
+      "node-input-server": "Porte",
+      "node-input-checkLevel": "Vérifier le niveau (veuillez consulter le wiki)",
+      "node-input-topic": "Adresse du groupe à surveiller",
+      "node-input-name": "Nom de nœud",
+      "node-input-autoStart": "Démarrer automatiquement la minuterie de chien de garde",
+      "advancedOptionsAccordion": "Options avancées",
+      "node-input-retryInterval": "Réessier l'intervalle (en quelques secondes)",
+      "node-input-maxRetry": "Nombre de réessayer avant de donner une erreur"
+    },
+    "placeholder": {
+      "monitor": "Ex: 12/0/0. Pour les vérifications «seulement Ethernet», veuillez utiliser une adresse de groupe non existante."
+    },
+    "selectlists": {
+      "Ethernet": "Seul Ethernet Unicast (par défaut), en utilisant un ping. Fonctionne uniquement avec les interfaces KNX (pas les routeurs)",
+      "EthKNX": "Paire torsadé Ethernet + KNX, en utilisant un réel appareil KNX"
+    }
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "knxUltimateHueLightSensor": {
+    "title": "Nœud de capteur de lumière",
+    "paletteLabel": "Capteur de lumière",
+    "read_status_startup": "Lire l'état au démarrage",
+    "opt_no": "Non",
+    "opt_yes_emit": "Oui, et émettez des télégrammes KNX."
+  },
+  "common": {
+    "ga": "Géorgie",
+    "dpt": "Dpt",
+    "name": "Nom",
+    "youtube_sample": "Échantillon YouTube",
+    "knx_gw": "KNX GW",
+    "hue_bridge": "Pont Hue",
+    "philips_hue": "Hue Philips",
+    "read": "Lire"
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "knxUltimateLoadControl": {
+    "paletteLabel": "Contrôle de charge KNX",
+    "title": "Contrôle de la charge",
+    "primoaldistacco": "(c'est le premier à être éteint)",
+    "properties": {
+      "node-input-server": "Porte",
+      "node-input-name": "Non-mémoire",
+      "node-input-dpt": "Point de données",
+      "node-input-topic": "Surveiller W",
+      "node-input-controlGA": "Charger",
+      "node-input-monitorGA": "Utilisé",
+      "node-input-wattLimit": "Limiter w",
+      "node-input-sheddingCheckInterval": "Retarder l'éteint (s)",
+      "node-input-sheddingRestoreDelay": "Retarder l'interrupteur sur (s)",
+      "node-input-autoRestore": "Récupération automatique"
+    },
+    "selectlists": {},
+    "other": {}
+  }
+}

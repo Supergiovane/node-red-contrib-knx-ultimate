@@ -1,0 +1,30 @@
+{
+  "knxUltimateHuedevice_software_update": {
+    "paletteLabel": "Mise à jour du logiciel Hue",
+    "hue_device": "Dispositif",
+    "tabs": {
+      "mapping": "Cartographie",
+      "behaviour": "Comportement"
+    },
+    "mapping_info": "Carte à l'adresse KNX qui rapporte l'état de mise à jour logiciel.",
+    "behaviour_info": "Les lectures de démarrage de contrôle et la visibilité de la broche de sortie du nœud-rouge.",
+    "node_pins": "Broches d'entrée / sortie de nœud",
+    "node_pins_hide": "Cacher les broches",
+    "node_pins_show": "Afficher les broches d'entrée / sortie du nœud",
+    "output_info": "Sans une passerelle KNX, la sortie de débit reste activée, de sorte que les événements de teinte continuent d'atteindre le nœud-rouge.",
+    "no_devices": "Aucun dispositif de teinte trouvé. Utilisez l'icône de rafraîchissement après avoir ajouté un nouvel appareil.",
+    "read_status_startup": "Lire l'état au démarrage",
+    "opt_no": "Non",
+    "opt_yes_emit": "Oui, et émettez des télégrammes KNX."
+  },
+  "common": {
+    "ga": "Géorgie",
+    "dpt": "Dpt",
+    "name": "Nom",
+    "youtube_sample": "Échantillon YouTube",
+    "knx_gw": "KNX GW",
+    "hue_bridge": "Pont Hue",
+    "philips_hue": "Hue Philips",
+    "read": "Lire"
+  }
+}

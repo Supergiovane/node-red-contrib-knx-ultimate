@@ -1,0 +1,11 @@
+{
+  "knxUltimateGarageDoorBarrierOpener": {
+    "paletteLabel": "Abridor de garaje knx",
+    "command_true_open_false_close": "Verdadero = Open / False = Close",
+    "command_true_close_false_open": "Verdadero = cerrar / falso = abre",
+    "status_true_open_false_closed": "Verdadero = Open / False = cerrado",
+    "status_true_closed_false_open": "Verdadero = cerrado / falso = abierto",
+    "while_moving_ignore": "Ignorar los comandos recibidos",
+    "while_moving_obey": "Deja de moverte y luego obedece a un nuevo comando"
+  }
+}

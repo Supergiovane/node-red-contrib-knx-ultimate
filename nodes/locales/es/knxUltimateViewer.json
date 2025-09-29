@@ -1,0 +1,11 @@
+{
+  "knxUltimateViewer": {
+    "title": "Espectador de knx",
+    "node-input-name": "Nombre",
+    "outputs": {
+      "ga_dashboard": "Direcciones de grupo de tablero",
+      "simple_array": "Array simple JSON para grabación de datos",
+      "queue": "Cola de telegramas del tablero"
+    }
+  }
+}

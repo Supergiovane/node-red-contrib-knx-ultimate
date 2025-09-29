@@ -1,0 +1,19 @@
+{
+  "hue-config": {
+    "properties": {
+      "title": "Puente de Hue Philips",
+      "host": "IP",
+      "host_placeholder": "Escriba la IP del puente Hue, luego haga clic en Conectar",
+      "node-config-input-name": "Nombre",
+      "getinfocam": "Regístrese en HUB",
+      "connect": "CONECTAR",
+      "bridge_id": "ID de puente",
+      "username": "Nombre de usuario",
+      "client_key": "Clave del cliente",
+      "secrets": "Misterios",
+      "reveal": "Revelar",
+      "wait_message": "Espera, estoy hablando con tu puente de tono ...",
+      "caution": "PRECAUCIÓN: Otros nodos de tono de terceros coexistentes pueden causar problemas y no estarán instalados."
+    }
+  }
+}

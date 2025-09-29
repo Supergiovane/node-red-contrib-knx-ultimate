@@ -1,0 +1,28 @@
+{
+  "knxUltimateHueTapDial": {
+    "title": "Nœud de cadran à robinet (Rotary)",
+    "paletteLabel": "Cadran du robinet",
+    "hue_device": "Cadran du robinet",
+    "tabs": {
+      "mapping": "Cartographie",
+      "behaviour": "Comportement"
+    },
+    "mapping_info": "Liez les événements de rotation de la cadran de la pointe de teinte à une adresse de groupe KNX.",
+    "behaviour_info": "Décidez si la broche de sortie du nœud-rouge doit rester visible lorsque la livraison KNX est désactivée.",
+    "node_pins": "Broches d'entrée / sortie de nœud",
+    "node_pins_hide": "Cacher les broches",
+    "node_pins_show": "Afficher les broches d'entrée / sortie du nœud",
+    "output_info": "Sans une passerelle KNX, la sortie de débit reste activée, de sorte que les événements de teinte continuent d'atteindre le nœud-rouge.",
+    "no_devices": "Pas de dispositifs de numérotation Hue Tap trouvés. Utilisez l'icône de rafraîchissement après le coupage d'un nouveau cadran."
+  },
+  "common": {
+    "ga": "Géorgie",
+    "dpt": "Dpt",
+    "name": "Nom",
+    "youtube_sample": "Échantillon YouTube",
+    "knx_gw": "KNX GW",
+    "hue_bridge": "Pont Hue",
+    "philips_hue": "Hue Philips",
+    "read": "Lire"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "knxUltimateHueLightSensor": {
+    "title": "Nodo del sensor de luz de tono",
+    "paletteLabel": "Sensor de luz de tono",
+    "read_status_startup": "Estado de lectura en el inicio",
+    "opt_no": "No",
+    "opt_yes_emit": "Sí, y emitir telegramas KNX."
+  },
+  "common": {
+    "ga": "Georgia",
+    "dpt": "DPT",
+    "name": "Nombre",
+    "youtube_sample": "Muestra de youtube",
+    "knx_gw": "KNX GW",
+    "hue_bridge": "Puente de tono",
+    "philips_hue": "Tono Philips",
+    "read": "Leer"
+  }
+}

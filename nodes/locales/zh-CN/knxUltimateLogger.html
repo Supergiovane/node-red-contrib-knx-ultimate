@@ -1,12 +1,10 @@
 <script type="text/markdown" data-help-name="knxUltimateLogger">
-<!-- <img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/simple2.png" width="40%"><br/> -->
 # Logger（日志）
 
 Logger 节点会记录所有报文，并输出一份与 ETS Bus Monitor 兼容的 XML 文件。
 
 你可以用 file 节点将其保存到磁盘，或发送到 FTP 等。该文件可在 ETS 中用于诊断或回放报文。
-该节点还可统计报文数量（每秒或自定义间隔）。
-<br/> <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/Logger-Sample" target="_blank">示例在此</a>
+该节点还可统计报文数量（每秒或自定义间隔）。 <br/> <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/Logger-Sample" target="_blank">示例在此</a>
 
 ## 设置
 
@@ -66,16 +64,19 @@ msg = {
 ETS 兼容 XML 控制
 
 **启动计时器**
+
 ```javascript
 msg.etsstarttimer = true; return msg;
 ```
 
 **停止计时器**
+
 ```javascript
 msg.etsstarttimer = false; return msg;
 ```
 
 **立即输出 XML**
+
 ```javascript
 // 立刻输出 XML；若计时器在运行，则一并重启
 msg.etsoutputnow = true; return msg;
@@ -84,20 +85,24 @@ msg.etsoutputnow = true; return msg;
 报文计数器控制
 
 **启动计时器**
+
 ```javascript
 msg.telegramcounterstarttimer = true; return msg;
 ```
 
 **停止计时器**
+
 ```javascript
 msg.telegramcounterstarttimer = false; return msg;
 ```
 
 **立即输出计数**
+
 ```javascript
 msg.telegramcounteroutputnow = true; return msg;
 ```
 
 ## 参见
+
 - [Sample Logger](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/Logger-Sample)
 </script>

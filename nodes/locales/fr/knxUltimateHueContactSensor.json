@@ -1,0 +1,22 @@
+{
+  "knxUltimateHueContactSensor": {
+    "paletteLabel": "Capteur de contact de la teinte",
+    "hue_sensor": "Capteur de contact de la teinte",
+    "no_devices": "Pas de capteurs de contact Hue disponibles",
+    "tabs": {
+      "mapping": "Cartographie"
+    },
+    "mapping_info": "Lien du KNX GA qui devrait recevoir des mises à jour d'état de contact.",
+    "output_info": "Aucune passerelle KNX sélectionnée. Les événements de contact sont toujours émis sur la broche de sortie du nœud-rouge."
+  },
+  "common": {
+    "ga": "Géorgie",
+    "dpt": "Dpt",
+    "name": "Nom",
+    "youtube_sample": "Échantillon YouTube",
+    "knx_gw": "KNX GW",
+    "hue_bridge": "Pont Hue",
+    "philips_hue": "Hue Philips",
+    "read": "Lire"
+  }
+}

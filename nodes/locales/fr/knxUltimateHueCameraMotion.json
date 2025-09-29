@@ -1,0 +1,30 @@
+{
+  "common": {
+    "ga": "Géorgie",
+    "dpt": "Dpt",
+    "name": "Nom",
+    "youtube_sample": "Échantillon YouTube",
+    "knx_gw": "KNX GW",
+    "hue_bridge": "Pont Hue",
+    "philips_hue": "Hue Philips",
+    "read": "Lire"
+  },
+  "knxUltimateHueCameraMotion": {
+    "paletteLabel": "Motion de la caméra Hue",
+    "heading": "Node de mouvement de la caméra Hue",
+    "hue_sensor": "Motion de la caméra Hue",
+    "no_devices": "Aucun dispositif de mouvement de la caméra disponible",
+    "tabs": {
+      "motion": "Mouvement",
+      "behaviour": "Comportement"
+    },
+    "node_pins": "Broche de sortie du nœud",
+    "node_pins_hide": "Cacher",
+    "node_pins_show": "Afficher la broche de sortie du nœud-rouge",
+    "output_info": "Aucune passerelle KNX sélectionnée. Lorsque la broche de sortie du nœud-rouge est activée, les événements de mouvement de la caméra Hue sont toujours émis dans votre flux.",
+    "read_status_startup": "Lire l'état au démarrage",
+    "opt_no": "Non",
+    "opt_yes_emit": "Oui, et émettez des télégrammes KNX.",
+    "motion_info": "Reliez votre adresse de groupe KNX Motion pour recevoir l'état détecté / non détecté."
+  }
+}

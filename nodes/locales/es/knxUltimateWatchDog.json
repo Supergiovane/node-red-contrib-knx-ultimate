@@ -1,0 +1,23 @@
+{
+  "knxUltimateWatchDog": {
+    "paletteLabel": "KNX Watchdog",
+    "title": "Perro guardián",
+    "properties": {
+      "node-input-server": "Puerta",
+      "node-input-checkLevel": "Verificar el nivel (consulte el wiki)",
+      "node-input-topic": "Dirección de grupo para monitorear",
+      "node-input-name": "Nombre de nodo",
+      "node-input-autoStart": "Auto Iniciar el temporizador de vigilancia",
+      "advancedOptionsAccordion": "Opciones avanzadas",
+      "node-input-retryInterval": "Vuelva a intentar el intervalo (en segundos)",
+      "node-input-maxRetry": "Número de reintento antes de dar un error"
+    },
+    "placeholder": {
+      "monitor": "Ej: 12/0/0. Para verificaciones 'únicas Ethernet', utilice una dirección de grupo no existente."
+    },
+    "selectlists": {
+      "Ethernet": "Solo Ethernet Unicast (predeterminado), usando ping. Funciona solo con interfaces KNX (no enrutadores)",
+      "EthKNX": "Ethernet + KNX Twisted Par, usando un dispositivo KNX real"
+    }
+  }
+}

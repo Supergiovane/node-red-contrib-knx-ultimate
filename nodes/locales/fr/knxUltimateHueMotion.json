@@ -1,0 +1,27 @@
+{
+  "common": {
+    "ga": "Géorgie",
+    "dpt": "Dpt",
+    "name": "Nom",
+    "youtube_sample": "Échantillon YouTube",
+    "knx_gw": "KNX GW",
+    "hue_bridge": "Pont Hue",
+    "philips_hue": "Hue Philips",
+    "read": "Lire"
+  },
+  "knxUltimateHueMotion": {
+    "paletteLabel": "Mouvement de la teinte",
+    "hue_sensor": "Capteur de mouvement de la teinte",
+    "no_devices": "Aucun capteur de mouvement disponible",
+    "tabs": {
+      "mapping": "Cartographie",
+      "behaviour": "Comportement"
+    },
+    "mapping_info": "Lier l'adresse du groupe KNX qui devrait recevoir l'état détecté de la motion.",
+    "behaviour_info": "Basculez la broche de sortie du nœud-rouge lorsque vous souhaitez traiter les événements de mouvement de la teinte dans un flux sans KNX.",
+    "node_pins": "Broche de sortie du nœud",
+    "node_pins_show": "Afficher la broche de sortie du nœud-rouge",
+    "node_pins_hide": "Cacher",
+    "output_info": "Aucune passerelle KNX sélectionnée. Lorsque la broche de sortie du nœud-rouge est activée, les événements de mouvement Hue sont toujours émis dans votre flux."
+  }
+}

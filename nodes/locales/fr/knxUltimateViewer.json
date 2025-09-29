@@ -1,0 +1,11 @@
+{
+  "knxUltimateViewer": {
+    "title": "Visionneuse KNX",
+    "node-input-name": "Nom",
+    "outputs": {
+      "ga_dashboard": "Adresses du groupe de tableau de bord",
+      "simple_array": "JSON à tableau simple pour l'enregistrement de données",
+      "queue": "Fitre de télégrammes de tableau de bord"
+    }
+  }
+}

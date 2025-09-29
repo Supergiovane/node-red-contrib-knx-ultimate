@@ -1,0 +1,34 @@
+{
+  "knxUltimateHueButton": {
+    "paletteLabel": "Bouton de teinte",
+    "hue_sensor": "Bouton de teinte",
+    "no_devices": "Pas de boutons Hue disponibles",
+    "tabs": {
+      "switch": "Changer",
+      "dim": "Faible",
+      "behaviour": "Comportement"
+    },
+    "switch_info": "Lienz l'adresse du groupe KNX déclenché par des pressions courtes.",
+    "switch_status": "Statut GA",
+    "dim_info": "Configurez le KNX Dimming GA qui gère les événements répétés pendant les presses longues.",
+    "behaviour_info": "Sélectionnez si les événements basculent automatiquement les valeurs ou envoient des charges utiles fixes.",
+    "toggle_values": "Basculer les valeurs sur chaque événement",
+    "toggle_values_hint": "Activer d'alterner True / False et Dim Up / Down; Désactiver pour envoyer des charges utiles fixes définies ci-dessous.",
+    "switch_send": "Commutation de la charge utile",
+    "dim_send": "La charge utile",
+    "dim_up": "En haut",
+    "dim_down": "Vers le bas",
+    "dim_stop": "Arrêt",
+    "output_info": "Aucune passerelle KNX sélectionnée. Les événements sont toujours émis sur la broche de sortie du nœud-rouge."
+  },
+  "common": {
+    "ga": "Géorgie",
+    "dpt": "Dpt",
+    "name": "Nom",
+    "youtube_sample": "Échantillon YouTube",
+    "knx_gw": "KNX GW",
+    "hue_bridge": "Pont Hue",
+    "philips_hue": "Hue Philips",
+    "read": "Lire"
+  }
+}

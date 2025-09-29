@@ -1,0 +1,30 @@
+{
+  "common": {
+    "ga": "Georgia",
+    "dpt": "DPT",
+    "name": "Nombre",
+    "youtube_sample": "Muestra de youtube",
+    "knx_gw": "KNX GW",
+    "hue_bridge": "Puente de tono",
+    "philips_hue": "Tono Philips",
+    "read": "Leer"
+  },
+  "knxUltimateHueZigbeeConnectivity": {
+    "paletteLabel": "Conectividad de tono zigbee",
+    "hue_sensor": "Conectividad de tono zigbee",
+    "no_devices": "No hay dispositivos de conectividad Zigbee disponibles",
+    "tabs": {
+      "mapping": "Cartografía",
+      "behaviour": "Comportamiento"
+    },
+    "mapping_info": "Enlace la dirección del grupo KNX que debe reflejar el estado de conectividad Zigbee.",
+    "behaviour_info": "Elija si lee el estado de conectividad al inicio y exponga el pin de salida de nodo-rojo.",
+    "read_status_startup": "Estado de lectura en el inicio",
+    "opt_no": "No",
+    "opt_yes_emit": "Sí, y emitir telegramas KNX.",
+    "node_pins": "Pin de salida de nodo",
+    "node_pins_show": "Mostrar pin de salida de nodo-rojo",
+    "node_pins_hide": "Esconder",
+    "output_info": "No se seleccionó KNX Gateway. Cuando el PIN de salida de Node-Red está habilitado, los eventos de conectividad de HUE todavía se emiten a su flujo."
+  }
+}

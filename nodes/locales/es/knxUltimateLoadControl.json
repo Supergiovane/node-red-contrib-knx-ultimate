@@ -1,0 +1,21 @@
+{
+  "knxUltimateLoadControl": {
+    "paletteLabel": "Control de carga KNX",
+    "title": "Control de carga",
+    "primoaldistacco": "(Este es el primero en apagarse)",
+    "properties": {
+      "node-input-server": "Puerta",
+      "node-input-name": "No ameme",
+      "node-input-dpt": "Punto de datos",
+      "node-input-topic": "Monitor W",
+      "node-input-controlGA": "Carga",
+      "node-input-monitorGA": "En uso",
+      "node-input-wattLimit": "Límite w",
+      "node-input-sheddingCheckInterval": "Apagado (s) apagado (s)",
+      "node-input-sheddingRestoreDelay": "Interruptor de retraso (s) (s) (s)",
+      "node-input-autoRestore": "Recuperación automática"
+    },
+    "selectlists": {},
+    "other": {}
+  }
+}

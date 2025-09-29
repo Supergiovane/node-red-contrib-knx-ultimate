@@ -1,0 +1,29 @@
+{
+  "knxUltimateSceneController": {
+    "paletteLabel": "Controlador de escena KNX",
+    "title": "Controlador de escena",
+    "properties": {
+      "node-input-server": "Puerta",
+      "node-input-topic": "Recuerdo de la escena",
+      "node-input-dpt": "Punto de datos",
+      "node-input-topicTrigger": "Desencadenar",
+      "node-input-topicSave": "Guardar escena",
+      "node-input-name": "Nombre de nodo",
+      "node-input-outputtopic": "Tema"
+    },
+    "placeholder": {
+      "leaveempty": "Dejar vacío para usar la dirección de grupo",
+      "valueexample": "Ej: falso, verdadero, de lo contrario cualquier valor"
+    },
+    "other": {
+      "sceneConfig": "Configuración de valores predeterminados de la escena",
+      "add": "Presione Agregar, para agregar un dispositivo en la escena"
+    },
+    "advanced": {
+      "notify-DPT3007": "Usted seleccionó un tenue relativo. Por favor, __ph_0__ haga clic aquí para ver esta muestra__ph_1__ y aprenda cómo manejar dicha carga útil.",
+      "notify-DPT18001": "Usted seleccionó un punto de datos de la escena. Por favor, __ph_0__ haga clic aquí para ver esta muestra__ph_1__ y aprenda cómo manejar dicha carga útil.",
+      "notify-DPT232600": "Seleccionó un punto de datos RGB. Por favor, __ph_0__ haga clic aquí para ver esta muestra__ph_1__ y aprenda cómo manejar dicha carga útil.",
+      "notify-DPT251600": "Seleccionó un punto de datos RGBW. Por favor, __ph_0__ haga clic aquí para ver esta muestra__ph_1__ y aprenda cómo manejar dicha carga útil."
+    }
+  }
+}

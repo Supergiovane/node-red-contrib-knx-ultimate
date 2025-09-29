@@ -1,0 +1,33 @@
+{
+  "knxUltimateHuePlug": {
+    "title": "Hue Plug/salida",
+    "paletteLabel": "Hue Plug/salida",
+    "tabs": {
+      "switch": "Cambiar",
+      "behaviour": "Comportamiento"
+    },
+    "node-input-name": "Nombre",
+    "switch_info": "Enlace su dirección de interruptor KNX para controlar el estado/apagado del enchufe del tono.",
+    "switch_control": "Control",
+    "switch_status": "Estado",
+    "power_state": "Estado de poder",
+    "power_state_info": "Opcional. Realice un seguimiento del estado de energía informado por el tono (en/espera) en una dirección de grupo KNX.",
+    "read_status_startup": "Estado de lectura en el inicio",
+    "opt_yes_emit": "Sí, y emitir telegramas KNX.",
+    "opt_no": "No",
+    "node_pins": "Pasadores de entrada/salida del nodo",
+    "node_pins_hide": "Esconder",
+    "node_pins_show": "Mostrar pines de entrada/salida del nodo",
+    "node_pins_help": "Habilite los pines de entrada/salida de Node-Red para enviar cargas útiles de API de HUE personalizadas o eventos reenviados a su flujo."
+  },
+  "common": {
+    "ga": "Georgia",
+    "dpt": "DPT",
+    "name": "Nombre",
+    "youtube_sample": "Muestra de youtube",
+    "knx_gw": "KNX GW",
+    "hue_bridge": "Puente de tono",
+    "philips_hue": "Tono Philips",
+    "read": "Leer"
+  }
+}

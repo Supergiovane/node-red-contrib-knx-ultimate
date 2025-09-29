@@ -1,0 +1,30 @@
+{
+  "knxUltimateHuedevice_software_update": {
+    "paletteLabel": "Actualización de software de Hue",
+    "hue_device": "Dispositivo para tonos",
+    "tabs": {
+      "mapping": "Cartografía",
+      "behaviour": "Comportamiento"
+    },
+    "mapping_info": "Mapee la dirección KNX que informa el estado de actualización de software.",
+    "behaviour_info": "Controle las lecturas de inicio y la visibilidad del pin de salida del nodo-rojo.",
+    "node_pins": "Pasadores de entrada/salida del nodo",
+    "node_pins_hide": "Esconderse",
+    "node_pins_show": "Mostrar pines de entrada/salida del nodo",
+    "output_info": "Sin una puerta de enlace KNX, la salida del flujo permanece habilitada para que los eventos de tono continúen alcanzando el nodo-rojo.",
+    "no_devices": "No se encontraron dispositivos de tono. Use el icono de actualización después de agregar un nuevo dispositivo.",
+    "read_status_startup": "Estado de lectura en el inicio",
+    "opt_no": "No",
+    "opt_yes_emit": "Sí, y emitir telegramas KNX."
+  },
+  "common": {
+    "ga": "Georgia",
+    "dpt": "DPT",
+    "name": "Nombre",
+    "youtube_sample": "Muestra de youtube",
+    "knx_gw": "KNX GW",
+    "hue_bridge": "Puente de tono",
+    "philips_hue": "Tono Philips",
+    "read": "Leer"
+  }
+}

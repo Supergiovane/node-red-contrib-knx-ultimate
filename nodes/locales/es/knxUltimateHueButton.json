@@ -1,0 +1,34 @@
+{
+  "knxUltimateHueButton": {
+    "paletteLabel": "Botón de tono",
+    "hue_sensor": "Botón de tono",
+    "no_devices": "No hay botones de Hue disponibles",
+    "tabs": {
+      "switch": "Cambiar",
+      "dim": "Oscuro",
+      "behaviour": "Comportamiento"
+    },
+    "switch_info": "Enlace la dirección de grupo KNX activada por prensas cortas.",
+    "switch_status": "Estado GA",
+    "dim_info": "Configure el KNX Dimming GA que maneja eventos repetidos durante prensas largas.",
+    "behaviour_info": "Seleccione si los eventos alternan los valores automáticamente o envían cargas útiles fijas.",
+    "toggle_values": "Alternar los valores en cada evento",
+    "toggle_values_hint": "Habilitar para alternar verdadero/falso y atenuar/abajo; Deshabilite enviar cargas útiles fijas definidas a continuación.",
+    "switch_send": "Cambiar de carga",
+    "dim_send": "Carga útil",
+    "dim_up": "Arriba",
+    "dim_down": "Abajo",
+    "dim_stop": "Detener",
+    "output_info": "No se seleccionó KNX Gateway. Los eventos todavía se emiten en el pin de salida de nodo-rojo."
+  },
+  "common": {
+    "ga": "Georgia",
+    "dpt": "DPT",
+    "name": "Nombre",
+    "youtube_sample": "Muestra de youtube",
+    "knx_gw": "KNX GW",
+    "hue_bridge": "Puente de tono",
+    "philips_hue": "Tono Philips",
+    "read": "Leer"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "hue-config": {
+    "properties": {
+      "title": "Bridge Hue Philips",
+      "host": "IP",
+      "host_placeholder": "Écrivez l'IP du pont Hue, puis cliquez sur Connecter",
+      "node-config-input-name": "Nom",
+      "getinfocam": "Inscrivez-vous à Hub",
+      "connect": "CONNECTER",
+      "bridge_id": "ID de pont",
+      "username": "Nom d'utilisateur",
+      "client_key": "Clé client",
+      "secrets": "Secrets",
+      "reveal": "Révéler",
+      "wait_message": "Attends, je parle à ton pont de teinte ...",
+      "caution": "ATTENTION: D'autres nœuds de teintes tiers coexistants peuvent causer des problèmes et ne doivent être désinstallés."
+    }
+  }
+}

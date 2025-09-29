@@ -1,0 +1,22 @@
+{
+  "knxUltimateHueContactSensor": {
+    "paletteLabel": "Sensor de contacto de tono",
+    "hue_sensor": "Sensor de contacto de tono",
+    "no_devices": "No hay sensores de contacto de Hue disponibles",
+    "tabs": {
+      "mapping": "Cartografía"
+    },
+    "mapping_info": "Enlace el KNX GA que debe recibir actualizaciones de estado de contacto.",
+    "output_info": "No se seleccionó KNX Gateway. Los eventos de contacto todavía se emiten en el pin de salida de nodo-rojo."
+  },
+  "common": {
+    "ga": "Georgia",
+    "dpt": "DPT",
+    "name": "Nombre",
+    "youtube_sample": "Muestra de youtube",
+    "knx_gw": "KNX GW",
+    "hue_bridge": "Puente de tono",
+    "philips_hue": "Tono Philips",
+    "read": "Leer"
+  }
+}
