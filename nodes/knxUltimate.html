@@ -161,18 +161,6 @@
                 })
             }
 
-            const ensureEditorStyles = () => {
-                if (document.getElementById('knxUltimateEditorHighlight')) return;
-                const style = document.createElement('style');
-                style.id = 'knxUltimateEditorHighlight';
-                style.textContent = `
-                    .ace_editor.knx-highlight .ace_content { background-color: #e6ffe6 !important; }
-                    .monaco-editor.knx-highlight .overflow-guard { background-color: #e6ffe6 !important; }
-                `;
-                document.head.appendChild(style);
-            };
-            ensureEditorStyles();
-
             const applyEditorOptions = (editor) => {
                 try {
                     if (!editor) return;
@@ -188,14 +176,17 @@
             const highlightEditor = (editor, active) => {
                 if (!editor) return;
                 try {
-                    if (editor.renderer && typeof editor.renderer.setStyle === 'function') {
-                        const cls = 'knx-highlight';
-                        if (active) editor.renderer.setStyle(cls); else editor.renderer.unsetStyle(cls);
-                    } else if (typeof editor.getDomNode === 'function') {
+                    if (editor.renderer && editor.renderer.scroller) {
+                        editor.renderer.scroller.style.backgroundColor = active ? '#e6ffe6' : '';
+                    }
+                    if (editor.renderer && editor.renderer.content) {
+                        editor.renderer.content.style.backgroundColor = active ? '#e6ffe6' : '';
+                    }
+                    if (typeof editor.getDomNode === 'function') {
                         const dom = editor.getDomNode();
-                        if (dom) {
-                            if (active) dom.classList.add('knx-highlight'); else dom.classList.remove('knx-highlight');
-                        }
+                        if (dom) dom.style.backgroundColor = active ? '#e6ffe6' : '';
+                    } else if (editor.container) {
+                        editor.container.style.backgroundColor = active ? '#e6ffe6' : '';
                     }
                 } catch (error) { }
             };
