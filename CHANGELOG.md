@@ -7,6 +7,10 @@
 # CHANGELOG
 
 **Version 4.0.11** - October 2025<br/>
+- HUE nodes: hardened KNX telegram handling with a shared safe-send guard so editor events no longer ceases to function, when the KNX gateway is offline.<br/>
+- HUE Contact Sensor node: placeholders now leverage i18n translations with graceful fallback when translation keys are missing.<br/>
+- Editor polish: unified the default width of the `name` input across KNX and Hue nodes for a consistent layout.<br/>
+- KNX Scene Controller, Alerter and Load Control nodes: GA autocompletes now open their suggestion list immediately on focus/click to speed up GA selection.<br/>
 - HUE Light node: added configuration UI and runtime support for Hue lamp dynamic effects (candle, fireplace, etc.) with KNX mappings and status feedback.<br/>
 - NEW: Added Hue Plug/Outlet node to map KNX on/off control to Philips Hue smart plugs.<br/>
 - NEW: Added Hue Humidity Sensor node to expose relative humidity readings from Hue bridges to KNX.<br/>
