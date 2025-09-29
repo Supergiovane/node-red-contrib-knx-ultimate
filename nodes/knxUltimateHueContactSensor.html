@@ -20,6 +20,19 @@
     const DEVICE_PLACEHOLDER_KEY = 'node-red-contrib-knx-ultimate/knxUltimateHueContactSensor:knxUltimateHueContactSensor.placeholders.device';
     const NO_DEVICES_KEY = 'node-red-contrib-knx-ultimate/knxUltimateHueContactSensor:knxUltimateHueContactSensor.no_devices';
 
+    const translateOrEmpty = (key) => {
+      try {
+        if (!key) return '';
+        const translated = RED._(key);
+        if (!translated) return '';
+        const baseKey = key.includes(':') ? key.split(':')[1] : key;
+        if (translated === key || translated === baseKey) return '';
+        return translated;
+      } catch (error) {
+        return '';
+      }
+    };
+
     const ensureVerticalTabsStyle = () => {
       if ($('#knxUltimateHueContactVerticalTabs').length) return;
       const style = `
@@ -145,9 +158,10 @@
         }
         return;
       }
-      const translated = RED._(NO_DEVICES_KEY);
-      const fallback = RED._(DEVICE_PLACEHOLDER_KEY);
-      const message = (!translated || translated === NO_DEVICES_KEY) ? (fallback || defaultDevicePlaceholder) : translated;
+      const translated = translateOrEmpty(NO_DEVICES_KEY);
+      const fallback = translateOrEmpty(DEVICE_PLACEHOLDER_KEY) || defaultDevicePlaceholder;
+      if (fallback && !defaultDevicePlaceholder) defaultDevicePlaceholder = fallback;
+      const message = translated || fallback || '';
       showingNoDevicesPlaceholder = true;
       $deviceName.attr('placeholder', message);
       if (($deviceName.val() || '').trim() === '') {
@@ -380,7 +394,7 @@
         cachedDevices = Array.isArray(node._cachedContactDevices) ? node._cachedContactDevices : [];
         node._cachedContactDevices = cachedDevices;
 
-        defaultDevicePlaceholder = RED._(DEVICE_PLACEHOLDER_KEY) || $deviceName.attr('placeholder') || '';
+        defaultDevicePlaceholder = translateOrEmpty(DEVICE_PLACEHOLDER_KEY) || $deviceName.attr('placeholder') || '';
         if ($deviceName && defaultDevicePlaceholder) {
           $deviceName.attr('placeholder', defaultDevicePlaceholder);
         }
@@ -440,8 +454,12 @@
           node._cachedContactDevices = cachedDevices;
           if ($loadingIndicator) $loadingIndicator.hide();
           showingNoDevicesPlaceholder = false;
-          if ($deviceName && defaultDevicePlaceholder) {
-            $deviceName.attr('placeholder', defaultDevicePlaceholder);
+          if ($deviceName) {
+            const resolvedDefault = translateOrEmpty(DEVICE_PLACEHOLDER_KEY) || defaultDevicePlaceholder;
+            if (resolvedDefault) {
+              defaultDevicePlaceholder = resolvedDefault;
+              $deviceName.attr('placeholder', resolvedDefault);
+            }
           }
           if (!hasHueSelection()) {
             applyNoDevicesPlaceholder(true);

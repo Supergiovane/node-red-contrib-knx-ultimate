@@ -112,7 +112,7 @@
             // Autocomplete suggestion with ETS csv File
             this.autoComplete = (_Name, _DPT) => {
                 let paramAutoComplete = {
-                    minLength: 1,
+                    minLength: 0,
                     source: function (request, response) {
                         $.getJSON("knxUltimatecsv?nodeID=" + oNodeServer.id, (data) => {
                             response($.map(data, function (value, key) {
@@ -152,11 +152,23 @@
                 return paramAutoComplete;
             };
 
-            $("#node-input-topic").autocomplete(this.autoComplete("name", "dpt"));
+            $("#node-input-topic").autocomplete(this.autoComplete("name", "dpt")).on('focus.knxUltimateLoadControl click.knxUltimateLoadControl', function () {
+                try {
+                    $(this).autocomplete('search', '');
+                } catch (error) { /* empty */ }
+            });
             try { var srv = RED.nodes.node($("#node-input-server").val()); if (srv && srv.id) KNX_enableSecureFormatting($("#node-input-topic"), srv.id); } catch (e) {}
             for (let index = 1; index < 6; index++) {
-                $("#node-input-GA" + index).autocomplete(this.autoComplete("Name" + index, "DPT" + index));
-                $("#node-input-MonitorGA" + index).autocomplete(this.autoComplete("MonitorName" + index, "MonitorDPT" + index));
+                $("#node-input-GA" + index).autocomplete(this.autoComplete("Name" + index, "DPT" + index)).on('focus.knxUltimateLoadControl click.knxUltimateLoadControl', function () {
+                    try {
+                        $(this).autocomplete('search', '');
+                    } catch (error) { /* empty */ }
+                });
+                $("#node-input-MonitorGA" + index).autocomplete(this.autoComplete("MonitorName" + index, "MonitorDPT" + index)).on('focus.knxUltimateLoadControl click.knxUltimateLoadControl', function () {
+                    try {
+                        $(this).autocomplete('search', '');
+                    } catch (error) { /* empty */ }
+                });
                 try { var srv2 = RED.nodes.node($("#node-input-server").val()); if (srv2 && srv2.id) KNX_enableSecureFormatting($("#node-input-GA" + index), srv2.id); } catch (e) {}
                 try { var srv3 = RED.nodes.node($("#node-input-server").val()); if (srv3 && srv3.id) KNX_enableSecureFormatting($("#node-input-MonitorGA" + index), srv3.id); } catch (e) {}
             }
@@ -200,7 +212,7 @@
     </label>
     <input style="width:15%" type="text" id="node-input-topic" placeholder="Ex: 1/1/1" />
     <select style="width:15%" id="node-input-dpt"></select>  
-    <input style="width:40%" type="text" id="node-input-name" data-i18n="[placeholder]knxUltimateLoadControl.properties.node-input-name">      
+    <input style="flex:1 1 240px; min-width:240px; max-width:240px;" type="text" id="node-input-name" data-i18n="[placeholder]knxUltimateLoadControl.properties.node-input-name">      
 </div>
 
 <div class="form-row">
@@ -360,4 +372,3 @@
 </br>
 </br>
 </script>
-
