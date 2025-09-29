@@ -161,25 +161,94 @@
                 })
             }
 
+            const ensureEditorStyles = () => {
+                if (document.getElementById('knxUltimateEditorHighlight')) return;
+                const style = document.createElement('style');
+                style.id = 'knxUltimateEditorHighlight';
+                style.textContent = `
+                    .ace_editor.knx-highlight .ace_content { background-color: #e6ffe6 !important; }
+                    .monaco-editor.knx-highlight .overflow-guard { background-color: #e6ffe6 !important; }
+                `;
+                document.head.appendChild(style);
+            };
+            ensureEditorStyles();
+
+            const applyEditorOptions = (editor) => {
+                try {
+                    if (!editor) return;
+                    if (typeof editor.updateOptions === 'function') {
+                        editor.updateOptions({ lineNumbers: 'off', minimap: { enabled: false }, scrollbar: { verticalScrollbarSize: 8, horizontalScrollbarSize: 8 } });
+                    } else if (editor.renderer && typeof editor.renderer.setShowGutter === 'function') {
+                        editor.renderer.setShowGutter(false);
+                    }
+                    if (typeof editor.setShowPrintMargin === 'function') editor.setShowPrintMargin(false);
+                } catch (error) { }
+            };
+
+            const highlightEditor = (editor, active) => {
+                if (!editor) return;
+                try {
+                    if (editor.renderer && typeof editor.renderer.setStyle === 'function') {
+                        const cls = 'knx-highlight';
+                        if (active) editor.renderer.setStyle(cls); else editor.renderer.unsetStyle(cls);
+                    } else if (typeof editor.getDomNode === 'function') {
+                        const dom = editor.getDomNode();
+                        if (dom) {
+                            if (active) dom.classList.add('knx-highlight'); else dom.classList.remove('knx-highlight');
+                        }
+                    }
+                } catch (error) { }
+            };
+
+            const attachFocusHandlers = (editor) => {
+                if (!editor) return;
+                try {
+                    if (typeof editor.on === 'function' && editor.renderer) {
+                        editor.on('focus', () => { node.activeCodeEditor = editor; highlightEditor(editor, true); });
+                        editor.on('blur', () => highlightEditor(editor, false));
+                    } else if (typeof editor.onDidFocusEditorWidget === 'function') {
+                        editor.onDidFocusEditorWidget(() => { node.activeCodeEditor = editor; highlightEditor(editor, true); });
+                        if (typeof editor.onDidBlurEditorWidget === 'function') {
+                            editor.onDidBlurEditorWidget(() => highlightEditor(editor, false));
+                        }
+                    }
+                } catch (error) { }
+            };
+
+            const insertTextIntoEditor = (editor, text) => {
+                if (!editor || !text) return;
+                try {
+                    if (editor.session && typeof editor.session.insert === 'function') {
+                        editor.focus();
+                        editor.session.insert(editor.getCursorPosition(), text);
+                        return;
+                    }
+                    if (typeof editor.executeEdits === 'function' && typeof editor.getPosition === 'function' && typeof monaco !== 'undefined') {
+                        const position = editor.getPosition();
+                        if (!position) return;
+                        const range = new monaco.Range(position.lineNumber, position.column, position.lineNumber, position.column);
+                        editor.executeEdits('knxInsertGA', [{ range, text, forceMoveMarkers: true }]);
+                        editor.setPosition({ lineNumber: position.lineNumber, column: position.column + text.length });
+                        editor.focus();
+                    }
+                } catch (error) { }
+            };
+
             node.sendMsgToKNXCodeEditor = RED.editor.createEditor({
                 id: 'sendMsgToKNXCode-editor',
                 mode: 'ace/mode/nrjavascript',
                 value: node.sendMsgToKNXCode
             });
+            applyEditorOptions(node.sendMsgToKNXCodeEditor);
             node.receiveMsgFromKNXCodeEditor = RED.editor.createEditor({
                 id: 'receiveMsgFromKNXCode-editor',
                 mode: 'ace/mode/nrjavascript',
                 value: node.receiveMsgFromKNXCode
             });
+            applyEditorOptions(node.receiveMsgFromKNXCodeEditor);
             node.activeCodeEditor = null;
-            try {
-                node.sendMsgToKNXCodeEditor.on('focus', function () {
-                    node.activeCodeEditor = node.sendMsgToKNXCodeEditor;
-                });
-                node.receiveMsgFromKNXCodeEditor.on('focus', function () {
-                    node.activeCodeEditor = node.receiveMsgFromKNXCodeEditor;
-                });
-            } catch (error) { }
+            attachFocusHandlers(node.sendMsgToKNXCodeEditor);
+            attachFocusHandlers(node.receiveMsgFromKNXCodeEditor);
 
             $("#btn-insert-knxFunctionGA").off('click').on('click', function () {
                 const value = $("#node-input-knxFunctionHelperGAList").val();
@@ -189,10 +258,7 @@
                 }
                 const editor = node.activeCodeEditor || node.sendMsgToKNXCodeEditor || node.receiveMsgFromKNXCodeEditor;
                 if (!editor) return;
-                try {
-                    editor.focus();
-                    editor.session.insert(editor.getCursorPosition(), value);
-                } catch (error) { }
+                insertTextIntoEditor(editor, value);
             });
 
             const configureSnippetPicker = (snippets, inputSelector, datalistSelector, applySnippet) => {
@@ -921,7 +987,7 @@
                         <i class="fa fa-search"></i> <span data-i18n="knxUltimate.snippets.searchGA"></span>
                     </label>
                     <input type="text" id="node-input-knxFunctionHelperGAList"
-                        data-i18n="[placeholder]knxUltimate.placeholder.search" style="max-width:280px;" />
+                        data-i18n="[placeholder]knxUltimate.placeholder.search" style="min-width:260px;" />
                     <button type="button" class="red-ui-button" id="btn-insert-knxFunctionGA" title="Insert"
                         style="margin-left:4px;">
                         <i class="fa fa-level-down"></i>
