@@ -171,6 +171,30 @@
                 mode: 'ace/mode/nrjavascript',
                 value: node.receiveMsgFromKNXCode
             });
+            node.activeCodeEditor = null;
+            try {
+                node.sendMsgToKNXCodeEditor.on('focus', function () {
+                    node.activeCodeEditor = node.sendMsgToKNXCodeEditor;
+                });
+                node.receiveMsgFromKNXCodeEditor.on('focus', function () {
+                    node.activeCodeEditor = node.receiveMsgFromKNXCodeEditor;
+                });
+            } catch (error) { }
+
+            $("#btn-insert-knxFunctionGA").off('click').on('click', function () {
+                const value = $("#node-input-knxFunctionHelperGAList").val();
+                if (!value || value.trim() === '') {
+                    $("#node-input-knxFunctionHelperGAList").focus();
+                    return;
+                }
+                const editor = node.activeCodeEditor || node.sendMsgToKNXCodeEditor || node.receiveMsgFromKNXCodeEditor;
+                if (!editor) return;
+                try {
+                    editor.focus();
+                    editor.session.insert(editor.getCursorPosition(), value);
+                } catch (error) { }
+            });
+
             const configureSnippetPicker = (snippets, inputSelector, datalistSelector, applySnippet) => {
                 const inputEl = $(inputSelector)
                 const datalistEl = $(datalistSelector)
@@ -897,7 +921,11 @@
                         <i class="fa fa-search"></i> <span data-i18n="knxUltimate.snippets.searchGA"></span>
                     </label>
                     <input type="text" id="node-input-knxFunctionHelperGAList"
-                        data-i18n="[placeholder]knxUltimate.placeholder.search" />
+                        data-i18n="[placeholder]knxUltimate.placeholder.search" style="min-width:200px;" />
+                    <button type="button" class="red-ui-button" id="btn-insert-knxFunctionGA" title="Insert"
+                        style="margin-left:4px;">
+                        <i class="fa fa-level-down"></i>
+                    </button>
                 </div>
 
 
