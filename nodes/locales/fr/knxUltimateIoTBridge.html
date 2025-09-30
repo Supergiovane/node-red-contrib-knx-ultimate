@@ -1,0 +1,150 @@
+<script type="text/markdown" data-help-name="knxUltimateIoTBridge">
+# Passerelle KNX ↔ IoT
+
+Créez des ponts bidirectionnels entre des adresses de groupe KNX et des canaux IoT (topics MQTT, points de terminaison REST, registres Modbus). Chaque correspondance peut mettre à l’échelle les valeurs, formater les charges utiles et exposer des métadonnées aux nœuds suivants.
+
+## Entrées
+
+|Propriété|Description|
+|--|--|
+| Entrée du flow | Si activé, les messages dont `topic` ou `msg.bridge` correspond à une correspondance sont convertis en payload KNX et écrits sur le bus. |
+| Télégrammes KNX | Les télégrammes entrants sont comparés aux GA configurées et relayés sous forme d’évènements de la passerelle. Les lectures sont ignorées tant qu’aucune valeur n’est fournie. |
+
+## Sorties
+
+|Sortie|Description|
+|--|--|
+| 1 (KNX → IoT) | Émet la valeur transformée ainsi que les métadonnées `msg.bridge` (type de canal, cible, échelle) et `msg.knx` (GA, DPT, source, évènement). |
+| 2 (IoT → KNX ack) | Confirme les écritures issues du flow avec la GA résolue et le payload appliqué sur KNX. |
+
+## Champs de correspondance
+
+- **Direction** — choisir KNX→IoT, IoT→KNX ou bidirectionnel.
+- **Type de canal** — MQTT utilise la cible comme topic, REST comme URL de base, Modbus comme identifiant de registre.
+- **Échelle & offset** — appliqués pour KNX→IoT ; IoT→KNX applique la transformation inverse.
+- **Template** — chaîne optionnelle remplaçant `{{value}}`, `{{ga}}`, `{{label}}`, `{{target}}`, `{{type}}`, `{{isoTimestamp}}`.
+- **Timeout / Tentatives** — informations exposées sur le message pour aider les nœuds en aval à gérer les reprises.
+
+## Conseils d’utilisation
+
+- Chaînez les nœuds de transport après la sortie&nbsp;1 (ex. `mqtt out`, `http request` ou les nœuds `modbus-flex-write` du paquet `node-red-contrib-modbus`).
+- Utilisez un nœud `switch` sur `msg.bridge.type` pour router selon le canal ou sur `msg.bridge.id` pour une logique par correspondance.
+- Activez *Lire les valeurs KNX au déploiement* pour alimenter les tableaux de bord après un redeploiement.
+
+## Exemples de transport
+
+### Publication KNX → MQTT
+
+1. Configurez une correspondance avec `Direction = Bidirectionnel`, `Type = MQTT`, `Target = knx/status/lumiere1`.
+2. Reliez la sortie&nbsp;1 à un nœud `mqtt out` configuré vers votre broker.
+3. À chaque changement de GA, la passerelle émet :
+
+```
+{
+  "topic": "knx/status/lumiere1",
+  "payload": true,
+  "bridge": { "type": "mqtt", "id": "..." },
+  "knx": { "ga": "1/1/10", "event": "GroupValue_Write" }
+}
+```
+
+### Commande MQTT → écriture KNX
+
+1. Définissez `Direction = Bidirectionnel`, `Type = MQTT`, `Target = knx/cmd/lumiere1`.
+2. Connectez un nœud `mqtt in` sur le même topic à l’entrée de la passerelle.
+3. Publiez `false` sur `knx/cmd/lumiere1`; la passerelle écrit `0` sur la GA configurée et génère un ack sur la broche&nbsp;2.
+
+### Capture via webhook REST
+
+1. Configurez `Direction = KNX → IoT`, `Type = REST`, `Target = https://example/api/knx/lumiere1` et `Template = {"value":{{value}},"ga":"{{ga}}"}`.
+2. Envoyez la sortie&nbsp;1 vers un nœud `http request` (la méthode provient de `bridge.method`).
+3. Les réponses peuvent être transmises à des tableaux de bord ou à des journaux.
+
+### Synchronisation de registre Modbus
+
+- Associez la passerelle aux nœuds `modbus-flex-write` du paquet `node-red-contrib-modbus`. La sortie&nbsp;1 transporte l’adresse Modbus dans `msg.address` et la valeur dans `msg.payload`.
+
+## Flow d’exemple
+
+Importez ce flow minimal et adaptez les GA/topics :
+
+```json
+[
+  {
+    "id": "bridge1",
+    "type": "knxUltimateIoTBridge",
+    "z": "flow1",
+    "server": "gateway1",
+    "name": "Passerelle lumière",
+    "outputtopic": "",
+    "emitOnChangeOnly": true,
+    "readOnDeploy": true,
+    "acceptFlowInput": true,
+    "mappings": [
+      {
+        "id": "map-lumiere",
+        "enabled": true,
+        "label": "Lumière salon",
+        "ga": "1/1/10",
+        "dpt": "1.001",
+        "direction": "bidirectional",
+        "iotType": "mqtt",
+        "target": "knx/light/living",
+        "method": "POST",
+        "modbusFunction": "writeHoldingRegister",
+        "scale": 1,
+        "offset": 0,
+        "template": "{{value}}",
+        "property": "",
+        "timeout": 0,
+        "retry": 0
+      }
+    ],
+    "wires": [["mqttOut1"],["debugAck"]]
+  },
+  {
+    "id": "mqttOut1",
+    "type": "mqtt out",
+    "z": "flow1",
+    "name": "MQTT statut",
+    "topic": "",
+    "qos": "0",
+    "retain": "false",
+    "broker": "mqttBroker",
+    "x": 530,
+    "y": 120,
+    "wires": []
+  },
+  {
+    "id": "mqttIn1",
+    "type": "mqtt in",
+    "z": "flow1",
+    "name": "MQTT commande",
+    "topic": "knx/light/living/set",
+    "qos": "1",
+    "datatype": "auto",
+    "broker": "mqttBroker",
+    "x": 120,
+    "y": 180,
+    "wires": [["bridge1"]]
+  },
+  {
+    "id": "debugAck",
+    "type": "debug",
+    "z": "flow1",
+    "name": "Ack KNX",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "true",
+    "x": 540,
+    "y": 180,
+    "wires": []
+  }
+]
+```
+
+N’oubliez pas de configurer la passerelle KNX, le broker MQTT et tout connecteur Modbus dans votre flow avant le déploiement.
+
+</script>

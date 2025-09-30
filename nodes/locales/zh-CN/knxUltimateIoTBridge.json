@@ -1,0 +1,77 @@
+{
+  "knxUltimateIoTBridge": {
+    "title": "KNX ↔ IoT Bridge",
+    "paletteLabel": "IoT Bridge",
+    "node-input-server": "KNX 网关",
+    "node-input-name": "名称",
+    "node-input-outputtopic": "输出的默认主题",
+    "node-input-emitOnChangeOnly": "仅在值变化时发送 KNX→IoT 更新",
+    "node-input-readOnDeploy": "部署时读取 KNX 数值",
+    "node-input-acceptFlowInput": "允许流程输入 (IoT → KNX)",
+    "section_mappings": "桥接映射",
+    "mapping": {
+      "enabled": "启用",
+      "timeout": "超时 (ms)",
+      "retry": "重试次数"
+    },
+    "fields": {
+      "label": "名称",
+      "ga": "组地址",
+      "dpt": "DPT",
+      "direction": "方向",
+      "channel": "通道",
+      "target": "目标",
+      "method": "HTTP 方法",
+      "modbusFunction": "Modbus 功能",
+      "scale": "缩放",
+      "offset": "偏移",
+      "timeout": "超时 (ms)",
+      "retry": "重试次数",
+      "template": "模板",
+      "property": "属性/路径"
+    },
+    "direction": {
+      "bidirectional": "KNX ↔ IoT",
+      "knx-to-iot": "KNX → IoT",
+      "iot-to-knx": "IoT → KNX"
+    },
+    "type": {
+      "mqtt": "MQTT",
+      "rest": "REST",
+      "modbus": "Modbus"
+    },
+    "placeholders": {
+      "label": "名称或别名",
+      "ga": "1/2/3",
+      "dpt": "1.001",
+      "target": "主题、URL 或寄存器",
+      "target_mqtt": "主题，例如 knx/light/living",
+      "target_rest": "https://example/api/endpoint",
+      "target_modbus": "寄存器（如 40001）",
+      "template": "{\"value\":{{value}}}",
+      "property": "可选属性/路径",
+      "method": "POST",
+      "modbusFunction": "writeHoldingRegister"
+    },
+    "fieldVariants": {
+      "target": {
+        "default": "目标",
+        "mqtt": "MQTT 主题",
+        "rest": "REST URL",
+        "modbus": "Modbus 寄存器"
+      },
+      "method": {
+        "default": "HTTP 方法",
+        "rest": "HTTP 方法"
+      },
+      "modbusFunction": {
+        "default": "Modbus 功能",
+        "modbus": "Modbus 功能"
+      }
+    },
+    "labels": {
+      "outputKnxToIoT": "KNX → IoT 流",
+      "outputIoTToKnx": "IoT → KNX 确认"
+    }
+  }
+}

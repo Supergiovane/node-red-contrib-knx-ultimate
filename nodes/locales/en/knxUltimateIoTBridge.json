@@ -1,0 +1,77 @@
+{
+  "knxUltimateIoTBridge": {
+    "title": "KNX ↔ IoT Bridge",
+    "paletteLabel": "IoT Bridge",
+    "node-input-server": "KNX Gateway",
+    "node-input-name": "Name",
+    "node-input-outputtopic": "Default topic for outputs",
+    "node-input-emitOnChangeOnly": "Emit KNX→IoT updates only when the value changes",
+    "node-input-readOnDeploy": "Read KNX values on deploy",
+    "node-input-acceptFlowInput": "Accept flow input (IoT → KNX)",
+    "section_mappings": "Bridge mappings",
+    "mapping": {
+      "enabled": "Enable",
+      "timeout": "Timeout (ms)",
+      "retry": "Retries"
+    },
+    "fields": {
+      "label": "Name",
+      "ga": "Group address",
+      "dpt": "DPT",
+      "direction": "Direction",
+      "channel": "Channel",
+      "target": "Target",
+      "method": "HTTP method",
+      "modbusFunction": "Modbus function",
+      "scale": "Scale",
+      "offset": "Offset",
+      "timeout": "Timeout (ms)",
+      "retry": "Retries",
+      "template": "Template",
+      "property": "Property/path"
+    },
+    "direction": {
+      "bidirectional": "KNX ↔ IoT",
+      "knx-to-iot": "KNX → IoT",
+      "iot-to-knx": "IoT → KNX"
+    },
+    "type": {
+      "mqtt": "MQTT",
+      "rest": "REST",
+      "modbus": "Modbus"
+    },
+    "placeholders": {
+      "label": "Name or alias",
+      "ga": "1/2/3",
+      "dpt": "1.001",
+      "target": "Topic, URL or register",
+      "target_mqtt": "Topic, e.g. knx/light/living",
+      "target_rest": "https://example/api/endpoint",
+      "target_modbus": "Register (e.g. 40001)",
+      "template": "{\"value\":{{value}}}",
+      "property": "Optional property/path",
+      "method": "POST",
+      "modbusFunction": "writeHoldingRegister"
+    },
+    "fieldVariants": {
+      "target": {
+        "default": "Target",
+        "mqtt": "MQTT topic",
+        "rest": "REST URL",
+        "modbus": "Modbus register"
+      },
+      "method": {
+        "default": "HTTP method",
+        "rest": "HTTP method"
+      },
+      "modbusFunction": {
+        "default": "Modbus function",
+        "modbus": "Modbus function"
+      }
+    },
+    "labels": {
+      "outputKnxToIoT": "KNX → IoT stream",
+      "outputIoTToKnx": "IoT → KNX acknowledgements"
+    }
+  }
+}

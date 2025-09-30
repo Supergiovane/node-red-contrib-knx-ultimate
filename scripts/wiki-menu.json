@@ -190,6 +190,16 @@
             "zh": "HA 翻译器"
           },
           "page": "HATranslator"
+        },
+        {
+          "type": "page",
+          "labels": {
+            "en": "IoT Bridge",
+            "it": "IoT Bridge",
+            "de": "IoT Bridge",
+            "zh": "物联网桥接"
+          },
+          "page": "IoT-Bridge-Configuration"
         }
       ]
     },

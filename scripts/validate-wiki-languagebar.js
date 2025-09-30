@@ -17,6 +17,15 @@ const ABS_PREFIX = 'https://github.com/Supergiovane/node-red-contrib-knx-ultimat
 
 const fix = process.argv.includes('--fix');
 
+const LANGUAGES = [
+  { code: 'EN', prefix: '', slugPrefix: '', label: 'EN' },
+  { code: 'IT', prefix: 'it-', slugPrefix: 'it-', label: 'IT' },
+  { code: 'DE', prefix: 'de-', slugPrefix: 'de-', label: 'DE' },
+  { code: 'FR', prefix: 'fr-', slugPrefix: 'fr-', label: 'FR' },
+  { code: 'ES', prefix: 'es-', slugPrefix: 'es-', label: 'ES' },
+  { code: 'ZH', prefix: 'zh-CN-', slugPrefix: 'zh-CN-', label: '简体中文' }
+];
+
 function listMarkdown(dir) {
   const out = [];
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
@@ -28,12 +37,18 @@ function listMarkdown(dir) {
 }
 
 function deriveBaseTitle(filename) {
-  // filename without extension
   let title = path.basename(filename, '.md');
-  // strip language prefix
-  if (title.startsWith('it-')) title = title.slice(3);
-  else if (title.startsWith('de-')) title = title.slice(3);
-  else if (title.startsWith('zh-CN-')) title = title.slice('zh-CN-'.length);
+  let changed = true;
+  while (changed) {
+    changed = false;
+    for (const lang of LANGUAGES) {
+      if (lang.prefix && title.startsWith(lang.prefix)) {
+        title = title.slice(lang.prefix.length);
+        changed = true;
+        break;
+      }
+    }
+  }
   return title;
 }
 
@@ -43,21 +58,18 @@ function toSlug(title) {
 
 function expectedLinks(filename) {
   const base = deriveBaseTitle(filename);
-  const slugEN = toSlug(base);
-  const slugIT = 'it-' + slugEN;
-  const slugDE = 'de-' + slugEN;
-  const slugZH = 'zh-CN-' + slugEN;
-  return {
-    EN: ABS_PREFIX + slugEN,
-    IT: ABS_PREFIX + slugIT,
-    DE: ABS_PREFIX + slugDE,
-    ZH: ABS_PREFIX + slugZH,
-  };
+  const slugBase = toSlug(base);
+  const entries = LANGUAGES.map((lang) => {
+    const slug = lang.slugPrefix + slugBase;
+    return { lang, href: ABS_PREFIX + slug };
+  });
+  return entries;
 }
 
 function buildBar(filename) {
-  const e = expectedLinks(filename);
-  return `🌐 Language: [EN](${e.EN}) | [IT](${e.IT}) | [DE](${e.DE}) | [简体中文](${e.ZH})`;
+  const entries = expectedLinks(filename);
+  const parts = entries.map((entry) => `[${entry.lang.label}](${entry.href})`);
+  return `🌐 Language: ${parts.join(' | ')}`;
 }
 
 function validateFile(file) {

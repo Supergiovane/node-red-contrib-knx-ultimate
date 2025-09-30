@@ -7,6 +7,7 @@
 # CHANGELOG
 
 **Version 4.0.13** - October 2025<br/>
+- NEW: Added KNX ↔ IoT Bridge node to orchestrate bidirectional KNX↔MQTT/REST/Modbus mappings with scaling, templating and ack metadata.<br/>
 - NEW: Added KNX Garage Door node with boolean/impulse control, hold-open and disable GAs, safety integration and automatic re-close timer.<br/>
 - KNX Staircase node: editor refinements with read-only DPTs, flow payload support and localisation polish across supported languages.<br/>
 - KNX Staircase & Garage nodes: unified status handling and multilingual flow examples in docs/help.<br/>

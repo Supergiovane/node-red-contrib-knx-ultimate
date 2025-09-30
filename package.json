@@ -39,6 +39,7 @@
       "knxUltimateAutoResponder": "/nodes/knxUltimateAutoResponder.js",
       "knxUltimateStaircase": "/nodes/knxUltimateStaircase.js",
       "knxUltimateGarage": "/nodes/knxUltimateGarage.js",
+      "knxUltimateIoTBridge": "/nodes/knxUltimateIoTBridge.js",
       "hueConfig": "/nodes/hue-config.js",
       "knxUltimateHueLight": "/nodes/knxUltimateHueLight.js",
       "knxUltimateHueButton": "/nodes/knxUltimateHueButton.js",

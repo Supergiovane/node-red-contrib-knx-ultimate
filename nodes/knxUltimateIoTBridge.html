@@ -1,0 +1,387 @@
+<script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/htmlUtils.js"></script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('knxUltimateIoTBridge', {
+        category: 'KNX Ultimate',
+        color: '#C7E9C0',
+        defaults: {
+            server: { type: 'knxUltimate-config', required: false },
+            name: { value: '' },
+            outputtopic: { value: '' },
+            emitOnChangeOnly: { value: true },
+            readOnDeploy: { value: true },
+            acceptFlowInput: { value: true },
+            mappings: { value: [] }
+        },
+        inputs: 1,
+        outputs: 2,
+        outputLabels: function (index) {
+            if (index === 0) return this._('knxUltimateIoTBridge.labels.outputKnxToIoT');
+            if (index === 1) return this._('knxUltimateIoTBridge.labels.outputIoTToKnx');
+        },
+        icon: 'node-knx-icon.svg',
+        paletteLabel: function () {
+            return this._('knxUltimateIoTBridge.paletteLabel');
+        },
+        label: function () {
+            return this.name || this._('knxUltimateIoTBridge.title');
+        },
+        oneditprepare: function () {
+            try {
+                RED.sidebar.show('help');
+            } catch (error) { }
+
+            const node = this;
+            let oNodeServer = RED.nodes.node($('#node-input-server').val());
+
+            $('#node-input-server').change(function () {
+                try {
+                    oNodeServer = RED.nodes.node($(this).val());
+                } catch (error) { }
+            });
+
+            const directions = [
+                { value: 'bidirectional', label: node._('knxUltimateIoTBridge.direction.bidirectional') },
+                { value: 'knx-to-iot', label: node._('knxUltimateIoTBridge.direction.knx-to-iot') },
+                { value: 'iot-to-knx', label: node._('knxUltimateIoTBridge.direction.iot-to-knx') }
+            ];
+
+            const channelTypes = [
+                { value: 'mqtt', label: node._('knxUltimateIoTBridge.type.mqtt') },
+                { value: 'rest', label: node._('knxUltimateIoTBridge.type.rest') },
+                { value: 'modbus', label: node._('knxUltimateIoTBridge.type.modbus') }
+            ];
+
+            function createLabeledField(row, key, element, options = {}) {
+                const wrapper = $('<div/>', {
+                    class: 'bridge-field-wrapper',
+                    style: 'display:flex; flex-direction:column; margin-right:10px;'
+                }).appendTo(row);
+                if (options.width) wrapper.css('width', options.width);
+                if (options.flex) wrapper.css('flex', options.flex);
+                const labelSpan = $('<span/>', {
+                    class: 'bridge-field-label',
+                    text: node._('knxUltimateIoTBridge.fields.' + key),
+                    style: 'font-size:11px; color:#666; margin-bottom:2px;'
+                }).appendTo(wrapper);
+                element.css('width', '100%');
+                element.appendTo(wrapper);
+                element.data('bridgeWrapper', wrapper);
+                element.data('bridgeLabel', labelSpan);
+                return element;
+            }
+
+            const buildSelect = (options, selected) => {
+                const select = $('<select/>', { class: 'form-control input-small' });
+                options.forEach(opt => {
+                    const option = $('<option/>', { value: opt.value }).text(opt.label);
+                    if (opt.value === selected) option.attr('selected', 'selected');
+                    select.append(option);
+                });
+                return select;
+            };
+
+            const container = $('#node-input-mapping-container');
+            container.css('min-height', '320px').css('min-width', '640px').editableList({
+                sortable: true,
+                removable: true,
+                addItem: function (row, index, data) {
+                    const mapping = $.extend(true, {
+                        id: '',
+                        enabled: true,
+                        label: '',
+                        ga: '',
+                        dpt: '',
+                        direction: 'bidirectional',
+                        iotType: 'mqtt',
+                        target: '',
+                        method: 'POST',
+                        modbusFunction: 'writeHoldingRegister',
+                        scale: 1,
+                        offset: 0,
+                        template: '',
+                        property: '',
+                        timeout: 0,
+                        retry: 0
+                    }, data.mapping);
+
+                    if (!mapping.id || mapping.id === '') {
+                        try {
+                            mapping.id = RED.util.generateId();
+                        } catch (error) {
+                            mapping.id = Math.random().toString(16).slice(2);
+                        }
+                    }
+
+                    const block = $('<div/>').addClass('knxultimate-bridge-block').appendTo(row);
+
+                    const topRow = $('<div/>').addClass('form-row').css({ display: 'flex', alignItems: 'flex-end', flexWrap: 'wrap', gap: '12px' }).appendTo(block);
+                    const midRow = $('<div/>').addClass('form-row').css({ display: 'flex', alignItems: 'flex-end', flexWrap: 'wrap', gap: '12px', marginTop: '8px' }).appendTo(block);
+                    const bottomRow = $('<div/>').addClass('form-row').css({ display: 'flex', alignItems: 'flex-end', flexWrap: 'wrap', gap: '12px', marginTop: '8px' }).appendTo(block);
+
+                    const checkboxWrapper = $('<label/>', { class: 'bridge-enabled-wrapper', style: 'display:flex; align-items:center; gap:6px; padding:4px 8px 4px 6px; border:1px solid #ced4da; border-radius:4px; background:#fff; cursor:pointer;' }).appendTo(topRow);
+                    const enabled = $('<input/>', { type: 'checkbox', class: 'bridge-enabled', style: 'margin:0;' }).appendTo(checkboxWrapper);
+                    $('<span/>', { text: node._('knxUltimateIoTBridge.mapping.enabled'), style: 'font-size:12px; font-weight:500;' }).appendTo(checkboxWrapper);
+                    enabled.prop('checked', mapping.enabled !== false);
+
+                    const labelInput = createLabeledField(topRow, 'label', $('<input/>', {
+                        type: 'text',
+                        class: 'form-control bridge-label'
+                    }).attr('placeholder', node._('knxUltimateIoTBridge.placeholders.label')).val(mapping.label), { width: '190px' });
+
+                    const gaInput = createLabeledField(topRow, 'ga', $('<input/>', {
+                        type: 'text',
+                        class: 'form-control bridge-ga'
+                    }).attr('placeholder', node._('knxUltimateIoTBridge.placeholders.ga')).val(mapping.ga), { width: '140px' });
+
+                    try {
+                        if (oNodeServer && oNodeServer.id) KNX_enableSecureFormatting(gaInput, oNodeServer.id);
+                    } catch (error) { }
+
+                    gaInput.autocomplete({
+                        minLength: 0,
+                        source: function (request, response) {
+                            $.getJSON('knxUltimatecsv?nodeID=' + oNodeServer?.id, (data) => {
+                                response($.map(data, (value) => {
+                                    const search = (value.ga + ' (' + value.devicename + ') DPT' + value.dpt);
+                                    if (htmlUtilsfullCSVSearch(search, request.term + ' 1.')) {
+                                        return {
+                                            label: value.ga + ' # ' + value.devicename + ' # ' + value.dpt,
+                                            value: value.ga,
+                                            dpt: value.dpt
+                                        };
+                                    }
+                                    return null;
+                                }));
+                            });
+                        },
+                        select: function (event, ui) {
+                            if (!dptInput.val()) dptInput.val(ui.item.dpt);
+                            if (!labelInput.val()) labelInput.val(ui.item.label.split('#')[1]?.trim() || '');
+                        }
+                    });
+
+                    gaInput.on('focus.knxUltimateIoTBridge click.knxUltimateIoTBridge', function () {
+                        try { $(this).autocomplete('search', ''); } catch (error) { }
+                    });
+
+                    const dptInput = createLabeledField(topRow, 'dpt', $('<input/>', {
+                        type: 'text',
+                        class: 'form-control bridge-dpt'
+                    }).attr('placeholder', node._('knxUltimateIoTBridge.placeholders.dpt')).val(mapping.dpt), { width: '100px' });
+
+                    const directionSelect = createLabeledField(topRow, 'direction', buildSelect(directions, mapping.direction).addClass('bridge-direction'), { width: '150px' });
+
+                    const typeSelect = createLabeledField(topRow, 'channel', buildSelect(channelTypes, mapping.iotType).addClass('bridge-type'), { width: '140px' });
+
+                    const targetInput = createLabeledField(midRow, 'target', $('<input/>', {
+                        type: 'text',
+                        class: 'form-control bridge-target'
+                    }).attr('placeholder', node._('knxUltimateIoTBridge.placeholders.target')).val(mapping.target), { flex: '1 1 280px' });
+
+                    const methodInput = createLabeledField(midRow, 'method', $('<input/>', {
+                        type: 'text',
+                        class: 'form-control bridge-method'
+                    }).attr('placeholder', node._('knxUltimateIoTBridge.placeholders.method')).val(mapping.method), { width: '120px' });
+
+                    const modbusInput = createLabeledField(midRow, 'modbusFunction', $('<input/>', {
+                        type: 'text',
+                        class: 'form-control bridge-modbus'
+                    }).attr('placeholder', node._('knxUltimateIoTBridge.placeholders.modbusFunction')).val(mapping.modbusFunction), { width: '180px' });
+
+                    const scaleInput = createLabeledField(midRow, 'scale', $('<input/>', {
+                        type: 'number',
+                        class: 'form-control bridge-scale'
+                    }).attr('step', 'any').val(mapping.scale), { width: '100px' });
+
+                    const offsetInput = createLabeledField(midRow, 'offset', $('<input/>', {
+                        type: 'number',
+                        class: 'form-control bridge-offset'
+                    }).attr('step', 'any').val(mapping.offset), { width: '100px' });
+
+                    const timeoutInput = createLabeledField(midRow, 'timeout', $('<input/>', {
+                        type: 'number',
+                        class: 'form-control bridge-timeout'
+                    }).attr('placeholder', node._('knxUltimateIoTBridge.mapping.timeout')).val(mapping.timeout), { width: '140px' });
+
+                    const retryInput = createLabeledField(midRow, 'retry', $('<input/>', {
+                        type: 'number',
+                        class: 'form-control bridge-retry'
+                    }).attr('placeholder', node._('knxUltimateIoTBridge.mapping.retry')).val(mapping.retry), { width: '110px' });
+
+                    const templateInput = createLabeledField(bottomRow, 'template', $('<input/>', {
+                        type: 'text',
+                        class: 'form-control bridge-template'
+                    }).attr('placeholder', node._('knxUltimateIoTBridge.placeholders.template')).val(mapping.template), { flex: '1 1 340px' });
+
+                    const propertyInput = createLabeledField(bottomRow, 'property', $('<input/>', {
+                        type: 'text',
+                        class: 'form-control bridge-property'
+                    }).attr('placeholder', node._('knxUltimateIoTBridge.placeholders.property')).val(mapping.property), { flex: '1 1 260px' });
+
+                    const updateChannelPresentation = (channel) => {
+                        const methodWrapper = methodInput.data('bridgeWrapper');
+                        const modbusWrapper = modbusInput.data('bridgeWrapper');
+                        const targetLabel = targetInput.data('bridgeLabel');
+                        const methodLabel = methodInput.data('bridgeLabel');
+                        const modbusLabel = modbusInput.data('bridgeLabel');
+
+                        const translateVariant = (group, variant, fallbackFieldKey) => {
+                            let text = node._(`knxUltimateIoTBridge.fieldVariants.${group}.${variant}`);
+                            if (!text || text.indexOf('??') !== -1) {
+                                text = node._(`knxUltimateIoTBridge.fieldVariants.${group}.default`);
+                                if (!text || text.indexOf('??') !== -1) {
+                                    text = node._(`knxUltimateIoTBridge.fields.${fallbackFieldKey}`);
+                                }
+                            }
+                            return text;
+                        };
+
+                        const translatePlaceholder = (baseKey, variant) => {
+                            let placeholder = node._(`knxUltimateIoTBridge.placeholders.${baseKey}_${variant}`);
+                            if (!placeholder || placeholder.indexOf('??') !== -1) {
+                                placeholder = node._(`knxUltimateIoTBridge.placeholders.${baseKey}`);
+                            }
+                            return placeholder;
+                        };
+
+                        if (channel === 'rest') {
+                            methodWrapper.show();
+                        } else {
+                            methodWrapper.hide();
+                        }
+
+                        if (channel === 'modbus') {
+                            modbusWrapper.show();
+                        } else {
+                            modbusWrapper.hide();
+                        }
+
+                        targetLabel.text(translateVariant('target', channel, 'target'));
+                        targetInput.attr('placeholder', translatePlaceholder('target', channel));
+
+                        methodLabel.text(translateVariant('method', channel, 'method'));
+                        modbusLabel.text(translateVariant('modbusFunction', channel, 'modbusFunction'));
+                    };
+
+                    typeSelect.on('change', function () {
+                        updateChannelPresentation($(this).val());
+                    });
+
+                    updateChannelPresentation(typeSelect.val());
+
+                    row.data('mapping-id', mapping.id || '');
+                }
+            });
+
+            (node.mappings || []).forEach((m) => {
+                container.editableList('addItem', { mapping: m });
+            });
+        },
+        oneditsave: function () {
+            const node = this;
+            const items = $('#node-input-mapping-container').editableList('items');
+            node.mappings = [];
+            items.each(function () {
+                const row = $(this);
+                node.mappings.push({
+                    id: row.data('mapping-id') || '',
+                    enabled: row.find('.bridge-enabled').is(':checked'),
+                    label: row.find('.bridge-label').val(),
+                    ga: row.find('.bridge-ga').val(),
+                    dpt: row.find('.bridge-dpt').val(),
+                    direction: row.find('.bridge-direction').val(),
+                    iotType: row.find('.bridge-type').val(),
+                    target: row.find('.bridge-target').val(),
+                    method: row.find('.bridge-method').val(),
+                    modbusFunction: row.find('.bridge-modbus').val(),
+                    scale: row.find('.bridge-scale').val(),
+                    offset: row.find('.bridge-offset').val(),
+                    timeout: row.find('.bridge-timeout').val(),
+                    retry: row.find('.bridge-retry').val(),
+                    template: row.find('.bridge-template').val(),
+                    property: row.find('.bridge-property').val()
+                });
+            });
+            try {
+                RED.sidebar.show('info');
+            } catch (error) { }
+        },
+        oneditresize: function (size) {
+            const rows = $('#dialog-form>div:not(.node-input-mapping-container-row)');
+            let height = size.height;
+            for (let i = 0; i < rows.length; i++) {
+                height -= $(rows[i]).outerHeight(true);
+            }
+            const editorRow = $('#dialog-form>div.node-input-mapping-container-row');
+            height -= (parseInt(editorRow.css('marginTop')) + parseInt(editorRow.css('marginBottom')));
+            height += 16;
+            $('#node-input-mapping-container').editableList('height', height);
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="knxUltimateIoTBridge">
+    <div class="form-row">
+        <label for="node-input-server" data-i18n="knxUltimateIoTBridge.node-input-server"></label>
+        <input type="text" id="node-input-server" />
+    </div>
+    <div class="form-row">
+        <label for="node-input-name" data-i18n="knxUltimateIoTBridge.node-input-name"></label>
+        <input type="text" id="node-input-name" />
+    </div>
+    <div class="form-row">
+        <label for="node-input-outputtopic" data-i18n="knxUltimateIoTBridge.node-input-outputtopic"></label>
+        <input type="text" id="node-input-outputtopic" />
+    </div>
+    <div class="form-row" style="display:flex; align-items:flex-start; gap:8px;">
+        <input type="checkbox" id="node-input-emitOnChangeOnly" style="width:auto; margin-top:4px;" />
+        <label for="node-input-emitOnChangeOnly" style="flex:1; margin:0;">
+            <span data-i18n="knxUltimateIoTBridge.node-input-emitOnChangeOnly"></span>
+        </label>
+    </div>
+    <div class="form-row" style="display:flex; align-items:flex-start; gap:8px;">
+        <input type="checkbox" id="node-input-readOnDeploy" style="width:auto; margin-top:4px;" />
+        <label for="node-input-readOnDeploy" style="flex:1; margin:0;">
+            <span data-i18n="knxUltimateIoTBridge.node-input-readOnDeploy"></span>
+        </label>
+    </div>
+    <div class="form-row" style="display:flex; align-items:flex-start; gap:8px;">
+        <input type="checkbox" id="node-input-acceptFlowInput" style="width:auto; margin-top:4px;" />
+        <label for="node-input-acceptFlowInput" style="flex:1; margin:0;">
+            <span data-i18n="knxUltimateIoTBridge.node-input-acceptFlowInput"></span>
+        </label>
+    </div>
+    <div class="form-row node-input-mapping-container-row">
+        <label style="width:auto;" data-i18n="knxUltimateIoTBridge.section_mappings"></label>
+        <ol id="node-input-mapping-container"></ol>
+    </div>
+    <br/><br/><br/><br/>
+</script>
+
+<script type="text/markdown" data-help-name="knxUltimateIoTBridge">
+## KNX ↔ IoT Bridge
+
+Configure bidirectional maps between KNX group addresses and IoT backends such as MQTT, REST APIs or Modbus registers. Each mapping can scale values, format payloads and define single direction behaviour.
+
+### Inputs
+- **Flow input**: when enabled, a message whose `topic` (or `msg.bridge`) matches a configured mapping is converted to the KNX payload and written to the bus.
+- **KNX telegrams**: received automatically from the configured gateway and routed through the mapping list.
+
+### Outputs
+- **Output 1 (KNX → IoT)**: emits a message with the mapped payload plus metadata in `msg.bridge` and `msg.knx`.
+- **Output 2 (IoT → KNX ack)**: reports when a flow message has been written to KNX, including the resolved GA and scaling information.
+
+### Mapping options
+- **Direction**: choose between KNX→IoT, IoT→KNX or bidirectional.
+- **Channel type**: pick MQTT, REST or Modbus. The `target` field adapts: topic name, URL or register address.
+- **Template**: optional string; placeholders `{{value}}`, `{{ga}}`, `{{target}}`, `{{label}}`, `{{type}}`, `{{isoTimestamp}}` are replaced at runtime.
+- **Scale & Offset**: numeric transformation applied on KNX→IoT. For IoT→KNX the inverse is used.
+- **Timeout/Retries**: retained for flow logic; the node does not execute external requests but exposes the desired values to downstream nodes.
+
+### Tips
+- Place HTTP or MQTT nodes after the bridge outputs to perform the actual transport.
+- Use `msg.bridge.id` to route acknowledgements or correlate responses.
+- Enable "Read KNX values on deploy" to bootstrap dashboards after deploys.
+
+</script>

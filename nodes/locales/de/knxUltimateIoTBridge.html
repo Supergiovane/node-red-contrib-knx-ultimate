@@ -1,0 +1,150 @@
+<script type="text/markdown" data-help-name="knxUltimateIoTBridge">
+# KNX ↔ IoT Bridge
+
+Erstellen Sie bidirektionale Brücken zwischen KNX-Gruppenadressen und IoT-Kanälen (MQTT-Themen, REST-Endpunkte, Modbus-Register). Jede Zuordnung kann Werte skalieren, Payloads formatieren und Metadaten für nachgelagerte Nodes bereitstellen.
+
+## Eingänge
+
+|Eigenschaft|Beschreibung|
+|--|--|
+| Flow-Eingang | Wenn aktiviert, werden Nachrichten, deren `topic` oder `msg.bridge` zu einer Zuordnung passen, in KNX-Payloads umgewandelt und auf den Bus geschrieben. |
+| KNX-Telegramme | Eingehende Telegramme werden mit der konfigurierten GA-Liste abgeglichen und als Bridge-Ereignisse weitergeleitet. Leseanforderungen werden ignoriert, solange kein Wert geliefert wird. |
+
+## Ausgänge
+
+|Ausgang|Beschreibung|
+|--|--|
+| 1 (KNX → IoT) | Gibt den transformierten Wert inkl. `msg.bridge`-Metadaten (Kanaltyp, Ziel, Skalierung) und `msg.knx`-Details (GA, DPT, Quelle, Ereignis) aus. |
+| 2 (IoT → KNX ack) | Bestätigt Flow-Schreibvorgänge mit der aufgelösten GA und dem auf KNX angewendeten Payload. |
+
+## Zuordnungsfelder
+
+- **Richtung** — wählen Sie KNX→IoT, IoT→KNX oder bidirektional.
+- **Kanaltyp** — MQTT verwendet das Target als Topic, REST als Basis-URL, Modbus als Registerkennung.
+- **Skalierung & Offset** — werden für KNX→IoT angewandt; IoT→KNX nutzt die inverse Transformation.
+- **Template** — optionale Zeichenkette mit Platzhaltern `{{value}}`, `{{ga}}`, `{{label}}`, `{{target}}`, `{{type}}`, `{{isoTimestamp}}`.
+- **Timeout / Wiederholungen** — Informationsfelder im Output zur Steuerung von Retries und Zeitfenstern in nachfolgenden Nodes.
+
+## Nutzungstipps
+
+- Ketten Sie Transport-Nodes hinter Ausgang&nbsp;1 ein (z. B. `mqtt out`, `http request` oder die `modbus-flex-write`-Nodes aus `node-red-contrib-modbus`).
+- Verwenden Sie einen `switch`-Node auf `msg.bridge.type`, um nach Kanaltyp zu verzweigen, oder auf `msg.bridge.id` für mappungsspezifische Logik.
+- Aktivieren Sie *KNX-Werte beim Deploy lesen*, um Dashboards nach einem Redeploy vorzufüllen.
+
+## Transportbeispiele
+
+### KNX → MQTT Veröffentlichung
+
+1. Konfigurieren Sie eine Zuordnung mit `Richtung = Bidirectional`, `Typ = MQTT`, `Target = knx/status/licht1`.
+2. Verbinden Sie Ausgang&nbsp;1 mit einem `mqtt out`-Node, der auf Ihren Broker zeigt.
+3. Bei jedem GA-Wechsel sendet der Bridge:
+
+```
+{
+  "topic": "knx/status/licht1",
+  "payload": true,
+  "bridge": { "type": "mqtt", "id": "..." },
+  "knx": { "ga": "1/1/10", "event": "GroupValue_Write" }
+}
+```
+
+### MQTT-Befehl → KNX-Schreibvorgang
+
+1. Setzen Sie `Richtung = Bidirectional`, `Typ = MQTT`, `Target = knx/cmd/licht1`.
+2. Verbinden Sie einen `mqtt in`-Node mit demselben Topic mit dem Bridge-Eingang.
+3. Senden Sie `false` an `knx/cmd/licht1`; der Bridge schreibt `0` auf die konfigurierte GA und erzeugt eine Rückmeldung an Ausgang&nbsp;2.
+
+### REST-Webhook-Snapshot
+
+1. Konfigurieren Sie `Richtung = KNX → IoT`, `Typ = REST`, `Target = https://example/api/knx/licht1` sowie `Template = {"value":{{value}},"ga":"{{ga}}"}`.
+2. Leiten Sie Ausgang&nbsp;1 in einen `http request`-Node (die Methode stammt aus `bridge.method`).
+3. Antworten können an Dashboards oder Logs weitergegeben werden.
+
+### Modbus-Register-Sync
+
+- Kombinieren Sie den Bridge mit `modbus-flex-write`-Nodes aus `node-red-contrib-modbus`. Ausgang&nbsp;1 enthält die Modbus-Adresse in `msg.address` und den Wert in `msg.payload`.
+
+## Beispiel-Flow
+
+Importieren Sie diesen Minimal-Flow und passen Sie GA/Topics an:
+
+```json
+[
+  {
+    "id": "bridge1",
+    "type": "knxUltimateIoTBridge",
+    "z": "flow1",
+    "server": "gateway1",
+    "name": "Licht-Bridge",
+    "outputtopic": "",
+    "emitOnChangeOnly": true,
+    "readOnDeploy": true,
+    "acceptFlowInput": true,
+    "mappings": [
+      {
+        "id": "map-licht",
+        "enabled": true,
+        "label": "Wohnzimmerlicht",
+        "ga": "1/1/10",
+        "dpt": "1.001",
+        "direction": "bidirectional",
+        "iotType": "mqtt",
+        "target": "knx/light/living",
+        "method": "POST",
+        "modbusFunction": "writeHoldingRegister",
+        "scale": 1,
+        "offset": 0,
+        "template": "{{value}}",
+        "property": "",
+        "timeout": 0,
+        "retry": 0
+      }
+    ],
+    "wires": [["mqttOut1"],["debugAck"]]
+  },
+  {
+    "id": "mqttOut1",
+    "type": "mqtt out",
+    "z": "flow1",
+    "name": "MQTT Status",
+    "topic": "",
+    "qos": "0",
+    "retain": "false",
+    "broker": "mqttBroker",
+    "x": 530,
+    "y": 120,
+    "wires": []
+  },
+  {
+    "id": "mqttIn1",
+    "type": "mqtt in",
+    "z": "flow1",
+    "name": "MQTT Befehl",
+    "topic": "knx/light/living/set",
+    "qos": "1",
+    "datatype": "auto",
+    "broker": "mqttBroker",
+    "x": 120,
+    "y": 180,
+    "wires": [["bridge1"]]
+  },
+  {
+    "id": "debugAck",
+    "type": "debug",
+    "z": "flow1",
+    "name": "KNX Ack",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "true",
+    "x": 540,
+    "y": 180,
+    "wires": []
+  }
+]
+```
+
+Konfigurieren Sie vor dem Deploy den KNX-Gateway, den MQTT-Broker und ggf. Modbus-Verbindungen in Ihrem Flow.
+
+</script>

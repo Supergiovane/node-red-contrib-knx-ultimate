@@ -1,0 +1,150 @@
+<script type="text/markdown" data-help-name="knxUltimateIoTBridge">
+# KNX ↔ IoT Bridge
+
+在 KNX 组地址与 IoT 通道（MQTT 主题、REST 接口、Modbus 寄存器）之间创建双向桥接。每条映射都可以对数值进行缩放、格式化载荷，并向后续节点暴露元数据。
+
+## 输入
+
+|属性|说明|
+|--|--|
+| Flow 输入 | 启用后，`topic` 或 `msg.bridge` 匹配映射的消息会被转换为 KNX 载荷并写入总线。|
+| KNX 电报 | 接收到的电报会与配置的 GA 列表匹配，并作为桥接事件输出。读取请求在返回值之前会被忽略。|
+
+## 输出
+
+|输出|说明|
+|--|--|
+| 1（KNX → IoT） | 输出转换后的数值，以及 `msg.bridge` 元数据（通道类型、目标、缩放）和 `msg.knx` 细节（GA、DPT、来源、事件）。|
+| 2（IoT → KNX ack） | 当 Flow 发起写入时，确认已写入的 GA 和实际写入的载荷。|
+
+## 映射字段
+
+- **方向** — 选择 KNX→IoT、IoT→KNX 或双向。
+- **通道类型** — MQTT 将目标视为主题；REST 将其视为基础 URL；Modbus 视为寄存器标识。
+- **缩放 & 偏移** — 应用于 KNX→IoT；在 IoT→KNX 时使用逆向变换。
+- **模板** — 可选字符串，可替换 `{{value}}`、`{{ga}}`、`{{label}}`、`{{target}}`、`{{type}}`、`{{isoTimestamp}}`。
+- **超时 / 重试** — 信息字段，用于告知下游节点应如何处理重试和时间窗口。
+
+## 使用提示
+
+- 在输出&nbsp;1 后串联传输节点（例如核心 `mqtt out`、`http request`，或社区包 `node-red-contrib-modbus` 的 `modbus-flex-write` 节点）。
+- 使用 `switch` 节点按 `msg.bridge.type` 区分通道，或按 `msg.bridge.id` 实现每条映射的逻辑。
+- 启用 *部署时读取 KNX 数值* 以在重新部署后填充仪表盘。
+
+## 传输示例
+
+### KNX → MQTT 发布
+
+1. 配置映射：`方向 = 双向`、`类型 = MQTT`、`目标 = knx/status/light1`。
+2. 将输出&nbsp;1 连接到配置好的 `mqtt out` 节点。
+3. 每当 GA 变化时，桥接节点会输出：
+
+```
+{
+  "topic": "knx/status/light1",
+  "payload": true,
+  "bridge": { "type": "mqtt", "id": "..." },
+  "knx": { "ga": "1/1/10", "event": "GroupValue_Write" }
+}
+```
+
+### MQTT 指令 → KNX 写入
+
+1. 设定 `方向 = 双向`、`类型 = MQTT`、`目标 = knx/cmd/light1`。
+2. 将同一主题的 `mqtt in` 节点连接到桥接输入。
+3. 向 `knx/cmd/light1` 发布 `false`；桥接节点会向配置的 GA 写入 `0` 并在第 2 引脚输出确认。
+
+### REST Webhook 快照
+
+1. 配置 `方向 = KNX → IoT`、`类型 = REST`、`目标 = https://example/api/knx/light1`，以及 `模板 = {"value":{{value}},"ga":"{{ga}}"}`。
+2. 将输出&nbsp;1 接入 `http request` 节点（请求方法来自 `bridge.method`）。
+3. 可以将响应转发给仪表盘或日志。
+
+### Modbus 寄存器同步
+
+- 将桥接节点与 `node-red-contrib-modbus` 的 `modbus-flex-write` 节点配合使用。输出&nbsp;1 会在 `msg.address` 中携带 Modbus 地址，在 `msg.payload` 中携带数值。
+
+## 示例 Flow
+
+导入以下最小 Flow 并按需调整 GA/Topic：
+
+```json
+[
+  {
+    "id": "bridge1",
+    "type": "knxUltimateIoTBridge",
+    "z": "flow1",
+    "server": "gateway1",
+    "name": "灯光桥接",
+    "outputtopic": "",
+    "emitOnChangeOnly": true,
+    "readOnDeploy": true,
+    "acceptFlowInput": true,
+    "mappings": [
+      {
+        "id": "map-light",
+        "enabled": true,
+        "label": "客厅灯",
+        "ga": "1/1/10",
+        "dpt": "1.001",
+        "direction": "bidirectional",
+        "iotType": "mqtt",
+        "target": "knx/light/living",
+        "method": "POST",
+        "modbusFunction": "writeHoldingRegister",
+        "scale": 1,
+        "offset": 0,
+        "template": "{{value}}",
+        "property": "",
+        "timeout": 0,
+        "retry": 0
+      }
+    ],
+    "wires": [["mqttOut1"],["debugAck"]]
+  },
+  {
+    "id": "mqttOut1",
+    "type": "mqtt out",
+    "z": "flow1",
+    "name": "MQTT 状态",
+    "topic": "",
+    "qos": "0",
+    "retain": "false",
+    "broker": "mqttBroker",
+    "x": 530,
+    "y": 120,
+    "wires": []
+  },
+  {
+    "id": "mqttIn1",
+    "type": "mqtt in",
+    "z": "flow1",
+    "name": "MQTT 指令",
+    "topic": "knx/light/living/set",
+    "qos": "1",
+    "datatype": "auto",
+    "broker": "mqttBroker",
+    "x": 120,
+    "y": 180,
+    "wires": [["bridge1"]]
+  },
+  {
+    "id": "debugAck",
+    "type": "debug",
+    "z": "flow1",
+    "name": "KNX 回执",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "true",
+    "x": 540,
+    "y": 180,
+    "wires": []
+  }
+]
+```
+
+部署前请先在 Flow 中配置好 KNX 网关、MQTT Broker 以及需要的 Modbus 连接。
+
+</script>
