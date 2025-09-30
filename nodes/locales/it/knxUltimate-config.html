@@ -38,7 +38,7 @@ Questo nodo si connette al tuo KNX/IP Gateway.
 | Suppress ACK request in tunneling mode | Per vecchie interfacce KNX/IP: ignora l'ACK e accetta tutti i telegrammi. Default: disabilitato. |
 | Delay between each telegram (ms) | Lo standard KNX prevede max 50 telegrammi/s. Un intervallo 25-50ms è adeguato. Con gateway remoto su link lento aumenta (es. 200-500ms). |
 | Loglevel | Livello di log per il debug. Default: "Error". |
-| Aggiornamento stato nodi | Scegli come visualizzare i badge di stato: **Mostra stato in tempo reale nei nodi ** mantiene il comportamento attuale mentre**Mostra solo errori** limita gli aggiornamenti agli avvisi rossi, gialli e grigi. |
+| Limitazione aggiornamento stato nodi | Imposta ogni quanto aggiornare il badge di stato dei nodi. Con un ritardo attivo, gli stati intermedi vengono ignorati e viene mostrato solo l'ultimo dopo l'intervallo scelto. Seleziona **Immediato** per mantenere l'aggiornamento in tempo reale. |
 
 <br/>
 

@@ -26,19 +26,19 @@ module.exports = function (RED) {
     node.telegramCount = 0
     node.timerTelegramCount = null
 
-    const shouldDisplayStatus = (color) => {
+    const pushStatus = (status) => {
+      if (!status) return;
       const provider = node.serverKNX;
-      if (provider && typeof provider.shouldDisplayStatus === 'function') {
-        return provider.shouldDisplayStatus(color);
+      if (provider && typeof provider.applyStatusUpdate === 'function') {
+        provider.applyStatusUpdate(node, status);
+      } else {
+        node.status(status);
       }
-      return true;
     };
 
     const updateStatus = (status) => {
       if (!status) return;
-      if (shouldDisplayStatus(status.fill)) {
-        node.status(status);
-      }
+      pushStatus(status);
     };
 
     // Used to call the status update from the config node.

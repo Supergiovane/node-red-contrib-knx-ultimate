@@ -36,19 +36,19 @@ module.exports = function (RED) {
     node.icountMessageInWindow = 0
     node.disabled = false // 21/09/2020 you can now disable the scene controller
 
-    const shouldDisplayStatus = (color) => {
+    const pushStatus = (status) => {
+      if (!status) return;
       const provider = node.serverKNX;
-      if (provider && typeof provider.shouldDisplayStatus === 'function') {
-        return provider.shouldDisplayStatus(color);
+      if (provider && typeof provider.applyStatusUpdate === 'function') {
+        provider.applyStatusUpdate(node, status);
+      } else {
+        node.status(status);
       }
-      return true;
     };
 
     const updateStatus = (status) => {
       if (!status) return;
-      if (shouldDisplayStatus(status.fill)) {
-        node.status(status);
-      }
+      pushStatus(status);
     };
 
 

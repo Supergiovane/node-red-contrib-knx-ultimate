@@ -52,19 +52,19 @@ module.exports = function (RED) {
     node.commandText = []; // Raw list Respond To
     node.timerSaveExposedGAs = null;
 
-    const shouldDisplayStatus = (color) => {
+    const pushStatus = (status) => {
+      if (!status) return;
       const provider = node.serverKNX;
-      if (provider && typeof provider.shouldDisplayStatus === 'function') {
-        return provider.shouldDisplayStatus(color);
+      if (provider && typeof provider.applyStatusUpdate === 'function') {
+        provider.applyStatusUpdate(node, status);
+      } else {
+        node.status(status);
       }
-      return true;
     };
 
     const updateStatus = (status) => {
       if (!status) return;
-      if (shouldDisplayStatus(status.fill)) {
-        node.status(status);
-      }
+      pushStatus(status);
     };
     if (node.serverKNX === null) { updateStatus({ fill: 'red', shape: 'dot', text: '[NO GATEWAY SELECTED]' }); return; }
 

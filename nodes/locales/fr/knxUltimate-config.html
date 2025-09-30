@@ -38,7 +38,7 @@ Configuration de la passerelle KNX
 | Supprimez la demande ACK en mode tunnel | Activez-le si vous avez une très ancienne passerelle KNX / IP. Il ignore la procédure ACK et accepte tous les télégrammes. La valeur par défaut n'est pas contrôlée. |
 | Retard entre chaque télégramme (en millisecondes) | KNX Specs indique que la vitesse d'envoi de télégramme maximum est de 50 télégrammes par seconde. Une vitesse comprise entre 25 et 50 ms devrait être bien, sauf si vous vous connectez à une passerelle KNX distante via une connexion Internet lente (dans ce cas, vous devez augmenter la valeur, par exemple, 200 à 500 ms ou plus). |
 | Loglevel | Niveau de journal, au cas où vous auriez besoin de déboguer quelque chose avec le développement. La valeur par défaut est "erreur", |
-| Mise à jour de l'état du nœud | Choisissez comment les badges de nœud sont mis à jour: **Afficher l'état en temps réel dans les nœuds ** conserve le comportement actuel, tandis que**Afficher les erreurs uniquement** Limite les mises à jour des alertes rouges, jaunes et gris. |
+| Temporisation de l'état du nœud | Définissez la fréquence de mise à jour des badges de statut. Avec un délai actif, les changements intermédiaires sont ignorés et seul le dernier est affiché après l'intervalle choisi. Sélectionnez **Immédiat** pour conserver le comportement en temps réel. |
 
 <br/>
 

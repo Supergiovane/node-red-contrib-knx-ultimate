@@ -32,7 +32,7 @@
 | Suprimir la solicitud ACK en el modo de túnel | Habilite si tiene una puerta de enlace KNX/IP muy antigua. Ignora el procedimiento ACK y acepta todos los telegramas. El valor predeterminado no está marcado.
 | Retraso entre cada telegrama (en milisegundos) | Las especificaciones de KNX establecen que la velocidad máxima de envío de telegrama es de 50 telegramas por segundo. Una velocidad entre 25 y 50 ms debe estar bien, a menos que se conecte a una puerta de enlace KNX remota a través de una conexión a Internet lenta (en este caso, debe aumentar el valor, por ejemplo, de 200 a 500 ms o más). |
 | Loglevel | Nivel de registro, en caso de que necesite depurar algo con el desarrollo. El valor predeterminado es "error", |
-| Actualización de estado del nodo | Elija cómo se actualizan las insignias de nodos: ** Muestre el estado de tiempo real en los nodos ** Mantiene el comportamiento actual, mientras que**Muestra los errores solo** Limita las actualizaciones de las alertas rojas, amarillas y grises. |
+| Temporización de actualizaciones de estado | Define cada cuánto se actualiza la insignia de estado de los nodos. Con un retardo activo se descartan los estados intermedios y solo se muestra el último después del intervalo elegido. Seleccione **Inmediato** para mantener el comportamiento en tiempo real. |
 
 <br/> ** Importación de archivos ETS** | Propiedad | Descripción |
 |-|-|

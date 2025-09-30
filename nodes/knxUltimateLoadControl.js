@@ -38,19 +38,19 @@ module.exports = function (RED) {
     node.totalWatt = 0 // Current total watt consumption
     node.wattLimit = config.wattLimit === undefined ? 3000 : Number(config.wattLimit)
 
-    const shouldDisplayStatus = (color) => {
+    const pushStatus = (status) => {
+      if (!status) return;
       const provider = node.serverKNX;
-      if (provider && typeof provider.shouldDisplayStatus === 'function') {
-        return provider.shouldDisplayStatus(color);
+      if (provider && typeof provider.applyStatusUpdate === 'function') {
+        provider.applyStatusUpdate(node, status);
+      } else {
+        node.status(status);
       }
-      return true;
     };
 
     const updateStatus = (status) => {
       if (!status) return;
-      if (shouldDisplayStatus(status.fill)) {
-        node.status(status);
-      }
+      pushStatus(status);
     };
     try {
       const baseLogLevel = (node.serverKNX && node.serverKNX.loglevel) ? node.serverKNX.loglevel : 'error';

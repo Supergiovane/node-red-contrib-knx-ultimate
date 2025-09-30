@@ -11,8 +11,17 @@ module.exports = function (RED) {
     RED.nodes.createNode(this, config);
     const node = this;
     node.serverKNX = RED.nodes.getNode(config.server) || undefined;
+    const pushStatus = (status) => {
+      const provider = node.serverKNX;
+      if (provider && typeof provider.applyStatusUpdate === 'function') {
+        provider.applyStatusUpdate(node, status);
+      } else {
+        node.status(status);
+      }
+    };
+
     if (node.serverKNX === undefined) {
-      node.status({ fill: 'red', shape: 'dot', text: '[THE GATEWAY NODE HAS BEEN DISABLED]' });
+      pushStatus({ fill: 'red', shape: 'dot', text: '[THE GATEWAY NODE HAS BEEN DISABLED]' });
       return;
     }
 
@@ -22,7 +31,7 @@ module.exports = function (RED) {
       fill, shape, text, payload, GA, dpt, devicename,
     }) => {
       try {
-        if (node.serverKNX === null) { node.status({ fill: 'red', shape: 'dot', text: '[NO GATEWAY SELECTED]' }); return; }
+        if (node.serverKNX === null) { pushStatus({ fill: 'red', shape: 'dot', text: '[NO GATEWAY SELECTED]' }); return; }
         if (node.icountMessageInWindow == -999) return; // Locked out, doesn't change status.
         const dDate = new Date();
         // 30/08/2019 Display only the things selected in the config
@@ -31,12 +40,7 @@ module.exports = function (RED) {
         dpt = (typeof dpt === 'undefined' || dpt == '') ? '' : ` DPT${dpt}`;
         payload = typeof payload === 'object' ? JSON.stringify(payload) : payload;
         const statusText = `${GA + payload + (node.listenallga === true ? ` ${devicename}` : '')} (day ${dDate.getDate()}, ${dDate.toLocaleTimeString()}) ${text}`;
-        const shouldUpdateStatus = (node.serverKNX && typeof node.serverKNX.shouldDisplayStatus === 'function')
-          ? node.serverKNX.shouldDisplayStatus(fill)
-          : true;
-        if (shouldUpdateStatus) {
-          node.status({ fill, shape, text: statusText });
-        }
+        pushStatus({ fill, shape, text: statusText });
         // 16/02/2020 signal errors to the server
         if (fill.toUpperCase() === 'RED') {
           if (node.serverKNX) {

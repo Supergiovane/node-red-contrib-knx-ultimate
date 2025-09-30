@@ -24,8 +24,6 @@ const loggerClass = require('./utils/sysLogger')
 const payloadRounder = require("./utils/payloadManipulation");
 const utils = require('./utils/utils');
 
-const STATUS_DISPLAY_ALLOWED_COLORS = new Set(['red', 'yellow']);
-
 // DATAPONT MANIPULATION HELPERS
 // ####################
 const sortBy = (field) => (a, b) => {
@@ -220,12 +218,39 @@ module.exports = (RED) => {
       node.autoReconnect = true;
     }
     node.ignoreTelegramsWithRepeatedFlag = config.ignoreTelegramsWithRepeatedFlag === undefined ? false : config.ignoreTelegramsWithRepeatedFlag;
-    const policyFromConfig = typeof config.statusDisplayPolicy === "string" ? config.statusDisplayPolicy : "all";
-    node.statusDisplayPolicy = ['all', 'errors'].includes(policyFromConfig) ? policyFromConfig : "all";
-    node.shouldDisplayStatus = (fill) => {
-      if (node.statusDisplayPolicy !== 'errors') return true;
-      const normalizedFill = (typeof fill === 'string' ? fill : '').toLowerCase();
-      return STATUS_DISPLAY_ALLOWED_COLORS.has(normalizedFill);
+    const throttleSecondsRaw = Number(config.statusUpdateThrottle);
+    node.statusUpdateThrottleMs = Number.isFinite(throttleSecondsRaw) && throttleSecondsRaw > 0
+      ? throttleSecondsRaw * 1000
+      : 0;
+    node.applyStatusUpdate = (targetNode, status) => {
+      try {
+        if (!targetNode || typeof targetNode.status !== 'function') return;
+        const throttle = node.statusUpdateThrottleMs;
+        if (!throttle) {
+          targetNode.status(status);
+          return;
+        }
+        if (!targetNode.__knxStatusThrottle) {
+          targetNode.__knxStatusThrottle = { pending: undefined, timer: null };
+        }
+        const tracker = targetNode.__knxStatusThrottle;
+        tracker.pending = status;
+        if (tracker.timer) return;
+        tracker.timer = setTimeout(() => {
+          try {
+            if (tracker.pending !== undefined) {
+              targetNode.status(tracker.pending);
+            }
+          } catch (timerError) {
+            node.sysLogger?.warn('Unable to apply throttled status: ' + timerError.message);
+          } finally {
+            tracker.pending = undefined;
+            tracker.timer = null;
+          }
+        }, throttle);
+      } catch (error) {
+        node.sysLogger?.warn('applyStatusUpdate error: ' + error.message);
+      }
     };
     // 24/07/2021 KNX Secure checks...
     node.keyringFileXML = typeof config.keyringFileXML === "undefined" || config.keyringFileXML.trim() === "" ? "" : config.keyringFileXML;

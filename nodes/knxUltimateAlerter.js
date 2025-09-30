@@ -11,8 +11,18 @@ module.exports = function (RED) {
     RED.nodes.createNode(this, config);
     const node = this;
     node.serverKNX = RED.nodes.getNode(config.server) || undefined;
+    const pushStatus = (status) => {
+      if (status === undefined || status === null) return;
+      const provider = node.serverKNX;
+      if (provider && typeof provider.applyStatusUpdate === 'function') {
+        provider.applyStatusUpdate(node, status);
+      } else {
+        node.status(status);
+      }
+    };
+
     if (node.serverKNX === undefined) {
-      node.status({ fill: 'red', shape: 'dot', text: '[THE GATEWAY NODE HAS BEEN DISABLED]' });
+      pushStatus({ fill: 'red', shape: 'dot', text: '[THE GATEWAY NODE HAS BEEN DISABLED]' });
       return;
     }
     node.name = config.name || 'KNX Alerter';
@@ -32,14 +42,6 @@ module.exports = function (RED) {
     node.timerSend = null;
     node.whentostart = config.whentostart === undefined ? 'ifnewalert' : config.whentostart;
     node.timerinterval = (config.timerinterval === undefined || config.timerinterval == '') ? '2' : config.timerinterval;
-
-    const shouldDisplayStatus = (color) => {
-      const provider = node.serverKNX;
-      if (provider && typeof provider.shouldDisplayStatus === 'function') {
-        return provider.shouldDisplayStatus(color);
-      }
-      return true;
-    };
 
     if (config.initialreadGAInRules === undefined) {
       node.initialread = 1;
@@ -61,9 +63,7 @@ module.exports = function (RED) {
         devicename = devicename || '';
         dpt = (typeof dpt === 'undefined' || dpt == '') ? '' : ' DPT' + dpt;
         payload = typeof payload === 'object' ? JSON.stringify(payload) : payload;
-        if (shouldDisplayStatus(fill)) {
-          node.status({ fill, shape, text: GA + payload + (node.listenallga === true ? ' ' + devicename : '') + ' (' + dDate.getDate() + ', ' + dDate.toLocaleTimeString() + ' ' + text });
-        }
+        pushStatus({ fill, shape, text: GA + payload + (node.listenallga === true ? ' ' + devicename : '') + ' (' + dDate.getDate() + ', ' + dDate.toLocaleTimeString() + ' ' + text });
       } catch (error) {
       }
     };
@@ -76,9 +76,7 @@ module.exports = function (RED) {
       devicename = devicename || '';
       dpt = (typeof dpt === 'undefined' || dpt == '') ? '' : ' DPT' + dpt;
       try {
-        if (shouldDisplayStatus(fill)) {
-          node.status({ fill, shape, text: GA + payload + (node.listenallga === true ? ' ' + devicename : '') + ' (' + dDate.getDate() + ', ' + dDate.toLocaleTimeString() + ' ' + text });
-        }
+        pushStatus({ fill, shape, text: GA + payload + (node.listenallga === true ? ' ' + devicename : '') + ' (' + dDate.getDate() + ', ' + dDate.toLocaleTimeString() + ' ' + text });
       } catch (error) {
       }
     };

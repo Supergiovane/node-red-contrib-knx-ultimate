@@ -28,7 +28,7 @@
             tunnelUserPassword: { value: "" },
             tunnelUserId: { value: "" },
             autoReconnect: { value: "yes" },
-            statusDisplayPolicy: { value: "all" }
+            statusUpdateThrottle: { value: "0" }
         },
         credentials: {
             keyringFilePassword: { type: "password" }
@@ -1148,13 +1148,17 @@
             </div>
 
             <div class="form-row">
-                <label for="node-config-input-statusDisplayPolicy">
-                    <i class="fa fa-eye"></i>
-                    <span data-i18n="knxUltimate-config.advanced.status_display_policy"></span>
+                <label for="node-config-input-statusUpdateThrottle">
+                    <i class="fa fa-clock-o"></i>
+                    <span data-i18n="knxUltimate-config.advanced.status_throttle"></span>
                 </label>
-                <select id="node-config-input-statusDisplayPolicy" style="width:40%;">
-                    <option value="all" data-i18n="knxUltimate-config.advanced.status_display_all"></option>
-                    <option value="errors" data-i18n="knxUltimate-config.advanced.status_display_errors"></option>
+                <select id="node-config-input-statusUpdateThrottle" style="width:40%;">
+                    <option value="0" data-i18n="knxUltimate-config.advanced.status_throttle_none"></option>
+                    <option value="1" data-i18n="knxUltimate-config.advanced.status_throttle_1s"></option>
+                    <option value="3" data-i18n="knxUltimate-config.advanced.status_throttle_3s"></option>
+                    <option value="5" data-i18n="knxUltimate-config.advanced.status_throttle_5s"></option>
+                    <option value="10" data-i18n="knxUltimate-config.advanced.status_throttle_10s"></option>
+                    <option value="30" data-i18n="knxUltimate-config.advanced.status_throttle_30s"></option>
                 </select>
             </div>
         </p>

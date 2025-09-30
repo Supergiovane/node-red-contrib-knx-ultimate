@@ -26,19 +26,19 @@ module.exports = function (RED) {
     node.initializingAtStart = (config.readStatusAtStartup === undefined || config.readStatusAtStartup === "yes");
     node.currentDeviceValue = 0;
 
-    const shouldDisplayStatus = (color) => {
+    const pushStatus = (status) => {
+      if (!status) return;
       const provider = node.serverKNX;
-      if (provider && typeof provider.shouldDisplayStatus === 'function') {
-        return provider.shouldDisplayStatus(color);
+      if (provider && typeof provider.applyStatusUpdate === 'function') {
+        provider.applyStatusUpdate(node, status);
+      } else {
+        node.status(status);
       }
-      return true;
     };
 
     const updateStatus = (status) => {
       if (!status) return;
-      if (shouldDisplayStatus(status.fill)) {
-        node.status(status);
-      }
+      pushStatus(status);
     };
 
     const safeSendToKNX = (telegram, context = 'write') => {
@@ -63,9 +63,7 @@ module.exports = function (RED) {
         const dDate = new Date();
         payload = typeof payload === "object" ? JSON.stringify(payload) : payload.toString();
         node.sKNXNodeStatusText = `|KNX: ${text} ${payload} (${dDate.getDate()}, ${dDate.toLocaleTimeString()})`;
-        if (shouldDisplayStatus(fill)) {
-          node.status({ fill, shape, text: (node.sHUENodeStatusText || '') + ' ' + (node.sKNXNodeStatusText || '') });
-        }
+        pushStatus({ fill, shape, text: (node.sHUENodeStatusText || '') + ' ' + (node.sKNXNodeStatusText || '') });
       } catch (error) { }
     };
     // Used to call the status update from the HUE config node.
@@ -75,9 +73,7 @@ module.exports = function (RED) {
         const dDate = new Date();
         payload = typeof payload === "object" ? JSON.stringify(payload) : payload.toString();
         node.sHUENodeStatusText = `|HUE: ${text} ${payload} (${dDate.getDate()}, ${dDate.toLocaleTimeString()})`;
-        if (shouldDisplayStatus(fill)) {
-          node.status({ fill, shape, text: node.sHUENodeStatusText + ' ' + (node.sKNXNodeStatusText || '') });
-        }
+        pushStatus({ fill, shape, text: node.sHUENodeStatusText + ' ' + (node.sKNXNodeStatusText || '') });
       } catch (error) { }
     };
 

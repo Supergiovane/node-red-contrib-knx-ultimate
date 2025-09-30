@@ -38,7 +38,7 @@
 | Suppress ACK request in tunneling mode | Enable it if you have a very old KNX/IP gateway. It ignores the ACK procedure and accepts all telegrams. Default is unchecked.|
 | Delay between each telegram (in milliseconds) | KNX specs states, that the maximum telegram sending speed is 50 telegrams per second. A speed between 25 and 50ms should be fine, unless you're connecting to a remote KNX Gateway via a slow internet connection (in this case, you should increase the value by, for example, 200 to 500ms or more). |
 | Loglevel | Log level, in case you need to debug something with the dev. Default is "Error", |
-| Node status update | Choose how node badges are updated: **Display real time status in nodes ** keeps the current behaviour, while**Display errors only** limits updates to red, yellow and grey alerts. |
+| Node status throttle | Delay how often node badges are updated. When a delay is selected, intermediate status changes are skipped and the last one is shown after the chosen interval. Select **Immediate** to keep the legacy real-time behaviour. |
 
 <br/>
 

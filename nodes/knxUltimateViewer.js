@@ -6,6 +6,21 @@ module.exports = function (RED) {
     RED.nodes.createNode(this, config);
     const node = this;
     node.serverKNX = RED.nodes.getNode(config.server) || undefined;
+    const pushStatus = (status) => {
+      if (!status) return;
+      const provider = node.serverKNX;
+      if (provider && typeof provider.applyStatusUpdate === 'function') {
+        provider.applyStatusUpdate(node, status);
+      } else {
+        node.status(status);
+      }
+    };
+
+    const updateStatus = (status) => {
+      if (!status) return;
+      pushStatus(status);
+    };
+
     if (node.serverKNX === undefined) {
       updateStatus({ fill: 'red', shape: 'dot', text: '[THE GATEWAY NODE HAS BEEN DISABLED]' });
       return;
@@ -31,21 +46,6 @@ module.exports = function (RED) {
     node.formatdecimalsvalue = 2;
     node.timerPIN3 = null;
     node.exposedGAs = [];
-
-    const shouldDisplayStatus = (color) => {
-      const provider = node.serverKNX;
-      if (provider && typeof provider.shouldDisplayStatus === 'function') {
-        return provider.shouldDisplayStatus(color);
-      }
-      return true;
-    };
-
-    const updateStatus = (status) => {
-      if (!status) return;
-      if (shouldDisplayStatus(status.fill)) {
-        node.status(status);
-      }
-    };
 
     // Used to call the status update from the config node.
     node.setNodeStatus = ({ fill, shape, text, payload, GA, dpt, devicename }) => {
