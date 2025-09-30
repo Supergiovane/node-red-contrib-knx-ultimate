@@ -1,0 +1,51 @@
+<script type="text/markdown" data-help-name="knxUltimateStaircase">
+# KNX STAIRCASE LIGHT
+
+<p>Use this node to implement a KNX staircase timer. It listens for trigger pulses, drives the output actuator, mirrors the state on a status GA and honours manual override or block commands.</p>
+
+**Group addresses**
+
+|Property|Description|
+|--|--|
+| Trigger GA | Binary input that starts the timer when it receives `1`. If “0 command cancels the cycle” is enabled, a `0` stops the light immediately.
+| Output GA | Actuator driven while the cycle is active. Select the DPT that matches the load (binary, dimming, analog, …).
+| Status GA | Mirrors the active/pre-warning state. With pre-warning in *Toggle status GA* mode it will briefly change state before timeout.
+| Override GA | Forces the light ON and pauses the timer for the duration of the override signal.
+| Block GA | When true, new triggers are ignored. Depending on *When blocked* the light is either forced OFF or left untouched.
+
+**Timer behaviour**
+
+|Option|Description|
+|--|--|
+| Timer duration | Base countdown length for the staircase cycle. |
+| On new trigger | Choose whether further pulses restart the timer, extend it by the configured duration, or are ignored. |
+| 0 command cancels the cycle | Ends the cycle with reason `manual-off` when the trigger returns to `0`. |
+| When blocked | Decide if a block command should only inhibit new triggers or also force the output off. |
+
+**Pre-warning**
+
+|Option|Description|
+|--|--|
+| Send pre-warning | Enables the alert before timeout. |
+| Pre-warning offset | Seconds before the end when the alert is triggered. |
+| Pre-warning mode | *Toggle status GA* briefly toggles the status address. *Flash output* switches the output off and back on after the configured flash duration. |
+| Flash duration | Time in milliseconds the output remains off when flashing. |
+
+**Node output**
+
+- When *Emit events* is enabled the node outputs structured objects describing `trigger`, `extend`, `prewarn`, `timeout`, `override`, `block` and `manual-off` events. Each payload includes `event`, `remaining`, `active`, `override`, `blocked` and optional details.
+- Without events enabled you can rely on the KNX status GA for automation feedback.
+
+## Inputs
+
+|Property|Description|
+|--|--|
+| KNX telegrams | The node reacts to telegrams for the configured group addresses. Flow messages injected on the input are ignored. |
+
+## Outputs
+
+|Property|Description|
+|--|--|
+| Events (optional) | Sends the event objects when *Emit events* is checked. |
+
+</script>

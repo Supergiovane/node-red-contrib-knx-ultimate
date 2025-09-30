@@ -1,0 +1,51 @@
+<script type="text/markdown" data-help-name="knxUltimateStaircase">
+# ESCALERA KNX
+
+<p>Este nodo implementa una minutería de escalera KNX. Escucha los impulsos de disparo, gobierna el actuador de salida, replica el estado en una GA de feedback y respeta los comandos de override o bloqueo.</p>
+
+**Direcciones de grupo**
+
+|Propiedad|Descripción|
+|--|--|
+| GA disparo | Entrada binaria que inicia el temporizador cuando recibe `1`. Si la opción “El valor 0 cancela el ciclo” está activa, un `0` apaga la luz al instante.
+| GA salida | Actuador que se mantiene activo mientras dura el ciclo. Seleccione el DPT adecuado para el tipo de carga (binario, dimmer, analógico, …).
+| GA estado | Refleja el estado activo/preaviso. Con el preaviso en modo *Conmutar GA estado* cambia brevemente antes del apagado.
+| GA override | Mantiene la luz encendida y pausa el temporizador mientras permanezca en `1`.
+| GA bloqueo | Con valor 1 ignora los nuevos impulsos. La opción *Cuando está bloqueado* define si además debe forzar el apagado. |
+
+**Comportamiento del temporizador**
+
+|Opción|Descripción|
+|--|--|
+| Duración del temporizador | Longitud base del ciclo de escalera. |
+| Nuevo impulso | Decide si los impulsos posteriores reinician el temporizador, lo prolongan o se ignoran. |
+| El valor 0 cancela el ciclo | Finaliza el ciclo con motivo `manual-off` cuando el disparo vuelve a `0`. |
+| Cuando está bloqueado | Define si el bloqueo sólo impide impulsos o también apaga la salida. |
+
+**Preaviso**
+
+|Opción|Descripción|
+|--|--|
+| Enviar aviso | Activa la alerta previa al apagado. |
+| Aviso (segundos) | Segundos de antelación para lanzar el aviso. |
+| Modo de aviso | *Conmutar GA estado* cambia temporalmente la GA de estado. *Parpadear la salida* apaga y vuelve a encender la salida tras la duración configurada. |
+| Duración del parpadeo | Tiempo en milisegundos que la salida permanece apagada al parpadear. |
+
+**Salida del nodo**
+
+- Con *Emitir eventos* habilitado el nodo produce objetos estructurados para `trigger`, `extend`, `prewarn`, `timeout`, `override`, `block` y `manual-off`, incluyendo `event`, `remaining`, `active`, `override`, `blocked` y detalles adicionales.
+- Sin eventos se puede usar la GA de estado como feedback desde el bus KNX.
+
+## Entradas
+
+|Propiedad|Descripción|
+|--|--|
+| Telegramas KNX | El nodo reacciona a los telegramas de las GA configuradas. Los mensajes inyectados desde el flow en la entrada se ignoran. |
+
+## Salidas
+
+|Propiedad|Descripción|
+|--|--|
+| Eventos (opcional) | Envía los objetos de evento cuando la opción *Emitir eventos* está marcada. |
+
+</script>
