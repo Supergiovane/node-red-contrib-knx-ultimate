@@ -6,6 +6,9 @@
 
 # CHANGELOG
 
+**Version 4.0.14** - October 2025<br/>
+- NEW: Added KNX ↔ IoT Bridge node to orchestrate bidirectional KNX↔MQTT/REST/Modbus mappings with scaling, templating and ack metadata.<br/>
+
 **Version 4.0.13** - October 2025<br/>
 - NEW: Added KNX ↔ IoT Bridge node to orchestrate bidirectional KNX↔MQTT/REST/Modbus mappings with scaling, templating and ack metadata.<br/>
 - NEW: Added KNX Garage Door node with boolean/impulse control, hold-open and disable GAs, safety integration and automatic re-close timer.<br/>
