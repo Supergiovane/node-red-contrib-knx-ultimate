@@ -244,6 +244,7 @@ module.exports = function (RED) {
       };
 
       if (mapping.iotType === 'rest') {
+        out.url = mapping.target || node.outputtopic || '';
         out.method = mapping.method || 'POST';
         if (mapping.property) out.property = mapping.property;
         out.timeout = mapping.timeout;
@@ -427,6 +428,14 @@ module.exports = function (RED) {
             retry: bridgeMapping.retry
           }
         };
+        if (bridgeMapping.iotType === 'rest') {
+          ack.url = bridgeMapping.target || '';
+          ack.method = bridgeMapping.method || 'POST';
+        }
+        if (bridgeMapping.iotType === 'modbus') {
+          ack.address = bridgeMapping.target;
+          ack.modbusFunction = bridgeMapping.modbusFunction;
+        }
         node.setNodeStatus({ fill: 'blue', shape: 'dot', text: 'IoT→KNX', mapping: bridgeMapping, payload: msg.payload });
         if (send) send([null, ack]); else node.send([null, ack]);
         if (done) done();
