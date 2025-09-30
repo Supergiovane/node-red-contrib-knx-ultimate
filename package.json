@@ -37,6 +37,8 @@
       "knxUltimateLoadControl": "/nodes/knxUltimateLoadControl.js",
       "knxUltimateViewer": "/nodes/knxUltimateViewer.js",
       "knxUltimateAutoResponder": "/nodes/knxUltimateAutoResponder.js",
+      "knxUltimateStaircase": "/nodes/knxUltimateStaircase.js",
+      "knxUltimateGarage": "/nodes/knxUltimateGarage.js",
       "hueConfig": "/nodes/hue-config.js",
       "knxUltimateHueLight": "/nodes/knxUltimateHueLight.js",
       "knxUltimateHueButton": "/nodes/knxUltimateHueButton.js",
@@ -52,9 +54,7 @@
       "knxUltimateHuedevice_software_update": "/nodes/knxUltimateHuedevice_software_update.js",
       "knxUltimateHuePlug": "/nodes/knxUltimateHuePlug.js",
       "knxUltimateHueHumiditySensor": "/nodes/knxUltimateHueHumiditySensor.js",
-      "knxUltimateHueCameraMotion": "/nodes/knxUltimateHueCameraMotion.js",
-      "knxUltimateStaircase": "/nodes/knxUltimateStaircase.js",
-      "knxUltimateGarage": "/nodes/knxUltimateGarage.js"
+      "knxUltimateHueCameraMotion": "/nodes/knxUltimateHueCameraMotion.js"
     }
   },
   "repository": {
