@@ -226,6 +226,7 @@ module.exports = function (RED) {
     node.formatnegativevalue = "leave";
     node.formatdecimalsvalue = 2;
     node.currentHUEDevice = undefined; // At start, this value is filled by a call to HUE api. It stores a value representing the current light status.
+    node.lastKnownBrightness = undefined; // Stores the latest non-zero brightness to honour "keep brightness" behaviour when toggling via KNX.
     node.HUEDeviceWhileDaytime = null;// This retains the HUE device status while daytime, to be restored after nighttime elapsed.
     node.HUELightsBelongingToGroupWhileDaytime = null; // Array contains all light belonging to the grouped_light (if grouped_light is selected)
     node.DayTime = true;
@@ -307,6 +308,9 @@ module.exports = function (RED) {
     const handleLightSwitch = (msg) => {
       let state = {};
       msg.payload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightSwitch));
+      if (node.lastKnownBrightness === undefined && node.currentHUEDevice?.dimming?.brightness > 0) {
+        node.lastKnownBrightness = node.currentHUEDevice.dimming.brightness;
+      }
 
       if (config.restoreDayMode === "setDayByFastSwitchLightSingle" || config.restoreDayMode === "setDayByFastSwitchLightALL") {
         if (node.DayTime === false) {
@@ -343,6 +347,7 @@ module.exports = function (RED) {
             state = { on: { on: true }, dimming: node.HUEDeviceWhileDaytime.dimming, color: node.HUEDeviceWhileDaytime.color, color_temperature: node.HUEDeviceWhileDaytime.color_temperature };
             if (node.HUEDeviceWhileDaytime.color_temperature !== undefined && node.HUEDeviceWhileDaytime.color_temperature.mirek === null) delete state.color_temperature;
             queueHueCommand(state);
+            if (state.dimming?.brightness > 0) node.lastKnownBrightness = state.dimming.brightness;
             reportHueStatus("Restore light status");
             node.HUEDeviceWhileDaytime = null;
           } else if (node.isGrouped_light === true && node.HUELightsBelongingToGroupWhileDaytime !== null) {
@@ -357,13 +362,14 @@ module.exports = function (RED) {
             for (let index = 0; index < node.HUELightsBelongingToGroupWhileDaytime.length; index++) {
               const element = node.HUELightsBelongingToGroupWhileDaytime[index].light[0];
               if (bAtLeastOneIsOn === true) {
-                state = { on: element.on, dimming: element.dimming, color: element.color, color_temperature: element.color_temperature };
-              } else {
-                state = { on: { on: true }, dimming: element.dimming, color: element.color, color_temperature: element.color_temperature };
-              }
-              if (element.color_temperature !== undefined && element.color_temperature.mirek === null) delete state.color_temperature;
-              node.serverHue.hueManager.writeHueQueueAdd(element.id, state, "setLight");
+              state = { on: element.on, dimming: element.dimming, color: element.color, color_temperature: element.color_temperature };
+            } else {
+              state = { on: { on: true }, dimming: element.dimming, color: element.color, color_temperature: element.color_temperature };
             }
+            if (element.color_temperature !== undefined && element.color_temperature.mirek === null) delete state.color_temperature;
+            node.serverHue.hueManager.writeHueQueueAdd(element.id, state, "setLight");
+            if (state.dimming?.brightness > 0) node.lastKnownBrightness = state.dimming.brightness;
+          }
             reportHueStatus("Resuming all group's light");
             node.HUELightsBelongingToGroupWhileDaytime = null;
             return;
@@ -410,6 +416,7 @@ module.exports = function (RED) {
               delete state.color_temperature;
             }
             queueHueCommand(state);
+            if (typeof dbright === "number" && dbright > 0) node.lastKnownBrightness = dbright;
             reportHueStatus(JSON.stringify(msg.payload));
             return;
           }
@@ -429,12 +436,30 @@ module.exports = function (RED) {
               delete state.color_temperature;
             }
             queueHueCommand(state);
+            if (typeof bBright === "number" && bBright > 0) node.lastKnownBrightness = bBright;
             reportHueStatus(JSON.stringify(msg.payload));
             return;
           }
           if (node.currentHUEDevice.dimming !== undefined) {
-            state = { dimming: { brightness: brightnessChoosen || 100 }, on: { on: true } };
+            let targetBrightness;
+            if (brightnessChoosen !== undefined && brightnessChoosen !== null && brightnessChoosen !== "") {
+              const parsed = Number(brightnessChoosen);
+              if (!Number.isNaN(parsed)) targetBrightness = parsed;
+            }
+            if (targetBrightness === undefined) {
+              if (typeof node.lastKnownBrightness === "number" && node.lastKnownBrightness > 0) {
+                targetBrightness = node.lastKnownBrightness;
+              } else if (typeof node.currentHUEDevice.dimming.brightness === "number" && node.currentHUEDevice.dimming.brightness > 0) {
+                targetBrightness = node.currentHUEDevice.dimming.brightness;
+              }
+            }
+            if (targetBrightness === undefined || targetBrightness <= 0) {
+              targetBrightness = 100;
+            }
+            state = { dimming: { brightness: targetBrightness }, on: { on: true } };
+            if (targetBrightness > 0) node.lastKnownBrightness = targetBrightness;
             queueHueCommand(state);
+            if (typeof targetBrightness === "number" && targetBrightness > 0) node.lastKnownBrightness = targetBrightness;
             reportHueStatus(JSON.stringify(msg.payload));
             return;
           }
@@ -443,6 +468,9 @@ module.exports = function (RED) {
           reportHueStatus(JSON.stringify(msg.payload));
         }
       } else {
+        if (node.currentHUEDevice?.dimming?.brightness > 0) {
+          node.lastKnownBrightness = node.currentHUEDevice.dimming.brightness;
+        }
         state = { on: { on: false } };
         queueHueCommand(state);
         reportHueStatus(JSON.stringify(msg.payload));
@@ -584,6 +612,7 @@ module.exports = function (RED) {
             case config.GALightBrightness:
               msg.payload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightBrightness));
               state = { dimming: { brightness: msg.payload } };
+              if (msg.payload > 0) node.lastKnownBrightness = msg.payload;
               if (node.currentHUEDevice === undefined) {
                 // Grouped light
                 state.on = { on: msg.payload > 0 };
@@ -1332,6 +1361,11 @@ module.exports = function (RED) {
             } else {
               if (node.currentHUEDevice.on !== undefined && node.currentHUEDevice.on.on === false && (receivedHUEObject.on === undefined || (receivedHUEObject.on !== undefined && receivedHUEObject.on.on === true))) node.updateKNXLightState(receivedHUEObject.dimming.brightness > 0);
               node.updateKNXBrightnessState(receivedHUEObject.dimming.brightness);
+              if (receivedHUEObject.dimming.brightness > 0) {
+                node.lastKnownBrightness = receivedHUEObject.dimming.brightness;
+              } else if (node.currentHUEDevice?.dimming?.brightness > 0) {
+                node.lastKnownBrightness = node.currentHUEDevice.dimming.brightness;
+              }
               // If the brightness reaches zero, the hue lamp "on" property must be set to zero as well
               if (receivedHUEObject.dimming.brightness === 0 && node.currentHUEDevice.on !== undefined && node.currentHUEDevice.on.on === true) {
                 node.serverHue.hueManager.writeHueQueueAdd(

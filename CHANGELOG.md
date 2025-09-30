@@ -8,6 +8,7 @@
 
 **Version 4.0.12** - October 2025<br/>
 - KNX Config node: replaced the "errors only" status filter with a configurable status throttle (0/1/3/5/10/30 s) that emits only the latest status after the chosen delay, preventing editor memory growth when many nodes update.<br/>
+- HUE Light node: the "Keep brightness" option now restores the last active dim level when toggled via KNX On/Off instead of forcing 100%.<br/>
 
 **Version 4.0.11** - October 2025<br/>
 - HUE nodes: hardened KNX telegram handling with a shared safe-send guard so editor events no longer ceases to function, when the KNX gateway is offline.<br/>
