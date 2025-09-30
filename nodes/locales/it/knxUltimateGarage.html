@@ -1,0 +1,63 @@
+<script type="text/markdown" data-help-name="knxUltimateGarage">
+# Porta garage KNX
+
+<p>Il nodo Porta garage KNX comanda un portone motorizzato con GA dedicate per i comandi diretti o ad impulso, gestisce blocco richiusura/disabilitazione, integra fotocellula e ostruzione e può richiudere automaticamente dopo un timeout.</p>
+
+**Indirizzi di gruppo**
+
+|Proprietà|Descrizione|
+|--|--|
+| GA comando | GA booleana (`gaCommand`): `true` apre, `false` chiude. DPT predefinito 1.001. |
+| GA impulso | Il fronte attivo commuta il portone (`gaImpulse`, DPT 1.017). Usata anche quando non c'è una GA comando diretta. |
+| GA movimento | Pulsata quando il nodo comanda la porta, utile per logiche ausiliarie (`gaMoving`). |
+| GA ostruzione | Replica lo stato di ostruzione rilevato (`gaObstruction`). |
+| GA blocco richiusura | Mantiene il portone aperto e annulla il timer (`gaHoldOpen`). |
+| GA disabilitazione | Impedisce qualsiasi comando generato dal nodo (`gaDisable`). |
+| GA fotocellula | Deve andare a true quando la fotocellula rileva un ostacolo (`gaPhotocell`). |
+
+**Chiusura automatica**
+
+- Attiva *Richiusura automatica* per avviare un timer ogni volta che il portone si trova aperto.
+- Blocchi richiusura o disabilitazione annullano il timer finché restano attivi.
+- Alla scadenza il nodo invia il comando di chiusura (o l'impulso) ed emette un evento `auto-close`.
+
+**Sicurezza**
+
+- Una fotocellula a true durante la chiusura fa riaprire immediatamente e attiva lo stato di ostruzione.
+- Scritture esterne sulla GA ostruzione sincronizzano lo stato interno con dashboard o logiche.
+- Gli impulsi di movimento possono pilotare ventilazione, luci o sistemi di allarme.
+
+## Ingressi
+
+|Proprietà|Descrizione|
+|--|--|
+| `msg.payload` | Accetta `true`, `false`, `'open'`, `'close'` o `'toggle'` per comandare il portone dal flow. |
+| Telegrammi KNX | Reagisce alle GA configurate (comando, impulso, blocco richiusura, disabilitazione, fotocellula, movimento, ostruzione). |
+
+## Esempio dal flow
+
+```javascript
+// Apri il portone
+msg.payload = 'open'; // oppure true
+return msg;
+```
+
+```javascript
+// Chiudi il portone
+msg.payload = 'close'; // oppure false
+return msg;
+```
+
+```javascript
+// Commutazione del portone
+msg.payload = 'toggle';
+return msg;
+```
+
+## Uscite
+
+|Proprietà|Descrizione|
+|--|--|
+| Eventi (opzionale) | Con *Emetti eventi* attivo il nodo invia oggetti con `event`, `state`, `disabled`, `holdOpen`, `obstruction` per log o supervisione. |
+
+</script>

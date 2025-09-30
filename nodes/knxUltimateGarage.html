@@ -1,0 +1,309 @@
+<script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/htmlUtils.js"></script>
+
+<script type="text/javascript">
+  RED.nodes.registerType('knxUltimateGarage', {
+    category: 'KNX Ultimate',
+    color: '#7dd484',
+    defaults: {
+      server: { type: 'knxUltimate-config', required: true },
+      name: { value: '' },
+      outputtopic: { value: '' },
+      gaCommand: { value: '', required: true },
+      nameCommand: { value: '' },
+      dptCommand: { value: '1.001' },
+      gaImpulse: { value: '' },
+      nameImpulse: { value: '' },
+      dptImpulse: { value: '1.017' },
+      gaHoldOpen: { value: '' },
+      nameHoldOpen: { value: '' },
+      dptHoldOpen: { value: '1.001' },
+      gaDisable: { value: '' },
+      nameDisable: { value: '' },
+      dptDisable: { value: '1.001' },
+      gaPhotocell: { value: '' },
+      namePhotocell: { value: '' },
+      dptPhotocell: { value: '1.001' },
+      gaMoving: { value: '' },
+      nameMoving: { value: '' },
+      dptMoving: { value: '1.001' },
+      gaObstruction: { value: '' },
+      nameObstruction: { value: '' },
+      dptObstruction: { value: '1.001' },
+      autoCloseEnable: { value: true },
+      autoCloseSeconds: { value: 120, validate: RED.validators.number() },
+      emitEvents: { value: false }
+    },
+    inputs: 1,
+    outputs: 1,
+    icon: 'node-knx-icon.svg',
+    label: function () {
+      return this.name || 'KNX Garage';
+    },
+    paletteLabel: 'KNX Garage',
+    oneditprepare: function () {
+      const node = this;
+      const $knxServerInput = $('#node-input-server');
+      try { RED.sidebar.show('help'); } catch (error) { /* ignore */ }
+      const KNX_EMPTY_VALUES = new Set(['', '_ADD_', '__NONE__', 'none']);
+
+      const resolveKnxServerValue = () => {
+        const domValue = $knxServerInput.val();
+        if (domValue !== undefined && domValue !== null && domValue !== '') return domValue;
+        if (node.server !== undefined && node.server !== null && node.server !== '') return node.server;
+        return '';
+      };
+
+      const hasKnxServerSelected = () => {
+        const val = resolveKnxServerValue();
+        return !(val === undefined || val === null || KNX_EMPTY_VALUES.has(String(val)));
+      };
+
+      const KNX_GA_CACHE = node._knxGaCache || (node._knxGaCache = new Map());
+
+      const fetchGroupAddresses = (serverId) => {
+        if (!serverId) return Promise.resolve([]);
+        if (KNX_GA_CACHE.has(serverId)) return Promise.resolve(KNX_GA_CACHE.get(serverId));
+        return new Promise((resolve) => {
+          $.getJSON(`knxUltimatecsv?nodeID=${serverId}&_=${Date.now()}`, (data) => {
+            const list = Array.isArray(data) ? data : [];
+            KNX_GA_CACHE.set(serverId, list);
+            resolve(list);
+          }).fail(() => resolve([]));
+        });
+      };
+
+      const getGroupAddress = (gaSelector, nameSelector, dptSelector, prefixes) => {
+        const $gaInput = $(gaSelector);
+        const $nameInput = $(nameSelector);
+        const $dptInput = $(dptSelector);
+        if (!$gaInput.length) return;
+
+        const ensureAutocomplete = () => {
+          const sourceFn = (request, response) => {
+            if (!hasKnxServerSelected()) {
+              response([]);
+              return;
+            }
+            const serverId = resolveKnxServerValue();
+            fetchGroupAddresses(serverId).then((data) => {
+              const items = [];
+              data.forEach((entry) => {
+                const dpt = entry.dpt || '';
+                const allowed = prefixes.some((prefix) => prefix === '' || dpt.startsWith(prefix));
+                if (!allowed) return;
+                const devName = entry.devicename || '';
+                const searchStr = `${entry.ga} (${devName}) DPT${dpt}`;
+                if (!htmlUtilsfullCSVSearch(searchStr, request.term || '')) return;
+                items.push({
+                  label: `${entry.ga} # ${devName} # ${dpt}`,
+                  value: entry.ga,
+                  dpt
+                });
+              });
+              response(items);
+            });
+          };
+
+          if ($gaInput.data('knx-ga-initialised')) {
+            $gaInput.autocomplete('option', 'source', sourceFn);
+          } else {
+            $gaInput
+              .autocomplete({
+                minLength: 0,
+                source: sourceFn,
+                select: (event, ui) => {
+                  let deviceName = '';
+                  try {
+                    deviceName = ui.item.label.split('#')[1].trim();
+                    deviceName = deviceName.replace(/^\)/, '').trim();
+                  } catch (error) { deviceName = ''; }
+                  if ($nameInput.length) {
+                    if (deviceName && deviceName !== '') {
+                      $nameInput.val(deviceName);
+                    } else if (!$nameInput.val()) {
+                      $nameInput.val('');
+                    }
+                  }
+                  try {
+                    const parts = ui.item.label.split('#');
+                    const dptFromLabel = parts.length >= 3 ? parts[2].trim() : '';
+                    if (dptFromLabel !== '') {
+                      $dptInput.val(dptFromLabel);
+                    }
+                  } catch (error) { /* ignore */ }
+                }
+              })
+              .on('focus.knxUltimateGarage click.knxUltimateGarage', function () {
+                const currentValue = $(this).val() || '';
+                try { $(this).autocomplete('search', `${currentValue} exactmatch`); } catch (error) { /* ignore */ }
+              });
+            $gaInput.data('knx-ga-initialised', true);
+          }
+          try {
+            if (hasKnxServerSelected()) {
+              const srv = RED.nodes.node(resolveKnxServerValue());
+              if (srv && srv.id) KNX_enableSecureFormatting($gaInput, srv.id);
+            }
+          } catch (error) { /* ignore */ }
+        };
+
+        ensureAutocomplete();
+      };
+
+      const BINARY_PREFIX = ['1.'];
+
+      const refreshKnxBindings = () => {
+        if (!hasKnxServerSelected()) return;
+
+        getGroupAddress('#node-input-gaCommand', '#node-input-nameCommand', '#node-input-dptCommand', BINARY_PREFIX);
+        getGroupAddress('#node-input-gaImpulse', '#node-input-nameImpulse', '#node-input-dptImpulse', BINARY_PREFIX);
+        getGroupAddress('#node-input-gaHoldOpen', '#node-input-nameHoldOpen', '#node-input-dptHoldOpen', BINARY_PREFIX);
+        getGroupAddress('#node-input-gaDisable', '#node-input-nameDisable', '#node-input-dptDisable', BINARY_PREFIX);
+        getGroupAddress('#node-input-gaPhotocell', '#node-input-namePhotocell', '#node-input-dptPhotocell', BINARY_PREFIX);
+        getGroupAddress('#node-input-gaMoving', '#node-input-nameMoving', '#node-input-dptMoving', BINARY_PREFIX);
+        getGroupAddress('#node-input-gaObstruction', '#node-input-nameObstruction', '#node-input-dptObstruction', BINARY_PREFIX);
+      };
+
+      $knxServerInput.on('change', () => {
+        KNX_GA_CACHE.clear();
+        refreshKnxBindings();
+      });
+      if (hasKnxServerSelected()) refreshKnxBindings();
+
+      const syncAutoClose = () => {
+        const enabled = $('#node-input-autoCloseEnable').is(':checked');
+        const $seconds = $('#node-input-autoCloseSeconds').closest('.form-row');
+        $seconds.toggle(enabled);
+      };
+
+      $('#node-input-autoCloseEnable').on('change', syncAutoClose);
+      syncAutoClose();
+    }
+  });
+</script>
+
+<script type="text/html" data-template-name="knxUltimateGarage">
+  <div class="form-row" style="display:flex; align-items:center;">
+    <label for="node-input-server" style="width:180px"><i class="fa fa-circle-o"></i> <span data-i18n="knxUltimateGarage.node-input-server"></span></label>
+    <input type="text" id="node-input-server" style="flex:1">
+  </div>
+
+  <div class="form-row" style="display:flex; align-items:center;">
+    <label for="node-input-name" style="width:180px"><i class="fa fa-tag"></i> <span data-i18n="knxUltimateGarage.node-input-name"></span></label>
+    <input type="text" id="node-input-name" style="flex:1">
+  </div>
+
+  <div class="form-row" style="display:flex; align-items:center;">
+    <label for="node-input-outputtopic" style="width:180px"><i class="fa fa-comment"></i> <span data-i18n="knxUltimateGarage.node-input-outputtopic"></span></label>
+    <input type="text" id="node-input-outputtopic" style="flex:1" data-i18n="[placeholder]knxUltimateGarage.placeholders.outputtopic">
+  </div>
+
+  <hr>
+  <div class="form-row" style="margin:4px 0 2px;">
+    <span style="font-weight:bold;" data-i18n="knxUltimateGarage.section_commands"></span>
+  </div>
+
+  <div class="form-row" style="display:flex; align-items:center; gap:8px;">
+    <label for="node-input-gaCommand" style="width:180px"><i class="fa fa-exchange"></i> <span data-i18n="knxUltimateGarage.command"></span></label>
+    <input type="text" id="node-input-gaCommand" style="width:160px" data-i18n="[placeholder]knxUltimateGarage.placeholders.ga">
+    <input type="text" id="node-input-nameCommand" style="flex:1" data-i18n="[placeholder]knxUltimateGarage.placeholders.commandName">
+    <label for="node-input-dptCommand" style="width:60px; text-align:right">DPT</label>
+    <input type="text" id="node-input-dptCommand" style="width:160px" readonly>
+  </div>
+
+  <div class="form-row" style="display:flex; align-items:center; gap:8px;">
+    <label for="node-input-gaImpulse" style="width:180px"><i class="fa fa-bolt"></i> <span data-i18n="knxUltimateGarage.impulse"></span></label>
+    <input type="text" id="node-input-gaImpulse" style="width:160px" data-i18n="[placeholder]knxUltimateGarage.placeholders.ga">
+    <input type="text" id="node-input-nameImpulse" style="flex:1" data-i18n="[placeholder]knxUltimateGarage.placeholders.impulseName">
+    <label for="node-input-dptImpulse" style="width:60px; text-align:right">DPT</label>
+    <input type="text" id="node-input-dptImpulse" style="width:160px" readonly>
+  </div>
+
+  <div class="form-row" style="display:flex; align-items:center; gap:8px;">
+    <label for="node-input-gaMoving" style="width:180px"><i class="fa fa-arrows-h"></i> <span data-i18n="knxUltimateGarage.moving"></span></label>
+    <input type="text" id="node-input-gaMoving" style="width:160px" data-i18n="[placeholder]knxUltimateGarage.placeholders.ga">
+    <input type="text" id="node-input-nameMoving" style="flex:1" data-i18n="[placeholder]knxUltimateGarage.placeholders.movingName">
+    <label for="node-input-dptMoving" style="width:60px; text-align:right">DPT</label>
+    <input type="text" id="node-input-dptMoving" style="width:160px" readonly>
+  </div>
+
+  <div class="form-row" style="display:flex; align-items:center; gap:8px;">
+    <label for="node-input-gaObstruction" style="width:180px"><i class="fa fa-exclamation-triangle"></i> <span data-i18n="knxUltimateGarage.obstruction"></span></label>
+    <input type="text" id="node-input-gaObstruction" style="width:160px" data-i18n="[placeholder]knxUltimateGarage.placeholders.ga">
+    <input type="text" id="node-input-nameObstruction" style="flex:1" data-i18n="[placeholder]knxUltimateGarage.placeholders.obstructionName">
+    <label for="node-input-dptObstruction" style="width:60px; text-align:right">DPT</label>
+    <input type="text" id="node-input-dptObstruction" style="width:160px" readonly>
+  </div>
+
+  <div style="border-top:1px solid #ccc; margin:10px 0 6px;"></div>
+
+  <div class="form-row" style="margin:4px 0 2px;">
+    <span style="font-weight:bold;" data-i18n="knxUltimateGarage.section_inputs"></span>
+  </div>
+
+  <div class="form-row" style="display:flex; align-items:center; gap:8px;">
+    <label for="node-input-gaHoldOpen" style="width:180px"><i class="fa fa-pause"></i> <span data-i18n="knxUltimateGarage.holdOpen"></span></label>
+    <input type="text" id="node-input-gaHoldOpen" style="width:160px" data-i18n="[placeholder]knxUltimateGarage.placeholders.ga">
+    <input type="text" id="node-input-nameHoldOpen" style="flex:1" data-i18n="[placeholder]knxUltimateGarage.placeholders.holdOpenName">
+    <label for="node-input-dptHoldOpen" style="width:60px; text-align:right">DPT</label>
+    <input type="text" id="node-input-dptHoldOpen" style="width:160px" readonly>
+  </div>
+
+  <div class="form-row" style="display:flex; align-items:center; gap:8px;">
+    <label for="node-input-gaDisable" style="width:180px"><i class="fa fa-ban"></i> <span data-i18n="knxUltimateGarage.disable"></span></label>
+    <input type="text" id="node-input-gaDisable" style="width:160px" data-i18n="[placeholder]knxUltimateGarage.placeholders.ga">
+    <input type="text" id="node-input-nameDisable" style="flex:1" data-i18n="[placeholder]knxUltimateGarage.placeholders.disableName">
+    <label for="node-input-dptDisable" style="width:60px; text-align:right">DPT</label>
+    <input type="text" id="node-input-dptDisable" style="width:160px" readonly>
+  </div>
+
+  <div class="form-row" style="display:flex; align-items:center; gap:8px;">
+    <label for="node-input-gaPhotocell" style="width:180px"><i class="fa fa-lightbulb-o"></i> <span data-i18n="knxUltimateGarage.photocell"></span></label>
+    <input type="text" id="node-input-gaPhotocell" style="width:160px" data-i18n="[placeholder]knxUltimateGarage.placeholders.ga">
+    <input type="text" id="node-input-namePhotocell" style="flex:1" data-i18n="[placeholder]knxUltimateGarage.placeholders.photocellName">
+    <label for="node-input-dptPhotocell" style="width:60px; text-align:right">DPT</label>
+    <input type="text" id="node-input-dptPhotocell" style="width:160px" readonly>
+  </div>
+
+  <hr>
+  <div class="form-row" style="display:flex; align-items:center;">
+    <label for="node-input-autoCloseEnable" style="width:180px"><i class="fa fa-clock-o"></i> <span data-i18n="knxUltimateGarage.autoCloseEnable"></span></label>
+    <input type="checkbox" id="node-input-autoCloseEnable" style="width:auto">
+  </div>
+
+  <div class="form-row" style="display:flex; align-items:center;">
+    <label for="node-input-autoCloseSeconds" style="width:180px"><i class="fa fa-hourglass-end"></i> <span data-i18n="knxUltimateGarage.autoCloseSeconds"></span></label>
+    <input type="number" id="node-input-autoCloseSeconds" style="width:140px" min="1">
+  </div>
+
+  <hr>
+  <div class="form-row" style="display:flex; align-items:center;">
+    <label for="node-input-emitEvents" style="width:180px"><i class="fa fa-sign-out"></i> <span data-i18n="knxUltimateGarage.node-input-emitEvents"></span></label>
+    <input type="checkbox" id="node-input-emitEvents" style="width:auto">
+  </div>
+
+  <br/><br/><br/><br/>
+</script>
+
+<script type="text/html" data-help-name="knxUltimateGarage">
+  <div data-i18n="knxUltimateGarage.help.intro"></div>
+  <h3 data-i18n="knxUltimateGarage.help.commands"></h3>
+  <ul>
+    <li data-i18n="knxUltimateGarage.help.command_ga"></li>
+    <li data-i18n="knxUltimateGarage.help.impulse_ga"></li>
+    <li data-i18n="knxUltimateGarage.help.holdopen_ga"></li>
+    <li data-i18n="knxUltimateGarage.help.disable_ga"></li>
+  </ul>
+  <h3 data-i18n="knxUltimateGarage.help.safety"></h3>
+  <ul>
+    <li data-i18n="knxUltimateGarage.help.photocell_ga"></li>
+    <li data-i18n="knxUltimateGarage.help.moving_ga"></li>
+    <li data-i18n="knxUltimateGarage.help.obstruction_ga"></li>
+  </ul>
+  <h3 data-i18n="knxUltimateGarage.help.auto"></h3>
+  <ul>
+    <li data-i18n="knxUltimateGarage.help.auto_close"></li>
+  </ul>
+  <h3 data-i18n="knxUltimateGarage.help.events"></h3>
+  <p data-i18n="knxUltimateGarage.help.events_desc"></p>
+</script>

@@ -1,51 +1,66 @@
 <script type="text/markdown" data-help-name="knxUltimateStaircase">
-# MINUTERIA SCALA KNX
+# Temporizzatore scale KNX
 
-<p>Questo nodo realizza una scala temporizzata KNX. Ascolta gli impulsi di attivazione, pilota l'attuatore di uscita, replica lo stato su una GA di feedback e gestisce i comandi di override o blocco.</p>
+<p>Il nodo Temporizzatore scale KNX riproduce il classico timer luci scala. Rileva gli impulsi di attivazione, comanda l'attuatore, sincronizza lo stato tramite una GA di feedback e gestisce i comandi di override o blocco.</p>
 
 **Indirizzi di gruppo**
 
 |Proprietà|Descrizione|
 |--|--|
-| GA impulso | Ingresso binario che avvia il timer quando riceve `1`. Se l'opzione “Il valore 0 annulla il ciclo” è attiva, il valore `0` spegne subito la luce.
-| GA uscita | Attuatore pilotato durante il ciclo. Seleziona il DPT coerente con il carico (binario, dimmer, analogico, …).
-| GA stato | Replica lo stato attivo/preavviso. Con il preavviso in modalità *Attiva GA stato* cambia brevemente valore prima dello spegnimento.
-| GA override | Mantiene la luce accesa e sospende il timer finché rimane a `1`.
-| GA blocco | Quando vale 1 ignora gli impulsi. L'opzione *Quando è bloccato* decide se spegnere anche la luce oppure lasciarla invariata.
+| GA impulso | GA binaria che avvia il timer quando riceve `1`. Se abiliti “Il valore 0 annulla il ciclo”, lo `0` spegne immediatamente la luce. |
+| GA uscita | Attuatore pilotato durante il ciclo. Seleziona il DPT coerente con il carico (binario, dimmer, analogico, …). |
+| GA stato | Replica lo stato attivo e il preavviso. In modalità *Attiva GA stato* viene commutata prima dello spegnimento. |
+| GA override | Mantiene la luce accesa e sospende il timer finché rimane a `1`. |
+| GA blocco | Quando vale `1` ignora nuovi impulsi. L'opzione *Quando è bloccato* decide se forzare lo spegnimento. |
 
 **Comportamento del timer**
 
 |Opzione|Descrizione|
 |--|--|
 | Durata timer | Durata base del ciclo scala. |
-| Nuovo impulso | Scegli se gli impulsi successivi riavviano il timer, lo prolungano oppure vengono ignorati. |
+| Nuovo impulso | Scegli se riavviare, prolungare o ignorare gli impulsi successivi. |
 | Il valore 0 annulla il ciclo | Arresta il ciclo con motivo `manual-off` quando l'impulso torna a `0`. |
-| Quando è bloccato | Definisce se il blocco deve solo inibire gli impulsi oppure spegnere anche l'uscita. |
+| Quando è bloccato | Determina se il blocco inibisce solo gli impulsi o forza lo spegnimento. |
 
 **Preavviso**
 
 |Opzione|Descrizione|
 |--|--|
 | Invia preavviso | Abilita l'avviso prima dello spegnimento. |
-| Preavviso (secondi) | Secondi di anticipo con cui emettere l'avviso. |
-| Modalità preavviso | *Attiva GA stato* cambia temporaneamente la GA di stato. *Lampeggia l'uscita* spegne e riaccende l'uscita dopo la durata impostata. |
-| Durata lampeggio | Tempo in millisecondi in cui l'uscita resta spenta durante il lampeggio. |
+| Preavviso (secondi) | Quanto tempo prima della scadenza attivare l'avviso. |
+| Modalità preavviso | *Attiva GA stato* commuta la GA di stato. *Lampeggia l'uscita* spegne e riaccende l'uscita dopo la durata impostata. |
+| Durata lampeggio | Millisecondi durante i quali l'uscita resta spenta quando lampeggia. |
 
 **Uscita del nodo**
 
-- Con *Emetti eventi* attivo il nodo produce oggetti strutturati per `trigger`, `extend`, `prewarn`, `timeout`, `override`, `block` e `manual-off` includendo `event`, `remaining`, `active`, `override`, `blocked` e ulteriori dettagli.
-- Senza eventi attivati è possibile usare la GA di stato come feedback sul bus KNX.
+- Se *Emetti eventi* è attivo il nodo emette oggetti strutturati (`trigger`, `extend`, `prewarn`, `timeout`, `override`, `block`, `manual-off`) con `remaining`, `active`, `override`, `blocked`.
+- In alternativa puoi usare la GA di stato come feedback direttamente sul bus KNX.
 
 ## Ingressi
 
 |Proprietà|Descrizione|
 |--|--|
-| Telegrammi KNX | Il nodo reagisce ai telegrammi delle GA configurate. I messaggi iniettati dal flow sull'ingresso sono ignorati. |
+| Input dal flow | Invia `true`, `false`, `'open'` o `'close'` dal flow per avviare o interrompere il temporizzatore. |
+| Telegrammi KNX | Il nodo reagisce alle GA configurate. |
+
+## Esempio dal flow
+
+```javascript
+// Avvia il temporizzatore scale
+msg.payload = true;
+return msg;
+```
+
+```javascript
+// Annulla il ciclo (opzione "Il valore 0 annulla il ciclo")
+msg.payload = false;
+return msg;
+```
 
 ## Uscite
 
 |Proprietà|Descrizione|
 |--|--|
-| Eventi (opzionale) | Invia gli oggetti evento quando l'opzione *Emetti eventi* è selezionata. |
+| Eventi (opzionale) | Con *Emetti eventi* attivo il nodo invia gli oggetti evento descritti sopra sull'uscita. |
 
 </script>

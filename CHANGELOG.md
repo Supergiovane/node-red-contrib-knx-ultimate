@@ -6,6 +6,11 @@
 
 # CHANGELOG
 
+**Version 4.0.13** - October 2025<br/>
+- NEW: Added KNX Garage Door node with boolean/impulse control, hold-open and disable GAs, safety integration and automatic re-close timer.<br/>
+- KNX Staircase node: editor refinements with read-only DPTs, flow payload support and localisation polish across supported languages.<br/>
+- KNX Staircase & Garage nodes: unified status handling and multilingual flow examples in docs/help.<br/>
+
 **Version 4.0.12** - October 2025<br/>
 - NEW: Added KNX Staircase Light node with timer handling, pre-warning, override and block support.<br/>
 - KNX Config node: replaced the "errors only" status filter with a configurable status throttle (0/1/3/5/10/30 s) that emits only the latest status after the chosen delay, preventing editor memory growth when many nodes update.<br/>

@@ -1,7 +1,7 @@
 {
   "knxUltimateStaircase": {
-    "title": "Scala temporizzata",
-    "paletteLabel": "Scala",
+    "title": "Temporizzatore scale",
+    "paletteLabel": "Temporizzatore scale",
     "node-input-server": "Gateway KNX",
     "node-input-name": "Nome",
     "node-input-outputtopic": "Topic eventi emessi",
@@ -52,6 +52,8 @@
       "statusName": "Nome indicatore stato",
       "overrideName": "Nome canale override",
       "blockName": "Nome comando blocco"
-    }
+    },
+    "section_commands": "GA di comando",
+    "section_inputs": "GA di ingresso"
   }
 }

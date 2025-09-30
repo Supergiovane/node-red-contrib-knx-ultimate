@@ -39,6 +39,30 @@ module.exports = function (RED) {
       node.sysLogger = new loggerClass({ loglevel: baseLogLevel, setPrefix: node.type + ' <' + (node.name || node.id || '') + '>' });
     } catch (error) { console.log(error.stack); }
 
+    node.setNodeStatus = ({ fill = 'grey', shape = 'ring', text: statusText = '', payload = '', GA = '', dpt = '', devicename = '' }) => {
+      try {
+        if (!node.serverKNX) {
+          pushStatus({ fill: 'red', shape: 'dot', text: '[NO GATEWAY SELECTED]' });
+          return;
+        }
+        const dDate = new Date();
+        const gaLabel = GA ? `(${GA}) ` : '';
+        const deviceLabel = devicename ? ` ${devicename}` : '';
+        const dptLabel = dpt ? ` DPT${dpt}` : '';
+        let payloadLabel = '';
+        if (payload !== undefined && payload !== null && payload !== '') {
+          payloadLabel = typeof payload === 'object' ? JSON.stringify(payload) : `${payload}`;
+        }
+        const composed = `${gaLabel}${payloadLabel}${deviceLabel}${dptLabel} (day ${dDate.getDate()}, ${dDate.toLocaleTimeString()}) ${statusText}`.trim();
+        pushStatus({ fill, shape, text: composed });
+        if (fill && fill.toUpperCase() === 'RED' && node.serverKNX && typeof node.serverKNX.reportToWatchdogCalledByKNXUltimateNode === 'function') {
+          node.serverKNX.reportToWatchdogCalledByKNXUltimateNode({ nodeid: node.id, topic: node.outputtopic, devicename, GA, text: statusText });
+        }
+      } catch (error) {
+        if (node.sysLogger) node.sysLogger.error(`Status update failed: ${error.message}`);
+      }
+    };
+
     const boolFromConfig = (value) => (value === true || value === 'true');
 
     node.gaTrigger = (config.gaTrigger || '').trim();
@@ -51,6 +75,12 @@ module.exports = function (RED) {
     node.dptOverride = config.dptOverride || '1.001';
     node.gaBlock = (config.gaBlock || '').trim();
     node.dptBlock = config.dptBlock || '1.001';
+
+    node.nameTriggerGA = config.nameTrigger || '';
+    node.nameOutputGA = config.nameOutput || '';
+    node.nameStatusGA = config.nameStatus || '';
+    node.nameOverrideGA = config.nameOverride || '';
+    node.nameBlockGA = config.nameBlock || '';
 
     node.timerDurationMs = Math.max(1000, Number(config.timerSeconds || 0) * 1000 || 60000);
     node.extendMode = config.extendMode || 'restart';
@@ -163,23 +193,23 @@ module.exports = function (RED) {
 
     const updateStatus = (overrideStatus = null) => {
       if (overrideStatus) {
-        pushStatus(overrideStatus);
+        node.setNodeStatus(overrideStatus);
         return;
       }
       if (node.overrideActive) {
-        pushStatus({ fill: 'blue', shape: 'dot', text: 'Override ON' });
+        node.setNodeStatus({ fill: 'blue', shape: 'dot', text: 'Override ON', payload: true, GA: node.gaOverride, dpt: node.dptOverride, devicename: node.nameOverrideGA });
         return;
       }
       if (node.blocked) {
-        pushStatus({ fill: 'yellow', shape: 'ring', text: 'Blocked' });
+        node.setNodeStatus({ fill: 'yellow', shape: 'ring', text: 'Blocked', payload: true, GA: node.gaBlock, dpt: node.dptBlock, devicename: node.nameBlockGA });
         return;
       }
       if (node.active) {
         const remaining = Math.max(0, Math.round((node.timerDeadline - Date.now()) / 1000));
-        pushStatus({ fill: 'green', shape: 'dot', text: `ON ${remaining}s` });
+        node.setNodeStatus({ fill: 'green', shape: 'dot', text: `Active ${remaining}s`, payload: true, GA: node.gaOutput, dpt: node.dptOutput, devicename: node.nameOutputGA });
         return;
       }
-      pushStatus({ fill: 'grey', shape: 'ring', text: 'Idle' });
+      node.setNodeStatus({ fill: 'grey', shape: 'ring', text: 'Idle', payload: node.outputState, GA: node.gaOutput, dpt: node.dptOutput, devicename: node.nameOutputGA });
     };
 
     const startStatusTicker = () => {
@@ -219,7 +249,7 @@ module.exports = function (RED) {
       } else {
         sendStatusValue(true, 'write');
       }
-      updateStatus({ fill: 'yellow', shape: 'dot', text: 'Pre-warning' });
+      updateStatus({ fill: 'yellow', shape: 'dot', text: 'Pre-warning', GA: node.gaStatus, dpt: node.dptStatus, devicename: node.nameStatusGA, payload: true });
       emitEvent('prewarn', { active: true });
     };
 
@@ -271,7 +301,7 @@ module.exports = function (RED) {
       node.preWarned = false;
       sendOutput(false, 'write');
       sendStatusValue(false, 'write');
-      updateStatus({ fill: reason === 'manual-off' ? 'grey' : 'green', shape: 'ring', text: reason === 'manual-off' ? 'Stopped' : 'Finished' });
+      updateStatus({ fill: reason === 'manual-off' ? 'grey' : 'green', shape: 'ring', text: reason === 'manual-off' ? 'Stopped' : 'Finished', GA: node.gaOutput, dpt: node.dptOutput, devicename: node.nameOutputGA, payload: node.outputState });
       emitEvent(reason, { active: false });
     };
 
@@ -289,7 +319,7 @@ module.exports = function (RED) {
           sendOutput(false, 'write');
           sendStatusValue(false, 'write');
         }
-        updateStatus({ fill: 'yellow', shape: 'ring', text: 'Blocked' });
+        updateStatus({ fill: 'yellow', shape: 'ring', text: 'Blocked', GA: node.gaBlock, dpt: node.dptBlock, devicename: node.nameBlockGA, payload: true });
       } else {
         updateStatus();
       }
@@ -308,7 +338,7 @@ module.exports = function (RED) {
         node.active = false;
         sendOutput(true, 'write');
         sendStatusValue(true, 'write');
-        updateStatus({ fill: 'blue', shape: 'dot', text: 'Override ON' });
+        updateStatus({ fill: 'blue', shape: 'dot', text: 'Override ON', GA: node.gaOverride, dpt: node.dptOverride, devicename: node.nameOverrideGA, payload: node.overrideActive });
       } else {
         updateStatus();
       }
@@ -331,7 +361,7 @@ module.exports = function (RED) {
         return;
       }
       if (node.blocked) {
-        updateStatus({ fill: 'yellow', shape: 'ring', text: 'Blocked' });
+        updateStatus({ fill: 'yellow', shape: 'ring', text: 'Blocked', GA: node.gaBlock, dpt: node.dptBlock, devicename: node.nameBlockGA, payload: true });
         emitEvent('trigger', { ignored: true, reason: 'blocked' });
         return;
       }
@@ -357,6 +387,38 @@ module.exports = function (RED) {
         safeSendToKNX({ grpaddr: node.gaBlock, payload, dpt: node.dptBlock, outputtype: 'response' }, 'response');
       }
     };
+
+
+    node.on('input', (msg, send, done) => {
+      try {
+        if (!msg) { if (done) done(); return; }
+        let processed = false;
+        if (typeof msg.payload === 'string') {
+          const command = msg.payload.trim().toLowerCase();
+          if (command === 'trigger' || command === 'start' || command === 'on' || command === 'open') {
+            handleTrigger(true);
+            processed = true;
+          } else if (command === 'cancel' || command === 'stop' || command === 'off' || command === 'close') {
+            handleTrigger(false);
+            processed = true;
+          } else if (command === 'toggle') {
+            handleTrigger(true);
+            processed = true;
+          }
+        }
+        if (!processed) {
+          handleTrigger(boolFromPayload(msg.payload));
+        }
+        if (done) done();
+      } catch (error) {
+        if (node.sysLogger) {
+          node.sysLogger.error(`Staircase flow input error: ${error.message}`);
+        } else {
+          RED.log.error(`knxUltimateStaircase flow input error: ${error.message}`);
+        }
+        if (done) done(error);
+      }
+    });
 
     node.handleSend = (msg) => {
       try {

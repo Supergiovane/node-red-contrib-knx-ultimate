@@ -1,0 +1,62 @@
+<script type="text/markdown" data-help-name="knxUltimateGarage">
+# KNX GARAGE DOOR
+
+<p>Control a KNX garage door with direct Boolean commands or toggle impulses, optional hold-open / disable GAs, safety photocell feedback and automatic re-close. The node can emit movement and obstruction indicators as well as structured events for the flow.</p>
+
+**Group addresses**
+
+|Property|Description|
+|--|--|
+| Command GA | Boolean GA (`gaCommand`) where `true` opens and `false` closes. Default DPT 1.001. |
+| Impulse GA | Rising edge toggles the door (`gaImpulse`, default DPT 1.017). Used automatically when no direct command GA is provided. |
+| Hold-open GA | Keeps the door open and cancels auto re-close while true (`gaHoldOpen`). |
+| Disable GA | Blocks any command emitted by the node (`gaDisable`). Useful during maintenance/manual mode. |
+| Photocell GA | Goes true when the beam is interrupted; the node reopens and flags obstruction (`gaPhotocell`). |
+| Moving GA | Optional pulse when the node commands movement so other devices can follow the motion (`gaMoving`). |
+| Obstruction GA | Mirrors the obstruction status for dashboards, alarms or logic blocks (`gaObstruction`). |
+
+**Automatic re-close**
+
+- Enable *Auto re-close* to start a countdown whenever the door becomes open.
+- Hold-open or disable cancel the timer until they return to false.
+- When the timer expires the node sends the close command (or impulse) and raises an `auto-close` event.
+
+**Safety**
+
+- A photocell true during closing immediately reopens the door and sets the obstruction flag.
+- External writes to the obstruction GA keep the internal status aligned with dashboards.
+- Movement pulses can drive ventilation, lighting or alarm routines.
+
+## Inputs
+
+|Property|Description|
+|--|--|
+| `msg.payload` | Accepts `true`, `false`, `'open'`, `'close'` or `'toggle'` to control the door from the flow. |
+| KNX telegrams | Reacts to the configured GAs (command, impulse, hold-open, disable, photocell, moving, obstruction). |
+
+## Flow example
+
+```javascript
+// Open the door
+msg.payload = 'open'; // also accepts true
+return msg;
+```
+
+```javascript
+// Close the door
+msg.payload = 'close'; // also accepts false
+return msg;
+```
+
+```javascript
+// Toggle the door state
+msg.payload = 'toggle';
+return msg;
+```
+## Outputs
+
+|Property|Description|
+|--|--|
+| Events (optional) | With *Emit events* enabled the node outputs objects containing `event`, `state`, `disabled`, `holdOpen` and `obstruction` so you can log or supervise the door. |
+
+</script>

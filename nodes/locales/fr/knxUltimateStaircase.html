@@ -1,51 +1,66 @@
 <script type="text/markdown" data-help-name="knxUltimateStaircase">
-# MINUTERIE D'ESCALIER KNX
+# Temporisateur d'escalier KNX
 
-<p>Ce nœud met en œuvre une minuterie d'escalier KNX. Il écoute les impulsions de déclenchement, pilote l'actionneur de sortie, réplique l'état sur une GA de retour et gère les commandes d'override ou de blocage.</p>
+<p>Le nœud Temporisateur d'escalier KNX reproduit le fonctionnement d'un éclairage de cage d'escalier. Il détecte les impulsions de déclenchement, pilote l'actionneur, reflète l'état via une GA de retour et gère les commandes d'override ou de blocage.</p>
 
 **Adresses de groupe**
 
 |Propriété|Description|
 |--|--|
-| GA impulsion | Entrée binaire qui démarre le minuteur lorsqu'elle reçoit `1`. Si l'option « La valeur 0 annule le cycle » est active, un `0` éteint immédiatement la lumière.
-| GA sortie | Actionneur commandé tant que le cycle est actif. Sélectionnez le DPT adapté au type de charge (binaire, variation, analogique, …).
-| GA état | Reflète l'état actif/préavis. Avec le préavis en mode *Basculer la GA d'état* la valeur change brièvement avant l'extinction.
-| GA override | Maintient l'éclairage allumé et met le minuteur en pause tant que la valeur reste à `1`.
-| GA blocage | À 1 les impulsions sont ignorées. L'option *En cas de blocage* détermine si la sortie doit aussi être forcée à l'arrêt. |
+| GA impulsion | Entrée binaire qui démarre le minuteur lorsqu'elle reçoit `1`. Avec « La valeur 0 annule le cycle », un `0` éteint immédiatement l'éclairage. |
+| GA sortie | Actionneur piloté pendant tout le cycle. Sélectionnez le DPT adapté au type de charge. |
+| GA état | Reflète l'état actif et le préavis. En mode *Basculer la GA d'état* elle change brièvement avant l'extinction. |
+| GA override | Maintient la lumière allumée et suspend le minuteur tant que la valeur reste à `1`. |
+| GA blocage | Empêche les nouvelles impulsions lorsque la valeur vaut `1`. L'option *Lors du blocage* détermine si l'on force également l'arrêt. |
 
 **Comportement du minuteur**
 
 |Option|Description|
 |--|--|
 | Durée du minuteur | Durée de base du cycle d'escalier. |
-| Nouvelle impulsion | Indique si les impulsions suivantes redémarrent le minuteur, l'allongent ou sont ignorées. |
-| La valeur 0 annule le cycle | Termine le cycle avec le motif `manual-off` lorsque l'impulsion repasse à `0`. |
-| En cas de blocage | Définit si le blocage doit simplement empêcher les impulsions ou aussi éteindre la sortie. |
+| Nouvelle impulsion | Choisissez de redémarrer le minuteur, d'ajouter du temps restant ou d'ignorer l'impulsion. |
+| La valeur 0 annule le cycle | Termine le cycle avec le motif `manual-off` quand l'impulsion repasse à `0`. |
+| Lors du blocage | Définit si le blocage se contente d'interdire les impulsions ou force également l'arrêt. |
 
 **Préavis**
 
 |Option|Description|
 |--|--|
 | Envoyer un préavis | Active l'alerte avant l'extinction. |
-| Préavis (secondes) | Secondes d'anticipation pour déclencher l'alerte. |
-| Mode de préavis | *Basculer la GA d'état* modifie temporairement la GA de statut. *Faire clignoter la sortie* coupe puis rallume la sortie après la durée configurée. |
-| Durée du clignotement | Temps en millisecondes pendant lequel la sortie reste coupée lors du clignotement. |
+| Préavis (secondes) | Nombre de secondes d'anticipation. |
+| Mode de préavis | *Basculer la GA d'état* modifie temporairement la GA. *Faire clignoter la sortie* coupe puis rallume l'actionneur après la durée indiquée. |
+| Durée du clignotement | Temps pendant lequel la sortie reste coupée lors du clignotement. |
 
 **Sortie du nœud**
 
-- Avec *Émettre des événements* activé, le nœud produit des objets structurés pour `trigger`, `extend`, `prewarn`, `timeout`, `override`, `block` et `manual-off` comportant `event`, `remaining`, `active`, `override`, `blocked` et d'autres détails.
-- Sans événement vous pouvez utiliser la GA d'état comme retour d'information KNX.
+- Avec *Émettre des événements* activé, le nœud produit des objets structurés (`trigger`, `extend`, `prewarn`, `timeout`, `override`, `block`, `manual-off`) contenant `remaining`, `active`, `override`, `blocked`.
+- Sinon utilisez la GA d'état comme retour d'information sur le bus KNX.
 
 ## Entrées
 
 |Propriété|Description|
 |--|--|
-| Télégrammes KNX | Le nœud réagit aux télégrammes des GA configurées. Les messages injectés depuis le flow sont ignorés. |
+| Entrée du flow | Envoyez `true`, `false`, `'open'` ou `'close'` pour démarrer ou arrêter le minuteur. |
+| Télégrammes KNX | Le nœud réagit aux adresses configurées. |
+
+## Exemple de flow
+
+```javascript
+// Démarrer le temporisateur d'escalier
+msg.payload = true;
+return msg;
+```
+
+```javascript
+// Annuler le cycle (option « La valeur 0 annule le cycle »)
+msg.payload = false;
+return msg;
+```
 
 ## Sorties
 
 |Propriété|Description|
 |--|--|
-| Événements (optionnel) | Transmet les objets d'événement lorsque l'option *Émettre des événements* est cochée. |
+| Événements (optionnel) | En mode événements, les objets décrits ci-dessus sont envoyés sur la sortie du nœud. |
 
 </script>

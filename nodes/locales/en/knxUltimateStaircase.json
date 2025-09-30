@@ -52,6 +52,8 @@
       "statusName": "Status feedback name",
       "overrideName": "Override channel name",
       "blockName": "Block command name"
-    }
+    },
+    "section_commands": "Command group addresses",
+    "section_inputs": "Input group addresses"
   }
 }

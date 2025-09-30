@@ -52,6 +52,8 @@
       "statusName": "Nom indicateur d'état",
       "overrideName": "Nom canal override",
       "blockName": "Nom commande blocage"
-    }
+    },
+    "section_commands": "Adresses de commande",
+    "section_inputs": "Adresses d’entrée"
   }
 }

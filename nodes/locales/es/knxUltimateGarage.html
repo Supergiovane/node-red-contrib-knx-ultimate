@@ -1,0 +1,63 @@
+<script type="text/markdown" data-help-name="knxUltimateGarage">
+# Puerta de garaje KNX
+
+<p>El nodo Puerta de garaje KNX controla un portón motorizado mediante GA específicas para mandos booleanos o impulsos, mantiene abierto o deshabilita el funcionamiento, integra la fotocélula y la señal de obstrucción y puede cerrar automáticamente tras un tiempo.</p>
+
+**Direcciones de grupo**
+
+|Propiedad|Descripción|
+|--|--|
+| GA mando | GA booleana (`gaCommand`): `true` abre y `false` cierra. DPT por defecto 1.001. |
+| GA impulso | El flanco activo conmuta la puerta (`gaImpulse`, DPT 1.017). También se usa cuando no existe GA mando. |
+| GA movimiento | Pulso opcional cuando el nodo ordena el movimiento (`gaMoving`). |
+| GA obstrucción | Refleja el estado de obstrucción detectado (`gaObstruction`). |
+| GA mantener abierto | Cancela la re-clausura automática mientras permanezca a true (`gaHoldOpen`). |
+| GA deshabilitación | Bloquea cualquier comando generado por el nodo (`gaDisable`). |
+| GA fotocélula | Debe pasar a true cuando la fotocélula detecta un obstáculo (`gaPhotocell`). |
+
+**Cierre automático**
+
+- Activa *Cierre automático* para iniciar un temporizador cada vez que la puerta esté abierta.
+- Mantener abierto o deshabilitar cancelan la cuenta atrás mientras sigan en true.
+- Al expirar el temporizador el nodo envía el cierre (o impulso) y genera un evento `auto-close`.
+
+**Seguridad**
+
+- Una fotocélula en true durante el cierre hace que la puerta se abra de nuevo y marca obstrucción.
+- Las escrituras externas sobre la GA obstrucción mantienen sincronizado el estado interno.
+- Los pulsos de movimiento pueden alimentar ventilación, iluminación o alarmas.
+
+## Entradas
+
+|Propiedad|Descripción|
+|--|--|
+| `msg.payload` | Acepta `true`, `false`, `'open'`, `'close'` o `'toggle'` para controlar la puerta desde el flow. |
+| Telegramas KNX | Reacciona a las GA configuradas (mando, impulso, mantener abierto, deshabilitación, fotocélula, movimiento, obstrucción). |
+
+## Ejemplo en el flow
+
+```javascript
+// Abrir el portón
+msg.payload = 'open'; // también acepta true
+return msg;
+```
+
+```javascript
+// Cerrar el portón
+msg.payload = 'close'; // también acepta false
+return msg;
+```
+
+```javascript
+// Conmutar el estado del portón
+msg.payload = 'toggle';
+return msg;
+```
+
+## Salidas
+
+|Propiedad|Descripción|
+|--|--|
+| Eventos (opcional) | Con eventos activados el nodo envía objetos con `event`, `state`, `disabled`, `holdOpen`, `obstruction`. |
+
+</script>

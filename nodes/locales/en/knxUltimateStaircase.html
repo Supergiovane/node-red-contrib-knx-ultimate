@@ -40,7 +40,22 @@
 
 |Property|Description|
 |--|--|
-| KNX telegrams | The node reacts to telegrams for the configured group addresses. Flow messages injected on the input are ignored. |
+| Flow input | Send `true`, `false`, `"open"` or `"close"` from the flow to start or cancel the timer. |
+| KNX telegrams | The node reacts to telegrams for the configured group addresses. |
+
+## Flow example
+
+```javascript
+// Start the staircase timer
+msg.payload = true;
+return msg;
+```
+
+```javascript
+// Cancel the timer (requires '0 command cancels the cycle')
+msg.payload = false;
+return msg;
+```
 
 ## Outputs
 

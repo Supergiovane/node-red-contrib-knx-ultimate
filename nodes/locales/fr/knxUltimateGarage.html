@@ -1,0 +1,63 @@
+<script type="text/markdown" data-help-name="knxUltimateGarage">
+# Porte de garage KNX
+
+<p>Le nœud Porte de garage KNX pilote un portail motorisé à l’aide de GA dédiées pour les commandes booléennes ou par impulsion, permet le maintien ouvert ou la désactivation, intègre la cellule photo/obstruction et propose une refermeture automatique.</p>
+
+**Adresses de groupe**
+
+|Propriété|Description|
+|--|--|
+| GA commande | GA booléenne (`gaCommand`) : `true` ouvre, `false` ferme. DPT par défaut 1.001. |
+| GA impulsion | Le front montant alterne l’état de la porte (`gaImpulse`, DPT 1.017). Utilisée aussi lorsqu’il n’y a pas de commande directe. |
+| GA mouvement | Impulsion optionnelle lorsque le nœud commande la porte (`gaMoving`). |
+| GA obstruction | Reflète l’état d’obstruction détecté (`gaObstruction`). |
+| GA maintien ouvert | Annule la refermeture automatique tant qu’elle reste à true (`gaHoldOpen`). |
+| GA désactivation | Bloque tout ordre émis par le nœud (`gaDisable`). |
+| GA cellule photo | Doit passer à true lorsqu’un obstacle coupe le faisceau (`gaPhotocell`). |
+
+**Refermeture automatique**
+
+- Activez *Refermeture automatique* pour démarrer un minuteur chaque fois que la porte est ouverte.
+- Maintien ouvert ou désactivation annulent le compteur tant qu’ils restent actifs.
+- À l’échéance, le nœud envoie l’ordre de fermeture (ou l’impulsion) et publie un événement `auto-close`.
+
+**Sécurité**
+
+- Une cellule photo à true pendant la fermeture rouvre immédiatement la porte et marque l’obstruction.
+- Les écritures externes sur la GA obstruction gardent l’état interne synchronisé.
+- Les impulsions de mouvement peuvent alimenter ventilation, éclairage ou logique d’alarme.
+
+## Entrées
+
+|Propriété|Description|
+|--|--|
+| `msg.payload` | Accepte `true`, `false`, `'open'`, `'close'` ou `'toggle'` pour piloter la porte depuis le flow. |
+| Télégrammes KNX | Réagit aux GA configurées (commande, impulsion, maintien ouvert, désactivation, cellule photo, mouvement, obstruction). |
+
+## Exemple de flow
+
+```javascript
+// Ouvrir le portail
+msg.payload = 'open'; // accepte aussi true
+return msg;
+```
+
+```javascript
+// Fermer le portail
+msg.payload = 'close'; // accepte aussi false
+return msg;
+```
+
+```javascript
+// Basculer l’état du portail
+msg.payload = 'toggle';
+return msg;
+```
+
+## Sorties
+
+|Propriété|Description|
+|--|--|
+| Événements (optionnel) | En mode événements, le nœud diffuse des objets contenant `event`, `state`, `disabled`, `holdOpen`, `obstruction`. |
+
+</script>

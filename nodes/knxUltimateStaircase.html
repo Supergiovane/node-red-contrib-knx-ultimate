@@ -211,12 +211,8 @@
   </div>
 
   <hr>
-  <div class="form-row" style="display:flex; align-items:center; gap:8px;">
-    <label for="node-input-gaTrigger" style="width:180px"><i class="fa fa-bolt"></i> <span data-i18n="knxUltimateStaircase.trigger"></span></label>
-    <input type="text" id="node-input-gaTrigger" style="width:160px" placeholder="1/1/1" data-i18n="[placeholder]knxUltimateStaircase.placeholders.ga">
-    <input type="text" id="node-input-nameTrigger" style="flex:1" placeholder="Living room switch" data-i18n="[placeholder]knxUltimateStaircase.placeholders.triggerName">
-    <label for="node-input-dptTrigger" style="width:60px; text-align:right">DPT</label>
-    <input type="text" id="node-input-dptTrigger" style="width:160px" readonly>
+  <div class="form-row" style="margin:4px 0 2px;">
+    <span style="font-weight:bold;" data-i18n="knxUltimateStaircase.section_commands"></span>
   </div>
 
   <div class="form-row" style="display:flex; align-items:center; gap:8px;">
@@ -233,6 +229,20 @@
     <input type="text" id="node-input-nameStatus" style="flex:1" placeholder="Status LED" data-i18n="[placeholder]knxUltimateStaircase.placeholders.statusName">
     <label for="node-input-dptStatus" style="width:60px; text-align:right">DPT</label>
     <input type="text" id="node-input-dptStatus" style="width:160px" readonly>
+  </div>
+
+  <div style="border-top:1px solid #ccc; margin:10px 0 6px;"></div>
+
+  <div class="form-row" style="margin:4px 0 2px;">
+    <span style="font-weight:bold;" data-i18n="knxUltimateStaircase.section_inputs"></span>
+  </div>
+
+  <div class="form-row" style="display:flex; align-items:center; gap:8px;">
+    <label for="node-input-gaTrigger" style="width:180px"><i class="fa fa-bolt"></i> <span data-i18n="knxUltimateStaircase.trigger"></span></label>
+    <input type="text" id="node-input-gaTrigger" style="width:160px" placeholder="1/1/1" data-i18n="[placeholder]knxUltimateStaircase.placeholders.ga">
+    <input type="text" id="node-input-nameTrigger" style="flex:1" placeholder="Living room switch" data-i18n="[placeholder]knxUltimateStaircase.placeholders.triggerName">
+    <label for="node-input-dptTrigger" style="width:60px; text-align:right">DPT</label>
+    <input type="text" id="node-input-dptTrigger" style="width:160px" readonly>
   </div>
 
   <div class="form-row" style="display:flex; align-items:center; gap:8px;">
@@ -311,4 +321,6 @@
     <label for="node-input-emitEvents" style="width:180px"><i class="fa fa-sign-out"></i> <span data-i18n="knxUltimateStaircase.node-input-emitEvents"></span></label>
     <input type="checkbox" id="node-input-emitEvents" style="width:auto">
   </div>
+
+  <br/><br/><br/><br/>
 </script>
