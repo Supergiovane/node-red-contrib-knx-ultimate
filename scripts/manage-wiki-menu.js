@@ -1,4 +1,7 @@
 #!/usr/bin/env node
+// NOTE: Whenever a node is added or removed from the project, remember to
+// update the wiki home pages and the presentation in
+// tutorial/knxUltimate-AllNodes-Presentazione.md so the menu stays in sync.
 /*
  Interactive helper to add a page link to the header menu config (wiki-menu.json).
  - Prompts for base English page title (exact wiki page title, e.g., "Quick-Start")
@@ -48,15 +51,12 @@ async function run() {
   if (sel.toLowerCase() === 'n') {
     const key = await ask(rl, 'New section key (e.g., gettingStarted): ');
     const en = await ask(rl, 'New section label EN: ');
-    // If other labels are left empty, auto-translate from EN
-    let it = await ask(rl, 'New section label IT (leave empty to auto-translate): ');
-    let de = await ask(rl, 'New section label DE (leave empty to auto-translate): ');
-    let zh = await ask(rl, 'New section label ZH (leave empty to auto-translate): ');
-    const auto = async (val, lang) => val || await translate(en, { to: lang }).catch(() => en);
-    it = await auto(it, 'it');
-    de = await auto(de, 'de');
-    zh = await auto(zh, 'zh-CN');
-    section = { key, labels: { en, it, de, zh }, items: [] };
+    const labels = { en };
+    for (const lang of NON_EN_LANGS) {
+      const response = await ask(rl, `New section label ${lang.key.toUpperCase()} (leave empty to auto-translate): `);
+      labels[lang.key] = response || await autoTranslate(en, lang.translate);
+    }
+    section = { key, labels, items: [] };
     cfg.sections.push(section);
   } else {
     const idx = parseInt(sel, 10) - 1;
@@ -69,17 +69,17 @@ async function run() {
   }
 
   const custom = (await ask(rl, 'Custom labels per language? (y/N): ')).toLowerCase() === 'y';
-  let labels = { en: page, it: page, de: page, zh: page };
+  const labels = {};
+  for (const lang of LANGS) {
+    labels[lang.key] = page;
+  }
   if (custom) {
     const enLabel = await ask(rl, 'Label EN: ');
-    let itLabel = await ask(rl, 'Label IT (leave empty to auto-translate): ');
-    let deLabel = await ask(rl, 'Label DE (leave empty to auto-translate): ');
-    let zhLabel = await ask(rl, 'Label ZH (leave empty to auto-translate): ');
-    const auto = async (val, lang) => val || await translate(enLabel || page, { to: lang }).catch(() => enLabel || page);
-    itLabel = await auto(itLabel, 'it');
-    deLabel = await auto(deLabel, 'de');
-    zhLabel = await auto(zhLabel, 'zh-CN');
-    labels = { en: enLabel || page, it: itLabel, de: deLabel, zh: zhLabel };
+    labels.en = enLabel || page;
+    for (const lang of NON_EN_LANGS) {
+      const value = await ask(rl, `Label ${lang.key.toUpperCase()} (leave empty to auto-translate): `);
+      labels[lang.key] = value || await autoTranslate(labels.en, lang.translate);
+    }
   }
 
   // Avoid duplicates
@@ -144,11 +144,23 @@ const WIKI_TO_HELP = (() => {
 })();
 
 const LANGS = [
-  { key: 'en', dir: 'en-US', prefix: '' },
-  { key: 'it', dir: 'it-IT', prefix: 'it-' },
-  { key: 'de', dir: 'de-DE', prefix: 'de-' },
-  { key: 'zh', dir: 'zh-CN', prefix: 'zh-CN-' },
+  { key: 'en', dir: 'en', prefix: '', translate: 'en' },
+  { key: 'it', dir: 'it', prefix: 'it-', translate: 'it' },
+  { key: 'de', dir: 'de', prefix: 'de-', translate: 'de' },
+  { key: 'fr', dir: 'fr', prefix: 'fr-', translate: 'fr' },
+  { key: 'es', dir: 'es', prefix: 'es-', translate: 'es' },
+  { key: 'zh', dir: 'zh-CN', prefix: 'zh-CN-', translate: 'zh-CN' }
 ];
+const NON_EN_LANGS = LANGS.filter(lang => lang.key !== 'en');
+
+async function autoTranslate(baseText, langCode) {
+  if (!baseText) return '';
+  try {
+    return await translate(baseText, { to: langCode });
+  } catch (error) {
+    return baseText;
+  }
+}
 
 function extractWikiContent(md) {
   if (!md) return null;

@@ -7,11 +7,10 @@ const WIKI_DIR = path.resolve(REPO, '..', 'node-red-contrib-knx-ultimate.wiki');
 const NODES_DIR = path.join(REPO, 'nodes');
 
 const LANGS = [
-  { key: 'en', dir: 'en-US', prefix: '' },
-  { key: 'it', dir: 'it-IT', prefix: 'it-' },
-  { key: 'de', dir: 'de-DE', prefix: 'de-' },
+  { key: 'en', dir: 'en', prefix: '' },
+  { key: 'it', dir: 'it', prefix: 'it-' },
+  { key: 'de', dir: 'de', prefix: 'de-' },
   { key: 'fr', dir: 'fr', prefix: 'fr-' },
-  { key: 'es', dir: 'es-ES', prefix: 'es-' },
   { key: 'es', dir: 'es', prefix: 'es-' },
   { key: 'zh', dir: 'zh-CN', prefix: 'zh-CN-' },
 ];

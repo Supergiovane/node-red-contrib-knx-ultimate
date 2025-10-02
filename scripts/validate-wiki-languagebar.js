@@ -2,7 +2,7 @@
 /*
  Validates (and can fix) the language bar on wiki pages.
  Checks that the first line starts with the globe bar and that links are absolute
- and point to the expected EN/IT/DE/zh-CN pages for that filename.
+ and point to the expected EN/IT/DE/FR/ES/zh-CN pages for that filename.
  Usage:
    node scripts/validate-wiki-languagebar.js           # report only
    node scripts/validate-wiki-languagebar.js --fix     # update files in-place

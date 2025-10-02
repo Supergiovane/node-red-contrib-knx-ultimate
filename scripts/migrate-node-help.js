@@ -3,7 +3,7 @@
 Migrate inline node help to localized files under nodes/locales/<lang>/<node>.html
 - For each nodes/*.html with a <script type="text/markdown" data-help-name="...">
   - Remove the inline help block from the node file
-  - Create 4 locale files (en-US, it-IT, de-DE, zh-CN)
+  - Create locale files (en, it, de, fr, es, zh-CN)
   - Content source: corresponding wiki page for each language; if not found, fall back to current inline help
 */
 const fs = require('fs');
@@ -14,9 +14,11 @@ const NODES_DIR = path.join(REPO, 'nodes');
 const WIKI_DIR = path.resolve(REPO, '..', 'node-red-contrib-knx-ultimate.wiki');
 
 const LANGS = [
-  { key: 'en', dir: 'en-US', prefix: '' },
-  { key: 'it', dir: 'it-IT', prefix: 'it-' },
-  { key: 'de', dir: 'de-DE', prefix: 'de-' },
+  { key: 'en', dir: 'en', prefix: '' },
+  { key: 'it', dir: 'it', prefix: 'it-' },
+  { key: 'de', dir: 'de', prefix: 'de-' },
+  { key: 'fr', dir: 'fr', prefix: 'fr-' },
+  { key: 'es', dir: 'es', prefix: 'es-' },
   { key: 'zh', dir: 'zh-CN', prefix: 'zh-CN-' },
 ];
 
@@ -125,4 +127,3 @@ function main() {
 }
 
 main();
-

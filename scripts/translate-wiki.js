@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /*
- Auto-translates EN wiki pages into IT, DE, zh-CN variants and creates missing files.
+ Auto-translates EN wiki pages into IT, DE, FR, ES, zh-CN variants and creates missing files.
  - Detects base English pages (no it-/de-/zh-CN- prefix)
  - Skips special files (_Sidebar.md, _Footer.md) and samples/
  - Preserves language bar (writes absolute links for all languages)
@@ -19,7 +19,18 @@ const ABS = 'https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/
 const TARGETS = [
   { code: 'it', prefix: 'it-', lang: 'it' },
   { code: 'de', prefix: 'de-', lang: 'de' },
+  { code: 'fr', prefix: 'fr-', lang: 'fr' },
+  { code: 'es', prefix: 'es-', lang: 'es' },
   { code: 'zh-CN', prefix: 'zh-CN-', lang: 'zh-CN' },
+];
+
+const LANG_BAR_ENTRIES = [
+  { label: 'EN', prefix: '' },
+  { label: 'IT', prefix: 'it-' },
+  { label: 'DE', prefix: 'de-' },
+  { label: 'FR', prefix: 'fr-' },
+  { label: 'ES', prefix: 'es-' },
+  { label: '简体中文', prefix: 'zh-CN-' },
 ];
 
 function listMarkdown(dir) {
@@ -36,7 +47,7 @@ function shouldSkipBase(file) {
   const rel = path.relative(WIKI_DIR, file);
   if (rel.startsWith('samples/')) return true;
   const base = path.basename(file);
-  if (base.startsWith('it-') || base.startsWith('de-') || base.startsWith('zh-CN-')) return true;
+  if (base.startsWith('it-') || base.startsWith('de-') || base.startsWith('fr-') || base.startsWith('es-') || base.startsWith('zh-CN-')) return true;
   if (base === '_Sidebar.md' || base === '_Footer.md') return true;
   return false;
 }
@@ -44,10 +55,11 @@ function shouldSkipBase(file) {
 function slugify(title) { return title.replace(/ /g, '+'); }
 function langBarLine(baseTitle) {
   const slugEN = slugify(baseTitle);
-  const slugIT = 'it-' + slugEN;
-  const slugDE = 'de-' + slugEN;
-  const slugZH = 'zh-CN-' + slugEN;
-  return `🌐 Language: [EN](${ABS}${slugEN}) | [IT](${ABS}${slugIT}) | [DE](${ABS}${slugDE}) | [简体中文](${ABS}${slugZH})`;
+  const parts = LANG_BAR_ENTRIES.map(({ label, prefix }) => {
+    const slug = prefix ? prefix + slugEN : slugEN;
+    return `[${label}](${ABS}${slug})`;
+  });
+  return `🌐 Language: ${parts.join(' | ')}`;
 }
 
 function deriveBaseTitle(filepath) {
@@ -138,4 +150,3 @@ async function run() {
 }
 
 run();
-
