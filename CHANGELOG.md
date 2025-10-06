@@ -6,6 +6,12 @@
 
 # CHANGELOG
 
+**Version 4.0.15** - October 2025<br/>
+- NEW: Introduced the KNX Monitor sidebar plugin with live GA table, 1 s auto-refresh, highlight on fresh telegrams and row toggles for boolean values.<br/>
+- NEW: Added inline filtering, draggable column widths, persistent gateway selection and reorder controls to speed up commissioning and diagnosis.<br/>
+- Added `/knxUltimateMonitor` and `/knxUltimateMonitorToggle` admin endpoints to feed the sidebar and allow direct write/toggle actions.<br/>
+- Docs: documented the KNX Monitor panel across all supported wiki languages and refreshed screenshots/tooltips.<br/>
+
 **Version 4.0.14** - October 2025<br/>
 - NEW: Added KNX ↔ IoT Bridge node to orchestrate bidirectional KNX↔MQTT/REST/Modbus mappings with scaling, templating and ack metadata.<br/>
 

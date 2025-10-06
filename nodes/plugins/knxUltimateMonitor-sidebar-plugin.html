@@ -1,0 +1,542 @@
+<script type="text/javascript">
+    (function () {
+        RED.plugins.registerPlugin("knxUltimateMonitor-sidebar-plugin", {
+            onadd: function () {
+                const tabId = "knxUltimateMonitorTab";
+                const actionId = "knxUltimateMonitor:show";
+
+                if (!document.getElementById('knx-monitor-style')) {
+                    $('<style>', {
+                        id: 'knx-monitor-style',
+                        text: `
+                        #knx-monitor-table { font-size: 0.85em; table-layout: fixed; }
+                        #knx-monitor-table thead th { padding: 2px 4px; }
+                        #knx-monitor-table tbody td { padding: 2px 4px; border-bottom: 1px solid #f0f0f0; vertical-align: middle; }
+                        #knx-monitor-table tbody tr:nth-child(even) { background-color: #fafafa; }
+                        #knx-monitor-table tbody tr.knx-monitor-highlight { background-color: #c9f5d4 !important; }
+                        #knx-monitor-toolbar { padding: 4px 6px !important; }
+                        #knx-monitor-toolbar select { margin-right: 4px; }
+                        #knx-monitor-empty { font-size: 0.85em; }
+                        #knx-monitor-table tbody td.knx-monitor-value-cell { display: flex; align-items: center; gap: 4px; height: 100%; min-height: 24px; }
+                        #knx-monitor-table tbody td.knx-monitor-value-cell span.knx-monitor-value-text { flex: 1 1 auto; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+                        #knx-monitor-table tbody td.knx-monitor-value-cell button.knx-monitor-toggle { padding: 0 4px; min-width: 22px; min-height: 18px; font-size: 0.75em; line-height: 1; }
+                        #knx-monitor-table thead th { position: relative; }
+                        #knx-monitor-table thead th .knx-monitor-col-handle { position: absolute; top: 0; right: -3px; width: 6px; cursor: col-resize; user-select: none; height: 100%; }
+                        #knx-monitor-table thead th .knx-monitor-col-handle::after { content: ''; display: block; width: 1px; height: 100%; margin: 0 auto; background: rgba(0,0,0,0.2); }
+                        `
+                    }).appendTo('head');
+                }
+
+                const getLocale = () => {
+                    const lang = (RED.settings && RED.settings.lang) ? RED.settings.lang : (navigator.language || navigator.userLanguage || 'en');
+                    return (lang || 'en').toLowerCase();
+                };
+
+                const translations = {
+                    en: {
+                        tip: 'Tip: use the icon beside boolean values to toggle them on the KNX bus.',
+                        reorder: 'Reorder',
+                        search: 'Filter...'
+                    },
+                    it: {
+                        tip: 'Suggerimento: usa l\'icona accanto ai valori booleani per inviarne il toggle sul bus KNX.',
+                        reorder: 'Riordina',
+                        search: 'Filtra...'
+                    },
+                    fr: {
+                        tip: 'Astuce : utilisez l\'icône à côté des valeurs booléennes pour les basculer sur le bus KNX.',
+                        reorder: 'Réordonner',
+                        search: 'Filtrer...'
+                    },
+                    es: {
+                        tip: 'Consejo: usa el icono junto a los valores booleanos para alternarlos en el bus KNX.',
+                        reorder: 'Reordenar',
+                        search: 'Filtrar...'
+                    },
+                    de: {
+                        tip: 'Tipp: Verwenden Sie das Symbol neben booleschen Werten, um sie auf dem KNX-Bus umzuschalten.',
+                        reorder: 'Neu ordnen',
+                        search: 'Filtern...'
+                    }
+                };
+
+                const resolveMessage = (key) => {
+                    const locale = getLocale();
+                    if (translations[locale] && translations[locale][key]) return translations[locale][key];
+                    const short = locale.split('-')[0];
+                    if (translations[short] && translations[short][key]) return translations[short][key];
+                    return translations.en[key];
+                };
+
+                const columnDefs = [
+                    { key: 'ga', label: 'GA', width: 50, minWidth: 40 },
+                    { key: 'value', label: 'Value', width: 100, minWidth: 70 },
+                    { key: 'dpt', label: 'DPT', width: 50, minWidth: 40 },
+                    { key: 'name', label: 'Name', width: 280, minWidth: 150 },
+                    { key: 'updated', label: 'Updated', width: 160, minWidth: 120 }
+                ];
+
+                const container = $("<div>").css({ height: "100%", display: "flex", flexDirection: "column" });
+
+                const header = $("<div>", { class: "red-ui-sidebar-header" }).appendTo(container);
+                const toolbar = $("<div>").css({ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "4px 6px" }).attr('id', 'knx-monitor-toolbar').appendTo(header);
+
+                const toolbarStack = $('<div>').css({ display: 'flex', flexDirection: 'column', gap: '6px' }).appendTo(toolbar);
+
+                const rowTop = $('<div>').css({ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'space-between' }).appendTo(toolbarStack);
+                const topLeft = $('<div>').css({ display: 'flex', alignItems: 'center', gap: '6px' }).appendTo(rowTop);
+                const statusSpan = $("<span>").css({ fontSize: "0.8em", color: "#555" }).appendTo(rowTop);
+
+                const serverSelect = $("<select>").css({ minWidth: "200px" }).appendTo(topLeft);
+                const refreshButton = $("<button>", { class: "red-ui-button" }).append($('<i>', { class: 'fa fa-refresh' })).append(" Refresh").appendTo(topLeft);
+
+                const rowBottom = $('<div>').css({ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }).appendTo(toolbarStack);
+                const bottomLeft = $('<div>').css({ display: 'flex', alignItems: 'center', gap: '12px' }).appendTo(rowBottom);
+                const bottomRight = $('<div>').css({ display: 'flex', alignItems: 'center' }).appendTo(rowBottom);
+
+                const autoLabel = $("<label>").css({ display: "flex", alignItems: "center", gap: "6px", fontSize: '0.9em' }).appendTo(bottomLeft);
+                const autoCheckbox = $("<input>", { type: "checkbox", checked: true }).appendTo(autoLabel);
+                autoLabel.append($('<span>').text("Auto"));
+                const reorderLabel = $("<label>").css({ display: "flex", alignItems: "center", gap: "6px", fontSize: '0.9em' }).appendTo(bottomLeft);
+                const reorderCheckbox = $("<input>", { type: "checkbox", checked: true }).appendTo(reorderLabel);
+                reorderLabel.append($('<span>').text(resolveMessage('reorder')));
+
+                const searchWrapper = $('<div>').css({ display: 'flex', alignItems: 'center', gap: '6px', border: '1px solid #c9c9c9', borderRadius: '4px', padding: '4px 8px', backgroundColor: '#fff', minWidth: '200px' }).appendTo(bottomRight);
+                $('<i>', { class: 'fa fa-search', style: 'color:#666;font-size:0.9em;' }).appendTo(searchWrapper);
+                const searchInput = $('<input>', { type: 'text', placeholder: resolveMessage('search') }).css({ border: 'none', outline: 'none', padding: 0, background: 'transparent', flex: '1 1 auto', fontSize: '0.9em', minWidth: '120px' }).appendTo(searchWrapper);
+
+                const body = $("<div>", { class: "red-ui-sidebar-content" }).css({ flex: "1 1 auto", overflow: "auto", padding: "0 6px 4px" }).appendTo(container);
+
+                const emptyNotice = $("<div>").css({ margin: "8px 4px", color: "#888" }).text("No data available.").attr('id', 'knx-monitor-empty').appendTo(body);
+
+                const hintIcon = $('<div>').css({ fontSize: '0.8em', color: '#555', margin: '4px 4px 8px' }).text(resolveMessage('tip')).appendTo(body);
+                const table = $("<table>").css({ width: "100%", borderCollapse: "collapse", display: "none" }).attr('id', 'knx-monitor-table').appendTo(body);
+                const colGroup = $('<colgroup></colgroup>').appendTo(table);
+                columnDefs.forEach(def => {
+                    $('<col>').attr('data-key', def.key).css('width', def.width + 'px').appendTo(colGroup);
+                });
+                const thead = $("<thead>").appendTo(table);
+                const headerRow = $("<tr>").appendTo(thead);
+                columnDefs.forEach(def => {
+                    const cell = $("<th>").attr('data-key', def.key).css({ textAlign: "left", borderBottom: "1px solid #ccc", padding: "4px", fontWeight: "600" }).text(def.label);
+                    const handle = $('<span class="knx-monitor-col-handle"></span>');
+                    cell.append(handle);
+                    headerRow.append(cell);
+                });
+
+                const tbody = $("<tbody>").appendTo(table);
+                const hint = $("<div>").css({ fontSize: "0.75em", color: "#777", margin: "6px 4px 0" }).text("Values with * use an inferred datapoint from the payload.").appendTo(body);
+
+                const initColumnResize = () => {
+                    let currentHandle = null;
+                    let startX = 0;
+                    let startWidth = 0;
+                    let colElement = null;
+                    let columnMeta = null;
+
+                    const onMouseMove = (evt) => {
+                        if (!currentHandle || !colElement || !columnMeta) return;
+                        const delta = evt.pageX - startX;
+                        const newWidth = Math.max(columnMeta.minWidth || 60, startWidth + delta);
+                        colElement.css('width', newWidth + 'px');
+                    };
+
+                    const onMouseUp = () => {
+                        if (!currentHandle) return;
+                        $(document).off('mousemove', onMouseMove);
+                        $(document).off('mouseup', onMouseUp);
+                        currentHandle = null;
+                        colElement = null;
+                        columnMeta = null;
+                    };
+
+                    thead.find('.knx-monitor-col-handle').off('mousedown').on('mousedown', function (evt) {
+                        evt.preventDefault();
+                        evt.stopPropagation();
+                        currentHandle = $(this);
+                        const th = currentHandle.closest('th');
+                        const key = th.data('key');
+                        columnMeta = columnDefs.find(c => c.key === key);
+                        colElement = colGroup.find(`col[data-key="${key}"]`);
+                        startX = evt.pageX;
+                        startWidth = parseInt(colElement.width(), 10) || (columnMeta ? columnMeta.width : 120);
+                        $(document).on('mousemove', onMouseMove);
+                        $(document).on('mouseup', onMouseUp);
+                    });
+                };
+
+                RED.actions.add(actionId, function () {
+                    RED.sidebar.show(tabId);
+                });
+
+                if (RED.sidebar.containsTab(tabId)) {
+                    RED.sidebar.removeTab(tabId);
+                }
+
+                initColumnResize();
+
+                let active = false;
+                let timer = null;
+                let currentServer = "";
+                let lastDataMap = new Map();
+                let reorderEnabled = true;
+
+                const placeholderValue = '';
+                const disabledValue = 'NONE';
+                const listPlaceholderOption = () => $('<option>', { value: disabledValue }).text('-----');
+
+                const storageKey = 'knxUltimateMonitor:selectedGateway';
+                const loadStoredGateway = () => {
+                    try {
+                        if (window.localStorage) {
+                            return window.localStorage.getItem(storageKey);
+                        }
+                    } catch (err) { }
+                    return disabledValue;
+                };
+                const storeGateway = (val) => {
+                    try {
+                        if (window.localStorage) {
+                            window.localStorage.setItem(storageKey, val || disabledValue);
+                        }
+                    } catch (err) { }
+                };
+
+                let storedGateway = loadStoredGateway();
+
+                let lastItems = [];
+                let filterTerm = '';
+                const matchesFilter = (item) => {
+                    if (!filterTerm) return true;
+                    const term = filterTerm;
+                    if (item.ga && item.ga.toLowerCase().includes(term)) return true;
+                    if (item.devicename && item.devicename.toLowerCase().includes(term)) return true;
+                    if (item.valueText && item.valueText.toLowerCase().includes(term)) return true;
+                    return false;
+                };
+
+                const renderRows = (items) => {
+                    lastItems = Array.isArray(items) ? items.slice() : [];
+                    const filteredItems = lastItems.filter(matchesFilter);
+                    tbody.empty();
+                    if (!filteredItems.length) {
+                        table.hide();
+                        emptyNotice.show();
+                        return;
+                    }
+                    emptyNotice.hide();
+                    table.show();
+                    const highlightSet = new Set();
+                    lastItems.forEach((item) => {
+                        const key = item.ga || '';
+                        const stamp = item.updatedAt === undefined ? '' : String(item.updatedAt);
+                        const previousStamp = lastDataMap.get(key);
+                        if (stamp && stamp !== previousStamp) {
+                            highlightSet.add(key);
+                        }
+                    });
+                    let sortedItems;
+                    if (reorderEnabled) {
+                        sortedItems = filteredItems.slice().sort((a, b) => {
+                            const aChanged = highlightSet.has(a.ga);
+                            const bChanged = highlightSet.has(b.ga);
+                            if (aChanged !== bChanged) return aChanged ? -1 : 1;
+                            if (aChanged && bChanged) {
+                                const aTime = Number(a.updatedAt || 0);
+                                const bTime = Number(b.updatedAt || 0);
+                                return bTime - aTime;
+                            }
+                            return (a.ga || '').localeCompare(b.ga || '');
+                        });
+                    } else {
+                        sortedItems = filteredItems.slice().sort((a, b) => (a.ga || '').localeCompare(b.ga || ''));
+                    }
+
+                    sortedItems.forEach((item) => {
+                        const row = $("<tr>");
+                        const appendCell = (text, extra) => {
+                            const cell = $("<td>").text(text || "");
+                            if (extra) cell.css(extra);
+                            row.append(cell);
+                        };
+                        appendCell(item.ga || "", { whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' });
+
+                        let valueDisplay = item.valueText || '';
+                        const valueStyle = { fontWeight: '600' };
+
+                        if (typeof item.value === 'boolean') {
+                            valueDisplay = item.value ? 'TRUE' : 'FALSE';
+                            valueStyle.color = item.value ? '#0b5d1e' : '#c22929';
+                        } else if (item.value !== null && item.value !== undefined && item.value !== '') {
+                            const numericValue = Number(item.value);
+                            if (!Number.isNaN(numericValue) && Number.isFinite(numericValue)) {
+                                valueDisplay = numericValue.toFixed(2);
+                            }
+                        }
+
+                        const appliedValueStyle = { ...valueStyle };
+                        const textColor = appliedValueStyle.color;
+                        const textWeight = appliedValueStyle.fontWeight;
+                        delete appliedValueStyle.color;
+                        delete appliedValueStyle.fontWeight;
+                        const valueCell = $("<td>").addClass('knx-monitor-value-cell').css(appliedValueStyle);
+                        valueCell.css({ alignItems: 'center', height: '100%', maxWidth: 'none', width: '100%' });
+                        const valueSpan = $("<span>").addClass('knx-monitor-value-text').text(valueDisplay);
+                        valueSpan.css({ color: textColor || '', fontWeight: textWeight || '', display: 'inline-flex', alignItems: 'center', height: '100%', flex: '0 0 auto', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis' });
+                        valueCell.append(valueSpan);
+                        if (typeof item.value === 'boolean') {
+                            const toggleBtn = $('<button>', {
+                                type: 'button',
+                                class: 'knx-monitor-toggle red-ui-button red-ui-button-small',
+                                title: 'Toggle value'
+                            }).append($('<i>', { class: 'fa fa-exchange' }));
+                            toggleBtn.css({ alignSelf: 'center', marginLeft: '4px' });
+                            toggleBtn.on('click', function (evt) {
+                                evt.preventDefault();
+                                evt.stopPropagation();
+                                toggleValue(item.ga, toggleBtn);
+                            });
+                            valueCell.append(toggleBtn);
+                        }
+                        row.append(valueCell);
+                        let dptLabel = item.dpt || "";
+                        if (item.dptGuessed) {
+                            dptLabel = dptLabel ? dptLabel + " *" : "*";
+                        }
+                        appendCell(dptLabel);
+                        appendCell(item.devicename || "", { whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' });
+                        appendCell(item.updatedAt ? new Date(Number(item.updatedAt)).toLocaleString() : "");
+                        if (highlightSet.has(item.ga)) {
+                            row.addClass('knx-monitor-highlight');
+                            setTimeout(() => {
+                                row.removeClass('knx-monitor-highlight');
+                            }, 500);
+                        }
+                        tbody.append(row);
+                    });
+
+                    const newMap = new Map();
+                    lastItems.forEach((item) => {
+                        if (item.ga) newMap.set(item.ga, item.updatedAt === undefined ? '' : String(item.updatedAt));
+                    });
+                    lastDataMap = newMap;
+                };
+
+                const setStatus = (text) => {
+                    statusSpan.text(text || "");
+                };
+
+                const fetchData = (force) => {
+                    if (!active && !force) return;
+                    const serverId = currentServer;
+                    if (!serverId || serverId === disabledValue) {
+                        renderRows([]);
+                        setStatus("Select a KNX gateway to view values.");
+                        return;
+                    }
+                    setStatus("Loading...");
+                    refreshButton.prop("disabled", true);
+                    $.getJSON("knxUltimateMonitor", { serverId, _: Date.now() }, function (response) {
+                        const items = (response && Array.isArray(response.items)) ? response.items : [];
+                        renderRows(items);
+                        if (response && response.error && response.error === 'NO_SERVER') {
+                            setStatus("Gateway not found. Deploy and try again.");
+                        } else if (response && response.error) {
+                            setStatus(response.error);
+                        } else if (items.length === 0) {
+                            setStatus("No telegrams received yet.");
+                        } else {
+                            setStatus("Updated: " + new Date().toLocaleTimeString());
+                        }
+                    }).fail(function (jqXHR) {
+                        let message = "Unable to load values.";
+                        try {
+                            if (jqXHR && jqXHR.responseJSON && jqXHR.responseJSON.error) {
+                                message = jqXHR.responseJSON.error;
+                            }
+                        } catch (err) { /* empty */ }
+                        renderRows([]);
+                        setStatus(message);
+                    }).always(function () {
+                        refreshButton.prop("disabled", false);
+                    });
+                };
+
+                const stopTimer = () => {
+                    if (timer) {
+                        clearInterval(timer);
+                        timer = null;
+                    }
+                };
+
+                const startTimer = () => {
+                    stopTimer();
+                    if (!autoCheckbox.prop("checked")) return;
+                    if (!currentServer || currentServer === disabledValue) return;
+                    timer = setInterval(function () { fetchData(false); }, 1000);
+                    fetchData(true);
+                };
+
+                const populateServers = () => {
+                    const options = [];
+                    try {
+                        RED.nodes.eachConfig(function (configNode) {
+                            if (configNode.type === 'knxUltimate-config') {
+                                const label = configNode.name || configNode.host || configNode.id;
+                                options.push({ id: configNode.id, label });
+                            }
+                        });
+                    } catch (err) { /* empty */ }
+
+                    serverSelect.empty();
+                    serverSelect.append(listPlaceholderOption());
+
+                    if (options.length === 0) {
+                        serverSelect.prop('disabled', true);
+                        currentServer = disabledValue;
+                        renderRows([]);
+                        setStatus("No KNX gateways in the current flow.");
+                        return false;
+                    }
+
+                    serverSelect.prop('disabled', false);
+                    options.sort((a, b) => a.label.localeCompare(b.label));
+                    options.forEach((item) => {
+                        serverSelect.append($('<option>', { value: item.id }).text(item.label));
+                    });
+                    const candidate = storedGateway && options.some(opt => opt.id === storedGateway) ? storedGateway : disabledValue;
+                    serverSelect.val(candidate);
+                    currentServer = candidate;
+                    storedGateway = candidate;
+                    if (currentServer === disabledValue) {
+                        renderRows([]);
+                    }
+                    return true;
+                };
+
+                serverSelect.on('change', function () {
+                    currentServer = $(this).val();
+                    storeGateway(currentServer);
+                    if (!currentServer || currentServer === disabledValue) {
+                        currentServer = disabledValue;
+                        renderRows([]);
+                        setStatus("Select a KNX gateway to view values.");
+                        return;
+                    }
+                    fetchData(true);
+                    setTimeout(() => refreshButton.trigger('click'), 1000);
+                });
+
+                refreshButton.on('click', function (evt) {
+                    evt.preventDefault();
+                    fetchData(true);
+                });
+
+                autoCheckbox.on('change', function () {
+                    if (autoCheckbox.prop('checked')) {
+                        startTimer();
+                    } else {
+                        stopTimer();
+                    }
+                });
+
+                reorderCheckbox.on('change', function () {
+                    reorderEnabled = reorderCheckbox.prop('checked');
+                    if (reorderEnabled) fetchData(true);
+                });
+
+                searchInput.on('input', function () {
+                    filterTerm = ($(this).val() || '').toString().trim().toLowerCase();
+                    renderRows(lastItems);
+                });
+
+                const toggleValue = (ga, button) => {
+                    if (!currentServer) {
+                        setStatus('Select a KNX gateway to view values.');
+                        return;
+                    }
+                    if (!ga) return;
+                    if (reorderEnabled) {
+                        reorderEnabled = false;
+                        reorderCheckbox.prop('checked', false);
+                    }
+                    button.prop('disabled', true);
+                    $.post('knxUltimateMonitorToggle', { serverId: currentServer, ga }, function (response) {
+                        if (response && response.status === 'ok') {
+                            setStatus('Toggled ' + ga + '.');
+                            fetchData(true);
+                        } else {
+                            const errMsg = (response && response.error) ? response.error : 'Toggle failed.';
+                            setStatus(errMsg);
+                        }
+                    }).fail(function () {
+                        setStatus('Toggle request failed.');
+                    }).always(function () {
+                        button.prop('disabled', false);
+                    });
+                };
+
+                const handleFlowChange = () => {
+                    const hadServers = populateServers();
+                    if (active && hadServers) {
+                        if (autoCheckbox.prop('checked')) {
+                            startTimer();
+                        } else {
+                            fetchData(true);
+                        }
+                    }
+                };
+
+                RED.events.on('flows:started', handleFlowChange);
+                RED.events.on('nodes:add', function (node) {
+                    if (node && node.type === 'knxUltimate-config') {
+                        handleFlowChange();
+                    }
+                });
+                RED.events.on('nodes:remove', function (node) {
+                    if (node && node.type === 'knxUltimate-config') {
+                        handleFlowChange();
+                    }
+                });
+
+                RED.sidebar.addTab({
+                    id: tabId,
+                    label: "KNX Monitor",
+                    name: "KNX Monitor",
+                    iconClass: "fa fa-eye",
+                    content: container,
+                    action: actionId,
+                    onchange: function (show) {
+                        active = !!show;
+                        if (active) {
+                            const hasServers = populateServers();
+                            if (!hasServers) {
+                                setStatus("No KNX gateways in the current flow.");
+                                stopTimer();
+                                return;
+                            }
+                            if (!currentServer) {
+                                setStatus("Select a KNX gateway to view values.");
+                            }
+                            if (autoCheckbox.prop('checked')) {
+                                startTimer();
+                            } else {
+                                fetchData(true);
+                            }
+                        } else {
+                            stopTimer();
+                        }
+                    }
+                });
+
+                setTimeout(() => {
+                    populateServers();
+                    setStatus("Select a KNX gateway to view values.");
+                    if (autoCheckbox.prop('checked')) {
+                        startTimer();
+                    }
+                }, 300);
+            }
+        });
+    })();
+</script>

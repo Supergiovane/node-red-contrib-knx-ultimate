@@ -61,6 +61,52 @@ module.exports = (RED) => {
     function commonFunctions() {
         var node = this;
 
+        const ensureBuffer = (rawValue) => {
+            if (!rawValue) return null;
+            if (Buffer.isBuffer(rawValue)) return rawValue;
+            if (Array.isArray(rawValue)) return Buffer.from(rawValue);
+            if (typeof rawValue === 'object' && Array.isArray(rawValue.data)) return Buffer.from(rawValue.data);
+            if (rawValue.type === 'Buffer' && Array.isArray(rawValue.data)) return Buffer.from(rawValue.data);
+            return null;
+        };
+
+        const guessDptFromRawValue = (rawBuffer) => {
+            if (!rawBuffer || !rawBuffer.length) return null;
+            if (rawBuffer.length === 1) {
+                if (rawBuffer[0] === 0 || rawBuffer[0] === 1) return '1.001';
+                return '5.001';
+            }
+            if (rawBuffer.length === 4) return '14.056';
+            if (rawBuffer.length === 2) return '9.001';
+            if (rawBuffer.length === 3) return '11.001';
+            if (rawBuffer.length === 14) return '16.001';
+
+            const dpts = Object.entries(dptlib).filter(onlyDptKeys).map(extractBaseNo).sort(sortBy('base')).reduce(toConcattedSubtypes, []);
+            for (let index = 0; index < dpts.length; index++) {
+                try {
+                    const resolved = dptlib.resolve(dpts[index].value);
+                    if (!resolved) continue;
+                    const jsValue = dptlib.fromBuffer(rawBuffer, resolved);
+                    if (typeof jsValue !== 'undefined') return dpts[index].value;
+                } catch (error) { /* empty */ }
+            }
+            return null;
+        };
+
+        const formatDisplayValue = (value) => {
+            if (value === null || value === undefined) return '';
+            if (value instanceof Date) return value.toISOString();
+            if (typeof value === 'object') {
+                try {
+                    return JSON.stringify(value);
+                } catch (error) {
+                    return String(value);
+                }
+            }
+            if (typeof value === 'boolean') return value ? 'true' : 'false';
+            return String(value);
+        };
+
         // // Gather infos about all interfaces on the lan and provides a static variable utils.aDiscoveredknxGateways
         // try {
         //     require('./utils/utils').DiscoverKNXGateways()
@@ -496,6 +542,110 @@ module.exports = (RED) => {
             } catch (error) {
                 if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(`KNXUltimateHue: hueEngine: knxUltimateGetLightObject: error ${error.message}.`);
                 res.json({});
+            }
+        });
+
+        RED.httpAdmin.get('/knxUltimateMonitor', RED.auth.needsPermission("knxUltimate-config.read"), (req, res) => {
+            try {
+                const server = RED.nodes.getNode(req.query.serverId);
+                if (!server) {
+                    res.json({ items: [], error: 'NO_SERVER' });
+                    return;
+                }
+                const items = Array.isArray(server.exposedGAs) ? server.exposedGAs.map((entry) => {
+                    const rawBuffer = ensureBuffer(entry?.rawValue);
+                    const rawHex = rawBuffer ? rawBuffer.toString('hex') : '';
+                    let dpt = entry?.dpt;
+                    let guessed = false;
+                    if ((!dpt || dpt === '') && rawBuffer) {
+                        const inferred = guessDptFromRawValue(rawBuffer);
+                        if (inferred) {
+                            dpt = inferred;
+                            guessed = true;
+                        }
+                    }
+                    let value = null;
+                    if (rawBuffer && dpt) {
+                        try {
+                            const resolved = dptlib.resolve(dpt);
+                            if (resolved) value = dptlib.fromBuffer(rawBuffer, resolved);
+                        } catch (error) { /* empty */ }
+                    }
+                    return {
+                        ga: entry?.ga || '',
+                        devicename: entry?.devicename || '',
+                        dpt: dpt || '',
+                        dptGuessed: guessed,
+                        rawHex,
+                        value,
+                        valueText: formatDisplayValue(value),
+                        updatedAt: entry?.updatedAt || null,
+                    };
+                }).sort((a, b) => a.ga.localeCompare(b.ga)) : [];
+                res.json({ items });
+            } catch (error) {
+                try { RED.log.error(`KNXUltimate: knxUltimateMonitor error: ${error.message}`); } catch (e) { }
+                res.json({ items: [], error: error.message });
+            }
+        });
+
+        RED.httpAdmin.post('/knxUltimateMonitorToggle', RED.auth.needsPermission("knxUltimate-config.write"), (req, res) => {
+            try {
+                const serverId = req.body?.serverId;
+                const ga = req.body?.ga;
+                const server = serverId ? RED.nodes.getNode(serverId) : null;
+                if (!server) {
+                    res.json({ status: 'error', error: 'NO_SERVER' });
+                    return;
+                }
+                if (!ga) {
+                    res.json({ status: 'error', error: 'NO_GA' });
+                    return;
+                }
+                const entry = Array.isArray(server.exposedGAs) ? server.exposedGAs.find((item) => item.ga === ga) : undefined;
+                if (!entry) {
+                    res.json({ status: 'error', error: 'GA_NOT_FOUND' });
+                    return;
+                }
+                const rawBuffer = ensureBuffer(entry.rawValue);
+                let dpt = entry.dpt;
+                if (!rawBuffer) {
+                    res.json({ status: 'error', error: 'NO_CURRENT_VALUE' });
+                    return;
+                }
+                if (!dpt) {
+                    const inferred = guessDptFromRawValue(rawBuffer);
+                    if (inferred) dpt = inferred;
+                }
+                let currentValue = null;
+                if (dpt) {
+                    try {
+                        const resolved = dptlib.resolve(dpt);
+                        if (resolved) currentValue = dptlib.fromBuffer(rawBuffer, resolved);
+                    } catch (error) { currentValue = null; }
+                }
+                if (typeof currentValue !== 'boolean') {
+                    res.json({ status: 'error', error: 'NOT_BOOLEAN' });
+                    return;
+                }
+                const nextValue = !currentValue;
+                const sendDpt = dpt || '1.001';
+                try {
+                    server.sendKNXTelegramToKNXEngine({
+                        grpaddr: ga,
+                        payload: nextValue,
+                        dpt: sendDpt,
+                        outputtype: 'write',
+                        nodecallerid: 'knxUltimateMonitor'
+                    });
+                } catch (error) {
+                    res.json({ status: 'error', error: error.message });
+                    return;
+                }
+                res.json({ status: 'ok', value: nextValue });
+            } catch (error) {
+                try { RED.log.error(`KNXUltimate: knxUltimateMonitorToggle error: ${error.message}`); } catch (e) { }
+                res.json({ status: 'error', error: error.message });
             }
         });
 
