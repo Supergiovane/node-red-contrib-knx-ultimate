@@ -649,7 +649,7 @@ module.exports = (RED) => {
             }
         });
 
-        RED.httpAdmin.get("/KNXUltimateGetResourcesHUE", (req, res) => {
+        RED.httpAdmin.get("/KNXUltimateGetResourcesHUE", async (req, res) => {
             try {
                 // °°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
                 const serverId = RED.nodes.getNode(req.query.serverId); // Retrieve node.id of the config node.
@@ -660,7 +660,9 @@ module.exports = (RED) => {
                     res.json({ devices: jRet });
                     return;
                 }
-                const jRet = serverId.getResources(req.query.rtype);
+                const refreshFlag = (req.query.forceRefresh || '').toString().toLowerCase();
+                const forceRefresh = refreshFlag === '1' || refreshFlag === 'true' || refreshFlag === 'yes';
+                const jRet = await serverId.getResources(req.query.rtype, { forceRefresh });
                 if (jRet !== undefined) {
                     res.json(jRet);
                 } else {

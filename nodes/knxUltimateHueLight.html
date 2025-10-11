@@ -328,7 +328,8 @@
             if ($hueDevicesLoading.length) {
               $hueDevicesLoading.show();
             }
-            $.getJSON(`KNXUltimateGetResourcesHUE?rtype=light&serverId=${encodeURIComponent(hueServer.id)}&_=${Date.now()}`, (data) => {
+            const refreshQuery = forceRefresh ? '&forceRefresh=1' : '';
+            $.getJSON(`KNXUltimateGetResourcesHUE?rtype=light&serverId=${encodeURIComponent(hueServer.id)}${refreshQuery}&_=${Date.now()}`, (data) => {
               const listCandidates = Array.isArray(data) ? data : (Array.isArray(data?.devices) ? data.devices : []);
               cachedHueDevices = listCandidates.map((value) => {
                 const deviceObject = value.deviceObject || value;

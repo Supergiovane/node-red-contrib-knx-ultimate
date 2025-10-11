@@ -234,8 +234,15 @@ module.exports = (RED) => {
     };
 
     // Returns the cached devices (node.hueAllResources) by type.
-    node.getResources = function getResources(_rtype) {
+    node.getResources = async function getResources(_rtype, { forceRefresh = false } = {}) {
       try {
+        if (forceRefresh) {
+          try {
+            await node.loadResourcesFromHUEBridge();
+          } catch (error) {
+            node.sysLogger?.warn(`KNXUltimateHue: getResources force refresh failed ${error.message}`);
+          }
+        }
         if (node.hueAllResources === undefined) return;
         // Returns capitalized string
         function capStr(s) {
