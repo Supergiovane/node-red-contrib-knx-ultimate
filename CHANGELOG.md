@@ -6,6 +6,10 @@
 
 # CHANGELOG
 
+**Version 4.0.16** - October 2025<br/>
+- Fixed Gateway Discover, that sometimes donesn't show some KNX Gateways.<br/>
+- HUE Lights Refresh button in the Light node, now ask for a refresh from the HUE bridge directly.<br/>
+
 **Version 4.0.15** - October 2025<br/>
 - NEW: Introduced the KNX Monitor sidebar plugin with live GA table, 1 s auto-refresh, highlight on fresh telegrams and row toggles for boolean values.<br/>
 - NEW: Added inline filtering, draggable column widths, persistent gateway selection and reorder controls to speed up commissioning and diagnosis.<br/>
