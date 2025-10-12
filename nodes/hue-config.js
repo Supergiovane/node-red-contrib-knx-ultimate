@@ -28,6 +28,7 @@ module.exports = (RED) => {
     node.sysLogger = null;
     node.hueAllResources = undefined;
     node.timerHUEConfigCheckState = null; // Timer that check the connection to the hue bridge every xx seconds
+    node.pendingHueResourceReload = null;
     try {
       node.sysLogger = loggerSetup({ loglevel: node.loglevel, setPrefix: "hue-config.js" });
     } catch (error) { console.log(error.stack) }
@@ -509,35 +510,121 @@ module.exports = (RED) => {
         x: retX, y: retY, mirek: retMirek, brightness: retBrightness
       };
     };
+    node.refreshHueResources = async (reason = "") => {
+      if (node.linkStatus === "disconnected") return;
+      if (node.pendingHueResourceReload) {
+        try {
+          await node.pendingHueResourceReload;
+        } catch (error) {
+          node.sysLogger?.warn(`KNXUltimateHue: refreshHueResources pending error ${error.message}`);
+        }
+        return;
+      }
+      node.pendingHueResourceReload = (async () => {
+        try {
+          if (reason) {
+            node.sysLogger?.debug(`KNXUltimateHue: refreshHueResources triggered (${reason})`);
+          }
+          await node.loadResourcesFromHUEBridge();
+        } finally {
+          node.pendingHueResourceReload = null;
+        }
+      })();
+      try {
+        await node.pendingHueResourceReload;
+      } catch (error) {
+        node.sysLogger?.warn(`KNXUltimateHue: refreshHueResources error ${error.message}`);
+      }
+    };
+
+    node.getHueResourceSnapshot = async (resourceId, { forceRefresh = false } = {}) => {
+      if (!resourceId) return undefined;
+      const lookup = () => {
+        if (!Array.isArray(node.hueAllResources)) return undefined;
+        return node.hueAllResources.find((res) => res.id === resourceId);
+      };
+      let resource = lookup();
+      if (resource && !forceRefresh) return cloneDeep(resource);
+      if (node.linkStatus === "disconnected") return resource ? cloneDeep(resource) : undefined;
+      await node.refreshHueResources(forceRefresh ? `force refresh for ${resourceId}` : `ensure resource ${resourceId}`);
+      resource = lookup();
+      return resource ? cloneDeep(resource) : undefined;
+    };
     // END functions called from the nodes ----------------------------------------------------------------
 
 
 
     node.addClient = (_Node) => {
       // Update the node hue device, as soon as a node register itself to hue-config nodeClients
-      if (node.nodeClients.filter((x) => x.id === _Node.id).length === 0) {
-        node.nodeClients.push(_Node);
-        if (node.hueAllResources !== undefined && node.hueAllResources !== null && _Node.initializingAtStart === true) {
-          const oHUEDevice = node.hueAllResources.filter((a) => a.id === _Node.hueDevice)[0];
-          if (oHUEDevice !== undefined) {
-            _Node.currentHUEDevice = cloneDeep(oHUEDevice);
-            _Node.handleSendHUE(oHUEDevice);
-            // Add _Node to the clients array
+      if (node.nodeClients.filter((x) => x.id === _Node.id).length !== 0) return;
+      node.nodeClients.push(_Node);
+
+      const applyHueSnapshot = (resource) => {
+        if (!resource) return false;
+        try {
+          const snapshot = cloneDeep(resource);
+          _Node.currentHUEDevice = snapshot;
+          if (_Node.initializingAtStart === true) {
+            try {
+              _Node.handleSendHUE(snapshot);
+            } catch (error) {
+              node.sysLogger?.warn(`KNXUltimateHue: addClient handleSendHUE error ${error.message}`);
+            }
+          }
+          _Node.setNodeStatusHue({
+            fill: "green",
+            shape: "dot",
+            text: "I'm new and ready.",
+          });
+          return true;
+        } catch (error) {
+          node.sysLogger?.warn(`KNXUltimateHue: addClient applyHueSnapshot error ${error.message}`);
+          return false;
+        }
+      };
+
+      const existingResource = Array.isArray(node.hueAllResources)
+        ? node.hueAllResources.find((a) => a.id === _Node.hueDevice)
+        : undefined;
+      if (existingResource && applyHueSnapshot(existingResource)) return;
+
+      if (node.linkStatus !== "connected") {
+        _Node.setNodeStatusHue({
+          fill: "grey",
+          shape: "ring",
+          text: "Waiting for connection",
+        });
+        return;
+      }
+
+      _Node.setNodeStatusHue({
+        fill: "yellow",
+        shape: "ring",
+        text: "Syncing with HUE bridge",
+        payload: "",
+      });
+
+      (async () => {
+        try {
+          const refreshed = await node.getHueResourceSnapshot(_Node.hueDevice, { forceRefresh: true });
+          if (!applyHueSnapshot(refreshed)) {
             _Node.setNodeStatusHue({
-              fill: "green",
-              shape: "dot",
-              text: "I'm new and ready.",
+              fill: "red",
+              shape: "ring",
+              text: "Hue device info unavailable",
+              payload: "",
             });
           }
-        } else {
-          // Add _Node to the clients array
+        } catch (error) {
+          node.sysLogger?.warn(`KNXUltimateHue: addClient async fetch error ${error.message}`);
           _Node.setNodeStatusHue({
-            fill: "grey",
+            fill: "red",
             shape: "ring",
-            text: "Waiting for connection",
+            text: "Hue device sync failed",
+            payload: "",
           });
         }
-      }
+      })();
     };
 
     node.removeClient = (_Node) => {
