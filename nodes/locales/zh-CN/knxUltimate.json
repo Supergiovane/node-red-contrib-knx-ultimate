@@ -41,6 +41,8 @@
             "mode_toggle": "切换布尔值（写入）",
             "mode_value": "写入自定义值",
             "toggleInitial": "初始切换状态",
+            "toggleInitial_true": "初始值为 开 (true)",
+            "toggleInitial_false": "初始值为 关 (false)",
             "value": "自定义值"
         },
   "headings": {

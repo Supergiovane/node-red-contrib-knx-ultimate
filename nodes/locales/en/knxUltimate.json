@@ -41,6 +41,8 @@
             "mode_toggle": "Toggle boolean (write)",
             "mode_value": "Write custom value",
             "toggleInitial": "Initial toggle state",
+            "toggleInitial_true": "Start with ON (true)",
+            "toggleInitial_false": "Start with OFF (false)",
             "value": "Custom value"
         },
   "headings": {

@@ -4,6 +4,7 @@
 Start typing the KNX device name or Group Address in the GA field; matching entries appear while you type. Use the refresh icon next to <q>Hue sensor</q> to reload the list from the Hue bridge after adding new devices.
 
 **General**
+
 |Property|Description|
 |--|--|
 | KNX GW | KNX gateway used to publish the battery level (required before KNX mapping fields appear). |
@@ -11,11 +12,13 @@ Start typing the KNX device name or Group Address in the GA field; matching entr
 | HUE Sensor | Hue device/sensor providing the battery level (supports autocomplete and refresh). |
 
 **Mapping**
+
 |Property|Description|
 |--|--|
 | Level | KNX GA for the battery percentage (0-100%). Recommended DPT: <b>5.001</b>. |
 
 **Behaviour**
+
 |Property|Description|
 |--|--|
 | Read status at startup | On deploy/reconnect read the current battery value and publish it to KNX. Default: "yes”. |

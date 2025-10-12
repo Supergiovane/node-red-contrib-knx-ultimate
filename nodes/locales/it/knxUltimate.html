@@ -6,12 +6,29 @@ Questo nodo controlla un Indirizzo di Gruppo KNX; è il nodo più utilizzato.
 [<i class="fa fa-code"></i> Qui trovi alcuni esempi](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-SamplesHome)
 
 **Configurazione**
+
 |Proprietà|Descrizione|
 |--|--|
 | Gateway | Seleziona il gateway KNX da utilizzare |
 | Elenco a discesa tipo GA | Tipo di indirizzo di gruppo. **3‑Livelli ** è il default, dove puoi digitare il GA a 3 livelli o il nome GA (se hai caricato il file ETS);**Global ** legge il GA da una variabile globale all'avvio;**Flow ** fa lo stesso a livello di flow. Seleziona**$Env variable ** per leggere il GA da una variabile d'ambiente. Seleziona**Modalità universale (ascolta tutti gli Indirizzi di Gruppo)** per reagire a TUTTI i GA. |
 | Group Addr. | L'indirizzo di gruppo KNX da controllare. Se hai importato il file ETS, puoi iniziare a digitare il nome del dispositivo. Puoi lasciarlo vuoto se intendi impostarlo tramite messaggio di ingresso `msg.setConfig`. |
 | Datapoint | Il Datapoint associato al nodo. |
+
+<br/>
+<br/>
+
+### Pulsante di comando manuale
+
+L’editor può mostrare, per ogni nodo, un pulsante che invia manualmente un comando KNX senza dover aggiungere nodi Inject.
+
+|Proprietà|Descrizione|
+|--|--|
+| Mostra pulsante manuale | Se attivo, il piccolo pulsante viene visualizzato sul nodo nel workspace e nel pannello dei nodi. |
+| Azione del pulsante | Definisce l’operazione eseguita al click. **Invia lettura KNX** invia un telegramma di lettura standard. **Inverti booleano (scrittura)** è disponibile per i datapoint di tipo 1.x e alterna i valori _true_/_false_ a ogni click. **Scrivi valore personalizzato** invia il valore inserito dall’utente (deve essere compatibile con il Datapoint configurato). |
+| Stato iniziale del toggle | (Solo datapoint booleani) Imposta il valore iniziale utilizzato dalla modalità toggle. Lo stato viene aggiornato automaticamente in base ai telegrammi che il nodo riceve dal BUS. |
+| Valore personalizzato | Payload utilizzato dalla modalità “Scrivi valore personalizzato”. È possibile inserire qualsiasi letterale JSON, ad esempio `42`, `true`, `"testo"` oppure `{ "red": 255 }`. |
+
+Il pulsante è visibile soltanto se l’opzione è attiva. In modalità universale l’azione di lettura è disabilitata perché l’indirizzo di gruppo sarebbe sconosciuto.
 
 <br/>
 <br/>

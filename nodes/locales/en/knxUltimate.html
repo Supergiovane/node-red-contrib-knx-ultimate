@@ -6,12 +6,29 @@
 [<i class="fa fa-code"></i> Here you'll find some samples](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-SamplesHome)
 
 **Configuration**
+
 |Property|Description|
 |--|--|
 | Gateway | Select the KNX gateway to be used |
 | GA Type dropdown list | The group address type. **3-Levels ** is the default, where you can type the _3 level group address_ or the _group address name_ (if you've upload the ETS file), or**Global ** , for reading the GA at startup from a global variable, or**Flow ** that do the same as the _Global_, but at flow level. Select**$Env variable ** to read the group address from an environment variable. Select**Universal mode (listen to all Group Addresses)** to react to ALL group addresses.|
 | Group Addr. | The KNX Group Address you want to control. If you've imported the ETS group addresses file, you can just start typing in your device name. You can leave it empty if you wish set it with _msg.setConfig_ input message. |
 | Datapoint | The datapoint belonging to your node.|
+
+<br/>
+<br/>
+
+### Manual command button
+
+The editor can expose a per-node button that manually issues a KNX command without wiring an inject node.
+
+|Property|Description|
+|--|--|
+| Show manual button | When enabled the small button appears on the node tile both in the palette and in the flow editor. |
+| Button action | Choose what happens when you click the button. **Send KNX read** issues a standard read telegram. **Toggle boolean (write)** is available for datapoint type 1.x and alternates between _true_ and _false_ each time you click the button. **Write custom value** sends the value you provide (the value must be compatible with the configured datapoint). |
+| Initial toggle state | (Boolean datapoints only) Sets the starting value used by the toggle action. The state automatically keeps in sync with telegrams that the node receives from KNX. |
+| Custom value | The payload used by the custom value mode. You can enter any JSON literal: for example `42`, `true`, `"text"` or `{ "red": 255, "green": 0 }`. |
+
+The button is only displayed when the option is enabled. If the node works in universal mode the read action is disabled because the target group address would be unknown.
 
 <br/>
 <br/>
@@ -216,6 +233,7 @@ msg = {
 <br/>
 
 **Payload sample**
+
 |Property|Description|
 |--|--|
 | Sample | This will give it a hint on what to write in an external function node, if you want to control the node via a Node-Red function node. |

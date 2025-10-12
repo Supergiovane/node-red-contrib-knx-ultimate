@@ -1,14 +1,10 @@
 <script type="text/markdown" data-help-name="knxUltimateHueButton">
-🌐 Lingua: [EN](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/HUE+Button) | [IT](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/it-HUE+Button) | [DE](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/de-HUE+Button) | [简体中文](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/zh-CN-HUE+Button)
-
-
----
-
 <p>Il nodo Hue Button inoltra gli eventi del pulsante Hue verso KNX e verso l'uscita del flow utilizzando il campo Hue <code>button.button_report.event</code>.</p>
 
 Nel campo GA (nome o indirizzo di gruppo) inizia a digitare per collegare la GA KNX; i dispositivi compaiono durante la digitazione.
 
 **Generale**
+
 |Proprietà|Descrizione|
 |--|--|
 | Gateway KNX | Seleziona il gateway KNX da utilizzare |
@@ -16,17 +12,20 @@ Nel campo GA (nome o indirizzo di gruppo) inizia a digitare per collegare la GA 
 | Pulsante Hue | Pulsante Hue da usare (autocompletamento) |
 
 **Interruttore**
+
 |Proprietà|Descrizione|
 |--|--|
 | Interruttore | GA attivata dall'evento <code>short\_release</code> (pressione rapida). |
 | GA stato | GA opzionale quando <em>Alterna valori</em> è attivo; mantiene allineato lo stato interno con altri attuatori. |
 
 **Dimmer**
+
 |Proprietà|Descrizione|
 |--|--|
 | Dim | GA utilizzata durante gli eventi <code>long\_press</code>/<code>repeat</code> per il dimming (tipicamente DPT 3.007). |
 
 **Comportamento**
+
 |Proprietà|Descrizione|
 |--|--|
 | Alterna valori | Se attivo, il nodo alterna automaticamente tra <code>true/false</code> e direzioni di dimmer. |

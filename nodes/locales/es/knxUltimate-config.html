@@ -4,12 +4,14 @@
 <p> Este nodo se conecta a su puerta de enlace KNX/IP. </p>
 
 **General**
+
 | Propiedad | Descripción |
 |-|-|
 | Nombre | Nombre del nodo. |
 | Ip/hostname | Dirección de multidifusión de enrutador ETH/KNX o dirección IP de unidifusión de interfaz. Si tiene una interfaz KNX/IP, use la dirección IP de la interfaz, por ejemplo, 1982.168.1.22, de lo contrario, si tiene un enrutador KNX/IP, coloque la dirección de multicast 224.0.23.12. También puede escribir un nombre de host **** en lugar de una IP. |
 
 <br/> **Configuración** | Propiedad | Descripción |
+
 |-|-|
 | Puerto IP | El puerto. El valor predeterminado es 3671. |
 | Protocolo IP | _Tunnel Udp_ es para interfaces KNX/IP, _multicast Udp_ es para enrutadores KNX/IP. Deje ** Auto** para detectar automáticamente. El valor predeterminado es "Auto". |
@@ -26,6 +28,7 @@
 > • _knx Tunneling IP Secure_ protege el apretón de manos de la conexión con una contraseña de puesta en marcha. Dependiendo del modo seleccionado, la contraseña puede provenir del llavero o ingresarse manualmente.
 
 <br/> **Avanzado** | Propiedad | Descripción |
+
 |-|-|
 | Echo enviado mensaje a todos los nodos con la misma dirección de grupo | Envíe la entrada MSG que viene del flujo a todos los nodos que tienen la misma dirección de grupo. Los nodos recibirán el nuevo MSG como si viniera del autobús KNX. Esto es útil en el caso de usar la emulación KNX y en caso de que no se establezca la conexión con el bus KNX. ** Esta opción estará en desuso en la próxima versión y se predeterminó en verificación.** Se verifica el valor predeterminado. |
 | Suprimir los telegramas repetidos (r-flag) FOM BUS | Ignore los repetidos telegramas de KNX que provengan del autobús. El valor predeterminado no está marcado. |
@@ -35,11 +38,13 @@
 | Temporización de actualizaciones de estado | Define cada cuánto se actualiza la insignia de estado de los nodos. Con un retardo activo se descartan los estados intermedios y solo se muestra el último después del intervalo elegido. Seleccione **Inmediato** para mantener el comportamiento en tiempo real. |
 
 <br/> ** Importación de archivos ETS** | Propiedad | Descripción |
+
 |-|-|
 | Si la dirección del grupo no tiene punto de datos | Si una dirección de grupo no tiene un punto de datos, permite elegir si detiene la importación, importar un punto de datos falso de 1.001 o omitir la importación de esa dirección de grupo |
 | Lista de direcciones de grupo ETS | Use esta sección para importar su archivo CSV o ESF ETS. Puede ** Pegar el contenido del archivo CSV o ESF ** o**Establecer la ruta del archivo** , por ejemplo _./pi/homecsv.csv_. Consulte los enlaces de ayuda para obtener más infos. |
 
 <br/> **Utilidad** | Propiedad | Descripción |
+
 |-|-|
 | Recopilar información de depuración para la solución de problemas | Haga clic en el botón y agréguelo al problema de GitHub que desea abrir, me ayudará mucho a ayudarlo. |
 | Obtenga todos los usados ​​GA para el filtro de enrutamiento KNX | Presione Leer para recuperar una lista de texto sin formato de todas las direcciones grupales que pertenecen a esta puerta de enlace, que se ha utilizado en los flujos. Puede usar esta lista para completar su tabla de filtro de enrutador KNX/IP. |

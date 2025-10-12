@@ -1,14 +1,10 @@
 <script type="text/markdown" data-help-name="knxUltimateHueButton">
-🌐 Sprache: [EN](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/HUE+Button) | [IT](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/it-HUE+Button) | [DE](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/de-HUE+Button) | [简体中文](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/zh-CN-HUE+Button)
-
-
----
-
 <p>Der Hue-Taster-Node spiegelt Hue-Taster-Ereignisse auf KNX und den Flow-Ausgang und nutzt das Attribut <code>button.button_report.event</code>.</p>
 
 Tippen Sie im GA-Feld (Name oder Gruppenadresse), um die KNX-GA zu verknüpfen; passende Einträge erscheinen während der Eingabe.
 
 **Allgemein**
+
 |Eigenschaft|Beschreibung|
 |--|--|
 | KNX-Gateway | Zu verwendendes KNX-Gateway |
@@ -16,17 +12,20 @@ Tippen Sie im GA-Feld (Name oder Gruppenadresse), um die KNX-GA zu verknüpfen; 
 | Hue-Taster | Zu verwendender Hue-Taster (Autovervollständigung) |
 
 **Schalten**
+
 |Eigenschaft|Beschreibung|
 |--|--|
 | Schalter | GA, die vom Ereignis <code>short\_release</code> ausgelöst wird (kurzer Druck). |
 | Status-GA | Optionale Rückmelde-GA, wenn <em>Werte toggeln</em> aktiv ist; hält den internen Zustand synchron. |
 
 **Dimmen**
+
 |Eigenschaft|Beschreibung|
 |--|--|
 | Dimmen | GA für <code>long\_press</code>/<code>repeat</code>-Ereignisse beim Dimmen (typischerweise DPT 3.007). |
 
 **Verhalten**
+
 |Eigenschaft|Beschreibung|
 |--|--|
 | Werte toggeln | Schaltet automatisch zwischen <code>true/false</code> und Dimmen hoch/runter. |

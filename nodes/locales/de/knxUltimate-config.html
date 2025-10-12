@@ -4,6 +4,7 @@
 Dieser Node stellt die Verbindung zu deinem KNX/IP‑Gateway her.
 
 **Allgemein**
+
 |Eigenschaft|Beschreibung|
 |--|--|
 | Name | Name des Nodes. |
@@ -12,6 +13,7 @@ Dieser Node stellt die Verbindung zu deinem KNX/IP‑Gateway her.
 <br/>
 
 **Konfiguration**
+
 |Eigenschaft|Beschreibung|
 |--|--|
 | IP Port | Verbindungsport. Standard: `3671`. |
@@ -31,6 +33,7 @@ Dieser Node stellt die Verbindung zu deinem KNX/IP‑Gateway her.
 <br/>
 
 **Erweitert**
+
 |Eigenschaft|Beschreibung|
 |--|--|
 | Echo sent message to all node with same Group Address | Leitet Flow‑Nachrichten an alle Nodes mit derselben GA weiter, so als kämen sie vom BUS. Nützlich bei KNX‑Emulation oder fehlender BUS‑Verbindung. **Wird künftig standardmäßig aktiviert und dann entfernt.** |
@@ -38,11 +41,12 @@ Dieser Node stellt die Verbindung zu deinem KNX/IP‑Gateway her.
 | Suppress ACK request in tunneling mode | Für sehr alte KNX/IP‑Gateways: ACK ignorieren, alle Telegramme akzeptieren. |
 | Delay between each telegram (ms) | KNX erlaubt max. 50 Telegramme/s. 25-50 ms sind üblich; bei langsamen Verbindungen höher (z. B. 200-500 ms). |
 | Loglevel | Log‑Detailgrad. Standard: "Error". |
-| Statusanzeige der Nodes | Bestimmt, wie Status-Badges erscheinen: **Status in Echtzeit anzeigen ** bewahrt das aktuelle Verhalten,**Nur Fehler anzeigen** beschränkt Aktualisierungen auf rote, gelbe und graue Hinweise. |
+| Aktualisierung der Status-Badges | Legt fest, wie oft die Statusanzeige der Nodes erneuert wird. Mit einer Verzögerung werden Zwischenstände verworfen und nur der letzte Wert nach dem gewählten Intervall angezeigt. Wählen Sie **Sofort**, um das bisherige Echtzeitverhalten beizubehalten. |
 
 <br/>
 
 **ETS‑Import**
+
 |Eigenschaft|Beschreibung|
 |--|--|
 | If Group Address has no Datapoint | Wenn eine GA keinen DPT hat: Import abbrechen, GA überspringen oder GA mit Platzhalter‑DPT `1.001` übernehmen. |
@@ -51,6 +55,7 @@ Dieser Node stellt die Verbindung zu deinem KNX/IP‑Gateway her.
 <br/>
 
 **Werkzeuge**
+
 |Eigenschaft|Beschreibung|
 |--|--|
 | Gather debug info for troubleshoot | Button klicken und Ausgabe an ein GitHub‑Issue anhängen. |

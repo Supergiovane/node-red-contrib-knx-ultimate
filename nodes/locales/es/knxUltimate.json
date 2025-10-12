@@ -34,6 +34,17 @@
       "search": "Empiece a escribir para buscar",
       "notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized": "Ej: 0 para falso, 1 para verdadero, de lo contrario cualquier valor"
     },
+    "button": {
+      "enable": "Mostrar botón manual en el editor",
+      "mode": "Acción del botón",
+      "mode_read": "Enviar lectura KNX",
+      "mode_toggle": "Alternar booleano (escritura)",
+      "mode_value": "Escribir valor personalizado",
+      "toggleInitial": "Estado inicial del toggle",
+      "toggleInitial_true": "Iniciar en ON (true)",
+      "toggleInitial_false": "Iniciar en OFF (false)",
+      "value": "Valor personalizado"
+    },
     "headings": {
       "from_input_to_bus": "Desde el pin de entrada del nodo hasta el bus KNX",
       "from_bus_to_output": "Desde el bus KNX hasta el pin de salida del nodo"
@@ -100,6 +111,10 @@
       "RBE_out_disable": "Desactivar",
       "RBE_in_enable": "Habilitar (reaccionar solo si cambia la carga útil)",
       "RBE_in_disable": "Desactivar"
-    }
+    },
+    "manualReadOk": "Solicitud de lectura KNX enviada",
+    "manualReadError": "No se pudo enviar la solicitud de lectura KNX",
+    "manualWriteOk": "Comando KNX enviado",
+    "manualWriteError": "No se pudo enviar el comando KNX"
   }
 }

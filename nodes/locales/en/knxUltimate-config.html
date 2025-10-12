@@ -4,6 +4,7 @@
 <p>This node connects to your KNX/IP Gateway.</p>
 
 **General**
+
 |Property|Description|
 |--|--|
 | Name | Node name. |
@@ -12,6 +13,7 @@
 <br/>
 
 **Configuration**
+
 |Property|Description|
 |--|--|
 | IP Port | The port. Default is 3671. |
@@ -31,6 +33,7 @@
 <br/>
 
 **Advanced**
+
 |Property|Description|
 |--|--|
 | Echo sent message to all node with same Group Address | Send the msg input coming from the flow, to all nodes having the same group address. The nodes will receive the new msg as if it's coming from the KNX bus. This is useful in case of using the KNX emulation and in case the connection to the KNX bus is not established. **This option will be deprecated in the next version and defaulted to checked.** Default is checked. |
@@ -38,11 +41,12 @@
 | Suppress ACK request in tunneling mode | Enable it if you have a very old KNX/IP gateway. It ignores the ACK procedure and accepts all telegrams. Default is unchecked.|
 | Delay between each telegram (in milliseconds) | KNX specs states, that the maximum telegram sending speed is 50 telegrams per second. A speed between 25 and 50ms should be fine, unless you're connecting to a remote KNX Gateway via a slow internet connection (in this case, you should increase the value by, for example, 200 to 500ms or more). |
 | Loglevel | Log level, in case you need to debug something with the dev. Default is "Error", |
-| Node status throttle | Delay how often node badges are updated. When a delay is selected, intermediate status changes are skipped and the last one is shown after the chosen interval. Select **Immediate** to keep the legacy real-time behaviour. |
+| Node status throttle | Delay how often node badges are refreshed. When a delay is selected, intermediate status changes are discarded and the last one is shown after the chosen interval. Select **Immediate** to keep the legacy real-time behaviour. |
 
 <br/>
 
 **ETS file import**
+
 |Property|Description|
 |--|--|
 | If Group Address has no Datapoint | If a group address doesn't have a datapoint, it allow to choose wether to stop import, import quth a fake datapoint of 1.001 or to skip import of that group address |
@@ -51,6 +55,7 @@
 <br/>
 
 **Utility**
+
 |Property|Description|
 |--|--|
 | Gather debug info for troubleshoot | Please click the button and add it to the gitHub issue you want to open, it will help me a lot to helping you. |

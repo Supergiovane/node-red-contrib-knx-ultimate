@@ -41,6 +41,8 @@
             "mode_toggle": "Boolean umschalten (Schreiben)",
             "mode_value": "Benutzerdefinierten Wert schreiben",
             "toggleInitial": "Initialer Toggle-Status",
+            "toggleInitial_true": "Start mit EIN (true)",
+            "toggleInitial_false": "Start mit AUS (false)",
             "value": "Benutzerdefinierter Wert"
         },
   "headings": {

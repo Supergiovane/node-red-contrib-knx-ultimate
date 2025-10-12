@@ -8,12 +8,29 @@
 [<i class="fa fa-Code"> </i> Aquí encontrarás algunas muestras](https://github.com/supergiovane/node-red-contrib-knx-ultimate/wiki/-sampleshome)
 
 **Configuración**
+
 | Propiedad | Descripción |
 |-|-|
 | Puerta de entrada | Seleccione la puerta de enlace KNX para ser utilizada |
 | Lista desplegable Tipo de GA | El tipo de dirección de grupo. **3 niveles ** es el valor predeterminado, donde puede escribir la dirección de grupo de nivel _3 o la dirección _group name_ (si ha cargado el archivo ETS), o**global ** , para leer el GA al inicio desde una variable global, o**flujo ** que hace lo mismo que el _global_, pero a nivel de flujo. Seleccione**$ Env Variable ** Para leer la dirección de grupo de una variable de entorno. Seleccione**Modo universal (escuche todas las direcciones de grupo)** para reaccionar a todas las direcciones de grupo.
 | ADR DE GRUPO. | La dirección de grupo KNX que desea controlar. Si ha importado el archivo de direcciones del grupo ETS, puede comenzar a escribir el nombre de su dispositivo. Puede dejarlo vacío si lo desea establecerlo con _MSG.SetConfig_ Mensaje de entrada. |
 | DataPoint | El punto de datos que pertenece a su nodo.
+
+<br/>
+<br/>
+
+### Botón de comando manual
+
+El editor puede mostrar, para cada nodo, un pequeño botón que envía un comando KNX sin necesidad de un nodo Inject adicional.
+
+| Propiedad | Descripción |
+|--|--|
+| Mostrar botón manual | Activa o desactiva la visualización del botón en el área de trabajo y en la lista de nodos. |
+| Acción del botón | Define la operación al hacer clic. **Enviar lectura KNX** emite un telegrama de lectura estándar. **Alternar booleano (escritura)** está disponible para datapoint 1.x y alterna los valores _true_/_false_ en cada pulsación. **Escribir valor personalizado** envía el valor indicado (debe ser coherente con el datapoint configurado). |
+| Estado inicial del toggle | (Solo para datapoint booleanos) Establece el valor inicial que utiliza la acción de alternancia. El estado se sincroniza automáticamente con los telegramas recibidos desde el BUS. |
+| Valor personalizado | Payload utilizado por el modo “Escribir valor personalizado”. Se aceptan literales JSON como `42`, `true`, `"texto"` o `{ "red": 255 }`. |
+
+El botón solo aparece cuando la opción está habilitada. En modo universal la acción de lectura está deshabilitada porque el nodo no dispone de una dirección de grupo fija.
 
 <br/>
 <br/>
@@ -208,6 +225,7 @@ msg = {
 
 <br/>
 <br/> ** Muestra de carga útil** | Propiedad | Descripción |
+
 |-|-|
 | Muestra | Esto le dará una pista sobre qué escribir en un nodo de función externa, si desea controlar el nodo a través de un nodo de función de nodo-rojo. |
 

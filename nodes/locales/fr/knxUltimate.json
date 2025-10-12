@@ -34,6 +34,17 @@
       "search": "Commencez à taper pour rechercher",
       "notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized": "Ex: 0 pour false, 1 pour vrai, sinon toute valeur"
     },
+    "button": {
+      "enable": "Afficher le bouton manuel dans l’éditeur",
+      "mode": "Action du bouton",
+      "mode_read": "Envoyer lecture KNX",
+      "mode_toggle": "Basculer booléen (écriture)",
+      "mode_value": "Écrire une valeur personnalisée",
+      "toggleInitial": "État initial du basculement",
+      "toggleInitial_true": "Démarrer sur ON (true)",
+      "toggleInitial_false": "Démarrer sur OFF (false)",
+      "value": "Valeur personnalisée"
+    },
     "headings": {
       "from_input_to_bus": "De la broche d'entrée du nœud au bus KNX",
       "from_bus_to_output": "Du bus KNX à la broche de sortie du nœud"
@@ -100,6 +111,10 @@
       "RBE_out_disable": "Désactiver",
       "RBE_in_enable": "Activer (réagir uniquement si la charge utile change)",
       "RBE_in_disable": "Désactiver"
-    }
+    },
+    "manualReadOk": "Lecture KNX envoyée",
+    "manualReadError": "Impossible d’envoyer la lecture KNX",
+    "manualWriteOk": "Commande KNX envoyée",
+    "manualWriteError": "Impossible d’envoyer la commande KNX"
   }
 }

@@ -6,12 +6,29 @@ Dieser Node steuert eine KNX‑Gruppenadresse und ist der am häufigsten verwend
 [<i class="fa fa-code"></i> Beispiele findest du hier](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-SamplesHome)
 
 **Konfiguration**
+
 |Eigenschaft|Beschreibung|
 |--|--|
 | Gateway | Zu verwendendes KNX‑Gateway auswählen |
 | GA‑Typ (Dropdown) | Typ der Gruppenadresse. **3‑Ebenen ** ist Standard (Eingabe der 3‑stufigen GA oder GA‑Bezeichnung, sofern ETS importiert).**Global ** liest die GA beim Start aus einer globalen Variablen,**Flow ** analog auf Flow‑Ebene.**$Env variable ** liest die GA aus einer Umgebungsvariable.**Universeller Modus (alle GAs abhören)** reagiert auf ALLE Gruppenadressen. |
 | Group Addr. | Zu steuernde Gruppenadresse. Mit importierter ETS kannst du den Gerätenamen tippen. Kann leer bleiben, wenn du sie per `msg.setConfig` setzt. |
 | Datapoint | Der zum Node gehörende Datapoint. |
+
+<br/>
+<br/>
+
+### Manueller Befehlsbutton
+
+Im Editor kann pro Node ein kleiner Button angezeigt werden, über den du KNX‑Telegramme ohne zusätzlichen Inject‑Knoten auslösen kannst.
+
+|Eigenschaft|Beschreibung|
+|--|--|
+| Manuellen Button anzeigen | Blendet den Button im Workspace und in der Knotenliste ein bzw. aus. |
+| Schaltflächenaktion | Legt fest, was beim Klick geschieht. **KNX-Leseanforderung senden** erzeugt ein normales Read-Telegramm. **Boolean umschalten (Schreiben)** steht bei DPT 1.x zur Verfügung und wechselt zwischen _true_ und _false_. **Benutzerdefinierten Wert schreiben** sendet den angegebenen Wert (muss zum eingestellten Datapoint passen). |
+| Initialer Toggle-Status | (Nur für boolesche Datapoints) Startwert der Toggle-Funktion. Der Zustand bleibt mit den ankommenden KNX-Telegrammen synchron. |
+| Benutzerdefinierter Wert | Wert für den Modus „Benutzerdefinierten Wert schreiben“. Erlaubt sind JSON-Literale wie `42`, `true`, `"Text"` oder `{ "red": 255 }`. |
+
+Der Button wird nur eingeblendet, wenn die Option aktiv ist. Im Universalmodus ist die Leseaktion deaktiviert, da keine feste Gruppenadresse vorhanden ist.
 
 <br/>
 <br/>

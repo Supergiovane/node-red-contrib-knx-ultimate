@@ -42,6 +42,8 @@
             "mode_toggle": "Inverti booleano (scrittura)",
             "mode_value": "Scrivi valore personalizzato",
             "toggleInitial": "Stato iniziale del toggle",
+            "toggleInitial_true": "Inizia con ON (true)",
+            "toggleInitial_false": "Inizia con OFF (false)",
             "value": "Valore personalizzato"
         },
   "headings": {
