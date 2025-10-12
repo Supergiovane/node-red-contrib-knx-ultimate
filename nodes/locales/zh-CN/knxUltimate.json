@@ -101,6 +101,8 @@
             "RBE_out_disable": "禁用",
             "RBE_in_enable": "启用（仅在负载变化时响应）",
             "RBE_in_disable": "禁用"
-        }
+        },
+        "manualReadOk": "已发送 KNX 读取请求",
+        "manualReadError": "无法发送 KNX 读取请求"
     }
 }

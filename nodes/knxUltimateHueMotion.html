@@ -341,6 +341,12 @@
           $outputInfo.show();
         }
       }
+      if ($enablePinsSelect && $enablePinsSelect.length) {
+        const desiredPins = knxSelected ? 'no' : 'yes';
+        if ($enablePinsSelect.val() !== desiredPins) {
+          $enablePinsSelect.val(desiredPins).trigger('change');
+        }
+      }
     };
 
     const updatePinsState = () => {

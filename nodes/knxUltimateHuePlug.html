@@ -212,20 +212,23 @@
         $enablePinsSelect.val(previousPins);
 
         const updateKNXVisibility = () => {
-          if (hasKNXServerSelected()) {
-            $knxSections.show();
-            $readStatusRow.show();
-            $enablePinsSelect.prop('disabled', false);
-            $enablePinsSelect.val(previousPins);
-            $enablePinsSelect.trigger('change');
+        if (hasKNXServerSelected()) {
+          $knxSections.show();
+          $readStatusRow.show();
+          $enablePinsSelect.prop('disabled', false);
+          const desiredPins = 'no';
+          if ($enablePinsSelect.val() !== desiredPins) {
+            $enablePinsSelect.val(desiredPins).trigger('change');
+          }
+          previousPins = desiredPins;
             getDPT('1.', '#node-input-dptPlugSwitch');
             getDPT('1.', '#node-input-dptPlugState');
             getDPT('1.', '#node-input-dptPlugPowerState');
-          } else {
-            $knxSections.hide();
-            $readStatusRow.hide();
-            previousPins = normalizePinsValue(node.enableNodePINS);
-            $enablePinsSelect.val('yes');
+        } else {
+          $knxSections.hide();
+          $readStatusRow.hide();
+          previousPins = normalizePinsValue(node.enableNodePINS);
+          $enablePinsSelect.val('yes');
             $enablePinsSelect.prop('disabled', true);
             $enablePinsSelect.trigger('change');
           }

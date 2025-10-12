@@ -9,7 +9,7 @@ module.exports = function (RED) {
     const node = this
     node.serverKNX = RED.nodes.getNode(config.server) || undefined
     if (node.serverKNX === undefined) {
-      updateStatus({ fill: 'red', shape: 'dot', text: '[THE GATEWAY NODE HAS BEEN DISABLED]' });
+      node.status({ fill: 'red', shape: 'dot', text: '[THE GATEWAY NODE HAS BEEN DISABLED]' });
       return;
     }
     node.name = config.name || 'KNX Load Control'

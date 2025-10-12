@@ -1,7 +1,65 @@
 const loggerClass = require('./utils/sysLogger')
 
+let manualReadEndpointRegistered = false;
+
 /* eslint-disable max-len */
 module.exports = function (RED) {
+  if (!manualReadEndpointRegistered) {
+    RED.httpAdmin.post('/knxUltimate/manualRead', RED.auth.needsPermission('knxUltimate-config.write'), (req, res) => {
+      try {
+        const { id } = req.body || {};
+        if (!id) {
+          res.status(400).json({ error: 'Missing node id' });
+          return;
+        }
+        const targetNode = RED.nodes.getNode(id);
+        if (!targetNode) {
+          res.status(404).json({ error: 'KNX node not found' });
+          return;
+        }
+        if (!targetNode.serverKNX) {
+          res.status(400).json({ error: 'KNX gateway not configured' });
+          return;
+        }
+        if (targetNode.listenallga === true || targetNode.listenallga === 'true') {
+          res.status(400).json({ error: 'Manual read is not available when universal mode is enabled' });
+          return;
+        }
+        const grpaddr = targetNode.topic;
+        if (grpaddr === undefined || grpaddr === null || String(grpaddr).trim() === '') {
+          res.status(400).json({ error: 'Group address not set' });
+          return;
+        }
+        targetNode.serverKNX.sendKNXTelegramToKNXEngine({
+          grpaddr,
+          payload: '',
+          dpt: '',
+          outputtype: 'read',
+          nodecallerid: targetNode.id,
+        });
+        try {
+          if (typeof targetNode.setNodeStatus === 'function') {
+            targetNode.setNodeStatus({
+              fill: 'blue',
+              shape: 'ring',
+              text: 'BTN->KNX READ',
+              payload: '',
+              GA: grpaddr,
+              dpt: targetNode.dpt,
+              devicename: targetNode.name || '',
+            });
+          }
+          targetNode.sysLogger?.info(`Manual KNX read triggered via editor button for ${grpaddr}`);
+        } catch (error) {
+          targetNode.sysLogger?.warn(`Manual KNX read status update failed: ${error.message}`);
+        }
+        res.json({ status: 'ok' });
+      } catch (error) {
+        res.status(500).json({ error: error.message || 'KNX read failed' });
+      }
+    });
+    manualReadEndpointRegistered = true;
+  }
   const _ = require('lodash');
   const KNXUtils = require('knxultimate');
   const payloadRounder = require('./utils/payloadManipulation');

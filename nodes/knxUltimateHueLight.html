@@ -834,8 +834,11 @@
               $tabs.hide();
             }
 
-            if (!knxSelected && $pinSelect.length && $pinSelect.val() !== 'yes') {
-              $pinSelect.val('yes').trigger('change');
+            if ($pinSelect.length) {
+              const desiredPins = knxSelected ? 'no' : 'yes';
+              if ($pinSelect.val() !== desiredPins) {
+                $pinSelect.val(desiredPins).trigger('change');
+              }
             }
 
             if ($pinSectionRow.length) {

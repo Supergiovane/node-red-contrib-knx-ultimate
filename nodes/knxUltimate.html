@@ -50,20 +50,32 @@
             return ((this.outputRBE === "true" || this.outputRBE === true) ? "|rbe| " : "") + functionSendMsgToKNXCode + (this.name || this.topic || "KNX Device") + (this.setTopicType === 'str' || this.setTopicType === undefined ? '' : ' [' + (this.setTopicType === 'listenAllGA' ? 'Universal' : this.setTopicType) + ']') + functionreceiveMsgFromKNXCode + ((this.inputRBE === "true" || this.inputRBE === true) ? " |rbe|" : "")
         },
         paletteLabel: "KNX DEVICE",
-        // button: {
-        //     enabled: function() {
-        //         // return whether or not the button is enabled, based on the current
-        //         // configuration of the node
-        //         return !this.changed
-        //     },
-        //     visible: function() {
-        //         // return whether or not the button is visible, based on the current
-        //         // configuration of the node
-        //         return this.hasButton
-        //     },
-        //     //toggle: "buttonState",
-        //     onclick: function() {}
-        // },
+        button: {
+            enabled: function () {
+                return !this.changed;
+            },
+            visible: function () {
+                return true;
+            },
+            onclick: function () {
+                const node = this;
+                $.ajax({
+                    type: "POST",
+                    url: "knxUltimate/manualRead",
+                    data: { id: node.id },
+                    success: function () {
+                        RED.notify(RED._("node-red-contrib-knx-ultimate/knxUltimate.manualReadOk") || "KNX read request sent", "success");
+                    },
+                    error: function (xhr) {
+                        let message;
+                        if (xhr && xhr.responseJSON && xhr.responseJSON.error) {
+                            message = xhr.responseJSON.error;
+                        }
+                        RED.notify(message || (RED._("node-red-contrib-knx-ultimate/knxUltimate.manualReadError") || "Unable to send KNX read request"), "error");
+                    }
+                });
+            }
+        },
         oneditprepare: function () {
             // Go to the help panel
             try {

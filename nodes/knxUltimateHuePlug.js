@@ -40,7 +40,34 @@ module.exports = function (RED) {
     node.currentHUEDevice = null;
     const pendingKnxMessages = [];
     const MAX_PENDING_KNX_MESSAGES = 5;
+    const PENDING_KNX_TTL_MS = 10000;
     let pendingHueDeviceSnapshotPromise = null;
+
+    const prunePendingKnxMessages = (now = Date.now()) => {
+      if (!pendingKnxMessages.length) return now;
+      while (pendingKnxMessages.length > 0 && (now - pendingKnxMessages[0].enqueuedAt) > PENDING_KNX_TTL_MS) {
+        pendingKnxMessages.shift();
+      }
+      return now;
+    };
+
+    const enqueuePendingKnxMessage = (msg) => {
+      const now = prunePendingKnxMessages();
+      const snapshot = {
+        msg: (() => {
+          try {
+            return cloneDeep(msg);
+          } catch (error) {
+            return msg;
+          }
+        })(),
+        enqueuedAt: now,
+      };
+      if (pendingKnxMessages.length >= MAX_PENDING_KNX_MESSAGES) {
+        pendingKnxMessages.shift();
+      }
+      pendingKnxMessages.push(snapshot);
+    };
 
     const ensureCurrentHueDevice = async ({ forceRefresh = false } = {}) => {
       if (!node.serverHue || typeof node.serverHue.getHueResourceSnapshot !== 'function') return undefined;
@@ -62,16 +89,15 @@ module.exports = function (RED) {
           } catch (error) {
             RED.log.debug(`knxUltimateHuePlug: ensureCurrentHueDevice handleSendHUE error ${error.message}`);
           }
-          if (pendingKnxMessages.length > 0) {
-            const queued = pendingKnxMessages.splice(0);
-            queued.forEach((queuedMsg) => {
-              try {
-                node.handleSend(queuedMsg);
-              } catch (error) {
-                RED.log.warn(`knxUltimateHuePlug: replay queued KNX command error ${error.message}`);
-              }
-            });
-          }
+          const now = prunePendingKnxMessages();
+          const queued = pendingKnxMessages.splice(0).filter((entry) => (now - entry.enqueuedAt) <= PENDING_KNX_TTL_MS);
+          queued.forEach(({ msg }) => {
+            try {
+              node.handleSend(msg);
+            } catch (error) {
+              RED.log.warn(`knxUltimateHuePlug: replay queued KNX command error ${error.message}`);
+            }
+          });
           return node.currentHUEDevice;
         } catch (error) {
           RED.log.warn(`knxUltimateHuePlug: ensureCurrentHueDevice error ${error.message}`);
@@ -182,18 +208,10 @@ module.exports = function (RED) {
         node.setNodeStatusHue({ fill: 'red', shape: 'ring', text: 'Missing HUE plug selection', payload: '' });
         return;
       }
-      const enqueueMessage = (message) => {
-        if (pendingKnxMessages.length >= MAX_PENDING_KNX_MESSAGES) pendingKnxMessages.shift();
-        try {
-          pendingKnxMessages.push(cloneDeep(message));
-        } catch (error) {
-          pendingKnxMessages.push(message);
-        }
-      };
       if (!node.currentHUEDevice) {
         if (node.serverHue && node.serverHue.linkStatus === 'connected') {
           node.setNodeStatusHue({ fill: 'yellow', shape: 'ring', text: 'Syncing with HUE bridge', payload: '' });
-          enqueueMessage(msg);
+          enqueuePendingKnxMessage(msg);
           ensureCurrentHueDevice({ forceRefresh: true });
         } else {
           node.setNodeStatusHue({ fill: 'red', shape: 'ring', text: 'HUE bridge unavailable', payload: '' });

@@ -99,6 +99,8 @@
             "RBE_out_disable": "Disabilita",
             "RBE_in_enable": "Abilita (reagisci solo se il payload cambia)",
             "RBE_in_disable": "Disabilita"
-        }
+        },
+        "manualReadOk": "Richiesta di lettura KNX inviata",
+        "manualReadError": "Impossibile inviare la richiesta di lettura KNX"
     }
 }

@@ -90,68 +90,135 @@ module.exports = function (RED) {
       } catch (error) { }
     };
 
-    // This function is called by the knx-hue config node
-    node.handleSend = msg => {
+    let hueSceneReady = false;
+    let pendingHueSceneSnapshot = null;
+    const needsSceneReady = () => Number(config.selectedModeTabNumber) === 0 && config.hueDevice !== undefined && config.hueDevice !== '';
+
+    const ensureHueSceneReady = async ({ forceRefresh = false } = {}) => {
+      if (!needsSceneReady()) {
+        hueSceneReady = true;
+        return true;
+      }
+      if (!node.serverHue || typeof node.serverHue.getHueResourceSnapshot !== 'function') {
+        hueSceneReady = false;
+        return false;
+      }
+      if (pendingHueSceneSnapshot) {
+        try {
+          return await pendingHueSceneSnapshot;
+        } catch (error) {
+          return false;
+        }
+      }
+      pendingHueSceneSnapshot = (async () => {
+        try {
+          const resource = await node.serverHue.getHueResourceSnapshot(config.hueDevice, { forceRefresh });
+          if (!resource) {
+            hueSceneReady = false;
+            node.setNodeStatusHue({
+              fill: "red",
+              shape: "ring",
+              text: "Hue scene not found",
+              payload: "",
+            });
+            return false;
+          }
+          hueSceneReady = true;
+          try {
+            node.handleSendHUE(resource);
+          } catch (error) {
+            RED.log.debug(`knxUltimateHueScene: ensureHueSceneReady handleSendHUE error ${error.message}`);
+          }
+          return true;
+        } catch (error) {
+          hueSceneReady = false;
+          RED.log.warn(`knxUltimateHueScene: ensureHueSceneReady error ${error.message}`);
+          node.setNodeStatusHue({
+            fill: "red",
+            shape: "ring",
+            text: `Sync failed ${error.message}`,
+            payload: "",
+          });
+          return false;
+        } finally {
+          pendingHueSceneSnapshot = null;
+        }
+      })();
+      return pendingHueSceneSnapshot;
+    };
+
+    const processKnxSceneCommand = (msg) => {
       let state = {};
-      if (config.selectedModeTabNumber === 0) {
-        // Sigle
+      if (Number(config.selectedModeTabNumber) === 0) {
         try {
           switch (msg.knx.destination) {
-            case config.GAscene:
+            case config.GAscene: {
               msg.payload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptscene));
               if (config.dptscene.startsWith("1.")) {
                 if (msg.payload === true) {
                   state = { recall: { action: config.hueSceneRecallType } };
                   node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, state, 'setScene');
                 } else {
-                  // Turn off all light belonging to the scene
                   (async () => {
                     try {
                       node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, { on: { on: false } }, 'stopScene');
                     } catch (error) {
-                      if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info('KNXUltimateHUEConfig: classHUE: handleQueue: stopScene: ' + error.message);
+                      if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info(`KNXUltimateHUEConfig: stopScene: ${error.message}`);
                     }
                   })();
                 }
-              } else {
-                if (Number(config.valscene) === msg.payload.scenenumber && msg.payload.save_recall === 0) {
-                  state = { recall: { action: config.hueSceneRecallType } };
-                  node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, state, 'setScene');
-                }
+              } else if (Number(config.valscene) === msg.payload.scenenumber && msg.payload.save_recall === 0) {
+                state = { recall: { action: config.hueSceneRecallType } };
+                node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, state, 'setScene');
               }
               node.setNodeStatusHue({ fill: 'green', shape: 'dot', text: 'KNX->HUE', payload: msg.payload });
               break;
+            }
             default:
               break;
           }
         } catch (error) {
-          updateStatus({ fill: 'red', shape: 'dot', text: 'KNX->HUE single: ' + error.message + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' });
+          updateStatus({ fill: 'red', shape: 'dot', text: `KNX->HUE single: ${error.message} (${new Date().getDate()}, ${new Date().toLocaleTimeString()})` });
         }
-      } else if (config.selectedModeTabNumber === 1) {
-        // Multi
+      } else if (Number(config.selectedModeTabNumber) === 1) {
         try {
-          if (config.GAsceneMulti !== undefined && config.dptsceneMulti !== undefined && config.rules.length !== 0) {
-            if (config.GAsceneMulti === msg.knx.destination) {
-              msg.payload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptsceneMulti));
-              // row is: { rowRuleKNXSceneNumber: rowRuleKNXSceneNumber, rowRuleHUESceneName: rowRuleHUESceneName, rowRuleHUESceneID:rowRuleHUESceneID, rowRuleRecallAs:rowRuleRecallAs}
-              config.rules.forEach(row => {
-                if (row.rowRuleKNXSceneNumber !== undefined
-                  && row.rowRuleHUESceneID !== undefined
-                  && row.rowRuleRecallAs !== undefined
-                  && Number(row.rowRuleKNXSceneNumber) === Number(msg.payload.scenenumber)
-                  && Number(msg.payload.save_recall) === 0
-                  && node.serverHue.hueManager !== undefined) {
-                  state = { recall: { action: row.rowRuleRecallAs } };
-                  node.serverHue.hueManager.writeHueQueueAdd(row.rowRuleHUESceneID, state, 'setScene');
-                  node.setNodeStatusHue({ fill: 'green', shape: 'dot', text: 'KNX->HUE', payload: msg.payload });
-                }
-              });
-            }
+          if (config.GAsceneMulti !== undefined && config.dptsceneMulti !== undefined && config.rules.length !== 0 && config.GAsceneMulti === msg.knx.destination) {
+            msg.payload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptsceneMulti));
+            config.rules.forEach((row) => {
+              if (row.rowRuleKNXSceneNumber !== undefined
+                && row.rowRuleHUESceneID !== undefined
+                && row.rowRuleRecallAs !== undefined
+                && Number(row.rowRuleKNXSceneNumber) === Number(msg.payload.scenenumber)
+                && Number(msg.payload.save_recall) === 0
+                && node.serverHue.hueManager !== undefined) {
+                state = { recall: { action: row.rowRuleRecallAs } };
+                node.serverHue.hueManager.writeHueQueueAdd(row.rowRuleHUESceneID, state, 'setScene');
+                node.setNodeStatusHue({ fill: 'green', shape: 'dot', text: 'KNX->HUE', payload: msg.payload });
+              }
+            });
           }
         } catch (error) {
-          updateStatus({ fill: 'red', shape: 'dot', text: 'KNX->HUE multi: ' + error.message + ' (' + new Date().getDate() + ', ' + new Date().toLocaleTimeString() + ')' });
+          updateStatus({ fill: 'red', shape: 'dot', text: `KNX->HUE multi: ${error.message} (${new Date().getDate()}, ${new Date().toLocaleTimeString()})` });
         }
       }
+    };
+
+    // This function is called by the knx-hue config node
+    node.handleSend = (msg) => {
+      if (needsSceneReady() && !hueSceneReady) {
+        node.setNodeStatusHue({
+          fill: "yellow",
+          shape: "ring",
+          text: "Syncing with HUE bridge",
+          payload: "",
+        });
+        const clonedMsg = RED.util.cloneMessage(msg);
+        ensureHueSceneReady({ forceRefresh: true }).then((ready) => {
+          if (ready) processKnxSceneCommand(clonedMsg);
+        }).catch(() => { /* handled in ensure */ });
+        return;
+      }
+      processKnxSceneCommand(msg);
     };
 
     node.handleSendHUE = (_event) => {
@@ -202,17 +269,19 @@ module.exports = function (RED) {
     if (node.serverHue) {
       node.serverHue.removeClient(node);
       node.serverHue.addClient(node);
+      ensureHueSceneReady({ forceRefresh: true });
     }
 
-    node.on('input', (msg, send, done) => {
+    const processFlowSceneCommand = (msg) => {
       try {
         const state = RED.util.cloneMessage(msg);
         node.serverHue.hueManager.writeHueQueueAdd(config.hueDevice, state, 'setScene');
+        const statusValue = state.payload !== undefined ? state.payload : state;
         node.setNodeStatusHue({
           fill: "green",
           shape: "dot",
           text: "->HUE",
-          payload: "Flow msg.",
+          payload: statusValue,
         });
       } catch (error) {
         node.setNodeStatusHue({
@@ -221,12 +290,43 @@ module.exports = function (RED) {
           text: "->HUE",
           payload: error.message,
         });
+        throw error;
       }
-      // Once finished, call 'done'.
-      // This call is wrapped in a check that 'done' exists
-      // so the node will work in earlier versions of Node-RED (<1.0)
-      if (done) {
-        done();
+    };
+
+    node.on('input', (msg, send, done) => {
+      const finalize = (error) => {
+        if (done) done(error);
+      };
+      if (needsSceneReady() && !hueSceneReady) {
+        node.setNodeStatusHue({
+          fill: "yellow",
+          shape: "ring",
+          text: "Syncing with HUE bridge",
+          payload: "",
+        });
+        const clonedMsg = RED.util.cloneMessage(msg);
+        ensureHueSceneReady({ forceRefresh: true }).then((ready) => {
+          if (ready) {
+            try {
+              processFlowSceneCommand(clonedMsg);
+              finalize();
+            } catch (error) {
+              finalize(error);
+            }
+          } else {
+            finalize(new Error('Hue scene initialization failed'));
+          }
+        }).catch((error) => {
+          finalize(error);
+        });
+        return;
+      }
+      try {
+        processFlowSceneCommand(msg);
+        finalize();
+      } catch (error) {
+        finalize(error);
       }
     });
     node.on('close', function (done) {

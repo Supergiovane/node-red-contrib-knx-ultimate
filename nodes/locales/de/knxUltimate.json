@@ -99,6 +99,8 @@
             "RBE_out_disable": "Deaktivieren",
             "RBE_in_enable": "Aktivieren (nur reagieren, wenn sich der Payload ändert)",
             "RBE_in_disable": "Deaktivieren"
-        }
+        },
+        "manualReadOk": "KNX-Lesetelegramm gesendet",
+        "manualReadError": "KNX-Lesetelegramm konnte nicht gesendet werden"
     }
 }

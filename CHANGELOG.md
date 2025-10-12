@@ -6,6 +6,13 @@
 
 # CHANGELOG
 
+**Version 4.0.18** - October 2025<br/>
+- Hue config node now exposes `refreshHueResources()` and `getHueResourceSnapshot()` so Hue devices always reload directly from the bridge after a refresh or reconnect, preventing stale caches.<br/>
+- Hue Light and Hue Plug nodes request the live Hue snapshot before applying KNX commands, queue pending writes during synchronisation (with a 10 s TTL), and replay only the fresh ones as soon as the bridge answers.<br/>
+- Hue Scene node now behaves like the other actuators: it waits for the bridge snapshot before serving KNX/flow recalls, replays deferred commands, and shows the actual flow payload in the status text.<br/>
+- All Hue editor dialogs automatically show flow pins whenever no KNX gateway is configured and hide them when one is selected, keeping the Flow output consistent with the gateway state.<br/>
+- General Hue editor polish: the refresh buttons and status messages now reflect the effective payload sent to Hue, and the UI stays responsive while the bridge syncs in the background.<br/>
+
 **Version 4.0.16** - October 2025<br/>
 - Fixed Gateway Discover, that sometimes donesn't show some KNX Gateways.<br/>
 - HUE Lights Refresh button in the Light node, now ask for a refresh from the HUE bridge directly.<br/>
