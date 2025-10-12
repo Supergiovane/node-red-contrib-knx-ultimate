@@ -35,6 +35,15 @@
             "notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized": "Es: 0 per false, 1 per true, altrimenti qualsiasi valore",
             "noETSWarning": "Non hai importato il file ETS. <br/> Il nodo tenterà di codificare/decodificare i telegrammi. <a href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/it-2.-Node-Configuration\" target='_blank'>Clicca qui per vedere l'help.</a>."
         },
+        "button": {
+            "enable": "Mostra il pulsante manuale nell'editor",
+            "mode": "Azione del pulsante",
+            "mode_read": "Invia lettura KNX",
+            "mode_toggle": "Inverti booleano (scrittura)",
+            "mode_value": "Scrivi valore personalizzato",
+            "toggleInitial": "Stato iniziale del toggle",
+            "value": "Valore personalizzato"
+        },
   "headings": {
     "from_input_to_bus": "Dal PIN di INPUT del nodo al BUS KNX",
     "from_bus_to_output": "Dal BUS KNX al PIN di OUTPUT del nodo"
@@ -101,6 +110,8 @@
             "RBE_in_disable": "Disabilita"
         },
         "manualReadOk": "Richiesta di lettura KNX inviata",
-        "manualReadError": "Impossibile inviare la richiesta di lettura KNX"
+        "manualReadError": "Impossibile inviare la richiesta di lettura KNX",
+        "manualWriteOk": "Comando KNX inviato",
+        "manualWriteError": "Impossibile inviare il comando KNX"
     }
 }

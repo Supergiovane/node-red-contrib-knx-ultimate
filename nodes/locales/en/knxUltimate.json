@@ -34,6 +34,15 @@
             "search": "Start typing to search",
             "notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized": "Ex: 0 for false, 1 for true, otherwise any value"
         },
+        "button": {
+            "enable": "Show manual command button in editor",
+            "mode": "Button action",
+            "mode_read": "Send KNX read",
+            "mode_toggle": "Toggle boolean (write)",
+            "mode_value": "Write custom value",
+            "toggleInitial": "Initial toggle state",
+            "value": "Custom value"
+        },
   "headings": {
     "from_input_to_bus": "From node's INPUT PIN to KNX BUS",
     "from_bus_to_output": "From KNX BUS to node's OUTPUT PIN"
@@ -102,6 +111,8 @@
             "RBE_in_disable": "Disable"
         },
         "manualReadOk": "KNX read request sent",
-        "manualReadError": "Unable to send KNX read request"
+        "manualReadError": "Unable to send KNX read request",
+        "manualWriteOk": "KNX command sent",
+        "manualWriteError": "Unable to send KNX command"
     }
 }

@@ -1,11 +1,67 @@
 const loggerClass = require('./utils/sysLogger')
 
-let manualReadEndpointRegistered = false;
+const coerceBoolean = (value) => (value === true || value === 'true');
+
+let buttonEndpointRegistered = false;
 
 /* eslint-disable max-len */
 module.exports = function (RED) {
-  if (!manualReadEndpointRegistered) {
-    RED.httpAdmin.post('/knxUltimate/manualRead', RED.auth.needsPermission('knxUltimate-config.write'), (req, res) => {
+  if (!buttonEndpointRegistered) {
+    const parseRawValue = (raw) => {
+      if (raw === undefined || raw === null) return undefined;
+      if (typeof raw !== 'string') return raw;
+      const trimmed = raw.trim();
+      if (trimmed === '') return undefined;
+      if (/^(true|false)$/i.test(trimmed)) return trimmed.toLowerCase() === 'true';
+      const numericValue = Number(trimmed);
+      if (!Number.isNaN(numericValue) && trimmed === numericValue.toString()) return numericValue;
+      try {
+        return JSON.parse(trimmed);
+      } catch (error) {
+        return trimmed;
+      }
+    };
+
+    const coerceValueForDpt = (dpt, rawValue) => {
+      const value = parseRawValue(rawValue);
+      if (!dpt || typeof dpt !== 'string') return value;
+      const main = dpt.split('.')[0];
+      switch (main) {
+        case '1':
+        case '2': {
+          if (typeof value === 'boolean') return value;
+          if (typeof value === 'number') return value !== 0;
+          if (typeof value === 'string') {
+            const lowered = value.trim().toLowerCase();
+            if (['1', 'true', 'on', 'open'].includes(lowered)) return true;
+            if (['0', 'false', 'off', 'close', 'closed'].includes(lowered)) return false;
+          }
+          throw new Error('Boolean value required for this datapoint');
+        }
+        case '3':
+          if (value && typeof value === 'object') return value;
+          throw new Error('Object value required for this datapoint (e.g. {"decr_incr":1,"data":3})');
+        case '5':
+        case '6':
+        case '7':
+        case '8':
+        case '9':
+        case '12':
+        case '13':
+        case '14':
+        case '20': {
+          const num = typeof value === 'number' ? value : Number(value);
+          if (Number.isNaN(num)) throw new Error('Numeric value required for this datapoint');
+          return num;
+        }
+        case '16':
+          return value !== undefined && value !== null ? String(value) : '';
+        default:
+          return value;
+      }
+    };
+
+    const handleButtonAction = (req, res) => {
       try {
         const { id } = req.body || {};
         if (!id) {
@@ -21,44 +77,153 @@ module.exports = function (RED) {
           res.status(400).json({ error: 'KNX gateway not configured' });
           return;
         }
-        if (targetNode.listenallga === true || targetNode.listenallga === 'true') {
-          res.status(400).json({ error: 'Manual read is not available when universal mode is enabled' });
-          return;
-        }
+        const mode = (req.body && req.body.mode ? String(req.body.mode) : 'read').toLowerCase();
         const grpaddr = targetNode.topic;
-        if (grpaddr === undefined || grpaddr === null || String(grpaddr).trim() === '') {
-          res.status(400).json({ error: 'Group address not set' });
+        if (mode !== 'read') {
+          if (!grpaddr || String(grpaddr).trim() === '') {
+            res.status(400).json({ error: 'Group address not set' });
+            return;
+          }
+          if (!targetNode.dpt || targetNode.dpt === '' || targetNode.dpt === 'auto') {
+            res.status(400).json({ error: 'Datapoint not defined for this node' });
+            return;
+          }
+        }
+
+        if (mode === 'read') {
+          if (targetNode.listenallga === true || targetNode.listenallga === 'true') {
+            res.status(400).json({ error: 'Manual read is not available when universal mode is enabled' });
+            return;
+          }
+          if (!grpaddr || String(grpaddr).trim() === '') {
+            res.status(400).json({ error: 'Group address not set' });
+            return;
+          }
+          targetNode.serverKNX.sendKNXTelegramToKNXEngine({
+            grpaddr,
+            payload: '',
+            dpt: '',
+            outputtype: 'read',
+            nodecallerid: targetNode.id,
+          });
+          try {
+            if (typeof targetNode.setNodeStatus === 'function') {
+              targetNode.setNodeStatus({
+                fill: 'blue',
+                shape: 'ring',
+                text: 'BTN->KNX READ',
+                payload: '',
+                GA: grpaddr,
+                dpt: targetNode.dpt,
+                devicename: targetNode.name || '',
+              });
+            }
+            targetNode.sysLogger?.info(`Manual KNX read triggered via editor button for ${grpaddr}`);
+          } catch (error) {
+            targetNode.sysLogger?.warn(`Manual KNX read status update failed: ${error.message}`);
+          }
+          res.json({ status: 'ok' });
           return;
         }
-        targetNode.serverKNX.sendKNXTelegramToKNXEngine({
-          grpaddr,
-          payload: '',
-          dpt: '',
-          outputtype: 'read',
-          nodecallerid: targetNode.id,
-        });
-        try {
-          if (typeof targetNode.setNodeStatus === 'function') {
-            targetNode.setNodeStatus({
-              fill: 'blue',
-              shape: 'ring',
-              text: 'BTN->KNX READ',
-              payload: '',
-              GA: grpaddr,
-              dpt: targetNode.dpt,
-              devicename: targetNode.name || '',
-            });
+
+        if (mode === 'toggle') {
+          if (!/^1\./.test(targetNode.dpt || '')) {
+            res.status(400).json({ error: 'Toggle is available only for datapoint 1.x' });
+            return;
           }
-          targetNode.sysLogger?.info(`Manual KNX read triggered via editor button for ${grpaddr}`);
-        } catch (error) {
-          targetNode.sysLogger?.warn(`Manual KNX read status update failed: ${error.message}`);
+          if (targetNode.buttonEnabled !== true && targetNode.buttonEnabled !== 'true') {
+            res.status(400).json({ error: 'Button is disabled for this node' });
+            return;
+          }
+          if (typeof targetNode._buttonToggleState !== 'boolean') {
+            targetNode._buttonToggleState = coerceBoolean(targetNode.buttonToggleInitial);
+          }
+          targetNode._buttonToggleState = !targetNode._buttonToggleState;
+          const payload = targetNode._buttonToggleState;
+          targetNode.serverKNX.sendKNXTelegramToKNXEngine({
+            grpaddr,
+            payload,
+            dpt: targetNode.dpt,
+            outputtype: 'write',
+            nodecallerid: targetNode.id,
+          });
+          try {
+            if (typeof targetNode.setNodeStatus === 'function') {
+              targetNode.setNodeStatus({
+                fill: 'green',
+                shape: 'dot',
+                text: 'BTN->KNX TOGGLE',
+                payload,
+                GA: grpaddr,
+                dpt: targetNode.dpt,
+                devicename: targetNode.name || '',
+              });
+            }
+            targetNode.sysLogger?.info(`Manual KNX toggle triggered via editor button for ${grpaddr}, value: ${payload}`);
+          } catch (error) {
+            targetNode.sysLogger?.warn(`Manual KNX toggle status update failed: ${error.message}`);
+          }
+          res.json({ status: 'ok', payload });
+          return;
         }
-        res.json({ status: 'ok' });
+
+        if (mode === 'value') {
+          if (targetNode.buttonEnabled !== true && targetNode.buttonEnabled !== 'true') {
+            res.status(400).json({ error: 'Button is disabled for this node' });
+            return;
+          }
+          const userValue = req.body ? req.body.value : undefined;
+          if (userValue === undefined || userValue === null || userValue === '') {
+            res.status(400).json({ error: 'Custom value is required' });
+            return;
+          }
+          let payload;
+          try {
+            payload = coerceValueForDpt(targetNode.dpt, userValue);
+          } catch (error) {
+            res.status(400).json({ error: error.message });
+            return;
+          }
+          targetNode.serverKNX.sendKNXTelegramToKNXEngine({
+            grpaddr,
+            payload,
+            dpt: targetNode.dpt,
+            outputtype: 'write',
+            nodecallerid: targetNode.id,
+          });
+          try {
+            if (typeof targetNode.setNodeStatus === 'function') {
+              targetNode.setNodeStatus({
+                fill: 'green',
+                shape: 'dot',
+                text: 'BTN->KNX WRITE',
+                payload,
+                GA: grpaddr,
+                dpt: targetNode.dpt,
+                devicename: targetNode.name || '',
+              });
+            }
+            targetNode.sysLogger?.info(`Manual KNX write triggered via editor button for ${grpaddr}, value: ${JSON.stringify(payload)}`);
+          } catch (error) {
+            targetNode.sysLogger?.warn(`Manual KNX write status update failed: ${error.message}`);
+          }
+          res.json({ status: 'ok', payload });
+          return;
+        }
+
+        res.status(400).json({ error: 'Unsupported button mode' });
       } catch (error) {
-        res.status(500).json({ error: error.message || 'KNX read failed' });
+        res.status(500).json({ error: error.message || 'KNX command failed' });
       }
+    };
+
+    RED.httpAdmin.post('/knxUltimate/buttonAction', RED.auth.needsPermission('knxUltimate-config.write'), handleButtonAction);
+    RED.httpAdmin.post('/knxUltimate/manualRead', RED.auth.needsPermission('knxUltimate-config.write'), (req, res) => {
+      if (!req.body) req.body = {};
+      if (!req.body.mode) req.body.mode = 'read';
+      handleButtonAction(req, res);
     });
-    manualReadEndpointRegistered = true;
+    buttonEndpointRegistered = true;
   }
   const _ = require('lodash');
   const KNXUtils = require('knxultimate');
@@ -188,6 +353,17 @@ module.exports = function (RED) {
     node.passthrough = (typeof config.passthrough === 'undefined' ? 'no' : config.passthrough);
     node.inputmessage = {}; // Stores the input message to be passed through
     node.timerTTLInputMessage = null; // The stored node.inputmessage has a ttl.
+    node.buttonEnabled = coerceBoolean(config.buttonEnabled);
+    node.buttonMode = config.buttonMode || 'read';
+    node.buttonStaticValue = config.buttonStaticValue || '';
+    node.buttonToggleInitial = coerceBoolean(config.buttonToggleInitial);
+    node._buttonToggleState = node.buttonToggleInitial;
+
+    const syncButtonToggleState = (value) => {
+      if (node.buttonMode === 'toggle' && /^1\./.test(node.dpt || '')) {
+        node._buttonToggleState = coerceBoolean(value);
+      }
+    };
     try {
       const baseLogLevel = (node.serverKNX && node.serverKNX.loglevel) ? node.serverKNX.loglevel : 'error';
       node.sysLogger = new loggerClass({ loglevel: baseLogLevel, setPrefix: node.type + " <" + (node.name || node.id || '') + ">" });
@@ -607,6 +783,7 @@ module.exports = function (RED) {
           if (outputtype == 'response') {
             try {
               node.currentPayload = msg.payload;// 31/12/2019 Set the current value (because, if the node is a virtual device, then it'll never fire "GroupValue_Write" in the server node, causing the currentPayload to never update)
+              syncButtonToggleState(msg.payload);
               node.serverKNX.sendKNXTelegramToKNXEngine({
                 grpaddr, payload: msg.payload, dpt, outputtype, nodecallerid: node.id,
               });
@@ -618,6 +795,7 @@ module.exports = function (RED) {
             // 05/01/2021 Updates only the internal currentPayload value.
             try {
               node.currentPayload = msg.payload;
+              syncButtonToggleState(msg.payload);
               node.serverKNX.sendKNXTelegramToKNXEngine({
                 grpaddr, payload: msg.payload, dpt, outputtype, nodecallerid: node.id,
               });
@@ -628,6 +806,7 @@ module.exports = function (RED) {
           } else {
             try {
               node.currentPayload = msg.payload;// 31/12/2019 Set the current value (because, if the node is a virtual device, then it'll never fire "GroupValue_Write" in the server node, causing the currentPayload to never update)
+              syncButtonToggleState(msg.payload);
               node.setNodeStatus({
                 fill: 'green', shape: 'dot', text: 'Writing', payload: msg.payload, GA: grpaddr, dpt, devicename: '',
               });

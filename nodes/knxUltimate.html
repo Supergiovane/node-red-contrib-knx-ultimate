@@ -33,7 +33,11 @@
             sendMsgToKNXCode: { value: "" },
             receiveMsgFromKNXCode: { value: "" },
             listenallga: { value: "" },
-            gaSecure: { value: false }
+            gaSecure: { value: false },
+            buttonEnabled: { value: false },
+            buttonMode: { value: "read" },
+            buttonStaticValue: { value: "" },
+            buttonToggleInitial: { value: "false" }
         },
         inputs: 1,
         outputs: 1,
@@ -55,23 +59,30 @@
                 return !this.changed;
             },
             visible: function () {
-                return true;
+                return this.buttonEnabled === true || this.buttonEnabled === "true";
             },
             onclick: function () {
                 const node = this;
+                const mode = node.buttonMode || 'read';
+                const request = { id: node.id, mode };
+                if (mode === 'value') {
+                    request.value = node.buttonStaticValue;
+                }
                 $.ajax({
                     type: "POST",
-                    url: "knxUltimate/manualRead",
-                    data: { id: node.id },
+                    url: "knxUltimate/buttonAction",
+                    data: request,
                     success: function () {
-                        RED.notify(RED._("node-red-contrib-knx-ultimate/knxUltimate.manualReadOk") || "KNX read request sent", "success");
+                        const key = mode === 'read' ? "manualReadOk" : "manualWriteOk";
+                        RED.notify(RED._("node-red-contrib-knx-ultimate/knxUltimate." + key) || "KNX command sent", "success");
                     },
                     error: function (xhr) {
                         let message;
                         if (xhr && xhr.responseJSON && xhr.responseJSON.error) {
                             message = xhr.responseJSON.error;
                         }
-                        RED.notify(message || (RED._("node-red-contrib-knx-ultimate/knxUltimate.manualReadError") || "Unable to send KNX read request"), "error");
+                        const key = mode === 'read' ? "manualReadError" : "manualWriteError";
+                        RED.notify(message || (RED._("node-red-contrib-knx-ultimate/knxUltimate." + key) || "Unable to send KNX command"), "error");
                     }
                 });
             }
@@ -92,6 +103,46 @@
                 }
             }
             var oNodeServer = RED.nodes.node($("#node-input-server").val()); // Store the config-node
+            const $buttonEnabled = $('#node-input-buttonEnabled');
+            const $buttonOptions = $('#knx-button-options');
+            const $buttonMode = $('#node-input-buttonMode');
+            const $buttonToggleInitial = $('#node-input-buttonToggleInitial');
+            const $buttonStaticValue = $('#node-input-buttonStaticValue');
+            const $buttonToggleRow = $('.knx-button-toggle-row');
+            const $buttonValueRow = $('.knx-button-value-row');
+
+            const coerceBoolean = (value) => (value === true || value === 'true');
+
+            $buttonEnabled.prop('checked', coerceBoolean(node.buttonEnabled));
+            $buttonMode.val(node.buttonMode || 'read');
+            $buttonToggleInitial.val(coerceBoolean(node.buttonToggleInitial) ? 'true' : 'false');
+            $buttonStaticValue.val(node.buttonStaticValue || '');
+
+            const refreshButtonOptions = () => {
+                const enabled = $buttonEnabled.prop('checked');
+                const mode = $buttonMode.val() || 'read';
+                if (enabled) {
+                    $buttonOptions.show();
+                } else {
+                    $buttonOptions.hide();
+                }
+                $buttonToggleRow.toggle(enabled && mode === 'toggle');
+                $buttonValueRow.toggle(enabled && mode === 'value');
+
+                node.buttonEnabled = enabled;
+                node.buttonMode = mode;
+                node.buttonToggleInitial = $buttonToggleInitial.val();
+                node.buttonStaticValue = $buttonStaticValue.val();
+            };
+
+            $buttonEnabled.on('change', refreshButtonOptions);
+            $buttonMode.on('change', refreshButtonOptions);
+            $buttonToggleInitial.on('change', refreshButtonOptions);
+            $buttonStaticValue.on('change keyup', function () {
+                node.buttonStaticValue = $(this).val();
+            });
+
+            refreshButtonOptions();
             // Secure GA cache from keyring
             let secureGAs = new Set();
             function refreshSecureGAs() {
@@ -912,6 +963,42 @@
                         <i class="fa fa-sign-in"></i> <span
                             data-i18n="knxUltimate.properties.node-input-notifyreadrequest"></span>
                     </label>
+                </div>
+                <div class="form-row">
+                    <input type="checkbox" id="node-input-buttonEnabled"
+                        style="display:inline-block; width:auto; vertical-align:top;" />
+                    <label style="width:85%" for="node-input-buttonEnabled">
+                        <i class="fa fa-mouse-pointer"></i> <span
+                            data-i18n="knxUltimate.button.enable"></span>
+                    </label>
+                </div>
+                <div id="knx-button-options" style="display:none">
+                    <div class="form-row">
+                        <label style="width:180px" for="node-input-buttonMode">
+                            <i class="fa fa-bolt"></i> <span data-i18n="knxUltimate.button.mode"></span>
+                        </label>
+                        <select id="node-input-buttonMode" style="width:220px;">
+                            <option value="read" data-i18n="knxUltimate.button.mode_read"></option>
+                            <option value="toggle" data-i18n="knxUltimate.button.mode_toggle"></option>
+                            <option value="value" data-i18n="knxUltimate.button.mode_value"></option>
+                        </select>
+                    </div>
+                    <div class="form-row knx-button-toggle-row">
+                        <label style="width:180px" for="node-input-buttonToggleInitial">
+                            <i class="fa fa-refresh"></i> <span data-i18n="knxUltimate.button.toggleInitial"></span>
+                        </label>
+                        <select id="node-input-buttonToggleInitial" style="width:160px;">
+                            <option value="true" data-i18n="node-red:common.label.on"></option>
+                            <option value="false" data-i18n="node-red:common.label.off"></option>
+                        </select>
+                    </div>
+                    <div class="form-row knx-button-value-row">
+                        <label style="width:180px" for="node-input-buttonStaticValue">
+                            <i class="fa fa-pencil"></i> <span data-i18n="knxUltimate.button.value"></span>
+                        </label>
+                        <input type="text" id="node-input-buttonStaticValue" style="width:220px;"
+                            placeholder="42, true, {\"red\":255}" />
+                    </div>
                 </div>
                 <div id="divnotifyreadrequestautoreact">
                     <dd>

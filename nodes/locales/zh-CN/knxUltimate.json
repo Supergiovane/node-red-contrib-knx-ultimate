@@ -34,6 +34,15 @@
             "search": "开始输入以搜索",
             "notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized": "案例: 0 是 false, 1 是 true, 否则是任意值"
         },
+        "button": {
+            "enable": "在编辑器中显示手动命令按钮",
+            "mode": "按钮操作",
+            "mode_read": "发送 KNX 读取",
+            "mode_toggle": "切换布尔值（写入）",
+            "mode_value": "写入自定义值",
+            "toggleInitial": "初始切换状态",
+            "value": "自定义值"
+        },
   "headings": {
     "from_input_to_bus": "从节点输入引脚到 KNX 总线",
     "from_bus_to_output": "从 KNX 总线到节点输出引脚"
@@ -103,6 +112,8 @@
             "RBE_in_disable": "禁用"
         },
         "manualReadOk": "已发送 KNX 读取请求",
-        "manualReadError": "无法发送 KNX 读取请求"
+        "manualReadError": "无法发送 KNX 读取请求",
+        "manualWriteOk": "已发送 KNX 命令",
+        "manualWriteError": "无法发送 KNX 命令"
     }
 }
