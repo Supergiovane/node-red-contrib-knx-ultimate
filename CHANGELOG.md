@@ -13,6 +13,7 @@
 - All Hue editor dialogs automatically show flow pins whenever no KNX gateway is configured and hide them when one is selected, keeping the Flow output consistent with the gateway state.<br/>
 - General Hue editor polish: the refresh buttons and status messages now reflect the effective payload sent to Hue, and the UI stays responsive while the bridge syncs in the background.<br/>
 - KNX Ultimate node: the optional editor button can now be enabled per node and configured to issue a KNX read, toggle boolean DPT 1.x values, or push a custom value consistent with the node datapoint.<br/>
+- Added new KNX Function receive snippets (motion-triggered lighting, HVAC standby on window open, and night-time door alerts) to speed up common smart-home automations.<br/>
 
 **Version 4.0.16** - October 2025<br/>
 - Fixed Gateway Discover, that sometimes donesn't show some KNX Gateways.<br/>
@@ -28,7 +29,6 @@
 - NEW: Added KNX ↔ IoT Bridge node to orchestrate bidirectional KNX↔MQTT/REST/Modbus mappings with scaling, templating and ack metadata.<br/>
 
 **Version 4.0.13** - October 2025<br/>
-- NEW: Added KNX ↔ IoT Bridge node to orchestrate bidirectional KNX↔MQTT/REST/Modbus mappings with scaling, templating and ack metadata.<br/>
 - NEW: Added KNX Garage Door node with boolean/impulse control, hold-open and disable GAs, safety integration and automatic re-close timer.<br/>
 - KNX Staircase node: editor refinements with read-only DPTs, flow payload support and localisation polish across supported languages.<br/>
 - KNX Staircase & Garage nodes: unified status handling and multilingual flow examples in docs/help.<br/>

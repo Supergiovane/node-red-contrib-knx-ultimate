@@ -47,10 +47,10 @@ return msg;`
 if (msg.payload === true) {
   const currentLux = getGAValue('0/2/5 Garden lux sensor', '9.004');
   if (typeof currentLux === 'number' && currentLux < 80) {
-    setGAValue('1/1/10 Corridor light', true, '1.001');
+    return msg;
   }
 }
-return msg;`
+return`
     },
     {
       id: 'pause-hvac-on-window-open',
