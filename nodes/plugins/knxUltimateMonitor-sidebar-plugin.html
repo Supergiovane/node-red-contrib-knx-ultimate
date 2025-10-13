@@ -42,7 +42,7 @@
                         #knx-debug-log.empty::after { content: 'Nessuna riga di log disponibile al momento.'; color: var(--red-ui-text-color-secondary, #666); font-style: italic; }
                         .knx-debug-line { padding: 2px 4px; border-left: 3px solid transparent; margin: 0 0 2px; }
                         .knx-debug-line.level-error { border-left-color: #f44336; background-color: rgba(244, 67, 54, 0.1); color: #b71c1c; }
-                        .knx-debug-line.level-warn { border-left-color: #ff9800; background-color: rgba(255, 152, 0, 0.1); color: #e65100; }
+                        .knx-debug-line.level-warn { border-left-color: #ff6f00; background-color: #fff3e0; color: #bf360c; }
                         .knx-debug-line.level-info { border-left-color: #607d8b; background-color: rgba(96, 125, 139, 0.08); color: #37474f; }
                         .knx-debug-line.level-debug { border-left-color: #2196f3; background-color: rgba(33, 150, 243, 0.08); color: #0d47a1; }
                         .knx-debug-line.level-success { border-left-color: #4caf50; background-color: rgba(76, 175, 80, 0.08); color: #1b5e20; }
@@ -199,14 +199,14 @@
                     success: 'level-success'
                 };
 
-                const DEBUG_REFRESH_INTERVAL = 2500;
+                const DEBUG_REFRESH_INTERVAL = 1000;
                 const debugAutoStorageKey = 'knxUltimateDebug:autoRefresh';
                 let debugLogWrapper = null;
                 let debugLogContainer = null;
                 let debugEntries = [];
                 let debugActive = false;
                 let debugLatestSeq = 0;
-                let debugTimer = null;
+                let debugPollHandle = null;
                 let debugLimit = 5000;
                 let debugStatusEl = null;
                 let debugInfoCounter = null;
@@ -273,7 +273,8 @@
                 const renderDebugEntries = () => {
                     ensureDebugLogContainer();
                     if (!debugLogContainer) return;
-                    const shouldStick = isLogNearBottom();
+                    const autoRefreshActive = !!(debugAutoCheckbox && debugAutoCheckbox.is(':checked'));
+                    const shouldStick = autoRefreshActive ? true : isLogNearBottom();
                     const lines = debugEntries.map(formatDebugLine);
                     debugRenderedPlainText = lines.join('\n');
                     debugLogContainer.empty();
@@ -307,19 +308,32 @@
                     }
                 };
 
-                const startDebugTimer = () => {
-                    if (debugTimer) return;
-                    debugTimer = setInterval(() => {
+                const scheduleNextDebugFetch = (delay = DEBUG_REFRESH_INTERVAL) => {
+                    if (debugPollHandle) {
+                        clearTimeout(debugPollHandle);
+                        debugPollHandle = null;
+                    }
+                    const safeDelay = Math.max(0, Number(delay) || 0);
+                    debugPollHandle = setTimeout(() => {
+                        debugPollHandle = null;
                         if (!debugActive) return;
                         if (!debugAutoCheckbox || !debugAutoCheckbox.is(':checked')) return;
-                        fetchDebugLog({ incremental: true });
-                    }, DEBUG_REFRESH_INTERVAL);
+                        if (debugFetching) {
+                            scheduleNextDebugFetch(DEBUG_REFRESH_INTERVAL);
+                            return;
+                        }
+                        fetchDebugLog({ triggeredByTimer: true });
+                    }, safeDelay);
+                };
+
+                const startDebugTimer = () => {
+                    scheduleNextDebugFetch(0);
                 };
 
                 const stopDebugTimer = () => {
-                    if (debugTimer) {
-                        clearInterval(debugTimer);
-                        debugTimer = null;
+                    if (debugPollHandle) {
+                        clearTimeout(debugPollHandle);
+                        debugPollHandle = null;
                     }
                 };
 
@@ -411,6 +425,11 @@
                         setDebugStatus('Impossibile caricare il KNX Debug log.');
                     }).always(function () {
                         debugFetching = false;
+                        if (debugActive && debugAutoCheckbox && debugAutoCheckbox.is(':checked')) {
+                            scheduleNextDebugFetch(DEBUG_REFRESH_INTERVAL);
+                        } else {
+                            stopDebugTimer();
+                        }
                         if (debugPendingForceRefresh) {
                             debugPendingForceRefresh = false;
                             fetchDebugLog({ forceFull: true });
