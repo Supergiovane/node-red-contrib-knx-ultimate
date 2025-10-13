@@ -28,7 +28,7 @@ module.exports = function (RED) {
   //     lastupdateLocale
   // }
 
-  function knxUltimateGlobalContext(config) {
+  function knxUltimateGlobalContext (config) {
     RED.nodes.createNode(this, config)
     const node = this
     node.serverKNX = RED.nodes.getNode(config.server) || undefined
@@ -55,22 +55,22 @@ module.exports = function (RED) {
     node.contextStorage = config.contextStorage !== undefined ? config.contextStorage : ''
     node.exposeAsVariable = config.exposeAsVariable !== undefined ? config.exposeAsVariable : 'exposeAsVariableREADONLY' // Should expose the Group Addresses to the Global Context?
     node.exposedGAs = []
-   node.timerExposedGAs = null
+    node.timerExposedGAs = null
 
     const pushStatus = (status) => {
-      if (!status) return;
-      const provider = node.serverKNX;
+      if (!status) return
+      const provider = node.serverKNX
       if (provider && typeof provider.applyStatusUpdate === 'function') {
-        provider.applyStatusUpdate(node, status);
+        provider.applyStatusUpdate(node, status)
       } else {
-        node.status(status);
+        node.status(status)
       }
-    };
+    }
 
     const updateStatus = (status) => {
-      if (!status) return;
-      pushStatus(status);
-    };
+      if (!status) return
+      pushStatus(status)
+    }
 
     // Used to call the status update from the config node.
     node.setNodeStatus = ({ fill, shape, text, payload, GA, dpt, devicename }) => {

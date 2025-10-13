@@ -44,12 +44,12 @@ if (msg.payload === true){
 }
 return msg;`
     }
-  ];
+  ]
 
   if (root) {
-    root.KNXSendSnippets = KNXSendSnippets;
+    root.KNXSendSnippets = KNXSendSnippets
   }
   if (typeof module !== 'undefined' && module.exports) {
-    module.exports = KNXSendSnippets;
+    module.exports = KNXSendSnippets
   }
-})(typeof window !== 'undefined' ? window : (typeof globalThis !== 'undefined' ? globalThis : this));
+})(typeof window !== 'undefined' ? window : (typeof globalThis !== 'undefined' ? globalThis : this))

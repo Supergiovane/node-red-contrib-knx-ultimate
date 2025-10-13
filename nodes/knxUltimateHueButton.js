@@ -1,275 +1,274 @@
 module.exports = function (RED) {
-  const dptlib = require('knxultimate').dptlib;
+  const dptlib = require('knxultimate').dptlib
 
-  function knxUltimateHueButton(config) {
-    RED.nodes.createNode(this, config);
-    const node = this;
-    node.serverKNX = RED.nodes.getNode(config.server) || undefined;
-    node.serverHue = RED.nodes.getNode(config.serverHue) || undefined;
-    node.topic = node.name;
-    node.name = config.name === undefined ? 'Hue' : config.name;
-    node.dpt = '';
-    node.notifyreadrequest = false;
-    node.notifyreadrequestalsorespondtobus = 'false';
-    node.notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized = '';
-    node.notifyresponse = false;
-    node.notifywrite = true;
-    node.initialread = true;
-    node.listenallga = true; // Don't remove
-    node.outputtype = 'write';
-    node.outputRBE = 'false'; // Apply or not RBE to the output (Messages coming from flow)
-    node.inputRBE = 'false'; // Apply or not RBE to the input (Messages coming from BUS)
-    node.currentPayload = ''; // Current value for the RBE input and for the .previouspayload msg
-    node.passthrough = 'no';
-    node.formatmultiplyvalue = 1;
-    node.formatnegativevalue = 'leave';
-    node.formatdecimalsvalue = 2;
-    node.short_releaseValue = false;
-    node.isTimerDimStopRunning = false;
-    node.hueDevice = config.hueDevice;
-    node.initializingAtStart = false;
+  function knxUltimateHueButton (config) {
+    RED.nodes.createNode(this, config)
+    const node = this
+    node.serverKNX = RED.nodes.getNode(config.server) || undefined
+    node.serverHue = RED.nodes.getNode(config.serverHue) || undefined
+    node.topic = node.name
+    node.name = config.name === undefined ? 'Hue' : config.name
+    node.dpt = ''
+    node.notifyreadrequest = false
+    node.notifyreadrequestalsorespondtobus = 'false'
+    node.notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized = ''
+    node.notifyresponse = false
+    node.notifywrite = true
+    node.initialread = true
+    node.listenallga = true // Don't remove
+    node.outputtype = 'write'
+    node.outputRBE = 'false' // Apply or not RBE to the output (Messages coming from flow)
+    node.inputRBE = 'false' // Apply or not RBE to the input (Messages coming from BUS)
+    node.currentPayload = '' // Current value for the RBE input and for the .previouspayload msg
+    node.passthrough = 'no'
+    node.formatmultiplyvalue = 1
+    node.formatnegativevalue = 'leave'
+    node.formatdecimalsvalue = 2
+    node.short_releaseValue = false
+    node.isTimerDimStopRunning = false
+    node.hueDevice = config.hueDevice
+    node.initializingAtStart = false
 
     // When toggle status is disabled, uses these values
-    node.switchSend = config.switchSend === undefined ? 'true' : config.switchSend;
-    node.switchSend = node.switchSend === 'true'; // The typedvalue in the html returns a string, so i convert it to bool
-    node.dimSend = config.dimSend === undefined ? 'up' : config.dimSend;
-    if (node.dimSend === 'up') node.dimSend = { decr_incr: 1, data: 3 };
-    if (node.dimSend === 'down') node.dimSend = { decr_incr: 0, data: 3 };
-    if (node.dimSend === 'stop') node.dimSend = { decr_incr: 0, data: 0 };
+    node.switchSend = config.switchSend === undefined ? 'true' : config.switchSend
+    node.switchSend = node.switchSend === 'true' // The typedvalue in the html returns a string, so i convert it to bool
+    node.dimSend = config.dimSend === undefined ? 'up' : config.dimSend
+    if (node.dimSend === 'up') node.dimSend = { decr_incr: 1, data: 3 }
+    if (node.dimSend === 'down') node.dimSend = { decr_incr: 0, data: 3 }
+    if (node.dimSend === 'stop') node.dimSend = { decr_incr: 0, data: 0 }
 
     const pushStatus = (status) => {
-      if (!status) return;
-      const provider = node.serverKNX;
+      if (!status) return
+      const provider = node.serverKNX
       if (provider && typeof provider.applyStatusUpdate === 'function') {
-        provider.applyStatusUpdate(node, status);
+        provider.applyStatusUpdate(node, status)
       } else {
-        node.status(status);
+        node.status(status)
       }
-    };
+    }
 
     const updateStatus = (status) => {
-      if (!status) return;
-      pushStatus(status);
-    };
+      if (!status) return
+      pushStatus(status)
+    }
 
     const safeSendToKNX = (telegram, context = 'write') => {
       try {
         if (!node.serverKNX || typeof node.serverKNX.sendKNXTelegramToKNXEngine !== 'function') {
-          const now = new Date();
-          updateStatus({ fill: 'red', shape: 'dot', text: `KNX server missing (${context}) (${now.getDate()}, ${now.toLocaleTimeString()})` });
-          return;
+          const now = new Date()
+          updateStatus({ fill: 'red', shape: 'dot', text: `KNX server missing (${context}) (${now.getDate()}, ${now.toLocaleTimeString()})` })
+          return
         }
-        node.serverKNX.sendKNXTelegramToKNXEngine({ ...telegram, nodecallerid: node.id });
+        node.serverKNX.sendKNXTelegramToKNXEngine({ ...telegram, nodecallerid: node.id })
       } catch (error) {
-        updateStatus({ fill: 'red', shape: 'dot', text: `KNX send error ${error.message}` });
+        updateStatus({ fill: 'red', shape: 'dot', text: `KNX send error ${error.message}` })
       }
-    };
+    }
 
     // Used to call the status update from the config node.
     node.setNodeStatus = ({
-      fill, shape, text, payload,
+      fill, shape, text, payload
     }) => {
       try {
-        if (payload === undefined) payload = '';
-        const dDate = new Date();
-        payload = typeof payload === "object" ? JSON.stringify(payload) : payload.toString();
-        node.sKNXNodeStatusText = `|KNX: ${text} ${payload} (${dDate.getDate()}, ${dDate.toLocaleTimeString()})`;
-        updateStatus({ fill, shape, text: (node.sHUENodeStatusText || '') + ' ' + (node.sKNXNodeStatusText || '') });
+        if (payload === undefined) payload = ''
+        const dDate = new Date()
+        payload = typeof payload === 'object' ? JSON.stringify(payload) : payload.toString()
+        node.sKNXNodeStatusText = `|KNX: ${text} ${payload} (${dDate.getDate()}, ${dDate.toLocaleTimeString()})`
+        updateStatus({ fill, shape, text: (node.sHUENodeStatusText || '') + ' ' + (node.sKNXNodeStatusText || '') })
       } catch (error) { }
-    };
+    }
     // Used to call the status update from the HUE config node.
     node.setNodeStatusHue = ({ fill, shape, text, payload }) => {
       try {
-        if (payload === undefined) payload = '';
-        const dDate = new Date();
-        payload = typeof payload === "object" ? JSON.stringify(payload) : payload.toString();
-        node.sHUENodeStatusText = `|HUE: ${text} ${payload} (${dDate.getDate()}, ${dDate.toLocaleTimeString()})`;
-        updateStatus({ fill, shape, text: node.sHUENodeStatusText + ' ' + (node.sKNXNodeStatusText || '') });
+        if (payload === undefined) payload = ''
+        const dDate = new Date()
+        payload = typeof payload === 'object' ? JSON.stringify(payload) : payload.toString()
+        node.sHUENodeStatusText = `|HUE: ${text} ${payload} (${dDate.getDate()}, ${dDate.toLocaleTimeString()})`
+        updateStatus({ fill, shape, text: node.sHUENodeStatusText + ' ' + (node.sKNXNodeStatusText || '') })
       } catch (error) { }
-    };
+    }
 
     // This function is called by the knx-ultimate config node, to output a msg.payload.
     node.handleSend = (msg) => {
       try {
         switch (msg.knx.destination) {
           case config.GAshort_releaseStatus:
-            msg.payload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptshort_release));
-            node.short_releaseValue = msg.payload;
+            msg.payload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptshort_release))
+            node.short_releaseValue = msg.payload
             node.setNodeStatusHue({
-              fill: 'green', shape: 'dot', text: 'KNX->HUE Short Release Status', payload: msg.payload,
-            });
-            break;
+              fill: 'green', shape: 'dot', text: 'KNX->HUE Short Release Status', payload: msg.payload
+            })
+            break
           case config.GArepeatStatus:
-            msg.payload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptrepeat));
-            node.toggleGArepeat = msg.payload.decr_incr === 1;
+            msg.payload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptrepeat))
+            node.toggleGArepeat = msg.payload.decr_incr === 1
             node.setNodeStatusHue({
-              fill: 'green', shape: 'dot', text: 'KNX->HUE Repeat Status', payload: msg.payload,
-            });
-            break;
+              fill: 'green', shape: 'dot', text: 'KNX->HUE Repeat Status', payload: msg.payload
+            })
+            break
           default:
-            break;
+            break
         }
       } catch (error) {
         node.setNodeStatusHue({
-          fill: 'red', shape: 'dot', text: `KNX->HUE error ${error.message}`, payload: '',
-        });
+          fill: 'red', shape: 'dot', text: `KNX->HUE error ${error.message}`, payload: ''
+        })
       }
-    };
+    }
 
     node.handleSendHUE = (_event) => {
       try {
         if (_event.id === config.hueDevice) {
+          const buttonEvent = _event?.button?.button_report?.event || _event?.button?.last_event
+          if (!_event.hasOwnProperty('button') || buttonEvent === undefined) return
 
-          const buttonEvent = _event?.button?.button_report?.event || _event?.button?.last_event;
-          if (!_event.hasOwnProperty('button') || buttonEvent === undefined) return;
-
-          const knxMsgPayload = {};
-          let flowMsgPayload = true;
+          const knxMsgPayload = {}
+          let flowMsgPayload = true
           // Handling events with toggles
           // KNX Dimming reminder tips
           // { decr_incr: 1, data: 1 } : Start increasing until { decr_incr: 0, data: 0 } is received.
           // { decr_incr: 0, data: 1 } : Start decreasing until { decr_incr: 0, data: 0 } is received.
           switch (buttonEvent) {
             case 'initial_press':
-              if (node.initial_pressValue === undefined) node.initial_pressValue = false;
-              node.initial_pressValue = config.toggleValues ? !node.initial_pressValue : node.switchSend;
-              flowMsgPayload = node.initial_pressValue;
-              break;
+              if (node.initial_pressValue === undefined) node.initial_pressValue = false
+              node.initial_pressValue = config.toggleValues ? !node.initial_pressValue : node.switchSend
+              flowMsgPayload = node.initial_pressValue
+              break
             case 'long_release':
-              flowMsgPayload = node.long_pressValue;
+              flowMsgPayload = node.long_pressValue
               // if the dimmer was running, send the STOP telegram to the KNX bus wires, using the GArepeat Group address and dpt.
               if (node.isTimerDimStopRunning) {
-                knxMsgPayload.topic = config.GArepeat;
-                knxMsgPayload.dpt = config.dptrepeat;
-                node.stopDIM(knxMsgPayload);
+                knxMsgPayload.topic = config.GArepeat
+                knxMsgPayload.dpt = config.dptrepeat
+                node.stopDIM(knxMsgPayload)
               }
-              break;
+              break
             case 'double_short_release':
-              if (node.double_short_releaseValue === undefined) node.double_short_releaseValue = false;
-              node.double_short_releaseValue = config.toggleValues ? !node.double_short_releaseValue : node.switchSend;
-              flowMsgPayload = node.double_short_releaseValue;
-              break;
+              if (node.double_short_releaseValue === undefined) node.double_short_releaseValue = false
+              node.double_short_releaseValue = config.toggleValues ? !node.double_short_releaseValue : node.switchSend
+              flowMsgPayload = node.double_short_releaseValue
+              break
             case 'long_press':
-              if (node.long_pressValue === undefined) node.long_pressValue = false;
-              node.long_pressValue = config.toggleValues ? !node.long_pressValue : node.dimSend;
-              flowMsgPayload = node.long_pressValue;
-              break;
+              if (node.long_pressValue === undefined) node.long_pressValue = false
+              node.long_pressValue = config.toggleValues ? !node.long_pressValue : node.dimSend
+              flowMsgPayload = node.long_pressValue
+              break
             case 'short_release':
-              node.short_releaseValue = config.toggleValues ? !node.short_releaseValue : node.switchSend;
-              flowMsgPayload = node.short_releaseValue;
+              node.short_releaseValue = config.toggleValues ? !node.short_releaseValue : node.switchSend
+              flowMsgPayload = node.short_releaseValue
               if (config.GAshort_release !== undefined && config.GAshort_release !== '') {
-                knxMsgPayload.topic = config.GAshort_release;
-                knxMsgPayload.dpt = config.dptshort_release;
-                knxMsgPayload.payload = node.short_releaseValue;
+                knxMsgPayload.topic = config.GAshort_release
+                knxMsgPayload.dpt = config.dptshort_release
+                knxMsgPayload.payload = node.short_releaseValue
                 // Send to KNX bus
                 if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) {
                   safeSendToKNX({
-                    grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write',
-                  }, 'write');
+                    grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write'
+                  }, 'write')
                 }
                 if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) {
                   node.setNodeStatusHue({
-                    fill: 'blue', shape: 'dot', text: `HUE->KNX ${buttonEvent}`, payload: knxMsgPayload.payload,
-                  });
+                    fill: 'blue', shape: 'dot', text: `HUE->KNX ${buttonEvent}`, payload: knxMsgPayload.payload
+                  })
                 }
               }
-              break;
+              break
             case 'repeat':
-              flowMsgPayload = node.long_pressValue;
+              flowMsgPayload = node.long_pressValue
               if (config.GArepeat !== undefined && config.GArepeat !== '') {
                 if (node.isTimerDimStopRunning === false) {
                   // Set KNX Dim up/down start
-                  knxMsgPayload.topic = config.GArepeat;
-                  knxMsgPayload.dpt = config.dptrepeat;
+                  knxMsgPayload.topic = config.GArepeat
+                  knxMsgPayload.dpt = config.dptrepeat
                   if (typeof (node.long_pressValue) === 'object') {
-                    knxMsgPayload.payload = node.long_pressValue; // Send fixed value when toggleValues is false
+                    knxMsgPayload.payload = node.long_pressValue // Send fixed value when toggleValues is false
                   } else {
-                    knxMsgPayload.payload = node.long_pressValue ? { decr_incr: 0, data: 3 } : { decr_incr: 1, data: 3 }; // If the light is turned on, the initial DIM direction must be down, otherwise, up
+                    knxMsgPayload.payload = node.long_pressValue ? { decr_incr: 0, data: 3 } : { decr_incr: 1, data: 3 } // If the light is turned on, the initial DIM direction must be down, otherwise, up
                   }
                   // Send to KNX bus
                   if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) {
                     safeSendToKNX({
-                      grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write',
-                    }, 'write');
+                      grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write'
+                    }, 'write')
                   }
                   if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) {
                     node.setNodeStatusHue({
-                      fill: 'blue', shape: 'dot', text: 'HUE->KNX START DIM', payload: '',
-                    });
+                      fill: 'blue', shape: 'dot', text: 'HUE->KNX START DIM', payload: ''
+                    })
                   }
                 }
-                node.startDimStopper(knxMsgPayload);
+                node.startDimStopper(knxMsgPayload)
               }
-              break;
+              break
             default:
-              break;
+              break
           }
 
           // Setup the output msg
-          const flowMsg = {};
-          flowMsg.name = node.name;
-          flowMsg.event = buttonEvent;
-          if (_event.button?.button_report?.updated) flowMsg.updated = _event.button.button_report.updated;
-          flowMsg.rawEvent = _event;
-          flowMsg.payload = flowMsgPayload;
-          node.send(flowMsg);
+          const flowMsg = {}
+          flowMsg.name = node.name
+          flowMsg.event = buttonEvent
+          if (_event.button?.button_report?.updated) flowMsg.updated = _event.button.button_report.updated
+          flowMsg.rawEvent = _event
+          flowMsg.payload = flowMsgPayload
+          node.send(flowMsg)
           if (node.serverKNX === undefined) node.setNodeStatusHue({ fill: 'green', shape: 'dot', text: '', payload: flowMsg.event })
         }
       } catch (error) {
         node.setNodeStatusHue({
-          fill: 'red', shape: 'dot', text: `HUE->KNX error ${error.message}`, payload: '',
-        });
+          fill: 'red', shape: 'dot', text: `HUE->KNX error ${error.message}`, payload: ''
+        })
       }
-    };
+    }
 
     // Timer to stop the dimming sequence
     node.startDimStopper = function (knxMsgPayload) {
-      if (node.timerDimStop !== undefined) clearTimeout(node.timerDimStop);
-      node.isTimerDimStopRunning = true;
+      if (node.timerDimStop !== undefined) clearTimeout(node.timerDimStop)
+      node.isTimerDimStopRunning = true
       node.timerDimStop = setTimeout(() => {
-        node.stopDIM(knxMsgPayload);
-      }, 2000);
-    };
+        node.stopDIM(knxMsgPayload)
+      }, 2000)
+    }
 
     node.stopDIM = function (knxMsgPayload) {
       // KNX Stop DIM
-      if (node.timerDimStop !== undefined) clearTimeout(node.timerDimStop);
-      node.isTimerDimStopRunning = false;
-      knxMsgPayload.payload = { decr_incr: 0, data: 0 }; // Payload for the output msg
+      if (node.timerDimStop !== undefined) clearTimeout(node.timerDimStop)
+      node.isTimerDimStopRunning = false
+      knxMsgPayload.payload = { decr_incr: 0, data: 0 } // Payload for the output msg
       // Send to KNX bus
       if (knxMsgPayload.topic !== '' && knxMsgPayload.topic !== undefined) {
         safeSendToKNX({
-          grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write',
-        }, 'write');
+          grpaddr: knxMsgPayload.topic, payload: knxMsgPayload.payload, dpt: knxMsgPayload.dpt, outputtype: 'write'
+        }, 'write')
         node.setNodeStatusHue({
-          fill: 'grey', shape: 'ring', text: 'HUE->KNX STOP DIM', payload: knxMsgPayload.payload,
-        });
+          fill: 'grey', shape: 'ring', text: 'HUE->KNX STOP DIM', payload: knxMsgPayload.payload
+        })
       }
-    };
+    }
 
     // On each deploy, unsubscribe+resubscribe
     if (node.serverKNX) {
-      node.serverKNX.removeClient(node);
-      node.serverKNX.addClient(node);
+      node.serverKNX.removeClient(node)
+      node.serverKNX.addClient(node)
     }
     if (node.serverHue) {
-      node.serverHue.removeClient(node);
-      node.serverHue.addClient(node);
+      node.serverHue.removeClient(node)
+      node.serverHue.addClient(node)
     }
 
     node.on('input', (msg) => {
 
-    });
+    })
 
     node.on('close', (done) => {
       if (node.serverKNX) {
-        node.serverKNX.removeClient(node);
+        node.serverKNX.removeClient(node)
       }
       if (node.serverHue) {
-        node.serverHue.removeClient(node);
+        node.serverHue.removeClient(node)
       }
-      done();
-    });
+      done()
+    })
   }
-  RED.nodes.registerType('knxUltimateHueButton', knxUltimateHueButton);
-};
+  RED.nodes.registerType('knxUltimateHueButton', knxUltimateHueButton)
+}

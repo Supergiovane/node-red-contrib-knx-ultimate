@@ -1,10 +1,10 @@
 #!/usr/bin/env node
-const fs = require('fs');
-const path = require('path');
+const fs = require('fs')
+const path = require('path')
 
-const REPO = process.cwd();
-const WIKI_DIR = path.resolve(REPO, '..', 'node-red-contrib-knx-ultimate.wiki');
-const NODES_DIR = path.join(REPO, 'nodes');
+const REPO = process.cwd()
+const WIKI_DIR = path.resolve(REPO, '..', 'node-red-contrib-knx-ultimate.wiki')
+const NODES_DIR = path.join(REPO, 'nodes')
 
 const LANGS = [
   { key: 'en', dir: 'en', prefix: '' },
@@ -12,8 +12,8 @@ const LANGS = [
   { key: 'de', dir: 'de', prefix: 'de-' },
   { key: 'fr', dir: 'fr', prefix: 'fr-' },
   { key: 'es', dir: 'es', prefix: 'es-' },
-  { key: 'zh', dir: 'zh-CN', prefix: 'zh-CN-' },
-];
+  { key: 'zh', dir: 'zh-CN', prefix: 'zh-CN-' }
+]
 
 const HELP_TO_WIKI = new Map([
   ['hue-config', 'HUE Bridge configuration'],
@@ -41,75 +41,75 @@ const HELP_TO_WIKI = new Map([
   ['knxUltimateHueZigbeeConnectivity', 'HUE Zigbee connectivity'],
   ['knxUltimateHueHumiditySensor', 'HUE Humidity sensor'],
   ['knxUltimateHueCameraMotion', 'HUE Camera motion'],
-  ['knxUltimateHuePlug', 'HUE Plug'],
-]);
+  ['knxUltimateHuePlug', 'HUE Plug']
+])
 
-function readFileSafe(p) {
+function readFileSafe (p) {
   try {
-    return fs.readFileSync(p, 'utf8');
+    return fs.readFileSync(p, 'utf8')
   } catch (err) {
-    return null;
+    return null
   }
 }
 
-function extractWikiContent(md) {
-  if (!md) return null;
-  const lines = md.split(/\r?\n/);
-  let i = 0;
-  if (lines[i] && lines[i].startsWith('🌐 Language:')) i++;
-  let navStart = -1;
-  let navEnd = -1;
+function extractWikiContent (md) {
+  if (!md) return null
+  const lines = md.split(/\r?\n/)
+  let i = 0
+  if (lines[i] && lines[i].startsWith('🌐 Language:')) i++
+  let navStart = -1
+  let navEnd = -1
   for (let idx = i; idx < lines.length; idx++) {
-    if (lines[idx].trim() === '<!-- NAV START -->') navStart = idx;
-    if (lines[idx].trim() === '<!-- NAV END -->') { navEnd = idx; break; }
+    if (lines[idx].trim() === '<!-- NAV START -->') navStart = idx
+    if (lines[idx].trim() === '<!-- NAV END -->') { navEnd = idx; break }
   }
   if (navStart !== -1 && navEnd !== -1 && navEnd > navStart) {
-    i = navEnd + 1;
+    i = navEnd + 1
   }
-  while (i < lines.length && lines[i].trim() === '') i++;
-  if (i < lines.length && lines[i].trim() === '---') i++;
-  while (i < lines.length && lines[i].trim() === '') i++;
-  const body = lines.slice(i).join('\n').trim();
-  if (!body.length) return null;
-  return normalizeSpacing(body);
+  while (i < lines.length && lines[i].trim() === '') i++
+  if (i < lines.length && lines[i].trim() === '---') i++
+  while (i < lines.length && lines[i].trim() === '') i++
+  const body = lines.slice(i).join('\n').trim()
+  if (!body.length) return null
+  return normalizeSpacing(body)
 }
 
-function writeLocaleHelp(destDir, helpName, content) {
-  if (!fs.existsSync(destDir)) fs.mkdirSync(destDir, { recursive: true });
-  const html = `<script type="text/markdown" data-help-name="${helpName}">\n${content}\n</script>\n`;
-  fs.writeFileSync(path.join(destDir, `${helpName}.html`), html, 'utf8');
+function writeLocaleHelp (destDir, helpName, content) {
+  if (!fs.existsSync(destDir)) fs.mkdirSync(destDir, { recursive: true })
+  const html = `<script type="text/markdown" data-help-name="${helpName}">\n${content}\n</script>\n`
+  fs.writeFileSync(path.join(destDir, `${helpName}.html`), html, 'utf8')
 }
 
-function normalizeSpacing(body) {
-  const lines = body.split(/\n/);
-  const out = [];
+function normalizeSpacing (body) {
+  const lines = body.split(/\n/)
+  const out = []
   for (let idx = 0; idx < lines.length; idx += 1) {
-    const line = lines[idx];
-    const trimmed = line.trim();
+    const line = lines[idx]
+    const trimmed = line.trim()
     if (trimmed.startsWith('|')) {
-      const prevRaw = out.length ? out[out.length - 1] : '';
-      const prevTrim = prevRaw.trim();
-      if (prevTrim !== '' && !prevTrim.startsWith('|')) out.push('');
+      const prevRaw = out.length ? out[out.length - 1] : ''
+      const prevTrim = prevRaw.trim()
+      if (prevTrim !== '' && !prevTrim.startsWith('|')) out.push('')
     }
-    out.push(line);
+    out.push(line)
   }
-  return out.join('\n').replace(/\n{3,}/g, '\n\n');
+  return out.join('\n').replace(/\n{3,}/g, '\n\n')
 }
 
-function updateHelp() {
-  let updated = 0;
+function updateHelp () {
+  let updated = 0
   for (const [helpName, wikiTitle] of HELP_TO_WIKI.entries()) {
     for (const lang of LANGS) {
-      const wikiFile = path.join(WIKI_DIR, `${lang.prefix}${wikiTitle}.md`);
-      const md = readFileSafe(wikiFile);
-      const content = extractWikiContent(md || '');
-      if (!content) continue;
-      const destDir = path.join(NODES_DIR, 'locales', lang.dir);
-      writeLocaleHelp(destDir, helpName, content);
-      updated++;
+      const wikiFile = path.join(WIKI_DIR, `${lang.prefix}${wikiTitle}.md`)
+      const md = readFileSafe(wikiFile)
+      const content = extractWikiContent(md || '')
+      if (!content) continue
+      const destDir = path.join(NODES_DIR, 'locales', lang.dir)
+      writeLocaleHelp(destDir, helpName, content)
+      updated++
     }
   }
-  console.log(`Updated ${updated} localized help files from wiki.`);
+  console.log(`Updated ${updated} localized help files from wiki.`)
 }
 
-updateHelp();
+updateHelp()

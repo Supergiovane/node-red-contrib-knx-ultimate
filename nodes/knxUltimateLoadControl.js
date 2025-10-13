@@ -1,16 +1,15 @@
-
 // 10/09/2024 Setup the color logger
 const loggerClass = require('./utils/sysLogger')
 module.exports = function (RED) {
-  function knxUltimateLoadControl(config) {
+  function knxUltimateLoadControl (config) {
     // const Address = require('knxultimate')
 
     RED.nodes.createNode(this, config)
     const node = this
     node.serverKNX = RED.nodes.getNode(config.server) || undefined
     if (node.serverKNX === undefined) {
-      node.status({ fill: 'red', shape: 'dot', text: '[THE GATEWAY NODE HAS BEEN DISABLED]' });
-      return;
+      node.status({ fill: 'red', shape: 'dot', text: '[THE GATEWAY NODE HAS BEEN DISABLED]' })
+      return
     }
     node.name = config.name || 'KNX Load Control'
     node.topic = config.topic
@@ -39,22 +38,22 @@ module.exports = function (RED) {
     node.wattLimit = config.wattLimit === undefined ? 3000 : Number(config.wattLimit)
 
     const pushStatus = (status) => {
-      if (!status) return;
-      const provider = node.serverKNX;
+      if (!status) return
+      const provider = node.serverKNX
       if (provider && typeof provider.applyStatusUpdate === 'function') {
-        provider.applyStatusUpdate(node, status);
+        provider.applyStatusUpdate(node, status)
       } else {
-        node.status(status);
+        node.status(status)
       }
-    };
+    }
 
     const updateStatus = (status) => {
-      if (!status) return;
-      pushStatus(status);
-    };
+      if (!status) return
+      pushStatus(status)
+    }
     try {
-      const baseLogLevel = (node.serverKNX && node.serverKNX.loglevel) ? node.serverKNX.loglevel : 'error';
-      node.sysLogger = new loggerClass({ loglevel: baseLogLevel, setPrefix: node.type + " <" + (node.name || node.id || '') + ">" });
+      const baseLogLevel = (node.serverKNX && node.serverKNX.loglevel) ? node.serverKNX.loglevel : 'error'
+      node.sysLogger = new loggerClass({ loglevel: baseLogLevel, setPrefix: node.type + ' <' + (node.name || node.id || '') + '>' })
     } catch (error) { console.log(error.stack) }
     node.deviceList = []
     for (let index = 1; index < 6; index++) {
@@ -280,7 +279,7 @@ module.exports = function (RED) {
         return
       }
 
-      node.sheddingStage--;
+      node.sheddingStage--
       let iRowIndex = node.sheddingStage // Array is base 0
       if (iRowIndex < 0) iRowIndex = 0
       if (iRowIndex > node.deviceList.length - 1) return
@@ -364,21 +363,20 @@ module.exports = function (RED) {
         switch (msg.shedding) {
           case 'shed':
             node.wattLimit = 1 // Faking to shed
-            node.setLocalStatus({ fill: 'red', shape: 'dot', text: 'msg.shedding: SHED received.' });
-            break;
+            node.setLocalStatus({ fill: 'red', shape: 'dot', text: 'msg.shedding: SHED received.' })
+            break
           case 'unshed':
             node.wattLimit = 100000 // Faking to unshed
-            node.setLocalStatus({ fill: 'green', shape: 'dot', text: 'msg.shedding: UNSHED received.' });
-            break;
+            node.setLocalStatus({ fill: 'green', shape: 'dot', text: 'msg.shedding: UNSHED received.' })
+            break
           case 'auto':
-            node.wattLimit = config.wattLimit === undefined ? 3000 : Number(config.wattLimit);
-            node.setLocalStatus({ fill: 'green', shape: 'ring', text: 'msg.shedding: AUTO received.' });
-            break;
+            node.wattLimit = config.wattLimit === undefined ? 3000 : Number(config.wattLimit)
+            node.setLocalStatus({ fill: 'green', shape: 'ring', text: 'msg.shedding: AUTO received.' })
+            break
           default:
-            break;
+            break
         }
       }
-
     })
 
     node.on('close', function (done) {

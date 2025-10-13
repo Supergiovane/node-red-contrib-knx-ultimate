@@ -75,7 +75,8 @@
   "author": "Supergiovane",
   "license": "MIT",
   "scripts": {
-    "test": "standard",
+    "test": "node scripts/check-node-load.js",
+    "lint-fix": "standard --fix",
     "translate-wiki": "node scripts/translate-wiki.js",
     "wiki:validate": "node scripts/validate-wiki-languagebar.js",
     "wiki:fix-langbar": "node scripts/validate-wiki-languagebar.js --fix",

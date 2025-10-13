@@ -76,12 +76,12 @@ if (msg.payload === true && (hour >= 23 || hour < 6)) {
 }
 return msg;`
     }
-  ];
+  ]
 
   if (root) {
-    root.KNXReceiveSnippets = KNXReceiveSnippets;
+    root.KNXReceiveSnippets = KNXReceiveSnippets
   }
   if (typeof module !== 'undefined' && module.exports) {
-    module.exports = KNXReceiveSnippets;
+    module.exports = KNXReceiveSnippets
   }
-})(typeof window !== 'undefined' ? window : (typeof globalThis !== 'undefined' ? globalThis : this));
+})(typeof window !== 'undefined' ? window : (typeof globalThis !== 'undefined' ? globalThis : this))

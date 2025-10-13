@@ -1,7 +1,7 @@
 const loggerClass = require('./utils/sysLogger')
 
 module.exports = function (RED) {
-  function knxUltimateSceneController(config) {
+  function knxUltimateSceneController (config) {
     const fs = require('fs')
     const path = require('path')
     const mkdirp = require('mkdirp')
@@ -29,32 +29,30 @@ module.exports = function (RED) {
     node.isSceneController = true // Signal to config node, that this is a node scene controller
     node.userDir = path.join(RED.settings.userDir, 'knxultimatestorage') // 09/03/2020 Storage of ttsultimate (otherwise, at each upgrade to a newer version, the node path is wiped out and recreated, loosing all custom files)
     try {
-      const baseLogLevel = (node.serverKNX && node.serverKNX.loglevel) ? node.serverKNX.loglevel : 'error';
-      node.sysLogger = new loggerClass({ loglevel: baseLogLevel, setPrefix: node.type + " <" + (node.name || node.id || '') + ">" });
+      const baseLogLevel = (node.serverKNX && node.serverKNX.loglevel) ? node.serverKNX.loglevel : 'error'
+      node.sysLogger = new loggerClass({ loglevel: baseLogLevel, setPrefix: node.type + ' <' + (node.name || node.id || '') + '>' })
     } catch (error) { console.log(error.stack) }
     node.timerWait = null
     node.icountMessageInWindow = 0
     node.disabled = false // 21/09/2020 you can now disable the scene controller
 
     const pushStatus = (status) => {
-      if (!status) return;
-      const provider = node.serverKNX;
+      if (!status) return
+      const provider = node.serverKNX
       if (provider && typeof provider.applyStatusUpdate === 'function') {
-        provider.applyStatusUpdate(node, status);
+        provider.applyStatusUpdate(node, status)
       } else {
-        node.status(status);
+        node.status(status)
       }
-    };
+    }
 
     const updateStatus = (status) => {
-      if (!status) return;
-      pushStatus(status);
-    };
-
-
+      if (!status) return
+      pushStatus(status)
+    }
 
     // 03/09/2021
-    async function delay(ms) {
+    async function delay (ms) {
       return new Promise(function (resolve, reject) {
         try {
           node.timerWait = setTimeout(resolve, ms)
@@ -64,7 +62,7 @@ module.exports = function (RED) {
       })
     }
 
-    function setupDirectory(aPath) {
+    function setupDirectory (aPath) {
       try {
         return fs.statSync(aPath).isDirectory()
       } catch (e) {
@@ -126,7 +124,7 @@ module.exports = function (RED) {
     }
 
     // 03/09/2021 Async function to allow await delay(x)
-    async function RecallSceneAsync(_Payload, _ForceEvenControllerIsDisabled) {
+    async function RecallSceneAsync (_Payload, _ForceEvenControllerIsDisabled) {
       let curVal
       var newVal
 

@@ -11,97 +11,97 @@
  - Writes scripts/wiki-menu.json; then run: npm run wiki:inject-header
 */
 
-const fs = require('fs');
-const path = require('path');
-const readline = require('readline');
-const translate = require('translate-google');
+const fs = require('fs')
+const path = require('path')
+const readline = require('readline')
+const translate = require('translate-google')
 
 // Paths
-const REPO = process.cwd();
-const WIKI_DIR = path.resolve(REPO, '..', 'node-red-contrib-knx-ultimate.wiki');
-const NODES_DIR = path.join(REPO, 'nodes');
+const REPO = process.cwd()
+const WIKI_DIR = path.resolve(REPO, '..', 'node-red-contrib-knx-ultimate.wiki')
+const NODES_DIR = path.join(REPO, 'nodes')
 
-const CFG_PATH = path.join(__dirname, 'wiki-menu.json');
+const CFG_PATH = path.join(__dirname, 'wiki-menu.json')
 
-function loadCfg() {
-  return JSON.parse(fs.readFileSync(CFG_PATH, 'utf8'));
+function loadCfg () {
+  return JSON.parse(fs.readFileSync(CFG_PATH, 'utf8'))
 }
-function saveCfg(cfg) {
-  fs.writeFileSync(CFG_PATH, JSON.stringify(cfg, null, 2) + '\n', 'utf8');
-}
-
-function ask(rl, q) {
-  return new Promise(res => rl.question(q, a => res(a.trim())));
+function saveCfg (cfg) {
+  fs.writeFileSync(CFG_PATH, JSON.stringify(cfg, null, 2) + '\n', 'utf8')
 }
 
-async function run() {
-  const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
-  const cfg = loadCfg();
+function ask (rl, q) {
+  return new Promise(res => rl.question(q, a => res(a.trim())))
+}
 
-  console.log('Add page to wiki menu');
-  const page = await ask(rl, 'Page title (EN, exact wiki title, e.g., "Quick-Start"): ');
-  if (!page) { rl.close(); return; }
+async function run () {
+  const rl = readline.createInterface({ input: process.stdin, output: process.stdout })
+  const cfg = loadCfg()
 
-  console.log('\nChoose section:');
-  cfg.sections.forEach((s, i) => console.log(`  ${i+1}) ${s.labels.en} [key=${s.key}]`));
-  console.log(`  n) New section`);
-  const sel = await ask(rl, 'Your choice: ');
+  console.log('Add page to wiki menu')
+  const page = await ask(rl, 'Page title (EN, exact wiki title, e.g., "Quick-Start"): ')
+  if (!page) { rl.close(); return }
 
-  let section;
+  console.log('\nChoose section:')
+  cfg.sections.forEach((s, i) => console.log(`  ${i + 1}) ${s.labels.en} [key=${s.key}]`))
+  console.log('  n) New section')
+  const sel = await ask(rl, 'Your choice: ')
+
+  let section
   if (sel.toLowerCase() === 'n') {
-    const key = await ask(rl, 'New section key (e.g., gettingStarted): ');
-    const en = await ask(rl, 'New section label EN: ');
-    const labels = { en };
+    const key = await ask(rl, 'New section key (e.g., gettingStarted): ')
+    const en = await ask(rl, 'New section label EN: ')
+    const labels = { en }
     for (const lang of NON_EN_LANGS) {
-      const response = await ask(rl, `New section label ${lang.key.toUpperCase()} (leave empty to auto-translate): `);
-      labels[lang.key] = response || await autoTranslate(en, lang.translate);
+      const response = await ask(rl, `New section label ${lang.key.toUpperCase()} (leave empty to auto-translate): `)
+      labels[lang.key] = response || await autoTranslate(en, lang.translate)
     }
-    section = { key, labels, items: [] };
-    cfg.sections.push(section);
+    section = { key, labels, items: [] }
+    cfg.sections.push(section)
   } else {
-    const idx = parseInt(sel, 10) - 1;
+    const idx = parseInt(sel, 10) - 1
     if (isNaN(idx) || idx < 0 || idx >= cfg.sections.length) {
-      console.error('Invalid selection.');
-      rl.close();
-      return;
+      console.error('Invalid selection.')
+      rl.close()
+      return
     }
-    section = cfg.sections[idx];
+    section = cfg.sections[idx]
   }
 
-  const custom = (await ask(rl, 'Custom labels per language? (y/N): ')).toLowerCase() === 'y';
-  const labels = {};
+  const custom = (await ask(rl, 'Custom labels per language? (y/N): ')).toLowerCase() === 'y'
+  const labels = {}
   for (const lang of LANGS) {
-    labels[lang.key] = page;
+    labels[lang.key] = page
   }
   if (custom) {
-    const enLabel = await ask(rl, 'Label EN: ');
-    labels.en = enLabel || page;
+    const enLabel = await ask(rl, 'Label EN: ')
+    labels.en = enLabel || page
     for (const lang of NON_EN_LANGS) {
-      const value = await ask(rl, `Label ${lang.key.toUpperCase()} (leave empty to auto-translate): `);
-      labels[lang.key] = value || await autoTranslate(labels.en, lang.translate);
+      const value = await ask(rl, `Label ${lang.key.toUpperCase()} (leave empty to auto-translate): `)
+      labels[lang.key] = value || await autoTranslate(labels.en, lang.translate)
     }
   }
 
   // Avoid duplicates
   if (section.items.some(i => i.type === 'page' && i.page === page)) {
-    console.log('Item already exists in that section.');
-    rl.close();
-    return;
+    console.log('Item already exists in that section.')
+    rl.close()
+    return
   }
 
-  section.items.push({ type: 'page', labels, page });
-  saveCfg(cfg);
-  rl.close();
-  console.log('Saved. Now run: npm run wiki:inject-header');
+  section.items.push({ type: 'page', labels, page })
+  saveCfg(cfg)
+  rl.close()
+  console.log('Saved. Now run: npm run wiki:inject-header')
   try {
     // Also generate localized node help files, if this wiki page maps to a node help
-    generateLocalizedHelpForPage(page);
+    generateLocalizedHelpForPage(page)
   } catch (e) {
-    console.warn('Help generation skipped:', e.message);
+    console.warn('Help generation skipped:', e.message)
   }
 }
 
-run();
+run()
 
 // ---- Helpers to generate localized help files from wiki pages ----
 
@@ -131,17 +131,17 @@ const HELP_TO_WIKI = new Map([
   ['knxUltimateHueTemperatureSensor', 'HUE Temperature sensor'],
   ['knxUltimateHueZigbeeConnectivity', 'HUE Zigbee connectivity'],
   ['knxUltimateHueContactSensor', 'HUE Contact sensor'],
-  ['knxUltimateGarageDoorBarrierOpener', null], // no wiki page
-]);
+  ['knxUltimateGarageDoorBarrierOpener', null] // no wiki page
+])
 
 // Build inverse map: wiki title -> help-name
 const WIKI_TO_HELP = (() => {
-  const m = new Map();
+  const m = new Map()
   for (const [help, wiki] of HELP_TO_WIKI.entries()) {
-    if (wiki) m.set(wiki, help);
+    if (wiki) m.set(wiki, help)
   }
-  return m;
-})();
+  return m
+})()
 
 const LANGS = [
   { key: 'en', dir: 'en', prefix: '', translate: 'en' },
@@ -150,50 +150,50 @@ const LANGS = [
   { key: 'fr', dir: 'fr', prefix: 'fr-', translate: 'fr' },
   { key: 'es', dir: 'es', prefix: 'es-', translate: 'es' },
   { key: 'zh', dir: 'zh-CN', prefix: 'zh-CN-', translate: 'zh-CN' }
-];
-const NON_EN_LANGS = LANGS.filter(lang => lang.key !== 'en');
+]
+const NON_EN_LANGS = LANGS.filter(lang => lang.key !== 'en')
 
-async function autoTranslate(baseText, langCode) {
-  if (!baseText) return '';
+async function autoTranslate (baseText, langCode) {
+  if (!baseText) return ''
   try {
-    return await translate(baseText, { to: langCode });
+    return await translate(baseText, { to: langCode })
   } catch (error) {
-    return baseText;
+    return baseText
   }
 }
 
-function extractWikiContent(md) {
-  if (!md) return null;
-  const lines = md.split(/\r?\n/);
-  let i = 0;
-  if (lines[i] && lines[i].startsWith('🌐 Language:')) i++;
-  while (i < lines.length && lines[i].trim() !== '---') i++;
-  if (i < lines.length && lines[i].trim() === '---') i++;
-  return lines.slice(i).join('\n').trim();
+function extractWikiContent (md) {
+  if (!md) return null
+  const lines = md.split(/\r?\n/)
+  let i = 0
+  if (lines[i] && lines[i].startsWith('🌐 Language:')) i++
+  while (i < lines.length && lines[i].trim() !== '---') i++
+  if (i < lines.length && lines[i].trim() === '---') i++
+  return lines.slice(i).join('\n').trim()
 }
 
-function readFileSafe(p) { try { return fs.readFileSync(p, 'utf8'); } catch { return null; } }
+function readFileSafe (p) { try { return fs.readFileSync(p, 'utf8') } catch { return null } }
 
-function writeLocaleHelp(destDir, helpName, content) {
-  if (!content) return;
-  if (!fs.existsSync(destDir)) fs.mkdirSync(destDir, { recursive: true });
-  const out = `<script type="text/markdown" data-help-name="${helpName}">\n${content}\n</script>\n`;
-  fs.writeFileSync(path.join(destDir, `${helpName}.html`), out, 'utf8');
+function writeLocaleHelp (destDir, helpName, content) {
+  if (!content) return
+  if (!fs.existsSync(destDir)) fs.mkdirSync(destDir, { recursive: true })
+  const out = `<script type="text/markdown" data-help-name="${helpName}">\n${content}\n</script>\n`
+  fs.writeFileSync(path.join(destDir, `${helpName}.html`), out, 'utf8')
 }
 
-function generateLocalizedHelpForPage(wikiTitle) {
-  const helpName = WIKI_TO_HELP.get(wikiTitle);
+function generateLocalizedHelpForPage (wikiTitle) {
+  const helpName = WIKI_TO_HELP.get(wikiTitle)
   if (!helpName) {
-    console.log(`No node help mapping for wiki page: ${wikiTitle}`);
-    return;
+    console.log(`No node help mapping for wiki page: ${wikiTitle}`)
+    return
   }
   for (const lang of LANGS) {
-    const wikiFile = path.join(WIKI_DIR, `${lang.prefix}${wikiTitle}.md`);
-    const md = readFileSafe(wikiFile);
-    const content = extractWikiContent(md || '');
-    if (!content) continue;
-    const destDir = path.join(NODES_DIR, 'locales', lang.dir);
-    writeLocaleHelp(destDir, helpName, content);
+    const wikiFile = path.join(WIKI_DIR, `${lang.prefix}${wikiTitle}.md`)
+    const md = readFileSafe(wikiFile)
+    const content = extractWikiContent(md || '')
+    if (!content) continue
+    const destDir = path.join(NODES_DIR, 'locales', lang.dir)
+    writeLocaleHelp(destDir, helpName, content)
   }
-  console.log(`Localized help updated for node '${helpName}' from wiki page '${wikiTitle}'.`);
+  console.log(`Localized help updated for node '${helpName}' from wiki page '${wikiTitle}'.`)
 }

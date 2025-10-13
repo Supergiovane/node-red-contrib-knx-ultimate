@@ -2,7 +2,7 @@
   * @param {object} [_oNode]
   * @param {any} [jsValue]
   */
-exports.Manipulate = function roundPayload(_oNode, jsValue) {
+exports.Manipulate = function roundPayload (_oNode, jsValue) {
   // 19/01/2023 FORMATTING THE OUTPUT PAYLOAD BASED ON SINGLE NODE SETUP
   //* ********************************************************
   // Formatting the msg output value
@@ -40,49 +40,47 @@ exports.Manipulate = function roundPayload(_oNode, jsValue) {
 }
 
 // KNXULtimate nodes
-module.exports.KNXULtimateChangeConfigByInputMSG = function KNXULtimateChangeConfigByInputMSG(msg, node, config) {
-
+module.exports.KNXULtimateChangeConfigByInputMSG = function KNXULtimateChangeConfigByInputMSG (msg, node, config) {
   if (!msg.setConfig.hasOwnProperty('setGroupAddress') || !msg.setConfig.hasOwnProperty('setDPT')) {
     node.setNodeStatus({
-      fill: 'red', shape: 'ring', text: `setGroupAddress and setDPT are mandatory`, payload: '', GA: '', dpt: '', devicename: '',
-    });
-    return;
+      fill: 'red', shape: 'ring', text: 'setGroupAddress and setDPT are mandatory', payload: '', GA: '', dpt: '', devicename: ''
+    })
+    return
   }
 
   // Set DPT
-  node.dpt = msg.setConfig.setDPT;
-  config.dpt = msg.setConfig.setDPT;
+  node.dpt = msg.setConfig.setDPT
+  config.dpt = msg.setConfig.setDPT
 
   // SET GORUP ADDRESS
-  node.topic = msg.setConfig.setGroupAddress;
+  node.topic = msg.setConfig.setGroupAddress
   config.topic = msg.setConfig.setGroupAddress
-  node.outputtopic = (config.outputtopic === undefined || config.outputtopic === '') ? msg.setConfig.setGroupAddress : config.outputtopic; // 07/02/2020 Importante, per retrocompatibilità
-  config.outputtopic = node.outputtopic;
+  node.outputtopic = (config.outputtopic === undefined || config.outputtopic === '') ? msg.setConfig.setGroupAddress : config.outputtopic // 07/02/2020 Importante, per retrocompatibilità
+  config.outputtopic = node.outputtopic
 
   // Read from the ETS file, the missing props
   if (node.serverKNX.csv !== undefined && node.serverKNX.csv !== null) {
     // Read it from ETS File
-    const found = node.serverKNX.csv.find(item => item.ga === msg.setConfig.setGroupAddress);
+    const found = node.serverKNX.csv.find(item => item.ga === msg.setConfig.setGroupAddress)
     if (found !== undefined) {
       if (msg.setConfig.setDPT === 'auto') {
-        node.dpt = found.dpt; // SET THE DPT
-        config.dpt = found.dpt;
+        node.dpt = found.dpt // SET THE DPT
+        config.dpt = found.dpt
       }
-      node.name = found.devicename;
-      config.name = found.devicename;
+      node.name = found.devicename
+      config.name = found.devicename
     }
   }
   // If DPT is still "auto", something has going wrong
   if (node.dpt === 'auto') {
     // Unable to retrieve the datapoint
     node.setNodeStatus({
-      fill: 'red', shape: 'ring', text: `Unable to retrieve the datapoint from the ETS file`, payload: '', GA: '', dpt: '', devicename: '',
-    });
-    if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(`knxUltimate: setConfig: Node.id: ${node.id} error: Unable to retrieve the datapoint from the ETS file`);
+      fill: 'red', shape: 'ring', text: 'Unable to retrieve the datapoint from the ETS file', payload: '', GA: '', dpt: '', devicename: ''
+    })
+    if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(`knxUltimate: setConfig: Node.id: ${node.id} error: Unable to retrieve the datapoint from the ETS file`)
   } else {
     node.setNodeStatus({
-      fill: 'blue', shape: 'ring', text: `Config changed. Current GA: ${node.topic} DPT: ${node.dpt}`, payload: '', GA: '', dpt: '', devicename: node.name,
-    });
+      fill: 'blue', shape: 'ring', text: `Config changed. Current GA: ${node.topic} DPT: ${node.dpt}`, payload: '', GA: '', dpt: '', devicename: node.name
+    })
   }
-
-};
+}
