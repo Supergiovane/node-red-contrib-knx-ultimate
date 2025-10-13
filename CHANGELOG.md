@@ -7,7 +7,7 @@
 # CHANGELOG
 
 
-**Version 4.0.18** - October 2025<br/>
+**Version 4.0.19** - October 2025<br/>
 - Hue Light node: the `Locate` button now runs as a toggle — it starts a bridge identify loop that replays the Hue `identify` command every second, switches the icon to “stop”, and halts immediately when pressed again or automatically after 10 minutes.<br/>
 - Hue config node: added identify-session management (start/stop/timeout) so grouped lights fan out the locate pulse to all members without spamming the bridge.<br/>
 - Admin API `/KNXUltimateLocateHueDevice`: upgraded to orchestrate the new toggle behaviour, queueing devices per session and surfacing precise success/stop responses for the editor.<br/>
