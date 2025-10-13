@@ -649,6 +649,145 @@ module.exports = (RED) => {
             }
         });
 
+        RED.httpAdmin.post("/KNXUltimateLocateHueDevice", async (req, res) => {
+            const respondError = (status, message) => {
+                res.status(status).json({ error: message });
+            };
+            try {
+                const rawServerId = req.body?.serverId;
+                const serverId = typeof rawServerId === 'string' ? rawServerId.trim() : (rawServerId ? String(rawServerId).trim() : '');
+                if (!serverId) {
+                    respondError(400, 'Hue bridge not specified');
+                    return;
+                }
+                const hueServer = RED.nodes.getNode(serverId);
+                if (!hueServer) {
+                    respondError(404, 'Hue bridge not found');
+                    return;
+                }
+                if (!hueServer.hueManager || !hueServer.hueManager.hueApiV2 || typeof hueServer.hueManager.hueApiV2.put !== 'function') {
+                    respondError(503, 'Hue bridge not ready');
+                    return;
+                }
+                if (hueServer.linkStatus !== 'connected') {
+                    respondError(503, 'Hue bridge is not connected');
+                    return;
+                }
+                const rawDeviceId = req.body?.deviceId;
+                const deviceId = typeof rawDeviceId === 'string' ? rawDeviceId.trim() : (rawDeviceId ? String(rawDeviceId).trim() : '');
+                if (!deviceId) {
+                    respondError(400, 'Hue device not specified');
+                    return;
+                }
+                const rawDeviceType = req.body?.deviceType;
+                const deviceType = typeof rawDeviceType === 'string' ? rawDeviceType.trim().toLowerCase() : (rawDeviceType ? String(rawDeviceType).trim().toLowerCase() : '');
+                let resourceSnapshot = null;
+                if (typeof hueServer.getHueResourceSnapshot === 'function') {
+                    try {
+                        resourceSnapshot = await hueServer.getHueResourceSnapshot(deviceId, { forceRefresh: false });
+                    } catch (error) {
+                        resourceSnapshot = null;
+                    }
+                }
+                const resolvedType = (resourceSnapshot?.type || deviceType || 'light').toLowerCase();
+                const targets = [];
+                const addTarget = (id, type) => {
+                    if (!id || !type) return;
+                    const trimmedId = typeof id === 'string' ? id.trim() : String(id).trim();
+                    const trimmedType = typeof type === 'string' ? type.trim().toLowerCase() : String(type).trim().toLowerCase();
+                    if (trimmedId === '' || trimmedType === '') return;
+                    targets.push({ id: trimmedId, type: trimmedType });
+                };
+
+                if (resolvedType === 'grouped_light') {
+                    let lights = [];
+                    if (typeof hueServer.getAllLightsBelongingToTheGroup === 'function') {
+                        try {
+                            lights = await hueServer.getAllLightsBelongingToTheGroup(deviceId);
+                        } catch (error) {
+                            lights = [];
+                        }
+                    }
+                    if (Array.isArray(lights) && lights.length > 0) {
+                        lights.forEach((lightResource) => {
+                            const ownerId = lightResource?.owner?.rid;
+                            if (ownerId) {
+                                addTarget(ownerId, 'device');
+                            } else if (lightResource?.id) {
+                                addTarget(lightResource.id, 'light');
+                            }
+                        });
+                    }
+                    if (targets.length === 0 && typeof hueServer.getFirstLightInGroup === 'function') {
+                        const firstLight = hueServer.getFirstLightInGroup(deviceId);
+                        const ownerId = firstLight?.owner?.rid;
+                        if (ownerId) {
+                            addTarget(ownerId, 'device');
+                        } else if (firstLight?.id) {
+                            addTarget(firstLight.id, 'light');
+                        }
+                    }
+                } else if (resolvedType === 'device') {
+                    addTarget(deviceId, 'device');
+                } else {
+                    const ownerId = resourceSnapshot?.owner?.rid;
+                    if (ownerId) {
+                        addTarget(ownerId, 'device');
+                    } else {
+                        addTarget(deviceId, resolvedType || 'light');
+                    }
+                }
+
+                const uniqueTargets = [];
+                const seenTargets = new Set();
+                targets.forEach((target) => {
+                    const key = `${target.type}:${target.id}`;
+                    if (!seenTargets.has(key)) {
+                        seenTargets.add(key);
+                        uniqueTargets.push(target);
+                    }
+                });
+
+                if (uniqueTargets.length === 0) {
+                    respondError(404, 'Hue device resource unavailable');
+                    return;
+                }
+
+                const sessionKey = `identify:${deviceId}`;
+                const maxDurationMs = 600000;
+                const intervalMs = 1000;
+                if (typeof hueServer.isHueIdentifySessionActive === 'function' && hueServer.isHueIdentifySessionActive(sessionKey)) {
+                    if (typeof hueServer.stopHueIdentifySession === 'function') {
+                        hueServer.stopHueIdentifySession(sessionKey, 'manual');
+                    }
+                    res.json({ status: 'stopped' });
+                    return;
+                }
+                if (typeof hueServer.startHueIdentifySession === 'function') {
+                    const started = await hueServer.startHueIdentifySession({
+                        sessionKey,
+                        targets: uniqueTargets,
+                        intervalMs,
+                        maxDurationMs,
+                    });
+                    if (!started) {
+                        respondError(500, 'Unable to start locate session');
+                        return;
+                    }
+                    res.json({ status: 'started', expiresInMs: maxDurationMs });
+                    return;
+                }
+                const identifyPayload = { identify: { action: "identify" } };
+                for (const target of uniqueTargets) {
+                    await hueServer.hueManager.hueApiV2.put(`/resource/${target.type}/${target.id}`, identifyPayload);
+                }
+                res.json({ status: 'started', expiresInMs: 0 });
+            } catch (error) {
+                try { RED.log.error(`KNXUltimate LocateHueDevice error: ${error.message}`); } catch (err) { }
+                res.status(500).json({ error: error.message });
+            }
+        });
+
         RED.httpAdmin.get("/KNXUltimateGetResourcesHUE", async (req, res) => {
             try {
                 // °°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°

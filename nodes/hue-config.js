@@ -29,6 +29,7 @@ module.exports = (RED) => {
     node.hueAllResources = undefined;
     node.timerHUEConfigCheckState = null; // Timer that check the connection to the hue bridge every xx seconds
     node.pendingHueResourceReload = null;
+    node.activeHueIdentifySessions = new Map();
     try {
       node.sysLogger = loggerSetup({ loglevel: node.loglevel, setPrefix: "hue-config.js" });
     } catch (error) { console.log(error.stack) }
@@ -43,6 +44,101 @@ module.exports = (RED) => {
 
 
     // Connect to Bridge and get the resources
+    const HUE_IDENTIFY_DEFAULT_INTERVAL_MS = 2000;
+    const HUE_IDENTIFY_MAX_DURATION_MS = 600000;
+
+    node.isHueIdentifySessionActive = (sessionKey) => {
+      if (!sessionKey) return false;
+      return node.activeHueIdentifySessions.has(sessionKey);
+    };
+
+    node.stopHueIdentifySession = (sessionKey, reason = "manual") => {
+      if (!sessionKey) return false;
+      const session = node.activeHueIdentifySessions.get(sessionKey);
+      if (!session) return false;
+      try {
+        if (session.intervalHandle) {
+          clearInterval(session.intervalHandle);
+        }
+        if (session.timeoutHandle) {
+          clearTimeout(session.timeoutHandle);
+        }
+        node.activeHueIdentifySessions.delete(sessionKey);
+        session.intervalHandle = null;
+        session.timeoutHandle = null;
+        if (typeof session.onStop === "function") {
+          try { session.onStop(reason); } catch (error) { node.sysLogger?.warn(`Hue identify session stop callback error: ${error.message}`); }
+        }
+        return true;
+      } catch (error) {
+        node.sysLogger?.warn(`Hue identify session stop error: ${error.message}`);
+        return false;
+      }
+    };
+
+    node.stopAllHueIdentifySessions = (reason = "manual") => {
+      const keys = Array.from(node.activeHueIdentifySessions.keys());
+      keys.forEach((key) => {
+        node.stopHueIdentifySession(key, reason);
+      });
+    };
+
+    node.startHueIdentifySession = async ({
+      sessionKey,
+      targets,
+      intervalMs = HUE_IDENTIFY_DEFAULT_INTERVAL_MS,
+      maxDurationMs = HUE_IDENTIFY_MAX_DURATION_MS,
+    }) => {
+      if (!sessionKey) return false;
+      if (!Array.isArray(targets) || targets.length === 0) return false;
+      node.stopHueIdentifySession(sessionKey, "restart");
+      const resolvedInterval = HUE_IDENTIFY_DEFAULT_INTERVAL_MS;
+      const resolvedDuration = HUE_IDENTIFY_MAX_DURATION_MS;
+      const session = {
+        sessionKey,
+        targets,
+        intervalMs: resolvedInterval,
+        maxDurationMs: resolvedDuration,
+        startedAt: Date.now(),
+        inFlight: false,
+        intervalHandle: null,
+        timeoutHandle: null,
+        onStop: (reason) => {
+          node.sysLogger?.debug(`Hue identify session ${sessionKey} stopped (${reason})`);
+        },
+      };
+
+      session.runIdentify = async (label = "interval") => {
+        if (session.inFlight) return;
+        if (!node.hueManager || !node.hueManager.hueApiV2 || typeof node.hueManager.hueApiV2.put !== "function") return;
+        if (node.linkStatus !== "connected") return;
+        session.inFlight = true;
+        try {
+          for (const target of session.targets) {
+            if (!target || !target.id || !target.type) continue;
+            try {
+              await node.hueManager.hueApiV2.put(`/resource/${target.type}/${target.id}`, { identify: { action: "identify" } });
+            } catch (error) {
+              node.sysLogger?.warn(`Hue identify ${target.type}:${target.id} failed (${label}): ${error.message}`);
+            }
+          }
+        } finally {
+          session.inFlight = false;
+        }
+      };
+
+      session.intervalHandle = setInterval(() => {
+        session.runIdentify("interval");
+      }, resolvedInterval);
+      session.timeoutHandle = setTimeout(() => {
+        node.stopHueIdentifySession(sessionKey, "timeout");
+      }, resolvedDuration);
+
+      node.activeHueIdentifySessions.set(sessionKey, session);
+      await session.runIdentify("initial");
+      return true;
+    };
+
     node.initHUEConnection = async () => {
       await node.closeConnection();
       try {
@@ -637,6 +733,7 @@ module.exports = (RED) => {
     };
 
     node.closeConnection = async () => {
+      node.stopAllHueIdentifySessions("connection-close");
       node.hueManager?.removeAllListeners();
       node.linkStatus === "disconnected";
     }
@@ -646,6 +743,7 @@ module.exports = (RED) => {
         node.sysLogger = null;
         node.nodeClients = [];
         node.closeConnection();
+        node.stopAllHueIdentifySessions("node-close");
         (async () => {
           try {
             await node.hueManager.close();

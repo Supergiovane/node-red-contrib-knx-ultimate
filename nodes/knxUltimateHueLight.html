@@ -226,12 +226,45 @@
           const $hueDeviceInput = $("#node-input-hueDevice");
           const $deviceNameInput = $("#node-input-name");
           const $refreshDevicesButton = $(".hue-refresh-devices");
+          const $locateDeviceButton = $(".hue-locate-device");
           const $hueDevicesLoading = $(".hue-devices-loading");
           let cachedHueDevices = Array.isArray(node._cachedHueLightDevices) ? node._cachedHueLightDevices : [];
           node._cachedHueLightDevices = cachedHueDevices;
           const defaultHueDevicePlaceholder = $deviceNameInput.attr('placeholder') || '';
           let showingNoHueDevicesPlaceholder = false;
           const HUE_EMPTY_SERVER_VALUES = new Set(['', 'none', '_add_', '__none__', '__null__', 'null', 'undefined']);
+          let locateSessionActive = false;
+          let locateAutoResetTimer = null;
+
+          const clearLocateAutoReset = () => {
+            if (locateAutoResetTimer !== null) {
+              clearTimeout(locateAutoResetTimer);
+              locateAutoResetTimer = null;
+            }
+          };
+
+          const scheduleLocateAutoReset = (durationMs) => {
+            clearLocateAutoReset();
+            const ms = Number(durationMs);
+            if (!Number.isFinite(ms) || ms <= 0) return;
+            locateAutoResetTimer = setTimeout(() => {
+              updateLocateButtonState(false);
+            }, ms);
+          };
+
+          const updateLocateButtonState = (isActive) => {
+            locateSessionActive = !!isActive;
+            if (!locateSessionActive) clearLocateAutoReset();
+            if (!$locateDeviceButton.length) return;
+            const $icon = $locateDeviceButton.find('i').first();
+            if ($icon.length) {
+              $icon.removeClass('fa-stop fa-play').addClass(locateSessionActive ? 'fa fa-stop' : 'fa fa-play');
+            }
+            const title = locateSessionActive
+              ? (node._('knxUltimateHueLight.locate_stop_title') || 'Stop Hue locate')
+              : (node._('knxUltimateHueLight.locate_start_title') || 'Locate selected Hue device');
+            $locateDeviceButton.attr('title', title);
+          };
 
           const resolveKnxServerValue = () => {
             const domValue = $knxServerInput.val();
@@ -318,6 +351,7 @@
             if (!hueServer) {
               applyHueDevicesPlaceholder(true);
               if (typeof respond === 'function') respond([]);
+              updateLocateButtonState(false);
               return;
             }
             if (!forceRefresh && Array.isArray(cachedHueDevices) && cachedHueDevices.length > 0) {
@@ -358,6 +392,7 @@
                 $hueDevicesLoading.hide();
               }
               if (typeof respond === 'function') respond([]);
+              updateLocateButtonState(false);
             });
           };
 
@@ -899,6 +934,7 @@
                 $hueDeviceInput.val('');
                 node.hueDevice = '';
                 updateTabsVisibility();
+                updateLocateButtonState(false);
               }
             });
           }
@@ -915,12 +951,73 @@
             });
           }
 
+          if ($locateDeviceButton.length) {
+            $locateDeviceButton.off('.knxUltimateHueLight').on('click.knxUltimateHueLight', () => {
+              const hueServerId = resolveHueServerValue();
+              if (!hueServerId) {
+                RED.notify(node._('knxUltimateHueLight.locate_no_bridge') || 'Select a Hue bridge first', 'warning');
+                return;
+              }
+              const rawDevice = getHueDeviceValue();
+              if (!rawDevice) {
+                RED.notify(node._('knxUltimateHueLight.locate_no_device') || 'Select a Hue device first', 'warning');
+                return;
+              }
+              const parts = rawDevice.split('#');
+              const deviceId = parts[0];
+              const deviceType = parts[1] || 'light';
+              $locateDeviceButton.prop('disabled', true);
+              $.ajax({
+                type: 'POST',
+                url: 'KNXUltimateLocateHueDevice',
+                data: {
+                  serverId: hueServerId,
+                  deviceId,
+                  deviceType,
+                },
+                success(response) {
+                  const statusValue = (response && typeof response.status === 'string') ? response.status.toLowerCase() : 'started';
+                  let messageKey;
+                  if (statusValue === 'stopped') {
+                    messageKey = 'knxUltimateHueLight.locate_stopped';
+                    updateLocateButtonState(false);
+                    clearLocateAutoReset();
+                  } else if (statusValue === 'started') {
+                    messageKey = 'knxUltimateHueLight.locate_started';
+                    updateLocateButtonState(true);
+                    scheduleLocateAutoReset(response && typeof response.expiresInMs === 'number' ? response.expiresInMs : 600000);
+                  } else {
+                    messageKey = 'knxUltimateHueLight.locate_success';
+                    updateLocateButtonState(false);
+                    clearLocateAutoReset();
+                  }
+                  const message = node._(messageKey) || (statusValue === 'stopped' ? 'Locate stopped' : 'Locate command sent');
+                  RED.notify(message, 'success');
+                },
+                error(xhr) {
+                  let message;
+                  if (xhr && xhr.responseJSON && xhr.responseJSON.error) {
+                    message = xhr.responseJSON.error;
+                  }
+                  RED.notify(message || (node._('knxUltimateHueLight.locate_error') || 'Unable to locate Hue device'), 'error');
+                  updateLocateButtonState(false);
+                  clearLocateAutoReset();
+                },
+                complete() {
+                  $locateDeviceButton.prop('disabled', false);
+                }
+              });
+            });
+            updateLocateButtonState(false);
+          }
+
           if ($hueServerInput.length) {
             $hueServerInput.off('.knxUltimateHueLightDevices').on('change.knxUltimateHueLightDevices', () => {
               cachedHueDevices = [];
               node._cachedHueLightDevices = cachedHueDevices;
               showingNoHueDevicesPlaceholder = false;
               applyHueDevicesPlaceholder(true);
+              updateLocateButtonState(false);
               if ($hueDevicesLoading.length) {
                 $hueDevicesLoading.hide();
               }
@@ -1539,8 +1636,12 @@
       <input type="text" id="node-input-name" placeholder="Enter your hue device name"
         style="flex:1 1 240px; min-width:240px; max-width:240px;" />
       <button type="button" class="red-ui-button hue-refresh-devices"
-        style="margin-left:6px; color:#1b7d33; border-color:#1b7d33;">
+        style="margin-left:6px; color:#1b7d33; border-color:#1b7d33;" title="Refresh Hue devices">
         <i class="fa fa-sync"></i>
+      </button>
+      <button type="button" class="red-ui-button hue-locate-device"
+        style="margin-left:6px; color:#ff9800; border-color:#ff9800;" title="Locate selected Hue device">
+        <i class="fa fa-play"></i>
       </button>
       <span class="hue-devices-loading" style="margin-left:6px; display:none; color:#1b7d33;">
         <i class="fa fa-circle-notch fa-spin"></i>
