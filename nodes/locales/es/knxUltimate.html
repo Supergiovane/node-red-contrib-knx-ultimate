@@ -12,9 +12,9 @@
 | Propiedad | Descripción |
 |-|-|
 | Puerta de entrada | Seleccione la puerta de enlace KNX para ser utilizada |
-| Lista desplegable Tipo de GA | El tipo de dirección de grupo. **3 niveles ** es el valor predeterminado, donde puede escribir la dirección de grupo de nivel _3 o la dirección _group name_ (si ha cargado el archivo ETS), o**global ** , para leer el GA al inicio desde una variable global, o**flujo ** que hace lo mismo que el _global_, pero a nivel de flujo. Seleccione**$ Env Variable ** Para leer la dirección de grupo de una variable de entorno. Seleccione**Modo universal (escuche todas las direcciones de grupo)** para reaccionar a todas las direcciones de grupo.
+| Lista desplegable Tipo de GA | El tipo de dirección de grupo. **3 niveles ** es el valor predeterminado, donde puede escribir la dirección de grupo de nivel _3 o la dirección _group name_ (si ha cargado el archivo ETS), o**global ** , para leer el GA al inicio desde una variable global, o**flujo ** que hace lo mismo que el _global_, pero a nivel de flujo. Seleccione**$ Env Variable ** Para leer la dirección de grupo de una variable de entorno. Seleccione**Modo universal (escuche todas las direcciones de grupo)** para reaccionar a todas las direcciones de grupo. |
 | ADR DE GRUPO. | La dirección de grupo KNX que desea controlar. Si ha importado el archivo de direcciones del grupo ETS, puede comenzar a escribir el nombre de su dispositivo. Puede dejarlo vacío si lo desea establecerlo con _MSG.SetConfig_ Mensaje de entrada. |
-| DataPoint | El punto de datos que pertenece a su nodo.
+| DataPoint | El punto de datos que pertenece a su nodo. |
 
 <br/>
 <br/>
@@ -45,7 +45,7 @@ El botón solo aparece cuando la opción está habilitada. En modo universal la 
 | Passthrough | Si se establece, puede pasar el MGS de entrada al MSG de salida. |
 || **Desde el pin de entrada del nodo hasta el bus KNX** |
 | Tipo de telegrama | _Write_ para enviar el telegrama de escritura (por lo general, desea eso), de lo contrario, puede elegir el tipo de telegrama para reaccionar. |
-| Filtro RBE | _Report por Change_ Filter. Si se establece, solo la entrada MSG (del flujo) que tiene diferentes valores cada vez, se enviará al bus KNX. Si tiene la intención de enviar cada vez el mismo valor, apáguelo. Si está habilitado, la indicación "RBE" se agregará al nombre del nodo.
+| Filtro RBE | _Report por Change_ Filter. Si se establece, solo la entrada MSG (del flujo) que tiene diferentes valores cada vez, se enviará al bus KNX. Si tiene la intención de enviar cada vez el mismo valor, apáguelo. Si está habilitado, la indicación "RBE" se agregará al nombre del nodo. |
 || **Desde el bus KNX hasta el pin de ojera del nodo** |
 | Leer el estado al inicio | Lea el estado de la dirección de grupo, cada vez que el nodo-rojo comienza y en cada reconexión a la puerta de enlace KNX. El nodo almacena todos los valores de la dirección de grupo en un archivo, por lo que puede elegir Wether para leer desde el archivo o del bus KNX. |
 | Filtro RBE | _Report por Change_ Filter. Si se establece, solo la salida MSG (al bus KNX) que tiene valores diferentes cada vez, se enviará al flujo de la salida de MSG. Si tiene la intención de enviar cada vez el mismo valor, déjelo apagado. Si está habilitado, la indicación "RBE" se agregará al nombre del nodo. |

@@ -7,11 +7,11 @@
 
 |Property|Description|
 |--|--|
-| Trigger GA | Binary input that starts the timer when it receives `1`. If “0 command cancels the cycle” is enabled, a `0` stops the light immediately.
-| Output GA | Actuator driven while the cycle is active. Select the DPT that matches the load (binary, dimming, analog, …).
-| Status GA | Mirrors the active/pre-warning state. With pre-warning in *Toggle status GA* mode it will briefly change state before timeout.
-| Override GA | Forces the light ON and pauses the timer for the duration of the override signal.
-| Block GA | When true, new triggers are ignored. Depending on *When blocked* the light is either forced OFF or left untouched.
+| Trigger GA | Binary input that starts the timer when it receives `1`. If “0 command cancels the cycle” is enabled, a `0` stops the light immediately. |
+| Output GA | Actuator driven while the cycle is active. Select the DPT that matches the load (binary, dimming, analog, …). |
+| Status GA | Mirrors the active/pre-warning state. With pre-warning in *Toggle status GA* mode it will briefly change state before timeout. |
+| Override GA | Forces the light ON and pauses the timer for the duration of the override signal. |
+| Block GA | When true, new triggers are ignored. Depending on *When blocked* the light is either forced OFF or left untouched. |
 
 **Timer behaviour**
 

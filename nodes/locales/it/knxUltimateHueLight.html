@@ -7,14 +7,20 @@
 |-|-|
 |KNX GW |Seleziona il gateway KNX da utilizzare |
 |Bridge Hue |Seleziona il ponte Hue da utilizzare |
-|Nome |Luce tonalità o tonalità Luce raggruppata da utilizzare.Le luci e i gruppi disponibili iniziano a presentarsi mentre digita
+|Nome |Luce Hue o gruppo da utilizzare. Le luci e i gruppi disponibili compaiono mentre digiti|
+
+<br/>
+
+**Localizza dispositivo**
+
+Il pulsante Locate (icona play) avvia una sessione di identificazione Hue per la risorsa selezionata. Quando la sessione è attiva il pulsante mostra l'icona stop e il bridge fa lampeggiare la luce — o tutte le luci del gruppo — ogni secondo. Premi di nuovo il pulsante per interrompere subito, altrimenti si arresta automaticamente dopo 10 minuti.
 
 <br/>
 
 **Opzioni**
 
 Qui puoi scegliere gli indirizzi KNX per essere collegati ai comandi/stati della luce Avable Hue. <br/>
-Inizia a digitare nel campo GA, il nome o l'indirizzo di gruppo del dispositivo KNX, i dispositivi disponibili iniziano a mostrare mentre si digita.
+Inizia a digitare nel campo GA (nome o indirizzo di gruppo) e i dispositivi disponibili compariranno mentre digiti.
 
 **Interruttore**
 
@@ -47,7 +53,8 @@ Inizia a digitare nel campo GA, il nome o l'indirizzo di gruppo del dispositivo 
 |Stato %| GA di stato temperatura (DPT 5.001). 0 = caldo, 100 = freddo |
 |Controllo Kelvin | **DPT 7.600: ** imposta in Kelvin con range KNX 2000-6535 (convertito in mirek).<br/>**DPT 9.002:** imposta in Kelvin con range HUE 2000-6535 (Ambiance da 2200). Possibili piccole variazioni per conversioni. |
 |Stato Kelvin | **DPT 7.600: ** leggi in Kelvin via range KNX 2000-6535 (convertito).<br/>**DPT 9.002:** leggi in Kelvin via range HUE 2000-6535 (Ambiance da 2200). Possibili piccole variazioni per conversioni. |
-|Inverti Dim Direction |Inverte la direzione fioca.| <br/>
+|Inverti Dim Direction |Inverte la direzione fioca.|
+<br/>
 
 **RGB/HSV**
 
@@ -92,7 +99,7 @@ La tabella **Effetti nativi HUE** consente di associare valori KNX agli effetti 
 |Leggi lo stato all'avvio |Leggi lo stato della luce HUE all'avvio del nodo-rosso o al rosso nodo-rosso del nodo e invia quello stato al bus KNX |
 |Stato di luminosità KNX |Aggiorna lo stato dell'indirizzo del gruppo di luminosità KNX, ogni volta che la lampada Hue viene accesa/disattivata.Le opzioni sono \*\* quando Hue Light è spento, inviare lo 0%.Quando accesa, ripristinare il valore precedente (comportamento KNX predefinito) \*\* e \*\* lasciano come (comportamento di tonalità predefinito) \*\*.Se si dispone di Dimmer KNX con stato di luminosità, come MDT, l'opzione suggerita è \*\*\*quando la luce della tonalità è disattivata, inviare lo 0%.Quando accesa, ripristinare il valore precedente (comportamento KNX predefinito) \*\*\* |
 |Accendi comportamento |Imposta il comportamento delle luci quando acceso.Puoi scegliere tra comportamenti diversi. <br/> \*\* Seleziona colore: \*\* La luce verrà accesa con il colore di tua scelta.Per cambiare il colore, fai clic sul selettore dei colori (sotto il controll&#x6F;_&#x53;eleziona colore_). <br/> \*\* Seleziona temperatura e luminosità: \*\* La luce verrà accesa con la temperatura (kelvin) e la luminosità (0-100) di tua scelta. <br/> \*\* Nessuna: \*\* La luce manterrà il suo ultimo stato.Nel caso in cui tu abbia abilitato l'illuminazione notturna, dopo la fine della notte, la lampada riprenderà lo stato del colore/temperatura/luminosità fissata al giorno.|
-|Illuminazione notturna |Permette di impostare un particolare colore/luminosità della luce di notte.Le opzioni sono le stesse del giorno.È possibile selezionare una temperatura/luminosità o colore.Una temperatura accogliente di 2700 Kelvin, con una luminosità del 10% o 20%, è una buona scelta per la luce notturna del bagno
+|Illuminazione notturna |Permette di impostare un particolare colore/luminosità della luce di notte.Le opzioni sono le stesse del giorno.È possibile selezionare una temperatura/luminosità o colore.Una temperatura accogliente di 2700 Kelvin, con una luminosità del 10% o 20%, è una buona scelta per la luce notturna del bagno |
 |Giorno/notte |Seleziona l'indirizzo di gruppo utilizzato per impostare il comportamento giorno/notte.Il valore dell'indirizzo di gruppo è _true_ se giorno, _false_ se notturno.|
 |Valore giorno/notte invertito |Inverti i valori dell'indirizzo di gruppo _day/night_.Il valore predefinito è \*\* non controllato **.|
 |Leggi lo stato all'avvio |Leggi lo stato all'avvio ed emetti l'evento al bus KNX all'avvio/riconnessione.(Predefinito "no") |

@@ -15,7 +15,7 @@
 |-|-|
 | Puerto IP | El puerto. El valor predeterminado es 3671. |
 | Protocolo IP | _Tunnel Udp_ es para interfaces KNX/IP, _multicast Udp_ es para enrutadores KNX/IP. Deje ** Auto** para detectar automáticamente. El valor predeterminado es "Auto". |
-| KNX Dirección física | La dirección física KNX, ejemplo 1.1.200. El valor predeterminado es "15.15.22".
+| KNX Dirección física | La dirección física KNX, ejemplo 1.1.200. El valor predeterminado es "15.15.22". |
 | Atar a la interfaz local | El nodo utilizará esta interfaz local para comunicaciones. Deje "Auto" para la selección automática. Si tiene más de una conexión LAN, por ejemplo, Ethernet y Wifi, se recomienda seleccionar manualmente la interfaz, de lo contrario, no todo UDP Telegram llegará a su computadora, por lo que el nodo puede no funcionar como se esperaba. El valor predeterminado es "Auto". |
 | Conéctese automáticamente al bus KNX al inicio | Conéctese automático al bus al inicio. El valor predeterminado es "Sí". |
 | Fuente de credenciales seguras | Elija cómo se suministran datos seguros KNX: ** Archivo de llaves ETS ** (claves seguras de datos - y credenciales de túnel si están presentes - provienen de la llave),**Credenciales manuales ** (solo KNX IP Tunneling Secure con un usuario ingresado manualmente) o**Contraseña de túnel manual** (Clave segura de datos de la llave mientras el túnel seguro usa el usuario manual)). Recuerde que los telegramas seguros de datos KNX siempre requieren un archivo de llaves. |
@@ -32,7 +32,7 @@
 |-|-|
 | Echo enviado mensaje a todos los nodos con la misma dirección de grupo | Envíe la entrada MSG que viene del flujo a todos los nodos que tienen la misma dirección de grupo. Los nodos recibirán el nuevo MSG como si viniera del autobús KNX. Esto es útil en el caso de usar la emulación KNX y en caso de que no se establezca la conexión con el bus KNX. ** Esta opción estará en desuso en la próxima versión y se predeterminó en verificación.** Se verifica el valor predeterminado. |
 | Suprimir los telegramas repetidos (r-flag) FOM BUS | Ignore los repetidos telegramas de KNX que provengan del autobús. El valor predeterminado no está marcado. |
-| Suprimir la solicitud ACK en el modo de túnel | Habilite si tiene una puerta de enlace KNX/IP muy antigua. Ignora el procedimiento ACK y acepta todos los telegramas. El valor predeterminado no está marcado.
+| Suprimir la solicitud ACK en el modo de túnel | Habilite si tiene una puerta de enlace KNX/IP muy antigua. Ignora el procedimiento ACK y acepta todos los telegramas. El valor predeterminado no está marcado. |
 | Retraso entre cada telegrama (en milisegundos) | Las especificaciones de KNX establecen que la velocidad máxima de envío de telegrama es de 50 telegramas por segundo. Una velocidad entre 25 y 50 ms debe estar bien, a menos que se conecte a una puerta de enlace KNX remota a través de una conexión a Internet lenta (en este caso, debe aumentar el valor, por ejemplo, de 200 a 500 ms o más). |
 | Loglevel | Nivel de registro, en caso de que necesite depurar algo con el desarrollo. El valor predeterminado es "error", |
 | Temporización de actualizaciones de estado | Define cada cuánto se actualiza la insignia de estado de los nodos. Con un retardo activo se descartan los estados intermedios y solo se muestra el último después del intervalo elegido. Seleccione **Inmediato** para mantener el comportamiento en tiempo real. |
