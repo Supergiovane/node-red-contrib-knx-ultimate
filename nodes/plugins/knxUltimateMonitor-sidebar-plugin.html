@@ -206,7 +206,7 @@
                 let debugEntries = [];
                 let debugActive = false;
                 let debugLatestSeq = 0;
-                let debugPollHandle = null;
+                let debugAutoRefreshHandle = null;
                 let debugLimit = 5000;
                 let debugStatusEl = null;
                 let debugInfoCounter = null;
@@ -219,11 +219,11 @@
                     try {
                         if (window.localStorage) {
                             const stored = window.localStorage.getItem(debugAutoStorageKey);
-                            if (stored === 'false') return false;
                             if (stored === 'true') return true;
+                            if (stored === 'false') return false;
                         }
                     } catch (error) { }
-                    return true;
+                    return false;
                 };
 
                 const storeDebugAutoPreference = (value) => {
@@ -308,33 +308,25 @@
                     }
                 };
 
-                const scheduleNextDebugFetch = (delay = DEBUG_REFRESH_INTERVAL) => {
-                    if (debugPollHandle) {
-                        clearTimeout(debugPollHandle);
-                        debugPollHandle = null;
+                const stopDebugAutoRefresh = () => {
+                    if (debugAutoRefreshHandle) {
+                        clearInterval(debugAutoRefreshHandle);
+                        debugAutoRefreshHandle = null;
                     }
-                    const safeDelay = Math.max(0, Number(delay) || 0);
-                    debugPollHandle = setTimeout(() => {
-                        debugPollHandle = null;
-                        if (!debugActive) return;
-                        if (!debugAutoCheckbox || !debugAutoCheckbox.is(':checked')) return;
-                        if (debugFetching) {
-                            scheduleNextDebugFetch(DEBUG_REFRESH_INTERVAL);
+                };
+
+                const ensureDebugAutoRefresh = () => {
+                    if (debugAutoRefreshHandle) return;
+                    if (!debugAutoCheckbox || !debugAutoCheckbox.is(':checked')) return;
+                    debugAutoRefreshHandle = setInterval(() => {
+                        if (!debugAutoCheckbox || !debugAutoCheckbox.is(':checked')) {
+                            stopDebugAutoRefresh();
                             return;
                         }
-                        fetchDebugLog({ triggeredByTimer: true });
-                    }, safeDelay);
-                };
-
-                const startDebugTimer = () => {
-                    scheduleNextDebugFetch(0);
-                };
-
-                const stopDebugTimer = () => {
-                    if (debugPollHandle) {
-                        clearTimeout(debugPollHandle);
-                        debugPollHandle = null;
-                    }
+                        if (!debugActive) return;
+                        if (debugFetching) return;
+                        fetchDebugLog({ triggeredByTimer: true, forceFull: true });
+                    }, DEBUG_REFRESH_INTERVAL);
                 };
 
                 const copyDebugToClipboard = () => {
@@ -426,9 +418,9 @@
                     }).always(function () {
                         debugFetching = false;
                         if (debugActive && debugAutoCheckbox && debugAutoCheckbox.is(':checked')) {
-                            scheduleNextDebugFetch(DEBUG_REFRESH_INTERVAL);
+                            ensureDebugAutoRefresh();
                         } else {
-                            stopDebugTimer();
+                            stopDebugAutoRefresh();
                         }
                         if (debugPendingForceRefresh) {
                             debugPendingForceRefresh = false;
@@ -465,12 +457,11 @@
                         const enabled = $(this).is(':checked');
                         storeDebugAutoPreference(enabled);
                         if (enabled) {
-                            if (debugActive) {
-                                fetchDebugLog({ incremental: true });
-                                startDebugTimer();
-                            }
+                            debugActive = true;
+                            fetchDebugLog({ forceFull: true });
+                            ensureDebugAutoRefresh();
                         } else {
-                            stopDebugTimer();
+                            stopDebugAutoRefresh();
                         }
                     });
 
@@ -496,10 +487,10 @@
                                 const shouldForceFull = debugEntries.length === 0;
                                 fetchDebugLog({ forceFull: shouldForceFull });
                                 if (debugAutoCheckbox && debugAutoCheckbox.is(':checked')) {
-                                    startDebugTimer();
+                                    ensureDebugAutoRefresh();
                                 }
                             } else {
-                                stopDebugTimer();
+                                stopDebugAutoRefresh();
                             }
                         }
                     });
