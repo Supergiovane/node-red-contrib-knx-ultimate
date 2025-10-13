@@ -4,6 +4,8 @@
             onadd: function () {
                 const tabId = "knxUltimateMonitorTab";
                 const actionId = "knxUltimateMonitor:show";
+                const debugTabId = "knxUltimateDebugTab";
+                const debugActionId = "knxUltimateDebug:show";
 
                 if (!document.getElementById('knx-monitor-style')) {
                     $('<style>', {
@@ -23,6 +25,29 @@
                         #knx-monitor-table thead th { position: relative; }
                         #knx-monitor-table thead th .knx-monitor-col-handle { position: absolute; top: 0; right: -3px; width: 6px; cursor: col-resize; user-select: none; height: 100%; }
                         #knx-monitor-table thead th .knx-monitor-col-handle::after { content: ''; display: block; width: 1px; height: 100%; margin: 0 auto; background: rgba(0,0,0,0.2); }
+                        `
+                    }).appendTo('head');
+                }
+
+                if (!document.getElementById('knx-debug-style')) {
+                    $('<style>', {
+                        id: 'knx-debug-style',
+                        text: `
+                        #knx-debug-toolbar { padding: 4px 6px !important; display: flex; align-items: center; gap: 6px; }
+                        #knx-debug-toolbar .knx-debug-toolbar-left { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+                        #knx-debug-toolbar .knx-debug-toolbar-right { margin-left: auto; font-size: 0.8em; color: var(--red-ui-text-color-secondary, #666); }
+                        #knx-debug-toolbar button.red-ui-button { min-height: 24px; }
+                        #knx-debug-log-wrapper { flex: 1 1 auto; position: relative; background: #fff; border-top: 1px solid #e0e0e0; border-bottom: 1px solid #e0e0e0; }
+                        #knx-debug-log { position: absolute; inset: 0; overflow: auto; padding: 6px; font-family: Menlo, Consolas, "Liberation Mono", monospace; font-size: 12px; line-height: 1.4; white-space: pre-wrap; word-break: break-word; background: #fff; color: #202020; }
+                        #knx-debug-log.empty::after { content: 'Nessuna riga di log disponibile al momento.'; color: var(--red-ui-text-color-secondary, #666); font-style: italic; }
+                        .knx-debug-line { padding: 2px 4px; border-left: 3px solid transparent; margin: 0 0 2px; }
+                        .knx-debug-line.level-error { border-left-color: #f44336; background-color: rgba(244, 67, 54, 0.1); color: #b71c1c; }
+                        .knx-debug-line.level-warn { border-left-color: #ff9800; background-color: rgba(255, 152, 0, 0.1); color: #e65100; }
+                        .knx-debug-line.level-info { border-left-color: #607d8b; background-color: rgba(96, 125, 139, 0.08); color: #37474f; }
+                        .knx-debug-line.level-debug { border-left-color: #2196f3; background-color: rgba(33, 150, 243, 0.08); color: #0d47a1; }
+                        .knx-debug-line.level-success { border-left-color: #4caf50; background-color: rgba(76, 175, 80, 0.08); color: #1b5e20; }
+                        .knx-debug-line.session-start { font-weight: 600; border-left-color: #9c27b0; background-color: rgba(156, 39, 176, 0.08); color: #4a148c; }
+                        .knx-debug-status { padding: 4px 6px; font-size: 0.85em; color: var(--red-ui-text-color-secondary, #666); border-top: 1px solid rgba(0,0,0,0.06); }
                         `
                     }).appendTo('head');
                 }
@@ -162,6 +187,302 @@
                         startWidth = parseInt(colElement.width(), 10) || (columnMeta ? columnMeta.width : 120);
                         $(document).on('mousemove', onMouseMove);
                         $(document).on('mouseup', onMouseUp);
+                    });
+                };
+
+                const levelClassMap = {
+                    error: 'level-error',
+                    warn: 'level-warn',
+                    warning: 'level-warn',
+                    info: 'level-info',
+                    debug: 'level-debug',
+                    success: 'level-success'
+                };
+
+                const DEBUG_REFRESH_INTERVAL = 2500;
+                const debugAutoStorageKey = 'knxUltimateDebug:autoRefresh';
+                let debugLogWrapper = null;
+                let debugLogContainer = null;
+                let debugEntries = [];
+                let debugActive = false;
+                let debugLatestSeq = 0;
+                let debugTimer = null;
+                let debugLimit = 5000;
+                let debugStatusEl = null;
+                let debugInfoCounter = null;
+                let debugAutoCheckbox = null;
+                let debugFetching = false;
+                let debugPendingForceRefresh = false;
+                let debugRenderedPlainText = '';
+
+                const loadDebugAutoPreference = () => {
+                    try {
+                        if (window.localStorage) {
+                            const stored = window.localStorage.getItem(debugAutoStorageKey);
+                            if (stored === 'false') return false;
+                            if (stored === 'true') return true;
+                        }
+                    } catch (error) { }
+                    return true;
+                };
+
+                const storeDebugAutoPreference = (value) => {
+                    try {
+                        if (window.localStorage) {
+                            window.localStorage.setItem(debugAutoStorageKey, value ? 'true' : 'false');
+                        }
+                    } catch (error) { }
+                };
+
+                const setDebugStatus = (message) => {
+                    if (debugStatusEl) {
+                        debugStatusEl.text(message);
+                    }
+                };
+
+                const ensureDebugLogContainer = () => {
+                    if (debugLogContainer) return;
+                    if (!debugLogWrapper) return;
+                    debugLogContainer = $('<div>', { id: 'knx-debug-log', class: 'empty' }).appendTo(debugLogWrapper);
+                };
+
+                const formatDebugLine = (entry) => {
+                    const level = (entry.level || 'info').toUpperCase();
+                    const prefix = entry.prefix ? `[${entry.prefix}] ` : '';
+                    let timestampText = '';
+                    if (typeof entry.timestamp === 'number') {
+                        const date = new Date(entry.timestamp);
+                        if (!Number.isNaN(date.getTime())) {
+                            timestampText = date.toLocaleString();
+                        }
+                    }
+                    if (!timestampText && entry.isoTimestamp) {
+                        timestampText = entry.isoTimestamp;
+                    }
+                    const message = entry.message || '';
+                    return `${timestampText} [${level}] ${prefix}${message}`.trim();
+                };
+
+                const isLogNearBottom = () => {
+                    if (!debugLogContainer || !debugLogContainer[0]) return true;
+                    const el = debugLogContainer[0];
+                    const gap = el.scrollHeight - el.scrollTop - el.clientHeight;
+                    return gap < 40;
+                };
+
+                const renderDebugEntries = () => {
+                    ensureDebugLogContainer();
+                    if (!debugLogContainer) return;
+                    const shouldStick = isLogNearBottom();
+                    const lines = debugEntries.map(formatDebugLine);
+                    debugRenderedPlainText = lines.join('\n');
+                    debugLogContainer.empty();
+                    if (!lines.length) {
+                        debugLogContainer.addClass('empty');
+                        return;
+                    }
+                    debugLogContainer.removeClass('empty');
+                    const fragment = document.createDocumentFragment();
+                    debugEntries.forEach((entry, index) => {
+                        const lineText = lines[index] || '';
+                        const div = document.createElement('div');
+                        div.className = 'knx-debug-line';
+                        const level = (entry.level || 'info').toLowerCase();
+                        const mapped = levelClassMap[level] || levelClassMap.info;
+                        div.classList.add(mapped);
+                        if (entry.sessionStart) div.classList.add('session-start');
+                        div.textContent = lineText;
+                        fragment.appendChild(div);
+                    });
+                    debugLogContainer[0].appendChild(fragment);
+                    if (shouldStick) {
+                        const el = debugLogContainer[0];
+                        el.scrollTop = el.scrollHeight;
+                    }
+                };
+
+                const updateDebugInfoCounter = (total) => {
+                    if (debugInfoCounter) {
+                        debugInfoCounter.text(`Rows: ${total}/${debugLimit}`);
+                    }
+                };
+
+                const startDebugTimer = () => {
+                    if (debugTimer) return;
+                    debugTimer = setInterval(() => {
+                        if (!debugActive) return;
+                        if (!debugAutoCheckbox || !debugAutoCheckbox.is(':checked')) return;
+                        fetchDebugLog({ incremental: true });
+                    }, DEBUG_REFRESH_INTERVAL);
+                };
+
+                const stopDebugTimer = () => {
+                    if (debugTimer) {
+                        clearInterval(debugTimer);
+                        debugTimer = null;
+                    }
+                };
+
+                const copyDebugToClipboard = () => {
+                    ensureDebugLogContainer();
+                    if (!debugLogContainer) {
+                        setDebugStatus('Debug viewer non disponibile.');
+                        return;
+                    }
+                    const text = debugRenderedPlainText || '';
+                    if (!text || text.trim() === '') {
+                        setDebugStatus('Nessun testo da copiare.');
+                        return;
+                    }
+                    const handleSuccess = () => {
+                        setDebugStatus('Log copiato negli appunti.');
+                        try { RED.notify('KNX Debug log copiato negli appunti.', 'success'); } catch (error) { }
+                    };
+                    const handleFailure = () => {
+                        setDebugStatus('Impossibile copiare il log.');
+                        try { RED.notify('Impossibile copiare il KNX Debug log.', 'error'); } catch (error) { }
+                    };
+                    if (navigator.clipboard && navigator.clipboard.writeText) {
+                        navigator.clipboard.writeText(text).then(handleSuccess).catch(handleFailure);
+                    } else {
+                        const temp = $('<textarea>').css({ position: 'fixed', top: '-2000px', left: '-2000px' }).val(text).appendTo('body');
+                        try {
+                            temp[0].select();
+                            const ok = document.execCommand('copy');
+                            temp.remove();
+                            if (ok) handleSuccess();
+                            else handleFailure();
+                        } catch (error) {
+                            temp.remove();
+                            handleFailure();
+                        }
+                    }
+                };
+
+                const fetchDebugLog = (options = {}) => {
+                    const { forceFull = false } = options;
+                    if (debugFetching) {
+                        if (forceFull) {
+                            debugPendingForceRefresh = true;
+                        }
+                        return;
+                    }
+                    debugFetching = true;
+                    const params = {};
+                    if (!forceFull && debugLatestSeq > 0) {
+                        params.sinceSeq = debugLatestSeq;
+                    } else if (forceFull) {
+                        debugLatestSeq = 0;
+                    }
+                    const query = $.param(params);
+                    const url = query ? `knxUltimateDebugLog?${query}` : 'knxUltimateDebugLog';
+                    if (forceFull) {
+                        setDebugStatus('Aggiornamento log...');
+                    }
+                    $.getJSON(url, function (response) {
+                        if (!response || !Array.isArray(response.entries)) {
+                            setDebugStatus(response && response.error ? response.error : 'Impossibile leggere il log.');
+                            return;
+                        }
+                        const incoming = response.entries;
+                        debugLimit = response.limit || debugLimit;
+                        if (forceFull || (!params.sinceSeq && debugEntries.length === 0)) {
+                            debugEntries = incoming.slice();
+                        } else if (params.sinceSeq) {
+                            if (incoming.length) {
+                                debugEntries = debugEntries.concat(incoming);
+                            }
+                        } else {
+                            debugEntries = incoming.slice();
+                        }
+                        if (debugEntries.length > debugLimit) {
+                            debugEntries = debugEntries.slice(debugEntries.length - debugLimit);
+                        }
+                        debugLatestSeq = response.latestSeq || debugLatestSeq;
+                        renderDebugEntries();
+                        updateDebugInfoCounter(debugEntries.length);
+                        if (debugEntries.length === 0) {
+                            setDebugStatus('Nessuna riga di log disponibile al momento.');
+                        } else {
+                            const now = new Date();
+                            setDebugStatus(`Aggiornato alle ${now.toLocaleTimeString()}`);
+                        }
+                    }).fail(function () {
+                        setDebugStatus('Impossibile caricare il KNX Debug log.');
+                    }).always(function () {
+                        debugFetching = false;
+                        if (debugPendingForceRefresh) {
+                            debugPendingForceRefresh = false;
+                            fetchDebugLog({ forceFull: true });
+                        }
+                    });
+                };
+
+                const initDebugTab = () => {
+                    const container = $("<div>").css({ height: "100%", display: "flex", flexDirection: "column" });
+                    const header = $("<div>", { class: "red-ui-sidebar-header" }).appendTo(container);
+                    const toolbar = $("<div>", { id: "knx-debug-toolbar" }).appendTo(header);
+                    const left = $("<div>", { class: "knx-debug-toolbar-left" }).appendTo(toolbar);
+                    const copyButton = $('<button>', { type: 'button', class: 'red-ui-button', title: 'Copy log to clipboard' }).html('<i class="fa fa-copy"></i>').appendTo(left);
+                    const refreshButton = $('<button>', { type: 'button', class: 'red-ui-button', title: 'Refresh log' }).html('<i class="fa fa-sync"></i>').appendTo(left);
+                    const autoWrapper = $('<label>').css({ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.9em' }).appendTo(left);
+                    debugAutoCheckbox = $('<input>', { type: 'checkbox' }).appendTo(autoWrapper);
+                    autoWrapper.append($('<span>').text('Auto'));
+                    debugAutoCheckbox.prop('checked', loadDebugAutoPreference());
+                    const right = $("<div>", { class: "knx-debug-toolbar-right" }).appendTo(toolbar);
+                    debugInfoCounter = $('<span>').text('Rows: 0/5000').appendTo(right);
+
+                    debugLogWrapper = $('<div>', { id: 'knx-debug-log-wrapper' }).appendTo(container);
+                    ensureDebugLogContainer();
+                    debugStatusEl = $('<div>', { class: 'knx-debug-status' }).text('Pronto.').appendTo(container);
+
+                    copyButton.on('click', function () {
+                        copyDebugToClipboard();
+                    });
+                    refreshButton.on('click', function () {
+                        fetchDebugLog({ forceFull: true });
+                    });
+                    debugAutoCheckbox.on('change', function () {
+                        const enabled = $(this).is(':checked');
+                        storeDebugAutoPreference(enabled);
+                        if (enabled) {
+                            if (debugActive) {
+                                fetchDebugLog({ incremental: true });
+                                startDebugTimer();
+                            }
+                        } else {
+                            stopDebugTimer();
+                        }
+                    });
+
+                    RED.actions.add(debugActionId, function () {
+                        RED.sidebar.show(debugTabId);
+                    });
+
+                    if (RED.sidebar.containsTab(debugTabId)) {
+                        RED.sidebar.removeTab(debugTabId);
+                    }
+
+                    RED.sidebar.addTab({
+                        id: debugTabId,
+                        label: "KNX Debug",
+                        name: "KNX Debug",
+                        iconClass: "fa fa-bug",
+                        content: container,
+                        action: debugActionId,
+                        onchange: function (show) {
+                            debugActive = !!show;
+                            if (debugActive) {
+                                ensureDebugLogContainer();
+                                const shouldForceFull = debugEntries.length === 0;
+                                fetchDebugLog({ forceFull: shouldForceFull });
+                                if (debugAutoCheckbox && debugAutoCheckbox.is(':checked')) {
+                                    startDebugTimer();
+                                }
+                            } else {
+                                stopDebugTimer();
+                            }
+                        }
                     });
                 };
 
@@ -498,6 +819,8 @@
                         handleFlowChange();
                     }
                 });
+
+                initDebugTab();
 
                 RED.sidebar.addTab({
                     id: tabId,

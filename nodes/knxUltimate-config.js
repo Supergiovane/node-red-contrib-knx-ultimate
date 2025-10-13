@@ -505,7 +505,8 @@ module.exports = (RED) => {
                     lines.push(node.keyringFileXML || '(empty)')
                     lines.push('================ End of keyring debug dump ================')
 
-                    node.sysLogger?.debug(lines.join('\n'))
+                    // 2025-10 Privacy: avoid logging full keyring contents to the console/file.
+                    // node.sysLogger?.debug(lines.join('\n'))
                   } catch (dumpError) {
                     node.sysLogger?.error('KNX Secure: unable to log keyring details: ' + dumpError.message)
                   }

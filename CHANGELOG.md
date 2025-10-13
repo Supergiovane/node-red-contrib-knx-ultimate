@@ -6,6 +6,8 @@
 
 # CHANGELOG
 
+**Version 4.0.20** - October 2025<br/>
+- NEW: Added **KNX Debug** sidebar tab featuring a live 5 000-line rolling buffer of every KNX log entry, colour-coded by severity, auto-refresh, manual refresh, and one-click copy to clipboard.<br/>
 
 **Version 4.0.19** - October 2025<br/>
 - Hue Light node: the `Locate` button now runs as a toggle — it starts a bridge identify loop that replays the Hue `identify` command every second, switches the icon to “stop”, and halts immediately when pressed again or automatically after 10 minutes.<br/>

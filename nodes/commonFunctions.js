@@ -7,6 +7,7 @@ const yaml = require('js-yaml')
 const dptlib = require('knxultimate').dptlib
 const customHTTP = require('./utils/http')
 const KNXClient = require('knxultimate').KNXClient
+const sysLogger = require('./utils/sysLogger')
 
 // DATAPONT MANIPULATION HELPERS
 // ####################
@@ -639,6 +640,29 @@ module.exports = (RED) => {
       } catch (error) {
         try { RED.log.error(`KNXUltimate: knxUltimateMonitorToggle error: ${error.message}`) } catch (e) { }
         res.json({ status: 'error', error: error.message })
+      }
+    })
+
+    RED.httpAdmin.get('/knxUltimateDebugLog', RED.auth.needsPermission('knxUltimate-config.read'), (req, res) => {
+      try {
+        const rawSince = req.query?.sinceSeq ?? req.query?.since ?? req.query?.after ?? null
+        let sinceSeq = null
+        if (rawSince !== null && rawSince !== undefined) {
+          const parsed = Number(rawSince)
+          if (!Number.isNaN(parsed) && Number.isFinite(parsed)) {
+            sinceSeq = Math.floor(parsed)
+          }
+        }
+        const snapshot = sinceSeq === null ? sysLogger.getDebugSnapshot() : sysLogger.getDebugSnapshot({ sinceSeq })
+        res.json({
+          entries: snapshot.entries,
+          latestSeq: snapshot.latestSeq,
+          total: snapshot.total,
+          limit: snapshot.limit
+        })
+      } catch (error) {
+        try { RED.log.error(`KNXUltimate: knxUltimateDebugLog error: ${error.message}`) } catch (e) { }
+        res.json({ entries: [], error: error.message })
       }
     })
 
