@@ -28,7 +28,7 @@
     "wait": "Attendez...",
     "day_night": "Jour / nuit",
     "invert_day_night": "Valeur de jour / nuit inversée",
-    "override_night_mode": "Mode nocturne de remplacement",
+    "override_night_mode": "Forcer le mode jour",
     "override_no": "Non",
     "override_set_day_fast_this": "Passez au mode jour en éteignant rapidement la lumière (cette lumière uniquement)",
     "override_set_day_fast_all": "Passer au mode jour en éteignant rapidement la lumière (appliquer sur tous les nœuds lumineux)",

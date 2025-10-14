@@ -36,7 +36,7 @@
   "locate_error": "Hue-Gerät konnte nicht lokalisiert werden",
     "day_night": "Tag/Nacht",
     "invert_day_night": "Tag/Nacht-Wert invertieren",
-    "override_night_mode": "Nachtmodus überschreiben",
+    "override_night_mode": "Tagmodus erzwingen",
     "override_no": "Nein",
     "override_set_day_fast_this": "In den TAG-Modus wechseln durch schnelles Aus/Ein (nur dieses Licht)",
     "override_set_day_fast_all": "In den TAG-Modus wechseln durch schnelles Aus/Ein (alle Lichter)",

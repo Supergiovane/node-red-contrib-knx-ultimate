@@ -10,6 +10,13 @@ const {
   convertRuleValueForStatus,
   buildEffectLookups,
   prepareHueLightConfig,
+  clampBrightness,
+  normalizeKelvin,
+  normalizeChannel,
+  normalizeColorConfig,
+  extractTemperatureSettings,
+  buildColorSwitchState,
+  buildTemperatureSwitchState,
 } = hueLightModule.__test__;
 
 describe("knxUltimateHueLight helper utilities", () => {
@@ -32,6 +39,123 @@ describe("knxUltimateHueLight helper utilities", () => {
       const input = '{"answer":42}';
       const result = safeJSONParse(input, {});
       expect(result).to.deep.equal({ answer: 42 });
+    });
+  });
+
+  describe("clampBrightness", () => {
+    it("clamps values within 0-100", () => {
+      expect(clampBrightness(-10)).to.equal(0);
+      expect(clampBrightness(50)).to.equal(50);
+      expect(clampBrightness(150)).to.equal(100);
+    });
+
+    it("returns undefined for invalid inputs", () => {
+      expect(clampBrightness(undefined)).to.equal(undefined);
+      expect(clampBrightness("")).to.equal(undefined);
+      expect(clampBrightness("abc")).to.equal(undefined);
+    });
+  });
+
+  describe("normalize helpers", () => {
+    it("normalizes kelvin and RGB channels", () => {
+      expect(normalizeKelvin("3000")).to.equal(3000);
+      expect(normalizeKelvin(-1)).to.equal(undefined);
+      expect(normalizeChannel(400)).to.equal(255);
+      expect(normalizeChannel("12")).to.equal(12);
+    });
+
+    it("normalizes color configuration objects", () => {
+      expect(normalizeColorConfig({ red: "255", green: "128", blue: 0 })).to.deep.equal({ red: 255, green: 128, blue: 0 });
+      expect(normalizeColorConfig({ red: 10, green: 20, blue: 30, brightness: "75" })).to.deep.equal({ red: 10, green: 20, blue: 30, brightness: 75 });
+      expect(normalizeColorConfig({ red: 10, blue: 10 })).to.equal(undefined);
+    });
+
+    it("extracts temperature settings with clamped brightness", () => {
+      expect(extractTemperatureSettings({ kelvin: "2700", brightness: "120" })).to.deep.equal({ kelvin: 2700, brightness: 100 });
+      expect(extractTemperatureSettings(null)).to.deep.equal({ kelvin: undefined, brightness: undefined });
+    });
+  });
+
+  describe("buildColorSwitchState", () => {
+    const baseGamut = { red: { x: 0.7, y: 0.298 }, green: { x: 0.17, y: 0.7 }, blue: { x: 0.15, y: 0.06 } };
+
+    it("builds consistent state for single lights", () => {
+      const currentDevice = { color: { gamut: baseGamut }, color_temperature: {}, dimming: { brightness: 30 } };
+      const result = buildColorSwitchState({
+        colorConfig: { red: 255, green: 0, blue: 0 },
+        currentDevice,
+        defaultGamut: baseGamut,
+        isGroupedLight: false,
+      });
+      expect(result).to.not.equal(null);
+      expect(result.baseState.on).to.deep.equal({ on: true });
+      expect(result.baseState.color.xy).to.have.keys(["x", "y"]);
+      expect(result.baseState.color_temperature).to.deep.equal({ mirek: null });
+      expect(result.brightness).to.be.within(0, 100);
+      const memberState = result.buildMemberState({ color: { gamut: baseGamut } });
+      expect(memberState.color.xy).to.have.keys(["x", "y"]);
+      expect(memberState.dimming.brightness).to.equal(result.brightness);
+    });
+
+    it("omits color temperature reset for grouped lights", () => {
+      const result = buildColorSwitchState({
+        colorConfig: { red: 10, green: 20, blue: 30 },
+        currentDevice: { color: { gamut: baseGamut } },
+        defaultGamut: baseGamut,
+        isGroupedLight: true,
+      });
+      expect(result.baseState.color_temperature).to.equal(undefined);
+    });
+
+    it("honours brightness overrides when provided", () => {
+      const currentDevice = { color: { gamut: baseGamut }, color_temperature: {} };
+      const result = buildColorSwitchState({
+        colorConfig: { red: 120, green: 80, blue: 40, brightness: 25 },
+        currentDevice,
+        defaultGamut: baseGamut,
+        isGroupedLight: false,
+      });
+      expect(result.brightness).to.equal(25);
+      expect(result.baseState.dimming.brightness).to.equal(25);
+    });
+  });
+
+  describe("buildTemperatureSwitchState", () => {
+    it("builds base and member states respecting schemas", () => {
+      const currentDevice = { color_temperature: { mirek: 400 }, dimming: { brightness: 35 } };
+      const result = buildTemperatureSwitchState({
+        kelvin: 3000,
+        brightness: undefined,
+        fallbackBrightness: undefined,
+        lastKnownBrightness: 55,
+        currentDevice,
+        isGroupedLight: true,
+      });
+      expect(result.baseState.on).to.deep.equal({ on: true });
+      expect(result.baseState.color_temperature.mirek).to.equal(333);
+      expect(result.brightness).to.equal(55);
+
+      const schemaLight = {
+        color_temperature: {
+          mirek_schema: { mirek_minimum: 200, mirek_maximum: 500 },
+        },
+      };
+      const memberState = result.buildMemberState(schemaLight);
+      expect(memberState.color_temperature.mirek).to.equal(333);
+      expect(memberState.dimming.brightness).to.equal(55);
+    });
+
+    it("omits color temperature for single lights without capability", () => {
+      const result = buildTemperatureSwitchState({
+        kelvin: 2700,
+        brightness: 40,
+        fallbackBrightness: undefined,
+        lastKnownBrightness: undefined,
+        currentDevice: { dimming: { brightness: 10 } },
+        isGroupedLight: false,
+      });
+      expect(result.baseState.color_temperature).to.equal(undefined);
+      expect(result.brightness).to.equal(40);
     });
   });
 
@@ -149,7 +273,7 @@ describe("knxUltimateHueLight helper utilities", () => {
       expect(prepared.nameLightKelvinDIM).to.equal("HSV name");
       expect(prepared.GALightKelvinPercentageState).to.equal("1/2/5");
       expect(prepared.initializingAtStart).to.equal(false);
-      expect(prepared.specifySwitchOnBrightness).to.equal("temperature");
+      expect(prepared.specifySwitchOnBrightness).to.equal("no");
       expect(prepared.specifySwitchOnBrightnessNightTime).to.equal("no");
       expect(prepared.colorAtSwitchOnDayTime).to.deep.equal({ kelvin: 3500, brightness: 80 });
       expect(prepared.colorAtSwitchOnNightTime).to.deep.equal({ kelvin: 2700, brightness: 20 });

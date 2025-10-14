@@ -72,9 +72,33 @@
                     type: "POST",
                     url: "knxUltimate/buttonAction",
                     data: request,
-                    success: function () {
+                    success: function (response) {
                         const key = mode === 'read' ? "manualReadOk" : "manualWriteOk";
-                        RED.notify(RED._("node-red-contrib-knx-ultimate/knxUltimate." + key) || "KNX command sent", "success");
+                        const baseMessage = RED._("node-red-contrib-knx-ultimate/knxUltimate." + key) || "KNX command sent";
+                        let notifyMessage = baseMessage;
+                        if (mode !== 'read') {
+                            let payloadValue;
+                            if (response && Object.prototype.hasOwnProperty.call(response, 'payload')) {
+                                payloadValue = response.payload;
+                            } else if (mode === 'value' && Object.prototype.hasOwnProperty.call(request, 'value')) {
+                                payloadValue = request.value;
+                            }
+                            if (payloadValue !== undefined) {
+                                let payloadText;
+                                if (typeof payloadValue === 'object') {
+                                    try {
+                                        payloadText = JSON.stringify(payloadValue);
+                                    } catch (error) {
+                                        payloadText = String(payloadValue);
+                                    }
+                                } else {
+                                    payloadText = String(payloadValue);
+                                }
+                                const payloadLabel = RED._("node-red:common.label.payload") || "payload";
+                                notifyMessage = `${baseMessage} (${payloadLabel}: ${payloadText})`;
+                            }
+                        }
+                        RED.notify(notifyMessage, "success");
                     },
                     error: function (xhr) {
                         let message;

@@ -28,7 +28,7 @@
     "wait": "请稍候...",
     "day_night": "昼/夜",
     "invert_day_night": "反转昼/夜值",
-    "override_night_mode": "覆盖夜间模式",
+    "override_night_mode": "强制日间模式",
     "override_no": "否",
     "override_set_day_fast_this": "快速关开切换到白天模式（仅此灯）",
     "override_set_day_fast_all": "快速关开切换到白天模式（应用于所有灯）",

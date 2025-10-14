@@ -6,6 +6,10 @@
 
 # CHANGELOG
 
+
+**Version 4.0.23** - October 2025<br/>
+
+
 **Version 4.0.22** - October 2025<br/>
 - FIX: Restored the `knxUltimateHueLight` implementation to the stable 4.0.16 baseline to stop Hue `grouped_light` devices from switching off immediately.<br/>
 - FIX: Hardened the **KNX Debug** sidebar by replacing the timer logic with an HTML-driven poll loop and keeping the *Auto* option disabled by default.<br/>

@@ -36,7 +36,7 @@
   "locate_error": "Impossibile localizzare il dispositivo Hue",
     "day_night": "Giorno/Notte",
     "invert_day_night": "Inverti valore giorno/notte",
-    "override_night_mode": "Forza modalità notturna",
+    "override_night_mode": "Forza modalità diurna",
     "override_no": "No",
     "override_set_day_fast_this": "Passa a GIORNO spegnendo e riaccendendo velocemente (solo questa luce)",
     "override_set_day_fast_all": "Passa a GIORNO spegnendo e riaccendendo velocemente (tutte le luci)",

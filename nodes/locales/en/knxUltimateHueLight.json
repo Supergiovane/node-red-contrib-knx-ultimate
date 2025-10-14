@@ -36,7 +36,7 @@
   "locate_error": "Unable to locate Hue device",
     "day_night": "Day/Night",
     "invert_day_night": "Invert day/night value",
-    "override_night_mode": "Override night mode",
+    "override_night_mode": "Force day mode",
     "override_no": "No",
     "override_set_day_fast_this": "Switch to DAY mode by rapid switching the light off then on (this light only)",
     "override_set_day_fast_all": "Switch to DAY mode by rapid switching the light off then on (apply to ALL light nodes)",
