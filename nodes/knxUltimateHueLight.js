@@ -1835,3 +1835,13 @@ module.exports = function (RED) {
   }
   RED.nodes.registerType("knxUltimateHueLight", knxUltimateHueLight);
 };
+
+module.exports.__test__ = {
+  safeJSONParse,
+  hydrateSwitchColor,
+  normalizeRuleKey,
+  normalizeIncomingValue,
+  convertRuleValueForStatus,
+  buildEffectLookups,
+  prepareHueLightConfig,
+};
