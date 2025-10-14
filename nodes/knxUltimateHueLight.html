@@ -305,11 +305,32 @@
           const $refreshDevicesButton = $(".hue-refresh-devices");
           const $locateDeviceButton = $(".hue-locate-device");
           const $hueDevicesLoading = $(".hue-devices-loading");
+          const $comboBrightnessAtSwitchOn = $("#comboBrightnessAtSwitchOn");
+          const $comboBrightnessAtSwitchOnNightTime = $("#comboBrightnessAtSwitchOnNightTime");
+          const $sliderBrightnessAtSwitchOn = $("#sliderBrightnessAtSwitchOn");
+          const $sliderBrightnessAtSwitchOnValue = $("#sliderBrightnessAtSwitchOnValue");
+          const $sliderBrightnessAtSwitchOnNightTime = $("#sliderBrightnessAtSwitchOnNightTime");
+          const $sliderBrightnessAtSwitchOnNightTimeValue = $("#sliderBrightnessAtSwitchOnNightTimeValue");
           let cachedHueDevices = Array.isArray(node._cachedHueLightDevices) ? node._cachedHueLightDevices : [];
           node._cachedHueLightDevices = cachedHueDevices;
           const defaultHueDevicePlaceholder = $deviceNameInput.attr('placeholder') || '';
           let showingNoHueDevicesPlaceholder = false;
           const HUE_EMPTY_SERVER_VALUES = new Set(['', 'none', '_add_', '__none__', '__null__', 'null', 'undefined']);
+          const setSliderValue = ($slider, $label, value, fallback = 0) => {
+            let numeric = Number(value);
+            if (Number.isNaN(numeric) || numeric < 0) numeric = fallback;
+            if (numeric > 100) numeric = 100;
+            $slider.val(numeric);
+            $label.text(`${numeric}%`);
+            return numeric;
+          };
+          const applySelectToSlider = ($select, $slider, $label, fallback) => {
+            const val = $select.val();
+            setSliderValue($slider, $label, val, fallback);
+          };
+          // Initialize slider positions based on current select values
+          applySelectToSlider($comboBrightnessAtSwitchOn, $sliderBrightnessAtSwitchOn, $sliderBrightnessAtSwitchOnValue, 100);
+          applySelectToSlider($comboBrightnessAtSwitchOnNightTime, $sliderBrightnessAtSwitchOnNightTime, $sliderBrightnessAtSwitchOnNightTimeValue, 20);
           let locateSessionActive = false;
           let locateAutoResetTimer = null;
           let locatePendingRequest = null;
@@ -1515,7 +1536,9 @@
           const parsedDayPayload = parseColorPayload(node.colorAtSwitchOnDayTime);
           if (parsedDayPayload && parsedDayPayload.kelvin !== undefined) {
             $("#comboTemperatureAtSwitchOn").val(parsedDayPayload.kelvin);
-            $("#comboBrightnessAtSwitchOn").val(parsedDayPayload.brightness);
+            $comboBrightnessAtSwitchOn.val(parsedDayPayload.brightness);
+            applySelectToSlider($comboBrightnessAtSwitchOn, $sliderBrightnessAtSwitchOn, $sliderBrightnessAtSwitchOnValue, 100);
+            updateDayTemperaturePayload();
             if (node.specifySwitchOnBrightness !== 'no') $("#node-input-specifySwitchOnBrightness").val('temperature');
           } else if (parsedDayPayload && parsedDayPayload.red !== undefined) {
             applyColorState('day', parsedDayPayload);
@@ -1526,11 +1549,15 @@
               applyColorState('day', fallbackDayColor);
               if (node.specifySwitchOnBrightness !== 'no') $("#node-input-specifySwitchOnBrightness").val('yes');
             }
+            applySelectToSlider($comboBrightnessAtSwitchOn, $sliderBrightnessAtSwitchOn, $sliderBrightnessAtSwitchOnValue, 100);
+            updateDayTemperaturePayload();
           }
           const parsedNightPayload = parseColorPayload(node.colorAtSwitchOnNightTime);
           if (parsedNightPayload && parsedNightPayload.kelvin !== undefined) {
             $("#comboTemperatureAtSwitchOnNightTime").val(parsedNightPayload.kelvin);
-            $("#comboBrightnessAtSwitchOnNightTime").val(parsedNightPayload.brightness);
+            $comboBrightnessAtSwitchOnNightTime.val(parsedNightPayload.brightness);
+            applySelectToSlider($comboBrightnessAtSwitchOnNightTime, $sliderBrightnessAtSwitchOnNightTime, $sliderBrightnessAtSwitchOnNightTimeValue, 20);
+            updateNightTemperaturePayload();
             if (node.enableDayNightLighting !== 'no') $("#node-input-enableDayNightLighting").val('temperature');
           } else if (parsedNightPayload && parsedNightPayload.red !== undefined) {
             applyColorState('night', parsedNightPayload);
@@ -1541,14 +1568,48 @@
               applyColorState('night', fallbackNightColor);
               if (node.enableDayNightLighting !== 'no') $("#node-input-enableDayNightLighting").val('yes');
             }
+            applySelectToSlider($comboBrightnessAtSwitchOnNightTime, $sliderBrightnessAtSwitchOnNightTime, $sliderBrightnessAtSwitchOnNightTimeValue, 20);
+            updateNightTemperaturePayload();
           }
 
 
-          $("#comboTemperatureAtSwitchOn, #comboBrightnessAtSwitchOn").on("change", function () {
+          const updateDayTemperaturePayload = () => {
             $("#node-input-colorAtSwitchOnDayTime").val('{ "kelvin":' + $("#comboTemperatureAtSwitchOn").val() + ', "brightness":' + $("#comboBrightnessAtSwitchOn").val() + ' }');
-          });
-          $("#comboTemperatureAtSwitchOnNightTime, #comboBrightnessAtSwitchOnNightTime").on("change", function () {
+          };
+          const updateNightTemperaturePayload = () => {
             $("#node-input-colorAtSwitchOnNightTime").val('{ "kelvin":' + $("#comboTemperatureAtSwitchOnNightTime").val() + ', "brightness":' + $("#comboBrightnessAtSwitchOnNightTime").val() + ' }');
+          };
+
+          $("#comboTemperatureAtSwitchOn").on("change", function () {
+            applySelectToSlider($comboBrightnessAtSwitchOn, $sliderBrightnessAtSwitchOn, $sliderBrightnessAtSwitchOnValue, 100);
+            updateDayTemperaturePayload();
+          });
+          $comboBrightnessAtSwitchOn.on("change", function () {
+            applySelectToSlider($comboBrightnessAtSwitchOn, $sliderBrightnessAtSwitchOn, $sliderBrightnessAtSwitchOnValue, 100);
+            updateDayTemperaturePayload();
+          });
+          $("#comboTemperatureAtSwitchOnNightTime").on("change", function () {
+            applySelectToSlider($comboBrightnessAtSwitchOnNightTime, $sliderBrightnessAtSwitchOnNightTime, $sliderBrightnessAtSwitchOnNightTimeValue, 20);
+            updateNightTemperaturePayload();
+          });
+          $comboBrightnessAtSwitchOnNightTime.on("change", function () {
+            applySelectToSlider($comboBrightnessAtSwitchOnNightTime, $sliderBrightnessAtSwitchOnNightTime, $sliderBrightnessAtSwitchOnNightTimeValue, 20);
+            updateNightTemperaturePayload();
+          });
+
+          $sliderBrightnessAtSwitchOn.on("input change", function () {
+            const val = setSliderValue($sliderBrightnessAtSwitchOn, $sliderBrightnessAtSwitchOnValue, $(this).val(), 100);
+            if ($comboBrightnessAtSwitchOn.val() !== String(val)) {
+              $comboBrightnessAtSwitchOn.val(String(val));
+            }
+            updateDayTemperaturePayload();
+          });
+          $sliderBrightnessAtSwitchOnNightTime.on("input change", function () {
+            const val = setSliderValue($sliderBrightnessAtSwitchOnNightTime, $sliderBrightnessAtSwitchOnNightTimeValue, $(this).val(), 20);
+            if ($comboBrightnessAtSwitchOnNightTime.val() !== String(val)) {
+              $comboBrightnessAtSwitchOnNightTime.val(String(val));
+            }
+            updateNightTemperaturePayload();
           });
 
           // Color pickers and brightness sliders
@@ -2413,7 +2474,11 @@
             <label for="node-input-colorAtSwitchOnDayTime" style="width:260px">
             </label>
             <select style="width:12%;" id="comboTemperatureAtSwitchOn"></select>
-            <select  style="width:25%;" id="comboBrightnessAtSwitchOn"></select>      
+            <div style="display:inline-flex; align-items:center; gap:8px; width:25%;">
+              <input type="range" id="sliderBrightnessAtSwitchOn" min="0" max="100" step="1" value="100" style="flex:1;">
+              <span id="sliderBrightnessAtSwitchOnValue" style="width:45px; text-align:right;">100%</span>
+            </div>
+            <select  style="display:none;" id="comboBrightnessAtSwitchOn"></select>      
           </div>
 
           <div id="divCCSBoxAtNightLighting">
@@ -2444,7 +2509,11 @@
               <div class="form-row" id="divTemperatureAtSwitchOnNightTime" hidden>
                 <label for="node-input-colorAtSwitchOnNightTime" style="width:260px"></label>
                 <select style="width:25%;" id="comboTemperatureAtSwitchOnNightTime"></select>
-                <select style="width:25%;" id="comboBrightnessAtSwitchOnNightTime"></select>      
+                <div style="display:inline-flex; align-items:center; gap:8px; width:25%;">
+                  <input type="range" id="sliderBrightnessAtSwitchOnNightTime" min="0" max="100" step="1" value="20" style="flex:1;">
+                  <span id="sliderBrightnessAtSwitchOnNightTimeValue" style="width:45px; text-align:right;">20%</span>
+                </div>
+                <select style="display:none;" id="comboBrightnessAtSwitchOnNightTime"></select>      
               </div>
 
               <div class="form-row">
