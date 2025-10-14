@@ -773,13 +773,37 @@ module.exports = (RED) => {
         const sessionKey = `identify:${deviceId}`
         const maxDurationMs = 600000
         const intervalMs = 1000
-        if (typeof hueServer.isHueIdentifySessionActive === 'function' && hueServer.isHueIdentifySessionActive(sessionKey)) {
-          if (typeof hueServer.stopHueIdentifySession === 'function') {
-            hueServer.stopHueIdentifySession(sessionKey, 'manual')
+        const rawAction = (req.body?.action || '').toString().trim().toLowerCase()
+        const explicitAction = rawAction === 'start' || rawAction === 'stop' ? rawAction : 'toggle'
+
+        const stopIdentifySession = () => {
+          if (typeof hueServer.isHueIdentifySessionActive === 'function' && hueServer.isHueIdentifySessionActive(sessionKey)) {
+            if (typeof hueServer.stopHueIdentifySession === 'function') {
+              hueServer.stopHueIdentifySession(sessionKey, 'manual')
+            }
+            return true
           }
-          res.json({ status: 'stopped' })
+          return false
+        }
+
+        if (explicitAction === 'stop') {
+          const wasActive = stopIdentifySession()
+          res.json({ status: 'stopped', wasActive })
           return
         }
+
+        if (explicitAction !== 'start') {
+          if (stopIdentifySession()) {
+            res.json({ status: 'stopped', wasActive: true })
+            return
+          }
+        }
+
+        if (explicitAction === 'start' && typeof hueServer.isHueIdentifySessionActive === 'function' && hueServer.isHueIdentifySessionActive(sessionKey)) {
+          res.json({ status: 'started', alreadyActive: true, expiresInMs: maxDurationMs })
+          return
+        }
+
         if (typeof hueServer.startHueIdentifySession === 'function') {
           const started = await hueServer.startHueIdentifySession({
             sessionKey,

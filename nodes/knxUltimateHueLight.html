@@ -235,6 +235,11 @@
           const HUE_EMPTY_SERVER_VALUES = new Set(['', 'none', '_add_', '__none__', '__null__', 'null', 'undefined']);
           let locateSessionActive = false;
           let locateAutoResetTimer = null;
+          let locatePendingRequest = null;
+          node.__stopHueLocateSession = null;
+          node.__cleanupNodeRemovalListener = null;
+          if (!node.__locateSessionInfo) node.__locateSessionInfo = null;
+          node.__hueLocateActive = false;
 
           const clearLocateAutoReset = () => {
             if (locateAutoResetTimer !== null) {
@@ -254,7 +259,11 @@
 
           const updateLocateButtonState = (isActive) => {
             locateSessionActive = !!isActive;
-            if (!locateSessionActive) clearLocateAutoReset();
+            node.__hueLocateActive = locateSessionActive;
+            if (!locateSessionActive) {
+              clearLocateAutoReset();
+              node.__locateSessionInfo = null;
+            }
             if (!$locateDeviceButton.length) return;
             const $icon = $locateDeviceButton.find('i').first();
             if ($icon.length) {
@@ -264,6 +273,139 @@
               ? (node._('knxUltimateHueLight.locate_stop_title') || 'Stop Hue locate')
               : (node._('knxUltimateHueLight.locate_start_title') || 'Locate selected Hue device');
             $locateDeviceButton.attr('title', title);
+          };
+
+          const removeNodeRemovalListener = () => {
+            if (typeof node.__cleanupNodeRemovalListener === 'function') {
+              try {
+                RED.events.removeListener('nodes:remove', node.__cleanupNodeRemovalListener);
+              } catch (error) { /* empty */ }
+              node.__cleanupNodeRemovalListener = null;
+            }
+          };
+
+          const collectRemovedIds = (input, bucket = new Set()) => {
+            if (!input) return bucket;
+            if (Array.isArray(input)) {
+              input.forEach((entry) => collectRemovedIds(entry, bucket));
+              return bucket;
+            }
+            if (typeof input === 'string') {
+              bucket.add(input);
+              return bucket;
+            }
+            if (typeof input === 'object') {
+              if (input.id) bucket.add(input.id);
+              if (input.nodes) collectRemovedIds(input.nodes, bucket);
+            }
+            return bucket;
+          };
+
+          const handleNodeRemoved = (payload) => {
+            const ids = collectRemovedIds(payload);
+            if (ids.has(node.id) && typeof node.__stopHueLocateSession === 'function') {
+              node.__stopHueLocateSession();
+              removeNodeRemovalListener();
+            }
+          };
+          RED.events.on('nodes:remove', handleNodeRemoved);
+          node.__cleanupNodeRemovalListener = handleNodeRemoved;
+
+          const buildLocateContext = ({ allowStored = false } = {}) => {
+            const hueServerId = resolveHueServerValue({ allowStored });
+            const rawDevice = getHueDeviceValue({ allowStored });
+            if (!hueServerId || !rawDevice) return null;
+            const parts = String(rawDevice).split('#');
+            const deviceId = (parts[0] || '').trim();
+            if (deviceId === '') return null;
+            const deviceType = (parts[1] || 'light').trim() || 'light';
+            return { serverId: hueServerId, deviceId, deviceType };
+          };
+
+          const performLocateRequest = ({ silent = false, allowStoredContext = false, action } = {}) => {
+            const context = buildLocateContext({ allowStored: allowStoredContext });
+            if (!context) {
+              if (!silent) {
+                const message = !resolveHueServerValue({ allowStored: true })
+                  ? (node._('knxUltimateHueLight.locate_no_bridge') || 'Select a Hue bridge first')
+                  : (node._('knxUltimateHueLight.locate_no_device') || 'Select a Hue device first');
+                RED.notify(message, 'warning');
+              }
+              updateLocateButtonState(false);
+              return null;
+            }
+            if ($locateDeviceButton.length) {
+              $locateDeviceButton.prop('disabled', true);
+            }
+            const effectiveAction = action || (locateSessionActive ? 'stop' : 'start');
+            const request = $.ajax({
+              type: 'POST',
+              url: 'KNXUltimateLocateHueDevice',
+              data: {
+                serverId: context.serverId,
+                deviceId: context.deviceId,
+                deviceType: context.deviceType,
+                action: effectiveAction
+              }
+            });
+            locatePendingRequest = request;
+            if (!allowStoredContext && effectiveAction === 'start') {
+              node.__locateSessionInfo = {
+                serverId: context.serverId,
+                deviceId: context.deviceId,
+                deviceType: context.deviceType
+              };
+            } else if (!node.__locateSessionInfo && effectiveAction !== 'stop') {
+              node.__locateSessionInfo = {
+                serverId: context.serverId,
+                deviceId: context.deviceId,
+                deviceType: context.deviceType
+              };
+            }
+            request.done((response) => {
+              const statusValue = (response && typeof response.status === 'string') ? response.status.toLowerCase() : 'started';
+              let messageKey;
+              if (effectiveAction === 'stop' || statusValue === 'stopped') {
+                messageKey = 'knxUltimateHueLight.locate_stopped';
+                node.__locateSessionInfo = null;
+                updateLocateButtonState(false);
+                clearLocateAutoReset();
+              } else if (effectiveAction === 'start' || statusValue === 'started') {
+                messageKey = 'knxUltimateHueLight.locate_started';
+                node.__locateSessionInfo = {
+                  serverId: context.serverId,
+                  deviceId: context.deviceId,
+                  deviceType: context.deviceType
+                };
+                updateLocateButtonState(true);
+                scheduleLocateAutoReset(response && typeof response.expiresInMs === 'number' ? response.expiresInMs : 600000);
+              } else {
+                messageKey = 'knxUltimateHueLight.locate_success';
+                node.__locateSessionInfo = null;
+                updateLocateButtonState(false);
+                clearLocateAutoReset();
+              }
+              if (!silent) {
+                const message = node._(messageKey) || (statusValue === 'stopped' ? 'Locate stopped' : 'Locate command sent');
+                RED.notify(message, 'success');
+              }
+            }).fail((xhr) => {
+              let message;
+              if (xhr && xhr.responseJSON && xhr.responseJSON.error) {
+                message = xhr.responseJSON.error;
+              }
+              updateLocateButtonState(false);
+              clearLocateAutoReset();
+              if (!silent) {
+                RED.notify(message || (node._('knxUltimateHueLight.locate_error') || 'Unable to locate Hue device'), 'error');
+              }
+            }).always(() => {
+              locatePendingRequest = null;
+              if ($locateDeviceButton.length) {
+                $locateDeviceButton.prop('disabled', false);
+              }
+            });
+            return request;
           };
 
           const resolveKnxServerValue = () => {
@@ -283,15 +425,20 @@
             return !KNX_EMPTY_VALUES.has(val);
           };
 
-          const resolveHueServerValue = () => {
-            const domValue = $hueServerInput.val();
-            if (domValue !== undefined && domValue !== null) {
-              const trimmed = String(domValue).trim();
-              if (trimmed !== '' && !HUE_EMPTY_SERVER_VALUES.has(trimmed.toLowerCase())) return trimmed;
+          const resolveHueServerValue = ({ allowStored = false } = {}) => {
+            if ($hueServerInput.length) {
+              const domValue = $hueServerInput.val();
+              if (domValue !== undefined && domValue !== null) {
+                const trimmed = String(domValue).trim();
+                if (trimmed !== '' && !HUE_EMPTY_SERVER_VALUES.has(trimmed.toLowerCase())) return trimmed;
+              }
             }
             if (node.serverHue !== undefined && node.serverHue !== null) {
               const stored = String(node.serverHue).trim();
               if (stored !== '' && !HUE_EMPTY_SERVER_VALUES.has(stored.toLowerCase())) return stored;
+            }
+            if (allowStored && node.__locateSessionInfo && node.__locateSessionInfo.serverId) {
+              return node.__locateSessionInfo.serverId;
             }
             return '';
           };
@@ -351,6 +498,7 @@
             if (!hueServer) {
               applyHueDevicesPlaceholder(true);
               if (typeof respond === 'function') respond([]);
+              node.__locateSessionInfo = null;
               updateLocateButtonState(false);
               return;
             }
@@ -392,6 +540,7 @@
                 $hueDevicesLoading.hide();
               }
               if (typeof respond === 'function') respond([]);
+              node.__locateSessionInfo = null;
               updateLocateButtonState(false);
             });
           };
@@ -846,13 +995,19 @@
 
           refreshKnxBindings();
 
-          const getHueDeviceValue = () => {
-            const domValue = $hueDeviceInput.val();
-            if (domValue !== undefined && domValue !== null && domValue !== '') {
-              return domValue;
+          const getHueDeviceValue = ({ allowStored = false } = {}) => {
+            if ($hueDeviceInput.length) {
+              const domValue = $hueDeviceInput.val();
+              if (domValue !== undefined && domValue !== null && domValue !== '') {
+                return domValue;
+              }
             }
-            if (node.hueDevice !== undefined && node.hueDevice !== null) {
+            if (node.hueDevice !== undefined && node.hueDevice !== null && node.hueDevice !== '') {
               return node.hueDevice;
+            }
+            if (allowStored && node.__locateSessionInfo && node.__locateSessionInfo.deviceId) {
+              const suffix = node.__locateSessionInfo.deviceType || 'light';
+              return `${node.__locateSessionInfo.deviceId}#${suffix}`;
             }
             return '';
           };
@@ -917,6 +1072,7 @@
                 $hueDeviceInput.val(ui.item.hueDevice);
                 node.hueDevice = ui.item.hueDevice;
                 node.hueDeviceObject = ui.item.deviceObject || { type: ui.item.deviceType };
+                node.__locateSessionInfo = null;
                 updateTabsVisibility();
                 setTimeout(() => {
                   try { $deviceNameInput.autocomplete('close'); } catch (error) { /* empty */ }
@@ -933,6 +1089,7 @@
               if ($(this).val().trim() === '') {
                 $hueDeviceInput.val('');
                 node.hueDevice = '';
+                node.__locateSessionInfo = null;
                 updateTabsVisibility();
                 updateLocateButtonState(false);
               }
@@ -953,60 +1110,8 @@
 
           if ($locateDeviceButton.length) {
             $locateDeviceButton.off('.knxUltimateHueLight').on('click.knxUltimateHueLight', () => {
-              const hueServerId = resolveHueServerValue();
-              if (!hueServerId) {
-                RED.notify(node._('knxUltimateHueLight.locate_no_bridge') || 'Select a Hue bridge first', 'warning');
-                return;
-              }
-              const rawDevice = getHueDeviceValue();
-              if (!rawDevice) {
-                RED.notify(node._('knxUltimateHueLight.locate_no_device') || 'Select a Hue device first', 'warning');
-                return;
-              }
-              const parts = rawDevice.split('#');
-              const deviceId = parts[0];
-              const deviceType = parts[1] || 'light';
-              $locateDeviceButton.prop('disabled', true);
-              $.ajax({
-                type: 'POST',
-                url: 'KNXUltimateLocateHueDevice',
-                data: {
-                  serverId: hueServerId,
-                  deviceId,
-                  deviceType,
-                },
-                success(response) {
-                  const statusValue = (response && typeof response.status === 'string') ? response.status.toLowerCase() : 'started';
-                  let messageKey;
-                  if (statusValue === 'stopped') {
-                    messageKey = 'knxUltimateHueLight.locate_stopped';
-                    updateLocateButtonState(false);
-                    clearLocateAutoReset();
-                  } else if (statusValue === 'started') {
-                    messageKey = 'knxUltimateHueLight.locate_started';
-                    updateLocateButtonState(true);
-                    scheduleLocateAutoReset(response && typeof response.expiresInMs === 'number' ? response.expiresInMs : 600000);
-                  } else {
-                    messageKey = 'knxUltimateHueLight.locate_success';
-                    updateLocateButtonState(false);
-                    clearLocateAutoReset();
-                  }
-                  const message = node._(messageKey) || (statusValue === 'stopped' ? 'Locate stopped' : 'Locate command sent');
-                  RED.notify(message, 'success');
-                },
-                error(xhr) {
-                  let message;
-                  if (xhr && xhr.responseJSON && xhr.responseJSON.error) {
-                    message = xhr.responseJSON.error;
-                  }
-                  RED.notify(message || (node._('knxUltimateHueLight.locate_error') || 'Unable to locate Hue device'), 'error');
-                  updateLocateButtonState(false);
-                  clearLocateAutoReset();
-                },
-                complete() {
-                  $locateDeviceButton.prop('disabled', false);
-                }
-              });
+              const desiredAction = locateSessionActive ? 'stop' : 'start';
+              performLocateRequest({ silent: false, action: desiredAction });
             });
             updateLocateButtonState(false);
           }
@@ -1017,12 +1122,40 @@
               node._cachedHueLightDevices = cachedHueDevices;
               showingNoHueDevicesPlaceholder = false;
               applyHueDevicesPlaceholder(true);
+              node.__locateSessionInfo = null;
               updateLocateButtonState(false);
               if ($hueDevicesLoading.length) {
                 $hueDevicesLoading.hide();
               }
             });
           }
+
+          node.__stopHueLocateSession = () => {
+            clearLocateAutoReset();
+            removeNodeRemovalListener();
+            const pending = locatePendingRequest;
+            if (pending && typeof pending.always === 'function') {
+              pending.always(() => {
+                if (node.__locateSessionInfo || locateSessionActive) {
+                  const followUp = performLocateRequest({ silent: true, allowStoredContext: true, action: 'stop' });
+                  if (!followUp || typeof followUp.then !== 'function') {
+                    updateLocateButtonState(false);
+                  }
+                } else {
+                  updateLocateButtonState(false);
+                }
+              });
+              return;
+            }
+            if (locateSessionActive || (node.__locateSessionInfo && node.__locateSessionInfo.deviceId)) {
+              const request = performLocateRequest({ silent: true, allowStoredContext: true, action: 'stop' });
+              if (!request || typeof request.then !== 'function') {
+                updateLocateButtonState(false);
+              }
+            } else {
+              updateLocateButtonState(false);
+            }
+          };
 
           // Get the HUE capabilities to enable/disable UI parts
           var getJsonPromise;
@@ -1496,6 +1629,15 @@
         $("#node-input-effectRules").val(serialized);
         this.effectRules = serialized;
         this._cachedHueLightDevices = [];
+        if (typeof this.__stopHueLocateSession === 'function') {
+          try { this.__stopHueLocateSession(); } catch (error) { /* empty */ }
+          this.__stopHueLocateSession = null;
+        }
+        if (typeof this.__cleanupNodeRemovalListener === 'function') {
+          try { RED.events.removeListener('nodes:remove', this.__cleanupNodeRemovalListener); } catch (error) { /* empty */ }
+          this.__cleanupNodeRemovalListener = null;
+        }
+        this.__locateSessionInfo = null;
       },
       oneditcancel: function () {
         // Return to the info tab
@@ -1506,6 +1648,32 @@
         //RED.sidebar.show("help");
 
         this._cachedHueLightDevices = [];
+        if (typeof this.__stopHueLocateSession === 'function') {
+          try { this.__stopHueLocateSession(); } catch (error) { /* empty */ }
+          this.__stopHueLocateSession = null;
+        }
+        if (typeof this.__cleanupNodeRemovalListener === 'function') {
+          try { RED.events.removeListener('nodes:remove', this.__cleanupNodeRemovalListener); } catch (error) { /* empty */ }
+          this.__cleanupNodeRemovalListener = null;
+        }
+        this.__locateSessionInfo = null;
+      },
+      oneditdelete: function () {
+        if (typeof this.oneditclose === 'function') {
+          try { this.oneditclose(); } catch (error) { /* empty */ }
+        }
+      },
+      oneditclose: function () {
+        if (typeof this.__stopHueLocateSession === 'function') {
+          try { this.__stopHueLocateSession(); } catch (error) { /* empty */ }
+        }
+        if (typeof this.__cleanupNodeRemovalListener === 'function') {
+          try { RED.events.removeListener('nodes:remove', this.__cleanupNodeRemovalListener); } catch (error) { /* empty */ }
+          this.__cleanupNodeRemovalListener = null;
+        }
+        this.__stopHueLocateSession = null;
+        this.__hueLocateActive = false;
+        this.__locateSessionInfo = null;
       },
       oneditresize: function (size) {
         //var height = size.height;    
@@ -2189,4 +2357,3 @@
     </div>
   </div>
 <br />
-</script>
