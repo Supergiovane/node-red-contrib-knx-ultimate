@@ -397,6 +397,8 @@ module.exports = function (RED) {
     node.timerCheckForFastLightSwitch = null;
     node.HSVObject = null; //{ h, s, v };// Store the current light calculated HSV
 
+    const hasCurrentHueDevice = () => node.currentHUEDevice !== undefined && node.currentHUEDevice !== null;
+
     const pushStatus = (status) => {
       if (!status) return;
       const provider = node.serverKNX;
@@ -494,7 +496,7 @@ module.exports = function (RED) {
           const resource = await node.serverHue.getHueResourceSnapshot(node.hueDevice, { forceRefresh });
           if (!resource) return undefined;
           const snapshot = cloneDeep(resource);
-          const wasUndefined = node.currentHUEDevice === undefined;
+          const wasUndefined = !hasCurrentHueDevice();
           node.currentHUEDevice = snapshot;
           if (wasUndefined) {
             try {
@@ -758,7 +760,7 @@ module.exports = function (RED) {
 
     // This function is called by the hue-config.js
     node.handleSend = (msg) => {
-      if (node.currentHUEDevice === undefined) {
+      if (!hasCurrentHueDevice()) {
         if (node.serverHue && node.serverHue.linkStatus === "connected") {
           node.setNodeStatusHue({
             fill: "yellow",
@@ -778,7 +780,7 @@ module.exports = function (RED) {
         }
         return;
       }
-      if (msg.knx.event !== "GroupValue_Read" && node.currentHUEDevice !== undefined) {
+      if (msg.knx.event !== "GroupValue_Read" && hasCurrentHueDevice()) {
         let state = {};
         try {
           switch (msg.knx.destination) {
@@ -897,7 +899,7 @@ module.exports = function (RED) {
               msg.payload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightBrightness));
               state = { dimming: { brightness: msg.payload } };
               if (msg.payload > 0) node.lastKnownBrightness = msg.payload;
-              if (node.currentHUEDevice === undefined) {
+              if (!hasCurrentHueDevice()) {
                 // Grouped light
                 state.on = { on: msg.payload > 0 };
               } else {
@@ -917,7 +919,7 @@ module.exports = function (RED) {
               msg.payload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightColor));
               let gamut = null;
               if (
-                node.currentHUEDevice !== undefined
+                hasCurrentHueDevice()
                 && node.currentHUEDevice.color !== undefined
                 && node.currentHUEDevice.color.gamut !== undefined
               ) {
@@ -926,7 +928,7 @@ module.exports = function (RED) {
               const retXY = hueColorConverter.ColorConverter.calculateXYFromRGB(msg.payload.red, msg.payload.green, msg.payload.blue, gamut);
               const bright = hueColorConverter.ColorConverter.getBrightnessFromRGBOrHex(msg.payload.red, msg.payload.green, msg.payload.blue);
               state = { dimming: { brightness: bright }, color: { xy: retXY } };
-              if (node.currentHUEDevice === undefined) {
+              if (!hasCurrentHueDevice()) {
                 // Grouped light
                 state.on = { on: bright > 0 };
               } else {
@@ -983,7 +985,7 @@ module.exports = function (RED) {
                       const blue = getRandomIntInclusive(0, 255);
                       let gamut = null;
                       if (
-                        node.currentHUEDevice !== undefined
+                        hasCurrentHueDevice()
                         && node.currentHUEDevice.color !== undefined
                         && node.currentHUEDevice.color.gamut !== undefined
                       ) {
@@ -1056,7 +1058,7 @@ module.exports = function (RED) {
                 if (!(node.availableEffects instanceof Set)) node.availableEffects = new Set();
                 node.availableEffects.add(effectToApply);
                 queueHueCommand(hueState);
-                if (node.currentHUEDevice !== undefined) {
+                if (hasCurrentHueDevice()) {
                   if (!node.currentHUEDevice.effects) node.currentHUEDevice.effects = {};
                   node.currentHUEDevice.effects.status = effectToApply;
                 }
@@ -1084,7 +1086,7 @@ module.exports = function (RED) {
 
       // I must respond to query requests (read request) sent from the KNX BUS
       try {
-        if (msg.knx.event === "GroupValue_Read" && node.currentHUEDevice !== undefined) {
+        if (msg.knx.event === "GroupValue_Read" && hasCurrentHueDevice()) {
           let ret;
           switch (msg.knx.destination) {
             case config.GALightState:
@@ -1514,7 +1516,7 @@ module.exports = function (RED) {
 
       //(async () => {
       try {
-        if (node.currentHUEDevice === undefined || node.serverHue === null || node.serverHue === undefined) {
+        if (!hasCurrentHueDevice() || node.serverHue === null || node.serverHue === undefined) {
           node.setNodeStatusHue({
             fill: "red",
             shape: "ring",
@@ -1530,7 +1532,7 @@ module.exports = function (RED) {
           if (Array.isArray(receivedHUEObject.effects.status_values)) {
             updateAvailableEffects(receivedHUEObject.effects.status_values);
           }
-          if (node.currentHUEDevice !== undefined) {
+          if (hasCurrentHueDevice()) {
             if (!node.currentHUEDevice.effects) node.currentHUEDevice.effects = {};
             node.currentHUEDevice.effects.status = receivedHUEObject.effects.status;
             if (Array.isArray(receivedHUEObject.effects.status_values)) {
@@ -1852,7 +1854,7 @@ module.exports = function (RED) {
           knxMsgPayload.payload = hueColorConverter.ColorConverter.xyBriToRgb(
             _value.xy.x,
             _value.xy.y,
-            node.currentHUEDevice !== undefined && node.currentHUEDevice.dimming !== undefined && node.currentHUEDevice.dimming.brightness === undefined ? node.currentHUEDevice.dimming.brightness : 100,
+            hasCurrentHueDevice() && node.currentHUEDevice.dimming !== undefined && node.currentHUEDevice.dimming.brightness === undefined ? node.currentHUEDevice.dimming.brightness : 100,
           );
           knxMsgPayload.payload = { red: knxMsgPayload.payload.r, green: knxMsgPayload.payload.g, blue: knxMsgPayload.payload.b };
           // Send to KNX bus
@@ -1877,7 +1879,7 @@ module.exports = function (RED) {
         knxMsgPayload.topic = config.GALightHSV_S_State;
         knxMsgPayload.dpt = config.dptLightHSV_S_State;
         if (config.dptLightHSV_S_State === "5.001") {
-          knxMsgPayload.payload = hueColorConverter.ColorConverter.xyBrightnessToHsv(_value.xy.x, _value.xy.y, node.currentHUEDevice !== undefined && node.currentHUEDevice.dimming !== undefined && node.currentHUEDevice.dimming.brightness === undefined ? node.currentHUEDevice.dimming.brightness : 100, false);
+          knxMsgPayload.payload = hueColorConverter.ColorConverter.xyBrightnessToHsv(_value.xy.x, _value.xy.y, hasCurrentHueDevice() && node.currentHUEDevice.dimming !== undefined && node.currentHUEDevice.dimming.brightness === undefined ? node.currentHUEDevice.dimming.brightness : 100, false);
           knxMsgPayload.payload = knxMsgPayload.payload.s;
         }
         // Send to KNX bus
@@ -1901,7 +1903,7 @@ module.exports = function (RED) {
         knxMsgPayload.topic = config.GALightHSV_H_State;
         knxMsgPayload.dpt = config.dptLightHSV_H_State;
         if (config.dptLightHSV_H_State === "5.001") {
-          knxMsgPayload.payload = hueColorConverter.ColorConverter.xyBrightnessToHsv(_value.xy.x, _value.xy.y, node.currentHUEDevice !== undefined && node.currentHUEDevice.dimming !== undefined && node.currentHUEDevice.dimming.brightness === undefined ? node.currentHUEDevice.dimming.brightness : 100, false);
+          knxMsgPayload.payload = hueColorConverter.ColorConverter.xyBrightnessToHsv(_value.xy.x, _value.xy.y, hasCurrentHueDevice() && node.currentHUEDevice.dimming !== undefined && node.currentHUEDevice.dimming.brightness === undefined ? node.currentHUEDevice.dimming.brightness : 100, false);
           knxMsgPayload.payload = 100 - knxMsgPayload.payload.h;
         }
         // Send to KNX bus
