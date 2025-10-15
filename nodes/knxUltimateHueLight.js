@@ -156,7 +156,7 @@ function prepareHueLightConfig(rawConfig) {
 
   cfg.initializingAtStart = cfg.readStatusAtStartup === undefined || cfg.readStatusAtStartup === "yes";
   cfg.specifySwitchOnBrightness = (cfg.specifySwitchOnBrightness === undefined || cfg.specifySwitchOnBrightness === "")
-    ? "temperature"
+    ? "no"
     : cfg.specifySwitchOnBrightness;
   cfg.specifySwitchOnBrightnessNightTime = (cfg.specifySwitchOnBrightnessNightTime === undefined || cfg.specifySwitchOnBrightnessNightTime === "")
     ? "no"
@@ -183,6 +183,167 @@ function prepareHueLightConfig(rawConfig) {
     }));
 
   return cfg;
+}
+
+function clampBrightness(value) {
+  if (value === undefined || value === null || value === "") return undefined;
+  const numeric = Number(value);
+  if (Number.isNaN(numeric)) return undefined;
+  if (numeric <= 0) return 0;
+  if (numeric >= 100) return 100;
+  return numeric;
+}
+
+function normalizeKelvin(value) {
+  if (value === undefined || value === null || value === "") return undefined;
+  const numeric = Number(value);
+  if (Number.isNaN(numeric) || numeric <= 0) return undefined;
+  return numeric;
+}
+
+function normalizeChannel(value) {
+  if (value === undefined || value === null || value === "") return undefined;
+  const numeric = Number(value);
+  if (Number.isNaN(numeric)) return undefined;
+  if (numeric <= 0) return 0;
+  if (numeric >= 255) return 255;
+  return numeric;
+}
+
+function normalizeColorConfig(source) {
+  if (!source || typeof source !== "object") return undefined;
+  const red = normalizeChannel(source.red);
+  const green = normalizeChannel(source.green);
+  const blue = normalizeChannel(source.blue);
+  if (red === undefined || green === undefined || blue === undefined) return undefined;
+  const brightness = clampBrightness(source.brightness);
+  const normalized = { red, green, blue };
+  if (brightness !== undefined) normalized.brightness = brightness;
+  return normalized;
+}
+
+function extractTemperatureSettings(source) {
+  if (!source || typeof source !== "object") return { kelvin: undefined, brightness: undefined };
+  return {
+    kelvin: normalizeKelvin(source.kelvin),
+    brightness: clampBrightness(source.brightness),
+  };
+}
+
+function buildColorSwitchState({
+  colorConfig,
+  currentDevice,
+  defaultGamut = null,
+  isGroupedLight = false,
+}) {
+  const normalized = normalizeColorConfig(colorConfig);
+  if (!normalized) return null;
+  const baseGamut = currentDevice?.color?.gamut || defaultGamut || null;
+  const xyTarget = hueColorConverter.ColorConverter.calculateXYFromRGB(
+    normalized.red,
+    normalized.green,
+    normalized.blue,
+    baseGamut,
+  );
+  const brightnessOverride = clampBrightness(normalized.brightness);
+  const computedBrightness = clampBrightness(
+    hueColorConverter.ColorConverter.getBrightnessFromRGBOrHex(
+      normalized.red,
+      normalized.green,
+      normalized.blue,
+    ),
+  );
+  const brightnessTarget = brightnessOverride !== undefined ? brightnessOverride : computedBrightness;
+  const baseState = {
+    on: { on: true },
+    color: { xy: { x: xyTarget.x, y: xyTarget.y } },
+  };
+  if (!isGroupedLight && currentDevice?.color_temperature !== undefined) {
+    baseState.color_temperature = { mirek: null };
+  }
+  if (typeof brightnessTarget === "number") {
+    baseState.dimming = { brightness: brightnessTarget };
+  }
+  const buildMemberState = (light) => {
+    if (!light || !light.color) return null;
+    const memberGamut = light.color.gamut || baseGamut;
+    const memberXy = hueColorConverter.ColorConverter.calculateXYFromRGB(
+      normalized.red,
+      normalized.green,
+      normalized.blue,
+      memberGamut,
+    );
+    const payload = {
+      on: { on: true },
+      color: { xy: { x: memberXy.x, y: memberXy.y } },
+    };
+    if (typeof brightnessTarget === "number") {
+      payload.dimming = { brightness: brightnessTarget };
+    }
+    return payload;
+  };
+  return {
+    baseState,
+    buildMemberState,
+    brightness: brightnessTarget,
+    color: normalized,
+  };
+}
+
+function buildTemperatureSwitchState({
+  kelvin,
+  brightness,
+  fallbackBrightness,
+  lastKnownBrightness,
+  currentDevice,
+  isGroupedLight = false,
+}) {
+  const normalizedKelvin = normalizeKelvin(kelvin);
+  if (normalizedKelvin === undefined) return null;
+
+  let effectiveBrightness = clampBrightness(brightness);
+  if (effectiveBrightness === undefined) {
+    effectiveBrightness = clampBrightness(fallbackBrightness);
+  }
+  if (effectiveBrightness === undefined) {
+    effectiveBrightness = clampBrightness(lastKnownBrightness);
+  }
+  if (effectiveBrightness === undefined) {
+    effectiveBrightness = clampBrightness(currentDevice?.dimming?.brightness);
+  }
+
+  const mirekValue = hueColorConverter.ColorConverter.kelvinToMirek(normalizedKelvin);
+  const baseState = { on: { on: true } };
+  const deviceSupportsTemperature = isGroupedLight || currentDevice?.color_temperature !== undefined;
+  if (deviceSupportsTemperature) {
+    baseState.color_temperature = { mirek: mirekValue };
+  }
+  if (typeof effectiveBrightness === "number") {
+    baseState.dimming = { brightness: effectiveBrightness };
+  }
+
+  const buildMemberState = (light) => {
+    if (!light || !light.color_temperature) return null;
+    const payload = { on: { on: true } };
+    let targetMirek = mirekValue;
+    const schema = light.color_temperature.mirek_schema;
+    if (schema) {
+      if (typeof schema.mirek_minimum === "number") targetMirek = Math.max(targetMirek, schema.mirek_minimum);
+      if (typeof schema.mirek_maximum === "number") targetMirek = Math.min(targetMirek, schema.mirek_maximum);
+    }
+    payload.color_temperature = { mirek: targetMirek };
+    if (typeof effectiveBrightness === "number") {
+      payload.dimming = { brightness: effectiveBrightness };
+    }
+    return payload;
+  };
+
+  return {
+    baseState,
+    buildMemberState,
+    brightness: effectiveBrightness,
+    mirek: mirekValue,
+  };
 }
 
 module.exports = function (RED) {
@@ -378,6 +539,26 @@ module.exports = function (RED) {
       node.setNodeStatusHue({ fill, shape: "dot", text, payload });
     };
 
+    const applyStateToGroupedLights = (capability, stateBuilder) => {
+      if (!node.isGrouped_light) return;
+      if (!node.serverHue || typeof node.serverHue.getAllLightsBelongingToTheGroup !== 'function') return;
+      (async () => {
+        try {
+          const lights = await node.serverHue.getAllLightsBelongingToTheGroup(node.hueDevice, false);
+          lights.forEach((light) => {
+            if (!light) return;
+            if (capability === "color" && !light.color) return;
+            if (capability === "color_temperature" && !light.color_temperature) return;
+            const payload = stateBuilder(light);
+            if (!payload) return;
+            node.serverHue.hueManager.writeHueQueueAdd(light.id, payload, "setLight");
+          });
+        } catch (error) {
+          RED.log.warn(`knxUltimateHueLight: applyStateToGroupedLights ${capability} ${error.message}`);
+        }
+      })();
+    };
+
     const handleLightSwitch = (msg) => {
       let state = {};
       msg.payload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightSwitch));
@@ -426,14 +607,18 @@ module.exports = function (RED) {
           } else if (node.isGrouped_light === true && node.HUELightsBelongingToGroupWhileDaytime !== null) {
             let bAtLeastOneIsOn = false;
             for (let index = 0; index < node.HUELightsBelongingToGroupWhileDaytime.length; index++) {
-              const element = node.HUELightsBelongingToGroupWhileDaytime[index].light[0];
+              const rawEntry = node.HUELightsBelongingToGroupWhileDaytime[index];
+              const element = rawEntry?.light ? rawEntry.light[0] : rawEntry;
+              if (!element || !element.on) continue;
               if (element.on.on === true) {
                 bAtLeastOneIsOn = true;
                 break;
               }
             }
             for (let index = 0; index < node.HUELightsBelongingToGroupWhileDaytime.length; index++) {
-              const element = node.HUELightsBelongingToGroupWhileDaytime[index].light[0];
+              const rawEntry = node.HUELightsBelongingToGroupWhileDaytime[index];
+              const element = rawEntry?.light ? rawEntry.light[0] : rawEntry;
+              if (!element) continue;
               if (bAtLeastOneIsOn === true) {
                 state = { on: element.on, dimming: element.dimming, color: element.color, color_temperature: element.color_temperature };
               } else {
@@ -451,68 +636,82 @@ module.exports = function (RED) {
           let colorChoosen;
           let temperatureChoosen;
           let brightnessChoosen;
-          if (node.currentHUEDevice.color_temperature !== undefined) {
-            if (node.DayTime === true && config.specifySwitchOnBrightness === "temperature") {
-              temperatureChoosen = config.colorAtSwitchOnDayTime.kelvin;
-            } else if (node.DayTime === false && config.enableDayNightLighting === "temperature") {
-              temperatureChoosen = config.colorAtSwitchOnNightTime.kelvin;
+
+          if (node.DayTime === true) {
+            if (config.specifySwitchOnBrightness === "yes") {
+              colorChoosen = normalizeColorConfig(config.colorAtSwitchOnDayTime);
+            } else if (config.specifySwitchOnBrightness === "temperature") {
+              const { kelvin, brightness } = extractTemperatureSettings(config.colorAtSwitchOnDayTime);
+              temperatureChoosen = kelvin;
+              brightnessChoosen = brightness;
+            }
+          } else if (node.DayTime === false) {
+            if (config.enableDayNightLighting === "yes") {
+              colorChoosen = normalizeColorConfig(config.colorAtSwitchOnNightTime);
+            } else if (config.enableDayNightLighting === "temperature") {
+              const { kelvin, brightness } = extractTemperatureSettings(config.colorAtSwitchOnNightTime);
+              temperatureChoosen = kelvin;
+              brightnessChoosen = brightness;
             }
           }
-          if (node.currentHUEDevice.dimming !== undefined) {
-            if (node.DayTime === true && config.specifySwitchOnBrightness === "temperature") {
-              brightnessChoosen = config.colorAtSwitchOnDayTime.brightness;
-            } else if (node.DayTime === false && config.enableDayNightLighting === "temperature") {
-              brightnessChoosen = config.colorAtSwitchOnNightTime.brightness;
-            }
-          }
-          if (node.currentHUEDevice.color !== undefined) {
-            if (node.DayTime === true && config.specifySwitchOnBrightness === "yes") {
-              colorChoosen = config.colorAtSwitchOnDayTime;
-            } else if (node.DayTime === false && config.enableDayNightLighting === "yes") {
-              colorChoosen = config.colorAtSwitchOnNightTime;
-            }
-          }
-          if (colorChoosen !== undefined) {
-            const gamut = node.currentHUEDevice?.color?.gamut || config.hueDeviceObject?.color?.gamut || null;
-            const xyTarget = hueColorConverter.ColorConverter.calculateXYFromRGB(colorChoosen.red, colorChoosen.green, colorChoosen.blue, gamut);
-            let brightness = hueColorConverter.ColorConverter.getBrightnessFromRGBOrHex(colorChoosen.red, colorChoosen.green, colorChoosen.blue);
-            const state = {
-              on: { on: brightness === undefined ? true : brightness > 0 },
-              color: { xy: xyTarget },
-            };
-            if (typeof brightness === 'number') {
-              if (!node.currentHUEDevice.dimming) node.currentHUEDevice.dimming = {};
-              node.currentHUEDevice.dimming.brightness = brightness;
-              if (brightness > 0) node.lastKnownBrightness = brightness;
-              if (brightness > 0) {
-                state.dimming = { brightness };
+
+          if (colorChoosen) {
+            const colorTarget = buildColorSwitchState({
+              colorConfig: colorChoosen,
+              currentDevice: node.currentHUEDevice,
+              defaultGamut: config.hueDeviceObject?.color?.gamut || null,
+              isGroupedLight: node.isGrouped_light,
+            });
+            if (colorTarget) {
+              queueHueCommand(colorTarget.baseState);
+              if (!node.currentHUEDevice.color) node.currentHUEDevice.color = {};
+              node.currentHUEDevice.color.xy = cloneDeep(colorTarget.baseState.color.xy);
+              if (colorTarget.baseState.color_temperature && node.currentHUEDevice.color_temperature) {
+                node.currentHUEDevice.color_temperature.mirek = colorTarget.baseState.color_temperature.mirek;
               }
+              if (typeof colorTarget.brightness === "number") {
+                if (!node.currentHUEDevice.dimming) node.currentHUEDevice.dimming = {};
+                node.currentHUEDevice.dimming.brightness = colorTarget.brightness;
+                if (colorTarget.brightness > 0) node.lastKnownBrightness = colorTarget.brightness;
+              }
+              if (node.isGrouped_light) {
+                applyStateToGroupedLights("color", colorTarget.buildMemberState);
+              }
+              reportHueStatus(JSON.stringify(msg.payload));
+              return;
             }
-            if (!node.currentHUEDevice.color) node.currentHUEDevice.color = {};
-            node.currentHUEDevice.color.xy = xyTarget;
-            queueHueCommand(state);
-            reportHueStatus(JSON.stringify(msg.payload));
-            return;
           }
+
           if (temperatureChoosen !== undefined) {
-            let bBright;
-            if (config.specifySwitchOnBrightness === "temperature") {
-              bBright = brightnessChoosen;
-            } else {
-              bBright = node.currentHUEDevice.dimming?.brightness;
+            const temperatureTarget = buildTemperatureSwitchState({
+              kelvin: temperatureChoosen,
+              brightness: brightnessChoosen,
+              fallbackBrightness: brightnessChoosen,
+              lastKnownBrightness: node.lastKnownBrightness,
+              currentDevice: node.currentHUEDevice,
+              isGroupedLight: node.isGrouped_light,
+            });
+            if (temperatureTarget) {
+              state = cloneDeep(temperatureTarget.baseState);
+              if (node.isGrouped_light === false && node.currentHUEDevice?.color_temperature === undefined) {
+                delete state.color_temperature;
+              }
+              queueHueCommand(state);
+              if (typeof temperatureTarget.brightness === "number") {
+                if (!node.currentHUEDevice.dimming) node.currentHUEDevice.dimming = {};
+                node.currentHUEDevice.dimming.brightness = temperatureTarget.brightness;
+                if (temperatureTarget.brightness > 0) node.lastKnownBrightness = temperatureTarget.brightness;
+              }
+              if (node.isGrouped_light) {
+                applyStateToGroupedLights("color_temperature", temperatureTarget.buildMemberState);
+              }
+              if (state.color_temperature) {
+                if (!node.currentHUEDevice.color_temperature) node.currentHUEDevice.color_temperature = {};
+                node.currentHUEDevice.color_temperature.mirek = state.color_temperature.mirek;
+              }
+              reportHueStatus(JSON.stringify(msg.payload));
+              return;
             }
-            state = {
-              color_temperature: { mirek: hueColorConverter.ColorConverter.kelvinToMirek(temperatureChoosen) },
-              dimming: { brightness: bBright },
-              on: { on: true },
-            };
-            if (node.currentHUEDevice.color_temperature === undefined) {
-              delete state.color_temperature;
-            }
-            queueHueCommand(state);
-            if (typeof bBright === "number" && bBright > 0) node.lastKnownBrightness = bBright;
-            reportHueStatus(JSON.stringify(msg.payload));
-            return;
           }
           if (node.currentHUEDevice.dimming !== undefined) {
             let targetBrightness;
@@ -1381,11 +1580,14 @@ module.exports = function (RED) {
           // Set the new values based on average calculated above            
           // CHECK FIRST THE COLOR_TEMPERATURE, because it can be undefined, because the current selected color
           // is out of the mirek range, so it cannot be represented with the colore temperature.
-          if (receivedHUEObject.color_temperature !== undefined && AverageColorsXYBrightnessAndTemperature.mirek !== undefined && receivedHUEObject.color_temperature.mirel_valid === true) {
-            receivedHUEObject.color_temperature.mirek = AverageColorsXYBrightnessAndTemperature.mirek;
+          const colorTemperatureEvent = receivedHUEObject.color_temperature;
+          const hasUsableAverageMirek = AverageColorsXYBrightnessAndTemperature.mirek !== undefined;
+          const mirekIsValid = colorTemperatureEvent?.mirek_valid !== false;
+          if (colorTemperatureEvent !== undefined && hasUsableAverageMirek && mirekIsValid) {
+            colorTemperatureEvent.mirek = AverageColorsXYBrightnessAndTemperature.mirek;
             node.currentHUEDevice.color_temperature = { mirek: AverageColorsXYBrightnessAndTemperature.mirek };
-            node.updateKNXLightKelvinPercentageState(receivedHUEObject.color_temperature.mirek);
-            node.updateKNXLightKelvinState(receivedHUEObject.color_temperature.mirek);
+            node.updateKNXLightKelvinPercentageState(colorTemperatureEvent.mirek);
+            node.updateKNXLightKelvinState(colorTemperatureEvent.mirek);
           } else if (receivedHUEObject.color !== undefined && receivedHUEObject.color.xy !== undefined && AverageColorsXYBrightnessAndTemperature.x !== undefined) {
             receivedHUEObject.color.xy.x = AverageColorsXYBrightnessAndTemperature.x;
             receivedHUEObject.color.xy.y = AverageColorsXYBrightnessAndTemperature.y;
@@ -1835,4 +2037,21 @@ module.exports = function (RED) {
     });
   }
   RED.nodes.registerType("knxUltimateHueLight", knxUltimateHueLight);
+};
+
+module.exports.__test__ = {
+  safeJSONParse,
+  hydrateSwitchColor,
+  normalizeRuleKey,
+  normalizeIncomingValue,
+  convertRuleValueForStatus,
+  buildEffectLookups,
+  prepareHueLightConfig,
+  clampBrightness,
+  normalizeKelvin,
+  normalizeChannel,
+  normalizeColorConfig,
+  extractTemperatureSettings,
+  buildColorSwitchState,
+  buildTemperatureSwitchState,
 };
