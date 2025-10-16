@@ -1,291 +1,674 @@
 const { expect } = require("chai");
+const { ColorConverter } = require("../nodes/utils/colorManipulators/hueColorConverter");
 
-const hueLightModule = require("../nodes/knxUltimateHueLight.js");
+function instantiateNode(overrides = {}) {
+  const hueCommands = [];
+  const knxTelegrams = [];
+  const statuses = [];
+  const hueQueueDeletes = [];
+  let registeredConstructor = null;
 
-const {
-  safeJSONParse,
-  hydrateSwitchColor,
-  normalizeRuleKey,
-  normalizeIncomingValue,
-  convertRuleValueForStatus,
-  buildEffectLookups,
-  prepareHueLightConfig,
-  clampBrightness,
-  normalizeKelvin,
-  normalizeChannel,
-  normalizeColorConfig,
-  extractTemperatureSettings,
-  buildColorSwitchState,
-  buildTemperatureSwitchState,
-} = hueLightModule.__test__;
+  const baseConfig = {
+    server: "knx",
+    serverHue: "hue",
+    hueDevice: "test-light#light",
+    GALightSwitch: "1/1/1",
+    dptLightSwitch: "1.001",
+    GADaylightSensor: "1/1/2",
+    dptDaylightSensor: "1.001",
+    specifySwitchOnBrightness: "no",
+    specifySwitchOnBrightnessNightTime: "no",
+    enableDayNightLighting: "no",
+    colorAtSwitchOnDayTime: '{ "kelvin":3000, "brightness":55 }',
+    colorAtSwitchOnNightTime: '{ "kelvin":2700, "brightness":25 }',
+  };
 
-describe("knxUltimateHueLight helper utilities", () => {
-  describe("safeJSONParse", () => {
-    it("returns a cloned fallback when value is empty", () => {
-      const fallback = { foo: ["bar"] };
-      const result = safeJSONParse(undefined, fallback);
-      expect(result).to.deep.equal(fallback);
-      expect(result).to.not.equal(fallback);
+  const config = { ...baseConfig, ...overrides };
+
+  const knxServer = {
+    sendKNXTelegramToKNXEngine: (frame) => { knxTelegrams.push(frame); },
+    addClient: () => {},
+    removeClient: () => {},
+  };
+
+  const hueServer = {
+    linkStatus: "connected",
+    hueManager: {
+      writeHueQueueAdd: (id, payload, command) => {
+        hueCommands.push({ id, payload, command });
+      },
+      deleteHueQueue: (id) => {
+        hueQueueDeletes.push(id);
+      },
+    },
+    addClient: () => {},
+    removeClient: () => {},
+    getAllLightsBelongingToTheGroup: async () => [],
+  };
+
+  const RED = {
+    nodes: {
+      registerType: (_name, ctor) => { registeredConstructor = ctor; },
+      createNode: (node) => {
+        node.status = (status) => { statuses.push(status); };
+        node.on = (event, handler) => {
+          node._handlers = node._handlers || {};
+          node._handlers[event] = handler;
+        };
+        node.emit = (event, ...args) => {
+          if (node._handlers?.[event]) node._handlers[event](...args);
+        };
+        node.context = () => ({ get: () => undefined, set: () => {} });
+      },
+      getNode: (id) => {
+        if (id === config.server) return knxServer;
+        if (id === config.serverHue) return hueServer;
+        return undefined;
+      },
+    },
+    util: {
+      cloneMessage: (msg) => JSON.parse(JSON.stringify(msg)),
+    },
+    log: {
+      debug: () => {},
+      error: () => {},
+    },
+  };
+
+  delete require.cache[require.resolve("../nodes/knxUltimateHueLight.js")];
+  const nodeFactory = require("../nodes/knxUltimateHueLight.js");
+  nodeFactory(RED);
+
+  const node = new registeredConstructor(config);
+
+  return {
+    node,
+    config,
+    hueCommands,
+    knxTelegrams,
+    statuses,
+    hueServer,
+    knxServer,
+    hueQueueDeletes,
+  };
+}
+
+function withFakeTimers(testFn) {
+  const originalSetInterval = global.setInterval;
+  const originalClearInterval = global.clearInterval;
+  const activeIntervals = [];
+
+  global.setInterval = (fn, delay) => {
+    const handle = { fn, delay };
+    activeIntervals.push(handle);
+    return fn;
+  };
+
+  global.clearInterval = (handle) => {
+    const index = activeIntervals.findIndex((entry) => entry.fn === handle);
+    if (index !== -1) activeIntervals.splice(index, 1);
+  };
+
+  const tick = (cycles = 1) => {
+    for (let i = 0; i < cycles; i += 1) {
+      activeIntervals.slice().forEach((entry) => {
+        entry.fn();
+      });
+    }
+  };
+
+  try {
+    return testFn({ tick, activeIntervals });
+  } finally {
+    global.setInterval = originalSetInterval;
+    global.clearInterval = originalClearInterval;
+  }
+}
+
+function createSwitchTelegram(destination, value = 1, event = "GroupValue_Write") {
+  const rawValue = Buffer.isBuffer(value) ? value : Buffer.from([value]);
+  return {
+    knx: {
+      event,
+      destination,
+      rawValue,
+    },
+  };
+}
+
+describe("knxUltimateHueLight KNX to HUE routing", () => {
+  it("restores stored daytime state when no switch-on profile is configured", () => {
+    const { node, config, hueCommands } = instantiateNode();
+
+    node.currentHUEDevice = { color_temperature: {}, dimming: {}, on: { on: false } };
+    node.DayTime = true;
+    const storedState = {
+      on: { on: true },
+      dimming: { brightness: 70 },
+      color: { xy: { x: 0.35, y: 0.35 } },
+      color_temperature: { mirek: 250 },
+    };
+    node.HUEDeviceWhileDaytime = storedState;
+
+    node.handleSend(createSwitchTelegram(config.GALightSwitch));
+
+    expect(hueCommands).to.have.lengthOf(2);
+    hueCommands.forEach((command) => {
+      expect(command.id).to.equal("test-light");
+      expect(command.command).to.equal("setLight");
+      expect(command.payload).to.deep.equal(storedState);
+    });
+    expect(node.HUEDeviceWhileDaytime).to.equal(null);
+  });
+
+  it("applies daytime temperature preset when configured", () => {
+    const { node, config, hueCommands } = instantiateNode({
+      specifySwitchOnBrightness: "temperature",
     });
 
-    it("returns fallback clone on invalid JSON strings", () => {
-      const fallback = { baz: 42 };
-      const result = safeJSONParse("not-json", fallback);
-      expect(result).to.deep.equal(fallback);
-      expect(result).to.not.equal(fallback);
+    node.currentHUEDevice = {
+      color_temperature: {},
+      dimming: { brightness: 10 },
+      on: { on: false },
+    };
+    node.DayTime = true;
+
+    const brightnessUpdates = [];
+    node.updateKNXBrightnessState = (value) => { brightnessUpdates.push(value); };
+
+    node.handleSend(createSwitchTelegram(config.GALightSwitch));
+
+    expect(hueCommands).to.have.lengthOf(1);
+    const command = hueCommands[0];
+    expect(command.payload.on).to.deep.equal({ on: true });
+    expect(command.payload.dimming).to.deep.equal({ brightness: config.colorAtSwitchOnDayTime.brightness });
+    const expectedMirek = ColorConverter.kelvinToMirek(config.colorAtSwitchOnDayTime.kelvin);
+    expect(command.payload.color_temperature).to.deep.equal({ mirek: expectedMirek });
+    expect(brightnessUpdates).to.deep.equal([config.colorAtSwitchOnDayTime.brightness]);
+    expect(node.currentHUEDevice.color_temperature.mirek).to.equal(expectedMirek);
+    expect(node.currentHUEDevice.dimming.brightness).to.equal(config.colorAtSwitchOnDayTime.brightness);
+  });
+
+  it("stores a clone of the current device when entering night mode", () => {
+    const { node, config } = instantiateNode();
+
+    node.currentHUEDevice = {
+      on: { on: true },
+      dimming: { brightness: 80 },
+      color_temperature: { mirek: 300 },
+      color: { xy: { x: 0.4, y: 0.4 } },
+    };
+    node.DayTime = true;
+
+    node.handleSend(createSwitchTelegram(config.GADaylightSensor, 0));
+
+    expect(node.DayTime).to.equal(false);
+    expect(node.HUEDeviceWhileDaytime).to.deep.equal(node.currentHUEDevice);
+    expect(node.HUEDeviceWhileDaytime).to.not.equal(node.currentHUEDevice);
+  });
+
+  it("ignores KNX read requests", () => {
+    const { node, config, hueCommands } = instantiateNode();
+    node.currentHUEDevice = { color_temperature: {}, dimming: {}, on: { on: false } };
+
+    node.handleSend(createSwitchTelegram(config.GALightSwitch, 1, "GroupValue_Read"));
+
+    expect(hueCommands).to.have.lengthOf(0);
+  });
+
+  it("applies the night color preset when enabled", () => {
+    const { node, config, hueCommands } = instantiateNode({
+      enableDayNightLighting: "yes",
+      colorAtSwitchOnNightTime: JSON.stringify({ red: 10, green: 40, blue: 200 }),
     });
 
-    it("parses valid JSON strings", () => {
-      const input = '{"answer":42}';
-      const result = safeJSONParse(input, {});
-      expect(result).to.deep.equal({ answer: 42 });
+    node.currentHUEDevice = {
+      color: {
+        gamut: {
+          red: { x: 0.7, y: 0.298 },
+          green: { x: 0.17, y: 0.7 },
+          blue: { x: 0.15, y: 0.06 },
+        },
+        xy: { x: 0.1, y: 0.1 },
+      },
+      color_temperature: { mirek: 450 },
+      dimming: { brightness: 25 },
+      on: { on: false },
+    };
+    node.DayTime = false;
+
+    node.handleSend(createSwitchTelegram(config.GALightSwitch));
+
+    expect(hueCommands).to.have.lengthOf(1);
+    const command = hueCommands[0];
+    expect(command.command).to.equal("setLight");
+    expect(command.payload.on).to.deep.equal({ on: true });
+    expect(command.payload.color.xy).to.have.keys(["x", "y"]);
+    expect(command.payload.color_temperature).to.equal(undefined);
+
+    const expectedCommandBrightness = ColorConverter.getBrightnessFromRGBOrHex(10, 40, 200);
+    expect(command.payload.dimming.brightness).to.equal(expectedCommandBrightness);
+    expect(node.currentHUEDevice.dimming.brightness).to.equal(Math.round(expectedCommandBrightness));
+  });
+
+  it("restores each grouped light using the stored night snapshot", () => {
+    const { node, config, hueCommands } = instantiateNode({
+      hueDevice: "group-1#grouped_light",
+    });
+
+    node.currentHUEDevice = { on: { on: false }, dimming: {}, color: {} };
+    node.DayTime = true;
+
+    node.HUELightsBelongingToGroupWhileDaytime = [
+      {
+        light: [
+          {
+            id: "light-a",
+            on: { on: true },
+            dimming: { brightness: 60 },
+            color: { xy: { x: 0.3, y: 0.3 } },
+            color_temperature: { mirek: 300 },
+          },
+        ],
+      },
+      {
+        light: [
+          {
+            id: "light-b",
+            on: { on: false },
+            dimming: { brightness: 45 },
+            color: { xy: { x: 0.4, y: 0.4 } },
+            color_temperature: { mirek: null },
+          },
+        ],
+      },
+    ];
+
+    node.handleSend(createSwitchTelegram(config.GALightSwitch));
+
+    expect(hueCommands).to.have.lengthOf(2);
+    const ids = hueCommands.map((entry) => entry.id);
+    expect(ids).to.have.members(["light-a", "light-b"]);
+
+    const groupedState = hueCommands.find((entry) => entry.id === "light-b");
+    expect(groupedState.payload.color_temperature).to.equal(undefined);
+    expect(groupedState.command).to.equal("setLight");
+    expect(node.HUELightsBelongingToGroupWhileDaytime).to.equal(null);
+  });
+
+  it("converts KNX RGB payloads into Hue XY commands", () => {
+    const { node, config, hueCommands } = instantiateNode({
+      GALightColor: "1/1/4",
+      dptLightColor: "232.600",
+    });
+
+    node.currentHUEDevice = {
+      on: { on: false },
+      dimming: { brightness: 10 },
+      color: {
+        gamut: {
+          red: { x: 0.7, y: 0.3 },
+          green: { x: 0.17, y: 0.7 },
+          blue: { x: 0.15, y: 0.06 },
+        },
+      },
+    };
+
+    const rgbBuffer = Buffer.from([10, 40, 200]);
+    node.handleSend(createSwitchTelegram(config.GALightColor, rgbBuffer));
+
+    expect(hueCommands).to.have.lengthOf(1);
+    const command = hueCommands[0];
+    expect(command.payload.on).to.deep.equal({ on: true });
+    expect(command.payload.color.xy).to.have.keys(["x", "y"]);
+    expect(command.payload.dimming.brightness).to.be.greaterThan(0);
+  });
+
+  it("turns Hue light off when KNX RGB payload carries zero brightness", () => {
+    const { node, config, hueCommands } = instantiateNode({
+      GALightColor: "1/1/4",
+      dptLightColor: "232.600",
+    });
+
+    node.currentHUEDevice = {
+      on: { on: true },
+      dimming: { brightness: 50 },
+      color: { gamut: null },
+    };
+
+    const rgbBuffer = Buffer.from([0, 0, 0]);
+    node.handleSend(createSwitchTelegram(config.GALightColor, rgbBuffer));
+
+    expect(hueCommands).to.have.lengthOf(1);
+    const command = hueCommands[0];
+    expect(command.payload.on).to.deep.equal({ on: false });
+    expect(command.payload.dimming.brightness).to.equal(0);
+  });
+
+  it("forces Hue dimming and turns light on for positive brightness telegrams", () => {
+    const { node, config, hueCommands } = instantiateNode({
+      GALightBrightness: "1/1/3",
+      dptLightBrightness: "5.001",
+    });
+
+    node.currentHUEDevice = { on: { on: false }, dimming: { brightness: 0 } };
+
+    const fiftyPercent = Buffer.from([128]);
+    node.handleSend(createSwitchTelegram(config.GALightBrightness, fiftyPercent));
+
+    expect(hueCommands).to.have.lengthOf(1);
+    const command = hueCommands[0];
+    expect(command.payload.dimming).to.deep.equal({ brightness: 50 });
+    expect(command.payload.on).to.deep.equal({ on: true });
+    expect(command.command).to.equal("setLight");
+  });
+
+  it("forces Hue dimming off when brightness telegram is zero", () => {
+    const { node, config, hueCommands } = instantiateNode({
+      GALightBrightness: "1/1/3",
+      dptLightBrightness: "5.001",
+    });
+
+    node.currentHUEDevice = { on: { on: true }, dimming: { brightness: 80 } };
+
+    node.handleSend(createSwitchTelegram(config.GALightBrightness, Buffer.from([0])));
+
+    expect(hueCommands).to.have.lengthOf(1);
+    const command = hueCommands[0];
+    expect(command.payload.dimming).to.deep.equal({ brightness: 0 });
+    expect(command.payload.on).to.deep.equal({ on: false });
+    expect(command.command).to.equal("setLight");
+  });
+});
+
+describe("knxUltimateHueLight HUE to KNX status updates", () => {
+  it("publishes KNX brightness status frames", () => {
+    const overrides = {
+      GALightBrightnessState: "1/1/10",
+      dptLightBrightnessState: "5.001",
+    };
+    const { node, knxTelegrams } = instantiateNode(overrides);
+
+    node.updateKNXBrightnessState(42);
+
+    expect(knxTelegrams).to.have.lengthOf(1);
+    expect(knxTelegrams[0]).to.deep.equal({
+      grpaddr: overrides.GALightBrightnessState,
+      payload: 42,
+      dpt: overrides.dptLightBrightnessState,
+      outputtype: "write",
+      nodecallerid: node.id,
     });
   });
 
-  describe("clampBrightness", () => {
-    it("clamps values within 0-100", () => {
-      expect(clampBrightness(-10)).to.equal(0);
-      expect(clampBrightness(50)).to.equal(50);
-      expect(clampBrightness(150)).to.equal(100);
-    });
+  it("publishes KNX on/off status frames", () => {
+    const overrides = {
+      GALightState: "1/1/11",
+      dptLightState: "1.001",
+    };
+    const { node, knxTelegrams } = instantiateNode(overrides);
 
-    it("returns undefined for invalid inputs", () => {
-      expect(clampBrightness(undefined)).to.equal(undefined);
-      expect(clampBrightness("")).to.equal(undefined);
-      expect(clampBrightness("abc")).to.equal(undefined);
-    });
-  });
+    node.updateKNXLightState(true);
 
-  describe("normalize helpers", () => {
-    it("normalizes kelvin and RGB channels", () => {
-      expect(normalizeKelvin("3000")).to.equal(3000);
-      expect(normalizeKelvin(-1)).to.equal(undefined);
-      expect(normalizeChannel(400)).to.equal(255);
-      expect(normalizeChannel("12")).to.equal(12);
-    });
-
-    it("normalizes color configuration objects", () => {
-      expect(normalizeColorConfig({ red: "255", green: "128", blue: 0 })).to.deep.equal({ red: 255, green: 128, blue: 0 });
-      expect(normalizeColorConfig({ red: 10, green: 20, blue: 30, brightness: "75" })).to.deep.equal({ red: 10, green: 20, blue: 30, brightness: 75 });
-      expect(normalizeColorConfig({ red: 10, blue: 10 })).to.equal(undefined);
-    });
-
-    it("extracts temperature settings with clamped brightness", () => {
-      expect(extractTemperatureSettings({ kelvin: "2700", brightness: "120" })).to.deep.equal({ kelvin: 2700, brightness: 100 });
-      expect(extractTemperatureSettings(null)).to.deep.equal({ kelvin: undefined, brightness: undefined });
+    expect(knxTelegrams).to.have.lengthOf(1);
+    expect(knxTelegrams[0]).to.deep.equal({
+      grpaddr: overrides.GALightState,
+      payload: true,
+      dpt: overrides.dptLightState,
+      outputtype: "write",
+      nodecallerid: node.id,
     });
   });
 
-  describe("buildColorSwitchState", () => {
-    const baseGamut = { red: { x: 0.7, y: 0.298 }, green: { x: 0.17, y: 0.7 }, blue: { x: 0.15, y: 0.06 } };
+  it("publishes KNX color status frames with RGB conversion", () => {
+    const overrides = {
+      GALightColorState: "1/1/12",
+      dptLightColorState: "232.600",
+    };
+    const { node, knxTelegrams } = instantiateNode(overrides);
 
-    it("builds consistent state for single lights", () => {
-      const currentDevice = { color: { gamut: baseGamut }, color_temperature: {}, dimming: { brightness: 30 } };
-      const result = buildColorSwitchState({
-        colorConfig: { red: 255, green: 0, blue: 0 },
-        currentDevice,
-        defaultGamut: baseGamut,
-        isGroupedLight: false,
-      });
-      expect(result).to.not.equal(null);
-      expect(result.baseState.on).to.deep.equal({ on: true });
-      expect(result.baseState.color.xy).to.have.keys(["x", "y"]);
-      expect(result.baseState.color_temperature).to.deep.equal({ mirek: null });
-      expect(result.brightness).to.be.within(0, 100);
-      const memberState = result.buildMemberState({ color: { gamut: baseGamut } });
-      expect(memberState.color.xy).to.have.keys(["x", "y"]);
-      expect(memberState.dimming.brightness).to.equal(result.brightness);
+    node.currentHUEDevice = { dimming: { brightness: 75 } };
+    const xyValue = { xy: { x: 0.25, y: 0.35 } };
+    node.updateKNXLightColorState(xyValue);
+
+    expect(knxTelegrams).to.have.lengthOf(1);
+    const frame = knxTelegrams[0];
+    expect(frame.grpaddr).to.equal(overrides.GALightColorState);
+    expect(frame.dpt).to.equal(overrides.dptLightColorState);
+    expect(frame.outputtype).to.equal("write");
+    expect(frame.nodecallerid).to.equal(node.id);
+
+    const expectedRgb = ColorConverter.xyBriToRgb(
+      xyValue.xy.x,
+      xyValue.xy.y,
+      100,
+    );
+    expect(frame.payload).to.deep.equal({
+      red: expectedRgb.r,
+      green: expectedRgb.g,
+      blue: expectedRgb.b,
     });
+  });
+});
 
-    it("omits color temperature reset for grouped lights", () => {
-      const result = buildColorSwitchState({
-        colorConfig: { red: 10, green: 20, blue: 30 },
-        currentDevice: { color: { gamut: baseGamut } },
-        defaultGamut: baseGamut,
-        isGroupedLight: true,
-      });
-      expect(result.baseState.color_temperature).to.equal(undefined);
-    });
+describe("knxUltimateHueLight dimming helpers", () => {
+  it("dims up from off state and schedules Hue updates", () => {
+    withFakeTimers(({ tick, activeIntervals }) => {
+      const { node, hueCommands } = instantiateNode();
 
-    it("honours brightness overrides when provided", () => {
-      const currentDevice = { color: { gamut: baseGamut }, color_temperature: {} };
-      const result = buildColorSwitchState({
-        colorConfig: { red: 120, green: 80, blue: 40, brightness: 25 },
-        currentDevice,
-        defaultGamut: baseGamut,
-        isGroupedLight: false,
-      });
-      expect(result.brightness).to.equal(25);
-      expect(result.baseState.dimming.brightness).to.equal(25);
+      node.currentHUEDevice = {
+        on: { on: false },
+        dimming: { brightness: 0 },
+        color_temperature: { mirek: 370 },
+      };
+      const brightnessUpdates = [];
+      node.updateKNXBrightnessState = (value) => { brightnessUpdates.push(value); };
+
+      node.hueDimming(1, 1, 1000);
+
+      expect(activeIntervals).to.have.lengthOf(1);
+      expect(node.brightnessStep).to.equal(0);
+
+      tick();
+
+      expect(brightnessUpdates).to.deep.equal([0]);
+      expect(hueCommands).to.have.lengthOf(1);
+      const command = hueCommands[0];
+      expect(command.payload.dimming.brightness).to.be.greaterThan(0);
+      expect(command.payload.on).to.deep.equal({ on: true });
+      expect(command.payload.color_temperature).to.deep.equal({ mirek: 370 });
+      expect(node.brightnessStep).to.be.greaterThan(0);
     });
   });
 
-  describe("buildTemperatureSwitchState", () => {
-    it("builds base and member states respecting schemas", () => {
-      const currentDevice = { color_temperature: { mirek: 400 }, dimming: { brightness: 35 } };
-      const result = buildTemperatureSwitchState({
-        kelvin: 3000,
-        brightness: undefined,
-        fallbackBrightness: undefined,
-        lastKnownBrightness: 55,
-        currentDevice,
-        isGroupedLight: true,
-      });
-      expect(result.baseState.on).to.deep.equal({ on: true });
-      expect(result.baseState.color_temperature.mirek).to.equal(333);
-      expect(result.brightness).to.equal(55);
+  it("clears timers and queue when dimming stop telegram arrives", () => {
+    withFakeTimers(({ tick, activeIntervals }) => {
+      const { node, hueCommands, hueQueueDeletes } = instantiateNode();
 
-      const schemaLight = {
-        color_temperature: {
-          mirek_schema: { mirek_minimum: 200, mirek_maximum: 500 },
+      node.currentHUEDevice = {
+        on: { on: true },
+        dimming: { brightness: 60 },
+      };
+      node.hueDimming(1, 1, 1000);
+
+      tick();
+      hueCommands.length = 0;
+
+      node.hueDimming(0, 0, 1000);
+
+      expect(hueQueueDeletes).to.deep.equal(["test-light"]);
+      expect(node.brightnessStep).to.equal(null);
+      expect(activeIntervals).to.have.lengthOf(0);
+      expect(hueCommands).to.have.lengthOf(0);
+    });
+  });
+
+  it("dims HSV hue upwards, updates color state and turns light on", () => {
+    withFakeTimers(({ tick, activeIntervals }) => {
+      const { node, hueCommands, hueQueueDeletes } = instantiateNode();
+
+      node.currentHUEDevice = {
+        on: { on: false },
+        dimming: { brightness: 30 },
+        color: {
+          xy: { x: 0.3, y: 0.3 },
+          gamut: {
+            red: { x: 0.7, y: 0.3 },
+            green: { x: 0.17, y: 0.7 },
+            blue: { x: 0.15, y: 0.06 },
+          },
         },
       };
-      const memberState = result.buildMemberState(schemaLight);
-      expect(memberState.color_temperature.mirek).to.equal(333);
-      expect(memberState.dimming.brightness).to.equal(55);
-    });
+      const colorUpdates = [];
+      node.updateKNXLightColorState = (value) => { colorUpdates.push(value.xy); };
 
-    it("omits color temperature for single lights without capability", () => {
-      const result = buildTemperatureSwitchState({
-        kelvin: 2700,
-        brightness: 40,
-        fallbackBrightness: undefined,
-        lastKnownBrightness: undefined,
-        currentDevice: { dimming: { brightness: 10 } },
-        isGroupedLight: false,
-      });
-      expect(result.baseState.color_temperature).to.equal(undefined);
-      expect(result.brightness).to.equal(40);
-    });
-  });
+      node.hueDimmingHSV_H(1, 1, 1000);
 
-  describe("hydrateSwitchColor", () => {
-    it("converts hex strings to RGB objects", () => {
-      const fallback = { kelvin: 3000, brightness: 50 };
-      const result = hydrateSwitchColor("#ff0000", fallback);
-      expect(result).to.include({ red: 255, green: 0, blue: 0 });
-      expect(result.alpha).to.equal(1);
-    });
+      expect(activeIntervals).to.have.lengthOf(1);
 
-    it("returns cloned objects when input is already an object", () => {
-      const original = { kelvin: 2700, brightness: 20 };
-      const result = hydrateSwitchColor(original, { kelvin: 3000, brightness: 50 });
-      expect(result).to.deep.equal(original);
-      expect(result).to.not.equal(original);
-    });
+      tick();
 
-    it("parses JSON strings and replaces invalid content with fallback", () => {
-      const fallback = { kelvin: 2700, brightness: 20 };
-      const result = hydrateSwitchColor('{"kelvin":3500,"brightness":80}', fallback);
-      expect(result).to.deep.equal({ kelvin: 3500, brightness: 80 });
+      expect(hueQueueDeletes).to.include("test-light");
+      expect(hueCommands).to.have.lengthOf(1);
+      const command = hueCommands[0];
+      expect(command.payload.color.xy).to.have.keys(["x", "y"]);
+      expect(command.payload.on).to.deep.equal({ on: true });
+      expect(colorUpdates).to.have.lengthOf(1);
+      expect(node.brightnessStepHSV_H).to.be.greaterThan(30);
     });
   });
 
-  describe("normalizeRuleKey", () => {
-    it("normalizes boolean like values for binary DPTs", () => {
-      expect(normalizeRuleKey(" true ", "1.001")).to.equal("true");
-      expect(normalizeRuleKey("0", "1.001")).to.equal("false");
-      expect(normalizeRuleKey("FALSE", "2.003")).to.equal("false");
-    });
+  it("stops HSV hue dimming when stop telegram arrives", () => {
+    withFakeTimers(({ tick, activeIntervals }) => {
+      const { node, hueCommands, hueQueueDeletes } = instantiateNode();
 
-    it("normalizes numeric values for numeric DPTs", () => {
-      expect(normalizeRuleKey("001", "9.001")).to.equal("1");
-      expect(normalizeRuleKey("12.5", "14.019")).to.equal("12.5");
-    });
-  });
-
-  describe("normalizeIncomingValue", () => {
-    it("handles primitives and booleans", () => {
-      expect(normalizeIncomingValue(true, "1.001")).to.equal("true");
-      expect(normalizeIncomingValue(10, "9.001")).to.equal("10");
-    });
-
-    it("extracts useful values from KNX payload-style objects", () => {
-      expect(normalizeIncomingValue({ value: 5 }, "5.001")).to.equal("5");
-      expect(normalizeIncomingValue({ scene_number: "7" }, "18.001")).to.equal("7");
-    });
-  });
-
-  describe("convertRuleValueForStatus", () => {
-    it("returns booleans for binary DPTs", () => {
-      expect(convertRuleValueForStatus("true", "1.001")).to.equal(true);
-      expect(convertRuleValueForStatus("0", "2.001")).to.equal(false);
-      expect(convertRuleValueForStatus("maybe", "1.001")).to.equal(undefined);
-    });
-
-    it("returns numbers for numeric DPTs", () => {
-      expect(convertRuleValueForStatus("42", "9.001")).to.equal(42);
-      expect(convertRuleValueForStatus("invalid", "9.001")).to.equal(undefined);
-    });
-  });
-
-  describe("buildEffectLookups", () => {
-    it("builds lookup maps with normalized keys and status values", () => {
-      const rules = [
-        { knxValue: "TRUE", hueEffect: "candle" },
-        { knxValue: "true", hueEffect: "candle" }, // duplicate KNX value ignored
-        { knxValue: "21", hueEffect: "sparkle" },
-        { knxValue: "", hueEffect: "   " }, // blank effect ignored
-        null,
-      ];
-
-      const { byKnxValue, byEffect } = buildEffectLookups(rules, "1.001", "1.001");
-
-      expect(byKnxValue.get("true")).to.equal("candle");
-      expect(byKnxValue.get("21")).to.equal("sparkle");
-      expect(byEffect.get("candle")).to.deep.include({ knxValue: "TRUE", statusValue: true });
-      expect(byEffect.get("sparkle")).to.deep.include({ knxValue: "21" });
-      expect(byEffect.get("sparkle").statusValue).to.equal(undefined);
-      expect(byEffect.has("")).to.equal(false);
-    });
-  });
-
-  describe("prepareHueLightConfig", () => {
-    it("fills legacy fields, defaults and normalizes effect rules", () => {
-      const input = {
-        nameLightHSV: "HSV name",
-        GALightHSV: "1/2/3",
-        dptLightHSV: "5.001",
-        nameLightHSVPercentage: "HSV percentage",
-        GALightHSVPercentage: "1/2/4",
-        dptLightHSVPercentage: "5.001",
-        nameLightHSVState: "HSV state",
-        GALightHSVState: "1/2/5",
-        dptLightHSVState: "5.001",
-        readStatusAtStartup: "no",
-        specifySwitchOnBrightness: "",
-        specifySwitchOnBrightnessNightTime: "",
-        colorAtSwitchOnDayTime: '{"kelvin":3500,"brightness":80}',
-        colorAtSwitchOnNightTime: "",
-        dimSpeed: "",
-        HSVDimSpeed: "",
-        invertDimTunableWhiteDirection: undefined,
-        restoreDayMode: undefined,
-        invertDayNight: undefined,
-        effectRules: JSON.stringify([
-          { knxValue: 1, hueEffect: "candle" },
-          { knxValue: null, hueEffect: "" },
-        ]),
+      node.currentHUEDevice = {
+        on: { on: true },
+        dimming: { brightness: 40 },
+        color: {
+          xy: { x: 0.25, y: 0.32 },
+          gamut: {
+            red: { x: 0.7, y: 0.3 },
+            green: { x: 0.17, y: 0.7 },
+            blue: { x: 0.15, y: 0.06 },
+          },
+        },
       };
 
-      const prepared = prepareHueLightConfig(input);
+      node.hueDimmingHSV_H(1, 1, 1000);
+      tick();
+      hueCommands.length = 0;
 
-      expect(prepared.nameLightKelvinDIM).to.equal("HSV name");
-      expect(prepared.GALightKelvinPercentageState).to.equal("1/2/5");
-      expect(prepared.initializingAtStart).to.equal(false);
-      expect(prepared.specifySwitchOnBrightness).to.equal("no");
-      expect(prepared.specifySwitchOnBrightnessNightTime).to.equal("no");
-      expect(prepared.colorAtSwitchOnDayTime).to.deep.equal({ kelvin: 3500, brightness: 80 });
-      expect(prepared.colorAtSwitchOnNightTime).to.deep.equal({ kelvin: 2700, brightness: 20 });
-      expect(prepared.dimSpeed).to.equal(5000);
-      expect(prepared.HSVDimSpeed).to.equal(5000);
-      expect(prepared.invertDimTunableWhiteDirection).to.equal(false);
-      expect(prepared.restoreDayMode).to.equal("no");
-      expect(prepared.invertDayNight).to.equal(false);
-      expect(prepared.effectRules).to.deep.equal([
-        { knxValue: "1", hueEffect: "candle" },
-        { knxValue: "", hueEffect: "" },
-      ]);
+      node.hueDimmingHSV_H(0, 0, 1000);
+
+      expect(hueQueueDeletes[hueQueueDeletes.length - 1]).to.equal("test-light");
+      expect(activeIntervals).to.have.lengthOf(0);
+      expect(hueCommands).to.have.lengthOf(0);
+    });
+  });
+
+  it("dims HSV saturation down to minimum and updates color state", () => {
+    withFakeTimers(({ tick }) => {
+      const { node, hueCommands, hueQueueDeletes } = instantiateNode();
+
+      node.currentHUEDevice = {
+        on: { on: true },
+        dimming: { brightness: 10 },
+        color: {
+          xy: { x: 0.4, y: 0.35 },
+          gamut: {
+            red: { x: 0.7, y: 0.3 },
+            green: { x: 0.17, y: 0.7 },
+            blue: { x: 0.15, y: 0.06 },
+          },
+        },
+      };
+      const colorUpdates = [];
+      node.updateKNXLightColorState = (value) => { colorUpdates.push(value.xy); };
+
+      node.hueDimmingHSV_S(0, 1, 1000);
+
+      tick();
+
+      expect(hueQueueDeletes).to.include("test-light");
+      expect(hueCommands).to.have.lengthOf(1);
+      const command = hueCommands[0];
+      expect(command.payload.color.xy).to.have.keys(["x", "y"]);
+      expect(command.payload.on).to.equal(undefined);
+      expect(colorUpdates).to.have.lengthOf(1);
+      expect(node.brightnessStepHSV_S).to.equal(1);
+    });
+  });
+
+  it("dims tunable white upwards and turns light on when off", () => {
+    withFakeTimers(({ tick, activeIntervals }) => {
+      const { node, hueCommands, hueQueueDeletes } = instantiateNode();
+
+      node.currentHUEDevice = {
+        on: { on: false },
+        dimming: { brightness: 40 },
+        color_temperature: { mirek: 300 },
+      };
+      const kelvinUpdates = [];
+      node.updateKNXLightKelvinPercentageState = (value) => { kelvinUpdates.push(value); };
+
+      node.hueDimmingTunableWhite(1, 1, 1000);
+
+      expect(activeIntervals).to.have.lengthOf(1);
+
+      tick();
+
+      expect(kelvinUpdates).to.deep.equal([300]);
+      expect(hueCommands).to.have.lengthOf(1);
+      const command = hueCommands[0];
+      expect(command.payload.color_temperature.mirek).to.be.greaterThan(300);
+      expect(command.payload.on).to.deep.equal({ on: true });
+      expect(node.brightnessStepTunableWhite).to.be.greaterThan(300);
+    });
+  });
+
+  it("inverts tunable white direction when configured", () => {
+    withFakeTimers(({ tick }) => {
+      const { node, hueCommands } = instantiateNode({ invertDimTunableWhiteDirection: true });
+
+      node.currentHUEDevice = {
+        on: { on: true },
+        dimming: { brightness: 50 },
+        color_temperature: { mirek: 400 },
+      };
+
+      node.hueDimmingTunableWhite(1, 1, 1000);
+
+      tick();
+
+      expect(hueCommands).to.have.lengthOf(1);
+      const command = hueCommands[0];
+      expect(command.payload.color_temperature.mirek).to.be.lessThan(400);
+      expect(node.brightnessStepTunableWhite).to.be.lessThan(400);
+      expect(command.payload.on).to.equal(undefined);
+    });
+  });
+
+  it("clears queue and resets tunable white step on stop", () => {
+    withFakeTimers(({ tick, activeIntervals }) => {
+      const { node, hueCommands, hueQueueDeletes } = instantiateNode();
+
+      node.currentHUEDevice = {
+        on: { on: true },
+        dimming: { brightness: 60 },
+        color_temperature: { mirek: 350 },
+      };
+
+      node.hueDimmingTunableWhite(1, 1, 1000);
+      tick();
+      hueCommands.length = 0;
+
+      node.hueDimmingTunableWhite(0, 0, 1000);
+
+      expect(hueQueueDeletes).to.include("test-light");
+      expect(activeIntervals).to.have.lengthOf(0);
+      expect(node.brightnessStepTunableWhite).to.equal(null);
+      expect(hueCommands).to.have.lengthOf(0);
     });
   });
 });

@@ -6,9 +6,11 @@
 
 # CHANGELOG
 
+**Version 4.0.24** - October 2025<br/>
+- Added unit test for HueLight node.</br>
 
 **Version 4.0.23** - October 2025<br/>
-
+- Fixed some regressions in the hue light node.</br>
 
 **Version 4.0.22** - October 2025<br/>
 - FIX: Restored the `knxUltimateHueLight` implementation to the stable 4.0.16 baseline to stop Hue `grouped_light` devices from switching off immediately.<br/>
