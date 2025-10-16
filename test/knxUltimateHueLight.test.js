@@ -1,11 +1,19 @@
 const { expect } = require("chai");
 const { ColorConverter } = require("../nodes/utils/colorManipulators/hueColorConverter");
+const { dptlib } = require("knxultimate");
+
+const debugLog = (...args) => {
+  if (process.env.DEBUG_KNX_HUE_TEST === "1") {
+    console.log("[knxHueTest]", ...args);
+  }
+};
 
 function instantiateNode(overrides = {}) {
   const hueCommands = [];
   const knxTelegrams = [];
   const statuses = [];
   const hueQueueDeletes = [];
+  const sentMessages = [];
   let registeredConstructor = null;
 
   const baseConfig = {
@@ -26,7 +34,10 @@ function instantiateNode(overrides = {}) {
   const config = { ...baseConfig, ...overrides };
 
   const knxServer = {
-    sendKNXTelegramToKNXEngine: (frame) => { knxTelegrams.push(frame); },
+    sendKNXTelegramToKNXEngine: (frame) => {
+      knxTelegrams.push(frame);
+      debugLog("KNX telegram", frame);
+    },
     addClient: () => {},
     removeClient: () => {},
   };
@@ -36,21 +47,57 @@ function instantiateNode(overrides = {}) {
     hueManager: {
       writeHueQueueAdd: (id, payload, command) => {
         hueCommands.push({ id, payload, command });
+        debugLog("Hue command", { id, command, payload });
       },
       deleteHueQueue: (id) => {
         hueQueueDeletes.push(id);
+        debugLog("Hue queue cleared", id);
       },
     },
     addClient: () => {},
     removeClient: () => {},
     getAllLightsBelongingToTheGroup: async () => [],
+    getAverageColorsXYBrightnessAndTemperature: async (lights = []) => {
+      if (!Array.isArray(lights) || lights.length === 0) return {};
+      let sumX = 0;
+      let sumY = 0;
+      let sumMirek = 0;
+      let sumBrightness = 0;
+      let countXY = 0;
+      let countMirek = 0;
+      let countBrightness = 0;
+      lights.forEach((light) => {
+        if (light?.color?.xy) {
+          sumX += Number(light.color.xy.x);
+          sumY += Number(light.color.xy.y);
+          countXY += 1;
+        }
+        if (light?.color_temperature?.mirek !== undefined) {
+          sumMirek += Number(light.color_temperature.mirek);
+          countMirek += 1;
+        }
+        if (light?.dimming?.brightness !== undefined) {
+          sumBrightness += Number(light.dimming.brightness);
+          countBrightness += 1;
+        }
+      });
+      return {
+        x: countXY > 0 ? sumX / countXY : undefined,
+        y: countXY > 0 ? sumY / countXY : undefined,
+        mirek: countMirek > 0 ? sumMirek / countMirek : undefined,
+        brightness: countBrightness > 0 ? sumBrightness / countBrightness : undefined,
+      };
+    },
   };
 
   const RED = {
     nodes: {
       registerType: (_name, ctor) => { registeredConstructor = ctor; },
       createNode: (node) => {
-        node.status = (status) => { statuses.push(status); };
+        node.status = (status) => {
+          statuses.push(status);
+          debugLog("Status update", status);
+        };
         node.on = (event, handler) => {
           node._handlers = node._handlers || {};
           node._handlers[event] = handler;
@@ -59,6 +106,10 @@ function instantiateNode(overrides = {}) {
           if (node._handlers?.[event]) node._handlers[event](...args);
         };
         node.context = () => ({ get: () => undefined, set: () => {} });
+        node.send = (msg) => {
+          sentMessages.push(msg);
+          debugLog("Node send", msg);
+        };
       },
       getNode: (id) => {
         if (id === config.server) return knxServer;
@@ -90,6 +141,7 @@ function instantiateNode(overrides = {}) {
     hueServer,
     knxServer,
     hueQueueDeletes,
+    sentMessages,
   };
 }
 
@@ -345,6 +397,62 @@ describe("knxUltimateHueLight KNX to HUE routing", () => {
     expect(command.payload.dimming.brightness).to.equal(0);
   });
 
+  it("clamps tunable white writes to Hue-supported kelvin range", () => {
+    const { node, config, hueCommands } = instantiateNode({
+      GALightKelvin: "1/1/6",
+      dptLightKelvin: "7.600",
+    });
+    const kelvinDpt = dptlib.resolve("7.600");
+    node.currentHUEDevice = { color_temperature: { mirek: 350 } };
+
+    node.handleSend(createSwitchTelegram(
+      config.GALightKelvin,
+      kelvinDpt.formatAPDU(7000),
+    ));
+
+    expect(hueCommands).to.have.lengthOf(1);
+    let command = hueCommands[0];
+    const maxKelvinMirek = ColorConverter.kelvinToMirek(6535);
+    expect(command.payload.color_temperature.mirek).to.equal(maxKelvinMirek);
+
+    node.handleSend(createSwitchTelegram(
+      config.GALightKelvin,
+      kelvinDpt.formatAPDU(1500),
+    ));
+
+    expect(hueCommands).to.have.lengthOf(2);
+    command = hueCommands[1];
+    const minKelvinMirek = ColorConverter.kelvinToMirek(2000);
+    expect(command.payload.color_temperature.mirek).to.equal(minKelvinMirek);
+  });
+
+  it("maps tunable white percentage writes to Hue mirek range", () => {
+    const { node, config, hueCommands } = instantiateNode({
+      GALightKelvinPercentage: "1/1/7",
+      dptLightKelvinPercentage: "5.001",
+      nameLightKelvinDIM: "preset",
+    });
+    node.currentHUEDevice = { color_temperature: { mirek: 320 } };
+
+    node.handleSend(createSwitchTelegram(
+      config.GALightKelvinPercentage,
+      Buffer.from([0]),
+    ));
+
+    expect(hueCommands).to.have.lengthOf(1);
+    let command = hueCommands[0];
+    expect(command.payload.color_temperature.mirek).to.equal(500);
+
+    node.handleSend(createSwitchTelegram(
+      config.GALightKelvinPercentage,
+      Buffer.from([255]),
+    ));
+
+    expect(hueCommands).to.have.lengthOf(2);
+    command = hueCommands[1];
+    expect(command.payload.color_temperature.mirek).to.equal(153);
+  });
+
   it("forces Hue dimming and turns light on for positive brightness telegrams", () => {
     const { node, config, hueCommands } = instantiateNode({
       GALightBrightness: "1/1/3",
@@ -378,6 +486,42 @@ describe("knxUltimateHueLight KNX to HUE routing", () => {
     expect(command.payload.dimming).to.deep.equal({ brightness: 0 });
     expect(command.payload.on).to.deep.equal({ on: false });
     expect(command.command).to.equal("setLight");
+  });
+
+  it("ignores malformed KNX brightness payloads without emitting Hue commands", () => {
+    const { node, config, hueCommands, statuses } = instantiateNode({
+      GALightBrightness: "1/1/3",
+      dptLightBrightness: "5.001",
+    });
+
+    node.currentHUEDevice = { on: { on: true }, dimming: { brightness: 40 } };
+
+    expect(() => node.handleSend(createSwitchTelegram(config.GALightBrightness, Buffer.alloc(0)))).to.not.throw();
+    expect(hueCommands).to.have.lengthOf(0);
+    expect(statuses.some((entry) => entry.fill === "red")).to.equal(true);
+  });
+
+  it("drops malformed KNX color payloads and keeps previous state untouched", () => {
+    const { node, config, hueCommands, statuses } = instantiateNode({
+      GALightColor: "1/1/4",
+      dptLightColor: "232.600",
+    });
+
+    node.currentHUEDevice = {
+      on: { on: true },
+      dimming: { brightness: 55 },
+      color: { gamut: null },
+    };
+
+    const originalError = console.error;
+    console.error = () => {};
+    try {
+      expect(() => node.handleSend(createSwitchTelegram(config.GALightColor, Buffer.from([1, 2])))).to.not.throw();
+    } finally {
+      console.error = originalError;
+    }
+    expect(hueCommands).to.have.lengthOf(0);
+    expect(statuses.some((entry) => entry.fill === "red")).to.equal(true);
   });
 });
 
@@ -452,6 +596,56 @@ describe("knxUltimateHueLight HUE to KNX status updates", () => {
 });
 
 describe("knxUltimateHueLight dimming helpers", () => {
+  it("respects configured minimum brightness limit while dimming down", () => {
+    withFakeTimers(({ tick }) => {
+      const { node, hueCommands } = instantiateNode({
+        minDimLevelLight: "30",
+        maxDimLevelLight: "80",
+      });
+
+      node.currentHUEDevice = {
+        on: { on: true },
+        dimming: { brightness: 35 },
+        color_temperature: { mirek: 350 },
+      };
+
+      const brightnessUpdates = [];
+      node.updateKNXBrightnessState = (value) => { brightnessUpdates.push(value); };
+
+      node.hueDimming(0, 1, 1000);
+
+      tick();
+
+      expect(node.brightnessStep).to.equal(30);
+      expect(hueCommands).to.have.lengthOf(1);
+      expect(hueCommands[0].payload.dimming.brightness).to.equal(30);
+      expect(brightnessUpdates[0]).to.equal(35);
+    });
+  });
+
+  it("does not exceed configured maximum brightness while dimming up", () => {
+    withFakeTimers(({ tick }) => {
+      const { node, hueCommands } = instantiateNode({
+        minDimLevelLight: "10",
+        maxDimLevelLight: "50",
+      });
+
+      node.currentHUEDevice = {
+        on: { on: true },
+        dimming: { brightness: 48 },
+        color_temperature: { mirek: 350 },
+      };
+
+      node.hueDimming(1, 1, 1000);
+
+      tick();
+
+      expect(node.brightnessStep).to.equal(50);
+      expect(hueCommands).to.have.lengthOf(1);
+      expect(hueCommands[0].payload.dimming.brightness).to.equal(50);
+    });
+  });
+
   it("dims up from off state and schedules Hue updates", () => {
     withFakeTimers(({ tick, activeIntervals }) => {
       const { node, hueCommands } = instantiateNode();
@@ -670,5 +864,356 @@ describe("knxUltimateHueLight dimming helpers", () => {
       expect(node.brightnessStepTunableWhite).to.equal(null);
       expect(hueCommands).to.have.lengthOf(0);
     });
+  });
+});
+
+describe("knxUltimateHueLight timer-driven effects", () => {
+  it("toggles Hue commands while blink timer is active", () => {
+    withFakeTimers(({ tick, activeIntervals }) => {
+      const { node, config, hueCommands } = instantiateNode({
+        GALightBlink: "1/1/8",
+        dptLightBlink: "1.001",
+      });
+
+      node.currentHUEDevice = { on: { on: false } };
+
+      node.handleSend(createSwitchTelegram(config.GALightBlink, Buffer.from([1])));
+
+      expect(activeIntervals).to.have.lengthOf(1);
+
+      tick();
+      tick();
+
+      expect(hueCommands).to.have.lengthOf(2);
+      expect(hueCommands[0].payload.on).to.deep.equal({ on: false });
+      expect(hueCommands[1].payload.on).to.deep.equal({ on: true });
+
+      node.handleSend(createSwitchTelegram(config.GALightBlink, Buffer.from([0])));
+
+      expect(activeIntervals).to.have.lengthOf(0);
+      expect(hueCommands).to.have.lengthOf(3);
+      expect(hueCommands[2].payload.on).to.deep.equal({ on: false });
+    });
+  });
+
+  it("cycles random colors while color cycle is running", () => {
+    withFakeTimers(({ tick, activeIntervals }) => {
+      const { node, config, hueCommands } = instantiateNode({
+        GALightColorCycle: "1/1/9",
+        dptLightColorCycle: "1.001",
+      });
+
+      node.currentHUEDevice = {
+        on: { on: false },
+        color: {
+          gamut: {
+            red: { x: 0.7, y: 0.3 },
+            green: { x: 0.17, y: 0.7 },
+            blue: { x: 0.15, y: 0.06 },
+          },
+        },
+      };
+
+      const originalRandom = Math.random;
+      let seed = 0;
+      Math.random = () => {
+        seed = (seed + 1) % 10;
+        return seed / 10;
+      };
+
+      try {
+        node.handleSend(createSwitchTelegram(config.GALightColorCycle, Buffer.from([1])));
+
+        expect(activeIntervals).to.have.lengthOf(1);
+        expect(hueCommands).to.have.lengthOf(1);
+
+        tick();
+
+        expect(hueCommands).to.have.lengthOf(2);
+        const cycleCommand = hueCommands[1];
+        expect(cycleCommand.payload.color.xy).to.have.keys(["x", "y"]);
+
+        node.handleSend(createSwitchTelegram(config.GALightColorCycle, Buffer.from([0])));
+        expect(activeIntervals).to.have.lengthOf(0);
+      } finally {
+        Math.random = originalRandom;
+      }
+    });
+  });
+});
+
+describe("knxUltimateHueLight handleSendHUE events", () => {
+  it("propagates Hue light state to KNX telemetry", async () => {
+    const overrides = {
+      GALightState: "1/1/11",
+      dptLightState: "1.001",
+      GALightBrightnessState: "1/1/10",
+      dptLightBrightnessState: "5.001",
+      GALightColorState: "1/1/12",
+      dptLightColorState: "232.600",
+      GALightKelvinState: "1/1/14",
+      dptLightKelvinState: "7.600",
+      GALightKelvinPercentageState: "1/1/15",
+      dptLightKelvinPercentageState: "5.001",
+    };
+    const { node, knxTelegrams, sentMessages } = instantiateNode(overrides);
+
+    node.currentHUEDevice = {
+      on: { on: true },
+      dimming: { brightness: 80 },
+      color: { xy: { x: 0.3, y: 0.3 } },
+      color_temperature: { mirek: 250, mirel_valid: true },
+    };
+
+    const hueEvent = {
+      id: node.hueDevice,
+      type: "light",
+      on: { on: false },
+      dimming: { brightness: 0 },
+      color_temperature: { mirek: 330, mirel_valid: true },
+      color: { xy: { x: 0.2, y: 0.25 } },
+    };
+
+    await node.handleSendHUE(hueEvent);
+
+    expect(sentMessages).to.have.lengthOf(1);
+    expect(sentMessages[0].id).to.equal(node.hueDevice);
+
+    const framesByGa = Object.fromEntries(knxTelegrams.map((frame) => [frame.grpaddr, frame]));
+
+    expect(framesByGa).to.have.property(overrides.GALightState);
+    expect(framesByGa[overrides.GALightState]).to.deep.include({ payload: false, dpt: overrides.dptLightState });
+
+    expect(framesByGa).to.have.property(overrides.GALightBrightnessState);
+    expect(framesByGa[overrides.GALightBrightnessState]).to.deep.include({ payload: 0, dpt: overrides.dptLightBrightnessState });
+
+    expect(framesByGa).to.have.property(overrides.GALightKelvinState);
+    const kelvinFrame = framesByGa[overrides.GALightKelvinState];
+    const expectedKelvin = ColorConverter.mirekToKelvin(330);
+    expect(kelvinFrame).to.deep.include({ payload: expectedKelvin, dpt: overrides.dptLightKelvinState });
+
+    if (overrides.GALightKelvinPercentageState && framesByGa[overrides.GALightKelvinPercentageState] !== undefined) {
+      expect(framesByGa[overrides.GALightKelvinPercentageState]).to.deep.include({
+        payload: expectedKelvin,
+        dpt: overrides.dptLightKelvinPercentageState,
+      });
+    }
+
+    expect(framesByGa).to.have.property(overrides.GALightColorState);
+    const colorFrame = framesByGa[overrides.GALightColorState];
+    const expectedRgb = ColorConverter.xyBriToRgb(hueEvent.color.xy.x, hueEvent.color.xy.y, 100);
+    expect(colorFrame.payload).to.deep.equal({
+      red: expectedRgb.r,
+      green: expectedRgb.g,
+      blue: expectedRgb.b,
+    });
+
+    expect(node.currentHUEDevice.on.on).to.equal(false);
+    expect(node.currentHUEDevice.dimming.brightness).to.equal(80);
+    expect(node.currentHUEDevice.color_temperature.mirek).to.equal(330);
+  });
+
+  it("averages grouped light data and updates KNX Kelvin state", async () => {
+    const overrides = {
+      hueDevice: "group-1#grouped_light",
+      GALightKelvinState: "2/2/1",
+      dptLightKelvinState: "7.600",
+      GALightKelvinPercentageState: "2/2/2",
+      dptLightKelvinPercentageState: "5.001",
+    };
+    const { node, knxTelegrams, hueServer, sentMessages } = instantiateNode(overrides);
+
+    node.currentHUEDevice = {
+      on: { on: true },
+      dimming: { brightness: 70 },
+      color: { xy: { x: 0.3, y: 0.3 } },
+      color_temperature: { mirek: 300, mirel_valid: true },
+    };
+
+    const groupLights = [
+      {
+        id: "lamp-1",
+        metadata: { name: "Lamp 1" },
+        color_temperature: { mirek: 300, mirel_valid: true },
+        dimming: { brightness: 60 },
+      },
+      {
+        id: "lamp-2",
+        metadata: { name: "Lamp 2" },
+        color_temperature: { mirek: 320, mirel_valid: true },
+        dimming: { brightness: 40 },
+      },
+    ];
+
+    hueServer.getAllLightsBelongingToTheGroup = async () => groupLights;
+    const averageMirek = 315;
+    hueServer.getAverageColorsXYBrightnessAndTemperature = async () => ({ mirek: averageMirek });
+
+    const hueEvent = {
+      id: "lamp-1",
+      type: "light",
+      color_temperature: { mirek: 310, mirel_valid: true },
+    };
+
+    await node.handleSendHUE(hueEvent);
+
+    expect(sentMessages).to.have.lengthOf(1);
+    expect(sentMessages[0].lightName).to.equal("Lamp 1");
+
+    const expectedKelvin = ColorConverter.mirekToKelvin(averageMirek);
+
+    const framesByGa = Object.fromEntries(knxTelegrams.map((frame) => [frame.grpaddr, frame]));
+    expect(framesByGa).to.have.property(overrides.GALightKelvinState);
+    expect(framesByGa[overrides.GALightKelvinState]).to.deep.include({ payload: expectedKelvin });
+    if (framesByGa[overrides.GALightKelvinPercentageState] !== undefined) {
+      expect(framesByGa[overrides.GALightKelvinPercentageState]).to.deep.include({ payload: expectedKelvin });
+    }
+
+    expect(node.currentHUEDevice.color_temperature.mirek).to.equal(averageMirek);
+  });
+
+  it("averages grouped light colors when mirek is unavailable", async () => {
+    const overrides = {
+      hueDevice: "group-2#grouped_light",
+      GALightColorState: "2/3/1",
+      dptLightColorState: "232.600",
+    };
+    const { node, knxTelegrams, hueServer, sentMessages } = instantiateNode(overrides);
+
+    node.currentHUEDevice = {
+      on: { on: true },
+      dimming: { brightness: 65 },
+      color: { xy: { x: 0.28, y: 0.32 } },
+      color_temperature: {},
+    };
+
+    const groupLights = [
+      {
+        id: "lamp-a",
+        metadata: { name: "Lamp A" },
+        color: { xy: { x: 0.4, y: 0.35 } },
+        dimming: { brightness: 70 },
+      },
+      {
+        id: "lamp-b",
+        metadata: { name: "Lamp B" },
+        color: { xy: { x: 0.2, y: 0.25 } },
+        dimming: { brightness: 55 },
+      },
+    ];
+
+    hueServer.getAllLightsBelongingToTheGroup = async () => groupLights;
+    hueServer.getAverageColorsXYBrightnessAndTemperature = async () => ({
+      x: 0.3,
+      y: 0.3,
+      brightness: 62.5,
+    });
+
+    const hueEvent = {
+      id: "lamp-a",
+      type: "light",
+      color: { xy: { x: 0.41, y: 0.34 } },
+    };
+
+    await node.handleSendHUE(hueEvent);
+
+    expect(sentMessages).to.have.lengthOf(1);
+    expect(sentMessages[0].lightName).to.equal("Lamp A");
+
+    const framesByGa = Object.fromEntries(knxTelegrams.map((frame) => [frame.grpaddr, frame]));
+    expect(framesByGa).to.have.property(overrides.GALightColorState);
+    const colorFrame = framesByGa[overrides.GALightColorState];
+    const expectedRgb = ColorConverter.xyBriToRgb(0.3, 0.3, 100);
+    expect(colorFrame.payload).to.deep.equal({
+      red: expectedRgb.r,
+      green: expectedRgb.g,
+      blue: expectedRgb.b,
+    });
+
+    expect(node.currentHUEDevice.color.xy).to.deep.equal({ x: 0.3, y: 0.3 });
+  });
+});
+
+describe("knxUltimateHueLight KNX read responses", () => {
+  it("replies with the cached light state when a read request arrives", () => {
+    const { node, config, knxTelegrams } = instantiateNode({
+      GALightState: "1/1/11",
+      dptLightState: "1.001",
+    });
+
+    node.currentHUEDevice = { on: { on: true }, dimming: { brightness: 45 } };
+
+    const readMsg = createSwitchTelegram(config.GALightState, Buffer.from([0]), "GroupValue_Read");
+    node.handleSend(readMsg);
+
+    expect(knxTelegrams).to.have.lengthOf(1);
+    expect(knxTelegrams[0]).to.deep.include({
+      grpaddr: config.GALightState,
+      payload: true,
+      dpt: config.dptLightState,
+      outputtype: "response",
+    });
+  });
+
+  it("reports KNX brightness status after malformed KNX write attempt", () => {
+    const { node, config, knxTelegrams, statuses } = instantiateNode({
+      GALightBrightness: "1/1/3",
+      dptLightBrightness: "5.001",
+      GALightBrightnessState: "1/1/13",
+      dptLightBrightnessState: "5.001",
+    });
+
+    node.currentHUEDevice = { on: { on: true }, dimming: { brightness: 60 } };
+
+    const malformed = createSwitchTelegram(config.GALightBrightness, Buffer.alloc(0));
+    expect(() => node.handleSend(malformed)).to.not.throw();
+
+    expect(knxTelegrams).to.have.lengthOf(0);
+    const lastStatus = statuses[statuses.length - 1] || {};
+    expect(lastStatus.fill).to.equal("red");
+  });
+
+  it("forwards cached color state on KNX read even after failed color write", () => {
+    const { node, config, knxTelegrams, statuses } = instantiateNode({
+      GALightColor: "1/1/4",
+      dptLightColor: "232.600",
+      GALightColorState: "1/1/12",
+      dptLightColorState: "232.600",
+    });
+
+    node.currentHUEDevice = {
+      on: { on: true },
+      dimming: { brightness: 70 },
+      color: { gamut: null, xy: { x: 0.2, y: 0.3 } },
+    };
+
+    const originalError = console.error;
+    console.error = () => {};
+    try {
+      const malformed = createSwitchTelegram(config.GALightColor, Buffer.from([1, 2]));
+      expect(() => node.handleSend(malformed)).to.not.throw();
+    } finally {
+      console.error = originalError;
+    }
+
+    const readMsg = createSwitchTelegram(config.GALightColorState, Buffer.alloc(3), "GroupValue_Read");
+    node.handleSend(readMsg);
+
+    expect(knxTelegrams).to.have.lengthOf(1);
+    const frame = knxTelegrams[0];
+    expect(frame.grpaddr).to.equal(config.GALightColorState);
+    expect(frame.outputtype).to.equal("response");
+    const expectedRgb = ColorConverter.xyBriToRgb(
+      node.currentHUEDevice.color.xy.x,
+      node.currentHUEDevice.color.xy.y,
+      100,
+    );
+    expect(frame.payload).to.deep.equal({
+      red: expectedRgb.r,
+      green: expectedRgb.g,
+      blue: expectedRgb.b,
+    });
+
+    expect(statuses.some((entry) => entry.fill === "red")).to.equal(true);
   });
 });

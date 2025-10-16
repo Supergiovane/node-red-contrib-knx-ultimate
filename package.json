@@ -75,7 +75,7 @@
   "author": "Supergiovane",
   "license": "MIT",
   "scripts": {
-    "test": "npm run test:unit && node scripts/check-node-load.js",
+    "test": "DEBUG_KNX_HUE_TEST=0 npm run test:unit && node scripts/check-node-load.js",
     "test:unit": "mocha \"test/**/*.test.js\"",
     "lint-fix": "standard --fix",
     "translate-wiki": "node scripts/translate-wiki.js",
