@@ -144,3 +144,87 @@ module.exports.getBridgeDetails = async (_ip) => {
     })
   })
 }
+
+/**
+* Register a new application user on the Hue bridge.
+*
+* @param {string} ip Bridge IP address.
+* @param {string} appName Application name (used for devicetype).
+* @param {string} deviceName Device name (used for devicetype).
+* @returns {Promise<{bridge: object, user: {username: string, clientkey?: string}}>}
+*/
+module.exports.registerBridgeUser = async (ip, appName = 'KNXUltimate', deviceName = 'Node-RED') => {
+  const deviceType = `${appName}#${deviceName}`.substring(0, 40)
+  const payload = JSON.stringify({
+    devicetype: deviceType,
+    generateclientkey: true
+  })
+
+  const postOptions = {
+    method: 'POST',
+    url: `https://${ip}/api`,
+    rejectUnauthorized: false,
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: payload
+  }
+
+  const postResponse = await new Promise((resolve, reject) => {
+    simpleget.concat(postOptions, (err, res, data) => {
+      if (err) {
+        return reject(new Error(err.message || 'Hue registration request failed'))
+      }
+      if (!res || res.statusCode < 200 || res.statusCode >= 400) {
+        return reject(new Error(`Hue registration request failed with status ${res?.statusCode ?? 'unknown'}`))
+      }
+      try {
+        const parsed = JSON.parse(data)
+        resolve(parsed)
+      } catch (parseError) {
+        reject(new Error(`Invalid Hue registration response: ${parseError.message}`))
+      }
+    })
+  })
+
+  if (!Array.isArray(postResponse) || postResponse.length === 0) {
+    throw new Error('Unexpected Hue registration response')
+  }
+  const firstEntry = postResponse[0]
+  if (firstEntry.error) {
+    throw new Error(firstEntry.error.description || 'Hue Bridge rejected the registration request. Press the link button and try again.')
+  }
+  const success = firstEntry.success || {}
+  if (!success.username) {
+    throw new Error('Hue Bridge did not return a username.')
+  }
+
+  const username = success.username
+  const clientkey = success.clientkey
+
+  const configOptions = {
+    method: 'GET',
+    url: `https://${ip}/api/${username}/config`,
+    rejectUnauthorized: false
+  }
+
+  const bridgeConfig = await new Promise((resolve, reject) => {
+    simpleget.concat(configOptions, (err, res, data) => {
+      if (err) return reject(new Error(err.message || 'Unable to read Hue bridge configuration'))
+      if (!res || res.statusCode < 200 || res.statusCode >= 400) {
+        return reject(new Error(`Hue bridge configuration request failed with status ${res?.statusCode ?? 'unknown'}`))
+      }
+      try {
+        const parsed = JSON.parse(data)
+        resolve(parsed)
+      } catch (parseError) {
+        reject(new Error(`Invalid Hue bridge configuration response: ${parseError.message}`))
+      }
+    })
+  })
+
+  return {
+    bridge: bridgeConfig,
+    user: { username, clientkey }
+  }
+}

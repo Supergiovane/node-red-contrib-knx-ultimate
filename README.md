@@ -15,7 +15,7 @@
 
 <p align='center'>
 <img width="110px" src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/KNX_CERTI_MARK_RGB.jpg" ></br>
-<span style="font-size:0.7em;color:grey;">Authorized KNX logo by KNX Association*</span>
+<span style="font-size:0.7em;color:grey;">Authorized KNX logo by the KNX Association*</span>
 </p>
 <p align='center'>
 <img width="110px" src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/knxsecure.png" ></br>
@@ -26,7 +26,7 @@
 <p align='center'>
     <img width="110px" src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/c/agata.png"></br>
 <center>Many thanks to <a href="https://www.agatastore.it">Agata Store - Professional store and Certified KNX Partner</a>  
-for providing me with KNX Secure stuffs to test with.</center>
+for providing me with KNX Secure equipment to test with.</center>
 </p>
 
 </br>
@@ -44,7 +44,7 @@ msg.payload = {red:255, green:200, blue:30} // Put some colors in our life
 <br/>
 
 > [!TIP]
-> I'm putting many effort, money and free time to this node, so please consider [MAKING A LITTLE DONATION](https://www.paypal.com/donate/?hosted_button_id=S8SKPUBSPK758) if you're using KNX-Ultimate. Thanks!
+> I invest a lot of effort, money, and free time into this node, so please consider [making a small donation](https://www.paypal.com/donate/?hosted_button_id=S8SKPUBSPK758) if you're using KNX-Ultimate. Thank you!
 
 <br/>
 
@@ -53,24 +53,57 @@ msg.payload = {red:255, green:200, blue:30} // Put some colors in our life
 <a href="https://www.youtube.com/playlist?list=PL9Yh1bjbLAYpfy1Auz6CKDfXUusgMwOQr" target="_blank"><br/>
 <img width="200px" src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/youtube-logo.jpeg" ></a>
 
-Please subscribe to the [Youtube channel](https://www.youtube.com/playlist?list=PL9Yh1bjbLAYpfy1Auz6CKDfXUusgMwOQr) and watch the node in action. 
+Please subscribe to the [YouTube channel](https://www.youtube.com/playlist?list=PL9Yh1bjbLAYpfy1Auz6CKDfXUusgMwOQr) and watch the node in action. 
 
 <br/>
 <br/>
 
-## NODE'S LIST
+## NODE LIST
 
-* **KNX-ULTIMATE node** [here](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/2.-Node-Configuration), allow you to control your *KNX installation* via Node-Red. You can control all your KNX devices as well as create a *Virtual Device* in Node-Red, to link external *non KNX* devices, and make it compatible with your KNX installation. I'ts very SIMPLE TO USE thus very customizable.  
-* **SCENE CONTROLLER node** [here](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/SceneController-Configuration), The scene controller node can act as a real scene controller, with recall and save of the current scene.
-* **WATCHDOG node** [here](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/7.-WatchDog-Configuration), allows notification (Email, Twitter, Telegram, Alexa, Siri, Sonos -with sonospollytts node- and so on) of KNX Bus connection errors, automatic or manual switchover to a backup KNX/IP router if the primary fails and allows you to programmatically change the config-node directly from a msg flow. It also can force the disconnection and connection of the selected Gateway from the KNX BUS.
-* **LOGGER node** [here](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/Logger-Configuration), creates an XML diagnostic file, compatible with ETS. You can open it with ETS for diagnostic pourposes. Node: the Logger currently doesn't record the telegrams coming from KNX-Ultimate if you use a **KNX/IP Interface**. 
-* **GLOBAL CONTEXT node** [here](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/GlobalVariable), exposes the group addresses to a Global Context variable, to be used in function nodes.
-* **ALERTER node** [here](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/Alerter-Configuration). With the Alerter node you can signal to a display or to the node-red-contrib-tts-ultimate node (audio feedback), whenever the selected devices are alerted, i.e. they have payload **true**.
-* **LOAD CONTROL node** [here](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/LoadControl-Configuration). Control your loads (Oven, Washing machine, etc..) and avoit shutting down the main voltage due to too high power consumption.
-* **VIEWER node** [here](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/knxUltimateViewer). View all Group Addresses and values of your KNX BUS, in the Node-Red Dashboard.
-* **AUTO RESPONDER node** responds to read requests coming from the bus. Used mainly for virtual group addresses.
-* **PHILIPS HUE nodeset** [here](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/HUE+Bridge+configuration). Link HUE devices to KNX in a simple way.
-* **HOME ASSISTANT translator node** [here](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/HATranslator) translates the HA input msg, to a KNX value. Comes with a built-in translation table, that's user editable.
+**Core KNX nodes**
+
+- **KNX Ultimate** - [docs](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/2.-Node-Configuration). The primary node for interacting with your KNX installation. Send and receive telegrams, create virtual group addresses, and bridge non‑KNX devices into your bus with an intuitive, highly configurable interface.
+- **KNX Config** - Shared configuration for gateways, security settings, and bus parameters used by every runtime node.
+- **Scene Controller** - [docs](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/SceneController-Configuration). Recall, store, and manage scenes exactly as a hardware KNX scene keypad would, including optional learn buttons from the flow.
+- **Auto Responder** - Automatically answers KNX read requests (ideal for virtual devices or when you need deterministic status values).
+- **Global Context** - [docs](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/GlobalVariable). Mirrors selected group addresses into Node-RED’s global context for easy use inside function nodes and custom logic.
+- **Viewer** - [docs](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/knxUltimateViewer). Dashboard widget that shows live KNX group address activity and values.
+
+**Automation, safety, and diagnostics**
+
+- **Watchdog** - [docs](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/7.-WatchDog-Configuration). Monitors bus availability, triggers notifications (e-mail, Telegram, Alexa, Siri, Sonos, …), and can automatically fail over to a backup KNX/IP router or reconnect on demand.
+- **Logger** - [docs](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/Logger-Configuration). Captures telegrams into an ETS‑compatible XML log for in-depth diagnostics (note: KNX/IP interfaces do not report KNX-Ultimate telegrams).
+- **Alerter** - [docs](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/Alerter-Configuration). Raises visual or audio alerts (for instance with node-red-contrib-tts-ultimate) when monitored addresses signal an alarm condition.
+- **Load Control** - [docs](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/LoadControl-Configuration). Supervises energy usage (oven, washing machine, EV charger…) and sheds loads before the main breaker trips.
+- **Staircase** - Automates staircase lighting timers with configurable fade and reminder options.
+- **Garage** - Manages garage door or gate logic, including impulse control, status feedback, and safety interlocks.
+
+**IoT integrations**
+
+- **IoT Bridge** - Bridges MQTT/REST devices with KNX, handling payload translations so non‑KNX equipment becomes bus-aware.
+- **Home Assistant Translator** - [docs](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/HATranslator). Converts Home Assistant service payloads to KNX telegrams using a built-in, user-editable mapping table.
+
+**Philips Hue nodeset** - [guide](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/HUE+Bridge+configuration)  
+Use the dedicated Hue config node plus the following device nodes to mirror Hue state into KNX and vice versa:
+
+- **Hue Light** - Bi-directional light control with day/night scenes, dimming curves, and tunable white.
+- **Hue Button** - Listens to Hue Tap Dial/Dimmer button presses and emits KNX-friendly events.
+- **Hue Motion**, **Hue Camera Motion** - Motion detection with daylight filters and occupancy timers.
+- **Hue Tap Dial** - Exposes dial rotation and button presses for scene selection or dimming.
+- **Hue Light Sensor**, **Hue Temperature Sensor**, **Hue Humidity Sensor** - Publishes environmental readings to KNX.
+- **Hue Scene** - Activates Hue scenes and optionally synchronises the status back to KNX.
+- **Hue Battery** - Reports battery percentage for Zigbee accessories.
+- **Hue Zigbee Connectivity** - Monitors Zigbee connectivity status and signal quality.
+- **Hue Plug** - Controls smart plugs/outlets through KNX telegrams.
+- **Hue Contact Sensor** - Mirrors door/window contact states.
+- **Hue Device Software Update** - Tracks and exposes firmware update availability for Hue devices.
+
+**Additional utility nodes**
+
+- **Hue Config** - Stores bridge credentials and polling intervals for the Hue nodes.
+- **KNX/IP Router & Interface config** - Define multiple secure or plain gateways that any runtime node can reuse.
+
+Each node links to detailed wiki documentation with configuration hints, sample payloads, and best practices.
 
 <br>
 
@@ -101,60 +134,60 @@ Please subscribe to the [Youtube channel](https://www.youtube.com/playlist?list=
 
 ## Highlights
 
-If you're here, you probably already have tried other knx nodes from npm. I hope you enjoy this one, because i've put big effort to do what i really needed, a copy/paste friendly node, with many functions and the possibility to use the ETS csv exported Group Addresses.<br />
+If you're here, you have probably already tried other KNX nodes from npm. I hope you enjoy this one, because I've put a lot of effort into creating the copy/paste friendly node I always wanted, with many features and support for ETS CSV exported group addresses.<br />
 
-<details><summary>Stand alone or with ETS exported file</summary>
+<details><summary>Standalone or ETS export friendly</summary>
 
-You can set you own group address, datapoint and device name, or you can import the ETS Group Address list and have datapoint and device name auto populated while typing in the group address.
+You can set your own group address, datapoint, and device name, or import the ETS group address list so the datapoint and device name are auto-populated while you type the group address.
 
 </details>
 <details><summary>Filling helpers</summary>
 
-If you import your ETS CSV or ESF file, just begin typing the group address or the device name in the Group Address textbox and a list of possible matches will appear. Just select an item in the list it and have datapoint and device name auto populated. You can then accept the auto populated fields or change it.
+If you import your ETS CSV or ESF file, begin typing the group address or device name in the Group Address textbox and a list of matches will appear. Select an item from the list to auto-populate the datapoint and device name—you can keep the suggested values or change them.
 
 </details>
-<details><summary>Automatic encoding/deconding of KNX datagrams</summary>
+<details><summary>Automatic encoding/decoding of KNX datagrams</summary>
 
-Just pass a normal payload to the node (true, false, a string or any nymber) and just receive a normal payload (true, false, a string or any nymber) to use in your flow.
+Pass a normal payload to the node (true, false, string, number, object) and you receive a decoded payload of the same shape to use in your flow—no manual buffer handling required.
 
 </details>
-<details><summary>As single device, as Universal node.</summary>
+<details><summary>Single device or universal listener</summary>
 
-The node can act as a single device (for example having Group Address 0/0/1), or can be used as universal node, catching all messages coming from KNX Bus (in this case the node will output a comprehensive msg to the flow, containing group address, device name, automatic decoded payload and other useful infos). The node can act as universal KNX sender as well (you can pass a message to the node, containing the destination group address, the datapont type and the payload).
+Use the node as a single device (for example, group address 0/0/1) or switch it to “universal” mode to catch all KNX bus traffic. In universal mode the node outputs a comprehensive message containing the group address, device name, decoded payload, and additional metadata. It can also send universal KNX telegrams when you pass a message containing the destination group address, datapoint type, and payload.
 
 </details>
 <details><summary>Contextual help for formatting input messages</summary>
 
-There is samples. There is huge documentation about settings and properties. If this is not enough for you, whenever you change the datapoint type, a textblock with a sample msg input (expecially, for tricky datapoints, like RGBW, 10Bytes, Relative Dimming, 3 Bytes setpoint etc...) appears. Just copy/paste it in a function and you're done.
+The wiki provides extensive documentation and examples, and the editor helps too: whenever you change the datapoint type, a text block with a sample input message—especially for tricky datapoints like RGBW, 10-byte floats, relative dimming, or 3-byte setpoints—appears. Copy/paste it into your function and adjust as needed.
 
 </details>
 <details><summary>Huge amount of Datapoints are supported</summary>
 
-It supports a huge amount of datapoints. If you need more, just open a GitHub issue.
+A huge range of datapoints is supported. If you need one that is missing, open a GitHub issue and we will work on it.
 
 </details>
 <details><summary>Self protection</summary>
 
-The Node protects you, from mistakes you can do. [Node Protections](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Protections)
+The node protects you from common mistakes. See the [Node Protections](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Protections) page for details.
 
 </details>
 <details><summary>Built in RBE input/output filter</summary>
 
-You can select to activate or deactivate it. If active, the node reacts only if payload from KNX Bus or from input msg is changed.
+You can enable or disable the built-in RBE (report-by-exception) filter. When enabled, messages are forwarded only when the payload changes—both for KNX bus telegrams and flow inputs.
 
 </details>
 <details><summary>RAW message directly to the BUS</summary>
 
-You can send RAW buffers directly to the bus.
+Send raw buffers directly to the bus whenever you need low-level control.
 
 </details>
 
 
 
-## WORKING WITH THE ETS CSV FILE OR WITH ESF FILE
+## WORKING WITH ETS CSV OR ESF FILES
 
-Instead of create a knx-ultimate node for each Group Address to control, you can import your ETS csv or esf group addresses file.  
-Thanks to that, the knx-ultimate node where you selected **Universal mode (listen to all Group Addresses)**, becomes an universal input/output node, aware of all Datapoints, Group Addresses and Device's name (ex: Living Room Lamp). Just send the payload to the knx-ultimate node, and it'll encode it with the right datapoint and send it to the bus. Likewise, when the knx-ultimate node receives a telegram from the bus, it outputs a right decoded payload using the datapoint specified in the ETS file.  
+Instead of creating a knx-ultimate node for every group address, import your ETS CSV or ESF group address file.  
+When a knx-ultimate node runs in **Universal mode (listen to all Group Addresses)** it becomes a universal input/output node, aware of all datapoints, group addresses, and device names (for example, “Living Room Lamp”). Send a payload to the node and it encodes it with the correct datapoint before transmitting it to the bus. Likewise, when the node receives a telegram from the bus, it outputs a decoded payload using the datapoint specified in the ETS file.  
 
 
 <details><summary>Click here for a sample ETS csv file to paste into the ETS field of your config node.</summary>
@@ -242,7 +275,8 @@ Attuatori luci.Luci primo piano.0/0/21	LED cambiacolori RGB scala	EIS 1 'Switchi
 
 
 ## COMMERCIAL COMPANIES USING KNX-ULTIMATE
-List of commercial companies, which have given us permission to be mentioned on this page. Want to be listed here? Email to maxsupergiovane@icloud.com
+The following commercial companies kindly agreed to be mentioned on this page.  
+Do you want to be listed as well? Send an email to maxsupergiovane@icloud.com.
 
 <br/>
 
@@ -322,9 +356,9 @@ List of commercial companies, which have given us permission to be mentioned on 
 <br/>
 
 
-## ARE YOU A NODEJS DEV? DO YOU KNOW THERE IS AN API FOR NODEJS?
-Many users requested me to "extract" the baseline KNX API and make it accessible via npmjs. Here is it.<br/>
-The API is named **KNXUltimate**. In the README page is well documented and there are also samples for unsecure and secure KNX connections.
+## ARE YOU A NODE.JS DEVELOPER?
+Many users asked me to “extract” the underlying KNX API and publish it on npm. Here it is!<br/>
+The API is called **KNXUltimate**. The README documents it thoroughly and includes examples for both secure and non-secure KNX connections.
 * <a href="https://github.com/Supergiovane/KNXUltimate#readme">KNXUltimate API</a>
 
 <br/>

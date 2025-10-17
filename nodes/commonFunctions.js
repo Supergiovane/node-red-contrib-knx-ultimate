@@ -197,125 +197,29 @@ module.exports = (RED) => {
       }
     })
 
-    // Endpoint for connecting to HUE Bridge
+    // Endpoint for registering with the HUE Bridge
     RED.httpAdmin.get('/KNXUltimateRegisterToHueBridge', (req, res) => {
-      try {
-        (async () => {
-          try {
-            const serverId = RED.nodes.getNode(req.query.serverId) // Retrieve node.id of the config node.
-
-            // °°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
-            // If using this code outside of the examples directory, you will want to use the line below and remove the
-            // const discovery = require('node-hue-api').discovery
-            const hueApi = require('node-hue-api').api
-            const appName = 'KNXUltimate'
-            const deviceName = 'Node-Red'
-
-            // async function discoverBridge() {
-            //   const discoveryResults = await discovery.nupnpSearch()
-
-            //   if (discoveryResults.length === 0) {
-            //     if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error('Failed to resolve any Hue Bridges')
-            //     return null
-            //   } else {
-            //     // Ignoring that you could have more than one Hue Bridge on a network as this is unlikely in 99.9% of users situations
-            //     return discoveryResults[0].ipaddress
-            //   }
-            // }
-            async function discoverAndCreateUser () {
-              // const ipAddress = await discoverBridge()
-              const ipAddress = req.query.IP
-              // Create an unauthenticated instance of the Hue API so that we can create a new user
-              try {
-                const unauthenticatedApi = await hueApi.createLocal(ipAddress).connect()
-                let createdUser
-                createdUser = await unauthenticatedApi.users.createUser(appName, deviceName)
-                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info('*******************************************************************************\n')
-                if (node.sysLogger !== undefined && node.sysLogger !== null) {
-                  node.sysLogger.info(
-                    'User has been created on the Hue Bridge. The following username can be used to\n' +
-                                        'authenticate with the Bridge and provide full local access to the Hue Bridge.\n' +
-                                        'YOU SHOULD TREAT THIS LIKE A PASSWORD\n'
-                  )
-                }
-                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info(`Hue Bridge User: ${createdUser.username}`)
-                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info(`Hue Bridge User Client Key: ${createdUser.clientkey}`)
-                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info('*******************************************************************************\n')
-
-                // Create a new API instance that is authenticated with the new user we created
-                const authenticatedApi = await hueApi.createLocal(ipAddress).connect(createdUser.username)
-                // Do something with the authenticated user/api
-                const bridgeConfig = await authenticatedApi.configuration.getConfiguration()
-                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info(`Connected to Hue Bridge: ${bridgeConfig.name} :: ${bridgeConfig.ipaddress}`)
-                return { bridge: bridgeConfig, user: createdUser }
-              } catch (err) {
-                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(`The Link button on the bridge was not pressed. ${err.message}`)
-                throw err
-                // return {
-                //   error:
-                //     "The Link button on the bridge was not pressed or an error has occurred. " +
-                //     err.message,
-                // };
-              }
-            }
-            async function discoverAndCreateUserInsecure () {
-              // const ipAddress = await discoverBridge()
-              const ipAddress = req.query.IP
-
-              // Create an unauthenticated instance of the Hue API so that we can create a new user
-              try {
-                const unauthenticatedApi = await hueApi.createInsecureLocal(ipAddress).connect()
-                let createdUser
-                createdUser = await unauthenticatedApi.users.createUser(appName, deviceName)
-                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info('*******************************************************************************\n')
-                if (node.sysLogger !== undefined && node.sysLogger !== null) {
-                  node.sysLogger.info(
-                    'User has been created on the Hue Bridge. The following username can be used to\n' +
-                                        'authenticate with the Bridge and provide full local access to the Hue Bridge.\n' +
-                                        'YOU SHOULD TREAT THIS LIKE A PASSWORD\n'
-                  )
-                }
-                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info(`Hue Bridge User: ${createdUser.username}`)
-                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info(`Hue Bridge User Client Key: ${createdUser.clientkey}`)
-                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info('*******************************************************************************\n')
-
-                // Create a new API instance that is authenticated with the new user we created
-                const authenticatedApi = await hueApi.createInsecureLocal(ipAddress).connect(createdUser.username)
-                // Do something with the authenticated user/api
-                const bridgeConfig = await authenticatedApi.configuration.getConfiguration()
-                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info(`Connected to Hue Bridge: ${bridgeConfig.name} :: ${bridgeConfig.ipaddress}`)
-                return { bridge: bridgeConfig, user: createdUser }
-              } catch (err) {
-                if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error('The Link button on the bridge was not pressed. ' + err.stack)
-                return {
-                  error: 'The Link button on the bridge was not pressed or an error has occurred.'
-                }
-              }
-            }
-
-            // Invoke the discovery and create user code
-            try {
-              const jRet = await discoverAndCreateUser()
-              res.json(jRet)
-            } catch (error) {
-              RED.log.error(`Errore KNXUltimateRegisterToHueBridge non gestito Secure ${error.message}. Try with insecure http connection...`)
-              // Try with insecureClient (avoid problems with expired https certificates)
-              try {
-                const jRet = await discoverAndCreateUserInsecure()
-                res.json(jRet)
-              } catch (error) {
-                RED.log.error(`Errore KNXUltimateRegisterToHueBridge non gestito Insecure ${error.message}. I give up.`)
-                res.json({ error: error.message })
-              }
-            }
-          } catch (err) {
-            RED.log.error(`Errore KNXUltimateRegisterToHueBridge non gestito ${err.message}`)
+      (async () => {
+        try {
+          const configNode = RED.nodes.getNode(req.query.serverId)
+          if (!configNode) throw new Error('Hue configuration node not found.')
+          const ipAddress = req.query.IP
+          if (!ipAddress) throw new Error('Bridge IP address is required.')
+          const registration = await customHTTP.registerBridgeUser(ipAddress, 'KNXUltimate', 'Node-RED')
+          const bridgeInfo = {
+            data: registration.bridge,
+            name: registration.bridge?.name || configNode.name || 'Hue Bridge',
+            ipaddress: registration.bridge?.ipaddress || ipAddress,
+            bridgeid: registration.bridge?.bridgeid || configNode.bridgeid || ''
           }
-        })()
-      } catch (err) {
-        RED.log.error(`Errore KNXUltimateRegisterToHueBridge bsonto ${err.message}`)
-        res.json({ error: err.message })
-      }
+          configNode.credentials.username = registration.user.username
+          configNode.credentials.clientkey = registration.user.clientkey
+          res.json({ bridge: bridgeInfo, user: registration.user })
+        } catch (error) {
+          if (node.sysLogger) node.sysLogger.error(`Hue bridge registration failed: ${error.message}`)
+          res.json({ error: error.message })
+        }
+      })()
     })
 
     // Endpoint for reading csv/esf by the other nodes
