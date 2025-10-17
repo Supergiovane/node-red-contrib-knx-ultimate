@@ -5,19 +5,20 @@
   <img src='https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/huehub.jpg' width='40%'>
 </p>
 
-Questo nodo effettua la registrazione presso l'HUE Bridge.
+Questo nodo registra Node-RED presso l'Hue Bridge e ora gestisce automaticamente la procedura di abbinamento.
 
-Imposta l'IP del Bridge e fai clic su **CONNECT** .\
-In alternativa puoi impostare manualmente le credenziali.
+Inserisci l'IP del bridge (o scegli uno tra quelli individuati automaticamente) e premi **CONNECT**. L'editor continua a interrogare il bridge e chiude la finestra di attesa non appena premi il pulsante fisico di collegamento. Usa **CANCEL** se vuoi interrompere l'attesa e riprovare più tardi. I campi Username e Client Key restano sempre modificabili in modo da poter copiare o incollare le credenziali quando serve.
+
+Hai già le credenziali? Fai clic su **HO GIÀ LE CREDENZIALI** per mostrare subito i campi e inserirle manualmente senza attendere il pulsante del bridge.
 
 **Generale**
 
 | Proprietà | Descrizione |
 |--|--|
-| IP | Inserisci l'IP dell'HUE Bridge (l'IP deve essere fisso). |
-| CONNECT | Avvia la procedura di registrazione con l'HUE Bridge. Dopo aver premuto **CONNECT ** , il campo Bridge ID viene letto automaticamente. Puoi quindi scegliere se registrare nuove credenziali oppure**SET CREDENTIALS MANUALLY** ; in tal caso compila i campi a mano. |
-| Name | Nome dell'HUE Bridge. |
-| Reveal | Mostra la coppia di chiavi (Username e Client Key) per poterla copiare e usare dove necessario. |
+| IP | Inserisci l'IP fisso del tuo bridge Hue oppure seleziona uno tra quelli scoperti automaticamente. |
+| CONNECT | Avvia la registrazione e attende il pulsante di collegamento del bridge. La finestra si chiude automaticamente quando premi il pulsante; usa **CANCEL** per interrompere l'attesa. |
+| Name | Nome del bridge letto dalla Hue Bridge dopo una connessione riuscita. |
+| Username / Client Key | Credenziali restituite dalla Hue Bridge dopo l'abbinamento. Restano modificabili per consentire copia/incolla o l'inserimento manuale. |
 
 ![image.png](../img/hude-config.png)
 </script>

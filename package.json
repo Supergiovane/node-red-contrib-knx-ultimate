@@ -17,7 +17,6 @@
     "path": "0.12.7",
     "ping": "0.4.4",
     "simple-get": "4.0.1",
-    "undici": "^7.8.0",
     "xml2js": "0.6.0"
   },
   "node-red": {

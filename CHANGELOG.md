@@ -7,7 +7,12 @@
 # CHANGELOG
 
 **Version 4.0.24** - October 2025<br/>
-- Added unit test for HueLight node.</br>
+- Hue config node: pairing now polls the bridge automatically and closes the dialog as soon as the link button is pressed, with a cancellable wait message and improved error feedback.<br/>
+- Hue config node: added "I ALREADY HAVE THE CREDENTIALS" button and restored bridge discovery so manual credentials can be entered immediately without running the registration flow.<br/>
+- Backend: `/KNXUltimateRegisterToHueBridge` now succeeds even when the config node is not yet saved, ensuring the automatic pairing response always reaches the editor.<br/>
+- Documentation: refreshed Hue Bridge wiki/help pages in all supported languages to explain the new pairing flow and manual credentials option; tutorials & teleprompter scripts updated accordingly.<br/>
+- General: kept unit test coverage for the Hue Light node to guard recent regressions.<br/>
+- KNX config node: host autocomplete now shows the full gateway list on focus/click, regardless of the current filter, to simplify manual selection.<br/>
 
 **Version 4.0.23** - October 2025<br/>
 - Fixed some regressions in the hue light node.</br>

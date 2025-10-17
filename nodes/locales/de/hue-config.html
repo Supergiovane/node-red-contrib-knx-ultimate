@@ -5,19 +5,20 @@
   <img src='https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/huehub.jpg' width='40%'>
 </p>
 
-Dieser Node registriert sich am HUE Bridge.
+Dieser Node registriert Node-RED an der Hue Bridge und führt den Kopplungsvorgang jetzt automatisch aus.
 
-Trage die IP des Bridge ein und klicke auf **CONNECT** .\
-Alternativ können die Zugangsdaten manuell hinterlegt werden.
+Gib die IP des Bridge ein (oder wähle eine automatisch erkannte Bridge) und klicke auf **CONNECT**. Der Editor fragt die Bridge weiter an und schließt den Warte-Dialog automatisch, sobald du die physische Link-Taste gedrückt hast. Mit **CANCEL** kannst du den Vorgang jederzeit stoppen und später erneut versuchen. Die Felder für Benutzername und Client Key bleiben bearbeitbar, damit du die Zugangsdaten jederzeit kopieren oder manuell einfügen kannst.
+
+Du hast die Zugangsdaten bereits? Klicke auf **ICH HABE BEREITS DIE ZUGANGSDATEN**, um die Felder sofort einzublenden und sie manuell einzugeben, ohne auf den Bridge-Button zu warten.
 
 **Allgemein**
 
 | Eigenschaft | Beschreibung |
 |--|--|
-| IP | IP‑Adresse des HUE Bridge (fest vergeben). |
-| CONNECT | Startet die Registrierung am HUE Bridge. Nach **CONNECT ** wird die Bridge‑ID automatisch ausgelesen. Danach kannst du neue Credentials registrieren oder**SET CREDENTIALS MANUALLY** wählen und die Felder manuell ausfüllen. |
-| Name | Anzeigename des HUE Bridge. |
-| Reveal | Zeigt das Schlüsselpaar (Username und Client Key) an, um es zu kopieren und anderweitig zu verwenden. |
+| IP | Gib die feste IP deiner Hue Bridge ein oder wähle einen automatisch gefundenen Eintrag aus der Liste. |
+| CONNECT | Startet die Registrierung und wartet auf den Tastendruck an der Bridge. Der Dialog schließt sich automatisch nach dem Tastendruck; mit **CANCEL** kannst du das Warten beenden. |
+| Name | Name der Bridge, der nach erfolgreicher Verbindung von der Hue Bridge gelesen wird. |
+| Username / Client Key | Von der Hue Bridge nach der Kopplung zurückgegebene Zugangsdaten. Die Felder bleiben editierbar für Copy & Paste oder manuelle Eingaben. |
 
 ![image.png](../img/hude-config.png)
 </script>

@@ -202,24 +202,42 @@ module.exports = (RED) => {
       (async () => {
         try {
           const configNode = RED.nodes.getNode(req.query.serverId)
-          if (!configNode) throw new Error('Hue configuration node not found.')
           const ipAddress = req.query.IP
           if (!ipAddress) throw new Error('Bridge IP address is required.')
           const registration = await customHTTP.registerBridgeUser(ipAddress, 'KNXUltimate', 'Node-RED')
           const bridgeInfo = {
             data: registration.bridge,
-            name: registration.bridge?.name || configNode.name || 'Hue Bridge',
+            name: registration.bridge?.name || configNode?.name || 'Hue Bridge',
             ipaddress: registration.bridge?.ipaddress || ipAddress,
-            bridgeid: registration.bridge?.bridgeid || configNode.bridgeid || ''
+            bridgeid: registration.bridge?.bridgeid || configNode?.bridgeid || ''
           }
-          configNode.credentials.username = registration.user.username
-          configNode.credentials.clientkey = registration.user.clientkey
+          if (configNode) {
+            try {
+              configNode.credentials = configNode.credentials || {}
+              configNode.credentials.username = registration.user.username
+              configNode.credentials.clientkey = registration.user.clientkey
+              if (typeof bridgeInfo.bridgeid === 'string' && bridgeInfo.bridgeid) {
+                try { configNode.bridgeid = bridgeInfo.bridgeid } catch (e) { /* noop */ }
+              }
+            } catch (credError) {
+              if (node.sysLogger) node.sysLogger.warn(`Hue registration: unable to persist credentials for node ${configNode.id}: ${credError.message}`)
+            }
+          }
           res.json({ bridge: bridgeInfo, user: registration.user })
         } catch (error) {
           if (node.sysLogger) node.sysLogger.error(`Hue bridge registration failed: ${error.message}`)
           res.json({ error: error.message })
         }
       })()
+    })
+
+    RED.httpAdmin.get('/KNXUltimateDiscoverHueBridges', RED.auth.needsPermission('hue-config.read'), (req, res) => {
+      customHTTP.discoverHueBridges().then((list) => {
+        res.json(Array.isArray(list) ? list : [])
+      }).catch((error) => {
+        if (node.sysLogger) node.sysLogger.error(`Hue bridge discovery failed: ${error.message}`)
+        res.json({ error: error.message })
+      })
     })
 
     // Endpoint for reading csv/esf by the other nodes

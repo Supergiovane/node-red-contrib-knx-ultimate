@@ -7,13 +7,15 @@
       "node-config-input-name": "Nom",
       "getinfocam": "Inscrivez-vous à Hub",
       "connect": "CONNECTER",
+      "manual_credentials": "JE POSSÈDE DÉJÀ LES IDENTIFIANTS",
       "bridge_id": "ID de pont",
       "username": "Nom d'utilisateur",
       "client_key": "Clé client",
-      "secrets": "Secrets",
-      "reveal": "Révéler",
-      "wait_message": "Attends, je parle à ton pont de teinte ...",
-      "caution": "ATTENTION: D'autres nœuds de teintes tiers coexistants peuvent causer des problèmes et ne doivent être désinstallés."
+      "wait_message": "Patientez, je discute avec votre pont Hue...",
+      "caution": "ATTENTION : d'autres nœuds Hue de tiers installés en parallèle peuvent provoquer des problèmes et doivent être désinstallés.",
+      "link_button_wait": "Appuyez sur le bouton de liaison du pont Hue. En attente de confirmation…",
+      "registration_failed": "Échec de l’enregistrement du pont Hue.",
+      "registration_unreachable": "Impossible de joindre le pont Hue."
     }
   }
 }

@@ -3,19 +3,20 @@
 <br/>
 <p align='center'> <img src='https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/huehub.jpg' width='40%'></p>
 
-This node registers to the Hue Bridge.
+This node registers Node-RED with the Hue Bridge and now handles the pairing handshake automatically.
 
-Just set the Bridge's IP and click **CONNECT** .\
-You can also manually set the credentials.
+Enter the bridge IP (or pick one from the discovery list) and click **CONNECT**. The editor will keep polling the bridge and closes the waiting dialog as soon as you press the physical link button. Use **CANCEL** if you need to abort the pairing and try again later. The Username and Client Key fields stay editable so you can copy or paste credentials at any time.
+
+Already have credentials? Click **I ALREADY HAVE THE CREDENTIALS** to immediately show the fields and enter them manually without waiting for the bridge button.
 
 **General**
 
 |Property|Description|
 |--|--|
-| IP | Put here the bridge's IP (the IP must be fixed) |
-| CONNECT | This button will start the registering process with HUE Bridge. The bridge ID field is automatically read from the bridge after pressing **CONNECT ** . You can then choose to register new credentials, or to**SET CREDENTIALS MANUALLY** . If you choose to set credentials manually, just fill in the fields. |
-| Name | The bridge's name |
-| Reveal | Reveals the secret key pair Username and Client Key, so you can copy and use it wherever you want. |
+| IP | Enter the fixed IP of your Hue Bridge or choose one of the discovered bridges from the list. |
+| CONNECT | Starts the registration and waits for the bridge link button. The dialog closes automatically once the button is pressed; use **CANCEL** to stop waiting. |
+| Name | Bridge name that is read back from the Hue Bridge after a successful connection. |
+| Username / Client Key | Credentials returned by the Hue Bridge after pairing. They remain editable so you can copy or paste values manually if needed. |
 
 ![image.png](../img/hude-config.png)
 </script>

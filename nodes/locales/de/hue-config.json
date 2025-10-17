@@ -1,19 +1,21 @@
 {
-    "hue-config": {
-        "properties": {
-            "title": "Philips Hue Bridge",
-            "host": "IP",
-            "host_placeholder": "Geben Sie die IP der Hue Bridge ein, dann auf VERBINDEN klicken",
-            "node-config-input-name": "Name",
-            "getinfocam":"Mit HUB verbinden",
-            "connect": "VERBINDEN",
-            "bridge_id": "Bridge-ID",
-            "username": "Benutzername",
-            "client_key": "Client-Schlüssel",
-            "secrets": "Geheimnisse",
-            "reveal": "Anzeigen",
-            "wait_message": "Warte, ich kommuniziere mit deiner HUE Bridge...",
-            "caution": "ACHTUNG: Andere gleichzeitig installierte HUE-Knoten von Drittanbietern können Probleme verursachen und sollten deinstalliert werden."
-        }
+  "hue-config": {
+    "properties": {
+      "title": "Philips Hue Bridge",
+      "host": "IP",
+      "host_placeholder": "Geben Sie die IP der Hue Bridge ein, dann auf VERBINDEN klicken",
+      "node-config-input-name": "Name",
+      "getinfocam": "Mit HUB verbinden",
+      "connect": "VERBINDEN",
+      "manual_credentials": "ICH HABE BEREITS DIE ZUGANGSDATEN",
+      "bridge_id": "Bridge-ID",
+      "username": "Benutzername",
+      "client_key": "Client-Schlüssel",
+      "wait_message": "Warte, ich kommuniziere mit deiner HUE Bridge...",
+      "caution": "ACHTUNG: Andere gleichzeitig installierte HUE-Knoten von Drittanbietern können Probleme verursachen und sollten deinstalliert werden.",
+      "link_button_wait": "Bitte drücken Sie die Link-Taste an der Hue Bridge. Warte auf Bestätigung…",
+      "registration_failed": "Registrierung der Hue Bridge fehlgeschlagen.",
+      "registration_unreachable": "Hue Bridge konnte nicht erreicht werden."
     }
+  }
 }

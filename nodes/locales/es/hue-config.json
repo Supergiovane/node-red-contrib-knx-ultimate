@@ -7,13 +7,15 @@
       "node-config-input-name": "Nombre",
       "getinfocam": "Regístrese en HUB",
       "connect": "CONECTAR",
+      "manual_credentials": "YA TENGO LAS CREDENCIALES",
       "bridge_id": "ID de puente",
       "username": "Nombre de usuario",
       "client_key": "Clave del cliente",
-      "secrets": "Misterios",
-      "reveal": "Revelar",
-      "wait_message": "Espera, estoy hablando con tu puente de tono ...",
-      "caution": "PRECAUCIÓN: Otros nodos de tono de terceros coexistentes pueden causar problemas y no estarán instalados."
+      "wait_message": "Espera, estoy hablando con tu puente Hue...",
+      "caution": "PRECAUCIÓN: otros nodos Hue de terceros instalados al mismo tiempo pueden causar problemas y deben eliminarse.",
+      "link_button_wait": "Pulsa el botón de enlace del puente Hue. Esperando confirmación…",
+      "registration_failed": "Error al registrar el puente Hue.",
+      "registration_unreachable": "No se puede contactar con el puente Hue."
     }
   }
 }

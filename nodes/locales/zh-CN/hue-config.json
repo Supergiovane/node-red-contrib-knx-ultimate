@@ -1,19 +1,21 @@
 {
-    "hue-config": {
-        "properties": {
-            "title": "Philips Hue Bridge",
-            "host": "IP",
-            "host_placeholder": "请输入 Hue 网桥的 IP，然后点击 连接",
-            "node-config-input-name": "Name",
-            "getinfocam":"注册到 HUB",
-            "connect": "连接",
-            "bridge_id": "Bridge ID",
-            "username": "用户名",
-            "client_key": "客户端密钥",
-            "secrets": "密钥",
-            "reveal": "显示",
-            "wait_message": "请稍候，正在与您的 HUE 网桥通信...",
-            "caution": "注意：其他第三方 HUE 节点可能会导致问题，建议卸载。"
-        }
+  "hue-config": {
+    "properties": {
+      "title": "Philips Hue Bridge",
+      "host": "IP",
+      "host_placeholder": "请输入 Hue 网桥的 IP，然后点击 连接",
+      "node-config-input-name": "Name",
+      "getinfocam": "注册到 HUB",
+      "connect": "连接",
+      "manual_credentials": "我已有凭据",
+      "bridge_id": "Bridge ID",
+      "username": "用户名",
+      "client_key": "客户端密钥",
+      "wait_message": "请稍候，正在与您的 HUE 网桥通信...",
+      "caution": "注意：其他第三方 HUE 节点可能会导致问题，建议卸载。",
+      "link_button_wait": "请按下 Hue 网桥上的配对按钮。正在等待确认…",
+      "registration_failed": "Hue 网桥注册失败。",
+      "registration_unreachable": "无法连接到 Hue 网桥。"
     }
+  }
 }

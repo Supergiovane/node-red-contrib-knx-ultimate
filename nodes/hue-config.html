@@ -1,3 +1,344 @@
+<script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/htmlUtils.js"></script>
+
+
+<script type="text/javascript">
+    RED.nodes.registerType('hue-config', {
+        category: 'config',
+        defaults: {
+            host: { value: "" },
+            name: { value: "Hue Bridge" },
+            bridgeid: { value: "" }
+        },
+        credentials: {
+            username: { type: "password" },
+            clientkey: { type: "password" }
+        },
+        oneditprepare: function () {
+            // Go to the help panel
+            try {
+                RED.sidebar.show("help");
+            } catch (error) { }
+
+
+            var node = this;
+            var $hostInput = $("#node-config-input-host");
+            var $refreshHueBridges = $("#refreshHueBridges");
+            var $bridgeDatalist = $("#hue-bridge-hosts");
+            var discoveredHueBridges = [];
+            var $usernameInput = $("#node-config-input-username");
+            var $clientKeyInput = $("#node-config-input-clientkey");
+            var $manualCredentialsButton = $("#manualCredentials");
+
+            function renderHueBridgeOptions (bridges) {
+                discoveredHueBridges = Array.isArray(bridges) ? bridges : [];
+                if ($bridgeDatalist.length) {
+                    $bridgeDatalist.empty();
+                    discoveredHueBridges.forEach(function (bridge) {
+                        var ip = bridge.internalipaddress || bridge.ipaddress || bridge.ip || "";
+                        if (!ip) return;
+                        var labelParts = [ip];
+                        var bridgeId = bridge.id || bridge.bridgeid;
+                        if (bridgeId) {
+                            labelParts.push("(" + bridgeId + ")");
+                        }
+                        $("<option>")
+                            .attr("value", ip)
+                            .text(labelParts.join(" "))
+                            .appendTo($bridgeDatalist);
+                    });
+                }
+                if ($hostInput.length && !$hostInput.val() && discoveredHueBridges.length > 0) {
+                    var firstBridge = null;
+                    for (var idx = 0; idx < discoveredHueBridges.length; idx++) {
+                        var candidate = discoveredHueBridges[idx];
+                        if (candidate && candidate.internalipaddress) {
+                            firstBridge = candidate;
+                            break;
+                        }
+                    }
+                    if (!firstBridge) {
+                        firstBridge = discoveredHueBridges[0];
+                    }
+                    var defaultIp = (firstBridge.internalipaddress || firstBridge.ipaddress || firstBridge.ip || "");
+                    if (defaultIp) {
+                        $hostInput.val(defaultIp);
+                    }
+                }
+            }
+
+            function runHueBridgeDiscovery (options) {
+                var settings = options || {};
+                if ($refreshHueBridges.length) {
+                    $refreshHueBridges.addClass("fa-spin");
+                }
+                $.getJSON("KNXUltimateDiscoverHueBridges", function (data) {
+                    if (data && !data.error) {
+                        renderHueBridgeOptions(data);
+                    } else if (data && data.error && !settings.silent) {
+                        RED.notify(data.error, {
+                            modal: false,
+                            fixed: false,
+                            type: "error"
+                        });
+                    }
+                }).fail(function (jqXHR, textStatus, errorThrown) {
+                    if (!settings.silent) {
+                        var message = errorThrown || textStatus || "Unknown error";
+                        RED.notify("Hue bridge discovery failed: " + message, {
+                            modal: false,
+                            fixed: false,
+                            type: "error"
+                        });
+                    }
+                }).always(function () {
+                    if ($refreshHueBridges.length) {
+                        $refreshHueBridges.removeClass("fa-spin");
+                    }
+                });
+            }
+
+            if ($refreshHueBridges.length) {
+                $refreshHueBridges.on("click", function () {
+                    runHueBridgeDiscovery();
+                });
+            }
+
+            if ($manualCredentialsButton.length) {
+                $manualCredentialsButton.on("click", function () {
+                    $("#mainWindow").show();
+                    $("#waitWindow").hide();
+                    $("#divDetails").show();
+                    if ($usernameInput.val() === "_PWRD_") $usernameInput.val("");
+                    if ($clientKeyInput.val() === "_PWRD_") $clientKeyInput.val("");
+                    try { $usernameInput.focus(); } catch (e) { }
+                    $manualCredentialsButton.hide();
+                });
+            }
+
+            runHueBridgeDiscovery({ silent: true });
+
+            function loadHueCredentials () {
+                if (!node || !node.id) return;
+                $.getJSON("KNXUltimateGetPlainHueBridgeCredentials?serverId=" + node.id, function (data) {
+                    if (data && !data.error) {
+                        if (data.username) {
+                            $usernameInput.val(data.username);
+                        } else if ($usernameInput.val() === "_PWRD_") {
+                            $usernameInput.val("");
+                        }
+                        if (data.clientkey) {
+                            $clientKeyInput.val(data.clientkey);
+                        } else if ($clientKeyInput.val() === "_PWRD_") {
+                            $clientKeyInput.val("");
+                        }
+                    }
+                }).fail(function () {
+                    if ($usernameInput.val() === "_PWRD_") $usernameInput.val("");
+                    if ($clientKeyInput.val() === "_PWRD_") $clientKeyInput.val("");
+                });
+            }
+
+            loadHueCredentials();
+
+            if (this.bridgeid === undefined || this.bridgeid === '') {
+                $("#divDetails").hide();
+                if ($manualCredentialsButton.length) $manualCredentialsButton.show();
+            } else {
+                $("#divDetails").show();
+                if ($manualCredentialsButton.length) $manualCredentialsButton.hide();
+            }
+
+            // #region "CONNECTION TO THE BRIDGE"
+            $("#getinfocam").click(function () {
+                $.getJSON("KNXUltimateGetHueBridgeInfo?IP=" + $("#node-config-input-host").val() + "&serverId=" + node.id, (data) => {
+                    if (data.hasOwnProperty("error")) {
+                        RED.notify(JSON.stringify(data.error),
+                            {
+                                modal: true,
+                                fixed: false,
+                                type: 'error'
+                            });
+                        return;
+                    }
+                    $("#node-config-input-bridgeid").val(data.bridgeid);
+                    $("#node-config-input-name").val(data.name);
+
+                    $("#mainWindow").hide();
+                    $("#waitWindow").show();
+
+                    var polling = true;
+                    var retryTimer = null;
+                    var inflightRequest = null;
+                    var myNotification;
+
+                    function cleanupPolling () {
+                        polling = false;
+                        if (retryTimer) {
+                            clearTimeout(retryTimer);
+                            retryTimer = null;
+                        }
+                        if (inflightRequest && typeof inflightRequest.abort === 'function') {
+                            try { inflightRequest.abort() } catch (e) { }
+                        }
+                        inflightRequest = null;
+                    }
+
+                    function restoreEditorView () {
+                        $("#mainWindow").show();
+                        $("#waitWindow").hide();
+                    }
+
+                    function scheduleRetry () {
+                        if (!polling) return;
+                        retryTimer = setTimeout(attemptRegistration, 2000);
+                    }
+
+                    function handleRegistrationSuccess (registration) {
+                        cleanupPolling();
+                        if (registration && registration.bridge) {
+                            if (registration.bridge.data && registration.bridge.data.name) {
+                                $("#node-config-input-name").val(registration.bridge.data.name);
+                            }
+                            if (registration.bridge.data && registration.bridge.data.bridgeid) {
+                                $("#node-config-input-bridgeid").val(registration.bridge.data.bridgeid);
+                            }
+                        }
+                        if (registration && registration.user) {
+                            if (registration.user.username) $("#node-config-input-username").val(registration.user.username);
+                            if (registration.user.clientkey) $("#node-config-input-clientkey").val(registration.user.clientkey);
+                        }
+                        restoreEditorView();
+                        $("#divDetails").show();
+                        if ($manualCredentialsButton.length) $manualCredentialsButton.hide();
+                        if (myNotification) myNotification.close();
+                    }
+
+                    function handleRegistrationError (message, { retryAllowed = false } = {}) {
+                        if (retryAllowed) {
+                            scheduleRetry();
+                            return;
+                        }
+                        cleanupPolling();
+                        restoreEditorView();
+                        if (myNotification) myNotification.close();
+                        var displayMessage = message && String(message).trim();
+                        if (!displayMessage) {
+                            displayMessage = RED._("hue-config.properties.registration_failed");
+                        }
+                        RED.notify(displayMessage, {
+                            modal: false,
+                            fixed: false,
+                            type: 'error'
+                        });
+                    }
+
+                    function attemptRegistration () {
+                        if (!polling) return;
+                        inflightRequest = $.getJSON("KNXUltimateRegisterToHueBridge?IP=" + $("#node-config-input-host").val() + "&serverId=" + node.id, function (data) {
+                            if (!polling) return;
+                            if (data && !data.error) {
+                                handleRegistrationSuccess(data);
+                                return;
+                            }
+                            var errorMessage = data && data.error ? data.error.toString() : '';
+                            var lower = errorMessage.toLowerCase();
+                            var shouldRetry = lower.includes('link button') || lower.includes('101');
+                            handleRegistrationError(errorMessage || 'Unknown response from Hue bridge.', { retryAllowed: shouldRetry });
+                        }).fail(function (jqXHR, textStatus, errorThrown) {
+                            if (!polling) return;
+                            var message = errorThrown || textStatus || RED._("hue-config.properties.registration_unreachable");
+                            handleRegistrationError(message, { retryAllowed: true });
+                        }).always(function () {
+                            inflightRequest = null;
+                        });
+                    }
+
+                    var waitingMessage = RED._("hue-config.properties.link_button_wait");
+                    myNotification = RED.notify(waitingMessage, {
+                        modal: true,
+                        fixed: true,
+                        type: 'info',
+                        buttons: [
+                            {
+                                text: "CANCEL",
+                                click: function () {
+                                    cleanupPolling();
+                                    restoreEditorView();
+                                    if (myNotification) myNotification.close();
+                                }
+                            }
+                        ]
+                    });
+
+                    attemptRegistration();
+                }).error(function (jqXHR, textStatus, errorThrown) {
+                    RED.notify("Something went wrong. Please check the bridge's IP.",
+                        {
+                            modal: false,
+                            fixed: false,
+                            type: 'error'
+                        })
+                    return;
+                });
+            });
+            //#endregion
+
+
+        },
+        oneditsave: function () {
+            // Return to the info tab
+            try {
+                RED.sidebar.show("info");
+            } catch (error) { }
+
+
+        },
+        label: function () {
+            return typeof this.name === undefined ? "Hue Bridge " + this.host : this.name + " " + this.host;
+        }
+    });
+</script>
+
+
+<script type="text/html" data-template-name="hue-config">
+
+    <div id="waitWindow" hidden>
+        <br/><br/>
+        <p align="center">
+            <i class="fa-solid fa-hourglass-start fa-spin-pulse fa-2x"></i><br/><br/>
+            <span data-i18n="hue-config.properties.wait_message"></span>
+        </p>
+    </div>
+
+    <div id="mainWindow">
+        <div class="form-row">
+         <b><span data-i18n="hue-config.properties.title"></span></b>
+
+         <p align='center'> <img src='https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/huehub.jpg' width='30%'></p>
+         <p><span data-i18n="hue-config.properties.caution"></span></p>
+      
+        </div>
+        <div class="form-row">
+            <label for="node-config-input-host">
+                <i class="fa fa-server"></i> <span data-i18n="hue-config.properties.host"></span></label>
+            <input type="text" id="node-config-input-host" data-i18n="[placeholder]hue-config.properties.host_placeholder" placeholder="Write here the HUE bridge's IP, then click CONNECT" list="hue-bridge-hosts">
+            <i id="refreshHueBridges" class="fa fa-refresh" style="cursor:pointer; margin-left:6px;" title="Refresh Hue bridge discovery"></i>
+            <datalist id="hue-bridge-hosts"></datalist>
+        </div>
+        <div class="form-row" id="divConnectButton">
+            <label><i class="fa fa-sign-in"></i> <span data-i18n="hue-config.properties.getinfocam"></span></label>
+            <input type="button" id="getinfocam" class="ui-button ui-corner-all ui-widget"
+                style="background-color:#AEE1FF;width:150px" data-i18n="[value]hue-config.properties.connect" value="CONNECT">
+            <input type="button" id="manualCredentials" class="ui-button ui-corner-all ui-widget"
+                style="background-color:#FFE4A7;width:200px;margin-left:8px" data-i18n="[value]hue-config.properties.manual_credentials" value="I ALREADY HAVE THE CREDENTIALS">
+        </div>
+    
+        <div id="divDetails" hidden>
+            <div class="form-row">
+                <label for="node-config-input-name">
+                    <i class="fa fa-tag"></i>
+                    <span data-i18n="hue-config.properties.node-config-input-name"></span>
+                </label>
                 <input type="text" id="node-config-input-name" style="margin-left:5px;">
             </div>
 
@@ -11,22 +352,12 @@
 
             <div class="form-row">
                 <label for="node-config-input-username"> <span data-i18n="hue-config.properties.username"></span></label>
-                <input type="password" id="node-config-input-username" placeholder="" disabled>
+                <input type="text" id="node-config-input-username" placeholder="">
             </div>
             <div class="form-row">
                 <label for="node-config-input-clientkey"> <span data-i18n="hue-config.properties.client_key"></span></label>
-                <input type="password" id="node-config-input-clientkey" placeholder="" disabled>
+                <input type="text" id="node-config-input-clientkey" placeholder="">
             </div>
-            <div class="form-row" id="BUTTONrevealBridgeSecrets">
-                <label><i class="fa fa-magic"></i> <span data-i18n="hue-config.properties.secrets"></span></label>
-                <input type="button" id="revealBridgeSecrets" class="ui-button ui-corner-all ui-widget"
-                    style="background-color:#ffb1ae;width:150px" data-i18n="[value]hue-config.properties.reveal">
-            </div>
-            <div class="form-row" id="DIVrevealBridgeSecrets" hidden>
-                <label><i class="fa fa-file-text-o"></i> -> </label>
-                <textarea type="textarea" rows="3" cols="250" id="TEXTrevealBridgeSecrets"></textarea>
-            </div>
-            
         </div>    
     </div>
  

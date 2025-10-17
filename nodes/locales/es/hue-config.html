@@ -3,19 +3,20 @@
 <br/>
 <P align = 'Center'> <img src = 'https://raw.githubusercontent.com/supergiovane/node-red-contrib-knx-ultimate/master/img/huehub.jpg' width = '40%'> </p>
 
-Este nodo se registra en el puente del tono.
+Este nodo registra Node-RED en el puente Hue y ahora realiza automáticamente el proceso de emparejamiento.
 
-Simplemente configure la IP del puente y haga clic en **Connect** . \
-También puede establecer manualmente las credenciales.
+Introduce la IP del puente (o elige una de las detectadas automáticamente) y pulsa **CONNECT**. El editor seguirá consultando el puente y cerrará la ventana de espera en cuanto pulses el botón físico de enlace. Usa **CANCEL** si necesitas cancelar la espera y probar más tarde. Los campos de Nombre de usuario y Client Key permanecen editables para que puedas copiar o pegar las credenciales en cualquier momento.
+
+¿Ya tienes las credenciales? Haz clic en **YA TENGO LAS CREDENCIALES** para mostrar los campos al instante e introducirlas manualmente sin esperar al botón del puente.
 
 **General**
 
 | Propiedad | Descripción |
 |-|-|
-|IP |Ponga aquí la IP del puente (la IP debe ser solucionada) |
-|Conectar |Este botón iniciará el proceso de registro con Hue Bridge.El campo ID del puente se lee automáticamente desde el puente después de presionar **Connect ** .Luego puede optar por registrar nuevas credenciales, o**Establecer credenciales manualmente** .Si elige establecer credenciales manualmente, simplemente complete los campos.|
-|Nombre |El nombre del puente |
-|Revelar |Revela el nombre de usuario y la clave del cliente del par de la clave secreta, por lo que puede copiarlo y usarlo donde quiera.|
+| IP | Introduce la IP fija de tu puente Hue o selecciona uno de los puentes detectados automáticamente. |
+| CONNECT | Inicia el registro y espera al botón de enlace del puente. La ventana se cierra automáticamente cuando lo pulsas; utiliza **CANCEL** para detener la espera. |
+| Nombre | Nombre del puente leído desde la Hue Bridge después de una conexión correcta. |
+| Username / Client Key | Credenciales devueltas por la Hue Bridge tras el emparejamiento. Permanecen editables para poder copiar, pegar o escribir valores manualmente. |
 
 ![Image.png](../ img/hude-config.png)
 </script>

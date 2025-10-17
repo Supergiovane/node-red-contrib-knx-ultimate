@@ -228,3 +228,34 @@ module.exports.registerBridgeUser = async (ip, appName = 'KNXUltimate', deviceNa
     user: { username, clientkey }
   }
 }
+
+/**
+* Discover Hue bridges using the public discovery service.
+* @returns {Promise<Array<{id?: string, internalipaddress?: string}>>}
+*/
+module.exports.discoverHueBridges = async () => {
+  return await new Promise((resolve, reject) => {
+    const opt = {
+      method: 'GET',
+      url: 'https://discovery.meethue.com',
+      rejectUnauthorized: false
+    }
+    simpleget.concat(opt, (err, res, data) => {
+      if (err) {
+        return reject(new Error(err.message || 'Unable to reach discovery.meethue.com'))
+      }
+      if (!res || res.statusCode < 200 || res.statusCode >= 400) {
+        return reject(new Error(`Discovery request failed with status ${res?.statusCode ?? 'unknown'}`))
+      }
+      try {
+        const parsed = JSON.parse(data)
+        if (!Array.isArray(parsed)) {
+          return reject(new Error('Unexpected discovery response'))
+        }
+        resolve(parsed)
+      } catch (parseError) {
+        reject(new Error(`Invalid discovery response: ${parseError.message}`))
+      }
+    })
+  })
+}

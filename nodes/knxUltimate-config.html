@@ -546,7 +546,22 @@
                     return false;
                 }
             }).on("focus click", function () {
-                $(this).autocomplete("search", "");
+                const $input = $(this);
+                const currentValue = $input.val();
+                $input.data('knx-restore-host', currentValue);
+                if (currentValue) {
+                    $input.val('');
+                }
+                $input.autocomplete("search", "");
+                if (currentValue) {
+                    setTimeout(() => {
+                        if ($input.data('knx-restore-host') === currentValue) {
+                            $input.val(currentValue);
+                        }
+                    }, 0);
+                }
+            }).on("blur", function () {
+                $(this).data('knx-restore-host', null);
             }).autocomplete("instance")._renderItem = function (ul, item) {
                 const parts = String(item.value).split(':');
                 const ip = parts[0];

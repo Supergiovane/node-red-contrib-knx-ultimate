@@ -1,6 +1,82 @@
 import { EventEmitter } from 'events'
-import { fetch, Agent } from 'undici'
+import { Agent as HTTPSAgent, request as httpsRequest } from 'node:https'
+import { URL } from 'node:url'
+import { TextDecoder } from 'node:util'
 import { setTimeout as delay } from 'timers/promises'
+
+const createAbortError = () => {
+  const err = new Error('The operation was aborted')
+  err.name = 'AbortError'
+  return err
+}
+
+const openEventStream = (url, { headers = {}, agent, signal } = {}) => {
+  return new Promise((resolve, reject) => {
+    let response = null
+    let requestInstance = null
+    let settled = false
+
+    const safeResolve = (value) => {
+      if (settled) return
+      settled = true
+      resolve(value)
+    }
+
+    const safeReject = (error) => {
+      if (settled) return
+      settled = true
+      reject(error)
+    }
+
+    const cleanup = () => {
+      if (signal) signal.removeEventListener('abort', onAbort)
+    }
+
+    const onAbort = () => {
+      const abortErr = createAbortError()
+      if (response && typeof response.destroy === 'function') {
+        response.destroy(abortErr)
+      } else if (requestInstance && typeof requestInstance.destroy === 'function') {
+        requestInstance.destroy(abortErr)
+      }
+    }
+
+    const target = new URL(url)
+    const options = {
+      protocol: target.protocol,
+      hostname: target.hostname,
+      port: target.port || (target.protocol === 'https:' ? 443 : 80),
+      path: `${target.pathname}${target.search}`,
+      method: 'GET',
+      headers,
+      agent
+    }
+
+    requestInstance = httpsRequest(options, (res) => {
+      response = res
+      res.once('close', cleanup)
+      res.once('error', cleanup)
+      safeResolve(res)
+    })
+
+    requestInstance.on('error', (error) => {
+      cleanup()
+      safeReject(error)
+    })
+
+    requestInstance.end()
+
+    if (signal) {
+      if (signal.aborted) {
+        onAbort()
+        cleanup()
+        safeReject(createAbortError())
+        return
+      }
+      signal.addEventListener('abort', onAbort)
+    }
+  })
+}
 
 class HueEventStream extends EventEmitter {
   constructor (url, { headers = {}, reconnectInterval = 5000 } = {}) {
@@ -9,10 +85,8 @@ class HueEventStream extends EventEmitter {
     this.headers = headers
     this.reconnectInterval = reconnectInterval
     this.abortController = null
-    this.agent = new Agent({
-      connect: {
-        rejectUnauthorized: false
-      }
+    this.agent = new HTTPSAgent({
+      rejectUnauthorized: false
     })
     this.connected = false
     this._start()
@@ -22,14 +96,15 @@ class HueEventStream extends EventEmitter {
     while (true) {
       try {
         this.abortController = new AbortController()
-        const res = await fetch(this.url, {
+        const res = await openEventStream(this.url, {
           headers: this.headers,
-          dispatcher: this.agent,
+          agent: this.agent,
           signal: this.abortController.signal
         })
 
-        if (res.status !== 200) {
-          this.emit('error', new Error(`Unexpected status: ${res.status}`))
+        if (res.statusCode !== 200) {
+          res.resume?.()
+          this.emit('error', new Error(`Unexpected status: ${res.statusCode}`))
           await delay(this.reconnectInterval)
           continue
         }
@@ -38,8 +113,9 @@ class HueEventStream extends EventEmitter {
         this.connected = true
 
         let buffer = ''
-        for await (const chunk of res.body) {
-          buffer += chunk.toString()
+        const decoder = new TextDecoder()
+        for await (const chunk of res) {
+          buffer += decoder.decode(chunk, { stream: true })
 
           const lines = buffer.split(/\r?\n\r?\n/)
           buffer = lines.pop() // l'ultima parte potrebbe essere incompleta

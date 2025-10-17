@@ -1,19 +1,21 @@
 {
-    "hue-config": {
-        "properties": {
-            "title": "Philips Hue Bridge",
-            "host": "IP",
-            "host_placeholder": "Inserisci l'IP del Bridge Hue, poi clicca CONNETTI",
-            "node-config-input-name": "Nome",
-            "getinfocam":"Registrati sull'hub",
-            "connect": "CONNETTI",
-            "bridge_id": "ID Bridge",
-            "username": "Username",
-            "client_key": "Client Key",
-            "secrets": "Segreti",
-            "reveal": "Mostra",
-            "wait_message": "Attendi, sto comunicando con il tuo Bridge HUE...",
-            "caution": "ATTENZIONE: altri nodi HUE di terze parti installati possono causare problemi e devono essere rimossi."
-        }
+  "hue-config": {
+    "properties": {
+      "title": "Philips Hue Bridge",
+      "host": "IP",
+      "host_placeholder": "Inserisci l'IP del Bridge Hue, poi clicca CONNETTI",
+      "node-config-input-name": "Nome",
+      "getinfocam": "Registrati sull'hub",
+      "connect": "CONNETTI",
+      "manual_credentials": "HO GIÀ LE CREDENZIALI",
+      "bridge_id": "ID Bridge",
+      "username": "Username",
+      "client_key": "Client Key",
+      "wait_message": "Attendi, sto comunicando con il tuo Bridge HUE...",
+      "caution": "ATTENZIONE: altri nodi HUE di terze parti installati possono causare problemi e devono essere rimossi.",
+      "link_button_wait": "Premi il pulsante di collegamento sul Bridge Hue. In attesa della conferma…",
+      "registration_failed": "Registrazione del bridge Hue non riuscita.",
+      "registration_unreachable": "Impossibile raggiungere il bridge Hue."
     }
+  }
 }
