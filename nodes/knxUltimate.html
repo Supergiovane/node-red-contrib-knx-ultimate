@@ -185,6 +185,38 @@
             $("#tabs").tabs();
 
             // 15/09/2020 Supergiovane, set the help sample based on Datapoint
+            const knxFunctionHelperItems = [
+                {
+                    id: 'getGAValue',
+                    label: 'getGAValue(address, dpt?)',
+                    aceValue: "getGAValue('1/1/1', '1.001')",
+                    snippet: "getGAValue('${1:1/1/1}', '${2:1.001}')",
+                    doc: 'Read the cached value of another group address. Provide the datapoint if the ETS import is not available.'
+                },
+                {
+                    id: 'setGAValue',
+                    label: 'setGAValue(address, value, dpt?)',
+                    aceValue: "setGAValue('1/1/1', true)",
+                    snippet: "setGAValue('${1:1/1/1}', ${2:true}, '${3:1.001}')",
+                    doc: 'Send a value to any KNX group address. The datapoint is optional when the ETS file is imported.'
+                },
+                {
+                    id: 'self',
+                    label: 'self(value)',
+                    aceValue: 'self(false)',
+                    snippet: 'self(${1:false})',
+                    doc: 'Set this node value and forward it to the KNX bus.'
+                },
+                {
+                    id: 'toggle',
+                    label: 'toggle()',
+                    aceValue: 'toggle()',
+                    snippet: 'toggle()',
+                    doc: 'Invert this node value and write it to the KNX bus.'
+                }
+            ];
+            const globalScope = typeof window !== 'undefined' ? window : (typeof globalThis !== 'undefined' ? globalThis : {});
+
             function knxUltimateDptsGetHelp(_dpt, _forceClose) {
                 const detailsContainer = $("#dptDetailsContainer")
                 if (_forceClose === true) {
@@ -257,6 +289,56 @@
                         editor.renderer.setShowGutter(false);
                     }
                     if (typeof editor.setShowPrintMargin === 'function') editor.setShowPrintMargin(false);
+                    if (typeof ace !== 'undefined' && ace.require) {
+                        try { ace.require('ace/ext/language_tools'); } catch (error) { }
+                    }
+                    if (typeof editor.setOptions === 'function') {
+                        editor.setOptions({
+                            enableBasicAutocompletion: true,
+                            enableLiveAutocompletion: true
+                        });
+                    }
+                    if (typeof editor.completers === 'undefined') {
+                        editor.completers = [];
+                    }
+                    if (Array.isArray(editor.completers) && !editor._knxHelperCompleter) {
+                        const aceCompletions = knxFunctionHelperItems.map(item => ({
+                            caption: item.label,
+                            value: item.aceValue,
+                            snippet: item.snippet,
+                            meta: 'KNX helper',
+                            doc: item.doc
+                        }));
+                        const helperCompleter = {
+                            getCompletions: function (_editor, _session, _pos, prefix, callback) {
+                                const search = (prefix || '').toLowerCase();
+                                const filtered = search
+                                    ? aceCompletions.filter(entry => entry.caption.toLowerCase().startsWith(search) || entry.value.toLowerCase().startsWith(search))
+                                    : aceCompletions;
+                                callback(null, filtered.length ? filtered : aceCompletions);
+                            },
+                            getDocTooltip: function (item) {
+                                if (!item || item.docHTML || !item.doc) return;
+                                item.docHTML = '<b>' + item.caption + '</b><hr />' + item.doc;
+                            }
+                        };
+                        editor.completers.push(helperCompleter);
+                        editor._knxHelperCompleter = helperCompleter;
+                    }
+                    if (typeof monaco !== 'undefined' && !globalScope.knxFunctionMonacoCompletionProvider) {
+                        try {
+                            const suggestions = knxFunctionHelperItems.map(item => ({
+                                label: item.label,
+                                kind: monaco.languages.CompletionItemKind.Function,
+                                insertText: item.snippet,
+                                insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                                documentation: item.doc
+                            }));
+                            globalScope.knxFunctionMonacoCompletionProvider = monaco.languages.registerCompletionItemProvider('javascript', {
+                                provideCompletionItems: () => ({ suggestions })
+                            });
+                        } catch (error) { }
+                    }
                 } catch (error) { }
             };
 
@@ -293,20 +375,138 @@
                 } catch (error) { }
             };
 
+            const findQuoteContext = (lineContent, column) => {
+                if (!lineContent || column === undefined || column === null) return null;
+                const quoteChars = ["'", '"'];
+                const probe = [column, column - 1];
+                for (let p = 0; p < probe.length; p++) {
+                    const idx = probe[p];
+                    if (idx < 0 || idx >= lineContent.length) continue;
+                    for (let i = 0; i < quoteChars.length; i++) {
+                        const quote = quoteChars[i];
+                        const start = lineContent.lastIndexOf(quote, idx);
+                        if (start === -1) continue;
+                        const end = lineContent.indexOf(quote, start + 1);
+                        if (end === -1) continue;
+                        if (idx >= start && idx <= end) {
+                            return { start, end, quote };
+                        }
+                    }
+                }
+                return null;
+            };
+
+            const findFallbackQuoteContext = (lineContent) => {
+                if (!lineContent) return null;
+                const quoteChars = ["'", '"'];
+                for (let i = 0; i < quoteChars.length; i++) {
+                    const quote = quoteChars[i];
+                    const start = lineContent.indexOf(quote);
+                    if (start === -1) continue;
+                    const end = lineContent.indexOf(quote, start + 1);
+                    if (end === -1) continue;
+                    return { start, end, quote };
+                }
+                return null;
+            };
+            const sanitizeAutocompleteValue = (raw) => {
+                if (typeof raw !== 'string') return '';
+                return raw.replace(/['"]/g, '').trim();
+            };
+            const replaceInsideAce = (editor, text) => {
+                try {
+                    const AceRange = (typeof ace !== 'undefined' && ace.require) ? ace.require('ace/range').Range : null;
+                    if (!AceRange) return false;
+                    const pos = editor.getCursorPosition();
+                    const line = editor.session.getLine(pos.row) || '';
+                    let context = findQuoteContext(line, pos.column);
+                    if (!context) context = findFallbackQuoteContext(line);
+                    if (context && context.end > context.start) {
+                        const replaceRange = new AceRange(pos.row, context.start, pos.row, context.end + 1);
+                        const newLiteral = context.quote + text + context.quote;
+                        editor.session.replace(replaceRange, newLiteral);
+                        editor.moveCursorTo(pos.row, context.start + newLiteral.length);
+                        return true;
+                    }
+                } catch (error) { }
+                return false;
+            };
+            const replaceInsideMonaco = (editor, text) => {
+                try {
+                    const position = editor.getPosition();
+                    if (!position) return false;
+                    const model = typeof editor.getModel === 'function' ? editor.getModel() : null;
+                    if (!model) return false;
+                    const lineContent = model.getLineContent(position.lineNumber) || '';
+                    const zeroBasedColumn = Math.max(position.column - 1, 0);
+                    let context = findQuoteContext(lineContent, zeroBasedColumn);
+                    if (!context) context = findFallbackQuoteContext(lineContent);
+                    if (context && context.end > context.start) {
+                        const range = new monaco.Range(
+                            position.lineNumber,
+                            context.start + 1,
+                            position.lineNumber,
+                            context.end + 2
+                        );
+                        const newLiteral = context.quote + text + context.quote;
+                        editor.executeEdits('knxInsertGA', [{ range, text: newLiteral, forceMoveMarkers: true }]);
+                        const newColumn = context.start + 1 + newLiteral.length;
+                        editor.setPosition({ lineNumber: position.lineNumber, column: newColumn });
+                        return true;
+                    }
+                } catch (error) { }
+                return false;
+            };
+
             const insertTextIntoEditor = (editor, text) => {
                 if (!editor || !text) return;
                 try {
                     if (editor.session && typeof editor.session.insert === 'function') {
                         editor.focus();
-                        editor.session.insert(editor.getCursorPosition(), text);
+                        const selectionRange = editor.getSelection && typeof editor.getSelectionRange === 'function'
+                            ? editor.getSelectionRange()
+                            : null;
+                        if (selectionRange && !selectionRange.isEmpty()) {
+                            editor.session.replace(selectionRange, text);
+                            return;
+                        }
+                        const pos = editor.getCursorPosition();
+                        const replaced = replaceInsideAce(editor, text);
+                        if (!replaced) {
+                            editor.session.insert(pos, text);
+                        }
                         return;
                     }
                     if (typeof editor.executeEdits === 'function' && typeof editor.getPosition === 'function' && typeof monaco !== 'undefined') {
+                        const selection = typeof editor.getSelection === 'function' ? editor.getSelection() : null;
+                        const hasSelection = selection && (selection.startLineNumber !== selection.endLineNumber || selection.startColumn !== selection.endColumn);
+                        if (selection && hasSelection) {
+                            const selectionRange = new monaco.Range(
+                                selection.startLineNumber,
+                                selection.startColumn,
+                                selection.endLineNumber,
+                                selection.endColumn
+                            );
+                            editor.executeEdits('knxInsertGA', [{ range: selectionRange, text, forceMoveMarkers: true }]);
+                            const targetLine = selectionRange.startLineNumber;
+                            const targetColumn = selectionRange.startColumn + text.length;
+                            editor.setPosition({ lineNumber: targetLine, column: targetColumn });
+                            editor.focus();
+                            return;
+                        }
                         const position = editor.getPosition();
                         if (!position) return;
-                        const range = new monaco.Range(position.lineNumber, position.column, position.lineNumber, position.column);
-                        editor.executeEdits('knxInsertGA', [{ range, text, forceMoveMarkers: true }]);
-                        editor.setPosition({ lineNumber: position.lineNumber, column: position.column + text.length });
+                        const model = typeof editor.getModel === 'function' ? editor.getModel() : null;
+                        let replaced = false;
+                        if (model) {
+                            replaced = replaceInsideMonaco(editor, text);
+                        }
+                        if (!replaced) {
+                            const range = new monaco.Range(position.lineNumber, position.column, position.lineNumber, position.column);
+                            const newColumn = position.column + text.length;
+                            editor.executeEdits('knxInsertGA', [{ range, text, forceMoveMarkers: true }]);
+                            editor.setPosition({ lineNumber: position.lineNumber, column: newColumn });
+                        }
                         editor.focus();
                     }
                 } catch (error) { }
@@ -329,14 +529,16 @@
             attachFocusHandlers(node.receiveMsgFromKNXCodeEditor);
 
             $("#btn-insert-knxFunctionGA").off('click').on('click', function () {
-                const value = $("#node-input-knxFunctionHelperGAList").val();
-                if (!value || value.trim() === '') {
+                const rawValue = $("#node-input-knxFunctionHelperGAList").val();
+                if (!rawValue || rawValue.trim() === '') {
                     $("#node-input-knxFunctionHelperGAList").focus();
                     return;
                 }
+                const sanitizedValue = sanitizeAutocompleteValue(rawValue);
                 const editor = node.activeCodeEditor || node.sendMsgToKNXCodeEditor || node.receiveMsgFromKNXCodeEditor;
                 if (!editor) return;
-                insertTextIntoEditor(editor, value);
+                if (!sanitizedValue) return;
+                insertTextIntoEditor(editor, sanitizedValue);
             });
 
             const configureSnippetPicker = (snippets, inputSelector, datalistSelector, applySnippet) => {
@@ -908,6 +1110,42 @@
                         <option value="yesownprop" data-i18n="knxUltimate.selectlists.passthrough_OwnProp"></option>
                     </select>
                 </div>
+                <div class="form-row">
+                    <input type="checkbox" id="node-input-buttonEnabled"
+                        style="display:inline-block; width:auto; vertical-align:top;" />
+                    <label style="width:85%" for="node-input-buttonEnabled">
+                        <i class="fa fa-mouse-pointer"></i> <span
+                            data-i18n="knxUltimate.button.enable"></span>
+                    </label>
+                </div>
+                <div id="knx-button-options" style="display:none">
+                    <div class="form-row">
+                        <label style="width:180px" for="node-input-buttonMode">
+                            <i class="fa fa-bolt"></i> <span data-i18n="knxUltimate.button.mode"></span>
+                        </label>
+                        <select id="node-input-buttonMode" style="width:220px;">
+                            <option value="read" data-i18n="knxUltimate.button.mode_read"></option>
+                            <option value="toggle" data-i18n="knxUltimate.button.mode_toggle"></option>
+                            <option value="value" data-i18n="knxUltimate.button.mode_value"></option>
+                        </select>
+                    </div>
+                    <div class="form-row knx-button-toggle-row">
+                        <label style="width:180px" for="node-input-buttonToggleInitial">
+                            <i class="fa fa-refresh"></i> <span data-i18n="knxUltimate.button.toggleInitial"></span>
+                        </label>
+                        <select id="node-input-buttonToggleInitial" style="width:220px;">
+                            <option value="true" data-i18n="knxUltimate.button.toggleInitial_true"></option>
+                            <option value="false" data-i18n="knxUltimate.button.toggleInitial_false"></option>
+                        </select>
+                    </div>
+                    <div class="form-row knx-button-value-row">
+                        <label style="width:180px" for="node-input-buttonStaticValue">
+                            <i class="fa fa-pencil"></i> <span data-i18n="knxUltimate.button.value"></span>
+                        </label>
+                        <input type="text" id="node-input-buttonStaticValue" style="width:220px;"
+                            placeholder="42, true, {\"red\":255}" />
+                    </div>
+                </div>
                 <hr>
                 <div class="form-row">
                     <dt>
@@ -987,42 +1225,6 @@
                         <i class="fa fa-sign-in"></i> <span
                             data-i18n="knxUltimate.properties.node-input-notifyreadrequest"></span>
                     </label>
-                </div>
-                <div class="form-row">
-                    <input type="checkbox" id="node-input-buttonEnabled"
-                        style="display:inline-block; width:auto; vertical-align:top;" />
-                    <label style="width:85%" for="node-input-buttonEnabled">
-                        <i class="fa fa-mouse-pointer"></i> <span
-                            data-i18n="knxUltimate.button.enable"></span>
-                    </label>
-                </div>
-                <div id="knx-button-options" style="display:none">
-                    <div class="form-row">
-                        <label style="width:180px" for="node-input-buttonMode">
-                            <i class="fa fa-bolt"></i> <span data-i18n="knxUltimate.button.mode"></span>
-                        </label>
-                        <select id="node-input-buttonMode" style="width:220px;">
-                            <option value="read" data-i18n="knxUltimate.button.mode_read"></option>
-                            <option value="toggle" data-i18n="knxUltimate.button.mode_toggle"></option>
-                            <option value="value" data-i18n="knxUltimate.button.mode_value"></option>
-                        </select>
-                    </div>
-                    <div class="form-row knx-button-toggle-row">
-                        <label style="width:180px" for="node-input-buttonToggleInitial">
-                            <i class="fa fa-refresh"></i> <span data-i18n="knxUltimate.button.toggleInitial"></span>
-                        </label>
-                        <select id="node-input-buttonToggleInitial" style="width:220px;">
-                            <option value="true" data-i18n="knxUltimate.button.toggleInitial_true"></option>
-                            <option value="false" data-i18n="knxUltimate.button.toggleInitial_false"></option>
-                        </select>
-                    </div>
-                    <div class="form-row knx-button-value-row">
-                        <label style="width:180px" for="node-input-buttonStaticValue">
-                            <i class="fa fa-pencil"></i> <span data-i18n="knxUltimate.button.value"></span>
-                        </label>
-                        <input type="text" id="node-input-buttonStaticValue" style="width:220px;"
-                            placeholder="42, true, {\"red\":255}" />
-                    </div>
                 </div>
                 <div id="divnotifyreadrequestautoreact">
                     <dd>
