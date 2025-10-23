@@ -375,85 +375,55 @@
                 } catch (error) { }
             };
 
-            const findQuoteContext = (lineContent, column) => {
-                if (!lineContent || column === undefined || column === null) return null;
-                const quoteChars = ["'", '"'];
-                const probe = [column, column - 1];
-                for (let p = 0; p < probe.length; p++) {
-                    const idx = probe[p];
-                    if (idx < 0 || idx >= lineContent.length) continue;
-                    for (let i = 0; i < quoteChars.length; i++) {
-                        const quote = quoteChars[i];
-                        const start = lineContent.lastIndexOf(quote, idx);
-                        if (start === -1) continue;
-                        const end = lineContent.indexOf(quote, start + 1);
-                        if (end === -1) continue;
-                        if (idx >= start && idx <= end) {
-                            return { start, end, quote };
-                        }
-                    }
-                }
-                return null;
-            };
-
-            const findFallbackQuoteContext = (lineContent) => {
-                if (!lineContent) return null;
-                const quoteChars = ["'", '"'];
-                for (let i = 0; i < quoteChars.length; i++) {
-                    const quote = quoteChars[i];
-                    const start = lineContent.indexOf(quote);
-                    if (start === -1) continue;
-                    const end = lineContent.indexOf(quote, start + 1);
-                    if (end === -1) continue;
-                    return { start, end, quote };
-                }
-                return null;
-            };
             const sanitizeAutocompleteValue = (raw) => {
                 if (typeof raw !== 'string') return '';
                 return raw.replace(/['"]/g, '').trim();
             };
-            const replaceInsideAce = (editor, text) => {
+            const replaceLiteralAroundCursorAce = (editor, text) => {
                 try {
                     const AceRange = (typeof ace !== 'undefined' && ace.require) ? ace.require('ace/range').Range : null;
                     if (!AceRange) return false;
                     const pos = editor.getCursorPosition();
                     const line = editor.session.getLine(pos.row) || '';
-                    let context = findQuoteContext(line, pos.column);
-                    if (!context) context = findFallbackQuoteContext(line);
-                    if (context && context.end > context.start) {
-                        const replaceRange = new AceRange(pos.row, context.start, pos.row, context.end + 1);
-                        const newLiteral = context.quote + text + context.quote;
-                        editor.session.replace(replaceRange, newLiteral);
-                        editor.moveCursorTo(pos.row, context.start + newLiteral.length);
-                        return true;
-                    }
+                    let left = pos.column - 1;
+                    while (left >= 0 && line[left] !== "'") left--;
+                    if (left < 0) return false;
+                    let right = pos.column;
+                    while (right < line.length && line[right] !== "'") right++;
+                    if (right >= line.length) return false;
+                    const newLiteral = "'" + text + "'";
+                    const range = new AceRange(pos.row, left, pos.row, right + 1);
+                    editor.session.replace(range, newLiteral);
+                    editor.moveCursorTo(pos.row, left + newLiteral.length);
+                    return true;
                 } catch (error) { }
                 return false;
             };
-            const replaceInsideMonaco = (editor, text) => {
+            const replaceLiteralAroundCursorMonaco = (editor, text) => {
                 try {
                     const position = editor.getPosition();
                     if (!position) return false;
                     const model = typeof editor.getModel === 'function' ? editor.getModel() : null;
                     if (!model) return false;
                     const lineContent = model.getLineContent(position.lineNumber) || '';
-                    const zeroBasedColumn = Math.max(position.column - 1, 0);
-                    let context = findQuoteContext(lineContent, zeroBasedColumn);
-                    if (!context) context = findFallbackQuoteContext(lineContent);
-                    if (context && context.end > context.start) {
-                        const range = new monaco.Range(
-                            position.lineNumber,
-                            context.start + 1,
-                            position.lineNumber,
-                            context.end + 2
-                        );
-                        const newLiteral = context.quote + text + context.quote;
-                        editor.executeEdits('knxInsertGA', [{ range, text: newLiteral, forceMoveMarkers: true }]);
-                        const newColumn = context.start + 1 + newLiteral.length;
-                        editor.setPosition({ lineNumber: position.lineNumber, column: newColumn });
-                        return true;
-                    }
+                    let leftIdx = position.column - 2;
+                    if (leftIdx >= lineContent.length) leftIdx = lineContent.length - 1;
+                    while (leftIdx >= 0 && lineContent[leftIdx] !== "'") leftIdx--;
+                    if (leftIdx < 0) return false;
+                    let rightIdx = position.column - 1;
+                    if (rightIdx < leftIdx) rightIdx = leftIdx + 1;
+                    while (rightIdx < lineContent.length && lineContent[rightIdx] !== "'") rightIdx++;
+                    if (rightIdx >= lineContent.length) return false;
+                    const newLiteral = "'" + text + "'";
+                    const range = new monaco.Range(
+                        position.lineNumber,
+                        leftIdx + 1,
+                        position.lineNumber,
+                        rightIdx + 2
+                    );
+                    editor.executeEdits('knxInsertGA', [{ range, text: newLiteral, forceMoveMarkers: true }]);
+                    editor.setPosition({ lineNumber: position.lineNumber, column: leftIdx + 1 + newLiteral.length });
+                    return true;
                 } catch (error) { }
                 return false;
             };
@@ -470,9 +440,9 @@
                             editor.session.replace(selectionRange, text);
                             return;
                         }
-                        const pos = editor.getCursorPosition();
-                        const replaced = replaceInsideAce(editor, text);
+                        const replaced = replaceLiteralAroundCursorAce(editor, text);
                         if (!replaced) {
+                            const pos = editor.getCursorPosition();
                             editor.session.insert(pos, text);
                         }
                         return;
@@ -496,11 +466,7 @@
                         }
                         const position = editor.getPosition();
                         if (!position) return;
-                        const model = typeof editor.getModel === 'function' ? editor.getModel() : null;
-                        let replaced = false;
-                        if (model) {
-                            replaced = replaceInsideMonaco(editor, text);
-                        }
+                        let replaced = replaceLiteralAroundCursorMonaco(editor, text);
                         if (!replaced) {
                             const range = new monaco.Range(position.lineNumber, position.column, position.lineNumber, position.column);
                             const newColumn = position.column + text.length;

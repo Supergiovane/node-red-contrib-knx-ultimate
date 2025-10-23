@@ -6,6 +6,10 @@
 
 # CHANGELOG
 
+**Version 4.0.25** - November 2025<br/>
+- KNX Device node editor: repositioned the "Show manual command button in editor" option directly under the input passthrough setting so related controls stay together.<br/>
+- KNX Function helper: refreshed the send-side snippet library with ready-to-use home-automation templates (motion-triggered lighting, HVAC standby on window-open, night door alerts, bedtime all-off) and cleaned up placeholders for easier copy/paste.<br/>
+
 **Version 4.0.24** - October 2025<br/>
 - Hue config node: pairing now polls the bridge automatically and closes the dialog as soon as the link button is pressed, with a cancellable wait message and improved error feedback.<br/>
 - Hue config node: added "I ALREADY HAVE THE CREDENTIALS" button and restored bridge discovery so manual credentials can be entered immediately without running the registration flow.<br/>
