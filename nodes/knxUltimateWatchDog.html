@@ -22,6 +22,11 @@
         },
         paletteLabel: "KNX WatchDog",
         oneditprepare: function () {
+            const node = this;
+            const $knxServerInput = $("#node-input-server");
+            const $gaInput = $("#node-input-topic");
+            const KNX_EMPTY_VALUES = new Set(['', '_ADD_', '__NONE__', 'none']);
+
             // Go to the help panel
             try {
                 RED.sidebar.show("help");
@@ -34,19 +39,112 @@
                 active: false
             });
 
-            $("#node-input-checkLevel").on('change', function () {
-                if ($("#node-input-checkLevel").val() == "Ethernet") {
+            const KNX_GA_CACHE = node._knxGaCache || (node._knxGaCache = new Map());
+
+            const resolveKnxServerValue = () => {
+                const domValue = $knxServerInput.val();
+                if (domValue !== undefined && domValue !== null && !KNX_EMPTY_VALUES.has(String(domValue))) {
+                    return domValue;
+                }
+                if (node.server !== undefined && node.server !== null && !KNX_EMPTY_VALUES.has(String(node.server))) {
+                    return node.server;
+                }
+                return '';
+            };
+
+            const fetchGroupAddresses = (serverId) => {
+                if (!serverId) return Promise.resolve([]);
+                if (KNX_GA_CACHE.has(serverId)) return Promise.resolve(KNX_GA_CACHE.get(serverId));
+                return new Promise((resolve) => {
+                    $.getJSON(`knxUltimatecsv?nodeID=${serverId}&_=${Date.now()}`, (data) => {
+                        const list = Array.isArray(data) ? data : [];
+                        KNX_GA_CACHE.set(serverId, list);
+                        resolve(list);
+                    }).fail(() => resolve([]));
+                });
+            };
+
+            const ensureGaAutocomplete = () => {
+                const serverId = resolveKnxServerValue();
+                if (!serverId) {
+                    if ($gaInput.data('ui-autocomplete')) {
+                        $gaInput.autocomplete('disable');
+                    }
+                    return;
+                }
+
+                const sourceFn = (request, response) => {
+                    fetchGroupAddresses(serverId).then((data) => {
+                        const items = [];
+                        (data || []).forEach((entry) => {
+                            const dpt = typeof entry.dpt === 'string' ? entry.dpt : '';
+                            if (!dpt.startsWith('1.')) return; // Watchdog only accepts boolean GAs
+                            const devName = entry.devicename || '';
+                            const searchStr = `${entry.ga} (${devName}) DPT${dpt}`;
+                            if (!htmlUtilsfullCSVSearch(searchStr, request.term || '')) return;
+                            items.push({
+                                label: `${entry.ga} # ${devName} # ${dpt}`,
+                                value: entry.ga
+                            });
+                        });
+                        response(items);
+                    });
+                };
+
+                if ($gaInput.data('knx-watchdog-ga')) {
+                    $gaInput.autocomplete('option', 'source', sourceFn);
+                    $gaInput.autocomplete('enable');
+                } else {
+                    $gaInput.autocomplete({
+                        minLength: 0,
+                        source: sourceFn,
+                        select: function (event, ui) {
+                            event.preventDefault();
+                            $(this).val(ui.item.value);
+                            const parts = ui.item.label.split('#');
+                            let deviceName = (parts[1] || '').trim().replace(/^\)/, '').trim();
+                            if (deviceName.indexOf('/') > -1) {
+                                deviceName = deviceName.split('/').pop().trim();
+                            }
+                            const $nameInput = $('#node-input-name');
+                            if (deviceName && $nameInput.length) {
+                                $nameInput.val(deviceName);
+                            }
+                        }
+                    }).on('focus.knxUltimateWatchDog click.knxUltimateWatchDog', function () {
+                        const currentValue = $(this).val() || '';
+                        try {
+                            $(this).autocomplete('search', currentValue ? `${currentValue} exactmatch` : '');
+                        } catch (error) { }
+                    });
+                    $gaInput.data('knx-watchdog-ga', true);
+                }
+
+                try {
+                    const srv = RED.nodes.node(serverId);
+                    if (srv && srv.id) KNX_enableSecureFormatting($gaInput, srv.id);
+                } catch (error) { }
+            };
+
+            $knxServerInput.on('change.knxUltimateWatchDog', () => {
+                KNX_GA_CACHE.clear();
+                ensureGaAutocomplete();
+            });
+            ensureGaAutocomplete();
+
+            const syncDivHost = () => {
+                const level = $("#node-input-checkLevel").val() || node.checkLevel || "Ethernet";
+                if (level === "Ethernet") {
                     $("#divHost").hide();
                 } else {
                     $("#divHost").show();
                 }
-            })
+            };
 
-            if (checkLevel !== "Ethernet") {
-                $("#divHost").hide();
-            } else {
-                $("#divHost").show();
-            }
+            $("#node-input-checkLevel").on('change', function () {
+                syncDivHost();
+            });
+            syncDivHost();
         },
         oneditsave: function () {
             // Return to the info tab
