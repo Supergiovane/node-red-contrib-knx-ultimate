@@ -6,11 +6,11 @@
 
 # CHANGELOG
 
-**Version 4.0.26** - December 2025<br/>
+**Version 4.0.26** - October 2025<br/>
 - Watchdog node editor: added the same GA autocomplete list used in the other KNX nodes, restricted to boolean DPT 1.x addresses and with secure-address highlighting to keep configuration consistent.<br/>
 <br/>
 
-**Version 4.0.25** - November 2025<br/>
+**Version 4.0.25** - October 2025<br/>
 - KNX Device node editor: repositioned the "Show manual command button in editor" option directly under the input passthrough setting so related controls stay together.<br/>
 - KNX Function helper: refreshed the send-side snippet library with ready-to-use home-automation templates (motion-triggered lighting, HVAC standby on window-open, night door alerts, bedtime all-off) and cleaned up placeholders for easier copy/paste.<br/>
 
