@@ -6,6 +6,10 @@
 
 # CHANGELOG
 
+**Version 4.0.27** - October 2025<br/>
+- GA selector inputs: suppressed the empty-result tooltip by keeping the typed group address as a fallback option so single matches are never hidden behind "no items to show".<br/>
+<br/>
+
 **Version 4.0.26** - October 2025<br/>
 - Watchdog node editor: added the same GA autocomplete list used in the other KNX nodes, restricted to boolean DPT 1.x addresses and with secure-address highlighting to keep configuration consistent.<br/>
 <br/>

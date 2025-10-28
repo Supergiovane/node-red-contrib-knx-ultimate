@@ -51,6 +51,10 @@ function KNX_fetchSecureGAs (serverId) {
 
 function KNX_enableSecureFormatting ($input, serverId) {
   try {
+    if (!$input || !$input.length) return
+    try {
+      $input.data('knxGaAutocomplete', true)
+    } catch (e) { /* empty */ }
     KNX_fetchSecureGAs(serverId).then((secureSet) => {
       try {
         const inst = $input.autocomplete('instance')
@@ -77,6 +81,13 @@ function KNX_enableSecureFormatting ($input, serverId) {
 window.htmlUtilsfullCSVSearch = htmlUtilsfullCSVSearch
 window.KNX_fetchSecureGAs = KNX_fetchSecureGAs
 window.KNX_enableSecureFormatting = KNX_enableSecureFormatting
+
+function KNX_cleanAutocompleteTerm (term) {
+  if (typeof term !== 'string') return ''
+  return term.replace(/exactmatch/gi, ' ').replace(/\s+/g, ' ').trim()
+}
+
+window.KNX_cleanAutocompleteTerm = KNX_cleanAutocompleteTerm
 
 // 2025-09: Make DPT selects searchable via jQuery UI Autocomplete
 function KNX_makeSelectSearchable ($select) {
@@ -211,5 +222,40 @@ window.KNX_makeSelectSearchable = KNX_makeSelectSearchable;
       clearTimeout(self._knxAutoTimer)
       self._knxAutoTimer = setTimeout(function () { showAll('') }, 0)
     })
+  }
+
+  const _normalize = $.ui.autocomplete.prototype._normalize
+  $.ui.autocomplete.prototype._normalize = function (items) {
+    let normalized
+    try {
+      normalized = _normalize.call(this, items)
+    } catch (error) {
+      normalized = []
+    }
+    if (Array.isArray(normalized) && normalized.length > 0) {
+      return normalized
+    }
+    const $element = this.element
+    if (!$element || !$element.length) {
+      return Array.isArray(normalized) ? normalized : []
+    }
+    const isGaAutocomplete = !!$element.data('knxGaAutocomplete')
+    if (!isGaAutocomplete) {
+      return Array.isArray(normalized) ? normalized : []
+    }
+    const rawTerm = (typeof this.term === 'string') ? this.term : ''
+    const cleanedTerm = KNX_cleanAutocompleteTerm(rawTerm)
+    if (!cleanedTerm) {
+      return Array.isArray(normalized) ? normalized : []
+    }
+    return [{
+      label: `${cleanedTerm} #  # `,
+      value: cleanedTerm,
+      ga: cleanedTerm,
+      devicename: '',
+      dpt: '',
+      isSecure: false,
+      __knxFallback: true
+    }]
   }
 })(jQuery)

@@ -117,6 +117,11 @@
                 RED.sidebar.show("help");
             } catch (error) { }
 
+            try {
+                $("#node-input-topic").data('knxGaAutocomplete', true);
+                $("#node-input-knxFunctionHelperGAList").data('knxGaAutocomplete', true);
+            } catch (error) { }
+
 
             var node = this;
             if ($("#node-input-server").val() === "_ADD_") {
