@@ -126,7 +126,7 @@ Each node links to detailed wiki documentation with configuration hints, sample 
 
 ## DOCUMENTATION
 
-* [Wiki and Help](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki)
+* [Wiki and Help](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Home)
 * [FAQ + Troubleshoot](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/FAQ-Troubleshoot)
 * [Security best practices](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SECURITY)
 
