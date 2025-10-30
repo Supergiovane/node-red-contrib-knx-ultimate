@@ -14,7 +14,8 @@ Beispiele: [Logger](https://supergiovane.github.io/node-red-contrib-knx-ultimate
 Der Logger‑Node zeichnet alle Telegramme auf und erzeugt eine ETS‑Busmonitor‑kompatible XML‑Datei.
 
 Du kannst die Datei per File‑Node speichern oder z. B. per FTP versenden. ETS kann sie für Diagnose oder Telegramm‑Replay einlesen.
-Der Node kann zudem Telegramme pro Sekunde (oder in frei wählbaren Intervallen) zählen. <br/> <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Logger-Sample" target="_blank">Beispiele hier.</a>
+Der Node kann zudem Telegramme pro Sekunde (oder in frei wählbaren Intervallen) zählen. 
+ <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Logger-Sample" target="_blank">Beispiele hier.</a>
 
 ## Einstellungen
 

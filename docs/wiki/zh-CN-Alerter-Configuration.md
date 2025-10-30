@@ -12,9 +12,11 @@ HUE: [Bridge](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/
 # Alerter 节点配置
 
 使用 Alerter 节点可以在显示器上，或通过 node-red-contrib-tts-ultimate 节点（语音播报），提示被选中的设备是否处于告警状态，即 `payload` 为 **true** 。
-该节点按可配置的时间间隔，逐条（一次一条）输出包含当前告警设备详细信息的消息。例如，它可以告诉你"有多少个、哪些窗户处于打开状态”。<br/>
-节点直接从 KNX 总线读取设备数值。此外，你也可以向节点发送自定义告警，与 KNX 设备无关。<br/>
-示例页面展示了在流程中的用法。<br/>
+该节点按可配置的时间间隔，逐条（一次一条）输出包含当前告警设备详细信息的消息。例如，它可以告诉你"有多少个、哪些窗户处于打开状态”。
+
+节点直接从 KNX 总线读取设备数值。此外，你也可以向节点发送自定义告警，与 KNX 设备无关。
+
+示例页面展示了在流程中的用法。
 
 - **Gateway（网关）**
 
@@ -34,8 +36,9 @@ HUE: [Bridge](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/
 
 ## 需要监控的设备
 
-在此添加需要监控的设备。<br/>
-填写设备的组地址，或为设备指定一个标签。<br/>
+在此添加需要监控的设备。
+
+填写设备的组地址，或为设备指定一个标签。
 
 - **在连接/重连时读取每个设备的值**
 
@@ -51,14 +54,13 @@ HUE: [Bridge](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/
 
 > 从列表中移除该设备。
 
-<br/>
-<br/>
-
 ## 节点的输出消息
 
-PIN1：按设定间隔，每个告警设备输出一条消息。<br/>
-PIN2：输出一条汇总消息，包含所有处于告警状态的设备。<br/>
-PIN3：仅输出最近一个进入告警状态的设备。<br/>
+PIN1：按设定间隔，每个告警设备输出一条消息。
+
+PIN2：输出一条汇总消息，包含所有处于告警状态的设备。
+
+PIN3：仅输出最近一个进入告警状态的设备。
 
 **PIN1**
 
@@ -110,9 +112,6 @@ msg = {
 }
 ```
 
-<br/>
-<br/>
-
 ## 节点的输入消息
 
 ```javascript
@@ -127,9 +126,7 @@ msg.start = true
 
 启动一次"遍历所有告警设备并依次输出”的轮询。轮询在最后一个设备输出后结束；若需再次轮询，请再次发送该输入消息。
 
-<br/>
-
-**自定义设备告警** <br/>
+**自定义设备告警** 
 
 要更新某个自定义设备的状态（true/false），发送如下输入消息：
 
@@ -140,12 +137,6 @@ msg = {
 }
 ```
 
-<br/>
-
 ## 示例
 
 <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleAlerter">点击此处查看示例</a>
-
-<br/>
-<br/>
-<br/>

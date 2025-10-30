@@ -11,11 +11,13 @@ Esempi: [Logger](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wi
 
 # Nodo di controllo del carico KNX
 
-<p> Con il nodo di controllo del carico è possibile gestire automaticamente la disconnessione dei carichi (lavatrice, forno, ecc.) Quando il consumo corrente supera una determinata soglia.
+ Con il nodo di controllo del carico è possibile gestire automaticamente la disconnessione dei carichi (lavatrice, forno, ecc.) Quando il consumo corrente supera una determinata soglia.
 
-I dispositivi vengono disattivati ​​in modo intelligente, controllando il possibile consumo del dispositivo per determinare se disattivarlo con gli altri.<br/>
-Il nodo può riattivare automaticamente i carichi.<br/>
-Il nodo disattiva un dispositivo (o più dispositivi) alla volta, in base all'ordine selezionato. <br/>
+I dispositivi vengono disattivati ​​in modo intelligente, controllando il possibile consumo del dispositivo per determinare se disattivarlo con gli altri.
+
+Il nodo può riattivare automaticamente i carichi.
+
+Il nodo disattiva un dispositivo (o più dispositivi) alla volta, in base all'ordine selezionato. 
 
 **Generale**
 
@@ -27,13 +29,14 @@ Il nodo disattiva un dispositivo (o più dispositivi) alla volta, in base all'or
 |Spegnere di ritardo Off (S) |Espresso in secondi, indica la frequenza con cui il nodo valuterà il consumo e spenderà ciascun dispositivo.|
 |Interruttore di ritardo su (S) |Espresso in pochi secondi, indica la frequenza con cui il nodo valuterà il consumo e accenderà ciascun dispositivo spento.|
 
-<br/>
-
 \*\* Controllo del carico \*\*
 
-Qui puoi aggiungere dispositivi per disattivare in caso di sovraccarico.<br/>
-Scegli il dispositivo per spegnere.Immettere il nome del dispositivo o il suo indirizzo di gruppo.<br/>
-Immettere qualsiasi indirizzo di gruppo che indica il consumo del dispositivo scelto nella prima riga.\*\* Questo è un parametro opzionale \*\*.Se il dispositivo consuma più di un certo numero di watt, significa che è in uso.Se consuma meno, il dispositivo verrà considerato "non in uso" e sia questo che il prossimo verranno disattivati ​​contemporaneamente. <br/>
+Qui puoi aggiungere dispositivi per disattivare in caso di sovraccarico.
+
+Scegli il dispositivo per spegnere.Immettere il nome del dispositivo o il suo indirizzo di gruppo.
+
+Immettere qualsiasi indirizzo di gruppo che indica il consumo del dispositivo scelto nella prima riga.\*\* Questo è un parametro opzionale \*\*.Se il dispositivo consuma più di un certo numero di watt, significa che è in uso.Se consuma meno, il dispositivo verrà considerato "non in uso" e sia questo che il prossimo verranno disattivati ​​contemporaneamente. 
+
 Se \*Recupero automatico \* è abilitato, il dispositivo viene riattivato automaticamente quando il "ritardo di ripristino" scade.
 
 ## Input
@@ -70,5 +73,3 @@ msg = {
 # Campione
 
 <a href = "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleLoadControl"> fai clic qui per l'esempio </a>
-
-<br/>

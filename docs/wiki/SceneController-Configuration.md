@@ -9,7 +9,7 @@ HUE: [Bridge](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/
 Samples: [Logger](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Logger-Sample) • [Switch Light](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Switch-light) • [Dimming](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Dimming) • [RGB color](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---RGB-Color) • [RGBW color + White](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---RGBW-Color-plus-White) • [Command a scene actuator](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Control-a-scene-actuator) • [Datapoint 213.x 4x Setpoint](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT213) • [Datapoint 222.x 3x Setpoint](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT222) • [Datapoint 237.x DALI diags](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT237) • [Datapoint 2.x 1 bit proprity](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT2) • [Datapoint 22.x RCHH Status](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT22) • [Datetime to BUS](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DateTime-to-BUS) • [Read Status](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Read-value-from-Device) • [Virtual Device](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Virtual-Device) • [Subtype decoded](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Subtype) • [Alexa](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Alexa) • [Apple Homekit](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Apple-Homekit) • [Google Home](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Google-Assistant) • [Switch on/off POE port of Unifi switch](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---UnifiPOE) • [Set configuration by msg](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample-setConfig) • [Scene Controller node](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Sample-Scene-Node) • [WatchDog node](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---WatchDog) • [Global Context node](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleGlobalContextNode) • [Alerter node](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleAlerter) • [Load control node](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleLoadControl) • [Viewer node](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/knxUltimateViewer) • [MySQL, InfluxDB, MQTT Sample](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Sample-KNX2MQTT-KNX2MySQL-KNX2InfluxDB)
 <!-- NAV END -->
 
-<p>The scene controllre node, behaves exactly as a scene controller KNX device. It's capable of saving and recalling a scene.</p>
+The scene controllre node, behaves exactly as a scene controller KNX device. It's capable of saving and recalling a scene.
 
 # SCENE CONTROLLER NODE SETTINGS
 
@@ -30,7 +30,13 @@ _ **The scene node automatically saves the updated values of all actuators belon
 | Property | Description |
 | ------------- | ---------------------------------------------------------------------------------------------------- |
 | ADD button | Add a row to the list. |
-| Row's field | First field is the group address, second is the datapoint, third is the default value for this device in the scene (this can be overridden by the _scene save_ function). Below, is the device name.<br/> To insert a _pause_, type **wait ** in the first field and a number in the last field, that represents the time (in milliseconds) of the pause, for example**2000 ** <br/><br>The**wait ** command accept also values indicating seconds, minutes or hours.<br>To set a value in seconds, add**s ** after the numeric value, for example (**12s ** )<br>To set a value in minutes, add**m ** after the numeric value, for example (**5m ** )<br>To set a value in hours, add**h ** after the numeric value, for example (**1h** ) |
+| Row's field | First field is the group address, second is the datapoint, third is the default value for this device in the scene (this can be overridden by the _scene save_ function). Below, is the device name.
+ To insert a _pause_, type **wait ** in the first field and a number in the last field, that represents the time (in milliseconds) of the pause, for example**2000 ** 
+
+The**wait ** command accept also values indicating seconds, minutes or hours.
+To set a value in seconds, add**s ** after the numeric value, for example (**12s ** )
+To set a value in minutes, add**m ** after the numeric value, for example (**5m ** )
+To set a value in hours, add**h ** after the numeric value, for example (**1h** ) |
 | Remove button | Remove a device from the list. |
 
 # MESSAGE OUTPUT FROM THE SCENE CONTROLLER NODE
@@ -85,7 +91,7 @@ The node saves the scene by taking command group address values, which may not b
 
 However, you can work around this by manually updating the command group address value, taking it from the status group address.
 
-Think this: if you have a blind actuator, having a group address for move, a group address for step, a group address for absolute height etc... the only group address knowing the exact position of the blind, is the **absolute height value status** group address. <br/>
+Think this: if you have a blind actuator, having a group address for move, a group address for step, a group address for absolute height etc... the only group address knowing the exact position of the blind, is the **absolute height value status** group address. 
 
 With this status group address, you can update the command group addresses of the blind actuators belonging to the scene. Please see the sample in the wiki.
 

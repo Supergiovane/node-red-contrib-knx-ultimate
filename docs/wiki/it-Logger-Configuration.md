@@ -14,7 +14,8 @@ Esempi: [Logger](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wi
 Il nodo Logger registra tutti i telegrammi e produce un file compatibile con l'XML del bus monitor ETS.
 
 Puoi salvarlo su disco (nodo file) oppure inviarlo, ad esempio, a un server FTP. Il file può essere letto in ETS per diagnosi o per il replay dei telegrammi.
-Il nodo può anche contare i telegrammi al secondo (o con l'intervallo che preferisci). <br/> <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Logger-Sample" target="_blank">Esempi qui.</a>
+Il nodo può anche contare i telegrammi al secondo (o con l'intervallo che preferisci). 
+ <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Logger-Sample" target="_blank">Esempi qui.</a>
 
 ## Impostazioni
 

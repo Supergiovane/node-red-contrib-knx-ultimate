@@ -11,14 +11,15 @@ Samples: [Logger](https://supergiovane.github.io/node-red-contrib-knx-ultimate/w
 
 # Logger
 
-<p>The Logger node records all telegrams and outputs it in an ETS bus monitor XML compatible file.</p> 
-<br/>
-You can save the file on disk or send it to an FTP server, for example. The file can be then read by your ETS, for example for diagnostic or for a replay of the telegrams.
-<br/>
-The node can also count telegrams per second (or any interval you want).
-<br/> <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Logger-Sample" target="_blank">Examples are here.</a>
+The Logger node records all telegrams and outputs it in an ETS bus monitor XML compatible file.
 
-<br/>
+ 
+
+You can save the file on disk or send it to an FTP server, for example. The file can be then read by your ETS, for example for diagnostic or for a replay of the telegrams.
+
+The node can also count telegrams per second (or any interval you want).
+
+ <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Logger-Sample" target="_blank">Examples are here.</a>
 
 ## SETTINGS
 
@@ -37,7 +38,6 @@ The node can also count telegrams per second (or any interval you want).
 | Max number of rows in XML (0 = no limit) | Starts the timer automatically on deploy or on node-red start. |
 | Auto start timer | This represents the maximum number of line, that the XML file can contain in the interval specified above. Put 0 not to limit the number of rows in the file. |
 | Max number of rows in XML (0 = no limit) | This represents the maximum number of line, that the XML file can contain in the interval specified above. Put 0 not to limit the number of rows in the file. |
-<br/>
 
 ## KNX Telegram Counter
 
@@ -45,8 +45,6 @@ The node can also count telegrams per second (or any interval you want).
 |--|--|
 | Auto start timer | Starts the timer automatically on deploy or on node-red start. |
 | Count interval (in seconds) | How often emit a msg to the flow, containing the KNX telegrams count. In Seconds. |
-
-<br/>
 
 ---
 
@@ -65,8 +63,6 @@ msg = {
 
 ```
 
-<br/><br/>
-
 **PIN 2: KNX Telegram Counter**
 
 Each count, the node will emit a telegram like this:
@@ -82,8 +78,6 @@ msg = {
 
 ```
 
-<br/>
-
 ---
 
 # INPUT FLOW MESSAGE
@@ -92,7 +86,7 @@ You can control the Logger in some ways.
 
 ## ETS XML compatible BUS monitor file
 
-**START TIMER** <br/>
+**START TIMER** 
 
 ```javascript
 
@@ -102,7 +96,7 @@ return msg;
 
 ```
 
-**STOP TIMER** <br/>
+**STOP TIMER** 
 
 ```javascript
 
@@ -112,7 +106,7 @@ return msg;
 
 ```
 
-**IMMEDIATELY OUTPUT A PAYLOAD WITH THE ETS FILE** <br/>
+**IMMEDIATELY OUTPUT A PAYLOAD WITH THE ETS FILE** 
 
 ```javascript
 
@@ -124,7 +118,7 @@ return msg;
 
 ## KNX TELEGRAM COUNTER
 
-**START TIMER** <br/>
+**START TIMER** 
 
 ```javascript
 
@@ -134,7 +128,7 @@ return msg;
 
 ```
 
-**STOP TIMER** <br/>
+**STOP TIMER** 
 
 ```javascript
 
@@ -144,7 +138,7 @@ return msg;
 
 ```
 
-**IMMEDIATELY OUTPUT TELEGRAM COUNT MESSAGE** <br/>
+**IMMEDIATELY OUTPUT TELEGRAM COUNT MESSAGE** 
 
 ```javascript
 

@@ -11,14 +11,13 @@ Samples: [Logger](https://supergiovane.github.io/node-red-contrib-knx-ultimate/w
 
 # Enregistreur
 
-<p> Le nœud d'enregistrement enregistre tous les télégrammes et les sortira dans un fichier compatible XML moniteur de bus ETS. </p>
-<br/>
-Vous pouvez enregistrer le fichier sur le disque ou l'envoyer à un serveur FTP, par exemple.Le fichier peut ensuite être lu par votre ETS, par exemple pour le diagnostic ou pour une rediffusion des télégrammes.
-<br/>
-Le nœud peut également compter les télégrammes par seconde (ou tout intervalle que vous souhaitez).
-<br/> <a href = "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Logger-sample" Target = "_ Blank"> Les exemples sont ici. </a>
+ Le nœud d'enregistrement enregistre tous les télégrammes et les sortira dans un fichier compatible XML moniteur de bus ETS. 
 
-<br/>
+Vous pouvez enregistrer le fichier sur le disque ou l'envoyer à un serveur FTP, par exemple.Le fichier peut ensuite être lu par votre ETS, par exemple pour le diagnostic ou pour une rediffusion des télégrammes.
+
+Le nœud peut également compter les télégrammes par seconde (ou tout intervalle que vous souhaitez).
+
+ <a href = "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Logger-sample" Target = "_ Blank"> Les exemples sont ici. </a>
 
 ## PARAMÈTRES
 
@@ -37,7 +36,6 @@ Le nœud peut également compter les télégrammes par seconde (ou tout interval
 |Nombre maximum de lignes dans XML (0 = aucune limite) |Démarre automatiquement la minuterie sur le déploiement ou sur le démarrage du rouge-rouge.|
 |Timer de démarrage automatique |Cela représente le nombre maximum de ligne, que le fichier XML peut contenir dans l'intervalle spécifié ci-dessus.Mettez 0 pour ne pas limiter le nombre de lignes dans le fichier.|
 |Nombre maximum de lignes dans XML (0 = aucune limite) |Cela représente le nombre maximum de ligne, que le fichier XML peut contenir dans l'intervalle spécifié ci-dessus.Mettez 0 pour ne pas limiter le nombre de lignes dans le fichier.|
-<br/>
 
 ## KNX TELEGRAM COMPTER
 
@@ -45,8 +43,6 @@ Le nœud peut également compter les télégrammes par seconde (ou tout interval
 |-|-|
 |Timer de démarrage automatique |Démarre automatiquement la minuterie sur le déploiement ou sur le démarrage du rouge-rouge.|
 |Intervalle de comptage (en quelques secondes) |À quelle fréquence émettent un MSG à l'écoulement, contenant le nombre de télégrammes KNX.En quelques secondes.|
-
-<br/>
 
 ---
 
@@ -61,7 +57,8 @@ msg = {
         payload: "CommunicationLog xmlns=http://knx.org/xml/telegrams/01 Telegram Timestamp=2020-03-27T07:32:39.470Z Service=L_Data.ind...." (A String containing the XML file)
     } 
 
-```<br/> <br/>
+```
+ 
 
 **PIN 2: COMPRESSION DE TÉLÉGRAM KNX**
 
@@ -74,7 +71,7 @@ msg = {
         currentTime:"25/10/2021, 11:11:44"
     } 
 
-```<br/>
+```
 
 ---
 
@@ -84,19 +81,22 @@ Vous pouvez contrôler l'enregistreur à certains égards.
 
 ## fichier de moniteur de bus compatible ETS XML
 
-**Démarrer la minuterie** <br/>```javascript
+**Démarrer la minuterie** 
+```javascript
 
 // Start the timer
 msg.etsstarttimer = true;
 return msg;
 
-``` **Arrêtez la minuterie** <br/>```javascript
+``` **Arrêtez la minuterie** 
+```javascript
 
 // Start the timer
 msg.etsstarttimer = false;
 return msg;
 
-``` **Sortie immédiatement une charge utile avec le fichier ETS** <br/>```javascript
+``` **Sortie immédiatement une charge utile avec le fichier ETS** 
+```javascript
 
 // Output payload. Restart timer as well (in case the timer was active)
 msg.etsoutputnow = true;
@@ -104,19 +104,22 @@ return msg;
 
 ```## KNX TELEGRAM COMPTER
 
-**Démarrer la minuterie** <br/>```javascript
+**Démarrer la minuterie** 
+```javascript
 
 // Start the timer
 msg.telegramcounterstarttimer = true;
 return msg;
 
-``` **Arrêtez la minuterie** <br/>```javascript
+``` **Arrêtez la minuterie** 
+```javascript
 
 // Start the timer
 msg.telegramcounterstarttimer = false;
 return msg;
 
-``` **Message de compte télégramme de sortie immédiatement** <br/>```javascript
+``` **Message de compte télégramme de sortie immédiatement** 
+```javascript
 
 // Output payload. 
 msg.telegramcounteroutputnow = true;

@@ -20,8 +20,6 @@ Dieser Node stellt die Verbindung zu deinem KNX/IP‑Gateway her.
 | Name | Name des Nodes. |
 | IP/Hostname | Multicast‑Adresse des ETH/KNX‑Routers oder Unicast‑IP einer KNX/IP‑Schnittstelle. Für Interfaces nutze die Geräte‑IP (z. B. 192.168.1.22); für Router `224.0.23.12`. Hostname ist ebenfalls möglich. |
 
-<br/>
-
 **Konfiguration**
 
 |Eigenschaft|Beschreibung|
@@ -40,8 +38,6 @@ Dieser Node stellt die Verbindung zu deinem KNX/IP‑Gateway her.
 > • _KNX Data Secure_ schützt Gruppenadress-Telegramme und benötigt immer eine Keyring-Datei mit den Gruppenschlüsseln.\
 > • _KNX IP Tunnelling Secure_ schützt den Verbindungsaufbau mittels Commissioning-Passwort. Je nach Modus stammt dieses aus dem Keyring oder wird manuell eingetragen.
 
-<br/>
-
 **Erweitert**
 
 |Eigenschaft|Beschreibung|
@@ -53,8 +49,6 @@ Dieser Node stellt die Verbindung zu deinem KNX/IP‑Gateway her.
 | Loglevel | Log‑Detailgrad. Standard: "Error". |
 | Aktualisierung der Status-Badges | Legt fest, wie oft die Statusanzeige der Nodes erneuert wird. Mit einer Verzögerung werden Zwischenstände verworfen und nur der letzte Wert nach dem gewählten Intervall angezeigt. Wählen Sie **Sofort**, um das bisherige Echtzeitverhalten beizubehalten. |
 
-<br/>
-
 **ETS‑Import**
 
 |Eigenschaft|Beschreibung|
@@ -62,16 +56,12 @@ Dieser Node stellt die Verbindung zu deinem KNX/IP‑Gateway her.
 | If Group Address has no Datapoint | Wenn eine GA keinen DPT hat: Import abbrechen, GA überspringen oder GA mit Platzhalter‑DPT `1.001` übernehmen. |
 | ETS group address list | Inhalt der ETS‑Datei (CSV/ESF) einfügen oder Dateipfad angeben (z. B. `/home/pi/mycsv.csv`). Siehe Hilfelinks. |
 
-<br/>
-
 **Werkzeuge**
 
 |Eigenschaft|Beschreibung|
 |--|--|
 | Gather debug info for troubleshoot | Button klicken und Ausgabe an ein GitHub‑Issue anhängen. |
 | Get all used GA for KNX routing filter | Mit READ eine Textliste aller in Flows verwendeten GAs für dieses Gateway holen - zum Befüllen der Filtertabelle deines KNX/IP‑Routers. |
-
-<br/>
 
 # Arbeit mit ETS‑CSV oder ESF
 
@@ -89,18 +79,22 @@ Video: <a href="https://youtu.be/egRbR_KwP9I"><img src='https://raw.githubuserco
 
 - **ETS‑CSV Gruppenadressen importieren ** Achtung: Im GA‑Namen dürfen keine Tabulator‑Zeichen vorkommen.**If Group Address has no Datapoint ** > Ohne DPT in ETS: Import abbrechen, GA überspringen oder mit Platzhalter‑DPT fortfahren.**CSV‑Export in ETS**
 
-> In ETS Gruppenadressenliste wählen → Rechtsklick → Exportieren. Optionen:<br/>
-> Output Format: CSV<br/>
-> CSV Format: 1/1 Name/Address<br/>
-> Export with header line: aktiv<br/>
-> CSV Separator: Tabulator<br/>
+> In ETS Gruppenadressenliste wählen → Rechtsklick → Exportieren. Optionen:
+
+> Output Format: CSV
+
+> CSV Format: 1/1 Name/Address
+
+> Export with header line: aktiv
+
+> CSV Separator: Tabulator
+
 > Dann den Dateitext hier einfügen. Datei muss pro GA einen DPT enthalten. Ergebnisse erscheinen in Node‑RED DEBUG.
 
 > Ergebnisse: **ERROR ** (DPT fehlt → Import stoppt) oder**WARNING ** (Subtyp fehlt → Default wird ergänzt, bitte prüfen). Subtyp ist die Zahl rechts vom Punkt, z. B. `5.001`.**ESF‑Export in ETS**
 
 > Projekt wählen → Export‑Symbol (Pfeil nach oben) → ESF wählen (nicht `.knxprod`) → Inhalt im Feld "ETS group address list" einfügen.
 
-<p>
     <table style="font-size:12px">
         <tr><th colspan="2" style="font-size:14px">Statusfarben des Nodes</th></tr>
         <tr><td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/greendot.png"></td><td>Auf Write‑Telegramme reagieren</td></tr>
@@ -112,4 +106,3 @@ Video: <a href="https://youtu.be/egRbR_KwP9I"><img src='https://raw.githubuserco
         <tr><td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/reddot.png"></td><td>Fehler oder getrennt</td></tr>
         <tr><td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/redring.png"></td><td>Node deaktiviert wegen zyklischer Referenz (<a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki" target="_blank">siehe Seite</a>)</td></tr>
     </table>
-</p>

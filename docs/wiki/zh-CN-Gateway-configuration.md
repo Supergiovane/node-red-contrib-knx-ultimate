@@ -20,8 +20,6 @@ HUE: [Bridge](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/
 | Name | 节点名称。|
 | IP/Hostname | ETH/KNX 路由器的组播地址，或 KNX/IP 接口的单播 IP。若为接口，请填写设备 IP（如 192.168.1.22）；若为路由器，请填写组播 `224.0.23.12`。也可填写 **Hostname** 。|
 
-<br/>
-
 **配置**
 
 |属性|说明|
@@ -40,8 +38,6 @@ HUE: [Bridge](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/
 > • _KNX Data Secure_ 用于保护组地址报文， **始终** 需要包含组密钥的密钥环文件。\
 > • _KNX IP Tunnelling Secure_ 通过调试密码保护连接握手，密码可根据模式从密钥环读取或在界面中手动输入。
 
-<br/>
-
 **高级**
 
 |属性|说明|
@@ -53,8 +49,6 @@ HUE: [Bridge](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/
 | Loglevel | 日志级别（调试用）。默认 "Error"。|
 | 节点状态节流 | 设置状态徽章的刷新频率。启用延时后，中间状态会被丢弃，只在所选间隔后显示最后一次状态。选择 **立即** 可以保持实时显示。|
 
-<br/>
-
 **ETS 文件导入**
 
 |属性|说明|
@@ -62,16 +56,12 @@ HUE: [Bridge](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/
 | If Group Address has no Datapoint | 当某组地址无 DPT 时：停止导入、跳过该 GA，或使用占位 DPT `1.001` 继续。|
 | ETS group address list | 在此粘贴 ETS 导出的 CSV/ESF 内容，或填写文件路径（如 `/home/pi/mycsv.csv`）。详见帮助链接。|
 
-<br/>
-
 **工具**
 
 |属性|说明|
 |--|--|
 | Gather debug info for troubleshoot | 点击按钮收集信息并附在 GitHub issue 中，便于排查。|
 | Get all used GA for KNX routing filter | 点击 READ 获取此网关在各流程中使用的全部 GA 列表，用于配置路由器过滤表。|
-
-<br/>
 
 # 使用 ETS CSV 或 ESF 文件
 
@@ -89,18 +79,22 @@ HUE: [Bridge](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/
 
 - **导入 ETS CSV 组地址 ** 注意：GA 名称中不得包含制表符（Tab）。**If Group Address has no Datapoint ** > 若 ETS 中 GA 无 DPT：可停止导入、跳过该 GA、或使用占位 DPT 继续。**如何从 ETS 导出 CSV**
 
-> 在 ETS 中选中组地址列表 → 右键 → 导出组地址；导出选项：<br/>
-> Output Format: CSV<br/>
-> CSV Format: 1/1 Name/Address<br/>
-> Export with header line: 勾选<br/>
-> CSV Separator: Tabulator<br/>
+> 在 ETS 中选中组地址列表 → 右键 → 导出组地址；导出选项：
+
+> Output Format: CSV
+
+> CSV Format: 1/1 Name/Address
+
+> Export with header line: 勾选
+
+> CSV Separator: Tabulator
+
 > 然后将文件内容粘贴到此处。文件必须包含每个 GA 的 DPT。解析结果会显示在 Node‑RED 的 DEBUG 面板。
 
 > 结果类型： **ERROR ** （缺少 DPT → 停止导入）与**WARNING ** （缺少子类型 → 自动补默认，但需人工确认）。子类型是 DPT 中小数点右侧的数字，如 `5.001`。**如何从 ETS 导出 ESF**
 
 > 在 ETS 的项目页点击导出（上箭头）→ 选择 ESF（不是 `.knxprod`）→ 将 ESF 内容粘贴到网关的 "ETS group address list" 字段。
 
-<p>
     <table style="font-size:12px">
         <tr><th colspan="2" style="font-size:14px">节点状态颜色说明</th></tr>
         <tr><td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/greendot.png"></td><td>响应写报文</td></tr>
@@ -112,4 +106,3 @@ HUE: [Bridge](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/
         <tr><td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/reddot.png"></td><td>错误或已断开</td></tr>
         <tr><td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/redring.png"></td><td>因循环引用而禁用（<a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki" target="_blank">查看页面</a>）</td></tr>
     </table>
-</p>

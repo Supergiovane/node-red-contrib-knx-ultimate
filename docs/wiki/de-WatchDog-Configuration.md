@@ -40,13 +40,13 @@ Ideal zum Signalisieren von Fehlern/Verbindungsproblemen (E‑Mail, automatische
 
 **Check level**
 
-> Ethernet: Verbindung zwischen KNX‑Ultimate (Unicast) und KNX/IP‑Interface.<br/>
+> Ethernet: Verbindung zwischen KNX‑Ultimate (Unicast) und KNX/IP‑Interface.
 
-<img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/WatchDogEthernetLevel.png" width="90%"><br/>
+<img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/WatchDogEthernetLevel.png" width="90%">
 
-> Ethernet und KNX TP: Vollständige Prüfung (Router/Interface). Read an physisches Gerät, Antwort erwarten; Fehler auf Ethernet/TP werden gemeldet. In ETS eine Status‑GA einrichten, die auf Read antwortet.<br/>
+> Ethernet und KNX TP: Vollständige Prüfung (Router/Interface). Read an physisches Gerät, Antwort erwarten; Fehler auf Ethernet/TP werden gemeldet. In ETS eine Status‑GA einrichten, die auf Read antwortet.
 
-<img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/WatchDogEthernetKNXTPLevel.png" width="90%"><br/>
+<img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/WatchDogEthernetKNXTPLevel.png" width="90%">
 
 ## Erweiterte Optionen
 

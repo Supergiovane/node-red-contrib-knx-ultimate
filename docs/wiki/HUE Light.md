@@ -9,7 +9,7 @@ HUE: [Bridge](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/
 Samples: [Logger](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Logger-Sample) • [Switch Light](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Switch-light) • [Dimming](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Dimming) • [RGB color](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---RGB-Color) • [RGBW color + White](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---RGBW-Color-plus-White) • [Command a scene actuator](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Control-a-scene-actuator) • [Datapoint 213.x 4x Setpoint](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT213) • [Datapoint 222.x 3x Setpoint](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT222) • [Datapoint 237.x DALI diags](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT237) • [Datapoint 2.x 1 bit proprity](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT2) • [Datapoint 22.x RCHH Status](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT22) • [Datetime to BUS](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DateTime-to-BUS) • [Read Status](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Read-value-from-Device) • [Virtual Device](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Virtual-Device) • [Subtype decoded](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Subtype) • [Alexa](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Alexa) • [Apple Homekit](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Apple-Homekit) • [Google Home](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Google-Assistant) • [Switch on/off POE port of Unifi switch](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---UnifiPOE) • [Set configuration by msg](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample-setConfig) • [Scene Controller node](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Sample-Scene-Node) • [WatchDog node](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---WatchDog) • [Global Context node](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleGlobalContextNode) • [Alerter node](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleAlerter) • [Load control node](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleLoadControl) • [Viewer node](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/knxUltimateViewer) • [MySQL, InfluxDB, MQTT Sample](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Sample-KNX2MQTT-KNX2MySQL-KNX2InfluxDB)
 <!-- NAV END -->
 
-<p>This node controls Philips HUE lights (single or grouped) and maps their commands/states to KNX.</p>
+This node controls Philips HUE lights (single or grouped) and maps their commands/states to KNX.
 
 **General**
 
@@ -19,17 +19,14 @@ Samples: [Logger](https://supergiovane.github.io/node-red-contrib-knx-ultimate/w
 | HUE Bridge | Select the HUE Bridge to be used |
 | Name | HUE light or grouped light to use (autocomplete while typing).|
 
-<br/>
-
 **Locate device**
 
 Use the `Locate` button (play icon) to start a Hue identify session for the selected resource. While the session is active the button switches to a stop icon and the bridge makes the light — or every light in the grouped resource — blink once per second. Press the button again to stop immediately; otherwise the session ends automatically after 10 minutes.
 
-<br/>
-
 **OPTIONS**
 
-Here you can link KNX Group Addresses to the available HUE commands/states.<br/>
+Here you can link KNX Group Addresses to the available HUE commands/states.
+
 Start typing in the GA field (name or Group Address); suggestions appear while you type.
 
 **Switch**
@@ -38,8 +35,6 @@ Start typing in the GA field (name or Group Address); suggestions appear while y
 |--|--|
 | Control | This GA is used to turn on/off the HUE light via a boolean KNX value true/false|
 | Status | Link this to the light's switch status group address|
-
-<br/>
 
 **Dim**
 
@@ -52,8 +47,6 @@ Start typing in the GA field (name or Group Address); suggestions appear while y
 | Min Dim brightness | Tha Minimum brightness that the lamp can reach. For example, if you are dimming the light down, the light will stop dimming at the specified brightness %. |
 | Max Dim brightness | Tha Maximum brightness that the lamp can reach. For example, if you are dimming the light up, the light will stop dimming at the specified brightness %. |
 
-<br/>
-
 **Tunable White**
 
 |Property|Description|
@@ -61,10 +54,11 @@ Start typing in the GA field (name or Group Address); suggestions appear while y
 | Control dim | Change white temperature using DPT 3.007 dimming. Speed is set in the **Behaviour** tab.|
 | Control % | Change white temperature using DPT 5.001. 0 = full warm, 100 = full cold.|
 | Status %| Temperature status GA. DPT 5.001 absolute value: 0 = full warm, 100 = full cold.|
-| Control kelvin | **DPT 7.600: ** set temperature in Kelvin using the KNX range 2000-6535 (converted to HUE mirek).<br/>**DPT 9.002:** set temperature using HUE range 2000-6535 K (Ambiance starts at 2200 K). Conversions may introduce small deviations.|
-| Status kelvin | **DPT 7.600: ** read temperature in Kelvin using KNX range 2000-6535 (converted from HUE).<br/>**DPT 9.002:** read temperature using HUE range 2000-6535 K (Ambiance starts at 2200 K). Conversions may introduce small deviations. |
+| Control kelvin | **DPT 7.600: ** set temperature in Kelvin using the KNX range 2000-6535 (converted to HUE mirek).
+**DPT 9.002:** set temperature using HUE range 2000-6535 K (Ambiance starts at 2200 K). Conversions may introduce small deviations.|
+| Status kelvin | **DPT 7.600: ** read temperature in Kelvin using KNX range 2000-6535 (converted from HUE).
+**DPT 9.002:** read temperature using HUE range 2000-6535 K (Ambiance starts at 2200 K). Conversions may introduce small deviations. |
 | Invert dim direction | Inverts the DIM direction. |
-<br/>
 
 **RGB/HSV**
 
@@ -82,8 +76,6 @@ Start typing in the GA field (name or Group Address); suggestions appear while y
 
 For controlling the HSV "V” (brightness), use the standard controls under the **Dim** tab.
 
-<br/>
-
 **Effects**
 
 _Non-Hue basic effects_
@@ -100,15 +92,16 @@ Use the **Hue native effects** table to map your KNX values to the effects suppo
 - send the mapped value to activate that effect;
 - optionally provide a status Group Address: the node emits the mapped value whenever the Hue bridge reports an effect change; if no mapping exists the raw effect name is sent (requires a textual DPT such as 16.xxx).
 
-<br/>
-
 **Behaviour**
 
 | Property | Description |
 | ----------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Read status at startup | Read the HUE light status at node-red's startup or node-red's full deploy, and send that status to the KNX BUS |
 | KNX Brightness Status | Updates the KNX brightness group address status, whenever the HUE lamp is switched ON/OFF. The options are **When HUE light is Off send 0%. When HUE On, restore previous value (Default KNX behaviour) ** and**Leave as is (default HUE behaviour) ** . If you have KNX dimmer with brightness status, like MDT, the suggested option is _**When HUE light is Off send 0%. When HUE On, restore previous value (Default KNX behaviour)** _ |
-| Switch on behaviour | It sets the behaviour of your lights when switched on. You can choose from differents behaviours.<br/> **Select color: ** the light will be switched on with the color of your choice. To change color, just CLICK on the color selector (under the _Select color_ control).<br/>**Select temperature and brightness: ** the light will be switched on with the temperature (Kelvin) and brightness (0-100) of your choice.<br/>**None:** the light will retain its last status. In case you've enable the night lighting, after the night time ends, the lamp will resume the color/temperature/brightness state set at day time. |
+| Switch on behaviour | It sets the behaviour of your lights when switched on. You can choose from differents behaviours.
+ **Select color: ** the light will be switched on with the color of your choice. To change color, just CLICK on the color selector (under the _Select color_ control).
+**Select temperature and brightness: ** the light will be switched on with the temperature (Kelvin) and brightness (0-100) of your choice.
+**None:** the light will retain its last status. In case you've enable the night lighting, after the night time ends, the lamp will resume the color/temperature/brightness state set at day time. |
 | Night Lighting | It allows to set a particular light color/brightness at nighttime. The options are the same as the daytime. You could select either a temperature/brightness or color. A cozy temperature of 2700 Kelvin, with a brightness of 10% or 20%, is a good choice for bathroom's night light.|
 | Day/Night | Select the group address used to set the day/night behaviour. The group address value is _true_ if daytime, _false_ if nighttime. |
 | Invert day/night value | Invert the values of _Day/Night_ group address. Default value is **unchecked** . |
@@ -119,5 +112,3 @@ Use the **Hue native effects** table to map your KNX values to the effects suppo
 ### Note
 
 The Dimming function works in **KNX mode `start` and`stop` ** . To start dimming, send only one "start" KNX telegram. To stop dimming, send a "stop" KNX telegram. Please**remember that** , when you set your wall swiches properties.
-
-<br/>

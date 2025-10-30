@@ -11,11 +11,13 @@ Samples: [Logger](https://supergiovane.github.io/node-red-contrib-knx-ultimate/w
 
 # Nœud de contrôle de charge KNX
 
-<p> Avec le nœud de contrôle de charge, vous pouvez gérer automatiquement la déconnexion des charges (lave-linge, four, etc.) lorsque la consommation de courant dépasse un certain seuil.
+ Avec le nœud de contrôle de charge, vous pouvez gérer automatiquement la déconnexion des charges (lave-linge, four, etc.) lorsque la consommation de courant dépasse un certain seuil.
 
-Les appareils sont désactivés intelligemment, en vérifiant la consommation possible de l'appareil pour déterminer l'opportunité de le désactiver avec les autres.<br/>
-Le nœud peut réactiver automatiquement les charges.<br/>
-Le nœud désactive un périphérique (ou plusieurs appareils) à la fois, en fonction de l'ordre que vous avez sélectionné. <br/>
+Les appareils sont désactivés intelligemment, en vérifiant la consommation possible de l'appareil pour déterminer l'opportunité de le désactiver avec les autres.
+
+Le nœud peut réactiver automatiquement les charges.
+
+Le nœud désactive un périphérique (ou plusieurs appareils) à la fois, en fonction de l'ordre que vous avez sélectionné. 
 
 **Général**
 
@@ -27,13 +29,14 @@ Le nœud désactive un périphérique (ou plusieurs appareils) à la fois, en fo
 |Retarder l'éteint (s) |Exprimé en quelques secondes, indique la fréquence à laquelle le nœud évaluera la consommation et éteindra chaque appareil.|
 |Retard Switch on (S) |Exprimé en quelques secondes, indique la fréquence à laquelle le nœud évaluera la consommation et allumera chaque dispositif qui a été désactivé.|
 
-<br/>
-
 **Contrôle de charge**
 
-Ici, vous pouvez ajouter des appareils pour désactiver en cas de surcharge.<br/>
-Choisissez l'appareil à éteindre.Entrez le nom du périphérique ou son adresse de groupe.<br/>
-Entrez n'importe quelle adresse de groupe qui indique la consommation de l'appareil choisi dans la première ligne. **Il s'agit d'un paramètre facultatif** .Si l'appareil consomme plus qu'un certain nombre de watts, cela signifie qu'il est utilisé.S'il consomme moins, l'appareil sera considéré comme "non utilisé" et le ceci et le prochain seront désactivés en même temps. <br/>
+Ici, vous pouvez ajouter des appareils pour désactiver en cas de surcharge.
+
+Choisissez l'appareil à éteindre.Entrez le nom du périphérique ou son adresse de groupe.
+
+Entrez n'importe quelle adresse de groupe qui indique la consommation de l'appareil choisi dans la première ligne. **Il s'agit d'un paramètre facultatif** .Si l'appareil consomme plus qu'un certain nombre de watts, cela signifie qu'il est utilisé.S'il consomme moins, l'appareil sera considéré comme "non utilisé" et le ceci et le prochain seront désactivés en même temps. 
+
 Si _Automatic Recovery_ est activé, le périphérique est automatiquement réactivé lorsque le "délai de réinitialisation" expire.
 
 ## Entrées
@@ -66,5 +69,3 @@ msg = {
 ```# Échantillon
 
 <a href = "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleLoadControl"> Cliquez ici pour l'exemple </a>
-
-<br/>

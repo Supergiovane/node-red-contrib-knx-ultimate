@@ -13,7 +13,7 @@ Samples: [Logger](https://supergiovane.github.io/node-red-contrib-knx-ultimate/w
 
 ## Configuración del nodo del dispositivo KNX-Ulimidad
 
-<p> Este nodo le permite controlar una dirección de grupo KNX, este es el nodo más utilizado.
+ Este nodo le permite controlar una dirección de grupo KNX, este es el nodo más utilizado.
 
 [<i class="fa fa-Code"> </i> Aquí encontrarás algunas muestras](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-SamplesHome)
 
@@ -25,9 +25,6 @@ Samples: [Logger](https://supergiovane.github.io/node-red-contrib-knx-ultimate/w
 | Lista desplegable Tipo de GA | El tipo de dirección de grupo. **3 niveles ** es el valor predeterminado, donde puede escribir la dirección de grupo de nivel _3 o la dirección _group name_ (si ha cargado el archivo ETS), o**global ** , para leer el GA al inicio desde una variable global, o**flujo ** que hace lo mismo que el _global_, pero a nivel de flujo. Seleccione**$ Env Variable ** Para leer la dirección de grupo de una variable de entorno. Seleccione**Modo universal (escuche todas las direcciones de grupo)** para reaccionar a todas las direcciones de grupo. |
 | ADR DE GRUPO. | La dirección de grupo KNX que desea controlar. Si ha importado el archivo de direcciones del grupo ETS, puede comenzar a escribir el nombre de su dispositivo. Puede dejarlo vacío si lo desea establecerlo con _MSG.SetConfig_ Mensaje de entrada. |
 | DataPoint | El punto de datos que pertenece a su nodo. |
-
-<br/>
-<br/>
 
 ### Botón de comando manual
 
@@ -41,9 +38,6 @@ El editor puede mostrar, para cada nodo, un pequeño botón que envía un comand
 | Valor personalizado | Payload utilizado por el modo “Escribir valor personalizado”. Se aceptan literales JSON como `42`, `true`, `"texto"` o `{ "red": 255 }`. |
 
 El botón solo aparece cuando la opción está habilitada. En modo universal la acción de lectura está deshabilitada porque el nodo no dispone de una dirección de grupo fija.
-
-<br/>
-<br/>
 
 ## Pestaña Opciones avanzadas
 
@@ -66,9 +60,6 @@ El botón solo aparece cuando la opción está habilitada. En modo universal la 
 | Decimales | Redondo o manejar decimales de cualquier manera. Funciona solo si el valor es un número. |
 | Negativos | Maneja los valores negativos. Funciona solo si el valor es un número. |
 
-<br/>
-<br/>
-
 ## Función Tab Knx
 
 Puede usar JavaScript para modificar el comportamiento del MSG de entrada que proviene del flujo y el telegrama de salida enviado al bus KNX.
@@ -78,9 +69,8 @@ Si está habilitado, la indicación "F (x)" se agregará al nombre del nodo.
 
 | Propiedad | Descripción |
 |-|-|
-| Buscar ga | Es un ayudante solo disponible si se ha importado el archivo ETS. Comience a escribir y seleccione la dirección de grupo que desea agregar al código. Luego copie el campo completo y péguelo en la función GetGavalue. <br/> **getGavalue ('0/0/1 Table Nord Lamp')** |
-
-<br/>
+| Buscar ga | Es un ayudante solo disponible si se ha importado el archivo ETS. Comience a escribir y seleccione la dirección de grupo que desea agregar al código. Luego copie el campo completo y péguelo en la función GetGavalue. 
+ **getGavalue ('0/0/1 Table Nord Lamp')** |
 
 ### Lista de objetos y funciones comunes que puede usar en el código
 
@@ -145,22 +135,23 @@ if (msg.payload === false && getGAValue('0/0/11','1.001') === false){
 }
 ```
 
-<br/>
-<br/>
-
 ## Muestra de carga útil de pestañas
 
 | Propiedad | Descripción |
 |-|-|
 | Muestra | Esto le dará una pista sobre qué escribir en un nodo de función externa, si desea controlar el nodo a través de un nodo de función de nodo-rojo. |
 
-<br/>
-<br/>
-<br/>
-
 ### entradas
 
-<br/> ** Destino (cadena) ** : La dirección del grupo de destino, por ejemplo 1/1/0. Solo se permiten 3 niveles. <br/>**carga útil (cualquiera) ** : la carga útil que se enviará. Puede ser, por ejemplo, verdadero o falso, o un objeto. <br/>**Event (String) ** : puede ser _groupValue \ _Write_ para escribir el telegrama al bus KNX, _GroupValue \ _Response_ para enviar un telegrama de respuesta al bus KNX, _update \ _nowrite_. _Update \ _NowRite_ envía nada al bus KNX, solo actualiza el valor interno del nodo Ulimado KNX. Esto es útil si solo desea almacenar el valor en el nodo y leerlo más tarde con una solicitud de lectura. <br/>**Readstatus (boolean) ** : emita una solicitud de lectura al autobús KNX. Pasar _true_ cada vez (msg.readstatus = true). <br/>**dpt (cadena) ** : por ejemplo "1.001". Establece el punto de datos. <br/>**escritorw (buffer) ** : se usa para enviar un valor al bus KNX, como búfer. Use junto con _BitLenght_. <br/>**bitlenght (int) ** : Especifica la longitud del buffer _writeraw_. Use junto con _Writeraw_. <BR/>**ResetrBe (boolean) ** : restablece los filtros RBE internos (_use msg.resetrbe = true_). <br/>**setConfig (JSON)** : Cambie programáticamente la dirección de grupo de nodo del dispositivo KNX-Uultimate y punto de datos. Ver detalles.
+ ** Destino (cadena) ** : La dirección del grupo de destino, por ejemplo 1/1/0. Solo se permiten 3 niveles. 
+**carga útil (cualquiera) ** : la carga útil que se enviará. Puede ser, por ejemplo, verdadero o falso, o un objeto. 
+**Event (String) ** : puede ser _groupValue \ _Write_ para escribir el telegrama al bus KNX, _GroupValue \ _Response_ para enviar un telegrama de respuesta al bus KNX, _update \ _nowrite_. _Update \ _NowRite_ envía nada al bus KNX, solo actualiza el valor interno del nodo Ulimado KNX. Esto es útil si solo desea almacenar el valor en el nodo y leerlo más tarde con una solicitud de lectura. 
+**Readstatus (boolean) ** : emita una solicitud de lectura al autobús KNX. Pasar _true_ cada vez (msg.readstatus = true). 
+**dpt (cadena) ** : por ejemplo "1.001". Establece el punto de datos. 
+**escritorw (buffer) ** : se usa para enviar un valor al bus KNX, como búfer. Use junto con _BitLenght_. 
+**bitlenght (int) ** : Especifica la longitud del buffer _writeraw_. Use junto con _Writeraw_. 
+**ResetrBe (boolean) ** : restablece los filtros RBE internos (_use msg.resetrbe = true_). 
+**setConfig (JSON)** : Cambie programáticamente la dirección de grupo de nodo del dispositivo KNX-Uultimate y punto de datos. Ver detalles.
 
 ### Detalles
 
@@ -231,17 +222,10 @@ msg = {
 }
 ```
 
-<br/>
-
-<br/>
-<br/> ** Muestra de carga útil** | Propiedad | Descripción |
+ ** Muestra de carga útil** | Propiedad | Descripción |
 
 |-|-|
 | Muestra | Esto le dará una pista sobre qué escribir en un nodo de función externa, si desea controlar el nodo a través de un nodo de función de nodo-rojo. |
-
-<br/>
-<br/>
-<br/>
 
 ### entradas
 
@@ -323,14 +307,13 @@ msg = {
 }
 ```
 
-<br/>
-<br/>
-
 ## Salida del mensaje del nodo establecido como "Modo universal (escuche todas las direcciones de grupo)"
 
-Aquí tiene 2 opciones: Importar archivo CVS ETS o no. <br/>
-Importar su archivo ETS es el método sugerido <b> Aboslute </b>. Si importa su archivo ETS, el nodo hará la decodificación de DataPoint automáticamente y también le dará el nombre del dispositivo. <BR/>
-Si no importa el ETS, el nodo emitirá el telegrama sin procesar e intenta decodificarlo también. <BR/>
+Aquí tiene 2 opciones: Importar archivo CVS ETS o no. 
+
+Importar su archivo ETS es el método sugerido <b> Aboslute </b>. Si importa su archivo ETS, el nodo hará la decodificación de DataPoint automáticamente y también le dará el nombre del dispositivo. 
+
+Si no importa el ETS, el nodo emitirá el telegrama sin procesar e intenta decodificarlo también. 
 
 ```javascript
 
@@ -351,8 +334,6 @@ msg = {
     }}
  
 ```
-
-<br/>
 
 ## Mensaje de salida en dispositivo virtual
 
@@ -377,15 +358,25 @@ Aquí encontrará una muestra de [dispositivo virtual](https://supergiovane.gith
 
 ## Control de dispositivos KNX
 
-El nodo acepta MSG del flujo que se enviará al bus KNX y envía MSG al flujo tan pronto como el mensaje KNX llega desde el bus. <br/>
-Suponiendo que proporcionó una dirección de grupo y un punto de datos al nodo, ya sea manualmente o con campos de población automática seleccionando su dispositivo desde la lista del dispositivo después de importar el archivo ETS. <br/>
-También puede anular uno o más parámetros establecidos en la ventana de configuración KNX-Uultimate. <br/>
-Todas las propiedades a continuación son opcionales, excepto por la carga útil. <br/> ** Msg.Destination** <br/>
-Por ejemplo, "0/0/1". Establezca la dirección de grupo de 3 niveles que desea actualizar. ** msg.payload** <br/>
-Por ejemplo, verdadero/falso/21/"Hola". Establezca la carga útil que desea enviar al autobús KNX. ** msg.event** <br/>
-"GroupValue \ _Write": escribe el telegrama al autobús KNX. <br/>
-"GroupValue \ _Response": envía un telegrama de respuesta al bus KNX. <br/>
-"Actualizar \ _nowrite": envía nada al bus KNX, solo actualiza el valor interno del nodo Ulimado KNX. Esto es útil si solo desea almacenar el valor en el nodo y leerlo más tarde con una solicitud de lectura. <br/>
+El nodo acepta MSG del flujo que se enviará al bus KNX y envía MSG al flujo tan pronto como el mensaje KNX llega desde el bus. 
+
+Suponiendo que proporcionó una dirección de grupo y un punto de datos al nodo, ya sea manualmente o con campos de población automática seleccionando su dispositivo desde la lista del dispositivo después de importar el archivo ETS. 
+
+También puede anular uno o más parámetros establecidos en la ventana de configuración KNX-Uultimate. 
+
+Todas las propiedades a continuación son opcionales, excepto por la carga útil. 
+ ** Msg.Destination** 
+
+Por ejemplo, "0/0/1". Establezca la dirección de grupo de 3 niveles que desea actualizar. ** msg.payload** 
+
+Por ejemplo, verdadero/falso/21/"Hola". Establezca la carga útil que desea enviar al autobús KNX. ** msg.event** 
+
+"GroupValue \ _Write": escribe el telegrama al autobús KNX. 
+
+"GroupValue \ _Response": envía un telegrama de respuesta al bus KNX. 
+
+"Actualizar \ _nowrite": envía nada al bus KNX, solo actualiza el valor interno del nodo Ulimado KNX. Esto es útil si solo desea almacenar el valor en el nodo y leerlo más tarde con una solicitud de lectura. 
+
 PRECAUCIÓN: en el caso de _msg.event = "update \ _nowrite" _ Todos los nodos con la misma dirección de grupo emitirán al flujo un mensaje como este:
 
 ```javascript
@@ -401,25 +392,27 @@ PRECAUCIÓN: en el caso de _msg.event = "update \ _nowrite" _ Todos los nodos co
 
 ```
 
-Si desea emitir un comando "Leer", use "ReadStatus" en su lugar (ver más abajo). <BR/> ** msg.readstatus = true** <br/>
-Emita un comando de "leer" al bus. ** msg.dpt** <br/>
-Por ejemplo "1.001". Establece el punto de datos <b> </b>. (Puede escribirlo en estos formatos: 9, "9", "9.001" o "DPT9.001") ** msg.writeraw ** <br/>**msg.bitlenght** <br/>
-Escribe datos sin procesar en el bus KNX. Consulte a continuación un ejemplo. <br/> ** msg.resetrbe** <br/> pase msg.resetrbe = true a un nodo de dispositivo, para restablecer tanto el filtro de entrada como de salida RBE en ese nodo particular. <br/>
+Si desea emitir un comando "Leer", use "ReadStatus" en su lugar (ver más abajo). 
+ ** msg.readstatus = true** 
 
-<br/>
+Emita un comando de "leer" al bus. ** msg.dpt** 
+
+Por ejemplo "1.001". Establece el punto de datos <b> </b>. (Puede escribirlo en estos formatos: 9, "9", "9.001" o "DPT9.001") ** msg.writeraw ** 
+**msg.bitlenght** 
+
+Escribe datos sin procesar en el bus KNX. Consulte a continuación un ejemplo. 
+ ** msg.resetrbe** 
+ pase msg.resetrbe = true a un nodo de dispositivo, para restablecer tanto el filtro de entrada como de salida RBE en ese nodo particular. 
 
 ## Cambiar programáticamente la configuración del nodo a través de MSG
 
-Es posible cambiar programáticamente la configuración del nodo Ulimado KNX, enviando msg.setConfig Object al nodo. <br/>
-[Consulte aquí la página de muestra.](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample-setConfig)
+Es posible cambiar programáticamente la configuración del nodo Ulimado KNX, enviando msg.setConfig Object al nodo. 
 
-<br/>
-<br/>
-<br/>
+[Consulte aquí la página de muestra.](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample-setConfig)
 
 # Rápido como
 
-Puede más muestras [aquí](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-SamplesHome) ** Encienda una lámpara** <br/>
+Puede más muestras [aquí](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-SamplesHome) ** Encienda una lámpara** 
 
 ```javascript
 
@@ -427,7 +420,7 @@ Puede más muestras [aquí](https://supergiovane.github.io/node-red-contrib-knx-
 msg.payload = true; // issues a write or response (based on the options <b>Telegram type</b> above) to the KNX bus
 return msg;
 
-``` ** ABSOLUTO Dim una lámpara** <br/>
+``` ** ABSOLUTO Dim una lámpara** 
 
 ```javascript
 
@@ -435,7 +428,7 @@ return msg;
 msg.payload = 30; // issues a write or response (based on the options <b>Telegram type</b> above) to the KNX bus
 return msg;
 
-``` ** Enviar texto a una pantalla** <br/>
+``` ** Enviar texto a una pantalla** 
 
 ```javascript
 
@@ -443,7 +436,7 @@ return msg;
 msg.payload = "Output Tem. 35°C"; // issues a write or response (based on the options <b>Telegram type</b> above) to the KNX bus
 return msg;
 
-``` ** Lea el estado de la lavadora** <br/>
+``` ** Lea el estado de la lavadora** 
 
 ```javascript
 
@@ -453,10 +446,12 @@ return msg;
 msg.readstatus = true; // issues a write or response (based on the options <b>Telegram type</b> above) to the KNX bus
 return msg;
 
-``` ** Enviar valor bruto al bus** <br/>
+``` ** Enviar valor bruto al bus** 
 
-Para enviar un valor de búfer en bruto al bus KNX, use el _ ** escritorw ** _ y _**bitLenght** _ Propiedades de la entrada de MSG. <br/>
-En este caso, se ignorará el _datapoint_ que establece en la ventana de la propiedad. <br/>
+Para enviar un valor de búfer en bruto al bus KNX, use el _ ** escritorw ** _ y _**bitLenght** _ Propiedades de la entrada de MSG. 
+
+En este caso, se ignorará el _datapoint_ que establece en la ventana de la propiedad. 
+
 Softe un nodo de función frente a KNX-Ulimate y pegue su código:
 
 ```javascript
@@ -474,7 +469,7 @@ return msg;
 // msg.bitlenght = 1;
 // return msg;
 
-``` ** Actualice el valor del nodo sin enviarlo al bus** <br/>
+``` ** Actualice el valor del nodo sin enviarlo al bus** 
 
 ```javascript
 
@@ -486,9 +481,12 @@ return msg;
 
 ## Control de dispositivos KNX con el nodo establecido en "Modo universal (escuche todas las direcciones de grupo)"
 
-Aquí tiene 2 opciones: Importar archivo CVS ETS o no. <br/>
-Importar su archivo ETS es el método sugerido <b> Aboslute </b>. Si importa su archivo ETS, solo necesita establecer la carga útil para transmitir. El nodo hará la codificación de punto de datos automáticamente. <br/>
-Si no importa el CSV ETS, también debe pasar el tipo de punto de datos al nodo. <BR/> ** Apague una lámpara <u> con el archivo </u> ETS importado** <br/>
+Aquí tiene 2 opciones: Importar archivo CVS ETS o no. 
+
+Importar su archivo ETS es el método sugerido <b> Aboslute </b>. Si importa su archivo ETS, solo necesita establecer la carga útil para transmitir. El nodo hará la codificación de punto de datos automáticamente. 
+
+Si no importa el CSV ETS, también debe pasar el tipo de punto de datos al nodo. 
+ ** Apague una lámpara <u> con el archivo </u> ETS importado** 
 
 ```javascript
 
@@ -498,7 +496,7 @@ msg.destination = "0/0/1"; // Set the destination
 msg.payload = false; // issues a write or response (based on the options <b>Telegram type</b> above) to the KNX bus
 return msg;
 
-``` ** Apague una lámpara <u> sin </u> archivo ETS importado** <br/>
+``` ** Apague una lámpara <u> sin </u> archivo ETS importado** 
 
 ```javascript
 
@@ -509,7 +507,8 @@ msg.dpt = "1.001";
 msg.payload = false; // issues a write or response (based on the options <b>Telegram type</b> above) to the KNX bus
 return msg;
 
-``` ** Lea el estado de todos los dispositivos KNX <u> con el archivo </u> ETS importado** <br/>
+``` ** Lea el estado de todos los dispositivos KNX <u> con el archivo </u> ETS importado** 
+
 No puede emitir una solicitud de lectura a todos los grupos si no importa su archivo ETS, porque el nodo no puede saber en los dispositivos para enviar la solicitud de lectura.
 
 ```javascript
@@ -529,9 +528,6 @@ return msg;
 - _samples_
   - [muestras](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-SamplesHome)
 
-<br/>
-<br/>
-<p>
     <table style = "font-size: 12px">
         <tr>
         <th colspan = "2" style = "font-size: 14px"> Coloros de estado del nodo Explicación </th>
@@ -569,4 +565,3 @@ return msg;
             <td> Nodo discapacitado debido a una referencia circulare. <a href = "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/protections" target = "_ en blanco"> ver esta página. </a> </td>
         </tr>
     </table>
-</p>

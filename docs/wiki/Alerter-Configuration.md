@@ -12,9 +12,11 @@ Samples: [Logger](https://supergiovane.github.io/node-red-contrib-knx-ultimate/w
 # ALERTER NODE CONFIGURATION
 
 With the Alerter node you can signal to a display or to the node-red-contrib-tts-ultimate node (audio feedback) if the selected devices are alerted, i.e. they have payload **true** .
-The node issues messages at specified intervals (one message at a time) containing the details of each alerted device. For example, the node can tell you how many and which windows are open. <br/>
-The node receives the values of the devices directly from the KNX BUS. Furthermore, you can send personalized messages to the node, not linked to KNX devices. <br/>
-The example page explains how to use the node. <br/>
+The node issues messages at specified intervals (one message at a time) containing the details of each alerted device. For example, the node can tell you how many and which windows are open. 
+
+The node receives the values of the devices directly from the KNX BUS. Furthermore, you can send personalized messages to the node, not linked to KNX devices. 
+
+The example page explains how to use the node. 
 
 - **Gateway**
 
@@ -34,8 +36,9 @@ The example page explains how to use the node. <br/>
 
 ## DEVICES TO MONITOR
 
-Here you can add devices to monitor. <br/>
-Enter the device name or its group address. <br/>
+Here you can add devices to monitor. 
+
+Enter the device name or its group address. 
 
 - **Read value of each device on connection/reconnect**
 
@@ -51,14 +54,13 @@ Enter the device name or its group address. <br/>
 
 > Removes a device from the list.
 
-<br/>
-<br/>
-
 ## MESSAGE OUT OF THE NODE
 
-PIN1: The node emits a message for each alerted device, at selectable intervals.<br/>
-PIN2: The node emits a unique message containing all alerted devices.<br/>
-PIN3: The node emits a message containing only the last alerted device.<br/>
+PIN1: The node emits a message for each alerted device, at selectable intervals.
+
+PIN2: The node emits a unique message containing all alerted devices.
+
+PIN3: The node emits a message containing only the last alerted device.
 
 **PIN1**
 
@@ -118,9 +120,6 @@ msg = {
 
 ```
 
-<br/>
-<br/>
-
 ## MESSAGE INTO THE NODE
 
 ```javascript
@@ -135,9 +134,7 @@ msg.start = true
 
 The sending cycle of all alerted devices begins. The cycle ends with the last alerted device. To repeat the cycle, send this inbound message again.
 
-<br/>
-
-**Custom device alert** <br/>
+**Custom device alert** 
 
 To update the true/false value of a custom device, you can send this inbound message
 
@@ -150,12 +147,6 @@ msg = {
 
 ```
 
-<br/>
-
 ## SAMPLE
 
 <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleAlerter">CLICK HERE FOR THE EXAMPLE</a>
-
-<br/>
-<br/>
-<br/>

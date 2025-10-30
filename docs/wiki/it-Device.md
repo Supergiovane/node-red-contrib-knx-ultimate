@@ -24,9 +24,6 @@ Questo nodo controlla un Indirizzo di Gruppo KNX; è il nodo più utilizzato.
 | Group Addr. | L'indirizzo di gruppo KNX da controllare. Se hai importato il file ETS, puoi iniziare a digitare il nome del dispositivo. Puoi lasciarlo vuoto se intendi impostarlo tramite messaggio di ingresso `msg.setConfig`. |
 | Datapoint | Il Datapoint associato al nodo. |
 
-<br/>
-<br/>
-
 ### Pulsante di comando manuale
 
 L’editor può mostrare, per ogni nodo, un pulsante che invia manualmente un comando KNX senza dover aggiungere nodi Inject.
@@ -39,9 +36,6 @@ L’editor può mostrare, per ogni nodo, un pulsante che invia manualmente un co
 | Valore personalizzato | Payload utilizzato dalla modalità “Scrivi valore personalizzato”. È possibile inserire qualsiasi letterale JSON, ad esempio `42`, `true`, `"testo"` oppure `{ "red": 255 }`. |
 
 Il pulsante è visibile soltanto se l’opzione è attiva. In modalità universale l’azione di lettura è disabilitata perché l’indirizzo di gruppo sarebbe sconosciuto.
-
-<br/>
-<br/>
 
 ## TAB Opzioni avanzate
 
@@ -64,9 +58,6 @@ Il pulsante è visibile soltanto se l’opzione è attiva. In modalità universa
 | Decimals | Arrotonda o gestisce i decimali. Solo numeri. |
 | Negatives | Gestisce i valori negativi. Solo numeri. |
 
-<br/>
-<br/>
-
 ## TAB KNX Function
 
 Puoi usare JavaScript per modificare il comportamento del msg in ingresso (dal flow) e del telegramma in uscita (verso il BUS KNX).
@@ -75,9 +66,8 @@ Lo script viene eseguito a ogni msg in ingresso o a ogni telegramma ricevuto dal
 
 |Proprietà|Descrizione|
 |--|--|
-| Search GA | Disponibile solo se hai importato il file ETS. Inizia a digitare e seleziona il GA da inserire nel codice, poi incolla il campo completo nella funzione `getGAValue`. <br/> **getGAValue('0/0/1 table nord lamp')** |
-
-<br/>
+| Search GA | Disponibile solo se hai importato il file ETS. Inizia a digitare e seleziona il GA da inserire nel codice, poi incolla il campo completo nella funzione `getGAValue`. 
+ **getGAValue('0/0/1 table nord lamp')** |
 
 ### Oggetti e funzioni disponibili nel codice
 
@@ -134,9 +124,6 @@ if (msg.payload === false && getGAValue('0/0/11','1.001') === false){
   return msg;
 }
 ```
-
-<br/>
-<br/>
 
 ### Inputs
 
@@ -208,14 +195,19 @@ msg = {
 
 ## Controllare dispositivi KNX
 
-Il nodo accetta msg dal flow da inviare al BUS KNX e invia msg al flow quando riceve telegrammi dal BUS.<br/>
+Il nodo accetta msg dal flow da inviare al BUS KNX e invia msg al flow quando riceve telegrammi dal BUS.
+
 Se hai impostato GA e DPT (manualmente o tramite autocompilazione da ETS), puoi anche sovrascrivere via msg alcuni parametri della finestra di configurazione.
 Tutte le proprietà sotto sono opzionali, tranne `payload`.
 
-**msg.destination ** : ad es. `0/0/1`. GA a 3 livelli da aggiornare.**msg.payload ** : ad es. `true/false/21/"Hello"`. Valore da inviare al BUS.**msg.event** :<br/>
-`GroupValue_Write`: scrive sul BUS.<br/>
-`GroupValue_Response`: invia una risposta sul BUS.<br/>
-`Update_NoWrite`: non invia sul BUS, aggiorna solo il valore interno del nodo.<br/>
+**msg.destination ** : ad es. `0/0/1`. GA a 3 livelli da aggiornare.**msg.payload ** : ad es. `true/false/21/"Hello"`. Valore da inviare al BUS.**msg.event** :
+
+`GroupValue_Write`: scrive sul BUS.
+
+`GroupValue_Response`: invia una risposta sul BUS.
+
+`Update_NoWrite`: non invia sul BUS, aggiorna solo il valore interno del nodo.
+
 ATTENZIONE: con `msg.event = "Update_NoWrite"` tutti i nodi con lo stesso GA emetteranno un msg con `event: 'Update_NoWrite'` e `eventdesc` descrittivo.
 
 Se vuoi emettere un "read”, usa `msg.readstatus = true`.

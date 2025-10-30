@@ -12,9 +12,11 @@ Samples: [Logger](https://supergiovane.github.io/node-red-contrib-knx-ultimate/w
 # Configuración del nodo de Alerter
 
 Con el nodo Alerter, puede indicar una pantalla o al nodo de nodo-Contrib-TTS-Ulude (retroalimentación de audio) Si los dispositivos seleccionados son alertados, es decir, tienen carga útil **Verdadero** .
-El nodo emite mensajes a intervalos especificados (un mensaje a la vez) que contienen los detalles de cada dispositivo alertado.Por ejemplo, el nodo puede decirle cuántas y qué ventanas están abiertas.<br/>
-El nodo recibe los valores de los dispositivos directamente desde el bus KNX.Además, puede enviar mensajes personalizados al nodo, no vinculado a los dispositivos KNX.<br/>
-La página de ejemplo explica cómo usar el nodo.<br/>
+El nodo emite mensajes a intervalos especificados (un mensaje a la vez) que contienen los detalles de cada dispositivo alertado.Por ejemplo, el nodo puede decirle cuántas y qué ventanas están abiertas.
+
+El nodo recibe los valores de los dispositivos directamente desde el bus KNX.Además, puede enviar mensajes personalizados al nodo, no vinculado a los dispositivos KNX.
+
+La página de ejemplo explica cómo usar el nodo.
 
 - **Gateway**
 
@@ -34,8 +36,9 @@ La página de ejemplo explica cómo usar el nodo.<br/>
 
 ## Dispositivos para monitorear
 
-Aquí puede agregar dispositivos para monitorear.<br/>
-Ingrese el nombre del dispositivo o su dirección de grupo.<br/>
+Aquí puede agregar dispositivos para monitorear.
+
+Ingrese el nombre del dispositivo o su dirección de grupo.
 
 - **Valor de lectura de cada dispositivo en Connection/Reconection**
 
@@ -51,14 +54,13 @@ Ingrese el nombre del dispositivo o su dirección de grupo.<br/>
 
 > Elimina un dispositivo de la lista.
 
-<br/>
-<br/>
-
 ## Mensaje fuera del nodo
 
-PIN1: el nodo emite un mensaje para cada dispositivo alertado, a intervalos seleccionables. <br/>
-PIN2: El nodo emite un mensaje único que contiene todos los dispositivos alertados. <br/>
-PIN3: El nodo emite un mensaje que contiene solo el último dispositivo alertado. <br/>
+PIN1: el nodo emite un mensaje para cada dispositivo alertado, a intervalos seleccionables. 
+
+PIN2: El nodo emite un mensaje único que contiene todos los dispositivos alertados. 
+
+PIN3: El nodo emite un mensaje que contiene solo el último dispositivo alertado. 
 
 **PIN1** ```javascript
 
@@ -102,8 +104,7 @@ msg = {
     "payload":false
 }
 
-```<br/>
-<br/>
+```
 
 ## Mensaje en el nodo```javascript
 msg.readstatus = true
@@ -111,9 +112,7 @@ msg.readstatus = true
 msg.start = true
 ```Comienza el ciclo de envío de todos los dispositivos alertados.El ciclo termina con el último dispositivo alertado.Para repetir el ciclo, envíe este mensaje entrante nuevamente.
 
-<br/>
-
-**Alerta de dispositivo personalizado** <br/>
+**Alerta de dispositivo personalizado** 
 
 Para actualizar el valor verdadero/falso de un dispositivo personalizado, puede enviar este mensaje entrante```javascript
 
@@ -122,12 +121,8 @@ msg = {
     "payload":true // Or false to reset the alert for this device
 }
 
-```<br/>
+```
 
 ## MUESTRA
 
 <a href = "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/samplealerter"> Haga clic aquí para ver el ejemplo </a>
-
-<br/>
-<br/>
-<br/>

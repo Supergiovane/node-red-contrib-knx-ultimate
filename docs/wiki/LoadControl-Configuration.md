@@ -11,11 +11,13 @@ Samples: [Logger](https://supergiovane.github.io/node-red-contrib-knx-ultimate/w
 
 # KNX LOAD CONTROL NODE
 
-<p>With the Load Control node you can automatically manage the disconnection of loads (washing machine, oven, etc.) when the current consumption exceeds a certain threshold.  
+With the Load Control node you can automatically manage the disconnection of loads (washing machine, oven, etc.) when the current consumption exceeds a certain threshold.  
 
-The devices are turned off intelligently, checking the possible consumption of the device to determine whether to turn it off together with others. <br/>
-The node can automatically reactivate the loads. <br/>
-The node turns off one device (or multiple devices) at a time, based on the order you have selected.<br/>
+The devices are turned off intelligently, checking the possible consumption of the device to determine whether to turn it off together with others. 
+
+The node can automatically reactivate the loads. 
+
+The node turns off one device (or multiple devices) at a time, based on the order you have selected.
 
 **General**
 
@@ -27,13 +29,14 @@ The node turns off one device (or multiple devices) at a time, based on the orde
 | Delay switch off (s) | Expressed in seconds, indicates how often the node will evaluate consumption and switch off each device. |
 | Delay switch on (s) | Expressed in seconds, indicates how often the node will evaluate consumption and turn on each device that was turned off. |
 
-<br/>
-
 **LOAD CONTROL**
 
-Here you can add devices to turn off in case of overload. <br/>
-Choose the device to turn off. Enter the device name or its group address. <br/>
-Enter any group address that indicates the consumption of the device chosen in the first line. **This is an optional parameter** . If the device is consuming more than a certain number of Watts, it means that it is in use. If it consumes less, the device will be considered "not in use" and both this and the next will be turned off at once.<br/>
+Here you can add devices to turn off in case of overload. 
+
+Choose the device to turn off. Enter the device name or its group address. 
+
+Enter any group address that indicates the consumption of the device chosen in the first line. **This is an optional parameter** . If the device is consuming more than a certain number of Watts, it means that it is in use. If it consumes less, the device will be considered "not in use" and both this and the next will be turned off at once.
+
 If _Automatic recovery_ is enabled, the device is automatically reactivated when the "reset delay" expires.
 
 ## Inputs
@@ -70,5 +73,3 @@ msg = {
 # Sample
 
 <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleLoadControl">CLICK HERE FOR THE EXAMPLE</a>
-
-<br/>

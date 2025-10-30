@@ -11,7 +11,7 @@ Samples: [Logger](https://supergiovane.github.io/node-red-contrib-knx-ultimate/w
 
 ## KNX-ULTIMATE DEVICE NODE SETTINGS
 
-<p>This node lets you control a KNX Group Address, this is the most used node.  
+This node lets you control a KNX Group Address, this is the most used node.  
 
 [<i class="fa fa-code"></i> Here you'll find some samples](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-SamplesHome)
 
@@ -23,9 +23,6 @@ Samples: [Logger](https://supergiovane.github.io/node-red-contrib-knx-ultimate/w
 | GA Type dropdown list | The group address type. **3-Levels ** is the default, where you can type the _3 level group address_ or the _group address name_ (if you've upload the ETS file), or**Global ** , for reading the GA at startup from a global variable, or**Flow ** that do the same as the _Global_, but at flow level. Select**$Env variable ** to read the group address from an environment variable. Select**Universal mode (listen to all Group Addresses)** to react to ALL group addresses.|
 | Group Addr. | The KNX Group Address you want to control. If you've imported the ETS group addresses file, you can just start typing in your device name. You can leave it empty if you wish set it with _msg.setConfig_ input message. |
 | Datapoint | The datapoint belonging to your node.|
-
-<br/>
-<br/>
 
 ### Manual command button
 
@@ -39,9 +36,6 @@ The editor can expose a per-node button that manually issues a KNX command witho
 | Custom value | The payload used by the custom value mode. You can enter any JSON literal: for example `42`, `true`, `"text"` or `{ "red": 255, "green": 0 }`. |
 
 The button is only displayed when the option is enabled. If the node works in universal mode the read action is disabled because the target group address would be unknown.
-
-<br/>
-<br/>
 
 ## TAB Advanced options
 
@@ -64,9 +58,6 @@ The button is only displayed when the option is enabled. If the node works in un
 | Decimals | Round or handle decimals in any way. Works only if the value is a number. |
 | Negatives | Handles the negative values. Works only if the value is a number. |
 
-<br/>
-<br/>
-
 ## TAB KNX Function
 
 You can use Javascript to modify the behaviour of the input msg coming from the flow and the output telegram sent to the KNX bus.\
@@ -76,9 +67,8 @@ If enabled, "f(x)" indication will be added to node's name.
 
 |Property|Description|
 |--|--|
-| Search GA | It's a helper only avaiable if the ETS file has been imported. Start typing and select the group address you wish to add to the code. Then copy the full field and paste it into the getGAValue function. <br/> **getGAValue('0/0/1 table nord lamp')** |
-
-<br/>
+| Search GA | It's a helper only avaiable if the ETS file has been imported. Start typing and select the group address you wish to add to the code. Then copy the full field and paste it into the getGAValue function. 
+ **getGAValue('0/0/1 table nord lamp')** |
 
 ### List of common object and functions you can use in the code
 
@@ -143,22 +133,23 @@ if (msg.payload === false && getGAValue('0/0/11','1.001') === false){
 }
 ```
 
-<br/>
-<br/>
-
 ## TAB Payload sample
 
 |Property|Description|
 |--|--|
 | Sample | This will give it a hint on what to write in an external function node, if you want to control the node via a Node-Red function node. |
 
-<br/>
-<br/>
-<br/>
-
 ### Inputs
 
-<br/> **destination (string) ** : the destination group address, for example 1/1/0. Only 3-level is allowed. <br/>**payload (any) ** : the payload to be sent. Can be for example true or false, or an object. <br/>**event (string) ** : can be _GroupValue\_Write_ to write the telegram to the KNX BUS, _GroupValue\_Response_ to send a response telegram to the KNX BUS, _Update\_NoWrite_. _Update\_NoWrite_ sends nothings to the KNX BUS, just updates the internal value of the KNX-Ultimate node. This is useful if you wanna only store the value into the node and read it later with a read request. <br/>**readstatus (boolean) ** : issue a read request to the KNX bus. Pass _true_ everytime (msg.readstatus = true). <br/>**dpt (string) ** : For example "1.001". Sets the Datapoint. <br/>**writeraw (buffer) ** : is used to send a value to the KNX bus, as buffer. Use in conjunction with _bitlenght_. <br/>**bitlenght (int) ** : specifies the lenght of the _writeraw_ buffer. Use in conjunction with _writeraw_. <br/>**resetRBE (boolean) ** : resets the internal RBE filters (_use msg.resetRBE = true_). <br/>**setConfig (json)** : programmatically change the KNX-Ultimate Device node Group Address and Datapoint. See details.
+ **destination (string) ** : the destination group address, for example 1/1/0. Only 3-level is allowed. 
+**payload (any) ** : the payload to be sent. Can be for example true or false, or an object. 
+**event (string) ** : can be _GroupValue\_Write_ to write the telegram to the KNX BUS, _GroupValue\_Response_ to send a response telegram to the KNX BUS, _Update\_NoWrite_. _Update\_NoWrite_ sends nothings to the KNX BUS, just updates the internal value of the KNX-Ultimate node. This is useful if you wanna only store the value into the node and read it later with a read request. 
+**readstatus (boolean) ** : issue a read request to the KNX bus. Pass _true_ everytime (msg.readstatus = true). 
+**dpt (string) ** : For example "1.001". Sets the Datapoint. 
+**writeraw (buffer) ** : is used to send a value to the KNX bus, as buffer. Use in conjunction with _bitlenght_. 
+**bitlenght (int) ** : specifies the lenght of the _writeraw_ buffer. Use in conjunction with _writeraw_. 
+**resetRBE (boolean) ** : resets the internal RBE filters (_use msg.resetRBE = true_). 
+**setConfig (json)** : programmatically change the KNX-Ultimate Device node Group Address and Datapoint. See details.
 
 ### Details
 
@@ -237,20 +228,11 @@ msg = {
 }
 ```
 
-<br/>
-
-<br/>
-<br/>
-
 **Payload sample**
 
 |Property|Description|
 |--|--|
 | Sample | This will give it a hint on what to write in an external function node, if you want to control the node via a Node-Red function node. |
-
-<br/>
-<br/>
-<br/>
 
 ### Inputs
 
@@ -340,14 +322,13 @@ msg = {
 }
 ```
 
-<br/>
-<br/>
-
 ## MESSAGE OUTPUT FROM THE NODE SET AS "Universal mode (listen to all Group Addresses)"
 
-Here you have 2 options: import ETS cvs file or not. <br/>
-Importing your ETS file is the <b>aboslute suggested method</b>. If you import your ETS file, the node will do the datapoint decoding automatically and gives you the device name as well.<br/>
-If you do not import the ETS, the node will output the RAW telegram and it tries to decode it as well.<br/>
+Here you have 2 options: import ETS cvs file or not. 
+
+Importing your ETS file is the <b>aboslute suggested method</b>. If you import your ETS file, the node will do the datapoint decoding automatically and gives you the device name as well.
+
+If you do not import the ETS, the node will output the RAW telegram and it tries to decode it as well.
 
 ```javascript
 
@@ -368,8 +349,6 @@ msg = {
     }}
  
 ```
-
-<br/>
 
 ## OUTPUT MESSAGE IN VIRTUAL DEVICE
 
@@ -394,21 +373,30 @@ Here you'll find a sample of [Virtual Device](https://supergiovane.github.io/nod
 
 ## CONTROLLING KNX DEVICES
 
-The node accepts msg from the flow to be sent out to KNX bus and send out msg to the flow as soon KNX message arrive from the bus.<br/>
-Supposing you provided a Group Address and a Datapoint to the node, either manually or with auto populating fields by selecting your device from the device's list after you've importet the ETS file.<br/>
-You can also override one or more parameters set in the KNX-Ultimate config window.<br/>
-All properties below are optional, except for the payload.<br/>
+The node accepts msg from the flow to be sent out to KNX bus and send out msg to the flow as soon KNX message arrive from the bus.
 
-**msg.destination** <br/>
+Supposing you provided a Group Address and a Datapoint to the node, either manually or with auto populating fields by selecting your device from the device's list after you've importet the ETS file.
+
+You can also override one or more parameters set in the KNX-Ultimate config window.
+
+All properties below are optional, except for the payload.
+
+**msg.destination** 
+
 For example, "0/0/1". Set the 3-level Group Address you wanna update.
 
-**msg.payload** <br/>
+**msg.payload** 
+
 For example, true/false/21/"Hello". Set the payload you want to send to the KNX BUS.
 
-**msg.event** <br/>
-"GroupValue\_Write": writes the telegram to the KNX BUS.<br/>
-"GroupValue\_Response": sends a response telegram to the KNX BUS.<br/>
-"Update\_NoWrite": sends nothings to the KNX BUS, just updates the internal value of the KNX-Ultimate node. This is useful if you wanna only store the value into the node and read it later with a read request.<br/>
+**msg.event** 
+
+"GroupValue\_Write": writes the telegram to the KNX BUS.
+
+"GroupValue\_Response": sends a response telegram to the KNX BUS.
+
+"Update\_NoWrite": sends nothings to the KNX BUS, just updates the internal value of the KNX-Ultimate node. This is useful if you wanna only store the value into the node and read it later with a read request.
+
 CAUTION: in case of _msg.event = "Update\_NoWrite"_ all nodes with the same group address will emit to the flow a msg like this:
 
 ```javascript
@@ -424,35 +412,35 @@ CAUTION: in case of _msg.event = "Update\_NoWrite"_ all nodes with the same grou
 
 ```
 
-If you wish to issua a "read" command, please use "readstatus" instead (see below).<br/>
+If you wish to issua a "read" command, please use "readstatus" instead (see below).
 
-**msg.readstatus = true** <br/>
+**msg.readstatus = true** 
+
 Issue a "Read" command to the BUS.
 
-**msg.dpt** <br/>
+**msg.dpt** 
+
 For example "1.001". Sets the <b>Datapoint</b>. (You can write it in these formats: 9 , "9" , "9.001" or "DPT9.001")
 
-**msg.writeraw ** <br/>**msg.bitlenght** <br/>
-Writes RAW data to the KNX BUS. Please see below an example.<br/>
+**msg.writeraw ** 
+**msg.bitlenght** 
 
-**msg.resetRBE** <br/> pass msg.resetRBE = true to a device node, to reset both input and output RBE filter on that particular node.<br/>
+Writes RAW data to the KNX BUS. Please see below an example.
 
-<br/>
+**msg.resetRBE** 
+ pass msg.resetRBE = true to a device node, to reset both input and output RBE filter on that particular node.
 
 ## PROGRAMMATICALLY CHANGE THE NODE CONFIGURATION VIA MSG
 
-It's possible to programmatically change the KNX-Ultimate node configuration, by sending msg.setConfig object to the node.<br/>
-[Please see here the sample page.](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample-setConfig)
+It's possible to programmatically change the KNX-Ultimate node configuration, by sending msg.setConfig object to the node.
 
-<br/>
-<br/>
-<br/>
+[Please see here the sample page.](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample-setConfig)
 
 # QUICK HOW TO
 
 You can more samples [here](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-SamplesHome)
 
-**TURN ON A LAMP** <br/>
+**TURN ON A LAMP** 
 
 ```javascript
 
@@ -462,7 +450,7 @@ return msg;
 
 ```
 
-**ABSOLUTE DIM A LAMP** <br/>
+**ABSOLUTE DIM A LAMP** 
 
 ```javascript
 
@@ -472,7 +460,7 @@ return msg;
 
 ```
 
-**SEND TEXT TO A DISPLAY** <br/>
+**SEND TEXT TO A DISPLAY** 
 
 ```javascript
 
@@ -482,7 +470,7 @@ return msg;
 
 ```
 
-**READ THE STATUS OF THE WASHING MACHINE** <br/>
+**READ THE STATUS OF THE WASHING MACHINE** 
 
 ```javascript
 
@@ -494,10 +482,12 @@ return msg;
 
 ```
 
-**SEND RAW VALUE TO THE BUS** <br/>
+**SEND RAW VALUE TO THE BUS** 
 
-To send a RAW buffer value to the KNX bus, use the _ **writeraw ** _ and _**bitlenght** _ properties of the msg input.<br/>
-In this case, the _Datapoint_ you set in the property window will be ignored.<br/>
+To send a RAW buffer value to the KNX bus, use the _ **writeraw ** _ and _**bitlenght** _ properties of the msg input.
+
+In this case, the _Datapoint_ you set in the property window will be ignored.
+
 Slap a function node in front of knx-ultimate and paste his code:
 
 ```javascript
@@ -517,7 +507,7 @@ return msg;
 
 ```
 
-**UPDATE THE NODE VALUE WITHOUT SENDING IT TO THE BUS** <br/>
+**UPDATE THE NODE VALUE WITHOUT SENDING IT TO THE BUS** 
 
 ```javascript
 
@@ -529,11 +519,13 @@ return msg;
 
 ## CONTROLLING KNX DEVICES WITH THE NODE SET TO "Universal mode (listen to all Group Addresses)"
 
-Here you have 2 options: import ETS cvs file or not. <br/>
-Importing your ETS file is the <b>aboslute suggested method</b>. If you import your ETS file, you only need to set the payload to be transmitted. The node will do the datapoint encoding automatically.<br/>
-If you do not import the ETS csv, you need to pass the datapoint type to the node as well.<br/>
+Here you have 2 options: import ETS cvs file or not. 
 
-**TURN OFF A LAMP <u>WITH</u> ETS FILE IMPORTED** <br/>
+Importing your ETS file is the <b>aboslute suggested method</b>. If you import your ETS file, you only need to set the payload to be transmitted. The node will do the datapoint encoding automatically.
+
+If you do not import the ETS csv, you need to pass the datapoint type to the node as well.
+
+**TURN OFF A LAMP <u>WITH</u> ETS FILE IMPORTED** 
 
 ```javascript
 
@@ -545,7 +537,7 @@ return msg;
 
 ```
 
-**TURN OFF A LAMP <u>WITHOUT</u> ETS FILE IMPORTED** <br/>
+**TURN OFF A LAMP <u>WITHOUT</u> ETS FILE IMPORTED** 
 
 ```javascript
 
@@ -558,7 +550,8 @@ return msg;
 
 ```
 
-**READ THE STATUS OF ALL KNX DEVICES <u>WITH</u> ETS FILE IMPORTED** <br/>
+**READ THE STATUS OF ALL KNX DEVICES <u>WITH</u> ETS FILE IMPORTED** 
+
 You cannot issue a read request to all groups if you doesn't import your ETS file, because the node cannot know to wich devices to send the read request.
 
 ```javascript
@@ -578,9 +571,6 @@ return msg;
 - _SAMPLES_
   - [Samples](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-SamplesHome)
 
-<br/>
-<br/>
-<p>
     <table style="font-size:12px">
         <tr>
         <th colspan="2" style="font-size:14px">Node status colors explanation</th>
@@ -618,4 +608,3 @@ return msg;
             <td>Node DISABLED due to a circulare reference. <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Protections" target="_blank">See this page.</a></td>
         </tr>
     </table>
-</p>

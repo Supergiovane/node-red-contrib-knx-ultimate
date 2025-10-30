@@ -11,7 +11,7 @@ Samples: [Logger](https://supergiovane.github.io/node-red-contrib-knx-ultimate/w
 
 # Configuración de la puerta de enlace KNX
 
-<p> Este nodo se conecta a su puerta de enlace KNX/IP. </p>
+ Este nodo se conecta a su puerta de enlace KNX/IP. 
 
 **General**
 
@@ -20,7 +20,7 @@ Samples: [Logger](https://supergiovane.github.io/node-red-contrib-knx-ultimate/w
 | Nombre | Nombre del nodo. |
 | Ip/hostname | Dirección de multidifusión de enrutador ETH/KNX o dirección IP de unidifusión de interfaz. Si tiene una interfaz KNX/IP, use la dirección IP de la interfaz, por ejemplo, 1982.168.1.22, de lo contrario, si tiene un enrutador KNX/IP, coloque la dirección de multicast 224.0.23.12. También puede escribir un nombre de host **** en lugar de una IP. |
 
-<br/> **Configuración** | Propiedad | Descripción |
+ **Configuración** | Propiedad | Descripción |
 
 |-|-|
 | Puerto IP | El puerto. El valor predeterminado es 3671. |
@@ -37,7 +37,7 @@ Samples: [Logger](https://supergiovane.github.io/node-red-contrib-knx-ultimate/w
 > • _knx data secure_ protege los telegramas de la dirección del grupo y ** siempre** necesita un archivo de llavero que contenga las claves de grupo. \
 > • _knx Tunneling IP Secure_ protege el apretón de manos de la conexión con una contraseña de puesta en marcha. Dependiendo del modo seleccionado, la contraseña puede provenir del llavero o ingresarse manualmente.
 
-<br/> **Avanzado** | Propiedad | Descripción |
+ **Avanzado** | Propiedad | Descripción |
 
 |-|-|
 | Echo enviado mensaje a todos los nodos con la misma dirección de grupo | Envíe la entrada MSG que viene del flujo a todos los nodos que tienen la misma dirección de grupo. Los nodos recibirán el nuevo MSG como si viniera del autobús KNX. Esto es útil en el caso de usar la emulación KNX y en caso de que no se establezca la conexión con el bus KNX. ** Esta opción estará en desuso en la próxima versión y se predeterminó en verificación.** Se verifica el valor predeterminado. |
@@ -47,71 +47,85 @@ Samples: [Logger](https://supergiovane.github.io/node-red-contrib-knx-ultimate/w
 | Loglevel | Nivel de registro, en caso de que necesite depurar algo con el desarrollo. El valor predeterminado es "error", |
 | Temporización de actualizaciones de estado | Define cada cuánto se actualiza la insignia de estado de los nodos. Con un retardo activo se descartan los estados intermedios y solo se muestra el último después del intervalo elegido. Seleccione **Inmediato** para mantener el comportamiento en tiempo real. |
 
-<br/> ** Importación de archivos ETS** | Propiedad | Descripción |
+ ** Importación de archivos ETS** | Propiedad | Descripción |
 
 |-|-|
 | Si la dirección del grupo no tiene punto de datos | Si una dirección de grupo no tiene un punto de datos, permite elegir si detiene la importación, importar un punto de datos falso de 1.001 o omitir la importación de esa dirección de grupo |
 | Lista de direcciones de grupo ETS | Use esta sección para importar su archivo CSV o ESF ETS. Puede ** Pegar el contenido del archivo CSV o ESF ** o**Establecer la ruta del archivo** , por ejemplo _./pi/homecsv.csv_. Consulte los enlaces de ayuda para obtener más infos. |
 
-<br/> **Utilidad** | Propiedad | Descripción |
+ **Utilidad** | Propiedad | Descripción |
 
 |-|-|
 | Recopilar información de depuración para la solución de problemas | Haga clic en el botón y agréguelo al problema de GitHub que desea abrir, me ayudará mucho a ayudarlo. |
 | Obtenga todos los usados ​​GA para el filtro de enrutamiento KNX | Presione Leer para recuperar una lista de texto sin formato de todas las direcciones grupales que pertenecen a esta puerta de enlace, que se ha utilizado en los flujos. Puede usar esta lista para completar su tabla de filtro de enrutador KNX/IP. |
 
-<br/>
-
 # Trabajar con el archivo CSV o ESF ETS
 
 <img src = 'https://raw.githubusercontent.com/supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/etslogo.png'>>
 
-En lugar de crear un nodo ultimatizado KNX para que cada dirección de grupo controle, puede importar su archivo de direcciones de grupo CSV ETS o, a partir de V 1.1.35, también un archivo ESF (si, por ejemplo, solo tiene ETS en el interior). Versiones ETS compatibles: ETS 4 y en adelante. <br/>
+En lugar de crear un nodo ultimatizado KNX para que cada dirección de grupo controle, puede importar su archivo de direcciones de grupo CSV ETS o, a partir de V 1.1.35, también un archivo ESF (si, por ejemplo, solo tiene ETS en el interior). Versiones ETS compatibles: ETS 4 y en adelante. 
 
-A partir de la versión 1.4.18, también puede simplemente ingresar la ruta al archivo en este campo (por ejemplo: /home/pi/mycsv.csv). <br/>
+A partir de la versión 1.4.18, también puede simplemente ingresar la ruta al archivo en este campo (por ejemplo: /home/pi/mycsv.csv). 
 
 Gracias a eso, el nodo ultimatizado KNX donde seleccionó ** Modo universal (escuche todas las direcciones de grupo)** , se convierte en un nodo universal de entrada/salida, consciente de todos los puntos de datos, direcciones de grupo y nombre del dispositivo (ex: lámpara de sala de estar). Simplemente envíe la carga útil al nodo ultimate KNX, y la codificará con el punto de datos correcto y la enviará al bus. Del mismo modo, cuando el nodo ultimate KNX recibe un telegrama del bus, genera una carga útil decodificada derecha utilizando el punto de datos especificado en el archivo CSV o ESF ETS.
 
-A partir de ** versión 1.1.11 ** , puede usar**Modo universal (escuche todas las direcciones de grupo) ** Opción sin la necesidad de un archivo CSV o ESF importado. Debe pasar un mensaje al nodo, que contiene el tipo de punto de datos y un valor. Tan pronto como el nodo reciba un telegrama del bus KNX, generará un valor bruto y, además de eso, intentará decodificar el valor sin conocer el tipo de punto de datos. <Br />**Nota** : _ETS La dirección del grupo CSV exportó archivo_ es la mejor opción, ya que contiene un punto de datos preciso con subtipo. _Ets ESF exportado File_ es más simple y no tiene el subtipo. <Br />
+A partir de ** versión 1.1.11 ** , puede usar**Modo universal (escuche todas las direcciones de grupo) ** Opción sin la necesidad de un archivo CSV o ESF importado. Debe pasar un mensaje al nodo, que contiene el tipo de punto de datos y un valor. Tan pronto como el nodo reciba un telegrama del bus KNX, generará un valor bruto y, además de eso, intentará decodificar el valor sin conocer el tipo de punto de datos. 
+**Nota** : _ETS La dirección del grupo CSV exportó archivo_ es la mejor opción, ya que contiene un punto de datos preciso con subtipo. _Ets ESF exportado File_ es más simple y no tiene el subtipo. 
 
-Si puede usar ambos, prefiera el archivo exportado de la dirección del grupo CSV ** ETS ** , porque el ESF puede conducir a valores de salida falsos. Verifique manualmente y eventualmente ajuste los puntos de datos cada vez que importe el archivo**ESF** . <Br /> Desde la versión 1.4.1 Puede importar direcciones de grupo también en tiempo de ejecución, a través de MSG, utilizando el nodo WatchDog. <Br />
+Si puede usar ambos, prefiera el archivo exportado de la dirección del grupo CSV ** ETS ** , porque el ESF puede conducir a valores de salida falsos. Verifique manualmente y eventualmente ajuste los puntos de datos cada vez que importe el archivo**ESF** . 
+ Desde la versión 1.4.1 Puede importar direcciones de grupo también en tiempo de ejecución, a través de MSG, utilizando el nodo WatchDog. 
 
 > Puede trabajar con una mezcla de nodos ultimados KNX, algunos con ** Modo universal (escuche todas las direcciones de grupo)** verificados y otros no. ¡Eres absolutamente gratis!
 
 <a href = "https://youtu.be/egrbr_kwp9i"> <img src = 'https://raw.githubusercontent.com/supergiovane/node-red-contrib-knx-ultimate/master/img/yt.png'> </a>
 
-- ** ETS CSV Group Directes List Import ** _**Atención: no debe haber caracteres de tabulación en el nombre de la dirección de grupo ** _**Si la dirección del grupo no tiene punto de datos ** > Si una dirección de grupo no tiene un punto de datos establecido en el ETS, puede seleccionar detener y abortar todo el proceso de importación, omitir la dirección de grupo afectada o agregar la dirección de grupo afectada con un punto de datos falso y continuar la importación. <br/>**Cómo exportar el ETS -> CSV < - Lista de direcciones del grupo** > En ETS, haga clic en la lista de direcciones de grupo, luego haga clic derecho, luego seleccione 'Exportar direcciones de grupo'. En la ventana Exportar, seleccione estas opciones: <Br />
->
-> ** Formato de salida** : CSV <Br />
->
-> ** Formato CSV** : 1/1 Nombre/dirección <Br/>
->
-> ** Exportar con línea de encabezado** : marcado <Br />
->
-> ** Separador CSV** : Tabulator. <Br />
->
-> Luego pegue el contenido del archivo aquí. <Br />
->
-> Tenga en cuenta que el archivo CSV ETS debe contener los puntos de datos para cada dirección de grupo. <Br />
->
-> El nodo analiza su archivo CSV ETS antes de usarlo y le informará los resultados en la pestaña de depuración de la página de nodo-rojo. <Br />
->
-> El resultado puede ser de dos tipos: ** Error ** y**ADVERTENCIA** <Br />
->
-> ** Error** ocurre cuando no se especifica un punto de datos para una dirección de grupo. Este es un error crítico y detiene el proceso de importación del archivo CSV ETS. <Br />
->
-> ** Advertencia** ocurre cuando no se especifica el subtipo de un punto de datos. En este caso, el analizador de nodos agregará uno predeterminado, pero le advierte que se mueva y corrija el punto de datos, agregando un subtipo. Un subtipo es el número que permanece a la derecha del "." En un punto de datos (ex: 5.001). <Br />
->
-> Nota: Los campos deben estar rodeados de ** "** Por ejemplo: <Br />
+- ** ETS CSV Group Directes List Import ** _**Atención: no debe haber caracteres de tabulación en el nombre de la dirección de grupo ** _**Si la dirección del grupo no tiene punto de datos ** > Si una dirección de grupo no tiene un punto de datos establecido en el ETS, puede seleccionar detener y abortar todo el proceso de importación, omitir la dirección de grupo afectada o agregar la dirección de grupo afectada con un punto de datos falso y continuar la importación. 
+**Cómo exportar el ETS -> CSV < - Lista de direcciones del grupo** > En ETS, haga clic en la lista de direcciones de grupo, luego haga clic derecho, luego seleccione 'Exportar direcciones de grupo'. En la ventana Exportar, seleccione estas opciones: 
 
->> "Actuadores de luz" "0/-/-" "" "" "" "" "auto" <br/>** Cómo exportar la lista de direcciones de grupos ETS -> ESF < -
-
-> En la ventana ETS, seleccione su proyecto, luego haga clic en el icono de exportación (el icono con la flecha hacia arriba) <Br />
 >
-> Seleccione para exportar el proyecto en formato ESF (no el predeterminado .knxProd) <Br />
+> ** Formato de salida** : CSV 
+
+>
+> ** Formato CSV** : 1/1 Nombre/dirección 
+
+>
+> ** Exportar con línea de encabezado** : marcado 
+
+>
+> ** Separador CSV** : Tabulator. 
+
+>
+> Luego pegue el contenido del archivo aquí. 
+
+>
+> Tenga en cuenta que el archivo CSV ETS debe contener los puntos de datos para cada dirección de grupo. 
+
+>
+> El nodo analiza su archivo CSV ETS antes de usarlo y le informará los resultados en la pestaña de depuración de la página de nodo-rojo. 
+
+>
+> El resultado puede ser de dos tipos: ** Error ** y**ADVERTENCIA** 
+
+>
+> ** Error** ocurre cuando no se especifica un punto de datos para una dirección de grupo. Este es un error crítico y detiene el proceso de importación del archivo CSV ETS. 
+
+>
+> ** Advertencia** ocurre cuando no se especifica el subtipo de un punto de datos. En este caso, el analizador de nodos agregará uno predeterminado, pero le advierte que se mueva y corrija el punto de datos, agregando un subtipo. Un subtipo es el número que permanece a la derecha del "." En un punto de datos (ex: 5.001). 
+
+>
+> Nota: Los campos deben estar rodeados de ** "** Por ejemplo: 
+
+>> "Actuadores de luz" "0/-/-" "" "" "" "" "auto" 
+** Cómo exportar la lista de direcciones de grupos ETS -> ESF < -
+
+> En la ventana ETS, seleccione su proyecto, luego haga clic en el icono de exportación (el icono con la flecha hacia arriba) 
+
+>
+> Seleccione para exportar el proyecto en formato ESF (no el predeterminado .knxProd) 
+
 >
 > Luego copie el contenido del archivo y péguelo en el campo Configuración de la configuración de la puerta de enlace "Lista de direcciones de grupo ETS".
 
-<p>
     <table style = "font-size: 12px">
         <tr>
         <th colspan = "2" style = "font-size: 14px"> Coloros de estado del nodo Explicación </th>
@@ -149,4 +163,3 @@ Si puede usar ambos, prefiera el archivo exportado de la dirección del grupo CS
             <td> Nodo discapacitado debido a una referencia circulare. <a href = "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki" target = "_ en blanco"> ver esta página. </a> </td>
         </tr>
     </table>
-</p>

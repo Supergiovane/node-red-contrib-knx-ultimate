@@ -12,9 +12,11 @@ Beispiele: [Logger](https://supergiovane.github.io/node-red-contrib-knx-ultimate
 # Alerter - Node-Konfiguration
 
 Mit dem Node "Alerter" kannst du auf einem Display oder über den Node node-red-contrib-tts-ultimate (Sprachausgabe) melden, welche ausgewählten Geräte einen Alarmzustand haben, also `payload` **true** liefern.
-Der Node gibt in einstellbaren Intervallen jeweils eine Nachricht aus, die die Details des aktuell gemeldeten Geräts enthält. So kannst du dir z. B. sagen lassen, wie viele und welche Fenster offen sind.<br/>
-Der Node liest die Werte der Geräte direkt vom KNX‑BUS. Zusätzlich kannst du eigene (nicht an KNX‑Geräte gebundene) Meldungen an den Node schicken.<br/>
-Auf der Beispielseite ist die Nutzung im Flow gezeigt.<br/>
+Der Node gibt in einstellbaren Intervallen jeweils eine Nachricht aus, die die Details des aktuell gemeldeten Geräts enthält. So kannst du dir z. B. sagen lassen, wie viele und welche Fenster offen sind.
+
+Der Node liest die Werte der Geräte direkt vom KNX‑BUS. Zusätzlich kannst du eigene (nicht an KNX‑Geräte gebundene) Meldungen an den Node schicken.
+
+Auf der Beispielseite ist die Nutzung im Flow gezeigt.
 
 - **Gateway**
 
@@ -34,8 +36,9 @@ Auf der Beispielseite ist die Nutzung im Flow gezeigt.<br/>
 
 ## Zu überwachende Geräte
 
-Hier fügst du die zu überwachenden Geräte hinzu.<br/>
-Gib die Gruppenadresse oder eine Bezeichnung für das Gerät ein.<br/>
+Hier fügst du die zu überwachenden Geräte hinzu.
+
+Gib die Gruppenadresse oder eine Bezeichnung für das Gerät ein.
 
 - **Wert jedes Geräts bei Verbindungsaufbau/-wiederherstellung lesen**
 
@@ -51,14 +54,13 @@ Gib die Gruppenadresse oder eine Bezeichnung für das Gerät ein.<br/>
 
 > Entfernt das Gerät aus der Liste.
 
-<br/>
-<br/>
-
 ## Ausgaben des Nodes
 
-PIN1: eine Nachricht pro gemeldetem Gerät, im gewählten Intervall.<br/>
-PIN2: eine Sammelmeldung mit allen aktuell gemeldeten Geräten.<br/>
-PIN3: eine Nachricht nur für das zuletzt gemeldete Gerät.<br/>
+PIN1: eine Nachricht pro gemeldetem Gerät, im gewählten Intervall.
+
+PIN2: eine Sammelmeldung mit allen aktuell gemeldeten Geräten.
+
+PIN3: eine Nachricht nur für das zuletzt gemeldete Gerät.
 
 **PIN1**
 
@@ -110,9 +112,6 @@ msg = {
 }
 ```
 
-<br/>
-<br/>
-
 ## Eingänge des Nodes
 
 ```javascript
@@ -127,9 +126,7 @@ msg.start = true
 
 Startet den Sendezyklus über alle Geräte im Alarmzustand. Der Zyklus endet mit dem letzten Gerät; zum Wiederholen den Eingang erneut senden.
 
-<br/>
-
-**Benutzerdefinierter Gerätealarm** <br/>
+**Benutzerdefinierter Gerätealarm** 
 
 Um den Zustand (true/false) eines eigenen Geräts zu setzen, sende diese Eingangs­nachricht:
 
@@ -140,12 +137,6 @@ msg = {
 }
 ```
 
-<br/>
-
 ## Beispiel
 
 <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleAlerter">HIER KLICKEN FÜR DAS BEISPIEL</a>
-
-<br/>
-<br/>
-<br/>

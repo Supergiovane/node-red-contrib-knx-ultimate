@@ -20,8 +20,6 @@ Questo nodo si connette al tuo KNX/IP Gateway.
 | Nome | Nome del nodo. |
 | IP/Hostname | Indirizzo multicast dell'ETH/KNX Router o indirizzo IP unicast dell'interfaccia. Con una KNX/IP Interface usa l'IP dell'interfaccia (es. 192.168.1.22). Con un KNX/IP Router usa l'indirizzo multicast `224.0.23.12`. Puoi inserire anche un **Hostname** . |
 
-<br/>
-
 **Configurazione**
 
 |Proprietà|Descrizione|
@@ -40,8 +38,6 @@ Questo nodo si connette al tuo KNX/IP Gateway.
 > • _KNX Data Secure_ protegge i telegrammi sugli indirizzi di gruppo e richiede sempre un file keyring con le chiavi di gruppo.\
 > • _KNX IP Tunnelling Secure_ protegge l'handshake della connessione tramite una password di commissioning, che può essere letta dal keyring oppure inserita manualmente in base alla modalità scelta.
 
-<br/>
-
 **Avanzate**
 
 |Proprietà|Descrizione|
@@ -53,8 +49,6 @@ Questo nodo si connette al tuo KNX/IP Gateway.
 | Loglevel | Livello di log per il debug. Default: "Error". |
 | Limitazione aggiornamento stato nodi | Imposta ogni quanto aggiornare il badge di stato dei nodi. Con un ritardo attivo gli stati intermedi vengono ignorati e viene mostrato solo l'ultimo dopo l'intervallo scelto. Seleziona **Immediato** per mantenere l'aggiornamento in tempo reale. |
 
-<br/>
-
 **Import file ETS**
 
 |Proprietà|Descrizione|
@@ -62,16 +56,12 @@ Questo nodo si connette al tuo KNX/IP Gateway.
 | If Group Address has no Datapoint | Se un GA non ha datapoint: interrompi import, salta il GA o aggiungi un datapoint fittizio `1.001` e continua. |
 | ETS group address list | Incolla qui il contenuto del file ETS (CSV o ESF) oppure indica un percorso file (es. `/home/pi/mycsv.csv`). Consulta i link di help per i dettagli. |
 
-<br/>
-
 **Utility**
 
 |Proprietà|Descrizione|
 |--|--|
 | Gather debug info for troubleshoot | Clicca il pulsante e allega l'output alla issue su GitHub: aiuta molto l'analisi. |
 | Get all used GA for KNX routing filter | Clicca READ per ottenere l'elenco di tutti i GA usati nei flow associati a questo gateway, utile per popolare la tabella filtri del tuo KNX/IP Router. |
-
-<br/>
 
 # Lavorare con i file ETS CSV o ESF
 
@@ -89,12 +79,18 @@ Video: <a href="https://youtu.be/egRbR_KwP9I"><img src='https://raw.githubuserco
 
 - **Import ETS CSV Group Addresses ** ATTENZIONE: nel nome del GA non devono esserci caratteri di tabulazione.**If Group Address has no Datapoint ** > Se in ETS un GA non ha DPT, puoi: interrompere l'import, saltare il GA, oppure aggiungere il GA con DPT fittizio e continuare.**Come esportare l'elenco GA in formato CSV da ETS**
 
-> In ETS seleziona l'elenco GA, click destro → Esporta indirizzi di gruppo. Nella finestra di export imposta:<br/>
-> Output Format: CSV<br/>
-> CSV Format: 1/1 Name/Address<br/>
-> Export with header line: spuntato<br/>
-> CSV Separator: Tabulator<br/>
-> Poi incolla qui il contenuto del file.<br/>
+> In ETS seleziona l'elenco GA, click destro → Esporta indirizzi di gruppo. Nella finestra di export imposta:
+
+> Output Format: CSV
+
+> CSV Format: 1/1 Name/Address
+
+> Export with header line: spuntato
+
+> CSV Separator: Tabulator
+
+> Poi incolla qui il contenuto del file.
+
 > Il file deve contenere i Datapoint per ogni GA. Il nodo analizza il file e mostra risultati nel DEBUG di Node‑RED.
 
 > Esiti possibili: **ERROR ** (manca DPT → import interrotto) e**WARNING** (manca sottotipo → aggiunto default, ma va verificato). Il sottotipo è il numero dopo il punto, es. `5.001`.
@@ -105,7 +101,6 @@ Video: <a href="https://youtu.be/egRbR_KwP9I"><img src='https://raw.githubuserco
 
 > In ETS seleziona il progetto, icona export (freccia in su), scegli formato ESF (non `.knxprod`). Copia e incolla nel campo "ETS group address list" del gateway.
 
-<p>
     <table style="font-size:12px">
         <tr><th colspan="2" style="font-size:14px">Significato colori stato nodo</th></tr>
         <tr><td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/greendot.png"></td><td>Reagisci a telegrammi di scrittura</td></tr>
@@ -117,4 +112,3 @@ Video: <a href="https://youtu.be/egRbR_KwP9I"><img src='https://raw.githubuserco
         <tr><td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/reddot.png"></td><td>Errore o disconnesso</td></tr>
         <tr><td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/redring.png"></td><td>Nodo DISABILITATO per riferimento circolare (<a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki" target="_blank">vedi pagina</a>)</td></tr>
     </table>
-</p>

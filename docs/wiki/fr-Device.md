@@ -11,7 +11,7 @@ Samples: [Logger](https://supergiovane.github.io/node-red-contrib-knx-ultimate/w
 
 ## Paramètres de nœud de périphérique KNX-ultimate
 
-<p> Ce nœud vous permet de contrôler une adresse de groupe KNX, c'est le nœud le plus utilisé.
+ Ce nœud vous permet de contrôler une adresse de groupe KNX, c'est le nœud le plus utilisé.
 
 [<i class="fa fa-code"> </i> Ici, vous trouverez quelques échantillons](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-SamplesHome)
 
@@ -23,9 +23,6 @@ Samples: [Logger](https://supergiovane.github.io/node-red-contrib-knx-ultimate/w
 | Liste déroulante de type GA | Le type d'adresse de groupe. **3 niveaux ** est la valeur par défaut, où vous pouvez saisir l'adresse du groupe de niveau _3 ou le nom d'adresse _group (si vous avez téléchargé le fichier ETS), ou**global ** , pour lire le GA au démarrage à partir d'une variable globale, ou**flux ** qui font la même chose que le _Global_, mais au niveau du flux. Sélectionnez**$ Env Variable ** Pour lire l'adresse de groupe à partir d'une variable d'environnement. Sélectionnez**Mode universel (écoutez toutes les adresses de groupe)** pour réagir à toutes les adresses de groupe. |
 | Groupe addr. | L'adresse du groupe KNX que vous souhaitez contrôler. Si vous avez importé le fichier d'adresses du groupe ETS, vous pouvez simplement commencer à saisir le nom de votre appareil. Vous pouvez le laisser vide si vous souhaitez le définir avec le message d'entrée _msg.setConfig_. |
 | DataPoint | Le point de données appartenant à votre nœud. |
-
-<br/>
-<br/>
 
 ### Bouton de commande manuelle
 
@@ -39,9 +36,6 @@ L’éditeur peut afficher, pour chaque nœud, un petit bouton permettant d’en
 | Valeur personnalisée | Payload utilisé par le mode « Écrire une valeur personnalisée ». Vous pouvez saisir n’importe quel littéral JSON, par exemple `42`, `true`, `"texte"` ou `{ "red": 255 }`. |
 
 Le bouton n’est visible que si l’option est activée. En mode universel, l’action de lecture est désactivée car l’adresse de groupe ne serait pas connue.
-
-<br/>
-<br/>
 
 ## OPP OPTIONS AVANCES
 
@@ -64,9 +58,6 @@ Le bouton n’est visible que si l’option est activée. En mode universel, l�
 | Décimales | Des décimales rondes ou manipulées de quelque manière que ce soit. Ne fonctionne que si la valeur est un nombre. |
 | Négatifs | Gère les valeurs négatives. Ne fonctionne que si la valeur est un nombre. |
 
-<br/>
-<br/>
-
 Fonction ## Tab KNX
 
 Vous pouvez utiliser JavaScript pour modifier le comportement du msg d'entrée provenant du flux et du télégramme de sortie envoyé au bus KNX. \
@@ -76,9 +67,8 @@ S'il est activé, l'indication "f (x)" sera ajoutée au nom du nœud.
 
 | Propriété | Description |
 |-|-|
-| Recherche GA | C'est un assistant uniquement si le fichier ETS a été importé. Commencez à taper et sélectionnez l'adresse de groupe que vous souhaitez ajouter au code. Copiez ensuite le champ complet et collez-le dans la fonction GetGavalue. <br/> **getGavalue ('0/0/1 Table Nord Lamp')** |
-
-<br/>
+| Recherche GA | C'est un assistant uniquement si le fichier ETS a été importé. Commencez à taper et sélectionnez l'adresse de groupe que vous souhaitez ajouter au code. Copiez ensuite le champ complet et collez-le dans la fonction GetGavalue. 
+ **getGavalue ('0/0/1 Table Nord Lamp')** |
 
 ### Liste d'objets et de fonctions communes que vous pouvez utiliser dans le code
 
@@ -143,22 +133,23 @@ if (msg.payload === false && getGAValue('0/0/11','1.001') === false){
 }
 ```
 
-<br/>
-<br/>
-
 ## onglet Échantillon de charge utile
 
 | Propriété | Description |
 |-|-|
 | Échantillon | Cela lui donnera un indice sur ce qu'il faut écrire dans un nœud de fonction externe, si vous souhaitez contrôler le nœud via un nœud de fonction Node-Red. |
 
-<br/>
-<br/>
-<br/>
-
 ### entrées
 
-<br/> ** destination (chaîne) ** : l'adresse du groupe de destination, par exemple 1/1/0. Seul le niveau 3 est autorisé. <br/>**charge utile (any) ** : La charge utile à envoyer. Peut être par exemple vrai ou faux, ou un objet. <br/>**Événement (chaîne) ** : Peut être _GroupValue \ _Write_ pour écrire le télégramme dans le bus KNX, _GroupValue \ _Response_ pour envoyer un télégramme de réponse au bus KNX, _update \ _nowrite_. _Update \ _nowrite_ envoie des rien au bus KNX, met à jour la valeur interne du nœud KNX-ultime. Ceci est utile si vous voulez seulement stocker la valeur dans le nœud et le lire plus tard avec une demande de lecture. <br/>**readStatus (boolean) ** : émettez une demande de lecture au bus KNX. Passer _true_ à chaque fois (msg.readstatus = true). <br/>**DPT (String) ** : Par exemple "1.001". Définit le point de données. <br/>**Writeraw (tampon) ** : est utilisé pour envoyer une valeur au bus KNX, en tant que tampon. Utilisez en conjonction avec _Bitlenght_. <br/>**bitlenght (int) ** : Spécifie le long du tampon _writeraw_. Utilisez en conjonction avec _WriteRaw_. <br/>**restrbe (boolean) ** : réinitialise les filtres RBE internes (_USE msg.resetrbe = true_). <br/>**SetConfig (JSON)** : Modifiez par programme l'adresse de groupe de nœuds de périphérique KNX-ultimate et DataPoint. Voir les détails.
+ ** destination (chaîne) ** : l'adresse du groupe de destination, par exemple 1/1/0. Seul le niveau 3 est autorisé. 
+**charge utile (any) ** : La charge utile à envoyer. Peut être par exemple vrai ou faux, ou un objet. 
+**Événement (chaîne) ** : Peut être _GroupValue \ _Write_ pour écrire le télégramme dans le bus KNX, _GroupValue \ _Response_ pour envoyer un télégramme de réponse au bus KNX, _update \ _nowrite_. _Update \ _nowrite_ envoie des rien au bus KNX, met à jour la valeur interne du nœud KNX-ultime. Ceci est utile si vous voulez seulement stocker la valeur dans le nœud et le lire plus tard avec une demande de lecture. 
+**readStatus (boolean) ** : émettez une demande de lecture au bus KNX. Passer _true_ à chaque fois (msg.readstatus = true). 
+**DPT (String) ** : Par exemple "1.001". Définit le point de données. 
+**Writeraw (tampon) ** : est utilisé pour envoyer une valeur au bus KNX, en tant que tampon. Utilisez en conjonction avec _Bitlenght_. 
+**bitlenght (int) ** : Spécifie le long du tampon _writeraw_. Utilisez en conjonction avec _WriteRaw_. 
+**restrbe (boolean) ** : réinitialise les filtres RBE internes (_USE msg.resetrbe = true_). 
+**SetConfig (JSON)** : Modifiez par programme l'adresse de groupe de nœuds de périphérique KNX-ultimate et DataPoint. Voir les détails.
 
 ### Détails
 
@@ -229,17 +220,10 @@ msg = {
 }
 ```
 
-<br/>
-
-<br/>
-<br/> ** Exemple de charge utile** | Propriété | Description |
+ ** Exemple de charge utile** | Propriété | Description |
 
 |-|-|
 | Échantillon | Cela lui donnera un indice sur ce qu'il faut écrire dans un nœud de fonction externe, si vous souhaitez contrôler le nœud via un nœud de fonction Node-Red. |
-
-<br/>
-<br/>
-<br/>
 
 ### entrées
 
@@ -321,14 +305,13 @@ msg = {
 }
 ```
 
-<br/>
-<br/>
-
 ## Sortie du message de l'ensemble de nœuds comme "Mode universel (écoutez toutes les adresses de groupe)"
 
-Ici, vous avez 2 options: Importer le fichier CVS ETS ou non. <br/>
-L'importation de votre fichier ETS est la méthode <b> Aboslute suggérée </b>. Si vous importez votre fichier ETS, le nœud fera automatiquement le décodage de points de données et vous donnera également le nom de l'appareil. <br/>
-Si vous n'importez pas l'ETS, le nœud sortira le télégramme brut et il essaie également de le décoder. <br/>
+Ici, vous avez 2 options: Importer le fichier CVS ETS ou non. 
+
+L'importation de votre fichier ETS est la méthode <b> Aboslute suggérée </b>. Si vous importez votre fichier ETS, le nœud fera automatiquement le décodage de points de données et vous donnera également le nom de l'appareil. 
+
+Si vous n'importez pas l'ETS, le nœud sortira le télégramme brut et il essaie également de le décoder. 
 
 ```javascript
 
@@ -349,8 +332,6 @@ msg = {
     }}
  
 ```
-
-<br/>
 
 ## Message de sortie dans l'appareil virtuel
 
@@ -375,15 +356,25 @@ Ici, vous trouverez un échantillon de [Virtual Device](https://supergiovane.git
 
 ## Contrôle des appareils KNX
 
-Le nœud accepte le MSG de l'écoulement à envoyer au bus KNX et envoie MSG au flux dès que le message KNX arrive du bus. <br/>
-En supposant que vous avez fourni une adresse de groupe et un point de données au nœud, soit manuellement ou avec des champs de population automatique en sélectionnant votre appareil dans la liste de l'appareil après avoir importé le fichier ETS. <br/>
-Vous pouvez également remplacer un ou plusieurs paramètres définis dans la fenêtre de configuration KNX-ultimate. <br/>
-Toutes les propriétés ci-dessous sont facultatives, à l'exception de la charge utile. <br/> ** msg.Destination** <br/>
-Par exemple, "0/0/1". Définissez l'adresse de groupe à 3 niveaux que vous voulez mettre à jour. ** msg.payload** <br/>
-Par exemple, true / false / 21 / "Bonjour". Définissez la charge utile que vous souhaitez envoyer au bus KNX. ** msg.event** <br/>
-"GroupValue \ _Write": écrit le télégramme au bus KNX. <br/>
-"GroupValue \ _Response": envoie un télégramme de réponse au bus KNX. <br/>
-"Update \ _Nowrite": envoie des rien au bus KNX, met à jour la valeur interne du nœud KNX-ultime. Ceci est utile si vous ne voulez stocker la valeur que dans le nœud et le lire plus tard avec une demande de lecture. <br/>
+Le nœud accepte le MSG de l'écoulement à envoyer au bus KNX et envoie MSG au flux dès que le message KNX arrive du bus. 
+
+En supposant que vous avez fourni une adresse de groupe et un point de données au nœud, soit manuellement ou avec des champs de population automatique en sélectionnant votre appareil dans la liste de l'appareil après avoir importé le fichier ETS. 
+
+Vous pouvez également remplacer un ou plusieurs paramètres définis dans la fenêtre de configuration KNX-ultimate. 
+
+Toutes les propriétés ci-dessous sont facultatives, à l'exception de la charge utile. 
+ ** msg.Destination** 
+
+Par exemple, "0/0/1". Définissez l'adresse de groupe à 3 niveaux que vous voulez mettre à jour. ** msg.payload** 
+
+Par exemple, true / false / 21 / "Bonjour". Définissez la charge utile que vous souhaitez envoyer au bus KNX. ** msg.event** 
+
+"GroupValue \ _Write": écrit le télégramme au bus KNX. 
+
+"GroupValue \ _Response": envoie un télégramme de réponse au bus KNX. 
+
+"Update \ _Nowrite": envoie des rien au bus KNX, met à jour la valeur interne du nœud KNX-ultime. Ceci est utile si vous ne voulez stocker la valeur que dans le nœud et le lire plus tard avec une demande de lecture. 
+
 ATTENTION: Dans le cas de _msg.event = "Update \ _Nowrite" _ Tous les nœuds avec la même adresse de groupe émettra à l'écoulement un msg comme ceci:
 
 ```javascript
@@ -399,25 +390,27 @@ ATTENTION: Dans le cas de _msg.event = "Update \ _Nowrite" _ Tous les nœuds ave
 
 ```
 
-Si vous souhaitez émettre une commande "lire", veuillez utiliser "ReadStatus" à la place (voir ci-dessous). <br/> ** msg.readstatus = true** <br/>
-Émettez une commande "lire" au bus. ** msg.dpt** <br/>
-Par exemple "1.001". Définit le <b> datapoint </b>. (Vous pouvez l'écrire dans ces formats: 9, "9", "9.001" ou "DPT9.001") ** msg.writeraw ** <br/>**msg.bitlenght** <br/>
-Écrit des données brutes au bus KNX. Veuillez voir ci-dessous un exemple. <br/> ** MSG.RESETRBE** <BR/> PASS MSG.RESETRBE = VRAI À un nœud de périphérique, pour réinitialiser à la fois l'entrée et la sortie du filtre RBE sur ce nœud particulier. <br/>
+Si vous souhaitez émettre une commande "lire", veuillez utiliser "ReadStatus" à la place (voir ci-dessous). 
+ ** msg.readstatus = true** 
 
-<br/>
+Émettez une commande "lire" au bus. ** msg.dpt** 
+
+Par exemple "1.001". Définit le <b> datapoint </b>. (Vous pouvez l'écrire dans ces formats: 9, "9", "9.001" ou "DPT9.001") ** msg.writeraw ** 
+**msg.bitlenght** 
+
+Écrit des données brutes au bus KNX. Veuillez voir ci-dessous un exemple. 
+ ** MSG.RESETRBE** 
+ PASS MSG.RESETRBE = VRAI À un nœud de périphérique, pour réinitialiser à la fois l'entrée et la sortie du filtre RBE sur ce nœud particulier. 
 
 ## modifier par programme la configuration du nœud via MSG
 
-Il est possible de modifier par programme la configuration du nœud KNX-ultimate, en envoyant un objet msg.setConfig au nœud. <br/>
-[Veuillez consulter ici l'exemple de page.](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample-setConfig)
+Il est possible de modifier par programme la configuration du nœud KNX-ultimate, en envoyant un objet msg.setConfig au nœud. 
 
-<br/>
-<br/>
-<br/>
+[Veuillez consulter ici l'exemple de page.](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample-setConfig)
 
 # Quick comment faire
 
-Vous pouvez plus d'échantillons [ici](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-SamplesHome) ** Allumez une lampe** <br/>
+Vous pouvez plus d'échantillons [ici](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-SamplesHome) ** Allumez une lampe** 
 
 ```javascript
 
@@ -425,7 +418,7 @@ Vous pouvez plus d'échantillons [ici](https://supergiovane.github.io/node-red-c
 msg.payload = true; // issues a write or response (based on the options <b>Telegram type</b> above) to the KNX bus
 return msg;
 
-``` ** Absolute dim a lampe** <br/>
+``` ** Absolute dim a lampe** 
 
 ```javascript
 
@@ -433,7 +426,7 @@ return msg;
 msg.payload = 30; // issues a write or response (based on the options <b>Telegram type</b> above) to the KNX bus
 return msg;
 
-``` ** Envoyer du texte à un affichage** <br/>
+``` ** Envoyer du texte à un affichage** 
 
 ```javascript
 
@@ -441,7 +434,7 @@ return msg;
 msg.payload = "Output Tem. 35°C"; // issues a write or response (based on the options <b>Telegram type</b> above) to the KNX bus
 return msg;
 
-``` ** Lisez l'état de la machine à laver** <br/>
+``` ** Lisez l'état de la machine à laver** 
 
 ```javascript
 
@@ -451,10 +444,12 @@ return msg;
 msg.readstatus = true; // issues a write or response (based on the options <b>Telegram type</b> above) to the KNX bus
 return msg;
 
-``` ** Envoyez la valeur brute au bus** <br/>
+``` ** Envoyez la valeur brute au bus** 
 
-Pour envoyer une valeur de tampon brute au bus KNX, utilisez les propriétés _ ** writerraw ** _ et _**bitlenght** _ de l'entrée msg. <br/>
-Dans ce cas, le _datapoint_ que vous définissez dans la fenêtre de propriété sera ignoré. <br/>
+Pour envoyer une valeur de tampon brute au bus KNX, utilisez les propriétés _ ** writerraw ** _ et _**bitlenght** _ de l'entrée msg. 
+
+Dans ce cas, le _datapoint_ que vous définissez dans la fenêtre de propriété sera ignoré. 
+
 Grapez un nœud de fonction devant KNX-ultime et collez son code:
 
 ```javascript
@@ -472,7 +467,7 @@ return msg;
 // msg.bitlenght = 1;
 // return msg;
 
-``` ** Mettez à jour la valeur du nœud sans l'envoyer au bus** <br/>
+``` ** Mettez à jour la valeur du nœud sans l'envoyer au bus** 
 
 ```javascript
 
@@ -484,9 +479,12 @@ return msg;
 
 ## Contrôle des périphériques KNX avec le nœud réglé sur "Mode universel (écoutez toutes les adresses de groupe)"
 
-Ici, vous avez 2 options: Importer le fichier CVS ETS ou non. <br/>
-L'importation de votre fichier ETS est la méthode <b> Aboslute suggérée </b>. Si vous importez votre fichier ETS, il vous suffit de définir la charge utile pour être transmise. Le nœud fera automatiquement le codage de DataPoint. <br/>
-Si vous n'importez pas l'ETS CSV, vous devez également passer le type de point de données au nœud. <br/> ** Éteignez une lampe <u> avec le fichier </u> ets importé** <br/>
+Ici, vous avez 2 options: Importer le fichier CVS ETS ou non. 
+
+L'importation de votre fichier ETS est la méthode <b> Aboslute suggérée </b>. Si vous importez votre fichier ETS, il vous suffit de définir la charge utile pour être transmise. Le nœud fera automatiquement le codage de DataPoint. 
+
+Si vous n'importez pas l'ETS CSV, vous devez également passer le type de point de données au nœud. 
+ ** Éteignez une lampe <u> avec le fichier </u> ets importé** 
 
 ```javascript
 
@@ -496,7 +494,7 @@ msg.destination = "0/0/1"; // Set the destination
 msg.payload = false; // issues a write or response (based on the options <b>Telegram type</b> above) to the KNX bus
 return msg;
 
-``` ** Éteignez une lampe <u> sans </u> ets Fichier importé** <br/>
+``` ** Éteignez une lampe <u> sans </u> ets Fichier importé** 
 
 ```javascript
 
@@ -507,7 +505,8 @@ msg.dpt = "1.001";
 msg.payload = false; // issues a write or response (based on the options <b>Telegram type</b> above) to the KNX bus
 return msg;
 
-``` ** Lisez l'état de tous les périphériques KNX <u> avec </u> ets Fichier importé** <br/>
+``` ** Lisez l'état de tous les périphériques KNX <u> avec </u> ets Fichier importé** 
+
 Vous ne pouvez pas émettre une demande de lecture à tous les groupes si vous n'importez pas votre fichier ETS, car le nœud ne peut pas savoir sur les appareils pour envoyer la demande de lecture.
 
 ```javascript
@@ -527,9 +526,6 @@ return msg;
 - _Sample_
   - [Échantillons](https://github.com/supergiovane/node-red-constrib-knx-ultimate/wiki/-samplehome)
 
-<br/>
-<br/>
-<p>
     <Table Style = "Font-Size: 12px">
         <tr>
         <th Colspan = "2" style = "Font-Size: 14px"> Couleurs d'état du nœud Explication </th>
@@ -567,4 +563,3 @@ return msg;
             <TD> Node désactivé en raison d'une référence circulare. <a href = "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Protections" Target = "_ Blank"> Voir cette page. </a> </ td>
         </tr>
     </ table>
-</p>

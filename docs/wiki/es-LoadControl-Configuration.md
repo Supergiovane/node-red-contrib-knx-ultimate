@@ -11,11 +11,13 @@ Samples: [Logger](https://supergiovane.github.io/node-red-contrib-knx-ultimate/w
 
 # Nodo de control de carga KNX
 
-<p> Con el nodo de control de carga puede administrar automáticamente la desconexión de las cargas (lavadora, horno, etc.) cuando el consumo de corriente excede un cierto umbral.
+ Con el nodo de control de carga puede administrar automáticamente la desconexión de las cargas (lavadora, horno, etc.) cuando el consumo de corriente excede un cierto umbral.
 
-Los dispositivos se desactivan de manera inteligente, verificando el posible consumo del dispositivo para determinar si apagarlo con otros.<br/>
-El nodo puede reactivar automáticamente las cargas.<br/>
-El nodo apaga un dispositivo (o múltiples dispositivos) a la vez, según el orden que ha seleccionado. <BR/>
+Los dispositivos se desactivan de manera inteligente, verificando el posible consumo del dispositivo para determinar si apagarlo con otros.
+
+El nodo puede reactivar automáticamente las cargas.
+
+El nodo apaga un dispositivo (o múltiples dispositivos) a la vez, según el orden que ha seleccionado. 
 
 **General**
 
@@ -27,13 +29,14 @@ El nodo apaga un dispositivo (o múltiples dispositivos) a la vez, según el ord
 |Retraso apagado (s) |Expresado en segundos, indica con qué frecuencia el nodo evaluará el consumo y apagará cada dispositivo.|
 |Interruptor de retraso (s) (s) |Expresado en segundos, indica con qué frecuencia el nodo evaluará el consumo y encenderá cada dispositivo que se apagó.|
 
-<br/>
-
 **Control de carga**
 
-Aquí puede agregar dispositivos para apagar en caso de sobrecarga.<br/>
-Elija el dispositivo para apagar.Ingrese el nombre del dispositivo o su dirección de grupo.<br/>
-Ingrese cualquier dirección de grupo que indique el consumo del dispositivo elegido en la primera línea. **Este es un parámetro opcional** .Si el dispositivo consume más de un cierto número de vatios, significa que está en uso.Si consume menos, el dispositivo se considerará "no en uso" y tanto esto como el siguiente se desactivarán a la vez. <br/>
+Aquí puede agregar dispositivos para apagar en caso de sobrecarga.
+
+Elija el dispositivo para apagar.Ingrese el nombre del dispositivo o su dirección de grupo.
+
+Ingrese cualquier dirección de grupo que indique el consumo del dispositivo elegido en la primera línea. **Este es un parámetro opcional** .Si el dispositivo consume más de un cierto número de vatios, significa que está en uso.Si consume menos, el dispositivo se considerará "no en uso" y tanto esto como el siguiente se desactivarán a la vez. 
+
 Si _Automatic Recovery_ está habilitado, el dispositivo se reactiva automáticamente cuando expira el "retraso de reinicio".
 
 ## entradas
@@ -66,5 +69,3 @@ msg = {
 ```# Muestra
 
 <a href = "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleLoadControl"> Haga clic aquí para ver el ejemplo </a>
-
-<br/>

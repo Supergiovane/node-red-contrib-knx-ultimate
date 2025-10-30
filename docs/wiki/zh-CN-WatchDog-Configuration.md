@@ -40,13 +40,13 @@ WatchDog 提供两级检测：
 
 **Check level**
 
-> Ethernet：检测 KNX‑Ultimate（Unicast）与 KNX/IP 接口之间的连接。<br/>
+> Ethernet：检测 KNX‑Ultimate（Unicast）与 KNX/IP 接口之间的连接。
 
-<img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/WatchDogEthernetLevel.png" width="90%"><br/>
+<img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/WatchDogEthernetLevel.png" width="90%">
 
-> Ethernet + KNX TP：完整检测（支持路由器/接口）。向物理设备发送 Read 并等待 Response；以太网或 TP 的任何故障都会被上报。请在 ETS 中为某个执行器配置一条会响应读取的 **状态** GA。<br/>
+> Ethernet + KNX TP：完整检测（支持路由器/接口）。向物理设备发送 Read 并等待 Response；以太网或 TP 的任何故障都会被上报。请在 ETS 中为某个执行器配置一条会响应读取的 **状态** GA。
 
-<img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/WatchDogEthernetKNXTPLevel.png" width="90%"><br/>
+<img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/WatchDogEthernetKNXTPLevel.png" width="90%">
 
 ## 高级选项
 

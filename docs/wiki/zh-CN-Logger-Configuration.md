@@ -14,7 +14,8 @@ HUE: [Bridge](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/
 Logger 节点会记录所有报文，并输出一份与 ETS Bus Monitor 兼容的 XML 文件。
 
 你可以用 file 节点将其保存到磁盘，或发送到 FTP 等。该文件可在 ETS 中用于诊断或回放报文。
-该节点还可统计报文数量（每秒或自定义间隔）。 <br/> <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Logger-Sample" target="_blank">示例在此</a>
+该节点还可统计报文数量（每秒或自定义间隔）。 
+ <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Logger-Sample" target="_blank">示例在此</a>
 
 ## 设置
 

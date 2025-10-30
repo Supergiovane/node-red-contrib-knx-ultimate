@@ -9,7 +9,7 @@ HUE: [Bridge](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/
 Samples: [Logger](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Logger-Sample) • [Switch Light](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Switch-light) • [Dimming](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Dimming) • [RGB color](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---RGB-Color) • [RGBW color + White](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---RGBW-Color-plus-White) • [Command a scene actuator](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Control-a-scene-actuator) • [Datapoint 213.x 4x Setpoint](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT213) • [Datapoint 222.x 3x Setpoint](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT222) • [Datapoint 237.x DALI diags](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT237) • [Datapoint 2.x 1 bit proprity](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT2) • [Datapoint 22.x RCHH Status](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT22) • [Datetime to BUS](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DateTime-to-BUS) • [Read Status](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Read-value-from-Device) • [Virtual Device](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Virtual-Device) • [Subtype decoded](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Subtype) • [Alexa](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Alexa) • [Apple Homekit](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Apple-Homekit) • [Google Home](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Google-Assistant) • [Switch on/off POE port of Unifi switch](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---UnifiPOE) • [Set configuration by msg](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample-setConfig) • [Scene Controller node](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Sample-Scene-Node) • [WatchDog node](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---WatchDog) • [Global Context node](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleGlobalContextNode) • [Alerter node](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleAlerter) • [Load control node](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleLoadControl) • [Viewer node](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/knxUltimateViewer) • [MySQL, InfluxDB, MQTT Sample](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Sample-KNX2MQTT-KNX2MySQL-KNX2InfluxDB)
 <!-- NAV END -->
 
-<p> vérifie la connexion à la passerelle ou à un périphérique KNX spécifique </p>
+vérifie la connexion à la passerelle ou à un périphérique KNX spécifique 
 
 # Chien de garde
 
@@ -27,7 +27,7 @@ Le premier, vérifie uniquement la connexion entre KNX-ultimate et l'interface K
 
 Le second vérifie l'ensemble de la route, du nœud de passerelle KNX-ultimate vers Ethernet, puis sur KNX TP Media et vice versa;Cela implique l'utilisation d'un appareil physique, répondant à une demande de lecture.
 
-Le nœud de surveillance est un nœud puissant pour les erreurs de signalisation et les problèmes de connexion.<br />
+Le nœud de surveillance est un nœud puissant pour les erreurs de signalisation et les problèmes de connexion.
 
 Vous pouvez envoyer un e-mail au programme d'installation KNX responsable de votre bâtiment, ou vous pouvez automatiquement passer à un routeur / interface KNX / IP de sauvegarde dans votre installation.
 
@@ -41,9 +41,9 @@ Vous pouvez envoyer un e-mail au programme d'installation KNX responsable de vot
 |Démarrer automatiquement la minuterie de chien de garde |Le temporisateur de surveillance commence automatiquement sur le déploiement ou le démarrage du rouge-rouge.|
 |Niveau de contrôle |Voir ci-dessous |
 
-**Vérifier le niveau ** > _**Ethernet** _: \* Chechks la connexion entre la passerelle KNX-ultimate en mode unicast et votre interface IP KNX. <Br />
+**Vérifier le niveau ** > _**Ethernet** _: \* Chechks la connexion entre la passerelle KNX-ultimate en mode unicast et votre interface IP KNX. 
 
-width = "90%"> <br />
+width = "90%"> 
 
 > _ **Ethernet et KNX TP** _: Vérification complète.Il fonctionne soit avec les routeurs KNX / IP et les interfaces KNX / IP (ainsi que
 
@@ -53,7 +53,7 @@ Ensemble d'adresses), il vérifie la connexion entre KNX-ultimate et cet apparei
 
 La connexion de la paire tordue est opérationnelle.
 
-width = "90%"> <br />
+width = "90%"> 
 
 ## Options avancées
 
@@ -64,7 +64,8 @@ width = "90%"> <br />
 
 # Sortie du message du chien de garde
 
-Le nœud de surveillance ouvre un message chaque fois qu'il reçoit une erreur de l'un de votre nœud KNX-ultime dans vos flux, ou chaque fois que le chien de garde interne intercepte une erreur de communication de bus KNX. <Br /> ** En cas de problème de connexion auto à surveillance** <a href = "https://github.com/supergiovane/node-red-constrib-knx-ultimate/wiki/watchdog-configuration"
+Le nœud de surveillance ouvre un message chaque fois qu'il reçoit une erreur de l'un de votre nœud KNX-ultime dans vos flux, ou chaque fois que le chien de garde interne intercepte une erreur de communication de bus KNX. 
+ ** En cas de problème de connexion auto à surveillance** <a href = "https://github.com/supergiovane/node-red-constrib-knx-ultimate/wiki/watchdog-configuration"
 Target = "_ Blank"> Veuillez voir ici. </a>```javascript
 
 msg = {
@@ -75,7 +76,8 @@ payload: true
 description: // (whatever error description)
 }
 
-```<br /> ** Dans le cas de l'un de vos nœuds ultimes KNX est en difficulté** ```javascript
+```
+ ** Dans le cas de l'un de vos nœuds ultimes KNX est en difficulté** ```javascript
 
 msg = {
 type:"NodeError"
@@ -92,7 +94,8 @@ GA: "0/1/1"
 }
 }
 
-```<br /> ** Dans le cas d'une nouvelle configuration de passerelle est appelée via setgatewayconfig** ```javascript
+```
+ ** Dans le cas d'une nouvelle configuration de passerelle est appelée via setgatewayconfig** ```javascript
 
 msg = {
 type:"setGatewayConfig"
@@ -104,7 +107,8 @@ BindLocalInterface:Auto"
 completeError:""
 }
 
-```<br /> ** Connexion / déconnexion forcée** ```javascript
+```
+ ** Connexion / déconnexion forcée** ```javascript
 
 msg = {
 type:"connectGateway"
@@ -116,7 +120,7 @@ description: "Connection"
 completeError:""
 }
 
-```<br />
+```
 
 ---
 
@@ -126,13 +130,16 @@ Le nœud de surveillance accepte l'entrée de Flow et transmet la sortie de Flow
 
 ## Démarrez et arrêtez le chien de garde
 
-Pour démarrer et arrêter le chien de garde, vous pouvez passer cela comme un message au nœud <br /> ** Démarrer le chien de garde** <Br />```javascript
+Pour démarrer et arrêter le chien de garde, vous pouvez passer cela comme un message au nœud 
+ ** Démarrer le chien de garde** 
+```javascript
 
 // Start the WatchDog
 msg.start = true;
 return msg;
 
-``` ** Arrêtez de surveillance** <br />```javascript
+``` ** Arrêtez de surveillance** 
+```javascript
 
 // Start the WatchDog
 msg.start = false;
@@ -140,11 +147,13 @@ return msg;
 
 ```## Modifiez les paramètres du routeur / interface KNX / IP à la volée
 
-Avec ** msg.setgatewayconfig** , vous pouvez modifier l'IP, le port, l'adresse physique, le protocole, etc. de votre interface KNX / IP ou du routeur, précédemment défini dans la configuration <br />
+Avec ** msg.setgatewayconfig** , vous pouvez modifier l'IP, le port, l'adresse physique, le protocole, etc. de votre interface KNX / IP ou du routeur, précédemment défini dans la configuration 
 
-Le nœud de configuration modifiera les paramètres et se reconnectera avec les nouveaux paramètres. <Br />
+Le nœud de configuration modifiera les paramètres et se reconnectera avec les nouveaux paramètres. 
 
-Soyez prudent, si vous redémarrez le Node-Red, les nouveaux paramètres sont restés aux paramètres spécifiés dans le nœud de configuration. <Br /> ** Tous les paramètres sont facultatifs** <br />```javascript
+Soyez prudent, si vous redémarrez le Node-Red, les nouveaux paramètres sont restés aux paramètres spécifiés dans le nœud de configuration. 
+ ** Tous les paramètres sont facultatifs** 
+```javascript
 
 // IP: IP of your KNX/IP Router or Interface
 // Port: Port of your KNX/IP Router or Interface
@@ -169,13 +178,15 @@ return msg;
 msg.setGatewayConfig={IP:"224.0.23.12"};
 return msg;
 
-``` ** Force la déconnexion de la passerelle et désactiver les tentatives de reconnexion automatique** <br />```javascript
+``` ** Force la déconnexion de la passerelle et désactiver les tentatives de reconnexion automatique** 
+```javascript
 
 // Force the gateway's disconnection from the BUS and stop the reconnection's attempts.
 msg.connectGateway = false;
 return msg;
 
-``` ** Force la connexion de Gateway et activer les tentatives de reconnexion automatique** <br />```javascript
+``` ** Force la connexion de Gateway et activer les tentatives de reconnexion automatique** 
+```javascript
 
 // Force the gateway's connection to the BUS and activate the reconnection's attempts.
 msg.connectGateway = true;

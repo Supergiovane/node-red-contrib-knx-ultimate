@@ -24,9 +24,6 @@ Dieser Node steuert eine KNX‑Gruppenadresse und ist der am häufigsten verwend
 | Group Addr. | Zu steuernde Gruppenadresse. Mit importierter ETS kannst du den Gerätenamen tippen. Kann leer bleiben, wenn du sie per `msg.setConfig` setzt. |
 | Datapoint | Der zum Node gehörende Datapoint. |
 
-<br/>
-<br/>
-
 ### Manueller Befehlsbutton
 
 Im Editor kann pro Node ein kleiner Button angezeigt werden, über den du KNX‑Telegramme ohne zusätzlichen Inject‑Knoten auslösen kannst.
@@ -39,9 +36,6 @@ Im Editor kann pro Node ein kleiner Button angezeigt werden, über den du KNX‑
 | Benutzerdefinierter Wert | Wert für den Modus „Benutzerdefinierten Wert schreiben“. Erlaubt sind JSON-Literale wie `42`, `true`, `"Text"` oder `{ "red": 255 }`. |
 
 Der Button wird nur eingeblendet, wenn die Option aktiv ist. Im Universalmodus ist die Leseaktion deaktiviert, da keine feste Gruppenadresse vorhanden ist.
-
-<br/>
-<br/>
 
 ## TAB Erweiterte Optionen
 
@@ -61,9 +55,6 @@ Der Button wird nur eingeblendet, wenn die Option aktiv ist. Im Universalmodus i
 | Auf Response‑Telegramme reagieren | Sendet bei Response eine Nachricht an den Flow. |
 | Auf Lese‑Telegramme reagieren | Sendet bei Read eine Nachricht an den Flow (z. B. um eigene Werte zu liefern). |
 | Multiply/Decimals/Negatives | Skaliert, rundet und behandelt negative Werte (nur numerische Werte). |
-
-<br/>
-<br/>
 
 ## TAB KNX Function
 

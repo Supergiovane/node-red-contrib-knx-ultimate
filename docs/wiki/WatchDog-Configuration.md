@@ -9,7 +9,7 @@ HUE: [Bridge](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/
 Samples: [Logger](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Logger-Sample) • [Switch Light](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Switch-light) • [Dimming](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Dimming) • [RGB color](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---RGB-Color) • [RGBW color + White](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---RGBW-Color-plus-White) • [Command a scene actuator](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Control-a-scene-actuator) • [Datapoint 213.x 4x Setpoint](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT213) • [Datapoint 222.x 3x Setpoint](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT222) • [Datapoint 237.x DALI diags](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT237) • [Datapoint 2.x 1 bit proprity](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT2) • [Datapoint 22.x RCHH Status](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT22) • [Datetime to BUS](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DateTime-to-BUS) • [Read Status](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Read-value-from-Device) • [Virtual Device](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Virtual-Device) • [Subtype decoded](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Subtype) • [Alexa](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Alexa) • [Apple Homekit](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Apple-Homekit) • [Google Home](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Google-Assistant) • [Switch on/off POE port of Unifi switch](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---UnifiPOE) • [Set configuration by msg](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample-setConfig) • [Scene Controller node](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Sample-Scene-Node) • [WatchDog node](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---WatchDog) • [Global Context node](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleGlobalContextNode) • [Alerter node](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleAlerter) • [Load control node](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleLoadControl) • [Viewer node](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/knxUltimateViewer) • [MySQL, InfluxDB, MQTT Sample](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Sample-KNX2MQTT-KNX2MySQL-KNX2InfluxDB)
 <!-- NAV END -->
 
-<p>Checks the connection to the Gateway or to a specific KNX device</p>
+Checks the connection to the Gateway or to a specific KNX device
 
 # WatchDog
 
@@ -27,7 +27,7 @@ The first, checks only the connection between knx-Ultimate and the KNX/IP Interf
 
 The second one, checks the entire route, from knx-Ultimate Gateway node to ethernet, then to KNX TP media and vice versa; this implies the use of a physical device, responding to a read requests.
 
-The WatchDog node is a powerfull node for signalling errors and connection problems. <br />
+The WatchDog node is a powerfull node for signalling errors and connection problems. 
 
 You can send an Email to the KNX installer responsible to your Building, or you can automatically switch to a backup KNX/IP Router/Interface in your installation.
 
@@ -41,10 +41,10 @@ You can send an Email to the KNX installer responsible to your Building, or you 
 | Auto start the watchdog timer | The watchdog timer starts automatically on deploy or on node-red start. |
 | Check level | See below |
 
-**Check level ** > _**Ethernet** _ : \*Chechks the connection between knx-ultimate Gateway in unicast mode and your KNX IP Interface.<br />
+**Check level ** > _**Ethernet** _ : \*Chechks the connection between knx-ultimate Gateway in unicast mode and your KNX IP Interface.
 
 <img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/WatchDogEthernetLevel.png"
- width="90%"><br />
+ width="90%">
 
 > _ **Ethernet and KNX TP** _ : Complete check. It works either with KNX/IP Routers and KNX/IP Interfaces (as well as
 
@@ -55,7 +55,7 @@ About this picture, in ETS, assign an Output of this Gira KNX Actuator to a Ligh
 Twisted Pair connection is up and running.
 
 <img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/WatchDogEthernetKNXTPLevel.png"
- width="90%"><br />
+ width="90%">
 
 ## ADVANCED OPTIONS
 
@@ -66,7 +66,7 @@ Twisted Pair connection is up and running.
 
 # MESSAGE OUTPUT FROM THE WATCHDOG
 
-The WatchDog node outs a message whenever it receives an error from one of your knx-ultimate node in your flows, or whenever the internal Watchdog intercepts a KNX Bus communication error.<br />
+The WatchDog node outs a message whenever it receives an error from one of your knx-ultimate node in your flows, or whenever the internal Watchdog intercepts a KNX Bus communication error.
 
 **In case of Watchdog self connection problem**
 
@@ -84,8 +84,6 @@ description: // (whatever error description)
 }
 
 ```
-
-<br />
 
 **In case of one of your KNX-Ultimate nodes is in trouble**
 
@@ -108,8 +106,6 @@ GA: "0/1/1"
 
 ```
 
-<br />
-
 **In case of a new gateway configuration is called via setGatewayConfig**
 
 ```javascript
@@ -125,8 +121,6 @@ completeError:""
 }
 
 ```
-
-<br />
 
 **Forced connection/disconnection**
 
@@ -144,8 +138,6 @@ completeError:""
 
 ```
 
-<br />
-
 ---
 
 # INPUT FLOW MESSAGE
@@ -154,9 +146,9 @@ The WatchDog node accepts flow's input and transmits flow's output. Below, an ex
 
 ## START AND STOP THE WATCHDOG
 
-To start and stop the watchdog, you can pass this as message to the node<br />
+To start and stop the watchdog, you can pass this as message to the node
 
-**START WATCHDOG** <br />
+**START WATCHDOG** 
 
 ```javascript
 
@@ -166,7 +158,7 @@ return msg;
 
 ```
 
-**STOP WATCHDOG** <br />
+**STOP WATCHDOG** 
 
 ```javascript
 
@@ -178,13 +170,13 @@ return msg;
 
 ## CHANGE THE KNX/IP ROUTER/INTERFACE SETTINGS ON THE FLY
 
-With **msg.setGatewayConfig** , you can change the IP, Port, Physical Address, Protocol and so on of your KNX/IP Interface or Router, previously set in the Config-Node<br />
+With **msg.setGatewayConfig** , you can change the IP, Port, Physical Address, Protocol and so on of your KNX/IP Interface or Router, previously set in the Config-Node
 
-The Config-Node will change the settings and reconnect with new parameters.<br />
+The Config-Node will change the settings and reconnect with new parameters.
 
-Be careful, if you restart node-red, the new settings are reverted to the settings specified in the Config-Node.<br />
+Be careful, if you restart node-red, the new settings are reverted to the settings specified in the Config-Node.
 
-**ALL parameters are OPTIONAL** <br />
+**ALL parameters are OPTIONAL** 
 
 ```javascript
 
@@ -217,7 +209,7 @@ return msg;
 
 ```
 
-**FORCE GATEWAY'S DISCONNECTION AND DISABLE AUTO RECONNECTION ATTEMPTS** <br />
+**FORCE GATEWAY'S DISCONNECTION AND DISABLE AUTO RECONNECTION ATTEMPTS** 
 
 ```javascript
 
@@ -227,7 +219,7 @@ return msg;
 
 ```
 
-**FORCE GATEWAY'S CONNECTION AND ENABLE THE AUTO RECONNECTION ATTEMPTS** <br />
+**FORCE GATEWAY'S CONNECTION AND ENABLE THE AUTO RECONNECTION ATTEMPTS** 
 
 ```javascript
 

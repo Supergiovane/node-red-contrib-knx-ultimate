@@ -32,7 +32,9 @@ HUE: [Bridge](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/
 | 属性 | 说明 |
 |--|--|
 | ADD 按钮 | 新增一行。|
-| 行字段 | 1）组地址 2）Datapoint 3）默认场景值（可被 Scene Save 覆盖）。下方为设备名。<br/> 插入暂停：在第一列填 **wait ** ，最后一列填时长（毫秒），如 `2000`。<br/>**wait** 也支持秒/分/小时：`12s`、`5m`、`1h`。|
+| 行字段 | 1）组地址 2）Datapoint 3）默认场景值（可被 Scene Save 覆盖）。下方为设备名。
+ 插入暂停：在第一列填 **wait ** ，最后一列填时长（毫秒），如 `2000`。
+**wait** 也支持秒/分/小时：`12s`、`5m`、`1h`。|
 | Remove | 移除该设备行。|
 
 ## 节点输出

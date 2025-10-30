@@ -32,7 +32,9 @@ La scena salva automaticamente i nuovi valori degli attuatori della lista non ap
 | Proprietà | Descrizione |
 |--|--|
 | Pulsante ADD | Aggiunge una riga. |
-| Campi riga | 1) Indirizzo di gruppo 2) Datapoint 3) Valore di default per questo dispositivo nella scena (può essere sovrascritto da Scene Save). Sotto, il nome del dispositivo.<br/> Per inserire una pausa, scrivi **wait ** nel primo campo e un numero nell'ultimo campo, che rappresenta la durata (millisecondi), ad es. `2000`.<br/> Il comando**wait** accetta anche secondi, minuti o ore: aggiungi `s` (es. `12s`), `m` (es. `5m`) o `h` (es. `1h`). |
+| Campi riga | 1) Indirizzo di gruppo 2) Datapoint 3) Valore di default per questo dispositivo nella scena (può essere sovrascritto da Scene Save). Sotto, il nome del dispositivo.
+ Per inserire una pausa, scrivi **wait ** nel primo campo e un numero nell'ultimo campo, che rappresenta la durata (millisecondi), ad es. `2000`.
+ Il comando**wait** accetta anche secondi, minuti o ore: aggiungi `s` (es. `12s`), `m` (es. `5m`) o `h` (es. `1h`). |
 | Pulsante Remove | Rimuove una riga/dispositivo. |
 
 ## Messaggi in uscita

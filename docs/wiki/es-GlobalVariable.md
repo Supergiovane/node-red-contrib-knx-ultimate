@@ -13,17 +13,24 @@ Samples: [Logger](https://supergiovane.github.io/node-red-contrib-knx-ultimate/w
 
 # KNX Global Variable
 
-Este nodo expone la dirección del grupo recibida del bus, a una variable global **** <br/>
-¡Puede escribir en el bus KNX simplemente actualice la variable global! <br/>
+Este nodo expone la dirección del grupo recibida del bus, a una variable global **** 
+
+¡Puede escribir en el bus KNX simplemente actualice la variable global! 
 
 ## Descripción general
 
-Pon un nodo de contexto global en el flujo, luego dale un nombre. <br/>
-El nombre que le da al nodo se convertirá en el nombre de la variable de contexto global. <br/>
-Eso es todo. Por razones de seguridad, ** Cambie el nombre de nodo predeterminado** <br/>
-Puede acceder a la variable global agregando el sufijo \ _read al nombre del nodo. <br/>
-Puede habilitar/deshabilitar la variable de contexto global, o habilitar Readonly o leer/escribir en la ventana de configuración. <br/>
-Puede emitir un comando de escritura de bus KNX, simplemente modifica el nombre de la variable global con sufijo \ _write. _ ** Después de que se han ejecutado los comandos, la variable global con sufijo \ _Write se vacía automáticamente, no para repetir infinitamente los comandos. ** _ <br/>**Ajustes** | Propiedad | Descripción |
+Pon un nodo de contexto global en el flujo, luego dale un nombre. 
+
+El nombre que le da al nodo se convertirá en el nombre de la variable de contexto global. 
+
+Eso es todo. Por razones de seguridad, ** Cambie el nombre de nodo predeterminado** 
+
+Puede acceder a la variable global agregando el sufijo \ _read al nombre del nodo. 
+
+Puede habilitar/deshabilitar la variable de contexto global, o habilitar Readonly o leer/escribir en la ventana de configuración. 
+
+Puede emitir un comando de escritura de bus KNX, simplemente modifica el nombre de la variable global con sufijo \ _write. _ ** Después de que se han ejecutado los comandos, la variable global con sufijo \ _Write se vacía automáticamente, no para repetir infinitamente los comandos. ** _ 
+**Ajustes** | Propiedad | Descripción |
 
 |-|-|
 | Puerta de entrada | La puerta de enlace KNX. |
@@ -49,23 +56,25 @@ Puede emitir un comando de escritura de bus KNX, simplemente modifica el nombre 
 
 ## Muestra de nodo de contexto global
 
-Este nodo expone la dirección del grupo recibida del bus, a una variable global****<br/>
-¡Puede escribir en el bus KNX simplemente actualice la variable global! <br/>
+Este nodo expone la dirección del grupo recibida del bus, a una variable global****
+
+¡Puede escribir en el bus KNX simplemente actualice la variable global! 
 
 ## Descripción general
 
-Pon un nodo de contexto global en el flujo, luego dale un nombre. <br/>
-El nombre que le da al nodo se convertirá en el nombre de la variable de contexto global. <br/>
-Eso es todo. Por razones de seguridad, ** Cambie el nombre de nodo predeterminado** <br/>
-Puede acceder a la variable global agregando el sufijo \ _read al nombre del nodo. <br/>
-Puede habilitar/deshabilitar la variable de contexto global, o habilitar Readonly o leer/escribir en la ventana de configuración. <br/>
-Puede emitir un comando de escritura de bus KNX, simplemente modifica el nombre de la variable global con sufijo \ _write. _ ** Después de que se han ejecutado los comandos, la variable global con sufijo \ _Write se vacía automáticamente, no para repetir infinitamente los comandos.** _ <br/>
+Pon un nodo de contexto global en el flujo, luego dale un nombre. 
 
-<br/>
+El nombre que le da al nodo se convertirá en el nombre de la variable de contexto global. 
 
-<img src = "https://raw.githubusercontent.com/supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/globalcontextnode.png" width = "90%"> <br/>
+Eso es todo. Por razones de seguridad, ** Cambie el nombre de nodo predeterminado** 
 
-<br/>
+Puede acceder a la variable global agregando el sufijo \ _read al nombre del nodo. 
+
+Puede habilitar/deshabilitar la variable de contexto global, o habilitar Readonly o leer/escribir en la ventana de configuración. 
+
+Puede emitir un comando de escritura de bus KNX, simplemente modifica el nombre de la variable global con sufijo \ _write. _ ** Después de que se han ejecutado los comandos, la variable global con sufijo \ _Write se vacía automáticamente, no para repetir infinitamente los comandos.** _ 
+
+<img src = "https://raw.githubusercontent.com/supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/globalcontextnode.png" width = "90%"> 
 
 ### Ver código
 
@@ -76,8 +85,6 @@ Puede emitir un comando de escritura de bus KNX, simplemente modifica el nombre 
 [{"id":"ababb834.9073","type":"knxUltimateGlobalContext","z":"5ed79f4a958a1f20","server":"b60c0d73.1c02b","name":"KNXContextBanana","exposeAsVariable":"exposeAsVariableREADWRITE","writeExecutionInterval":"1000","x":230,"y":200,"wires":[]},{"id":"2954e7ea.f53988","type":"function","z":"5ed79f4a958a1f20","name":"Write to the KNXContextBanana variable","func":"// This function writes some values to the KNX bus\nlet GroupAddresses = [];\nGroupAddresses.push ({address: \"0/0/10\", dpt:\"1.001\", payload:true});\nGroupAddresses.push({ address: \"0/0/11\", dpt: \"1.001\", payload: true });\nGroupAddresses.push({ address: \"0/0/12\", dpt: \"1.001\", payload: false });\n\n// You can also avoid setting datapoint.\n// This works gread if you have imported the ETS file, otherwise it'll guess the datapoint type by analyzing the payload\nGroupAddresses.push ({address: \"0/0/14\", payload:false});\nGroupAddresses.push({ address: \"0/0/15\", payload: 50 });\n\n// Remember: add the string \"_WRITE\" after the node name to write to the bus\nglobal.set(\"KNXContextBanana_WRITE\",GroupAddresses);\n","outputs":0,"noerr":0,"initialize":"","finalize":"","libs":[],"x":480,"y":300,"wires":[]},{"id":"bd4380e3.8c1ea","type":"inject","z":"5ed79f4a958a1f20","name":"Call the function","props":[{"p":"payload"},{"p":"topic","vt":"str"}],"repeat":"","crontab":"","once":false,"onceDelay":0.1,"topic":"","payload":"true","payloadType":"bool","x":220,"y":300,"wires":[["2954e7ea.f53988"]]},{"id":"269bf86a.34e9f8","type":"comment","z":"5ed79f4a958a1f20","name":"Exposing the Group Addresses to the global context variable","info":"","x":360,"y":160,"wires":[]},{"id":"f9a6ff93.086a","type":"function","z":"5ed79f4a958a1f20","name":"Read the KNXContextBanana variable","func":"// This function reads the variable\n// Remember: add the string \"_READ\" after the node name to read the variable\nlet GroupAddresses = global.get(\"KNXContextBanana_READ\") || [];\n\n// Outputs the array, as example\nnode.send({payload:GroupAddresses});\n\n// Get the Group Address object, having address 0/0/10\nlet Ga = GroupAddresses.find(a => a.address === \"0/0/10\");\n\n// Outputs the object, as example\nnode.send({ Found: Ga });\n\n// Do some testing and output some stuffs.\nif (Ga.payload === true) return {payload : \"FOUND AND TRUE\"};\nif (Ga.payload === false) return {payload : \"FOUND AND FALSE\"};\n\n","outputs":1,"noerr":0,"initialize":"","finalize":"","libs":[],"x":410,"y":420,"wires":[["f4109aa5.270e08"]]},{"id":"64c9e0f0.b13178","type":"inject","z":"5ed79f4a958a1f20","name":"Read","props":[{"p":"payload"},{"p":"topic","vt":"str"}],"repeat":"","crontab":"","once":false,"onceDelay":0.1,"topic":"","payload":"true","payloadType":"bool","x":190,"y":420,"wires":[["f9a6ff93.086a"]]},{"id":"f4109aa5.270e08","type":"debug","z":"5ed79f4a958a1f20","name":"","active":true,"tosidebar":true,"console":false,"tostatus":false,"complete":"true","targetType":"full","statusVal":"","statusType":"auto","x":630,"y":420,"wires":[]},{"id":"bf16d5a9.073b6","type":"comment","z":"5ed79f4a958a1f20","name":"Check global variable and do some stuffs","info":"","x":300,"y":380,"wires":[]},{"id":"85c342f08c9c4705","type":"comment","z":"5ed79f4a958a1f20","name":"This function writes some values to the bus","info":"","x":310,"y":260,"wires":[]},{"id":"b60c0d73.1c02b","type":"knxUltimate-config","host":"224.0.23.12","port":"3671","physAddr":"15.15.22","suppressACKRequest":false,"csv":"","KNXEthInterface":"Auto","KNXEthInterfaceManuallyInput":"","statusDisplayLastUpdate":false,"statusDisplayDeviceNameWhenALL":true,"statusDisplayDataPoint":true,"stopETSImportIfNoDatapoint":"fake","loglevel":"error","name":"Multicast","localEchoInTunneling":true,"delaybetweentelegrams":"","delaybetweentelegramsfurtherdelayREAD":"","ignoreTelegramsWithRepeatedFlag":false,"keyringFileXML":""}]
 
 ```
-
-<br/>
 
 ## Obtenga el valor de la variable
 

@@ -50,7 +50,18 @@ function extractMarkdown (htmlPath) {
   const content = fs.readFileSync(htmlPath, 'utf8')
   const match = content.match(/<script[^>]*data-help-name="[^"]+"[^>]*>([\s\S]*?)<\/script>/i)
   if (!match) return null
-  return match[1].trim()
+  return match[1]
+}
+
+function normalizeMarkdown (raw) {
+  if (!raw) return ''
+  let text = raw.replace(/\r\n/g, '\n')
+  text = text.replace(/<br\s*\/?>/gi, '\n')
+  text = text.replace(/<\/p>/gi, '\n\n')
+  text = text.replace(/<p[^>]*>/gi, '')
+  text = text.replace(/&nbsp;/gi, ' ')
+  text = text.replace(/\n{3,}/g, '\n\n')
+  return text.trim()
 }
 
 function slugify (title) {
@@ -98,7 +109,8 @@ let written = 0
 for (const [helpName, wikiTitle] of HELP_TO_WIKI.entries()) {
   for (const lang of LANGS) {
     const helpPath = path.join(LOCALES_DIR, lang.dir, `${helpName}.html`)
-    const markdown = extractMarkdown(helpPath)
+    const markdownRaw = extractMarkdown(helpPath)
+    const markdown = normalizeMarkdown(markdownRaw)
     if (!markdown) continue
 
     const wikiPath = path.join(WIKI_DIR, `${lang.prefix}${wikiTitle}.md`)

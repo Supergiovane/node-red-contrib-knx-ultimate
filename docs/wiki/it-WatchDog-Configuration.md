@@ -40,13 +40,13 @@ Il WatchDog è molto utile per notificare errori e problemi di connessione: puoi
 
 **Check level**
 
-> Ethernet: controlla la connessione tra il Gateway KNX‑Ultimate (in unicast) e la tua KNX/IP Interface.<br/>
+> Ethernet: controlla la connessione tra il Gateway KNX‑Ultimate (in unicast) e la tua KNX/IP Interface.
 
-<img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/WatchDogEthernetLevel.png" width="90%"><br/>
+<img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/WatchDogEthernetLevel.png" width="90%">
 
-> Ethernet e KNX TP: controllo completo (KNX/IP Router o Interface). Verifica la comunicazione con un dispositivo fisico inviando una richiesta di lettura e attendendo una risposta. Qualsiasi problema lato Ethernet o KNX TP viene segnalato. Riserva una GA di "Status” in ETS su un attuatore che risponda ai Read.<br/>
+> Ethernet e KNX TP: controllo completo (KNX/IP Router o Interface). Verifica la comunicazione con un dispositivo fisico inviando una richiesta di lettura e attendendo una risposta. Qualsiasi problema lato Ethernet o KNX TP viene segnalato. Riserva una GA di "Status” in ETS su un attuatore che risponda ai Read.
 
-<img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/WatchDogEthernetKNXTPLevel.png" width="90%"><br/>
+<img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/WatchDogEthernetKNXTPLevel.png" width="90%">
 
 ## Opzioni avanzate
 

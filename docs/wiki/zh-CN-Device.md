@@ -24,9 +24,6 @@ HUE: [Bridge](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/
 | Group Addr. | 需要控制的组地址。若已导入 ETS，可直接输入设备名进行匹配。也可留空，之后通过输入消息 `msg.setConfig` 设置。|
 | Datapoint | 与节点关联的 Datapoint。|
 
-<br/>
-<br/>
-
 ### 手动命令按钮
 
 编辑器可为每个节点显示一个小按钮，用于手动发送 KNX 命令，无需额外的 Inject 节点。
@@ -39,9 +36,6 @@ HUE: [Bridge](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/
 | 自定义值 | “写入自定义值” 模式所使用的载荷。支持任何 JSON 字面量，例如 `42`、`true`、`"文本"` 或 `{ "red": 255 }`。|
 
 仅在启用该选项时才会显示按钮。若节点处于通用模式，则读取操作被禁用，因为节点没有固定的组地址。
-
-<br/>
-<br/>
 
 ## TAB 高级选项
 
@@ -61,9 +55,6 @@ HUE: [Bridge](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/
 | 响应应答报文 | 收到应答报文时向流程输出。|
 | 响应读报文 | 收到读报文时向流程输出（用于自定义返回值）。|
 | Multiply/Decimals/Negatives | 数值缩放、四舍五入、小数与负值处理（仅数值）。|
-
-<br/>
-<br/>
 
 ## TAB KNX Function
 

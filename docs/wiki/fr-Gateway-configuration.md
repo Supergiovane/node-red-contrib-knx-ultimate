@@ -11,7 +11,7 @@ Samples: [Logger](https://supergiovane.github.io/node-red-contrib-knx-ultimate/w
 
 Configuration de la passerelle KNX
 
-<p> Ce nœud se connecte à votre passerelle KNX / IP. </p>
+ Ce nœud se connecte à votre passerelle KNX / IP. 
 
 **Général**
 
@@ -19,8 +19,6 @@ Configuration de la passerelle KNX
 |-|-|
 | Nom | Nom du nœud. |
 | Ip / hostname | Adresse multidiffère du routeur ETH / KNX ou adresse IP unicast. Si vous avez une interface KNX / IP, utilisez l'adresse IP de l'interface, par exemple 1982.168.1.22, sinon, si vous avez un routeur KNX / IP, mettez l'adresse de multidiffusion 224.0.23.12. Vous pouvez également taper un **nom d'hôte** au lieu d'une IP. |
-
-<br/>
 
 **Configuration**
 
@@ -40,8 +38,6 @@ Configuration de la passerelle KNX
 > • _KNX Data Secure_ protège les télégrammes d'adresses de groupe et **toujours** a besoin d'un fichier de clés contenant les touches de groupe. \
 > • _KNX IP Tunneling Secure_ protège la poignée de main de connexion avec un mot de passe de mise en service. Selon le mode sélectionné, le mot de passe peut provenir du clés ou être entré manuellement.
 
-<br/>
-
 **Avancé**
 
 | Propriété | Description |
@@ -53,16 +49,12 @@ Configuration de la passerelle KNX
 | Loglevel | Niveau de journal, au cas où vous auriez besoin de déboguer quelque chose avec le développement. La valeur par défaut est "erreur", |
 | Temporisation de l'état du nœud | Définissez la fréquence de mise à jour des badges de statut. Avec un délai actif, les changements intermédiaires sont ignorés et seul le dernier est affiché après l'intervalle choisi. Sélectionnez **Immédiat** pour conserver le comportement en temps réel. |
 
-<br/>
-
 **ETS Importation du fichier**
 
 | Propriété | Description |
 |-|-|
 | Si l'adresse du groupe n'a pas de point de données | Si une adresse de groupe n'a pas de point de données, elle permet de choisir pour arrêter l'importation, importer Quth un faux point de données de 1,001 ou pour ignorer l'importation de cette adresse de groupe |
 | Liste d'adresses du groupe ETS | Utilisez cette section pour importer votre fichier ETS CSV ou ESF. Vous pouvez soit **coller le contenu du fichier CSV ou ESF ** ou**définir le chemin du fichier** , par exemple _./pi/homecsv.csv_. Veuillez vous référer aux liens d'aide pour d'autres Infos. |
-
-<br/>
 
 **Utilitaire**
 
@@ -71,57 +63,71 @@ Configuration de la passerelle KNX
 | Rassemblez les informations de débogage pour le dépannage | Veuillez cliquer sur le bouton et l'ajouter au problème GitHub que vous souhaitez ouvrir, cela m'aidera beaucoup à vous aider. |
 | Obtenez tous les GA d'occasion pour le filtre de routage KNX | Appuyez sur Read pour récupérer une liste de texte brut de toutes les adresses de groupe appartenant à cette passerelle, qui a été utilisée dans les flux. Vous pouvez utiliser cette liste pour remplir votre table de filtre de routeur KNX / IP. |
 
-<br/>
-
 # Travailler avec le fichier ETS CSV ou ESF
 
-Au lieu de créer un nœud KNX-ultime pour chaque adresse de groupe à contrôler, vous pouvez importer votre fichier d'adresses de groupe CSV ETS ou, à partir de V 1.1.35, un fichier ESF également (si, par exemple, vous n'avez qu'ETS à l'intérieur). Versions ETS prises en charge: ETS 4 et à partir. <br/>
+Au lieu de créer un nœud KNX-ultime pour chaque adresse de groupe à contrôler, vous pouvez importer votre fichier d'adresses de groupe CSV ETS ou, à partir de V 1.1.35, un fichier ESF également (si, par exemple, vous n'avez qu'ETS à l'intérieur). Versions ETS prises en charge: ETS 4 et à partir. 
 
-À partir de la version 1.4.18, vous pouvez également entrer simplement le chemin d'accès au fichier dans ce champ (par exemple: /home/pi/mycsv.csv). <br/>
+À partir de la version 1.4.18, vous pouvez également entrer simplement le chemin d'accès au fichier dans ce champ (par exemple: /home/pi/mycsv.csv). 
 
 Grâce à cela, le nœud KNX-ultime où vous avez sélectionné **Mode universel (écoutez toutes les adresses de groupe)** , devient un nœud d'entrée / sortie universel, conscient de tous les points de données, des adresses de groupe et du nom de l'appareil (ex: lampe de salon). Envoyez simplement la charge utile au nœud KNX-ultime, et il le codera avec le bon point de données et l'enverra dans le bus. De même, lorsque le nœud KNX-ultime reçoit un télégramme du bus, il offre une charge utile décodée droite à l'aide du point de données spécifié dans le fichier ETS CSV ou ESF.
 
-À partir de **version 1.1.11 ** , vous pouvez utiliser**Mode universel (écoutez toutes les adresses de groupe) ** Option sans avoir besoin d'un fichier ETS CSV ou ESF importé. Vous devez transmettre un message au nœud, contenant le type de point de données et une valeur. Dès que le nœud reçoit un télégramme de KNX Bus, il sortira une valeur brute et à côté, il essaiera de décoder la valeur sans connaître le type de point de données. <Br />**Remarque** : _ETS Adresse du groupe CSV Fichier exporté_ est la meilleure option, car il contient des points de données précis avec sous-type. _ETS ESF Exporté File_ est plus simple et il n'a pas le sous-type. <Br />
+À partir de **version 1.1.11 ** , vous pouvez utiliser**Mode universel (écoutez toutes les adresses de groupe) ** Option sans avoir besoin d'un fichier ETS CSV ou ESF importé. Vous devez transmettre un message au nœud, contenant le type de point de données et une valeur. Dès que le nœud reçoit un télégramme de KNX Bus, il sortira une valeur brute et à côté, il essaiera de décoder la valeur sans connaître le type de point de données. 
+**Remarque** : _ETS Adresse du groupe CSV Fichier exporté_ est la meilleure option, car il contient des points de données précis avec sous-type. _ETS ESF Exporté File_ est plus simple et il n'a pas le sous-type. 
 
-Si vous pouvez utiliser les deux, veuillez préférer le fichier exporté de l'adresse du groupe CSV * ***, car l'ESF peut conduire à une fausse valeur de sortie. Veuillez vérifier manuellement et éventuellement ajuster les points de données chaque fois que vous importez le fichier** ESF**. <Br /> à partir de la version 1.4.1 Vous pouvez également importer des adresses de groupe également à l'exécution, via MSG, en utilisant le nœud de surveillance. <br />
+Si vous pouvez utiliser les deux, veuillez préférer le fichier exporté de l'adresse du groupe CSV * ***, car l'ESF peut conduire à une fausse valeur de sortie. Veuillez vérifier manuellement et éventuellement ajuster les points de données chaque fois que vous importez le fichier** ESF**. 
+ à partir de la version 1.4.1 Vous pouvez également importer des adresses de groupe également à l'exécution, via MSG, en utilisant le nœud de surveillance. 
 
 > Vous pouvez travailler avec un mélange de nœuds KNX-ultime, certains avec le mode ** Universal (écoutez toutes les adresses de groupe)** Vérifié et d'autres non. Vous êtes absolument libre!
 
 <a href = "https://youtu.be/egrbr_kwp9i"> <img src = 'https://raw.githubusercontent.com/supergiovane/node-red-contrib-knx-ultimate/masmg/yt.png'> </a>
 
-- ** ETS CSV Group Adresses List Import ** _**Attention: il ne doit pas y avoir de caractères de tabulation au nom de l'adresse du groupe ** _**Si l'adresse du groupe n'a pas de point de données ** > Si une adresse de groupe n'a pas de point de données dans l'ETS, vous pouvez sélectionner pour arrêter et interrompre l'intégralité du processus d'importation, pour sauter l'adresse du groupe affectée ou pour ajouter l'adresse du groupe affectée avec un faux point de données et continuer l'importation. <br/>**Comment exporter les ETS -> CSV <- Liste des adresses de groupe** > Sur ETS, cliquez sur la liste des adresses de groupe, puis cliquez avec le bouton droit, puis sélectionnez «Exporter des adresses de groupe». Dans la fenêtre d'exportation, sélectionnez ces options: <br />
->
-> ** Format de sortie** : CSV <Br />
->
-> ** Format CSV** : 1/1 nom / adresse <br />
->
-> ** Exportation avec ligne d'en-tête** : vérifié <br />
->
-> ** CSV Séparateur** : Tabulator. <br />
->
-> Collez ensuite le contenu du fichier ici. <br />
->
-> Notez que le fichier ETS CSV doit contenir les points de données pour chaque adresse de groupe. <br />
->
-> Le nœud analyse votre fichier CSV ETS avant de l'utiliser et vous indiquera les résultats dans l'onglet de débogage de la page Node-Red. <br />
->
-> Le résultat peut être de deux types: ** Erreur ** et**avertissement** <br />
->
-> ** L'erreur** se produit lorsqu'un point de données n'est pas spécifié pour une adresse de groupe. Il s'agit d'une erreur critique et arrête le processus d'importation du fichier ETS CSV. <br />
->
-> ** L'avertissement** se produit lorsque le sous-type d'un Datapoint n'est pas spécifié. Dans ce cas, l'analyseur de nœud y ajoutera un par défaut, mais vous avertit que vous montrez et corrigez le point de données, en ajoutant un sous-type. Un sous-type est le nombre restant à droite du "." dans un point de données (ex: 5.001). <Br />
->
-> Remarque: les champs doivent être entourés de ** "** par exemple: <br />
+- ** ETS CSV Group Adresses List Import ** _**Attention: il ne doit pas y avoir de caractères de tabulation au nom de l'adresse du groupe ** _**Si l'adresse du groupe n'a pas de point de données ** > Si une adresse de groupe n'a pas de point de données dans l'ETS, vous pouvez sélectionner pour arrêter et interrompre l'intégralité du processus d'importation, pour sauter l'adresse du groupe affectée ou pour ajouter l'adresse du groupe affectée avec un faux point de données et continuer l'importation. 
+**Comment exporter les ETS -> CSV <- Liste des adresses de groupe** > Sur ETS, cliquez sur la liste des adresses de groupe, puis cliquez avec le bouton droit, puis sélectionnez «Exporter des adresses de groupe». Dans la fenêtre d'exportation, sélectionnez ces options: 
 
->> "ACTUATEURS LIGHTS" "0 / - / -" "" "" "" "" "" Car "<br/> ** Comment exporter les ETS -> ESF <- Liste des adresses de groupe**
-
-> Sur la fenêtre ETS, sélectionnez votre projet, puis cliquez sur l'icône d'exportation (l'icône avec la flèche vers le haut) <br />
 >
-> Sélectionnez pour exporter le projet au format ESF (pas le .knxprod par défaut) <br />
+> ** Format de sortie** : CSV 
+
+>
+> ** Format CSV** : 1/1 nom / adresse 
+
+>
+> ** Exportation avec ligne d'en-tête** : vérifié 
+
+>
+> ** CSV Séparateur** : Tabulator. 
+
+>
+> Collez ensuite le contenu du fichier ici. 
+
+>
+> Notez que le fichier ETS CSV doit contenir les points de données pour chaque adresse de groupe. 
+
+>
+> Le nœud analyse votre fichier CSV ETS avant de l'utiliser et vous indiquera les résultats dans l'onglet de débogage de la page Node-Red. 
+
+>
+> Le résultat peut être de deux types: ** Erreur ** et**avertissement** 
+
+>
+> ** L'erreur** se produit lorsqu'un point de données n'est pas spécifié pour une adresse de groupe. Il s'agit d'une erreur critique et arrête le processus d'importation du fichier ETS CSV. 
+
+>
+> ** L'avertissement** se produit lorsque le sous-type d'un Datapoint n'est pas spécifié. Dans ce cas, l'analyseur de nœud y ajoutera un par défaut, mais vous avertit que vous montrez et corrigez le point de données, en ajoutant un sous-type. Un sous-type est le nombre restant à droite du "." dans un point de données (ex: 5.001). 
+
+>
+> Remarque: les champs doivent être entourés de ** "** par exemple: 
+
+>> "ACTUATEURS LIGHTS" "0 / - / -" "" "" "" "" "" Car "
+ ** Comment exporter les ETS -> ESF <- Liste des adresses de groupe**
+
+> Sur la fenêtre ETS, sélectionnez votre projet, puis cliquez sur l'icône d'exportation (l'icône avec la flèche vers le haut) 
+
+>
+> Sélectionnez pour exporter le projet au format ESF (pas le .knxprod par défaut) 
+
 >
 > Copiez ensuite le contenu du fichier et collez-le dans le champ de la liste d'adresses de groupe de passerelle "ETS".
 
-<p>
     <Table Style = "Font-Size: 12px">
         <tr>
         <th Colspan = "2" style = "Font-Size: 14px"> Couleurs d'état du nœud Explication </th>
@@ -159,4 +165,3 @@ Si vous pouvez utiliser les deux, veuillez préférer le fichier exporté de l'a
             <TD> Node désactivé en raison d'une référence circulare. <a href = "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki" target = "_ blanc"> voir cette page. </a> </ td>
         </tr>
     </ table>
-</p>
