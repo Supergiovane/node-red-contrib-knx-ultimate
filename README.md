@@ -83,7 +83,7 @@ Please subscribe to the [YouTube channel](https://www.youtube.com/playlist?list=
 - **IoT Bridge** - Bridges MQTT/REST devices with KNX, handling payload translations so non‑KNX equipment becomes bus-aware.
 - **Home Assistant Translator** - [docs](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HATranslator). Converts Home Assistant service payloads to KNX telegrams using a built-in, user-editable mapping table.
 
-**Philips Hue nodeset** - [guide](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE+Bridge+configuration)  
+**Philips Hue nodeset** - [guide](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE%20Bridge%20configuration)  
 Use the dedicated Hue config node plus the following device nodes to mirror Hue state into KNX and vice versa:
 
 - **Hue Light** - Bi-directional light control with day/night scenes, dimming curves, and tunable white.
