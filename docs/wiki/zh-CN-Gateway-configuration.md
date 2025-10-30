@@ -1,4 +1,4 @@
-🌐 Language: [EN](/node-red-contrib-knx-ultimate/wiki/Gateway-configuration) | [IT](/node-red-contrib-knx-ultimate/wiki/it-Gateway-configuration) | [DE](/node-red-contrib-knx-ultimate/wiki/de-Gateway-configuration) | [FR](/node-red-contrib-knx-ultimate/wiki/fr-Gateway-configuration) | [ES](/node-red-contrib-knx-ultimate/wiki/es-Gateway-configuration) | [简体中文](/node-red-contrib-knx-ultimate/wiki/zh-CN-Gateway-configuration)
+🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Gateway-configuration) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-Gateway-configuration) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-Gateway-configuration) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-Gateway-configuration) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-Gateway-configuration) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-Gateway-configuration)
 
 <!-- NAV START -->
 导航: [首页](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-Home)  
@@ -9,13 +9,12 @@ HUE: [Bridge](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/
 示例: [日志](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-Logger-Sample) • [Switch Light](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Switch-light) • [Dimming](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Dimming) • [RGB color](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---RGB-Color) • [RGBW color + White](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---RGBW-Color-plus-White) • [Command a scene actuator](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Control-a-scene-actuator) • [Datapoint 213.x 4x Setpoint](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT213) • [Datapoint 222.x 3x Setpoint](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT222) • [Datapoint 237.x DALI diags](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT237) • [Datapoint 2.x 1 bit proprity](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT2) • [Datapoint 22.x RCHH Status](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT22) • [Datetime to BUS](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DateTime-to-BUS) • [Read Status](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Read-value-from-Device) • [Virtual Device](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Virtual-Device) • [Subtype decoded](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Subtype) • [Alexa](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Alexa) • [Apple Homekit](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Apple-Homekit) • [Google Home](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Google-Assistant) • [Switch on/off POE port of Unifi switch](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---UnifiPOE) • [Set configuration by msg](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample-setConfig) • [Scene Controller node](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Sample-Scene-Node) • [WatchDog node](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---WatchDog) • [Global Context node](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleGlobalContextNode) • [Alerter node](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleAlerter) • [Load control node](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleLoadControl) • [Viewer node](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/knxUltimateViewer) • [MySQL, InfluxDB, MQTT Sample](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Sample-KNX2MQTT-KNX2MySQL-KNX2InfluxDB)
 <!-- NAV END -->
 
----
-
 # KNX Gateway 配置
 
 该节点用于连接你的 KNX/IP 网关。
 
 **常规**
+
 |属性|说明|
 |--|--|
 | Name | 节点名称。|
@@ -24,6 +23,7 @@ HUE: [Bridge](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/
 <br/>
 
 **配置**
+
 |属性|说明|
 |--|--|
 | IP Port | 端口，默认 `3671`。|
@@ -43,6 +43,7 @@ HUE: [Bridge](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/
 <br/>
 
 **高级**
+
 |属性|说明|
 |--|--|
 | Echo sent message to all node with same Group Address | 将来自流程的输入消息，转发给所有相同 GA 的节点，仿佛来自总线。在 KNX 模拟或未连总线时有用。 **该选项将来会废弃并默认启用。** |
@@ -55,6 +56,7 @@ HUE: [Bridge](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/
 <br/>
 
 **ETS 文件导入**
+
 |属性|说明|
 |--|--|
 | If Group Address has no Datapoint | 当某组地址无 DPT 时：停止导入、跳过该 GA，或使用占位 DPT `1.001` 继续。|
@@ -63,6 +65,7 @@ HUE: [Bridge](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/
 <br/>
 
 **工具**
+
 |属性|说明|
 |--|--|
 | Gather debug info for troubleshoot | 点击按钮收集信息并附在 GitHub issue 中，便于排查。|
@@ -101,12 +104,12 @@ HUE: [Bridge](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/
     <table style="font-size:12px">
         <tr><th colspan="2" style="font-size:14px">节点状态颜色说明</th></tr>
         <tr><td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/greendot.png"></td><td>响应写报文</td></tr>
-        <tr><td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/greenring.png"></td><td>循环引用保护（<a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki" target="_blank">查看页面</a>）</td></tr>
+        <tr><td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/greenring.png"></td><td>循环引用保护（<a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki" target="_blank">查看页面</a>）</td></tr>
         <tr><td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/bluedot.png"></td><td>响应应答报文</td></tr>
-        <tr><td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/bluering.png"></td><td>自动将节点值作为应答发送（<a href="/node-red-contrib-knx-ultimate/wiki/-Sample---Virtual-Device" target="_blank">Virtual Device</a>）</td></tr>
+        <tr><td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/bluering.png"></td><td>自动将节点值作为应答发送（<a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Virtual-Device" target="_blank">Virtual Device</a>）</td></tr>
         <tr><td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/greudot.png"></td><td>响应读报文</td></tr>
         <tr><td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/greyring.png"></td><td>RBE 过滤：未发送报文</td></tr>
         <tr><td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/reddot.png"></td><td>错误或已断开</td></tr>
-        <tr><td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/redring.png"></td><td>因循环引用而禁用（<a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki" target="_blank">查看页面</a>）</td></tr>
+        <tr><td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/redring.png"></td><td>因循环引用而禁用（<a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki" target="_blank">查看页面</a>）</td></tr>
     </table>
 </p>

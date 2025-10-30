@@ -1,4 +1,5 @@
-🌐 Language: [EN](/node-red-contrib-knx-ultimate/wiki/HUE+Motion) | [IT](/node-red-contrib-knx-ultimate/wiki/it-HUE+Motion) | [DE](/node-red-contrib-knx-ultimate/wiki/de-HUE+Motion) | [FR](/node-red-contrib-knx-ultimate/wiki/fr-HUE+Motion) | [ES](/node-red-contrib-knx-ultimate/wiki/es-HUE+Motion) | [简体中文](/node-red-contrib-knx-ultimate/wiki/zh-CN-HUE+Motion)
+🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE+Motion) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-HUE+Motion) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-HUE+Motion) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-HUE+Motion) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-HUE+Motion) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-HUE+Motion)
+
 <!-- NAV START -->
 Navigation: [Home](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Home)  
 Overview: [Changelog](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/blob/master/CHANGELOG.md) • [FAQ](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/FAQ-Troubleshoot) • [Security](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SECURITY) • [Docs: Language bar](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Docs-Language-Bar)  
@@ -7,24 +8,34 @@ Other KNX Nodes: [Scene Controller](https://supergiovane.github.io/node-red-cont
 HUE: [Bridge](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE+Bridge+configuration) • [Light](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE+Light) • [Battery](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE+Battery) • [Button](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE+Button) • [Contact](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE+Contact+sensor) • [Device SW update](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE+Device+software+update) • [Light sensor](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE+Light+sensor) • [Motion](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE+Motion) • [Scene](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE+Scene) • [Tap Dial](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE+Tapdial) • [Temperature](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE+Temperature+sensor) • [Zigbee connectivity](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE+Zigbee+connectivity)  
 Samples: [Logger](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Logger-Sample) • [Switch Light](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Switch-light) • [Dimming](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Dimming) • [RGB color](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---RGB-Color) • [RGBW color + White](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---RGBW-Color-plus-White) • [Command a scene actuator](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Control-a-scene-actuator) • [Datapoint 213.x 4x Setpoint](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT213) • [Datapoint 222.x 3x Setpoint](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT222) • [Datapoint 237.x DALI diags](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT237) • [Datapoint 2.x 1 bit proprity](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT2) • [Datapoint 22.x RCHH Status](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT22) • [Datetime to BUS](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DateTime-to-BUS) • [Read Status](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Read-value-from-Device) • [Virtual Device](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Virtual-Device) • [Subtype decoded](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Subtype) • [Alexa](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Alexa) • [Apple Homekit](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Apple-Homekit) • [Google Home](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Google-Assistant) • [Switch on/off POE port of Unifi switch](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---UnifiPOE) • [Set configuration by msg](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample-setConfig) • [Scene Controller node](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Sample-Scene-Node) • [WatchDog node](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---WatchDog) • [Global Context node](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleGlobalContextNode) • [Alerter node](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleAlerter) • [Load control node](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleLoadControl) • [Viewer node](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/knxUltimateViewer) • [MySQL, InfluxDB, MQTT Sample](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Sample-KNX2MQTT-KNX2MySQL-KNX2InfluxDB)
 <!-- NAV END -->
----
+
 <p> Este nodo escucha un sensor de movimiento de tono y refleja los eventos para KNX y/o su flujo de nodo-rojo. </p>
+
 Comience a escribir el nombre del dispositivo KNX o la dirección de grupo en el campo GA;Aparecen sugerencias mientras escribe.Presione el botón Actualizar junto a "Sensor Hue" para volver a cargar la lista de dispositivos desde el puente si agrega nuevos sensores.
+
 **General**
+
 | Propiedad | Descripción |
 |-|-|
 |KNX GW |KNX Gateway que recibe las actualizaciones de movimiento (requeridas antes de que aparezcan los campos de mapeo KNX).|
 |Puente Hue |Puente de Hue para la consulta.|
 |Sensor de tono |Sensor de movimiento de Hue (admite autocompletar y actualizar).|
+
 **Cartografía**
+
 | Propiedad | Descripción |
 |-|-|
 |Movimiento |KNX GA que recibe `verdadero` cuando se detecta el movimiento y` falso 'cuando el área está clara.DPT recomendado: <b> 1.001 </b>.|
+
 **Comportamiento**
+
 | Propiedad | Descripción |
 |-|-|
 |Pin de salida del nodo |Mostrar u ocultar la salida de nodo-rojo.Cuando no se selecciona la puerta de enlace KNX, el pin de salida permanece habilitado para que los eventos de movimiento de tono aún alcancen su flujo.|
+
 > ℹ️ Los widgets KNX permanecen ocultos hasta que seleccione una puerta de enlace KNX, lo que facilita el uso del nodo puramente como un oyente rojo de nodo.
+
 ### Producción
+
 1. Salida estándar - `msg.payload` (boolean)
 : `True` on Motion,` False` cuando termina el movimiento.

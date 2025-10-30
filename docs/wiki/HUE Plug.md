@@ -1,4 +1,5 @@
-🌐 Language: [EN](/node-red-contrib-knx-ultimate/wiki/HUE+Plug) | [IT](/node-red-contrib-knx-ultimate/wiki/it-HUE+Plug) | [DE](/node-red-contrib-knx-ultimate/wiki/de-HUE+Plug) | [FR](/node-red-contrib-knx-ultimate/wiki/fr-HUE+Plug) | [ES](/node-red-contrib-knx-ultimate/wiki/es-HUE+Plug) | [简体中文](/node-red-contrib-knx-ultimate/wiki/zh-CN-HUE+Plug)
+🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE+Plug) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-HUE+Plug) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-HUE+Plug) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-HUE+Plug) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-HUE+Plug) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-HUE+Plug)
+
 <!-- NAV START -->
 Navigation: [Home](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Home)  
 Overview: [Changelog](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/blob/master/CHANGELOG.md) • [FAQ](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/FAQ-Troubleshoot) • [Security](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SECURITY) • [Docs: Language bar](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Docs-Language-Bar)  
@@ -7,14 +8,19 @@ Other KNX Nodes: [Scene Controller](https://supergiovane.github.io/node-red-cont
 HUE: [Bridge](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE+Bridge+configuration) • [Light](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE+Light) • [Battery](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE+Battery) • [Button](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE+Button) • [Contact](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE+Contact+sensor) • [Device SW update](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE+Device+software+update) • [Light sensor](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE+Light+sensor) • [Motion](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE+Motion) • [Scene](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE+Scene) • [Tap Dial](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE+Tapdial) • [Temperature](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE+Temperature+sensor) • [Zigbee connectivity](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE+Zigbee+connectivity)  
 Samples: [Logger](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Logger-Sample) • [Switch Light](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Switch-light) • [Dimming](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Dimming) • [RGB color](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---RGB-Color) • [RGBW color + White](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---RGBW-Color-plus-White) • [Command a scene actuator](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Control-a-scene-actuator) • [Datapoint 213.x 4x Setpoint](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT213) • [Datapoint 222.x 3x Setpoint](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT222) • [Datapoint 237.x DALI diags](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT237) • [Datapoint 2.x 1 bit proprity](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT2) • [Datapoint 22.x RCHH Status](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT22) • [Datetime to BUS](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DateTime-to-BUS) • [Read Status](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Read-value-from-Device) • [Virtual Device](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Virtual-Device) • [Subtype decoded](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Subtype) • [Alexa](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Alexa) • [Apple Homekit](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Apple-Homekit) • [Google Home](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Google-Assistant) • [Switch on/off POE port of Unifi switch](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---UnifiPOE) • [Set configuration by msg](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample-setConfig) • [Scene Controller node](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Sample-Scene-Node) • [WatchDog node](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---WatchDog) • [Global Context node](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleGlobalContextNode) • [Alerter node](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleAlerter) • [Load control node](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleLoadControl) • [Viewer node](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/knxUltimateViewer) • [MySQL, InfluxDB, MQTT Sample](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Sample-KNX2MQTT-KNX2MySQL-KNX2InfluxDB)
 <!-- NAV END -->
----
+
 # Hue Plug / Outlet
+
 ## Overview
+
 The Hue Plug node links a Philips Hue smart plug (service `plug`) with KNX group addresses so you can control power and track the state directly from the BUS.
+
 - Supports **on/off control ** and**status feedback** .
 - Optional mapping of the Hue `power_state` (on / standby).
 - Can expose Node-RED input/output pins to forward Hue events to flows or send advanced API payloads.
+
 ## Configuration
+
 |Field|Description|
 |--|--|
 | KNX GW | KNX gateway used for telegrams |
@@ -25,13 +31,20 @@ The Hue Plug node links a Philips Hue smart plug (service `plug`) with KNX group
 | Power state | Optional GA mirroring Hue `power_state` (boolean/text) |
 | Read status at startup | When enabled, the node emits the current plug state on deploy/connection |
 | Node I/O pins | Enable Node-RED input/output pins. Input expects Hue API payloads (e.g. `{ on: { on: true } }`). Output forwards every Hue event. |
+
 ## KNX Mapping Tips
+
 - Use a boolean datapoint (e.g. DPT 1.001) for both command and status.
 - If you expose `power_state`, map it to a boolean GA (true = `on`, false = `standby`).
 - For read requests (`GroupValue_Read`) the node returns the last cached Hue value.
+
 ## Flow Integration
+
 When _Node I/O pins_ are enabled:
+
 - **Input:** send Hue v2 payloads to perform advanced actions (e.g. `msg.on = { on: true }`).
 - **Output:** receive an event object `{ payload: boolean, on, power_state, rawEvent }` whenever Hue reports a change.
+
 ## Hue API Reference
+
 The node uses `/resource/plug/{id}` over HTTPS. Status changes are delivered via the Hue event stream and cached for KNX read responses.

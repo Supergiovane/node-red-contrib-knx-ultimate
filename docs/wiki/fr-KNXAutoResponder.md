@@ -1,4 +1,5 @@
-🌐 Language: [EN](/node-red-contrib-knx-ultimate/wiki/KNXAutoResponder) | [IT](/node-red-contrib-knx-ultimate/wiki/it-KNXAutoResponder) | [DE](/node-red-contrib-knx-ultimate/wiki/de-KNXAutoResponder) | [FR](/node-red-contrib-knx-ultimate/wiki/fr-KNXAutoResponder) | [ES](/node-red-contrib-knx-ultimate/wiki/es-KNXAutoResponder) | [简体中文](/node-red-contrib-knx-ultimate/wiki/zh-CN-KNXAutoResponder)
+🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/KNXAutoResponder) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-KNXAutoResponder) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-KNXAutoResponder) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-KNXAutoResponder) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-KNXAutoResponder) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-KNXAutoResponder)
+
 <!-- NAV START -->
 Navigation: [Home](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Home)  
 Overview: [Changelog](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/blob/master/CHANGELOG.md) • [FAQ](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/FAQ-Troubleshoot) • [Security](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SECURITY) • [Docs: Language bar](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Docs-Language-Bar)  
@@ -7,26 +8,33 @@ Other KNX Nodes: [Scene Controller](https://supergiovane.github.io/node-red-cont
 HUE: [Bridge](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE+Bridge+configuration) • [Light](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE+Light) • [Battery](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE+Battery) • [Button](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE+Button) • [Contact](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE+Contact+sensor) • [Device SW update](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE+Device+software+update) • [Light sensor](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE+Light+sensor) • [Motion](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE+Motion) • [Scene](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE+Scene) • [Tap Dial](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE+Tapdial) • [Temperature](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE+Temperature+sensor) • [Zigbee connectivity](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE+Zigbee+connectivity)  
 Samples: [Logger](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Logger-Sample) • [Switch Light](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Switch-light) • [Dimming](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Dimming) • [RGB color](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---RGB-Color) • [RGBW color + White](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---RGBW-Color-plus-White) • [Command a scene actuator](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Control-a-scene-actuator) • [Datapoint 213.x 4x Setpoint](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT213) • [Datapoint 222.x 3x Setpoint](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT222) • [Datapoint 237.x DALI diags](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT237) • [Datapoint 2.x 1 bit proprity](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT2) • [Datapoint 22.x RCHH Status](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT22) • [Datetime to BUS](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DateTime-to-BUS) • [Read Status](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Read-value-from-Device) • [Virtual Device](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Virtual-Device) • [Subtype decoded](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Subtype) • [Alexa](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Alexa) • [Apple Homekit](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Apple-Homekit) • [Google Home](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Google-Assistant) • [Switch on/off POE port of Unifi switch](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---UnifiPOE) • [Set configuration by msg](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample-setConfig) • [Scene Controller node](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Sample-Scene-Node) • [WatchDog node](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---WatchDog) • [Global Context node](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleGlobalContextNode) • [Alerter node](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleAlerter) • [Load control node](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleLoadControl) • [Viewer node](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/knxUltimateViewer) • [MySQL, InfluxDB, MQTT Sample](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Sample-KNX2MQTT-KNX2MySQL-KNX2InfluxDB)
 <!-- NAV END -->
----
+
 <p> Ce nœud répondra aux demandes de lecture du bus KNX.
+
 Le nœud enregistre tous les télégrammes transmis au bus KNX et stockent les valeurs en mémoire. \
 Il répond ensuite aux demandes de lecture en renvoyant cette valeur mémorisée dans le bus comme demande. \
 Si l'adresse du groupe à lire n'a pas encore de valeur, le nœud répondra avec une valeur par défaut. \
 Le nœud répondra uniquement aux adresses de groupe spécifiées dans le champ **Réponse au** JSON. \
 Par défaut, il existe un exemple **pré-compilé ** "Répondez au" Texte JSON, où vous pouvez simplement changer / supprimer des choses.Veuillez vous assurer que**de ne pas l'utiliser comme c'est ** !!!**Configuration**
+
 | Propriété | Description |
 |-|-|
 |Passerelle |Sélectionnez la passerelle KNX à utiliser |
 |Répondre à |Le nœud répondra aux demandes de lecture provenant des adresses de groupe spécifiées dans ce tableau JSON.Le format est spécifié ci-dessous.|
+
 <br/>
+
 **Format JSON ** Le JSON est**toujours** un tableau d'objet, contenant chaque directive.Chaque directive indique au nœud ce qui fait.
+
 | Propriété | Description |
 |-|-|
 |Remarque | **Facultatif** Note Key, pour les rappels.Il ne sera utilisé nulle part.|
 |GA |L'adresse du groupe.Vous pouvez également utiliser les Wildchars "..", pour spécifier une gamme d'adresses de groupe.Le ".." ne peut être utilisé qu'avec le niveau du troisième GA, Ex: **1/1/0..257** .Voir les échantillons ci-dessous.|
 |DPT |Le groupe adressé le point de données, dans le format "1.001".C'est **facultatif** Si le fichier ETS CSV a été importé.|
 |par défaut |La valeur envoyée au bus en réponse à une demande de lecture, lorsque la valeur d'adresse du groupe n'a pas encore été mémorisée par le nœud.|
+
 **Commençons par une directive**
+
 Le nœud AutoResPonder répondra aux demandes de lecture de l'adresse du groupe 2/7/1.Si aucune valeur n'est encore en mémoire, elle répondra avec _true _. \
 Le fichier ETS CSV doit avoir été importé, sinon vous devez également ajouter la clé **"DPT": "1.001"** .```json
 [
@@ -36,6 +44,7 @@ Le fichier ETS CSV doit avoir été importé, sinon vous devez également ajoute
     }
 ]
 ``` **Directive un peu plus complète**
+
 Le nœud AutoResPonder répondra aux demandes de lecture de l'adresse du groupe à partir du 3/1/1 au 3/1/22 inclus.Si aucune valeur n'est encore en mémoire, elle répondra avec _false _. \
 Il y a aussi une touche **note** , simplement comme une note de rappel.Il ne sera utilisé nulle part.```json
 [
@@ -47,6 +56,7 @@ Il y a aussi une touche **note** , simplement comme une note de rappel.Il ne ser
     }
 ]
 ``` **Directives de concaténation**
+
 Le nœud de réponse automatique répondra aux demandes de lecture de l'adresse du groupe à partir du 2/2/5 au 2/2/21 incluse.Si aucune valeur n'est encore en mémoire, elle répondra avec une valeur de 25. \
 Le nœud AutoResPonder répondra également aux demandes de lecture de l'adresse du groupe 2/4/22.Si aucune valeur n'est encore en mémoire, elle répondra avec la chaîne _Unknown Status! _. \
 Veuillez noter le **virgule** entre l'objet JSON de chaque directive.```json

@@ -1,4 +1,5 @@
-🌐 Language: [EN](/node-red-contrib-knx-ultimate/wiki/HUE+Light) | [IT](/node-red-contrib-knx-ultimate/wiki/it-HUE+Light) | [DE](/node-red-contrib-knx-ultimate/wiki/de-HUE+Light) | [FR](/node-red-contrib-knx-ultimate/wiki/fr-HUE+Light) | [ES](/node-red-contrib-knx-ultimate/wiki/es-HUE+Light) | [简体中文](/node-red-contrib-knx-ultimate/wiki/zh-CN-HUE+Light)
+🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE+Light) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-HUE+Light) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-HUE+Light) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-HUE+Light) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-HUE+Light) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-HUE+Light)
+
 <!-- NAV START -->
 Navigation: [Home](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Home)  
 Overview: [Changelog](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/blob/master/CHANGELOG.md) • [FAQ](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/FAQ-Troubleshoot) • [Security](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SECURITY) • [Docs: Language bar](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Docs-Language-Bar)  
@@ -7,28 +8,41 @@ Other KNX Nodes: [Scene Controller](https://supergiovane.github.io/node-red-cont
 HUE: [Bridge](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE+Bridge+configuration) • [Light](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE+Light) • [Battery](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE+Battery) • [Button](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE+Button) • [Contact](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE+Contact+sensor) • [Device SW update](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE+Device+software+update) • [Light sensor](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE+Light+sensor) • [Motion](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE+Motion) • [Scene](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE+Scene) • [Tap Dial](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE+Tapdial) • [Temperature](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE+Temperature+sensor) • [Zigbee connectivity](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE+Zigbee+connectivity)  
 Samples: [Logger](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Logger-Sample) • [Switch Light](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Switch-light) • [Dimming](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Dimming) • [RGB color](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---RGB-Color) • [RGBW color + White](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---RGBW-Color-plus-White) • [Command a scene actuator](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Control-a-scene-actuator) • [Datapoint 213.x 4x Setpoint](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT213) • [Datapoint 222.x 3x Setpoint](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT222) • [Datapoint 237.x DALI diags](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT237) • [Datapoint 2.x 1 bit proprity](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT2) • [Datapoint 22.x RCHH Status](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT22) • [Datetime to BUS](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DateTime-to-BUS) • [Read Status](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Read-value-from-Device) • [Virtual Device](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Virtual-Device) • [Subtype decoded](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Subtype) • [Alexa](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Alexa) • [Apple Homekit](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Apple-Homekit) • [Google Home](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Google-Assistant) • [Switch on/off POE port of Unifi switch](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---UnifiPOE) • [Set configuration by msg](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample-setConfig) • [Scene Controller node](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Sample-Scene-Node) • [WatchDog node](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---WatchDog) • [Global Context node](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleGlobalContextNode) • [Alerter node](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleAlerter) • [Load control node](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleLoadControl) • [Viewer node](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/knxUltimateViewer) • [MySQL, InfluxDB, MQTT Sample](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Sample-KNX2MQTT-KNX2MySQL-KNX2InfluxDB)
 <!-- NAV END -->
----
+
 <p> Ce nœud contrôle les lumières de Hue Philips (simple ou groupées) et mappe leurs commandes / états à KNX. </p>
+
 **Général**
+
 | Propriété | Description |
 |-|-|
 | KNX GW | Sélectionnez la passerelle KNX à utiliser |
 | Hue Bridge | Sélectionnez le pont Hue à utiliser |
 | Nom | Hue Light ou Lumière groupée à utiliser (Ambord d'auto-automatique pendant la frappe). |
+
 <br/>
+
 **Localiser l’appareil**
+
 Le bouton `Locate` (icône lecture) lance une session d’identification Hue pour la ressource sélectionnée. Lorsque la session est active, le bouton affiche l’icône stop et le pont fait clignoter la lampe — ou toutes les lampes du groupe — chaque seconde. Appuyez à nouveau pour l’arrêter immédiatement ; sinon la session s’arrête automatiquement au bout de 10 minutes.
+
 <br/>
+
 **Options**
+
 Ici, vous pouvez lier les adresses de groupe KNX aux commandes / états de Theaux disponibles. <br/>
 Commencer à taper le champ GA (nom ou adresse de groupe); Les suggestions apparaissent pendant que vous tapez.
+
 **Changer**
+
 | Propriété | Description |
 |-|-|
 | Contrôle | Ce GA est utilisé pour allumer / éteindre la lumière via une valeur booléenne KNX True / False |
 | Statut | LIENDEZ CECI À L'Adresse du groupe d'état du commutateur de Light |
+
 <br/>
+
 **Faible**
+
 | Propriété | Description |
 |-|-|
 | Contrôle DIM | Dim relatif de la lumière de la teinte. Vous pouvez régler la vitesse de gradation dans l'onglet **comportement** . |
@@ -37,8 +51,11 @@ Commencer à taper le champ GA (nom ou adresse de groupe); Les suggestions appar
 | Dim Speed ​​(MS) | Vitesse de gradation en millisecondes. S'applique à la fois à la luminosité lumineuse et aux points de données blancs de réglage. Calculé sur la plage de 0% → 100%. |
 | Min DIM luminosité | La luminosité minimale que la lampe peut atteindre. Par exemple, si vous tuez la lumière vers le bas, la lumière s'arrêtera à la baisse à la luminosité spécifiée%. |
 | Luminosité maximale de DIM | La luminosité maximale que la lampe peut atteindre. Par exemple, si vous tuez la lumière, la lumière s'arrêtera à la baisse à la luminosité spécifiée%. |
+
 <br/>
+
 **Blanc accordable**
+
 | Propriété | Description |
 |-|-|
 | Contrôle DIM | Changer la température blanche à l'aide de DPT 3.007 Semballage. La vitesse est définie dans l'onglet **comportement** . |
@@ -48,7 +65,9 @@ Commencer à taper le champ GA (nom ou adresse de groupe); Les suggestions appar
 | Statut Kelvin | **DPT 7.600: ** Température de lecture dans Kelvin en utilisant KNX Range 2000-6535 (converti à partir de Hue). <br/>**DPT 9.002:** Température de lecture en utilisant la gamme Hue 2000-6535 K (l'ambiance commence à 2200 K). Les conversions peuvent introduire de petits écarts. |
 | Invertissant la direction sombre | Inverse la direction sombre. |
 <br/>
+
 **RGB / HSV**
+
 | Propriété | Description |
 |-|-|
 | **Section RVB** ||
@@ -60,20 +79,31 @@ Commencer à taper le champ GA (nom ou adresse de groupe); Les suggestions appar
 | Contrôle s dim | Modifie la saturation des couleurs de la lumière, en utilisant DPT 3.007 Semballage. Vous pouvez définir la vitesse de gradation dans l'onglet du comportement **_ _** . |
 | Statut S% | L'adresse du groupe d'état de saturation des couleurs légères. |
 | Dim Speed ​​(MS) | La vitesse de gradation, en millisecondes, du bas à l'échelle supérieure. |
+
 Pour contrôler le HSV "V" (luminosité), utilisez les contrôles standard sous l'onglet **Dim** .
+
 <br/>
+
 **Effets**
+
 _NE-HUE BASIC EFFETS_
+
 | Propriété | Description |
 |-|-|
 | Clignotement | _True_ clignote la lumière, _false_ arrête de clignoter. Clignote la lumière allumée et éteinte. Utile pour la signalisation. Fonctionne avec toutes les lumières Hue. |
 | Cycle de couleur | _True_ Cycle de démarrage, _false_ Stop Cycle. Modifie au hasard la couleur de la lumière de la teinte à intervalle régulier. Fonctionne avec toutes les lumières Hue ayant des capacités de couleur. L'effet de couleur commencera 10 secondes après le jeu. |
+
 _Hue Effets natifs_
+
 Utilisez le tableau des effets natifs **Hue** pour cartographier vos valeurs KNX aux effets pris en charge par la lumière sélectionnée (par exemple «bougie», `foyer», «prisme»). Chaque ligne relie une valeur KNX (booléen, numérique ou textuelle, selon le point de données que vous choisissez) avec un effet de teinte. Du côté KNX, vous pouvez:
+
 - Envoyez la valeur mappée pour activer cet effet;
 - Fournir éventuellement une adresse de groupe d'état: le nœud émet la valeur mappée chaque fois que le pont de teinte rapporte un changement d'effet; Si aucun mappage n'existe, le nom de l'effet brut est envoyé (nécessite un DPT textuel tel que 16.xxx).
+
 <br/>
+
 **Comportement**
+
 | Propriété | Description |
 | ----------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Lire l'état au démarrage | Lisez l'état de la lumière de Hue au démarrage de Node-Red ou le déploiement complet de Node-Red, et envoyez ce statut au bus KNX |
@@ -85,6 +115,9 @@ Utilisez le tableau des effets natifs **Hue** pour cartographier vos valeurs KNX
 | Lire l'état au démarrage | Lisez l'état au démarrage et émettez l'événement dans le bus KNX au démarrage / reconnexion. (Par défaut "non") |
 | Remplacez le mode nuit | Vous pouvez remplacer le mode nuit en changeant manuellement la lumière comme décrit ici: **Passez au mode jour en changeant rapidement la ligth puis sur (cette lumière uniquement) ** fait ce qui décrit et n'agit que sur cette lumière.**Passez au mode jour en changeant rapidement la ligth puis sur (appliquez tous vos nœuds légers)** agit sur tous les nœuds légers, en définissant l'adresse du groupe jour / nuit sur le mode jour. |
 | Pinons d'entrée / sortie de nœud | Masquer ou afficher les broches d'entrée / sortie. Les broches d'entrée / sortie permettent au nœud d'accepter l'entrée MSG de l'écoulement et d'envoyer une sortie MSG à l'écoulement. Le MSG d'entrée doit suivre les normes de l'API Hue V.2. Ceci est un exemple de msg, qui allume la lumière: <code> msg.on = {"on": true} </code>. Veuillez vous référer à la [page officielle de l'API Hue](https://developers.meethue.com/develop/hue-api-v2/api-reference/#resource_light__id__put) |
+
 ### Note
+
 La fonction de gradation fonctionne en mode **knx `start` et` `stop` ** . Pour commencer à tuer, envoyez un seul télégramme KNX "start". Pour arrêter de tuer, envoyez un télégramme KNX "stop". S'il vous plaît**N'oubliez pas cela** , lorsque vous définissez les propriétés de votre mur.
+
 <br/>

@@ -11,7 +11,7 @@ const path = require('path')
 
 const REPO = process.cwd()
 const NODES_DIR = path.join(REPO, 'nodes')
-const WIKI_DIR = path.resolve(REPO, '..', 'node-red-contrib-knx-ultimate.wiki')
+const WIKI_DIR = path.join(REPO, 'docs', 'wiki')
 
 const LANGS = [
   { key: 'en', dir: 'en', prefix: '' },
@@ -25,7 +25,7 @@ const LANGS = [
 // Map help-name (or file base) to wiki title
 const HELP_TO_WIKI = new Map([
   ['knxUltimate-config', 'Gateway-configuration'],
-  ['knxUltimate', 'KNX Node Configuration'],
+  ['knxUltimate', 'Device'],
   ['knxUltimateLogger', 'Logger-Configuration'],
   ['knxUltimateGlobalContext', 'GlobalVariable'],
   ['knxUltimateWatchDog', 'WatchDog-Configuration'],

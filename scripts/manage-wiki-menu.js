@@ -18,7 +18,7 @@ const translate = require('translate-google')
 
 // Paths
 const REPO = process.cwd()
-const WIKI_DIR = path.resolve(REPO, '..', 'node-red-contrib-knx-ultimate.wiki')
+const WIKI_DIR = path.join(REPO, 'docs', 'wiki')
 const NODES_DIR = path.join(REPO, 'nodes')
 
 const CFG_PATH = path.join(__dirname, 'wiki-menu.json')

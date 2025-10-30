@@ -1,4 +1,5 @@
-🌐 Language: [EN](/node-red-contrib-knx-ultimate/wiki/HUE+Battery) | [IT](/node-red-contrib-knx-ultimate/wiki/it-HUE+Battery) | [DE](/node-red-contrib-knx-ultimate/wiki/de-HUE+Battery) | [FR](/node-red-contrib-knx-ultimate/wiki/fr-HUE+Battery) | [ES](/node-red-contrib-knx-ultimate/wiki/es-HUE+Battery) | [简体中文](/node-red-contrib-knx-ultimate/wiki/zh-CN-HUE+Battery)
+🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE+Battery) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-HUE+Battery) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-HUE+Battery) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-HUE+Battery) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-HUE+Battery) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-HUE+Battery)
+
 <!-- NAV START -->
 Navigation: [Home](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Home)  
 Overview: [Changelog](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/blob/master/CHANGELOG.md) • [FAQ](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/FAQ-Troubleshoot) • [Security](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SECURITY) • [Docs: Language bar](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Docs-Language-Bar)  
@@ -7,22 +8,30 @@ Other KNX Nodes: [Scene Controller](https://supergiovane.github.io/node-red-cont
 HUE: [Bridge](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE+Bridge+configuration) • [Light](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE+Light) • [Battery](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE+Battery) • [Button](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE+Button) • [Contact](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE+Contact+sensor) • [Device SW update](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE+Device+software+update) • [Light sensor](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE+Light+sensor) • [Motion](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE+Motion) • [Scene](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE+Scene) • [Tap Dial](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE+Tapdial) • [Temperature](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE+Temperature+sensor) • [Zigbee connectivity](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE+Zigbee+connectivity)  
 Samples: [Logger](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Logger-Sample) • [Switch Light](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Switch-light) • [Dimming](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Dimming) • [RGB color](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---RGB-Color) • [RGBW color + White](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---RGBW-Color-plus-White) • [Command a scene actuator](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Control-a-scene-actuator) • [Datapoint 213.x 4x Setpoint](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT213) • [Datapoint 222.x 3x Setpoint](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT222) • [Datapoint 237.x DALI diags](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT237) • [Datapoint 2.x 1 bit proprity](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT2) • [Datapoint 22.x RCHH Status](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT22) • [Datetime to BUS](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DateTime-to-BUS) • [Read Status](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Read-value-from-Device) • [Virtual Device](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Virtual-Device) • [Subtype decoded](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Subtype) • [Alexa](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Alexa) • [Apple Homekit](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Apple-Homekit) • [Google Home](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Google-Assistant) • [Switch on/off POE port of Unifi switch](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---UnifiPOE) • [Set configuration by msg](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample-setConfig) • [Scene Controller node](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Sample-Scene-Node) • [WatchDog node](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---WatchDog) • [Global Context node](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleGlobalContextNode) • [Alerter node](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleAlerter) • [Load control node](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleLoadControl) • [Viewer node](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/knxUltimateViewer) • [MySQL, InfluxDB, MQTT Sample](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Sample-KNX2MQTT-KNX2MySQL-KNX2InfluxDB)
 <!-- NAV END -->
----
+
 <p> Ce nœud expose le niveau de batterie d'un dispositif de teinte à KNX et soulève un événement chaque fois que la valeur change. </p>
+
 Commencez à taper le nom du périphérique KNX ou l'adresse de groupe dans le champ GA;Les entrées correspondantes apparaissent pendant que vous tapez.Utilisez l'icône de rafraîchissement à côté de <q> capteur de teinte </Q> pour recharger la liste à partir du pont de teinte après avoir ajouté de nouveaux appareils.
+
 **Général**
+
 | Propriété | Description |
 |-|-|
 |KNX GW |KNX Gateway a utilisé pour publier le niveau de la batterie (requis avant l'apparition des champs de mappage KNX).|
 |Hue Bridge |Hue Bridge qui héberge l'appareil.|
 |Capteur de teinte |Dispositif / capteur Hue Fournissant le niveau de la batterie (prend en charge la saisie semi-automatique et la rafraîchissement).|
+
 **Mappage**
+
 | Propriété | Description |
 |-|-|
 |Niveau |KNX GA pour le pourcentage de batterie (0-100%).DPT recommandé: <b> 5.001 </b>.|
+
 **Comportement**
+
 | Propriété | Description |
 |-|-|
 |Lire l'état au démarrage |Sur le déploiement / reconnecter, lisez la valeur actuelle de la batterie et publiez-la à KNX.Par défaut: "Oui".|
 |Pin de sortie de nœud |Afficher ou masquer la sortie du nœud-rouge.Lorsqu'aucune passerelle KNX n'est sélectionnée, la sortie reste activée, les événements de teinte continuent d'atteindre le flux.|
+
 > ℹ️ Les widgets de mappage KNX restent cachés jusqu'à ce qu'une passerelle KNX soit sélectionnée.Cela maintient l'éditeur bien rangé lorsque le nœud est utilisé uniquement pour transmettre les événements de teinte dans Node-Red.

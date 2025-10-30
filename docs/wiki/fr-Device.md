@@ -1,4 +1,5 @@
-🌐 Language: [EN](/node-red-contrib-knx-ultimate/wiki/Device) | [IT](/node-red-contrib-knx-ultimate/wiki/it-Device) | [DE](/node-red-contrib-knx-ultimate/wiki/de-Device) | [FR](/node-red-contrib-knx-ultimate/wiki/fr-Device) | [ES](/node-red-contrib-knx-ultimate/wiki/es-Device) | [简体中文](/node-red-contrib-knx-ultimate/wiki/zh-CN-Device)
+🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Device) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-Device) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-Device) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-Device) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-Device) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-Device)
+
 <!-- NAV START -->
 Navigation: [Home](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Home)  
 Overview: [Changelog](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/blob/master/CHANGELOG.md) • [FAQ](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/FAQ-Troubleshoot) • [Security](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SECURITY) • [Docs: Language bar](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Docs-Language-Bar)  
@@ -7,21 +8,24 @@ Other KNX Nodes: [Scene Controller](https://supergiovane.github.io/node-red-cont
 HUE: [Bridge](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE+Bridge+configuration) • [Light](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE+Light) • [Battery](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE+Battery) • [Button](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE+Button) • [Contact](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE+Contact+sensor) • [Device SW update](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE+Device+software+update) • [Light sensor](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE+Light+sensor) • [Motion](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE+Motion) • [Scene](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE+Scene) • [Tap Dial](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE+Tapdial) • [Temperature](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE+Temperature+sensor) • [Zigbee connectivity](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE+Zigbee+connectivity)  
 Samples: [Logger](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Logger-Sample) • [Switch Light](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Switch-light) • [Dimming](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Dimming) • [RGB color](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---RGB-Color) • [RGBW color + White](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---RGBW-Color-plus-White) • [Command a scene actuator](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Control-a-scene-actuator) • [Datapoint 213.x 4x Setpoint](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT213) • [Datapoint 222.x 3x Setpoint](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT222) • [Datapoint 237.x DALI diags](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT237) • [Datapoint 2.x 1 bit proprity](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT2) • [Datapoint 22.x RCHH Status](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT22) • [Datetime to BUS](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DateTime-to-BUS) • [Read Status](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Read-value-from-Device) • [Virtual Device](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Virtual-Device) • [Subtype decoded](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Subtype) • [Alexa](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Alexa) • [Apple Homekit](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Apple-Homekit) • [Google Home](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Google-Assistant) • [Switch on/off POE port of Unifi switch](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---UnifiPOE) • [Set configuration by msg](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample-setConfig) • [Scene Controller node](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Sample-Scene-Node) • [WatchDog node](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---WatchDog) • [Global Context node](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleGlobalContextNode) • [Alerter node](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleAlerter) • [Load control node](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleLoadControl) • [Viewer node](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/knxUltimateViewer) • [MySQL, InfluxDB, MQTT Sample](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Sample-KNX2MQTT-KNX2MySQL-KNX2InfluxDB)
 <!-- NAV END -->
----
+
 ## Paramètres de nœud de périphérique KNX-ultimate
 
- Ce nœud vous permet de contrôler une adresse de groupe KNX, c'est le nœud le plus utilisé.
+<p> Ce nœud vous permet de contrôler une adresse de groupe KNX, c'est le nœud le plus utilisé.
 
-[<i class="fa fa-code"> </i> Ici, vous trouverez quelques échantillons](/node-red-contrib-knx-ultimate/wiki/-SamplesHome)
+[<i class="fa fa-code"> </i> Ici, vous trouverez quelques échantillons](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-SamplesHome)
 
 **Configuration**
 
 | Propriété | Description |
 |-|-|
 | Passerelle | Sélectionnez la passerelle KNX à utiliser |
-| Liste déroulante de type GA | Le type d'adresse de groupe. **3 niveaux** est la valeur par défaut, où vous pouvez saisir l'adresse du groupe de niveau _3 ou le nom d'adresse _group (si vous avez téléchargé le fichier ETS), ou **global**, pour lire le GA au démarrage à partir d'une variable globale, ou **flux** qui font la même chose que le _Global_, mais au niveau du flux. Sélectionnez **$ Env Variable** Pour lire l'adresse de groupe à partir d'une variable d'environnement. Sélectionnez **Mode universel (écoutez toutes les adresses de groupe)** pour réagir à toutes les adresses de groupe. |
+| Liste déroulante de type GA | Le type d'adresse de groupe. **3 niveaux ** est la valeur par défaut, où vous pouvez saisir l'adresse du groupe de niveau _3 ou le nom d'adresse _group (si vous avez téléchargé le fichier ETS), ou**global ** , pour lire le GA au démarrage à partir d'une variable globale, ou**flux ** qui font la même chose que le _Global_, mais au niveau du flux. Sélectionnez**$ Env Variable ** Pour lire l'adresse de groupe à partir d'une variable d'environnement. Sélectionnez**Mode universel (écoutez toutes les adresses de groupe)** pour réagir à toutes les adresses de groupe. |
 | Groupe addr. | L'adresse du groupe KNX que vous souhaitez contrôler. Si vous avez importé le fichier d'adresses du groupe ETS, vous pouvez simplement commencer à saisir le nom de votre appareil. Vous pouvez le laisser vide si vous souhaitez le définir avec le message d'entrée _msg.setConfig_. |
 | DataPoint | Le point de données appartenant à votre nœud. |
+
+<br/>
+<br/>
 
 ### Bouton de commande manuelle
 
@@ -35,6 +39,9 @@ L’éditeur peut afficher, pour chaque nœud, un petit bouton permettant d’en
 | Valeur personnalisée | Payload utilisé par le mode « Écrire une valeur personnalisée ». Vous pouvez saisir n’importe quel littéral JSON, par exemple `42`, `true`, `"texte"` ou `{ "red": 255 }`. |
 
 Le bouton n’est visible que si l’option est activée. En mode universel, l’action de lecture est désactivée car l’adresse de groupe ne serait pas connue.
+
+<br/>
+<br/>
 
 ## OPP OPTIONS AVANCES
 
@@ -57,6 +64,9 @@ Le bouton n’est visible que si l’option est activée. En mode universel, l�
 | Décimales | Des décimales rondes ou manipulées de quelque manière que ce soit. Ne fonctionne que si la valeur est un nombre. |
 | Négatifs | Gère les valeurs négatives. Ne fonctionne que si la valeur est un nombre. |
 
+<br/>
+<br/>
+
 Fonction ## Tab KNX
 
 Vous pouvez utiliser JavaScript pour modifier le comportement du msg d'entrée provenant du flux et du télégramme de sortie envoyé au bus KNX. \
@@ -66,17 +76,19 @@ S'il est activé, l'indication "f (x)" sera ajoutée au nom du nœud.
 
 | Propriété | Description |
 |-|-|
-| Recherche GA | C'est un assistant uniquement si le fichier ETS a été importé. Commencez à taper et sélectionnez l'adresse de groupe que vous souhaitez ajouter au code. Copiez ensuite le champ complet et collez-le dans la fonction GetGavalue. **getGavalue ('0/0/1 Table Nord Lamp')** |
+| Recherche GA | C'est un assistant uniquement si le fichier ETS a été importé. Commencez à taper et sélectionnez l'adresse de groupe que vous souhaitez ajouter au code. Copiez ensuite le champ complet et collez-le dans la fonction GetGavalue. <br/> **getGavalue ('0/0/1 Table Nord Lamp')** |
+
+<br/>
 
 ### Liste d'objets et de fonctions communes que vous pouvez utiliser dans le code
 
 | Objet ou fonction | Description |
 |-|-|
 | msg (objet) | L'objet MSG actuel reçu par le nœud. |
-| getGavalue (String GA, String facultatif DPT) | Obtenez la valeur de GA spécifiée, par exemple **'1/0/1'**, ou aussi **'1/0/1 light light'** (tout le texte après un espace vierge sera ignoré par la fonction. Ceci est utile si vous souhaitez ajouter le nom GA et un rappel. Avec le fichier ETS importé, vous pouvez également copier et coller le nom GA et GA directement dans le champ **Recherche GA**. **DPT** est facultatif si vous avez importé le fichier ETS, sinon vous devez le spécifier, par exemple «1.001». |
-| setGavalue (String ga, n'importe quelle valeur, chaîne facultative dpt) | Définissez la valeur de GA spécifiée. Le GA Con doit être écrit par exemple **'1/0/1'**, ou aussi **'1/0/1 light light'** (tout le texte après un espace vide sera ignoré par la fonction. Ceci est utile si vous souhaitez ajouter le nom GA et un rappel. Avec le fichier ETS importé, vous pouvez également copier et coller le nom GA et GA directement à partir du champ GA **GA**.). La valeur ** **est obligatoire, peut être un booléen ou un numéro ou une chaîne,** dpt **est facultatif si vous avez importé le fichier ETS, sinon vous devez le spécifier, par exemple «1.001». |
-| self (toute valeur) | Définissez la valeur du nœud Currend et envoie également la valeur au bus KNX. Par exemple, _self (false) _. ATTENTION UTILISATION** Self **Fonction dans le code Pin_ de sortie du bus KNX _From pour le nœud, car le code sera exécuté à chaque fois qu'un télégramme KNX est reçu, vous avez donc Coud ayant des boucles de récurrence. |
-| basculer (rien) | Basculez la valeur du nœud Currend et envoie également la valeur au bus KNX. Par exemple, _toggle () _. ATTENTION en utilisant** Toggle **Fonction dans le code Pin_ de sortie du bus KNX _From à la sortie du nœud, car le code sera exécuté à chaque fois qu'un télégramme KNX est reçu, de sorte que vous avez des boucles de récurrence. |
+| getGavalue (String GA, String facultatif DPT) | Obtenez la valeur de GA spécifiée, par exemple **'1/0/1' ** , ou aussi**'1/0/1 light light' ** (tout le texte après un espace vierge sera ignoré par la fonction. Ceci est utile si vous souhaitez ajouter le nom GA et un rappel. Avec le fichier ETS importé, vous pouvez également copier et coller le nom GA et GA directement dans le champ**Recherche GA ** .**DPT** est facultatif si vous avez importé le fichier ETS, sinon vous devez le spécifier, par exemple «1.001». |
+| setGavalue (String ga, n'importe quelle valeur, chaîne facultative dpt) | Définissez la valeur de GA spécifiée. Le GA Con doit être écrit par exemple **'1/0/1' ** , ou aussi**'1/0/1 light light' ** (tout le texte après un espace vide sera ignoré par la fonction. Ceci est utile si vous souhaitez ajouter le nom GA et un rappel. Avec le fichier ETS importé, vous pouvez également copier et coller le nom GA et GA directement à partir du champ GA**GA ** .). La valeur** ** est obligatoire, peut être un booléen ou un numéro ou une chaîne,** dpt** est facultatif si vous avez importé le fichier ETS, sinon vous devez le spécifier, par exemple «1.001». |
+| self (toute valeur) | Définissez la valeur du nœud Currend et envoie également la valeur au bus KNX. Par exemple, _self (false) _. ATTENTION UTILISATION ** Self** Fonction dans le code Pin_ de sortie du bus KNX _From pour le nœud, car le code sera exécuté à chaque fois qu'un télégramme KNX est reçu, vous avez donc Coud ayant des boucles de récurrence. |
+| basculer (rien) | Basculez la valeur du nœud Currend et envoie également la valeur au bus KNX. Par exemple, _toggle () _. ATTENTION en utilisant ** Toggle** Fonction dans le code Pin_ de sortie du bus KNX _From à la sortie du nœud, car le code sera exécuté à chaque fois qu'un télégramme KNX est reçu, de sorte que vous avez des boucles de récurrence. |
 | Node (objet) | L'objet nœud. |
 | Red (objet Node-Red) | L'objet rouge du nœud-rouge. |
 | return (msg) | `Retour MSG obligatoire;`, si vous souhaitez émettre le message. Sinon, l'utilisation de `retour; 'n'émettra aucun message. |
@@ -89,10 +101,10 @@ Nous allons allumer la lumière uniquement si son statut GA est éteint, et vice
 ```javascript
 const statusGA = getGAValue('0/0/09','1.001');
 if (msg.payload !== statusGA){ // "!==" means "not equal"
- return msg;
+    return msg;
 }else{
- // Both values are identical, so i don't send the msg.
- return;
+    // Both values are identical, so i don't send the msg.
+    return;
 }
 ```
 
@@ -100,10 +112,10 @@ Ici, si quelqu'un allume la lumière, nous allumons une autre lumière 0/1/8 et 
 
 ```javascript
 if (msg.payload){ 
- setGAValue('0/1/8',true)
- setTimeout(function() {
- self(off);
- }, 2000);
+    setGAValue('0/1/8',true)
+    setTimeout(function() {
+        self(off);
+    }, 2000);
 }
 return msg;
 ```
@@ -123,13 +135,16 @@ Dans cet autre échantillon, nous n'émettons pas de msg au flux, au cas où msg
 
 ```javascript
 if (msg.payload === false && getGAValue('0/0/11','1.001') === false){
- // Both false, don't emit the msg to the flow.
- return;
+    // Both false, don't emit the msg to the flow.
+    return;
 }else{
- // Ok, emit it.
- return msg;
+    // Ok, emit it.
+    return msg;
 }
 ```
+
+<br/>
+<br/>
 
 ## onglet Échantillon de charge utile
 
@@ -137,30 +152,36 @@ if (msg.payload === false && getGAValue('0/0/11','1.001') === false){
 |-|-|
 | Échantillon | Cela lui donnera un indice sur ce qu'il faut écrire dans un nœud de fonction externe, si vous souhaitez contrôler le nœud via un nœud de fonction Node-Red. |
 
-### entrées** destination (chaîne) **: l'adresse du groupe de destination, par exemple 1/1/0. Seul le niveau 3 est autorisé.** charge utile (any) **: La charge utile à envoyer. Peut être par exemple vrai ou faux, ou un objet.** Événement (chaîne) **: Peut être _GroupValue \ _Write_ pour écrire le télégramme dans le bus KNX, _GroupValue \ _Response_ pour envoyer un télégramme de réponse au bus KNX, _update \ _nowrite_. _Update \ _nowrite_ envoie des rien au bus KNX, met à jour la valeur interne du nœud KNX-ultime. Ceci est utile si vous voulez seulement stocker la valeur dans le nœud et le lire plus tard avec une demande de lecture.** readStatus (boolean) **: émettez une demande de lecture au bus KNX. Passer _true_ à chaque fois (msg.readstatus = true).** DPT (String) **: Par exemple "1.001". Définit le point de données.** Writeraw (tampon) **: est utilisé pour envoyer une valeur au bus KNX, en tant que tampon. Utilisez en conjonction avec _Bitlenght_.** bitlenght (int) **: Spécifie le long du tampon _writeraw_. Utilisez en conjonction avec _WriteRaw_.** restrbe (boolean) **: réinitialise les filtres RBE internes (_USE msg.resetrbe = true_).** SetConfig (JSON) **: Modifiez par programme l'adresse de groupe de nœuds de périphérique KNX-ultimate et DataPoint. Voir les détails.
+<br/>
+<br/>
+<br/>
+
+### entrées
+
+<br/> ** destination (chaîne) ** : l'adresse du groupe de destination, par exemple 1/1/0. Seul le niveau 3 est autorisé. <br/>**charge utile (any) ** : La charge utile à envoyer. Peut être par exemple vrai ou faux, ou un objet. <br/>**Événement (chaîne) ** : Peut être _GroupValue \ _Write_ pour écrire le télégramme dans le bus KNX, _GroupValue \ _Response_ pour envoyer un télégramme de réponse au bus KNX, _update \ _nowrite_. _Update \ _nowrite_ envoie des rien au bus KNX, met à jour la valeur interne du nœud KNX-ultime. Ceci est utile si vous voulez seulement stocker la valeur dans le nœud et le lire plus tard avec une demande de lecture. <br/>**readStatus (boolean) ** : émettez une demande de lecture au bus KNX. Passer _true_ à chaque fois (msg.readstatus = true). <br/>**DPT (String) ** : Par exemple "1.001". Définit le point de données. <br/>**Writeraw (tampon) ** : est utilisé pour envoyer une valeur au bus KNX, en tant que tampon. Utilisez en conjonction avec _Bitlenght_. <br/>**bitlenght (int) ** : Spécifie le long du tampon _writeraw_. Utilisez en conjonction avec _WriteRaw_. <br/>**restrbe (boolean) ** : réinitialise les filtres RBE internes (_USE msg.resetrbe = true_). <br/>**SetConfig (JSON)** : Modifiez par programme l'adresse de groupe de nœuds de périphérique KNX-ultimate et DataPoint. Voir les détails.
 
 ### Détails
 
 `msg.setConfig`: Il est possible de modifier par programme la configuration du nœud KNX-ultime, en envoyant l'objet msg.setConfig au nœud.
 La nouvelle configuration sera conservée jusqu'au prochain msg.setconfig ou jusqu'à redémarrage / redéployer.
-Toutes les propriétés (_setGroupAddress_ et _setDpt_)** sont obligatoires **.. \
-Utilisez-le comme ça, dans un nœud Functon:** Définissez GA et DPT **```javascript
+Toutes les propriétés (_setGroupAddress_ et _setDpt_) ** sont obligatoires** .. \
+Utilisez-le comme ça, dans un nœud Functon: ** Définissez GA et DPT** ```javascript
 // Change the node properties as follows:
 // setGroupAddress: set the new group address.
-// setDPT: set the new Datapoint, as you can see in the dropdown list (the numeric part, for example "1.001", "237.600", etc...). If set to** auto **, the datapoint will be read from the ETS file (if present).
+// setDPT: set the new Datapoint, as you can see in the dropdown list (the numeric part, for example "1.001", "237.600", etc...). If set to **auto** , the datapoint will be read from the ETS file (if present).
 var config= {
- setGroupAddress: "0/1/2",
- setDPT: "1.001"
+    setGroupAddress: "0/1/2",
+    setDPT: "1.001"
 };
 msg.setConfig = config;
 return msg;
-```** Définissez GA et lisez le point de données à partir du fichier ETS **```javascript
+``` ** Définissez GA et lisez le point de données à partir du fichier ETS** ```javascript
 // Change the node properties as follows:
 // setGroupAddress: set the new group address.
 // setDPT: set the new Datapoint, as you can see in the dropdown list (the numeric part, for example "1.001", "237.600", etc...). If set to "auto", the datapoint will be read from the ETS file (if present).
 var config= {
- setGroupAddress: "0/1/2",
- setDPT: "auto"
+    setGroupAddress: "0/1/2",
+    setDPT: "auto"
 };
 msg.setConfig = config;
 return msg;
@@ -169,10 +190,10 @@ return msg;
 ### sorties
 
 1. Sortie standard
- : charge utile (chaîne | numéro | objet) \ *\*: la broche 1 est la sortie standard de la commande.
+   : charge utile (chaîne | numéro | objet) \ *\*: la broche 1 est la sortie standard de la commande.
 
 2. Erreurs
- : erreur (objet) \ *\*: PIN 2 contient le message d'erreur détaillé.
+   : erreur (objet) \ *\*: PIN 2 contient le message d'erreur détaillé.
 
 ### Détails
 
@@ -181,35 +202,44 @@ Il s'agit plutôt d'un exemple de l'objet MSG complet.
 
 ```json
 msg = {
- topic: "0/1/2" // (Contains the node's topic, for example "MyTopic". If the node's topic is not set, contains the Group Address, for example "0/1/2")
- payload: false 
- previouspayload: true // Previous node payload value.
- payloadmeasureunit: "%" // Payload's measure unit.
- payloadsubtypevalue: "Start" // Subtype's decoded value, for exampe, On/Off, Ramp/NoRamp, Start/Stop, Alarm/NoAlarm
- devicename: "Dinning table lamp" // If the node is in **universal mode**, it contains the full path (main, middle,name) of the group address name, otherwise, the node name.
- gainfo: { // Contains the details about the group address name and number. This object is only present if the node is set in **universal mode** and with the **ETS file** been imported. If something wrong, it contains the string **unknown**.
- maingroupname:"Light actuators"
- middlegroupname:"First flow lights"
- ganame:"Table Light"
- maingroupnumber:"1"
- middlegroupnumber:"1"
- ganumber:"0"
- },
- echoed:true, // True if the msg is coming from the input PIN, otherwise false if the msg is coming form the KNX BUS.
- knx: { // This is a representation of the KNX BUS telegram, coming from BUS
- event: "GroupValue_Write" // (or "GroupValue_Response", or "GroupValue_Read")
- dpt: "1.001"
- dptdesc: "Humidity" // Payload's measure unit description
- source: "15.15.22"
- destination: "0/1/2" // Contains the Group Address
- rawValue: buffer[1]raw // (or null, if "GroupValue_Read")
- 0: 0x0 // (This is the RAW undecoded value)
- }
+    topic: "0/1/2" // (Contains the node's topic, for example "MyTopic". If the node's topic is not set, contains the Group Address, for example "0/1/2")
+    payload: false 
+    previouspayload: true // Previous node payload value.
+    payloadmeasureunit: "%" // Payload's measure unit.
+    payloadsubtypevalue: "Start" // Subtype's decoded value, for exampe, On/Off, Ramp/NoRamp, Start/Stop, Alarm/NoAlarm
+    devicename: "Dinning table lamp" // If the node is in **universal mode** , it contains the full path (main, middle,name) of the group address name, otherwise, the node name.
+    gainfo: { // Contains the details about the group address name and number. This object is only present if the node is set in **universal mode ** and with the**ETS file ** been imported. If something wrong, it contains the string**unknown** .
+        maingroupname:"Light actuators"
+        middlegroupname:"First flow lights"
+        ganame:"Table Light"
+        maingroupnumber:"1"
+        middlegroupnumber:"1"
+        ganumber:"0"
+    },
+    echoed:true, // True if the msg is coming from the input PIN, otherwise false if the msg is coming form the KNX BUS.
+    knx: { // This is a representation of the KNX BUS telegram, coming from BUS
+        event: "GroupValue_Write" // (or "GroupValue_Response", or "GroupValue_Read")
+        dpt: "1.001"
+        dptdesc: "Humidity" // Payload's measure unit description
+        source: "15.15.22"
+        destination: "0/1/2" // Contains the Group Address
+        rawValue: buffer[1]raw // (or null, if "GroupValue_Read")
+            0: 0x0 // (This is the RAW undecoded value)
+    }
 }
-``` **Exemple de charge utile** | Propriété | Description |
+```
+
+<br/>
+
+<br/>
+<br/> ** Exemple de charge utile** | Propriété | Description |
 
 |-|-|
 | Échantillon | Cela lui donnera un indice sur ce qu'il faut écrire dans un nœud de fonction externe, si vous souhaitez contrôler le nœud via un nœud de fonction Node-Red. |
+
+<br/>
+<br/>
+<br/>
 
 ### entrées
 
@@ -227,24 +257,24 @@ msg = {
 
 `msg.setConfig`: Il est possible de modifier par programme la configuration du nœud KNX-ultime, en envoyant l'objet msg.setConfig au nœud.
 La nouvelle configuration sera conservée jusqu'au prochain msg.setconfig ou jusqu'à redémarrage / redéployer.
-Toutes les propriétés (_setGroupAddress_ et _setDpt_) **sont obligatoires**.. \
-Utilisez-le comme ça, dans un nœud Functon: **Définissez GA et DPT** ```javascript
+Toutes les propriétés (_setGroupAddress_ et _setDpt_) ** sont obligatoires** .. \
+Utilisez-le comme ça, dans un nœud Functon: ** Définissez GA et DPT** ```javascript
 // Change the node properties as follows:
 // setGroupAddress: set the new group address.
-// setDPT: set the new Datapoint, as you can see in the dropdown list (the numeric part, for example "1.001", "237.600", etc...). If set to **auto**, the datapoint will be read from the ETS file (if present).
+// setDPT: set the new Datapoint, as you can see in the dropdown list (the numeric part, for example "1.001", "237.600", etc...). If set to **auto** , the datapoint will be read from the ETS file (if present).
 var config= {
- setGroupAddress: "0/1/2",
- setDPT: "1.001"
+    setGroupAddress: "0/1/2",
+    setDPT: "1.001"
 };
 msg.setConfig = config;
 return msg;
-``` **Définissez GA et lisez le point de données à partir du fichier ETS** ```javascript
+``` ** Définissez GA et lisez le point de données à partir du fichier ETS** ```javascript
 // Change the node properties as follows:
 // setGroupAddress: set the new group address.
 // setDPT: set the new Datapoint, as you can see in the dropdown list (the numeric part, for example "1.001", "237.600", etc...). If set to "auto", the datapoint will be read from the ETS file (if present).
 var config= {
- setGroupAddress: "0/1/2",
- setDPT: "auto"
+    setGroupAddress: "0/1/2",
+    setDPT: "auto"
 };
 msg.setConfig = config;
 return msg;
@@ -253,10 +283,10 @@ return msg;
 ### sorties
 
 1. Sortie standard
- : charge utile (chaîne | numéro | objet) \ *\*: la broche 1 est la sortie standard de la commande.
+   : charge utile (chaîne | numéro | objet) \ *\*: la broche 1 est la sortie standard de la commande.
 
 2. Erreurs
- : erreur (objet) \ *\*: PIN 2 contient le message d'erreur détaillé.
+   : erreur (objet) \ *\*: PIN 2 contient le message d'erreur détaillé.
 
 ### Détails
 
@@ -265,73 +295,76 @@ Il s'agit plutôt d'un exemple de l'objet MSG complet.
 
 ```json
 msg = {
- topic: "0/1/2" // (Contains the node's topic, for example "MyTopic". If the node's topic is not set, contains the Group Address, for example "0/1/2")
- payload: false 
- previouspayload: true // Previous node payload value.
- payloadmeasureunit: "%" // Payload's measure unit.
- payloadsubtypevalue: "Start" // Subtype's decoded value, for exampe, On/Off, Ramp/NoRamp, Start/Stop, Alarm/NoAlarm
- devicename: "Dinning table lamp" // If the node is in **universal mode**, it contains the full path (main, middle,name) of the group address name, otherwise, the node name.
- gainfo: { // Contains the details about the group address name and number. This object is only present if the node is set in **universal mode** and with the **ETS file** been imported. If something wrong, it contains the string **unknown**.
- maingroupname:"Light actuators"
- middlegroupname:"First flow lights"
- ganame:"Table Light"
- maingroupnumber:"1"
- middlegroupnumber:"1"
- ganumber:"0"
- }
- knx: { // This is a representation of the KNX BUS telegram, coming from BUS
- event: "GroupValue_Write" // (or "GroupValue_Response", or "GroupValue_Read")
- dpt: "1.001"
- dptdesc: "Humidity" // Payload's measure unit description
- source: "15.15.22"
- destination: "0/1/2" // Contains the Group Address
- rawValue: buffer[1]raw // (or null, if "GroupValue_Read")
- 0: 0x0 // (This is the RAW undecoded value)
- }
+    topic: "0/1/2" // (Contains the node's topic, for example "MyTopic". If the node's topic is not set, contains the Group Address, for example "0/1/2")
+    payload: false 
+    previouspayload: true // Previous node payload value.
+    payloadmeasureunit: "%" // Payload's measure unit.
+    payloadsubtypevalue: "Start" // Subtype's decoded value, for exampe, On/Off, Ramp/NoRamp, Start/Stop, Alarm/NoAlarm
+    devicename: "Dinning table lamp" // If the node is in **universal mode** , it contains the full path (main, middle,name) of the group address name, otherwise, the node name.
+    gainfo: { // Contains the details about the group address name and number. This object is only present if the node is set in **universal mode ** and with the**ETS file ** been imported. If something wrong, it contains the string**unknown** .
+        maingroupname:"Light actuators"
+        middlegroupname:"First flow lights"
+        ganame:"Table Light"
+        maingroupnumber:"1"
+        middlegroupnumber:"1"
+        ganumber:"0"
+    }
+    knx: { // This is a representation of the KNX BUS telegram, coming from BUS
+        event: "GroupValue_Write" // (or "GroupValue_Response", or "GroupValue_Read")
+        dpt: "1.001"
+        dptdesc: "Humidity" // Payload's measure unit description
+        source: "15.15.22"
+        destination: "0/1/2" // Contains the Group Address
+        rawValue: buffer[1]raw // (or null, if "GroupValue_Read")
+            0: 0x0 // (This is the RAW undecoded value)
+    }
 }
 ```
 
+<br/>
+<br/>
+
 ## Sortie du message de l'ensemble de nœuds comme "Mode universel (écoutez toutes les adresses de groupe)"
 
-Ici, vous avez 2 options: Importer le fichier CVS ETS ou non. 
-
-L'importation de votre fichier ETS est la méthode <b> Aboslute suggérée </b>. Si vous importez votre fichier ETS, le nœud fera automatiquement le décodage de points de données et vous donnera également le nom de l'appareil. 
-
-Si vous n'importez pas l'ETS, le nœud sortira le télégramme brut et il essaie également de le décoder. 
+Ici, vous avez 2 options: Importer le fichier CVS ETS ou non. <br/>
+L'importation de votre fichier ETS est la méthode <b> Aboslute suggérée </b>. Si vous importez votre fichier ETS, le nœud fera automatiquement le décodage de points de données et vous donnera également le nom de l'appareil. <br/>
+Si vous n'importez pas l'ETS, le nœud sortira le télégramme brut et il essaie également de le décoder. <br/>
 
 ```javascript
 
 msg = {
- topic: "0/1/2" // (Contains the Group Address of the incoming telegram)
- payload: false // (Automatically decoded telegram. If you've <b>not imported the ETS file</b>, the node will try to decode the telegram <b>but you can obtain an erroneus value</b>)
- payloadmeasureunit: "%" // (payload's measure unit)
- payloadsubtypevalue: "Start" // (Subtype's decoded value, for exampe, On/Off, Ramp/NoRamp, Start/Stop, Alarm/NoAlarm.)
- devicename: "(First Floor->Dinning Room) Dinning table lamp" // (the node will output the complete path of your house, including the device name, or the node's name in case you've <b>not imported the ETS file</b> )) 
- knx: 
- event: "GroupValue_Write" // (or "GroupValue_Response", or "GroupValue_Read")
- dpt: "1.001" // (If you've <b>not imported the ETS file</b>, this represents the datapoint used to try to decode the telegram)
- dptdesc: "Humidity" // (payload's measure unit description)
- source: "15.15.22"
- destination: "0/1/2" // (Contains the Group Address of the incoming telegram, same as topic)
- rawValue: buffer[1]raw // (or null, if "GroupValue_Read")
- 0: 0x0 // (This is the RAW undecoded value)
- }}
+    topic: "0/1/2" // (Contains the Group Address of the incoming telegram)
+    payload: false // (Automatically decoded telegram. If you've <b>not imported the ETS file</b>, the node will try to decode the telegram <b>but you can obtain an erroneus value</b>)
+    payloadmeasureunit: "%" // (payload's measure unit)
+    payloadsubtypevalue: "Start" // (Subtype's decoded value, for exampe, On/Off, Ramp/NoRamp, Start/Stop, Alarm/NoAlarm.)
+    devicename: "(First Floor->Dinning Room) Dinning table lamp" // (the node will output the complete path of your house, including the device name, or the node's name in case you've <b>not imported the ETS file</b> )) 
+    knx: 
+        event: "GroupValue_Write" // (or "GroupValue_Response", or "GroupValue_Read")
+        dpt: "1.001" // (If you've <b>not imported the ETS file</b>, this represents the datapoint used to try to decode the telegram)
+        dptdesc: "Humidity" // (payload's measure unit description)
+        source: "15.15.22"
+        destination: "0/1/2" // (Contains the Group Address of the incoming telegram, same as topic)
+        rawValue: buffer[1]raw // (or null, if "GroupValue_Read")
+            0: 0x0 // (This is the RAW undecoded value)
+    }}
  
 ```
 
+<br/>
+
 ## Message de sortie dans l'appareil virtuel
 
-Ici, vous trouverez un échantillon de [Virtual Device](/node-red-contrib-knx-ultimate/wiki/-sample---virtual-device)
+Ici, vous trouverez un échantillon de [Virtual Device](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-sample---virtual-device)
 
 ```javascript
 
  {
- topic: '5/0/1',
- payload: true,
- devicename: 'Light Status',
- event: 'Update_NoWrite',
- eventdesc: "The value has been updated from another node and hasn't been received from KNX BUS",
- previouspayload: true
+   topic: '5/0/1',
+   payload: true,
+   devicename: 'Light Status',
+   event: 'Update_NoWrite',
+   eventdesc: "The value has been updated from another node and hasn't been received from KNX BUS",
+   previouspayload: true
  }
  
 ```
@@ -342,62 +375,75 @@ Ici, vous trouverez un échantillon de [Virtual Device](/node-red-contrib-knx-ul
 
 ## Contrôle des appareils KNX
 
-Le nœud accepte le MSG de l'écoulement à envoyer au bus KNX et envoie MSG au flux dès que le message KNX arrive du bus. 
-
-En supposant que vous avez fourni une adresse de groupe et un point de données au nœud, soit manuellement ou avec des champs de population automatique en sélectionnant votre appareil dans la liste de l'appareil après avoir importé le fichier ETS. 
-
-Vous pouvez également remplacer un ou plusieurs paramètres définis dans la fenêtre de configuration KNX-ultimate. 
-
-Toutes les propriétés ci-dessous sont facultatives, à l'exception de la charge utile. **msg.Destination** Par exemple, "0/0/1". Définissez l'adresse de groupe à 3 niveaux que vous voulez mettre à jour. **msg.payload** Par exemple, true / false / 21 / "Bonjour". Définissez la charge utile que vous souhaitez envoyer au bus KNX. **msg.event** "GroupValue \ _Write": écrit le télégramme au bus KNX. 
-
-"GroupValue \ _Response": envoie un télégramme de réponse au bus KNX. 
-
-"Update \ _Nowrite": envoie des rien au bus KNX, met à jour la valeur interne du nœud KNX-ultime. Ceci est utile si vous ne voulez stocker la valeur que dans le nœud et le lire plus tard avec une demande de lecture. 
-
+Le nœud accepte le MSG de l'écoulement à envoyer au bus KNX et envoie MSG au flux dès que le message KNX arrive du bus. <br/>
+En supposant que vous avez fourni une adresse de groupe et un point de données au nœud, soit manuellement ou avec des champs de population automatique en sélectionnant votre appareil dans la liste de l'appareil après avoir importé le fichier ETS. <br/>
+Vous pouvez également remplacer un ou plusieurs paramètres définis dans la fenêtre de configuration KNX-ultimate. <br/>
+Toutes les propriétés ci-dessous sont facultatives, à l'exception de la charge utile. <br/> ** msg.Destination** <br/>
+Par exemple, "0/0/1". Définissez l'adresse de groupe à 3 niveaux que vous voulez mettre à jour. ** msg.payload** <br/>
+Par exemple, true / false / 21 / "Bonjour". Définissez la charge utile que vous souhaitez envoyer au bus KNX. ** msg.event** <br/>
+"GroupValue \ _Write": écrit le télégramme au bus KNX. <br/>
+"GroupValue \ _Response": envoie un télégramme de réponse au bus KNX. <br/>
+"Update \ _Nowrite": envoie des rien au bus KNX, met à jour la valeur interne du nœud KNX-ultime. Ceci est utile si vous ne voulez stocker la valeur que dans le nœud et le lire plus tard avec une demande de lecture. <br/>
 ATTENTION: Dans le cas de _msg.event = "Update \ _Nowrite" _ Tous les nœuds avec la même adresse de groupe émettra à l'écoulement un msg comme ceci:
 
 ```javascript
 
 {
- topic: '5/0/1',
- payload: true,
- devicename: 'Light Status',
- event: 'Update_NoWrite',
- eventdesc: "The value has been updated from another node and hasn't been received from KNX BUS",
- previouspayload: true
+  topic: '5/0/1',
+  payload: true,
+  devicename: 'Light Status',
+  event: 'Update_NoWrite',
+  eventdesc: "The value has been updated from another node and hasn't been received from KNX BUS",
+  previouspayload: true
 }
 
 ```
 
-Si vous souhaitez émettre une commande "lire", veuillez utiliser "ReadStatus" à la place (voir ci-dessous). **msg.readstatus = true** Émettez une commande "lire" au bus. **msg.dpt** Par exemple "1.001". Définit le <b> datapoint </b>. (Vous pouvez l'écrire dans ces formats: 9, "9", "9.001" ou "DPT9.001") **msg.writeraw**  **msg.bitlenght** Écrit des données brutes au bus KNX. Veuillez voir ci-dessous un exemple. **MSG.RESETRBE** PASS MSG.RESETRBE = VRAI À un nœud de périphérique, pour réinitialiser à la fois l'entrée et la sortie du filtre RBE sur ce nœud particulier. 
+Si vous souhaitez émettre une commande "lire", veuillez utiliser "ReadStatus" à la place (voir ci-dessous). <br/> ** msg.readstatus = true** <br/>
+Émettez une commande "lire" au bus. ** msg.dpt** <br/>
+Par exemple "1.001". Définit le <b> datapoint </b>. (Vous pouvez l'écrire dans ces formats: 9, "9", "9.001" ou "DPT9.001") ** msg.writeraw ** <br/>**msg.bitlenght** <br/>
+Écrit des données brutes au bus KNX. Veuillez voir ci-dessous un exemple. <br/> ** MSG.RESETRBE** <BR/> PASS MSG.RESETRBE = VRAI À un nœud de périphérique, pour réinitialiser à la fois l'entrée et la sortie du filtre RBE sur ce nœud particulier. <br/>
+
+<br/>
 
 ## modifier par programme la configuration du nœud via MSG
 
-Il est possible de modifier par programme la configuration du nœud KNX-ultimate, en envoyant un objet msg.setConfig au nœud. 
+Il est possible de modifier par programme la configuration du nœud KNX-ultimate, en envoyant un objet msg.setConfig au nœud. <br/>
+[Veuillez consulter ici l'exemple de page.](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample-setConfig)
 
-[Veuillez consulter ici l'exemple de page.](/node-red-contrib-knx-ultimate/wiki/-Sample-setConfig)
+<br/>
+<br/>
+<br/>
 
 # Quick comment faire
 
-Vous pouvez plus d'échantillons [ici](/node-red-contrib-knx-ultimate/wiki/-SamplesHome) **Allumez une lampe** ```javascript
+Vous pouvez plus d'échantillons [ici](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-SamplesHome) ** Allumez une lampe** <br/>
+
+```javascript
 
 // Example of a function that sends a message to the KNX-Ultimate
 msg.payload = true; // issues a write or response (based on the options <b>Telegram type</b> above) to the KNX bus
 return msg;
 
-``` **Absolute dim a lampe** ```javascript
+``` ** Absolute dim a lampe** <br/>
+
+```javascript
 
 // Example of a function that sends a message to the KNX-Ultimate
 msg.payload = 30; // issues a write or response (based on the options <b>Telegram type</b> above) to the KNX bus
 return msg;
 
-``` **Envoyer du texte à un affichage** ```javascript
+``` ** Envoyer du texte à un affichage** <br/>
+
+```javascript
 
 // Example of a function that sends a message to the KNX-Ultimate
 msg.payload = "Output Tem. 35°C"; // issues a write or response (based on the options <b>Telegram type</b> above) to the KNX bus
 return msg;
 
-``` **Lisez l'état de la machine à laver** ```javascript
+``` ** Lisez l'état de la machine à laver** <br/>
+
+```javascript
 
 // Example of a function that sends a read status message to the KNX-Ultimate
 // Issues a read request to the KNX bus. You'll expect a 'response' from the bus. You need to select the **React to response telegrams** option.
@@ -405,10 +451,10 @@ return msg;
 msg.readstatus = true; // issues a write or response (based on the options <b>Telegram type</b> above) to the KNX bus
 return msg;
 
-``` **Envoyez la valeur brute au bus** Pour envoyer une valeur de tampon brute au bus KNX, utilisez les propriétés _ **writerraw** _ et _ **bitlenght** _ de l'entrée msg. 
+``` ** Envoyez la valeur brute au bus** <br/>
 
-Dans ce cas, le _datapoint_ que vous définissez dans la fenêtre de propriété sera ignoré. 
-
+Pour envoyer une valeur de tampon brute au bus KNX, utilisez les propriétés _ ** writerraw ** _ et _**bitlenght** _ de l'entrée msg. <br/>
+Dans ce cas, le _datapoint_ que vous définissez dans la fenêtre de propriété sera ignoré. <br/>
 Grapez un nœud de fonction devant KNX-ultime et collez son code:
 
 ```javascript
@@ -426,7 +472,9 @@ return msg;
 // msg.bitlenght = 1;
 // return msg;
 
-``` **Mettez à jour la valeur du nœud sans l'envoyer au bus** ```javascript
+``` ** Mettez à jour la valeur du nœud sans l'envoyer au bus** <br/>
+
+```javascript
 
 msg.event = "Update_NoWrite";
 msg.payload = true;
@@ -436,11 +484,11 @@ return msg;
 
 ## Contrôle des périphériques KNX avec le nœud réglé sur "Mode universel (écoutez toutes les adresses de groupe)"
 
-Ici, vous avez 2 options: Importer le fichier CVS ETS ou non. 
+Ici, vous avez 2 options: Importer le fichier CVS ETS ou non. <br/>
+L'importation de votre fichier ETS est la méthode <b> Aboslute suggérée </b>. Si vous importez votre fichier ETS, il vous suffit de définir la charge utile pour être transmise. Le nœud fera automatiquement le codage de DataPoint. <br/>
+Si vous n'importez pas l'ETS CSV, vous devez également passer le type de point de données au nœud. <br/> ** Éteignez une lampe <u> avec le fichier </u> ets importé** <br/>
 
-L'importation de votre fichier ETS est la méthode <b> Aboslute suggérée </b>. Si vous importez votre fichier ETS, il vous suffit de définir la charge utile pour être transmise. Le nœud fera automatiquement le codage de DataPoint. 
-
-Si vous n'importez pas l'ETS CSV, vous devez également passer le type de point de données au nœud. **Éteignez une lampe <u> avec le fichier </u> ets importé** ```javascript
+```javascript
 
 // Example of a function that sends a message to the KNX-Ultimate
 msg.event = "GroupValue_Write";
@@ -448,7 +496,9 @@ msg.destination = "0/0/1"; // Set the destination
 msg.payload = false; // issues a write or response (based on the options <b>Telegram type</b> above) to the KNX bus
 return msg;
 
-``` **Éteignez une lampe <u> sans </u> ets Fichier importé** ```javascript
+``` ** Éteignez une lampe <u> sans </u> ets Fichier importé** <br/>
+
+```javascript
 
 // Example of a function that sends a message to the KNX-Ultimate
 msg.event = "GroupValue_Write";
@@ -457,7 +507,8 @@ msg.dpt = "1.001";
 msg.payload = false; // issues a write or response (based on the options <b>Telegram type</b> above) to the KNX bus
 return msg;
 
-``` **Lisez l'état de tous les périphériques KNX <u> avec </u> ets Fichier importé** Vous ne pouvez pas émettre une demande de lecture à tous les groupes si vous n'importez pas votre fichier ETS, car le nœud ne peut pas savoir sur les appareils pour envoyer la demande de lecture.
+``` ** Lisez l'état de tous les périphériques KNX <u> avec </u> ets Fichier importé** <br/>
+Vous ne pouvez pas émettre une demande de lecture à tous les groupes si vous n'importez pas votre fichier ETS, car le nœud ne peut pas savoir sur les appareils pour envoyer la demande de lecture.
 
 ```javascript
 
@@ -471,45 +522,49 @@ return msg;
 
 ## Voir aussi
 
-- [Configuration de la passerelle](/node-red-contrib-knx-ultimate/wiki/gateway-configuration)
-- [Protection des références circulaires et protection contre les inondations](/node-red-contrib-knx-ultimate/wiki/protections)
+- [Configuration de la passerelle](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/gateway-configuration)
+- [Protection des références circulaires et protection contre les inondations](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/protections)
 - _Sample_
- - [Échantillons](https://github.com/supergiovane/node-red-constrib-knx-ultimate/wiki/-samplehome)
+  - [Échantillons](https://github.com/supergiovane/node-red-constrib-knx-ultimate/wiki/-samplehome)
 
- <Table Style = "Font-Size: 12px">
- <tr>
- <th Colspan = "2" style = "Font-Size: 14px"> Couleurs d'état du nœud Explication </th>
- </tr>
- <tr>
- <td> <img src = "https://raw.githubusercontent.com/supergiovane/node-red-contrib-knx-ultimate/master/img/greendot.png"> </ img> </ td>
- <TD> réagir aux télégrammes d'écriture </td>
- </tr>
- <tr>
- <td> <img src = "https://raw.githubusercontent.com/supergiovane/node-red-contrib-knx-ultimate/master/img/greenring.png"> </ img> </ td>
- <TD> Protection de référence circulaire. <a href = "/node-red-contrib-knx-ultimate/wiki/Protections" Target = "_ Blank"> Voir cette page. </a> </ td>
- </tr>
- <tr>
+<br/>
+<br/>
+<p>
+    <Table Style = "Font-Size: 12px">
+        <tr>
+        <th Colspan = "2" style = "Font-Size: 14px"> Couleurs d'état du nœud Explication </th>
+        </tr>
+        <tr>
+        <td> <img src = "https://raw.githubusercontent.com/supergiovane/node-red-contrib-knx-ultimate/master/img/greendot.png"> </ img> </ td>
+        <TD> réagir aux télégrammes d'écriture </td>
+        </tr>
+        <tr>
+            <td> <img src = "https://raw.githubusercontent.com/supergiovane/node-red-contrib-knx-ultimate/master/img/greenring.png"> </ img> </ td>
+            <TD> Protection de référence circulaire. <a href = "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Protections" Target = "_ Blank"> Voir cette page. </a> </ td>
+        </tr>
+        <tr>
 <td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/bluedot.png" alt="Blue status dot" /></td>
- <TD> réagir aux télégrammes de réponse. </td>
- </tr>
- <tr>
- <td> <img src = "https://raw.githubusercontent.com/supergiovane/node-red-contrib-knx-ultimate/master/img/bluering.png"> </img> </td>
- <TD> Auto Envoi de la valeur du nœud comme réponse au bus. <a href = "/node-red-contrib-knx-ultimate/wiki/-sample---virtual-device" cible = "_ Blank"> Voir le périphérique virtuel. </a> </ td>
- </tr>
- <tr>
- <td> <img src = "https://raw.githubusercontent.com/supergiovane/node-red-contrib-knx-ultimate/master/img/greudot.png"> </ img> </ td>
- <TD> réagir aux télégrammes de lecture. </td>
- </tr>
- <tr>
- <td> <img src = "https://raw.githubusercontent.com/supergiovane/node-red-contrib-knx-ultimate/master/img/greyring.png"> </ img> </ td>
- <TD> Filtre RBE: aucun télégramme n'a été envoyé. </td>
- </tr>
- <tr>
- <td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/reddot.png" alt="Red status dot" /></td>
- <td> Erreur ou déconnecté. </td>
- </tr>
- <tr>
- <td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/redring.png" alt="Red status ring" /></td>
- <TD> Node désactivé en raison d'une référence circulare. <a href = "/node-red-contrib-knx-ultimate/wiki/Protections" Target = "_ Blank"> Voir cette page. </a> </ td>
- </tr>
- </ table>
+        <TD> réagir aux télégrammes de réponse. </td>
+        </tr>
+        <tr>
+            <td> <img src = "https://raw.githubusercontent.com/supergiovane/node-red-contrib-knx-ultimate/master/img/bluering.png"> </img> </td>
+            <TD> Auto Envoi de la valeur du nœud comme réponse au bus. <a href = "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-sample---virtual-device" cible = "_ Blank"> Voir le périphérique virtuel. </a> </ td>
+        </tr>
+        <tr>
+            <td> <img src = "https://raw.githubusercontent.com/supergiovane/node-red-contrib-knx-ultimate/master/img/greudot.png"> </ img> </ td>
+            <TD> réagir aux télégrammes de lecture. </td>
+        </tr>
+        <tr>
+            <td> <img src = "https://raw.githubusercontent.com/supergiovane/node-red-contrib-knx-ultimate/master/img/greyring.png"> </ img> </ td>
+            <TD> Filtre RBE: aucun télégramme n'a été envoyé. </td>
+        </tr>
+        <tr>
+            <td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/reddot.png" alt="Red status dot" /></td>
+            <td> Erreur ou déconnecté. </td>
+        </tr>
+        <tr>
+            <td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/redring.png" alt="Red status ring" /></td>
+            <TD> Node désactivé en raison d'une référence circulare. <a href = "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Protections" Target = "_ Blank"> Voir cette page. </a> </ td>
+        </tr>
+    </ table>
+</p>

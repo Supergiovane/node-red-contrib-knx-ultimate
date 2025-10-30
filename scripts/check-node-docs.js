@@ -5,7 +5,7 @@ const path = require('path')
 const REPO = process.cwd()
 const PACKAGE_PATH = path.join(REPO, 'package.json')
 const PRESENTATION_PATH = path.join(REPO, 'tutorial', 'knxUltimate-AllNodes-Presentazione.md')
-const WIKI_DIR = path.resolve(REPO, '..', 'node-red-contrib-knx-ultimate.wiki')
+const WIKI_DIR = path.join(REPO, 'docs', 'wiki')
 const WIKI_FILES = [
   'Home.md',
   'it-Home.md',

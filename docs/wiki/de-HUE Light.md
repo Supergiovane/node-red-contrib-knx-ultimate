@@ -1,4 +1,4 @@
-🌐 Language: [EN](/node-red-contrib-knx-ultimate/wiki/HUE+Light) | [IT](/node-red-contrib-knx-ultimate/wiki/it-HUE+Light) | [DE](/node-red-contrib-knx-ultimate/wiki/de-HUE+Light) | [FR](/node-red-contrib-knx-ultimate/wiki/fr-HUE+Light) | [ES](/node-red-contrib-knx-ultimate/wiki/es-HUE+Light) | [简体中文](/node-red-contrib-knx-ultimate/wiki/zh-CN-HUE+Light)
+🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE+Light) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-HUE+Light) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-HUE+Light) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-HUE+Light) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-HUE+Light) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-HUE+Light)
 
 <!-- NAV START -->
 Navigation: [Startseite](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-Home)  
@@ -9,11 +9,10 @@ HUE: [Bridge](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/
 Beispiele: [Logger](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-Logger-Sample) • [Switch Light](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Switch-light) • [Dimming](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Dimming) • [RGB color](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---RGB-Color) • [RGBW color + White](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---RGBW-Color-plus-White) • [Command a scene actuator](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Control-a-scene-actuator) • [Datapoint 213.x 4x Setpoint](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT213) • [Datapoint 222.x 3x Setpoint](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT222) • [Datapoint 237.x DALI diags](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT237) • [Datapoint 2.x 1 bit proprity](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT2) • [Datapoint 22.x RCHH Status](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT22) • [Datetime to BUS](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DateTime-to-BUS) • [Read Status](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Read-value-from-Device) • [Virtual Device](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Virtual-Device) • [Subtype decoded](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Subtype) • [Alexa](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Alexa) • [Apple Homekit](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Apple-Homekit) • [Google Home](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Google-Assistant) • [Switch on/off POE port of Unifi switch](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---UnifiPOE) • [Set configuration by msg](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample-setConfig) • [Scene Controller node](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Sample-Scene-Node) • [WatchDog node](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---WatchDog) • [Global Context node](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleGlobalContextNode) • [Alerter node](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleAlerter) • [Load control node](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleLoadControl) • [Viewer node](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/knxUltimateViewer) • [MySQL, InfluxDB, MQTT Sample](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Sample-KNX2MQTT-KNX2MySQL-KNX2InfluxDB)
 <!-- NAV END -->
 
----
-
 <p>Dieser Node steuert HUE‑Leuchten (einzeln oder gruppiert) und ordnet Befehle/Zustände KNX‑Gruppenadressen zu.</p>
 
 **Allgemein**
+
 | Eigenschaft | Beschreibung |
 |--|--|
 | KNX GW | Zu verwendendes KNX‑Gateway |
@@ -34,6 +33,7 @@ Hier verknüpfst du KNX‑Gruppenadressen mit den verfügbaren HUE‑Befehlen/Zu
 Im GA‑Feld Geräte‑Name oder GA eingeben; Vorschläge erscheinen während der Eingabe.
 
 **Schalten**
+
 | Eigenschaft | Beschreibung |
 |--|--|
 | Control | KNX‑GA zum Ein/Aus (Boolean true/false) |
@@ -42,6 +42,7 @@ Im GA‑Feld Geräte‑Name oder GA eingeben; Vorschläge erscheinen während de
 <br/>
 
 **Dim**
+
 | Eigenschaft | Beschreibung |
 |--|--|
 | Control dim | Relatives Dimmen der Leuchte (Geschwindigkeit in **Behaviour** ) |
@@ -54,6 +55,7 @@ Im GA‑Feld Geräte‑Name oder GA eingeben; Vorschläge erscheinen während de
 <br/>
 
 **Tunable White**
+
 | Eigenschaft | Beschreibung |
 |--|--|
 | Control dim | Weißtemperatur relativ dimmen (DPT 3.007), Geschwindigkeit in **Behaviour** |
@@ -66,6 +68,7 @@ Im GA‑Feld Geräte‑Name oder GA eingeben; Vorschläge erscheinen während de
 <br/>
 
 **RGB/HSV**
+
 | Eigenschaft | Beschreibung |
 |--|--|
 | **RGB‑Abschnitt** ||
@@ -85,6 +88,7 @@ Hinweis: Die HSV‑Helligkeit "V" wird über die Standard‑ **Dim** ‑Steuerun
 **Effekte**
 
 _Nicht-Hue-Basiseffekte_
+
 | Eigenschaft | Beschreibung |
 |--|--|
 | Blink | _true_ = blinken, _false_ = stoppen. Lässt die Leuchte ein/aus blinken - ideal zum Signalisieren. Funktioniert mit allen HUE-Leuchten. |

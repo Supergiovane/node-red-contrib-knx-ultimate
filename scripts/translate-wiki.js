@@ -13,7 +13,7 @@ const path = require('path')
 const translate = require('translate-google')
 
 const ROOT = process.cwd()
-const WIKI_DIR = path.resolve(ROOT, '..', 'node-red-contrib-knx-ultimate.wiki')
+const WIKI_DIR = path.join(ROOT, 'docs', 'wiki')
 const ABS = 'https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/'
 
 const TARGETS = [

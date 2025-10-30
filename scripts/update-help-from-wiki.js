@@ -3,7 +3,7 @@ const fs = require('fs')
 const path = require('path')
 
 const REPO = process.cwd()
-const WIKI_DIR = path.resolve(REPO, '..', 'node-red-contrib-knx-ultimate.wiki')
+const WIKI_DIR = path.join(REPO, 'docs', 'wiki')
 const NODES_DIR = path.join(REPO, 'nodes')
 
 const LANGS = [
@@ -18,7 +18,7 @@ const LANGS = [
 const HELP_TO_WIKI = new Map([
   ['hue-config', 'HUE Bridge configuration'],
   ['knxUltimate-config', 'Gateway-configuration'],
-  ['knxUltimate', 'KNX Node Configuration'],
+  ['knxUltimate', 'Device'],
   ['knxUltimateLogger', 'Logger-Configuration'],
   ['knxUltimateGlobalContext', 'GlobalVariable'],
   ['knxUltimateWatchDog', 'WatchDog-Configuration'],

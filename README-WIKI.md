@@ -30,6 +30,10 @@ NPM scripts
   - Scans the wiki for base EN pages (no `it-`, `de-`, `zh-CN-` prefix) and creates missing translations.
   - Preserves code blocks, keeps URLs intact, and emits an absolute-URL language bar.
   - After translation, run `npm run wiki:inject-header` to add the localized header.
+- Export node help to wiki: `npm run wiki:help-export`
+  - Reads every localized help snippet under `nodes/locales/<lang>/<help-name>.html`.
+  - Rewrites the matching `docs/wiki/<lang><Title>.md` keeping the language bar and any existing navigation block intact.
+  - Run `npm run wiki:inject-header` afterwards so the header reflects the latest menu configuration.
 - Sync GitHub Pages site: `npm run docs:sync`
   - Copies the entire wiki into `docs/wiki/` and rewrites links so the site can be published via GitHub Pages.
   - Run this after updating the wiki repository so `docs/` stays in sync before committing.
@@ -51,7 +55,7 @@ Page ↔ node mapping (for help generation)
 - Example mappings:
   - `HUE Bridge configuration` → `hue-config`
   - `Gateway-configuration` → `knxUltimate-config`
-  - `KNX Node Configuration` → `knxUltimate`
+  - `Device` → `knxUltimate`
   - `Logger-Configuration` → `knxUltimateLogger`
   - … and all HUE/KNX pages listed in the script.
 - If you add a brand new node and wiki page, update the mapping in `manage-wiki-menu.js` once; after that, `wiki:menu-add` can generate localized help automatically.

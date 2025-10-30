@@ -1,4 +1,5 @@
-🌐 Language: [EN](/node-red-contrib-knx-ultimate/wiki/HUE+Zigbee+connectivity) | [IT](/node-red-contrib-knx-ultimate/wiki/it-HUE+Zigbee+connectivity) | [DE](/node-red-contrib-knx-ultimate/wiki/de-HUE+Zigbee+connectivity) | [FR](/node-red-contrib-knx-ultimate/wiki/fr-HUE+Zigbee+connectivity) | [ES](/node-red-contrib-knx-ultimate/wiki/es-HUE+Zigbee+connectivity) | [简体中文](/node-red-contrib-knx-ultimate/wiki/zh-CN-HUE+Zigbee+connectivity)
+🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE+Zigbee+connectivity) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-HUE+Zigbee+connectivity) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-HUE+Zigbee+connectivity) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-HUE+Zigbee+connectivity) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-HUE+Zigbee+connectivity) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-HUE+Zigbee+connectivity)
+
 <!-- NAV START -->
 Navigazione: [Home](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-Home)  
 Panoramica: [Changelog](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/blob/master/CHANGELOG.md) • [FAQ](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-FAQ-Troubleshoot) • [Sicurezza](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-SECURITY) • [Docs: Barra lingue](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-Docs-Language-Bar)  
@@ -7,23 +8,32 @@ Altri Nodi KNX: [Scene Controller](https://supergiovane.github.io/node-red-contr
 HUE: [Bridge](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-HUE+Bridge+configuration) • [Luce](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-HUE+Light) • [Batteria](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-HUE+Battery) • [Pulsante](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-HUE+Button) • [Contatto](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-HUE+Contact+sensor) • [Aggiornamento SW](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-HUE+Device+software+update) • [Sensore Luce](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-HUE+Light+sensor) • [Movimento](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-HUE+Motion) • [Scena](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-HUE+Scene) • [Tap Dial](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-HUE+Tapdial) • [Temperatura](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-HUE+Temperature+sensor) • [Connettività Zigbee](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-HUE+Zigbee+connectivity)  
 Esempi: [Logger](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-Logger-Sample) • [Switch Light](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Switch-light) • [Dimming](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Dimming) • [RGB color](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---RGB-Color) • [RGBW color + White](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---RGBW-Color-plus-White) • [Command a scene actuator](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Control-a-scene-actuator) • [Datapoint 213.x 4x Setpoint](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT213) • [Datapoint 222.x 3x Setpoint](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT222) • [Datapoint 237.x DALI diags](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT237) • [Datapoint 2.x 1 bit proprity](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT2) • [Datapoint 22.x RCHH Status](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT22) • [Datetime to BUS](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DateTime-to-BUS) • [Read Status](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Read-value-from-Device) • [Virtual Device](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Virtual-Device) • [Subtype decoded](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Subtype) • [Alexa](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Alexa) • [Apple Homekit](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Apple-Homekit) • [Google Home](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Google-Assistant) • [Switch on/off POE port of Unifi switch](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---UnifiPOE) • [Set configuration by msg](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample-setConfig) • [Scene Controller node](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Sample-Scene-Node) • [WatchDog node](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---WatchDog) • [Global Context node](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleGlobalContextNode) • [Alerter node](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleAlerter) • [Load control node](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleLoadControl) • [Viewer node](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/knxUltimateViewer) • [MySQL, InfluxDB, MQTT Sample](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Sample-KNX2MQTT-KNX2MySQL-KNX2InfluxDB)
 <!-- NAV END -->
----
+
 <p>Questo nodo legge la connettività Zigbee da un dispositivo HUE ed espone lo stato su KNX.</p>
+
 Inizia a digitare il nome o l'indirizzo di gruppo nel campo GA: l'autocompletamento mostra i dispositivi disponibili.
+
 **Generale**
+
 | Proprietà | Descrizione |
 |--|--|
 | KNX GW | Gateway KNX su cui pubblicare lo stato. |
 | HUE Bridge | HUE Bridge da interrogare. |
 | HUE Sensor | Sensore/dispositivo HUE che fornisce la connettività Zigbee (autocompletamento durante la digitazione). |
+
 **Mappatura**
+
 | Proprietà | Descrizione |
 |--|--|
 | Stato | Indirizzo di gruppo KNX che riflette la connettività Zigbee. Diventa _true_ se connesso, altrimenti _false_. |
 | Leggi stato all'avvio | Legge lo stato all'avvio/riconnessione ed emette su KNX. Default: "Sì”. |
+
 ### Output
+
 1. Uscita standard
    : payload (boolean): stato di connettività.
+
 ### Dettagli
+
 `msg.payload` contiene true/false.\
 `msg.status` contiene il testo: **connected, disconnected, connectivity\_issue, unidirectional\_incoming** .

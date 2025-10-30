@@ -4,13 +4,13 @@ from typing import List
 
 from deep_translator import GoogleTranslator
 
-WIKI_ROOT = Path('/Users/massimosaccani/Documents/GitHub/node-red-contrib-knx-ultimate.wiki')
+WIKI_ROOT = Path(__file__).resolve().parent.parent / 'docs' / 'wiki'
 BASE_FILES = [
     'FAQ-Troubleshoot.md',
     'Gateway-configuration.md',
     'GlobalVariable.md',
     'HUE Light.md',
-    'KNX Node Configuration.md',
+    'Device.md',
 ]
 
 LANG_CONFIG = [

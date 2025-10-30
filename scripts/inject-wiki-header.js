@@ -13,7 +13,7 @@ const fs = require('fs')
 const path = require('path')
 
 const ROOT = process.cwd()
-const WIKI_DIR = path.resolve(ROOT, '..', 'node-red-contrib-knx-ultimate.wiki')
+const WIKI_DIR = path.join(ROOT, 'docs', 'wiki')
 const ABS = 'https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/'
 const MENU_CFG = path.join(__dirname, 'wiki-menu.json')
 
@@ -228,7 +228,7 @@ function updateFile (file) {
   const content = fs.readFileSync(file, 'utf8')
   const lines = content.split(/\r?\n/)
   if (!lines.length) return false
-  if (!lines[0].startsWith('🌐 Language:')) return false // enforce language bar presence
+  const hasLangBar = lines[0].startsWith('🌐 Language:')
 
   // If header exists, replace block
   const startIdx = lines.findIndex(l => l.trim() === NAV_START)
@@ -242,11 +242,16 @@ function updateFile (file) {
   }
 
   // Insert below language bar and before first '---' separator when present
-  let insertAt = 1
-  const sepIdx = lines.slice(1, 6).findIndex(l => l.trim() === '---')
-  if (sepIdx !== -1) insertAt = 1 + sepIdx // place right before the '---'
+  let insertAt = hasLangBar ? 1 : 0
+  const sepSearchStart = hasLangBar ? 1 : 0
+  const sepIdx = lines.slice(sepSearchStart, sepSearchStart + 6).findIndex(l => l.trim() === '---')
+  if (sepIdx !== -1) insertAt = sepSearchStart + sepIdx // place right before the '---'
 
   lines.splice(insertAt, 0, NAV_START, header, NAV_END)
+  const afterNav = insertAt + 3
+  if (afterNav < lines.length && lines[afterNav].trim() !== '') {
+    lines.splice(afterNav, 0, '')
+  }
   fs.writeFileSync(file, lines.join('\n'), 'utf8')
   return true
 }

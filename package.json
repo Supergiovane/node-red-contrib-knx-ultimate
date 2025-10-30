@@ -77,6 +77,7 @@
     "test:unit": "mocha \"test/**/*.test.js\"",
     "lint-fix": "standard --fix",
     "translate-wiki": "node scripts/translate-wiki.js",
+    "wiki:help-export": "node scripts/help-to-wiki.js",
     "wiki:validate": "node scripts/validate-wiki-languagebar.js",
     "wiki:fix-langbar": "node scripts/validate-wiki-languagebar.js --fix",
     "wiki:inject-header": "node scripts/inject-wiki-header.js",

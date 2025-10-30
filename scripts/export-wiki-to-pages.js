@@ -1,87 +1,22 @@
 #!/usr/bin/env node
 /**
- * Synchronise the GitHub wiki into the docs/wiki folder so it can be published
- * via GitHub Pages. The script rewrites absolute wiki URLs to point to the
- * generated site while keeping the original structure intact.
+ * Housekeeping script for docs/wiki:
+ *  - removes Finder-style duplicate files (e.g., "Page 2.md")
+ *  - normalises links so they point to the GitHub Pages site
+ *  - keeps a few placeholder pages in place (Page Title, missing translations, …)
  */
 
 const fs = require('fs')
 const path = require('path')
 
-const ROOT = path.resolve(__dirname, '..')
-const WIKI_DIR = path.resolve(ROOT, '..', 'node-red-contrib-knx-ultimate.wiki')
-const DOCS_DIR = path.join(ROOT, 'docs')
-const TARGET_DIR = path.join(DOCS_DIR, 'wiki')
-const PAGES_BASE = '/node-red-contrib-knx-ultimate/wiki/'
+const ROOT = process.cwd()
+const WIKI_DIR = path.join(ROOT, 'docs', 'wiki')
+const PAGES_BASE = 'https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki'
 
 if (!fs.existsSync(WIKI_DIR)) {
-  console.error('Wiki repository not found:', WIKI_DIR)
+  console.error('docs/wiki directory not found. Nothing to do.')
   process.exit(1)
 }
-
-function ensureDir (dir) {
-  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true })
-}
-
-function cleanDir (dir) {
-  if (fs.existsSync(dir)) {
-    for (const entry of fs.readdirSync(dir)) {
-      const entryPath = path.join(dir, entry)
-      const stat = fs.statSync(entryPath)
-      if (stat.isDirectory()) {
-        cleanDir(entryPath)
-        fs.rmdirSync(entryPath)
-      } else {
-        fs.unlinkSync(entryPath)
-      }
-    }
-  } else {
-    ensureDir(dir)
-  }
-}
-
-function rewriteLinks (content) {
-  return content
-    .replace(/\r\n/g, '\n')
-    .replace(/https:\/\/github\.com\/supergiovane\/node-red-contrib-knx-ultimate\/wiki\//gi, PAGES_BASE)
-}
-
-function slugify (name) {
-  return name.replace(/\s+/g, '-')
-}
-
-function mapDestination (src) {
-  const rel = path.relative(WIKI_DIR, src)
-  if (rel.startsWith(`samples${path.sep}`)) {
-    const base = path.basename(rel, path.extname(rel))
-    const slug = slugify(base) + path.extname(rel)
-    return path.join(TARGET_DIR, slug)
-  }
-  return path.join(TARGET_DIR, rel)
-}
-
-function copyRecursive (src, dest) {
-  const stat = fs.statSync(src)
-  if (stat.isDirectory()) {
-    ensureDir(dest)
-    for (const entry of fs.readdirSync(src)) {
-      if (entry === '.git') continue
-      copyRecursive(path.join(src, entry), mapDestination(path.join(src, entry)))
-    }
-    return
-  }
-
-  if (src.endsWith('.md')) {
-    const data = fs.readFileSync(src, 'utf8')
-    fs.writeFileSync(dest, rewriteLinks(data), 'utf8')
-  } else {
-    fs.copyFileSync(src, dest)
-  }
-}
-
-ensureDir(DOCS_DIR)
-cleanDir(TARGET_DIR)
-copyRecursive(WIKI_DIR, TARGET_DIR)
 
 const STUBS = [
   {
@@ -156,64 +91,113 @@ Wenn du helfen möchtest, eine Übersetzung bereitzustellen, freuen wir uns übe
   }
 ]
 
-for (const stub of STUBS) {
-  const target = path.join(TARGET_DIR, stub.file)
-  if (!fs.existsSync(target)) {
-    fs.writeFileSync(target, stub.content.trim() + '\n', 'utf8')
+const REPLACEMENTS = [
+  {
+    pattern: /https?:\/\/github\.com\/supergiovane\/node-red-contrib-knx-ultimate\/wiki/gi,
+    replacement: PAGES_BASE
+  },
+  {
+    pattern: /\/node-red-contrib-knx-ultimate\/wiki\/-sample-virtual-device/gi,
+    replacement: '/node-red-contrib-knx-ultimate/wiki/-Sample---Virtual-Device'
+  },
+  {
+    pattern: /\/node-red-contrib-knx-ultimate\/wiki\/sample-setconfig/gi,
+    replacement: '/node-red-contrib-knx-ultimate/wiki/-Sample-setConfig'
+  },
+  {
+    pattern: /\/node-red-contrib-knx-ultimate\/wiki\/-sample-setconfig/gi,
+    replacement: '/node-red-contrib-knx-ultimate/wiki/-Sample-setConfig'
+  },
+  {
+    pattern: /\/node-red-contrib-knx-ultimate\/wiki\/sampleloadcontrol/gi,
+    replacement: '/node-red-contrib-knx-ultimate/wiki/SampleLoadControl'
+  },
+  {
+    pattern: /\/node-red-contrib-knx-ultimate\/wiki\/2\.-Node-Configuration/gi,
+    replacement: '/node-red-contrib-knx-ultimate/wiki/Device'
+  },
+  {
+    pattern: /\/node-red-contrib-knx-ultimate\/wiki\/KNX-Node-Configuration/gi,
+    replacement: '/node-red-contrib-knx-ultimate/wiki/Device'
+  },
+  {
+    pattern: /\/node-red-contrib-knx-ultimate\/wiki\/de-2\.-Node-Configuration/gi,
+    replacement: '/node-red-contrib-knx-ultimate/wiki/de-Device'
+  },
+  {
+    pattern: /\/node-red-contrib-knx-ultimate\/wiki\/it-2\.-Node-Configuration/gi,
+    replacement: '/node-red-contrib-knx-ultimate/wiki/it-Device'
+  },
+  {
+    pattern: /\/node-red-contrib-knx-ultimate\/wiki\/zh-CN-2\.-Node-Configuration/gi,
+    replacement: '/node-red-contrib-knx-ultimate/wiki/zh-CN-Device'
+  },
+  {
+    pattern: /\/node-red-contrib-knx-ultimate\/wiki\/-sampleshome/gi,
+    replacement: '/node-red-contrib-knx-ultimate/wiki/-SamplesHome'
+  },
+  {
+    pattern: /\/node-red-contrib-knx-ultimate\/wiki\/7\.-WatchDog-Configuration/gi,
+    replacement: '/node-red-contrib-knx-ultimate/wiki/WatchDog-Configuration'
+  },
+  {
+    pattern: /\/node-red-contrib-knx-ultimate\/wiki\/8\.-WatchDog-Messages-from-the-node/gi,
+    replacement: '/node-red-contrib-knx-ultimate/wiki/WatchDog-Configuration'
+  },
+  {
+    pattern: /\/node-red-contrib-knx-ultimate\/wiki\/gateway-infiguration/gi,
+    replacement: '/node-red-contrib-knx-ultimate/wiki/Gateway-configuration'
   }
-}
-
-const POST_REPLACEMENTS = [
-  ['https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-sample-virtual-device', 'https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Virtual-Device'],
-  ['/node-red-contrib-knx-ultimate/wiki/-sample-virtual-device', '/node-red-contrib-knx-ultimate/wiki/-Sample---Virtual-Device'],
-  ['https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-sample-virtual-device', 'https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Virtual-Device'],
-  ['https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/sample-setconfig', 'https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample-setConfig'],
-  ['/node-red-contrib-knx-ultimate/wiki/sample-setconfig', '/node-red-contrib-knx-ultimate/wiki/-Sample-setConfig'],
-  ['https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/sample-setconfig', 'https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample-setConfig'],
-  ['https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-sample-setconfig', 'https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample-setConfig'],
-  ['/node-red-contrib-knx-ultimate/wiki/-sample-setconfig', '/node-red-contrib-knx-ultimate/wiki/-Sample-setConfig'],
-  ['https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/sampleloadcontrol', 'https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleLoadControl'],
-  ['/node-red-contrib-knx-ultimate/wiki/sampleloadcontrol', '/node-red-contrib-knx-ultimate/wiki/SampleLoadControl'],
-  ['https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/sampleloadcontrol', 'https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleLoadControl'],
-  ['https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/2.-Node-Configuration', 'https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Device'],
-  ['/node-red-contrib-knx-ultimate/wiki/2.-Node-Configuration', '/node-red-contrib-knx-ultimate/wiki/Device'],
-  ['https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/KNX-Node-Configuration', 'https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Device'],
-  ['/node-red-contrib-knx-ultimate/wiki/KNX-Node-Configuration', '/node-red-contrib-knx-ultimate/wiki/Device'],
-  ['https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-2.-Node-Configuration', 'https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-Device'],
-  ['/node-red-contrib-knx-ultimate/wiki/de-2.-Node-Configuration', '/node-red-contrib-knx-ultimate/wiki/de-Device'],
-  ['https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-2.-Node-Configuration', 'https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-Device'],
-  ['/node-red-contrib-knx-ultimate/wiki/it-2.-Node-Configuration', '/node-red-contrib-knx-ultimate/wiki/it-Device'],
-  ['https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-2.-Node-Configuration', 'https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-Device'],
-  ['/node-red-contrib-knx-ultimate/wiki/zh-CN-2.-Node-Configuration', '/node-red-contrib-knx-ultimate/wiki/zh-CN-Device'],
-  ['https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-sampleshome', 'https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-SamplesHome'],
-  ['/node-red-contrib-knx-ultimate/wiki/-sampleshome', '/node-red-contrib-knx-ultimate/wiki/-SamplesHome'],
-  ['https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-sampleshome', 'https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-SamplesHome'],
-  ['https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/7.-WatchDog-Configuration', 'https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/WatchDog-Configuration'],
-  ['/node-red-contrib-knx-ultimate/wiki/7.-WatchDog-Configuration', '/node-red-contrib-knx-ultimate/wiki/WatchDog-Configuration'],
-  ['https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/8.-WatchDog-Messages-from-the-node', 'https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/WatchDog-Configuration'],
-  ['https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/gateway-infiguration', 'https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Gateway-configuration'],
-  ['/node-red-contrib-knx-ultimate/wiki/gateway-infiguration', '/node-red-contrib-knx-ultimate/wiki/Gateway-configuration']
 ]
 
+function removeFinderDuplicates (dir) {
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    const full = path.join(dir, entry.name)
+    if (entry.isDirectory()) {
+      removeFinderDuplicates(full)
+      continue
+    }
+    if (/\s\d+\.[^.]+$/.test(entry.name)) {
+      fs.unlinkSync(full)
+    }
+  }
+}
+
 function rewriteLinksInFile (file) {
-  let content = fs.readFileSync(file, 'utf8')
+  const content = fs.readFileSync(file, 'utf8')
   let updated = content
-  for (const [from, to] of POST_REPLACEMENTS) {
-    const pattern = new RegExp(from.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi')
-    updated = updated.replace(pattern, to)
+  for (const { pattern, replacement } of REPLACEMENTS) {
+    updated = updated.replace(pattern, replacement)
   }
-  if (updated !== content) fs.writeFileSync(file, updated, 'utf8')
-}
-
-function applyPostReplacements (dir) {
-  for (const entry of fs.readdirSync(dir)) {
-    const file = path.join(dir, entry)
-    const stat = fs.statSync(file)
-    if (stat.isDirectory()) applyPostReplacements(file)
-    else if (entry.endsWith('.md') || entry.endsWith('.html') || entry.endsWith('.json')) rewriteLinksInFile(file)
+  if (updated !== content) {
+    fs.writeFileSync(file, updated, 'utf8')
   }
 }
 
-applyPostReplacements(TARGET_DIR)
+function walkMarkdown (dir, visitor) {
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    const full = path.join(dir, entry.name)
+    if (entry.isDirectory()) {
+      walkMarkdown(full, visitor)
+      continue
+    }
+    if (entry.name.endsWith('.md') || entry.name.endsWith('.html') || entry.name.endsWith('.json')) {
+      visitor(full)
+    }
+  }
+}
 
-console.log('Wiki exported to', TARGET_DIR)
+function ensureStubs () {
+  for (const stub of STUBS) {
+    const target = path.join(WIKI_DIR, stub.file)
+    if (!fs.existsSync(target)) {
+      fs.writeFileSync(target, stub.content.trim() + '\n', 'utf8')
+    }
+  }
+}
+
+removeFinderDuplicates(WIKI_DIR)
+walkMarkdown(WIKI_DIR, rewriteLinksInFile)
+ensureStubs()
+
+console.log('Wiki housekeeping completed in docs/wiki.')

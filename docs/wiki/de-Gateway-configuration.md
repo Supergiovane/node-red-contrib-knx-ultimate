@@ -1,4 +1,4 @@
-🌐 Language: [EN](/node-red-contrib-knx-ultimate/wiki/Gateway-configuration) | [IT](/node-red-contrib-knx-ultimate/wiki/it-Gateway-configuration) | [DE](/node-red-contrib-knx-ultimate/wiki/de-Gateway-configuration) | [FR](/node-red-contrib-knx-ultimate/wiki/fr-Gateway-configuration) | [ES](/node-red-contrib-knx-ultimate/wiki/es-Gateway-configuration) | [简体中文](/node-red-contrib-knx-ultimate/wiki/zh-CN-Gateway-configuration)
+🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Gateway-configuration) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-Gateway-configuration) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-Gateway-configuration) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-Gateway-configuration) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-Gateway-configuration) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-Gateway-configuration)
 
 <!-- NAV START -->
 Navigation: [Startseite](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-Home)  
@@ -9,13 +9,12 @@ HUE: [Bridge](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/
 Beispiele: [Logger](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-Logger-Sample) • [Switch Light](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Switch-light) • [Dimming](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Dimming) • [RGB color](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---RGB-Color) • [RGBW color + White](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---RGBW-Color-plus-White) • [Command a scene actuator](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Control-a-scene-actuator) • [Datapoint 213.x 4x Setpoint](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT213) • [Datapoint 222.x 3x Setpoint](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT222) • [Datapoint 237.x DALI diags](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT237) • [Datapoint 2.x 1 bit proprity](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT2) • [Datapoint 22.x RCHH Status](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT22) • [Datetime to BUS](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DateTime-to-BUS) • [Read Status](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Read-value-from-Device) • [Virtual Device](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Virtual-Device) • [Subtype decoded](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Subtype) • [Alexa](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Alexa) • [Apple Homekit](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Apple-Homekit) • [Google Home](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Google-Assistant) • [Switch on/off POE port of Unifi switch](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---UnifiPOE) • [Set configuration by msg](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample-setConfig) • [Scene Controller node](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Sample-Scene-Node) • [WatchDog node](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---WatchDog) • [Global Context node](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleGlobalContextNode) • [Alerter node](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleAlerter) • [Load control node](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleLoadControl) • [Viewer node](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/knxUltimateViewer) • [MySQL, InfluxDB, MQTT Sample](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Sample-KNX2MQTT-KNX2MySQL-KNX2InfluxDB)
 <!-- NAV END -->
 
----
-
 # KNX Gateway Konfiguration
 
 Dieser Node stellt die Verbindung zu deinem KNX/IP‑Gateway her.
 
 **Allgemein**
+
 |Eigenschaft|Beschreibung|
 |--|--|
 | Name | Name des Nodes. |
@@ -24,6 +23,7 @@ Dieser Node stellt die Verbindung zu deinem KNX/IP‑Gateway her.
 <br/>
 
 **Konfiguration**
+
 |Eigenschaft|Beschreibung|
 |--|--|
 | IP Port | Verbindungsport. Standard: `3671`. |
@@ -43,6 +43,7 @@ Dieser Node stellt die Verbindung zu deinem KNX/IP‑Gateway her.
 <br/>
 
 **Erweitert**
+
 |Eigenschaft|Beschreibung|
 |--|--|
 | Echo sent message to all node with same Group Address | Leitet Flow‑Nachrichten an alle Nodes mit derselben GA weiter, so als kämen sie vom BUS. Nützlich bei KNX‑Emulation oder fehlender BUS‑Verbindung. **Wird künftig standardmäßig aktiviert und dann entfernt.** |
@@ -55,6 +56,7 @@ Dieser Node stellt die Verbindung zu deinem KNX/IP‑Gateway her.
 <br/>
 
 **ETS‑Import**
+
 |Eigenschaft|Beschreibung|
 |--|--|
 | If Group Address has no Datapoint | Wenn eine GA keinen DPT hat: Import abbrechen, GA überspringen oder GA mit Platzhalter‑DPT `1.001` übernehmen. |
@@ -63,6 +65,7 @@ Dieser Node stellt die Verbindung zu deinem KNX/IP‑Gateway her.
 <br/>
 
 **Werkzeuge**
+
 |Eigenschaft|Beschreibung|
 |--|--|
 | Gather debug info for troubleshoot | Button klicken und Ausgabe an ein GitHub‑Issue anhängen. |
@@ -101,12 +104,12 @@ Video: <a href="https://youtu.be/egRbR_KwP9I"><img src='https://raw.githubuserco
     <table style="font-size:12px">
         <tr><th colspan="2" style="font-size:14px">Statusfarben des Nodes</th></tr>
         <tr><td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/greendot.png"></td><td>Auf Write‑Telegramme reagieren</td></tr>
-        <tr><td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/greenring.png"></td><td>Schutz gegen zyklische Referenzen (<a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki" target="_blank">siehe Seite</a>)</td></tr>
+        <tr><td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/greenring.png"></td><td>Schutz gegen zyklische Referenzen (<a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki" target="_blank">siehe Seite</a>)</td></tr>
         <tr><td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/bluedot.png"></td><td>Auf Response‑Telegramme reagieren</td></tr>
-        <tr><td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/bluering.png"></td><td>Node‑Wert automatisch als Response senden (<a href="/node-red-contrib-knx-ultimate/wiki/-Sample---Virtual-Device" target="_blank">Virtual Device</a>)</td></tr>
+        <tr><td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/bluering.png"></td><td>Node‑Wert automatisch als Response senden (<a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Virtual-Device" target="_blank">Virtual Device</a>)</td></tr>
         <tr><td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/greudot.png"></td><td>Auf Read‑Telegramme reagieren</td></tr>
         <tr><td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/greyring.png"></td><td>RBE‑Filter: Kein Telegramm gesendet</td></tr>
         <tr><td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/reddot.png"></td><td>Fehler oder getrennt</td></tr>
-        <tr><td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/redring.png"></td><td>Node deaktiviert wegen zyklischer Referenz (<a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki" target="_blank">siehe Seite</a>)</td></tr>
+        <tr><td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/redring.png"></td><td>Node deaktiviert wegen zyklischer Referenz (<a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki" target="_blank">siehe Seite</a>)</td></tr>
     </table>
 </p>

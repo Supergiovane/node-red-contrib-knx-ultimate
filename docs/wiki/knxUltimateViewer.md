@@ -1,4 +1,5 @@
-🌐 Language: [EN](/node-red-contrib-knx-ultimate/wiki/knxUltimateViewer) | [IT](/node-red-contrib-knx-ultimate/wiki/it-knxUltimateViewer) | [DE](/node-red-contrib-knx-ultimate/wiki/de-knxUltimateViewer) | [FR](/node-red-contrib-knx-ultimate/wiki/fr-knxUltimateViewer) | [ES](/node-red-contrib-knx-ultimate/wiki/es-knxUltimateViewer) | [简体中文](/node-red-contrib-knx-ultimate/wiki/zh-CN-knxUltimateViewer)
+🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/knxUltimateViewer) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-knxUltimateViewer) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-knxUltimateViewer) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-knxUltimateViewer) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-knxUltimateViewer) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-knxUltimateViewer)
+
 <!-- NAV START -->
 Navigation: [Home](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Home)  
 Overview: [Changelog](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/blob/master/CHANGELOG.md) • [FAQ](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/FAQ-Troubleshoot) • [Security](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SECURITY) • [Docs: Language bar](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Docs-Language-Bar)  
@@ -7,16 +8,20 @@ Other KNX Nodes: [Scene Controller](https://supergiovane.github.io/node-red-cont
 HUE: [Bridge](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE+Bridge+configuration) • [Light](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE+Light) • [Battery](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE+Battery) • [Button](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE+Button) • [Contact](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE+Contact+sensor) • [Device SW update](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE+Device+software+update) • [Light sensor](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE+Light+sensor) • [Motion](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE+Motion) • [Scene](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE+Scene) • [Tap Dial](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE+Tapdial) • [Temperature](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE+Temperature+sensor) • [Zigbee connectivity](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE+Zigbee+connectivity)  
 Samples: [Logger](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Logger-Sample) • [Switch Light](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Switch-light) • [Dimming](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Dimming) • [RGB color](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---RGB-Color) • [RGBW color + White](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---RGBW-Color-plus-White) • [Command a scene actuator](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Control-a-scene-actuator) • [Datapoint 213.x 4x Setpoint](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT213) • [Datapoint 222.x 3x Setpoint](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT222) • [Datapoint 237.x DALI diags](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT237) • [Datapoint 2.x 1 bit proprity](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT2) • [Datapoint 22.x RCHH Status](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT22) • [Datetime to BUS](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DateTime-to-BUS) • [Read Status](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Read-value-from-Device) • [Virtual Device](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Virtual-Device) • [Subtype decoded](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Subtype) • [Alexa](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Alexa) • [Apple Homekit](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Apple-Homekit) • [Google Home](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Google-Assistant) • [Switch on/off POE port of Unifi switch](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---UnifiPOE) • [Set configuration by msg](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample-setConfig) • [Scene Controller node](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Sample-Scene-Node) • [WatchDog node](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---WatchDog) • [Global Context node](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleGlobalContextNode) • [Alerter node](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleAlerter) • [Load control node](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleLoadControl) • [Viewer node](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/knxUltimateViewer) • [MySQL, InfluxDB, MQTT Sample](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Sample-KNX2MQTT-KNX2MySQL-KNX2InfluxDB)
 <!-- NAV END -->
----
+
 <p>This node works in conjunction with the Node-Red dashboard UI Template node. <br />
     View all group addresses and their values in a Dashboard widget. <br />
 </p>
+
 # KNX VIEWER NODE
+
 |Property|Description|
 |--|--|
 | Gateway | The KNX gateway. |
 | Name | The node name. |
+
 # OUTPUT PINS
+
 1. Dashboard Group Addresses
    : payload (html) : Connect it directly with the Template UI node. It creates a table with all Group Addresses and their
    values.
@@ -25,22 +30,35 @@ Samples: [Logger](https://supergiovane.github.io/node-red-contrib-knx-ultimate/w
 3. Dashboard telegrams queue
    : payload (html) : Connect it directly with the Template UI node. It creates a table with the KNX transmission queue for
    monitoring BUS congestion.
+
 # SAMPLE
+
 <img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/viewer2.png"
  width="90%"><br />
+
 In this example, you can see how the Viewer works.<br />
 Just put a Viewer node in your flow and attach a Template UI node behind it.<br />
 The **template** node (Dashboard's Template UI) contains the default text:<br />
+
 ```
+
 <div ng-bind-html="msg.payload"></div>
+
 ```
+
 The Output is something as follows:<br />
+
 <img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/viewer1.png"
  width="90%"><br />
+
 <br />
+
 **Copy this code and paste it into your flow**
+
 > Adjust the nodes according to your setup
+
 ````json
+
 [{"id":"6736561775d8ee88","type":"knxUltimateViewer","z":"54c299048a6c5b6b","server":"a01c5d80.1bbb78","name":"KNXViewer","x":260,"y":240,"wires":[["b239b31adb87d250"],["aafd0f4cde22f225"]]},{"id":"b239b31adb87d250","type":"ui_template","z":"54c299048a6c5b6b","group":"6cbdc633e478e65a","name":"","order":0,"width":"12","height":"6","format":"
 <div ng-bind-html=\"msg.payload\"></div>
 ","storeOutMessages":true,"fwdInMessages":true,"resendOnRefresh":true,"templateScope":"local","x":460,"y":220,"wires":[[]]},{"id":"7fe6d46036fe5fc2","type":"comment","z":"54c299048a6c5b6b","name":"KNX
@@ -436,5 +454,7 @@ taverna\"\t\"3/0/25\"\t\"\"\t\"\"\t\"\"\t\"DPST-1-1\"\t\"Auto\"\n\"_Pala soggior
     Corlo\"\t\"4/2/11\"\t\"\"\t\"\"\t\"\"\t\"DPST-232-600\"\t\"Auto\"\n","KNXEthInterface":"Auto","KNXEthInterfaceManuallyInput":"","statusDisplayLastUpdate":true,"statusDisplayDeviceNameWhenALL":true,"statusDisplayDataPoint":false,"stopETSImportIfNoDatapoint":"fake","loglevel":"warn","name":"Enertex
     Unicast","localEchoInTunneling":true,"delaybetweentelegrams":"50","delaybetweentelegramsfurtherdelayREAD":"1","ignoreTelegramsWithRepeatedFlag":true,"keyringFileXML":"","autoReconnect":"yes"},{"id":"6cbdc633e478e65a","type":"ui_group","name":"KNX-Ultimate
     Viewer","tab":"02c465fe930c0e1c","order":1,"disp":true,"width":"12","collapse":false},{"id":"02c465fe930c0e1c","type":"ui_tab","name":"Home","icon":"dashboard","disabled":false,"hidden":false}]
+
     ```
+
 ````
