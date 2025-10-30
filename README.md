@@ -1,7 +1,5 @@
 ![Logo](img/logo-big.png)
-<p align='center'>
-<img width="110px" src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/knxsecure.png" ></br>
-</p>
+
 <br/>
 
 [![NPM version][npm-version-image]][npm-url]
