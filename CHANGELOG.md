@@ -636,7 +636,7 @@ This is an interim version, to quick fix some issues. Please report any issue wi
 
 **Version 2.2.2** - October 2023<br/>
 - NEW: HUE Motion: support HUE Camera motion events via the HUE Motion node.<br/>
-- HUE Light: some tweaking to the GUI.<br/> - HUE Grouped Light: Fixed relative dimming function.<br/> - KNK Alerter node: <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/SampleAlerter">fixed the wiki sample page</a>.<br/> - KNX Viewer: added the help pane in Node-Red.<br/> 
+- HUE Light: some tweaking to the GUI.<br/> - HUE Grouped Light: Fixed relative dimming function.<br/> - KNK Alerter node: <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleAlerter">fixed the wiki sample page</a>.<br/> - KNX Viewer: added the help pane in Node-Red.<br/> 
 
 
 **Version 2.2.1** - October 2023<br/>
@@ -1045,7 +1045,7 @@ This is an interim version, to quick fix some issues. Please report any issue wi
 
 **Version 1.4.1** - October 2022<br/>
 - Added DPT 14.077.<br/>
-- NEW: you can now set the ETS group address list at runtime, via the Watchdog Node. See here https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/7.-WatchDog-Configuration the "importCSV" property of the msg.setGatewayConfig.<br/>
+- NEW: you can now set the ETS group address list at runtime, via the Watchdog Node. See here https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/WatchDog-Configuration the "importCSV" property of the msg.setGatewayConfig.<br/>
 - Updated the Wiki in all languages.<br/>
 
 
@@ -1151,7 +1151,7 @@ This is an interim version, to quick fix some issues. Please report any issue wi
 
 
 **Version 1.3.28** - February 2022<br/>
-- NEW: KNX Viewer: this node allow you to see all datapints and values in a dashboard wirget. https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/knxUltimateViewer<br/>
+- NEW: KNX Viewer: this node allow you to see all datapints and values in a dashboard wirget. https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/knxUltimateViewer<br/>
 
 
 **Version 1.3.27** - February 2022<br/>
@@ -1372,7 +1372,7 @@ This is an interim version, to quick fix some issues. Please report any issue wi
 
 
 **Version 1.2.34** - June 2021<br/>
-- Gateway configuration: added option Suppress repeated (R-Flag) telegrams fom BUS. When enabled, this option suppress the telegrams marked as "repeated" (with R-Flag) coming from the bus. See here: https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/Gateway-configuration<br/>
+- Gateway configuration: added option Suppress repeated (R-Flag) telegrams fom BUS. When enabled, this option suppress the telegrams marked as "repeated" (with R-Flag) coming from the bus. See here: https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Gateway-configuration<br/>
 
 
 **Version 1.2.33** - May 2021<br/>
@@ -1392,7 +1392,7 @@ This is an interim version, to quick fix some issues. Please report any issue wi
 
 
 **Version 1.2.29** - May 2021<br/>
-- KNX Device: if "read on connection/reconnection" is selected, the gateway node will now read all values of all nodes in 2 steps: first from file (for the nodes set in this way), then from BUS (for the nodes set in this way). This allow nodes that are setup as virtual devices, to get their values from file before being asked to send the value as response to the bus, by other nodes. It's all clear? No? Sorry for that, i'm unable to better explain that.</br>- Watchdog node: NEW: you can force the selected gateway to disconnect from the KNX BUS and to STOP reconnection attempts. You can also force the selected gateway to connect to the KNX BUS and to ENABLE reconnection attempts. https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---WatchDog<br/>
+- KNX Device: if "read on connection/reconnection" is selected, the gateway node will now read all values of all nodes in 2 steps: first from file (for the nodes set in this way), then from BUS (for the nodes set in this way). This allow nodes that are setup as virtual devices, to get their values from file before being asked to send the value as response to the bus, by other nodes. It's all clear? No? Sorry for that, i'm unable to better explain that.</br>- Watchdog node: NEW: you can force the selected gateway to disconnect from the KNX BUS and to STOP reconnection attempts. You can also force the selected gateway to connect to the KNX BUS and to ENABLE reconnection attempts. https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---WatchDog<br/>
 
 
 **Version 1.2.28** - May 2021<br/>
@@ -1406,24 +1406,24 @@ This is an interim version, to quick fix some issues. Please report any issue wi
 
 
 **Version 1.2.26** - April 2021<br/>
-- NEW: Alerter node: added a third output PIN containing the last alerted device (https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/Alerter-Configuration).<br/>
+- NEW: Alerter node: added a third output PIN containing the last alerted device (https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Alerter-Configuration).<br/>
 - Updated Wiki, Help and SAMPLE to reflect this change.<br/>
 
 
 **Version 1.2.25** - April 2021<br/>
-- NEW: Alerter node: added a second output PIN containing all alerted devices at once (useful for Telegram, Alexa and so on) (https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/Alerter-Configuration).<br/>
+- NEW: Alerter node: added a second output PIN containing all alerted devices at once (useful for Telegram, Alexa and so on) (https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Alerter-Configuration).<br/>
 - NEW: Alerter node: now you can enter TWO device's descriptions, one short (MAX 14 CHARS, SUITABLE FOR DPT 16.x) and one long.<br/>
 - Updated Wiki, Help and SAMPLE to reflect this change.<br/>
 
 
 **Version 1.2.23** - April 2021<br/>
 - Fix: Put some spaces in the device list window of Alerter and Scene node, to facilitate the fields editing.<br/>
-- Alerter node: other than "write", the devices listed react to "response" telegrams as well (https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/Alerter-Configuration).<br/>
+- Alerter node: other than "write", the devices listed react to "response" telegrams as well (https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Alerter-Configuration).<br/>
 
 
 **Version 1.2.22** - April 2021<br/>
 - Fix: emulated mode in knx-ultimate set to "universal mode" has the topic always set to empty string.<br/>
-- NEW: Alerter node (https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/Alerter-Configuration).<br/>
+- NEW: Alerter node (https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Alerter-Configuration).<br/>
 - NEW: Alerter node HELP online with samples, in both italiano, english and deutsch.<br/>
 
 
@@ -1441,7 +1441,7 @@ This is an interim version, to quick fix some issues. Please report any issue wi
 
 **Version 1.2.18** - April 2021<br/>
 - NEW: KNX-Ultimate node can retain it's value after reconnection to KNX bus and even after reboot of node-red.<br/>
-- Update the WIKI to reflect the changes (https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/2.-Node-Configuration).<br/>
+- Update the WIKI to reflect the changes (https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Device).<br/>
 - NEW: begin to prepare KNX-Ultimate to support KNX Secure. Some changes to the underlying API where made.<br/>
 - Done some checks on new datapoints coming from BUS to discard wrong telegrams lenght.<br/>
 
@@ -1456,7 +1456,7 @@ This is an interim version, to quick fix some issues. Please report any issue wi
 - Global Context Node: fixed the help link, it was broken in italian language.<br/>
 - Global Context Node: optimized the JavaScript samples.<br/>
 - Global Context Node: fix the gateway description not showing in config window, in italian language.<br/>
-- Global Context Node: added the configuration help page in the wiki for all languages (https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/GlobalVariable).<br/>
+- Global Context Node: added the configuration help page in the wiki for all languages (https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/GlobalVariable).<br/>
 - NEW: Online node-red public test website: Point your browser here http://casacorte.myqnapcloud.com:2021 There is a node-red installation ready to be tested, with KNX-Ultimate fully set in "emulation" mode (you cannot do any damage, because the KNX backbone is simulated).<br/>
 - Added proKNX to the list of KNX device manufacturers using KNX-Ultimate (at bottom of the README page).<br/>
 
@@ -1472,18 +1472,18 @@ This is an interim version, to quick fix some issues. Please report any issue wi
 
 
 **Version 1.2.9** - February 2021<br/>
-- NEW: LOBAL CONTEXT node: https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/SampleGlobalContextNode), exposes the group addresses to a Global Context variable, to be used in function nodes.<br/>
+- NEW: LOBAL CONTEXT node: https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleGlobalContextNode), exposes the group addresses to a Global Context variable, to be used in function nodes.<br/>
 - NEW: Datapoint 19.001 DateTime<br/>
 - Added sample in the config window of Datapoint 19.001 and updated the sample page in the wiki.
 
 
 **Version 1.2.8** - January 2021<br/>
-- NEW: you can now change the node configuration my input message. https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample-setConfig<br/>
+- NEW: you can now change the node configuration my input message. https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample-setConfig<br/>
 - Added msg.setConfig sample and updated the rest of the WIKI.
 
 
 **Version 1.2.7** - January 2021<br/>
-- NEW: Datapoint 237 DALI diags. https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---DPT237<br/>
+- NEW: Datapoint 237 DALI diags. https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT237<br/>
 - Added sample DPT 237.x in the Wiki
 
 
@@ -1555,7 +1555,7 @@ This is an interim version, to quick fix some issues. Please report any issue wi
 
 **Version 1.1.91** - October 2020<br/>
 - NEW: Datapoint 22.201 RCHH Status (for example, for MDT actuators)<br/>
-- Added sample for Datapoint 22.x (https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---DPT22)<br/>
+- Added sample for Datapoint 22.x (https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT22)<br/>
 - Added sample for Datapoint 20.x<br/>
 
 
@@ -1570,7 +1570,7 @@ This is an interim version, to quick fix some issues. Please report any issue wi
 - Added sample for Datapoint 12.x. <br/>
 - Added sample for Datapoint 13.x. <br/>
 - Added sample for Datapoint 14.x. <br/>
-- Added sample for switching on/off a POE port of Unifi Switch (https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---UnifiPOE)
+- Added sample for switching on/off a POE port of Unifi Switch (https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---UnifiPOE)
 
 
 **Version 1.1.89** - September 2020<br/>
@@ -1578,11 +1578,11 @@ This is an interim version, to quick fix some issues. Please report any issue wi
 
 
 **Version 1.1.88** - September 2020<br/>
-- FIX: Scene Controller. If disabled, it outputs now the correct values of recallscene and savescene properties (before, both was sentout as false, even if true). See here at bottom: https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/SceneController-MSG-to-the-node<br/>
+- FIX: Scene Controller. If disabled, it outputs now the correct values of recallscene and savescene properties (before, both was sentout as false, even if true). See here at bottom: https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SceneController-Configuration#messages-from-the-node<br/>
 
 
 **Version 1.1.86** - September 2020<br/>
-- NEW: Scene Controller, added the ability to disable the scene controller via msg.disabled = true. See here at bottom: https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/SceneController-MSG-to-the-node<br/>
+- NEW: Scene Controller, added the ability to disable the scene controller via msg.disabled = true. See here at bottom: https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SceneController-Configuration#messages-from-the-node<br/>
 
 
 **Version 1.1.85** - September 2020<br/>
@@ -1617,7 +1617,7 @@ This is an interim version, to quick fix some issues. Please report any issue wi
 
 
 **Version 1.1.79** - August 2020<br/>
-- NEW: The scene controller node can now save the current group address value via a msg input. See here: https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/SceneController-MSG-to-the-node and the sample in the wiki as well..
+- NEW: The scene controller node can now save the current group address value via a msg input. See here: https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SceneController-Configuration#messages-from-the-node and the sample in the wiki as well..
 
 
 **Version 1.1.76** - August 2020<br/>
@@ -1796,7 +1796,7 @@ This is an interim version, to quick fix some issues. Please report any issue wi
 
 
 **Version 1.1.32** - Feb 2020<br/>
-- New: in the knx-ultimate, added the option to <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/2.-Node-Configuration" target="_blank">format the msg.payload value</a>, if it's numeric.<br/>
+- New: in the knx-ultimate, added the option to <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Device" target="_blank">format the msg.payload value</a>, if it's numeric.<br/>
 - Switched to knx.js API 2.3.7<br/>
 - Refractoring of some internal code to speed up things, whenever the node sends a "Read" request to the BUS.<br/>
 - Fix a message warning in the config page, if you not imported the ETS csv file.<br/>
@@ -1812,18 +1812,18 @@ This is an interim version, to quick fix some issues. Please report any issue wi
 
 
 **Version 1.1.30** - Feb 2020<br/>
-- New: the Watchdog node now signals if a knx-ultimate node throws errors as well. <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/8.-WatchDog-Messages-from-the-node" target="_blank">See here output message properties.</a><br/>
+- New: the Watchdog node now signals if a knx-ultimate node throws errors as well. <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/WatchDog-Configuration" target="_blank">See here output message properties.</a><br/>
 
 
 **Version 1.1.29** - Feb 2020<br/>
 - Changed Node KNX Icon, logo and colors, thanks @svenflender <br/>
 - New in config-node: copy/paste friendly text block, with a list of all KNX Nodes (for using, for example, in KNX Router line/zone filters).<br/>
-- New: added subtype decoded value **payloadsubtypevalue** ( for exampe, On/Off, Ramp/NoRamp, Start/Stop, Alarm/NoAlarm ). <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Subtype" target="_blank">See here an example</a><br/>
+- New: added subtype decoded value **payloadsubtypevalue** ( for exampe, On/Off, Ramp/NoRamp, Start/Stop, Alarm/NoAlarm ). <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Subtype" target="_blank">See here an example</a><br/>
 
 
 **Version 1.1.28** - Jan 2020<br/>
 - New: Added topic property<br/>
-- New: added page to wiki, explaining the node protection. <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Protections" target="_blank">Node Protections</a>.<br/>
+- New: added page to wiki, explaining the node protection. <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Protections" target="_blank">Node Protections</a>.<br/>
 - Updated Wiki to reflect the new changes.<br/>
 
 
@@ -1834,7 +1834,7 @@ This is an interim version, to quick fix some issues. Please report any issue wi
 
 
 **Version 1.1.26** - Jan 2020<br/>
-- New: Watchdog Node added. Please <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/7.-WatchDog-Configuration" target="_blank">consult the Wiki</a>.<br/>
+- New: Watchdog Node added. Please <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/WatchDog-Configuration" target="_blank">consult the Wiki</a>.<br/>
 - Changed category (the node's list on left panel of node-red) to "KnxUltimate", to accomodate the Watchdog node.<br/>
 
 

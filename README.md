@@ -62,28 +62,28 @@ Please subscribe to the [YouTube channel](https://www.youtube.com/playlist?list=
 
 **Core KNX nodes**
 
-- **KNX Ultimate** - [docs](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/2.-Node-Configuration). The primary node for interacting with your KNX installation. Send and receive telegrams, create virtual group addresses, and bridge non‑KNX devices into your bus with an intuitive, highly configurable interface.
+- **KNX Ultimate** - [docs](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Device). The primary node for interacting with your KNX installation. Send and receive telegrams, create virtual group addresses, and bridge non‑KNX devices into your bus with an intuitive, highly configurable interface.
 - **KNX Config** - Shared configuration for gateways, security settings, and bus parameters used by every runtime node.
-- **Scene Controller** - [docs](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/SceneController-Configuration). Recall, store, and manage scenes exactly as a hardware KNX scene keypad would, including optional learn buttons from the flow.
+- **Scene Controller** - [docs](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SceneController-Configuration). Recall, store, and manage scenes exactly as a hardware KNX scene keypad would, including optional learn buttons from the flow.
 - **Auto Responder** - Automatically answers KNX read requests (ideal for virtual devices or when you need deterministic status values).
-- **Global Context** - [docs](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/GlobalVariable). Mirrors selected group addresses into Node-RED’s global context for easy use inside function nodes and custom logic.
-- **Viewer** - [docs](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/knxUltimateViewer). Dashboard widget that shows live KNX group address activity and values.
+- **Global Context** - [docs](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/GlobalVariable). Mirrors selected group addresses into Node-RED’s global context for easy use inside function nodes and custom logic.
+- **Viewer** - [docs](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/knxUltimateViewer). Dashboard widget that shows live KNX group address activity and values.
 
 **Automation, safety, and diagnostics**
 
-- **Watchdog** - [docs](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/7.-WatchDog-Configuration). Monitors bus availability, triggers notifications (e-mail, Telegram, Alexa, Siri, Sonos, …), and can automatically fail over to a backup KNX/IP router or reconnect on demand.
-- **Logger** - [docs](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/Logger-Configuration). Captures telegrams into an ETS‑compatible XML log for in-depth diagnostics (note: KNX/IP interfaces do not report KNX-Ultimate telegrams).
-- **Alerter** - [docs](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/Alerter-Configuration). Raises visual or audio alerts (for instance with node-red-contrib-tts-ultimate) when monitored addresses signal an alarm condition.
-- **Load Control** - [docs](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/LoadControl-Configuration). Supervises energy usage (oven, washing machine, EV charger…) and sheds loads before the main breaker trips.
+- **Watchdog** - [docs](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/WatchDog-Configuration). Monitors bus availability, triggers notifications (e-mail, Telegram, Alexa, Siri, Sonos, …), and can automatically fail over to a backup KNX/IP router or reconnect on demand.
+- **Logger** - [docs](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Logger-Configuration). Captures telegrams into an ETS‑compatible XML log for in-depth diagnostics (note: KNX/IP interfaces do not report KNX-Ultimate telegrams).
+- **Alerter** - [docs](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Alerter-Configuration). Raises visual or audio alerts (for instance with node-red-contrib-tts-ultimate) when monitored addresses signal an alarm condition.
+- **Load Control** - [docs](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/LoadControl-Configuration). Supervises energy usage (oven, washing machine, EV charger…) and sheds loads before the main breaker trips.
 - **Staircase** - Automates staircase lighting timers with configurable fade and reminder options.
 - **Garage** - Manages garage door or gate logic, including impulse control, status feedback, and safety interlocks.
 
 **IoT integrations**
 
 - **IoT Bridge** - Bridges MQTT/REST devices with KNX, handling payload translations so non‑KNX equipment becomes bus-aware.
-- **Home Assistant Translator** - [docs](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/HATranslator). Converts Home Assistant service payloads to KNX telegrams using a built-in, user-editable mapping table.
+- **Home Assistant Translator** - [docs](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HATranslator). Converts Home Assistant service payloads to KNX telegrams using a built-in, user-editable mapping table.
 
-**Philips Hue nodeset** - [guide](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/HUE+Bridge+configuration)  
+**Philips Hue nodeset** - [guide](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE+Bridge+configuration)  
 Use the dedicated Hue config node plus the following device nodes to mirror Hue state into KNX and vice versa:
 
 - **Hue Light** - Bi-directional light control with day/night scenes, dimming curves, and tunable white.
@@ -126,9 +126,9 @@ Each node links to detailed wiki documentation with configuration hints, sample 
 
 ## DOCUMENTATION
 
-* [Wiki and Help](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki)
-* [FAQ + Troubleshoot](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/FAQ-Troubleshoot)
-* [Security best practices](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/SECURITY)
+* [Wiki and Help](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki)
+* [FAQ + Troubleshoot](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/FAQ-Troubleshoot)
+* [Security best practices](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SECURITY)
 
 
 
@@ -168,7 +168,7 @@ A huge range of datapoints is supported. If you need one that is missing, open a
 </details>
 <details><summary>Self protection</summary>
 
-The node protects you from common mistakes. See the [Node Protections](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Protections) page for details.
+The node protects you from common mistakes. See the [Node Protections](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Protections) page for details.
 
 </details>
 <details><summary>Built in RBE input/output filter</summary>

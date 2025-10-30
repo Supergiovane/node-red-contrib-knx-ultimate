@@ -14,7 +14,7 @@ const translate = require('translate-google')
 
 const ROOT = process.cwd()
 const WIKI_DIR = path.resolve(ROOT, '..', 'node-red-contrib-knx-ultimate.wiki')
-const ABS = 'https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/'
+const ABS = 'https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/'
 
 const TARGETS = [
   { code: 'it', prefix: 'it-', lang: 'it' },

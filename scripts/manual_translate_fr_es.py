@@ -36,7 +36,7 @@ def build_lang_bar(title: str) -> str:
     slug = slugify(title)
     entries = []
     for label, prefix in LANG_BAR_ORDER:
-        entries.append(f'[{label}](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/{prefix}{slug})')
+        entries.append(f'[{label}](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/{prefix}{slug})')
     return f'🌐 Language: ' + ' | '.join(entries)
 
 

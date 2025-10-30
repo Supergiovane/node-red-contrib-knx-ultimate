@@ -20,10 +20,10 @@
             "add": "Drücken Sie Hinzufuegen, um ein Gerät zur Szene hinzuzufügen"
         },
         "advanced": {
-            "notify-DPT3007": "Du haßt ein relatives DIM ausgewählt. Bitte <a target='_blank' href='https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Dimming'>klicke hier, um dieses Beispiel anzuzeigen</a> und lernen, wie den Payload handeln.",
-            "notify-DPT18001": "Du haßt Szene Datenpunkt ausgewählt. Bitte <a target='_blank' href='https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Control-a-scene-actuator'>klicke hier, um dieses Beispiel anzuzeigen</a> und lernen, wie den Payload handeln."
-            ,"notify-DPT232600": "Du haßt einen RGB Datenpunkt ausgewählt. Bitte <a target='_blank' href='https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---RGB-Color'>klicke hier, um dieses Beispiel anzuzeigen</a> und lernen, wie den Payload handeln."
-            ,"notify-DPT251600":"Du haßt einen RGBW Datenpunkt ausgewählt. Bitte <a target='_blank' href='https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---RGBW-Color-plus-White'>klicke hier, um dieses Beispiel anzuzeigen</a> und lernen, wie den Payload handeln."
+            "notify-DPT3007": "Du haßt ein relatives DIM ausgewählt. Bitte <a target='_blank' href='https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Dimming'>klicke hier, um dieses Beispiel anzuzeigen</a> und lernen, wie den Payload handeln.",
+            "notify-DPT18001": "Du haßt Szene Datenpunkt ausgewählt. Bitte <a target='_blank' href='https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Control-a-scene-actuator'>klicke hier, um dieses Beispiel anzuzeigen</a> und lernen, wie den Payload handeln."
+            ,"notify-DPT232600": "Du haßt einen RGB Datenpunkt ausgewählt. Bitte <a target='_blank' href='https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---RGB-Color'>klicke hier, um dieses Beispiel anzuzeigen</a> und lernen, wie den Payload handeln."
+            ,"notify-DPT251600":"Du haßt einen RGBW Datenpunkt ausgewählt. Bitte <a target='_blank' href='https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---RGBW-Color-plus-White'>klicke hier, um dieses Beispiel anzuzeigen</a> und lernen, wie den Payload handeln."
            
         }
     }

@@ -361,203 +361,182 @@
             "de": "Switch Light",
             "zh": "Switch Light"
           },
-          "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Switch-light"
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Switch-light"
         },
         {
           "type": "url",
           "labels": {
             "en": "Dimming"
           },
-          "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Dimming"
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Dimming"
         },
         {
           "type": "url",
           "labels": {
             "en": "RGB color"
           },
-          "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---RGB-Color"
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---RGB-Color"
         },
         {
           "type": "url",
           "labels": {
             "en": "RGBW color + White"
           },
-          "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---RGBW-Color-plus-White"
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---RGBW-Color-plus-White"
         },
         {
           "type": "url",
           "labels": {
             "en": "Command a scene actuator"
           },
-          "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Control-a-scene-actuator"
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Control-a-scene-actuator"
         },
         {
           "type": "url",
           "labels": {
             "en": "Datapoint 213.x 4x Setpoint"
           },
-          "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---DPT213"
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT213"
         },
         {
           "type": "url",
           "labels": {
             "en": "Datapoint 222.x 3x Setpoint"
           },
-          "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---DPT222"
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT222"
         },
         {
           "type": "url",
           "labels": {
             "en": "Datapoint 237.x DALI diags"
           },
-          "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---DPT237"
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT237"
         },
         {
           "type": "url",
           "labels": {
             "en": "Datapoint 2.x 1 bit proprity"
           },
-          "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---DPT2"
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT2"
         },
         {
           "type": "url",
           "labels": {
             "en": "Datapoint 22.x RCHH Status"
           },
-          "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---DPT22"
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT22"
         },
         {
           "type": "url",
           "labels": {
             "en": "Datetime to BUS"
           },
-          "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---DateTime-to-BUS"
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DateTime-to-BUS"
         },
         {
           "type": "url",
           "labels": {
             "en": "Read Status"
           },
-          "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Read-value-from-Device"
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Read-value-from-Device"
         },
         {
           "type": "url",
           "labels": {
             "en": "Virtual Device"
           },
-          "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Virtual-Device"
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Virtual-Device"
         },
         {
           "type": "url",
           "labels": {
             "en": "Subtype decoded"
           },
-          "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Subtype"
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Subtype"
         },
         {
           "type": "url",
           "labels": {
             "en": "Alexa"
           },
-          "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Alexa"
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Alexa"
         },
         {
           "type": "url",
           "labels": {
             "en": "Apple Homekit"
           },
-          "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Apple-Homekit"
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Apple-Homekit"
         },
         {
           "type": "url",
           "labels": {
             "en": "Google Home"
           },
-          "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Google-Assistant"
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Google-Assistant"
         },
         {
           "type": "url",
           "labels": {
             "en": "Switch on/off POE port of Unifi switch"
           },
-          "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---UnifiPOE"
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---UnifiPOE"
         },
         {
           "type": "url",
           "labels": {
             "en": "Set configuration by msg"
           },
-          "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample-setConfig"
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample-setConfig"
         },
         {
           "type": "url",
           "labels": {
             "en": "Scene Controller node"
           },
-          "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/Sample-Scene-Node"
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Sample-Scene-Node"
         },
         {
           "type": "url",
           "labels": {
             "en": "WatchDog node"
           },
-          "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---WatchDog"
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---WatchDog"
         },
         {
           "type": "url",
           "labels": {
             "en": "Global Context node"
           },
-          "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/SampleGlobalContextNode"
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleGlobalContextNode"
         },
         {
           "type": "url",
           "labels": {
             "en": "Alerter node"
           },
-          "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/SampleAlerter"
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleAlerter"
         },
         {
           "type": "url",
           "labels": {
             "en": "Load control node"
           },
-          "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/SampleLoadControl"
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleLoadControl"
         },
         {
           "type": "url",
           "labels": {
             "en": "Viewer node"
           },
-          "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/knxUltimateViewer"
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/knxUltimateViewer"
         },
         {
           "type": "url",
           "labels": {
             "en": "MySQL, InfluxDB, MQTT Sample"
           },
-          "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/Sample-KNX2MQTT-KNX2MySQL-KNX2InfluxDB"
-        }
-      ]
-    },
-    {
-      "key": "ContributeWiki",
-      "labels": {
-        "en": "Contribute to Wiki",
-        "it": "Contribuisci alla Wiki",
-        "de": "",
-        "zh": ""
-      },
-      "items": [
-        {
-          "type": "page",
-          "labels": {
-            "en": "",
-            "it": "",
-            "de": "",
-            "zh": ""
-          },
-          "page": "Manage-Wiki"
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Sample-KNX2MQTT-KNX2MySQL-KNX2InfluxDB"
         }
       ]
     }

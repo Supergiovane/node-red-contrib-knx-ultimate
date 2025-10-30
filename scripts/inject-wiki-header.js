@@ -14,7 +14,7 @@ const path = require('path')
 
 const ROOT = process.cwd()
 const WIKI_DIR = path.resolve(ROOT, '..', 'node-red-contrib-knx-ultimate.wiki')
-const ABS = 'https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/'
+const ABS = 'https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/'
 const MENU_CFG = path.join(__dirname, 'wiki-menu.json')
 
 function listMarkdown (dir) {

@@ -805,14 +805,14 @@ module.exports = (RED) => {
     msg.event = "GroupValue_Write"; // "GroupValue_Write" or "GroupValue_Response", overrides the option Telegram type above.
     msg.dpt = "1.001"; // for example "1.001", overrides the Datapoint option. (Datapoints can be sent as 9 , "9" , "9.001" or "DPT9.001")
     return msg;`,
-            helplink: 'https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki'
+            helplink: 'https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki'
           }
           res.json(jRet)
           return
         }
         jRet = {
           help: 'NO',
-          helplink: 'https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-SamplesHome'
+          helplink: 'https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-SamplesHome'
         }
         const dpts = Object.entries(dptlib.dpts).filter(onlyDptKeys)
         for (let index = 0; index < dpts.length; index++) {
@@ -821,7 +821,7 @@ module.exports = (RED) => {
               help: dpts[index][1].basetype.hasOwnProperty('help') ? dpts[index][1].basetype.help : 'NO',
               helplink: dpts[index][1].basetype.hasOwnProperty('helplink')
                 ? dpts[index][1].basetype.helplink
-                : 'https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-SamplesHome'
+                : 'https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-SamplesHome'
             }
             break
           }

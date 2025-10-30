@@ -13,7 +13,7 @@ const path = require('path')
 
 const ROOT = process.cwd()
 const WIKI_DIR = path.resolve(ROOT, '..', 'node-red-contrib-knx-ultimate.wiki')
-const ABS_PREFIX = 'https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/'
+const ABS_PREFIX = 'https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/'
 
 const fix = process.argv.includes('--fix')
 

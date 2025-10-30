@@ -22,7 +22,7 @@ return ({readstatus: true});
 
 ```
 
-> You'll expect a "response" from the KNX bus, that you can read using a knx-ultimate node set to react to "response" messages. [Please see the node config wiki](/node-red-contrib-knx-ultimate/wiki/KNX-Node-Configuration)
+> You'll expect a "response" from the KNX bus, that you can read using a knx-ultimate node set to react to "response" messages. [Please see the node config wiki](/node-red-contrib-knx-ultimate/wiki/Device)
 
 Assuming you send a message from a **function node ** , to a knx-ultimate node with**Listen to all Group Addresses ** and and a ETS csv file set.**Turn on/off a Lamp**
 

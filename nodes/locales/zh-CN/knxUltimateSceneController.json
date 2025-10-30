@@ -21,10 +21,10 @@
             "add":"点击添加, 就在场景中添加一个设备"
          },
          "advanced": {
-            "notify-DPT3007": "你选择了相对调光类型. 请 <a target='_blank' href='https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/cn--Sample---Dimming'>点击这个连接参考案例</a> 并学习如何处理此类消息.",
-            "notify-DPT18001": "你选择了场景类型. 请 <a target='_blank' href='https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/cn--Sample---Control-a-scene-actuator'>点击这个连接参考案例</a> 并学习如何处理此类消息.",
-            "notify-DPT232600": "你选择了RGB调光类型. 请 <a target='_blank' href='https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/cn--Sample---RGB-Color'>点击这个连接参考案例</a> 并学习如何处理此类消息.",
-            "notify-DPT251600": "你选择了RGBW调光类型. 请 <a target='_blank' href='https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/cn--Sample---RGBW-Color-plus-White'>点击这个连接参考案例</a> 并学习如何处理此类消息."           
+            "notify-DPT3007": "你选择了相对调光类型. 请 <a target='_blank' href='https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Dimming'>点击这个连接参考案例</a> 并学习如何处理此类消息.",
+            "notify-DPT18001": "你选择了场景类型. 请 <a target='_blank' href='https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Control-a-scene-actuator'>点击这个连接参考案例</a> 并学习如何处理此类消息.",
+            "notify-DPT232600": "你选择了RGB调光类型. 请 <a target='_blank' href='https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---RGB-Color'>点击这个连接参考案例</a> 并学习如何处理此类消息.",
+            "notify-DPT251600": "你选择了RGBW调光类型. 请 <a target='_blank' href='https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---RGBW-Color-plus-White'>点击这个连接参考案例</a> 并学习如何处理此类消息."           
         }
     }
 }

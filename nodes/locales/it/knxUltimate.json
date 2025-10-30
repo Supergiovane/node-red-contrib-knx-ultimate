@@ -33,7 +33,7 @@
             "leaveempty": "Lascia vuoto per usare l'indirizzo di gruppo",
             "search": "Inizia a digitare per cercare",
             "notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized": "Es: 0 per false, 1 per true, altrimenti qualsiasi valore",
-            "noETSWarning": "Non hai importato il file ETS. <br/> Il nodo tenterà di codificare/decodificare i telegrammi. <a href=\"https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/it-2.-Node-Configuration\" target='_blank'>Clicca qui per vedere l'help.</a>."
+            "noETSWarning": "Non hai importato il file ETS. <br/> Il nodo tenterà di codificare/decodificare i telegrammi. <a href=\"https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-Device\" target='_blank'>Clicca qui per vedere l'help.</a>."
         },
         "button": {
             "enable": "Mostra il pulsante manuale nell'editor",
@@ -68,13 +68,13 @@
             "OUTPUT": "OUTPUT (invio datagrammi sul bus KNX)",
             "INPUT": "INPUT (ricezione datagrammi dal bus KNX)",
             "NUMERICVALUES": "VALORI NUMERICI (le operazioni vengono eseguite in questo ordine)",
-            "notify-DPT3007": "Hai selezionato un DIM relativo. Per favore <a target='_blank' href='https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Dimming'>clicca qui per vedere un esempio</a> e capire come gestire il relativo payload.",
-            "notify-DPT18001": "Hai selezionato un datapoint scena. Per favore <a target='_blank' href='https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---Control-a-scene-actuator'>clicca qui per vedere un esempio</a> per capire come gestire il relatico payload.",
+            "notify-DPT3007": "Hai selezionato un DIM relativo. Per favore <a target='_blank' href='https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Dimming'>clicca qui per vedere un esempio</a> e capire come gestire il relativo payload.",
+            "notify-DPT18001": "Hai selezionato un datapoint scena. Per favore <a target='_blank' href='https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Control-a-scene-actuator'>clicca qui per vedere un esempio</a> per capire come gestire il relatico payload.",
             "notify-NoETSFile": "La modalità universale richiede un file ETS valido per poter decodificare i tipi di dati e generare i nomi dei dispositivi. Incolla il file ETS nel nodo di configurazione. Se non usi il file ETS, il nodo funzionerà come ricevitore cieco (con decoding automatico dei datagrammi) ma è necessario passare il tipo di dati (oltre al valore) nel messaggio di input, per poter inviare qualcosa al BUS KNX.",
-            "notify-DPT232600": "Hai selezionato un datapoint RGB. Per favore <a target='_blank' href='https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---RGB-Color'>clicca qui per vedere un esempio</a> per capire come gestire il relatico payload.",
-            "notify-DPT251600": "Hai selezionato un datapoint RGBW. Per favore <a target='_blank' href='https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---RGBW-Color-plus-White'>clicca qui per vedere un esempio</a> per capire come gestire il relatico payload.",
-            "notify-DPT222": "Hai selezionato un datapoint 3x16 Bit. Per favore <a target='_blank' href='https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-Sample---DPT222'>clicca qui per vedere un esempio</a> per capire come gestire il relatico payload.",
-            "divVediEsempi": "<a href='https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki/-SamplesHome' target='_blank'><i class='fa fa-code'></i>&nbsp PER FAVORE PRENDITI 5 MINUTI PER VEDERE QUALCHE ESEMPIO QUI.</a>",
+            "notify-DPT232600": "Hai selezionato un datapoint RGB. Per favore <a target='_blank' href='https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---RGB-Color'>clicca qui per vedere un esempio</a> per capire come gestire il relatico payload.",
+            "notify-DPT251600": "Hai selezionato un datapoint RGBW. Per favore <a target='_blank' href='https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---RGBW-Color-plus-White'>clicca qui per vedere un esempio</a> per capire come gestire il relatico payload.",
+            "notify-DPT222": "Hai selezionato un datapoint 3x16 Bit. Per favore <a target='_blank' href='https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT222'>clicca qui per vedere un esempio</a> per capire come gestire il relatico payload.",
+            "divVediEsempi": "<a href='https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-SamplesHome' target='_blank'><i class='fa fa-code'></i>&nbsp PER FAVORE PRENDITI 5 MINUTI PER VEDERE QUALCHE ESEMPIO QUI.</a>",
             "Sample": "Esempio del payload del datapoint selezionato"
         },
         "selectlists": {
