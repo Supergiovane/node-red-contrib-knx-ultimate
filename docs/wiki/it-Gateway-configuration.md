@@ -77,12 +77,12 @@ Video: <a href="https://youtu.be/egRbR_KwP9I"><img src='https://raw.githubuserco
     <table style="font-size:12px">
         <tr><th colspan="2" style="font-size:14px">Significato colori stato nodo</th></tr>
         <tr><td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/greendot.png"></td><td>Reagisci a telegrammi di scrittura</td></tr>
-        <tr><td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/greenring.png"></td><td>Protezione da riferimenti circolari (<a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki" target="_blank">vedi pagina</a>)</td></tr>
+        <tr><td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/greenring.png"></td><td>Protezione da riferimenti circolari (<a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki" target="_blank">vedi pagina</a>)</td></tr>
         <tr><td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/bluedot.png"></td><td>Reagisci a telegrammi di risposta</td></tr>
         <tr><td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/bluering.png"></td><td>Invio automatico del valore del nodo come risposta al BUS (<a href="/node-red-contrib-knx-ultimate/wiki/-Sample---Virtual-Device" target="_blank">Virtual Device</a>)</td></tr>
         <tr><td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/greudot.png"></td><td>Reagisci a telegrammi di lettura</td></tr>
         <tr><td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/greyring.png"></td><td>Filtro RBE: nessun telegramma è stato inviato</td></tr>
         <tr><td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/reddot.png"></td><td>Errore o disconnesso</td></tr>
-        <tr><td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/redring.png"></td><td>Nodo DISABILITATO per riferimento circolare (<a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki" target="_blank">vedi pagina</a>)</td></tr>
+        <tr><td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/redring.png"></td><td>Nodo DISABILITATO per riferimento circolare (<a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki" target="_blank">vedi pagina</a>)</td></tr>
     </table>
 </p>

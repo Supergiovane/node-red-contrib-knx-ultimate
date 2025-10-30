@@ -110,7 +110,7 @@ If you can use both, please prefer the **ETS CSV Group address exported file** ,
         </tr>
         <tr>
             <td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/greenring.png"></img></td>
-            <td>Circular reference protection. <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki" target="_blank">See this page.</a></td>
+            <td>Circular reference protection. <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki" target="_blank">See this page.</a></td>
         </tr>
         <tr>
         <td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/bluedot.png"></img></td>
@@ -134,7 +134,7 @@ If you can use both, please prefer the **ETS CSV Group address exported file** ,
         </tr>
         <tr>
             <td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/redring.png"></img></td>
-            <td>Node DISABLED due to a circulare reference. <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki" target="_blank">See this page.</a></td>
+            <td>Node DISABLED due to a circulare reference. <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/wiki" target="_blank">See this page.</a></td>
         </tr>
     </table>
 </p>

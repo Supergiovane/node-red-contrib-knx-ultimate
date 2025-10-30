@@ -95,7 +95,7 @@ Si puede usar ambos, prefiera el archivo exportado de la dirección del grupo CS
         </tr>
         <tr>
             <TD> <img src = "https://raw.githubusercontent.com/supergiovane/node-red-contrib-knx-ultimate/master/img/greenring.png"> </img> </td>
-            <TD> Protección de referencia circular. <a href = "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki" target = "_ en blanco"> ver esta página. </a> </td>
+            <TD> Protección de referencia circular. <a href = "https://github.com/supergiovane/node-red-contrib-knx-ultimate/wiki" target = "_ en blanco"> ver esta página. </a> </td>
         </tr>
         <tr>
         <TD> <img src = "https://raw.githubusercontent.com/supergiovane/node-red-contrib-knx-ultimate/master/img/bluedot.png"> </img> </td>
@@ -119,7 +119,7 @@ Si puede usar ambos, prefiera el archivo exportado de la dirección del grupo CS
         </tr>
         <tr>
             <TD> <img src = "https://raw.githubusercontent.com/supergiovane/node-red-contrib-knx-ultimate/master/img/redring.png"> </img> </td>
-            <td> Nodo discapacitado debido a una referencia circulare. <a href = "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki" target = "_ en blanco"> ver esta página. </a> </td>
+            <td> Nodo discapacitado debido a una referencia circulare. <a href = "https://github.com/supergiovane/node-red-contrib-knx-ultimate/wiki" target = "_ en blanco"> ver esta página. </a> </td>
         </tr>
     </table>
 </p>
