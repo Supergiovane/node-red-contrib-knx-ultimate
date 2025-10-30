@@ -34,7 +34,7 @@ function detectLang (fileBase) {
   return 'en'
 }
 
-function slugify (title) { return title.replace(/ /g, '+') }
+function slugify (title) { return encodeURIComponent(title) }
 
 function pageUrl (lang, title) {
   const slug = slugify(title)

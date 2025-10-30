@@ -54,7 +54,7 @@ function extractMarkdown (htmlPath) {
 }
 
 function slugify (title) {
-  return title.replace(/ /g, '+')
+  return encodeURIComponent(title)
 }
 
 function buildLanguageBar (title) {

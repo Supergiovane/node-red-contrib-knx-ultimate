@@ -1,6 +1,7 @@
 import re
 from pathlib import Path
 from typing import List
+from urllib.parse import quote
 
 from deep_translator import GoogleTranslator
 
@@ -29,7 +30,7 @@ LANG_BAR_ORDER = [
 
 
 def slugify(title: str) -> str:
-    return title.replace(' ', '+')
+    return quote(title, safe='-._~')
 
 
 def build_lang_bar(title: str) -> str:

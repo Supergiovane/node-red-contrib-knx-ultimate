@@ -53,7 +53,7 @@ function deriveBaseTitle (filename) {
 }
 
 function toSlug (title) {
-  return title.replace(/ /g, '+')
+  return encodeURIComponent(title)
 }
 
 function expectedLinks (filename) {

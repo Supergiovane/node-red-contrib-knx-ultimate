@@ -52,7 +52,7 @@ function shouldSkipBase (file) {
   return false
 }
 
-function slugify (title) { return title.replace(/ /g, '+') }
+function slugify (title) { return encodeURIComponent(title) }
 function langBarLine (baseTitle) {
   const slugEN = slugify(baseTitle)
   const parts = LANG_BAR_ENTRIES.map(({ label, prefix }) => {
