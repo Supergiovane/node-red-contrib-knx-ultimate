@@ -1,4 +1,4 @@
-🌐 Language: [EN](/node-red-contrib-knx-ultimate/wiki/Protections) | [IT](/node-red-contrib-knx-ultimate/wiki/it-Protections) | [DE](/node-red-contrib-knx-ultimate/wiki/de-Protections) | [FR](/node-red-contrib-knx-ultimate/wiki/fr-Protections) | [ES](/node-red-contrib-knx-ultimate/wiki/es-Protections) | [简体中文](/node-red-contrib-knx-ultimate/wiki/zh-CN-Protections)
+🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Protections) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-Protections) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-Protections) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-Protections) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-Protections) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-Protections)
 
 <!-- NAV START -->
 导航: [首页](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-Home)  

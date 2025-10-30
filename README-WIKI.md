@@ -37,6 +37,8 @@ NPM scripts
 - Sync GitHub Pages site: `npm run docs:sync`
   - Copies the entire wiki into `docs/wiki/` and rewrites links so the site can be published via GitHub Pages.
   - Run this after updating the wiki repository so `docs/` stays in sync before committing.
+- Refresh everything: `npm run wiki:refresh`
+  - Convenience shortcut that runs `wiki:help-export`, `wiki:inject-header`, and `docs:sync` in sequence.
 
 Node help migration and generation
 - One‑time migrate (existing nodes): `node scripts/migrate-node-help.js`

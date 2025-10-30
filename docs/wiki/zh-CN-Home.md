@@ -1,4 +1,4 @@
-🌐 Language: [EN](/node-red-contrib-knx-ultimate/wiki/Home) | [IT](/node-red-contrib-knx-ultimate/wiki/it-Home) | [DE](/node-red-contrib-knx-ultimate/wiki/de-Home) | [FR](/node-red-contrib-knx-ultimate/wiki/fr-Home) | [ES](/node-red-contrib-knx-ultimate/wiki/es-Home) | [简体中文](/node-red-contrib-knx-ultimate/wiki/zh-CN-Home)
+🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Home) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-Home) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-Home) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-Home) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-Home) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-Home)
 
 <!-- NAV START -->
 导航: [首页](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-Home)  

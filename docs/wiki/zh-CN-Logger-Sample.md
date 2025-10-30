@@ -1,4 +1,4 @@
-🌐 Language: [EN](/node-red-contrib-knx-ultimate/wiki/Logger-Sample) | [IT](/node-red-contrib-knx-ultimate/wiki/it-Logger-Sample) | [DE](/node-red-contrib-knx-ultimate/wiki/de-Logger-Sample) | [FR](/node-red-contrib-knx-ultimate/wiki/fr-Logger-Sample) | [ES](/node-red-contrib-knx-ultimate/wiki/es-Logger-Sample) | [简体中文](/node-red-contrib-knx-ultimate/wiki/zh-CN-Logger-Sample)
+🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Logger-Sample) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-Logger-Sample) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-Logger-Sample) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-Logger-Sample) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-Logger-Sample) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-Logger-Sample)
 
 <!-- NAV START -->
 导航: [首页](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-Home)  
