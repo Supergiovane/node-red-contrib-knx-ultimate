@@ -1,0 +1,10 @@
+---
+layout: default
+---
+<link rel="stylesheet" href="{{ '/assets/wiki.css' | relative_url }}">
+{% capture nav_lang %}{{ page.lang | default: 'en' }}{% endcapture %}
+{% assign nav_lang = nav_lang | strip %}
+{% include wiki-navbar.html lang=nav_lang %}
+<article class="post-content wiki-content" itemprop="articleBody">
+  {{ content }}
+</article>

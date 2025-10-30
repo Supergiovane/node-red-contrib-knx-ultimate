@@ -1,0 +1,17 @@
+title: KNX Ultimate Documentation
+description: Documentation for node-red-contrib-knx-ultimate
+theme: minima
+baseurl: "/node-red-contrib-knx-ultimate"
+url: "https://supergiovane.github.io"
+markdown: kramdown
+kramdown:
+  input: GFM
+exclude:
+  - node_modules
+  - scripts
+  - Gemfile
+defaults:
+  - scope:
+      path: "wiki"
+    values:
+      layout: wiki

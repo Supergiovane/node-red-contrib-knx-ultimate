@@ -1,3 +1,9 @@
+---
+layout: page
+title: KNX Ultimate Documentation
+permalink: /
+---
+
 # KNX Ultimate Documentation
 
 <p align="center">

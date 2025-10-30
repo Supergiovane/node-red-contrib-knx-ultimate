@@ -8,7 +8,7 @@
  - Prompts for target section (existing or new)
  - Optionally creates a new section with labels per language
  - Optionally customizes item labels per language (otherwise uses EN for all)
- - Writes scripts/wiki-menu.json; then run: npm run wiki:inject-header
+ - Writes scripts/wiki-menu.json; then run: npm run wiki:refresh
 */
 
 const fs = require('fs')
@@ -92,7 +92,7 @@ async function run () {
   section.items.push({ type: 'page', labels, page })
   saveCfg(cfg)
   rl.close()
-  console.log('Saved. Now run: npm run wiki:inject-header')
+  console.log('Saved. Now run: npm run wiki:refresh')
   try {
     // Also generate localized node help files, if this wiki page maps to a node help
     generateLocalizedHelpForPage(page)

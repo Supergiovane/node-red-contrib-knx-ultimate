@@ -84,24 +84,8 @@ function buildLanguageBar (title, currentPrefix) {
   }).join(' | ')
 }
 
-function readExistingNavBlock (wikiPath) {
-  if (!fs.existsSync(wikiPath)) return null
-  const lines = fs.readFileSync(wikiPath, 'utf8').split(/\r?\n/)
-  const startIdx = lines.findIndex(line => line.trim() === '<!-- NAV START -->')
-  const endIdx = lines.findIndex(line => line.trim() === '<!-- NAV END -->')
-  if (startIdx === -1 || endIdx === -1 || endIdx < startIdx) return null
-  return lines.slice(startIdx, endIdx + 1).join('\n')
-}
-
-function buildPageContent ({ languageBar, navBlock, body }) {
-  const parts = [languageBar.trim()]
-  if (navBlock) {
-    parts.push('')
-    parts.push(navBlock.trim())
-  }
-  parts.push('')
-  parts.push(body.trim())
-  parts.push('')
+function buildPageContent (languageBar, body) {
+  const parts = [languageBar.trim(), '', body.trim(), '']
   return parts.join('\n')
 }
 
@@ -116,8 +100,7 @@ for (const [helpName, wikiTitle] of HELP_TO_WIKI.entries()) {
     const wikiPath = path.join(WIKI_DIR, `${lang.prefix}${wikiTitle}.md`)
     const languageBar = buildLanguageBar(wikiTitle, lang.prefix)
     const body = markdown.trim()
-    const navBlock = readExistingNavBlock(wikiPath)
-    const content = buildPageContent({ languageBar, navBlock, body })
+    const content = buildPageContent(languageBar, body)
     fs.writeFileSync(wikiPath, content, 'utf8')
     written++
   }

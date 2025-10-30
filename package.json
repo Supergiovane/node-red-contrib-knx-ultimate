@@ -84,7 +84,7 @@
     "wiki:menu-add": "node scripts/manage-wiki-menu.js",
     "wiki:help-migrate": "node scripts/migrate-node-help.js",
     "docs:sync": "node scripts/export-wiki-to-pages.js",
-    "wiki:refresh": "npm run wiki:help-export && npm run wiki:inject-header && npm run docs:sync"
+    "wiki:refresh": "npm run wiki:help-export && node scripts/generate-wiki-navbar.js && node scripts/prepare-wiki-pages.js && npm run docs:sync"
   },
   "devDependencies": {
     "translate-google": "^1.5.0",

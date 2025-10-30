@@ -1,0 +1,19 @@
+{% assign lang = include.lang | default: 'en' %}
+{% assign nav = site.data['wiki-nav'][lang] %}
+{% if nav %}
+<nav class="wiki-nav">
+  {% for section in nav %}
+  <div class="wiki-nav__row">
+    <span class="wiki-nav__section">{{ section.title }}:</span>
+    {% for item in section.items %}
+      {% if item.external %}
+        <a href="{{ item.url }}" rel="noopener">{{ item.label }}</a>
+      {% else %}
+        <a href="{{ item.url | relative_url }}">{{ item.label }}</a>
+      {% endif %}
+      {% unless forloop.last %} • {% endunless %}
+    {% endfor %}
+  </div>
+  {% endfor %}
+</nav>
+{% endif %}

@@ -1,0 +1,1904 @@
+{
+  "en": [
+    {
+      "title": "Navigation",
+      "items": [
+        {
+          "label": "Home",
+          "url": "/wiki/Home",
+          "external": false
+        }
+      ]
+    },
+    {
+      "title": "Overview",
+      "items": [
+        {
+          "label": "Changelog",
+          "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/blob/master/CHANGELOG.md",
+          "external": true
+        },
+        {
+          "label": "FAQ",
+          "url": "/wiki/FAQ-Troubleshoot",
+          "external": false
+        },
+        {
+          "label": "Security",
+          "url": "/wiki/SECURITY",
+          "external": false
+        },
+        {
+          "label": "Docs: Language bar",
+          "url": "/wiki/Docs-Language-Bar",
+          "external": false
+        }
+      ]
+    },
+    {
+      "title": "KNX Device",
+      "items": [
+        {
+          "label": "Gateway",
+          "url": "/wiki/Gateway-configuration",
+          "external": false
+        },
+        {
+          "label": "Device",
+          "url": "/wiki/Device",
+          "external": false
+        },
+        {
+          "label": "Protections",
+          "url": "/wiki/Protections",
+          "external": false
+        }
+      ]
+    },
+    {
+      "title": "Other KNX Nodes",
+      "items": [
+        {
+          "label": "Scene Controller",
+          "url": "/wiki/SceneController-Configuration",
+          "external": false
+        },
+        {
+          "label": "WatchDog",
+          "url": "/wiki/WatchDog-Configuration",
+          "external": false
+        },
+        {
+          "label": "Logger",
+          "url": "/wiki/Logger-Configuration",
+          "external": false
+        },
+        {
+          "label": "Global Context",
+          "url": "/wiki/GlobalVariable",
+          "external": false
+        },
+        {
+          "label": "Alerter",
+          "url": "/wiki/Alerter-Configuration",
+          "external": false
+        },
+        {
+          "label": "Load Control",
+          "url": "/wiki/LoadControl-Configuration",
+          "external": false
+        },
+        {
+          "label": "Viewer",
+          "url": "/wiki/knxUltimateViewer",
+          "external": false
+        },
+        {
+          "label": "Auto Responder",
+          "url": "/wiki/KNXAutoResponder",
+          "external": false
+        },
+        {
+          "label": "HA Translator",
+          "url": "/wiki/HATranslator",
+          "external": false
+        },
+        {
+          "label": "IoT Bridge",
+          "url": "/wiki/IoT-Bridge-Configuration",
+          "external": false
+        }
+      ]
+    },
+    {
+      "title": "HUE",
+      "items": [
+        {
+          "label": "Bridge",
+          "url": "/wiki/HUE%20Bridge%20configuration",
+          "external": false
+        },
+        {
+          "label": "Light",
+          "url": "/wiki/HUE%20Light",
+          "external": false
+        },
+        {
+          "label": "Battery",
+          "url": "/wiki/HUE%20Battery",
+          "external": false
+        },
+        {
+          "label": "Button",
+          "url": "/wiki/HUE%20Button",
+          "external": false
+        },
+        {
+          "label": "Contact",
+          "url": "/wiki/HUE%20Contact%20sensor",
+          "external": false
+        },
+        {
+          "label": "Device SW update",
+          "url": "/wiki/HUE%20Device%20software%20update",
+          "external": false
+        },
+        {
+          "label": "Light sensor",
+          "url": "/wiki/HUE%20Light%20sensor",
+          "external": false
+        },
+        {
+          "label": "Motion",
+          "url": "/wiki/HUE%20Motion",
+          "external": false
+        },
+        {
+          "label": "Scene",
+          "url": "/wiki/HUE%20Scene",
+          "external": false
+        },
+        {
+          "label": "Tap Dial",
+          "url": "/wiki/HUE%20Tapdial",
+          "external": false
+        },
+        {
+          "label": "Temperature",
+          "url": "/wiki/HUE%20Temperature%20sensor",
+          "external": false
+        },
+        {
+          "label": "Zigbee connectivity",
+          "url": "/wiki/HUE%20Zigbee%20connectivity",
+          "external": false
+        }
+      ]
+    },
+    {
+      "title": "Samples",
+      "items": [
+        {
+          "label": "Logger",
+          "url": "/wiki/Logger-Sample",
+          "external": false
+        },
+        {
+          "label": "Switch Light",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Switch-light",
+          "external": true
+        },
+        {
+          "label": "Dimming",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Dimming",
+          "external": true
+        },
+        {
+          "label": "RGB color",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---RGB-Color",
+          "external": true
+        },
+        {
+          "label": "RGBW color + White",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---RGBW-Color-plus-White",
+          "external": true
+        },
+        {
+          "label": "Command a scene actuator",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Control-a-scene-actuator",
+          "external": true
+        },
+        {
+          "label": "Datapoint 213.x 4x Setpoint",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT213",
+          "external": true
+        },
+        {
+          "label": "Datapoint 222.x 3x Setpoint",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT222",
+          "external": true
+        },
+        {
+          "label": "Datapoint 237.x DALI diags",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT237",
+          "external": true
+        },
+        {
+          "label": "Datapoint 2.x 1 bit proprity",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT2",
+          "external": true
+        },
+        {
+          "label": "Datapoint 22.x RCHH Status",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT22",
+          "external": true
+        },
+        {
+          "label": "Datetime to BUS",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DateTime-to-BUS",
+          "external": true
+        },
+        {
+          "label": "Read Status",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Read-value-from-Device",
+          "external": true
+        },
+        {
+          "label": "Virtual Device",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Virtual-Device",
+          "external": true
+        },
+        {
+          "label": "Subtype decoded",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Subtype",
+          "external": true
+        },
+        {
+          "label": "Alexa",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Alexa",
+          "external": true
+        },
+        {
+          "label": "Apple Homekit",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Apple-Homekit",
+          "external": true
+        },
+        {
+          "label": "Google Home",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Google-Assistant",
+          "external": true
+        },
+        {
+          "label": "Switch on/off POE port of Unifi switch",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---UnifiPOE",
+          "external": true
+        },
+        {
+          "label": "Set configuration by msg",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample-setConfig",
+          "external": true
+        },
+        {
+          "label": "Scene Controller node",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Sample-Scene-Node",
+          "external": true
+        },
+        {
+          "label": "WatchDog node",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---WatchDog",
+          "external": true
+        },
+        {
+          "label": "Global Context node",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleGlobalContextNode",
+          "external": true
+        },
+        {
+          "label": "Alerter node",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleAlerter",
+          "external": true
+        },
+        {
+          "label": "Load control node",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleLoadControl",
+          "external": true
+        },
+        {
+          "label": "Viewer node",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/knxUltimateViewer",
+          "external": true
+        },
+        {
+          "label": "MySQL, InfluxDB, MQTT Sample",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Sample-KNX2MQTT-KNX2MySQL-KNX2InfluxDB",
+          "external": true
+        }
+      ]
+    }
+  ],
+  "it": [
+    {
+      "title": "Navigazione",
+      "items": [
+        {
+          "label": "Home",
+          "url": "/wiki/it-Home",
+          "external": false
+        }
+      ]
+    },
+    {
+      "title": "Panoramica",
+      "items": [
+        {
+          "label": "Changelog",
+          "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/blob/master/CHANGELOG.md",
+          "external": true
+        },
+        {
+          "label": "FAQ",
+          "url": "/wiki/it-FAQ-Troubleshoot",
+          "external": false
+        },
+        {
+          "label": "Sicurezza",
+          "url": "/wiki/it-SECURITY",
+          "external": false
+        },
+        {
+          "label": "Docs: Barra lingue",
+          "url": "/wiki/it-Docs-Language-Bar",
+          "external": false
+        }
+      ]
+    },
+    {
+      "title": "Nodo KNX Dispositivo",
+      "items": [
+        {
+          "label": "Gateway",
+          "url": "/wiki/it-Gateway-configuration",
+          "external": false
+        },
+        {
+          "label": "Dispositivo",
+          "url": "/wiki/it-Device",
+          "external": false
+        },
+        {
+          "label": "Protezioni",
+          "url": "/wiki/it-Protections",
+          "external": false
+        }
+      ]
+    },
+    {
+      "title": "Altri Nodi KNX",
+      "items": [
+        {
+          "label": "Scene Controller",
+          "url": "/wiki/it-SceneController-Configuration",
+          "external": false
+        },
+        {
+          "label": "WatchDog",
+          "url": "/wiki/it-WatchDog-Configuration",
+          "external": false
+        },
+        {
+          "label": "Logger",
+          "url": "/wiki/it-Logger-Configuration",
+          "external": false
+        },
+        {
+          "label": "Global Context",
+          "url": "/wiki/it-GlobalVariable",
+          "external": false
+        },
+        {
+          "label": "Alerter",
+          "url": "/wiki/it-Alerter-Configuration",
+          "external": false
+        },
+        {
+          "label": "Controllo Carico",
+          "url": "/wiki/it-LoadControl-Configuration",
+          "external": false
+        },
+        {
+          "label": "Viewer",
+          "url": "/wiki/it-knxUltimateViewer",
+          "external": false
+        },
+        {
+          "label": "Auto Responder",
+          "url": "/wiki/it-KNXAutoResponder",
+          "external": false
+        },
+        {
+          "label": "Traduttore HA",
+          "url": "/wiki/it-HATranslator",
+          "external": false
+        },
+        {
+          "label": "IoT Bridge",
+          "url": "/wiki/it-IoT-Bridge-Configuration",
+          "external": false
+        }
+      ]
+    },
+    {
+      "title": "HUE",
+      "items": [
+        {
+          "label": "Bridge",
+          "url": "/wiki/it-HUE%20Bridge%20configuration",
+          "external": false
+        },
+        {
+          "label": "Luce",
+          "url": "/wiki/it-HUE%20Light",
+          "external": false
+        },
+        {
+          "label": "Batteria",
+          "url": "/wiki/it-HUE%20Battery",
+          "external": false
+        },
+        {
+          "label": "Pulsante",
+          "url": "/wiki/it-HUE%20Button",
+          "external": false
+        },
+        {
+          "label": "Contatto",
+          "url": "/wiki/it-HUE%20Contact%20sensor",
+          "external": false
+        },
+        {
+          "label": "Aggiornamento SW",
+          "url": "/wiki/it-HUE%20Device%20software%20update",
+          "external": false
+        },
+        {
+          "label": "Sensore Luce",
+          "url": "/wiki/it-HUE%20Light%20sensor",
+          "external": false
+        },
+        {
+          "label": "Movimento",
+          "url": "/wiki/it-HUE%20Motion",
+          "external": false
+        },
+        {
+          "label": "Scena",
+          "url": "/wiki/it-HUE%20Scene",
+          "external": false
+        },
+        {
+          "label": "Tap Dial",
+          "url": "/wiki/it-HUE%20Tapdial",
+          "external": false
+        },
+        {
+          "label": "Temperatura",
+          "url": "/wiki/it-HUE%20Temperature%20sensor",
+          "external": false
+        },
+        {
+          "label": "Connettività Zigbee",
+          "url": "/wiki/it-HUE%20Zigbee%20connectivity",
+          "external": false
+        }
+      ]
+    },
+    {
+      "title": "Esempi",
+      "items": [
+        {
+          "label": "Logger",
+          "url": "/wiki/it-Logger-Sample",
+          "external": false
+        },
+        {
+          "label": "Switch Light",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Switch-light",
+          "external": true
+        },
+        {
+          "label": "Dimming",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Dimming",
+          "external": true
+        },
+        {
+          "label": "RGB color",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---RGB-Color",
+          "external": true
+        },
+        {
+          "label": "RGBW color + White",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---RGBW-Color-plus-White",
+          "external": true
+        },
+        {
+          "label": "Command a scene actuator",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Control-a-scene-actuator",
+          "external": true
+        },
+        {
+          "label": "Datapoint 213.x 4x Setpoint",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT213",
+          "external": true
+        },
+        {
+          "label": "Datapoint 222.x 3x Setpoint",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT222",
+          "external": true
+        },
+        {
+          "label": "Datapoint 237.x DALI diags",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT237",
+          "external": true
+        },
+        {
+          "label": "Datapoint 2.x 1 bit proprity",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT2",
+          "external": true
+        },
+        {
+          "label": "Datapoint 22.x RCHH Status",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT22",
+          "external": true
+        },
+        {
+          "label": "Datetime to BUS",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DateTime-to-BUS",
+          "external": true
+        },
+        {
+          "label": "Read Status",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Read-value-from-Device",
+          "external": true
+        },
+        {
+          "label": "Virtual Device",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Virtual-Device",
+          "external": true
+        },
+        {
+          "label": "Subtype decoded",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Subtype",
+          "external": true
+        },
+        {
+          "label": "Alexa",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Alexa",
+          "external": true
+        },
+        {
+          "label": "Apple Homekit",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Apple-Homekit",
+          "external": true
+        },
+        {
+          "label": "Google Home",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Google-Assistant",
+          "external": true
+        },
+        {
+          "label": "Switch on/off POE port of Unifi switch",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---UnifiPOE",
+          "external": true
+        },
+        {
+          "label": "Set configuration by msg",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample-setConfig",
+          "external": true
+        },
+        {
+          "label": "Scene Controller node",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Sample-Scene-Node",
+          "external": true
+        },
+        {
+          "label": "WatchDog node",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---WatchDog",
+          "external": true
+        },
+        {
+          "label": "Global Context node",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleGlobalContextNode",
+          "external": true
+        },
+        {
+          "label": "Alerter node",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleAlerter",
+          "external": true
+        },
+        {
+          "label": "Load control node",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleLoadControl",
+          "external": true
+        },
+        {
+          "label": "Viewer node",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/knxUltimateViewer",
+          "external": true
+        },
+        {
+          "label": "MySQL, InfluxDB, MQTT Sample",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Sample-KNX2MQTT-KNX2MySQL-KNX2InfluxDB",
+          "external": true
+        }
+      ]
+    }
+  ],
+  "de": [
+    {
+      "title": "Navigation",
+      "items": [
+        {
+          "label": "Home",
+          "url": "/wiki/de-Home",
+          "external": false
+        }
+      ]
+    },
+    {
+      "title": "Übersicht",
+      "items": [
+        {
+          "label": "Changelog",
+          "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/blob/master/CHANGELOG.md",
+          "external": true
+        },
+        {
+          "label": "FAQ",
+          "url": "/wiki/de-FAQ-Troubleshoot",
+          "external": false
+        },
+        {
+          "label": "Sicherheit",
+          "url": "/wiki/de-SECURITY",
+          "external": false
+        },
+        {
+          "label": "Doku: Sprachleiste",
+          "url": "/wiki/de-Docs-Language-Bar",
+          "external": false
+        }
+      ]
+    },
+    {
+      "title": "KNX Geräteknoten",
+      "items": [
+        {
+          "label": "Gateway",
+          "url": "/wiki/de-Gateway-configuration",
+          "external": false
+        },
+        {
+          "label": "Gerät",
+          "url": "/wiki/de-Device",
+          "external": false
+        },
+        {
+          "label": "Knotenschutz",
+          "url": "/wiki/de-Protections",
+          "external": false
+        }
+      ]
+    },
+    {
+      "title": "Weitere KNX‑Knoten",
+      "items": [
+        {
+          "label": "Szenencontroller",
+          "url": "/wiki/de-SceneController-Configuration",
+          "external": false
+        },
+        {
+          "label": "WatchDog",
+          "url": "/wiki/de-WatchDog-Configuration",
+          "external": false
+        },
+        {
+          "label": "Logger",
+          "url": "/wiki/de-Logger-Configuration",
+          "external": false
+        },
+        {
+          "label": "Global Context",
+          "url": "/wiki/de-GlobalVariable",
+          "external": false
+        },
+        {
+          "label": "Alerter",
+          "url": "/wiki/de-Alerter-Configuration",
+          "external": false
+        },
+        {
+          "label": "Laststeuerung",
+          "url": "/wiki/de-LoadControl-Configuration",
+          "external": false
+        },
+        {
+          "label": "Viewer",
+          "url": "/wiki/de-knxUltimateViewer",
+          "external": false
+        },
+        {
+          "label": "Auto‑Responder",
+          "url": "/wiki/de-KNXAutoResponder",
+          "external": false
+        },
+        {
+          "label": "HA‑Übersetzer",
+          "url": "/wiki/de-HATranslator",
+          "external": false
+        },
+        {
+          "label": "IoT Bridge",
+          "url": "/wiki/de-IoT-Bridge-Configuration",
+          "external": false
+        }
+      ]
+    },
+    {
+      "title": "HUE",
+      "items": [
+        {
+          "label": "Bridge",
+          "url": "/wiki/de-HUE%20Bridge%20configuration",
+          "external": false
+        },
+        {
+          "label": "Licht",
+          "url": "/wiki/de-HUE%20Light",
+          "external": false
+        },
+        {
+          "label": "Batterie",
+          "url": "/wiki/de-HUE%20Battery",
+          "external": false
+        },
+        {
+          "label": "Taster",
+          "url": "/wiki/de-HUE%20Button",
+          "external": false
+        },
+        {
+          "label": "Kontakt",
+          "url": "/wiki/de-HUE%20Contact%20sensor",
+          "external": false
+        },
+        {
+          "label": "Geräte‑SW‑Update",
+          "url": "/wiki/de-HUE%20Device%20software%20update",
+          "external": false
+        },
+        {
+          "label": "Lichtsensor",
+          "url": "/wiki/de-HUE%20Light%20sensor",
+          "external": false
+        },
+        {
+          "label": "Bewegung",
+          "url": "/wiki/de-HUE%20Motion",
+          "external": false
+        },
+        {
+          "label": "Szene",
+          "url": "/wiki/de-HUE%20Scene",
+          "external": false
+        },
+        {
+          "label": "Tap Dial",
+          "url": "/wiki/de-HUE%20Tapdial",
+          "external": false
+        },
+        {
+          "label": "Temperatur",
+          "url": "/wiki/de-HUE%20Temperature%20sensor",
+          "external": false
+        },
+        {
+          "label": "Zigbee‑Konnektivität",
+          "url": "/wiki/de-HUE%20Zigbee%20connectivity",
+          "external": false
+        }
+      ]
+    },
+    {
+      "title": "Beispiele",
+      "items": [
+        {
+          "label": "Logger",
+          "url": "/wiki/de-Logger-Sample",
+          "external": false
+        },
+        {
+          "label": "Switch Light",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Switch-light",
+          "external": true
+        },
+        {
+          "label": "Dimming",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Dimming",
+          "external": true
+        },
+        {
+          "label": "RGB color",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---RGB-Color",
+          "external": true
+        },
+        {
+          "label": "RGBW color + White",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---RGBW-Color-plus-White",
+          "external": true
+        },
+        {
+          "label": "Command a scene actuator",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Control-a-scene-actuator",
+          "external": true
+        },
+        {
+          "label": "Datapoint 213.x 4x Setpoint",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT213",
+          "external": true
+        },
+        {
+          "label": "Datapoint 222.x 3x Setpoint",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT222",
+          "external": true
+        },
+        {
+          "label": "Datapoint 237.x DALI diags",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT237",
+          "external": true
+        },
+        {
+          "label": "Datapoint 2.x 1 bit proprity",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT2",
+          "external": true
+        },
+        {
+          "label": "Datapoint 22.x RCHH Status",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT22",
+          "external": true
+        },
+        {
+          "label": "Datetime to BUS",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DateTime-to-BUS",
+          "external": true
+        },
+        {
+          "label": "Read Status",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Read-value-from-Device",
+          "external": true
+        },
+        {
+          "label": "Virtual Device",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Virtual-Device",
+          "external": true
+        },
+        {
+          "label": "Subtype decoded",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Subtype",
+          "external": true
+        },
+        {
+          "label": "Alexa",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Alexa",
+          "external": true
+        },
+        {
+          "label": "Apple Homekit",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Apple-Homekit",
+          "external": true
+        },
+        {
+          "label": "Google Home",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Google-Assistant",
+          "external": true
+        },
+        {
+          "label": "Switch on/off POE port of Unifi switch",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---UnifiPOE",
+          "external": true
+        },
+        {
+          "label": "Set configuration by msg",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample-setConfig",
+          "external": true
+        },
+        {
+          "label": "Scene Controller node",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Sample-Scene-Node",
+          "external": true
+        },
+        {
+          "label": "WatchDog node",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---WatchDog",
+          "external": true
+        },
+        {
+          "label": "Global Context node",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleGlobalContextNode",
+          "external": true
+        },
+        {
+          "label": "Alerter node",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleAlerter",
+          "external": true
+        },
+        {
+          "label": "Load control node",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleLoadControl",
+          "external": true
+        },
+        {
+          "label": "Viewer node",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/knxUltimateViewer",
+          "external": true
+        },
+        {
+          "label": "MySQL, InfluxDB, MQTT Sample",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Sample-KNX2MQTT-KNX2MySQL-KNX2InfluxDB",
+          "external": true
+        }
+      ]
+    }
+  ],
+  "fr": [
+    {
+      "title": "Navigation",
+      "items": [
+        {
+          "label": "Home",
+          "url": "/wiki/fr-Home",
+          "external": false
+        }
+      ]
+    },
+    {
+      "title": "Overview",
+      "items": [
+        {
+          "label": "Changelog",
+          "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/blob/master/CHANGELOG.md",
+          "external": true
+        },
+        {
+          "label": "FAQ",
+          "url": "/wiki/fr-FAQ-Troubleshoot",
+          "external": false
+        },
+        {
+          "label": "Security",
+          "url": "/wiki/fr-SECURITY",
+          "external": false
+        },
+        {
+          "label": "Docs: Language bar",
+          "url": "/wiki/fr-Docs-Language-Bar",
+          "external": false
+        }
+      ]
+    },
+    {
+      "title": "KNX Device",
+      "items": [
+        {
+          "label": "Gateway",
+          "url": "/wiki/fr-Gateway-configuration",
+          "external": false
+        },
+        {
+          "label": "Device",
+          "url": "/wiki/fr-Device",
+          "external": false
+        },
+        {
+          "label": "Protections",
+          "url": "/wiki/fr-Protections",
+          "external": false
+        }
+      ]
+    },
+    {
+      "title": "Other KNX Nodes",
+      "items": [
+        {
+          "label": "Scene Controller",
+          "url": "/wiki/fr-SceneController-Configuration",
+          "external": false
+        },
+        {
+          "label": "WatchDog",
+          "url": "/wiki/fr-WatchDog-Configuration",
+          "external": false
+        },
+        {
+          "label": "Logger",
+          "url": "/wiki/fr-Logger-Configuration",
+          "external": false
+        },
+        {
+          "label": "Global Context",
+          "url": "/wiki/fr-GlobalVariable",
+          "external": false
+        },
+        {
+          "label": "Alerter",
+          "url": "/wiki/fr-Alerter-Configuration",
+          "external": false
+        },
+        {
+          "label": "Load Control",
+          "url": "/wiki/fr-LoadControl-Configuration",
+          "external": false
+        },
+        {
+          "label": "Viewer",
+          "url": "/wiki/fr-knxUltimateViewer",
+          "external": false
+        },
+        {
+          "label": "Auto Responder",
+          "url": "/wiki/fr-KNXAutoResponder",
+          "external": false
+        },
+        {
+          "label": "HA Translator",
+          "url": "/wiki/fr-HATranslator",
+          "external": false
+        },
+        {
+          "label": "IoT Bridge",
+          "url": "/wiki/fr-IoT-Bridge-Configuration",
+          "external": false
+        }
+      ]
+    },
+    {
+      "title": "HUE",
+      "items": [
+        {
+          "label": "Bridge",
+          "url": "/wiki/fr-HUE%20Bridge%20configuration",
+          "external": false
+        },
+        {
+          "label": "Light",
+          "url": "/wiki/fr-HUE%20Light",
+          "external": false
+        },
+        {
+          "label": "Battery",
+          "url": "/wiki/fr-HUE%20Battery",
+          "external": false
+        },
+        {
+          "label": "Button",
+          "url": "/wiki/fr-HUE%20Button",
+          "external": false
+        },
+        {
+          "label": "Contact",
+          "url": "/wiki/fr-HUE%20Contact%20sensor",
+          "external": false
+        },
+        {
+          "label": "Device SW update",
+          "url": "/wiki/fr-HUE%20Device%20software%20update",
+          "external": false
+        },
+        {
+          "label": "Light sensor",
+          "url": "/wiki/fr-HUE%20Light%20sensor",
+          "external": false
+        },
+        {
+          "label": "Motion",
+          "url": "/wiki/fr-HUE%20Motion",
+          "external": false
+        },
+        {
+          "label": "Scene",
+          "url": "/wiki/fr-HUE%20Scene",
+          "external": false
+        },
+        {
+          "label": "Tap Dial",
+          "url": "/wiki/fr-HUE%20Tapdial",
+          "external": false
+        },
+        {
+          "label": "Temperature",
+          "url": "/wiki/fr-HUE%20Temperature%20sensor",
+          "external": false
+        },
+        {
+          "label": "Zigbee connectivity",
+          "url": "/wiki/fr-HUE%20Zigbee%20connectivity",
+          "external": false
+        }
+      ]
+    },
+    {
+      "title": "Samples",
+      "items": [
+        {
+          "label": "Logger",
+          "url": "/wiki/fr-Logger-Sample",
+          "external": false
+        },
+        {
+          "label": "Switch Light",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Switch-light",
+          "external": true
+        },
+        {
+          "label": "Dimming",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Dimming",
+          "external": true
+        },
+        {
+          "label": "RGB color",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---RGB-Color",
+          "external": true
+        },
+        {
+          "label": "RGBW color + White",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---RGBW-Color-plus-White",
+          "external": true
+        },
+        {
+          "label": "Command a scene actuator",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Control-a-scene-actuator",
+          "external": true
+        },
+        {
+          "label": "Datapoint 213.x 4x Setpoint",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT213",
+          "external": true
+        },
+        {
+          "label": "Datapoint 222.x 3x Setpoint",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT222",
+          "external": true
+        },
+        {
+          "label": "Datapoint 237.x DALI diags",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT237",
+          "external": true
+        },
+        {
+          "label": "Datapoint 2.x 1 bit proprity",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT2",
+          "external": true
+        },
+        {
+          "label": "Datapoint 22.x RCHH Status",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT22",
+          "external": true
+        },
+        {
+          "label": "Datetime to BUS",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DateTime-to-BUS",
+          "external": true
+        },
+        {
+          "label": "Read Status",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Read-value-from-Device",
+          "external": true
+        },
+        {
+          "label": "Virtual Device",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Virtual-Device",
+          "external": true
+        },
+        {
+          "label": "Subtype decoded",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Subtype",
+          "external": true
+        },
+        {
+          "label": "Alexa",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Alexa",
+          "external": true
+        },
+        {
+          "label": "Apple Homekit",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Apple-Homekit",
+          "external": true
+        },
+        {
+          "label": "Google Home",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Google-Assistant",
+          "external": true
+        },
+        {
+          "label": "Switch on/off POE port of Unifi switch",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---UnifiPOE",
+          "external": true
+        },
+        {
+          "label": "Set configuration by msg",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample-setConfig",
+          "external": true
+        },
+        {
+          "label": "Scene Controller node",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Sample-Scene-Node",
+          "external": true
+        },
+        {
+          "label": "WatchDog node",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---WatchDog",
+          "external": true
+        },
+        {
+          "label": "Global Context node",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleGlobalContextNode",
+          "external": true
+        },
+        {
+          "label": "Alerter node",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleAlerter",
+          "external": true
+        },
+        {
+          "label": "Load control node",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleLoadControl",
+          "external": true
+        },
+        {
+          "label": "Viewer node",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/knxUltimateViewer",
+          "external": true
+        },
+        {
+          "label": "MySQL, InfluxDB, MQTT Sample",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Sample-KNX2MQTT-KNX2MySQL-KNX2InfluxDB",
+          "external": true
+        }
+      ]
+    }
+  ],
+  "es": [
+    {
+      "title": "Navegación",
+      "items": [
+        {
+          "label": "Home",
+          "url": "/wiki/es-Home",
+          "external": false
+        }
+      ]
+    },
+    {
+      "title": "Overview",
+      "items": [
+        {
+          "label": "Changelog",
+          "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/blob/master/CHANGELOG.md",
+          "external": true
+        },
+        {
+          "label": "FAQ",
+          "url": "/wiki/es-FAQ-Troubleshoot",
+          "external": false
+        },
+        {
+          "label": "Security",
+          "url": "/wiki/es-SECURITY",
+          "external": false
+        },
+        {
+          "label": "Docs: Language bar",
+          "url": "/wiki/es-Docs-Language-Bar",
+          "external": false
+        }
+      ]
+    },
+    {
+      "title": "KNX Device",
+      "items": [
+        {
+          "label": "Gateway",
+          "url": "/wiki/es-Gateway-configuration",
+          "external": false
+        },
+        {
+          "label": "Device",
+          "url": "/wiki/es-Device",
+          "external": false
+        },
+        {
+          "label": "Protections",
+          "url": "/wiki/es-Protections",
+          "external": false
+        }
+      ]
+    },
+    {
+      "title": "Other KNX Nodes",
+      "items": [
+        {
+          "label": "Scene Controller",
+          "url": "/wiki/es-SceneController-Configuration",
+          "external": false
+        },
+        {
+          "label": "WatchDog",
+          "url": "/wiki/es-WatchDog-Configuration",
+          "external": false
+        },
+        {
+          "label": "Logger",
+          "url": "/wiki/es-Logger-Configuration",
+          "external": false
+        },
+        {
+          "label": "Global Context",
+          "url": "/wiki/es-GlobalVariable",
+          "external": false
+        },
+        {
+          "label": "Alerter",
+          "url": "/wiki/es-Alerter-Configuration",
+          "external": false
+        },
+        {
+          "label": "Load Control",
+          "url": "/wiki/es-LoadControl-Configuration",
+          "external": false
+        },
+        {
+          "label": "Viewer",
+          "url": "/wiki/es-knxUltimateViewer",
+          "external": false
+        },
+        {
+          "label": "Auto Responder",
+          "url": "/wiki/es-KNXAutoResponder",
+          "external": false
+        },
+        {
+          "label": "HA Translator",
+          "url": "/wiki/es-HATranslator",
+          "external": false
+        },
+        {
+          "label": "IoT Bridge",
+          "url": "/wiki/es-IoT-Bridge-Configuration",
+          "external": false
+        }
+      ]
+    },
+    {
+      "title": "HUE",
+      "items": [
+        {
+          "label": "Bridge",
+          "url": "/wiki/es-HUE%20Bridge%20configuration",
+          "external": false
+        },
+        {
+          "label": "Light",
+          "url": "/wiki/es-HUE%20Light",
+          "external": false
+        },
+        {
+          "label": "Battery",
+          "url": "/wiki/es-HUE%20Battery",
+          "external": false
+        },
+        {
+          "label": "Button",
+          "url": "/wiki/es-HUE%20Button",
+          "external": false
+        },
+        {
+          "label": "Contact",
+          "url": "/wiki/es-HUE%20Contact%20sensor",
+          "external": false
+        },
+        {
+          "label": "Device SW update",
+          "url": "/wiki/es-HUE%20Device%20software%20update",
+          "external": false
+        },
+        {
+          "label": "Light sensor",
+          "url": "/wiki/es-HUE%20Light%20sensor",
+          "external": false
+        },
+        {
+          "label": "Motion",
+          "url": "/wiki/es-HUE%20Motion",
+          "external": false
+        },
+        {
+          "label": "Scene",
+          "url": "/wiki/es-HUE%20Scene",
+          "external": false
+        },
+        {
+          "label": "Tap Dial",
+          "url": "/wiki/es-HUE%20Tapdial",
+          "external": false
+        },
+        {
+          "label": "Temperature",
+          "url": "/wiki/es-HUE%20Temperature%20sensor",
+          "external": false
+        },
+        {
+          "label": "Zigbee connectivity",
+          "url": "/wiki/es-HUE%20Zigbee%20connectivity",
+          "external": false
+        }
+      ]
+    },
+    {
+      "title": "Samples",
+      "items": [
+        {
+          "label": "Logger",
+          "url": "/wiki/es-Logger-Sample",
+          "external": false
+        },
+        {
+          "label": "Switch Light",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Switch-light",
+          "external": true
+        },
+        {
+          "label": "Dimming",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Dimming",
+          "external": true
+        },
+        {
+          "label": "RGB color",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---RGB-Color",
+          "external": true
+        },
+        {
+          "label": "RGBW color + White",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---RGBW-Color-plus-White",
+          "external": true
+        },
+        {
+          "label": "Command a scene actuator",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Control-a-scene-actuator",
+          "external": true
+        },
+        {
+          "label": "Datapoint 213.x 4x Setpoint",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT213",
+          "external": true
+        },
+        {
+          "label": "Datapoint 222.x 3x Setpoint",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT222",
+          "external": true
+        },
+        {
+          "label": "Datapoint 237.x DALI diags",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT237",
+          "external": true
+        },
+        {
+          "label": "Datapoint 2.x 1 bit proprity",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT2",
+          "external": true
+        },
+        {
+          "label": "Datapoint 22.x RCHH Status",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT22",
+          "external": true
+        },
+        {
+          "label": "Datetime to BUS",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DateTime-to-BUS",
+          "external": true
+        },
+        {
+          "label": "Read Status",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Read-value-from-Device",
+          "external": true
+        },
+        {
+          "label": "Virtual Device",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Virtual-Device",
+          "external": true
+        },
+        {
+          "label": "Subtype decoded",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Subtype",
+          "external": true
+        },
+        {
+          "label": "Alexa",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Alexa",
+          "external": true
+        },
+        {
+          "label": "Apple Homekit",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Apple-Homekit",
+          "external": true
+        },
+        {
+          "label": "Google Home",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Google-Assistant",
+          "external": true
+        },
+        {
+          "label": "Switch on/off POE port of Unifi switch",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---UnifiPOE",
+          "external": true
+        },
+        {
+          "label": "Set configuration by msg",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample-setConfig",
+          "external": true
+        },
+        {
+          "label": "Scene Controller node",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Sample-Scene-Node",
+          "external": true
+        },
+        {
+          "label": "WatchDog node",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---WatchDog",
+          "external": true
+        },
+        {
+          "label": "Global Context node",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleGlobalContextNode",
+          "external": true
+        },
+        {
+          "label": "Alerter node",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleAlerter",
+          "external": true
+        },
+        {
+          "label": "Load control node",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleLoadControl",
+          "external": true
+        },
+        {
+          "label": "Viewer node",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/knxUltimateViewer",
+          "external": true
+        },
+        {
+          "label": "MySQL, InfluxDB, MQTT Sample",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Sample-KNX2MQTT-KNX2MySQL-KNX2InfluxDB",
+          "external": true
+        }
+      ]
+    }
+  ],
+  "zh-CN": [
+    {
+      "title": "导航",
+      "items": [
+        {
+          "label": "Home",
+          "url": "/wiki/zh-CN-Home",
+          "external": false
+        }
+      ]
+    },
+    {
+      "title": "概览",
+      "items": [
+        {
+          "label": "Changelog",
+          "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate/blob/master/CHANGELOG.md",
+          "external": true
+        },
+        {
+          "label": "常见问题",
+          "url": "/wiki/zh-CN-FAQ-Troubleshoot",
+          "external": false
+        },
+        {
+          "label": "安全",
+          "url": "/wiki/zh-CN-SECURITY",
+          "external": false
+        },
+        {
+          "label": "文档：语言栏",
+          "url": "/wiki/zh-CN-Docs-Language-Bar",
+          "external": false
+        }
+      ]
+    },
+    {
+      "title": "KNX 设备",
+      "items": [
+        {
+          "label": "网关",
+          "url": "/wiki/zh-CN-Gateway-configuration",
+          "external": false
+        },
+        {
+          "label": "设备",
+          "url": "/wiki/zh-CN-Device",
+          "external": false
+        },
+        {
+          "label": "节点保护",
+          "url": "/wiki/zh-CN-Protections",
+          "external": false
+        }
+      ]
+    },
+    {
+      "title": "其他 KNX 节点",
+      "items": [
+        {
+          "label": "场景控制器",
+          "url": "/wiki/zh-CN-SceneController-Configuration",
+          "external": false
+        },
+        {
+          "label": "看门狗",
+          "url": "/wiki/zh-CN-WatchDog-Configuration",
+          "external": false
+        },
+        {
+          "label": "日志节点",
+          "url": "/wiki/zh-CN-Logger-Configuration",
+          "external": false
+        },
+        {
+          "label": "全局上下文",
+          "url": "/wiki/zh-CN-GlobalVariable",
+          "external": false
+        },
+        {
+          "label": "告警器",
+          "url": "/wiki/zh-CN-Alerter-Configuration",
+          "external": false
+        },
+        {
+          "label": "负载控制",
+          "url": "/wiki/zh-CN-LoadControl-Configuration",
+          "external": false
+        },
+        {
+          "label": "查看器",
+          "url": "/wiki/zh-CN-knxUltimateViewer",
+          "external": false
+        },
+        {
+          "label": "自动响应",
+          "url": "/wiki/zh-CN-KNXAutoResponder",
+          "external": false
+        },
+        {
+          "label": "HA 翻译器",
+          "url": "/wiki/zh-CN-HATranslator",
+          "external": false
+        },
+        {
+          "label": "物联网桥接",
+          "url": "/wiki/zh-CN-IoT-Bridge-Configuration",
+          "external": false
+        }
+      ]
+    },
+    {
+      "title": "HUE",
+      "items": [
+        {
+          "label": "Bridge",
+          "url": "/wiki/zh-CN-HUE%20Bridge%20configuration",
+          "external": false
+        },
+        {
+          "label": "灯",
+          "url": "/wiki/zh-CN-HUE%20Light",
+          "external": false
+        },
+        {
+          "label": "电池",
+          "url": "/wiki/zh-CN-HUE%20Battery",
+          "external": false
+        },
+        {
+          "label": "按钮",
+          "url": "/wiki/zh-CN-HUE%20Button",
+          "external": false
+        },
+        {
+          "label": "接触",
+          "url": "/wiki/zh-CN-HUE%20Contact%20sensor",
+          "external": false
+        },
+        {
+          "label": "设备软件更新",
+          "url": "/wiki/zh-CN-HUE%20Device%20software%20update",
+          "external": false
+        },
+        {
+          "label": "光照传感器",
+          "url": "/wiki/zh-CN-HUE%20Light%20sensor",
+          "external": false
+        },
+        {
+          "label": "运动",
+          "url": "/wiki/zh-CN-HUE%20Motion",
+          "external": false
+        },
+        {
+          "label": "场景",
+          "url": "/wiki/zh-CN-HUE%20Scene",
+          "external": false
+        },
+        {
+          "label": "Tap Dial",
+          "url": "/wiki/zh-CN-HUE%20Tapdial",
+          "external": false
+        },
+        {
+          "label": "温度",
+          "url": "/wiki/zh-CN-HUE%20Temperature%20sensor",
+          "external": false
+        },
+        {
+          "label": "Zigbee 连接",
+          "url": "/wiki/zh-CN-HUE%20Zigbee%20connectivity",
+          "external": false
+        }
+      ]
+    },
+    {
+      "title": "示例",
+      "items": [
+        {
+          "label": "日志",
+          "url": "/wiki/zh-CN-Logger-Sample",
+          "external": false
+        },
+        {
+          "label": "Switch Light",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Switch-light",
+          "external": true
+        },
+        {
+          "label": "Dimming",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Dimming",
+          "external": true
+        },
+        {
+          "label": "RGB color",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---RGB-Color",
+          "external": true
+        },
+        {
+          "label": "RGBW color + White",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---RGBW-Color-plus-White",
+          "external": true
+        },
+        {
+          "label": "Command a scene actuator",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Control-a-scene-actuator",
+          "external": true
+        },
+        {
+          "label": "Datapoint 213.x 4x Setpoint",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT213",
+          "external": true
+        },
+        {
+          "label": "Datapoint 222.x 3x Setpoint",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT222",
+          "external": true
+        },
+        {
+          "label": "Datapoint 237.x DALI diags",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT237",
+          "external": true
+        },
+        {
+          "label": "Datapoint 2.x 1 bit proprity",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT2",
+          "external": true
+        },
+        {
+          "label": "Datapoint 22.x RCHH Status",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT22",
+          "external": true
+        },
+        {
+          "label": "Datetime to BUS",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DateTime-to-BUS",
+          "external": true
+        },
+        {
+          "label": "Read Status",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Read-value-from-Device",
+          "external": true
+        },
+        {
+          "label": "Virtual Device",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Virtual-Device",
+          "external": true
+        },
+        {
+          "label": "Subtype decoded",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Subtype",
+          "external": true
+        },
+        {
+          "label": "Alexa",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Alexa",
+          "external": true
+        },
+        {
+          "label": "Apple Homekit",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Apple-Homekit",
+          "external": true
+        },
+        {
+          "label": "Google Home",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Google-Assistant",
+          "external": true
+        },
+        {
+          "label": "Switch on/off POE port of Unifi switch",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---UnifiPOE",
+          "external": true
+        },
+        {
+          "label": "Set configuration by msg",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample-setConfig",
+          "external": true
+        },
+        {
+          "label": "Scene Controller node",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Sample-Scene-Node",
+          "external": true
+        },
+        {
+          "label": "WatchDog node",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---WatchDog",
+          "external": true
+        },
+        {
+          "label": "Global Context node",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleGlobalContextNode",
+          "external": true
+        },
+        {
+          "label": "Alerter node",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleAlerter",
+          "external": true
+        },
+        {
+          "label": "Load control node",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleLoadControl",
+          "external": true
+        },
+        {
+          "label": "Viewer node",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/knxUltimateViewer",
+          "external": true
+        },
+        {
+          "label": "MySQL, InfluxDB, MQTT Sample",
+          "url": "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Sample-KNX2MQTT-KNX2MySQL-KNX2InfluxDB",
+          "external": true
+        }
+      ]
+    }
+  ]
+}

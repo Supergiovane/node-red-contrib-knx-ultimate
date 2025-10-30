@@ -6,6 +6,7 @@ Where things live
 - Wiki repo: ../node-red-contrib-knx-ultimate.wiki
 - Scripts: scripts/*
 - Menu config: scripts/wiki-menu.json
+- GitHub Pages site (Jekyll): docs/
 
 Prerequisites
 - Node.js 20+
@@ -18,27 +19,25 @@ NPM scripts
   - Excludes `_Sidebar.md`, `_Footer.md`, and files under `samples/`.
 - Fix bars: `npm run wiki:fix-langbar`
   - Rewrites language bars to the expected format with absolute URLs.
-- Inject header: `npm run wiki:inject-header`
-  - Inserts/updates a localized navigation header between `<!-- NAV START -->` and `<!-- NAV END -->` right after the language bar on every page.
-  - The header includes all sections and links defined in `scripts/wiki-menu.json` and uses localized labels for EN/IT/DE/zh‑CN.
+- Regenerate navigation include: `node scripts/generate-wiki-navbar.js`
+  - Reads `scripts/wiki-menu.json` and produces `docs/_data/wiki-nav.json` consumed by the Jekyll layout.
+  - Automatically run as part of `npm run wiki:refresh`; invoke manually only when you need to preview changes.
 - Add menu item (interactive): `npm run wiki:menu-add`
   - Prompts for a page (EN title, e.g., `Quick-Start`) and the target section.
   - Optionally creates a new section; if localized labels are left empty, auto‑translates from EN.
-  - After saving, run `npm run wiki:inject-header` to propagate into all pages.
-  - Also generates/updates the localized Node‑RED help files (see below) if the page maps to a node.
+  - Saves your changes into `scripts/wiki-menu.json` and regenerates localized node help when applicable.
 - Translate pages: `npm run translate-wiki`
   - Scans the wiki for base EN pages (no `it-`, `de-`, `zh-CN-` prefix) and creates missing translations.
   - Preserves code blocks, keeps URLs intact, and emits an absolute-URL language bar.
-  - After translation, run `npm run wiki:inject-header` to add the localized header.
+  - Run `npm run wiki:refresh` afterwards to rebuild help pages and navigation.
 - Export node help to wiki: `npm run wiki:help-export`
   - Reads every localized help snippet under `nodes/locales/<lang>/<help-name>.html`.
-  - Rewrites the matching `docs/wiki/<lang><Title>.md` keeping the language bar and any existing navigation block intact.
-  - Run `npm run wiki:inject-header` afterwards so the header reflects the latest menu configuration.
+  - Rewrites the matching `docs/wiki/<lang><Title>.md` so GitHub Pages mirrors the Node-RED help.
 - Sync GitHub Pages site: `npm run docs:sync`
   - Copies the entire wiki into `docs/wiki/` and rewrites links so the site can be published via GitHub Pages.
   - Run this after updating the wiki repository so `docs/` stays in sync before committing.
 - Refresh everything: `npm run wiki:refresh`
-  - Convenience shortcut that runs `wiki:help-export`, `wiki:inject-header`, and `docs:sync` in sequence.
+  - Runs `wiki:help-export`, regenerates the Jekyll navigation data, ensures front matter is present, and then executes `docs:sync`.
 
 Node help migration and generation
 - One‑time migrate (existing nodes): `node scripts/migrate-node-help.js`
@@ -64,7 +63,8 @@ Page ↔ node mapping (for help generation)
 
 Key files
 - scripts/validate-wiki-languagebar.js: verifies and optionally fixes the language bar on each page.
-- scripts/inject-wiki-header.js: generates the per‑page navigation header from `wiki-menu.json` (idempotent).
+- scripts/generate-wiki-navbar.js: converts `scripts/wiki-menu.json` into the data structure used by the Jekyll include.
+- scripts/prepare-wiki-pages.js: strips legacy inline nav blocks and injects front matter so Jekyll can render every page.
 - scripts/manage-wiki-menu.js: interactive tool to edit `wiki-menu.json` (add items/sections with auto‑translation) and to generate localized node help files from wiki pages.
 - scripts/translate-wiki.js: creates IT/DE/zh‑CN pages from an EN page body.
 - scripts/wiki-menu.json: declarative definition of header sections and items. Supports `type: "page"` (localized links) and `type: "url"` (external/absolute links).
@@ -81,9 +81,9 @@ Quick start — add a new page to the wiki
    - Run: `npm run wiki:menu-add`
    - Select an existing section (e.g., Overview, KNX Device, Other KNX Nodes, HUE, Samples) or create a new one.
    - Leave localized labels empty to auto‑translate from EN, or enter your own.
-4) Inject/update headers on all pages
-   - Run: `npm run wiki:inject-header`
-   - Each page gets the full, localized header reflecting your menu changes.
+4) Rebuild docs
+   - Run: `npm run wiki:refresh`
+   - This updates the exported help pages, regenerates the navigation include, injects Jekyll front matter, and syncs `docs/wiki`.
 5) (Optional) Validate language bars
    - Run: `npm run wiki:validate`
 
@@ -105,12 +105,12 @@ How to add a new node (with localized help)
 
 Conventions and notes
 - Language bar: first line of each page. Scripts will normalize it to absolute links: EN, IT (`it-`), DE (`de-`), zh‑CN (`zh-CN-`). If a translation file is missing, language links fall back to the EN page so readers never hit a 404.
-- Header placement: inserted right below the language bar. Do not edit between the NAV markers; regenerate instead.
+- Navigation: the site-wide navbar is rendered by Jekyll using `docs/_data/wiki-nav.json`. Edit `scripts/wiki-menu.json` (or use `npm run wiki:menu-add`) and run `npm run wiki:refresh` to regenerate it.
 - Samples: most sample pages exist only in EN. The menu uses absolute URLs for these.
-- Sidebar: a minimal `_Sidebar.md` exists with only language home links; the full navigation is in the per‑page header.
+- Sidebar: a minimal `_Sidebar.md` exists with only language home links; the full navigation is provided by the Jekyll navbar include.
 
 Troubleshooting
-- Header not updated: ensure `scripts/wiki-menu.json` contains the page (type:"page" and correct `page` title). Then run `npm run wiki:inject-header`.
+- Navbar missing entries: ensure `scripts/wiki-menu.json` contains the page (type:"page" and correct `page` title). Then run `node scripts/generate-wiki-navbar.js` or simply `npm run wiki:refresh`.
 - Wrong/missing translations: re‑run `npm run translate-wiki` after adjusting the EN page. The script doesn’t overwrite existing translations; delete a specific translated file to force regeneration.
 - Language bar still relative on GitHub: run `npm run wiki:fix-langbar` and push the wiki repo.
 - Migrate node help: `npm run wiki:help-migrate`
