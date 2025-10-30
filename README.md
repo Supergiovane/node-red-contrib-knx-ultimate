@@ -1,5 +1,7 @@
 ![Logo](img/logo-big.png)
-
+<p align='center'>
+<img width="110px" src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/knxsecure.png" ></br>
+</p>
 <br/>
 
 [![NPM version][npm-version-image]][npm-url]
@@ -17,19 +19,7 @@
 <img width="110px" src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/KNX_CERTI_MARK_RGB.jpg" ></br>
 <span style="font-size:0.7em;color:grey;">Authorized KNX logo by the KNX Association*</span>
 </p>
-<p align='center'>
-<img width="110px" src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/knxsecure.png" ></br>
-</p>
-</br>  
 
-
-<p align='center'>
-    <img width="110px" src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/c/agata.png"></br>
-<center>Many thanks to <a href="https://www.agatastore.it">Agata Store - Professional store and Certified KNX Partner</a>  
-for providing me with KNX Secure equipment to test with.</center>
-</p>
-
-</br>
 </br>
 
 **You can use it immediately!**
