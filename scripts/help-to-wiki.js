@@ -57,11 +57,19 @@ function slugify (title) {
   return encodeURIComponent(title)
 }
 
-function buildLanguageBar (title) {
-  const slug = slugify(title)
+function resolveTargetTitle (wikiTitle, langPrefix, currentPrefix) {
+  if (!langPrefix) return wikiTitle
+  if (langPrefix === currentPrefix) return `${langPrefix}${wikiTitle}`
+  const candidate = `${langPrefix}${wikiTitle}`
+  const candidatePath = path.join(WIKI_DIR, `${candidate}.md`)
+  return fs.existsSync(candidatePath) ? candidate : wikiTitle
+}
+
+function buildLanguageBar (title, currentPrefix) {
   return '🌐 Language: ' + LANGS.map(lang => {
-    const prefix = lang.prefix
-    return `[${lang.label}](${PAGES_BASE}/${prefix}${slug})`
+    const targetTitle = resolveTargetTitle(title, lang.prefix, currentPrefix)
+    const slug = slugify(targetTitle)
+    return `[${lang.label}](${PAGES_BASE}/${slug})`
   }).join(' | ')
 }
 
@@ -94,7 +102,7 @@ for (const [helpName, wikiTitle] of HELP_TO_WIKI.entries()) {
     if (!markdown) continue
 
     const wikiPath = path.join(WIKI_DIR, `${lang.prefix}${wikiTitle}.md`)
-    const languageBar = buildLanguageBar(wikiTitle)
+    const languageBar = buildLanguageBar(wikiTitle, lang.prefix)
     const body = markdown.trim()
     const navBlock = readExistingNavBlock(wikiPath)
     const content = buildPageContent({ languageBar, navBlock, body })

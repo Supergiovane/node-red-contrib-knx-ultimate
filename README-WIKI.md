@@ -104,7 +104,7 @@ How to add a new node (with localized help)
    - Restart Node‑RED and switch the UI language to see the localized help under the “Info” panel for the node.
 
 Conventions and notes
-- Language bar: first line of each page. Scripts will normalize it to absolute links: EN, IT (`it-`), DE (`de-`), zh‑CN (`zh-CN-`).
+- Language bar: first line of each page. Scripts will normalize it to absolute links: EN, IT (`it-`), DE (`de-`), zh‑CN (`zh-CN-`). If a translation file is missing, language links fall back to the EN page so readers never hit a 404.
 - Header placement: inserted right below the language bar. Do not edit between the NAV markers; regenerate instead.
 - Samples: most sample pages exist only in EN. The menu uses absolute URLs for these.
 - Sidebar: a minimal `_Sidebar.md` exists with only language home links; the full navigation is in the per‑page header.
@@ -113,5 +113,5 @@ Troubleshooting
 - Header not updated: ensure `scripts/wiki-menu.json` contains the page (type:"page" and correct `page` title). Then run `npm run wiki:inject-header`.
 - Wrong/missing translations: re‑run `npm run translate-wiki` after adjusting the EN page. The script doesn’t overwrite existing translations; delete a specific translated file to force regeneration.
 - Language bar still relative on GitHub: run `npm run wiki:fix-langbar` and push the wiki repo.
- - Migrate node help: `npm run wiki:help-migrate`
-   - One‑shot migration of inline help blocks from `nodes/*.html` to localized files in `nodes/locales/<lang>/<help-name>.html` using wiki content as source (fallback to inline text if wiki page is missing).
+- Migrate node help: `npm run wiki:help-migrate`
+  - One‑shot migration of inline help blocks from `nodes/*.html` to localized files in `nodes/locales/<lang>/<help-name>.html` using wiki content as source (fallback to inline text if wiki page is missing).

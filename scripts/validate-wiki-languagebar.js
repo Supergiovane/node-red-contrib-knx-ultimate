@@ -56,11 +56,21 @@ function toSlug (title) {
   return encodeURIComponent(title)
 }
 
+function resolveTargetTitle (dir, baseTitle, lang) {
+  if (!lang.prefix) return baseTitle
+  const candidate = `${lang.prefix}${baseTitle}`
+  const candidatePath = path.join(dir, `${candidate}.md`)
+  return fs.existsSync(candidatePath) ? candidate : baseTitle
+}
+
 function expectedLinks (filename) {
   const base = deriveBaseTitle(filename)
-  const slugBase = toSlug(base)
+  const relative = path.relative(WIKI_DIR, filename)
+  const relDir = path.dirname(relative)
+  const dir = relDir === '.' ? WIKI_DIR : path.join(WIKI_DIR, relDir)
   const entries = LANGUAGES.map((lang) => {
-    const slug = lang.slugPrefix + slugBase
+    const target = resolveTargetTitle(dir, base, lang)
+    const slug = toSlug(target)
     return { lang, href: ABS_PREFIX + slug }
   })
   return entries

@@ -36,10 +36,23 @@ function detectLang (fileBase) {
 
 function slugify (title) { return encodeURIComponent(title) }
 
+function langPrefix (lang) {
+  if (lang === 'en') return ''
+  if (lang === 'zh') return 'zh-CN-'
+  return `${lang}-`
+}
+
+function resolvePageTitle (lang, title) {
+  const prefix = langPrefix(lang)
+  if (!prefix) return title
+  const candidate = `${prefix}${title}`
+  const candidatePath = path.join(WIKI_DIR, `${candidate}.md`)
+  return fs.existsSync(candidatePath) ? candidate : title
+}
+
 function pageUrl (lang, title) {
-  const slug = slugify(title)
-  const pref = lang === 'en' ? '' : (lang === 'zh' ? 'zh-CN-' : lang + '-')
-  return ABS + pref + slug
+  const target = resolvePageTitle(lang, title)
+  return ABS + slugify(target)
 }
 
 const LABELS = {

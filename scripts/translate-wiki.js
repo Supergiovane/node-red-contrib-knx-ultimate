@@ -53,13 +53,14 @@ function shouldSkipBase (file) {
 }
 
 function slugify (title) { return encodeURIComponent(title) }
-function langBarLine (baseTitle) {
-  const slugEN = slugify(baseTitle)
-  const parts = LANG_BAR_ENTRIES.map(({ label, prefix }) => {
-    const slug = prefix ? prefix + slugEN : slugEN
-    return `[${label}](${ABS}${slug})`
-  })
-  return `🌐 Language: ${parts.join(' | ')}`
+function langBarLine (baseDir, baseTitle, currentPrefix) {
+  return '🌐 Language: ' + LANG_BAR_ENTRIES.map(({ label, prefix }) => {
+    const candidate = prefix ? `${prefix}${baseTitle}` : baseTitle
+    const candidatePath = path.join(baseDir, `${candidate}.md`)
+    const exists = !prefix || prefix === currentPrefix || fs.existsSync(candidatePath)
+    const target = exists ? candidate : baseTitle
+    return `[${label}](${ABS}${slugify(target)})`
+  }).join(' | ')
 }
 
 function deriveBaseTitle (filepath) {
@@ -134,7 +135,7 @@ async function run () {
         const toLang = t.lang
         const translated = await translateBody(body, toLang)
         const outLines = []
-        outLines.push(langBarLine(baseTitle))
+        outLines.push(langBarLine(path.dirname(f), baseTitle, t.prefix))
         if (!startsWithSep) outLines.push('---')
         outLines.push(translated.replace(/^\n+/, ''))
         fs.writeFileSync(t.file, outLines.join('\n'), 'utf8')

@@ -6,6 +6,7 @@ from urllib.parse import quote
 from deep_translator import GoogleTranslator
 
 WIKI_ROOT = Path(__file__).resolve().parent.parent / 'docs' / 'wiki'
+BASE_URL = 'https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/'
 BASE_FILES = [
     'FAQ-Troubleshoot.md',
     'Gateway-configuration.md',
@@ -33,11 +34,13 @@ def slugify(title: str) -> str:
     return quote(title, safe='-._~')
 
 
-def build_lang_bar(title: str) -> str:
-    slug = slugify(title)
+def build_lang_bar(title: str, current_prefix: str = '') -> str:
     entries = []
     for label, prefix in LANG_BAR_ORDER:
-        entries.append(f'[{label}](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/{prefix}{slug})')
+        candidate = f'{prefix}{title}' if prefix else title
+        exists = not prefix or prefix == current_prefix or (WIKI_ROOT / f'{prefix}{title}.md').exists()
+        target = candidate if exists else title
+        entries.append(f'[{label}]({BASE_URL}{slugify(target)})')
     return f'🌐 Language: ' + ' | '.join(entries)
 
 
@@ -138,7 +141,7 @@ def ensure_translations():
             print(f'Translating {base_name} -> {target_path.name} ({lang_key})')
             translator = GoogleTranslator(source='auto', target=lang_code)
             translated_body = translate_lines(body, translator)
-            content_lines = [build_lang_bar(title)]
+            content_lines = [build_lang_bar(title, prefix)]
             if nav_block:
                 content_lines.extend(nav_block)
             if nav_block and (not translated_body or translated_body[0].strip() != ''):
