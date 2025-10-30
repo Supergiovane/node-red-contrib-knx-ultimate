@@ -1,0 +1,132 @@
+🌐 Language: [EN](/node-red-contrib-knx-ultimate/wiki/WatchDog-Configuration) | [IT](/node-red-contrib-knx-ultimate/wiki/it-WatchDog-Configuration) | [DE](/node-red-contrib-knx-ultimate/wiki/de-WatchDog-Configuration) | [FR](/node-red-contrib-knx-ultimate/wiki/fr-WatchDog-Configuration) | [ES](/node-red-contrib-knx-ultimate/wiki/es-WatchDog-Configuration) | [简体中文](/node-red-contrib-knx-ultimate/wiki/zh-CN-WatchDog-Configuration)
+<!-- NAV START -->
+Navigation: [Home](/node-red-contrib-knx-ultimate/wiki/Home)  
+Overview: [Changelog](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/blob/master/CHANGELOG.md) • [FAQ](/node-red-contrib-knx-ultimate/wiki/FAQ-Troubleshoot) • [Security](/node-red-contrib-knx-ultimate/wiki/SECURITY) • [Docs: Language bar](/node-red-contrib-knx-ultimate/wiki/Docs-Language-Bar)  
+KNX Device: [Gateway](/node-red-contrib-knx-ultimate/wiki/Gateway-configuration) • [Device](/node-red-contrib-knx-ultimate/wiki/Device) • [Protections](/node-red-contrib-knx-ultimate/wiki/Protections)  
+Other KNX Nodes: [Scene Controller](/node-red-contrib-knx-ultimate/wiki/SceneController-Configuration) • [WatchDog](/node-red-contrib-knx-ultimate/wiki/WatchDog-Configuration) • [Logger](/node-red-contrib-knx-ultimate/wiki/Logger-Configuration) • [Global Context](/node-red-contrib-knx-ultimate/wiki/GlobalVariable) • [Alerter](/node-red-contrib-knx-ultimate/wiki/Alerter-Configuration) • [Load Control](/node-red-contrib-knx-ultimate/wiki/LoadControl-Configuration) • [Viewer](/node-red-contrib-knx-ultimate/wiki/knxUltimateViewer) • [Auto Responder](/node-red-contrib-knx-ultimate/wiki/KNXAutoResponder) • [HA Translator](/node-red-contrib-knx-ultimate/wiki/HATranslator) • [IoT Bridge](/node-red-contrib-knx-ultimate/wiki/IoT-Bridge-Configuration)  
+HUE: [Bridge](/node-red-contrib-knx-ultimate/wiki/HUE+Bridge+configuration) • [Light](/node-red-contrib-knx-ultimate/wiki/HUE+Light) • [Battery](/node-red-contrib-knx-ultimate/wiki/HUE+Battery) • [Button](/node-red-contrib-knx-ultimate/wiki/HUE+Button) • [Contact](/node-red-contrib-knx-ultimate/wiki/HUE+Contact+sensor) • [Device SW update](/node-red-contrib-knx-ultimate/wiki/HUE+Device+software+update) • [Light sensor](/node-red-contrib-knx-ultimate/wiki/HUE+Light+sensor) • [Motion](/node-red-contrib-knx-ultimate/wiki/HUE+Motion) • [Scene](/node-red-contrib-knx-ultimate/wiki/HUE+Scene) • [Tap Dial](/node-red-contrib-knx-ultimate/wiki/HUE+Tapdial) • [Temperature](/node-red-contrib-knx-ultimate/wiki/HUE+Temperature+sensor) • [Zigbee connectivity](/node-red-contrib-knx-ultimate/wiki/HUE+Zigbee+connectivity)  
+Samples: [Logger](/node-red-contrib-knx-ultimate/wiki/Logger-Sample) • [Switch Light](/node-red-contrib-knx-ultimate/wiki/-Sample---Switch-light) • [Dimming](/node-red-contrib-knx-ultimate/wiki/-Sample---Dimming) • [RGB color](/node-red-contrib-knx-ultimate/wiki/-Sample---RGB-Color) • [RGBW color + White](/node-red-contrib-knx-ultimate/wiki/-Sample---RGBW-Color-plus-White) • [Command a scene actuator](/node-red-contrib-knx-ultimate/wiki/-Sample---Control-a-scene-actuator) • [Datapoint 213.x 4x Setpoint](/node-red-contrib-knx-ultimate/wiki/-Sample---DPT213) • [Datapoint 222.x 3x Setpoint](/node-red-contrib-knx-ultimate/wiki/-Sample---DPT222) • [Datapoint 237.x DALI diags](/node-red-contrib-knx-ultimate/wiki/-Sample---DPT237) • [Datapoint 2.x 1 bit proprity](/node-red-contrib-knx-ultimate/wiki/-Sample---DPT2) • [Datapoint 22.x RCHH Status](/node-red-contrib-knx-ultimate/wiki/-Sample---DPT22) • [Datetime to BUS](/node-red-contrib-knx-ultimate/wiki/-Sample---DateTime-to-BUS) • [Read Status](/node-red-contrib-knx-ultimate/wiki/-Sample---Read-value-from-Device) • [Virtual Device](/node-red-contrib-knx-ultimate/wiki/-Sample---Virtual-Device) • [Subtype decoded](/node-red-contrib-knx-ultimate/wiki/-Sample---Subtype) • [Alexa](/node-red-contrib-knx-ultimate/wiki/-Sample---Alexa) • [Apple Homekit](/node-red-contrib-knx-ultimate/wiki/-Sample---Apple-Homekit) • [Google Home](/node-red-contrib-knx-ultimate/wiki/-Sample---Google-Assistant) • [Switch on/off POE port of Unifi switch](/node-red-contrib-knx-ultimate/wiki/-Sample---UnifiPOE) • [Set configuration by msg](/node-red-contrib-knx-ultimate/wiki/-Sample-setConfig) • [Scene Controller node](/node-red-contrib-knx-ultimate/wiki/Sample-Scene-Node) • [WatchDog node](/node-red-contrib-knx-ultimate/wiki/-Sample---WatchDog) • [Global Context node](/node-red-contrib-knx-ultimate/wiki/SampleGlobalContextNode) • [Alerter node](/node-red-contrib-knx-ultimate/wiki/SampleAlerter) • [Load control node](/node-red-contrib-knx-ultimate/wiki/SampleLoadControl) • [Viewer node](/node-red-contrib-knx-ultimate/wiki/knxUltimateViewer) • [MySQL, InfluxDB, MQTT Sample](/node-red-contrib-knx-ultimate/wiki/Sample-KNX2MQTT-KNX2MySQL-KNX2InfluxDB)  
+Contribute to Wiki: [Link](/node-red-contrib-knx-ultimate/wiki/Manage-Wiki)
+<!-- NAV END -->
+---
+<p> vérifie la connexion à la passerelle ou à un périphérique KNX spécifique </p>
+# Chien de garde
+**Que fait-il?**
+1. Vérifie la guérison de la communication / connexion du bus KNX en envoyant un télégramme à intervalles réguliers, en surveillant une réponse et en envoie un msg au flux si une connexion au bus KNX est cassée.Deux niveaux de contrôle, voir ci-dessous.
+2. Modifie les paramètres de nœud de configuration, donc la connexion à votre routeur / interface KNX / IP (par exemple, si vous avez 2 routeurs KNX / IP et que vous souhaitez basculer entre les deux pour la sauvegarde de la connexion).
+3. Force la connexion / déconnexion de la passerelle de / vers le bus KNX.
+## Niveau Ethernet et vérification du niveau de la paire torsadé KNX
+Le chien de garde a deux niveaux de contrôle.
+Le premier, vérifie uniquement la connexion entre KNX-ultimate et l'interface KNX / IP.
+Le second vérifie l'ensemble de la route, du nœud de passerelle KNX-ultimate vers Ethernet, puis sur KNX TP Media et vice versa;Cela implique l'utilisation d'un appareil physique, répondant à une demande de lecture.
+Le nœud de surveillance est un nœud puissant pour les erreurs de signalisation et les problèmes de connexion.<br />
+Vous pouvez envoyer un e-mail au programme d'installation KNX responsable de votre bâtiment, ou vous pouvez automatiquement passer à un routeur / interface KNX / IP de sauvegarde dans votre installation.
+## PARAMÈTRES
+|Propriété |Description |
+|----------------------------- |----------------------------------------------------------------------------------------------- |
+|Passerelle |Gateway KNX sélectionné.|
+|Adresse du groupe à surveiller |Le nœud enverra un télégramme à cette adresse et surveille le message qui traverse le bus KNX.Le point de données doit être dpt 1.x (booléen). |
+|Nom |Nom du nœud |
+|Démarrer automatiquement la minuterie de chien de garde |Le temporisateur de surveillance commence automatiquement sur le déploiement ou le démarrage du rouge-rouge.|
+|Niveau de contrôle |Voir ci-dessous |
+**Vérifier le niveau ** > _**Ethernet** _: \* Chechks la connexion entre la passerelle KNX-ultimate en mode unicast et votre interface IP KNX. <Br />
+width = "90%"> <br />
+> _ **Ethernet et KNX TP** _: Vérification complète.Il fonctionne soit avec les routeurs KNX / IP et les interfaces KNX / IP (ainsi que
+Ensemble d'adresses), il vérifie la connexion entre KNX-ultimate et cet appareil KNX physique, en émettant une demande de lecture et en attendant un télégramme de réponse à partir de cet appareil.Toute erreur sur le coffre Ethernet ou sur le tronc de paire torsadé KNX sera informée.Pour configurer ce niveau de contrôle, vous devez réserver une adresse de groupe et l'ajouter à une sortie "statut" de votre actionneur KNX.Par exemple, si vous avez un actionneur léger, il a à coup sûr une sortie "statut de lumière" qui peut **répondre ** à une**demande de lecture** .
+À propos de cette image, dans ETS, attribuez une sortie de cet actionneur GIRA KNX à un statut léger **** (par exemple 12/0/0).Chaque fois que le nœud de chien de garde demande le statut, l'actionneur Gira KNX répondra.Le chien de garde sait alors que votre KNX
+La connexion de la paire tordue est opérationnelle.
+width = "90%"> <br />
+## Options avancées
+|Propriété |Description |
+|-------- |----------- |
+|Intervalle de réception (en secondes) |Le nœud envoie un télégramme au bus KNX à ce temps Interina, en quelques secondes.|
+|Nombre de réessayer avant de donner une erreur | Une fois le télégramme envoyé pour ce montant de fois, sans aucune réponse de KNX Bus, le nœud lance une erreur.|
+# Sortie du message du chien de garde
+Le nœud de surveillance ouvre un message chaque fois qu'il reçoit une erreur de l'un de votre nœud KNX-ultime dans vos flux, ou chaque fois que le chien de garde interne intercepte une erreur de communication de bus KNX. <Br /> ** En cas de problème de connexion auto à surveillance** <a href = "https://github.com/supergiovane/node-red-constrib-knx-ultimate/wiki/watchdog-configuration"
+Target = "_ Blank"> Veuillez voir ici. </a>```javascript
+msg = {
+type:"BUSError"
+checkPerformed: "Ethernet" for basic check, or "Eth+KNX" for full check.
+nodeid: "23HJ.2355" // (The node ID causing the error, so you can find it using node-red "search" funtion)
+payload: true
+description: // (whatever error description)
+}
+```<br /> ** Dans le cas de l'un de vos nœuds ultimes KNX est en difficulté** ```javascript
+msg = {
+type:"NodeError"
+checkPerformed: "Self KNX-Ultimate node reporting a red color status"
+nodeid: "23HJ.2355" // (The node ID causing the error, so you can find it using node-red "search" funtion)
+payload: true
+description: // (KNX-Ultimate node reports his error here)
+completeError:{
+nodeid: "23HJ.2355" // (The node ID causing the error, so you can find it using node-red "search" funtion)
+topic: "0/1/1" // (or the custom topic you set in the knx-ultimate node)
+devicename: "Kitchen Light"
+GA: "0/1/1"
+}
+}
+```<br /> ** Dans le cas d'une nouvelle configuration de passerelle est appelée via setgatewayconfig** ```javascript
+msg = {
+type:"setGatewayConfig"
+checkPerformed: "The Watchdog node changed the gateway configuration."
+nodeid: "23HJ.2355" // (The node ID issuing the setGatewayConfig, so you can find it using node-red "search" funtion)
+payload: true
+description: "New Config issued to the gateway. IP:224.0.23.12 Port:3671 PhysicalAddress:15.15.1
+BindLocalInterface:Auto"
+completeError:""
+}
+```<br /> ** Connexion / déconnexion forcée** ```javascript
+msg = {
+type:"connectGateway"
+checkPerformed: "The Watchdog issued a connection/disconnection to the gateway."
+nodeid: "23HJ.2355" // (The node ID issuing the connection/disconnection request, so you can find it using node-red
+"search" funtion)
+payload: true // true if you requested the connection, false if you requested the disconnection
+description: "Connection"
+completeError:""
+}
+```<br />
+---
+# Message de flux d'entrée
+Le nœud de surveillance accepte l'entrée de Flow et transmet la sortie de Flow.Ci-dessous, une explication du format du message à envoyer ou à transmettre à partir du nœud.
+## Démarrez et arrêtez le chien de garde
+Pour démarrer et arrêter le chien de garde, vous pouvez passer cela comme un message au nœud <br /> ** Démarrer le chien de garde** <Br />```javascript
+// Start the WatchDog
+msg.start = true;
+return msg;
+``` ** Arrêtez de surveillance** <br />```javascript
+// Start the WatchDog
+msg.start = false;
+return msg;
+```## Modifiez les paramètres du routeur / interface KNX / IP à la volée
+Avec ** msg.setgatewayconfig** , vous pouvez modifier l'IP, le port, l'adresse physique, le protocole, etc. de votre interface KNX / IP ou du routeur, précédemment défini dans la configuration <br />
+Le nœud de configuration modifiera les paramètres et se reconnectera avec les nouveaux paramètres. <Br />
+Soyez prudent, si vous redémarrez le Node-Red, les nouveaux paramètres sont restés aux paramètres spécifiés dans le nœud de configuration. <Br /> ** Tous les paramètres sont facultatifs** <br />```javascript
+// IP: IP of your KNX/IP Router or Interface
+// Port: Port of your KNX/IP Router or Interface
+// PhysicalAddress: Physical address your KNX/IP Router or Interface (this is not a Group Address, this is a physical address indicating the physical device in your KNX installation)
+// BindToEthernetInterface: "Auto" (for automatic detection) or the ethernet interface name, for example "en0".
+// Protocol: "TunnelUDP" or "TunnelTCP" or "Multicast"
+// importCSV: the ETS exported CSV or ESF. Please see the text format in the Gateway Config Wiki Page and in the youtube
+video.
+// All these parameters are optional
+msg.setGatewayConfig={IP:"224.0.23.12",Port:3671,PhysicalAddress:"15.15.1",BindToEthernetInterface:"Auto",
+Protocol:"Multicast", importCSV:`"Group name" "Address" "Central" "Unfiltered" "Description" "DatapointType" "Security"
+"Attuatori luci" "0/-/-" "" "" "" "" "Auto"
+"Luci primo piano" "0/0/-" "" "" "" "" "Auto"
+"Luce camera da letto" "0/0/1" "" "" "" "DPST-1-1" "Auto"};`}
+return msg;
+```Toutes les propriétés sont facultatives.Par exemple, pour ne changer que l'IP:```javascript
+// IP: IP of your KNX/IP Router or Interface
+msg.setGatewayConfig={IP:"224.0.23.12"};
+return msg;
+``` ** Force la déconnexion de la passerelle et désactiver les tentatives de reconnexion automatique** <br />```javascript
+// Force the gateway's disconnection from the BUS and stop the reconnection's attempts.
+msg.connectGateway = false;
+return msg;
+``` ** Force la connexion de Gateway et activer les tentatives de reconnexion automatique** <br />```javascript
+// Force the gateway's connection to the BUS and activate the reconnection's attempts.
+msg.connectGateway = true;
+return msg;
+```## Voir aussi
+[Exemple de chien de garde](/node-red-contrib-knx-ultimate/wiki/-Sample---WatchDog)

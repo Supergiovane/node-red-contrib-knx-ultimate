@@ -109,7 +109,7 @@ run()
 const HELP_TO_WIKI = new Map([
   ['hue-config', 'HUE Bridge configuration'],
   ['knxUltimate-config', 'Gateway-configuration'],
-  ['knxUltimate', 'KNX Node Configuration'],
+  ['knxUltimate', 'Device'],
   ['knxUltimateLogger', 'Logger-Configuration'],
   ['knxUltimateGlobalContext', 'GlobalVariable'],
   ['knxUltimateWatchDog', 'WatchDog-Configuration'],

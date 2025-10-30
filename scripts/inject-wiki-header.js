@@ -212,7 +212,9 @@ function buildHeader (lang) {
     lines.push(`${sLabel}: ${parts.join(' • ')}`)
   }
 
-  return lines.join('\n')
+  return lines
+    .map((line, idx) => (idx === lines.length - 1 ? line : `${line}  `))
+    .join('\n')
 }
 
 function updateFile (file) {

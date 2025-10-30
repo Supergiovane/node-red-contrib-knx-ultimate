@@ -1,0 +1,75 @@
+🌐 Language: [EN](/node-red-contrib-knx-ultimate/wiki/FAQ-Troubleshoot) | [IT](/node-red-contrib-knx-ultimate/wiki/it-FAQ-Troubleshoot) | [DE](/node-red-contrib-knx-ultimate/wiki/de-FAQ-Troubleshoot) | [FR](/node-red-contrib-knx-ultimate/wiki/fr-FAQ-Troubleshoot) | [ES](/node-red-contrib-knx-ultimate/wiki/es-FAQ-Troubleshoot) | [简体中文](/node-red-contrib-knx-ultimate/wiki/zh-CN-FAQ-Troubleshoot)
+<!-- NAV START -->
+Navigation: [Home](/node-red-contrib-knx-ultimate/wiki/Home)  
+Overview: [Changelog](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/blob/master/CHANGELOG.md) • [FAQ](/node-red-contrib-knx-ultimate/wiki/FAQ-Troubleshoot) • [Security](/node-red-contrib-knx-ultimate/wiki/SECURITY) • [Docs: Language bar](/node-red-contrib-knx-ultimate/wiki/Docs-Language-Bar)  
+KNX Device: [Gateway](/node-red-contrib-knx-ultimate/wiki/Gateway-configuration) • [Device](/node-red-contrib-knx-ultimate/wiki/Device) • [Protections](/node-red-contrib-knx-ultimate/wiki/Protections)  
+Other KNX Nodes: [Scene Controller](/node-red-contrib-knx-ultimate/wiki/SceneController-Configuration) • [WatchDog](/node-red-contrib-knx-ultimate/wiki/WatchDog-Configuration) • [Logger](/node-red-contrib-knx-ultimate/wiki/Logger-Configuration) • [Global Context](/node-red-contrib-knx-ultimate/wiki/GlobalVariable) • [Alerter](/node-red-contrib-knx-ultimate/wiki/Alerter-Configuration) • [Load Control](/node-red-contrib-knx-ultimate/wiki/LoadControl-Configuration) • [Viewer](/node-red-contrib-knx-ultimate/wiki/knxUltimateViewer) • [Auto Responder](/node-red-contrib-knx-ultimate/wiki/KNXAutoResponder) • [HA Translator](/node-red-contrib-knx-ultimate/wiki/HATranslator) • [IoT Bridge](/node-red-contrib-knx-ultimate/wiki/IoT-Bridge-Configuration)  
+HUE: [Bridge](/node-red-contrib-knx-ultimate/wiki/HUE+Bridge+configuration) • [Light](/node-red-contrib-knx-ultimate/wiki/HUE+Light) • [Battery](/node-red-contrib-knx-ultimate/wiki/HUE+Battery) • [Button](/node-red-contrib-knx-ultimate/wiki/HUE+Button) • [Contact](/node-red-contrib-knx-ultimate/wiki/HUE+Contact+sensor) • [Device SW update](/node-red-contrib-knx-ultimate/wiki/HUE+Device+software+update) • [Light sensor](/node-red-contrib-knx-ultimate/wiki/HUE+Light+sensor) • [Motion](/node-red-contrib-knx-ultimate/wiki/HUE+Motion) • [Scene](/node-red-contrib-knx-ultimate/wiki/HUE+Scene) • [Tap Dial](/node-red-contrib-knx-ultimate/wiki/HUE+Tapdial) • [Temperature](/node-red-contrib-knx-ultimate/wiki/HUE+Temperature+sensor) • [Zigbee connectivity](/node-red-contrib-knx-ultimate/wiki/HUE+Zigbee+connectivity)  
+Samples: [Logger](/node-red-contrib-knx-ultimate/wiki/Logger-Sample) • [Switch Light](/node-red-contrib-knx-ultimate/wiki/-Sample---Switch-light) • [Dimming](/node-red-contrib-knx-ultimate/wiki/-Sample---Dimming) • [RGB color](/node-red-contrib-knx-ultimate/wiki/-Sample---RGB-Color) • [RGBW color + White](/node-red-contrib-knx-ultimate/wiki/-Sample---RGBW-Color-plus-White) • [Command a scene actuator](/node-red-contrib-knx-ultimate/wiki/-Sample---Control-a-scene-actuator) • [Datapoint 213.x 4x Setpoint](/node-red-contrib-knx-ultimate/wiki/-Sample---DPT213) • [Datapoint 222.x 3x Setpoint](/node-red-contrib-knx-ultimate/wiki/-Sample---DPT222) • [Datapoint 237.x DALI diags](/node-red-contrib-knx-ultimate/wiki/-Sample---DPT237) • [Datapoint 2.x 1 bit proprity](/node-red-contrib-knx-ultimate/wiki/-Sample---DPT2) • [Datapoint 22.x RCHH Status](/node-red-contrib-knx-ultimate/wiki/-Sample---DPT22) • [Datetime to BUS](/node-red-contrib-knx-ultimate/wiki/-Sample---DateTime-to-BUS) • [Read Status](/node-red-contrib-knx-ultimate/wiki/-Sample---Read-value-from-Device) • [Virtual Device](/node-red-contrib-knx-ultimate/wiki/-Sample---Virtual-Device) • [Subtype decoded](/node-red-contrib-knx-ultimate/wiki/-Sample---Subtype) • [Alexa](/node-red-contrib-knx-ultimate/wiki/-Sample---Alexa) • [Apple Homekit](/node-red-contrib-knx-ultimate/wiki/-Sample---Apple-Homekit) • [Google Home](/node-red-contrib-knx-ultimate/wiki/-Sample---Google-Assistant) • [Switch on/off POE port of Unifi switch](/node-red-contrib-knx-ultimate/wiki/-Sample---UnifiPOE) • [Set configuration by msg](/node-red-contrib-knx-ultimate/wiki/-Sample-setConfig) • [Scene Controller node](/node-red-contrib-knx-ultimate/wiki/Sample-Scene-Node) • [WatchDog node](/node-red-contrib-knx-ultimate/wiki/-Sample---WatchDog) • [Global Context node](/node-red-contrib-knx-ultimate/wiki/SampleGlobalContextNode) • [Alerter node](/node-red-contrib-knx-ultimate/wiki/SampleAlerter) • [Load control node](/node-red-contrib-knx-ultimate/wiki/SampleLoadControl) • [Viewer node](/node-red-contrib-knx-ultimate/wiki/knxUltimateViewer) • [MySQL, InfluxDB, MQTT Sample](/node-red-contrib-knx-ultimate/wiki/Sample-KNX2MQTT-KNX2MySQL-KNX2InfluxDB)  
+Contribute to Wiki: [Link](/node-red-contrib-knx-ultimate/wiki/Manage-Wiki)
+<!-- NAV END -->
+---
+# FAQ AND TROUBLESHOOT
+_First of all, thank you to use one of my node-red nodes! I worked a lot on this node and i hope you'll enjoy my efforts in offering my work to all users.<br/>
+If you're here, you may have some issues. I'm sorry about that.<br/> **Don't worry and relax ** , we'll find what your problem is, because the**knx-ultimate node WORKS** , it has about thousand installations around the world and i have it installed as well for my home. So please follow the FAQ and if you "i'm still having problem", contact me._
+Be aware that the minimum **nodejs version is 16** or above.
+## THE NODE DOESN'T WORK
+- Do you have created the [Gateway configuration node](/node-red-contrib-knx-ultimate/wiki/Gateway-configuration) with the IP and Port pointing to your KNX/IP Router/Interface?
+- If you've a KNX/IP **Router ** , you need to put in the**Host ** field, the multicast KNX IP address**224.0.23.12 ** and port**3671 ** - If you've a KNX/IP**Interface ** , you need to put in the**Host ** field, the Interface's IP address, for example**192.168.1.22 ** and port**3671 ** - If you have**two or more Ehternet interfaces ** (like Raspberry PI), either specify the Ethernet interface to use in the [Gateway configuration node](/node-red-contrib-knx-ultimate/wiki/Gateway-configuration), or totally disable the WIFI interface. Remember to**restart node-red** !
+- Use only certified pure KNX/IP Router (preferable) or pure KNX/IP Interfaces. Do not use "all in one" devices, or proxies, or devices that, besides other functions, do KNX/IP routing as well. A stable connection between **LAN and KNX is the most important thing** , and it need to work. Spend money on that and you'll setup and forget it.
+- If you have **an IP interface** try to disable the ACK by selecting _Suppress ACK request_ in the [Gateway configuration node](/node-red-contrib-knx-ultimate/wiki/Gateway-configuration).
+- Follow the **I CAN ONLY RECEIVE TELEGRAMS, NOT SEND - OR VICE VERSA** checklist
+- If you're running Node-Red in a container, **delay the start of node-red after the container boots up** . Some users report that the Ethernet card is still DOWN when node-red starts. You can try it by manually stop node-red, disabling auto start of noder-red at boot, reboot the container, wait 2-3 minutes and manually start node-red. If KNX-Ultimate works, the issue is that.
+## AFTER SOME TIME THE NODE STOPS WORKING
+- Read the **THE NODE DOESN'T WORK** faq.
+- Check and eventually **disable** DDOS protection or UDP flood protection on your switches/routers. This as general rule. UDP KNX packets can be blocked otherwise.
+- Try to directly connect your KNX/IP Router/Interface and your node-red PC.
+- If you've a cheap KNX/IP Interface, specially if is an "all in onde" device, it can hangs. Go buy a real KNX/IP Router.
+- If you use an KNX/IP Interface, be sure that you haven't reached the maximum connection limit (see your KNX/IP Interface's user manual). **KNX/IP Routers** are preferable instead, they doesn't have connection limits.
+## KNXD CONFIGURATION
+- If you're running **knxd** on the same machine of node-red, please use 127.0.0.1 as interface address, otherwise knxd will have problems.
+- If you're using **knxd** , please check the filtering tables and change the KNX config-node's physycal address accordingly.
+- Enable the **Echo sent message to all node with same Group Address** in the gateway config-node, under advanded options.
+## I SEE THE TELEGRAM IN ETS, BUT MY ACTUATOR WON'T REACT
+You may have other Node-Red KNX Plug-ins installed.
+- Remove all KNX Plugin from node-red Palette. Leave only knx-ultimate. Remember to remove the config nodes as well, they are hidden.
+- If you have **an IP interface** try to disable the ACK by selecting _Suppress ACK request_ in the [Gateway configuration node](/node-red-contrib-knx-ultimate/wiki/Gateway-configuration).
+## I CAN ONLY RECEIVE TELEGRAMS, NOT SEND - OR VICE VERSA
+Your KNX/IP Router/Interface may have filtering active.
+- Check in ETS if the router has filtering enabled. If yes, either allow **forwarding** in all configuration pages of your KNX Router, or change the physical address of the knx-ultimate config node according to your router's filter tables.
+- If you're using **knxd** , please check the filtering tables and change the KNX config node physycal address accordingly.
+## WRONG VALUES FROM THE NODE
+- Make sure to use the right datapoint. For example, for temperature, use 9.001
+- When possible, import the ETS csv file in the Gateway configuration node. You'lll have always the right Datapoints!
+- Make sure not to have two or more knx-ultimate nodes, having **same Group Address ** but**different Datapoint** .
+## IF I SEND A MESSAGE TO A NODE FROM NODE-RED, OTHER NODES IN THE FLOWS HAVING THE SAME GROUP ADDRESS, DOESN'T RECEIVE/DON'T REACT TO THIS MESSAGE
+### This happens if you use a tunneling/unicast connection, like KNX/IP Interfaces or knxd does.
+- Enable the **Echo sent message to all node with same Group Address** in the gateway config-node, under advanded options.
+## DOES IT WORK WITH SECURE KNX ROUTER/INTERFACES?
+Secure IP Router/Interfaces doesn't work if set to secure. It works, instead, if you allow unsecure connections to you router.
+- Make sure to disable the secure routing or to allow unsecure connections.
+- If you feel that you can be hacked, you can use a second ethernet card, straight connecting node-red machine to your KNX Router/Inteface with a dedicated LAN cable. In the knx-ultimate config node **Bind to local interface** option, you can then set this interface to be the default KNX/IP interface.
+- Secure connection will be implemented one day.
+## FLOOD PROTECTION KICKS IN. WHAT THE HELL IS THAT?
+Flood protection avoids your node-red UI to become unresponsive, due to a too high amount of messages sent to te input pin of the node in a specified time frame of 1 second.<br/>
+The max number of msg you can send to a node is 120 each second. If you need to send a lot of msg to the node, please consider a "delay" node, to delay each message a bit.<br/>
+[See here](/node-red-contrib-knx-ultimate/wiki/Protections)
+- Review your flow. Send less messages to the node or use a **delay** node.
+- Use RBE filter, to discard messages having the payload equal to the current node's payload.
+## I'VE IMPORTED ETS FILE BUT THERE ARE WARNINGS ABOUT DATAPOINTS
+In a ETS installation, setting Datapoints is mandatory, at least for professional one.<br/>
+With Datapoints, all youd visualization and control devices know how to handle the telegram and how to perform a right decondinf of values.<br/>
+You'll see that ALL devices, control software, visualization systems and all the entire KNX world need Datapoints, so why not to thanks knx-ultimate, to force you to finally fix your ETS installation, that wait so long to be fixed? :-)<br/>
+- Put an headphone on your head, with good music, open ETS and start adding datapoints.
+- Or... import ETS file by selecting the option "if Group Address has no Datapoint", to "Import with a fake 1.001 datapoint (Not recommended)", or to skip affected datapoint.
+- Remember to set the FULL datapoint (main type + subtype), otherwise the importer will set a default .001 subtype. Please see this image ![Subtype pic](https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/subtype.png)
+## CIRCULAR REFERENCE PROTECTION KICKS IN. WHAT THE HELL IS THAT?
+Circular reference protection avoids your node-red UI to become unresponsive and your KNX installation to be flooded, by disabling two nodes with same Group Address link toghether.<br/>
+For example, if you link the **output ** pin of a node having Group Address 0/1/1, to the**input** ping of another node having the same Group Address 0/1/1, the protection will kicks in.<br/>
+[See here](/node-red-contrib-knx-ultimate/wiki/Protections)
+- Review your flow. Detach the two identical nodes or out something inbetween, acting as "moderator".
+- Use RBE filter, to discard messages having the payload equal to the current node's payload.
+## I'M STILL HAVING PROBLEM
+### Use one of the channels below to reach me (i ever prefer gitHub)
+- Open an issue on [Github](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/issues). Whenever you open an issue, i receive an email and i can sort it out immediately.
+- Send me a PM on [Knx-User-Forum](https://knx-user-forum.de). I'm here as TheMax74. Mein Deutsch ist nicht so gut, daher bitte auf Englisch schreiben!

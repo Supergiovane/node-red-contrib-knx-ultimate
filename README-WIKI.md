@@ -30,6 +30,9 @@ NPM scripts
   - Scans the wiki for base EN pages (no `it-`, `de-`, `zh-CN-` prefix) and creates missing translations.
   - Preserves code blocks, keeps URLs intact, and emits an absolute-URL language bar.
   - After translation, run `npm run wiki:inject-header` to add the localized header.
+- Sync GitHub Pages site: `npm run docs:sync`
+  - Copies the entire wiki into `docs/wiki/` and rewrites links so the site can be published via GitHub Pages.
+  - Run this after updating the wiki repository so `docs/` stays in sync before committing.
 
 Node help migration and generation
 - One‑time migrate (existing nodes): `node scripts/migrate-node-help.js`

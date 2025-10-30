@@ -1,0 +1,91 @@
+🌐 Language: [EN](/node-red-contrib-knx-ultimate/wiki/HUE+Light) | [IT](/node-red-contrib-knx-ultimate/wiki/it-HUE+Light) | [DE](/node-red-contrib-knx-ultimate/wiki/de-HUE+Light) | [FR](/node-red-contrib-knx-ultimate/wiki/fr-HUE+Light) | [ES](/node-red-contrib-knx-ultimate/wiki/es-HUE+Light) | [简体中文](/node-red-contrib-knx-ultimate/wiki/zh-CN-HUE+Light)
+<!-- NAV START -->
+Navigation: [Home](/node-red-contrib-knx-ultimate/wiki/Home)  
+Overview: [Changelog](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/blob/master/CHANGELOG.md) • [FAQ](/node-red-contrib-knx-ultimate/wiki/FAQ-Troubleshoot) • [Security](/node-red-contrib-knx-ultimate/wiki/SECURITY) • [Docs: Language bar](/node-red-contrib-knx-ultimate/wiki/Docs-Language-Bar)  
+KNX Device: [Gateway](/node-red-contrib-knx-ultimate/wiki/Gateway-configuration) • [Device](/node-red-contrib-knx-ultimate/wiki/Device) • [Protections](/node-red-contrib-knx-ultimate/wiki/Protections)  
+Other KNX Nodes: [Scene Controller](/node-red-contrib-knx-ultimate/wiki/SceneController-Configuration) • [WatchDog](/node-red-contrib-knx-ultimate/wiki/WatchDog-Configuration) • [Logger](/node-red-contrib-knx-ultimate/wiki/Logger-Configuration) • [Global Context](/node-red-contrib-knx-ultimate/wiki/GlobalVariable) • [Alerter](/node-red-contrib-knx-ultimate/wiki/Alerter-Configuration) • [Load Control](/node-red-contrib-knx-ultimate/wiki/LoadControl-Configuration) • [Viewer](/node-red-contrib-knx-ultimate/wiki/knxUltimateViewer) • [Auto Responder](/node-red-contrib-knx-ultimate/wiki/KNXAutoResponder) • [HA Translator](/node-red-contrib-knx-ultimate/wiki/HATranslator) • [IoT Bridge](/node-red-contrib-knx-ultimate/wiki/IoT-Bridge-Configuration)  
+HUE: [Bridge](/node-red-contrib-knx-ultimate/wiki/HUE+Bridge+configuration) • [Light](/node-red-contrib-knx-ultimate/wiki/HUE+Light) • [Battery](/node-red-contrib-knx-ultimate/wiki/HUE+Battery) • [Button](/node-red-contrib-knx-ultimate/wiki/HUE+Button) • [Contact](/node-red-contrib-knx-ultimate/wiki/HUE+Contact+sensor) • [Device SW update](/node-red-contrib-knx-ultimate/wiki/HUE+Device+software+update) • [Light sensor](/node-red-contrib-knx-ultimate/wiki/HUE+Light+sensor) • [Motion](/node-red-contrib-knx-ultimate/wiki/HUE+Motion) • [Scene](/node-red-contrib-knx-ultimate/wiki/HUE+Scene) • [Tap Dial](/node-red-contrib-knx-ultimate/wiki/HUE+Tapdial) • [Temperature](/node-red-contrib-knx-ultimate/wiki/HUE+Temperature+sensor) • [Zigbee connectivity](/node-red-contrib-knx-ultimate/wiki/HUE+Zigbee+connectivity)  
+Samples: [Logger](/node-red-contrib-knx-ultimate/wiki/Logger-Sample) • [Switch Light](/node-red-contrib-knx-ultimate/wiki/-Sample---Switch-light) • [Dimming](/node-red-contrib-knx-ultimate/wiki/-Sample---Dimming) • [RGB color](/node-red-contrib-knx-ultimate/wiki/-Sample---RGB-Color) • [RGBW color + White](/node-red-contrib-knx-ultimate/wiki/-Sample---RGBW-Color-plus-White) • [Command a scene actuator](/node-red-contrib-knx-ultimate/wiki/-Sample---Control-a-scene-actuator) • [Datapoint 213.x 4x Setpoint](/node-red-contrib-knx-ultimate/wiki/-Sample---DPT213) • [Datapoint 222.x 3x Setpoint](/node-red-contrib-knx-ultimate/wiki/-Sample---DPT222) • [Datapoint 237.x DALI diags](/node-red-contrib-knx-ultimate/wiki/-Sample---DPT237) • [Datapoint 2.x 1 bit proprity](/node-red-contrib-knx-ultimate/wiki/-Sample---DPT2) • [Datapoint 22.x RCHH Status](/node-red-contrib-knx-ultimate/wiki/-Sample---DPT22) • [Datetime to BUS](/node-red-contrib-knx-ultimate/wiki/-Sample---DateTime-to-BUS) • [Read Status](/node-red-contrib-knx-ultimate/wiki/-Sample---Read-value-from-Device) • [Virtual Device](/node-red-contrib-knx-ultimate/wiki/-Sample---Virtual-Device) • [Subtype decoded](/node-red-contrib-knx-ultimate/wiki/-Sample---Subtype) • [Alexa](/node-red-contrib-knx-ultimate/wiki/-Sample---Alexa) • [Apple Homekit](/node-red-contrib-knx-ultimate/wiki/-Sample---Apple-Homekit) • [Google Home](/node-red-contrib-knx-ultimate/wiki/-Sample---Google-Assistant) • [Switch on/off POE port of Unifi switch](/node-red-contrib-knx-ultimate/wiki/-Sample---UnifiPOE) • [Set configuration by msg](/node-red-contrib-knx-ultimate/wiki/-Sample-setConfig) • [Scene Controller node](/node-red-contrib-knx-ultimate/wiki/Sample-Scene-Node) • [WatchDog node](/node-red-contrib-knx-ultimate/wiki/-Sample---WatchDog) • [Global Context node](/node-red-contrib-knx-ultimate/wiki/SampleGlobalContextNode) • [Alerter node](/node-red-contrib-knx-ultimate/wiki/SampleAlerter) • [Load control node](/node-red-contrib-knx-ultimate/wiki/SampleLoadControl) • [Viewer node](/node-red-contrib-knx-ultimate/wiki/knxUltimateViewer) • [MySQL, InfluxDB, MQTT Sample](/node-red-contrib-knx-ultimate/wiki/Sample-KNX2MQTT-KNX2MySQL-KNX2InfluxDB)  
+Contribute to Wiki: [Link](/node-red-contrib-knx-ultimate/wiki/Manage-Wiki)
+<!-- NAV END -->
+---
+<p>This node controls Philips HUE lights (single or grouped) and maps their commands/states to KNX.</p>
+**General**
+|Property|Description|
+|--|--|
+| KNX GW | Select the KNX gateway to be used |
+| HUE Bridge | Select the HUE Bridge to be used |
+| Name | HUE light or grouped light to use (autocomplete while typing).|
+<br/>
+**Locate device**
+Use the `Locate` button (play icon) to start a Hue identify session for the selected resource. While the session is active the button switches to a stop icon and the bridge makes the light — or every light in the grouped resource — blink once per second. Press the button again to stop immediately; otherwise the session ends automatically after 10 minutes.
+<br/>
+**OPTIONS**
+Here you can link KNX Group Addresses to the available HUE commands/states.<br/>
+Start typing in the GA field (name or Group Address); suggestions appear while you type.
+**Switch**
+|Property|Description|
+|--|--|
+| Control | This GA is used to turn on/off the HUE light via a boolean KNX value true/false|
+| Status | Link this to the light's switch status group address|
+<br/>
+**Dim**
+|Property|Description|
+|--|--|
+| Control dim | Relative DIM of the HUE light. You can set the dimming speed in the **Behaviour** tab. |
+| Control % | Changes the absolute HUE light's brightness (0-100%)|
+| Status % | Link this to the light's brightness status KNX group address |
+| Dim Speed (ms) | Dimming speed in milliseconds. Applies to both the light brightness and the tunable‑white datapoints. Calculated over the 0%→100% range. |
+| Min Dim brightness | Tha Minimum brightness that the lamp can reach. For example, if you are dimming the light down, the light will stop dimming at the specified brightness %. |
+| Max Dim brightness | Tha Maximum brightness that the lamp can reach. For example, if you are dimming the light up, the light will stop dimming at the specified brightness %. |
+<br/>
+**Tunable White**
+|Property|Description|
+|--|--|
+| Control dim | Change white temperature using DPT 3.007 dimming. Speed is set in the **Behaviour** tab.|
+| Control % | Change white temperature using DPT 5.001. 0 = full warm, 100 = full cold.|
+| Status %| Temperature status GA. DPT 5.001 absolute value: 0 = full warm, 100 = full cold.|
+| Control kelvin | **DPT 7.600: ** set temperature in Kelvin using the KNX range 2000-6535 (converted to HUE mirek).<br/>**DPT 9.002:** set temperature using HUE range 2000-6535 K (Ambiance starts at 2200 K). Conversions may introduce small deviations.|
+| Status kelvin | **DPT 7.600: ** read temperature in Kelvin using KNX range 2000-6535 (converted from HUE).<br/>**DPT 9.002:** read temperature using HUE range 2000-6535 K (Ambiance starts at 2200 K). Conversions may introduce small deviations. |
+| Invert dim direction | Inverts the DIM direction. |
+<br/>
+**RGB/HSV**
+|Property|Description|
+|--|--|
+| **RGB section** ||
+| Control rgb| Change color using RGB triplet (r,g,b). Gamut correction is handled. Sending a color turns the light on and sets color/brightness (perceptual). Sending r,g,b = 0 turns the light off. |
+| Status rgb | The light's color status group address. Accepted datapoint is RGB triplet (r,g,b)|
+| **HSV section** ||
+| Color H dim | Cycle through HSV hue using DPT 3.007 dimming. Speed is set in the **Behaviour** tab.|
+| Status H %| Status of the HSV chromatic circle.|
+| Control S dim | Changes the light's color saturation, using DPT 3.007 dimming. You can set the dimming speed in the **_Behaviour_** tab.|
+| Status S %| The light color saturation status group address.|
+| Dim Speed (ms) | The dimming speed, in Milliseconds, from bottom to top scale. |
+For controlling the HSV "V” (brightness), use the standard controls under the **Dim** tab.
+<br/>
+**Effects**
+_Non-Hue basic effects_
+|Property|Description|
+|--|--|
+| Blink | _true_ Blink the light, _false_ Stop blinking. Blinks the light on and off. Useful for signalling. Works with all HUE lights. |
+| Color Cycle | _true_ start cycle, _false_ Stop cycle. Randomly changes the HUE light's color at regular interval. Works with all HUE lights having color capabilities. The color effect will start 10 seconds after set. |
+_Hue native effects_
+Use the **Hue native effects** table to map your KNX values to the effects supported by the selected light (for example `candle`, `fireplace`, `prism`). Each row links a KNX value (boolean, numeric or textual, depending on the datapoint you pick) with a Hue effect. On the KNX side you can:
+- send the mapped value to activate that effect;
+- optionally provide a status Group Address: the node emits the mapped value whenever the Hue bridge reports an effect change; if no mapping exists the raw effect name is sent (requires a textual DPT such as 16.xxx).
+<br/>
+**Behaviour**
+| Property | Description |
+| ----------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Read status at startup | Read the HUE light status at node-red's startup or node-red's full deploy, and send that status to the KNX BUS |
+| KNX Brightness Status | Updates the KNX brightness group address status, whenever the HUE lamp is switched ON/OFF. The options are **When HUE light is Off send 0%. When HUE On, restore previous value (Default KNX behaviour) ** and**Leave as is (default HUE behaviour) ** . If you have KNX dimmer with brightness status, like MDT, the suggested option is _**When HUE light is Off send 0%. When HUE On, restore previous value (Default KNX behaviour)** _ |
+| Switch on behaviour | It sets the behaviour of your lights when switched on. You can choose from differents behaviours.<br/> **Select color: ** the light will be switched on with the color of your choice. To change color, just CLICK on the color selector (under the _Select color_ control).<br/>**Select temperature and brightness: ** the light will be switched on with the temperature (Kelvin) and brightness (0-100) of your choice.<br/>**None:** the light will retain its last status. In case you've enable the night lighting, after the night time ends, the lamp will resume the color/temperature/brightness state set at day time. |
+| Night Lighting | It allows to set a particular light color/brightness at nighttime. The options are the same as the daytime. You could select either a temperature/brightness or color. A cozy temperature of 2700 Kelvin, with a brightness of 10% or 20%, is a good choice for bathroom's night light.|
+| Day/Night | Select the group address used to set the day/night behaviour. The group address value is _true_ if daytime, _false_ if nighttime. |
+| Invert day/night value | Invert the values of _Day/Night_ group address. Default value is **unchecked** . |
+| Read status at startup | Read the status at startup and emit the event to the KNX bus at startup/reconnection. (Default "no")|
+| Force day mode | You can force the day mode by manually switching the light as described here: **Switch to DAY mode by rapid switching the ligth off then on (This light only) ** does what described and acts only on this light.**Switch to DAY mode by rapid switching the ligth off then on (apply yo ALL light nodes)** acts to ALL Light nodes, by setting the Day/Night group address to Day mode. |
+| Node Input/Output PINs | Hide or show the input/output PINs. Input/output PINS allow the node to accept msg input from the flow and send msg output to the flow. Input msg must follow the HUE API v.2 Standards. This is an example msg, that turns on the light: <code>msg.on = {"on":true}</code>. Please refer to the [official HUE Api page](https://developers.meethue.com/develop/hue-api-v2/api-reference/#resource_light__id__put) |
+### Note
+The Dimming function works in **KNX mode `start` and`stop` ** . To start dimming, send only one "start" KNX telegram. To stop dimming, send a "stop" KNX telegram. Please**remember that** , when you set your wall swiches properties.
+<br/>
