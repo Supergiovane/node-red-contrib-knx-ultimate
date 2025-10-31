@@ -85,8 +85,8 @@
     "wiki:help-migrate": "node scripts/migrate-node-help.js",
     "docs:sync": "node scripts/export-wiki-to-pages.js",
     "wiki:refresh": "npm run wiki:help-export && node scripts/generate-wiki-navbar.js && node scripts/prepare-wiki-pages.js && npm run docs:sync",
-    "docs:serve": "cd docs && bundle exec jekyll serve --source . --livereload",
-    "docs:serve:norl": "cd docs && bundle exec jekyll serve --source . --livereload=false"
+    "docs:serve": "cd docs && echo 'Preview disponibile su http://127.0.0.1:4000/node-red-contrib-knx-ultimate/' && bundle exec jekyll serve --source . --livereload",
+    "docs:serve:norl": "cd docs && echo 'Preview disponibile su http://127.0.0.1:4000/node-red-contrib-knx-ultimate/' && bundle exec jekyll serve --source . --livereload=false"
   },
   "devDependencies": {
     "translate-google": "^1.5.0",
