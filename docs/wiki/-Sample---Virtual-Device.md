@@ -4,7 +4,6 @@ title: "-Sample---Virtual-Device"
 lang: en
 permalink: /wiki/-Sample---Virtual-Device
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Virtual-Device) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Virtual-Device) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Virtual-Device) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Virtual-Device) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Virtual-Device) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Virtual-Device)
 # VIRTUAL DEVICE
 
 A Virtual device node is a knx-ultimate node acting as a real KNX device. <br/>

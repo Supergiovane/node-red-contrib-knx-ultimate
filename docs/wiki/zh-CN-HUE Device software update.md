@@ -4,8 +4,6 @@ title: "HUE Device software update"
 lang: zh-CN
 permalink: /wiki/zh-CN-HUE%20Device%20software%20update
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE%20Device%20software%20update) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-HUE%20Device%20software%20update) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-HUE%20Device%20software%20update) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-HUE%20Device%20software%20update) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-HUE%20Device%20software%20update) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-HUE%20Device%20software%20update)
-
 该节点监控 HUE 设备的软件更新状态，并发布到 KNX。
 
 开始在GA字段中键入KNX设备的名称或组地址，可用的设备开始显示

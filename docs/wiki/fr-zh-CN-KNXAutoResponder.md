@@ -4,7 +4,6 @@ title: "zh-CN-KNXAutoResponder"
 lang: fr
 permalink: /wiki/fr-zh-CN-KNXAutoResponder
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/KNXAutoResponder) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-KNXAutoResponder) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-KNXAutoResponder) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-KNXAutoResponder) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-KNXAutoResponder) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-KNXAutoResponder)
 ---
 <p> Ce nœud répondra à la demande de lecture du bus KNX.
 Le nœud enregistre tous les télégrammes qui sont transférés dans le bus KNX et stockent les valeurs en mémoire.

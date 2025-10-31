@@ -4,7 +4,6 @@ title: "zh-CN-SceneController-Configuration"
 lang: it
 permalink: /wiki/it-zh-CN-SceneController-Configuration
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SceneController-Configuration) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-SceneController-Configuration) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-SceneController-Configuration) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-SceneController-Configuration) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-SceneController-Configuration) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-SceneController-Configuration)
 ---
 # Controller di scena
 Questo nodo è coerente con il controller della scena KNX: la scena può essere salvata e richiamata.

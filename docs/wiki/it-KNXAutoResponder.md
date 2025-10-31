@@ -4,8 +4,6 @@ title: "KNXAutoResponder"
 lang: it
 permalink: /wiki/it-KNXAutoResponder
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/KNXAutoResponder) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-KNXAutoResponder) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-KNXAutoResponder) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-KNXAutoResponder) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-KNXAutoResponder) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-KNXAutoResponder)
-
 Questo nodo risponderà alle richieste di lettura del bus KNX.
 
 Il nodo registra tutti i telegrammi trasmessi al bus KNX e memorizzano i valori in memoria.

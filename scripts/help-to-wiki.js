@@ -76,16 +76,14 @@ function resolveTargetTitle (wikiTitle, langPrefix, currentPrefix) {
   return fs.existsSync(candidatePath) ? candidate : wikiTitle
 }
 
-function buildLanguageBar (title, currentPrefix) {
-  return '🌐 Language: ' + LANGS.map(lang => {
-    const targetTitle = resolveTargetTitle(title, lang.prefix, currentPrefix)
-    const slug = slugify(targetTitle)
-    return `[${lang.label}](${PAGES_BASE}/${slug})`
-  }).join(' | ')
+function buildLanguageBar () {
+  return ''
 }
 
 function buildPageContent (languageBar, body) {
-  const parts = [languageBar.trim(), '', body.trim(), '']
+  const parts = []
+  if (languageBar && languageBar.trim().length) parts.push(languageBar.trim(), '')
+  parts.push(body.trim(), '')
   return parts.join('\n')
 }
 

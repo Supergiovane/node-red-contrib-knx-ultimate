@@ -4,7 +4,6 @@ title: "-Sample---Subtype"
 lang: en
 permalink: /wiki/-Sample---Subtype
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Subtype) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Subtype) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Subtype) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Subtype) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Subtype) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Subtype)
 # Subtype Value Sample
 
 KNX-Ultimate outputs a subtype decoded value, based on datapoint subtype. You can use this to, for example, send a readable message to a LCD display.<br/>

@@ -4,7 +4,6 @@ title: "zh-CN-HUE Contact sensor"
 lang: es
 permalink: /wiki/es-zh-CN-HUE%20Contact%20sensor
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE%20Contact%20sensor) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-HUE%20Contact%20sensor) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-HUE%20Contact%20sensor) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-HUE%20Contact%20sensor) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-HUE%20Contact%20sensor) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-HUE%20Contact%20sensor)
 ---
 <P> Este nodo asigna el evento del sensor de contacto de tono a la dirección del grupo KNX.</p>
 Comience a ingresar el campo GA, el nombre o la dirección de grupo del dispositivo KNX, y el dispositivo disponible comienza a mostrar al ingresar.

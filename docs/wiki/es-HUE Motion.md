@@ -4,8 +4,6 @@ title: "HUE Motion"
 lang: es
 permalink: /wiki/es-HUE%20Motion
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE%20Motion) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-HUE%20Motion) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-HUE%20Motion) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-HUE%20Motion) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-HUE%20Motion) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-HUE%20Motion)
-
 Este nodo escucha un sensor de movimiento de tono y refleja los eventos para KNX y/o su flujo de nodo-rojo. 
 
 Comience a escribir el nombre del dispositivo KNX o la dirección de grupo en el campo GA;Aparecen sugerencias mientras escribe.Presione el botón Actualizar junto a "Sensor Hue" para volver a cargar la lista de dispositivos desde el puente si agrega nuevos sensores.

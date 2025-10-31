@@ -4,7 +4,6 @@ title: "-Sample---DateTime-to-BUS"
 lang: en
 permalink: /wiki/-Sample---DateTime-to-BUS
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DateTime-to-BUS) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DateTime-to-BUS) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DateTime-to-BUS) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DateTime-to-BUS) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DateTime-to-BUS) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DateTime-to-BUS)
 # DATE / TIME TO THE KNX BUS
 
 <img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/datetime.png" width="70%"><br/>

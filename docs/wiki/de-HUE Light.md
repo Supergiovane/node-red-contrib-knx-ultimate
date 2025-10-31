@@ -4,8 +4,6 @@ title: "HUE Light"
 lang: de
 permalink: /wiki/de-HUE%20Light
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE%20Light) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-HUE%20Light) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-HUE%20Light) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-HUE%20Light) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-HUE%20Light) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-HUE%20Light)
-
 Dieser Node steuert HUE‑Leuchten (einzeln oder gruppiert) und ordnet Befehle/Zustände KNX‑Gruppenadressen zu.
 
 **Allgemein**

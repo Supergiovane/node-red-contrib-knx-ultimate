@@ -4,8 +4,6 @@ title: "HATranslator"
 lang: fr
 permalink: /wiki/fr-HATranslator
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HATranslator) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-HATranslator) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-HATranslator) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-HATranslator) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-HATranslator) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-HATranslator)
-
 Ce nœud traduit le msg d'entrée en valeurs vraies / fausses valides. 
 
 Il peut traduire une charge utile d'entrée, en valeurs booléennes vraies / fausses. 

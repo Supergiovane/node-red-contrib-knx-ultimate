@@ -4,8 +4,6 @@ title: "HUE Camera motion"
 lang: de
 permalink: /wiki/de-HUE%20Camera%20motion
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE%20Camera%20motion) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-HUE%20Camera%20motion) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-HUE%20Camera%20motion) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-HUE%20Camera%20motion) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-HUE%20Camera%20motion) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-HUE%20Camera%20motion)
-
 Der Hue Camera Motion Node lauscht auf Bewegungsereignisse der Philips-Hue-Kameras und spiegelt den erkannt/nicht-erkannt-Status in KNX.
 
 Geben Sie im GA-Feld (Name oder Gruppenadresse) den gewünschten Wert ein; passende Geräte werden während der Eingabe vorgeschlagen.

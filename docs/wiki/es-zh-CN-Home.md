@@ -4,7 +4,6 @@ title: "zh-CN-Home"
 lang: es
 permalink: /wiki/es-zh-CN-Home
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Home) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-Home) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-Home) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-Home) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-Home) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-Home)
 ---
 <h1> <p align = 'Center'> KNX Ultimate - Chino simplificado </p> </h1>
 Bienvenido a KNX Ultimate China Documentation.

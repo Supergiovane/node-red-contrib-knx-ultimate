@@ -4,7 +4,6 @@ title: "zh-CN-HUE Motion"
 lang: es
 permalink: /wiki/es-zh-CN-HUE%20Motion
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE%20Motion) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-HUE%20Motion) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-HUE%20Motion) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-HUE%20Motion) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-HUE%20Motion) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-HUE%20Motion)
 ---
 <p> Este nodo se suscribe a los eventos del sensor de movimiento del tono y los sincroniza con el proceso KNX y del nodo-rojo.</p>
 Ingrese el nombre del dispositivo KNX o la dirección de grupo en el campo GA para completar automáticamente; El botón Actualizar al lado del "Sensor de Hue" puede volver a cargar la lista de dispositivos Hue.

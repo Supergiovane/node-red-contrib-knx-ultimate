@@ -4,8 +4,6 @@ title: "Device"
 lang: zh-CN
 permalink: /wiki/zh-CN-Device
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Device) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-Device) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-Device) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-Device) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-Device) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-Device)
-
 ## KNX‑ULTIMATE 设备节点设置
 
 该节点用于控制 KNX 组地址（Group Address），是最常用的节点。

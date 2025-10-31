@@ -4,8 +4,6 @@ title: "LoadControl-Configuration"
 lang: fr
 permalink: /wiki/fr-LoadControl-Configuration
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/LoadControl-Configuration) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-LoadControl-Configuration) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-LoadControl-Configuration) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-LoadControl-Configuration) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-LoadControl-Configuration) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-LoadControl-Configuration)
-
 # Nœud de contrôle de charge KNX
 
  Avec le nœud de contrôle de charge, vous pouvez gérer automatiquement la déconnexion des charges (lave-linge, four, etc.) lorsque la consommation de courant dépasse un certain seuil.

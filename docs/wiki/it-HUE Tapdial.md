@@ -4,8 +4,6 @@ title: "HUE Tapdial"
 lang: it
 permalink: /wiki/it-HUE%20Tapdial
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE%20Tapdial) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-HUE%20Tapdial) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-HUE%20Tapdial) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-HUE%20Tapdial) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-HUE%20Tapdial) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-HUE%20Tapdial)
-
 Il nodo **Hue Tap Dial** collega il servizio di rotazione del Tap Dial alle GA KNX e inoltra l'evento Hue originale al flow. Dopo aver associato un nuovo Tap Dial, premi l'icona di aggiornamento accanto al campo dispositivo.
 
 ### Schede

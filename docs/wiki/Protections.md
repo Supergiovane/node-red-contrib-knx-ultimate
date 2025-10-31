@@ -4,7 +4,6 @@ title: "Protections"
 lang: en
 permalink: /wiki/Protections
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Protections) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-Protections) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-Protections) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-Protections) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-Protections) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-Protections)
 ---
 # Node self protection
 KNX-Ultimate has two types of internal protection, to protect your KNX Bus from being flooded and your Node-RED GUI from being unresponsive, if you make some mistake in your flows.<br/>

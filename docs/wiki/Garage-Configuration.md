@@ -4,7 +4,6 @@ title: "Garage-Configuration"
 lang: en
 permalink: /wiki/Garage-Configuration
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Garage-Configuration) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-Garage-Configuration) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-Garage-Configuration) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-Garage-Configuration) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-Garage-Configuration) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-Garage-Configuration)
 ---
 # Garage Door configuration
 The **KNX Garage** node drives a motorised door using dedicated group addresses for direct commands, toggle impulses, hold-open / disable logic and safety sensors. It can optionally re-close the door after a timeout, emit movement / obstruction indicators and report events to the Node-RED flow.

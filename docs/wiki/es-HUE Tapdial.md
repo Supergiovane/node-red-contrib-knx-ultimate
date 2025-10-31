@@ -4,8 +4,6 @@ title: "HUE Tapdial"
 lang: es
 permalink: /wiki/es-HUE%20Tapdial
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE%20Tapdial) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-HUE%20Tapdial) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-HUE%20Tapdial) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-HUE%20Tapdial) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-HUE%20Tapdial) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-HUE%20Tapdial)
-
 El nodo **TAP TAP** mapea el servicio rotativo del dial de toque de tono a KNX y reenvía los eventos de tono bruto a su flujo.Use el icono de actualización junto al campo del dispositivo después de combinar un nuevo dial en el puente.
 
 Pestañas ###

@@ -4,7 +4,6 @@ title: "Garage-Configuration"
 lang: es
 permalink: /wiki/es-Garage-Configuration
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Garage-Configuration) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-Garage-Configuration) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-Garage-Configuration) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-Garage-Configuration) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-Garage-Configuration) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-Garage-Configuration)
 ---
 # Puerta de garaje
 El nodo **KNX Garage** controla un portón motorizado con GA dedicadas a mandos booleanos o impulsos, integra fotocélula y estado de obstrucción, permite mantener abierto o deshabilitar la lógica y dispone de cierre automático.

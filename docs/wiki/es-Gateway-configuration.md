@@ -4,8 +4,6 @@ title: "Gateway-configuration"
 lang: es
 permalink: /wiki/es-Gateway-configuration
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Gateway-configuration) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-Gateway-configuration) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-Gateway-configuration) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-Gateway-configuration) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-Gateway-configuration) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-Gateway-configuration)
-
 # Configuración de la puerta de enlace KNX
 
  Este nodo se conecta a su puerta de enlace KNX/IP. 

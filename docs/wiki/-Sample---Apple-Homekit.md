@@ -4,7 +4,6 @@ title: "-Sample---Apple-Homekit"
 lang: en
 permalink: /wiki/-Sample---Apple-Homekit
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Apple-Homekit) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Apple-Homekit) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Apple-Homekit) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Apple-Homekit) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Apple-Homekit) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Apple-Homekit)
 # Homekit with Siri
 
 KNX-Ultimate is compatible with homekit using the [node-red-contrib-homekit-bridged](https://flows.nodered.org/node/node-red-contrib-homekit-bridged)<br/>

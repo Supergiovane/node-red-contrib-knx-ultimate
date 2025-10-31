@@ -4,7 +4,6 @@ title: "zh-CN-HUE Contact sensor"
 lang: fr
 permalink: /wiki/fr-zh-CN-HUE%20Contact%20sensor
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE%20Contact%20sensor) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-HUE%20Contact%20sensor) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-HUE%20Contact%20sensor) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-HUE%20Contact%20sensor) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-HUE%20Contact%20sensor) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-HUE%20Contact%20sensor)
 ---
 <p> Ce nœud mappe l'événement du capteur de contact Hue à l'adresse du groupe KNX.</p>
 Commencez à entrer dans le champ GA, le nom ou l'adresse de groupe du périphérique KNX et le périphérique disponible commence à s'afficher lors de l'entrée.

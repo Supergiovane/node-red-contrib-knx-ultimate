@@ -4,8 +4,6 @@ title: "KNXAutoResponder"
 lang: de
 permalink: /wiki/de-KNXAutoResponder
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/KNXAutoResponder) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-KNXAutoResponder) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-KNXAutoResponder) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-KNXAutoResponder) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-KNXAutoResponder) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-KNXAutoResponder)
-
 Dieser Knoten antwortet auf Leseanfragen aus dem KNX -Bus.
 
 Der Knoten zeichnet alle an den KNX -Bus übertragenen Telegramme auf und speichert die Werte im Speicher.

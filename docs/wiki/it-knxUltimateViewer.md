@@ -4,8 +4,6 @@ title: "knxUltimateViewer"
 lang: it
 permalink: /wiki/it-knxUltimateViewer
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/knxUltimateViewer) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-knxUltimateViewer) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-knxUltimateViewer) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-knxUltimateViewer) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-knxUltimateViewer) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-knxUltimateViewer)
-
 Questo nodo lavora insieme al nodo Dashboard <b>ui_template</b> di Node‑RED.
 
 Mostra tutti gli indirizzi di gruppo e i relativi valori in un widget della Dashboard.

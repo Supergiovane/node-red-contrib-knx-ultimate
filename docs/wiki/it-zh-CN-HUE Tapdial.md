@@ -4,7 +4,6 @@ title: "zh-CN-HUE Tapdial"
 lang: it
 permalink: /wiki/it-zh-CN-HUE%20Tapdial
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE%20Tapdial) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-HUE%20Tapdial) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-HUE%20Tapdial) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-HUE%20Tapdial) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-HUE%20Tapdial) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-HUE%20Tapdial)
 ---
 **HUE TAP COMPLIO** Il nodo mappa il servizio di rotazione di tap compositura su KNX e invia l'evento HUE originale al processo rosso nodo.Dopo aver accoppiato un nuovo dispositivo, fare clic sull'icona di aggiornamento accanto al campo del dispositivo.
 Tab ###

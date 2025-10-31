@@ -4,7 +4,6 @@ title: "zh-CN-HUE Temperature sensor"
 lang: it
 permalink: /wiki/it-zh-CN-HUE%20Temperature%20sensor
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE%20Temperature%20sensor) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-HUE%20Temperature%20sensor) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-HUE%20Temperature%20sensor) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-HUE%20Temperature%20sensor) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-HUE%20Temperature%20sensor) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-HUE%20Temperature%20sensor)
 ---
 <p> Questo nodo legge la temperatura (° C) del sensore di temperatura della tonalità e la mappa a KNX.</p>
 Immettere nel campo GA (nome o indirizzo di gruppo) per associare KNX GA;I suggerimenti del dispositivo vengono visualizzati quando inseriti.

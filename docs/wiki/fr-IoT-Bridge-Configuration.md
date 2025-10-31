@@ -4,7 +4,6 @@ title: "IoT-Bridge-Configuration"
 lang: fr
 permalink: /wiki/fr-IoT-Bridge-Configuration
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/IoT-Bridge-Configuration) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-IoT-Bridge-Configuration) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-IoT-Bridge-Configuration) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-IoT-Bridge-Configuration) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-IoT-Bridge-Configuration) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-IoT-Bridge-Configuration)
 ---
 # Passerelle KNX ↔ IoT
 La passerelle normalise les télégrammes KNX en messages structurés prêts pour les transports IoT (MQTT, REST, Modbus) et accepte des entrées du flow pour écrire de nouveau sur le bus KNX. Ce guide résume la configuration et les nœuds tiers recommandés.

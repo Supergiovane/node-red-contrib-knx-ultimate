@@ -24,27 +24,33 @@ const LANGS = [
 const LABELS = {
   en: {
     nav: 'Navigation',
-    home: 'Home'
+    home: 'Home',
+    repo: 'GitHub Repository'
   },
   it: {
     nav: 'Navigazione',
-    home: 'Home'
+    home: 'Home',
+    repo: 'Repository GitHub'
   },
   de: {
     nav: 'Navigation',
-    home: 'Startseite'
+    home: 'Startseite',
+    repo: 'GitHub-Repository'
   },
   fr: {
     nav: 'Navigation',
-    home: 'Accueil'
+    home: 'Accueil',
+    repo: 'Dépôt GitHub'
   },
   es: {
     nav: 'Navegación',
-    home: 'Inicio'
+    home: 'Inicio',
+    repo: 'Repositorio GitHub'
   },
   'zh-CN': {
     nav: '导航',
-    home: '首页'
+    home: '首页',
+    repo: 'GitHub 仓库'
   }
 }
 
@@ -89,15 +95,25 @@ function buildSectionItems (lang, items) {
 }
 
 function buildNavData (menu) {
-  const data = {}
+const data = {}
+  const overviewSection = menu.sections.find(s => s.key === 'overview')
   for (const lang of LANGS) {
     const entries = []
     const labels = LABELS[lang.code] || LABELS.en
-    entries.push({
-      title: labels.nav,
-      items: [buildInternalLink(lang, 'Home')]
+    const combined = [buildInternalLink(lang, 'Home')]
+    combined.push({
+      label: labels.repo,
+      url: 'https://github.com/Supergiovane/node-red-contrib-knx-ultimate',
+      external: true
     })
+    if (overviewSection) {
+      const overviewItems = buildSectionItems(lang, overviewSection.items)
+      combined.push(...overviewItems)
+    }
+    const overviewTitle = (overviewSection && (overviewSection.labels[lang.menuKey] || overviewSection.labels.en)) || labels.nav
+    entries.push({ title: overviewTitle, items: combined })
     for (const section of menu.sections) {
+      if (section.key === 'overview') continue
       const sectionLabel = section.labels[lang.menuKey] || section.labels.en
       const links = buildSectionItems(lang, section.items)
       if (!links.length) continue

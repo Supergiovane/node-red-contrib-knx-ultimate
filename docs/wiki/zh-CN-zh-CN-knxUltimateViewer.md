@@ -4,7 +4,6 @@ title: "zh-CN-knxUltimateViewer"
 lang: zh-CN
 permalink: /wiki/zh-CN-zh-CN-knxUltimateViewer
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/knxUltimateViewer) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-knxUltimateViewer) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-knxUltimateViewer) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-knxUltimateViewer) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-knxUltimateViewer) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-knxUltimateViewer)
 ---
 
 <p>该节点与 Node‑RED 仪表板的 <b>ui_template</b> 节点配合使用。<br/>

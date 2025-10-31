@@ -4,7 +4,6 @@ title: "zh-CN-HUE Battery"
 lang: de
 permalink: /wiki/de-zh-CN-HUE%20Battery
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE%20Battery) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-HUE%20Battery) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-HUE%20Battery) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-HUE%20Battery) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-HUE%20Battery) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-HUE%20Battery)
 ---
 
 <p> Dieser Knoten synchronisiert den Batteriepegel des Farbtongeräts mit KNX und löst ein Ereignis aus, wenn sich der Wert ändert.</p>

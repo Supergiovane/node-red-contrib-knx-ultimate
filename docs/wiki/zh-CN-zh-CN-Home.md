@@ -4,7 +4,6 @@ title: "zh-CN-Home"
 lang: zh-CN
 permalink: /wiki/zh-CN-zh-CN-Home
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Home) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-Home) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-Home) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-Home) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-Home) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-Home)
 ---
 
 <h1><p align='center'>KNX ULTIMATE — 简体中文</p></h1>

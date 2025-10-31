@@ -4,7 +4,6 @@ title: "Home"
 lang: fr
 permalink: /wiki/fr-Home
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Home) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-Home) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-Home) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-Home) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-Home) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-Home)
 # Présentation professionnelle des nodes KNX Ultimate
 ## knxUltimate-config
 **À quoi ça sert** : définir les paramètres du passerelle KNX/IP et les rendre disponibles aux autres nodes.

@@ -4,7 +4,6 @@ title: "zh-CN-HUE Zigbee connectivity"
 lang: it
 permalink: /wiki/it-zh-CN-HUE%20Zigbee%20connectivity
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE%20Zigbee%20connectivity) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-HUE%20Zigbee%20connectivity) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-HUE%20Zigbee%20connectivity) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-HUE%20Zigbee%20connectivity) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-HUE%20Zigbee%20connectivity) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-HUE%20Zigbee%20connectivity)
 ---
 <p> Questo nodo legge lo stato di connessione Zigbee dal dispositivo HUE e lo pubblica su KNX.</p>
 Immettere il nome del dispositivo KNX o l'indirizzo di gruppo nel campo GA e si associerà automaticamente quando input.

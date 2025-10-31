@@ -4,7 +4,6 @@ title: "-Sample---Google-Assistant"
 lang: en
 permalink: /wiki/-Sample---Google-Assistant
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Google-Assistant) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Google-Assistant) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Google-Assistant) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Google-Assistant) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Google-Assistant) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Google-Assistant)
 # Google Assistant
 
 KNX-Ultimate is compatible with google assistant. This sample page uses the [node-red-contrib-nora](https://github.com/andrei-tatar/node-red-contrib-nora)<br/>

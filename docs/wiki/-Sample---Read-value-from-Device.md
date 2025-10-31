@@ -4,7 +4,6 @@ title: "-Sample---Read-value-from-Device"
 lang: en
 permalink: /wiki/-Sample---Read-value-from-Device
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Read-value-from-Device) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Read-value-from-Device) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Read-value-from-Device) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Read-value-from-Device) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Read-value-from-Device) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Read-value-from-Device)
 # Read Request to the KNX BUS
 
 KNX-Ultimate is able to issua a read request to a device in your KNX installation. This is useful, for example, when you need to obtain a status of a light if it doesn't send his own status on change, or it's useful if you wish in any case query a device. The queried device returns a Response type telegram, so you can trap it by using a knx-ultimate node set to react to responses.<br/>

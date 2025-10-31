@@ -4,7 +4,6 @@ title: "-Sample---Alexa"
 lang: en
 permalink: /wiki/-Sample---Alexa
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Alexa) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Alexa) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Alexa) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Alexa) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Alexa) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Alexa)
 # Alexa
 
 KNX-Ultimate is compatible with Alexa. This sample page uses the [node-red-contrib-alexa-home-skill](https://github.com/hardillb/node-red-contrib-alexa-home-skill)<br/>

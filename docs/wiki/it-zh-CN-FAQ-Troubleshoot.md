@@ -4,7 +4,6 @@ title: "zh-CN-FAQ-Troubleshoot"
 lang: it
 permalink: /wiki/it-zh-CN-FAQ-Troubleshoot
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/FAQ-Troubleshoot) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-FAQ-Troubleshoot) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-FAQ-Troubleshoot) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-FAQ-Troubleshoot) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-FAQ-Troubleshoot) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-FAQ-Troubleshoot)
 ---
 #Faq e risoluzione dei problemi
 Grazie per aver usato il mio nodo rosso nodo!In caso di problemi, non preoccuparti: basta seguire l'elenco qui sotto per controllare l'articolo per articolo.KNX -ultimo è stato ampiamente utilizzato ed è stabile e affidabile.

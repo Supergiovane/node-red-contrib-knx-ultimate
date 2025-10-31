@@ -4,8 +4,6 @@ title: "HUE Battery"
 lang: zh-CN
 permalink: /wiki/zh-CN-HUE%20Battery
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE%20Battery) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-HUE%20Battery) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-HUE%20Battery) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-HUE%20Battery) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-HUE%20Battery) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-HUE%20Battery)
-
 该节点会将 Hue 设备的电池电量同步到 KNX，并在数值变化时触发事件。
 
 在 GA 字段输入 KNX 设备名称或组地址即可自动补全；点击"Hue 传感器”旁的刷新按钮可重新加载 Hue 设备列表。

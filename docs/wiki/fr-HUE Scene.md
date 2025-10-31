@@ -4,8 +4,6 @@ title: "HUE Scene"
 lang: fr
 permalink: /wiki/fr-HUE%20Scene
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE%20Scene) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-HUE%20Scene) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-HUE%20Scene) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-HUE%20Scene) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-HUE%20Scene) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-HUE%20Scene)
-
 Le nœud **Hue Scene** expose des scènes de teinLe champ de scène prend en charge la saisie semi-automatique;Utilisez l'icône d'actualisation après avoir ajouté des scènes sur le pont afin que la liste reste à jour.
 
 ### Tabs en un coup d'œil

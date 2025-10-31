@@ -4,7 +4,6 @@ title: "zh-CN-HUE Button"
 lang: it
 permalink: /wiki/it-zh-CN-HUE%20Button
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE%20Button) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-HUE%20Button) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-HUE%20Button) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-HUE%20Button) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-HUE%20Button) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-HUE%20Button)
 ---
 Il nodo del pulsante <p> HUE mappa l'evento del pulsante HUE su KNX utilizzando il pulsante <code> </p>
 Digitare la casella di input GA (nome o indirizzo di gruppo) per associare KNX GA;Il dispositivo corrispondente verrà visualizzato quando si entra.

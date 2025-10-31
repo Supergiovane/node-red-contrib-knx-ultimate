@@ -4,7 +4,6 @@ title: "zh-CN-HUE Battery"
 lang: fr
 permalink: /wiki/fr-zh-CN-HUE%20Battery
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE%20Battery) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-HUE%20Battery) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-HUE%20Battery) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-HUE%20Battery) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-HUE%20Battery) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-HUE%20Battery)
 ---
 <p> Ce nœud synchronise le niveau de batterie du périphérique Hue sur KNX et déclenche un événement lorsque la valeur change.</p>
 Entrez le nom du périphérique KNX ou l'adresse de groupe dans le champ GA pour terminer automatiquement; Cliquez sur le bouton Rafraîchissement à côté du "capteur Hue" pour recharger la liste des périphériques Hue.

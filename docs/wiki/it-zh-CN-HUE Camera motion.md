@@ -4,7 +4,6 @@ title: "zh-CN-HUE Camera motion"
 lang: it
 permalink: /wiki/it-zh-CN-HUE%20Camera%20motion
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE%20Camera%20motion) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-HUE%20Camera%20motion) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-HUE%20Camera%20motion) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-HUE%20Camera%20motion) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-HUE%20Camera%20motion) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-HUE%20Camera%20motion)
 ---
 <p> Il nodo di movimento della telecamera Hue ascolta per eventi di movimento della fotocamera Hue Philips e mappe rilevate/non rilevate su KNX.</p>
 Inizia ad inserire nella casella di input GA (nome o indirizzo di gruppo) per associare KNX GA;Il dispositivo di corrispondenza verrà visualizzato quando input.

@@ -4,7 +4,6 @@ title: "-Sample-setConfig"
 lang: en
 permalink: /wiki/-Sample-setConfig
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample-setConfig) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample-setConfig) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample-setConfig) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample-setConfig) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample-setConfig) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample-setConfig)
 # PROGRAMMATICALLY CHANGE THE NODE CONFIG
 
 Assuming you send a message from a **function node** , to a knx-ultimate node with Group Address and Datapoint properties set.<br/>

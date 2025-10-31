@@ -4,7 +4,6 @@ title: "Sample-KNX2MQTT-KNX2MySQL-KNX2InfluxDB"
 lang: en
 permalink: /wiki/Sample-KNX2MQTT-KNX2MySQL-KNX2InfluxDB
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Sample-KNX2MQTT-KNX2MySQL-KNX2InfluxDB) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Sample-KNX2MQTT-KNX2MySQL-KNX2InfluxDB) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Sample-KNX2MQTT-KNX2MySQL-KNX2InfluxDB) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Sample-KNX2MQTT-KNX2MySQL-KNX2InfluxDB) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Sample-KNX2MQTT-KNX2MySQL-KNX2InfluxDB) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Sample-KNX2MQTT-KNX2MySQL-KNX2InfluxDB)
 ## MYSQL, MQTT, INFLUXDB Sample
 
 <img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/MQQT-INFLUXDB.jpg" width="90%"><br/>

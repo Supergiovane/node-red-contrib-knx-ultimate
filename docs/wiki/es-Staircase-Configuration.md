@@ -4,7 +4,6 @@ title: "Staircase-Configuration"
 lang: es
 permalink: /wiki/es-Staircase-Configuration
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Staircase-Configuration) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-Staircase-Configuration) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-Staircase-Configuration) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-Staircase-Configuration) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-Staircase-Configuration) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-Staircase-Configuration)
 ---
 # Temporizador de escalera
 El nodo **KNX Staircase** reproduce el comportamiento de un temporizador de escalera. Cuando la GA de impulso recibe un `1` la luz se enciende, se inicia la cuenta atrás y, si está configurado, se avisa antes de apagar. También admite override manual, bloqueo y emisión de eventos para Node-RED.

@@ -4,7 +4,6 @@ title: "zh-CN-Protections"
 lang: fr
 permalink: /wiki/fr-zh-CN-Protections
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Protections) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-Protections) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-Protections) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-Protections) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-Protections) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-Protections)
 ---
 # Autoprotection du nœud
 KNX-TUNMIME a deux types de protection interne pour protéger votre bus KNX contre les inondations, et l'interface graphique rouge de votre nœud est protégée de ne pas répondre si vous faites des erreurs dans le courant.<br/> <br/>

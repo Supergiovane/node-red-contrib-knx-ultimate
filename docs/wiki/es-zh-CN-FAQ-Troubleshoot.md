@@ -4,7 +4,6 @@ title: "zh-CN-FAQ-Troubleshoot"
 lang: es
 permalink: /wiki/es-zh-CN-FAQ-Troubleshoot
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/FAQ-Troubleshoot) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-FAQ-Troubleshoot) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-FAQ-Troubleshoot) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-FAQ-Troubleshoot) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-FAQ-Troubleshoot) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-FAQ-Troubleshoot)
 ---
 #Faq y solución de problemas
 ¡Gracias por usar mi nodo de nodo -rojo!Si tiene problemas, no se preocupe: simplemente siga la lista a continuación para verificar el elemento por elemento.KNX -Ulimate ha sido ampliamente utilizado y es estable y confiable.

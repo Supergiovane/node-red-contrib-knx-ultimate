@@ -4,7 +4,6 @@ title: "FAQ-Troubleshoot"
 lang: fr
 permalink: /wiki/fr-FAQ-Troubleshoot
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/FAQ-Troubleshoot) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-FAQ-Troubleshoot) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-FAQ-Troubleshoot) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-FAQ-Troubleshoot) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-FAQ-Troubleshoot) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-FAQ-Troubleshoot)
 ---
 # FAQ et dépannage
 _ Premier de tous, merci d'utiliser l'un de mes nœuds rouge de nœud! J'ai beaucoup travaillé sur ce nœud et j'espère que vous apprécierez mes efforts pour offrir mon travail à tous les utilisateurs. <br/>

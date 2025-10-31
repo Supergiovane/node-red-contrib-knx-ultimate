@@ -4,7 +4,6 @@ title: "SECURITY"
 lang: it
 permalink: /wiki/it-SECURITY
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SECURITY) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-SECURITY) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-SECURITY) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-SECURITY) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-SECURITY) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-SECURITY)
 ---
 # Politica di sicurezza
 L'automazione domestica non è uno scherzo.Si prega di considerare tutti i pericoli che coinvolgono l'uso di questo repository per controllare la casa o l'edificio.

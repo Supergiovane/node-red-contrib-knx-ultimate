@@ -4,8 +4,6 @@ title: "HUE Motion"
 lang: fr
 permalink: /wiki/fr-HUE%20Motion
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE%20Motion) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-HUE%20Motion) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-HUE%20Motion) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-HUE%20Motion) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-HUE%20Motion) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-HUE%20Motion)
-
 Ce nœud écoute un capteur de mouvement de teinte et reflète les événements de KNX et / ou de votre flux rouge-rouge. 
 
 Commencez à taper le nom du périphérique KNX ou l'adresse de groupe dans le champ GA;Les suggestions apparaissent pendant que vous tapez.Appuyez sur le bouton d'actualisation à côté du "capteur Hue" pour recharger la liste des périphériques à partir du pont si vous ajoutez de nouveaux capteurs.

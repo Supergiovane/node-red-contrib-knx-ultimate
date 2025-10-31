@@ -4,7 +4,6 @@ title: "zh-CN-Protections"
 lang: it
 permalink: /wiki/it-zh-CN-Protections
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Protections) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-Protections) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-Protections) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-Protections) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-Protections) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-Protections)
 ---
 # Autoprotezione del nodo
 KNX-ATTIME ha due tipi di protezione interna per proteggere il tuo bus KNX dalle inondazioni e la GUI rossa del nodo è protetta dall'essere insensibile se si commettono alcuni errori nel flusso.<br/> <br/>

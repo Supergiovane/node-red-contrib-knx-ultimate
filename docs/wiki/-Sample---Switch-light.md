@@ -4,7 +4,6 @@ title: "-Sample---Switch-light"
 lang: en
 permalink: /wiki/-Sample---Switch-light
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Switch-light) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Switch-light) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Switch-light) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Switch-light) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Switch-light) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Switch-light)
 # Samples
 
 Assuming you send a message from a **function node ** , to a knx-ultimate node with Group Address and Datapoint properties set.**Turn on/off a Lamp**

@@ -4,8 +4,6 @@ title: "Gateway-configuration"
 lang: zh-CN
 permalink: /wiki/zh-CN-Gateway-configuration
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Gateway-configuration) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-Gateway-configuration) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-Gateway-configuration) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-Gateway-configuration) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-Gateway-configuration) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-Gateway-configuration)
-
 # KNX Gateway 配置
 
 该节点用于连接你的 KNX/IP 网关。

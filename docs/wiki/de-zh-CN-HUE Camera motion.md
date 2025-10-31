@@ -4,7 +4,6 @@ title: "zh-CN-HUE Camera motion"
 lang: de
 permalink: /wiki/de-zh-CN-HUE%20Camera%20motion
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE%20Camera%20motion) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-HUE%20Camera%20motion) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-HUE%20Camera%20motion) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-HUE%20Camera%20motion) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-HUE%20Camera%20motion) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-HUE%20Camera%20motion)
 ---
 
 <p> Der Motionknoten der Farbtonkameras hört nach Bewegungsereignissen der Philips Hue -Kamera und Karten, die er erkannten/unentdeckte Zustände an KNX erfasst.</p>

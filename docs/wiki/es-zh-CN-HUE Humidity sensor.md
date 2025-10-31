@@ -4,7 +4,6 @@ title: "zh-CN-HUE Humidity sensor"
 lang: es
 permalink: /wiki/es-zh-CN-HUE%20Humidity%20sensor
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE%20Humidity%20sensor) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-HUE%20Humidity%20sensor) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-HUE%20Humidity%20sensor) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-HUE%20Humidity%20sensor) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-HUE%20Humidity%20sensor) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-HUE%20Humidity%20sensor)
 ---
 <p> Este nodo lee la humedad relativa (%) del sensor de humedad del tono y los mapas a KNX.</p>
 Comience a ingresar (nombre o dirección de grupo) en el campo GA para asociar el KNX GA;El dispositivo coincidente se muestra cuando se ingresa.

@@ -4,7 +4,6 @@ title: "zh-CN-HUE Motion"
 lang: de
 permalink: /wiki/de-zh-CN-HUE%20Motion
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE%20Motion) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-HUE%20Motion) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-HUE%20Motion) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-HUE%20Motion) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-HUE%20Motion) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-HUE%20Motion)
 ---
 
 <p> Dieser Knoten abonniert die Ereignisse des Farbtonbewegungssensors und synchronisiert sie mit dem KNX und dem Knoten-Red-Prozess.</p>

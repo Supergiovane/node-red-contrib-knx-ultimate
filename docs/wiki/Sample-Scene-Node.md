@@ -4,7 +4,6 @@ title: "Sample-Scene-Node"
 lang: en
 permalink: /wiki/Sample-Scene-Node
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Sample-Scene-Node) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Sample-Scene-Node) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Sample-Scene-Node) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Sample-Scene-Node) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Sample-Scene-Node) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Sample-Scene-Node)
 # SCENE CONTROLLER NODE SAMPLES
 
 The scene controller works like a real KNX scene controller.<br/>

@@ -4,7 +4,6 @@ title: "SampleGlobalContextNode"
 lang: en
 permalink: /wiki/SampleGlobalContextNode
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleGlobalContextNode) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleGlobalContextNode) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleGlobalContextNode) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleGlobalContextNode) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleGlobalContextNode) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleGlobalContextNode)
 # Global Context Node Sample
 
 This node exposes the group address received from the bus, to a **global variable** <br/>

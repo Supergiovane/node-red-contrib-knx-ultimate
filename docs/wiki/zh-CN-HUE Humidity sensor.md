@@ -4,8 +4,6 @@ title: "HUE Humidity sensor"
 lang: zh-CN
 permalink: /wiki/zh-CN-HUE%20Humidity%20sensor
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE%20Humidity%20sensor) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-HUE%20Humidity%20sensor) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-HUE%20Humidity%20sensor) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-HUE%20Humidity%20sensor) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-HUE%20Humidity%20sensor) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-HUE%20Humidity%20sensor)
-
 该节点从 HUE 湿度传感器读取相对湿度 (%) 并映射到 KNX。
 
 在 GA 字段中开始输入（名称或组地址）以关联 KNX GA；输入时会显示匹配的设备。

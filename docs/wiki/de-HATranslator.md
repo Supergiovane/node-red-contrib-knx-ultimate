@@ -4,8 +4,6 @@ title: "HATranslator"
 lang: de
 permalink: /wiki/de-HATranslator
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HATranslator) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-HATranslator) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-HATranslator) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-HATranslator) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-HATranslator) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-HATranslator)
-
 Dieser Knoten übersetzt das Eingabe -MSG in gültige wahre/falsche Werte. 
 
 Es kann eine Eingangsnutzlast auf einen wahren /falschen booleschen Werte umsetzen. 

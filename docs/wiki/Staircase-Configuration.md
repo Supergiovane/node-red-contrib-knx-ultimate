@@ -4,7 +4,6 @@ title: "Staircase-Configuration"
 lang: en
 permalink: /wiki/Staircase-Configuration
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Staircase-Configuration) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-Staircase-Configuration) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-Staircase-Configuration) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-Staircase-Configuration) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-Staircase-Configuration) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-Staircase-Configuration)
 ---
 # Staircase Light configuration
 The **KNX Staircase** node emulates the typical stairwell timer using KNX group addresses. When the trigger GA receives an impulse the lamp is forced on, a configurable timer starts and optional warnings are issued before switching off. Additional features cover manual override, blocking (for maintenance), and event reporting to the Node-RED flow.

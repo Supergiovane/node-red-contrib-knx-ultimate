@@ -4,7 +4,6 @@ title: "IoT-Bridge-Configuration"
 lang: es
 permalink: /wiki/es-IoT-Bridge-Configuration
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/IoT-Bridge-Configuration) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-IoT-Bridge-Configuration) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-IoT-Bridge-Configuration) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-IoT-Bridge-Configuration) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-IoT-Bridge-Configuration) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-IoT-Bridge-Configuration)
 ---
 # Puente KNX ↔ IoT
 El puente normaliza los telegramas KNX en mensajes estructurados listos para transportes IoT (MQTT, REST, Modbus) y acepta entradas del flow para escribir de vuelta en el bus KNX. Esta guía resume la configuración y cómo enlazarla con nodos de terceros.

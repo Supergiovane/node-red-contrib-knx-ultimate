@@ -4,8 +4,6 @@ title: "HUE Battery"
 lang: fr
 permalink: /wiki/fr-HUE%20Battery
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE%20Battery) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-HUE%20Battery) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-HUE%20Battery) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-HUE%20Battery) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-HUE%20Battery) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-HUE%20Battery)
-
 Ce nœud expose le niveau de batterie d'un dispositif de teinte à KNX et soulève un événement chaque fois que la valeur change. 
 
 Commencez à taper le nom du périphérique KNX ou l'adresse de groupe dans le champ GA;Les entrées correspondantes apparaissent pendant que vous tapez.Utilisez l'icône de rafraîchissement à côté de <q> capteur de teinte </Q> pour recharger la liste à partir du pont de teinte après avoir ajouté de nouveaux appareils.

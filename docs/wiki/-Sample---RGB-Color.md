@@ -4,7 +4,6 @@ title: "-Sample---RGB-Color"
 lang: en
 permalink: /wiki/-Sample---RGB-Color
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---RGB-Color) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---RGB-Color) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---RGB-Color) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---RGB-Color) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---RGB-Color) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---RGB-Color)
 # Samples
 
 Assuming you send a message from a **function node** , to a knx-ultimate node with Group Address and Datapoint properties set.<br/>

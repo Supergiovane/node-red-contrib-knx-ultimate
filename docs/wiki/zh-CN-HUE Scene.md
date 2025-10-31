@@ -4,8 +4,6 @@ title: "HUE Scene"
 lang: zh-CN
 permalink: /wiki/zh-CN-HUE%20Scene
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE%20Scene) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-HUE%20Scene) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-HUE%20Scene) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-HUE%20Scene) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-HUE%20Scene) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-HUE%20Scene)
-
 **Hue Scene** 节点将 Hue 场景发布到 KNX，并且可以把 Hue 的原始事件发送到 Node-RED 流程。场景字段支持自动补全；在网桥中新增场景后，请点击刷新图标更新列表。
 
 ### 选项卡概览

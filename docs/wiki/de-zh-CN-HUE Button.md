@@ -4,7 +4,6 @@ title: "zh-CN-HUE Button"
 lang: de
 permalink: /wiki/de-zh-CN-HUE%20Button
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE%20Button) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-HUE%20Button) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-HUE%20Button) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-HUE%20Button) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-HUE%20Button) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-HUE%20Button)
 ---
 
 Der Knoten der <p> -Hue -Taste ordnet das Ereignis von Hue -Taste mit <Code> button.button_report.event </code> an KNX ab und bietet dasselbe Ereignis in der Prozessausgabe.</p>

@@ -4,7 +4,6 @@ title: "Home"
 lang: en
 permalink: /wiki/Home
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Home) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-Home) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-Home) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-Home) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-Home) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-Home)
 ---
 ![Logo](https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/logo-big.png)
 Control your KNX intallation via Node-Red! A bunch of KNX nodes, with integrated Philips HUE control and ETS group address importer. Easy to use and highly configurable.

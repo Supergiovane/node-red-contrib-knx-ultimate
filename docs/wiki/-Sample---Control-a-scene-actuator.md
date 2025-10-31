@@ -4,7 +4,6 @@ title: "-Sample---Control-a-scene-actuator"
 lang: en
 permalink: /wiki/-Sample---Control-a-scene-actuator
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Control-a-scene-actuator) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Control-a-scene-actuator) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Control-a-scene-actuator) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Control-a-scene-actuator) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Control-a-scene-actuator) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Control-a-scene-actuator)
 # Scene actuator controller
 
 ## CONTROLLING A SCENE ACTUATOR

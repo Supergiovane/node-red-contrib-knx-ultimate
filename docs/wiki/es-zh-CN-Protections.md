@@ -4,7 +4,6 @@ title: "zh-CN-Protections"
 lang: es
 permalink: /wiki/es-zh-CN-Protections
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Protections) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-Protections) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-Protections) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-Protections) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-Protections) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-Protections)
 ---
 # Autoprotección del nodo
 KNX-Utilim tiene dos tipos de protección interna para proteger su autobús KNX de las inundaciones, y la GUI roja de su nodo está protegida de no responder si comete algunos errores en el flujo.<br/> <br/>

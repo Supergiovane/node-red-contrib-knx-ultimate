@@ -4,8 +4,6 @@ title: "Gateway-configuration"
 lang: en
 permalink: /wiki/Gateway-configuration
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Gateway-configuration) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-Gateway-configuration) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-Gateway-configuration) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-Gateway-configuration) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-Gateway-configuration) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-Gateway-configuration)
-
 # KNX Gateway Configuration
 
 This node connects to your KNX/IP Gateway.
@@ -129,41 +127,3 @@ From version 1.4.1 you can import group addresses also at runtime, via msg, usin
 
 >
 > Then copy the file content and paste it into the gateway config "ETS group address list" field.
-
-    <table style="font-size:12px">
-        <tr>
-        <th colspan="2" style="font-size:14px">Node status colors explanation</th>
-        </tr>
-        <tr>
-        <td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/greendot.png"></img></td>
-        <td>React to write telegrams</td>
-        </tr>
-        <tr>
-            <td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/greenring.png"></img></td>
-            <td>Circular reference protection. <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki" target="_blank">See this page.</a></td>
-        </tr>
-        <tr>
-        <td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/bluedot.png"></img></td>
-        <td>React to response telegrams.</td>
-        </tr>
-        <tr>
-            <td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/bluering.png"></img></td>
-            <td>Auto send node value as response to the BUS. <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Virtual-Device" target="_blank">See Virtual Device.</a></td>
-        </tr>
-        <tr>
-            <td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/greudot.png"></img></td>
-            <td>React to read telegrams.</td>
-        </tr>
-        <tr>
-            <td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/greyring.png"></img></td>
-            <td>RBE filter: no telegrams has been sent.</td>
-        </tr>
-        <tr>
-            <td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/reddot.png"></img></td>
-            <td>Error or disconnected.</td>
-        </tr>
-        <tr>
-            <td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/redring.png"></img></td>
-            <td>Node DISABLED due to a circulare reference. <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki" target="_blank">See this page.</a></td>
-        </tr>
-    </table>

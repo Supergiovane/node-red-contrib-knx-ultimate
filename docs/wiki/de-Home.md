@@ -4,7 +4,6 @@ title: "Home"
 lang: de
 permalink: /wiki/de-Home
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Home) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-Home) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-Home) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-Home) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-Home) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-Home)
 # Professionelle Übersicht über die KNX Ultimate Nodes
 ## knxUltimate-config
 **Einsatzgebiet**: legt Gateway-Parameter für KNX/IP fest und stellt sie den übrigen Nodes bereit.

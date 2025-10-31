@@ -4,7 +4,6 @@ title: "zh-CN-Alerter-Configuration"
 lang: it
 permalink: /wiki/it-zh-CN-Alerter-Configuration
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Alerter-Configuration) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-Alerter-Configuration) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-Alerter-Configuration) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-Alerter-Configuration) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-Alerter-Configuration) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-Alerter-Configuration)
 ---
 # Configurazione del nodo Alerter
 Utilizzare il nodo Alerter per richiedere se il dispositivo selezionato è in uno stato di allarme sul monitor o tramite il nodo nodo-rosso-confrib-tts-ultimo (trasmissione vocale), cioè "payload" è **vero** .

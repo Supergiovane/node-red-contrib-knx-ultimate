@@ -3,9 +3,8 @@
  Auto-translates EN wiki pages into IT, DE, FR, ES, zh-CN variants and creates missing files.
  - Detects base English pages (no it-/de-/zh-CN- prefix)
  - Skips special files (_Sidebar.md, _Footer.md) and samples/
- - Preserves language bar (writes absolute links for all languages)
  - Skips translation inside code blocks and preserves URLs inside parentheses
- - After generation, run: npm run wiki:inject-header (to add the localized header)
+ - After generation, run: npm run wiki:refresh to rebuild the exported help and navigation
 */
 
 const fs = require('fs')
@@ -24,14 +23,7 @@ const TARGETS = [
   { code: 'zh-CN', prefix: 'zh-CN-', lang: 'zh-CN' }
 ]
 
-const LANG_BAR_ENTRIES = [
-  { label: 'EN', prefix: '' },
-  { label: 'IT', prefix: 'it-' },
-  { label: 'DE', prefix: 'de-' },
-  { label: 'FR', prefix: 'fr-' },
-  { label: 'ES', prefix: 'es-' },
-  { label: '简体中文', prefix: 'zh-CN-' }
-]
+const LANG_BAR_ENTRIES = []
 
 function listMarkdown (dir) {
   const out = []
@@ -53,15 +45,7 @@ function shouldSkipBase (file) {
 }
 
 function slugify (title) { return encodeURIComponent(title) }
-function langBarLine (baseDir, baseTitle, currentPrefix) {
-  return '🌐 Language: ' + LANG_BAR_ENTRIES.map(({ label, prefix }) => {
-    const candidate = prefix ? `${prefix}${baseTitle}` : baseTitle
-    const candidatePath = path.join(baseDir, `${candidate}.md`)
-    const exists = !prefix || prefix === currentPrefix || fs.existsSync(candidatePath)
-    const target = exists ? candidate : baseTitle
-    return `[${label}](${ABS}${slugify(target)})`
-  }).join(' | ')
-}
+function langBarLine () { return '' }
 
 function deriveBaseTitle (filepath) {
   return path.basename(filepath, '.md')
@@ -134,11 +118,14 @@ async function run () {
       for (const t of missing) {
         const toLang = t.lang
         const translated = await translateBody(body, toLang)
-        const outLines = []
-        outLines.push(langBarLine(path.dirname(f), baseTitle, t.prefix))
-        if (!startsWithSep) outLines.push('---')
-        outLines.push(translated.replace(/^\n+/, ''))
-        fs.writeFileSync(t.file, outLines.join('\n'), 'utf8')
+        const chunks = []
+        const langBar = langBarLine(path.dirname(f), baseTitle, t.prefix)
+        if (langBar && langBar.trim()) chunks.push(langBar)
+        if (startsWithSep) {
+          chunks.push('---')
+        }
+        chunks.push(translated.replace(/^\n+/, ''))
+        fs.writeFileSync(t.file, chunks.join('\n'), 'utf8')
         created++
       }
     } catch (e) {
@@ -147,7 +134,7 @@ async function run () {
     }
   }
   console.log(`Created ${created} pages. Skipped (already present): ${skipped}. Errors: ${errors}.`)
-  console.log('Next: npm run wiki:inject-header to add localized headers.')
+  console.log('Next: npm run wiki:refresh to regenerate the exported help and navigation.')
 }
 
 run()

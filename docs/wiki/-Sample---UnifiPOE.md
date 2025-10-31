@@ -4,7 +4,6 @@ title: "-Sample---UnifiPOE"
 lang: en
 permalink: /wiki/-Sample---UnifiPOE
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---UnifiPOE) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---UnifiPOE) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---UnifiPOE) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---UnifiPOE) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---UnifiPOE) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---UnifiPOE)
 # Unifi switch - POE On/Off
 
 KNX-Ultimate can turn on or off POE on a single port or multiple port of an unifi switch<br/>

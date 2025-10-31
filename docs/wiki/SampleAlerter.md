@@ -4,7 +4,6 @@ title: "SampleAlerter"
 lang: en
 permalink: /wiki/SampleAlerter
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleAlerter) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleAlerter) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleAlerter) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleAlerter) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleAlerter) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleAlerter)
 # ALERTER NODE SAMPLE
 
 With the Alerter node you can signal to a display or to the node-red-contrib-tts-ultimate node (audio feedback) if the selected devices are alerted, i.e. they have payload **true** .

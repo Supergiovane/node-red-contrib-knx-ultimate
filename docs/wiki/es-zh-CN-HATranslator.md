@@ -4,7 +4,6 @@ title: "zh-CN-HATranslator"
 lang: es
 permalink: /wiki/es-zh-CN-HATranslator
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HATranslator) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-HATranslator) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-HATranslator) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-HATranslator) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-HATranslator) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-HATranslator)
 ---
 <p> Este nodo convierte el mensaje de entrada a un valor válido verdadero/falso.<p>
 Puede convertir la carga útil de entrada a verdadero /falso booleano.<Br />

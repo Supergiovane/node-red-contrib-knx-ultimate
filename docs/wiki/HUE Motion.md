@@ -4,8 +4,6 @@ title: "HUE Motion"
 lang: en
 permalink: /wiki/HUE%20Motion
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE%20Motion) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-HUE%20Motion) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-HUE%20Motion) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-HUE%20Motion) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-HUE%20Motion) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-HUE%20Motion)
-
 This node listens to a Hue motion sensor and mirrors the events to KNX and/or your Node-RED flow.
 
 Start typing the KNX device name or Group Address in the GA field; suggestions appear while you type. Hit the refresh button next to "Hue sensor” to reload the device list from the bridge if you add new sensors.

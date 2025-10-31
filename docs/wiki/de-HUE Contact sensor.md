@@ -4,8 +4,6 @@ title: "HUE Contact sensor"
 lang: de
 permalink: /wiki/de-HUE%20Contact%20sensor
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE%20Contact%20sensor) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-HUE%20Contact%20sensor) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-HUE%20Contact%20sensor) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-HUE%20Contact%20sensor) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-HUE%20Contact%20sensor) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-HUE%20Contact%20sensor)
-
 Dieser Node leitet Ereignisse eines HUE‑Kontaktsensors weiter und ordnet sie KNX‑Gruppenadressen zu.
 
 Tippen Sie in das Feld GA, die Name oder die Gruppenadresse Ihres KNX -Geräts, die avabaren Geräte werden beim Eingeben angezeigt.

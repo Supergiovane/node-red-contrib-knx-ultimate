@@ -4,7 +4,6 @@ title: "-Sample---WatchDog"
 lang: en
 permalink: /wiki/-Sample---WatchDog
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---WatchDog) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---WatchDog) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---WatchDog) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---WatchDog) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---WatchDog) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---WatchDog)
 # WATCHDOG NODE
 
 ## Set the KNX/IP Settings on the fly, using setGatewayConfig, after node-red start

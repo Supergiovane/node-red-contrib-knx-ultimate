@@ -4,8 +4,6 @@ title: "Device"
 lang: en
 permalink: /wiki/Device
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Device) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-Device) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-Device) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-Device) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-Device) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-Device)
-
 ## KNX-ULTIMATE DEVICE NODE SETTINGS
 
 This node lets you control a KNX Group Address, this is the most used node.  
@@ -567,41 +565,3 @@ return msg;
 - [CIRCULAR REFERENCE PROTECTION and FLOOD PROTECTION](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Protections)
 - _SAMPLES_
   - [Samples](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-SamplesHome)
-
-    <table style="font-size:12px">
-        <tr>
-        <th colspan="2" style="font-size:14px">Node status colors explanation</th>
-        </tr>
-        <tr>
-        <td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/greendot.png"></img></td>
-        <td>React to write telegrams</td>
-        </tr>
-        <tr>
-            <td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/greenring.png"></img></td>
-            <td>Circular reference protection. <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Protections" target="_blank">See this page.</a></td>
-        </tr>
-        <tr>
-        <td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/bluedot.png"></img></td>
-        <td>React to response telegrams.</td>
-        </tr>
-        <tr>
-            <td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/bluering.png"></img></td>
-            <td>Auto send node value as response to the BUS. <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Virtual-Device" target="_blank">See Virtual Device.</a></td>
-        </tr>
-        <tr>
-            <td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/greudot.png"></img></td>
-            <td>React to read telegrams.</td>
-        </tr>
-        <tr>
-            <td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/greyring.png"></img></td>
-            <td>RBE filter: no telegrams has been sent.</td>
-        </tr>
-        <tr>
-            <td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/reddot.png"></img></td>
-            <td>Error or disconnected.</td>
-        </tr>
-        <tr>
-            <td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/redring.png"></img></td>
-            <td>Node DISABLED due to a circulare reference. <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Protections" target="_blank">See this page.</a></td>
-        </tr>
-    </table>

@@ -4,7 +4,6 @@ title: "zh-CN-Docs-Language-Bar"
 lang: it
 permalink: /wiki/it-zh-CN-Docs-Language-Bar
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Docs-Language-Bar) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-Docs-Language-Bar) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-Docs-Language-Bar) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-Docs-Language-Bar) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-Docs-Language-Bar) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-Docs-Language-Bar)
 ---
 <h1> <P align = 'Center'> Barra linguistica wiki - Come </p> </h1>
 Utilizzare questa modalità per aggiungere interruttori linguistici alla pagina wiki e mantenere una denominazione coerente nella traduzione.

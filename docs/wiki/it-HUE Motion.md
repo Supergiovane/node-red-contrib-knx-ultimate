@@ -4,8 +4,6 @@ title: "HUE Motion"
 lang: it
 permalink: /wiki/it-HUE%20Motion
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE%20Motion) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-HUE%20Motion) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-HUE%20Motion) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-HUE%20Motion) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-HUE%20Motion) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-HUE%20Motion)
-
 Questo nodo riceve gli eventi da un sensore di movimento Hue e li inoltra a KNX e al flow Node-RED.
 
 Nel campo GA digita nome o indirizzo di gruppo KNX: i suggerimenti appaiono durante la digitazione. Il pulsante di refresh accanto a "Sensore Hue” consente di ricaricare la lista dal Bridge Hue.

@@ -4,7 +4,6 @@ title: "zh-CN-HUE Button"
 lang: fr
 permalink: /wiki/fr-zh-CN-HUE%20Button
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE%20Button) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-HUE%20Button) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-HUE%20Button) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-HUE%20Button) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-HUE%20Button) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-HUE%20Button)
 ---
 Le nœud de bouton <p> Hue mappe l'événement du bouton de teinte à KNX à l'aide de <code> bouton.button_report.event </code> et fournit le même événement dans la sortie du processus.</p>
 Tapez la boîte d'entrée GA (nom ou adresse de groupe) pour associer le KNX GA;Le périphérique de correspondance sera affiché lors de l'entrée.

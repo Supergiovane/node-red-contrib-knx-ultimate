@@ -38,6 +38,8 @@ NPM scripts
   - Run this after updating the wiki repository so `docs/` stays in sync before committing.
 - Refresh everything: `npm run wiki:refresh`
   - Runs `wiki:help-export`, regenerates the Jekyll navigation data, ensures front matter is present, and then executes `docs:sync`.
+- Local preview (optional): `bundle exec jekyll serve --source docs --livereload`
+  - Requires Ruby + Bundler. Mirrors the GitHub Pages build locally, including the multilingual navbar.
 
 Node help migration and generation
 - One‑time migrate (existing nodes): `node scripts/migrate-node-help.js`
@@ -62,7 +64,7 @@ Page ↔ node mapping (for help generation)
 - If you add a brand new node and wiki page, update the mapping in `manage-wiki-menu.js` once; after that, `wiki:menu-add` can generate localized help automatically.
 
 Key files
-- scripts/validate-wiki-languagebar.js: verifies and optionally fixes the language bar on each page.
+- scripts/validate-wiki-languagebar.js: legacy helper to check the 🌐 language line on markdown files (not required for Jekyll but kept for reference).
 - scripts/generate-wiki-navbar.js: converts `scripts/wiki-menu.json` into the data structure used by the Jekyll include.
 - scripts/prepare-wiki-pages.js: strips legacy inline nav blocks and injects front matter so Jekyll can render every page.
 - scripts/manage-wiki-menu.js: interactive tool to edit `wiki-menu.json` (add items/sections with auto‑translation) and to generate localized node help files from wiki pages.
@@ -73,7 +75,7 @@ Quick start — add a new page to the wiki
 1) Create the EN page in the wiki repo
    - Path: ../node-red-contrib-knx-ultimate.wiki
    - Filename: `Your-Page-Title.md` (use spaces as in the displayed title)
-   - Top of file: add the language bar (absolute links) or let the scripts generate it later.
+   - Content: focus on the body only; front matter and navigation are injected automatically by the tooling.
 2) Generate translations
    - Run: `npm run translate-wiki`
    - This creates `it-Your-Page-Title.md`, `de-Your-Page-Title.md`, `zh-CN-Your-Page-Title.md` if missing.

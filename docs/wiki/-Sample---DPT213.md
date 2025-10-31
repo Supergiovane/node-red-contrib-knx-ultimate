@@ -4,7 +4,6 @@ title: "-Sample---DPT213"
 lang: en
 permalink: /wiki/-Sample---DPT213
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT213) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT213) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT213) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT213) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT213) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT213)
 # Datapoint 213
 
 Assuming you send a message from a **function node** , to a knx-ultimate node with Group Address and Datapoint properties set.<br/>

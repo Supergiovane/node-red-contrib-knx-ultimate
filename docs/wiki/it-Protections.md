@@ -4,7 +4,6 @@ title: "Protections"
 lang: it
 permalink: /wiki/it-Protections
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Protections) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-Protections) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-Protections) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-Protections) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-Protections) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-Protections)
 ---
 # Autoconteggero nodo
 KNX-Ultimate ha due tipi di protezione interna, per proteggere il tuo bus KNX da inondarsi e la tua GUI rosso nodo dall'essere non rispondente, se commetti un errore nei tuoi flussi. <br/>

@@ -4,8 +4,6 @@ title: "HUE Button"
 lang: zh-CN
 permalink: /wiki/zh-CN-HUE%20Button
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE%20Button) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-HUE%20Button) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-HUE%20Button) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-HUE%20Button) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-HUE%20Button) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-HUE%20Button)
-
 Hue Button 节点利用 <code>button.button_report.event</code> 将 Hue 按钮事件映射到 KNX，并在流程输出中提供相同的事件。
 
 在 GA 输入框（名称或组地址）中键入即可关联 KNX GA；输入时会显示匹配的设备。

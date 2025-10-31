@@ -49,6 +49,16 @@ function stripNavBlock (content) {
   return content.replace(/<!-- NAV START -->[\s\S]*?<!-- NAV END -->\s*/g, '')
 }
 
+function stripLanguageBar (content) {
+  const lines = content.split(/\r?\n/)
+  while (lines.length && lines[0].trim() === '') lines.shift()
+  if (lines.length && lines[0].startsWith('🌐')) {
+    lines.shift()
+    return lines.join('\n')
+  }
+  return content
+}
+
 function stripFrontMatter (content) {
   if (content.startsWith('---\n')) {
     const end = content.indexOf('\n---', 4)
@@ -68,6 +78,7 @@ function processFile (file) {
   raw = raw.replace(/\r\n/g, '\n')
   raw = stripNavBlock(raw)
   raw = stripFrontMatter(raw)
+  raw = stripLanguageBar(raw)
   raw = raw.replace(/^\s+/, '') // trim leading blank lines
 
   const baseName = path.basename(file, '.md')

@@ -4,7 +4,6 @@ title: "-Sample---Dimming"
 lang: en
 permalink: /wiki/-Sample---Dimming
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Dimming) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Dimming) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Dimming) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Dimming) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Dimming) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Dimming)
 # Samples
 
 Assuming you send a message from a **function node** , to a knx-ultimate node with Group Address and Datapoint properties set.<br/>

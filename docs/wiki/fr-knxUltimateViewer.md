@@ -4,8 +4,6 @@ title: "knxUltimateViewer"
 lang: fr
 permalink: /wiki/fr-knxUltimateViewer
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/knxUltimateViewer) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-knxUltimateViewer) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-knxUltimateViewer) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-knxUltimateViewer) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-knxUltimateViewer) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-knxUltimateViewer)
-
 Ce nœud fonctionne en conjonction avec le nœud de modèle de modèle de tableau de bord rouge du nœud.
 
 Affichez toutes les adresses de groupe et leurs valeurs dans un widget de tableau de bord.

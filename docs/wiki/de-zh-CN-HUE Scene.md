@@ -4,7 +4,6 @@ title: "zh-CN-HUE Scene"
 lang: de
 permalink: /wiki/de-zh-CN-HUE%20Scene
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE%20Scene) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-HUE%20Scene) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-HUE%20Scene) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-HUE%20Scene) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-HUE%20Scene) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-HUE%20Scene)
 ---
 
 Die **Hue-Szene** Knoten veröffentlicht die Hue-Szene an KNX und kann die Originalereignisse von HUE an den Knoten-Red-Prozess senden. Szenenfelder unterstützen die automatische Fertigstellung;Nachdem Sie der Brücke neue Szenen hinzugefügt haben, klicken Sie bitte auf das Symbol für Aktualisierung, um die Liste zu aktualisieren.

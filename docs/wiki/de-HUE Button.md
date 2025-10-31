@@ -4,8 +4,6 @@ title: "HUE Button"
 lang: de
 permalink: /wiki/de-HUE%20Button
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE%20Button) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-HUE%20Button) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-HUE%20Button) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-HUE%20Button) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-HUE%20Button) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-HUE%20Button)
-
 Der Hue-Taster-Node spiegelt Hue-Taster-Ereignisse auf KNX und den Flow-Ausgang und nutzt das Attribut <code>button.button_report.event</code>.
 
 Tippen Sie im GA-Feld (Name oder Gruppenadresse), um die KNX-GA zu verknüpfen; passende Einträge erscheinen während der Eingabe.

@@ -4,7 +4,6 @@ title: "zh-CN-knxUltimateViewer"
 lang: it
 permalink: /wiki/it-zh-CN-knxUltimateViewer
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/knxUltimateViewer) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-knxUltimateViewer) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-knxUltimateViewer) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-knxUltimateViewer) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-knxUltimateViewer) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-knxUltimateViewer)
 ---
 <p> Questo nodo funziona con il nodo <b> ui_template </b> del cruscotto rosso nodo.<br/>
 Visualizza tutti gli indirizzi di gruppo e i loro valori nel gruppo dashboard.<br/>

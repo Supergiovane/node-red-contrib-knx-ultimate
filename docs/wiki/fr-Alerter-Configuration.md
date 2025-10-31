@@ -4,8 +4,6 @@ title: "Alerter-Configuration"
 lang: fr
 permalink: /wiki/fr-Alerter-Configuration
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Alerter-Configuration) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-Alerter-Configuration) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-Alerter-Configuration) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-Alerter-Configuration) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-Alerter-Configuration) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-Alerter-Configuration)
-
 # Configuration du nœud d'alerte
 
 Avec le nœud d'alerte, vous pouvez signaler à un affichage ou au nœud nœud-red-controst-tts-ultimate (rétroaction audio) si les périphériques sélectionnés sont alertés, c'est-à-dire qu'ils ont la charge utile **true** .

@@ -4,7 +4,6 @@ title: "zh-CN-HUE Scene"
 lang: it
 permalink: /wiki/it-zh-CN-HUE%20Scene
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE%20Scene) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-HUE%20Scene) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-HUE%20Scene) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-HUE%20Scene) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-HUE%20Scene) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-HUE%20Scene)
 ---
 Il nodo **Hue Scene** pubblica la scena Hue su KNX e può inviare eventi originali di Hue al processo rosso nodo. I campi di scena supportano il completamento automatico;Dopo aver aggiunto nuove scene al ponte, fare clic sull'icona di aggiornamento per aggiornare l'elenco.
 Panoramica della scheda ###

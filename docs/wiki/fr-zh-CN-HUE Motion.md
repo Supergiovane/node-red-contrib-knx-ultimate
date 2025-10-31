@@ -4,7 +4,6 @@ title: "zh-CN-HUE Motion"
 lang: fr
 permalink: /wiki/fr-zh-CN-HUE%20Motion
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE%20Motion) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-HUE%20Motion) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-HUE%20Motion) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-HUE%20Motion) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-HUE%20Motion) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-HUE%20Motion)
 ---
 <p> Ce nœud s'abonne aux événements du capteur de mouvement de la teinte et les synchronise avec le processus KNX et Node-Red.</p>
 Entrez le nom du périphérique KNX ou l'adresse de groupe dans le champ GA pour terminer automatiquement; Le bouton d'actualisation à côté du "capteur de teinte" peut recharger la liste des périphériques Hue.

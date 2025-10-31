@@ -4,7 +4,6 @@ title: "Staircase-Configuration"
 lang: it
 permalink: /wiki/it-Staircase-Configuration
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Staircase-Configuration) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-Staircase-Configuration) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-Staircase-Configuration) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-Staircase-Configuration) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-Staircase-Configuration) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-Staircase-Configuration)
 ---
 # Temporizzatore scale
 Il nodo **Temporizzatore scale KNX** replica il timer delle luci scala. Quando la GA di impulso riceve un fronte attivo il portone viene acceso, parte il conto alla rovescia e (se configurato) viene emesso un preavviso prima dello spegnimento. Sono disponibili override manuale, blocco e generazione di eventi per l'integrazione con Node-RED.

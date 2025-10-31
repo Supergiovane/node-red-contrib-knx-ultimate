@@ -4,7 +4,6 @@ title: "Protections"
 lang: es
 permalink: /wiki/es-Protections
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Protections) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-Protections) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-Protections) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-Protections) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-Protections) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-Protections)
 ---
 # Protección de nodo
 KNX-Ulimate tiene dos tipos de protección interna, para proteger su autobús KNX de ser inundado y su GUI rojo nodo de no responder, si comete algún error en sus flujos. <br/>

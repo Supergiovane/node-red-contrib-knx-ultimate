@@ -4,8 +4,6 @@ title: "Device"
 lang: de
 permalink: /wiki/de-Device
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Device) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-Device) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-Device) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-Device) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-Device) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-Device)
-
 ## KNX‑ULTIMATE GERÄTE‑NODE EINSTELLUNGEN
 
 Dieser Node steuert eine KNX‑Gruppenadresse und ist der am häufigsten verwendete.

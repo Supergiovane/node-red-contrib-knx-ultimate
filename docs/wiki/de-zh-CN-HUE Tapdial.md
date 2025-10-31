@@ -4,7 +4,6 @@ title: "zh-CN-HUE Tapdial"
 lang: de
 permalink: /wiki/de-zh-CN-HUE%20Tapdial
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE%20Tapdial) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-HUE%20Tapdial) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-HUE%20Tapdial) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-HUE%20Tapdial) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-HUE%20Tapdial) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-HUE%20Tapdial)
 ---
 
 **Hue-TAP-Dial-Dial** Knoten kartiert den Rotationsdienst von Tap Dial an KNX und sendet das ursprüngliche Hue-Ereignis an den Knoten-Red-Prozess.Klicken Sie nach dem Koppeln eines neuen Geräts auf das Symbol für Aktualisieren neben dem Feld Gerät.

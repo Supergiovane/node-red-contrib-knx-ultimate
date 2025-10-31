@@ -4,8 +4,6 @@ title: "HUE Scene"
 lang: de
 permalink: /wiki/de-HUE%20Scene
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE%20Scene) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-HUE%20Scene) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-HUE%20Scene) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-HUE%20Scene) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-HUE%20Scene) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-HUE%20Scene)
-
 Der **Hue Scene** -Node stellt Hue-Szenen per KNX bereit und kann die Rohereignisse an Ihren Node-RED-Flow weitergeben. Das Feld "Hue Szene" besitzt Autovervollständigung; verwenden Sie nach dem Anlegen neuer Szenen das Aktualisierungssymbol, damit die Liste aktuell bleibt.
 
 ### Überblick über die Reiter

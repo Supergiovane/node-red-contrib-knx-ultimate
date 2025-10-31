@@ -4,7 +4,6 @@ title: "SampleLoadControl"
 lang: en
 permalink: /wiki/SampleLoadControl
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleLoadControl) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleLoadControl) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleLoadControl) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleLoadControl) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleLoadControl) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleLoadControl)
 ## LOAD CONTROL SAMPLE
 
 <img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/LoadControlSimple.png" width="90%"><br/>

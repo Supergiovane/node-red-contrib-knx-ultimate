@@ -4,7 +4,6 @@ title: "Staircase-Configuration"
 lang: fr
 permalink: /wiki/fr-Staircase-Configuration
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Staircase-Configuration) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-Staircase-Configuration) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-Staircase-Configuration) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-Staircase-Configuration) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-Staircase-Configuration) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-Staircase-Configuration)
 ---
 # Temporisateur d'escalier
 Le nœud **KNX Staircase** émule un éclairage d'escalier temporisé. Lorsqu'un front actif est reçu sur la GA d'impulsion la lampe s'allume, le compte à rebours démarre et un préavis peut être envoyé avant l'extinction. Override manuel, blocage et émission d'événements sont également pris en charge.

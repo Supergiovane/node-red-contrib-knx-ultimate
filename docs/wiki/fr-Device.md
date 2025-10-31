@@ -4,8 +4,6 @@ title: "Device"
 lang: fr
 permalink: /wiki/fr-Device
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Device) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-Device) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-Device) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-Device) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-Device) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-Device)
-
 ## Paramètres de nœud de périphérique KNX-ultimate
 
  Ce nœud vous permet de contrôler une adresse de groupe KNX, c'est le nœud le plus utilisé.

@@ -4,8 +4,6 @@ title: "HUE Tapdial"
 lang: zh-CN
 permalink: /wiki/zh-CN-HUE%20Tapdial
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE%20Tapdial) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-HUE%20Tapdial) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-HUE%20Tapdial) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-HUE%20Tapdial) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-HUE%20Tapdial) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-HUE%20Tapdial)
-
 **Hue Tap Dial** 节点将 Tap Dial 的旋转服务映射到 KNX，并把原始 Hue 事件发送到 Node-RED 流程。配对新设备后，请点击设备字段旁的刷新图标。
 
 ### 选项卡

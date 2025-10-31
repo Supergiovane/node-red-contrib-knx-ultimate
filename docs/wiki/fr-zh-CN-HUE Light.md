@@ -4,7 +4,6 @@ title: "zh-CN-HUE Light"
 lang: fr
 permalink: /wiki/fr-zh-CN-HUE%20Light
 ---
-🌐 Language: [EN](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HUE%20Light) | [IT](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-HUE%20Light) | [DE](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-HUE%20Light) | [FR](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-HUE%20Light) | [ES](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-HUE%20Light) | [简体中文](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-HUE%20Light)
 ---
 <p> Ce nœud vous permet de contrôler les lumières de tonalité Philips et les lumières groupées, et d'envoyer également l'état de cette lumière dans le bus KNX.</p>
 **Général**
