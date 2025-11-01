@@ -1,0 +1,21 @@
+<svg width="420" height="130" viewBox="0 0 420 130" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Zur Dokumentation">
+  <defs>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="140%" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#7ba684" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+  <g filter="url(#shadow)">
+    <rect x="20" y="0" width="380" height="130" rx="44" fill="#C7E8C1" stroke="#B1BCB0" stroke-width="3"/>
+  </g>
+  <rect x="0" y="25.0" width="20" height="80" rx="12" fill="#CECECE" stroke="#B1BCB0" stroke-width="2"/>
+  <rect x="400" y="25.0" width="20" height="80" rx="12" fill="#CECECE" stroke="#B1BCB0" stroke-width="2"/>
+  <rect x="20" y="8" width="130" height="114" rx="34" fill="#BADFB2"/>
+  <line x1="150" y1="18" x2="150" y2="112" stroke="#B1BCB0" stroke-width="3"/>
+  <circle cx="85.0" cy="65.0" r="36" stroke="#FFFFFF" stroke-width="4" fill="none"/>
+  <path d="M 59.00 73.00 A 26.00 26.00 0 1 1 107.00 47.00" stroke="#FFFFFF" stroke-width="5" fill="none" stroke-linecap="round"/>
+  <polygon points="99.00,41.00 131.00,65.00 99.00,53.00" fill="#FFFFFF"/>
+  <text x="85.0" y="47.0" text-anchor="middle" font-family='Inter','Helvetica Neue',Helvetica,Arial,sans-serif font-weight="700" font-size="20" fill="#FFFFFF">KNX</text>
+  <rect x="186" y="38" width="122.5" height="34" rx="17.0" fill="#F4FBF4" stroke="#B1BCB0" stroke-width="1.5"/>
+  <text x="247.25" y="57.0" text-anchor="middle" font-family='Inter','Helvetica Neue',Helvetica,Arial,sans-serif font-size="18" font-weight="600" fill="#3B7256" dominant-baseline="middle">Deutsch</text>
+  <text x="186" y="86.0" text-anchor="start" font-family='Inter','Helvetica Neue',Helvetica,Arial,sans-serif font-size="24" font-weight="600" fill="#1C4430">Zur Dokumentation</text>
+</svg>

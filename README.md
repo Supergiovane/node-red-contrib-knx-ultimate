@@ -16,23 +16,23 @@
 </p>
 
 <p align="center">
-  <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/" target="_blank">
-    <img src="img/buttons/doc-en.png" alt="Go to documentation">
+  <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Home" target="_blank">
+    <img src="img/buttons/doc-en.svg" alt="Go to documentation" width="320">
   </a>
-  <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/it/" target="_blank">
-    <img src="img/buttons/doc-it.png" alt="Vai alla documentazione">
+  <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-Home" target="_blank">
+    <img src="img/buttons/doc-it.svg" alt="Vai alla documentazione" width="320">
   </a>
-  <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/de/" target="_blank">
-    <img src="img/buttons/doc-de.png" alt="Zur Dokumentation">
+  <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-Home" target="_blank">
+    <img src="img/buttons/doc-de.svg" alt="Zur Dokumentation" width="320">
   </a>
-  <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/fr/" target="_blank">
-    <img src="img/buttons/doc-fr.png" alt="Accéder à la documentation">
+  <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-Home" target="_blank">
+    <img src="img/buttons/doc-fr.svg" alt="Accéder à la documentation" width="320">
   </a>
-  <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/es/" target="_blank">
-    <img src="img/buttons/doc-es.png" alt="Ir a la documentación">
+  <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-Home" target="_blank">
+    <img src="img/buttons/doc-es.svg" alt="Ir a la documentación" width="320">
   </a>
-  <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/zh-CN/" target="_blank">
-    <img src="img/buttons/doc-zh-CN.png" alt="前往文档">
+  <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-Home" target="_blank">
+    <img src="img/buttons/doc-zh-CN.svg" alt="前往文档" width="320">
   </a>
 </p>
 
