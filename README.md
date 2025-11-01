@@ -258,7 +258,7 @@ Do you want to be listed as well? Send an email to maxsupergiovane@icloud.com.
   </div>
   <div style="display:inline-block; margin:12px 20px; text-align:center;">
     <div style="display:inline-block; margin-bottom:6px;">
-      <img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/c/qq.png" alt="QQ Group" height="70" />
+      <img src="./img/c/qq.svg" alt="QQ Group" height="70" />
     </div>
     <div><strong>China</strong></div>
     <div><a href="tencent://groupwpa/?subcmd=all&param=7b2267726f757055696e223a3833373537393231392c2274696d655374616d70223a313633303934363639312c22617574684b6579223a22762b72482b466f4a496a75613033794e4a30744a6970756c55753639424f4d55724f464c4a6c474b77346a30326b7a4f7a3338535536517844684d7756414d62222c2261757468223a22227d&jump_from=">QQ group: 837579219</a></div>
@@ -270,17 +270,48 @@ Do you want to be listed as well? Send an email to maxsupergiovane@icloud.com.
 A big THANK YOU to [@svenflender](https://github.com/svenflender) for the logo and icon graphics!
 <br/>
 
-![Logo](https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/flags/madeinitaly.png)
-<p align='left'>
-<img width="110px" src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/KNX_CERTI_MARK_RGB.jpg" ></br>
-Authorized KNX logo by KNX Association</br>
-*<i>The author <b>Massimo Saccani</b> has been authorized to use the KNX logo.
-<br/>Forks of the knx-ultimate node are not implicitly allowed to use the KNX logo.</i>
-</p>
+<div align="center" style="margin:42px 0;">
+  <div style="max-width:860px;width:100%;display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:30px;padding:34px 36px;border-radius:22px;background:linear-gradient(135deg,#008C45 0%,#f5f8f6 55%,#CD212A 100%);box-shadow:0 20px 42px rgba(0,0,0,0.16);">
+    <div style="display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.9);border-radius:18px;padding:18px 24px;box-shadow:0 10px 26px rgba(0,0,0,0.18);">
+      <img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/flags/madeinitaly.png" alt="Made in Italy" height="120">
+    </div>
+    <div style="max-width:420px;text-align:left;color:#0b1f2c;">
+      <div style="font-size:0.9rem;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;margin-bottom:10px;color:#0b3b22;">Made in Italy</div>
+      <div style="font-size:1.35rem;font-weight:700;line-height:1.35;margin-bottom:12px;">Designed, engineered, and supported in Italy.</div>
+      <p style="margin:0 0 16px 0;line-height:1.55;">
+        KNX-Ultimate is crafted with Italian passion for detail and reliability. Every release is hand-tested on real installations, combining craftsmanship with a certified KNX workflow.
+      </p>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/KNX_CERTI_MARK_RGB.jpg" alt="Authorized KNX partner" height="70" style="border-radius:12px;background:#ffffff;padding:10px;box-shadow:0 6px 18px rgba(11,31,44,0.22);">
+        <div style="font-size:0.85rem;line-height:1.4;color:#15323f;">
+          Authorized KNX logo by KNX Association*<br/>
+          Officially recognized for compliant KNX integrations.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<p align="center"><em>*The author <strong>Massimo Saccani</strong> has been authorized to use the KNX logo.<br/>Forks of the knx-ultimate node are not implicitly allowed to use the KNX logo.</em></p>
 
 
- 
-[![Donate via PayPal](https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/CodiceQR.png)](https://www.paypal.com/donate/?hosted_button_id=S8SKPUBSPK758)
+<div align="center" style="margin:46px 0;">
+  <div style="max-width:760px;width:100%;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:28px;padding:34px 36px;border-radius:24px;background:linear-gradient(145deg,#101b29 0%,#162b3d 55%,#21445f 100%);box-shadow:0 20px 42px rgba(0,0,0,0.28);color:#f0f7ff;text-align:left;">
+    <div style="flex:0 0 180px;text-align:center;">
+      <img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/CodiceQR.png" alt="Support via PayPal - QR code" style="width:170px;border-radius:18px;background:#ffffff;padding:14px;box-shadow:0 12px 30px rgba(14,32,46,0.35);" />
+      <div style="font-size:0.75rem;margin-top:10px;color:rgba(240,247,255,0.7);">Scan with your phone</div>
+    </div>
+    <div style="max-width:420px;">
+      <div style="font-size:0.95rem;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;margin-bottom:10px;color:#8ce3ff;">Support the project</div>
+      <div style="font-size:1.45rem;font-weight:700;line-height:1.35;margin-bottom:14px;">Help KNX-Ultimate stay fast, reliable, and up to date.</div>
+      <p style="margin:0 0 16px 0;line-height:1.6;color:rgba(240,247,255,0.82);">
+        Your donation funds new hardware test benches, multilingual documentation, and the countless hours spent keeping releases rock solid. If KNX-Ultimate saves you time on the job, consider giving back&mdash;even a small tip keeps the project healthy.
+      </p>
+      <a href="https://www.paypal.com/donate/?hosted_button_id=S8SKPUBSPK758" style="display:inline-flex;align-items:center;gap:12px;padding:13px 26px;border-radius:999px;background:#ffc439;color:#111;font-weight:700;text-decoration:none;box-shadow:0 14px 28px rgba(255,196,57,0.35);">
+        <span style="font-size:1.05rem;">Support via PayPal</span>
+      </a>
+    </div>
+  </div>
+</div>
 
 
 [license-image]: https://img.shields.io/badge/license-MIT-blue.svg
