@@ -36,12 +36,24 @@ msg.payload = {red:255, green:200, blue:30} // Put some colors in our life
 
 <br/>
 
-## YOUTUBE CHANNEL
+## SUPPORTED TECHNOLOGIES
 
-<a href="https://www.youtube.com/playlist?list=PL9Yh1bjbLAYpfy1Auz6CKDfXUusgMwOQr" target="_blank"><br/>
-<img width="200px" src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/youtube-logo.jpeg" ></a>
+|Technology|Supported|
+|--|--|
+| KNX Tunnelling | ![](https://placehold.co/200x20/green/white?text=YES) |
+| KNX Routing | ![](https://placehold.co/200x20/green/white?text=YES) |
+| KNX IP Secure/Data secure | ![](https://placehold.co/200x20/green/white?text=YES) |
+| Philips Hue v2 | ![](https://placehold.co/200x20/green/white?text=YES) |
 
-Please subscribe to the [YouTube channel](https://www.youtube.com/playlist?list=PL9Yh1bjbLAYpfy1Auz6CKDfXUusgMwOQr) and watch the node in action. 
+<br/>
+
+
+## DOCUMENTATION
+
+* [Documentation](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Home)
+* [FAQ + Troubleshoot](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/FAQ-Troubleshoot)
+* [Security best practices](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SECURITY)
+* <a href="https://www.youtube.com/@maxsupervibe" target="_blank"> <img width="30px" src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/youtube-logo.jpeg" ></a> Subscribe to my [YouTube channel](https://www.youtube.com/@maxsupervibe) and watch the node in action. 
 
 <br/>
 <br/>
@@ -97,78 +109,7 @@ Each node links to detailed wiki documentation with configuration hints, sample 
 
 ## CHANGELOG
 
-* See <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/blob/master/CHANGELOG.md">here the changelog</a>
-
-
-## SUPPORTED TECHNOLOGIES
-
-|Technology|Supported|
-|--|--|
-| KNX Tunnelling | ![](https://placehold.co/200x20/green/white?text=YES) |
-| KNX Routing | ![](https://placehold.co/200x20/green/white?text=YES) |
-| KNX IP Secure/Data secure | ![](https://placehold.co/200x20/green/white?text=YES) |
-| Philips Hue v2 | ![](https://placehold.co/200x20/green/white?text=YES) |
-
-<br/>
-
-
-## DOCUMENTATION
-
-* [Documentation](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Home)
-* [FAQ + Troubleshoot](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/FAQ-Troubleshoot)
-* [Security best practices](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SECURITY)
-
-
-
-## Highlights
-
-If you're here, you have probably already tried other KNX nodes from npm. I hope you enjoy this one, because I've put a lot of effort into creating the copy/paste friendly node I always wanted, with many features and support for ETS CSV exported group addresses.<br />
-
-<details><summary>Standalone or ETS export friendly</summary>
-
-You can set your own group address, datapoint, and device name, or import the ETS group address list so the datapoint and device name are auto-populated while you type the group address.
-
-</details>
-<details><summary>Filling helpers</summary>
-
-If you import your ETS CSV or ESF file, begin typing the group address or device name in the Group Address textbox and a list of matches will appear. Select an item from the list to auto-populate the datapoint and device name—you can keep the suggested values or change them.
-
-</details>
-<details><summary>Automatic encoding/decoding of KNX datagrams</summary>
-
-Pass a normal payload to the node (true, false, string, number, object) and you receive a decoded payload of the same shape to use in your flow—no manual buffer handling required.
-
-</details>
-<details><summary>Single device or universal listener</summary>
-
-Use the node as a single device (for example, group address 0/0/1) or switch it to “universal” mode to catch all KNX bus traffic. In universal mode the node outputs a comprehensive message containing the group address, device name, decoded payload, and additional metadata. It can also send universal KNX telegrams when you pass a message containing the destination group address, datapoint type, and payload.
-
-</details>
-<details><summary>Contextual help for formatting input messages</summary>
-
-The wiki provides extensive documentation and examples, and the editor helps too: whenever you change the datapoint type, a text block with a sample input message—especially for tricky datapoints like RGBW, 10-byte floats, relative dimming, or 3-byte setpoints—appears. Copy/paste it into your function and adjust as needed.
-
-</details>
-<details><summary>Huge amount of Datapoints are supported</summary>
-
-A huge range of datapoints is supported. If you need one that is missing, open a GitHub issue and we will work on it.
-
-</details>
-<details><summary>Self protection</summary>
-
-The node protects you from common mistakes. See the [Node Protections](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Protections) page for details.
-
-</details>
-<details><summary>Built in RBE input/output filter</summary>
-
-You can enable or disable the built-in RBE (report-by-exception) filter. When enabled, messages are forwarded only when the payload changes—both for KNX bus telegrams and flow inputs.
-
-</details>
-<details><summary>RAW message directly to the BUS</summary>
-
-Send raw buffers directly to the bus whenever you need low-level control.
-
-</details>
+* <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/blob/master/CHANGELOG.md">CHANGELOG</a>
 
 
 
@@ -255,7 +196,7 @@ Attuatori luci.Luci primo piano.0/0/21	LED cambiacolori RGB scala	EIS 1 'Switchi
 
 <br/>
 
-<a href="https://youtu.be/egRbR_KwP9I" target="_blank"><img src='https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/yt.png' width='60%'></a>
+<a href="https://youtu.be/egRbR_KwP9I" target="_blank"><img src='https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/yt.png' width='40%'></a>
 
 <br/>
 
@@ -263,7 +204,7 @@ Attuatori luci.Luci primo piano.0/0/21	LED cambiacolori RGB scala	EIS 1 'Switchi
 
 
 ## COMMERCIAL COMPANIES USING KNX-ULTIMATE
-The following commercial companies kindly agreed to be mentioned on this page.  
+The following commercial companies asked be mentioned on this page.  
 Do you want to be listed as well? Send an email to maxsupergiovane@icloud.com.
 
 <br/>
