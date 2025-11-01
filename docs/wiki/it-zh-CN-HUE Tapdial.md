@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-HUE Tapdial"
 lang: it
-permalink: /wiki/it-zh-CN-HUE%20Tapdial
+permalink: /wiki/it-zh-CN-HUE%20Tapdial/
 ---
 ---
 **HUE TAP COMPLIO** Il nodo mappa il servizio di rotazione di tap compositura su KNX e invia l'evento HUE originale al processo rosso nodo.Dopo aver accoppiato un nuovo dispositivo, fare clic sull'icona di aggiornamento accanto al campo del dispositivo.

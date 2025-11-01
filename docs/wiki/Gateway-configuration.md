@@ -2,7 +2,7 @@
 layout: wiki
 title: "Gateway-configuration"
 lang: en
-permalink: /wiki/Gateway-configuration
+permalink: /wiki/Gateway-configuration/
 ---
 # KNX Gateway Configuration
 
@@ -78,52 +78,38 @@ From version 1.4.1 you can import group addresses also at runtime, via msg, usin
 
 <a href="https://youtu.be/egRbR_KwP9I"><img src='https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/yt.png'></a>
 
-- **ETS CSV Group Addresses List import ** _**ATTENTION: THERE MUST NOT BE TABULATION CHARACTERS IN THE NAME OF THE GROUP ADDRESS ** _**If Group Address has no Datapoint ** > If a Group address has no Datapoint set in the ETS, you can select to stop and abort the entire import process, to skip the affected group address, or to add the the affected Group Address with a fake datapoint and continue import.
-**How to export the ETS -> CSV <- Group Addresses List**
+### Importing the ETS CSV group address list
 
-> On ETS, click the group addresses list, then right click, then select 'export group addresses'. On the export window, select these options: 
+**Heads-up.** The name of a group address must not contain tab characters. If ETS does not define a datapoint for a group address you can decide to stop the import, skip that address, or continue by adding it with a temporary `1.001` datapoint.
 
->
-> **Output Format** : CSV 
+**Export the CSV from ETS**
 
->
-> **CSV Format** : 1/1 Name/Address 
+1. In ETS open the *Group Addresses* view, right-click inside the list and choose **Export Group Addresses**.
+2. In the export dialog use the following options:
+   - **Output format:** CSV
+   - **CSV format:** 1/1 Name/Address
+   - **Export with header line:** enabled
+   - **CSV separator:** Tabulator
+3. Export the file, then paste its contents into the **ETS group address list** field (or provide the path to the file).
 
->
-> **Export with header line** : checked 
+**What to expect during import**
 
->
-> **CSV Separator** : Tabulator. 
+- The CSV must contain a datapoint for every group address.
+- The gateway parses the file and reports the outcome in the Node-RED debug sidebar:
+  - **ERROR** – a datapoint is missing, the import stops.
+  - **WARNING** – a datapoint subtype is missing, a default subtype is applied but you should review it (the subtype is the number after the dot, e.g. `5.001`).
+- Each field should be wrapped in quotes, for example:
 
->
-> Then paste the file content here. 
+  
 
->
-> Note that the ETS CSV FILE must contain the Datapoints for each Group Address. 
+```
 
->
-> The node parses your ETS CSV FILE prior to use it and will tell you the results in the DEBUG TAB of Node-Red page. 
+"Attuatori luci"	"0/-/-"	""	""	""	""	"Auto"
+  
 
->
-> The result can be of two types: **ERROR ** and**WARNING** 
+```
 
->
-> **ERROR** occurs when a Datapoint is not specified for a Group Address. This is a critical error and stops the process of importing the ETS CSV FILE. 
+### Importing the ETS ESF group address list
 
->
-> **WARNING** occurs when a Datapoint's subtype is not specified. In this case the node parser will append a default one, but warns you that you shoult watch and correct the Datapoint, by adding a subtype. A Subtype is the number staying at the right of the "." in a Datapoint (ex: 5.001).
-
->
-> Note: the fields must be surrounded by **"** For example:
-
-> > "Attuatori luci"	"0/-/-"	""	""	""	""	"Auto"
-
-**How to export the ETS -> ESF <- Group Addresses List**
-
-> On ETS window, select your project, then click the export icon (the icon with the up arrow)
-
->
-> Select to export the project in ESF format (not the default .knxprod)
-
->
-> Then copy the file content and paste it into the gateway config "ETS group address list" field.
+1. In ETS select the project, click the export icon (arrow pointing up) and choose the **ESF** format (not `.knxprod`).
+2. Copy the file contents or point the **ETS group address list** field to the exported ESF file.

@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-Alerter-Configuration"
 lang: it
-permalink: /wiki/it-zh-CN-Alerter-Configuration
+permalink: /wiki/it-zh-CN-Alerter-Configuration/
 ---
 ---
 # Configurazione del nodo Alerter
@@ -34,7 +34,10 @@ Compilare l'indirizzo del gruppo del dispositivo o specificare un'etichetta per 
 PIN1: ogni dispositivo di allarme emette un messaggio in base all'intervallo impostata.<br/>
 PIN2: output Un messaggio di riepilogo contenente tutti i dispositivi nello stato di allarme.<br/>
 Pin3: solo l'ultimo dispositivo che è entrato nello stato di allarme è in uscita.<br/>
-**pin1** ```javascript
+**pin1** 
+
+```javascript
+
 msg = {
   topic: "0/1/12",
   count: 3, // 处于告警状态的设备总数
@@ -42,7 +45,12 @@ msg = {
   longdevicename: "卧室主窗",
   payload: true
 }
-``` **pin2** ```javascript
+```
+
+**pin2** 
+
+```javascript
+
 msg = {
   topic: "door, 0/0/11, 0/1/2, 0/0/9",
   devicename: "入户门, 客厅壁灯, 地下室壁灯, 书房灯",
@@ -50,7 +58,12 @@ msg = {
   count: 4,
   payload: true
 }
-``` **pin3** ```javascript
+```
+
+**pin3** 
+
+```javascript
+
 msg = {
   topic: "0/1/12",
   count: 3, // 处于告警状态的设备总数
@@ -58,8 +71,13 @@ msg = {
   longdevicename: "卧室主窗",
   payload: true
 }
-```Output Quando tutti i dispositivi sono fermi (senza allarmi):
-**pin1, pin2, pin3** ```javascript
+```Output
+
+Quando tutti i dispositivi sono fermi (senza allarmi):
+**pin1, pin2, pin3** 
+
+```javascript
+
 msg = {
   topic: "",
   count: 0,
@@ -67,21 +85,38 @@ msg = {
   longdevicename: "",
   payload: false
 }
-```<br/>
+```
+
 <br/>
-## messaggio di input per nodo```javascript
+<br/>
+## messaggio di input per nodo
+
+```javascript
+
 msg.readstatus = true
-```Legge il valore corrente di ciascun dispositivo nell'elenco.```javascript
+```Legge
+
+il valore corrente di ciascun dispositivo nell'elenco.
+
+```javascript
+
 msg.start = true
-```Avvia un sondaggio che "attraversa tutti i dispositivi di allarme e le uscite a loro volta".Il sondaggio termina dopo l'ultimo dispositivo uscita; Se il sondaggio di nuovo, invia di nuovo il messaggio di input.
+```Avvia
+
+un sondaggio che "attraversa tutti i dispositivi di allarme e le uscite a loro volta".Il sondaggio termina dopo l'ultimo dispositivo uscita; Se il sondaggio di nuovo, invia di nuovo il messaggio di input.
 <br/>
 **Allarme del dispositivo personalizzato** <br/>
-Per aggiornare lo stato di un dispositivo personalizzato (true/false), invia il seguente messaggio di input:```javascript
+Per aggiornare lo stato di un dispositivo personalizzato (true/false), invia il seguente messaggio di input:
+
+```javascript
+
 msg = {
   topic: "door",
   payload: true // 也可为 false，以清除此设备的告警
 }
-```<br/>
+```
+
+<br/>
 ## Esempio
 <a href = "/node-red-contrib-knx-ultimate/wiki/samplealerter"> fai clic qui per visualizzare l'esempio </a>
 <br/>

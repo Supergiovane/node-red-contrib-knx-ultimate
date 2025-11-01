@@ -2,14 +2,14 @@
 layout: wiki
 title: "zh-CN-HUE Bridge configuration"
 lang: de
-permalink: /wiki/de-zh-CN-HUE%20Bridge%20configuration
+permalink: /wiki/de-zh-CN-HUE%20Bridge%20configuration/
 ---
 ---
 
 <h1> <p Align = 'Center'> Philips Hue -Knoten </p> </h1>
 <br/>
 <P Align = 'Center'>
-<img src = 'https://raw.githubuSercontent.com/supergiovane/node-red-contrib-nx-ultimate/master/img/huehub.jpg' width = '40%'>
+<img src = 'https://raw.githubusercontent.com/supergiovane/node-red-contrib-knx-ultimate/master/img/huehub.jpg' width = '40%'>
 </p>
 
 Dieser Knoten wird verwendet, um sich bei Hue Bridge zu registrieren.

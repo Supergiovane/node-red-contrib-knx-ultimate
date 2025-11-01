@@ -2,7 +2,7 @@
 layout: wiki
 title: "HUE Button"
 lang: en
-permalink: /wiki/HUE%20Button
+permalink: /wiki/HUE%20Button/
 ---
 The Hue Button node maps Hue button events to KNX group addresses and exposes the same events on its flow output via <code>button.button_report.event</code>.
 

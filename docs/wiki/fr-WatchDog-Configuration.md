@@ -2,7 +2,7 @@
 layout: wiki
 title: "WatchDog-Configuration"
 lang: fr
-permalink: /wiki/fr-WatchDog-Configuration
+permalink: /wiki/fr-WatchDog-Configuration/
 ---
 vérifie la connexion à la passerelle ou à un périphérique KNX spécifique 
 
@@ -61,7 +61,9 @@ width = "90%">
 
 Le nœud de surveillance ouvre un message chaque fois qu'il reçoit une erreur de l'un de votre nœud KNX-ultime dans vos flux, ou chaque fois que le chien de garde interne intercepte une erreur de communication de bus KNX. 
  ** En cas de problème de connexion auto à surveillance** <a href = "https://github.com/supergiovane/node-red-constrib-knx-ultimate/wiki/watchdog-configuration"
-Target = "_ Blank"> Veuillez voir ici. </a>```javascript
+Target = "_ Blank"> Veuillez voir ici. </a>
+
+```javascript
 
 msg = {
 type:"BUSError"
@@ -72,7 +74,10 @@ description: // (whatever error description)
 }
 
 ```
- ** Dans le cas de l'un de vos nœuds ultimes KNX est en difficulté** ```javascript
+
+** Dans le cas de l'un de vos nœuds ultimes KNX est en difficulté** 
+
+```javascript
 
 msg = {
 type:"NodeError"
@@ -90,7 +95,10 @@ GA: "0/1/1"
 }
 
 ```
- ** Dans le cas d'une nouvelle configuration de passerelle est appelée via setgatewayconfig** ```javascript
+
+** Dans le cas d'une nouvelle configuration de passerelle est appelée via setgatewayconfig** 
+
+```javascript
 
 msg = {
 type:"setGatewayConfig"
@@ -103,7 +111,10 @@ completeError:""
 }
 
 ```
- ** Connexion / déconnexion forcée** ```javascript
+
+** Connexion / déconnexion forcée** 
+
+```javascript
 
 msg = {
 type:"connectGateway"
@@ -133,14 +144,18 @@ Pour démarrer et arrêter le chien de garde, vous pouvez passer cela comme un m
 msg.start = true;
 return msg;
 
-``` ** Arrêtez de surveillance** 
+```
+
+** Arrêtez de surveillance** 
 ```javascript
 
 // Start the WatchDog
 msg.start = false;
 return msg;
 
-```## Modifiez les paramètres du routeur / interface KNX / IP à la volée
+```
+
+## Modifiez les paramètres du routeur / interface KNX / IP à la volée
 
 Avec ** msg.setgatewayconfig** , vous pouvez modifier l'IP, le port, l'adresse physique, le protocole, etc. de votre interface KNX / IP ou du routeur, précédemment défini dans la configuration 
 
@@ -167,26 +182,36 @@ Protocol:"Multicast", importCSV:`"Group name" "Address" "Central" "Unfiltered" "
 
 return msg;
 
-```Toutes les propriétés sont facultatives.Par exemple, pour ne changer que l'IP:```javascript
+```Toutes
+
+les propriétés sont facultatives.Par exemple, pour ne changer que l'IP:
+
+```javascript
 
 // IP: IP of your KNX/IP Router or Interface
 msg.setGatewayConfig={IP:"224.0.23.12"};
 return msg;
 
-``` ** Force la déconnexion de la passerelle et désactiver les tentatives de reconnexion automatique** 
+```
+
+** Force la déconnexion de la passerelle et désactiver les tentatives de reconnexion automatique** 
 ```javascript
 
 // Force the gateway's disconnection from the BUS and stop the reconnection's attempts.
 msg.connectGateway = false;
 return msg;
 
-``` ** Force la connexion de Gateway et activer les tentatives de reconnexion automatique** 
+```
+
+** Force la connexion de Gateway et activer les tentatives de reconnexion automatique** 
 ```javascript
 
 // Force the gateway's connection to the BUS and activate the reconnection's attempts.
 msg.connectGateway = true;
 return msg;
 
-```## Voir aussi
+```
+
+## Voir aussi
 
 [Exemple de chien de garde](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---WatchDog)

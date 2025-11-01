@@ -2,7 +2,7 @@
 layout: wiki
 title: "Logger-Configuration"
 lang: zh-CN
-permalink: /wiki/zh-CN-Logger-Configuration
+permalink: /wiki/zh-CN-Logger-Configuration/
 ---
 # Logger（日志）
 
@@ -44,6 +44,7 @@ Logger 节点会记录所有报文，并输出一份与 ETS Bus Monitor 兼容�
 使用 file 节点保存 `msg.payload`，或发送至 FTP 等。
 
 ```javascript
+
 msg = {
   topic: "MyLogger",
   payload: "CommunicationLog xmlns=http://knx.org/xml/telegrams/01 Telegram Timestamp=2020-03-27T07:32:39.470Z Service=L_Data.ind...." // XML 字符串
@@ -55,6 +56,7 @@ msg = {
 每个计数周期输出：
 
 ```javascript
+
 msg = {
   topic: "",
   payload: 10,
@@ -72,18 +74,21 @@ ETS 兼容 XML 控制
 **启动计时器**
 
 ```javascript
+
 msg.etsstarttimer = true; return msg;
 ```
 
 **停止计时器**
 
 ```javascript
+
 msg.etsstarttimer = false; return msg;
 ```
 
 **立即输出 XML**
 
 ```javascript
+
 // 立刻输出 XML；若计时器在运行，则一并重启
 msg.etsoutputnow = true; return msg;
 ```
@@ -93,18 +98,21 @@ msg.etsoutputnow = true; return msg;
 **启动计时器**
 
 ```javascript
+
 msg.telegramcounterstarttimer = true; return msg;
 ```
 
 **停止计时器**
 
 ```javascript
+
 msg.telegramcounterstarttimer = false; return msg;
 ```
 
 **立即输出计数**
 
 ```javascript
+
 msg.telegramcounteroutputnow = true; return msg;
 ```
 

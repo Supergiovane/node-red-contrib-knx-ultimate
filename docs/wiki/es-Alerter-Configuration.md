@@ -2,7 +2,7 @@
 layout: wiki
 title: "Alerter-Configuration"
 lang: es
-permalink: /wiki/es-Alerter-Configuration
+permalink: /wiki/es-Alerter-Configuration/
 ---
 # Configuración del nodo de Alerter
 
@@ -57,7 +57,9 @@ PIN2: El nodo emite un mensaje único que contiene todos los dispositivos alerta
 
 PIN3: El nodo emite un mensaje que contiene solo el último dispositivo alertado. 
 
-**PIN1** ```javascript
+**PIN1** 
+
+```javascript
 
 msg = {
     "topic":"0/1/12",
@@ -67,7 +69,11 @@ msg = {
     "payload":true
 }
 
-``` **PIN2** ```javascript
+```
+
+**PIN2** 
+
+```javascript
 
 msg = {
     "topic":"door, 0/0/11, 0/1/2, 0/0/9",
@@ -77,7 +83,11 @@ msg = {
     "payload":true
     }
 
-``` **PIN3** ```javascript
+```
+
+**PIN3** 
+
+```javascript
 
 msg = {
     "topic":"0/1/12",
@@ -87,9 +97,13 @@ msg = {
     "payload":true
 }
 
-```Mensaje saliente cuando todos los dispositivos están en reposo
+```Mensaje
 
-**PIN1, PIN2, PIN3** ```javascript
+saliente cuando todos los dispositivos están en reposo
+
+**PIN1, PIN2, PIN3** 
+
+```javascript
 
 msg = {
     "topic":"",
@@ -101,15 +115,27 @@ msg = {
 
 ```
 
-## Mensaje en el nodo```javascript
+## Mensaje en el nodo
+
+```javascript
+
 msg.readstatus = true
-```Lea el valor de cada dispositivo que pertenece a la lista.```javascript
+```Lea
+
+el valor de cada dispositivo que pertenece a la lista.
+
+```javascript
+
 msg.start = true
-```Comienza el ciclo de envío de todos los dispositivos alertados.El ciclo termina con el último dispositivo alertado.Para repetir el ciclo, envíe este mensaje entrante nuevamente.
+```Comienza
+
+el ciclo de envío de todos los dispositivos alertados.El ciclo termina con el último dispositivo alertado.Para repetir el ciclo, envíe este mensaje entrante nuevamente.
 
 **Alerta de dispositivo personalizado** 
 
-Para actualizar el valor verdadero/falso de un dispositivo personalizado, puede enviar este mensaje entrante```javascript
+Para actualizar el valor verdadero/falso de un dispositivo personalizado, puede enviar este mensaje entrante
+
+```javascript
 
 msg = {
     "topic":"door",

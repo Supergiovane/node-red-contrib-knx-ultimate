@@ -2,7 +2,7 @@
 layout: wiki
 title: "HUE Contact sensor"
 lang: it
-permalink: /wiki/it-HUE%20Contact%20sensor
+permalink: /wiki/it-HUE%20Contact%20sensor/
 ---
 Questo nodo inoltra gli eventi di un sensore di contatto HUE mappandoli su indirizzi di gruppo KNX.
 

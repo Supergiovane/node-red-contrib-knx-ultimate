@@ -2,7 +2,7 @@
 layout: wiki
 title: "FAQ-Troubleshoot"
 lang: en
-permalink: /wiki/FAQ-Troubleshoot
+permalink: /wiki/FAQ-Troubleshoot/
 ---
 ---
 # FAQ AND TROUBLESHOOT

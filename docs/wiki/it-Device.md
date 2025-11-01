@@ -2,7 +2,7 @@
 layout: wiki
 title: "Device"
 lang: it
-permalink: /wiki/it-Device
+permalink: /wiki/it-Device/
 ---
 ## IMPOSTAZIONI DEL NODO KNX‑ULTIMATE (DEVICE)
 
@@ -82,6 +82,7 @@ Lo script viene eseguito a ogni msg in ingresso o a ogni telegramma ricevuto dal
 Invia al BUS solo se un altro GA ha valore opposto:
 
 ```javascript
+
 const statusGA = getGAValue('0/0/09','1.001');
 if (msg.payload !== statusGA){
   return msg;
@@ -93,6 +94,7 @@ if (msg.payload !== statusGA){
 Se qualcuno accende una luce, accendi 0/1/8 e dopo 2 s spegni il nodo:
 
 ```javascript
+
 if (msg.payload){
   setGAValue('0/1/8', true)
   setTimeout(function() { self(off); }, 2000);
@@ -105,6 +107,7 @@ return msg;
 Allega all'output anche la temperatura esterna letta da un altro GA:
 
 ```javascript
+
 // msg.payload contiene la temperatura interna; aggiungi la esterna
 msg.externalTemperature = getGAValue('0/0/10'); // senza ETS: getGAValue('0/0/10','9.001')
 return msg;
@@ -113,6 +116,7 @@ return msg;
 Non emettere nulla se `msg.payload` e un altro GA sono entrambi false:
 
 ```javascript
+
 if (msg.payload === false && getGAValue('0/0/11','1.001') === false){
   return; // non emettere
 } else {
@@ -133,6 +137,7 @@ Le proprietà `setGroupAddress` e `setDPT` sono entrambe obbligatorie.
 **Impostare GA e DPT**
 
 ```javascript
+
 var config= { setGroupAddress: "0/1/2", setDPT: "1.001" };
 msg.setConfig = config;
 return msg;
@@ -141,6 +146,7 @@ return msg;
 **Impostare GA e leggere il DPT dal file ETS**
 
 ```javascript
+
 var config= { setGroupAddress: "0/1/2", setDPT: "auto" };
 msg.setConfig = config;
 return msg;
@@ -157,6 +163,7 @@ return msg;
 Esempio di msg completo:
 
 ```json
+
 msg = {
   topic: "0/1/2",
   payload: false,
@@ -223,6 +230,7 @@ Altri esempi [qui](https://supergiovane.github.io/node-red-contrib-knx-ultimate/
 **ACCENDERE UNA LAMPADA**
 
 ```javascript
+
 msg.payload = true;
 return msg;
 ```
@@ -230,6 +238,7 @@ return msg;
 **DIMMER ASSOLUTO DI UNA LAMPADA**
 
 ```javascript
+
 msg.payload = 30;
 return msg;
 ```
@@ -237,6 +246,7 @@ return msg;
 **INVIARE TESTO A UN DISPLAY**
 
 ```javascript
+
 msg.payload = "Output Tem. 35°C";
 return msg;
 ```
@@ -244,6 +254,7 @@ return msg;
 **LEGGERE LO STATO DI UNA LAVATRICE**
 
 ```javascript
+
 // Invia una richiesta di lettura al BUS; seleziona l'opzione
 // "React to response telegrams" per ricevere la risposta.
 msg.readstatus = true;
@@ -254,6 +265,7 @@ return msg;
 Inserisci un function node prima del nodo KNX‑Ultimate e usa questo codice:
 
 ```javascript
+
 // Esempio DPT 1: luce ON = Buffer<01> con bitlength = 1
 msg.writeraw = Buffer.from('01', 'hex');
 msg.bitlenght = 1;

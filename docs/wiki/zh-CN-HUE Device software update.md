@@ -2,7 +2,7 @@
 layout: wiki
 title: "HUE Device software update"
 lang: zh-CN
-permalink: /wiki/zh-CN-HUE%20Device%20software%20update
+permalink: /wiki/zh-CN-HUE%20Device%20software%20update/
 ---
 该节点监控 HUE 设备的软件更新状态，并发布到 KNX。
 

@@ -2,7 +2,7 @@
 layout: wiki
 title: "GlobalVariable"
 lang: zh-CN
-permalink: /wiki/zh-CN-GlobalVariable
+permalink: /wiki/zh-CN-GlobalVariable/
 ---
 # KNX 全局变量
 
@@ -31,6 +31,7 @@ permalink: /wiki/zh-CN-GlobalVariable
 ## 变量中的 msg 对象
 
 ```javascript
+
 {
   address: "0/0/1",
   dpt: "1.001",
@@ -44,6 +45,7 @@ permalink: /wiki/zh-CN-GlobalVariable
 ### 读取变量
 
 ```javascript
+
 const list = global.get("KNXContextBanana_READ") || [];
 node.send({ payload: list });
 
@@ -55,6 +57,7 @@ if (ga && ga.payload === false) return { payload: "FOUND AND FALSE" };
 ### 通过变量写入总线
 
 ```javascript
+
 const toSend = [];
 toSend.push({ address: "0/0/10", dpt: "1.001", payload: msg.payload });
 // 如果已导入 ETS，可省略 dpt，由系统据 payload 推断

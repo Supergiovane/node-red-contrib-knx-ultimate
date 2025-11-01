@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-HATranslator"
 lang: fr
-permalink: /wiki/fr-zh-CN-HATranslator
+permalink: /wiki/fr-zh-CN-HATranslator/
 ---
 ---
 <p> Ce nœud convertit le msg d'entrée en une valeur vraie / false valide.<p>

@@ -2,7 +2,7 @@
 layout: wiki
 title: "Home"
 lang: it
-permalink: /wiki/it-Home
+permalink: /wiki/it-Home/
 ---
 ---
 # Presentazione Professionale dei Nodi KNX Ultimate

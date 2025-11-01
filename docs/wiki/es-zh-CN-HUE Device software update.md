@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-HUE Device software update"
 lang: es
-permalink: /wiki/es-zh-CN-HUE%20Device%20software%20update
+permalink: /wiki/es-zh-CN-HUE%20Device%20software%20update/
 ---
 ---
 <P> Este nodo monitorea el estado de actualización de software del dispositivo HUE y lo publica a KNX.</p>

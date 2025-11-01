@@ -2,7 +2,7 @@
 layout: wiki
 title: "HUE Motion"
 lang: de
-permalink: /wiki/de-HUE%20Motion
+permalink: /wiki/de-HUE%20Motion/
 ---
 Dieser Node empfängt Bewegungsereignisse eines Hue-Bewegungssensors und leitet sie an KNX bzw. den Node-RED-Flow weiter.
 

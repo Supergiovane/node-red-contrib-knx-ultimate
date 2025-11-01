@@ -2,7 +2,7 @@
 layout: wiki
 title: "HUE Light sensor"
 lang: zh-CN
-permalink: /wiki/zh-CN-HUE%20Light%20sensor
+permalink: /wiki/zh-CN-HUE%20Light%20sensor/
 ---
 该节点从 HUE 光照传感器读取 Lux 事件并发布到 KNX。
 

@@ -2,7 +2,7 @@
 layout: wiki
 title: "Logger-Sample"
 lang: en
-permalink: /wiki/Logger-Sample
+permalink: /wiki/Logger-Sample/
 ---
 ---
 # LOGGER SAMPLES
@@ -11,6 +11,7 @@ permalink: /wiki/Logger-Sample
 <details><summary>View code</summary>
 > Adjust the nodes according to your setup and set **the path into the file node** .
 ```javascript
+
 [
     {
         "id": "b8e9e444.0af1f",
@@ -67,4 +68,5 @@ permalink: /wiki/Logger-Sample
     }
 ]
 ```
+
 </details>

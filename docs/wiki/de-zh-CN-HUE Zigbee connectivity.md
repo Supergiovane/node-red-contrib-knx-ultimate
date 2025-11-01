@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-HUE Zigbee connectivity"
 lang: de
-permalink: /wiki/de-zh-CN-HUE%20Zigbee%20connectivity
+permalink: /wiki/de-zh-CN-HUE%20Zigbee%20connectivity/
 ---
 ---
 

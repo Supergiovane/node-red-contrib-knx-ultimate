@@ -2,7 +2,7 @@
 layout: wiki
 title: "HUE Light"
 lang: en
-permalink: /wiki/HUE%20Light
+permalink: /wiki/HUE%20Light/
 ---
 This node controls Philips HUE lights (single or grouped) and maps their commands/states to KNX.
 

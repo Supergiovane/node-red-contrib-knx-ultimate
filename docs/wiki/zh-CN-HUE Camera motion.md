@@ -2,7 +2,7 @@
 layout: wiki
 title: "HUE Camera motion"
 lang: zh-CN
-permalink: /wiki/zh-CN-HUE%20Camera%20motion
+permalink: /wiki/zh-CN-HUE%20Camera%20motion/
 ---
 Hue Camera Motion 节点监听 Philips Hue 摄像头的运动事件，并将检测到/未检测到的状态映射到 KNX。
 

@@ -2,7 +2,7 @@
 layout: wiki
 title: "HATranslator"
 lang: de
-permalink: /wiki/de-HATranslator
+permalink: /wiki/de-HATranslator/
 ---
 Dieser Knoten übersetzt das Eingabe -MSG in gültige wahre/falsche Werte. 
 

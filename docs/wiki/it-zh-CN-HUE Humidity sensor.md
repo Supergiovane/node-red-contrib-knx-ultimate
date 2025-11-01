@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-HUE Humidity sensor"
 lang: it
-permalink: /wiki/it-zh-CN-HUE%20Humidity%20sensor
+permalink: /wiki/it-zh-CN-HUE%20Humidity%20sensor/
 ---
 ---
 <p> Questo nodo legge umidità relativa (%) dal sensore di umidità della tonalità e mappe a KNX.</p>

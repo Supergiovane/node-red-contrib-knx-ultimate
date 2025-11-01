@@ -2,7 +2,7 @@
 layout: wiki
 title: "Changelog"
 lang: en
-permalink: /wiki/Changelog
+permalink: /wiki/Changelog/
 ---
 # Changelog
 

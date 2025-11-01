@@ -2,7 +2,7 @@
 layout: wiki
 title: "HUE Tapdial"
 lang: fr
-permalink: /wiki/fr-HUE%20Tapdial
+permalink: /wiki/fr-HUE%20Tapdial/
 ---
 Le Node **Hue Tap Dial** Maps Le service rotatif du Tap Down Tap To KNX et transmet les événements de teinte brute à votre flux.Utilisez l'icône d'actualisation à côté du champ de périphérique après avoir associé un nouveau cadran sur le pont.
 

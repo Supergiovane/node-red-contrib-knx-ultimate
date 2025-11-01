@@ -2,7 +2,7 @@
 layout: wiki
 title: "Device"
 lang: en
-permalink: /wiki/Device
+permalink: /wiki/Device/
 ---
 ## KNX-ULTIMATE DEVICE NODE SETTINGS
 
@@ -84,6 +84,7 @@ In this sample, we'll send the input msg to the KNX BUS only if another GA has o
 We'll turn on the light only if it's status GA is off, and vice versa.
 
 ```javascript
+
 const statusGA = getGAValue('0/0/09','1.001');
 if (msg.payload !== statusGA){ // "!==" means "not equal"
     return msg;
@@ -96,6 +97,7 @@ if (msg.payload !== statusGA){ // "!==" means "not equal"
 Here, if someone switches on the light, we turn on another light 0/1/8 and after 2 seconds we switch off the lamp connected to the node.
 
 ```javascript
+
 if (msg.payload){ 
     setGAValue('0/1/8',true)
     setTimeout(function() {
@@ -111,6 +113,7 @@ In this sample, we'll emit the msg object to the flow, by appending the value of
 The ouput msg to the flow will have also the external temp in the property `msg.externalTemperature`
 
 ```javascript
+
 // The current msg contains the internal temperature in the "msg.payload" property, but we want to emit the external temperature as well.
 msg.externalTemperature = getGAValue('0/0/10'); // In case the ETS file is missing, you must specify the dpt as well: getGAValue('0/0/10','9.001')
 return msg;
@@ -119,6 +122,7 @@ return msg;
 In this other sample, we'll not emit a msg to the flow, in case msg.payload and another GA value are both false.
 
 ```javascript
+
 if (msg.payload === false && getGAValue('0/0/11','1.001') === false){
     // Both false, don't emit the msg to the flow.
     return;
@@ -156,6 +160,7 @@ Use it like that, in a functon node:
 **Set both GA and DPT**
 
 ```javascript
+
 // Change the node properties as follows:
 // setGroupAddress: set the new group address.
 // setDPT: set the new Datapoint, as you can see in the dropdown list (the numeric part, for example "1.001", "237.600", etc...). If set to **auto** , the datapoint will be read from the ETS file (if present).
@@ -170,6 +175,7 @@ return msg;
 **Set GA and read the datapoint from the ETS file**
 
 ```javascript
+
 // Change the node properties as follows:
 // setGroupAddress: set the new group address.
 // setDPT: set the new Datapoint, as you can see in the dropdown list (the numeric part, for example "1.001", "237.600", etc...). If set to "auto", the datapoint will be read from the ETS file (if present).
@@ -195,6 +201,7 @@ return msg;
 This is, instead, an example of the complete msg object.
 
 ```json
+
 msg = {
     topic: "0/1/2" // (Contains the node's topic, for example "MyTopic". If the node's topic is not set, contains the Group Address, for example "0/1/2")
     payload: false 
@@ -251,6 +258,7 @@ Use it like that, in a functon node:
 **Set both GA and DPT**
 
 ```javascript
+
 // Change the node properties as follows:
 // setGroupAddress: set the new group address.
 // setDPT: set the new Datapoint, as you can see in the dropdown list (the numeric part, for example "1.001", "237.600", etc...). If set to **auto** , the datapoint will be read from the ETS file (if present).
@@ -265,6 +273,7 @@ return msg;
 **Set GA and read the datapoint from the ETS file**
 
 ```javascript
+
 // Change the node properties as follows:
 // setGroupAddress: set the new group address.
 // setDPT: set the new Datapoint, as you can see in the dropdown list (the numeric part, for example "1.001", "237.600", etc...). If set to "auto", the datapoint will be read from the ETS file (if present).
@@ -290,6 +299,7 @@ return msg;
 This is, instead, an example of the complete msg object.
 
 ```json
+
 msg = {
     topic: "0/1/2" // (Contains the node's topic, for example "MyTopic". If the node's topic is not set, contains the Group Address, for example "0/1/2")
     payload: false 
@@ -351,7 +361,7 @@ Here you'll find a sample of [Virtual Device](https://supergiovane.github.io/nod
 
 ```javascript
 
- {
+{
    topic: '5/0/1',
    payload: true,
    devicename: 'Light Status',

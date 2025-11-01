@@ -2,7 +2,7 @@
 layout: wiki
 title: "Page Title"
 lang: de
-permalink: /wiki/de-Page%20Title
+permalink: /wiki/de-Page%20Title/
 ---
 # Platzhalterseiten-Titel
 

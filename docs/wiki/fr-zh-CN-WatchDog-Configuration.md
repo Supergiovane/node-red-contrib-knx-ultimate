@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-WatchDog-Configuration"
 lang: fr
-permalink: /wiki/fr-zh-CN-WatchDog-Configuration
+permalink: /wiki/fr-zh-CN-WatchDog-Configuration/
 ---
 ---
 # Watchdog (Watchdog)
@@ -35,7 +35,10 @@ Convient pour les alarmes d'erreur d'erreur / connexion (notifications par e-mai
 # Sortie de chien de garde
 Watchdog publie un message lorsque la détection interne trouve un défaut, ou qu'un nœud ultime KNX signale une erreur dans le processus.
 **Problème de connexion de Watchdog**
-<a href = "https://github.com/supergiovane/node-red-constrib-knx-ultimate/wiki/watchdog-configuration" cible = "_ Blank"> Voir ici pour les détails </a>```javascript
+<a href = "https://github.com/supergiovane/node-red-constrib-knx-ultimate/wiki/watchdog-configuration" cible = "_ Blank"> Voir ici pour les détails </a>
+
+```javascript
+
 msg = {
   type: "BUSError",
   checkPerformed: "Ethernet" // 或 "Eth+KNX",
@@ -43,7 +46,12 @@ msg = {
   payload: true,
   description: "..."
 }
-``` **Exception s'est produite sur l'un de vos nœuds ultimes KNX** ```javascript
+```
+
+**Exception s'est produite sur l'un de vos nœuds ultimes KNX** 
+
+```javascript
+
 msg = {
   type: "NodeError",
   checkPerformed: "Self KNX-Ultimate node reporting a red color status",
@@ -57,7 +65,12 @@ msg = {
     GA: "0/1/1"
   }
 }
-``` **Modifier la configuration de la passerelle via setgatewayconfig** ```javascript
+```
+
+**Modifier la configuration de la passerelle via setgatewayconfig** 
+
+```javascript
+
 msg = {
   type: "setGatewayConfig",
   checkPerformed: "The Watchdog node changed the gateway configuration.",
@@ -66,7 +79,12 @@ msg = {
   description: "New Config issued to the gateway. IP:224.0.23.12 Port:3671 PhysicalAddress:15.15.1\nBindLocalInterface:Auto",
   completeError: ""
 }
-``` **Connexion forcée / déconnexion** ```javascript
+```
+
+**Connexion forcée / déconnexion** 
+
+```javascript
+
 msg = {
   type: "connectGateway",
   checkPerformed: "The Watchdog issued a connection/disconnection to the gateway.",
@@ -75,26 +93,55 @@ msg = {
   description: "Connection",
   completeError: ""
 }
-```---
+```
+
+---
+
 # Entrez le message (entrée)
-## start / stop watddog```javascript
+## start / stop watddog
+
+```javascript
+
 msg.start = true; return msg; // 启动
 ```
+
 ```javascript
 msg.start = false; return msg; // 停止
-```## Modifier les paramètres de passerelle KNX / IP pendant l'exécution
-Modifier IP / Port / PhysicalAddress / Protocol, etc. via `msg.setgatewayconfig`; Le nœud de configuration s'appliquera à la reconnexion.Node - Red se restaure aux paramètres du nœud de configuration après le redémarrage.Tous les paramètres sont facultatifs.```javascript
+```
+
+## Modifier les paramètres de passerelle KNX / IP pendant l'exécution
+Modifier IP / Port / PhysicalAddress / Protocol, etc. via `msg.setgatewayconfig`; Le nœud de configuration s'appliquera à la reconnexion.Node - Red se restaure aux paramètres du nœud de configuration après le redémarrage.Tous les paramètres sont facultatifs.
+
+```javascript
+
 msg.setGatewayConfig = { IP:"224.0.23.12", Port:3671, PhysicalAddress:"15.15.1", BindToEthernetInterface:"Auto",
   Protocol:"Multicast", importCSV:`"Group name" "Address" "Central" "Unfiltered" "Description" "DatapointType" "Security"
 "Attuatori luci" "0/-/-" "" "" "" "" "Auto"
 "Luci primo piano" "0/0/-" "" "" "" "" "Auto"
 "Luce camera da letto" "0/0/1" "" "" "" "DPST-1-1" "Auto"` };
 return msg;
-```Changez uniquement l'IP:```javascript
+```Changez
+
+uniquement l'IP:
+
+```javascript
+
 msg.setGatewayConfig = { IP:"224.0.23.12" }; return msg;
-``` **Déconnexion forcée et désactiver la reconnexion automatique** ```javascript
+```
+
+**Déconnexion forcée et désactiver la reconnexion automatique** 
+
+```javascript
+
 msg.connectGateway = false; return msg;
-``` **Connexion forcée et activer la reconnexion automatique** ```javascript
+```
+
+**Connexion forcée et activer la reconnexion automatique** 
+
+```javascript
+
 msg.connectGateway = true; return msg;
-```## Voir
+```
+
+## Voir
 [Exemple de chien de garde](/node-red-contrib-knx-ultimate/wiki/-Sample---WatchDog)

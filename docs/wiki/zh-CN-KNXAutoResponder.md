@@ -2,7 +2,7 @@
 layout: wiki
 title: "KNXAutoResponder"
 lang: zh-CN
-permalink: /wiki/zh-CN-KNXAutoResponder
+permalink: /wiki/zh-CN-KNXAutoResponder/
 ---
 此节点将响应KNX总线的读取请求。
 
@@ -34,6 +34,7 @@ Autoresponder节点将响应组地址2/7/1的读取请求。如果尚未在内�
 ETS CSV文件必须已导入，否则您也必须添加__" dpt”：" 1.001” \*\*密钥。
 
 ```json
+
 [
     {
         "ga": "2/7/1",
@@ -48,6 +49,7 @@ ETS CSV文件必须已导入，否则您也必须添加__" dpt”：" 1.001” \
 还有一个__ note \*\*键，仅作为提醒笔记。它不会在任何地方使用。
 
 ```json
+
 [
     {
         "note": "Virtual sensors coming from Hikvision AX-Pro",
@@ -65,6 +67,7 @@ Autoresponder节点还将响应组件2/4/22的读取请求。如果内存中还�
 请注意每个指令的JSON对象之间的 **逗号** 。
 
 ```json
+
 [
     {
         "note": "DALI garden virtual brightness %",

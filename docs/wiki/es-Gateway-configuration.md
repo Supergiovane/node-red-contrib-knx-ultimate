@@ -2,7 +2,7 @@
 layout: wiki
 title: "Gateway-configuration"
 lang: es
-permalink: /wiki/es-Gateway-configuration
+permalink: /wiki/es-Gateway-configuration/
 ---
 # Configuración de la puerta de enlace KNX
 
@@ -72,53 +72,43 @@ Si puede usar ambos, prefiera el archivo exportado de la dirección del grupo CS
 
 > Puede trabajar con una mezcla de nodos ultimados KNX, algunos con ** Modo universal (escuche todas las direcciones de grupo)** verificados y otros no. ¡Eres absolutamente gratis!
 
-<a href = "https://youtu.be/egrbr_kwp9i"> <img src = 'https://raw.githubusercontent.com/supergiovane/node-red-contrib-knx-ultimate/master/img/yt.png'> </a>
+<a href="https://youtu.be/egRbR_KwP9I"><img src='https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/yt.png'></a>
 
-- ** ETS CSV Group Directes List Import ** _**Atención: no debe haber caracteres de tabulación en el nombre de la dirección de grupo ** _**Si la dirección del grupo no tiene punto de datos ** > Si una dirección de grupo no tiene un punto de datos establecido en el ETS, puede seleccionar detener y abortar todo el proceso de importación, omitir la dirección de grupo afectada o agregar la dirección de grupo afectada con un punto de datos falso y continuar la importación. 
-**Cómo exportar el ETS -> CSV < - Lista de direcciones del grupo** > En ETS, haga clic en la lista de direcciones de grupo, luego haga clic derecho, luego seleccione 'Exportar direcciones de grupo'. En la ventana Exportar, seleccione estas opciones: 
+### Importar la lista de direcciones de grupo en formato CSV
 
->
-> ** Formato de salida** : CSV 
+**Atención.** El nombre de la dirección de grupo no debe contener caracteres de tabulación. Si una GA no tiene datapoint en ETS, puedes detener el proceso, saltar esa dirección o añadirla con un datapoint temporal `1.001` y continuar.
 
->
-> ** Formato CSV** : 1/1 Nombre/dirección 
+**Exportar el CSV desde ETS**
 
->
-> ** Exportar con línea de encabezado** : marcado 
+1. En ETS abre la vista *Direcciones de grupo*, haz clic derecho en la lista y selecciona **Exportar direcciones de grupo**.
+2. En la ventana de exportación usa estas opciones:
+   - **Formato de salida:** CSV
+   - **Formato CSV:** 1/1 Name/Address
+   - **Exportar con línea de encabezado:** activado
+   - **Separador CSV:** Tabulator
+3. Exporta el archivo y pega su contenido en el campo **ETS group address list** (o indica la ruta del archivo).
 
->
-> ** Separador CSV** : Tabulator. 
+**Qué ocurre durante la importación**
 
->
-> Luego pegue el contenido del archivo aquí. 
+- El archivo CSV debe contener un datapoint para cada dirección de grupo.
+- El nodo analiza el archivo y muestra el resultado en el panel de depuración de Node-RED:
+  - **ERROR** – falta el datapoint; la importación se detiene.
+  - **WARNING** – falta el subtipo; se aplica uno por defecto pero conviene revisarlo (el subtipo es el número después del punto, por ejemplo `5.001`).
+- Los campos deben ir entre comillas, por ejemplo:
 
->
-> Tenga en cuenta que el archivo CSV ETS debe contener los puntos de datos para cada dirección de grupo. 
+  
 
->
-> El nodo analiza su archivo CSV ETS antes de usarlo y le informará los resultados en la pestaña de depuración de la página de nodo-rojo. 
+```
 
->
-> El resultado puede ser de dos tipos: ** Error ** y**ADVERTENCIA** 
+"Attuatori luci"	"0/-/-"	""	""	""	""	"Auto"
+  
 
->
-> ** Error** ocurre cuando no se especifica un punto de datos para una dirección de grupo. Este es un error crítico y detiene el proceso de importación del archivo CSV ETS. 
+```
 
->
-> ** Advertencia** ocurre cuando no se especifica el subtipo de un punto de datos. En este caso, el analizador de nodos agregará uno predeterminado, pero le advierte que se mueva y corrija el punto de datos, agregando un subtipo. Un subtipo es el número que permanece a la derecha del "." En un punto de datos (ex: 5.001). 
+### Importar la lista de direcciones de grupo en formato ESF
 
->
-> Nota: Los campos deben estar rodeados de ** "** Por ejemplo: 
-
->> "Actuadores de luz" "0/-/-" "" "" "" "" "auto" 
-** Cómo exportar la lista de direcciones de grupos ETS -> ESF < -
-
-> En la ventana ETS, seleccione su proyecto, luego haga clic en el icono de exportación (el icono con la flecha hacia arriba) 
-
->
-> Seleccione para exportar el proyecto en formato ESF (no el predeterminado .knxProd) 
-
->
+1. En ETS selecciona el proyecto, pulsa el icono de exportación (flecha hacia arriba) y elige el formato **ESF** (no `.knxprod`).
+2. Copia el contenido del archivo o indica su ruta en el campo **ETS group address list** del gateway.
 > Luego copie el contenido del archivo y péguelo en el campo Configuración de la configuración de la puerta de enlace "Lista de direcciones de grupo ETS".
 
     <table style = "font-size: 12px">
@@ -138,7 +128,7 @@ Si puede usar ambos, prefiera el archivo exportado de la dirección del grupo CS
         <TD> Reaccionar a los telegramas de respuesta. </td>
         </tr>
         <tr>
-            <TD> <img src = "https://raw.githubusercontent.com/supergiovane/node-red-contrib-knx-ultimate/master/img/blueing.png"> </ img> </td>
+            <TD> <img src = "https://raw.githubusercontent.com/supergiovane/node-red-contrib-knx-ultimate/master/img/bluering.png"> </ img> </td>
             <TD> Auto envía el valor del nodo como respuesta al bus. <a href = "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Virtual-Device" target = "_ blank"> ver dispositivo virtual. </a> </td>
         </tr>
         <tr>

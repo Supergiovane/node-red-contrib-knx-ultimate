@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-HUE Camera motion"
 lang: es
-permalink: /wiki/es-zh-CN-HUE%20Camera%20motion
+permalink: /wiki/es-zh-CN-HUE%20Camera%20motion/
 ---
 ---
 <P> El nodo de movimiento de la cámara Hue escucha eventos de movimiento de la cámara Philips Hue y los mapas detectados/estados no detectados a KNX.</p>

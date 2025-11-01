@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-WatchDog-Configuration"
 lang: de
-permalink: /wiki/de-zh-CN-WatchDog-Configuration
+permalink: /wiki/de-zh-CN-WatchDog-Configuration/
 ---
 ---
 
@@ -39,11 +39,11 @@ Geeignet für Fehler-/Verbindungsfehleralarme (E -Mail -Benachrichtigungen, auto
 
 > Ethernet: Verbindungen zwischen KNX -LUFTIME (UNICAST) und der KNX/IP -Schnittstelle erkennen. <br/>
 
-<img src = "https://raw.githubuSercontent.com/supergiovane/node-red-contrib-nx-ultimate/master/img/wiki/watchDogEthetlevel.png" width = "90%"> <br/>
+<img src = "https://raw.githubusercontent.com/supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/WatchDogEthernetLevel.png" width = "90%"> <br/>
 
 > Ethernet + KNX TP: Komplette Erkennung (unterstützt Router/Schnittstelle).Senden Sie das Lesen an das physische Gerät und warten Sie auf die Antwort.Fehler bei Ethernet oder TP werden gemeldet.Bitte konfigurieren Sie einen **Status** GA in ETS für einen Aktuator, der auf das Lesen antwortet. <br/>
 
-<img src = "https://raw.githubuSercontent.com/supergiovane/node-red-contrib-nx-ultimate/master/img/wiki/watchDogEnnetknXtplevel.png" width = "90%"> <br/>
+<img src = "https://raw.githubusercontent.com/supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/WatchDogEthernetKNXTPLevel.png" width = "90%"> <br/>
 
 ## Erweiterte Optionen
 
@@ -56,7 +56,10 @@ Geeignet für Fehler-/Verbindungsfehleralarme (E -Mail -Benachrichtigungen, auto
 
 Watchdog gibt eine Nachricht aus, wenn die interne Erkennung einen Fehler findet, oder ein KNX -Ultimate -Knoten meldet einen Fehler im Prozess.
 
-**Watchdog -eigenes Verbindungsproblem ** **<a href = "/node-red-contrib-knx-ultimate/wiki/watchdog-configuration" target = "_ leer"> siehe hier für Details </a>```javascript
+**Watchdog -eigenes Verbindungsproblem ** **<a href = "/node-red-contrib-knx-ultimate/wiki/watchdog-configuration" target = "_ leer"> siehe hier für Details </a>
+
+```javascript
+
 msg = {
   type: "BUSError",
   checkPerformed: "Ethernet" // 或 "Eth+KNX",
@@ -64,7 +67,12 @@ msg = {
   payload: true,
   description: "..."
 }
-``` ** Ausnahme trat an einem Ihrer KNX -Ultimate -Knoten auf** ```javascript
+```
+
+** Ausnahme trat an einem Ihrer KNX -Ultimate -Knoten auf** 
+
+```javascript
+
 msg = {
   type: "NodeError",
   checkPerformed: "Self KNX-Ultimate node reporting a red color status",
@@ -78,7 +86,12 @@ msg = {
     GA: "0/1/1"
   }
 }
-``` ** Ändern Sie die Gateway -Konfiguration über SetGatewayConfig** ```javascript
+```
+
+** Ändern Sie die Gateway -Konfiguration über SetGatewayConfig** 
+
+```javascript
+
 msg = {
   type: "setGatewayConfig",
   checkPerformed: "The Watchdog node changed the gateway configuration.",
@@ -87,7 +100,12 @@ msg = {
   description: "New Config issued to the gateway. IP:224.0.23.12 Port:3671 PhysicalAddress:15.15.1\nBindLocalInterface:Auto",
   completeError: ""
 }
-``` ** Zwangsverbindung/Trennen** ```javascript
+```
+
+** Zwangsverbindung/Trennen** 
+
+```javascript
+
 msg = {
   type: "connectGateway",
   checkPerformed: "The Watchdog issued a connection/disconnection to the gateway.",
@@ -96,31 +114,58 @@ msg = {
   description: "Connection",
   completeError: ""
 }
-```---
+```
+
+---
 
 # Meldung eingeben (Eingabe)
 
-## Start/Stop Watchdog```javascript
+## Start/Stop Watchdog
+
+```javascript
+
 msg.start = true; return msg; // 启动
 ```
 
 ```javascript
 msg.start = false; return msg; // 停止
-```## Ändern Sie die KNX/IP -Gateway -Einstellungen während der Laufzeit
+```
 
-Ändern Sie IP/Port/PhysicalAddress/Protocol usw. über `msg.setgatewayconfig`; Der Konfigurationsknoten wendet eine Wiederverbindung an.Node -Red stellt nach dem Neustart den Einstellungen im Konfigurationsknoten wieder her.Alle Parameter sind optional.```javascript
+## Ändern Sie die KNX/IP -Gateway -Einstellungen während der Laufzeit
+
+Ändern Sie IP/Port/PhysicalAddress/Protocol usw. über `msg.setgatewayconfig`; Der Konfigurationsknoten wendet eine Wiederverbindung an.Node -Red stellt nach dem Neustart den Einstellungen im Konfigurationsknoten wieder her.Alle Parameter sind optional.
+
+```javascript
+
 msg.setGatewayConfig = { IP:"224.0.23.12", Port:3671, PhysicalAddress:"15.15.1", BindToEthernetInterface:"Auto",
   Protocol:"Multicast", importCSV:`"Group name" "Address" "Central" "Unfiltered" "Description" "DatapointType" "Security"
 "Attuatori luci" "0/-/-" "" "" "" "" "Auto"
 "Luci primo piano" "0/0/-" "" "" "" "" "Auto"
 "Luce camera da letto" "0/0/1" "" "" "" "DPST-1-1" "Auto"` };
 return msg;
-```Ändern Sie nur die IP:```javascript
+```Ändern
+
+Sie nur die IP:
+
+```javascript
+
 msg.setGatewayConfig = { IP:"224.0.23.12" }; return msg;
-``` ** Erzwungene Trennung und Deaktivierung der automatischen Wiederverbindung** ```javascript
+```
+
+** Erzwungene Trennung und Deaktivierung der automatischen Wiederverbindung** 
+
+```javascript
+
 msg.connectGateway = false; return msg;
-``` ** Zwangsverbindung und aktivieren automatische Wiederverbindung** ```javascript
+```
+
+** Zwangsverbindung und aktivieren automatische Wiederverbindung** 
+
+```javascript
+
 msg.connectGateway = true; return msg;
-```## Sehen
+```
+
+## Sehen
 
 [Sample Watchdog](/node-red-contrib-knx-ultimate/wiki/-Sample---WatchDog)

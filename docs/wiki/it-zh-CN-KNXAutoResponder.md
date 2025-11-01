@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-KNXAutoResponder"
 lang: it
-permalink: /wiki/it-zh-CN-KNXAutoResponder
+permalink: /wiki/it-zh-CN-KNXAutoResponder/
 ---
 ---
 <p> Questo nodo risponderà alla richiesta di lettura del bus KNX.
@@ -23,15 +23,23 @@ JSON è sempre una serie di oggetti contenenti ogni istruzione. Ogni istruzione 
 | Ga |Indirizzo di gruppo.Puoi anche usare ".." monete selvagge a gruppi specifici di indirizzi.".." può essere usato solo con il terzo livello GA, ad esempio: \*\*1/1/0..257**. Si prega di consultare il campione qui sotto.|
 | Dpt | Point dati dell'indirizzo di gruppo, formato "1.001".Se il file CSV ETS è stato importato, **opzionale \*\*. |
 | Impostazione predefinita |Quando il valore dell'indirizzo del componente non è stato ricordato dal nodo, viene inviato al bus in una risposta alla richiesta di lettura.| ** Cominciamo con un comando** Il nodo AutoResponder risponderà a una richiesta di lettura all'indirizzo di gruppo 2/7/1.Se non è ancora in memoria, risponderà con _true _. |
-Il file CSV ETS deve essere importato, altrimenti è necessario anche aggiungere il tasto __"dpt": "1.001" \*\*.```json
+Il file CSV ETS deve essere importato, altrimenti è necessario anche aggiungere il tasto __"dpt": "1.001" \*\*.
+
+```json
+
 [
     {
         "ga": "2/7/1",
         "default": true
     }
 ]
-``` ** Istruzioni più complete** Il nodo auto-rispondente risponderà alle richieste di lettura a partire dal 3/1/1, incluso il 3/1/22.Se la memoria non ha ancora valore, risponderà con _false _.
-C'è anche una__ nota \*\*, che viene utilizzata solo come nota di promemoria.Non verrà usato da nessuna parte.```json
+```
+
+** Istruzioni più complete** Il nodo auto-rispondente risponderà alle richieste di lettura a partire dal 3/1/1, incluso il 3/1/22.Se la memoria non ha ancora valore, risponderà con _false _.
+C'è anche una__ nota \*\*, che viene utilizzata solo come nota di promemoria.Non verrà usato da nessuna parte.
+
+```json
+
 [
     {
         "note": "Virtual sensors coming from Hikvision AX-Pro",
@@ -40,9 +48,14 @@ C'è anche una__ nota \*\*, che viene utilizzata solo come nota di promemoria.No
         "default": false
     }
 ]
-``` ** Comando connesso** Dal 2/2/5 al 2/2/21, il nodo AutoResponder risponderà a una richiesta di lettura all'indirizzo del gruppo.Se non c'è ancora valore in memoria, risponderà con un valore di 25.
+```
+
+** Comando connesso** Dal 2/2/5 al 2/2/21, il nodo AutoResponder risponderà a una richiesta di lettura all'indirizzo del gruppo.Se non c'è ancora valore in memoria, risponderà con un valore di 25.
 Il nodo AutoResponder risponderà anche alle richieste di lettura del componente 2/4/22.Se non c'è ancora valore in memoria, utilizzerà lo stato di stringa \*sconosciuto!\*rispondere.
-Nota la ** virgola** tra gli oggetti JSON di ciascuna direttiva.```json
+Nota la ** virgola** tra gli oggetti JSON di ciascuna direttiva.
+
+```json
+
 [
     {
         "note": "DALI garden virtual brightness %",
@@ -56,4 +69,6 @@ Nota la ** virgola** tra gli oggetti JSON di ciascuna direttiva.```json
         "default": "Unknown status!"
     }
 ]
-```<br/>
+```
+
+<br/>

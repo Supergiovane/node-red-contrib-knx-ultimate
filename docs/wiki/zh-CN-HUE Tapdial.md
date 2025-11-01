@@ -2,7 +2,7 @@
 layout: wiki
 title: "HUE Tapdial"
 lang: zh-CN
-permalink: /wiki/zh-CN-HUE%20Tapdial
+permalink: /wiki/zh-CN-HUE%20Tapdial/
 ---
 **Hue Tap Dial** 节点将 Tap Dial 的旋转服务映射到 KNX，并把原始 Hue 事件发送到 Node-RED 流程。配对新设备后，请点击设备字段旁的刷新图标。
 

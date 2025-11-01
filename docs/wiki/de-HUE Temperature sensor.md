@@ -2,7 +2,7 @@
 layout: wiki
 title: "HUE Temperature sensor"
 lang: de
-permalink: /wiki/de-HUE%20Temperature%20sensor
+permalink: /wiki/de-HUE%20Temperature%20sensor/
 ---
 Dieser Node liest die Temperatur (°C) eines HUE‑Temperatursensors und spiegelt sie nach KNX.
 

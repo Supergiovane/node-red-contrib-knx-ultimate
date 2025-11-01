@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-LoadControl-Configuration"
 lang: de
-permalink: /wiki/de-zh-CN-LoadControl-Configuration
+permalink: /wiki/de-zh-CN-LoadControl-Configuration/
 ---
 ---
 
@@ -48,7 +48,9 @@ Wenn \*autoreCovery \* aktiviert ist, wird das Gerät automatisch reaktiviert, w
 1. Standardausgang
 : Payload (Zeichenfolge | Objekt): Standardausgabe des Befehls.
 
-## Detail```javascript
+## Detail
+
+```javascript
 
 msg = {
   "topic": "Home Total Consumption", // Node Name
@@ -60,8 +62,10 @@ msg = {
   "payload": 1, // Current shedding stage
 }
 
-```# Probe
+```
 
-\ <a href = "https://github.com/supergiovane/node-red-contrib-nx-ultimate/wiki/sampleloadcontrol"> Klicken Sie hier hier </a> hier </a>
+# Probe
+
+\ <a href = "https://github.com/supergiovane/node-red-contrib-knx-ultimate/wiki/sampleloadcontrol"> Klicken Sie hier hier </a> hier </a>
 
 <br/>

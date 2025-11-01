@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-Home"
 lang: it
-permalink: /wiki/it-zh-CN-Home
+permalink: /wiki/it-zh-CN-Home/
 ---
 ---
 <h1> <p align = 'Center'> knx ultimate - cinese semplificato </p> </h1>

@@ -2,7 +2,7 @@
 layout: wiki
 title: "HUE Bridge configuration"
 lang: es
-permalink: /wiki/es-HUE%20Bridge%20configuration
+permalink: /wiki/es-HUE%20Bridge%20configuration/
 ---
 <h1>  Philips Hue Nodos 
 

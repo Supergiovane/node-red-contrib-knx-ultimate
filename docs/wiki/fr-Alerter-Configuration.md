@@ -2,7 +2,7 @@
 layout: wiki
 title: "Alerter-Configuration"
 lang: fr
-permalink: /wiki/fr-Alerter-Configuration
+permalink: /wiki/fr-Alerter-Configuration/
 ---
 # Configuration du nœud d'alerte
 
@@ -57,7 +57,9 @@ PIN2: Le nœud émet un message unique contenant tous les appareils alertés.
 
 Pin3: le nœud émet un message contenant uniquement le dernier périphérique alerté. 
 
-**pin1** ```javascript
+**pin1** 
+
+```javascript
 
 msg = {
     "topic":"0/1/12",
@@ -67,7 +69,11 @@ msg = {
     "payload":true
 }
 
-``` **Pin2** ```javascript
+```
+
+**Pin2** 
+
+```javascript
 
 msg = {
     "topic":"door, 0/0/11, 0/1/2, 0/0/9",
@@ -77,7 +83,11 @@ msg = {
     "payload":true
     }
 
-``` **pin3** ```javascript
+```
+
+**pin3** 
+
+```javascript
 
 msg = {
     "topic":"0/1/12",
@@ -87,9 +97,13 @@ msg = {
     "payload":true
 }
 
-```Message sortant lorsque tous les appareils sont au repos
+```Message
 
-**pin1, pin2, pin3** ```javascript
+sortant lorsque tous les appareils sont au repos
+
+**pin1, pin2, pin3** 
+
+```javascript
 
 msg = {
     "topic":"",
@@ -101,15 +115,27 @@ msg = {
 
 ```
 
-## Message dans le nœud```javascript
+## Message dans le nœud
+
+```javascript
+
 msg.readstatus = true
-```Lisez la valeur de chaque appareil appartenant à la liste.```javascript
+```Lisez
+
+la valeur de chaque appareil appartenant à la liste.
+
+```javascript
+
 msg.start = true
-```Le cycle d'envoi de tous les appareils alertés commence.Le cycle se termine par le dernier dispositif alerté.Pour répéter le cycle, envoyez ce message entrant à nouveau.
+```Le
+
+cycle d'envoi de tous les appareils alertés commence.Le cycle se termine par le dernier dispositif alerté.Pour répéter le cycle, envoyez ce message entrant à nouveau.
 
 **Alerte de périphérique personnalisée** 
 
-Pour mettre à jour la valeur vraie / fausse d'un appareil personnalisé, vous pouvez envoyer ce message entrant```javascript
+Pour mettre à jour la valeur vraie / fausse d'un appareil personnalisé, vous pouvez envoyer ce message entrant
+
+```javascript
 
 msg = {
     "topic":"door",

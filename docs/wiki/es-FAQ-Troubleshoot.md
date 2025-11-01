@@ -2,7 +2,7 @@
 layout: wiki
 title: "FAQ-Troubleshoot"
 lang: es
-permalink: /wiki/es-FAQ-Troubleshoot
+permalink: /wiki/es-FAQ-Troubleshoot/
 ---
 ---
 # Preguntas frecuentes y solución de problemas

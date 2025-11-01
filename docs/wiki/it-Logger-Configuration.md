@@ -2,7 +2,7 @@
 layout: wiki
 title: "Logger-Configuration"
 lang: it
-permalink: /wiki/it-Logger-Configuration
+permalink: /wiki/it-Logger-Configuration/
 ---
 # Logger
 
@@ -44,6 +44,7 @@ Il nodo può anche contare i telegrammi al secondo (o con l'intervallo che prefe
 Usa un nodo file per salvare `msg.payload` su filesystem, o invialo ad esempio a un server FTP.
 
 ```javascript
+
 msg = {
   topic: "MyLogger",
   payload: "CommunicationLog xmlns=http://knx.org/xml/telegrams/01 Telegram Timestamp=2020-03-27T07:32:39.470Z Service=L_Data.ind...." // stringa XML
@@ -55,6 +56,7 @@ msg = {
 Ad ogni conteggio, il nodo emette un messaggio come questo:
 
 ```javascript
+
 msg = {
   topic: "",
   payload: 10,
@@ -72,6 +74,7 @@ Controllo del file XML ETS compatibile
 **Avvio timer**
 
 ```javascript
+
 msg.etsstarttimer = true;
 return msg;
 ```
@@ -79,6 +82,7 @@ return msg;
 **Stop timer**
 
 ```javascript
+
 msg.etsstarttimer = false;
 return msg;
 ```
@@ -86,6 +90,7 @@ return msg;
 **Output immediato del file ETS**
 
 ```javascript
+
 // Emette subito l'XML; se il timer era attivo, lo riavvia
 msg.etsoutputnow = true;
 return msg;
@@ -96,6 +101,7 @@ Contatore telegrammi KNX
 **Avvio timer**
 
 ```javascript
+
 msg.telegramcounterstarttimer = true;
 return msg;
 ```
@@ -103,6 +109,7 @@ return msg;
 **Stop timer**
 
 ```javascript
+
 msg.telegramcounterstarttimer = false;
 return msg;
 ```
@@ -110,6 +117,7 @@ return msg;
 **Output immediato del conteggio**
 
 ```javascript
+
 msg.telegramcounteroutputnow = true;
 return msg;
 ```

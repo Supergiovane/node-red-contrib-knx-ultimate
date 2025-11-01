@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-HUE Bridge configuration"
 lang: es
-permalink: /wiki/es-zh-CN-HUE%20Bridge%20configuration
+permalink: /wiki/es-zh-CN-HUE%20Bridge%20configuration/
 ---
 ---
 <h1> <p Align = 'Center'> Philips Hue Nodos </p> </h1>

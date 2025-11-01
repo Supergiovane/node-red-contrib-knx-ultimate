@@ -2,7 +2,7 @@
 layout: wiki
 title: "SampleAlerter"
 lang: en
-permalink: /wiki/SampleAlerter
+permalink: /wiki/SampleAlerter/
 ---
 # ALERTER NODE SAMPLE
 
@@ -16,6 +16,7 @@ The example explains how to use the node. <br/>
 You can issue a KNX Read for each device, by sending this MSG to the node:
 
 ```javascript
+
 msg.readstatus = true
 ```
 

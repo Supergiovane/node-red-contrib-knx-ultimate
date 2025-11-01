@@ -2,7 +2,7 @@
 layout: wiki
 title: "HUE Motion"
 lang: en
-permalink: /wiki/HUE%20Motion
+permalink: /wiki/HUE%20Motion/
 ---
 This node listens to a Hue motion sensor and mirrors the events to KNX and/or your Node-RED flow.
 

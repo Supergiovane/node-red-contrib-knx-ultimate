@@ -2,7 +2,7 @@
 layout: wiki
 title: "HUE Humidity sensor"
 lang: zh-CN
-permalink: /wiki/zh-CN-HUE%20Humidity%20sensor
+permalink: /wiki/zh-CN-HUE%20Humidity%20sensor/
 ---
 该节点从 HUE 湿度传感器读取相对湿度 (%) 并映射到 KNX。
 

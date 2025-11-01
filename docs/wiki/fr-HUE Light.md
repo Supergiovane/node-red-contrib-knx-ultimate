@@ -2,7 +2,7 @@
 layout: wiki
 title: "HUE Light"
 lang: fr
-permalink: /wiki/fr-HUE%20Light
+permalink: /wiki/fr-HUE%20Light/
 ---
 Ce nœud contrôle les lumières de Hue Philips (simple ou groupées) et mappe leurs commandes / états à KNX. 
 

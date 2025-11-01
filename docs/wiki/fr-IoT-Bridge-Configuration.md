@@ -2,7 +2,7 @@
 layout: wiki
 title: "IoT-Bridge-Configuration"
 lang: fr
-permalink: /wiki/fr-IoT-Bridge-Configuration
+permalink: /wiki/fr-IoT-Bridge-Configuration/
 ---
 ---
 # Passerelle KNX ↔ IoT
@@ -31,6 +31,7 @@ La passerelle normalise les télégrammes KNX en messages structurés prêts pou
 ## Exemples de flows
 ### Statut KNX → MQTT
 ```json
+
 [
   {
     "id": "bridge1",
@@ -88,8 +89,10 @@ La passerelle normalise les télégrammes KNX en messages structurés prêts pou
   }
 ]
 ```
+
 ### Commande MQTT → KNX
 ```json
+
 [
   {
     "id": "mqttIn",
@@ -105,9 +108,11 @@ La passerelle normalise les télégrammes KNX en messages structurés prêts pou
   }
 ]
 ```
+
 Combinez les deux extraits pour obtenir un aller-retour KNX ↔ MQTT avec accusés.
 ### Snapshot REST
 ```json
+
 {
   "id": "bridge-rest",
   "type": "knxUltimateIoTBridge",
@@ -126,6 +131,7 @@ Combinez les deux extraits pour obtenir un aller-retour KNX ↔ MQTT avec accus�
   ]
 }
 ```
+
 Dirigez la sortie 1 vers `http request` et exploitez la réponse, ainsi que `bridge.retry`, pour orchestrer vos relances.
 ### Écriture Modbus
 1. Définissez `Target = 40010`, `Type = Modbus`, `Direction = Bidirectionnel`.

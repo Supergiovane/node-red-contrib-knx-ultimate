@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-Logger-Sample"
 lang: zh-CN
-permalink: /wiki/zh-CN-zh-CN-Logger-Sample
+permalink: /wiki/zh-CN-zh-CN-Logger-Sample/
 ---
 ---
 
@@ -14,7 +14,9 @@ permalink: /wiki/zh-CN-zh-CN-Logger-Sample
 
 <详细信息> <摘要>查看代码</summary>
 
-> 根据您的设置调整节点，然后将路径设置为文件节点\*\*。```javascript
+> 根据您的设置调整节点，然后将路径设置为文件节点\*\*。
+
+```javascript
 
 [
     {
@@ -72,4 +74,6 @@ permalink: /wiki/zh-CN-zh-CN-Logger-Sample
     }
 ]
 
-```\</详细信息>
+```
+
+\</详细信息>

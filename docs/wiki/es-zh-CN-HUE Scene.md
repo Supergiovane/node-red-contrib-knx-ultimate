@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-HUE Scene"
 lang: es
-permalink: /wiki/es-zh-CN-HUE%20Scene
+permalink: /wiki/es-zh-CN-HUE%20Scene/
 ---
 ---
 La **Hue Scene** Node publica la escena del tono a KNX y puede enviar los eventos originales de Hue al proceso de nodo-rojo. Los campos de escena admiten la finalización automática;Después de agregar nuevas escenas al puente, haga clic en el icono de actualización para actualizar la lista.

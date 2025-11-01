@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-HUE Battery"
 lang: it
-permalink: /wiki/it-zh-CN-HUE%20Battery
+permalink: /wiki/it-zh-CN-HUE%20Battery/
 ---
 ---
 <p> Questo nodo sincronizza il livello della batteria del dispositivo HUE in KNX e innesca un evento quando il valore cambia.</p>

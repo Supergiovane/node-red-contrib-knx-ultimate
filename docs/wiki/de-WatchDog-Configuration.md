@@ -2,7 +2,7 @@
 layout: wiki
 title: "WatchDog-Configuration"
 lang: de
-permalink: /wiki/de-WatchDog-Configuration
+permalink: /wiki/de-WatchDog-Configuration/
 ---
 # WatchDog
 
@@ -59,6 +59,7 @@ Der Node gibt Nachrichten aus, wenn eigene Prüfungen Fehler melden oder wenn ei
 <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/WatchDog-Configuration" target="_blank">Siehe hier.</a>
 
 ```javascript
+
 msg = {
   type: "BUSError",
   checkPerformed: "Ethernet" // oder "Eth+KNX",
@@ -71,6 +72,7 @@ msg = {
 **Wenn einer deiner KNX‑Ultimate‑Nodes Probleme hat**
 
 ```javascript
+
 msg = {
   type: "NodeError",
   checkPerformed: "Self KNX-Ultimate node reporting a red color status",
@@ -89,6 +91,7 @@ msg = {
 **Neue Gateway‑Konfiguration via setGatewayConfig**
 
 ```javascript
+
 msg = {
   type: "setGatewayConfig",
   checkPerformed: "The Watchdog node changed the gateway configuration.",
@@ -102,6 +105,7 @@ msg = {
 **Erzwungener Verbindungs‑Auf/Abbau**
 
 ```javascript
+
 msg = {
   type: "connectGateway",
   checkPerformed: "The Watchdog issued a connection/disconnection to the gateway.",
@@ -119,6 +123,7 @@ msg = {
 ## WatchDog starten/stoppen
 
 ```javascript
+
 msg.start = true; return msg; // Start
 ```
 
@@ -131,6 +136,7 @@ msg.start = false; return msg; // Stop
 Mit `msg.setGatewayConfig` IP/Port/PhysicalAddress/Protocol usw. ändern; der Config‑Node übernimmt und verbindet neu. Beim Neustart gelten wieder die Config‑Node‑Werte. Alle Parameter optional.
 
 ```javascript
+
 msg.setGatewayConfig = { IP:"224.0.23.12", Port:3671, PhysicalAddress:"15.15.1", BindToEthernetInterface:"Auto",
   Protocol:"Multicast", importCSV:`"Group name" "Address" "Central" "Unfiltered" "Description" "DatapointType" "Security"
 "Attuatori luci" "0/-/-" "" "" "" "" "Auto"
@@ -142,18 +148,21 @@ return msg;
 Nur IP ändern:
 
 ```javascript
+
 msg.setGatewayConfig = { IP:"224.0.23.12" }; return msg;
 ```
 
 **Verbindung trennen und Auto‑Reconnect deaktivieren**
 
 ```javascript
+
 msg.connectGateway = false; return msg;
 ```
 
 **Verbindung herstellen und Auto‑Reconnect aktivieren**
 
 ```javascript
+
 msg.connectGateway = true; return msg;
 ```
 

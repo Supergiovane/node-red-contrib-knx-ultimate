@@ -2,7 +2,7 @@
 layout: wiki
 title: "GlobalVariable"
 lang: it
-permalink: /wiki/it-GlobalVariable
+permalink: /wiki/it-GlobalVariable/
 ---
 # VARIABILE GLOBALE KNX
 
@@ -31,6 +31,7 @@ Nota: dopo l'esecuzione dei comandi, la variabile con suffisso `_WRITE` viene sv
 ## Proprietà msg (oggetti nella variabile)
 
 ```javascript
+
 {
   address: "0/0/1",
   dpt: "1.001",
@@ -44,6 +45,7 @@ Nota: dopo l'esecuzione dei comandi, la variabile con suffisso `_WRITE` viene sv
 ### Leggere la variabile
 
 ```javascript
+
 // Legge l'array di oggetti GA dalla variabile globale
 let list = global.get("KNXContextBanana_READ") || [];
 node.send({ payload: list });
@@ -57,6 +59,7 @@ if (ga && ga.payload === false) return { payload: "FOUND AND FALSE" };
 ### Scrivere sul BUS tramite variabile
 
 ```javascript
+
 // Prepara comandi da inviare al BUS
 let toSend = [];
 toSend.push({ address: "0/0/10", dpt: "1.001", payload: msg.payload });

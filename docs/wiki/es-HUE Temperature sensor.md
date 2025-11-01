@@ -2,7 +2,7 @@
 layout: wiki
 title: "HUE Temperature sensor"
 lang: es
-permalink: /wiki/es-HUE%20Temperature%20sensor
+permalink: /wiki/es-HUE%20Temperature%20sensor/
 ---
 Este nodo lee la temperatura (° C) de un sensor de temperatura del tono y lo asigna a KNX. 
 

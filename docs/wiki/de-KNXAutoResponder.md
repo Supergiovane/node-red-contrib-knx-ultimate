@@ -2,7 +2,7 @@
 layout: wiki
 title: "KNXAutoResponder"
 lang: de
-permalink: /wiki/de-KNXAutoResponder
+permalink: /wiki/de-KNXAutoResponder/
 ---
 Dieser Knoten antwortet auf Leseanfragen aus dem KNX -Bus.
 
@@ -36,6 +36,7 @@ Der Autoresponder -Knoten antwortet auf Leseanfragen für die Gruppenadresse 2/7
 Die ETS -CSV -Datei muss importiert worden sein, andernfalls müssen Sie die \*\* "DPT": "1.001" \*\* Key hinzufügen.
 
 ```json
+
 [
     {
         "ga": "2/7/1",
@@ -50,6 +51,7 @@ Der Autoresponder -Knoten antwortet auf Leseanfragen für die Gruppenadresse ab 
 Es gibt auch einen \*\* Hinweis \*\* Taste, lediglich als Erinnerungsnotiz.Es wird nirgendwo verwendet.
 
 ```json
+
 [
     {
         "note": "Virtual sensors coming from Hikvision AX-Pro",
@@ -67,6 +69,7 @@ Der Autoresponder -Knoten antwortet auch auf Leseanforderungen für die Gruppena
 Bitte beachten Sie das JSON -Objekt jeder Richtlinie.
 
 ```json
+
 [
     {
         "note": "DALI garden virtual brightness %",

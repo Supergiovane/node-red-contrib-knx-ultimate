@@ -2,7 +2,7 @@
 layout: wiki
 title: "KNXAutoResponder"
 lang: it
-permalink: /wiki/it-KNXAutoResponder
+permalink: /wiki/it-KNXAutoResponder/
 ---
 Questo nodo risponderà alle richieste di lettura del bus KNX.
 
@@ -36,6 +36,7 @@ Il nodo AutoResponder risponderà alle richieste di lettura per l'indirizzo di g
 Il file CSV ETS deve essere stato importato, altrimenti è necessario aggiungere anche il tasto \*\* "DPT": "1.001" \*\*.
 
 ```json
+
 [
     {
         "ga": "2/7/1",
@@ -50,6 +51,7 @@ Il nodo AutoResponder risponderà alle richieste di lettura per l'indirizzo di g
 C'è anche una chiave \*\* Nota \*\*, semplicemente come nota di promemoria.Non verrà utilizzato da nessuna parte.
 
 ```json
+
 [
     {
         "note": "Virtual sensors coming from Hikvision AX-Pro",
@@ -67,6 +69,7 @@ Il nodo AutoResponder risponderà anche alle richieste di lettura per l'indirizz
 Si prega di notare la \*\* virgola \*\* tra l'oggetto JSON di ciascuna direttiva.
 
 ```json
+
 [
     {
         "note": "DALI garden virtual brightness %",

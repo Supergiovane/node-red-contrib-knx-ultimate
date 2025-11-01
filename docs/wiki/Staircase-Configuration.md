@@ -2,7 +2,7 @@
 layout: wiki
 title: "Staircase-Configuration"
 lang: en
-permalink: /wiki/Staircase-Configuration
+permalink: /wiki/Staircase-Configuration/
 ---
 ---
 # Staircase Light configuration
@@ -31,6 +31,7 @@ Enable *Send pre-warning before timeout* to alert occupants before the light tur
 ## Events output
 Tick *Emit events on node output* to receive structured messages whenever the staircase cycle changes state. Messages contain:
 ```
+
 {
   topic: <configured outputtopic or GA>,
   event: 'trigger' | 'extend' | 'prewarn' | 'timeout' | 'manual-off' | 'override' | 'block',
@@ -40,20 +41,24 @@ Tick *Emit events on node output* to receive structured messages whenever the st
   blocked: <boolean>
 }
 ```
+
 This is useful for dashboards, logging, or custom automation around the staircase timer.
 ## KNX status throttling
 The node honours the KNX Config node status throttle, so frequent timer updates do not overload the editor.
 ## Flow example
 ```javascript
+
 // Start the staircase timer
 msg.payload = true;
 return msg;
 ```
+
 ```javascript
 // Cancel the cycle (requires "0 command cancels the cycle")
 msg.payload = false;
 return msg;
 ```
+
 ## Tips
 * Use the override GA for cleaning/maintenance situations.
 * Pair the status GA with a visual indicator on the wall or a dashboard widget.

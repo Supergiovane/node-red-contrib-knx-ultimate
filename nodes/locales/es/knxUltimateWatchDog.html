@@ -33,7 +33,7 @@ Puede enviar un correo electrónico al instalador KNX responsable de su edificio
 
 **COMPROBAR NIVEL ** > _**Ethernet** _: \*checkks la conexión entre la puerta de enlace de ultimate KNX en modo unicast y su interfaz IP KNX. <Br />
 
-<img src = "https://raw.githubusercontent.com/supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/watchdogethernetlevel.png"
+<img src = "https://raw.githubusercontent.com/supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/WatchDogEthernetLevel.png"
 width = "90%"> <Br />
 
 > _ **Ethernet y KNX TP** _: Complete Check.Funciona con enrutadores KNX/IP e interfaces KNX/IP (así como
@@ -44,7 +44,7 @@ Acerca de esta imagen, en ETS, asigne una salida de este actuador GIRA KNX a un 
 
 La conexión de par de pares retorcidos está en funcionamiento.
 
-<img src = "https://raw.githubusercontent.com/supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/watchdogethernetknxtplevel.png"
+<img src = "https://raw.githubusercontent.com/supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/WatchDogEthernetKNXTPLevel.png"
 width = "90%"> <Br />
 
 ## Opciones avanzadas
@@ -57,7 +57,9 @@ width = "90%"> <Br />
 # Salida de mensajes del Watchdog
 
 El nodo Watchdog sale un mensaje cada vez que recibe un error de uno de su nodo ultimal KNX en sus flujos, o cuando el vigilante interno intercepta un error de comunicación de bus KNX. <Br /> ** En caso de problema de autoexpresión de vigilancia** <a href = "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/watchdog-configuration"
-Target = "_ en blanco"> Consulte aquí. </a>```javascript
+Target = "_ en blanco"> Consulte aquí. </a>
+
+```javascript
 
 msg = {
 type:"BUSError"
@@ -67,7 +69,11 @@ payload: true
 description: // (whatever error description)
 }
 
-```<Br /> ** En caso de que uno de sus nodos ultimados KNX esté en problemas** ```javascript
+```
+
+<Br /> ** En caso de que uno de sus nodos ultimados KNX esté en problemas**
+
+```javascript
 
 msg = {
 type:"NodeError"
@@ -84,7 +90,11 @@ GA: "0/1/1"
 }
 }
 
-```<Br /> ** En caso de una nueva configuración de puerta de enlace, se llama a través de SetGatewayConfig** ```javascript
+```
+
+<Br /> ** En caso de una nueva configuración de puerta de enlace, se llama a través de SetGatewayConfig**
+
+```javascript
 
 msg = {
 type:"setGatewayConfig"
@@ -96,7 +106,11 @@ BindLocalInterface:Auto"
 completeError:""
 }
 
-```<Br /> ** Conexión forzada/desconexión** ```javascript
+```
+
+<Br /> ** Conexión forzada/desconexión**
+
+```javascript
 
 msg = {
 type:"connectGateway"
@@ -108,7 +122,9 @@ description: "Connection"
 completeError:""
 }
 
-```<Br />
+```
+
+<Br />
 
 ---
 
@@ -118,25 +134,35 @@ El nodo Watchdog acepta la entrada del flujo y transmite la salida del flujo.A c
 
 ## comienza y detiene el perro guardián
 
-Para iniciar y detener el Watchdog, puede pasar esto como mensaje al nodo <Br /> ** Comienza Watchdog** <Br />```javascript
+Para iniciar y detener el Watchdog, puede pasar esto como mensaje al nodo <Br /> ** Comienza Watchdog** <Br />
+
+```javascript
 
 // Start the WatchDog
 msg.start = true;
 return msg;
 
-``` ** Detente de vigilancia** <Br />```javascript
+```
+
+** Detente de vigilancia** <Br />
+
+```javascript
 
 // Start the WatchDog
 msg.start = false;
 return msg;
 
-```## Cambie la configuración de enrutador KNX/IP/interfaz en la mosca
+```
+
+## Cambie la configuración de enrutador KNX/IP/interfaz en la mosca
 
 Con ** msg.setgatewayconfig** , puede cambiar el IP, el puerto, la dirección física, el protocolo, etc.
 
 El nodo de configuración cambiará la configuración y se volverá a conectar con nuevos parámetros. <Br />
 
-Tenga cuidado, si reinicia el nodo-rojo, la nueva configuración se vuelve a la configuración especificada en el nodo de configuración. <Br /> ** Todos los parámetros son opcionales** <Br />```javascript
+Tenga cuidado, si reinicia el nodo-rojo, la nueva configuración se vuelve a la configuración especificada en el nodo de configuración. <Br /> ** Todos los parámetros son opcionales** <Br />
+
+```javascript
 
 // IP: IP of your KNX/IP Router or Interface
 // Port: Port of your KNX/IP Router or Interface
@@ -155,25 +181,39 @@ Protocol:"Multicast", importCSV:`"Group name" "Address" "Central" "Unfiltered" "
 
 return msg;
 
-```Todas las propiedades son opcionales.Por ejemplo, para cambiar solo la IP:```javascript
+```Todas
+
+las propiedades son opcionales.Por ejemplo, para cambiar solo la IP:
+
+```javascript
 
 // IP: IP of your KNX/IP Router or Interface
 msg.setGatewayConfig={IP:"224.0.23.12"};
 return msg;
 
-``` ** La desconexión de Force Gateway y la desactivación de los intentos de reconexión automática** <Br />```javascript
+```
+
+** La desconexión de Force Gateway y la desactivación de los intentos de reconexión automática** <Br />
+
+```javascript
 
 // Force the gateway's disconnection from the BUS and stop the reconnection's attempts.
 msg.connectGateway = false;
 return msg;
 
-``` ** Conexión de Force Gateway y habilite los intentos de reconexión automática** <Br />```javascript
+```
+
+** Conexión de Force Gateway y habilite los intentos de reconexión automática** <Br />
+
+```javascript
 
 // Force the gateway's connection to the BUS and activate the reconnection's attempts.
 msg.connectGateway = true;
 return msg;
 
-```## Ver también
+```
+
+## Ver también
 
 [Muestra de vigilancia](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---WatchDog)
 </script>

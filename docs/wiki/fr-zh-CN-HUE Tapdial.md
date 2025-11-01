@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-HUE Tapdial"
 lang: fr
-permalink: /wiki/fr-zh-CN-HUE%20Tapdial
+permalink: /wiki/fr-zh-CN-HUE%20Tapdial/
 ---
 ---
 **TABLE TAP TAP DIAL** Le nœud mappe le service de rotation de Tap Dial to KNX et envoie l'événement Hue d'origine au processus de Node-Red.Après avoir associé un nouvel appareil, cliquez sur l'icône d'actualisation à côté du champ de périphérique.

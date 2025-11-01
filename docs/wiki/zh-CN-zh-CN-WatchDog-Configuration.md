@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-WatchDog-Configuration"
 lang: zh-CN
-permalink: /wiki/zh-CN-zh-CN-WatchDog-Configuration
+permalink: /wiki/zh-CN-zh-CN-WatchDog-Configuration/
 ---
 ---
 
@@ -58,7 +58,10 @@ WatchDog 提供两级检测：
 
 **WatchDog 自身连接问题**
 
-<a href="/node-red-contrib-knx-ultimate/wiki/WatchDog-Configuration" target="_blank">详见此处</a>```javascript
+<a href="/node-red-contrib-knx-ultimate/wiki/WatchDog-Configuration" target="_blank">详见此处</a>
+
+```javascript
+
 msg = {
   type: "BUSError",
   checkPerformed: "Ethernet" // 或 "Eth+KNX",
@@ -66,7 +69,12 @@ msg = {
   payload: true,
   description: "..."
 }
-``` **你的某个 KNX‑Ultimate 节点出现异常** ```javascript
+```
+
+**你的某个 KNX‑Ultimate 节点出现异常** 
+
+```javascript
+
 msg = {
   type: "NodeError",
   checkPerformed: "Self KNX-Ultimate node reporting a red color status",
@@ -80,7 +88,12 @@ msg = {
     GA: "0/1/1"
   }
 }
-``` **通过 setGatewayConfig 修改网关配置** ```javascript
+```
+
+**通过 setGatewayConfig 修改网关配置** 
+
+```javascript
+
 msg = {
   type: "setGatewayConfig",
   checkPerformed: "The Watchdog node changed the gateway configuration.",
@@ -89,7 +102,12 @@ msg = {
   description: "New Config issued to the gateway. IP:224.0.23.12 Port:3671 PhysicalAddress:15.15.1\nBindLocalInterface:Auto",
   completeError: ""
 }
-``` **强制连接/断开** ```javascript
+```
+
+**强制连接/断开** 
+
+```javascript
+
 msg = {
   type: "connectGateway",
   checkPerformed: "The Watchdog issued a connection/disconnection to the gateway.",
@@ -98,31 +116,58 @@ msg = {
   description: "Connection",
   completeError: ""
 }
-```---
+```
+
+---
 
 # 输入消息（INPUT）
 
-## 启动/停止 WatchDog```javascript
+## 启动/停止 WatchDog
+
+```javascript
+
 msg.start = true; return msg; // 启动
 ```
 
 ```javascript
 msg.start = false; return msg; // 停止
-```## 运行期修改 KNX/IP 网关设置
+```
 
-通过 `msg.setGatewayConfig` 更改 IP/Port/PhysicalAddress/Protocol 等；配置节点会应用并重连。Node‑RED 重启后恢复为配置节点中的设置。所有参数均为可选。```javascript
+## 运行期修改 KNX/IP 网关设置
+
+通过 `msg.setGatewayConfig` 更改 IP/Port/PhysicalAddress/Protocol 等；配置节点会应用并重连。Node‑RED 重启后恢复为配置节点中的设置。所有参数均为可选。
+
+```javascript
+
 msg.setGatewayConfig = { IP:"224.0.23.12", Port:3671, PhysicalAddress:"15.15.1", BindToEthernetInterface:"Auto",
   Protocol:"Multicast", importCSV:`"Group name" "Address" "Central" "Unfiltered" "Description" "DatapointType" "Security"
 "Attuatori luci" "0/-/-" "" "" "" "" "Auto"
 "Luci primo piano" "0/0/-" "" "" "" "" "Auto"
 "Luce camera da letto" "0/0/1" "" "" "" "DPST-1-1" "Auto"` };
 return msg;
-```仅更改 IP：```javascript
+```仅更改
+
+IP：
+
+```javascript
+
 msg.setGatewayConfig = { IP:"224.0.23.12" }; return msg;
-``` **强制断开并禁用自动重连** ```javascript
+```
+
+**强制断开并禁用自动重连** 
+
+```javascript
+
 msg.connectGateway = false; return msg;
-``` **强制连接并启用自动重连** ```javascript
+```
+
+**强制连接并启用自动重连** 
+
+```javascript
+
 msg.connectGateway = true; return msg;
-```## 参见
+```
+
+## 参见
 
 [Sample WatchDog](/node-red-contrib-knx-ultimate/wiki/-Sample---WatchDog)

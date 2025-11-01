@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-HUE Motion"
 lang: de
-permalink: /wiki/de-zh-CN-HUE%20Motion
+permalink: /wiki/de-zh-CN-HUE%20Motion/
 ---
 ---
 

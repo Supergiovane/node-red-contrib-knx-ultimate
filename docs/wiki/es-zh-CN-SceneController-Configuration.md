@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-SceneController-Configuration"
 lang: es
-permalink: /wiki/es-zh-CN-SceneController-Configuration
+permalink: /wiki/es-zh-CN-SceneController-Configuration/
 ---
 ---
 # Controlador de escena
@@ -23,7 +23,10 @@ Una vez que se recibe un nuevo valor del bus, el nodo registrará automáticamen
 | Botón Agregar | Agregue una nueva fila. |
 | Campo de fila |1) Dirección de grupo 2) punto de datos 3) Valor de escena predeterminado (se puede sobrescribir mediante la guardia de la escena).El nombre del dispositivo está a continuación.<br/> Insertar pausa: complete **espera ** en la primera columna y complete la última columna para la duración (milisegundos), como `2000`.<br/>**espera** también admite segundos/minuto/hora: `12s`,` 5m`, `1H`.|
 | Eliminar | Elimine esta línea de dispositivo.|
-## Salida del nodo```javascript
+## Salida del nodo
+
+```javascript
+
 msg = {
   topic: "Scene Controller",
   recallscene: true|false,
@@ -31,23 +34,46 @@ msg = {
   savevalue: true|false,
   disabled: true|false
 }
-```---
+```
+
+---
+
 ## Mensaje de entrada (entrada)
 El nodo se basa principalmente en los mensajes KNX para recuperar/guardar la escena; También se puede controlar a través de mensajes.Los comandos del bus se pueden deshabilitar y solo se pueden aceptar mensajes de proceso.
-**Escenario de recuerdo** ```javascript
+**Escenario de recuerdo** 
+
+```javascript
+
 msg.recallscene = true; return msg;
-``` **Guardar escena** ```javascript
+```
+
+**Guardar escena** 
+
+```javascript
+
 msg.savescene = true; return msg;
-``` **Guarde el valor actual de un GA**
+```
+
+**Guarde el valor actual de un GA**
 Aunque la escena rastrea automáticamente el valor del albacea, en algunos casos es necesario registrar el valor actual de otro GA (como el estado en lugar del comando) con un "valor de escena real".
-Por ejemplo, el obturador del rodillo: el estado GA de altura absoluta refleja la posición exacta.Este estado GA se utiliza para actualizar el comando GA del ejecutor relevante en la escena.```javascript
+Por ejemplo, el obturador del rodillo: el estado GA de altura absoluta refleja la posición exacta.Este estado GA se utiliza para actualizar el comando GA del ejecutor relevante en la escena.
+
+```javascript
+
 msg.savevalue = true;
 msg.topic = "0/1/1"; // GA
 msg.payload = 70; // 要保存的值
 return msg;
-``` **Desactivar Controlador de escena**
-Deshabilite los comandos del bus KNX (aún acepte mensajes de proceso).Por ejemplo, es útil cuando no desea recordar/guardar una escena del botón de entidad por la noche.```javascript
+```
+
+**Desactivar Controlador de escena**
+Deshabilite los comandos del bus KNX (aún acepte mensajes de proceso).Por ejemplo, es útil cuando no desea recordar/guardar una escena del botón de entidad por la noche.
+
+```javascript
+
 msg.disabled = true; // false 重新启用
 return msg;
-```## Ver
+```
+
+## Ver
 [Controlador de escena de muestra](/node-red-contrib-knx-ultimate/wiki/Sample-Scene-Node)

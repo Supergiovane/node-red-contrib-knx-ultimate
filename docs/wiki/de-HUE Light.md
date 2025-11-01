@@ -2,7 +2,7 @@
 layout: wiki
 title: "HUE Light"
 lang: de
-permalink: /wiki/de-HUE%20Light
+permalink: /wiki/de-HUE%20Light/
 ---
 Dieser Node steuert HUE‑Leuchten (einzeln oder gruppiert) und ordnet Befehle/Zustände KNX‑Gruppenadressen zu.
 

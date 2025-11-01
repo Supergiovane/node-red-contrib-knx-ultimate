@@ -2,7 +2,7 @@
 layout: wiki
 title: "Alerter-Configuration"
 lang: it
-permalink: /wiki/it-Alerter-Configuration
+permalink: /wiki/it-Alerter-Configuration/
 ---
 # Configurazione del nodo Alerter
 
@@ -60,6 +60,7 @@ PIN3: il nodo emette un messaggio che contiene solo l'ultimo dispositivo andato 
 **PIN1**
 
 ```javascript
+
 msg = {
   topic: "0/1/12",
   count: 3, // Numero TOTALE di dispositivi in allarme
@@ -72,6 +73,7 @@ msg = {
 **PIN2**
 
 ```javascript
+
 msg = {
   topic: "door, 0/0/11, 0/1/2, 0/0/9",
   devicename: "Porta ingresso, Applique soggiorno, Applique taverna, Luce studio",
@@ -84,6 +86,7 @@ msg = {
 **PIN3**
 
 ```javascript
+
 msg = {
   topic: "0/1/12",
   count: 3, // Numero TOTALE di dispositivi in allarme
@@ -98,6 +101,7 @@ Messaggio in uscita quando tutti i dispositivi sono a riposo:
 **PIN1, PIN2, PIN3**
 
 ```javascript
+
 msg = {
   topic: "",
   count: 0,
@@ -110,12 +114,14 @@ msg = {
 ## Messaggi in ingresso al nodo
 
 ```javascript
+
 msg.readstatus = true
 ```
 
 Legge il valore di ciascun dispositivo presente in elenco.
 
 ```javascript
+
 msg.start = true
 ```
 
@@ -126,6 +132,7 @@ Avvia il ciclo di invio di tutti i dispositivi in allarme. Il ciclo termina con 
 Per aggiornare lo stato (true/false) di un dispositivo personalizzato, invia questo messaggio in ingresso:
 
 ```javascript
+
 msg = {
   topic: "door",
   payload: true // Oppure false per azzerare l'allarme di questo dispositivo

@@ -2,7 +2,7 @@
 layout: wiki
 title: "HUE Temperature sensor"
 lang: zh-CN
-permalink: /wiki/zh-CN-HUE%20Temperature%20sensor
+permalink: /wiki/zh-CN-HUE%20Temperature%20sensor/
 ---
 此节点读取 HUE 温度传感器的温度（°C），并将其映射到 KNX。
 

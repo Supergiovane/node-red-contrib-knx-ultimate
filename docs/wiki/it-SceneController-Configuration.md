@@ -2,7 +2,7 @@
 layout: wiki
 title: "SceneController-Configuration"
 lang: it
-permalink: /wiki/it-SceneController-Configuration
+permalink: /wiki/it-SceneController-Configuration/
 ---
 # Scene Controller
 
@@ -35,6 +35,7 @@ La scena salva automaticamente i nuovi valori degli attuatori della lista non ap
 ## Messaggi in uscita
 
 ```javascript
+
 msg = {
   topic: "Scene Controller", // topic del nodo
   recallscene: true|false, // true se è stata richiamata una scena
@@ -53,6 +54,7 @@ Il nodo reagisce principalmente ai telegrammi KNX per richiamare/salvare le scen
 **Richiama una scena**
 
 ```javascript
+
 msg.recallscene = true;
 return msg;
 ```
@@ -60,6 +62,7 @@ return msg;
 **Salva una scena**
 
 ```javascript
+
 msg.savescene = true;
 return msg;
 ```
@@ -71,6 +74,7 @@ La scena salva già automaticamente i valori aggiornati degli attuatori. A volte
 Esempio: un attuatore tapparella ha GA di comando e GA di stato; il valore certo della posizione è nella GA di stato "altezza assoluta”. Con questa GA puoi aggiornare le GA di comando degli attuatori presenti in scena.
 
 ```javascript
+
 // Salva lo stato (ad es. 70%) di una tapparella appartenente alla scena
 msg.savevalue = true;
 msg.topic = "0/1/1"; // GA
@@ -83,6 +87,7 @@ return msg;
 Disabilita i comandi dal BUS KNX (i msg dal flow restano accettati). Utile ad esempio di notte se non vuoi richiamare/salvare scene da pulsanti reali.
 
 ```javascript
+
 msg.disabled = true; // false per riabilitare
 return msg;
 ```

@@ -2,7 +2,7 @@
 layout: wiki
 title: "Garage-Configuration"
 lang: de
-permalink: /wiki/de-Garage-Configuration
+permalink: /wiki/de-Garage-Configuration/
 ---
 # Garage-Konfiguration (Übersetzung folgt)
 

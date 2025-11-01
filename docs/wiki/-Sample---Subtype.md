@@ -2,7 +2,7 @@
 layout: wiki
 title: "-Sample---Subtype"
 lang: en
-permalink: /wiki/-Sample---Subtype
+permalink: /wiki/-Sample---Subtype/
 ---
 # Subtype Value Sample
 

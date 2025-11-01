@@ -2,7 +2,7 @@
 layout: wiki
 title: "LoadControl-Configuration"
 lang: zh-CN
-permalink: /wiki/zh-CN-LoadControl-Configuration
+permalink: /wiki/zh-CN-LoadControl-Configuration/
 ---
 # KNX负载控制节点
 

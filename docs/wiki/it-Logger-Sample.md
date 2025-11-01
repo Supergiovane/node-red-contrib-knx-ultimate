@@ -2,7 +2,7 @@
 layout: wiki
 title: "Logger-Sample"
 lang: it
-permalink: /wiki/it-Logger-Sample
+permalink: /wiki/it-Logger-Sample/
 ---
 ---
 # Campioni di logger
@@ -11,6 +11,7 @@ permalink: /wiki/it-Logger-Sample
 <Psumo> <summary> Visualizza codice </summary>
 > Regola i nodi in base alla configurazione e imposta \*\* il percorso nel nodo file \*\*.
 ```javascript
+
 [
     {
         "id": "b8e9e444.0af1f",
@@ -67,4 +68,5 @@ permalink: /wiki/it-Logger-Sample
     }
 ]
 ```
+
 </Dettagli>

@@ -2,7 +2,7 @@
 layout: wiki
 title: "Docs-Language-Bar"
 lang: fr
-permalink: /wiki/fr-Docs-Language-Bar
+permalink: /wiki/fr-Docs-Language-Bar/
 ---
 ---
 <h1> <p align = 'Center'> Bar de langue wiki - Comment </p> </h1>

@@ -2,7 +2,7 @@
 layout: wiki
 title: "GlobalVariable"
 lang: de
-permalink: /wiki/de-GlobalVariable
+permalink: /wiki/de-GlobalVariable/
 ---
 # KNX GLOBALE VARIABLE
 
@@ -31,6 +31,7 @@ Hinweis: Nach der Ausführung werden Einträge in `<Name>_WRITE` automatisch gel
 ## msg‑Objekte in der Variable
 
 ```javascript
+
 {
   address: "0/0/1",
   dpt: "1.001",
@@ -44,6 +45,7 @@ Hinweis: Nach der Ausführung werden Einträge in `<Name>_WRITE` automatisch gel
 ### Variable lesen
 
 ```javascript
+
 const list = global.get("KNXContextBanana_READ") || [];
 node.send({ payload: list });
 
@@ -55,6 +57,7 @@ if (ga && ga.payload === false) return { payload: "FOUND AND FALSE" };
 ### Über Variable auf den BUS schreiben
 
 ```javascript
+
 const toSend = [];
 toSend.push({ address: "0/0/10", dpt: "1.001", payload: msg.payload });
 toSend.push({ address: "0/0/11", payload: msg.payload }); // DPT kann mit ETS‑Import entfallen

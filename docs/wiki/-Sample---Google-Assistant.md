@@ -2,7 +2,7 @@
 layout: wiki
 title: "-Sample---Google-Assistant"
 lang: en
-permalink: /wiki/-Sample---Google-Assistant
+permalink: /wiki/-Sample---Google-Assistant/
 ---
 # Google Assistant
 

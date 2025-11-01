@@ -2,7 +2,7 @@
 layout: wiki
 title: "WatchDog-Configuration"
 lang: it
-permalink: /wiki/it-WatchDog-Configuration
+permalink: /wiki/it-WatchDog-Configuration/
 ---
 # WatchDog
 
@@ -59,6 +59,7 @@ Il nodo emette un messaggio quando riceve un errore da un qualsiasi nodo KNX‑U
 <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/WatchDog-Configuration" target="_blank">Vedi qui.</a>
 
 ```javascript
+
 msg = {
   type: "BUSError",
   checkPerformed: "Ethernet" // oppure "Eth+KNX"
@@ -71,6 +72,7 @@ msg = {
 **In caso di errore di un tuo nodo KNX‑Ultimate**
 
 ```javascript
+
 msg = {
   type: "NodeError",
   checkPerformed: "Self KNX-Ultimate node reporting a red color status",
@@ -89,6 +91,7 @@ msg = {
 **Se viene richiamata una nuova configurazione gateway tramite setGatewayConfig**
 
 ```javascript
+
 msg = {
   type: "setGatewayConfig",
   checkPerformed: "The Watchdog node changed the gateway configuration.",
@@ -102,6 +105,7 @@ msg = {
 **Connessione/Disconnessione forzata**
 
 ```javascript
+
 msg = {
   type: "connectGateway",
   checkPerformed: "The Watchdog issued a connection/disconnection to the gateway.",
@@ -123,6 +127,7 @@ Il WatchDog accetta input dal flow ed emette output verso il flow. Di seguito il
 **START**
 
 ```javascript
+
 msg.start = true;
 return msg;
 ```
@@ -130,6 +135,7 @@ return msg;
 **STOP**
 
 ```javascript
+
 msg.start = false;
 return msg;
 ```
@@ -141,6 +147,7 @@ Con `msg.setGatewayConfig` puoi cambiare IP, Porta, Indirizzo Fisico, Protocollo
 Tutti i parametri sono opzionali.
 
 ```javascript
+
 // IP, Port, PhysicalAddress, BindToEthernetInterface ("Auto" o nome scheda, es. "en0"), Protocol: "TunnelUDP"|"TunnelTCP"|"Multicast"
 // importCSV: contenuto ETS CSV/ESF (vedi wiki Gateway Config)
 msg.setGatewayConfig = { IP:"224.0.23.12", Port:3671, PhysicalAddress:"15.15.1", BindToEthernetInterface:"Auto",
@@ -154,6 +161,7 @@ return msg;
 Per cambiare solo l'IP:
 
 ```javascript
+
 msg.setGatewayConfig = { IP:"224.0.23.12" };
 return msg;
 ```
@@ -161,6 +169,7 @@ return msg;
 **Forzare disconnessione e disabilitare i tentativi di auto‑reconnect**
 
 ```javascript
+
 msg.connectGateway = false;
 return msg;
 ```
@@ -168,6 +177,7 @@ return msg;
 **Forzare connessione e abilitare i tentativi di auto‑reconnect**
 
 ```javascript
+
 msg.connectGateway = true;
 return msg;
 ```

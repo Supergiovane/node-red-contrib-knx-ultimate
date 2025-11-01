@@ -50,7 +50,9 @@ PIN1: Le nœud émet un message pour chaque périphérique alerté, à des inter
 PIN2: Le nœud émet un message unique contenant tous les appareils alertés. <br/>
 Pin3: le nœud émet un message contenant uniquement le dernier périphérique alerté. <br/>
 
-**pin1** ```javascript
+**pin1** 
+
+```javascript
 
 msg = {
     "topic":"0/1/12",
@@ -60,7 +62,11 @@ msg = {
     "payload":true
 }
 
-``` **Pin2** ```javascript
+```
+
+**Pin2** 
+
+```javascript
 
 msg = {
     "topic":"door, 0/0/11, 0/1/2, 0/0/9",
@@ -70,7 +76,11 @@ msg = {
     "payload":true
     }
 
-``` **pin3** ```javascript
+```
+
+**pin3** 
+
+```javascript
 
 msg = {
     "topic":"0/1/12",
@@ -80,9 +90,13 @@ msg = {
     "payload":true
 }
 
-```Message sortant lorsque tous les appareils sont au repos
+```Message
 
-**pin1, pin2, pin3** ```javascript
+sortant lorsque tous les appareils sont au repos
+
+**pin1, pin2, pin3** 
+
+```javascript
 
 msg = {
     "topic":"",
@@ -92,27 +106,43 @@ msg = {
     "payload":false
 }
 
-```<br/>
+```
+
+<br/>
 <br/>
 
-## Message dans le nœud```javascript
+## Message dans le nœud
+
+```javascript
+
 msg.readstatus = true
-```Lisez la valeur de chaque appareil appartenant à la liste.```javascript
+```Lisez
+
+la valeur de chaque appareil appartenant à la liste.
+
+```javascript
+
 msg.start = true
-```Le cycle d'envoi de tous les appareils alertés commence.Le cycle se termine par le dernier dispositif alerté.Pour répéter le cycle, envoyez ce message entrant à nouveau.
+```Le
+
+cycle d'envoi de tous les appareils alertés commence.Le cycle se termine par le dernier dispositif alerté.Pour répéter le cycle, envoyez ce message entrant à nouveau.
 
 <br/>
 
 **Alerte de périphérique personnalisée** <br/>
 
-Pour mettre à jour la valeur vraie / fausse d'un appareil personnalisé, vous pouvez envoyer ce message entrant```javascript
+Pour mettre à jour la valeur vraie / fausse d'un appareil personnalisé, vous pouvez envoyer ce message entrant
+
+```javascript
 
 msg = {
     "topic":"door",
     "payload":true // Or false to reset the alert for this device
 }
 
-```<br/>
+```
+
+<br/>
 
 ## ÉCHANTILLON
 

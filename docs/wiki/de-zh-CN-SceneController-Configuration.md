@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-SceneController-Configuration"
 lang: de
-permalink: /wiki/de-zh-CN-SceneController-Configuration
+permalink: /wiki/de-zh-CN-SceneController-Configuration/
 ---
 ---
 
@@ -32,7 +32,10 @@ Sobald ein neuer Wert aus dem Bus eingeht, zeichnet der Knoten automatisch den n
 | Reihenfeld | 1) Gruppenadresse 2) DataPoint 3) Standard -Szenenwert (kann durch Szene speichern).Der Gerätename ist unten.<br/> Pause einfügen: Füllen Sie **Warten Sie ** in der ersten Spalte und füllen Sie die letzte Spalte für die Dauer (Millisekunden) wie "2000" aus.<br/>**Warte** unterstützt auch Sekunden/Minute/Stunde: `12s`,` 5m`, `1H`.|
 | Entfernen | Entfernen Sie diese Gerätelinie.|
 
-## Knotenausgabe```javascript
+## Knotenausgabe
+
+```javascript
+
 msg = {
   topic: "Scene Controller",
   recallscene: true|false,
@@ -40,30 +43,52 @@ msg = {
   savevalue: true|false,
   disabled: true|false
 }
-```---
+```
+
+---
 
 ## Eingabenachricht (Eingabe)
 
 Der Knoten stützt sich hauptsächlich auf KNX -Nachrichten, um die Szene abzurufen/zu speichern. Es kann auch über Nachrichten gesteuert werden.Befehle aus dem Bus können deaktiviert und nur verarbeitete Nachrichten akzeptiert werden.
 
-**Rückrufszenario** ```javascript
+**Rückrufszenario** 
+
+```javascript
+
 msg.recallscene = true; return msg;
-``` **Szene speichern** ```javascript
+```
+
+**Szene speichern** 
+
+```javascript
+
 msg.savescene = true; return msg;
-``` **Speichern Sie den aktuellen Wert eines GA**
+```
+
+**Speichern Sie den aktuellen Wert eines GA**
 
 Obwohl die Szene den Wert des Testamentsausführenden automatisch verfolgt, ist es in einigen Fällen erforderlich, den aktuellen Wert eines anderen GA (wie den Status und nicht den Befehl) mit einem "echten Szenenwert" aufzuzeichnen.
 
-Zum Beispiel spiegelt der Roller -Verschluss: Der Zustand der absoluten Höhe spiegelt die genaue Position wider.Dieser Status GA wird verwendet, um den Befehl GA des relevanten Testamentsanbieters in der Szene zu aktualisieren.```javascript
+Zum Beispiel spiegelt der Roller -Verschluss: Der Zustand der absoluten Höhe spiegelt die genaue Position wider.Dieser Status GA wird verwendet, um den Befehl GA des relevanten Testamentsanbieters in der Szene zu aktualisieren.
+
+```javascript
+
 msg.savevalue = true;
 msg.topic = "0/1/1"; // GA
 msg.payload = 70; // 要保存的值
 return msg;
-``` **Szenencontroller deaktivieren**
+```
 
-Deaktivieren Sie Befehle aus dem KNX -Bus (Akzeptieren Sie immer noch Prozessmeldungen).Zum Beispiel ist es nützlich, wenn Sie sich nachts nicht an eine Szene aus der Entitätstaste erinnern/speichern möchten.```javascript
+**Szenencontroller deaktivieren**
+
+Deaktivieren Sie Befehle aus dem KNX -Bus (Akzeptieren Sie immer noch Prozessmeldungen).Zum Beispiel ist es nützlich, wenn Sie sich nachts nicht an eine Szene aus der Entitätstaste erinnern/speichern möchten.
+
+```javascript
+
 msg.disabled = true; // false 重新启用
 return msg;
-```## Sehen
+```
+
+## Sehen
 
 [Szenen -Szenen -Controller](/node-red-contrib-knx-ultimate/wiki/Sample-Scene-Node)

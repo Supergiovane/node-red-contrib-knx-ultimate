@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-Docs-Language-Bar"
 lang: de
-permalink: /wiki/de-zh-CN-Docs-Language-Bar
+permalink: /wiki/de-zh-CN-Docs-Language-Bar/
 ---
 ---
 

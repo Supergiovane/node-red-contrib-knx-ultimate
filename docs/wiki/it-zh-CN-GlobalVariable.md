@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-GlobalVariable"
 lang: it
-permalink: /wiki/it-zh-CN-GlobalVariable
+permalink: /wiki/it-zh-CN-GlobalVariable/
 ---
 ---
 # Variabili globali KNX
@@ -22,25 +22,40 @@ Nota: dopo l'esecuzione della scrittura, `<name> _Write` verrà automaticamente 
 | Nome variabile |Il nome di base della variabile globale.Sono creati `<name> _read` e` <name> _write`. Non utilizzare il nome predefinito per motivi di sicurezza.|
 | Esporre come variabile globale |Seleziona se e come esporre variabili globali. Se non è necessario scrivere, si consiglia di impostare in sola lettura.|
 | Intervallo di scrittura del bus | Sondaggio `<nome> _Write` e scrivere sul bus.|
-## oggetto msg in variabile```javascript
+## oggetto msg in variabile
+
+```javascript
+
 {
   address: "0/0/1",
   dpt: "1.001",
   payload: true,
   devicename: "Dinning Room->Table Light"
 }
-```## Utilizzo rapido
-### Leggi le variabili```javascript
+```
+
+## Utilizzo rapido
+### Leggi le variabili
+
+```javascript
+
 const list = global.get("KNXContextBanana_READ") || [];
 node.send({ payload: list });
 const ga = list.find(a => a.address === "0/0/10");
 if (ga && ga.payload === true) return { payload: "FOUND AND TRUE" };
 if (ga && ga.payload === false) return { payload: "FOUND AND FALSE" };
-```### Scrivi sul bus attraverso le variabili```javascript
+```
+
+### Scrivi sul bus attraverso le variabili
+
+```javascript
+
 const toSend = [];
 toSend.push({ address: "0/0/10", dpt: "1.001", payload: msg.payload });
 // 如果已导入 ETS，可省略 dpt，由系统据 payload 推断
 toSend.push({ address: "0/0/11", payload: msg.payload });
 global.set("KNXContextBanana_WRITE", toSend);
-```## Esempio completo
+```
+
+## Esempio completo
 <a href = "/node-red-contrib-knx-ultimate/wiki/sampleglobalcontextNode" Target = "_ blank"> <i class="fa-info-cirle"> </i> Visualizza Esempio </a>

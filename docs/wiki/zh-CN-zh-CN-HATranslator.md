@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-HATranslator"
 lang: zh-CN
-permalink: /wiki/zh-CN-zh-CN-HATranslator
+permalink: /wiki/zh-CN-zh-CN-HATranslator/
 ---
 ---
 

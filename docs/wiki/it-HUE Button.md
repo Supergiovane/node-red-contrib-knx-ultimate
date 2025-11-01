@@ -2,7 +2,7 @@
 layout: wiki
 title: "HUE Button"
 lang: it
-permalink: /wiki/it-HUE%20Button
+permalink: /wiki/it-HUE%20Button/
 ---
 Il nodo Hue Button inoltra gli eventi del pulsante Hue verso KNX e verso l'uscita del flow utilizzando il campo Hue <code>button.button_report.event</code>.
 

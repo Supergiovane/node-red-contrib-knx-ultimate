@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-knxUltimateViewer"
 lang: fr
-permalink: /wiki/fr-zh-CN-knxUltimateViewer
+permalink: /wiki/fr-zh-CN-knxUltimateViewer/
 ---
 ---
 <p> Ce nœud fonctionne avec le nœud <b> ui_template </b> du tableau de bord rouge-rouge.<br/>
@@ -21,12 +21,20 @@ Visionneuse # KNX
 3. Fitre de message (tableau de bord)
 : charge utile (HTML): Connectez-vous à <b> modèle </b>;Affiche la file d'attente KNX Send pour surveiller la congestion du bus.
 # Exemple
-Mettez la visionneuse dans le processus et connectez un modèle de tableau de bord <b> </b>.Le contenu du nœud <b> modèle </b> est le suivant:```
+Mettez la visionneuse dans le processus et connectez un modèle de tableau de bord <b> </b>.Le contenu du nœud <b> modèle </b> est le suivant:
+
+```
+
 <div ng-bind-html="msg.payload"></div>
-```Diagramme de sortie: <br/> <img src = "https://raw.githubusercontent.com/supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/Viewer1.png" width = "90%"> <br/>
+```Diagramme
+
+de sortie: <br/> <img src = "https://raw.githubusercontent.com/supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/viewer1.png" width = "90%"> <br/>
 <br />
 **Copiez le code suivant sur le processus**
-> Ajustez les nœuds en fonction de votre environnement````json
+> Ajustez les nœuds en fonction de votre environnement
+
+```json
+
 [{"id":"6736561775d8ee88","type":"knxUltimateViewer","z":"54c299048a6c5b6b","server":"a01c5d80.1bbb78","name":"KNXViewer","x":260,"y":240,"wires":[["b239b31adb87d250"],["aafd0f4cde22f225"]]},{"id":"b239b31adb87d250","type":"ui_template","z":"54c299048a6c5b6b","group":"6cbdc633e478e65a","name":"","order":0,"width":"12","height":"6","format":"
 <div ng-bind-html=\"msg.payload\"></div>
 ","storeOutMessages":true,"fwdInMessages":true,"resendOnRefresh":true,"templateScope":"local","x":460,"y":220,"wires":[[]]},{"id":"7fe6d46036fe5fc2","type":"comment","z":"54c299048a6c5b6b","name":"KNX
@@ -422,4 +430,8 @@ taverna\"\t\"3/0/25\"\t\"\"\t\"\"\t\"\"\t\"DPST-1-1\"\t\"Auto\"\n\"_Pala soggior
     Corlo\"\t\"4/2/11\"\t\"\"\t\"\"\t\"\"\t\"DPST-232-600\"\t\"Auto\"\n","KNXEthInterface":"Auto","KNXEthInterfaceManuallyInput":"","statusDisplayLastUpdate":true,"statusDisplayDeviceNameWhenALL":true,"statusDisplayDataPoint":false,"stopETSImportIfNoDatapoint":"fake","loglevel":"warn","name":"Enertex
     Unicast","localEchoInTunneling":true,"delaybetweentelegrams":"50","delaybetweentelegramsfurtherdelayREAD":"1","ignoreTelegramsWithRepeatedFlag":true,"keyringFileXML":"","autoReconnect":"yes"},{"id":"6cbdc633e478e65a","type":"ui_group","name":"KNX-Ultimate
     Viewer","tab":"02c465fe930c0e1c","order":1,"disp":true,"width":"12","collapse":false},{"id":"02c465fe930c0e1c","type":"ui_tab","name":"Home","icon":"dashboard","disabled":false,"hidden":false}]
-    ````` ''
+    
+
+```
+
+''

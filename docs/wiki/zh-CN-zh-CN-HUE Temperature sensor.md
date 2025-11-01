@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-HUE Temperature sensor"
 lang: zh-CN
-permalink: /wiki/zh-CN-zh-CN-HUE%20Temperature%20sensor
+permalink: /wiki/zh-CN-zh-CN-HUE%20Temperature%20sensor/
 ---
 ---
 

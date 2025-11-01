@@ -2,7 +2,7 @@
 layout: wiki
 title: "Garage-Configuration"
 lang: es
-permalink: /wiki/es-Garage-Configuration
+permalink: /wiki/es-Garage-Configuration/
 ---
 ---
 # Puerta de garaje
@@ -30,15 +30,18 @@ El nodo **KNX Garage** controla un portón motorizado con GA dedicadas a mandos 
 - Con *Emitir eventos* el nodo envía objetos con `event`, `state`, `disabled`, `holdOpen`, `obstruction`.
 ## Ejemplo en el flow
 ```javascript
+
 // Abrir el portón
 msg.payload = 'open'; // también acepta true
 return msg;
 ```
+
 ```javascript
 // Cerrar el portón
 msg.payload = 'close'; // también acepta false
 return msg;
 ```
+
 ```javascript
 // Conmutar el estado del portón
 msg.payload = 'toggle';

@@ -2,7 +2,7 @@
 layout: wiki
 title: "HUE Contact sensor"
 lang: zh-CN
-permalink: /wiki/zh-CN-HUE%20Contact%20sensor
+permalink: /wiki/zh-CN-HUE%20Contact%20sensor/
 ---
 该节点将 HUE 接触传感器事件映射到 KNX 组地址。
 

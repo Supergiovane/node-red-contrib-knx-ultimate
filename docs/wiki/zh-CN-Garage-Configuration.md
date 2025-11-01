@@ -2,7 +2,7 @@
 layout: wiki
 title: "Garage-Configuration"
 lang: zh-CN
-permalink: /wiki/zh-CN-Garage-Configuration
+permalink: /wiki/zh-CN-Garage-Configuration/
 ---
 # Garage 配置（暂未翻译）
 

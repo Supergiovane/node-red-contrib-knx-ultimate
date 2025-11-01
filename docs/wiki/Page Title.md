@@ -2,7 +2,7 @@
 layout: wiki
 title: "Page Title"
 lang: en
-permalink: /wiki/Page%20Title
+permalink: /wiki/Page%20Title/
 ---
 # Placeholder Page Title
 

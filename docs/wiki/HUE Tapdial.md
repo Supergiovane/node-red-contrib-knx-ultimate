@@ -2,7 +2,7 @@
 layout: wiki
 title: "HUE Tapdial"
 lang: en
-permalink: /wiki/HUE%20Tapdial
+permalink: /wiki/HUE%20Tapdial/
 ---
 The **Hue Tap Dial** node maps the rotary service of the Hue Tap Dial to KNX and forwards the raw Hue events to your flow. Use the refresh icon beside the device field after pairing a new dial on the bridge.
 

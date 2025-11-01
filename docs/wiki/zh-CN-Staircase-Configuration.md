@@ -2,7 +2,7 @@
 layout: wiki
 title: "Staircase-Configuration"
 lang: zh-CN
-permalink: /wiki/zh-CN-Staircase-Configuration
+permalink: /wiki/zh-CN-Staircase-Configuration/
 ---
 # 楼梯灯配置（暂未翻译）
 

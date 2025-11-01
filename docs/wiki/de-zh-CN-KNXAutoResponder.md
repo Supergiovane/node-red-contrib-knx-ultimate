@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-KNXAutoResponder"
 lang: de
-permalink: /wiki/de-zh-CN-KNXAutoResponder
+permalink: /wiki/de-zh-CN-KNXAutoResponder/
 ---
 ---
 
@@ -35,17 +35,25 @@ JSON ist immer eine Reihe von Objekten, die jede Anweisung enthalten. Jede Anwei
 **Beginnen wir mit einem Befehl**
 
 Der Autoresponder -Knoten antwortet auf eine Leseanforderung unter Gruppenadresse 2/7/1.Wenn es noch nicht im Speicher ist, wird es mit _True _ antworten.
-Die ETS -CSV -Datei muss importiert werden, andernfalls müssen Sie auch die __"DPT" hinzufügen: "1.001" \*\* Key.```json
+Die ETS -CSV -Datei muss importiert werden, andernfalls müssen Sie auch die __"DPT" hinzufügen: "1.001" \*\* Key.
+
+```json
+
 [
     {
         "ga": "2/7/1",
         "default": true
     }
 ]
-``` **Vollständige Anweisungen**
+```
+
+**Vollständige Anweisungen**
 
 Der Auto-Responder-Knoten antwortet auf Leseanforderungen ab dem 01.03.1, einschließlich 01.03.22.Wenn der Speicher noch keinen Wert hat, antwortet er mit _False _.
-Es gibt auch einen__ Hinweis \*\* Schlüssel, der nur als Erinnerungsnotiz verwendet wird.Es wird nirgendwo verwendet.```json
+Es gibt auch einen__ Hinweis \*\* Schlüssel, der nur als Erinnerungsnotiz verwendet wird.Es wird nirgendwo verwendet.
+
+```json
+
 [
     {
         "note": "Virtual sensors coming from Hikvision AX-Pro",
@@ -54,11 +62,16 @@ Es gibt auch einen__ Hinweis \*\* Schlüssel, der nur als Erinnerungsnotiz verwe
         "default": false
     }
 ]
-``` **Angeschlossener Befehl**
+```
+
+**Angeschlossener Befehl**
 
 Von 2/2/5 bis 2/2/21 antwortet der Autoresponder -Knoten auf eine Leseanforderung an die Gruppenadresse.Wenn es noch keinen Wert im Speicher gibt, antwortet es mit einem Wert von 25.
 Der Autoresponder -Knoten antwortet auch auf Leseanforderungen von Komponenten 2/4/22.Wenn noch kein Wert im Speicher enthält, wird der unbekannte String \*unbekannte Zustand verwendet!\*Antwort.
-Beachten Sie das **comma** zwischen den JSON -Objekten jeder Richtlinie.```json
+Beachten Sie das **comma** zwischen den JSON -Objekten jeder Richtlinie.
+
+```json
+
 [
     {
         "note": "DALI garden virtual brightness %",
@@ -72,4 +85,6 @@ Beachten Sie das **comma** zwischen den JSON -Objekten jeder Richtlinie.```json
         "default": "Unknown status!"
     }
 ]
-```<br/>
+```
+
+<br/>

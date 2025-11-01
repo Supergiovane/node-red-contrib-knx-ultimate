@@ -2,7 +2,7 @@
 layout: wiki
 title: "SceneController-Configuration"
 lang: fr
-permalink: /wiki/fr-SceneController-Configuration
+permalink: /wiki/fr-SceneController-Configuration/
 ---
 Le nœud de contrôle de la scène, se comporte exactement comme un périphérique de contrôleur de scène.Il est capable d'économiser et de rappeler une scène. 
 
@@ -30,7 +30,9 @@ _ **Le nœud de scène enregistre automatiquement les valeurs mises à jour de t
  Pour définir une valeur en heures, ajoutez**h ** après la valeur numérique, par exemple (**1h** ) |
 |Supprimer le bouton |Supprimer un appareil de la liste.|
 
-# Sortie du message du nœud de contrôleur de scène```javascript
+# Sortie du message du nœud de contrôleur de scène
+
+```javascript
 
 msg = {
     topic: "Scene Controller" <i>(Contains the node's topic, for example "MyTopic").</i>
@@ -40,7 +42,9 @@ msg = {
     disabled: <i>(<b>true</b> if the scene controller has been disabled via input message msg.disabled = true, otherwise <b>false</b>).</i> 
 }
 
-```---
+```
+
+---
 
 # Message de flux d'entrée
 
@@ -48,19 +52,27 @@ Le nœud de contrôleur de scène réagit primoramment aux télégrammes KNX et 
 
 Vous pouvez cependant rappeler et enregistrer des scènes en envoyant un MSG au nœud.Le contrôleur de scène peut être désactivé pour inhiber les commandes provenant du bus KNX.
 
-**Rappelez-vous une scène** ```javascript
+**Rappelez-vous une scène** 
+
+```javascript
 
 // Example of a function that recall the scene
 msg.recallscene = true; 
 return msg;
 
-``` **Enregistrer une scène** ```javascript
+```
+
+**Enregistrer une scène** 
+
+```javascript
 
 // Example of a function that saves the scene
 msg.savescene = true; 
 return msg;
 
-``` **Enregistrer la valeur actuelle d'une adresse de groupe ** _**Le nœud de scène enregistre déjà les valeurs mises à jour de tous les actionneurs appartenant à la scène.** _
+```
+
+**Enregistrer la valeur actuelle d'une adresse de groupe ** _**Le nœud de scène enregistre déjà les valeurs mises à jour de tous les actionneurs appartenant à la scène.** _
 
 Parfois, il est utile de pouvoir enregistrer la valeur actuelle d'une adresse de groupe différente de celle entrée dans la scène, en tant que valeur réelle de l'actionneur de scène.
 
@@ -72,7 +84,9 @@ Cependant, vous pouvez contourner cela en mettant manuellement la valeur de l'ad
 
 Pensez ceci: si vous avez un actionneur aveugle, ayant une adresse de groupe pour déplacer, une adresse de groupe pour Step, une adresse de groupe pour la hauteur absolue, etc.
 
-Avec cette adresse de groupe d'état, vous pouvez mettre à jour les adresses de groupe de commandement des actionneurs aveugles appartenant à la scène.Veuillez consulter l'échantillon dans le wiki.```javascript
+Avec cette adresse de groupe d'état, vous pouvez mettre à jour les adresses de groupe de commandement des actionneurs aveugles appartenant à la scène.Veuillez consulter l'échantillon dans le wiki.
+
+```javascript
 
 // Example of a function that saves the status of a blind actuator, belongind to the scene.
 msg.savevalue = true; 
@@ -80,14 +94,20 @@ msg.topic = "0/1/1";
 msg.payload = 70;
 return msg;
 
-``` **Désactiver le contrôleur de scène**
+```
 
-Vous pouvez désactiver le contrôleur de scène (il désactive la réception de Telegram à partir du bus KNX mais le nœud accepte toujours le msg d'entrée du flux à la place).Il est parfois conseillé de désactiver le rappel et la sauvegarde d'une scène, par exemple, quand c'est la nuit et que vous appelez, à partir d'un bouton de poussée KNX, une "scène télévisée" qui soulève ou abaisse un aveugle, la scène ne sera pas rappelée ou sauvée.Au lieu de cela, vous pouvez activer une autre scène, juste pour la nuit, par exemple pour diminuer une série de lumières.```javascript
+**Désactiver le contrôleur de scène**
+
+Vous pouvez désactiver le contrôleur de scène (il désactive la réception de Telegram à partir du bus KNX mais le nœud accepte toujours le msg d'entrée du flux à la place).Il est parfois conseillé de désactiver le rappel et la sauvegarde d'une scène, par exemple, quand c'est la nuit et que vous appelez, à partir d'un bouton de poussée KNX, une "scène télévisée" qui soulève ou abaisse un aveugle, la scène ne sera pas rappelée ou sauvée.Au lieu de cela, vous pouvez activer une autre scène, juste pour la nuit, par exemple pour diminuer une série de lumières.
+
+```javascript
 
 // Example of disabling the scene controller. The commands coming from KNX BUS will be disabled. The node still accept the input msg from the flow instead!
 msg.disabled = true; // Otherwise "msg.disabled = false" to re-enable the node.
 return msg;
 
-```## Voir aussi
+```
+
+## Voir aussi
 
 [Exemple de contrôleur de scène](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Sample-Scene-Node)

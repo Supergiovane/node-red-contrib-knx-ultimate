@@ -2,7 +2,7 @@
 layout: wiki
 title: "HUE Bridge configuration"
 lang: en
-permalink: /wiki/HUE%20Bridge%20configuration
+permalink: /wiki/HUE%20Bridge%20configuration/
 ---
 <H1>PHILIPS HUE NODES
 

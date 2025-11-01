@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-Logger-Configuration"
 lang: fr
-permalink: /wiki/fr-zh-CN-Logger-Configuration
+permalink: /wiki/fr-zh-CN-Logger-Configuration/
 ---
 ---
 # Logger (journal)
@@ -29,35 +29,76 @@ Ce nœud peut également compter le nombre de messages (par seconde ou intervall
 ---
 #NODE SORTIE
 **broche 1: ETS compatible XML**
-Utilisez le nœud de fichier pour enregistrer `msg.payload`, ou envoyez-le à FTP, etc.```javascript
+Utilisez le nœud de fichier pour enregistrer `msg.payload`, ou envoyez-le à FTP, etc.
+
+```javascript
+
 msg = {
   topic: "MyLogger",
   payload: "CommunicationLog xmlns=http://knx.org/xml/telegrams/01 Telegram Timestamp=2020-03-27T07:32:39.470Z Service=L_Data.ind...." // XML 字符串
 }
-``` **PIN 2: Nombre de messages KNX**
-Sortie par cycle de comptage:```javascript
+```
+
+**PIN 2: Nombre de messages KNX**
+Sortie par cycle de comptage:
+
+```javascript
+
 msg = {
   topic: "",
   payload: 10,
   countIntervalInSeconds: 5,
   currentTime: "25/10/2021, 11:11:44"
 }
-```---
+```
+
+---
+
 # Entrez le message (entrée)
 Contrôle XML compatible ETS
-**Démarrer la minuterie** ```javascript
+**Démarrer la minuterie** 
+
+```javascript
+
 msg.etsstarttimer = true; return msg;
-``` **Stop Timer** ```javascript
+```
+
+**Stop Timer** 
+
+```javascript
+
 msg.etsstarttimer = false; return msg;
-``` **Sortie XML maintenant** ```javascript
+```
+
+**Sortie XML maintenant** 
+
+```javascript
+
 // 立刻输出 XML；若计时器在运行，则一并重启
 msg.etsoutputnow = true; return msg;
-```Counter Control Control
-**Démarrer la minuterie** ```javascript
+```Counter
+
+Control Control
+**Démarrer la minuterie** 
+
+```javascript
+
 msg.telegramcounterstarttimer = true; return msg;
-``` **Stop Timer** ```javascript
+```
+
+**Stop Timer** 
+
+```javascript
+
 msg.telegramcounterstarttimer = false; return msg;
-``` **Compte de sortie immédiatement** ```javascript
+```
+
+**Compte de sortie immédiatement** 
+
+```javascript
+
 msg.telegramcounteroutputnow = true; return msg;
-```## Voir
+```
+
+## Voir
 - [Exemple d'enregistreur](/node-red-contrib-knx-ultimate/wiki/Logger-Sample)

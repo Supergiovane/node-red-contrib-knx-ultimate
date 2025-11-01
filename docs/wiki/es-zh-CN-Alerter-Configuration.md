@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-Alerter-Configuration"
 lang: es
-permalink: /wiki/es-zh-CN-Alerter-Configuration
+permalink: /wiki/es-zh-CN-Alerter-Configuration/
 ---
 ---
 <
@@ -35,7 +35,10 @@ Complete la dirección de grupo del dispositivo o especifique una etiqueta para 
 PIN1: cada dispositivo de alarma genera un mensaje de acuerdo con el intervalo establecido.<br/>
 PIN2: emitir un mensaje resumido que contiene todos los dispositivos en el estado de alarma.<br/>
 PIN3: Solo se emite el último dispositivo que ingresó al estado de alarma.<br/>
-**PIN1** ```javascript
+**PIN1** 
+
+```javascript
+
 msg = {
   topic: "0/1/12",
   count: 3, // 处于告警状态的设备总数
@@ -43,7 +46,12 @@ msg = {
   longdevicename: "卧室主窗",
   payload: true
 }
-``` **PIN2** ```javascript
+```
+
+**PIN2** 
+
+```javascript
+
 msg = {
   topic: "door, 0/0/11, 0/1/2, 0/0/9",
   devicename: "入户门, 客厅壁灯, 地下室壁灯, 书房灯",
@@ -51,7 +59,12 @@ msg = {
   count: 4,
   payload: true
 }
-``` **PIN3** ```javascript
+```
+
+**PIN3** 
+
+```javascript
+
 msg = {
   topic: "0/1/12",
   count: 3, // 处于告警状态的设备总数
@@ -59,8 +72,13 @@ msg = {
   longdevicename: "卧室主窗",
   payload: true
 }
-```Salida Cuando todos los dispositivos están estacionarios (sin alarmas):
-**PIN1, PIN2, PIN3** ```javascript
+```Salida
+
+Cuando todos los dispositivos están estacionarios (sin alarmas):
+**PIN1, PIN2, PIN3** 
+
+```javascript
+
 msg = {
   topic: "",
   count: 0,
@@ -68,21 +86,38 @@ msg = {
   longdevicename: "",
   payload: false
 }
-```<br/>
+```
+
 <br/>
-## Mensaje de entrada para nodo```javascript
+<br/>
+## Mensaje de entrada para nodo
+
+```javascript
+
 msg.readstatus = true
-```Lee el valor actual de cada dispositivo en la lista.```javascript
+```Lee
+
+el valor actual de cada dispositivo en la lista.
+
+```javascript
+
 msg.start = true
-```Inicie una encuesta que "atraviese todos los dispositivos y salidas de alarma a su vez".El encuesta finaliza después de la última salida del dispositivo; Si vuelve a sondear, envíe el mensaje de entrada nuevamente.
+```Inicie
+
+una encuesta que "atraviese todos los dispositivos y salidas de alarma a su vez".El encuesta finaliza después de la última salida del dispositivo; Si vuelve a sondear, envíe el mensaje de entrada nuevamente.
 <br/>
 **Alarma de dispositivo personalizado** <br/>
-Para actualizar el estado de un dispositivo personalizado (verdadero/falso), envíe el siguiente mensaje de entrada:```javascript
+Para actualizar el estado de un dispositivo personalizado (verdadero/falso), envíe el siguiente mensaje de entrada:
+
+```javascript
+
 msg = {
   topic: "door",
   payload: true // 也可为 false，以清除此设备的告警
 }
-```<br/>
+```
+
+<br/>
 ## Ejemplo
 <a href = "/node-red-contrib-knx-ultimate/wiki/samplealerter"> Haga clic aquí para ver el ejemplo </a>
 <br/>

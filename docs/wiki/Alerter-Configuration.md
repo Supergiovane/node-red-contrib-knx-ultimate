@@ -2,7 +2,7 @@
 layout: wiki
 title: "Alerter-Configuration"
 lang: en
-permalink: /wiki/Alerter-Configuration
+permalink: /wiki/Alerter-Configuration/
 ---
 # ALERTER NODE CONFIGURATION
 
@@ -118,12 +118,14 @@ msg = {
 ## MESSAGE INTO THE NODE
 
 ```javascript
+
 msg.readstatus = true
 ```
 
 Read the value of each device belonging to the list.
 
 ```javascript
+
 msg.start = true
 ```
 

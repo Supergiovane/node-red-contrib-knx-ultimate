@@ -2,14 +2,17 @@
 layout: wiki
 title: "Logger-Sample"
 lang: es
-permalink: /wiki/es-Logger-Sample
+permalink: /wiki/es-Logger-Sample/
 ---
 ---
 # Muestras de registrador
 <img src = "https://raw.githubusercontent.com/supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/logger.png" width = "90%"> <br/>
 **Copie este código y péguelo en su flujo**
 <talls> <summary> Ver código </summary>
-> Ajuste los nodos de acuerdo con su configuración y configure **la ruta en el nodo de archivo** .```javascript
+> Ajuste los nodos de acuerdo con su configuración y configure **la ruta en el nodo de archivo** .
+
+```javascript
+
 [
     {
         "id": "b8e9e444.0af1f",
@@ -65,4 +68,6 @@ permalink: /wiki/es-Logger-Sample
         "localEchoInTunneling": true
     }
 ]
-```</ettall>
+```
+
+</ettall>

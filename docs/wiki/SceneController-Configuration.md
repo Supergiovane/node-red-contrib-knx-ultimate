@@ -2,7 +2,7 @@
 layout: wiki
 title: "SceneController-Configuration"
 lang: en
-permalink: /wiki/SceneController-Configuration
+permalink: /wiki/SceneController-Configuration/
 ---
 The scene controllre node, behaves exactly as a scene controller KNX device. It's capable of saving and recalling a scene.
 

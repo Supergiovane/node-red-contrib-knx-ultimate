@@ -28,6 +28,7 @@
 ## 节点输出
 
 ```javascript
+
 msg = {
   topic: "Scene Controller",
   recallscene: true|false,
@@ -46,12 +47,14 @@ msg = {
 **召回场景**
 
 ```javascript
+
 msg.recallscene = true; return msg;
 ```
 
 **保存场景**
 
 ```javascript
+
 msg.savescene = true; return msg;
 ```
 
@@ -62,6 +65,7 @@ msg.savescene = true; return msg;
 例如卷帘：绝对高度的状态 GA 才能反映准确位置。可用该状态 GA 去更新场景内相关执行器的命令 GA。
 
 ```javascript
+
 msg.savevalue = true;
 msg.topic = "0/1/1"; // GA
 msg.payload = 70; // 要保存的值
@@ -73,6 +77,7 @@ return msg;
 禁用来自 KNX 总线的命令（仍接受流程消息）。例如夜间不希望从实体按钮召回/保存场景时很有用。
 
 ```javascript
+
 msg.disabled = true; // false 重新启用
 return msg;
 ```

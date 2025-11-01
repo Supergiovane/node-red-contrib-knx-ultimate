@@ -4,10 +4,28 @@ layout: default
 <link rel="stylesheet" href="{{ '/assets/wiki.css' | relative_url }}">
 {% capture nav_lang %}{{ page.lang | default: 'en' }}{% endcapture %}
 {% assign nav_lang = nav_lang | strip %}
+{% assign header_tagline = 'Node-RED meets KNX' %}
+{% case nav_lang %}
+  {% when 'it' %}
+    {% assign header_tagline = 'Node-RED incontra KNX' %}
+  {% when 'de' %}
+    {% assign header_tagline = 'Node-RED trifft KNX' %}
+  {% when 'fr' %}
+    {% assign header_tagline = 'Node-RED rencontre KNX' %}
+  {% when 'es' %}
+    {% assign header_tagline = 'Node-RED se encuentra con KNX' %}
+  {% when 'zh-CN' %}
+    {% assign header_tagline = 'Node-RED 与 KNX 相遇' %}
+{% endcase %}
 <div class="wiki-header">
-  <a class="wiki-logo" href="{{ '/' | relative_url }}">
-    <img src="{{ '/logo.png' | relative_url }}" alt="KNX Ultimate logo">
-  </a>
+  <div class="wiki-header__card">
+    <div class="wiki-header__logo">
+      <a class="wiki-logo" href="{{ '/' | relative_url }}">
+        <img src="{{ '/logo.png' | relative_url }}" alt="KNX Ultimate logo">
+      </a>
+    </div>
+    <div class="wiki-header__tagline">{{ header_tagline }}</div>
+  </div>
 </div>
 <div class="wiki-page">
   <aside class="wiki-sidebar">

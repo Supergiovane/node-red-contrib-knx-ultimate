@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-Logger-Configuration"
 lang: de
-permalink: /wiki/de-zh-CN-Logger-Configuration
+permalink: /wiki/de-zh-CN-Logger-Configuration/
 ---
 ---
 
@@ -43,41 +43,79 @@ Dieser Knoten kann auch die Anzahl der Nachrichten (pro Sekunde oder benutzerdef
 
 **Pin 1: ETS -kompatible xml**
 
-Verwenden Sie den Dateiknoten, um `msg.payload` zu speichern, oder senden Sie ihn an FTP usw.```javascript
+Verwenden Sie den Dateiknoten, um `msg.payload` zu speichern, oder senden Sie ihn an FTP usw.
+
+```javascript
+
 msg = {
   topic: "MyLogger",
   payload: "CommunicationLog xmlns=http://knx.org/xml/telegrams/01 Telegram Timestamp=2020-03-27T07:32:39.470Z Service=L_Data.ind...." // XML 字符串
 }
-``` **Pin 2: KNX -Nachrichtenanzahl**
+```
 
-Ausgabe pro Zählzyklus:```javascript
+**Pin 2: KNX -Nachrichtenanzahl**
+
+Ausgabe pro Zählzyklus:
+
+```javascript
+
 msg = {
   topic: "",
   payload: 10,
   countIntervalInSeconds: 5,
   currentTime: "25/10/2021, 11:11:44"
 }
-```---
+```
+
+---
 
 # Meldung eingeben (Eingabe)
 
 ETS -kompatible XML -Steuerung
 
-**Timer starten** ```javascript
+**Timer starten** 
+
+```javascript
+
 msg.etsstarttimer = true; return msg;
-``` **Timer stoppen** ```javascript
+```
+
+**Timer stoppen** 
+
+```javascript
+
 msg.etsstarttimer = false; return msg;
-``` **Ausgabe xml jetzt** ```javascript
+```
+
+**Ausgabe xml jetzt** 
+
+```javascript
+
 // 立刻输出 XML；若计时器在运行，则一并重启
 msg.etsoutputnow = true; return msg;
 ```Meldungszählerkontrolle
 
-**Timer starten** ```javascript
+**Timer starten** 
+
+```javascript
+
 msg.telegramcounterstarttimer = true; return msg;
-``` **Timer stoppen** ```javascript
+```
+
+**Timer stoppen** 
+
+```javascript
+
 msg.telegramcounterstarttimer = false; return msg;
-``` **Ausgangszahl sofort** ```javascript
+```
+
+**Ausgangszahl sofort** 
+
+```javascript
+
 msg.telegramcounteroutputnow = true; return msg;
-```## Sehen
+```
+
+## Sehen
 
 - [Beispiellogger](/node-red-contrib-knx-ultimate/wiki/Logger-Sample)

@@ -2,7 +2,7 @@
 layout: wiki
 title: "Gateway-configuration"
 lang: zh-CN
-permalink: /wiki/zh-CN-Gateway-configuration
+permalink: /wiki/zh-CN-Gateway-configuration/
 ---
 # KNX Gateway 配置
 
@@ -72,23 +72,41 @@ permalink: /wiki/zh-CN-Gateway-configuration
 
 视频：<a href="https://youtu.be/egRbR_KwP9I"><img src='https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/yt.png'></a>
 
-- **导入 ETS CSV 组地址 ** 注意：GA 名称中不得包含制表符（Tab）。**If Group Address has no Datapoint ** > 若 ETS 中 GA 无 DPT：可停止导入、跳过该 GA、或使用占位 DPT 继续。**如何从 ETS 导出 CSV**
+### 导入 ETS CSV 组地址列表
 
-> 在 ETS 中选中组地址列表 → 右键 → 导出组地址；导出选项：
+**注意。** 组地址名称中不能包含制表符。如果 ETS 中某个 GA 没有配置 DPT，可选择停止导入、跳过该地址，或临时使用 `1.001` 的假 DPT 继续。
 
-> Output Format: CSV
+**从 ETS 导出 CSV**
 
-> CSV Format: 1/1 Name/Address
+1. 在 ETS 中打开 *组地址* 视图，右键列表并选择 **导出组地址**。
+2. 在导出窗口设置：
+   - **Output format：** CSV
+   - **CSV format：** 1/1 Name/Address
+   - **Export with header line：** 勾选
+   - **CSV separator：** Tabulator
+3. 导出后，将文件内容粘贴到 **ETS group address list** 字段（或直接提供文件路径）。
 
-> Export with header line: 勾选
+**导入时会发生什么**
 
-> CSV Separator: Tabulator
+- CSV 必须为每个组地址提供 DPT。
+- 网关会解析文件，并在 Node-RED 的调试面板显示结果：
+  - **ERROR** – 缺少 DPT，导入终止。
+  - **WARNING** – 缺少子类型，系统会填充默认值，但建议手动检查（子类型是 DPT 中小数点后的数字，例如 `5.001`）。
+- 字段应使用引号包裹，例如：
 
-> 然后将文件内容粘贴到此处。文件必须包含每个 GA 的 DPT。解析结果会显示在 Node‑RED 的 DEBUG 面板。
+  
 
-> 结果类型： **ERROR ** （缺少 DPT → 停止导入）与**WARNING ** （缺少子类型 → 自动补默认，但需人工确认）。子类型是 DPT 中小数点右侧的数字，如 `5.001`。**如何从 ETS 导出 ESF**
+```
 
-> 在 ETS 的项目页点击导出（上箭头）→ 选择 ESF（不是 `.knxprod`）→ 将 ESF 内容粘贴到网关的 "ETS group address list" 字段。
+"Attuatori luci"	"0/-/-"	""	""	""	""	"Auto"
+  
+
+```
+
+### 导入 ETS ESF 组地址列表
+
+1. 在 ETS 项目页面点击导出图标（向上箭头），选择 **ESF** 格式（而非 `.knxprod`）。
+2. 将导出的文件内容粘贴到网关的 **ETS group address list** 字段，或提供该文件的路径。
 
     <table style="font-size:12px">
         <tr><th colspan="2" style="font-size:14px">节点状态颜色说明</th></tr>

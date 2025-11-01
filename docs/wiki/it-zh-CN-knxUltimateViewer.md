@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-knxUltimateViewer"
 lang: it
-permalink: /wiki/it-zh-CN-knxUltimateViewer
+permalink: /wiki/it-zh-CN-knxUltimateViewer/
 ---
 ---
 <p> Questo nodo funziona con il nodo <b> ui_template </b> del cruscotto rosso nodo.<br/>
@@ -22,12 +22,20 @@ Visualizza tutti gli indirizzi di gruppo e i loro valori nel gruppo dashboard.<b
 : payload (html): connettersi a <b> modello </b>;Visualizza la coda di invio KNX per monitorare la congestione del bus.
 # Esempio
 <img src = "https://raw.githubusercontent.com/supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/viewer2.png" width = "90%"> <br/>
-Metti lo spettatore nel processo e collega un modello Dashboard <b> </b>.Il contenuto del nodo <b> modello </b> è il seguente:```
+Metti lo spettatore nel processo e collega un modello Dashboard <b> </b>.Il contenuto del nodo <b> modello </b> è il seguente:
+
+```
+
 <div ng-bind-html="msg.payload"></div>
-```Diagramma di output: <br/> <img src = "https://raw.githubusercontent.com/supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/viewer1.png" width = "90%"> <br/>
+```Diagramma
+
+di output: <br/> <img src = "https://raw.githubusercontent.com/supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/viewer1.png" width = "90%"> <br/>
 <Br />
 **Copia il seguente codice nel processo**
-> Regola i nodi in base al tuo ambiente````json
+> Regola i nodi in base al tuo ambiente
+
+```json
+
 [{"id":"6736561775d8ee88","type":"knxUltimateViewer","z":"54c299048a6c5b6b","server":"a01c5d80.1bbb78","name":"KNXViewer","x":260,"y":240,"wires":[["b239b31adb87d250"],["aafd0f4cde22f225"]]},{"id":"b239b31adb87d250","type":"ui_template","z":"54c299048a6c5b6b","group":"6cbdc633e478e65a","name":"","order":0,"width":"12","height":"6","format":"
 <div ng-bind-html=\"msg.payload\"></div>
 ","storeOutMessages":true,"fwdInMessages":true,"resendOnRefresh":true,"templateScope":"local","x":460,"y":220,"wires":[[]]},{"id":"7fe6d46036fe5fc2","type":"comment","z":"54c299048a6c5b6b","name":"KNX
@@ -423,4 +431,8 @@ taverna\"\t\"3/0/25\"\t\"\"\t\"\"\t\"\"\t\"DPST-1-1\"\t\"Auto\"\n\"_Pala soggior
     Corlo\"\t\"4/2/11\"\t\"\"\t\"\"\t\"\"\t\"DPST-232-600\"\t\"Auto\"\n","KNXEthInterface":"Auto","KNXEthInterfaceManuallyInput":"","statusDisplayLastUpdate":true,"statusDisplayDeviceNameWhenALL":true,"statusDisplayDataPoint":false,"stopETSImportIfNoDatapoint":"fake","loglevel":"warn","name":"Enertex
     Unicast","localEchoInTunneling":true,"delaybetweentelegrams":"50","delaybetweentelegramsfurtherdelayREAD":"1","ignoreTelegramsWithRepeatedFlag":true,"keyringFileXML":"","autoReconnect":"yes"},{"id":"6cbdc633e478e65a","type":"ui_group","name":"KNX-Ultimate
     Viewer","tab":"02c465fe930c0e1c","order":1,"disp":true,"width":"12","collapse":false},{"id":"02c465fe930c0e1c","type":"ui_tab","name":"Home","icon":"dashboard","disabled":false,"hidden":false}]
-    ````` ``
+    
+
+```
+
+``

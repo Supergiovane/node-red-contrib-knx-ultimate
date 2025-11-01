@@ -2,7 +2,7 @@
 layout: wiki
 title: "Device"
 lang: de
-permalink: /wiki/de-Device
+permalink: /wiki/de-Device/
 ---
 ## KNX‑ULTIMATE GERÄTE‑NODE EINSTELLUNGEN
 
@@ -74,6 +74,7 @@ Der Code läuft bei jeder Eingangs‑Nachricht und bei jedem BUS‑Telegramm. Be
 ### Beispiele (Flow → BUS)
 
 ```javascript
+
 const statusGA = getGAValue('0/0/09','1.001');
 if (msg.payload !== statusGA){ return msg; } else { return; }
 ```
@@ -89,6 +90,7 @@ return msg;
 ### Beispiele (BUS → Ausgang)
 
 ```javascript
+
 msg.externalTemperature = getGAValue('0/0/10'); // ohne ETS: getGAValue('0/0/10','9.001')
 return msg;
 ```
@@ -104,6 +106,7 @@ if (msg.payload === false && getGAValue('0/0/11','1.001') === false){ return; } 
 ### setConfig Details
 
 ```javascript
+
 var config= { setGroupAddress: "0/1/2", setDPT: "1.001" };
 msg.setConfig = config; return msg;
 ```
@@ -121,6 +124,7 @@ msg.setConfig = config; return msg;
 ### Ausgehende Nachricht (Beispiel)
 
 ```json
+
 msg = {
   topic: "0/1/2",
   payload: false,
@@ -175,30 +179,35 @@ Weitere Beispiele [hier](https://supergiovane.github.io/node-red-contrib-knx-ult
 **LAMPE EINSCHALTEN**
 
 ```javascript
+
 msg.payload = true; return msg;
 ```
 
 **ABSOLUTES DIMMEN**
 
 ```javascript
+
 msg.payload = 30; return msg;
 ```
 
 **TEXT AN DISPLAY**
 
 ```javascript
+
 msg.payload = "Output Tem. 35°C"; return msg;
 ```
 
 **STATUS LESEN**
 
 ```javascript
+
 msg.readstatus = true; return msg;
 ```
 
 **RAW AN BUS SENDEN**
 
 ```javascript
+
 msg.writeraw = Buffer.from('01','hex');
 msg.bitlenght = 1; return msg;
 // Temperatur (DPT9): 18.4 °C = <0730>

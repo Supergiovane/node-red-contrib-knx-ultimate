@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-HUE Tapdial"
 lang: es
-permalink: /wiki/es-zh-CN-HUE%20Tapdial
+permalink: /wiki/es-zh-CN-HUE%20Tapdial/
 ---
 ---
 **Hue Tap dial** El nodo mapea el servicio de rotación del dial TAP a KNX y envía el evento de Hue original al proceso de nodo-rojo.Después de combinar un nuevo dispositivo, haga clic en el icono de actualización junto al campo del dispositivo.

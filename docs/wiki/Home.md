@@ -2,7 +2,7 @@
 layout: wiki
 title: "Home"
 lang: en
-permalink: /wiki/Home
+permalink: /wiki/Home/
 ---
 ---
 ![Logo](https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/logo-big.png)

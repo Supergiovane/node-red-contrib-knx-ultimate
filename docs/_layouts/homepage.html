@@ -1,0 +1,14 @@
+---
+layout: default
+---
+<link rel="stylesheet" href="{{ '/assets/wiki.css' | relative_url }}">
+{% assign nav_lang = page.lang | default: site.active_lang | default: site.polyglot.default_lang | default: 'en' %}
+{% assign nav_lang = nav_lang | strip %}
+<div class="wiki-page">
+  <aside class="wiki-sidebar">
+    {% include wiki-navbar.html lang=nav_lang %}
+  </aside>
+  <article class="post-content wiki-content" itemprop="articleBody">
+    {{ content }}
+  </article>
+</div>

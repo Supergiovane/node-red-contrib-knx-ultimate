@@ -2,7 +2,7 @@
 layout: wiki
 title: "LoadControl-Configuration"
 lang: es
-permalink: /wiki/es-LoadControl-Configuration
+permalink: /wiki/es-LoadControl-Configuration/
 ---
 # Nodo de control de carga KNX
 
@@ -49,7 +49,9 @@ Si _Automatic Recovery_ está habilitado, el dispositivo se reactiva automática
 1. Salida estándar
 : Payload (String | Object): la salida estándar del comando.
 
-## Detalles```javascript
+## Detalles
+
+```javascript
 
 msg = {
   "topic": "Home Total Consumption", // Node Name
@@ -61,6 +63,8 @@ msg = {
   "payload": 1, // Current shedding stage
 }
 
-```# Muestra
+```
+
+# Muestra
 
 <a href = "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleLoadControl"> Haga clic aquí para ver el ejemplo </a>

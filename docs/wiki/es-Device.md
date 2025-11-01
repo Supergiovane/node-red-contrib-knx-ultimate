@@ -2,7 +2,7 @@
 layout: wiki
 title: "Device"
 lang: es
-permalink: /wiki/es-Device
+permalink: /wiki/es-Device/
 ---
 <
 
@@ -86,6 +86,7 @@ En esta muestra, enviaremos el mensaje de entrada al bus KNX solo si otro GA tie
 Encenderemos la luz solo si su estado GA está apagado y viceversa.
 
 ```javascript
+
 const statusGA = getGAValue('0/0/09','1.001');
 if (msg.payload !== statusGA){ // "!==" means "not equal"
     return msg;
@@ -98,6 +99,7 @@ if (msg.payload !== statusGA){ // "!==" means "not equal"
 Aquí, si alguien enciende la luz, encendemos otra luz 0/1/8 y después de 2 segundos apagamos la lámpara conectada al nodo.
 
 ```javascript
+
 if (msg.payload){ 
     setGAValue('0/1/8',true)
     setTimeout(function() {
@@ -113,6 +115,7 @@ En esta muestra, emitiremos el objeto MSG al flujo, agregando el valor de otro G
 El mensaje de salida al flujo también tendrá la temperatura externa en la propiedad `msg.externaltemperatura '
 
 ```javascript
+
 // The current msg contains the internal temperature in the "msg.payload" property, but we want to emit the external temperature as well.
 msg.externalTemperature = getGAValue('0/0/10'); // In case the ETS file is missing, you must specify the dpt as well: getGAValue('0/0/10','9.001')
 return msg;
@@ -121,6 +124,7 @@ return msg;
 En esta otra muestra, no emitiremos un MSG al flujo, en el caso de MSG.PayLoad y otro valor de GA son falsos.
 
 ```javascript
+
 if (msg.payload === false && getGAValue('0/0/11','1.001') === false){
     // Both false, don't emit the msg to the flow.
     return;
@@ -153,7 +157,10 @@ if (msg.payload === false && getGAValue('0/0/11','1.001') === false){
 `msg.setConfig`: es posible cambiar programáticamente la configuración del nodo ultimate KNX, enviando el objeto Msg.SetConfig al nodo.
 La nueva configuración se retendrá hasta el próximo msg.setConfig o hasta que reinicie/redploy.
 Todas las propiedades (_setGroupAddress_ y _setdpt_) ** son obligatorias** .. \
-Úselo así, en un nodo Funccton: ** Establezca tanto GA como DPT** ```javascript
+Úselo así, en un nodo Funccton: ** Establezca tanto GA como DPT** 
+
+```javascript
+
 // Change the node properties as follows:
 // setGroupAddress: set the new group address.
 // setDPT: set the new Datapoint, as you can see in the dropdown list (the numeric part, for example "1.001", "237.600", etc...). If set to **auto** , the datapoint will be read from the ETS file (if present).
@@ -163,7 +170,12 @@ var config= {
 };
 msg.setConfig = config;
 return msg;
-``` ** Establezca GA y lea el punto de datos del archivo ETS** ```javascript
+```
+
+** Establezca GA y lea el punto de datos del archivo ETS** 
+
+```javascript
+
 // Change the node properties as follows:
 // setGroupAddress: set the new group address.
 // setDPT: set the new Datapoint, as you can see in the dropdown list (the numeric part, for example "1.001", "237.600", etc...). If set to "auto", the datapoint will be read from the ETS file (if present).
@@ -189,6 +201,7 @@ return msg;
 Este es, en cambio, un ejemplo del objeto MSG completo.
 
 ```json
+
 msg = {
     topic: "0/1/2" // (Contains the node's topic, for example "MyTopic". If the node's topic is not set, contains the Group Address, for example "0/1/2")
     payload: false 
@@ -217,7 +230,7 @@ msg = {
 }
 ```
 
- ** Muestra de carga útil** | Propiedad | Descripción |
+** Muestra de carga útil** | Propiedad | Descripción |
 
 |-|-|
 | Muestra | Esto le dará una pista sobre qué escribir en un nodo de función externa, si desea controlar el nodo a través de un nodo de función de nodo-rojo. |
@@ -239,7 +252,10 @@ msg = {
 `msg.setConfig`: es posible cambiar programáticamente la configuración del nodo ultimate KNX, enviando el objeto Msg.SetConfig al nodo.
 La nueva configuración se retendrá hasta el próximo msg.setConfig o hasta que reinicie/redploy.
 Todas las propiedades (_setGroupAddress_ y _setdpt_) ** son obligatorias** .. \
-Úselo así, en un nodo Funccton: ** Establezca tanto GA como DPT** ```javascript
+Úselo así, en un nodo Funccton: ** Establezca tanto GA como DPT** 
+
+```javascript
+
 // Change the node properties as follows:
 // setGroupAddress: set the new group address.
 // setDPT: set the new Datapoint, as you can see in the dropdown list (the numeric part, for example "1.001", "237.600", etc...). If set to **auto** , the datapoint will be read from the ETS file (if present).
@@ -249,7 +265,12 @@ var config= {
 };
 msg.setConfig = config;
 return msg;
-``` ** Establezca GA y lea el punto de datos del archivo ETS** ```javascript
+```
+
+** Establezca GA y lea el punto de datos del archivo ETS** 
+
+```javascript
+
 // Change the node properties as follows:
 // setGroupAddress: set the new group address.
 // setDPT: set the new Datapoint, as you can see in the dropdown list (the numeric part, for example "1.001", "237.600", etc...). If set to "auto", the datapoint will be read from the ETS file (if present).
@@ -275,6 +296,7 @@ return msg;
 Este es, en cambio, un ejemplo del objeto MSG completo.
 
 ```json
+
 msg = {
     topic: "0/1/2" // (Contains the node's topic, for example "MyTopic". If the node's topic is not set, contains the Group Address, for example "0/1/2")
     payload: false 
@@ -336,7 +358,7 @@ Aquí encontrará una muestra de [dispositivo virtual](https://supergiovane.gith
 
 ```javascript
 
- {
+{
    topic: '5/0/1',
    payload: true,
    devicename: 'Light Status',
@@ -415,7 +437,9 @@ Puede más muestras [aquí](https://supergiovane.github.io/node-red-contrib-knx-
 msg.payload = true; // issues a write or response (based on the options <b>Telegram type</b> above) to the KNX bus
 return msg;
 
-``` ** ABSOLUTO Dim una lámpara** 
+```
+
+** ABSOLUTO Dim una lámpara** 
 
 ```javascript
 
@@ -423,7 +447,9 @@ return msg;
 msg.payload = 30; // issues a write or response (based on the options <b>Telegram type</b> above) to the KNX bus
 return msg;
 
-``` ** Enviar texto a una pantalla** 
+```
+
+** Enviar texto a una pantalla** 
 
 ```javascript
 
@@ -431,7 +457,9 @@ return msg;
 msg.payload = "Output Tem. 35°C"; // issues a write or response (based on the options <b>Telegram type</b> above) to the KNX bus
 return msg;
 
-``` ** Lea el estado de la lavadora** 
+```
+
+** Lea el estado de la lavadora** 
 
 ```javascript
 
@@ -441,7 +469,9 @@ return msg;
 msg.readstatus = true; // issues a write or response (based on the options <b>Telegram type</b> above) to the KNX bus
 return msg;
 
-``` ** Enviar valor bruto al bus** 
+```
+
+** Enviar valor bruto al bus** 
 
 Para enviar un valor de búfer en bruto al bus KNX, use el _ ** escritorw ** _ y _**bitLenght** _ Propiedades de la entrada de MSG. 
 
@@ -464,7 +494,9 @@ return msg;
 // msg.bitlenght = 1;
 // return msg;
 
-``` ** Actualice el valor del nodo sin enviarlo al bus** 
+```
+
+** Actualice el valor del nodo sin enviarlo al bus** 
 
 ```javascript
 
@@ -491,7 +523,9 @@ msg.destination = "0/0/1"; // Set the destination
 msg.payload = false; // issues a write or response (based on the options <b>Telegram type</b> above) to the KNX bus
 return msg;
 
-``` ** Apague una lámpara <u> sin </u> archivo ETS importado** 
+```
+
+** Apague una lámpara <u> sin </u> archivo ETS importado** 
 
 ```javascript
 
@@ -502,7 +536,9 @@ msg.dpt = "1.001";
 msg.payload = false; // issues a write or response (based on the options <b>Telegram type</b> above) to the KNX bus
 return msg;
 
-``` ** Lea el estado de todos los dispositivos KNX <u> con el archivo </u> ETS importado** 
+```
+
+** Lea el estado de todos los dispositivos KNX <u> con el archivo </u> ETS importado** 
 
 No puede emitir una solicitud de lectura a todos los grupos si no importa su archivo ETS, porque el nodo no puede saber en los dispositivos para enviar la solicitud de lectura.
 
@@ -540,7 +576,7 @@ return msg;
         <TD> Reaccionar a los telegramas de respuesta. </td>
         </tr>
         <tr>
-            <TD> <img src = "https://raw.githubusercontent.com/supergiovane/node-red-contrib-knx-ultimate/master/img/blueing.png"> </ img> </td>
+            <TD> <img src = "https://raw.githubusercontent.com/supergiovane/node-red-contrib-knx-ultimate/master/img/bluering.png"> </ img> </td>
             <TD> Auto envía el valor del nodo como respuesta al bus. <a href = "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Virtual-Device" target = "_ blank"> ver dispositivo virtual. </a> </td>
         </tr>
         <tr>

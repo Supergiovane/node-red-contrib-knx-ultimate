@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-HUE Light sensor"
 lang: de
-permalink: /wiki/de-zh-CN-HUE%20Light%20sensor
+permalink: /wiki/de-zh-CN-HUE%20Light%20sensor/
 ---
 ---
 

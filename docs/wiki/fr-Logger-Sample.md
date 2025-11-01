@@ -2,14 +2,17 @@
 layout: wiki
 title: "Logger-Sample"
 lang: fr
-permalink: /wiki/fr-Logger-Sample
+permalink: /wiki/fr-Logger-Sample/
 ---
 ---
 # Échantillons d'enregistrement
 <img src = "https://raw.githubusercontent.com/supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/logger.png" width = "90%"> <br/>
 **Copiez ce code et collez-le dans votre flux**
 <fettots> <summary> Afficher le code </summary>
-> Ajustez les nœuds en fonction de votre configuration et définissez **le chemin d'accès dans le nœud de fichier** .```javascript
+> Ajustez les nœuds en fonction de votre configuration et définissez **le chemin d'accès dans le nœud de fichier** .
+
+```javascript
+
 [
     {
         "id": "b8e9e444.0af1f",
@@ -65,4 +68,6 @@ permalink: /wiki/fr-Logger-Sample
         "localEchoInTunneling": true
     }
 ]
-```</fords>
+```
+
+</fords>

@@ -2,7 +2,7 @@
 layout: wiki
 title: "SceneController-Configuration"
 lang: es
-permalink: /wiki/es-SceneController-Configuration
+permalink: /wiki/es-SceneController-Configuration/
 ---
 El nodo de control de la escena se comporta exactamente como un dispositivo KNX de controlador de escena.Es capaz de guardar y recordar una escena. 
 
@@ -34,7 +34,9 @@ _ **El nodo de la escena guarda automáticamente los valores actualizados de tod
  Para establecer un valor en horas, agregue ** h**después del valor numérico, por ejemplo ( ** 1H** ) |
 |Botón eliminar |Elimine un dispositivo de la lista.|
 
-# Salida de mensajes desde el nodo del controlador de escena```javascript
+# Salida de mensajes desde el nodo del controlador de escena
+
+```javascript
 
 msg = {
     topic: "Scene Controller" <i>(Contains the node's topic, for example "MyTopic").</i>
@@ -44,25 +46,35 @@ msg = {
     disabled: <i>(<b>true</b> if the scene controller has been disabled via input message msg.disabled = true, otherwise <b>false</b>).</i> 
 }
 
-```---
+```
+
+---
 
 # Mensaje de flujo de entrada
 
 El nodo del controlador de la escena reacciona principalmente a los telegramas KNX y confía en eso para recordar y guardar escenas.
 
-Sin embargo, puede recordar y guardar escenas enviando un mensaje al nodo.El controlador de la escena se puede deshabilitar para inhibir los comandos que provienen del autobús KNX. ** Recuerde una escena** ```javascript
+Sin embargo, puede recordar y guardar escenas enviando un mensaje al nodo.El controlador de la escena se puede deshabilitar para inhibir los comandos que provienen del autobús KNX. ** Recuerde una escena** 
+
+```javascript
 
 // Example of a function that recall the scene
 msg.recallscene = true; 
 return msg;
 
-``` ** Guardar una escena** ```javascript
+```
+
+** Guardar una escena** 
+
+```javascript
 
 // Example of a function that saves the scene
 msg.savescene = true; 
 return msg;
 
-``` ** Guardar el valor actual de una dirección de grupo ** _**El nodo de la escena ya guarda los valores actualizados de todos los actuadores que pertenecen a la escena.** _
+```
+
+** Guardar el valor actual de una dirección de grupo ** _**El nodo de la escena ya guarda los valores actualizados de todos los actuadores que pertenecen a la escena.** _
 
 A veces es útil poder guardar el valor actual de una dirección de grupo que es diferente de la que ingresó en la escena, como el valor real del actuador de la escena.
 
@@ -74,7 +86,9 @@ Sin embargo, puede trabajar en torno a esto actualizando manualmente el valor de
 
 Piense en esto: si tiene un actuador ciego, tiene una dirección grupal para el movimiento, una dirección grupal para el paso, una dirección de grupo para la altura absoluta, etc. la única dirección grupal que conoce la posición exacta de la ciega, es la dirección de grupo ** Valor de altura absoluta** .
 
-Con esta dirección de grupo de estado, puede actualizar las direcciones del grupo de comando de los actuadores ciegos que pertenecen a la escena.Consulte la muestra en el wiki.```javascript
+Con esta dirección de grupo de estado, puede actualizar las direcciones del grupo de comando de los actuadores ciegos que pertenecen a la escena.Consulte la muestra en el wiki.
+
+```javascript
 
 // Example of a function that saves the status of a blind actuator, belongind to the scene.
 msg.savevalue = true; 
@@ -82,14 +96,20 @@ msg.topic = "0/1/1";
 msg.payload = 70;
 return msg;
 
-``` ** Desactivar Controlador de escena**
+```
 
-Puede deshabilitar el controlador de la escena (deshabilita la recepción del telegrama del bus KNX, pero el nodo aún acepta el mensaje de entrada del flujo en su lugar).En algún momento es aconsejable para deshabilitar el retiro y el salvamento de una escena, por ejemplo, cuando es de noche y llamas, desde un botón de empuje KNX, una "escena de TV" que levanta o baja una ciega, la escena no se recordará ni salvará.En cambio, puede habilitar otra escena, solo por la noche, por ejemplo, para atenuar una serie de luces.```javascript
+** Desactivar Controlador de escena**
+
+Puede deshabilitar el controlador de la escena (deshabilita la recepción del telegrama del bus KNX, pero el nodo aún acepta el mensaje de entrada del flujo en su lugar).En algún momento es aconsejable para deshabilitar el retiro y el salvamento de una escena, por ejemplo, cuando es de noche y llamas, desde un botón de empuje KNX, una "escena de TV" que levanta o baja una ciega, la escena no se recordará ni salvará.En cambio, puede habilitar otra escena, solo por la noche, por ejemplo, para atenuar una serie de luces.
+
+```javascript
 
 // Example of disabling the scene controller. The commands coming from KNX BUS will be disabled. The node still accept the input msg from the flow instead!
 msg.disabled = true; // Otherwise "msg.disabled = false" to re-enable the node.
 return msg;
 
-```## Ver también
+```
+
+## Ver también
 
 [Controlador de escena de muestra](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Sample-Scene-Node)

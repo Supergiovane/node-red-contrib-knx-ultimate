@@ -2,7 +2,7 @@
 layout: wiki
 title: "KNXAutoResponder"
 lang: es
-permalink: /wiki/es-KNXAutoResponder
+permalink: /wiki/es-KNXAutoResponder/
 ---
 Este nodo responderá a las solicitudes de lectura del bus KNX.
 
@@ -24,15 +24,23 @@ De manera predeterminada, hay una muestra previa * ***"Responder al texto JSON, 
 |GA |La dirección grupal.También puede usar los ".." Wildchars, para la especidad de una gama de direcciones grupales.El ".." solo se puede usar con el nivel del tercer GA, Ej: ** 1/1/0..257** .Vea las muestras a continuación.|
 |DPT |El punto de datos de la dirección del grupo, en el formato "1.001".Es ** opcional** Si se ha importado el archivo CSV ETS.|
 |predeterminado |El valor enviado al bus en respuesta a una solicitud de lectura, cuando el valor de la dirección del grupo aún no ha sido memorizado por el nodo.| ** Comencemos con una directiva** El nodo de autoresponder responderá a las solicitudes de lectura para la dirección del grupo 2/7/1.Si aún no hay valor en la memoria, responderá con _true _. \ |
-El archivo CSV ETS debe haberse importado, de lo contrario debe agregar la clave ** "DPT": "1.001" ** **.```json
+El archivo CSV ETS debe haberse importado, de lo contrario debe agregar la clave ** "DPT": "1.001" ** **.
+
+```json
+
 [
     {
         "ga": "2/7/1",
         "default": true
     }
 ]
-``` ** Directiva un poco más completa** El nodo de autoresponder responderá a las solicitudes de lectura para la dirección del grupo a partir del 3/1/1 al 3/1/22 incluida.Si aún no hay valor en la memoria, responderá con _false _. \
-También hay una clave ** Nota** , simplemente como una nota de recordatorio.No se usará en ningún lado.```json
+```
+
+** Directiva un poco más completa** El nodo de autoresponder responderá a las solicitudes de lectura para la dirección del grupo a partir del 3/1/1 al 3/1/22 incluida.Si aún no hay valor en la memoria, responderá con _false _. \
+También hay una clave ** Nota** , simplemente como una nota de recordatorio.No se usará en ningún lado.
+
+```json
+
 [
     {
         "note": "Virtual sensors coming from Hikvision AX-Pro",
@@ -41,9 +49,14 @@ También hay una clave ** Nota** , simplemente como una nota de recordatorio.No 
         "default": false
     }
 ]
-``` ** Directivas concatenantes** El nodo de autoresponder responderá a las solicitudes de lectura para la dirección del grupo a partir del 2/2/5 al 2/2/21 incluida.Si aún no hay valor en la memoria, responderá con un valor de 25. \
+```
+
+** Directivas concatenantes** El nodo de autoresponder responderá a las solicitudes de lectura para la dirección del grupo a partir del 2/2/5 al 2/2/21 incluida.Si aún no hay valor en la memoria, responderá con un valor de 25. \
 El nodo de autoresponder también responderá a las solicitudes de lectura para la dirección del grupo 2/4/22.Si aún no hay valor en la memoria, responderá con el estado de cadena _unknown! _. \
-Tenga en cuenta la ** coma** entre el objeto JSON de cada directiva.```json
+Tenga en cuenta la ** coma** entre el objeto JSON de cada directiva.
+
+```json
+
 [
     {
         "note": "DALI garden virtual brightness %",

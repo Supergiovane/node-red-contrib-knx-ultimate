@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-KNXAutoResponder"
 lang: es
-permalink: /wiki/es-zh-CN-KNXAutoResponder
+permalink: /wiki/es-zh-CN-KNXAutoResponder/
 ---
 ---
 <p> Este nodo responderá a la solicitud de lectura del bus KNX.
@@ -26,16 +26,24 @@ JSON siempre es una variedad de objetos que contienen cada instrucción. Cada in
 | Predeterminado |Cuando el valor de la dirección del componente no ha sido recordado por el nodo, se envía al bus en una respuesta de solicitud de lectura.|
 **Comencemos con un comando**
 El nodo de autorponder responderá a una solicitud de lectura en la dirección del grupo 2/7/1.Si aún no está en la memoria, responderá con _true _.
-El archivo CSV ETS debe importarse, de lo contrario también debe agregar la tecla __"dpt": "1.001" \*\*.```json
+El archivo CSV ETS debe importarse, de lo contrario también debe agregar la tecla __"dpt": "1.001" \*\*.
+
+```json
+
 [
     {
         "ga": "2/7/1",
         "default": true
     }
 ]
-``` **Instrucciones más completas**
+```
+
+**Instrucciones más completas**
 El nodo de respuesta automática responderá a las solicitudes de lectura a partir del 3/1/1, incluido el 3/1/22.Si la memoria aún no tiene valor, responderá con _false _.
-También hay una clave__ nota \*\*, que solo se usa como nota de recordatorio.No se usará en ningún lado.```json
+También hay una clave__ nota \*\*, que solo se usa como nota de recordatorio.No se usará en ningún lado.
+
+```json
+
 [
     {
         "note": "Virtual sensors coming from Hikvision AX-Pro",
@@ -44,10 +52,15 @@ También hay una clave__ nota \*\*, que solo se usa como nota de recordatorio.No
         "default": false
     }
 ]
-``` **Comando conectado**
+```
+
+**Comando conectado**
 Del 2/2/5 al 2/2/21, el nodo de autoresponder responderá a una solicitud de lectura a la dirección del grupo.Si aún no hay valor en la memoria, responderá con un valor de 25.
 El nodo automático también responderá a las solicitudes de lectura del componente 2/4/22.Si aún no hay valor en la memoria, usará el estado de cadena \*desconocido.\*responder.
-Tenga en cuenta la **coma** entre los objetos JSON de cada directiva.```json
+Tenga en cuenta la **coma** entre los objetos JSON de cada directiva.
+
+```json
+
 [
     {
         "note": "DALI garden virtual brightness %",
@@ -61,4 +74,6 @@ Tenga en cuenta la **coma** entre los objetos JSON de cada directiva.```json
         "default": "Unknown status!"
     }
 ]
-```<br/>
+```
+
+<br/>

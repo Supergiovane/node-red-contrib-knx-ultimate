@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-HUE Humidity sensor"
 lang: fr
-permalink: /wiki/fr-zh-CN-HUE%20Humidity%20sensor
+permalink: /wiki/fr-zh-CN-HUE%20Humidity%20sensor/
 ---
 ---
 <p> Ce nœud lit l'humidité relative (%) du capteur d'humidité de la teinte et les cartes à KNX.</p>

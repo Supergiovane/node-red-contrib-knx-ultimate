@@ -2,19 +2,21 @@
 layout: wiki
 title: "zh-CN-Logger-Sample"
 lang: de
-permalink: /wiki/de-zh-CN-Logger-Sample
+permalink: /wiki/de-zh-CN-Logger-Sample/
 ---
 ---
 
 # Recorder -Probe
 
-\ <img src = "https://raw.githubuSercontent.com/supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/logger.png" width = "90%">
+\ <img src = "https://raw.githubusercontent.com/supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/logger.png" width = "90%">
 
 **Kopieren Sie diesen Code und fügen Sie ihn in Ihren Stream ein**
 
 <details> <summary> Code anzeigen </summary>
 
-> Passen Sie den Knoten entsprechend Ihren Einstellungen an und setzen Sie den Pfad zum Dateiknoten \*\*.```javascript
+> Passen Sie den Knoten entsprechend Ihren Einstellungen an und setzen Sie den Pfad zum Dateiknoten \*\*.
+
+```javascript
 
 [
     {
@@ -72,4 +74,6 @@ permalink: /wiki/de-zh-CN-Logger-Sample
     }
 ]
 
-```\ </Detail>
+```
+
+\ </Detail>

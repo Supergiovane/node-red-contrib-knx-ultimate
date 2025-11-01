@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-HUE Plug"
 lang: fr
-permalink: /wiki/fr-zh-CN-HUE%20Plug
+permalink: /wiki/fr-zh-CN-HUE%20Plug/
 ---
 ---
 # Socket / plug

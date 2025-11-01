@@ -2,7 +2,7 @@
 layout: wiki
 title: "Protections"
 lang: zh-CN
-permalink: /wiki/zh-CN-Protections
+permalink: /wiki/zh-CN-Protections/
 ---
 ---
 
@@ -16,7 +16,7 @@ KNX-untimate有两种类型的内部保护，以保护您的KNX公共汽车免�
 洪水保护避免了您的节点红色UI变得无反应，因为在指定的时间范围内发送了太高的消息输入引脚。<br/> <br/>
 您可以发送到节点的最大味精为每秒120。如果您需要将大量味精发送到节点，请考虑一个"延迟”节点，以延迟每个消息。<br/>
 
-\<img src =" https://raw.githubusercontent.com/supergiovane/node-red-contrib-knx-ultimate/master/master/img/wiki/floodprotection.png” width =" 90％”> <br/>
+\<img src =" https://raw.githubusercontent.com/supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/floodprotection.png” width =" 90％”> <br/>
 
 **复制此代码并将其粘贴到您的流中**
 
@@ -33,7 +33,7 @@ KNX-untimate有两种类型的内部保护，以保护您的KNX公共汽车免�
 循环参考保护避免了您的节点红色UI变得无反应，并且通过使用相同的组地址链接禁用两个节点来淹没您的KNX安装。<br/>
 例如，如果将具有组地址0/1/1的节点的 **输出 ** 链接到具有相同组地址0/1/1的另一个节点的**输入** ping，则保护将启动。<br/>
 
-\<img src =" https://raw.githubusercontent.com/supergiovane/node-red-contrib-knx-ultimate/master/master/img/wiki/circlularreferencepretection.png” width =" 90％”> <br/>
+\<img src =" https://raw.githubusercontent.com/supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/circlularreferencepretection.png” width =" 90％”> <br/>
 
 **复制此代码并将其粘贴到您的流中**
 

@@ -2,7 +2,7 @@
 layout: wiki
 title: "Garage-Configuration"
 lang: it
-permalink: /wiki/it-Garage-Configuration
+permalink: /wiki/it-Garage-Configuration/
 ---
 ---
 # Porta garage
@@ -30,15 +30,18 @@ Il nodo **KNX Garage** comanda un portone motorizzato con GA dedicate ai comandi
 - Con *Emetti eventi* attivo vengono generati oggetti con `event`, `state`, `disabled`, `holdOpen`, `obstruction`.
 ## Esempio dal flow
 ```javascript
+
 // Apri il portone
 msg.payload = 'open'; // oppure true
 return msg;
 ```
+
 ```javascript
 // Chiudi il portone
 msg.payload = 'close'; // oppure false
 return msg;
 ```
+
 ```javascript
 // Commutazione del portone
 msg.payload = 'toggle';

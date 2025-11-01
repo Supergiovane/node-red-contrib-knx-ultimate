@@ -2,7 +2,7 @@
 layout: wiki
 title: "HUE Contact sensor"
 lang: de
-permalink: /wiki/de-HUE%20Contact%20sensor
+permalink: /wiki/de-HUE%20Contact%20sensor/
 ---
 Dieser Node leitet Ereignisse eines HUE‑Kontaktsensors weiter und ordnet sie KNX‑Gruppenadressen zu.
 

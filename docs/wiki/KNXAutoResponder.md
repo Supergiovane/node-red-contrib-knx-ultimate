@@ -2,7 +2,7 @@
 layout: wiki
 title: "KNXAutoResponder"
 lang: en
-permalink: /wiki/KNXAutoResponder
+permalink: /wiki/KNXAutoResponder/
 ---
 This node will respond to read requests from the KNX BUS.  
 
@@ -32,6 +32,7 @@ The AutoResponder node will respond to read requests for the group address 2/7/1
 The ETS CSV file must have been imported, otherwise you must add the **"dpt":"1.001"** key as well.
 
 ```json
+
 [
     {
         "ga": "2/7/1",
@@ -46,6 +47,7 @@ The AutoResponder node will respond to read requests for the group address start
 There is also a **note** key, merely as a reminder note. It will not be used anywhere.
 
 ```json
+
 [
     {
         "note": "Virtual sensors coming from Hikvision AX-Pro",
@@ -63,6 +65,7 @@ The AutoResponder node will also respond to read requests for the group address 
 Please note the **comma** between each directive's JSON object.
 
 ```json
+
 [
     {
         "note": "DALI garden virtual brightness %",

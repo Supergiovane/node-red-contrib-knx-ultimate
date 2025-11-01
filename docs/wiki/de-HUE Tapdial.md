@@ -2,7 +2,7 @@
 layout: wiki
 title: "HUE Tapdial"
 lang: de
-permalink: /wiki/de-HUE%20Tapdial
+permalink: /wiki/de-HUE%20Tapdial/
 ---
 Der **Hue Tap Dial** -Node verknüpft den Rotationsdienst des Tap Dial mit KNX und gibt das unveränderte Hue-Ereignis an Ihren Flow weiter. Nach dem Koppeln eines neuen Tap Dial verwenden Sie bitte das Refresh-Symbol neben dem Geräteeingabefeld.
 

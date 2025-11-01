@@ -2,7 +2,7 @@
 layout: wiki
 title: "HUE Battery"
 lang: es
-permalink: /wiki/es-HUE%20Battery
+permalink: /wiki/es-HUE%20Battery/
 ---
 Este nodo expone el nivel de batería de un dispositivo HUE a KNX y plantea un evento cada vez que cambia el valor. 
 

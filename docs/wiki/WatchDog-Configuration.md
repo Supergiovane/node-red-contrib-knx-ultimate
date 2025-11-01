@@ -2,7 +2,7 @@
 layout: wiki
 title: "WatchDog-Configuration"
 lang: en
-permalink: /wiki/WatchDog-Configuration
+permalink: /wiki/WatchDog-Configuration/
 ---
 Checks the connection to the Gateway or to a specific KNX device
 

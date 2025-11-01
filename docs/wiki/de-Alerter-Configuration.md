@@ -2,7 +2,7 @@
 layout: wiki
 title: "Alerter-Configuration"
 lang: de
-permalink: /wiki/de-Alerter-Configuration
+permalink: /wiki/de-Alerter-Configuration/
 ---
 # Alerter - Node-Konfiguration
 
@@ -60,6 +60,7 @@ PIN3: eine Nachricht nur für das zuletzt gemeldete Gerät.
 **PIN1**
 
 ```javascript
+
 msg = {
   topic: "0/1/12",
   count: 3, // Gesamtzahl gemeldeter Geräte
@@ -72,6 +73,7 @@ msg = {
 **PIN2**
 
 ```javascript
+
 msg = {
   topic: "door, 0/0/11, 0/1/2, 0/0/9",
   devicename: "Haustür, Applik Wohnzimmer, Applik Hobbyraum, Licht Büro",
@@ -84,6 +86,7 @@ msg = {
 **PIN3**
 
 ```javascript
+
 msg = {
   topic: "0/1/12",
   count: 3, // Gesamtzahl gemeldeter Geräte
@@ -98,6 +101,7 @@ Ausgabe, wenn alle Geräte im Ruhezustand sind:
 **PIN1, PIN2, PIN3**
 
 ```javascript
+
 msg = {
   topic: "",
   count: 0,
@@ -110,12 +114,14 @@ msg = {
 ## Eingänge des Nodes
 
 ```javascript
+
 msg.readstatus = true
 ```
 
 Liest den aktuellen Wert aller gelisteten Geräte.
 
 ```javascript
+
 msg.start = true
 ```
 
@@ -126,6 +132,7 @@ Startet den Sendezyklus über alle Geräte im Alarmzustand. Der Zyklus endet mit
 Um den Zustand (true/false) eines eigenen Geräts zu setzen, sende diese Eingangs­nachricht:
 
 ```javascript
+
 msg = {
   topic: "door",
   payload: true // oder false, um die Meldung für dieses Gerät zurückzusetzen

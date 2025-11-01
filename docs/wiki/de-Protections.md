@@ -2,7 +2,7 @@
 layout: wiki
 title: "Protections"
 lang: de
-permalink: /wiki/de-Protections
+permalink: /wiki/de-Protections/
 ---
 ---
 
@@ -16,7 +16,7 @@ Lassen Sie uns einen Spaß haben \*\* mit diesen Schutzungen! <br/>
 Der Hochwasserschutz vermeidet, dass Ihre Knoten-rot-Benutzeroberfläche aufgrund einer zu hohen Menge an Nachrichten, die an den TE-Eingangspin des Knotens gesendet wurden, in einem bestimmten Zeitrahmen von 1 Sekunde nicht mehr reagieren.
 Die maximale Anzahl von MSG, die Sie an einen Knoten senden können, beträgt 120 pro Sekunde.Wenn Sie eine Menge MSG an den Knoten senden müssen, sollten Sie einen "Verzögerungs" -Knoten in Betracht ziehen, um jede Nachricht ein bisschen zu verzögern. <br/>
 
-<img src = "https://raw.githubuSercontent.com/supergiovane/node-red-contrib-nx-ultimate/master/img/wiki/floodprotection.png" width = "90%"> <br/>
+<img src = "https://raw.githubusercontent.com/supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/floodprotection.png" width = "90%"> <br/>
 
 \*\* Kopieren Sie diesen Code und fügen Sie ihn in Ihren Fluss ein \*\*
 
@@ -33,7 +33,7 @@ Die maximale Anzahl von MSG, die Sie an einen Knoten senden können, beträgt 12
 Der kreisförmige Referenzschutz vermeidet, dass Ihre knotenrote Benutzeroberfläche nicht mehr reagiert und Ihre KNX-Installation überflutet wird, indem zwei Knoten mit derselben Gruppenadressenverbindung deaktiviert werden. <br/>
 Wenn Sie beispielsweise die \*\* Ausgabe \*\* Pin eines Knotens mit Gruppenadresse 0/1/1 mit dem \*\* Eingang \*\* Ping eines anderen Knotens mit derselben Gruppenadresse 0/1/1 verknüpfen, wird der Schutz eingeleitet. <br/>
 
-<img src = "https://raw.githubuSercontent.com/supergiovane/node-red-contrib-nx-ultimate/master/img/wiki/circularReferenceProtection.png" width = "90%"> <br/>
+<img src = "https://raw.githubusercontent.com/supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/circularreferenceprotection.png" width = "90%"> <br/>
 
 \*\* Kopieren Sie diesen Code und fügen Sie ihn in Ihren Fluss ein \*\*
 

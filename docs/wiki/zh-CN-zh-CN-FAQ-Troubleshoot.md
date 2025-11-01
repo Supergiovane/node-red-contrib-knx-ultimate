@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-FAQ-Troubleshoot"
 lang: zh-CN
-permalink: /wiki/zh-CN-zh-CN-FAQ-Troubleshoot
+permalink: /wiki/zh-CN-zh-CN-FAQ-Troubleshoot/
 ---
 ---
 

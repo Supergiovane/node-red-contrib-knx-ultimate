@@ -2,7 +2,7 @@
 layout: wiki
 title: "-Sample---DPT22"
 lang: en
-permalink: /wiki/-Sample---DPT22
+permalink: /wiki/-Sample---DPT22/
 ---
 # Datapoint 22
 

@@ -2,7 +2,7 @@
 layout: wiki
 title: "HUE Battery"
 lang: fr
-permalink: /wiki/fr-HUE%20Battery
+permalink: /wiki/fr-HUE%20Battery/
 ---
 Ce nœud expose le niveau de batterie d'un dispositif de teinte à KNX et soulève un événement chaque fois que la valeur change. 
 

@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-Alerter-Configuration"
 lang: fr
-permalink: /wiki/fr-zh-CN-Alerter-Configuration
+permalink: /wiki/fr-zh-CN-Alerter-Configuration/
 ---
 ---
 # Configuration du nœud d'alerte
@@ -34,7 +34,10 @@ Remplissez l'adresse de groupe de l'appareil ou spécifiez une étiquette pour l
 PIN1: Chaque périphérique d'alarme diffuse un message en fonction de l'intervalle de définition.<br/>
 PIN2: Sortie d'un message récapitulatif contenant tous les périphériques à l'état d'alarme.<br/>
 Pin3: Seul le dernier périphérique qui est entré dans l'état d'alarme est sorti.<br/>
-**pin1** ```javascript
+**pin1** 
+
+```javascript
+
 msg = {
   topic: "0/1/12",
   count: 3, // 处于告警状态的设备总数
@@ -42,7 +45,12 @@ msg = {
   longdevicename: "卧室主窗",
   payload: true
 }
-``` **Pin2** ```javascript
+```
+
+**Pin2** 
+
+```javascript
+
 msg = {
   topic: "door, 0/0/11, 0/1/2, 0/0/9",
   devicename: "入户门, 客厅壁灯, 地下室壁灯, 书房灯",
@@ -50,7 +58,12 @@ msg = {
   count: 4,
   payload: true
 }
-``` **pin3** ```javascript
+```
+
+**pin3** 
+
+```javascript
+
 msg = {
   topic: "0/1/12",
   count: 3, // 处于告警状态的设备总数
@@ -58,8 +71,13 @@ msg = {
   longdevicename: "卧室主窗",
   payload: true
 }
-```Sortie lorsque tous les périphériques sont stationnaires (pas d'alarmes):
-**pin1, pin2, pin3** ```javascript
+```Sortie
+
+lorsque tous les périphériques sont stationnaires (pas d'alarmes):
+**pin1, pin2, pin3** 
+
+```javascript
+
 msg = {
   topic: "",
   count: 0,
@@ -67,21 +85,38 @@ msg = {
   longdevicename: "",
   payload: false
 }
-```<br/>
+```
+
 <br/>
-## Message d'entrée pour le nœud```javascript
+<br/>
+## Message d'entrée pour le nœud
+
+```javascript
+
 msg.readstatus = true
-```Lit la valeur actuelle de chaque appareil dans la liste.```javascript
+```Lit
+
+la valeur actuelle de chaque appareil dans la liste.
+
+```javascript
+
 msg.start = true
-```Démarrez un sondage qui "traverse tous les dispositifs d'alarme et les sorties à tour de rôle".Le sondage se termine après la dernière sortie du dispositif; Si vous interrogez, envoyez à nouveau le message d'entrée.
+```Démarrez
+
+un sondage qui "traverse tous les dispositifs d'alarme et les sorties à tour de rôle".Le sondage se termine après la dernière sortie du dispositif; Si vous interrogez, envoyez à nouveau le message d'entrée.
 <br/>
 **Alarme de périphérique personnalisée** <br/>
-Pour mettre à jour l'état d'un périphérique personnalisé (true / false), envoyez le message d'entrée suivant:```javascript
+Pour mettre à jour l'état d'un périphérique personnalisé (true / false), envoyez le message d'entrée suivant:
+
+```javascript
+
 msg = {
   topic: "door",
   payload: true // 也可为 false，以清除此设备的告警
 }
-```<br/>
+```
+
+<br/>
 ## Exemple
 <a href = "/node-red-contrib-knx-ultimate/wiki/Samplealerter"> Cliquez ici pour afficher l'exemple </a>
 <br/>

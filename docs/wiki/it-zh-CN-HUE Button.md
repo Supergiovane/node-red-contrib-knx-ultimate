@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-HUE Button"
 lang: it
-permalink: /wiki/it-zh-CN-HUE%20Button
+permalink: /wiki/it-zh-CN-HUE%20Button/
 ---
 ---
 Il nodo del pulsante <p> HUE mappa l'evento del pulsante HUE su KNX utilizzando il pulsante <code> </p>

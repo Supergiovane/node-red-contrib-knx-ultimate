@@ -2,13 +2,16 @@
 layout: wiki
 title: "zh-CN-Logger-Sample"
 lang: fr
-permalink: /wiki/fr-zh-CN-Logger-Sample
+permalink: /wiki/fr-zh-CN-Logger-Sample/
 ---
 ---
 # Échantillon de l'enregistreur
 **Copiez ce code et collez-le dans votre flux**
 <fettots> <summary> Afficher le code </summary>
-> Ajustez le nœud en fonction de vos paramètres et définissez le chemin d'accès sur le nœud de fichier \ *\*.```javascript
+> Ajustez le nœud en fonction de vos paramètres et définissez le chemin d'accès sur le nœud de fichier \ *\*.
+
+```javascript
+
 [
     {
         "id": "b8e9e444.0af1f",
@@ -64,4 +67,6 @@ permalink: /wiki/fr-zh-CN-Logger-Sample
         "localEchoInTunneling": true
     }
 ]
-```\ </ Detail>
+```
+
+\ </ Detail>

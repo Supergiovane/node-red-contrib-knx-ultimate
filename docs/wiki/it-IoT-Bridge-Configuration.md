@@ -2,7 +2,7 @@
 layout: wiki
 title: "IoT-Bridge-Configuration"
 lang: it
-permalink: /wiki/it-IoT-Bridge-Configuration
+permalink: /wiki/it-IoT-Bridge-Configuration/
 ---
 ---
 # KNX ↔ IoT Bridge
@@ -31,6 +31,7 @@ Il bridge normalizza i telegrammi KNX in messaggi strutturati per trasporti IoT 
 ## Flow di esempio
 ### Stato KNX → MQTT
 ```json
+
 [
   {
     "id": "bridge1",
@@ -88,8 +89,10 @@ Il bridge normalizza i telegrammi KNX in messaggi strutturati per trasporti IoT 
   }
 ]
 ```
+
 ### Comando MQTT → KNX
 ```json
+
 [
   {
     "id": "mqttIn",
@@ -105,9 +108,11 @@ Il bridge normalizza i telegrammi KNX in messaggi strutturati per trasporti IoT 
   }
 ]
 ```
+
 Unisci i due snippet nello stesso flow per ottenere il round-trip KNX ↔ MQTT con ack.
 ### Payload REST
 ```json
+
 {
   "id": "bridge-rest",
   "type": "knxUltimateIoTBridge",
@@ -126,6 +131,7 @@ Unisci i due snippet nello stesso flow per ottenere il round-trip KNX ↔ MQTT c
   ]
 }
 ```
+
 Instrada l'uscita 1 verso `http request` e usa la risposta per log o retry basati su `bridge.retry`.
 ### Scrittura Modbus
 1. Mappa con `Target = 40010`, `Tipo = Modbus`, `Direzione = Bidirezionale`.

@@ -2,7 +2,7 @@
 layout: wiki
 title: "IoT-Bridge-Configuration"
 lang: de
-permalink: /wiki/de-IoT-Bridge-Configuration
+permalink: /wiki/de-IoT-Bridge-Configuration/
 ---
 ---
 
@@ -45,6 +45,7 @@ Der Bridge normalisiert KNX-Telegramme zu strukturierten Nachrichten für IoT-Tr
 ### Status KNX → MQTT
 
 ```json
+
 [
   {
     "id": "bridge1",
@@ -106,6 +107,7 @@ Der Bridge normalisiert KNX-Telegramme zu strukturierten Nachrichten für IoT-Tr
 ### MQTT-Befehl → KNX
 
 ```json
+
 [
   {
     "id": "mqttIn",
@@ -127,6 +129,7 @@ Kombinieren Sie beide Ausschnitte, um einen KNX ↔ MQTT Roundtrip mit Bestätig
 ### REST-Snapshot
 
 ```json
+
 {
   "id": "bridge-rest",
   "type": "knxUltimateIoTBridge",
@@ -162,4 +165,3 @@ Leiten Sie Ausgang 1 in `http request` und nutzen Sie die Antwort samt `bridge.r
 - Für spezielle Modbus-Fließkommaformate kann ein `function`-Node das gewünschte Byte-Layout erzeugen.
 
 Viel Erfolg beim Bridging!
-

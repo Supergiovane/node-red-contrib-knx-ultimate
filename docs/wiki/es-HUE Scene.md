@@ -2,7 +2,7 @@
 layout: wiki
 title: "HUE Scene"
 lang: es
-permalink: /wiki/es-HUE%20Scene
+permalink: /wiki/es-HUE%20Scene/
 ---
 La escena **Hue** nodo expone escenas de tono a KNX y puede reenviar los eventos de tono bruto a un flujo de rojo de nodo.El campo de la escena admite autocompletar;Use el icono de actualización después de agregar escenas en el puente para que la lista se mantenga actualizada.
 

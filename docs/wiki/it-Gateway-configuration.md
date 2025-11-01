@@ -2,7 +2,7 @@
 layout: wiki
 title: "Gateway-configuration"
 lang: it
-permalink: /wiki/it-Gateway-configuration
+permalink: /wiki/it-Gateway-configuration/
 ---
 # Configurazione del KNX Gateway
 
@@ -72,29 +72,41 @@ Nota: il file CSV contiene DPT precisi con sottotipo; l'ESF è più semplice e n
 
 Video: <a href="https://youtu.be/egRbR_KwP9I"><img src='https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/yt.png'></a>
 
-- **Import ETS CSV Group Addresses ** ATTENZIONE: nel nome del GA non devono esserci caratteri di tabulazione.**If Group Address has no Datapoint ** > Se in ETS un GA non ha DPT, puoi: interrompere l'import, saltare il GA, oppure aggiungere il GA con DPT fittizio e continuare.**Come esportare l'elenco GA in formato CSV da ETS**
+### Importare l’elenco GA in formato CSV
 
-> In ETS seleziona l'elenco GA, click destro → Esporta indirizzi di gruppo. Nella finestra di export imposta:
+**Attenzione.** Nel nome dell’indirizzo di gruppo non devono esserci caratteri di tabulazione. Se in ETS un GA non ha un datapoint puoi scegliere di interrompere l’import, saltare il GA oppure aggiungerlo con un datapoint temporaneo `1.001` e proseguire.
 
-> Output Format: CSV
+**Esportare il CSV da ETS**
 
-> CSV Format: 1/1 Name/Address
+1. In ETS apri la vista *Indirizzi di gruppo*, fai clic destro nell’elenco e seleziona **Esporta indirizzi di gruppo**.
+2. Nella finestra di export imposta:
+   - **Output format:** CSV
+   - **CSV format:** 1/1 Name/Address
+   - **Export with header line:** attivo
+   - **CSV separator:** Tabulator
+3. Esporta il file e incolla il contenuto nel campo **ETS group address list** (oppure indica il percorso del file).
 
-> Export with header line: spuntato
+**Cosa aspettarsi durante l’import**
 
-> CSV Separator: Tabulator
+- Il file CSV deve contenere un datapoint per ogni GA.
+- Il gateway analizza il file e riporta l’esito nel pannello debug di Node‑RED:
+  - **ERROR** – datapoint mancante; l’import viene interrotto.
+  - **WARNING** – sottotipo mancante; viene applicato un valore predefinito ma è consigliato verificarlo (il sottotipo è il numero dopo il punto, es. `5.001`).
+- I campi devono essere racchiusi tra virgolette, per esempio:
 
-> Poi incolla qui il contenuto del file.
+  
 
-> Il file deve contenere i Datapoint per ogni GA. Il nodo analizza il file e mostra risultati nel DEBUG di Node‑RED.
+```
 
-> Esiti possibili: **ERROR ** (manca DPT → import interrotto) e**WARNING** (manca sottotipo → aggiunto default, ma va verificato). Il sottotipo è il numero dopo il punto, es. `5.001`.
+"Attuatori luci"	"0/-/-"	""	""	""	""	"Auto"
+  
 
-> I campi devono essere racchiusi tra virgolette `"`.
+```
 
-**Come esportare l'elenco GA in formato ESF da ETS**
+### Importare l’elenco GA in formato ESF
 
-> In ETS seleziona il progetto, icona export (freccia in su), scegli formato ESF (non `.knxprod`). Copia e incolla nel campo "ETS group address list" del gateway.
+1. In ETS seleziona il progetto, clicca l’icona di export (freccia verso l’alto) e scegli il formato **ESF** (non `.knxprod`).
+2. Copia il contenuto del file oppure indica il percorso nel campo **ETS group address list** del gateway.
 
     <table style="font-size:12px">
         <tr><th colspan="2" style="font-size:14px">Significato colori stato nodo</th></tr>

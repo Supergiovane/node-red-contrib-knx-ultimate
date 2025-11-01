@@ -2,7 +2,7 @@
 layout: wiki
 title: "SampleGlobalContextNode"
 lang: en
-permalink: /wiki/SampleGlobalContextNode
+permalink: /wiki/SampleGlobalContextNode/
 ---
 # Global Context Node Sample
 

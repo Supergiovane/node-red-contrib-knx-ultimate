@@ -2,7 +2,7 @@
 layout: wiki
 title: "Staircase-Configuration"
 lang: it
-permalink: /wiki/it-Staircase-Configuration
+permalink: /wiki/it-Staircase-Configuration/
 ---
 ---
 # Temporizzatore scale
@@ -26,15 +26,18 @@ Il nodo **Temporizzatore scale KNX** replica il timer delle luci scala. Quando l
 - In alternativa puoi usare la GA di stato come feedback direttamente sul bus KNX.
 ## Esempio dal flow
 ```javascript
+
 // Avvia il temporizzatore scale
 msg.payload = true;
 return msg;
 ```
+
 ```javascript
 // Annulla il ciclo (opzione "Il valore 0 annulla")
 msg.payload = false;
 return msg;
 ```
+
 ## Suggerimenti operativi
 - Usa l'override durante la manutenzione o le pulizie.
 - Associa la GA di stato a un indicatore visivo o a una dashboard.

@@ -2,7 +2,7 @@
 layout: wiki
 title: "LoadControl-Configuration"
 lang: fr
-permalink: /wiki/fr-LoadControl-Configuration
+permalink: /wiki/fr-LoadControl-Configuration/
 ---
 # Nœud de contrôle de charge KNX
 
@@ -49,7 +49,9 @@ Si _Automatic Recovery_ est activé, le périphérique est automatiquement réac
 1. Sortie standard
 : charge utile (chaîne | objet): la sortie standard de la commande.
 
-## Détails```javascript
+## Détails
+
+```javascript
 
 msg = {
   "topic": "Home Total Consumption", // Node Name
@@ -61,6 +63,8 @@ msg = {
   "payload": 1, // Current shedding stage
 }
 
-```# Échantillon
+```
+
+# Échantillon
 
 <a href = "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleLoadControl"> Cliquez ici pour l'exemple </a>

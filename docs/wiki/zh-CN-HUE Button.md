@@ -2,7 +2,7 @@
 layout: wiki
 title: "HUE Button"
 lang: zh-CN
-permalink: /wiki/zh-CN-HUE%20Button
+permalink: /wiki/zh-CN-HUE%20Button/
 ---
 Hue Button 节点利用 <code>button.button_report.event</code> 将 Hue 按钮事件映射到 KNX，并在流程输出中提供相同的事件。
 

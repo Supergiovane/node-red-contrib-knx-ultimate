@@ -2,7 +2,7 @@
 layout: wiki
 title: "Staircase-Configuration"
 lang: fr
-permalink: /wiki/fr-Staircase-Configuration
+permalink: /wiki/fr-Staircase-Configuration/
 ---
 ---
 # Temporisateur d'escalier
@@ -26,15 +26,18 @@ Le nœud **KNX Staircase** émule un éclairage d'escalier temporisé. Lorsqu'un
 - La GA d'état peut servir de retour direct dans une logique KNX.
 ## Exemple de flow
 ```javascript
+
 // Démarrer le temporisateur d'escalier
 msg.payload = true;
 return msg;
 ```
+
 ```javascript
 // Annuler le cycle (option "La valeur 0 annule")
 msg.payload = false;
 return msg;
 ```
+
 ## Bonnes pratiques
 - Utilisez l'override pour la maintenance ou des nettoyages prolongés.
 - Affichez la GA d'état sur un tableau de bord ou un voyant.

@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-HUE Light sensor"
 lang: fr
-permalink: /wiki/fr-zh-CN-HUE%20Light%20sensor
+permalink: /wiki/fr-zh-CN-HUE%20Light%20sensor/
 ---
 ---
 <p> Ce nœud lit un événement Lux du capteur de lumière Hue et le publie à KNX.</p>

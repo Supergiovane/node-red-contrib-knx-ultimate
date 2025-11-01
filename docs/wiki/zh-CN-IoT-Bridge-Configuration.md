@@ -2,7 +2,7 @@
 layout: wiki
 title: "IoT-Bridge-Configuration"
 lang: zh-CN
-permalink: /wiki/zh-CN-IoT-Bridge-Configuration
+permalink: /wiki/zh-CN-IoT-Bridge-Configuration/
 ---
 ---
 
@@ -45,6 +45,7 @@ Bridge 节点将 KNX 电报标准化为适用于 IoT 传输（MQTT、REST、Modb
 ### KNX 状态 → MQTT
 
 ```json
+
 [
   {
     "id": "bridge1",
@@ -106,6 +107,7 @@ Bridge 节点将 KNX 电报标准化为适用于 IoT 传输（MQTT、REST、Modb
 ### MQTT 指令 → KNX
 
 ```json
+
 [
   {
     "id": "mqttIn",
@@ -127,6 +129,7 @@ Bridge 节点将 KNX 电报标准化为适用于 IoT 传输（MQTT、REST、Modb
 ### REST 快照
 
 ```json
+
 {
   "id": "bridge-rest",
   "type": "knxUltimateIoTBridge",
@@ -162,4 +165,3 @@ Bridge 节点将 KNX 电报标准化为适用于 IoT 传输（MQTT、REST、Modb
 - 若设备需要特定 Modbus 浮点格式，可插入 `function` 节点生成所需字节序。
 
 祝你桥接顺利！
-

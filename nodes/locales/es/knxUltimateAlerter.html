@@ -50,7 +50,9 @@ PIN1: el nodo emite un mensaje para cada dispositivo alertado, a intervalos sele
 PIN2: El nodo emite un mensaje único que contiene todos los dispositivos alertados. <br/>
 PIN3: El nodo emite un mensaje que contiene solo el último dispositivo alertado. <br/>
 
-**PIN1** ```javascript
+**PIN1** 
+
+```javascript
 
 msg = {
     "topic":"0/1/12",
@@ -60,7 +62,11 @@ msg = {
     "payload":true
 }
 
-``` **PIN2** ```javascript
+```
+
+**PIN2** 
+
+```javascript
 
 msg = {
     "topic":"door, 0/0/11, 0/1/2, 0/0/9",
@@ -70,7 +76,11 @@ msg = {
     "payload":true
     }
 
-``` **PIN3** ```javascript
+```
+
+**PIN3** 
+
+```javascript
 
 msg = {
     "topic":"0/1/12",
@@ -80,9 +90,13 @@ msg = {
     "payload":true
 }
 
-```Mensaje saliente cuando todos los dispositivos están en reposo
+```Mensaje
 
-**PIN1, PIN2, PIN3** ```javascript
+saliente cuando todos los dispositivos están en reposo
+
+**PIN1, PIN2, PIN3** 
+
+```javascript
 
 msg = {
     "topic":"",
@@ -92,27 +106,43 @@ msg = {
     "payload":false
 }
 
-```<br/>
+```
+
+<br/>
 <br/>
 
-## Mensaje en el nodo```javascript
+## Mensaje en el nodo
+
+```javascript
+
 msg.readstatus = true
-```Lea el valor de cada dispositivo que pertenece a la lista.```javascript
+```Lea
+
+el valor de cada dispositivo que pertenece a la lista.
+
+```javascript
+
 msg.start = true
-```Comienza el ciclo de envío de todos los dispositivos alertados.El ciclo termina con el último dispositivo alertado.Para repetir el ciclo, envíe este mensaje entrante nuevamente.
+```Comienza
+
+el ciclo de envío de todos los dispositivos alertados.El ciclo termina con el último dispositivo alertado.Para repetir el ciclo, envíe este mensaje entrante nuevamente.
 
 <br/>
 
 **Alerta de dispositivo personalizado** <br/>
 
-Para actualizar el valor verdadero/falso de un dispositivo personalizado, puede enviar este mensaje entrante```javascript
+Para actualizar el valor verdadero/falso de un dispositivo personalizado, puede enviar este mensaje entrante
+
+```javascript
 
 msg = {
     "topic":"door",
     "payload":true // Or false to reset the alert for this device
 }
 
-```<br/>
+```
+
+<br/>
 
 ## MUESTRA
 

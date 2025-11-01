@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-GlobalVariable"
 lang: zh-CN
-permalink: /wiki/zh-CN-zh-CN-GlobalVariable
+permalink: /wiki/zh-CN-zh-CN-GlobalVariable/
 ---
 ---
 
@@ -31,29 +31,44 @@ permalink: /wiki/zh-CN-zh-CN-GlobalVariable
 | Expose as Global variable | 选择是否以及如何暴露全局变量。若不需写入，建议设置为只读。|
 | BUS write interval | 轮询 `<Name>_WRITE` 并向总线写入的时间间隔。|
 
-## 变量中的 msg 对象```javascript
+## 变量中的 msg 对象
+
+```javascript
+
 {
   address: "0/0/1",
   dpt: "1.001",
   payload: true,
   devicename: "Dinning Room->Table Light"
 }
-```## 快速用法
+```
 
-### 读取变量```javascript
+## 快速用法
+
+### 读取变量
+
+```javascript
+
 const list = global.get("KNXContextBanana_READ") || [];
 node.send({ payload: list });
 
 const ga = list.find(a => a.address === "0/0/10");
 if (ga && ga.payload === true) return { payload: "FOUND AND TRUE" };
 if (ga && ga.payload === false) return { payload: "FOUND AND FALSE" };
-```### 通过变量写入总线```javascript
+```
+
+### 通过变量写入总线
+
+```javascript
+
 const toSend = [];
 toSend.push({ address: "0/0/10", dpt: "1.001", payload: msg.payload });
 // 如果已导入 ETS，可省略 dpt，由系统据 payload 推断
 toSend.push({ address: "0/0/11", payload: msg.payload });
 
 global.set("KNXContextBanana_WRITE", toSend);
-```## 完整示例
+```
+
+## 完整示例
 
 <a href="/node-red-contrib-knx-ultimate/wiki/SampleGlobalContextNode" target="_blank"><i class="fa fa-info-circle"></i> 查看示例</a>

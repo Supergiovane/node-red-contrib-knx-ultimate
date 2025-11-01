@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-HUE Bridge configuration"
 lang: zh-CN
-permalink: /wiki/zh-CN-zh-CN-HUE%20Bridge%20configuration
+permalink: /wiki/zh-CN-zh-CN-HUE%20Bridge%20configuration/
 ---
 ---
 

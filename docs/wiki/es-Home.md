@@ -2,7 +2,7 @@
 layout: wiki
 title: "Home"
 lang: es
-permalink: /wiki/es-Home
+permalink: /wiki/es-Home/
 ---
 # Presentación profesional de los nodos KNX Ultimate
 ## knxUltimate-config

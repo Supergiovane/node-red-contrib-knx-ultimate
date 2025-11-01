@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-WatchDog-Configuration"
 lang: es
-permalink: /wiki/es-zh-CN-WatchDog-Configuration
+permalink: /wiki/es-zh-CN-WatchDog-Configuration/
 ---
 ---
 # Watchdog (Watchdog)
@@ -26,16 +26,19 @@ Adecuado para alarmas de falla de error/conexión (notificaciones por correo ele
 | Verificación Nivel | Ver arriba. |
 **COMPROBAR NIVEL**
 > Ethernet: detectar conexiones entre KNX -Ulimate (unicast) y la interfaz KNX/IP. <br/>
-<img src = "https://raw.githubusercontent.com/supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/watchdogethernetlevel.png" width = "90%"> <br/>
+<img src = "https://raw.githubusercontent.com/supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/WatchDogEthernetLevel.png" width = "90%"> <br/>
 > Ethernet + KNX TP: detección completa (admite enrutador/interfaz).Envíe lea al dispositivo físico y espere la respuesta;Se informará cualquier fallas en Ethernet o TP.Configure un estado **** Ga en ETS para un actuador que responda a la lectura. <br/>
-<img src = "https://raw.githubusercontent.com/supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/watchdogethernetknxtplevel.png" width = "90%"> <> <>
+<img src = "https://raw.githubusercontent.com/supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/WatchDogEthernetKNXTPLevel.png" width = "90%"> <> <>
 ## Opciones avanzadas
 | Propiedades | Descripción |
 |-|-|
 | Intervalo de reintento (en segundos) | Intervalo de detección en segundos. |
 | Número de reintento antes de dar un error |Cuántas fallas consecutivas se informan. |
 # Salida Watchdog Salida
-Watchdog emite un mensaje cuando la detección interna encuentra una falla, o un nodo ultimatizado de KNX informa un error en el proceso. ** Problema de conexión de Watchdog** <a href = "/node-red-contrib-knx-ultimate/wiki/watchdog-configuration" target = "_ en blanco"> ver aquí para obtener detalles </a>```javascript
+Watchdog emite un mensaje cuando la detección interna encuentra una falla, o un nodo ultimatizado de KNX informa un error en el proceso. ** Problema de conexión de Watchdog** <a href = "/node-red-contrib-knx-ultimate/wiki/watchdog-configuration" target = "_ en blanco"> ver aquí para obtener detalles </a>
+
+```javascript
+
 msg = {
   type: "BUSError",
   checkPerformed: "Ethernet" // 或 "Eth+KNX",
@@ -43,7 +46,12 @@ msg = {
   payload: true,
   description: "..."
 }
-``` ** Se produjo una excepción en uno de sus nodos Últimos KNX** ```javascript
+```
+
+** Se produjo una excepción en uno de sus nodos Últimos KNX** 
+
+```javascript
+
 msg = {
   type: "NodeError",
   checkPerformed: "Self KNX-Ultimate node reporting a red color status",
@@ -57,7 +65,12 @@ msg = {
     GA: "0/1/1"
   }
 }
-``` ** Modificar la configuración de la puerta de enlace a través de SetGatewayConfig** ```javascript
+```
+
+** Modificar la configuración de la puerta de enlace a través de SetGatewayConfig** 
+
+```javascript
+
 msg = {
   type: "setGatewayConfig",
   checkPerformed: "The Watchdog node changed the gateway configuration.",
@@ -66,7 +79,12 @@ msg = {
   description: "New Config issued to the gateway. IP:224.0.23.12 Port:3671 PhysicalAddress:15.15.1\nBindLocalInterface:Auto",
   completeError: ""
 }
-``` ** Conexión forzada/desconexión** ```javascript
+```
+
+** Conexión forzada/desconexión** 
+
+```javascript
+
 msg = {
   type: "connectGateway",
   checkPerformed: "The Watchdog issued a connection/disconnection to the gateway.",
@@ -75,26 +93,55 @@ msg = {
   description: "Connection",
   completeError: ""
 }
-```---
+```
+
+---
+
 # Ingrese el mensaje (entrada)
-## Inicio/parar Watchdog```javascript
+## Inicio/parar Watchdog
+
+```javascript
+
 msg.start = true; return msg; // 启动
 ```
+
 ```javascript
 msg.start = false; return msg; // 停止
-```## modificar la configuración de la puerta de enlace KNX/IP durante el tiempo de ejecución
-Cambiar IP/Port/PhysicalAddress/Protocol, etc. a través de `msg.setgatewayconfig`; El nodo de configuración aplicará la reconexión.Nodo -rojo restaura a la configuración en el nodo de configuración después de reiniciar.Todos los parámetros son opcionales.```javascript
+```
+
+## modificar la configuración de la puerta de enlace KNX/IP durante el tiempo de ejecución
+Cambiar IP/Port/PhysicalAddress/Protocol, etc. a través de `msg.setgatewayconfig`; El nodo de configuración aplicará la reconexión.Nodo -rojo restaura a la configuración en el nodo de configuración después de reiniciar.Todos los parámetros son opcionales.
+
+```javascript
+
 msg.setGatewayConfig = { IP:"224.0.23.12", Port:3671, PhysicalAddress:"15.15.1", BindToEthernetInterface:"Auto",
   Protocol:"Multicast", importCSV:`"Group name" "Address" "Central" "Unfiltered" "Description" "DatapointType" "Security"
 "Attuatori luci" "0/-/-" "" "" "" "" "Auto"
 "Luci primo piano" "0/0/-" "" "" "" "" "Auto"
 "Luce camera da letto" "0/0/1" "" "" "" "DPST-1-1" "Auto"` };
 return msg;
-```Cambiar solo la IP:```javascript
+```Cambiar
+
+solo la IP:
+
+```javascript
+
 msg.setGatewayConfig = { IP:"224.0.23.12" }; return msg;
-``` ** Desconectar y deshabilitar la reconexión automática** ```javascript
+```
+
+** Desconectar y deshabilitar la reconexión automática** 
+
+```javascript
+
 msg.connectGateway = false; return msg;
-``` ** Conexión forzada y habilitar la reconexión automática** ```javascript
+```
+
+** Conexión forzada y habilitar la reconexión automática** 
+
+```javascript
+
 msg.connectGateway = true; return msg;
-```## Ver
+```
+
+## Ver
 [Muestra de vigilancia](/node-red-contrib-knx-ultimate/wiki/-Sample---WatchDog)

@@ -2,7 +2,7 @@
 layout: wiki
 title: "knxUltimateViewer"
 lang: fr
-permalink: /wiki/fr-knxUltimateViewer
+permalink: /wiki/fr-knxUltimateViewer/
 ---
 Ce nœud fonctionne en conjonction avec le nœud de modèle de modèle de tableau de bord rouge du nœud.
 
@@ -39,13 +39,17 @@ Le nœud **modèle** (Template du tableau de bord UI) contient le texte par déf
 
 <div ng-bind-html="msg.payload"></div>
 
-```La sortie est quelque chose comme suit: 
+```La
+
+sortie est quelque chose comme suit: 
 
 width = "90%"> 
 
 **Copiez ce code et collez-le dans votre flux**
 
-> Ajustez les nœuds en fonction de votre configuration````json
+> Ajustez les nœuds en fonction de votre configuration
+
+```json
 
 [{"id":"6736561775d8ee88","type":"knxUltimateViewer","z":"54c299048a6c5b6b","server":"a01c5d80.1bbb78","name":"KNXViewer","x":260,"y":240,"wires":[["b239b31adb87d250"],["aafd0f4cde22f225"]]},{"id":"b239b31adb87d250","type":"ui_template","z":"54c299048a6c5b6b","group":"6cbdc633e478e65a","name":"","order":0,"width":"12","height":"6","format":"
 <div ng-bind-html=\"msg.payload\"></div>
@@ -443,4 +447,8 @@ taverna\"\t\"3/0/25\"\t\"\"\t\"\"\t\"\"\t\"DPST-1-1\"\t\"Auto\"\n\"_Pala soggior
     Unicast","localEchoInTunneling":true,"delaybetweentelegrams":"50","delaybetweentelegramsfurtherdelayREAD":"1","ignoreTelegramsWithRepeatedFlag":true,"keyringFileXML":"","autoReconnect":"yes"},{"id":"6cbdc633e478e65a","type":"ui_group","name":"KNX-Ultimate
     Viewer","tab":"02c465fe930c0e1c","order":1,"disp":true,"width":"12","collapse":false},{"id":"02c465fe930c0e1c","type":"ui_tab","name":"Home","icon":"dashboard","disabled":false,"hidden":false}]
 
-    ````` ''
+    
+
+```
+
+''

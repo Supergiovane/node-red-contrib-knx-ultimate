@@ -2,7 +2,7 @@
 layout: wiki
 title: "Device"
 lang: fr
-permalink: /wiki/fr-Device
+permalink: /wiki/fr-Device/
 ---
 ## Paramètres de nœud de périphérique KNX-ultimate
 
@@ -84,6 +84,7 @@ Dans cet échantillon, nous enverrons le msg d'entrée au bus KNX uniquement si 
 Nous allons allumer la lumière uniquement si son statut GA est éteint, et vice versa.
 
 ```javascript
+
 const statusGA = getGAValue('0/0/09','1.001');
 if (msg.payload !== statusGA){ // "!==" means "not equal"
     return msg;
@@ -96,6 +97,7 @@ if (msg.payload !== statusGA){ // "!==" means "not equal"
 Ici, si quelqu'un allume la lumière, nous allumons une autre lumière 0/1/8 et après 2 secondes, nous éteignons la lampe connectée au nœud.
 
 ```javascript
+
 if (msg.payload){ 
     setGAValue('0/1/8',true)
     setTimeout(function() {
@@ -111,6 +113,7 @@ Dans cet échantillon, nous émettons l'objet MSG à l'écoulement, en ajoutant 
 Le msg ouput au flux aura également la température externe dans la propriété «msg.externaltemperature»
 
 ```javascript
+
 // The current msg contains the internal temperature in the "msg.payload" property, but we want to emit the external temperature as well.
 msg.externalTemperature = getGAValue('0/0/10'); // In case the ETS file is missing, you must specify the dpt as well: getGAValue('0/0/10','9.001')
 return msg;
@@ -119,6 +122,7 @@ return msg;
 Dans cet autre échantillon, nous n'émettons pas de msg au flux, au cas où msg.payload et une autre valeur GA sont tous deux faux.
 
 ```javascript
+
 if (msg.payload === false && getGAValue('0/0/11','1.001') === false){
     // Both false, don't emit the msg to the flow.
     return;
@@ -151,7 +155,10 @@ if (msg.payload === false && getGAValue('0/0/11','1.001') === false){
 `msg.setConfig`: Il est possible de modifier par programme la configuration du nœud KNX-ultime, en envoyant l'objet msg.setConfig au nœud.
 La nouvelle configuration sera conservée jusqu'au prochain msg.setconfig ou jusqu'à redémarrage / redéployer.
 Toutes les propriétés (_setGroupAddress_ et _setDpt_) ** sont obligatoires** .. \
-Utilisez-le comme ça, dans un nœud Functon: ** Définissez GA et DPT** ```javascript
+Utilisez-le comme ça, dans un nœud Functon: ** Définissez GA et DPT** 
+
+```javascript
+
 // Change the node properties as follows:
 // setGroupAddress: set the new group address.
 // setDPT: set the new Datapoint, as you can see in the dropdown list (the numeric part, for example "1.001", "237.600", etc...). If set to **auto** , the datapoint will be read from the ETS file (if present).
@@ -161,7 +168,12 @@ var config= {
 };
 msg.setConfig = config;
 return msg;
-``` ** Définissez GA et lisez le point de données à partir du fichier ETS** ```javascript
+```
+
+** Définissez GA et lisez le point de données à partir du fichier ETS** 
+
+```javascript
+
 // Change the node properties as follows:
 // setGroupAddress: set the new group address.
 // setDPT: set the new Datapoint, as you can see in the dropdown list (the numeric part, for example "1.001", "237.600", etc...). If set to "auto", the datapoint will be read from the ETS file (if present).
@@ -187,6 +199,7 @@ return msg;
 Il s'agit plutôt d'un exemple de l'objet MSG complet.
 
 ```json
+
 msg = {
     topic: "0/1/2" // (Contains the node's topic, for example "MyTopic". If the node's topic is not set, contains the Group Address, for example "0/1/2")
     payload: false 
@@ -215,7 +228,7 @@ msg = {
 }
 ```
 
- ** Exemple de charge utile** | Propriété | Description |
+** Exemple de charge utile** | Propriété | Description |
 
 |-|-|
 | Échantillon | Cela lui donnera un indice sur ce qu'il faut écrire dans un nœud de fonction externe, si vous souhaitez contrôler le nœud via un nœud de fonction Node-Red. |
@@ -237,7 +250,10 @@ msg = {
 `msg.setConfig`: Il est possible de modifier par programme la configuration du nœud KNX-ultime, en envoyant l'objet msg.setConfig au nœud.
 La nouvelle configuration sera conservée jusqu'au prochain msg.setconfig ou jusqu'à redémarrage / redéployer.
 Toutes les propriétés (_setGroupAddress_ et _setDpt_) ** sont obligatoires** .. \
-Utilisez-le comme ça, dans un nœud Functon: ** Définissez GA et DPT** ```javascript
+Utilisez-le comme ça, dans un nœud Functon: ** Définissez GA et DPT** 
+
+```javascript
+
 // Change the node properties as follows:
 // setGroupAddress: set the new group address.
 // setDPT: set the new Datapoint, as you can see in the dropdown list (the numeric part, for example "1.001", "237.600", etc...). If set to **auto** , the datapoint will be read from the ETS file (if present).
@@ -247,7 +263,12 @@ var config= {
 };
 msg.setConfig = config;
 return msg;
-``` ** Définissez GA et lisez le point de données à partir du fichier ETS** ```javascript
+```
+
+** Définissez GA et lisez le point de données à partir du fichier ETS** 
+
+```javascript
+
 // Change the node properties as follows:
 // setGroupAddress: set the new group address.
 // setDPT: set the new Datapoint, as you can see in the dropdown list (the numeric part, for example "1.001", "237.600", etc...). If set to "auto", the datapoint will be read from the ETS file (if present).
@@ -273,6 +294,7 @@ return msg;
 Il s'agit plutôt d'un exemple de l'objet MSG complet.
 
 ```json
+
 msg = {
     topic: "0/1/2" // (Contains the node's topic, for example "MyTopic". If the node's topic is not set, contains the Group Address, for example "0/1/2")
     payload: false 
@@ -334,7 +356,7 @@ Ici, vous trouverez un échantillon de [Virtual Device](https://supergiovane.git
 
 ```javascript
 
- {
+{
    topic: '5/0/1',
    payload: true,
    devicename: 'Light Status',
@@ -413,7 +435,9 @@ Vous pouvez plus d'échantillons [ici](https://supergiovane.github.io/node-red-c
 msg.payload = true; // issues a write or response (based on the options <b>Telegram type</b> above) to the KNX bus
 return msg;
 
-``` ** Absolute dim a lampe** 
+```
+
+** Absolute dim a lampe** 
 
 ```javascript
 
@@ -421,7 +445,9 @@ return msg;
 msg.payload = 30; // issues a write or response (based on the options <b>Telegram type</b> above) to the KNX bus
 return msg;
 
-``` ** Envoyer du texte à un affichage** 
+```
+
+** Envoyer du texte à un affichage** 
 
 ```javascript
 
@@ -429,7 +455,9 @@ return msg;
 msg.payload = "Output Tem. 35°C"; // issues a write or response (based on the options <b>Telegram type</b> above) to the KNX bus
 return msg;
 
-``` ** Lisez l'état de la machine à laver** 
+```
+
+** Lisez l'état de la machine à laver** 
 
 ```javascript
 
@@ -439,7 +467,9 @@ return msg;
 msg.readstatus = true; // issues a write or response (based on the options <b>Telegram type</b> above) to the KNX bus
 return msg;
 
-``` ** Envoyez la valeur brute au bus** 
+```
+
+**Envoyez la valeur brute au bus** 
 
 Pour envoyer une valeur de tampon brute au bus KNX, utilisez les propriétés _ ** writerraw ** _ et _**bitlenght** _ de l'entrée msg. 
 
@@ -462,7 +492,9 @@ return msg;
 // msg.bitlenght = 1;
 // return msg;
 
-``` ** Mettez à jour la valeur du nœud sans l'envoyer au bus** 
+```
+
+**Mettez à jour la valeur du nœud sans l'envoyer au bus** 
 
 ```javascript
 
@@ -479,7 +511,7 @@ Ici, vous avez 2 options: Importer le fichier CVS ETS ou non.
 L'importation de votre fichier ETS est la méthode <b> Aboslute suggérée </b>. Si vous importez votre fichier ETS, il vous suffit de définir la charge utile pour être transmise. Le nœud fera automatiquement le codage de DataPoint. 
 
 Si vous n'importez pas l'ETS CSV, vous devez également passer le type de point de données au nœud. 
- ** Éteignez une lampe <u> avec le fichier </u> ets importé** 
+**Éteignez une lampe <u>avec le fichier</u> ETS importé** 
 
 ```javascript
 
@@ -489,7 +521,9 @@ msg.destination = "0/0/1"; // Set the destination
 msg.payload = false; // issues a write or response (based on the options <b>Telegram type</b> above) to the KNX bus
 return msg;
 
-``` ** Éteignez une lampe <u> sans </u> ets Fichier importé** 
+```
+
+**Éteignez une lampe <u>sans</u> ETS importé** 
 
 ```javascript
 
@@ -500,7 +534,9 @@ msg.dpt = "1.001";
 msg.payload = false; // issues a write or response (based on the options <b>Telegram type</b> above) to the KNX bus
 return msg;
 
-``` ** Lisez l'état de tous les périphériques KNX <u> avec </u> ets Fichier importé** 
+```
+
+** Lisez l'état de tous les périphériques KNX <u> avec </u> ets Fichier importé** 
 
 Vous ne pouvez pas émettre une demande de lecture à tous les groupes si vous n'importez pas votre fichier ETS, car le nœud ne peut pas savoir sur les appareils pour envoyer la demande de lecture.
 

@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-Alerter-Configuration"
 lang: zh-CN
-permalink: /wiki/zh-CN-zh-CN-Alerter-Configuration
+permalink: /wiki/zh-CN-zh-CN-Alerter-Configuration/
 ---
 ---
 
@@ -58,7 +58,10 @@ PIN1：按设定间隔，每个告警设备输出一条消息。<br/>
 PIN2：输出一条汇总消息，包含所有处于告警状态的设备。<br/>
 PIN3：仅输出最近一个进入告警状态的设备。<br/>
 
-**PIN1** ```javascript
+**PIN1** 
+
+```javascript
+
 msg = {
   topic: "0/1/12",
   count: 3, // 处于告警状态的设备总数
@@ -66,7 +69,12 @@ msg = {
   longdevicename: "卧室主窗",
   payload: true
 }
-``` **PIN2** ```javascript
+```
+
+**PIN2** 
+
+```javascript
+
 msg = {
   topic: "door, 0/0/11, 0/1/2, 0/0/9",
   devicename: "入户门, 客厅壁灯, 地下室壁灯, 书房灯",
@@ -74,7 +82,12 @@ msg = {
   count: 4,
   payload: true
 }
-``` **PIN3** ```javascript
+```
+
+**PIN3** 
+
+```javascript
+
 msg = {
   topic: "0/1/12",
   count: 3, // 处于告警状态的设备总数
@@ -82,9 +95,14 @@ msg = {
   longdevicename: "卧室主窗",
   payload: true
 }
-```当所有设备均处于静止（无告警）时的输出：
+```
 
-**PIN1, PIN2, PIN3** ```javascript
+当所有设备均处于静止（无告警）时的输出：
+
+**PIN1, PIN2, PIN3** 
+
+```javascript
+
 msg = {
   topic: "",
   count: 0,
@@ -92,25 +110,42 @@ msg = {
   longdevicename: "",
   payload: false
 }
-```<br/>
+```
+
+<br/>
 <br/>
 
-## 节点的输入消息```javascript
+## 节点的输入消息
+
+```javascript
+
 msg.readstatus = true
-```读取列表中每个设备的当前值。```javascript
+```
+
+读取列表中每个设备的当前值。
+
+```javascript
+
 msg.start = true
-```启动一次"遍历所有告警设备并依次输出”的轮询。轮询在最后一个设备输出后结束；若需再次轮询，请再次发送该输入消息。
+```
+
+启动一次"遍历所有告警设备并依次输出”的轮询。轮询在最后一个设备输出后结束；若需再次轮询，请再次发送该输入消息。
 
 <br/>
 
 **自定义设备告警** <br/>
 
-要更新某个自定义设备的状态（true/false），发送如下输入消息：```javascript
+要更新某个自定义设备的状态（true/false），发送如下输入消息：
+
+```javascript
+
 msg = {
   topic: "door",
   payload: true // 也可为 false，以清除此设备的告警
 }
-```<br/>
+```
+
+<br/>
 
 ## 示例
 

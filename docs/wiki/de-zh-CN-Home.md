@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-Home"
 lang: de
-permalink: /wiki/de-zh-CN-Home
+permalink: /wiki/de-zh-CN-Home/
 ---
 ---
 

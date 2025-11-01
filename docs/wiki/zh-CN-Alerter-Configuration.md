@@ -2,7 +2,7 @@
 layout: wiki
 title: "Alerter-Configuration"
 lang: zh-CN
-permalink: /wiki/zh-CN-Alerter-Configuration
+permalink: /wiki/zh-CN-Alerter-Configuration/
 ---
 # Alerter 节点配置
 
@@ -60,6 +60,7 @@ PIN3：仅输出最近一个进入告警状态的设备。
 **PIN1**
 
 ```javascript
+
 msg = {
   topic: "0/1/12",
   count: 3, // 处于告警状态的设备总数
@@ -72,6 +73,7 @@ msg = {
 **PIN2**
 
 ```javascript
+
 msg = {
   topic: "door, 0/0/11, 0/1/2, 0/0/9",
   devicename: "入户门, 客厅壁灯, 地下室壁灯, 书房灯",
@@ -84,6 +86,7 @@ msg = {
 **PIN3**
 
 ```javascript
+
 msg = {
   topic: "0/1/12",
   count: 3, // 处于告警状态的设备总数
@@ -98,6 +101,7 @@ msg = {
 **PIN1, PIN2, PIN3**
 
 ```javascript
+
 msg = {
   topic: "",
   count: 0,
@@ -110,12 +114,14 @@ msg = {
 ## 节点的输入消息
 
 ```javascript
+
 msg.readstatus = true
 ```
 
 读取列表中每个设备的当前值。
 
 ```javascript
+
 msg.start = true
 ```
 
@@ -126,6 +132,7 @@ msg.start = true
 要更新某个自定义设备的状态（true/false），发送如下输入消息：
 
 ```javascript
+
 msg = {
   topic: "door",
   payload: true // 也可为 false，以清除此设备的告警

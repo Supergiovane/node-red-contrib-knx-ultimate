@@ -2,7 +2,7 @@
 layout: wiki
 title: "-Sample---Read-value-from-Device"
 lang: en
-permalink: /wiki/-Sample---Read-value-from-Device
+permalink: /wiki/-Sample---Read-value-from-Device/
 ---
 # Read Request to the KNX BUS
 

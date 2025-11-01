@@ -2,7 +2,7 @@
 layout: wiki
 title: "HUE Temperature sensor"
 lang: fr
-permalink: /wiki/fr-HUE%20Temperature%20sensor
+permalink: /wiki/fr-HUE%20Temperature%20sensor/
 ---
 Ce nœud lit la température (° C) à partir d'un capteur de température de teinte et le mappe à Knx. 
 

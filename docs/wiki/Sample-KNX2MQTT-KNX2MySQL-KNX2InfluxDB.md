@@ -2,7 +2,7 @@
 layout: wiki
 title: "Sample-KNX2MQTT-KNX2MySQL-KNX2InfluxDB"
 lang: en
-permalink: /wiki/Sample-KNX2MQTT-KNX2MySQL-KNX2InfluxDB
+permalink: /wiki/Sample-KNX2MQTT-KNX2MySQL-KNX2InfluxDB/
 ---
 ## MYSQL, MQTT, INFLUXDB Sample
 
@@ -14,6 +14,7 @@ Feel free to ask him about this code.<br/>
 First of all, you must creade the database, by pasting this query in the query editor:
 
 ```
+
 CREATE TABLE `knx_messages` ( `id` BIGINT NOT NULL AUTO_INCREMENT, `timestamp` DATETIME(3) NOT NULL, `knx_destination` VARCHAR(32) DEFAULT NULL, `maingroupname` VARCHAR(64) DEFAULT NULL, `middlegroupname` VARCHAR(64) DEFAULT NULL, `ganame` VARCHAR(255) DEFAULT NULL, `payload` VARCHAR(128) DEFAULT NULL, `payload_unit` VARCHAR(16) DEFAULT NULL, `knx_dpt` VARCHAR(16) DEFAULT NULL, `knx_dptdesc` VARCHAR(128) DEFAULT NULL, `knx_source` VARCHAR(32) DEFAULT NULL, `knx_event` VARCHAR(32) DEFAULT NULL, `echoed` TINYINT(1) DEFAULT NULL, PRIMARY KEY (`id`) )
 ```
 

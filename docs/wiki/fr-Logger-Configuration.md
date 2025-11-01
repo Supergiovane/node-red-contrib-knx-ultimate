@@ -2,7 +2,7 @@
 layout: wiki
 title: "Logger-Configuration"
 lang: fr
-permalink: /wiki/fr-Logger-Configuration
+permalink: /wiki/fr-Logger-Configuration/
 ---
 # Enregistreur
 
@@ -45,7 +45,9 @@ Le nœud peut également compter les télégrammes par seconde (ou tout interval
 
 **broche 1: fichier de fichier compatible du moniteur de bus XML ETS**
 
-Vous pouvez utiliser un nœud de fichier pour enregistrer la charge utile au système de fichiers, ou vous pouvez l'envoyer, par exemple, à un serveur FTP.```javascript
+Vous pouvez utiliser un nœud de fichier pour enregistrer la charge utile au système de fichiers, ou vous pouvez l'envoyer, par exemple, à un serveur FTP.
+
+```javascript
 
 msg = {
         topic:"MyLogger" 
@@ -53,11 +55,12 @@ msg = {
     } 
 
 ```
- 
 
 **PIN 2: COMPRESSION DE TÉLÉGRAM KNX**
 
-Chaque nombre, le nœud émettra un télégramme comme celui-ci:```javascript
+Chaque nombre, le nœud émettra un télégramme comme celui-ci:
+
+```javascript
 
 msg = {
         topic:"",
@@ -83,21 +86,27 @@ Vous pouvez contrôler l'enregistreur à certains égards.
 msg.etsstarttimer = true;
 return msg;
 
-``` **Arrêtez la minuterie** 
+```
+
+**Arrêtez la minuterie** 
 ```javascript
 
 // Start the timer
 msg.etsstarttimer = false;
 return msg;
 
-``` **Sortie immédiatement une charge utile avec le fichier ETS** 
+```
+
+**Sortie immédiatement une charge utile avec le fichier ETS** 
 ```javascript
 
 // Output payload. Restart timer as well (in case the timer was active)
 msg.etsoutputnow = true;
 return msg;
 
-```## KNX TELEGRAM COMPTER
+```
+
+## KNX TELEGRAM COMPTER
 
 **Démarrer la minuterie** 
 ```javascript
@@ -106,21 +115,27 @@ return msg;
 msg.telegramcounterstarttimer = true;
 return msg;
 
-``` **Arrêtez la minuterie** 
+```
+
+**Arrêtez la minuterie** 
 ```javascript
 
 // Start the timer
 msg.telegramcounterstarttimer = false;
 return msg;
 
-``` **Message de compte télégramme de sortie immédiatement** 
+```
+
+**Message de compte télégramme de sortie immédiatement** 
 ```javascript
 
 // Output payload. 
 msg.telegramcounteroutputnow = true;
 return msg;
 
-```## Voir aussi
+```
+
+## Voir aussi
 
 - _Sample_
 - [Exemple d'enregistreur](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Logger-Sample)

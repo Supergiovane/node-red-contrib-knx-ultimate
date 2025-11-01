@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-HUE Tapdial"
 lang: de
-permalink: /wiki/de-zh-CN-HUE%20Tapdial
+permalink: /wiki/de-zh-CN-HUE%20Tapdial/
 ---
 ---
 

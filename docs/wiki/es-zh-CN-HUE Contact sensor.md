@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-HUE Contact sensor"
 lang: es
-permalink: /wiki/es-zh-CN-HUE%20Contact%20sensor
+permalink: /wiki/es-zh-CN-HUE%20Contact%20sensor/
 ---
 ---
 <P> Este nodo asigna el evento del sensor de contacto de tono a la dirección del grupo KNX.</p>

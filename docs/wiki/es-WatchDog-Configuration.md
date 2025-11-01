@@ -2,7 +2,7 @@
 layout: wiki
 title: "WatchDog-Configuration"
 lang: es
-permalink: /wiki/es-WatchDog-Configuration
+permalink: /wiki/es-WatchDog-Configuration/
 ---
 Verifica la conexión a la puerta de enlace o a un dispositivo KNX específico 
 
@@ -38,7 +38,7 @@ Puede enviar un correo electrónico al instalador KNX responsable de su edificio
 
 **COMPROBAR NIVEL ** > _**Ethernet** _: \*checkks la conexión entre la puerta de enlace de ultimate KNX en modo unicast y su interfaz IP KNX. 
 
-<img src = "https://raw.githubusercontent.com/supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/watchdogethernetlevel.png"
+<img src = "https://raw.githubusercontent.com/supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/WatchDogEthernetLevel.png"
 width = "90%"> 
 
 > _ **Ethernet y KNX TP** _: Complete Check.Funciona con enrutadores KNX/IP e interfaces KNX/IP (así como
@@ -49,7 +49,7 @@ Acerca de esta imagen, en ETS, asigne una salida de este actuador GIRA KNX a un 
 
 La conexión de par de pares retorcidos está en funcionamiento.
 
-<img src = "https://raw.githubusercontent.com/supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/watchdogethernetknxtplevel.png"
+<img src = "https://raw.githubusercontent.com/supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/WatchDogEthernetKNXTPLevel.png"
 width = "90%"> 
 
 ## Opciones avanzadas
@@ -63,7 +63,9 @@ width = "90%">
 
 El nodo Watchdog sale un mensaje cada vez que recibe un error de uno de su nodo ultimal KNX en sus flujos, o cuando el vigilante interno intercepta un error de comunicación de bus KNX. 
  ** En caso de problema de autoexpresión de vigilancia** <a href = "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/watchdog-configuration"
-Target = "_ en blanco"> Consulte aquí. </a>```javascript
+Target = "_ en blanco"> Consulte aquí. </a>
+
+```javascript
 
 msg = {
 type:"BUSError"
@@ -74,7 +76,10 @@ description: // (whatever error description)
 }
 
 ```
- ** En caso de que uno de sus nodos ultimados KNX esté en problemas** ```javascript
+
+** En caso de que uno de sus nodos ultimados KNX esté en problemas** 
+
+```javascript
 
 msg = {
 type:"NodeError"
@@ -92,7 +97,10 @@ GA: "0/1/1"
 }
 
 ```
- ** En caso de una nueva configuración de puerta de enlace, se llama a través de SetGatewayConfig** ```javascript
+
+** En caso de una nueva configuración de puerta de enlace, se llama a través de SetGatewayConfig** 
+
+```javascript
 
 msg = {
 type:"setGatewayConfig"
@@ -105,7 +113,10 @@ completeError:""
 }
 
 ```
- ** Conexión forzada/desconexión** ```javascript
+
+** Conexión forzada/desconexión** 
+
+```javascript
 
 msg = {
 type:"connectGateway"
@@ -135,14 +146,18 @@ Para iniciar y detener el Watchdog, puede pasar esto como mensaje al nodo
 msg.start = true;
 return msg;
 
-``` ** Detente de vigilancia** 
+```
+
+** Detente de vigilancia** 
 ```javascript
 
 // Start the WatchDog
 msg.start = false;
 return msg;
 
-```## Cambie la configuración de enrutador KNX/IP/interfaz en la mosca
+```
+
+## Cambie la configuración de enrutador KNX/IP/interfaz en la mosca
 
 Con ** msg.setgatewayconfig** , puede cambiar el IP, el puerto, la dirección física, el protocolo, etc.
 
@@ -169,26 +184,36 @@ Protocol:"Multicast", importCSV:`"Group name" "Address" "Central" "Unfiltered" "
 
 return msg;
 
-```Todas las propiedades son opcionales.Por ejemplo, para cambiar solo la IP:```javascript
+```Todas
+
+las propiedades son opcionales.Por ejemplo, para cambiar solo la IP:
+
+```javascript
 
 // IP: IP of your KNX/IP Router or Interface
 msg.setGatewayConfig={IP:"224.0.23.12"};
 return msg;
 
-``` ** La desconexión de Force Gateway y la desactivación de los intentos de reconexión automática** 
+```
+
+** La desconexión de Force Gateway y la desactivación de los intentos de reconexión automática** 
 ```javascript
 
 // Force the gateway's disconnection from the BUS and stop the reconnection's attempts.
 msg.connectGateway = false;
 return msg;
 
-``` ** Conexión de Force Gateway y habilite los intentos de reconexión automática** 
+```
+
+** Conexión de Force Gateway y habilite los intentos de reconexión automática** 
 ```javascript
 
 // Force the gateway's connection to the BUS and activate the reconnection's attempts.
 msg.connectGateway = true;
 return msg;
 
-```## Ver también
+```
+
+## Ver también
 
 [Muestra de vigilancia](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---WatchDog)

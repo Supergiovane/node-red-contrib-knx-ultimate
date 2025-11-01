@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-SceneController-Configuration"
 lang: zh-CN
-permalink: /wiki/zh-CN-zh-CN-SceneController-Configuration
+permalink: /wiki/zh-CN-zh-CN-SceneController-Configuration/
 ---
 ---
 
@@ -32,7 +32,10 @@ permalink: /wiki/zh-CN-zh-CN-SceneController-Configuration
 | 行字段 | 1）组地址 2）Datapoint 3）默认场景值（可被 Scene Save 覆盖）。下方为设备名。<br/> 插入暂停：在第一列填 **wait ** ，最后一列填时长（毫秒），如 `2000`。<br/>**wait** 也支持秒/分/小时：`12s`、`5m`、`1h`。|
 | Remove | 移除该设备行。|
 
-## 节点输出```javascript
+## 节点输出
+
+```javascript
+
 msg = {
   topic: "Scene Controller",
   recallscene: true|false,
@@ -40,30 +43,52 @@ msg = {
   savevalue: true|false,
   disabled: true|false
 }
-```---
+```
+
+---
 
 ## 输入消息（INPUT）
 
 节点主要依靠 KNX 报文进行场景的召回/保存；也可通过消息进行控制。可禁用来自总线的命令，仅接受流程消息。
 
-**召回场景** ```javascript
+**召回场景** 
+
+```javascript
+
 msg.recallscene = true; return msg;
-``` **保存场景** ```javascript
+```
+
+**保存场景** 
+
+```javascript
+
 msg.savescene = true; return msg;
-``` **保存某条 GA 的当前值**
+```
+
+**保存某条 GA 的当前值**
 
 虽然场景会自动跟踪执行器的数值，但在某些情况下需要以"真实场景值”记录另一条 GA（如状态而非命令）的当前值。
 
-例如卷帘：绝对高度的状态 GA 才能反映准确位置。可用该状态 GA 去更新场景内相关执行器的命令 GA。```javascript
+例如卷帘：绝对高度的状态 GA 才能反映准确位置。可用该状态 GA 去更新场景内相关执行器的命令 GA。
+
+```javascript
+
 msg.savevalue = true;
 msg.topic = "0/1/1"; // GA
 msg.payload = 70; // 要保存的值
 return msg;
-``` **禁用 Scene Controller**
+```
 
-禁用来自 KNX 总线的命令（仍接受流程消息）。例如夜间不希望从实体按钮召回/保存场景时很有用。```javascript
+**禁用 Scene Controller**
+
+禁用来自 KNX 总线的命令（仍接受流程消息）。例如夜间不希望从实体按钮召回/保存场景时很有用。
+
+```javascript
+
 msg.disabled = true; // false 重新启用
 return msg;
-```## 参见
+```
+
+## 参见
 
 [Sample Scene Controller](/node-red-contrib-knx-ultimate/wiki/Sample-Scene-Node)

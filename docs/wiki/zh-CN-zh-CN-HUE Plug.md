@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-HUE Plug"
 lang: zh-CN
-permalink: /wiki/zh-CN-zh-CN-HUE%20Plug
+permalink: /wiki/zh-CN-zh-CN-HUE%20Plug/
 ---
 ---
 

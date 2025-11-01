@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-KNXAutoResponder"
 lang: zh-CN
-permalink: /wiki/zh-CN-zh-CN-KNXAutoResponder
+permalink: /wiki/zh-CN-zh-CN-KNXAutoResponder/
 ---
 ---
 
@@ -35,17 +35,25 @@ json总是\*\*一个对象数组，包含每个指令。每个指令都告诉节
 **让我们从一个指令开始**
 
 Autoresponder节点将响应组地址2/7/1的读取请求。如果尚未在内存中值，它将以 _true _回复。
-ETS CSV文件必须已导入，否则您也必须添加__" dpt”：" 1.001” \*\*密钥。```json
+ETS CSV文件必须已导入，否则您也必须添加__" dpt”：" 1.001” \*\*密钥。
+
+```json
+
 [
     {
         "ga": "2/7/1",
         "default": true
     }
 ]
-``` **更完整的指令**
+```
+
+**更完整的指令**
 
 自动回答器节点将响应从3/1/1开始的读取请求，包括3/1/22。如果内存尚无值，它将用 _false _回复。
-还有一个__ note \*\*键，仅作为提醒笔记。它不会在任何地方使用。```json
+还有一个__ note \*\*键，仅作为提醒笔记。它不会在任何地方使用。
+
+```json
+
 [
     {
         "note": "Virtual sensors coming from Hikvision AX-Pro",
@@ -54,11 +62,16 @@ ETS CSV文件必须已导入，否则您也必须添加__" dpt”：" 1.001” \
         "default": false
     }
 ]
-``` **串联指令**
+```
+
+**串联指令**
 
 从2/2/5到2/2/21，Autoresponder节点将响应对组地址的读取请求。如果尚无记忆中的值，它将以25值回复。
 Autoresponder节点还将响应组件2/4/22的读取请求。如果内存中还没有值，它将使用字符串 \*未知状态！\*回复。
-请注意每个指令的JSON对象之间的 **逗号** 。```json
+请注意每个指令的JSON对象之间的 **逗号** 。
+
+```json
+
 [
     {
         "note": "DALI garden virtual brightness %",
@@ -72,4 +85,6 @@ Autoresponder节点还将响应组件2/4/22的读取请求。如果内存中还�
         "default": "Unknown status!"
     }
 ]
-```<br/>
+```
+
+<br/>

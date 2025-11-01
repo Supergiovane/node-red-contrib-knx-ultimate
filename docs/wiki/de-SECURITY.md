@@ -2,7 +2,7 @@
 layout: wiki
 title: "SECURITY"
 lang: de
-permalink: /wiki/de-SECURITY
+permalink: /wiki/de-SECURITY/
 ---
 ---
 

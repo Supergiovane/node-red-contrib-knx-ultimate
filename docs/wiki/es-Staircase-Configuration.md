@@ -2,7 +2,7 @@
 layout: wiki
 title: "Staircase-Configuration"
 lang: es
-permalink: /wiki/es-Staircase-Configuration
+permalink: /wiki/es-Staircase-Configuration/
 ---
 ---
 # Temporizador de escalera
@@ -26,15 +26,18 @@ El nodo **KNX Staircase** reproduce el comportamiento de un temporizador de esca
 - También puedes fiarte de la GA de estado para las automatizaciones en KNX.
 ## Ejemplo en el flow
 ```javascript
+
 // Iniciar el temporizador de escalera
 msg.payload = true;
 return msg;
 ```
+
 ```javascript
 // Cancelar el ciclo (opción "El valor 0 cancela el ciclo")
 msg.payload = false;
 return msg;
 ```
+
 ## Consejos
 - Usa el override para tareas de limpieza o mantenimiento.
 - Vincula la GA de estado a un indicador físico o panel.

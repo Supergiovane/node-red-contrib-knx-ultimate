@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-HATranslator"
 lang: es
-permalink: /wiki/es-zh-CN-HATranslator
+permalink: /wiki/es-zh-CN-HATranslator/
 ---
 ---
 <p> Este nodo convierte el mensaje de entrada a un valor válido verdadero/falso.<p>

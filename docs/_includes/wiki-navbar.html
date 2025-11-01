@@ -2,31 +2,51 @@
 {% assign nav_entries = site.data['wiki-nav'][active_lang] %}
 {% assign languages = site.data.languages %}
 {% assign lang_label = site.data.translations.language_label[active_lang] | default: 'Language' %}
+{% assign translation_key = page.translation_key | default: '' %}
 <nav class="wiki-nav">
   <div class="wiki-nav__languages" role="navigation" aria-label="{{ lang_label }}">
     <span class="wiki-nav__languages-label">🌐 {{ lang_label }}</span>
     {% for code in languages %}
       {% assign lang_code = code[0] %}
       {% assign lang_info = code[1] %}
-      {% assign prefix = lang_info.prefix %}
-      {% if prefix == '' %}
-        {% assign candidate_title = page.title %}
-      {% else %}
-        {% assign candidate_title = prefix | append: page.title %}
-      {% endif %}
-      {% assign candidate_slug = candidate_title | uri_escape %}
-      {% assign candidate_url = '/wiki/' | append: candidate_slug %}
-      {% assign page_exists = false %}
-      {% for p in site.pages %}
-        {% if p.url == candidate_url %}
-          {% assign page_exists = true %}
-          {% break %}
+      {% assign lang_homepage = lang_info.homepage | default: lang_info['homepage'] | default: '' %}
+      {% assign candidate_url = '' %}
+      {% if translation_key != '' %}
+        {% if translation_key == 'homepage' and lang_homepage != '' %}
+          {% assign candidate_url = lang_homepage %}
         {% endif %}
-      {% endfor %}
-      {% unless page_exists %}
-        {% assign fallback_slug = page.title | uri_escape %}
-        {% assign candidate_url = '/wiki/' | append: fallback_slug %}
-      {% endunless %}
+        {% if candidate_url == '' %}
+          {% for p in site.pages %}
+            {% if p.translation_key == translation_key and p.lang == lang_code %}
+              {% assign candidate_url = p.url %}
+              {% break %}
+            {% endif %}
+          {% endfor %}
+        {% endif %}
+        {% if candidate_url == '' %}
+          {% assign candidate_url = page.url %}
+        {% endif %}
+      {% else %}
+        {% assign prefix = lang_info.prefix %}
+        {% if prefix == '' %}
+          {% assign candidate_title = page.title %}
+        {% else %}
+          {% assign candidate_title = prefix | append: page.title %}
+        {% endif %}
+        {% assign candidate_slug = candidate_title | uri_escape %}
+        {% assign candidate_url = '/wiki/' | append: candidate_slug %}
+        {% assign page_exists = false %}
+        {% for p in site.pages %}
+          {% if p.url == candidate_url %}
+            {% assign page_exists = true %}
+            {% break %}
+          {% endif %}
+        {% endfor %}
+        {% unless page_exists %}
+          {% assign fallback_slug = page.title | uri_escape %}
+          {% assign candidate_url = '/wiki/' | append: fallback_slug %}
+        {% endif %}
+      {% endif %}
       {% if lang_code == active_lang %}
         <span class="wiki-nav__language wiki-nav__language--active">{{ lang_info.short | default: lang_info.label }}</span>
       {% else %}
@@ -35,28 +55,40 @@
     {% endfor %}
   </div>
   {% if nav_entries %}
-    {% assign current_url = page.url %}
+    {% assign current_url = page.url | relative_url %}
     <div class="wiki-nav__groups">
         {% for section in nav_entries %}
           {% assign section_open = false %}
           {% for link in section.items %}
-            {% if link.external != true and link.url == current_url %}
-              {% assign section_open = true %}
+            {% if link.external != true %}
+              {% assign normalized_link_url = link.url | relative_url %}
+              {% if normalized_link_url == current_url %}
+                {% assign section_open = true %}
+              {% endif %}
             {% endif %}
           {% endfor %}
-          <details class="wiki-nav__group" {% if section_open or forloop.first %}open{% endif %}>
+          {% assign should_open = section_open %}
+          {% if should_open != true and forloop.first %}
+            {% assign should_open = true %}
+          {% endif %}
+          <details class="wiki-nav__group" {% if should_open %}open{% endif %}>
             <summary>{{ section.title }}</summary>
             <ul class="wiki-nav__list">
               {% for item in section.items %}
                 {% assign is_active = false %}
-                {% if item.external != true and item.url == current_url %}
-                  {% assign is_active = true %}
+                {% if item.external != true %}
+                  {% assign item_href = item.url | relative_url %}
+                  {% if item_href == current_url %}
+                    {% assign is_active = true %}
+                  {% endif %}
+                {% else %}
+                  {% assign item_href = item.url %}
                 {% endif %}
                 <li>
                   {% if item.external %}
-                    <a class="wiki-nav__link" href="{{ item.url }}" rel="noopener">{{ item.label }}</a>
+                    <a class="wiki-nav__link" href="{{ item_href }}" rel="noopener">{{ item.label }}</a>
                   {% else %}
-                    <a class="wiki-nav__link{% if is_active %} wiki-nav__link--active{% endif %}" href="{{ item.url | relative_url }}">{{ item.label }}</a>
+                    <a class="wiki-nav__link{% if is_active %} wiki-nav__link--active{% endif %}" href="{{ item_href }}">{{ item.label }}</a>
                   {% endif %}
                 </li>
               {% endfor %}

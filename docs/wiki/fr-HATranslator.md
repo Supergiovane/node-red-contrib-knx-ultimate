@@ -2,7 +2,7 @@
 layout: wiki
 title: "HATranslator"
 lang: fr
-permalink: /wiki/fr-HATranslator
+permalink: /wiki/fr-HATranslator/
 ---
 Ce nœud traduit le msg d'entrée en valeurs vraies / fausses valides. 
 

@@ -2,13 +2,13 @@
 layout: wiki
 title: "Logger-Sample"
 lang: de
-permalink: /wiki/de-Logger-Sample
+permalink: /wiki/de-Logger-Sample/
 ---
 ---
 
 # Logger -Samples
 
-<img src = "https://raw.githubuSercontent.com/supergiovane/node-red-contrib-nx-ultimate/master/img/wiki/logger.png" width = "90%"> <br/>
+<img src = "https://raw.githubusercontent.com/supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/logger.png" width = "90%"> <br/>
 
 \*\* Kopieren Sie diesen Code und fügen Sie ihn in Ihren Fluss ein \*\*
 

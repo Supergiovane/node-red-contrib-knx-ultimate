@@ -2,14 +2,17 @@
 layout: wiki
 title: "zh-CN-Logger-Sample"
 lang: it
-permalink: /wiki/it-zh-CN-Logger-Sample
+permalink: /wiki/it-zh-CN-Logger-Sample/
 ---
 ---
 # Campione di registratore
 \ <img src = "https://raw.githubusercontent.com/supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/logger.png" width = "90%">>
 **Copia questo codice e incollalo nel tuo stream**
 <Psumo> <summary> Visualizza codice </summary>
-> Regola il nodo in base alle impostazioni e imposta il percorso sul nodo file \*\*.```javascript
+> Regola il nodo in base alle impostazioni e imposta il percorso sul nodo file \*\*.
+
+```javascript
+
 [
     {
         "id": "b8e9e444.0af1f",
@@ -65,4 +68,6 @@ permalink: /wiki/it-zh-CN-Logger-Sample
         "localEchoInTunneling": true
     }
 ]
-```\ </Dettagli>
+```
+
+\ </Dettagli>

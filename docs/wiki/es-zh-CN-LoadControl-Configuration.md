@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-LoadControl-Configuration"
 lang: es
-permalink: /wiki/es-zh-CN-LoadControl-Configuration
+permalink: /wiki/es-zh-CN-LoadControl-Configuration/
 ---
 ---
 # Nodo de control de carga KNX
@@ -35,7 +35,10 @@ Si \*Autorecovery \* está habilitado, el dispositivo se reactivará automática
 ## Producción
 1. Salida estándar
 : Carga de pago (cadena | objeto): salida estándar del comando.
-## detalle```javascript
+## detalle
+
+```javascript
+
 msg = {
   "topic": "Home Total Consumption", // Node Name
   "operation": "Increase Shedding" or "Decrease Shedding" or operation reflecting the input message (disable, enable, reset), // Operation
@@ -45,6 +48,8 @@ msg = {
   "wattLimit": 3000, // Limit you set in the config window
   "payload": 1, // Current shedding stage
 }
-```# Muestra
+```
+
+# Muestra
 \ <a href = "/node-red-contrib-knx-ultimate/wiki/SampleLoadControl"> Haga clic aquí por ejemplo </a>
 <br/>

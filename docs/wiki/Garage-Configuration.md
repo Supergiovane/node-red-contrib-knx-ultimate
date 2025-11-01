@@ -2,7 +2,7 @@
 layout: wiki
 title: "Garage-Configuration"
 lang: en
-permalink: /wiki/Garage-Configuration
+permalink: /wiki/Garage-Configuration/
 ---
 ---
 # Garage Door configuration
@@ -24,20 +24,24 @@ All addresses accept custom DPTs if different datatypes are required.
 * When the timer expires the node sends the close command (or impulse) and emits an `auto-close` event.
 ## Flow example
 ```javascript
+
 // Open the door
 msg.payload = 'open';
 return msg;
 ```
+
 ```javascript
 // Close the door
 msg.payload = 'close';
 return msg;
 ```
+
 ```javascript
 // Toggle the door state
 msg.payload = 'toggle';
 return msg;
 ```
+
 ## Safety handling
 * A photocell `true` during closing immediately triggers an open command and sets the obstruction flag.
 * External writes to the obstruction GA update the internal state so dashboards stay in sync.
@@ -46,6 +50,7 @@ return msg;
 * Injecting `msg.payload` with `true`, `false`, `'open'`, `'close'` or `'toggle'` controls the door from the flow.
 * With **Emit events** active the node outputs structured messages:
 ```
+
 {
   topic: <configured topic or command GA>,
   event: 'open' | 'close' | 'toggle' | 'auto-close' | 'obstruction' | 'disabled' | 'hold-open',
@@ -55,4 +60,5 @@ return msg;
   obstruction: <boolean>
 }
 ```
+
 These events are useful for dashboards, logging or custom automations around the garage door.

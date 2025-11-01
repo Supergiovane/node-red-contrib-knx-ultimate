@@ -2,7 +2,7 @@
 layout: wiki
 title: "SceneController-Configuration"
 lang: de
-permalink: /wiki/de-SceneController-Configuration
+permalink: /wiki/de-SceneController-Configuration/
 ---
 # Scene Controller
 
@@ -35,6 +35,7 @@ Der Node speichert automatisch aktualisierte Werte aller Aktoren der Szene, soba
 ## Ausgaben
 
 ```javascript
+
 msg = {
   topic: "Scene Controller",
   recallscene: true|false,
@@ -53,12 +54,14 @@ Primär reagiert der Node auf KNX‑Telegramme, kann aber auch per Nachricht ges
 **Szene abrufen**
 
 ```javascript
+
 msg.recallscene = true; return msg;
 ```
 
 **Szene speichern**
 
 ```javascript
+
 msg.savescene = true; return msg;
 ```
 
@@ -69,6 +72,7 @@ Obwohl die Szene Aktor‑Werte automatisch mitführt, kann es sinnvoll sein, als
 Beispiel Rolladen: absolute Positions‑Status‑GA liefert den exakten Wert. Damit können Befehls‑GAs der in der Szene enthaltenen Aktoren aktualisiert werden.
 
 ```javascript
+
 msg.savevalue = true;
 msg.topic = "0/1/1"; // GA
 msg.payload = 70; // zu speichernder Wert
@@ -80,6 +84,7 @@ return msg;
 Deaktiviert BUS‑Kommandos (Flow‑Nachrichten bleiben aktiv). Praktisch z. B. nachts.
 
 ```javascript
+
 msg.disabled = true; // false = reaktivieren
 return msg;
 ```

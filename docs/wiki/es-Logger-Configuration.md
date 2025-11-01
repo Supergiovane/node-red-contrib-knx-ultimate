@@ -2,7 +2,7 @@
 layout: wiki
 title: "Logger-Configuration"
 lang: es
-permalink: /wiki/es-Logger-Configuration
+permalink: /wiki/es-Logger-Configuration/
 ---
 <
 
@@ -47,7 +47,9 @@ El nodo también puede contar telegramas por segundo (o cualquier intervalo que 
 
 **Pin 1: archivo de archivo compatible con monitor de bus XML ETS**
 
-Puede usar un nodo de archivo para guardar la carga útil en el sistema de archivos, o puede enviarla, por ejemplo, a un servidor FTP.```javascript
+Puede usar un nodo de archivo para guardar la carga útil en el sistema de archivos, o puede enviarla, por ejemplo, a un servidor FTP.
+
+```javascript
 
 msg = {
         topic:"MyLogger" 
@@ -55,11 +57,12 @@ msg = {
     } 
 
 ```
- 
 
 **Pin 2: contador de telegrama de KNX**
 
-Cada recuento, el nodo emitirá un telegrama como este:```javascript
+Cada recuento, el nodo emitirá un telegrama como este:
+
+```javascript
 
 msg = {
         topic:"",
@@ -85,21 +88,27 @@ Puede controlar el registrador de alguna manera.
 msg.etsstarttimer = true;
 return msg;
 
-``` **Detener el temporizador** 
+```
+
+**Detener el temporizador** 
 ```javascript
 
 // Start the timer
 msg.etsstarttimer = false;
 return msg;
 
-``` **ENCONTRA INMEDIATAMENTE una carga útil con el archivo ETS** 
+```
+
+**ENCONTRA INMEDIATAMENTE una carga útil con el archivo ETS** 
 ```javascript
 
 // Output payload. Restart timer as well (in case the timer was active)
 msg.etsoutputnow = true;
 return msg;
 
-```## contador de telegrama de knx
+```
+
+## contador de telegrama de knx
 
 **Temporizador de inicio** 
 ```javascript
@@ -108,21 +117,27 @@ return msg;
 msg.telegramcounterstarttimer = true;
 return msg;
 
-``` **Detener el temporizador** 
+```
+
+**Detener el temporizador** 
 ```javascript
 
 // Start the timer
 msg.telegramcounterstarttimer = false;
 return msg;
 
-``` **Mensaje de conteo de telegrama de salida inmediatamente** 
+```
+
+**Mensaje de conteo de telegrama de salida inmediatamente** 
 ```javascript
 
 // Output payload. 
 msg.telegramcounteroutputnow = true;
 return msg;
 
-```## Ver también
+```
+
+## Ver también
 
 - _samples_
 - [Logger de muestra](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Logger-Sample)

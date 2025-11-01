@@ -2,7 +2,7 @@
 layout: wiki
 title: "Logger-Configuration"
 lang: de
-permalink: /wiki/de-Logger-Configuration
+permalink: /wiki/de-Logger-Configuration/
 ---
 # Logger
 
@@ -44,6 +44,7 @@ Der Node kann zudem Telegramme pro Sekunde (oder in frei wählbaren Intervallen)
 Mit einem File‑Node `payload` speichern oder z. B. an FTP senden.
 
 ```javascript
+
 msg = {
   topic: "MyLogger",
   payload: "CommunicationLog xmlns=http://knx.org/xml/telegrams/01 Telegram Timestamp=2020-03-27T07:32:39.470Z Service=L_Data.ind...." // XML‑String
@@ -55,6 +56,7 @@ msg = {
 Bei jedem Intervall gibt der Node z. B. so aus:
 
 ```javascript
+
 msg = {
   topic: "",
   payload: 10,
@@ -72,18 +74,21 @@ ETS‑kompatible XML
 **Timer starten**
 
 ```javascript
+
 msg.etsstarttimer = true; return msg;
 ```
 
 **Timer stoppen**
 
 ```javascript
+
 msg.etsstarttimer = false; return msg;
 ```
 
 **Sofortige XML‑Ausgabe**
 
 ```javascript
+
 // Gibt die XML sofort aus; startet ggf. den Timer neu
 msg.etsoutputnow = true; return msg;
 ```
@@ -93,18 +98,21 @@ Telegrammzähler
 **Timer starten**
 
 ```javascript
+
 msg.telegramcounterstarttimer = true; return msg;
 ```
 
 **Timer stoppen**
 
 ```javascript
+
 msg.telegramcounterstarttimer = false; return msg;
 ```
 
 **Zählstand sofort ausgeben**
 
 ```javascript
+
 msg.telegramcounteroutputnow = true; return msg;
 ```
 

@@ -2,7 +2,7 @@
 layout: wiki
 title: "Device"
 lang: zh-CN
-permalink: /wiki/zh-CN-Device
+permalink: /wiki/zh-CN-Device/
 ---
 ## KNX‑ULTIMATE 设备节点设置
 
@@ -74,6 +74,7 @@ permalink: /wiki/zh-CN-Device
 ### 示例（流程 → 总线）
 
 ```javascript
+
 const statusGA = getGAValue('0/0/09','1.001');
 if (msg.payload !== statusGA){ return msg; } else { return; }
 ```
@@ -89,6 +90,7 @@ return msg;
 ### 示例（总线 → 输出）
 
 ```javascript
+
 msg.externalTemperature = getGAValue('0/0/10'); // 未导入 ETS：getGAValue('0/0/10','9.001')
 return msg;
 ```
@@ -104,6 +106,7 @@ if (msg.payload === false && getGAValue('0/0/11','1.001') === false){ return; } 
 ### setConfig 详情
 
 ```javascript
+
 var config= { setGroupAddress: "0/1/2", setDPT: "1.001" };
 msg.setConfig = config; return msg;
 ```
@@ -121,6 +124,7 @@ msg.setConfig = config; return msg;
 ### 输出消息示例
 
 ```json
+
 msg = {
   topic: "0/1/2",
   payload: false,
@@ -175,24 +179,28 @@ msg = {
 **打开灯**
 
 ```javascript
+
 msg.payload = true; return msg;
 ```
 
 **绝对调光**
 
 ```javascript
+
 msg.payload = 30; return msg;
 ```
 
 **向显示屏发送文本**
 
 ```javascript
+
 msg.payload = "Output Tem. 35°C"; return msg;
 ```
 
 **读取状态**
 
 ```javascript
+
 // 发送读取请求；需在节点上勾选"React to response telegrams”以接收应答
 msg.readstatus = true; return msg;
 ```
@@ -200,6 +208,7 @@ msg.readstatus = true; return msg;
 **发送 RAW 到总线**
 
 ```javascript
+
 // DPT1 示例：开灯 = Buffer<01>，bitlength = 1
 msg.writeraw = Buffer.from('01','hex');
 msg.bitlenght = 1; return msg;

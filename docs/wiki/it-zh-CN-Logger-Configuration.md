@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-Logger-Configuration"
 lang: it
-permalink: /wiki/it-zh-CN-Logger-Configuration
+permalink: /wiki/it-zh-CN-Logger-Configuration/
 ---
 ---
 # Logger (log)
@@ -29,35 +29,76 @@ Questo nodo può anche contare il numero di messaggi (al secondo o intervallo pe
 ---
 #Node output
 **PIN 1: ETS compatibile XML**
-Utilizzare il nodo file per salvare `msg.payload` o inviarlo a FTP, ecc.```javascript
+Utilizzare il nodo file per salvare `msg.payload` o inviarlo a FTP, ecc.
+
+```javascript
+
 msg = {
   topic: "MyLogger",
   payload: "CommunicationLog xmlns=http://knx.org/xml/telegrams/01 Telegram Timestamp=2020-03-27T07:32:39.470Z Service=L_Data.ind...." // XML 字符串
 }
-``` **PIN 2: conteggio dei messaggi KNX**
-Output per ciclo di conteggio:```javascript
+```
+
+**PIN 2: conteggio dei messaggi KNX**
+Output per ciclo di conteggio:
+
+```javascript
+
 msg = {
   topic: "",
   payload: 10,
   countIntervalInSeconds: 5,
   currentTime: "25/10/2021, 11:11:44"
 }
-```---
+```
+
+---
+
 # Immettere messaggio (input)
 Controllo XML compatibile con ETS
-**Avvia timer** ```javascript
+**Avvia timer** 
+
+```javascript
+
 msg.etsstarttimer = true; return msg;
-``` **Stop timer** ```javascript
+```
+
+**Stop timer** 
+
+```javascript
+
 msg.etsstarttimer = false; return msg;
-``` **output xml ora** ```javascript
+```
+
+**output xml ora** 
+
+```javascript
+
 // 立刻输出 XML；若计时器在运行，则一并重启
 msg.etsoutputnow = true; return msg;
-```Controllo contatore di messaggi
-**Avvia timer** ```javascript
+```Controllo
+
+contatore di messaggi
+**Avvia timer** 
+
+```javascript
+
 msg.telegramcounterstarttimer = true; return msg;
-``` **Stop timer** ```javascript
+```
+
+**Stop timer** 
+
+```javascript
+
 msg.telegramcounterstarttimer = false; return msg;
-``` **Conto di output immediatamente** ```javascript
+```
+
+**Conto di output immediatamente** 
+
+```javascript
+
 msg.telegramcounteroutputnow = true; return msg;
-```## Vedere
+```
+
+## Vedere
 - [Esempio di logger](/node-red-contrib-knx-ultimate/wiki/Logger-Sample)

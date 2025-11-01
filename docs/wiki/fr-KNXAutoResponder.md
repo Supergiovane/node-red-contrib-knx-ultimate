@@ -2,7 +2,7 @@
 layout: wiki
 title: "KNXAutoResponder"
 lang: fr
-permalink: /wiki/fr-KNXAutoResponder
+permalink: /wiki/fr-KNXAutoResponder/
 ---
 Ce nœud répondra aux demandes de lecture du bus KNX.
 
@@ -29,17 +29,25 @@ Par défaut, il existe un exemple **pré-compilé ** "Répondez au" Texte JSON, 
 **Commençons par une directive**
 
 Le nœud AutoResPonder répondra aux demandes de lecture de l'adresse du groupe 2/7/1.Si aucune valeur n'est encore en mémoire, elle répondra avec _true _. \
-Le fichier ETS CSV doit avoir été importé, sinon vous devez également ajouter la clé **"DPT": "1.001"** .```json
+Le fichier ETS CSV doit avoir été importé, sinon vous devez également ajouter la clé **"DPT": "1.001"** .
+
+```json
+
 [
     {
         "ga": "2/7/1",
         "default": true
     }
 ]
-``` **Directive un peu plus complète**
+```
+
+**Directive un peu plus complète**
 
 Le nœud AutoResPonder répondra aux demandes de lecture de l'adresse du groupe à partir du 3/1/1 au 3/1/22 inclus.Si aucune valeur n'est encore en mémoire, elle répondra avec _false _. \
-Il y a aussi une touche **note** , simplement comme une note de rappel.Il ne sera utilisé nulle part.```json
+Il y a aussi une touche **note** , simplement comme une note de rappel.Il ne sera utilisé nulle part.
+
+```json
+
 [
     {
         "note": "Virtual sensors coming from Hikvision AX-Pro",
@@ -48,11 +56,16 @@ Il y a aussi une touche **note** , simplement comme une note de rappel.Il ne ser
         "default": false
     }
 ]
-``` **Directives de concaténation**
+```
+
+**Directives de concaténation**
 
 Le nœud de réponse automatique répondra aux demandes de lecture de l'adresse du groupe à partir du 2/2/5 au 2/2/21 incluse.Si aucune valeur n'est encore en mémoire, elle répondra avec une valeur de 25. \
 Le nœud AutoResPonder répondra également aux demandes de lecture de l'adresse du groupe 2/4/22.Si aucune valeur n'est encore en mémoire, elle répondra avec la chaîne _Unknown Status! _. \
-Veuillez noter le **virgule** entre l'objet JSON de chaque directive.```json
+Veuillez noter le **virgule** entre l'objet JSON de chaque directive.
+
+```json
+
 [
     {
         "note": "DALI garden virtual brightness %",

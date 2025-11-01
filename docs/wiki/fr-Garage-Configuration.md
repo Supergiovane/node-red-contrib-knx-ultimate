@@ -2,7 +2,7 @@
 layout: wiki
 title: "Garage-Configuration"
 lang: fr
-permalink: /wiki/fr-Garage-Configuration
+permalink: /wiki/fr-Garage-Configuration/
 ---
 ---
 # Porte de garage
@@ -30,15 +30,18 @@ Le nœud **KNX Garage** pilote un portail motorisé en utilisant des GA dédiée
 - Avec *Émettre des événements* activé, des objets détaillant `event`, `state`, `disabled`, `holdOpen`, `obstruction` sont envoyés.
 ## Exemple de flow
 ```javascript
+
 // Ouvrir le portail
 msg.payload = 'open'; // accepte aussi true
 return msg;
 ```
+
 ```javascript
 // Fermer le portail
 msg.payload = 'close'; // accepte aussi false
 return msg;
 ```
+
 ```javascript
 // Basculer l’état du portail
 msg.payload = 'toggle';

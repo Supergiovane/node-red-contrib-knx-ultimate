@@ -2,7 +2,7 @@
 layout: wiki
 title: "-Sample---WatchDog"
 lang: en
-permalink: /wiki/-Sample---WatchDog
+permalink: /wiki/-Sample---WatchDog/
 ---
 # WATCHDOG NODE
 

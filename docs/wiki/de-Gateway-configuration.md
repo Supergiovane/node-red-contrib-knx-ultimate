@@ -2,7 +2,7 @@
 layout: wiki
 title: "Gateway-configuration"
 lang: de
-permalink: /wiki/de-Gateway-configuration
+permalink: /wiki/de-Gateway-configuration/
 ---
 # KNX Gateway Konfiguration
 
@@ -72,23 +72,41 @@ Hinweis: CSV enthält genaue DPTs inkl. Subtyp; ESF hat keinen Subtyp. Bevorzuge
 
 Video: <a href="https://youtu.be/egRbR_KwP9I"><img src='https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/yt.png'></a>
 
-- **ETS‑CSV Gruppenadressen importieren ** Achtung: Im GA‑Namen dürfen keine Tabulator‑Zeichen vorkommen.**If Group Address has no Datapoint ** > Ohne DPT in ETS: Import abbrechen, GA überspringen oder mit Platzhalter‑DPT fortfahren.**CSV‑Export in ETS**
+### ETS-CSV-Gruppenadressen importieren
 
-> In ETS Gruppenadressenliste wählen → Rechtsklick → Exportieren. Optionen:
+**Achtung.** Im Namen der Gruppenadresse dürfen keine Tabulator-Zeichen vorkommen. Falls in ETS kein DPT hinterlegt ist, kannst du den Import abbrechen, den Eintrag überspringen oder ihn mit einem temporären `1.001`-DPT importieren.
 
-> Output Format: CSV
+**CSV in ETS exportieren**
 
-> CSV Format: 1/1 Name/Address
+1. In ETS die Ansicht *Gruppenadressen* öffnen, innerhalb der Liste rechtsklicken und **Gruppenadressen exportieren** wählen.
+2. Im Exportdialog die folgenden Optionen setzen:
+   - **Output format:** CSV
+   - **CSV format:** 1/1 Name/Address
+   - **Export with header line:** aktiv
+   - **CSV separator:** Tabulator
+3. Die Datei exportieren und den Inhalt im Feld **ETS group address list** einfügen (oder den Dateipfad angeben).
 
-> Export with header line: aktiv
+**Was beim Import passiert**
 
-> CSV Separator: Tabulator
+- Die CSV muss für jede Gruppenadresse einen DPT enthalten.
+- Das Gateway analysiert die Datei und meldet das Ergebnis im Node-RED-Debug:
+  - **ERROR** – DPT fehlt, der Import wird abgebrochen.
+  - **WARNING** – DPT-Subtyp fehlt, ein Standardwert wird ergänzt; bitte manuell prüfen (der Subtyp ist die Zahl hinter dem Punkt, z. B. `5.001`).
+- Felder sollten in Anführungszeichen stehen, zum Beispiel:
 
-> Dann den Dateitext hier einfügen. Datei muss pro GA einen DPT enthalten. Ergebnisse erscheinen in Node‑RED DEBUG.
+  
 
-> Ergebnisse: **ERROR ** (DPT fehlt → Import stoppt) oder**WARNING ** (Subtyp fehlt → Default wird ergänzt, bitte prüfen). Subtyp ist die Zahl rechts vom Punkt, z. B. `5.001`.**ESF‑Export in ETS**
+```
 
-> Projekt wählen → Export‑Symbol (Pfeil nach oben) → ESF wählen (nicht `.knxprod`) → Inhalt im Feld "ETS group address list" einfügen.
+"Attuatori luci"	"0/-/-"	""	""	""	""	"Auto"
+  
+
+```
+
+### ETS-ESF-Gruppenadressen importieren
+
+1. In ETS das Projekt wählen, auf das Export-Symbol (Pfeil nach oben) klicken und das Format **ESF** (nicht `.knxprod`) auswählen.
+2. Den Dateiinhalt kopieren oder den Pfad im Feld **ETS group address list** angeben.
 
     <table style="font-size:12px">
         <tr><th colspan="2" style="font-size:14px">Statusfarben des Nodes</th></tr>

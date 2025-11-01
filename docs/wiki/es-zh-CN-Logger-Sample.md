@@ -2,14 +2,17 @@
 layout: wiki
 title: "zh-CN-Logger-Sample"
 lang: es
-permalink: /wiki/es-zh-CN-Logger-Sample
+permalink: /wiki/es-zh-CN-Logger-Sample/
 ---
 ---
 # Muestra de grabadora
 \ <img src = "https://raw.githubusercontent.com/supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/logger.png" width = "90%">
 **Copie este código y péguelo en su transmisión**
 <talls> <summary> Ver código </summary>
-> Ajuste el nodo de acuerdo con su configuración y establezca la ruta al nodo de archivo \*\*.```javascript
+> Ajuste el nodo de acuerdo con su configuración y establezca la ruta al nodo de archivo \*\*.
+
+```javascript
+
 [
     {
         "id": "b8e9e444.0af1f",
@@ -65,4 +68,6 @@ permalink: /wiki/es-zh-CN-Logger-Sample
         "localEchoInTunneling": true
     }
 ]
-```\ </Detalles>
+```
+
+\ </Detalles>

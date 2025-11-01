@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-HUE Zigbee connectivity"
 lang: fr
-permalink: /wiki/fr-zh-CN-HUE%20Zigbee%20connectivity
+permalink: /wiki/fr-zh-CN-HUE%20Zigbee%20connectivity/
 ---
 ---
 <p> Ce nœud lit l'état de connexion ZigBee à partir du périphérique Hue et le publie à KNX.</p>

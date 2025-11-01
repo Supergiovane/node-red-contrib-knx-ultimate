@@ -2,7 +2,7 @@
 layout: wiki
 title: "LoadControl-Configuration"
 lang: de
-permalink: /wiki/de-LoadControl-Configuration
+permalink: /wiki/de-LoadControl-Configuration/
 ---
 # KNX Load Control Node
 
@@ -45,6 +45,7 @@ Ist "Automatische Wiederherstellung" aktiv, wird nach Ablauf des Reset‑Delays 
 ## Details
 
 ```javascript
+
 msg = {
   topic: "Home Total Consumption",
   operation: "Increase Shedding" | "Decrease Shedding" | "enable/disable/reset",

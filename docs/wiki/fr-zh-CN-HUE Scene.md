@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-HUE Scene"
 lang: fr
-permalink: /wiki/fr-zh-CN-HUE%20Scene
+permalink: /wiki/fr-zh-CN-HUE%20Scene/
 ---
 ---
 Le nœud **Hue Scene** publie la scène Hue à KNX et peut envoyer les événements originaux de Hue au processus de Node-Red. Les champs de scène prennent en charge l'achèvement automatique;Après avoir ajouté de nouvelles scènes au pont, veuillez cliquer sur l'icône d'actualisation pour mettre à jour la liste.

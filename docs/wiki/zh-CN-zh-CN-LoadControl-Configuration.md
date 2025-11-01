@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-LoadControl-Configuration"
 lang: zh-CN
-permalink: /wiki/zh-CN-zh-CN-LoadControl-Configuration
+permalink: /wiki/zh-CN-zh-CN-LoadControl-Configuration/
 ---
 ---
 
@@ -48,7 +48,9 @@ permalink: /wiki/zh-CN-zh-CN-LoadControl-Configuration
 1. 标准输出
 ：有效载荷（字符串|对象）：命令的标准输出。
 
-## 细节```javascript
+## 细节
+
+```javascript
 
 msg = {
   "topic": "Home Total Consumption", // Node Name
@@ -60,7 +62,9 @@ msg = {
   "payload": 1, // Current shedding stage
 }
 
-```# 样本
+```
+
+# 样本
 
 \<a href =" /node-red-contrib-knx-ultimate/wiki/SampleLoadControl”>单击此处以获取示例</a>
 
