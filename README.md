@@ -16,23 +16,23 @@
 </p>
 
 <p align="center">
-  <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/" target="_blank" style="display:inline-block;margin:6px;padding:14px 28px;border-radius:999px;background:#0d4c70;color:#f4fbff;font-weight:700;text-decoration:none;box-shadow:0 12px 28px rgba(13,76,112,0.28);">
-    🇬🇧 Go to documentation
+  <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/" target="_blank">
+    <img src="img/buttons/doc-en.png" alt="Go to documentation">
   </a>
-  <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/it/" target="_blank" style="display:inline-block;margin:6px;padding:14px 28px;border-radius:999px;background:#0d4c70;color:#f4fbff;font-weight:700;text-decoration:none;box-shadow:0 12px 28px rgba(13,76,112,0.28);">
-    🇮🇹 Vai alla documentazione
+  <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/it/" target="_blank">
+    <img src="img/buttons/doc-it.png" alt="Vai alla documentazione">
   </a>
-  <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/de/" target="_blank" style="display:inline-block;margin:6px;padding:14px 28px;border-radius:999px;background:#0d4c70;color:#f4fbff;font-weight:700;text-decoration:none;box-shadow:0 12px 28px rgba(13,76,112,0.28);">
-    🇩🇪 Zur Dokumentation
+  <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/de/" target="_blank">
+    <img src="img/buttons/doc-de.png" alt="Zur Dokumentation">
   </a>
-  <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/fr/" target="_blank" style="display:inline-block;margin:6px;padding:14px 28px;border-radius:999px;background:#0d4c70;color:#f4fbff;font-weight:700;text-decoration:none;box-shadow:0 12px 28px rgba(13,76,112,0.28);">
-    🇫🇷 Accéder à la documentation
+  <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/fr/" target="_blank">
+    <img src="img/buttons/doc-fr.png" alt="Accéder à la documentation">
   </a>
-  <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/es/" target="_blank" style="display:inline-block;margin:6px;padding:14px 28px;border-radius:999px;background:#0d4c70;color:#f4fbff;font-weight:700;text-decoration:none;box-shadow:0 12px 28px rgba(13,76,112,0.28);">
-    🇪🇸 Ir a la documentación
+  <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/es/" target="_blank">
+    <img src="img/buttons/doc-es.png" alt="Ir a la documentación">
   </a>
-  <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/zh-CN/" target="_blank" style="display:inline-block;margin:6px;padding:14px 28px;border-radius:999px;background:#0d4c70;color:#f4fbff;font-weight:700;text-decoration:none;box-shadow:0 12px 28px rgba(13,76,112,0.28);">
-    🇨🇳 前往文档
+  <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/zh-CN/" target="_blank">
+    <img src="img/buttons/doc-zh-CN.png" alt="前往文档">
   </a>
 </p>
 

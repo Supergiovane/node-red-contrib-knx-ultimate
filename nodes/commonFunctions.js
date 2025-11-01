@@ -805,7 +805,7 @@ module.exports = (RED) => {
     msg.event = "GroupValue_Write"; // "GroupValue_Write" or "GroupValue_Response", overrides the option Telegram type above.
     msg.dpt = "1.001"; // for example "1.001", overrides the Datapoint option. (Datapoints can be sent as 9 , "9" , "9.001" or "DPT9.001")
     return msg;`,
-            helplink: 'https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki'
+            helplink: 'https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Device'
           }
           res.json(jRet)
           return
