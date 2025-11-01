@@ -15,7 +15,7 @@
   <img src="img/readmemain.png" alt="Sample Node" width="70%">
 </p>
 
-<p align="center" style="font-size:1.25rem;font-weight:700;line-height:1.9;">
+<p align="center" style="font-size:2.25rem;font-weight:700;line-height:1.9;">
   <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Home" target="_blank">📘 Go to documentation</a><br/>
   <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-Home" target="_blank">📘 Vai alla documentazione</a><br/>
   <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-Home" target="_blank">📘 Zur Dokumentation</a><br/>
