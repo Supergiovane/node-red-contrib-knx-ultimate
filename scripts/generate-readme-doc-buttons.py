@@ -47,8 +47,8 @@ LANG_PILL_FILL = "#F4FBF4"
 LANG_PILL_TEXT = "#3B7256"
 TEXT_COLOUR = "#1C4430"
 
-LATIN_FONT_STACK = "'Inter','Helvetica Neue',Helvetica,Arial,sans-serif"
-CJK_FONT_STACK = "'PingFang SC','Microsoft YaHei','Heiti SC','Noto Sans CJK SC','Arial Unicode MS',sans-serif"
+LATIN_FONT_STACK = "\"Inter, Helvetica Neue, Helvetica, Arial, sans-serif\""
+CJK_FONT_STACK = "\"PingFang SC, Microsoft YaHei, Heiti SC, Noto Sans CJK SC, Arial Unicode MS, sans-serif\""
 
 
 def escape(text: str) -> str:

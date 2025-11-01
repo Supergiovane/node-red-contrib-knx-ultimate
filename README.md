@@ -9,7 +9,7 @@
 [![MIT License][license-image]][license-url]
 [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
 [![Youtube][youtube-image]][youtube-url]
-[![Docs Button][docs-button-image]][docs-url]
+
 
 <p align="center">
   <img src="img/readmemain.png" alt="Sample Node" width="70%">
@@ -50,7 +50,6 @@
 [youtube-url]: https://www.youtube.com/channel/UCA9RsLps1IthT7fDSeUbRZw/playlists
 [docs-image]: https://img.shields.io/badge/Docs-GitHub%20Pages-2ea44f
 [docs-url]: https://supergiovane.github.io/node-red-contrib-knx-ultimate/
-[docs-button-image]: https://img.shields.io/badge/Docs-Open%20Documentation-0d4c70?style=for-the-badge&logo=book&logoColor=f4fbff
 [github-image]: https://img.shields.io/badge/GitHub-Repository-000000
 [github-url]: https://github.com/Supergiovane/node-red-contrib-knx-ultimate
 [flows-image]: https://img.shields.io/badge/Node--RED-Flow%20Library-white?logo=nodered&logoColor=8F0000
