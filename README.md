@@ -209,95 +209,66 @@ Do you want to be listed as well? Send an email to maxsupergiovane@icloud.com.
 
 <br/>
 
-<table> 
-<tr> 
-<td style="valign:center; border: 0px; padding: 15px;">
-</td> 
-
-<td style="valign:center; border: 0px; padding: 15px;">
-
-[![](https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/c/tervis.png)](https://www.tervis.it)
-</td> 
-<td style="valign:center; border: 0px; padding: 15px;"> 
-
-[![](https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/c/knxsardegna.png)](http://www.knxsardegna.com)
-</td> 
-<td style="valign:center; border: 0px; padding: 15px;"> 
-
-[![](https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/c/agata.png)](https://www.agatastore.it)
-</td>
-<td style="valign:center; border: 0px; padding: 15px;">
-
-[![](https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/c/proKNX.png)](https://proknx.com)
-</td> 
-
-<td style="valign:center; border: 0px; padding: 15px;">
-
-[![](https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/c/altis.png)](https://altis.swiss)
-</td> 
-
-<td style="valign:center; border: 0px; padding: 15px;">
-
-[![](https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/c/cannx.png)](https://can-nx.com/kloudnx-routeur-knx-iot-connecte-a-un-cloud-securise/)
-</td> 
-
-<td style="valign:center; border: 0px; padding: 15px;">
-
-[![](https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/c/innovationsystem.png)](https://www.onsystem-iot.com/)
-</td> 
-
-<td style="valign:center; border: 0px; padding: 15px;">
-
-[![](https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/c/inventife.png)](https://inventife.com)
-</td> 
-
-</tr> 
-</table> 
-
+<div align="center">
+  <a href="https://www.tervis.it" style="display:inline-block; margin:14px;">
+    <img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/c/tervis.png" alt="Tervis" height="75" />
+  </a>
+  <a href="http://www.knxsardegna.com" style="display:inline-block; margin:14px;">
+    <img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/c/knxsardegna.png" alt="KNX Sardegna" height="75" />
+  </a>
+  <a href="https://www.agatastore.it" style="display:inline-block; margin:14px;">
+    <img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/c/agata.png" alt="Agata Store" height="75" />
+  </a>
+  <a href="https://proknx.com" style="display:inline-block; margin:14px;">
+    <img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/c/proKNX.png" alt="ProKNX" height="75" />
+  </a>
+  <a href="https://altis.swiss" style="display:inline-block; margin:14px;">
+    <img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/c/altis.png" alt="Altis" height="75" />
+  </a>
+  <a href="https://can-nx.com/kloudnx-routeur-knx-iot-connecte-a-un-cloud-securise/" style="display:inline-block; margin:14px;">
+    <img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/c/cannx.png" alt="Can'nX" height="75" />
+  </a>
+  <a href="https://www.onsystem-iot.com/" style="display:inline-block; margin:14px;">
+    <img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/c/innovationsystem.png" alt="Innovation System" height="75" />
+  </a>
+  <a href="https://inventife.com" style="display:inline-block; margin:14px;">
+    <img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/c/inventife.png" alt="Inventife" height="75" />
+  </a>
+</div>
 
 <br/>
 
-* [Tervis - Alarm System Manufacturer](https://www.tervis.it)
-* [KNX Sardegna - Gianmarco Sitzia, Certified KNX Partner](http://www.knxsardegna.com)
-* [Agata Store - Professional store and Certified KNX Partner](https://www.agatastore.it)
-* [ProKNX - KNX Device Manufacturer](https://proknx.com)
-* [Altis - Energy and utilities provider](https://altis.swiss)
-* [Can'nX France - KNX Device Manufacturer and integrator](https://can-nx.com)
-* [Innovation System - System integrators](https://www.onsystem-iot.com)
-* [Inventife - Smart building and accident detection](https://www.inventife.com)
-<br/>
 
 ## FRIENDLY COMMUNITIES AROUND THE WORLD
 
-**Italy**
-* [![](https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/c/viveresmart.png)](https://www.facebook.com/groups/viveresmart)
-* [VivereSmart TV](https://www.youtube.com/channel/UC6GlFhcbNuoSEejZ_HlCynA)
-
-**Germany**
-* [![](https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/c/knxuserforum.png)](https://knx-user-forum.de/forum/öffentlicher-bereich/knx-eib-forum/1389088-knx-node-for-node-red) 
-
-**China**
-* [QQ group: 837579219 （加群需要备注 "来自github"](tencent://groupwpa/?subcmd=all&param=7b2267726f757055696e223a3833373537393231392c2274696d655374616d70223a313633303934363639312c22617574684b6579223a22762b72482b466f4a496a75613033794e4a30744a6970756c55753639424f4d55724f464c4a6c474b77346a30326b7a4f7a3338535536517844684d7756414d62222c2261757468223a22227d&jump_from=)
-
-
-
-<br/>
-<br/>
-
-
-## ARE YOU A NODE.JS DEVELOPER?
-Many users asked me to “extract” the underlying KNX API and publish it on npm. Here it is!<br/>
-The API is called **KNXUltimate**. The README documents it thoroughly and includes examples for both secure and non-secure KNX connections.
-* <a href="https://github.com/Supergiovane/KNXUltimate#readme">KNXUltimate API</a>
-
-<br/>
-<br/>
+<div align="center">
+  <div style="display:inline-block; margin:12px 20px; text-align:center;">
+    <a href="https://www.facebook.com/groups/viveresmart" style="display:inline-block; margin-bottom:6px;">
+      <img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/c/viveresmart.png" alt="VivereSmart" height="70" />
+    </a>
+    <div><strong>Italy</strong></div>
+    <div><a href="https://www.facebook.com/groups/viveresmart">Community</a> · <a href="https://www.youtube.com/channel/UC6GlFhcbNuoSEejZ_HlCynA">VivereSmart TV</a></div>
+  </div>
+  <div style="display:inline-block; margin:12px 20px; text-align:center;">
+    <a href="https://knx-user-forum.de/forum/öffentlicher-bereich/knx-eib-forum/1389088-knx-node-for-node-red" style="display:inline-block; margin-bottom:6px;">
+      <img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/c/knxuserforum.png" alt="KNX User Forum" height="70" />
+    </a>
+    <div><strong>Germany</strong></div>
+    <div><a href="https://knx-user-forum.de/forum/öffentlicher-bereich/knx-eib-forum/1389088-knx-node-for-node-red">KNX User Forum</a></div>
+  </div>
+  <div style="display:inline-block; margin:12px 20px; text-align:center;">
+    <div style="display:inline-block; margin-bottom:6px;">
+      <img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/c/qq.png" alt="QQ Group" height="70" />
+    </div>
+    <div><strong>China</strong></div>
+    <div><a href="tencent://groupwpa/?subcmd=all&param=7b2267726f757055696e223a3833373537393231392c2274696d655374616d70223a313633303934363639312c22617574684b6579223a22762b72482b466f4a496a75613033794e4a30744a6970756c55753639424f4d55724f464c4a6c474b77346a30326b7a4f7a3338535536517844684d7756414d62222c2261757468223a22227d&jump_from=">QQ group: 837579219</a></div>
+  </div>
+</div>
 
 <br/>
 
 A big THANK YOU to [@svenflender](https://github.com/svenflender) for the logo and icon graphics!
 <br/>
-We support [GitBook](https://www.gitbook.com)
 
 ![Logo](https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/flags/madeinitaly.png)
 <p align='left'>
