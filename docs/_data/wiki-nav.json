@@ -5,7 +5,7 @@
       "items": [
         {
           "label": "Overview",
-          "url": "/",
+          "url": "/wiki/Home/",
           "external": false
         },
         {
@@ -317,7 +317,7 @@
       "items": [
         {
           "label": "Panoramica",
-          "url": "/it/",
+          "url": "/wiki/it-Home/",
           "external": false
         },
         {
@@ -629,7 +629,7 @@
       "items": [
         {
           "label": "Übersicht",
-          "url": "/de/",
+          "url": "/wiki/de-Home/",
           "external": false
         },
         {
@@ -941,7 +941,7 @@
       "items": [
         {
           "label": "Vue d’ensemble",
-          "url": "/fr/",
+          "url": "/wiki/fr-Home/",
           "external": false
         },
         {
@@ -1253,7 +1253,7 @@
       "items": [
         {
           "label": "Resumen",
-          "url": "/es/",
+          "url": "/wiki/es-Home/",
           "external": false
         },
         {
@@ -1565,7 +1565,7 @@
       "items": [
         {
           "label": "概览",
-          "url": "/zh-CN/",
+          "url": "/wiki/zh-CN-Home/",
           "external": false
         },
         {
