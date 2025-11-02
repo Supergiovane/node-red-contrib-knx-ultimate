@@ -34,7 +34,7 @@
           {% assign candidate_title = prefix | append: page.title %}
         {% endif %}
         {% assign candidate_slug = candidate_title | uri_escape %}
-        {% assign candidate_url = '/wiki/' | append: candidate_slug %}
+        {% assign candidate_url = '/wiki/' | append: candidate_slug | append: '/' %}
         {% assign page_exists = false %}
         {% for p in site.pages %}
           {% if p.url == candidate_url %}
@@ -44,7 +44,7 @@
         {% endfor %}
         {% unless page_exists %}
           {% assign fallback_slug = page.title | uri_escape %}
-          {% assign candidate_url = '/wiki/' | append: fallback_slug %}
+          {% assign candidate_url = '/wiki/' | append: fallback_slug | append: '/' %}
         {% endunless %}
       {% endif %}
       {% if lang_code == active_lang %}
