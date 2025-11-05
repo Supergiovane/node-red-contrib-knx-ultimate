@@ -6,6 +6,10 @@
 
 # CHANGELOG
 
+**Version 4.0.29** - November 2025<br/>
+- All Hue editor nodes now honour the refresh icon by forcing a live reload from the Hue bridge (with URL-safe server ids), keeping device/scene lists in sync after bridge-side changes.<br/>
+<br/>
+
 **Version 4.0.27** - October 2025<br/>
 - GA selector inputs: suppressed the empty-result tooltip by keeping the typed group address as a fallback option so single matches are never hidden behind "no items to show".<br/>
 <br/>

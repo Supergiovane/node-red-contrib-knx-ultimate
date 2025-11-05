@@ -17,7 +17,7 @@ loggerSetup = (options) => {
 }
 
 module.exports = (RED) => {
-  function hueConfig (config) {
+  function hueConfig(config) {
     RED.nodes.createNode(this, config)
     const node = this
     node.host = config.host
@@ -269,7 +269,7 @@ module.exports = (RED) => {
       // })();
     }
 
-    node.getFirstLightInGroup = function getFirstLightInGroup (_groupID) {
+    node.getFirstLightInGroup = function getFirstLightInGroup(_groupID) {
       if (node.hueAllResources === undefined || node.hueAllResources === null) return
       try {
         const group = node.hueAllResources.filter((a) => a.id === _groupID)[0]
@@ -288,7 +288,7 @@ module.exports = (RED) => {
     }
 
     // Return an array of light belonging to the groupID
-    node.getAllLightsBelongingToTheGroup = async function getAllLightsBelongingToTheGroup (_groupID, refreshResourcesFromBridge = true) {
+    node.getAllLightsBelongingToTheGroup = async function getAllLightsBelongingToTheGroup(_groupID, refreshResourcesFromBridge = true) {
       if (node.hueAllResources === undefined || node.hueAllResources === null) return
       const retArr = []
       let filteredResource
@@ -326,7 +326,7 @@ module.exports = (RED) => {
     }
 
     // Returns the cached devices (node.hueAllResources) by type.
-    node.getResources = async function getResources (_rtype, { forceRefresh = false } = {}) {
+    node.getResources = async function getResources(_rtype, { forceRefresh = false } = {}) {
       try {
         if (forceRefresh) {
           try {
@@ -337,7 +337,7 @@ module.exports = (RED) => {
         }
         if (node.hueAllResources === undefined) return
         // Returns capitalized string
-        function capStr (s) {
+        function capStr(s) {
           if (typeof s !== 'string') return ''
           return s.charAt(0).toUpperCase() + s.slice(1)
         }
@@ -347,7 +347,7 @@ module.exports = (RED) => {
           allResources = node.hueAllResources.filter((a) => a.type === 'light' || a.type === 'grouped_light')
         } else if (_rtype === 'plug') {
           allResources = node.hueAllResources.filter((a) => a.type === 'plug' || a.type === 'smartplug' || a.type === 'smart_plug')
-          console.log('getResources plug raw resources', allResources.map((res) => ({ id: res.id, type: res.type, owner: res.owner?.rtype })))
+          //console.log('getResources plug raw resources', allResources.map((res) => ({ id: res.id, type: res.type, owner: res.owner?.rtype })))
         } else {
           allResources = node.hueAllResources.filter((a) => a.type === _rtype)
         }
@@ -524,11 +524,11 @@ module.exports = (RED) => {
                 deviceObject: plugResource.on
                   ? plugResource
                   : {
-                      id: plugService.rid || device.id,
-                      type: plugService.rtype || plugResource.type || 'light',
-                      on: plugResource.on,
-                      owner: { rid: device.id, rtype: 'device' }
-                    }
+                    id: plugService.rid || device.id,
+                    type: plugService.rtype || plugResource.type || 'light',
+                    on: plugResource.on,
+                    owner: { rid: device.id, rtype: 'device' }
+                  }
               })
             } catch (err) {
               node.sysLogger?.warn(`KNXUltimateHue: getResources plug fallback error ${err.message}`)
@@ -572,7 +572,7 @@ module.exports = (RED) => {
     * @param {array} _arrayLights - Light array
     * @returns { x,y,mirek,brightness } - Object containing all infos
     */
-    node.getAverageColorsXYBrightnessAndTemperature = async function getAverageColorsXYBrightnessAndTemperature (_arrayLights) {
+    node.getAverageColorsXYBrightnessAndTemperature = async function getAverageColorsXYBrightnessAndTemperature(_arrayLights) {
       let x; let y; let mirek; let brightness
       let countColor = 0; let countColor_Temperature = 0; let countDimming = 0
       _arrayLights.forEach((element) => {

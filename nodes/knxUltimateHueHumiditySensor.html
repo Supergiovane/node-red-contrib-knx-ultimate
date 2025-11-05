@@ -276,7 +276,8 @@
         return;
       }
       if ($loadingIndicator) $loadingIndicator.show();
-      $.getJSON(`KNXUltimateGetResourcesHUE?rtype=humidity&serverId=${hueServer.id}&_=${Date.now()}`, (data) => {
+      const refreshQuery = forceRefresh ? '&forceRefresh=1' : '';
+      $.getJSON(`KNXUltimateGetResourcesHUE?rtype=humidity&serverId=${encodeURIComponent(hueServer.id)}${refreshQuery}&_=${Date.now()}`, (data) => {
         const listCandidates = Array.isArray(data) ? data : (Array.isArray(data?.devices) ? data.devices : []);
         cachedDevices = listCandidates.map((value) => {
           if (value.deviceObject) return value;

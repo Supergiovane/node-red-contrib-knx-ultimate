@@ -354,7 +354,8 @@
             return;
           }
           $loadingIndicator.show();
-          $.getJSON(`KNXUltimateGetResourcesHUE?rtype=plug&serverId=${hueServer.id}&_=${Date.now()}`, (data) => {
+          const refreshQuery = forceRefresh ? '&forceRefresh=1' : '';
+          $.getJSON(`KNXUltimateGetResourcesHUE?rtype=plug&serverId=${encodeURIComponent(hueServer.id)}${refreshQuery}&_=${Date.now()}`, (data) => {
             const listCandidates = Array.isArray(data) ? data : (Array.isArray(data?.devices) ? data.devices : (Array.isArray(data?.resources) ? data.resources : []));
             cachedDevices = listCandidates.map((value) => {
               if (value.deviceObject) return value;

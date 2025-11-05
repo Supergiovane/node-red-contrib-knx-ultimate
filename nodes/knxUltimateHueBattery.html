@@ -223,7 +223,8 @@
         return;
       }
       if ($loadingIndicator) $loadingIndicator.show();
-      $.getJSON(`KNXUltimateGetResourcesHUE?rtype=device_power&serverId=${hueServer.id}&_=${Date.now()}`, (data) => {
+      const refreshQuery = forceRefresh ? '&forceRefresh=1' : '';
+      $.getJSON(`KNXUltimateGetResourcesHUE?rtype=device_power&serverId=${encodeURIComponent(hueServer.id)}${refreshQuery}&_=${Date.now()}`, (data) => {
         const listCandidates = Array.isArray(data) ? data : (Array.isArray(data?.devices) ? data.devices : []);
         cachedDevices = listCandidates.map((value) => ({
           id: value.id || value.rid,
