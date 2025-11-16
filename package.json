@@ -9,7 +9,7 @@
     "binary-parser": "2.2.1",
     "crypto-js": "4.2.0",
     "dns-sync": "0.2.1",
-    "js-yaml": "4.1.0",
+    "js-yaml": "4.1.1",
     "knxultimate": "5.1.4",
     "lodash": "4.17.21",
     "mkdirp": "3.0.1",
