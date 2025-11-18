@@ -54,41 +54,6 @@
   align-items: flex-start;
 }
 
-.wiki-node-card {
-  background: linear-gradient(120deg, #0b2745 0%, #0f4270 60%, #14618c 100%);
-  border-radius: 22px;
-  padding: 2rem 2.4rem;
-  margin-bottom: 2.5rem;
-  box-shadow: 0 26px 55px rgba(3, 16, 35, 0.35);
-  color: #f4fbff;
-}
-
-.wiki-node-card__badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.25rem 0.95rem;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.18);
-  color: #f4fbff;
-  font-size: 0.78rem;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-
-.wiki-node-card__title {
-  margin: 1rem 0 0.55rem;
-  font-size: 2.05rem;
-  line-height: 1.2;
-}
-
-.wiki-node-card__summary {
-  margin: 0;
-  font-size: 1.05rem;
-  color: rgba(244, 251, 255, 0.9);
-  line-height: 1.65;
-}
 
 .wiki-content {
   flex: 1 1 0;
