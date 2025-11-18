@@ -2,7 +2,7 @@
 layout: wiki
 title: "HUE Light"
 lang: zh-CN
-permalink: /wiki/zh-CN-HUE%20Light/
+permalink: /wiki/zh-CN-HUE%20Light
 ---
 此节点使您可以控制飞利浦色调灯和分组的灯光，还可以将此灯的状态发送到KNX巴士。
 

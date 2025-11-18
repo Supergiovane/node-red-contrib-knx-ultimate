@@ -2,7 +2,7 @@
 layout: wiki
 title: "IoT-Bridge-Configuration"
 lang: fr
-permalink: /wiki/fr-IoT-Bridge-Configuration/
+permalink: /wiki/fr-IoT-Bridge-Configuration
 ---
 ---
 # Passerelle KNX ↔ IoT

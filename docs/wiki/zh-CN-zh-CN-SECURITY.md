@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-SECURITY"
 lang: zh-CN
-permalink: /wiki/zh-CN-zh-CN-SECURITY/
+permalink: /wiki/zh-CN-zh-CN-SECURITY
 ---
 ---
 

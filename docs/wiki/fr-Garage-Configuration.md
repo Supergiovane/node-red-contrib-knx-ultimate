@@ -2,7 +2,7 @@
 layout: wiki
 title: "Garage-Configuration"
 lang: fr
-permalink: /wiki/fr-Garage-Configuration/
+permalink: /wiki/fr-Garage-Configuration
 ---
 ---
 # Porte de garage

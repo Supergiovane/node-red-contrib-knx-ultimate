@@ -2,7 +2,7 @@
 layout: wiki
 title: "HATranslator"
 lang: zh-CN
-permalink: /wiki/zh-CN-HATranslator/
+permalink: /wiki/zh-CN-HATranslator
 ---
 此节点将输入msg转换为有效的true/false值。
 

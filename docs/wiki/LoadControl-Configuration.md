@@ -2,7 +2,7 @@
 layout: wiki
 title: "LoadControl-Configuration"
 lang: en
-permalink: /wiki/LoadControl-Configuration/
+permalink: /wiki/LoadControl-Configuration
 ---
 # KNX LOAD CONTROL NODE
 

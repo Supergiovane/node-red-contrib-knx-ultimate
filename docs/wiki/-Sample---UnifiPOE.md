@@ -2,7 +2,7 @@
 layout: wiki
 title: "-Sample---UnifiPOE"
 lang: en
-permalink: /wiki/-Sample---UnifiPOE/
+permalink: /wiki/-Sample---UnifiPOE
 ---
 # Unifi switch - POE On/Off
 

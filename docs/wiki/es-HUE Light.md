@@ -2,7 +2,7 @@
 layout: wiki
 title: "HUE Light"
 lang: es
-permalink: /wiki/es-HUE%20Light/
+permalink: /wiki/es-HUE%20Light
 ---
 Este nodo controla las luces de Hue Philips (single o agrupada) y mapea sus comandos/estados a KNX. 
 

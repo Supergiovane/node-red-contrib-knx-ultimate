@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-Logger-Sample"
 lang: es
-permalink: /wiki/es-zh-CN-Logger-Sample/
+permalink: /wiki/es-zh-CN-Logger-Sample
 ---
 ---
 # Muestra de grabadora

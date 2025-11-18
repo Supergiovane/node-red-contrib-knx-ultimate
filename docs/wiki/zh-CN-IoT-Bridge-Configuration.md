@@ -2,7 +2,7 @@
 layout: wiki
 title: "IoT-Bridge-Configuration"
 lang: zh-CN
-permalink: /wiki/zh-CN-IoT-Bridge-Configuration/
+permalink: /wiki/zh-CN-IoT-Bridge-Configuration
 ---
 ---
 

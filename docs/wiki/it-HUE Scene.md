@@ -2,7 +2,7 @@
 layout: wiki
 title: "HUE Scene"
 lang: it
-permalink: /wiki/it-HUE%20Scene/
+permalink: /wiki/it-HUE%20Scene
 ---
 Il nodo **Hue Scene** pubblica le scene Hue su KNX e può inoltrare gli eventi grezzi al flow di Node-RED. Il campo scena supporta l'autocompletamento; dopo aver creato nuove scene sulla bridge premi l'icona di aggiornamento per ricaricare l'elenco.
 

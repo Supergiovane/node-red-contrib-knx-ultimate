@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-HATranslator"
 lang: it
-permalink: /wiki/it-zh-CN-HATranslator/
+permalink: /wiki/it-zh-CN-HATranslator
 ---
 ---
 <p> Questo nodo converte l'input MSG in un valore vero/falso valido.<p>

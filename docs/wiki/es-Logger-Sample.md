@@ -2,7 +2,7 @@
 layout: wiki
 title: "Logger-Sample"
 lang: es
-permalink: /wiki/es-Logger-Sample/
+permalink: /wiki/es-Logger-Sample
 ---
 ---
 # Muestras de registrador

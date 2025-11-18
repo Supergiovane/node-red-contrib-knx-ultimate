@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-HUE Light"
 lang: fr
-permalink: /wiki/fr-zh-CN-HUE%20Light/
+permalink: /wiki/fr-zh-CN-HUE%20Light
 ---
 ---
 <p> Ce nœud vous permet de contrôler les lumières de tonalité Philips et les lumières groupées, et d'envoyer également l'état de cette lumière dans le bus KNX.</p>

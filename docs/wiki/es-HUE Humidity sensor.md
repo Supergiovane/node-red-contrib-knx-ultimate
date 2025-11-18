@@ -2,7 +2,7 @@
 layout: wiki
 title: "HUE Humidity sensor"
 lang: es
-permalink: /wiki/es-HUE%20Humidity%20sensor/
+permalink: /wiki/es-HUE%20Humidity%20sensor
 ---
 Este nodo lee la humedad relativa (%) de un sensor de humedad de tono y lo asigna a KNX. 
 

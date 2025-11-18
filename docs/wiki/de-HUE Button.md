@@ -2,7 +2,7 @@
 layout: wiki
 title: "HUE Button"
 lang: de
-permalink: /wiki/de-HUE%20Button/
+permalink: /wiki/de-HUE%20Button
 ---
 Der Hue-Taster-Node spiegelt Hue-Taster-Ereignisse auf KNX und den Flow-Ausgang und nutzt das Attribut <code>button.button_report.event</code>.
 

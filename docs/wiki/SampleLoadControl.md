@@ -2,7 +2,7 @@
 layout: wiki
 title: "SampleLoadControl"
 lang: en
-permalink: /wiki/SampleLoadControl/
+permalink: /wiki/SampleLoadControl
 ---
 ## LOAD CONTROL SAMPLE
 

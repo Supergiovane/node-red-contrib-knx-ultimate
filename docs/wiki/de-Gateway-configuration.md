@@ -2,7 +2,7 @@
 layout: wiki
 title: "Gateway-configuration"
 lang: de
-permalink: /wiki/de-Gateway-configuration/
+permalink: /wiki/de-Gateway-configuration
 ---
 # KNX Gateway Konfiguration
 
@@ -13,14 +13,14 @@ Dieser Node stellt die Verbindung zu deinem KNX/IP‑Gateway her.
 |Eigenschaft|Beschreibung|
 |--|--|
 | Name | Name des Nodes. |
-| IP/Hostname | Multicast‑Adresse des ETH/KNX‑Routers oder Unicast‑IP einer KNX/IP‑Schnittstelle. Für Interfaces nutze die Geräte‑IP (z. B. 192.168.1.22); für Router `224.0.23.12`. Hostname ist ebenfalls möglich. |
+| Gateway | Gib die KNX/IP‑Adresse bzw. den Hostnamen oder einen seriellen Pfad (z. B. `/dev/ttyUSB0`) ein. Im Dropdown erscheinen automatisch erkannte KNX/IP‑Gateways sowie FT1.2‑Seriellports; beim Auswählen eines Serials wird das Protokoll auf Serial FT1.2 gesetzt und die UART‑Defaults werden übernommen. |
 
 **Konfiguration**
 
 |Eigenschaft|Beschreibung|
 |--|--|
-| IP Port | Verbindungsport. Standard: `3671`. |
-| IP Protocol | `Tunnel UDP` für KNX/IP‑Interfaces, `Multicast UDP` für KNX/IP‑Router. **Auto** erkennt automatisch (Standard). |
+| Gateway-Port | Verbindungsport. Standard: `3671`. Für Serial FT1.2 nicht verwendet. |
+| Verbindungsprotokoll | `Tunnel UDP` für KNX/IP‑Interfaces, `Multicast UDP` für KNX/IP‑Router, `Serial FT1.2` für TP/FT1.2‑Adapter (wird automatisch gewählt, wenn du einen Serialport auswählst). **Auto** versucht, das passende Protokoll zu ermitteln. |
 | KNX Physical Address | Physikalische KNX‑Adresse, z. B. `1.1.200`. Standard: `15.15.22`. |
 | Bind to local interface | Lokales Netzwerk‑Interface für die Kommunikation. "Auto" wählt automatisch. Bei mehreren Interfaces (Ethernet/WLAN) ist eine manuelle Auswahl empfehlenswert, damit keine UDP‑Telegramme verloren gehen. |
 | Automatically connect to KNX BUS at start | Automatisch beim Start verbinden. Standard: "Yes". |
@@ -72,50 +72,32 @@ Hinweis: CSV enthält genaue DPTs inkl. Subtyp; ESF hat keinen Subtyp. Bevorzuge
 
 Video: <a href="https://youtu.be/egRbR_KwP9I"><img src='https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/yt.png'></a>
 
-### ETS-CSV-Gruppenadressen importieren
+- **ETS‑CSV Gruppenadressen importieren ** Achtung: Im GA‑Namen dürfen keine Tabulator‑Zeichen vorkommen.**If Group Address has no Datapoint ** > Ohne DPT in ETS: Import abbrechen, GA überspringen oder mit Platzhalter‑DPT fortfahren.**CSV‑Export in ETS**
 
-**Achtung.** Im Namen der Gruppenadresse dürfen keine Tabulator-Zeichen vorkommen. Falls in ETS kein DPT hinterlegt ist, kannst du den Import abbrechen, den Eintrag überspringen oder ihn mit einem temporären `1.001`-DPT importieren.
+> In ETS Gruppenadressenliste wählen → Rechtsklick → Exportieren. Optionen:
 
-**CSV in ETS exportieren**
+> Output Format: CSV
 
-1. In ETS die Ansicht *Gruppenadressen* öffnen, innerhalb der Liste rechtsklicken und **Gruppenadressen exportieren** wählen.
-2. Im Exportdialog die folgenden Optionen setzen:
-   - **Output format:** CSV
-   - **CSV format:** 1/1 Name/Address
-   - **Export with header line:** aktiv
-   - **CSV separator:** Tabulator
-3. Die Datei exportieren und den Inhalt im Feld **ETS group address list** einfügen (oder den Dateipfad angeben).
+> CSV Format: 1/1 Name/Address
 
-**Was beim Import passiert**
+> Export with header line: aktiv
 
-- Die CSV muss für jede Gruppenadresse einen DPT enthalten.
-- Das Gateway analysiert die Datei und meldet das Ergebnis im Node-RED-Debug:
-  - **ERROR** – DPT fehlt, der Import wird abgebrochen.
-  - **WARNING** – DPT-Subtyp fehlt, ein Standardwert wird ergänzt; bitte manuell prüfen (der Subtyp ist die Zahl hinter dem Punkt, z. B. `5.001`).
-- Felder sollten in Anführungszeichen stehen, zum Beispiel:
+> CSV Separator: Tabulator
 
-  
+> Dann den Dateitext hier einfügen. Datei muss pro GA einen DPT enthalten. Ergebnisse erscheinen in Node‑RED DEBUG.
 
-```
+> Ergebnisse: **ERROR ** (DPT fehlt → Import stoppt) oder**WARNING ** (Subtyp fehlt → Default wird ergänzt, bitte prüfen). Subtyp ist die Zahl rechts vom Punkt, z. B. `5.001`.**ESF‑Export in ETS**
 
-"Attuatori luci"	"0/-/-"	""	""	""	""	"Auto"
-  
-
-```
-
-### ETS-ESF-Gruppenadressen importieren
-
-1. In ETS das Projekt wählen, auf das Export-Symbol (Pfeil nach oben) klicken und das Format **ESF** (nicht `.knxprod`) auswählen.
-2. Den Dateiinhalt kopieren oder den Pfad im Feld **ETS group address list** angeben.
+> Projekt wählen → Export‑Symbol (Pfeil nach oben) → ESF wählen (nicht `.knxprod`) → Inhalt im Feld "ETS group address list" einfügen.
 
     <table style="font-size:12px">
         <tr><th colspan="2" style="font-size:14px">Statusfarben des Nodes</th></tr>
         <tr><td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/greendot.png"></td><td>Auf Write‑Telegramme reagieren</td></tr>
-        <tr><td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/greenring.png"></td><td>Schutz gegen zyklische Referenzen (<a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki" target="_blank">siehe Seite</a>)</td></tr>
+        <tr><td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/greenring.png"></td><td>Schutz gegen zyklische Referenzen (<a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Protections" target="_blank">siehe Seite</a>)</td></tr>
         <tr><td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/bluedot.png"></td><td>Auf Response‑Telegramme reagieren</td></tr>
         <tr><td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/bluering.png"></td><td>Node‑Wert automatisch als Response senden (<a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Virtual-Device" target="_blank">Virtual Device</a>)</td></tr>
         <tr><td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/greudot.png"></td><td>Auf Read‑Telegramme reagieren</td></tr>
         <tr><td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/greyring.png"></td><td>RBE‑Filter: Kein Telegramm gesendet</td></tr>
         <tr><td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/reddot.png"></td><td>Fehler oder getrennt</td></tr>
-        <tr><td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/redring.png"></td><td>Node deaktiviert wegen zyklischer Referenz (<a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki" target="_blank">siehe Seite</a>)</td></tr>
+        <tr><td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/redring.png"></td><td>Node deaktiviert wegen zyklischer Referenz (<a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Protections" target="_blank">siehe Seite</a>)</td></tr>
     </table>

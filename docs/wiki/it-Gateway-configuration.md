@@ -2,7 +2,7 @@
 layout: wiki
 title: "Gateway-configuration"
 lang: it
-permalink: /wiki/it-Gateway-configuration/
+permalink: /wiki/it-Gateway-configuration
 ---
 # Configurazione del KNX Gateway
 
@@ -13,14 +13,14 @@ Questo nodo si connette al tuo KNX/IP Gateway.
 |Proprietà|Descrizione|
 |--|--|
 | Nome | Nome del nodo. |
-| IP/Hostname | Indirizzo multicast dell'ETH/KNX Router o indirizzo IP unicast dell'interfaccia. Con una KNX/IP Interface usa l'IP dell'interfaccia (es. 192.168.1.22). Con un KNX/IP Router usa l'indirizzo multicast `224.0.23.12`. Puoi inserire anche un **Hostname** . |
+| Gateway | Inserisci l'indirizzo IP/hostname del gateway KNX oppure il percorso seriale (es. `/dev/ttyUSB0`). Puoi anche scegliere un gateway rilevato dall'elenco: se selezioni una porta seriale FT1.2 il protocollo viene impostato su Serial FT1.2 e i parametri UART predefiniti vengono compilati automaticamente. |
 
 **Configurazione**
 
 |Proprietà|Descrizione|
 |--|--|
-| IP Port | Porta di connessione. Default: `3671`. |
-| IP Protocol | `Tunnel UDP` per interfacce KNX/IP, `Multicast UDP` per router KNX/IP. Lascia **Auto** per l'autorilevamento (default). |
+| Porta gateway | Porta di connessione. Default: `3671`. Non utilizzata in modalità Serial FT1.2. |
+| Protocollo di connessione | `Tunnel UDP` per interfacce KNX/IP, `Multicast UDP` per router KNX/IP, `Serial FT1.2` per interfacce TP/FT1.2 (selezionato automaticamente quando scegli una porta seriale). Lascia **Auto** per rilevare il protocollo più adatto. |
 | KNX Physical Address | Indirizzo fisico KNX, es. `1.1.200`. Default: `15.15.22`. |
 | Bind to local interface | Interfaccia di rete locale usata dal nodo. Lascia "Auto" per selezione automatica. Se hai più interfacce (Ethernet/Wi‑Fi), è consigliato impostarla manualmente per evitare perdita di telegrammi UDP. Default: "Auto". |
 | Automatically connect to KNX BUS at start | Connessione automatica al BUS all'avvio. Default: "Yes". |
@@ -72,50 +72,38 @@ Nota: il file CSV contiene DPT precisi con sottotipo; l'ESF è più semplice e n
 
 Video: <a href="https://youtu.be/egRbR_KwP9I"><img src='https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/yt.png'></a>
 
-### Importare l’elenco GA in formato CSV
+- **Import ETS CSV Group Addresses ** ATTENZIONE: nel nome del GA non devono esserci caratteri di tabulazione.**If Group Address has no Datapoint ** > Se in ETS un GA non ha DPT, puoi: interrompere l'import, saltare il GA, oppure aggiungere il GA con DPT fittizio e continuare.**Come esportare l'elenco GA in formato CSV da ETS**
 
-**Attenzione.** Nel nome dell’indirizzo di gruppo non devono esserci caratteri di tabulazione. Se in ETS un GA non ha un datapoint puoi scegliere di interrompere l’import, saltare il GA oppure aggiungerlo con un datapoint temporaneo `1.001` e proseguire.
+> In ETS seleziona l'elenco GA, click destro → Esporta indirizzi di gruppo. Nella finestra di export imposta:
 
-**Esportare il CSV da ETS**
+> Output Format: CSV
 
-1. In ETS apri la vista *Indirizzi di gruppo*, fai clic destro nell’elenco e seleziona **Esporta indirizzi di gruppo**.
-2. Nella finestra di export imposta:
-   - **Output format:** CSV
-   - **CSV format:** 1/1 Name/Address
-   - **Export with header line:** attivo
-   - **CSV separator:** Tabulator
-3. Esporta il file e incolla il contenuto nel campo **ETS group address list** (oppure indica il percorso del file).
+> CSV Format: 1/1 Name/Address
 
-**Cosa aspettarsi durante l’import**
+> Export with header line: spuntato
 
-- Il file CSV deve contenere un datapoint per ogni GA.
-- Il gateway analizza il file e riporta l’esito nel pannello debug di Node‑RED:
-  - **ERROR** – datapoint mancante; l’import viene interrotto.
-  - **WARNING** – sottotipo mancante; viene applicato un valore predefinito ma è consigliato verificarlo (il sottotipo è il numero dopo il punto, es. `5.001`).
-- I campi devono essere racchiusi tra virgolette, per esempio:
+> CSV Separator: Tabulator
 
-  
+> Poi incolla qui il contenuto del file.
 
-```
+> Il file deve contenere i Datapoint per ogni GA. Il nodo analizza il file e mostra risultati nel DEBUG di Node‑RED.
 
-"Attuatori luci"	"0/-/-"	""	""	""	""	"Auto"
-  
+> Esiti possibili: **ERROR ** (manca DPT → import interrotto) e**WARNING** (manca sottotipo → aggiunto default, ma va verificato). Il sottotipo è il numero dopo il punto, es. `5.001`.
 
-```
+> I campi devono essere racchiusi tra virgolette `"`.
 
-### Importare l’elenco GA in formato ESF
+**Come esportare l'elenco GA in formato ESF da ETS**
 
-1. In ETS seleziona il progetto, clicca l’icona di export (freccia verso l’alto) e scegli il formato **ESF** (non `.knxprod`).
-2. Copia il contenuto del file oppure indica il percorso nel campo **ETS group address list** del gateway.
+> In ETS seleziona il progetto, icona export (freccia in su), scegli formato ESF (non `.knxprod`). Copia e incolla nel campo "ETS group address list" del gateway.
 
     <table style="font-size:12px">
         <tr><th colspan="2" style="font-size:14px">Significato colori stato nodo</th></tr>
         <tr><td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/greendot.png"></td><td>Reagisci a telegrammi di scrittura</td></tr>
-        <tr><td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/greenring.png"></td><td>Protezione da riferimenti circolari (<a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki" target="_blank">vedi pagina</a>)</td></tr>
+        <tr><td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/greenring.png"></td><td>Protezione da riferimenti circolari (<a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Protections" target="_blank">vedi pagina</a>)</td></tr>
         <tr><td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/bluedot.png"></td><td>Reagisci a telegrammi di risposta</td></tr>
         <tr><td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/bluering.png"></td><td>Invio automatico del valore del nodo come risposta al BUS (<a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Virtual-Device" target="_blank">Virtual Device</a>)</td></tr>
         <tr><td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/greudot.png"></td><td>Reagisci a telegrammi di lettura</td></tr>
         <tr><td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/greyring.png"></td><td>Filtro RBE: nessun telegramma è stato inviato</td></tr>
         <tr><td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/reddot.png"></td><td>Errore o disconnesso</td></tr>
-        <tr><td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/redring.png"></td><td>Nodo DISABILITATO per riferimento circolare (<a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki" target="_blank">vedi pagina</a>)</td></tr>
+        <tr><td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/redring.png"></td><td>Nodo DISABILITATO per riferimento circolare (<a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Protections" target="_blank">vedi pagina</a>)</td></tr>
     </table>

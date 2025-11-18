@@ -2,7 +2,7 @@
 layout: wiki
 title: "HUE Contact sensor"
 lang: fr
-permalink: /wiki/fr-HUE%20Contact%20sensor/
+permalink: /wiki/fr-HUE%20Contact%20sensor
 ---
 Ce nœud transmet les événements d'un capteur de contact de teinte et les mappe aux adresses de groupe KNX. 
 

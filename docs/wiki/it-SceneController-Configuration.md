@@ -2,7 +2,7 @@
 layout: wiki
 title: "SceneController-Configuration"
 lang: it
-permalink: /wiki/it-SceneController-Configuration/
+permalink: /wiki/it-SceneController-Configuration
 ---
 # Scene Controller
 

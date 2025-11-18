@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-HUE Temperature sensor"
 lang: it
-permalink: /wiki/it-zh-CN-HUE%20Temperature%20sensor/
+permalink: /wiki/it-zh-CN-HUE%20Temperature%20sensor
 ---
 ---
 <p> Questo nodo legge la temperatura (° C) del sensore di temperatura della tonalità e la mappa a KNX.</p>

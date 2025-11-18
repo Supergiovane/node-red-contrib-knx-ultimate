@@ -2,7 +2,7 @@
 layout: wiki
 title: "KNXAutoResponder"
 lang: zh-CN
-permalink: /wiki/zh-CN-KNXAutoResponder/
+permalink: /wiki/zh-CN-KNXAutoResponder
 ---
 此节点将响应KNX总线的读取请求。
 

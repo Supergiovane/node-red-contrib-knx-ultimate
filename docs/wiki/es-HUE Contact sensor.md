@@ -2,7 +2,7 @@
 layout: wiki
 title: "HUE Contact sensor"
 lang: es
-permalink: /wiki/es-HUE%20Contact%20sensor/
+permalink: /wiki/es-HUE%20Contact%20sensor
 ---
 Este nodo reenvía los eventos desde un sensor de contacto de tono y los asigna a las direcciones de grupo KNX. 
 

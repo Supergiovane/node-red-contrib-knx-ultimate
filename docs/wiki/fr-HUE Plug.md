@@ -2,7 +2,7 @@
 layout: wiki
 title: "HUE Plug"
 lang: fr
-permalink: /wiki/fr-HUE%20Plug/
+permalink: /wiki/fr-HUE%20Plug
 ---
 # Plug / prise
 

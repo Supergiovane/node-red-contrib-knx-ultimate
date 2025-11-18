@@ -2,7 +2,7 @@
 layout: wiki
 title: "HUE Battery"
 lang: de
-permalink: /wiki/de-HUE%20Battery/
+permalink: /wiki/de-HUE%20Battery
 ---
 Dieser Node spiegelt den Batteriestand eines Hue-Geräts nach KNX und löst Ereignisse aus, sobald sich der Wert ändert.
 

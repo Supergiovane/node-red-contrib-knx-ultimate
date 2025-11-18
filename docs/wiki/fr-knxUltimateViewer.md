@@ -2,7 +2,7 @@
 layout: wiki
 title: "knxUltimateViewer"
 lang: fr
-permalink: /wiki/fr-knxUltimateViewer/
+permalink: /wiki/fr-knxUltimateViewer
 ---
 Ce nœud fonctionne en conjonction avec le nœud de modèle de modèle de tableau de bord rouge du nœud.
 
@@ -35,6 +35,7 @@ Dans cet exemple, vous pouvez voir comment fonctionne le spectateur.
 Mettez simplement un nœud de la visionneuse dans votre flux et attachez un nœud d'interface utilisateur de modèle. 
 
 Le nœud **modèle** (Template du tableau de bord UI) contient le texte par défaut: 
+
 ```
 
 <div ng-bind-html="msg.payload"></div>

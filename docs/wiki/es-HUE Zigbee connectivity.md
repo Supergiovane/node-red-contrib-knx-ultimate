@@ -2,7 +2,7 @@
 layout: wiki
 title: "HUE Zigbee connectivity"
 lang: es
-permalink: /wiki/es-HUE%20Zigbee%20connectivity/
+permalink: /wiki/es-HUE%20Zigbee%20connectivity
 ---
 Este nodo recupera el estado de conectividad Zigbee de un dispositivo de tono y lo expone a KNX. 
 

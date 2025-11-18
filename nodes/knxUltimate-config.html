@@ -1,11 +1,15 @@
 <script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/htmlUtils.js"></script>
 
 <script type="text/javascript">
+    const optionalNumberValidator = function (value) {
+        return (value === '' || value === null || typeof value === 'undefined') ? true : RED.validators.number()(value)
+    }
+
     RED.nodes.registerType('knxUltimate-config', {
         category: 'config',
         defaults: {
-            host: { value: "224.0.23.12", required: true },
-            port: { value: 3671, required: true, validate: RED.validators.number() },
+            host: { value: "224.0.23.12", required: false },
+            port: { value: 3671, required: false, validate: RED.validators.number() },
             // the KNX physical address we'd like to use
             physAddr: { value: "15.15.22", required: false },
             hostProtocol: { value: "Auto", required: false }, // TunnelUDP/TunnelTCP/Multicast
@@ -28,7 +32,15 @@
             tunnelUserPassword: { value: "" },
             tunnelUserId: { value: "" },
             autoReconnect: { value: "yes" },
-            statusUpdateThrottle: { value: "0" }
+            statusUpdateThrottle: { value: "0" },
+            serialPortPath: { value: "/dev/ttyAMA0" },
+            serialBaudRate: { value: 19200, validate: optionalNumberValidator },
+            serialDataBits: { value: 8 },
+            serialStopBits: { value: 1 },
+            serialParity: { value: "even" },
+            serialRtscts: { value: false },
+            serialDtr: { value: true },
+            serialTimeout: { value: 1200, validate: optionalNumberValidator }
         },
         credentials: {
             keyringFilePassword: { type: "password" }
@@ -66,6 +78,57 @@
                 return (n % 2 == 0);
             }
             // ################################################################
+
+            const isSerialProtocolSelected = () => {
+                try {
+                    return $("#node-config-input-hostProtocol").val() === 'SerialFT12';
+                } catch (e) {
+                    return false;
+                }
+            };
+            let previousIpHostValue = typeof node.host === 'string' ? node.host : '';
+            try {
+                const initialSerialPath = (typeof node.serialPortPath === 'undefined' || node.serialPortPath === null)
+                    ? (isSerialProtocolSelected() ? (node.host || '') : '')
+                    : node.serialPortPath;
+                $("#node-config-input-serialPortPath").val(initialSerialPath || '');
+                if ((node.hostProtocol === 'SerialFT12' || node.hostProtocol === 'serialft12') && initialSerialPath) {
+                    $("#node-config-input-host").val(initialSerialPath);
+                }
+            } catch (e) { }
+            applySerialDefaults();
+
+            function syncSerialPortPathFromHost() {
+                try {
+                    const hostValue = String($("#node-config-input-host").val() || '').trim();
+                    $("#node-config-input-serialPortPath").val(hostValue);
+                } catch (e) { }
+            }
+
+            function applySerialDefaults() {
+                $("#node-config-input-serialBaudRate").val(typeof node.serialBaudRate === 'undefined' ? 19200 : node.serialBaudRate);
+                $("#node-config-input-serialDataBits").val(typeof node.serialDataBits === 'undefined' ? '8' : String(node.serialDataBits));
+                $("#node-config-input-serialStopBits").val(typeof node.serialStopBits === 'undefined' ? '1' : String(node.serialStopBits));
+                $("#node-config-input-serialParity").val(typeof node.serialParity === 'undefined' ? 'even' : String(node.serialParity));
+                $("#node-config-input-serialRtscts").prop('checked', (typeof node.serialRtscts === 'undefined') ? false : !!node.serialRtscts);
+                $("#node-config-input-serialDtr").prop('checked', (typeof node.serialDtr === 'undefined') ? true : !!node.serialDtr);
+                $("#node-config-input-serialTimeout").val(typeof node.serialTimeout === 'undefined' ? 1200 : node.serialTimeout);
+            }
+
+            function updateProtocolSections() {
+                const isSerial = isSerialProtocolSelected();
+                $("#rowPort").toggle(!isSerial);
+                $("#rowEthernetInterface").toggle(!isSerial);
+                if (isSerial) {
+                    $("#divKNXEthInterfaceManuallyInput").hide();
+                } else {
+                    try { updateEthernetManualVisibility($("#node-config-input-KNXEthInterface").val()); } catch (e) { }
+                }
+                $("#serialAdvancedContainer").toggle(isSerial);
+                if (isSerial) {
+                    syncSerialPortPathFromHost();
+                }
+            }
 
             // 22/07/2021 Main tab
             // Initialize tabs strictly from saved config, not from keyring presence
@@ -200,6 +263,7 @@
 
             function enforceProtocolFromIP() {
                 try {
+                    if (isSerialProtocolSelected()) return;
                     const ipTyped = String($("#node-config-input-host").val() || '').trim();
                     if (!ipTyped) return;
                     const octets = parseIPv4Address(ipTyped);
@@ -237,10 +301,11 @@
                     const hostProtocol = $("#node-config-input-hostProtocol").val();
                     const ip = $("#node-config-input-host").val();
                     const isMulticast = (hostProtocol === 'Multicast') || (ip === '224.0.23.12');
+                    const isSerial = (hostProtocol === 'SerialFT12');
                     const mode = getSecureCredentialsMode();
                     const keyringMode = (mode === 'keyring');
                     const manualMode = (mode === 'manual' || mode === 'combined');
-                    const showTunnelIA = isSecure && !isMulticast && keyringMode;
+                    const showTunnelIA = isSecure && !isMulticast && keyringMode && !isSerial;
                     if (showTunnelIA) {
                         $("#rowTunnelIASelection").show();
                         if ($("#node-config-input-tunnelIASelection").val() === 'Manual') {
@@ -253,7 +318,7 @@
                         $("#divTunnelIA").hide();
                     }
                     // Allow manual/combined credentials to surface even before the user selects a unicast IP.
-                    const showManualTunnelFields = isSecure && manualMode;
+                    const showManualTunnelFields = isSecure && manualMode && !isSerial;
                     $("#rowTunnelInterfaceIndividualAddress").toggle(showManualTunnelFields);
                     $("#rowTunnelUserPassword").toggle(showManualTunnelFields);
                     $("#rowTunnelUserId").toggle(showManualTunnelFields);
@@ -276,7 +341,8 @@
                     const hostProtocol = $("#node-config-input-hostProtocol").val();
                     const ip = $("#node-config-input-host").val();
                     const isMulticast = (hostProtocol === 'Multicast') || (ip === '224.0.23.12');
-                    if (isSecure && isMulticast) {
+                    const isSerial = (hostProtocol === 'SerialFT12');
+                    if (isSecure && isMulticast && !isSerial) {
                         $("#hintSecureMulticastToggle").show();
                         $("#hintSecureMulticast").toggle(isSecureMulticastHintOpen);
                     } else {
@@ -439,168 +505,244 @@
                 updateSecureCredentialMode();
             } catch (error) { }
 
-            // Autocomplete with KNX IP Interfaces + Refresh capability
-            let aKNXInterfaces = [];
-            function refreshKNXGateways(openDropdown) {
-                const startedAt = Date.now();
-                // UI: show spinner and disable host input while searching
-                $("#interfaces-count").html('<i class="fa fa-circle-o-notch fa-spin"></i> ' + node._('knxUltimate-config.properties.discovering'));
-                $("#node-config-input-host").prop('disabled', true);
-                aKNXInterfaces = [];
-                $.getJSON("knxUltimateDiscoverKNXGateways", { _: new Date().getTime() }, (data) => {
-                    for (let index = 0; index < data.length; index++) {
-                        const element = data[index];
-                        const parts = String(element).split(':');
-                        const ip = parts[0];
-                        const port = parts[1];
-                        const name = parts[2];
-                        const address = parts[3];
-                        const security = parts[4] || '';
-                        const protoRaw = parts[5] || '';
-                        const isSecure = security === 'Secure KNX';
-                        const proto = (protoRaw === 'TCP') ? 'TunnelTCP' : (protoRaw === 'UDP' ? 'TunnelUDP' : 'Multicast');
-                        const addrLabel = (typeof address === 'string' && address !== '' && address !== 'undefined') ? address : 'n/a';
-                        aKNXInterfaces.push({
-                            label: `${name || ''} -> ${ip || ''}:${port || ''} phys addr:${addrLabel}`,
-                            value: element,
-                            isSecure,
-                            proto
-                        });
-                    }
+            // Autocomplete with KNX IP Interfaces + Serial ports + Refresh capability
+            let hostEntries = []
+            function listGateways() {
+                return new Promise((resolve) => {
+                    $.getJSON("knxUltimateDiscoverKNXGateways", { _: new Date().getTime() }, (data) => {
+                        resolve(Array.isArray(data) ? data : [])
+                    }).fail(() => resolve([]))
+                })
+            }
+            function listSerialPorts() {
+                return new Promise((resolve) => {
+                    $.getJSON("knxUltimateSerialInterfaces", { _: new Date().getTime() }, (data) => {
+                        resolve(Array.isArray(data) ? data : [])
+                    }).fail(() => resolve([]))
+                })
+            }
+            function createGatewayEntries(data) {
+                const entries = []
+                for (let index = 0; index < data.length; index++) {
+                    const element = data[index]
+                    const parts = String(element).split(':')
+                    const ip = parts[0]
+                    const port = parts[1]
+                    const name = parts[2]
+                    const address = parts[3]
+                    const security = parts[4] || ''
+                    const protoRaw = parts[5] || ''
+                    const isSecure = security === 'Secure KNX'
+                    const proto = (protoRaw === 'TCP') ? 'TunnelTCP' : (protoRaw === 'UDP' ? 'TunnelUDP' : 'Multicast')
+                    const addrLabel = (typeof address === 'string' && address !== '' && address !== 'undefined') ? address : 'n/a'
+                    entries.push({
+                        label: `${name || ''} -> ${ip || ''}:${port || ''} phys addr:${addrLabel}`,
+                        value: ip || '',
+                        type: 'gateway',
+                        gateway: {
+                            ip,
+                            port,
+                            name,
+                            address,
+                            security,
+                            proto,
+                            isSecure
+                        }
+                    })
+                }
+                return entries
+            }
+            function createSerialEntries(data) {
+                const entries = []
+                data.forEach((port) => {
+                    if (!port || !port.path) return
+                    const info = []
+                    if (port.manufacturer) info.push(port.manufacturer)
+                    if (port.serialNumber) info.push(port.serialNumber)
+                    if (port.vendorId && port.productId) info.push(`${port.vendorId}:${port.productId}`)
+                    const descriptor = info.length ? info.join(' / ') : 'n/a'
+                    entries.push({
+                        label: `[Serial] ${port.path} -> ${descriptor}`,
+                        value: port.path,
+                        type: 'serial',
+                        serial: port
+                    })
+                })
+                return entries
+            }
+            function refreshHostEntries(openDropdown) {
+                const startedAt = Date.now()
+                $("#interfaces-count").html('<i class="fa fa-circle-o-notch fa-spin"></i> ' + node._('knxUltimate-config.properties.discovering'))
+                $("#node-config-input-host").prop('disabled', true)
+                Promise.all([listGateways(), listSerialPorts()]).then(([gateways, serials]) => {
+                    const gatewayEntries = createGatewayEntries(gateways)
+                    const serialEntries = createSerialEntries(serials)
+                    hostEntries = gatewayEntries.concat(serialEntries)
                     const finalize = () => {
-                        $("#interfaces-count").text(`${aKNXInterfaces.length} ` + node._('knxUltimate-config.properties.interfaces_found'));
+                        $("#interfaces-count").text(`${hostEntries.length} ` + node._('knxUltimate-config.properties.interfaces_found'))
                         try {
-                            $("#node-config-input-host").autocomplete('option', 'source', aKNXInterfaces);
+                            $("#node-config-input-host").autocomplete('option', 'source', hostEntries)
                             if (openDropdown === true) {
-                                $("#node-config-input-host").autocomplete("search", "");
+                                $("#node-config-input-host").autocomplete("search", "")
                             }
                         } catch (e) { }
-                        $("#node-config-input-host").prop('disabled', false);
-                    };
-                    const elapsed = Date.now() - startedAt;
-                    const wait = Math.max(0, 1000 - elapsed);
-                    setTimeout(finalize, wait);
-                }).fail(function () {
+                        $("#node-config-input-host").prop('disabled', false)
+                    }
+                    const elapsed = Date.now() - startedAt
+                    const wait = Math.max(0, 1000 - elapsed)
+                    setTimeout(finalize, wait)
+                }).catch(() => {
                     const finalizeFail = () => {
-                        $("#interfaces-count").text(node._('knxUltimate-config.properties.discovery_failed'));
-                        $("#node-config-input-host").prop('disabled', false);
-                    };
-                    const elapsed = Date.now() - startedAt;
-                    const wait = Math.max(0, 2000 - elapsed);
-                    setTimeout(finalizeFail, wait);
-                });
+                        $("#interfaces-count").text(node._('knxUltimate-config.properties.discovery_failed'))
+                        $("#node-config-input-host").prop('disabled', false)
+                    }
+                    const elapsed = Date.now() - startedAt
+                    const wait = Math.max(0, 2000 - elapsed)
+                    setTimeout(finalizeFail, wait)
+                })
             }
             // Initialize autocomplete once
             $("#node-config-input-host").autocomplete({
                 minLength: 0,
-                source: aKNXInterfaces,
+                source: hostEntries,
                 select: function (event, ui) {
-                    const parts = String(ui.item.value).split(':');
-                    const ip = parts[0];
-                    const port = parts[1];
-                    const name = parts[2];
-                    const address = parts[3];
-                    const security = parts[4] || '';
-                    const protoRaw = parts[5] || '';
-                    const isSecure = security === 'Secure KNX';
-                    const proto = (protoRaw === 'TCP') ? 'TunnelTCP' : (protoRaw === 'UDP' ? 'TunnelUDP' : 'Multicast');
-                    $("#node-config-input-host").val(ip);
-                    $("#node-config-input-port").val(port);
-                    $("#node-config-input-name").val(name || "");
-                    if (isSecure) { try { $("#tabsMain").tabs("option", "active", 1); } catch (e) { } }
-                    else { try { $("#tabsMain").tabs("option", "active", 0); } catch (e) { } }
-                    // Set protocol coming from discovery and lock selection
-                    try { const $sel = $("#node-config-input-hostProtocol"); $sel.val(proto); $sel.prop('disabled', true); } catch (e) { }
-                    // Ensure UI visibility follows protocol choice
-                    updateTunnelIAVisibility();
-                    updatePhysAddrVisibility();
-                    updateSecureMulticastHint();
-                    // Suggest a physAddr coherent with gateway IA (area.line preserved)
-                    let prefix = '';
-                    let gwIaParts = [];
-                    if (typeof address === 'string' && address.includes('.')) {
-                        gwIaParts = address.split('.');
-                        prefix = `${gwIaParts[0]}.${gwIaParts[1]}`;
-                    } else {
-                        const currentPhys = $("#node-config-input-physAddr").val() || '';
-                        const m = String(currentPhys).trim().match(/^(\d{1,2})\.(\d{1,3})/);
-                        prefix = m ? `${m[1]}.${m[2]}` : '15.15';
+                    const entry = ui.item || {}
+                    if (entry.type === 'serial') {
+                        const info = entry.serial || {}
+                        const path = info.path || entry.value || ''
+                        const descriptorParts = []
+                        if (info.manufacturer && info.manufacturer !== 'n/a') descriptorParts.push(info.manufacturer)
+                        if (info.serialNumber && info.serialNumber !== 'n/a') descriptorParts.push(`#${info.serialNumber}`)
+                        if (info.vendorId && info.productId) descriptorParts.push(`${info.vendorId}:${info.productId}`)
+                        const descriptor = descriptorParts.length > 0 ? descriptorParts.join(' ') : path
+                        $("#node-config-input-host").val(path)
+                        $("#node-config-input-name").val(descriptor)
+                        syncSerialPortPathFromHost()
+                        try { $("#tabsMain").tabs("option", "active", 0) } catch (e) { }
+                        try {
+                            const $sel = $("#node-config-input-hostProtocol")
+                            $sel.val('SerialFT12')
+                            $sel.prop('disabled', true)
+                        } catch (e) { }
+                        applySerialDefaults()
+                        updateProtocolSections()
+                        updateTunnelIAVisibility()
+                        updatePhysAddrVisibility()
+                        updateSecureMulticastHint()
+                        blinkBackgroundArray(["#node-config-input-host", "#node-config-input-name"])
+                        return false
                     }
-                    // pick a last byte in the safer range 200..254
-                    let rnd = 200 + Math.floor(Math.random() * 55);
-                    // avoid same last byte as gateway IA if known and within range
+                    const gateway = entry.gateway || {}
+                    $("#node-config-input-host").val(gateway.ip || '')
+                    $("#node-config-input-port").val(gateway.port || '')
+                    $("#node-config-input-name").val(gateway.name || "")
+                    if (gateway.isSecure) { try { $("#tabsMain").tabs("option", "active", 1) } catch (e) { } }
+                    else { try { $("#tabsMain").tabs("option", "active", 0) } catch (e) { } }
                     try {
-                        const gwLast = parseInt(gwIaParts[2]);
-                        if (!isNaN(gwLast) && gwLast >= 200 && gwLast <= 254 && rnd === gwLast) {
-                            rnd = (gwLast < 254 ? gwLast + 1 : 200);
+                        const $sel = $("#node-config-input-hostProtocol")
+                        if (gateway.proto) {
+                            $sel.val(gateway.proto)
+                            $sel.prop('disabled', true)
                         }
                     } catch (e) { }
-                    const phys = `${prefix}.${rnd}`;
-                    $("#node-config-input-physAddr").val(phys);
-                    autoSelectEthernetInterfaceForHost({ force: true });
-                    blinkBackgroundArray(["#node-config-input-host", "#node-config-input-port", "#node-config-input-name", "#node-config-input-physAddr"]);
-                    return false;
+                    updateProtocolSections()
+                    updateTunnelIAVisibility()
+                    updatePhysAddrVisibility()
+                    updateSecureMulticastHint()
+                    const address = gateway.address
+                    let prefix = ''
+                    let gwIaParts = []
+                    if (typeof address === 'string' && address.includes('.')) {
+                        gwIaParts = address.split('.')
+                        prefix = `${gwIaParts[0]}.${gwIaParts[1]}`
+                    } else {
+                        const currentPhys = $("#node-config-input-physAddr").val() || ''
+                        const m = String(currentPhys).trim().match(/^(\\d{1,2})\\.(\\d{1,3})/)
+                        prefix = m ? `${m[1]}.${m[2]}` : '15.15'
+                    }
+                    let rnd = 200 + Math.floor(Math.random() * 55)
+                    try {
+                        const gwLast = parseInt(gwIaParts[2])
+                        if (!isNaN(gwLast) && gwLast >= 200 && gwLast <= 254 && rnd === gwLast) {
+                            rnd = (gwLast < 254 ? gwLast + 1 : 200)
+                        }
+                    } catch (e) { }
+                    $("#node-config-input-physAddr").val(`${prefix}.${rnd}`)
+                    autoSelectEthernetInterfaceForHost({ force: true })
+                    blinkBackgroundArray(["#node-config-input-host", "#node-config-input-port", "#node-config-input-name", "#node-config-input-physAddr"])
+                    return false
                 },
                 focus: function (event, ui) {
-                    $("#node-config-input-host").val(ui.item.value.split(':')[0]);
-                    return false;
+                    const entry = ui.item || {}
+                    if (entry.type === 'serial') {
+                        $("#node-config-input-host").val(entry.serial?.path || entry.value || '')
+                    } else {
+                        $("#node-config-input-host").val(entry.gateway?.ip || entry.value || '')
+                    }
+                    return false
                 }
             }).on("focus click", function () {
-                const $input = $(this);
-                const currentValue = $input.val();
-                $input.data('knx-restore-host', currentValue);
+                const $input = $(this)
+                const currentValue = $input.val()
+                $input.data('knx-restore-host', currentValue)
                 if (currentValue) {
-                    $input.val('');
+                    $input.val('')
                 }
-                $input.autocomplete("search", "");
+                $input.autocomplete("search", "")
                 if (currentValue) {
                     setTimeout(() => {
                         if ($input.data('knx-restore-host') === currentValue) {
-                            $input.val(currentValue);
+                            $input.val(currentValue)
                         }
-                    }, 0);
+                    }, 0)
                 }
             }).on("blur", function () {
-                $(this).data('knx-restore-host', null);
+                $(this).data('knx-restore-host', null)
             }).autocomplete("instance")._renderItem = function (ul, item) {
-                const parts = String(item.value).split(':');
-                const ip = parts[0];
-                const port = parts[1];
-                const name = parts[2];
-                const address = parts[3];
-                const security = parts[4] || '';
-                const protoRaw = parts[5] || '';
-                const isSecure = security === 'Secure KNX';
-                const addrLabel = (typeof address === 'string' && address !== '' && address !== 'undefined') ? address : 'n/a';
-                const colorStyle = isSecure ? 'color: green;' : '';
+                if (item.type === 'serial') {
+                    return $("<li>")
+                        .append(`<div style="color:#005a9c;"><b>[Serial]</b> ${item.serial?.path || item.value || ''} -> ${item.label.replace('[Serial] ', '')}</div>`)
+                        .appendTo(ul)
+                }
+                const gw = item.gateway || {}
+                const colorStyle = gw.isSecure ? 'color: green;' : ''
+                const proto = gw.proto || ''
+                const addrLabel = (typeof gw.address === 'string' && gw.address !== '' && gw.address !== 'undefined') ? gw.address : 'n/a'
                 return $("<li>")
-                    .append(`<div style="${colorStyle}"><b>${ip || ''}:${port || ''}</b> [${protoRaw || ''}] -> ${name || ''} - ${node._('knxUltimate-config.properties.address')}:${addrLabel}${isSecure ? ' (' + node._('knxUltimate-config.properties.secure_knx_label') + ')' : ''}</div>`)
-                    .appendTo(ul);
+                    .append(`<div style="${colorStyle}"><b>${gw.ip || ''}:${gw.port || ''}</b> [${proto}] -> ${gw.name || ''} - ${node._('knxUltimate-config.properties.address')}:${addrLabel}${gw.isSecure ? ' (' + node._('knxUltimate-config.properties.secure_knx_label') + ')' : ''}</div>`)
+                    .appendTo(ul)
             }
+            $("#node-config-input-serialPortPath").on('input', function () {
+                syncSerialPortPathFromHost()
+            });
+            try { updateProtocolSections(); } catch (e) { }
             // Initial discovery
-            refreshKNXGateways(false);
+            refreshHostEntries(false);
             // Refresh button handler
             try {
                 $("#refresh-interfaces").on('click', function (e) {
                     try { e.preventDefault(); e.stopPropagation(); } catch (_) { }
-                    refreshKNXGateways(false); // refresh silently, don't open dropdown
+                    refreshHostEntries(false); // refresh silently, don't open dropdown
                 });
             } catch (e) { }
             // Track protocol changes to sync visibility and suggest physAddr when needed
             try {
                 $("#node-config-input-hostProtocol").on('change', function () {
+                    updateProtocolSections();
                     updateTunnelIAVisibility();
                     updatePhysAddrVisibility();
                     updateSecureMulticastHint();
+                    const isSerial = isSerialProtocolSelected();
+                    if (isSerial) {
+                        applySerialDefaults();
+                        syncSerialPortPathFromHost();
+                        return;
+                    }
                     try {
                         const ipNow = String($("#node-config-input-host").val() || '').trim();
                         if (!$("#node-config-input-physAddr").val()) {
-                            let gwIA = null;
-                            for (let i = 0; i < aKNXInterfaces.length; i++) {
-                                const parts = String(aKNXInterfaces[i].value).split(':');
-                                if (parts[0] === ipNow) { gwIA = parts[3] || null; break; }
-                            }
-                            suggestPhysAddrFromGatewayIA(gwIA);
+                            const gwEntry = hostEntries.find((entry) => entry.type === 'gateway' && entry.gateway && entry.gateway.ip === ipNow);
+                            suggestPhysAddrFromGatewayIA(gwEntry ? gwEntry.gateway.address : null);
                         }
                     } catch (e) { }
                 });
@@ -666,6 +808,7 @@
             function autoSelectEthernetInterfaceForHost(options = {}) {
                 const { force } = options;
                 if (!force && userLockedInterfaceSelection) return;
+                if (isSerialProtocolSelected()) return;
                 const hostValue = String($("#node-config-input-host").val() || '').trim();
                 const hostOctets = parseIPv4Address(hostValue);
                 if (!hostOctets || isMulticastIPv4(hostOctets)) return;
@@ -725,6 +868,10 @@
             // Abilita manualmente la lista dei protocolli quando l'utente modifica l'IP a mano
             try {
                 $("#node-config-input-host").on('input', function () {
+                    if (isSerialProtocolSelected()) {
+                        syncSerialPortPathFromHost();
+                        return;
+                    }
                     const isSecure = isSecureTabActive();
                     const $sel = $("#node-config-input-hostProtocol");
                     // Abilita select
@@ -746,17 +893,9 @@
                     try {
                         const ipTyped = String($(this).val() || '').trim();
                         if (ipTyped) {
-                            let gwIA = null;
-                            let proto = null;
-                            for (let i = 0; i < aKNXInterfaces.length; i++) {
-                                const parts = String(aKNXInterfaces[i].value).split(':');
-                                if (parts[0] === ipTyped) {
-                                    gwIA = parts[3] || null;
-                                    const protoRaw = parts[5] || '';
-                                    proto = (protoRaw === 'TCP') ? 'TunnelTCP' : (protoRaw === 'UDP' ? 'TunnelUDP' : 'Multicast');
-                                    break;
-                                }
-                            }
+                            const entry = hostEntries.find((item) => item.type === 'gateway' && item.gateway && item.gateway.ip === ipTyped);
+                            const gwIA = entry ? entry.gateway.address : null;
+                            const proto = entry ? entry.gateway.proto : null;
                             // Suggest phys only if empty
                             if (!$("#node-config-input-physAddr").val()) {
                                 suggestPhysAddrFromGatewayIA(gwIA);
@@ -821,6 +960,11 @@
             } catch (error) { }
 
             var node = this;
+            try {
+                if ($("#node-config-input-hostProtocol").val() === 'SerialFT12') {
+                    $("#node-config-input-serialPortPath").val($("#node-config-input-host").val());
+                }
+            } catch (e) { }
             try {
                 if (node._keyringEditor) {
                     $("#node-config-input-keyringFileXML").val(node._keyringEditor.getValue());
@@ -971,19 +1115,20 @@
             <b><span data-i18n="knxUltimate-config.properties.title"></span></b>
         </div>
    
-        <div class="form-row">
+        <div class="form-row" id="rowName">
             <label for="node-config-input-name">
                 <i class="fa fa-tag"></i> <span data-i18n="knxUltimate-config.properties.node-config-input-name"></span></label>
             <input type="text" id="node-config-input-name" style="width: 200px">
         </div>
-        <div class="form-row">
+        <div class="form-row" id="rowHost">
             <label for="node-config-input-host"><i class="fa fa-server"></i> <span data-i18n="knxUltimate-config.properties.host"></span></label>
             <input type="text" id="node-config-input-host" style="width: 200px">
             <i id="refresh-interfaces" class="fa fa-refresh" style="cursor:pointer; color:#377e00; margin-left:6px;" data-i18n="[title]knxUltimate-config.properties.refresh_interfaces"></i>
         </div>
-        <div class="form-row form-row-offset">
+        <div class="form-row form-row-offset" id="rowHostInfo">
             <span id="interfaces-count" style="font-size: 12px; color:#377e00; margin-top: 2px;"></span>
         </div>
+        <input type="hidden" id="node-config-input-serialPortPath">
         <div class="form-row" id="rowPhysAddr">
             <label for="node-config-input-physAddr">
                 <i class="fa fa-microchip"></i>
@@ -1074,7 +1219,7 @@
     <div id="tabs-1">
         <p>
 
-            <div class="form-row">
+            <div class="form-row" id="rowPort">
                 <label for="node-config-input-port">
                    <span data-i18n="knxUltimate-config.properties.ip_port"></span>
                 </label>
@@ -1089,11 +1234,54 @@
                     <option value="TunnelUDP" data-i18n="knxUltimate-config.properties.proto_tunnel_udp"></option>
                     <option value="Multicast" data-i18n="knxUltimate-config.properties.proto_multicast"></option>
                     <option value="TunnelTCP" data-i18n="knxUltimate-config.properties.proto_tunnel_tcp"></option>
+                    <option value="SerialFT12" data-i18n="knxUltimate-config.properties.proto_serial_ft12"></option>
                 </select>   
+            </div>
+            <div id="serialAdvancedContainer" style="display:none;">
+                <div class="form-row">
+                    <label for="node-config-input-serialBaudRate"><i class="fa fa-tachometer"></i> <span data-i18n="knxUltimate-config.properties.serial_baud"></span></label>
+                    <input type="number" id="node-config-input-serialBaudRate" style="width: 120px">
+                </div>
+                <div class="form-row">
+                    <label for="node-config-input-serialDataBits"><i class="fa fa-ellipsis-h"></i> <span data-i18n="knxUltimate-config.properties.serial_data_bits"></span></label>
+                    <select id="node-config-input-serialDataBits" style="width: 120px">
+                        <option value="8">8</option>
+                        <option value="7">7</option>
+                        <option value="6">6</option>
+                        <option value="5">5</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <label for="node-config-input-serialStopBits"><i class="fa fa-arrows-h"></i> <span data-i18n="knxUltimate-config.properties.serial_stop_bits"></span></label>
+                    <select id="node-config-input-serialStopBits" style="width: 120px">
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <label for="node-config-input-serialParity"><i class="fa fa-balance-scale"></i> <span data-i18n="knxUltimate-config.properties.serial_parity"></span></label>
+                    <select id="node-config-input-serialParity" style="width: 120px">
+                        <option value="even" data-i18n="knxUltimate-config.properties.serial_parity_even"></option>
+                        <option value="odd" data-i18n="knxUltimate-config.properties.serial_parity_odd"></option>
+                        <option value="none" data-i18n="knxUltimate-config.properties.serial_parity_none"></option>
+                    </select>
+                </div>
+                <div class="form-row form-row-checkbox">
+                    <input type="checkbox" id="node-config-input-serialRtscts" style="display:inline-block; width:auto; vertical-align:top;">
+                    <label for="node-config-input-serialRtscts"><i class="fa fa-random"></i> <span data-i18n="knxUltimate-config.properties.serial_rtscts"></span></label>
+                </div>
+                <div class="form-row form-row-checkbox">
+                    <input type="checkbox" id="node-config-input-serialDtr" style="display:inline-block; width:auto; vertical-align:top;">
+                    <label for="node-config-input-serialDtr"><i class="fa fa-battery-full"></i> <span data-i18n="knxUltimate-config.properties.serial_dtr"></span></label>
+                </div>
+                <div class="form-row">
+                    <label for="node-config-input-serialTimeout"><i class="fa fa-clock-o"></i> <span data-i18n="knxUltimate-config.properties.serial_timeout"></span></label>
+                    <input type="number" id="node-config-input-serialTimeout" style="width: 120px">
+                </div>
             </div>
             
 
-            <div class="form-row">
+            <div class="form-row" id="rowEthernetInterface">
                 <label for="node-config-input-KNXEthInterface">
                     <i class="fa fa-wifi"></i>
                     <span data-i18n="knxUltimate-config.properties.bind_local_int"></span>

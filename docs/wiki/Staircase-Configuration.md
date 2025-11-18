@@ -2,7 +2,7 @@
 layout: wiki
 title: "Staircase-Configuration"
 lang: en
-permalink: /wiki/Staircase-Configuration/
+permalink: /wiki/Staircase-Configuration
 ---
 ---
 # Staircase Light configuration

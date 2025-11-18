@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-HUE Button"
 lang: de
-permalink: /wiki/de-zh-CN-HUE%20Button/
+permalink: /wiki/de-zh-CN-HUE%20Button
 ---
 ---
 

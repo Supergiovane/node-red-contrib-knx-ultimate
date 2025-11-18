@@ -2,7 +2,7 @@
 layout: wiki
 title: "HUE Humidity sensor"
 lang: fr
-permalink: /wiki/fr-HUE%20Humidity%20sensor/
+permalink: /wiki/fr-HUE%20Humidity%20sensor
 ---
 Ce nœud lit l'humidité relative (%) à partir d'un capteur d'humidité de teinte et le mappe à Knx. 
 

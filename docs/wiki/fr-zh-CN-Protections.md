@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-Protections"
 lang: fr
-permalink: /wiki/fr-zh-CN-Protections/
+permalink: /wiki/fr-zh-CN-Protections
 ---
 ---
 # Autoprotection du nœud

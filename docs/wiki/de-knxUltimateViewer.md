@@ -2,7 +2,7 @@
 layout: wiki
 title: "knxUltimateViewer"
 lang: de
-permalink: /wiki/de-knxUltimateViewer/
+permalink: /wiki/de-knxUltimateViewer
 ---
 Dieser Node arbeitet zusammen mit dem Dashboard‑<b>ui_template</b> von Node‑RED.
 

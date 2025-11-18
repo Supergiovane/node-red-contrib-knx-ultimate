@@ -2,7 +2,7 @@
 layout: wiki
 title: "Staircase-Configuration"
 lang: it
-permalink: /wiki/it-Staircase-Configuration/
+permalink: /wiki/it-Staircase-Configuration
 ---
 ---
 # Temporizzatore scale

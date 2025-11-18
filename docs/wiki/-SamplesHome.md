@@ -2,7 +2,7 @@
 layout: wiki
 title: "-SamplesHome"
 lang: en
-permalink: /wiki/-SamplesHome/
+permalink: /wiki/-SamplesHome
 ---
 # Samples
 

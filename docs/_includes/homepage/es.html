@@ -23,7 +23,7 @@
 
 <div align="center" style="margin:36px 0;">
   <div style="max-width:960px;width:100%;display:flex;flex-wrap:wrap;gap:22px;justify-content:center;">
-    <div style="flex:1 1 220px;min-width:220px;padding:22px 24px;border-radius:20px;background:linear-gradient(140deg,#072b36 0%,#0c4b61 50%,#0c5f7b 100%);box-shadow:0 16px 32px rgba(7,43,54,0.32);color:#f2fbff;display:flex;flex-direction:column;">
+    <div style="flex:1 1 220px;min-width:220px;padding:22px 24px;border-radius:20px;background:#ffffff;box-shadow:0 16px 32px rgba(7,43,54,0.12);color:#123042;display:flex;flex-direction:column;">
       <div style="font-size:0.8rem;letter-spacing:0.18em;font-weight:700;text-transform:uppercase;color:rgba(255,255,255,0.68);margin-bottom:8px;">Núcleo KNX</div>
       <div style="font-size:1.2rem;font-weight:700;margin-bottom:10px;">KNX Tunnelling</div>
       <p style="flex:1;margin:0 0 20px 0;line-height:1.55;">Tunneling estilo ETS con reconexión automática, sesiones múltiples seguras y transmisión de telegramas de alto rendimiento.</p>
@@ -41,16 +41,25 @@
         <span>Totalmente soportado</span>
       </div>
     </div>
-    <div style="flex:1 1 220px;min-width:220px;padding:22px 24px;border-radius:20px;background:linear-gradient(135deg,#162236 0%,#20375c 48%,#274c83 100%);box-shadow:0 16px 32px rgba(22,34,54,0.34);color:#eef4ff;display:flex;flex-direction:column;">
+    <div style="flex:1 1 220px;min-width:220px;padding:22px 24px;border-radius:20px;background:#ffffff;box-shadow:0 16px 32px rgba(22,34,54,0.12);color:#123042;display:flex;flex-direction:column;">
       <div style="font-size:0.8rem;letter-spacing:0.18em;font-weight:700;text-transform:uppercase;color:rgba(255,255,255,0.62);margin-bottom:8px;">Transporte seguro</div>
       <div style="font-size:1.2rem;font-weight:700;margin-bottom:10px;">KNX IP Secure / Data Secure</div>
       <p style="flex:1;margin:0 0 20px 0;line-height:1.55;">Gestión completa de handshake, certificados y claves de sesión tanto para tunneling como para cargas seguras de direcciones de grupo.</p>
+    <div style="display:inline-flex;align-items:center;gap:10px;padding:8px 14px;border-radius:999px;background:rgba(255,255,255,0.18);font-weight:600;">
+       <span style="font-size:1.1rem;">🔒</span>
+       <span>Seguro por diseño</span>
+     </div>
+   </div>
+    <div style="flex:1 1 220px;min-width:220px;padding:22px 24px;border-radius:20px;background:#ffffff;box-shadow:0 16px 32px rgba(18,12,32,0.12);color:#123042;display:flex;flex-direction:column;">
+      <div style="font-size:0.8rem;letter-spacing:0.18em;font-weight:700;text-transform:uppercase;color:rgba(255,255,255,0.62);margin-bottom:8px;">Dispositivos TP</div>
+      <div style="font-size:1.2rem;font-weight:700;margin-bottom:10px;">Serial FT1.2 (TPUART)</div>
+      <p style="flex:1;margin:0 0 20px 0;line-height:1.55;">Controla hats TPUART, Weinzierl 307x y otras interfaces TP/FT1.2 directamente a través de <code>/dev/tty*</code>. El selector IP/Hostname muestra los puertos serie y, al elegir uno, completa automáticamente los parámetros UART recomendados.</p>
       <div style="display:inline-flex;align-items:center;gap:10px;padding:8px 14px;border-radius:999px;background:rgba(255,255,255,0.18);font-weight:600;">
-        <span style="font-size:1.1rem;">🔒</span>
-        <span>Seguro por diseño</span>
+        <span style="font-size:1.1rem;">🔌</span>
+        <span>Listo para conectar</span>
       </div>
     </div>
-    <div style="flex:1 1 220px;min-width:220px;padding:22px 24px;border-radius:20px;background:#ffffff;box-shadow:0 16px 32px rgba(10,20,32,0.2);color:#14283a;display:flex;flex-direction:column;">
+    <div style="flex:1 1 220px;min-width:220px;padding:22px 24px;border-radius:20px;background:#ffffff;box-shadow:0 16px 32px rgba(10,20,32,0.12);color:#123042;display:flex;flex-direction:column;">
       <div style="font-size:0.8rem;letter-spacing:0.18em;font-weight:700;text-transform:uppercase;color:#1e4f6e;margin-bottom:8px;">Hue e IoT</div>
       <div style="font-size:1.2rem;font-weight:700;margin-bottom:10px;">Philips Hue v2 + IoT</div>
       <p style="flex:1;margin:0 0 20px 0;line-height:1.55;">Escenas, sensores y luminarias Hue v2 integrados, además de pasarelas IoT hacia servicios como MQTT, InfluxDB y más.</p>
@@ -75,7 +84,9 @@
     <div style="flex:1 1 140px;min-width:130px;padding:12px;border-radius:10px;background:linear-gradient(135deg,#0f3f2d 0%,#11824f 45%,#1ab96b 100%);box-shadow:0 8px 16px rgba(16,60,40,0.22);color:#f2fff6;">
       <div style="font-size:0.55rem;letter-spacing:0.18em;text-transform:uppercase;color:rgba(242,255,246,0.65);font-weight:700;margin-bottom:4px;">Configuración</div>
       <div style="font-size:1rem;font-weight:700;margin-bottom:6px;">Knx Config</div>
-      <p style="margin:0 0 6px 0;font-size:0.72rem;line-height:1.35;color:rgba(242,255,246,0.92);">Gestiona credenciales del gateway y parámetros de seguridad compartidos por todos los nodos.</p>
+      <p style="margin:0 0 6px 0;font-size:0.72rem;line-height:1.35;color:rgba(242,255,246,0.92);">Gestiona la
+        configuración del gateway KNX (interfaces/enrutadores IP o puertos serie FT1.2) compartida por todos los nodos,
+        mostrando en la lista tanto gateways IP como puertos serie detectados.</p>
       <span style="color:#d7ffe8;font-weight:600;font-size:0.7rem;">Configuración compartida</span>
     </div>
     <div style="flex:1 1 140px;min-width:130px;padding:12px;border-radius:10px;background:linear-gradient(135deg,#0f3f2d 0%,#11824f 45%,#1ab96b 100%);box-shadow:0 8px 16px rgba(16,60,40,0.22);color:#f2fff6;">

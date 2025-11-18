@@ -2,7 +2,7 @@
 layout: wiki
 title: "HUE Scene"
 lang: fr
-permalink: /wiki/fr-HUE%20Scene/
+permalink: /wiki/fr-HUE%20Scene
 ---
 Le nœud **Hue Scene** expose des scènes de teinLe champ de scène prend en charge la saisie semi-automatique;Utilisez l'icône d'actualisation après avoir ajouté des scènes sur le pont afin que la liste reste à jour.
 

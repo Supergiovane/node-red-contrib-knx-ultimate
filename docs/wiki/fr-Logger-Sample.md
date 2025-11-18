@@ -2,7 +2,7 @@
 layout: wiki
 title: "Logger-Sample"
 lang: fr
-permalink: /wiki/fr-Logger-Sample/
+permalink: /wiki/fr-Logger-Sample
 ---
 ---
 # Échantillons d'enregistrement

@@ -2,7 +2,7 @@
 layout: wiki
 title: "knxUltimateViewer"
 lang: zh-CN
-permalink: /wiki/zh-CN-knxUltimateViewer/
+permalink: /wiki/zh-CN-knxUltimateViewer
 ---
 该节点与 Node‑RED 仪表板的 <b>ui_template</b> 节点配合使用。
 

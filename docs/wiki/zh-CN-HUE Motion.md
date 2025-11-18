@@ -2,7 +2,7 @@
 layout: wiki
 title: "HUE Motion"
 lang: zh-CN
-permalink: /wiki/zh-CN-HUE%20Motion/
+permalink: /wiki/zh-CN-HUE%20Motion
 ---
 该节点订阅 Hue 运动传感器的事件，并将其同步到 KNX 以及 Node-RED 流程。
 

@@ -2,7 +2,7 @@
 layout: wiki
 title: "Protections"
 lang: es
-permalink: /wiki/es-Protections/
+permalink: /wiki/es-Protections
 ---
 ---
 # Protección de nodo

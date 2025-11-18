@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-HUE Plug"
 lang: it
-permalink: /wiki/it-zh-CN-HUE%20Plug/
+permalink: /wiki/it-zh-CN-HUE%20Plug
 ---
 ---
 # Presa / spina Hue

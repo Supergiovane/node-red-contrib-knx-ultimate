@@ -2,7 +2,7 @@
 layout: wiki
 title: "Logger-Configuration"
 lang: it
-permalink: /wiki/it-Logger-Configuration/
+permalink: /wiki/it-Logger-Configuration
 ---
 # Logger
 

@@ -2,7 +2,7 @@
 layout: wiki
 title: "WatchDog-Configuration"
 lang: es
-permalink: /wiki/es-WatchDog-Configuration/
+permalink: /wiki/es-WatchDog-Configuration
 ---
 Verifica la conexión a la puerta de enlace o a un dispositivo KNX específico 
 
@@ -62,7 +62,7 @@ width = "90%">
 # Salida de mensajes del Watchdog
 
 El nodo Watchdog sale un mensaje cada vez que recibe un error de uno de su nodo ultimal KNX en sus flujos, o cuando el vigilante interno intercepta un error de comunicación de bus KNX. 
- ** En caso de problema de autoexpresión de vigilancia** <a href = "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/watchdog-configuration"
+ ** En caso de problema de autoexpresión de vigilancia** <a href = "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/WatchDog-Configuration"
 Target = "_ en blanco"> Consulte aquí. </a>
 
 ```javascript
@@ -77,7 +77,7 @@ description: // (whatever error description)
 
 ```
 
-** En caso de que uno de sus nodos ultimados KNX esté en problemas** 
+ ** En caso de que uno de sus nodos ultimados KNX esté en problemas**
 
 ```javascript
 
@@ -98,7 +98,7 @@ GA: "0/1/1"
 
 ```
 
-** En caso de una nueva configuración de puerta de enlace, se llama a través de SetGatewayConfig** 
+ ** En caso de una nueva configuración de puerta de enlace, se llama a través de SetGatewayConfig**
 
 ```javascript
 
@@ -114,7 +114,7 @@ completeError:""
 
 ```
 
-** Conexión forzada/desconexión** 
+ ** Conexión forzada/desconexión**
 
 ```javascript
 
@@ -140,6 +140,7 @@ El nodo Watchdog acepta la entrada del flujo y transmite la salida del flujo.A c
 
 Para iniciar y detener el Watchdog, puede pasar esto como mensaje al nodo 
  ** Comienza Watchdog** 
+
 ```javascript
 
 // Start the WatchDog
@@ -149,6 +150,7 @@ return msg;
 ```
 
 ** Detente de vigilancia** 
+
 ```javascript
 
 // Start the WatchDog
@@ -165,6 +167,7 @@ El nodo de configuración cambiará la configuración y se volverá a conectar c
 
 Tenga cuidado, si reinicia el nodo-rojo, la nueva configuración se vuelve a la configuración especificada en el nodo de configuración. 
  ** Todos los parámetros son opcionales** 
+
 ```javascript
 
 // IP: IP of your KNX/IP Router or Interface
@@ -197,6 +200,7 @@ return msg;
 ```
 
 ** La desconexión de Force Gateway y la desactivación de los intentos de reconexión automática** 
+
 ```javascript
 
 // Force the gateway's disconnection from the BUS and stop the reconnection's attempts.
@@ -206,6 +210,7 @@ return msg;
 ```
 
 ** Conexión de Force Gateway y habilite los intentos de reconexión automática** 
+
 ```javascript
 
 // Force the gateway's connection to the BUS and activate the reconnection's attempts.

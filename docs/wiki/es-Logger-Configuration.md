@@ -2,7 +2,7 @@
 layout: wiki
 title: "Logger-Configuration"
 lang: es
-permalink: /wiki/es-Logger-Configuration/
+permalink: /wiki/es-Logger-Configuration
 ---
 <
 
@@ -14,7 +14,7 @@ Puede guardar el archivo en el disco o enviarlo a un servidor FTP, por ejemplo.E
 
 El nodo también puede contar telegramas por segundo (o cualquier intervalo que desee).
 
- <a href = "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/logger-sample" target = "_ blank"> Los ejemplos están aquí. </a>
+ <a href = "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Logger-Sample" target = "_ blank"> Los ejemplos están aquí. </a>
 
 ## AJUSTES
 
@@ -58,6 +58,8 @@ msg = {
 
 ```
 
+ 
+
 **Pin 2: contador de telegrama de KNX**
 
 Cada recuento, el nodo emitirá un telegrama como este:
@@ -82,6 +84,7 @@ Puede controlar el registrador de alguna manera.
 ## Archivo de monitor de bus compatible con ETS XML
 
 **Temporizador de inicio** 
+
 ```javascript
 
 // Start the timer
@@ -91,6 +94,7 @@ return msg;
 ```
 
 **Detener el temporizador** 
+
 ```javascript
 
 // Start the timer
@@ -100,6 +104,7 @@ return msg;
 ```
 
 **ENCONTRA INMEDIATAMENTE una carga útil con el archivo ETS** 
+
 ```javascript
 
 // Output payload. Restart timer as well (in case the timer was active)
@@ -111,6 +116,7 @@ return msg;
 ## contador de telegrama de knx
 
 **Temporizador de inicio** 
+
 ```javascript
 
 // Start the timer
@@ -120,6 +126,7 @@ return msg;
 ```
 
 **Detener el temporizador** 
+
 ```javascript
 
 // Start the timer
@@ -129,6 +136,7 @@ return msg;
 ```
 
 **Mensaje de conteo de telegrama de salida inmediatamente** 
+
 ```javascript
 
 // Output payload. 

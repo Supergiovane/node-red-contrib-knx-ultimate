@@ -2,7 +2,7 @@
 layout: wiki
 title: "HUE Plug"
 lang: zh-CN
-permalink: /wiki/zh-CN-HUE%20Plug/
+permalink: /wiki/zh-CN-HUE%20Plug
 ---
 # Hue 插座 / Plug
 

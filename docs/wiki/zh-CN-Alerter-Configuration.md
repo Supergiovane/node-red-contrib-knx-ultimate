@@ -2,7 +2,7 @@
 layout: wiki
 title: "Alerter-Configuration"
 lang: zh-CN
-permalink: /wiki/zh-CN-Alerter-Configuration/
+permalink: /wiki/zh-CN-Alerter-Configuration
 ---
 # Alerter 节点配置
 

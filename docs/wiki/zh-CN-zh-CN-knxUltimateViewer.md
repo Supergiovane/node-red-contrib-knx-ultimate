@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-knxUltimateViewer"
 lang: zh-CN
-permalink: /wiki/zh-CN-zh-CN-knxUltimateViewer/
+permalink: /wiki/zh-CN-zh-CN-knxUltimateViewer
 ---
 ---
 

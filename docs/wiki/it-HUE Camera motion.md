@@ -2,7 +2,7 @@
 layout: wiki
 title: "HUE Camera motion"
 lang: it
-permalink: /wiki/it-HUE%20Camera%20motion/
+permalink: /wiki/it-HUE%20Camera%20motion
 ---
 Il nodo Hue Camera Motion ascolta il servizio di motion delle camere Philips Hue e replica in KNX lo stato rilevato/non rilevato.
 

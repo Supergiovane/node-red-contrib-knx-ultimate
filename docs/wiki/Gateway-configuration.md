@@ -2,25 +2,25 @@
 layout: wiki
 title: "Gateway-configuration"
 lang: en
-permalink: /wiki/Gateway-configuration/
+permalink: /wiki/Gateway-configuration
 ---
 # KNX Gateway Configuration
 
-This node connects to your KNX/IP Gateway.
+This node connects to your KNX gateway, whether it is an IP interface/router or a TP/FT1.2 serial adapter.
 
 **General**
 
 |Property|Description|
 |--|--|
 | Name | Node name. |
-| IP/Hostname | ETH/KNX Router multicast address or Interface unicast IP address. If you have an KNX/IP interface, use the interface's IP address, for example 1982.168.1.22, otherwise, if you have a KNX/IP router, put the multicast address 224.0.23.12. You can also type an **Hostname** instead of an IP. |
+| Gateway | Type the KNX/IP address/hostname or a serial path (for example `/dev/ttyUSB0`). You can also use the dropdown to pick a discovered KNX/IP gateway or an FT1.2 serial port: when selecting a serial entry the protocol switches to Serial FT1.2 and the UART defaults are applied automatically. |
 
 **Configuration**
 
 |Property|Description|
 |--|--|
-| IP Port | The port. Default is 3671. |
-| IP Protocol | _Tunnel UDP_ is for KNX/IP interfaces, _Multicast UDP_ is for KNX/IP Routers. Leave **Auto** for auto detect. Default is "Auto". |
+| Gateway port | Default is 3671. Not used for Serial FT1.2 connections. |
+| Connection protocol | _Tunnel UDP_ is for KNX/IP interfaces, _Multicast UDP_ is for KNX/IP Routers, _Serial FT1.2_ is for TPUART/TP interfaces (selected automatically when you pick a serial port). Leave **Auto** to infer the right transport from the address. |
 | KNX Physical Address | The physical KNX address, example 1.1.200. Default is "15.15.22".|
 | Bind to local interface | The Node will use this local interface for communications. Leave "Auto" for automatic selection. If you have more than one lan connection, for example Ethernet and Wifi, it's strongly recommended to manually select the interface, otherwise not all UDP telegram will reach your computer, thus the Node may not work as expected. Default is "Auto". |
 | Automatically connect to KNX BUS at start | Auto connect to the bus at start. Default is "Yes". |
@@ -78,38 +78,52 @@ From version 1.4.1 you can import group addresses also at runtime, via msg, usin
 
 <a href="https://youtu.be/egRbR_KwP9I"><img src='https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/yt.png'></a>
 
-### Importing the ETS CSV group address list
+- **ETS CSV Group Addresses List import ** _**ATTENTION: THERE MUST NOT BE TABULATION CHARACTERS IN THE NAME OF THE GROUP ADDRESS ** _**If Group Address has no Datapoint ** > If a Group address has no Datapoint set in the ETS, you can select to stop and abort the entire import process, to skip the affected group address, or to add the the affected Group Address with a fake datapoint and continue import.
+**How to export the ETS -> CSV <- Group Addresses List**
 
-**Heads-up.** The name of a group address must not contain tab characters. If ETS does not define a datapoint for a group address you can decide to stop the import, skip that address, or continue by adding it with a temporary `1.001` datapoint.
+> On ETS, click the group addresses list, then right click, then select 'export group addresses'. On the export window, select these options: 
 
-**Export the CSV from ETS**
+>
+> **Output Format** : CSV 
 
-1. In ETS open the *Group Addresses* view, right-click inside the list and choose **Export Group Addresses**.
-2. In the export dialog use the following options:
-   - **Output format:** CSV
-   - **CSV format:** 1/1 Name/Address
-   - **Export with header line:** enabled
-   - **CSV separator:** Tabulator
-3. Export the file, then paste its contents into the **ETS group address list** field (or provide the path to the file).
+>
+> **CSV Format** : 1/1 Name/Address 
 
-**What to expect during import**
+>
+> **Export with header line** : checked 
 
-- The CSV must contain a datapoint for every group address.
-- The gateway parses the file and reports the outcome in the Node-RED debug sidebar:
-  - **ERROR** – a datapoint is missing, the import stops.
-  - **WARNING** – a datapoint subtype is missing, a default subtype is applied but you should review it (the subtype is the number after the dot, e.g. `5.001`).
-- Each field should be wrapped in quotes, for example:
+>
+> **CSV Separator** : Tabulator. 
 
-  
+>
+> Then paste the file content here. 
 
-```
+>
+> Note that the ETS CSV FILE must contain the Datapoints for each Group Address. 
 
-"Attuatori luci"	"0/-/-"	""	""	""	""	"Auto"
-  
+>
+> The node parses your ETS CSV FILE prior to use it and will tell you the results in the DEBUG TAB of Node-Red page. 
 
-```
+>
+> The result can be of two types: **ERROR ** and**WARNING** 
 
-### Importing the ETS ESF group address list
+>
+> **ERROR** occurs when a Datapoint is not specified for a Group Address. This is a critical error and stops the process of importing the ETS CSV FILE. 
 
-1. In ETS select the project, click the export icon (arrow pointing up) and choose the **ESF** format (not `.knxprod`).
-2. Copy the file contents or point the **ETS group address list** field to the exported ESF file.
+>
+> **WARNING** occurs when a Datapoint's subtype is not specified. In this case the node parser will append a default one, but warns you that you shoult watch and correct the Datapoint, by adding a subtype. A Subtype is the number staying at the right of the "." in a Datapoint (ex: 5.001).
+
+>
+> Note: the fields must be surrounded by **"** For example:
+
+> > "Attuatori luci"	"0/-/-"	""	""	""	""	"Auto"
+
+**How to export the ETS -> ESF <- Group Addresses List**
+
+> On ETS window, select your project, then click the export icon (the icon with the up arrow)
+
+>
+> Select to export the project in ESF format (not the default .knxprod)
+
+>
+> Then copy the file content and paste it into the gateway config "ETS group address list" field.

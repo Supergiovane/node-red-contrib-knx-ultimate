@@ -2,7 +2,7 @@
 layout: wiki
 title: "WatchDog-Configuration"
 lang: de
-permalink: /wiki/de-WatchDog-Configuration/
+permalink: /wiki/de-WatchDog-Configuration
 ---
 # WatchDog
 

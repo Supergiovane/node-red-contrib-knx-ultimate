@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-FAQ-Troubleshoot"
 lang: fr
-permalink: /wiki/fr-zh-CN-FAQ-Troubleshoot/
+permalink: /wiki/fr-zh-CN-FAQ-Troubleshoot
 ---
 ---
 #Faq & dépannage

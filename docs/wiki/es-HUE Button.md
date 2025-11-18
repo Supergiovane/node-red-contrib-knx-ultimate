@@ -2,7 +2,7 @@
 layout: wiki
 title: "HUE Button"
 lang: es
-permalink: /wiki/es-HUE%20Button/
+permalink: /wiki/es-HUE%20Button
 ---
 Los mapas del nodo del botón Hue Eventos del botón Hue a las direcciones de grupo KNX y exponen los mismos eventos en su salida de flujo a través de <code> Botton.button_report.event </code>. 
 

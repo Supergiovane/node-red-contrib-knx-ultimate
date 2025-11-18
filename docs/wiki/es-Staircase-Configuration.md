@@ -2,7 +2,7 @@
 layout: wiki
 title: "Staircase-Configuration"
 lang: es
-permalink: /wiki/es-Staircase-Configuration/
+permalink: /wiki/es-Staircase-Configuration
 ---
 ---
 # Temporizador de escalera

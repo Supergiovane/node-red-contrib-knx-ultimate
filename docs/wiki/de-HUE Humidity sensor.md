@@ -2,7 +2,7 @@
 layout: wiki
 title: "HUE Humidity sensor"
 lang: de
-permalink: /wiki/de-HUE%20Humidity%20sensor/
+permalink: /wiki/de-HUE%20Humidity%20sensor
 ---
 Dieser Knoten liest die relative Luftfeuchtigkeit (%) von einem HUE-Sensor und überträgt sie auf KNX.
 

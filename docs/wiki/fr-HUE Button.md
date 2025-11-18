@@ -2,7 +2,7 @@
 layout: wiki
 title: "HUE Button"
 lang: fr
-permalink: /wiki/fr-HUE%20Button/
+permalink: /wiki/fr-HUE%20Button
 ---
 Le nœud du bouton Hue mappe les événements du bouton de teinte aux adresses du groupe KNX et expose les mêmes événements sur sa sortie de flux via <code> Button.button_report.event </code>. 
 

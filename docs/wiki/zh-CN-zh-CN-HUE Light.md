@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-HUE Light"
 lang: zh-CN
-permalink: /wiki/zh-CN-zh-CN-HUE%20Light/
+permalink: /wiki/zh-CN-zh-CN-HUE%20Light
 ---
 ---
 

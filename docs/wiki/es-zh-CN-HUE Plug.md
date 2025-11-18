@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-HUE Plug"
 lang: es
-permalink: /wiki/es-zh-CN-HUE%20Plug/
+permalink: /wiki/es-zh-CN-HUE%20Plug
 ---
 ---
 # Enchufe / enchufe de tono

@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-SceneController-Configuration"
 lang: es
-permalink: /wiki/es-zh-CN-SceneController-Configuration/
+permalink: /wiki/es-zh-CN-SceneController-Configuration
 ---
 ---
 # Controlador de escena

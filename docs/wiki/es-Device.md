@@ -2,7 +2,7 @@
 layout: wiki
 title: "Device"
 lang: es
-permalink: /wiki/es-Device/
+permalink: /wiki/es-Device
 ---
 <
 
@@ -230,7 +230,7 @@ msg = {
 }
 ```
 
-** Muestra de carga útil** | Propiedad | Descripción |
+ ** Muestra de carga útil** | Propiedad | Descripción |
 
 |-|-|
 | Muestra | Esto le dará una pista sobre qué escribir en un nodo de función externa, si desea controlar el nodo a través de un nodo de función de nodo-rojo. |
@@ -554,8 +554,8 @@ return msg;
 
 ## Ver también
 
-- [Configuración de la puerta de enlace](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/gateway-configuration)
-- [Protección de referencia circular y protección contra inundaciones](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/protections)
+- [Configuración de la puerta de enlace](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Gateway-configuration)
+- [Protección de referencia circular y protección contra inundaciones](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Protections)
 - _samples_
   - [muestras](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-SamplesHome)
 
@@ -569,7 +569,7 @@ return msg;
         </tr>
         <tr>
             <TD> <img src = "https://raw.githubusercontent.com/supergiovane/node-red-contrib-knx-ultimate/master/img/greenring.png"> </img> </td>
-            <TD> Protección de referencia circular. <a href = "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/protections" target = "_ en blanco"> ver esta página. </a> </td>
+            <TD> Protección de referencia circular. <a href = "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Protections" target = "_ en blanco"> ver esta página. </a> </td>
         </tr>
         <tr>
         <TD> <img src = "https://raw.githubusercontent.com/supergiovane/node-red-contrib-knx-ultimate/master/img/bluedot.png"> </img> </td>
@@ -593,6 +593,6 @@ return msg;
         </tr>
         <tr>
             <TD> <img src = "https://raw.githubusercontent.com/supergiovane/node-red-contrib-knx-ultimate/master/img/redring.png"> </img> </td>
-            <td> Nodo discapacitado debido a una referencia circulare. <a href = "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/protections" target = "_ en blanco"> ver esta página. </a> </td>
+            <td> Nodo discapacitado debido a una referencia circulare. <a href = "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Protections" target = "_ en blanco"> ver esta página. </a> </td>
         </tr>
     </table>

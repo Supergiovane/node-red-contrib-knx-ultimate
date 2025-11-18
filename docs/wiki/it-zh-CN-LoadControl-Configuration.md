@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-LoadControl-Configuration"
 lang: it
-permalink: /wiki/it-zh-CN-LoadControl-Configuration/
+permalink: /wiki/it-zh-CN-LoadControl-Configuration
 ---
 ---
 # Nodo di controllo del carico KNX

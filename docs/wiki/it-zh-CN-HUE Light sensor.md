@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-HUE Light sensor"
 lang: it
-permalink: /wiki/it-zh-CN-HUE%20Light%20sensor/
+permalink: /wiki/it-zh-CN-HUE%20Light%20sensor
 ---
 ---
 <p> Questo nodo legge un evento Lux dal sensore di luce Hue e lo pubblica su KNX.</p>

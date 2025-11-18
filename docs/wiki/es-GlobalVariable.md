@@ -2,7 +2,7 @@
 layout: wiki
 title: "GlobalVariable"
 lang: es
-permalink: /wiki/es-GlobalVariable/
+permalink: /wiki/es-GlobalVariable
 ---
 <
 
@@ -123,4 +123,4 @@ global.set("KNXContextBanana_WRITE",GroupAddressesSend);
 
 # MUESTRA
 
-<a href = "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/sampleglobalcontextnode" target = "_ blank"> <i class="fa fa-info-circle"> </i> ver esta muestra </a>
+<a href = "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleGlobalContextNode" target = "_ blank"> <i class="fa fa-info-circle"> </i> ver esta muestra </a>

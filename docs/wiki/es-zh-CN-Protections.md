@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-Protections"
 lang: es
-permalink: /wiki/es-zh-CN-Protections/
+permalink: /wiki/es-zh-CN-Protections
 ---
 ---
 # Autoprotección del nodo

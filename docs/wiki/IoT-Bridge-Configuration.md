@@ -2,7 +2,7 @@
 layout: wiki
 title: "IoT-Bridge-Configuration"
 lang: en
-permalink: /wiki/IoT-Bridge-Configuration/
+permalink: /wiki/IoT-Bridge-Configuration
 ---
 ---
 # KNX ↔ IoT Bridge

@@ -2,7 +2,7 @@
 layout: wiki
 title: "HUE Scene"
 lang: en
-permalink: /wiki/HUE%20Scene/
+permalink: /wiki/HUE%20Scene
 ---
 The **Hue Scene** node exposes Hue scenes to KNX and can forward the raw Hue events to a Node-RED flow. The scene field supports autocomplete; use the refresh icon after adding scenes on the bridge so the list stays up to date.
 

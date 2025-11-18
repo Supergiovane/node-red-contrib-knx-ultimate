@@ -2,7 +2,7 @@
 layout: wiki
 title: "Protections"
 lang: de
-permalink: /wiki/de-Protections/
+permalink: /wiki/de-Protections
 ---
 ---
 

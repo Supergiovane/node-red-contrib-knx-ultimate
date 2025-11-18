@@ -2,7 +2,7 @@
 layout: wiki
 title: "Alerter-Configuration"
 lang: fr
-permalink: /wiki/fr-Alerter-Configuration/
+permalink: /wiki/fr-Alerter-Configuration
 ---
 # Configuration du nœud d'alerte
 
@@ -146,4 +146,4 @@ msg = {
 
 ## ÉCHANTILLON
 
-<a href = "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Samplealerter"> Cliquez ici pour l'exemple </a>
+<a href = "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleAlerter"> Cliquez ici pour l'exemple </a>

@@ -2,7 +2,7 @@
 layout: wiki
 title: "Logger-Sample"
 lang: it
-permalink: /wiki/it-Logger-Sample/
+permalink: /wiki/it-Logger-Sample
 ---
 ---
 # Campioni di logger

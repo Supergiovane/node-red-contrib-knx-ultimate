@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-HUE Light"
 lang: it
-permalink: /wiki/it-zh-CN-HUE%20Light/
+permalink: /wiki/it-zh-CN-HUE%20Light
 ---
 ---
 <p> Questo nodo ti consente di controllare le luci del tono di Philips e le luci raggruppate e anche inviare lo stato di questa luce al bus KNX.</p>

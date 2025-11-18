@@ -2,7 +2,7 @@
 layout: wiki
 title: "HUE Plug"
 lang: it
-permalink: /wiki/it-HUE%20Plug/
+permalink: /wiki/it-HUE%20Plug
 ---
 # Presa / Plug Hue
 

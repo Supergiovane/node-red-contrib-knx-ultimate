@@ -1,9 +1,7 @@
 ---
-layout: homepage
+layout: wiki
 title: "Home"
 lang: es
-permalink: /wiki/es-Home/
-translation_key: homepage
+permalink: /wiki/es-Home
 ---
-
 {% include homepage/es.html %}

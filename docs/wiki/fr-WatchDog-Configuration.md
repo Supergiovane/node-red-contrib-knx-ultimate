@@ -2,7 +2,7 @@
 layout: wiki
 title: "WatchDog-Configuration"
 lang: fr
-permalink: /wiki/fr-WatchDog-Configuration/
+permalink: /wiki/fr-WatchDog-Configuration
 ---
 vérifie la connexion à la passerelle ou à un périphérique KNX spécifique 
 
@@ -60,7 +60,7 @@ width = "90%">
 # Sortie du message du chien de garde
 
 Le nœud de surveillance ouvre un message chaque fois qu'il reçoit une erreur de l'un de votre nœud KNX-ultime dans vos flux, ou chaque fois que le chien de garde interne intercepte une erreur de communication de bus KNX. 
- ** En cas de problème de connexion auto à surveillance** <a href = "https://github.com/supergiovane/node-red-constrib-knx-ultimate/wiki/watchdog-configuration"
+ ** En cas de problème de connexion auto à surveillance** <a href = "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/WatchDog-Configuration"
 Target = "_ Blank"> Veuillez voir ici. </a>
 
 ```javascript
@@ -75,7 +75,7 @@ description: // (whatever error description)
 
 ```
 
-** Dans le cas de l'un de vos nœuds ultimes KNX est en difficulté** 
+ ** Dans le cas de l'un de vos nœuds ultimes KNX est en difficulté**
 
 ```javascript
 
@@ -96,7 +96,7 @@ GA: "0/1/1"
 
 ```
 
-** Dans le cas d'une nouvelle configuration de passerelle est appelée via setgatewayconfig** 
+ ** Dans le cas d'une nouvelle configuration de passerelle est appelée via setgatewayconfig**
 
 ```javascript
 
@@ -112,7 +112,7 @@ completeError:""
 
 ```
 
-** Connexion / déconnexion forcée** 
+ ** Connexion / déconnexion forcée**
 
 ```javascript
 
@@ -138,6 +138,7 @@ Le nœud de surveillance accepte l'entrée de Flow et transmet la sortie de Flow
 
 Pour démarrer et arrêter le chien de garde, vous pouvez passer cela comme un message au nœud 
  ** Démarrer le chien de garde** 
+
 ```javascript
 
 // Start the WatchDog
@@ -147,6 +148,7 @@ return msg;
 ```
 
 ** Arrêtez de surveillance** 
+
 ```javascript
 
 // Start the WatchDog
@@ -163,6 +165,7 @@ Le nœud de configuration modifiera les paramètres et se reconnectera avec les 
 
 Soyez prudent, si vous redémarrez le Node-Red, les nouveaux paramètres sont restés aux paramètres spécifiés dans le nœud de configuration. 
  ** Tous les paramètres sont facultatifs** 
+
 ```javascript
 
 // IP: IP of your KNX/IP Router or Interface
@@ -195,6 +198,7 @@ return msg;
 ```
 
 ** Force la déconnexion de la passerelle et désactiver les tentatives de reconnexion automatique** 
+
 ```javascript
 
 // Force the gateway's disconnection from the BUS and stop the reconnection's attempts.
@@ -204,6 +208,7 @@ return msg;
 ```
 
 ** Force la connexion de Gateway et activer les tentatives de reconnexion automatique** 
+
 ```javascript
 
 // Force the gateway's connection to the BUS and activate the reconnection's attempts.

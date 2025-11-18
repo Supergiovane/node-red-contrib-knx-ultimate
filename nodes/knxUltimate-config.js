@@ -279,6 +279,50 @@ module.exports = (RED) => {
     node.timerKNXUltimateCheckState = null // 08/10/2021 Check the state. If not connected and autoreconnect is true, retrig the connetion attempt.
     node.knxConnectionProperties = null // Retains the connection properties
     node.allowLauch_initKNXConnection = true // See the node.timerKNXUltimateCheckState function
+    // Serial FT1.2 configuration
+    const sanitizeSerialPath = (value) => {
+      if (typeof value !== 'string') return ''
+      const trimmed = value.trim()
+      if (trimmed === '' || trimmed === 'undefined') return ''
+      return trimmed
+    }
+    const parsePositiveNumber = (value, fallback) => {
+      const n = Number(value)
+      return Number.isFinite(n) && n > 0 ? n : fallback
+    }
+    const parseDataBits = (value) => {
+      const allowed = [5, 6, 7, 8]
+      const candidate = parsePositiveNumber(value, 8)
+      return allowed.includes(candidate) ? candidate : 8
+    }
+    const parseStopBits = (value) => {
+      const allowed = [1, 2]
+      const candidate = parsePositiveNumber(value, 1)
+      return allowed.includes(candidate) ? candidate : 1
+    }
+    const parseParity = (value) => {
+      const allowed = ['none', 'even', 'odd']
+      const val = typeof value === 'string' ? value.trim().toLowerCase() : ''
+      return allowed.includes(val) ? val : 'even'
+    }
+    const parseBoolean = (value, fallback) => {
+      if (typeof value === 'boolean') return value
+      if (typeof value === 'string') {
+        if (value.toLowerCase() === 'true') return true
+        if (value.toLowerCase() === 'false') return false
+      }
+      return fallback
+    }
+    const serialPathFromConfig = sanitizeSerialPath(config.serialPortPath)
+    const legacySerialPath = config.hostProtocol === 'SerialFT12' ? sanitizeSerialPath(config.host) : ''
+    node.serialPortPath = serialPathFromConfig || legacySerialPath || '/dev/ttyAMA0'
+    node.serialBaudRate = parsePositiveNumber(config.serialBaudRate, 19200)
+    node.serialDataBits = parseDataBits(config.serialDataBits)
+    node.serialStopBits = parseStopBits(config.serialStopBits)
+    node.serialParity = parseParity(config.serialParity)
+    node.serialRtscts = parseBoolean(config.serialRtscts, false)
+    node.serialDtr = parseBoolean(config.serialDtr, true)
+    node.serialTimeout = parsePositiveNumber(config.serialTimeout, 1200)
     node.hostProtocol = config.hostProtocol === undefined ? 'Auto' : config.hostProtocol // 20/03/2022 Default
     node.knxConnection = null // 20/03/2022 Default
     node.delaybetweentelegrams = (config.delaybetweentelegrams === undefined || config.delaybetweentelegrams === null || config.delaybetweentelegrams === '') ? 25 : Number(config.delaybetweentelegrams)
@@ -304,6 +348,9 @@ module.exports = (RED) => {
         node.hostProtocol = isSecure ? 'TunnelTCP' : 'TunnelUDP'
       }
       node.sysLogger?.info('IP Protocol AUTO SET to ' + node.hostProtocol + ', based on IP ' + node.host)
+    }
+    if (node.hostProtocol === 'SerialFT12') {
+      node.host = node.serialPortPath || node.host || '/dev/ttyAMA0'
     }
 
     node.setAllClientsStatus = (_status, _color, _text) => {
@@ -828,6 +875,9 @@ module.exports = (RED) => {
         node.KNXEthInterface +
         (typeof _CSV !== 'undefined' && _CSV !== '' ? '. A new group address CSV has been imported.' : '')
       )
+      if (node.hostProtocol === 'SerialFT12') {
+        node.serialPortPath = node.host
+      }
 
       try {
         await node.Disconnect()
@@ -886,77 +936,99 @@ module.exports = (RED) => {
         KNXQueueSendIntervalMilliseconds: Number(node.delaybetweentelegrams),
         connectionKeepAliveTimeout: 30 // Every 30 seconds, send a connectionstatus_request
       }
-      // 11/07/2022 Test if the IP is a valid one or is a DNS Name
-      switch (net.isIP(node.host)) {
-        case 0:
-          // Invalid IP, resolve the DNS name.
-          const dns = require('dns-sync')
-          let resolvedIP = null
-          try {
-            resolvedIP = dns.resolve(node.host)
-          } catch (error) {
-            throw new Error('net.isIP: INVALID IP OR DNS NAME. Error checking the Gateway Host in Config node. ' + error.message)
-          }
-          if (resolvedIP === null || net.isIP(resolvedIP) === 0) {
-            // Error in resolving DNS Name
-            node.sysLogger?.error(
-              'net.isIP: INVALID IP OR DNS NAME. Check the Gateway Host in Config node ' + node.name + ' ' + node.host
-            )
-            throw new Error('net.isIP: INVALID IP OR DNS NAME. Check the Gateway Host in Config node.')
-          }
-          node.sysLogger?.info(
-            'net.isIP: The gateway is not specified as IP. The DNS resolver pointed me to the IP ' +
-            node.host +
-            ', in Config node ' +
-            node.name
-          )
-          node.knxConnectionProperties.ipAddr = resolvedIP
-        case 4:
-          // It's an IPv4
-          break
-        case 6:
-          // It's an IPv6
-          break
-        default:
-          break
-      }
-
-      if (node.KNXEthInterface !== 'Auto') {
-        let sIfaceName = ''
-        if (node.KNXEthInterface === 'Manual') {
-          sIfaceName = node.KNXEthInterfaceManuallyInput
-          node.sysLogger?.info('Bind KNX Bus to interface : ' + sIfaceName + " (Interface's name entered by hand). Node " + node.name)
-        } else {
-          sIfaceName = node.KNXEthInterface
-          node.sysLogger?.info(
-            'Bind KNX Bus to interface : ' + sIfaceName + " (Interface's name selected from dropdown list). Node " + node.name
-          )
+      const isSerialProtocol = node.hostProtocol === 'SerialFT12'
+      if (isSerialProtocol) {
+        const serialPath = node.serialPortPath || node.host || '/dev/ttyAMA0'
+        node.knxConnectionProperties.ipAddr = serialPath
+        node.knxConnectionProperties.serialInterface = {
+          path: serialPath,
+          baudRate: node.serialBaudRate,
+          dataBits: node.serialDataBits,
+          stopBits: node.serialStopBits,
+          parity: node.serialParity,
+          rtscts: !!node.serialRtscts,
+          dtr: !!node.serialDtr,
+          timeoutMs: node.serialTimeout
         }
-        node.knxConnectionProperties.interface = sIfaceName
-      } else {
-        // Remove any manual binding and try to auto-select based on subnet
         try {
           delete node.knxConnectionProperties.interface
         } catch (error) { }
-        const targetIP = node.knxConnectionProperties?.ipAddr || node.host
-        const autoInterface = typeof targetIP === 'string' ? findAutoEthernetInterface(targetIP) : null
-        if (autoInterface && autoInterface.name) {
-          node.knxConnectionProperties.interface = autoInterface.name
-          const maskInfo = autoInterface.netmask
-            ? autoInterface.netmask + (autoInterface.maskBits ? ' (' + autoInterface.maskBits + ')' : '')
-            : (autoInterface.maskBits ? String(autoInterface.maskBits) : 'mask unknown')
-          node.sysLogger?.info(
-            'Bind KNX Bus to interface (Auto) -> ' +
-            autoInterface.name +
-            ' (' + autoInterface.address + ' ' + maskInfo + ')' +
-            '. Node ' + node.name
-          )
+      } else {
+        try {
+          delete node.knxConnectionProperties.serialInterface
+        } catch (error) { }
+        // 11/07/2022 Test if the IP is a valid one or is a DNS Name
+        switch (net.isIP(node.host)) {
+          case 0:
+            // Invalid IP, resolve the DNS name.
+            const dns = require('dns-sync')
+            let resolvedIP = null
+            try {
+              resolvedIP = dns.resolve(node.host)
+            } catch (error) {
+              throw new Error('net.isIP: INVALID IP OR DNS NAME. Error checking the Gateway Host in Config node. ' + error.message)
+            }
+            if (resolvedIP === null || net.isIP(resolvedIP) === 0) {
+              // Error in resolving DNS Name
+              node.sysLogger?.error(
+                'net.isIP: INVALID IP OR DNS NAME. Check the Gateway Host in Config node ' + node.name + ' ' + node.host
+              )
+              throw new Error('net.isIP: INVALID IP OR DNS NAME. Check the Gateway Host in Config node.')
+            }
+            node.sysLogger?.info(
+              'net.isIP: The gateway is not specified as IP. The DNS resolver pointed me to the IP ' +
+              node.host +
+              ', in Config node ' +
+              node.name
+            )
+            node.knxConnectionProperties.ipAddr = resolvedIP
+          case 4:
+            // It's an IPv4
+            break
+          case 6:
+            // It's an IPv6
+            break
+          default:
+            break
+        }
+
+        if (node.KNXEthInterface !== 'Auto') {
+          let sIfaceName = ''
+          if (node.KNXEthInterface === 'Manual') {
+            sIfaceName = node.KNXEthInterfaceManuallyInput
+            node.sysLogger?.info('Bind KNX Bus to interface : ' + sIfaceName + " (Interface's name entered by hand). Node " + node.name)
+          } else {
+            sIfaceName = node.KNXEthInterface
+            node.sysLogger?.info(
+              'Bind KNX Bus to interface : ' + sIfaceName + " (Interface's name selected from dropdown list). Node " + node.name
+            )
+          }
+          node.knxConnectionProperties.interface = sIfaceName
         } else {
-          node.sysLogger?.info(
-            'Bind KNX Bus to interface (Auto). Node ' +
-            node.name +
-            (targetIP ? ' - no matching local interface found for ' + targetIP + '.' : '.')
-          )
+          // Remove any manual binding and try to auto-select based on subnet
+          try {
+            delete node.knxConnectionProperties.interface
+          } catch (error) { }
+          const targetIP = node.knxConnectionProperties?.ipAddr || node.host
+          const autoInterface = typeof targetIP === 'string' ? findAutoEthernetInterface(targetIP) : null
+          if (autoInterface && autoInterface.name) {
+            node.knxConnectionProperties.interface = autoInterface.name
+            const maskInfo = autoInterface.netmask
+              ? autoInterface.netmask + (autoInterface.maskBits ? ' (' + autoInterface.maskBits + ')' : '')
+              : (autoInterface.maskBits ? String(autoInterface.maskBits) : 'mask unknown')
+            node.sysLogger?.info(
+              'Bind KNX Bus to interface (Auto) -> ' +
+              autoInterface.name +
+              ' (' + autoInterface.address + ' ' + maskInfo + ')' +
+              '. Node ' + node.name
+            )
+          } else {
+            node.sysLogger?.info(
+              'Bind KNX Bus to interface (Auto). Node ' +
+              node.name +
+              (targetIP ? ' - no matching local interface found for ' + targetIP + '.' : '.')
+            )
+          }
         }
       }
     }

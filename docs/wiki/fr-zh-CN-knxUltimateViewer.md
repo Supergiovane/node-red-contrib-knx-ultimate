@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-knxUltimateViewer"
 lang: fr
-permalink: /wiki/fr-zh-CN-knxUltimateViewer/
+permalink: /wiki/fr-zh-CN-knxUltimateViewer
 ---
 ---
 <p> Ce nœud fonctionne avec le nœud <b> ui_template </b> du tableau de bord rouge-rouge.<br/>

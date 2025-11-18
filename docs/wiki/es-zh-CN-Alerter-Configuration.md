@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-Alerter-Configuration"
 lang: es
-permalink: /wiki/es-zh-CN-Alerter-Configuration/
+permalink: /wiki/es-zh-CN-Alerter-Configuration
 ---
 ---
 <

@@ -2,7 +2,7 @@
 layout: wiki
 title: "HUE Motion"
 lang: es
-permalink: /wiki/es-HUE%20Motion/
+permalink: /wiki/es-HUE%20Motion
 ---
 Este nodo escucha un sensor de movimiento de tono y refleja los eventos para KNX y/o su flujo de nodo-rojo. 
 

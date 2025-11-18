@@ -2,7 +2,7 @@
 layout: wiki
 title: "HUE Zigbee connectivity"
 lang: de
-permalink: /wiki/de-HUE%20Zigbee%20connectivity/
+permalink: /wiki/de-HUE%20Zigbee%20connectivity
 ---
 Dieser Node liest den Zigbee‑Konnektivitätsstatus eines HUE‑Geräts und spiegelt ihn nach KNX.
 

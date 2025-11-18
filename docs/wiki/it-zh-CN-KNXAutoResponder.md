@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-KNXAutoResponder"
 lang: it
-permalink: /wiki/it-zh-CN-KNXAutoResponder/
+permalink: /wiki/it-zh-CN-KNXAutoResponder
 ---
 ---
 <p> Questo nodo risponderà alla richiesta di lettura del bus KNX.

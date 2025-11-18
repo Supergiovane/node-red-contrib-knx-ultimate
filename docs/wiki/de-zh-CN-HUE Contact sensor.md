@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-HUE Contact sensor"
 lang: de
-permalink: /wiki/de-zh-CN-HUE%20Contact%20sensor/
+permalink: /wiki/de-zh-CN-HUE%20Contact%20sensor
 ---
 ---
 

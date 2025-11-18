@@ -2,7 +2,7 @@
 layout: wiki
 title: "Protections"
 lang: fr
-permalink: /wiki/fr-Protections/
+permalink: /wiki/fr-Protections
 ---
 ---
 # Node auto-protection

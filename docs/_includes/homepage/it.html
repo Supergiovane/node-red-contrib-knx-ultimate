@@ -34,7 +34,7 @@
 <div align="center" style="margin:36px 0;">
   <div style="max-width:960px;width:100%;display:flex;flex-wrap:wrap;gap:22px;justify-content:center;">
     <div
-      style="flex:1 1 220px;min-width:220px;padding:22px 24px;border-radius:20px;background:linear-gradient(140deg,#072b36 0%,#0c4b61 50%,#0c5f7b 100%);box-shadow:0 16px 32px rgba(7,43,54,0.32);color:#f2fbff;display:flex;flex-direction:column;">
+      style="flex:1 1 220px;min-width:220px;padding:22px 24px;border-radius:20px;background:#ffffff;box-shadow:0 16px 32px rgba(7,43,54,0.12);color:#123042;display:flex;flex-direction:column;">
       <div
         style="font-size:0.8rem;letter-spacing:0.18em;font-weight:700;text-transform:uppercase;color:rgba(255,255,255,0.68);margin-bottom:8px;">
         KNX Core</div>
@@ -62,21 +62,36 @@
       </div>
     </div>
     <div
-      style="flex:1 1 220px;min-width:220px;padding:22px 24px;border-radius:20px;background:linear-gradient(135deg,#162236 0%,#20375c 48%,#274c83 100%);box-shadow:0 16px 32px rgba(22,34,54,0.34);color:#eef4ff;display:flex;flex-direction:column;">
+      style="flex:1 1 220px;min-width:220px;padding:22px 24px;border-radius:20px;background:#ffffff;box-shadow:0 16px 32px rgba(22,34,54,0.12);color:#123042;display:flex;flex-direction:column;">
       <div
         style="font-size:0.8rem;letter-spacing:0.18em;font-weight:700;text-transform:uppercase;color:rgba(255,255,255,0.62);margin-bottom:8px;">
         Trasporto sicuro</div>
       <div style="font-size:1.2rem;font-weight:700;margin-bottom:10px;">KNX IP Secure / Data Secure</div>
       <p style="flex:1;margin:0 0 20px 0;line-height:1.55;">Handshake completo, certificati e gestione chiavi di
         sessione per tunnelling e payload protetti di gruppo.</p>
+    <div
+      style="display:inline-flex;align-items:center;gap:10px;padding:8px 14px;border-radius:999px;background:rgba(255,255,255,0.18);font-weight:600;">
+      <span style="font-size:1.1rem;">🔒</span>
+      <span>Sicurezza integrata</span>
+    </div>
+  </div>
+    <div
+      style="flex:1 1 220px;min-width:220px;padding:22px 24px;border-radius:20px;background:#ffffff;box-shadow:0 16px 32px rgba(18,12,32,0.12);color:#123042;display:flex;flex-direction:column;">
+      <div
+        style="font-size:0.8rem;letter-spacing:0.18em;font-weight:700;text-transform:uppercase;color:rgba(255,255,255,0.62);margin-bottom:8px;">
+        Dispositivi TP</div>
+      <div style="font-size:1.2rem;font-weight:700;margin-bottom:10px;">Seriale FT1.2 (TPUART)</div>
+      <p style="flex:1;margin:0 0 20px 0;line-height:1.55;">Controlla direttamente cappelli TPUART, Weinzierl 307x e altre
+        interfacce TP/FT1.2 tramite <code>/dev/tty*</code>. Il campo IP/Hostname elenca le porte seriali e, quando ne
+        scegli una, imposta automaticamente i parametri UART consigliati.</p>
       <div
         style="display:inline-flex;align-items:center;gap:10px;padding:8px 14px;border-radius:999px;background:rgba(255,255,255,0.18);font-weight:600;">
-        <span style="font-size:1.1rem;">🔒</span>
-        <span>Sicurezza integrata</span>
+        <span style="font-size:1.1rem;">🔌</span>
+        <span>Pronto all'uso</span>
       </div>
     </div>
     <div
-      style="flex:1 1 220px;min-width:220px;padding:22px 24px;border-radius:20px;background:#fff7e6;box-shadow:0 16px 32px rgba(206,145,37,0.22);color:#392400;display:flex;flex-direction:column;">
+      style="flex:1 1 220px;min-width:220px;padding:22px 24px;border-radius:20px;background:#ffffff;box-shadow:0 16px 32px rgba(206,145,37,0.12);color:#123042;display:flex;flex-direction:column;">
       <div
         style="font-size:0.8rem;letter-spacing:0.18em;font-weight:700;text-transform:uppercase;color:#e28407;margin-bottom:8px;">
         Integrazione luci</div>
@@ -119,8 +134,9 @@
         style="font-size:0.55rem;letter-spacing:0.18em;text-transform:uppercase;color:rgba(242,255,246,0.65);font-weight:700;margin-bottom:4px;">
         Configurazione</div>
       <div style="font-size:1rem;font-weight:700;margin-bottom:6px;">Knx Config</div>
-      <p style="margin:0 0 6px 0;font-size:0.72rem;line-height:1.35;color:rgba(242,255,246,0.92);">Gestisce gateway,
-        credenziali e sicurezza condivise da tutti i nodi runtime.</p>
+      <p style="margin:0 0 6px 0;font-size:0.72rem;line-height:1.35;color:rgba(242,255,246,0.92);">Gestisce i dati del
+        gateway KNX (interfacce/router IP oppure porte seriali FT1.2) condivisi da tutti i nodi runtime, con elenco
+        automatico di dispositivi IP e porte seriali.</p>
       <span style="color:#d7ffe8;font-weight:600;font-size:0.7rem;">Configurazione condivisa</span>
     </div>
     <div

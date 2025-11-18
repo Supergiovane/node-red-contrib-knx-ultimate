@@ -2,7 +2,7 @@
 layout: wiki
 title: "Staircase-Configuration"
 lang: de
-permalink: /wiki/de-Staircase-Configuration/
+permalink: /wiki/de-Staircase-Configuration
 ---
 # Treppenlicht-Konfiguration (Übersetzung folgt)
 

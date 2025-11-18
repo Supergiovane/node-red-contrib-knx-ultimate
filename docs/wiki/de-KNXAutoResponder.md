@@ -2,7 +2,7 @@
 layout: wiki
 title: "KNXAutoResponder"
 lang: de
-permalink: /wiki/de-KNXAutoResponder/
+permalink: /wiki/de-KNXAutoResponder
 ---
 Dieser Knoten antwortet auf Leseanfragen aus dem KNX -Bus.
 

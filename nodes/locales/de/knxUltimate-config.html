@@ -8,7 +8,7 @@ Dieser Node stellt die Verbindung zu deinem KNX/IP‑Gateway her.
 |Eigenschaft|Beschreibung|
 |--|--|
 | Name | Name des Nodes. |
-| IP/Hostname | Multicast‑Adresse des ETH/KNX‑Routers oder Unicast‑IP einer KNX/IP‑Schnittstelle. Für Interfaces nutze die Geräte‑IP (z. B. 192.168.1.22); für Router `224.0.23.12`. Hostname ist ebenfalls möglich. |
+| Gateway | Gib die KNX/IP‑Adresse bzw. den Hostnamen oder einen seriellen Pfad (z.&nbsp;B. `/dev/ttyUSB0`) ein. Im Dropdown erscheinen automatisch erkannte KNX/IP‑Gateways sowie FT1.2‑Seriellports; beim Auswählen eines Serials wird das Protokoll auf Serial FT1.2 gesetzt und die UART‑Defaults werden übernommen. |
 
 <br/>
 
@@ -16,8 +16,8 @@ Dieser Node stellt die Verbindung zu deinem KNX/IP‑Gateway her.
 
 |Eigenschaft|Beschreibung|
 |--|--|
-| IP Port | Verbindungsport. Standard: `3671`. |
-| IP Protocol | `Tunnel UDP` für KNX/IP‑Interfaces, `Multicast UDP` für KNX/IP‑Router. **Auto** erkennt automatisch (Standard). |
+| Gateway-Port | Verbindungsport. Standard: `3671`. Für Serial FT1.2 nicht verwendet. |
+| Verbindungsprotokoll | `Tunnel UDP` für KNX/IP‑Interfaces, `Multicast UDP` für KNX/IP‑Router, `Serial FT1.2` für TP/FT1.2‑Adapter (wird automatisch gewählt, wenn du einen Serialport auswählst). **Auto** versucht, das passende Protokoll zu ermitteln. |
 | KNX Physical Address | Physikalische KNX‑Adresse, z. B. `1.1.200`. Standard: `15.15.22`. |
 | Bind to local interface | Lokales Netzwerk‑Interface für die Kommunikation. "Auto" wählt automatisch. Bei mehreren Interfaces (Ethernet/WLAN) ist eine manuelle Auswahl empfehlenswert, damit keine UDP‑Telegramme verloren gehen. |
 | Automatically connect to KNX BUS at start | Automatisch beim Start verbinden. Standard: "Yes". |

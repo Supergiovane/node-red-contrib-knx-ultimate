@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-HUE Button"
 lang: es
-permalink: /wiki/es-zh-CN-HUE%20Button/
+permalink: /wiki/es-zh-CN-HUE%20Button
 ---
 ---
 El nodo del botón <P> Hue mapea el evento del botón Hue para KNX usando el botón <código>.button_report.event </code> y proporciona el mismo evento en la salida del proceso.</p>

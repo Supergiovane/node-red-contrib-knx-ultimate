@@ -2,7 +2,7 @@
 layout: wiki
 title: "Logger-Sample"
 lang: en
-permalink: /wiki/Logger-Sample/
+permalink: /wiki/Logger-Sample
 ---
 ---
 # LOGGER SAMPLES

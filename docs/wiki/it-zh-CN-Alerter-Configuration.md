@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-Alerter-Configuration"
 lang: it
-permalink: /wiki/it-zh-CN-Alerter-Configuration/
+permalink: /wiki/it-zh-CN-Alerter-Configuration
 ---
 ---
 # Configurazione del nodo Alerter

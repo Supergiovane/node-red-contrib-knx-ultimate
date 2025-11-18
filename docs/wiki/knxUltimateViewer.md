@@ -2,7 +2,7 @@
 layout: wiki
 title: "knxUltimateViewer"
 lang: en
-permalink: /wiki/knxUltimateViewer/
+permalink: /wiki/knxUltimateViewer
 ---
 This node works in conjunction with the Node-Red dashboard UI Template node. 
 

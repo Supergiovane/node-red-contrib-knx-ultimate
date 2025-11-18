@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-HUE Motion"
 lang: es
-permalink: /wiki/es-zh-CN-HUE%20Motion/
+permalink: /wiki/es-zh-CN-HUE%20Motion
 ---
 ---
 <p> Este nodo se suscribe a los eventos del sensor de movimiento del tono y los sincroniza con el proceso KNX y del nodo-rojo.</p>

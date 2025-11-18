@@ -2,7 +2,7 @@
 layout: wiki
 title: "HUE Tapdial"
 lang: es
-permalink: /wiki/es-HUE%20Tapdial/
+permalink: /wiki/es-HUE%20Tapdial
 ---
 El nodo **TAP TAP** mapea el servicio rotativo del dial de toque de tono a KNX y reenvía los eventos de tono bruto a su flujo.Use el icono de actualización junto al campo del dispositivo después de combinar un nuevo dial en el puente.
 

@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-HUE Motion"
 lang: fr
-permalink: /wiki/fr-zh-CN-HUE%20Motion/
+permalink: /wiki/fr-zh-CN-HUE%20Motion
 ---
 ---
 <p> Ce nœud s'abonne aux événements du capteur de mouvement de la teinte et les synchronise avec le processus KNX et Node-Red.</p>

@@ -2,7 +2,7 @@
 layout: wiki
 title: "Alerter-Configuration"
 lang: de
-permalink: /wiki/de-Alerter-Configuration/
+permalink: /wiki/de-Alerter-Configuration
 ---
 # Alerter - Node-Konfiguration
 

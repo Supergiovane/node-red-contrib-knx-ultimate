@@ -2,7 +2,7 @@
 layout: wiki
 title: "HUE Camera motion"
 lang: de
-permalink: /wiki/de-HUE%20Camera%20motion/
+permalink: /wiki/de-HUE%20Camera%20motion
 ---
 Der Hue Camera Motion Node lauscht auf Bewegungsereignisse der Philips-Hue-Kameras und spiegelt den erkannt/nicht-erkannt-Status in KNX.
 

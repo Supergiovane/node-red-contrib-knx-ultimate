@@ -2,7 +2,7 @@
 layout: wiki
 title: "IoT-Bridge-Configuration"
 lang: de
-permalink: /wiki/de-IoT-Bridge-Configuration/
+permalink: /wiki/de-IoT-Bridge-Configuration
 ---
 ---
 

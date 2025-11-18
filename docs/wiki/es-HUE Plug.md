@@ -2,7 +2,7 @@
 layout: wiki
 title: "HUE Plug"
 lang: es
-permalink: /wiki/es-HUE%20Plug/
+permalink: /wiki/es-HUE%20Plug
 ---
 # Enchufe / salida de tono
 

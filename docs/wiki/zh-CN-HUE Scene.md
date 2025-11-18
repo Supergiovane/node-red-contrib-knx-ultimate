@@ -2,7 +2,7 @@
 layout: wiki
 title: "HUE Scene"
 lang: zh-CN
-permalink: /wiki/zh-CN-HUE%20Scene/
+permalink: /wiki/zh-CN-HUE%20Scene
 ---
 **Hue Scene** 节点将 Hue 场景发布到 KNX，并且可以把 Hue 的原始事件发送到 Node-RED 流程。场景字段支持自动补全；在网桥中新增场景后，请点击刷新图标更新列表。
 

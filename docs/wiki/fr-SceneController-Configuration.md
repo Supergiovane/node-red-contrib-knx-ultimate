@@ -2,7 +2,7 @@
 layout: wiki
 title: "SceneController-Configuration"
 lang: fr
-permalink: /wiki/fr-SceneController-Configuration/
+permalink: /wiki/fr-SceneController-Configuration
 ---
 Le nœud de contrôle de la scène, se comporte exactement comme un périphérique de contrôleur de scène.Il est capable d'économiser et de rappeler une scène. 
 

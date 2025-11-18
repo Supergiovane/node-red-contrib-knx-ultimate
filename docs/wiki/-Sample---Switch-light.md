@@ -2,7 +2,7 @@
 layout: wiki
 title: "-Sample---Switch-light"
 lang: en
-permalink: /wiki/-Sample---Switch-light/
+permalink: /wiki/-Sample---Switch-light
 ---
 # Samples
 

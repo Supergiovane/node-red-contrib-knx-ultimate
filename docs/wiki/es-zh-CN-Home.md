@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-Home"
 lang: es
-permalink: /wiki/es-zh-CN-Home/
+permalink: /wiki/es-zh-CN-Home
 ---
 ---
 <h1> <p align = 'Center'> KNX Ultimate - Chino simplificado </p> </h1>

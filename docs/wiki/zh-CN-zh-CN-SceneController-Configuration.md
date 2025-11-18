@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-SceneController-Configuration"
 lang: zh-CN
-permalink: /wiki/zh-CN-zh-CN-SceneController-Configuration/
+permalink: /wiki/zh-CN-zh-CN-SceneController-Configuration
 ---
 ---
 

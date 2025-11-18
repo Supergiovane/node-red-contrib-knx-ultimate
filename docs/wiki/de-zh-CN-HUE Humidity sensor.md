@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-HUE Humidity sensor"
 lang: de
-permalink: /wiki/de-zh-CN-HUE%20Humidity%20sensor/
+permalink: /wiki/de-zh-CN-HUE%20Humidity%20sensor
 ---
 ---
 

@@ -1,14 +1,14 @@
 <script type="text/markdown" data-help-name="knxUltimate-config">
 # KNX Gateway Configuration
 
-<p>This node connects to your KNX/IP Gateway.</p>
+<p>This node connects to your KNX gateway, whether it is an IP interface/router or a TP/FT1.2 serial adapter.</p>
 
 **General**
 
 |Property|Description|
 |--|--|
 | Name | Node name. |
-| IP/Hostname | ETH/KNX Router multicast address or Interface unicast IP address. If you have an KNX/IP interface, use the interface's IP address, for example 1982.168.1.22, otherwise, if you have a KNX/IP router, put the multicast address 224.0.23.12. You can also type an **Hostname** instead of an IP. |
+| Gateway | Type the KNX/IP address/hostname or a serial path (for example `/dev/ttyUSB0`). You can also use the dropdown to pick a discovered KNX/IP gateway or an FT1.2 serial port: when selecting a serial entry the protocol switches to Serial FT1.2 and the UART defaults are applied automatically. |
 
 <br/>
 
@@ -16,8 +16,8 @@
 
 |Property|Description|
 |--|--|
-| IP Port | The port. Default is 3671. |
-| IP Protocol | _Tunnel UDP_ is for KNX/IP interfaces, _Multicast UDP_ is for KNX/IP Routers. Leave **Auto** for auto detect. Default is "Auto". |
+| Gateway port | Default is 3671. Not used for Serial FT1.2 connections. |
+| Connection protocol | _Tunnel UDP_ is for KNX/IP interfaces, _Multicast UDP_ is for KNX/IP Routers, _Serial FT1.2_ is for TPUART/TP interfaces (selected automatically when you pick a serial port). Leave **Auto** to infer the right transport from the address. |
 | KNX Physical Address | The physical KNX address, example 1.1.200. Default is "15.15.22".|
 | Bind to local interface | The Node will use this local interface for communications. Leave "Auto" for automatic selection. If you have more than one lan connection, for example Ethernet and Wifi, it's strongly recommended to manually select the interface, otherwise not all UDP telegram will reach your computer, thus the Node may not work as expected. Default is "Auto". |
 | Automatically connect to KNX BUS at start | Auto connect to the bus at start. Default is "Yes". |

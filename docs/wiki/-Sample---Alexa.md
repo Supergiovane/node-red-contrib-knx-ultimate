@@ -2,7 +2,7 @@
 layout: wiki
 title: "-Sample---Alexa"
 lang: en
-permalink: /wiki/-Sample---Alexa/
+permalink: /wiki/-Sample---Alexa
 ---
 # Alexa
 

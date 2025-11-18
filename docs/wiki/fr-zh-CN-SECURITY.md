@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-SECURITY"
 lang: fr
-permalink: /wiki/fr-zh-CN-SECURITY/
+permalink: /wiki/fr-zh-CN-SECURITY
 ---
 ---
 # Politique de sécurité

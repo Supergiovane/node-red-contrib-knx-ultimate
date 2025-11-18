@@ -2,7 +2,7 @@
 layout: wiki
 title: "Protections"
 lang: it
-permalink: /wiki/it-Protections/
+permalink: /wiki/it-Protections
 ---
 ---
 # Autoconteggero nodo

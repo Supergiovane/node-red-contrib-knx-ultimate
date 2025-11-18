@@ -2,7 +2,7 @@
 layout: wiki
 title: "SceneController-Configuration"
 lang: zh-CN
-permalink: /wiki/zh-CN-SceneController-Configuration/
+permalink: /wiki/zh-CN-SceneController-Configuration
 ---
 # Scene Controller（场景控制器）
 

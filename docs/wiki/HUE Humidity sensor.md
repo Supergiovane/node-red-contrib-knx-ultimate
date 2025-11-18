@@ -2,7 +2,7 @@
 layout: wiki
 title: "HUE Humidity sensor"
 lang: en
-permalink: /wiki/HUE%20Humidity%20sensor/
+permalink: /wiki/HUE%20Humidity%20sensor
 ---
 This node reads relative humidity (%) from a HUE humidity sensor and maps it to KNX.
 

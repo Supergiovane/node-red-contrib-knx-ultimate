@@ -2,7 +2,7 @@
 layout: wiki
 title: "HUE Light"
 lang: it
-permalink: /wiki/it-HUE%20Light/
+permalink: /wiki/it-HUE%20Light
 ---
 Questo nodo controlla le luci HUE (singole o raggruppate) e mappa comandi/stati su KNX.
 

@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-HUE Contact sensor"
 lang: fr
-permalink: /wiki/fr-zh-CN-HUE%20Contact%20sensor/
+permalink: /wiki/fr-zh-CN-HUE%20Contact%20sensor
 ---
 ---
 <p> Ce nœud mappe l'événement du capteur de contact Hue à l'adresse du groupe KNX.</p>

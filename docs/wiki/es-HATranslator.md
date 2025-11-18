@@ -2,7 +2,7 @@
 layout: wiki
 title: "HATranslator"
 lang: es
-permalink: /wiki/es-HATranslator/
+permalink: /wiki/es-HATranslator
 ---
 Este nodo traduce el msg de entrada a valores válidos verdaderos/falsos. 
 

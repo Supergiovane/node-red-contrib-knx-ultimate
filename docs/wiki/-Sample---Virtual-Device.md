@@ -2,7 +2,7 @@
 layout: wiki
 title: "-Sample---Virtual-Device"
 lang: en
-permalink: /wiki/-Sample---Virtual-Device/
+permalink: /wiki/-Sample---Virtual-Device
 ---
 # VIRTUAL DEVICE
 

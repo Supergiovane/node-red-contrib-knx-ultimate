@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-GlobalVariable"
 lang: zh-CN
-permalink: /wiki/zh-CN-zh-CN-GlobalVariable/
+permalink: /wiki/zh-CN-zh-CN-GlobalVariable
 ---
 ---
 

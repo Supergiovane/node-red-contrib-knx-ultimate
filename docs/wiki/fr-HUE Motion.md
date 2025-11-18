@@ -2,7 +2,7 @@
 layout: wiki
 title: "HUE Motion"
 lang: fr
-permalink: /wiki/fr-HUE%20Motion/
+permalink: /wiki/fr-HUE%20Motion
 ---
 Ce nœud écoute un capteur de mouvement de teinte et reflète les événements de KNX et / ou de votre flux rouge-rouge. 
 

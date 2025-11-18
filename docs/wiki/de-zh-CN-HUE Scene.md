@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-HUE Scene"
 lang: de
-permalink: /wiki/de-zh-CN-HUE%20Scene/
+permalink: /wiki/de-zh-CN-HUE%20Scene
 ---
 ---
 

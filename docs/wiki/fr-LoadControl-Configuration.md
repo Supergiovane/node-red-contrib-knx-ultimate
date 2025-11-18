@@ -2,7 +2,7 @@
 layout: wiki
 title: "LoadControl-Configuration"
 lang: fr
-permalink: /wiki/fr-LoadControl-Configuration/
+permalink: /wiki/fr-LoadControl-Configuration
 ---
 # Nœud de contrôle de charge KNX
 

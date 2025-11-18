@@ -2,7 +2,7 @@
 layout: wiki
 title: "-Sample---RGB-Color"
 lang: en
-permalink: /wiki/-Sample---RGB-Color/
+permalink: /wiki/-Sample---RGB-Color
 ---
 # Samples
 

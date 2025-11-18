@@ -2,7 +2,7 @@
 layout: wiki
 title: "Alerter-Configuration"
 lang: it
-permalink: /wiki/it-Alerter-Configuration/
+permalink: /wiki/it-Alerter-Configuration
 ---
 # Configurazione del nodo Alerter
 

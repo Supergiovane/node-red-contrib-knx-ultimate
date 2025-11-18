@@ -2,7 +2,7 @@
 layout: wiki
 title: "HUE Battery"
 lang: zh-CN
-permalink: /wiki/zh-CN-HUE%20Battery/
+permalink: /wiki/zh-CN-HUE%20Battery
 ---
 该节点会将 Hue 设备的电池电量同步到 KNX，并在数值变化时触发事件。
 

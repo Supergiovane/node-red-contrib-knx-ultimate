@@ -2,7 +2,7 @@
 layout: wiki
 title: "Protections"
 lang: zh-CN
-permalink: /wiki/zh-CN-Protections/
+permalink: /wiki/zh-CN-Protections
 ---
 ---
 

@@ -2,7 +2,7 @@
 layout: wiki
 title: "SceneController-Configuration"
 lang: es
-permalink: /wiki/es-SceneController-Configuration/
+permalink: /wiki/es-SceneController-Configuration
 ---
 El nodo de control de la escena se comporta exactamente como un dispositivo KNX de controlador de escena.Es capaz de guardar y recordar una escena. 
 

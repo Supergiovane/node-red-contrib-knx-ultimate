@@ -2,7 +2,7 @@
 layout: wiki
 title: "HUE Scene"
 lang: de
-permalink: /wiki/de-HUE%20Scene/
+permalink: /wiki/de-HUE%20Scene
 ---
 Der **Hue Scene** -Node stellt Hue-Szenen per KNX bereit und kann die Rohereignisse an Ihren Node-RED-Flow weitergeben. Das Feld "Hue Szene" besitzt Autovervollständigung; verwenden Sie nach dem Anlegen neuer Szenen das Aktualisierungssymbol, damit die Liste aktuell bleibt.
 

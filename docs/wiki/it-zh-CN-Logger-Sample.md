@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-Logger-Sample"
 lang: it
-permalink: /wiki/it-zh-CN-Logger-Sample/
+permalink: /wiki/it-zh-CN-Logger-Sample
 ---
 ---
 # Campione di registratore

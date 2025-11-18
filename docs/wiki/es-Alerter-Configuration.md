@@ -2,7 +2,7 @@
 layout: wiki
 title: "Alerter-Configuration"
 lang: es
-permalink: /wiki/es-Alerter-Configuration/
+permalink: /wiki/es-Alerter-Configuration
 ---
 # Configuración del nodo de Alerter
 
@@ -146,4 +146,4 @@ msg = {
 
 ## MUESTRA
 
-<a href = "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/samplealerter"> Haga clic aquí para ver el ejemplo </a>
+<a href = "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleAlerter"> Haga clic aquí para ver el ejemplo </a>

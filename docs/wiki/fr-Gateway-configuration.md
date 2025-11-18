@@ -2,7 +2,7 @@
 layout: wiki
 title: "Gateway-configuration"
 lang: fr
-permalink: /wiki/fr-Gateway-configuration/
+permalink: /wiki/fr-Gateway-configuration
 ---
 Configuration de la passerelle KNX
 
@@ -74,76 +74,89 @@ Si vous pouvez utiliser les deux, veuillez préférer le fichier exporté de l'a
 
 > Vous pouvez travailler avec un mélange de nœuds KNX-ultime, certains avec le mode ** Universal (écoutez toutes les adresses de groupe)** Vérifié et d'autres non. Vous êtes absolument libre!
 
-<a href="https://youtu.be/egRbR_KwP9I"><img src='https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/yt.png'></a>
+<a href = "https://youtu.be/egrbr_kwp9i"> <img src = 'https://raw.githubusercontent.com/supergiovane/node-red-contrib-knx-ultimate/masmg/yt.png'> </a>
 
-### Importer la liste d’adresses de groupe au format CSV
+- ** ETS CSV Group Adresses List Import ** _**Attention: il ne doit pas y avoir de caractères de tabulation au nom de l'adresse du groupe ** _**Si l'adresse du groupe n'a pas de point de données ** > Si une adresse de groupe n'a pas de point de données dans l'ETS, vous pouvez sélectionner pour arrêter et interrompre l'intégralité du processus d'importation, pour sauter l'adresse du groupe affectée ou pour ajouter l'adresse du groupe affectée avec un faux point de données et continuer l'importation. 
+**Comment exporter les ETS -> CSV <- Liste des adresses de groupe** > Sur ETS, cliquez sur la liste des adresses de groupe, puis cliquez avec le bouton droit, puis sélectionnez «Exporter des adresses de groupe». Dans la fenêtre d'exportation, sélectionnez ces options: 
 
-**Attention.** Le nom d’une adresse de groupe ne doit contenir aucune tabulation. Si un GA n’a pas de datapoint dans ETS, vous pouvez interrompre l’import, ignorer cette adresse ou l’ajouter avec un datapoint temporaire `1.001` et poursuivre.
+>
+> ** Format de sortie** : CSV 
 
-**Exporter le CSV depuis ETS**
+>
+> ** Format CSV** : 1/1 nom / adresse 
 
-1. Dans ETS, ouvrez la vue *Adresses de groupe*, faites un clic droit dans la liste puis choisissez **Exporter les adresses de groupe**.
-2. Dans la fenêtre d’export, sélectionnez :
-   - **Format de sortie :** CSV
-   - **Format CSV :** 1/1 Name/Address
-   - **Exporter avec ligne d’en-tête :** activé
-   - **Séparateur CSV :** Tabulator
-3. Exporte z le fichier puis copiez son contenu dans le champ **ETS group address list** (ou indiquez directement le chemin du fichier).
+>
+> ** Exportation avec ligne d'en-tête** : vérifié 
 
-**Ce qu’il faut surveiller pendant l’import**
+>
+> ** CSV Séparateur** : Tabulator. 
 
-- Le fichier CSV doit contenir un datapoint pour chaque adresse de groupe.
-- Le nœud analyse le fichier et affiche le résultat dans le panneau debug de Node-RED :
-  - **ERROR** – datapoint manquant : l’import est arrêté.
-  - **WARNING** – sous-type manquant : un sous-type par défaut est appliqué mais il est recommandé de le vérifier (le sous-type correspond au nombre après le point, ex. `5.001`).
-- Les champs doivent être entourés de guillemets, par exemple :
+>
+> Collez ensuite le contenu du fichier ici. 
 
-  
+>
+> Notez que le fichier ETS CSV doit contenir les points de données pour chaque adresse de groupe. 
 
-```
+>
+> Le nœud analyse votre fichier CSV ETS avant de l'utiliser et vous indiquera les résultats dans l'onglet de débogage de la page Node-Red. 
 
-"Attuatori luci"	"0/-/-"	""	""	""	""	"Auto"
-  
+>
+> Le résultat peut être de deux types: ** Erreur ** et**avertissement** 
 
-```
+>
+> ** L'erreur** se produit lorsqu'un point de données n'est pas spécifié pour une adresse de groupe. Il s'agit d'une erreur critique et arrête le processus d'importation du fichier ETS CSV. 
 
-### Importer la liste d’adresses de groupe au format ESF
+>
+> ** L'avertissement** se produit lorsque le sous-type d'un Datapoint n'est pas spécifié. Dans ce cas, l'analyseur de nœud y ajoutera un par défaut, mais vous avertit que vous montrez et corrigez le point de données, en ajoutant un sous-type. Un sous-type est le nombre restant à droite du "." dans un point de données (ex: 5.001). 
 
-1. Dans ETS, sélectionnez votre projet, cliquez sur l’icône d’export (flèche vers le haut) puis choisissez le format **ESF** (et non `.knxprod`).
-2. Copiez le contenu du fichier ou indiquez son chemin dans le champ **ETS group address list** du gateway.
+>
+> Remarque: les champs doivent être entourés de ** "** par exemple: 
 
-<table style="font-size:12px">
-  <tr><th colspan="2" style="font-size:14px">Signification des couleurs d’état du nœud</th></tr>
-  <tr>
-    <td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/greendot.png" alt="Point vert" /></td>
-    <td>Réagit aux télégrammes d’écriture.</td>
-  </tr>
-  <tr>
-    <td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/greenring.png" alt="Anneau vert" /></td>
-    <td>Protection contre les références circulaires (<a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki" target="_blank">voir la page dédiée</a>).</td>
-  </tr>
-  <tr>
-    <td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/bluedot.png" alt="Point bleu" /></td>
-    <td>Réagit aux télégrammes de réponse.</td>
-  </tr>
-  <tr>
-    <td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/bluering.png" alt="Anneau bleu" /></td>
-    <td>Envoie automatiquement la valeur du nœud comme réponse au bus (<a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Virtual-Device" target="_blank">exemple de périphérique virtuel</a>).</td>
-  </tr>
-  <tr>
-    <td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/greudot.png" alt="Point gris" /></td>
-    <td>Réagit aux télégrammes de lecture.</td>
-  </tr>
-  <tr>
-    <td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/greyring.png" alt="Anneau gris" /></td>
-    <td>Filtre RBE : aucun télégramme envoyé.</td>
-  </tr>
-  <tr>
-    <td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/reddot.png" alt="Point rouge" /></td>
-    <td>Erreur ou passerelle déconnectée.</td>
-  </tr>
-  <tr>
-    <td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/redring.png" alt="Anneau rouge" /></td>
-    <td>Nœud désactivé à cause d’une référence circulaire (<a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki" target="_blank">voir la page dédiée</a>).</td>
-  </tr>
-</table>
+>> "ACTUATEURS LIGHTS" "0 / - / -" "" "" "" "" "" Car "
+ ** Comment exporter les ETS -> ESF <- Liste des adresses de groupe**
+
+> Sur la fenêtre ETS, sélectionnez votre projet, puis cliquez sur l'icône d'exportation (l'icône avec la flèche vers le haut) 
+
+>
+> Sélectionnez pour exporter le projet au format ESF (pas le .knxprod par défaut) 
+
+>
+> Copiez ensuite le contenu du fichier et collez-le dans le champ de la liste d'adresses de groupe de passerelle "ETS".
+
+    <Table Style = "Font-Size: 12px">
+        <tr>
+        <th Colspan = "2" style = "Font-Size: 14px"> Couleurs d'état du nœud Explication </th>
+        </tr>
+        <tr>
+        <td> <img src = "https://raw.githubusercontent.com/supergiovane/node-red-contrib-knx-ultimate/master/img/greendot.png"> </ img> </ td>
+        <TD> réagir aux télégrammes d'écriture </td>
+        </tr>
+        <tr>
+            <td> <img src = "https://raw.githubusercontent.com/supergiovane/node-red-contrib-knx-ultimate/master/img/greenring.png"> </ img> </ td>
+            <TD> Protection de référence circulaire. <a href = "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Protections" target = "_ blanc"> voir cette page. </a> </ td>
+        </tr>
+        <tr>
+        <td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/bluedot.png" alt="Blue status dot" /></td>
+        <TD> réagir aux télégrammes de réponse. </td>
+        </tr>
+        <tr>
+            <td> <img src = "https://raw.githubusercontent.com/supergiovane/node-red-contrib-knx-ultimate/master/img/bluering.png"> </img> </td>
+            <TD> Auto Envoi de la valeur du nœud comme réponse au bus. <a href = "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Virtual-Device" cible = "_ Blank"> Voir le périphérique virtuel. </a> </ td>
+        </tr>
+        <tr>
+            <td> <img src = "https://raw.githubusercontent.com/supergiovane/node-red-contrib-knx-ultimate/master/img/greudot.png"> </ img> </ td>
+            <TD> réagir aux télégrammes de lecture. </td>
+        </tr>
+        <tr>
+            <td> <img src = "https://raw.githubusercontent.com/supergiovane/node-red-contrib-knx-ultimate/master/img/greyring.png"> </ img> </ td>
+            <TD> Filtre RBE: aucun télégramme n'a été envoyé. </td>
+        </tr>
+        <tr>
+            <td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/reddot.png" alt="Red status dot" /></td>
+            <td> Erreur ou déconnecté. </td>
+        </tr>
+        <tr>
+            <td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/redring.png" alt="Red status ring" /></td>
+            <TD> Node désactivé en raison d'une référence circulare. <a href = "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Protections" target = "_ blanc"> voir cette page. </a> </ td>
+        </tr>
+    </ table>

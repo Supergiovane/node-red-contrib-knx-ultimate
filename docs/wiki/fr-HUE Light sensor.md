@@ -2,7 +2,7 @@
 layout: wiki
 title: "HUE Light sensor"
 lang: fr
-permalink: /wiki/fr-HUE%20Light%20sensor/
+permalink: /wiki/fr-HUE%20Light%20sensor
 ---
 Ce nœud lit les événements lux à partir d'un capteur de lumière de teinte et les mappe à Knx. 
 

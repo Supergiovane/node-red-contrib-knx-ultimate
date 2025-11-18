@@ -2,7 +2,7 @@
 layout: wiki
 title: "Docs-Language-Bar"
 lang: de
-permalink: /wiki/de-Docs-Language-Bar/
+permalink: /wiki/de-Docs-Language-Bar
 ---
 ---
 

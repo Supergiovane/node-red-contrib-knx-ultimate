@@ -2,7 +2,7 @@
 layout: wiki
 title: "HUE Zigbee connectivity"
 lang: fr
-permalink: /wiki/fr-HUE%20Zigbee%20connectivity/
+permalink: /wiki/fr-HUE%20Zigbee%20connectivity
 ---
 Ce nœud récupère l'état de connectivité ZigBee à partir d'un périphérique de teinte et l'expose à KNX. 
 

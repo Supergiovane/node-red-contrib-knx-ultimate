@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-GlobalVariable"
 lang: it
-permalink: /wiki/it-zh-CN-GlobalVariable/
+permalink: /wiki/it-zh-CN-GlobalVariable
 ---
 ---
 # Variabili globali KNX

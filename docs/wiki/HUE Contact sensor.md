@@ -2,7 +2,7 @@
 layout: wiki
 title: "HUE Contact sensor"
 lang: en
-permalink: /wiki/HUE%20Contact%20sensor/
+permalink: /wiki/HUE%20Contact%20sensor
 ---
 This node forwards events from a HUE contact sensor and maps them to KNX group addresses.
 

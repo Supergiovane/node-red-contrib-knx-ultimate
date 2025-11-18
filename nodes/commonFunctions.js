@@ -287,6 +287,16 @@ module.exports = (RED) => {
       res.json(jListInterfaces)
     })
 
+    RED.httpAdmin.get('/knxUltimateSerialInterfaces', RED.auth.needsPermission('knxUltimate-config.read'), async (req, res) => {
+      try {
+        const list = await KNXClient.listSerialInterfaces()
+        res.json(Array.isArray(list) ? list : [])
+      } catch (error) {
+        try { RED.log.error(`KNXUltimate serial discovery failed: ${error.message}`) } catch (e) { }
+        res.json([])
+      }
+    })
+
     // Discover KNX/IP gateways on demand and return cached results
     RED.httpAdmin.get('/knxUltimateDiscoverKNXGateways', RED.auth.needsPermission('knxUltimate-config.read'), async function (req, res) {
       try {

@@ -2,7 +2,7 @@
 layout: wiki
 title: "Logger-Configuration"
 lang: zh-CN
-permalink: /wiki/zh-CN-Logger-Configuration/
+permalink: /wiki/zh-CN-Logger-Configuration
 ---
 # Logger（日志）
 

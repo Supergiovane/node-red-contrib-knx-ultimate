@@ -2,7 +2,7 @@
 layout: wiki
 title: "-Sample-setConfig"
 lang: en
-permalink: /wiki/-Sample-setConfig/
+permalink: /wiki/-Sample-setConfig
 ---
 # PROGRAMMATICALLY CHANGE THE NODE CONFIG
 

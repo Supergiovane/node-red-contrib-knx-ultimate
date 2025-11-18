@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-HUE Battery"
 lang: zh-CN
-permalink: /wiki/zh-CN-zh-CN-HUE%20Battery/
+permalink: /wiki/zh-CN-zh-CN-HUE%20Battery
 ---
 ---
 

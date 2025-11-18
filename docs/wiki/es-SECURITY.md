@@ -2,7 +2,7 @@
 layout: wiki
 title: "SECURITY"
 lang: es
-permalink: /wiki/es-SECURITY/
+permalink: /wiki/es-SECURITY
 ---
 ---
 # Política de seguridad

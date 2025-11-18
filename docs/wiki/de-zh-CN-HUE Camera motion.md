@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-HUE Camera motion"
 lang: de
-permalink: /wiki/de-zh-CN-HUE%20Camera%20motion/
+permalink: /wiki/de-zh-CN-HUE%20Camera%20motion
 ---
 ---
 

@@ -2,7 +2,7 @@
 layout: wiki
 title: "-Sample---Apple-Homekit"
 lang: en
-permalink: /wiki/-Sample---Apple-Homekit/
+permalink: /wiki/-Sample---Apple-Homekit
 ---
 # Homekit with Siri
 

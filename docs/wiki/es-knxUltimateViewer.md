@@ -2,7 +2,7 @@
 layout: wiki
 title: "knxUltimateViewer"
 lang: es
-permalink: /wiki/es-knxUltimateViewer/
+permalink: /wiki/es-knxUltimateViewer
 ---
 Este nodo funciona junto con el nodo de plantilla de interfaz de usuario del tablero rojo-rojo.
 
@@ -36,6 +36,7 @@ En este ejemplo, puede ver cómo funciona el espectador.
 Simplemente coloque un nodo del visor en su flujo y conecte un nodo de UI de plantilla. 
 
 La plantilla **** nodo (plantilla de tablero ui) contiene el texto predeterminado: 
+
 ```
 
 <div ng-bind-html="msg.payload"></div>

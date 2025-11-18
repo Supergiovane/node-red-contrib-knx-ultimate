@@ -2,7 +2,7 @@
 layout: wiki
 title: "SampleAlerter"
 lang: en
-permalink: /wiki/SampleAlerter/
+permalink: /wiki/SampleAlerter
 ---
 # ALERTER NODE SAMPLE
 

@@ -2,7 +2,7 @@
 layout: wiki
 title: "Logger-Sample"
 lang: zh-CN
-permalink: /wiki/zh-CN-Logger-Sample/
+permalink: /wiki/zh-CN-Logger-Sample
 ---
 ---
 

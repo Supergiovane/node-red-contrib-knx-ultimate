@@ -2,7 +2,7 @@
 layout: wiki
 title: "Device"
 lang: fr
-permalink: /wiki/fr-Device/
+permalink: /wiki/fr-Device
 ---
 ## Paramètres de nœud de périphérique KNX-ultimate
 
@@ -228,7 +228,7 @@ msg = {
 }
 ```
 
-** Exemple de charge utile** | Propriété | Description |
+ ** Exemple de charge utile** | Propriété | Description |
 
 |-|-|
 | Échantillon | Cela lui donnera un indice sur ce qu'il faut écrire dans un nœud de fonction externe, si vous souhaitez contrôler le nœud via un nœud de fonction Node-Red. |
@@ -352,7 +352,7 @@ msg = {
 
 ## Message de sortie dans l'appareil virtuel
 
-Ici, vous trouverez un échantillon de [Virtual Device](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-sample---virtual-device)
+Ici, vous trouverez un échantillon de [Virtual Device](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Virtual-Device)
 
 ```javascript
 
@@ -552,10 +552,10 @@ return msg;
 
 ## Voir aussi
 
-- [Configuration de la passerelle](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/gateway-configuration)
-- [Protection des références circulaires et protection contre les inondations](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/protections)
+- [Configuration de la passerelle](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Gateway-configuration)
+- [Protection des références circulaires et protection contre les inondations](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Protections)
 - _Sample_
-  - [Échantillons](https://github.com/supergiovane/node-red-constrib-knx-ultimate/wiki/-samplehome)
+  - [Échantillons](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-SamplesHome)
 
     <Table Style = "Font-Size: 12px">
         <tr>
@@ -575,7 +575,7 @@ return msg;
         </tr>
         <tr>
             <td> <img src = "https://raw.githubusercontent.com/supergiovane/node-red-contrib-knx-ultimate/master/img/bluering.png"> </img> </td>
-            <TD> Auto Envoi de la valeur du nœud comme réponse au bus. <a href = "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-sample---virtual-device" cible = "_ Blank"> Voir le périphérique virtuel. </a> </ td>
+            <TD> Auto Envoi de la valeur du nœud comme réponse au bus. <a href = "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Virtual-Device" cible = "_ Blank"> Voir le périphérique virtuel. </a> </ td>
         </tr>
         <tr>
             <td> <img src = "https://raw.githubusercontent.com/supergiovane/node-red-contrib-knx-ultimate/master/img/greudot.png"> </ img> </ td>

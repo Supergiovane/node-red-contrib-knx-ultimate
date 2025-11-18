@@ -6,6 +6,11 @@
 
 # CHANGELOG
 
+**Version 4.0.30** - November 2025<br/>
+- KNX config node: enabled the new Serial FT1.2 transport from `knxultimate`, with auto-discovery of `/dev/tty*` ports and editable UART parameters (baud rate, data bits, stop bits, parity, RTS/CTS, DTR, ACK timeout) so TPUART hats and Weinzierl TP interfaces can connect directly without KNXd.<br/>
+- Editor: serial interfaces now appear alongside KNX/IP gateways in the `IP/Hostname` dropdown (marked as `[Serial]`); selecting one auto-sets protocol to Serial FT1.2 and pre-populates the UART settings with the recommended defaults.<br/>
+<br/>
+
 **Version 4.0.29** - November 2025<br/>
 - All Hue editor nodes now honour the refresh icon by forcing a live reload from the Hue bridge (with URL-safe server ids), keeping device/scene lists in sync after bridge-side changes.<br/>
 <br/>

@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-Alerter-Configuration"
 lang: fr
-permalink: /wiki/fr-zh-CN-Alerter-Configuration/
+permalink: /wiki/fr-zh-CN-Alerter-Configuration
 ---
 ---
 # Configuration du nœud d'alerte

@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-HUE Motion"
 lang: it
-permalink: /wiki/it-zh-CN-HUE%20Motion/
+permalink: /wiki/it-zh-CN-HUE%20Motion
 ---
 ---
 <p> Questo nodo si iscrisse agli eventi del sensore di movimento Hue e li sincronizza al processo KNX e rosso nodo.</p>

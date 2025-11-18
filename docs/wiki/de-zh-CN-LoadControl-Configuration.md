@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-LoadControl-Configuration"
 lang: de
-permalink: /wiki/de-zh-CN-LoadControl-Configuration/
+permalink: /wiki/de-zh-CN-LoadControl-Configuration
 ---
 ---
 
@@ -66,6 +66,6 @@ msg = {
 
 # Probe
 
-\ <a href = "https://github.com/supergiovane/node-red-contrib-knx-ultimate/wiki/sampleloadcontrol"> Klicken Sie hier hier </a> hier </a>
+\ <a href = "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleLoadControl"> Klicken Sie hier hier </a> hier </a>
 
 <br/>

@@ -2,7 +2,7 @@
 layout: wiki
 title: "HUE Zigbee connectivity"
 lang: zh-CN
-permalink: /wiki/zh-CN-HUE%20Zigbee%20connectivity/
+permalink: /wiki/zh-CN-HUE%20Zigbee%20connectivity
 ---
 该节点从 HUE 设备读取 Zigbee 连接状态，并发布到 KNX。
 

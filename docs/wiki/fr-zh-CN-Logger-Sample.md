@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-Logger-Sample"
 lang: fr
-permalink: /wiki/fr-zh-CN-Logger-Sample/
+permalink: /wiki/fr-zh-CN-Logger-Sample
 ---
 ---
 # Échantillon de l'enregistreur

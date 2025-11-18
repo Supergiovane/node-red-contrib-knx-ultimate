@@ -2,7 +2,7 @@
 layout: wiki
 title: "HUE Plug"
 lang: en
-permalink: /wiki/HUE%20Plug/
+permalink: /wiki/HUE%20Plug
 ---
 # Hue Plug / Outlet
 

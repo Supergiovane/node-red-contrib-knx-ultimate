@@ -2,7 +2,7 @@
 layout: wiki
 title: "HUE Light sensor"
 lang: en
-permalink: /wiki/HUE%20Light%20sensor/
+permalink: /wiki/HUE%20Light%20sensor
 ---
 This node reads lux events from a HUE Light Sensor and maps them to KNX.
 

@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-HUE Battery"
 lang: fr
-permalink: /wiki/fr-zh-CN-HUE%20Battery/
+permalink: /wiki/fr-zh-CN-HUE%20Battery
 ---
 ---
 <p> Ce nœud synchronise le niveau de batterie du périphérique Hue sur KNX et déclenche un événement lorsque la valeur change.</p>

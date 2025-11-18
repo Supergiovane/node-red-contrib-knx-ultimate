@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-WatchDog-Configuration"
 lang: fr
-permalink: /wiki/fr-zh-CN-WatchDog-Configuration/
+permalink: /wiki/fr-zh-CN-WatchDog-Configuration
 ---
 ---
 # Watchdog (Watchdog)

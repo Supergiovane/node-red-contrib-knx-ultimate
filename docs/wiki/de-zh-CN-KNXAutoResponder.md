@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-KNXAutoResponder"
 lang: de
-permalink: /wiki/de-zh-CN-KNXAutoResponder/
+permalink: /wiki/de-zh-CN-KNXAutoResponder
 ---
 ---
 

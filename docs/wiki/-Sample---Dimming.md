@@ -2,7 +2,7 @@
 layout: wiki
 title: "-Sample---Dimming"
 lang: en
-permalink: /wiki/-Sample---Dimming/
+permalink: /wiki/-Sample---Dimming
 ---
 # Samples
 

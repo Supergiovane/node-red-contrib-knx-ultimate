@@ -2,7 +2,7 @@
 layout: wiki
 title: "Logger-Configuration"
 lang: fr
-permalink: /wiki/fr-Logger-Configuration/
+permalink: /wiki/fr-Logger-Configuration
 ---
 # Enregistreur
 
@@ -12,7 +12,7 @@ Vous pouvez enregistrer le fichier sur le disque ou l'envoyer à un serveur FTP,
 
 Le nœud peut également compter les télégrammes par seconde (ou tout intervalle que vous souhaitez).
 
- <a href = "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Logger-sample" Target = "_ Blank"> Les exemples sont ici. </a>
+ <a href = "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Logger-Sample" Target = "_ Blank"> Les exemples sont ici. </a>
 
 ## PARAMÈTRES
 
@@ -56,6 +56,8 @@ msg = {
 
 ```
 
+ 
+
 **PIN 2: COMPRESSION DE TÉLÉGRAM KNX**
 
 Chaque nombre, le nœud émettra un télégramme comme celui-ci:
@@ -80,6 +82,7 @@ Vous pouvez contrôler l'enregistreur à certains égards.
 ## fichier de moniteur de bus compatible ETS XML
 
 **Démarrer la minuterie** 
+
 ```javascript
 
 // Start the timer
@@ -89,6 +92,7 @@ return msg;
 ```
 
 **Arrêtez la minuterie** 
+
 ```javascript
 
 // Start the timer
@@ -98,6 +102,7 @@ return msg;
 ```
 
 **Sortie immédiatement une charge utile avec le fichier ETS** 
+
 ```javascript
 
 // Output payload. Restart timer as well (in case the timer was active)
@@ -109,6 +114,7 @@ return msg;
 ## KNX TELEGRAM COMPTER
 
 **Démarrer la minuterie** 
+
 ```javascript
 
 // Start the timer
@@ -118,6 +124,7 @@ return msg;
 ```
 
 **Arrêtez la minuterie** 
+
 ```javascript
 
 // Start the timer
@@ -127,6 +134,7 @@ return msg;
 ```
 
 **Message de compte télégramme de sortie immédiatement** 
+
 ```javascript
 
 // Output payload. 

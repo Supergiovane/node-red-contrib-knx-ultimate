@@ -2,7 +2,7 @@
 layout: wiki
 title: "Sample-Scene-Node"
 lang: en
-permalink: /wiki/Sample-Scene-Node/
+permalink: /wiki/Sample-Scene-Node
 ---
 # SCENE CONTROLLER NODE SAMPLES
 

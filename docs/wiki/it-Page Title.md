@@ -2,7 +2,7 @@
 layout: wiki
 title: "Page Title"
 lang: it
-permalink: /wiki/it-Page%20Title/
+permalink: /wiki/it-Page%20Title
 ---
 # Titolo Pagina Segnaposto
 

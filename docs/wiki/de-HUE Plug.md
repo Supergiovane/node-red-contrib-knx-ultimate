@@ -2,7 +2,7 @@
 layout: wiki
 title: "HUE Plug"
 lang: de
-permalink: /wiki/de-HUE%20Plug/
+permalink: /wiki/de-HUE%20Plug
 ---
 # Hue Steckdose / Plug
 

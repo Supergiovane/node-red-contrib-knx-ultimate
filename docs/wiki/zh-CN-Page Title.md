@@ -2,7 +2,7 @@
 layout: wiki
 title: "Page Title"
 lang: zh-CN
-permalink: /wiki/zh-CN-Page%20Title/
+permalink: /wiki/zh-CN-Page%20Title
 ---
 # 占位示例页面
 

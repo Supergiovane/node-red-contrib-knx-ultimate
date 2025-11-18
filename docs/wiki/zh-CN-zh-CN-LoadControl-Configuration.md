@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-LoadControl-Configuration"
 lang: zh-CN
-permalink: /wiki/zh-CN-zh-CN-LoadControl-Configuration/
+permalink: /wiki/zh-CN-zh-CN-LoadControl-Configuration
 ---
 ---
 

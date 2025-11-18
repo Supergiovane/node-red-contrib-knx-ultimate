@@ -2,7 +2,7 @@
 layout: wiki
 title: "Garage-Configuration"
 lang: en
-permalink: /wiki/Garage-Configuration/
+permalink: /wiki/Garage-Configuration
 ---
 ---
 # Garage Door configuration

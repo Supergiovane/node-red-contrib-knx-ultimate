@@ -2,7 +2,7 @@
 layout: wiki
 title: "zh-CN-knxUltimateViewer"
 lang: es
-permalink: /wiki/es-zh-CN-knxUltimateViewer/
+permalink: /wiki/es-zh-CN-knxUltimateViewer
 ---
 ---
 <p> Este nodo funciona con el nodo <b> ui_template </b> del tablero rojo nodo.<br/>
