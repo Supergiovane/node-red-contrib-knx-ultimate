@@ -32,6 +32,39 @@ layout: default
     {% include wiki-navbar.html lang=nav_lang %}
   </aside>
   <article class="post-content wiki-content" itemprop="articleBody">
+    {% assign render_node_card = page.node_card %}
+    {% if render_node_card != false %}
+      {% assign node_badge = page.node_card_badge %}
+      {% if node_badge == nil %}
+        {% case nav_lang %}
+          {% when 'it' %}
+            {% assign node_badge = 'Nodo' %}
+          {% when 'de' %}
+            {% assign node_badge = 'Node' %}
+          {% when 'fr' %}
+            {% assign node_badge = 'Nœud' %}
+          {% when 'es' %}
+            {% assign node_badge = 'Nodo' %}
+          {% when 'zh-CN' %}
+            {% assign node_badge = '节点' %}
+          {% else %}
+            {% assign node_badge = 'Node' %}
+        {% endcase %}
+      {% endif %}
+      {% assign summary = page.node_card_summary %}
+      {% if summary == nil or summary == '' %}
+        {% capture markdown_content %}{{ page.content | markdownify }}{% endcapture %}
+        {% assign first_paragraph = markdown_content | split:'</p>' | first %}
+        {% assign summary = first_paragraph | remove:'<p>' | strip %}
+      {% endif %}
+      <section class="wiki-node-card">
+        <div class="wiki-node-card__badge">{{ node_badge }}</div>
+        <h1 class="wiki-node-card__title">{{ page.title }}</h1>
+        {% if summary %}
+          <p class="wiki-node-card__summary">{{ summary }}</p>
+        {% endif %}
+      </section>
+    {% endif %}
     {{ content }}
   </article>
 </div>
