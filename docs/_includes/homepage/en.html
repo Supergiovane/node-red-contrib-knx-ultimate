@@ -31,64 +31,51 @@
 
 <h2 style="text-align:center;">Supported technologies</h2>
 
-<div align="center" style="margin:36px 0;">
- <div style="max-width:960px;width:100%;display:flex;flex-wrap:wrap;gap:22px;justify-content:center;">
-  <div
-   style="flex:1 1 220px;min-width:220px;padding:22px 24px;border-radius:20px;background:#ffffff;box-shadow:0 16px 32px rgba(7,43,54,0.12);color:#123042;display:flex;flex-direction:column;">
-   <div
-    style="font-size:0.8rem;letter-spacing:0.18em;font-weight:700;text-transform:uppercase;color:rgba(255,255,255,0.68);margin-bottom:8px;">
-    Core KNX</div>
-   <div style="font-size:1.2rem;font-weight:700;margin-bottom:10px;">KNX Tunnelling</div>
-   <p style="flex:1;margin:0 0 20px 0;line-height:1.55;">Native ETS-style tunnelling with automatic reconnect,
-    multi-session safety, and high-performance telegram streaming.</p>
-  <div style="display:inline-flex;align-items:center;gap:10px;padding:8px 14px;border-radius:999px;background:rgba(255,255,255,0.14);font-weight:600;">✅ Fully supported</div>
-  </div>
-  <div
-   style="flex:1 1 220px;min-width:220px;padding:22px 24px;border-radius:20px;background:#ffffff;box-shadow:0 16px 32px rgba(15,40,60,0.18);color:#123042;display:flex;flex-direction:column;">
-   <div
-    style="font-size:0.8rem;letter-spacing:0.18em;font-weight:700;text-transform:uppercase;color:#1c6085;margin-bottom:8px;">
-    Bus backbone</div>
-   <div style="font-size:1.2rem;font-weight:700;margin-bottom:10px;">KNX Routing</div>
-   <p style="flex:1;margin:0 0 20px 0;line-height:1.55;">Supports multicast routing across KNX/IP routers with
-    throttling and storm protection for large sites.</p>
-  <div style="display:inline-flex;align-items:center;gap:10px;padding:8px 14px;border-radius:999px;background:#c5f4df;color:#0c4631;font-weight:600;">✅ Fully supported</div>
-  </div>
-  <div
-   style="flex:1 1 220px;min-width:220px;padding:22px 24px;border-radius:20px;background:#ffffff;box-shadow:0 16px 32px rgba(22,34,54,0.12);color:#123042;display:flex;flex-direction:column;">
-   <div
-    style="font-size:0.8rem;letter-spacing:0.18em;font-weight:700;text-transform:uppercase;color:rgba(255,255,255,0.62);margin-bottom:8px;">
-    Secure transport</div>
-   <div style="font-size:1.2rem;font-weight:700;margin-bottom:10px;">KNX IP Secure / Data Secure</div>
-   <p style="flex:1;margin:0 0 20px 0;line-height:1.55;">Full handshake, certificate, and session key handling for
-    both tunnelling and group-address secured payloads.</p>
-  <div style="display:inline-flex;align-items:center;gap:10px;padding:8px 14px;border-radius:999px;background:rgba(255,255,255,0.18);font-weight:600;">✅ Fully supported</div>
- </div>
-  <div
-   style="flex:1 1 220px;min-width:220px;padding:22px 24px;border-radius:20px;background:#ffffff;box-shadow:0 16px 32px rgba(18,12,32,0.12);color:#123042;display:flex;flex-direction:column;">
-   <div
-    style="font-size:0.8rem;letter-spacing:0.18em;font-weight:700;text-transform:uppercase;color:rgba(255,255,255,0.62);margin-bottom:8px;">
-    Field devices</div>
-   <div style="font-size:1.2rem;font-weight:700;margin-bottom:10px;">Serial FT1.2 (TPUART)</div>
-   <p style="flex:1;margin:0 0 20px 0;line-height:1.55;">Drive TPUART hats, Weinzierl 307x and other TP/FT1.2
-    interfaces directly via <code>/dev/tty*</code>. The IP/Hostname picker lists the serial ports and auto-fills safe
-    UART defaults when you select one.</p>
-   <div
-    style="display:inline-flex;align-items:center;gap:10px;padding:8px 14px;border-radius:999px;background:rgba(255,255,255,0.18);font-weight:600;">
-    <span style="font-size:1.1rem;">🔌</span>
-    <span>Plug &amp; play</span>
+<div style="max-width:980px;margin:32px auto 18px auto;padding:0 12px;">
+ <ul
+  style="list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:26px 34px;">
+  <li style="padding-left:18px;border-left:4px solid #40c4ff;">
+   <div style="font-size:0.78rem;letter-spacing:0.18em;text-transform:uppercase;color:#3d708f;font-weight:700;">Core KNX
    </div>
-  </div>
-  <div
-   style="flex:1 1 220px;min-width:220px;padding:22px 24px;border-radius:20px;background:#ffffff;box-shadow:0 16px 32px rgba(206,145,37,0.12);color:#123042;display:flex;flex-direction:column;">
-   <div
-    style="font-size:0.8rem;letter-spacing:0.18em;font-weight:700;text-transform:uppercase;color:#e28407;margin-bottom:8px;">
-    Lighting bridge</div>
-   <div style="font-size:1.2rem;font-weight:700;margin-bottom:10px;">Philips Hue v2</div>
-   <p style="flex:1;margin:0 0 20px 0;line-height:1.55;">Advanced Hue v2 API integration with scene recall, effects,
-    gradient fixtures, and KNX/Hue state synchronization.</p>
-  <div style="display:inline-flex;align-items:center;gap:10px;padding:8px 14px;border-radius:999px;background:#ffdf9b;font-weight:600;">✅ Fully supported</div>
-  </div>
- </div>
+   <div style="font-size:1.2rem;font-weight:700;margin:4px 0 8px 0;">KNX Tunnelling</div>
+   <p style="margin:0 0 10px 0;line-height:1.55;color:#1f323f;">Native ETS-style tunnelling with automatic reconnect,
+    multi-session safety, and high-performance telegram streaming.</p>
+   <div style="font-weight:600;color:#185c36;">✅ Fully supported</div>
+  </li>
+  <li style="padding-left:18px;border-left:4px solid #58d5ba;">
+   <div style="font-size:0.78rem;letter-spacing:0.18em;text-transform:uppercase;color:#1f6a57;font-weight:700;">Bus
+    backbone</div>
+   <div style="font-size:1.2rem;font-weight:700;margin:4px 0 8px 0;">KNX Routing</div>
+   <p style="margin:0 0 10px 0;line-height:1.55;color:#1f323f;">Supports multicast routing across KNX/IP routers with
+    throttling and storm protection for large sites.</p>
+   <div style="font-weight:600;color:#185c36;">✅ Fully supported</div>
+  </li>
+  <li style="padding-left:18px;border-left:4px solid #ac8dff;">
+   <div style="font-size:0.78rem;letter-spacing:0.18em;text-transform:uppercase;color:#473a73;font-weight:700;">Secure
+    transport</div>
+   <div style="font-size:1.2rem;font-weight:700;margin:4px 0 8px 0;">KNX IP Secure / Data Secure</div>
+   <p style="margin:0 0 10px 0;line-height:1.55;color:#1f323f;">Full handshake, certificate, and session key handling
+    for both tunnelling and group-address secured payloads.</p>
+   <div style="font-weight:600;color:#185c36;">✅ Fully supported</div>
+  </li>
+  <li style="padding-left:18px;border-left:4px solid #ffb347;">
+   <div style="font-size:0.78rem;letter-spacing:0.18em;text-transform:uppercase;color:#72531b;font-weight:700;">Field
+    devices</div>
+   <div style="font-size:1.2rem;font-weight:700;margin:4px 0 8px 0;">Serial FT1.2 (TPUART)</div>
+   <p style="margin:0 0 10px 0;line-height:1.55;color:#1f323f;">Drive TPUART hats, Weinzierl 307x, and other TP/FT1.2
+    interfaces directly via <code>/dev/tty*</code>. The Gateway selector lists the serial ports and auto-applies
+    recommended UART parameters when you pick one.</p>
+   <div style="font-weight:600;color:#185c36;">✅ Fully supported</div>
+  </li>
+  <li style="padding-left:18px;border-left:4px solid #67b0ff;">
+   <div style="font-size:0.78rem;letter-spacing:0.18em;text-transform:uppercase;color:#1e4f6e;font-weight:700;">Hue &amp;
+    IoT</div>
+   <div style="font-size:1.2rem;font-weight:700;margin:4px 0 8px 0;">Philips Hue v2 + IoT</div>
+   <p style="margin:0 0 10px 0;line-height:1.55;color:#1f323f;">Native Hue v2 scenes, sensors, and luminaires plus
+    built-in bridges for IoT services such as MQTT, InfluxDB, and more.</p>
+   <div style="font-weight:600;color:#185c36;">✅ Fully supported</div>
+  </li>
+ </ul>
 </div>
 
 <div align="center" style="margin-bottom:28px;color:#284259;font-size:0.9rem;">

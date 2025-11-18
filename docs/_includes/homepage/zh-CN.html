@@ -21,39 +21,46 @@
 
 <h2 style="text-align:center;">支持的技术</h2>
 
-<div align="center" style="margin:36px 0;">
-  <div style="max-width:960px;width:100%;display:flex;flex-wrap:wrap;gap:22px;justify-content:center;">
-    <div style="flex:1 1 220px;min-width:220px;padding:22px 24px;border-radius:20px;background:#ffffff;box-shadow:0 16px 32px rgba(7,43,54,0.12);color:#123042;display:flex;flex-direction:column;">
-      <div style="font-size:0.8rem;letter-spacing:0.18em;font-weight:700;text-transform:uppercase;color:rgba(255,255,255,0.68);margin-bottom:8px;">KNX 核心</div>
-      <div style="font-size:1.2rem;font-weight:700;margin-bottom:10px;">KNX Tunnelling</div>
-      <p style="flex:1;margin:0 0 20px 0;line-height:1.55;">ETS 风格的隧道模式，支持自动重连、多会话安全及高性能报文传输。</p>
-      <div style="display:inline-flex;align-items:center;gap:10px;padding:8px 14px;border-radius:999px;background:rgba(255,255,255,0.14);font-weight:600;">✅ Fully supported</div>
-    </div>
-    <div style="flex:1 1 220px;min-width:220px;padding:22px 24px;border-radius:20px;background:#ffffff;box-shadow:0 16px 32px rgba(15,40,60,0.18);color:#123042;display:flex;flex-direction:column;">
-      <div style="font-size:0.8rem;letter-spacing:0.18em;font-weight:700;text-transform:uppercase;color:#1c6085;margin-bottom:8px;">总线骨干</div>
-      <div style="font-size:1.2rem;font-weight:700;margin-bottom:10px;">KNX Routing</div>
-      <p style="flex:1;margin:0 0 20px 0;line-height:1.55;">支持通过 KNX/IP 路由器进行多播路由，并提供限流与风暴防护，适用于大型现场。</p>
-      <div style="display:inline-flex;align-items:center;gap:10px;padding:8px 14px;border-radius:999px;background:#c5f4df;color:#0c4631;font-weight:600;">✅ Fully supported</div>
-    </div>
-    <div style="flex:1 1 220px;min-width:220px;padding:22px 24px;border-radius:20px;background:#ffffff;box-shadow:0 16px 32px rgba(22,34,54,0.12);color:#123042;display:flex;flex-direction:column;">
-      <div style="font-size:0.8rem;letter-spacing:0.18em;font-weight:700;text-transform:uppercase;color:rgba(255,255,255,0.62);margin-bottom:8px;">安全传输</div>
-      <div style="font-size:1.2rem;font-weight:700;margin-bottom:10px;">KNX IP Secure / Data Secure</div>
-      <p style="flex:1;margin:0 0 20px 0;line-height:1.55;">完整处理握手、证书和会话密钥，覆盖隧道和群组地址的加密报文。</p>
-      <div style="display:inline-flex;align-items:center;gap:10px;padding:8px 14px;border-radius:999px;background:rgba(255,255,255,0.18);font-weight:600;">✅ Fully supported</div>
-   </div>
-    <div style="flex:1 1 220px;min-width:220px;padding:22px 24px;border-radius:20px;background:#ffffff;box-shadow:0 16px 32px rgba(18,12,32,0.12);color:#123042;display:flex;flex-direction:column;">
-      <div style="font-size:0.8rem;letter-spacing:0.18em;font-weight:700;text-transform:uppercase;color:rgba(255,255,255,0.62);margin-bottom:8px;">TP 接口</div>
-      <div style="font-size:1.2rem;font-weight:700;margin-bottom:10px;">串口 FT1.2 (TPUART)</div>
-      <p style="flex:1;margin:0 0 20px 0;line-height:1.55;">通过 <code>/dev/tty*</code> 直接驱动 TPUART HAT、Weinzierl 307x 等 TP/FT1.2 接口。IP/Hostname 选择框会列出可用串口，并在选中时自动套用推荐的 UART 参数。</p>
-      <div style="display:inline-flex;align-items:center;gap:10px;padding:8px 14px;border-radius:999px;background:rgba(255,255,255,0.18);font-weight:600;">✅ Fully supported</div>
-    </div>
-    <div style="flex:1 1 220px;min-width:220px;padding:22px 24px;border-radius:20px;background:#ffffff;box-shadow:0 16px 32px rgba(10,20,32,0.12);color:#123042;display:flex;flex-direction:column;">
-      <div style="font-size:0.8rem;letter-spacing:0.18em;font-weight:700;text-transform:uppercase;color:#1e4f6e;margin-bottom:8px;">Hue 与 IoT</div>
-      <div style="font-size:1.2rem;font-weight:700;margin-bottom:10px;">Philips Hue v2 + IoT</div>
-      <p style="flex:1;margin:0 0 20px 0;line-height:1.55;">内置 Hue v2 场景、传感器和灯具集成，并可桥接 MQTT、InfluxDB 等 IoT 服务。</p>
-      <div style="display:inline-flex;align-items:center;gap:10px;padding:8px 14px;border-radius:999px;background:#d5ebff;color:#113455;font-weight:600;">✅ Fully supported</div>
-    </div>
-  </div>
+<div style="max-width:980px;margin:32px auto 18px auto;padding:0 12px;">
+  <ul
+    style="list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:26px 34px;">
+    <li style="padding-left:18px;border-left:4px solid #40c4ff;">
+      <div style="font-size:0.78rem;letter-spacing:0.18em;text-transform:uppercase;color:#3d708f;font-weight:700;">KNX 核心
+      </div>
+      <div style="font-size:1.2rem;font-weight:700;margin:4px 0 8px 0;">KNX Tunnelling</div>
+      <p style="margin:0 0 10px 0;line-height:1.55;color:#1f323f;">ETS 风格的隧道模式，提供自动重连、多会话安全和高性能报文传输。</p>
+      <div style="font-weight:600;color:#185c36;">✅ Fully supported</div>
+    </li>
+    <li style="padding-left:18px;border-left:4px solid #58d5ba;">
+      <div style="font-size:0.78rem;letter-spacing:0.18em;text-transform:uppercase;color:#1f6a57;font-weight:700;">总线骨干
+      </div>
+      <div style="font-size:1.2rem;font-weight:700;margin:4px 0 8px 0;">KNX Routing</div>
+      <p style="margin:0 0 10px 0;line-height:1.55;color:#1f323f;">通过 KNX/IP 路由器进行多播路由，包含限流与防风暴机制，适合大型项目。</p>
+      <div style="font-weight:600;color:#185c36;">✅ Fully supported</div>
+    </li>
+    <li style="padding-left:18px;border-left:4px solid #ac8dff;">
+      <div style="font-size:0.78rem;letter-spacing:0.18em;text-transform:uppercase;color:#473a73;font-weight:700;">安全传输
+      </div>
+      <div style="font-size:1.2rem;font-weight:700;margin:4px 0 8px 0;">KNX IP Secure / Data Secure</div>
+      <p style="margin:0 0 10px 0;line-height:1.55;color:#1f323f;">完整的握手、证书与会话密钥处理，涵盖隧道及群组地址的加密报文。</p>
+      <div style="font-weight:600;color:#185c36;">✅ Fully supported</div>
+    </li>
+    <li style="padding-left:18px;border-left:4px solid #ffb347;">
+      <div style="font-size:0.78rem;letter-spacing:0.18em;text-transform:uppercase;color:#72531b;font-weight:700;">TP 接口
+      </div>
+      <div style="font-size:1.2rem;font-weight:700;margin:4px 0 8px 0;">串口 FT1.2 (TPUART)</div>
+      <p style="margin:0 0 10px 0;line-height:1.55;color:#1f323f;">通过 <code>/dev/tty*</code> 直接驱动 TPUART HAT、Weinzierl 307x 等 TP/FT1.2 接口。
+        Gateway 选择器会列出可用串口，并在选择时套用推荐的 UART 参数。</p>
+      <div style="font-weight:600;color:#185c36;">✅ Fully supported</div>
+    </li>
+    <li style="padding-left:18px;border-left:4px solid #67b0ff;">
+      <div style="font-size:0.78rem;letter-spacing:0.18em;text-transform:uppercase;color:#1e4f6e;font-weight:700;">Hue 与 IoT
+      </div>
+      <div style="font-size:1.2rem;font-weight:700;margin:4px 0 8px 0;">Philips Hue v2 + IoT</div>
+      <p style="margin:0 0 10px 0;line-height:1.55;color:#1f323f;">内置 Hue v2 场景、传感器与灯具集成，并桥接 MQTT、InfluxDB 等 IoT 服务。</p>
+      <div style="font-weight:600;color:#185c36;">✅ Fully supported</div>
+    </li>
+  </ul>
 </div>
 
 <h2 style="text-align:center;">节点总览</h2>
