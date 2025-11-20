@@ -33,7 +33,7 @@ permalink: /wiki/es-Gateway-configuration
 > ** KNX Secure Essentials** \
 > • _knx data secure_ protege los telegramas de la dirección del grupo y ** siempre** necesita un archivo de llavero que contenga las claves de grupo. \
 > • _knx Tunneling IP Secure_ protege el apretón de manos de la conexión con una contraseña de puesta en marcha. Dependiendo del modo seleccionado, la contraseña puede provenir del llavero o ingresarse manualmente.\
-> • KNX/IP Secure y Data Secure solo se aplican a los transportes IP (Tunnel TCP / routing seguro); el modo Serial FT1.2 no utiliza estas opciones de seguridad.
+> • KNX/IP Secure (handshake del túnel) solo se aplica a los transportes IP (Tunnel TCP / routing seguro). KNX Data Secure protege los telegramas de direcciones de grupo y puede usarse tanto sobre IP (túnel/enrutamiento) como sobre TP vía Serial FT1.2 cuando se proporciona un archivo keyring de ETS.
 
  **Avanzado** | Propiedad | Descripción |
 

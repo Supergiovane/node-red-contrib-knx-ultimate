@@ -30,7 +30,7 @@
 > **KNX Secure 概览** \
 > • _KNX Data Secure_ 用于保护组地址报文， **始终** 需要包含组密钥的密钥环文件。\
 > • _KNX IP Tunnelling Secure_ 通过调试密码保护连接握手，密码可根据模式从密钥环读取或在界面中手动输入。\
-> • KNX/IP Secure 和 Data Secure 仅适用于 IP 传输（Tunnel TCP / 安全路由）；串口 FT1.2 模式不会使用这些安全参数。
+> • KNX/IP Secure（隧道握手）仅适用于 IP 传输（Tunnel TCP / 安全路由）。KNX Data Secure 用于保护组地址报文，可在 IP（隧道/路由）和 TP（通过串口 FT1.2）上使用，只要提供 ETS 导出的 keyring 文件。
 
 <br/>
 
