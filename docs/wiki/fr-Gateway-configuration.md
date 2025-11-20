@@ -21,6 +21,7 @@ Configuration de la passerelle KNX
 |-|-|
 | Port IP | Le port. La valeur par défaut est 3671. |
 | Protocole IP | _Tunnel UDP_ est pour les interfaces KNX / IP, _Multicast UDP_ est pour les routeurs KNX / IP. Laissez **Auto** pour la détection automatique. La valeur par défaut est "Auto". |
+| Mode Serial FT1.2 | Définit comment l’interface série FT1.2 est initialisée : **KBerry/BAOS** active la séquence spécifique pour les modules Weinzierl KBerry/BAOS (reset, mode Link Layer/BAOS, aucun filtre de GA), tandis que **Standard FT1.2** utilise un adaptateur FT1.2 générique sans étapes spécifiques à KBerry. La valeur par défaut est KBerry/BAOS. |
 | Adresse physique KNX | L'adresse physique KNX, exemple 1.1.200. La valeur par défaut est "15.15.22". |
 | Se lier à l'interface locale | Le nœud utilisera cette interface locale pour les communications. Laissez "Auto" pour la sélection automatique. Si vous avez plus d'une connexion LAN, par exemple Ethernet et WiFi, il est fortement recommandé de sélectionner manuellement l'interface, sinon tout le télégramme UDP n'atteindra pas votre ordinateur, donc le nœud peut ne pas fonctionner comme prévu. La valeur par défaut est "Auto". |
 | Connectez-vous automatiquement au bus KNX au démarrage | Connectez-vous automatiquement au bus au départ. La valeur par défaut est "oui". |

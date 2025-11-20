@@ -15,11 +15,13 @@ permalink: /wiki/es-Gateway-configuration
 | Nombre | Nombre del nodo. |
 | Ip/hostname | Dirección de multidifusión de enrutador ETH/KNX o dirección IP de unidifusión de interfaz. Si tiene una interfaz KNX/IP, use la dirección IP de la interfaz, por ejemplo, 1982.168.1.22, de lo contrario, si tiene un enrutador KNX/IP, coloque la dirección de multicast 224.0.23.12. También puede escribir un nombre de host **** en lugar de una IP. |
 
- **Configuración** | Propiedad | Descripción |
+**Configuración**
 
+| Propiedad | Descripción |
 |-|-|
 | Puerto IP | El puerto. El valor predeterminado es 3671. |
-| Protocolo IP | _Tunnel Udp_ es para interfaces KNX/IP, _multicast Udp_ es para enrutadores KNX/IP. Deje ** Auto** para detectar automáticamente. El valor predeterminado es "Auto". |
+| Protocolo IP | _Tunnel UDP_ es para interfaces KNX/IP, _Multicast UDP_ es para enrutadores KNX/IP, y _Serial FT1.2_ para adaptadores TP/FT1.2 (seleccionado automáticamente cuando eliges un puerto serie). |
+| Modo Serial FT1.2 | Define cómo se inicializa la interfaz serie FT1.2: **KBerry/BAOS** habilita la secuencia específica para módulos Weinzierl KBerry/BAOS (reset, modo Link Layer/BAOS, sin filtro de GA), mientras que **Standard FT1.2** utiliza un adaptador FT1.2 genérico sin pasos específicos para KBerry. El valor predeterminado es KBerry/BAOS. |
 | KNX Dirección física | La dirección física KNX, ejemplo 1.1.200. El valor predeterminado es "15.15.22". |
 | Atar a la interfaz local | El nodo utilizará esta interfaz local para comunicaciones. Deje "Auto" para la selección automática. Si tiene más de una conexión LAN, por ejemplo, Ethernet y Wifi, se recomienda seleccionar manualmente la interfaz, de lo contrario, no todo UDP Telegram llegará a su computadora, por lo que el nodo puede no funcionar como se esperaba. El valor predeterminado es "Auto". |
 | Conéctese automáticamente al bus KNX al inicio | Conéctese automático al bus al inicio. El valor predeterminado es "Sí". |

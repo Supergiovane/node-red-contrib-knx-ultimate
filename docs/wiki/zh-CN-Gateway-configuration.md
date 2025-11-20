@@ -21,6 +21,7 @@ permalink: /wiki/zh-CN-Gateway-configuration
 |--|--|
 | 网关端口 | 端口，默认 `3671`。串口模式下不使用。|
 | 连接协议 | `Tunnel UDP` 适用于 KNX/IP 接口，`Multicast UDP` 适用于 KNX/IP 路由器，`Serial FT1.2` 适用于 TP/FT1.2 串口（选择串口时自动切换）。 **Auto** 会尝试自动选择合适的协议。|
+| Serial FT1.2 模式 | 定义如何初始化 FT1.2 串口接口：**KBerry/BAOS** 启用 Weinzierl KBerry/BAOS 专用初始化序列（复位、BAOS 链路层模式、无 GA 过滤），而 **Standard FT1.2** 则按通用 FT1.2 适配器处理，不执行 KBerry 特定步骤。默认为 KBerry/BAOS。 |
 | KNX Physical Address | 物理地址，如 `1.1.200`。默认 `15.15.22`。|
 | Bind to local interface | 使用的本地网络接口。"Auto" 自动选择。若有多网卡（以太网/无线），建议手动指定，避免 UDP 丢包。|
 | Automatically connect to KNX BUS at start | 启动时自动连接总线。默认 "Yes"。|

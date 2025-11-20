@@ -40,7 +40,8 @@
             serialParity: { value: "even" },
             serialRtscts: { value: false },
             serialDtr: { value: true },
-            serialTimeout: { value: 1200, validate: optionalNumberValidator }
+            serialTimeout: { value: 1200, validate: optionalNumberValidator },
+            isKBERRY: { value: true }
         },
         credentials: {
             keyringFilePassword: { type: "password" }
@@ -113,6 +114,17 @@
                 $("#node-config-input-serialRtscts").prop('checked', (typeof node.serialRtscts === 'undefined') ? false : !!node.serialRtscts);
                 $("#node-config-input-serialDtr").prop('checked', (typeof node.serialDtr === 'undefined') ? true : !!node.serialDtr);
                 $("#node-config-input-serialTimeout").val(typeof node.serialTimeout === 'undefined' ? 1200 : node.serialTimeout);
+                try {
+                    let isKBERRY = node.isKBERRY;
+                    if (typeof isKBERRY === 'undefined' || isKBERRY === null || isKBERRY === '') {
+                        isKBERRY = true;
+                    } else if (typeof isKBERRY === 'string') {
+                        isKBERRY = isKBERRY.toLowerCase() === 'true';
+                    } else {
+                        isKBERRY = !!isKBERRY;
+                    }
+                    $("#node-config-input-isKBERRY").val(isKBERRY ? 'true' : 'false');
+                } catch (e) { }
             }
 
             function updateProtocolSections() {
@@ -1238,6 +1250,13 @@
                 </select>   
             </div>
             <div id="serialAdvancedContainer" style="display:none;">
+                <div class="form-row">
+                    <label for="node-config-input-isKBERRY"><i class="fa fa-microchip"></i> <span data-i18n="knxUltimate-config.properties.serial_mode"></span></label>
+                    <select id="node-config-input-isKBERRY" style="width: 200px">
+                        <option value="true" data-i18n="knxUltimate-config.properties.serial_mode_kberry"></option>
+                        <option value="false" data-i18n="knxUltimate-config.properties.serial_mode_standard"></option>
+                    </select>
+                </div>
                 <div class="form-row">
                     <label for="node-config-input-serialBaudRate"><i class="fa fa-tachometer"></i> <span data-i18n="knxUltimate-config.properties.serial_baud"></span></label>
                     <input type="number" id="node-config-input-serialBaudRate" style="width: 120px">

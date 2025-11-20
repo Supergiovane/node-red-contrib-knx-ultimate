@@ -34,8 +34,8 @@
             receiveMsgFromKNXCode: { value: "" },
             listenallga: { value: "" },
             gaSecure: { value: false },
-            buttonEnabled: { value: false },
-            buttonMode: { value: "read" },
+            buttonEnabled: { value: true },
+            buttonMode: { value: "toggle" },
             buttonStaticValue: { value: "" },
             buttonToggleInitial: { value: "false" }
         },
@@ -74,7 +74,7 @@
                     data: request,
                     success: function (response) {
                         const key = mode === 'read' ? "manualReadOk" : "manualWriteOk";
-                        const baseMessage = RED._("node-red-contrib-knx-ultimate/knxUltimate." + key) || "KNX command sent";
+                        const baseMessage = RED._("node-red-contrib-knx-ultimate/knxUltimate:knxUltimate." + key) || "KNX command sent";
                         let notifyMessage = baseMessage;
                         if (mode !== 'read') {
                             let payloadValue;
@@ -106,7 +106,7 @@
                             message = xhr.responseJSON.error;
                         }
                         const key = mode === 'read' ? "manualReadError" : "manualWriteError";
-                        RED.notify(message || (RED._("node-red-contrib-knx-ultimate/knxUltimate." + key) || "Unable to send KNX command"), "error");
+                        RED.notify(message || (RED._("node-red-contrib-knx-ultimate/knxUltimate:knxUltimate." + key) || "Unable to send KNX command"), "error");
                     }
                 });
             }

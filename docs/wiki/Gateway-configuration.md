@@ -21,6 +21,7 @@ This node connects to your KNX gateway, whether it is an IP interface/router or 
 |--|--|
 | Gateway port | Default is 3671. Not used for Serial FT1.2 connections. |
 | Connection protocol | _Tunnel UDP_ is for KNX/IP interfaces, _Multicast UDP_ is for KNX/IP Routers, _Serial FT1.2_ is for TPUART/TP interfaces (selected automatically when you pick a serial port). Leave **Auto** to infer the right transport from the address. |
+| Serial FT1.2 mode | Choose how the FT1.2 serial interface is initialised: **KBerry/BAOS** enables the Weinzierl KBerry/BAOS helper sequence (reset, BAOS link-layer mode, no GA filter), while **Standard FT1.2** keeps a generic FT1.2 adapter without KBerry-specific steps. Default is KBerry/BAOS. |
 | KNX Physical Address | The physical KNX address, example 1.1.200. Default is "15.15.22".|
 | Bind to local interface | The Node will use this local interface for communications. Leave "Auto" for automatic selection. If you have more than one lan connection, for example Ethernet and Wifi, it's strongly recommended to manually select the interface, otherwise not all UDP telegram will reach your computer, thus the Node may not work as expected. Default is "Auto". |
 | Automatically connect to KNX BUS at start | Auto connect to the bus at start. Default is "Yes". |

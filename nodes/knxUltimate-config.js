@@ -323,6 +323,7 @@ module.exports = (RED) => {
     node.serialRtscts = parseBoolean(config.serialRtscts, false)
     node.serialDtr = parseBoolean(config.serialDtr, true)
     node.serialTimeout = parsePositiveNumber(config.serialTimeout, 1200)
+    node.isKBERRY = parseBoolean(config.isKBERRY, true)
     node.hostProtocol = config.hostProtocol === undefined ? 'Auto' : config.hostProtocol // 20/03/2022 Default
     node.knxConnection = null // 20/03/2022 Default
     node.delaybetweentelegrams = (config.delaybetweentelegrams === undefined || config.delaybetweentelegrams === null || config.delaybetweentelegrams === '') ? 25 : Number(config.delaybetweentelegrams)
@@ -948,7 +949,8 @@ module.exports = (RED) => {
           parity: node.serialParity,
           rtscts: !!node.serialRtscts,
           dtr: !!node.serialDtr,
-          timeoutMs: node.serialTimeout
+          timeoutMs: node.serialTimeout,
+          isKBERRY: node.isKBERRY
         }
         try {
           delete node.knxConnectionProperties.interface

@@ -347,8 +347,8 @@ module.exports = function (RED) {
     node.passthrough = (typeof config.passthrough === 'undefined' ? 'no' : config.passthrough)
     node.inputmessage = {} // Stores the input message to be passed through
     node.timerTTLInputMessage = null // The stored node.inputmessage has a ttl.
-    node.buttonEnabled = coerceBoolean(config.buttonEnabled)
-    node.buttonMode = config.buttonMode || 'read'
+    node.buttonEnabled = (typeof config.buttonEnabled === 'undefined') ? true : coerceBoolean(config.buttonEnabled)
+    node.buttonMode = config.buttonMode || 'toggle'
     node.buttonStaticValue = config.buttonStaticValue || ''
     node.buttonToggleInitial = coerceBoolean(config.buttonToggleInitial)
     node._buttonToggleState = node.buttonToggleInitial

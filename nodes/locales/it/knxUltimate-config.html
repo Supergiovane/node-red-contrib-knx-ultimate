@@ -18,6 +18,7 @@ Questo nodo si connette al tuo KNX/IP Gateway.
 |--|--|
 | Porta gateway | Porta di connessione. Default: `3671`. Non utilizzata in modalità Serial FT1.2. |
 | Protocollo di connessione | `Tunnel UDP` per interfacce KNX/IP, `Multicast UDP` per router KNX/IP, `Serial FT1.2` per interfacce TP/FT1.2 (selezionato automaticamente quando scegli una porta seriale). Lascia **Auto** per rilevare il protocollo più adatto. |
+| Modalità Serial FT1.2 | Definisce come inizializzare l'interfaccia Serial FT1.2: **KBerry/BAOS** abilita la sequenza specifica per moduli Weinzierl KBerry/BAOS (reset, modalità Link Layer/BAOS, nessun filtro GA), mentre **Standard FT1.2** usa un adattatore FT1.2 generico senza passi specifici per KBerry. Il default è KBerry/BAOS. |
 | KNX Physical Address | Indirizzo fisico KNX, es. `1.1.200`. Default: `15.15.22`. |
 | Bind to local interface | Interfaccia di rete locale usata dal nodo. Lascia "Auto" per selezione automatica. Se hai più interfacce (Ethernet/Wi‑Fi), è consigliato impostarla manualmente per evitare perdita di telegrammi UDP. Default: "Auto". |
 | Automatically connect to KNX BUS at start | Connessione automatica al BUS all'avvio. Default: "Yes". |

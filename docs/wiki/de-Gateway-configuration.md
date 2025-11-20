@@ -21,6 +21,7 @@ Dieser Node stellt die Verbindung zu deinem KNX/IP‑Gateway her.
 |--|--|
 | Gateway-Port | Verbindungsport. Standard: `3671`. Für Serial FT1.2 nicht verwendet. |
 | Verbindungsprotokoll | `Tunnel UDP` für KNX/IP‑Interfaces, `Multicast UDP` für KNX/IP‑Router, `Serial FT1.2` für TP/FT1.2‑Adapter (wird automatisch gewählt, wenn du einen Serialport auswählst). **Auto** versucht, das passende Protokoll zu ermitteln. |
+| Serial FT1.2 Modus | Legt fest, wie die FT1.2‑Schnittstelle initialisiert wird: **KBerry/BAOS** aktiviert die spezielle Initialisierung für Weinzierl KBerry/BAOS‑Module (Reset, BAOS‑Link‑Layer‑Modus, keine GA‑Filter), während **Standard FT1.2** einen generischen FT1.2‑Adapter ohne KBerry‑spezifische Schritte verwendet. Standard ist KBerry/BAOS. |
 | KNX Physical Address | Physikalische KNX‑Adresse, z. B. `1.1.200`. Standard: `15.15.22`. |
 | Bind to local interface | Lokales Netzwerk‑Interface für die Kommunikation. "Auto" wählt automatisch. Bei mehreren Interfaces (Ethernet/WLAN) ist eine manuelle Auswahl empfehlenswert, damit keine UDP‑Telegramme verloren gehen. |
 | Automatically connect to KNX BUS at start | Automatisch beim Start verbinden. Standard: "Yes". |

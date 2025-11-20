@@ -54,7 +54,10 @@
             "serial_parity_none": "Nessuna",
             "serial_rtscts": "Abilita controllo hardware RTS/CTS",
             "serial_dtr": "Mantieni DTR attivo dopo la connessione",
-            "serial_timeout": "Timeout ACK (ms)"
+            "serial_timeout": "Timeout ACK (ms)",
+            "serial_mode": "Modalità Serial FT1.2",
+            "serial_mode_kberry": "KBerry/BAOS",
+            "serial_mode_standard": "Standard FT1.2"
         },
         "tabs": {
             "configuration": "Configurazione",
