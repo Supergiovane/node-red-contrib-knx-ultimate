@@ -32,7 +32,8 @@ This node connects to your KNX gateway, whether it is an IP interface/router or 
 
 > **KNX Secure essentials** \
 > • _KNX Data Secure_ protects group-address telegrams and **always** needs a keyring file containing the group keys.\
-> • _KNX IP Tunnelling Secure_ protects the connection handshake with a commissioning password. Depending on the selected mode, the password can come from the keyring or be entered manually.
+> • _KNX IP Tunnelling Secure_ protects the connection handshake with a commissioning password. Depending on the selected mode, the password can come from the keyring or be entered manually.\
+> • KNX/IP Secure and Data Secure apply only to IP transports (Tunnel TCP / secure routing); Serial FT1.2 does not use these secure settings.
 
 **Advanced**
 

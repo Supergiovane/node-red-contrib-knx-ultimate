@@ -306,6 +306,24 @@
                 enforceProtocolFromIP();
             }
 
+            function updateSecureModeAvailability() {
+                try {
+                    const hostProtocol = $("#node-config-input-hostProtocol").val();
+                    const $mode = $("#node-config-input-secureCredentialsMode");
+                    if (!$mode || $mode.length === 0) return;
+                    if (hostProtocol === 'SerialFT12') {
+                        // Secure credential source is only meaningful for IP transports.
+                        // When using Serial FT1.2 keep the selector disabled to simplify the UI.
+                        if ($mode.val() !== 'keyring') {
+                            $mode.val('keyring');
+                        }
+                        $mode.prop('disabled', true);
+                    } else {
+                        $mode.prop('disabled', false);
+                    }
+                } catch (e) { }
+            }
+
             // Helper: show/hide Tunnel IA controls depending on mode
             function updateTunnelIAVisibility() {
                 try {
@@ -330,6 +348,8 @@
                         $("#divTunnelIA").hide();
                     }
                     // Allow manual/combined credentials to surface even before the user selects a unicast IP.
+                    // For Serial FT1.2 these fields are not applicable (they apply only to IP tunnelling),
+                    // so keep them hidden when a serial protocol is selected.
                     const showManualTunnelFields = isSecure && manualMode && !isSerial;
                     $("#rowTunnelInterfaceIndividualAddress").toggle(showManualTunnelFields);
                     $("#rowTunnelUserPassword").toggle(showManualTunnelFields);
@@ -630,7 +650,7 @@
                         $("#node-config-input-host").val(path)
                         $("#node-config-input-name").val(descriptor)
                         syncSerialPortPathFromHost()
-                        try { $("#tabsMain").tabs("option", "active", 0) } catch (e) { }
+                        try { updateSecureModeAvailability(); } catch (e) { }
                         try {
                             const $sel = $("#node-config-input-hostProtocol")
                             $sel.val('SerialFT12')
@@ -648,8 +668,7 @@
                     $("#node-config-input-host").val(gateway.ip || '')
                     $("#node-config-input-port").val(gateway.port || '')
                     $("#node-config-input-name").val(gateway.name || "")
-                    if (gateway.isSecure) { try { $("#tabsMain").tabs("option", "active", 1) } catch (e) { } }
-                    else { try { $("#tabsMain").tabs("option", "active", 0) } catch (e) { } }
+                    try { updateSecureModeAvailability(); } catch (e) { }
                     try {
                         const $sel = $("#node-config-input-hostProtocol")
                         if (gateway.proto) {
@@ -921,6 +940,7 @@
                     autoSelectEthernetInterfaceForHost();
                 });
             } catch (e) { }
+            try { updateSecureModeAvailability(); } catch (e) { }
 
 
             // 14/08/2021 Elimino il file delle persistenze di questo nodo

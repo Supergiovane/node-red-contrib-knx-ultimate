@@ -6,6 +6,13 @@
 
 # CHANGELOG
 
+**Version 4.1.0** - November 2025<br/>
+- KNX config node: Serial FT1.2 now exposes a dedicated **Serial FT1.2 mode** selector with *KBerry/BAOS* vs *Standard FT1.2*; the choice is forwarded to the KNX engine as `serialInterface.isKBERRY` (default: KBerry/BAOS).<br/>
+- KNX config node: when `SerialFT12` is selected, Secure KNX options that only apply to IP tunnelling (manual tunnel IA, tunnel user ID/password, mixed keyring+manual mode) are automatically hidden or disabled to keep the UI focused; help and wiki pages in all languages now clearly state that KNX/IP Secure & Data Secure apply only to IP transports, not to Serial FT1.2.<br/>
+- KNX Device node: the manual command button in the editor is now enabled by default and set to **Toggle boolean (write)**, with the notification message correctly translated in all locales and extended to show the payload value when relevant.<br/>
+- Docs & homepage: Serial FT1.2 documentation and the technology cards on the docs homepages have been refreshed to explicitly mention **Weinzierl KBerry/BAOS** support and the recommended UART defaults for TP/FT1.2 adapters.<br/>
+<br/>
+
 **Version 4.0.30** - November 2025<br/>
 - KNX config node: enabled the new Serial FT1.2 transport from `knxultimate`, with auto-discovery of `/dev/tty*` ports and editable UART parameters (baud rate, data bits, stop bits, parity, RTS/CTS, DTR, ACK timeout) so TPUART hats and Weinzierl TP interfaces can connect directly without KNXd.<br/>
 - Editor: serial interfaces now appear alongside KNX/IP gateways in the `IP/Hostname` dropdown (marked as `[Serial]`); selecting one auto-sets protocol to Serial FT1.2 and pre-populates the UART settings with the recommended defaults.<br/>
