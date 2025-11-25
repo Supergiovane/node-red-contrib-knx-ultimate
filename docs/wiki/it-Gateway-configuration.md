@@ -8,6 +8,128 @@ permalink: /wiki/it-Gateway-configuration
 
 Questo nodo si connette al tuo KNX/IP Gateway.
 
+<div style="background:#e9f7e9;border:1px solid #c8e6c8;border-radius:10px;padding:14px 16px;margin:16px 0;">
+
+
+### Using KNX Ultimate with kBerry on Raspberry Pi 3 (UART / FT1.2)
+
+This guide explains how to connect a **kBerry** KNX interface directly
+to a **Raspberry Pi 3** and use it with **KNX Ultimate** over the
+**hardware UART** (`ttyAMA0`) using the **FT1.2 (TPUART)** protocol.
+
+> This procedure is tested with Raspberry Pi OS Bookworm on a  
+> Raspberry Pi 3 and has been written on November, 25, 2025.
+
+## 1. Prerequisites
+
+- Raspberry Pi 3 (Model B or B+)
+- Raspberry Pi OS (Bookworm recommended)
+- kBerry KNX interface mounted on the GPIO header
+- Node-RED with KNX Ultimate installed
+- Basic terminal access (SSH or local console)
+
+## 2. Wiring / Hardware Overview
+
+The kBerry uses the Raspberry Pi's primary UART:
+
+- **TX / RX**: GPIO14 (TXD) and GPIO15 (RXD)
+- **GND**: A common ground between Raspberry Pi and kBerry
+- **Power**: Provided via the GPIO header
+
+Make sure the kBerry is properly seated on the Raspberry Pi GPIO header
+and that no other HAT is conflicting with those pins.
+
+## 3. Disable Bluetooth and Enable the Hardware UART
+
+### 3.1 Edit the correct config file (Bookworm)
+
+```bash
+sudo nano /boot/firmware/config.txt
+```
+
+Add:
+
+```ini
+enable_uart=1
+dtoverlay=pi3-disable-bt
+```
+
+### 3.2 Disable ModemManager
+
+```bash
+sudo systemctl disable --now ModemManager
+```
+
+### 3.3 Disable Bluetooth service
+
+```bash
+sudo systemctl disable --now bluetooth.service
+```
+
+## 4. Disable Serial Login Console / Enable Hardware UART
+
+```bash
+sudo raspi-config
+```
+
+- Disable login shell on serial → **No**
+- Enable serial hardware → **Yes**
+
+Reboot.
+
+## 5. Verify UART
+
+```bash
+ls -l /dev/serial0
+ls -l /dev/ttyAMA0
+dmesg | grep tty
+```
+
+Expected:
+
+    /dev/serial0 -> ttyAMA0
+    /dev/ttyAMA0 exists
+
+## 6. Add Node-RED User to dialout
+
+```bash
+sudo usermod -aG dialout nodered
+sudo reboot
+```
+
+## 7. Configure KNX Ultimate
+
+- **Interface type**: Serial FT1.2 / TPUART
+- **Serial port**: `/dev/ttyAMA0`
+- **Baud rate**: 19200
+- **Data bits**: 8
+- **Parity**: Even
+- **Stop bits**: 1
+
+## 9. Troubleshooting
+
+### No `/dev/ttyAMA0`
+
+- Check `/boot/firmware/config.txt` entries
+- Reboot
+- Re-check `dmesg`
+
+### `/dev/serial0` → `ttyS0`
+
+- `dtoverlay=pi3-disable-bt` not applied
+- Re-check config file path
+- Reboot
+
+### Serial cannot be opened
+
+- Ensure user is in `dialout`
+- Check that no other program uses `/dev/ttyAMA0`
+
+---
+
+Done.
+</div>
+
 **Generale**
 
 |Proprietà|Descrizione|
