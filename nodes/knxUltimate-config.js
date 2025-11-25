@@ -326,6 +326,7 @@ module.exports = (RED) => {
     node.isKBERRY = parseBoolean(config.isKBERRY, true)
     node.hostProtocol = config.hostProtocol === undefined ? 'Auto' : config.hostProtocol // 20/03/2022 Default
     node.knxConnection = null // 20/03/2022 Default
+    node.serialDriverRef = null // Keep last FT1.2 driver to force-close on redeploy
     node.delaybetweentelegrams = (config.delaybetweentelegrams === undefined || config.delaybetweentelegrams === null || config.delaybetweentelegrams === '') ? 25 : Number(config.delaybetweentelegrams)
     if (node.delaybetweentelegrams < 25) node.delaybetweentelegrams = 25 // Protection avoiding handleKNXQueue hangs
     if (node.delaybetweentelegrams > 100) node.delaybetweentelegrams = 100 // Protection avoiding handleKNXQueue hangs
@@ -1113,6 +1114,11 @@ module.exports = (RED) => {
         })
         node.knxConnection.on(knx.KNXClientEvents.connected, (info) => {
           node.linkStatus = 'connected'
+
+          // Track serial driver for forced close on redeploy
+          if (node.hostProtocol === 'SerialFT12' && node.knxConnection && node.knxConnection._serialDriver) {
+            node.serialDriverRef = node.knxConnection._serialDriver
+          }
 
           // Start the timer to do initial read.
           if (node.timerDoInitialRead !== null) clearTimeout(node.timerDoInitialRead)
@@ -2296,6 +2302,8 @@ module.exports = (RED) => {
       node.linkStatus = 'disconnected' // 29/08/2019 signal disconnection
 
       const connection = node.knxConnection
+      const serialDriver = (node.knxConnection && node.knxConnection._serialDriver) || node.serialDriverRef
+      const isSerial = node.hostProtocol === 'SerialFT12'
       if (connection) {
         try {
           await connection.Disconnect()
@@ -2303,13 +2311,41 @@ module.exports = (RED) => {
           node.sysLogger?.debug(
             'Disconnected: node.knxConnection.Disconnect() ' + (error.message || '') + ' , node.autoReconnect:' + node.autoReconnect
           )
+          // Extra guard for FT1.2: if Disconnect failed, try closing the serial driver directly
+          if (isSerial && connection._serialDriver && typeof connection._serialDriver.close === 'function') {
+            try {
+              await connection._serialDriver.close()
+              node.sysLogger?.debug('Disconnect: fallback close on serial driver executed')
+            } catch (closeErr) {
+              node.sysLogger?.debug('Disconnect: fallback close on serial driver failed: ' + (closeErr.message || ''))
+            }
+          }
         } finally {
           try {
             connection.removeAllListeners()
           } catch (error) { /* empty */ }
+          if (isSerial && serialDriver && typeof serialDriver.close === 'function') {
+            try {
+              await serialDriver.close()
+              node.sysLogger?.debug('Disconnect: ensured serial driver close')
+            } catch (closeErr) {
+              node.sysLogger?.debug('Disconnect: ensure serial driver close failed: ' + (closeErr.message || ''))
+            }
+          }
           node.knxConnection = null
+          node.serialDriverRef = null
         }
       } else {
+        if (isSerial && serialDriver && typeof serialDriver.close === 'function') {
+          try {
+            await serialDriver.close()
+            node.sysLogger?.debug('Disconnect: closed cached serial driver without knxConnection')
+          } catch (closeErr) {
+            node.sysLogger?.debug('Disconnect: cached serial driver close failed: ' + (closeErr.message || ''))
+          } finally {
+            node.serialDriverRef = null
+          }
+        }
         node.sysLogger?.debug('Disconnect: no knxConnection instance. previous status: ' + previousStatus)
       }
 

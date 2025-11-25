@@ -6,6 +6,14 @@
 
 # CHANGELOG
 
+**Version 4.1.4** - December 2025<br/>
+- KNX config node: cache and force-close the FT1.2 serial driver on deploy/close even when the KNX client instance is already null, preventing orphaned handles from blocking reconnects after a redeploy.<br/>
+<br/>
+
+**Version 4.1.3** - December 2025<br/>
+- KNX config node: strengthened FT1.2 teardown with a direct serial-driver close fallback so the KBerry port is reliably released even if a previous disconnect was in a "disconnected" state; prevents reconnection stalls with "Timeout waiting for FT1.2 ACK (reset)".<br/>
+<br/>
+
 **Version 4.1.2** - December 2025<br/>
 - KNX config node: deploy/disconnect now always tears down the KNX client and clears timers, ensuring Serial FT1.2/KBerry ports are released and can reconnect after configuration changes.<br/>
 <br/>
