@@ -8,7 +8,7 @@ Configuration de la passerelle KNX
 
  Ce nœud se connecte à votre passerelle KNX / IP. 
 
-<div style="background:#e9f7e9;border:1px solid #c8e6c8;border-radius:10px;padding:14px 16px;margin:16px 0;">
+<div markdown="1" style="background:#e9f7e9;border:1px solid #c8e6c8;border-radius:10px;padding:14px 16px;margin:16px 0;">
 
 
 ### Using KNX Ultimate with kBerry on Raspberry Pi 3 (UART / FT1.2)
