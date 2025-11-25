@@ -2283,20 +2283,36 @@ module.exports = (RED) => {
     }, 10000)
 
     node.Disconnect = async (_sNodeStatus = '', _sColor = 'grey') => {
-      if (node.timerSaveExposedGAs !== null) clearInterval(node.timerSaveExposedGAs)
-      if (node.linkStatus === 'disconnected') {
-        node.sysLogger?.debug('Disconnect: already not connected:' + node.linkStatus + ', node.autoReconnect:' + node.autoReconnect)
-        return
+      if (node.timerSaveExposedGAs !== null) {
+        clearInterval(node.timerSaveExposedGAs)
+        node.timerSaveExposedGAs = null
       }
+      if (node.timerDoInitialRead !== null) {
+        clearTimeout(node.timerDoInitialRead) // 17/02/2020 Stop the initial read timer
+        node.timerDoInitialRead = null
+      }
+
+      const previousStatus = node.linkStatus
       node.linkStatus = 'disconnected' // 29/08/2019 signal disconnection
-      if (node.timerDoInitialRead !== null) clearTimeout(node.timerDoInitialRead) // 17/02/2020 Stop the initial read timer
-      try {
-        if (node.knxConnection !== null) await node.knxConnection.Disconnect()
-      } catch (error) {
-        node.sysLogger?.debug(
-          'Disconnected: node.knxConnection.Disconnect() ' + (error.message || '') + ' , node.autoReconnect:' + node.autoReconnect
-        )
+
+      const connection = node.knxConnection
+      if (connection) {
+        try {
+          await connection.Disconnect()
+        } catch (error) {
+          node.sysLogger?.debug(
+            'Disconnected: node.knxConnection.Disconnect() ' + (error.message || '') + ' , node.autoReconnect:' + node.autoReconnect
+          )
+        } finally {
+          try {
+            connection.removeAllListeners()
+          } catch (error) { /* empty */ }
+          node.knxConnection = null
+        }
+      } else {
+        node.sysLogger?.debug('Disconnect: no knxConnection instance. previous status: ' + previousStatus)
       }
+
       node.setAllClientsStatus('Disconnected', _sColor, _sNodeStatus)
       await saveExposedGAs() // 04/04/2021 save the current values of GA payload
       node.sysLogger?.debug('Disconnected, node.autoReconnect:' + node.autoReconnect)
@@ -2304,6 +2320,10 @@ module.exports = (RED) => {
 
     node.on('close', async function (done) {
       try {
+        if (node.timerKNXUltimateCheckState !== null) {
+          clearInterval(node.timerKNXUltimateCheckState)
+          node.timerKNXUltimateCheckState = null
+        }
         await node.Disconnect()
       } catch (error) { /* empty */ }
       node.nodeClients = [] // 05/04/2022 Nullify

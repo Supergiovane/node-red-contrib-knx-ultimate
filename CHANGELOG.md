@@ -6,6 +6,10 @@
 
 # CHANGELOG
 
+**Version 4.1.2** - December 2025<br/>
+- KNX config node: deploy/disconnect now always tears down the KNX client and clears timers, ensuring Serial FT1.2/KBerry ports are released and can reconnect after configuration changes.<br/>
+<br/>
+
 **Version 4.1.1** - November 2025<br/>
 - KNX config node: Serial FT1.2 now exposes a dedicated **Serial FT1.2 mode** selector with *KBerry/BAOS* vs *Standard FT1.2*; the choice is forwarded to the KNX engine as `serialInterface.isKBERRY` (default: KBerry/BAOS).<br/>
 - KNX config node: when `SerialFT12` is selected, Secure KNX options that only apply to IP tunnelling (manual tunnel IA, tunnel user ID/password, mixed keyring+manual mode) are automatically hidden or disabled to keep the UI focused; help and wiki pages in all languages now clearly state that KNX/IP Secure & Data Secure apply only to IP transports, not to Serial FT1.2.<br/>
