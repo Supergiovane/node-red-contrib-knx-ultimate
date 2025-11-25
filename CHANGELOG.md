@@ -6,6 +6,10 @@
 
 # CHANGELOG
 
+**Version 4.1.5** - December 2025<br/>
+- Bump KNX Engine to 5.2.3.<br/>
+<br/>
+
 **Version 4.1.4** - December 2025<br/>
 - KNX config node: cache and force-close the FT1.2 serial driver on deploy/close even when the KNX client instance is already null, preventing orphaned handles from blocking reconnects after a redeploy.<br/>
 <br/>
