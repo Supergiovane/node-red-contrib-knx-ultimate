@@ -249,6 +249,11 @@
           "external": false
         },
         {
+          "label": "Serial FT1.2 / KBerry",
+          "url": "/wiki/-Sample---FT12",
+          "external": false
+        },
+        {
           "label": "Subtype decoded",
           "url": "/wiki/-Sample---Subtype",
           "external": false
@@ -558,6 +563,11 @@
         {
           "label": "Virtual Device",
           "url": "/wiki/-Sample---Virtual-Device",
+          "external": false
+        },
+        {
+          "label": "Serial FT1.2 / KBerry",
+          "url": "/wiki/-Sample---FT12",
           "external": false
         },
         {
@@ -873,6 +883,11 @@
           "external": false
         },
         {
+          "label": "Serial FT1.2 / KBerry",
+          "url": "/wiki/-Sample---FT12",
+          "external": false
+        },
+        {
           "label": "Subtype decoded",
           "url": "/wiki/-Sample---Subtype",
           "external": false
@@ -1185,6 +1200,11 @@
           "external": false
         },
         {
+          "label": "Serial FT1.2 / KBerry",
+          "url": "/wiki/-Sample---FT12",
+          "external": false
+        },
+        {
           "label": "Subtype decoded",
           "url": "/wiki/-Sample---Subtype",
           "external": false
@@ -1494,6 +1514,11 @@
         {
           "label": "Virtual Device",
           "url": "/wiki/-Sample---Virtual-Device",
+          "external": false
+        },
+        {
+          "label": "Serial FT1.2 / KBerry",
+          "url": "/wiki/-Sample---FT12",
           "external": false
         },
         {
