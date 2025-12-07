@@ -11,6 +11,8 @@
             name: { value: "" },
             autoStartTimerCreateETSXML: { value: true },
             maxRowsInETSXML: { value: 0, required: true, validate: RED.validators.number() },
+            saveMode: { value: "emit" },
+            filePath: { value: "" },
             autoStartTimerTelegramCounter: { value: false },
             intervalTelegramCount: { value: 60, required: false, validate: RED.validators.number() }
 
@@ -35,12 +37,24 @@
                 collapsible: true,
                 active: false
             });
+
+            const toggleFilePath = () => {
+                const enabled = $("#node-input-saveMode").val() === "emit_save";
+                $("#node-input-filePath").prop("disabled", !enabled);
+            };
+            $("#node-input-saveMode").on("change", toggleFilePath);
+
+            const currentFilePath = this.filePath || "";
+            $("#node-input-filePath").val(currentFilePath);
+            toggleFilePath();
         },
         oneditsave: function () {
             // Return to the info tab
             try {
                 RED.sidebar.show("info");
             } catch (error) { }
+
+            this.filePath = $("#node-input-filePath").val() || "";
 
 
         }
@@ -82,6 +96,17 @@
                 <div class="form-row">
                     <label style="width:290px" for="node-input-maxRowsInETSXML"><i class="fa fa-bars"></i> <span data-i18n="knxUltimateLogger.properties.node-input-maxRowsInETSXML"></span></label>
                     <input style="width:90px" type="number" id="node-input-maxRowsInETSXML">
+                </div>
+                <div class="form-row">
+                    <label style="width:290px" for="node-input-saveMode"><i class="fa fa-save"></i> <span data-i18n="knxUltimateLogger.properties.node-input-saveMode"></span></label>
+                    <select style="width:100%" id="node-input-saveMode">
+                        <option value="emit" data-i18n="knxUltimateLogger.selectlists.saveMode.emit"></option>
+                        <option value="emit_save" data-i18n="knxUltimateLogger.selectlists.saveMode.emit_save"></option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <label style="width:290px" for="node-input-filePath"><i class="fa fa-file-text-o"></i> <span data-i18n="knxUltimateLogger.properties.node-input-filePath"></span></label>
+                    <input style="width:100%" type="text" id="node-input-filePath" data-i18n="[placeholder]knxUltimateLogger.placeholder.node-input-filePath">
                 </div>
             </p>
         </div>

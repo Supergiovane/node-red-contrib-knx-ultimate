@@ -20,26 +20,26 @@ El nodo también puede contar telegramas por segundo (o cualquier intervalo que 
 
 | Propiedad | Descripción |
 |-|-|
-|Puerta de entrada |La puerta de enlace KNX.|
+|Puerta |La puerta de enlace KNX.|
 |Tema |El tema del nodo.|
-|Nombre |Nombre del nodo.|
+|Nombre de nodo |Nombre del nodo.|
 
 ## archivo de diagnóstico de bus compatible con ETS
 
 | Propiedad | Descripción |
 |-|-|
-|Temporizador de inicio automático |Inicia el temporizador automáticamente en la implementación o en el inicio de nodo-rojo.|
-|Salida nueva XML cada (en minutos) |La hora, en minutos, que el registrador emitirá el archivo compatible con el monitor de bus XML XML.|
-|Número máximo de filas en xml (0 = sin límite) |Inicia el temporizador automáticamente en la implementación o en el inicio de nodo-rojo.|
-|Temporizador de inicio automático |Esto representa el número máximo de línea, que el archivo XML puede contener en el intervalo especificado anteriormente.Pon 0 para no limitar el número de filas en el archivo.|
-|Número máximo de filas en xml (0 = sin límite) |Esto representa el número máximo de línea, que el archivo XML puede contener en el intervalo especificado anteriormente.Pon 0 para no limitar el número de filas en el archivo.|
+|Temporizador de inicio automático |Inicia el temporizador automáticamente en la implementación o en el inicio de Node‑RED.|
+|Salir nuevo XML cada (en minutos) |Cada cuántos minutos el Logger emitirá el archivo XML compatible con ETS.|
+|Número máximo de filas en xml (0 = sin límite) |Máximo de filas en el XML; las más antiguas se eliminan primero. 0 para sin límite.|
+|Acción |Emitir solo el payload, o emitir el payload y guardar en archivo.|
+|Ruta de archivo (absoluta o relativa) |Dónde guardar el XML cuando se elige guardar.|
 
 ## contador de telegrama de knx
 
 | Propiedad | Descripción |
 |-|-|
-|Temporizador de inicio automático |Inicia el temporizador automáticamente en la implementación o en el inicio de nodo-rojo.|
-|Intervalo de conteo (en segundos) |Con qué frecuencia emite un MSG al flujo, que contiene el recuento de telegramas KNX.En segundos.|
+|Temporizador de inicio automático |Inicia el temporizador automáticamente en la implementación o en el inicio de Node‑RED.|
+|Intervalo de conteo (en segundos) |Con qué frecuencia emite un MSG al flujo, que contiene el recuento de telegramas KNX. En segundos.|
 
 ---
 

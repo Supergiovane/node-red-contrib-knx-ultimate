@@ -13,13 +13,16 @@ El nombre que le da al nodo se convertirá en el nombre de la variable de contex
 Eso es todo. Por razones de seguridad, ** Cambie el nombre de nodo predeterminado** <br/>
 Puede acceder a la variable global agregando el sufijo \ _read al nombre del nodo. <br/>
 Puede habilitar/deshabilitar la variable de contexto global, o habilitar Readonly o leer/escribir en la ventana de configuración. <br/>
-Puede emitir un comando de escritura de bus KNX, simplemente modifica el nombre de la variable global con sufijo \ _write. _ ** Después de que se han ejecutado los comandos, la variable global con sufijo \ _Write se vacía automáticamente, no para repetir infinitamente los comandos. ** _ <br/>**Ajustes** | Propiedad | Descripción |
+Puede emitir un comando de escritura de bus KNX, simplemente modifica el nombre de la variable global con sufijo \ _write. _ ** Después de que se han ejecutado los comandos, la variable global con sufijo \ _Write se vacía automáticamente, no para repetir infinitamente los comandos. ** _ <br/>
 
+## Ajustes
+
+| Propiedad | Descripción |
 |-|-|
-| Puerta de entrada | La puerta de enlace KNX. |
-| Nombre variable | Nombre del contexto global. Se crearán 2 variables con este nombre, una con sufijo \ _Read (para direcciones de grupo de lectura) y la otra con sufijo _write (para direcciones de grupo de escritura). Por ejemplo, si el nombre de la variable es "KnxGlobalContext", se crean las 2 variables KNXGLOBALContext \ _read y KnxGlobalContext \ _Write. Dado que la variable global es visible desde todos los nodos (incluso los no ultimatizos de KNX), por razones de seguridad, establece un nombre que no sea el predeterminado. Haga clic en el enlace de muestra en la parte inferior de la página. |
+| Puerta | La puerta de enlace KNX. |
+| Nombre de la variable (sin espacios, solo chars [A-Z]) | Nombre del contexto global. Se crearán 2 variables con este nombre, una con sufijo \ _Read (para direcciones de grupo de lectura) y la otra con sufijo _write (para direcciones de grupo de escritura). Por ejemplo, si el nombre de la variable es "KnxGlobalContext", se crean las 2 variables KNXGLOBALContext \ _read y KnxGlobalContext \ _Write. Dado que la variable global es visible desde todos los nodos (incluso los no ultimatizos de KNX), por razones de seguridad, establece un nombre que no sea el predeterminado. Haga clic en el enlace de muestra en la parte inferior de la página. |
 | Exponer como variable global | Elija si y cómo desea exponer la variable global. Si no tiene la intención de escribir en el autobús KNX, por seguridad, deje "solo leer". |
-| Intervalo de escritura de bus | El nodo verifica la variable con el sufijo \ _Write a intervalos regulares para escribir en el bus KNX. Elija el intervalo que prefiera. |
+| Intervalo de escritura de autobús | El nodo verifica la variable con el sufijo \ _Write a intervalos regulares para escribir en el bus KNX. Elija el intervalo que prefiera. |
 
 ## Propiedades de MSG
 

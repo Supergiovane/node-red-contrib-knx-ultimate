@@ -18,22 +18,24 @@ Der Node kann zudem Telegramme pro Sekunde (oder in frei wählbaren Intervallen)
 |--|--|
 | Gateway | KNX‑Gateway. |
 | Topic | Topic des Nodes. |
-| Name | Name des Nodes. |
+| Node Name | Name des Nodes. |
 
 ## ETS‑kompatible BUS‑Diagnosedatei
 
 |Eigenschaft|Beschreibung|
 |--|--|
-| Auto start timer | Timer automatisch beim Deploy/Start starten. |
-| Output new XML every (in minutes) | Intervall in Minuten, in dem die ETS‑kompatible XML ausgegeben wird. |
-| Max number of rows in XML (0 = no limit) | Max. Zeilenzahl in der XML innerhalb des Intervalls; 0 = kein Limit. |
+| Timer für automatischen Start | Timer automatisch beim Deploy/Start starten. |
+| Schreibe eine XML Datei jede (in Minuten) | Intervall in Minuten, in dem die ETS‑kompatible XML ausgegeben wird. |
+| Maximale Anzahl von Zeilen im XML (0 = keine Begrenzung) | Max. Zeilenzahl in der XML; älteste Zeilen werden zuerst entfernt. 0 = kein Limit. |
+| Aktion | Nur Payload senden oder Payload senden und in Datei speichern. |
+| Dateipfad (absolut oder relativ) | Speicherort der XML, wenn Speichern ausgewählt ist. |
 
 ## KNX‑Telegrammzähler
 
 |Eigenschaft|Beschreibung|
 |--|--|
-| Auto start timer | Timer automatisch beim Deploy/Start starten. |
-| Count interval (in seconds) | Intervall (Sekunden) für die Ausgabe des Telegramm‑Zählstands. |
+| Timer für automatischen Start | Timer automatisch beim Deploy/Start starten. |
+| Zählintervall (in Sekunden) | Intervall (Sekunden) für die Ausgabe des Telegramm‑Zählstands. |
 
 ---
 

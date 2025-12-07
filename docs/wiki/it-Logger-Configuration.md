@@ -24,16 +24,18 @@ Il nodo può anche contare i telegrammi al secondo (o con l'intervallo che prefe
 
 |Proprietà|Descrizione|
 |--|--|
-| Auto start timer | Avvia automaticamente il timer al deploy o all'avvio di Node‑RED. |
-| Output new XML every (in minutes) | Ogni quanti minuti emettere il file XML compatibile con ETS. |
-| Max number of rows in XML (0 = no limit) | Numero massimo di righe contenute nell'XML nell'intervallo indicato; 0 per nessun limite. |
+| Avvia il timer automaticamente | Avvia automaticamente il timer al deploy o all'avvio di Node‑RED. |
+| Nuovo file XML ogni (in minuti) | Ogni quanti minuti emettere il file XML compatibile con ETS. |
+| Numero massimo di righe nel file (0 = nessun limite) | Numero massimo di righe contenute nell'XML; le più vecchie vengono eliminate per prime. 0 per nessun limite. |
+| Azione | Emetti solo il payload, oppure emetti il payload e salva su file. |
+| Percorso file (assoluto o relativo) | Dove salvare l'XML quando è selezionato il salvataggio. |
 
 ## Contatore telegrammi KNX
 
 |Proprietà|Descrizione|
 |--|--|
-| Auto start timer | Avvia automaticamente il timer al deploy o all'avvio di Node‑RED. |
-| Count interval (in seconds) | Ogni quanti secondi emettere nel flow il conteggio dei telegrammi. |
+| Avvia il timer automaticamente | Avvia automaticamente il timer al deploy o all'avvio di Node‑RED. |
+| Intervallo conteggio (in secondi) | Ogni quanti secondi emettere nel flow il conteggio dei telegrammi. |
 
 ---
 

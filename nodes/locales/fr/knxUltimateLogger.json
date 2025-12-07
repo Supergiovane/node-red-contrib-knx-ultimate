@@ -10,10 +10,19 @@
       "mlxETSFileAccordion": "Fichier de diagnostic de bus compatible ETS",
       "node-input-intervalCreateETSXML": "Sortir de nouveaux XML chaque (en minutes)",
       "node-input-maxRowsInETSXML": "Nombre maximum de lignes en XML (0 = pas de limite)",
+      "node-input-saveMode": "Action",
+      "node-input-filePath": "Chemin de fichier (absolu ou relatif)",
       "telegramCounter": "Compteur de télégramme KNX",
       "node-input-intervalTelegramCount": "Compter l'intervalle (en quelques secondes)"
     },
-    "placeholder": {},
-    "selectlists": {}
+    "placeholder": {
+      "node-input-filePath": "/var/tmp/knx-logger.xml"
+    },
+    "selectlists": {
+      "saveMode": {
+        "emit": "Envoyer uniquement le payload",
+        "emit_save": "Envoyer le payload et enregistrer dans un fichier"
+      }
+    }
   }
 }

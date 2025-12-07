@@ -1,5 +1,7 @@
+const fs = require('fs')
+
 module.exports = function (RED) {
-  function knxUltimateLogger (config) {
+  function knxUltimateLogger(config) {
     RED.nodes.createNode(this, config)
     const node = this
     node.serverKNX = RED.nodes.getNode(config.server) || undefined
@@ -25,6 +27,9 @@ module.exports = function (RED) {
     node.intervalTelegramCount = config.intervalTelegramCount !== undefined ? (config.intervalTelegramCount * 1000) : 60000
     node.telegramCount = 0
     node.timerTelegramCount = null
+    // Save mode selection (emit only vs emit + save). Backward compatible with legacy saveToFile checkbox.
+    node.saveMode = config.saveMode || ((config.saveToFile === true || config.saveToFile === 'true') ? 'emit_save' : 'emit')
+    node.filePath = config.filePath || '/var/tmp/knx-logger.xml'
 
     const pushStatus = (status) => {
       if (!status) return
@@ -58,8 +63,37 @@ module.exports = function (RED) {
 
     if (!node.serverKNX) return
 
+
+    const buildXMLFromLines = (lines) => {
+      const header = '<CommunicationLog xmlns="http://knx.org/xml/telegrams/01">\n'
+      const stop = '<RecordStop Timestamp="' + new Date().toISOString() + '" />\n'
+      const closing = '</CommunicationLog>'
+      return header + lines.join('') + stop + closing
+    }
+
+    const readExistingTelegramLines = () => {
+      if (node.saveMode !== 'emit_save' || node.filePath === '') return []
+      if (!fs.existsSync(node.filePath)) return []
+      try {
+        const fileContent = fs.readFileSync(node.filePath, 'utf8')
+        const lines = fileContent.split(/\r?\n/).map(l => l + '\n') // keep newline
+        const telegramLines = []
+        let inLog = false
+        for (let i = 0; i < lines.length; i++) {
+          const lineTrim = lines[i].trim()
+          if (lineTrim.startsWith('<CommunicationLog')) { inLog = true; continue }
+          if (lineTrim.startsWith('<RecordStop')) break
+          if (inLog && lineTrim.length > 0 && !lineTrim.startsWith('</CommunicationLog')) telegramLines.push(lines[i])
+        }
+        return telegramLines
+      } catch (error) {
+        node.error(`knxUltimateLogger: error reading file ${node.filePath}: ${error.message}`)
+        return []
+      }
+    }
+
     // 26/03/2020 Create and output the XML for ETS bus monitor
-    function createETSXML () {
+    function createETSXML() {
       let sFile = '<CommunicationLog xmlns="http://knx.org/xml/telegrams/01">\n'
       for (let index = 0; index < node.etsXMLRow.length; index++) {
         const element = node.etsXMLRow[index]
@@ -68,12 +102,31 @@ module.exports = function (RED) {
       sFile += '<RecordStop Timestamp="' + new Date().toISOString() + '" />\n'
       sFile += '</CommunicationLog>'
       node.send([{ topic: node.topic, payload: sFile }, null])
-      node.setNodeStatus({ fill: 'green', shape: 'dot', text: 'Payload ETS sent.', payload: '', GA: '', dpt: '', devicename: '' })
+      let statusText = 'Payload ETS sent.'
+      if (node.saveMode === 'emit_save' && node.filePath !== '') {
+        try {
+          // Append to existing file, honoring max rows by trimming older lines
+          const existingLines = readExistingTelegramLines()
+          let allLines = existingLines.concat(node.etsXMLRow)
+          if (node.maxRowsInETSXML > 0 && allLines.length > node.maxRowsInETSXML) {
+            allLines = allLines.slice(allLines.length - node.maxRowsInETSXML)
+          }
+          const fileContent = buildXMLFromLines(allLines)
+          fs.writeFileSync(node.filePath, fileContent, { encoding: 'utf8' })
+          statusText = 'Payload ETS sent and saved.'
+        } catch (error) {
+          node.error(`knxUltimateLogger: error writing file ${node.filePath}: ${error.message}`)
+          node.setNodeStatus({ fill: 'red', shape: 'ring', text: `File save error: ${error.message}`, payload: '', GA: '', dpt: '', devicename: '' })
+          node.etsXMLRow = []
+          return
+        }
+      }
+      node.setNodeStatus({ fill: 'green', shape: 'dot', text: statusText, payload: '', GA: '', dpt: '', devicename: '' })
       node.etsXMLRow = []
     };
 
     // 25/10/2021 Count Telegrams. Requested by RicharddeCrep https://github.com/Supergiovane/node-red-contrib-knx-ultimate/issues/149#issue-1034644956
-    function countTelegrams () {
+    function countTelegrams() {
       node.send([null, { topic: node.topic, payload: node.telegramCount, countIntervalInSeconds: node.intervalTelegramCount / 1000, currentTime: new Date().toLocaleString() }])
       node.setNodeStatus({ fill: 'green', shape: 'dot', text: 'Payload Telegram counter sent.', payload: node.telegramCount, GA: '', dpt: '', devicename: '' })
       node.telegramCount = 0

@@ -19,9 +19,9 @@ Nota: dopo l'esecuzione dei comandi, la variabile con suffisso `_WRITE` viene sv
 | Proprietà | Descrizione |
 |--|--|
 | Gateway | Gateway KNX. |
-| Variable Name | Nome base del contesto globale. Verranno create due variabili: `<Nome>_READ` (lettura) e `<Nome>_WRITE` (scrittura). Scegli un nome non predefinito per motivi di sicurezza. |
-| Expose as Global variable | Se e come esporre la variabile globale. Se non devi scrivere sul BUS, imposta "read only”. |
-| BUS write interval | Intervallo con cui il nodo controlla `<Nome>_WRITE` per inviare comandi al BUS. |
+| Nome variabile (no spazi, solo [a-z]) | Nome base del contesto globale. Verranno create due variabili: `<Nome>_READ` (lettura) e `<Nome>_WRITE` (scrittura). Scegli un nome non predefinito per motivi di sicurezza. |
+| Esponi come variabile globale | Se e come esporre la variabile globale. Se non devi scrivere sul BUS, imposta "read only”. |
+| Intervallo scrittura su BUS | Intervallo con cui il nodo controlla `<Nome>_WRITE` per inviare comandi al BUS. |
 
 ## Proprietà msg (oggetti nella variabile)
 

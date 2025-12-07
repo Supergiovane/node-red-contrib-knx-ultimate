@@ -10,10 +10,19 @@
       "mlxETSFileAccordion": "Archivo de diagnóstico de bus compatible con ETS",
       "node-input-intervalCreateETSXML": "Salir nuevo XML cada (en minutos)",
       "node-input-maxRowsInETSXML": "Número máximo de filas en xml (0 = sin límite)",
+      "node-input-saveMode": "Acción",
+      "node-input-filePath": "Ruta de archivo (absoluta o relativa)",
       "telegramCounter": "Contador de telegrama de knx",
       "node-input-intervalTelegramCount": "Intervalo de conteo (en segundos)"
     },
-    "placeholder": {},
-    "selectlists": {}
+    "placeholder": {
+      "node-input-filePath": "/var/tmp/knx-logger.xml"
+    },
+    "selectlists": {
+      "saveMode": {
+        "emit": "Emitir solo el payload",
+        "emit_save": "Emitir el payload y guardar en archivo"
+      }
+    }
   }
 }

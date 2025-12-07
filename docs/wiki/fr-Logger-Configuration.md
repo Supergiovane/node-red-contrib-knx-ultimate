@@ -18,26 +18,26 @@ Le nœud peut également compter les télégrammes par seconde (ou tout interval
 
 | Propriété | Description |
 |-|-|
-|Passerelle |La passerelle KNX.|
+|Porte |La passerelle KNX.|
 |Sujet |Le sujet du nœud.|
-|Nom |Nom du nœud.|
+|Nom de nœud |Nom du nœud.|
 
 ## fichier de diagnostic de bus compatible ETS
 
 | Propriété | Description |
 |-|-|
-|Timer de démarrage automatique |Démarre automatiquement la minuterie sur le déploiement ou sur le démarrage du rouge-rouge.|
-|Sortir de nouveaux XML chaque (en minutes) |L'heure, en quelques minutes, que le journaliste sortira le fichier compatible du moniteur de bus XML ETS XML.|
-|Nombre maximum de lignes dans XML (0 = aucune limite) |Démarre automatiquement la minuterie sur le déploiement ou sur le démarrage du rouge-rouge.|
-|Timer de démarrage automatique |Cela représente le nombre maximum de ligne, que le fichier XML peut contenir dans l'intervalle spécifié ci-dessus.Mettez 0 pour ne pas limiter le nombre de lignes dans le fichier.|
-|Nombre maximum de lignes dans XML (0 = aucune limite) |Cela représente le nombre maximum de ligne, que le fichier XML peut contenir dans l'intervalle spécifié ci-dessus.Mettez 0 pour ne pas limiter le nombre de lignes dans le fichier.|
+|Minuterie de démarrage automatique |Démarre automatiquement la minuterie sur le déploiement ou au démarrage de Node‑RED.|
+|Sortir de nouveaux XML chaque (en minutes) |Toutes les X minutes, sortie du fichier XML compatible ETS.|
+|Nombre maximum de lignes en XML (0 = pas de limite) |Nombre maxi de lignes dans l’XML; les plus anciennes sont supprimées en premier. 0 = pas de limite.|
+|Action |Émettre seulement le payload, ou émettre et sauvegarder dans un fichier.|
+|Chemin de fichier (absolu ou relatif) |Où sauvegarder l’XML quand l’option de sauvegarde est choisie.|
 
 ## KNX TELEGRAM COMPTER
 
 | Propriété | Description |
 |-|-|
-|Timer de démarrage automatique |Démarre automatiquement la minuterie sur le déploiement ou sur le démarrage du rouge-rouge.|
-|Intervalle de comptage (en quelques secondes) |À quelle fréquence émettent un MSG à l'écoulement, contenant le nombre de télégrammes KNX.En quelques secondes.|
+|Minuterie de démarrage automatique |Démarre automatiquement la minuterie sur le déploiement ou au démarrage de Node‑RED.|
+|Compter l'intervalle (en quelques secondes) |À quelle fréquence émettre un msg dans le flow, contenant le nombre de télégrammes KNX (en secondes).|
 
 ---
 

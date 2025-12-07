@@ -6,6 +6,12 @@
 
 # CHANGELOG
 
+**Version 4.1.7** - December 2025<br/>
+- Logger node: replaced the checkbox with an explicit **Action** selector (`Emit payload only` / `Emit payload and save to file`), keeping backward compatibility with existing flows.<br/>
+- Logger node: file saving now appends and enforces **Max rows** by trimming oldest lines in both buffer and file; removed the folder picker/listDirs endpoint in favour of a single full-path field.<br/>
+- Logger node: localized labels/help updated in all languages to reflect the new save mode and path field.<br/>
+<br/>
+
 **Version 4.1.5** - December 2025<br/>
 - Bump KNX Engine to 5.2.3.<br/>
 <br/>
