@@ -87,7 +87,7 @@
       "labels": {
         "en": "Other KNX Nodes",
         "it": "Altri Nodi KNX",
-        "de": "Weitere KNX‑Knoten",
+        "de": "Weitere KNX-Knoten",
         "zh": "其他 KNX 节点"
       },
       "items": [
@@ -166,7 +166,7 @@
           "labels": {
             "en": "Auto Responder",
             "it": "Auto Responder",
-            "de": "Auto‑Responder",
+            "de": "Auto-Responder",
             "zh": "自动响应"
           },
           "page": "KNXAutoResponder"
@@ -176,7 +176,7 @@
           "labels": {
             "en": "HA Translator",
             "it": "Traduttore HA",
-            "de": "HA‑Übersetzer",
+            "de": "HA-Übersetzer",
             "zh": "HA 翻译器"
           },
           "page": "HATranslator"
@@ -257,7 +257,7 @@
           "labels": {
             "en": "Device SW update",
             "it": "Aggiornamento SW",
-            "de": "Geräte‑SW‑Update",
+            "de": "Geräte-SW-Update",
             "zh": "设备软件更新"
           },
           "page": "HUE Device software update"
@@ -317,7 +317,7 @@
           "labels": {
             "en": "Zigbee connectivity",
             "it": "Connettività Zigbee",
-            "de": "Zigbee‑Konnektivität",
+            "de": "Zigbee-Konnektivität",
             "zh": "Zigbee 连接"
           },
           "page": "HUE Zigbee connectivity"

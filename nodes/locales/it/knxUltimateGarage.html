@@ -3,17 +3,22 @@
 
 <p>Il nodo Porta garage KNX comanda un portone motorizzato con GA dedicate per i comandi diretti o ad impulso, gestisce blocco richiusura/disabilitazione, integra fotocellula e ostruzione e può richiudere automaticamente dopo un timeout.</p>
 
-**Indirizzi di gruppo**
+**Indirizzi di comando**
 
 |Proprietà|Descrizione|
 |--|--|
-| GA comando | GA booleana (`gaCommand`): `true` apre, `false` chiude. DPT predefinito 1.001. |
+| GA comando (true=apre, false=chiude) | GA booleana (`gaCommand`): `true` apre, `false` chiude. DPT predefinito 1.001. |
 | GA impulso | Il fronte attivo commuta il portone (`gaImpulse`, DPT 1.017). Usata anche quando non c'è una GA comando diretta. |
-| GA movimento | Pulsata quando il nodo comanda la porta, utile per logiche ausiliarie (`gaMoving`). |
-| GA ostruzione | Replica lo stato di ostruzione rilevato (`gaObstruction`). |
 | GA blocco richiusura | Mantiene il portone aperto e annulla il timer (`gaHoldOpen`). |
 | GA disabilitazione | Impedisce qualsiasi comando generato dal nodo (`gaDisable`). |
+
+**Indirizzi di ingresso / sensori**
+
+|Proprietà|Descrizione|
+|--|--|
 | GA fotocellula | Deve andare a true quando la fotocellula rileva un ostacolo (`gaPhotocell`). |
+| GA in movimento | Pulsata quando il nodo comanda la porta, utile per logiche ausiliarie (`gaMoving`). |
+| GA ostruzione | Replica lo stato di ostruzione rilevato (`gaObstruction`). |
 
 **Chiusura automatica**
 

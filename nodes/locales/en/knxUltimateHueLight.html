@@ -38,7 +38,7 @@ Start typing in the GA field (name or Group Address); suggestions appear while y
 | Control dim | Relative DIM of the HUE light. You can set the dimming speed in the **Behaviour** tab. |
 | Control % | Changes the absolute HUE light's brightness (0-100%)|
 | Status % | Link this to the light's brightness status KNX group address |
-| Dim Speed (ms) | Dimming speed in milliseconds. Applies to both the light brightness and the tunable‑white datapoints. Calculated over the 0%→100% range. |
+| Dim Speed (ms) | Dimming speed in milliseconds. Applies to both the light brightness and the tunable-white datapoints. Calculated over the 0%→100% range. |
 | Min Dim brightness | Tha Minimum brightness that the lamp can reach. For example, if you are dimming the light down, the light will stop dimming at the specified brightness %. |
 | Max Dim brightness | Tha Maximum brightness that the lamp can reach. For example, if you are dimming the light up, the light will stop dimming at the specified brightness %. |
 

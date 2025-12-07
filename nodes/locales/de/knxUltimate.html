@@ -1,7 +1,7 @@
 <script type="text/markdown" data-help-name="knxUltimate">
-## KNX‑ULTIMATE GERÄTE‑NODE EINSTELLUNGEN
+## KNX-ULTIMATE GERÄTE-NODE EINSTELLUNGEN
 
-Dieser Node steuert eine KNX‑Gruppenadresse und ist der am häufigsten verwendete.
+Dieser Node steuert eine KNX-Gruppenadresse und ist der am häufigsten verwendete.
 
 [<i class="fa fa-code"></i> Beispiele findest du hier](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-SamplesHome)
 
@@ -9,8 +9,8 @@ Dieser Node steuert eine KNX‑Gruppenadresse und ist der am häufigsten verwend
 
 |Eigenschaft|Beschreibung|
 |--|--|
-| Gateway | Zu verwendendes KNX‑Gateway auswählen |
-| GA‑Typ (Dropdown) | Typ der Gruppenadresse. **3‑Ebenen ** ist Standard (Eingabe der 3‑stufigen GA oder GA‑Bezeichnung, sofern ETS importiert).**Global ** liest die GA beim Start aus einer globalen Variablen,**Flow ** analog auf Flow‑Ebene.**$Env variable ** liest die GA aus einer Umgebungsvariable.**Universeller Modus (alle GAs abhören)** reagiert auf ALLE Gruppenadressen. |
+| Gateway | Zu verwendendes KNX-Gateway auswählen |
+| GA-Typ (Dropdown) | Typ der Gruppenadresse. **3-Ebenen ** ist Standard (Eingabe der 3-stufigen GA oder GA-Bezeichnung, sofern ETS importiert).**Global ** liest die GA beim Start aus einer globalen Variablen,**Flow ** analog auf Flow-Ebene.**$Env variable ** liest die GA aus einer Umgebungsvariable.**Universeller Modus (alle GAs abhören)** reagiert auf ALLE Gruppenadressen. |
 | Gruppenadresse | Zu steuernde Gruppenadresse. Mit importierter ETS kannst du den Gerätenamen tippen. Kann leer bleiben, wenn du sie per `msg.setConfig` setzt. |
 | Datenpunkt | Der zum Node gehörende Datapoint. |
 
@@ -19,7 +19,7 @@ Dieser Node steuert eine KNX‑Gruppenadresse und ist der am häufigsten verwend
 
 ### Manueller Befehlsbutton
 
-Im Editor kann pro Node ein kleiner Button angezeigt werden, über den du KNX‑Telegramme ohne zusätzlichen Inject‑Knoten auslösen kannst.
+Im Editor kann pro Node ein kleiner Button angezeigt werden, über den du KNX-Telegramme ohne zusätzlichen Inject-Knoten auslösen kannst.
 
 |Eigenschaft|Beschreibung|
 |--|--|
@@ -38,18 +38,18 @@ Der Button wird nur eingeblendet, wenn die Option aktiv ist. Im Universalmodus i
 |Eigenschaft|Beschreibung|
 |--|--|
 || **Allgemein** |
-| Node‑Name | Anzeigename. |
+| Node-Name | Anzeigename. |
 | Topic | Topic der Ausgabe. Leer lassen, um die Gruppenadresse zu verwenden. |
-| Passthrough | Leitet die Eingangs‑Nachricht an den Ausgang weiter. |
-|| **Vom Node‑EINGANG zum KNX‑BUS** |
-| Telegrammtyp | `write` zum Senden eines Schreib‑Telegramms (üblich), alternativ Reaktion auf andere Typen. |
-| RBE‑Filter | "Report by change". Wenn aktiv, sendet nur geänderte Werte zum BUS. Für identische Wiederholungen deaktivieren. Bei Aktivierung wird "rbe" dem Nodename hinzugefügt. |
-|| **Vom KNX‑BUS zum Node‑AUSGANG** |
-| Status beim Start lesen | Liest den GA‑Status bei Editorstart und jeder Wiederverbindung. Werte werden in einer Datei gepuffert, Quelle wählbar (Datei/BUS). |
-| RBE‑Filter | Wie oben, aber für Ausgaben zum Flow. |
-| Auf Schreib‑Telegramme reagieren | Sendet bei eingehendem Write eine Nachricht an den Flow. |
-| Auf Response‑Telegramme reagieren | Sendet bei Response eine Nachricht an den Flow. |
-| Auf Lese‑Telegramme reagieren | Sendet bei Read eine Nachricht an den Flow (z. B. um eigene Werte zu liefern). |
+| Passthrough | Leitet die Eingangs-Nachricht an den Ausgang weiter. |
+|| **Vom Node-EINGANG zum KNX-BUS** |
+| Telegrammtyp | `write` zum Senden eines Schreib-Telegramms (üblich), alternativ Reaktion auf andere Typen. |
+| RBE-Filter | "Report by change". Wenn aktiv, sendet nur geänderte Werte zum BUS. Für identische Wiederholungen deaktivieren. Bei Aktivierung wird "rbe" dem Nodename hinzugefügt. |
+|| **Vom KNX-BUS zum Node-AUSGANG** |
+| Status beim Start lesen | Liest den GA-Status bei Editorstart und jeder Wiederverbindung. Werte werden in einer Datei gepuffert, Quelle wählbar (Datei/BUS). |
+| RBE-Filter | Wie oben, aber für Ausgaben zum Flow. |
+| Auf Schreib-Telegramme reagieren | Sendet bei eingehendem Write eine Nachricht an den Flow. |
+| Auf Response-Telegramme reagieren | Sendet bei Response eine Nachricht an den Flow. |
+| Auf Lese-Telegramme reagieren | Sendet bei Read eine Nachricht an den Flow (z. B. um eigene Werte zu liefern). |
 | Multiply/Decimals/Negatives | Skaliert, rundet und behandelt negative Werte (nur numerische Werte). |
 
 <br/>
@@ -57,8 +57,8 @@ Der Button wird nur eingeblendet, wenn die Option aktiv ist. Im Universalmodus i
 
 ## TAB KNX Function
 
-Mit JavaScript kannst du das Verhalten eingehender Nachrichten (vom Flow) und ausgehender Telegramme (zum BUS) anpassen. Der Editor stellt Hilfsobjekte und ‑funktionen bereit, um GA‑Werte zu lesen - mit ETS (ohne DPT) oder ohne ETS (mit DPT).
-Der Code läuft bei jeder Eingangs‑Nachricht und bei jedem BUS‑Telegramm. Bei Aktivierung erscheint "f(x)" im Nodename.
+Mit JavaScript kannst du das Verhalten eingehender Nachrichten (vom Flow) und ausgehender Telegramme (zum BUS) anpassen. Der Editor stellt Hilfsobjekte und -funktionen bereit, um GA-Werte zu lesen - mit ETS (ohne DPT) oder ohne ETS (mit DPT).
+Der Code läuft bei jeder Eingangs-Nachricht und bei jedem BUS-Telegramm. Bei Aktivierung erscheint "f(x)" im Nodename.
 
 |Eigenschaft|Beschreibung|
 |--|--|
@@ -71,9 +71,9 @@ Der Code läuft bei jeder Eingangs‑Nachricht und bei jedem BUS‑Telegramm. Be
 | `msg` | Aktuelle Nachricht. |
 | `getGAValue(GA, DPT?)` | Liest den Wert einer GA, z. B. `'1/0/1'` oder `'1/0/1 Bed table light'` (Text nach Leerzeichen wird ignoriert). DPT nur ohne ETS erforderlich. |
 | `setGAValue(GA, value, DPT?)` | Setzt den Wert der GA; DPT wie oben. |
-| `self(value)` | Setzt den eigenen Node‑Wert und sendet ihn an den BUS (Achtung Schleifen). |
+| `self(value)` | Setzt den eigenen Node-Wert und sendet ihn an den BUS (Achtung Schleifen). |
 | `toggle()` | Toggeln wie `self`. |
-| `node`, `RED`, `return(msg)` | Node‑Objekt, RED‑Objekt, Rückgabe der Nachricht. |
+| `node`, `RED`, `return(msg)` | Node-Objekt, RED-Objekt, Rückgabe der Nachricht. |
 
 ### Beispiele (Flow → BUS)
 
@@ -105,7 +105,7 @@ if (msg.payload === false && getGAValue('0/0/11','1.001') === false){ return; } 
 
 ### Inputs
 
-**destination (string) ** : 3‑stufige GA, z. B. `1/1/0`.**payload (any) ** : zu sendender Wert.**event (string) ** : `GroupValue_Write`, `GroupValue_Response`, `Update_NoWrite` (nur interner Wert, kein BUS‑Senden).**readstatus (boolean) ** : Leseauftrag an den BUS.**dpt (string) ** : z. B. `1.001`.**writeraw (buffer) ** ,**bitlenght (int) ** : RAW‑Senden, `bitlenght` in Bit.**resetRBE (boolean) ** : RBE‑Filter zurücksetzen.**setConfig (json)** : GA/DPT des Nodes per Nachricht ändern.
+**destination (string) ** : 3-stufige GA, z. B. `1/1/0`.**payload (any) ** : zu sendender Wert.**event (string) ** : `GroupValue_Write`, `GroupValue_Response`, `Update_NoWrite` (nur interner Wert, kein BUS-Senden).**readstatus (boolean) ** : Leseauftrag an den BUS.**dpt (string) ** : z. B. `1.001`.**writeraw (buffer) ** ,**bitlenght (int) ** : RAW-Senden, `bitlenght` in Bit.**resetRBE (boolean) ** : RBE-Filter zurücksetzen.**setConfig (json)** : GA/DPT des Nodes per Nachricht ändern.
 
 ### setConfig Details
 
@@ -158,17 +158,17 @@ msg = {
 
 ---
 
-# EINGANGS‑NACHRICHT AUS DEM FLOW
+# EINGANGS-NACHRICHT AUS DEM FLOW
 
-## KNX‑Geräte steuern
+## KNX-Geräte steuern
 
-Der Node nimmt Nachrichten entgegen und sendet sie auf den KNX‑BUS; eingehende BUS‑Telegramme werden als Nachrichten an den Flow ausgegeben. Alle Eigenschaften optional, außer `payload`.
+Der Node nimmt Nachrichten entgegen und sendet sie auf den KNX-BUS; eingehende BUS-Telegramme werden als Nachrichten an den Flow ausgegeben. Alle Eigenschaften optional, außer `payload`.
 
 **msg.destination ** : z. B. `0/0/1`.**msg.payload ** : z. B. `true/false/21/"Hello"`.**msg.event** : `GroupValue_Write`/`GroupValue_Response`/`Update_NoWrite`. Bei `Update_NoWrite` geben alle Nodes mit derselben GA eine Meldung mit `event: 'Update_NoWrite'` aus.
 
 Für Read statt `event` bitte `msg.readstatus = true` verwenden.
 
-**msg.readstatus = true ** : Read an den BUS.**msg.dpt ** : z. B. `1.001` (auch `9`, `"9"`, `"DPT9.001"`).**msg.writeraw ** ,**msg.bitlenght ** : RAW‑Senden; ignoriert den am Node gesetzten DPT.**msg.resetRBE = true** : RBE‑Filter zurücksetzen.
+**msg.readstatus = true ** : Read an den BUS.**msg.dpt ** : z. B. `1.001` (auch `9`, `"9"`, `"DPT9.001"`).**msg.writeraw ** ,**msg.bitlenght ** : RAW-Senden; ignoriert den am Node gesetzten DPT.**msg.resetRBE = true** : RBE-Filter zurücksetzen.
 
 ## Konfiguration per Nachricht ändern
 

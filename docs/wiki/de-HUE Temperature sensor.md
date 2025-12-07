@@ -4,24 +4,24 @@ title: "HUE Temperature sensor"
 lang: de
 permalink: /wiki/de-HUE%20Temperature%20sensor
 ---
-Dieser Node liest die Temperatur (°C) eines HUE‑Temperatursensors und spiegelt sie nach KNX.
+Dieser Node liest die Temperatur (°C) eines HUE-Temperatursensors und spiegelt sie nach KNX.
 
-Beginnen Sie im GA‑Feld (Name oder Gruppenadresse) zu tippen, um die KNX‑GA zu verknüpfen; Geräte werden während der Eingabe vorgeschlagen.
+Beginnen Sie im GA-Feld (Name oder Gruppenadresse) zu tippen, um die KNX-GA zu verknüpfen; Geräte werden während der Eingabe vorgeschlagen.
 
 **Allgemein**
 
 | Eigenschaft | Beschreibung |
 |--|--|
-| KNX GW | Zu verwendendes KNX‑Gateway |
+| KNX GW | Zu verwendendes KNX-Gateway |
 | HUE Bridge | Zu verwendende HUE Bridge |
-| HUE Sensor | HUE‑Temperatursensor (Autocomplete während der Eingabe) |
+| HUE Sensor | HUE-Temperatursensor (Autocomplete während der Eingabe) |
 | Status bei Start lesen | Beim Start/Wiederverbindung aktuellen Wert lesen und auf KNX senden (Standard: nein) |
 
 **Mapping**
 
 | Eigenschaft | Beschreibung |
 |--|--|
-| Temperatur | KNX‑GA für Temperatur in °C. Empfohlener DPT: <b>9.001</b> |
+| Temperatur | KNX-GA für Temperatur in °C. Empfohlener DPT: <b>9.001</b> |
 
 ### Ausgänge
 

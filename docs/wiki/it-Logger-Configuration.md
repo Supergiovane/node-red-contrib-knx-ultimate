@@ -24,7 +24,7 @@ Il nodo può anche contare i telegrammi al secondo (o con l'intervallo che prefe
 
 |Proprietà|Descrizione|
 |--|--|
-| Avvia il timer automaticamente | Avvia automaticamente il timer al deploy o all'avvio di Node‑RED. |
+| Avvia il timer automaticamente | Avvia automaticamente il timer al deploy o all'avvio di Node-RED. |
 | Nuovo file XML ogni (in minuti) | Ogni quanti minuti emettere il file XML compatibile con ETS. |
 | Numero massimo di righe nel file (0 = nessun limite) | Numero massimo di righe contenute nell'XML; le più vecchie vengono eliminate per prime. 0 per nessun limite. |
 | Azione | Emetti solo il payload, oppure emetti il payload e salva su file. |
@@ -34,7 +34,7 @@ Il nodo può anche contare i telegrammi al secondo (o con l'intervallo che prefe
 
 |Proprietà|Descrizione|
 |--|--|
-| Avvia il timer automaticamente | Avvia automaticamente il timer al deploy o all'avvio di Node‑RED. |
+| Avvia il timer automaticamente | Avvia automaticamente il timer al deploy o all'avvio di Node-RED. |
 | Intervallo conteggio (in secondi) | Ogni quanti secondi emettere nel flow il conteggio dei telegrammi. |
 
 ---

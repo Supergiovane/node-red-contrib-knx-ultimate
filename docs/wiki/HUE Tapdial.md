@@ -8,7 +8,7 @@ The **Hue Tap Dial** node maps the rotary service of the Hue Tap Dial to KNX and
 
 ### Tabs
 
-- **Mapping** - select the KNX GA and DPT used for the rotation events. Supported datapoints: DPT 3.007 (relative dim), DPT 5.001 (absolute level 0‑100 %) and DPT 232.600 (vendor colour control).
+- **Mapping** - select the KNX GA and DPT used for the rotation events. Supported datapoints: DPT 3.007 (relative dim), DPT 5.001 (absolute level 0-100 %) and DPT 232.600 (vendor colour control).
 - **Behaviour** - show or hide the Node-RED output pin. When no KNX gateway is configured the output is kept enabled so Hue events still reach the flow.
 
 ### General settings

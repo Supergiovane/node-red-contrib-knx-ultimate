@@ -9,7 +9,7 @@ permalink: /wiki/-Sample---FT12
 This page shows two practical ways to use **Serial FT1.2 (TPUART)** with **KNX Ultimate**:
 
 - a **Weinzierl KBerry** mounted on a **Raspberry Pi** (hardware UART)
-- a generic **TPUART / FT1.2 interface** connected to a PC through a **USB‑to‑UART adapter**
+- a generic **TPUART / FT1.2 interface** connected to a PC through a **USB-to-UART adapter**
 
 In both cases the KNX bus is handled directly over the FT1.2 (TPUART) serial interface, without KNXd.
 
@@ -20,19 +20,19 @@ In both cases the KNX bus is handled directly over the FT1.2 (TPUART) serial int
 
 ## A. KBerry on Raspberry Pi (hardware UART)
 
-This setup is ideal when you want a compact KNX gateway using a **Raspberry Pi + KBerry HAT**, running Node‑RED and KNX Ultimate directly on the Pi.
+This setup is ideal when you want a compact KNX gateway using a **Raspberry Pi + KBerry HAT**, running Node-RED and KNX Ultimate directly on the Pi.
 
 ### A.1 Required hardware
 
 - Raspberry Pi 3 or 4 (Model B recommended)
-- Weinzierl **KBerry** KNX interface (mounted on the 40‑pin GPIO header)
+- Weinzierl **KBerry** KNX interface (mounted on the 40-pin GPIO header)
 - KNX TP bus (twisted pair) with 30 V power supply
 - microSD card with Raspberry Pi OS
 - Optional: case that fits Raspberry + KBerry
 
 ### A.2 Electrical wiring / schematic
 
-On the **Raspberry Pi side**, KBerry sits directly on the 40‑pin header and uses the primary UART:
+On the **Raspberry Pi side**, KBerry sits directly on the 40-pin header and uses the primary UART:
 
 ```text
 Raspberry Pi GPIO header            KBerry
@@ -74,7 +74,7 @@ On Raspberry Pi OS Bookworm the UART configuration lives under `/boot/firmware/c
    dtoverlay=pi3-disable-bt
    ```
 
-   This disables on‑board Bluetooth (which otherwise steals the UART) and enables `ttyAMA0`.
+   This disables on-board Bluetooth (which otherwise steals the UART) and enables `ttyAMA0`.
 
 3. Disable services that might grab the serial port (if installed):
 
@@ -109,9 +109,9 @@ On Raspberry Pi OS Bookworm the UART configuration lives under `/boot/firmware/c
 
    You should see `serial0 -> ttyAMA0` and `/dev/ttyAMA0` present.
 
-### A.5 Give Node‑RED access to the serial port
+### A.5 Give Node-RED access to the serial port
 
-On Linux the user that runs Node‑RED must belong to the `dialout` group to open `/dev/ttyAMA0`.
+On Linux the user that runs Node-RED must belong to the `dialout` group to open `/dev/ttyAMA0`.
 
 1. Check the service user (often `nodered` on Raspberry Pi OS):
 
@@ -145,26 +145,26 @@ Once deployed, the KNX Ultimate node should connect and start sending/receiving 
 
 ---
 
-## B. FT1.2 interface via USB‑to‑UART on a PC
+## B. FT1.2 interface via USB-to-UART on a PC
 
-This scenario is for running **Node‑RED + KNX Ultimate on a PC or server** and connecting to a **TPUART / FT1.2 board** via a **USB‑to‑UART adapter**.
+This scenario is for running **Node-RED + KNX Ultimate on a PC or server** and connecting to a **TPUART / FT1.2 board** via a **USB-to-UART adapter**.
 
 ### B.1 Typical hardware
 
 - PC or small server (Linux or Windows)
-- USB‑to‑UART adapter (FT232, CP2102, CH340, etc.)
+- USB-to-UART adapter (FT232, CP2102, CH340, etc.)
 - TP/FT1.2 (TPUART) board exposing RX/TX, GND and VCC pins
 - KNX TP bus and power supply
 
 > ⚠️ ‼️ Match voltage levels. Many TP/FT1.2 boards use **3.3 V** logic.  
-> Do **not** feed 5 V UART into a **3.3 V‑only** interface unless the vendor explicitly allows it.
+> Do **not** feed 5 V UART into a **3.3 V-only** interface unless the vendor explicitly allows it.
 
-### B.2 Wiring schematic (USB‑UART ↔ FT1.2 board)
+### B.2 Wiring schematic (USB-UART ↔ FT1.2 board)
 
 The exact pin names depend on your hardware; the mapping is normally:
 
 ```text
-USB‑UART adapter                FT1.2 / TPUART board
+USB-UART adapter                FT1.2 / TPUART board
 -------------------------------------------------------------
 TXD                         ->  RXD (UART receive of FT1.2)
 RXD                         ->  TXD (UART transmit of FT1.2)
@@ -187,7 +187,7 @@ If the vendor requires RESET to be driven at startup, wire it as specified in th
 
 Create the corresponding image files under `img/wiki/` so that the links show your real hardware.
 
-### B.4 KNX Ultimate gateway configuration (USB‑UART)
+### B.4 KNX Ultimate gateway configuration (USB-UART)
 
 In the **Gateway configuration** node on the PC:
 
@@ -210,7 +210,7 @@ After deploying, check the KNX Ultimate node status:
 
 ### B.5 Troubleshooting checklist
 
-- Confirm the USB‑UART adapter is visible in the OS:
+- Confirm the USB-UART adapter is visible in the OS:
 
   ```bash
   # Linux
@@ -220,13 +220,13 @@ After deploying, check the KNX Ultimate node status:
 
   On Windows, check **Device Manager → Ports (COM & LPT)**.
 
-- Make sure Node‑RED’s user is allowed to open the serial port:
+- Make sure Node-RED’s user is allowed to open the serial port:
   - Linux: add it to the `dialout` (or equivalent) group.
   - Windows: usually no extra permission is required.
 
-- Double‑check KNX polarity (KNX+ vs KNX‑) and that the bus power supply is within specification.
+- Double-check KNX polarity (KNX+ vs KNX-) and that the bus power supply is within specification.
 
 ---
 
-With these two examples you can choose whether to run KNX Ultimate directly on a **Raspberry Pi + KBerry HAT** or on a **PC with a USB‑to‑UART + FT1.2 board**, using the same Serial FT1.2 transport in the gateway configuration.
+With these two examples you can choose whether to run KNX Ultimate directly on a **Raspberry Pi + KBerry HAT** or on a **PC with a USB-to-UART + FT1.2 board**, using the same Serial FT1.2 transport in the gateway configuration.
 

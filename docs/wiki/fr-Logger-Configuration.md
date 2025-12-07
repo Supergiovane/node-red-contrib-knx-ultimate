@@ -26,7 +26,7 @@ Le nœud peut également compter les télégrammes par seconde (ou tout interval
 
 | Propriété | Description |
 |-|-|
-|Minuterie de démarrage automatique |Démarre automatiquement la minuterie sur le déploiement ou au démarrage de Node‑RED.|
+|Minuterie de démarrage automatique |Démarre automatiquement la minuterie sur le déploiement ou au démarrage de Node-RED.|
 |Sortir de nouveaux XML chaque (en minutes) |Toutes les X minutes, sortie du fichier XML compatible ETS.|
 |Nombre maximum de lignes en XML (0 = pas de limite) |Nombre maxi de lignes dans l’XML; les plus anciennes sont supprimées en premier. 0 = pas de limite.|
 |Action |Émettre seulement le payload, ou émettre et sauvegarder dans un fichier.|
@@ -36,7 +36,7 @@ Le nœud peut également compter les télégrammes par seconde (ou tout interval
 
 | Propriété | Description |
 |-|-|
-|Minuterie de démarrage automatique |Démarre automatiquement la minuterie sur le déploiement ou au démarrage de Node‑RED.|
+|Minuterie de démarrage automatique |Démarre automatiquement la minuterie sur le déploiement ou au démarrage de Node-RED.|
 |Compter l'intervalle (en quelques secondes) |À quelle fréquence émettre un msg dans le flow, contenant le nombre de télégrammes KNX (en secondes).|
 
 ---

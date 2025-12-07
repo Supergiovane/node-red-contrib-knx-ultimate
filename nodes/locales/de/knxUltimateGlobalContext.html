@@ -1,15 +1,15 @@
 <script type="text/markdown" data-help-name="knxUltimateGlobalContext">
 # KNX GLOBALE VARIABLE
 
-Dieser Node spiegelt empfangene Gruppenadressen in eine globale Kontext‑Variable\
-und ermöglicht auch das Schreiben auf den KNX‑BUS über diese Variable.
+Dieser Node spiegelt empfangene Gruppenadressen in eine globale Kontext-Variable\
+und ermöglicht auch das Schreiben auf den KNX-BUS über diese Variable.
 
 ## Überblick
 
-- Füge den Global‑Context‑Node in den Flow ein und gib ihm einen Namen. Dieser Name ist die Basis der globalen Variable.
+- Füge den Global-Context-Node in den Flow ein und gib ihm einen Namen. Dieser Name ist die Basis der globalen Variable.
 - Lesen per Suffix `_READ` (z. B. `MeineVar_READ`).
 - Schreiben per Suffix `_WRITE` (z. B. `MeineVar_WRITE`).
-- Im Dialog lässt sich die Variable als Read‑Only oder Read/Write exposen.
+- Im Dialog lässt sich die Variable als Read-Only oder Read/Write exposen.
 - Ändere aus Sicherheitsgründen den Standardnamen.
 
 Hinweis: Nach der Ausführung werden Einträge in `<Name>_WRITE` automatisch geleert, um Endlosschleifen zu vermeiden.
@@ -18,12 +18,12 @@ Hinweis: Nach der Ausführung werden Einträge in `<Name>_WRITE` automatisch gel
 
 | Property | Beschreibung |
 |--|--|
-| Gateway | KNX‑Gateway. |
+| Gateway | KNX-Gateway. |
 | Variablenname (keine Leerzeichen, nur Zeichen [a-z]) | Basisname der globalen Variable. Es werden `<Name>_READ` (Lesen) und `<Name>_WRITE` (Schreiben) erstellt. Wähle aus Sicherheitsgründen keinen Standardnamen. |
 | Als globale Variable verfügbar machen | Ob und wie die Variable exponiert wird. Wenn kein Schreiben nötig ist, "read only" wählen. |
 | BUS-Schreibintervall | Prüfintervall, in dem `<Name>_WRITE` ausgewertet und an den BUS gesendet wird. |
 
-## msg‑Objekte in der Variable
+## msg-Objekte in der Variable
 
 ```javascript
 
@@ -55,7 +55,7 @@ if (ga && ga.payload === false) return { payload: "FOUND AND FALSE" };
 
 const toSend = [];
 toSend.push({ address: "0/0/10", dpt: "1.001", payload: msg.payload });
-toSend.push({ address: "0/0/11", payload: msg.payload }); // DPT kann mit ETS‑Import entfallen
+toSend.push({ address: "0/0/11", payload: msg.payload }); // DPT kann mit ETS-Import entfallen
 
 global.set("KNXContextBanana_WRITE", toSend);
 ```

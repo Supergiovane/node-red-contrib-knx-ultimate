@@ -24,7 +24,7 @@ Questo nodo si connette al tuo KNX/IP Gateway.
 | Protocollo di connessione | `Tunnel UDP` per interfacce KNX/IP, `Multicast UDP` per router KNX/IP, `Serial FT1.2` per interfacce TP/FT1.2 (selezionato automaticamente quando scegli una porta seriale). Lascia **Auto** per rilevare il protocollo più adatto. |
 | Modalità Serial FT1.2 | Definisce come inizializzare l'interfaccia Serial FT1.2: **KBerry/BAOS** abilita la sequenza specifica per moduli Weinzierl KBerry/BAOS (reset, modalità Link Layer/BAOS, nessun filtro GA), mentre **Standard FT1.2** usa un adattatore FT1.2 generico senza passi specifici per KBerry. Il default è KBerry/BAOS. |
 | KNX Physical Address | Indirizzo fisico KNX, es. `1.1.200`. Default: `15.15.22`. |
-| Bind to local interface | Interfaccia di rete locale usata dal nodo. Lascia "Auto" per selezione automatica. Se hai più interfacce (Ethernet/Wi‑Fi), è consigliato impostarla manualmente per evitare perdita di telegrammi UDP. Default: "Auto". |
+| Bind to local interface | Interfaccia di rete locale usata dal nodo. Lascia "Auto" per selezione automatica. Se hai più interfacce (Ethernet/Wi-Fi), è consigliato impostarla manualmente per evitare perdita di telegrammi UDP. Default: "Auto". |
 | Automatically connect to KNX BUS at start | Connessione automatica al BUS all'avvio. Default: "Yes". |
 | Secure credentials source | Scegli come fornire i dati KNX Secure: **File keyring ETS ** (le chiavi Data Secure e, se presenti, le credenziali di tunnelling arrivano dal keyring),**Credenziali manuali ** (solo KNX IP Tunnelling Secure con utente inserito a mano) oppure**File keyring + password tunnel manuale** (chiavi Data Secure dal keyring, utente/password del tunnel impostati manualmente). Ricorda: i telegrammi KNX Data Secure richiedono sempre un file keyring. |
 | Tunnel interface individual address | Visibile quando la modalità selezionata prevede credenziali manuali (Credenziali manuali o File keyring + password tunnel manuale). Indirizzo individuale opzionale dell'interfaccia tunnel sicura (es. `1.1.1`); lascia vuoto per negoziazione automatica da parte di KNX Ultimate. |
@@ -89,7 +89,7 @@ Video: <a href="https://youtu.be/egRbR_KwP9I"><img src='https://raw.githubuserco
 
 > Poi incolla qui il contenuto del file.
 
-> Il file deve contenere i Datapoint per ogni GA. Il nodo analizza il file e mostra risultati nel DEBUG di Node‑RED.
+> Il file deve contenere i Datapoint per ogni GA. Il nodo analizza il file e mostra risultati nel DEBUG di Node-RED.
 
 > Esiti possibili: **ERROR ** (manca DPT → import interrotto) e**WARNING** (manca sottotipo → aggiunto default, ma va verificato). Il sottotipo è il numero dopo il punto, es. `5.001`.
 

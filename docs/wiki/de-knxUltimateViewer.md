@@ -4,32 +4,32 @@ title: "knxUltimateViewer"
 lang: de
 permalink: /wiki/de-knxUltimateViewer
 ---
-Dieser Node arbeitet zusammen mit dem Dashboard‑<b>ui_template</b> von Node‑RED.
+Dieser Node arbeitet zusammen mit dem Dashboard-<b>ui_template</b> von Node-RED.
 
-Zeigt alle Gruppenadressen und deren Werte in einem Dashboard‑Widget an.
+Zeigt alle Gruppenadressen und deren Werte in einem Dashboard-Widget an.
 
 # KNX VIEWER
 
 | Eigenschaft | Beschreibung |
 |-|-|
-| Gateway | KNX‑Gateway. |
-| Name | Node‑Name. |
+| Gateway | KNX-Gateway. |
+| Name | Node-Name. |
 
 # AUSGÄNGE
 
 1. Gruppenadressen (Dashboard)
-   : payload (html): direkt mit Dashboard‑<b>Template</b> verbinden; erzeugt eine Tabelle mit allen GAs und Werten.
+   : payload (html): direkt mit Dashboard-<b>Template</b> verbinden; erzeugt eine Tabelle mit allen GAs und Werten.
 2. Einfaches Array zur Aufzeichnung
    : payload (array): enthält alle GAs; für eigene Formatierung/Sortierung.
-3. Telegramm‑Warteschlange (Dashboard)
-   : payload (html): mit <b>Template</b> verbinden; zeigt die KNX‑Sendequeue zur BUS‑Überwachung.
+3. Telegramm-Warteschlange (Dashboard)
+   : payload (html): mit <b>Template</b> verbinden; zeigt die KNX-Sendequeue zur BUS-Überwachung.
 
 # BEISPIEL
 
 <img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/viewer2.png" width="90%">
 
-Setze einen Viewer‑Node in den Flow und verbinde ihn mit einem Dashboard‑<b>Template</b>.
-Der <b>Template</b>‑Node enthält nur diesen Text:
+Setze einen Viewer-Node in den Flow und verbinde ihn mit einem Dashboard-<b>Template</b>.
+Der <b>Template</b>-Node enthält nur diesen Text:
 
 ```
 

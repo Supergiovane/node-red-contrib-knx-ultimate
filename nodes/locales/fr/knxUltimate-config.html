@@ -8,7 +8,7 @@ Configuration de la passerelle KNX
 | Propriété | Description |
 |-|-|
 | Nom | Nom du nœud. |
-| Ip / hostname | Adresse multidiffère du routeur ETH / KNX ou adresse IP unicast. Si vous avez une interface KNX / IP, utilisez l'adresse IP de l'interface, par exemple 1982.168.1.22, sinon, si vous avez un routeur KNX / IP, mettez l'adresse de multidiffusion 224.0.23.12. Vous pouvez également taper un **nom d'hôte** au lieu d'une IP. |
+| Gateway | Adresse multidiffère du routeur ETH / KNX ou adresse IP unicast. Si vous avez une interface KNX / IP, utilisez l'adresse IP de l'interface, par exemple 1982.168.1.22, sinon, si vous avez un routeur KNX / IP, mettez l'adresse de multidiffusion 224.0.23.12. Vous pouvez également taper un **nom d'hôte** au lieu d'une IP. |
 
 <br/>
 
@@ -16,16 +16,16 @@ Configuration de la passerelle KNX
 
 | Propriété | Description |
 |-|-|
-| Port IP | Le port. La valeur par défaut est 3671. |
-| Protocole IP | _Tunnel UDP_ est pour les interfaces KNX / IP, _Multicast UDP_ est pour les routeurs KNX / IP. Laissez **Auto** pour la détection automatique. La valeur par défaut est "Auto". |
+| Port | Le port. La valeur par défaut est 3671. |
+| Protocole de connexion | _Tunnel UDP_ est pour les interfaces KNX / IP, _Multicast UDP_ est pour les routeurs KNX / IP. Laissez **Auto** pour la détection automatique. La valeur par défaut est "Auto". |
 | Mode Serial FT1.2 | Définit comment l’interface série FT1.2 est initialisée : **KBerry/BAOS** active la séquence spécifique pour les modules Weinzierl KBerry/BAOS (reset, mode Link Layer/BAOS, aucun filtre de GA), tandis que **Standard FT1.2** utilise un adaptateur FT1.2 générique sans étapes spécifiques à KBerry. La valeur par défaut est KBerry/BAOS. |
-| Adresse physique KNX | L'adresse physique KNX, exemple 1.1.200. La valeur par défaut est "15.15.22". |
-| Se lier à l'interface locale | Le nœud utilisera cette interface locale pour les communications. Laissez "Auto" pour la sélection automatique. Si vous avez plus d'une connexion LAN, par exemple Ethernet et WiFi, il est fortement recommandé de sélectionner manuellement l'interface, sinon tout le télégramme UDP n'atteindra pas votre ordinateur, donc le nœud peut ne pas fonctionner comme prévu. La valeur par défaut est "Auto". |
-| Connectez-vous automatiquement au bus KNX au démarrage | Connectez-vous automatiquement au bus au départ. La valeur par défaut est "oui". |
-| Secure d'identification sécurisée | Choisissez comment les données sécurisées KNX sont fournies: **ETS Fichier de clés ** (Données Secure Keys - et les informations d'identification de tunneling si elles sont présentes - proviennent de la clés),**Indementiels manuels ** (Seul KNX IP Tunneling Secure avec un utilisateur saisi manuellement), ou**Clémentiel + Mot de passe du tunnel manuel** Utilisateur manuel). N'oubliez pas que les télégrammes Secure Data KNX nécessitent toujours un fichier de clés. |
-| Interface tunnel Adresse individuelle | Visible chaque fois que le mode sélectionné comprend des informations d'identification manuelles (manuel ou clés + mot de passe du tunnel manuel). Adresse individuelle KNX facultative pour l'interface du tunnel sécurisé (par exemple `1.1.1`); Laissez vide pour laisser KNX Ultimate le négocier automatiquement. |
-| ID utilisateur du tunnel | Visible lorsque des références manuelles sont utilisées. Identificateur d'utilisateur de tunnel Secure KNX en option défini dans ETS. |
-| Mot de passe utilisateur du tunnel | Visible lorsque des références manuelles sont utilisées. Mot de passe de l'utilisateur de tunneling Secure KNX configuré dans ETS. |
+| KNX-Adresse | L'adresse physique KNX, exemple 1.1.200. La valeur par défaut est "15.15.22". |
+| An lokale Netzwerk-Schnittstelle binden | Le nœud utilisera cette interface locale pour les communications. Laissez "Auto" pour la sélection automatique. Si vous avez plus d'une connexion LAN, par exemple Ethernet et WiFi, il est fortement recommandé de sélectionner manuellement l'interface, sinon tout le télégramme UDP n'atteindra pas votre ordinateur, donc le nœud peut ne pas fonctionner comme prévu. La valeur par défaut est "Auto". |
+| Beim Start automatisch mit dem KNX BUS verbinden | Connectez-vous automatiquement au bus au départ. La valeur par défaut est "oui". |
+| Quelle pour Secure-Zugangsdaten | Choisissez comment les données sécurisées KNX sont fournies: **ETS Fichier de clés ** (Données Secure Keys - et les informations d'identification de tunneling si elles sont présentes - proviennent de la clés),**Indementiels manuels ** (Seul KNX IP Tunneling Secure avec un utilisateur saisi manuellement), ou**Keyring + mot de passe du tunnel manuel** Utilisateur manuel). N'oubliez pas que les télégrammes Secure Data KNX nécessitent toujours un fichier de clés. |
+| Individuelle Adresse der Tunnel-Schnittstelle | Visible chaque fois que le mode sélectionné comprend des informations d'identification manuelles (manuel ou clés + mot de passe du tunnel manuel). Adresse individuelle KNX facultative pour l'interface du tunnel sécurisé (par exemple `1.1.1`); Laissez vide pour laisser KNX Ultimate le négocier automatiquement. |
+| Tunnel-Benutzer-ID | Visible lorsque des références manuelles sont utilisées. Identificateur d'utilisateur de tunnel Secure KNX en option défini dans ETS. |
+| Tunnel-Benutzerpasswort | Visible lorsque des références manuelles sont utilisées. Mot de passe de l'utilisateur de tunneling Secure KNX configuré dans ETS. |
 
 > **KNX Secure Essentials** \
 > • _KNX Data Secure_ protège les télégrammes d'adresses de groupe et **toujours** a besoin d'un fichier de clés contenant les touches de groupe. \

@@ -87,7 +87,7 @@ permalink: /wiki/zh-CN-Gateway-configuration
 
 > CSV Separator: Tabulator
 
-> 然后将文件内容粘贴到此处。文件必须包含每个 GA 的 DPT。解析结果会显示在 Node‑RED 的 DEBUG 面板。
+> 然后将文件内容粘贴到此处。文件必须包含每个 GA 的 DPT。解析结果会显示在 Node-RED 的 DEBUG 面板。
 
 > 结果类型： **ERROR ** （缺少 DPT → 停止导入）与**WARNING ** （缺少子类型 → 自动补默认，但需人工确认）。子类型是 DPT 中小数点右侧的数字，如 `5.001`。**如何从 ETS 导出 ESF**
 

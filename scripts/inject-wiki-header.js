@@ -17,7 +17,7 @@ const WIKI_DIR = path.join(ROOT, 'docs', 'wiki')
 const ABS = 'https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/'
 const MENU_CFG = path.join(__dirname, 'wiki-menu.json')
 
-function listMarkdown (dir) {
+function listMarkdown(dir) {
   const out = []
   for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
     const p = path.join(dir, e.name)
@@ -27,22 +27,22 @@ function listMarkdown (dir) {
   return out
 }
 
-function detectLang (fileBase) {
+function detectLang(fileBase) {
   if (fileBase.startsWith('it-')) return 'it'
   if (fileBase.startsWith('de-')) return 'de'
   if (fileBase.startsWith('zh-CN-')) return 'zh'
   return 'en'
 }
 
-function slugify (title) { return encodeURIComponent(title) }
+function slugify(title) { return encodeURIComponent(title) }
 
-function langPrefix (lang) {
+function langPrefix(lang) {
   if (lang === 'en') return ''
   if (lang === 'zh') return 'zh-CN-'
   return `${lang}-`
 }
 
-function resolvePageTitle (lang, title) {
+function resolvePageTitle(lang, title) {
   const prefix = langPrefix(lang)
   if (!prefix) return title
   const candidate = `${prefix}${title}`
@@ -50,7 +50,7 @@ function resolvePageTitle (lang, title) {
   return fs.existsSync(candidatePath) ? candidate : title
 }
 
-function pageUrl (lang, title) {
+function pageUrl(lang, title) {
   const target = resolvePageTitle(lang, title)
   return ABS + slugify(target)
 }
@@ -142,7 +142,7 @@ const LABELS = {
     gateway: 'Gateway',
     device: 'Gerät',
     protections: 'Knotenschutz',
-    knxOther: 'Weitere KNX‑Knoten',
+    knxOther: 'Weitere KNX-Knoten',
     scene: 'Szenencontroller',
     watchdog: 'WatchDog',
     logger: 'Logger',
@@ -150,21 +150,21 @@ const LABELS = {
     alerter: 'Alerter',
     load: 'Laststeuerung',
     viewer: 'Viewer',
-    autoresp: 'Auto‑Responder',
-    ha: 'HA‑Übersetzer',
+    autoresp: 'Auto-Responder',
+    ha: 'HA-Übersetzer',
     hue: 'HUE',
     bridge: 'Bridge',
     light: 'Licht',
     battery: 'Batterie',
     button: 'Taster',
     contact: 'Kontaktsensor',
-    devsw: 'Geräte‑SW‑Update',
+    devsw: 'Geräte-SW-Update',
     lightsensor: 'Lichtsensor',
     motion: 'Bewegung',
     sceneH: 'Szene',
     tapdial: 'Tap Dial',
     temperature: 'Temperatur',
-    zigbee: 'Zigbee‑Konnektivität',
+    zigbee: 'Zigbee-Konnektivität',
     samples: 'Beispiele'
   },
   zh: {
@@ -206,7 +206,7 @@ const LABELS = {
   }
 }
 
-function buildHeader (lang) {
+function buildHeader(lang) {
   const L = LABELS[lang]
   const mk = (t) => pageUrl(lang, t)
   const cfg = JSON.parse(fs.readFileSync(MENU_CFG, 'utf8'))
@@ -230,7 +230,7 @@ function buildHeader (lang) {
     .join('\n')
 }
 
-function updateFile (file) {
+function updateFile(file) {
   const base = path.basename(file)
   if (base === '_Sidebar.md' || base === '_Footer.md') return false
   const lang = detectLang(base)

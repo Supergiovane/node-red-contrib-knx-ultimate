@@ -6,7 +6,7 @@ permalink: /wiki/de-LoadControl-Configuration
 ---
 # KNX Load Control Node
 
-Mit dem Load‑Control‑Node schaltest du Lasten (Waschmaschine, Ofen usw.) automatisch ab, wenn der Verbrauch einen Schwellwert überschreitet.
+Mit dem Load-Control-Node schaltest du Lasten (Waschmaschine, Ofen usw.) automatisch ab, wenn der Verbrauch einen Schwellwert überschreitet.
 Das Abschalten erfolgt intelligent: der mögliche Geräteverbrauch wird berücksichtigt, um zu entscheiden, ob gemeinsam mit anderen abgeschaltet wird.
 Der Node kann Lasten automatisch wieder zuschalten.
 Es wird jeweils ein Gerät (oder mehrere) in der konfigurierten Reihenfolge geschaltet.
@@ -15,7 +15,7 @@ Es wird jeweils ein Gerät (oder mehrere) in der konfigurierten Reihenfolge gesc
 
 |Eigenschaft|Beschreibung|
 |--|--|
-| Gateway | KNX‑Gateway. Ohne Auswahl werden nur Eingangs‑Nachrichten berücksichtigt. |
+| Gateway | KNX-Gateway. Ohne Auswahl werden nur Eingangs-Nachrichten berücksichtigt. |
 | Monitor Wh | GA für den Gesamtverbrauch des Gebäudes. |
 | Limit Wh | Maximaler Zähler/Vertragsschwellwert. Bei Überschreitung beginnt das Abschalten. |
 | Delay switch off (s) | Prüfintervall (Sekunden) zum Abschalten. |
@@ -26,17 +26,17 @@ Es wird jeweils ein Gerät (oder mehrere) in der konfigurierten Reihenfolge gesc
 Füge Geräte hinzu, die bei Überlast abgeschaltet werden sollen.
 Wähle das Gerät über Name oder GA.
 Optional: GA mit Geräteleistung angeben. Überschreitet die Leistung einen Grenzwert, gilt das Gerät als "in Benutzung". Bei geringem Verbrauch kann es zusammen mit dem nächsten abgeschaltet werden.
-Ist "Automatische Wiederherstellung" aktiv, wird nach Ablauf des Reset‑Delays wieder eingeschaltet.
+Ist "Automatische Wiederherstellung" aktiv, wird nach Ablauf des Reset-Delays wieder eingeschaltet.
 
 ## Inputs
 
 |Eigenschaft|Beschreibung|
 |--|--|
-| `msg.readstatus = true` | Liest die aktuellen Watt‑Werte aller gelisteten Geräte vom BUS (normalerweise automatisch). |
+| `msg.readstatus = true` | Liest die aktuellen Watt-Werte aller gelisteten Geräte vom BUS (normalerweise automatisch). |
 | `msg.enable = true` | Lastabwurf aktivieren. |
 | `msg.disable = true` | Lastabwurf deaktivieren. |
 | `msg.reset = true` | Node zurücksetzen und alle Geräte einschalten. |
-| `msg.shedding` | String: `shed` = Vorwärts‑Abwurf, `unshed` = Rücknahme. Start/Stop des Timers erzwingen (ignoriert Monitor‑GA). `auto` reaktiviert die Überwachung der Monitor‑GA. |
+| `msg.shedding` | String: `shed` = Vorwärts-Abwurf, `unshed` = Rücknahme. Start/Stop des Timers erzwingen (ignoriert Monitor-GA). `auto` reaktiviert die Überwachung der Monitor-GA. |
 
 ## Outputs
 

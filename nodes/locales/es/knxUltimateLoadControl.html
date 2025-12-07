@@ -11,9 +11,9 @@ El nodo apaga un dispositivo (o múltiples dispositivos) a la vez, según el ord
 
 | Propiedad | Descripción |
 |-|-|
-|Puerta de entrada |KNX Gateway.También es posible no seleccionar ninguna puerta de enlace;En este caso, solo se considerarán mensajes entrantes al nodo.|
-|Monitor WH |Dirección grupal que representa el consumo total de su edificio.|
-|Límite WH |Umbral máximo que su medidor de electricidad puede soportar.Cuando se excede este umbral, el nodo comienza a apagar los dispositivos.|
+|Puerta |KNX Gateway.También es posible no seleccionar ninguna puerta de enlace;En este caso, solo se considerarán mensajes entrantes al nodo.|
+|Monitor W |Dirección grupal que representa el consumo total de su edificio.|
+|Soglia W |Umbral máximo que su medidor de electricidad puede soportar.Cuando se excede este umbral, el nodo comienza a apagar los dispositivos.|
 |Retraso apagado (s) |Expresado en segundos, indica con qué frecuencia el nodo evaluará el consumo y apagará cada dispositivo.|
 |Interruptor de retraso (s) (s) |Expresado en segundos, indica con qué frecuencia el nodo evaluará el consumo y encenderá cada dispositivo que se apagó.|
 
@@ -34,7 +34,7 @@ Si _Automatic Recovery_ está habilitado, el dispositivo se reactiva automática
 |`msg.enable = true` |Habilitar el control de carga. |
 |`msg.disable = true` |Deshabilite el control de carga. |
 |`msg.reset = true` |Restablecer los estados de nodo y encender todos los dispositivos. |
-|`msg.shedding` |Cadena._shed_ para iniciar la secuencia de desprendimiento de formato, _Unshed_ para comenzar a invertir el desprendimiento.Use este MSG para obligar al temporizador de desprendimiento a comenzar/detener, ignorando la dirección de grupo **Monitor WH ** .Establezca _auto_ para habilitar nuevamente el monitor**WH** Monitoreo de la dirección del grupo.|
+|`msg.shedding` |Cadena._shed_ para iniciar la secuencia de desprendimiento de formato, _Unshed_ para comenzar a invertir el desprendimiento.Use este MSG para obligar al temporizador de desprendimiento a comenzar/detener, ignorando la dirección de grupo **Monitor W ** .Establezca _auto_ para habilitar nuevamente el monitor**W** Monitoreo de la dirección del grupo.|
 
 ## salidas
 

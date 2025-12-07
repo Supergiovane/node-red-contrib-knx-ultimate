@@ -11,15 +11,15 @@ Controlla la connessione al Gateway o a uno specifico dispositivo KNX e consente
 **Cosa fa**
 
 1. Verifica la salute della comunicazione KNX inviando periodicamente un telegramma, attende una risposta e invia un msg al flow se la connessione al BUS è interrotta. Due livelli di controllo (vedi sotto).
-2. Modifica via messaggio i parametri del nodo di configurazione (Config‑Node), quindi la connessione verso il tuo KNX/IP Router/Interface (es. switch tra due gateway per backup).
+2. Modifica via messaggio i parametri del nodo di configurazione (Config-Node), quindi la connessione verso il tuo KNX/IP Router/Interface (es. switch tra due gateway per backup).
 3. Forza connessione/disconnessione del gateway verso il BUS KNX.
 
 ## Verifiche a livello Ethernet e a livello KNX Twisted Pair
 
 Il WatchDog ha due livelli di controllo.
 
-- Primo livello: controlla solo la connessione tra KNX‑Ultimate e l'interfaccia KNX/IP in modalità unicast.
-- Secondo livello: controlla l'intera catena, dal nodo Gateway KNX‑Ultimate alla rete Ethernet fino al KNX TP e viceversa; richiede un dispositivo fisico che risponda a richieste di lettura.
+- Primo livello: controlla solo la connessione tra KNX-Ultimate e l'interfaccia KNX/IP in modalità unicast.
+- Secondo livello: controlla l'intera catena, dal nodo Gateway KNX-Ultimate alla rete Ethernet fino al KNX TP e viceversa; richiede un dispositivo fisico che risponda a richieste di lettura.
 
 Il WatchDog è molto utile per notificare errori e problemi di connessione: puoi inviare un'email all'installatore KNX o passare automaticamente a un gateway di backup.
 
@@ -30,12 +30,12 @@ Il WatchDog è molto utile per notificare errori e problemi di connessione: puoi
 | Gateway | Gateway KNX selezionato. |
 | Group Address to monitor | GA a cui inviare il telegramma e da cui attendere risposta sul BUS KNX. Il Datapoint deve essere DPT 1.x (boolean). |
 | Name | Nome del nodo. |
-| Auto start the watchdog timer | Avvio automatico del timer al deploy o all'avvio di Node‑RED. |
+| Auto start the watchdog timer | Avvio automatico del timer al deploy o all'avvio di Node-RED. |
 | Check level | Vedi sotto. |
 
 **Check level**
 
-> Ethernet: controlla la connessione tra il Gateway KNX‑Ultimate (in unicast) e la tua KNX/IP Interface.
+> Ethernet: controlla la connessione tra il Gateway KNX-Ultimate (in unicast) e la tua KNX/IP Interface.
 
 <img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/WatchDogEthernetLevel.png" width="90%">
 
@@ -52,7 +52,7 @@ Il WatchDog è molto utile per notificare errori e problemi di connessione: puoi
 
 # Messaggi in uscita dal WatchDog
 
-Il nodo emette un messaggio quando riceve un errore da un qualsiasi nodo KNX‑Ultimate nel flow, oppure quando il watchdog interno intercetta un errore di comunicazione sul BUS KNX.
+Il nodo emette un messaggio quando riceve un errore da un qualsiasi nodo KNX-Ultimate nel flow, oppure quando il watchdog interno intercetta un errore di comunicazione sul BUS KNX.
 
 **In caso di problema di connessione rilevato dal WatchDog**
 
@@ -69,7 +69,7 @@ msg = {
 }
 ```
 
-**In caso di errore di un tuo nodo KNX‑Ultimate**
+**In caso di errore di un tuo nodo KNX-Ultimate**
 
 ```javascript
 
@@ -142,7 +142,7 @@ return msg;
 
 ## Modificare al volo le impostazioni del KNX/IP Router/Interface
 
-Con `msg.setGatewayConfig` puoi cambiare IP, Porta, Indirizzo Fisico, Protocollo, ecc., del gateway configurato nel Config‑Node. Il Config‑Node applica i parametri e si riconnette. Al riavvio di Node‑RED, le impostazioni tornano a quelle del Config‑Node.
+Con `msg.setGatewayConfig` puoi cambiare IP, Porta, Indirizzo Fisico, Protocollo, ecc., del gateway configurato nel Config-Node. Il Config-Node applica i parametri e si riconnette. Al riavvio di Node-RED, le impostazioni tornano a quelle del Config-Node.
 
 Tutti i parametri sono opzionali.
 
@@ -166,7 +166,7 @@ msg.setGatewayConfig = { IP:"224.0.23.12" };
 return msg;
 ```
 
-**Forzare disconnessione e disabilitare i tentativi di auto‑reconnect**
+**Forzare disconnessione e disabilitare i tentativi di auto-reconnect**
 
 ```javascript
 
@@ -174,7 +174,7 @@ msg.connectGateway = false;
 return msg;
 ```
 
-**Forzare connessione e abilitare i tentativi di auto‑reconnect**
+**Forzare connessione e abilitare i tentativi di auto-reconnect**
 
 ```javascript
 

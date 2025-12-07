@@ -3,14 +3,19 @@
 
 <p>Control a KNX garage door with direct Boolean commands or toggle impulses, optional hold-open / disable GAs, safety photocell feedback and automatic re-close. The node can emit movement and obstruction indicators as well as structured events for the flow.</p>
 
-**Group addresses**
+**Command group addresses**
 
 |Property|Description|
 |--|--|
-| Command GA | Boolean GA (`gaCommand`) where `true` opens and `false` closes. Default DPT 1.001. |
+| Command GA (true=open, false=close) | Boolean GA (`gaCommand`) where `true` opens and `false` closes. Default DPT 1.001. |
 | Impulse GA | Rising edge toggles the door (`gaImpulse`, default DPT 1.017). Used automatically when no direct command GA is provided. |
 | Hold-open GA | Keeps the door open and cancels auto re-close while true (`gaHoldOpen`). |
 | Disable GA | Blocks any command emitted by the node (`gaDisable`). Useful during maintenance/manual mode. |
+
+**Input / sensor group addresses**
+
+|Property|Description|
+|--|--|
 | Photocell GA | Goes true when the beam is interrupted; the node reopens and flags obstruction (`gaPhotocell`). |
 | Moving GA | Optional pulse when the node commands movement so other devices can follow the motion (`gaMoving`). |
 | Obstruction GA | Mirrors the obstruction status for dashboards, alarms or logic blocks (`gaObstruction`). |

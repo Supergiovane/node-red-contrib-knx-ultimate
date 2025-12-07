@@ -6,9 +6,9 @@ permalink: /wiki/de-Logger-Configuration
 ---
 # Logger
 
-Der Logger‑Node zeichnet alle Telegramme auf und erzeugt eine ETS‑Busmonitor‑kompatible XML‑Datei.
+Der Logger-Node zeichnet alle Telegramme auf und erzeugt eine ETS-Busmonitor-kompatible XML-Datei.
 
-Du kannst die Datei per File‑Node speichern oder z. B. per FTP versenden. ETS kann sie für Diagnose oder Telegramm‑Replay einlesen.
+Du kannst die Datei per File-Node speichern oder z. B. per FTP versenden. ETS kann sie für Diagnose oder Telegramm-Replay einlesen.
 Der Node kann zudem Telegramme pro Sekunde (oder in frei wählbaren Intervallen) zählen. 
  <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Logger-Sample" target="_blank">Beispiele hier.</a>
 
@@ -16,44 +16,44 @@ Der Node kann zudem Telegramme pro Sekunde (oder in frei wählbaren Intervallen)
 
 |Eigenschaft|Beschreibung|
 |--|--|
-| Gateway | KNX‑Gateway. |
+| Gateway | KNX-Gateway. |
 | Topic | Topic des Nodes. |
 | Node Name | Name des Nodes. |
 
-## ETS‑kompatible BUS‑Diagnosedatei
+## ETS-kompatible BUS-Diagnosedatei
 
 |Eigenschaft|Beschreibung|
 |--|--|
 | Timer für automatischen Start | Timer automatisch beim Deploy/Start starten. |
-| Schreibe eine XML Datei jede (in Minuten) | Intervall in Minuten, in dem die ETS‑kompatible XML ausgegeben wird. |
+| Schreibe eine XML Datei jede (in Minuten) | Intervall in Minuten, in dem die ETS-kompatible XML ausgegeben wird. |
 | Maximale Anzahl von Zeilen im XML (0 = keine Begrenzung) | Max. Zeilenzahl in der XML; älteste Zeilen werden zuerst entfernt. 0 = kein Limit. |
 | Aktion | Nur Payload senden oder Payload senden und in Datei speichern. |
 | Dateipfad (absolut oder relativ) | Speicherort der XML, wenn Speichern ausgewählt ist. |
 
-## KNX‑Telegrammzähler
+## KNX-Telegrammzähler
 
 |Eigenschaft|Beschreibung|
 |--|--|
 | Timer für automatischen Start | Timer automatisch beim Deploy/Start starten. |
-| Zählintervall (in Sekunden) | Intervall (Sekunden) für die Ausgabe des Telegramm‑Zählstands. |
+| Zählintervall (in Sekunden) | Intervall (Sekunden) für die Ausgabe des Telegramm-Zählstands. |
 
 ---
 
 # Ausgaben des Logger
 
-**PIN 1: ETS‑Busmonitor‑kompatible XML**
+**PIN 1: ETS-Busmonitor-kompatible XML**
 
-Mit einem File‑Node `payload` speichern oder z. B. an FTP senden.
+Mit einem File-Node `payload` speichern oder z. B. an FTP senden.
 
 ```javascript
 
 msg = {
   topic: "MyLogger",
-  payload: "CommunicationLog xmlns=http://knx.org/xml/telegrams/01 Telegram Timestamp=2020-03-27T07:32:39.470Z Service=L_Data.ind...." // XML‑String
+  payload: "CommunicationLog xmlns=http://knx.org/xml/telegrams/01 Telegram Timestamp=2020-03-27T07:32:39.470Z Service=L_Data.ind...." // XML-String
 }
 ```
 
-**PIN 2: KNX‑Telegrammzähler**
+**PIN 2: KNX-Telegrammzähler**
 
 Bei jedem Intervall gibt der Node z. B. so aus:
 
@@ -69,9 +69,9 @@ msg = {
 
 ---
 
-# Eingangs‑Nachrichten (INPUT)
+# Eingangs-Nachrichten (INPUT)
 
-ETS‑kompatible XML
+ETS-kompatible XML
 
 **Timer starten**
 
@@ -87,7 +87,7 @@ msg.etsstarttimer = true; return msg;
 msg.etsstarttimer = false; return msg;
 ```
 
-**Sofortige XML‑Ausgabe**
+**Sofortige XML-Ausgabe**
 
 ```javascript
 

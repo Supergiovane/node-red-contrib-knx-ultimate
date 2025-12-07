@@ -3,17 +3,22 @@
 
 <p>El nodo Puerta de garaje KNX controla un portón motorizado mediante GA específicas para mandos booleanos o impulsos, mantiene abierto o deshabilita el funcionamiento, integra la fotocélula y la señal de obstrucción y puede cerrar automáticamente tras un tiempo.</p>
 
-**Direcciones de grupo**
+**Direcciones de mando**
 
 |Propiedad|Descripción|
 |--|--|
-| GA mando | GA booleana (`gaCommand`): `true` abre y `false` cierra. DPT por defecto 1.001. |
+| GA mando (true=abre, false=cierra) | GA booleana (`gaCommand`): `true` abre y `false` cierra. DPT por defecto 1.001. |
 | GA impulso | El flanco activo conmuta la puerta (`gaImpulse`, DPT 1.017). También se usa cuando no existe GA mando. |
-| GA movimiento | Pulso opcional cuando el nodo ordena el movimiento (`gaMoving`). |
-| GA obstrucción | Refleja el estado de obstrucción detectado (`gaObstruction`). |
 | GA mantener abierto | Cancela la re-clausura automática mientras permanezca a true (`gaHoldOpen`). |
 | GA deshabilitación | Bloquea cualquier comando generado por el nodo (`gaDisable`). |
+
+**Direcciones de entrada/sensores**
+
+|Propiedad|Descripción|
+|--|--|
 | GA fotocélula | Debe pasar a true cuando la fotocélula detecta un obstáculo (`gaPhotocell`). |
+| GA movimiento | Pulso opcional cuando el nodo ordena el movimiento (`gaMoving`). |
+| GA obstrucción | Refleja el estado de obstrucción detectado (`gaObstruction`). |
 
 **Cierre automático**
 

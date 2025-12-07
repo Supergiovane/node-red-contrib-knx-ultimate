@@ -1,5 +1,5 @@
 <script type="text/markdown" data-help-name="knxUltimate">
-## IMPOSTAZIONI DEL NODO KNX‑ULTIMATE (DEVICE)
+## IMPOSTAZIONI DEL NODO KNX-ULTIMATE (DEVICE)
 
 Questo nodo controlla un Indirizzo di Gruppo KNX; è il nodo più utilizzato.
 
@@ -10,7 +10,7 @@ Questo nodo controlla un Indirizzo di Gruppo KNX; è il nodo più utilizzato.
 |Proprietà|Descrizione|
 |--|--|
 | Gateway | Seleziona il gateway KNX da utilizzare |
-| Elenco a discesa tipo GA | Tipo di indirizzo di gruppo. **3‑Livelli ** è il default, dove puoi digitare il GA a 3 livelli o il nome GA (se hai caricato il file ETS);**Global ** legge il GA da una variabile globale all'avvio;**Flow ** fa lo stesso a livello di flow. Seleziona**$Env variable ** per leggere il GA da una variabile d'ambiente. Seleziona**Modalità universale (ascolta tutti gli Indirizzi di Gruppo)** per reagire a TUTTI i GA. |
+| Elenco a discesa tipo GA | Tipo di indirizzo di gruppo. **3-Livelli ** è il default, dove puoi digitare il GA a 3 livelli o il nome GA (se hai caricato il file ETS);**Global ** legge il GA da una variabile globale all'avvio;**Flow ** fa lo stesso a livello di flow. Seleziona**$Env variable ** per leggere il GA da una variabile d'ambiente. Seleziona**Modalità universale (ascolta tutti gli Indirizzi di Gruppo)** per reagire a TUTTI i GA. |
 | Ind. Gruppo | L'indirizzo di gruppo KNX da controllare. Se hai importato il file ETS, puoi iniziare a digitare il nome del dispositivo. Puoi lasciarlo vuoto se intendi impostarlo tramite messaggio di ingresso `msg.setConfig`. |
 | Datapoint | Il Datapoint associato al nodo. |
 
@@ -45,7 +45,7 @@ Il pulsante è visibile soltanto se l’opzione è attiva. In modalità universa
 | Tipo telegramma | `write` per inviare un telegramma di scrittura (in genere è ciò che vuoi); in alternativa puoi scegliere a quale tipo di telegramma reagire. |
 | Filtro RBE | Filtro "Report by change”. Se attivo, invia al BUS solo messaggi di ingresso con valore diverso dal precedente. Se devi inviare sempre lo stesso valore, disattivalo. Se attivo, verrà aggiunta l'indicazione "rbe” al nome del nodo. |
 || **Dal BUS KNX verso il PIN di USCITA del nodo** |
-| Read status on start | Legge lo stato del GA ad ogni avvio di Node‑RED e a ogni riconnessione al Gateway KNX. Il nodo memorizza i valori su file, quindi puoi scegliere se leggere da file o dal BUS KNX. |
+| Read status on start | Legge lo stato del GA ad ogni avvio di Node-RED e a ogni riconnessione al Gateway KNX. Il nodo memorizza i valori su file, quindi puoi scegliere se leggere da file o dal BUS KNX. |
 | Filtro RBE | Filtro "Report by change” sull'uscita: invia al flow solo quando il valore cambia. Se vuoi inviare anche valori ripetuti, lascialo disattivo. Se attivo, aggiunge "rbe” al nome del nodo. |
 | React to write telegrams | Il nodo invia un msg al flow ogni volta che riceve un telegramma di tipo write dal BUS KNX. |
 | React to response telegrams | Il nodo invia un msg al flow alla ricezione di un telegramma di risposta. Utile in scenari specifici. |
@@ -79,7 +79,7 @@ Lo script viene eseguito a ogni msg in ingresso o a ogni telegramma ricevuto dal
 | `self` (any) | Imposta il valore del nodo corrente e lo invia anche al BUS KNX (es.: `self(false)`). Attenzione nell'handler "From KNX BUS to OUTPUT”, per evitare loop. |
 | `toggle`() | Inverte il valore del nodo e lo invia al BUS. Stesse cautele di `self`. |
 | `node` | Oggetto nodo. |
-| `RED` | Oggetto RED di Node‑RED. |
+| `RED` | Oggetto RED di Node-RED. |
 | `return (msg)` | È necessario `return msg;` per emettere il messaggio; `return;` non emette niente. |
 
 ### Dall'INPUT del flow al BUS KNX (esempi)
@@ -134,7 +134,7 @@ if (msg.payload === false && getGAValue('0/0/11','1.001') === false){
 
 ### Inputs
 
-**destination (string) ** : indirizzo di gruppo di destinazione (solo 3‑livelli), es. `1/1/0`.**payload (any) ** : valore da inviare (true/false/numero/stringa/oggetto).**event (string) ** : `GroupValue_Write` (scrive sul BUS), `GroupValue_Response` (risponde sul BUS), `Update_NoWrite` (non invia al BUS, aggiorna solo il valore interno del nodo).**readstatus (boolean) ** : invia un "Read” al BUS (usa sempre `true`).**dpt (string) ** : per es. `1.001`. Imposta il Datapoint.**writeraw (buffer) ** e**bitlenght (int) ** : invio RAW verso il BUS (vedi esempio). `bitlenght` è la lunghezza in bit del dato RAW.**resetRBE (boolean) ** : resetta i filtri RBE interni (`msg.resetRBE = true`).**setConfig (json)** : cambia via msg il GA e il DPT del nodo (vedi sotto).
+**destination (string) ** : indirizzo di gruppo di destinazione (solo 3-livelli), es. `1/1/0`.**payload (any) ** : valore da inviare (true/false/numero/stringa/oggetto).**event (string) ** : `GroupValue_Write` (scrive sul BUS), `GroupValue_Response` (risponde sul BUS), `Update_NoWrite` (non invia al BUS, aggiorna solo il valore interno del nodo).**readstatus (boolean) ** : invia un "Read” al BUS (usa sempre `true`).**dpt (string) ** : per es. `1.001`. Imposta il Datapoint.**writeraw (buffer) ** e**bitlenght (int) ** : invio RAW verso il BUS (vedi esempio). `bitlenght` è la lunghezza in bit del dato RAW.**resetRBE (boolean) ** : resetta i filtri RBE interni (`msg.resetRBE = true`).**setConfig (json)** : cambia via msg il GA e il DPT del nodo (vedi sotto).
 
 ### Dettagli setConfig
 
@@ -265,7 +265,7 @@ return msg;
 ```
 
 **INVIARE UN VALORE RAW AL BUS**
-Inserisci un function node prima del nodo KNX‑Ultimate e usa questo codice:
+Inserisci un function node prima del nodo KNX-Ultimate e usa questo codice:
 
 ```javascript
 

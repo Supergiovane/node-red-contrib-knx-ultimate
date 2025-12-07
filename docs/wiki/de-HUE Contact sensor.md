@@ -4,7 +4,7 @@ title: "HUE Contact sensor"
 lang: de
 permalink: /wiki/de-HUE%20Contact%20sensor
 ---
-Dieser Node leitet Ereignisse eines HUE‑Kontaktsensors weiter und ordnet sie KNX‑Gruppenadressen zu.
+Dieser Node leitet Ereignisse eines HUE-Kontaktsensors weiter und ordnet sie KNX-Gruppenadressen zu.
 
 Tippen Sie in das Feld GA, die Name oder die Gruppenadresse Ihres KNX -Geräts, die avabaren Geräte werden beim Eingeben angezeigt.
 
@@ -14,7 +14,7 @@ Tippen Sie in das Feld GA, die Name oder die Gruppenadresse Ihres KNX -Geräts, 
 |-|-|
 |KNX GW |Wählen Sie das zu verwendende KNX -Gateway |
 |Hue Bridge |Wählen Sie die zu verwendende Farbtonbrücke aus |
-| HUE Sensor | Zu verwendender HUE‑Kontaktsensor (Autocomplete) |
+| HUE Sensor | Zu verwendender HUE-Kontaktsensor (Autocomplete) |
 
 |Eigenschaft |Beschreibung |
 |-------- |------------------------------------------------------------------------------------------------------------------ |
@@ -27,4 +27,4 @@ Tippen Sie in das Feld GA, die Name oder die Gruppenadresse Ihres KNX -Geräts, 
 
 ### Details
 
-`msg.payload` enthält das HUE‑Ereignis (Boolean/Objekt) für eigene Logik.
+`msg.payload` enthält das HUE-Ereignis (Boolean/Objekt) für eigene Logik.

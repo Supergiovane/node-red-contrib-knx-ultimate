@@ -6,7 +6,7 @@ permalink: /wiki/zh-CN-zh-CN-knxUltimateViewer
 ---
 ---
 
-<p>该节点与 Node‑RED 仪表板的 <b>ui_template</b> 节点配合使用。<br/>
+<p>该节点与 Node-RED 仪表板的 <b>ui_template</b> 节点配合使用。<br/>
 在仪表板部件中展示所有组地址及其值。<br/>
 </p>
 

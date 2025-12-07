@@ -6,15 +6,15 @@
 **功能**
 
 1. 周期性发送报文并等待应答，若总线连接异常则向流程输出消息。提供两种检测级别（见下）。
-2. 通过消息修改配置节点（Config‑Node）的网关参数，实现 KNX/IP 路由器/接口的切换（如主备切换）。
+2. 通过消息修改配置节点（Config-Node）的网关参数，实现 KNX/IP 路由器/接口的切换（如主备切换）。
 3. 强制与 KNX 总线建立/断开连接。
 
 ## 以太网层与 KNX 双绞线层检测
 
 WatchDog 提供两级检测：
 
-- 以太网级：仅检测 KNX‑Ultimate 与 KNX/IP 接口（Unicast）之间的连通性。
-- 以太网 + KNX‑TP：检查整条链路（以太网→TP）。需一个能响应读取请求的物理设备。
+- 以太网级：仅检测 KNX-Ultimate 与 KNX/IP 接口（Unicast）之间的连通性。
+- 以太网 + KNX-TP：检查整条链路（以太网→TP）。需一个能响应读取请求的物理设备。
 
 适合用于错误/连接故障告警（邮件通知、自动切换备份网关等）。
 
@@ -30,7 +30,7 @@ WatchDog 提供两级检测：
 
 **Check level**
 
-> Ethernet：检测 KNX‑Ultimate（Unicast）与 KNX/IP 接口之间的连接。<br/>
+> Ethernet：检测 KNX-Ultimate（Unicast）与 KNX/IP 接口之间的连接。<br/>
 
 <img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/WatchDogEthernetLevel.png" width="90%"><br/>
 
@@ -47,7 +47,7 @@ WatchDog 提供两级检测：
 
 # WatchDog 的输出
 
-当内部检测发现故障，或某个 KNX‑Ultimate 节点在流程中上报错误时，WatchDog 会输出消息。
+当内部检测发现故障，或某个 KNX-Ultimate 节点在流程中上报错误时，WatchDog 会输出消息。
 
 **WatchDog 自身连接问题**
 
@@ -64,7 +64,7 @@ msg = {
 }
 ```
 
-**你的某个 KNX‑Ultimate 节点出现异常**
+**你的某个 KNX-Ultimate 节点出现异常**
 
 ```javascript
 
@@ -128,7 +128,7 @@ msg.start = false; return msg; // 停止
 
 ## 运行期修改 KNX/IP 网关设置
 
-通过 `msg.setGatewayConfig` 更改 IP/Port/PhysicalAddress/Protocol 等；配置节点会应用并重连。Node‑RED 重启后恢复为配置节点中的设置。所有参数均为可选。
+通过 `msg.setGatewayConfig` 更改 IP/Port/PhysicalAddress/Protocol 等；配置节点会应用并重连。Node-RED 重启后恢复为配置节点中的设置。所有参数均为可选。
 
 ```javascript
 

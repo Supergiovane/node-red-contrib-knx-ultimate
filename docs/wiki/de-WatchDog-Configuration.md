@@ -6,40 +6,40 @@ permalink: /wiki/de-WatchDog-Configuration
 ---
 # WatchDog
 
-Überwacht die Verbindung zum Gateway oder zu einem bestimmten KNX‑Gerät und ermöglicht automatische Maßnahmen bei Störungen.
+Überwacht die Verbindung zum Gateway oder zu einem bestimmten KNX-Gerät und ermöglicht automatische Maßnahmen bei Störungen.
 
 **Funktion**
 
-1. Prüft die KNX‑Kommunikation durch periodische Telegramme, wartet auf Antwort und sendet bei Ausfall eine Nachricht in den Flow. Zwei Prüf‑Levels (siehe unten).
-2. Ändert per Nachricht die Parameter des Config‑Nodes (KNX/IP‑Router/Interface), z. B. Umschalten auf ein Backup‑Gateway.
-3. Erzwingt Verbindungsaufbau/‑abbau des Gateways zum KNX‑BUS.
+1. Prüft die KNX-Kommunikation durch periodische Telegramme, wartet auf Antwort und sendet bei Ausfall eine Nachricht in den Flow. Zwei Prüf-Levels (siehe unten).
+2. Ändert per Nachricht die Parameter des Config-Nodes (KNX/IP-Router/Interface), z. B. Umschalten auf ein Backup-Gateway.
+3. Erzwingt Verbindungsaufbau/-abbau des Gateways zum KNX-BUS.
 
-## Prüfungen auf Ethernet‑Ebene und KNX‑Twisted‑Pair
+## Prüfungen auf Ethernet-Ebene und KNX-Twisted-Pair
 
 Der WatchDog bietet zwei Prüfstufen:
 
-- Ethernet‑Level: prüft nur die Verbindung zwischen KNX‑Ultimate und KNX/IP‑Interface (Unicast).
-- Ethernet+KNX‑TP: prüft die gesamte Strecke bis zum TP‑Medium; erfordert ein physisches Gerät, das auf Read‑Requests antwortet.
+- Ethernet-Level: prüft nur die Verbindung zwischen KNX-Ultimate und KNX/IP-Interface (Unicast).
+- Ethernet+KNX-TP: prüft die gesamte Strecke bis zum TP-Medium; erfordert ein physisches Gerät, das auf Read-Requests antwortet.
 
-Ideal zum Signalisieren von Fehlern/Verbindungsproblemen (E‑Mail, automatisches Failover auf Backup‑Gateway etc.).
+Ideal zum Signalisieren von Fehlern/Verbindungsproblemen (E-Mail, automatisches Failover auf Backup-Gateway etc.).
 
 ## Einstellungen (SETTINGS)
 
 | Property | Beschreibung |
 |--|--|
-| Gateway | Gewähltes KNX‑Gateway. |
+| Gateway | Gewähltes KNX-Gateway. |
 | Group Address to monitor | GA, an die gelesen wird und von der eine Antwort erwartet wird. DPT muss 1.x (Boolean) sein. |
-| Name | Node‑Name. |
+| Name | Node-Name. |
 | Auto start the watchdog timer | Timer beim Deploy/Start automatisch starten. |
 | Check level | Siehe oben. |
 
 **Check level**
 
-> Ethernet: Verbindung zwischen KNX‑Ultimate (Unicast) und KNX/IP‑Interface.
+> Ethernet: Verbindung zwischen KNX-Ultimate (Unicast) und KNX/IP-Interface.
 
 <img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/WatchDogEthernetLevel.png" width="90%">
 
-> Ethernet und KNX TP: Vollständige Prüfung (Router/Interface). Read an physisches Gerät, Antwort erwarten; Fehler auf Ethernet/TP werden gemeldet. In ETS eine Status‑GA einrichten, die auf Read antwortet.
+> Ethernet und KNX TP: Vollständige Prüfung (Router/Interface). Read an physisches Gerät, Antwort erwarten; Fehler auf Ethernet/TP werden gemeldet. In ETS eine Status-GA einrichten, die auf Read antwortet.
 
 <img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/WatchDogEthernetKNXTPLevel.png" width="90%">
 
@@ -52,9 +52,9 @@ Ideal zum Signalisieren von Fehlern/Verbindungsproblemen (E‑Mail, automatische
 
 # Ausgaben des WatchDog
 
-Der Node gibt Nachrichten aus, wenn eigene Prüfungen Fehler melden oder wenn ein KNX‑Ultimate‑Node im Flow einen Fehlerstatus meldet.
+Der Node gibt Nachrichten aus, wenn eigene Prüfungen Fehler melden oder wenn ein KNX-Ultimate-Node im Flow einen Fehlerstatus meldet.
 
-**Bei WatchDog‑eigenem Verbindungsproblem**
+**Bei WatchDog-eigenem Verbindungsproblem**
 
 <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/WatchDog-Configuration" target="_blank">Siehe hier.</a>
 
@@ -69,7 +69,7 @@ msg = {
 }
 ```
 
-**Wenn einer deiner KNX‑Ultimate‑Nodes Probleme hat**
+**Wenn einer deiner KNX-Ultimate-Nodes Probleme hat**
 
 ```javascript
 
@@ -88,7 +88,7 @@ msg = {
 }
 ```
 
-**Neue Gateway‑Konfiguration via setGatewayConfig**
+**Neue Gateway-Konfiguration via setGatewayConfig**
 
 ```javascript
 
@@ -102,7 +102,7 @@ msg = {
 }
 ```
 
-**Erzwungener Verbindungs‑Auf/Abbau**
+**Erzwungener Verbindungs-Auf/Abbau**
 
 ```javascript
 
@@ -118,7 +118,7 @@ msg = {
 
 ---
 
-# Eingangs‑Nachrichten (INPUT)
+# Eingangs-Nachrichten (INPUT)
 
 ## WatchDog starten/stoppen
 
@@ -131,9 +131,9 @@ msg.start = true; return msg; // Start
 msg.start = false; return msg; // Stop
 ```
 
-## KNX/IP‑Gateway‑Einstellungen zur Laufzeit ändern
+## KNX/IP-Gateway-Einstellungen zur Laufzeit ändern
 
-Mit `msg.setGatewayConfig` IP/Port/PhysicalAddress/Protocol usw. ändern; der Config‑Node übernimmt und verbindet neu. Beim Neustart gelten wieder die Config‑Node‑Werte. Alle Parameter optional.
+Mit `msg.setGatewayConfig` IP/Port/PhysicalAddress/Protocol usw. ändern; der Config-Node übernimmt und verbindet neu. Beim Neustart gelten wieder die Config-Node-Werte. Alle Parameter optional.
 
 ```javascript
 
@@ -152,14 +152,14 @@ Nur IP ändern:
 msg.setGatewayConfig = { IP:"224.0.23.12" }; return msg;
 ```
 
-**Verbindung trennen und Auto‑Reconnect deaktivieren**
+**Verbindung trennen und Auto-Reconnect deaktivieren**
 
 ```javascript
 
 msg.connectGateway = false; return msg;
 ```
 
-**Verbindung herstellen und Auto‑Reconnect aktivieren**
+**Verbindung herstellen und Auto-Reconnect aktivieren**
 
 ```javascript
 

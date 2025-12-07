@@ -3,17 +3,22 @@
 
 <p>Le nœud Porte de garage KNX pilote un portail motorisé à l’aide de GA dédiées pour les commandes booléennes ou par impulsion, permet le maintien ouvert ou la désactivation, intègre la cellule photo/obstruction et propose une refermeture automatique.</p>
 
-**Adresses de groupe**
+**Adresses de commande**
 
 |Propriété|Description|
 |--|--|
-| GA commande | GA booléenne (`gaCommand`) : `true` ouvre, `false` ferme. DPT par défaut 1.001. |
+| GA commande (true=ouvre, false=ferme) | GA booléenne (`gaCommand`) : `true` ouvre, `false` ferme. DPT par défaut 1.001. |
 | GA impulsion | Le front montant alterne l’état de la porte (`gaImpulse`, DPT 1.017). Utilisée aussi lorsqu’il n’y a pas de commande directe. |
-| GA mouvement | Impulsion optionnelle lorsque le nœud commande la porte (`gaMoving`). |
-| GA obstruction | Reflète l’état d’obstruction détecté (`gaObstruction`). |
 | GA maintien ouvert | Annule la refermeture automatique tant qu’elle reste à true (`gaHoldOpen`). |
 | GA désactivation | Bloque tout ordre émis par le nœud (`gaDisable`). |
+
+**Adresses d’entrée / capteurs**
+
+|Propriété|Description|
+|--|--|
 | GA cellule photo | Doit passer à true lorsqu’un obstacle coupe le faisceau (`gaPhotocell`). |
+| GA en mouvement | Impulsion optionnelle lorsque le nœud commande la porte (`gaMoving`). |
+| GA obstruction | Reflète l’état d’obstruction détecté (`gaObstruction`). |
 
 **Refermeture automatique**
 

@@ -4,7 +4,7 @@ title: "knxUltimateViewer"
 lang: it
 permalink: /wiki/it-knxUltimateViewer
 ---
-Questo nodo lavora insieme al nodo Dashboard <b>ui_template</b> di Node‑RED.
+Questo nodo lavora insieme al nodo Dashboard <b>ui_template</b> di Node-RED.
 
 Mostra tutti gli indirizzi di gruppo e i relativi valori in un widget della Dashboard.
 
