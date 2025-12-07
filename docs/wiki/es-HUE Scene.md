@@ -17,14 +17,14 @@ La escena **Hue** nodo expone escenas de tono a KNX y puede reenviar los eventos
 | Propiedad | Descripción |
 |-|-|
 |KNX GW |KNX Gateway que suministra el catálogo de direcciones utilizado para autocompletar.|
-|Puente Hue |Puente de Hue que alberga las escenas.|
+|Puente de tono |Puente de Hue que alberga las escenas.|
 |Escena de tono |Escena para recuperar (Autocompletar; Refresh Button Recargue el catálogo del puente).|
 
 Pestaña de mapeo ###
 
 | Propiedad | Descripción |
 |-|-|
-|RECUERDO GA |Dirección del grupo KNX que recuerda la escena.Use DPT 1.xxx para el control booleano o DPT 18.xxx para transmitir un número de escena KNX.|
+|Recordar |Dirección del grupo KNX que recuerda la escena.Use DPT 1.xxx para el control booleano o DPT 18.xxx para transmitir un número de escena KNX.|
 |DPT |DataPoint utilizado con el GA de recuperación (1.xxx o 18.001).|
 |Nombre |Etiqueta amistosa para el retiro GA.|
 |# |Aparece cuando se elige una escena KNX DPT;Seleccione el número de escena KNX para enviar.|
@@ -34,7 +34,7 @@ Pestaña de mapeo ###
 
 | Propiedad | Descripción |
 |-|-|
-|RECUERDO GA |KNX GA (DPT 18.001) que selecciona escenas por número.|
+|Recordar |KNX GA (DPT 18.001) que selecciona escenas por número.|
 |Selector de escenas |Lista editable que mapea los números de escena KNX a las escenas de Hue con el modo de recuperación deseado.Arrastres maneja entradas de reorden.|
 
 > ℹ️ Los widgets específicos de KNX solo aparecen después de que se selecciona una puerta de enlace KNX.Las pestañas de mapeo permanecen ocultas hasta que se configuran tanto el puente como la puerta de enlace.

@@ -21,8 +21,9 @@ Du hast die Zugangsdaten bereits? Klicke auf **ICH HABE BEREITS DIE ZUGANGSDATEN
 | Eigenschaft | Beschreibung |
 |--|--|
 | IP | Gib die feste IP deiner Hue Bridge ein oder wähle einen automatisch gefundenen Eintrag aus der Liste. |
-| CONNECT | Startet die Registrierung und wartet auf den Tastendruck an der Bridge. Der Dialog schließt sich automatisch nach dem Tastendruck; mit **CANCEL** kannst du das Warten beenden. |
+| VERBINDEN | Startet die Registrierung und wartet auf den Tastendruck an der Bridge. Der Dialog schließt sich automatisch nach dem Tastendruck; mit **CANCEL** kannst du das Warten beenden. |
 | Name | Name der Bridge, der nach erfolgreicher Verbindung von der Hue Bridge gelesen wird. |
-| Username / Client Key | Von der Hue Bridge nach der Kopplung zurückgegebene Zugangsdaten. Die Felder bleiben editierbar für Copy & Paste oder manuelle Eingaben. |
+| Benutzername | Von der Hue Bridge nach der Kopplung zurückgegebener Benutzername. Das Feld bleibt editierbar für Copy & Paste oder manuelle Eingaben. |
+| Client-Schlüssel | Von der Hue Bridge nach der Kopplung zurückgegebener Client-Schlüssel. Das Feld bleibt editierbar für Copy & Paste oder manuelle Eingaben. |
 
 ![image.png](../img/hude-config.png)

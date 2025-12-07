@@ -21,8 +21,9 @@ Hai già le credenziali? Fai clic su **HO GIÀ LE CREDENZIALI** per mostrare sub
 | Proprietà | Descrizione |
 |--|--|
 | IP | Inserisci l'IP fisso del tuo bridge Hue oppure seleziona uno tra quelli scoperti automaticamente. |
-| CONNECT | Avvia la registrazione e attende il pulsante di collegamento del bridge. La finestra si chiude automaticamente quando premi il pulsante; usa **CANCEL** per interrompere l'attesa. |
-| Name | Nome del bridge letto dalla Hue Bridge dopo una connessione riuscita. |
-| Username / Client Key | Credenziali restituite dalla Hue Bridge dopo l'abbinamento. Restano modificabili per consentire copia/incolla o l'inserimento manuale. |
+| CONNETTI | Avvia la registrazione e attende il pulsante di collegamento del bridge. La finestra si chiude automaticamente quando premi il pulsante; usa **CANCEL** per interrompere l'attesa. |
+| Nome | Nome del bridge letto dalla Hue Bridge dopo una connessione riuscita. |
+| Username | Username restituito dalla Hue Bridge dopo l'abbinamento. Il campo resta modificabile per consentire copia/incolla o l'inserimento manuale. |
+| Client Key | Client Key restituita dalla Hue Bridge dopo l'abbinamento. Il campo resta modificabile per consentire copia/incolla o l'inserimento manuale. |
 
 ![image.png](../img/hude-config.png)

@@ -12,14 +12,14 @@ Le nœud **Hue Scene** expose des scènes de teinLe champ de scène prend en cha
 | Propriété | Description |
 |-|-|
 |KNX GW |KNX Gateway Fourniture du catalogue d'adresses utilisé pour la saisie semi-automatique.|
-|Hue Bridge |Hue Bridge qui héberge les scènes.|
-|Scène de la teinte |Scène à rappeler (Ambordage automatique; Bouton de rafraîchissement recharge le catalogue du pont).|
+|Pont Hue |Hue Bridge qui héberge les scènes.|
+|Scène de teinte |Scène à rappeler (Ambordage automatique; Bouton de rafraîchissement recharge le catalogue du pont).|
 
 Onglet de mappage ###
 
 | Propriété | Description |
 |-|-|
-|Rappelons GA |Adresse du groupe KNX qui rappelle la scène.Utilisez DPT 1.xxx pour le contrôle booléen ou DPT 18.xxx pour transmettre un numéro de scène KNX.|
+|Rappel |Adresse du groupe KNX qui rappelle la scène.Utilisez DPT 1.xxx pour le contrôle booléen ou DPT 18.xxx pour transmettre un numéro de scène KNX.|
 |DPT |DataPoint utilisé avec le rappel GA (1.xxx ou 18.001).|
 |Nom |Étiquette amicale pour le rappel GA.|
 |# |Apparaît lorsqu'une scène KNX DPT est choisie;Sélectionnez le numéro de scène KNX à envoyer.|
@@ -29,7 +29,7 @@ Onglet ### Multi Scene
 
 | Propriété | Description |
 |-|-|
-|Rappelons GA |KNX GA (DPT 18.001) qui sélectionne les scènes par numéro.|
+|Rappel |KNX GA (DPT 18.001) qui sélectionne les scènes par numéro.|
 |Sélecteur de scène |Liste modifiable qui mappe les numéros de scène KNX aux scènes de teinte avec le mode de rappel souhaité.La traînée gère les entrées de réorganisation.|
 
 > ℹ️ Les widgets spécifiques au KNX n'apparaissent qu'après la sélection d'une passerelle KNX.Les onglets de mappage restent masqués jusqu'à la configuration du pont et de la passerelle.

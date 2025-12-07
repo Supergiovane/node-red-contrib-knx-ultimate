@@ -21,8 +21,9 @@ Vous avez déjà les identifiants ? Cliquez sur **JE POSSÈDE DÉJÀ LES IDENTIF
 | Propriété | Description |
 |-|-|
 | IP | Indiquez l'adresse IP fixe de votre pont Hue ou choisissez un pont détecté automatiquement. |
-| CONNECT | Lance l'enregistrement et attend l'appui sur le bouton de liaison du pont. La boîte de dialogue se ferme automatiquement après l'appui ; utilisez **CANCEL** pour arrêter l'attente. |
+| CONNECTER | Lance l'enregistrement et attend l'appui sur le bouton de liaison du pont. La boîte de dialogue se ferme automatiquement après l'appui ; utilisez **CANCEL** pour arrêter l'attente. |
 | Nom | Nom du pont lu sur le Hue Bridge après une connexion réussie. |
-| Username / Client Key | Identifiants renvoyés par le Hue Bridge après l'appairage. Les champs restent modifiables pour faciliter le copier/coller ou la saisie manuelle. |
+| Nom d'utilisateur | Nom d'utilisateur renvoyé par le Hue Bridge après l'appairage. Le champ reste modifiable pour faciliter le copier/coller ou la saisie manuelle. |
+| Clé client | Clé client renvoyée par le Hue Bridge après l'appairage. Le champ reste modifiable pour faciliter le copier/coller ou la saisie manuelle. |
 
 ![image.png](../ img / hude-config.png)

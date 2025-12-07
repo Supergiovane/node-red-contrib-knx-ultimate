@@ -16,15 +16,15 @@ Der **Hue Scene** -Node stellt Hue-Szenen per KNX bereit und kann die Rohereigni
 
 | Eigenschaft | Beschreibung |
 |--|--|
-| KNX GW | KNX-Gateway mit dem Adresskatalog für das Autocomplete. |
-| Hue Bridge | Hue-Bridge, die die Szenen bereitstellt. |
-| Hue Szene | Szene, die aufgerufen wird (Autocomplete; Refresh lädt den Bridge-Katalog neu). |
+| KNX-Gateway | KNX-Gateway mit dem Adresskatalog für das Autocomplete. |
+| HUE-Bridge | Hue-Bridge, die die Szenen bereitstellt. |
+| HUE Szene | Szene, die aufgerufen wird (Autocomplete; Refresh lädt den Bridge-Katalog neu). |
 
 ### Reiter Zuordnung
 
 | Eigenschaft | Beschreibung |
 |--|--|
-| GA Aufruf | KNX-GA zum Abrufen der Szene. Verwenden Sie DPT 1.xxx für boolsche Steuerung oder DPT 18.xxx für KNX-Szenennummern. |
+| Abrufen | KNX-GA zum Abrufen der Szene. Verwenden Sie DPT 1.xxx für boolsche Steuerung oder DPT 18.xxx für KNX-Szenennummern. |
 | DPT | Datapoint, der zusammen mit der Aufruf-GA genutzt wird (1.xxx oder 18.001). |
 | Name | Bezeichnung für die Aufruf-GA. |
 | # | Wird angezeigt, wenn ein KNX-Szenen-DPT gewählt ist; wählen Sie die zu sendende Szenennummer. |
@@ -34,7 +34,7 @@ Der **Hue Scene** -Node stellt Hue-Szenen per KNX bereit und kann die Rohereigni
 
 | Eigenschaft | Beschreibung |
 |--|--|
-| GA Aufruf | KNX-GA (DPT 18.001), um Szenen anhand ihrer KNX-Nummer auszuwählen. |
-| Szenenliste | Bearbeitbare Liste, die KNX-Szenennummern Hue-Szenen und Abrufmodi zuordnet. Ziehen Sie die Griffe zum Umordnen. |
+| Abrufen | KNX-GA (DPT 18.001), um Szenen anhand ihrer KNX-Nummer auszuwählen. |
+| Szenenwähler | Bearbeitbare Liste, die KNX-Szenennummern Hue-Szenen und Abrufmodi zuordnet. Ziehen Sie die Griffe zum Umordnen. |
 
 > ℹ️ KNX-spezifische Bedienelemente erscheinen erst nach Auswahl eines KNX-Gateways. Die Mapping-Reiter bleiben verborgen, bis sowohl Bridge als auch Gateway konfiguriert sind.

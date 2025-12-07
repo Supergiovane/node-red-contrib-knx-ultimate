@@ -11,15 +11,15 @@ Il nodo **Hue Scene** pubblica le scene Hue su KNX e può inoltrare gli eventi g
 
 | Proprietà | Descrizione |
 |--|--|
-| KNX GW | Gateway KNX che fornisce il catalogo delle GA per l'autocomplete. |
-| Bridge Hue | Bridge Hue che ospita le scene. |
-| Hue Scene | Scena da richiamare (autocomplete; il pulsante di refresh ricarica il catalogo). |
+| Gateway KNX | Gateway KNX che fornisce il catalogo delle GA per l'autocomplete. |
+| Bridge HUE | Bridge Hue che ospita le scene. |
+| Scena HUE | Scena da richiamare (autocomplete; il pulsante di refresh ricarica il catalogo). |
 
 ### Scheda Mappatura
 
 | Proprietà | Descrizione |
 |--|--|
-| GA richiamo | Indirizzo KNX che richiama la scena. Usa DPT 1.xxx per un comando booleano o DPT 18.xxx per inviare un numero scena. |
+| Richiama | Indirizzo KNX che richiama la scena. Usa DPT 1.xxx per un comando booleano o DPT 18.xxx per inviare un numero scena. |
 | DPT | Datapoint usato per il richiamo (1.xxx oppure 18.001). |
 | Nome | Etichetta descrittiva per la GA di richiamo. |
 | # | Appare quando è selezionato un DPT scena KNX; scegli il numero scena da inviare. |
@@ -29,8 +29,8 @@ Il nodo **Hue Scene** pubblica le scene Hue su KNX e può inoltrare gli eventi g
 
 | Proprietà | Descrizione |
 |--|--|
-| GA richiamo | GA KNX (DPT 18.001) che consente di selezionare le scene tramite numero. |
-| Selettore scene | Lista modificabile che abbina numeri scena KNX a scene Hue e imposta la modalità di richiamo. Trascina le "grip” per riordinare. |
+| Richiama | GA KNX (DPT 18.001) che consente di selezionare le scene tramite numero. |
+| Selettore scena | Lista modificabile che abbina numeri scena KNX a scene Hue e imposta la modalità di richiamo. Trascina le "grip” per riordinare. |
 
 > ℹ️ Gli elementi KNX vengono mostrati solo dopo aver selezionato un gateway KNX. Le schede di mappatura restano nascoste finché non sono configurati sia bridge sia gateway.
 </script>

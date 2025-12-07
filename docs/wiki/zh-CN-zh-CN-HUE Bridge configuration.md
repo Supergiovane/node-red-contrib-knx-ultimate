@@ -21,7 +21,7 @@ permalink: /wiki/zh-CN-zh-CN-HUE%20Bridge%20configuration
 |属性|说明|
 |--|--|
 | IP | HUE Bridge 的 IP（需固定）。|
-| CONNECT | 开始与 HUE Bridge 的注册流程。点击 **CONNECT ** 后会自动读取 Bridge ID。之后可以选择注册新凭据，或**SET CREDENTIALS MANUALLY** 手工填写字段。|
+| 连接 | 开始与 HUE Bridge 的注册流程。点击 **CONNECT ** 后会自动读取 Bridge ID。之后可以选择注册新凭据，或**SET CREDENTIALS MANUALLY** 手工填写字段。|
 | Name | HUE Bridge 的名称。|
 | Reveal | 显示密钥对（Username 与 Client Key），便于复制到其他地方使用。|
 

@@ -21,8 +21,9 @@ Introduce la IP del puente (o elige una de las detectadas automáticamente) y pu
 | Propiedad | Descripción |
 |-|-|
 | IP | Introduce la IP fija de tu puente Hue o selecciona uno de los puentes detectados automáticamente. |
-| CONNECT | Inicia el registro y espera al botón de enlace del puente. La ventana se cierra automáticamente cuando lo pulsas; utiliza **CANCEL** para detener la espera. |
+| CONECTAR | Inicia el registro y espera al botón de enlace del puente. La ventana se cierra automáticamente cuando lo pulsas; utiliza **CANCEL** para detener la espera. |
 | Nombre | Nombre del puente leído desde la Hue Bridge después de una conexión correcta. |
-| Username / Client Key | Credenciales devueltas por la Hue Bridge tras el emparejamiento. Permanecen editables para poder copiar, pegar o escribir valores manualmente. |
+| Nombre de usuario | Nombre de usuario devuelto por la Hue Bridge tras el emparejamiento. El campo permanece editable para poder copiar, pegar o escribir el valor manualmente. |
+| Clave del cliente | Clave del cliente devuelta por la Hue Bridge tras el emparejamiento. El campo permanece editable para poder copiar, pegar o escribir el valor manualmente. |
 
 ![Image.png](../ img/hude-config.png)
