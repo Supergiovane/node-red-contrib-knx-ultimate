@@ -27,8 +27,8 @@ Logger 节点会记录所有报文，并输出一份与 ETS Bus Monitor 兼容�
 |属性|说明|
 |--|--|
 | Auto start timer | 在部署或启动时自动启动定时器。|
-| Output new XML every (in minutes) | 多少分钟输出一次 ETS 兼容的 XML。|
-| Max number of rows in XML (0 = no limit) | XML 在该时间窗口内的最大行数；0 表示不限制。|
+| 新的 payload 每 (分钟) | 用于控制 payload 输出和/或写入文件的间隔。当启用文件保存时，到达配置的最大行数后，文件会执行**轮换**，优先删除最早的行。|
+| Max number of rows (0 = no limit) | XML 在该时间窗口内的最大行数；0 表示不限制。当同时启用文件保存时，该值也表示文件允许的最大行数；达到限制后，文件会执行**轮换**，并逐步删除最早的行。|
 
 ## KNX 报文计数器
 

@@ -23,8 +23,8 @@ Le nœud peut également compter les télégrammes par seconde (ou tout interval
 | Propriété | Description |
 |-|-|
 |Minuterie de démarrage automatique |Démarre automatiquement la minuterie sur le déploiement ou au démarrage de Node-RED.|
-|Sortir de nouveaux XML chaque (en minutes) |Toutes les X minutes, sortie du fichier XML compatible ETS.|
-|Nombre maximum de lignes en XML (0 = pas de limite) |Nombre maxi de lignes dans l’XML; les plus anciennes sont supprimées en premier. 0 = pas de limite.|
+| Nouveau payload toutes les (en minutes) | Intervalle d’émission du payload et/ou de sauvegarde dans un fichier. En cas de sauvegarde dans un fichier, lorsque la limite de lignes configurée est atteinte, un mécanisme de **rotation** est appliqué, supprimant progressivement les lignes les plus anciennes.|
+|Nombre maximum de lignes (0 = pas de limite) |Nombre maxi de lignes dans l’XML; les plus anciennes sont supprimées en premier. 0 = pas de limite. Lorsque la sauvegarde sur fichier est également activée, cette valeur représente le nombre maximal de lignes du fichier; à l’atteinte de cette limite, le fichier est **tourné**, en supprimant progressivement les lignes les plus anciennes.|
 |Action |Émettre seulement le payload, ou émettre et sauvegarder dans un fichier.|
 |Chemin de fichier (absolu ou relatif) |Où sauvegarder l’XML quand l’option de sauvegarde est choisie.|
 

@@ -19,8 +19,8 @@ Ce nœud peut également compter le nombre de messages (par seconde ou intervall
 |Propriétés |Description |
 |-|-|
 | Timer de démarrage automatique | Démarrez automatiquement la minuterie lors du déploiement ou du démarrage.|
-| Sortir de nouveaux XML chaque (en minutes) | Combien de minutes la sortie XML compatible ETS?|
-| Nombre maximum de lignes dans XML (0 = aucune limite) | Le nombre maximal de lignes de XML dans cette fenêtre temporelle; 0 signifie aucune limite.|
+| Nouveau payload toutes les (en minutes) | Combien de minutes la sortie XML compatible ETS?|
+| Nombre maximum de lignes dans XML (0 = aucune limite) | Le nombre maximal de lignes de XML dans cette fenêtre temporelle; 0 signifie aucune limite. Lorsque la sauvegarde sur fichier est également activée, cette valeur représente le nombre maximal de lignes du fichier; à l’atteinte de cette limite, le fichier est **tourné**, en supprimant progressivement les lignes les plus anciennes.|
 ## compteur de messages KNX
 | Propriétés | Description |
 |-|-|

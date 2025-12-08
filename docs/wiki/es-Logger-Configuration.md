@@ -29,8 +29,8 @@ El nodo también puede contar telegramas por segundo (o cualquier intervalo que 
 | Propiedad | Descripción |
 |-|-|
 |Temporizador de inicio automático |Inicia el temporizador automáticamente en la implementación o en el inicio de Node-RED.|
-|Salir nuevo XML cada (en minutos) |Cada cuántos minutos el Logger emitirá el archivo XML compatible con ETS.|
-|Número máximo de filas en xml (0 = sin límite) |Máximo de filas en el XML; las más antiguas se eliminan primero. 0 para sin límite.|
+| Nuevo payload cada (en minutos) | Intervalo de emisión del payload y/o de guardado en archivo. En caso de guardado en archivo, al alcanzar el límite de filas configurado, el archivo se **rotará**, eliminando primero las filas más antiguas.|
+|Número máximo de filas (0 = sin límite) |Máximo de filas en el XML; las más antiguas se eliminan primero. 0 para sin límite. Cuando también está activado el guardado en archivo, este valor representa el número máximo de filas del archivo; al alcanzar el límite, el archivo se **rotará**, eliminando progresivamente las filas más antiguas.|
 |Acción |Emitir solo el payload, o emitir el payload y guardar en archivo.|
 |Ruta de archivo (absoluta o relativa) |Dónde guardar el XML cuando se elige guardar.|
 

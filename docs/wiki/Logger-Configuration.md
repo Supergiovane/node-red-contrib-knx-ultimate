@@ -29,8 +29,8 @@ The node can also count telegrams per second (or any interval you want).
 |Property|Description|
 |--|--|
 | Auto start timer | Starts the timer automatically on deploy or on node-red start. |
-| Output new XML every (in minutes) | The time, in minutes, which the Logger will output the ETS XML bus monitor compatible file. |
-| Max number of rows in XML (0 = no limit) | Maximum lines the XML file can contain; older lines are dropped first. Put 0 for no limit. |
+| New payload every (in minutes) | Interval for emitting the payload and/or saving to file. When saving to file, once the configured row limit is reached, the file is **rotated**, removing the oldest rows first. |
+| Max number of rows (0 = no limit) | Maximum lines the XML file can contain; older lines are dropped first. Put 0 for no limit. When file saving is enabled, this value also represents the maximum number of rows in the file; when the limit is reached, the file is **rotated**, removing older rows over time. |
 | Action | Emit payload only, or emit payload and save to file. |
 | File path (absolute or relative) | Where to save the XML when Action is set to save. |
 

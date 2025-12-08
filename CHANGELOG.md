@@ -6,6 +6,12 @@
 
 # CHANGELOG
 
+**Version 4.1.8** - December 2025<br/>
+- Logger node editor: when **Action** is set to `Emit payload only`, the file path row is now completely hidden (instead of just disabled), using a dedicated row id for better future Node-RED compatibility.<br/>
+- Logger node editor: added a **Download** button next to the file path.<br/>
+- Logger node: updated labels, help and wiki pages in all languages to explain both the **payload interval** and **Max rows** behaviour, including how the XML/file is **rotated** when the configured row limit is reached.<br/>
+<br/>
+
 **Version 4.1.7** - December 2025<br/>
 - Logger node: replaced the checkbox with an explicit **Action** selector (`Emit payload only` / `Emit payload and save to file`), keeping backward compatibility with existing flows.<br/>
 - Logger node: file saving now appends and enforces **Max rows** by trimming oldest lines in both buffer and file; removed the folder picker/listDirs endpoint in favour of a single full-path field.<br/>

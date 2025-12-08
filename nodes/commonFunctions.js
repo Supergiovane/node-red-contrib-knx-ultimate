@@ -327,6 +327,43 @@ module.exports = (RED) => {
       }
     })
 
+    // 2025-12 Download logger XML file configured in a knxUltimateLogger node
+    RED.httpAdmin.get('/knxUltimateLoggerDownload', RED.auth.needsPermission('knxUltimate-config.read'), (req, res) => {
+      try {
+        const nodeId = (req.query.nodeId || req.query.id || '').toString()
+        if (!nodeId) {
+          res.status(400).json({ error: 'NO_NODE_ID' })
+          return
+        }
+        const loggerNode = RED.nodes.getNode(nodeId)
+        if (!loggerNode || loggerNode.isLogger !== true) {
+          res.status(404).json({ error: 'LOGGER_NOT_FOUND' })
+          return
+        }
+        const filePath = (loggerNode.filePath || '').toString()
+        if (!filePath) {
+          res.status(404).json({ error: 'NO_FILE_PATH' })
+          return
+        }
+        if (!fs.existsSync(filePath)) {
+          res.status(404).json({ error: 'FILE_NOT_FOUND' })
+          return
+        }
+        const safeName = path.basename(filePath) || 'knx-logger.xml'
+        res.setHeader('Content-Type', 'application/xml; charset=utf-8')
+        res.setHeader('Content-Disposition', `attachment; filename="${safeName}"`)
+        const stream = fs.createReadStream(filePath)
+        stream.on('error', (err) => {
+          try { RED.log.error(`KNXUltimateLoggerDownload error reading file ${filePath}: ${err.message}`) } catch (e) {}
+          if (!res.headersSent) res.status(500).json({ error: 'READ_ERROR' })
+        })
+        stream.pipe(res)
+      } catch (error) {
+        try { RED.log.error(`KNXUltimateLoggerDownload error: ${error.message}`) } catch (e) {}
+        if (!res.headersSent) res.status(500).json({ error: 'UNEXPECTED_ERROR' })
+      }
+    })
+
     // 2025-09 List interfaces (IA) from KNX Secure keyring
     RED.httpAdmin.get('/knxUltimateKeyringInterfaces', RED.auth.needsPermission('knxUltimate-config.read'), async (req, res) => {
       try {

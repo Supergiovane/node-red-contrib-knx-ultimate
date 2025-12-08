@@ -38,15 +38,38 @@
                 active: false
             });
 
+            const nodeId = this.id;
+
             const toggleFilePath = () => {
-                const enabled = $("#node-input-saveMode").val() === "emit_save";
-                $("#node-input-filePath").prop("disabled", !enabled);
+                const isEmitSave = $("#node-input-saveMode").val() === "emit_save";
+                const $filePathRow = $("#knx-logger-filePath-row");
+                if (isEmitSave) {
+                    $filePathRow.show();
+                } else {
+                    $filePathRow.hide();
+                }
             };
             $("#node-input-saveMode").on("change", toggleFilePath);
 
             const currentFilePath = this.filePath || "";
             $("#node-input-filePath").val(currentFilePath);
             toggleFilePath();
+
+            $("#knx-logger-downloadButton").on("click", function (evt) {
+                evt.preventDefault();
+                const filePathVal = $("#node-input-filePath").val() || "";
+                if (!filePathVal) {
+                    try {
+                        const msg = (RED._ && RED._("node-red-contrib-knx-ultimate/knxUltimateLogger:noFilePath")) || "File path is empty";
+                        RED.notify(msg, "warning");
+                    } catch (error) {
+                        alert("File path is empty");
+                    }
+                    return;
+                }
+                const url = "knxUltimateLoggerDownload?nodeId=" + encodeURIComponent(nodeId) + "&_=" + new Date().getTime();
+                window.open(url, "_blank");
+            });
         },
         oneditsave: function () {
             // Return to the info tab
@@ -85,10 +108,24 @@
         <h3><span data-i18n="knxUltimateLogger.properties.mlxETSFileAccordion"></span></h3>
         <div>
             <p>
-                <div class="form-row">
+                 <div class="form-row">
                     <input type="checkbox" id="node-input-autoStartTimerCreateETSXML" style="display:inline-block; width:auto; vertical-align:top;">
                     <label style="width:auto" for="node-input-autoStartTimerCreateETSXML">&nbsp;&nbsp;<i class="fa fa-play-circle"></i> <span data-i18n="knxUltimateLogger.properties.node-input-autoStartTimerCreateETSXML"></span> </label>
-                </div>  
+                </div> 
+                 <div class="form-row">
+                    <label style="width:290px" for="node-input-saveMode"><i class="fa fa-save"></i> <span data-i18n="knxUltimateLogger.properties.node-input-saveMode"></span></label>
+                    <select style="width:100%" id="node-input-saveMode">
+                        <option value="emit" data-i18n="knxUltimateLogger.selectlists.saveMode.emit"></option>
+                        <option value="emit_save" data-i18n="knxUltimateLogger.selectlists.saveMode.emit_save"></option>
+                    </select>
+                </div>
+                <div class="form-row" id="knx-logger-filePath-row">
+                    <label style="width:290px" for="node-input-filePath"><i class="fa fa-file-text-o"></i> <span data-i18n="knxUltimateLogger.properties.node-input-filePath"></span></label>
+                    <input style="width:calc(100% - 80px)" type="text" id="node-input-filePath" data-i18n="[placeholder]knxUltimateLogger.placeholder.node-input-filePath">
+                    <button type="button" class="red-ui-button" id="knx-logger-downloadButton" style="margin-left:6px;" title="Download">
+                        <i class="fa fa-download"></i>
+                    </button>
+                </div>                
                 <div class="form-row">
                     <label style="width:290px" for="node-input-intervalCreateETSXML"><i class="fa fa-clock-o"></i> <span data-i18n="knxUltimateLogger.properties.node-input-intervalCreateETSXML"></span></label>
                     <input style="width:90px" type="number" id="node-input-intervalCreateETSXML">
@@ -96,18 +133,7 @@
                 <div class="form-row">
                     <label style="width:290px" for="node-input-maxRowsInETSXML"><i class="fa fa-bars"></i> <span data-i18n="knxUltimateLogger.properties.node-input-maxRowsInETSXML"></span></label>
                     <input style="width:90px" type="number" id="node-input-maxRowsInETSXML">
-                </div>
-                <div class="form-row">
-                    <label style="width:290px" for="node-input-saveMode"><i class="fa fa-save"></i> <span data-i18n="knxUltimateLogger.properties.node-input-saveMode"></span></label>
-                    <select style="width:100%" id="node-input-saveMode">
-                        <option value="emit" data-i18n="knxUltimateLogger.selectlists.saveMode.emit"></option>
-                        <option value="emit_save" data-i18n="knxUltimateLogger.selectlists.saveMode.emit_save"></option>
-                    </select>
-                </div>
-                <div class="form-row">
-                    <label style="width:290px" for="node-input-filePath"><i class="fa fa-file-text-o"></i> <span data-i18n="knxUltimateLogger.properties.node-input-filePath"></span></label>
-                    <input style="width:100%" type="text" id="node-input-filePath" data-i18n="[placeholder]knxUltimateLogger.placeholder.node-input-filePath">
-                </div>
+                </div>               
             </p>
         </div>
 

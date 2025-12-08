@@ -25,8 +25,8 @@ Der Node kann zudem Telegramme pro Sekunde (oder in frei wählbaren Intervallen)
 |Eigenschaft|Beschreibung|
 |--|--|
 | Timer für automatischen Start | Timer automatisch beim Deploy/Start starten. |
-| Schreibe eine XML Datei jede (in Minuten) | Intervall in Minuten, in dem die ETS-kompatible XML ausgegeben wird. |
-| Maximale Anzahl von Zeilen im XML (0 = keine Begrenzung) | Max. Zeilenzahl in der XML; älteste Zeilen werden zuerst entfernt. 0 = kein Limit. |
+| Neue Payload-Ausgabe alle (in Minuten) | Intervall für das Senden des Payloads und/oder das Speichern in eine Datei. Beim Speichern in eine Datei wird die Datei bei Erreichen der konfigurierten Zeilenanzahl **rotiert**, wobei die ältesten Zeilen zuerst entfernt werden. |
+| Maximale Anzahl von Zeilen (0 = keine Begrenzung) | Max. Zeilenzahl in der XML; älteste Zeilen werden zuerst entfernt. 0 = kein Limit. Wenn zusätzlich die Dateispeicherung aktiviert ist, gibt dieser Wert auch die maximale Zeilenzahl der Datei an. Beim Erreichen des Grenzwerts wird die Datei **rotiert**, wobei nach und nach die ältesten Zeilen entfernt werden. |
 | Aktion | Nur Payload senden oder Payload senden und in Datei speichern. |
 | Dateipfad (absolut oder relativ) | Speicherort der XML, wenn Speichern ausgewählt ist. |
 
