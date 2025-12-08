@@ -5,14 +5,14 @@
     "name": "Name",
     "youtube_sample": "Youtube sample",
     "knx_gw": "KNX GW",
-    "hue_bridge": "HUE Bridge",
+    "hue_bridge": "Hue Bridge",
     "philips_hue": "Philips HUE",
     "read": "Read"
   },
   "knxUltimateHueCameraMotion": {
     "paletteLabel": "Hue Camera Motion",
-    "heading": "HUE Camera Motion node",
-    "hue_sensor": "HUE Camera Motion",
+    "heading": "Hue Camera Motion node",
+    "hue_sensor": "Hue Camera Motion",
     "no_devices": "No camera motion devices available",
     "tabs": {
       "motion": "Motion",

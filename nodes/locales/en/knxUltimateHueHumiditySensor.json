@@ -1,8 +1,8 @@
 {
   "knxUltimateHueHumiditySensor": {
     "paletteLabel": "Hue Humidity Sensor",
-    "heading": "HUE Humidity Sensor node",
-    "hue_sensor": "HUE Sensor",
+    "heading": "Hue Humidity Sensor node",
+    "hue_sensor": "Hue Sensor",
     "no_devices": "No devices available",
     "tabs": {
       "humidity": "Humidity",
@@ -23,7 +23,7 @@
     "name": "Name",
     "youtube_sample": "Youtube sample",
     "knx_gw": "KNX GW",
-    "hue_bridge": "HUE Bridge",
+    "hue_bridge": "Hue Bridge",
     "philips_hue": "Philips HUE",
     "read": "Read"
   }

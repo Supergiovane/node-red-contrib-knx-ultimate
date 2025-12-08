@@ -19,7 +19,7 @@
     "name": "Nombre",
     "youtube_sample": "Muestra de youtube",
     "knx_gw": "KNX GW",
-    "hue_bridge": "Puente de tono",
+    "hue_bridge": "Hue Bridge",
     "philips_hue": "Tono Philips",
     "read": "Leer"
   }

@@ -1,6 +1,6 @@
 {
   "knxUltimateHueLightSensor": {
-    "title": "HUE Light Sensor node",
+    "title": "Hue Light Sensor node",
     "paletteLabel": "Hue Light Sensor",
     "read_status_startup": "Read status at startup",
     "opt_no": "No",
@@ -12,7 +12,7 @@
     "name": "Name",
     "youtube_sample": "Youtube sample",
     "knx_gw": "KNX GW",
-    "hue_bridge": "HUE Bridge",
+    "hue_bridge": "Hue Bridge",
     "philips_hue": "Philips HUE",
     "read": "Read"
   }

@@ -1,8 +1,8 @@
 {
   "knxUltimateHueScene": {
-    "title": "HUE Scene node",
+    "title": "Hue Scene node",
     "paletteLabel": "Hue Scene",
-    "hue_scene": "HUE Scene",
+    "hue_scene": "Hue Scene",
     "recall_as": "Recall as",
     "recall_active": "Recall as Active",
     "recall_dynamic": "Recall as Dynamic",
@@ -34,7 +34,7 @@
     "name": "Name",
     "youtube_sample": "Youtube sample",
     "knx_gw": "KNX GW",
-    "hue_bridge": "HUE Bridge",
+    "hue_bridge": "Hue Bridge",
     "philips_hue": "Philips HUE",
     "read": "Read"
   }

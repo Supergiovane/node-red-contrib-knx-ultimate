@@ -1,6 +1,6 @@
 {
   "knxUltimateHueLight": {
-    "title": "HUE node",
+    "title": "Hue node",
     "node-input-name": "Name",
     "node-input-nameLightSwitch": "Switch (bit)",
     "node-input-GALightSwitch": "GA",
@@ -8,7 +8,7 @@
     "node-input-nameLightState": "State (bit)",
     "node-input-GALightState": "GA",
     "node-input-dptLightState": "dpt",
-    "node-input-hueLight": "HUE light",
+    "node-input-hueLight": "Hue light",
     "paletteLabel": "Hue Light/Outlet",
     "no_devices": "No Hue devices found. Click refresh after pairing a new light.",
     "tabs": {
@@ -47,9 +47,9 @@
     "opt_no": "No",
     "opt_yes_emit": "Yes, and emit KNX telegrams.",
     "knx_brightness_status": "KNX Brightness Status",
-    "knx_brightness_onhueoff": "When HUE light is Off send 0%. When HUE On, restore previous value (Default KNX behaviour)",
-    "knx_brightness_no": "Leave as is (default HUE behaviour)",
-    "use_min_brightness": "Use minimum brightness specified in the HUE light",
+    "knx_brightness_onhueoff": "When Hue light is Off send 0%. When Hue On, restore previous value (Default KNX behaviour)",
+    "knx_brightness_no": "Leave as is (default Hue behaviour)",
+    "use_min_brightness": "Use minimum brightness specified in the Hue light",
     "k_suffix": "K",
     "temp_desc_2200": "(start of Philips White Ambiance lights range)",
     "temp_desc_2700": "(warm white, intimate, cozy, personal, for living rooms)",
@@ -85,7 +85,7 @@
     "name": "Name",
     "youtube_sample": "Youtube sample",
     "knx_gw": "KNX GW",
-    "hue_bridge": "HUE Bridge",
+    "hue_bridge": "Hue Bridge",
     "philips_hue": "Philips HUE",
     "read": "Read"
   }

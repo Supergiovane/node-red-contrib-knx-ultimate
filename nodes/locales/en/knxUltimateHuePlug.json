@@ -1,6 +1,6 @@
 {
   "knxUltimateHuePlug": {
-    "title": "HUE Plug/Outlet",
+    "title": "Hue Plug/Outlet",
     "paletteLabel": "Hue Plug/Outlet",
     "tabs": {
       "switch": "Switch",
@@ -26,7 +26,7 @@
     "name": "Name",
     "youtube_sample": "Youtube sample",
     "knx_gw": "KNX GW",
-    "hue_bridge": "HUE Bridge",
+    "hue_bridge": "Hue Bridge",
     "philips_hue": "Philips HUE",
     "read": "Read"
   }

@@ -1,6 +1,6 @@
 {
   "knxUltimateHueTapDial": {
-    "title": "HUE Tap Dial node (rotary)",
+    "title": "Hue Tap Dial node (rotary)",
     "paletteLabel": "Hue Tap Dial",
     "hue_device": "Hue Tap Dial",
     "tabs": {
@@ -21,7 +21,7 @@
     "name": "Name",
     "youtube_sample": "Youtube sample",
     "knx_gw": "KNX GW",
-    "hue_bridge": "HUE Bridge",
+    "hue_bridge": "Hue Bridge",
     "philips_hue": "Philips HUE",
     "read": "Read"
   }

@@ -12,7 +12,7 @@
       "username": "Username",
       "client_key": "Client Key",
       "wait_message": "Wait, I'm talking to your Hue Bridge...",
-      "caution": "CAUTION: other coexisting third-party HUE nodes may cause problems and shall be uninstalled.",
+      "caution": "CAUTION: other coexisting third-party Hue nodes may cause problems and shall be uninstalled.",
       "link_button_wait": "Please press the link button on the Hue Bridge. Waiting for confirmation…",
       "registration_failed": "Hue bridge registration failed.",
       "registration_unreachable": "Unable to reach the Hue bridge."

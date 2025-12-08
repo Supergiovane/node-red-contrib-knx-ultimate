@@ -11,7 +11,7 @@
       "bridge_id": "ID Bridge",
       "username": "Username",
       "client_key": "Client Key",
-      "wait_message": "Attendi, sto comunicando con il tuo Bridge HUE...",
+      "wait_message": "Attendi, sto comunicando con il tuo Hue Bridge...",
       "caution": "ATTENZIONE: altri nodi HUE di terze parti installati possono causare problemi e devono essere rimossi.",
       "link_button_wait": "Premi il pulsante di collegamento sul Bridge Hue. In attesa della conferma…",
       "registration_failed": "Registrazione del bridge Hue non riuscita.",
