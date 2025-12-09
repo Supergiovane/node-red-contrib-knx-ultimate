@@ -1,0 +1,36 @@
+<script type="text/markdown" data-help-name="knxUltimateHueAreaMotion">
+<p>Il nodo Hue Motion Area riceve gli eventi di movimento aggregati di un'area MotionAware (Hue Bridge Pro) e li inoltra a KNX o al flow Node-RED.</p>
+
+Nel campo GA digita nome o indirizzo di gruppo KNX per collegare l'indirizzo: i suggerimenti appaiono durante la digitazione.
+
+**Generale**
+
+| Proprietà | Descrizione |
+|--|--|
+| KNX GW | Gateway KNX che riceve lo stato di movimento dell'area. |
+| HUE Bridge | Bridge Hue Pro da utilizzare. |
+| HUE Area | Area MotionAware (convenience o security) da monitorare (autocomplete durante la digitazione). |
+| Leggi stato all'avvio | All'avvio/riconnessione legge il valore corrente e lo invia a KNX (predefinito: sì). |
+
+**Mappatura**
+
+| Proprietà | Descrizione |
+|--|--|
+| Movimento | GA KNX per lo stato di movimento dell'area (boolean). DPT consigliato: <b>1.001</b>. |
+
+**Comportamento**
+
+| Proprietà | Descrizione |
+|--|--|
+| Pin di uscita del nodo | Mostra o nasconde l'uscita Node-RED; senza gateway KNX il pin resta attivo così gli eventi MotionAware raggiungono comunque il flow. |
+
+### Output
+
+1. Uscita standard  
+   : `msg.payload` (boolean): `true` quando l'area risulta in movimento, `false` quando è libera.
+
+### Dettagli
+
+`msg.payload` contiene lo stato di movimento aggregato fornito dal servizio MotionAware per l'area selezionata.
+</script>
+

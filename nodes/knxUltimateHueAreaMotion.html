@@ -1,0 +1,600 @@
+<script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/11f26b4500.js"></script>
+<script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/htmlUtils.js"></script>
+
+<script type="text/javascript">
+  (function () {
+    let $tabs = null;
+    let $requiresBridgeElems = null;
+    let $knxSections = null;
+    let $readStatusRow = null;
+    let $deviceName = null;
+    let $refreshButton = null;
+    let $loadingIndicator = null;
+    let $dptSelect = null;
+    let cachedDevices = [];
+    let defaultDevicePlaceholder = '';
+    let showingNoDevicesPlaceholder = false;
+    let currentNode = null;
+    let $outputInfo = null;
+    let $enablePinsSelect = null;
+    let previousPinsSelection = null;
+    let forcedPinsSelection = false;
+    const EMPTY_SERVER_VALUES = new Set(['', 'none', '_add_', '__none__', '__null__', 'null', 'undefined']);
+
+    const ensureVerticalTabsStyle = () => {
+      if ($('#knxUltimateHueAreaMotionVerticalTabs').length) return;
+      const style = `
+        <style id="knxUltimateHueAreaMotionVerticalTabs">
+          .hue-vertical-tabs.ui-tabs.ui-widget.ui-widget-content.ui-corner-all {
+            display: flex;
+            border: none;
+            padding: 0;
+          }
+          .hue-vertical-tabs > ul.ui-tabs-nav {
+            flex: 0 0 144px;
+            border-right: 1px solid #ccc;
+            border-left: none;
+            border-top: none;
+            border-bottom: none;
+            padding: 0.5em 0.3em;
+          }
+          .hue-vertical-tabs > ul.ui-tabs-nav li {
+            float: none;
+            width: 100%;
+            margin: 0 0 2px 0;
+          }
+          .hue-vertical-tabs > ul.ui-tabs-nav li a {
+            display: block;
+            width: 100%;
+            white-space: nowrap;
+            position: relative;
+            border-bottom: none !important;
+          }
+          .hue-vertical-tabs > ul.ui-tabs-nav li.ui-tabs-active {
+            border-bottom: none !important;
+          }
+          .hue-vertical-tabs > ul.ui-tabs-nav li.ui-tabs-active a::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 50%;
+            height: 3px;
+            background: currentColor;
+          }
+          .hue-vertical-tabs .ui-tabs-panel {
+            flex: 1;
+            padding: 0.8em 1em;
+            box-sizing: border-box;
+            border: none;
+            background: transparent;
+          }
+          .hue-vertical-tabs .form-row {
+            display: flex;
+            flex-wrap: nowrap;
+            align-items: center;
+            gap: 4px;
+          }
+          .hue-vertical-tabs .form-row > dt {
+            flex: 1 1 auto;
+            margin: 0;
+          }
+          .hue-vertical-tabs hr {
+            width: 100%;
+            border: 0;
+            border-top: 1px solid #ccc;
+            margin: 8px 0;
+          }
+          .hue-vertical-tabs .hue-form-tip {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            width: 100%;
+            margin-left: 0 !important;
+            max-width: none;
+            color: #1b7d33;
+            margin-bottom: 6px;
+            padding: 6px 10px;
+            box-sizing: border-box;
+          }
+          .hue-vertical-tabs .hue-form-tip .fa {
+            color: forestgreen;
+            flex: 0 0 auto;
+          }
+          .hue-vertical-tabs .hue-form-tip span {
+            flex: 1 1 auto;
+            min-width: 0;
+            white-space: normal;
+          }
+        </style>`;
+      $('head').append(style);
+    };
+
+    const detachHandlers = () => {
+      $('#node-input-server').off('.knxUltimateHueAreaMotion');
+      $('#node-input-serverHue').off('.knxUltimateHueAreaMotion');
+      $('.hue-refresh-devices').off('.knxUltimateHueAreaMotion');
+      const $gaInput = $('#node-input-GAareaMotion');
+      $gaInput.off('.knxUltimateHueAreaMotion');
+      if ($gaInput.data('ui-autocomplete')) {
+        try { $gaInput.autocomplete('destroy'); } catch (error) { /* empty */ }
+      }
+      if ($deviceName) {
+        $deviceName.off('.knxUltimateHueAreaMotion');
+        if ($deviceName.data('ui-autocomplete')) {
+          try { $deviceName.autocomplete('destroy'); } catch (error) { /* empty */ }
+        }
+      }
+      if ($enablePinsSelect) {
+        $enablePinsSelect.off('.knxUltimateHueAreaMotion');
+      }
+    };
+
+    const ensureConfigSelection = (selector) => {
+      if ($(selector).val() !== '_ADD_') return;
+      try { $(selector).prop('selectedIndex', 0); } catch (error) { /* empty */ }
+    };
+
+    const resolveServerId = (value) => {
+      if (value === undefined || value === null) return null;
+      if (value === false) return null;
+      if (typeof value === 'string') {
+        const trimmed = value.trim();
+        if (trimmed === '') return null;
+        if (EMPTY_SERVER_VALUES.has(trimmed.toLowerCase())) return null;
+        return trimmed;
+      }
+      const asString = String(value).trim();
+      if (asString === '' || EMPTY_SERVER_VALUES.has(asString.toLowerCase())) return null;
+      return value;
+    };
+
+    const normalizePinsValue = (value) => {
+      if (value === undefined || value === null || value === '') return 'no';
+      if (value === true || value === 'true') return 'yes';
+      if (value === false || value === 'false') return 'no';
+      return value;
+    };
+
+    const applyNoDevicesPlaceholder = (hasDevices) => {
+      if (!$deviceName) return;
+      if (hasDevices) {
+        if (showingNoDevicesPlaceholder) {
+          showingNoDevicesPlaceholder = false;
+          $deviceName.attr('placeholder', defaultDevicePlaceholder);
+        }
+        return;
+      }
+      const message = RED._('node-red-contrib-knx-ultimate/knxUltimateHueAreaMotion:knxUltimateHueAreaMotion.no_devices');
+      showingNoDevicesPlaceholder = true;
+      $deviceName.attr('placeholder', message);
+      if (($deviceName.val() || '').trim() === '') {
+        $deviceName.val('');
+      }
+    };
+
+    const filterDevices = (devices, term) => {
+      const cleaned = (term || '').replace(/exactmatch/gi, '').trim();
+      return $.map(devices, (value) => {
+        const sSearch = value.name;
+        if (cleaned === '' || htmlUtilsfullCSVSearch(sSearch, cleaned)) {
+          return {
+            hueDevice: value.id,
+            value: value.name,
+            deviceObject: value.deviceObject || value
+          };
+        }
+        return null;
+      });
+    };
+
+    const loadDPTOptions = (serverId, node) => {
+      if (!$dptSelect) return;
+      $dptSelect.empty();
+      const validId = resolveServerId(serverId);
+      if (!validId) {
+        return;
+      }
+      $.getJSON(`knxUltimateDpts?serverId=${validId}`, (data) => {
+        data.forEach((dpt) => {
+          if (dpt.value.startsWith('1.')) {
+            $dptSelect.append($('<option></option>').attr('value', dpt.value).text(dpt.text));
+          }
+        });
+        const referenceNode = node || currentNode || {};
+        const targetDpt = (referenceNode.dptAreaMotion && referenceNode.dptAreaMotion !== '') ? referenceNode.dptAreaMotion : '1.001';
+        if (targetDpt) {
+          $dptSelect.val(targetDpt);
+        }
+      });
+    };
+
+    const hasKNXServerSelected = () => {
+      let domValue = $('#node-input-server').val();
+      if (domValue === undefined) {
+        domValue = currentNode ? currentNode.server : null;
+      }
+      const knxServerId = resolveServerId(domValue);
+      return Boolean(knxServerId);
+    };
+
+    const getGroupAddress = ($sourceWidget, $nameWidget, $dptWidget) => {
+      $sourceWidget.off('.knxUltimateHueAreaMotion');
+      $sourceWidget.autocomplete({
+        minLength: 0,
+        source(request, response) {
+          const serverId = $('#node-input-server').val();
+          const knxServerId = resolveServerId(serverId);
+          if (!knxServerId) { response([]); return; }
+          const server = RED.nodes.node(knxServerId);
+          if (!server) { response([]); return; }
+          $.getJSON(`knxUltimatecsv?nodeID=${server.id}`, (data) => {
+            response($.map(data, (value) => {
+              const sSearch = `${value.ga} (${value.devicename}) DPT${value.dpt}`;
+              if (htmlUtilsfullCSVSearch(sSearch, `${request.term} 1.`)) {
+                return {
+                  label: `${value.ga} # ${value.devicename} # ${value.dpt}`,
+                  value: value.ga
+                };
+              }
+              return null;
+            }));
+          });
+        },
+        select(event, ui) {
+          let sDevName = ui.item.label.split('#')[1].trim();
+          try {
+            sDevName = sDevName.substr(sDevName.indexOf(')') + 1).trim();
+          } catch (error) { /* empty */ }
+          $nameWidget.val(sDevName);
+          const optVal = $dptWidget.find(`option:contains('${ui.item.label.split('#')[2].trim()}')`).attr('value');
+          if (optVal !== undefined && optVal !== null) {
+            $dptWidget.val(optVal).trigger('change');
+          } else {
+            $dptWidget.trigger('change');
+          }
+        }
+      });
+      $sourceWidget.on('focus.knxUltimateHueAreaMotion', function () {
+        $(this).autocomplete('search', `${$(this).val()}exactmatch`);
+      });
+      try {
+        const serverId = $('#node-input-server').val();
+        const server = RED.nodes.node(serverId);
+        if (server && server.id) KNX_enableSecureFormatting($sourceWidget, server.id);
+      } catch (error) { /* empty */ }
+    };
+
+    const fetchDevices = (hueServer, term, response, { forceRefresh = false } = {}) => {
+      if (!hueServer) {
+        applyNoDevicesPlaceholder(true);
+        response([]);
+        return;
+      }
+      if (!forceRefresh && cachedDevices.length > 0) {
+        applyNoDevicesPlaceholder(cachedDevices.length > 0);
+        response(filterDevices(cachedDevices, term));
+        return;
+      }
+      if ($loadingIndicator) $loadingIndicator.show();
+      const refreshQuery = forceRefresh ? '&forceRefresh=1' : '';
+      $.getJSON(`KNXUltimateGetResourcesHUE?rtype=area_motion&serverId=${encodeURIComponent(hueServer.id)}${refreshQuery}&_=${Date.now()}`, (data) => {
+        const listCandidates = Array.isArray(data) ? data : (Array.isArray(data?.devices) ? data.devices : []);
+        cachedDevices = listCandidates.map((value) => {
+          if (value.deviceObject) return value;
+          return {
+            id: value.id || value.rid,
+            name: value.name || value.metadata?.name || '',
+            deviceObject: value
+          };
+        });
+        if (currentNode) currentNode._cachedAreaMotionDevices = cachedDevices;
+        applyNoDevicesPlaceholder(cachedDevices.length > 0);
+        response(filterDevices(cachedDevices, term));
+      }).always(() => {
+        if ($loadingIndicator) $loadingIndicator.hide();
+      }).fail(() => {
+        cachedDevices = [];
+        if (currentNode) currentNode._cachedAreaMotionDevices = cachedDevices;
+        applyNoDevicesPlaceholder(false);
+        response([]);
+      });
+    };
+
+    const updateTabsVisibility = () => {
+      if (!$tabs) return;
+      const hueServerId = resolveServerId($('#node-input-serverHue').val());
+      const knxSelected = hasKNXServerSelected();
+      if (hueServerId) {
+        $requiresBridgeElems.show();
+      } else {
+        $requiresBridgeElems.hide();
+      }
+
+      if (hueServerId && knxSelected) {
+        $tabs.show();
+        $tabs.tabs('refresh');
+      } else {
+        $tabs.hide();
+      }
+
+      if ($outputInfo) {
+        if (knxSelected) {
+          $outputInfo.hide();
+        } else {
+          $outputInfo.show();
+        }
+      }
+      if ($enablePinsSelect && $enablePinsSelect.length) {
+        const desiredPins = knxSelected ? 'no' : 'yes';
+        if ($enablePinsSelect.val() !== desiredPins) {
+          $enablePinsSelect.val(desiredPins).trigger('change');
+        }
+      }
+    };
+
+    const updateKNXVisibility = () => {
+      const knxSelected = hasKNXServerSelected();
+      if (knxSelected) {
+        $knxSections.show();
+        if ($readStatusRow) $readStatusRow.show();
+        if ($enablePinsSelect) {
+          $enablePinsSelect.prop('disabled', false);
+          const baseSelection = previousPinsSelection || normalizePinsValue(currentNode ? currentNode.enableNodePINS : $enablePinsSelect.val() || 'yes');
+          $enablePinsSelect.val(baseSelection);
+          if (currentNode) {
+            currentNode.enableNodePINS = baseSelection;
+            currentNode.outputs = baseSelection === 'yes' ? 1 : 0;
+          }
+          previousPinsSelection = null;
+        }
+        forcedPinsSelection = false;
+      } else {
+        $knxSections.hide();
+        if ($readStatusRow) $readStatusRow.hide();
+        if ($enablePinsSelect) {
+          if (!forcedPinsSelection) {
+            previousPinsSelection = normalizePinsValue($enablePinsSelect.val() || (currentNode ? currentNode.enableNodePINS : 'yes'));
+          }
+          $enablePinsSelect.val('yes').prop('disabled', true);
+        }
+        if (currentNode) {
+          currentNode.enableNodePINS = 'yes';
+          currentNode.outputs = 1;
+        }
+        forcedPinsSelection = true;
+      }
+      if ($outputInfo) {
+        if (knxSelected) {
+          $outputInfo.hide();
+        } else {
+          $outputInfo.show();
+        }
+      }
+      updateTabsVisibility();
+    };
+
+    RED.nodes.registerType('knxUltimateHueAreaMotion', {
+      category: 'KNX Ultimate',
+      color: '#C0C7E9',
+      defaults: {
+        server: { type: 'knxUltimate-config', required: false },
+        serverHue: { type: 'hue-config', required: true },
+        name: { value: '' },
+
+        nameAreaMotion: { value: '' },
+        GAareaMotion: { value: '' },
+        dptAreaMotion: { value: '' },
+        readStatusAtStartup: { value: 'yes' },
+        enableNodePINS: { value: 'yes' },
+
+        hueDevice: { value: '' },
+        outputs: { value: 1 }
+      },
+      inputs: 0,
+      outputs: 1,
+      icon: 'node-hue-icon.svg',
+      label() {
+        return this.name || RED._('node-red-contrib-knx-ultimate/knxUltimateHueAreaMotion:knxUltimateHueAreaMotion.paletteLabel');
+      },
+      paletteLabel: 'Hue Motion Area',
+      oneditprepare() {
+        try { RED.sidebar.show('help'); } catch (error) { /* empty */ }
+        const node = this;
+        currentNode = node;
+
+        ensureConfigSelection('#node-input-serverHue');
+        ensureVerticalTabsStyle();
+
+        $tabs = $('#tabsAreaMotion');
+        $requiresBridgeElems = $('.hue-requires-bridge');
+        $knxSections = $('.hue-knx-section');
+        $deviceName = $('#node-input-name');
+        $refreshButton = $('.hue-refresh-devices');
+        $loadingIndicator = $('.hue-devices-loading');
+        $dptSelect = $('#node-input-dptAreaMotion');
+        $outputInfo = $('.hue-output-info');
+        $enablePinsSelect = $('#node-input-enableNodePINS');
+        $readStatusRow = $('#row-readStatusAtStartup');
+
+        cachedDevices = Array.isArray(node._cachedAreaMotionDevices) ? node._cachedAreaMotionDevices : [];
+        node._cachedAreaMotionDevices = cachedDevices;
+
+        defaultDevicePlaceholder = $deviceName.attr('placeholder') || '';
+        showingNoDevicesPlaceholder = false;
+
+        $tabs.addClass('hue-vertical-tabs');
+        $tabs.tabs();
+        $tabs.find('li').removeClass('ui-corner-top').addClass('ui-corner-left');
+
+        const initialServerDomValue = $('#node-input-server').val();
+        const initialServerId = initialServerDomValue === undefined ? node.server : initialServerDomValue;
+        loadDPTOptions(initialServerId, node);
+        getGroupAddress($('#node-input-GAareaMotion'), $('#node-input-nameAreaMotion'), $dptSelect);
+
+        if ($deviceName) {
+          $deviceName.autocomplete({
+            minLength: 0,
+            source(request, response) {
+              const hueServerId = resolveServerId($('#node-input-serverHue').val());
+              if (!hueServerId) { response([]); return; }
+              const hueServer = RED.nodes.node(hueServerId);
+              if (!hueServer) { response([]); return; }
+              fetchDevices(hueServer, request.term, response);
+            },
+            select(event, ui) {
+              $('#node-input-hueDevice').val(ui.item.hueDevice);
+            }
+          });
+          $deviceName.on('focus.knxUltimateHueAreaMotion', function () {
+            $(this).autocomplete('search', `${$(this).val()}exactmatch`);
+          });
+        }
+
+        if ($refreshButton) {
+          $refreshButton.on('click.knxUltimateHueAreaMotion', () => {
+            cachedDevices = [];
+            node._cachedAreaMotionDevices = cachedDevices;
+            const hueServerId = resolveServerId($('#node-input-serverHue').val());
+            if (!hueServerId) return;
+            const hueServer = RED.nodes.node(hueServerId);
+            if (!hueServer) return;
+            fetchDevices(hueServer, '', () => {
+              if ($deviceName) {
+                $deviceName.autocomplete('search', `${$deviceName.val()}exactmatch`);
+              }
+            }, { forceRefresh: true });
+          });
+        }
+
+        if ($enablePinsSelect) {
+          $enablePinsSelect.val(normalizePinsValue(node.enableNodePINS));
+          $enablePinsSelect.on('change.knxUltimateHueAreaMotion', function () {
+            const val = normalizePinsValue($(this).val());
+            node.enableNodePINS = val;
+            node.outputs = val === 'yes' ? 1 : 0;
+          });
+        }
+
+        $('#node-input-server').on('change.knxUltimateHueAreaMotion', function () {
+          const serverId = $(this).val();
+          loadDPTOptions(serverId, node);
+          getGroupAddress($('#node-input-GAareaMotion'), $('#node-input-nameAreaMotion'), $dptSelect);
+          updateKNXVisibility();
+        });
+
+        $('#node-input-serverHue').on('change.knxUltimateHueAreaMotion', function () {
+          cachedDevices = [];
+          node._cachedAreaMotionDevices = cachedDevices;
+          if ($loadingIndicator) $loadingIndicator.hide();
+          showingNoDevicesPlaceholder = false;
+          if ($deviceName) $deviceName.attr('placeholder', defaultDevicePlaceholder);
+          if (!resolveServerId($('#node-input-serverHue').val())) {
+            applyNoDevicesPlaceholder(true);
+          }
+          updateTabsVisibility();
+        });
+
+        updateKNXVisibility();
+      },
+      oneditsave() {
+        try { RED.sidebar.show('info'); } catch (error) { /* empty */ }
+        detachHandlers();
+        cachedDevices = [];
+        const pinsSelection = $enablePinsSelect ? normalizePinsValue($enablePinsSelect.val()) : 'yes';
+        this.enableNodePINS = pinsSelection;
+        this.outputs = pinsSelection === 'yes' ? 1 : 0;
+        this._cachedAreaMotionDevices = [];
+        currentNode = null;
+      },
+      oneditcancel() {
+        try { RED.sidebar.show('info'); } catch (error) { /* empty */ }
+        detachHandlers();
+        cachedDevices = [];
+        this._cachedAreaMotionDevices = [];
+        currentNode = null;
+      }
+    });
+  }());
+</script>
+
+<script type="text/html" data-template-name="knxUltimateHueAreaMotion">
+  <div class="form-row">
+    <label for="node-input-server">
+      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAKnRFWHRDcmVhdGlvbiBUaW1lAEZyIDYgQXVnIDIwMTAgMjE6NTI6MTkgKzAxMDD84aS8AAAAB3RJTUUH3gYYCicNV+4WIQAAAAlwSFlzAAALEgAACxIB0t1+/AAAAARnQU1BAACxjwv8YQUAAACUSURBVHjaY2CgFZg5c+Z/ZEyWAZ8+f/6/ZsWs/xoamqMGkGrA6Wla/1+fVARjEBuGsSoGmY4eZSCNL59d/g8DIDbIAHR14OgFGQByKjIGKX5+6/T///8gGMQGiV1+/B0Fg70GIkD+RMYgxf/O5/7//2MSmAZhkBi6OrgB6Bg5DGB4ajr3f2xqsYYLSDE2THJUDg0AAAqyDVd4tp4YAAAAAElFTkSuQmCC" />
+      <span data-i18n="common.knx_gw"></span>
+    </label>
+    <input type="text" id="node-input-server">
+  </div>
+
+  <div class="form-row">
+    <label for="node-input-serverHue">
+      <img src="data:image/png;base64, iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAEKADAAQAAAABAAAAEAAAAAA0VXHyAAABFUlEQVQ4EZWSsWoCQRCG1yiENEFEi6QSkjqWWoqFoBYJ+Br6JHkMn8Iibd4ihQpaJIhWNkry/ZtdGZY78Qa+m39nZ+dm9s4550awglNBluS/gVtAX6KgDclf68w2OThgfR9iT/jnoEv4TtByDThWTCDKW4SSZTf/zj9/eZbN+izTDuKGimu0vPF8B/YN8aC8LmcOj/AAn9CFTEs70Js/oGqy79C69bqJ5XbQI2kGO5N8QL9D08S8zBtBF5ZaVsznpCMoqJnVdjTpb1Db0fwIWmQV6BLXzFOYgA6/gDVfQN9bBWp2J2hdWDPoBV5FrKnAJutHikk/CHHR8i7x4iG7qQ720IYvu3GFbpHjx3pFrOFYkA354z/5bkK826phyAAAAABJRU5ErkJggg=="/>
+      <span data-i18n="common.hue_bridge"></span>
+    </label>
+    <input type="text" id="node-input-serverHue">
+  </div>
+
+  <div class="form-row hue-requires-bridge">
+    <label for="node-input-name">
+      <i class="fa fa-map"></i> <span data-i18n="knxUltimateHueAreaMotion.hue_area"></span>
+    </label>
+    <input type="text" id="node-input-name" placeholder="Hue motion area" style="flex:1 1 240px; min-width:240px; max-width:240px;">
+    <button type="button" class="red-ui-button hue-refresh-devices" style="margin-left:6px; color:#1b7d33; border-color:#1b7d33;">
+      <i class="fa fa-sync"></i>
+    </button>
+    <span class="hue-devices-loading" style="margin-left:6px; display:none; color:#1b7d33;">
+      <i class="fa fa-circle-notch fa-spin"></i>
+    </span>
+  </div>
+
+  <div id="tabsAreaMotion">
+    <ul>
+      <li><a href="#tabsAreaMotion-1"><i class="fa fa-map"></i> <span data-i18n="knxUltimateHueAreaMotion.tabs.motion"></span></a></li>
+      <li><a href="#tabsAreaMotion-2"><i class="fa fa-gear"></i> <span data-i18n="knxUltimateHueAreaMotion.tabs.behaviour"></span></a></li>
+    </ul>
+
+    <div id="tabsAreaMotion-1">
+      <div class="form-tips hue-form-tip hue-knx-section">
+        <i class="fa fa-circle-info"></i>
+        <span data-i18n="knxUltimateHueAreaMotion.motion_info"></span>
+      </div>
+      <div class="form-row hue-knx-section">
+        <label for="node-input-GAareaMotion" style="width:70px;"><span data-i18n="common.ga"></span></label>
+        <input type="text" id="node-input-GAareaMotion" placeholder="1/1/1" style="width:70px; text-align:left;">
+        <label for="node-input-dptAreaMotion" style="width:32px; text-align:right;"><span data-i18n="common.dpt"></span></label>
+        <select id="node-input-dptAreaMotion" style="width:110px;"></select>
+        <label for="node-input-nameAreaMotion" style="width:50px; text-align:right;"><span data-i18n="common.name"></span></label>
+        <input type="text" id="node-input-nameAreaMotion" style="flex:1 1 100px; min-width:100px; max-width:100%; text-align:left;" placeholder="Area occupancy">
+      </div>
+    </div>
+
+    <div id="tabsAreaMotion-2">
+      <div id="row-readStatusAtStartup" class="form-row">
+        <label for="node-input-readStatusAtStartup" style="width:220px;">
+          <i class="fa fa-question-circle"></i> <span data-i18n="knxUltimateHueAreaMotion.read_status_startup"></span>
+        </label>
+        <select id="node-input-readStatusAtStartup" style="width:200px;">
+          <option value="yes" data-i18n="knxUltimateHueAreaMotion.opt_yes_emit"></option>
+          <option value="no" data-i18n="knxUltimateHueAreaMotion.opt_no"></option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label for="node-input-enableNodePINS" style="width:220px;">
+          <i class="fa fa-code"></i> <span data-i18n="knxUltimateHueAreaMotion.node_pins"></span>
+        </label>
+        <select id="node-input-enableNodePINS" style="width:200px;">
+          <option value="no" data-i18n="knxUltimateHueAreaMotion.node_pins_hide"></option>
+          <option value="yes" data-i18n="knxUltimateHueAreaMotion.node_pins_show"></option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-tips hue-form-tip hue-output-info" style="display:none;">
+    <i class="fa fa-circle-info"></i>
+    <span data-i18n="knxUltimateHueAreaMotion.output_info"></span>
+  </div>
+
+  <input type="hidden" id="node-input-hueDevice">
+</script>

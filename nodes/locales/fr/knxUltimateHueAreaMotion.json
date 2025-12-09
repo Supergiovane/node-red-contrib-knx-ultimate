@@ -1,0 +1,31 @@
+{
+  "common": {
+    "ga": "GA",
+    "dpt": "DPT",
+    "name": "Nom",
+    "youtube_sample": "Exemple YouTube",
+    "knx_gw": "Passerelle KNX",
+    "hue_bridge": "Hue Bridge",
+    "philips_hue": "Philips HUE",
+    "read": "Lire"
+  },
+  "knxUltimateHueAreaMotion": {
+    "paletteLabel": "Zone de mouvement Hue",
+    "heading": "Nœud Zone de mouvement Hue",
+    "hue_area": "Zone de mouvement Hue (MotionAware)",
+    "no_devices": "Aucune zone MotionAware disponible",
+    "tabs": {
+      "motion": "Mouvement",
+      "behaviour": "Comportement"
+    },
+    "node_pins": "Broche de sortie du nœud",
+    "node_pins_hide": "Masquer",
+    "node_pins_show": "Afficher la broche de sortie Node-RED",
+    "output_info": "Aucune passerelle KNX sélectionnée. Lorsque la broche de sortie Node-RED est activée, les événements de mouvement de la zone MotionAware sont toujours envoyés vers votre flow.",
+    "read_status_startup": "Lire l'état au démarrage",
+    "opt_no": "Non",
+    "opt_yes_emit": "Oui, et émettre des télégrammes KNX.",
+    "motion_info": "Liez l'adresse de groupe KNX qui doit recevoir l'état de mouvement agrégé pour cette zone MotionAware."
+  }
+}
+

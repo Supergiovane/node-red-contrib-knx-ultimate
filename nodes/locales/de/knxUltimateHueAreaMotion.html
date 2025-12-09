@@ -1,0 +1,36 @@
+<script type="text/markdown" data-help-name="knxUltimateHueAreaMotion">
+<p>Der Hue Bewegungsbereich-Node lauscht auf MotionAware-Bereichsereignisse (Hue Bridge Pro) und spiegelt den aggregierten Bewegung / keine-Bewegung-Status nach KNX bzw. in Ihren Node-RED-Flow.</p>
+
+Geben Sie im GA-Feld (Name oder Gruppenadresse) die gewünschte KNX-GA ein; passende Einträge werden während der Eingabe vorgeschlagen.
+
+**Allgemein**
+
+|Eigenschaft|Beschreibung|
+|--|--|
+| KNX GW | Zu verwendendes KNX-Gateway, das den Bewegungsstatus erhält. |
+| Hue Bridge | Zu verwendende Hue Bridge Pro. |
+| Hue Bereich | Zu überwachender MotionAware-Bereich (Convenience oder Security, mit Autovervollständigung). |
+| Status beim Start auslesen | Liest beim Start/bei Wiederverbindung den aktuellen Wert und sendet ihn an KNX (Standard: ja). |
+
+**Zuordnung**
+
+|Eigenschaft|Beschreibung|
+|--|--|
+| Bewegung | KNX-GA für den Bewegungsstatus des Bereichs (Boolean). Empfohlener DPT: <b>1.001</b>. |
+
+**Verhalten**
+
+|Eigenschaft|Beschreibung|
+|--|--|
+| Node-Ausgangspin | Node-RED-Ausgang ein-/ausblenden. Ohne KNX-Gateway bleibt der Ausgang aktiv, damit MotionAware-Ereignisse weiterhin den Flow erreichen. |
+
+### Ausgänge
+
+1. Standardausgang  
+   : `msg.payload` (Boolean): `true`, wenn im Bereich Bewegung erkannt wird, sonst `false`.
+
+### Details
+
+`msg.payload` enthält den von MotionAware gelieferten, aggregierten Bewegungsstatus des ausgewählten Bereichs.
+</script>
+

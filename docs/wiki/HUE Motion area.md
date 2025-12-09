@@ -1,0 +1,40 @@
+---
+layout: wiki
+title: "HUE Motion area"
+lang: en
+permalink: /wiki/HUE%20Motion%20area
+---
+The Hue Motion Area node listens to MotionAware area motion events (Hue Bridge Pro) and mirrors the aggregated detected/not detected state to KNX or your Node-RED flow.
+
+Start typing in the GA field (name or Group Address) to link the KNX GA; suggestions appear while you type.
+
+**General**
+
+|Property|Description|
+|--|--|
+| KNX GW | Select the KNX gateway to be used. |
+| HUE Bridge | Select the Hue Bridge Pro to be used. |
+| HUE Area | MotionAware area (convenience or security) to monitor (autocomplete while typing). |
+| Read status at startup | On startup/reconnect, read the current value and send it to KNX (default: yes). |
+
+**Mapping**
+
+|Property|Description|
+|--|--|
+| Motion | KNX GA for the area motion state (boolean). Recommended DPT: <b>1.001</b>. |
+
+**Behaviour**
+
+|Property|Description|
+|--|--|
+| Node output pin | Show or hide the Node-RED output. When no KNX gateway is selected the output pin stays enabled so MotionAware events still reach your flow. |
+
+### Outputs
+
+1. Standard output  
+   : `msg.payload` (boolean): `true` when motion is detected in the area, otherwise `false`.
+
+### Details
+
+`msg.payload` carries the latest MotionAware area motion status (aggregated from the underlying sensors).
+

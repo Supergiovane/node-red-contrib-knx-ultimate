@@ -6,6 +6,11 @@
 
 # CHANGELOG
 
+**Version 4.1.9** - December 2025<br/>
+- NEW: added **Hue Motion Area** node for Philips Hue Bridge Pro MotionAware areas, exposing aggregated motion state from Hue `convenience_area_motion` and `security_area_motion` services to KNX or Node-RED flows.<br/>
+- Hue config: extended the internal resource browser to resolve MotionAware area services against their `motion_area_configuration`, showing friendly area names and linked rooms/zones in the editor device picker.<br/>
+<br/>
+
 **Version 4.1.8** - December 2025<br/>
 - Logger node editor: when **Action** is set to `Emit payload only`, the file path row is now completely hidden (instead of just disabled), using a dedicated row id for better future Node-RED compatibility.<br/>
 - Logger node editor: added a **Download** button next to the file path.<br/>

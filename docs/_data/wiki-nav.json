@@ -149,6 +149,11 @@
           "external": false
         },
         {
+          "label": "Motion area",
+          "url": "/wiki/HUE%20Motion%20area",
+          "external": false
+        },
+        {
           "label": "Scene",
           "url": "/wiki/HUE%20Scene",
           "external": false
@@ -463,6 +468,11 @@
         {
           "label": "Movimento",
           "url": "/wiki/it-HUE%20Motion",
+          "external": false
+        },
+        {
+          "label": "Area movimento",
+          "url": "/wiki/it-HUE%20Motion%20area",
           "external": false
         },
         {
@@ -783,6 +793,11 @@
           "external": false
         },
         {
+          "label": "Bewegungsbereich",
+          "url": "/wiki/de-HUE%20Motion%20area",
+          "external": false
+        },
+        {
           "label": "Szene",
           "url": "/wiki/de-HUE%20Scene",
           "external": false
@@ -1097,6 +1112,11 @@
         {
           "label": "Motion",
           "url": "/wiki/fr-HUE%20Motion",
+          "external": false
+        },
+        {
+          "label": "Motion area",
+          "url": "/wiki/fr-HUE%20Motion%20area",
           "external": false
         },
         {
@@ -1417,6 +1437,11 @@
           "external": false
         },
         {
+          "label": "Motion area",
+          "url": "/wiki/es-HUE%20Motion%20area",
+          "external": false
+        },
+        {
           "label": "Scene",
           "url": "/wiki/es-HUE%20Scene",
           "external": false
@@ -1731,6 +1756,11 @@
         {
           "label": "运动",
           "url": "/wiki/zh-CN-HUE%20Motion",
+          "external": false
+        },
+        {
+          "label": "区域运动",
+          "url": "/wiki/zh-CN-HUE%20Motion%20area",
           "external": false
         },
         {

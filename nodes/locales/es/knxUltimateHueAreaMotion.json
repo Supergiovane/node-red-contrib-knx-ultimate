@@ -1,0 +1,31 @@
+{
+  "common": {
+    "ga": "GA",
+    "dpt": "DPT",
+    "name": "Nombre",
+    "youtube_sample": "Ejemplo de YouTube",
+    "knx_gw": "Pasarela KNX",
+    "hue_bridge": "Puente Hue",
+    "philips_hue": "Philips HUE",
+    "read": "Leer"
+  },
+  "knxUltimateHueAreaMotion": {
+    "paletteLabel": "Área de movimiento Hue",
+    "heading": "Nodo Área de movimiento Hue",
+    "hue_area": "Área de movimiento Hue (MotionAware)",
+    "no_devices": "No hay áreas MotionAware disponibles",
+    "tabs": {
+      "motion": "Movimiento",
+      "behaviour": "Comportamiento"
+    },
+    "node_pins": "Pin de salida del nodo",
+    "node_pins_hide": "Ocultar",
+    "node_pins_show": "Mostrar pin de salida de Node-RED",
+    "output_info": "No se ha seleccionado pasarela KNX. Cuando el pin de salida de Node-RED está habilitado, los eventos de movimiento del área MotionAware siguen enviándose al flujo.",
+    "read_status_startup": "Leer estado al inicio",
+    "opt_no": "No",
+    "opt_yes_emit": "Sí, y emitir telegramas KNX.",
+    "motion_info": "Enlace la dirección de grupo KNX que debe recibir el estado de movimiento agregado de esta área MotionAware."
+  }
+}
+

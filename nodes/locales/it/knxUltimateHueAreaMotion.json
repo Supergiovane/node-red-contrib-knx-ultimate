@@ -1,0 +1,31 @@
+{
+  "common": {
+    "ga": "GA",
+    "dpt": "DPT",
+    "name": "Nome",
+    "youtube_sample": "Esempio YouTube",
+    "knx_gw": "Gateway KNX",
+    "hue_bridge": "Hue Bridge",
+    "philips_hue": "Philips HUE",
+    "read": "Leggi"
+  },
+  "knxUltimateHueAreaMotion": {
+    "paletteLabel": "Area movimento Hue",
+    "heading": "Nodo Area movimento Hue",
+    "hue_area": "Area movimento Hue (MotionAware)",
+    "no_devices": "Nessuna area MotionAware disponibile",
+    "tabs": {
+      "motion": "Movimento",
+      "behaviour": "Comportamento"
+    },
+    "node_pins": "Pin di uscita del nodo",
+    "node_pins_hide": "Nascondi",
+    "node_pins_show": "Mostra il pin di uscita Node-RED",
+    "output_info": "Nessun gateway KNX selezionato. Quando il pin di uscita Node-RED è abilitato, gli eventi di movimento dell'area MotionAware continuano ad essere inviati al flow.",
+    "read_status_startup": "Leggi lo stato all'avvio",
+    "opt_no": "No",
+    "opt_yes_emit": "Sì, ed emetti i telegrammi KNX.",
+    "motion_info": "Collega l'indirizzo di gruppo KNX che deve ricevere lo stato di movimento aggregato per quest'area MotionAware."
+  }
+}
+

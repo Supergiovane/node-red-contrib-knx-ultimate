@@ -347,7 +347,8 @@ module.exports = (RED) => {
           allResources = node.hueAllResources.filter((a) => a.type === 'light' || a.type === 'grouped_light')
         } else if (_rtype === 'plug') {
           allResources = node.hueAllResources.filter((a) => a.type === 'plug' || a.type === 'smartplug' || a.type === 'smart_plug')
-          //console.log('getResources plug raw resources', allResources.map((res) => ({ id: res.id, type: res.type, owner: res.owner?.rtype })))
+        } else if (_rtype === 'area_motion') {
+          allResources = node.hueAllResources.filter((a) => a.type === 'convenience_area_motion' || a.type === 'security_area_motion')
         } else {
           allResources = node.hueAllResources.filter((a) => a.type === _rtype)
         }
@@ -408,6 +409,36 @@ module.exports = (RED) => {
               const linkedDevName = node.hueAllResources.find((dev) => dev.type === 'device' && dev.services.find((serv) => serv.rid === resource.id)).metadata.name || ''
               retArray.push({
                 name: `${capStr(_rtype)}: ${linkedDevName}`,
+                id: resource.id
+              })
+            }
+            if (_rtype === 'convenience_area_motion' || _rtype === 'security_area_motion' || (_rtype === 'area_motion' && (resource.type === 'convenience_area_motion' || resource.type === 'security_area_motion'))) {
+              let areaName = ''
+              let areaGroupLabel = ''
+              const isConvenience = resource.type === 'convenience_area_motion'
+              const areaTypeLabel = isConvenience ? 'Convenience area' : 'Security area'
+              let configuration = node.hueAllResources.find((res) => {
+                if (res.type !== 'motion_area_configuration' || !Array.isArray(res.services)) return false
+                return res.services.some((svc) => svc.rid === resource.id)
+              })
+              if (!configuration && resource.owner && resource.owner.rid) {
+                const candidate = node.hueAllResources.find((res) => res.id === resource.owner.rid)
+                if (candidate && candidate.type === 'motion_area_configuration') configuration = candidate
+              }
+              if (configuration && typeof configuration.name === 'string' && configuration.name.trim() !== '') {
+                areaName = configuration.name.trim()
+              } else {
+                areaName = resource.id
+              }
+              if (configuration && configuration.group && configuration.group.rid) {
+                const groupRes = node.hueAllResources.find((res) => res.id === configuration.group.rid)
+                if (groupRes && groupRes.metadata && typeof groupRes.metadata.name === 'string') {
+                  const groupType = configuration.group.rtype ? capStr(configuration.group.rtype) : 'Group'
+                  areaGroupLabel = `, ${groupType} ${groupRes.metadata.name}`
+                }
+              }
+              retArray.push({
+                name: `${areaTypeLabel}: ${areaName}${areaGroupLabel}`,
                 id: resource.id
               })
             }
