@@ -13,7 +13,7 @@ Mostra tutti gli indirizzi di gruppo e i relativi valori in un widget della Dash
 | Proprietà | Descrizione |
 |-|-|
 | Gateway | Il gateway KNX. |
-| Name | Nome del nodo. |
+| Nome | Nome del nodo. |
 
 # PIN DI USCITA
 

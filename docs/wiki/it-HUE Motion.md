@@ -12,9 +12,9 @@ Nel campo GA digita nome o indirizzo di gruppo KNX: i suggerimenti appaiono dura
 
 | Proprietà | Descrizione |
 |-|-|
-|KNX GW |Gateway KNX che riceve le segnalazioni di movimento (necessario per visualizzare le opzioni KNX) |
-|Bridge Hue |Bridge Hue da interrogare |
-| HUE Sensor | Sensore di movimento Hue (supporta autocompletamento e refresh) |
+| Gateway KNX | Gateway KNX che riceve le segnalazioni di movimento (necessario per visualizzare le opzioni KNX) |
+| Hue Bridge | Hue Bridge da interrogare |
+| Sensore movimento Hue | Sensore di movimento Hue (supporta autocompletamento e refresh) |
 
 **Mappatura**
 

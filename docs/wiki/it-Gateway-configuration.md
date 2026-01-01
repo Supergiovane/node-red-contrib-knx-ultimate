@@ -23,13 +23,13 @@ Questo nodo si connette al tuo KNX/IP Gateway.
 | Porta gateway | Porta di connessione. Default: `3671`. Non utilizzata in modalità Serial FT1.2. |
 | Protocollo di connessione | `Tunnel UDP` per interfacce KNX/IP, `Multicast UDP` per router KNX/IP, `Serial FT1.2` per interfacce TP/FT1.2 (selezionato automaticamente quando scegli una porta seriale). Lascia **Auto** per rilevare il protocollo più adatto. |
 | Modalità Serial FT1.2 | Definisce come inizializzare l'interfaccia Serial FT1.2: **KBerry/BAOS** abilita la sequenza specifica per moduli Weinzierl KBerry/BAOS (reset, modalità Link Layer/BAOS, nessun filtro GA), mentre **Standard FT1.2** usa un adattatore FT1.2 generico senza passi specifici per KBerry. Il default è KBerry/BAOS. |
-| KNX Physical Address | Indirizzo fisico KNX, es. `1.1.200`. Default: `15.15.22`. |
-| Bind to local interface | Interfaccia di rete locale usata dal nodo. Lascia "Auto" per selezione automatica. Se hai più interfacce (Ethernet/Wi-Fi), è consigliato impostarla manualmente per evitare perdita di telegrammi UDP. Default: "Auto". |
-| Automatically connect to KNX BUS at start | Connessione automatica al BUS all'avvio. Default: "Yes". |
-| Secure credentials source | Scegli come fornire i dati KNX Secure: **File keyring ETS ** (le chiavi Data Secure e, se presenti, le credenziali di tunnelling arrivano dal keyring),**Credenziali manuali ** (solo KNX IP Tunnelling Secure con utente inserito a mano) oppure**File keyring + password tunnel manuale** (chiavi Data Secure dal keyring, utente/password del tunnel impostati manualmente). Ricorda: i telegrammi KNX Data Secure richiedono sempre un file keyring. |
-| Tunnel interface individual address | Visibile quando la modalità selezionata prevede credenziali manuali (Credenziali manuali o File keyring + password tunnel manuale). Indirizzo individuale opzionale dell'interfaccia tunnel sicura (es. `1.1.1`); lascia vuoto per negoziazione automatica da parte di KNX Ultimate. |
-| Tunnel user ID | Visibile quando sono attive credenziali manuali. ID opzionale dell'utente tunnel KNX Secure definito in ETS. |
-| Tunnel user password | Visibile quando sono attive credenziali manuali. Password dell'utente tunnel KNX Secure configurata in ETS. |
+| Indirizzo fisico KNX | Indirizzo fisico KNX, es. `1.1.200`. Default: `15.15.22`. |
+| Utilizza l'interfaccia locale | Interfaccia di rete locale usata dal nodo. Lascia "Auto" per selezione automatica. Se hai più interfacce (Ethernet/Wi-Fi), è consigliato impostarla manualmente per evitare perdita di telegrammi UDP. Default: "Auto". |
+| Connetti al BUS KNX automaticamente all'avvio | Connessione automatica al BUS all'avvio. Default: "Yes". |
+| Origine credenziali KNX Secure | Scegli come fornire i dati KNX Secure: **File keyring ETS ** (le chiavi Data Secure e, se presenti, le credenziali di tunnelling arrivano dal keyring),**Credenziali manuali ** (solo KNX IP Tunnelling Secure con utente inserito a mano) oppure**File keyring + password tunnel manuale** (chiavi Data Secure dal keyring, utente/password del tunnel impostati manualmente). Ricorda: i telegrammi KNX Data Secure richiedono sempre un file keyring. |
+| Indirizzo individuale interfaccia tunnel | Visibile quando la modalità selezionata prevede credenziali manuali (Credenziali manuali o File keyring + password tunnel manuale). Indirizzo individuale opzionale dell'interfaccia tunnel sicura (es. `1.1.1`); lascia vuoto per negoziazione automatica da parte di KNX Ultimate. |
+| ID utente tunnel | Visibile quando sono attive credenziali manuali. ID opzionale dell'utente tunnel KNX Secure definito in ETS. |
+| Password utente tunnel | Visibile quando sono attive credenziali manuali. Password dell'utente tunnel KNX Secure configurata in ETS. |
 
 > **Nota su KNX Secure** \
 > • _KNX Data Secure_ protegge i telegrammi sugli indirizzi di gruppo e richiede sempre un file keyring con le chiavi di gruppo.\
@@ -40,26 +40,26 @@ Questo nodo si connette al tuo KNX/IP Gateway.
 
 |Proprietà|Descrizione|
 |--|--|
-| Echo sent message to all node with same Group Address | Inoltra ai nodi con lo stesso GA i msg inviati dal flow, come se provenissero dal BUS. Utile in emulazione KNX o senza connessione al BUS. **Opzione in deprecazione e presto abilitata di default.** Default: abilitato. |
-| Suppress repeated (R-Flag) telegrams fom BUS | Ignora i telegrammi ripetuti (flag R) dal BUS. Default: disabilitato. |
-| Suppress ACK request in tunneling mode | Per vecchie interfacce KNX/IP: ignora l'ACK e accetta tutti i telegrammi. Default: disabilitato. |
-| Delay between each telegram (ms) | Lo standard KNX prevede max 50 telegrammi/s. Un intervallo 25-50ms è adeguato. Con gateway remoto su link lento aumenta (es. 200-500ms). |
-| Loglevel | Livello di log per il debug. Default: "Error". |
+| Inoltra i msg ai nodi con lo stesso GA | Inoltra ai nodi con lo stesso GA i msg inviati dal flow, come se provenissero dal BUS. Utile in emulazione KNX o senza connessione al BUS. **Opzione in deprecazione e presto abilitata di default.** Default: abilitato. |
+| Sopprimi telegrammi dal BUS ripetuti (Flag R) | Ignora i telegrammi ripetuti (flag R) dal BUS. Default: disabilitato. |
+| Sopprimi richieste ACK in modalità tunnel | Per vecchie interfacce KNX/IP: ignora l'ACK e accetta tutti i telegrammi. Default: disabilitato. |
+| Pausa tra l'invio di un telegramma ed un altro (in millisecondi) | Lo standard KNX prevede max 50 telegrammi/s. Un intervallo 25-50ms è adeguato. Con gateway remoto su link lento aumenta (es. 200-500ms). |
+| Livello log | Livello di log per il debug. Default: "Error". |
 | Limitazione aggiornamento stato nodi | Imposta ogni quanto aggiornare il badge di stato dei nodi. Con un ritardo attivo gli stati intermedi vengono ignorati e viene mostrato solo l'ultimo dopo l'intervallo scelto. Seleziona **Immediato** per mantenere l'aggiornamento in tempo reale. |
 
 **Import file ETS**
 
 |Proprietà|Descrizione|
 |--|--|
-| If Group Address has no Datapoint | Se un GA non ha datapoint: interrompi import, salta il GA o aggiungi un datapoint fittizio `1.001` e continua. |
-| ETS group address list | Incolla qui il contenuto del file ETS (CSV o ESF) oppure indica un percorso file (es. `/home/pi/mycsv.csv`). Consulta i link di help per i dettagli. |
+| Se l'indirizzo di gruppo non ha datapoint | Se un GA non ha datapoint: interrompi import, salta il GA o aggiungi un datapoint fittizio `1.001` e continua. |
+| Lista indirizzi di gruppo ETS | Incolla qui il contenuto del file ETS (CSV o ESF) oppure indica un percorso file (es. `/home/pi/mycsv.csv`). Consulta i link di help per i dettagli. |
 
 **Utility**
 
 |Proprietà|Descrizione|
 |--|--|
-| Gather debug info for troubleshoot | Clicca il pulsante e allega l'output alla issue su GitHub: aiuta molto l'analisi. |
-| Get all used GA for KNX routing filter | Clicca READ per ottenere l'elenco di tutti i GA usati nei flow associati a questo gateway, utile per popolare la tabella filtri del tuo KNX/IP Router. |
+| Raccogli debug e log per assistenza | Clicca il pulsante e allega l'output alla issue su GitHub: aiuta molto l'analisi. |
+| Ottieni tutte le GA usate per il filtro di routing KNX | Clicca READ per ottenere l'elenco di tutti i GA usati nei flow associati a questo gateway, utile per popolare la tabella filtri del tuo KNX/IP Router. |
 
 # Lavorare con i file ETS CSV o ESF
 
@@ -67,7 +67,7 @@ Invece di creare un nodo per ogni GA da controllare, puoi importare il file ETS 
 
 Da v1.4.18 puoi anche indicare direttamente il percorso al file nel campo (es.: `/home/pi/mycsv.csv`).
 
-Con **Universal mode (listen to all Group Addresses)** il nodo diventa I/O universale, consapevole di Datapoint, GA e nomi dispositivi. Invia un `payload` al nodo e lui codifica col DPT corretto; viceversa, decodifica i telegrammi in arrivo usando il DPT dell'ETS.
+Con **Modalità Universale (Ascolta tutti gli indirizzi di gruppo)** il nodo diventa I/O universale, consapevole di Datapoint, GA e nomi dispositivi. Invia un `payload` al nodo e lui codifica col DPT corretto; viceversa, decodifica i telegrammi in arrivo usando il DPT dell'ETS.
 
 Da v1.1.11 puoi usare la modalità universale anche senza file ETS: invia al nodo un messaggio con tipo DPT e valore. Alla ricezione da BUS, il nodo emette anche il RAW e prova a decodificare senza DPT.
 
@@ -75,7 +75,7 @@ Nota: il file CSV contiene DPT precisi con sottotipo; l'ESF è più semplice e n
 
 Video: <a href="https://youtu.be/egRbR_KwP9I"><img src='https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/yt.png'></a>
 
-- **Import ETS CSV Group Addresses ** ATTENZIONE: nel nome del GA non devono esserci caratteri di tabulazione.**If Group Address has no Datapoint ** > Se in ETS un GA non ha DPT, puoi: interrompere l'import, saltare il GA, oppure aggiungere il GA con DPT fittizio e continuare.**Come esportare l'elenco GA in formato CSV da ETS**
+- **Importa indirizzi di gruppo ETS** ATTENZIONE: nel nome del GA non devono esserci caratteri di tabulazione. **Se l'indirizzo di gruppo non ha datapoint** > Se in ETS un GA non ha DPT, puoi: interrompere l'import, saltare il GA, oppure aggiungere il GA con DPT fittizio e continuare. **Come esportare l'elenco GA in formato CSV da ETS**
 
 > In ETS seleziona l'elenco GA, click destro → Esporta indirizzi di gruppo. Nella finestra di export imposta:
 

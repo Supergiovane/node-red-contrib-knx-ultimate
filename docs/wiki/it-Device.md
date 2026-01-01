@@ -16,7 +16,7 @@ Questo nodo controlla un Indirizzo di Gruppo KNX; è il nodo più utilizzato.
 |--|--|
 | Gateway | Seleziona il gateway KNX da utilizzare |
 | Elenco a discesa tipo GA | Tipo di indirizzo di gruppo. **3-Livelli ** è il default, dove puoi digitare il GA a 3 livelli o il nome GA (se hai caricato il file ETS);**Global ** legge il GA da una variabile globale all'avvio;**Flow ** fa lo stesso a livello di flow. Seleziona**$Env variable ** per leggere il GA da una variabile d'ambiente. Seleziona**Modalità universale (ascolta tutti gli Indirizzi di Gruppo)** per reagire a TUTTI i GA. |
-| Group Addr. | L'indirizzo di gruppo KNX da controllare. Se hai importato il file ETS, puoi iniziare a digitare il nome del dispositivo. Puoi lasciarlo vuoto se intendi impostarlo tramite messaggio di ingresso `msg.setConfig`. |
+| Ind. Gruppo | L'indirizzo di gruppo KNX da controllare. Se hai importato il file ETS, puoi iniziare a digitare il nome del dispositivo. Puoi lasciarlo vuoto se intendi impostarlo tramite messaggio di ingresso `msg.setConfig`. |
 | Datapoint | Il Datapoint associato al nodo. |
 
 ### Pulsante di comando manuale
@@ -39,19 +39,19 @@ Il pulsante è visibile soltanto se l’opzione è attiva. In modalità universa
 || **Proprietà generali** |
 | Nome del nodo | Autoesplicativo. |
 | Topic | Il topic del messaggio in uscita. Lascia vuoto per usare l'Indirizzo di Gruppo. |
-| Passthrough | Se attivo, inoltra sul PIN di uscita il msg di ingresso. |
+| Passa msg di ingresso sull'uscita | Se attivo, inoltra sul PIN di uscita il msg di ingresso. |
 || **Dal PIN di INGRESSO del nodo verso il BUS KNX** |
 | Tipo telegramma | `write` per inviare un telegramma di scrittura (in genere è ciò che vuoi); in alternativa puoi scegliere a quale tipo di telegramma reagire. |
 | Filtro RBE | Filtro "Report by change”. Se attivo, invia al BUS solo messaggi di ingresso con valore diverso dal precedente. Se devi inviare sempre lo stesso valore, disattivalo. Se attivo, verrà aggiunta l'indicazione "rbe” al nome del nodo. |
 || **Dal BUS KNX verso il PIN di USCITA del nodo** |
-| Read status on start | Legge lo stato del GA ad ogni avvio di Node-RED e a ogni riconnessione al Gateway KNX. Il nodo memorizza i valori su file, quindi puoi scegliere se leggere da file o dal BUS KNX. |
+| Leggi il valore alla connessione/riconnessione | Legge lo stato del GA ad ogni avvio di Node-RED e a ogni riconnessione al Gateway KNX. Il nodo memorizza i valori su file, quindi puoi scegliere se leggere da file o dal BUS KNX. |
 | Filtro RBE | Filtro "Report by change” sull'uscita: invia al flow solo quando il valore cambia. Se vuoi inviare anche valori ripetuti, lascialo disattivo. Se attivo, aggiunge "rbe” al nome del nodo. |
-| React to write telegrams | Il nodo invia un msg al flow ogni volta che riceve un telegramma di tipo write dal BUS KNX. |
-| React to response telegrams | Il nodo invia un msg al flow alla ricezione di un telegramma di risposta. Utile in scenari specifici. |
-| React to read telegrams | Il nodo invia un msg al flow alla ricezione di un telegramma di lettura. Utile quando vuoi rispondere con un valore personalizzato al BUS. |
-| Multiply | Moltiplica o divide il valore del payload. Funziona solo con numeri. |
-| Decimals | Arrotonda o gestisce i decimali. Solo numeri. |
-| Negatives | Gestisce i valori negativi. Solo numeri. |
+| Reagisci all'evento Scrittura (Write) | Il nodo invia un msg al flow ogni volta che riceve un telegramma di tipo write dal BUS KNX. |
+| Reagisci all'evento Risposta (Response) | Il nodo invia un msg al flow alla ricezione di un telegramma di risposta. Utile in scenari specifici. |
+| Reagisci all'evento Lettura (Read) | Il nodo invia un msg al flow alla ricezione di un telegramma di lettura. Utile quando vuoi rispondere con un valore personalizzato al BUS. |
+| Moltiplica | Moltiplica o divide il valore del payload. Funziona solo con numeri. |
+| Decimali | Arrotonda o gestisce i decimali. Solo numeri. |
+| Negativi | Gestisce i valori negativi. Solo numeri. |
 
 ## TAB KNX Function
 
@@ -61,7 +61,7 @@ Lo script viene eseguito a ogni msg in ingresso o a ogni telegramma ricevuto dal
 
 |Proprietà|Descrizione|
 |--|--|
-| Search GA | Disponibile solo se hai importato il file ETS. Inizia a digitare e seleziona il GA da inserire nel codice, poi incolla il campo completo nella funzione `getGAValue`. 
+| Cerca GA | Disponibile solo se hai importato il file ETS. Inizia a digitare e seleziona il GA da inserire nel codice, poi incolla il campo completo nella funzione `getGAValue`. 
  **getGAValue('0/0/1 table nord lamp')** |
 
 ### Oggetti e funzioni disponibili nel codice

@@ -28,10 +28,10 @@ Il WatchDog è molto utile per notificare errori e problemi di connessione: puoi
 | Proprietà | Descrizione |
 |--|--|
 | Gateway | Gateway KNX selezionato. |
-| Group Address to monitor | GA a cui inviare il telegramma e da cui attendere risposta sul BUS KNX. Il Datapoint deve essere DPT 1.x (boolean). |
-| Name | Nome del nodo. |
-| Auto start the watchdog timer | Avvio automatico del timer al deploy o all'avvio di Node-RED. |
-| Check level | Vedi sotto. |
+| Group Address da monitorare | GA a cui inviare il telegramma e da cui attendere risposta sul BUS KNX. Il Datapoint deve essere DPT 1.x (boolean). |
+| Nome nodo | Nome del nodo. |
+| Avvia il watchdog automaticamente | Avvio automatico del timer al deploy o all'avvio di Node-RED. |
+| Livello controllo (vedi Wiki) | Vedi sotto. |
 
 **Check level**
 
@@ -47,8 +47,8 @@ Il WatchDog è molto utile per notificare errori e problemi di connessione: puoi
 
 | Proprietà | Descrizione |
 |--|--|
-| Retry interval (in seconds) | Intervallo (s) tra due verifiche: il nodo invia un telegramma al BUS con questa cadenza. |
-| Number of retry before giving an error | Dopo questo numero di tentativi senza risposta, il nodo genera errore. |
+| Riprova ogni (in secondi) | Intervallo (s) tra due verifiche: il nodo invia un telegramma al BUS con questa cadenza. |
+| Dopo questo numero di tentativi, segnala l'errore | Dopo questo numero di tentativi senza risposta, il nodo genera errore. |
 
 # Messaggi in uscita dal WatchDog
 

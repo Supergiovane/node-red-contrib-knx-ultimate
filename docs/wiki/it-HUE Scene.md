@@ -17,7 +17,7 @@ Il nodo **Hue Scene** pubblica le scene Hue su KNX e può inoltrare gli eventi g
 | Proprietà | Descrizione |
 |--|--|
 | Gateway KNX | Gateway KNX che fornisce il catalogo delle GA per l'autocomplete. |
-| Bridge HUE | Bridge Hue che ospita le scene. |
+| Hue Bridge | Bridge Hue che ospita le scene. |
 | Scena HUE | Scena da richiamare (autocomplete; il pulsante di refresh ricarica il catalogo). |
 
 ### Scheda Mappatura

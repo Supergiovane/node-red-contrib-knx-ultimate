@@ -15,8 +15,8 @@ Il nodo **Hue Tap Dial** collega il servizio di rotazione del Tap Dial alle GA K
 
 | Proprietà | Descrizione |
 |--|--|
-| KNX GW | Gateway KNX usato per l'autocompletamento delle GA. |
-| Bridge Hue | Bridge Hue che espone il Tap Dial. |
+| Gateway KNX | Gateway KNX usato per l'autocompletamento delle GA. |
+| Hue Bridge | Hue Bridge che espone il Tap Dial. |
 | Hue Tap Dial | Dispositivo rotativo (autocomplete; il pulsante di refresh ricarica l'elenco). |
 
 ### Scheda Mappatura

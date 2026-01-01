@@ -13,7 +13,7 @@ Nel campo GA (nome o indirizzo di gruppo) inizia a digitare per collegare la GA 
 |Proprietà|Descrizione|
 |--|--|
 | Gateway KNX | Seleziona il gateway KNX da utilizzare |
-| Bridge HUE | Seleziona il bridge HUE da utilizzare |
+| Hue Bridge | Seleziona il bridge HUE da utilizzare |
 | Pulsante Hue | Pulsante Hue da usare (autocompletamento) |
 
 **Interruttore**

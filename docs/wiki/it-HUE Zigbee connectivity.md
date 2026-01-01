@@ -12,9 +12,9 @@ Inizia a digitare il nome o l'indirizzo di gruppo nel campo GA: l'autocompletame
 
 | Proprietà | Descrizione |
 |--|--|
-| KNX GW | Gateway KNX su cui pubblicare lo stato. |
-| HUE Bridge | HUE Bridge da interrogare. |
-| HUE Sensor | Sensore/dispositivo HUE che fornisce la connettività Zigbee (autocompletamento durante la digitazione). |
+| Gateway KNX | Gateway KNX su cui pubblicare lo stato. |
+| Hue Bridge | Hue Bridge da interrogare. |
+| Connettività Zigbee Hue | Sensore/dispositivo HUE che fornisce la connettività Zigbee (autocompletamento durante la digitazione). |
 
 **Mappatura**
 

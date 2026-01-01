@@ -13,8 +13,8 @@ stai digitando.
 
 | Proprietà | Descrizione |
 |-|-|
-|KNX GW |Seleziona il gateway KNX da utilizzare |
-|Bridge Hue |Seleziona il ponte Hue da utilizzare |
+| Gateway KNX | Seleziona il gateway KNX da utilizzare |
+| Hue Bridge | Seleziona il ponte Hue da utilizzare |
 | HUE Device | Dispositivo HUE da monitorare (autocompletamento) |
 
 **Mappatura**

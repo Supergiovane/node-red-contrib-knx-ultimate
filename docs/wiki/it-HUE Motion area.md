@@ -12,9 +12,9 @@ Nel campo GA digita nome o indirizzo di gruppo KNX per collegare l'indirizzo: i 
 
 | Proprietà | Descrizione |
 |--|--|
-| KNX GW | Gateway KNX che riceve lo stato di movimento dell'area. |
-| HUE Bridge | Bridge Hue Pro da utilizzare. |
-| HUE Area | Area MotionAware (convenience o security) da monitorare (autocomplete durante la digitazione). |
+| Gateway KNX | Gateway KNX che riceve lo stato di movimento dell'area. |
+| Hue Bridge | Bridge Hue Pro da utilizzare. |
+| Area movimento Hue (MotionAware) | Area MotionAware (convenience o security) da monitorare (autocomplete durante la digitazione). |
 | Leggi stato all'avvio | All'avvio o alla riconnessione legge il valore corrente e lo invia a KNX (predefinito: sì). |
 
 **Mappatura**
@@ -37,4 +37,3 @@ Nel campo GA digita nome o indirizzo di gruppo KNX per collegare l'indirizzo: i 
 ### Dettagli
 
 `msg.payload` contiene lo stato di movimento aggregato fornito dal servizio MotionAware per l'area selezionata.
-
