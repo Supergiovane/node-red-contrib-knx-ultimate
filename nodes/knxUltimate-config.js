@@ -221,6 +221,138 @@ module.exports = (RED) => {
     node.statusUpdateThrottleMs = Number.isFinite(throttleSecondsRaw) && throttleSecondsRaw > 0
       ? throttleSecondsRaw * 1000
       : 0
+
+    node.statusDateTimeFormat = typeof config.statusDateTimeFormat === 'string' && config.statusDateTimeFormat !== ''
+      ? config.statusDateTimeFormat
+      : 'legacy'
+    node.statusDateTimeCustom = typeof config.statusDateTimeCustom === 'string' && config.statusDateTimeCustom.trim() !== ''
+      ? config.statusDateTimeCustom.trim()
+      : 'DD MMM HH:mm'
+    node.statusDateTimeLocale = typeof config.statusDateTimeLocale === 'string'
+      ? config.statusDateTimeLocale.trim()
+      : ''
+
+    const resolveDateTimeLocale = () => {
+      const raw = node.statusDateTimeLocale
+      return raw && raw !== '' ? raw : undefined
+    }
+
+    const pad2 = (value) => String(value).padStart(2, '0')
+    const formatTimezoneOffset = (date) => {
+      const minutes = -date.getTimezoneOffset()
+      const sign = minutes >= 0 ? '+' : '-'
+      const abs = Math.abs(minutes)
+      return `${sign}${pad2(Math.floor(abs / 60))}:${pad2(abs % 60)}`
+    }
+
+    const safeMonthShortFormatter = () => {
+      try {
+        return new Intl.DateTimeFormat(resolveDateTimeLocale(), { month: 'short' })
+      } catch (error) {
+        try {
+          return new Intl.DateTimeFormat(undefined, { month: 'short' })
+        } catch (fallbackError) {
+          return null
+        }
+      }
+    }
+
+    let monthShortFormatter = null
+    const monthShort = (date) => {
+      if (!monthShortFormatter) monthShortFormatter = safeMonthShortFormatter()
+      if (monthShortFormatter) {
+        try {
+          return monthShortFormatter.format(date)
+        } catch (error) { /* empty */ }
+      }
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+      return months[date.getMonth()]
+    }
+
+    const formatDateTimeTokens = (date, format) => {
+      const year = date.getFullYear()
+      const month = date.getMonth() + 1
+      const day = date.getDate()
+      const hour24 = date.getHours()
+      const minute = date.getMinutes()
+      const second = date.getSeconds()
+      const hour12 = (hour24 % 12) || 12
+      const ampm = hour24 < 12 ? 'AM' : 'PM'
+
+      const tokenValues = {
+        YYYY: String(year),
+        YY: pad2(year % 100),
+        MMM: monthShort(date),
+        MM: pad2(month),
+        M: String(month),
+        DD: pad2(day),
+        D: String(day),
+        HH: pad2(hour24),
+        H: String(hour24),
+        hh: pad2(hour12),
+        h: String(hour12),
+        mm: pad2(minute),
+        ss: pad2(second),
+        A: ampm,
+        a: ampm.toLowerCase(),
+        Z: formatTimezoneOffset(date)
+      }
+
+      const tokens = Object.keys(tokenValues).sort((a, b) => b.length - a.length)
+      let out = ''
+      let i = 0
+      while (i < format.length) {
+        const ch = format[i]
+        if (ch === '[') {
+          const end = format.indexOf(']', i + 1)
+          if (end === -1) {
+            out += ch
+            i += 1
+          } else {
+            out += format.slice(i + 1, end)
+            i = end + 1
+          }
+          continue
+        }
+        let matched = false
+        for (const token of tokens) {
+          if (format.startsWith(token, i)) {
+            out += tokenValues[token]
+            i += token.length
+            matched = true
+            break
+          }
+        }
+        if (!matched) {
+          out += ch
+          i += 1
+        }
+      }
+      return out
+    }
+
+    node.formatStatusTimestamp = (value, options = {}) => {
+      try {
+        const date = value instanceof Date ? value : new Date(value)
+        if (Number.isNaN(date.getTime())) return ''
+
+        const mode = node.statusDateTimeFormat
+        if (mode === 'iso') return formatDateTimeTokens(date, 'YYYY-MM-DD HH:mm:ss')
+        if (mode === 'isoNoSeconds') return formatDateTimeTokens(date, 'YYYY-MM-DD HH:mm')
+        if (mode === 'custom') return formatDateTimeTokens(date, node.statusDateTimeCustom || 'DD MMM HH:mm')
+        const legacy = `${date.getDate()}, ${date.toLocaleTimeString()}`
+        return options && options.legacyDayLabel ? `day ${legacy}` : legacy
+      } catch (error) {
+        try {
+          const date = new Date()
+          const legacy = `${date.getDate()}, ${date.toLocaleTimeString()}`
+          return options && options.legacyDayLabel ? `day ${legacy}` : legacy
+        } catch (fallbackError) {
+          return ''
+        }
+      }
+    }
+
     node.applyStatusUpdate = (targetNode, status) => {
       try {
         if (!targetNode || typeof targetNode.status !== 'function') return

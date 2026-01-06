@@ -46,6 +46,9 @@ Dieser Node stellt die Verbindung zu deinem KNX/IP-Gateway her.
 | Delay between each telegram (ms) | KNX erlaubt max. 50 Telegramme/s. 25-50 ms sind üblich; bei langsamen Verbindungen höher (z. B. 200-500 ms). |
 | Loglevel | Log-Detailgrad. Standard: "Error". |
 | Aktualisierung der Status-Badges | Legt fest, wie oft die Statusanzeige der Nodes erneuert wird. Mit einer Verzögerung werden Zwischenstände verworfen und nur der letzte Wert nach dem gewählten Intervall angezeigt. Wählen Sie **Sofort**, um das bisherige Echtzeitverhalten beizubehalten. |
+| Status Datum/Uhrzeit-Format | Legt fest, wie Datum/Uhrzeit im Status-Badge angezeigt werden (nützlich, wenn das OS-Locale nicht konfigurierbar ist). |
+| Benutzerdefiniertes Format | Wird verwendet, wenn **Benutzerdefiniert (Tokens)** gewählt ist. Tokens: `YYYY`, `YY`, `MMM`, `MM`, `DD`, `HH`, `mm`, `ss`, `A`, `a`, `Z`. Verwenden Sie `[Text]` für Literale. |
+| Locale überschreiben | Optionales Locale (BCP47), z. B. `de-DE` oder `en-GB`. Für Monatsnamen (`MMM`) bei benutzerdefiniertem Format. |
 
 **ETS-Import**
 

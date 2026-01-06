@@ -33,6 +33,9 @@
             tunnelUserId: { value: "" },
             autoReconnect: { value: "yes" },
             statusUpdateThrottle: { value: "0" },
+            statusDateTimeFormat: { value: "legacy" },
+            statusDateTimeCustom: { value: "DD MMM HH:mm" },
+            statusDateTimeLocale: { value: "" },
             serialPortPath: { value: "/dev/ttyAMA0" },
             serialBaudRate: { value: 19200, validate: optionalNumberValidator },
             serialDataBits: { value: 8 },
@@ -126,6 +129,18 @@
                     $("#node-config-input-isKBERRY").val(isKBERRY ? 'true' : 'false');
                 } catch (e) { }
             }
+
+            const syncStatusDateTimeRows = () => {
+                try {
+                    const mode = $("#node-config-input-statusDateTimeFormat").val();
+                    const showCustom = mode === 'custom';
+                    $("#knxUltimate-statusDateTimeCustom-row").toggle(showCustom);
+                    $("#knxUltimate-statusDateTimeLocale-row").toggle(showCustom);
+                } catch (e) { }
+            }
+
+            $("#node-config-input-statusDateTimeFormat").on("change", syncStatusDateTimeRows);
+            syncStatusDateTimeRows();
 
             function updateProtocolSections() {
                 const isSerial = isSerialProtocolSelected();
@@ -1402,6 +1417,35 @@
                     <option value="10" data-i18n="knxUltimate-config.advanced.status_throttle_10s"></option>
                     <option value="30" data-i18n="knxUltimate-config.advanced.status_throttle_30s"></option>
                 </select>
+            </div>
+
+            <div class="form-row">
+                <label for="node-config-input-statusDateTimeFormat">
+                    <i class="fa fa-calendar"></i>
+                    <span data-i18n="knxUltimate-config.advanced.status_datetime_format"></span>
+                </label>
+                <select id="node-config-input-statusDateTimeFormat" style="width:40%;">
+                    <option value="legacy" data-i18n="knxUltimate-config.advanced.status_datetime_format_legacy"></option>
+                    <option value="iso" data-i18n="knxUltimate-config.advanced.status_datetime_format_iso"></option>
+                    <option value="isoNoSeconds" data-i18n="knxUltimate-config.advanced.status_datetime_format_iso_nosec"></option>
+                    <option value="custom" data-i18n="knxUltimate-config.advanced.status_datetime_format_custom"></option>
+                </select>
+            </div>
+
+            <div class="form-row" id="knxUltimate-statusDateTimeCustom-row">
+                <label for="node-config-input-statusDateTimeCustom">
+                    <i class="fa fa-pencil"></i>
+                    <span data-i18n="knxUltimate-config.advanced.status_datetime_custom"></span>
+                </label>
+                <input type="text" id="node-config-input-statusDateTimeCustom" style="width:70%" data-i18n="[placeholder]knxUltimate-config.advanced.status_datetime_custom_placeholder">
+            </div>
+
+            <div class="form-row" id="knxUltimate-statusDateTimeLocale-row">
+                <label for="node-config-input-statusDateTimeLocale">
+                    <i class="fa fa-globe"></i>
+                    <span data-i18n="knxUltimate-config.advanced.status_datetime_locale"></span>
+                </label>
+                <input type="text" id="node-config-input-statusDateTimeLocale" style="width:70%; min-width:220px" data-i18n="[placeholder]knxUltimate-config.advanced.status_datetime_locale_placeholder">
             </div>
         </p>
     </div>

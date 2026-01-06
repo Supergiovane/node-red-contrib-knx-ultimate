@@ -39,6 +39,9 @@
 | Retraso entre cada telegrama (en milisegundos) | Las especificaciones de KNX establecen que la velocidad máxima de envío de telegrama es de 50 telegramas por segundo. Una velocidad entre 25 y 50 ms debe estar bien, a menos que se conecte a una puerta de enlace KNX remota a través de una conexión a Internet lenta (en este caso, debe aumentar el valor, por ejemplo, de 200 a 500 ms o más). |
 | Loglevel | Nivel de registro, en caso de que necesite depurar algo con el desarrollo. El valor predeterminado es "error", |
 | Temporización de actualizaciones de estado | Define cada cuánto se actualiza la insignia de estado de los nodos. Con un retardo activo se descartan los estados intermedios y solo se muestra el último después del intervalo elegido. Seleccione **Inmediato** para mantener el comportamiento en tiempo real. |
+| Formato de fecha/hora en estado | Elige cómo se muestra la marca de tiempo en el estado del nodo (útil cuando no se puede configurar el locale del sistema). |
+| Formato personalizado | Se usa cuando se selecciona **Personalizado (tokens)**. Tokens: `YYYY`, `YY`, `MMM`, `MM`, `DD`, `HH`, `mm`, `ss`, `A`, `a`, `Z`. Usa `[texto]` para literales. |
+| Locale (anular) | Locale opcional (BCP47), por ejemplo `es-ES` o `en-GB`. Se usa para los nombres de mes (`MMM`) cuando el formato es personalizado. |
 
 <br/> ** Importación de archivos ETS** | Propiedad | Descripción |
 

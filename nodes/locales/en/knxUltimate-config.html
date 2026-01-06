@@ -44,6 +44,9 @@
 | Delay between each telegram (in milliseconds) | KNX specs states, that the maximum telegram sending speed is 50 telegrams per second. A speed between 25 and 50ms should be fine, unless you're connecting to a remote KNX Gateway via a slow internet connection (in this case, you should increase the value by, for example, 200 to 500ms or more). |
 | Loglevel | Log level, in case you need to debug something with the dev. Default is "Error", |
 | Node status throttle | Delay how often node badges are refreshed. When a delay is selected, intermediate status changes are discarded and the last one is shown after the chosen interval. Select **Immediate** to keep the legacy real-time behaviour. |
+| Status date/time format | Choose how the timestamp is shown in node status badges (useful when the host OS locale cannot be configured). |
+| Custom format | Used when **Custom (tokens)** is selected. Tokens: `YYYY`, `YY`, `MMM`, `MM`, `DD`, `HH`, `mm`, `ss`, `A`, `a`, `Z`. Use `[text]` for literals. |
+| Locale override | Optional locale (BCP47), e.g. `en-GB` or `it-IT`. Used for month names (`MMM`) when Custom is selected. |
 
 <br/>
 

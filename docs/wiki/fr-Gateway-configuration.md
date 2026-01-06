@@ -46,6 +46,9 @@ Configuration de la passerelle KNX
 | Retard entre chaque télégramme (en millisecondes) | KNX Specs indique que la vitesse d'envoi de télégramme maximum est de 50 télégrammes par seconde. Une vitesse comprise entre 25 et 50 ms devrait être bien, sauf si vous vous connectez à une passerelle KNX distante via une connexion Internet lente (dans ce cas, vous devez augmenter la valeur, par exemple, 200 à 500 ms ou plus). |
 | Loglevel | Niveau de journal, au cas où vous auriez besoin de déboguer quelque chose avec le développement. La valeur par défaut est "erreur", |
 | Temporisation de l'état du nœud | Définissez la fréquence de mise à jour des badges de statut. Avec un délai actif, les changements intermédiaires sont ignorés et seul le dernier est affiché après l'intervalle choisi. Sélectionnez **Immédiat** pour conserver le comportement en temps réel. |
+| Format date/heure du statut | Choisissez comment l’horodatage est affiché dans le badge de statut (utile quand le locale du système ne peut pas être configuré). |
+| Format personnalisé | Utilisé quand **Personnalisé (jetons)** est sélectionné. Jetons : `YYYY`, `YY`, `MMM`, `MM`, `DD`, `HH`, `mm`, `ss`, `A`, `a`, `Z`. Utilisez `[texte]` pour les littéraux. |
+| Paramètre régional (remplacer) | Locale optionnel (BCP47), par ex. `fr-FR` ou `en-GB`. Utilisé pour les noms de mois (`MMM`) avec un format personnalisé. |
 
 **ETS Importation du fichier**
 

@@ -46,6 +46,9 @@ module.exports = function (RED) {
           return
         }
         const dDate = new Date()
+        const ts = (node.serverKNX && typeof node.serverKNX.formatStatusTimestamp === 'function')
+          ? node.serverKNX.formatStatusTimestamp(dDate, { legacyDayLabel: true })
+          : `day ${dDate.getDate()}, ${dDate.toLocaleTimeString()}`
         const gaLabel = GA ? `(${GA}) ` : ''
         const deviceLabel = devicename ? ` ${devicename}` : ''
         const dptLabel = dpt ? ` DPT${dpt}` : ''
@@ -53,7 +56,7 @@ module.exports = function (RED) {
         if (payload !== undefined && payload !== null && payload !== '') {
           payloadLabel = typeof payload === 'object' ? JSON.stringify(payload) : `${payload}`
         }
-        const composed = `${gaLabel}${payloadLabel}${deviceLabel}${dptLabel} (day ${dDate.getDate()}, ${dDate.toLocaleTimeString()}) ${statusText}`.trim()
+        const composed = `${gaLabel}${payloadLabel}${deviceLabel}${dptLabel} (${ts}) ${statusText}`.trim()
         pushStatus({ fill, shape, text: composed })
         if (fill && fill.toUpperCase() === 'RED' && node.serverKNX && typeof node.serverKNX.reportToWatchdogCalledByKNXUltimateNode === 'function') {
           node.serverKNX.reportToWatchdogCalledByKNXUltimateNode({ nodeid: node.id, topic: node.outputtopic, devicename, GA, text: statusText })

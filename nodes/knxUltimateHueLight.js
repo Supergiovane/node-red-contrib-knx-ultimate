@@ -101,6 +101,13 @@ module.exports = function (RED) {
       }
     }
 
+    const formatTs = (date) => {
+      const d = date instanceof Date ? date : new Date(date);
+      const provider = node.serverKNX;
+      if (provider && typeof provider.formatStatusTimestamp === "function") return provider.formatStatusTimestamp(d);
+      return `${d.getDate()}, ${d.toLocaleTimeString()}`;
+    };
+
     // Used to call the status update from the config node.
     node.setNodeStatus = ({
       fill, shape, text, payload,
@@ -110,7 +117,7 @@ module.exports = function (RED) {
         if (payload === undefined) payload = '';
         const dDate = new Date();
         payload = typeof payload === "object" ? JSON.stringify(payload) : payload.toString();
-        node.sKNXNodeStatusText = `|KNX: ${text} ${payload} (${dDate.getDate()}, ${dDate.toLocaleTimeString()})`;
+        node.sKNXNodeStatusText = `|KNX: ${text} ${payload} (${formatTs(dDate)})`;
         node.status({ fill, shape, text: (node.sHUENodeStatusText || '') + ' ' + (node.sKNXNodeStatusText || '') });
       } catch (error) { }
     };
@@ -121,7 +128,7 @@ module.exports = function (RED) {
         if (payload === undefined) payload = '';
         const dDate = new Date();
         payload = typeof payload === "object" ? JSON.stringify(payload) : payload.toString();
-        node.sHUENodeStatusText = `|HUE: ${text} ${payload} (${dDate.getDate()}, ${dDate.toLocaleTimeString()})`;
+        node.sHUENodeStatusText = `|HUE: ${text} ${payload} (${formatTs(dDate)})`;
         node.status({ fill, shape, text: node.sHUENodeStatusText + ' ' + (node.sKNXNodeStatusText || '') });
       } catch (error) { }
     };
@@ -539,7 +546,7 @@ module.exports = function (RED) {
           node.status({
             fill: "red",
             shape: "dot",
-            text: `KNX->HUE errorRead ${error.message} (${new Date().getDate()}, ${new Date().toLocaleTimeString()})`,
+            text: `KNX->HUE errorRead ${error.message} (${formatTs(new Date())})`,
           });
           RED.log.error(`knxUltimateHueLight: node.handleSend:  if (msg.knx.event !== "GroupValue_Read"): ${error.message} : ${error.stack || ""} `);
         }
@@ -618,7 +625,7 @@ module.exports = function (RED) {
         node.status({
           fill: "red",
           shape: "dot",
-          text: `KNX->HUE error :-( ${error.message} (${new Date().getDate()}, ${new Date().toLocaleTimeString()})`,
+          text: `KNX->HUE error :-( ${error.message} (${formatTs(new Date())})`,
         });
         RED.log.error(`knxUltimateHueLight: node.handleSend: if (msg.knx.event === "GroupValue_Read" && node.currentHUEDevice !== undefined): ${error.message} : ${error.stack || ""} `);
       }

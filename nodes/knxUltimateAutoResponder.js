@@ -220,11 +220,14 @@ module.exports = function (RED) {
           }
           if (retVal !== undefined) {
             const dDate = new Date()
+            const ts = (node.serverKNX && typeof node.serverKNX.formatStatusTimestamp === 'function')
+              ? node.serverKNX.formatStatusTimestamp(dDate)
+              : `${dDate.getDate()}, ${dDate.toLocaleTimeString()}`
             if (oFoundGA.address !== undefined && oFoundGA.dpt !== undefined && retVal !== undefined) {
               node.serverKNX.sendKNXTelegramToKNXEngine({ grpaddr: oFoundGA.address, payload: retVal, dpt: oFoundGA.dpt, outputtype: 'response', nodecallerid: node.id })
-              updateStatus({ fill: 'blue', shape: 'dot', text: 'Respond ' + oFoundGA.address + ' => ' + retVal + ' (' + dDate.getDate() + ', ' + dDate.toLocaleTimeString() + ')' })
+              updateStatus({ fill: 'blue', shape: 'dot', text: 'Respond ' + oFoundGA.address + ' => ' + retVal + ' (' + ts + ')' })
             } else {
-              updateStatus({ fill: 'yellow', shape: 'ring', text: 'Issue responding ' + oFoundGA.address + ' => ' + retVal + ' (' + dDate.getDate() + ', ' + dDate.toLocaleTimeString() + ')' })
+              updateStatus({ fill: 'yellow', shape: 'ring', text: 'Issue responding ' + oFoundGA.address + ' => ' + retVal + ' (' + ts + ')' })
             }
           }
         } catch (error) {

@@ -46,6 +46,9 @@ Questo nodo si connette al tuo KNX/IP Gateway.
 | Pausa tra l'invio di un telegramma ed un altro (in millisecondi) | Lo standard KNX prevede max 50 telegrammi/s. Un intervallo 25-50ms è adeguato. Con gateway remoto su link lento aumenta (es. 200-500ms). |
 | Livello log | Livello di log per il debug. Default: "Error". |
 | Limitazione aggiornamento stato nodi | Imposta ogni quanto aggiornare il badge di stato dei nodi. Con un ritardo attivo gli stati intermedi vengono ignorati e viene mostrato solo l'ultimo dopo l'intervallo scelto. Seleziona **Immediato** per mantenere l'aggiornamento in tempo reale. |
+| Formato data/ora nello stato | Scegli come visualizzare la data/ora nel badge di stato dei nodi (utile su sistemi in cui non è possibile configurare il locale, ad es. Home Assistant OS). |
+| Formato personalizzato | Usato quando selezioni **Personalizzato (token)**. Token: `YYYY`, `YY`, `MMM`, `MM`, `DD`, `HH`, `mm`, `ss`, `A`, `a`, `Z`. Usa `[testo]` per testo letterale. |
+| Locale (override) | Locale opzionale (BCP47), es. `it-IT` o `en-GB`. Usato per i nomi dei mesi (`MMM`) quando è attivo il formato personalizzato. |
 
 **Import file ETS**
 

@@ -40,11 +40,18 @@ module.exports = function (RED) {
       pushStatus(status)
     }
 
+    const formatTs = (date) => {
+      const d = date instanceof Date ? date : new Date(date)
+      const provider = node.serverKNX
+      if (provider && typeof provider.formatStatusTimestamp === 'function') return provider.formatStatusTimestamp(d)
+      return `${d.getDate()}, ${d.toLocaleTimeString()}`
+    }
+
     const safeSendToKNX = (telegram, context = 'write') => {
       try {
         if (!node.serverKNX || typeof node.serverKNX.sendKNXTelegramToKNXEngine !== 'function') {
           const now = new Date()
-          updateStatus({ fill: 'red', shape: 'dot', text: `KNX server missing (${context}) (${now.getDate()}, ${now.toLocaleTimeString()})` })
+          updateStatus({ fill: 'red', shape: 'dot', text: `KNX server missing (${context}) (${formatTs(now)})` })
           return
         }
         node.serverKNX.sendKNXTelegramToKNXEngine({ ...telegram, nodecallerid: node.id })
@@ -61,7 +68,7 @@ module.exports = function (RED) {
         if (payload === undefined) payload = ''
         const dDate = new Date()
         payload = typeof payload === 'object' ? JSON.stringify(payload) : payload.toString()
-        node.sKNXNodeStatusText = `|KNX: ${text} ${payload} (${dDate.getDate()}, ${dDate.toLocaleTimeString()})`
+        node.sKNXNodeStatusText = `|KNX: ${text} ${payload} (${formatTs(dDate)})`
         pushStatus({ fill, shape, text: (node.sHUENodeStatusText || '') + ' ' + (node.sKNXNodeStatusText || '') })
       } catch (error) { }
     }
@@ -71,7 +78,7 @@ module.exports = function (RED) {
         if (payload === undefined) payload = ''
         const dDate = new Date()
         payload = typeof payload === 'object' ? JSON.stringify(payload) : payload.toString()
-        node.sHUENodeStatusText = `|HUE: ${text} ${payload} (${dDate.getDate()}, ${dDate.toLocaleTimeString()})`
+        node.sHUENodeStatusText = `|HUE: ${text} ${payload} (${formatTs(dDate)})`
         pushStatus({ fill, shape, text: node.sHUENodeStatusText + ' ' + (node.sKNXNodeStatusText || '') })
       } catch (error) { }
     }
@@ -107,7 +114,7 @@ module.exports = function (RED) {
             updateStatus({
               fill: 'green',
               shape: 'dot',
-              text: `HUE->KNX ${JSON.stringify(knxMsgPayload.payload)} (${new Date().getDate()}, ${new Date().toLocaleTimeString()})`
+              text: `HUE->KNX ${JSON.stringify(knxMsgPayload.payload)} (${formatTs(new Date())})`
             })
 
             // Set up the output msg
@@ -129,7 +136,7 @@ module.exports = function (RED) {
         updateStatus({
           fill: 'red',
           shape: 'dot',
-          text: `HUE->KNX error ${error.message} (${new Date().getDate()}, ${new Date().toLocaleTimeString()})`
+          text: `HUE->KNX error ${error.message} (${formatTs(new Date())})`
         })
       }
     }

@@ -55,7 +55,10 @@ module.exports = function (RED) {
         payload = payload === undefined ? '' : payload
         payload = typeof payload === 'object' ? JSON.stringify(payload) : payload
         const dDate = new Date()
-        updateStatus({ fill, shape, text: GA + ' ' + payload + ' ' + text + ' (' + dDate.getDate() + ', ' + dDate.toLocaleTimeString() + ')' })
+        const ts = (node.serverKNX && typeof node.serverKNX.formatStatusTimestamp === 'function')
+          ? node.serverKNX.formatStatusTimestamp(dDate)
+          : `${dDate.getDate()}, ${dDate.toLocaleTimeString()}`
+        updateStatus({ fill, shape, text: GA + ' ' + payload + ' ' + text + ' (' + ts + ')' })
       } catch (error) { /* empty */ }
     }
 

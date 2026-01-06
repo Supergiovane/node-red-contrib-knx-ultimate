@@ -77,12 +77,15 @@ module.exports = function (RED) {
       try {
         if (dpt !== '') return
         const dDate = new Date()
+        const ts = (node.serverKNX && typeof node.serverKNX.formatStatusTimestamp === 'function')
+          ? node.serverKNX.formatStatusTimestamp(dDate)
+          : `${dDate.getDate()}, ${dDate.toLocaleTimeString()}`
         // 30/08/2019 Display only the things selected in the config
         GA = (typeof GA === 'undefined' || GA == '') ? '' : '(' + GA + ') '
         devicename = devicename || ''
         dpt = (typeof dpt === 'undefined' || dpt == '') ? '' : ' DPT' + dpt
         payload = typeof payload === 'object' ? JSON.stringify(payload) : payload
-        updateStatus({ fill, shape, text: GA + payload + (node.listenallga === true ? ' ' + devicename : '') + ' (' + dDate.getDate() + ', ' + dDate.toLocaleTimeString() + ' ' + text })
+        updateStatus({ fill, shape, text: GA + payload + (node.listenallga === true ? ' ' + devicename : '') + ' (' + ts + ') ' + text })
       } catch (error) {
 
       }
@@ -92,8 +95,11 @@ module.exports = function (RED) {
     node.setLocalStatus = ({ fill = 'green', shape = 'ring', text = '' }) => {
       if (text !== '') text += '.'
       const dDate = new Date()
+      const ts = (node.serverKNX && typeof node.serverKNX.formatStatusTimestamp === 'function')
+        ? node.serverKNX.formatStatusTimestamp(dDate)
+        : `${dDate.getDate()}, ${dDate.toLocaleTimeString()}`
       try {
-        updateStatus({ fill, shape, text: text + ' Shed:' + node.sheddingStage + ' Power:' + node.totalWatt + 'W' + ' Limit:' + node.wattLimit + 'W (' + dDate.getDate() + ', ' + dDate.toLocaleTimeString() + ')' })
+        updateStatus({ fill, shape, text: text + ' Shed:' + node.sheddingStage + ' Power:' + node.totalWatt + 'W' + ' Limit:' + node.wattLimit + 'W (' + ts + ')' })
       } catch (error) {
       }
     }

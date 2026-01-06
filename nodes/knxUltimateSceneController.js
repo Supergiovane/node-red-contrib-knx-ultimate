@@ -106,12 +106,15 @@ module.exports = function (RED) {
         if (node.icountMessageInWindow == -999) return // Locked out
         if (node.disabled === true) fill = 'grey' // 21/09/2020 if disabled, color is grey
         const dDate = new Date()
+        const ts = (node.serverKNX && typeof node.serverKNX.formatStatusTimestamp === 'function')
+          ? node.serverKNX.formatStatusTimestamp(dDate)
+          : `${dDate.getDate()}, ${dDate.toLocaleTimeString()}`
         // 30/08/2019 Display only the things selected in the config
         GA = (typeof GA === 'undefined' || GA === '') ? '' : '(' + GA + ') '
         devicename = devicename || ''
         dpt = (typeof dpt === 'undefined' || dpt === '') ? '' : ' DPT' + dpt
         payload = typeof payload === 'object' ? JSON.stringify(payload) : payload
-        updateStatus({ fill, shape, text: GA + payload + (node.listenallga === true ? ' ' + devicename : '') + ' (' + dDate.getDate() + ', ' + dDate.toLocaleTimeString() + ' ' + text })
+        updateStatus({ fill, shape, text: GA + payload + (node.listenallga === true ? ' ' + devicename : '') + ' (' + ts + ') ' + text })
         // 16/02/2020 signal errors to the server
         if (fill.toUpperCase() === 'RED') {
           if (node.serverKNX) {

@@ -6,6 +6,12 @@
 
 # CHANGELOG
 
+**Version 4.1.10** - January 2026<br/>
+- NEW: KNX Gateway config: added a **Status date/time format** setting (ISO / ISO no seconds / Custom tokens / Legacy) to avoid relying on the underlying OS locale (useful for Home Assistant OS).<br/>
+- Updated node status timestamp rendering across KNX Ultimate nodes to use the configured format, with safe fallbacks to prevent editor/runtime crashes.<br/>
+- Docs/help: updated the Gateway configuration help + wiki pages in all languages to document the new options.<br/>
+<br/>
+
 **Version 4.1.9** - December 2025<br/>
 - NEW: added **Hue Motion Area** node for Philips Hue Bridge Pro MotionAware areas, exposing aggregated motion state from Hue `convenience_area_motion` and `security_area_motion` services to KNX or Node-RED flows.<br/>
 - Hue config: extended the internal resource browser to resolve MotionAware area services against their `motion_area_configuration`, showing friendly area names and linked rooms/zones in the editor device picker.<br/>
