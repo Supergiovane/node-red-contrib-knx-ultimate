@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420">
+  <defs>
+    <style>
+      .bg { fill: #0b1220; }
+      .card { fill: #111c34; stroke: #2b3a63; stroke-width: 2; }
+      .accent { fill: #db6d28; }
+      .accent2 { fill: #7aa2f7; }
+      .accent3 { fill: #f85149; }
+      .text { fill: #e6edf3; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 22px; }
+      .small { fill: #a8b3cf; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 16px; }
+      .mono { fill: #c9d1d9; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size: 16px; }
+      .arrow { stroke: #7aa2f7; stroke-width: 4; fill: none; marker-end: url(#m); }
+      .arrowWarn { stroke: #f85149; stroke-width: 4; fill: none; marker-end: url(#mw); }
+    </style>
+    <marker id="m" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M0,0 L12,6 L0,12 z" fill="#7aa2f7"/>
+    </marker>
+    <marker id="mw" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M0,0 L12,6 L0,12 z" fill="#f85149"/>
+    </marker>
+  </defs>
+  <rect class="bg" x="0" y="0" width="1200" height="420" rx="18"/>
+
+  <rect class="card" x="60" y="120" width="280" height="180" rx="16"/>
+  <rect class="accent2" x="60" y="120" width="280" height="10" rx="16"/>
+  <text class="text" x="90" y="175">Node-RED</text>
+  <text class="small" x="90" y="210">Inject / Dashboard</text>
+  <text class="mono" x="90" y="250">payload: \"open\"</text>
+  <text class="mono" x="90" y="275">payload: \"close\"</text>
+
+  <rect class="card" x="420" y="80" width="360" height="260" rx="16"/>
+  <rect class="accent" x="420" y="80" width="360" height="10" rx="16"/>
+  <text class="text" x="450" y="135">KNX Garage</text>
+  <text class="small" x="450" y="170">Door logic + auto close</text>
+  <text class="mono" x="450" y="215">Command GA: 3/0/0</text>
+  <text class="mono" x="450" y="240">Impulse GA: 3/0/1</text>
+  <text class="mono" x="450" y="265">Hold-open / Disable</text>
+  <text class="mono" x="450" y="290">Photocell / Obstruction</text>
+
+  <rect class="card" x="860" y="120" width="280" height="180" rx="16"/>
+  <rect class="accent2" x="860" y="120" width="280" height="10" rx="16"/>
+  <text class="text" x="890" y="175">Garage Door</text>
+  <text class="small" x="890" y="210">Actuator + sensors</text>
+  <text class="mono" x="890" y="245">Door motor</text>
+  <text class="mono" x="890" y="270">Photocell beam</text>
+
+  <path class="arrow" d="M340 210 C380 210, 390 210, 420 210"/>
+  <text class="small" x="360" y="195">commands</text>
+
+  <path class="arrow" d="M780 210 C820 210, 830 210, 860 210"/>
+  <text class="small" x="795" y="195">writes</text>
+
+  <path class="arrowWarn" d="M1000 260 C960 300, 840 340, 600 340"/>
+  <text class="small" x="650" y="360">photocell ⇒ reopen + obstruction</text>
+
+  <text class="small" x="60" y="390">Sample diagram: open/close/toggle from the flow, safety sensors and overrides handled by the KNX Garage node.</text>
+</svg>
+

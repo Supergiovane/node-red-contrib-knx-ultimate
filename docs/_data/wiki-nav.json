@@ -189,6 +189,21 @@
           "external": false
         },
         {
+          "label": "IoT Bridge",
+          "url": "/wiki/-Sample---IoT-Bridge",
+          "external": false
+        },
+        {
+          "label": "Garage",
+          "url": "/wiki/-Sample---Garage",
+          "external": false
+        },
+        {
+          "label": "Staircase",
+          "url": "/wiki/-Sample---Staircase",
+          "external": false
+        },
+        {
           "label": "Switch Light",
           "url": "/wiki/-Sample---Switch-light",
           "external": false
@@ -508,6 +523,21 @@
         {
           "label": "Logger",
           "url": "/wiki/it-Logger-Sample",
+          "external": false
+        },
+        {
+          "label": "IoT Bridge",
+          "url": "/wiki/-Sample---IoT-Bridge",
+          "external": false
+        },
+        {
+          "label": "Garage",
+          "url": "/wiki/-Sample---Garage",
+          "external": false
+        },
+        {
+          "label": "Staircase",
+          "url": "/wiki/-Sample---Staircase",
           "external": false
         },
         {
@@ -833,6 +863,21 @@
           "external": false
         },
         {
+          "label": "IoT Bridge",
+          "url": "/wiki/-Sample---IoT-Bridge",
+          "external": false
+        },
+        {
+          "label": "Garage",
+          "url": "/wiki/-Sample---Garage",
+          "external": false
+        },
+        {
+          "label": "Staircase",
+          "url": "/wiki/-Sample---Staircase",
+          "external": false
+        },
+        {
           "label": "Switch Light",
           "url": "/wiki/-Sample---Switch-light",
           "external": false
@@ -1152,6 +1197,21 @@
         {
           "label": "Logger",
           "url": "/wiki/fr-Logger-Sample",
+          "external": false
+        },
+        {
+          "label": "IoT Bridge",
+          "url": "/wiki/-Sample---IoT-Bridge",
+          "external": false
+        },
+        {
+          "label": "Garage",
+          "url": "/wiki/-Sample---Garage",
+          "external": false
+        },
+        {
+          "label": "Staircase",
+          "url": "/wiki/-Sample---Staircase",
           "external": false
         },
         {
@@ -1477,6 +1537,21 @@
           "external": false
         },
         {
+          "label": "IoT Bridge",
+          "url": "/wiki/-Sample---IoT-Bridge",
+          "external": false
+        },
+        {
+          "label": "Garage",
+          "url": "/wiki/-Sample---Garage",
+          "external": false
+        },
+        {
+          "label": "Staircase",
+          "url": "/wiki/-Sample---Staircase",
+          "external": false
+        },
+        {
           "label": "Switch Light",
           "url": "/wiki/-Sample---Switch-light",
           "external": false
@@ -1796,6 +1871,21 @@
         {
           "label": "Logger",
           "url": "/wiki/zh-CN-Logger-Sample",
+          "external": false
+        },
+        {
+          "label": "IoT Bridge",
+          "url": "/wiki/-Sample---IoT-Bridge",
+          "external": false
+        },
+        {
+          "label": "Garage",
+          "url": "/wiki/-Sample---Garage",
+          "external": false
+        },
+        {
+          "label": "Staircase",
+          "url": "/wiki/-Sample---Staircase",
           "external": false
         },
         {
