@@ -6,6 +6,8 @@ permalink: /wiki/-Sample---Dimming
 ---
 # Samples
 
+<img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/sample-dimming.svg" width="95%"><br/>
+
 Assuming you send a message from a **function node** , to a knx-ultimate node with Group Address and Datapoint properties set.<br/>
 
 ## RELATIVE DIMMING

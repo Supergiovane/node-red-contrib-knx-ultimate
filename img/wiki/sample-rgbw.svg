@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420">
+  <defs>
+    <style>
+      .bg { fill: #0b1220; }
+      .card { fill: #111c34; stroke: #2b3a63; stroke-width: 2; }
+      .accent { fill: #f85149; }
+      .accent2 { fill: #2ea043; }
+      .accent3 { fill: #1f6feb; }
+      .accentW { fill: #e6edf3; }
+      .text { fill: #e6edf3; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 22px; }
+      .small { fill: #a8b3cf; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 16px; }
+      .mono { fill: #c9d1d9; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size: 16px; }
+      .arrow { stroke: #a8b3cf; stroke-width: 4; fill: none; marker-end: url(#m); }
+    </style>
+    <marker id="m" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M0,0 L12,6 L0,12 z" fill="#a8b3cf"/>
+    </marker>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="1200" height="420" rx="18"/>
+
+  <rect class="card" x="60" y="120" width="360" height="180" rx="16"/>
+  <rect class="accentW" x="60" y="120" width="360" height="10" rx="16"/>
+  <text class="text" x="90" y="175">Node-RED</text>
+  <text class="small" x="90" y="210">RGBW payload</text>
+  <text class="mono" x="90" y="250">payload: {r,g,b,w + flags}</text>
+  <rect x="90" y="270" width="60" height="22" rx="6" fill="#f85149"/>
+  <rect x="160" y="270" width="60" height="22" rx="6" fill="#2ea043"/>
+  <rect x="230" y="270" width="60" height="22" rx="6" fill="#1f6feb"/>
+  <rect x="300" y="270" width="60" height="22" rx="6" fill="#e6edf3"/>
+
+  <rect class="card" x="460" y="95" width="320" height="230" rx="16"/>
+  <rect class="accentW" x="460" y="95" width="320" height="10" rx="16"/>
+  <text class="text" x="490" y="150">KNX Ultimate</text>
+  <text class="small" x="490" y="185">Color DPT 251.600</text>
+  <text class="mono" x="490" y="225">red/green/blue/white</text>
+  <text class="mono" x="490" y="250">0..255 + validity bits</text>
+  <text class="small" x="490" y="290">mR/mG/mB/mW (0..1)</text>
+
+  <rect class="card" x="840" y="120" width="300" height="180" rx="16"/>
+  <rect class="accentW" x="840" y="120" width="300" height="10" rx="16"/>
+  <text class="text" x="870" y="175">RGBW Lamp</text>
+  <text class="small" x="870" y="210">Color + white channel</text>
+  <circle cx="1010" cy="252" r="52" fill="#111c34" stroke="#2b3a63" stroke-width="2"/>
+  <path d="M958 252 A52 52 0 0 1 1010 200" fill="none" stroke="#f85149" stroke-width="10" stroke-linecap="round"/>
+  <path d="M1010 200 A52 52 0 0 1 1062 252" fill="none" stroke="#2ea043" stroke-width="10" stroke-linecap="round"/>
+  <path d="M1062 252 A52 52 0 0 1 1010 304" fill="none" stroke="#1f6feb" stroke-width="10" stroke-linecap="round"/>
+  <path d="M1010 304 A52 52 0 0 1 958 252" fill="none" stroke="#e6edf3" stroke-width="10" stroke-linecap="round"/>
+
+  <path class="arrow" d="M420 210 C445 210, 450 210, 460 210"/>
+  <path class="arrow" d="M780 210 C805 210, 820 210, 840 210"/>
+
+  <text class="small" x="60" y="390">Sample diagram: send RGBW values + validity flags to set both color and white channel.</text>
+</svg>
+

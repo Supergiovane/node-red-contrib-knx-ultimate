@@ -6,6 +6,8 @@ permalink: /wiki/-Sample---FT12
 ---
 # FT1.2 / KBerry wiring samples
 
+<img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/sample-ft12.svg" width="95%"><br/>
+
 This page shows two practical ways to use **Serial FT1.2 (TPUART)** with **KNX Ultimate**:
 
 - a **Weinzierl KBerry** mounted on a **Raspberry Pi** (hardware UART)
@@ -229,4 +231,3 @@ After deploying, check the KNX Ultimate node status:
 ---
 
 With these two examples you can choose whether to run KNX Ultimate directly on a **Raspberry Pi + KBerry HAT** or on a **PC with a USB-to-UART + FT1.2 board**, using the same Serial FT1.2 transport in the gateway configuration.
-

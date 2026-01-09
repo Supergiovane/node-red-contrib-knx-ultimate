@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420">
+  <defs>
+    <style>
+      .bg { fill: #0b1220; }
+      .card { fill: #111c34; stroke: #2b3a63; stroke-width: 2; }
+      .accent { fill: #7aa2f7; }
+      .accent2 { fill: #f2cc60; }
+      .text { fill: #e6edf3; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 22px; }
+      .small { fill: #a8b3cf; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 16px; }
+      .mono { fill: #c9d1d9; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size: 16px; }
+      .arrow { stroke: #7aa2f7; stroke-width: 4; fill: none; marker-end: url(#m); }
+    </style>
+    <marker id="m" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M0,0 L12,6 L0,12 z" fill="#7aa2f7"/>
+    </marker>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="1200" height="420" rx="18"/>
+
+  <rect class="card" x="60" y="120" width="300" height="180" rx="16"/>
+  <rect class="accent" x="60" y="120" width="300" height="10" rx="16"/>
+  <text class="text" x="90" y="175">Node-RED</text>
+  <text class="small" x="90" y="210">Function / Inject</text>
+  <text class="mono" x="90" y="250">payload: true</text>
+  <text class="mono" x="90" y="275">payload: false</text>
+
+  <rect class="card" x="450" y="95" width="300" height="230" rx="16"/>
+  <rect class="accent2" x="450" y="95" width="300" height="10" rx="16"/>
+  <text class="text" x="480" y="150">KNX Ultimate</text>
+  <text class="small" x="480" y="185">Write / Read Status</text>
+  <text class="mono" x="480" y="225">GA: 0/0/10</text>
+  <text class="mono" x="480" y="250">DPT: 1.001</text>
+  <text class="small" x="480" y="295">readstatus → response</text>
+
+  <rect class="card" x="840" y="120" width="300" height="180" rx="16"/>
+  <rect class="accent" x="840" y="120" width="300" height="10" rx="16"/>
+  <text class="text" x="870" y="175">Light Actuator</text>
+  <text class="small" x="870" y="210">Switch ON / OFF</text>
+  <circle cx="1060" cy="232" r="34" fill="#f2cc60"/>
+  <path d="M1040 260 C1048 252, 1072 252, 1080 260" fill="none" stroke="#111c34" stroke-width="6" stroke-linecap="round"/>
+
+  <path class="arrow" d="M360 210 C405 210, 420 210, 450 210"/>
+  <path class="arrow" d="M750 210 C795 210, 810 210, 840 210"/>
+
+  <text class="small" x="60" y="390">Sample diagram: send boolean payloads to switch a lamp and optionally read its status from the KNX bus.</text>
+</svg>
+
