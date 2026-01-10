@@ -10,6 +10,16 @@ const simpleget = require('simple-get')
 module.exports.use = (config) => {
   const http = {}
 
+  const logError = (message) => {
+    try {
+      const logger = config?.logger || config?.sysLogger
+      if (logger?.error) logger.error(message)
+      else console.error(message)
+    } catch (error) {
+      try { console.error(message) } catch (err) { /* empty */ }
+    }
+  }
+
   /**
      * Make a http call.
      *
@@ -17,38 +27,45 @@ module.exports.use = (config) => {
      */
   http.call = async (opt) => {
     return new Promise((resolve, reject) => {
-      opt.rejectUnauthorized = false
-      opt.headers = {
+      const requestOptions = { ...opt }
+      requestOptions.rejectUnauthorized = false
+      requestOptions.headers = {
+        ...(opt.headers || {}),
         'hue-application-key': config.key
       }
-      opt.url = config.prefix + opt.url
+      if (requestOptions.body && !requestOptions.headers['Content-Type'] && !requestOptions.headers['content-type']) {
+        requestOptions.headers['Content-Type'] = 'application/json'
+      }
+      requestOptions.url = config.prefix + requestOptions.url
       // log.trace('http ' + opt.method + ' ' + opt.url);
-      simpleget.concat(opt, (err, res, data) => {
-        try {
-          if (err) {
-            reject(err)
-          } else {
-            // log.trace('http data ' + data);
-            if (res.statusCode >= 100 && res.statusCode < 400) {
-              try {
-                const result = JSON.parse(data)
-                if (result.errors && result.errors.length > 0) {
-                  // console.log("\x1b[41m OrroreUno \x1b[0m result.errors ", result.errors, " " + new Date().toTimeString(), this.commandQueue.length, "remainingRequests " + remainingRequests);
-                  reject(new Error('The response for ' + opt.url + ' returned errors ' + JSON.stringify(result.errors)))
-                }
-                if (!result.data) {
-                  reject(new Error('Unexpected result with no data. ' + JSON.stringify(result)))
-                }
-                resolve(result.data)
-              } catch (error) {
-                RED.log.error(`utils.https: config.http.call: let result = JSON.parse(data); =: ${error.message} : ${error.stack || ''} `)
-              }
-            } else {
-              RED.log.error(`utils.https: config.http.call: simpleget.concat: Error response: status code: ${res.statusCode || undefined}`)
-              reject(new Error('Error response for ' + opt.url + ' with status ' + res.statusCode + ' ' + res.statusMessage))
-            }
+      simpleget.concat(requestOptions, (err, res, data) => {
+        if (err) return reject(err)
+
+        const statusCode = res?.statusCode ?? 0
+        const statusMessage = res?.statusMessage || ''
+        const responseText = Buffer.isBuffer(data) ? data.toString('utf8') : String(data ?? '')
+
+        if (statusCode >= 100 && statusCode < 400) {
+          let result
+          try {
+            result = JSON.parse(responseText)
+          } catch (error) {
+            logError(`utils.http: Invalid JSON response from ${requestOptions.url}: ${error.message}`)
+            return reject(new Error(`Invalid JSON response for ${requestOptions.url}: ${error.message}`))
           }
-        } catch (error) { }
+
+          if (result?.errors && Array.isArray(result.errors) && result.errors.length > 0) {
+            return reject(new Error('The response for ' + requestOptions.url + ' returned errors ' + JSON.stringify(result.errors)))
+          }
+          if (!Object.prototype.hasOwnProperty.call(result || {}, 'data')) {
+            return reject(new Error('Unexpected result with no data. ' + JSON.stringify(result)))
+          }
+          return resolve(result.data)
+        }
+
+        logError(`utils.http: Error response from ${requestOptions.url}: ${statusCode} ${statusMessage}`)
+        const bodySnippet = responseText ? ` ${responseText}` : ''
+        return reject(new Error(`Error response for ${requestOptions.url} with status ${statusCode} ${statusMessage}${bodySnippet}`))
       })
     })
   }
@@ -118,29 +135,28 @@ module.exports.getBridgeDetails = async (_ip) => {
     opt.rejectUnauthorized = false
     opt.url = 'https://' + _ip + '/api/0/config'
     simpleget.concat(opt, (err, res, data) => {
+      if (err) return reject(new Error(err.message || 'getBridgeDetails general error'))
+
+      const statusCode = res?.statusCode ?? 0
+      const statusMessage = res?.statusMessage || ''
+      const responseText = Buffer.isBuffer(data) ? data.toString('utf8') : String(data ?? '')
+
+      if (statusCode < 200 || statusCode >= 400) {
+        return reject(new Error('Error response for ' + opt.url + ' with status ' + statusCode + ' ' + statusMessage))
+      }
+
       try {
-        if (err) {
-          reject(new Error(err.message || 'getBridgeDetails general error'))
-        } else {
-          // log.trace('http data ' + data);
-          if (res.statusCode >= 100 && res.statusCode < 400) {
-            try {
-              const result = JSON.parse(data)
-              if (result.errors && result.errors.length > 0) {
-                reject(new Error('The response for ' + opt.url + ' returned errors ' + JSON.stringify(result.errors)))
-              }
-              if (!result) {
-                reject(new Error('Unexpected result with no data. ' + JSON.stringify(result)))
-              }
-              resolve(result)
-            } catch (error) {
-              RED.log.error(`utils.https: config.http.call: let result = JSON.parse(data); =: ${error.message} : ${error.stack || ''} `)
-            }
-          } else {
-            reject(new Error('Error response for ' + opt.url + ' with status ' + res.statusCode + ' ' + res.statusMessage))
-          }
+        const result = JSON.parse(responseText)
+        if (result?.errors && Array.isArray(result.errors) && result.errors.length > 0) {
+          return reject(new Error('The response for ' + opt.url + ' returned errors ' + JSON.stringify(result.errors)))
         }
-      } catch (error) { }
+        if (!result) {
+          return reject(new Error('Unexpected result with no data. ' + JSON.stringify(result)))
+        }
+        return resolve(result)
+      } catch (error) {
+        return reject(new Error(`Invalid Hue bridge configuration response: ${error.message}`))
+      }
     })
   })
 }

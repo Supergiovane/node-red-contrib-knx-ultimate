@@ -102,7 +102,8 @@ class classHUE extends EventEmitter {
 
     this.hueApiV2 = http.use({
       key: this.username,
-      prefix: `https://${this.hueBridgeIP}/clip/v2`
+      prefix: `https://${this.hueBridgeIP}/clip/v2`,
+      logger: this.sysLogger
     })
 
     const agent = new HTTPSAgent({

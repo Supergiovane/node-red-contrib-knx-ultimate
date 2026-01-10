@@ -6,6 +6,10 @@
 
 # CHANGELOG
 
+**Version 4.1.11** - January 2026<br/>
+- FIX: Hue HTTP layer: avoid unhandled errors that could stall the shared Hue command queue when a Hue device/resource is missing (e.g. deleted from the bridge), so other Hue nodes keep working.<br/>
+<br/>
+
 **Version 4.1.10** - January 2026<br/>
 - NEW: KNX Gateway config: added a **Status date/time format** setting (ISO / ISO no seconds / Custom tokens / Legacy) to avoid relying on the underlying OS locale (useful for Home Assistant OS).<br/>
 - Updated node status timestamp rendering across KNX Ultimate nodes to use the configured format, with safe fallbacks to prevent editor/runtime crashes.<br/>
