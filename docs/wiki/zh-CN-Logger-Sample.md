@@ -8,11 +8,11 @@ permalink: /wiki/zh-CN-Logger-Sample
 
 # 记录仪样本
 
-\<img src =" https://raw.githubusercontent.com/supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/logger.png” width =" 90％”> <br/>
+<img src="https://raw.githubusercontent.com/supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/logger.png" width="90%"> <br/>
 
 **复制此代码并将其粘贴到您的流中**
 
-<详细信息> <摘要>查看代码</summary>
+<details> <summary>查看代码</summary>
 
 > 根据您的设置调整节点，然后将路径设置为文件节点\*\*。
 
@@ -76,4 +76,4 @@ permalink: /wiki/zh-CN-Logger-Sample
 
 ```
 
-\</详细信息>
+</details>

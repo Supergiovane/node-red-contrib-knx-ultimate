@@ -8,7 +8,7 @@ permalink: /wiki/de-zh-CN-Logger-Sample
 
 # Recorder -Probe
 
-\ <img src = "https://raw.githubusercontent.com/supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/logger.png" width = "90%">
+<img src="https://raw.githubusercontent.com/supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/logger.png" width="90%"> <br/>
 
 **Kopieren Sie diesen Code und fügen Sie ihn in Ihren Stream ein**
 
@@ -76,4 +76,4 @@ permalink: /wiki/de-zh-CN-Logger-Sample
 
 ```
 
-\ </Detail>
+</details>

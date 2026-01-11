@@ -76,4 +76,4 @@ permalink: /wiki/de-Logger-Sample
 
 ```
 
-</detail>
+</details>
