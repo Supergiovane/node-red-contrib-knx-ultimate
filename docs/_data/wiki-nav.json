@@ -284,6 +284,11 @@
           "external": false
         },
         {
+          "label": "Serial FT1.2 / KBerry wiring",
+          "url": "/wiki/-Sample---FT12",
+          "external": false
+        },
+        {
           "label": "Read Status",
           "url": "/wiki/-Sample---Read-value-from-Device",
           "external": false
@@ -638,6 +643,11 @@
         {
           "label": "Datetime to BUS",
           "url": "/wiki/-Sample---DateTime-to-BUS",
+          "external": false
+        },
+        {
+          "label": "Cablaggio Serial FT1.2 / KBerry",
+          "url": "/wiki/-Sample---FT12",
           "external": false
         },
         {
@@ -998,6 +1008,11 @@
           "external": false
         },
         {
+          "label": "Serial FT1.2 / KBerry Verdrahtung",
+          "url": "/wiki/-Sample---FT12",
+          "external": false
+        },
+        {
           "label": "Read Status",
           "url": "/wiki/-Sample---Read-value-from-Device",
           "external": false
@@ -1352,6 +1367,11 @@
         {
           "label": "Datetime to BUS",
           "url": "/wiki/-Sample---DateTime-to-BUS",
+          "external": false
+        },
+        {
+          "label": "Câblage Serial FT1.2 / KBerry",
+          "url": "/wiki/-Sample---FT12",
           "external": false
         },
         {
@@ -1712,6 +1732,11 @@
           "external": false
         },
         {
+          "label": "Cableado Serial FT1.2 / KBerry",
+          "url": "/wiki/-Sample---FT12",
+          "external": false
+        },
+        {
           "label": "Read Status",
           "url": "/wiki/-Sample---Read-value-from-Device",
           "external": false
@@ -2066,6 +2091,11 @@
         {
           "label": "Datetime to BUS",
           "url": "/wiki/-Sample---DateTime-to-BUS",
+          "external": false
+        },
+        {
+          "label": "FT1.2 / KBerry 接线示例",
+          "url": "/wiki/-Sample---FT12",
           "external": false
         },
         {

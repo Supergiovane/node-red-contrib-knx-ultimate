@@ -524,6 +524,18 @@
         {
           "type": "page",
           "labels": {
+            "en": "Serial FT1.2 / KBerry wiring",
+            "it": "Cablaggio Serial FT1.2 / KBerry",
+            "de": "Serial FT1.2 / KBerry Verdrahtung",
+            "fr": "Câblage Serial FT1.2 / KBerry",
+            "es": "Cableado Serial FT1.2 / KBerry",
+            "zh": "FT1.2 / KBerry 接线示例"
+          },
+          "page": "-Sample---FT12"
+        },
+        {
+          "type": "page",
+          "labels": {
             "en": "Read Status"
           },
           "page": "-Sample---Read-value-from-Device"
