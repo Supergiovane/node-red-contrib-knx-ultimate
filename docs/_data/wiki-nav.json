@@ -51,6 +51,21 @@
       ]
     },
     {
+      "title": "Sidebar plugins",
+      "items": [
+        {
+          "label": "KNX Monitor",
+          "url": "/wiki/KNX-Monitor-Sidebar",
+          "external": false
+        },
+        {
+          "label": "KNX Debug",
+          "url": "/wiki/KNX-Debug-Sidebar",
+          "external": false
+        }
+      ]
+    },
+    {
       "title": "Other KNX Nodes",
       "items": [
         {
@@ -388,6 +403,21 @@
         {
           "label": "Protezioni",
           "url": "/wiki/it-Protections",
+          "external": false
+        }
+      ]
+    },
+    {
+      "title": "Plugin sidebar",
+      "items": [
+        {
+          "label": "KNX Monitor",
+          "url": "/wiki/it-KNX-Monitor-Sidebar",
+          "external": false
+        },
+        {
+          "label": "KNX Debug",
+          "url": "/wiki/it-KNX-Debug-Sidebar",
           "external": false
         }
       ]
@@ -735,6 +765,21 @@
       ]
     },
     {
+      "title": "Sidebar-Plugins",
+      "items": [
+        {
+          "label": "KNX Monitor",
+          "url": "/wiki/de-KNX-Monitor-Sidebar",
+          "external": false
+        },
+        {
+          "label": "KNX Debug",
+          "url": "/wiki/de-KNX-Debug-Sidebar",
+          "external": false
+        }
+      ]
+    },
+    {
       "title": "Weitere KNX-Knoten",
       "items": [
         {
@@ -1072,6 +1117,21 @@
         {
           "label": "Protections",
           "url": "/wiki/fr-Protections",
+          "external": false
+        }
+      ]
+    },
+    {
+      "title": "Plugins de la barre latérale",
+      "items": [
+        {
+          "label": "KNX Monitor",
+          "url": "/wiki/fr-KNX-Monitor-Sidebar",
+          "external": false
+        },
+        {
+          "label": "KNX Debug",
+          "url": "/wiki/fr-KNX-Debug-Sidebar",
           "external": false
         }
       ]
@@ -1419,6 +1479,21 @@
       ]
     },
     {
+      "title": "Plugins de la barra lateral",
+      "items": [
+        {
+          "label": "KNX Monitor",
+          "url": "/wiki/es-KNX-Monitor-Sidebar",
+          "external": false
+        },
+        {
+          "label": "KNX Debug",
+          "url": "/wiki/es-KNX-Debug-Sidebar",
+          "external": false
+        }
+      ]
+    },
+    {
       "title": "Other KNX Nodes",
       "items": [
         {
@@ -1756,6 +1831,21 @@
         {
           "label": "节点保护",
           "url": "/wiki/zh-CN-Protections",
+          "external": false
+        }
+      ]
+    },
+    {
+      "title": "侧边栏插件",
+      "items": [
+        {
+          "label": "KNX Monitor",
+          "url": "/wiki/zh-CN-KNX-Monitor-Sidebar",
+          "external": false
+        },
+        {
+          "label": "KNX Debug",
+          "url": "/wiki/zh-CN-KNX-Debug-Sidebar",
           "external": false
         }
       ]

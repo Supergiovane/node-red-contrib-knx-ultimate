@@ -83,6 +83,43 @@
       ]
     },
     {
+      "key": "sidebarPlugins",
+      "labels": {
+        "en": "Sidebar plugins",
+        "it": "Plugin sidebar",
+        "de": "Sidebar-Plugins",
+        "fr": "Plugins de la barre latérale",
+        "es": "Plugins de la barra lateral",
+        "zh": "侧边栏插件"
+      },
+      "items": [
+        {
+          "type": "page",
+          "labels": {
+            "en": "KNX Monitor",
+            "it": "KNX Monitor",
+            "de": "KNX Monitor",
+            "fr": "KNX Monitor",
+            "es": "KNX Monitor",
+            "zh": "KNX Monitor"
+          },
+          "page": "KNX-Monitor-Sidebar"
+        },
+        {
+          "type": "page",
+          "labels": {
+            "en": "KNX Debug",
+            "it": "KNX Debug",
+            "de": "KNX Debug",
+            "fr": "KNX Debug",
+            "es": "KNX Debug",
+            "zh": "KNX Debug"
+          },
+          "page": "KNX-Debug-Sidebar"
+        }
+      ]
+    },
+    {
       "key": "knxOther",
       "labels": {
         "en": "Other KNX Nodes",
