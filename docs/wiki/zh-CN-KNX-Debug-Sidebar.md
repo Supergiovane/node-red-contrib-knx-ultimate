@@ -7,7 +7,7 @@ permalink: /wiki/zh-CN-KNX-Debug-Sidebar
 
 左侧边栏的 **KNX Debug** 标签页会实时显示 KNX Ultimate 的内部调试日志。
 
-<img src="{{ '/img/wiki/knx-debug.png' | relative_url }}" alt="KNX Debug sidebar" style="width:100%;max-width:980px;border-radius:14px;box-shadow:0 12px 26px rgba(0,0,0,0.18);" />
+<img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/knx-debug.png" alt="KNX Debug sidebar" style="width:100%;max-width:980px;border-radius:14px;box-shadow:0 12px 26px rgba(0,0,0,0.18);" />
 
 ## 用途
 
@@ -20,4 +20,3 @@ permalink: /wiki/zh-CN-KNX-Debug-Sidebar
 
 - `package.json` → `node-red.plugins.knxUltimateMonitorSidebar`
 - 文件：`nodes/plugins/knxUltimateMonitor-sidebar-plugin.html`
-

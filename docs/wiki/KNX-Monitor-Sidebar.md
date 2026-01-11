@@ -7,7 +7,7 @@ permalink: /wiki/KNX-Monitor-Sidebar
 
 The **KNX Monitor** sidebar tab shows a live table of KNX Group Addresses and their values.
 
-<img src="{{ '/img/wiki/knx-monitor.png' | relative_url }}" alt="KNX Monitor sidebar" style="width:100%;max-width:980px;border-radius:14px;box-shadow:0 12px 26px rgba(0,0,0,0.18);" />
+<img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/knx-monitor.png" alt="KNX Monitor sidebar" style="width:100%;max-width:980px;border-radius:14px;box-shadow:0 12px 26px rgba(0,0,0,0.18);" />
 
 ## What it is for
 
@@ -25,4 +25,3 @@ This tab is provided by the Node-RED plugin:
 
 - `package.json` → `node-red.plugins.knxUltimateMonitorSidebar`
 - File: `nodes/plugins/knxUltimateMonitor-sidebar-plugin.html`
-

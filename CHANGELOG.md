@@ -8,6 +8,8 @@
 
 **Version 4.1.11** - January 2026<br/>
 - FIX: Hue HTTP layer: avoid unhandled errors that could stall the shared Hue command queue when a Hue device/resource is missing (e.g. deleted from the bridge), so other Hue nodes keep working.<br/>
+- Docs: added dedicated wiki pages for the Node-RED sidebar tabs **KNX Monitor** and **KNX Debug** (with screenshots) in all supported languages, plus a dedicated navbar section.<br/>
+- Cleanup: removed the unused `HomeAssistantImporter-sidebar-plugin` stub.<br/>
 <br/>
 
 **Version 4.1.10** - January 2026<br/>
