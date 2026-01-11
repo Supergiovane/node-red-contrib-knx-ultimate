@@ -60,28 +60,75 @@
                 const translations = {
                     en: {
                         tip: 'Tip: use the icon beside boolean values to toggle them on the KNX bus.',
+                        refresh: 'Refresh',
+                        auto: 'Auto',
                         reorder: 'Reorder',
-                        search: 'Filter...'
+                        search: 'Filter...',
+                        noData: 'No data available.',
+                        inferredDptHint: 'Values with * use an inferred datapoint from the payload.',
+                        colValue: 'Value',
+                        colName: 'Name',
+                        colUpdated: 'Updated'
                     },
                     it: {
                         tip: 'Suggerimento: usa l\'icona accanto ai valori booleani per inviarne il toggle sul bus KNX.',
+                        refresh: 'Aggiorna',
+                        auto: 'Auto',
                         reorder: 'Riordina',
-                        search: 'Filtra...'
+                        search: 'Filtra...',
+                        noData: 'Nessun dato disponibile.',
+                        inferredDptHint: 'I valori con * usano un datapoint dedotto dal payload.',
+                        colValue: 'Valore',
+                        colName: 'Nome',
+                        colUpdated: 'Aggiornato'
                     },
                     fr: {
                         tip: 'Astuce : utilisez l\'icône à côté des valeurs booléennes pour les basculer sur le bus KNX.',
+                        refresh: 'Actualiser',
+                        auto: 'Auto',
                         reorder: 'Réordonner',
-                        search: 'Filtrer...'
+                        search: 'Filtrer...',
+                        noData: 'Aucune donnée disponible.',
+                        inferredDptHint: 'Les valeurs avec * utilisent un datapoint déduit du payload.',
+                        colValue: 'Valeur',
+                        colName: 'Nom',
+                        colUpdated: 'Mis à jour'
                     },
                     es: {
                         tip: 'Consejo: usa el icono junto a los valores booleanos para alternarlos en el bus KNX.',
+                        refresh: 'Actualizar',
+                        auto: 'Auto',
                         reorder: 'Reordenar',
-                        search: 'Filtrar...'
+                        search: 'Filtrar...',
+                        noData: 'No hay datos disponibles.',
+                        inferredDptHint: 'Los valores con * usan un datapoint inferido del payload.',
+                        colValue: 'Valor',
+                        colName: 'Nombre',
+                        colUpdated: 'Actualizado'
                     },
                     de: {
                         tip: 'Tipp: Verwenden Sie das Symbol neben booleschen Werten, um sie auf dem KNX-Bus umzuschalten.',
+                        refresh: 'Aktualisieren',
+                        auto: 'Auto',
                         reorder: 'Neu ordnen',
-                        search: 'Filtern...'
+                        search: 'Filtern...',
+                        noData: 'Keine Daten verfügbar.',
+                        inferredDptHint: 'Werte mit * verwenden einen aus dem Payload abgeleiteten Datenpunkt.',
+                        colValue: 'Wert',
+                        colName: 'Name',
+                        colUpdated: 'Aktualisiert'
+                    },
+                    'zh-CN': {
+                        tip: '提示：使用布尔值旁边的图标，在 KNX 总线上切换它们。',
+                        refresh: '刷新',
+                        auto: '自动',
+                        reorder: '重新排序',
+                        search: '筛选…',
+                        noData: '暂无数据。',
+                        inferredDptHint: '带 * 的值使用从 payload 推断的数据点。',
+                        colValue: '值',
+                        colName: '名称',
+                        colUpdated: '更新时间'
                     }
                 };
 
@@ -95,10 +142,10 @@
 
                 const columnDefs = [
                     { key: 'ga', label: 'GA', width: 50, minWidth: 40 },
-                    { key: 'value', label: 'Value', width: 100, minWidth: 70 },
+                    { key: 'value', label: resolveMessage('colValue'), width: 100, minWidth: 70 },
                     { key: 'dpt', label: 'DPT', width: 50, minWidth: 40 },
-                    { key: 'name', label: 'Name', width: 280, minWidth: 150 },
-                    { key: 'updated', label: 'Updated', width: 160, minWidth: 120 }
+                    { key: 'name', label: resolveMessage('colName'), width: 280, minWidth: 150 },
+                    { key: 'updated', label: resolveMessage('colUpdated'), width: 160, minWidth: 120 }
                 ];
 
                 const container = $("<div>").css({ height: "100%", display: "flex", flexDirection: "column" });
@@ -113,7 +160,7 @@
                 const statusSpan = $("<span>").css({ fontSize: "0.8em", color: "#555" }).appendTo(rowTop);
 
                 const serverSelect = $("<select>").css({ minWidth: "200px" }).appendTo(topLeft);
-                const refreshButton = $("<button>", { class: "red-ui-button" }).append($('<i>', { class: 'fa fa-refresh' })).append(" Refresh").appendTo(topLeft);
+                const refreshButton = $("<button>", { class: "red-ui-button" }).append($('<i>', { class: 'fa fa-refresh' })).append(` ${resolveMessage('refresh')}`).appendTo(topLeft);
 
                 const rowBottom = $('<div>').css({ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }).appendTo(toolbarStack);
                 const bottomLeft = $('<div>').css({ display: 'flex', alignItems: 'center', gap: '12px' }).appendTo(rowBottom);
@@ -121,7 +168,7 @@
 
                 const autoLabel = $("<label>").css({ display: "flex", alignItems: "center", gap: "6px", fontSize: '0.9em' }).appendTo(bottomLeft);
                 const autoCheckbox = $("<input>", { type: "checkbox", checked: true }).appendTo(autoLabel);
-                autoLabel.append($('<span>').text("Auto"));
+                autoLabel.append($('<span>').text(resolveMessage('auto')));
                 const reorderLabel = $("<label>").css({ display: "flex", alignItems: "center", gap: "6px", fontSize: '0.9em' }).appendTo(bottomLeft);
                 const reorderCheckbox = $("<input>", { type: "checkbox", checked: true }).appendTo(reorderLabel);
                 reorderLabel.append($('<span>').text(resolveMessage('reorder')));
@@ -132,7 +179,7 @@
 
                 const body = $("<div>", { class: "red-ui-sidebar-content" }).css({ flex: "1 1 auto", overflow: "auto", padding: "0 6px 4px" }).appendTo(container);
 
-                const emptyNotice = $("<div>").css({ margin: "8px 4px", color: "#888" }).text("No data available.").attr('id', 'knx-monitor-empty').appendTo(body);
+                const emptyNotice = $("<div>").css({ margin: "8px 4px", color: "#888" }).text(resolveMessage('noData')).attr('id', 'knx-monitor-empty').appendTo(body);
 
                 const hintIcon = $('<div>').css({ fontSize: '0.8em', color: '#555', margin: '4px 4px 8px' }).text(resolveMessage('tip')).appendTo(body);
                 const table = $("<table>").css({ width: "100%", borderCollapse: "collapse", display: "none" }).attr('id', 'knx-monitor-table').appendTo(body);
@@ -150,7 +197,7 @@
                 });
 
                 const tbody = $("<tbody>").appendTo(table);
-                const hint = $("<div>").css({ fontSize: "0.75em", color: "#777", margin: "6px 4px 0" }).text("Values with * use an inferred datapoint from the payload.").appendTo(body);
+                const hint = $("<div>").css({ fontSize: "0.75em", color: "#777", margin: "6px 4px 0" }).text(resolveMessage('inferredDptHint')).appendTo(body);
 
                 const initColumnResize = () => {
                     let currentHandle = null;

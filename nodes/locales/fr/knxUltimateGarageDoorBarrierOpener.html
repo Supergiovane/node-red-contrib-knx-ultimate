@@ -1,0 +1,30 @@
+<script type="text/markdown" data-help-name="knxUltimateGarageDoorBarrierOpener">
+<p>This node lets you control a garage/door/barrier, controlled with an impulse command (for example: push to open, push the same button to close, push the same button to stop the movement).**General* * |Property|Description| |--|--| | Gateway | Select the KNX gateway to be used | | Name | Self explaining. The node name. | | Topic | The msg output topic. |* * Group Address Input* *These GA are transmitted by your devices to the node. | Property | Description | | -- | -- | | Impulse | The KNX Group Address where you connected the impulsive command (for example: push to open, push the same button to close, push the same button to stop the movement) | | Command | The KNX Group Address to command the movement. Pass* * true* *to open,* * false* *to close the door. | | Invert command value | Invert the command boolean values, that becomes* * true* *to close,* * false* *to open the door. | | Status | The KNX Group Address of the door status. It's usually the magnetic sensor mounted on the door to detect open/closed position. Must be* * true* *if the door is open, otherwise* * flase* *. It's used by the node to make coherent movements.* * If leaved blank* *, the status is computed using full open/full closed intervals specified in the* * Timing/Behaviours* *page. | | Invert status value | Invert the status boolean values, that becomes* * true* *if the door is closed, otherwise* * flase* *. | | Blocking | The KNX Group Address for blocking the movement. Pass* * true* *to open the door and block it in open status,* * false* *to close the door and block it in closed status. | | Blocking timeout | Timeout, in seconds, after the blocking is restored; the door will not move and will wait further commands. Set 0 to never restoring from blocked status. Default is 0. |* * Group Address Output* *These GA are computed ad transmitted to the KNX bus by the node itself. | | Property | Description | | -- | -- | | Obstruction | The KNX Group Address of the obstruction detection. This GA is wrote by the node, whenever it detects an obstruction during movement. It's* * true* *if an obstruction is detected, otherwise* * flase* *. | | Moving | The KNX Group Address of the moving status. This GA is wrote by the node, whenever the garage/door/barrier is moving. It's* * true* *while moving, otherwise* * false* *. |* * Timing/Behaviours* *| Property | Description | | -- | -- | | While moving | Define the behaviour while the door is moving to reach it's end position (fully open or fully closed). For example, the door can stop and reverse the direction, or you can choose to ignore sent commands until the door reaches it's end position. | | Fully open time | The time (in seconds) of a full movement from fully closed position to fully open position. | | Fully closed time | The time (in seconds) of a full movement from fully open position to fully closed position. | <br/>
+
+### Outputs
+
+1. Standard output
+: payload (string|number|object) : Pin 1 is the standard output of the command.
+
+2. Errors
+: error (object) : Pin 2 Contains the detailed error message.
+
+### Details
+
+`msg.payload` is used as the payload of the published message, in JSON ogbect format.
+
+```json
+
+msg = {
+topic: the topic you selected
+payload: {
+}
+}
+`
+
+```
+
+<br/><a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-SamplesHome" target="_blank"><i class="fa fa-code"></i> Samples</a>
+
+[![Donate via PayPal](https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/CodiceQR.png)](https://www.paypal.com/donate/?hosted_ button_id=S8SKPUBSPK758)
+</script>

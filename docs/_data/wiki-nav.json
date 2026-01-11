@@ -84,6 +84,16 @@
           "external": false
         },
         {
+          "label": "Staircase",
+          "url": "/wiki/Staircase-Configuration",
+          "external": false
+        },
+        {
+          "label": "Garage",
+          "url": "/wiki/Garage-Configuration",
+          "external": false
+        },
+        {
           "label": "Viewer",
           "url": "/wiki/knxUltimateViewer",
           "external": false
@@ -154,6 +164,21 @@
           "external": false
         },
         {
+          "label": "Humidity",
+          "url": "/wiki/HUE%20Humidity%20sensor",
+          "external": false
+        },
+        {
+          "label": "Plug",
+          "url": "/wiki/HUE%20Plug",
+          "external": false
+        },
+        {
+          "label": "Camera motion",
+          "url": "/wiki/HUE%20Camera%20motion",
+          "external": false
+        },
+        {
           "label": "Scene",
           "url": "/wiki/HUE%20Scene",
           "external": false
@@ -186,21 +211,6 @@
         {
           "label": "Logger",
           "url": "/wiki/Logger-Sample",
-          "external": false
-        },
-        {
-          "label": "IoT Bridge",
-          "url": "/wiki/-Sample---IoT-Bridge",
-          "external": false
-        },
-        {
-          "label": "Garage",
-          "url": "/wiki/-Sample---Garage",
-          "external": false
-        },
-        {
-          "label": "Staircase",
-          "url": "/wiki/-Sample---Staircase",
           "external": false
         },
         {
@@ -266,11 +276,6 @@
         {
           "label": "Virtual Device",
           "url": "/wiki/-Sample---Virtual-Device",
-          "external": false
-        },
-        {
-          "label": "Serial FT1.2 / KBerry",
-          "url": "/wiki/-Sample---FT12",
           "external": false
         },
         {
@@ -421,6 +426,16 @@
           "external": false
         },
         {
+          "label": "Staircase",
+          "url": "/wiki/it-Staircase-Configuration",
+          "external": false
+        },
+        {
+          "label": "Garage",
+          "url": "/wiki/it-Garage-Configuration",
+          "external": false
+        },
+        {
           "label": "Viewer",
           "url": "/wiki/it-knxUltimateViewer",
           "external": false
@@ -491,6 +506,21 @@
           "external": false
         },
         {
+          "label": "Umidità",
+          "url": "/wiki/it-HUE%20Humidity%20sensor",
+          "external": false
+        },
+        {
+          "label": "Presa",
+          "url": "/wiki/it-HUE%20Plug",
+          "external": false
+        },
+        {
+          "label": "Movimento camera",
+          "url": "/wiki/it-HUE%20Camera%20motion",
+          "external": false
+        },
+        {
           "label": "Scena",
           "url": "/wiki/it-HUE%20Scene",
           "external": false
@@ -523,21 +553,6 @@
         {
           "label": "Logger",
           "url": "/wiki/it-Logger-Sample",
-          "external": false
-        },
-        {
-          "label": "IoT Bridge",
-          "url": "/wiki/-Sample---IoT-Bridge",
-          "external": false
-        },
-        {
-          "label": "Garage",
-          "url": "/wiki/-Sample---Garage",
-          "external": false
-        },
-        {
-          "label": "Staircase",
-          "url": "/wiki/-Sample---Staircase",
           "external": false
         },
         {
@@ -603,11 +618,6 @@
         {
           "label": "Virtual Device",
           "url": "/wiki/-Sample---Virtual-Device",
-          "external": false
-        },
-        {
-          "label": "Serial FT1.2 / KBerry",
-          "url": "/wiki/-Sample---FT12",
           "external": false
         },
         {
@@ -758,6 +768,16 @@
           "external": false
         },
         {
+          "label": "Treppenhaus",
+          "url": "/wiki/de-Staircase-Configuration",
+          "external": false
+        },
+        {
+          "label": "Garage",
+          "url": "/wiki/de-Garage-Configuration",
+          "external": false
+        },
+        {
           "label": "Viewer",
           "url": "/wiki/de-knxUltimateViewer",
           "external": false
@@ -828,6 +848,21 @@
           "external": false
         },
         {
+          "label": "Luftfeuchtigkeit",
+          "url": "/wiki/de-HUE%20Humidity%20sensor",
+          "external": false
+        },
+        {
+          "label": "Steckdose",
+          "url": "/wiki/de-HUE%20Plug",
+          "external": false
+        },
+        {
+          "label": "Kamerabewegung",
+          "url": "/wiki/de-HUE%20Camera%20motion",
+          "external": false
+        },
+        {
           "label": "Szene",
           "url": "/wiki/de-HUE%20Scene",
           "external": false
@@ -860,21 +895,6 @@
         {
           "label": "Logger",
           "url": "/wiki/de-Logger-Sample",
-          "external": false
-        },
-        {
-          "label": "IoT Bridge",
-          "url": "/wiki/-Sample---IoT-Bridge",
-          "external": false
-        },
-        {
-          "label": "Garage",
-          "url": "/wiki/-Sample---Garage",
-          "external": false
-        },
-        {
-          "label": "Staircase",
-          "url": "/wiki/-Sample---Staircase",
           "external": false
         },
         {
@@ -940,11 +960,6 @@
         {
           "label": "Virtual Device",
           "url": "/wiki/-Sample---Virtual-Device",
-          "external": false
-        },
-        {
-          "label": "Serial FT1.2 / KBerry",
-          "url": "/wiki/-Sample---FT12",
           "external": false
         },
         {
@@ -1095,6 +1110,16 @@
           "external": false
         },
         {
+          "label": "Staircase",
+          "url": "/wiki/fr-Staircase-Configuration",
+          "external": false
+        },
+        {
+          "label": "Garage",
+          "url": "/wiki/fr-Garage-Configuration",
+          "external": false
+        },
+        {
           "label": "Viewer",
           "url": "/wiki/fr-knxUltimateViewer",
           "external": false
@@ -1165,6 +1190,21 @@
           "external": false
         },
         {
+          "label": "Humidity",
+          "url": "/wiki/fr-HUE%20Humidity%20sensor",
+          "external": false
+        },
+        {
+          "label": "Plug",
+          "url": "/wiki/fr-HUE%20Plug",
+          "external": false
+        },
+        {
+          "label": "Camera motion",
+          "url": "/wiki/fr-HUE%20Camera%20motion",
+          "external": false
+        },
+        {
           "label": "Scene",
           "url": "/wiki/fr-HUE%20Scene",
           "external": false
@@ -1197,21 +1237,6 @@
         {
           "label": "Logger",
           "url": "/wiki/fr-Logger-Sample",
-          "external": false
-        },
-        {
-          "label": "IoT Bridge",
-          "url": "/wiki/-Sample---IoT-Bridge",
-          "external": false
-        },
-        {
-          "label": "Garage",
-          "url": "/wiki/-Sample---Garage",
-          "external": false
-        },
-        {
-          "label": "Staircase",
-          "url": "/wiki/-Sample---Staircase",
           "external": false
         },
         {
@@ -1277,11 +1302,6 @@
         {
           "label": "Virtual Device",
           "url": "/wiki/-Sample---Virtual-Device",
-          "external": false
-        },
-        {
-          "label": "Serial FT1.2 / KBerry",
-          "url": "/wiki/-Sample---FT12",
           "external": false
         },
         {
@@ -1432,6 +1452,16 @@
           "external": false
         },
         {
+          "label": "Staircase",
+          "url": "/wiki/es-Staircase-Configuration",
+          "external": false
+        },
+        {
+          "label": "Garage",
+          "url": "/wiki/es-Garage-Configuration",
+          "external": false
+        },
+        {
           "label": "Viewer",
           "url": "/wiki/es-knxUltimateViewer",
           "external": false
@@ -1502,6 +1532,21 @@
           "external": false
         },
         {
+          "label": "Humidity",
+          "url": "/wiki/es-HUE%20Humidity%20sensor",
+          "external": false
+        },
+        {
+          "label": "Plug",
+          "url": "/wiki/es-HUE%20Plug",
+          "external": false
+        },
+        {
+          "label": "Camera motion",
+          "url": "/wiki/es-HUE%20Camera%20motion",
+          "external": false
+        },
+        {
           "label": "Scene",
           "url": "/wiki/es-HUE%20Scene",
           "external": false
@@ -1534,21 +1579,6 @@
         {
           "label": "Logger",
           "url": "/wiki/es-Logger-Sample",
-          "external": false
-        },
-        {
-          "label": "IoT Bridge",
-          "url": "/wiki/-Sample---IoT-Bridge",
-          "external": false
-        },
-        {
-          "label": "Garage",
-          "url": "/wiki/-Sample---Garage",
-          "external": false
-        },
-        {
-          "label": "Staircase",
-          "url": "/wiki/-Sample---Staircase",
           "external": false
         },
         {
@@ -1614,11 +1644,6 @@
         {
           "label": "Virtual Device",
           "url": "/wiki/-Sample---Virtual-Device",
-          "external": false
-        },
-        {
-          "label": "Serial FT1.2 / KBerry",
-          "url": "/wiki/-Sample---FT12",
           "external": false
         },
         {
@@ -1769,6 +1794,16 @@
           "external": false
         },
         {
+          "label": "楼梯定时器",
+          "url": "/wiki/zh-CN-Staircase-Configuration",
+          "external": false
+        },
+        {
+          "label": "车库",
+          "url": "/wiki/zh-CN-Garage-Configuration",
+          "external": false
+        },
+        {
           "label": "查看器",
           "url": "/wiki/zh-CN-knxUltimateViewer",
           "external": false
@@ -1834,8 +1869,23 @@
           "external": false
         },
         {
-          "label": "区域运动",
+          "label": "运动区域",
           "url": "/wiki/zh-CN-HUE%20Motion%20area",
+          "external": false
+        },
+        {
+          "label": "湿度",
+          "url": "/wiki/zh-CN-HUE%20Humidity%20sensor",
+          "external": false
+        },
+        {
+          "label": "插座",
+          "url": "/wiki/zh-CN-HUE%20Plug",
+          "external": false
+        },
+        {
+          "label": "摄像头运动",
+          "url": "/wiki/zh-CN-HUE%20Camera%20motion",
           "external": false
         },
         {
@@ -1871,21 +1921,6 @@
         {
           "label": "Logger",
           "url": "/wiki/zh-CN-Logger-Sample",
-          "external": false
-        },
-        {
-          "label": "IoT Bridge",
-          "url": "/wiki/-Sample---IoT-Bridge",
-          "external": false
-        },
-        {
-          "label": "Garage",
-          "url": "/wiki/-Sample---Garage",
-          "external": false
-        },
-        {
-          "label": "Staircase",
-          "url": "/wiki/-Sample---Staircase",
           "external": false
         },
         {

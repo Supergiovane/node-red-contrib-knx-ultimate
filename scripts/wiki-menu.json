@@ -154,6 +154,26 @@
         {
           "type": "page",
           "labels": {
+            "en": "Staircase",
+            "it": "Staircase",
+            "de": "Treppenhaus",
+            "zh": "楼梯定时器"
+          },
+          "page": "Staircase-Configuration"
+        },
+        {
+          "type": "page",
+          "labels": {
+            "en": "Garage",
+            "it": "Garage",
+            "de": "Garage",
+            "zh": "车库"
+          },
+          "page": "Garage-Configuration"
+        },
+        {
+          "type": "page",
+          "labels": {
             "en": "Viewer",
             "it": "Viewer",
             "de": "Viewer",
@@ -281,6 +301,46 @@
             "zh": "运动"
           },
           "page": "HUE Motion"
+        },
+        {
+          "type": "page",
+          "labels": {
+            "en": "Motion area",
+            "it": "Area movimento",
+            "de": "Bewegungsbereich",
+            "zh": "运动区域"
+          },
+          "page": "HUE Motion area"
+        },
+        {
+          "type": "page",
+          "labels": {
+            "en": "Humidity",
+            "it": "Umidità",
+            "de": "Luftfeuchtigkeit",
+            "zh": "湿度"
+          },
+          "page": "HUE Humidity sensor"
+        },
+        {
+          "type": "page",
+          "labels": {
+            "en": "Plug",
+            "it": "Presa",
+            "de": "Steckdose",
+            "zh": "插座"
+          },
+          "page": "HUE Plug"
+        },
+        {
+          "type": "page",
+          "labels": {
+            "en": "Camera motion",
+            "it": "Movimento camera",
+            "de": "Kamerabewegung",
+            "zh": "摄像头运动"
+          },
+          "page": "HUE Camera motion"
         },
         {
           "type": "page",
