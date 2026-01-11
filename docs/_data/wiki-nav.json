@@ -239,6 +239,16 @@
           "external": false
         },
         {
+          "label": "Staircase",
+          "url": "/wiki/-Sample---Staircase",
+          "external": false
+        },
+        {
+          "label": "Garage",
+          "url": "/wiki/-Sample---Garage",
+          "external": false
+        },
+        {
           "label": "RGB color",
           "url": "/wiki/-Sample---RGB-Color",
           "external": false
@@ -281,6 +291,11 @@
         {
           "label": "Datetime to BUS",
           "url": "/wiki/-Sample---DateTime-to-BUS",
+          "external": false
+        },
+        {
+          "label": "IoT Bridge",
+          "url": "/wiki/-Sample---IoT-Bridge",
           "external": false
         },
         {
@@ -601,6 +616,16 @@
           "external": false
         },
         {
+          "label": "Staircase",
+          "url": "/wiki/-Sample---Staircase",
+          "external": false
+        },
+        {
+          "label": "Garage",
+          "url": "/wiki/-Sample---Garage",
+          "external": false
+        },
+        {
           "label": "RGB color",
           "url": "/wiki/-Sample---RGB-Color",
           "external": false
@@ -643,6 +668,11 @@
         {
           "label": "Datetime to BUS",
           "url": "/wiki/-Sample---DateTime-to-BUS",
+          "external": false
+        },
+        {
+          "label": "IoT Bridge",
+          "url": "/wiki/-Sample---IoT-Bridge",
           "external": false
         },
         {
@@ -963,6 +993,16 @@
           "external": false
         },
         {
+          "label": "Treppenhaus",
+          "url": "/wiki/-Sample---Staircase",
+          "external": false
+        },
+        {
+          "label": "Garage",
+          "url": "/wiki/-Sample---Garage",
+          "external": false
+        },
+        {
           "label": "RGB color",
           "url": "/wiki/-Sample---RGB-Color",
           "external": false
@@ -1005,6 +1045,11 @@
         {
           "label": "Datetime to BUS",
           "url": "/wiki/-Sample---DateTime-to-BUS",
+          "external": false
+        },
+        {
+          "label": "IoT Bridge",
+          "url": "/wiki/-Sample---IoT-Bridge",
           "external": false
         },
         {
@@ -1302,7 +1347,7 @@
       ]
     },
     {
-      "title": "Samples",
+      "title": "Exemples",
       "items": [
         {
           "label": "Samples Home",
@@ -1322,6 +1367,16 @@
         {
           "label": "Dimming",
           "url": "/wiki/-Sample---Dimming",
+          "external": false
+        },
+        {
+          "label": "Escalier",
+          "url": "/wiki/-Sample---Staircase",
+          "external": false
+        },
+        {
+          "label": "Garage",
+          "url": "/wiki/-Sample---Garage",
           "external": false
         },
         {
@@ -1367,6 +1422,11 @@
         {
           "label": "Datetime to BUS",
           "url": "/wiki/-Sample---DateTime-to-BUS",
+          "external": false
+        },
+        {
+          "label": "IoT Bridge",
+          "url": "/wiki/-Sample---IoT-Bridge",
           "external": false
         },
         {
@@ -1664,7 +1724,7 @@
       ]
     },
     {
-      "title": "Samples",
+      "title": "Ejemplos",
       "items": [
         {
           "label": "Samples Home",
@@ -1684,6 +1744,16 @@
         {
           "label": "Dimming",
           "url": "/wiki/-Sample---Dimming",
+          "external": false
+        },
+        {
+          "label": "Escalera",
+          "url": "/wiki/-Sample---Staircase",
+          "external": false
+        },
+        {
+          "label": "Garaje",
+          "url": "/wiki/-Sample---Garage",
           "external": false
         },
         {
@@ -1729,6 +1799,11 @@
         {
           "label": "Datetime to BUS",
           "url": "/wiki/-Sample---DateTime-to-BUS",
+          "external": false
+        },
+        {
+          "label": "IoT Bridge",
+          "url": "/wiki/-Sample---IoT-Bridge",
           "external": false
         },
         {
@@ -2049,6 +2124,16 @@
           "external": false
         },
         {
+          "label": "楼梯定时器",
+          "url": "/wiki/-Sample---Staircase",
+          "external": false
+        },
+        {
+          "label": "车库",
+          "url": "/wiki/-Sample---Garage",
+          "external": false
+        },
+        {
           "label": "RGB color",
           "url": "/wiki/-Sample---RGB-Color",
           "external": false
@@ -2091,6 +2176,11 @@
         {
           "label": "Datetime to BUS",
           "url": "/wiki/-Sample---DateTime-to-BUS",
+          "external": false
+        },
+        {
+          "label": "物联网桥接",
+          "url": "/wiki/-Sample---IoT-Bridge",
           "external": false
         },
         {

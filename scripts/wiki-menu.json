@@ -427,6 +427,8 @@
         "en": "Samples",
         "it": "Esempi",
         "de": "Beispiele",
+        "fr": "Exemples",
+        "es": "Ejemplos",
         "zh": "示例"
       },
       "items": [
@@ -457,6 +459,30 @@
             "en": "Dimming"
           },
           "page": "-Sample---Dimming"
+        },
+        {
+          "type": "page",
+          "labels": {
+            "en": "Staircase",
+            "it": "Staircase",
+            "de": "Treppenhaus",
+            "fr": "Escalier",
+            "es": "Escalera",
+            "zh": "楼梯定时器"
+          },
+          "page": "-Sample---Staircase"
+        },
+        {
+          "type": "page",
+          "labels": {
+            "en": "Garage",
+            "it": "Garage",
+            "de": "Garage",
+            "fr": "Garage",
+            "es": "Garaje",
+            "zh": "车库"
+          },
+          "page": "-Sample---Garage"
         },
         {
           "type": "page",
@@ -520,6 +546,18 @@
             "en": "Datetime to BUS"
           },
           "page": "-Sample---DateTime-to-BUS"
+        },
+        {
+          "type": "page",
+          "labels": {
+            "en": "IoT Bridge",
+            "it": "IoT Bridge",
+            "de": "IoT Bridge",
+            "fr": "IoT Bridge",
+            "es": "IoT Bridge",
+            "zh": "物联网桥接"
+          },
+          "page": "-Sample---IoT-Bridge"
         },
         {
           "type": "page",
