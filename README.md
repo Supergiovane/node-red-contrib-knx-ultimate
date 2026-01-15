@@ -15,7 +15,7 @@
   <img src="img/readmemain.png" alt="Sample Node" width="70%">
 </p>
 
-<p align="center" style="font-size:2.25rem;font-weight:700;line-height:1.9;">
+<p align="left" style="font-size:2.25rem;font-weight:700;line-height:1.9;">
   <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Home" target="_blank">📘 Go to documentation</a><br/>
   <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-Home" target="_blank">📘 Vai alla documentazione</a><br/>
   <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-Home" target="_blank">📘 Zur Dokumentation</a><br/>
@@ -24,7 +24,7 @@
   <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-Home" target="_blank">📘 前往文档</a>
 </p>
 
-<p align="center" style="font-size:2.25rem;font-weight:700;line-height:1.9;">
+<p align="left" style="font-size:2.25rem;font-weight:700;line-height:1.9;">
 <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/blob/master/CHANGELOG.md"
       style="display:inline-flex;align-items:center;gap:10px;padding:12px 24px;border-radius:999px;background:#ffc439;color:#111;font-weight:700;text-decoration:none;box-shadow:0 16px 30px rgba(255,196,57,0.32);">
       CHANGELOG
