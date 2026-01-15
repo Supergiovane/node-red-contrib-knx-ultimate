@@ -1,11 +1,14 @@
 const simpleget = require('simple-get')
 
+const DEFAULT_TIMEOUT_MS = 30000
+
 /**
 * Parameters.
 *
 * @param config.key the credentualskey.
 * @param config.prefix the bridge's URL
 * @param config.url the resource url
+ * @param config.timeoutMs optional request timeout
 */
 module.exports.use = (config) => {
   const http = {}
@@ -29,6 +32,10 @@ module.exports.use = (config) => {
     return new Promise((resolve, reject) => {
       const requestOptions = { ...opt }
       requestOptions.rejectUnauthorized = false
+      requestOptions.timeout = Number.isFinite(config?.timeoutMs) && config.timeoutMs > 0
+        ? config.timeoutMs
+        : DEFAULT_TIMEOUT_MS
+      if (config?.agent) requestOptions.agent = config.agent
       requestOptions.headers = {
         ...(opt.headers || {}),
         'hue-application-key': config.key
@@ -38,7 +45,7 @@ module.exports.use = (config) => {
       }
       requestOptions.url = config.prefix + requestOptions.url
       // log.trace('http ' + opt.method + ' ' + opt.url);
-      simpleget.concat(requestOptions, (err, res, data) => {
+      const req = simpleget.concat(requestOptions, (err, res, data) => {
         if (err) return reject(err)
 
         const statusCode = res?.statusCode ?? 0
@@ -67,6 +74,13 @@ module.exports.use = (config) => {
         const bodySnippet = responseText ? ` ${responseText}` : ''
         return reject(new Error(`Error response for ${requestOptions.url} with status ${statusCode} ${statusMessage}${bodySnippet}`))
       })
+
+      // Ensure timeouts fire even if the underlying client ignores the option.
+      try {
+        if (requestOptions.timeout && typeof req?.setTimeout === 'function') {
+          req.setTimeout(requestOptions.timeout)
+        }
+      } catch (error) { /* empty */ }
     })
   }
 

@@ -131,6 +131,7 @@ module.exports = function (RED) {
 
           const knxMsgPayload = {}
           let flowMsgPayload = true
+          let didUpdateStatus = false
           // Handling events with toggles
           // KNX Dimming reminder tips
           // { decr_incr: 1, data: 1 } : Start increasing until { decr_incr: 0, data: 0 } is received.
@@ -177,6 +178,7 @@ module.exports = function (RED) {
                   node.setNodeStatusHue({
                     fill: 'blue', shape: 'dot', text: `HUE->KNX ${buttonEvent}`, payload: knxMsgPayload.payload
                   })
+                  didUpdateStatus = true
                 }
               }
               break
@@ -202,6 +204,7 @@ module.exports = function (RED) {
                     node.setNodeStatusHue({
                       fill: 'blue', shape: 'dot', text: 'HUE->KNX START DIM', payload: ''
                     })
+                    didUpdateStatus = true
                   }
                 }
                 node.startDimStopper(knxMsgPayload)
@@ -209,6 +212,15 @@ module.exports = function (RED) {
               break
             default:
               break
+          }
+
+          if (!didUpdateStatus) {
+            node.setNodeStatusHue({
+              fill: 'blue',
+              shape: 'dot',
+              text: `HUE ${buttonEvent}`,
+              payload: flowMsgPayload
+            })
           }
 
           // Setup the output msg
@@ -219,7 +231,6 @@ module.exports = function (RED) {
           flowMsg.rawEvent = _event
           flowMsg.payload = flowMsgPayload
           node.send(flowMsg)
-          if (node.serverKNX === undefined) node.setNodeStatusHue({ fill: 'green', shape: 'dot', text: '', payload: flowMsg.event })
         }
       } catch (error) {
         node.setNodeStatusHue({

@@ -6,7 +6,15 @@
 
 # CHANGELOG
 
-**Version 4.1.11** - January 2026<br/>
+**Version 4.1.14** - January 2026<br/>
+- FIX: HueEngine reconnect: improved recovery after network link drops (stale sockets), with forced HTTPS agent reset + HTTP timeouts + SSE connect timeout to prevent “stuck” connections.<br/>
+- CHANGE: HueEngine ping interval set to 90 seconds for faster disconnect detection.<br/>
+- FIX: Hue Button editor: typedInput/checkbox values now persist and restore reliably (`toggleValues`, `switchSend`, `dimSend`).<br/>
+- FIX: Hue Button runtime: node status now updates on every valid Hue event (even after reconnect / without KNX GA configured).<br/>
+- FIX: Hue config: guarded client status updates so UI/status errors cannot crash Node-RED.<br/>
+<br/>
+
+**Version 4.1.12** - January 2026<br/>
 - FIX: Hue HTTP layer: avoid unhandled errors that could stall the shared Hue command queue when a Hue device/resource is missing (e.g. deleted from the bridge), so other Hue nodes keep working.<br/>
 - Docs: added dedicated wiki pages for the Node-RED sidebar tabs **KNX Monitor** and **KNX Debug** (with screenshots) in all supported languages, plus a dedicated navbar section.<br/>
 - Cleanup: removed the unused `HomeAssistantImporter-sidebar-plugin` stub.<br/>

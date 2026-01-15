@@ -4,30 +4,25 @@
 
 <script type="text/javascript">
   (function () {
-    let $tabs = null;
-    let $requiresBridgeElems = null;
-    let $knxSections = null;
-    let $deviceName = null;
-    let $refreshButton = null;
-    let $loadingIndicator = null;
-    let $outputInfo = null;
-    let $toggleCheckbox = null;
-    let $statusRows = null;
-    let $fixedValueSection = null;
-    let $switchSendInput = null;
-    let $dimSendInput = null;
-    let $dptShortRelease = null;
-    let $dptShortReleaseStatus = null;
-    let $dptRepeat = null;
-    let $gaShortRelease = null;
-    let $gaShortReleaseStatus = null;
-    let $gaRepeat = null;
+    let ui = null;
     let cachedDevices = [];
     let defaultDevicePlaceholder = '';
     let showingNoDevicesPlaceholder = false;
     let currentNode = null;
 
     const EMPTY_SERVER_VALUES = new Set(['', 'none', '_add_', '__none__', '__null__', 'null', 'undefined']);
+
+    const coerceBool = (value, defaultValue = false) => {
+      if (value === undefined || value === null) return defaultValue;
+      if (typeof value === 'boolean') return value;
+      if (typeof value === 'number') return value !== 0;
+      if (typeof value === 'string') {
+        const cleaned = value.trim().toLowerCase();
+        if (cleaned === '' || cleaned === '0' || cleaned === 'false' || cleaned === 'no' || cleaned === 'off') return false;
+        if (cleaned === '1' || cleaned === 'true' || cleaned === 'yes' || cleaned === 'on') return true;
+      }
+      return Boolean(value);
+    };
 
     const ensureVerticalTabsStyle = () => {
       if ($('#knxUltimateHueButtonVerticalTabs').length) return;
@@ -115,19 +110,19 @@
     const detachHandlers = () => {
       $('#node-input-server').off('.knxUltimateHueButton');
       $('#node-input-serverHue').off('.knxUltimateHueButton');
-      if ($deviceName) {
-        $deviceName.off('.knxUltimateHueButton');
-        if ($deviceName.data('ui-autocomplete')) {
-          try { $deviceName.autocomplete('destroy'); } catch (error) { /* empty */ }
+      if (ui?.deviceName) {
+        ui.deviceName.off('.knxUltimateHueButton');
+        if (ui.deviceName.data('ui-autocomplete')) {
+          try { ui.deviceName.autocomplete('destroy'); } catch (error) { /* empty */ }
         }
       }
-      if ($refreshButton) {
-        $refreshButton.off('.knxUltimateHueButton');
+      if (ui?.refreshButton) {
+        ui.refreshButton.off('.knxUltimateHueButton');
       }
-      if ($toggleCheckbox) {
-        $toggleCheckbox.off('.knxUltimateHueButton');
+      if (ui?.toggleCheckbox) {
+        ui.toggleCheckbox.off('.knxUltimateHueButton');
       }
-      const autocompleteTargets = [$gaShortRelease, $gaShortReleaseStatus, $gaRepeat];
+      const autocompleteTargets = [ui?.gaShortRelease, ui?.gaShortReleaseStatus, ui?.gaRepeat];
       autocompleteTargets.forEach(($input) => {
         if ($input) {
           $input.off('.knxUltimateHueButton');
@@ -136,11 +131,11 @@
           }
         }
       });
-      if ($switchSendInput && $switchSendInput.data('typedInput')) {
-        try { $switchSendInput.typedInput('destroy'); } catch (error) { /* empty */ }
+      if (ui?.switchSendInput && ui.switchSendInput.data('typedInput')) {
+        try { ui.switchSendInput.typedInput('destroy'); } catch (error) { /* empty */ }
       }
-      if ($dimSendInput && $dimSendInput.data('typedInput')) {
-        try { $dimSendInput.typedInput('destroy'); } catch (error) { /* empty */ }
+      if (ui?.dimSendInput && ui.dimSendInput.data('typedInput')) {
+        try { ui.dimSendInput.typedInput('destroy'); } catch (error) { /* empty */ }
       }
     };
 
@@ -194,19 +189,19 @@
     };
 
     const applyNoDevicesPlaceholder = (hasDevices) => {
-      if (!$deviceName) return;
+      if (!ui?.deviceName) return;
       if (hasDevices) {
         if (showingNoDevicesPlaceholder) {
           showingNoDevicesPlaceholder = false;
-          $deviceName.attr('placeholder', defaultDevicePlaceholder);
+          ui.deviceName.attr('placeholder', defaultDevicePlaceholder);
         }
         return;
       }
       const message = RED._('node-red-contrib-knx-ultimate/knxUltimateHueButton:knxUltimateHueButton.no_devices');
       showingNoDevicesPlaceholder = true;
-      $deviceName.attr('placeholder', message);
-      if (($deviceName.val() || '').trim() === '') {
-        $deviceName.val('');
+      ui.deviceName.attr('placeholder', message);
+      if ((ui.deviceName.val() || '').trim() === '') {
+        ui.deviceName.val('');
       }
     };
 
@@ -236,7 +231,7 @@
         response(filterDevices(cachedDevices, term));
         return;
       }
-      if ($loadingIndicator) $loadingIndicator.show();
+      if (ui?.loadingIndicator) ui.loadingIndicator.show();
       const refreshQuery = forceRefresh ? '&forceRefresh=1' : '';
       $.getJSON(`KNXUltimateGetResourcesHUE?rtype=button&serverId=${encodeURIComponent(hueServer.id)}${refreshQuery}&_=${Date.now()}`, (data) => {
         const listCandidates = Array.isArray(data) ? data : (Array.isArray(data?.devices) ? data.devices : []);
@@ -252,7 +247,7 @@
         applyNoDevicesPlaceholder(cachedDevices.length > 0);
         response(filterDevices(cachedDevices, term));
       }).always(() => {
-        if ($loadingIndicator) $loadingIndicator.hide();
+        if (ui?.loadingIndicator) ui.loadingIndicator.hide();
       }).fail(() => {
         cachedDevices = [];
         if (currentNode) currentNode._cachedButtonDevices = cachedDevices;
@@ -262,10 +257,10 @@
     };
 
     const loadDptOptions = (serverId, nodeRef) => {
-      if (!$dptShortRelease || !$dptShortReleaseStatus || !$dptRepeat) return;
-      $dptShortRelease.empty();
-      $dptShortReleaseStatus.empty();
-      $dptRepeat.empty();
+      if (!ui?.dptShortRelease || !ui?.dptShortReleaseStatus || !ui?.dptRepeat) return;
+      ui.dptShortRelease.empty();
+      ui.dptShortReleaseStatus.empty();
+      ui.dptRepeat.empty();
       const validId = resolveServerId(serverId);
       if (!validId) {
         return;
@@ -279,21 +274,21 @@
           if (dpt.value.startsWith('1.')) {
             const option = $('<option></option>').attr('value', dpt.value).text(dpt.text);
             const optionStatus = option.clone();
-            $dptShortRelease.append(option);
-            $dptShortReleaseStatus.append(optionStatus);
+            ui.dptShortRelease.append(option);
+            ui.dptShortReleaseStatus.append(optionStatus);
           }
           if (dpt.value.startsWith('3.007')) {
-            $dptRepeat.append($('<option></option>').attr('value', dpt.value).text(dpt.text));
+            ui.dptRepeat.append($('<option></option>').attr('value', dpt.value).text(dpt.text));
           }
         });
-        if ($dptShortRelease.children().length) {
-          $dptShortRelease.val(targetShort);
+        if (ui.dptShortRelease.children().length) {
+          ui.dptShortRelease.val(targetShort);
         }
-        if ($dptShortReleaseStatus.children().length) {
-          $dptShortReleaseStatus.val(targetShortStatus);
+        if (ui.dptShortReleaseStatus.children().length) {
+          ui.dptShortReleaseStatus.val(targetShortStatus);
         }
-        if ($dptRepeat.children().length) {
-          $dptRepeat.val(targetRepeat);
+        if (ui.dptRepeat.children().length) {
+          ui.dptRepeat.val(targetRepeat);
         }
       });
     };
@@ -357,44 +352,44 @@
     };
 
     const updateToggleSections = () => {
-      const toggled = $toggleCheckbox && $toggleCheckbox.is(':checked');
-      if ($statusRows) {
+      const toggled = ui?.toggleCheckbox ? ui.toggleCheckbox.is(':checked') : false;
+      if (ui?.statusRows) {
         if (toggled) {
-          $statusRows.show();
+          ui.statusRows.show();
         } else {
-          $statusRows.hide();
+          ui.statusRows.hide();
         }
       }
-      if ($fixedValueSection) {
+      if (ui?.fixedValueSection) {
         if (toggled) {
-          $fixedValueSection.hide();
+          ui.fixedValueSection.hide();
         } else {
-          $fixedValueSection.show();
+          ui.fixedValueSection.show();
         }
       }
     };
 
     const updateTabsVisibility = () => {
-      if (!$tabs) return;
+      if (!ui?.tabs) return;
       const hueDomValue = $('#node-input-serverHue').val();
       const hueServerId = resolveServerId(hueDomValue === undefined ? (currentNode ? currentNode.serverHue : null) : hueDomValue);
       const knxSelected = hasKNXServerSelected();
       if (hueServerId) {
-        $requiresBridgeElems.show();
+        ui.requiresBridgeElems?.show();
       } else {
-        $requiresBridgeElems.hide();
+        ui.requiresBridgeElems?.hide();
       }
       if (hueServerId && knxSelected) {
-        $tabs.show();
-        $tabs.tabs('refresh');
+        ui.tabs.show();
+        ui.tabs.tabs('refresh');
       } else {
-        $tabs.hide();
+        ui.tabs.hide();
       }
-      if ($outputInfo) {
+      if (ui?.outputInfo) {
         if (knxSelected) {
-          $outputInfo.hide();
+          ui.outputInfo.hide();
         } else {
-          $outputInfo.show();
+          ui.outputInfo.show();
         }
       }
     };
@@ -402,9 +397,9 @@
     const updateKNXVisibility = () => {
       const knxSelected = hasKNXServerSelected();
       if (knxSelected) {
-        $knxSections.show();
+        ui?.knxSections?.show();
       } else {
-        $knxSections.hide();
+        ui?.knxSections?.hide();
       }
       updateTabsVisibility();
     };
@@ -445,69 +440,71 @@
         ensureConfigSelection('#node-input-serverHue');
         ensureVerticalTabsStyle();
 
-        $tabs = $('#hue-button-tabs');
-        $requiresBridgeElems = $('.hue-requires-bridge');
-        $knxSections = $('.hue-knx-section');
-        $deviceName = $('#node-input-name');
-        $refreshButton = $('.hue-refresh-devices');
-        $loadingIndicator = $('.hue-devices-loading');
-        $outputInfo = $('.hue-output-info');
-        $toggleCheckbox = $('#node-input-toggleValues');
-        $statusRows = $('.hue-status-row');
-        $fixedValueSection = $('.hue-fixed-values');
-        $switchSendInput = $('#node-input-switchSend');
-        $dimSendInput = $('#node-input-dimSend');
-        $dptShortRelease = $('#node-input-dptshort_release');
-        $dptShortReleaseStatus = $('#node-input-dptshort_releaseStatus');
-        $dptRepeat = $('#node-input-dptrepeat');
-        $gaShortRelease = $('#node-input-GAshort_release');
-        $gaShortReleaseStatus = $('#node-input-GAshort_releaseStatus');
-        $gaRepeat = $('#node-input-GArepeat');
+        ui = {
+          tabs: $('#hue-button-tabs'),
+          requiresBridgeElems: $('.hue-requires-bridge'),
+          knxSections: $('.hue-knx-section'),
+          deviceName: $('#node-input-name'),
+          refreshButton: $('.hue-refresh-devices'),
+          loadingIndicator: $('.hue-devices-loading'),
+          outputInfo: $('.hue-output-info'),
+          toggleCheckbox: $('#node-input-toggleValues'),
+          statusRows: $('.hue-status-row'),
+          fixedValueSection: $('.hue-fixed-values'),
+          switchSendInput: $('#node-input-switchSend'),
+          dimSendInput: $('#node-input-dimSend'),
+          dptShortRelease: $('#node-input-dptshort_release'),
+          dptShortReleaseStatus: $('#node-input-dptshort_releaseStatus'),
+          dptRepeat: $('#node-input-dptrepeat'),
+          gaShortRelease: $('#node-input-GAshort_release'),
+          gaShortReleaseStatus: $('#node-input-GAshort_releaseStatus'),
+          gaRepeat: $('#node-input-GArepeat'),
+        };
 
         cachedDevices = Array.isArray(node._cachedButtonDevices) ? node._cachedButtonDevices : [];
         node._cachedButtonDevices = cachedDevices;
 
-        defaultDevicePlaceholder = $deviceName.attr('placeholder') || '';
+        defaultDevicePlaceholder = ui.deviceName.attr('placeholder') || '';
         showingNoDevicesPlaceholder = false;
 
-        $tabs.addClass('hue-vertical-tabs');
-        $tabs.tabs();
-        $tabs.find('li').removeClass('ui-corner-top').addClass('ui-corner-left');
+        ui.tabs.addClass('hue-vertical-tabs');
+        ui.tabs.tabs();
+        ui.tabs.find('li').removeClass('ui-corner-top').addClass('ui-corner-left');
 
         const initialServerDomValue = $('#node-input-server').val();
         const initialServerId = initialServerDomValue === undefined ? node.server : initialServerDomValue;
         loadDptOptions(initialServerId, node);
 
         attachGroupAddressAutocomplete({
-          $input: $gaShortRelease,
+          $input: ui.gaShortRelease,
           $name: $('#node-input-nameshort_release'),
-          $dptSelect: $dptShortRelease,
+          $dptSelect: ui.dptShortRelease,
           filterFn: (value) => value.dpt && value.dpt.startsWith('1.'),
         });
         attachGroupAddressAutocomplete({
-          $input: $gaShortReleaseStatus,
+          $input: ui.gaShortReleaseStatus,
           $name: $('#node-input-nameshort_releaseStatus'),
-          $dptSelect: $dptShortReleaseStatus,
+          $dptSelect: ui.dptShortReleaseStatus,
           filterFn: (value) => value.dpt && value.dpt.startsWith('1.'),
         });
         attachGroupAddressAutocomplete({
-          $input: $gaRepeat,
+          $input: ui.gaRepeat,
           $name: $('#node-input-nameDim'),
-          $dptSelect: $dptRepeat,
+          $dptSelect: ui.dptRepeat,
           filterFn: (value) => value.dpt && value.dpt.startsWith('3.007'),
         });
 
-        if ($switchSendInput) {
-          $switchSendInput.typedInput({
+        if (ui.switchSendInput) {
+          ui.switchSendInput.typedInput({
             type: 'bool',
             types: ['bool'],
           });
-          const initialSwitch = node.switchSend === undefined ? true : node.switchSend;
-          $switchSendInput.typedInput('value', initialSwitch ? 'true' : 'false');
+          const initialSwitch = coerceBool(node.switchSend, true);
+          ui.switchSendInput.typedInput('value', initialSwitch ? 'true' : 'false');
         }
 
-        if ($dimSendInput) {
-          $dimSendInput.typedInput({
+        if (ui.dimSendInput) {
+          ui.dimSendInput.typedInput({
             type: 'direction',
             types: [{
               value: 'direction',
@@ -519,20 +516,21 @@
             }],
           });
           const initialDim = typeof node.dimSend === 'string' ? node.dimSend : 'up';
-          $dimSendInput.typedInput('value', initialDim || 'up');
+          ui.dimSendInput.typedInput('value', initialDim || 'up');
         }
 
-        const initialToggle = node.toggleValues !== false;
-        if ($toggleCheckbox) {
-          $toggleCheckbox.prop('checked', initialToggle);
-          $toggleCheckbox.on('change.knxUltimateHueButton', () => {
+        // If the stored value is missing/legacy, default to false so UI matches runtime truthiness.
+        const initialToggle = coerceBool(node.toggleValues, false);
+        if (ui.toggleCheckbox) {
+          ui.toggleCheckbox.prop('checked', initialToggle);
+          ui.toggleCheckbox.on('change.knxUltimateHueButton', () => {
             updateToggleSections();
           });
         }
         updateToggleSections();
 
-        if ($deviceName) {
-          $deviceName.autocomplete({
+        if (ui.deviceName) {
+          ui.deviceName.autocomplete({
             minLength: 0,
             source(request, response) {
               const hueDomValue = $('#node-input-serverHue').val();
@@ -545,13 +543,13 @@
               $('#node-input-hueDevice').val(ui.item.hueDevice);
             },
           });
-          $deviceName.on('focus.knxUltimateHueButton', function () {
+          ui.deviceName.on('focus.knxUltimateHueButton', function () {
             $(this).autocomplete('search', `${$(this).val()}exactmatch`);
           });
         }
 
-        if ($refreshButton) {
-          $refreshButton.on('click.knxUltimateHueButton', () => {
+        if (ui.refreshButton) {
+          ui.refreshButton.on('click.knxUltimateHueButton', () => {
             cachedDevices = [];
             node._cachedButtonDevices = cachedDevices;
             const hueDomValue = $('#node-input-serverHue').val();
@@ -559,8 +557,8 @@
             const hueServer = hueServerId ? RED.nodes.node(hueServerId) : null;
             if (!hueServer) return;
             fetchDevices(hueServer, '', () => {
-              if ($deviceName) {
-                $deviceName.autocomplete('search', `${$deviceName.val()}exactmatch`);
+              if (ui?.deviceName) {
+                ui.deviceName.autocomplete('search', `${ui.deviceName.val()}exactmatch`);
               }
             }, { forceRefresh: true });
           });
@@ -576,10 +574,10 @@
           const hueServerId = resolveServerId($(this).val());
           cachedDevices = [];
           node._cachedButtonDevices = cachedDevices;
-          if ($loadingIndicator) $loadingIndicator.hide();
+          if (ui?.loadingIndicator) ui.loadingIndicator.hide();
           showingNoDevicesPlaceholder = false;
-          if ($deviceName) {
-            $deviceName.attr('placeholder', defaultDevicePlaceholder);
+          if (ui?.deviceName) {
+            ui.deviceName.attr('placeholder', defaultDevicePlaceholder);
           }
           if (!hueServerId) {
             applyNoDevicesPlaceholder(true);
@@ -591,11 +589,19 @@
       },
       oneditsave() {
         try { RED.sidebar.show('info'); } catch (error) { /* empty */ }
+        // Persist values explicitly because typedInput/checkbox widgets are not always serialised reliably by Node-RED.
+        this.toggleValues = ui?.toggleCheckbox ? ui.toggleCheckbox.is(':checked') : coerceBool(this.toggleValues, false);
+        const switchSendRaw = ui?.switchSendInput ? ui.switchSendInput.typedInput('value') : this.switchSend;
+        this.switchSend = (switchSendRaw === true || String(switchSendRaw).toLowerCase() === 'true') ? 'true' : 'false';
+        if (ui?.dimSendInput) {
+          const dimRaw = ui.dimSendInput.typedInput('value');
+          this.dimSend = typeof dimRaw === 'string' && dimRaw !== '' ? dimRaw : (this.dimSend || 'up');
+        }
         detachHandlers();
         cachedDevices = [];
         this._cachedButtonDevices = [];
-        this.toggleValues = $toggleCheckbox ? $toggleCheckbox.is(':checked') : true;
         currentNode = null;
+        ui = null;
       },
       oneditcancel() {
         try { RED.sidebar.show('info'); } catch (error) { /* empty */ }
@@ -603,6 +609,7 @@
         cachedDevices = [];
         this._cachedButtonDevices = [];
         currentNode = null;
+        ui = null;
       },
     });
   }());

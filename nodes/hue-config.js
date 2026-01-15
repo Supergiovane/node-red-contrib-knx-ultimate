@@ -17,7 +17,7 @@ loggerSetup = (options) => {
 }
 
 module.exports = (RED) => {
-  function hueConfig(config) {
+  function hueConfig (config) {
     RED.nodes.createNode(this, config)
     const node = this
     node.host = config.host
@@ -142,6 +142,15 @@ module.exports = (RED) => {
         if (node.hueManager !== undefined) await node.hueManager.close()
       } catch (error) { /* empty */ }
 
+      const safeClientCall = (client, fn, label) => {
+        try {
+          if (!client || typeof fn !== 'function') return
+          fn()
+        } catch (error) {
+          node.sysLogger?.warn(`Hue client ${label} error: ${error.message}`)
+        }
+      }
+
       (async () => {
         try {
           const { classHUE } = await import('./utils/hueEngine.mjs')
@@ -174,12 +183,12 @@ module.exports = (RED) => {
                 } catch (error) {
                   node.nodeClients.forEach((_oClient) => {
                     setTimeout(() => {
-                      _oClient.setNodeStatusHue({
+                      safeClientCall(_oClient, () => _oClient.setNodeStatusHue({
                         fill: 'red',
                         shape: 'ring',
                         text: 'HUE',
                         payload: error.message
-                      })
+                      }), 'setNodeStatusHue')
                     }, 200)
                   })
                 }
@@ -190,12 +199,12 @@ module.exports = (RED) => {
 
         node.hueManager.on('disconnected', () => {
           node.nodeClients.forEach((_oClient) => {
-            _oClient.setNodeStatusHue({
+            safeClientCall(_oClient, () => _oClient.setNodeStatusHue({
               fill: 'red',
               shape: 'ring',
               text: 'HUE Disconnected',
               payload: ''
-            })
+            }), 'setNodeStatusHue')
           })
         })
         try {
@@ -244,14 +253,24 @@ module.exports = (RED) => {
               const oHUEDevice = node.hueAllResources.filter((a) => a.id === _node.hueDevice)[0]
               if (oHUEDevice !== undefined) {
                 // Add _Node to the clients array
-                _node.setNodeStatusHue({
-                  fill: 'green',
-                  shape: 'ring',
-                  text: 'Ready'
-                })
-                _node.currentHUEDevice = cloneDeep(oHUEDevice) // Copy by Value and not by ref
+                try {
+                  _node.setNodeStatusHue({
+                    fill: 'green',
+                    shape: 'ring',
+                    text: 'Ready'
+                  })
+                } catch (error) {
+                  node.sysLogger?.warn(`KNXUltimateHue: loadResources setNodeStatusHue error ${error.message}`)
+                }
+                try {
+                  _node.currentHUEDevice = cloneDeep(oHUEDevice) // Copy by Value and not by ref
+                } catch (error) { /* empty */ }
                 if (_node.initializingAtStart === true) {
-                  _node.handleSendHUE(oHUEDevice) // Pass by value
+                  try {
+                    _node.handleSendHUE(oHUEDevice) // Pass by value
+                  } catch (error) {
+                    node.sysLogger?.warn(`KNXUltimateHue: loadResources handleSendHUE error ${error.message}`)
+                  }
                 }
               }
             }
@@ -269,7 +288,7 @@ module.exports = (RED) => {
       // })();
     }
 
-    node.getFirstLightInGroup = function getFirstLightInGroup(_groupID) {
+    node.getFirstLightInGroup = function getFirstLightInGroup (_groupID) {
       if (node.hueAllResources === undefined || node.hueAllResources === null) return
       try {
         const group = node.hueAllResources.filter((a) => a.id === _groupID)[0]
@@ -288,7 +307,7 @@ module.exports = (RED) => {
     }
 
     // Return an array of light belonging to the groupID
-    node.getAllLightsBelongingToTheGroup = async function getAllLightsBelongingToTheGroup(_groupID, refreshResourcesFromBridge = true) {
+    node.getAllLightsBelongingToTheGroup = async function getAllLightsBelongingToTheGroup (_groupID, refreshResourcesFromBridge = true) {
       if (node.hueAllResources === undefined || node.hueAllResources === null) return
       const retArr = []
       let filteredResource
@@ -326,7 +345,7 @@ module.exports = (RED) => {
     }
 
     // Returns the cached devices (node.hueAllResources) by type.
-    node.getResources = async function getResources(_rtype, { forceRefresh = false } = {}) {
+    node.getResources = async function getResources (_rtype, { forceRefresh = false } = {}) {
       try {
         if (forceRefresh) {
           try {
@@ -337,7 +356,7 @@ module.exports = (RED) => {
         }
         if (node.hueAllResources === undefined) return
         // Returns capitalized string
-        function capStr(s) {
+        function capStr (s) {
           if (typeof s !== 'string') return ''
           return s.charAt(0).toUpperCase() + s.slice(1)
         }
@@ -555,11 +574,11 @@ module.exports = (RED) => {
                 deviceObject: plugResource.on
                   ? plugResource
                   : {
-                    id: plugService.rid || device.id,
-                    type: plugService.rtype || plugResource.type || 'light',
-                    on: plugResource.on,
-                    owner: { rid: device.id, rtype: 'device' }
-                  }
+                      id: plugService.rid || device.id,
+                      type: plugService.rtype || plugResource.type || 'light',
+                      on: plugResource.on,
+                      owner: { rid: device.id, rtype: 'device' }
+                    }
               })
             } catch (err) {
               node.sysLogger?.warn(`KNXUltimateHue: getResources plug fallback error ${err.message}`)
@@ -603,7 +622,7 @@ module.exports = (RED) => {
     * @param {array} _arrayLights - Light array
     * @returns { x,y,mirek,brightness } - Object containing all infos
     */
-    node.getAverageColorsXYBrightnessAndTemperature = async function getAverageColorsXYBrightnessAndTemperature(_arrayLights) {
+    node.getAverageColorsXYBrightnessAndTemperature = async function getAverageColorsXYBrightnessAndTemperature (_arrayLights) {
       let x; let y; let mirek; let brightness
       let countColor = 0; let countColor_Temperature = 0; let countDimming = 0
       _arrayLights.forEach((element) => {

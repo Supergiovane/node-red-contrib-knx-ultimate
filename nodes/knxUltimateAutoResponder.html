@@ -33,27 +33,37 @@
         //     //toggle: "buttonState",
         //     onclick: function() {}
         // },
-        oneditprepare: function () {
-            // Go to the help panel
-            try {
-                RED.sidebar.show("help");
-            } catch (error) { }
+	        oneditprepare: function () {
+	            // Go to the help panel
+	            try {
+	                RED.sidebar.show("help");
+	            } catch (error) { }
 
+	            var node = this;
 
-            $("#node-input-commandText").typedInput({
-                type: "json",
-                types: ["json"]
-            })
+	            $("#node-input-commandText").typedInput({
+	                type: "json",
+	                types: ["json"]
+	            })
 
-        },
-        oneditsave: function () {
-            // Return to the info tab
-            try {
-                RED.sidebar.show("info");
-            } catch (error) { }
+	            try {
+	                if (node.commandText !== undefined) {
+	                    $("#node-input-commandText").typedInput('value', node.commandText)
+	                }
+	            } catch (error) { }
 
+	        },
+	        oneditsave: function () {
+	            // Return to the info tab
+	            try {
+	                RED.sidebar.show("info");
+	            } catch (error) { }
 
-        },
+	            try {
+	                this.commandText = $("#node-input-commandText").typedInput('value')
+	            } catch (error) { }
+
+	        },
         oneditcancel: function () {
             // Return to the info tab
             try {
@@ -96,4 +106,3 @@
 </div>
 
 </script>
-

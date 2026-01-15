@@ -11,26 +11,31 @@ const createAbortError = () => {
   return err
 }
 
-const openEventStream = (url, { headers = {}, agent, signal } = {}) => {
+const openEventStream = (url, { headers = {}, agent, signal, connectTimeoutMs = 30000 } = {}) => {
   return new Promise((resolve, reject) => {
     let response = null
     let requestInstance = null
     let settled = false
+    let connectTimer = null
 
     const safeResolve = (value) => {
       if (settled) return
       settled = true
+      if (connectTimer) clearTimeout(connectTimer)
       resolve(value)
     }
 
     const safeReject = (error) => {
       if (settled) return
       settled = true
+      if (connectTimer) clearTimeout(connectTimer)
       reject(error)
     }
 
     const cleanup = () => {
       if (signal) signal.removeEventListener('abort', onAbort)
+      if (connectTimer) clearTimeout(connectTimer)
+      connectTimer = null
     }
 
     const onAbort = () => {
@@ -55,6 +60,10 @@ const openEventStream = (url, { headers = {}, agent, signal } = {}) => {
 
     requestInstance = httpsRequest(options, (res) => {
       response = res
+      try {
+        res.socket?.setKeepAlive?.(true, 5000)
+        res.socket?.setNoDelay?.(true)
+      } catch (error) { /* empty */ }
       res.once('close', cleanup)
       res.once('error', cleanup)
       safeResolve(res)
@@ -66,6 +75,14 @@ const openEventStream = (url, { headers = {}, agent, signal } = {}) => {
     })
 
     requestInstance.end()
+
+    connectTimer = setTimeout(() => {
+      const err = new Error(`SSE connect timeout after ${connectTimeoutMs}ms`)
+      if (response && typeof response.destroy === 'function') response.destroy(err)
+      else if (requestInstance && typeof requestInstance.destroy === 'function') requestInstance.destroy(err)
+      cleanup()
+      safeReject(err)
+    }, connectTimeoutMs)
 
     if (signal) {
       if (signal.aborted) {
@@ -80,7 +97,7 @@ const openEventStream = (url, { headers = {}, agent, signal } = {}) => {
 }
 
 class classHUE extends EventEmitter {
-  constructor (_hueBridgeIP, _username, _clientkey, _bridgeid, _sysLogger) {
+  constructor (_hueBridgeIP, _username, _clientkey, _bridgeid, _sysLogger, { startQueue = true } = {}) {
     super()
     this.HUEBridgeConnectionStatus = 'disconnected'
     this.exitAllQueues = false
@@ -92,22 +109,136 @@ class classHUE extends EventEmitter {
     this.sysLogger = _sysLogger
     this.timerCheckConnected = null
     this.restartSSECounter = 0
-    this.handleQueue()
+    this.queueMaxLength = 2000
+    this._logThrottle = new Map() // throttleKey -> { last: number, suppressed: number }
+    if (startQueue) this.handleQueue()
     this.eventStreamAbort = null
+    this._agent = null
+  }
+
+  _disconnect = ({ clearQueue = true, resetCounter = true, abortController } = {}) => {
+    if (abortController && this.eventStreamAbort && this.eventStreamAbort !== abortController) return
+    try {
+      if (this.timerCheckConnected !== null) {
+        clearInterval(this.timerCheckConnected)
+        this.timerCheckConnected = null
+      }
+    } catch (error) { /* empty */ }
+
+    try {
+      if (this.eventStreamAbort) this.eventStreamAbort.abort()
+    } catch (error) { /* empty */ }
+
+    try {
+      if (this._agent && typeof this._agent.destroy === 'function') this._agent.destroy()
+    } catch (error) { /* empty */ }
+    this._agent = null
+
+    if (clearQueue) this.commandQueue = []
+    if (resetCounter) this.restartSSECounter = 0
+    this.HUEBridgeConnectionStatus = 'disconnected'
+  }
+
+  _log = (level, message) => {
+    try {
+      const logger = this.sysLogger
+      if (logger && typeof logger[level] === 'function') return logger[level](message)
+      if (logger && typeof logger.log === 'function') return logger.log(message)
+    } catch (error) { /* empty */ }
+    if (level === 'error') console.error(message)
+    else if (level === 'warn') console.warn(message)
+    else console.log(message)
+  }
+
+  _logThrottled = (level, throttleKey, message, intervalMs = 30000) => {
+    const now = Date.now()
+    const entry = this._logThrottle.get(throttleKey) || { last: 0, suppressed: 0 }
+    if (this._logThrottle.size > 1000) this._logThrottle.clear()
+    if (entry.last === 0 || (now - entry.last) >= intervalMs) {
+      const suffix = entry.suppressed > 0 ? ` (suppressed ${entry.suppressed} similar)` : ''
+      entry.last = now
+      entry.suppressed = 0
+      this._logThrottle.set(throttleKey, entry)
+      this._log(level, `${message}${suffix}`)
+      return
+    }
+    entry.suppressed += 1
+    this._logThrottle.set(throttleKey, entry)
+  }
+
+  _parseHueResponseErrors = (message) => {
+    if (typeof message !== 'string') return null
+    const match = message.match(/^The response for (.+?) returned errors (.+)$/)
+    if (!match) return null
+    try {
+      const url = match[1]
+      const errors = JSON.parse(match[2])
+      if (!Array.isArray(errors)) return null
+      return { url, errors }
+    } catch (error) {
+      return null
+    }
+  }
+
+  _summarizeHueErrors = (errors, maxLen = 300) => {
+    if (!Array.isArray(errors) || errors.length === 0) return ''
+    const descriptions = errors.map((err) => {
+      if (!err) return ''
+      if (typeof err.description === 'string' && err.description.trim() !== '') return err.description.trim()
+      if (typeof err.message === 'string' && err.message.trim() !== '') return err.message.trim()
+      try { return JSON.stringify(err) } catch (error) { return String(err) }
+    }).filter(Boolean)
+    const joined = descriptions.join('; ')
+    if (joined.length <= maxLen) return joined
+    return `${joined.slice(0, maxLen)}…`
+  }
+
+  _isCommunicationIssue = (errors) => {
+    if (!Array.isArray(errors)) return false
+    return errors.some((err) => {
+      const desc = (err?.description || err?.message || '').toString().toLowerCase()
+      return desc.includes('communication issue')
+    })
+  }
+
+  _enqueueCommand = (command) => {
+    if (!command) return false
+    if (!Array.isArray(this.commandQueue)) this.commandQueue = []
+
+    this.commandQueue.unshift(command)
+
+    if (this.commandQueue.length > this.queueMaxLength) {
+      this.commandQueue.splice(this.queueMaxLength)
+      this._logThrottled('warn', 'hue:queue:overflow', `HUE command queue overflow: capped at ${this.queueMaxLength}`, 60000)
+    }
+
+    return true
   }
 
   Connect = async () => {
-    if (this.timerCheckConnected !== null) clearInterval(this.timerCheckConnected)
-    if (this.eventStreamAbort) this.eventStreamAbort.abort()
+    try {
+      if (this.timerCheckConnected !== null) clearInterval(this.timerCheckConnected)
+    } catch (error) { /* empty */ }
+    this.timerCheckConnected = null
+    try {
+      if (this.eventStreamAbort) this.eventStreamAbort.abort()
+    } catch (error) { /* empty */ }
+
+    try {
+      if (this._agent && typeof this._agent.destroy === 'function') this._agent.destroy()
+    } catch (error) { /* empty */ }
+    this._agent = new HTTPSAgent({
+      rejectUnauthorized: false,
+      keepAlive: true,
+      keepAliveMsecs: 5000
+    })
 
     this.hueApiV2 = http.use({
       key: this.username,
       prefix: `https://${this.hueBridgeIP}/clip/v2`,
-      logger: this.sysLogger
-    })
-
-    const agent = new HTTPSAgent({
-      rejectUnauthorized: false
+      logger: this.sysLogger,
+      timeoutMs: 30000,
+      agent: this._agent
     })
 
     const headers = {
@@ -116,56 +247,70 @@ class classHUE extends EventEmitter {
       'Cache-control': 'no-cache'
     }
 
-    this.eventStreamAbort = new AbortController()
+    const abortController = new AbortController()
+    this.eventStreamAbort = abortController
+    const { signal } = abortController
+    const isCurrentConnection = () => this.eventStreamAbort === abortController
 
     const url = `https://${this.hueBridgeIP}/eventstream/clip/v2`
 
     try {
       const res = await openEventStream(url, {
         headers,
-        agent,
-        signal: this.eventStreamAbort.signal
+        agent: this._agent,
+        signal,
+        connectTimeoutMs: 30000
       })
 
       if (res.statusCode !== 200) {
         res.resume?.()
-        this.emit('error', new Error(`Status ${res.statusCode}`))
+        const statusError = new Error(`Status ${res.statusCode}`)
+        if (isCurrentConnection()) this.emit('error', statusError)
+        if (isCurrentConnection()) {
+          this._disconnect({ clearQueue: true, resetCounter: true, abortController })
+          this.emit('disconnected')
+        }
         return
       }
 
-      this.emit('connected')
-      this.HUEBridgeConnectionStatus = 'connected'
+      if (isCurrentConnection()) this.emit('connected')
+      if (isCurrentConnection()) this.HUEBridgeConnectionStatus = 'connected'
       this.sysLogger?.info('classHUE: connected to SSE')
 
       this.timerCheckConnected = setInterval(() => {
-        (async () => {
+        void (async () => {
+          if (!isCurrentConnection() || signal.aborted) return
           try {
             this.restartSSECounter += 1
             if (this.restartSSECounter >= 4) {
               this.sysLogger?.debug('Restarted SSE Client, per sicurezza, altrimenti potrebbe addormentarsi')
               this.restartSSECounter = 0
-              this.eventStreamAbort.abort()
-              await this.Connect()
+              abortController.abort()
+              void this.Connect()
               return
             }
             const jReturn = await this.hueApiV2.get('/resource/bridge')
             if (!Array.isArray(jReturn) || jReturn.length < 1) throw new Error('Bridge not found')
-            this.HUEBridgeConnectionStatus = 'connected'
+            if (isCurrentConnection()) this.HUEBridgeConnectionStatus = 'connected'
           } catch (error) {
-            this.sysLogger?.error(`Ping ERROR: ${error.message}`)
-            if (this.timerCheckConnected !== null) clearInterval(this.timerCheckConnected)
-            this.commandQueue = []
-            try { await this.close() } catch (error) { }
-            this.restartSSECounter = 0
+            this._logThrottled('error', 'hue:ping:error', `Ping ERROR: ${error.message}`, 30000)
+            if (!isCurrentConnection()) return
+            this._disconnect({ clearQueue: true, resetCounter: true, abortController })
             this.emit('disconnected')
           }
         })()
-      }, 120000)
+      }, 90000)
 
       let buffer = ''
       const textDecoder = new TextDecoder()
       for await (const chunk of res) {
+        if (signal.aborted || !isCurrentConnection()) break
         buffer += textDecoder.decode(chunk, { stream: true })
+        if (buffer.length > 1024 * 1024) {
+          this._logThrottled('warn', 'hue:sse:buffer:overflow', 'EventStream buffer overflow, resetting parser buffer', 30000)
+          buffer = ''
+          continue
+        }
         let parts = buffer.split(/\r?\n\r?\n/)
         if (parts.length > 1) {
           buffer = parts.pop()
@@ -178,20 +323,27 @@ class classHUE extends EventEmitter {
           const parsed = this._parseEvent(block)
           if (parsed?.data && Array.isArray(parsed.data)) {
             parsed.data.forEach(ev => {
-              for (let index = 0; index < ev.data.length; index++) {
-                const element = ev.data[index]
-                this.emit('event', element)
+              const items = Array.isArray(ev?.data) ? ev.data : []
+              for (let index = 0; index < items.length; index++) {
+                const element = items[index]
+                if (isCurrentConnection()) this.emit('event', element)
               }
             })
           }
         }
       }
+
+      // If the stream ends without an explicit abort, treat it as a disconnect so it can reconnect.
+      if (!signal.aborted && isCurrentConnection()) {
+        this._logThrottled('warn', 'hue:sse:ended', 'EventStream ended unexpectedly', 30000)
+        this._disconnect({ clearQueue: true, resetCounter: true, abortController })
+        this.emit('disconnected')
+      }
     } catch (err) {
-      if (err.name !== 'AbortError' && this.sysLogger) {
+      if (!isCurrentConnection()) return
+      if (err.name !== 'AbortError' && !signal.aborted && this.sysLogger) {
         this.sysLogger.error(`EventStream error: ${err.message}`)
-        this.commandQueue = []
-        try { await this.close() } catch (error) { }
-        this.restartSSECounter = 0
+        this._disconnect({ clearQueue: true, resetCounter: true, abortController })
         this.emit('disconnected')
       };
     }
@@ -224,8 +376,12 @@ class classHUE extends EventEmitter {
   }
 
   processQueueItem = async () => {
+    let jRet = null
     try {
-      const jRet = this.commandQueue.pop()
+      if (this.HUEBridgeConnectionStatus !== 'connected') return
+      if (!this.hueApiV2 || typeof this.hueApiV2.put !== 'function') return
+      jRet = this.commandQueue.pop()
+      if (!jRet) return
       switch (jRet._operation) {
         case 'setLight':
           await this.hueApiV2.put(`/resource/light/${jRet._lightID}`, jRet._state)
@@ -254,13 +410,26 @@ class classHUE extends EventEmitter {
           break
       }
     } catch (error) {
-      this.sysLogger?.error(`processQueueItem: ${error.message}`)
+      const parsed = this._parseHueResponseErrors(error?.message)
+      if (parsed) {
+        const summary = this._summarizeHueErrors(parsed.errors)
+        const urlMatch = parsed.url.match(/\/resource\/([^/]+)\/([^/?#]+)/)
+        const resourceKey = urlMatch ? `${urlMatch[1]}:${urlMatch[2]}` : parsed.url
+        const firstError = parsed.errors?.[0]
+        const firstDescription = (firstError?.description || firstError?.message || '').toString()
+        const key = `hue:resp:${resourceKey}:${firstDescription}`
+        const level = this._isCommunicationIssue(parsed.errors) ? 'warn' : 'error'
+        this._logThrottled(level, key, `processQueueItem (${resourceKey}): ${summary || 'Hue API returned errors'}`, 30000)
+      } else {
+        const message = (error?.message || String(error || 'Unknown error')).toString()
+        this._logThrottled('error', `hue:queue:error:${message}`, `processQueueItem: ${message}`, 30000)
+      }
     }
   }
 
   handleQueue = async () => {
     do {
-      if (this.commandQueue && this.commandQueue.length > 0) {
+      if (this.HUEBridgeConnectionStatus === 'connected' && this.commandQueue && this.commandQueue.length > 0) {
         try {
           await this.processQueueItem()
         } catch (error) { }
@@ -270,7 +439,8 @@ class classHUE extends EventEmitter {
   }
 
   writeHueQueueAdd = async (_lightID, _state, _operation, _resourceType) => {
-    this.commandQueue.unshift({ _lightID, _state, _operation, _resourceType })
+    const command = { _lightID, _state, _operation, _resourceType }
+    return this._enqueueCommand(command)
   }
 
   deleteHueQueue = async (_lightID) => {
@@ -286,6 +456,8 @@ class classHUE extends EventEmitter {
         try {
           if (this.eventStreamAbort) this.eventStreamAbort.abort()
         } catch (error) { }
+        this._logThrottle.clear()
+        this.commandQueue = []
         this.HUEBridgeConnectionStatus = 'disconnected'
         resolve(true)
       } catch (error) {
