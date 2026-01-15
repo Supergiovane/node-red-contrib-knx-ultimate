@@ -16,12 +16,12 @@
 </p>
 
 <p align="left" style="font-size:2.25rem;font-weight:700;line-height:1.9;">
-  <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Home" target="_blank">📘 Go to documentation</a><br/>
-  <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-Home" target="_blank">📘 Vai alla documentazione</a><br/>
-  <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-Home" target="_blank">📘 Zur Dokumentation</a><br/>
-  <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-Home" target="_blank">📘 Accéder à la documentation</a><br/>
-  <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-Home" target="_blank">📘 Ir a la documentación</a><br/>
-  <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-Home" target="_blank">📘 前往文档</a>
+  <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Home" target="_blank">📘 Go to documentation (English)</a><br/>
+  <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-Home" target="_blank">📘 Vai alla documentazione (Italiano)</a><br/>
+  <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-Home" target="_blank">📘 Zur Dokumentation (Deutch)</a><br/>
+  <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-Home" target="_blank">📘 Accéder à la documentation (Français)</a><br/>
+  <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-Home" target="_blank">📘 Ir a la documentación (Español)</a><br/>
+  <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-Home" target="_blank">📘 前往文档 (中文)</a><br/>
 </p>
 
 <p align="left" style="font-size:2.25rem;font-weight:700;line-height:1.9;">
