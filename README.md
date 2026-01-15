@@ -24,7 +24,12 @@
   <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-Home" target="_blank">📘 前往文档</a>
 </p>
 
-
+<p align="center" style="font-size:2.25rem;font-weight:700;line-height:1.9;">
+<a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/blob/master/CHANGELOG.md"
+      style="display:inline-flex;align-items:center;gap:10px;padding:12px 24px;border-radius:999px;background:#ffc439;color:#111;font-weight:700;text-decoration:none;box-shadow:0 16px 30px rgba(255,196,57,0.32);">
+      CHANGELOG
+    </a>
+</p>
 
 </br>
 
