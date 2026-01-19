@@ -15,7 +15,7 @@ permalink: /wiki/fr-Device
 | Propriété | Description |
 |-|-|
 | Passerelle | Sélectionnez la passerelle KNX à utiliser |
-| Liste déroulante de type GA | Le type d'adresse de groupe. **3 niveaux ** est la valeur par défaut, où vous pouvez saisir l'adresse du groupe de niveau _3 ou le nom d'adresse _group (si vous avez téléchargé le fichier ETS), ou**global ** , pour lire le GA au démarrage à partir d'une variable globale, ou**flux ** qui font la même chose que le _Global_, mais au niveau du flux. Sélectionnez**$ Env Variable ** Pour lire l'adresse de groupe à partir d'une variable d'environnement. Sélectionnez**Mode universel (écoutez toutes les adresses de groupe)** pour réagir à toutes les adresses de groupe. |
+| Liste déroulante de type GA | Le type d'adresse de groupe. **3 niveaux** est la valeur par défaut, où vous pouvez saisir l'adresse de groupe à 3 niveaux ou le _group name_ (si vous avez téléchargé le fichier ETS), ou **global**, pour lire le GA au démarrage à partir d'une variable globale, ou **flow** au niveau du flow. Sélectionnez **$Env variable** pour lire l'adresse de groupe à partir d'une variable d'environnement. Sélectionnez **Mode universel (écoutez toutes les adresses de groupe)** pour réagir à toutes les adresses de groupe. |
 | Groupe addr. | L'adresse du groupe KNX que vous souhaitez contrôler. Si vous avez importé le fichier d'adresses du groupe ETS, vous pouvez simplement commencer à saisir le nom de votre appareil. Vous pouvez le laisser vide si vous souhaitez le définir avec le message d'entrée _msg.setConfig_. |
 | DataPoint | Le point de données appartenant à votre nœud. |
 
@@ -62,18 +62,17 @@ S'il est activé, l'indication "f (x)" sera ajoutée au nom du nœud.
 
 | Propriété | Description |
 |-|-|
-| Recherche GA | C'est un assistant uniquement si le fichier ETS a été importé. Commencez à taper et sélectionnez l'adresse de groupe que vous souhaitez ajouter au code. Copiez ensuite le champ complet et collez-le dans la fonction GetGavalue. 
- **getGavalue ('0/0/1 Table Nord Lamp')** |
+| Recherche GA | C'est un assistant uniquement si le fichier ETS a été importé. Commencez à taper et sélectionnez l'adresse de groupe que vous souhaitez ajouter au code. Copiez ensuite le champ complet et collez-le dans la fonction `getGAValue`.<br>**getGAValue('0/0/1 Table Nord Lamp')** |
 
 ### Liste d'objets et de fonctions communes que vous pouvez utiliser dans le code
 
 | Objet ou fonction | Description |
 |-|-|
 | msg (objet) | L'objet MSG actuel reçu par le nœud. |
-| getGavalue (String GA, String facultatif DPT) | Obtenez la valeur de GA spécifiée, par exemple **'1/0/1' ** , ou aussi**'1/0/1 light light' ** (tout le texte après un espace vierge sera ignoré par la fonction. Ceci est utile si vous souhaitez ajouter le nom GA et un rappel. Avec le fichier ETS importé, vous pouvez également copier et coller le nom GA et GA directement dans le champ**Recherche GA ** .**DPT** est facultatif si vous avez importé le fichier ETS, sinon vous devez le spécifier, par exemple «1.001». |
-| setGavalue (String ga, n'importe quelle valeur, chaîne facultative dpt) | Définissez la valeur de GA spécifiée. Le GA Con doit être écrit par exemple **'1/0/1' ** , ou aussi**'1/0/1 light light' ** (tout le texte après un espace vide sera ignoré par la fonction. Ceci est utile si vous souhaitez ajouter le nom GA et un rappel. Avec le fichier ETS importé, vous pouvez également copier et coller le nom GA et GA directement à partir du champ GA**GA ** .). La valeur** ** est obligatoire, peut être un booléen ou un numéro ou une chaîne,** dpt** est facultatif si vous avez importé le fichier ETS, sinon vous devez le spécifier, par exemple «1.001». |
-| self (toute valeur) | Définissez la valeur du nœud Currend et envoie également la valeur au bus KNX. Par exemple, _self (false) _. ATTENTION UTILISATION ** Self** Fonction dans le code Pin_ de sortie du bus KNX _From pour le nœud, car le code sera exécuté à chaque fois qu'un télégramme KNX est reçu, vous avez donc Coud ayant des boucles de récurrence. |
-| basculer (rien) | Basculez la valeur du nœud Currend et envoie également la valeur au bus KNX. Par exemple, _toggle () _. ATTENTION en utilisant ** Toggle** Fonction dans le code Pin_ de sortie du bus KNX _From à la sortie du nœud, car le code sera exécuté à chaque fois qu'un télégramme KNX est reçu, de sorte que vous avez des boucles de récurrence. |
+| getGAValue (String GA, String DPT facultatif) | Obtenez la valeur de GA spécifiée, par exemple **'1/0/1'** ou **'1/0/1 Light'** (le texte après un espace est ignoré). Avec le fichier ETS importé, vous pouvez copier/coller depuis le champ **Recherche GA**. **DPT** est facultatif avec ETS; sinon il doit être indiqué (par exemple `'1.001'`). |
+| setGAValue (String GA, any value, String DPT facultatif) | Définissez la valeur de GA spécifiée, par exemple **'1/0/1'** ou **'1/0/1 Light'** (le texte après un espace est ignoré). Avec le fichier ETS importé, vous pouvez copier/coller depuis le champ **Recherche GA**. La valeur est obligatoire; **DPT** est facultatif avec ETS. |
+| self (any value) | Définit la valeur du nœud courant et l'envoie au bus KNX (ex.: `self(false)`). ATTENTION: utiliser `self` côté BUS → sortie avec prudence pour éviter les boucles. |
+| toggle () | Bascule la valeur du nœud courant et l'envoie au bus KNX (ex.: `toggle()`). ATTENTION: utiliser `toggle` côté BUS → sortie avec prudence pour éviter les boucles. |
 | Node (objet) | L'objet nœud. |
 | Red (objet Node-Red) | L'objet rouge du nœud-rouge. |
 | return (msg) | `Retour MSG obligatoire;`, si vous souhaitez émettre le message. Sinon, l'utilisation de `retour; 'n'émettra aucun message. |
@@ -140,22 +139,21 @@ if (msg.payload === false && getGAValue('0/0/11','1.001') === false){
 
 ### entrées
 
- ** destination (chaîne) ** : l'adresse du groupe de destination, par exemple 1/1/0. Seul le niveau 3 est autorisé. 
-**charge utile (any) ** : La charge utile à envoyer. Peut être par exemple vrai ou faux, ou un objet. 
-**Événement (chaîne) ** : Peut être _GroupValue \ _Write_ pour écrire le télégramme dans le bus KNX, _GroupValue \ _Response_ pour envoyer un télégramme de réponse au bus KNX, _update \ _nowrite_. _Update \ _nowrite_ envoie des rien au bus KNX, met à jour la valeur interne du nœud KNX-ultime. Ceci est utile si vous voulez seulement stocker la valeur dans le nœud et le lire plus tard avec une demande de lecture. 
-**readStatus (boolean) ** : émettez une demande de lecture au bus KNX. Passer _true_ à chaque fois (msg.readstatus = true). 
-**DPT (String) ** : Par exemple "1.001". Définit le point de données. 
-**Writeraw (tampon) ** : est utilisé pour envoyer une valeur au bus KNX, en tant que tampon. Utilisez en conjonction avec _Bitlenght_. 
-**bitlenght (int) ** : Spécifie le long du tampon _writeraw_. Utilisez en conjonction avec _WriteRaw_. 
-**restrbe (boolean) ** : réinitialise les filtres RBE internes (_USE msg.resetrbe = true_). 
-**SetConfig (JSON)** : Modifiez par programme l'adresse de groupe de nœuds de périphérique KNX-ultimate et DataPoint. Voir les détails.
+- **destination (string)**: adresse de groupe de destination, par exemple `1/1/0` (seul le format 3 niveaux)
+- **payload (any)**: valeur à envoyer (ex.: `true` / `false` / number / string / object)
+- **event (string)**: `GroupValue_Write` / `GroupValue_Response` / `Update_NoWrite` (`Update_NoWrite` met à jour la valeur interne sans envoyer au BUS)
+- **readstatus (boolean)**: demande de lecture au BUS (utiliser toujours `true`: `msg.readstatus = true`)
+- **dpt (string)**: par exemple `1.001` (datapoint)
+- **writeraw (buffer)** + **bitlenght (int)**: envoi RAW au BUS (voir exemple)
+- **resetRBE (boolean)**: réinitialise les filtres RBE (`msg.resetRBE = true`)
+- **setConfig (json)**: modifier GA/DPT par message (voir détails)
 
 ### Détails
 
 `msg.setConfig`: Il est possible de modifier par programme la configuration du nœud KNX-ultime, en envoyant l'objet msg.setConfig au nœud.
 La nouvelle configuration sera conservée jusqu'au prochain msg.setconfig ou jusqu'à redémarrage / redéployer.
-Toutes les propriétés (_setGroupAddress_ et _setDpt_) ** sont obligatoires** .. \
-Utilisez-le comme ça, dans un nœud Functon: ** Définissez GA et DPT** 
+Toutes les propriétés (_setGroupAddress_ et _setDpt_) **sont obligatoires**.\
+Utilisez-le comme ça, dans un nœud Function: **Définissez GA et DPT**
 
 ```javascript
 
@@ -198,7 +196,7 @@ return msg;
 `msg.payload` est utilisé comme charge utile de l'adresse du groupe (la valeur d'adresse du groupe).
 Il s'agit plutôt d'un exemple de l'objet MSG complet.
 
-```json
+```javascript
 
 msg = {
     topic: "0/1/2" // (Contains the node's topic, for example "MyTopic". If the node's topic is not set, contains the Group Address, for example "0/1/2")
@@ -293,7 +291,7 @@ return msg;
 `msg.payload` est utilisé comme charge utile de l'adresse du groupe (la valeur d'adresse du groupe).
 Il s'agit plutôt d'un exemple de l'objet MSG complet.
 
-```json
+```javascript
 
 msg = {
     topic: "0/1/2" // (Contains the node's topic, for example "MyTopic". If the node's topic is not set, contains the Group Address, for example "0/1/2")
@@ -379,12 +377,11 @@ En supposant que vous avez fourni une adresse de groupe et un point de données 
 
 Vous pouvez également remplacer un ou plusieurs paramètres définis dans la fenêtre de configuration KNX-ultimate. 
 
-Toutes les propriétés ci-dessous sont facultatives, à l'exception de la charge utile. 
- ** msg.Destination** 
+Toutes les propriétés ci-dessous sont facultatives, à l'exception de `payload`.
 
-Par exemple, "0/0/1". Définissez l'adresse de groupe à 3 niveaux que vous voulez mettre à jour. ** msg.payload** 
-
-Par exemple, true / false / 21 / "Bonjour". Définissez la charge utile que vous souhaitez envoyer au bus KNX. ** msg.event** 
+- **msg.destination**: par exemple `"0/0/1"` (GA à 3 niveaux à mettre à jour)
+- **msg.payload**: par exemple `true/false/21/"Bonjour"` (valeur à envoyer au bus KNX)
+- **msg.event**:
 
 "GroupValue \ _Write": écrit le télégramme au bus KNX. 
 
@@ -407,17 +404,22 @@ ATTENTION: Dans le cas de _msg.event = "Update \ _Nowrite" _ Tous les nœuds ave
 
 ```
 
-Si vous souhaitez émettre une commande "lire", veuillez utiliser "ReadStatus" à la place (voir ci-dessous). 
- ** msg.readstatus = true** 
+Si vous souhaitez émettre une commande "lire", utilisez `readstatus` (voir ci-dessous).
 
-Émettez une commande "lire" au bus. ** msg.dpt** 
+- **msg.readstatus = true**
 
-Par exemple "1.001". Définit le <b> datapoint </b>. (Vous pouvez l'écrire dans ces formats: 9, "9", "9.001" ou "DPT9.001") ** msg.writeraw ** 
-**msg.bitlenght** 
+Émettez une commande "lire" au bus.
 
-Écrit des données brutes au bus KNX. Veuillez voir ci-dessous un exemple. 
- ** MSG.RESETRBE** 
- PASS MSG.RESETRBE = VRAI À un nœud de périphérique, pour réinitialiser à la fois l'entrée et la sortie du filtre RBE sur ce nœud particulier. 
+- **msg.dpt**
+
+Par exemple "1.001". Définit le datapoint. (Vous pouvez l'écrire dans ces formats: 9, "9", "9.001" ou "DPT9.001")
+
+- **msg.writeraw**
+- **msg.bitlenght**
+
+Écrit des données brutes au bus KNX. Veuillez voir ci-dessous un exemple.
+
+- **msg.resetRBE**: passez `msg.resetRBE = true` à un nœud device pour réinitialiser les filtres RBE d'entrée et de sortie sur ce nœud
 
 ## modifier par programme la configuration du nœud via MSG
 
@@ -471,7 +473,7 @@ return msg;
 
 **Envoyez la valeur brute au bus** 
 
-Pour envoyer une valeur de tampon brute au bus KNX, utilisez les propriétés _ ** writerraw ** _ et _**bitlenght** _ de l'entrée msg. 
+Pour envoyer une valeur de tampon brute au bus KNX, utilisez `msg.writeraw` et `msg.bitlenght` dans l'entrée msg.
 
 Dans ce cas, le _datapoint_ que vous définissez dans la fenêtre de propriété sera ignoré. 
 

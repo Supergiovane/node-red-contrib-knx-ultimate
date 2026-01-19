@@ -15,7 +15,7 @@ permalink: /wiki/zh-CN-Device
 |属性|说明|
 |--|--|
 | Gateway | 选择要使用的 KNX 网关 |
-| GA 类型 | 组地址类型。默认 **3-层级 ** （可输入三层组地址或名称，若已导入 ETS）；**Global ** 启动时从全局变量读取；**Flow ** 在流程作用域读取；**$Env variable ** 从环境变量读取；**通用模式（监听所有组地址）** 对所有 GA 做出响应。|
+| GA 类型 | 组地址类型。默认 **3-层级**（可输入三层组地址或名称，若已导入 ETS）；**Global** 启动时从全局变量读取；**Flow** 在流程作用域读取；**$Env variable** 从环境变量读取；**通用模式（监听所有组地址）** 对所有 GA 做出响应。|
 | Group Addr. | 需要控制的组地址。若已导入 ETS，可直接输入设备名进行匹配。也可留空，之后通过输入消息 `msg.setConfig` 设置。|
 | Datapoint | 与节点关联的 Datapoint。|
 
@@ -101,7 +101,14 @@ if (msg.payload === false && getGAValue('0/0/11','1.001') === false){ return; } 
 
 ### 输入（Inputs）
 
-**destination (string) ** ：三层组地址，如 `1/1/0`。**payload (any) ** ：要发送的值。**event (string) ** ：`GroupValue_Write` / `GroupValue_Response` / `Update_NoWrite`（仅更新内部值，不发送）。**readstatus (boolean) ** ：向总线发起读取。**dpt (string) ** ：如 `1.001`。**writeraw (buffer) ** 、**bitlenght (int) ** ：发送 RAW，`bitlenght` 为比特长度。**resetRBE (boolean) ** ：重置内部 RBE 过滤。**setConfig (json)** ：通过消息修改节点的 GA 与 DPT。
+- **destination (string)**：三层组地址，如 `1/1/0`
+- **payload (any)**：要发送的值
+- **event (string)**：`GroupValue_Write` / `GroupValue_Response` / `Update_NoWrite`（`Update_NoWrite` 仅更新内部值，不发送）
+- **readstatus (boolean)**：向总线发起读取（使用 `msg.readstatus = true`）
+- **dpt (string)**：如 `1.001`
+- **writeraw (buffer)** + **bitlenght (int)**：发送 RAW，`bitlenght` 为比特长度
+- **resetRBE (boolean)**：重置内部 RBE 过滤（`msg.resetRBE = true`）
+- **setConfig (json)**：通过消息修改节点的 GA 与 DPT
 
 ### setConfig 详情
 
@@ -123,7 +130,7 @@ msg.setConfig = config; return msg;
 
 ### 输出消息示例
 
-```json
+```javascript
 
 msg = {
   topic: "0/1/2",
@@ -160,11 +167,16 @@ msg = {
 
 节点会将来自流程的消息发送到 KNX 总线；当总线有报文到达时也会输出到流程。除 `payload` 外，下列属性均为可选。
 
-**msg.destination ** ：如 `0/0/1`。**msg.payload ** ：如 `true/false/21/"Hello"`。**msg.event** ：`Write`/`Response`/`Update_NoWrite`。当为 `Update_NoWrite` 时，所有相同 GA 的节点都会向流程输出包含 `event: 'Update_NoWrite'` 的消息。
+- **msg.destination**：如 `0/0/1`
+- **msg.payload**：如 `true/false/21/"Hello"`
+- **msg.event**：`Write`/`Response`/`Update_NoWrite`（当为 `Update_NoWrite` 时，所有相同 GA 的节点都会向流程输出包含 `event: 'Update_NoWrite'` 的消息）
 
 需要"读取”时请使用 `msg.readstatus = true`。
 
-**msg.readstatus = true ** ：向总线发起读取。**msg.dpt ** ：如 `1.001`（也接受 `9`、`"9"`、`"DPT9.001"`）。**msg.writeraw ** 、**msg.bitlenght ** ：发送 RAW；会忽略节点上设置的 DPT。**msg.resetRBE = true** ：重置 RBE 过滤。
+- **msg.readstatus = true**：向总线发起读取
+- **msg.dpt**：如 `1.001`（也接受 `9`、`"9"`、`"DPT9.001"`）
+- **msg.writeraw** + **msg.bitlenght**：发送 RAW；会忽略节点上设置的 DPT
+- **msg.resetRBE = true**：重置 RBE 过滤
 
 ## 通过消息修改配置
 

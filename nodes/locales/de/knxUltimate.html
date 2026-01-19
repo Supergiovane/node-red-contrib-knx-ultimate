@@ -10,7 +10,7 @@ Dieser Node steuert eine KNX-Gruppenadresse und ist der am häufigsten verwendet
 |Eigenschaft|Beschreibung|
 |--|--|
 | Gateway | Zu verwendendes KNX-Gateway auswählen |
-| GA-Typ (Dropdown) | Typ der Gruppenadresse. **3-Ebenen ** ist Standard (Eingabe der 3-stufigen GA oder GA-Bezeichnung, sofern ETS importiert).**Global ** liest die GA beim Start aus einer globalen Variablen,**Flow ** analog auf Flow-Ebene.**$Env variable ** liest die GA aus einer Umgebungsvariable.**Universeller Modus (alle GAs abhören)** reagiert auf ALLE Gruppenadressen. |
+| GA-Typ (Dropdown) | Typ der Gruppenadresse. **3-Ebenen** ist Standard (Eingabe der 3-stufigen GA oder GA-Bezeichnung, sofern ETS importiert). **Global** liest die GA beim Start aus einer globalen Variablen, **Flow** analog auf Flow-Ebene. **$Env variable** liest die GA aus einer Umgebungsvariable. **Universeller Modus (alle GAs abhören)** reagiert auf ALLE Gruppenadressen. |
 | Gruppenadresse | Zu steuernde Gruppenadresse. Mit importierter ETS kannst du den Gerätenamen tippen. Kann leer bleiben, wenn du sie per `msg.setConfig` setzt. |
 | Datenpunkt | Der zum Node gehörende Datapoint. |
 
@@ -105,7 +105,14 @@ if (msg.payload === false && getGAValue('0/0/11','1.001') === false){ return; } 
 
 ### Inputs
 
-**destination (string) ** : 3-stufige GA, z. B. `1/1/0`.**payload (any) ** : zu sendender Wert.**event (string) ** : `GroupValue_Write`, `GroupValue_Response`, `Update_NoWrite` (nur interner Wert, kein BUS-Senden).**readstatus (boolean) ** : Leseauftrag an den BUS.**dpt (string) ** : z. B. `1.001`.**writeraw (buffer) ** ,**bitlenght (int) ** : RAW-Senden, `bitlenght` in Bit.**resetRBE (boolean) ** : RBE-Filter zurücksetzen.**setConfig (json)** : GA/DPT des Nodes per Nachricht ändern.
+- **destination (string)**: 3-stufige GA, z. B. `1/1/0`
+- **payload (any)**: zu sendender Wert
+- **event (string)**: `GroupValue_Write`, `GroupValue_Response`, `Update_NoWrite` (nur interner Wert, kein BUS-Senden)
+- **readstatus (boolean)**: Leseauftrag an den BUS
+- **dpt (string)**: z. B. `1.001`
+- **writeraw (buffer)** + **bitlenght (int)**: RAW-Senden; `bitlenght` in Bit
+- **resetRBE (boolean)**: RBE-Filter zurücksetzen
+- **setConfig (json)**: GA/DPT des Nodes per Nachricht ändern
 
 ### setConfig Details
 
@@ -127,7 +134,7 @@ msg.setConfig = config; return msg;
 
 ### Ausgehende Nachricht (Beispiel)
 
-```json
+```javascript
 
 msg = {
   topic: "0/1/2",
@@ -164,11 +171,16 @@ msg = {
 
 Der Node nimmt Nachrichten entgegen und sendet sie auf den KNX-BUS; eingehende BUS-Telegramme werden als Nachrichten an den Flow ausgegeben. Alle Eigenschaften optional, außer `payload`.
 
-**msg.destination ** : z. B. `0/0/1`.**msg.payload ** : z. B. `true/false/21/"Hello"`.**msg.event** : `GroupValue_Write`/`GroupValue_Response`/`Update_NoWrite`. Bei `Update_NoWrite` geben alle Nodes mit derselben GA eine Meldung mit `event: 'Update_NoWrite'` aus.
+- **msg.destination**: z. B. `0/0/1`
+- **msg.payload**: z. B. `true/false/21/"Hello"`
+- **msg.event**: `GroupValue_Write`/`GroupValue_Response`/`Update_NoWrite` (bei `Update_NoWrite` geben alle Nodes mit derselben GA eine Meldung mit `event: 'Update_NoWrite'` aus)
 
 Für Read statt `event` bitte `msg.readstatus = true` verwenden.
 
-**msg.readstatus = true ** : Read an den BUS.**msg.dpt ** : z. B. `1.001` (auch `9`, `"9"`, `"DPT9.001"`).**msg.writeraw ** ,**msg.bitlenght ** : RAW-Senden; ignoriert den am Node gesetzten DPT.**msg.resetRBE = true** : RBE-Filter zurücksetzen.
+- **msg.readstatus = true**: Read an den BUS
+- **msg.dpt**: z. B. `1.001` (auch `9`, `"9"`, `"DPT9.001"`)
+- **msg.writeraw** + **msg.bitlenght**: RAW-Senden; ignoriert den am Node gesetzten DPT
+- **msg.resetRBE = true**: RBE-Filter zurücksetzen
 
 ## Konfiguration per Nachricht ändern
 

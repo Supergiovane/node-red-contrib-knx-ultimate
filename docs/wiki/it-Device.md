@@ -15,7 +15,7 @@ Questo nodo controlla un Indirizzo di Gruppo KNX; è il nodo più utilizzato.
 |Proprietà|Descrizione|
 |--|--|
 | Gateway | Seleziona il gateway KNX da utilizzare |
-| Elenco a discesa tipo GA | Tipo di indirizzo di gruppo. **3-Livelli ** è il default, dove puoi digitare il GA a 3 livelli o il nome GA (se hai caricato il file ETS);**Global ** legge il GA da una variabile globale all'avvio;**Flow ** fa lo stesso a livello di flow. Seleziona**$Env variable ** per leggere il GA da una variabile d'ambiente. Seleziona**Modalità universale (ascolta tutti gli Indirizzi di Gruppo)** per reagire a TUTTI i GA. |
+| Elenco a discesa tipo GA | Tipo di indirizzo di gruppo. **3-Livelli** è il default, dove puoi digitare il GA a 3 livelli o il nome GA (se hai caricato il file ETS); **Global** legge il GA da una variabile globale all'avvio; **Flow** fa lo stesso a livello di flow. Seleziona **$Env variable** per leggere il GA da una variabile d'ambiente. Seleziona **Modalità universale (ascolta tutti gli Indirizzi di Gruppo)** per reagire a TUTTI i GA. |
 | Ind. Gruppo | L'indirizzo di gruppo KNX da controllare. Se hai importato il file ETS, puoi iniziare a digitare il nome del dispositivo. Puoi lasciarlo vuoto se intendi impostarlo tramite messaggio di ingresso `msg.setConfig`. |
 | Datapoint | Il Datapoint associato al nodo. |
 
@@ -61,8 +61,7 @@ Lo script viene eseguito a ogni msg in ingresso o a ogni telegramma ricevuto dal
 
 |Proprietà|Descrizione|
 |--|--|
-| Cerca GA | Disponibile solo se hai importato il file ETS. Inizia a digitare e seleziona il GA da inserire nel codice, poi incolla il campo completo nella funzione `getGAValue`. 
- **getGAValue('0/0/1 table nord lamp')** |
+| Cerca GA | Disponibile solo se hai importato il file ETS. Inizia a digitare e seleziona il GA da inserire nel codice, poi incolla il campo completo nella funzione `getGAValue`.<br>**getGAValue('0/0/1 table nord lamp')** |
 
 ### Oggetti e funzioni disponibili nel codice
 
@@ -126,7 +125,14 @@ if (msg.payload === false && getGAValue('0/0/11','1.001') === false){
 
 ### Inputs
 
-**destination (string) ** : indirizzo di gruppo di destinazione (solo 3-livelli), es. `1/1/0`.**payload (any) ** : valore da inviare (true/false/numero/stringa/oggetto).**event (string) ** : `GroupValue_Write` (scrive sul BUS), `GroupValue_Response` (risponde sul BUS), `Update_NoWrite` (non invia al BUS, aggiorna solo il valore interno del nodo).**readstatus (boolean) ** : invia un "Read” al BUS (usa sempre `true`).**dpt (string) ** : per es. `1.001`. Imposta il Datapoint.**writeraw (buffer) ** e**bitlenght (int) ** : invio RAW verso il BUS (vedi esempio). `bitlenght` è la lunghezza in bit del dato RAW.**resetRBE (boolean) ** : resetta i filtri RBE interni (`msg.resetRBE = true`).**setConfig (json)** : cambia via msg il GA e il DPT del nodo (vedi sotto).
+- **destination (string)**: indirizzo di gruppo di destinazione (solo 3-livelli), es. `1/1/0`
+- **payload (any)**: valore da inviare (true/false/numero/stringa/oggetto)
+- **event (string)**: `GroupValue_Write` (scrive sul BUS), `GroupValue_Response` (risponde sul BUS), `Update_NoWrite` (non invia al BUS, aggiorna solo il valore interno del nodo)
+- **readstatus (boolean)**: invia un "Read" al BUS (usa sempre `true`)
+- **dpt (string)**: per es. `1.001` (imposta il Datapoint)
+- **writeraw (buffer)** + **bitlenght (int)**: invio RAW verso il BUS (vedi esempio); `bitlenght` è la lunghezza in bit del dato RAW
+- **resetRBE (boolean)**: resetta i filtri RBE interni (`msg.resetRBE = true`)
+- **setConfig (json)**: cambia via msg il GA e il DPT del nodo (vedi sotto)
 
 ### Dettagli setConfig
 
@@ -162,7 +168,7 @@ return msg;
 `msg.payload` contiene il valore del GA (valore dell'indirizzo di gruppo).
 Esempio di msg completo:
 
-```json
+```javascript
 
 msg = {
   topic: "0/1/2",
@@ -202,7 +208,9 @@ Il nodo accetta msg dal flow da inviare al BUS KNX e invia msg al flow quando ri
 Se hai impostato GA e DPT (manualmente o tramite autocompilazione da ETS), puoi anche sovrascrivere via msg alcuni parametri della finestra di configurazione.
 Tutte le proprietà sotto sono opzionali, tranne `payload`.
 
-**msg.destination ** : ad es. `0/0/1`. GA a 3 livelli da aggiornare.**msg.payload ** : ad es. `true/false/21/"Hello"`. Valore da inviare al BUS.**msg.event** :
+- **msg.destination**: ad es. `0/0/1` (GA a 3 livelli da aggiornare)
+- **msg.payload**: ad es. `true/false/21/"Hello"` (valore da inviare al BUS)
+- **msg.event**:
 
 `GroupValue_Write`: scrive sul BUS.
 
@@ -214,7 +222,10 @@ ATTENZIONE: con `msg.event = "Update_NoWrite"` tutti i nodi con lo stesso GA eme
 
 Se vuoi emettere un "read”, usa `msg.readstatus = true`.
 
-**msg.readstatus = true ** : emette un comando di lettura verso il BUS.**msg.dpt ** : per es. `1.001` (accetta anche `9`, `"9"`, `"DPT9.001"`).**msg.writeraw ** e**msg.bitlenght ** : invio RAW al BUS (vedi esempio sotto). Se usi `writeraw`, il DPT impostato nel nodo viene ignorato.**msg.resetRBE = true** : resetta i filtri RBE di input e output del nodo.
+- **msg.readstatus = true**: emette un comando di lettura verso il BUS
+- **msg.dpt**: per es. `1.001` (accetta anche `9`, `"9"`, `"DPT9.001"`)
+- **msg.writeraw** + **msg.bitlenght**: invio RAW al BUS (vedi esempio sotto); se usi `writeraw`, il DPT impostato nel nodo viene ignorato
+- **msg.resetRBE = true**: resetta i filtri RBE di input e output del nodo
 
 ## Cambiare la configurazione via msg
 

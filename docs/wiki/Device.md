@@ -15,7 +15,7 @@ This node lets you control a KNX Group Address, this is the most used node.
 |Property|Description|
 |--|--|
 | Gateway | Select the KNX gateway to be used |
-| GA Type dropdown list | The group address type. **3-Levels ** is the default, where you can type the _3 level group address_ or the _group address name_ (if you've upload the ETS file), or**Global ** , for reading the GA at startup from a global variable, or**Flow ** that do the same as the _Global_, but at flow level. Select**$Env variable ** to read the group address from an environment variable. Select**Universal mode (listen to all Group Addresses)** to react to ALL group addresses.|
+| GA Type dropdown list | The group address type. **3-Levels** is the default, where you can type the _3 level group address_ or the _group address name_ (if you've upload the ETS file), or **Global**, for reading the GA at startup from a global variable, or **Flow** that do the same as the _Global_, but at flow level. Select **$Env variable** to read the group address from an environment variable. Select **Universal mode (listen to all Group Addresses)** to react to ALL group addresses.|
 | Group Addr. | The KNX Group Address you want to control. If you've imported the ETS group addresses file, you can just start typing in your device name. You can leave it empty if you wish set it with _msg.setConfig_ input message. |
 | Datapoint | The datapoint belonging to your node.|
 
@@ -62,16 +62,15 @@ If enabled, "f(x)" indication will be added to node's name.
 
 |Property|Description|
 |--|--|
-| Search GA | It's a helper only avaiable if the ETS file has been imported. Start typing and select the group address you wish to add to the code. Then copy the full field and paste it into the getGAValue function. 
- **getGAValue('0/0/1 table nord lamp')** |
+| Search GA | It's a helper only avaiable if the ETS file has been imported. Start typing and select the group address you wish to add to the code. Then copy the full field and paste it into the getGAValue function.<br>**getGAValue('0/0/1 table nord lamp')** |
 
 ### List of common object and functions you can use in the code
 
 |Object or Function|Description|
 |--|--|
 | msg (object) | The current msg object received by the node. |
-| getGAValue (string GA, optional string DPT) | Get the specified GA's value, for example **'1/0/1' ** , or also**'1/0/1 Bed table light' ** (All text after a blank space will be ignored by the function. This is useful if you want to add the GA name as a reminder. With the ETS file imported, you can also copy and paste the GA and GA Name directly from the**Search GA ** field.).**DPT** is optional if you've imported the ETS file, otherwise you must specify it, for example '1.001'. |
-| setGAValue (string GA, any value, optional string DPT) | Set the specified GA's value. The GA con be wrote for example **'1/0/1' ** , or also**'1/0/1 Bed table light' ** (All text after a blank space will be ignored by the function. This is useful if you want to add the GA name as a reminder. With the ETS file imported, you can also copy and paste the GA and GA Name directly from the**Search GA ** field.). The**value ** is mandatory, can be a boolean or number or string,**DPT** is optional if you've imported the ETS file, otherwise you must specify it, for example '1.001'. |
+| getGAValue (string GA, optional string DPT) | Get the specified GA's value, for example **'1/0/1'**, or also **'1/0/1 Bed table light'** (all text after a blank space will be ignored by the function). With the ETS file imported, you can also copy and paste the GA and GA Name directly from the **Search GA** field. **DPT** is optional if you've imported the ETS file, otherwise you must specify it (for example '1.001'). |
+| setGAValue (string GA, any value, optional string DPT) | Set the specified GA's value. The GA can be wrote for example **'1/0/1'**, or also **'1/0/1 Bed table light'** (all text after a blank space will be ignored by the function). With the ETS file imported, you can also copy and paste the GA and GA Name directly from the **Search GA** field. The **value** is mandatory (boolean/number/string/object). **DPT** is optional if you've imported the ETS file, otherwise you must specify it (for example '1.001'). |
 | self (any value) | Set the currend node's value and sends the value to the KNX BUS as well. For example, _self(false)_. Caution using **self** function in the _From KNX BUS to node's OUTPUT PIN_ code, because the code will be executed everytime a KNX telegram is received, so you coud have recurrency loops. |
 | toggle (nothing) | Toggle the currend node's value and sends the value to the KNX BUS as well. For example, _toggle()_. Caution using **toggle** function in the _From KNX BUS to node's OUTPUT PIN_ code, because the code will be executed everytime a KNX telegram is received, so you coud have recurrency loops. |
 | node (object) | The node object. |
@@ -140,15 +139,15 @@ if (msg.payload === false && getGAValue('0/0/11','1.001') === false){
 
 ### Inputs
 
- **destination (string) ** : the destination group address, for example 1/1/0. Only 3-level is allowed. 
-**payload (any) ** : the payload to be sent. Can be for example true or false, or an object. 
-**event (string) ** : can be _GroupValue\_Write_ to write the telegram to the KNX BUS, _GroupValue\_Response_ to send a response telegram to the KNX BUS, _Update\_NoWrite_. _Update\_NoWrite_ sends nothings to the KNX BUS, just updates the internal value of the KNX-Ultimate node. This is useful if you wanna only store the value into the node and read it later with a read request. 
-**readstatus (boolean) ** : issue a read request to the KNX bus. Pass _true_ everytime (msg.readstatus = true). 
-**dpt (string) ** : For example "1.001". Sets the Datapoint. 
-**writeraw (buffer) ** : is used to send a value to the KNX bus, as buffer. Use in conjunction with _bitlenght_. 
-**bitlenght (int) ** : specifies the lenght of the _writeraw_ buffer. Use in conjunction with _writeraw_. 
-**resetRBE (boolean) ** : resets the internal RBE filters (_use msg.resetRBE = true_). 
-**setConfig (json)** : programmatically change the KNX-Ultimate Device node Group Address and Datapoint. See details.
+- **destination (string)**: the destination group address, for example `1/1/0` (only 3-level is allowed)
+- **payload (any)**: the payload to be sent (for example `true` / `false` / number / string / object)
+- **event (string)**: `_GroupValue_Write_` / `_GroupValue_Response_` / `_Update_NoWrite_` (`_Update_NoWrite_` updates the internal value only)
+- **readstatus (boolean)**: issue a read request to the KNX bus (pass `_true_` every time: `msg.readstatus = true`)
+- **dpt (string)**: for example `"1.001"` (sets the datapoint)
+- **writeraw (buffer)**: sends a raw buffer value to the bus (use with **bitlenght**)
+- **bitlenght (int)**: bit length of **writeraw**
+- **resetRBE (boolean)**: resets the internal RBE filters (`msg.resetRBE = true`)
+- **setConfig (json)**: programmatically change the node Group Address and Datapoint (see details)
 
 ### Details
 
@@ -189,45 +188,42 @@ return msg;
 
 ### Outputs
 
-1. Standard output
-   : payload (string|number|object)\*\* : Pin 1 is the standard output of the command.
-
-2. Errors
-   : error (object)\*\* : Pin 2 Contains the detailed error message.
+1. Standard output: `payload` (string|number|object) on Pin 1
+2. Errors: `error` (object) on Pin 2 (detailed error message)
 
 ### Details
 
 `msg.payload` is used as the payload of the group address (the group address value).
 This is, instead, an example of the complete msg object.
 
-```json
+```javascript
 
 msg = {
-    topic: "0/1/2" // (Contains the node's topic, for example "MyTopic". If the node's topic is not set, contains the Group Address, for example "0/1/2")
-    payload: false 
-    previouspayload: true // Previous node payload value.
-    payloadmeasureunit: "%" // Payload's measure unit.
-    payloadsubtypevalue: "Start" // Subtype's decoded value, for exampe, On/Off, Ramp/NoRamp, Start/Stop, Alarm/NoAlarm
-    devicename: "Dinning table lamp" // If the node is in **universal mode** , it contains the full path (main, middle,name) of the group address name, otherwise, the node name.
-    gainfo: { // Contains the details about the group address name and number. This object is only present if the node is set in **universal mode ** and with the**ETS file ** been imported. If something wrong, it contains the string**unknown** .
-        maingroupname:"Light actuators"
-        middlegroupname:"First flow lights"
-        ganame:"Table Light"
-        maingroupnumber:"1"
-        middlegroupnumber:"1"
-        ganumber:"0"
-    },
-    echoed:true, // True if the msg is coming from the input PIN, otherwise false if the msg is coming form the KNX BUS.
-    knx: { // This is a representation of the KNX BUS telegram, coming from BUS
-        event: "GroupValue_Write" // (or "GroupValue_Response", or "GroupValue_Read")
-        dpt: "1.001"
-        dptdesc: "Humidity" // Payload's measure unit description
-        source: "15.15.22"
-        destination: "0/1/2" // Contains the Group Address
-        rawValue: buffer[1]raw // (or null, if "GroupValue_Read")
-            0: 0x0 // (This is the RAW undecoded value)
-    }
-}
+  topic: "0/1/2", // (Contains the node's topic, for example "MyTopic". If the node's topic is not set, contains the Group Address, for example "0/1/2")
+  payload: false,
+  previouspayload: true, // Previous node payload value.
+  payloadmeasureunit: "%", // Payload's measure unit.
+  payloadsubtypevalue: "Start", // Subtype's decoded value, for exampe, On/Off, Ramp/NoRamp, Start/Stop, Alarm/NoAlarm
+  devicename: "Dining table lamp", // If the node is in universal mode, it contains the full path (main, middle, name) of the group address name, otherwise, the node name.
+  gainfo: {
+    maingroupname: "Light actuators",
+    middlegroupname: "First flow lights",
+    ganame: "Table Light",
+    maingroupnumber: "1",
+    middlegroupnumber: "1",
+    ganumber: "0",
+  },
+  echoed: true, // True if the msg is coming from the input PIN, otherwise false if the msg is coming form the KNX BUS.
+  knx: {
+    // This is a representation of the KNX BUS telegram, coming from BUS
+    event: "GroupValue_Write", // (or "GroupValue_Response", or "GroupValue_Read")
+    dpt: "1.001",
+    dptdesc: "Humidity", // Payload's measure unit description
+    source: "15.15.22",
+    destination: "0/1/2", // Contains the Group Address
+    rawValue: "<Buffer 00>", // (or null, if "GroupValue_Read")
+  },
+};
 ```
 
 **Payload sample**
@@ -238,15 +234,15 @@ msg = {
 
 ### Inputs
 
-: destination (string)\*\* : the destination group address, for example 1/1/0. Only 3-level is allowed.\
-: payload (any)\*\* : the payload to be sent. Can be for example true or false, or an object.
-: event (string)\*\* : can be _GroupValue\_Write_ to write the telegram to the KNX BUS, _GroupValue\_Response_ to send a response telegram to the KNX BUS, _Update\_NoWrite_. _Update\_NoWrite_ sends nothings to the KNX BUS, just updates the internal value of the KNX-Ultimate node. This is useful if you wanna only store the value into the node and read it later with a read request.
-: readstatus (boolean)\*\* : issue a read request to the KNX bus. Pass _true_ everytime (msg.readstatus = true).
-: dpt (string)\*\* : For example "1.001". Sets the Datapoint.
-: writeraw (buffer): is used to send a value to the KNX bus, as buffer. Use in conjunction with _bitlenght_.
-: bitlenght (int): specifies the lenght of the _writeraw_ buffer. Use in conjunction with _writeraw_.
-: resetRBE (boolean)\*\* : resets the internal RBE filters (_use msg.resetRBE = true_).
-: setConfig (json)\*\* : programmatically change the KNX-Ultimate Device node Group Address and Datapoint. See details.
+- **destination (string)**: the destination group address, for example `1/1/0` (only 3-level is allowed)
+- **payload (any)**: the payload to be sent (for example `true` / `false` / number / string / object)
+- **event (string)**: `_GroupValue_Write_` / `_GroupValue_Response_` / `_Update_NoWrite_` (`_Update_NoWrite_` updates the internal value only)
+- **readstatus (boolean)**: issue a read request to the KNX bus (pass `_true_` every time: `msg.readstatus = true`)
+- **dpt (string)**: for example `"1.001"` (sets the datapoint)
+- **writeraw (buffer)**: sends a raw buffer value to the bus (use with **bitlenght**)
+- **bitlenght (int)**: bit length of **writeraw**
+- **resetRBE (boolean)**: resets the internal RBE filters (`msg.resetRBE = true`)
+- **setConfig (json)**: programmatically change the node Group Address and Datapoint (see details)
 
 ### Details
 
@@ -287,44 +283,41 @@ return msg;
 
 ### Outputs
 
-1. Standard output
-   : payload (string|number|object)\*\* : Pin 1 is the standard output of the command.
-
-2. Errors
-   : error (object)\*\* : Pin 2 Contains the detailed error message.
+1. Standard output: `payload` (string|number|object) on Pin 1
+2. Errors: `error` (object) on Pin 2 (detailed error message)
 
 ### Details
 
 `msg.payload` is used as the payload of the group address (the group address value).
 This is, instead, an example of the complete msg object.
 
-```json
+```javascript
 
 msg = {
-    topic: "0/1/2" // (Contains the node's topic, for example "MyTopic". If the node's topic is not set, contains the Group Address, for example "0/1/2")
-    payload: false 
-    previouspayload: true // Previous node payload value.
-    payloadmeasureunit: "%" // Payload's measure unit.
-    payloadsubtypevalue: "Start" // Subtype's decoded value, for exampe, On/Off, Ramp/NoRamp, Start/Stop, Alarm/NoAlarm
-    devicename: "Dinning table lamp" // If the node is in **universal mode** , it contains the full path (main, middle,name) of the group address name, otherwise, the node name.
-    gainfo: { // Contains the details about the group address name and number. This object is only present if the node is set in **universal mode ** and with the**ETS file ** been imported. If something wrong, it contains the string**unknown** .
-        maingroupname:"Light actuators"
-        middlegroupname:"First flow lights"
-        ganame:"Table Light"
-        maingroupnumber:"1"
-        middlegroupnumber:"1"
-        ganumber:"0"
-    }
-    knx: { // This is a representation of the KNX BUS telegram, coming from BUS
-        event: "GroupValue_Write" // (or "GroupValue_Response", or "GroupValue_Read")
-        dpt: "1.001"
-        dptdesc: "Humidity" // Payload's measure unit description
-        source: "15.15.22"
-        destination: "0/1/2" // Contains the Group Address
-        rawValue: buffer[1]raw // (or null, if "GroupValue_Read")
-            0: 0x0 // (This is the RAW undecoded value)
-    }
-}
+  topic: "0/1/2", // (Contains the node's topic, for example "MyTopic". If the node's topic is not set, contains the Group Address, for example "0/1/2")
+  payload: false,
+  previouspayload: true, // Previous node payload value.
+  payloadmeasureunit: "%", // Payload's measure unit.
+  payloadsubtypevalue: "Start", // Subtype's decoded value, for exampe, On/Off, Ramp/NoRamp, Start/Stop, Alarm/NoAlarm
+  devicename: "Dining table lamp",
+  gainfo: {
+    maingroupname: "Light actuators",
+    middlegroupname: "First flow lights",
+    ganame: "Table Light",
+    maingroupnumber: "1",
+    middlegroupnumber: "1",
+    ganumber: "0",
+  },
+  knx: {
+    // This is a representation of the KNX BUS telegram, coming from BUS
+    event: "GroupValue_Write", // (or "GroupValue_Response", or "GroupValue_Read")
+    dpt: "1.001",
+    dptdesc: "Humidity", // Payload's measure unit description
+    source: "15.15.22",
+    destination: "0/1/2", // Contains the Group Address
+    rawValue: "<Buffer 00>", // (or null, if "GroupValue_Read")
+  },
+};
 ```
 
 ## MESSAGE OUTPUT FROM THE NODE SET AS "Universal mode (listen to all Group Addresses)"
@@ -419,20 +412,20 @@ CAUTION: in case of _msg.event = "Update\_NoWrite"_ all nodes with the same grou
 
 If you wish to issua a "read" command, please use "readstatus" instead (see below).
 
-**msg.readstatus = true** 
+**msg.readstatus = true**
 
 Issue a "Read" command to the BUS.
 
-**msg.dpt** 
+**msg.dpt**
 
 For example "1.001". Sets the <b>Datapoint</b>. (You can write it in these formats: 9 , "9" , "9.001" or "DPT9.001")
 
-**msg.writeraw ** 
-**msg.bitlenght** 
+**msg.writeraw**
+**msg.bitlenght**
 
 Writes RAW data to the KNX BUS. Please see below an example.
 
-**msg.resetRBE** 
+**msg.resetRBE**
  pass msg.resetRBE = true to a device node, to reset both input and output RBE filter on that particular node.
 
 ## PROGRAMMATICALLY CHANGE THE NODE CONFIGURATION VIA MSG
@@ -489,7 +482,7 @@ return msg;
 
 **SEND RAW VALUE TO THE BUS** 
 
-To send a RAW buffer value to the KNX bus, use the _ **writeraw ** _ and _**bitlenght** _ properties of the msg input.
+To send a RAW buffer value to the KNX bus, use the `msg.writeraw` and `msg.bitlenght` properties of the msg input.
 
 In this case, the _Datapoint_ you set in the property window will be ignored.
 

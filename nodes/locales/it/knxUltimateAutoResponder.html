@@ -4,8 +4,8 @@
 Il nodo registra tutti i telegrammi trasmessi al bus KNX e memorizzano i valori in memoria.
 Risponde quindi alle richieste di lettura inviando tale valore memorizzato al bus come richiesta.
 Se l'indirizzo di gruppo da leggere non ha ancora valore, il nodo risponderà con un valore predefinito.
-Il nodo risponderà solo agli indirizzi di gruppo specificati nel \*\* Rispondi al campo \*\* JSON.
-Per impostazione predefinita, esiste un esempio pre-compilato \*\* "Rispondi a" JSON Testo, in cui puoi semplicemente cambiare/eliminare le cose.Assicurati \*\* di non usarlo così come \*\* !!!
+Il nodo risponderà solo agli indirizzi di gruppo specificati nel campo JSON **Rispondi a**.
+Per impostazione predefinita, esiste un esempio pre-compilato nel testo JSON "Rispondi a", in cui puoi semplicemente cambiare/eliminare le cose. Assicurati **di non usarlo così com'è** !!!
 
 **Configurazione**
 
@@ -16,21 +16,21 @@ Per impostazione predefinita, esiste un esempio pre-compilato \*\* "Rispondi a" 
 
 <br/>
 
-\*\* Formato JSON \*\*
+**Formato JSON**
 
-Il JSON è \*\* sempre \*\* una serie di oggetti, contenente ciascuna direttiva.Ogni direttiva indica al nodo cosa fanno.
+Il JSON è **sempre** una serie di oggetti, contenente ciascuna direttiva. Ogni direttiva indica al nodo cosa fare.
 
 | Proprietà | Descrizione |
 |-|-|
-|Nota |\*\* Chiave Nota opzionale \*\*, per promemoria.Non verrà utilizzato da nessuna parte.|
-|ga |L'indirizzo di gruppo.Puoi anche usare i ".." Wildchars, per la specifica una serie di indirizzi di gruppo.Il ".." può essere usato solo con il livello del terzo GA, ex: \*\* 1/1/0..257 \*\*.Vedi i campioni sottostanti.|
-|dpt |Il punto dati dell'indirizzo di gruppo, nel formato "1.001".È \*\* opzionale \*\* se il file CSV ETS è stato importato.|
+|Nota | **Chiave `note` opzionale**, per promemoria. Non verrà utilizzato da nessuna parte. |
+|ga |L'indirizzo di gruppo. Puoi anche usare i ".." Wildchars, per specificare una serie di indirizzi di gruppo. Il ".." può essere usato solo con il livello del terzo GA, es: **1/1/0..257**. Vedi i campioni sottostanti. |
+|dpt |Il punto dati dell'indirizzo di gruppo, nel formato "1.001". È **opzionale** se il file CSV ETS è stato importato.|
 |Predefinito |Il valore inviato al bus in risposta a una richiesta di lettura, quando il valore dell'indirizzo di gruppo non è stato ancora memorizzato dal nodo.|
 
-\*\* Cominciamo con una direttiva \*\*
+**Cominciamo con una direttiva**
 
-Il nodo AutoResponder risponderà alle richieste di lettura per l'indirizzo di gruppo 2/7/1.Se nessun valore è ancora in memoria, risponderà con \*true \*.
-Il file CSV ETS deve essere stato importato, altrimenti è necessario aggiungere anche il tasto \*\* "DPT": "1.001" \*\*.
+Il nodo AutoResponder risponderà alle richieste di lettura per l'indirizzo di gruppo 2/7/1. Se nessun valore è ancora in memoria, risponderà con _true_.
+Il file CSV ETS deve essere stato importato, altrimenti è necessario aggiungere anche la chiave `"dpt":"1.001"`.
 
 ```json
 
@@ -42,10 +42,10 @@ Il file CSV ETS deve essere stato importato, altrimenti è necessario aggiungere
 ]
 ```
 
-\*\* Direttiva un po 'più completa \*\*
+**Direttiva un po' più completa**
 
-Il nodo AutoResponder risponderà alle richieste di lettura per l'indirizzo di gruppo a partire dal 3/1/1, al 3/1/22 incluso.Se nessun valore è ancora in memoria, risponderà con \*false \*.
-C'è anche una chiave \*\* Nota \*\*, semplicemente come nota di promemoria.Non verrà utilizzato da nessuna parte.
+Il nodo AutoResponder risponderà alle richieste di lettura per l'indirizzo di gruppo a partire dal 3/1/1, al 3/1/22 incluso. Se nessun valore è ancora in memoria, risponderà con _false_.
+C'è anche una chiave `note`, semplicemente come nota di promemoria. Non verrà utilizzato da nessuna parte.
 
 ```json
 
@@ -59,11 +59,11 @@ C'è anche una chiave \*\* Nota \*\*, semplicemente come nota di promemoria.Non 
 ]
 ```
 
-\*\* direttive concatenanti \*\*
+**Direttive concatenanti**
 
-Il nodo AutoResponder risponderà alle richieste di lettura per l'indirizzo di gruppo a partire dal 2/2/5, al 2/2/21 incluso.Se nessun valore è ancora in memoria, risponderà con un valore di 25.
-Il nodo AutoResponder risponderà anche alle richieste di lettura per l'indirizzo di gruppo 2/4/22.Se nessun valore è ancora in memoria, risponderà con lo stato di stringa \*sconosciuto! \*.
-Si prega di notare la \*\* virgola \*\* tra l'oggetto JSON di ciascuna direttiva.
+Il nodo AutoResponder risponderà alle richieste di lettura per l'indirizzo di gruppo a partire dal 2/2/5, al 2/2/21 incluso. Se nessun valore è ancora in memoria, risponderà con un valore di 25.
+Il nodo AutoResponder risponderà anche alle richieste di lettura per l'indirizzo di gruppo 2/4/22. Se nessun valore è ancora in memoria, risponderà con lo stato di stringa _sconosciuto!_.
+Si prega di notare la **virgola** tra l'oggetto JSON di ciascuna direttiva.
 
 ```json
 

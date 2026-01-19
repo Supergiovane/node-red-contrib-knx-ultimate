@@ -22,7 +22,7 @@ Questo nodo si connette al tuo KNX/IP Gateway.
 | Indirizzo fisico KNX | Indirizzo fisico KNX, es. `1.1.200`. Default: `15.15.22`. |
 | Utilizza l'interfaccia locale | Interfaccia di rete locale usata dal nodo. Lascia "Auto" per selezione automatica. Se hai più interfacce (Ethernet/Wi-Fi), è consigliato impostarla manualmente per evitare perdita di telegrammi UDP. Default: "Auto". |
 | Connetti al BUS KNX automaticamente all'avvio | Connessione automatica al BUS all'avvio. Default: "Yes". |
-| Origine credenziali KNX Secure | Scegli come fornire i dati KNX Secure: **File keyring ETS ** (le chiavi Data Secure e, se presenti, le credenziali di tunnelling arrivano dal keyring),**Credenziali manuali ** (solo KNX IP Tunnelling Secure con utente inserito a mano) oppure**File keyring + password tunnel manuale** (chiavi Data Secure dal keyring, utente/password del tunnel impostati manualmente). Ricorda: i telegrammi KNX Data Secure richiedono sempre un file keyring. |
+| Origine credenziali KNX Secure | Scegli come fornire i dati KNX Secure: **File keyring ETS** (le chiavi Data Secure e, se presenti, le credenziali di tunnelling arrivano dal keyring), **Credenziali manuali** (solo KNX IP Tunnelling Secure con utente inserito a mano) oppure **File keyring + password tunnel manuale** (chiavi Data Secure dal keyring, utente/password del tunnel impostati manualmente). Ricorda: i telegrammi KNX Data Secure richiedono sempre un file keyring. |
 | Indirizzo individuale interfaccia tunnel | Visibile quando la modalità selezionata prevede credenziali manuali (Credenziali manuali o File keyring + password tunnel manuale). Indirizzo individuale opzionale dell'interfaccia tunnel sicura (es. `1.1.1`); lascia vuoto per negoziazione automatica da parte di KNX Ultimate. |
 | ID utente tunnel | Visibile quando sono attive credenziali manuali. ID opzionale dell'utente tunnel KNX Secure definito in ETS. |
 | Password utente tunnel | Visibile quando sono attive credenziali manuali. Password dell'utente tunnel KNX Secure configurata in ETS. |
@@ -82,7 +82,7 @@ Nota: il file CSV contiene DPT precisi con sottotipo; l'ESF è più semplice e n
 
 Video: <a href="https://youtu.be/egRbR_KwP9I"><img src='https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/yt.png'></a>
 
-- **Import ETS CSV Group Addresses ** ATTENZIONE: nel nome del GA non devono esserci caratteri di tabulazione.**If Group Address has no Datapoint ** > Se in ETS un GA non ha DPT, puoi: interrompere l'import, saltare il GA, oppure aggiungere il GA con DPT fittizio e continuare.**Come esportare l'elenco GA in formato CSV da ETS**
+- **Import ETS CSV Group Addresses** ATTENZIONE: nel nome del GA non devono esserci caratteri di tabulazione. **If Group Address has no Datapoint** > Se in ETS un GA non ha DPT, puoi: interrompere l'import, saltare il GA, oppure aggiungere il GA con DPT fittizio e continuare. **Come esportare l'elenco GA in formato CSV da ETS**
 
 > In ETS seleziona l'elenco GA, click destro → Esporta indirizzi di gruppo. Nella finestra di export imposta:<br/>
 > Output Format: CSV<br/>
@@ -92,7 +92,7 @@ Video: <a href="https://youtu.be/egRbR_KwP9I"><img src='https://raw.githubuserco
 > Poi incolla qui il contenuto del file.<br/>
 > Il file deve contenere i Datapoint per ogni GA. Il nodo analizza il file e mostra risultati nel DEBUG di Node-RED.
 
-> Esiti possibili: **ERROR ** (manca DPT → import interrotto) e**WARNING** (manca sottotipo → aggiunto default, ma va verificato). Il sottotipo è il numero dopo il punto, es. `5.001`.
+> Esiti possibili: **ERROR** (manca DPT → import interrotto) e **WARNING** (manca sottotipo → aggiunto default, ma va verificato). Il sottotipo è il numero dopo il punto, es. `5.001`.
 
 > I campi devono essere racchiusi tra virgolette `"`.
 

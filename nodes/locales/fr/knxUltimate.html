@@ -10,7 +10,7 @@
 | Propriété | Description |
 |-|-|
 | Porte | Sélectionnez la passerelle KNX à utiliser |
-| Liste déroulante de type GA | Le type d'adresse de groupe. **3 niveaux ** est la valeur par défaut, où vous pouvez saisir l'adresse du groupe de niveau _3 ou le nom d'adresse _group (si vous avez téléchargé le fichier ETS), ou**global ** , pour lire le GA au démarrage à partir d'une variable globale, ou**flux ** qui font la même chose que le _Global_, mais au niveau du flux. Sélectionnez**$ Env Variable ** Pour lire l'adresse de groupe à partir d'une variable d'environnement. Sélectionnez**Mode universel (écoutez toutes les adresses de groupe)** pour réagir à toutes les adresses de groupe. |
+| Liste déroulante de type GA | Le type d'adresse de groupe. **3 niveaux** est la valeur par défaut, où vous pouvez saisir l'adresse du groupe de niveau _3 ou le _group name_ (si vous avez téléchargé le fichier ETS), ou **global**, pour lire le GA au démarrage à partir d'une variable globale, ou **flux** qui font la même chose que le _Global_, mais au niveau du flux. Sélectionnez **$Env variable** pour lire l'adresse de groupe à partir d'une variable d'environnement. Sélectionnez **Mode universel (écoutez toutes les adresses de groupe)** pour réagir à toutes les adresses de groupe. |
 | Groupe addr. | L'adresse du groupe KNX que vous souhaitez contrôler. Si vous avez importé le fichier d'adresses du groupe ETS, vous pouvez simplement commencer à saisir le nom de votre appareil. Vous pouvez le laisser vide si vous souhaitez le définir avec le message d'entrée _msg.setConfig_. |
 | Point de données | Le point de données appartenant à votre nœud. |
 
@@ -75,8 +75,8 @@ S'il est activé, l'indication "f (x)" sera ajoutée au nom du nœud.
 | Objet ou fonction | Description |
 |-|-|
 | msg (objet) | L'objet MSG actuel reçu par le nœud. |
-| getGavalue (String GA, String facultatif DPT) | Obtenez la valeur de GA spécifiée, par exemple **'1/0/1' ** , ou aussi**'1/0/1 light light' ** (tout le texte après un espace vierge sera ignoré par la fonction. Ceci est utile si vous souhaitez ajouter le nom GA et un rappel. Avec le fichier ETS importé, vous pouvez également copier et coller le nom GA et GA directement dans le champ**Recherche GA ** .**DPT** est facultatif si vous avez importé le fichier ETS, sinon vous devez le spécifier, par exemple «1.001». |
-| setGavalue (String ga, n'importe quelle valeur, chaîne facultative dpt) | Définissez la valeur de GA spécifiée. Le GA Con doit être écrit par exemple **'1/0/1' ** , ou aussi**'1/0/1 light light' ** (tout le texte après un espace vide sera ignoré par la fonction. Ceci est utile si vous souhaitez ajouter le nom GA et un rappel. Avec le fichier ETS importé, vous pouvez également copier et coller le nom GA et GA directement à partir du champ GA**GA ** .). La valeur** ** est obligatoire, peut être un booléen ou un numéro ou une chaîne,** dpt** est facultatif si vous avez importé le fichier ETS, sinon vous devez le spécifier, par exemple «1.001». |
+| getGavalue (String GA, String facultatif DPT) | Obtenez la valeur de GA spécifiée, par exemple **'1/0/1'** ou **'1/0/1 Light'** (le texte après un espace est ignoré). Avec le fichier ETS importé, vous pouvez également copier et coller le nom GA et GA directement dans le champ **Recherche GA**. **DPT** est facultatif avec ETS; sinon vous devez le spécifier (par exemple `'1.001'`). |
+| setGavalue (String ga, n'importe quelle valeur, chaîne facultative dpt) | Définissez la valeur de GA spécifiée, par exemple **'1/0/1'** ou **'1/0/1 Light'** (le texte après un espace est ignoré). Avec le fichier ETS importé, vous pouvez également copier et coller le nom GA et GA directement depuis le champ **Recherche GA**. La valeur est obligatoire; **dpt** est facultatif avec ETS. |
 | self (toute valeur) | Définissez la valeur du nœud Currend et envoie également la valeur au bus KNX. Par exemple, _self (false) _. ATTENTION UTILISATION ** Self** Fonction dans le code Pin_ de sortie du bus KNX _From pour le nœud, car le code sera exécuté à chaque fois qu'un télégramme KNX est reçu, vous avez donc Coud ayant des boucles de récurrence. |
 | basculer (rien) | Basculez la valeur du nœud Currend et envoie également la valeur au bus KNX. Par exemple, _toggle () _. ATTENTION en utilisant ** Toggle** Fonction dans le code Pin_ de sortie du bus KNX _From à la sortie du nœud, car le code sera exécuté à chaque fois qu'un télégramme KNX est reçu, de sorte que vous avez des boucles de récurrence. |
 | Node (objet) | L'objet nœud. |
@@ -152,7 +152,14 @@ if (msg.payload === false && getGAValue('0/0/11','1.001') === false){
 
 ### entrées
 
-<br/> ** destination (chaîne) ** : l'adresse du groupe de destination, par exemple 1/1/0. Seul le niveau 3 est autorisé. <br/>**charge utile (any) ** : La charge utile à envoyer. Peut être par exemple vrai ou faux, ou un objet. <br/>**Événement (chaîne) ** : Peut être _GroupValue \ _Write_ pour écrire le télégramme dans le bus KNX, _GroupValue \ _Response_ pour envoyer un télégramme de réponse au bus KNX, _update \ _nowrite_. _Update \ _nowrite_ envoie des rien au bus KNX, met à jour la valeur interne du nœud KNX-ultime. Ceci est utile si vous voulez seulement stocker la valeur dans le nœud et le lire plus tard avec une demande de lecture. <br/>**readStatus (boolean) ** : émettez une demande de lecture au bus KNX. Passer _true_ à chaque fois (msg.readstatus = true). <br/>**DPT (String) ** : Par exemple "1.001". Définit le point de données. <br/>**Writeraw (tampon) ** : est utilisé pour envoyer une valeur au bus KNX, en tant que tampon. Utilisez en conjonction avec _Bitlenght_. <br/>**bitlenght (int) ** : Spécifie le long du tampon _writeraw_. Utilisez en conjonction avec _WriteRaw_. <br/>**restrbe (boolean) ** : réinitialise les filtres RBE internes (_USE msg.resetrbe = true_). <br/>**SetConfig (JSON)** : Modifiez par programme l'adresse de groupe de nœuds de périphérique KNX-ultimate et DataPoint. Voir les détails.
+- **destination (string)**: l'adresse du groupe de destination, par exemple `1/1/0` (seul le niveau 3 est autorisé)
+- **payload (any)**: la charge utile à envoyer (par exemple `true` / `false` / number / string / object)
+- **event (string)**: `GroupValue_Write` / `GroupValue_Response` / `Update_NoWrite` (`Update_NoWrite` met à jour la valeur interne et n'envoie rien au BUS)
+- **readstatus (boolean)**: demande de lecture au bus (utiliser toujours `true`: `msg.readstatus = true`)
+- **dpt (string)**: par exemple `1.001` (datapoint)
+- **writeraw (buffer)** + **bitlenght (int)**: envoi RAW au BUS (voir exemple)
+- **resetRBE (boolean)**: réinitialise les filtres RBE (`msg.resetRBE = true`)
+- **setConfig (json)**: modifier GA et DPT par message (voir détails)
 
 ### Détails
 
@@ -191,18 +198,15 @@ return msg;
 
 ### sorties
 
-1. Sortie standard
-   : charge utile (chaîne | numéro | objet) \ *\*: la broche 1 est la sortie standard de la commande.
-
-2. Erreurs
-   : erreur (objet) \ *\*: PIN 2 contient le message d'erreur détaillé.
+1. Sortie standard: `payload` (string|number|object) sur le Pin 1
+2. Erreurs: `error` (object) sur le Pin 2 (message d'erreur détaillé)
 
 ### Détails
 
 `msg.payload` est utilisé comme charge utile de l'adresse du groupe (la valeur d'adresse du groupe).
 Il s'agit plutôt d'un exemple de l'objet MSG complet.
 
-```json
+```javascript
 
 msg = {
     topic: "0/1/2" // (Contains the node's topic, for example "MyTopic". If the node's topic is not set, contains the Group Address, for example "0/1/2")
@@ -210,8 +214,8 @@ msg = {
     previouspayload: true // Previous node payload value.
     payloadmeasureunit: "%" // Payload's measure unit.
     payloadsubtypevalue: "Start" // Subtype's decoded value, for exampe, On/Off, Ramp/NoRamp, Start/Stop, Alarm/NoAlarm
-    devicename: "Dinning table lamp" // If the node is in **universal mode** , it contains the full path (main, middle,name) of the group address name, otherwise, the node name.
-    gainfo: { // Contains the details about the group address name and number. This object is only present if the node is set in **universal mode ** and with the**ETS file ** been imported. If something wrong, it contains the string**unknown** .
+    devicename: "Dinning table lamp" // If the node is in universal mode, it contains the full path (main, middle,name) of the group address name, otherwise, the node name.
+    gainfo: { // Contains the details about the group address name and number. This object is only present if the node is set in universal mode and with the ETS file been imported. If something wrong, it contains the string "unknown".
         maingroupname:"Light actuators"
         middlegroupname:"First flow lights"
         ganame:"Table Light"
@@ -246,21 +250,20 @@ msg = {
 
 ### entrées
 
-: destination (chaîne) \ *\*: l'adresse du groupe de destination, par exemple le 1/1/0. Seul le niveau 3 est autorisé. \
-: charge utile (any) \ *\*: la charge utile à envoyer. Peut être par exemple vrai ou faux, ou un objet.
-: événement (String) \ *\*: peut être _GroupValue \ _Write_ pour écrire le télégramme dans le bus KNX, _GroupValue \ _Response_ pour envoyer un télégramme de réponse au bus KNX, _update \ _NowRite_. _Update \ _nowrite_ envoie des rien au bus KNX, met à jour la valeur interne du nœud KNX-ultime. Ceci est utile si vous voulez seulement stocker la valeur dans le nœud et le lire plus tard avec une demande de lecture.
-: ReadStatus (booléen) \ *\*: émettez une demande de lecture au bus KNX. Passer _true_ à chaque fois (msg.readstatus = true).
-: dpt (String) \ *\*: Par exemple "1.001". Définit le point de données.
-: Writeraw (tampon): est utilisé pour envoyer une valeur au bus KNX, en tant que tampon. Utilisez en conjonction avec _Bitlenght_.
-: bitlenght (int): spécifie le long du tampon _writeraw_. Utilisez en conjonction avec _WriteRaw_.
-: ressetrbe (boolean) \ *\*: réinitialise les filtres RBE internes (_USE msg.resetrbe = true_).
-: setConfig (JSON) \ *\*: modifier par programme l'adresse de groupe de nœuds de périphérique KNX-ultimate et le point de données. Voir les détails.
+- **destination (string)**: l'adresse du groupe de destination, par exemple `1/1/0` (seul le niveau 3 est autorisé)
+- **payload (any)**: la charge utile à envoyer (par exemple `true` / `false` / object)
+- **event (string)**: `GroupValue_Write` / `GroupValue_Response` / `Update_NoWrite`
+- **readstatus (boolean)**: demande de lecture au bus (`msg.readstatus = true`)
+- **dpt (string)**: par exemple `1.001`
+- **writeraw (buffer)** + **bitlenght (int)**: envoi RAW au BUS (voir exemple)
+- **resetRBE (boolean)**: réinitialise les filtres RBE (`msg.resetRBE = true`)
+- **setConfig (json)**: modifier GA et DPT (voir détails)
 
 ### Détails
 
 `msg.setConfig`: Il est possible de modifier par programme la configuration du nœud KNX-ultime, en envoyant l'objet msg.setConfig au nœud.
 La nouvelle configuration sera conservée jusqu'au prochain msg.setconfig ou jusqu'à redémarrage / redéployer.
-Toutes les propriétés (_setGroupAddress_ et _setDpt_) ** sont obligatoires** .. \
+Toutes les propriétés (_setGroupAddress_ et _setDpt_) **sont obligatoires**.\
 Utilisez-le comme ça, dans un nœud Functon: ** Définissez GA et DPT** 
 
 ```javascript
@@ -294,17 +297,17 @@ return msg;
 ### sorties
 
 1. Sortie standard
-   : charge utile (chaîne | numéro | objet) \ *\*: la broche 1 est la sortie standard de la commande.
+   : `payload` (string|number|object) sur le Pin 1
 
 2. Erreurs
-   : erreur (objet) \ *\*: PIN 2 contient le message d'erreur détaillé.
+   : `error` (object) sur le Pin 2 (message d'erreur détaillé)
 
 ### Détails
 
 `msg.payload` est utilisé comme charge utile de l'adresse du groupe (la valeur d'adresse du groupe).
 Il s'agit plutôt d'un exemple de l'objet MSG complet.
 
-```json
+```javascript
 
 msg = {
     topic: "0/1/2" // (Contains the node's topic, for example "MyTopic". If the node's topic is not set, contains the Group Address, for example "0/1/2")
@@ -312,8 +315,8 @@ msg = {
     previouspayload: true // Previous node payload value.
     payloadmeasureunit: "%" // Payload's measure unit.
     payloadsubtypevalue: "Start" // Subtype's decoded value, for exampe, On/Off, Ramp/NoRamp, Start/Stop, Alarm/NoAlarm
-    devicename: "Dinning table lamp" // If the node is in **universal mode** , it contains the full path (main, middle,name) of the group address name, otherwise, the node name.
-    gainfo: { // Contains the details about the group address name and number. This object is only present if the node is set in **universal mode ** and with the**ETS file ** been imported. If something wrong, it contains the string**unknown** .
+    devicename: "Dinning table lamp" // If the node is in universal mode, it contains the full path (main, middle,name) of the group address name, otherwise, the node name.
+    gainfo: { // Contains the details about the group address name and number. This object is only present if the node is set in universal mode and with the ETS file been imported. If something wrong, it contains the string "unknown".
         maingroupname:"Light actuators"
         middlegroupname:"First flow lights"
         ganame:"Table Light"
