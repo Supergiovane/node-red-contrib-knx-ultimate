@@ -4,10 +4,13 @@
 
 
 [![NPM version][npm-version-image]][npm-url]
+[![Node.js version][node-version-image]][npm-url]
+[![Node-RED Flow Library][flows-image]][flows-url]
+[![Docs][docs-image]][docs-url]
 [![NPM downloads per month][npm-downloads-month-image]][npm-url]
 [![NPM downloads total][npm-downloads-total-image]][npm-url]
 [![MIT License][license-image]][license-url]
-[![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
+[![JavaScript Style Guide][standard-image]][standard-url]
 [![Youtube][youtube-image]][youtube-url]
 
 
@@ -33,13 +36,16 @@
 
 </br>
 
-[license-image]: https://img.shields.io/badge/license-MIT-blue.svg
-[license-url]: https://github.com/Supergiovane/node-red-contrib-knx-ultimate/master/LICENSE
+[license-image]: https://img.shields.io/github/license/Supergiovane/node-red-contrib-knx-ultimate?color=blue
+[license-url]: https://github.com/Supergiovane/node-red-contrib-knx-ultimate/blob/master/LICENSE
 [npm-url]: https://npmjs.org/package/node-red-contrib-knx-ultimate
 [npm-version-image]: https://img.shields.io/npm/v/node-red-contrib-knx-ultimate.svg
+[node-version-image]: https://img.shields.io/node/v/node-red-contrib-knx-ultimate?logo=node.js&logoColor=white
 [npm-downloads-month-image]: https://img.shields.io/npm/dm/node-red-contrib-knx-ultimate.svg
 [npm-downloads-total-image]: https://img.shields.io/npm/dt/node-red-contrib-knx-ultimate.svg
-[youtube-image]: https://img.shields.io/badge/Visit%20me-Youtube-red
+[standard-image]: https://img.shields.io/badge/code_style-standard-brightgreen.svg
+[standard-url]: https://standardjs.com
+[youtube-image]: https://img.shields.io/badge/YouTube-Playlists-red?logo=youtube&logoColor=white
 [youtube-url]: https://www.youtube.com/channel/UCA9RsLps1IthT7fDSeUbRZw/playlists
 [docs-image]: https://img.shields.io/badge/Docs-GitHub%20Pages-2ea44f
 [docs-url]: https://supergiovane.github.io/node-red-contrib-knx-ultimate/
