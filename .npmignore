@@ -1,8 +1,16 @@
 node_modules
 .DS_Store
-.code-workspace
+*.code-workspace
 .vscode/
 package-lock.json
 KNXUltimateDebugLog.txt
 tutorial/
 docs/
+scripts/
+test/
+.github/
+img/wiki/
+img/marketing/
+img/virtualdevice/
+img/config/
+img/c/
