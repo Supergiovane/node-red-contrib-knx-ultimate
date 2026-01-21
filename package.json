@@ -16,7 +16,7 @@
     "LICENSE"
   ],
   "dependencies": {
-    "binary-parser": "2.2.1",
+    "binary-parser": "2.3.0",
     "crypto-js": "4.2.0",
     "dns-sync": "0.2.1",
     "js-yaml": "4.1.1",
