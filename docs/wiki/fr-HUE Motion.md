@@ -13,8 +13,8 @@ Commencez à taper le nom du périphérique KNX ou l'adresse de groupe dans le c
 | Propriété | Description |
 |-|-|
 |KNX GW |KNX Gateway qui reçoit les mises à jour de mouvement (requise avant que les champs de mappage KNX n'apparaissent).|
-|Hue Bridge |Bridge Hue à la question.|
-|Capteur de teinte |Capteur de mouvement Hue (prend en charge la saisie semi-automatique et la rafraîchissement).|
+|Hue Bridge |Hue Bridge à la question.|
+|Capteur de mouvement de la teinte |Capteur de mouvement Hue (prend en charge la saisie semi-automatique et la rafraîchissement).|
 
 **Mappage**
 

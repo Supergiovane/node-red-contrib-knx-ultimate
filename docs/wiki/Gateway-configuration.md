@@ -25,7 +25,7 @@ This node connects to your KNX gateway, whether it is an IP interface/router or 
 | KNX Physical Address | The physical KNX address, example 1.1.200. Default is "15.15.22".|
 | Bind to local interface | The Node will use this local interface for communications. Leave "Auto" for automatic selection. If you have more than one lan connection, for example Ethernet and Wifi, it's strongly recommended to manually select the interface, otherwise not all UDP telegram will reach your computer, thus the Node may not work as expected. Default is "Auto". |
 | Automatically connect to KNX BUS at start | Auto connect to the bus at start. Default is "Yes". |
-| Secure credentials source | Choose how KNX Secure data is supplied: **ETS keyring file ** (Data Secure keys - and tunnelling credentials if present - come from the keyring),**Manual credentials ** (only KNX IP Tunnelling Secure with a manually entered user), or**Keyring + manual tunnel password** (Data Secure keys from the keyring while the secure tunnel uses the manual user/password). Remember that KNX Data Secure telegrams always require a keyring file. |
+| Secure credentials source | Choose how KNX Secure data is supplied: **ETS keyring file** (Data Secure keys - and tunnelling credentials if present - come from the keyring), **Manual credentials** (only KNX IP Tunnelling Secure with a manually entered user), or **Keyring + manual tunnel password** (Data Secure keys from the keyring while the secure tunnel uses the manual user/password). Remember that KNX Data Secure telegrams always require a keyring file. |
 | Tunnel interface individual address | Visible whenever the selected mode includes manual credentials (Manual or Keyring + manual tunnel password). Optional KNX individual address for the secure tunnel interface (for example `1.1.1`); leave empty to let KNX Ultimate negotiate it automatically. |
 | Tunnel user ID | Visible when manual credentials are used. Optional KNX Secure tunnel user identifier defined in ETS. |
 | Tunnel user password | Visible when manual credentials are used. Password of the KNX Secure tunnelling user configured in ETS. |
@@ -45,7 +45,7 @@ This node connects to your KNX gateway, whether it is an IP interface/router or 
 | Delay between each telegram (in milliseconds) | KNX specs states, that the maximum telegram sending speed is 50 telegrams per second. A speed between 25 and 50ms should be fine, unless you're connecting to a remote KNX Gateway via a slow internet connection (in this case, you should increase the value by, for example, 200 to 500ms or more). |
 | Loglevel | Log level, in case you need to debug something with the dev. Default is "Error", |
 | Node status throttle | Delay how often node badges are refreshed. When a delay is selected, intermediate status changes are discarded and the last one is shown after the chosen interval. Select **Immediate** to keep the legacy real-time behaviour. |
-| Status date/time format | Choose how the timestamp is shown in node status badges (useful when the host OS locale cannot be configured, e.g. Home Assistant OS). |
+| Status date/time format | Choose how the timestamp is shown in node status badges (useful when the host OS locale cannot be configured). |
 | Custom format | Used when **Custom (tokens)** is selected. Tokens: `YYYY`, `YY`, `MMM`, `MM`, `DD`, `HH`, `mm`, `ss`, `A`, `a`, `Z`. Use `[text]` for literals. |
 | Locale override | Optional locale (BCP47), e.g. `en-GB` or `it-IT`. Used for month names (`MMM`) when Custom is selected. |
 
@@ -54,7 +54,7 @@ This node connects to your KNX gateway, whether it is an IP interface/router or 
 |Property|Description|
 |--|--|
 | If Group Address has no Datapoint | If a group address doesn't have a datapoint, it allow to choose wether to stop import, import quth a fake datapoint of 1.001 or to skip import of that group address |
-| ETS group address list | Use this section to import your ETS CSV or ESF file. You can either **paste the CSV or ESF file content ** or**set the file path** , for example _./pi/homecsv.csv_. Please refer to the help links for further infos. |
+| ETS group address list | Use this section to import your ETS CSV or ESF file. You can either **paste the CSV or ESF file content** or **set the file path**, for example _./pi/homecsv.csv_. Please refer to the help links for further infos. |
 
 **Utility**
 
@@ -73,17 +73,17 @@ Starting from version 1.4.18, you can also simply enter the path to the file in 
 
 Thanks to that, the knx-ultimate node where you selected **Universal mode (listen to all Group Addresses)** , becomes an universal input/output node, aware of all Datapoints, Group Addresses and Device's name (ex: Living Room Lamp). Just send the payload to the knx-ultimate node, and it'll encode it with the right datapoint and send it to the bus. Likewise, when the knx-ultimate node receives a telegram from the bus, it outputs a right decoded payload using the datapoint specified in the ETS CSV or ESF file.
 
-Starting from **Version 1.1.11 ** , you can use**Universal mode (listen to all Group Addresses) ** option without the need of an imported ETS CSV or ESF File. You need to pass a message to the node, containing datapoint type and a value. As soon as the node receives a telegram from KNX Bus, it will output a RAW value and beside that, it will try to decode the value without knowing the datapoint type.
-**Note** : _ETS CSV Group address exported file_ is way the best option, because it contain a precise datapoints with subtype. _ETS ESF exported file_ is simpler and it doesn't have the subtype.
+Starting from **Version 1.1.11**, you can use **Universal mode (listen to all Group Addresses)** option without the need of an imported ETS CSV or ESF File. You need to pass a message to the node, containing datapoint type and a value. As soon as the node receives a telegram from KNX Bus, it will output a RAW value and beside that, it will try to decode the value without knowing the datapoint type.
+**Note**: _ETS CSV Group address exported file_ is way the best option, because it contain a precise datapoints with subtype. _ETS ESF exported file_ is simpler and it doesn't have the subtype.
 
-If you can use both, please prefer the **ETS CSV Group address exported file ** , because the ESF can lead to a false output values. Please manually check and eventually adjust the datapoints each time you import the**ESF** file.
+If you can use both, please prefer the **ETS CSV Group address exported file**, because the ESF can lead to a false output values. Please manually check and eventually adjust the datapoints each time you import the **ESF** file.
 From version 1.4.1 you can import group addresses also at runtime, via msg, using the WatchDog node. 
 
 > You can work with a mix of knx-ultimate nodes, some with **Universal mode (listen to all Group Addresses)** checked and some not. You are absolutely free!
 
 <a href="https://youtu.be/egRbR_KwP9I"><img src='https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/yt.png'></a>
 
-- **ETS CSV Group Addresses List import ** _**ATTENTION: THERE MUST NOT BE TABULATION CHARACTERS IN THE NAME OF THE GROUP ADDRESS ** _**If Group Address has no Datapoint ** > If a Group address has no Datapoint set in the ETS, you can select to stop and abort the entire import process, to skip the affected group address, or to add the the affected Group Address with a fake datapoint and continue import.
+- **ETS CSV Group Addresses List import** _**ATTENTION: THERE MUST NOT BE TABULATION CHARACTERS IN THE NAME OF THE GROUP ADDRESS**_ **If Group Address has no Datapoint** > If a Group address has no Datapoint set in the ETS, you can select to stop and abort the entire import process, to skip the affected group address, or to add the the affected Group Address with a fake datapoint and continue import.
 **How to export the ETS -> CSV <- Group Addresses List**
 
 > On ETS, click the group addresses list, then right click, then select 'export group addresses'. On the export window, select these options: 
@@ -110,7 +110,7 @@ From version 1.4.1 you can import group addresses also at runtime, via msg, usin
 > The node parses your ETS CSV FILE prior to use it and will tell you the results in the DEBUG TAB of Node-Red page. 
 
 >
-> The result can be of two types: **ERROR ** and**WARNING** 
+> The result can be of two types: **ERROR** and **WARNING** 
 
 >
 > **ERROR** occurs when a Datapoint is not specified for a Group Address. This is a critical error and stops the process of importing the ETS CSV FILE. 
@@ -132,165 +132,3 @@ From version 1.4.1 you can import group addresses also at runtime, via msg, usin
 
 >
 > Then copy the file content and paste it into the gateway config "ETS group address list" field.
-
-<div markdown="1" style="background:#e9f7e9;border:1px solid #c8e6c8;border-radius:10px;padding:14px 16px;margin:16px 0;">
-
-
-### Using KNX Ultimate with kBerry on Raspberry Pi 3 (UART / FT1.2)
-
-This guide explains how to connect a **kBerry** KNX interface directly
-to a **Raspberry Pi 3** and use it with **KNX Ultimate** over the
-**hardware UART** (`ttyAMA0`) using the **FT1.2 (TPUART)** protocol.
-
-> This procedure was tested with Raspberry Pi OS Bookworm on a  
-> Raspberry Pi 3 (November 25, 2025).
-
-## 1. Prerequisites
-
-- Raspberry Pi 3 (Model B or B+)
-- Raspberry Pi OS (Bookworm recommended)
-- kBerry KNX interface mounted on the GPIO header
-- Node-RED with KNX Ultimate installed
-- Basic terminal access (SSH or local console)
-
-## 2. Wiring / Hardware Overview
-
-The kBerry uses the Raspberry Pi's primary UART:
-
-- **TX / RX**: GPIO14 (TXD) and GPIO15 (RXD)
-- **GND**: Common ground between Raspberry Pi and kBerry
-- **Power**: Provided via the GPIO header
-
-Make sure the kBerry is properly seated on the Raspberry Pi GPIO header
-and that no other HAT is conflicting with those pins.
-
-## 3. Disable Bluetooth and Enable the Hardware UART
-
-### 3.1 Edit the correct config file (Bookworm)
-
-```bash
-sudo nano /boot/firmware/config.txt
-```
-
-Add (or ensure you have):
-
-```ini
-enable_uart=1
-dtoverlay=pi3-disable-bt
-```
-
-### 3.2 Disable ModemManager (if present)
-
-```bash
-sudo systemctl disable --now ModemManager
-```
-
-### 3.3 Disable Bluetooth service
-
-```bash
-sudo systemctl disable --now bluetooth.service
-```
-
-## 4. Disable Serial Login Console / Enable Hardware UART
-
-Start the configuration tool:
-
-```bash
-sudo raspi-config
-```
-
-Then navigate through the menus:
-
-- **Interface Options** (or **Interfacing Options** on older systems)
-- **Serial Port**
-
-You will see two questions:
-
-- "Login shell to be accessible over serial?" → choose **No**
-- "Enable serial port hardware?" → choose **Yes**
-
-Finish and exit `raspi-config`, then reboot when asked (or manually later).
-
-## 5. Verify UART
-
-```bash
-ls -l /dev/serial0
-ls -l /dev/ttyAMA0
-dmesg | grep tty
-```
-
-Expected:
-
-```text
-/dev/serial0 -> ttyAMA0
-/dev/ttyAMA0 exists
-```
-
-## 6. Add Node-RED user to `dialout`
-
-Linux uses the `dialout` group to grant access to serial ports
-like `/dev/ttyAMA0` or `/dev/ttyUSB0`.  
-The **user that runs Node-RED** must belong to this group, otherwise
-KNX Ultimate cannot open the serial port.
-
-If you installed Node-RED with the official script, the service user is
-usually `nodered`. On some systems it may be `pi` or another user; adapt
-the commands accordingly.
-
-Check the current groups:
-
-```bash
-id nodered   # or: id pi
-```
-
-Add the user to the `dialout` group:
-
-```bash
-sudo usermod -aG dialout nodered
-```
-
-After changing group membership, log out and log in again for that user,
-or simply reboot:
-
-```bash
-sudo reboot
-```
-
-This step is only needed when you use a **serial** gateway; pure KNX/IP
-setups do not require `dialout`.
-
-## 7. Configure KNX Ultimate
-
-In the KNX Ultimate gateway node:
-
-- **Interface type**: Serial FT1.2 / TPUART
-- **Serial port**: `/dev/ttyAMA0`
-- **Baud rate**: 19200
-- **Data bits**: 8
-- **Parity**: Even
-- **Stop bits**: 1
-
-## 8. Troubleshooting
-
-### No `/dev/ttyAMA0`
-
-- Check `/boot/firmware/config.txt` entries
-- Reboot
-- Re-check `dmesg`
-
-### `/dev/serial0` → `ttyS0`
-
-- `dtoverlay=pi3-disable-bt` not applied
-- Re-check config file path
-- Reboot
-
-### Serial cannot be opened
-
-- Ensure the Node-RED user is in `dialout` (`id nodered`)
-- Check that no other program is using `/dev/ttyAMA0`
-- Verify that the KNX Ultimate gateway node is configured for `/dev/ttyAMA0`
-
----
-
-Done.
-</div>

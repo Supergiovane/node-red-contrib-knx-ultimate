@@ -32,18 +32,18 @@ You can send an Email to the KNX installer responsible to your Building, or you 
 | ----------------------------- | --------------------------------------------------------------------------------------------------- |
 | Gateway | Selected KNX gateway. |
 | Group Address to monitor | The node will send a telegram to this address and monitors the message flowing through the KNX BUS. The Datapoint must be DPT 1.x (boolean).|
-| Name | Node Name |
+| Node Name | Node Name |
 | Auto start the watchdog timer | The watchdog timer starts automatically on deploy or on node-red start. |
-| Check level | See below |
+| Check level (please see the wiki) | See below |
 
-**Check level ** > _**Ethernet** _ : \*Chechks the connection between knx-ultimate Gateway in unicast mode and your KNX IP Interface.
+**Check level** > _**Ethernet**_: Checks the connection between knx-ultimate Gateway in unicast mode and your KNX IP Interface.
 
 <img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/WatchDogEthernetLevel.png"
  width="90%">
 
 > _ **Ethernet and KNX TP** _ : Complete check. It works either with KNX/IP Routers and KNX/IP Interfaces (as well as
 
-address set), it checks the connection between KNX-Ultimate and this physical KNX device, by issuing a read request and by awaiting a response telegram from this device. Any error on the ethernet trunk or on the KNX Twisted Pair trunk will be notified. To setup this check level, you need to reserve a Group Address and add it to a "Status" output of your KNX Actuator. For example, if you have a light actuator, it has for sure a "light status" output that can **respond ** to a**read request** .
+address set), it checks the connection between KNX-Ultimate and this physical KNX device, by issuing a read request and by awaiting a response telegram from this device. Any error on the ethernet trunk or on the KNX Twisted Pair trunk will be notified. To setup this check level, you need to reserve a Group Address and add it to a "Status" output of your KNX Actuator. For example, if you have a light actuator, it has for sure a "light status" output that can **respond** to a **read request**.
 
 About this picture, in ETS, assign an Output of this Gira KNX Actuator to a Light **Status** (for example 12/0/0). Everytime the Watchdog node asks for the status, the Gira KNX Actuator will respond. The WatchDog then know, that your KNX
 

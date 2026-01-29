@@ -4,7 +4,7 @@ title: "HUE Light sensor"
 lang: en
 permalink: /wiki/HUE%20Light%20sensor
 ---
-This node reads lux events from a HUE Light Sensor and maps them to KNX.
+This node reads lux events from a Hue Light Sensor and maps them to KNX.
 
 It emits the ambient illuminance (lux) each time it changes. Start typing in the GA field (name or Group Address) to link the KNX GA; devices appear while you type.
 
@@ -13,8 +13,8 @@ It emits the ambient illuminance (lux) each time it changes. Start typing in the
 |Property|Description|
 |--|--|
 | KNX GW | Select the KNX gateway to be used |
-| HUE Bridge | Select the HUE Bridge to be used |
-| HUE Sensor | HUE Light Sensor to use (autocomplete while typing).|
+| Hue Bridge | Select the Hue Bridge to be used |
+| Hue Light Sensor | Hue Light Sensor to use (autocomplete while typing).|
 | Read status at startup | Read the status at startup and emit the event to the KNX bus at startup/reconnection. (Default "no")|
 
 **Mapping**

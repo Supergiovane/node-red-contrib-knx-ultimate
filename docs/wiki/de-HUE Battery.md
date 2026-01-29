@@ -12,9 +12,9 @@ Im GA-Feld den KNX-Gerätenamen oder die Gruppenadresse eingeben; beim Tippen er
 
 | Eigenschaft | Beschreibung |
 |--|--|
-| KNX GW | KNX-Gateway, auf das der Batteriestand veröffentlicht wird (erforderlich, damit KNX-Felder angezeigt werden). |
-| Hue Bridge | Hue-Bridge, auf der das Gerät eingebunden ist. |
-| Hue Sensor | Hue-Gerät/Sensor, das den Batteriestand liefert (unterstützt Autovervollständigung und Refresh). |
+| KNX-Gateway | KNX-Gateway, auf das der Batteriestand veröffentlicht wird (erforderlich, damit KNX-Felder angezeigt werden). |
+| Hue Bridge | Hue Bridge, auf der das Gerät eingebunden ist. |
+| Hue-Batteriesensor | Hue-Gerät/Sensor, das den Batteriestand liefert (unterstützt Autovervollständigung und Refresh). |
 
 **Zuordnung**
 

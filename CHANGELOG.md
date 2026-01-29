@@ -6,6 +6,17 @@
 
 # CHANGELOG
 
+**Version 4.1.16** - January 2026<br/>
+
+- NEW: KNX AI sidebar: added another TAB in the Node-Red's toolbar buttons dedicated to AI analysis.<br>
+- NEW: added **KNX AI** node (traffic analyzer + optional LLM assistant) and **KNX AI** sidebar tab.<br/>
+- NEW: added **KNX Multi Routing** node to bridge multiple `knxUltimate-config` gateways via Node-RED (RAW telegram forwarding + source/destination metadata).<br/>
+- NEW: added **KNX Router Filter** node to filter routed RAW telegrams (event type + GA/source patterns + loop prevention).<br/>
+- Docs: completed the help + wiki pages for **KNX AI**, **KNX Multi Routing** and **KNX Router Filter** in all supported languages, and added them to the docs homepages.<br/>
+- Docs: added the new nodes to the wiki navbar in all languages (so they appear in the left navigation menu).<br/>
+- Docs: added new wiki **Samples** pages (with diagrams) for the 3 new nodes.<br/>
+- Examples: added importable Node-RED flow JSON examples for **KNX AI**, **KNX Multi Routing** and **KNX Router Filter**.<br/>
+
 **Version 4.1.15** - January 2026<br/>
 
 - KNX Engine bump to 5.2.4<br/>

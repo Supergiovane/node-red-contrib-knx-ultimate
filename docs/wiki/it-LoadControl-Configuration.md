@@ -19,10 +19,10 @@ Il nodo disattiva un dispositivo (o più dispositivi) alla volta, in base all'or
 | Proprietà | Descrizione |
 |-|-|
 |Gateway |KNX Gateway.È anche possibile non selezionare alcun gateway;In questo caso verranno considerati solo i messaggi in arrivo al nodo.|
-|Monitor WH |Indirizzo di gruppo che rappresenta il consumo totale del tuo edificio.|
-|Limite WH |Soglia massima che il misuratore di elettricità può resistere.Quando questa soglia viene superata, il nodo inizia a disattivare i dispositivi.|
-|Spegnere di ritardo Off (S) |Espresso in secondi, indica la frequenza con cui il nodo valuterà il consumo e spenderà ciascun dispositivo.|
-|Interruttore di ritardo su (S) |Espresso in pochi secondi, indica la frequenza con cui il nodo valuterà il consumo e accenderà ciascun dispositivo spento.|
+|Monitor W |Indirizzo di gruppo che rappresenta il consumo totale del tuo edificio.|
+|Soglia W |Soglia massima che il misuratore di elettricità può resistere.Quando questa soglia viene superata, il nodo inizia a disattivare i dispositivi.|
+|Ritardo distacco (s) |Espresso in secondi, indica la frequenza con cui il nodo valuterà il consumo e spenderà ciascun dispositivo.|
+|Ritardo ripristino (s) |Espresso in pochi secondi, indica la frequenza con cui il nodo valuterà il consumo e accenderà ciascun dispositivo spento.|
 
 \*\* Controllo del carico \*\*
 
@@ -42,7 +42,7 @@ Se \*Recupero automatico \* è abilitato, il dispositivo viene riattivato automa
 |`msg.enable = true` |Abilita il controllo del carico. |
 |`msg.disable = true` |Disabilita il controllo del carico. |
 |`msg.reset = true` |Ripristina gli stati del nodo e riaccendi tutti i dispositivi |
-|`msg.shedding` |Corda._ Shed_ per iniziare la sequenza di spargimento di Formward,_ non è stato rilasciato\*per iniziare lo spargimento inverso.Utilizzare questo MSG per forzare il timer di spargimento ad avviare/fermare, ignorando l'indirizzo del gruppo \*\*Monitor WH \*\*.Impost&#x61;_&#x41;ut&#x6F;_&#x70;er abilitare di nuovo il monitoraggio dell'indirizzo del gruppo \*\*monitor wh \*\*.|
+|`msg.shedding` |Corda._ Shed_ per iniziare la sequenza di spargimento di Formward,_ non è stato rilasciato\*per iniziare lo spargimento inverso.Utilizzare questo MSG per forzare il timer di spargimento ad avviare/fermare, ignorando l'indirizzo del gruppo \*\*Monitor W \*\*.Impost&#x61;_&#x41;ut&#x6F;_&#x70;er abilitare di nuovo il monitoraggio dell'indirizzo del gruppo \*\*Monitor W \*\*.|
 
 ## Output
 

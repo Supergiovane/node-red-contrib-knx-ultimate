@@ -10,14 +10,16 @@ The node records all telegrams transmitted to the KNX BUS and store the values i
 It then responds to read requests by sending such memorized value back to the BUS as request.\
 If the group address to be read has no value yet, the node will respond with a default value.\
 The node will respond only to group addresses specified in the **Respond to** JSON field.\
-By default, there is a pre-compiled **sample ** "Respond to" JSON text, where you can simply change/delete things. Please make sure**not to use it as is ** !!!**Configuration**
+By default, there is a pre-compiled **sample** "Respond to" JSON text, where you can simply change/delete things. Please make sure **not to use it as is** !!!
+
+**Configuration**
 
 |Property|Description|
 |--|--|
 | Gateway | Select the KNX gateway to be used |
 | Respond to | The node will respond to read requests coming from the group addresses specified in this JSON array. The format is specified below. |
 
-**JSON format ** The JSON is**always** an array of object, containing each one directive. Each directive, tells to the node what do do.
+**JSON format** The JSON is **always** an array of object, containing each one directive. Each directive, tells to the node what do do.
 
 |Property|Description|
 |--|--|

@@ -4,7 +4,7 @@ title: "HUE Device software update"
 lang: en
 permalink: /wiki/HUE%20Device%20software%20update
 ---
-This node monitors whether a selected HUE device has a software update available and publishes the status to KNX.
+This node monitors whether a selected Hue device has a software update available and publishes the status to KNX.
 
 Start typing the name or group address of your KNX device in the GA field, the avaiable devices start showing up while
 you're typing.
@@ -14,8 +14,8 @@ you're typing.
 |Property|Description|
 |--|--|
 | KNX GW | Select the KNX gateway to be used |
-| HUE Bridge | Select the HUE Bridge to be used |
-| HUE Device | HUE device to monitor for software updates (autocomplete while typing).|
+| Hue Bridge | Select the Hue Bridge to be used |
+| Hue device | Hue device to monitor for software updates (autocomplete while typing).|
 
 **Mapping**
 

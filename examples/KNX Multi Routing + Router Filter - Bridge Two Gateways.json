@@ -1,0 +1,191 @@
+[
+  {
+    "id": "tab_knx_mr_sample",
+    "type": "tab",
+    "label": "KNX Multi Routing sample",
+    "disabled": false,
+    "info": ""
+  },
+  {
+    "id": "cmt_knx_mr_1",
+    "type": "comment",
+    "z": "tab_knx_mr_sample",
+    "name": "Bridge two KNX Ultimate gateways (A ↔ B) using RAW telegram objects + Router Filter.",
+    "info": "",
+    "x": 390,
+    "y": 40,
+    "wires": []
+  },
+  {
+    "id": "mr_gateway_a",
+    "type": "knxUltimateMultiRouting",
+    "z": "tab_knx_mr_sample",
+    "server": "cfg_knx_mr_a",
+    "name": "Gateway A (out/in)",
+    "outputtopic": "GW-A",
+    "dropIfSameGateway": true,
+    "x": 170,
+    "y": 140,
+    "wires": [
+      [
+        "rf_a_to_b"
+      ]
+    ]
+  },
+  {
+    "id": "mr_gateway_b",
+    "type": "knxUltimateMultiRouting",
+    "z": "tab_knx_mr_sample",
+    "server": "cfg_knx_mr_b",
+    "name": "Gateway B (out/in)",
+    "outputtopic": "GW-B",
+    "dropIfSameGateway": true,
+    "x": 930,
+    "y": 140,
+    "wires": [
+      [
+        "rf_b_to_a"
+      ]
+    ]
+  },
+  {
+    "id": "rf_a_to_b",
+    "type": "knxUltimateRouterFilter",
+    "z": "tab_knx_mr_sample",
+    "name": "A → B filter",
+    "allowWrite": true,
+    "allowResponse": true,
+    "allowRead": true,
+    "gaMode": "off",
+    "gaPatterns": "",
+    "srcMode": "off",
+    "srcPatterns": "",
+    "rewriteGA": true,
+    "gaRewriteRules": "0/0/* => 2/0/*",
+    "rewriteSource": false,
+    "srcRewriteRules": "",
+    "x": 390,
+    "y": 140,
+    "wires": [
+      [
+        "mr_gateway_b"
+      ],
+      [
+        "dbg_mr_drop_a_to_b"
+      ]
+    ]
+  },
+  {
+    "id": "rf_b_to_a",
+    "type": "knxUltimateRouterFilter",
+    "z": "tab_knx_mr_sample",
+    "name": "B → A filter",
+    "allowWrite": true,
+    "allowResponse": true,
+    "allowRead": true,
+    "gaMode": "off",
+    "gaPatterns": "",
+    "srcMode": "off",
+    "srcPatterns": "",
+    "rewriteGA": false,
+    "gaRewriteRules": "",
+    "rewriteSource": false,
+    "srcRewriteRules": "",
+    "x": 710,
+    "y": 140,
+    "wires": [
+      [
+        "mr_gateway_a"
+      ],
+      [
+        "dbg_mr_drop_b_to_a"
+      ]
+    ]
+  },
+  {
+    "id": "dbg_mr_drop_a_to_b",
+    "type": "debug",
+    "z": "tab_knx_mr_sample",
+    "name": "Dropped A→B",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload.knxRouterFilter",
+    "targetType": "msg",
+    "x": 410,
+    "y": 200,
+    "wires": []
+  },
+  {
+    "id": "dbg_mr_drop_b_to_a",
+    "type": "debug",
+    "z": "tab_knx_mr_sample",
+    "name": "Dropped B→A",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload.knxRouterFilter",
+    "targetType": "msg",
+    "x": 710,
+    "y": 200,
+    "wires": []
+  },
+  {
+    "id": "dbg_mr_a_raw",
+    "type": "debug",
+    "z": "tab_knx_mr_sample",
+    "name": "Gateway A RAW output",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload.knx",
+    "targetType": "msg",
+    "x": 170,
+    "y": 240,
+    "wires": []
+  },
+  {
+    "id": "dbg_mr_b_raw",
+    "type": "debug",
+    "z": "tab_knx_mr_sample",
+    "name": "Gateway B RAW output",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload.knx",
+    "targetType": "msg",
+    "x": 930,
+    "y": 240,
+    "wires": []
+  },
+  {
+    "id": "cfg_knx_mr_a",
+    "type": "knxUltimate-config",
+    "z": "",
+    "host": "224.0.23.12",
+    "port": "3671",
+    "physAddr": "15.15.201",
+    "suppressACKRequest": false,
+    "csv": "",
+    "KNXEthInterface": "Auto",
+    "KNXEthInterfaceManuallyInput": "",
+    "autoReconnect": "yes"
+  },
+  {
+    "id": "cfg_knx_mr_b",
+    "type": "knxUltimate-config",
+    "z": "",
+    "host": "224.0.23.12",
+    "port": "3671",
+    "physAddr": "15.15.202",
+    "suppressACKRequest": false,
+    "csv": "",
+    "KNXEthInterface": "Auto",
+    "KNXEthInterfaceManuallyInput": "",
+    "autoReconnect": "yes"
+  }
+]

@@ -14,7 +14,7 @@ Nel campo GA digita nome o indirizzo di gruppo KNX: i risultati compaiono durant
 |--|--|
 | Gateway KNX | Gateway KNX su cui pubblicare il livello batteria (necessario per visualizzare le opzioni KNX). |
 | Hue Bridge | Hue Bridge da utilizzare. |
-| Sensore Hue | Dispositivo/sensore Hue che fornisce il livello batteria (supporta autocompletamento e refresh). |
+| Sensore batteria Hue | Dispositivo/sensore Hue che fornisce il livello batteria (supporta autocompletamento e refresh). |
 
 **Mappatura**
 

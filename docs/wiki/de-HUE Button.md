@@ -13,7 +13,7 @@ Tippen Sie im GA-Feld (Name oder Gruppenadresse), um die KNX-GA zu verknüpfen; 
 |Eigenschaft|Beschreibung|
 |--|--|
 | KNX-Gateway | Zu verwendendes KNX-Gateway |
-| HUE-Bridge | Zu verwendende HUE-Bridge |
+| Hue Bridge | Zu verwendende Hue Bridge |
 | Hue-Taster | Zu verwendender Hue-Taster (Autovervollständigung) |
 
 **Schalten**

@@ -4,7 +4,7 @@ title: "HUE Humidity sensor"
 lang: en
 permalink: /wiki/HUE%20Humidity%20sensor
 ---
-This node reads relative humidity (%) from a HUE humidity sensor and maps it to KNX.
+This node reads relative humidity (%) from a Hue humidity sensor and maps it to KNX.
 
 Start typing in the GA field (name or Group Address) to link the KNX GA; devices appear while you type.
 
@@ -13,8 +13,8 @@ Start typing in the GA field (name or Group Address) to link the KNX GA; devices
 |Property|Description|
 |--|--|
 | KNX GW | Select the KNX gateway to be used |
-| HUE Bridge | Select the HUE Bridge to be used |
-| HUE Sensor | HUE humidity sensor (autocomplete while typing) |
+| Hue Bridge | Select the Hue Bridge to be used |
+| Hue Sensor | Hue humidity sensor (autocomplete while typing) |
 | Read status at startup | On startup/reconnect, read current value and send it to KNX (default: no) |
 
 **Mapping**

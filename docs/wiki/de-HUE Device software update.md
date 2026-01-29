@@ -13,9 +13,9 @@ Sie tippen.
 
 | Eigenschaft | Beschreibung |
 |-|-|
-|KNX GW |Wählen Sie das zu verwendende KNX -Gateway |
-|Hue Bridge |Wählen Sie die zu verwendende Farbtonbrücke aus |
-| HUE Device | Zu überwachendes HUE-Gerät (Autocomplete) |
+|KNX-Gateway |Wählen Sie das zu verwendende KNX -Gateway |
+|Hue Bridge |Wählen Sie die zu verwendende Hue Bridge aus |
+| Hue-Gerät | Zu überwachendes HUE-Gerät (Autocomplete) |
 
 **Zuordnung**
 

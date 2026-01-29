@@ -1,0 +1,37 @@
+<script type="text/markdown" data-help-name="knxUltimateRouterFilter">
+Filtert RAW-Telegramm-Objekte (typischerweise vom **KNX Multi Routing** Node), bevor sie an ein anderes Gateway weitergeleitet werden.
+
+## Muster-Syntax
+- Gruppenadresse (GA) unterstützt `*` pro Ebene:
+  - `0/0/*` matcht alle GAs in `0/0`
+  - `0` entspricht `0/*/*`
+- Source (physikalische Adresse) unterstützt `*` pro Ebene:
+  - `1.1.*` matcht alle Geräte in Bereich `1`, Linie `1`
+  - `1` entspricht `1.*.*`
+- Erweitert: `re:<regex>` um direkt eine Regex zu verwenden.
+
+## Modus (GA / Source)
+- **Off**: kein Filter
+- **Allow only matching**: lässt nur passende durch
+- **Block matching**: verwirft passende
+
+## Ausgänge
+1. **Passed** (weiterleiten)
+2. **Dropped** (optional zum Debuggen)
+
+## Rewrite (Umschreiben)
+Optionales Umschreiben von:
+- Ziel-Gruppenadresse (`knx.destination`)
+- Source-PA (`knx.source`)
+
+Regeln werden von oben nach unten ausgewertet (first match wins).
+
+Beispiele:
+- Wildcards: `0/0/* => 2/0/*` (das `*` wird „gecaptured“ und wiederverwendet)
+- Regex: `re:^1/2/(\\d+)$ => 3/2/$1`
+
+## Metadaten
+Der Node fügt `msg.payload.knxRouterFilter` hinzu:
+- verworfen: `{ dropped: true, reason: 'event'|'ga'|'source', ... }`
+- durchgelassen: `{ dropped: false, rewritten: <bool>, rewrite: { ... }, original: { ... } }`
+</script>

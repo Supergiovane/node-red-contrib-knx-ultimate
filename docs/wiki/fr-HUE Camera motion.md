@@ -13,8 +13,8 @@ Commencez à taper le champ GA (nom ou adresse de groupe) pour lier le KNX GA;Le
 | Propriété | Description |
 |-|-|
 |KNX GW |Sélectionnez la passerelle KNX à utiliser |
-|Hue Bridge |Sélectionnez le pont Hue à utiliser |
-|Capteur de teinte |Capteur de mouvement de la caméra Hue (assortiment automatique pendant la frappe) |
+|Hue Bridge |Sélectionnez la Hue Bridge à utiliser |
+|Motion de la caméra Hue |Capteur de mouvement de la caméra Hue (assortiment automatique pendant la frappe) |
 |Lire l'état au démarrage |Au démarrage / reconnecter, lisez la valeur actuelle et envoyez-la à KNX (par défaut: non) |
 
 **Mappage**

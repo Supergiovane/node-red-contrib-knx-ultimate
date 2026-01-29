@@ -12,9 +12,9 @@ Es wird die Umgebungshelligkeit (Lux) bei Änderungen ausgegeben. Im GA-Feld den
 
 | Eigenschaft | Beschreibung |
 |-|-|
-|KNX GW |Wählen Sie das zu verwendende KNX -Gateway |
-|Hue Bridge |Wählen Sie die zu verwendende Farbtonbrücke aus |
-| HUE Sensor | Zu verwendender HUE-Lichtsensor (Autocomplete) |
+|KNX-Gateway |Wählen Sie das zu verwendende KNX -Gateway |
+|Hue Bridge |Wählen Sie die zu verwendende Hue Bridge aus |
+| Hue Lichtsensor | Zu verwendender HUE-Lichtsensor (Autocomplete) |
 |Status bei Startup lesen |Lesen Sie den Status beim Start und geben Sie das Ereignis bei Startup/Wiederverbindung an den KNX -Bus aus.(Standard "nein") |
 
 **Zuordnung**

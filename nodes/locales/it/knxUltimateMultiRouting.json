@@ -1,0 +1,14 @@
+{
+  "knxUltimateMultiRouting": {
+    "title": "KNX Multi Routing",
+    "properties": {
+      "server": "Gateway",
+      "name": "Nome",
+      "outputtopic": "Topic output",
+      "dropIfSameGateway": "Scarta messaggi già marcati per questo gateway"
+    },
+    "outputs": {
+      "raw": "Telegrammi RAW"
+    }
+  }
+}

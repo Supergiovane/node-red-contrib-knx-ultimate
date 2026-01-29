@@ -13,9 +13,9 @@ permalink: /wiki/zh-CN-HUE%20Device%20software%20update
 
 |属性|描述|
 | - | - |
-|KNX GW |选择要使用的KNX门户|
+|KNX 网关 |选择要使用的KNX门户|
 |色相桥|选择要使用的色调桥|
-| HUE Device | 要监控的 HUE 设备（自动补全） |
+| Hue 设备 | 要监控的 HUE 设备（自动补全） |
 
 **映射**
 

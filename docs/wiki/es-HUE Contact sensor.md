@@ -13,8 +13,8 @@ Comience a escribir en el campo GA, el nombre o la dirección de grupo de su dis
 | Propiedad | Descripción |
 |-|-|
 |KNX GW |Seleccione la puerta de enlace KNX para ser utilizada |
-|Puente Hue |Seleccione el puente de tono que se utilizará |
-|Sensor de tono |Sensor de contacto de Hue para ser utilizado (autocompletar mientras se escribe). |
+|Hue Bridge |Seleccione la Hue Bridge que se utilizará |
+|Sensor de contacto de tono |Sensor de contacto de Hue para ser utilizado (autocompletar mientras se escribe). |
 
 |Propiedad |Descripción |
 |-|-|

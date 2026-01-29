@@ -12,8 +12,8 @@ Inizia a digitare nel campo GA, il nome o l'indirizzo di gruppo del dispositivo 
 
 | Proprietà | Descrizione |
 |-|-|
-| Gateway KNX | Seleziona il gateway KNX da utilizzare |
-| Hue Bridge | Seleziona il ponte Hue da utilizzare |
+|Gateway KNX |Seleziona il gateway KNX da utilizzare |
+|Hue Bridge |Seleziona la Hue Bridge da utilizzare |
 | Sensore contatto Hue | Sensore di contatto HUE da usare (autocompletamento) |
 
 |Proprietà |Descrizione |

@@ -17,7 +17,7 @@ La escena **Hue** nodo expone escenas de tono a KNX y puede reenviar los eventos
 | Propiedad | Descripción |
 |-|-|
 |KNX GW |KNX Gateway que suministra el catálogo de direcciones utilizado para autocompletar.|
-|Puente de tono |Puente de Hue que alberga las escenas.|
+|Hue Bridge |Hue Bridge que alberga las escenas.|
 |Escena de tono |Escena para recuperar (Autocompletar; Refresh Button Recargue el catálogo del puente).|
 
 Pestaña de mapeo ###

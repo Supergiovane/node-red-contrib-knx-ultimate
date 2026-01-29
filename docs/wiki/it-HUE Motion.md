@@ -12,8 +12,8 @@ Nel campo GA digita nome o indirizzo di gruppo KNX: i suggerimenti appaiono dura
 
 | Proprietà | Descrizione |
 |-|-|
-| Gateway KNX | Gateway KNX che riceve le segnalazioni di movimento (necessario per visualizzare le opzioni KNX) |
-| Hue Bridge | Hue Bridge da interrogare |
+|Gateway KNX |Gateway KNX che riceve le segnalazioni di movimento (necessario per visualizzare le opzioni KNX) |
+|Hue Bridge |Hue Bridge da interrogare |
 | Sensore movimento Hue | Sensore di movimento Hue (supporta autocompletamento e refresh) |
 
 **Mappatura**

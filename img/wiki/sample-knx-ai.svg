@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420">
+  <defs>
+    <style>
+      .bg { fill: #0b1220; }
+      .card { fill: #111c34; stroke: #2b3a63; stroke-width: 2; }
+      .accent { fill: #7c5cff; }
+      .accent2 { fill: #1f6feb; }
+      .accent3 { fill: #2ea043; }
+      .text { fill: #e6edf3; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 22px; }
+      .small { fill: #a8b3cf; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 16px; }
+      .mono { fill: #c9d1d9; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size: 16px; }
+      .arrow { stroke: #7aa2f7; stroke-width: 4; fill: none; marker-end: url(#m); }
+      .arrow2 { stroke: #7ee787; stroke-width: 4; fill: none; marker-end: url(#m2); }
+    </style>
+    <marker id="m" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M0,0 L12,6 L0,12 z" fill="#7aa2f7"/>
+    </marker>
+    <marker id="m2" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M0,0 L12,6 L0,12 z" fill="#7ee787"/>
+    </marker>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="1200" height="420" rx="18"/>
+
+  <rect class="card" x="60" y="120" width="280" height="180" rx="16"/>
+  <rect class="accent2" x="60" y="120" width="280" height="10" rx="16"/>
+  <text class="text" x="90" y="175">KNX Bus</text>
+  <text class="small" x="90" y="210">Telegram stream</text>
+  <text class="mono" x="90" y="245">0/0/7  GroupValue_Write</text>
+  <text class="mono" x="90" y="270">1/2/3  GroupValue_Read</text>
+
+  <rect class="card" x="420" y="80" width="360" height="260" rx="16"/>
+  <rect class="accent" x="420" y="80" width="360" height="10" rx="16"/>
+  <text class="text" x="450" y="135">Node-RED</text>
+  <text class="small" x="450" y="170">KNX AI node</text>
+  <text class="mono" x="450" y="215">Output 1: Summary / Stats</text>
+  <text class="mono" x="450" y="245">Output 2: Anomalies</text>
+  <text class="mono" x="450" y="275">Output 3: Assistant answer</text>
+  <text class="small" x="450" y="310">Optional LLM ask: topic = "ask"</text>
+
+  <rect class="card" x="860" y="95" width="280" height="140" rx="16"/>
+  <rect class="accent3" x="860" y="95" width="280" height="10" rx="16"/>
+  <text class="text" x="890" y="150">Sidebar</text>
+  <text class="small" x="890" y="185">KNX AI tab</text>
+  <text class="mono" x="890" y="215">Summary + chat</text>
+
+  <rect class="card" x="860" y="255" width="280" height="120" rx="16"/>
+  <rect class="accent2" x="860" y="255" width="280" height="10" rx="16"/>
+  <text class="text" x="890" y="305">LLM Provider</text>
+  <text class="small" x="890" y="340">OpenAI-compatible endpoint</text>
+  <text class="mono" x="890" y="365">chat/completions</text>
+
+  <path class="arrow" d="M340 210 C380 210, 390 210, 420 210"/>
+  <text class="small" x="360" y="195">telegrams</text>
+
+  <path class="arrow" d="M780 165 C820 165, 830 165, 860 165"/>
+  <text class="small" x="795" y="150">summary</text>
+
+  <path class="arrow2" d="M780 285 C820 285, 830 285, 860 285"/>
+  <text class="small" x="800" y="270">ask</text>
+
+  <path class="arrow2" d="M860 325 C830 325, 820 325, 780 325"/>
+  <text class="small" x="795" y="348">answer</text>
+
+  <text class="small" x="60" y="390">Sample diagram: KNX AI keeps a rolling history in RAM, emits summaries/anomalies, and can optionally query an LLM to help troubleshoot.</text>
+</svg>
+

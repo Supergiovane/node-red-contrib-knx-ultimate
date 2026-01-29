@@ -12,9 +12,9 @@ permalink: /wiki/zh-CN-HUE%20Battery
 
 |属性|说明|
 |--|--|
-| KNX GW | 发布电量的 KNX 网关（选择后才会显示 KNX 映射设置）。|
-| Hue Bridge | 使用的 Hue 网桥。|
-| Hue 传感器 | 提供电量信息的 Hue 设备/传感器（支持自动补全与刷新）。|
+| KNX 网关 | 发布电量的 KNX 网关（选择后才会显示 KNX 映射设置）。|
+| Hue Bridge | 使用的 Hue Bridge。|
+| Hue 电池传感器 | 提供电量信息的 Hue 设备/传感器（支持自动补全与刷新）。|
 
 **映射**
 

@@ -13,7 +13,7 @@ Start typing in the GA field (name or Group Address) to link the KNX GA; devices
 |Property|Description|
 |--|--|
 | KNX GW | Select the KNX gateway to be used |
-| HUE Bridge | Select the HUE Bridge to be used |
+| Hue Bridge | Select the Hue Bridge to be used |
 | Hue Button | Hue button to be used (autocomplete while typing) |
 
 **Switch**
@@ -33,7 +33,7 @@ Start typing in the GA field (name or Group Address) to link the KNX GA; devices
 
 |Property|Description|
 |--|--|
-| Toggle values | If enabled, the node alternates between <code>true/false</code> and up/down dimming payloads. |
+| Toggle values on each event | If enabled, the node alternates between <code>true/false</code> and up/down dimming payloads. |
 | Switch payload | Payload sent to KNX/flow when Toggle values is disabled. |
 | Dim payload | Direction sent to KNX/flow when Toggle values is disabled. |
 

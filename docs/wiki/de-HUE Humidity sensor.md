@@ -13,7 +13,7 @@ Beginne im GA-Feld (Name oder Gruppenadresse) zu tippen, um die KNX-GA zu verkn�
 |Eigenschaft|Beschreibung|
 |--|--|
 | KNX Gateway | Das zu verwendende KNX-Gateway auswählen |
-| HUE Bridge | Die zu verwendende HUE-Bridge auswählen |
+| Hue Bridge | Die zu verwendende Hue Bridge auswählen |
 | HUE Sensor | HUE-Luftfeuchtigkeitssensor (Auto-Vervollständigung beim Tippen) |
 | Status beim Start auslesen | Beim Start/Reconnect den aktuellen Wert lesen und auf KNX senden (Standard: Nein) |
 

@@ -62,7 +62,8 @@ If enabled, "f(x)" indication will be added to node's name.
 
 |Property|Description|
 |--|--|
-| Search GA | It's a helper only avaiable if the ETS file has been imported. Start typing and select the group address you wish to add to the code. Then copy the full field and paste it into the getGAValue function.<br>**getGAValue('0/0/1 table nord lamp')** |
+| Search GA | It's a helper only avaiable if the ETS file has been imported. Start typing and select the group address you wish to add to the code. Then copy the full field and paste it into the getGAValue function. 
+ **getGAValue('0/0/1 table nord lamp')** |
 
 ### List of common object and functions you can use in the code
 
@@ -199,31 +200,31 @@ This is, instead, an example of the complete msg object.
 ```javascript
 
 msg = {
-  topic: "0/1/2", // (Contains the node's topic, for example "MyTopic". If the node's topic is not set, contains the Group Address, for example "0/1/2")
-  payload: false,
-  previouspayload: true, // Previous node payload value.
-  payloadmeasureunit: "%", // Payload's measure unit.
-  payloadsubtypevalue: "Start", // Subtype's decoded value, for exampe, On/Off, Ramp/NoRamp, Start/Stop, Alarm/NoAlarm
-  devicename: "Dining table lamp", // If the node is in universal mode, it contains the full path (main, middle, name) of the group address name, otherwise, the node name.
-  gainfo: {
-    maingroupname: "Light actuators",
-    middlegroupname: "First flow lights",
-    ganame: "Table Light",
-    maingroupnumber: "1",
-    middlegroupnumber: "1",
-    ganumber: "0",
-  },
-  echoed: true, // True if the msg is coming from the input PIN, otherwise false if the msg is coming form the KNX BUS.
-  knx: {
-    // This is a representation of the KNX BUS telegram, coming from BUS
-    event: "GroupValue_Write", // (or "GroupValue_Response", or "GroupValue_Read")
-    dpt: "1.001",
-    dptdesc: "Humidity", // Payload's measure unit description
-    source: "15.15.22",
-    destination: "0/1/2", // Contains the Group Address
-    rawValue: "<Buffer 00>", // (or null, if "GroupValue_Read")
-  },
-};
+    topic: "0/1/2" // (Contains the node's topic, for example "MyTopic". If the node's topic is not set, contains the Group Address, for example "0/1/2")
+    payload: false 
+    previouspayload: true // Previous node payload value.
+    payloadmeasureunit: "%" // Payload's measure unit.
+    payloadsubtypevalue: "Start" // Subtype's decoded value, for exampe, On/Off, Ramp/NoRamp, Start/Stop, Alarm/NoAlarm
+    devicename: "Dinning table lamp" // If the node is in universal mode, it contains the full path (main, middle,name) of the group address name, otherwise, the node name.
+    gainfo: { // Contains the details about the group address name and number. This object is only present if the node is set in universal mode and with the ETS file been imported. If something wrong, it contains the string "unknown".
+        maingroupname:"Light actuators"
+        middlegroupname:"First flow lights"
+        ganame:"Table Light"
+        maingroupnumber:"1"
+        middlegroupnumber:"1"
+        ganumber:"0"
+    },
+    echoed:true, // True if the msg is coming from the input PIN, otherwise false if the msg is coming form the KNX BUS.
+    knx: { // This is a representation of the KNX BUS telegram, coming from BUS
+        event: "GroupValue_Write" // (or "GroupValue_Response", or "GroupValue_Read")
+        dpt: "1.001"
+        dptdesc: "Humidity" // Payload's measure unit description
+        source: "15.15.22"
+        destination: "0/1/2" // Contains the Group Address
+        rawValue: buffer[1]raw // (or null, if "GroupValue_Read")
+            0: 0x0 // (This is the RAW undecoded value)
+    }
+}
 ```
 
 **Payload sample**
@@ -294,30 +295,30 @@ This is, instead, an example of the complete msg object.
 ```javascript
 
 msg = {
-  topic: "0/1/2", // (Contains the node's topic, for example "MyTopic". If the node's topic is not set, contains the Group Address, for example "0/1/2")
-  payload: false,
-  previouspayload: true, // Previous node payload value.
-  payloadmeasureunit: "%", // Payload's measure unit.
-  payloadsubtypevalue: "Start", // Subtype's decoded value, for exampe, On/Off, Ramp/NoRamp, Start/Stop, Alarm/NoAlarm
-  devicename: "Dining table lamp",
-  gainfo: {
-    maingroupname: "Light actuators",
-    middlegroupname: "First flow lights",
-    ganame: "Table Light",
-    maingroupnumber: "1",
-    middlegroupnumber: "1",
-    ganumber: "0",
-  },
-  knx: {
-    // This is a representation of the KNX BUS telegram, coming from BUS
-    event: "GroupValue_Write", // (or "GroupValue_Response", or "GroupValue_Read")
-    dpt: "1.001",
-    dptdesc: "Humidity", // Payload's measure unit description
-    source: "15.15.22",
-    destination: "0/1/2", // Contains the Group Address
-    rawValue: "<Buffer 00>", // (or null, if "GroupValue_Read")
-  },
-};
+    topic: "0/1/2" // (Contains the node's topic, for example "MyTopic". If the node's topic is not set, contains the Group Address, for example "0/1/2")
+    payload: false 
+    previouspayload: true // Previous node payload value.
+    payloadmeasureunit: "%" // Payload's measure unit.
+    payloadsubtypevalue: "Start" // Subtype's decoded value, for exampe, On/Off, Ramp/NoRamp, Start/Stop, Alarm/NoAlarm
+    devicename: "Dinning table lamp" // If the node is in **universal mode** , it contains the full path (main, middle,name) of the group address name, otherwise, the node name.
+    gainfo: { // Contains the details about the group address name and number. This object is only present if the node is set in **universal mode ** and with the**ETS file ** been imported. If something wrong, it contains the string**unknown** .
+        maingroupname:"Light actuators"
+        middlegroupname:"First flow lights"
+        ganame:"Table Light"
+        maingroupnumber:"1"
+        middlegroupnumber:"1"
+        ganumber:"0"
+    }
+    knx: { // This is a representation of the KNX BUS telegram, coming from BUS
+        event: "GroupValue_Write" // (or "GroupValue_Response", or "GroupValue_Read")
+        dpt: "1.001"
+        dptdesc: "Humidity" // Payload's measure unit description
+        source: "15.15.22"
+        destination: "0/1/2" // Contains the Group Address
+        rawValue: buffer[1]raw // (or null, if "GroupValue_Read")
+            0: 0x0 // (This is the RAW undecoded value)
+    }
+}
 ```
 
 ## MESSAGE OUTPUT FROM THE NODE SET AS "Universal mode (listen to all Group Addresses)"
@@ -412,20 +413,20 @@ CAUTION: in case of _msg.event = "Update\_NoWrite"_ all nodes with the same grou
 
 If you wish to issua a "read" command, please use "readstatus" instead (see below).
 
-**msg.readstatus = true**
+**msg.readstatus = true** 
 
 Issue a "Read" command to the BUS.
 
-**msg.dpt**
+**msg.dpt** 
 
 For example "1.001". Sets the <b>Datapoint</b>. (You can write it in these formats: 9 , "9" , "9.001" or "DPT9.001")
 
-**msg.writeraw**
-**msg.bitlenght**
+**msg.writeraw ** 
+**msg.bitlenght** 
 
 Writes RAW data to the KNX BUS. Please see below an example.
 
-**msg.resetRBE**
+**msg.resetRBE** 
  pass msg.resetRBE = true to a device node, to reset both input and output RBE filter on that particular node.
 
 ## PROGRAMMATICALLY CHANGE THE NODE CONFIGURATION VIA MSG
@@ -482,7 +483,7 @@ return msg;
 
 **SEND RAW VALUE TO THE BUS** 
 
-To send a RAW buffer value to the KNX bus, use the `msg.writeraw` and `msg.bitlenght` properties of the msg input.
+To send a RAW buffer value to the KNX bus, use the _ **writeraw ** _ and _**bitlenght** _ properties of the msg input.
 
 In this case, the _Datapoint_ you set in the property window will be ignored.
 

@@ -17,8 +17,8 @@ The **Hue Scene** node exposes Hue scenes to KNX and can forward the raw Hue eve
 |Property|Description|
 |--|--|
 | KNX GW | KNX gateway supplying the address catalogue used for autocomplete. |
-| HUE Bridge | Hue bridge that hosts the scenes. |
-| HUE Scene | Scene to recall (autocomplete; refresh button reloads the bridge catalogue). |
+| Hue Bridge | Hue Bridge that hosts the scenes. |
+| Hue Scene | Scene to recall (autocomplete; refresh button reloads the bridge catalogue). |
 
 ### Mapping tab
 

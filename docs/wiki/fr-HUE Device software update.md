@@ -14,8 +14,8 @@ vous tapez.
 | Propriété | Description |
 |-|-|
 |KNX GW |Sélectionnez la passerelle KNX à utiliser |
-|Hue Bridge |Sélectionnez le pont Hue à utiliser |
-|Dispositif Hue |Appareil Hue pour surveiller les mises à jour logicielles (assortie automatique pendant la frappe). |
+|Hue Bridge |Sélectionnez la Hue Bridge à utiliser |
+|Dispositif |Appareil Hue pour surveiller les mises à jour logicielles (assortie automatique pendant la frappe). |
 
 **Mappage**
 

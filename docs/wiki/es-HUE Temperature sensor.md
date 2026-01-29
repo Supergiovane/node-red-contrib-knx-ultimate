@@ -13,8 +13,8 @@ Comience a escribir en el campo GA (nombre o dirección de grupo) para vincular 
 | Propiedad | Descripción |
 |-|-|
 |KNX GW |Seleccione la puerta de enlace KNX para ser utilizada |
-|Puente Hue |Seleccione el puente de tono que se utilizará |
-|Sensor de tono |Sensor de temperatura del tono (autocompletado mientras se escribe) |
+|Hue Bridge |Seleccione la Hue Bridge que se utilizará |
+|Sensor de temperatura del tono |Sensor de temperatura del tono (autocompletado mientras se escribe) |
 |Leer el estado al inicio |En Startup/Reconext, lea el valor actual y envíelo a KNX (predeterminado: no) |
 
 **Cartografía**

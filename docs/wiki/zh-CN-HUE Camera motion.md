@@ -14,7 +14,7 @@ Hue Camera Motion 节点监听 Philips Hue 摄像头的运动事件，并将检�
 |--|--|
 | KNX 网关 | 选择要使用的 KNX 网关 |
 | HUE Bridge | 选择要使用的 HUE Bridge |
-| HUE 传感器 | Hue 摄像头运动传感器（输入时自动补全） |
+| HUE 摄像头运动 | Hue 摄像头运动传感器（输入时自动补全） |
 | 启动时读取状态 | 启动/重新连接时读取当前值并发送到 KNX（默认：否） |
 
 **映射**

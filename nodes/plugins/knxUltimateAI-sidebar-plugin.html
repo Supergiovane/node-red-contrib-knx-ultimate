@@ -51,8 +51,8 @@
                 const container = $('<div>').css({ display: 'flex', flexDirection: 'column', height: '100%' });
                 const toolbar = $('<div>').attr('id', 'knx-ai-toolbar').appendTo(container);
                 const nodeSelect = $('<select>').attr('id', 'knx-ai-node-select').appendTo(toolbar);
-                const refreshNodesBtn = $('<button type="button" class="red-ui-button"><i class="fa fa-refresh"></i> Nodes</button>').appendTo(toolbar);
-                const refreshStateBtn = $('<button type="button" class="red-ui-button"><i class="fa fa-repeat"></i> Refresh</button>').appendTo(toolbar);
+                const refreshNodesBtn = $('<button type="button" class="red-ui-button"><i class="fa fa-refresh"></i> Refresh Node List</button>').appendTo(toolbar);
+                const refreshStateBtn = $('<button type="button" class="red-ui-button"><i class="fa fa-repeat"></i> Refresh Summary</button>').appendTo(toolbar);
                 const autoLabel = $('<label style="display:flex;align-items:center;gap:4px; margin:0 0 0 6px; font-size:0.9em;"></label>').appendTo(toolbar);
                 const autoChk = $('<input type="checkbox">').appendTo(autoLabel);
                 $('<span>').text('Auto').appendTo(autoLabel);

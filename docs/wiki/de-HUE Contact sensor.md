@@ -12,9 +12,9 @@ Tippen Sie in das Feld GA, die Name oder die Gruppenadresse Ihres KNX -Geräts, 
 
 | Eigenschaft | Beschreibung |
 |-|-|
-|KNX GW |Wählen Sie das zu verwendende KNX -Gateway |
-|Hue Bridge |Wählen Sie die zu verwendende Farbtonbrücke aus |
-| HUE Sensor | Zu verwendender HUE-Kontaktsensor (Autocomplete) |
+|KNX-Gateway |Wählen Sie das zu verwendende KNX -Gateway |
+|Hue Bridge |Wählen Sie die zu verwendende Hue Bridge aus |
+| Hue-Kontaktsensor | Zu verwendender HUE-Kontaktsensor (Autocomplete) |
 
 |Eigenschaft |Beschreibung |
 |-------- |------------------------------------------------------------------------------------------------------------------ |

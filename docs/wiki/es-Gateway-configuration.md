@@ -8,7 +8,6 @@ permalink: /wiki/es-Gateway-configuration
 
  Este nodo se conecta a su puerta de enlace KNX/IP. 
 
-
 **General**
 
 | Propiedad | Descripción |
@@ -16,18 +15,18 @@ permalink: /wiki/es-Gateway-configuration
 | Nombre | Nombre del nodo. |
 | Ip/hostname | Dirección de multidifusión de enrutador ETH/KNX o dirección IP de unidifusión de interfaz. Si tiene una interfaz KNX/IP, use la dirección IP de la interfaz, por ejemplo, 1982.168.1.22, de lo contrario, si tiene un enrutador KNX/IP, coloque la dirección de multicast 224.0.23.12. También puede escribir un nombre de host **** en lugar de una IP. |
 
-**Configuración**
+ **Configuración**
 
 | Propiedad | Descripción |
 |-|-|
-| Puerto IP | El puerto. El valor predeterminado es 3671. |
-| Protocolo IP | _Tunnel UDP_ es para interfaces KNX/IP, _Multicast UDP_ es para enrutadores KNX/IP, y _Serial FT1.2_ para adaptadores TP/FT1.2 (seleccionado automáticamente cuando eliges un puerto serie). |
+| Puerto | El puerto. El valor predeterminado es 3671. |
+| Protocolo de conexión | _Tunnel UDP_ es para interfaces KNX/IP, _Multicast UDP_ es para enrutadores KNX/IP. |
 | Modo Serial FT1.2 | Define cómo se inicializa la interfaz serie FT1.2: **KBerry/BAOS** habilita la secuencia específica para módulos Weinzierl KBerry/BAOS (reset, modo Link Layer/BAOS, sin filtro de GA), mientras que **Standard FT1.2** utiliza un adaptador FT1.2 genérico sin pasos específicos para KBerry. El valor predeterminado es KBerry/BAOS. |
-| KNX Dirección física | La dirección física KNX, ejemplo 1.1.200. El valor predeterminado es "15.15.22". |
+| Dirección física KNX | La dirección física KNX, ejemplo 1.1.200. El valor predeterminado es "15.15.22". |
 | Atar a la interfaz local | El nodo utilizará esta interfaz local para comunicaciones. Deje "Auto" para la selección automática. Si tiene más de una conexión LAN, por ejemplo, Ethernet y Wifi, se recomienda seleccionar manualmente la interfaz, de lo contrario, no todo UDP Telegram llegará a su computadora, por lo que el nodo puede no funcionar como se esperaba. El valor predeterminado es "Auto". |
-| Conéctese automáticamente al bus KNX al inicio | Conéctese automático al bus al inicio. El valor predeterminado es "Sí". |
-| Fuente de credenciales seguras | Elija cómo se suministran datos seguros KNX: ** Archivo de llaves ETS ** (claves seguras de datos - y credenciales de túnel si están presentes - provienen de la llave),**Credenciales manuales ** (solo KNX IP Tunneling Secure con un usuario ingresado manualmente) o**Contraseña de túnel manual** (Clave segura de datos de la llave mientras el túnel seguro usa el usuario manual)). Recuerde que los telegramas seguros de datos KNX siempre requieren un archivo de llaves. |
-| Interfaz de túnel Dirección individual | Visible siempre que el modo seleccionado incluya credenciales manuales (contraseña manual o de túnel manual o Keyring +). Dirección individual KNX opcional para la interfaz de túnel seguro (por ejemplo `1.1.1`); Deje vacío para dejar que KNX Ultimate lo negocie automáticamente. |
+| Conectarse automáticamente al bus KNX al inicio | Conéctese automático al bus al inicio. El valor predeterminado es "Sí". |
+| Fuente de credenciales seguras | Elija cómo se suministran datos seguros KNX: ** Archivo de llaves ETS ** (claves seguras de datos - y credenciales de túnel si están presentes - provienen de la llave),**Credenciales manuales ** (solo KNX IP Tunneling Secure con un usuario ingresado manualmente) o**Keyring + contraseña de túnel manual** (Clave segura de datos de la llave mientras el túnel seguro usa el usuario manual)). Recuerde que los telegramas seguros de datos KNX siempre requieren un archivo de llaves. |
+| Interfaz túnel ia | Visible siempre que el modo seleccionado incluya credenciales manuales (contraseña manual o de túnel manual o Keyring +). Dirección individual KNX opcional para la interfaz de túnel seguro (por ejemplo `1.1.1`); Deje vacío para dejar que KNX Ultimate lo negocie automáticamente. |
 | ID de usuario del túnel | Visible cuando se usan credenciales manuales. Identificador de usuario de túnel seguro de KNX opcional definido en ETS. |
 | Contraseña de usuario del túnel | Visible cuando se usan credenciales manuales. Contraseña del usuario de túnel seguro KNX configurado en ETS. |
 
@@ -165,165 +164,3 @@ Si puede usar ambos, prefiera el archivo exportado de la dirección del grupo CS
             <td> Nodo discapacitado debido a una referencia circulare. <a href = "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Protections" target = "_ en blanco"> ver esta página. </a> </td>
         </tr>
     </table>
-
-<div markdown="1" style="background:#e9f7e9;border:1px solid #c8e6c8;border-radius:10px;padding:14px 16px;margin:16px 0;">
-
-
-### Using KNX Ultimate with kBerry on Raspberry Pi 3 (UART / FT1.2)
-
-This guide explains how to connect a **kBerry** KNX interface directly
-to a **Raspberry Pi 3** and use it with **KNX Ultimate** over the
-**hardware UART** (`ttyAMA0`) using the **FT1.2 (TPUART)** protocol.
-
-> This procedure was tested with Raspberry Pi OS Bookworm on a  
-> Raspberry Pi 3 (November 25, 2025).
-
-## 1. Prerequisites
-
-- Raspberry Pi 3 (Model B or B+)
-- Raspberry Pi OS (Bookworm recommended)
-- kBerry KNX interface mounted on the GPIO header
-- Node-RED with KNX Ultimate installed
-- Basic terminal access (SSH or local console)
-
-## 2. Wiring / Hardware Overview
-
-The kBerry uses the Raspberry Pi's primary UART:
-
-- **TX / RX**: GPIO14 (TXD) and GPIO15 (RXD)
-- **GND**: Common ground between Raspberry Pi and kBerry
-- **Power**: Provided via the GPIO header
-
-Make sure the kBerry is properly seated on the Raspberry Pi GPIO header
-and that no other HAT is conflicting with those pins.
-
-## 3. Disable Bluetooth and Enable the Hardware UART
-
-### 3.1 Edit the correct config file (Bookworm)
-
-```bash
-sudo nano /boot/firmware/config.txt
-```
-
-Add (or ensure you have):
-
-```ini
-enable_uart=1
-dtoverlay=pi3-disable-bt
-```
-
-### 3.2 Disable ModemManager (if present)
-
-```bash
-sudo systemctl disable --now ModemManager
-```
-
-### 3.3 Disable Bluetooth service
-
-```bash
-sudo systemctl disable --now bluetooth.service
-```
-
-## 4. Disable Serial Login Console / Enable Hardware UART
-
-Start the configuration tool:
-
-```bash
-sudo raspi-config
-```
-
-Then navigate through the menus:
-
-- **Interface Options** (or **Interfacing Options** on older systems)
-- **Serial Port**
-
-You will see two questions:
-
-- "Login shell to be accessible over serial?" → choose **No**
-- "Enable serial port hardware?" → choose **Yes**
-
-Finish and exit `raspi-config`, then reboot when asked (or manually later).
-
-## 5. Verify UART
-
-```bash
-ls -l /dev/serial0
-ls -l /dev/ttyAMA0
-dmesg | grep tty
-```
-
-Expected:
-
-```text
-/dev/serial0 -> ttyAMA0
-/dev/ttyAMA0 exists
-```
-
-## 6. Add Node-RED user to `dialout`
-
-Linux uses the `dialout` group to grant access to serial ports
-like `/dev/ttyAMA0` or `/dev/ttyUSB0`.  
-The **user that runs Node-RED** must belong to this group, otherwise
-KNX Ultimate cannot open the serial port.
-
-If you installed Node-RED with the official script, the service user is
-usually `nodered`. On some systems it may be `pi` or another user; adapt
-the commands accordingly.
-
-Check the current groups:
-
-```bash
-id nodered   # or: id pi
-```
-
-Add the user to the `dialout` group:
-
-```bash
-sudo usermod -aG dialout nodered
-```
-
-After changing group membership, log out and log in again for that user,
-or simply reboot:
-
-```bash
-sudo reboot
-```
-
-This step is only needed when you use a **serial** gateway; pure KNX/IP
-setups do not require `dialout`.
-
-## 7. Configure KNX Ultimate
-
-In the KNX Ultimate gateway node:
-
-- **Interface type**: Serial FT1.2 / TPUART
-- **Serial port**: `/dev/ttyAMA0`
-- **Baud rate**: 19200
-- **Data bits**: 8
-- **Parity**: Even
-- **Stop bits**: 1
-
-## 8. Troubleshooting
-
-### No `/dev/ttyAMA0`
-
-- Check `/boot/firmware/config.txt` entries
-- Reboot
-- Re-check `dmesg`
-
-### `/dev/serial0` → `ttyS0`
-
-- `dtoverlay=pi3-disable-bt` not applied
-- Re-check config file path
-- Reboot
-
-### Serial cannot be opened
-
-- Ensure the Node-RED user is in `dialout` (`id nodered`)
-- Check that no other program is using `/dev/ttyAMA0`
-- Verify that the KNX Ultimate gateway node is configured for `/dev/ttyAMA0`
-
----
-
-Done.
-</div>

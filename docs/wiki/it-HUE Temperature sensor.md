@@ -13,8 +13,8 @@ Inizia a digitare nel campo GA (nome o indirizzo di gruppo) per collegare la GA 
 | Proprietà | Descrizione |
 |--|--|
 | Gateway KNX | Seleziona il gateway KNX da utilizzare |
-| Hue Bridge | Seleziona la HUE Bridge da utilizzare |
-| Sensore HUE | Sensore di temperatura HUE (autocompletamento) |
+| Hue Bridge | Seleziona la Hue Bridge da utilizzare |
+| Sensore temperatura Hue | Sensore di temperatura HUE (autocompletamento) |
 | Leggi lo stato all'avvio | All'avvio/riconnessione, leggi il valore corrente e invialo su KNX (predefinito: no) |
 
 **Mapping**

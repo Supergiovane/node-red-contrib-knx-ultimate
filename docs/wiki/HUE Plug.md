@@ -10,7 +10,7 @@ permalink: /wiki/HUE%20Plug
 
 The Hue Plug node links a Philips Hue smart plug (service `plug`) with KNX group addresses so you can control power and track the state directly from the BUS.
 
-- Supports **on/off control ** and**status feedback** .
+- Supports **on/off control** and **status feedback**.
 - Optional mapping of the Hue `power_state` (on / standby).
 - Can expose Node-RED input/output pins to forward Hue events to flows or send advanced API payloads.
 
@@ -19,13 +19,13 @@ The Hue Plug node links a Philips Hue smart plug (service `plug`) with KNX group
 |Field|Description|
 |--|--|
 | KNX GW | KNX gateway used for telegrams |
-| HUE Bridge | Configured Hue bridge |
+| Hue Bridge | Configured Hue Bridge |
 | Name | Select the Hue plug from the autocomplete list |
 | Control | KNX GA for on/off commands (boolean DPT) |
 | Status | GA for the on/off feedback coming from Hue |
 | Power state | Optional GA mirroring Hue `power_state` (boolean/text) |
 | Read status at startup | When enabled, the node emits the current plug state on deploy/connection |
-| Node I/O pins | Enable Node-RED input/output pins. Input expects Hue API payloads (e.g. `{ on: { on: true } }`). Output forwards every Hue event. |
+| Node Input/Output PINs | Enable Node-RED input/output pins. Input expects Hue API payloads (e.g. `{ on: { on: true } }`). Output forwards every Hue event. |
 
 ## KNX Mapping Tips
 

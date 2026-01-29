@@ -10,8 +10,8 @@ Questo nodo controlla le luci HUE (singole o raggruppate) e mappa comandi/stati 
 
 | Proprietà | Descrizione |
 |-|-|
-| Gateway KNX | Seleziona il gateway KNX da utilizzare |
-| Hue Bridge | Seleziona il ponte Hue da utilizzare |
+|Gateway KNX |Seleziona il gateway KNX da utilizzare |
+|Hue Bridge |Seleziona la Hue Bridge da utilizzare |
 |Nome |Luce Hue o gruppo da utilizzare. Le luci e i gruppi disponibili compaiono mentre digiti|
 
 **Localizza dispositivo**

@@ -13,9 +13,9 @@ stai digitando.
 
 | Proprietà | Descrizione |
 |-|-|
-| Gateway KNX | Seleziona il gateway KNX da utilizzare |
-| Hue Bridge | Seleziona il ponte Hue da utilizzare |
-| HUE Device | Dispositivo HUE da monitorare (autocompletamento) |
+|Gateway KNX |Seleziona il gateway KNX da utilizzare |
+|Hue Bridge |Seleziona la Hue Bridge da utilizzare |
+| Dispositivo Hue | Dispositivo HUE da monitorare (autocompletamento) |
 
 **Mappatura**
 

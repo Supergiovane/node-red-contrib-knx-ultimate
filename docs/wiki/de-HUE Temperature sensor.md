@@ -12,10 +12,10 @@ Beginnen Sie im GA-Feld (Name oder Gruppenadresse) zu tippen, um die KNX-GA zu v
 
 | Eigenschaft | Beschreibung |
 |--|--|
-| KNX GW | Zu verwendendes KNX-Gateway |
-| HUE Bridge | Zu verwendende HUE Bridge |
-| HUE Sensor | HUE-Temperatursensor (Autocomplete während der Eingabe) |
-| Status bei Start lesen | Beim Start/Wiederverbindung aktuellen Wert lesen und auf KNX senden (Standard: nein) |
+| KNX-Gateway | Zu verwendendes KNX-Gateway |
+| Hue Bridge | Zu verwendende Hue Bridge |
+| Hue-Temperatursensor | HUE-Temperatursensor (Autocomplete während der Eingabe) |
+| Status beim Start lesen | Beim Start/Wiederverbindung aktuellen Wert lesen und auf KNX senden (Standard: nein) |
 
 **Mapping**
 

@@ -11,7 +11,7 @@ Ce nœud contrôle les lumières de Hue Philips (simple ou groupées) et mappe l
 | Propriété | Description |
 |-|-|
 | KNX GW | Sélectionnez la passerelle KNX à utiliser |
-| Hue Bridge | Sélectionnez le pont Hue à utiliser |
+| Hue Bridge | Sélectionnez la Hue Bridge à utiliser |
 | Nom | Hue Light ou Lumière groupée à utiliser (Ambord d'auto-automatique pendant la frappe). |
 
 **Localiser l’appareil**

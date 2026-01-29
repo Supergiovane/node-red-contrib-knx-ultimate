@@ -1,10 +1,9 @@
 ---
 layout: wiki
-title: "KNX Debug（侧边栏）"
+title: "KNX-Debug-Sidebar"
 lang: zh-CN
 permalink: /wiki/zh-CN-KNX-Debug-Sidebar
 ---
-
 左侧边栏的 **KNX Debug** 标签页会实时显示 KNX Ultimate 的内部调试日志。
 
 <img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/knx-debug.png" alt="KNX Debug sidebar" style="width:100%;max-width:980px;border-radius:14px;box-shadow:0 12px 26px rgba(0,0,0,0.18);" />

@@ -13,8 +13,8 @@ Emite la iluminancia ambiental (lux) cada vez que cambia.Comience a escribir en 
 | Propiedad | Descripción |
 |-|-|
 |KNX GW |Seleccione la puerta de enlace KNX para ser utilizada |
-|Puente Hue |Seleccione el puente de tono que se utilizará |
-|Sensor de tono |Sensor de luz Hue para usar (autocompletar mientras escribe). |
+|Hue Bridge |Seleccione la Hue Bridge que se utilizará |
+|Sensor de luz de tono |Sensor de luz Hue para usar (autocompletar mientras escribe). |
 |Leer el estado al inicio |Lea el estado en el inicio y emita el evento al autobús KNX al inicio/reconexión.(Predeterminado "no") |
 
 **Cartografía**

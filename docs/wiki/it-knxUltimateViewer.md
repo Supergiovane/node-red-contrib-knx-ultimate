@@ -13,7 +13,7 @@ Mostra tutti gli indirizzi di gruppo e i relativi valori in un widget della Dash
 | Proprietà | Descrizione |
 |-|-|
 | Gateway | Il gateway KNX. |
-| Nome | Nome del nodo. |
+| Name | Nome del nodo. |
 
 # PIN DI USCITA
 
@@ -43,6 +43,8 @@ Output atteso:
 **Copia questo codice e incollalo nel tuo flow**
 
 > Adatta i nodi alla tua configurazione
+
+`
 
 ```json
 
@@ -443,5 +445,9 @@ taverna\"\t\"3/0/25\"\t\"\"\t\"\"\t\"\"\t\"DPST-1-1\"\t\"Auto\"\n\"_Pala soggior
     Viewer","tab":"02c465fe930c0e1c","order":1,"disp":true,"width":"12","collapse":false},{"id":"02c465fe930c0e1c","type":"ui_tab","name":"Home","icon":"dashboard","disabled":false,"hidden":false}]
 
     
+
+```
+
+`
 
 ```

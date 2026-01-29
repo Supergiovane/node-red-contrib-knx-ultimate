@@ -11,7 +11,7 @@ Este nodo controla las luces de Hue Philips (single o agrupada) y mapea sus coma
 | Propiedad | Descripción |
 |-|-|
 | KNX GW | Seleccione la puerta de enlace KNX para ser utilizada |
-| Puente Hue | Seleccione el puente de tono que se utilizará |
+| Hue Bridge | Seleccione la Hue Bridge que se utilizará |
 | Nombre | Luz de tono o luz agrupada para usar (autocompletar mientras escribe). |
 
 **Localizar dispositivo**

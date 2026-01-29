@@ -10,7 +10,7 @@ permalink: /wiki/fr-HUE%20Plug
 
 Le nœud Hue Plug relie une fiche Smart Hue Philips (Service `Plug`) avec des adresses de groupe KNX afin que vous puissiez contrôler l'alimentation et suivre l'état directement à partir du bus.
 
-- prend en charge **Contrôle ON / OFF ** et**Feedback d'état** .
+- prend en charge **Contrôle ON / OFF** et **Feedback d'état**.
 - mappage facultatif de la teinte `power_state` (on / standby).
 - Peut exposer les broches d'entrée / sortie de Node-Red pour transmettre les événements de teinte aux flux ou envoyer des charges utiles API avancées.
 
@@ -19,7 +19,7 @@ Configuration ##
 | Champ | Description |
 |-|-|
 |KNX GW |KNX Gateway utilisé pour les télégrammes |
-|Hue Bridge |Bridge Hue configuré |
+|Hue Bridge |Hue Bridge configurée |
 |Nom |Sélectionnez la fiche Hue dans la liste de saisie semi-automatique |
 |Contrôle |KNX GA pour les commandes ON / OFF (Boolean DPT) |
 |Statut |GA pour les commentaires ON / OFF provenant de Hue |

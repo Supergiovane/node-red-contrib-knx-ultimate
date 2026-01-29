@@ -16,10 +16,10 @@ Es wird jeweils ein Gerät (oder mehrere) in der konfigurierten Reihenfolge gesc
 |Eigenschaft|Beschreibung|
 |--|--|
 | Gateway | KNX-Gateway. Ohne Auswahl werden nur Eingangs-Nachrichten berücksichtigt. |
-| Monitor Wh | GA für den Gesamtverbrauch des Gebäudes. |
-| Limit Wh | Maximaler Zähler/Vertragsschwellwert. Bei Überschreitung beginnt das Abschalten. |
-| Delay switch off (s) | Prüfintervall (Sekunden) zum Abschalten. |
-| Delay switch on (s) | Prüfintervall (Sekunden) zum Wiederzuschalten. |
+| Monitor W | GA für den Gesamtverbrauch des Gebäudes. |
+| Limit W | Maximaler Zähler/Vertragsschwellwert. Bei Überschreitung beginnt das Abschalten. |
+| Ausschaltverzögerung (s) | Prüfintervall (Sekunden) zum Abschalten. |
+| Einschaltverzögerung (s) | Prüfintervall (Sekunden) zum Wiederzuschalten. |
 
 **Load Control**
 

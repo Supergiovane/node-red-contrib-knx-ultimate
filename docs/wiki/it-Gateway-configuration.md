@@ -8,7 +8,6 @@ permalink: /wiki/it-Gateway-configuration
 
 Questo nodo si connette al tuo KNX/IP Gateway.
 
-
 **Generale**
 
 |Proprietà|Descrizione|
@@ -26,7 +25,7 @@ Questo nodo si connette al tuo KNX/IP Gateway.
 | Indirizzo fisico KNX | Indirizzo fisico KNX, es. `1.1.200`. Default: `15.15.22`. |
 | Utilizza l'interfaccia locale | Interfaccia di rete locale usata dal nodo. Lascia "Auto" per selezione automatica. Se hai più interfacce (Ethernet/Wi-Fi), è consigliato impostarla manualmente per evitare perdita di telegrammi UDP. Default: "Auto". |
 | Connetti al BUS KNX automaticamente all'avvio | Connessione automatica al BUS all'avvio. Default: "Yes". |
-| Origine credenziali KNX Secure | Scegli come fornire i dati KNX Secure: **File keyring ETS ** (le chiavi Data Secure e, se presenti, le credenziali di tunnelling arrivano dal keyring),**Credenziali manuali ** (solo KNX IP Tunnelling Secure con utente inserito a mano) oppure**File keyring + password tunnel manuale** (chiavi Data Secure dal keyring, utente/password del tunnel impostati manualmente). Ricorda: i telegrammi KNX Data Secure richiedono sempre un file keyring. |
+| Origine credenziali KNX Secure | Scegli come fornire i dati KNX Secure: **File keyring ETS** (le chiavi Data Secure e, se presenti, le credenziali di tunnelling arrivano dal keyring), **Credenziali manuali** (solo KNX IP Tunnelling Secure con utente inserito a mano) oppure **File keyring + password tunnel manuale** (chiavi Data Secure dal keyring, utente/password del tunnel impostati manualmente). Ricorda: i telegrammi KNX Data Secure richiedono sempre un file keyring. |
 | Indirizzo individuale interfaccia tunnel | Visibile quando la modalità selezionata prevede credenziali manuali (Credenziali manuali o File keyring + password tunnel manuale). Indirizzo individuale opzionale dell'interfaccia tunnel sicura (es. `1.1.1`); lascia vuoto per negoziazione automatica da parte di KNX Ultimate. |
 | ID utente tunnel | Visibile quando sono attive credenziali manuali. ID opzionale dell'utente tunnel KNX Secure definito in ETS. |
 | Password utente tunnel | Visibile quando sono attive credenziali manuali. Password dell'utente tunnel KNX Secure configurata in ETS. |
@@ -40,11 +39,11 @@ Questo nodo si connette al tuo KNX/IP Gateway.
 
 |Proprietà|Descrizione|
 |--|--|
-| Inoltra i msg ai nodi con lo stesso GA | Inoltra ai nodi con lo stesso GA i msg inviati dal flow, come se provenissero dal BUS. Utile in emulazione KNX o senza connessione al BUS. **Opzione in deprecazione e presto abilitata di default.** Default: abilitato. |
-| Sopprimi telegrammi dal BUS ripetuti (Flag R) | Ignora i telegrammi ripetuti (flag R) dal BUS. Default: disabilitato. |
-| Sopprimi richieste ACK in modalità tunnel | Per vecchie interfacce KNX/IP: ignora l'ACK e accetta tutti i telegrammi. Default: disabilitato. |
-| Pausa tra l'invio di un telegramma ed un altro (in millisecondi) | Lo standard KNX prevede max 50 telegrammi/s. Un intervallo 25-50ms è adeguato. Con gateway remoto su link lento aumenta (es. 200-500ms). |
-| Livello log | Livello di log per il debug. Default: "Error". |
+| Echo sent message to all node with same Group Address | Inoltra ai nodi con lo stesso GA i msg inviati dal flow, come se provenissero dal BUS. Utile in emulazione KNX o senza connessione al BUS. **Opzione in deprecazione e presto abilitata di default.** Default: abilitato. |
+| Suppress repeated (R-Flag) telegrams fom BUS | Ignora i telegrammi ripetuti (flag R) dal BUS. Default: disabilitato. |
+| Suppress ACK request in tunneling mode | Per vecchie interfacce KNX/IP: ignora l'ACK e accetta tutti i telegrammi. Default: disabilitato. |
+| Delay between each telegram (ms) | Lo standard KNX prevede max 50 telegrammi/s. Un intervallo 25-50ms è adeguato. Con gateway remoto su link lento aumenta (es. 200-500ms). |
+| Loglevel | Livello di log per il debug. Default: "Error". |
 | Limitazione aggiornamento stato nodi | Imposta ogni quanto aggiornare il badge di stato dei nodi. Con un ritardo attivo gli stati intermedi vengono ignorati e viene mostrato solo l'ultimo dopo l'intervallo scelto. Seleziona **Immediato** per mantenere l'aggiornamento in tempo reale. |
 | Formato data/ora nello stato | Scegli come visualizzare la data/ora nel badge di stato dei nodi (utile su sistemi in cui non è possibile configurare il locale, ad es. Home Assistant OS). |
 | Formato personalizzato | Usato quando selezioni **Personalizzato (token)**. Token: `YYYY`, `YY`, `MMM`, `MM`, `DD`, `HH`, `mm`, `ss`, `A`, `a`, `Z`. Usa `[testo]` per testo letterale. |
@@ -54,15 +53,15 @@ Questo nodo si connette al tuo KNX/IP Gateway.
 
 |Proprietà|Descrizione|
 |--|--|
-| Se l'indirizzo di gruppo non ha datapoint | Se un GA non ha datapoint: interrompi import, salta il GA o aggiungi un datapoint fittizio `1.001` e continua. |
-| Lista indirizzi di gruppo ETS | Incolla qui il contenuto del file ETS (CSV o ESF) oppure indica un percorso file (es. `/home/pi/mycsv.csv`). Consulta i link di help per i dettagli. |
+| If Group Address has no Datapoint | Se un GA non ha datapoint: interrompi import, salta il GA o aggiungi un datapoint fittizio `1.001` e continua. |
+| ETS group address list | Incolla qui il contenuto del file ETS (CSV o ESF) oppure indica un percorso file (es. `/home/pi/mycsv.csv`). Consulta i link di help per i dettagli. |
 
 **Utility**
 
 |Proprietà|Descrizione|
 |--|--|
-| Raccogli debug e log per assistenza | Clicca il pulsante e allega l'output alla issue su GitHub: aiuta molto l'analisi. |
-| Ottieni tutte le GA usate per il filtro di routing KNX | Clicca READ per ottenere l'elenco di tutti i GA usati nei flow associati a questo gateway, utile per popolare la tabella filtri del tuo KNX/IP Router. |
+| Gather debug info for troubleshoot | Clicca il pulsante e allega l'output alla issue su GitHub: aiuta molto l'analisi. |
+| Get all used GA for KNX routing filter | Clicca READ per ottenere l'elenco di tutti i GA usati nei flow associati a questo gateway, utile per popolare la tabella filtri del tuo KNX/IP Router. |
 
 # Lavorare con i file ETS CSV o ESF
 
@@ -70,7 +69,7 @@ Invece di creare un nodo per ogni GA da controllare, puoi importare il file ETS 
 
 Da v1.4.18 puoi anche indicare direttamente il percorso al file nel campo (es.: `/home/pi/mycsv.csv`).
 
-Con **Modalità Universale (Ascolta tutti gli indirizzi di gruppo)** il nodo diventa I/O universale, consapevole di Datapoint, GA e nomi dispositivi. Invia un `payload` al nodo e lui codifica col DPT corretto; viceversa, decodifica i telegrammi in arrivo usando il DPT dell'ETS.
+Con **Universal mode (listen to all Group Addresses)** il nodo diventa I/O universale, consapevole di Datapoint, GA e nomi dispositivi. Invia un `payload` al nodo e lui codifica col DPT corretto; viceversa, decodifica i telegrammi in arrivo usando il DPT dell'ETS.
 
 Da v1.1.11 puoi usare la modalità universale anche senza file ETS: invia al nodo un messaggio con tipo DPT e valore. Alla ricezione da BUS, il nodo emette anche il RAW e prova a decodificare senza DPT.
 
@@ -78,7 +77,7 @@ Nota: il file CSV contiene DPT precisi con sottotipo; l'ESF è più semplice e n
 
 Video: <a href="https://youtu.be/egRbR_KwP9I"><img src='https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/yt.png'></a>
 
-- **Importa indirizzi di gruppo ETS** ATTENZIONE: nel nome del GA non devono esserci caratteri di tabulazione. **Se l'indirizzo di gruppo non ha datapoint** > Se in ETS un GA non ha DPT, puoi: interrompere l'import, saltare il GA, oppure aggiungere il GA con DPT fittizio e continuare. **Come esportare l'elenco GA in formato CSV da ETS**
+- **Import ETS CSV Group Addresses** ATTENZIONE: nel nome del GA non devono esserci caratteri di tabulazione. **If Group Address has no Datapoint** > Se in ETS un GA non ha DPT, puoi: interrompere l'import, saltare il GA, oppure aggiungere il GA con DPT fittizio e continuare. **Come esportare l'elenco GA in formato CSV da ETS**
 
 > In ETS seleziona l'elenco GA, click destro → Esporta indirizzi di gruppo. Nella finestra di export imposta:
 
@@ -94,7 +93,7 @@ Video: <a href="https://youtu.be/egRbR_KwP9I"><img src='https://raw.githubuserco
 
 > Il file deve contenere i Datapoint per ogni GA. Il nodo analizza il file e mostra risultati nel DEBUG di Node-RED.
 
-> Esiti possibili: **ERROR ** (manca DPT → import interrotto) e**WARNING** (manca sottotipo → aggiunto default, ma va verificato). Il sottotipo è il numero dopo il punto, es. `5.001`.
+> Esiti possibili: **ERROR** (manca DPT → import interrotto) e **WARNING** (manca sottotipo → aggiunto default, ma va verificato). Il sottotipo è il numero dopo il punto, es. `5.001`.
 
 > I campi devono essere racchiusi tra virgolette `"`.
 
@@ -113,165 +112,3 @@ Video: <a href="https://youtu.be/egRbR_KwP9I"><img src='https://raw.githubuserco
         <tr><td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/reddot.png"></td><td>Errore o disconnesso</td></tr>
         <tr><td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/redring.png"></td><td>Nodo DISABILITATO per riferimento circolare (<a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Protections" target="_blank">vedi pagina</a>)</td></tr>
     </table>
-
-<div markdown="1" style="background:#e9f7e9;border:1px solid #c8e6c8;border-radius:10px;padding:14px 16px;margin:16px 0;">
-
-
-### Using KNX Ultimate with kBerry on Raspberry Pi 3 (UART / FT1.2)
-
-This guide explains how to connect a **kBerry** KNX interface directly
-to a **Raspberry Pi 3** and use it with **KNX Ultimate** over the
-**hardware UART** (`ttyAMA0`) using the **FT1.2 (TPUART)** protocol.
-
-> This procedure was tested with Raspberry Pi OS Bookworm on a  
-> Raspberry Pi 3 (November 25, 2025).
-
-## 1. Prerequisites
-
-- Raspberry Pi 3 (Model B or B+)
-- Raspberry Pi OS (Bookworm recommended)
-- kBerry KNX interface mounted on the GPIO header
-- Node-RED with KNX Ultimate installed
-- Basic terminal access (SSH or local console)
-
-## 2. Wiring / Hardware Overview
-
-The kBerry uses the Raspberry Pi's primary UART:
-
-- **TX / RX**: GPIO14 (TXD) and GPIO15 (RXD)
-- **GND**: Common ground between Raspberry Pi and kBerry
-- **Power**: Provided via the GPIO header
-
-Make sure the kBerry is properly seated on the Raspberry Pi GPIO header
-and that no other HAT is conflicting with those pins.
-
-## 3. Disable Bluetooth and Enable the Hardware UART
-
-### 3.1 Edit the correct config file (Bookworm)
-
-```bash
-sudo nano /boot/firmware/config.txt
-```
-
-Add (or ensure you have):
-
-```ini
-enable_uart=1
-dtoverlay=pi3-disable-bt
-```
-
-### 3.2 Disable ModemManager (if present)
-
-```bash
-sudo systemctl disable --now ModemManager
-```
-
-### 3.3 Disable Bluetooth service
-
-```bash
-sudo systemctl disable --now bluetooth.service
-```
-
-## 4. Disable Serial Login Console / Enable Hardware UART
-
-Start the configuration tool:
-
-```bash
-sudo raspi-config
-```
-
-Then navigate through the menus:
-
-- **Interface Options** (or **Interfacing Options** on older systems)
-- **Serial Port**
-
-You will see two questions:
-
-- "Login shell to be accessible over serial?" → choose **No**
-- "Enable serial port hardware?" → choose **Yes**
-
-Finish and exit `raspi-config`, then reboot when asked (or manually later).
-
-## 5. Verify UART
-
-```bash
-ls -l /dev/serial0
-ls -l /dev/ttyAMA0
-dmesg | grep tty
-```
-
-Expected:
-
-```text
-/dev/serial0 -> ttyAMA0
-/dev/ttyAMA0 exists
-```
-
-## 6. Add Node-RED user to `dialout`
-
-Linux uses the `dialout` group to grant access to serial ports
-like `/dev/ttyAMA0` or `/dev/ttyUSB0`.  
-The **user that runs Node-RED** must belong to this group, otherwise
-KNX Ultimate cannot open the serial port.
-
-If you installed Node-RED with the official script, the service user is
-usually `nodered`. On some systems it may be `pi` or another user; adapt
-the commands accordingly.
-
-Check the current groups:
-
-```bash
-id nodered   # or: id pi
-```
-
-Add the user to the `dialout` group:
-
-```bash
-sudo usermod -aG dialout nodered
-```
-
-After changing group membership, log out and log in again for that user,
-or simply reboot:
-
-```bash
-sudo reboot
-```
-
-This step is only needed when you use a **serial** gateway; pure KNX/IP
-setups do not require `dialout`.
-
-## 7. Configure KNX Ultimate
-
-In the KNX Ultimate gateway node:
-
-- **Interface type**: Serial FT1.2 / TPUART
-- **Serial port**: `/dev/ttyAMA0`
-- **Baud rate**: 19200
-- **Data bits**: 8
-- **Parity**: Even
-- **Stop bits**: 1
-
-## 8. Troubleshooting
-
-### No `/dev/ttyAMA0`
-
-- Check `/boot/firmware/config.txt` entries
-- Reboot
-- Re-check `dmesg`
-
-### `/dev/serial0` → `ttyS0`
-
-- `dtoverlay=pi3-disable-bt` not applied
-- Re-check config file path
-- Reboot
-
-### Serial cannot be opened
-
-- Ensure the Node-RED user is in `dialout` (`id nodered`)
-- Check that no other program is using `/dev/ttyAMA0`
-- Verify that the KNX Ultimate gateway node is configured for `/dev/ttyAMA0`
-
----
-
-Done.
-</div>

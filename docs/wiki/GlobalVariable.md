@@ -28,7 +28,7 @@ You can issue a KNX BUS write command, by simply modify the global variable name
 |Property|Description|
 |--|--|
 | Gateway | The KNX Gateway. |
-| Variable Name | Name of the global context. 2 variables with this name will be created, one with \_READ suffix (for reading group addresses) and the other with \_WRITE suffix (for writing group addresses). For example, if the variable name is "KNXGlobalContext", the 2 variables KNXGlobalContext\_READ and KNXGlobalContext\_WRITE are created. Since the global variable is visible from all nodes (even non-KNX-Ultimate ones), for security reasons, set a name other than the default one. Click the sample link at the bottom of the page. |
+| Variable Name (no spaces, only chars [a-z]) | Name of the global context. 2 variables with this name will be created, one with \_READ suffix (for reading group addresses) and the other with \_WRITE suffix (for writing group addresses). For example, if the variable name is "KNXGlobalContext", the 2 variables KNXGlobalContext\_READ and KNXGlobalContext\_WRITE are created. Since the global variable is visible from all nodes (even non-KNX-Ultimate ones), for security reasons, set a name other than the default one. Click the sample link at the bottom of the page. |
 | Expose as Global variable | Choose if and how you want to expose the global variable. If you do not intend to write on the KNX BUS, for safety, leave "read only". |
 | BUS write interval | The node checks the variable with \_WRITE suffix at regular intervals to write on the KNX bus. Choose the interval you prefer. |
 

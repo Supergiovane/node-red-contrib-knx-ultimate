@@ -10,8 +10,8 @@ Dieser Node steuert HUE-Leuchten (einzeln oder gruppiert) und ordnet Befehle/Zus
 
 | Eigenschaft | Beschreibung |
 |--|--|
-| KNX GW | Zu verwendendes KNX-Gateway |
-| HUE Bridge | Zu verwendender HUE Bridge |
+| KNX-Gateway | Zu verwendendes KNX-Gateway |
+| Hue Bridge | Zu verwendende Hue Bridge |
 | Name | HUE-Leuchte oder -Gruppe (Autocomplete während der Eingabe) |
 
 **Gerät lokalisieren**

@@ -30,11 +30,11 @@ Puede enviar un correo electrónico al instalador KNX responsable de su edificio
 
 |Propiedad |Descripción |
 |----------------------------- |--------------------------------------------------------------------------------------------------- |
-|Puerta de entrada |Gateway Knx seleccionado.|
+|Puerta |Gateway Knx seleccionado.|
 |Dirección de grupo para monitorear |El nodo enviará un telegrama a esta dirección y monitorea el mensaje que fluye a través del bus KNX.El punto de datos debe ser dpt 1.x (boolean). |
-|Nombre |Nombre del nodo |
-|Auto Iniciar el temporizador de vigilancia |El temporizador Watchdog comienza automáticamente en implementación o en el inicio de nodo-rojo.|
-|Verificación Nivel |Ver a continuación |
+|Nombre de nodo |Nombre del nodo |
+|Auto Iniciar el temporizador de vigilancia |El temporizador Watchdog comienza automáticamente en implementación o en el inicio de Node-RED.|
+|Verificar el nivel (consulte el wiki) |Ver a continuación |
 
 **COMPROBAR NIVEL ** > _**Ethernet** _: \*checkks la conexión entre la puerta de enlace de ultimate KNX en modo unicast y su interfaz IP KNX. 
 
@@ -56,7 +56,7 @@ width = "90%">
 
 |Propiedad |Descripción |
 |-------- |----------- |
-|Intervalo de reintento (en segundos) |El nodo envía un telegrama al autobús KNX en este interva de tiempo, en segundos.|
+|Vuelva a intentar el intervalo (en segundos) |El nodo envía un telegrama al autobús KNX en este interva de tiempo, en segundos.|
 |Número de reintento antes de dar un error | Después de que el telegrama se haya enviado por esta cantidad de veces, sin ninguna respuesta del bus KNX, el nodo arroja un error.|
 
 # Salida de mensajes del Watchdog

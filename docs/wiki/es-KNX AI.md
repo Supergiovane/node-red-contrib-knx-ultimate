@@ -1,0 +1,30 @@
+---
+layout: wiki
+title: "KNX AI"
+lang: es
+permalink: /wiki/es-KNX%20AI
+---
+Este nodo escucha **todos los telegramas KNX** del gateway KNX Ultimate seleccionado, genera estadísticas, detecta anomalías simples y (opcionalmente) puede consultar a un LLM para producir un análisis en lenguaje natural.
+
+## Qué hace
+- Mantiene un historial deslizante de telegramas KNX (ya decodificados por KNX Ultimate) en RAM.
+- Emite **resúmenes de tráfico** de forma periódica o bajo demanda (Top GA, tipos de evento, tasa).
+- Emite **eventos de anomalía** (tasa del bus demasiado alta, spam en GA, “flapping”).
+- Opcional: consulta a un LLM usando el comando `ask`.
+
+## Salidas
+1. **Resumen/Estadísticas** (`msg.payload` es JSON)
+2. **Anomalías** (`msg.payload` es JSON con detalles)
+3. **Asistente IA** (`msg.payload` es texto; incluye `msg.summary`)
+
+## Comandos (pin de entrada)
+Envía un mensaje con `msg.topic`:
+- `summary` (o vacío): emite un resumen inmediatamente
+- `reset`: limpia historial y contadores
+- `ask`: pregunta al LLM usando resumen + tráfico reciente
+
+Para `ask`, escribe la pregunta en `msg.prompt` (recomendado) o en `msg.payload` (string).
+
+## Notas
+- Si habilitas el LLM, la información del bus se enviará al endpoint configurado. Usa un proveedor local si quieres mantener los datos on‑premise.
+- Para OpenAI, pega **solo** la API key (empieza por `sk-`). No pegues `Bearer ...` ni toda la cabecera `Authorization: ...`.

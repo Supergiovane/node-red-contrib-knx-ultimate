@@ -13,8 +13,8 @@ Inizia a digitare nel campo GA (nome o indirizzo di gruppo) per collegare la GA 
 |Proprietà|Descrizione|
 |--|--|
 | Gateway KNX | Seleziona il gateway KNX da utilizzare |
-| Hue Bridge | Seleziona il bridge HUE da utilizzare |
-| Sensore HUE | Sensore motion della camera Hue (autocompletamento durante la digitazione) |
+| Hue Bridge | Seleziona la Hue Bridge da utilizzare |
+| Motion camera HUE | Sensore motion della camera Hue (autocompletamento durante la digitazione) |
 | Leggi lo stato all'avvio | All'avvio/riconnessione legge il valore corrente e lo invia a KNX (predefinito: no) |
 
 **Associazione**

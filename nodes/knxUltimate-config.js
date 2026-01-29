@@ -1357,6 +1357,24 @@ module.exports = (RED) => {
       }
       // #####################################################################
 
+      // Prepare RAW APDU info (for Multi Routing nodes)
+      let _apduData = null
+      let _apduBitLength = 0
+      let _apduHex = ''
+      try {
+        if (_evt !== 'GroupValue_Read') {
+          _apduData = Buffer.from(_rawValue)
+          // If NPDU dataBuffer is null, the payload is encoded in APCI low bits (<= 6 bits).
+          // We can't know the exact DPT length here, so keep it <= 6 to preserve encoding style.
+          _apduBitLength = (_datagram.cEMIMessage && _datagram.cEMIMessage.npdu && _datagram.cEMIMessage.npdu.dataBuffer === null) ? 6 : (_apduData.length * 8)
+          _apduHex = _apduData.toString('hex')
+        }
+      } catch (error) {
+        _apduData = null
+        _apduBitLength = 0
+        _apduHex = ''
+      }
+
       // 04/04/2021 Supergiovane: save value to node.exposedGAs
       if (typeof _dest === 'string' && _rawValue !== undefined && (_evt === 'GroupValue_Write' || _evt === 'GroupValue_Response')) {
         try {
@@ -1380,6 +1398,27 @@ module.exports = (RED) => {
           node.nodeClients
             .filter((_input) => _input.notifywrite === true)
             .forEach((_input) => {
+              if (_input.hasOwnProperty('isMultiRouting')) {
+                const msg = {
+                  topic: _input.outputtopic || _dest,
+                  payload: {
+                    knx: {
+                      event: _evt,
+                      source: _src,
+                      destination: _dest,
+                      apdu: { data: _apduData, bitlength: _apduBitLength, hex: _apduHex },
+                      cemi: { hex: _cemiETS },
+                      echoed: _echoed
+                    },
+                    knxMultiRouting: {
+                      gateway: { id: node.id, name: node.name || '', physAddr: node.physAddr || '' },
+                      receivedAt: Date.now()
+                    }
+                  }
+                }
+                _input.setNodeStatus({ fill: 'green', shape: 'dot', text: 'RAW', payload: _evt, GA: _dest, dpt: '', devicename: _src })
+                _input.handleSend(msg)
+              } else
               // 21/10/2024 check wether is a HUE device
               if (_input.type.includes('knxUltimateHue')) {
                 const msg = {
@@ -1552,6 +1591,27 @@ module.exports = (RED) => {
           node.nodeClients
             .filter((_input) => _input.notifyresponse === true)
             .forEach((_input) => {
+              if (_input.hasOwnProperty('isMultiRouting')) {
+                const msg = {
+                  topic: _input.outputtopic || _dest,
+                  payload: {
+                    knx: {
+                      event: _evt,
+                      source: _src,
+                      destination: _dest,
+                      apdu: { data: _apduData, bitlength: _apduBitLength, hex: _apduHex },
+                      cemi: { hex: _cemiETS },
+                      echoed: _echoed
+                    },
+                    knxMultiRouting: {
+                      gateway: { id: node.id, name: node.name || '', physAddr: node.physAddr || '' },
+                      receivedAt: Date.now()
+                    }
+                  }
+                }
+                _input.setNodeStatus({ fill: 'blue', shape: 'dot', text: 'RAW', payload: _evt, GA: _dest, dpt: '', devicename: _src })
+                _input.handleSend(msg)
+              } else
               if (_input.hasOwnProperty('isLogger')) {
                 // 26/03/2020 Coronavirus is slightly decreasing the affected numer of people. Logger Node
                 // 24/03/2021 Logger Node, i'll pass cemiETS
@@ -1631,6 +1691,27 @@ module.exports = (RED) => {
           node.nodeClients
             .filter((_input) => _input.notifyreadrequest === true)
             .forEach((_input) => {
+              if (_input.hasOwnProperty('isMultiRouting')) {
+                const msg = {
+                  topic: _input.outputtopic || _dest,
+                  payload: {
+                    knx: {
+                      event: _evt,
+                      source: _src,
+                      destination: _dest,
+                      apdu: { data: null, bitlength: 0, hex: '' },
+                      cemi: { hex: _cemiETS },
+                      echoed: _echoed
+                    },
+                    knxMultiRouting: {
+                      gateway: { id: node.id, name: node.name || '', physAddr: node.physAddr || '' },
+                      receivedAt: Date.now()
+                    }
+                  }
+                }
+                _input.setNodeStatus({ fill: 'grey', shape: 'dot', text: 'RAW Read', payload: '', GA: _dest, dpt: '', devicename: _src })
+                _input.handleSend(msg)
+              } else
               if (_input.hasOwnProperty('isLogger')) {
                 // 26/03/2020 Coronavirus is slightly decreasing the affected numer of people. Logger Node
                 // node.sysLogger?.info("BANANA isLogger", _evt, _src, _dest, _rawValue, _cemiETS);

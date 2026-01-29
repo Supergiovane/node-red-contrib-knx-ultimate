@@ -4,7 +4,7 @@ title: "HUE Contact sensor"
 lang: en
 permalink: /wiki/HUE%20Contact%20sensor
 ---
-This node forwards events from a HUE contact sensor and maps them to KNX group addresses.
+This node forwards events from a Hue contact sensor and maps them to KNX group addresses.
 
 Start typing in the GA field, the name or group address of your KNX device, the avaiable devices start showing up while you're typing.
 
@@ -13,8 +13,8 @@ Start typing in the GA field, the name or group address of your KNX device, the 
 |Property|Description|
 |--|--|
 | KNX GW | Select the KNX gateway to be used |
-| HUE Bridge | Select the HUE Bridge to be used |
-| HUE Sensor | HUE contact sensor to be used (autocomplete while typing).|
+| Hue Bridge | Select the Hue Bridge to be used |
+| Hue Contact Sensor | Hue contact sensor to be used (autocomplete while typing).|
 
 | Property | Description |
 |--|--|
@@ -27,4 +27,4 @@ Start typing in the GA field, the name or group address of your KNX device, the 
 
 ### Details
 
-`msg.payload` carries the raw HUE event (boolean/object). Use it for custom logic if needed.
+`msg.payload` carries the raw Hue event (boolean/object). Use it for custom logic if needed.

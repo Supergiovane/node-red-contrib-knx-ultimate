@@ -24,9 +24,9 @@ Hinweis: Nach der Ausführung werden Einträge in `<Name>_WRITE` automatisch gel
 | Property | Beschreibung |
 |--|--|
 | Gateway | KNX-Gateway. |
-| Variable Name | Basisname der globalen Variable. Es werden `<Name>_READ` (Lesen) und `<Name>_WRITE` (Schreiben) erstellt. Wähle aus Sicherheitsgründen keinen Standardnamen. |
-| Expose as Global variable | Ob und wie die Variable exponiert wird. Wenn kein Schreiben nötig ist, "read only" wählen. |
-| BUS write interval | Prüfintervall, in dem `<Name>_WRITE` ausgewertet und an den BUS gesendet wird. |
+| Variablenname (keine Leerzeichen, nur Zeichen [a-z]) | Basisname der globalen Variable. Es werden `<Name>_READ` (Lesen) und `<Name>_WRITE` (Schreiben) erstellt. Wähle aus Sicherheitsgründen keinen Standardnamen. |
+| Als globale Variable verfügbar machen | Ob und wie die Variable exponiert wird. Wenn kein Schreiben nötig ist, "read only" wählen. |
+| BUS-Schreibintervall | Prüfintervall, in dem `<Name>_WRITE` ausgewertet und an den BUS gesendet wird. |
 
 ## msg-Objekte in der Variable
 

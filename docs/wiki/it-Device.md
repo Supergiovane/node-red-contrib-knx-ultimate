@@ -39,19 +39,19 @@ Il pulsante è visibile soltanto se l’opzione è attiva. In modalità universa
 || **Proprietà generali** |
 | Nome del nodo | Autoesplicativo. |
 | Topic | Il topic del messaggio in uscita. Lascia vuoto per usare l'Indirizzo di Gruppo. |
-| Passa msg di ingresso sull'uscita | Se attivo, inoltra sul PIN di uscita il msg di ingresso. |
+| Passthrough | Se attivo, inoltra sul PIN di uscita il msg di ingresso. |
 || **Dal PIN di INGRESSO del nodo verso il BUS KNX** |
 | Tipo telegramma | `write` per inviare un telegramma di scrittura (in genere è ciò che vuoi); in alternativa puoi scegliere a quale tipo di telegramma reagire. |
 | Filtro RBE | Filtro "Report by change”. Se attivo, invia al BUS solo messaggi di ingresso con valore diverso dal precedente. Se devi inviare sempre lo stesso valore, disattivalo. Se attivo, verrà aggiunta l'indicazione "rbe” al nome del nodo. |
 || **Dal BUS KNX verso il PIN di USCITA del nodo** |
-| Leggi il valore alla connessione/riconnessione | Legge lo stato del GA ad ogni avvio di Node-RED e a ogni riconnessione al Gateway KNX. Il nodo memorizza i valori su file, quindi puoi scegliere se leggere da file o dal BUS KNX. |
+| Read status on start | Legge lo stato del GA ad ogni avvio di Node-RED e a ogni riconnessione al Gateway KNX. Il nodo memorizza i valori su file, quindi puoi scegliere se leggere da file o dal BUS KNX. |
 | Filtro RBE | Filtro "Report by change” sull'uscita: invia al flow solo quando il valore cambia. Se vuoi inviare anche valori ripetuti, lascialo disattivo. Se attivo, aggiunge "rbe” al nome del nodo. |
-| Reagisci all'evento Scrittura (Write) | Il nodo invia un msg al flow ogni volta che riceve un telegramma di tipo write dal BUS KNX. |
-| Reagisci all'evento Risposta (Response) | Il nodo invia un msg al flow alla ricezione di un telegramma di risposta. Utile in scenari specifici. |
-| Reagisci all'evento Lettura (Read) | Il nodo invia un msg al flow alla ricezione di un telegramma di lettura. Utile quando vuoi rispondere con un valore personalizzato al BUS. |
-| Moltiplica | Moltiplica o divide il valore del payload. Funziona solo con numeri. |
-| Decimali | Arrotonda o gestisce i decimali. Solo numeri. |
-| Negativi | Gestisce i valori negativi. Solo numeri. |
+| React to write telegrams | Il nodo invia un msg al flow ogni volta che riceve un telegramma di tipo write dal BUS KNX. |
+| React to response telegrams | Il nodo invia un msg al flow alla ricezione di un telegramma di risposta. Utile in scenari specifici. |
+| React to read telegrams | Il nodo invia un msg al flow alla ricezione di un telegramma di lettura. Utile quando vuoi rispondere con un valore personalizzato al BUS. |
+| Multiply | Moltiplica o divide il valore del payload. Funziona solo con numeri. |
+| Decimals | Arrotonda o gestisce i decimali. Solo numeri. |
+| Negatives | Gestisce i valori negativi. Solo numeri. |
 
 ## TAB KNX Function
 
@@ -61,7 +61,8 @@ Lo script viene eseguito a ogni msg in ingresso o a ogni telegramma ricevuto dal
 
 |Proprietà|Descrizione|
 |--|--|
-| Cerca GA | Disponibile solo se hai importato il file ETS. Inizia a digitare e seleziona il GA da inserire nel codice, poi incolla il campo completo nella funzione `getGAValue`.<br>**getGAValue('0/0/1 table nord lamp')** |
+| Search GA | Disponibile solo se hai importato il file ETS. Inizia a digitare e seleziona il GA da inserire nel codice, poi incolla il campo completo nella funzione `getGAValue`. 
+ **getGAValue('0/0/1 table nord lamp')** |
 
 ### Oggetti e funzioni disponibili nel codice
 

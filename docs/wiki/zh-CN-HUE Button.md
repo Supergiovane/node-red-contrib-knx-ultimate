@@ -13,7 +13,7 @@ Hue Button 节点利用 <code>button.button_report.event</code> 将 Hue 按钮�
 |属性|说明|
 |--|--|
 | KNX 网关 | 选择要使用的 KNX 网关 |
-| HUE Bridge | 选择要使用的 HUE Bridge |
+| Hue Bridge | 选择要使用的 Hue Bridge |
 | Hue 按钮 | 要使用的 Hue 按钮（输入时自动补全） |
 
 **开关**

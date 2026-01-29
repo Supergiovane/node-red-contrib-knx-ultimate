@@ -1,0 +1,189 @@
+---
+layout: wiki
+title: "-Sample---KNX-Router-Filter"
+lang: en
+permalink: /wiki/-Sample---KNX-Router-Filter
+---
+# KNX Router Filter (sample)
+
+<img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/sample-knx-router-filter.svg" width="95%"><br/>
+
+This sample shows how to use **KNX Router Filter** to:
+
+- filter by event type
+- allow/block by Group Address patterns and Source (physical address) patterns
+- optionally rewrite destination/source before forwarding
+
+For the full node reference see: [KNX Router Filter](/node-red-contrib-knx-ultimate/wiki/KNX%20Router%20Filter)
+
+## Filter + rewrite (no KNX bus required)
+
+**Copy this code and paste it into your flow**
+
+<details><summary>View code</summary>
+
+```json
+[
+  {
+    "id": "tab_knx_rf_sample",
+    "type": "tab",
+    "label": "KNX Router Filter sample",
+    "disabled": false,
+    "info": ""
+  },
+  {
+    "id": "cmt_knx_rf_1",
+    "type": "comment",
+    "z": "tab_knx_rf_sample",
+    "name": "This flow simulates RAW telegram objects and shows filtering + rewrite without needing a KNX bus.",
+    "info": "",
+    "x": 390,
+    "y": 40,
+    "wires": []
+  },
+  {
+    "id": "inj_knx_rf_allowed",
+    "type": "inject",
+    "z": "tab_knx_rf_sample",
+    "name": "Allowed GA 0/0/7",
+    "props": [
+      {
+        "p": "topic",
+        "vt": "str"
+      }
+    ],
+    "topic": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "x": 160,
+    "y": 140,
+    "wires": [
+      [
+        "fn_knx_rf_build_allowed"
+      ]
+    ]
+  },
+  {
+    "id": "fn_knx_rf_build_allowed",
+    "type": "function",
+    "z": "tab_knx_rf_sample",
+    "name": "Build RAW telegram (allowed)",
+    "func": "return {\\n  payload: {\\n    knx: {\\n      event: 'GroupValue_Write',\\n      source: '1.1.10',\\n      destination: '0/0/7',\\n      apdu: { data: { type: 'Buffer', data: [1] }, bitlength: 1, hex: '01' },\\n      cemi: { hex: '' },\\n      echoed: false\\n    }\\n  }\\n};",
+    "outputs": 1,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "x": 390,
+    "y": 140,
+    "wires": [
+      [
+        "node_knx_router_filter"
+      ]
+    ]
+  },
+  {
+    "id": "inj_knx_rf_blocked",
+    "type": "inject",
+    "z": "tab_knx_rf_sample",
+    "name": "Blocked GA 3/3/3",
+    "props": [
+      {
+        "p": "topic",
+        "vt": "str"
+      }
+    ],
+    "topic": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "x": 160,
+    "y": 200,
+    "wires": [
+      [
+        "fn_knx_rf_build_blocked"
+      ]
+    ]
+  },
+  {
+    "id": "fn_knx_rf_build_blocked",
+    "type": "function",
+    "z": "tab_knx_rf_sample",
+    "name": "Build RAW telegram (blocked)",
+    "func": "return {\\n  payload: {\\n    knx: {\\n      event: 'GroupValue_Write',\\n      source: '1.1.10',\\n      destination: '3/3/3',\\n      apdu: { data: { type: 'Buffer', data: [1] }, bitlength: 1, hex: '01' },\\n      cemi: { hex: '' },\\n      echoed: false\\n    }\\n  }\\n};",
+    "outputs": 1,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "x": 390,
+    "y": 200,
+    "wires": [
+      [
+        "node_knx_router_filter"
+      ]
+    ]
+  },
+  {
+    "id": "node_knx_router_filter",
+    "type": "knxUltimateRouterFilter",
+    "z": "tab_knx_rf_sample",
+    "name": "Filter + rewrite",
+    "allowWrite": true,
+    "allowResponse": true,
+    "allowRead": true,
+    "gaMode": "allow",
+    "gaPatterns": "0/0/*",
+    "srcMode": "off",
+    "srcPatterns": "",
+    "rewriteGA": true,
+    "gaRewriteRules": "0/0/* => 2/0/*",
+    "rewriteSource": true,
+    "srcRewriteRules": "1.1.* => 1.2.*",
+    "x": 590,
+    "y": 170,
+    "wires": [
+      [
+        "dbg_knx_rf_passed"
+      ],
+      [
+        "dbg_knx_rf_dropped"
+      ]
+    ]
+  },
+  {
+    "id": "dbg_knx_rf_passed",
+    "type": "debug",
+    "z": "tab_knx_rf_sample",
+    "name": "Passed (check payload.knx + payload.knxRouterFilter)",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "x": 880,
+    "y": 140,
+    "wires": []
+  },
+  {
+    "id": "dbg_knx_rf_dropped",
+    "type": "debug",
+    "z": "tab_knx_rf_sample",
+    "name": "Dropped (reason in payload.knxRouterFilter)",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "x": 880,
+    "y": 200,
+    "wires": []
+  }
+]
+```
+
+</details>
+
+## What to look for
+- Passed output contains the (optionally rewritten) `payload.knx.destination` / `payload.knx.source`.
+- The node always adds `payload.knxRouterFilter` with `dropped/reason` and rewrite info.
+

@@ -18,11 +18,11 @@ Le nœud désactive un périphérique (ou plusieurs appareils) à la fois, en fo
 
 | Propriété | Description |
 |-|-|
-|Passerelle |KNX Gateway.Il est également possible de ne sélectionner aucune passerelle;Dans ce cas, seuls les messages entrants au nœud seront pris en compte.|
-|Surveiller WH |Adresse du groupe représentant la consommation totale de votre bâtiment.|
-|Limite wh |Seuil maximum que votre compteur d'électricité peut résister.Lorsque ce seuil est dépassé, le nœud commence à éteindre les appareils.|
+|Porte |KNX Gateway.Il est également possible de ne sélectionner aucune passerelle;Dans ce cas, seuls les messages entrants au nœud seront pris en compte.|
+|Surveiller W |Adresse du groupe représentant la consommation totale de votre bâtiment.|
+|Limiter w |Seuil maximum que votre compteur d'électricité peut résister.Lorsque ce seuil est dépassé, le nœud commence à éteindre les appareils.|
 |Retarder l'éteint (s) |Exprimé en quelques secondes, indique la fréquence à laquelle le nœud évaluera la consommation et éteindra chaque appareil.|
-|Retard Switch on (S) |Exprimé en quelques secondes, indique la fréquence à laquelle le nœud évaluera la consommation et allumera chaque dispositif qui a été désactivé.|
+|Retarder l'interrupteur sur (s) |Exprimé en quelques secondes, indique la fréquence à laquelle le nœud évaluera la consommation et allumera chaque dispositif qui a été désactivé.|
 
 **Contrôle de charge**
 

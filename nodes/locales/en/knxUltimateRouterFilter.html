@@ -1,0 +1,37 @@
+<script type="text/markdown" data-help-name="knxUltimateRouterFilter">
+Filters RAW telegram objects (typically produced by **KNX Multi Routing**) before they are forwarded to another gateway.
+
+## Pattern syntax
+- Group Address patterns support `*` per level:
+  - `0/0/*` matches all group addresses in `0/0`
+  - `0` means `0/*/*`
+- Source (physical address) patterns support `*` per level:
+  - `1.1.*` matches all devices on area `1`, line `1`
+  - `1` means `1.*.*`
+- Advanced: `re:<regex>` to use a regex directly.
+
+## Mode (GA / Source)
+- **Off**: no filtering
+- **Allow only matching**: passes only items that match a pattern
+- **Block matching**: drops items that match a pattern
+
+## Outputs
+1. **Passed** messages (to be forwarded)
+2. **Dropped** messages (optional debug)
+
+## Rewrite
+You can optionally rewrite:
+- destination Group Address (`knx.destination`)
+- source physical address (`knx.source`)
+
+Rewrite rules are evaluated top-to-bottom, first match wins.
+
+Syntax examples:
+- Wildcards: `0/0/* => 2/0/*` (the `*` is captured and reused)
+- Regex: `re:^1/2/(\\d+)$ => 3/2/$1`
+
+## Metadata
+The node adds `msg.payload.knxRouterFilter`:
+- dropped messages: `{ dropped: true, reason: 'event'|'ga'|'source', ... }`
+- passed messages: `{ dropped: false, rewritten: <bool>, rewrite: { ... }, original: { ... } }`
+</script>

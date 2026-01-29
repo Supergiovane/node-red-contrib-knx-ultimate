@@ -10,7 +10,7 @@ permalink: /wiki/es-HUE%20Plug
 
 El nodo de enchufe de Hue enlaza un enchufe inteligente Philips Hue (servicio `plug``) con direcciones de grupo KNX para que pueda controlar la alimentación y rastrear el estado directamente desde el bus.
 
-- Admite **Control de encendido/apagado ** y**Comentarios de estado** .
+- Admite **Control de encendido/apagado** y **Comentarios de estado**.
 - Mapeo opcional del tono `power_state` (en / en espera).
 - Puede exponer los pines de entrada/salida de Node-Red para reenviar eventos de HUE a flujos o enviar cargas útiles de API avanzadas.
 
@@ -19,7 +19,7 @@ El nodo de enchufe de Hue enlaza un enchufe inteligente Philips Hue (servicio `p
 | Campo | Descripción |
 |-|-|
 |KNX GW |KNX Gateway utilizado para telegramas |
-|Puente Hue |Puente de tono configurado |
+|Hue Bridge |Hue Bridge configurada |
 |Nombre |Seleccione el enchufe de tono de la lista de autocompletar |
 |Control |KNX GA para comandos de encendido/apagado (DPT booleano) |
 |Estado |GA para la retroalimentación de encendido/apagado proveniente de Hue |

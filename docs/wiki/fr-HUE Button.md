@@ -13,8 +13,8 @@ Commencez à taper le champ GA (nom ou adresse de groupe) pour lier le KNX GA;Le
 | Propriété | Description |
 |-|-|
 |KNX GW |Sélectionnez la passerelle KNX à utiliser |
-|Hue Bridge |Sélectionnez le pont Hue à utiliser |
-|Bouton Hue |Bouton de teinte à utiliser (assortiment automatique pendant la frappe) |
+|Hue Bridge |Sélectionnez la Hue Bridge à utiliser |
+|Bouton de teinte |Bouton de teinte à utiliser (assortiment automatique pendant la frappe) |
 
 **Changer**
 

@@ -234,9 +234,47 @@
             "en": "HA Translator",
             "it": "Traduttore HA",
             "de": "HA-Übersetzer",
+            "fr": "HA Translator",
+            "es": "HA Translator",
             "zh": "HA 翻译器"
           },
           "page": "HATranslator"
+        },
+        {
+          "type": "page",
+          "labels": {
+            "en": "KNX AI",
+            "it": "KNX AI",
+            "de": "KNX AI",
+            "fr": "KNX AI",
+            "es": "KNX AI",
+            "zh": "KNX AI"
+          },
+          "page": "KNX AI"
+        },
+        {
+          "type": "page",
+          "labels": {
+            "en": "KNX Multi Routing",
+            "it": "KNX Multi Routing",
+            "de": "KNX Multi Routing",
+            "fr": "KNX Multi Routing",
+            "es": "KNX Multi Routing",
+            "zh": "KNX 多路由"
+          },
+          "page": "KNX Multi Routing"
+        },
+        {
+          "type": "page",
+          "labels": {
+            "en": "KNX Router Filter",
+            "it": "KNX Router Filter",
+            "de": "KNX Router Filter",
+            "fr": "KNX Router Filter",
+            "es": "KNX Router Filter",
+            "zh": "KNX 路由过滤器"
+          },
+          "page": "KNX Router Filter"
         },
         {
           "type": "page",
@@ -558,6 +596,42 @@
             "zh": "物联网桥接"
           },
           "page": "-Sample---IoT-Bridge"
+        },
+        {
+          "type": "page",
+          "labels": {
+            "en": "KNX AI",
+            "it": "KNX AI",
+            "de": "KNX AI",
+            "fr": "KNX AI",
+            "es": "KNX AI",
+            "zh": "KNX AI"
+          },
+          "page": "-Sample---KNX-AI"
+        },
+        {
+          "type": "page",
+          "labels": {
+            "en": "KNX Multi Routing",
+            "it": "KNX Multi Routing",
+            "de": "KNX Multi Routing",
+            "fr": "KNX Multi Routing",
+            "es": "KNX Multi Routing",
+            "zh": "KNX 多路由"
+          },
+          "page": "-Sample---KNX-Multi-Routing"
+        },
+        {
+          "type": "page",
+          "labels": {
+            "en": "KNX Router Filter",
+            "it": "KNX Router Filter",
+            "de": "KNX Router Filter",
+            "fr": "KNX Router Filter",
+            "es": "KNX Router Filter",
+            "zh": "KNX 路由过滤器"
+          },
+          "page": "-Sample---KNX-Router-Filter"
         },
         {
           "type": "page",

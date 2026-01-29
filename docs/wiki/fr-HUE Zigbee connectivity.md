@@ -13,8 +13,8 @@ Commencez à taper le nom du périphérique KNX ou l'adresse de groupe dans le c
 | Propriété | Description |
 |-|-|
 |KNX GW |KNX Gateway avait l'habitude de publier le statut.|
-|Hue Bridge |Bridge Hue à la question.|
-|Capteur de teinte |Capteur / appareil Hue Fournissant les informations de connectivité ZigBee.Assomple automatique pendant la saisie.|
+|Hue Bridge |Hue Bridge à la question.|
+|Connectivité Hue Zigbee |Capteur / appareil Hue Fournissant les informations de connectivité ZigBee.Assomple automatique pendant la saisie.|
 
 **Mappage**
 

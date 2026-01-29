@@ -13,8 +13,8 @@ Start typing the KNX device name or Group Address in the GA field; suggestions a
 |Property|Description|
 |--|--|
 | KNX GW | KNX gateway that receives the motion updates (required before KNX mapping fields appear). |
-| HUE Bridge | Hue bridge to query. |
-| HUE Sensor | Hue motion sensor (supports autocomplete and refresh). |
+| Hue Bridge | Hue Bridge to query. |
+| Hue motion sensor | Hue motion sensor (supports autocomplete and refresh). |
 
 **Mapping**
 

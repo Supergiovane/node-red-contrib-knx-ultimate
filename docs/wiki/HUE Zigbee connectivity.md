@@ -4,7 +4,7 @@ title: "HUE Zigbee connectivity"
 lang: en
 permalink: /wiki/HUE%20Zigbee%20connectivity
 ---
-This node retrieves the Zigbee connectivity status from a HUE device and exposes it to KNX.
+This node retrieves the Zigbee connectivity status from a Hue device and exposes it to KNX.
 
 Start typing the KNX device name or Group Address in the GA field; suggestions appear while you type.
 
@@ -13,8 +13,8 @@ Start typing the KNX device name or Group Address in the GA field; suggestions a
 |Property|Description|
 |--|--|
 | KNX GW | KNX gateway used to publish the status. |
-| HUE Bridge | HUE Bridge to query. |
-| HUE Sensor | HUE sensor/device providing the Zigbee connectivity info. Autocomplete while typing. |
+| Hue Bridge | Hue Bridge to query. |
+| Hue zigbee connectivity | Hue sensor/device providing the Zigbee connectivity info. Autocomplete while typing. |
 
 **Mapping**
 

@@ -13,8 +13,8 @@ Comience a escribir el nombre del dispositivo KNX o la dirección de grupo en el
 | Propiedad | Descripción |
 |-|-|
 |KNX GW |KNX Gateway solía publicar el estado.|
-|Puente Hue |Puente de Hue para la consulta.|
-|Sensor de tono |Sensor/dispositivo de tono que proporciona la información de conectividad Zigbee.Autocompletar mientras se escribe.|
+|Hue Bridge |Hue Bridge para la consulta.|
+|Conectividad de tono zigbee |Sensor/dispositivo de tono que proporciona la información de conectividad Zigbee.Autocompletar mientras se escribe.|
 
 **Cartografía**
 

@@ -14,7 +14,7 @@ Commencez à taper le nom du périphérique KNX ou l'adresse de groupe dans le c
 |-|-|
 |KNX GW |KNX Gateway a utilisé pour publier le niveau de la batterie (requis avant l'apparition des champs de mappage KNX).|
 |Hue Bridge |Hue Bridge qui héberge l'appareil.|
-|Capteur de teinte |Dispositif / capteur Hue Fournissant le niveau de la batterie (prend en charge la saisie semi-automatique et la rafraîchissement).|
+|Capteur de batterie de teintes |Dispositif / capteur Hue Fournissant le niveau de la batterie (prend en charge la saisie semi-automatique et la rafraîchissement).|
 
 **Mappage**
 

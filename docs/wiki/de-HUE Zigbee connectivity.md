@@ -12,9 +12,9 @@ Gib im GA-Feld den Gerätenamen oder die Gruppenadresse ein; beim Tippen erschei
 
 | Eigenschaft | Beschreibung |
 |--|--|
-| KNX GW | KNX-Gateway, auf das veröffentlicht wird. |
-| HUE Bridge | Zu verwendender HUE Bridge. |
-| HUE Sensor | HUE-Sensor/Gerät mit Zigbee-Konnektivitätsinfo (Autocomplete). |
+| KNX-Gateway | KNX-Gateway, auf das veröffentlicht wird. |
+| Hue Bridge | Zu verwendende Hue Bridge. |
+| Hue-Zigbee-Konnektivität | HUE-Sensor/Gerät mit Zigbee-Konnektivitätsinfo (Autocomplete). |
 
 **Zuordnung**
 

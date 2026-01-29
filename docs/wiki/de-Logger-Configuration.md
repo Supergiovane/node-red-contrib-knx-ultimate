@@ -26,9 +26,7 @@ Der Node kann zudem Telegramme pro Sekunde (oder in frei wählbaren Intervallen)
 |--|--|
 | Timer für automatischen Start | Timer automatisch beim Deploy/Start starten. |
 | Neue Payload-Ausgabe alle (in Minuten) | Intervall für das Senden des Payloads und/oder das Speichern in eine Datei. Beim Speichern in eine Datei wird die Datei bei Erreichen der konfigurierten Zeilenanzahl **rotiert**, wobei die ältesten Zeilen zuerst entfernt werden. |
-| Maximale Anzahl von Zeilen (0 = keine Begrenzung) | Max. Zeilenzahl in der XML; älteste Zeilen werden zuerst entfernt. 0 = kein Limit. Wenn zusätzlich die Dateispeicherung aktiviert ist, gibt dieser Wert auch die maximale Zeilenzahl der Datei an. Beim Erreichen des Grenzwerts wird die Datei **rotiert**, wobei nach und nach die ältesten Zeilen entfernt werden. |
-| Aktion | Nur Payload senden oder Payload senden und in Datei speichern. |
-| Dateipfad (absolut oder relativ) | Speicherort der XML, wenn Speichern ausgewählt ist. |
+| Maximale Anzahl von Zeilen (0 = keine Begrenzung) | Max. Zeilenzahl in der XML innerhalb des Intervalls; 0 = kein Limit. Wenn zusätzlich die Dateispeicherung aktiviert ist, gibt dieser Wert auch die maximale Zeilenzahl der Datei an. Beim Erreichen des Grenzwerts wird die Datei **rotiert**, wobei nach und nach die ältesten Zeilen entfernt werden. |
 
 ## KNX-Telegrammzähler
 

@@ -8,7 +8,6 @@ permalink: /wiki/zh-CN-Gateway-configuration
 
 该节点用于连接你的 KNX/IP 网关。
 
-
 **常规**
 
 |属性|说明|
@@ -20,16 +19,16 @@ permalink: /wiki/zh-CN-Gateway-configuration
 
 |属性|说明|
 |--|--|
-| 网关端口 | 端口，默认 `3671`。串口模式下不使用。|
+| 端口号 | 端口，默认 `3671`。串口模式下不使用。|
 | 连接协议 | `Tunnel UDP` 适用于 KNX/IP 接口，`Multicast UDP` 适用于 KNX/IP 路由器，`Serial FT1.2` 适用于 TP/FT1.2 串口（选择串口时自动切换）。 **Auto** 会尝试自动选择合适的协议。|
 | Serial FT1.2 模式 | 定义如何初始化 FT1.2 串口接口：**KBerry/BAOS** 启用 Weinzierl KBerry/BAOS 专用初始化序列（复位、BAOS 链路层模式、无 GA 过滤），而 **Standard FT1.2** 则按通用 FT1.2 适配器处理，不执行 KBerry 特定步骤。默认为 KBerry/BAOS。 |
-| KNX Physical Address | 物理地址，如 `1.1.200`。默认 `15.15.22`。|
-| Bind to local interface | 使用的本地网络接口。"Auto" 自动选择。若有多网卡（以太网/无线），建议手动指定，避免 UDP 丢包。|
-| Automatically connect to KNX BUS at start | 启动时自动连接总线。默认 "Yes"。|
-| Secure credentials source | 选择如何提供 KNX Secure 数据： **ETS 密钥环文件 ** （Data Secure 密钥及（若存在）隧道凭据来自密钥环）、**手动凭据 ** （仅启用 KNX IP 安全隧道，手动输入用户）或**密钥环 + 手动隧道密码** （Data Secure 由密钥环提供，隧道用户/密码手动输入）。注意：KNX Data Secure 报文始终需要密钥环文件。|
-| Tunnel interface individual address | 当所选模式包含手动凭据时显示（手动凭据或密钥环 + 手动隧道密码）。可选的安全隧道 KNX 个人地址（如 `1.1.1`）；留空则由 KNX Ultimate 自动协商。|
-| Tunnel user ID | 启用手动凭据时显示。可选的 KNX Secure 隧道用户 ID（在 ETS 中配置）。|
-| Tunnel user password | 启用手动凭据时显示。输入 ETS 中配置的 KNX Secure 隧道用户密码。|
+| KNX 物理地址 | 物理地址，如 `1.1.200`。默认 `15.15.22`。|
+| 绑定到本地接口 | 使用的本地网络接口。"Auto" 自动选择。若有多网卡（以太网/无线），建议手动指定，避免 UDP 丢包。|
+| 在启动时自动链接到KNX总线 | 启动时自动连接总线。默认 "Yes"。|
+| 安全凭据来源 | 选择如何提供 KNX Secure 数据： **ETS 密钥环文件 ** （Data Secure 密钥及（若存在）隧道凭据来自密钥环）、**手动凭据 ** （仅启用 KNX IP 安全隧道，手动输入用户）或**密钥环 + 手动隧道密码** （Data Secure 由密钥环提供，隧道用户/密码手动输入）。注意：KNX Data Secure 报文始终需要密钥环文件。|
+| 隧道接口个人地址 | 当所选模式包含手动凭据时显示（手动凭据或密钥环 + 手动隧道密码）。可选的安全隧道 KNX 个人地址（如 `1.1.1`）；留空则由 KNX Ultimate 自动协商。|
+| 隧道用户 ID | 启用手动凭据时显示。可选的 KNX Secure 隧道用户 ID（在 ETS 中配置）。|
+| 隧道用户密码 | 启用手动凭据时显示。输入 ETS 中配置的 KNX Secure 隧道用户密码。|
 
 > **KNX Secure 概览** \
 > • _KNX Data Secure_ 用于保护组地址报文， **始终** 需要包含组密钥的密钥环文件。\
@@ -46,7 +45,7 @@ permalink: /wiki/zh-CN-Gateway-configuration
 | Delay between each telegram (ms) | KNX 规范最多 50 报文/秒。一般 25-50ms 合适；若经慢速网络远程连接，建议提高到 200-500ms。|
 | Loglevel | 日志级别（调试用）。默认 "Error"。|
 | 节点状态节流 | 设置状态徽章的刷新频率。启用延时后，中间状态会被丢弃，只在所选间隔后显示最后一次状态。选择 **立即** 可以保持实时显示。|
-| 状态日期/时间格式 | 选择状态徽章中日期/时间的显示方式（当系统区域设置无法配置时很有用，例如 Home Assistant OS）。|
+| 状态日期/时间格式 | 选择状态徽章中日期/时间的显示方式（当系统区域设置无法配置时很有用）。|
 | 自定义格式 | 仅在选择 **自定义（标记）** 时使用。支持标记：`YYYY`, `YY`, `MMM`, `MM`, `DD`, `HH`, `mm`, `ss`, `A`, `a`, `Z`。使用 `[文本]` 表示字面量。|
 | 区域设置覆盖 | 可选（BCP47），例如 `zh-CN`、`en-GB`。在自定义格式中用于月份名称（`MMM`）。|
 
@@ -107,165 +106,3 @@ permalink: /wiki/zh-CN-Gateway-configuration
         <tr><td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/reddot.png"></td><td>错误或已断开</td></tr>
         <tr><td><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/redring.png"></td><td>因循环引用而禁用（<a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Protections" target="_blank">查看页面</a>）</td></tr>
     </table>
-
-<div markdown="1" style="background:#e9f7e9;border:1px solid #c8e6c8;border-radius:10px;padding:14px 16px;margin:16px 0;">
-
-
-### Using KNX Ultimate with kBerry on Raspberry Pi 3 (UART / FT1.2)
-
-This guide explains how to connect a **kBerry** KNX interface directly
-to a **Raspberry Pi 3** and use it with **KNX Ultimate** over the
-**hardware UART** (`ttyAMA0`) using the **FT1.2 (TPUART)** protocol.
-
-> This procedure was tested with Raspberry Pi OS Bookworm on a  
-> Raspberry Pi 3 (November 25, 2025).
-
-## 1. Prerequisites
-
-- Raspberry Pi 3 (Model B or B+)
-- Raspberry Pi OS (Bookworm recommended)
-- kBerry KNX interface mounted on the GPIO header
-- Node-RED with KNX Ultimate installed
-- Basic terminal access (SSH or local console)
-
-## 2. Wiring / Hardware Overview
-
-The kBerry uses the Raspberry Pi's primary UART:
-
-- **TX / RX**: GPIO14 (TXD) and GPIO15 (RXD)
-- **GND**: Common ground between Raspberry Pi and kBerry
-- **Power**: Provided via the GPIO header
-
-Make sure the kBerry is properly seated on the Raspberry Pi GPIO header
-and that no other HAT is conflicting with those pins.
-
-## 3. Disable Bluetooth and Enable the Hardware UART
-
-### 3.1 Edit the correct config file (Bookworm)
-
-```bash
-sudo nano /boot/firmware/config.txt
-```
-
-Add (or ensure you have):
-
-```ini
-enable_uart=1
-dtoverlay=pi3-disable-bt
-```
-
-### 3.2 Disable ModemManager (if present)
-
-```bash
-sudo systemctl disable --now ModemManager
-```
-
-### 3.3 Disable Bluetooth service
-
-```bash
-sudo systemctl disable --now bluetooth.service
-```
-
-## 4. Disable Serial Login Console / Enable Hardware UART
-
-Start the configuration tool:
-
-```bash
-sudo raspi-config
-```
-
-Then navigate through the menus:
-
-- **Interface Options** (or **Interfacing Options** on older systems)
-- **Serial Port**
-
-You will see two questions:
-
-- "Login shell to be accessible over serial?" → choose **No**
-- "Enable serial port hardware?" → choose **Yes**
-
-Finish and exit `raspi-config`, then reboot when asked (or manually later).
-
-## 5. Verify UART
-
-```bash
-ls -l /dev/serial0
-ls -l /dev/ttyAMA0
-dmesg | grep tty
-```
-
-Expected:
-
-```text
-/dev/serial0 -> ttyAMA0
-/dev/ttyAMA0 exists
-```
-
-## 6. Add Node-RED user to `dialout`
-
-Linux uses the `dialout` group to grant access to serial ports
-like `/dev/ttyAMA0` or `/dev/ttyUSB0`.  
-The **user that runs Node-RED** must belong to this group, otherwise
-KNX Ultimate cannot open the serial port.
-
-If you installed Node-RED with the official script, the service user is
-usually `nodered`. On some systems it may be `pi` or another user; adapt
-the commands accordingly.
-
-Check the current groups:
-
-```bash
-id nodered   # or: id pi
-```
-
-Add the user to the `dialout` group:
-
-```bash
-sudo usermod -aG dialout nodered
-```
-
-After changing group membership, log out and log in again for that user,
-or simply reboot:
-
-```bash
-sudo reboot
-```
-
-This step is only needed when you use a **serial** gateway; pure KNX/IP
-setups do not require `dialout`.
-
-## 7. Configure KNX Ultimate
-
-In the KNX Ultimate gateway node:
-
-- **Interface type**: Serial FT1.2 / TPUART
-- **Serial port**: `/dev/ttyAMA0`
-- **Baud rate**: 19200
-- **Data bits**: 8
-- **Parity**: Even
-- **Stop bits**: 1
-
-## 8. Troubleshooting
-
-### No `/dev/ttyAMA0`
-
-- Check `/boot/firmware/config.txt` entries
-- Reboot
-- Re-check `dmesg`
-
-### `/dev/serial0` → `ttyS0`
-
-- `dtoverlay=pi3-disable-bt` not applied
-- Re-check config file path
-- Reboot
-
-### Serial cannot be opened
-
-- Ensure the Node-RED user is in `dialout` (`id nodered`)
-- Check that no other program is using `/dev/ttyAMA0`
-- Verify that the KNX Ultimate gateway node is configured for `/dev/ttyAMA0`
-
----
-
-Done.
-</div>

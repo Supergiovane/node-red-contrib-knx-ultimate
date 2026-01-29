@@ -1,10 +1,9 @@
 ---
 layout: wiki
-title: "KNX Monitor（侧边栏）"
+title: "KNX-Monitor-Sidebar"
 lang: zh-CN
 permalink: /wiki/zh-CN-KNX-Monitor-Sidebar
 ---
-
 左侧边栏的 **KNX Monitor** 标签页会以表格方式实时展示 KNX 组地址及其当前值。
 
 <img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/knx-monitor.png" alt="KNX Monitor sidebar" style="width:100%;max-width:980px;border-radius:14px;box-shadow:0 12px 26px rgba(0,0,0,0.18);" />

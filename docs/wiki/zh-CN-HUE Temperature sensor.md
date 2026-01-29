@@ -12,9 +12,9 @@ permalink: /wiki/zh-CN-HUE%20Temperature%20sensor
 
 |属性|描述|
 |--|--|
-| KNX GW | 选择要使用的 KNX 网关 |
-| HUE Bridge | 选择要使用的 HUE Bridge |
-| HUE 传感器 | HUE 温度传感器（输入时自动补全） |
+| KNX 网关 | 选择要使用的 KNX 网关 |
+| Hue Bridge | 选择要使用的 Hue Bridge |
+| Hue 温度传感器 | HUE 温度传感器（输入时自动补全） |
 | 启动时读取状态 | 启动/重连时读取当前值并发送到 KNX（默认：否） |
 
 **映射**

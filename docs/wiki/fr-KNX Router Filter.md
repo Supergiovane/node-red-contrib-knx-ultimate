@@ -1,0 +1,41 @@
+---
+layout: wiki
+title: "KNX Router Filter"
+lang: fr
+permalink: /wiki/fr-KNX%20Router%20Filter
+---
+Filtre des objets de télégrammes RAW (généralement produits par **KNX Multi Routing**) avant de les transmettre vers un autre gateway.
+
+## Syntaxe des motifs
+- Motifs d’adresse de groupe (GA) avec `*` par niveau :
+  - `0/0/*` correspond à toutes les GA dans `0/0`
+  - `0` équivaut à `0/*/*`
+- Motifs Source (adresse physique) avec `*` par niveau :
+  - `1.1.*` correspond à tous les appareils sur zone `1`, ligne `1`
+  - `1` équivaut à `1.*.*`
+- Avancé : `re:<regex>` pour utiliser directement une regex.
+
+## Mode (GA / Source)
+- **Off** : pas de filtrage
+- **Allow only matching** : autorise uniquement ce qui correspond
+- **Block matching** : bloque ce qui correspond
+
+## Sorties
+1. **Passés** (à transmettre)
+2. **Rejetés** (debug optionnel)
+
+## Réécriture (Rewrite)
+Vous pouvez réécrire (optionnellement) :
+- destination (adresse de groupe) `knx.destination`
+- source (adresse physique) `knx.source`
+
+Les règles sont évaluées de haut en bas (première correspondance gagnante).
+
+Exemples :
+- Wildcards : `0/0/* => 2/0/*` (le `*` est capturé et réutilisé)
+- Regex : `re:^1/2/(\\d+)$ => 3/2/$1`
+
+## Métadonnées
+Le nœud ajoute `msg.payload.knxRouterFilter` :
+- rejetés : `{ dropped: true, reason: 'event'|'ga'|'source', ... }`
+- passés : `{ dropped: false, rewritten: <bool>, rewrite: { ... }, original: { ... } }`

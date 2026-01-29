@@ -1,0 +1,134 @@
+<script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/htmlUtils.js"></script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('knxUltimateRouterFilter', {
+        category: "KNX Ultimate",
+        color: 'lightblue',
+        defaults: {
+            name: { value: "KNX Router Filter", required: false },
+            allowWrite: { value: true },
+            allowResponse: { value: true },
+            allowRead: { value: true },
+            gaMode: { value: "off" },
+            gaPatterns: { value: "" },
+            srcMode: { value: "off" },
+            srcPatterns: { value: "" },
+            rewriteGA: { value: false },
+            gaRewriteRules: { value: "" },
+            rewriteSource: { value: false },
+            srcRewriteRules: { value: "" }
+        },
+        inputs: 1,
+        outputs: 2,
+        outputLabels: function (i) {
+            if (i === 0) return RED._('knxUltimateRouterFilter.outputs.passed');
+            return RED._('knxUltimateRouterFilter.outputs.dropped');
+        },
+        icon: "node-knx-icon.svg",
+        label: function () {
+            return (this.name || "KNX Router Filter");
+        },
+        paletteLabel: "KNX Router Filter",
+        oneditprepare: function () {
+            try { RED.sidebar.show("help"); } catch (error) { }
+
+            const toggleRewrite = () => {
+                if ($("#node-input-rewriteGA").is(":checked")) {
+                    $("#knx-router-filter-ga-rewrite-row").show();
+                } else {
+                    $("#knx-router-filter-ga-rewrite-row").hide();
+                }
+                if ($("#node-input-rewriteSource").is(":checked")) {
+                    $("#knx-router-filter-src-rewrite-row").show();
+                } else {
+                    $("#knx-router-filter-src-rewrite-row").hide();
+                }
+            };
+            $("#node-input-rewriteGA").on("change", toggleRewrite);
+            $("#node-input-rewriteSource").on("change", toggleRewrite);
+            toggleRewrite();
+        },
+        oneditsave: function () {
+            try { RED.sidebar.show("info"); } catch (error) { }
+        },
+        oneditcancel: function () {
+            try { RED.sidebar.show("info"); } catch (error) { }
+        }
+    })
+</script>
+
+<script type="text/html" data-template-name="knxUltimateRouterFilter">
+    <div class="form-row">
+        <b><span data-i18n="knxUltimateRouterFilter.title"></span></b>
+        <br/><br/>
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="knxUltimateRouterFilter.properties.name"></span></label>
+        <input type="text" id="node-input-name" data-i18n="[placeholder]knxUltimateRouterFilter.properties.name" style="flex:1 1 240px; min-width:240px; max-width:240px;">
+    </div>
+
+    <div class="form-row">
+        <b><span data-i18n="knxUltimateRouterFilter.sections.events"></span></b>
+    </div>
+    <div class="form-row">
+        <input type="checkbox" id="node-input-allowWrite" style="display:inline-block; width:auto; vertical-align:top;">
+        <label style="width:auto" for="node-input-allowWrite">&nbsp;&nbsp;<span data-i18n="knxUltimateRouterFilter.properties.allowWrite"></span></label>
+    </div>
+    <div class="form-row">
+        <input type="checkbox" id="node-input-allowResponse" style="display:inline-block; width:auto; vertical-align:top;">
+        <label style="width:auto" for="node-input-allowResponse">&nbsp;&nbsp;<span data-i18n="knxUltimateRouterFilter.properties.allowResponse"></span></label>
+    </div>
+    <div class="form-row">
+        <input type="checkbox" id="node-input-allowRead" style="display:inline-block; width:auto; vertical-align:top;">
+        <label style="width:auto" for="node-input-allowRead">&nbsp;&nbsp;<span data-i18n="knxUltimateRouterFilter.properties.allowRead"></span></label>
+    </div>
+
+    <div class="form-row">
+        <b><span data-i18n="knxUltimateRouterFilter.sections.ga"></span></b>
+    </div>
+    <div class="form-row">
+        <label style="width:120px" for="node-input-gaMode"><span data-i18n="knxUltimateRouterFilter.properties.mode"></span></label>
+        <select style="width:calc(100% - 130px)" id="node-input-gaMode">
+            <option value="off" data-i18n="knxUltimateRouterFilter.selectlists.mode.off"></option>
+            <option value="allow" data-i18n="knxUltimateRouterFilter.selectlists.mode.allow"></option>
+            <option value="block" data-i18n="knxUltimateRouterFilter.selectlists.mode.block"></option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-gaPatterns"><i class="fa fa-filter"></i> <span data-i18n="knxUltimateRouterFilter.properties.gaPatterns"></span></label>
+        <textarea style="width:100%; height:80px;" id="node-input-gaPatterns" data-i18n="[placeholder]knxUltimateRouterFilter.placeholder.gaPatterns"></textarea>
+    </div>
+    <div class="form-row">
+        <input type="checkbox" id="node-input-rewriteGA" style="display:inline-block; width:auto; vertical-align:top;">
+        <label style="width:auto" for="node-input-rewriteGA">&nbsp;&nbsp;<span data-i18n="knxUltimateRouterFilter.properties.rewriteGA"></span></label>
+    </div>
+    <div class="form-row" id="knx-router-filter-ga-rewrite-row">
+        <label for="node-input-gaRewriteRules"><i class="fa fa-random"></i> <span data-i18n="knxUltimateRouterFilter.properties.gaRewriteRules"></span></label>
+        <textarea style="width:100%; height:90px;" id="node-input-gaRewriteRules" data-i18n="[placeholder]knxUltimateRouterFilter.placeholder.gaRewriteRules"></textarea>
+    </div>
+
+    <div class="form-row">
+        <b><span data-i18n="knxUltimateRouterFilter.sections.src"></span></b>
+    </div>
+    <div class="form-row">
+        <label style="width:120px" for="node-input-srcMode"><span data-i18n="knxUltimateRouterFilter.properties.mode"></span></label>
+        <select style="width:calc(100% - 130px)" id="node-input-srcMode">
+            <option value="off" data-i18n="knxUltimateRouterFilter.selectlists.mode.off"></option>
+            <option value="allow" data-i18n="knxUltimateRouterFilter.selectlists.mode.allow"></option>
+            <option value="block" data-i18n="knxUltimateRouterFilter.selectlists.mode.block"></option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-srcPatterns"><i class="fa fa-filter"></i> <span data-i18n="knxUltimateRouterFilter.properties.srcPatterns"></span></label>
+        <textarea style="width:100%; height:80px;" id="node-input-srcPatterns" data-i18n="[placeholder]knxUltimateRouterFilter.placeholder.srcPatterns"></textarea>
+    </div>
+    <div class="form-row">
+        <input type="checkbox" id="node-input-rewriteSource" style="display:inline-block; width:auto; vertical-align:top;">
+        <label style="width:auto" for="node-input-rewriteSource">&nbsp;&nbsp;<span data-i18n="knxUltimateRouterFilter.properties.rewriteSource"></span></label>
+    </div>
+    <div class="form-row" id="knx-router-filter-src-rewrite-row">
+        <label for="node-input-srcRewriteRules"><i class="fa fa-random"></i> <span data-i18n="knxUltimateRouterFilter.properties.srcRewriteRules"></span></label>
+        <textarea style="width:100%; height:90px;" id="node-input-srcRewriteRules" data-i18n="[placeholder]knxUltimateRouterFilter.placeholder.srcRewriteRules"></textarea>
+    </div>
+</script>

@@ -124,6 +124,21 @@
           "external": false
         },
         {
+          "label": "KNX AI",
+          "url": "/wiki/KNX%20AI",
+          "external": false
+        },
+        {
+          "label": "KNX Multi Routing",
+          "url": "/wiki/KNX%20Multi%20Routing",
+          "external": false
+        },
+        {
+          "label": "KNX Router Filter",
+          "url": "/wiki/KNX%20Router%20Filter",
+          "external": false
+        },
+        {
           "label": "IoT Bridge",
           "url": "/wiki/IoT-Bridge-Configuration",
           "external": false
@@ -296,6 +311,21 @@
         {
           "label": "IoT Bridge",
           "url": "/wiki/-Sample---IoT-Bridge",
+          "external": false
+        },
+        {
+          "label": "KNX AI",
+          "url": "/wiki/-Sample---KNX-AI",
+          "external": false
+        },
+        {
+          "label": "KNX Multi Routing",
+          "url": "/wiki/-Sample---KNX-Multi-Routing",
+          "external": false
+        },
+        {
+          "label": "KNX Router Filter",
+          "url": "/wiki/-Sample---KNX-Router-Filter",
           "external": false
         },
         {
@@ -501,6 +531,21 @@
           "external": false
         },
         {
+          "label": "KNX AI",
+          "url": "/wiki/it-KNX%20AI",
+          "external": false
+        },
+        {
+          "label": "KNX Multi Routing",
+          "url": "/wiki/it-KNX%20Multi%20Routing",
+          "external": false
+        },
+        {
+          "label": "KNX Router Filter",
+          "url": "/wiki/it-KNX%20Router%20Filter",
+          "external": false
+        },
+        {
           "label": "IoT Bridge",
           "url": "/wiki/it-IoT-Bridge-Configuration",
           "external": false
@@ -673,6 +718,21 @@
         {
           "label": "IoT Bridge",
           "url": "/wiki/-Sample---IoT-Bridge",
+          "external": false
+        },
+        {
+          "label": "KNX AI",
+          "url": "/wiki/-Sample---KNX-AI",
+          "external": false
+        },
+        {
+          "label": "KNX Multi Routing",
+          "url": "/wiki/-Sample---KNX-Multi-Routing",
+          "external": false
+        },
+        {
+          "label": "KNX Router Filter",
+          "url": "/wiki/-Sample---KNX-Router-Filter",
           "external": false
         },
         {
@@ -878,6 +938,21 @@
           "external": false
         },
         {
+          "label": "KNX AI",
+          "url": "/wiki/de-KNX%20AI",
+          "external": false
+        },
+        {
+          "label": "KNX Multi Routing",
+          "url": "/wiki/de-KNX%20Multi%20Routing",
+          "external": false
+        },
+        {
+          "label": "KNX Router Filter",
+          "url": "/wiki/de-KNX%20Router%20Filter",
+          "external": false
+        },
+        {
           "label": "IoT Bridge",
           "url": "/wiki/de-IoT-Bridge-Configuration",
           "external": false
@@ -1050,6 +1125,21 @@
         {
           "label": "IoT Bridge",
           "url": "/wiki/-Sample---IoT-Bridge",
+          "external": false
+        },
+        {
+          "label": "KNX AI",
+          "url": "/wiki/-Sample---KNX-AI",
+          "external": false
+        },
+        {
+          "label": "KNX Multi Routing",
+          "url": "/wiki/-Sample---KNX-Multi-Routing",
+          "external": false
+        },
+        {
+          "label": "KNX Router Filter",
+          "url": "/wiki/-Sample---KNX-Router-Filter",
           "external": false
         },
         {
@@ -1255,6 +1345,21 @@
           "external": false
         },
         {
+          "label": "KNX AI",
+          "url": "/wiki/fr-KNX%20AI",
+          "external": false
+        },
+        {
+          "label": "KNX Multi Routing",
+          "url": "/wiki/fr-KNX%20Multi%20Routing",
+          "external": false
+        },
+        {
+          "label": "KNX Router Filter",
+          "url": "/wiki/fr-KNX%20Router%20Filter",
+          "external": false
+        },
+        {
           "label": "IoT Bridge",
           "url": "/wiki/fr-IoT-Bridge-Configuration",
           "external": false
@@ -1427,6 +1532,21 @@
         {
           "label": "IoT Bridge",
           "url": "/wiki/-Sample---IoT-Bridge",
+          "external": false
+        },
+        {
+          "label": "KNX AI",
+          "url": "/wiki/-Sample---KNX-AI",
+          "external": false
+        },
+        {
+          "label": "KNX Multi Routing",
+          "url": "/wiki/-Sample---KNX-Multi-Routing",
+          "external": false
+        },
+        {
+          "label": "KNX Router Filter",
+          "url": "/wiki/-Sample---KNX-Router-Filter",
           "external": false
         },
         {
@@ -1632,6 +1752,21 @@
           "external": false
         },
         {
+          "label": "KNX AI",
+          "url": "/wiki/es-KNX%20AI",
+          "external": false
+        },
+        {
+          "label": "KNX Multi Routing",
+          "url": "/wiki/es-KNX%20Multi%20Routing",
+          "external": false
+        },
+        {
+          "label": "KNX Router Filter",
+          "url": "/wiki/es-KNX%20Router%20Filter",
+          "external": false
+        },
+        {
           "label": "IoT Bridge",
           "url": "/wiki/es-IoT-Bridge-Configuration",
           "external": false
@@ -1804,6 +1939,21 @@
         {
           "label": "IoT Bridge",
           "url": "/wiki/-Sample---IoT-Bridge",
+          "external": false
+        },
+        {
+          "label": "KNX AI",
+          "url": "/wiki/-Sample---KNX-AI",
+          "external": false
+        },
+        {
+          "label": "KNX Multi Routing",
+          "url": "/wiki/-Sample---KNX-Multi-Routing",
+          "external": false
+        },
+        {
+          "label": "KNX Router Filter",
+          "url": "/wiki/-Sample---KNX-Router-Filter",
           "external": false
         },
         {
@@ -2009,6 +2159,21 @@
           "external": false
         },
         {
+          "label": "KNX AI",
+          "url": "/wiki/zh-CN-KNX%20AI",
+          "external": false
+        },
+        {
+          "label": "KNX 多路由",
+          "url": "/wiki/zh-CN-KNX%20Multi%20Routing",
+          "external": false
+        },
+        {
+          "label": "KNX 路由过滤器",
+          "url": "/wiki/zh-CN-KNX%20Router%20Filter",
+          "external": false
+        },
+        {
           "label": "物联网桥接",
           "url": "/wiki/zh-CN-IoT-Bridge-Configuration",
           "external": false
@@ -2181,6 +2346,21 @@
         {
           "label": "物联网桥接",
           "url": "/wiki/-Sample---IoT-Bridge",
+          "external": false
+        },
+        {
+          "label": "KNX AI",
+          "url": "/wiki/-Sample---KNX-AI",
+          "external": false
+        },
+        {
+          "label": "KNX 多路由",
+          "url": "/wiki/-Sample---KNX-Multi-Routing",
+          "external": false
+        },
+        {
+          "label": "KNX 路由过滤器",
+          "url": "/wiki/-Sample---KNX-Router-Filter",
           "external": false
         },
         {

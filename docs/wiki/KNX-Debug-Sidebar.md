@@ -1,10 +1,9 @@
 ---
 layout: wiki
-title: "KNX Debug (sidebar)"
+title: "KNX-Debug-Sidebar"
 lang: en
 permalink: /wiki/KNX-Debug-Sidebar
 ---
-
 The **KNX Debug** sidebar tab shows a live log view of KNX Ultimate internal debug entries.
 
 <img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/knx-debug.png" alt="KNX Debug sidebar" style="width:100%;max-width:980px;border-radius:14px;box-shadow:0 12px 26px rgba(0,0,0,0.18);" />

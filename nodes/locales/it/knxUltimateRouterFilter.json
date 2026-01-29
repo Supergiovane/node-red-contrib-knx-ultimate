@@ -1,0 +1,40 @@
+{
+  "knxUltimateRouterFilter": {
+    "title": "KNX Router Filter",
+    "sections": {
+      "events": "Eventi",
+      "ga": "Filtro Group Address",
+      "src": "Filtro Source (indirizzo fisico)"
+    },
+    "properties": {
+      "name": "Nome",
+      "allowWrite": "Permetti GroupValue_Write",
+      "allowResponse": "Permetti GroupValue_Response",
+      "allowRead": "Permetti GroupValue_Read",
+      "mode": "Modalità",
+      "gaPatterns": "Pattern GA",
+      "srcPatterns": "Pattern Source",
+      "rewriteGA": "Riscrivi Group Address (destination)",
+      "gaRewriteRules": "Regole rewrite GA",
+      "rewriteSource": "Riscrivi Source (indirizzo fisico)",
+      "srcRewriteRules": "Regole rewrite Source"
+    },
+    "selectlists": {
+      "mode": {
+        "off": "Off",
+        "allow": "Permetti solo match",
+        "block": "Blocca i match"
+      }
+    },
+    "placeholder": {
+      "gaPatterns": "Esempi: 0/0/*, 1/2/3, 0 (equivale a 0/*/*), re:^1/2/\\d+$",
+      "srcPatterns": "Esempi: 1.1.*, 1.2.10, 1 (equivale a 1.*.*), re:^1\\.1\\.(10|11)$",
+      "gaRewriteRules": "Esempi: 0/0/* => 2/0/*  |  re:^1/2/(\\d+)$ => 3/2/$1",
+      "srcRewriteRules": "Esempi: 1.1.* => 1.2.*  |  re:^1\\.1\\.(\\d+)$ => 1.2.$1"
+    },
+    "outputs": {
+      "passed": "Passati",
+      "dropped": "Scartati"
+    }
+  }
+}

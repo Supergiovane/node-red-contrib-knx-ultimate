@@ -1,10 +1,9 @@
 ---
 layout: wiki
-title: "KNX Monitor (barre latérale)"
+title: "KNX-Monitor-Sidebar"
 lang: fr
 permalink: /wiki/fr-KNX-Monitor-Sidebar
 ---
-
 L’onglet **KNX Monitor** dans la barre latérale affiche un tableau en temps réel des adresses de groupe KNX et de leurs valeurs.
 
 <img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/knx-monitor.png" alt="KNX Monitor sidebar" style="width:100%;max-width:980px;border-radius:14px;box-shadow:0 12px 26px rgba(0,0,0,0.18);" />

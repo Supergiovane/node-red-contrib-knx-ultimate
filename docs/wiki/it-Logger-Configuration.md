@@ -26,9 +26,7 @@ Il nodo può anche contare i telegrammi al secondo (o con l'intervallo che prefe
 |--|--|
 | Avvia il timer automaticamente | Avvia automaticamente il timer al deploy o all'avvio di Node-RED. |
 | Nuovo payload ogni (in minuti) | Intervallo di emissione del payload e/o del salvataggio su file. In caso di salvataggio su file, al raggiungimento del limite di righe specificate, il file verrà **ruotato**, eliminando man mano le righe più vecchie. |
-| Numero massimo di righe (0 = nessun limite) | Numero massimo di righe contenute nell'XML; le più vecchie vengono eliminate per prime. 0 per nessun limite. In caso sia selezionato anche il salvataggio su file, questo numero rappresenta il massimo numero di righe del file. Al raggiungimento del limite, il file verrà **ruotato**, eliminando man mano le righe più vecchie. |
-| Azione | Emetti solo il payload, oppure emetti il payload e salva su file. |
-| Percorso file (assoluto o relativo) | Dove salvare l'XML quando è selezionato il salvataggio. |
+| Numero massimo di righe (0 = nessun limite) | Numero massimo di righe contenute nell'XML nell'intervallo indicato; 0 per nessun limite. In caso sia selezionato anche il salvataggio su file, questo numero rappresenta il massimo numero di righe del file. Al raggiungimento del limite, il file verrà **ruotato**, eliminando man mano le righe più vecchie. |
 
 ## Contatore telegrammi KNX
 

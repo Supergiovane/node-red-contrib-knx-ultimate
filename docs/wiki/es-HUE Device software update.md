@@ -14,8 +14,8 @@ Estás escribiendo.
 | Propiedad | Descripción |
 |-|-|
 |KNX GW |Seleccione la puerta de enlace KNX para ser utilizada |
-|Puente Hue |Seleccione el puente de tono que se utilizará |
-|Dispositivo de tono |Dispositivo de Hue para monitorear las actualizaciones de software (autocompletar mientras escribe). |
+|Hue Bridge |Seleccione la Hue Bridge que se utilizará |
+|Dispositivo para tonos |Dispositivo de Hue para monitorear las actualizaciones de software (autocompletar mientras escribe). |
 
 **Cartografía**
 

@@ -1,0 +1,55 @@
+<script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/htmlUtils.js"></script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('knxUltimateMultiRouting', {
+        category: "KNX Ultimate",
+        color: 'lightblue',
+        defaults: {
+            server: { type: "knxUltimate-config", required: true },
+            name: { value: "KNX Multi Routing", required: false },
+            outputtopic: { value: "", required: false },
+            dropIfSameGateway: { value: true }
+        },
+        inputs: 1,
+        outputs: 1,
+        outputLabels: function () { return RED._('knxUltimateMultiRouting.outputs.raw'); },
+        icon: "node-knx-icon.svg",
+        label: function () {
+            return (this.name || "KNX Multi Routing");
+        },
+        paletteLabel: "KNX Multi Routing",
+        oneditprepare: function () {
+            try { RED.sidebar.show("help"); } catch (error) { }
+        },
+        oneditsave: function () {
+            try { RED.sidebar.show("info"); } catch (error) { }
+        },
+        oneditcancel: function () {
+            try { RED.sidebar.show("info"); } catch (error) { }
+        }
+    })
+</script>
+
+<script type="text/html" data-template-name="knxUltimateMultiRouting">
+    <div class="form-row">
+        <b><span data-i18n="knxUltimateMultiRouting.title"></span></b>
+        <br/><br/>
+        <label for="node-input-server"><i class="fa fa-tag"></i> <span data-i18n="knxUltimateMultiRouting.properties.server"></span></label>
+        <input type="text" id="node-input-server">
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="knxUltimateMultiRouting.properties.name"></span></label>
+        <input type="text" id="node-input-name" data-i18n="[placeholder]knxUltimateMultiRouting.properties.name" style="flex:1 1 240px; min-width:240px; max-width:240px;">
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-outputtopic"><i class="fa fa-tasks"></i> <span data-i18n="knxUltimateMultiRouting.properties.outputtopic"></span></label>
+        <input type="text" id="node-input-outputtopic" data-i18n="[placeholder]knxUltimateMultiRouting.properties.outputtopic">
+    </div>
+
+    <div class="form-row">
+        <input type="checkbox" id="node-input-dropIfSameGateway" style="display:inline-block; width:auto; vertical-align:top;">
+        <label style="width:auto" for="node-input-dropIfSameGateway">&nbsp;&nbsp;<span data-i18n="knxUltimateMultiRouting.properties.dropIfSameGateway"></span></label>
+    </div>
+</script>

@@ -15,8 +15,8 @@ permalink: /wiki/zh-CN-HUE%20Tapdial
 
 | 属性 | 描述 |
 |--|--|
-| KNX GW | 用于 GA 自动补全的 KNX 网关。 |
-| Hue Bridge | 提供 Tap Dial 的 Hue 网桥。 |
+| KNX 网关 | 用于 GA 自动补全的 KNX 网关。 |
+| Hue Bridge | 提供 Tap Dial 的 Hue Bridge。 |
 | Hue Tap Dial | 旋钮设备（支持自动补全；刷新按钮重新获取列表）。 |
 
 ### 映射选项卡

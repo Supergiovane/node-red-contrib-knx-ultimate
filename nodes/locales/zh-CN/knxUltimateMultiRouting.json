@@ -1,0 +1,14 @@
+{
+  "knxUltimateMultiRouting": {
+    "title": "KNX Multi Routing",
+    "properties": {
+      "server": "Gateway",
+      "name": "Name",
+      "outputtopic": "Output topic",
+      "dropIfSameGateway": "Drop messages already tagged for this gateway"
+    },
+    "outputs": {
+      "raw": "RAW telegrams"
+    }
+  }
+}

@@ -16,8 +16,8 @@ Dieser Node steuert eine KNX-Gruppenadresse und ist der am häufigsten verwendet
 |--|--|
 | Gateway | Zu verwendendes KNX-Gateway auswählen |
 | GA-Typ (Dropdown) | Typ der Gruppenadresse. **3-Ebenen** ist Standard (Eingabe der 3-stufigen GA oder GA-Bezeichnung, sofern ETS importiert). **Global** liest die GA beim Start aus einer globalen Variablen, **Flow** analog auf Flow-Ebene. **$Env variable** liest die GA aus einer Umgebungsvariable. **Universeller Modus (alle GAs abhören)** reagiert auf ALLE Gruppenadressen. |
-| Group Addr. | Zu steuernde Gruppenadresse. Mit importierter ETS kannst du den Gerätenamen tippen. Kann leer bleiben, wenn du sie per `msg.setConfig` setzt. |
-| Datapoint | Der zum Node gehörende Datapoint. |
+| Gruppenadresse | Zu steuernde Gruppenadresse. Mit importierter ETS kannst du den Gerätenamen tippen. Kann leer bleiben, wenn du sie per `msg.setConfig` setzt. |
+| Datenpunkt | Der zum Node gehörende Datapoint. |
 
 ### Manueller Befehlsbutton
 

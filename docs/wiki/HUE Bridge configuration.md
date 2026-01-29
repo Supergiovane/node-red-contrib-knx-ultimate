@@ -4,7 +4,7 @@ title: "HUE Bridge configuration"
 lang: en
 permalink: /wiki/HUE%20Bridge%20configuration
 ---
-<H1>PHILIPS HUE NODES
+<H1>PHILIPS Hue NODES
 
 </H1>
 

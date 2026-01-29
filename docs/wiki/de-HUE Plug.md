@@ -18,8 +18,8 @@ Der Hue-Plug-Node verbindet eine Philips-Hue-Steckdose mit KNX-Gruppenadressen:
 
 |Feld|Beschreibung|
 |--|--|
-| KNX GW | Verwendetes KNX-Gateway |
-| Hue Bridge | Konfigurierte Hue-Bridge |
+| KNX-Gateway | Verwendetes KNX-Gateway |
+| Hue Bridge | Konfigurierte Hue Bridge |
 | Name | Hue-Steckdose auswählen (Autocomplete) |
 | Befehl | KNX-GA für Ein/Aus (Boolean-DPT) |
 | Status | GA für die Rückmeldung des Hue-Ein/Aus-Zustands |
