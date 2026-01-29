@@ -12,18 +12,30 @@ La pestaña lateral **KNX AI** muestra en tiempo real tus nodos **KNX AI**: resu
 
 - Ver el resumen del nodo `knxUltimateAI` seleccionado.
 - Revisar anomalías detectadas.
-- Hacer preguntas en el chat (respuestas renderizadas en Markdown).
+- Hacer preguntas en el chat (respuestas renderizadas en Markdown) para acelerar el diagnóstico.
+
+## Cómo usarlo
+
+1. Selecciona el nodo `knxUltimateAI` en el desplegable.
+2. Pulsa **Refresh Summary** (o activa **Auto**).
+3. Usa el chat para preguntar “por qué” y “qué revisar”.
+
+## Ejemplos de uso (escenarios)
+
+- **Bucle / telegramas duplicados:** identificar causas probables y aislar el origen.
+- **GA ruidosa:** por qué una GA es la más activa y qué fuentes escriben en ella.
+- **Comportamiento raro tras un deploy:** qué cambió en los últimos minutos y qué patrones aparecieron.
+- **Problemas de routing entre gateways:** filtrar/reescribir para evitar tormentas o bucles de retorno.
+
+## Ejemplos de preguntas para pegar en el chat
+
+- “¿Por qué `2/4/2` está tan activa? ¿Cuáles son las causas más probables?”
+- “¿Ves patrones de bucle entre dos direcciones de grupo?”
+- “¿Qué direcciones físicas escriben en `x/y/z` y con qué frecuencia?”
+- “¿Qué filtros pongo en Router Filter para parar el spam pero mantener el tráfico normal?”
 
 ## Requisitos
 
 - Al menos un nodo `knxUltimateAI` en tus flujos.
 - El nodo `knxUltimateAI` seleccionado debe estar asociado a un gateway `knxUltimate-config`.
 - Para respuestas LLM: habilita el LLM en `knxUltimateAI` y configura allí la API key.
-
-## Habilitado por
-
-Esta pestaña la proporciona el plugin de Node-RED:
-
-- `package.json` → `node-red.plugins.knxUltimateAISidebar`
-- Archivo: `nodes/plugins/knxUltimateAI-sidebar-plugin.html`
-

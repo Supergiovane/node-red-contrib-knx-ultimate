@@ -12,18 +12,30 @@ L’onglet de barre latérale **KNX AI** affiche en temps réel vos nœuds **KNX
 
 - Afficher le résumé produit par le nœud `knxUltimateAI` sélectionné.
 - Consulter les anomalies détectées.
-- Poser des questions via la chat (les réponses sont rendues en Markdown).
+- Poser des questions via la chat (les réponses sont rendues en Markdown) pour accélérer le dépannage.
+
+## Comment l’utiliser
+
+1. Sélectionnez le nœud `knxUltimateAI` dans la liste.
+2. Cliquez sur **Refresh Summary** (ou activez **Auto**).
+3. Utilisez la chat pour demander “pourquoi” et “quoi vérifier ensuite”.
+
+## Exemples d’utilisation (scénarios)
+
+- **Boucle / télégrammes dupliqués :** identifier les causes probables et isoler la source.
+- **GA très bavarde :** comprendre pourquoi une GA est en tête et quelles sources écrivent dessus.
+- **Comportement inattendu après un déploiement :** voir ce qui a changé et quels patterns sont apparus.
+- **Routing entre passerelles :** filtrer/réécrire pour éviter storms et boucles de retour.
+
+## Exemples de questions à coller dans la chat
+
+- « Pourquoi `2/4/2` est si active ? Quelles causes sont les plus probables ? »
+- « Vois-tu un pattern de boucle entre deux adresses de groupe ? »
+- « Quelles adresses physiques écrivent sur `x/y/z` et à quelle fréquence ? »
+- « Quels filtres mettre dans Router Filter pour stopper le spam tout en gardant le trafic normal ? »
 
 ## Prérequis
 
 - Au moins un nœud `knxUltimateAI` dans vos flows.
 - Le nœud `knxUltimateAI` sélectionné doit être lié à une passerelle `knxUltimate-config`.
 - Pour les réponses LLM : activer le LLM dans `knxUltimateAI` et configurer la clé API dans ce nœud.
-
-## Activé par
-
-Cet onglet est fourni par le plugin Node-RED :
-
-- `package.json` → `node-red.plugins.knxUltimateAISidebar`
-- Fichier : `nodes/plugins/knxUltimateAI-sidebar-plugin.html`
-

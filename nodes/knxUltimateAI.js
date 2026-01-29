@@ -143,6 +143,146 @@ const isProbablyChatModelId = (id) => {
 }
 
 module.exports = function (RED) {
+  const buildKnxUltimateFlowInventory = ({ maxNodes = 80 } = {}) => {
+    const tabById = new Map()
+    const gatewaysById = new Map()
+    const knxNodes = []
+
+    try {
+      if (typeof RED.nodes.eachNode !== 'function') return ''
+
+      // First pass: collect tabs + gateways
+      RED.nodes.eachNode((n) => {
+        if (!n || typeof n !== 'object') return
+        const type = String(n.type || '')
+        if (type === 'tab') {
+          tabById.set(String(n.id || ''), String(n.label || n.name || ''))
+          return
+        }
+        if (type === 'knxUltimate-config') {
+          gatewaysById.set(String(n.id || ''), {
+            id: String(n.id || ''),
+            name: String(n.name || ''),
+            physAddr: String(n.physAddr || '')
+          })
+        }
+      })
+
+      // Second pass: collect KNX Ultimate nodes (all flows)
+      RED.nodes.eachNode((n) => {
+        if (!n || typeof n !== 'object') return
+        const type = String(n.type || '')
+        if (!type.startsWith('knxUltimate') || type === 'knxUltimate-config') return
+
+        const tabId = String(n.z || '')
+        const tabLabel = tabById.get(tabId) || ''
+        const id = String(n.id || '')
+        const name = String(n.name || '')
+        const server = String(n.server || '')
+        const gw = gatewaysById.get(server) || null
+
+        const entry = {
+          tabLabel,
+          type,
+          id,
+          name,
+          gatewayId: server,
+          gatewayName: gw ? gw.name : '',
+          topic: n.topic !== undefined ? String(n.topic) : '',
+          dpt: n.dpt !== undefined ? String(n.dpt) : ''
+        }
+
+        if (type === 'knxUltimate') {
+          entry.listenAllGA = n.listenallga === true || n.listenallga === 'true'
+          entry.outputType = n.outputtype !== undefined ? String(n.outputtype) : ''
+          entry.notifyWrite = n.notifywrite === true || n.notifywrite === 'true'
+          entry.notifyResponse = n.notifyresponse === true || n.notifyresponse === 'true'
+          entry.notifyRead = n.notifyreadrequest === true || n.notifyreadrequest === 'true'
+        } else if (type === 'knxUltimateMultiRouting') {
+          entry.outputTopic = n.outputtopic !== undefined ? String(n.outputtopic) : ''
+          entry.dropIfSameGateway = n.dropIfSameGateway === true || n.dropIfSameGateway === 'true'
+        } else if (type === 'knxUltimateRouterFilter') {
+          entry.gaMode = n.gaMode !== undefined ? String(n.gaMode) : ''
+          entry.gaPatterns = n.gaPatterns !== undefined ? String(n.gaPatterns) : ''
+          entry.srcMode = n.srcMode !== undefined ? String(n.srcMode) : ''
+          entry.srcPatterns = n.srcPatterns !== undefined ? String(n.srcPatterns) : ''
+          entry.rewriteGA = n.rewriteGA === true || n.rewriteGA === 'true'
+          entry.gaRewriteRules = n.gaRewriteRules !== undefined ? String(n.gaRewriteRules) : ''
+          entry.rewriteSource = n.rewriteSource === true || n.rewriteSource === 'true'
+          entry.srcRewriteRules = n.srcRewriteRules !== undefined ? String(n.srcRewriteRules) : ''
+        }
+
+        knxNodes.push(entry)
+      })
+    } catch (error) {
+      return ''
+    }
+
+    if (!knxNodes.length && !gatewaysById.size) return ''
+
+    const sorted = knxNodes
+      .sort((a, b) => {
+        const at = (a.tabLabel || '').localeCompare(b.tabLabel || '')
+        if (at !== 0) return at
+        const an = (a.name || a.id).localeCompare(b.name || b.id)
+        if (an !== 0) return an
+        return (a.type || '').localeCompare(b.type || '')
+      })
+      .slice(0, Math.max(0, Number(maxNodes) || 0))
+
+    const shorten = (id) => (id && id.length > 8) ? id.slice(0, 8) : id
+    const safeLine = (s) => String(s || '').replace(/\s+/g, ' ').trim()
+
+    const lines = []
+    lines.push('Node-RED flow inventory (KNX Ultimate):')
+
+    if (gatewaysById.size) {
+      lines.push(`Gateways (knxUltimate-config): ${gatewaysById.size}`)
+      for (const g of Array.from(gatewaysById.values()).sort((a, b) => (a.name || a.id).localeCompare(b.name || b.id)).slice(0, 20)) {
+        const bits = []
+        bits.push(`- ${shorten(g.id)}`)
+        if (g.name) bits.push(`name="${safeLine(g.name)}"`)
+        if (g.physAddr) bits.push(`physAddr=${safeLine(g.physAddr)}`)
+        lines.push(bits.join(' '))
+      }
+      if (gatewaysById.size > 20) lines.push('- ...')
+    }
+
+    lines.push(`KNX Ultimate nodes: ${knxNodes.length}${knxNodes.length > sorted.length ? ` (showing first ${sorted.length})` : ''}`)
+    for (const n of sorted) {
+      const parts = []
+      if (n.tabLabel) parts.push(`[${safeLine(n.tabLabel)}]`)
+      parts.push(n.type)
+      parts.push(shorten(n.id))
+      if (n.name) parts.push(`name="${safeLine(n.name)}"`)
+      if (n.gatewayName) parts.push(`gw="${safeLine(n.gatewayName)}"`)
+      if (!n.gatewayName && n.gatewayId) parts.push(`gwId=${shorten(n.gatewayId)}`)
+
+      if (n.type === 'knxUltimate') {
+        if (n.topic) parts.push(`topic=${safeLine(n.topic)}`)
+        if (n.dpt) parts.push(`dpt=${safeLine(n.dpt)}`)
+        parts.push(`listenAll=${n.listenAllGA ? 'true' : 'false'}`)
+      } else if (n.type === 'knxUltimateMultiRouting') {
+        if (n.outputTopic) parts.push(`outputTopic=${safeLine(n.outputTopic)}`)
+        parts.push(`dropTagged=${n.dropIfSameGateway ? 'true' : 'false'}`)
+      } else if (n.type === 'knxUltimateRouterFilter') {
+        if (n.gaMode && n.gaMode !== 'off') parts.push(`gaMode=${safeLine(n.gaMode)}`)
+        if (n.gaPatterns) parts.push(`gaPatterns="${safeLine(n.gaPatterns)}"`)
+        if (n.srcMode && n.srcMode !== 'off') parts.push(`srcMode=${safeLine(n.srcMode)}`)
+        if (n.srcPatterns) parts.push(`srcPatterns="${safeLine(n.srcPatterns)}"`)
+        if (n.rewriteGA) parts.push('rewriteGA=true')
+        if (n.gaRewriteRules) parts.push(`gaRewriteRules="${safeLine(n.gaRewriteRules)}"`)
+        if (n.rewriteSource) parts.push('rewriteSource=true')
+        if (n.srcRewriteRules) parts.push(`srcRewriteRules="${safeLine(n.srcRewriteRules)}"`)
+      } else {
+        if (n.topic) parts.push(`topic=${safeLine(n.topic)}`)
+      }
+      lines.push(`- ${parts.join(' ')}`)
+    }
+
+    return lines.join('\n').trim()
+  }
+
   if (!adminEndpointsRegistered) {
     adminEndpointsRegistered = true
 
@@ -331,6 +471,10 @@ module.exports = function (RED) {
     node.llmTimeoutMs = (config.llmTimeoutMs === undefined || config.llmTimeoutMs === '') ? 30000 : Number(config.llmTimeoutMs)
     node.llmMaxEventsInPrompt = (config.llmMaxEventsInPrompt === undefined || config.llmMaxEventsInPrompt === '') ? 600 : Number(config.llmMaxEventsInPrompt)
     node.llmIncludeRaw = config.llmIncludeRaw !== undefined ? coerceBoolean(config.llmIncludeRaw) : false
+    node.llmIncludeFlowContext = config.llmIncludeFlowContext !== undefined ? coerceBoolean(config.llmIncludeFlowContext) : true
+    node.llmMaxFlowNodesInPrompt = (config.llmMaxFlowNodesInPrompt === undefined || config.llmMaxFlowNodesInPrompt === '')
+      ? 80
+      : Number(config.llmMaxFlowNodesInPrompt)
 
     const pushStatus = (status) => {
       if (!status) return
@@ -376,6 +520,7 @@ module.exports = function (RED) {
     node._lastSummaryAt = 0
     node._anomalies = []
     node._assistantLog = []
+    node._flowContextCache = { at: 0, text: '' }
 
     // Register runtime instance for sidebar visibility
     aiRuntimeNodes.set(node.id, node)
@@ -493,10 +638,26 @@ module.exports = function (RED) {
         const devName = t.devicename ? ` (${t.devicename})` : ''
         return `${new Date(t.ts).toISOString()} ${t.event} ${t.source} -> ${t.destination}${devName} dpt=${t.dpt} payload=${payloadStr}${rawStr}`
       })
+
+      let flowContext = ''
+      if (node.llmIncludeFlowContext) {
+        const ttlMs = 10 * 1000
+        const now = nowMs()
+        if (node._flowContextCache && node._flowContextCache.text && (now - (node._flowContextCache.at || 0)) < ttlMs) {
+          flowContext = node._flowContextCache.text
+        } else {
+          flowContext = buildKnxUltimateFlowInventory({ maxNodes: Math.max(0, Number(node.llmMaxFlowNodesInPrompt) || 0) })
+          if (flowContext && flowContext.length > 8000) flowContext = flowContext.slice(0, 8000) + '\n...'
+          node._flowContextCache = { at: now, text: flowContext }
+        }
+      }
       return [
         'KNX bus summary (JSON):',
         safeStringify(summary),
         '',
+        flowContext ? 'Node-RED context:' : '',
+        flowContext ? flowContext : '',
+        flowContext ? '' : '',
         'Recent KNX telegrams:',
         lines.join('\n'),
         '',

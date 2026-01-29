@@ -39,7 +39,9 @@
             llmMaxTokens: { value: 600, required: false, validate: RED.validators.number() },
             llmTimeoutMs: { value: 30000, required: false, validate: RED.validators.number() },
             llmMaxEventsInPrompt: { value: 120, required: false, validate: RED.validators.number() },
-            llmIncludeRaw: { value: false }
+            llmIncludeRaw: { value: false },
+            llmIncludeFlowContext: { value: true },
+            llmMaxFlowNodesInPrompt: { value: 80, required: false, validate: RED.validators.number() }
         },
         credentials: {
             llmApiKey: { type: "password" }
@@ -327,6 +329,16 @@
                 <div class="form-row">
                     <input type="checkbox" id="node-input-llmIncludeRaw" style="display:inline-block; width:auto; vertical-align:top;">
                     <label style="width:auto" for="node-input-llmIncludeRaw">&nbsp;&nbsp;<span data-i18n="knxUltimateAI.properties.llmIncludeRaw"></span></label>
+                </div>
+
+                <div class="form-row">
+                    <input type="checkbox" id="node-input-llmIncludeFlowContext" style="display:inline-block; width:auto; vertical-align:top;">
+                    <label style="width:auto" for="node-input-llmIncludeFlowContext">&nbsp;&nbsp;<span data-i18n="knxUltimateAI.properties.llmIncludeFlowContext"></span></label>
+                </div>
+
+                <div class="form-row">
+                    <label style="width:290px" for="node-input-llmMaxFlowNodesInPrompt"><i class="fa fa-sitemap"></i> <span data-i18n="knxUltimateAI.properties.llmMaxFlowNodesInPrompt"></span></label>
+                    <input style="width:90px" type="number" id="node-input-llmMaxFlowNodesInPrompt">
                 </div>
             </div>
         </div>

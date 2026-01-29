@@ -37,7 +37,9 @@
       "llmMaxTokens": "Max tokens",
       "llmTimeoutMs": "Timeout (ms)",
       "llmMaxEventsInPrompt": "Recent events included",
-      "llmIncludeRaw": "Include raw payload hex"
+      "llmIncludeRaw": "Include raw payload hex",
+      "llmIncludeFlowContext": "Include Node-RED KNX node inventory",
+      "llmMaxFlowNodesInPrompt": "Max flow nodes included"
     },
     "outputs": {
       "summary": "Summary/Stats",

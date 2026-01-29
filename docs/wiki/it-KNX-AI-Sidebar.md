@@ -12,18 +12,30 @@ La tab **KNX AI** nella sidebar mostra in tempo reale lo stato dei tuoi nodi **K
 
 - Leggere velocemente la summary prodotta dal nodo `knxUltimateAI` selezionato.
 - Controllare le anomalie rilevate.
-- Fare domande in chat (le risposte vengono renderizzate in Markdown).
+- Fare domande in chat (le risposte vengono renderizzate in Markdown) per velocizzare la diagnosi.
+
+## Come si usa (in pratica)
+
+1. Seleziona il nodo `knxUltimateAI` dal menu a tendina.
+2. Premi **Refresh Summary** (oppure abilita **Auto**) per aggiornare lo snapshot.
+3. Usa la chat per chiedere “perché succede” e “cosa controllare”.
+
+## Esempi di utilizzo (scenari umani)
+
+- **Loop / telegrammi duplicati:** chiedi quali sono le cause più probabili e come isolare l’origine.
+- **GA rumoroso:** chiedi perché un GA è tra i più attivi e quali sorgenti lo stanno scrivendo.
+- **Comportamento strano dopo un deploy:** chiedi cosa è cambiato negli ultimi minuti e se sono comparsi pattern.
+- **Problemi di routing tra gateway:** chiedi come filtrare/riscrivere i telegrammi per evitare tempeste o feedback loop.
+
+## Esempi di domande da copiare in chat
+
+- “Perché `2/4/2` è così attivo? Quali cause sono più probabili?”
+- “Vedi pattern da loop tra due group address?”
+- “Quali indirizzi fisici stanno scrivendo su `x/y/z` e con che frequenza?”
+- “Che filtri metto nel Router Filter per fermare lo spam ma mantenere il traffico normale?”
 
 ## Requisiti
 
 - Almeno un nodo `knxUltimateAI` nei tuoi flow.
 - Il nodo `knxUltimateAI` selezionato deve essere collegato ad un gateway `knxUltimate-config`.
 - Per le risposte LLM in chat: abilita l’LLM nel nodo `knxUltimateAI` e configura lì le credenziali (API key).
-
-## Come viene abilitato
-
-La tab è fornita dal plugin Node-RED:
-
-- `package.json` → `node-red.plugins.knxUltimateAISidebar`
-- File: `nodes/plugins/knxUltimateAI-sidebar-plugin.html`
-
