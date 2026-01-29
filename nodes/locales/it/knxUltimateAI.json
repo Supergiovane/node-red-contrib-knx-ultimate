@@ -1,0 +1,68 @@
+{
+  "knxUltimateAI": {
+    "title": "KNX AI (Analisi Traffico)",
+    "sections": {
+      "capture": "Cattura",
+      "analysis": "Analisi",
+      "anomalies": "Anomalie",
+      "llm": "Assistente LLM"
+    },
+    "properties": {
+      "server": "Gateway",
+      "name": "Nome",
+      "topic": "Topic",
+      "notifywrite": "Cattura GroupValue_Write",
+      "notifyresponse": "Cattura GroupValue_Response",
+      "notifyreadrequest": "Cattura GroupValue_Read",
+      "analysisWindowSec": "Finestra analisi (secondi)",
+      "historyWindowSec": "Finestra storico (secondi)",
+      "maxEvents": "Eventi massimi in memoria",
+      "emitIntervalSec": "Invia summary automatico (secondi, 0=off)",
+      "topN": "Dimensione lista Top",
+      "enablePattern": "Rileva pattern semplici (A -> B)",
+      "patternMaxLagMs": "Ritardo massimo pattern (ms)",
+      "patternMinCount": "Occorrenze minime pattern",
+      "rateWindowSec": "Finestra rate (secondi)",
+      "maxTelegramPerSecOverall": "Max telegrammi/sec totale (0=off)",
+      "maxTelegramPerSecPerGA": "Max telegrammi/sec per GA (0=off)",
+      "flapWindowSec": "Finestra flap (secondi)",
+      "flapMaxChanges": "Max cambi per GA nella finestra (0=off)",
+      "llmEnabled": "Abilita assistente LLM",
+      "llmProvider": "Provider",
+      "llmBaseUrl": "URL endpoint",
+      "llmApiKey": "API key",
+      "llmModel": "Modello",
+      "llmSystemPrompt": "Prompt di sistema",
+      "llmTemperature": "Temperatura",
+      "llmMaxTokens": "Token massimi",
+      "llmTimeoutMs": "Timeout (ms)",
+      "llmMaxEventsInPrompt": "Eventi recenti inclusi",
+      "llmIncludeRaw": "Includi payload raw in hex"
+    },
+    "outputs": {
+      "summary": "Summary/Statistiche",
+      "anomalies": "Anomalie",
+      "assistant": "Assistente AI"
+    },
+    "selectlists": {
+      "llmProvider": {
+        "openai_compat": "Compatibile OpenAI (chat/completions)",
+        "ollama": "Ollama (locale) - non ancora supportato"
+      }
+    },
+    "buttons": {
+      "refreshModels": "Aggiorna"
+    },
+    "messages": {
+      "loadingModels": "Carico i modelli…",
+      "loadedModels": "Modelli caricati",
+      "ollamaNotSupported": "Integrazione Ollama marcata come non ancora supportata (test in corso)."
+    },
+    "placeholder": {
+      "llmBaseUrl": "https://api.openai.com/v1/chat/completions (o endpoint compatibile)",
+      "llmApiKey": "Incolla la chiave (inizia con sk-)",
+      "llmModel": "es. gpt-4o-mini",
+      "llmSystemPrompt": "Opzionale. Lascia vuoto per default."
+    }
+  }
+}

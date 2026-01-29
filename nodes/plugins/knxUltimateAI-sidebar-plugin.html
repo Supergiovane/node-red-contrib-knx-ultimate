@@ -1,0 +1,454 @@
+<script type="text/javascript">
+    (function () {
+        RED.plugins.registerPlugin("knxUltimateAI-sidebar-plugin", {
+            onadd: function () {
+                const tabId = "knxUltimateAITab";
+                const actionId = "knxUltimateAI:show";
+
+                if (!document.getElementById('knx-ai-sidebar-style')) {
+                    $('<style>', {
+                        id: 'knx-ai-sidebar-style',
+                        text: `
+                        #knx-ai-toolbar { padding: 6px 6px !important; display:flex; align-items:center; gap:6px; flex-wrap: wrap; border-bottom: 1px solid rgba(0,0,0,0.06); }
+                        #knx-ai-toolbar select { min-width: 180px; }
+                        #knx-ai-toolbar .knx-ai-spacer { margin-left: auto; }
+                        #knx-ai-status { font-size: 0.8em; color: var(--red-ui-text-color-secondary, #666); }
+                        #knx-ai-body { padding: 6px; overflow:auto; }
+                        .knx-ai-section { margin: 0 0 10px; }
+                        .knx-ai-section h3 { margin: 8px 0 6px; font-size: 1em; font-weight: 600; }
+                        #knx-ai-summary { font-family: Menlo, Consolas, "Liberation Mono", monospace; font-size: 12px; line-height: 1.35; white-space: pre-wrap; word-break: break-word; background: #fff; border: 1px solid rgba(0,0,0,0.08); border-radius: 4px; padding: 6px; }
+                        #knx-ai-anomalies { font-size: 0.85em; }
+                        .knx-ai-anomaly { padding: 4px 6px; border-left: 3px solid #ff6f00; background: #fff3e0; margin: 0 0 4px; border-radius: 3px; }
+                        .knx-ai-anomaly .meta { color: #666; font-size: 0.8em; }
+                        #knx-ai-chat { border: 1px solid rgba(0,0,0,0.08); border-radius: 4px; background:#fff; }
+                        #knx-ai-chat-log { max-height: 280px; overflow:auto; padding: 6px; font-size: 0.9em; }
+                        .knx-ai-chat-msg { margin: 0 0 6px; padding: 6px; border-radius: 4px; }
+                        .knx-ai-chat-user { background: rgba(33,150,243,0.08); border-left: 3px solid #2196f3; }
+                        .knx-ai-chat-assistant { background: rgba(76,175,80,0.08); border-left: 3px solid #4caf50; }
+                        .knx-ai-chat-error { background: rgba(244,67,54,0.08); border-left: 3px solid #f44336; }
+                        .knx-ai-chat-pending { background: rgba(96,125,139,0.08); border-left: 3px solid #607d8b; color: #37474f; display:flex; align-items:center; gap:8px; }
+                        .knx-ai-chat-pending i { color: #607d8b; }
+                        .knx-ai-chat-msg p { margin: 0 0 6px; }
+                        .knx-ai-chat-msg p:last-child { margin-bottom: 0; }
+                        .knx-ai-chat-msg pre { margin: 6px 0; padding: 6px; background: rgba(0,0,0,0.04); border-radius: 4px; overflow: auto; }
+                        .knx-ai-chat-msg code { font-family: Menlo, Consolas, "Liberation Mono", monospace; font-size: 12px; }
+                        .knx-ai-chat-msg h1, .knx-ai-chat-msg h2, .knx-ai-chat-msg h3 { margin: 8px 0 6px; font-size: 1em; }
+                        .knx-ai-chat-msg ul { margin: 6px 0 6px 18px; padding: 0; }
+                        #knx-ai-chat-input { display:flex; gap:6px; padding: 6px; border-top: 1px solid rgba(0,0,0,0.06); }
+                        #knx-ai-chat-input input { flex: 1 1 auto; }
+                        `
+                    }).appendTo('head');
+                }
+
+                RED.actions.add(actionId, function () {
+                    RED.sidebar.show(tabId);
+                });
+
+                if (RED.sidebar.containsTab(tabId)) {
+                    RED.sidebar.removeTab(tabId);
+                }
+
+                const container = $('<div>').css({ display: 'flex', flexDirection: 'column', height: '100%' });
+                const toolbar = $('<div>').attr('id', 'knx-ai-toolbar').appendTo(container);
+                const nodeSelect = $('<select>').attr('id', 'knx-ai-node-select').appendTo(toolbar);
+                const refreshNodesBtn = $('<button type="button" class="red-ui-button"><i class="fa fa-refresh"></i> Nodes</button>').appendTo(toolbar);
+                const refreshStateBtn = $('<button type="button" class="red-ui-button"><i class="fa fa-repeat"></i> Refresh</button>').appendTo(toolbar);
+                const autoLabel = $('<label style="display:flex;align-items:center;gap:4px; margin:0 0 0 6px; font-size:0.9em;"></label>').appendTo(toolbar);
+                const autoChk = $('<input type="checkbox">').appendTo(autoLabel);
+                $('<span>').text('Auto').appendTo(autoLabel);
+                $('<div class="knx-ai-spacer"></div>').appendTo(toolbar);
+                const statusEl = $('<div>').attr('id', 'knx-ai-status').text('Ready').appendTo(toolbar);
+
+                const body = $('<div>').attr('id', 'knx-ai-body').appendTo(container);
+
+                const emptyNotice = $('<div>').css({ color: '#888', fontStyle: 'italic' }).text('No KNX AI nodes found.').appendTo(body);
+
+                const summarySection = $('<div class="knx-ai-section"></div>').appendTo(body);
+                $('<h3>').text('Summary').appendTo(summarySection);
+                const summaryPre = $('<pre>').attr('id', 'knx-ai-summary').text('').appendTo(summarySection);
+
+                const anomaliesSection = $('<div class="knx-ai-section"></div>').appendTo(body);
+                $('<h3>').text('Anomalies').appendTo(anomaliesSection);
+                const anomaliesWrap = $('<div>').attr('id', 'knx-ai-anomalies').appendTo(anomaliesSection);
+
+                const chatSection = $('<div class="knx-ai-section"></div>').appendTo(body);
+                $('<h3>').text('Ask').appendTo(chatSection);
+                const chatBox = $('<div>').attr('id', 'knx-ai-chat').appendTo(chatSection);
+                const chatLog = $('<div>').attr('id', 'knx-ai-chat-log').appendTo(chatBox);
+                const chatInputRow = $('<div>').attr('id', 'knx-ai-chat-input').appendTo(chatBox);
+                const chatInput = $('<input type="text" placeholder="Ask a question about KNX traffic…">').appendTo(chatInputRow);
+                const chatSendBtn = $('<button type="button" class="red-ui-button"><i class="fa fa-paper-plane"></i> Send</button>').appendTo(chatInputRow);
+
+                const storageKey = 'knxUltimateAI:selectedNodeId';
+                const autoKey = 'knxUltimateAI:autoRefresh';
+
+                const loadStoredNode = () => {
+                    try { return window.localStorage ? window.localStorage.getItem(storageKey) : ''; } catch (e) { return ''; }
+                };
+                const storeNode = (val) => {
+                    try { if (window.localStorage) window.localStorage.setItem(storageKey, val || ''); } catch (e) { }
+                };
+                const loadAuto = () => {
+                    try { return window.localStorage ? window.localStorage.getItem(autoKey) === 'true' : false; } catch (e) { return false; }
+                };
+                const storeAuto = (val) => {
+                    try { if (window.localStorage) window.localStorage.setItem(autoKey, val ? 'true' : 'false'); } catch (e) { }
+                };
+
+                let active = false;
+                let pollTimer = null;
+                let nodesTimer = null;
+                let nodesCache = [];
+                let lastStateNodeId = '';
+                let pendingChatEl = null;
+
+                const setStatus = (text) => {
+                    statusEl.text(text || '');
+                };
+
+                const setEnabled = (enabled) => {
+                    refreshNodesBtn.prop('disabled', !enabled);
+                    refreshStateBtn.prop('disabled', !enabled);
+                    nodeSelect.prop('disabled', !enabled);
+                    chatInput.prop('disabled', !enabled);
+                    chatSendBtn.prop('disabled', !enabled);
+                };
+
+                const renderAnomalies = (items) => {
+                    anomaliesWrap.empty();
+                    if (!items || !items.length) {
+                        $('<div>').css({ color: '#888', fontStyle: 'italic' }).text('No anomalies.').appendTo(anomaliesWrap);
+                        return;
+                    }
+                    items.slice().reverse().slice(0, 30).forEach((entry) => {
+                        const payload = entry && entry.payload ? entry.payload : {};
+                        const $row = $('<div class="knx-ai-anomaly"></div>').appendTo(anomaliesWrap);
+                        $('<div>').text((payload.type || 'anomaly') + (payload.ga ? (' · ' + payload.ga) : '')).appendTo($row);
+                        $('<div class="meta"></div>').text(entry.at || '').appendTo($row);
+                        $('<div>').css({ fontFamily: 'Menlo, Consolas, monospace', fontSize: '12px', whiteSpace: 'pre-wrap' })
+                            .text(JSON.stringify(payload, null, 2))
+                            .appendTo($row);
+                    });
+                };
+
+                const normalizeChatText = (value) => {
+                    if (value === undefined || value === null) return '';
+                    if (typeof value === 'string') return value;
+                    try { return JSON.stringify(value, null, 2); } catch (e) { return String(value); }
+                };
+
+                const appendChat = (kind, text) => {
+                    const cls = kind === 'user' ? 'knx-ai-chat-user' : (kind === 'assistant' ? 'knx-ai-chat-assistant' : 'knx-ai-chat-error');
+                    const $msg = $('<div class="knx-ai-chat-msg"></div>').addClass(cls).appendTo(chatLog);
+                    if (kind === 'assistant') {
+                        const raw = normalizeChatText(text);
+                        const trimmed = raw.trim();
+                        $msg.html(trimmed ? renderMarkdownToHtml(raw) : renderMarkdownToHtml('(risposta vuota)'));
+                    } else {
+                        $msg.text(normalizeChatText(text));
+                    }
+                    try { chatLog.scrollTop(chatLog[0].scrollHeight); } catch (e) { }
+                };
+
+                const showChatPending = () => {
+                    if (pendingChatEl) return;
+                    pendingChatEl = $('<div class="knx-ai-chat-msg knx-ai-chat-pending"></div>').appendTo(chatLog);
+                    $('<i class="fa fa-spinner fa-spin"></i>').appendTo(pendingChatEl);
+                    $('<span>').text('Sto pensando…').appendTo(pendingChatEl);
+                    try { chatLog.scrollTop(chatLog[0].scrollHeight); } catch (e) { }
+                };
+
+                const hideChatPending = () => {
+                    if (!pendingChatEl) return;
+                    try { pendingChatEl.remove(); } catch (e) { }
+                    pendingChatEl = null;
+                };
+
+                const escapeHtml = (value) => {
+                    const s = String(value || '');
+                    return s
+                        .replace(/&/g, '&amp;')
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;')
+                        .replace(/"/g, '&quot;')
+                        .replace(/'/g, '&#39;');
+                };
+
+                const basicMarkdownToHtml = (md) => {
+                    // Minimal markdown renderer (safe: starts from escaped text)
+                    const lines = String(md || '').split(/\r?\n/);
+                    let html = '';
+                    let inCode = false;
+                    for (let i = 0; i < lines.length; i++) {
+                        const line = lines[i];
+                        if (/^```/.test(line.trim())) {
+                            inCode = !inCode;
+                            html += inCode ? '<pre><code>' : '</code></pre>';
+                            continue;
+                        }
+                        if (inCode) {
+                            html += line + '\n';
+                            continue;
+                        }
+                        if (/^###\s+/.test(line)) { html += '<h3>' + line.replace(/^###\s+/, '') + '</h3>'; continue; }
+                        if (/^##\s+/.test(line)) { html += '<h2>' + line.replace(/^##\s+/, '') + '</h2>'; continue; }
+                        if (/^#\s+/.test(line)) { html += '<h1>' + line.replace(/^#\s+/, '') + '</h1>'; continue; }
+                        if (/^\s*[-*]\s+/.test(line)) {
+                            // naive list: accumulate consecutive list lines
+                            html += '<ul>';
+                            while (i < lines.length && /^\s*[-*]\s+/.test(lines[i])) {
+                                const item = lines[i].replace(/^\s*[-*]\s+/, '');
+                                html += '<li>' + item + '</li>';
+                                i++;
+                            }
+                            i--;
+                            html += '</ul>';
+                            continue;
+                        }
+                        if (line.trim() === '') { html += '<br>'; continue; }
+                        let out = line;
+                        out = out.replace(/`([^`]+)`/g, '<code>$1</code>');
+                        out = out.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+                        out = out.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+                        out = out.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+                        html += '<p>' + out + '</p>';
+                    }
+                    if (inCode) html += '</code></pre>';
+                    return html;
+                };
+
+                const renderMarkdownToHtml = (markdown) => {
+                    // Prevent raw HTML injection by escaping input first.
+                    const safeMd = escapeHtml(markdown || '');
+                    try {
+                        if (window.marked && typeof window.marked.parse === 'function') {
+                            return window.marked.parse(safeMd, { mangle: false, headerIds: false });
+                        }
+                    } catch (e) { }
+                    return basicMarkdownToHtml(safeMd);
+                };
+
+                const formatSummaryText = (data) => {
+                    const nodeInfo = data && data.node ? data.node : {};
+                    const s = data && data.summary ? data.summary : null;
+                    if (!s) return 'Nessun dato disponibile.';
+
+                    const lines = [];
+                    const headerBits = [];
+                    if (nodeInfo.name) headerBits.push(nodeInfo.name);
+                    if (nodeInfo.gatewayName) headerBits.push('Gateway: ' + nodeInfo.gatewayName);
+                    if (s.meta && s.meta.generatedAt) headerBits.push('Aggiornato: ' + s.meta.generatedAt);
+                    if (headerBits.length) lines.push(headerBits.join(' · '));
+                    lines.push('');
+
+                    const c = s.counters || {};
+                    const win = (s.meta && s.meta.analysisWindowSec) ? s.meta.analysisWindowSec : '';
+                    lines.push(`Finestra analisi: ${win}s`);
+                    lines.push(`Telegrammi: ${c.telegrams ?? 0} · Rate: ${(c.overallRatePerSec ?? 0)}/s · Echoed: ${c.echoed ?? 0} · DPT sconosciuti: ${c.unknownDpt ?? 0}`);
+
+                    if (Array.isArray(s.topGAs) && s.topGAs.length) {
+                        lines.push('');
+                        lines.push('Top Group Address:');
+                        s.topGAs.slice(0, 20).forEach((x, idx) => {
+                            lines.push(`${idx + 1}. ${x.ga}  (${x.count})`);
+                        });
+                    }
+
+                    if (s.byEvent && Object.keys(s.byEvent).length) {
+                        lines.push('');
+                        lines.push('Eventi:');
+                        Object.keys(s.byEvent).sort().forEach((k) => {
+                            lines.push(`- ${k}: ${s.byEvent[k]}`);
+                        });
+                    }
+
+                    if (Array.isArray(s.patterns) && s.patterns.length) {
+                        lines.push('');
+                        lines.push('Pattern (sequenze ricorrenti):');
+                        s.patterns.slice(0, 15).forEach((p) => {
+                            lines.push(`- ${p.from} → ${p.to}  (${p.count} volte entro ${p.withinMs}ms)`);
+                        });
+                    }
+
+                    return lines.join('\n');
+                };
+
+                const populateNodes = (nodes, preferredId) => {
+                    nodesCache = Array.isArray(nodes) ? nodes : [];
+                    nodeSelect.empty();
+                    if (!nodesCache.length) {
+                        emptyNotice.show();
+                        setEnabled(false);
+                        return;
+                    }
+                    emptyNotice.hide();
+                    setEnabled(true);
+
+                    nodesCache.forEach((n) => {
+                        const label = (n.name || 'KNX AI') + (n.gatewayName ? (' · ' + n.gatewayName) : '');
+                        $('<option>').attr('value', n.id).text(label).appendTo(nodeSelect);
+                    });
+
+                    const stored = preferredId || loadStoredNode();
+                    const exists = stored && nodesCache.find(n => n.id === stored);
+                    const selected = exists ? stored : (nodesCache[0] ? nodesCache[0].id : '');
+                    if (selected) nodeSelect.val(selected);
+                    storeNode(selected);
+                };
+
+                const fetchNodes = () => {
+                    setStatus('Loading nodes…');
+                    const currentSelected = nodeSelect.val() || loadStoredNode() || '';
+                    return $.getJSON('knxUltimateAI/sidebar/nodes')
+                        .done((data) => {
+                            populateNodes(data && data.nodes ? data.nodes : [], currentSelected);
+                            setStatus('Ready');
+                        })
+                        .fail((xhr) => {
+                            setEnabled(false);
+                            let err = 'Failed to load nodes';
+                            try { if (xhr && xhr.responseJSON && xhr.responseJSON.error) err = xhr.responseJSON.error; } catch (e) { }
+                            setStatus(err);
+                        });
+                };
+
+                const fetchState = (opts) => {
+                    const nodeId = nodeSelect.val() || '';
+                    if (!nodeId) return;
+                    const fresh = opts && opts.fresh ? 1 : 0;
+                    lastStateNodeId = nodeId;
+                    setStatus('Loading…');
+                    return $.getJSON('knxUltimateAI/sidebar/state?nodeId=' + encodeURIComponent(nodeId) + '&fresh=' + fresh)
+                        .done((data) => {
+                            summaryPre.text(formatSummaryText(data));
+                            renderAnomalies(data && data.anomalies ? data.anomalies : []);
+
+                            const llmEnabled = data && data.node ? !!data.node.llmEnabled : false;
+                            if (!llmEnabled) {
+                                chatInput.prop('disabled', true);
+                                chatSendBtn.prop('disabled', true);
+                                chatInput.attr('placeholder', 'LLM disabled in node config');
+                            } else {
+                                chatInput.prop('disabled', false);
+                                chatSendBtn.prop('disabled', false);
+                                chatInput.attr('placeholder', 'Ask a question about KNX traffic…');
+                            }
+
+                            setStatus('Ready');
+                        })
+                        .fail((xhr) => {
+                            let err = 'Failed to load state';
+                            try { if (xhr && xhr.responseJSON && xhr.responseJSON.error) err = xhr.responseJSON.error; } catch (e) { }
+                            setStatus(err);
+                        });
+                };
+
+                const sendAsk = () => {
+                    const nodeId = nodeSelect.val() || '';
+                    const q = (chatInput.val() || '').trim();
+                    if (!nodeId || !q) return;
+                    chatInput.val('');
+                    appendChat('user', q);
+                    setStatus('Asking…');
+                    chatSendBtn.prop('disabled', true);
+                    showChatPending();
+                    return $.ajax({
+                        url: 'knxUltimateAI/sidebar/ask',
+                        type: 'POST',
+                        contentType: 'application/json',
+                        data: JSON.stringify({ nodeId: nodeId, question: q })
+                    })
+                        .done((data) => {
+                            const answer = (data && data.answer !== undefined) ? data.answer : '';
+                            hideChatPending();
+                            appendChat('assistant', answer);
+                            setStatus('Ready');
+                        })
+                        .fail((xhr) => {
+                            let err = 'Ask failed';
+                            try { if (xhr && xhr.responseJSON && xhr.responseJSON.error) err = xhr.responseJSON.error; } catch (e) { }
+                            hideChatPending();
+                            appendChat('error', err);
+                            setStatus('Ready');
+                        })
+                        .always(() => {
+                            hideChatPending();
+                            chatSendBtn.prop('disabled', false);
+                        });
+                };
+
+                const startPolling = () => {
+                    if (pollTimer) return;
+                    pollTimer = setInterval(() => {
+                        if (!active) return;
+                        if (!autoChk.is(':checked')) return;
+                        fetchState({ fresh: false });
+                    }, 2000);
+                    if (!nodesTimer) {
+                        nodesTimer = setInterval(() => {
+                            if (!active) return;
+                            fetchNodes();
+                        }, 5000);
+                    }
+                };
+                const stopPolling = () => {
+                    if (pollTimer) clearInterval(pollTimer);
+                    pollTimer = null;
+                    if (nodesTimer) clearInterval(nodesTimer);
+                    nodesTimer = null;
+                };
+
+                refreshNodesBtn.on('click', function () {
+                    fetchNodes().done(() => fetchState({ fresh: false }));
+                });
+                refreshStateBtn.on('click', function () {
+                    fetchState({ fresh: true });
+                });
+                nodeSelect.on('change', function () {
+                    const nodeId = nodeSelect.val() || '';
+                    storeNode(nodeId);
+                    chatLog.empty();
+                    fetchState({ fresh: false });
+                });
+                autoChk.on('change', function () {
+                    storeAuto($(this).is(':checked'));
+                });
+                chatSendBtn.on('click', function (evt) {
+                    evt.preventDefault();
+                    sendAsk();
+                });
+                chatInput.on('keydown', function (evt) {
+                    if (evt.key === 'Enter') {
+                        evt.preventDefault();
+                        sendAsk();
+                    }
+                });
+
+                // init persisted state
+                autoChk.prop('checked', loadAuto());
+
+                RED.sidebar.addTab({
+                    id: tabId,
+                    label: "KNX AI",
+                    name: "KNX AI",
+                    iconClass: "fa fa-magic",
+                    content: container,
+                    action: actionId,
+                    onchange: function (show) {
+                        active = !!show;
+                        if (active) {
+                            setEnabled(true);
+                            fetchNodes().done(() => fetchState({ fresh: false }));
+                            startPolling();
+                        } else {
+                            stopPolling();
+                        }
+                    }
+                });
+
+                // Auto-refresh node list once at plugin load (so the tab is ready immediately)
+                try { fetchNodes(); } catch (e) { }
+            }
+        });
+    })();
+</script>

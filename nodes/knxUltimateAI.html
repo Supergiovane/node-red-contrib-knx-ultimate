@@ -1,0 +1,334 @@
+<script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/htmlUtils.js"></script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('knxUltimateAI', {
+        category: "KNX Ultimate",
+        color: '#C7E9C0',
+        defaults: {
+            server: { type: "knxUltimate-config", required: true },
+            name: { value: "KNX AI", required: false },
+            topic: { value: "", required: false },
+
+            notifyreadrequest: { value: true },
+            notifyresponse: { value: true },
+            notifywrite: { value: true },
+
+            analysisWindowSec: { value: 60, required: true, validate: RED.validators.number() },
+            historyWindowSec: { value: 300, required: true, validate: RED.validators.number() },
+            emitIntervalSec: { value: 0, required: true, validate: RED.validators.number() },
+            topN: { value: 10, required: true, validate: RED.validators.number() },
+            maxEvents: { value: 5000, required: true, validate: RED.validators.number() },
+
+            rateWindowSec: { value: 10, required: true, validate: RED.validators.number() },
+            maxTelegramPerSecOverall: { value: 0, required: true, validate: RED.validators.number() },
+            maxTelegramPerSecPerGA: { value: 0, required: true, validate: RED.validators.number() },
+
+            flapWindowSec: { value: 30, required: true, validate: RED.validators.number() },
+            flapMaxChanges: { value: 0, required: true, validate: RED.validators.number() },
+
+            enablePattern: { value: true },
+            patternMaxLagMs: { value: 1500, required: true, validate: RED.validators.number() },
+            patternMinCount: { value: 8, required: true, validate: RED.validators.number() },
+
+            llmEnabled: { value: false },
+            llmProvider: { value: "openai_compat" },
+            llmBaseUrl: { value: "https://api.openai.com/v1/chat/completions" },
+            llmModel: { value: "gpt-4o-mini" },
+            llmSystemPrompt: { value: "" },
+            llmTemperature: { value: 0.2, required: false, validate: RED.validators.number() },
+            llmMaxTokens: { value: 600, required: false, validate: RED.validators.number() },
+            llmTimeoutMs: { value: 30000, required: false, validate: RED.validators.number() },
+            llmMaxEventsInPrompt: { value: 120, required: false, validate: RED.validators.number() },
+            llmIncludeRaw: { value: false }
+        },
+        credentials: {
+            llmApiKey: { type: "password" }
+        },
+        inputs: 1,
+        outputs: 3,
+        outputLabels: function (i) {
+            switch (i) {
+                case 0: return RED._('knxUltimateAI.outputs.summary');
+                case 1: return RED._('knxUltimateAI.outputs.anomalies');
+                case 2: return RED._('knxUltimateAI.outputs.assistant');
+            }
+        },
+        icon: "node-eye-icon.svg",
+        label: function () {
+            return (this.name || "KNX AI");
+        },
+        paletteLabel: "KNX AI",
+        oneditprepare: function () {
+            try { RED.sidebar.show("help"); } catch (error) { }
+
+            $("#knx-ai-accordion").accordion({
+                header: "h3",
+                heightStyle: "content",
+                collapsible: true,
+                active: 0
+            });
+
+            const toggleLLM = () => {
+                const enabled = $("#node-input-llmEnabled").is(":checked");
+                if (enabled) {
+                    $("#knx-ai-llm-settings").show();
+                } else {
+                    $("#knx-ai-llm-settings").hide();
+                }
+            };
+            $("#node-input-llmEnabled").on("change", toggleLLM);
+            toggleLLM();
+
+            const toggleProvider = () => {
+                const provider = $("#node-input-llmProvider").val();
+                if (provider === "ollama") {
+                    $("#knx-ai-apikey-row").hide();
+                    $("#knx-ai-ollama-warning").show();
+                } else {
+                    $("#knx-ai-apikey-row").show();
+                    $("#knx-ai-ollama-warning").hide();
+                }
+            };
+            $("#node-input-llmProvider").on("change", toggleProvider);
+            toggleProvider();
+
+            const nodeId = this.id;
+
+            const setModelsStatus = (text, level) => {
+                const $status = $("#knx-ai-models-status");
+                if (!$status || $status.length === 0) return;
+                $status.text(text || "");
+                $status.removeClass("knx-ai-models-ok knx-ai-models-warn knx-ai-models-err");
+                if (level === "ok") $status.addClass("knx-ai-models-ok");
+                if (level === "warn") $status.addClass("knx-ai-models-warn");
+                if (level === "err") $status.addClass("knx-ai-models-err");
+            };
+
+            const populateModels = (models) => {
+                const $dl = $("#knx-ai-llmModels");
+                if (!$dl || $dl.length === 0) return;
+                $dl.empty();
+                (models || []).forEach(function (m) {
+                    $("<option>").attr("value", m).appendTo($dl);
+                });
+            };
+
+            const refreshModels = () => {
+                const provider = $("#node-input-llmProvider").val();
+                const baseUrl = $("#node-input-llmBaseUrl").val() || "";
+                const apiKey = $("#node-input-llmApiKey").val() || "";
+                const payload = { nodeId: nodeId, provider: provider, baseUrl: baseUrl };
+                // Node-RED uses "__PWRD__" as placeholder for stored credentials: don't send it.
+                if (apiKey && apiKey !== "__PWRD__") payload.apiKey = apiKey;
+
+                setModelsStatus(RED._('knxUltimateAI.messages.loadingModels') || "Loading models...", "warn");
+                $("#knx-ai-refreshModels").prop("disabled", true);
+
+                $.ajax({
+                    url: "knxUltimateAI/models",
+                    type: "POST",
+                    contentType: "application/json",
+                    data: JSON.stringify(payload)
+                })
+                    .done(function (data) {
+                        const models = (data && data.models) ? data.models : [];
+                        populateModels(models);
+                        const msg = (RED._('knxUltimateAI.messages.loadedModels') || "Models loaded") + ": " + models.length;
+                        setModelsStatus(msg, "ok");
+                        try { RED.notify(msg, "success"); } catch (e) { }
+                    })
+                    .fail(function (xhr) {
+                        let err = "Failed to load models";
+                        try {
+                            const resp = xhr && xhr.responseJSON;
+                            if (resp && resp.error) err = resp.error;
+                        } catch (e) { }
+                        setModelsStatus(err, "err");
+                        try { RED.notify(err, "error"); } catch (e) { }
+                    })
+                    .always(function () {
+                        $("#knx-ai-refreshModels").prop("disabled", false);
+                    });
+            };
+
+            $("#knx-ai-refreshModels").on("click", function (evt) {
+                evt.preventDefault();
+                refreshModels();
+            });
+        },
+        oneditsave: function () {
+            try { RED.sidebar.show("info"); } catch (error) { }
+        },
+        oneditcancel: function () {
+            try { RED.sidebar.show("info"); } catch (error) { }
+        }
+    })
+</script>
+
+<script type="text/html" data-template-name="knxUltimateAI">
+    <div class="form-row">
+        <b><span data-i18n="knxUltimateAI.title"></span></b>
+        <br/><br/>
+        <label for="node-input-server"><i class="fa fa-tag"></i> <span data-i18n="knxUltimateAI.properties.server"></span></label>
+        <input type="text" id="node-input-server">
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="knxUltimateAI.properties.name"></span></label>
+        <input type="text" id="node-input-name" data-i18n="[placeholder]knxUltimateAI.properties.name" style="flex:1 1 240px; min-width:240px; max-width:240px;">
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-topic"><i class="fa fa-tasks"></i> <span data-i18n="knxUltimateAI.properties.topic"></span></label>
+        <input type="text" id="node-input-topic" data-i18n="[placeholder]knxUltimateAI.properties.topic">
+    </div>
+
+    <div id="knx-ai-accordion">
+        <h3><span data-i18n="knxUltimateAI.sections.capture"></span></h3>
+        <div>
+            <div class="form-row">
+                <input type="checkbox" id="node-input-notifywrite" style="display:inline-block; width:auto; vertical-align:top;">
+                <label style="width:auto" for="node-input-notifywrite">&nbsp;&nbsp;<span data-i18n="knxUltimateAI.properties.notifywrite"></span></label>
+            </div>
+            <div class="form-row">
+                <input type="checkbox" id="node-input-notifyresponse" style="display:inline-block; width:auto; vertical-align:top;">
+                <label style="width:auto" for="node-input-notifyresponse">&nbsp;&nbsp;<span data-i18n="knxUltimateAI.properties.notifyresponse"></span></label>
+            </div>
+            <div class="form-row">
+                <input type="checkbox" id="node-input-notifyreadrequest" style="display:inline-block; width:auto; vertical-align:top;">
+                <label style="width:auto" for="node-input-notifyreadrequest">&nbsp;&nbsp;<span data-i18n="knxUltimateAI.properties.notifyreadrequest"></span></label>
+            </div>
+        </div>
+
+        <h3><span data-i18n="knxUltimateAI.sections.analysis"></span></h3>
+        <div>
+            <div class="form-row">
+                <label style="width:290px" for="node-input-analysisWindowSec"><i class="fa fa-clock-o"></i> <span data-i18n="knxUltimateAI.properties.analysisWindowSec"></span></label>
+                <input style="width:90px" type="number" id="node-input-analysisWindowSec">
+            </div>
+            <div class="form-row">
+                <label style="width:290px" for="node-input-historyWindowSec"><i class="fa fa-history"></i> <span data-i18n="knxUltimateAI.properties.historyWindowSec"></span></label>
+                <input style="width:90px" type="number" id="node-input-historyWindowSec">
+            </div>
+            <div class="form-row">
+                <label style="width:290px" for="node-input-maxEvents"><i class="fa fa-bars"></i> <span data-i18n="knxUltimateAI.properties.maxEvents"></span></label>
+                <input style="width:90px" type="number" id="node-input-maxEvents">
+            </div>
+            <div class="form-row">
+                <label style="width:290px" for="node-input-emitIntervalSec"><i class="fa fa-send"></i> <span data-i18n="knxUltimateAI.properties.emitIntervalSec"></span></label>
+                <input style="width:90px" type="number" id="node-input-emitIntervalSec">
+            </div>
+            <div class="form-row">
+                <label style="width:290px" for="node-input-topN"><i class="fa fa-list-ol"></i> <span data-i18n="knxUltimateAI.properties.topN"></span></label>
+                <input style="width:90px" type="number" id="node-input-topN">
+            </div>
+            <div class="form-row">
+                <input type="checkbox" id="node-input-enablePattern" style="display:inline-block; width:auto; vertical-align:top;">
+                <label style="width:auto" for="node-input-enablePattern">&nbsp;&nbsp;<span data-i18n="knxUltimateAI.properties.enablePattern"></span></label>
+            </div>
+            <div class="form-row">
+                <label style="width:290px" for="node-input-patternMaxLagMs"><i class="fa fa-arrows-h"></i> <span data-i18n="knxUltimateAI.properties.patternMaxLagMs"></span></label>
+                <input style="width:120px" type="number" id="node-input-patternMaxLagMs">
+            </div>
+            <div class="form-row">
+                <label style="width:290px" for="node-input-patternMinCount"><i class="fa fa-filter"></i> <span data-i18n="knxUltimateAI.properties.patternMinCount"></span></label>
+                <input style="width:90px" type="number" id="node-input-patternMinCount">
+            </div>
+        </div>
+
+        <h3><span data-i18n="knxUltimateAI.sections.anomalies"></span></h3>
+        <div>
+            <div class="form-row">
+                <label style="width:290px" for="node-input-rateWindowSec"><i class="fa fa-clock-o"></i> <span data-i18n="knxUltimateAI.properties.rateWindowSec"></span></label>
+                <input style="width:90px" type="number" id="node-input-rateWindowSec">
+            </div>
+            <div class="form-row">
+                <label style="width:290px" for="node-input-maxTelegramPerSecOverall"><i class="fa fa-tachometer"></i> <span data-i18n="knxUltimateAI.properties.maxTelegramPerSecOverall"></span></label>
+                <input style="width:90px" type="number" id="node-input-maxTelegramPerSecOverall">
+            </div>
+            <div class="form-row">
+                <label style="width:290px" for="node-input-maxTelegramPerSecPerGA"><i class="fa fa-bolt"></i> <span data-i18n="knxUltimateAI.properties.maxTelegramPerSecPerGA"></span></label>
+                <input style="width:90px" type="number" id="node-input-maxTelegramPerSecPerGA">
+            </div>
+            <div class="form-row">
+                <label style="width:290px" for="node-input-flapWindowSec"><i class="fa fa-exchange"></i> <span data-i18n="knxUltimateAI.properties.flapWindowSec"></span></label>
+                <input style="width:90px" type="number" id="node-input-flapWindowSec">
+            </div>
+            <div class="form-row">
+                <label style="width:290px" for="node-input-flapMaxChanges"><i class="fa fa-random"></i> <span data-i18n="knxUltimateAI.properties.flapMaxChanges"></span></label>
+                <input style="width:90px" type="number" id="node-input-flapMaxChanges">
+            </div>
+        </div>
+
+        <h3><span data-i18n="knxUltimateAI.sections.llm"></span></h3>
+        <div>
+            <div class="form-row">
+                <input type="checkbox" id="node-input-llmEnabled" style="display:inline-block; width:auto; vertical-align:top;">
+                <label style="width:auto" for="node-input-llmEnabled">&nbsp;&nbsp;<span data-i18n="knxUltimateAI.properties.llmEnabled"></span></label>
+            </div>
+
+            <div id="knx-ai-llm-settings">
+                <div class="form-row">
+                    <label style="width:290px" for="node-input-llmProvider"><i class="fa fa-cog"></i> <span data-i18n="knxUltimateAI.properties.llmProvider"></span></label>
+                    <select style="width:100%" id="node-input-llmProvider">
+                        <option value="openai_compat" data-i18n="knxUltimateAI.selectlists.llmProvider.openai_compat"></option>
+                        <option value="ollama" data-i18n="knxUltimateAI.selectlists.llmProvider.ollama"></option>
+                    </select>
+                </div>
+                <div class="form-tips" id="knx-ai-ollama-warning" style="display:none;">
+                    <span data-i18n="knxUltimateAI.messages.ollamaNotSupported"></span>
+                </div>
+
+                <div class="form-row">
+                    <label style="width:290px" for="node-input-llmBaseUrl"><i class="fa fa-link"></i> <span data-i18n="knxUltimateAI.properties.llmBaseUrl"></span></label>
+                    <input type="text" id="node-input-llmBaseUrl" data-i18n="[placeholder]knxUltimateAI.placeholder.llmBaseUrl">
+                </div>
+
+                <div class="form-row" id="knx-ai-apikey-row">
+                    <label style="width:290px" for="node-input-llmApiKey"><i class="fa fa-key"></i> <span data-i18n="knxUltimateAI.properties.llmApiKey"></span></label>
+                    <input type="password" id="node-input-llmApiKey" data-i18n="[placeholder]knxUltimateAI.placeholder.llmApiKey">
+                </div>
+
+                <div class="form-row">
+                    <label style="width:290px" for="node-input-llmModel"><i class="fa fa-cube"></i> <span data-i18n="knxUltimateAI.properties.llmModel"></span></label>
+                    <input style="width:calc(100% - 110px)" type="text" id="node-input-llmModel" list="knx-ai-llmModels" data-i18n="[placeholder]knxUltimateAI.placeholder.llmModel">
+                    <button type="button" class="red-ui-button" id="knx-ai-refreshModels" style="margin-left:6px;" title="Refresh models">
+                        <i class="fa fa-refresh"></i> <span data-i18n="knxUltimateAI.buttons.refreshModels"></span>
+                    </button>
+                </div>
+                <datalist id="knx-ai-llmModels"></datalist>
+                <div class="form-tips" id="knx-ai-models-status"></div>
+
+                <div class="form-row">
+                    <label style="width:290px" for="node-input-llmSystemPrompt"><i class="fa fa-commenting-o"></i> <span data-i18n="knxUltimateAI.properties.llmSystemPrompt"></span></label>
+                    <textarea style="width:100%; height:110px;" id="node-input-llmSystemPrompt" data-i18n="[placeholder]knxUltimateAI.placeholder.llmSystemPrompt"></textarea>
+                </div>
+
+                <div class="form-row">
+                    <label style="width:290px" for="node-input-llmTemperature"><i class="fa fa-sliders"></i> <span data-i18n="knxUltimateAI.properties.llmTemperature"></span></label>
+                    <input style="width:90px" type="number" id="node-input-llmTemperature">
+                </div>
+
+                <div class="form-row">
+                    <label style="width:290px" for="node-input-llmMaxTokens"><i class="fa fa-align-left"></i> <span data-i18n="knxUltimateAI.properties.llmMaxTokens"></span></label>
+                    <input style="width:90px" type="number" id="node-input-llmMaxTokens">
+                </div>
+
+                <div class="form-row">
+                    <label style="width:290px" for="node-input-llmTimeoutMs"><i class="fa fa-hourglass-half"></i> <span data-i18n="knxUltimateAI.properties.llmTimeoutMs"></span></label>
+                    <input style="width:120px" type="number" id="node-input-llmTimeoutMs">
+                </div>
+
+                <div class="form-row">
+                    <label style="width:290px" for="node-input-llmMaxEventsInPrompt"><i class="fa fa-list"></i> <span data-i18n="knxUltimateAI.properties.llmMaxEventsInPrompt"></span></label>
+                    <input style="width:90px" type="number" id="node-input-llmMaxEventsInPrompt">
+                </div>
+
+                <div class="form-row">
+                    <input type="checkbox" id="node-input-llmIncludeRaw" style="display:inline-block; width:auto; vertical-align:top;">
+                    <label style="width:auto" for="node-input-llmIncludeRaw">&nbsp;&nbsp;<span data-i18n="knxUltimateAI.properties.llmIncludeRaw"></span></label>
+                </div>
+            </div>
+        </div>
+    </div>
+</script>

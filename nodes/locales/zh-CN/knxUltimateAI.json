@@ -1,0 +1,63 @@
+{
+  "knxUltimateAI": {
+    "title": "KNX AI (Traffic Analyzer)",
+    "sections": {
+      "capture": "Capture",
+      "analysis": "Analysis",
+      "anomalies": "Anomalies",
+      "llm": "LLM Assistant"
+    },
+    "properties": {
+      "server": "Gateway",
+      "name": "Name",
+      "topic": "Topic",
+      "notifywrite": "Capture GroupValue_Write",
+      "notifyresponse": "Capture GroupValue_Response",
+      "notifyreadrequest": "Capture GroupValue_Read",
+      "analysisWindowSec": "Analysis window (seconds)",
+      "historyWindowSec": "History window (seconds)",
+      "maxEvents": "Max stored events",
+      "emitIntervalSec": "Auto emit summary (seconds, 0=off)",
+      "topN": "Top list size",
+      "enablePattern": "Detect simple patterns (A -> B)",
+      "patternMaxLagMs": "Pattern max lag (ms)",
+      "patternMinCount": "Pattern min occurrences",
+      "rateWindowSec": "Rate window (seconds)",
+      "maxTelegramPerSecOverall": "Max overall telegrams/sec (0=off)",
+      "maxTelegramPerSecPerGA": "Max telegrams/sec per GA (0=off)",
+      "flapWindowSec": "Flap window (seconds)",
+      "flapMaxChanges": "Max changes per GA in window (0=off)",
+      "llmEnabled": "Enable LLM assistant",
+      "llmProvider": "Provider",
+      "llmBaseUrl": "Endpoint URL",
+      "llmApiKey": "API key",
+      "llmModel": "Model",
+      "llmSystemPrompt": "System prompt",
+      "llmTemperature": "Temperature",
+      "llmMaxTokens": "Max tokens",
+      "llmTimeoutMs": "Timeout (ms)",
+      "llmMaxEventsInPrompt": "Recent events included",
+      "llmIncludeRaw": "Include raw payload hex"
+    },
+    "outputs": {
+      "summary": "Summary/Stats",
+      "anomalies": "Anomalies",
+      "assistant": "AI Assistant"
+    },
+    "selectlists": {
+      "llmProvider": {
+        "openai_compat": "OpenAI-compatible (chat/completions)",
+        "ollama": "Ollama (local) - not yet supported"
+      }
+    },
+    "messages": {
+      "ollamaNotSupported": "Ollama integration is marked as not yet supported (testing in progress)."
+    },
+    "placeholder": {
+      "llmBaseUrl": "https://api.openai.com/v1/chat/completions (or your compatible endpoint)",
+      "llmApiKey": "Paste API key (starts with sk-)",
+      "llmModel": "e.g. gpt-4o-mini",
+      "llmSystemPrompt": "Optional. Leave empty for default."
+    }
+  }
+}

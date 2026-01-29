@@ -20,7 +20,7 @@
     "crypto-js": "4.2.0",
     "dns-sync": "0.2.1",
     "js-yaml": "4.1.1",
-    "knxultimate": "5.2.4",
+    "knxultimate": "5.2.6",
     "lodash": "4.17.21",
     "mkdirp": "3.0.1",
     "node-color-log": "12.0.1",
@@ -33,7 +33,8 @@
     "version": ">=3.1.1",
     "plugins": {
       "commonFunctions": "/nodes/commonFunctions.js",
-      "knxUltimateMonitorSidebar": "/nodes/plugins/knxUltimateMonitor-sidebar-plugin.html"
+      "knxUltimateMonitorSidebar": "/nodes/plugins/knxUltimateMonitor-sidebar-plugin.html",
+      "knxUltimateAISidebar": "/nodes/plugins/knxUltimateAI-sidebar-plugin.html"
     },
     "nodes": {
       "knxUltimate": "/nodes/knxUltimate.js",
@@ -45,6 +46,7 @@
       "knxUltimateGlobalContext": "/nodes/knxUltimateGlobalContext.js",
       "knxUltimateAlerter": "/nodes/knxUltimateAlerter.js",
       "knxUltimateViewer": "/nodes/knxUltimateViewer.js",
+      "knxUltimateAI": "/nodes/knxUltimateAI.js",
       "knxUltimateAutoResponder": "/nodes/knxUltimateAutoResponder.js",
       "knxUltimateIoTBridge": "/nodes/knxUltimateIoTBridge.js",
       "knxUltimateWatchDog": "/nodes/knxUltimateWatchDog.js",

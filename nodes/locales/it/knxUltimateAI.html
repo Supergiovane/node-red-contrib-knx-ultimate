@@ -1,0 +1,28 @@
+<script type="text/markdown" data-help-name="knxUltimateAI">
+Questo nodo ascolta **tutti i telegrammi KNX** dal gateway KNX Ultimate selezionato e produce statistiche, rileva alcune anomalie e (opzionalmente) può interrogare un LLM per un’analisi in linguaggio naturale.
+
+## Cosa fa
+- Mantiene uno storico a finestra dei telegrammi KNX (già decodificati da KNX Ultimate).
+- Invia **summary del traffico** (Top GA, tipi evento, rate) a intervallo o su richiesta.
+- Emette **eventi di anomalia** (rate BUS elevato, spam su GA, flapping).
+- Se abiliti l’LLM, puoi inviare un comando `ask` per ottenere suggerimenti/diagnosi.
+
+## Output
+1. **Summary/Statistiche** (`msg.payload` JSON)
+2. **Anomalie** (`msg.payload` JSON)
+3. **Assistente AI** (`msg.payload` testo; include `msg.summary`)
+
+## Comandi (pin di input)
+Invia un messaggio con `msg.topic`:
+- `summary` (o topic vuoto): emette subito una summary
+- `reset`: svuota storico e contatori
+- `ask`: domanda all’LLM usando summary + traffico recente
+
+Per `ask`, inserisci la domanda in `msg.prompt` (consigliato) oppure in `msg.payload` (stringa).
+
+## Nota privacy
+Se abiliti l’LLM, il traffico verrà inviato all’endpoint configurato. Se vuoi tenere tutto in locale usa un provider on-premise (es. Ollama).
+
+## Nota API key OpenAI
+Incolla **solo** la chiave API (inizia con `sk-`). Non incollare `Bearer ...` o l’intera riga `Authorization: ...`.
+</script>

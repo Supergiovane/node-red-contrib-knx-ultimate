@@ -9,7 +9,6 @@
 **Version 4.1.15** - January 2026<br/>
 
 - KNX Engine bump to 5.2.4<br/>
-  <br/>
 
 **Version 4.1.14** - January 2026<br/>
 
