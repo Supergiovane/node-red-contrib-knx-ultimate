@@ -20,6 +20,13 @@ La tab **KNX AI** nella sidebar mostra in tempo reale lo stato dei tuoi nodi **K
 2. Premi **Refresh Summary** (oppure abilita **Auto**) per aggiornare lo snapshot.
 3. Usa la chat per chiedere “perché succede” e “cosa controllare”.
 
+## Rendi l’AI più “intelligente” (contesto extra)
+
+Nel nodo `knxUltimateAI` selezionato puoi includere ulteriore contesto nel prompt dell’LLM:
+
+- **Inventario flow:** permette all’AI di “vedere” quali nodi KNX Ultimate (e gateway) sono presenti nei tuoi flow, così può collegare i telegrammi alla logica.
+- **Estratti documentazione:** aggiunge frammenti rilevanti da help/README/esempi (e `docs/wiki` quando disponibile) in modo che l’AI possa spiegare meglio i nodi e suggerire configurazioni corrette.
+
 ## Esempi di utilizzo (scenari umani)
 
 - **Loop / telegrammi duplicati:** chiedi quali sono le cause più probabili e come isolare l’origine.

@@ -20,6 +20,13 @@ La pestaña lateral **KNX AI** muestra en tiempo real tus nodos **KNX AI**: resu
 2. Pulsa **Refresh Summary** (o activa **Auto**).
 3. Usa el chat para preguntar “por qué” y “qué revisar”.
 
+## Más contexto (mejores respuestas)
+
+En el nodo `knxUltimateAI` seleccionado puedes incluir contexto extra en el prompt del LLM:
+
+- **Inventario del flow:** permite que la IA “vea” qué nodos KNX Ultimate (y gateways) existen en tus flows, para relacionar telegramas con tu lógica.
+- **Fragmentos de documentación:** añade extractos relevantes de help/README/ejemplos (y `docs/wiki` si está disponible) para explicar mejor los nodos y sugerir configuraciones correctas.
+
 ## Ejemplos de uso (escenarios)
 
 - **Bucle / telegramas duplicados:** identificar causas probables y aislar el origen.

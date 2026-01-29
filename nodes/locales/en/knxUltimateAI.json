@@ -39,7 +39,11 @@
       "llmMaxEventsInPrompt": "Recent events included",
       "llmIncludeRaw": "Include raw payload hex",
       "llmIncludeFlowContext": "Include Node-RED KNX node inventory",
-      "llmMaxFlowNodesInPrompt": "Max flow nodes included"
+      "llmMaxFlowNodesInPrompt": "Max flow nodes included",
+      "llmIncludeDocsSnippets": "Include documentation snippets (help/README/examples)",
+      "llmDocsLanguage": "Docs language",
+      "llmDocsMaxSnippets": "Max docs snippets",
+      "llmDocsMaxChars": "Max docs chars"
     },
     "outputs": {
       "summary": "Summary/Stats",

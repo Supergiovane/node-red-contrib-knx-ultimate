@@ -20,6 +20,13 @@ L’onglet de barre latérale **KNX AI** affiche en temps réel vos nœuds **KNX
 2. Cliquez sur **Refresh Summary** (ou activez **Auto**).
 3. Utilisez la chat pour demander “pourquoi” et “quoi vérifier ensuite”.
 
+## Plus de contexte (meilleures réponses)
+
+Dans le nœud `knxUltimateAI` sélectionné, vous pouvez inclure du contexte supplémentaire dans le prompt du LLM :
+
+- **Inventaire des flows :** l’IA “voit” quels nœuds KNX Ultimate (et gateways) sont présents dans vos flows, et peut relier les télégrammes à votre logique.
+- **Extraits de documentation :** ajoute des extraits pertinents depuis l’aide/README/exemples (et `docs/wiki` si disponible) pour mieux expliquer les nœuds et proposer la bonne configuration.
+
 ## Exemples d’utilisation (scénarios)
 
 - **Boucle / télégrammes dupliqués :** identifier les causes probables et isoler la source.

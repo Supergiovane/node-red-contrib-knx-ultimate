@@ -20,6 +20,13 @@ The **KNX AI** sidebar tab provides a live view of your **KNX AI nodes**: summar
 2. Click **Refresh Summary** (or enable **Auto**) to update the snapshot.
 3. Use the chat to ask “why” and “what to check next”.
 
+## Make the AI smarter (extra context)
+
+In the selected `knxUltimateAI` node you can include additional context in the LLM prompt:
+
+- **Flow inventory:** lets the AI “see” which KNX Ultimate nodes (and gateways) are present in your flows, so it can relate telegrams to your logic.
+- **Documentation snippets:** adds relevant excerpts from built-in help/README/examples (and `docs/wiki` when available) so the AI can explain node behaviour and suggest the right configuration.
+
 ## Example usage (human scenarios)
 
 - **Loop / duplicated telegrams:** ask what could generate repeated writes on the same GA and how to isolate the source.

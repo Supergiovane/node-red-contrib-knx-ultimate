@@ -41,7 +41,11 @@
             llmMaxEventsInPrompt: { value: 120, required: false, validate: RED.validators.number() },
             llmIncludeRaw: { value: false },
             llmIncludeFlowContext: { value: true },
-            llmMaxFlowNodesInPrompt: { value: 80, required: false, validate: RED.validators.number() }
+            llmMaxFlowNodesInPrompt: { value: 80, required: false, validate: RED.validators.number() },
+            llmIncludeDocsSnippets: { value: true },
+            llmDocsLanguage: { value: "it" },
+            llmDocsMaxSnippets: { value: 5, required: false, validate: RED.validators.number() },
+            llmDocsMaxChars: { value: 3000, required: false, validate: RED.validators.number() }
         },
         credentials: {
             llmApiKey: { type: "password" }
@@ -339,6 +343,33 @@
                 <div class="form-row">
                     <label style="width:290px" for="node-input-llmMaxFlowNodesInPrompt"><i class="fa fa-sitemap"></i> <span data-i18n="knxUltimateAI.properties.llmMaxFlowNodesInPrompt"></span></label>
                     <input style="width:90px" type="number" id="node-input-llmMaxFlowNodesInPrompt">
+                </div>
+
+                <div class="form-row">
+                    <input type="checkbox" id="node-input-llmIncludeDocsSnippets" style="display:inline-block; width:auto; vertical-align:top;">
+                    <label style="width:auto" for="node-input-llmIncludeDocsSnippets">&nbsp;&nbsp;<span data-i18n="knxUltimateAI.properties.llmIncludeDocsSnippets"></span></label>
+                </div>
+
+                <div class="form-row">
+                    <label style="width:290px" for="node-input-llmDocsLanguage"><i class="fa fa-language"></i> <span data-i18n="knxUltimateAI.properties.llmDocsLanguage"></span></label>
+                    <select style="width:100%" id="node-input-llmDocsLanguage">
+                        <option value="it">Italiano</option>
+                        <option value="en">English</option>
+                        <option value="de">Deutsch</option>
+                        <option value="fr">Français</option>
+                        <option value="es">Español</option>
+                        <option value="zh-CN">简体中文</option>
+                    </select>
+                </div>
+
+                <div class="form-row">
+                    <label style="width:290px" for="node-input-llmDocsMaxSnippets"><i class="fa fa-files-o"></i> <span data-i18n="knxUltimateAI.properties.llmDocsMaxSnippets"></span></label>
+                    <input style="width:90px" type="number" id="node-input-llmDocsMaxSnippets">
+                </div>
+
+                <div class="form-row">
+                    <label style="width:290px" for="node-input-llmDocsMaxChars"><i class="fa fa-text-width"></i> <span data-i18n="knxUltimateAI.properties.llmDocsMaxChars"></span></label>
+                    <input style="width:110px" type="number" id="node-input-llmDocsMaxChars">
                 </div>
             </div>
         </div>

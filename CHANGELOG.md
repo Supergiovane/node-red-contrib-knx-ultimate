@@ -12,6 +12,9 @@
 - NEW: added **KNX AI** node (traffic analyzer + optional LLM assistant) and **KNX AI** sidebar tab.<br/>
 - NEW: added **KNX Multi Routing** node to bridge multiple `knxUltimate-config` gateways via Node-RED (RAW telegram forwarding + source/destination metadata).<br/>
 - NEW: added **KNX Router Filter** node to filter routed RAW telegrams (event type + GA/source patterns + loop prevention).<br/>
+- CHANGE: `knxUltimateAI` LLM: enabled extra context by default (Flow inventory + documentation snippets) to improve answer quality; both can be disabled in the node settings.<br/>
+- NEW: `knxUltimateAI` LLM: added documentation snippets retrieval from built-in help/README/examples (and `docs/wiki` when available in the local install) to help the assistant explain node behaviour and configuration.<br/>
+- IMPROVE: KNX AI sidebar chat: improved Markdown rendering (including tables), for better readability of AI answers.<br/>
 - Docs: completed the help + wiki pages for **KNX AI**, **KNX Multi Routing** and **KNX Router Filter** in all supported languages, and added them to the docs homepages.<br/>
 - Docs: added the new nodes to the wiki navbar in all languages (so they appear in the left navigation menu).<br/>
 - Docs: added new wiki **Samples** pages (with diagrams) for the 3 new nodes.<br/>

@@ -20,6 +20,13 @@ permalink: /wiki/zh-CN-KNX-AI-Sidebar
 2. 点击 **Refresh Summary**（或开启 **Auto**）刷新摘要。
 3. 在聊天中提问“原因是什么”以及“下一步该检查哪里”。
 
+## 更多上下文（更好的回答）
+
+在所选 `knxUltimateAI` 节点中，你可以在 LLM prompt 里加入更多上下文：
+
+- **Flow 清单：** 让 AI “看到”你的 Node-RED flows 里有哪些 KNX Ultimate 节点（以及网关），从而把电报与逻辑关联起来。
+- **文档片段：** 从内置 help/README/示例（以及在存在时的 `docs/wiki`）加入相关片段，帮助 AI 更准确解释节点行为并给出配置建议。
+
 ## 使用示例（场景）
 
 - **环路/重复电报：** 询问可能原因，并如何隔离来源。

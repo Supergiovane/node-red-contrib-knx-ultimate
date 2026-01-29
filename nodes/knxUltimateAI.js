@@ -1,5 +1,7 @@
 // KNX Ultimate AI / Traffic Analyzer
 const loggerClass = require('./utils/sysLogger')
+const fs = require('fs')
+const path = require('path')
 
 const coerceBoolean = (value) => (value === true || value === 'true')
 
@@ -41,6 +43,244 @@ const normalizeValueForCompare = (value) => {
 }
 
 const nowMs = () => Date.now()
+
+const KNX_AI_DOCS_CACHE = {
+  fileByPath: new Map(),
+  helpIndexByLang: new Map(),
+  wikiIndexByLang: new Map()
+}
+
+const readTextFileCached = (filePath, { maxBytes = 1024 * 1024 } = {}) => {
+  try {
+    const stat = fs.statSync(filePath)
+    const key = String(filePath)
+    const cached = KNX_AI_DOCS_CACHE.fileByPath.get(key)
+    if (cached && cached.mtimeMs === stat.mtimeMs) return cached.text
+
+    const data = fs.readFileSync(filePath, 'utf8')
+    const text = (maxBytes && data.length > maxBytes) ? data.slice(0, maxBytes) : data
+    KNX_AI_DOCS_CACHE.fileByPath.set(key, { mtimeMs: stat.mtimeMs, text })
+    return text
+  } catch (error) {
+    return ''
+  }
+}
+
+const extractHelpMarkdownFromLocaleHtml = (htmlText) => {
+  try {
+    const match = String(htmlText || '').match(/<script[^>]*data-help-name="[^"]+"[^>]*>([\s\S]*?)<\/script>/i)
+    if (!match) return ''
+    return String(match[1] || '').trim()
+  } catch (error) {
+    return ''
+  }
+}
+
+const getHelpIndexForLanguage = (moduleRootDir, langDir) => {
+  const cacheKey = `${langDir}`
+  if (KNX_AI_DOCS_CACHE.helpIndexByLang.has(cacheKey)) return KNX_AI_DOCS_CACHE.helpIndexByLang.get(cacheKey) || []
+
+  const docs = []
+  try {
+    const base = path.join(moduleRootDir, 'nodes', 'locales', langDir)
+    const entries = fs.readdirSync(base, { withFileTypes: true })
+    for (const e of entries) {
+      if (!e.isFile()) continue
+      if (!e.name.endsWith('.html')) continue
+      const fp = path.join(base, e.name)
+      const html = readTextFileCached(fp, { maxBytes: 512 * 1024 })
+      const md = extractHelpMarkdownFromLocaleHtml(html)
+      if (!md) continue
+      const helpName = e.name.replace(/\.html$/i, '')
+      docs.push({
+        id: `help:${langDir}:${helpName}`,
+        title: `Help: ${helpName}`,
+        source: fp,
+        text: md
+      })
+    }
+  } catch (error) {
+    // ignore
+  }
+
+  KNX_AI_DOCS_CACHE.helpIndexByLang.set(cacheKey, docs)
+  return docs
+}
+
+const looksLikeLocalizedWikiPage = (filename) => {
+  const name = String(filename || '')
+  // e.g. it-*, de-*, fr-*, es-*, zh-CN-*
+  return /^(?:[a-z]{2}(?:-[A-Z]{2})?|zh-CN)-/i.test(name)
+}
+
+const getWikiIndexForLanguage = (moduleRootDir, langDir) => {
+  const cacheKey = `${langDir}`
+  if (KNX_AI_DOCS_CACHE.wikiIndexByLang.has(cacheKey)) return KNX_AI_DOCS_CACHE.wikiIndexByLang.get(cacheKey) || []
+
+  const docs = []
+  try {
+    const base = path.join(moduleRootDir, 'docs', 'wiki')
+    const entries = fs.readdirSync(base, { withFileTypes: true })
+    const files = entries
+      .filter(e => e.isFile() && e.name.toLowerCase().endsWith('.md'))
+      .map(e => e.name)
+      .sort((a, b) => a.localeCompare(b))
+
+    const limit = 250
+    for (const name of files) {
+      if (docs.length >= limit) break
+      if (name.startsWith('_')) continue
+      if (langDir === 'en') {
+        if (looksLikeLocalizedWikiPage(name)) continue
+      } else {
+        if (!name.startsWith(`${langDir}-`)) continue
+      }
+      const fp = path.join(base, name)
+      const text = readTextFileCached(fp, { maxBytes: 512 * 1024 })
+      if (!text) continue
+      docs.push({
+        id: `wiki:${langDir}:${name}`,
+        title: `Wiki: ${name.replace(/\.md$/i, '')}`,
+        source: `docs/wiki/${name}`,
+        text
+      })
+    }
+  } catch (error) {
+    // ignore
+  }
+
+  KNX_AI_DOCS_CACHE.wikiIndexByLang.set(cacheKey, docs)
+  return docs
+}
+
+const tokenizeForSearch = (input) => {
+  const raw = String(input || '').toLowerCase()
+  const tokens = raw
+    .replace(/[`"'()[\]{}<>]/g, ' ')
+    .split(/[^a-z0-9./_-]+/i)
+    .map(t => t.trim())
+    .filter(Boolean)
+  const stop = new Set(['the', 'and', 'or', 'for', 'with', 'this', 'that', 'from', 'into', 'what', 'how', 'why', 'when', 'where',
+    'che', 'come', 'per', 'con', 'del', 'della', 'delle', 'dei', 'degli', 'una', 'uno', 'il', 'lo', 'la', 'le', 'un', 'in', 'su', 'da',
+    'und', 'der', 'die', 'das', 'mit', 'für', 'ein', 'eine',
+    'et', 'les', 'des', 'pour', 'avec',
+    'que', 'con', 'para'
+  ])
+  return Array.from(new Set(tokens.filter(t => t.length >= 3 && !stop.has(t))))
+}
+
+const scoreText = (textLower, tokens) => {
+  if (!textLower) return 0
+  let score = 0
+  for (const t of tokens) {
+    if (!t) continue
+    if (textLower.includes(t)) score += 1
+  }
+  return score
+}
+
+const extractSnippet = (fullText, tokens, { maxLen = 420 } = {}) => {
+  const text = String(fullText || '')
+  const lower = text.toLowerCase()
+  let idx = -1
+  let tokenHit = ''
+  for (const t of tokens) {
+    const p = lower.indexOf(t)
+    if (p !== -1 && (idx === -1 || p < idx)) { idx = p; tokenHit = t }
+  }
+  if (idx === -1) return ''
+  const half = Math.floor(maxLen / 2)
+  const start = Math.max(0, idx - half)
+  const end = Math.min(text.length, idx + Math.max(half, tokenHit.length + 40))
+  let snippet = text.slice(start, end).trim()
+  if (start > 0) snippet = '…' + snippet
+  if (end < text.length) snippet = snippet + '…'
+  snippet = snippet.replace(/\s+\n/g, '\n').replace(/\n{3,}/g, '\n\n')
+  return snippet
+}
+
+const buildRelevantDocsContext = ({ moduleRootDir, question, preferredLangDir, maxSnippets = 5, maxChars = 3000 } = {}) => {
+  const q = String(question || '').trim()
+  if (!q) return ''
+
+  const langCandidates = []
+  if (preferredLangDir) langCandidates.push(preferredLangDir)
+  if (!langCandidates.includes('en')) langCandidates.push('en')
+  if (!langCandidates.includes('it')) langCandidates.push('it')
+
+  const tokens = tokenizeForSearch(q)
+  if (!tokens.length) return ''
+
+  const docs = []
+
+  // Always include packaged docs if present
+  const readmePath = path.join(moduleRootDir, 'README.md')
+  const changelogPath = path.join(moduleRootDir, 'CHANGELOG.md')
+  const readme = readTextFileCached(readmePath, { maxBytes: 1024 * 1024 })
+  if (readme) docs.push({ id: 'README.md', title: 'README', source: 'README.md', text: readme })
+  const changelog = readTextFileCached(changelogPath, { maxBytes: 1024 * 1024 })
+  if (changelog) docs.push({ id: 'CHANGELOG.md', title: 'CHANGELOG', source: 'CHANGELOG.md', text: changelog })
+
+  // Help files in preferred language (fallbacks)
+  for (const lang of langCandidates) {
+    const helpDocs = getHelpIndexForLanguage(moduleRootDir, lang)
+    docs.push(...helpDocs)
+  }
+
+  // Wiki docs (repo-only; may not be available in npm package)
+  for (const lang of langCandidates) {
+    const wikiDocs = getWikiIndexForLanguage(moduleRootDir, lang)
+    docs.push(...wikiDocs)
+  }
+
+  // Examples (file names only + small excerpt)
+  try {
+    const examplesDir = path.join(moduleRootDir, 'examples')
+    const entries = fs.readdirSync(examplesDir, { withFileTypes: true })
+    for (const e of entries) {
+      if (!e.isFile()) continue
+      if (!e.name.toLowerCase().endsWith('.json')) continue
+      const fp = path.join(examplesDir, e.name)
+      const hint = `Node-RED importable flow example: ${e.name}`
+      const body = readTextFileCached(fp, { maxBytes: 32 * 1024 })
+      docs.push({ id: `example:${e.name}`, title: hint, source: `examples/${e.name}`, text: `${hint}\n\n${body}` })
+    }
+  } catch (e) { /* ignore */ }
+
+  const scored = docs
+    .map(d => {
+      const lower = String(d.text || '').toLowerCase()
+      return { doc: d, score: scoreText(lower, tokens) }
+    })
+    .filter(x => x.score > 0)
+    .sort((a, b) => b.score - a.score)
+
+  const out = []
+  const used = new Set()
+  let totalChars = 0
+
+  for (const item of scored) {
+    if (out.length >= Math.max(1, Number(maxSnippets) || 1)) break
+    const d = item.doc
+    const key = d.id || d.source || d.title
+    if (used.has(key)) continue
+    const snippet = extractSnippet(d.text, tokens, { maxLen: 520 })
+    if (!snippet) continue
+
+    const block = [
+      `[${d.title}] (${d.source})`,
+      snippet
+    ].join('\n')
+
+    if (totalChars + block.length > Math.max(500, Number(maxChars) || 0)) break
+    totalChars += block.length + 2
+    out.push(block)
+    used.add(key)
+  }
+
+  if (!out.length) return ''
+  return ['Relevant documentation excerpts:', out.join('\n\n')].join('\n')
+}
 
 const postJson = async ({ url, headers, body, timeoutMs }) => {
   const controller = new AbortController()
@@ -420,6 +660,8 @@ module.exports = function (RED) {
     RED.nodes.createNode(this, config)
     const node = this
 
+    const moduleRootDir = path.join(__dirname, '..')
+
     node.serverKNX = RED.nodes.getNode(config.server) || undefined
     if (node.serverKNX === undefined) {
       node.status({ fill: 'red', shape: 'dot', text: '[THE GATEWAY NODE HAS BEEN DISABLED]' })
@@ -475,6 +717,10 @@ module.exports = function (RED) {
     node.llmMaxFlowNodesInPrompt = (config.llmMaxFlowNodesInPrompt === undefined || config.llmMaxFlowNodesInPrompt === '')
       ? 80
       : Number(config.llmMaxFlowNodesInPrompt)
+    node.llmIncludeDocsSnippets = config.llmIncludeDocsSnippets !== undefined ? coerceBoolean(config.llmIncludeDocsSnippets) : true
+    node.llmDocsLanguage = config.llmDocsLanguage ? String(config.llmDocsLanguage) : 'it'
+    node.llmDocsMaxSnippets = (config.llmDocsMaxSnippets === undefined || config.llmDocsMaxSnippets === '') ? 5 : Number(config.llmDocsMaxSnippets)
+    node.llmDocsMaxChars = (config.llmDocsMaxChars === undefined || config.llmDocsMaxChars === '') ? 3000 : Number(config.llmDocsMaxChars)
 
     const pushStatus = (status) => {
       if (!status) return
@@ -521,6 +767,7 @@ module.exports = function (RED) {
     node._anomalies = []
     node._assistantLog = []
     node._flowContextCache = { at: 0, text: '' }
+    node._docsContextCache = { at: 0, question: '', text: '' }
 
     // Register runtime instance for sidebar visibility
     aiRuntimeNodes.set(node.id, node)
@@ -651,6 +898,26 @@ module.exports = function (RED) {
           node._flowContextCache = { at: now, text: flowContext }
         }
       }
+
+      let docsContext = ''
+      if (node.llmIncludeDocsSnippets) {
+        const ttlMs = 30 * 1000
+        const now = nowMs()
+        const q = String(question || '').trim()
+        if (node._docsContextCache && node._docsContextCache.text && node._docsContextCache.question === q && (now - (node._docsContextCache.at || 0)) < ttlMs) {
+          docsContext = node._docsContextCache.text
+        } else {
+          const preferredLangDir = (node.llmDocsLanguage && node.llmDocsLanguage !== 'auto') ? node.llmDocsLanguage : ''
+          docsContext = buildRelevantDocsContext({
+            moduleRootDir,
+            question: q,
+            preferredLangDir,
+            maxSnippets: Math.max(1, Number(node.llmDocsMaxSnippets) || 1),
+            maxChars: Math.max(500, Number(node.llmDocsMaxChars) || 500)
+          })
+          node._docsContextCache = { at: now, question: q, text: docsContext }
+        }
+      }
       return [
         'KNX bus summary (JSON):',
         safeStringify(summary),
@@ -658,6 +925,8 @@ module.exports = function (RED) {
         flowContext ? 'Node-RED context:' : '',
         flowContext ? flowContext : '',
         flowContext ? '' : '',
+        docsContext ? docsContext : '',
+        docsContext ? '' : '',
         'Recent KNX telegrams:',
         lines.join('\n'),
         '',

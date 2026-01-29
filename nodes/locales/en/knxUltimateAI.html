@@ -20,6 +20,11 @@ Send a message with `msg.topic`:
 
 For `ask`, provide the question in `msg.prompt` (preferred) or in `msg.payload` (string).
 
+## LLM context (better answers)
+When you use `ask`, the node can optionally send extra context to the LLM:
+- **Flow inventory**: a list of KNX Ultimate nodes found in your Node-RED flows (helps mapping telegrams to the logic).
+- **Documentation snippets**: relevant excerpts from built-in help/README/examples (and `docs/wiki` when available).
+
 ## Notes
 - If you enable the LLM, bus information will be sent to the configured endpoint. Use a local provider (e.g. Ollama) if you want to keep data on-premise.
 - For OpenAI, paste **only** the API key (it starts with `sk-`). Do **not** paste `Bearer ...` or the whole `Authorization:` header.

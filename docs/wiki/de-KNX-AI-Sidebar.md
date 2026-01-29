@@ -20,6 +20,13 @@ Der **KNX AI** Sidebar-Tab zeigt Live-Infos deiner **KNX AI Nodes**: Summary, An
 2. **Refresh Summary** klicken (oder **Auto** aktivieren).
 3. Im Chat gezielt nach Ursachen und nächsten Prüfschritten fragen.
 
+## Mehr Kontext (bessere Antworten)
+
+Im ausgewählten `knxUltimateAI` Node kannst du zusätzlichen Kontext in den LLM-Prompt aufnehmen:
+
+- **Flow-Inventar:** damit „sieht“ die AI, welche KNX-Ultimate Nodes (und Gateways) in deinen Flows existieren, und kann Telegramme besser mit der Logik verknüpfen.
+- **Doku-Auszüge:** relevante Ausschnitte aus Help/README/Beispielen (und `docs/wiki`, falls verfügbar), damit die AI Nodes erklären und passende Einstellungen vorschlagen kann.
+
 ## Beispiel-Szenarien (ohne Code)
 
 - **Loop / doppelte Telegramme:** Ursachen eingrenzen und die Quelle isolieren.

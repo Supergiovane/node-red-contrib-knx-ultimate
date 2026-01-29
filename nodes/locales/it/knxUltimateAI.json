@@ -39,7 +39,11 @@
       "llmMaxEventsInPrompt": "Eventi recenti inclusi",
       "llmIncludeRaw": "Includi payload raw in hex",
       "llmIncludeFlowContext": "Includi inventario nodi KNX nei flow",
-      "llmMaxFlowNodesInPrompt": "Max nodi del flow inclusi"
+      "llmMaxFlowNodesInPrompt": "Max nodi del flow inclusi",
+      "llmIncludeDocsSnippets": "Includi estratti documentazione (help/README/esempi)",
+      "llmDocsLanguage": "Lingua documentazione",
+      "llmDocsMaxSnippets": "Max estratti docs",
+      "llmDocsMaxChars": "Max caratteri docs"
     },
     "outputs": {
       "summary": "Summary/Statistiche",
