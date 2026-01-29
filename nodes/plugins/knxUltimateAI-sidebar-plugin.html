@@ -30,15 +30,20 @@
                         .knx-ai-chat-pending i { color: #607d8b; }
                         .knx-ai-chat-msg p { margin: 0 0 6px; }
                         .knx-ai-chat-msg p:last-child { margin-bottom: 0; }
-                        .knx-ai-chat-msg pre { margin: 6px 0; padding: 6px; background: rgba(0,0,0,0.04); border-radius: 4px; overflow: auto; }
-                        .knx-ai-chat-msg code { font-family: Menlo, Consolas, "Liberation Mono", monospace; font-size: 12px; }
-                        .knx-ai-chat-msg h1, .knx-ai-chat-msg h2, .knx-ai-chat-msg h3 { margin: 8px 0 6px; font-size: 1em; }
-                        .knx-ai-chat-msg ul { margin: 6px 0 6px 18px; padding: 0; }
-                        #knx-ai-chat-input { display:flex; gap:6px; padding: 6px; border-top: 1px solid rgba(0,0,0,0.06); }
-                        #knx-ai-chat-input input { flex: 1 1 auto; }
-                        `
-                    }).appendTo('head');
-                }
+	                        .knx-ai-chat-msg pre { margin: 6px 0; padding: 6px; background: rgba(0,0,0,0.04); border-radius: 4px; overflow: auto; }
+	                        .knx-ai-chat-msg code { font-family: Menlo, Consolas, "Liberation Mono", monospace; font-size: 12px; }
+	                        .knx-ai-chat-msg h1, .knx-ai-chat-msg h2, .knx-ai-chat-msg h3 { margin: 8px 0 6px; font-size: 1em; }
+	                        .knx-ai-chat-msg ul { margin: 6px 0 6px 18px; padding: 0; }
+	                        .knx-ai-chat-msg .knx-ai-md-table-wrap { margin: 6px 0; overflow-x: auto; }
+	                        .knx-ai-chat-msg table { border-collapse: collapse; width: 100%; min-width: 520px; }
+	                        .knx-ai-chat-msg th, .knx-ai-chat-msg td { border: 1px solid rgba(0,0,0,0.12); padding: 4px 6px; }
+	                        .knx-ai-chat-msg th { background: rgba(0,0,0,0.03); font-weight: 600; }
+	                        .knx-ai-chat-msg tbody tr:nth-child(even) { background: rgba(0,0,0,0.02); }
+	                        #knx-ai-chat-input { display:flex; gap:6px; padding: 6px; border-top: 1px solid rgba(0,0,0,0.06); }
+	                        #knx-ai-chat-input input { flex: 1 1 auto; }
+	                        `
+	                    }).appendTo('head');
+	                }
 
                 RED.actions.add(actionId, function () {
                     RED.sidebar.show(tabId);
@@ -174,13 +179,52 @@
                         .replace(/'/g, '&#39;');
                 };
 
-                const basicMarkdownToHtml = (md) => {
-                    // Minimal markdown renderer (safe: starts from escaped text)
-                    const lines = String(md || '').split(/\r?\n/);
-                    let html = '';
-                    let inCode = false;
-                    for (let i = 0; i < lines.length; i++) {
-                        const line = lines[i];
+	                const basicMarkdownToHtml = (md) => {
+	                    // Minimal markdown renderer (safe: starts from escaped text)
+	                    const lines = String(md || '').split(/\r?\n/);
+	                    const sanitizeHref = (href) => {
+	                        const h = String(href || '').trim();
+	                        if (/^javascript:/i.test(h)) return '#';
+	                        return h;
+	                    };
+	                    const renderInline = (text) => {
+	                        let out = String(text || '');
+	                        out = out.replace(/`([^`]+)`/g, '<code>$1</code>');
+	                        out = out.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+	                        out = out.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+	                        out = out.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (m, label, href) => {
+	                            const safeHref = sanitizeHref(href);
+	                            return '<a href="' + safeHref + '" target="_blank" rel="noopener noreferrer">' + label + '</a>';
+	                        });
+	                        return out;
+	                    };
+	                    const isTableSeparatorLine = (line) => {
+	                        const s = String(line || '').trim();
+	                        if (!s.includes('-')) return false;
+	                        // Typical pipe-table separator: |---:|---|:---:| etc
+	                        return /^\|?\s*:?-{3,}:?\s*(\|\s*:?-{3,}:?\s*)+\|?\s*$/.test(s);
+	                    };
+	                    const parsePipeRow = (line) => {
+	                        let s = String(line || '').trim();
+	                        if (s.startsWith('|')) s = s.slice(1);
+	                        if (s.endsWith('|')) s = s.slice(0, -1);
+	                        return s.split('|').map(c => String(c || '').trim());
+	                    };
+	                    const parseAlignments = (sepLine) => {
+	                        const cols = parsePipeRow(sepLine);
+	                        return cols.map((c) => {
+	                            const cell = String(c || '').trim();
+	                            const left = cell.startsWith(':');
+	                            const right = cell.endsWith(':');
+	                            if (left && right) return 'center';
+	                            if (right) return 'right';
+	                            return 'left';
+	                        });
+	                    };
+	                    let html = '';
+	                    let inCode = false;
+	                    for (let i = 0; i < lines.length; i++) {
+	                        const line = lines[i];
                         if (/^```/.test(line.trim())) {
                             inCode = !inCode;
                             html += inCode ? '<pre><code>' : '</code></pre>';
@@ -190,32 +234,70 @@
                             html += line + '\n';
                             continue;
                         }
-                        if (/^###\s+/.test(line)) { html += '<h3>' + line.replace(/^###\s+/, '') + '</h3>'; continue; }
-                        if (/^##\s+/.test(line)) { html += '<h2>' + line.replace(/^##\s+/, '') + '</h2>'; continue; }
-                        if (/^#\s+/.test(line)) { html += '<h1>' + line.replace(/^#\s+/, '') + '</h1>'; continue; }
-                        if (/^\s*[-*]\s+/.test(line)) {
-                            // naive list: accumulate consecutive list lines
-                            html += '<ul>';
-                            while (i < lines.length && /^\s*[-*]\s+/.test(lines[i])) {
-                                const item = lines[i].replace(/^\s*[-*]\s+/, '');
-                                html += '<li>' + item + '</li>';
-                                i++;
-                            }
-                            i--;
-                            html += '</ul>';
-                            continue;
-                        }
-                        if (line.trim() === '') { html += '<br>'; continue; }
-                        let out = line;
-                        out = out.replace(/`([^`]+)`/g, '<code>$1</code>');
-                        out = out.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
-                        out = out.replace(/\*([^*]+)\*/g, '<em>$1</em>');
-                        out = out.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
-                        html += '<p>' + out + '</p>';
-                    }
-                    if (inCode) html += '</code></pre>';
-                    return html;
-                };
+	                        if (/^###\s+/.test(line)) { html += '<h3>' + line.replace(/^###\s+/, '') + '</h3>'; continue; }
+	                        if (/^##\s+/.test(line)) { html += '<h2>' + line.replace(/^##\s+/, '') + '</h2>'; continue; }
+	                        if (/^#\s+/.test(line)) { html += '<h1>' + line.replace(/^#\s+/, '') + '</h1>'; continue; }
+
+	                        // Pipe table support (GFM-like)
+	                        if (line.includes('|') && i + 1 < lines.length && isTableSeparatorLine(lines[i + 1])) {
+	                            const headerCells = parsePipeRow(line);
+	                            const aligns = parseAlignments(lines[i + 1]);
+	                            const rows = [];
+	                            i += 2;
+	                            while (i < lines.length) {
+	                                const rowLine = lines[i];
+	                                if (!rowLine || rowLine.trim() === '') break;
+	                                if (!rowLine.includes('|')) break;
+	                                if (/^```/.test(rowLine.trim())) break;
+	                                const cells = parsePipeRow(rowLine);
+	                                rows.push(cells);
+	                                i++;
+	                            }
+	                            i -= 1;
+
+	                            const colCount = Math.max(headerCells.length, aligns.length, ...(rows.map(r => r.length)));
+	                            html += '<div class="knx-ai-md-table-wrap"><table><thead><tr>';
+	                            for (let c = 0; c < colCount; c++) {
+	                                const a = aligns[c] || 'left';
+	                                const label = headerCells[c] !== undefined ? headerCells[c] : '';
+	                                html += '<th style="text-align:' + a + ';">' + renderInline(label) + '</th>';
+	                            }
+	                            html += '</tr></thead><tbody>';
+	                            for (const r of rows) {
+	                                html += '<tr>';
+	                                for (let c = 0; c < colCount; c++) {
+	                                    const a = aligns[c] || 'left';
+	                                    const cell = r[c] !== undefined ? r[c] : '';
+	                                    html += '<td style="text-align:' + a + ';">' + renderInline(cell) + '</td>';
+	                                }
+	                                html += '</tr>';
+	                            }
+	                            html += '</tbody></table></div>';
+	                            continue;
+	                        }
+
+	                        const isUnordered = /^\s*[-*•·]\s+/.test(line);
+	                        const isOrdered = /^\s*\d+\.\s+/.test(line);
+	                        if (isUnordered || isOrdered) {
+	                            // naive list: accumulate consecutive list lines (unordered/ordered)
+	                            const listTag = isOrdered ? 'ol' : 'ul';
+	                            const itemRe = isOrdered ? /^\s*\d+\.\s+/ : /^\s*[-*•·]\s+/;
+	                            html += '<' + listTag + '>';
+	                            while (i < lines.length && itemRe.test(lines[i])) {
+	                                const item = lines[i].replace(itemRe, '');
+	                                html += '<li>' + renderInline(item) + '</li>';
+	                                i++;
+	                            }
+	                            i--;
+	                            html += '</' + listTag + '>';
+	                            continue;
+	                        }
+	                        if (line.trim() === '') { html += '<br>'; continue; }
+	                        html += '<p>' + renderInline(line) + '</p>';
+	                    }
+	                    if (inCode) html += '</code></pre>';
+	                    return html;
+	                };
 
                 const renderMarkdownToHtml = (markdown) => {
                     // Prevent raw HTML injection by escaping input first.

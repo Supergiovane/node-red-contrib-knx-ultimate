@@ -116,6 +116,18 @@
             "zh": "KNX Debug"
           },
           "page": "KNX-Debug-Sidebar"
+        },
+        {
+          "type": "page",
+          "labels": {
+            "en": "KNX AI",
+            "it": "KNX AI",
+            "de": "KNX AI",
+            "fr": "KNX AI",
+            "es": "KNX AI",
+            "zh": "KNX AI"
+          },
+          "page": "KNX-AI-Sidebar"
         }
       ]
     },

@@ -6,7 +6,7 @@
 
 # CHANGELOG
 
-**Version 4.1.16** - January 2026<br/>
+**Version 4.1.18** - January 2026<br/>
 
 - NEW: KNX AI sidebar: added another TAB in the Node-Red's toolbar buttons dedicated to AI analysis.<br>
 - NEW: added **KNX AI** node (traffic analyzer + optional LLM assistant) and **KNX AI** sidebar tab.<br/>

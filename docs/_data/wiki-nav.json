@@ -62,6 +62,11 @@
           "label": "KNX Debug",
           "url": "/wiki/KNX-Debug-Sidebar",
           "external": false
+        },
+        {
+          "label": "KNX AI",
+          "url": "/wiki/KNX-AI-Sidebar",
+          "external": false
         }
       ]
     },
@@ -468,6 +473,11 @@
         {
           "label": "KNX Debug",
           "url": "/wiki/it-KNX-Debug-Sidebar",
+          "external": false
+        },
+        {
+          "label": "KNX AI",
+          "url": "/wiki/it-KNX-AI-Sidebar",
           "external": false
         }
       ]
@@ -876,6 +886,11 @@
           "label": "KNX Debug",
           "url": "/wiki/de-KNX-Debug-Sidebar",
           "external": false
+        },
+        {
+          "label": "KNX AI",
+          "url": "/wiki/de-KNX-AI-Sidebar",
+          "external": false
         }
       ]
     },
@@ -1282,6 +1297,11 @@
         {
           "label": "KNX Debug",
           "url": "/wiki/fr-KNX-Debug-Sidebar",
+          "external": false
+        },
+        {
+          "label": "KNX AI",
+          "url": "/wiki/fr-KNX-AI-Sidebar",
           "external": false
         }
       ]
@@ -1690,6 +1710,11 @@
           "label": "KNX Debug",
           "url": "/wiki/es-KNX-Debug-Sidebar",
           "external": false
+        },
+        {
+          "label": "KNX AI",
+          "url": "/wiki/es-KNX-AI-Sidebar",
+          "external": false
         }
       ]
     },
@@ -2096,6 +2121,11 @@
         {
           "label": "KNX Debug",
           "url": "/wiki/zh-CN-KNX-Debug-Sidebar",
+          "external": false
+        },
+        {
+          "label": "KNX AI",
+          "url": "/wiki/zh-CN-KNX-AI-Sidebar",
           "external": false
         }
       ]

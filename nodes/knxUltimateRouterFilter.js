@@ -207,8 +207,48 @@ module.exports = function (RED) {
     let passed = 0
     let dropped = 0
 
-    const setCountersStatus = () => {
-      node.status({ fill: 'grey', shape: 'dot', text: `pass ${passed} / drop ${dropped}` })
+    const providerCache = new Map()
+
+    const getGatewayIdFromMsg = (msg) => {
+      try {
+        const payload = msg && msg.payload && typeof msg.payload === 'object' && !Buffer.isBuffer(msg.payload) ? msg.payload : null
+        const routing = (payload && payload.knxMultiRouting) ? payload.knxMultiRouting : (msg && msg.knxMultiRouting ? msg.knxMultiRouting : null)
+        const id = routing && routing.gateway && routing.gateway.id ? String(routing.gateway.id) : ''
+        return id
+      } catch (e) {
+        return ''
+      }
+    }
+
+    const resolveProvider = (gatewayId) => {
+      if (!gatewayId) return null
+      if (providerCache.has(gatewayId)) return providerCache.get(gatewayId) || null
+      try {
+        const p = RED.nodes.getNode(gatewayId) || null
+        providerCache.set(gatewayId, p)
+        return p
+      } catch (e) {
+        providerCache.set(gatewayId, null)
+        return null
+      }
+    }
+
+    const applyStatus = (msg, status) => {
+      try {
+        const gatewayId = getGatewayIdFromMsg(msg)
+        const provider = resolveProvider(gatewayId)
+        if (provider && typeof provider.applyStatusUpdate === 'function') {
+          provider.applyStatusUpdate(node, status)
+        } else {
+          node.status(status)
+        }
+      } catch (e) {
+        try { node.status(status) } catch (e2) { /* ignore */ }
+      }
+    }
+
+    const setCountersStatus = (msg) => {
+      applyStatus(msg, { fill: 'grey', shape: 'dot', text: `pass ${passed} / drop ${dropped}` })
     }
 
     const extractFields = (msg) => {
@@ -245,7 +285,7 @@ module.exports = function (RED) {
         if (!fields.event && !fields.destination && !fields.source) {
           passed += 1
           node.send([msg, null])
-          setCountersStatus()
+          setCountersStatus(msg)
           return
         }
 
@@ -253,7 +293,7 @@ module.exports = function (RED) {
           dropped += 1
           attachFilterMeta(msg, { dropped: true, reason: 'event', event: fields.event })
           node.send([null, msg])
-          setCountersStatus()
+          setCountersStatus(msg)
           return
         }
 
@@ -261,7 +301,7 @@ module.exports = function (RED) {
           dropped += 1
           attachFilterMeta(msg, { dropped: true, reason: 'ga', ga: fields.destination })
           node.send([null, msg])
-          setCountersStatus()
+          setCountersStatus(msg)
           return
         }
 
@@ -269,7 +309,7 @@ module.exports = function (RED) {
           dropped += 1
           attachFilterMeta(msg, { dropped: true, reason: 'source', source: fields.source })
           node.send([null, msg])
-          setCountersStatus()
+          setCountersStatus(msg)
           return
         }
 
@@ -313,14 +353,14 @@ module.exports = function (RED) {
         const finalMeta = Object.assign({}, meta || {}, { dropped: false, rewritten: !!(meta && meta.rewritten) })
         attachFilterMeta(msg, finalMeta)
         node.send([msg, null])
-        setCountersStatus()
+        setCountersStatus(msg)
       } catch (error) {
         node.error(error)
-        node.status({ fill: 'red', shape: 'dot', text: error.message || String(error) })
+        applyStatus(msg, { fill: 'red', shape: 'dot', text: error.message || String(error) })
       }
     })
 
-    setCountersStatus()
+    setCountersStatus(null)
   }
 
   RED.nodes.registerType('knxUltimateRouterFilter', knxUltimateRouterFilter)
