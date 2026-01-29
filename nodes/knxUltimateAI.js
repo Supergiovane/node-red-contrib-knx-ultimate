@@ -725,10 +725,14 @@ module.exports = function (RED) {
     const pushStatus = (status) => {
       if (!status) return
       const provider = node.serverKNX
-      if (provider && typeof provider.applyStatusUpdate === 'function') {
-        provider.applyStatusUpdate(node, status)
-      } else {
-        node.status(status)
+      try {
+        if (provider && typeof provider.applyStatusUpdate === 'function') {
+          provider.applyStatusUpdate(node, status)
+        } else {
+          node.status(status)
+        }
+      } catch (error) {
+        try { node.status(status) } catch (e2) { /* ignore */ }
       }
     }
 
@@ -999,14 +1003,19 @@ module.exports = function (RED) {
     }
 
     const emitSummary = () => {
-      const now = nowMs()
-      trimHistory(now)
-      const summary = buildSummary(now)
-      node._lastSummary = summary
-      node._lastSummaryAt = now
-      node.send([{ topic: node.outputtopic, payload: summary, knxAi: { type: 'summary' } }, null, null])
-      const best = summary.topGAs && summary.topGAs[0] ? `${summary.topGAs[0].ga} (${summary.topGAs[0].count})` : 'no traffic'
-      updateStatus({ fill: 'green', shape: 'dot', text: `AI ${summary.counters.overallRatePerSec}/s top ${best}` })
+      try {
+        const now = nowMs()
+        trimHistory(now)
+        const summary = buildSummary(now)
+        node._lastSummary = summary
+        node._lastSummaryAt = now
+        node.send([{ topic: node.outputtopic, payload: summary, knxAi: { type: 'summary' } }, null, null])
+        const best = summary.topGAs && summary.topGAs[0] ? `${summary.topGAs[0].ga} (${summary.topGAs[0].count})` : 'no traffic'
+        updateStatus({ fill: 'green', shape: 'dot', text: `AI ${summary.counters.overallRatePerSec}/s top ${best}` })
+      } catch (error) {
+        try { node.sysLogger?.error(`knxUltimateAI emitSummary error: ${error.message || error}`) } catch (e) { /* ignore */ }
+        updateStatus({ fill: 'red', shape: 'dot', text: `AI summary error: ${error.message || error}` })
+      }
     }
 
     const recordAnomaly = (payload) => {
@@ -1110,85 +1119,109 @@ module.exports = function (RED) {
 
     // Called by knxUltimate-config.js
     node.handleSend = (msg) => {
-      const telegram = extractTelegram(msg)
-      if (!telegram) return
-      node._history.push(telegram)
-      const now = telegram.ts
-      trimHistory(now)
-      maybeEmitGAAnomalies(telegram)
-      maybeEmitOverallAnomaly(now)
+      try {
+        const telegram = extractTelegram(msg)
+        if (!telegram) return
+        node._history.push(telegram)
+        const now = telegram.ts
+        trimHistory(now)
+        maybeEmitGAAnomalies(telegram)
+        maybeEmitOverallAnomaly(now)
+      } catch (error) {
+        try { node.sysLogger?.error(`knxUltimateAI handleSend error: ${error.message || error}`) } catch (e) { /* ignore */ }
+      }
     }
 
     const handleCommand = async (msg) => {
-      const cmd = (msg && msg.topic !== undefined) ? String(msg.topic).toLowerCase() : ''
-      if (cmd === 'reset') {
-        node._history = []
-        node._gaState = new Map()
-        updateStatus({ fill: 'grey', shape: 'dot', text: 'AI reset' })
-        node.send([{ topic: node.outputtopic, payload: { ok: true }, knxAi: { type: 'reset' } }, null, null])
-        return
-      }
-
-      if (cmd === 'summary' || cmd === 'stats' || cmd === 'top' || cmd === '') {
-        emitSummary()
-        return
-      }
-
-      if (cmd === 'ask') {
-        const question = (msg.prompt !== undefined)
-          ? String(msg.prompt)
-          : (typeof msg.payload === 'string' ? msg.payload : safeStringify(msg.payload))
-        updateStatus({ fill: 'blue', shape: 'ring', text: 'AI thinking...' })
-        try {
-          const ret = await callLLM({ question })
-          node._assistantLog.push({ at: new Date().toISOString(), question, content: ret.content, provider: ret.provider, model: ret.model })
-          while (node._assistantLog.length > 50) node._assistantLog.shift()
-          node.send([null, null, {
-            topic: node.outputtopic,
-            payload: ret.content,
-            knxAi: { type: 'llm', provider: ret.provider, model: ret.model, question },
-            summary: ret.summary
-          }])
-          updateStatus({ fill: 'green', shape: 'dot', text: 'AI answer ready' })
-        } catch (error) {
-          node._assistantLog.push({ at: new Date().toISOString(), question, error: error.message || String(error) })
-          while (node._assistantLog.length > 50) node._assistantLog.shift()
-          node.send([null, null, {
-            topic: node.outputtopic,
-            payload: { error: error.message || String(error) },
-            knxAi: { type: 'llm_error', question }
-          }])
-          updateStatus({ fill: 'red', shape: 'dot', text: `AI error: ${error.message || error}` })
+      try {
+        const cmd = (msg && msg.topic !== undefined) ? String(msg.topic).toLowerCase() : ''
+        if (cmd === 'reset') {
+          node._history = []
+          node._gaState = new Map()
+          updateStatus({ fill: 'grey', shape: 'dot', text: 'AI reset' })
+          node.send([{ topic: node.outputtopic, payload: { ok: true }, knxAi: { type: 'reset' } }, null, null])
+          return
         }
-        return
-      }
 
-      node.warn(`knxUltimateAI: unknown command '${cmd}'. Supported: reset, summary, ask`)
+        if (cmd === 'summary' || cmd === 'stats' || cmd === 'top' || cmd === '') {
+          emitSummary()
+          return
+        }
+
+        if (cmd === 'ask') {
+          const question = (msg.prompt !== undefined)
+            ? String(msg.prompt)
+            : (typeof msg.payload === 'string' ? msg.payload : safeStringify(msg.payload))
+          updateStatus({ fill: 'blue', shape: 'ring', text: 'AI thinking...' })
+          try {
+            const ret = await callLLM({ question })
+            node._assistantLog.push({ at: new Date().toISOString(), question, content: ret.content, provider: ret.provider, model: ret.model })
+            while (node._assistantLog.length > 50) node._assistantLog.shift()
+            node.send([null, null, {
+              topic: node.outputtopic,
+              payload: ret.content,
+              knxAi: { type: 'llm', provider: ret.provider, model: ret.model, question },
+              summary: ret.summary
+            }])
+            updateStatus({ fill: 'green', shape: 'dot', text: 'AI answer ready' })
+          } catch (error) {
+            node._assistantLog.push({ at: new Date().toISOString(), question, error: error.message || String(error) })
+            while (node._assistantLog.length > 50) node._assistantLog.shift()
+            node.send([null, null, {
+              topic: node.outputtopic,
+              payload: { error: error.message || String(error) },
+              knxAi: { type: 'llm_error', question }
+            }])
+            updateStatus({ fill: 'red', shape: 'dot', text: `AI error: ${error.message || error}` })
+          }
+          return
+        }
+
+        node.warn(`knxUltimateAI: unknown command '${cmd}'. Supported: reset, summary, ask`)
+      } catch (error) {
+        try { node.sysLogger?.error(`knxUltimateAI handleCommand error: ${error.message || error}`) } catch (e) { /* ignore */ }
+        try { node.error(error) } catch (e) { /* ignore */ }
+        updateStatus({ fill: 'red', shape: 'dot', text: `AI command error: ${error.message || error}` })
+      }
     }
 
     node.getSidebarState = ({ fresh = false } = {}) => {
-      const now = nowMs()
-      trimHistory(now)
-      const summary = fresh ? buildSummary(now) : (node._lastSummary || buildSummary(now))
-      if (fresh) {
-        node._lastSummary = summary
-        node._lastSummaryAt = now
-      }
-      return {
-        node: {
-          id: node.id,
-          type: node.type,
-          name: node.name || '',
-          topic: node.topic || '',
-          gatewayId: node.serverKNX ? node.serverKNX.id : '',
-          gatewayName: (node.serverKNX && node.serverKNX.name) ? node.serverKNX.name : '',
-          llmEnabled: !!node.llmEnabled,
-          llmProvider: node.llmProvider || '',
-          llmModel: node.llmModel || ''
-        },
-        summary,
-        anomalies: node._anomalies.slice(-50),
-        assistant: node._assistantLog.slice(-30)
+      try {
+        const now = nowMs()
+        trimHistory(now)
+        const summary = fresh ? buildSummary(now) : (node._lastSummary || buildSummary(now))
+        if (fresh) {
+          node._lastSummary = summary
+          node._lastSummaryAt = now
+        }
+        return {
+          node: {
+            id: node.id,
+            type: node.type,
+            name: node.name || '',
+            topic: node.topic || '',
+            gatewayId: node.serverKNX ? node.serverKNX.id : '',
+            gatewayName: (node.serverKNX && node.serverKNX.name) ? node.serverKNX.name : '',
+            llmEnabled: !!node.llmEnabled,
+            llmProvider: node.llmProvider || '',
+            llmModel: node.llmModel || ''
+          },
+          summary,
+          anomalies: node._anomalies.slice(-50),
+          assistant: node._assistantLog.slice(-30)
+        }
+      } catch (error) {
+        return {
+          node: {
+            id: node.id,
+            type: node.type,
+            name: node.name || '',
+            topic: node.topic || ''
+          },
+          summary: { error: error.message || String(error) },
+          anomalies: [],
+          assistant: []
+        }
       }
     }
 
@@ -1204,7 +1237,18 @@ module.exports = function (RED) {
     }
 
     node.on('input', function (msg) {
-      handleCommand(msg)
+      try {
+        const p = handleCommand(msg)
+        if (p && typeof p.catch === 'function') {
+          p.catch((error) => {
+            try { node.sysLogger?.error(`knxUltimateAI input error: ${error.message || error}`) } catch (e) { /* ignore */ }
+            try { node.error(error) } catch (e) { /* ignore */ }
+          })
+        }
+      } catch (error) {
+        try { node.sysLogger?.error(`knxUltimateAI input error: ${error.message || error}`) } catch (e) { /* ignore */ }
+        try { node.error(error) } catch (e) { /* ignore */ }
+      }
     })
 
     node.on('close', function (done) {
@@ -1220,13 +1264,15 @@ module.exports = function (RED) {
 
     // On each deploy, unsubscribe+resubscribe
     if (node.serverKNX) {
-      node.serverKNX.removeClient(node)
-      node.serverKNX.addClient(node)
+      try { node.serverKNX.removeClient(node) } catch (e) { /* ignore */ }
+      try { node.serverKNX.addClient(node) } catch (e) { /* ignore */ }
     }
 
     if (node.emitIntervalSec && node.emitIntervalSec > 0) {
       if (node._timerEmit) clearInterval(node._timerEmit)
-      node._timerEmit = setInterval(emitSummary, Math.max(5, node.emitIntervalSec) * 1000)
+      node._timerEmit = setInterval(() => {
+        try { emitSummary() } catch (e) { /* emitSummary already guards */ }
+      }, Math.max(5, node.emitIntervalSec) * 1000)
     }
 
     updateStatus({ fill: 'grey', shape: 'dot', text: 'AI ready' })

@@ -52,10 +52,14 @@ module.exports = function (RED) {
     const pushStatus = (status) => {
       if (!status) return
       const provider = node.serverKNX
-      if (provider && typeof provider.applyStatusUpdate === 'function') {
-        provider.applyStatusUpdate(node, status)
-      } else {
-        node.status(status)
+      try {
+        if (provider && typeof provider.applyStatusUpdate === 'function') {
+          provider.applyStatusUpdate(node, status)
+        } else {
+          node.status(status)
+        }
+      } catch (error) {
+        try { node.status(status) } catch (e2) { /* ignore */ }
       }
     }
 
@@ -163,15 +167,15 @@ module.exports = function (RED) {
 
     node.on('close', function (done) {
       if (node.serverKNX) {
-        node.serverKNX.removeClient(node)
+        try { node.serverKNX.removeClient(node) } catch (e) { /* ignore */ }
       }
       done()
     })
 
     // On each deploy, unsubscribe+resubscribe
     if (node.serverKNX) {
-      node.serverKNX.removeClient(node)
-      node.serverKNX.addClient(node)
+      try { node.serverKNX.removeClient(node) } catch (e) { /* ignore */ }
+      try { node.serverKNX.addClient(node) } catch (e) { /* ignore */ }
     }
 
     updateStatus({ fill: 'grey', shape: 'dot', text: 'Routing ready' })
