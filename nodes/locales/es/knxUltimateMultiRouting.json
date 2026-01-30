@@ -9,6 +9,8 @@
       "name": "Name",
       "outputtopic": "Output topic",
       "dropIfSameGateway": "Drop messages already tagged for this gateway",
+      "respectRoutingCounter": "Respect routing counter (drop if 0)",
+      "decrementRoutingCounter": "Decrement routing counter when routing",
       "tunnelTitle": "KNX/IP Server",
       "tunnelListenHost": "Listen host",
       "tunnelListenPort": "Listen port",

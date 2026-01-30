@@ -24,6 +24,8 @@ You can optionally rewrite:
 - destination Group Address (`knx.destination`)
 - source physical address (`knx.source`)
 
+When rewriting, the node also updates `knx.cemi.hex` to match the rewritten `knx.source`/`knx.destination` (when `knx.cemi.hex` is present).
+
 Rewrite rules are evaluated top-to-bottom, first match wins.
 
 Syntax examples:
@@ -33,5 +35,41 @@ Syntax examples:
 ## Metadata
 The node adds `msg.payload.knxRouterFilter`:
 - dropped messages: `{ dropped: true, reason: 'event'|'ga'|'source', ... }`
-- passed messages: `{ dropped: false, rewritten: <bool>, rewrite: { ... }, original: { ... } }`
+- passed messages: `{ dropped: false, rewritten: <bool>, cemiSynced: <bool>, rewrite: { ... }, original: { ... } }`
+
+## msg.setConfig
+You can change the node configuration at runtime by sending a `msg.setConfig` object to the input.
+Supported keys: `allowWrite`, `allowResponse`, `allowRead`, `gaMode`, `gaPatterns`, `srcMode`, `srcPatterns`, `rewriteGA`, `gaRewriteRules`, `rewriteSource`, `srcRewriteRules`.
+The new configuration is retained until next `msg.setConfig` or until redeploy/restart. Configuration messages are not forwarded.
+
+Meaning of the properties:
+- `allowWrite`: allow `GroupValue_Write` telegrams.
+- `allowResponse`: allow `GroupValue_Response` telegrams.
+- `allowRead`: allow `GroupValue_Read` telegrams.
+- `gaMode`: destination GA filter mode (`off` = no filter, `allow` = allow only matching, `block` = drop matching).
+- `gaPatterns`: destination GA patterns used by `gaMode` (one per line, supports `*` and `re:<regex>`).
+- `srcMode`: source (physical address) filter mode (`off`/`allow`/`block`).
+- `srcPatterns`: source patterns used by `srcMode` (one per line, supports `*` and `re:<regex>`).
+- `rewriteGA`: enable rewrite of `knx.destination` on passed telegrams.
+- `gaRewriteRules`: rewrite rules for destination GA (`from => to`, first match wins; supports `*` and `re:<regex>`).
+- `rewriteSource`: enable rewrite of `knx.source` on passed telegrams.
+- `srcRewriteRules`: rewrite rules for source PA (`from => to`, first match wins; supports `*` and `re:<regex>`).
+
+Example:
+```js
+msg.setConfig = {
+  allowWrite: true,
+  allowResponse: true,
+  allowRead: true,
+  gaMode: "allow",
+  gaPatterns: "1/1/*\n1/2/3",
+  srcMode: "off",
+  srcPatterns: "",
+  rewriteGA: true,
+  gaRewriteRules: "5/5/1 => 1/1/1",
+  rewriteSource: true,
+  srcRewriteRules: "15.*.* => 1.1.254"
+};
+return msg;
+```
 </script>

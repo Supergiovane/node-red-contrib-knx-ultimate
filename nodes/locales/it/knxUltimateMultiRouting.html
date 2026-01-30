@@ -8,6 +8,8 @@ In input può ricevere gli stessi oggetti RAW e inoltrarli sul BUS KNX del gatew
 Imposta **Modalità** su **Server KNX/IP** per avviare un server KNXnet/IP tunneling (UDP). I telegrammi ricevuti dai client vengono emessi nello stesso formato RAW usato dal MultiRouting.
 Il nodo accetta anche in input gli oggetti RAW e li inietta verso i client tunneling connessi.
 
+**Importante (Host annunciato):** i client KNXnet/IP inviano i dati all’IP annunciato dal server nella CONNECT_RESPONSE. Se il client risulta *connesso* ma il server non riceve telegrammi, imposta **Host annunciato** con l’IP LAN del server raggiungibile dal client (soprattutto se Node-RED gira in Docker/VM o se il PC ha più schede di rete).
+
 ## Formato messaggio in output
 `msg.payload` contiene:
 - `knx.event`: `GroupValue_Write` / `GroupValue_Response` / `GroupValue_Read`
@@ -18,6 +20,16 @@ Il nodo accetta anche in input gli oggetti RAW e li inietta verso i client tunne
 - `knx.cemi.hex`: cEMI completo in esadecimale (stile ETS)
 - `knx.echoed`: `true` se telegramma echoed dal gateway
 - `knxMultiRouting.gateway`: info gateway (`id`, `name`, `physAddr`)
+
+## Routing counter (hop count)
+MultiRouting può usare il routing counter (hop count) presente in `knx.cemi.hex` per prevenire loop di telegrammi.
+- **Rispetta routing counter (scarta se 0)**: i telegrammi con routing counter `0` non vengono inoltrati.
+- **Decrementa routing counter durante l'inoltro**: il nodo decrementa il routing counter durante l'inoltro. Quando arriva a `0`, il telegramma viene scartato.
+
+Il valore corrente è disponibile come `knx.routingCounter` (e come `knx.cemi.hopCount` quando `knx.cemi` è un oggetto).
+
+## Riscrittura telegrammi
+Se nel flow riscrivi `knx.source` / `knx.destination`, devi mantenere coerente anche `knx.cemi.hex`. Consigliato: inserisci **KNX Router Filter** tra i nodi MultiRouting: manterrà automaticamente coerente `knx.cemi.hex` durante il rewrite.
 
 ## Nota
 Quando inoltri su un altro gateway, l’**indirizzo fisico sorgente cambia** (diventa l’indirizzo fisico del gateway che invia). Usa `knx.source` e/o `knxMultiRouting.gateway` per filtrare i loop.

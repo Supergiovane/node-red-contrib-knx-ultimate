@@ -8,6 +8,8 @@ En la entrada puede recibir esos mismos objetos RAW y reenviarlos al bus KNX del
 Establece **Modo** en **Server KNX/IP** para iniciar un servidor KNXnet/IP tunneling (UDP) integrado. Los telegramas recibidos de los clientes se emiten en el mismo formato RAW.
 El nodo también acepta objetos RAW en la entrada y los inyecta hacia los clientes tunneling conectados.
 
+**Importante (Advertise host):** los clientes KNXnet/IP enviarán los datos a la IP anunciada por el servidor en la CONNECT_RESPONSE. Si el cliente muestra *conectado* pero el servidor no recibe telegramas, configura **Advertise host** con la IP LAN del servidor alcanzable por el cliente (especialmente si Node-RED se ejecuta en Docker/VM o en un host con múltiples interfaces).
+
 ## Formato del mensaje de salida
 `msg.payload` contiene:
 - `knx.event`: `GroupValue_Write` / `GroupValue_Response` / `GroupValue_Read`
@@ -18,6 +20,16 @@ El nodo también acepta objetos RAW en la entrada y los inyecta hacia los client
 - `knx.cemi.hex`: cEMI completo en hex (estilo ETS)
 - `knx.echoed`: `true` si el gateway lo ha “echoed”
 - `knxMultiRouting.gateway`: metadatos del gateway (`id`, `name`, `physAddr`)
+
+## Routing counter (hop count)
+MultiRouting puede usar el routing counter (hop count) presente en `knx.cemi.hex` para evitar bucles de telegramas.
+- **Respect routing counter (drop if 0)**: los telegramas con routing counter `0` no se reenvían.
+- **Decrement routing counter when routing**: el nodo decrementa el routing counter durante el reenvío. Si llega a `0`, el telegrama se descarta.
+
+El valor actual se expone como `knx.routingCounter` (y como `knx.cemi.hopCount` cuando `knx.cemi` es un objeto).
+
+## Reescritura de telegramas
+Si en tu flow reescribes `knx.source` / `knx.destination`, también debes mantener `knx.cemi.hex` coherente. Recomendado: coloca **KNX Router Filter** entre nodos MultiRouting: sincronizará automáticamente `knx.cemi.hex` durante la reescritura.
 
 ## Notas
 - Al reenviar a otro gateway, la **dirección física de origen cambia** (pasa a ser la del gateway que envía). Usa `knx.source` y/o `knxMultiRouting.gateway` para filtrar bucles.

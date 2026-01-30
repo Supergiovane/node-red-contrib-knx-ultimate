@@ -9,6 +9,8 @@
       "name": "Nome",
       "outputtopic": "Topic output",
       "dropIfSameGateway": "Scarta messaggi già marcati per questo gateway",
+      "respectRoutingCounter": "Rispetta routing counter (scarta se 0)",
+      "decrementRoutingCounter": "Decrementa routing counter durante l'inoltro",
       "tunnelTitle": "Server KNX/IP",
       "tunnelListenHost": "Host in ascolto",
       "tunnelListenPort": "Porta in ascolto",

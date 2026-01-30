@@ -1,6 +1,36 @@
 // KNX Router Filter - filters RAW telegram objects between KNX Multi Routing nodes
 const normalizeText = (value) => String(value || '').trim()
 
+const normalizeHex = (value) => {
+  if (value === undefined || value === null) return ''
+  const s = String(value).trim()
+  if (!s) return ''
+  return s.replace(/^0x/i, '').replace(/[^0-9a-fA-F]/g, '')
+}
+
+const parseBoolean = (value, fallback) => {
+  if (value === undefined || value === null) return fallback
+  if (typeof value === 'boolean') return value
+  if (typeof value === 'number') return value !== 0
+  const s = String(value).trim().toLowerCase()
+  if (s === 'true' || s === '1' || s === 'yes' || s === 'on') return true
+  if (s === 'false' || s === '0' || s === 'no' || s === 'off') return false
+  return fallback
+}
+
+const normalizeMultiline = (value) => {
+  if (value === undefined || value === null) return ''
+  if (Array.isArray(value)) return value.map(v => String(v)).join('\n')
+  return String(value)
+}
+
+let _knxultimateCache = null
+const getKnxultimate = () => {
+  if (_knxultimateCache) return _knxultimateCache
+  _knxultimateCache = require('knxultimate')
+  return _knxultimateCache
+}
+
 const splitPatterns = (raw) => {
   const s = normalizeText(raw)
   if (!s) return []
@@ -162,6 +192,82 @@ const getPayloadObject = (msg) => {
   return msg.payload
 }
 
+const getKnxObject = (msg) => {
+  const payload = getPayloadObject(msg)
+  if (payload && payload.knx && typeof payload.knx === 'object' && !Buffer.isBuffer(payload.knx)) return payload.knx
+  if (msg && msg.knx && typeof msg.knx === 'object' && !Buffer.isBuffer(msg.knx)) return msg.knx
+  return null
+}
+
+const getCemiHexFromMsg = (msg) => {
+  const knx = getKnxObject(msg)
+  if (!knx) return ''
+  const cemi = knx.cemi
+  if (!cemi) return ''
+  if (typeof cemi === 'string') return cemi
+  if (typeof cemi === 'object' && !Buffer.isBuffer(cemi) && cemi.hex) return cemi.hex
+  return ''
+}
+
+const setCemiHexOnMsg = (msg, cemiHex) => {
+  const knx = getKnxObject(msg)
+  if (!knx) return false
+  if (knx.cemi && typeof knx.cemi === 'object' && !Buffer.isBuffer(knx.cemi) && 'hex' in knx.cemi) {
+    knx.cemi.hex = cemiHex
+    return true
+  }
+  knx.cemi = { hex: cemiHex }
+  return true
+}
+
+const isIndividualAddressString = (value) => /^\d{1,2}\.\d{1,2}\.\d{1,3}$/.test(String(value || '').trim())
+const isGroupAddressString = (value) => /^\d{1,2}\/\d{1,2}\/\d{1,3}$/.test(String(value || '').trim())
+
+const syncCemiWithKnxFields = (msg) => {
+  const knx = getKnxObject(msg)
+  if (!knx) return false
+  const cemiHex = getCemiHexFromMsg(msg)
+  const clean = normalizeHex(cemiHex)
+  if (!clean || clean.length % 2 !== 0) return false
+
+  let cemi
+  try {
+    const { KNXTunnelingRequest } = getKnxultimate()
+    cemi = KNXTunnelingRequest.parseCEMIMessage(Buffer.from(clean, 'hex'), 0)
+  } catch (e) {
+    return false
+  }
+  if (!cemi || !cemi.control) return false
+
+  let updated = false
+  try {
+    if (isIndividualAddressString(knx.source)) {
+      const { KNXAddress } = getKnxultimate()
+      cemi.srcAddress = KNXAddress.createFromString(String(knx.source).trim(), KNXAddress.TYPE_INDIVIDUAL)
+      updated = true
+    }
+  } catch (e) { /* ignore */ }
+
+  try {
+    if (isGroupAddressString(knx.destination)) {
+      const { KNXAddress } = getKnxultimate()
+      cemi.dstAddress = KNXAddress.createFromString(String(knx.destination).trim(), KNXAddress.TYPE_GROUP)
+      try { cemi.control.addressType = 1 } catch (e2) { /* ignore */ }
+      updated = true
+    }
+  } catch (e) { /* ignore */ }
+
+  if (!updated) return false
+  try {
+    const outHex = cemi.toBuffer().toString('hex')
+    setCemiHexOnMsg(msg, outHex)
+    try { knx.cemi.hopCount = knx.cemi.hopCount } catch (e) { /* ignore */ }
+    return true
+  } catch (e) {
+    return false
+  }
+}
+
 const attachFilterMeta = (msg, meta) => {
   try {
     const payload = getPayloadObject(msg)
@@ -185,24 +291,24 @@ module.exports = function (RED) {
     const node = this
 
     node.name = config.name || 'KNX Router Filter'
-    node.allowWrite = config.allowWrite !== undefined ? (config.allowWrite === true || config.allowWrite === 'true') : true
-    node.allowResponse = config.allowResponse !== undefined ? (config.allowResponse === true || config.allowResponse === 'true') : true
-    node.allowRead = config.allowRead !== undefined ? (config.allowRead === true || config.allowRead === 'true') : true
+    node.allowWrite = parseBoolean(config.allowWrite, true)
+    node.allowResponse = parseBoolean(config.allowResponse, true)
+    node.allowRead = parseBoolean(config.allowRead, true)
 
     node.gaMode = config.gaMode || 'off' // off|allow|block
     node.gaPatterns = config.gaPatterns || ''
     node.srcMode = config.srcMode || 'off' // off|allow|block
     node.srcPatterns = config.srcPatterns || ''
 
-    node.rewriteGA = config.rewriteGA !== undefined ? (config.rewriteGA === true || config.rewriteGA === 'true') : false
+    node.rewriteGA = parseBoolean(config.rewriteGA, false)
     node.gaRewriteRules = config.gaRewriteRules || ''
-    node.rewriteSource = config.rewriteSource !== undefined ? (config.rewriteSource === true || config.rewriteSource === 'true') : false
+    node.rewriteSource = parseBoolean(config.rewriteSource, false)
     node.srcRewriteRules = config.srcRewriteRules || ''
 
-    const gaRegexes = compileAddressPatterns({ raw: node.gaPatterns, kind: 'ga' })
-    const srcRegexes = compileAddressPatterns({ raw: node.srcPatterns, kind: 'src' })
-    const gaRewrite = compileRewriteRules({ raw: node.gaRewriteRules, kind: 'ga' })
-    const srcRewrite = compileRewriteRules({ raw: node.srcRewriteRules, kind: 'src' })
+    let gaRegexes = compileAddressPatterns({ raw: node.gaPatterns, kind: 'ga' })
+    let srcRegexes = compileAddressPatterns({ raw: node.srcPatterns, kind: 'src' })
+    let gaRewrite = compileRewriteRules({ raw: node.gaRewriteRules, kind: 'ga' })
+    let srcRewrite = compileRewriteRules({ raw: node.srcRewriteRules, kind: 'src' })
 
     let passed = 0
     let dropped = 0
@@ -251,6 +357,91 @@ module.exports = function (RED) {
       applyStatus(msg, { fill: 'grey', shape: 'dot', text: `pass ${passed} / drop ${dropped}` })
     }
 
+    let configStatusTimer = null
+    const setConfigStatus = (msg, text) => {
+      try {
+        if (configStatusTimer) clearTimeout(configStatusTimer)
+        applyStatus(msg, { fill: 'blue', shape: 'ring', text: text || 'Config changed' })
+        configStatusTimer = setTimeout(() => setCountersStatus(null), 2000)
+      } catch (e) { /* ignore */ }
+    }
+
+    const rebuildCompiledRules = () => {
+      gaRegexes = compileAddressPatterns({ raw: node.gaPatterns, kind: 'ga' })
+      srcRegexes = compileAddressPatterns({ raw: node.srcPatterns, kind: 'src' })
+      gaRewrite = compileRewriteRules({ raw: node.gaRewriteRules, kind: 'ga' })
+      srcRewrite = compileRewriteRules({ raw: node.srcRewriteRules, kind: 'src' })
+    }
+
+    const applySetConfig = (msg) => {
+      const sc = msg && msg.setConfig && typeof msg.setConfig === 'object' && !Buffer.isBuffer(msg.setConfig) ? msg.setConfig : null
+      if (!sc) return false
+
+      const changedKeys = []
+      const markChanged = (key) => { if (!changedKeys.includes(key)) changedKeys.push(key) }
+
+      if (Object.prototype.hasOwnProperty.call(sc, 'name')) {
+        node.name = normalizeText(sc.name) || node.name
+        markChanged('name')
+      }
+      if (Object.prototype.hasOwnProperty.call(sc, 'allowWrite')) {
+        node.allowWrite = parseBoolean(sc.allowWrite, node.allowWrite)
+        markChanged('allowWrite')
+      }
+      if (Object.prototype.hasOwnProperty.call(sc, 'allowResponse')) {
+        node.allowResponse = parseBoolean(sc.allowResponse, node.allowResponse)
+        markChanged('allowResponse')
+      }
+      if (Object.prototype.hasOwnProperty.call(sc, 'allowRead')) {
+        node.allowRead = parseBoolean(sc.allowRead, node.allowRead)
+        markChanged('allowRead')
+      }
+      if (Object.prototype.hasOwnProperty.call(sc, 'gaMode')) {
+        const m = normalizeText(sc.gaMode).toLowerCase()
+        if (m === 'off' || m === 'allow' || m === 'block') {
+          node.gaMode = m
+          markChanged('gaMode')
+        }
+      }
+      if (Object.prototype.hasOwnProperty.call(sc, 'gaPatterns')) {
+        node.gaPatterns = normalizeMultiline(sc.gaPatterns)
+        markChanged('gaPatterns')
+      }
+      if (Object.prototype.hasOwnProperty.call(sc, 'srcMode')) {
+        const m = normalizeText(sc.srcMode).toLowerCase()
+        if (m === 'off' || m === 'allow' || m === 'block') {
+          node.srcMode = m
+          markChanged('srcMode')
+        }
+      }
+      if (Object.prototype.hasOwnProperty.call(sc, 'srcPatterns')) {
+        node.srcPatterns = normalizeMultiline(sc.srcPatterns)
+        markChanged('srcPatterns')
+      }
+      if (Object.prototype.hasOwnProperty.call(sc, 'rewriteGA')) {
+        node.rewriteGA = parseBoolean(sc.rewriteGA, node.rewriteGA)
+        markChanged('rewriteGA')
+      }
+      if (Object.prototype.hasOwnProperty.call(sc, 'gaRewriteRules')) {
+        node.gaRewriteRules = normalizeMultiline(sc.gaRewriteRules)
+        markChanged('gaRewriteRules')
+      }
+      if (Object.prototype.hasOwnProperty.call(sc, 'rewriteSource')) {
+        node.rewriteSource = parseBoolean(sc.rewriteSource, node.rewriteSource)
+        markChanged('rewriteSource')
+      }
+      if (Object.prototype.hasOwnProperty.call(sc, 'srcRewriteRules')) {
+        node.srcRewriteRules = normalizeMultiline(sc.srcRewriteRules)
+        markChanged('srcRewriteRules')
+      }
+
+      if (changedKeys.length > 0) {
+        rebuildCompiledRules()
+        setConfigStatus(msg, `Config changed: ${changedKeys.join(', ')}`)
+      }
+      return true
+    }
+
     const extractFields = (msg) => {
       const payload = msg && msg.payload !== undefined ? msg.payload : null
       const knx = (payload && payload.knx) ? payload.knx : (msg && msg.knx ? msg.knx : null)
@@ -279,6 +470,11 @@ module.exports = function (RED) {
 
     node.on('input', function (msg) {
       try {
+        if (msg && Object.prototype.hasOwnProperty.call(msg, 'setConfig')) {
+          applySetConfig(msg)
+          return
+        }
+
         const fields = extractFields(msg)
 
         // If message doesn't look like a KNX raw telegram, pass it through unchanged.
@@ -341,8 +537,11 @@ module.exports = function (RED) {
           }
 
           if (anyRewrite) {
+            let cemiSynced = false
+            try { cemiSynced = syncCemiWithKnxFields(msg) } catch (e) { cemiSynced = false }
             meta = Object.assign({}, meta, {
               rewritten: true,
+              cemiSynced,
               original: Object.assign({}, meta.original || {}, {
                 destination: beforeGA,
                 source: beforeSrc
@@ -358,6 +557,13 @@ module.exports = function (RED) {
         node.error(error)
         applyStatus(msg, { fill: 'red', shape: 'dot', text: error.message || String(error) })
       }
+    })
+
+    node.on('close', function () {
+      try {
+        if (configStatusTimer) clearTimeout(configStatusTimer)
+        configStatusTimer = null
+      } catch (e) { /* ignore */ }
     })
 
     setCountersStatus(null)

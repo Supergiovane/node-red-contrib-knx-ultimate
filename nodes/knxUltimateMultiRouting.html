@@ -10,6 +10,8 @@
             name: { value: "KNX Multi Routing", required: false },
             outputtopic: { value: "", required: false },
             dropIfSameGateway: { value: true },
+            respectRoutingCounter: { value: true },
+            decrementRoutingCounter: { value: false },
 
             // KNX/IP tunneling server options (mode=server)
             tunnelListenHost: { value: "0.0.0.0", required: false },
@@ -81,6 +83,16 @@
     <div class="form-row">
         <input type="checkbox" id="node-input-dropIfSameGateway" style="display:inline-block; width:auto; vertical-align:top;">
         <label style="width:auto" for="node-input-dropIfSameGateway">&nbsp;&nbsp;<span data-i18n="knxUltimateMultiRouting.properties.dropIfSameGateway"></span></label>
+    </div>
+
+    <div class="form-row">
+        <input type="checkbox" id="node-input-respectRoutingCounter" style="display:inline-block; width:auto; vertical-align:top;">
+        <label style="width:auto" for="node-input-respectRoutingCounter">&nbsp;&nbsp;<span data-i18n="knxUltimateMultiRouting.properties.respectRoutingCounter"></span></label>
+    </div>
+
+    <div class="form-row">
+        <input type="checkbox" id="node-input-decrementRoutingCounter" style="display:inline-block; width:auto; vertical-align:top;">
+        <label style="width:auto" for="node-input-decrementRoutingCounter">&nbsp;&nbsp;<span data-i18n="knxUltimateMultiRouting.properties.decrementRoutingCounter"></span></label>
     </div>
 
     <div class="form-row knxmr-row-tunnel">

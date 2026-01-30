@@ -6,6 +6,16 @@
 
 # CHANGELOG
 
+**Version 4.1.21** - January 2026<br/>
+
+- NEW: **KNX Multi Routing**: added KNX routing counter (hop count) handling to prevent telegram loops: optional **Respect routing counter (drop if 0)** and **Decrement routing counter when routing**.<br/>
+- FIX: **KNX Multi Routing**: improved behaviour with rewritten telegrams by relying on coherent cEMI; `knx.routingCounter` is exposed based on `knx.cemi.hex`.<br/>
+- CHANGE: **KNX Router Filter**: cEMI consistency is now always enforced when rewriting `knx.source`/`knx.destination` (updates `knx.cemi.hex` accordingly; removed the related toggle option).<br/>
+- CHANGE: **KNX Router Filter**: added `cemiSynced` metadata on passed messages (`msg.payload.knxRouterFilter.cemiSynced`).<br/>
+- NEW: **KNX Router Filter**: runtime configuration via `msg.setConfig` (all node parameters), retained until next `msg.setConfig` or redeploy/restart; config messages are not forwarded.<br/>
+- IMPROVE: **KNX Multi Routing Server KNX/IP**: better status/diagnostics and docs note about **Advertise host** for clients that show “connected” but the server receives no telegrams (multi-homed/Docker/VM).<br/>
+- Docs/help/wiki: updated **KNX Multi Routing** and **KNX Router Filter** pages in all supported languages to document routing counter, rewrite+cEMI sync behaviour, and `msg.setConfig` usage (with examples).<br/>
+
 **Version 4.1.19** - February 2026<br/>
 
 - NEW: **KNX Multi Routing**: added **Server KNX/IP** mode (standalone KNXnet/IP tunneling server) that outputs/accepts RAW telegrams on the node ports (no gateway required).<br/>

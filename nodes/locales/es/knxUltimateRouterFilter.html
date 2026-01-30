@@ -24,6 +24,8 @@ Puedes reescribir opcionalmente:
 - destino (Group Address) `knx.destination`
 - origen (dirección física) `knx.source`
 
+Durante la reescritura, el nodo también actualiza `knx.cemi.hex` para reflejar los valores reescritos de `knx.source`/`knx.destination` (cuando `knx.cemi.hex` está presente).
+
 Las reglas se evalúan de arriba hacia abajo (la primera coincidencia gana).
 
 Ejemplos:
@@ -33,5 +35,41 @@ Ejemplos:
 ## Metadatos
 El nodo añade `msg.payload.knxRouterFilter`:
 - descartados: `{ dropped: true, reason: 'event'|'ga'|'source', ... }`
-- pasados: `{ dropped: false, rewritten: <bool>, rewrite: { ... }, original: { ... } }`
+- pasados: `{ dropped: false, rewritten: <bool>, cemiSynced: <bool>, rewrite: { ... }, original: { ... } }`
+
+## msg.setConfig
+Puedes cambiar la configuración del nodo en tiempo de ejecución enviando un objeto `msg.setConfig` a la entrada.
+Claves soportadas: `allowWrite`, `allowResponse`, `allowRead`, `gaMode`, `gaPatterns`, `srcMode`, `srcPatterns`, `rewriteGA`, `gaRewriteRules`, `rewriteSource`, `srcRewriteRules`.
+La configuración se mantiene hasta el siguiente `msg.setConfig` o hasta redeploy/reinicio. Los mensajes de configuración no se reenvían.
+
+Significado de las propiedades:
+- `allowWrite`: permite telegramas `GroupValue_Write`.
+- `allowResponse`: permite telegramas `GroupValue_Response`.
+- `allowRead`: permite telegramas `GroupValue_Read`.
+- `gaMode`: modo de filtro para la GA de destino (`off` = sin filtro, `allow` = permitir solo coincidencias, `block` = descartar coincidencias).
+- `gaPatterns`: patrones GA de destino usados por `gaMode` (uno por línea, soporta `*` y `re:<regex>`).
+- `srcMode`: modo de filtro para el source (dirección física) (`off`/`allow`/`block`).
+- `srcPatterns`: patrones source usados por `srcMode` (uno por línea, soporta `*` y `re:<regex>`).
+- `rewriteGA`: habilita la reescritura de `knx.destination` en los telegramas que pasan.
+- `gaRewriteRules`: reglas de reescritura GA (`de => a`, primera coincidencia gana; soporta `*` y `re:<regex>`).
+- `rewriteSource`: habilita la reescritura de `knx.source` en los telegramas que pasan.
+- `srcRewriteRules`: reglas de reescritura source (`de => a`, primera coincidencia gana; soporta `*` y `re:<regex>`).
+
+Ejemplo:
+```js
+msg.setConfig = {
+  allowWrite: true,
+  allowResponse: true,
+  allowRead: true,
+  gaMode: "allow",
+  gaPatterns: "1/1/*\n1/2/3",
+  srcMode: "off",
+  srcPatterns: "",
+  rewriteGA: true,
+  gaRewriteRules: "5/5/1 => 1/1/1",
+  rewriteSource: true,
+  srcRewriteRules: "15.*.* => 1.1.254"
+};
+return msg;
+```
 </script>

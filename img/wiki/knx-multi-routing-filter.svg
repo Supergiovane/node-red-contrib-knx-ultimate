@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420">
+  <defs>
+    <style>
+      .bg { fill: #0b1220; }
+      .card { fill: #111c34; stroke: #2b3a63; stroke-width: 2; }
+      .accentA { fill: #63b8ff; }
+      .accentF { fill: #f2cc60; }
+      .text { fill: #e6edf3; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 22px; }
+      .small { fill: #a8b3cf; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 16px; }
+      .mono { fill: #c9d1d9; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size: 16px; }
+      .arrow { stroke: #7aa2f7; stroke-width: 4; fill: none; marker-end: url(#m); }
+      .arrow2 { stroke: #7ee787; stroke-width: 4; fill: none; marker-end: url(#m2); }
+    </style>
+    <marker id="m" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M0,0 L12,6 L0,12 z" fill="#7aa2f7"/>
+    </marker>
+    <marker id="m2" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M0,0 L12,6 L0,12 z" fill="#7ee787"/>
+    </marker>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="1200" height="420" rx="18"/>
+
+  <!-- Multi Routing A -->
+  <rect class="card" x="60" y="110" width="320" height="200" rx="16"/>
+  <rect class="accentA" x="60" y="110" width="320" height="10" rx="16"/>
+  <text class="text" x="90" y="155">KNX Multi Routing</text>
+  <text class="small" x="90" y="185">Gateway A (RAW out)</text>
+  <text class="mono" x="90" y="225">payload.knx + cemi.hex</text>
+  <text class="mono" x="90" y="250">GroupValue_Write/Read</text>
+  <text class="small" x="90" y="290">Wired to the filter</text>
+
+  <!-- Router Filter -->
+  <rect class="card" x="440" y="110" width="320" height="200" rx="16"/>
+  <rect class="accentF" x="440" y="110" width="320" height="10" rx="16"/>
+  <text class="text" x="470" y="155">KNX Router Filter</text>
+  <text class="small" x="470" y="185">allow/block + optional rewrite</text>
+  <text class="mono" x="470" y="225">GA patterns: 0/0/*</text>
+  <text class="mono" x="470" y="250">rewrite: 0/0/* → 2/0/*</text>
+  <text class="small" x="470" y="290">Adds payload.knxRouterFilter</text>
+
+  <!-- Multi Routing B -->
+  <rect class="card" x="820" y="110" width="320" height="200" rx="16"/>
+  <rect class="accentA" x="820" y="110" width="320" height="10" rx="16"/>
+  <text class="text" x="850" y="155">KNX Multi Routing</text>
+  <text class="small" x="850" y="185">Gateway B (RAW in)</text>
+  <text class="mono" x="850" y="225">writeRaw / respondRaw</text>
+  <text class="mono" x="850" y="250">read</text>
+  <text class="small" x="850" y="290">Injects to KNX bus B</text>
+
+  <!-- Arrows -->
+  <path class="arrow" d="M380 210 C410 210, 420 210, 440 210"/>
+  <text class="small" x="395" y="195">RAW</text>
+
+  <path class="arrow2" d="M760 210 C790 210, 800 210, 820 210"/>
+  <text class="small" x="770" y="195">filtered</text>
+
+  <text class="small" x="60" y="390">Diagram: connect KNX Multi Routing nodes with a Router Filter between them to control and rewrite forwarded RAW telegrams.</text>
+</svg>

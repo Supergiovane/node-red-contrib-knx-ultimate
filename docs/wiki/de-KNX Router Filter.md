@@ -6,6 +6,8 @@ permalink: /wiki/de-KNX%20Router%20Filter
 ---
 Filtert RAW-Telegramm-Objekte (typischerweise vom **KNX Multi Routing** Node), bevor sie an ein anderes Gateway weitergeleitet werden.
 
+<img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/sample-knx-router-filter.svg" width="95%"><br/>
+
 ## Muster-Syntax
 - Gruppenadresse (GA) unterstützt `*` pro Ebene:
   - `0/0/*` matcht alle GAs in `0/0`
@@ -29,6 +31,8 @@ Optionales Umschreiben von:
 - Ziel-Gruppenadresse (`knx.destination`)
 - Source-PA (`knx.source`)
 
+Beim Umschreiben aktualisiert der Node auch `knx.cemi.hex`, damit es zu den umgeschriebenen Werten von `knx.source`/`knx.destination` passt (wenn `knx.cemi.hex` vorhanden ist).
+
 Regeln werden von oben nach unten ausgewertet (first match wins).
 
 Beispiele:
@@ -38,4 +42,40 @@ Beispiele:
 ## Metadaten
 Der Node fügt `msg.payload.knxRouterFilter` hinzu:
 - verworfen: `{ dropped: true, reason: 'event'|'ga'|'source', ... }`
-- durchgelassen: `{ dropped: false, rewritten: <bool>, rewrite: { ... }, original: { ... } }`
+- durchgelassen: `{ dropped: false, rewritten: <bool>, cemiSynced: <bool>, rewrite: { ... }, original: { ... } }`
+
+## msg.setConfig
+Du kannst die Node-Konfiguration zur Laufzeit ändern, indem du ein `msg.setConfig` Objekt an den Eingang sendest.
+Unterstützte Keys: `allowWrite`, `allowResponse`, `allowRead`, `gaMode`, `gaPatterns`, `srcMode`, `srcPatterns`, `rewriteGA`, `gaRewriteRules`, `rewriteSource`, `srcRewriteRules`.
+Die Konfiguration bleibt bis zum nächsten `msg.setConfig` oder bis Redeploy/Neustart erhalten. Konfigurationsnachrichten werden nicht weitergeleitet.
+
+Bedeutung der Properties:
+- `allowWrite`: erlaubt `GroupValue_Write` Telegramme.
+- `allowResponse`: erlaubt `GroupValue_Response` Telegramme.
+- `allowRead`: erlaubt `GroupValue_Read` Telegramme.
+- `gaMode`: Filtermodus für die Ziel-GA (`off` = kein Filter, `allow` = nur Matches durchlassen, `block` = Matches verwerfen).
+- `gaPatterns`: Ziel-GA Patterns für `gaMode` (eine pro Zeile, unterstützt `*` und `re:<regex>`).
+- `srcMode`: Filtermodus für die Source-PA (`off`/`allow`/`block`).
+- `srcPatterns`: Source-Patterns für `srcMode` (eine pro Zeile, unterstützt `*` und `re:<regex>`).
+- `rewriteGA`: aktiviert Umschreiben von `knx.destination` für durchgelassene Telegramme.
+- `gaRewriteRules`: Umschreibregeln für Ziel-GA (`von => nach`, first match wins; unterstützt `*` und `re:<regex>`).
+- `rewriteSource`: aktiviert Umschreiben von `knx.source` für durchgelassene Telegramme.
+- `srcRewriteRules`: Umschreibregeln für Source-PA (`von => nach`, first match wins; unterstützt `*` und `re:<regex>`).
+
+Beispiel:
+```js
+msg.setConfig = {
+  allowWrite: true,
+  allowResponse: true,
+  allowRead: true,
+  gaMode: "allow",
+  gaPatterns: "1/1/*\n1/2/3",
+  srcMode: "off",
+  srcPatterns: "",
+  rewriteGA: true,
+  gaRewriteRules: "5/5/1 => 1/1/1",
+  rewriteSource: true,
+  srcRewriteRules: "15.*.* => 1.1.254"
+};
+return msg;
+```
