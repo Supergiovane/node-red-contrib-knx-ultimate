@@ -4,6 +4,10 @@ Dieser Node dient dazu, **mehrere KNX-Ultimate-Gateways** (mehrere `knxUltimate-
 Er gibt für jedes Telegramm vom KNX-Bus des ausgewählten Gateways ein Objekt mit **RAW-Telegramm-Informationen** (APDU + cEMI-Hex + Adressen) aus.
 Außerdem kann er die gleichen RAW-Objekte am Eingang annehmen und an das ausgewählte Gateway weiterleiten.
 
+## Server KNX/IP Modus
+Setze **Modus** auf **Server KNX/IP**, um einen eingebetteten KNXnet/IP-Tunneling-Server (UDP) zu starten. Eingehende Client-Telegramme werden im gleichen RAW-Format ausgegeben.
+Der Node akzeptiert außerdem RAW-Telegramm-Objekte am Eingang und injiziert sie an die verbundenen Tunneling-Clients.
+
 ## Output-Nachrichtenformat
 `msg.payload` enthält:
 - `knx.event`: `GroupValue_Write` / `GroupValue_Response` / `GroupValue_Read`

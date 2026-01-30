@@ -4,6 +4,10 @@ Ce nœud sert à **interconnecter plusieurs gateways KNX Ultimate** (plusieurs `
 Il émet en sortie un objet contenant des informations **RAW** (APDU + cEMI hex + adresses) pour chaque télégramme reçu sur le bus KNX du gateway sélectionné.
 Il peut aussi accepter ces objets RAW en entrée et les transmettre vers le bus KNX du gateway sélectionné.
 
+## Mode serveur KNX/IP
+Réglez **Mode** sur **Server KNX/IP** pour démarrer un serveur KNXnet/IP tunneling (UDP) intégré. Les télégrammes reçus des clients sont émis au même format RAW.
+Le nœud accepte aussi en entrée des objets RAW et les injecte vers les clients tunneling connectés.
+
 ## Format du message en sortie
 `msg.payload` contient :
 - `knx.event` : `GroupValue_Write` / `GroupValue_Response` / `GroupValue_Read`

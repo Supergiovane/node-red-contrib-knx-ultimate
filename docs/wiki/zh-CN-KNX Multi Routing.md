@@ -9,6 +9,10 @@ permalink: /wiki/zh-CN-KNX%20Multi%20Routing
 它会为所选网关的 KNX 总线上收到的每个电报输出一条包含**RAW 电报信息**（APDU + cEMI 十六进制 + 地址）的消息。
 同时它也可以在输入端接收相同格式的 RAW 对象，并将其转发到所选网关的 KNX 总线。
 
+## KNX/IP 服务器模式
+将 **Mode** 设置为 **Server KNX/IP** 可启动一个内置的 KNXnet/IP tunneling（UDP）服务器。来自 tunneling 客户端的电报会以相同的 RAW 格式输出。
+该节点也会在输入端接收 RAW 对象，并将其注入到已连接的 tunneling 客户端。
+
 ## 输出消息格式
 `msg.payload` 包含：
 - `knx.event`：`GroupValue_Write` / `GroupValue_Response` / `GroupValue_Read`

@@ -189,6 +189,153 @@ For the full node reference see:
 
 </details>
 
+## KNX/IP tunneling server (standalone) - Server KNX/IP mode
+
+This sample starts a **KNXnet/IP tunneling server (UDP)** using `knxUltimateMultiRouting` in **Server KNX/IP** mode.
+
+You can also import it directly from the repository examples:
+- `examples/KNX Multi Routing - KNXIP Server.json`
+
+<details><summary>View code</summary>
+
+```json
+[
+  {
+    "id": "tab_knx_mr_srv_sample",
+    "type": "tab",
+    "label": "KNX/IP Server (MultiRouting)",
+    "disabled": false,
+    "info": ""
+  },
+  {
+    "id": "cmt_knx_mr_srv_1",
+    "type": "comment",
+    "z": "tab_knx_mr_srv_sample",
+    "name": "Use knxUltimateMultiRouting as a standalone KNXnet/IP Tunneling Server (UDP).",
+    "info": "1) Deploy.\n2) Configure your KNX/IP tunneling client to connect to this Node-RED host on tunnelListenPort (default 3671).\n3) Watch the RAW telegrams in the Debug node.\n\nTo test the INPUT side: after at least one telegram is received, click the inject node \"Replay last\" to inject the last received telegram back to connected tunneling client(s).",
+    "x": 430,
+    "y": 40,
+    "wires": []
+  },
+  {
+    "id": "mr_tunnel_server",
+    "type": "knxUltimateMultiRouting",
+    "z": "tab_knx_mr_srv_sample",
+    "mode": "server",
+    "server": "",
+    "name": "KNX/IP Tunneling Server",
+    "outputtopic": "",
+    "dropIfSameGateway": true,
+    "tunnelListenHost": "0.0.0.0",
+    "tunnelListenPort": "3671",
+    "tunnelAdvertiseHost": "",
+    "tunnelAssignedIndividualAddress": "15.15.255",
+    "tunnelGatewayId": "knxip-server",
+    "tunnelMaxSessions": "1",
+    "x": 240,
+    "y": 160,
+    "wires": [
+      [
+        "fn_cache_last",
+        "dbg_tunnel_raw"
+      ]
+    ]
+  },
+  {
+    "id": "dbg_tunnel_raw",
+    "type": "debug",
+    "z": "tab_knx_mr_srv_sample",
+    "name": "RAW from tunneling client",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload.knx",
+    "targetType": "msg",
+    "x": 520,
+    "y": 160,
+    "wires": []
+  },
+  {
+    "id": "fn_cache_last",
+    "type": "function",
+    "z": "tab_knx_mr_srv_sample",
+    "name": "Cache last telegram",
+    "func": "try {\n    if (msg && msg.payload && msg.payload.knx) {\n        flow.set('last_knx_raw', msg.payload.knx);\n    }\n} catch (e) {}\nreturn null;",
+    "outputs": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 500,
+    "y": 220,
+    "wires": []
+  },
+  {
+    "id": "inj_replay_last",
+    "type": "inject",
+    "z": "tab_knx_mr_srv_sample",
+    "name": "Replay last",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 170,
+    "y": 300,
+    "wires": [
+      [
+        "fn_replay_last"
+      ]
+    ]
+  },
+  {
+    "id": "fn_replay_last",
+    "type": "function",
+    "z": "tab_knx_mr_srv_sample",
+    "name": "Build replay msg",
+    "func": "const last = flow.get('last_knx_raw');\nif (!last) {\n    node.warn('No cached telegram yet. Generate one from a tunneling client first.');\n    return null;\n}\n\n// IMPORTANT:\n// - Server mode expects msg.payload.knx.cemi.hex (or msg.payload.knx.cemi) to be present.\n// - Do NOT attach knxMultiRouting.gateway.id here, otherwise dropIfSameGateway may discard it.\nreturn {\n    topic: last.destination || '',\n    payload: {\n        knx: last\n    }\n};",
+    "outputs": 1,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 360,
+    "y": 300,
+    "wires": [
+      [
+        "mr_tunnel_server",
+        "dbg_replay"
+      ]
+    ]
+  },
+  {
+    "id": "dbg_replay",
+    "type": "debug",
+    "z": "tab_knx_mr_srv_sample",
+    "name": "Replay msg",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "true",
+    "targetType": "full",
+    "x": 520,
+    "y": 300,
+    "wires": []
+  }
+]
+```
+
+</details>
+
 ## Tips
 - Keep **Drop messages already tagged for this gateway** enabled on each routing node to prevent simple loops.
 - Add GA/source filtering and rewrite rules inside **KNX Router Filter**.

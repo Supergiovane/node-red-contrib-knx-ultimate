@@ -9,6 +9,10 @@ This node is used to **bridge multiple KNX Ultimate gateways** (multiple `knxUlt
 It outputs **RAW telegram information** (APDU + cEMI hex + addresses) for every telegram received from the KNX bus of the selected gateway.
 It can also accept those RAW telegram objects on its input and forward them to the selected gateway.
 
+## Server KNX/IP mode
+Set **Mode** to **Server KNX/IP** to start an embedded KNXnet/IP tunneling server (UDP). Incoming client telegrams are emitted as the same RAW format used by MultiRouting.
+The node also accepts RAW telegram objects on its input and injects them to the connected tunneling client(s).
+
 ## Output message format
 `msg.payload` contains:
 - `knx.event`: `GroupValue_Write` / `GroupValue_Response` / `GroupValue_Read`

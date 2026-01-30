@@ -9,6 +9,10 @@ Questo nodo serve per **collegare tra loro più gateway KNX Ultimate** (più `kn
 In output emette un oggetto con le informazioni **RAW** del telegramma (APDU + cEMI hex + indirizzi) per ogni telegramma ricevuto dal BUS KNX del gateway selezionato.
 In input può ricevere gli stessi oggetti RAW e inoltrarli sul BUS KNX del gateway selezionato.
 
+## Modalità Server KNX/IP
+Imposta **Modalità** su **Server KNX/IP** per avviare un server KNXnet/IP tunneling (UDP) integrato. I telegrammi ricevuti dai client vengono emessi nello stesso formato RAW usato dal MultiRouting.
+Il nodo accetta anche in input gli oggetti RAW e li inietta verso i client tunneling connessi.
+
 ## Formato messaggio in output
 `msg.payload` contiene:
 - `knx.event`: `GroupValue_Write` / `GroupValue_Response` / `GroupValue_Read`

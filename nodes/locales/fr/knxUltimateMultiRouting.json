@@ -17,8 +17,7 @@
       "tunnelAssignedIndividualAddress": "Assigned individual address",
       "tunnelGatewayId": "Gateway id (tag)",
       "tunnelGatewayIdPlaceholder": "(auto) Used as knxMultiRouting.gateway.id",
-      "tunnelMaxSessions": "Max sessions",
-      "bridgeGateway": "Bridge tunnel <-> selected gateway"
+      "tunnelMaxSessions": "Max sessions"
     },
     "outputs": {
       "raw": "RAW telegrams"

@@ -17,8 +17,7 @@
       "tunnelAssignedIndividualAddress": "Indirizzo individuale assegnato",
       "tunnelGatewayId": "Gateway id (tag)",
       "tunnelGatewayIdPlaceholder": "(auto) Usato come knxMultiRouting.gateway.id",
-      "tunnelMaxSessions": "Sessioni max",
-      "bridgeGateway": "Bridge tunnel <-> gateway selezionato"
+      "tunnelMaxSessions": "Sessioni max"
     },
     "outputs": {
       "raw": "Telegrammi RAW"
