@@ -5,10 +5,19 @@
         category: "KNX Ultimate",
         color: 'lightblue',
         defaults: {
-            server: { type: "knxUltimate-config", required: true },
+            mode: { value: "gateway", required: true },
+            server: { type: "knxUltimate-config", required: false },
             name: { value: "KNX Multi Routing", required: false },
             outputtopic: { value: "", required: false },
-            dropIfSameGateway: { value: true }
+            dropIfSameGateway: { value: true },
+
+            // KNX/IP tunneling server options (mode=server)
+            tunnelListenHost: { value: "0.0.0.0", required: false },
+            tunnelListenPort: { value: 3671, required: false, validate: RED.validators.number() },
+            tunnelAdvertiseHost: { value: "", required: false },
+            tunnelAssignedIndividualAddress: { value: "15.15.255", required: false },
+            tunnelMaxSessions: { value: 1, required: false, validate: RED.validators.number() },
+            tunnelGatewayId: { value: "", required: false }
         },
         inputs: 1,
         outputs: 1,
@@ -20,6 +29,19 @@
         paletteLabel: "KNX Multi Routing",
         oneditprepare: function () {
             try { RED.sidebar.show("help"); } catch (error) { }
+
+            const toggleMode = () => {
+                const mode = $("#node-input-mode").val() || "gateway";
+                if (mode === "server") {
+                    $(".knxmr-row-gateway").hide();
+                    $(".knxmr-row-tunnel").show();
+                } else {
+                    $(".knxmr-row-gateway").show();
+                    $(".knxmr-row-tunnel").hide();
+                }
+            };
+            $("#node-input-mode").on("change", toggleMode);
+            toggleMode();
         },
         oneditsave: function () {
             try { RED.sidebar.show("info"); } catch (error) { }
@@ -34,6 +56,14 @@
     <div class="form-row">
         <b><span data-i18n="knxUltimateMultiRouting.title"></span></b>
         <br/><br/>
+        <label for="node-input-mode"><i class="fa fa-sliders"></i> <span data-i18n="knxUltimateMultiRouting.properties.mode"></span></label>
+        <select id="node-input-mode">
+            <option value="gateway" data-i18n="knxUltimateMultiRouting.properties.modeGateway"></option>
+            <option value="server" data-i18n="knxUltimateMultiRouting.properties.modeServer"></option>
+        </select>
+    </div>
+
+    <div class="form-row knxmr-row-gateway">
         <label for="node-input-server"><i class="fa fa-tag"></i> <span data-i18n="knxUltimateMultiRouting.properties.server"></span></label>
         <input type="text" id="node-input-server">
     </div>
@@ -51,5 +81,35 @@
     <div class="form-row">
         <input type="checkbox" id="node-input-dropIfSameGateway" style="display:inline-block; width:auto; vertical-align:top;">
         <label style="width:auto" for="node-input-dropIfSameGateway">&nbsp;&nbsp;<span data-i18n="knxUltimateMultiRouting.properties.dropIfSameGateway"></span></label>
+    </div>
+
+    <div class="form-row knxmr-row-tunnel">
+        <hr/>
+        <b><span data-i18n="knxUltimateMultiRouting.properties.tunnelTitle"></span></b>
+    </div>
+
+    <div class="form-row knxmr-row-tunnel">
+        <label for="node-input-tunnelListenHost"><i class="fa fa-globe"></i> <span data-i18n="knxUltimateMultiRouting.properties.tunnelListenHost"></span></label>
+        <input type="text" id="node-input-tunnelListenHost" placeholder="0.0.0.0">
+    </div>
+    <div class="form-row knxmr-row-tunnel">
+        <label for="node-input-tunnelListenPort"><i class="fa fa-plug"></i> <span data-i18n="knxUltimateMultiRouting.properties.tunnelListenPort"></span></label>
+        <input type="text" id="node-input-tunnelListenPort" placeholder="3671">
+    </div>
+    <div class="form-row knxmr-row-tunnel">
+        <label for="node-input-tunnelAdvertiseHost"><i class="fa fa-bullhorn"></i> <span data-i18n="knxUltimateMultiRouting.properties.tunnelAdvertiseHost"></span></label>
+        <input type="text" id="node-input-tunnelAdvertiseHost" data-i18n="[placeholder]knxUltimateMultiRouting.properties.tunnelAdvertiseHostPlaceholder">
+    </div>
+    <div class="form-row knxmr-row-tunnel">
+        <label for="node-input-tunnelAssignedIndividualAddress"><i class="fa fa-id-card-o"></i> <span data-i18n="knxUltimateMultiRouting.properties.tunnelAssignedIndividualAddress"></span></label>
+        <input type="text" id="node-input-tunnelAssignedIndividualAddress" placeholder="15.15.255">
+    </div>
+    <div class="form-row knxmr-row-tunnel">
+        <label for="node-input-tunnelGatewayId"><i class="fa fa-tag"></i> <span data-i18n="knxUltimateMultiRouting.properties.tunnelGatewayId"></span></label>
+        <input type="text" id="node-input-tunnelGatewayId" data-i18n="[placeholder]knxUltimateMultiRouting.properties.tunnelGatewayIdPlaceholder">
+    </div>
+    <div class="form-row knxmr-row-tunnel">
+        <label for="node-input-tunnelMaxSessions"><i class="fa fa-users"></i> <span data-i18n="knxUltimateMultiRouting.properties.tunnelMaxSessions"></span></label>
+        <input type="text" id="node-input-tunnelMaxSessions" placeholder="1">
     </div>
 </script>

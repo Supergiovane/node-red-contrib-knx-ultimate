@@ -2,10 +2,23 @@
   "knxUltimateMultiRouting": {
     "title": "KNX Multi Routing",
     "properties": {
+      "mode": "Mode",
+      "modeGateway": "Gateway / Routing",
+      "modeServer": "Server KNX/IP",
       "server": "Gateway",
       "name": "Name",
       "outputtopic": "Output topic",
-      "dropIfSameGateway": "Drop messages already tagged for this gateway"
+      "dropIfSameGateway": "Drop messages already tagged for this gateway",
+      "tunnelTitle": "KNX/IP Server",
+      "tunnelListenHost": "Listen host",
+      "tunnelListenPort": "Listen port",
+      "tunnelAdvertiseHost": "Advertise host",
+      "tunnelAdvertiseHostPlaceholder": "(optional) Host/IP to advertise to clients",
+      "tunnelAssignedIndividualAddress": "Assigned individual address",
+      "tunnelGatewayId": "Gateway id (tag)",
+      "tunnelGatewayIdPlaceholder": "(auto) Used as knxMultiRouting.gateway.id",
+      "tunnelMaxSessions": "Max sessions",
+      "bridgeGateway": "Bridge tunnel <-> selected gateway"
     },
     "outputs": {
       "raw": "RAW telegrams"

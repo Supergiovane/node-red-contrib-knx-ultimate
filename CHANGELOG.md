@@ -6,7 +6,9 @@
 
 # CHANGELOG
 
-**Version 4.1.18** - January 2026<br/>
+**Version 4.1.19** - February 2026<br/>
+
+- NEW: **KNX Multi Routing**: added **Server KNX/IP** mode (standalone KNXnet/IP tunneling server) that outputs/accepts RAW telegrams on the node ports (no gateway required).<br/>
 
 - NEW: KNX AI sidebar: added another TAB in the Node-Red's toolbar buttons dedicated to AI analysis.<br>
 - NEW: added **KNX AI** node (traffic analyzer + optional LLM assistant) and **KNX AI** sidebar tab.<br/>
@@ -18,7 +20,7 @@
 - Docs: completed the help + wiki pages for **KNX AI**, **KNX Multi Routing** and **KNX Router Filter** in all supported languages, and added them to the docs homepages.<br/>
 - Docs: added the new nodes to the wiki navbar in all languages (so they appear in the left navigation menu).<br/>
 - Docs: added new wiki **Samples** pages (with diagrams) for the 3 new nodes.<br/>
-- Examples: added importable Node-RED flow JSON examples for **KNX AI**, **KNX Multi Routing** and **KNX Router Filter**.<br/>
+- Examples: added importable Node-RED flow JSON examples for **KNX AI**, **KNX Multi Routing** and **KNX Router Filter** (including KNX Multi Routing **Server KNX/IP** sample).<br/>
 
 **Version 4.1.15** - January 2026<br/>
 
