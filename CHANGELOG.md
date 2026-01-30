@@ -6,7 +6,7 @@
 
 # CHANGELOG
 
-**Version 4.1.21** - January 2026<br/>
+**Version 4.1.22** - February 2026<br/>
 
 - NEW: **KNX Multi Routing**: added KNX routing counter (hop count) handling to prevent telegram loops: optional **Respect routing counter (drop if 0)** and **Decrement routing counter when routing**.<br/>
 - FIX: **KNX Multi Routing**: improved behaviour with rewritten telegrams by relying on coherent cEMI; `knx.routingCounter` is exposed based on `knx.cemi.hex`.<br/>
