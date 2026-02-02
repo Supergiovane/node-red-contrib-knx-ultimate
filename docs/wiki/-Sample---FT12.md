@@ -8,6 +8,10 @@ permalink: /wiki/-Sample---FT12
 
 <img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/sample-ft12.svg" width="95%"><br/>
 
+**Video**<br/>
+<a href="https://youtu.be/O6_JaNRXkwo"><img src="https://img.youtube.com/vi/O6_JaNRXkwo/hqdefault.jpg" alt="Video: FT1.2 / KBerry wiring sample (1)" width="48%"></a>
+<a href="https://youtu.be/jZ-3JYtQQ70"><img src="https://img.youtube.com/vi/jZ-3JYtQQ70/hqdefault.jpg" alt="Video: FT1.2 / KBerry wiring sample (2)" width="48%"></a><br/>
+
 This page shows two practical ways to use **Serial FT1.2 (TPUART)** with **KNX Ultimate**:
 
 - a **Weinzierl KBerry** mounted on a **Raspberry Pi** (hardware UART)
