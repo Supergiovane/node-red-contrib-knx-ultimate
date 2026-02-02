@@ -24,6 +24,11 @@
           "external": false
         },
         {
+          "label": "Serial TP FT1.2/KBERRY",
+          "url": "/wiki/-Sample---FT12",
+          "external": false
+        },
+        {
           "label": "Security",
           "url": "/wiki/SECURITY",
           "external": false
@@ -433,6 +438,11 @@
         {
           "label": "FAQ",
           "url": "/wiki/it-FAQ-Troubleshoot",
+          "external": false
+        },
+        {
+          "label": "Serial TP FT1.2/KBERRY",
+          "url": "/wiki/-Sample---FT12",
           "external": false
         },
         {
@@ -848,6 +858,11 @@
           "external": false
         },
         {
+          "label": "Serial TP FT1.2/KBERRY",
+          "url": "/wiki/-Sample---FT12",
+          "external": false
+        },
+        {
           "label": "Sicherheit",
           "url": "/wiki/de-SECURITY",
           "external": false
@@ -1260,6 +1275,11 @@
           "external": false
         },
         {
+          "label": "Serial TP FT1.2/KBERRY",
+          "url": "/wiki/-Sample---FT12",
+          "external": false
+        },
+        {
           "label": "Security",
           "url": "/wiki/fr-SECURITY",
           "external": false
@@ -1669,6 +1689,11 @@
         {
           "label": "FAQ",
           "url": "/wiki/es-FAQ-Troubleshoot",
+          "external": false
+        },
+        {
+          "label": "Serial TP FT1.2/KBERRY",
+          "url": "/wiki/-Sample---FT12",
           "external": false
         },
         {
