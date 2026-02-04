@@ -54,17 +54,19 @@
             return ((this.outputRBE === "true" || this.outputRBE === true) ? "|rbe| " : "") + functionSendMsgToKNXCode + (this.name || this.topic || "KNX Device") + (this.setTopicType === 'str' || this.setTopicType === undefined ? '' : ' [' + (this.setTopicType === 'listenAllGA' ? 'Universal' : this.setTopicType) + ']') + functionreceiveMsgFromKNXCode + ((this.inputRBE === "true" || this.inputRBE === true) ? " |rbe|" : "")
         },
         paletteLabel: "KNX DEVICE",
-        button: {
-            enabled: function () {
-                return !this.changed;
-            },
-            visible: function () {
-                return this.buttonEnabled === true || this.buttonEnabled === "true";
-            },
-            onclick: function () {
-                const node = this;
-                const mode = node.buttonMode || 'read';
-                const request = { id: node.id, mode };
+	        button: {
+	            enabled: function () {
+	                return !this.changed;
+	            },
+	            visible: function () {
+	                const isUniversal = this.setTopicType === 'listenAllGA' || this.listenallga === true || this.listenallga === 'true';
+	                if (isUniversal) return false;
+	                return this.buttonEnabled === true || this.buttonEnabled === "true";
+	            },
+	            onclick: function () {
+	                const node = this;
+	                const mode = node.buttonMode || 'read';
+	                const request = { id: node.id, mode };
                 if (mode === 'value') {
                     request.value = node.buttonStaticValue;
                 }
