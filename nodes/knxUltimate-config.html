@@ -958,8 +958,8 @@
             try { updateSecureModeAvailability(); } catch (e) { }
 
 
-            // 14/08/2021 Elimino il file delle persistenze di questo nodo
-            $.getJSON("deletePersistGAFile?serverId=" + node.id, (data) => { });
+            // NOTE: Do not auto-delete persisted GA cache on editor open.
+            // Users can explicitly clear it from the Utility tab.
 
             // 06/07/2023 Tabs
             // *****************************
@@ -989,6 +989,41 @@
                 });
                 sRetDebugText = node._('knxUltimate-config.utility.copy_ga_router') + "\r" + sRetDebugText;
                 $("#debugText").val(sRetDebugText); // Store the config-node);
+            });
+
+            $("#clearpersistga").click(function () {
+                try {
+                    const confirmText = node._("knxUltimate-config.utility.clear_persist_confirm");
+                    const okText = node._("knxUltimate-config.utility.clear_persist_ok");
+                    const cancelText = node._("knxUltimate-config.utility.clear_persist_cancel");
+                    const doneText = node._("knxUltimate-config.utility.clear_persist_done");
+                    const failText = node._("knxUltimate-config.utility.clear_persist_fail");
+
+                    var dlg = RED.notify(confirmText, {
+                        modal: true,
+                        fixed: true,
+                        type: "warning",
+                        buttons: [
+                            {
+                                text: cancelText,
+                                click: function () { dlg.close(); }
+                            },
+                            {
+                                text: okText,
+                                class: "primary",
+                                click: function () {
+                                    dlg.close();
+                                    $.getJSON("deletePersistGAFile?serverId=" + node.id, (data) => {
+                                        RED.notify(doneText, { type: "success", timeout: 2500 });
+                                    }).fail(function (jqXHR, textStatus, errorThrown) {
+                                        const err = (errorThrown || textStatus || "").toString();
+                                        RED.notify(failText + (err ? (": " + err) : ""), { type: "error", timeout: 5000 });
+                                    });
+                                }
+                            }
+                        ]
+                    });
+                } catch (e) { }
             });
 
 
@@ -1388,27 +1423,32 @@
                 <input type="number" id="node-config-input-delaybetweentelegrams" style="width:20%">
             </div>
 
-            <div class="form-row">
-                <label for="node-config-input-loglevel">
-                    <i class="fa fa-question-circle"></i>
-                    <span data-i18n="knxUltimate-config.advanced.log_level"></span>
-                </label>
-                <select id="node-config-input-loglevel" style="width:40%;">
-                    <option value="disable" data-i18n="knxUltimate-config.advanced.select_silent"></option>
-                    <option value="error" data-i18n="knxUltimate-config.advanced.select_error"></option> 
-                    <option value="warn" data-i18n="knxUltimate-config.advanced.select_warning"></option>
-                    <option value="info" data-i18n="knxUltimate-config.advanced.select_info"></option>
-                    <option value="debug" data-i18n="knxUltimate-config.advanced.select_debug"></option>
-                </select>
-                <!-- <// DEBUG LEVELS: success < debug < info < warn < error < disable
-                            </div> -->
-            </div>
+	            <div class="form-row">
+	                <label for="node-config-input-loglevel">
+	                    <i class="fa fa-question-circle"></i>
+	                    <span data-i18n="knxUltimate-config.advanced.log_level"></span>
+	                </label>
+	                <select id="node-config-input-loglevel" style="width:40%;">
+	                    <option value="disable" data-i18n="knxUltimate-config.advanced.select_silent"></option>
+	                    <option value="error" data-i18n="knxUltimate-config.advanced.select_error"></option> 
+	                    <option value="warn" data-i18n="knxUltimate-config.advanced.select_warning"></option>
+	                    <option value="info" data-i18n="knxUltimate-config.advanced.select_info"></option>
+	                    <option value="debug" data-i18n="knxUltimate-config.advanced.select_debug"></option>
+	                </select>
+	                <!-- <// DEBUG LEVELS: success < debug < info < warn < error < disable
+	                            </div> -->
+	            </div>
 
-            <div class="form-row">
-                <label for="node-config-input-statusUpdateThrottle">
-                    <i class="fa fa-clock-o"></i>
-                    <span data-i18n="knxUltimate-config.advanced.status_throttle"></span>
-                </label>
+	            <div class="form-row">
+	                <label>          <span style="font-weight:bold">Node Status</span>
+	      </label>
+	            </div>
+
+	            <div class="form-row">
+	                <label for="node-config-input-statusUpdateThrottle">
+	                    <i class="fa fa-clock-o"></i>
+	                    <span data-i18n="knxUltimate-config.advanced.status_throttle"></span>
+	                </label>
                 <select id="node-config-input-statusUpdateThrottle" style="width:40%;">
                     <option value="0" data-i18n="knxUltimate-config.advanced.status_throttle_none"></option>
                     <option value="1" data-i18n="knxUltimate-config.advanced.status_throttle_1s"></option>
@@ -1485,24 +1525,30 @@
         </p>
     </div>
 
-    <div id="tabs-4">
-        <p>
-            <div class="form-row">
-                <label><i class="fa fa-sign-in"></i> <span data-i18n="knxUltimate-config.utility.gather_debug"></span></label>
-                <input type="button" id="getinfocam" class="ui-button ui-corner-all ui-widget"
-                    style="background-color:#AEE1FF;width:150px" data-i18n="[value]knxUltimate-config.utility.read_button">
-            </div>
-            <div class="form-row">
-                <label><i class="fa fa-sign-in"></i> <span data-i18n="knxUltimate-config.utility.get_all_used_ga"></span></label>
-                <input type="button" id="getallgaused" class="ui-button ui-corner-all ui-widget"
-                    style="background-color:#AEE1FF;width:150px" data-i18n="[value]knxUltimate-config.utility.read_button">
-            </div>
-            
-            <div class="form-row" id="divDebugText" style="display: none;">                
-                <textarea rows="10" id="debugText" style="width:100%"></textarea>
-            </div>
-        </p>
-    </div>
+	    <div id="tabs-4">
+	        <p>
+	            <div class="form-row">
+	                <label><i class="fa fa-sign-in"></i> <span data-i18n="knxUltimate-config.utility.gather_debug"></span></label>
+	                <input type="button" id="getinfocam" class="ui-button ui-corner-all ui-widget"
+	                    style="background-color:#AEE1FF;width:150px" data-i18n="[value]knxUltimate-config.utility.read_button">
+	            </div>
+	            <div class="form-row">
+	                <label><i class="fa fa-sign-in"></i> <span data-i18n="knxUltimate-config.utility.get_all_used_ga"></span></label>
+	                <input type="button" id="getallgaused" class="ui-button ui-corner-all ui-widget"
+	                    style="background-color:#AEE1FF;width:150px" data-i18n="[value]knxUltimate-config.utility.read_button">
+	            </div>
+
+                <div class="form-row">
+                    <label><i class="fa fa-trash"></i> <span data-i18n="knxUltimate-config.utility.clear_persist_label"></span></label>
+                    <input type="button" id="clearpersistga" class="ui-button ui-corner-all ui-widget"
+                        style="background-color:#FFD2D2;width:150px" data-i18n="[value]knxUltimate-config.utility.clear_persist_button">
+                </div>
+	            
+	            <div class="form-row" id="divDebugText" style="display: none;">                
+	                <textarea rows="10" id="debugText" style="width:100%"></textarea>
+	            </div>
+	        </p>
+	    </div>
     </div>
 
     </div>

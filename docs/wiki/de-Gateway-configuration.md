@@ -62,6 +62,7 @@ Dieser Node stellt die Verbindung zu deinem KNX/IP-Gateway her.
 |--|--|
 | Gather debug info for troubleshoot | Button klicken und Ausgabe an ein GitHub-Issue anhängen. |
 | Get all used GA for KNX routing filter | Mit READ eine Textliste aller in Flows verwendeten GAs für dieses Gateway holen - zum Befüllen der Filtertabelle deines KNX/IP-Routers. |
+| Persistenten GA-Cache löschen | Löscht die persistente GA-Cache-Datei dieses Gateways (für Initial Read / Cache-Werte). Nur verwenden, wenn veraltete/falsche Cache-Werte zurückgesetzt werden müssen. |
 
 # Arbeit mit ETS-CSV oder ESF
 

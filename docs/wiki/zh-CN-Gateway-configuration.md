@@ -62,6 +62,7 @@ permalink: /wiki/zh-CN-Gateway-configuration
 |--|--|
 | Gather debug info for troubleshoot | 点击按钮收集信息并附在 GitHub issue 中，便于排查。|
 | Get all used GA for KNX routing filter | 点击 READ 获取此网关在各流程中使用的全部 GA 列表，用于配置路由器过滤表。|
+| 清除持久化 GA 缓存 | 删除该网关的持久化 GA 缓存文件（用于初始读取 / 缓存值）。仅在需要重置过期或错误的缓存值时使用。|
 
 # 使用 ETS CSV 或 ESF 文件
 

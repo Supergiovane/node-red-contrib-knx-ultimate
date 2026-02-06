@@ -62,6 +62,7 @@ This node connects to your KNX gateway, whether it is an IP interface/router or 
 |--|--|
 | Gather debug info for troubleshoot | Please click the button and add it to the gitHub issue you want to open, it will help me a lot to helping you. |
 | Get all used GA for KNX routing filter | Press READ to retrieve a plain text list of all group address belonging to this gateway, that has been used in the flows. You can use this list to populate your KNX/IP router filter table. |
+| Clear persisted GA cache | Deletes the persisted GA cache file for this gateway (used for initial read / cached values). Use this only if you need to reset stale/wrong cached values. |
 
 # WORKING WITH THE ETS CSV OR ESF FILE
 

@@ -62,6 +62,7 @@ Configuration de la passerelle KNX
 |-|-|
 | Rassemblez les informations de débogage pour le dépannage | Veuillez cliquer sur le bouton et l'ajouter au problème GitHub que vous souhaitez ouvrir, cela m'aidera beaucoup à vous aider. |
 | Obtenez tous les GA d'occasion pour le filtre de routage KNX | Appuyez sur Read pour récupérer une liste de texte brut de toutes les adresses de groupe appartenant à cette passerelle, qui a été utilisée dans les flux. Vous pouvez utiliser cette liste pour remplir votre table de filtre de routeur KNX / IP. |
+| Effacer le cache GA persistant | Supprime le fichier de cache GA persistant pour cette passerelle (utilisé pour la lecture initiale / valeurs en cache). À utiliser uniquement si vous devez réinitialiser des valeurs obsolètes ou incorrectes. |
 
 # Travailler avec le fichier ETS CSV ou ESF
 

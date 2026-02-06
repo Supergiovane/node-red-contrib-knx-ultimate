@@ -130,7 +130,14 @@
       "gather_debug": "Rassemblez le débogage et le journal pour le dépannage",
       "get_all_used_ga": "Obtenez tous les GA d'occasion pour le filtre de routage KNX",
       "read_button": "Lire",
-      "copy_ga_router": "Copiez ces adresses de groupe dans votre liste de table de routage de votre routeur KNX / IP."
+      "copy_ga_router": "Copiez ces adresses de groupe dans votre liste de table de routage de votre routeur KNX / IP.",
+      "clear_persist_label": "Effacer le cache GA persistant de cette passerelle",
+      "clear_persist_button": "Effacer",
+      "clear_persist_confirm": "Cela supprime le fichier de cache GA persistant pour cette passerelle. Continuer ?",
+      "clear_persist_ok": "Supprimer",
+      "clear_persist_cancel": "Annuler",
+      "clear_persist_done": "Cache GA persistant supprimé.",
+      "clear_persist_fail": "Impossible de supprimer le cache GA persistant"
     }
   }
 }

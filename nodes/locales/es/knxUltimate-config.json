@@ -130,7 +130,14 @@
       "gather_debug": "Reúna la depuración y el registro para la solución de problemas",
       "get_all_used_ga": "Obtenga todos los usos GA para el filtro de enrutamiento KNX",
       "read_button": "Leer",
-      "copy_ga_router": "Copie estas direcciones de grupo en su lista de tabla de enrutamiento de su enrutador KNX/IP."
+      "copy_ga_router": "Copie estas direcciones de grupo en su lista de tabla de enrutamiento de su enrutador KNX/IP.",
+      "clear_persist_label": "Borrar caché persistente de GA de esta pasarela",
+      "clear_persist_button": "Borrar",
+      "clear_persist_confirm": "Esto elimina el archivo de caché persistente de GA para esta pasarela. ¿Continuar?",
+      "clear_persist_ok": "Eliminar",
+      "clear_persist_cancel": "Cancelar",
+      "clear_persist_done": "Caché persistente de GA eliminada.",
+      "clear_persist_fail": "No se puede eliminar la caché persistente de GA"
     }
   }
 }

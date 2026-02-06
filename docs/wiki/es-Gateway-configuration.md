@@ -59,6 +59,7 @@ permalink: /wiki/es-Gateway-configuration
 |-|-|
 | Recopilar información de depuración para la solución de problemas | Haga clic en el botón y agréguelo al problema de GitHub que desea abrir, me ayudará mucho a ayudarlo. |
 | Obtenga todos los usados ​​GA para el filtro de enrutamiento KNX | Presione Leer para recuperar una lista de texto sin formato de todas las direcciones grupales que pertenecen a esta puerta de enlace, que se ha utilizado en los flujos. Puede usar esta lista para completar su tabla de filtro de enrutador KNX/IP. |
+| Borrar caché persistente de GA | Elimina el archivo de caché persistente de GA de esta pasarela (usado para la lectura inicial / valores en caché). Úselo solo si necesita restablecer valores obsoletos o incorrectos. |
 
 # Trabajar con el archivo CSV o ESF ETS
 

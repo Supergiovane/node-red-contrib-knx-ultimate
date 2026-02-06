@@ -62,6 +62,7 @@ Questo nodo si connette al tuo KNX/IP Gateway.
 |--|--|
 | Gather debug info for troubleshoot | Clicca il pulsante e allega l'output alla issue su GitHub: aiuta molto l'analisi. |
 | Get all used GA for KNX routing filter | Clicca READ per ottenere l'elenco di tutti i GA usati nei flow associati a questo gateway, utile per popolare la tabella filtri del tuo KNX/IP Router. |
+| Cancella cache GA persistente | Elimina il file di cache persistente delle GA per questo gateway (usato per initial read / valori in cache). Usalo solo se devi resettare valori obsoleti/errati. |
 
 # Lavorare con i file ETS CSV o ESF
 

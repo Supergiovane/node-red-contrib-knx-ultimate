@@ -130,7 +130,14 @@
             "gather_debug": "Gather debug and log for troubleshoot",
             "get_all_used_ga": "Get all used GA for KNX routing filter",
             "read_button": "Read",
-            "copy_ga_router": "Copy these group addresses in your routing table list of your KNX/IP router."
+            "copy_ga_router": "Copy these group addresses in your routing table list of your KNX/IP router.",
+            "clear_persist_label": "Clear persisted GA cache for this gateway",
+            "clear_persist_button": "Clear",
+            "clear_persist_confirm": "This deletes the persisted GA cache file for this gateway. Continue?",
+            "clear_persist_ok": "Delete",
+            "clear_persist_cancel": "Cancel",
+            "clear_persist_done": "Persisted GA cache deleted.",
+            "clear_persist_fail": "Unable to delete persisted GA cache"
         }
     }
 }

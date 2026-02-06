@@ -134,7 +134,14 @@
             "gather_debug": "Raccogli debug e log per assistenza",
             "get_all_used_ga": "Ottieni tutte le GA usate per il filtro di routing KNX",
             "read_button": "Leggi",
-            "copy_ga_router": "Copia questi indirizzi di gruppo nella tabella di routing del tuo router KNX/IP."
+            "copy_ga_router": "Copia questi indirizzi di gruppo nella tabella di routing del tuo router KNX/IP.",
+            "clear_persist_label": "Cancella cache persistente GA di questo gateway",
+            "clear_persist_button": "Cancella",
+            "clear_persist_confirm": "Questo elimina il file di cache persistente delle GA per questo gateway. Continuare?",
+            "clear_persist_ok": "Elimina",
+            "clear_persist_cancel": "Annulla",
+            "clear_persist_done": "Cache persistente GA eliminata.",
+            "clear_persist_fail": "Impossibile eliminare la cache persistente GA"
         }
     }
 }

@@ -122,7 +122,14 @@
             "gather_debug": "收集调试信息和日志以便排查",
             "get_all_used_ga": "获取 KNX 路由过滤器使用的所有 GA",
             "read_button": "读取",
-            "copy_ga_router": "将这些组地址复制到 KNX/IP 路由器的路由表中。"
+            "copy_ga_router": "将这些组地址复制到 KNX/IP 路由器的路由表中。",
+            "clear_persist_label": "清除该网关的持久化 GA 缓存",
+            "clear_persist_button": "清除",
+            "clear_persist_confirm": "这将删除该网关的持久化 GA 缓存文件。继续？",
+            "clear_persist_ok": "删除",
+            "clear_persist_cancel": "取消",
+            "clear_persist_done": "已删除持久化 GA 缓存。",
+            "clear_persist_fail": "无法删除持久化 GA 缓存"
         }
     }
 }
