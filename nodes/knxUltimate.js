@@ -342,6 +342,7 @@ module.exports = function (RED) {
     if (node.inputRBE === false) node.inputRBE = 'false'
 
     node.currentPayload = '' // Current value for the RBE input and for the .previouspayload msg
+    node._hasCurrentPayload = false // True once we have a meaningful stored value
     node.icountMessageInWindow = 0 // Used to prevent looping messages
     node.messageQueue = [] // 01/01/2020 All messages from the flow to the node, will be queued and will be sent separated by 60 milliseconds each. Use uf the underlying api "minimumDelay" is not possible because the telegram order isn't mantained.
     node.formatmultiplyvalue = (typeof config.formatmultiplyvalue === 'undefined' ? 1 : config.formatmultiplyvalue)
@@ -355,11 +356,51 @@ module.exports = function (RED) {
     node.buttonStaticValue = config.buttonStaticValue || ''
     node.buttonToggleInitial = coerceBoolean(config.buttonToggleInitial)
     node._buttonToggleState = node.buttonToggleInitial
+    node.periodicSend = coerceBoolean(config.periodicSend)
+    node.periodicSendInterval = Number(config.periodicSendInterval)
+    if (!Number.isFinite(node.periodicSendInterval) || node.periodicSendInterval <= 0) node.periodicSendInterval = 0
+    node.timerPeriodicSend = null
 
     const syncButtonToggleState = (value) => {
       if (node.buttonMode === 'toggle' && /^1\./.test(node.dpt || '')) {
         node._buttonToggleState = coerceBoolean(value)
       }
+    }
+
+    const clearPeriodicSendTimer = () => {
+      if (node.timerPeriodicSend !== null) {
+        try { clearInterval(node.timerPeriodicSend) } catch (e) { /* noop */ }
+        node.timerPeriodicSend = null
+      }
+    }
+
+    const startPeriodicSendTimer = () => {
+      clearPeriodicSendTimer()
+      if (node.listenallga === true) return
+      if (node.periodicSend !== true) return
+      if (!Number.isFinite(node.periodicSendInterval) || node.periodicSendInterval <= 0) return
+
+      const intervalMs = Math.max(1000, Math.round(node.periodicSendInterval * 1000))
+      node.timerPeriodicSend = setInterval(() => {
+        try {
+          if (node._hasCurrentPayload !== true) return
+          if (!node.serverKNX || node.serverKNX.linkStatus !== 'connected') return
+          if (!node.serverKNX.knxConnection) return
+          if (node.listenallga === true) return
+          if (typeof node.topic !== 'string' || node.topic === '') return
+          if (typeof node.dpt !== 'string' || node.dpt === '' || node.dpt === 'auto') return
+
+          node.serverKNX.sendKNXTelegramToKNXEngine({
+            grpaddr: node.topic,
+            payload: node.currentPayload,
+            dpt: node.dpt,
+            outputtype: 'write',
+            nodecallerid: node.id
+          })
+        } catch (error) {
+          try { node.sysLogger?.debug(`Periodic send failed: ${error.message}`) } catch (e) { /* noop */ }
+        }
+      }, intervalMs)
     }
     try {
       const baseLogLevel = (node.serverKNX && node.serverKNX.loglevel) ? node.serverKNX.loglevel : 'error'
@@ -480,6 +521,16 @@ module.exports = function (RED) {
         }
       } catch (error) { }
 
+      // Update stored value from KNX telegrams (used for RBE, button toggle sync and optional periodic send).
+      try {
+        const evt = msg && msg.knx ? msg.knx.event : undefined
+        if ((evt === 'GroupValue_Write' || evt === 'GroupValue_Response') && Object.prototype.hasOwnProperty.call(msg, 'payload')) {
+          node.currentPayload = msg.payload
+          node._hasCurrentPayload = true
+          syncButtonToggleState(msg.payload)
+        }
+      } catch (error) { /* noop */ }
+
       // #region "Inject the msg to the JS code, then output msg to the flow"
       // -+++++++++++++++++++++++++++++++++++++++++++
       if (node.receiveMsgFromKNXCode !== undefined) {
@@ -531,6 +582,7 @@ module.exports = function (RED) {
       // *********************************
       if (msg.hasOwnProperty('resetRBE')) {
         node.currentPayload = ''
+        node._hasCurrentPayload = false
         node.setNodeStatus({
           fill: 'grey', shape: 'ring', text: 'Reset RBE filter on this node.', payload: '', GA: '', dpt: '', devicename: ''
         })
@@ -775,6 +827,7 @@ module.exports = function (RED) {
           if (outputtype == 'response') {
             try {
               node.currentPayload = msg.payload// 31/12/2019 Set the current value (because, if the node is a virtual device, then it'll never fire "GroupValue_Write" in the server node, causing the currentPayload to never update)
+              node._hasCurrentPayload = true
               syncButtonToggleState(msg.payload)
               node.serverKNX.sendKNXTelegramToKNXEngine({
                 grpaddr, payload: msg.payload, dpt, outputtype, nodecallerid: node.id
@@ -787,6 +840,7 @@ module.exports = function (RED) {
             // 05/01/2021 Updates only the internal currentPayload value.
             try {
               node.currentPayload = msg.payload
+              node._hasCurrentPayload = true
               syncButtonToggleState(msg.payload)
               node.serverKNX.sendKNXTelegramToKNXEngine({
                 grpaddr, payload: msg.payload, dpt, outputtype, nodecallerid: node.id
@@ -798,6 +852,7 @@ module.exports = function (RED) {
           } else {
             try {
               node.currentPayload = msg.payload// 31/12/2019 Set the current value (because, if the node is a virtual device, then it'll never fire "GroupValue_Write" in the server node, causing the currentPayload to never update)
+              node._hasCurrentPayload = true
               syncButtonToggleState(msg.payload)
               node.setNodeStatus({
                 fill: 'green', shape: 'dot', text: 'Writing', payload: msg.payload, GA: grpaddr, dpt, devicename: ''
@@ -814,6 +869,7 @@ module.exports = function (RED) {
 
     node.on('close', (done) => {
       if (node.timerTTLInputMessage !== null) clearTimeout(node.timerTTLInputMessage)
+      clearPeriodicSendTimer()
       node.inputmessage = {}
       if (node.serverKNX) {
         node.serverKNX.removeClient(node)
@@ -825,9 +881,9 @@ module.exports = function (RED) {
     })
 
     // On each deploy, add the node to the server list
-    if (node.serverKNX) {
-      node.serverKNX.addClient(node)
-      if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info(`addClient: node id ${node.id}` || '' + ` with topic ${node.topic || ''} has been added to the server.`)
+	    if (node.serverKNX) {
+	      node.serverKNX.addClient(node)
+	      if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info(`addClient: node id ${node.id}` || '' + ` with topic ${node.topic || ''} has been added to the server.`)
       // 05/11/2021 if the node is set to read from bus, issue a read.
       // "node-input-initialread0": "No",
       // "node-input-initialread1": "Leggi dal BUS KNX",
@@ -840,8 +896,11 @@ module.exports = function (RED) {
         const t = setTimeout(() => { // 21/03/2022 fixed possible memory leak. Previously was setTimeout without "let t = ".
           node.emit('input', { readstatus: true })
         }, 3000)
-      }
-    }
-  }
-  RED.nodes.registerType('knxUltimate', knxUltimate)
-}
+	      }
+	    }
+
+	    // Start periodic send timer (optional)
+	    startPeriodicSendTimer()
+	  }
+	  RED.nodes.registerType('knxUltimate', knxUltimate)
+	}

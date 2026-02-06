@@ -24,7 +24,7 @@ L’editor può mostrare, per ogni nodo, un pulsante che invia manualmente un co
 |Proprietà|Descrizione|
 |--|--|
 | Mostra pulsante manuale | Se attivo, il piccolo pulsante viene visualizzato sul nodo nel workspace e nel pannello dei nodi. |
-| Azione del pulsante | Definisce l’operazione eseguita al click. **Invia lettura KNX** invia un telegramma di lettura standard. **Inverti booleano (scrittura)** è disponibile per i datapoint di tipo 1.x e alterna i valori _true_/_false_ a ogni click. **Scrivi valore personalizzato** invia il valore inserito dall’utente (deve essere compatibile con il Datapoint configurato). |
+| Azione del pulsante | Definisce l’operazione eseguita al click. **Invia KNX Read** invia un telegramma di lettura standard. **Toggle boolean** è disponibile per i datapoint di tipo 1.x e alterna i valori _true_/_false_ a ogni click. **Scrivi valore personalizzato** invia il valore inserito dall’utente (deve essere compatibile con il Datapoint configurato). |
 | Stato iniziale del toggle | (Solo datapoint booleani) Imposta il valore iniziale utilizzato dalla modalità toggle. Lo stato viene aggiornato automaticamente in base ai telegrammi che il nodo riceve dal BUS. |
 | Valore personalizzato | Payload utilizzato dalla modalità “Scrivi valore personalizzato”. È possibile inserire qualsiasi letterale JSON, ad esempio `42`, `true`, `"testo"` oppure `{ "red": 255 }`. |
 
@@ -44,6 +44,8 @@ Il pulsante è visibile soltanto se l’opzione è attiva. In modalità universa
 || **Dal PIN di INGRESSO del nodo verso il BUS KNX** |
 | Tipo telegramma | `write` per inviare un telegramma di scrittura (in genere è ciò che vuoi); in alternativa puoi scegliere a quale tipo di telegramma reagire. |
 | Filtro RBE | Filtro "Report by change”. Se attivo, invia al BUS solo messaggi di ingresso con valore diverso dal precedente. Se devi inviare sempre lo stesso valore, disattivalo. Se attivo, verrà aggiunta l'indicazione "rbe” al nome del nodo. |
+| Invio periodico del valore memorizzato | Se attivo, il nodo invia sul BUS KNX il valore memorizzato ad intervalli regolari (telegramma di tipo _write_). Questa opzione bypassa volutamente l'RBE in uscita. |
+| Intervallo invio periodico | Intervallo in secondi dell'invio periodico. |
 || **Dal BUS KNX verso il PIN di USCITA del nodo** |
 | Read status on start | Legge lo stato del GA ad ogni avvio di Node-RED e a ogni riconnessione al Gateway KNX. Il nodo memorizza i valori su file, quindi puoi scegliere se leggere da file o dal BUS KNX. |
 | Filtro RBE | Filtro "Report by change” sull'uscita: invia al flow solo quando il valore cambia. Se vuoi inviare anche valori ripetuti, lascialo disattivo. Se attivo, aggiunge "rbe” al nome del nodo. |

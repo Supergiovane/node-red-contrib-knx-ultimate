@@ -24,7 +24,7 @@ El editor puede mostrar, para cada nodo, un pequeño botón que envía un comand
 | Propiedad | Descripción |
 |--|--|
 | Mostrar botón manual | Activa o desactiva la visualización del botón en el área de trabajo y en la lista de nodos. |
-| Acción del botón | Define la operación al hacer clic. **Enviar lectura KNX** emite un telegrama de lectura estándar. **Alternar booleano (escritura)** está disponible para datapoint 1.x y alterna los valores _true_/_false_ en cada pulsación. **Escribir valor personalizado** envía el valor indicado (debe ser coherente con el datapoint configurado). |
+| Acción del botón | Define la operación al hacer clic. **Enviar KNX Read** emite un telegrama de lectura estándar. **Toggle boolean** está disponible para datapoint 1.x y alterna los valores _true_/_false_ en cada pulsación. **Escribir valor personalizado** envía el valor indicado (debe ser coherente con el datapoint configurado). |
 | Estado inicial del toggle | (Solo para datapoint booleanos) Establece el valor inicial que utiliza la acción de alternancia. El estado se sincroniza automáticamente con los telegramas recibidos desde el BUS. |
 | Valor personalizado | Payload utilizado por el modo “Escribir valor personalizado”. Se aceptan literales JSON como `42`, `true`, `"texto"` o `{ "red": 255 }`. |
 
@@ -44,6 +44,8 @@ El botón solo aparece cuando la opción está habilitada. En modo universal la 
 || **Desde el pin de entrada del nodo hasta el bus KNX** |
 | Tipo de telegrama | _Write_ para enviar el telegrama de escritura (por lo general, desea eso), de lo contrario, puede elegir el tipo de telegrama para reaccionar. |
 | Filtro RBE | _Report por Change_ Filter. Si se establece, solo la entrada MSG (del flujo) que tiene diferentes valores cada vez, se enviará al bus KNX. Si tiene la intención de enviar cada vez el mismo valor, apáguelo. Si está habilitado, la indicación "RBE" se agregará al nombre del nodo. |
+| Envío periódico del valor almacenado | Si está habilitado, el nodo envía al bus KNX el último valor almacenado a intervalos regulares (telegrama _write_). Esta opción omite intencionadamente el RBE de salida. |
+| Intervalo de envío periódico | Intervalo en segundos del envío periódico. |
 || **Desde el bus KNX hasta el pin de ojera del nodo** |
 | Leer el estado al inicio | Lea el estado de la dirección de grupo, cada vez que el nodo-rojo comienza y en cada reconexión a la puerta de enlace KNX. El nodo almacena todos los valores de la dirección de grupo en un archivo, por lo que puede elegir Wether para leer desde el archivo o del bus KNX. |
 | Filtro RBE | _Report por Change_ Filter. Si se establece, solo la salida MSG (al bus KNX) que tiene valores diferentes cada vez, se enviará al flujo de la salida de MSG. Si tiene la intención de enviar cada vez el mismo valor, déjelo apagado. Si está habilitado, la indicación "RBE" se agregará al nombre del nodo. |

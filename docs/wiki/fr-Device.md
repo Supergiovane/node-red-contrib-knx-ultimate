@@ -26,7 +26,7 @@ L’éditeur peut afficher, pour chaque nœud, un petit bouton permettant d’en
 | Propriété | Description |
 |--|--|
 | Afficher le bouton manuel | Affiche ou masque le bouton dans l’espace de travail et dans la palette de nœuds. |
-| Action du bouton | Définit l’opération effectuée au clic. **Envoyer une lecture KNX** envoie un télégramme de lecture standard. **Basculer le booléen (écriture)** est disponible pour les datapoints 1.x et alterne les valeurs _true_/_false_. **Écrire une valeur personnalisée** envoie la valeur saisie (elle doit être compatible avec le datapoint configuré). |
+| Action du bouton | Définit l’opération effectuée au clic. **Envoyer KNX Read** envoie un télégramme de lecture standard. **Toggle boolean** est disponible pour les datapoints 1.x et alterne les valeurs _true_/_false_. **Écrire une valeur personnalisée** envoie la valeur saisie (elle doit être compatible avec le datapoint configuré). |
 | État initial du basculement | (Datapoints booléens uniquement) Définit la valeur initiale utilisée par le mode bascule. L’état est automatiquement synchronisé avec les télégrammes reçus du BUS. |
 | Valeur personnalisée | Payload utilisé par le mode « Écrire une valeur personnalisée ». Vous pouvez saisir n’importe quel littéral JSON, par exemple `42`, `true`, `"texte"` ou `{ "red": 255 }`. |
 
@@ -43,6 +43,8 @@ Le bouton n’est visible que si l’option est activée. En mode universel, l�
 || **De la broche d'entrée du nœud au bus KNX** |
 | Type de télégramme | _WRITE_ Pour envoyer un télégramme d'écriture (généralement, vous le souhaitez), sinon vous pouvez choisir le type du télégramme auquel réagir. |
 | Filtre RBE | _Report par filtre change_. S'il est défini, seule l'entrée MSG (du débit) ayant des valeurs différentes à chaque fois, sera envoyée au bus KNX. Si vous avez l'intention d'envoyer à chaque fois la même valeur, éteignez-la. Si vous êtes activé, l'indication "RBE" sera ajoutée au nom du nœud. |
+| Envoi périodique de la valeur mémorisée | Si activé, le nœud envoie sur le bus KNX la dernière valeur mémorisée à intervalles réguliers (télégramme _write_). Cette option contourne volontairement le RBE de sortie. |
+| Intervalle d'envoi périodique | Intervalle en secondes de l'envoi périodique. |
 || **De KNX BUS à la broche ouput de Node** |
 | Lire l'état au début | Lisez l'état de l'adresse du groupe, chaque fois que le Node-Red démarre et à chaque reconnexion à la passerelle KNX. Le nœud stocke toutes les valeurs d'adresse de groupe dans un fichier, afin que vous puissiez choisir wether à lire dans le fichier ou dans le bus KNX. |
 | Filtre RBE | _Report par filtre change_. S'il est défini, seule la sortie MSG (dans le bus KNX) ayant des valeurs différentes à chaque fois, sera envoyée au flux de la sortie MSG. Si vous avez l'intention d'envoyer à chaque fois la même valeur, laissez-la éteindre. Si vous êtes activé, l'indication "RBE" sera ajoutée au nom du nœud. |

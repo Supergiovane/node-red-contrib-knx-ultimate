@@ -6,6 +6,15 @@
 
 # CHANGELOG
 
+**Version 4.1.23** - February 2026<br/>
+
+- CHANGE: **KNX Gateway config**: persisted GA cache is no longer deleted automatically when opening the editor.<br/>
+- NEW: **KNX Gateway config**: added an explicit **Clear persisted GA cache** button in the Utility tab.<br/>
+- NEW: **KNX Device**: added **Periodic send stored value** option (cyclic write) with configurable interval (disabled in Universal mode).<br/>
+- UI: **KNX Gateway config**: added a **Node Status** section label above status-related options.<br/>
+- i18n: unified manual button labels across locales: **KNX Read** and **Toggle boolean**.<br/>
+- Docs/help/wiki: updated Gateway configuration and Device pages in all supported languages to document the new options.<br/>
+
 **Version 4.1.22** - February 2026<br/>
 
 - NEW: **KNX Multi Routing**: added KNX routing counter (hop count) handling to prevent telegram loops: optional **Respect routing counter (drop if 0)** and **Decrement routing counter when routing**.<br/>

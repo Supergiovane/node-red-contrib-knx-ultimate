@@ -24,7 +24,7 @@ Im Editor kann pro Node ein kleiner Button angezeigt werden, über den du KNX-Te
 |Eigenschaft|Beschreibung|
 |--|--|
 | Manuellen Button anzeigen | Blendet den Button im Workspace und in der Knotenliste ein bzw. aus. |
-| Schaltflächenaktion | Legt fest, was beim Klick geschieht. **KNX-Leseanforderung senden** erzeugt ein normales Read-Telegramm. **Boolean umschalten (Schreiben)** steht bei DPT 1.x zur Verfügung und wechselt zwischen _true_ und _false_. **Benutzerdefinierten Wert schreiben** sendet den angegebenen Wert (muss zum eingestellten Datapoint passen). |
+| Schaltflächenaktion | Legt fest, was beim Klick geschieht. **KNX Read senden** erzeugt ein normales Read-Telegramm. **Toggle boolean** steht bei DPT 1.x zur Verfügung und wechselt zwischen _true_ und _false_. **Benutzerdefinierten Wert schreiben** sendet den angegebenen Wert (muss zum eingestellten Datapoint passen). |
 | Initialer Toggle-Status | (Nur für boolesche Datapoints) Startwert der Toggle-Funktion. Der Zustand bleibt mit den ankommenden KNX-Telegrammen synchron. |
 | Benutzerdefinierter Wert | Wert für den Modus „Benutzerdefinierten Wert schreiben“. Erlaubt sind JSON-Literale wie `42`, `true`, `"Text"` oder `{ "red": 255 }`. |
 
@@ -44,6 +44,8 @@ Der Button wird nur eingeblendet, wenn die Option aktiv ist. Im Universalmodus i
 || **Vom Node-EINGANG zum KNX-BUS** |
 | Telegrammtyp | `write` zum Senden eines Schreib-Telegramms (üblich), alternativ Reaktion auf andere Typen. |
 | RBE-Filter | "Report by change". Wenn aktiv, sendet nur geänderte Werte zum BUS. Für identische Wiederholungen deaktivieren. Bei Aktivierung wird "rbe" dem Nodename hinzugefügt. |
+| Periodisches Senden (gespeicherter Wert) | Wenn aktiv, sendet der Node den zuletzt gespeicherten Wert in festen Intervallen als _write_-Telegramm auf den KNX-Bus. Diese Option umgeht absichtlich den Output-RBE. |
+| Intervall periodisches Senden | Intervall in Sekunden für das periodische Senden. |
 || **Vom KNX-BUS zum Node-AUSGANG** |
 | Status beim Start lesen | Liest den GA-Status bei Editorstart und jeder Wiederverbindung. Werte werden in einer Datei gepuffert, Quelle wählbar (Datei/BUS). |
 | RBE-Filter | Wie oben, aber für Ausgaben zum Flow. |

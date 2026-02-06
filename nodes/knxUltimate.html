@@ -37,7 +37,9 @@
             buttonEnabled: { value: true },
             buttonMode: { value: "toggle" },
             buttonStaticValue: { value: "" },
-            buttonToggleInitial: { value: "false" }
+            buttonToggleInitial: { value: "false" },
+            periodicSend: { value: false },
+            periodicSendInterval: { value: 60 }
         },
         inputs: 1,
         outputs: 1,
@@ -681,6 +683,14 @@
                         }
                     })
 
+                    $("#node-input-periodicSend").on('change', function () {
+                        if ($("#node-input-periodicSend").is(":checked")) {
+                            $("#divPeriodicSendInterval").show()
+                        } else {
+                            $("#divPeriodicSendInterval").hide()
+                        }
+                    })
+
                     // Set the group address type
                     if (node.setTopicType === undefined) {
                         node.setTopicType = 'str';
@@ -792,6 +802,12 @@
                             $("#divNode-input-initialread").show();
                             $("#divOutputRBE").show()
                             $("#divInputRBE").show()
+                            $("#divPeriodicSend").show()
+                            if ($("#node-input-periodicSend").is(':checked')) {
+                                $("#divPeriodicSendInterval").show()
+                            } else {
+                                $("#divPeriodicSendInterval").hide()
+                            }
                         } else if ($("#node-input-setTopicType").val() === 'listenAllGA') {
                             $("#node-input-topic").hide();
                             $("#divDatapointSelection").hide()
@@ -799,6 +815,9 @@
                             $("#node-input-outputRBE").val("false")
                             $("#divInputRBE").hide()
                             $("#node-input-inputRBE").val("false")
+                            $("#divPeriodicSend").hide()
+                            $("#divPeriodicSendInterval").hide()
+                            $("#node-input-periodicSend").prop('checked', false)
                             $("#divnotifyreadrequestautoreact").hide();
                             $("#divTopic").hide()
                             $("#divNode-input-initialread").hide();
@@ -813,6 +832,12 @@
                             $("#divOutputRBE").show()
                             $("#divInputRBE").show()
                             $("#divTopic").show()
+                            $("#divPeriodicSend").show()
+                            if ($("#node-input-periodicSend").is(':checked')) {
+                                $("#divPeriodicSendInterval").show()
+                            } else {
+                                $("#divPeriodicSendInterval").hide()
+                            }
                             if ($("#node-input-notifyreadrequest").is(":checked")) {
                                 $("#divnotifyreadrequestautoreact").show();
                             } else {
@@ -882,6 +907,22 @@
             if (node.listenallga === true) {
                 $("#node-input-setTopicType").val('listenAllGA');
             }
+
+            // Periodic send UI sync (avoid triggering setTopicType change handler that clears fields)
+            try {
+                if ($("#node-input-setTopicType").val() === 'listenAllGA') {
+                    $("#divPeriodicSend").hide()
+                    $("#divPeriodicSendInterval").hide()
+                    $("#node-input-periodicSend").prop('checked', false)
+                } else {
+                    $("#divPeriodicSend").show()
+                    if ($("#node-input-periodicSend").is(':checked')) {
+                        $("#divPeriodicSendInterval").show()
+                    } else {
+                        $("#divPeriodicSendInterval").hide()
+                    }
+                }
+            } catch (e) { }
 
             // 19/02/2020 Used to alert the user if the CSV file has not been loaded and to get the server sooner als deploy
             // ###########################
@@ -1145,6 +1186,19 @@
                         <option value="true" data-i18n="knxUltimate.selectlists.RBE_out_enable"></option>
                         <option value="false" data-i18n="knxUltimate.selectlists.RBE_out_disable"></option>
                     </select>
+                </div>
+                <div class="form-row" id="divPeriodicSend">
+                    <input type="checkbox" id="node-input-periodicSend"
+                        style="display:inline-block; width:auto; vertical-align:top;" />
+                    <label style="width:85%" for="node-input-periodicSend">
+                        <i class="fa fa-repeat"></i> <span data-i18n="knxUltimate.properties.node-input-periodicSend"></span>
+                    </label>
+                </div>
+                <div class="form-row" id="divPeriodicSendInterval">
+                    <label style="width:180px" for="node-input-periodicSendInterval">
+                        <i class="fa fa-clock-o"></i> <span data-i18n="knxUltimate.properties.node-input-periodicSendInterval"></span>
+                    </label>
+                    <input type="number" id="node-input-periodicSendInterval" style="width:120px" min="1">
                 </div>
                 <hr>
                 <div class="form-row">

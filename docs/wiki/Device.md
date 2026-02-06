@@ -26,7 +26,7 @@ The editor can expose a per-node button that manually issues a KNX command witho
 |Property|Description|
 |--|--|
 | Show manual button | When enabled the small button appears on the node tile both in the palette and in the flow editor. |
-| Button action | Choose what happens when you click the button. **Send KNX read** issues a standard read telegram. **Toggle boolean (write)** is available for datapoint type 1.x and alternates between _true_ and _false_ each time you click the button. **Write custom value** sends the value you provide (the value must be compatible with the configured datapoint). |
+| Button action | Choose what happens when you click the button. **Send KNX Read** issues a standard read telegram. **Toggle boolean** is available for datapoint type 1.x and alternates between _true_ and _false_ each time you click the button. **Write custom value** sends the value you provide (the value must be compatible with the configured datapoint). |
 | Initial toggle state | (Boolean datapoints only) Sets the starting value used by the toggle action. The state automatically keeps in sync with telegrams that the node receives from KNX. |
 | Custom value | The payload used by the custom value mode. You can enter any JSON literal: for example `42`, `true`, `"text"` or `{ "red": 255, "green": 0 }`. |
 
@@ -43,6 +43,8 @@ The button is only displayed when the option is enabled. If the node works in un
 || **From node's INPUT PIN to KNX BUS** |
 | Telegram type | _write_ to send write telegram (usually, you want that), otherwise you can choose the telegram's type to react to. |
 | RBE filter | _Report by change_ filter. If set, only the msg input (from the Flow) having different values each time, will be sent to the KNX bus. If you intend to send everytime the same value, turn it off. If enabled, "rbe" indication will be added to node's name.|
+| Periodic send stored value | When enabled, the node sends the last stored value to the KNX bus at the given interval (as a _write_ telegram). This bypasses output RBE on purpose. |
+| Periodic send interval | Interval in seconds for the periodic send. |
 || **From KNX BUS to node's ouput PIN** |
 | Read status on start | Read group address status, every time Node-Red starts and at every reconnection to the KNX Gateway. The node stores all group address values to a file, so you can choose wether to read from file or from the KNX bus. |
 | RBE filter | _Report by change_ filter. If set, only the msg output (to KNX bus) having different values each time, will be sent to the msg output's flow. If you intend to send everytime the same value, leave it off. If enabled, "rbe" indication will be added to node's name. |
