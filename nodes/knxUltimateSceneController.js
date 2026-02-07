@@ -4,7 +4,6 @@ module.exports = function (RED) {
   function knxUltimateSceneController (config) {
     const fs = require('fs')
     const path = require('path')
-    const mkdirp = require('mkdirp')
 
     RED.nodes.createNode(this, config)
     const node = this
@@ -71,7 +70,7 @@ module.exports = function (RED) {
           // Try and create it
           try {
             try {
-              mkdirp.sync(aPath)
+              fs.mkdirSync(aPath, { recursive: true })
               if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info('knxUltimate-Scene Controller: created directory path: ' + aPath)
             } catch (error) {
               if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error('knxUltimate-Scene Controller: failed to access path:: ' + aPath + ' : ' + error)

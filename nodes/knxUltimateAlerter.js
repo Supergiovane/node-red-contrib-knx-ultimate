@@ -2,7 +2,6 @@ module.exports = function (RED) {
   function knxUltimateAlerter (config) {
     const fs = require('fs')
     const path = require('path')
-    const mkdirp = require('mkdirp')
     // const Address = require('knxultimate')
     // const KnxConstants = require('knxultimate/protocol/KNXConstants')
 

@@ -6,6 +6,11 @@
 
 # CHANGELOG
 
+**Version 4.1.24** - February 2026<br/>
+
+- Cleanup: removed unused dependencies (`binary-parser`, `crypto-js`, `xml2js`) and the redundant `path` polyfill.<br/>
+- Cleanup: removed `mkdirp` and switched to `fs.mkdirSync(..., { recursive: true })` for directory creation.<br/>
+
 **Version 4.1.23** - February 2026<br/>
 
 - CHANGE: **KNX Gateway config**: persisted GA cache is no longer deleted automatically when opening the editor.<br/>
