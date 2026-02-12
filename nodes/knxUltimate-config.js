@@ -882,6 +882,7 @@ module.exports = (RED) => {
                     })
                     // 06/05/2021 If, after the rawdata has been savad to file, the user changes the datapoint, the buildInputMessage returns payload null, because it's unable to convert the value
                     if (msg.payload === null) {
+                      _oClient._hasCurrentPayload = false
                       // Delete the exposedGA
                       node.exposedGAs = node.exposedGAs.filter((item) => item.ga !== _oClient.topic)
                       _oClient.setNodeStatus({
@@ -895,6 +896,9 @@ module.exports = (RED) => {
                       })
                       node.sysLogger?.error('DoInitialReadFromKNXBusOrFile: Datapoint may have been changed, remove the value from persist file of ' + _oClient.topic + ' Devicename ' + _oClient.name + ' Currend DPT ' + _oClient.dpt + ' Node.id ' + _oClient.id)
                     } else {
+                      // Ensure optional features relying on "currentPayload" (e.g. periodic/cyclic send)
+                      // work also when the value is restored from persist file after a Node-RED restart.
+                      _oClient._hasCurrentPayload = true
                       if (_oClient.notifyresponse) _oClient.handleSend(msg)
                     }
                   } else {

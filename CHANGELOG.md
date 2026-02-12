@@ -6,6 +6,10 @@
 
 # CHANGELOG
 
+**Version 4.1.25** - February 2026<br/>
+
+- FIX: **KNX Device**: periodic send (cyclic write) now also works when the value is restored from the persisted GA cache after a Node-RED restart.<br/>
+
 **Version 4.1.24** - February 2026<br/>
 
 - Cleanup: removed unused dependencies (`binary-parser`, `crypto-js`, `xml2js`) and the redundant `path` polyfill.<br/>
