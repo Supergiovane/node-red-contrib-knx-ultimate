@@ -46,9 +46,9 @@
       "llmDocsMaxChars": "Max docs chars"
     },
     "outputs": {
-      "summary": "Summary/Stats",
+      "summary": "Résumé/Stats",
       "anomalies": "Anomalies",
-      "assistant": "AI Assistant"
+      "assistant": "Assistant IA"
     },
     "selectlists": {
       "llmProvider": {
@@ -64,6 +64,53 @@
       "llmApiKey": "Paste API key (starts with sk-)",
       "llmModel": "e.g. gpt-4o-mini",
       "llmSystemPrompt": "Optional. Leave empty for default."
+    },
+    "sidebar": {
+      "ui": {
+        "refreshNodeList": "Rafraîchir la liste des nœuds",
+        "refreshSummary": "Rafraîchir le résumé",
+        "auto": "Auto",
+        "sections": {
+          "summary": "Résumé",
+          "anomalies": "Anomalies",
+          "ask": "Demander"
+        },
+        "empty": {
+          "noNodes": "Aucun nœud KNX AI trouvé.",
+          "noAnomalies": "Aucune anomalie."
+        },
+        "chat": {
+          "placeholder": "Posez une question sur le trafic KNX…",
+          "send": "Envoyer",
+          "pending": "Je réfléchis…",
+          "llmDisabled": "LLM désactivé dans la configuration du nœud",
+          "emptyAnswer": "(réponse vide)"
+        },
+        "status": {
+          "ready": "Prêt",
+          "loadingNodes": "Chargement des nœuds…",
+          "loading": "Chargement…",
+          "asking": "Question…"
+        },
+        "errors": {
+          "loadNodes": "Impossible de charger les nœuds",
+          "loadState": "Impossible de charger l’état",
+          "askFailed": "Échec de la question"
+        }
+      },
+      "summary": {
+        "noData": "Aucune donnée disponible.",
+        "header": {
+          "gateway": "Passerelle : {{gatewayName}}",
+          "updated": "Mis à jour : {{at}}"
+        },
+        "analysisWindowLine": "Fenêtre d’analyse : {{seconds}} s",
+        "statsLine": "Télégrammes : {{telegrams}} · Taux : {{rate}}/s · Écho : {{echoed}} · DPT inconnus : {{unknownDpt}}",
+        "topGAsTitle": "Principales adresses de groupe :",
+        "eventsTitle": "Événements :",
+        "patternsTitle": "Motifs (séquences récurrentes) :",
+        "patternItem": "{{from}} → {{to}}  ({{count}} fois en {{withinMs}}ms)"
+      }
     }
   }
 }

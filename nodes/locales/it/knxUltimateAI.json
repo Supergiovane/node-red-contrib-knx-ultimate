@@ -69,6 +69,53 @@
       "llmApiKey": "Incolla la chiave (inizia con sk-)",
       "llmModel": "es. gpt-4o-mini",
       "llmSystemPrompt": "Opzionale. Lascia vuoto per default."
+    },
+    "sidebar": {
+      "ui": {
+        "refreshNodeList": "Aggiorna lista nodi",
+        "refreshSummary": "Aggiorna summary",
+        "auto": "Auto",
+        "sections": {
+          "summary": "Summary",
+          "anomalies": "Anomalie",
+          "ask": "Chiedi"
+        },
+        "empty": {
+          "noNodes": "Nessun nodo KNX AI trovato.",
+          "noAnomalies": "Nessuna anomalia."
+        },
+        "chat": {
+          "placeholder": "Fai una domanda sul traffico KNX…",
+          "send": "Invia",
+          "pending": "Sto pensando…",
+          "llmDisabled": "LLM disabilitato nella configurazione del nodo",
+          "emptyAnswer": "(risposta vuota)"
+        },
+        "status": {
+          "ready": "Pronto",
+          "loadingNodes": "Carico nodi…",
+          "loading": "Carico…",
+          "asking": "Sto chiedendo…"
+        },
+        "errors": {
+          "loadNodes": "Impossibile caricare i nodi",
+          "loadState": "Impossibile caricare lo stato",
+          "askFailed": "Richiesta fallita"
+        }
+      },
+      "summary": {
+        "noData": "Nessun dato disponibile.",
+        "header": {
+          "gateway": "Gateway: {{gatewayName}}",
+          "updated": "Aggiornato: {{at}}"
+        },
+        "analysisWindowLine": "Finestra analisi: {{seconds}}s",
+        "statsLine": "Telegrammi: {{telegrams}} · Rate: {{rate}}/s · Echoed: {{echoed}} · DPT sconosciuti: {{unknownDpt}}",
+        "topGAsTitle": "Top Group Address:",
+        "eventsTitle": "Eventi:",
+        "patternsTitle": "Pattern (sequenze ricorrenti):",
+        "patternItem": "{{from}} → {{to}}  ({{count}} volte entro {{withinMs}}ms)"
+      }
     }
   }
 }

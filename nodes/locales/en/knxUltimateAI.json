@@ -69,6 +69,53 @@
       "llmApiKey": "Paste API key (starts with sk-)",
       "llmModel": "e.g. gpt-4o-mini",
       "llmSystemPrompt": "Optional. Leave empty for default."
+    },
+    "sidebar": {
+      "ui": {
+        "refreshNodeList": "Refresh Node List",
+        "refreshSummary": "Refresh Summary",
+        "auto": "Auto",
+        "sections": {
+          "summary": "Summary",
+          "anomalies": "Anomalies",
+          "ask": "Ask"
+        },
+        "empty": {
+          "noNodes": "No KNX AI nodes found.",
+          "noAnomalies": "No anomalies."
+        },
+        "chat": {
+          "placeholder": "Ask a question about KNX traffic…",
+          "send": "Send",
+          "pending": "Thinking…",
+          "llmDisabled": "LLM disabled in node config",
+          "emptyAnswer": "(empty answer)"
+        },
+        "status": {
+          "ready": "Ready",
+          "loadingNodes": "Loading nodes…",
+          "loading": "Loading…",
+          "asking": "Asking…"
+        },
+        "errors": {
+          "loadNodes": "Failed to load nodes",
+          "loadState": "Failed to load state",
+          "askFailed": "Ask failed"
+        }
+      },
+      "summary": {
+        "noData": "No data available.",
+        "header": {
+          "gateway": "Gateway: {{gatewayName}}",
+          "updated": "Updated: {{at}}"
+        },
+        "analysisWindowLine": "Analysis window: {{seconds}}s",
+        "statsLine": "Telegrams: {{telegrams}} · Rate: {{rate}}/s · Echoed: {{echoed}} · Unknown DPT: {{unknownDpt}}",
+        "topGAsTitle": "Top Group Address:",
+        "eventsTitle": "Events:",
+        "patternsTitle": "Patterns (recurring sequences):",
+        "patternItem": "{{from}} → {{to}}  ({{count}} times within {{withinMs}}ms)"
+      }
     }
   }
 }

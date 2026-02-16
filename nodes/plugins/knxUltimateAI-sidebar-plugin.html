@@ -53,36 +53,54 @@
                     RED.sidebar.removeTab(tabId);
                 }
 
+                const tr = (suffix, opts, fallback) => {
+                    const key = 'knxUltimateAI.sidebar.' + suffix;
+                    let val = '';
+                    try { val = RED._(key, opts); } catch (e) { val = ''; }
+                    if (!val || val === key) val = (fallback !== undefined ? fallback : suffix);
+                    return val;
+                };
+
                 const container = $('<div>').css({ display: 'flex', flexDirection: 'column', height: '100%' });
                 const toolbar = $('<div>').attr('id', 'knx-ai-toolbar').appendTo(container);
                 const nodeSelect = $('<select>').attr('id', 'knx-ai-node-select').appendTo(toolbar);
-                const refreshNodesBtn = $('<button type="button" class="red-ui-button"><i class="fa fa-refresh"></i> Refresh Node List</button>').appendTo(toolbar);
-                const refreshStateBtn = $('<button type="button" class="red-ui-button"><i class="fa fa-repeat"></i> Refresh Summary</button>').appendTo(toolbar);
+                const refreshNodesBtn = $('<button type="button" class="red-ui-button"></button>').appendTo(toolbar);
+                $('<i class="fa fa-refresh"></i>').appendTo(refreshNodesBtn);
+                refreshNodesBtn.append(' ');
+                $('<span>').text(tr('ui.refreshNodeList', {}, 'Refresh Node List')).appendTo(refreshNodesBtn);
+
+                const refreshStateBtn = $('<button type="button" class="red-ui-button"></button>').appendTo(toolbar);
+                $('<i class="fa fa-repeat"></i>').appendTo(refreshStateBtn);
+                refreshStateBtn.append(' ');
+                $('<span>').text(tr('ui.refreshSummary', {}, 'Refresh Summary')).appendTo(refreshStateBtn);
                 const autoLabel = $('<label style="display:flex;align-items:center;gap:4px; margin:0 0 0 6px; font-size:0.9em;"></label>').appendTo(toolbar);
                 const autoChk = $('<input type="checkbox">').appendTo(autoLabel);
-                $('<span>').text('Auto').appendTo(autoLabel);
+                $('<span>').text(tr('ui.auto', {}, 'Auto')).appendTo(autoLabel);
                 $('<div class="knx-ai-spacer"></div>').appendTo(toolbar);
-                const statusEl = $('<div>').attr('id', 'knx-ai-status').text('Ready').appendTo(toolbar);
+                const statusEl = $('<div>').attr('id', 'knx-ai-status').text(tr('ui.status.ready', {}, 'Ready')).appendTo(toolbar);
 
                 const body = $('<div>').attr('id', 'knx-ai-body').appendTo(container);
 
-                const emptyNotice = $('<div>').css({ color: '#888', fontStyle: 'italic' }).text('No KNX AI nodes found.').appendTo(body);
+                const emptyNotice = $('<div>').css({ color: '#888', fontStyle: 'italic' }).text(tr('ui.empty.noNodes', {}, 'No KNX AI nodes found.')).appendTo(body);
 
                 const summarySection = $('<div class="knx-ai-section"></div>').appendTo(body);
-                $('<h3>').text('Summary').appendTo(summarySection);
+                $('<h3>').text(tr('ui.sections.summary', {}, 'Summary')).appendTo(summarySection);
                 const summaryPre = $('<pre>').attr('id', 'knx-ai-summary').text('').appendTo(summarySection);
 
                 const anomaliesSection = $('<div class="knx-ai-section"></div>').appendTo(body);
-                $('<h3>').text('Anomalies').appendTo(anomaliesSection);
+                $('<h3>').text(tr('ui.sections.anomalies', {}, 'Anomalies')).appendTo(anomaliesSection);
                 const anomaliesWrap = $('<div>').attr('id', 'knx-ai-anomalies').appendTo(anomaliesSection);
 
                 const chatSection = $('<div class="knx-ai-section"></div>').appendTo(body);
-                $('<h3>').text('Ask').appendTo(chatSection);
+                $('<h3>').text(tr('ui.sections.ask', {}, 'Ask')).appendTo(chatSection);
                 const chatBox = $('<div>').attr('id', 'knx-ai-chat').appendTo(chatSection);
                 const chatLog = $('<div>').attr('id', 'knx-ai-chat-log').appendTo(chatBox);
                 const chatInputRow = $('<div>').attr('id', 'knx-ai-chat-input').appendTo(chatBox);
-                const chatInput = $('<input type="text" placeholder="Ask a question about KNX traffic…">').appendTo(chatInputRow);
-                const chatSendBtn = $('<button type="button" class="red-ui-button"><i class="fa fa-paper-plane"></i> Send</button>').appendTo(chatInputRow);
+                const chatInput = $('<input type="text">').attr('placeholder', tr('ui.chat.placeholder', {}, 'Ask a question about KNX traffic…')).appendTo(chatInputRow);
+                const chatSendBtn = $('<button type="button" class="red-ui-button"></button>').appendTo(chatInputRow);
+                $('<i class="fa fa-paper-plane"></i>').appendTo(chatSendBtn);
+                chatSendBtn.append(' ');
+                $('<span>').text(tr('ui.chat.send', {}, 'Send')).appendTo(chatSendBtn);
 
                 const storageKey = 'knxUltimateAI:selectedNodeId';
                 const autoKey = 'knxUltimateAI:autoRefresh';
@@ -122,7 +140,7 @@
                 const renderAnomalies = (items) => {
                     anomaliesWrap.empty();
                     if (!items || !items.length) {
-                        $('<div>').css({ color: '#888', fontStyle: 'italic' }).text('No anomalies.').appendTo(anomaliesWrap);
+                        $('<div>').css({ color: '#888', fontStyle: 'italic' }).text(tr('ui.empty.noAnomalies', {}, 'No anomalies.')).appendTo(anomaliesWrap);
                         return;
                     }
                     items.slice().reverse().slice(0, 30).forEach((entry) => {
@@ -148,7 +166,7 @@
                     if (kind === 'assistant') {
                         const raw = normalizeChatText(text);
                         const trimmed = raw.trim();
-                        $msg.html(trimmed ? renderMarkdownToHtml(raw) : renderMarkdownToHtml('(risposta vuota)'));
+                        $msg.html(trimmed ? renderMarkdownToHtml(raw) : renderMarkdownToHtml(tr('ui.chat.emptyAnswer', {}, '(empty answer)')));
                     } else {
                         $msg.text(normalizeChatText(text));
                     }
@@ -159,7 +177,7 @@
                     if (pendingChatEl) return;
                     pendingChatEl = $('<div class="knx-ai-chat-msg knx-ai-chat-pending"></div>').appendTo(chatLog);
                     $('<i class="fa fa-spinner fa-spin"></i>').appendTo(pendingChatEl);
-                    $('<span>').text('Sto pensando…').appendTo(pendingChatEl);
+                    $('<span>').text(tr('ui.chat.pending', {}, 'Thinking…')).appendTo(pendingChatEl);
                     try { chatLog.scrollTop(chatLog[0].scrollHeight); } catch (e) { }
                 };
 
@@ -313,24 +331,29 @@
                 const formatSummaryText = (data) => {
                     const nodeInfo = data && data.node ? data.node : {};
                     const s = data && data.summary ? data.summary : null;
-                    if (!s) return 'Nessun dato disponibile.';
+                    if (!s) return tr('summary.noData', {}, 'No data available.');
 
                     const lines = [];
                     const headerBits = [];
                     if (nodeInfo.name) headerBits.push(nodeInfo.name);
-                    if (nodeInfo.gatewayName) headerBits.push('Gateway: ' + nodeInfo.gatewayName);
-                    if (s.meta && s.meta.generatedAt) headerBits.push('Aggiornato: ' + s.meta.generatedAt);
+                    if (nodeInfo.gatewayName) headerBits.push(tr('summary.header.gateway', { gatewayName: nodeInfo.gatewayName }, 'Gateway: ' + nodeInfo.gatewayName));
+                    if (s.meta && s.meta.generatedAt) headerBits.push(tr('summary.header.updated', { at: s.meta.generatedAt }, 'Updated: ' + s.meta.generatedAt));
                     if (headerBits.length) lines.push(headerBits.join(' · '));
                     lines.push('');
 
                     const c = s.counters || {};
                     const win = (s.meta && s.meta.analysisWindowSec) ? s.meta.analysisWindowSec : '';
-                    lines.push(`Finestra analisi: ${win}s`);
-                    lines.push(`Telegrammi: ${c.telegrams ?? 0} · Rate: ${(c.overallRatePerSec ?? 0)}/s · Echoed: ${c.echoed ?? 0} · DPT sconosciuti: ${c.unknownDpt ?? 0}`);
+                    lines.push(tr('summary.analysisWindowLine', { seconds: win }, `Analysis window: ${win}s`));
+                    lines.push(tr('summary.statsLine', {
+                        telegrams: (c.telegrams ?? 0),
+                        rate: (c.overallRatePerSec ?? 0),
+                        echoed: (c.echoed ?? 0),
+                        unknownDpt: (c.unknownDpt ?? 0)
+                    }, `Telegrams: ${c.telegrams ?? 0} · Rate: ${(c.overallRatePerSec ?? 0)}/s · Echoed: ${c.echoed ?? 0} · Unknown DPT: ${c.unknownDpt ?? 0}`));
 
                     if (Array.isArray(s.topGAs) && s.topGAs.length) {
                         lines.push('');
-                        lines.push('Top Group Address:');
+                        lines.push(tr('summary.topGAsTitle', {}, 'Top Group Address:'));
                         s.topGAs.slice(0, 20).forEach((x, idx) => {
                             lines.push(`${idx + 1}. ${x.ga}  (${x.count})`);
                         });
@@ -338,7 +361,7 @@
 
                     if (s.byEvent && Object.keys(s.byEvent).length) {
                         lines.push('');
-                        lines.push('Eventi:');
+                        lines.push(tr('summary.eventsTitle', {}, 'Events:'));
                         Object.keys(s.byEvent).sort().forEach((k) => {
                             lines.push(`- ${k}: ${s.byEvent[k]}`);
                         });
@@ -346,9 +369,11 @@
 
                     if (Array.isArray(s.patterns) && s.patterns.length) {
                         lines.push('');
-                        lines.push('Pattern (sequenze ricorrenti):');
+                        lines.push(tr('summary.patternsTitle', {}, 'Patterns:'));
                         s.patterns.slice(0, 15).forEach((p) => {
-                            lines.push(`- ${p.from} → ${p.to}  (${p.count} volte entro ${p.withinMs}ms)`);
+                            const item = tr('summary.patternItem', { from: p.from, to: p.to, count: p.count, withinMs: p.withinMs },
+                                `${p.from} → ${p.to}  (${p.count} times within ${p.withinMs}ms)`);
+                            lines.push(`- ${item}`);
                         });
                     }
 
@@ -379,16 +404,16 @@
                 };
 
                 const fetchNodes = () => {
-                    setStatus('Loading nodes…');
+                    setStatus(tr('ui.status.loadingNodes', {}, 'Loading nodes…'));
                     const currentSelected = nodeSelect.val() || loadStoredNode() || '';
                     return $.getJSON('knxUltimateAI/sidebar/nodes')
                         .done((data) => {
                             populateNodes(data && data.nodes ? data.nodes : [], currentSelected);
-                            setStatus('Ready');
+                            setStatus(tr('ui.status.ready', {}, 'Ready'));
                         })
                         .fail((xhr) => {
                             setEnabled(false);
-                            let err = 'Failed to load nodes';
+                            let err = tr('ui.errors.loadNodes', {}, 'Failed to load nodes');
                             try { if (xhr && xhr.responseJSON && xhr.responseJSON.error) err = xhr.responseJSON.error; } catch (e) { }
                             setStatus(err);
                         });
@@ -399,7 +424,7 @@
                     if (!nodeId) return;
                     const fresh = opts && opts.fresh ? 1 : 0;
                     lastStateNodeId = nodeId;
-                    setStatus('Loading…');
+                    setStatus(tr('ui.status.loading', {}, 'Loading…'));
                     return $.getJSON('knxUltimateAI/sidebar/state?nodeId=' + encodeURIComponent(nodeId) + '&fresh=' + fresh)
                         .done((data) => {
                             summaryPre.text(formatSummaryText(data));
@@ -409,17 +434,17 @@
                             if (!llmEnabled) {
                                 chatInput.prop('disabled', true);
                                 chatSendBtn.prop('disabled', true);
-                                chatInput.attr('placeholder', 'LLM disabled in node config');
+                                chatInput.attr('placeholder', tr('ui.chat.llmDisabled', {}, 'LLM disabled in node config'));
                             } else {
                                 chatInput.prop('disabled', false);
                                 chatSendBtn.prop('disabled', false);
-                                chatInput.attr('placeholder', 'Ask a question about KNX traffic…');
+                                chatInput.attr('placeholder', tr('ui.chat.placeholder', {}, 'Ask a question about KNX traffic…'));
                             }
 
-                            setStatus('Ready');
+                            setStatus(tr('ui.status.ready', {}, 'Ready'));
                         })
                         .fail((xhr) => {
-                            let err = 'Failed to load state';
+                            let err = tr('ui.errors.loadState', {}, 'Failed to load state');
                             try { if (xhr && xhr.responseJSON && xhr.responseJSON.error) err = xhr.responseJSON.error; } catch (e) { }
                             setStatus(err);
                         });
@@ -431,7 +456,7 @@
                     if (!nodeId || !q) return;
                     chatInput.val('');
                     appendChat('user', q);
-                    setStatus('Asking…');
+                    setStatus(tr('ui.status.asking', {}, 'Asking…'));
                     chatSendBtn.prop('disabled', true);
                     showChatPending();
                     return $.ajax({
@@ -444,14 +469,14 @@
                             const answer = (data && data.answer !== undefined) ? data.answer : '';
                             hideChatPending();
                             appendChat('assistant', answer);
-                            setStatus('Ready');
+                            setStatus(tr('ui.status.ready', {}, 'Ready'));
                         })
                         .fail((xhr) => {
-                            let err = 'Ask failed';
+                            let err = tr('ui.errors.askFailed', {}, 'Ask failed');
                             try { if (xhr && xhr.responseJSON && xhr.responseJSON.error) err = xhr.responseJSON.error; } catch (e) { }
                             hideChatPending();
                             appendChat('error', err);
-                            setStatus('Ready');
+                            setStatus(tr('ui.status.ready', {}, 'Ready'));
                         })
                         .always(() => {
                             hideChatPending();

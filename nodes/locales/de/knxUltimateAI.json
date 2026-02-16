@@ -46,9 +46,9 @@
       "llmDocsMaxChars": "Max docs chars"
     },
     "outputs": {
-      "summary": "Summary/Stats",
-      "anomalies": "Anomalies",
-      "assistant": "AI Assistant"
+      "summary": "Zusammenfassung/Statistik",
+      "anomalies": "Anomalien",
+      "assistant": "KI-Assistent"
     },
     "selectlists": {
       "llmProvider": {
@@ -64,6 +64,53 @@
     },
     "messages": {
       "ollamaNotSupported": "Ollama integration is marked as not yet supported (testing in progress)."
+    },
+    "sidebar": {
+      "ui": {
+        "refreshNodeList": "Knotenliste aktualisieren",
+        "refreshSummary": "Zusammenfassung aktualisieren",
+        "auto": "Auto",
+        "sections": {
+          "summary": "Zusammenfassung",
+          "anomalies": "Anomalien",
+          "ask": "Fragen"
+        },
+        "empty": {
+          "noNodes": "Keine KNX AI-Knoten gefunden.",
+          "noAnomalies": "Keine Anomalien."
+        },
+        "chat": {
+          "placeholder": "Stelle eine Frage zum KNX-Verkehr…",
+          "send": "Senden",
+          "pending": "Ich denke nach…",
+          "llmDisabled": "LLM in der Knoten-Konfiguration deaktiviert",
+          "emptyAnswer": "(leere Antwort)"
+        },
+        "status": {
+          "ready": "Bereit",
+          "loadingNodes": "Lade Knoten…",
+          "loading": "Laden…",
+          "asking": "Frage…"
+        },
+        "errors": {
+          "loadNodes": "Knoten konnten nicht geladen werden",
+          "loadState": "Status konnte nicht geladen werden",
+          "askFailed": "Anfrage fehlgeschlagen"
+        }
+      },
+      "summary": {
+        "noData": "Keine Daten verfügbar.",
+        "header": {
+          "gateway": "Gateway: {{gatewayName}}",
+          "updated": "Aktualisiert: {{at}}"
+        },
+        "analysisWindowLine": "Analysefenster: {{seconds}}s",
+        "statsLine": "Telegramme: {{telegrams}} · Rate: {{rate}}/s · Echoed: {{echoed}} · Unbekannte DPT: {{unknownDpt}}",
+        "topGAsTitle": "Top-Gruppenadressen:",
+        "eventsTitle": "Ereignisse:",
+        "patternsTitle": "Muster (wiederkehrende Sequenzen):",
+        "patternItem": "{{from}} → {{to}}  ({{count}} mal innerhalb von {{withinMs}}ms)"
+      }
     }
   }
 }

@@ -46,9 +46,9 @@
       "llmDocsMaxChars": "Max docs chars"
     },
     "outputs": {
-      "summary": "Summary/Stats",
-      "anomalies": "Anomalies",
-      "assistant": "AI Assistant"
+      "summary": "摘要/统计",
+      "anomalies": "异常",
+      "assistant": "AI 助手"
     },
     "selectlists": {
       "llmProvider": {
@@ -64,6 +64,53 @@
       "llmApiKey": "Paste API key (starts with sk-)",
       "llmModel": "e.g. gpt-4o-mini",
       "llmSystemPrompt": "Optional. Leave empty for default."
+    },
+    "sidebar": {
+      "ui": {
+        "refreshNodeList": "刷新节点列表",
+        "refreshSummary": "刷新摘要",
+        "auto": "自动",
+        "sections": {
+          "summary": "摘要",
+          "anomalies": "异常",
+          "ask": "提问"
+        },
+        "empty": {
+          "noNodes": "未找到 KNX AI 节点。",
+          "noAnomalies": "无异常。"
+        },
+        "chat": {
+          "placeholder": "询问有关 KNX 流量的问题…",
+          "send": "发送",
+          "pending": "思考中…",
+          "llmDisabled": "节点配置中已禁用 LLM",
+          "emptyAnswer": "（空回复）"
+        },
+        "status": {
+          "ready": "就绪",
+          "loadingNodes": "正在加载节点…",
+          "loading": "正在加载…",
+          "asking": "正在提问…"
+        },
+        "errors": {
+          "loadNodes": "加载节点失败",
+          "loadState": "加载状态失败",
+          "askFailed": "提问失败"
+        }
+      },
+      "summary": {
+        "noData": "暂无数据。",
+        "header": {
+          "gateway": "网关：{{gatewayName}}",
+          "updated": "更新于：{{at}}"
+        },
+        "analysisWindowLine": "分析窗口：{{seconds}} 秒",
+        "statsLine": "电报：{{telegrams}} · 速率：{{rate}}/秒 · 回显：{{echoed}} · 未知 DPT：{{unknownDpt}}",
+        "topGAsTitle": "最常见组地址：",
+        "eventsTitle": "事件：",
+        "patternsTitle": "模式（重复序列）：",
+        "patternItem": "{{from}} → {{to}}（{{count}} 次，{{withinMs}}ms 内）"
+      }
     }
   }
 }
