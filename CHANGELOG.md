@@ -6,6 +6,10 @@
 
 # CHANGELOG
 
+**Version 4.1.27** - February 2026<br/>
+
+- Bumped KNX Engine to 5.2.8<br/>
+
 **Version 4.1.26** - February 2026<br/>
 
 - i18n: **KNX AI** sidebar tab: localized the Summary and UI strings in all supported languages (including output pin labels).<br/>
