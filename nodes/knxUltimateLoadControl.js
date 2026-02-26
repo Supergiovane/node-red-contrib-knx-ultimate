@@ -31,6 +31,8 @@ module.exports = function (RED) {
     node.sheddingStage = 0
     node.timerIncreaseShedding = null
     node.timerDecreaseShedding = null
+    node.controlMode = (config.controlMode || 'auto').toString()
+    node.isDisabled = false
     node.sheddingCheckInterval = config.sheddingCheckInterval !== undefined ? config.sheddingCheckInterval * 1000 : 10000
     node.sheddingRestoreDelay = config.sheddingRestoreDelay !== undefined ? config.sheddingRestoreDelay * 1000 : 60000
     node.mainTimer = null
@@ -99,7 +101,8 @@ module.exports = function (RED) {
         ? node.serverKNX.formatStatusTimestamp(dDate)
         : `${dDate.getDate()}, ${dDate.toLocaleTimeString()}`
       try {
-        updateStatus({ fill, shape, text: text + ' Shed:' + node.sheddingStage + ' Power:' + node.totalWatt + 'W' + ' Limit:' + node.wattLimit + 'W (' + ts + ')' })
+        const modeText = node.controlMode === 'msg' ? ' Mode:MSG' : ''
+        updateStatus({ fill, shape, text: text + ' Shed:' + node.sheddingStage + ' Power:' + node.totalWatt + 'W' + ' Limit:' + node.wattLimit + 'W' + modeText + ' (' + ts + ')' })
       } catch (error) {
       }
     }
@@ -164,8 +167,11 @@ module.exports = function (RED) {
     }
 
     node.startMainTimer = () => {
+      if (node.controlMode === 'msg') return
+      if (node.isDisabled) return
       if (node.mainTimer !== null) clearInterval(node.mainTimer)// Clear the timer
       node.mainTimer = setInterval(() => {
+        if (node.isDisabled) return
         // Issue a READ on all GA's
         node.initialReadAllDevicesInRules()
 
@@ -315,7 +321,13 @@ module.exports = function (RED) {
     }
 
     // Start
-    node.startMainTimer()
+    if (node.controlMode !== 'msg') {
+      node.startMainTimer()
+    } else {
+      const t = setTimeout(() => { // keep consistent async behavior
+        node.setLocalStatus({ fill: 'grey', shape: 'ring', text: 'Manual mode (msg.shedding)' })
+      }, 500)
+    }
 
     node.on('input', function (msg) {
       if (typeof msg === 'undefined') return
@@ -337,6 +349,7 @@ module.exports = function (RED) {
 
       // Disable the shedding node
       if (msg.hasOwnProperty('disable')) {
+        node.isDisabled = true
         if (node.timerDecreaseShedding !== null) clearTimeout(node.timerDecreaseShedding)
         if (node.timerIncreaseShedding !== null) clearTimeout(node.timerIncreaseShedding)
         if (node.mainTimer !== null) clearInterval(node.mainTimer)
@@ -348,6 +361,7 @@ module.exports = function (RED) {
 
       // Disable the shedding node
       if (msg.hasOwnProperty('enable')) {
+        node.isDisabled = false
         if (node.timerDecreaseShedding !== null) clearTimeout(node.timerDecreaseShedding)
         if (node.timerIncreaseShedding !== null) clearTimeout(node.timerIncreaseShedding)
         const t = setTimeout(() => { // 21/03/2022 fixed possible memory leak. Previously was setTimeout without "let t = ".
@@ -366,6 +380,28 @@ module.exports = function (RED) {
       // 'shed', 'unshed', 'auto'
       // | `msg.shedding` | String. *shed* to start the formward shedding sequence, *unshed* to start reverse shedding. Use this msg to force the shedding timer to start/stop, ignoring the **Monitor Wh** group address. Set *auto* to enable again the **Monitor Wh** group address monitoring. |
       if (msg.shedding !== undefined) {
+        if (node.isDisabled) {
+          node.setLocalStatus({ fill: 'grey', shape: 'dot', text: 'Disabled. Ignored msg.shedding.' })
+          return
+        }
+
+        if (node.controlMode === 'msg') {
+          switch (msg.shedding) {
+            case 'shed':
+              node.setLocalStatus({ fill: 'red', shape: 'dot', text: 'msg.shedding: SHED received.' })
+              node.increaseShedding()
+              break
+            case 'unshed':
+              node.setLocalStatus({ fill: 'green', shape: 'dot', text: 'msg.shedding: UNSHED received.' })
+              node.decreaseShedding()
+              break
+            default:
+              node.setLocalStatus({ fill: 'grey', shape: 'ring', text: 'Manual mode: unknown msg.shedding value.' })
+              break
+          }
+          return
+        }
+
         switch (msg.shedding) {
           case 'shed':
             node.wattLimit = 1 // Faking to shed

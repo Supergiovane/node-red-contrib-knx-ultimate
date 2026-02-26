@@ -8,6 +8,7 @@
             //buttonState: {value: true},
             server: { type: "knxUltimate-config", required: false },
             name: { value: "" },
+            controlMode: { value: "auto" },
             topic: { value: "" },
             dpt: { value: "" },
             wattLimit: { value: 3000, validate: RED.validators.number() },
@@ -109,6 +110,17 @@
                 $("#node-input-MonitorDPT5").val(this.MonitorDPT5);
             })
 
+            const toggleAutoFields = () => {
+                const mode = ($("#node-input-controlMode").val() || "auto").toString();
+                if (mode === "msg") {
+                    $(".knx-lc-auto-only").hide();
+                } else {
+                    $(".knx-lc-auto-only").show();
+                }
+            };
+
+            $("#node-input-controlMode").on("change.knxUltimateLoadControl", toggleAutoFields);
+
             // Autocomplete suggestion with ETS csv File
             this.autoComplete = (_Name, _DPT) => {
                 let paramAutoComplete = {
@@ -173,6 +185,7 @@
                 try { var srv3 = RED.nodes.node($("#node-input-server").val()); if (srv3 && srv3.id) KNX_enableSecureFormatting($("#node-input-MonitorGA" + index), srv3.id); } catch (e) {}
             }
 
+            toggleAutoFields();
 
 
         },
@@ -207,15 +220,33 @@
 
 <div class="form-row">
     <i class="fa fa-battery-full"></i>
+    <label style="width:100px" for="node-input-name">
+            <span data-i18n="knxUltimateLoadControl.properties.node-input-name"></span>
+    </label>
+    <input style="width:70%" type="text" id="node-input-name" data-i18n="[placeholder]knxUltimateLoadControl.properties.node-input-name">      
+</div>
+
+<div class="form-row">
+    <i class="fa fa-sliders"></i>
+    <label style="width:100px" for="node-input-controlMode">
+            <span data-i18n="knxUltimateLoadControl.properties.node-input-controlMode"></span>
+    </label>
+    <select style="width:40%" id="node-input-controlMode">
+        <option value="auto" data-i18n="knxUltimateLoadControl.selectlists.controlModeAuto"></option>
+        <option value="msg" data-i18n="knxUltimateLoadControl.selectlists.controlModeMsg"></option>
+    </select>
+</div>
+
+<div class="form-row knx-lc-auto-only">
+    <i class="fa fa-battery-full"></i>
     <label style="width:100px" for="node-input-topic">
             <span data-i18n="knxUltimateLoadControl.properties.node-input-topic"></span>
     </label>
     <input style="width:15%" type="text" id="node-input-topic" placeholder="Ex: 1/1/1" />
-    <select style="width:15%" id="node-input-dpt"></select>  
-    <input style="flex:1 1 240px; min-width:240px; max-width:240px;" type="text" id="node-input-name" data-i18n="[placeholder]knxUltimateLoadControl.properties.node-input-name">      
+    <select style="width:15%" id="node-input-dpt"></select>
 </div>
 
-<div class="form-row">
+<div class="form-row knx-lc-auto-only">
     <i class="fa fa-exclamation"></i>
     <label style="width:125px" for="node-input-wattLimit">
             <span data-i18n="knxUltimateLoadControl.properties.node-input-wattLimit"></span>
@@ -223,20 +254,20 @@
     <input style="width:40%" type="text" id="node-input-wattLimit" placeholder="Ex. 3000">      
 </div>
 
-<div class="form-row">
+<div class="form-row knx-lc-auto-only">
     <i class="fa fa-toggle-off"></i>
     <label style="width:125px" for="node-input-sheddingCheckInterval">
             <span data-i18n="knxUltimateLoadControl.properties.node-input-sheddingCheckInterval"></span>
     </label>
-    <input style="width:40%" type="text" id="node-input-sheddingCheckInterval" placeholder=""">      
+    <input style="width:40%" type="text" id="node-input-sheddingCheckInterval" placeholder="">      
 </div>
 
-<div class="form-row">
+<div class="form-row knx-lc-auto-only">
     <i class="fa fa-toggle-on"></i>
     <label style="width:125px" for="node-input-sheddingRestoreDelay">
             <span data-i18n="knxUltimateLoadControl.properties.node-input-sheddingRestoreDelay"></span>
     </label>
-    <input style="width:40%" type="text" id="node-input-sheddingRestoreDelay" placeholder=""">      
+    <input style="width:40%" type="text" id="node-input-sheddingRestoreDelay" placeholder="">      
 </div>
 
 

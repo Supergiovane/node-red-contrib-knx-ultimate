@@ -10,12 +10,16 @@
             "node-input-topic": "Monitor W",
             "node-input-controlGA": "Carico",
             "node-input-monitorGA": "In uso",
+            "node-input-controlMode": "Modalità",
             "node-input-wattLimit": "Soglia W",
             "node-input-sheddingCheckInterval": "Ritardo distacco (s)",
             "node-input-sheddingRestoreDelay": "Ritardo ripristino (s)",
             "node-input-autoRestore": "Ripristino automatico"
         },
-        "selectlists": {},
+        "selectlists": {
+            "controlModeAuto": "Automatica (interna)",
+            "controlModeMsg": "Manuale (msg.shedding)"
+        },
         "other": {}
     }
 }

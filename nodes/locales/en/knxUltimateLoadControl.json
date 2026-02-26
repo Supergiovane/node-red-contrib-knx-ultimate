@@ -6,6 +6,7 @@
         "properties": {
             "node-input-server": "Gateway",
             "node-input-name": "NoNameme",
+            "node-input-controlMode": "Mode",
             "node-input-dpt": "Datapoint",
             "node-input-topic": "Monitor W",
             "node-input-controlGA": "Load",
@@ -15,7 +16,10 @@
             "node-input-sheddingRestoreDelay": "Delay switch on (s)",
             "node-input-autoRestore": "Automatic recovery"
         },
-        "selectlists": {},
+        "selectlists": {
+            "controlModeAuto": "Automatic (internal)",
+            "controlModeMsg": "Manual (msg.shedding)"
+        },
         "other": {}
     }
 }

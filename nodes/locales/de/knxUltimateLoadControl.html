@@ -11,6 +11,7 @@ Es wird jeweils ein Gerät (oder mehrere) in der konfigurierten Reihenfolge gesc
 |Eigenschaft|Beschreibung|
 |--|--|
 | Gateway | KNX-Gateway. Ohne Auswahl werden nur Eingangs-Nachrichten berücksichtigt. |
+| Modus | _Automatisch (intern)_ nutzt Monitor W/Schwellwerte/Timer. _Manuell (msg.shedding)_ deaktiviert die interne Logik und verwendet nur `msg.shedding` (`shed`/`unshed`). |
 | Monitor W | GA für den Gesamtverbrauch des Gebäudes. |
 | Limit W | Maximaler Zähler/Vertragsschwellwert. Bei Überschreitung beginnt das Abschalten. |
 | Ausschaltverzögerung (s) | Prüfintervall (Sekunden) zum Abschalten. |
@@ -31,7 +32,7 @@ Ist "Automatische Wiederherstellung" aktiv, wird nach Ablauf des Reset-Delays wi
 | `msg.enable = true` | Lastabwurf aktivieren. |
 | `msg.disable = true` | Lastabwurf deaktivieren. |
 | `msg.reset = true` | Node zurücksetzen und alle Geräte einschalten. |
-| `msg.shedding` | String: `shed` = Vorwärts-Abwurf, `unshed` = Rücknahme. Start/Stop des Timers erzwingen (ignoriert Monitor-GA). `auto` reaktiviert die Überwachung der Monitor-GA. |
+| `msg.shedding` | String. In _Manuell_: `shed` schaltet die nächste Last aus, `unshed` stellt die vorherige wieder her. In _Automatisch_: `shed`/`unshed` erzwingt die interne Logik; `auto` stellt die normale Überwachung wieder her. |
 
 ## Outputs
 

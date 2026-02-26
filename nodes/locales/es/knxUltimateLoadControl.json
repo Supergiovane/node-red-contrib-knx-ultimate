@@ -6,6 +6,7 @@
     "properties": {
       "node-input-server": "Puerta",
       "node-input-name": "No ameme",
+      "node-input-controlMode": "Modo",
       "node-input-dpt": "Punto de datos",
       "node-input-topic": "Monitor W",
       "node-input-controlGA": "Carga",
@@ -15,7 +16,10 @@
       "node-input-sheddingRestoreDelay": "Interruptor de retraso (s) (s) (s)",
       "node-input-autoRestore": "Recuperación automática"
     },
-    "selectlists": {},
+    "selectlists": {
+      "controlModeAuto": "Automático (interno)",
+      "controlModeMsg": "Manual (msg.shedding)"
+    },
     "other": {}
   }
 }

@@ -12,6 +12,7 @@ The node turns off one device (or multiple devices) at a time, based on the orde
 |Property|Description|
 |--|--|
 | Gateway | KNX gateway. It is also possible not to select any gateway; in this case, only incoming messages to the node will be considered. |
+| Mode | Select _Automatic (internal)_ to use Monitor W/threshold/timers. Select _Manual (msg.shedding)_ to disable the internal logic and use only `msg.shedding` commands (`shed`/`unshed`). |
 | Monitor W | Group address representing the total consumption of your building. |
 | Limit W | Maximum threshold that your electricity meter can withstand. When this threshold is exceeded, the node starts to turn off the devices. |
 | Delay switch off (s) | Expressed in seconds, indicates how often the node will evaluate consumption and switch off each device. |
@@ -34,7 +35,7 @@ If _Automatic recovery_ is enabled, the device is automatically reactivated when
 | `msg.enable = true` | Enable the load control.|
 | `msg.disable = true` | Disable the load control.|
 | `msg.reset = true` | Reset node states and turn all devices back on.|
-| `msg.shedding` | String. _shed_ to start the formward shedding sequence, _unshed_ to start reverse shedding. Use this msg to force the shedding timer to start/stop, ignoring the **Monitor Wh ** group address. Set _auto_ to enable again the**Monitor Wh** group address monitoring. |
+| `msg.shedding` | String. In _Manual_ mode: `shed` switches off the next load, `unshed` restores the previous one. In _Automatic_ mode: `shed`/`unshed` forces the internal logic; `auto` restores normal monitoring. |
 
 ## Outputs
 

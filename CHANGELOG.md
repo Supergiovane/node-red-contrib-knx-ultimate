@@ -6,6 +6,11 @@
 
 # CHANGELOG
 
+**Version 4.1.28** - February 2026<br/>
+
+- NEW: **KNX Load Control**: added **Mode** selector to disable the internal logic and use only `msg.shedding` commands (`shed`/`unshed`).<br/>
+- UI/Docs/help/wiki: updated **KNX Load Control** editor, help and docs pages in all supported languages.<br/>
+
 **Version 4.1.27** - February 2026<br/>
 
 - Bumped KNX Engine to 5.2.8<br/>

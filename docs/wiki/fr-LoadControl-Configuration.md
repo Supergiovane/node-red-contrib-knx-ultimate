@@ -19,6 +19,7 @@ Le nœud désactive un périphérique (ou plusieurs appareils) à la fois, en fo
 | Propriété | Description |
 |-|-|
 |Porte |KNX Gateway.Il est également possible de ne sélectionner aucune passerelle;Dans ce cas, seuls les messages entrants au nœud seront pris en compte.|
+|Mode |Sélectionnez _Automatique (interne)_ pour utiliser Monitor W/seuils/timers. Sélectionnez _Manuel (msg.shedding)_ pour désactiver la logique interne et n'utiliser que `msg.shedding` (`shed`/`unshed`).|
 |Surveiller W |Adresse du groupe représentant la consommation totale de votre bâtiment.|
 |Limiter w |Seuil maximum que votre compteur d'électricité peut résister.Lorsque ce seuil est dépassé, le nœud commence à éteindre les appareils.|
 |Retarder l'éteint (s) |Exprimé en quelques secondes, indique la fréquence à laquelle le nœud évaluera la consommation et éteindra chaque appareil.|
@@ -42,7 +43,7 @@ Si _Automatic Recovery_ est activé, le périphérique est automatiquement réac
 |`msg.enable = true` |Activer le contrôle de charge. |
 |`msg.disable = true` |Désactivez le contrôle de charge. |
 |`msg.reset = true` |Réinitialisez les états du nœud et rallumez tous les appareils. |
-|`msg.shedding` |Chaîne._Shed_ pour démarrer la séquence de décharge de formulaire, _unshed_ pour commencer la perte inversée.Utilisez ce msg pour forcer la temporisation de déchets à démarrer / arrêter, en ignorant l'adresse du groupe **Monitor Wh ** .Définissez _Auto_ pour activer à nouveau le moniteur**Monitor Wh** Group Address Surveillant.|
+|`msg.shedding` |String. En mode _Manuel_ : `shed` coupe la charge suivante, `unshed` restaure la précédente. En mode _Automatique_ : `shed`/`unshed` force la logique interne ; `auto` rétablit la surveillance normale.|
 
 ## sorties
 
