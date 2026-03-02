@@ -11,6 +11,8 @@
 - NEW: **KNX DateTime** node: set date/time on the KNX bus via **DPT 19.001** (DateTime) and optionally **DPT 11.001** (Date) / **DPT 10.001** (Time).<br/>
 - NEW: **KNX DateTime**: send on startup (with delay), periodic send, editor send-now button, and input-triggered send.<br/>
 - UI: **KNX DateTime**: when adding a new node, it can auto-select the first KNX Gateway with an ETS import and pre-fill coherent group addresses.<br/>
+- UI: **KNX DateTime**: auto-fill is also triggered when changing the selected KNX Gateway (it won’t override manual values).<br/>
+- i18n/help/wiki: added **KNX DateTime** help and docs pages in all supported languages, and added the node to the docs navigation.<br/>
 
 **Version 4.1.28** - February 2026<br/>
 
