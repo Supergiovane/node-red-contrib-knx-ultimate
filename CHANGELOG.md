@@ -6,6 +6,12 @@
 
 # CHANGELOG
 
+**Version 4.1.29** - March 2026<br/>
+
+- NEW: **KNX DateTime** node: set date/time on the KNX bus via **DPT 19.001** (DateTime) and optionally **DPT 11.001** (Date) / **DPT 10.001** (Time).<br/>
+- NEW: **KNX DateTime**: send on startup (with delay), periodic send, editor send-now button, and input-triggered send.<br/>
+- UI: **KNX DateTime**: when adding a new node, it can auto-select the first KNX Gateway with an ETS import and pre-fill coherent group addresses.<br/>
+
 **Version 4.1.28** - February 2026<br/>
 
 - NEW: **KNX Load Control**: added **Mode** selector to disable the internal logic and use only `msg.shedding` commands (`shed`/`unshed`).<br/>

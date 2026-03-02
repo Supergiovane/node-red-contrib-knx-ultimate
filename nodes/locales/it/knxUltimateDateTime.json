@@ -1,0 +1,30 @@
+{
+  "knxUltimateDateTime": {
+    "title": "Data/Ora",
+    "paletteLabel": "DataOra",
+    "node-input-server": "Gateway KNX",
+    "node-input-name": "Nome",
+    "node-input-outputtopic": "Topic in uscita del nodo",
+    "section_addresses": "Indirizzi di gruppo",
+    "gaDateTime": "GA Data/Ora (DPT 19.001)",
+    "gaDate": "GA Data (DPT 11.001)",
+    "gaTime": "GA Ora (DPT 10.001)",
+    "section_send": "Opzioni invio",
+    "node-input-sendOnDeploy": "Invia al deploy/avvio",
+    "node-input-sendOnDeployDelay": "Ritardo avvio (secondi)",
+    "node-input-periodicSend": "Invio periodico",
+    "node-input-periodicSendInterval": "Intervallo",
+    "unit_seconds": "Secondi",
+    "unit_minutes": "Minuti",
+    "notifySent": "Inviato su KNX",
+    "notifyQueued": "Accodato (gateway non ancora connesso)",
+    "placeholders": {
+      "outputtopic": "Topic opzionale in uscita",
+      "ga": "es. 1/7/1",
+      "nameDateTime": "Nome dispositivo ETS (opz.)",
+      "nameDate": "Nome dispositivo ETS (opz.)",
+      "nameTime": "Nome dispositivo ETS (opz.)"
+    }
+  }
+}
+

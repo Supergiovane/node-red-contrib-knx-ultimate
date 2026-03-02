@@ -1,0 +1,45 @@
+<script type="text/markdown" data-help-name="knxUltimateDateTime">
+# KNX DATA/ORA
+
+Usa questo nodo per **impostare data/ora sul bus KNX**.
+
+Può inviare:
+- **DPT 19.001** su una singola *GA Data/Ora* (consigliato).
+- **DPT 11.001** su una *GA Data* (opzionale).
+- **DPT 10.001** su una *GA Ora* (opzionale).
+
+Puoi configurare uno o più indirizzi di gruppo: il nodo scrive su tutti quelli configurati.
+
+## Quando invia
+
+- **Al deploy/avvio** (opzionale, con ritardo).
+- **Invio periodico** (opzionale).
+- **All'arrivo di un input** (sempre).
+- **Pulsante in editor** (invio immediato).
+
+## Payload in ingresso
+
+Se `msg.payload` è assente/vuoto, il nodo invia l'ora corrente di sistema.
+
+Payload supportati:
+- `new Date()` (consigliato)
+- numero timestamp (millisecondi dall'epoch)
+- stringa accettata da `new Date("...")`
+- `"now"`
+
+Esempio:
+
+```js
+msg.payload = new Date();
+return msg;
+```
+
+## Output
+
+Il nodo emette un messaggio ad ogni invio:
+- `msg.payload`: la `Date` inviata
+- `msg.sent`: array di `{ ga, dpt, name }`
+- `msg.reason`: `input`, `startup`, `periodic` o `button`
+
+</script>
+

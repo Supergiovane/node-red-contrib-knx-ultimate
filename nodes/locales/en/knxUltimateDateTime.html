@@ -1,0 +1,45 @@
+<script type="text/markdown" data-help-name="knxUltimateDateTime">
+# KNX DATETIME
+
+Use this node to **set the date/time on the KNX bus**.
+
+It can send:
+- **DPT 19.001** to a single *DateTime GA* (recommended).
+- **DPT 11.001** to a *Date GA* (optional).
+- **DPT 10.001** to a *Time GA* (optional).
+
+You can configure one or more group addresses and the node will write to all configured outputs.
+
+## When it sends
+
+- **On deploy/startup** (optional, with delay).
+- **Periodic send** (optional).
+- **On input message** (always).
+- **Editor button** (send-now).
+
+## Input payload
+
+If `msg.payload` is omitted/empty, the node sends the current system time.
+
+Supported payloads:
+- `new Date()` (recommended)
+- a timestamp number (milliseconds since epoch)
+- a string accepted by `new Date("...")`
+- `"now"`
+
+Example:
+
+```js
+msg.payload = new Date();
+return msg;
+```
+
+## Output
+
+The node emits one message per send:
+- `msg.payload`: the `Date` that has been written
+- `msg.sent`: array of `{ ga, dpt, name }`
+- `msg.reason`: `input`, `startup`, `periodic` or `button`
+
+</script>
+

@@ -1,0 +1,559 @@
+<script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/htmlUtils.js"></script>
+
+<script type="text/javascript">
+  const KNX_ULTIMATE_DATETIME_KEYWORDS = {
+    datetime: [/date\s*\/\s*time/i, /date\s*time/i, /datetime/i, /data\s*\/\s*ora/i, /data\s*ora/i],
+    date: [/\bdate\b/i, /\bdata\b/i, /\bdatum\b/i, /\bfecha\b/i],
+    time: [/\btime\b/i, /\bora\b/i, /\bheure\b/i, /\bzeit\b/i, /\bhora\b/i, /\borologio\b/i, /\bclock\b/i]
+  }
+
+  const KNX_ULTIMATE_DATETIME_STOPWORDS = new Set([
+    'date', 'datetime', 'time', 'data', 'ora', 'orologio', 'clock', 'bus', 'knx', 'set', 'sync', 'sincro', 'synchronization'
+  ])
+
+  const knxDateTimeNormalizeTokens = (value) => {
+    const str = (value || '').toString().toLowerCase()
+    const cleaned = str
+      .replace(/dpt\s*\d+(\.\d+)?/g, ' ')
+      .replace(/[^a-z0-9]+/g, ' ')
+      .trim()
+    if (!cleaned) return []
+    return cleaned
+      .split(/\s+/)
+      .map((t) => t.trim())
+      .filter((t) => t.length > 1 && !KNX_ULTIMATE_DATETIME_STOPWORDS.has(t))
+  }
+
+  const knxDateTimeTokenSimilarity = (aTokens, bTokens) => {
+    if (!Array.isArray(aTokens) || !Array.isArray(bTokens) || aTokens.length === 0 || bTokens.length === 0) return 0
+    const a = new Set(aTokens)
+    const b = new Set(bTokens)
+    let inter = 0
+    a.forEach((t) => { if (b.has(t)) inter += 1 })
+    const union = a.size + b.size - inter
+    return union > 0 ? inter / union : 0
+  }
+
+  const knxDateTimeParseGA = (ga) => {
+    const parts = (ga || '').toString().trim().split('/')
+    if (parts.length !== 3) return null
+    const nums = parts.map((p) => Number(p))
+    if (nums.some((n) => !Number.isInteger(n) || n < 0)) return null
+    return nums
+  }
+
+  const knxDateTimeCompareGA = (a, b) => {
+    const aa = knxDateTimeParseGA(a)
+    const bb = knxDateTimeParseGA(b)
+    if (!aa && !bb) return 0
+    if (!aa) return 1
+    if (!bb) return -1
+    for (let i = 0; i < 3; i++) {
+      if (aa[i] !== bb[i]) return aa[i] - bb[i]
+    }
+    return 0
+  }
+
+  const knxGetKnxUltimateConfigs = () => {
+    const configs = []
+    try {
+      if (RED && RED.nodes) {
+        if (typeof RED.nodes.eachConfig === 'function') {
+          RED.nodes.eachConfig((cfg) => {
+            if (cfg && cfg.type === 'knxUltimate-config') configs.push(cfg)
+          })
+        } else if (typeof RED.nodes.eachNode === 'function') {
+          RED.nodes.eachNode((n) => {
+            if (n && n.type === 'knxUltimate-config') configs.push(n)
+          })
+        }
+        if (configs.length === 0 && typeof RED.nodes.filterNodes === 'function') {
+          try {
+            const filtered = RED.nodes.filterNodes({ type: 'knxUltimate-config' })
+            if (Array.isArray(filtered)) filtered.forEach((n) => configs.push(n))
+          } catch (error) { /* ignore */ }
+        }
+      }
+    } catch (error) { /* ignore */ }
+    return configs
+  }
+
+  const knxFetchGroupAddresses = (serverId) => {
+    return new Promise((resolve) => {
+      if (!serverId) return resolve([])
+      $.getJSON(`knxUltimatecsv?nodeID=${serverId}&_=${Date.now()}`, (data) => {
+        resolve(Array.isArray(data) ? data : [])
+      }).fail(() => resolve([]))
+    })
+  }
+
+  const knxScoreEntry = (entry, kind, baseTokens) => {
+    if (!entry) return -1
+    const dpt = (entry.dpt || '').toString()
+    const name = (entry.devicename || '').toString()
+    const tokens = knxDateTimeNormalizeTokens(name)
+
+    let score = 0
+
+    if (kind === 'datetime') {
+      if (dpt === '19.001') score += 60
+      else if (dpt.startsWith('19.')) score += 45
+      KNX_ULTIMATE_DATETIME_KEYWORDS.datetime.forEach((re) => { if (re.test(name)) score += 20 })
+      KNX_ULTIMATE_DATETIME_KEYWORDS.time.forEach((re) => { if (re.test(name)) score += 6 })
+      KNX_ULTIMATE_DATETIME_KEYWORDS.date.forEach((re) => { if (re.test(name)) score += 6 })
+    } else if (kind === 'date') {
+      if (dpt === '11.001') score += 60
+      else if (dpt.startsWith('11.')) score += 45
+      KNX_ULTIMATE_DATETIME_KEYWORDS.date.forEach((re) => { if (re.test(name)) score += 18 })
+    } else if (kind === 'time') {
+      if (dpt === '10.001') score += 60
+      else if (dpt.startsWith('10.')) score += 45
+      KNX_ULTIMATE_DATETIME_KEYWORDS.time.forEach((re) => { if (re.test(name)) score += 18 })
+    }
+
+    if (Array.isArray(baseTokens) && baseTokens.length > 0) {
+      score += Math.round(knxDateTimeTokenSimilarity(tokens, baseTokens) * 30)
+    }
+
+    return score
+  }
+
+  const knxPickBest = (entries, kind, baseTokens) => {
+    if (!Array.isArray(entries) || entries.length === 0) return null
+    let best = null
+    let bestScore = -1
+    entries.forEach((e) => {
+      const s = knxScoreEntry(e, kind, baseTokens)
+      if (s > bestScore) {
+        bestScore = s
+        best = e
+      } else if (s === bestScore && best) {
+        const cmp = knxDateTimeCompareGA(e.ga, best.ga)
+        if (cmp < 0) best = e
+      }
+    })
+    return best
+  }
+
+  const knxSuggestFromCsv = (csvRows) => {
+    const rows = Array.isArray(csvRows) ? csvRows : []
+    const datetimeRows = rows.filter((r) => (r && typeof r.dpt === 'string' && r.dpt.startsWith('19.')))
+    const dateRows = rows.filter((r) => (r && typeof r.dpt === 'string' && r.dpt.startsWith('11.')))
+    const timeRows = rows.filter((r) => (r && typeof r.dpt === 'string' && r.dpt.startsWith('10.')))
+
+    const bestDateTime = knxPickBest(datetimeRows, 'datetime', [])
+    const baseTokens = bestDateTime ? knxDateTimeNormalizeTokens(bestDateTime.devicename || '') : []
+
+    const bestDate = knxPickBest(dateRows, 'date', baseTokens)
+    const bestTime = knxPickBest(timeRows, 'time', baseTokens)
+
+    return {
+      dateTime: bestDateTime,
+      date: bestDate,
+      time: bestTime
+    }
+  }
+
+  const knxAutoConfigureDateTimeNode = async (node, { updateDom = false, preferExistingServer = true } = {}) => {
+    try {
+      if (!node) return
+
+      const hasAnyGA = !!((node.gaDateTime || '').trim() || (node.gaDate || '').trim() || (node.gaTime || '').trim())
+      if (hasAnyGA) return
+
+      // If server already selected and it has ETS rows, reuse it.
+      const currentServerId = preferExistingServer ? (node.server || '') : ''
+      if (currentServerId && currentServerId !== '_ADD_') {
+        const rows = await knxFetchGroupAddresses(currentServerId)
+        if (rows.length > 0) {
+          const suggestions = knxSuggestFromCsv(rows)
+          return knxApplySuggestions(node, currentServerId, suggestions, { updateDom })
+        }
+      }
+
+      // Otherwise, select the first knxUltimate-config that has an ETS CSV imported (non-empty parsed GA list).
+      const configs = knxGetKnxUltimateConfigs()
+      if (configs.length === 0) return
+
+      // Fast path: config node already carries an ETS file/path in its `csv` property.
+      for (let i = 0; i < configs.length; i++) {
+        const cfg = configs[i]
+        const id = cfg && cfg.id ? cfg.id : null
+        const csvHint = cfg && typeof cfg.csv === 'string' ? cfg.csv.trim() : ''
+        if (!id || !csvHint) continue
+        const rows = await knxFetchGroupAddresses(id)
+        if (rows.length === 0) continue
+        const suggestions = knxSuggestFromCsv(rows)
+        return knxApplySuggestions(node, id, suggestions, { updateDom })
+      }
+
+      const maxCandidates = Math.min(10, configs.length)
+      const checks = configs.slice(0, maxCandidates).map((cfg) => {
+        const id = cfg && cfg.id ? cfg.id : null
+        return knxFetchGroupAddresses(id).then((rows) => ({ id, rows }))
+      })
+      const results = await Promise.all(checks)
+
+      let selected = null
+      for (let i = 0; i < results.length; i++) {
+        if (results[i] && results[i].id && Array.isArray(results[i].rows) && results[i].rows.length > 0) {
+          selected = results[i]
+          break
+        }
+      }
+      if (!selected) return
+
+      const suggestions = knxSuggestFromCsv(selected.rows)
+      return knxApplySuggestions(node, selected.id, suggestions, { updateDom })
+    } catch (error) {
+      try { console.warn('knxUltimateDateTime auto-config failed', error) } catch (e) { /* ignore */ }
+    }
+  }
+
+  const knxAutoConfigureDateTimeNodeForServer = async (node, serverId, { updateDom = false, overwrite = false } = {}) => {
+    try {
+      if (!node || !serverId) return
+      const rows = await knxFetchGroupAddresses(serverId)
+      if (!Array.isArray(rows) || rows.length === 0) return
+      const suggestions = knxSuggestFromCsv(rows)
+      return knxApplySuggestions(node, serverId, suggestions, { updateDom, overwrite })
+    } catch (error) {
+      try { console.warn('knxUltimateDateTime auto-config for server failed', error) } catch (e) { /* ignore */ }
+    }
+  }
+
+  const knxApplySuggestions = (node, serverId, suggestions, { updateDom = false, overwrite = false } = {}) => {
+    if (!node || !serverId) return
+    if (!suggestions) return
+
+    // Avoid repeating the same automation multiple times.
+    if (node._knxDateTimeAutoConfigured === true && overwrite !== true) return
+
+    node.server = serverId
+
+    if (suggestions.dateTime && suggestions.dateTime.ga && (overwrite || !(node.gaDateTime || '').trim())) {
+      node.gaDateTime = suggestions.dateTime.ga
+      node.nameDateTime = suggestions.dateTime.devicename || ''
+    }
+    if (suggestions.date && suggestions.date.ga && (overwrite || !(node.gaDate || '').trim())) {
+      node.gaDate = suggestions.date.ga
+      node.nameDate = suggestions.date.devicename || ''
+    }
+    if (suggestions.time && suggestions.time.ga && (overwrite || !(node.gaTime || '').trim())) {
+      node.gaTime = suggestions.time.ga
+      node.nameTime = suggestions.time.devicename || ''
+    }
+
+    node._knxDateTimeAutoConfigured = true
+    node._knxDateTimeAutoConfiguredServer = serverId
+
+    if (updateDom) {
+      try {
+        $('#node-input-server').val(serverId).trigger('change')
+        if (node.gaDateTime) $('#node-input-gaDateTime').val(node.gaDateTime)
+        if (node.nameDateTime) $('#node-input-nameDateTime').val(node.nameDateTime)
+        if (node.gaDate) $('#node-input-gaDate').val(node.gaDate)
+        if (node.nameDate) $('#node-input-nameDate').val(node.nameDate)
+        if (node.gaTime) $('#node-input-gaTime').val(node.gaTime)
+        if (node.nameTime) $('#node-input-nameTime').val(node.nameTime)
+      } catch (error) { /* ignore */ }
+    } else {
+      try {
+        if (RED && RED.nodes && typeof RED.nodes.dirty === 'function') RED.nodes.dirty(true)
+      } catch (error) { /* ignore */ }
+      try { if (RED && RED.view && typeof RED.view.redraw === 'function') RED.view.redraw() } catch (error) { /* ignore */ }
+    }
+  }
+
+  RED.nodes.registerType('knxUltimateDateTime', {
+    category: 'KNX Ultimate',
+    color: '#C7E9C0',
+    defaults: {
+      server: { type: 'knxUltimate-config', required: true },
+      name: { value: '' },
+      outputtopic: { value: '' },
+      gaDateTime: { value: '' },
+      nameDateTime: { value: '' },
+      dptDateTime: { value: '19.001' },
+      gaDate: { value: '' },
+      nameDate: { value: '' },
+      dptDate: { value: '11.001' },
+      gaTime: { value: '' },
+      nameTime: { value: '' },
+      dptTime: { value: '10.001' },
+      sendOnDeploy: { value: true },
+      sendOnDeployDelay: { value: 1, validate: RED.validators.number() },
+      periodicSend: { value: true },
+      periodicSendInterval: { value: 60, validate: RED.validators.number() },
+      periodicSendUnit: { value: 'm' }
+    },
+    inputs: 0,
+    outputs: 0,
+    icon: 'node-knx-icon.svg',
+    label: function () {
+      return this.name || 'KNX DateTime'
+    },
+    paletteLabel: function () {
+      try {
+        return RED._('node-red-contrib-knx-ultimate/knxUltimateDateTime:knxUltimateDateTime.paletteLabel') || 'DateTime'
+      } catch (error) {
+        return 'DateTime'
+      }
+    },
+    onadd: function () {
+      // Auto-select a KNX gateway (first one with ETS CSV imported) and prefill coherent group addresses.
+      // This runs when the node is dragged from the palette. Best-effort, non-blocking.
+      const node = this
+      setTimeout(() => { knxAutoConfigureDateTimeNode(node, { updateDom: false, preferExistingServer: true }) }, 50)
+    },
+    button: {
+      enabled: function () {
+        return !this.changed
+      },
+      visible: function () {
+        return true
+      },
+      onclick: function () {
+        const node = this
+        $.ajax({
+          type: 'POST',
+          url: 'knxUltimateDateTime/sendNow',
+          data: { id: node.id },
+          success: function (response) {
+            const queued = response && response.queued === true
+            const message = queued
+              ? (RED._('node-red-contrib-knx-ultimate/knxUltimateDateTime:knxUltimateDateTime.notifyQueued') || 'Queued (gateway not connected yet)')
+              : (RED._('node-red-contrib-knx-ultimate/knxUltimateDateTime:knxUltimateDateTime.notifySent') || 'Sent to KNX')
+            RED.notify(message, 'success')
+          },
+          error: function (xhr) {
+            let message = 'Error'
+            try {
+              if (xhr && xhr.responseJSON && xhr.responseJSON.error) message = xhr.responseJSON.error
+            } catch (error) { /* ignore */ }
+            RED.notify(message, 'error')
+          }
+        })
+      }
+    },
+    oneditprepare: function () {
+      const node = this
+      const $knxServerInput = $('#node-input-server')
+      const KNX_EMPTY_VALUES = new Set(['', '_ADD_', '__NONE__', 'none'])
+      const KNX_GA_CACHE = node._knxGaCache || (node._knxGaCache = new Map())
+
+      try { RED.sidebar.show('help') } catch (error) { /* ignore */ }
+
+      const resolveKnxServerValue = () => {
+        const domValue = $knxServerInput.val()
+        if (domValue !== undefined && domValue !== null && domValue !== '') return domValue
+        if (node.server !== undefined && node.server !== null && node.server !== '') return node.server
+        return ''
+      }
+
+      const hasKnxServerSelected = () => {
+        const val = resolveKnxServerValue()
+        return !(val === undefined || val === null || KNX_EMPTY_VALUES.has(String(val)))
+      }
+
+      const fetchGroupAddresses = (serverId) => {
+        if (!serverId) return Promise.resolve([])
+        if (KNX_GA_CACHE.has(serverId)) return Promise.resolve(KNX_GA_CACHE.get(serverId))
+        return new Promise((resolve) => {
+          $.getJSON(`knxUltimatecsv?nodeID=${serverId}&_=${Date.now()}`, (data) => {
+            const list = Array.isArray(data) ? data : []
+            KNX_GA_CACHE.set(serverId, list)
+            resolve(list)
+          }).fail(() => resolve([]))
+        })
+      }
+
+      const setupGA = (gaSelector, nameSelector, dptSelector, allowedPrefixes, defaultDpt) => {
+        const $gaInput = $(gaSelector)
+        const $nameInput = $(nameSelector)
+        const $dptInput = $(dptSelector)
+        if (!$gaInput.length) return
+
+        if ($dptInput.length && (!$dptInput.val() || $dptInput.val() === '')) $dptInput.val(defaultDpt)
+
+        const sourceFn = (request, response) => {
+          if (!hasKnxServerSelected()) {
+            response([])
+            return
+          }
+          const serverId = resolveKnxServerValue()
+          fetchGroupAddresses(serverId).then((data) => {
+            const items = []
+            data.forEach((entry) => {
+              const dpt = entry.dpt || ''
+              const allowed = allowedPrefixes.some((prefix) => prefix === '' || dpt.startsWith(prefix))
+              if (!allowed) return
+              const devName = entry.devicename || ''
+              const searchStr = `${entry.ga} (${devName}) DPT${dpt}`
+              if (!htmlUtilsfullCSVSearch(searchStr, request.term || '')) return
+              items.push({
+                label: `${entry.ga} # ${devName} # ${dpt}`,
+                value: entry.ga,
+                ga: entry.ga
+              })
+            })
+            response(items)
+          })
+        }
+
+        if ($gaInput.data('knx-ga-initialised')) {
+          $gaInput.autocomplete('option', 'source', sourceFn)
+        } else {
+          $gaInput
+            .autocomplete({
+              minLength: 0,
+              source: sourceFn,
+              select: (event, ui) => {
+                let deviceName = ''
+                try {
+                  deviceName = ui.item.label.split('#')[1].trim()
+                } catch (error) { deviceName = '' }
+                if ($nameInput.length) {
+                  $nameInput.val(deviceName || '')
+                }
+                try {
+                  const parts = ui.item.label.split('#')
+                  const dptFromLabel = parts.length >= 3 ? parts[2].trim() : ''
+                  $dptInput.val(dptFromLabel || defaultDpt)
+                } catch (error) {
+                  $dptInput.val(defaultDpt)
+                }
+              }
+            })
+            .on('focus.knxUltimateDateTime click.knxUltimateDateTime', function () {
+              const currentValue = $(this).val() || ''
+              try { $(this).autocomplete('search', `${currentValue} exactmatch`) } catch (error) { /* ignore */ }
+            })
+          $gaInput.data('knx-ga-initialised', true)
+        }
+
+        try {
+          if (hasKnxServerSelected()) {
+            const srv = RED.nodes.node(resolveKnxServerValue())
+            if (srv && srv.id) KNX_enableSecureFormatting($gaInput, srv.id)
+          }
+        } catch (error) { /* ignore */ }
+      }
+
+      const refresh = () => {
+        setupGA('#node-input-gaDateTime', '#node-input-nameDateTime', '#node-input-dptDateTime', ['19.'], '19.001')
+        setupGA('#node-input-gaDate', '#node-input-nameDate', '#node-input-dptDate', ['11.'], '11.001')
+        setupGA('#node-input-gaTime', '#node-input-nameTime', '#node-input-dptTime', ['10.'], '10.001')
+      }
+
+      $knxServerInput.on('change', () => {
+        KNX_GA_CACHE.clear()
+        refresh()
+        try {
+          const sid = resolveKnxServerValue()
+          if (!sid || sid === '_ADD_') return
+          const hasAnyGAInUi = !!(
+            ($('#node-input-gaDateTime').val() || '').toString().trim() ||
+            ($('#node-input-gaDate').val() || '').toString().trim() ||
+            ($('#node-input-gaTime').val() || '').toString().trim()
+          )
+          // If the current values were auto-filled, allow overwrite when server changes.
+          const shouldOverwrite = node._knxDateTimeAutoConfigured === true && node._knxDateTimeAutoConfiguredServer && node._knxDateTimeAutoConfiguredServer !== sid
+          // Otherwise fill only empty fields (do not override manual config).
+          knxAutoConfigureDateTimeNodeForServer(node, sid, { updateDom: true, overwrite: shouldOverwrite || !hasAnyGAInUi })
+        } catch (error) { /* ignore */ }
+      })
+
+      refresh()
+
+      // Auto-select server + fill GAs only for a brand new node (all GAs empty).
+      setTimeout(() => { knxAutoConfigureDateTimeNode(node, { updateDom: true, preferExistingServer: true }) }, 50)
+
+      const syncUi = () => {
+        const sendOnDeploy = $('#node-input-sendOnDeploy').is(':checked')
+        $('.knx-datetime-deploy-options').toggle(sendOnDeploy)
+        const periodicSend = $('#node-input-periodicSend').is(':checked')
+        $('.knx-datetime-periodic-options').toggle(periodicSend)
+      }
+
+      $('#node-input-sendOnDeploy').on('change', syncUi)
+      $('#node-input-periodicSend').on('change', syncUi)
+      syncUi()
+    }
+  })
+</script>
+
+<script type="text/html" data-template-name="knxUltimateDateTime">
+  <div class="form-row" style="display:flex; align-items:center;">
+    <label for="node-input-server" style="width:180px"><i class="fa fa-circle-o"></i> <span data-i18n="knxUltimateDateTime.node-input-server"></span></label>
+    <input type="text" id="node-input-server" style="flex:1">
+  </div>
+
+  <div class="form-row" style="display:flex; align-items:center;">
+    <label for="node-input-name" style="width:180px"><i class="fa fa-tag"></i> <span data-i18n="knxUltimateDateTime.node-input-name"></span></label>
+    <input type="text" id="node-input-name" style="flex:1" placeholder="KNX DateTime">
+  </div>
+
+  <div class="form-row" style="display:flex; align-items:center;">
+    <label for="node-input-outputtopic" style="width:180px"><i class="fa fa-comment"></i> <span data-i18n="knxUltimateDateTime.node-input-outputtopic"></span></label>
+    <input type="text" id="node-input-outputtopic" style="flex:1" placeholder="events/knx/datetime" data-i18n="[placeholder]knxUltimateDateTime.placeholders.outputtopic">
+  </div>
+
+  <hr>
+  <div class="form-row" style="margin:4px 0 2px;">
+    <span style="font-weight:bold;" data-i18n="knxUltimateDateTime.section_addresses"></span>
+  </div>
+
+  <div class="form-row" style="display:flex; align-items:center; gap:8px;">
+    <label for="node-input-gaDateTime" style="width:180px"><i class="fa fa-calendar"></i> <span data-i18n="knxUltimateDateTime.gaDateTime"></span></label>
+    <input type="text" id="node-input-gaDateTime" style="width:160px" placeholder="1/7/1" data-i18n="[placeholder]knxUltimateDateTime.placeholders.ga">
+    <input type="text" id="node-input-nameDateTime" style="flex:1" placeholder="DateTime object" data-i18n="[placeholder]knxUltimateDateTime.placeholders.nameDateTime">
+    <label for="node-input-dptDateTime" style="width:60px; text-align:right">DPT</label>
+    <input type="text" id="node-input-dptDateTime" style="width:160px" readonly>
+  </div>
+
+  <div class="form-row" style="display:flex; align-items:center; gap:8px;">
+    <label for="node-input-gaDate" style="width:180px"><i class="fa fa-calendar-o"></i> <span data-i18n="knxUltimateDateTime.gaDate"></span></label>
+    <input type="text" id="node-input-gaDate" style="width:160px" placeholder="1/7/2" data-i18n="[placeholder]knxUltimateDateTime.placeholders.ga">
+    <input type="text" id="node-input-nameDate" style="flex:1" placeholder="Date object" data-i18n="[placeholder]knxUltimateDateTime.placeholders.nameDate">
+    <label for="node-input-dptDate" style="width:60px; text-align:right">DPT</label>
+    <input type="text" id="node-input-dptDate" style="width:160px" readonly>
+  </div>
+
+  <div class="form-row" style="display:flex; align-items:center; gap:8px;">
+    <label for="node-input-gaTime" style="width:180px"><i class="fa fa-clock-o"></i> <span data-i18n="knxUltimateDateTime.gaTime"></span></label>
+    <input type="text" id="node-input-gaTime" style="width:160px" placeholder="1/7/3" data-i18n="[placeholder]knxUltimateDateTime.placeholders.ga">
+    <input type="text" id="node-input-nameTime" style="flex:1" placeholder="Time object" data-i18n="[placeholder]knxUltimateDateTime.placeholders.nameTime">
+    <label for="node-input-dptTime" style="width:60px; text-align:right">DPT</label>
+    <input type="text" id="node-input-dptTime" style="width:160px" readonly>
+  </div>
+
+  <hr>
+  <div class="form-row" style="margin:4px 0 2px;">
+    <span style="font-weight:bold;" data-i18n="knxUltimateDateTime.section_send"></span>
+  </div>
+
+  <div class="form-row" style="display:flex; align-items:center;">
+    <label for="node-input-sendOnDeploy" style="width:180px"><i class="fa fa-play"></i> <span data-i18n="knxUltimateDateTime.node-input-sendOnDeploy"></span></label>
+    <input type="checkbox" id="node-input-sendOnDeploy" style="width:auto">
+  </div>
+
+  <div class="form-row knx-datetime-deploy-options" style="display:flex; align-items:center;">
+    <label for="node-input-sendOnDeployDelay" style="width:180px"><i class="fa fa-clock-o"></i> <span data-i18n="knxUltimateDateTime.node-input-sendOnDeployDelay"></span></label>
+    <input type="number" id="node-input-sendOnDeployDelay" style="width:120px">
+  </div>
+
+  <div class="form-row" style="display:flex; align-items:center;">
+    <label for="node-input-periodicSend" style="width:180px"><i class="fa fa-repeat"></i> <span data-i18n="knxUltimateDateTime.node-input-periodicSend"></span></label>
+    <input type="checkbox" id="node-input-periodicSend" style="width:auto">
+  </div>
+
+  <div class="form-row knx-datetime-periodic-options" style="display:flex; align-items:center; gap:8px;">
+    <label for="node-input-periodicSendInterval" style="width:180px"><i class="fa fa-hourglass"></i> <span data-i18n="knxUltimateDateTime.node-input-periodicSendInterval"></span></label>
+    <input type="number" id="node-input-periodicSendInterval" style="width:120px">
+    <select id="node-input-periodicSendUnit" style="width:160px">
+      <option value="s" data-i18n="knxUltimateDateTime.unit_seconds"></option>
+      <option value="m" data-i18n="knxUltimateDateTime.unit_minutes"></option>
+    </select>
+  </div>
+</script>
