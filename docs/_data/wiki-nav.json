@@ -109,6 +109,11 @@
           "external": false
         },
         {
+          "label": "DateTime",
+          "url": "/wiki/DateTime-Configuration",
+          "external": false
+        },
+        {
           "label": "Staircase",
           "url": "/wiki/Staircase-Configuration",
           "external": false
@@ -523,6 +528,11 @@
         {
           "label": "Controllo Carico",
           "url": "/wiki/it-LoadControl-Configuration",
+          "external": false
+        },
+        {
+          "label": "Data/Ora",
+          "url": "/wiki/it-DateTime-Configuration",
           "external": false
         },
         {
@@ -943,6 +953,11 @@
           "external": false
         },
         {
+          "label": "Datum/Uhrzeit",
+          "url": "/wiki/de-DateTime-Configuration",
+          "external": false
+        },
+        {
           "label": "Treppenhaus",
           "url": "/wiki/de-Staircase-Configuration",
           "external": false
@@ -1357,6 +1372,11 @@
         {
           "label": "Load Control",
           "url": "/wiki/fr-LoadControl-Configuration",
+          "external": false
+        },
+        {
+          "label": "Date/Heure",
+          "url": "/wiki/fr-DateTime-Configuration",
           "external": false
         },
         {
@@ -1777,6 +1797,11 @@
           "external": false
         },
         {
+          "label": "Fecha/Hora",
+          "url": "/wiki/es-DateTime-Configuration",
+          "external": false
+        },
+        {
           "label": "Staircase",
           "url": "/wiki/es-Staircase-Configuration",
           "external": false
@@ -2186,6 +2211,11 @@
         {
           "label": "负载控制",
           "url": "/wiki/zh-CN-LoadControl-Configuration",
+          "external": false
+        },
+        {
+          "label": "日期/时间",
+          "url": "/wiki/zh-CN-DateTime-Configuration",
           "external": false
         },
         {

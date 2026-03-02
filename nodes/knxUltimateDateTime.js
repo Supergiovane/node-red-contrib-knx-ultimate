@@ -304,4 +304,3 @@ module.exports = function (RED) {
 
   RED.nodes.registerType('knxUltimateDateTime', knxUltimateDateTime)
 }
-

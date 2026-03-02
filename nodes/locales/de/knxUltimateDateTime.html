@@ -1,0 +1,36 @@
+<script type="text/markdown" data-help-name="knxUltimateDateTime">
+# KNX DATUM/UHRZEIT
+
+Mit diesem Node kannst du **Datum/Uhrzeit auf den KNX-Bus schreiben**.
+
+Der Node kann senden:
+- **DPT 19.001** auf eine *Datum/Uhrzeit-GA* (empfohlen)
+- **DPT 11.001** auf eine *Datum-GA* (optional)
+- **DPT 10.001** auf eine *Uhrzeit-GA* (optional)
+
+## Sendezeitpunkte
+
+- Beim Deploy/Start (optional, mit Verzögerung)
+- Periodisch (optional)
+- Bei jeder Eingangs-Nachricht
+- Über den Editor-Button (Sofort senden)
+
+## Eingabe-Payload
+
+Wenn `msg.payload` leer ist, wird die aktuelle Systemzeit gesendet.
+
+Unterstützt:
+- `new Date()`
+- Timestamp (ms)
+- String, der von `new Date("...")` geparst werden kann
+- `"now"`
+
+## Output
+
+Der Node gibt pro Versand eine Nachricht aus:
+- `msg.payload`: die gesendete `Date`
+- `msg.sent`: Array von `{ ga, dpt, name }`
+- `msg.reason`: `input`, `startup`, `periodic` oder `button`
+
+</script>
+

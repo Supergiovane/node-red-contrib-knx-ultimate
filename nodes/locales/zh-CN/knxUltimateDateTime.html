@@ -1,0 +1,36 @@
+<script type="text/markdown" data-help-name="knxUltimateDateTime">
+# KNX 日期/时间
+
+使用此节点将**日期/时间写入 KNX 总线**。
+
+可发送：
+- **DPT 19.001** 到 *日期/时间 GA*（推荐）
+- **DPT 11.001** 到 *日期 GA*（可选）
+- **DPT 10.001** 到 *时间 GA*（可选）
+
+## 发送时机
+
+- 部署/启动时（可选，可设置延时）
+- 周期发送（可选）
+- 每次输入消息
+- 编辑器按钮（立即发送）
+
+## 输入 payload
+
+如果 `msg.payload` 为空，则发送当前系统时间。
+
+支持：
+- `new Date()`
+- 时间戳（毫秒）
+- `new Date("...")` 可解析的字符串
+- `"now"`
+
+## 输出
+
+每次发送节点会输出一条消息：
+- `msg.payload`：发送的 `Date`
+- `msg.sent`：`{ ga, dpt, name }` 数组
+- `msg.reason`：`input` / `startup` / `periodic` / `button`
+
+</script>
+

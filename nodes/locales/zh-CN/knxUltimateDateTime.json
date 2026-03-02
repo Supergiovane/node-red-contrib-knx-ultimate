@@ -1,0 +1,30 @@
+{
+  "knxUltimateDateTime": {
+    "title": "日期/时间",
+    "paletteLabel": "日期/时间",
+    "node-input-server": "KNX 网关",
+    "node-input-name": "名称",
+    "node-input-outputtopic": "节点输出 Topic",
+    "section_addresses": "组地址",
+    "gaDateTime": "日期/时间 GA（DPT 19.001）",
+    "gaDate": "日期 GA（DPT 11.001）",
+    "gaTime": "时间 GA（DPT 10.001）",
+    "section_send": "发送选项",
+    "node-input-sendOnDeploy": "部署/启动时发送",
+    "node-input-sendOnDeployDelay": "启动延时（秒）",
+    "node-input-periodicSend": "周期发送",
+    "node-input-periodicSendInterval": "间隔",
+    "unit_seconds": "秒",
+    "unit_minutes": "分钟",
+    "notifySent": "已发送到 KNX",
+    "notifyQueued": "已加入队列（网关尚未连接）",
+    "placeholders": {
+      "outputtopic": "可选输出 Topic",
+      "ga": "例如 1/7/1",
+      "nameDateTime": "ETS 名称（可选）",
+      "nameDate": "ETS 名称（可选）",
+      "nameTime": "ETS 名称（可选）"
+    }
+  }
+}
+

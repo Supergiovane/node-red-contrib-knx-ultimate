@@ -1,0 +1,36 @@
+<script type="text/markdown" data-help-name="knxUltimateDateTime">
+# KNX DATE/HEURE
+
+Utilise ce nœud pour **mettre à jour la date/heure sur le bus KNX**.
+
+Il peut envoyer :
+- **DPT 19.001** sur une *GA Date/Heure* (recommandé)
+- **DPT 11.001** sur une *GA Date* (optionnel)
+- **DPT 10.001** sur une *GA Heure* (optionnel)
+
+## Quand il envoie
+
+- Au déploiement/démarrage (optionnel, avec délai)
+- Envoi périodique (optionnel)
+- À chaque message entrant
+- Bouton dans l'éditeur (envoyer maintenant)
+
+## Payload d'entrée
+
+Si `msg.payload` est vide, le nœud envoie l'heure système courante.
+
+Supporté :
+- `new Date()`
+- timestamp (ms)
+- chaîne acceptée par `new Date("...")`
+- `"now"`
+
+## Sortie
+
+Le nœud émet un message par envoi :
+- `msg.payload`: la `Date` envoyée
+- `msg.sent`: tableau de `{ ga, dpt, name }`
+- `msg.reason`: `input`, `startup`, `periodic` ou `button`
+
+</script>
+

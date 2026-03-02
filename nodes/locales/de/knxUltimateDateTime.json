@@ -1,0 +1,30 @@
+{
+  "knxUltimateDateTime": {
+    "title": "Datum/Uhrzeit",
+    "paletteLabel": "Datum/Uhrzeit",
+    "node-input-server": "KNX Gateway",
+    "node-input-name": "Name",
+    "node-input-outputtopic": "Topic für Node-Ausgabe",
+    "section_addresses": "Gruppenadressen",
+    "gaDateTime": "Datum/Uhrzeit GA (DPT 19.001)",
+    "gaDate": "Datum GA (DPT 11.001)",
+    "gaTime": "Uhrzeit GA (DPT 10.001)",
+    "section_send": "Sendeoptionen",
+    "node-input-sendOnDeploy": "Beim Deploy/Start senden",
+    "node-input-sendOnDeployDelay": "Startverzögerung (Sekunden)",
+    "node-input-periodicSend": "Periodisch senden",
+    "node-input-periodicSendInterval": "Intervall",
+    "unit_seconds": "Sekunden",
+    "unit_minutes": "Minuten",
+    "notifySent": "An KNX gesendet",
+    "notifyQueued": "In Warteschlange (Gateway noch nicht verbunden)",
+    "placeholders": {
+      "outputtopic": "Optionales Output-Topic",
+      "ga": "z.B. 1/7/1",
+      "nameDateTime": "Optionaler ETS-Name",
+      "nameDate": "Optionaler ETS-Name",
+      "nameTime": "Optionaler ETS-Name"
+    }
+  }
+}
+

@@ -1,0 +1,36 @@
+<script type="text/markdown" data-help-name="knxUltimateDateTime">
+# KNX FECHA/HORA
+
+Usa este nodo para **ajustar la fecha/hora en el bus KNX**.
+
+Puede enviar:
+- **DPT 19.001** a una *GA Fecha/Hora* (recomendado)
+- **DPT 11.001** a una *GA Fecha* (opcional)
+- **DPT 10.001** a una *GA Hora* (opcional)
+
+## Cuándo envía
+
+- Al desplegar/iniciar (opcional, con retardo)
+- Envío periódico (opcional)
+- En cada mensaje de entrada
+- Botón del editor (enviar ahora)
+
+## Payload de entrada
+
+Si `msg.payload` está vacío, se envía la hora actual del sistema.
+
+Soportado:
+- `new Date()`
+- timestamp (ms)
+- string aceptado por `new Date("...")`
+- `"now"`
+
+## Salida
+
+El nodo emite un mensaje por cada envío:
+- `msg.payload`: la `Date` enviada
+- `msg.sent`: array de `{ ga, dpt, name }`
+- `msg.reason`: `input`, `startup`, `periodic` o `button`
+
+</script>
+

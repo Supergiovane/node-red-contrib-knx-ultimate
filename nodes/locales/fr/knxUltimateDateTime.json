@@ -1,0 +1,30 @@
+{
+  "knxUltimateDateTime": {
+    "title": "Date/Heure",
+    "paletteLabel": "Date/Heure",
+    "node-input-server": "Passerelle KNX",
+    "node-input-name": "Nom",
+    "node-input-outputtopic": "Topic de sortie du nœud",
+    "section_addresses": "Adresses de groupe",
+    "gaDateTime": "GA Date/Heure (DPT 19.001)",
+    "gaDate": "GA Date (DPT 11.001)",
+    "gaTime": "GA Heure (DPT 10.001)",
+    "section_send": "Options d'envoi",
+    "node-input-sendOnDeploy": "Envoyer au déploiement/démarrage",
+    "node-input-sendOnDeployDelay": "Délai au démarrage (secondes)",
+    "node-input-periodicSend": "Envoi périodique",
+    "node-input-periodicSendInterval": "Intervalle",
+    "unit_seconds": "Secondes",
+    "unit_minutes": "Minutes",
+    "notifySent": "Envoyé sur KNX",
+    "notifyQueued": "Mis en file d'attente (passerelle pas encore connectée)",
+    "placeholders": {
+      "outputtopic": "Topic de sortie optionnel",
+      "ga": "ex. 1/7/1",
+      "nameDateTime": "Nom ETS (optionnel)",
+      "nameDate": "Nom ETS (optionnel)",
+      "nameTime": "Nom ETS (optionnel)"
+    }
+  }
+}
+
