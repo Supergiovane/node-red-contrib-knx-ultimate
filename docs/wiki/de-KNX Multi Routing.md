@@ -4,8 +4,6 @@ title: "KNX Multi Routing"
 lang: de
 permalink: /wiki/de-KNX%20Multi%20Routing
 ---
-<img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/knx-multi-routing-filter.svg" width="95%"><br/>
-
 Dieser Node dient dazu, **mehrere KNX-Ultimate-Gateways** (mehrere `knxUltimate-config`) über Node-RED Verbindungen zu koppeln.
 
 Er gibt für jedes Telegramm vom KNX-Bus des ausgewählten Gateways ein Objekt mit **RAW-Telegramm-Informationen** (APDU + cEMI-Hex + Adressen) aus.

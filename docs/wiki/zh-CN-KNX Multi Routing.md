@@ -4,8 +4,6 @@ title: "KNX Multi Routing"
 lang: zh-CN
 permalink: /wiki/zh-CN-KNX%20Multi%20Routing
 ---
-<img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/knx-multi-routing-filter.svg" width="95%"><br/>
-
 此节点用于通过 Node-RED 的连线来**互联多个 KNX Ultimate 网关**（多个 `knxUltimate-config`）。
 
 它会为所选网关的 KNX 总线上收到的每个电报输出一条包含**RAW 电报信息**（APDU + cEMI 十六进制 + 地址）的消息。

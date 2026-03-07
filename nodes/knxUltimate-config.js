@@ -1412,7 +1412,9 @@ module.exports = (RED) => {
                       destination: _dest,
                       apdu: { data: _apduData, bitlength: _apduBitLength, hex: _apduHex },
                       cemi: { hex: _cemiETS },
-                      echoed: _echoed
+                      echoed: _echoed,
+                      repeated: isRepeated,
+                      repeat: isRepeated
                     },
                     knxMultiRouting: {
                       gateway: { id: node.id, name: node.name || '', physAddr: node.physAddr || '' },
@@ -1429,7 +1431,9 @@ module.exports = (RED) => {
                   knx: {
                     event: _evt,
                     destination: _dest,
-                    rawValue: _rawValue
+                    rawValue: _rawValue,
+                    repeated: isRepeated,
+                    repeat: isRepeated
                   }
                 }
                 _input.handleSend(msg)
@@ -1449,7 +1453,8 @@ module.exports = (RED) => {
                           _devicename: _input.name ? _input.name : '',
                           _outputtopic: _input.outputtopic,
                           _oNode: null,
-                          _echoed
+                          _echoed,
+                          _repeated: isRepeated
                         })
                         _input.RecallScene(msgRecall.payload, false)
                       } catch (error) { }
@@ -1465,7 +1470,8 @@ module.exports = (RED) => {
                           _devicename: _input.name || '',
                           _outputtopic: _dest,
                           _oNode: null,
-                          _echoed
+                          _echoed,
+                          _repeated: isRepeated
                         })
                         _input.SaveScene(msgSave.payload, false)
                       } catch (error) { }
@@ -1492,7 +1498,8 @@ module.exports = (RED) => {
                           _devicename: oDevice.name || '',
                           _outputtopic: oDevice.outputtopic,
                           _oNode: null,
-                          _echoed
+                          _echoed,
+                          _repeated: isRepeated
                         })
                         oDevice.currentPayload = msg.payload
                         _input.setNodeStatus({
@@ -1532,7 +1539,8 @@ module.exports = (RED) => {
                   _Rawvalue: _rawValue,
                   _outputtopic: _dest,
                   _oNode: _input,
-                  _echoed
+                  _echoed,
+                  _repeated: isRepeated
                 })
                 _input.setNodeStatus({
                   fill: 'green',
@@ -1558,7 +1566,8 @@ module.exports = (RED) => {
                     _devicename: _input.name ? _input.name : '',
                     _outputtopic: _input.outputtopic,
                     _oNode: _input,
-                    _echoed
+                    _echoed,
+                    _repeated: isRepeated
                   })
                   // Check RBE INPUT from KNX Bus, to avoid send the payload to the flow, if it's equal to the current payload
                   if (!checkRBEInputFromKNXBusAllowSend(_input, msg.payload)) {
@@ -1605,7 +1614,9 @@ module.exports = (RED) => {
                       destination: _dest,
                       apdu: { data: _apduData, bitlength: _apduBitLength, hex: _apduHex },
                       cemi: { hex: _cemiETS },
-                      echoed: _echoed
+                      echoed: _echoed,
+                      repeated: isRepeated,
+                      repeat: isRepeated
                     },
                     knxMultiRouting: {
                       gateway: { id: node.id, name: node.name || '', physAddr: node.physAddr || '' },
@@ -1634,7 +1645,8 @@ module.exports = (RED) => {
                   _Rawvalue: _rawValue,
                   _outputtopic: _dest,
                   _oNode: _input,
-                  _echoed
+                  _echoed,
+                  _repeated: isRepeated
                 })
                 _input.setNodeStatus({
                   fill: 'blue',
@@ -1661,7 +1673,8 @@ module.exports = (RED) => {
                     _devicename: _input.name ? _input.name : '',
                     _outputtopic: _input.outputtopic,
                     _oNode: _input,
-                    _echoed
+                    _echoed,
+                    _repeated: isRepeated
                   })
                   // Check RBE INPUT from KNX Bus, to avoid send the payload to the flow, if it's equal to the current payload
                   if (!checkRBEInputFromKNXBusAllowSend(_input, msg.payload)) {
@@ -1705,7 +1718,9 @@ module.exports = (RED) => {
                       destination: _dest,
                       apdu: { data: null, bitlength: 0, hex: '' },
                       cemi: { hex: _cemiETS },
-                      echoed: _echoed
+                      echoed: _echoed,
+                      repeated: isRepeated,
+                      repeat: isRepeated
                     },
                     knxMultiRouting: {
                       gateway: { id: node.id, name: node.name || '', physAddr: node.physAddr || '' },
@@ -1736,7 +1751,8 @@ module.exports = (RED) => {
                   _Rawvalue: null,
                   _outputtopic: _dest,
                   _oNode: _input,
-                  _echoed
+                  _echoed,
+                  _repeated: isRepeated
                 })
                 _input.setNodeStatus({
                   fill: 'grey',
@@ -1763,7 +1779,8 @@ module.exports = (RED) => {
                     _devicename: _input.name || '',
                     _outputtopic: _input.outputtopic,
                     _oNode: _input,
-                    _echoed
+                    _echoed,
+                    _repeated: isRepeated
                   })
                   msg.previouspayload = typeof _input.currentPayload !== 'undefined' ? _input.currentPayload : '' // 24/01/2020 Reset previous payload
                   // 24/09/2019 Autorespond to BUS
@@ -2002,7 +2019,7 @@ module.exports = (RED) => {
       }
     }
 
-    function buildInputMessage ({ _srcGA, _destGA, _event, _Rawvalue, _inputDpt, _devicename, _outputtopic, _oNode, _echoed = false }) {
+    function buildInputMessage ({ _srcGA, _destGA, _event, _Rawvalue, _inputDpt, _devicename, _outputtopic, _oNode, _echoed = false, _repeated = false }) {
       let sPayloadmeasureunit = 'unknown'
       let sDptdesc = 'unknown'
       let sPayloadsubtypevalue = 'unknown'
@@ -2054,13 +2071,17 @@ module.exports = (RED) => {
         devicename: typeof _devicename !== 'undefined' ? _devicename : '',
         payloadmeasureunit: '',
         payloadsubtypevalue: '',
+        repeated: _repeated === true,
+        repeat: _repeated === true,
         knx: {
           event: _event,
           dpt: 'unknown',
           dptdesc: '',
           source: _srcGA,
           destination: _destGA,
-          rawValue: _Rawvalue
+          rawValue: _Rawvalue,
+          repeated: _repeated === true,
+          repeat: _repeated === true
         }
       }
 
@@ -2197,13 +2218,17 @@ module.exports = (RED) => {
           payloadsubtypevalue: sPayloadsubtypevalue,
           gainfo,
           echoed: _echoed,
+          repeated: _repeated === true,
+          repeat: _repeated === true,
           knx: {
             event: _event,
             dpt: sInputDpt,
             dptdesc: sDptdesc,
             source: _srcGA,
             destination: _destGA,
-            rawValue: _Rawvalue
+            rawValue: _Rawvalue,
+            repeated: _repeated === true,
+            repeat: _repeated === true
           }
         }
         // 11/11/2021 jsValue is null, as well as _Rawvalue, in case of READ REQUEST message.

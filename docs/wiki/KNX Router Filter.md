@@ -6,8 +6,6 @@ permalink: /wiki/KNX%20Router%20Filter
 ---
 Filters RAW telegram objects (typically produced by **KNX Multi Routing**) before they are forwarded to another gateway.
 
-<img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/sample-knx-router-filter.svg" width="95%"><br/>
-
 ## Pattern syntax
 - Group Address patterns support `*` per level:
   - `0/0/*` matches all group addresses in `0/0`

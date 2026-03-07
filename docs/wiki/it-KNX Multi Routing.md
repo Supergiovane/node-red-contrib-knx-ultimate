@@ -4,15 +4,13 @@ title: "KNX Multi Routing"
 lang: it
 permalink: /wiki/it-KNX%20Multi%20Routing
 ---
-<img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/knx-multi-routing-filter.svg" width="95%"><br/>
-
 Questo nodo serve per **collegare tra loro più gateway KNX Ultimate** (più `knxUltimate-config`) tramite i collegamenti di Node-RED.
 
 In output emette un oggetto con le informazioni **RAW** del telegramma (APDU + cEMI hex + indirizzi) per ogni telegramma ricevuto dal BUS KNX del gateway selezionato.
 In input può ricevere gli stessi oggetti RAW e inoltrarli sul BUS KNX del gateway selezionato.
 
 ## Modalità Server KNX/IP
-Imposta **Modalità** su **Server KNX/IP** per avviare un server KNXnet/IP tunneling (UDP) integrato. I telegrammi ricevuti dai client vengono emessi nello stesso formato RAW usato dal MultiRouting.
+Imposta **Modalità** su **Server KNX/IP** per avviare un server KNXnet/IP tunneling (UDP). I telegrammi ricevuti dai client vengono emessi nello stesso formato RAW usato dal MultiRouting.
 Il nodo accetta anche in input gli oggetti RAW e li inietta verso i client tunneling connessi.
 
 **Importante (Host annunciato):** i client KNXnet/IP inviano i dati all’IP annunciato dal server nella CONNECT_RESPONSE. Se il client risulta *connesso* ma il server non riceve telegrammi, imposta **Host annunciato** con l’IP LAN del server raggiungibile dal client (soprattutto se Node-RED gira in Docker/VM o se il PC ha più schede di rete).

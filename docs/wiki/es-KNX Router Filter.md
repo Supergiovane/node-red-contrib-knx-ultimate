@@ -6,8 +6,6 @@ permalink: /wiki/es-KNX%20Router%20Filter
 ---
 Filtra objetos de telegramas RAW (normalmente producidos por **KNX Multi Routing**) antes de reenviarlos a otro gateway.
 
-<img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/sample-knx-router-filter.svg" width="95%"><br/>
-
 ## Sintaxis de patrones
 - Patrones de Dirección de Grupo (GA) con `*` por nivel:
   - `0/0/*` coincide con todas las GA en `0/0`

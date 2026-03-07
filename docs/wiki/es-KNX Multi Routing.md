@@ -4,8 +4,6 @@ title: "KNX Multi Routing"
 lang: es
 permalink: /wiki/es-KNX%20Multi%20Routing
 ---
-<img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/knx-multi-routing-filter.svg" width="95%"><br/>
-
 Este nodo se utiliza para **interconectar varios gateways KNX Ultimate** (varios `knxUltimate-config`) mediante cables de Node-RED.
 
 En la salida emite un objeto con información **RAW del telegrama** (APDU + cEMI en hex + direcciones) para cada telegrama recibido del bus KNX del gateway seleccionado.

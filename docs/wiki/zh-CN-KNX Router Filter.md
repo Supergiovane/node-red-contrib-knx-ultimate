@@ -6,8 +6,6 @@ permalink: /wiki/zh-CN-KNX%20Router%20Filter
 ---
 在将 RAW 电报对象（通常由 **KNX Multi Routing** 产生）转发到其它网关之前，对其进行过滤。
 
-<img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/sample-knx-router-filter.svg" width="95%"><br/>
-
 ## Pattern 语法
 - 组地址（GA）支持每级 `*`：
   - `0/0/*` 匹配 `0/0` 下的所有组地址

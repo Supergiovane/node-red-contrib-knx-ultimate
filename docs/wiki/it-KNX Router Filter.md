@@ -6,8 +6,6 @@ permalink: /wiki/it-KNX%20Router%20Filter
 ---
 Filtra i telegrammi RAW (tipicamente prodotti dal nodo **KNX Multi Routing**) prima di inoltrarli su un altro gateway.
 
-<img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/sample-knx-router-filter.svg" width="95%"><br/>
-
 ## Sintassi pattern
 - I pattern per Group Address supportano `*` per livello:
   - `0/0/*` matcha tutti i GA in `0/0`

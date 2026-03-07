@@ -42,6 +42,55 @@
       ]
     },
     {
+      "key": "sidebarPlugins",
+      "labels": {
+        "en": "Web pages and sidebar",
+        "it": "Web pages and sidebar",
+        "de": "Web pages and sidebar",
+        "fr": "Web pages and sidebar",
+        "es": "Web pages and sidebar",
+        "zh": "Web pages and sidebar"
+      },
+      "items": [
+        {
+          "type": "page",
+          "labels": {
+            "en": "KNX Monitor",
+            "it": "KNX Monitor",
+            "de": "KNX Monitor",
+            "fr": "KNX Monitor",
+            "es": "KNX Monitor",
+            "zh": "KNX Monitor"
+          },
+          "page": "KNX-Monitor-Sidebar"
+        },
+        {
+          "type": "page",
+          "labels": {
+            "en": "KNX Debug",
+            "it": "KNX Debug",
+            "de": "KNX Debug",
+            "fr": "KNX Debug",
+            "es": "KNX Debug",
+            "zh": "KNX Debug"
+          },
+          "page": "KNX-Debug-Sidebar"
+        },
+        {
+          "type": "page",
+          "labels": {
+            "en": "KNX AI Dashboard",
+            "it": "KNX AI Dashboard",
+            "de": "KNX AI Dashboard",
+            "fr": "Dashboard KNX AI",
+            "es": "Dashboard KNX AI",
+            "zh": "KNX AI 仪表板"
+          },
+          "page": "KNX-AI-Sidebar"
+        }
+      ]
+    },
+    {
       "key": "knxMain",
       "labels": {
         "en": "KNX Device",
@@ -79,55 +128,6 @@
             "zh": "节点保护"
           },
           "page": "Protections"
-        }
-      ]
-    },
-    {
-      "key": "sidebarPlugins",
-      "labels": {
-        "en": "Sidebar plugins",
-        "it": "Plugin sidebar",
-        "de": "Sidebar-Plugins",
-        "fr": "Plugins de la barre latérale",
-        "es": "Plugins de la barra lateral",
-        "zh": "侧边栏插件"
-      },
-      "items": [
-        {
-          "type": "page",
-          "labels": {
-            "en": "KNX Monitor",
-            "it": "KNX Monitor",
-            "de": "KNX Monitor",
-            "fr": "KNX Monitor",
-            "es": "KNX Monitor",
-            "zh": "KNX Monitor"
-          },
-          "page": "KNX-Monitor-Sidebar"
-        },
-        {
-          "type": "page",
-          "labels": {
-            "en": "KNX Debug",
-            "it": "KNX Debug",
-            "de": "KNX Debug",
-            "fr": "KNX Debug",
-            "es": "KNX Debug",
-            "zh": "KNX Debug"
-          },
-          "page": "KNX-Debug-Sidebar"
-        },
-        {
-          "type": "page",
-          "labels": {
-            "en": "KNX AI",
-            "it": "KNX AI",
-            "de": "KNX AI",
-            "fr": "KNX AI",
-            "es": "KNX AI",
-            "zh": "KNX AI"
-          },
-          "page": "KNX-AI-Sidebar"
         }
       ]
     },

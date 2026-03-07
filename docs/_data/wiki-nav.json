@@ -24,13 +24,28 @@
           "external": false
         },
         {
-          "label": "Serial TP FT1.2/KBERRY",
-          "url": "/wiki/-Sample---FT12",
+          "label": "Security",
+          "url": "/wiki/SECURITY",
+          "external": false
+        }
+      ]
+    },
+    {
+      "title": "Web pages and sidebar",
+      "items": [
+        {
+          "label": "KNX Monitor",
+          "url": "/wiki/KNX-Monitor-Sidebar",
           "external": false
         },
         {
-          "label": "Security",
-          "url": "/wiki/SECURITY",
+          "label": "KNX Debug",
+          "url": "/wiki/KNX-Debug-Sidebar",
+          "external": false
+        },
+        {
+          "label": "KNX AI Dashboard",
+          "url": "/wiki/KNX-AI-Sidebar",
           "external": false
         }
       ]
@@ -51,26 +66,6 @@
         {
           "label": "Protections",
           "url": "/wiki/Protections",
-          "external": false
-        }
-      ]
-    },
-    {
-      "title": "Sidebar plugins",
-      "items": [
-        {
-          "label": "KNX Monitor",
-          "url": "/wiki/KNX-Monitor-Sidebar",
-          "external": false
-        },
-        {
-          "label": "KNX Debug",
-          "url": "/wiki/KNX-Debug-Sidebar",
-          "external": false
-        },
-        {
-          "label": "KNX AI",
-          "url": "/wiki/KNX-AI-Sidebar",
           "external": false
         }
       ]
@@ -106,11 +101,6 @@
         {
           "label": "Load Control",
           "url": "/wiki/LoadControl-Configuration",
-          "external": false
-        },
-        {
-          "label": "DateTime",
-          "url": "/wiki/DateTime-Configuration",
           "external": false
         },
         {
@@ -446,13 +436,28 @@
           "external": false
         },
         {
-          "label": "Serial TP FT1.2/KBERRY",
-          "url": "/wiki/-Sample---FT12",
+          "label": "Sicurezza",
+          "url": "/wiki/it-SECURITY",
+          "external": false
+        }
+      ]
+    },
+    {
+      "title": "Web pages and sidebar",
+      "items": [
+        {
+          "label": "KNX Monitor",
+          "url": "/wiki/it-KNX-Monitor-Sidebar",
           "external": false
         },
         {
-          "label": "Sicurezza",
-          "url": "/wiki/it-SECURITY",
+          "label": "KNX Debug",
+          "url": "/wiki/it-KNX-Debug-Sidebar",
+          "external": false
+        },
+        {
+          "label": "KNX AI Dashboard",
+          "url": "/wiki/it-KNX-AI-Sidebar",
           "external": false
         }
       ]
@@ -473,26 +478,6 @@
         {
           "label": "Protezioni",
           "url": "/wiki/it-Protections",
-          "external": false
-        }
-      ]
-    },
-    {
-      "title": "Plugin sidebar",
-      "items": [
-        {
-          "label": "KNX Monitor",
-          "url": "/wiki/it-KNX-Monitor-Sidebar",
-          "external": false
-        },
-        {
-          "label": "KNX Debug",
-          "url": "/wiki/it-KNX-Debug-Sidebar",
-          "external": false
-        },
-        {
-          "label": "KNX AI",
-          "url": "/wiki/it-KNX-AI-Sidebar",
           "external": false
         }
       ]
@@ -528,11 +513,6 @@
         {
           "label": "Controllo Carico",
           "url": "/wiki/it-LoadControl-Configuration",
-          "external": false
-        },
-        {
-          "label": "Data/Ora",
-          "url": "/wiki/it-DateTime-Configuration",
           "external": false
         },
         {
@@ -868,13 +848,28 @@
           "external": false
         },
         {
-          "label": "Serial TP FT1.2/KBERRY",
-          "url": "/wiki/-Sample---FT12",
+          "label": "Sicherheit",
+          "url": "/wiki/de-SECURITY",
+          "external": false
+        }
+      ]
+    },
+    {
+      "title": "Web pages and sidebar",
+      "items": [
+        {
+          "label": "KNX Monitor",
+          "url": "/wiki/de-KNX-Monitor-Sidebar",
           "external": false
         },
         {
-          "label": "Sicherheit",
-          "url": "/wiki/de-SECURITY",
+          "label": "KNX Debug",
+          "url": "/wiki/de-KNX-Debug-Sidebar",
+          "external": false
+        },
+        {
+          "label": "KNX AI Dashboard",
+          "url": "/wiki/de-KNX-AI-Sidebar",
           "external": false
         }
       ]
@@ -895,26 +890,6 @@
         {
           "label": "Knotenschutz",
           "url": "/wiki/de-Protections",
-          "external": false
-        }
-      ]
-    },
-    {
-      "title": "Sidebar-Plugins",
-      "items": [
-        {
-          "label": "KNX Monitor",
-          "url": "/wiki/de-KNX-Monitor-Sidebar",
-          "external": false
-        },
-        {
-          "label": "KNX Debug",
-          "url": "/wiki/de-KNX-Debug-Sidebar",
-          "external": false
-        },
-        {
-          "label": "KNX AI",
-          "url": "/wiki/de-KNX-AI-Sidebar",
           "external": false
         }
       ]
@@ -950,11 +925,6 @@
         {
           "label": "Laststeuerung",
           "url": "/wiki/de-LoadControl-Configuration",
-          "external": false
-        },
-        {
-          "label": "Datum/Uhrzeit",
-          "url": "/wiki/de-DateTime-Configuration",
           "external": false
         },
         {
@@ -1290,13 +1260,28 @@
           "external": false
         },
         {
-          "label": "Serial TP FT1.2/KBERRY",
-          "url": "/wiki/-Sample---FT12",
+          "label": "Security",
+          "url": "/wiki/fr-SECURITY",
+          "external": false
+        }
+      ]
+    },
+    {
+      "title": "Web pages and sidebar",
+      "items": [
+        {
+          "label": "KNX Monitor",
+          "url": "/wiki/fr-KNX-Monitor-Sidebar",
           "external": false
         },
         {
-          "label": "Security",
-          "url": "/wiki/fr-SECURITY",
+          "label": "KNX Debug",
+          "url": "/wiki/fr-KNX-Debug-Sidebar",
+          "external": false
+        },
+        {
+          "label": "Dashboard KNX AI",
+          "url": "/wiki/fr-KNX-AI-Sidebar",
           "external": false
         }
       ]
@@ -1317,26 +1302,6 @@
         {
           "label": "Protections",
           "url": "/wiki/fr-Protections",
-          "external": false
-        }
-      ]
-    },
-    {
-      "title": "Plugins de la barre latérale",
-      "items": [
-        {
-          "label": "KNX Monitor",
-          "url": "/wiki/fr-KNX-Monitor-Sidebar",
-          "external": false
-        },
-        {
-          "label": "KNX Debug",
-          "url": "/wiki/fr-KNX-Debug-Sidebar",
-          "external": false
-        },
-        {
-          "label": "KNX AI",
-          "url": "/wiki/fr-KNX-AI-Sidebar",
           "external": false
         }
       ]
@@ -1372,11 +1337,6 @@
         {
           "label": "Load Control",
           "url": "/wiki/fr-LoadControl-Configuration",
-          "external": false
-        },
-        {
-          "label": "Date/Heure",
-          "url": "/wiki/fr-DateTime-Configuration",
           "external": false
         },
         {
@@ -1712,13 +1672,28 @@
           "external": false
         },
         {
-          "label": "Serial TP FT1.2/KBERRY",
-          "url": "/wiki/-Sample---FT12",
+          "label": "Security",
+          "url": "/wiki/es-SECURITY",
+          "external": false
+        }
+      ]
+    },
+    {
+      "title": "Web pages and sidebar",
+      "items": [
+        {
+          "label": "KNX Monitor",
+          "url": "/wiki/es-KNX-Monitor-Sidebar",
           "external": false
         },
         {
-          "label": "Security",
-          "url": "/wiki/es-SECURITY",
+          "label": "KNX Debug",
+          "url": "/wiki/es-KNX-Debug-Sidebar",
+          "external": false
+        },
+        {
+          "label": "Dashboard KNX AI",
+          "url": "/wiki/es-KNX-AI-Sidebar",
           "external": false
         }
       ]
@@ -1739,26 +1714,6 @@
         {
           "label": "Protections",
           "url": "/wiki/es-Protections",
-          "external": false
-        }
-      ]
-    },
-    {
-      "title": "Plugins de la barra lateral",
-      "items": [
-        {
-          "label": "KNX Monitor",
-          "url": "/wiki/es-KNX-Monitor-Sidebar",
-          "external": false
-        },
-        {
-          "label": "KNX Debug",
-          "url": "/wiki/es-KNX-Debug-Sidebar",
-          "external": false
-        },
-        {
-          "label": "KNX AI",
-          "url": "/wiki/es-KNX-AI-Sidebar",
           "external": false
         }
       ]
@@ -1794,11 +1749,6 @@
         {
           "label": "Load Control",
           "url": "/wiki/es-LoadControl-Configuration",
-          "external": false
-        },
-        {
-          "label": "Fecha/Hora",
-          "url": "/wiki/es-DateTime-Configuration",
           "external": false
         },
         {
@@ -2141,6 +2091,26 @@
       ]
     },
     {
+      "title": "Web pages and sidebar",
+      "items": [
+        {
+          "label": "KNX Monitor",
+          "url": "/wiki/zh-CN-KNX-Monitor-Sidebar",
+          "external": false
+        },
+        {
+          "label": "KNX Debug",
+          "url": "/wiki/zh-CN-KNX-Debug-Sidebar",
+          "external": false
+        },
+        {
+          "label": "KNX AI 仪表板",
+          "url": "/wiki/zh-CN-KNX-AI-Sidebar",
+          "external": false
+        }
+      ]
+    },
+    {
       "title": "KNX 设备",
       "items": [
         {
@@ -2156,26 +2126,6 @@
         {
           "label": "节点保护",
           "url": "/wiki/zh-CN-Protections",
-          "external": false
-        }
-      ]
-    },
-    {
-      "title": "侧边栏插件",
-      "items": [
-        {
-          "label": "KNX Monitor",
-          "url": "/wiki/zh-CN-KNX-Monitor-Sidebar",
-          "external": false
-        },
-        {
-          "label": "KNX Debug",
-          "url": "/wiki/zh-CN-KNX-Debug-Sidebar",
-          "external": false
-        },
-        {
-          "label": "KNX AI",
-          "url": "/wiki/zh-CN-KNX-AI-Sidebar",
           "external": false
         }
       ]
@@ -2211,11 +2161,6 @@
         {
           "label": "负载控制",
           "url": "/wiki/zh-CN-LoadControl-Configuration",
-          "external": false
-        },
-        {
-          "label": "日期/时间",
-          "url": "/wiki/zh-CN-DateTime-Configuration",
           "external": false
         },
         {

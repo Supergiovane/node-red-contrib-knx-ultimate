@@ -6,6 +6,19 @@
 
 # CHANGELOG
 
+**Version 4.1.30** - March 2026<br/>
+
+- NEW: **KNX AI** now uses a full **Web Dashboard** as the main UI, opened from the node editor via **Open Web Page** button.<br/>
+- CHANGE: removed the legacy `knxUltimateAI-sidebar-plugin` file and aligned KNX AI admin routes to the Web Dashboard workflow.<br/>
+- IMPROVE: **KNX AI Flow Map** UX/readability: stable layout reset on page open, clearer legend, active/idle direction rendering and dashboard visual refinements.<br/>
+- UI: flattened the KNX AI Web Dashboard style (removed 3D/shadow-heavy look) for a cleaner production UI.<br/>
+- Docs/help/wiki: refreshed **KNX AI** documentation in all supported languages (EN/IT/DE/FR/ES/zh-CN), updated `KNX-AI-Sidebar` pages to Web Dashboard compatibility notes, and updated docs navigation section naming/ordering.<br/>
+- FIX: **KNX AI Ask chat**: SVG answers are now rendered correctly even with multiple SVG blocks, fenced `svg/xml/html` code blocks, or entity-escaped SVG markup.<br/>
+- FIX: **KNX Hue Light**: KNX read response for brightness now returns `0` when the light is OFF and brightness status is configured to follow HUE on/off.<br/>
+- FIX: **KNX Hue Light**: ignore dimming-only cached brightness updates from Hue while light is OFF, preventing wrong KNX brightness status jumps.<br/>
+- IMPROVE: **KNX Hue Light** grouped light handling: when an ON event arrives without dimming payload, brightness is fetched from bridge snapshot before publishing KNX status.<br/>
+- TEST: extended unit coverage for the new Hue Light brightness/read/grouped-light snapshot behaviors.<br/>
+
 **Version 4.1.29** - March 2026<br/>
 
 - NEW: **KNX DateTime** node: set date/time on the KNX bus via **DPT 19.001** (DateTime) and optionally **DPT 11.001** (Date) / **DPT 10.001** (Time).<br/>

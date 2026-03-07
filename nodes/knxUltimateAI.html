@@ -13,11 +13,11 @@
             notifyresponse: { value: true },
             notifywrite: { value: true },
 
-            analysisWindowSec: { value: 60, required: true, validate: RED.validators.number() },
-            historyWindowSec: { value: 300, required: true, validate: RED.validators.number() },
+            analysisWindowSec: { value: 120, required: true, validate: RED.validators.number() },
+            historyWindowSec: { value: 600, required: true, validate: RED.validators.number() },
             emitIntervalSec: { value: 0, required: true, validate: RED.validators.number() },
             topN: { value: 10, required: true, validate: RED.validators.number() },
-            maxEvents: { value: 5000, required: true, validate: RED.validators.number() },
+            maxEvents: { value: 50000, required: true, validate: RED.validators.number() },
 
             rateWindowSec: { value: 10, required: true, validate: RED.validators.number() },
             maxTelegramPerSecOverall: { value: 0, required: true, validate: RED.validators.number() },
@@ -33,7 +33,7 @@
             llmEnabled: { value: false },
             llmProvider: { value: "openai_compat" },
             llmBaseUrl: { value: "https://api.openai.com/v1/chat/completions" },
-            llmModel: { value: "gpt-4o-mini" },
+            llmModel: { value: "gpt-5.4" },
             llmSystemPrompt: { value: "" },
             llmTemperature: { value: 0.2, required: false, validate: RED.validators.number() },
             llmMaxTokens: { value: 600, required: false, validate: RED.validators.number() },
@@ -43,7 +43,7 @@
             llmIncludeFlowContext: { value: true },
             llmMaxFlowNodesInPrompt: { value: 80, required: false, validate: RED.validators.number() },
             llmIncludeDocsSnippets: { value: true },
-            llmDocsLanguage: { value: "it" },
+            llmDocsLanguage: { value: "en" },
             llmDocsMaxSnippets: { value: 5, required: false, validate: RED.validators.number() },
             llmDocsMaxChars: { value: 3000, required: false, validate: RED.validators.number() }
         },
@@ -99,6 +99,13 @@
             toggleProvider();
 
             const nodeId = this.id;
+
+            $("#knx-ai-open-web-page").on("click", function (evt) {
+                evt.preventDefault();
+                const target = "knxUltimateAI/sidebar/page" + (nodeId ? ("?nodeId=" + encodeURIComponent(nodeId)) : "");
+                const wnd = window.open(target, "_blank", "noopener,noreferrer");
+                try { if (wnd && typeof wnd.focus === "function") wnd.focus(); } catch (e) { }
+            });
 
             const setModelsStatus = (text, level) => {
                 const $status = $("#knx-ai-models-status");
@@ -189,6 +196,12 @@
     <div class="form-row">
         <label for="node-input-topic"><i class="fa fa-tasks"></i> <span data-i18n="knxUltimateAI.properties.topic"></span></label>
         <input type="text" id="node-input-topic" data-i18n="[placeholder]knxUltimateAI.properties.topic">
+    </div>
+    <div class="form-row">
+        <label><i class="fa fa-external-link"></i> Web UI</label>
+        <button type="button" class="red-ui-button" id="knx-ai-open-web-page" style="background-color:#AD9EFF; border-color:#AD9EFF; color:#ffffff !important; -webkit-text-fill-color:#ffffff;">
+            <i class="fa fa-magic" style="color:#2b1f4d !important;"></i> <span style="color:#2b1f4d !important;">Open KNX AI Web</span>
+        </button>
     </div>
 
     <div id="knx-ai-accordion">

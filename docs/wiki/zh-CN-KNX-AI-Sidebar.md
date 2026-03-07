@@ -4,7 +4,8 @@ title: "KNX-AI-Sidebar"
 lang: zh-CN
 permalink: /wiki/zh-CN-KNX-AI-Sidebar
 ---
-侧边栏标签页 **KNX AI** 用于实时查看你的 **KNX AI 节点**：摘要、异常，以及用于提问的聊天区域（Markdown 渲染）。
+**KNX AI Web 仪表板** 现已成为官方实时分析界面，可查看你的 **KNX AI 节点**：摘要、异常、Flow Map 和聊天区域。
+本页保留历史名称 `KNX-AI-Sidebar` 以兼容旧链接。
 
 <img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/knx-ai-sidebar.svg" alt="KNX AI sidebar" style="width:100%;max-width:980px;border-radius:14px;box-shadow:0 12px 26px rgba(0,0,0,0.18);" />
 
@@ -16,9 +17,10 @@ permalink: /wiki/zh-CN-KNX-AI-Sidebar
 
 ## 如何使用
 
-1. 在下拉框中选择一个 `knxUltimateAI` 节点。
-2. 点击 **Refresh Summary**（或开启 **Auto**）刷新摘要。
-3. 在聊天中提问“原因是什么”以及“下一步该检查哪里”。
+1. 在 KNX AI 节点编辑器中点击 **Open Web Page** 打开仪表板。
+2. 或直接访问 `/knxUltimateAI/sidebar/page`（可选参数：`?nodeId=<id>`）。
+3. 在下拉框中选择一个 `knxUltimateAI` 节点。
+4. 使用 **Auto** 或手动刷新，并在聊天中提问。
 
 ## 更多上下文（更好的回答）
 

@@ -6,8 +6,6 @@ permalink: /wiki/de-KNX%20Router%20Filter
 ---
 Filtert RAW-Telegramm-Objekte (typischerweise vom **KNX Multi Routing** Node), bevor sie an ein anderes Gateway weitergeleitet werden.
 
-<img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/sample-knx-router-filter.svg" width="95%"><br/>
-
 ## Muster-Syntax
 - Gruppenadresse (GA) unterstützt `*` pro Ebene:
   - `0/0/*` matcht alle GAs in `0/0`
