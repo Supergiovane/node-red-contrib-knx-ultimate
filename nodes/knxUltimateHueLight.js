@@ -555,6 +555,7 @@ module.exports = function (RED) {
       // I must respond to query requests (read request) sent from the KNX BUS
       try {
         if (msg.knx.event === "GroupValue_Read" && node.currentHUEDevice !== undefined) {
+          const zeroBrightnessWhenOff = (config.updateKNXBrightnessStatusOnHUEOnOff === undefined || config.updateKNXBrightnessStatusOnHUEOnOff === "onhueoff");
           let ret;
           switch (msg.knx.destination) {
             case config.GALightState:
@@ -590,7 +591,13 @@ module.exports = function (RED) {
               // }
               break;
             case config.GALightBrightnessState:
-              ret = node.currentHUEDevice.dimming.brightness;
+              // Hue keeps the last brightness even when the light is OFF. If the user enabled "brightness status -> 0 on HUE off",
+              // keep returning 0 while OFF to avoid the KNX status jumping back to the last/start value after some time/read-requests.
+              if (zeroBrightnessWhenOff === true && node.currentHUEDevice?.on?.on === false) {
+                ret = 0;
+              } else {
+                ret = node.currentHUEDevice.dimming.brightness;
+              }
               if (ret !== undefined) node.updateKNXBrightnessState(ret, "response");
               break;
             case config.GALightKelvinState:
@@ -1066,12 +1073,20 @@ module.exports = function (RED) {
               node.updateKNXBrightnessState(0);
               if (receivedHUEObject.dimming !== undefined) delete receivedHUEObject.dimming; // Remove event.dimming, because has beem handled by this function and i don't want the function below to take care of it.
             } else if (receivedHUEObject.on.on === true && node.currentHUEDevice.on.on === false) {
-              let brightVal = 50;
-              // Turn on always update the dimming KNX Status value as well.
-              if (node.currentHUEDevice.dimming !== undefined && node.currentHUEDevice.dimming.brightness !== undefined) {
+              // Turn on: update the dimming KNX Status value as well, but only if we have a reliable value.
+              // For grouped_light, the bridge exposes an aggregated brightness value via /resource/grouped_light/{id}.
+              let brightVal;
+              if (receivedHUEObject.dimming !== undefined && receivedHUEObject.dimming.brightness !== undefined) {
+                brightVal = receivedHUEObject.dimming.brightness;
+              } else if (node.isGrouped_light === true && typeof node.serverHue?.getHueResourceSnapshot === "function" && config.GALightBrightnessState) {
+                try {
+                  const snapshot = await node.serverHue.getHueResourceSnapshot(node.hueDevice, { forceRefresh: true });
+                  if (snapshot?.dimming?.brightness !== undefined) brightVal = snapshot.dimming.brightness;
+                } catch (error) { /* empty */ }
+              } else if (node.currentHUEDevice.dimming !== undefined && node.currentHUEDevice.dimming.brightness !== undefined) {
                 brightVal = node.currentHUEDevice.dimming.brightness;
               }
-              node.updateKNXBrightnessState(brightVal);
+              if (brightVal !== undefined) node.updateKNXBrightnessState(brightVal);
             }
             node.currentHUEDevice.on.on = receivedHUEObject.on.on;
           }
@@ -1082,10 +1097,15 @@ module.exports = function (RED) {
           }
 
           if (receivedHUEObject.dimming !== undefined && receivedHUEObject.dimming.brightness !== undefined) {
+            const zeroBrightnessWhenOff = (config.updateKNXBrightnessStatusOnHUEOnOff === undefined || config.updateKNXBrightnessStatusOnHUEOnOff === "onhueoff");
             // Once upon n a time, the light transmit the brightness value of 0.39.
             // To avoid wrongly turn light state on, exit
             if (receivedHUEObject.dimming.brightness < 1) receivedHUEObject.dimming.brightness = 0;
-            if (node.currentHUEDevice.on !== undefined && node.currentHUEDevice.on.on === false && receivedHUEObject.dimming.brightness === 0) {
+            // If the light is OFF and the user wants KNX brightness status to stay 0 while OFF,
+            // don't propagate Hue's cached brightness (usually the last/boot brightness) back to KNX.
+            if (zeroBrightnessWhenOff === true && node.currentHUEDevice?.on?.on === false && (receivedHUEObject.on === undefined || receivedHUEObject.on.on === false)) {
+              if (node.currentHUEDevice.dimming !== undefined) node.currentHUEDevice.dimming.brightness = receivedHUEObject.dimming.brightness;
+            } else if (node.currentHUEDevice.on !== undefined && node.currentHUEDevice.on.on === false && receivedHUEObject.dimming.brightness === 0) {
               // Do nothing, because the light is off and the dimming also is 0
             } else {
               if (node.currentHUEDevice.on !== undefined && node.currentHUEDevice.on.on === false && (receivedHUEObject.on === undefined || (receivedHUEObject.on !== undefined && receivedHUEObject.on.on === true))) node.updateKNXLightState(receivedHUEObject.dimming.brightness > 0);

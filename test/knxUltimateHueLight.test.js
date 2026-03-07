@@ -1013,6 +1013,64 @@ describe("knxUltimateHueLight handleSendHUE events", () => {
     expect(node.currentHUEDevice.color_temperature.mirek).to.equal(330);
   });
 
+  it("does not publish cached brightness while Hue reports dimming-only updates and the light is off", async () => {
+    const overrides = {
+      GALightBrightnessState: "1/1/10",
+      dptLightBrightnessState: "5.001",
+    };
+    const { node, knxTelegrams } = instantiateNode(overrides);
+
+    node.currentHUEDevice = {
+      on: { on: false },
+      dimming: { brightness: 50 },
+    };
+
+    const hueEvent = {
+      id: node.hueDevice,
+      type: "light",
+      dimming: { brightness: 50 },
+    };
+
+    await node.handleSendHUE(hueEvent);
+
+    expect(knxTelegrams).to.have.lengthOf(0);
+    expect(node.currentHUEDevice.dimming.brightness).to.equal(50);
+  });
+
+  it("queries grouped_light brightness from the bridge snapshot when the on event has no dimming payload", async () => {
+    const overrides = {
+      hueDevice: "group-1#grouped_light",
+      GALightState: "1/1/11",
+      dptLightState: "1.001",
+      GALightBrightnessState: "1/1/10",
+      dptLightBrightnessState: "5.001",
+    };
+    const { node, knxTelegrams, hueServer } = instantiateNode(overrides);
+
+    node.currentHUEDevice = { on: { on: false }, dimming: { brightness: 10 } };
+    hueServer.getHueResourceSnapshot = async () => ({
+      id: node.hueDevice,
+      type: "grouped_light",
+      on: { on: true },
+      dimming: { brightness: 62.5 },
+    });
+
+    const hueEvent = {
+      id: node.hueDevice,
+      type: "grouped_light",
+      on: { on: true },
+    };
+
+    await node.handleSendHUE(hueEvent);
+
+    const framesByGa = Object.fromEntries(knxTelegrams.map((frame) => [frame.grpaddr, frame]));
+    expect(framesByGa).to.have.property(overrides.GALightBrightnessState);
+    expect(framesByGa[overrides.GALightBrightnessState]).to.deep.include({
+      payload: 62.5,
+      dpt: overrides.dptLightBrightnessState,
+    });
+  });
+
   it("averages grouped light data and updates KNX Kelvin state", async () => {
     const overrides = {
       hueDevice: "group-1#grouped_light",
@@ -1151,6 +1209,26 @@ describe("knxUltimateHueLight KNX read responses", () => {
       grpaddr: config.GALightState,
       payload: true,
       dpt: config.dptLightState,
+      outputtype: "response",
+    });
+  });
+
+  it("replies with 0% brightness when the light is off and KNX brightness status is configured to follow Hue on/off", () => {
+    const { node, config, knxTelegrams } = instantiateNode({
+      GALightBrightnessState: "1/1/13",
+      dptLightBrightnessState: "5.001",
+    });
+
+    node.currentHUEDevice = { on: { on: false }, dimming: { brightness: 50 } };
+
+    const readMsg = createSwitchTelegram(config.GALightBrightnessState, Buffer.from([0]), "GroupValue_Read");
+    node.handleSend(readMsg);
+
+    expect(knxTelegrams).to.have.lengthOf(1);
+    expect(knxTelegrams[0]).to.deep.include({
+      grpaddr: config.GALightBrightnessState,
+      payload: 0,
+      dpt: config.dptLightBrightnessState,
       outputtype: "response",
     });
   });
