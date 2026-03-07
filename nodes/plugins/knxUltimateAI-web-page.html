@@ -1,0 +1,3571 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>KNX AI Web</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Manrope:wght@400;500;600;700;800&display=swap');
+
+        :root {
+            color-scheme: light;
+            --bg: #f4f1ff;
+            --panel: #ffffff;
+            --text: #2b2446;
+            --muted: #655f80;
+            --line: rgba(98, 87, 142, 0.24);
+            --accent: #7a68d8;
+            --accent-soft: #ece8ff;
+            --surface-soft: #f8f5ff;
+            --shadow-sm: none;
+            --shadow-md: none;
+            --ok-bg: #edf9ef;
+            --ok-border: #5bbf73;
+            --user-bg: #eef3ff;
+            --user-border: #8b7de0;
+            --err-bg: #ffe9ea;
+            --err-border: #d95b63;
+            --warn-bg: #fff3df;
+            --warn-border: #d99a34;
+            --graph-edge-out: #7a68d8;
+            --graph-edge-in: #46b86d;
+            --knx-ai: #ad9eff;
+            --knx-ai-soft: #f0ecff;
+            --knx-device: #7dd484;
+            --knx-device-soft: #edf9ef;
+            --hue-lavender: #c0c7e9;
+            --hue-lavender-soft: #f2f4fc;
+            --event-write: #7a68d8;
+            --event-response: #46b86d;
+            --event-read: #d99a34;
+            --event-repeat: #c34747;
+            --event-other: #9a93b8;
+            --pie-4: #8b7de0;
+            --pie-5: #5aa5c9;
+            --pie-6: #d95b63;
+            --pie-7: #7d7699;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: "Manrope", "Avenir Next", "Segoe UI", sans-serif;
+            color: var(--text);
+            background: var(--bg);
+            min-height: 100vh;
+            padding: 14px;
+        }
+
+        #app {
+            max-width: 1380px;
+            margin: 0 auto;
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            background: #ffffff;
+            overflow: hidden;
+            box-shadow: var(--shadow-md);
+        }
+
+        #toolbar {
+            padding: 12px;
+            border-bottom: 1px solid var(--line);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            flex-wrap: wrap;
+            background: var(--knx-ai-soft);
+        }
+
+        #toolbar select {
+            min-width: 240px;
+            flex: 1 1 240px;
+        }
+
+        #toolbar input[type="text"],
+        #toolbar select,
+        #chat-input {
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 8px 10px;
+            font-size: 14px;
+            background: #fff;
+            color: #2d2851;
+            transition: border-color .16s ease, background-color .16s ease;
+        }
+
+        #toolbar button,
+        #chat-send {
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            background: #fff;
+            color: var(--text);
+            padding: 8px 10px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: border-color .14s ease, background-color .14s ease;
+        }
+
+        #theme-switch {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 2px 0;
+        }
+
+        .knx-ai-theme-btn {
+            min-width: 92px;
+            font-size: 12px;
+            padding: 6px 10px;
+        }
+
+        .knx-ai-theme-btn.active {
+            border-color: var(--accent);
+            background: var(--accent-soft);
+            color: #322a60;
+        }
+
+        #toolbar button:hover,
+        #chat-send:hover {
+            border-color: #9385e7;
+            background: #f3efff;
+        }
+
+        #chat-send {
+            border-color: var(--accent);
+            color: #fff;
+            background: var(--accent);
+        }
+
+        #chat-send:hover {
+            border-color: #6655c4;
+            background: #6b59ca;
+        }
+
+        #toolbar input[type="text"]:focus,
+        #toolbar select:focus,
+        #chat-input:focus {
+            outline: none;
+            border-color: #8f82df;
+            box-shadow: none;
+        }
+
+        #toolbar .spacer {
+            margin-left: auto;
+        }
+
+        #status {
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: .01em;
+        }
+
+        #content {
+            padding: 12px;
+            display: grid;
+            grid-template-columns: 1.1fr 1fr;
+            gap: 12px;
+        }
+
+        @media (max-width: 900px) {
+            #content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .panel {
+            border: 1px solid var(--line);
+            border-radius: 13px;
+            background: #ffffff;
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .panel>h3 {
+            margin: 0;
+            padding: 11px 12px;
+            border-bottom: 1px solid var(--line);
+            font-size: 16px;
+            font-weight: 800;
+            letter-spacing: .01em;
+            background: var(--knx-ai-soft);
+        }
+
+        #summary {
+            margin: 0;
+            padding: 12px;
+            min-height: 220px;
+            max-height: 360px;
+            overflow: auto;
+            white-space: pre-wrap;
+            word-break: break-word;
+            font-family: "JetBrains Mono", Menlo, Consolas, "Liberation Mono", monospace;
+            font-size: 12px;
+            line-height: 1.35;
+            background: #ffffff;
+        }
+
+        #anomalies {
+            padding: 12px;
+            min-height: 220px;
+            max-height: 360px;
+            overflow: auto;
+            font-size: 13px;
+            background: #ffffff;
+        }
+
+        .anomaly {
+            margin-bottom: 8px;
+            padding: 9px;
+            border-radius: 9px;
+            border-left: 3px solid var(--warn-border);
+            background: var(--warn-bg);
+            box-shadow: none;
+        }
+
+        .anomaly-meta {
+            color: var(--muted);
+            font-size: 11px;
+            margin-top: 4px;
+            margin-bottom: 6px;
+        }
+
+        .anomaly pre {
+            margin: 0;
+            white-space: pre-wrap;
+            word-break: break-word;
+            font-family: "JetBrains Mono", Menlo, Consolas, "Liberation Mono", monospace;
+            font-size: 12px;
+        }
+
+        #chat-wrap {
+            margin: 10px;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: none;
+        }
+
+        #ask-panel {
+            margin: 0 12px 12px;
+            border-color: #b7d8be;
+            background: var(--knx-device-soft);
+        }
+
+        #ask-panel>h3 {
+            background: #e3f3e6;
+            border-bottom-color: #b7d8be;
+        }
+
+        #ask-panel #chat-wrap {
+            border-color: #b7d8be;
+            background: #eff9f1;
+        }
+
+        #ask-panel #chat-log {
+            background: #f7fdf8;
+        }
+
+        #ask-panel .chat-presets {
+            background: #edf8ef;
+            border-top-color: #cde2d2;
+        }
+
+        #ask-panel .chat-input-row {
+            background: #eef9f0;
+            border-top-color: #cde2d2;
+        }
+
+        #insights-panel {
+            margin: 0 12px 12px;
+        }
+
+        #insights-grid {
+            display: grid;
+            grid-template-columns: 1.4fr 1fr;
+            gap: 12px;
+            padding: 12px;
+        }
+
+        @media (max-width: 1100px) {
+            #insights-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .insight-card {
+            border: 1px solid var(--line);
+            border-radius: 13px;
+            background: #ffffff;
+            overflow: hidden;
+            min-height: 260px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .insight-wide {
+            grid-column: 1 / -1;
+            min-height: 0;
+        }
+
+        .insight-title {
+            margin: 0;
+            padding: 9px 12px;
+            border-bottom: 1px solid var(--line);
+            background: var(--knx-ai-soft);
+            font-size: 15px;
+            font-weight: 800;
+            color: #31285f;
+        }
+
+        .insight-meta {
+            padding: 8px 12px;
+            border-bottom: 1px solid var(--line);
+            color: var(--muted);
+            font-size: 12px;
+            background: #f5f2ff;
+        }
+
+        .flow-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            padding: 9px 12px;
+            border-bottom: 1px solid var(--line);
+            background: #f7f4ff;
+            font-size: 12px;
+            color: #564d81;
+        }
+
+        .flow-controls label {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .flow-controls input[type="number"],
+        .flow-controls input[type="text"] {
+            border: 1px solid #c9c0ef;
+            border-radius: 8px;
+            padding: 4px 7px;
+            font-size: 12px;
+            color: #342f58;
+            background: #fff;
+        }
+
+        .flow-controls input[type="number"] {
+            width: 66px;
+        }
+
+        .flow-controls input[type="text"] {
+            min-width: 130px;
+        }
+
+        .flow-controls button {
+            border: 1px solid #c7bfea;
+            border-radius: 8px;
+            background: #ffffff;
+            color: #3b3365;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 4px 9px;
+            cursor: pointer;
+            transition: border-color .14s ease, background-color .14s ease;
+        }
+
+        .flow-controls button:hover {
+            background: #f2eeff;
+            border-color: #998bdc;
+        }
+
+        .flow-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+            padding: 8px 12px 9px;
+            border-top: 1px solid var(--line);
+            border-bottom: 1px solid var(--line);
+            background: #f7f4ff;
+            color: #4a416f;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .flow-legend-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            white-space: nowrap;
+        }
+
+        .flow-legend-help {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 9px 14px;
+            align-items: center;
+            padding: 7px 12px 8px;
+            border-bottom: 1px solid var(--line);
+            background: #fbf9ff;
+            color: #4f4874;
+            font-size: 11px;
+            font-weight: 600;
+            line-height: 1.25;
+        }
+
+        .flow-legend-help-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .flow-legend-help-note {
+            color: #6b648b;
+            font-weight: 500;
+        }
+
+        .flow-legend-bubble {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            border: 1.8px solid #7a68d8;
+            background: #f0ecff;
+            display: inline-block;
+            flex: 0 0 10px;
+        }
+
+        .flow-legend-bubble-node {
+            border-color: #4caf66;
+            background: #edf9ef;
+        }
+
+        .flow-legend-bubble-disabled {
+            border-color: #c5bddf;
+            background: #f1edf8;
+        }
+
+        .flow-legend-bubble-ext {
+            border-color: #d99a34;
+            background: #fff8ea;
+        }
+
+        .flow-legend-ext {
+            font-size: 9px;
+            color: #9a6b24;
+            border: 1px solid #e4c68d;
+            border-radius: 6px;
+            padding: 0 4px;
+            font-weight: 800;
+            letter-spacing: .05em;
+            background: #fff8ea;
+            line-height: 15px;
+            height: 15px;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .flow-legend-line {
+            width: 19px;
+            height: 0;
+            border-top: 3px solid #a29bbd;
+            border-radius: 2px;
+        }
+
+        .flow-legend-write {
+            border-top-color: #7a68d8;
+        }
+
+        .flow-legend-response {
+            border-top-color: #46b86d;
+        }
+
+        .flow-legend-read {
+            border-top-color: #d99a34;
+        }
+
+        .flow-legend-repeat {
+            border-top-color: #c62828;
+        }
+
+        .flow-legend-idle {
+            border-top-color: #8c97ad;
+            opacity: 0.42;
+        }
+
+        .flow-ga-list-wrap {
+            padding: 8px 12px 10px;
+            border-bottom: 1px solid var(--line);
+            background: #f8f6ff;
+        }
+
+        #flow-ga-select {
+            width: 100%;
+            min-height: 90px;
+            max-height: 120px;
+            border: 1px solid #c9c0ef;
+            border-radius: 9px;
+            font-size: 12px;
+            color: #3a3561;
+            background: #fff;
+            padding: 4px;
+        }
+
+        #flow-ga-select option.flow-ga-stale {
+            color: #8c87a8;
+        }
+
+        #flow-ga-select option.flow-ga-external {
+            color: #9a6b24;
+        }
+
+        #flow-wrap {
+            position: relative;
+            min-height: 420px;
+            padding: 12px;
+            background: #ffffff;
+        }
+
+        #flow-svg {
+            width: 100%;
+            height: 420px;
+            display: block;
+        }
+
+        .viz-empty {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+            background: rgba(255, 255, 255, 0.88);
+        }
+
+        .flow-edge {
+            fill: none;
+            stroke-width: 1.6;
+            stroke-linecap: round;
+            vector-effect: non-scaling-stroke;
+            opacity: 0.92;
+        }
+
+        .flow-edge-out {
+            /* stroke/marker are applied inline based on telegram type */
+        }
+
+        .flow-edge-hot {
+            opacity: 1;
+            filter: none;
+        }
+
+        .flow-edge-in {
+            /* stroke/marker are applied inline based on telegram type */
+        }
+
+        .flow-edge-active {
+            stroke-dasharray: 10 7;
+            animation: graph-flow 1.3s linear infinite;
+        }
+
+        .flow-edge-idle {
+            opacity: 0.36;
+            stroke-dasharray: none;
+            animation: none;
+        }
+
+        .flow-edge-external-link {
+            opacity: 0.82;
+        }
+
+        .flow-edge-external-link.flow-edge-idle {
+            opacity: 0.30;
+        }
+
+        .flow-node circle {
+            fill: #f0ecff;
+            stroke: #7a68d8;
+            stroke-width: 2;
+        }
+
+        .flow-node-kind-node:not(.flow-node-disabled):not(.flow-node-anomaly) circle {
+            fill: #edf9ef;
+            stroke: #4caf66;
+            stroke-width: 2;
+        }
+
+        .flow-node-kind-node:not(.flow-node-disabled) .flow-node-label {
+            fill: #2f7f48;
+        }
+
+        .flow-node-anomaly circle {
+            fill: #fff1f1;
+            stroke: #e53935;
+            stroke-width: 2.2;
+        }
+
+        .flow-node-disabled circle {
+            fill: #f1edf8;
+            stroke: #c5bddf;
+            stroke-width: 1.8;
+        }
+
+        .flow-node-disabled .flow-node-label,
+        .flow-node-disabled .flow-node-subtitle,
+        .flow-node-disabled .flow-node-payload {
+            fill: #9a93b8;
+        }
+
+        .flow-node-unmapped:not(.flow-node-disabled) circle {
+            fill: #fff8ea;
+            stroke: #c98a1a;
+            stroke-dasharray: 4 2;
+        }
+
+        .flow-node-unmapped .flow-node-subtitle,
+        .flow-node-unmapped .flow-node-payload {
+            fill: #8f641d;
+        }
+
+        .flow-node-label {
+            font-size: 12px;
+            fill: #342f58;
+            text-anchor: middle;
+            dominant-baseline: middle;
+            font-weight: 700;
+        }
+
+        .flow-node-subtitle {
+            font-size: 10px;
+            fill: #665f86;
+            text-anchor: middle;
+            font-weight: 500;
+        }
+
+        .flow-node-badge {
+            font-size: 10px;
+            fill: #b3261e;
+            text-anchor: middle;
+            font-weight: 700;
+        }
+
+        .flow-node-payload {
+            font-size: 9px;
+            fill: #645d84;
+            text-anchor: middle;
+            font-weight: 500;
+            font-family: "JetBrains Mono", Menlo, Consolas, "Liberation Mono", monospace;
+        }
+
+        .flow-node-ext-tag {
+            font-size: 8px;
+            fill: #9a6b24;
+            text-anchor: middle;
+            font-weight: 800;
+            letter-spacing: .06em;
+        }
+
+        .flow-node-disabled .flow-node-ext-tag {
+            fill: #a39cbf;
+        }
+
+        .pie-wrap {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            min-height: 210px;
+        }
+
+        .pie-svg {
+            width: 160px;
+            height: 160px;
+            flex: 0 0 160px;
+        }
+
+        .pie-legend {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            min-width: 0;
+            font-size: 12px;
+        }
+
+        .pie-legend-item {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            color: #423b66;
+            min-width: 0;
+        }
+
+        .pie-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            flex: 0 0 10px;
+        }
+
+        .pie-label {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .stack-wrap {
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+            max-height: 260px;
+            overflow: auto;
+        }
+
+        .stack-row {
+            display: grid;
+            grid-template-columns: 150px 1fr 54px;
+            gap: 8px;
+            align-items: center;
+            font-size: 12px;
+            padding: 4px 6px;
+            border-radius: 8px;
+            background: #f8f6ff;
+        }
+
+        .stack-label {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            color: #433c66;
+        }
+
+        .stack-track {
+            height: 11px;
+            border-radius: 6px;
+            border: 1px solid #d7cffa;
+            background: #f0ecff;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stack-total {
+            height: 100%;
+            display: flex;
+            border-radius: 6px;
+            overflow: hidden;
+            min-width: 1px;
+        }
+
+        .stack-seg {
+            height: 100%;
+        }
+
+        .stack-value {
+            text-align: right;
+            color: #665f86;
+            font-variant-numeric: tabular-nums;
+        }
+
+        @keyframes graph-flow {
+            from {
+                stroke-dashoffset: 0;
+            }
+
+            to {
+                stroke-dashoffset: -34;
+            }
+        }
+
+        #chat-log {
+            padding: 12px;
+            min-height: 200px;
+            max-height: 340px;
+            overflow: auto;
+            background: #fff;
+        }
+
+        .chat-msg {
+            margin-bottom: 8px;
+            padding: 9px 10px;
+            border-radius: 10px;
+            font-size: 14px;
+            line-height: 1.4;
+            box-shadow: none;
+        }
+
+        .chat-user {
+            border-left: 3px solid var(--user-border);
+            background: var(--user-bg);
+        }
+
+        .chat-assistant {
+            border-left: 3px solid var(--ok-border);
+            background: var(--ok-bg);
+        }
+
+        .chat-error {
+            border-left: 3px solid var(--err-border);
+            background: var(--err-bg);
+        }
+
+        .chat-pending {
+            border-left: 3px solid #8b84ad;
+            background: #f2eff8;
+            color: #4f496d;
+        }
+
+        .chat-msg p {
+            margin: 0 0 6px;
+        }
+
+        .chat-msg p:last-child {
+            margin-bottom: 0;
+        }
+
+        .chat-msg pre {
+            margin: 6px 0;
+            padding: 6px;
+            border-radius: 4px;
+            background: rgba(0, 0, 0, 0.05);
+            overflow: auto;
+        }
+
+        .chat-msg code {
+            font-family: "JetBrains Mono", Menlo, Consolas, "Liberation Mono", monospace;
+            font-size: 12px;
+        }
+
+        .chat-msg table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 520px;
+        }
+
+        .chat-msg th,
+        .chat-msg td {
+            border: 1px solid rgba(0, 0, 0, 0.12);
+            padding: 4px 6px;
+        }
+
+        .chat-msg th {
+            background: rgba(0, 0, 0, 0.03);
+        }
+
+        .chat-svg-wrap {
+            margin: 8px 0;
+            padding: 8px;
+            border: 1px solid rgba(122, 104, 216, 0.3);
+            border-radius: 9px;
+            background: #fff;
+        }
+
+        .chat-svg-wrap svg {
+            display: block;
+            width: 100%;
+            height: auto;
+            max-height: 380px;
+        }
+
+        .chat-input-row {
+            display: flex;
+            gap: 8px;
+            border-top: 1px solid var(--line);
+            background: #f8f6ff;
+            padding: 10px;
+        }
+
+        .chat-presets {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            padding: 10px;
+            border-top: 1px solid var(--line);
+            background: #f3f6fc;
+        }
+
+        .chat-preset-btn {
+            border: 1px solid #c7bfea;
+            border-radius: 16px;
+            background: #ffffff;
+            color: #3e3664;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 5px 11px;
+            cursor: pointer;
+            transition: border-color .14s ease, background-color .14s ease;
+        }
+
+        .chat-preset-btn:hover {
+            background: #f2eeff;
+            border-color: #998bdc;
+        }
+
+        #chat-input {
+            flex: 1 1 auto;
+        }
+
+        .empty {
+            color: #7a7498;
+            font-style: italic;
+        }
+
+        .analyzing-state {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            border: 1px solid #d7cffa;
+            border-radius: 10px;
+            padding: 10px;
+            background: #f8f6ff;
+            color: #4a426f;
+        }
+
+        .analyzing-state-small {
+            margin-top: 6px;
+            padding: 8px;
+            border-radius: 8px;
+            border: 1px solid #d7cffa;
+            background: #f8f6ff;
+        }
+
+        .analyzing-icon {
+            width: 16px;
+            height: 16px;
+            border: 2px solid #b9addf;
+            border-top-color: #6f5ac9;
+            border-radius: 50%;
+            animation: knx-spin 0.9s linear infinite;
+            margin-top: 1px;
+            flex: 0 0 16px;
+        }
+
+        .analyzing-title {
+            font-size: 12px;
+            font-weight: 800;
+            color: #3f3764;
+            margin-bottom: 2px;
+        }
+
+        .analyzing-sub {
+            font-size: 11px;
+            color: #665f86;
+            line-height: 1.35;
+        }
+
+        .analyzing-ga-list {
+            margin-top: 4px;
+            font-size: 11px;
+            color: #5d567b;
+            line-height: 1.35;
+            word-break: break-word;
+        }
+
+        .analyzing-what {
+            margin-top: 6px;
+            font-size: 11px;
+            line-height: 1.35;
+            color: #5a5477;
+        }
+
+        #summary,
+        #anomalies,
+        .stack-wrap,
+        #chat-log {
+            scrollbar-width: thin;
+            scrollbar-color: #b3abd6 #efeaf8;
+        }
+
+        #summary::-webkit-scrollbar,
+        #anomalies::-webkit-scrollbar,
+        .stack-wrap::-webkit-scrollbar,
+        #chat-log::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+
+        #summary::-webkit-scrollbar-thumb,
+        #anomalies::-webkit-scrollbar-thumb,
+        .stack-wrap::-webkit-scrollbar-thumb,
+        #chat-log::-webkit-scrollbar-thumb {
+            background: #b3abd6;
+            border-radius: 12px;
+            border: 2px solid #efeaf8;
+        }
+
+        #summary::-webkit-scrollbar-track,
+        #anomalies::-webkit-scrollbar-track,
+        .stack-wrap::-webkit-scrollbar-track,
+        #chat-log::-webkit-scrollbar-track {
+            background: #efeaf8;
+            border-radius: 12px;
+        }
+
+        @keyframes knx-spin {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+    <link id="knx-ai-theme-link" rel="stylesheet" href="">
+</head>
+
+<body>
+    <div id="app">
+        <div id="toolbar">
+            <div id="theme-switch" title="Theme">
+                <button type="button" class="knx-ai-theme-btn" data-theme="mix">Node Mix</button>
+                <button type="button" class="knx-ai-theme-btn" data-theme="green">KNX Green</button>
+                <button type="button" class="knx-ai-theme-btn" data-theme="lavender">Hue Lavender</button>
+            </div>
+            <select id="node-select"></select>
+            <button type="button" id="refresh-nodes">Refresh Node List</button>
+            <label style="display:flex;align-items:center;gap:5px;font-size:13px;">
+                <input type="checkbox" id="auto-refresh">
+                <span>Auto</span>
+            </label>
+            <span class="spacer"></span>
+            <span id="status">Ready</span>
+        </div>
+        <div class="panel" id="insights-panel">
+            <h3>Traffic Dashboard</h3>
+            <div id="insights-grid">
+                <div class="insight-card insight-wide">
+                    <div class="insight-title">Flow Map (Top Links)</div>
+                    <div id="flow-meta" class="insight-meta">Nodes: 0 | Links: 0</div>
+                    <div class="flow-controls">
+                        <label>Max GA
+                            <input type="number" id="flow-max-ga" min="4" max="60" step="1" value="14">
+                        </label>
+                        <label>Find
+                            <input type="text" id="flow-ga-search" placeholder="Search GA/name">
+                        </label>
+                        <button type="button" id="flow-clear-ga">Clear</button>
+                        <button type="button" id="flow-reset-layout">Reset Layout</button>
+                    </div>
+                    <div class="flow-legend" id="flow-color-legend">
+                        <span class="flow-legend-item"><span
+                                class="flow-legend-line flow-legend-write"></span>Write</span>
+                        <span class="flow-legend-item"><span
+                                class="flow-legend-line flow-legend-read"></span>Read</span>
+                        <span class="flow-legend-item"><span
+                                class="flow-legend-line flow-legend-response"></span>Response</span>
+                        <span class="flow-legend-item"><span
+                                class="flow-legend-line flow-legend-repeat"></span>Repeat</span>
+                        <span class="flow-legend-item"><span class="flow-legend-line flow-legend-idle"></span>Idle
+                            memory</span>
+                    </div>
+                    <div class="flow-legend-help" id="flow-legend-help">
+                        <span class="flow-legend-help-item">
+                            <span class="flow-legend-line flow-legend-write"></span>
+                            Active arrow
+                            <span class="flow-legend-help-note">telegram currently flowing</span>
+                        </span>
+                        <span class="flow-legend-help-item">
+                            <span class="flow-legend-line flow-legend-idle"></span>
+                            Idle arrow
+                            <span class="flow-legend-help-note">last known direction, no recent traffic</span>
+                        </span>
+                        <span class="flow-legend-help-item">
+                            <span class="flow-legend-bubble flow-legend-bubble-node"></span>
+                            Active bubble
+                            <span class="flow-legend-help-note">group address active in the current window</span>
+                        </span>
+                        <span class="flow-legend-help-item">
+                            <span class="flow-legend-bubble flow-legend-bubble-disabled"></span>
+                            Disabled bubble
+                            <span class="flow-legend-help-note">no recent telegrams, kept visible for context</span>
+                        </span>
+                        <span class="flow-legend-help-item">
+                            <span class="flow-legend-bubble flow-legend-bubble-ext"></span>
+                            <span class="flow-legend-ext">EXT</span>
+                            <span class="flow-legend-help-note">external GA detected on bus, not mapped in Node-RED
+                                flow</span>
+                        </span>
+                    </div>
+                    <div class="flow-ga-list-wrap">
+                        <select id="flow-ga-select" multiple size="6"></select>
+                    </div>
+                    <div id="flow-wrap">
+                        <svg id="flow-svg" viewBox="0 0 1000 420" preserveAspectRatio="xMidYMid meet"></svg>
+                        <div id="flow-empty" class="viz-empty empty">No patterns/anomalies to display.</div>
+                    </div>
+                </div>
+                <div class="insight-card">
+                    <div class="insight-title">Events Mix (Pie)</div>
+                    <div class="pie-wrap">
+                        <svg id="event-pie-svg" class="pie-svg" viewBox="0 0 180 180"
+                            preserveAspectRatio="xMidYMid meet"></svg>
+                        <div id="event-pie-legend" class="pie-legend"></div>
+                    </div>
+                </div>
+                <div class="insight-card">
+                    <div class="insight-title">Anomalies by Type (Pie)</div>
+                    <div class="pie-wrap">
+                        <svg id="anomaly-pie-svg" class="pie-svg" viewBox="0 0 180 180"
+                            preserveAspectRatio="xMidYMid meet"></svg>
+                        <div id="anomaly-pie-legend" class="pie-legend"></div>
+                    </div>
+                </div>
+                <div class="insight-card insight-wide">
+                    <div class="insight-title">Top Links by Event (Stacked)</div>
+                    <div id="edge-stack-wrap" class="stack-wrap"></div>
+                </div>
+            </div>
+        </div>
+        <div id="content">
+            <div class="panel">
+                <h3>Summary</h3>
+                <pre id="summary"></pre>
+            </div>
+            <div class="panel">
+                <h3>Anomalies</h3>
+                <div id="anomalies"></div>
+            </div>
+        </div>
+        <div class="panel" id="ask-panel">
+            <h3>Ask</h3>
+            <div id="chat-wrap">
+                <div id="chat-log"></div>
+                <div class="chat-presets">
+                    <button type="button" class="chat-preset-btn"
+                        data-question="Generate an SVG bar chart of Top Group Addresses with counts and title.">Graph
+                        Top GA</button>
+                    <button type="button" class="chat-preset-btn"
+                        data-question="Generate an SVG pie chart of the distribution of KNX events (write/read/response/repeat).">Graph
+                        Events</button>
+                    <button type="button" class="chat-preset-btn"
+                        data-question="Generate an SVG line chart of KNX traffic over time using available summary data.">Graph
+                        Trend</button>
+                </div>
+                <div class="chat-input-row">
+                    <input type="text" id="chat-input" placeholder="Ask a question about KNX traffic...">
+                    <button type="button" id="chat-send">Send</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        (function () {
+            // Local storage keys for UI preferences (selected node, auto-refresh, flow filters).
+            const storageKey = 'knxUltimateAI:selectedNodeId';
+            const autoKey = 'knxUltimateAI:autoRefresh';
+            const themeKey = 'knxUltimateAI:theme';
+            let queryNodeId = (() => {
+                try {
+                    return new URLSearchParams(window.location.search).get('nodeId') || '';
+                } catch (error) {
+                    return '';
+                }
+            })();
+            // Build API URLs relative to this page URL.
+            const apiUrl = (tail) => new URL(tail, window.location.href).toString();
+
+            // Cache all frequently accessed DOM references once.
+            const $nodeSelect = document.getElementById('node-select');
+            const $refreshNodes = document.getElementById('refresh-nodes');
+            const $auto = document.getElementById('auto-refresh');
+            const $status = document.getElementById('status');
+            const $themeLink = document.getElementById('knx-ai-theme-link');
+            const $themeBtns = Array.from(document.querySelectorAll('.knx-ai-theme-btn'));
+            const $summary = document.getElementById('summary');
+            const $anomalies = document.getElementById('anomalies');
+            const $flowSvg = document.getElementById('flow-svg');
+            const $flowWrap = document.getElementById('flow-wrap');
+            const $flowEmpty = document.getElementById('flow-empty');
+            const $flowMeta = document.getElementById('flow-meta');
+            const $flowMaxGa = document.getElementById('flow-max-ga');
+            const $flowGaSearch = document.getElementById('flow-ga-search');
+            const $flowGaSelect = document.getElementById('flow-ga-select');
+            const $flowClearGa = document.getElementById('flow-clear-ga');
+            const $flowResetLayout = document.getElementById('flow-reset-layout');
+            const $eventPieSvg = document.getElementById('event-pie-svg');
+            const $eventPieLegend = document.getElementById('event-pie-legend');
+            const $anomalyPieSvg = document.getElementById('anomaly-pie-svg');
+            const $anomalyPieLegend = document.getElementById('anomaly-pie-legend');
+            const $edgeStackWrap = document.getElementById('edge-stack-wrap');
+            const $chatLog = document.getElementById('chat-log');
+            const $chatInput = document.getElementById('chat-input');
+            const $chatSend = document.getElementById('chat-send');
+            const $chatPresetBtns = Array.from(document.querySelectorAll('.chat-preset-btn'));
+
+            // Runtime caches used to preserve UI stability between refreshes.
+            let nodesCache = [];
+            let pendingChatEl = null;
+            let stateInterval = null;
+            let nodesInterval = null;
+            let stateRequestInFlight = false;
+            let lastDashboardRawData = null;
+            let resizeHandle = null;
+            const flowFilterKey = 'knxUltimateAI:flowMapFilters';
+            let flowEdgeCache = new Map();
+            let flowNodeCache = new Map();
+
+            // Normalize persisted filter payloads to a safe, bounded shape.
+            const parseFlowFilters = (raw) => {
+                const defaults = { maxGa: 14, selectedGa: [], gaOrder: [], layoutOrder: [], edgeOrder: [] };
+                if (!raw || typeof raw !== 'object') return defaults;
+                const maxGaNum = Number(raw.maxGa);
+                const maxGa = Number.isFinite(maxGaNum) ? Math.max(4, Math.min(60, Math.round(maxGaNum))) : defaults.maxGa;
+                const selectedGa = Array.isArray(raw.selectedGa)
+                    ? Array.from(new Set(raw.selectedGa.map(x => String(x || '').trim()).filter(Boolean))).slice(0, 200)
+                    : [];
+                const gaOrder = Array.isArray(raw.gaOrder)
+                    ? Array.from(new Set(raw.gaOrder.map(x => String(x || '').trim()).filter(Boolean))).slice(0, 600)
+                    : [];
+                const layoutOrder = Array.isArray(raw.layoutOrder)
+                    ? Array.from(new Set(raw.layoutOrder.map(x => String(x || '').trim()).filter(Boolean))).slice(0, 600)
+                    : [];
+                const edgeOrder = Array.isArray(raw.edgeOrder)
+                    ? Array.from(new Set(raw.edgeOrder.map(x => String(x || '').trim()).filter(Boolean))).slice(0, 4000)
+                    : [];
+                return { maxGa, selectedGa, gaOrder, layoutOrder, edgeOrder };
+            };
+
+            // Read flow filter settings from local storage.
+            const loadFlowFilters = () => {
+                try {
+                    if (!window.localStorage) return parseFlowFilters(null);
+                    const raw = window.localStorage.getItem(flowFilterKey);
+                    if (!raw) return parseFlowFilters(null);
+                    return parseFlowFilters(JSON.parse(raw));
+                } catch (error) {
+                    return parseFlowFilters(null);
+                }
+            };
+
+            // Persist flow filter settings after normalization.
+            const saveFlowFilters = (filters) => {
+                try {
+                    if (!window.localStorage) return;
+                    window.localStorage.setItem(flowFilterKey, JSON.stringify(parseFlowFilters(filters || {})));
+                } catch (error) { }
+            };
+
+            let flowFilters = loadFlowFilters();
+
+            // Restore the last selected KNX AI node.
+            const loadStoredNode = () => {
+                try {
+                    return window.localStorage ? window.localStorage.getItem(storageKey) : '';
+                } catch (error) {
+                    return '';
+                }
+            };
+
+            // Persist selected KNX AI node for next page load.
+            const storeNode = (value) => {
+                try {
+                    if (window.localStorage) window.localStorage.setItem(storageKey, value || '');
+                } catch (error) { }
+            };
+
+            // Restore auto-refresh preference.
+            const loadAuto = () => {
+                try {
+                    if (!window.localStorage) return true;
+                    const raw = window.localStorage.getItem(autoKey);
+                    if (raw === null || raw === undefined || raw === '') return true;
+                    return raw === 'true';
+                } catch (error) {
+                    return true;
+                }
+            };
+
+            // Persist auto-refresh preference.
+            const storeAuto = (value) => {
+                try {
+                    if (window.localStorage) window.localStorage.setItem(autoKey, value ? 'true' : 'false');
+                } catch (error) { }
+            };
+
+            const THEMES = ['mix', 'green', 'lavender'];
+            const normalizeTheme = (value) => {
+                const t = String(value || '').trim().toLowerCase();
+                return THEMES.includes(t) ? t : 'mix';
+            };
+            const loadTheme = () => {
+                try {
+                    if (!window.localStorage) return 'mix';
+                    return normalizeTheme(window.localStorage.getItem(themeKey));
+                } catch (error) {
+                    return 'mix';
+                }
+            };
+            const storeTheme = (value) => {
+                try {
+                    if (window.localStorage) window.localStorage.setItem(themeKey, normalizeTheme(value));
+                } catch (error) { }
+            };
+
+            let currentTheme = loadTheme();
+            const markThemeButtons = (theme) => {
+                if (!$themeBtns.length) return;
+                const t = normalizeTheme(theme);
+                $themeBtns.forEach((btn) => {
+                    btn.classList.toggle('active', String(btn.dataset.theme || '') === t);
+                });
+            };
+            const applyTheme = (theme, options) => {
+                const opts = options && typeof options === 'object' ? options : {};
+                const rerender = opts.rerender !== false;
+                const t = normalizeTheme(theme);
+                currentTheme = t;
+                storeTheme(t);
+                markThemeButtons(t);
+                document.documentElement.setAttribute('data-theme', t);
+                if (!$themeLink) return;
+                const href = apiUrl('theme/' + t + '.css');
+                const prevTheme = String($themeLink.dataset.theme || '');
+                if (prevTheme === t && $themeLink.getAttribute('href')) return;
+                $themeLink.dataset.theme = t;
+                $themeLink.onload = () => {
+                    refreshVisualPalette();
+                    if (rerender && lastDashboardRawData) renderDashboard(lastDashboardRawData);
+                };
+                $themeLink.onerror = () => {
+                    setStatus('Theme load failed: ' + t);
+                    refreshVisualPalette();
+                    if (rerender && lastDashboardRawData) renderDashboard(lastDashboardRawData);
+                };
+                $themeLink.href = href + '?v=1';
+            };
+
+            const setStatus = (text) => {
+                $status.textContent = text || '';
+            };
+
+            const setEnabled = (enabled) => {
+                $refreshNodes.disabled = !enabled;
+                $nodeSelect.disabled = !enabled;
+                $chatInput.disabled = !enabled;
+                $chatSend.disabled = !enabled;
+            };
+
+            // Escape user/LLM text before markdown rendering to avoid HTML injection.
+            const escapeHtml = (value) => {
+                const s = String(value || '');
+                return s
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#39;');
+            };
+
+            // Convert any answer payload into a displayable string.
+            const normalizeChatText = (value) => {
+                if (value === undefined || value === null) return '';
+                if (typeof value === 'string') return value;
+                try {
+                    return JSON.stringify(value, null, 2);
+                } catch (error) {
+                    return String(value);
+                }
+            };
+
+            const isTableSeparatorLine = (line) => {
+                const s = String(line || '').trim();
+                if (!s.includes('-')) return false;
+                return /^\|?\s*:?-{3,}:?\s*(\|\s*:?-{3,}:?\s*)+\|?\s*$/.test(s);
+            };
+
+            const parsePipeRow = (line) => {
+                let s = String(line || '').trim();
+                if (s.startsWith('|')) s = s.slice(1);
+                if (s.endsWith('|')) s = s.slice(0, -1);
+                return s.split('|').map(c => String(c || '').trim());
+            };
+
+            const parseAlignments = (sepLine) => {
+                const cols = parsePipeRow(sepLine);
+                return cols.map((c) => {
+                    const cell = String(c || '').trim();
+                    const left = cell.startsWith(':');
+                    const right = cell.endsWith(':');
+                    if (left && right) return 'center';
+                    if (right) return 'right';
+                    return 'left';
+                });
+            };
+
+            // Lightweight markdown renderer (headings, lists, tables, code, links).
+            const basicMarkdownToHtml = (markdown) => {
+                const lines = String(markdown || '').split(/\r?\n/);
+                const sanitizeHref = (href) => {
+                    const h = String(href || '').trim();
+                    if (/^javascript:/i.test(h)) return '#';
+                    return h;
+                };
+                const renderInline = (text) => {
+                    let out = String(text || '');
+                    out = out.replace(/`([^`]+)`/g, '<code>$1</code>');
+                    out = out.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+                    out = out.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+                    out = out.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (m, label, href) => {
+                        return '<a href="' + sanitizeHref(href) + '" target="_blank" rel="noopener noreferrer">' + label + '</a>';
+                    });
+                    return out;
+                };
+
+                let html = '';
+                let inCode = false;
+
+                for (let i = 0; i < lines.length; i++) {
+                    const line = lines[i];
+                    if (/^```/.test(line.trim())) {
+                        inCode = !inCode;
+                        html += inCode ? '<pre><code>' : '</code></pre>';
+                        continue;
+                    }
+                    if (inCode) {
+                        html += line + '\n';
+                        continue;
+                    }
+
+                    if (/^###\s+/.test(line)) { html += '<h3>' + line.replace(/^###\s+/, '') + '</h3>'; continue; }
+                    if (/^##\s+/.test(line)) { html += '<h2>' + line.replace(/^##\s+/, '') + '</h2>'; continue; }
+                    if (/^#\s+/.test(line)) { html += '<h1>' + line.replace(/^#\s+/, '') + '</h1>'; continue; }
+
+                    // Parse GitHub-style pipe tables.
+                    if (line.includes('|') && i + 1 < lines.length && isTableSeparatorLine(lines[i + 1])) {
+                        const headerCells = parsePipeRow(line);
+                        const aligns = parseAlignments(lines[i + 1]);
+                        const rows = [];
+                        i += 2;
+                        while (i < lines.length) {
+                            const rowLine = lines[i];
+                            if (!rowLine || rowLine.trim() === '') break;
+                            if (!rowLine.includes('|')) break;
+                            if (/^```/.test(rowLine.trim())) break;
+                            rows.push(parsePipeRow(rowLine));
+                            i++;
+                        }
+                        i -= 1;
+
+                        const colCount = Math.max(headerCells.length, aligns.length, ...(rows.map(r => r.length)));
+                        html += '<div style="overflow-x:auto;margin:6px 0;"><table><thead><tr>';
+                        for (let c = 0; c < colCount; c++) {
+                            const a = aligns[c] || 'left';
+                            html += '<th style="text-align:' + a + ';">' + renderInline(headerCells[c] || '') + '</th>';
+                        }
+                        html += '</tr></thead><tbody>';
+                        for (const row of rows) {
+                            html += '<tr>';
+                            for (let c = 0; c < colCount; c++) {
+                                const a = aligns[c] || 'left';
+                                html += '<td style="text-align:' + a + ';">' + renderInline(row[c] || '') + '</td>';
+                            }
+                            html += '</tr>';
+                        }
+                        html += '</tbody></table></div>';
+                        continue;
+                    }
+
+                    // Parse one-level ordered/unordered lists.
+                    const isUnordered = /^\s*[-*]\s+/.test(line);
+                    const isOrdered = /^\s*\d+\.\s+/.test(line);
+                    if (isUnordered || isOrdered) {
+                        const listTag = isOrdered ? 'ol' : 'ul';
+                        const itemRe = isOrdered ? /^\s*\d+\.\s+/ : /^\s*[-*]\s+/;
+                        html += '<' + listTag + '>';
+                        while (i < lines.length && itemRe.test(lines[i])) {
+                            const item = lines[i].replace(itemRe, '');
+                            html += '<li>' + renderInline(item) + '</li>';
+                            i++;
+                        }
+                        i -= 1;
+                        html += '</' + listTag + '>';
+                        continue;
+                    }
+
+                    if (line.trim() === '') { html += '<br>'; continue; }
+                    html += '<p>' + renderInline(line) + '</p>';
+                }
+
+                if (inCode) html += '</code></pre>';
+                return html;
+            };
+
+            // Escape first, then render markdown syntax.
+            const renderMarkdownToHtml = (markdown) => {
+                const safeMd = escapeHtml(markdown || '');
+                return basicMarkdownToHtml(safeMd);
+            };
+
+            const decodeBasicHtmlEntities = (value) => {
+                return String(value || '')
+                    .replace(/&lt;/gi, '<')
+                    .replace(/&gt;/gi, '>')
+                    .replace(/&quot;/gi, '"')
+                    .replace(/&#39;/gi, "'")
+                    .replace(/&amp;/gi, '&');
+            };
+
+            const extractInlineSvgCandidates = (value) => {
+                const out = [];
+                const src = String(value || '');
+                if (!src) return out;
+                const re = /<svg[\s\S]*?<\/svg>/gi;
+                let m;
+                while ((m = re.exec(src)) !== null) {
+                    if (m && m[0]) out.push(String(m[0]));
+                }
+                return out;
+            };
+
+            const SVG_ALLOWED_TAGS = new Set([
+                'svg', 'g', 'path', 'line', 'polyline', 'polygon', 'circle', 'ellipse', 'rect',
+                'text', 'tspan', 'title', 'desc', 'defs', 'marker', 'lineargradient', 'radialgradient',
+                'stop', 'clippath'
+            ]);
+            const SVG_ALLOWED_ATTRS = new Set([
+                'xmlns', 'xmlns:xlink', 'viewbox', 'preserveaspectratio', 'width', 'height', 'role', 'aria-label',
+                'id', 'class', 'x', 'y', 'x1', 'y1', 'x2', 'y2', 'cx', 'cy', 'r', 'rx', 'ry',
+                'd', 'points', 'transform', 'fill', 'fill-opacity', 'stroke', 'stroke-width', 'stroke-opacity',
+                'stroke-dasharray', 'stroke-linecap', 'stroke-linejoin', 'opacity', 'font-size', 'font-family',
+                'font-weight', 'text-anchor', 'dominant-baseline', 'offset', 'stop-color', 'stop-opacity',
+                'gradientunits', 'gradienttransform', 'fx', 'fy', 'marker-start', 'marker-mid', 'marker-end',
+                'markerwidth', 'markerheight', 'refx', 'refy', 'orient', 'markerunits', 'href', 'xlink:href',
+                'clip-path', 'clippathunits'
+            ]);
+
+            // Strict SVG sanitizer for AI-generated charts embedded in chat responses.
+            const sanitizeSvgMarkup = (svgMarkup) => {
+                try {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(String(svgMarkup || ''), 'image/svg+xml');
+                    if (!doc || !doc.documentElement) return '';
+                    if (doc.getElementsByTagName('parsererror').length) return '';
+
+                    const root = doc.documentElement;
+                    if (!root || String(root.tagName || '').toLowerCase() !== 'svg') return '';
+
+                    const sanitizeNode = (node) => {
+                        const tag = String(node.tagName || '').toLowerCase();
+                        if (!SVG_ALLOWED_TAGS.has(tag)) {
+                            node.remove();
+                            return;
+                        }
+                        Array.from(node.attributes || []).forEach((attr) => {
+                            const name = String(attr.name || '').toLowerCase();
+                            const value = String(attr.value || '');
+                            if (name.startsWith('on')) {
+                                node.removeAttribute(attr.name);
+                                return;
+                            }
+                            if (!SVG_ALLOWED_ATTRS.has(name)) {
+                                node.removeAttribute(attr.name);
+                                return;
+                            }
+                            // Disallow external links/resources in SVG attributes.
+                            if ((name === 'href' || name === 'xlink:href') && value && !String(value).trim().startsWith('#')) {
+                                node.removeAttribute(attr.name);
+                            }
+                        });
+
+                        Array.from(node.childNodes || []).forEach((child) => {
+                            if (child.nodeType === 1) sanitizeNode(child);
+                            else if (child.nodeType !== 3) child.remove();
+                        });
+                    };
+
+                    sanitizeNode(root);
+                    if (!root.getAttribute('viewBox') && !root.getAttribute('viewbox')) {
+                        root.setAttribute('viewBox', '0 0 920 360');
+                    }
+                    root.setAttribute('role', root.getAttribute('role') || 'img');
+
+                    const out = new XMLSerializer().serializeToString(root);
+                    if (!out || out.length > 120000) return '';
+                    return out;
+                } catch (error) {
+                    return '';
+                }
+            };
+
+            // Render assistant output with optional fenced SVG blocks (```svg ... ```).
+            const renderAssistantHtml = (text) => {
+                const raw = normalizeChatText(text);
+                const trimmed = raw.trim();
+                if (!trimmed) return renderMarkdownToHtml('(empty answer)');
+
+                const fenceRe = /```(?:svg|xml|html)?\s*([\s\S]*?)```/gi;
+                let html = '';
+                let cursor = 0;
+                let hasSvg = false;
+                let match;
+
+                while ((match = fenceRe.exec(raw)) !== null) {
+                    const before = raw.slice(cursor, match.index);
+                    if (before.trim()) html += renderMarkdownToHtml(before);
+                    const blockRaw = String(match[1] || '');
+                    const blockDecoded = decodeBasicHtmlEntities(blockRaw);
+                    const svgCandidates = extractInlineSvgCandidates(blockDecoded);
+                    if (svgCandidates.length) {
+                        let rendered = 0;
+                        svgCandidates.forEach((candidate) => {
+                            const safeSvg = sanitizeSvgMarkup(candidate);
+                            if (safeSvg) {
+                                rendered++;
+                                hasSvg = true;
+                                html += '<div class="chat-svg-wrap">' + safeSvg + '</div>';
+                            }
+                        });
+                        if (!rendered) html += '<pre><code>' + escapeHtml(blockRaw) + '</code></pre>';
+                    } else {
+                        const safeSvg = sanitizeSvgMarkup(blockDecoded);
+                        if (safeSvg) {
+                            hasSvg = true;
+                            html += '<div class="chat-svg-wrap">' + safeSvg + '</div>';
+                        } else {
+                            html += '<pre><code>' + escapeHtml(blockRaw) + '</code></pre>';
+                        }
+                    }
+                    cursor = match.index + match[0].length;
+                }
+
+                const tail = raw.slice(cursor);
+                if (tail.trim()) html += renderMarkdownToHtml(tail);
+
+                // Fallback: if no fenced block exists, allow one inline <svg>...</svg> block.
+                if (!hasSvg) {
+                    const decodedRaw = decodeBasicHtmlEntities(raw);
+                    const inlineCandidates = [
+                        ...extractInlineSvgCandidates(raw),
+                        ...extractInlineSvgCandidates(decodedRaw)
+                    ];
+                    const uniqueCandidates = Array.from(new Set(inlineCandidates.map(x => String(x || '')))).filter(Boolean);
+                    const safeSvgs = [];
+                    uniqueCandidates.forEach((candidate) => {
+                        const safe = sanitizeSvgMarkup(candidate);
+                        if (safe) safeSvgs.push(safe);
+                    });
+                    if (safeSvgs.length) {
+                        const withoutInline = raw
+                            .replace(/<svg[\s\S]*?<\/svg>/gi, '')
+                            .replace(/&lt;svg[\s\S]*?&lt;\/svg&gt;/gi, '')
+                            .trim();
+                        html = '';
+                        if (withoutInline) html += renderMarkdownToHtml(withoutInline);
+                        safeSvgs.forEach((safeSvg) => {
+                            html += '<div class="chat-svg-wrap">' + safeSvg + '</div>';
+                        });
+                    }
+                }
+
+                return html || renderMarkdownToHtml(trimmed);
+            };
+
+            const appendChat = (kind, text) => {
+                const cls = kind === 'user' ? 'chat-user' : (kind === 'assistant' ? 'chat-assistant' : 'chat-error');
+                const $msg = document.createElement('div');
+                $msg.className = 'chat-msg ' + cls;
+                if (kind === 'assistant') {
+                    $msg.innerHTML = renderAssistantHtml(text);
+                } else {
+                    $msg.textContent = normalizeChatText(text);
+                }
+                $chatLog.appendChild($msg);
+                $chatLog.scrollTop = $chatLog.scrollHeight;
+            };
+
+            const showChatPending = () => {
+                if (pendingChatEl) return;
+                pendingChatEl = document.createElement('div');
+                pendingChatEl.className = 'chat-msg chat-pending';
+                pendingChatEl.textContent = 'Thinking...';
+                $chatLog.appendChild(pendingChatEl);
+                $chatLog.scrollTop = $chatLog.scrollHeight;
+            };
+
+            const hideChatPending = () => {
+                if (!pendingChatEl) return;
+                pendingChatEl.remove();
+                pendingChatEl = null;
+            };
+
+            // Fetch JSON from backend and normalize HTTP/application errors.
+            const requestJson = async (url, options) => {
+                const response = await fetch(url, Object.assign({ credentials: 'same-origin' }, options || {}));
+                const text = await response.text();
+                let json = {};
+                try {
+                    json = text ? JSON.parse(text) : {};
+                } catch (error) {
+                    json = { error: text || ('HTTP ' + response.status) };
+                }
+                if (!response.ok) {
+                    throw new Error((json && json.error) ? json.error : ('HTTP ' + response.status));
+                }
+                return json;
+            };
+
+            // Produce the textual snapshot shown in the "Summary" panel.
+            const formatSummaryText = (data) => {
+                const nodeInfo = data && data.node ? data.node : {};
+                const s = data && data.summary ? data.summary : null;
+                if (!s) return 'No data available.';
+
+                const lines = [];
+                const headerBits = [];
+                if (nodeInfo.name) headerBits.push(nodeInfo.name);
+                if (nodeInfo.gatewayName) headerBits.push('Gateway: ' + nodeInfo.gatewayName);
+                if (s.meta && s.meta.generatedAt) headerBits.push('Updated: ' + s.meta.generatedAt);
+                if (headerBits.length) lines.push(headerBits.join(' | '));
+                lines.push('');
+
+                const c = s.counters || {};
+                const win = (s.meta && s.meta.analysisWindowSec) ? s.meta.analysisWindowSec : '';
+                lines.push('Analysis window: ' + win + 's');
+                lines.push('Telegrams: ' + (c.telegrams || 0) + ' | Rate: ' + (c.overallRatePerSec || 0) + '/s | Echoed: ' + (c.echoed || 0) + ' | Repeat: ' + (c.repeated || 0) + ' | Unknown DPT: ' + (c.unknownDpt || 0));
+
+                if (Array.isArray(s.topGAs) && s.topGAs.length) {
+                    lines.push('');
+                    lines.push('Top Group Address:');
+                    s.topGAs.slice(0, 20).forEach((x, idx) => {
+                        lines.push((idx + 1) + '. ' + x.ga + ' (' + x.count + ')');
+                    });
+                }
+
+                if (s.byEvent && Object.keys(s.byEvent).length) {
+                    lines.push('');
+                    lines.push('Events:');
+                    Object.keys(s.byEvent).sort().forEach((k) => {
+                        lines.push('- ' + k + ': ' + s.byEvent[k]);
+                    });
+                }
+
+                if (Array.isArray(s.patterns) && s.patterns.length) {
+                    lines.push('');
+                    lines.push('Patterns:');
+                    s.patterns.slice(0, 15).forEach((p) => {
+                        lines.push('- ' + p.from + ' -> ' + p.to + ' (' + p.count + ' times within ' + p.withinMs + 'ms)');
+                    });
+                }
+
+                return lines.join('\n');
+            };
+
+            const buildAnalysisActivityContext = (rawData, dashboardData) => {
+                const summary = rawData && rawData.summary ? rawData.summary : {};
+                const telemetryWindowSec = Number(
+                    summary && summary.meta && summary.meta.analysisWindowSec
+                        ? summary.meta.analysisWindowSec
+                        : (dashboardData && dashboardData.telemetryWindowSec ? dashboardData.telemetryWindowSec : 0)
+                ) || 0;
+
+                const gaCandidates = [];
+                const seen = new Set();
+                const addGa = (ga) => {
+                    const key = String(ga || '').trim();
+                    if (!key || seen.has(key)) return;
+                    seen.add(key);
+                    gaCandidates.push(key);
+                };
+
+                const dashboardNodes = (dashboardData && Array.isArray(dashboardData.nodes)) ? dashboardData.nodes : [];
+                dashboardNodes
+                    .filter((n) => n && n.kind !== 'node')
+                    .slice()
+                    .sort((a, b) => Number(b && b.lastSeenAtMs ? b.lastSeenAtMs : 0) - Number(a && a.lastSeenAtMs ? a.lastSeenAtMs : 0))
+                    .forEach((n) => addGa(n.displayId || n.id));
+
+                const topGAs = Array.isArray(summary.topGAs) ? summary.topGAs : [];
+                topGAs.forEach((x) => addGa(x && x.ga));
+
+                const flowKnownGAs = Array.isArray(summary.flowKnownGAs) ? summary.flowKnownGAs : [];
+                flowKnownGAs.forEach((ga) => addGa(ga));
+
+                const monitored = flowKnownGAs.length || dashboardNodes.filter((n) => n && n.inFlow !== false && n.kind !== 'node').length || gaCandidates.length;
+                return {
+                    monitoringText: 'Analyzing BUS traffic for anomalies...',
+                    analysisFocus: [
+                        'traffic bursts / telegram storms',
+                        'repeat or echo telegram patterns',
+                        'unknown or inconsistent DPT payloads',
+                        'abnormal read/response behavior',
+                        'unusual GA transition patterns'
+                    ],
+                    gaPreview: gaCandidates.slice(0, 8),
+                    monitoredCount: Number(monitored || 0),
+                    telemetryWindowSec
+                };
+            };
+
+            const createAnalyzingStateEl = (context, compact) => {
+                const activity = context || {};
+                const root = document.createElement('div');
+                root.className = compact ? 'analyzing-state analyzing-state-small' : 'analyzing-state';
+
+                const icon = document.createElement('span');
+                icon.className = 'analyzing-icon';
+                root.appendChild(icon);
+
+                const body = document.createElement('div');
+                const title = document.createElement('div');
+                title.className = 'analyzing-title';
+                title.textContent = 'Analyzing...';
+                body.appendChild(title);
+
+                const sub = document.createElement('div');
+                sub.className = 'analyzing-sub';
+                const windowText = activity.telemetryWindowSec > 0 ? ('Window: ' + activity.telemetryWindowSec + 's') : 'Window: live';
+                const monitoredText = activity.monitoredCount > 0 ? ('Monitored GA: ' + activity.monitoredCount) : 'Monitored GA: n/a';
+                sub.textContent = (activity.monitoringText || 'Analyzing BUS traffic for anomalies...') + ' ' + windowText + ' | ' + monitoredText;
+                body.appendChild(sub);
+
+                const focusItems = Array.isArray(activity.analysisFocus) ? activity.analysisFocus.filter(Boolean).slice(0, 5) : [];
+                if (focusItems.length) {
+                    const details = document.createElement('div');
+                    details.className = 'analyzing-what';
+                    details.textContent = 'Checking for: ' + focusItems.join(' | ');
+                    body.appendChild(details);
+                }
+
+                if (Array.isArray(activity.gaPreview) && activity.gaPreview.length) {
+                    const ga = document.createElement('div');
+                    ga.className = 'analyzing-ga-list';
+                    ga.textContent = 'GA in analysis: ' + activity.gaPreview.join(', ');
+                    body.appendChild(ga);
+                }
+
+                root.appendChild(body);
+                return root;
+            };
+
+            // Render anomaly timeline (latest items first, bounded length).
+            const renderAnomalies = (items, activityContext) => {
+                $anomalies.innerHTML = '';
+                if (!items || !items.length) {
+                    const $empty = document.createElement('div');
+                    $empty.className = 'empty';
+                    $empty.textContent = 'No anomalies detected right now.';
+                    $anomalies.appendChild($empty);
+                    $anomalies.appendChild(createAnalyzingStateEl(activityContext, false));
+                    return;
+                }
+
+                items.slice().reverse().slice(0, 30).forEach((entry) => {
+                    const payload = entry && entry.payload ? entry.payload : {};
+                    const $row = document.createElement('div');
+                    $row.className = 'anomaly';
+
+                    const $title = document.createElement('div');
+                    $title.textContent = (payload.type || 'anomaly') + (payload.ga ? (' | ' + payload.ga) : '');
+                    $row.appendChild($title);
+
+                    const $meta = document.createElement('div');
+                    $meta.className = 'anomaly-meta';
+                    $meta.textContent = entry.at || '';
+                    $row.appendChild($meta);
+
+                    const $pre = document.createElement('pre');
+                    $pre.textContent = JSON.stringify(payload, null, 2);
+                    $row.appendChild($pre);
+
+                    $anomalies.appendChild($row);
+                });
+            };
+
+            // Tiny SVG helper to keep rendering code concise.
+            const createSvgEl = (name, attrs) => {
+                const el = document.createElementNS('http://www.w3.org/2000/svg', name);
+                Object.keys(attrs || {}).forEach((k) => {
+                    if (attrs[k] === undefined || attrs[k] === null) return;
+                    el.setAttribute(k, String(attrs[k]));
+                });
+                return el;
+            };
+
+            // Compact GA label used inside the node bubble.
+            const shortNodeLabel = (value) => {
+                const s = String(value || '');
+                if (s.length <= 14) return s;
+                return s.slice(0, 12) + '..';
+            };
+
+            // Compact subtitle shown under the node bubble.
+            const shortNodeSubtitle = (value) => {
+                let s = String(value || '').trim();
+                if (!s) return '';
+                if (s.includes('->')) {
+                    const parts = s.split('->').map(p => String(p || '').trim()).filter(Boolean);
+                    if (parts.length) s = parts[parts.length - 1];
+                }
+                if (s.includes(')')) {
+                    const tail = s.split(')').pop().trim();
+                    if (tail) s = tail;
+                }
+                if (s.length <= 26) return s;
+                return s.slice(0, 24) + '..';
+            };
+
+            const stripPayloadDecimals = (value) => {
+                if (value === undefined || value === null) return value;
+                if (typeof value === 'number') {
+                    if (!Number.isFinite(value)) return value;
+                    return Math.trunc(value);
+                }
+                if (Array.isArray(value)) return value.map(v => stripPayloadDecimals(v));
+                if (typeof value === 'object') {
+                    const out = {};
+                    Object.keys(value).forEach((k) => {
+                        out[k] = stripPayloadDecimals(value[k]);
+                    });
+                    return out;
+                }
+                if (typeof value === 'string') {
+                    const s = String(value).trim();
+                    if (!s) return '';
+                    if (/^[+-]?\d+(?:\.\d+)?$/.test(s)) {
+                        const n = Number(s);
+                        if (Number.isFinite(n)) return String(Math.trunc(n));
+                    }
+                    if ((s.startsWith('{') && s.endsWith('}')) || (s.startsWith('[') && s.endsWith(']'))) {
+                        try {
+                            const parsed = JSON.parse(s);
+                            return JSON.stringify(stripPayloadDecimals(parsed));
+                        } catch (error) {
+                            return s;
+                        }
+                    }
+                    return s;
+                }
+                return value;
+            };
+
+            const shortNodePayload = (value) => {
+                let s = stripPayloadDecimals(value);
+                if (s === undefined || s === null) return '';
+                s = String(s).trim();
+                if (!s) return '';
+                s = s.replace(/\s+/g, ' ');
+                if (s.length <= 30) return s;
+                return s.slice(0, 28) + '..';
+            };
+
+            const toTrimmedText = (value) => {
+                if (value === undefined || value === null) return '';
+                return String(value).trim();
+            };
+
+            let EVENT_COLORS = {};
+            let PIE_COLORS = [];
+            const readCssVarColor = (name, fallback) => {
+                try {
+                    const styles = window.getComputedStyle(document.documentElement);
+                    const v = String(styles.getPropertyValue(name) || '').trim();
+                    return v || fallback;
+                } catch (error) {
+                    return fallback;
+                }
+            };
+            const refreshVisualPalette = () => {
+                EVENT_COLORS = {
+                    write: readCssVarColor('--event-write', '#7a68d8'),
+                    response: readCssVarColor('--event-response', '#46b86d'),
+                    read: readCssVarColor('--event-read', '#d99a34'),
+                    repeat: readCssVarColor('--event-repeat', '#c34747'),
+                    other: readCssVarColor('--event-other', '#9a93b8')
+                };
+                PIE_COLORS = [
+                    EVENT_COLORS.write,
+                    EVENT_COLORS.response,
+                    EVENT_COLORS.read,
+                    readCssVarColor('--pie-4', '#8b7de0'),
+                    readCssVarColor('--pie-5', '#5aa5c9'),
+                    readCssVarColor('--pie-6', '#d95b63'),
+                    readCssVarColor('--pie-7', '#7d7699'),
+                    EVENT_COLORS.repeat
+                ];
+            };
+            refreshVisualPalette();
+
+            // Normalize heterogeneous event names into a small color palette.
+            const normalizeEvent = (eventName) => {
+                const e = String(eventName || '').toLowerCase();
+                if (e.includes('repeat')) return 'repeat';
+                if (e.includes('write')) return 'write';
+                if (e.includes('response')) return 'response';
+                if (e.includes('read')) return 'read';
+                return 'other';
+            };
+
+            const classifyEdgeTelegramType = (edge) => {
+                const byEvent = (edge && edge.edgeByEvent && typeof edge.edgeByEvent === 'object') ? edge.edgeByEvent : {};
+                const keys = Object.keys(byEvent);
+                if (!keys.length) return 'other';
+
+                const counts = { write: 0, response: 0, read: 0, repeat: 0, other: 0 };
+                keys.forEach((name) => {
+                    const c = Number(byEvent[name] || 0);
+                    if (!Number.isFinite(c) || c <= 0) return;
+                    const s = String(name || '');
+                    const kind = normalizeEvent(s);
+                    if (kind === 'write') counts.write += c;
+                    else if (kind === 'response') counts.response += c;
+                    else if (kind === 'read') counts.read += c;
+                    else if (kind === 'repeat') counts.repeat += c;
+                    else counts.other += c;
+                });
+
+                const priority = ['repeat', 'write', 'response', 'read', 'other'];
+                let best = 'other';
+                let bestVal = -1;
+                priority.forEach((k) => {
+                    const v = Number(counts[k] || 0);
+                    if (v > bestVal) {
+                        best = k;
+                        bestVal = v;
+                    }
+                });
+                return best;
+            };
+
+            const edgeMarkerIdForType = (eventType) => {
+                const t = String(eventType || '').trim();
+                return EVENT_COLORS[t] ? ('flow-arrow-' + t) : 'flow-arrow-other';
+            };
+
+            const pickColor = (idx) => PIE_COLORS[idx % PIE_COLORS.length];
+
+            // Convert backend state payload into chart-ready structures.
+            const buildDashboardData = (data) => {
+                const summary = (data && data.summary) ? data.summary : {};
+                const patternTransitions = Array.isArray(summary.patternTransitions) ? summary.patternTransitions : [];
+                const patterns = Array.isArray(summary.patterns) ? summary.patterns : [];
+                const anomalyLifecycle = Array.isArray(summary.anomalyLifecycle) ? summary.anomalyLifecycle : [];
+                const anomalies = (data && Array.isArray(data.anomalies)) ? data.anomalies : [];
+                const byEvent = (summary && typeof summary.byEvent === 'object' && summary.byEvent) ? summary.byEvent : {};
+                const gaLabels = (summary && summary.gaLabels && typeof summary.gaLabels === 'object') ? summary.gaLabels : {};
+                const gaLastSeenAt = (summary && summary.gaLastSeenAt && typeof summary.gaLastSeenAt === 'object') ? summary.gaLastSeenAt : {};
+                const gaLastPayload = (summary && summary.gaLastPayload && typeof summary.gaLastPayload === 'object') ? summary.gaLastPayload : {};
+                const flowKnownGAs = Array.isArray(summary.flowKnownGAs) ? summary.flowKnownGAs : [];
+                const flowKnownGASet = new Set(flowKnownGAs.map(x => String(x || '').trim()).filter(Boolean));
+                const telemetryWindowSec = Number(summary && summary.graph && summary.graph.windowSec ? summary.graph.windowSec : 0);
+                const busLabel = String((summary && summary.meta && summary.meta.nodeName) || (data && data.node && data.node.name) || 'KNX AI').trim();
+
+                // Build candidate transition links from patternTransitions (preferred) or fallback patterns.
+                const edgeList = [];
+                if (patternTransitions.length) {
+                    patternTransitions.forEach((e) => {
+                        const from = String(e && e.from ? e.from : '').trim();
+                        const to = String(e && e.to ? e.to : '').trim();
+                        if (!from || !to || from === to) return;
+                        const fromInFlow = flowKnownGASet.size ? flowKnownGASet.has(from) : true;
+                        const toInFlow = flowKnownGASet.size ? flowKnownGASet.has(to) : true;
+                        // Keep only flow<->flow and flow<->external links.
+                        if (flowKnownGASet.size && !fromInFlow && !toInFlow) return;
+                        const weight = Number(e && e.currentWindowCount !== undefined ? e.currentWindowCount : (e && e.totalCount !== undefined ? e.totalCount : 1));
+                        const edgeByEvent = (e && e.edgeByEvent && typeof e.edgeByEvent === 'object') ? e.edgeByEvent : {};
+                        edgeList.push({
+                            key: from + '->' + to,
+                            from,
+                            to,
+                            fromInFlow,
+                            toInFlow,
+                            linkType: (e && e.linkType) ? String(e.linkType) : (fromInFlow && toInFlow ? 'flow-flow' : (fromInFlow ? 'flow-external' : 'external-flow')),
+                            weight: Number.isFinite(weight) ? weight : 0,
+                            currentWindowCount: Number.isFinite(Number(e && e.currentWindowCount)) ? Number(e.currentWindowCount) : 0,
+                            delta: Number(e && e.delta ? e.delta : 0),
+                            edgeByEvent,
+                            lastAtMs: (e && e.lastAt) ? (new Date(e.lastAt).getTime() || 0) : 0
+                        });
+                    });
+                } else {
+                    patterns.forEach((p) => {
+                        const from = String(p && p.from ? p.from : '').trim();
+                        const to = String(p && p.to ? p.to : '').trim();
+                        if (!from || !to || from === to) return;
+                        const fromInFlow = flowKnownGASet.size ? flowKnownGASet.has(from) : true;
+                        const toInFlow = flowKnownGASet.size ? flowKnownGASet.has(to) : true;
+                        if (flowKnownGASet.size && !fromInFlow && !toInFlow) return;
+                        const c = Number(p && p.count ? p.count : 1);
+                        edgeList.push({
+                            key: from + '->' + to,
+                            from,
+                            to,
+                            fromInFlow,
+                            toInFlow,
+                            linkType: fromInFlow && toInFlow ? 'flow-flow' : (fromInFlow ? 'flow-external' : 'external-flow'),
+                            weight: Number.isFinite(c) ? c : 1,
+                            currentWindowCount: 0,
+                            delta: 0,
+                            edgeByEvent: {},
+                            lastAtMs: 0
+                        });
+                    });
+                }
+
+                // Merge duplicate edges and aggregate weights/deltas/event buckets.
+                const mergedEdges = new Map();
+                edgeList.forEach((e) => {
+                    if (!mergedEdges.has(e.key)) mergedEdges.set(e.key, Object.assign({}, e));
+                    else {
+                        const cur = mergedEdges.get(e.key);
+                        cur.weight += e.weight;
+                        cur.currentWindowCount = Number(cur.currentWindowCount || 0) + Number(e.currentWindowCount || 0);
+                        cur.delta += e.delta;
+                        cur.lastAtMs = Math.max(Number(cur.lastAtMs || 0), Number(e.lastAtMs || 0));
+                        cur.fromInFlow = (cur.fromInFlow !== false) && (e.fromInFlow !== false);
+                        cur.toInFlow = (cur.toInFlow !== false) && (e.toInFlow !== false);
+                        cur.linkType = cur.fromInFlow && cur.toInFlow ? 'flow-flow' : (cur.fromInFlow ? 'flow-external' : 'external-flow');
+                        Object.keys(e.edgeByEvent || {}).forEach((ev) => {
+                            cur.edgeByEvent[ev] = (cur.edgeByEvent[ev] || 0) + (e.edgeByEvent[ev] || 0);
+                        });
+                        mergedEdges.set(e.key, cur);
+                    }
+                });
+
+                let edges = Array.from(mergedEdges.values())
+                    .filter(e => e.weight > 0)
+                    .sort((a, b) => {
+                        if (b.weight !== a.weight) return b.weight - a.weight;
+                        return Math.abs(b.delta) - Math.abs(a.delta);
+                    })
+                    .slice(0, 14);
+
+                // Count anomalies per GA so nodes with issues are prioritized.
+                const anomalyByGA = {};
+                if (anomalyLifecycle.length) {
+                    anomalyLifecycle.forEach((a) => {
+                        const ga = String(a && a.ga ? a.ga : 'BUS').trim() || 'BUS';
+                        anomalyByGA[ga] = (anomalyByGA[ga] || 0) + Math.max(1, Number(a && a.count ? a.count : 1));
+                    });
+                } else {
+                    anomalies.forEach((a) => {
+                        const ga = String(a && a.payload && a.payload.ga ? a.payload.ga : 'BUS').trim() || 'BUS';
+                        anomalyByGA[ga] = (anomalyByGA[ga] || 0) + 1;
+                    });
+                }
+
+                const flowMapTopology = (summary && summary.flowMapTopology && typeof summary.flowMapTopology === 'object')
+                    ? summary.flowMapTopology
+                    : null;
+                const hasFlowTopologyPayload = !!(flowMapTopology
+                    && Array.isArray(flowMapTopology.nodes)
+                    && Array.isArray(flowMapTopology.edges));
+                if (hasFlowTopologyPayload) {
+                    const nodes = flowMapTopology.nodes.map((n) => {
+                        const id = String(n && n.id ? n.id : '').trim();
+                        const kind = String(n && n.kind ? n.kind : (id.startsWith('N:') ? 'node' : 'ga')).trim() || 'ga';
+                        const displayId = String(n && n.displayId ? n.displayId : id).trim() || id;
+                        const subtitle = String(n && n.subtitle ? n.subtitle : (kind === 'ga' ? (gaLabels[id] || '') : '')).trim();
+                        const payload = toTrimmedText(n ? n.payload : '');
+                        const lastSeenAtMs = (() => {
+                            const direct = Number(n && n.lastSeenAtMs ? n.lastSeenAtMs : 0);
+                            if (Number.isFinite(direct) && direct > 0) return direct;
+                            const ts = new Date(String(n && n.lastSeenAt ? n.lastSeenAt : '')).getTime();
+                            return Number.isFinite(ts) ? ts : 0;
+                        })();
+                        const inFlow = kind === 'node'
+                            ? true
+                            : ((n && n.inFlow !== undefined) ? !!n.inFlow : (flowKnownGASet.size ? flowKnownGASet.has(id) : false));
+                        return {
+                            id,
+                            displayId,
+                            kind,
+                            score: Number(n && n.score ? n.score : 0),
+                            anomalyCount: Number(n && n.anomalyCount ? n.anomalyCount : (anomalyByGA[id] || 0)),
+                            subtitle,
+                            payload,
+                            lastSeenAtMs,
+                            inFlow
+                        };
+                    }).filter(n => !!n.id);
+
+                    const nodeInFlow = new Map(nodes.map(n => [String(n.id || ''), n.inFlow !== false]));
+                    const edges = flowMapTopology.edges.map((e) => {
+                        const from = String(e && e.from ? e.from : '').trim();
+                        const to = String(e && e.to ? e.to : '').trim();
+                        if (!from || !to || from === to) return null;
+                        const currentWindowCount = Number(e && e.currentWindowCount ? e.currentWindowCount : 0);
+                        const previousWindowCount = Number(e && e.previousWindowCount ? e.previousWindowCount : 0);
+                        const totalCount = Number(e && e.totalCount ? e.totalCount : 0);
+                        const delta = Number(e && e.delta !== undefined ? e.delta : (currentWindowCount - previousWindowCount));
+                        const weight = Number(e && e.weight !== undefined ? e.weight : (currentWindowCount > 0 ? currentWindowCount : totalCount));
+                        const lastAtMs = (() => {
+                            const direct = Number(e && e.lastAtMs ? e.lastAtMs : 0);
+                            if (Number.isFinite(direct) && direct > 0) return direct;
+                            const ts = new Date(String(e && e.lastAt ? e.lastAt : '')).getTime();
+                            return Number.isFinite(ts) ? ts : 0;
+                        })();
+                        const edgeByEvent = (e && e.edgeByEvent && typeof e.edgeByEvent === 'object') ? e.edgeByEvent : {};
+                        const delayMs = Math.max(0, Number(e && e.delayMs ? e.delayMs : 0));
+                        const keepVisible = !!(e && e.keepVisible === true);
+                        const viaGa = String(e && e.viaGa ? e.viaGa : '').trim();
+                        const fromInFlow = (e && e.fromInFlow !== undefined)
+                            ? !!e.fromInFlow
+                            : (nodeInFlow.has(from) ? (nodeInFlow.get(from) !== false) : from.startsWith('N:'));
+                        const toInFlow = (e && e.toInFlow !== undefined)
+                            ? !!e.toInFlow
+                            : (nodeInFlow.has(to) ? (nodeInFlow.get(to) !== false) : to.startsWith('N:'));
+                        return {
+                            key: String(e && e.key ? e.key : (from + '->' + to)).trim(),
+                            from,
+                            to,
+                            weight: Number.isFinite(weight) ? weight : 0,
+                            currentWindowCount: Number.isFinite(currentWindowCount) ? currentWindowCount : 0,
+                            delta: Number.isFinite(delta) ? delta : 0,
+                            edgeByEvent,
+                            delayMs,
+                            keepVisible,
+                            viaGa,
+                            lastAtMs,
+                            totalCount: Number.isFinite(totalCount) ? totalCount : 0,
+                            previousWindowCount: Number.isFinite(previousWindowCount) ? previousWindowCount : 0,
+                            fromInFlow,
+                            toInFlow,
+                            linkType: String(e && e.linkType ? e.linkType : (fromInFlow && toInFlow ? 'flow-flow' : (fromInFlow ? 'flow-external' : 'external-flow')))
+                        };
+                    }).filter(Boolean).slice(0, 800);
+
+                    const repeatedCount = Number(summary && summary.counters && summary.counters.repeated ? summary.counters.repeated : 0);
+                    const eventEntriesRaw = Object.keys(byEvent).map((k) => ({ label: k, value: Number(byEvent[k] || 0) }))
+                        .filter(x => x.value > 0)
+                        .sort((a, b) => b.value - a.value);
+                    const maxEventSlices = 6;
+                    const selectedEventLabels = new Set();
+                    const eventEntries = [];
+                    const repeatEntries = eventEntriesRaw.filter(x => /repeat/i.test(String(x.label || '')));
+                    const normalEntries = eventEntriesRaw.filter(x => !/repeat/i.test(String(x.label || '')));
+                    repeatEntries.forEach((entry) => {
+                        if (eventEntries.length >= maxEventSlices) return;
+                        if (selectedEventLabels.has(entry.label)) return;
+                        eventEntries.push(entry);
+                        selectedEventLabels.add(entry.label);
+                    });
+                    normalEntries.forEach((entry) => {
+                        if (eventEntries.length >= maxEventSlices) return;
+                        if (selectedEventLabels.has(entry.label)) return;
+                        eventEntries.push(entry);
+                        selectedEventLabels.add(entry.label);
+                    });
+                    const eventRest = eventEntriesRaw
+                        .filter(x => !selectedEventLabels.has(x.label))
+                        .reduce((acc, x) => acc + x.value, 0);
+                    if (eventRest > 0) eventEntries.push({ label: 'Other', value: eventRest });
+                    if (repeatedCount > 0) eventEntries.push({ label: 'Repeat flag', value: repeatedCount });
+
+                    const anomalyTypeCount = {};
+                    if (anomalyLifecycle.length) {
+                        anomalyLifecycle.forEach((a) => {
+                            const t = String(a && a.type ? a.type : 'anomaly');
+                            anomalyTypeCount[t] = (anomalyTypeCount[t] || 0) + Math.max(1, Number(a && a.count ? a.count : 1));
+                        });
+                    } else {
+                        anomalies.forEach((a) => {
+                            const t = String(a && a.payload && a.payload.type ? a.payload.type : 'anomaly');
+                            anomalyTypeCount[t] = (anomalyTypeCount[t] || 0) + 1;
+                        });
+                    }
+                    const anomalyEntries = Object.keys(anomalyTypeCount)
+                        .map((k) => ({ label: k, value: Number(anomalyTypeCount[k] || 0) }))
+                        .filter(x => x.value > 0)
+                        .sort((a, b) => b.value - a.value)
+                        .slice(0, 6);
+
+                    return {
+                        nodes,
+                        edges,
+                        eventEntries,
+                        anomalyEntries,
+                        telemetryWindowSec: Number(flowMapTopology.windowSec || telemetryWindowSec || 0)
+                    };
+                }
+
+                // Rank nodes by traffic + anomaly pressure; this controls visibility priority.
+                const nodeScore = {};
+                edges.forEach((e) => {
+                    nodeScore[e.from] = (nodeScore[e.from] || 0) + e.weight;
+                    nodeScore[e.to] = (nodeScore[e.to] || 0) + e.weight;
+                });
+                Object.keys(anomalyByGA).forEach((ga) => {
+                    nodeScore[ga] = (nodeScore[ga] || 0) + (anomalyByGA[ga] * 2);
+                });
+
+                const nodeIds = Object.keys(nodeScore)
+                    .sort((a, b) => (nodeScore[b] || 0) - (nodeScore[a] || 0))
+                    .slice(0, 18);
+                const nodeSet = new Set(nodeIds);
+                edges = edges.filter(e => nodeSet.has(e.from) && nodeSet.has(e.to));
+
+                const nodes = nodeIds.map((id) => ({
+                    id,
+                    displayId: id,
+                    kind: 'ga',
+                    score: Number(nodeScore[id] || 0),
+                    anomalyCount: Number(anomalyByGA[id] || 0),
+                    subtitle: id === 'BUS' ? busLabel : (String(gaLabels[id] || '').trim()),
+                    payload: toTrimmedText(gaLastPayload[id]),
+                    lastSeenAtMs: (() => {
+                        const ts = new Date(String(gaLastSeenAt[id] || '')).getTime();
+                        return Number.isFinite(ts) ? ts : 0;
+                    })(),
+                    inFlow: id === 'BUS' ? true : (flowKnownGASet.size ? flowKnownGASet.has(id) : true)
+                }));
+
+                // Pie chart composition: keep repeat-related slices visible when present.
+                const repeatedCount = Number(summary && summary.counters && summary.counters.repeated ? summary.counters.repeated : 0);
+                const eventEntriesRaw = Object.keys(byEvent).map((k) => ({ label: k, value: Number(byEvent[k] || 0) }))
+                    .filter(x => x.value > 0)
+                    .sort((a, b) => b.value - a.value);
+                const maxEventSlices = 6;
+                const selectedEventLabels = new Set();
+                const eventEntries = [];
+                const repeatEntries = eventEntriesRaw.filter(x => /repeat/i.test(String(x.label || '')));
+                const normalEntries = eventEntriesRaw.filter(x => !/repeat/i.test(String(x.label || '')));
+
+                repeatEntries.forEach((entry) => {
+                    if (eventEntries.length >= maxEventSlices) return;
+                    if (selectedEventLabels.has(entry.label)) return;
+                    eventEntries.push(entry);
+                    selectedEventLabels.add(entry.label);
+                });
+                normalEntries.forEach((entry) => {
+                    if (eventEntries.length >= maxEventSlices) return;
+                    if (selectedEventLabels.has(entry.label)) return;
+                    eventEntries.push(entry);
+                    selectedEventLabels.add(entry.label);
+                });
+
+                const eventRest = eventEntriesRaw
+                    .filter(x => !selectedEventLabels.has(x.label))
+                    .reduce((acc, x) => acc + x.value, 0);
+                if (eventRest > 0) eventEntries.push({ label: 'Other', value: eventRest });
+                if (repeatedCount > 0) eventEntries.push({ label: 'Repeat flag', value: repeatedCount });
+
+                const anomalyTypeCount = {};
+                if (anomalyLifecycle.length) {
+                    anomalyLifecycle.forEach((a) => {
+                        const t = String(a && a.type ? a.type : 'anomaly');
+                        anomalyTypeCount[t] = (anomalyTypeCount[t] || 0) + Math.max(1, Number(a && a.count ? a.count : 1));
+                    });
+                } else {
+                    anomalies.forEach((a) => {
+                        const t = String(a && a.payload && a.payload.type ? a.payload.type : 'anomaly');
+                        anomalyTypeCount[t] = (anomalyTypeCount[t] || 0) + 1;
+                    });
+                }
+                const anomalyEntries = Object.keys(anomalyTypeCount)
+                    .map((k) => ({ label: k, value: Number(anomalyTypeCount[k] || 0) }))
+                    .filter(x => x.value > 0)
+                    .sort((a, b) => b.value - a.value)
+                    .slice(0, 6);
+
+                return {
+                    nodes,
+                    edges,
+                    eventEntries,
+                    anomalyEntries,
+                    telemetryWindowSec
+                };
+            };
+
+            // Read current multi-select values from the GA selector.
+            const collectSelectedFlowGAs = () => {
+                if (!$flowGaSelect) return [];
+                return Array.from($flowGaSelect.options)
+                    .filter(opt => opt.selected)
+                    .map(opt => String(opt.value || '').trim())
+                    .filter(Boolean);
+            };
+
+            // Client-side filter for the GA selector list.
+            const applyFlowSearchVisibility = () => {
+                if (!$flowGaSelect) return;
+                const q = String(($flowGaSearch && $flowGaSearch.value) ? $flowGaSearch.value : '').trim().toLowerCase();
+                Array.from($flowGaSelect.options).forEach((opt) => {
+                    if (!q) {
+                        opt.hidden = false;
+                        return;
+                    }
+                    const txt = (String(opt.text || '') + ' ' + String(opt.value || '')).toLowerCase();
+                    opt.hidden = !txt.includes(q);
+                });
+            };
+
+            // Keep GA selector options stable across refreshes and preserve old subtitles when possible.
+            const updateFlowGaOptions = (nodes) => {
+                if (!$flowGaSelect) return;
+                const selected = new Set(flowFilters.selectedGa || []);
+                const incomingNodes = Array.isArray(nodes) ? nodes.slice() : [];
+                const incomingById = new Map();
+                incomingNodes.forEach((n) => {
+                    const id = String(n && n.id ? n.id : '').trim();
+                    if (!id) return;
+                    incomingById.set(id, n);
+                    const cached = flowNodeCache.get(id) || {};
+                    const next = {
+                        id,
+                        displayId: String(n && n.displayId ? n.displayId : (cached.displayId || id)).trim() || id,
+                        kind: String(n && n.kind ? n.kind : (cached.kind || (id.startsWith('N:') ? 'node' : 'ga'))).trim() || 'ga',
+                        subtitle: String(n && n.subtitle ? n.subtitle : (cached.subtitle || '')).trim(),
+                        payload: toTrimmedText((n && n.payload !== undefined && n.payload !== null) ? n.payload : cached.payload),
+                        inFlow: (n && n.inFlow !== undefined) ? !!n.inFlow : (cached.inFlow !== undefined ? !!cached.inFlow : true),
+                        lastSeenAtMs: Math.max(Number(cached.lastSeenAtMs || 0), Number(n && n.lastSeenAtMs ? n.lastSeenAtMs : 0))
+                    };
+                    flowNodeCache.set(id, next);
+                });
+
+                // gaOrder controls selector ordering; we append only new IDs at the end.
+                const nextOrder = Array.isArray(flowFilters.gaOrder) ? flowFilters.gaOrder.slice() : [];
+                const seenOrder = new Set(nextOrder);
+                incomingById.forEach((_, id) => {
+                    if (seenOrder.has(id)) return;
+                    nextOrder.push(id);
+                    seenOrder.add(id);
+                });
+                (flowFilters.selectedGa || []).forEach((id) => {
+                    const ga = String(id || '').trim();
+                    if (!ga || seenOrder.has(ga)) return;
+                    nextOrder.push(ga);
+                    seenOrder.add(ga);
+                });
+                // Keep a dedicated layout order so node positions stay stable across refreshes.
+                const nextLayoutOrder = (Array.isArray(flowFilters.layoutOrder) && flowFilters.layoutOrder.length > 0)
+                    ? flowFilters.layoutOrder.slice()
+                    : (Array.isArray(flowFilters.gaOrder) ? flowFilters.gaOrder.slice() : []);
+                const seenLayout = new Set(nextLayoutOrder);
+                incomingById.forEach((_, id) => {
+                    if (seenLayout.has(id)) return;
+                    nextLayoutOrder.push(id);
+                    seenLayout.add(id);
+                });
+
+                let orderChanged = false;
+                if (!Array.isArray(flowFilters.gaOrder) || flowFilters.gaOrder.length !== nextOrder.length) {
+                    orderChanged = true;
+                } else {
+                    for (let i = 0; i < nextOrder.length; i++) {
+                        if (flowFilters.gaOrder[i] !== nextOrder[i]) { orderChanged = true; break; }
+                    }
+                }
+                let layoutChanged = false;
+                if (!Array.isArray(flowFilters.layoutOrder) || flowFilters.layoutOrder.length !== nextLayoutOrder.length) {
+                    layoutChanged = true;
+                } else {
+                    for (let i = 0; i < nextLayoutOrder.length; i++) {
+                        if (flowFilters.layoutOrder[i] !== nextLayoutOrder[i]) { layoutChanged = true; break; }
+                    }
+                }
+                if (orderChanged) {
+                    flowFilters.gaOrder = nextOrder.slice(0, 600);
+                }
+                if (layoutChanged) flowFilters.layoutOrder = nextLayoutOrder.slice(0, 600);
+                if (orderChanged || layoutChanged) saveFlowFilters(flowFilters);
+
+                // Preserve subtitles and scroll position to avoid UX jumps while refreshing.
+                const prevMetaById = new Map();
+                Array.from($flowGaSelect.options).forEach((opt) => {
+                    prevMetaById.set(String(opt.value || ''), {
+                        subtitle: String(opt.dataset.subtitle || ''),
+                        displayId: String(opt.dataset.displayId || ''),
+                        kind: String(opt.dataset.kind || '')
+                    });
+                });
+                const prevScrollTop = $flowGaSelect.scrollTop || 0;
+                $flowGaSelect.innerHTML = '';
+
+                (flowFilters.gaOrder || []).forEach((idRaw) => {
+                    const id = String(idRaw || '').trim();
+                    if (!id) return;
+                    const n = incomingById.get(id);
+                    const cached = flowNodeCache.get(id) || {};
+                    const prevMeta = prevMetaById.get(id) || {};
+                    const displayId = n
+                        ? String(n && n.displayId ? n.displayId : id).trim()
+                        : String(cached.displayId || prevMeta.displayId || id).trim();
+                    const kind = n
+                        ? String(n && n.kind ? n.kind : (id.startsWith('N:') ? 'node' : 'ga')).trim()
+                        : String(cached.kind || prevMeta.kind || (id.startsWith('N:') ? 'node' : 'ga')).trim();
+                    const subtitle = n
+                        ? String(n && n.subtitle ? n.subtitle : '').trim()
+                        : String(cached.subtitle || prevMeta.subtitle || '').trim();
+                    const inFlow = n
+                        ? ((n && n.inFlow !== undefined) ? !!n.inFlow : true)
+                        : (cached.inFlow !== undefined ? !!cached.inFlow : true);
+                    const option = document.createElement('option');
+                    option.value = id;
+                    const extTag = (!inFlow && kind !== 'node') ? ' [ext]' : '';
+                    option.textContent = subtitle ? `${displayId}${extTag} | ${subtitle}` : `${displayId}${extTag}`;
+                    option.selected = selected.has(id);
+                    option.dataset.subtitle = subtitle;
+                    option.dataset.displayId = displayId;
+                    option.dataset.kind = kind || 'ga';
+                    option.dataset.inFlow = inFlow ? '1' : '0';
+                    const cls = [];
+                    if (!n) cls.push('flow-ga-stale');
+                    if (!inFlow && kind !== 'node') cls.push('flow-ga-external');
+                    if (cls.length) option.className = cls.join(' ');
+                    $flowGaSelect.appendChild(option);
+                });
+                applyFlowSearchVisibility();
+                $flowGaSelect.scrollTop = prevScrollTop;
+            };
+
+            // Apply persistent filter/layout constraints to the raw dashboard graph.
+            const applyFlowFilters = (dashboard) => {
+                const graph = dashboard || { nodes: [], edges: [] };
+                const nodesAll = Array.isArray(graph.nodes) ? graph.nodes.slice() : [];
+                const edgesAll = Array.isArray(graph.edges) ? graph.edges.slice() : [];
+                const maxGa = Math.max(4, Math.min(60, Number(flowFilters.maxGa || 14)));
+                const now = Date.now();
+                const nodeIdleTimeoutMs = Math.max(10000, Math.min(300000, ((Number(graph.telemetryWindowSec || 0) || 10) * 2000)));
+                // Active nodes seen in this refresh window.
+                const activeById = new Map();
+                nodesAll.forEach((n) => {
+                    const id = String(n && n.id ? n.id : '').trim();
+                    if (!id) return;
+                    activeById.set(id, n);
+                    const cached = flowNodeCache.get(id) || {};
+                    flowNodeCache.set(id, {
+                        id,
+                        displayId: String(n && n.displayId ? n.displayId : (cached.displayId || id)).trim() || id,
+                        kind: String(n && n.kind ? n.kind : (cached.kind || (id.startsWith('N:') ? 'node' : 'ga'))).trim() || 'ga',
+                        subtitle: String(n && n.subtitle ? n.subtitle : (cached.subtitle || '')).trim(),
+                        payload: toTrimmedText((n && n.payload !== undefined && n.payload !== null) ? n.payload : cached.payload),
+                        inFlow: (n && n.inFlow !== undefined) ? !!n.inFlow : (cached.inFlow !== undefined ? !!cached.inFlow : true),
+                        lastSeenAtMs: Math.max(Number(cached.lastSeenAtMs || 0), Number(n && n.lastSeenAtMs ? n.lastSeenAtMs : 0))
+                    });
+                });
+
+                const optionSubtitleById = new Map();
+                const optionDisplayById = new Map();
+                const optionKindById = new Map();
+                const optionInFlowById = new Map();
+                if ($flowGaSelect) {
+                    Array.from($flowGaSelect.options || []).forEach((opt) => {
+                        const id = String(opt && opt.value ? opt.value : '').trim();
+                        if (!id) return;
+                        optionSubtitleById.set(id, String((opt.dataset && opt.dataset.subtitle) ? opt.dataset.subtitle : '').trim());
+                        optionDisplayById.set(id, String((opt.dataset && opt.dataset.displayId) ? opt.dataset.displayId : '').trim());
+                        optionKindById.set(id, String((opt.dataset && opt.dataset.kind) ? opt.dataset.kind : '').trim());
+                        optionInFlowById.set(id, String((opt.dataset && opt.dataset.inFlow) ? opt.dataset.inFlow : '1') !== '0');
+                    });
+                }
+
+                // Known catalog: includes historical IDs so bubbles remain fixed and can become "disabled".
+                const knownIds = [];
+                const seenKnown = new Set();
+                const pushKnown = (idRaw) => {
+                    const id = String(idRaw || '').trim();
+                    if (!id || seenKnown.has(id)) return;
+                    seenKnown.add(id);
+                    knownIds.push(id);
+                };
+                // Build a stable catalog: once a node is seen, keep it renderable as disabled.
+                (flowFilters.layoutOrder || []).forEach(pushKnown);
+                (flowFilters.gaOrder || []).forEach(pushKnown);
+                nodesAll.forEach((n) => pushKnown(n && n.id));
+                (flowFilters.selectedGa || []).forEach(pushKnown);
+
+                const knownNodeById = new Map();
+                knownIds.forEach((id) => {
+                    const active = activeById.get(id);
+                    const cached = flowNodeCache.get(id) || {};
+                    const subtitleFallback = String(optionSubtitleById.get(id) || cached.subtitle || '').trim();
+                    const displayFallback = String(optionDisplayById.get(id) || cached.displayId || id).trim() || id;
+                    const kindFallback = String(optionKindById.get(id) || cached.kind || (id.startsWith('N:') ? 'node' : 'ga')).trim() || 'ga';
+                    const inFlowFallback = cached.inFlow !== undefined ? !!cached.inFlow : (optionInFlowById.has(id) ? !!optionInFlowById.get(id) : true);
+                    if (active) {
+                        const lastSeenAtMs = Math.max(Number(active.lastSeenAtMs || 0), Number(cached.lastSeenAtMs || 0));
+                        const isRecentOrUnknown = lastSeenAtMs <= 0 || (now - lastSeenAtMs) <= nodeIdleTimeoutMs;
+                        const merged = Object.assign({}, cached, active, {
+                            id,
+                            displayId: String(active.displayId || displayFallback).trim() || id,
+                            kind: String(active.kind || kindFallback).trim() || 'ga',
+                            subtitle: String(active.subtitle || subtitleFallback).trim(),
+                            payload: toTrimmedText((active.payload !== undefined && active.payload !== null) ? active.payload : cached.payload),
+                            inFlow: (active.inFlow !== undefined) ? !!active.inFlow : inFlowFallback,
+                            lastSeenAtMs,
+                            disabled: !isRecentOrUnknown
+                        });
+                        flowNodeCache.set(id, merged);
+                        knownNodeById.set(id, merged);
+                    } else {
+                        const lastSeenAtMs = Number(cached.lastSeenAtMs || 0);
+                        const isRecent = lastSeenAtMs > 0 && (now - lastSeenAtMs) <= nodeIdleTimeoutMs;
+                        const staleNode = {
+                            id,
+                            displayId: displayFallback,
+                            kind: kindFallback,
+                            score: 0,
+                            anomalyCount: 0,
+                            subtitle: subtitleFallback,
+                            payload: toTrimmedText(cached.payload),
+                            inFlow: inFlowFallback,
+                            lastSeenAtMs,
+                            disabled: !isRecent
+                        };
+                        flowNodeCache.set(id, Object.assign({}, cached, staleNode));
+                        knownNodeById.set(id, staleNode);
+                    }
+                });
+
+                // Keep cache bounded while preserving nodes currently visible/known.
+                if (flowNodeCache.size > 1200) {
+                    const minKeepTs = now - Math.max(300000, nodeIdleTimeoutMs * 3);
+                    const keepEntries = Array.from(flowNodeCache.values())
+                        .filter((n) => {
+                            const id = String(n && n.id ? n.id : '');
+                            if (!id) return false;
+                            if (knownNodeById.has(id)) return true;
+                            return Number(n && n.lastSeenAtMs ? n.lastSeenAtMs : 0) >= minKeepTs;
+                        })
+                        .slice(-1200);
+                    flowNodeCache = new Map(keepEntries.map((n) => [String(n.id || ''), n]).filter(([k]) => !!k));
+                }
+
+                // Explicit user selection overrides "max GA" truncation.
+                const selectedSet = new Set(
+                    (flowFilters.selectedGa || [])
+                        .map(id => String(id || '').trim())
+                        .filter(id => knownNodeById.has(id))
+                );
+
+                let nodesFiltered = [];
+                if (selectedSet.size > 0) {
+                    nodesFiltered = Array.from(selectedSet.values())
+                        .map((id) => knownNodeById.get(id))
+                        .filter(Boolean);
+                    // When user selects specific nodes, keep directly connected peers visible too
+                    // so directional links (for example KNX source -> GA) remain renderable.
+                    const selectedIds = new Set(nodesFiltered.map((n) => String(n && n.id ? n.id : '').trim()).filter(Boolean));
+                    const extraIds = new Set();
+                    edgesAll.forEach((e) => {
+                        const from = String(e && e.from ? e.from : '').trim();
+                        const to = String(e && e.to ? e.to : '').trim();
+                        if (!from || !to) return;
+                        if (selectedIds.has(from) && knownNodeById.has(to)) extraIds.add(to);
+                        if (selectedIds.has(to) && knownNodeById.has(from)) extraIds.add(from);
+                    });
+                    Array.from(extraIds.values()).forEach((id) => {
+                        if (selectedIds.has(id)) return;
+                        const n = knownNodeById.get(id);
+                        if (!n) return;
+                        nodesFiltered.push(n);
+                        selectedIds.add(id);
+                    });
+                } else {
+                    const orderedIds = (flowFilters.layoutOrder && flowFilters.layoutOrder.length)
+                        ? flowFilters.layoutOrder.map(id => String(id || '').trim())
+                        : knownIds.slice();
+                    nodesFiltered = orderedIds
+                        .map((id) => knownNodeById.get(id))
+                        .filter(Boolean)
+                        .slice(0, maxGa);
+
+                    if (!nodesFiltered.length) {
+                        nodesFiltered = nodesAll
+                            .slice()
+                            .sort((a, b) => Number(b.score || 0) - Number(a.score || 0))
+                            .slice(0, maxGa)
+                            .map((n) => {
+                                const id = String(n && n.id ? n.id : '').trim();
+                                const cached = flowNodeCache.get(id) || {};
+                                const lastSeenAtMs = Math.max(Number(n && n.lastSeenAtMs ? n.lastSeenAtMs : 0), Number(cached.lastSeenAtMs || 0));
+                                const isRecentOrUnknown = lastSeenAtMs <= 0 || (now - lastSeenAtMs) <= nodeIdleTimeoutMs;
+                                return Object.assign({}, cached, n, { lastSeenAtMs, disabled: !isRecentOrUnknown });
+                            });
+                    }
+                }
+
+                // Always include endpoints of keepVisible edges (for synthesized response arrows),
+                // even when Max GA truncation would normally hide them.
+                const mustHaveIds = new Set();
+                edgesAll.forEach((e) => {
+                    if (!(e && e.keepVisible === true)) return;
+                    const from = String(e && e.from ? e.from : '').trim();
+                    const to = String(e && e.to ? e.to : '').trim();
+                    if (from && knownNodeById.has(from)) mustHaveIds.add(from);
+                    if (to && knownNodeById.has(to)) mustHaveIds.add(to);
+                });
+                if (mustHaveIds.size) {
+                    const present = new Set(nodesFiltered.map(n => String(n && n.id ? n.id : '').trim()).filter(Boolean));
+                    Array.from(mustHaveIds.values()).forEach((id) => {
+                        if (!id || present.has(id)) return;
+                        const node = knownNodeById.get(id);
+                        if (!node) return;
+                        nodesFiltered.push(node);
+                        present.add(id);
+                    });
+                }
+
+                const nodeSet = new Set(nodesFiltered.map(n => n.id));
+                // Parse "from->to" edge keys persisted in edgeOrder.
+                const parseEdgeKey = (keyRaw) => {
+                    const key = String(keyRaw || '').trim();
+                    if (!key) return null;
+                    const sep = key.indexOf('->');
+                    if (sep === -1) return null;
+                    const from = key.slice(0, sep).trim();
+                    const to = key.slice(sep + 2).trim();
+                    if (!from || !to) return null;
+                    return { key, from, to };
+                };
+
+                // edgeOrder is append-only: existing links keep a stable render sequence.
+                const nextEdgeOrder = Array.isArray(flowFilters.edgeOrder) ? flowFilters.edgeOrder.slice() : [];
+                const seenEdgeOrder = new Set(nextEdgeOrder);
+                edgesAll.forEach((e) => {
+                    const key = String(e && e.key ? e.key : '').trim();
+                    if (!key) return;
+                    if (seenEdgeOrder.has(key)) return;
+                    nextEdgeOrder.push(key);
+                    seenEdgeOrder.add(key);
+                });
+                if (nextEdgeOrder.length > 4000) {
+                    flowFilters.edgeOrder = nextEdgeOrder.slice(nextEdgeOrder.length - 4000);
+                    saveFlowFilters(flowFilters);
+                } else {
+                    let edgeOrderChanged = false;
+                    if (!Array.isArray(flowFilters.edgeOrder) || flowFilters.edgeOrder.length !== nextEdgeOrder.length) {
+                        edgeOrderChanged = true;
+                    } else {
+                        for (let i = 0; i < nextEdgeOrder.length; i++) {
+                            if (flowFilters.edgeOrder[i] !== nextEdgeOrder[i]) { edgeOrderChanged = true; break; }
+                        }
+                    }
+                    if (edgeOrderChanged) {
+                        flowFilters.edgeOrder = nextEdgeOrder.slice();
+                        saveFlowFilters(flowFilters);
+                    }
+                }
+
+                // Active links in current payload; edge cache keeps stale links available in idle mode.
+                const activeEdgeByKey = new Map();
+                edgesAll.forEach((e) => {
+                    const key = String(e && e.key ? e.key : '').trim();
+                    if (!key) return;
+                    // Cache the last known edge payload; if edge traffic stops, keep the link visible in idle mode.
+                    flowEdgeCache.set(key, Object.assign({}, e, { disabled: false }));
+                    activeEdgeByKey.set(key, Object.assign({}, e, { disabled: false }));
+                });
+
+                const hasAnyMappedFlowNode = Array.from(knownNodeById.values()).some((n) => n && n.inFlow !== false);
+                const edgeKeysToRender = (flowFilters.edgeOrder || []).filter((keyRaw) => {
+                    const parsed = parseEdgeKey(keyRaw);
+                    if (!parsed) return false;
+                    if (!nodeSet.has(parsed.from) || !nodeSet.has(parsed.to)) return false;
+                    const edgeSnapshot = activeEdgeByKey.get(parsed.key) || flowEdgeCache.get(parsed.key);
+                    if (edgeSnapshot && edgeSnapshot.keepVisible === true) return true;
+                    const fromNode = knownNodeById.get(parsed.from);
+                    const toNode = knownNodeById.get(parsed.to);
+                    const fromInFlow = fromNode ? (fromNode.inFlow !== false) : false;
+                    const toInFlow = toNode ? (toNode.inFlow !== false) : false;
+                    // Graph must represent flow<->flow and flow<->external only.
+                    // If no flow-mapped nodes are available, keep external bus links visible.
+                    if (!hasAnyMappedFlowNode) return true;
+                    return fromInFlow || toInFlow;
+                });
+
+                const edgesFiltered = edgeKeysToRender.map((keyRaw) => {
+                    const key = String(keyRaw || '').trim();
+                    const active = activeEdgeByKey.get(key);
+                    if (active) return active;
+                    const cached = flowEdgeCache.get(key);
+                    // Cached-only edges must render as idle baseline, never as active traffic.
+                    if (cached) {
+                        const fromNode = knownNodeById.get(String(cached.from || ''));
+                        const toNode = knownNodeById.get(String(cached.to || ''));
+                        const fromInFlow = fromNode ? (fromNode.inFlow !== false) : false;
+                        const toInFlow = toNode ? (toNode.inFlow !== false) : false;
+                        return Object.assign({}, cached, {
+                            fromInFlow,
+                            toInFlow,
+                            linkType: fromInFlow && toInFlow ? 'flow-flow' : (fromInFlow ? 'flow-external' : 'external-flow'),
+                            disabled: true,
+                            delta: 0,
+                            currentWindowCount: 0,
+                            lastAtMs: 0
+                        });
+                    }
+                    const parsed = parseEdgeKey(key);
+                    if (!parsed) return null;
+                    const fromNode = knownNodeById.get(parsed.from);
+                    const toNode = knownNodeById.get(parsed.to);
+                    const fromInFlow = fromNode ? (fromNode.inFlow !== false) : false;
+                    const toInFlow = toNode ? (toNode.inFlow !== false) : false;
+                    return {
+                        key: parsed.key,
+                        from: parsed.from,
+                        to: parsed.to,
+                        fromInFlow,
+                        toInFlow,
+                        linkType: fromInFlow && toInFlow ? 'flow-flow' : (fromInFlow ? 'flow-external' : 'external-flow'),
+                        weight: 1,
+                        currentWindowCount: 0,
+                        delta: 0,
+                        edgeByEvent: {},
+                        keepVisible: false,
+                        viaGa: '',
+                        delayMs: 0,
+                        lastAtMs: 0,
+                        disabled: true,
+                    };
+                }).filter(Boolean);
+
+                return Object.assign({}, graph, {
+                    nodes: nodesFiltered,
+                    edges: edgesFiltered,
+                    selectedCount: selectedSet.size,
+                    maxGa,
+                    nodeIdleTimeoutMs
+                });
+            };
+
+            const polarPoint = (cx, cy, r, angleRad) => ({
+                x: cx + (r * Math.cos(angleRad)),
+                y: cy + (r * Math.sin(angleRad))
+            });
+
+            // Build the path of one pie slice between two angles.
+            const pieSlicePath = (cx, cy, r, a0, a1) => {
+                const p0 = polarPoint(cx, cy, r, a0);
+                const p1 = polarPoint(cx, cy, r, a1);
+                const large = (a1 - a0) > Math.PI ? 1 : 0;
+                return `M ${cx} ${cy} L ${p0.x} ${p0.y} A ${r} ${r} 0 ${large} 1 ${p1.x} ${p1.y} Z`;
+            };
+
+            // Draw donut-style pie + legend for event/anomaly distributions.
+            const renderPie = (svgEl, legendEl, entries, titlePrefix, options) => {
+                svgEl.innerHTML = '';
+                legendEl.innerHTML = '';
+                const opts = options || {};
+                const rows = Array.isArray(entries) ? entries.filter(e => e && Number(e.value || 0) > 0) : [];
+                const total = rows.reduce((acc, x) => acc + Number(x.value || 0), 0);
+                if (!rows.length || total <= 0) {
+                    const t = createSvgEl('text', { x: 90, y: 92, fill: '#837ba6', 'text-anchor': 'middle', 'font-size': 12 });
+                    t.textContent = 'No data';
+                    svgEl.appendChild(t);
+                    const empty = document.createElement('div');
+                    empty.className = 'empty';
+                    empty.textContent = 'No data available.';
+                    legendEl.appendChild(empty);
+                    if (opts.showAnalyzing && opts.activityContext) {
+                        legendEl.appendChild(createAnalyzingStateEl(opts.activityContext, true));
+                    }
+                    return;
+                }
+
+                let start = -Math.PI / 2;
+                rows.forEach((row, idx) => {
+                    const value = Number(row.value || 0);
+                    const slice = (value / total) * Math.PI * 2;
+                    const end = start + slice;
+                    const color = /repeat flag/i.test(String(row.label || '')) ? '#c62828' : pickColor(idx);
+                    const path = createSvgEl('path', {
+                        d: pieSlicePath(90, 90, 72, start, end),
+                        fill: color,
+                        stroke: '#fff',
+                        'stroke-width': 1
+                    });
+                    path.appendChild(createSvgEl('title', {}));
+                    path.lastChild.textContent = `${titlePrefix} ${row.label}: ${value}`;
+                    svgEl.appendChild(path);
+                    start = end;
+
+                    const pct = total > 0 ? ((value * 100) / total) : 0;
+                    const legendItem = document.createElement('div');
+                    legendItem.className = 'pie-legend-item';
+                    const dot = document.createElement('span');
+                    dot.className = 'pie-dot';
+                    dot.style.backgroundColor = color;
+                    const label = document.createElement('span');
+                    label.className = 'pie-label';
+                    label.textContent = `${row.label} (${value}, ${pct.toFixed(0)}%)`;
+                    legendItem.appendChild(dot);
+                    legendItem.appendChild(label);
+                    legendEl.appendChild(legendItem);
+                });
+
+                const hole = createSvgEl('circle', { cx: 90, cy: 90, r: 35, fill: '#fff' });
+                svgEl.appendChild(hole);
+                const centerLabel = createSvgEl('text', { x: 90, y: 86, fill: '#4a426f', 'text-anchor': 'middle', 'font-size': 12, 'font-weight': 700 });
+                centerLabel.textContent = String(total);
+                svgEl.appendChild(centerLabel);
+                const centerSub = createSvgEl('text', { x: 90, y: 101, fill: '#7a739a', 'text-anchor': 'middle', 'font-size': 10 });
+                centerSub.textContent = 'total';
+                svgEl.appendChild(centerSub);
+            };
+
+            // Draw "Top links" stacked bars by edge and event type mix.
+            const renderEdgeStack = (edges) => {
+                $edgeStackWrap.innerHTML = '';
+                const rows = Array.isArray(edges) ? edges.slice(0, 10) : [];
+                if (!rows.length) {
+                    const empty = document.createElement('div');
+                    empty.className = 'empty';
+                    empty.textContent = 'No links to display.';
+                    $edgeStackWrap.appendChild(empty);
+                    return;
+                }
+
+                const maxTotal = Math.max(1, ...rows.map(r => Number(r.weight || 0)));
+                rows.forEach((row) => {
+                    const total = Math.max(0, Number(row.weight || 0));
+                    const eventRaw = row.edgeByEvent && Object.keys(row.edgeByEvent).length
+                        ? row.edgeByEvent
+                        : { traffic: total };
+                    const events = Object.keys(eventRaw)
+                        .map((name) => ({ name, value: Number(eventRaw[name] || 0), key: normalizeEvent(name) }))
+                        .filter(x => x.value > 0)
+                        .sort((a, b) => b.value - a.value);
+                    if (!events.length) events.push({ name: 'traffic', value: total, key: 'other' });
+
+                    const rowEl = document.createElement('div');
+                    rowEl.className = 'stack-row';
+                    const label = document.createElement('div');
+                    label.className = 'stack-label';
+                    label.textContent = `${shortNodeLabel(row.from)} -> ${shortNodeLabel(row.to)}`;
+                    label.title = `${row.from} -> ${row.to}`;
+
+                    const track = document.createElement('div');
+                    track.className = 'stack-track';
+                    const totalBar = document.createElement('div');
+                    totalBar.className = 'stack-total';
+                    totalBar.style.width = ((total / maxTotal) * 100).toFixed(1) + '%';
+                    events.forEach((ev) => {
+                        const seg = document.createElement('div');
+                        seg.className = 'stack-seg';
+                        seg.style.width = ((ev.value / total) * 100).toFixed(2) + '%';
+                        seg.style.backgroundColor = EVENT_COLORS[ev.key] || EVENT_COLORS.other;
+                        seg.title = `${ev.name}: ${ev.value}`;
+                        totalBar.appendChild(seg);
+                    });
+                    track.appendChild(totalBar);
+
+                    const value = document.createElement('div');
+                    value.className = 'stack-value';
+                    value.textContent = String(total);
+
+                    rowEl.appendChild(label);
+                    rowEl.appendChild(track);
+                    rowEl.appendChild(value);
+                    $edgeStackWrap.appendChild(rowEl);
+                });
+            };
+
+            // Render the flow map as a fixed-grid graph with directional, traffic-aware links.
+            const renderFlowMap = (graph) => {
+                const nodes = graph.nodes || [];
+                const edges = graph.edges || [];
+                $flowSvg.innerHTML = '';
+                if (!nodes.length) {
+                    $flowEmpty.style.display = 'flex';
+                    $flowMeta.textContent = 'Nodes: 0 | Links: 0';
+                    return;
+                }
+                $flowEmpty.style.display = 'none';
+
+                const width = Math.max(560, Math.floor(($flowWrap && $flowWrap.clientWidth) ? $flowWrap.clientWidth - 20 : 900));
+                const baseHeight = 420;
+                const nodeRadius = 20;
+
+                const anomalyNodeCount = nodes.filter(n => Number(n.anomalyCount || 0) > 0).length;
+                const winInfo = graph.telemetryWindowSec ? (' | Window: ' + graph.telemetryWindowSec + 's') : '';
+                const filterInfo = graph.selectedCount > 0
+                    ? (` | Selected GA: ${graph.selectedCount}`)
+                    : (` | Max GA: ${graph.maxGa}`);
+                const idleInfo = graph.nodeIdleTimeoutMs ? (` | Node idle: ${Math.round(Number(graph.nodeIdleTimeoutMs || 0) / 1000)}s`) : '';
+                $flowMeta.textContent = `Nodes: ${nodes.length} | Links: ${edges.length} | Anomalous nodes: ${anomalyNodeCount}${filterInfo}${winInfo}${idleInfo}`;
+
+                const defs = createSvgEl('defs');
+                const addArrowMarker = (id, color) => {
+                    const marker = createSvgEl('marker', {
+                        id,
+                        markerWidth: 9,
+                        markerHeight: 7,
+                        refX: 8,
+                        refY: 3.5,
+                        orient: 'auto',
+                        markerUnits: 'strokeWidth'
+                    });
+                    marker.appendChild(createSvgEl('path', { d: 'M0,0 L9,3.5 L0,7 z', fill: color }));
+                    defs.appendChild(marker);
+                };
+                Object.keys(EVENT_COLORS).forEach((eventType) => {
+                    addArrowMarker(edgeMarkerIdForType(eventType), EVENT_COLORS[eventType] || EVENT_COLORS.other);
+                });
+                $flowSvg.appendChild(defs);
+
+                // Deterministic slots: IDs keep the same grid position once learned.
+                const slotById = new Map();
+                let nextSlot = 0;
+                (flowFilters.layoutOrder || []).forEach((idRaw) => {
+                    const id = String(idRaw || '').trim();
+                    if (!id || slotById.has(id)) return;
+                    slotById.set(id, nextSlot);
+                    nextSlot++;
+                });
+                nodes.forEach((n) => {
+                    const id = String(n && n.id ? n.id : '').trim();
+                    if (!id || slotById.has(id)) return;
+                    slotById.set(id, nextSlot);
+                    nextSlot++;
+                });
+
+                // Render by stable slot order, then lexical fallback.
+                const sortedNodes = nodes.slice().sort((a, b) => {
+                    const sa = Number(slotById.get(String(a && a.id ? a.id : '')) || 0);
+                    const sb = Number(slotById.get(String(b && b.id ? b.id : '')) || 0);
+                    if (sa !== sb) return sa - sb;
+                    return String(a.id || '').localeCompare(String(b.id || ''));
+                });
+
+                // Compute a compact grid shape based on current capacity.
+                const layoutSeed = Math.max(4, Number(flowFilters.maxGa || graph.maxGa || sortedNodes.length || 4));
+                const cols = Math.max(2, Math.min(8, Math.ceil(Math.sqrt(layoutSeed * 1.45))));
+                let maxSlot = 0;
+                sortedNodes.forEach((n) => {
+                    const slot = Number(slotById.get(String(n && n.id ? n.id : '')) || 0);
+                    if (slot > maxSlot) maxSlot = slot;
+                });
+                const rows = Math.max(1, Math.floor(maxSlot / cols) + 1);
+                const padX = 62;
+                const padY = 32;
+                // Increase vertical spacing dynamically to avoid crowded rows.
+                const minRowStep = 112;
+                const extraBottomForLabels = 56;
+                const requiredHeight = (padY * 2) + ((rows - 1) * minRowStep) + extraBottomForLabels;
+                const height = Math.max(baseHeight, requiredHeight);
+                $flowSvg.setAttribute('viewBox', '0 0 ' + width + ' ' + height);
+                $flowSvg.style.height = `${height}px`;
+                if ($flowWrap) $flowWrap.style.minHeight = `${height + 24}px`;
+                const usableW = Math.max(40, width - (padX * 2));
+                const usableH = Math.max(40, height - (padY * 2));
+                const stepX = cols > 1 ? (usableW / (cols - 1)) : 0;
+                const stepY = rows > 1 ? (usableH / (rows - 1)) : 0;
+                const positions = new Map();
+                sortedNodes.forEach((n) => {
+                    const slot = Number(slotById.get(String(n && n.id ? n.id : '')) || 0);
+                    const row = Math.floor(slot / cols);
+                    const col = slot % cols;
+                    const x = padX + (stepX * col);
+                    const y = padY + (stepY * row);
+                    positions.set(n.id, { x, y, row, col });
+                });
+                const obstacleNodes = sortedNodes
+                    .map((n) => {
+                        const id = String(n && n.id ? n.id : '').trim();
+                        const p = positions.get(id);
+                        if (!id || !p) return null;
+                        return { id, x: Number(p.x || 0), y: Number(p.y || 0) };
+                    })
+                    .filter(Boolean);
+                const pointToSegmentDistance = (px, py, x1, y1, x2, y2) => {
+                    const dx = x2 - x1;
+                    const dy = y2 - y1;
+                    const len2 = (dx * dx) + (dy * dy);
+                    if (len2 <= 0.000001) return Math.hypot(px - x1, py - y1);
+                    let t = (((px - x1) * dx) + ((py - y1) * dy)) / len2;
+                    t = Math.max(0, Math.min(1, t));
+                    const qx = x1 + (t * dx);
+                    const qy = y1 + (t * dy);
+                    return Math.hypot(px - qx, py - qy);
+                };
+                const quadraticPointAt = (t, x0, y0, cx, cy, x1, y1) => {
+                    const mt = 1 - t;
+                    const qx = (mt * mt * x0) + (2 * mt * t * cx) + (t * t * x1);
+                    const qy = (mt * mt * y0) + (2 * mt * t * cy) + (t * t * y1);
+                    return { x: qx, y: qy };
+                };
+                const edgeObstaclePenalty = ({ sx, sy, cx, cy, ex, ey, fromId, toId, skipId = '' }) => {
+                    const avoidRadius = nodeRadius + 11;
+                    let penalty = 0;
+                    for (let i = 0; i < obstacleNodes.length; i++) {
+                        const o = obstacleNodes[i];
+                        if (!o) continue;
+                        if (o.id === fromId || o.id === toId || (skipId && o.id === skipId)) continue;
+                        const chordDist = pointToSegmentDistance(o.x, o.y, sx, sy, ex, ey);
+                        if (chordDist > (avoidRadius + 36)) continue;
+                        let minDist = Infinity;
+                        const tSamples = [0.15, 0.30, 0.50, 0.70, 0.85];
+                        for (let s = 0; s < tSamples.length; s++) {
+                            const qp = quadraticPointAt(tSamples[s], sx, sy, cx, cy, ex, ey);
+                            const d = Math.hypot(qp.x - o.x, qp.y - o.y);
+                            if (d < minDist) minDist = d;
+                        }
+                        if (minDist < avoidRadius) {
+                            const miss = avoidRadius - minDist;
+                            penalty += (miss * miss);
+                        }
+                    }
+                    return penalty;
+                };
+                const nodeInFlowById = new Map(sortedNodes.map(n => [String(n.id || ''), n.inFlow !== false]));
+
+                // Edge thickness is proportional to traffic in current selection.
+                const maxWeight = Math.max(1, ...edges.map(e => Number(e.weight || 0)));
+                const now = Date.now();
+                // A link is visually active only if its latest telegram is within 5s.
+                const activeTrafficWindowMs = 5000;
+                const activeWindowSec = Math.max(1, Math.round(activeTrafficWindowMs / 1000));
+                const edgePriority = (edge) => {
+                    const byEvent = (edge && edge.edgeByEvent && typeof edge.edgeByEvent === 'object') ? edge.edgeByEvent : {};
+                    const keys = Object.keys(byEvent).map(k => String(k || ''));
+                    const isResponder = keys.some(k => /response\s*\(responder\)/i.test(k));
+                    const isReply = keys.some(k => /response\s*\(reply\)/i.test(k));
+                    if (isResponder) return 3;
+                    if (isReply) return 2;
+                    if (edge && edge.keepVisible === true) return 1;
+                    return 0;
+                };
+                const edgesToRender = edges.slice().sort((a, b) => edgePriority(a) - edgePriority(b));
+                edgesToRender.forEach((edge) => {
+                    const fromPos = positions.get(edge.from);
+                    const toPos = positions.get(edge.to);
+                    if (!fromPos || !toPos) return;
+                    const dx = toPos.x - fromPos.x;
+                    const dy = toPos.y - fromPos.y;
+                    const dist = Math.max(0.001, Math.sqrt((dx * dx) + (dy * dy)));
+                    const ux = dx / dist;
+                    const uy = dy / dist;
+                    const startX = fromPos.x + (ux * (nodeRadius + 2));
+                    const startY = fromPos.y + (uy * (nodeRadius + 2));
+                    const endX = toPos.x - (ux * (nodeRadius + 8));
+                    const endY = toPos.y - (uy * (nodeRadius + 8));
+
+                    const w = Number(edge.weight || 0);
+                    const thickness = (1.2 + ((w / maxWeight) * 6.4)).toFixed(2);
+                    const hot = Number(edge.delta || 0) > 0;
+                    const lastAtMs = Number(edge.lastAtMs || 0);
+                    const fromInFlow = nodeInFlowById.get(String(edge.from || '')) !== false;
+                    const toInFlow = nodeInFlowById.get(String(edge.to || '')) !== false;
+                    const isExternalLink = !(fromInFlow && toInFlow);
+                    const delayMs = Math.max(0, Number(edge.delayMs || 0));
+                    const isWaitingDelay = !edge.disabled && lastAtMs > 0 && delayMs > 0 && now < (lastAtMs + delayMs);
+                    if (isWaitingDelay) return;
+                    const rowDelta = Number(toPos.row || 0) - Number(fromPos.row || 0);
+                    const colDelta = Number(toPos.col || 0) - Number(fromPos.col || 0);
+                    const bendSign = rowDelta === 0 ? (colDelta >= 0 ? 1 : -1) : (rowDelta > 0 ? 1 : -1);
+                    const bendMag = Math.max(12, Math.min(60, (Math.abs(rowDelta) * 14) + (Math.abs(colDelta) <= 1 ? 22 : 10)));
+                    const perpX = -uy;
+                    const perpY = ux;
+                    const byEvent = (edge && edge.edgeByEvent && typeof edge.edgeByEvent === 'object') ? edge.edgeByEvent : {};
+                    const evKeys = Object.keys(byEvent).map(k => String(k || ''));
+                    const isResponderEdge = evKeys.some(k => /response\s*\(responder\)/i.test(k));
+                    const isReplyEdge = evKeys.some(k => /response\s*\(reply\)/i.test(k));
+                    const parallelOffset = isResponderEdge ? 9 : (isReplyEdge ? -7 : 0);
+                    const sX = startX + (perpX * parallelOffset);
+                    const sY = startY + (perpY * parallelOffset);
+                    const eX = endX + (perpX * parallelOffset);
+                    const eY = endY + (perpY * parallelOffset);
+                    let cx = ((sX + eX) / 2) + (perpX * bendMag * bendSign);
+                    let cy = ((sY + eY) / 2) + (perpY * bendMag * bendSign);
+                    const viaGa = String(edge && edge.viaGa ? edge.viaGa : '').trim();
+                    if (viaGa && positions.has(viaGa)) {
+                        const viaPos = positions.get(viaGa);
+                        const mx = (sX + eX) / 2;
+                        const my = (sY + eY) / 2;
+                        // Force responder->requester path to run near GA->requester path.
+                        cx = (mx * 0.35) + ((Number(viaPos.x || mx) + (perpX * parallelOffset * 0.45)) * 0.65);
+                        cy = (my * 0.35) + ((Number(viaPos.y || my) + (perpY * parallelOffset * 0.45)) * 0.65);
+                    }
+                    const baseCx = cx;
+                    const baseCy = cy;
+                    const avoidShift = Math.max(18, nodeRadius + 8 + Math.min(18, Math.abs(parallelOffset) * 1.5));
+                    const candidates = [
+                        { cx: baseCx, cy: baseCy, bias: 0 },
+                        { cx: baseCx + (perpX * avoidShift), cy: baseCy + (perpY * avoidShift), bias: 1 },
+                        { cx: baseCx - (perpX * avoidShift), cy: baseCy - (perpY * avoidShift), bias: 1 },
+                        { cx: baseCx + (perpX * avoidShift * 1.75), cy: baseCy + (perpY * avoidShift * 1.75), bias: 2 },
+                        { cx: baseCx - (perpX * avoidShift * 1.75), cy: baseCy - (perpY * avoidShift * 1.75), bias: 2 }
+                    ];
+                    let bestIdx = 0;
+                    let bestScore = Infinity;
+                    for (let ci = 0; ci < candidates.length; ci++) {
+                        const c = candidates[ci];
+                        const avoidScore = edgeObstaclePenalty({
+                            sx: sX,
+                            sy: sY,
+                            cx: c.cx,
+                            cy: c.cy,
+                            ex: eX,
+                            ey: eY,
+                            fromId: String(edge.from || ''),
+                            toId: String(edge.to || ''),
+                            skipId: viaGa
+                        });
+                        const shapePenalty = Number(c.bias || 0) * 0.38;
+                        const score = avoidScore + shapePenalty;
+                        if (score < bestScore) {
+                            bestScore = score;
+                            bestIdx = ci;
+                        }
+                    }
+                    cx = candidates[bestIdx].cx;
+                    cy = candidates[bestIdx].cy;
+                    const q0x = (sX + cx) / 2;
+                    const q0y = (sY + cy) / 2;
+                    const q1x = (cx + eX) / 2;
+                    const q1y = (cy + eY) / 2;
+                    const midX = (q0x + q1x) / 2;
+                    const midY = (q0y + q1y) / 2;
+
+                    const isActiveTraffic = !edge.disabled
+                        && lastAtMs > 0
+                        && now >= (lastAtMs + delayMs)
+                        && (now - lastAtMs) <= (activeTrafficWindowMs + delayMs);
+                    const isIdle = !isActiveTraffic;
+                    const tooltipState = isIdle
+                        ? (` | state: idle (>${activeWindowSec}s)`)
+                        : (` | state: active (<=${activeWindowSec}s)`);
+                    const eventSummary = Object.keys(edge.edgeByEvent || {})
+                        .sort((a, b) => String(a).localeCompare(String(b)))
+                        .map((ev) => `${ev}: ${edge.edgeByEvent[ev]}`)
+                        .join(' | ');
+                    const relationTag = isExternalLink ? ' | relation: flow<->external' : ' | relation: flow<->flow';
+                    const telegramType = classifyEdgeTelegramType(edge);
+                    const edgeColor = EVENT_COLORS[telegramType] || EVENT_COLORS.other;
+                    const markerId = edgeMarkerIdForType(telegramType);
+                    const tooltip = `${edge.from} -> ${edge.to} | traffic: ${w}${edge.delta ? (' | delta: ' + (edge.delta > 0 ? '+' : '') + edge.delta) : ''}${tooltipState}${relationTag} | type: ${telegramType}${eventSummary ? (' | events: ' + eventSummary) : ''}`;
+
+                    // Idle links stay visible as gray baseline; active links are split in/out with different arrows.
+                    if (isIdle) {
+                        const idleThickness = Math.max(1.1, Number(thickness) * 0.62).toFixed(2);
+                        const idlePath = createSvgEl('path', {
+                            d: `M ${sX} ${sY} Q ${cx} ${cy} ${eX} ${eY}`,
+                            class: 'flow-edge flow-edge-idle' + (isExternalLink ? ' flow-edge-external-link' : ''),
+                            'stroke-width': idleThickness,
+                            stroke: edgeColor,
+                            'marker-end': `url(#${markerId})`
+                        });
+                        idlePath.appendChild(createSvgEl('title', {}));
+                        idlePath.lastChild.textContent = tooltip;
+                        $flowSvg.appendChild(idlePath);
+                    } else {
+                        const pOut = createSvgEl('path', {
+                            d: `M ${sX} ${sY} Q ${q0x} ${q0y} ${midX} ${midY}`,
+                            class: 'flow-edge flow-edge-out flow-edge-active' + (hot ? ' flow-edge-hot' : '') + (isExternalLink ? ' flow-edge-external-link' : ''),
+                            'stroke-width': thickness,
+                            stroke: edgeColor,
+                            'marker-end': `url(#${markerId})`
+                        });
+                        const pIn = createSvgEl('path', {
+                            d: `M ${midX} ${midY} Q ${q1x} ${q1y} ${eX} ${eY}`,
+                            class: 'flow-edge flow-edge-in flow-edge-active' + (hot ? ' flow-edge-hot' : '') + (isExternalLink ? ' flow-edge-external-link' : ''),
+                            'stroke-width': thickness,
+                            stroke: edgeColor,
+                            'marker-end': `url(#${markerId})`
+                        });
+                        pOut.appendChild(createSvgEl('title', {}));
+                        pOut.lastChild.textContent = tooltip;
+                        pIn.appendChild(createSvgEl('title', {}));
+                        pIn.lastChild.textContent = tooltip;
+                        $flowSvg.appendChild(pOut);
+                        $flowSvg.appendChild(pIn);
+                    }
+                });
+
+                // Draw node bubbles after links so labels stay readable.
+                sortedNodes.forEach((node) => {
+                    const pos = positions.get(node.id);
+                    if (!pos) return;
+                    const isDisabledNode = !!node.disabled;
+                    const nodeKind = String(node && node.kind ? node.kind : (String(node && node.id ? node.id : '').startsWith('N:') ? 'node' : 'ga')).trim() || 'ga';
+                    const isUnmappedNode = nodeKind !== 'node' && node.inFlow === false;
+                    const g = createSvgEl('g', { class: 'flow-node flow-node-kind-' + nodeKind + (node.anomalyCount > 0 ? ' flow-node-anomaly' : '') + (isDisabledNode ? ' flow-node-disabled' : '') + (isUnmappedNode ? ' flow-node-unmapped' : '') });
+                    const circle = createSvgEl('circle', { cx: pos.x, cy: pos.y, r: nodeRadius });
+                    const label = createSvgEl('text', { x: pos.x, y: pos.y, class: 'flow-node-label' });
+                    label.textContent = shortNodeLabel(node.displayId || node.id);
+                    g.appendChild(circle);
+                    g.appendChild(label);
+                    let nextY = pos.y + nodeRadius + 12;
+                    const subtitleText = shortNodeSubtitle(node.subtitle || node.id);
+                    if (subtitleText) {
+                        const subtitle = createSvgEl('text', { x: pos.x, y: nextY, class: 'flow-node-subtitle' });
+                        subtitle.textContent = subtitleText;
+                        g.appendChild(subtitle);
+                        nextY += 11;
+                    }
+                    const payloadText = shortNodePayload(node.payload);
+                    if (payloadText) {
+                        const payload = createSvgEl('text', { x: pos.x, y: nextY, class: 'flow-node-payload' });
+                        payload.textContent = payloadText;
+                        g.appendChild(payload);
+                        nextY += 11;
+                    }
+                    if (isUnmappedNode) {
+                        const extTag = createSvgEl('text', { x: pos.x, y: nextY, class: 'flow-node-ext-tag' });
+                        extTag.textContent = 'EXT';
+                        g.appendChild(extTag);
+                        nextY += 10;
+                    }
+                    if (!isDisabledNode && node.anomalyCount > 0) {
+                        const badge = createSvgEl('text', { x: pos.x, y: nextY, class: 'flow-node-badge' });
+                        badge.textContent = 'anomaly x' + node.anomalyCount;
+                        g.appendChild(badge);
+                    }
+                    $flowSvg.appendChild(g);
+                });
+            };
+
+            // Single render entrypoint for all visual panels.
+            const renderDashboard = (data) => {
+                lastDashboardRawData = data || null;
+                const dashboard = buildDashboardData(data || {});
+                const activityContext = buildAnalysisActivityContext(data || {}, dashboard);
+                updateFlowGaOptions(dashboard.nodes || []);
+                const flowGraph = applyFlowFilters(dashboard);
+                renderFlowMap(flowGraph);
+                renderPie($eventPieSvg, $eventPieLegend, dashboard.eventEntries, 'Event');
+                renderPie($anomalyPieSvg, $anomalyPieLegend, dashboard.anomalyEntries, 'Anomaly', {
+                    showAnalyzing: true,
+                    activityContext
+                });
+                renderEdgeStack(flowGraph.edges || []);
+                return dashboard;
+            };
+
+            // Populate node selector while preserving preferred/query/stored priority.
+            const populateNodes = (nodes, preferredId) => {
+                nodesCache = Array.isArray(nodes) ? nodes : [];
+                $nodeSelect.innerHTML = '';
+
+                if (!nodesCache.length) {
+                    setEnabled(false);
+                    $summary.textContent = 'No KNX AI nodes found.';
+                    const emptyDashboard = renderDashboard(null);
+                    renderAnomalies([], buildAnalysisActivityContext(null, emptyDashboard));
+                    return;
+                }
+
+                setEnabled(true);
+                nodesCache.forEach((n) => {
+                    const option = document.createElement('option');
+                    option.value = n.id;
+                    option.textContent = (n.name || 'KNX AI') + (n.gatewayName ? (' | ' + n.gatewayName) : '');
+                    $nodeSelect.appendChild(option);
+                });
+
+                const queryPreferred = queryNodeId && nodesCache.find(n => n.id === queryNodeId) ? queryNodeId : '';
+                const stored = loadStoredNode();
+                const fallbackStored = stored && nodesCache.find(n => n.id === stored) ? stored : '';
+                const fallbackPreferred = preferredId && nodesCache.find(n => n.id === preferredId) ? preferredId : '';
+                const selected = fallbackPreferred || queryPreferred || fallbackStored || (nodesCache[0] ? nodesCache[0].id : '');
+                if (selected) $nodeSelect.value = selected;
+                storeNode(selected);
+                if (queryPreferred) queryNodeId = '';
+            };
+
+            // Poll available KNX AI nodes from backend.
+            const fetchNodes = async (preferredId) => {
+                setStatus('Loading nodes...');
+                const currentSelected = preferredId || $nodeSelect.value || loadStoredNode() || '';
+                try {
+                    const data = await requestJson(apiUrl('nodes'));
+                    populateNodes(data && data.nodes ? data.nodes : [], currentSelected);
+                    setStatus('Ready');
+                } catch (error) {
+                    setEnabled(false);
+                    setStatus(error.message || 'Failed to load nodes');
+                }
+            };
+
+            // Poll dashboard state for selected node; "fresh" can force backend recalculation.
+            const fetchState = async (fresh) => {
+                const nodeId = $nodeSelect.value || '';
+                if (!nodeId) return;
+                if (stateRequestInFlight) return;
+                stateRequestInFlight = true;
+                if (fresh) setStatus('Loading...');
+                try {
+                    const data = await requestJson(apiUrl('state?nodeId=' + encodeURIComponent(nodeId) + '&fresh=' + (fresh ? 1 : 0)));
+                    $summary.textContent = formatSummaryText(data);
+                    const dashboard = renderDashboard(data);
+                    renderAnomalies(data && data.anomalies ? data.anomalies : [], buildAnalysisActivityContext(data, dashboard));
+
+                    const llmEnabled = data && data.node ? !!data.node.llmEnabled : false;
+                    if (!llmEnabled) {
+                        $chatInput.disabled = true;
+                        $chatSend.disabled = true;
+                        $chatInput.placeholder = 'LLM disabled in node config';
+                    } else {
+                        $chatInput.disabled = false;
+                        $chatSend.disabled = false;
+                        $chatInput.placeholder = 'Ask a question about KNX traffic...';
+                    }
+                    if (fresh) setStatus('Ready');
+                } catch (error) {
+                    setStatus(error.message || 'Failed to load state');
+                } finally {
+                    stateRequestInFlight = false;
+                }
+            };
+
+            // Send a user/preset question to backend LLM endpoint and append chat output.
+            const sendAsk = async (questionOverride) => {
+                const nodeId = $nodeSelect.value || '';
+                const question = (questionOverride !== undefined ? String(questionOverride || '') : String($chatInput.value || '')).trim();
+                if (!nodeId || !question) return;
+
+                if (questionOverride === undefined) $chatInput.value = '';
+                appendChat('user', question);
+                setStatus('Asking...');
+                $chatSend.disabled = true;
+                showChatPending();
+
+                try {
+                    const data = await requestJson(apiUrl('ask'), {
+                        method: 'POST',
+                        headers: { 'content-type': 'application/json' },
+                        body: JSON.stringify({ nodeId, question })
+                    });
+                    appendChat('assistant', data && data.answer !== undefined ? data.answer : '');
+                } catch (error) {
+                    appendChat('error', error.message || 'Ask failed');
+                } finally {
+                    hideChatPending();
+                    $chatSend.disabled = false;
+                    setStatus('Ready');
+                }
+            };
+
+            // Start polling loops once, then keep them running for live updates.
+            const startTimers = () => {
+                if (!stateInterval) {
+                    stateInterval = window.setInterval(() => {
+                        if (!$auto.checked) return;
+                        fetchState(false);
+                    }, 450);
+                }
+                if (!nodesInterval) {
+                    nodesInterval = window.setInterval(() => {
+                        fetchNodes();
+                    }, 10000);
+                }
+            };
+
+            // Hard reset for Flow Map: clear all local caches/ordering and rebuild from fresh backend data.
+            const resetFlowMapHard = async () => {
+                flowFilters = parseFlowFilters(null);
+                saveFlowFilters(flowFilters);
+                flowEdgeCache = new Map();
+                flowNodeCache = new Map();
+                lastDashboardRawData = null;
+
+                if ($flowMaxGa) $flowMaxGa.value = String(flowFilters.maxGa || 14);
+                if ($flowGaSearch) $flowGaSearch.value = '';
+                if ($flowGaSelect) $flowGaSelect.innerHTML = '';
+                if ($flowSvg) $flowSvg.innerHTML = '';
+                if ($flowMeta) $flowMeta.textContent = 'Resetting layout...';
+                if ($flowEmpty) $flowEmpty.hidden = false;
+                if ($edgeStackWrap) $edgeStackWrap.innerHTML = '';
+
+                await fetchState(true);
+            };
+
+            // UI wiring: manual actions + local filter interactions.
+            if ($themeBtns.length) {
+                $themeBtns.forEach((btn) => {
+                    btn.addEventListener('click', () => {
+                        const t = String(btn.dataset.theme || '').trim();
+                        if (!t) return;
+                        applyTheme(t, { rerender: true });
+                    });
+                });
+            }
+            $refreshNodes.addEventListener('click', () => {
+                fetchNodes().then(() => fetchState(false));
+            });
+            $nodeSelect.addEventListener('change', () => {
+                const nodeId = $nodeSelect.value || '';
+                storeNode(nodeId);
+                $chatLog.innerHTML = '';
+                fetchState(false);
+            });
+            $auto.addEventListener('change', () => {
+                storeAuto($auto.checked);
+            });
+            $chatSend.addEventListener('click', (evt) => {
+                evt.preventDefault();
+                sendAsk();
+            });
+            $chatInput.addEventListener('keydown', (evt) => {
+                if (evt.key === 'Enter') {
+                    evt.preventDefault();
+                    sendAsk();
+                }
+            });
+            if ($flowMaxGa) {
+                $flowMaxGa.value = String(flowFilters.maxGa || 14);
+                $flowMaxGa.addEventListener('change', () => {
+                    const n = Number($flowMaxGa.value || 14);
+                    flowFilters.maxGa = Number.isFinite(n) ? Math.max(4, Math.min(60, Math.round(n))) : 14;
+                    $flowMaxGa.value = String(flowFilters.maxGa);
+                    saveFlowFilters(flowFilters);
+                    if (lastDashboardRawData) renderDashboard(lastDashboardRawData);
+                });
+            }
+            if ($flowGaSelect) {
+                $flowGaSelect.addEventListener('change', () => {
+                    flowFilters.selectedGa = collectSelectedFlowGAs();
+                    saveFlowFilters(flowFilters);
+                    if (lastDashboardRawData) renderDashboard(lastDashboardRawData);
+                });
+            }
+            if ($flowGaSearch) {
+                $flowGaSearch.value = '';
+                $flowGaSearch.addEventListener('input', () => {
+                    applyFlowSearchVisibility();
+                });
+            }
+            if ($flowClearGa) {
+                $flowClearGa.addEventListener('click', () => {
+                    Array.from($flowGaSelect.options).forEach((opt) => { opt.selected = false; });
+                    flowFilters.selectedGa = [];
+                    saveFlowFilters(flowFilters);
+                    if (lastDashboardRawData) renderDashboard(lastDashboardRawData);
+                });
+            }
+            if ($flowResetLayout) {
+                $flowResetLayout.addEventListener('click', async () => {
+                    try {
+                        $flowResetLayout.disabled = true;
+                        await resetFlowMapHard();
+                    } finally {
+                        $flowResetLayout.disabled = false;
+                    }
+                });
+            }
+            if ($chatPresetBtns.length) {
+                $chatPresetBtns.forEach((btn) => {
+                    btn.addEventListener('click', () => {
+                        if ($chatInput.disabled || $chatSend.disabled) return;
+                        const q = String(btn.dataset.question || '').trim();
+                        if (!q) return;
+                        sendAsk(q);
+                    });
+                });
+            }
+            // Debounced resize to recompute SVG layout without thrashing.
+            window.addEventListener('resize', () => {
+                if (resizeHandle) window.clearTimeout(resizeHandle);
+                resizeHandle = window.setTimeout(() => {
+                    if (lastDashboardRawData) renderDashboard(lastDashboardRawData);
+                }, 180);
+            });
+
+            // Bootstrap page state and start background polling.
+            applyTheme(currentTheme, { rerender: false });
+            $auto.checked = loadAuto();
+            fetchNodes(queryNodeId || loadStoredNode())
+                .then(() => resetFlowMapHard())
+                .finally(() => startTimers());
+        })();
+    </script>
+    <br /><br /><br /><br />
+</body>
+
+</html>

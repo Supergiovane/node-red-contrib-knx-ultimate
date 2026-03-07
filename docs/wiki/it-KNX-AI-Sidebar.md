@@ -4,7 +4,8 @@ title: "KNX-AI-Sidebar"
 lang: it
 permalink: /wiki/it-KNX-AI-Sidebar
 ---
-La tab **KNX AI** nella sidebar mostra in tempo reale lo stato dei tuoi nodi **KNX AI**: summary, anomalie e una chat per fare domande sul traffico KNX.
+La **Web Dashboard KNX AI** e' ora l'interfaccia ufficiale per l'analisi live dei tuoi nodi **KNX AI**: summary, anomalie, flow map e chat.
+Questa pagina mantiene il nome storico `KNX-AI-Sidebar` per compatibilita'.
 
 <img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/knx-ai-sidebar.svg" alt="KNX AI sidebar" style="width:100%;max-width:980px;border-radius:14px;box-shadow:0 12px 26px rgba(0,0,0,0.18);" />
 
@@ -16,9 +17,10 @@ La tab **KNX AI** nella sidebar mostra in tempo reale lo stato dei tuoi nodi **K
 
 ## Come si usa (in pratica)
 
-1. Seleziona il nodo `knxUltimateAI` dal menu a tendina.
-2. Premi **Refresh Summary** (oppure abilita **Auto**) per aggiornare lo snapshot.
-3. Usa la chat per chiedere “perché succede” e “cosa controllare”.
+1. Aprila dall'editor del nodo KNX AI con il pulsante **Open Web Page**.
+2. In alternativa usa direttamente `/knxUltimateAI/sidebar/page` (opzionalmente con `?nodeId=<id>`).
+3. Seleziona il nodo `knxUltimateAI` dal menu a tendina.
+4. Usa **Auto** o refresh manuale e fai domande in chat.
 
 ## Rendi l’AI più “intelligente” (contesto extra)
 

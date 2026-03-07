@@ -25,6 +25,17 @@ Envía un mensaje con `msg.topic`:
 
 Para `ask`, escribe la pregunta en `msg.prompt` (recomendado) o en `msg.payload` (string).
 
+## Contexto del LLM (mejores respuestas)
+Con el comando `ask`, el nodo puede enviar contexto adicional al LLM:
+- **Inventario del flow**: lista de nodos KNX Ultimate presentes en tus flows de Node-RED (ayuda a relacionar telegramas con la lógica).
+- **Fragmentos de documentación**: extractos relevantes de help/README/ejemplos (y `docs/wiki` si está disponible).
+
 ## Notas
 - Si habilitas el LLM, la información del bus se enviará al endpoint configurado. Usa un proveedor local si quieres mantener los datos on‑premise.
 - Para OpenAI, pega **solo** la API key (empieza por `sk-`). No pegues `Bearer ...` ni toda la cabecera `Authorization: ...`.
+
+## Dashboard web
+- Haz clic en **Open Web Page** en el editor del nodo KNX AI para abrir el dashboard completo.
+- URL directa: `/knxUltimateAI/sidebar/page` (opcionalmente con `?nodeId=<id>`).
+- El anterior plugin de barra lateral KNX AI ha sido reemplazado por esta página web.
+- El dashboard incluye Flow Map, Event Mix, lista de anomalías y chat Ask.

@@ -1,31 +1,70 @@
 <script type="text/markdown" data-help-name="knxUltimateAI">
-This node listens to **all KNX telegrams** from the selected KNX Ultimate gateway and builds statistics, detects simple anomalies, and (optionally) can ask an LLM to produce a human-friendly analysis.
-
-## What it does
-- Keeps a rolling history of KNX telegrams (decoded by KNX Ultimate).
-- Outputs periodic or on-demand **traffic summaries** (top group addresses, event types, rate).
-- Emits **anomaly events** (bus rate too high, group address spam, flapping).
-- Optionally calls an LLM (OpenAI-compatible or Ollama) when you send an `ask` command.
+This node listens to **all KNX telegrams** from the selected KNX Ultimate gateway, builds traffic statistics, detects anomalies, and can optionally query an LLM.
 
 ## Outputs
-1. **Summary/Stats** (`msg.payload` is JSON)
-2. **Anomalies** (`msg.payload` is JSON describing the anomaly)
-3. **AI Assistant** (`msg.payload` is the assistant answer as text; includes `msg.summary`)
+1. **Summary/Stats** (`msg.payload` JSON)
+2. **Anomalies** (`msg.payload` JSON)
+3. **AI Assistant** (`msg.payload` text, with `msg.summary`)
 
-## Commands (input pin)
-Send a message with `msg.topic`:
-- `summary` (or empty topic): emits a summary immediately
-- `reset`: clears internal history and counters
-- `ask`: asks the LLM using recent traffic + summary
+## Commands (input)
+Send `msg.topic`:
+- `summary` (or empty): emit summary immediately
+- `reset`: clear internal history/counters
+- `ask`: send a question to the configured LLM
 
-For `ask`, provide the question in `msg.prompt` (preferred) or in `msg.payload` (string).
+For `ask`, provide the question in `msg.prompt` (preferred) or `msg.payload` (string).
 
-## LLM context (better answers)
-When you use `ask`, the node can optionally send extra context to the LLM:
-- **Flow inventory**: a list of KNX Ultimate nodes found in your Node-RED flows (helps mapping telegrams to the logic).
-- **Documentation snippets**: relevant excerpts from built-in help/README/examples (and `docs/wiki` when available).
+## Configuration fields
+All fields exposed in the KNX AI editor are listed below.
 
-## Notes
-- If you enable the LLM, bus information will be sent to the configured endpoint. Use a local provider (e.g. Ollama) if you want to keep data on-premise.
-- For OpenAI, paste **only** the API key (it starts with `sk-`). Do **not** paste `Bearer ...` or the whole `Authorization:` header.
+### General
+- **Gateway**: KNX Ultimate gateway/config node used as telegram source.
+- **Name**: Node label and dashboard header name.
+- **Topic**: Base topic used in node outputs.
+- **Open KNX AI Web** button: Opens the full KNX AI web dashboard (`/knxUltimateAI/sidebar/page`).
+
+### Capture
+- **Capture GroupValue_Write**: Capture write telegrams.
+- **Capture GroupValue_Response**: Capture response telegrams.
+- **Capture GroupValue_Read**: Capture read telegrams.
+
+### Analysis
+- **Analysis window (seconds)**: Main analysis window used for summaries/rates.
+- **History window (seconds)**: Retention window for internal telegram history.
+- **Max stored events**: Maximum number of telegrams kept in memory.
+- **Auto emit summary (seconds, 0=off)**: Periodic summary output interval.
+- **Top list size**: Number of top group addresses/sources in summary.
+- **Detect simple patterns (A -> B)**: Enable transition/pattern detection.
+- **Pattern max lag (ms)**: Max time gap for pattern transition matching.
+- **Pattern min occurrences**: Minimum occurrences before a pattern is reported.
+
+### Anomalies
+- **Rate window (seconds)**: Sliding time window for anomaly rate checks.
+- **Max overall telegrams/sec (0=off)**: Overall bus rate threshold.
+- **Max telegrams/sec per GA (0=off)**: Per-group-address rate threshold.
+- **Flap window (seconds)**: Time window for flapping/change-rate detection.
+- **Max changes per GA in window (0=off)**: Max allowed changes in flap window.
+
+### LLM Assistant
+- **Enable LLM assistant**: Enable Ask/chat assistant features.
+- **Provider**: Select LLM backend (OpenAI-compatible or Ollama).
+- **Endpoint URL**: Chat/completions endpoint URL.
+- **API key**: API key (not required for local Ollama).
+- **Model**: Model ID/name.
+- **System prompt**: Global instruction for KNX analysis behavior.
+- **Temperature**: Sampling temperature.
+- **Max tokens**: Max completion tokens.
+- **Timeout (ms)**: HTTP timeout for LLM requests.
+- **Recent events included**: Max recent telegram events in prompt.
+- **Include raw payload hex**: Include raw telegram hex in prompt.
+- **Include Node-RED KNX node inventory**: Include flow inventory in prompt.
+- **Max flow nodes included**: Limit nodes included from flow inventory.
+- **Include documentation snippets (help/README/examples)**: Include docs context.
+- **Docs language**: Preferred language for docs snippets.
+- **Max docs snippets**: Max number of docs snippets.
+- **Max docs chars**: Max total docs characters.
+- **Refresh** button: Query provider and load available model IDs.
+
+## Security note
+If LLM is enabled, KNX traffic context can be sent to the configured endpoint. Use local providers if you need strict on-prem data handling.
 </script>

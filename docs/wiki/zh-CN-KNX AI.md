@@ -25,6 +25,17 @@ permalink: /wiki/zh-CN-KNX%20AI
 
 对于 `ask`，请将问题放在 `msg.prompt`（推荐）或 `msg.payload`（字符串）里。
 
+## LLM 上下文（更好的回答）
+使用 `ask` 时，此节点可选地向 LLM 发送额外上下文：
+- **Flow 清单**：你在 Node-RED flows 中使用的 KNX Ultimate 节点列表（帮助把电报与逻辑关联起来）。
+- **文档片段**：从内置 help/README/示例中提取的相关片段（以及在存在时的 `docs/wiki`）。
+
 ## 注意
 - 启用 LLM 后，会把总线信息发送到所配置的接口地址。若希望本地化处理，请使用本地 provider。
 - 对于 OpenAI，请仅粘贴 API Key（以 `sk-` 开头）。不要粘贴 `Bearer ...` 或完整的 `Authorization: ...`。
+
+## Web 仪表板
+- 在 KNX AI 节点编辑器中点击 **Open Web Page**，即可打开完整的 KNX AI 仪表板。
+- 直接访问 URL：`/knxUltimateAI/sidebar/page`（可选参数：`?nodeId=<id>`）。
+- 之前的 KNX AI 侧边栏插件已由该网页替代。
+- 仪表板包含 Flow Map、Event Mix、异常列表和 Ask 聊天。

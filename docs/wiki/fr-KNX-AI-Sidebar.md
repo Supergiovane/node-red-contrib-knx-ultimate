@@ -4,7 +4,8 @@ title: "KNX-AI-Sidebar"
 lang: fr
 permalink: /wiki/fr-KNX-AI-Sidebar
 ---
-L’onglet de barre latérale **KNX AI** affiche en temps réel vos nœuds **KNX AI** : résumé, anomalies et une chat pour poser des questions sur le trafic KNX.
+Le **tableau de bord Web KNX AI** est désormais l’interface officielle pour l’analyse en temps réel de vos nœuds **KNX AI** : résumé, anomalies, flow map et chat.
+Cette page conserve le nom historique `KNX-AI-Sidebar` pour compatibilité.
 
 <img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/knx-ai-sidebar.svg" alt="KNX AI sidebar" style="width:100%;max-width:980px;border-radius:14px;box-shadow:0 12px 26px rgba(0,0,0,0.18);" />
 
@@ -16,9 +17,10 @@ L’onglet de barre latérale **KNX AI** affiche en temps réel vos nœuds **KNX
 
 ## Comment l’utiliser
 
-1. Sélectionnez le nœud `knxUltimateAI` dans la liste.
-2. Cliquez sur **Refresh Summary** (ou activez **Auto**).
-3. Utilisez la chat pour demander “pourquoi” et “quoi vérifier ensuite”.
+1. Ouvrez-le depuis l’éditeur du nœud KNX AI avec **Open Web Page**.
+2. Ou utilisez directement `/knxUltimateAI/sidebar/page` (optionnellement avec `?nodeId=<id>`).
+3. Sélectionnez le nœud `knxUltimateAI` dans la liste.
+4. Utilisez **Auto** ou un rafraîchissement manuel et posez vos questions dans le chat.
 
 ## Plus de contexte (meilleures réponses)
 

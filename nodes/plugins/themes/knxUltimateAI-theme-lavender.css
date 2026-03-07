@@ -1,0 +1,44 @@
+:root {
+  --bg: #f3f4fb;
+  --text: #2d3150;
+  --muted: #666d8d;
+  --line: rgba(110, 121, 170, 0.24);
+  --accent: #7d8ed5;
+  --accent-soft: #edf0ff;
+  --ok-bg: #eef8f1;
+  --ok-border: #65b57f;
+  --user-bg: #eef3ff;
+  --user-border: #7d8ed5;
+  --warn-bg: #fff4e5;
+  --warn-border: #cf9850;
+  --event-write: #7d8ed5;
+  --event-response: #60b17b;
+  --event-read: #ce9850;
+  --event-repeat: #c05a5a;
+  --event-other: #8d97be;
+  --pie-4: #9b8bd8;
+  --pie-5: #55a8c0;
+  --pie-6: #d07083;
+  --pie-7: #7f88ab;
+}
+
+body { background: #f3f4fb; }
+#toolbar, .panel > h3, .insight-title { background: #eef0fb; }
+.insight-meta, .flow-controls, .flow-legend, .flow-ga-list-wrap, .chat-input-row { background: #f8f8fe; }
+.flow-legend-help { background: #fcfcff; }
+
+#toolbar button:hover, #chat-send:hover, .flow-controls button:hover, .chat-preset-btn:hover {
+  border-color: #98a5dd;
+  background: #f1f3ff;
+}
+
+#chat-send { border-color: #7d8ed5; background: #7d8ed5; }
+#chat-send:hover { border-color: #6f80c7; background: #7384cc; }
+
+#ask-panel { background: #f1f6f3; border-color: #bfd6c6; }
+#ask-panel > h3 { background: #eaf2ed; border-bottom-color: #bfd6c6; }
+#ask-panel #chat-wrap { background: #f5faf7; border-color: #bfd6c6; }
+
+.flow-node circle { fill: #f1f3fe; stroke: #7d8ed5; }
+.flow-node-kind-node:not(.flow-node-disabled):not(.flow-node-anomaly) circle { fill: #edf8f1; stroke: #5aa977; }
+.flow-node-disabled circle { fill: #edf0f8; stroke: #c0c7df; }
