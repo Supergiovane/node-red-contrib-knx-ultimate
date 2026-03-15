@@ -6,6 +6,13 @@
 
 # CHANGELOG
 
+**Version 4.1.31** - March 2026<br/>
+
+- NEW: **KNX Hue Light**: added advanced option **Update local cached Hue state from KNX bus writes** to keep the node local Hue cache aligned immediately on KNX write telegrams, without waiting for Hue bridge feedback.<br/>
+- UI: **KNX Hue Light**: the new advanced checkbox now restores and persists reliably when reopening/saving the node editor.<br/>
+- Docs/help/wiki: updated **KNX Hue Light** help and documentation in all supported languages (EN/IT/DE/FR/ES/zh-CN, including generated `*-zh-CN-*` wiki variants).<br/>
+- TEST: extended unit coverage for the optional KNX-write local cache synchronization behaviour.<br/>
+
 **Version 4.1.30** - March 2026<br/>
 
 - NEW: **KNX AI** now uses a full **Web Dashboard** as the main UI, opened from the node editor via **Open Web Page** button.<br/>
