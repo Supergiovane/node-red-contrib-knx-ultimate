@@ -1,15 +1,14 @@
 {
-	"folders": [
-		{
-			"name": "node-red-contrib-knx-ultimate",
-			"path": "."
-		}
-	],
-	"settings": {
-		"files.associations": {
-			"*.yaml": "home-assistant"
-		}
-		
-
-	}
+  "folders": [
+    {
+      "name": "node-red-contrib-knx-ultimate",
+      "path": ".",
+    },
+  ],
+  "settings": {
+    "files.associations": {
+      "*.yaml": "home-assistant",
+    },
+    "chatgpt.openOnStartup": true,
+  },
 }
