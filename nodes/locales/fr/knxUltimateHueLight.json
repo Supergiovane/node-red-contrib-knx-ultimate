@@ -41,6 +41,7 @@
     "knx_brightness_status": "Statut de luminosité de KNX",
     "knx_brightness_onhueoff": "Lorsque Hue Light est éteint, envoyez 0%. Lorsque Hue On, restaurez la valeur précédente (comportement KNX par défaut)",
     "knx_brightness_no": "Laisser tel quel (comportement de teinte par défaut)",
+    "update_local_state_from_knx_write": "Mettre à jour l'état Hue local en cache à partir des écritures du bus KNX",
     "use_min_brightness": "Utilisez une luminosité minimale spécifiée dans la lumière des teintes",
     "k_suffix": "K",
     "temp_desc_2200": "(Début de la gamme Philips White Ambiance Lights)",

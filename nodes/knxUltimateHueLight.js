@@ -64,6 +64,7 @@ module.exports = function (RED) {
     config.HSVDimSpeed = (config.HSVDimSpeed === undefined || config.HSVDimSpeed === '') ? 5000 : Number(config.HSVDimSpeed);
     config.invertDimTunableWhiteDirection = config.invertDimTunableWhiteDirection !== undefined;
     config.restoreDayMode = config.restoreDayMode === undefined ? "no" : config.restoreDayMode; // no or setDayByFastSwitchLightSingle or setDayByFastSwitchLightALL
+    config.updateLocalStateFromKNXWrite = config.updateLocalStateFromKNXWrite === true || config.updateLocalStateFromKNXWrite === "true"; // Starting from v 4.1.31
     node.timerCheckForFastLightSwitch = null;
     config.invertDayNight = config.invertDayNight === undefined ? false : config.invertDayNight;
     node.HSVObject = null; //{ h, s, v };// Store the current light calculated HSV
@@ -107,6 +108,28 @@ module.exports = function (RED) {
       if (provider && typeof provider.formatStatusTimestamp === "function") return provider.formatStatusTimestamp(d);
       return `${d.getDate()}, ${d.toLocaleTimeString()}`;
     };
+
+    node.syncCurrentHUEDeviceFromKNXState = function syncCurrentHUEDeviceFromKNXState(_state) { // Starting from v 4.1.31
+      if (config.updateLocalStateFromKNXWrite !== true) return; // Starting from v 4.1.31
+      if (_state === undefined || _state === null || typeof _state !== "object") return; // Starting from v 4.1.31
+      if (node.currentHUEDevice === undefined || node.currentHUEDevice === null) return; // Starting from v 4.1.31
+      if (_state.on !== undefined && typeof _state.on.on === "boolean") { // Starting from v 4.1.31
+        if (node.currentHUEDevice.on === undefined || node.currentHUEDevice.on === null) node.currentHUEDevice.on = {}; // Starting from v 4.1.31
+        node.currentHUEDevice.on.on = _state.on.on; // Starting from v 4.1.31
+      } // Starting from v 4.1.31
+      if (_state.dimming !== undefined && _state.dimming !== null && _state.dimming.brightness !== undefined) { // Starting from v 4.1.31
+        if (node.currentHUEDevice.dimming === undefined || node.currentHUEDevice.dimming === null) node.currentHUEDevice.dimming = {}; // Starting from v 4.1.31
+        node.currentHUEDevice.dimming.brightness = _state.dimming.brightness; // Starting from v 4.1.31
+      } // Starting from v 4.1.31
+      if (_state.color !== undefined && _state.color !== null && _state.color.xy !== undefined) { // Starting from v 4.1.31
+        if (node.currentHUEDevice.color === undefined || node.currentHUEDevice.color === null) node.currentHUEDevice.color = {}; // Starting from v 4.1.31
+        node.currentHUEDevice.color.xy = cloneDeep(_state.color.xy); // Starting from v 4.1.31
+      } // Starting from v 4.1.31
+      if (_state.color_temperature !== undefined && _state.color_temperature !== null && _state.color_temperature.mirek !== undefined) { // Starting from v 4.1.31
+        if (node.currentHUEDevice.color_temperature === undefined || node.currentHUEDevice.color_temperature === null) node.currentHUEDevice.color_temperature = {}; // Starting from v 4.1.31
+        node.currentHUEDevice.color_temperature.mirek = _state.color_temperature.mirek; // Starting from v 4.1.31
+      } // Starting from v 4.1.31
+    }; // Starting from v 4.1.31
 
     // Used to call the status update from the config node.
     node.setNodeStatus = ({
@@ -306,6 +329,7 @@ module.exports = function (RED) {
                 state = { on: { on: false } };
               }
 
+              node.syncCurrentHUEDeviceFromKNXState(state); // Starting from v 4.1.31
               node.serverHue.hueManager.writeHueQueueAdd(node.hueDevice, state, node.isGrouped_light === false ? "setLight" : "setGroupedLight");
               node.setNodeStatusHue({
                 fill: "green",
@@ -357,6 +381,7 @@ module.exports = function (RED) {
                 retMirek = hueColorConverter.ColorConverter.kelvinToMirek(msg.payload);
               }
               state = { color_temperature: { mirek: retMirek } };
+              node.syncCurrentHUEDeviceFromKNXState(state); // Starting from v 4.1.31
               node.serverHue.hueManager.writeHueQueueAdd(node.hueDevice, state, node.isGrouped_light === false ? "setLight" : "setGroupedLight");
               node.setNodeStatusHue({
                 fill: "green",
@@ -413,6 +438,7 @@ module.exports = function (RED) {
                 const retMirek = hueColorConverter.ColorConverter.scale(msg.payload, [0, 100], [153, 500]);
                 msg.payload = retMirek;
                 state = { color_temperature: { mirek: msg.payload } };
+                node.syncCurrentHUEDeviceFromKNXState(state); // Starting from v 4.1.31
                 node.serverHue.hueManager.writeHueQueueAdd(node.hueDevice, state, node.isGrouped_light === false ? "setLight" : "setGroupedLight");
                 node.setNodeStatusHue({
                   fill: "green",
@@ -433,6 +459,7 @@ module.exports = function (RED) {
                 if (node.currentHUEDevice.on.on === false && msg.payload > 0) state.on = { on: true };
                 if (node.currentHUEDevice.on.on === true && msg.payload === 0) state.on = { on: false };
               }
+              node.syncCurrentHUEDeviceFromKNXState(state); // Starting from v 4.1.31
               node.serverHue.hueManager.writeHueQueueAdd(node.hueDevice, state, node.isGrouped_light === false ? "setLight" : "setGroupedLight");
               node.setNodeStatusHue({
                 fill: "green",
@@ -462,6 +489,7 @@ module.exports = function (RED) {
                 if (node.currentHUEDevice.on.on === false && bright > 0) state.on = { on: true };
                 if (node.currentHUEDevice.on.on === true && bright === 0) state = { on: { on: false }, dimming: { brightness: bright } };
               }
+              node.syncCurrentHUEDeviceFromKNXState(state); // Starting from v 4.1.31
               node.serverHue.hueManager.writeHueQueueAdd(node.hueDevice, state, node.isGrouped_light === false ? "setLight" : "setGroupedLight");
               node.setNodeStatusHue({
                 fill: "green",

@@ -41,6 +41,7 @@
     "knx_brightness_status": "KNX 亮度状态",
     "knx_brightness_onhueoff": "当 HUE 灯关闭时发送 0%。当 HUE 打开时恢复先前值（默认 KNX 行为）",
     "knx_brightness_no": "保持不变（默认 HUE 行为）",
+    "update_local_state_from_knx_write": "根据 KNX 总线写入更新本地缓存的 Hue 状态",
     "use_min_brightness": "使用 HUE 灯中设置的最小亮度",
     "k_suffix": "K",
     "temp_desc_2200": "（飞利浦 White Ambiance 系列起始）",

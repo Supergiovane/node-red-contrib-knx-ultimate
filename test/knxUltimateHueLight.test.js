@@ -190,7 +190,9 @@ function createSwitchTelegram(destination, value = 1, event = "GroupValue_Write"
 
 describe("knxUltimateHueLight KNX to HUE routing", () => {
   it("restores stored daytime state when no switch-on profile is configured", () => {
-    const { node, config, hueCommands } = instantiateNode();
+    const { node, config, hueCommands } = instantiateNode({
+      updateLocalStateFromKNXWrite: true, // Starting from v 4.1.31
+    });
 
     node.currentHUEDevice = { color_temperature: {}, dimming: {}, on: { on: false } };
     node.DayTime = true;
@@ -211,11 +213,16 @@ describe("knxUltimateHueLight KNX to HUE routing", () => {
       expect(command.payload).to.deep.equal(storedState);
     });
     expect(node.HUEDeviceWhileDaytime).to.equal(null);
+    expect(node.currentHUEDevice.on.on).to.equal(true); // Starting from v 4.1.31
+    expect(node.currentHUEDevice.dimming.brightness).to.equal(70); // Starting from v 4.1.31
+    expect(node.currentHUEDevice.color.xy).to.deep.equal({ x: 0.35, y: 0.35 }); // Starting from v 4.1.31
+    expect(node.currentHUEDevice.color_temperature.mirek).to.equal(250); // Starting from v 4.1.31
   });
 
   it("applies daytime temperature preset when configured", () => {
     const { node, config, hueCommands } = instantiateNode({
       specifySwitchOnBrightness: "temperature",
+      updateLocalStateFromKNXWrite: true, // Starting from v 4.1.31
     });
 
     node.currentHUEDevice = {
@@ -237,6 +244,7 @@ describe("knxUltimateHueLight KNX to HUE routing", () => {
     const expectedMirek = ColorConverter.kelvinToMirek(config.colorAtSwitchOnDayTime.kelvin);
     expect(command.payload.color_temperature).to.deep.equal({ mirek: expectedMirek });
     expect(brightnessUpdates).to.deep.equal([config.colorAtSwitchOnDayTime.brightness]);
+    expect(node.currentHUEDevice.on.on).to.equal(true); // Starting from v 4.1.31
     expect(node.currentHUEDevice.color_temperature.mirek).to.equal(expectedMirek);
     expect(node.currentHUEDevice.dimming.brightness).to.equal(config.colorAtSwitchOnDayTime.brightness);
   });
@@ -268,10 +276,30 @@ describe("knxUltimateHueLight KNX to HUE routing", () => {
     expect(hueCommands).to.have.lengthOf(0);
   });
 
+  it("does not update the local kelvin cache from KNX writes unless enabled", () => {
+    const { node, config, hueCommands } = instantiateNode({
+      GALightKelvin: "1/1/6",
+      dptLightKelvin: "7.600",
+      // Starting from v 4.1.31
+    });
+
+    const kelvinDpt = dptlib.resolve("7.600"); // Starting from v 4.1.31
+    node.currentHUEDevice = { color_temperature: { mirek: 350 } }; // Starting from v 4.1.31
+
+    node.handleSend(createSwitchTelegram(
+      config.GALightKelvin,
+      kelvinDpt.formatAPDU(2800),
+    )); // Starting from v 4.1.31
+
+    expect(hueCommands).to.have.lengthOf(1); // Starting from v 4.1.31
+    expect(node.currentHUEDevice.color_temperature.mirek).to.equal(350); // Starting from v 4.1.31
+  }); // Starting from v 4.1.31
+
   it("applies the night color preset when enabled", () => {
     const { node, config, hueCommands } = instantiateNode({
       enableDayNightLighting: "yes",
       colorAtSwitchOnNightTime: JSON.stringify({ red: 10, green: 40, blue: 200 }),
+      updateLocalStateFromKNXWrite: true, // Starting from v 4.1.31
     });
 
     node.currentHUEDevice = {
@@ -300,7 +328,9 @@ describe("knxUltimateHueLight KNX to HUE routing", () => {
 
     const expectedCommandBrightness = ColorConverter.getBrightnessFromRGBOrHex(10, 40, 200);
     expect(command.payload.dimming.brightness).to.equal(expectedCommandBrightness);
-    expect(node.currentHUEDevice.dimming.brightness).to.equal(Math.round(expectedCommandBrightness));
+    expect(node.currentHUEDevice.on.on).to.equal(true); // Starting from v 4.1.31
+    expect(node.currentHUEDevice.color.xy).to.deep.equal(command.payload.color.xy); // Starting from v 4.1.31
+    expect(node.currentHUEDevice.dimming.brightness).to.equal(expectedCommandBrightness); // Starting from v 4.1.31
   });
 
   it("restores each grouped light using the stored night snapshot", () => {
@@ -352,6 +382,7 @@ describe("knxUltimateHueLight KNX to HUE routing", () => {
     const { node, config, hueCommands } = instantiateNode({
       GALightColor: "1/1/4",
       dptLightColor: "232.600",
+      updateLocalStateFromKNXWrite: true, // Starting from v 4.1.31
     });
 
     node.currentHUEDevice = {
@@ -374,12 +405,16 @@ describe("knxUltimateHueLight KNX to HUE routing", () => {
     expect(command.payload.on).to.deep.equal({ on: true });
     expect(command.payload.color.xy).to.have.keys(["x", "y"]);
     expect(command.payload.dimming.brightness).to.be.greaterThan(0);
+    expect(node.currentHUEDevice.on.on).to.equal(true); // Starting from v 4.1.31
+    expect(node.currentHUEDevice.color.xy).to.deep.equal(command.payload.color.xy); // Starting from v 4.1.31
+    expect(node.currentHUEDevice.dimming.brightness).to.equal(command.payload.dimming.brightness); // Starting from v 4.1.31
   });
 
   it("turns Hue light off when KNX RGB payload carries zero brightness", () => {
     const { node, config, hueCommands } = instantiateNode({
       GALightColor: "1/1/4",
       dptLightColor: "232.600",
+      updateLocalStateFromKNXWrite: true, // Starting from v 4.1.31
     });
 
     node.currentHUEDevice = {
@@ -395,12 +430,15 @@ describe("knxUltimateHueLight KNX to HUE routing", () => {
     const command = hueCommands[0];
     expect(command.payload.on).to.deep.equal({ on: false });
     expect(command.payload.dimming.brightness).to.equal(0);
+    expect(node.currentHUEDevice.on.on).to.equal(false); // Starting from v 4.1.31
+    expect(node.currentHUEDevice.dimming.brightness).to.equal(0); // Starting from v 4.1.31
   });
 
   it("clamps tunable white writes to Hue-supported kelvin range", () => {
     const { node, config, hueCommands } = instantiateNode({
       GALightKelvin: "1/1/6",
       dptLightKelvin: "7.600",
+      updateLocalStateFromKNXWrite: true, // Starting from v 4.1.31
     });
     const kelvinDpt = dptlib.resolve("7.600");
     node.currentHUEDevice = { color_temperature: { mirek: 350 } };
@@ -414,6 +452,7 @@ describe("knxUltimateHueLight KNX to HUE routing", () => {
     let command = hueCommands[0];
     const maxKelvinMirek = ColorConverter.kelvinToMirek(6535);
     expect(command.payload.color_temperature.mirek).to.equal(maxKelvinMirek);
+    expect(node.currentHUEDevice.color_temperature.mirek).to.equal(maxKelvinMirek); // Starting from v 4.1.31
 
     node.handleSend(createSwitchTelegram(
       config.GALightKelvin,
@@ -424,6 +463,7 @@ describe("knxUltimateHueLight KNX to HUE routing", () => {
     command = hueCommands[1];
     const minKelvinMirek = ColorConverter.kelvinToMirek(2000);
     expect(command.payload.color_temperature.mirek).to.equal(minKelvinMirek);
+    expect(node.currentHUEDevice.color_temperature.mirek).to.equal(minKelvinMirek); // Starting from v 4.1.31
   });
 
   it("maps tunable white percentage writes to Hue mirek range", () => {
@@ -431,6 +471,7 @@ describe("knxUltimateHueLight KNX to HUE routing", () => {
       GALightKelvinPercentage: "1/1/7",
       dptLightKelvinPercentage: "5.001",
       nameLightKelvinDIM: "preset",
+      updateLocalStateFromKNXWrite: true, // Starting from v 4.1.31
     });
     node.currentHUEDevice = { color_temperature: { mirek: 320 } };
 
@@ -442,6 +483,7 @@ describe("knxUltimateHueLight KNX to HUE routing", () => {
     expect(hueCommands).to.have.lengthOf(1);
     let command = hueCommands[0];
     expect(command.payload.color_temperature.mirek).to.equal(500);
+    expect(node.currentHUEDevice.color_temperature.mirek).to.equal(500); // Starting from v 4.1.31
 
     node.handleSend(createSwitchTelegram(
       config.GALightKelvinPercentage,
@@ -451,12 +493,14 @@ describe("knxUltimateHueLight KNX to HUE routing", () => {
     expect(hueCommands).to.have.lengthOf(2);
     command = hueCommands[1];
     expect(command.payload.color_temperature.mirek).to.equal(153);
+    expect(node.currentHUEDevice.color_temperature.mirek).to.equal(153); // Starting from v 4.1.31
   });
 
   it("forces Hue dimming and turns light on for positive brightness telegrams", () => {
     const { node, config, hueCommands } = instantiateNode({
       GALightBrightness: "1/1/3",
       dptLightBrightness: "5.001",
+      updateLocalStateFromKNXWrite: true, // Starting from v 4.1.31
     });
 
     node.currentHUEDevice = { on: { on: false }, dimming: { brightness: 0 } };
@@ -469,12 +513,15 @@ describe("knxUltimateHueLight KNX to HUE routing", () => {
     expect(command.payload.dimming).to.deep.equal({ brightness: 50 });
     expect(command.payload.on).to.deep.equal({ on: true });
     expect(command.command).to.equal("setLight");
+    expect(node.currentHUEDevice.on.on).to.equal(true); // Starting from v 4.1.31
+    expect(node.currentHUEDevice.dimming.brightness).to.equal(50); // Starting from v 4.1.31
   });
 
   it("forces Hue dimming off when brightness telegram is zero", () => {
     const { node, config, hueCommands } = instantiateNode({
       GALightBrightness: "1/1/3",
       dptLightBrightness: "5.001",
+      updateLocalStateFromKNXWrite: true, // Starting from v 4.1.31
     });
 
     node.currentHUEDevice = { on: { on: true }, dimming: { brightness: 80 } };
@@ -486,6 +533,8 @@ describe("knxUltimateHueLight KNX to HUE routing", () => {
     expect(command.payload.dimming).to.deep.equal({ brightness: 0 });
     expect(command.payload.on).to.deep.equal({ on: false });
     expect(command.command).to.equal("setLight");
+    expect(node.currentHUEDevice.on.on).to.equal(false); // Starting from v 4.1.31
+    expect(node.currentHUEDevice.dimming.brightness).to.equal(0); // Starting from v 4.1.31
   });
 
   it("ignores malformed KNX brightness payloads without emitting Hue commands", () => {

@@ -129,7 +129,8 @@
         hueDevice: { value: "" },
         hueDeviceObject: { value: {} },
 
-        restoreDayMode: { value: "no" }
+        restoreDayMode: { value: "no" }, // Starting from v 4.1.31
+        updateLocalStateFromKNXWrite: { value: false } // Starting from v 4.1.31
       },
       inputs: 0,
       outputs: 0,
@@ -145,7 +146,8 @@
         } catch (error) { }
 
 
-        var node = this;
+        var node = this; // Starting from v 4.1.31
+        $("#node-input-updateLocalStateFromKNXWrite").prop("checked", node.updateLocalStateFromKNXWrite === true || node.updateLocalStateFromKNXWrite === "true"); // Starting from v 4.1.31
         const ensureConfigSelection = (selector) => {
           if ($(selector).val() !== "_ADD_") return;
           try {
@@ -1628,6 +1630,7 @@
         const serialized = JSON.stringify(collectedEffectRules);
         $("#node-input-effectRules").val(serialized);
         this.effectRules = serialized;
+        this.updateLocalStateFromKNXWrite = $("#node-input-updateLocalStateFromKNXWrite").is(":checked"); // Starting from v 4.1.31
         this._cachedHueLightDevices = [];
         if (typeof this.__stopHueLocateSession === 'function') {
           try { this.__stopHueLocateSession(); } catch (error) { /* empty */ }
@@ -2255,6 +2258,12 @@
             <option value="onhueoff" data-i18n="knxUltimateHueLight.knx_brightness_onhueoff"></option>
             <option value="no" data-i18n="knxUltimateHueLight.knx_brightness_no"></option>
           </select>
+        </div>
+        <div class="form-row">
+          <label style="width:260px;" for="node-input-updateLocalStateFromKNXWrite">
+            <i class="fa fa-database"></i> <span data-i18n="knxUltimateHueLight.update_local_state_from_knx_write"></span>
+          </label>
+          <input type="checkbox" id="node-input-updateLocalStateFromKNXWrite" style="display:inline-block; width:auto; vertical-align:top;" />
         </div>
         <div id ="divBehaviourBrightness">
           <div class="form-row">
