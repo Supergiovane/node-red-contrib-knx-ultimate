@@ -6,6 +6,10 @@
 
 # CHANGELOG
 
+**Version 4.1.32** - March 2026<br/>
+
+- KNX Engine bumped to 5.2.11.<br/>
+
 **Version 4.1.31** - March 2026<br/>
 
 - NEW: **KNX Hue Light**: added advanced option **Update local cached Hue state from KNX bus writes** to keep the node local Hue cache aligned immediately on KNX write telegrams, without waiting for Hue bridge feedback.<br/>
