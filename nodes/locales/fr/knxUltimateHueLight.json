@@ -42,6 +42,7 @@
     "knx_brightness_onhueoff": "Lorsque Hue Light est éteint, envoyez 0%. Lorsque Hue On, restaurez la valeur précédente (comportement KNX par défaut)",
     "knx_brightness_no": "Laisser tel quel (comportement de teinte par défaut)",
     "update_local_state_from_knx_write": "Mettre à jour l'état Hue local en cache à partir des écritures du bus KNX",
+    "update_local_state_from_knx_write_hint": "Active: reactions locales plus rapides et reponses immediates de lecture KNX plus coherentes. Desactive: le cache ne suit que les evenements reels du bridge Hue.",
     "use_min_brightness": "Utilisez une luminosité minimale spécifiée dans la lumière des teintes",
     "k_suffix": "K",
     "temp_desc_2200": "(Début de la gamme Philips White Ambiance Lights)",

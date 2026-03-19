@@ -50,6 +50,7 @@
     "knx_brightness_onhueoff": "Cuando la luz del tono está apagada, envíe 0%. Cuando se enciende, restaure el valor anterior (comportamiento de KNX predeterminado)",
     "knx_brightness_no": "Salir como está (comportamiento de tono predeterminado)",
     "update_local_state_from_knx_write": "Actualizar el estado local en caché de Hue a partir de escrituras del bus KNX",
+    "update_local_state_from_knx_write_hint": "Activado: reacciones locales mas rapidas y respuestas inmediatas de lectura KNX mas coherentes. Desactivado: la cache se actualiza solo con eventos reales del bridge Hue.",
     "use_min_brightness": "Use brillo mínimo especificado en la luz del tono",
     "k_suffix": "K",
     "temp_desc_2200": "(Inicio de Philips White Ambiance Lights Range)",

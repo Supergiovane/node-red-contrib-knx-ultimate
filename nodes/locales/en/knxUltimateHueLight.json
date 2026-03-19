@@ -50,6 +50,7 @@
     "knx_brightness_onhueoff": "When Hue light is Off send 0%. When Hue On, restore previous value (Default KNX behaviour)",
     "knx_brightness_no": "Leave as is (default Hue behaviour)",
     "update_local_state_from_knx_write": "Update local cached Hue state from KNX bus writes",
+    "update_local_state_from_knx_write_hint": "Enabled: faster local reactions and consistent immediate KNX read responses. Disabled: keep the cache aligned only with real Hue bridge events.",
     "use_min_brightness": "Use minimum brightness specified in the Hue light",
     "k_suffix": "K",
     "temp_desc_2200": "(start of Philips White Ambiance lights range)",

@@ -93,7 +93,7 @@ Die Tabelle **Hue-native Effekte** ordnet KNX-Werte den vom Bridge gemeldeten Ef
 |--|--|
 | Read status at startup | Beim Start/Voll-Deploy Status aus HUE lesen und an KNX ausgeben |
 | KNX brightness status | Verhalten der Helligkeits-Status-GA bei Ein/Aus (0 % senden und letzten Wert wiederherstellen vs. "as is") |
-| Lokalen Hue-Cache durch KNX-Bus-Schreibtelegramme aktualisieren | Erweiterte Option. Wenn aktiviert, aktualisieren Schreibtelegramme vom KNX-Bus sofort auch den lokal gecachten Hue-Zustand des Nodes, ohne auf Feedback/Ereignisse der Hue Bridge zu warten. Nützlich für konsistente KNX-Leseantworten oder einen stimmigen Cache, auch wenn Leuchte oder Gruppe AUS sind. |
+| Lokalen Hue-Cache durch KNX-Bus-Schreibtelegramme aktualisieren | Erweiterte Option, standardmaessig aktiviert. Wenn aktiv, aktualisieren Schreibtelegramme vom KNX-Bus sofort auch den lokal gecachten Hue-Zustand des Nodes, ohne auf Feedback/Ereignisse der Hue Bridge zu warten. Das sorgt fuer schnellere lokale Reaktionen und konsistentere sofortige KNX-Leseantworten, besonders wenn Leuchte oder Gruppe AUS sind. Deaktivieren Sie die Option, wenn der Cache nur echten Rueckmeldungen/Ereignissen der Hue Bridge folgen soll. |
 | On behaviour | Verhalten beim Einschalten (Farbe wählen / Temperatur+Helligkeit wählen / none) |
 | Night lighting | Nacht-Profil (Farbe oder Temperatur/Helligkeit) |
 | Day/Night | GA zur Umschaltung Tag/Nacht (_true_ = Tag, _false_ = Nacht) |

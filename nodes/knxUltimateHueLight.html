@@ -130,7 +130,7 @@
         hueDeviceObject: { value: {} },
 
         restoreDayMode: { value: "no" }, // Starting from v 4.1.31
-        updateLocalStateFromKNXWrite: { value: false } // Starting from v 4.1.31
+        updateLocalStateFromKNXWrite: { value: true } // Starting from v 4.1.31
       },
       inputs: 0,
       outputs: 0,
@@ -1263,9 +1263,9 @@
               }
               // Check temperature (if the light supports temperature, it support dimming as well)
               if (oLight.color_temperature !== undefined) {
-              $("#tabs").tabs("enable", "#tabs-3");
-              //$("#tabs").tabs("enable", "#tabs-2");
-              $("#node-input-specifySwitchOnBrightness").append(
+                $("#tabs").tabs("enable", "#tabs-3");
+                //$("#tabs").tabs("enable", "#tabs-2");
+                $("#node-input-specifySwitchOnBrightness").append(
                   $("<option>")
                     .val("temperature")
                     .text(node._("knxUltimateHueLight.select_temperature_brightness"))
@@ -2265,6 +2265,7 @@
           </label>
           <input type="checkbox" id="node-input-updateLocalStateFromKNXWrite" style="display:inline-block; width:auto; vertical-align:top;" />
         </div>
+        <div class="form-tips" style="margin-left:260px;" data-i18n="knxUltimateHueLight.update_local_state_from_knx_write_hint"></div><br/>
         <div id ="divBehaviourBrightness">
           <div class="form-row">
             <label for="node-input-specifySwitchOnBrightness" style="width:260px;">

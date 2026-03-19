@@ -6,6 +6,12 @@
 
 # CHANGELOG
 
+**Version 4.1.33** - March 2026<br/>
+
+- FIX: **KNX Hue Light** grouped light handling: when a `grouped_light` is OFF, writes for dimming, color temperature, color/xy and related dynamic updates are now fanned out to the member `light` resources when needed, instead of relying only on the grouped resource.<br/>
+- CHANGE: **KNX Hue Light** advanced option **Update local cached Hue state from KNX bus writes** is now enabled by default for new nodes.<br/>
+- UI/help/wiki/docs: clarified the tradeoff of the local Hue cache synchronization option in the editor, node help and documentation pages across supported languages.<br/>
+
 **Version 4.1.32** - March 2026<br/>
 
 - KNX Engine bumped to 5.2.11.<br/>
