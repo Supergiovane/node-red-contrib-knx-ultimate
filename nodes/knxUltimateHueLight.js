@@ -160,10 +160,13 @@ module.exports = function (RED) {
       const defaultOperation = node.isGrouped_light === false ? "setLight" : "setGroupedLight";
       const isGroupedLightOff = node.isGrouped_light === true && node.currentHUEDevice?.on?.on === false;
       const stateKeys = _state && typeof _state === "object" ? Object.keys(_state) : [];
-      const actionableKeys = ["dimming", "color", "color_temperature", "gradient"];
+      const presetKeys = ["color", "color_temperature", "gradient"];
+      const actionableKeys = ["dimming", ...presetKeys];
       const hasActionablePayload = stateKeys.some((key) => actionableKeys.includes(key));
+      const mustPresetGroupedLightChildren = isGroupedLightOff
+        && stateKeys.some((key) => presetKeys.includes(key));
 
-      if (!isGroupedLightOff || !hasActionablePayload) {
+      if (!mustPresetGroupedLightChildren) {
         node.serverHue.hueManager.writeHueQueueAdd(node.hueDevice, _state, defaultOperation);
         return;
       }
@@ -171,15 +174,13 @@ module.exports = function (RED) {
       (async () => {
         try {
           const groupLights = await node.serverHue.getAllLightsBelongingToTheGroup(node.hueDevice, false);
+          RED.log.debug(`knxUltimateHueLight: preset grouped_light children before group on. Group=${node.hueDevice} lights=${Array.isArray(groupLights) ? groupLights.length : 0}`);
           let hasWrittenAtLeastOneLight = false;
           for (let index = 0; index < groupLights.length; index++) {
             const light = groupLights[index];
             if (!light?.id) continue;
             const lightState = {};
             let hasActionableStateForLight = false;
-
-            if (_state.on !== undefined) lightState.on = cloneDeep(_state.on);
-            if (_state.dynamics !== undefined) lightState.dynamics = cloneDeep(_state.dynamics);
 
             if (_state.dimming !== undefined && light.dimming !== undefined) {
               lightState.dimming = cloneDeep(_state.dimming);
@@ -203,9 +204,17 @@ module.exports = function (RED) {
             hasWrittenAtLeastOneLight = true;
           }
 
-          if (!hasWrittenAtLeastOneLight) {
+          if (!hasWrittenAtLeastOneLight || !hasActionablePayload) {
             node.serverHue.hueManager.writeHueQueueAdd(node.hueDevice, _state, defaultOperation);
+            return;
           }
+
+          if (_state?.on?.on !== true) return;
+
+          const groupedLightState = { on: cloneDeep(_state.on) };
+          if (_state.dynamics !== undefined) groupedLightState.dynamics = cloneDeep(_state.dynamics);
+          RED.log.debug(`knxUltimateHueLight: turning on grouped_light after children preset. Group=${node.hueDevice}`);
+          node.serverHue.hueManager.writeHueQueueAdd(node.hueDevice, groupedLightState, defaultOperation);
         } catch (error) {
           RED.log.debug(`knxUltimateHueLight: node.writeHueState fallback to grouped_light write: ${error.message}`);
           node.serverHue.hueManager.writeHueQueueAdd(node.hueDevice, _state, defaultOperation);

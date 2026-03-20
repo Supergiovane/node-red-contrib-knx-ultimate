@@ -6,6 +6,11 @@
 
 # CHANGELOG
 
+**Version 4.1.34** - March 2026<br/>
+
+- FIX: **KNX Hue Light** grouped light handling: when a `grouped_light` is OFF and receives color / color temperature / gradient commands, the node now presets supported member `light` resources first and only then turns the group ON, so all lamps can inherit the requested state more reliably.<br/>
+- DEBUG: **KNX Hue Light** added debug traces for the new grouped-light preset-before-ON sequence.<br/>
+
 **Version 4.1.33** - March 2026<br/>
 
 - FIX: **KNX Hue Light** grouped light handling: when a `grouped_light` is OFF, writes for dimming, color temperature, color/xy and related dynamic updates are now fanned out to the member `light` resources when needed, instead of relying only on the grouped resource.<br/>
