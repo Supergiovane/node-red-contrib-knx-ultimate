@@ -196,6 +196,10 @@
             background: var(--knx-ai-soft);
         }
 
+        .panel-wide {
+            grid-column: 1 / -1;
+        }
+
         #summary {
             margin: 0;
             padding: 12px;
@@ -241,6 +245,131 @@
             word-break: break-word;
             font-family: "JetBrains Mono", Menlo, Consolas, "Liberation Mono", monospace;
             font-size: 12px;
+        }
+
+        #bus-connection {
+            padding: 12px;
+            background: #ffffff;
+        }
+
+        .bus-conn-empty {
+            min-height: 96px;
+            display: flex;
+            align-items: center;
+            color: var(--muted);
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .bus-conn-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+
+        .bus-conn-title {
+            font-size: 13px;
+            font-weight: 800;
+            color: #38315d;
+        }
+
+        .bus-conn-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .bus-conn-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 8px;
+            border-radius: 999px;
+            border: 1px solid var(--line);
+            background: #f7f4ff;
+            color: #463e6d;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: .01em;
+        }
+
+        .bus-conn-pill-connected {
+            background: var(--ok-bg);
+            border-color: var(--ok-border);
+            color: #2e7d46;
+        }
+
+        .bus-conn-pill-disconnected {
+            background: var(--err-bg);
+            border-color: var(--err-border);
+            color: #b13d46;
+        }
+
+        .bus-conn-pill-muted {
+            background: #f7f4ff;
+            border-color: #d7cffa;
+            color: #655f80;
+        }
+
+        .bus-conn-track {
+            position: relative;
+            height: 18px;
+            border-radius: 999px;
+            overflow: hidden;
+            border: 1px solid #ddd7f2;
+            background: linear-gradient(180deg, #f6f3ff 0%, #efebfb 100%);
+        }
+
+        .bus-conn-track::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+            pointer-events: none;
+        }
+
+        .bus-conn-segment {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            min-width: 2px;
+        }
+
+        .bus-conn-segment-connected {
+            background: linear-gradient(90deg, #4ad06d 0%, #38c45f 100%);
+        }
+
+        .bus-conn-segment-disconnected {
+            background: linear-gradient(90deg, #eb6a74 0%, #d94b55 100%);
+        }
+
+        .bus-conn-scale {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px;
+            margin-top: 8px;
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .bus-conn-scale span:nth-child(2) {
+            text-align: center;
+        }
+
+        .bus-conn-scale span:nth-child(3) {
+            text-align: right;
+        }
+
+        .bus-conn-note {
+            margin-top: 9px;
+            color: #6a6386;
+            font-size: 12px;
+            line-height: 1.35;
         }
 
         #chat-wrap {
@@ -1129,6 +1258,10 @@
                 <h3>Anomalies</h3>
                 <div id="anomalies"></div>
             </div>
+            <div class="panel panel-wide">
+                <h3>Bus Connection Persistence</h3>
+                <div id="bus-connection"></div>
+            </div>
         </div>
         <div class="panel" id="ask-panel">
             <h3>Ask</h3>
@@ -1178,6 +1311,7 @@
             const $themeBtns = Array.from(document.querySelectorAll('.knx-ai-theme-btn'));
             const $summary = document.getElementById('summary');
             const $anomalies = document.getElementById('anomalies');
+            const $busConnection = document.getElementById('bus-connection');
             const $flowSvg = document.getElementById('flow-svg');
             const $flowWrap = document.getElementById('flow-wrap');
             const $flowEmpty = document.getElementById('flow-empty');
@@ -1727,6 +1861,10 @@
                 const win = (s.meta && s.meta.analysisWindowSec) ? s.meta.analysisWindowSec : '';
                 lines.push('Analysis window: ' + win + 's');
                 lines.push('Telegrams: ' + (c.telegrams || 0) + ' | Rate: ' + (c.overallRatePerSec || 0) + '/s | Echoed: ' + (c.echoed || 0) + ' | Repeat: ' + (c.repeated || 0) + ' | Unknown DPT: ' + (c.unknownDpt || 0));
+                if (s.busConnection && typeof s.busConnection === 'object') {
+                    const bus = s.busConnection;
+                    lines.push('Bus connection: ' + String(bus.currentState || 'unknown') + ' | Connected: ' + Number(bus.connectedPct || 0) + '% | Disconnected: ' + Number(bus.disconnectedPct || 0) + '% over ' + Number(bus.windowSec || 0) + 's');
+                }
 
                 if (Array.isArray(s.topGAs) && s.topGAs.length) {
                     lines.push('');
@@ -1753,6 +1891,122 @@
                 }
 
                 return lines.join('\n');
+            };
+
+            const clamp01 = (value) => {
+                const n = Number(value);
+                if (!Number.isFinite(n)) return 0;
+                if (n <= 0) return 0;
+                if (n >= 1) return 1;
+                return n;
+            };
+
+            const formatClockLabel = (value) => {
+                const ts = Number(value);
+                if (!Number.isFinite(ts) || ts <= 0) return '--:--';
+                const date = new Date(ts);
+                if (Number.isNaN(date.getTime())) return '--:--';
+                return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            };
+
+            const formatDurationCompact = (seconds) => {
+                const totalSec = Math.max(0, Math.round(Number(seconds) || 0));
+                const days = Math.floor(totalSec / 86400);
+                const hours = Math.floor((totalSec % 86400) / 3600);
+                const mins = Math.floor((totalSec % 3600) / 60);
+                const secs = totalSec % 60;
+                const parts = [];
+                if (days > 0) parts.push(days + 'd');
+                if (hours > 0) parts.push(hours + 'h');
+                if (mins > 0) parts.push(mins + 'm');
+                if (secs > 0 || parts.length === 0) parts.push(secs + 's');
+                return parts.slice(0, 2).join(' ');
+            };
+
+            const renderBusConnection = (data) => {
+                $busConnection.innerHTML = '';
+                const summary = data && data.summary ? data.summary : {};
+                const bus = summary && summary.busConnection && typeof summary.busConnection === 'object'
+                    ? summary.busConnection
+                    : null;
+
+                if (!bus || !Array.isArray(bus.segments) || bus.segments.length === 0) {
+                    const empty = document.createElement('div');
+                    empty.className = 'bus-conn-empty';
+                    empty.textContent = 'Waiting for connection persistence data...';
+                    $busConnection.appendChild(empty);
+                    return;
+                }
+
+                const windowStartMs = new Date(String(bus.windowStartAt || '')).getTime();
+                const windowEndMs = new Date(String(bus.windowEndAt || '')).getTime();
+                const windowMs = Math.max(1, windowEndMs - windowStartMs);
+                const midMs = windowStartMs + Math.round(windowMs / 2);
+
+                const header = document.createElement('div');
+                header.className = 'bus-conn-header';
+
+                const title = document.createElement('div');
+                title.className = 'bus-conn-title';
+                title.textContent = 'Last ' + formatDurationCompact(bus.windowSec || 0) + ' of KNX bus availability';
+                header.appendChild(title);
+
+                const badges = document.createElement('div');
+                badges.className = 'bus-conn-badges';
+
+                const makePill = (label, value, cls) => {
+                    const pill = document.createElement('span');
+                    pill.className = 'bus-conn-pill ' + cls;
+                    pill.textContent = label + ': ' + value;
+                    return pill;
+                };
+
+                badges.appendChild(makePill('Current', String(bus.currentState || 'unknown'), bus.currentState === 'connected' ? 'bus-conn-pill-connected' : 'bus-conn-pill-disconnected'));
+                badges.appendChild(makePill('Connected', formatDurationCompact(bus.connectedSec || 0), 'bus-conn-pill-connected'));
+                badges.appendChild(makePill('Disconnected', formatDurationCompact(bus.disconnectedSec || 0), 'bus-conn-pill-disconnected'));
+                badges.appendChild(makePill('Coverage', Number(bus.knownCoveragePct || 0) + '%', 'bus-conn-pill-muted'));
+                header.appendChild(badges);
+                $busConnection.appendChild(header);
+
+                const track = document.createElement('div');
+                track.className = 'bus-conn-track';
+
+                bus.segments.forEach((segment) => {
+                    const startRatio = clamp01(segment && segment.ratioStart);
+                    const widthRatio = clamp01(segment && segment.ratioWidth);
+                    if (widthRatio <= 0) return;
+                    const bar = document.createElement('div');
+                    bar.className = 'bus-conn-segment ' + (segment && segment.state === 'connected'
+                        ? 'bus-conn-segment-connected'
+                        : 'bus-conn-segment-disconnected');
+                    bar.style.left = (startRatio * 100).toFixed(3) + '%';
+                    bar.style.width = Math.max(widthRatio * 100, 0.4).toFixed(3) + '%';
+                    bar.title = (segment.state === 'connected' ? 'Connected' : 'Disconnected')
+                        + ' | ' + formatClockLabel(new Date(String(segment.startedAt || '')).getTime())
+                        + ' -> ' + formatClockLabel(new Date(String(segment.endedAt || '')).getTime())
+                        + ' | ' + formatDurationCompact(segment.durationSec || 0);
+                    track.appendChild(bar);
+                });
+
+                $busConnection.appendChild(track);
+
+                const scale = document.createElement('div');
+                scale.className = 'bus-conn-scale';
+                const left = document.createElement('span');
+                left.textContent = formatClockLabel(windowStartMs);
+                const mid = document.createElement('span');
+                mid.textContent = formatClockLabel(midMs);
+                const right = document.createElement('span');
+                right.textContent = 'Now';
+                scale.appendChild(left);
+                scale.appendChild(mid);
+                scale.appendChild(right);
+                $busConnection.appendChild(scale);
+
+                const note = document.createElement('div');
+                note.className = 'bus-conn-note';
+                note.textContent = 'Green shows time connected to the KNX bus. Red shows downtime inside the selected history window.';
+                $busConnection.appendChild(note);
             };
 
             const buildAnalysisActivityContext = (rawData, dashboardData) => {
@@ -3317,6 +3571,7 @@
                 const dashboard = buildDashboardData(data || {});
                 const activityContext = buildAnalysisActivityContext(data || {}, dashboard);
                 updateFlowGaOptions(dashboard.nodes || []);
+                renderBusConnection(data || {});
                 const flowGraph = applyFlowFilters(dashboard);
                 renderFlowMap(flowGraph);
                 renderPie($eventPieSvg, $eventPieLegend, dashboard.eventEntries, 'Event');

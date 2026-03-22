@@ -6,6 +6,11 @@
 
 # CHANGELOG
 
+**Version 4.1.35** - March 2026<br/>
+
+- NEW: **KNX AI** anomalies output now always emits dedicated bus connection events when the KNX gateway connection is lost and when it is restored.<br/>
+- NEW: **KNX AI Web Dashboard** added a bus connection persistence section with a green/red time bar showing connected/disconnected periods over the history window.<br/>
+
 **Version 4.1.34** - March 2026<br/>
 
 - FIX: **KNX Hue Light** grouped light handling: when a `grouped_light` is OFF and receives color / color temperature / gradient commands, the node now presets supported member `light` resources first and only then turns the group ON, so all lamps can inherit the requested state more reliably.<br/>

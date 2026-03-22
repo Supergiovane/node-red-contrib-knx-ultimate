@@ -1106,6 +1106,7 @@ module.exports = function (RED) {
     node.setNodeStatus = ({ fill, shape, text, payload, GA, dpt, devicename }) => {
       try {
         if (node.serverKNX === null) { updateStatus({ fill: 'red', shape: 'dot', text: '[NO GATEWAY SELECTED]' }); return }
+        trackBusConnectionStatus({ text })
         const dDate = new Date()
         const ts = (node.serverKNX && typeof node.serverKNX.formatStatusTimestamp === 'function')
           ? node.serverKNX.formatStatusTimestamp(dDate)
@@ -1139,6 +1140,16 @@ module.exports = function (RED) {
     node._anomalyLifecycle = new Map()
     node._gaRateSeries = new Map()
     node._gaLabelCsvCache = { ref: null, map: {} }
+    node._busConnectionState = (node.serverKNX && typeof node.serverKNX.linkStatus === 'string')
+      ? String(node.serverKNX.linkStatus).toLowerCase()
+      : 'unknown'
+    node._busConnectionHadConnected = node._busConnectionState === 'connected'
+    node._busConnectionPendingRestore = false
+    node._busConnectionTimeline = [{
+      state: node._busConnectionState === 'connected' ? 'connected' : 'disconnected',
+      startedAtMs: nowMs(),
+      endedAtMs: 0
+    }]
 
     // Register runtime instance for sidebar visibility
     aiRuntimeNodes.set(node.id, node)
@@ -1509,12 +1520,12 @@ module.exports = function (RED) {
     const buildGARateSeries = ({ now, topGAs = [], patterns = [], anomalyLifecycle = [] } = {}) => {
       pruneGARateSeries(now)
       const candidates = new Set()
-      ;(topGAs || []).forEach(x => { if (x && x.ga) candidates.add(String(x.ga)) })
-      ;(patterns || []).forEach(p => {
-        if (p && p.from) candidates.add(String(p.from))
-        if (p && p.to) candidates.add(String(p.to))
-      })
-      ;(anomalyLifecycle || []).forEach(a => { if (a && a.ga) candidates.add(String(a.ga)) })
+        ; (topGAs || []).forEach(x => { if (x && x.ga) candidates.add(String(x.ga)) })
+        ; (patterns || []).forEach(p => {
+          if (p && p.from) candidates.add(String(p.from))
+          if (p && p.to) candidates.add(String(p.to))
+        })
+        ; (anomalyLifecycle || []).forEach(a => { if (a && a.ga) candidates.add(String(a.ga)) })
 
       if (!candidates.size) {
         const recent = Array.from(node._gaRateSeries.values())
@@ -1651,6 +1662,7 @@ module.exports = function (RED) {
         if (!ga) return
         anomalyByGA[ga] = (anomalyByGA[ga] || 0) + Math.max(1, Number(a && a.count ? a.count : 1))
       })
+      const busConnection = buildBusConnectionSummary(now)
       const graphTelemetry = buildGraphTelemetry({ now, patterns, flowKnownGASet })
       const gaRateSeries = buildGARateSeries({
         now,
@@ -2116,6 +2128,7 @@ module.exports = function (RED) {
         edgeByEvent: graphTelemetry.edgeByEvent,
         hotEdgesDelta: graphTelemetry.hotEdgesDelta,
         flowMapTopology,
+        busConnection,
         anomalyLifecycle,
         gaRateSeries,
         graph: {
@@ -2297,6 +2310,151 @@ module.exports = function (RED) {
       } catch (error) { /* empty */ }
     }
 
+    const appendBusConnectionTimeline = ({ state, atMs }) => {
+      const nextState = state === 'connected' ? 'connected' : 'disconnected'
+      const ts = Number.isFinite(Number(atMs)) && Number(atMs) > 0 ? Number(atMs) : nowMs()
+      const keepMs = Math.max(60, Number(node.historyWindowSec || 60)) * 4000
+      if (!Array.isArray(node._busConnectionTimeline) || node._busConnectionTimeline.length === 0) {
+        node._busConnectionTimeline = [{ state: nextState, startedAtMs: ts, endedAtMs: 0 }]
+        return
+      }
+
+      const timeline = node._busConnectionTimeline
+      const lastIdx = timeline.length - 1
+      const last = timeline[lastIdx] || null
+      if (last && last.state === nextState) {
+        if (last.endedAtMs && last.endedAtMs >= ts) last.endedAtMs = 0
+        timeline[lastIdx] = last
+      } else {
+        if (last) {
+          last.endedAtMs = ts
+          timeline[lastIdx] = last
+        }
+        timeline.push({ state: nextState, startedAtMs: ts, endedAtMs: 0 })
+      }
+
+      while (timeline.length > 1) {
+        const first = timeline[0]
+        const firstEnd = Number(first && first.endedAtMs ? first.endedAtMs : 0)
+        if (!firstEnd || (ts - firstEnd) <= keepMs) break
+        timeline.shift()
+      }
+
+      if (timeline.length > 240) {
+        node._busConnectionTimeline = timeline.slice(timeline.length - 240)
+      } else {
+        node._busConnectionTimeline = timeline
+      }
+    }
+
+    const buildBusConnectionSummary = (now) => {
+      const windowSec = Math.max(5, Number(node.historyWindowSec || 60))
+      const windowMs = windowSec * 1000
+      const windowStartMs = now - windowMs
+      const timeline = Array.isArray(node._busConnectionTimeline) ? node._busConnectionTimeline : []
+      const segments = []
+      let connectedMs = 0
+      let disconnectedMs = 0
+
+      for (let i = 0; i < timeline.length; i++) {
+        const item = timeline[i] || {}
+        const state = item.state === 'connected' ? 'connected' : 'disconnected'
+        const startedAtMs = Number(item.startedAtMs || 0)
+        const endedAtMs = Number(item.endedAtMs || 0) > 0 ? Number(item.endedAtMs) : now
+        if (!Number.isFinite(startedAtMs) || startedAtMs <= 0) continue
+        const effectiveStartMs = Math.max(startedAtMs, windowStartMs)
+        const effectiveEndMs = Math.min(endedAtMs, now)
+        if (effectiveEndMs <= effectiveStartMs) continue
+        const durationMs = effectiveEndMs - effectiveStartMs
+        if (state === 'connected') connectedMs += durationMs
+        else disconnectedMs += durationMs
+        segments.push({
+          state,
+          startedAt: new Date(effectiveStartMs).toISOString(),
+          endedAt: new Date(effectiveEndMs).toISOString(),
+          durationSec: roundTo(durationMs / 1000, 1),
+          ratioStart: roundTo((effectiveStartMs - windowStartMs) / windowMs, 4),
+          ratioWidth: roundTo(durationMs / windowMs, 4),
+          active: Number(item.endedAtMs || 0) <= 0
+        })
+      }
+
+      const knownMs = connectedMs + disconnectedMs
+      return {
+        currentState: node._busConnectionState === 'connected' ? 'connected' : 'disconnected',
+        windowSec,
+        windowStartAt: new Date(windowStartMs).toISOString(),
+        windowEndAt: new Date(now).toISOString(),
+        connectedSec: roundTo(connectedMs / 1000, 1),
+        disconnectedSec: roundTo(disconnectedMs / 1000, 1),
+        connectedPct: roundTo((connectedMs / windowMs) * 100, 2),
+        disconnectedPct: roundTo((disconnectedMs / windowMs) * 100, 2),
+        knownCoveragePct: roundTo((knownMs / windowMs) * 100, 2),
+        segments
+      }
+    }
+
+    const emitBusConnectionEvent = ({ type, previousState, currentState, statusText }) => {
+      const payload = {
+        type,
+        event: currentState,
+        previousState: previousState || 'unknown',
+        currentState,
+        gatewayId: node.serverKNX ? node.serverKNX.id : '',
+        gatewayName: (node.serverKNX && node.serverKNX.name) ? node.serverKNX.name : '',
+        statusText: String(statusText || '').trim(),
+        at: new Date().toISOString()
+      }
+      recordAnomaly(payload)
+      node.send([null, {
+        topic: node.outputtopic,
+        payload,
+        knxAi: {
+          type: 'anomaly',
+          event: type,
+          gatewayId: payload.gatewayId,
+          gatewayName: payload.gatewayName
+        }
+      }, null])
+    }
+
+    const trackBusConnectionStatus = ({ text }) => {
+      const statusText = String(text || '').trim()
+      let nextState = ''
+      if (/^Connected\./i.test(statusText)) nextState = 'connected'
+      if (/^Disconnected\b/i.test(statusText)) nextState = 'disconnected'
+      if (nextState === '') return
+
+      const previousState = node._busConnectionState || 'unknown'
+      if (previousState === nextState) return
+      node._busConnectionState = nextState
+      appendBusConnectionTimeline({ state: nextState, atMs: nowMs() })
+
+      if (nextState === 'connected') {
+        if (node._busConnectionPendingRestore) {
+          emitBusConnectionEvent({
+            type: 'bus_connection_restored',
+            previousState,
+            currentState: nextState,
+            statusText
+          })
+          node._busConnectionPendingRestore = false
+        }
+        node._busConnectionHadConnected = true
+        return
+      }
+
+      if (node._busConnectionHadConnected) {
+        emitBusConnectionEvent({
+          type: 'bus_connection_lost',
+          previousState,
+          currentState: nextState,
+          statusText
+        })
+        node._busConnectionPendingRestore = true
+      }
+    }
+
     const maybeEmitOverallAnomaly = (now) => {
       const windowMs = Math.max(2, node.rateWindowSec) * 1000
       const cutoff = now - windowMs
@@ -2419,6 +2577,11 @@ module.exports = function (RED) {
           node._transitionRecent = []
           node._anomalyLifecycle = new Map()
           node._gaRateSeries = new Map()
+          node._busConnectionTimeline = [{
+            state: node._busConnectionState === 'connected' ? 'connected' : 'disconnected',
+            startedAtMs: nowMs(),
+            endedAtMs: 0
+          }]
           node._lastSummary = null
           node._lastSummaryAt = 0
           if (node._summaryRebuildTimer) {
