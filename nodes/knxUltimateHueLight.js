@@ -160,7 +160,7 @@ module.exports = function (RED) {
       const defaultOperation = node.isGrouped_light === false ? "setLight" : "setGroupedLight";
       const isGroupedLightOff = node.isGrouped_light === true && node.currentHUEDevice?.on?.on === false;
       const stateKeys = _state && typeof _state === "object" ? Object.keys(_state) : [];
-      const presetKeys = ["color", "color_temperature", "gradient"];
+      const presetKeys = ["dimming", "color", "color_temperature", "gradient"];
       const actionableKeys = ["dimming", ...presetKeys];
       const hasActionablePayload = stateKeys.some((key) => actionableKeys.includes(key));
       const mustPresetGroupedLightChildren = isGroupedLightOff
@@ -534,14 +534,12 @@ module.exports = function (RED) {
               break;
             case config.GALightBrightness:
               msg.payload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightBrightness));
+              if (typeof msg.payload !== "number" || Number.isNaN(msg.payload)) throw new Error("Invalid KNX brightness payload");
               state = { dimming: { brightness: msg.payload } };
-              if (node.currentHUEDevice === undefined) {
-                // Grouped light
-                state.on = { on: msg.payload > 0 };
-              } else {
-                // Light
-                if (node.currentHUEDevice.on.on === false && msg.payload > 0) state.on = { on: true };
-                if (node.currentHUEDevice.on.on === true && msg.payload === 0) state.on = { on: false };
+              if (msg.payload === 0) {
+                state.on = { on: false };
+              } else if (node.currentHUEDevice !== undefined && node.currentHUEDevice.on?.on === true) {
+                state.on = { on: true };
               }
               node.syncCurrentHUEDeviceFromKNXState(state); // Starting from v 4.1.31
               node.writeHueState(state);

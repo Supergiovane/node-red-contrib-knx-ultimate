@@ -1140,6 +1140,7 @@ module.exports = function (RED) {
     node._anomalyLifecycle = new Map()
     node._gaRateSeries = new Map()
     node._gaLabelCsvCache = { ref: null, map: {} }
+    node._busConnectionWatchTimer = null
     node._busConnectionState = (node.serverKNX && typeof node.serverKNX.linkStatus === 'string')
       ? String(node.serverKNX.linkStatus).toLowerCase()
       : 'unknown'
@@ -1150,6 +1151,7 @@ module.exports = function (RED) {
       startedAtMs: nowMs(),
       endedAtMs: 0
     }]
+    node._busConnectionWindowSec = 12 * 60 * 60
 
     // Register runtime instance for sidebar visibility
     aiRuntimeNodes.set(node.id, node)
@@ -2313,7 +2315,7 @@ module.exports = function (RED) {
     const appendBusConnectionTimeline = ({ state, atMs }) => {
       const nextState = state === 'connected' ? 'connected' : 'disconnected'
       const ts = Number.isFinite(Number(atMs)) && Number(atMs) > 0 ? Number(atMs) : nowMs()
-      const keepMs = Math.max(60, Number(node.historyWindowSec || 60)) * 4000
+      const keepMs = Math.max(12 * 60 * 60, Number(node._busConnectionWindowSec || 0)) * 2000
       if (!Array.isArray(node._busConnectionTimeline) || node._busConnectionTimeline.length === 0) {
         node._busConnectionTimeline = [{ state: nextState, startedAtMs: ts, endedAtMs: 0 }]
         return
@@ -2348,7 +2350,7 @@ module.exports = function (RED) {
     }
 
     const buildBusConnectionSummary = (now) => {
-      const windowSec = Math.max(5, Number(node.historyWindowSec || 60))
+      const windowSec = Math.max(12 * 60 * 60, Number(node._busConnectionWindowSec || 0))
       const windowMs = windowSec * 1000
       const windowStartMs = now - windowMs
       const timeline = Array.isArray(node._busConnectionTimeline) ? node._busConnectionTimeline : []
@@ -2424,7 +2426,10 @@ module.exports = function (RED) {
       if (/^Connected\./i.test(statusText)) nextState = 'connected'
       if (/^Disconnected\b/i.test(statusText)) nextState = 'disconnected'
       if (nextState === '') return
+      applyBusConnectionStateChange({ nextState, statusText })
+    }
 
+    const applyBusConnectionStateChange = ({ nextState, statusText }) => {
       const previousState = node._busConnectionState || 'unknown'
       if (previousState === nextState) return
       node._busConnectionState = nextState
@@ -2453,6 +2458,17 @@ module.exports = function (RED) {
         })
         node._busConnectionPendingRestore = true
       }
+    }
+
+    const pollBusConnectionStatus = () => {
+      try {
+        const raw = String((node.serverKNX && node.serverKNX.linkStatus) ? node.serverKNX.linkStatus : '').trim().toLowerCase()
+        if (raw !== 'connected' && raw !== 'disconnected') return
+        applyBusConnectionStateChange({
+          nextState: raw,
+          statusText: `Polled gateway state: ${raw}`
+        })
+      } catch (error) { /* ignore */ }
     }
 
     const maybeEmitOverallAnomaly = (now) => {
@@ -2706,6 +2722,7 @@ module.exports = function (RED) {
     node.on('close', function (done) {
       try {
         if (node._timerEmit) clearInterval(node._timerEmit)
+        if (node._busConnectionWatchTimer) clearInterval(node._busConnectionWatchTimer)
         if (node._summaryRebuildTimer) {
           clearTimeout(node._summaryRebuildTimer)
           node._summaryRebuildTimer = null
@@ -2730,6 +2747,12 @@ module.exports = function (RED) {
         try { emitSummary() } catch (e) { /* emitSummary already guards */ }
       }, Math.max(5, node.emitIntervalSec) * 1000)
     }
+
+    if (node._busConnectionWatchTimer) clearInterval(node._busConnectionWatchTimer)
+    node._busConnectionWatchTimer = setInterval(() => {
+      pollBusConnectionStatus()
+    }, 1000)
+    pollBusConnectionStatus()
 
     updateStatus({ fill: 'grey', shape: 'dot', text: 'AI ready' })
   }

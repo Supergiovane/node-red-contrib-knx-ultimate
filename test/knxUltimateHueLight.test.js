@@ -496,7 +496,7 @@ describe("knxUltimateHueLight KNX to HUE routing", () => {
     expect(node.currentHUEDevice.color_temperature.mirek).to.equal(153); // Starting from v 4.1.31
   });
 
-  it("forces Hue dimming and turns light on for positive brightness telegrams", () => {
+  it("updates Hue dimming while keeping an off light switched off", () => {
     const { node, config, hueCommands } = instantiateNode({
       GALightBrightness: "1/1/3",
       dptLightBrightness: "5.001",
@@ -511,10 +511,43 @@ describe("knxUltimateHueLight KNX to HUE routing", () => {
     expect(hueCommands).to.have.lengthOf(1);
     const command = hueCommands[0];
     expect(command.payload.dimming).to.deep.equal({ brightness: 50 });
-    expect(command.payload.on).to.deep.equal({ on: true });
+    expect(command.payload.on).to.equal(undefined);
     expect(command.command).to.equal("setLight");
-    expect(node.currentHUEDevice.on.on).to.equal(true); // Starting from v 4.1.31
+    expect(node.currentHUEDevice.on.on).to.equal(false); // Starting from v 4.1.31
     expect(node.currentHUEDevice.dimming.brightness).to.equal(50); // Starting from v 4.1.31
+  });
+
+  it("presets grouped light child brightness while the group is off", async () => {
+    const { node, config, hueCommands, hueServer } = instantiateNode({
+      hueDevice: "group-1#grouped_light",
+      GALightBrightness: "1/1/3",
+      dptLightBrightness: "5.001",
+      updateLocalStateFromKNXWrite: true, // Starting from v 4.1.31
+    });
+
+    node.currentHUEDevice = { on: { on: false }, dimming: { brightness: 0 } };
+    hueServer.getAllLightsBelongingToTheGroup = async () => ([
+      { id: "light-a", dimming: { brightness: 20 } },
+      { id: "light-b", dimming: { brightness: 40 } },
+    ]);
+
+    const fiftyPercent = Buffer.from([128]);
+    node.handleSend(createSwitchTelegram(config.GALightBrightness, fiftyPercent));
+    await new Promise((resolve) => setImmediate(resolve));
+
+    expect(hueCommands).to.have.lengthOf(2);
+    expect(hueCommands[0]).to.deep.include({
+      id: "light-a",
+      command: "setLight",
+    });
+    expect(hueCommands[0].payload).to.deep.equal({ dimming: { brightness: 50 } });
+    expect(hueCommands[1]).to.deep.include({
+      id: "light-b",
+      command: "setLight",
+    });
+    expect(hueCommands[1].payload).to.deep.equal({ dimming: { brightness: 50 } });
+    expect(node.currentHUEDevice.on.on).to.equal(false);
+    expect(node.currentHUEDevice.dimming.brightness).to.equal(50);
   });
 
   it("forces Hue dimming off when brightness telegram is zero", () => {

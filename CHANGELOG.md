@@ -6,6 +6,13 @@
 
 # CHANGELOG
 
+**Version 4.2.0** - March 2026<br/>
+
+- FIX: **KNX Hue Light** brightness writes are now applied even when the Hue light is OFF, without forcing the light to switch on.<br/>
+- FIX: **KNX Hue Light** grouped light handling: when a `grouped_light` is OFF and receives a brightness write, the node now presets supported member `light` resources first, so the brightness is ready when the group is turned on later.<br/>
+- TEST: extended **KNX Hue Light** coverage for brightness writes on OFF lights and OFF grouped lights.<br/>
+- UPDATE: KNXUltimate engine bumped to 5.3.1<br/>
+
 **Version 4.1.35** - March 2026<br/>
 
 - NEW: **KNX AI** anomalies output now always emits dedicated bus connection events when the KNX gateway connection is lost and when it is restored.<br/>
