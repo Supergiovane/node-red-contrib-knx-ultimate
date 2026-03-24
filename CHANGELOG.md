@@ -6,6 +6,12 @@
 
 # CHANGELOG
 
+**Version 4.2.2** - March 2026<br/>
+
+- CHANGE: **KNX AI Web Page** is now the official Vue-based dashboard served from `/knxUltimateAI/sidebar/page`.<br/>
+- CHANGE: removed the old **KNX AI** legacy web page and its dedicated editor button, keeping the Vue preview as the only web UI entrypoint.<br/>
+- IMPROVE: **KNX AI Flow Map** in the Vue dashboard: wider layout, fullscreen toggle, animated/dashed traffic arrows, refined marker sizing and better panel width usage.<br/>
+
 **Version 4.2.1** - March 2026<br/>
 
 - FIX: **KNX Hue Light** brightness writes are now applied even when the Hue light is OFF, without forcing the light to switch on.<br/>

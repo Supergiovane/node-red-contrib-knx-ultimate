@@ -7,6 +7,41 @@ const coerceBoolean = (value) => (value === true || value === 'true')
 
 let adminEndpointsRegistered = false
 const aiRuntimeNodes = new Map()
+const knxAiVueDistDir = path.join(__dirname, 'plugins', 'knxUltimateAI-vue')
+
+const sendKnxAiVueIndex = (res) => {
+  const entryPath = path.join(knxAiVueDistDir, 'index.html')
+  fs.stat(entryPath, (error, stats) => {
+    if (error || !stats || !stats.isFile()) {
+      res.status(503).type('text/plain').send('KNX AI Vue build not found. Run "npm run knx-ai:build" in the module root.')
+      return
+    }
+    res.sendFile(entryPath, (sendError) => {
+      if (!sendError || res.headersSent) return
+      res.status(sendError.statusCode || 500).type('text/plain').send(sendError.message || String(sendError))
+    })
+  })
+}
+
+const sendStaticFileSafe = ({ rootDir, relativePath, res }) => {
+  const rootPath = path.resolve(rootDir)
+  const requestedPath = String(relativePath || '').replace(/^\/+/, '')
+  const fullPath = path.resolve(rootPath, requestedPath)
+  if (!fullPath.startsWith(rootPath + path.sep) && fullPath !== rootPath) {
+    res.status(403).type('text/plain').send('Forbidden')
+    return
+  }
+  fs.stat(fullPath, (statError, stats) => {
+    if (statError || !stats || !stats.isFile()) {
+      res.status(404).type('text/plain').send('File not found')
+      return
+    }
+    res.sendFile(fullPath, (sendError) => {
+      if (!sendError || res.headersSent) return
+      res.status(sendError.statusCode || 500).type('text/plain').send(sendError.message || String(sendError))
+    })
+  })
+}
 
 const sanitizeApiKey = (value) => {
   if (value === undefined || value === null) return ''
@@ -856,12 +891,26 @@ module.exports = function (RED) {
     adminEndpointsRegistered = true
 
     RED.httpAdmin.get('/knxUltimateAI/sidebar/page', RED.auth.needsPermission('knxUltimate-config.read'), (req, res) => {
-      const pagePath = path.join(__dirname, 'plugins', 'knxUltimateAI-web-page.html')
-      res.sendFile(pagePath, (error) => {
-        if (!error) return
-        if (!res.headersSent) {
-          res.status(error.statusCode || 500).send(error.message || String(error))
-        }
+      sendKnxAiVueIndex(res)
+    })
+
+    RED.httpAdmin.get('/knxUltimateAI/sidebar/page-vue', RED.auth.needsPermission('knxUltimate-config.read'), (req, res) => {
+      sendKnxAiVueIndex(res)
+    })
+
+    RED.httpAdmin.get('/knxUltimateAI/sidebar/page/assets/:file', RED.auth.needsPermission('knxUltimate-config.read'), (req, res) => {
+      sendStaticFileSafe({
+        rootDir: knxAiVueDistDir,
+        relativePath: path.join('assets', String(req.params?.file || '')),
+        res
+      })
+    })
+
+    RED.httpAdmin.get('/knxUltimateAI/sidebar/page-vue/assets/:file', RED.auth.needsPermission('knxUltimate-config.read'), (req, res) => {
+      sendStaticFileSafe({
+        rootDir: knxAiVueDistDir,
+        relativePath: path.join('assets', String(req.params?.file || '')),
+        res
       })
     })
 

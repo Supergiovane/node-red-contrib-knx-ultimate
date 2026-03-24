@@ -100,7 +100,7 @@
 
             const nodeId = this.id;
 
-            $("#knx-ai-open-web-page").on("click", function (evt) {
+            $("#knx-ai-open-web-page-vue").on("click", function (evt) {
                 evt.preventDefault();
                 const target = "knxUltimateAI/sidebar/page" + (nodeId ? ("?nodeId=" + encodeURIComponent(nodeId)) : "");
                 const wnd = window.open(target, "_blank", "noopener,noreferrer");
@@ -199,9 +199,11 @@
     </div>
     <div class="form-row">
         <label><i class="fa fa-external-link"></i> Web UI</label>
-        <button type="button" class="red-ui-button" id="knx-ai-open-web-page" style="background-color:#AD9EFF; border-color:#AD9EFF; color:#ffffff !important; -webkit-text-fill-color:#ffffff;">
-            <i class="fa fa-magic" style="color:#2b1f4d !important;"></i> <span style="color:#2b1f4d !important;">Open KNX AI Web</span>
-        </button>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button type="button" class="red-ui-button" id="knx-ai-open-web-page-vue" style="background-color:#2bb673; border-color:#2bb673; color:#ffffff !important; -webkit-text-fill-color:#ffffff;">
+                <i class="fa fa-leaf" style="color:#10341f !important;"></i> <span style="color:#10341f !important;">Open KNX AI Web Page</span>
+            </button>
+        </div>
     </div>
 
     <div id="knx-ai-accordion">
