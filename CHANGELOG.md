@@ -9,7 +9,6 @@
 **Version 4.2.3** - March 2026<br/>
 
 - IMPROVE: **KNX AI Flow Map** added a new toggle to show or hide `knxUltimate` nodes running in **Universal Mode**; they are now hidden by default to keep the topology cleaner.<br/>
-- CHANGE: removed duplicate tutorial markdown files ending with ` 2.md` across the `tutorial/` tree.<br/>
 
 **Version 4.2.2** - March 2026<br/>
 
