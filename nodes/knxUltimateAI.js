@@ -1766,7 +1766,8 @@ module.exports = function (RED) {
               payload: '',
               lastSeenAtMs: 0,
               inFlow: true,
-              anomalyCount: 0
+              anomalyCount: 0,
+              listenAllGA: false
             }, entry))
             return
           }
@@ -1778,6 +1779,7 @@ module.exports = function (RED) {
           cur.inFlow = entry.inFlow !== undefined ? !!entry.inFlow : cur.inFlow
           cur.lastSeenAtMs = Math.max(Number(cur.lastSeenAtMs || 0), Number(entry.lastSeenAtMs || 0))
           cur.anomalyCount = Math.max(Number(cur.anomalyCount || 0), Number(entry.anomalyCount || 0))
+          cur.listenAllGA = entry.listenAllGA !== undefined ? !!entry.listenAllGA : !!cur.listenAllGA
           graphNodes.set(id, cur)
         }
 
@@ -1827,7 +1829,8 @@ module.exports = function (RED) {
             payload: String(nodeLastPayload[nid] || '').trim(),
             lastSeenAtMs: Number(nodeLastSeenMs[nid] || 0),
             inFlow: true,
-            anomalyCount: 0
+            anomalyCount: 0,
+            listenAllGA: !!(nodeInfo && nodeInfo.listenAllGA)
           })
         }
 

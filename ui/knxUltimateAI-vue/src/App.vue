@@ -34,6 +34,7 @@ const state = reactive({
   theme: normalizeTheme(loadString(themeKey, 'mix')),
   flowMaxNodes: loadFlowPrefs().maxNodes,
   flowSelectedGa: loadFlowPrefs().selectedGa,
+  flowShowUniversalNodes: loadFlowPrefs().showUniversalNodes,
   flowSearch: '',
   status: 'Ready',
   loadingNodes: false,
@@ -70,17 +71,18 @@ function loadBoolean (key, fallback) {
 
 function loadFlowPrefs () {
   try {
-    if (!window.localStorage) return { maxNodes: 14, selectedGa: [] }
+    if (!window.localStorage) return { maxNodes: 14, selectedGa: [], showUniversalNodes: false }
     const raw = window.localStorage.getItem(flowPrefsKey)
-    if (!raw) return { maxNodes: 14, selectedGa: [] }
+    if (!raw) return { maxNodes: 14, selectedGa: [], showUniversalNodes: false }
     const parsed = JSON.parse(raw)
     const maxNodes = Math.max(4, Math.min(32, Number(parsed && parsed.maxNodes) || 14))
     const selectedGa = Array.isArray(parsed && parsed.selectedGa)
       ? Array.from(new Set(parsed.selectedGa.map(item => String(item || '').trim()).filter(Boolean))).slice(0, 80)
       : []
-    return { maxNodes, selectedGa }
+    const showUniversalNodes = parsed && parsed.showUniversalNodes === true
+    return { maxNodes, selectedGa, showUniversalNodes }
   } catch (error) {
-    return { maxNodes: 14, selectedGa: [] }
+    return { maxNodes: 14, selectedGa: [], showUniversalNodes: false }
   }
 }
 
@@ -101,7 +103,8 @@ function saveFlowPrefs () {
     if (!window.localStorage) return
     window.localStorage.setItem(flowPrefsKey, JSON.stringify({
       maxNodes: Math.max(4, Math.min(32, Number(state.flowMaxNodes) || 14)),
-      selectedGa: Array.from(new Set((state.flowSelectedGa || []).map(item => String(item || '').trim()).filter(Boolean))).slice(0, 80)
+      selectedGa: Array.from(new Set((state.flowSelectedGa || []).map(item => String(item || '').trim()).filter(Boolean))).slice(0, 80),
+      showUniversalNodes: state.flowShowUniversalNodes === true
     }))
   } catch (error) {}
 }
@@ -502,6 +505,10 @@ function dominantEventType (edgeByEvent) {
   return Object.keys(buckets).sort((a, b) => buckets[b] - buckets[a])[0] || 'other'
 }
 
+function isUniversalFlowNode (node) {
+  return !!(node && node.kind === 'node' && node.listenAllGA)
+}
+
 function buildFlowSource (data) {
   const summary = data && data.summary ? data.summary : {}
   const anomaliesRaw = Array.isArray(data && data.anomalies) ? data.anomalies : []
@@ -583,7 +590,8 @@ function buildFlowSource (data) {
         anomalyCount: Number(seed.anomalyCount || anomalyByGA[key] || 0),
         inFlow: seed.inFlow !== undefined ? !!seed.inFlow : (flowKnownGASet.size ? flowKnownGASet.has(key) || key === 'BUS' || key.startsWith('N:') : true),
         lastSeenAtMs: Number(seed.lastSeenAtMs || 0),
-        score: Number(seed.score || 0)
+        score: Number(seed.score || 0),
+        listenAllGA: seed.listenAllGA === true
       })
     }
     return nodesById.get(key)
@@ -600,7 +608,8 @@ function buildFlowSource (data) {
       anomalyCount: Number(node && node.anomalyCount ? node.anomalyCount : anomalyByGA[id] || 0),
       inFlow: node && node.inFlow !== undefined ? !!node.inFlow : undefined,
       lastSeenAtMs: Number(node && node.lastSeenAtMs ? node.lastSeenAtMs : new Date(String(node && node.lastAt ? node.lastAt : gaLastSeenAt[id] || '')).getTime() || 0),
-      score: Number(node && node.score ? node.score : 0)
+      score: Number(node && node.score ? node.score : 0),
+      listenAllGA: node && node.listenAllGA === true
     })
   })
 
@@ -640,9 +649,17 @@ function buildFlowSource (data) {
 }
 
 function buildVisibleFlowGraph (source) {
-  const allNodes = Array.isArray(source && source.nodes) ? source.nodes.slice() : []
+  let allNodes = Array.isArray(source && source.nodes) ? source.nodes.slice() : []
   const allEdges = Array.isArray(source && source.edges) ? source.edges.slice() : []
-  const selectedSet = new Set((state.flowSelectedGa || []).map(item => String(item || '').trim()).filter(Boolean))
+  if (state.flowShowUniversalNodes !== true) {
+    allNodes = allNodes.filter(node => !isUniversalFlowNode(node))
+  }
+  const allowedIds = new Set(allNodes.map(node => node.id))
+  const selectedSet = new Set(
+    (state.flowSelectedGa || [])
+      .map(item => String(item || '').trim())
+      .filter(item => item && allowedIds.has(item))
+  )
   const maxNodes = Math.max(4, Math.min(32, Number(state.flowMaxNodes) || 14))
   let visibleNodes = allNodes.slice().sort((a, b) => {
     const scoreA = Number(a.anomalyCount || 0) * 10 + Number(a.score || 0)
@@ -754,6 +771,7 @@ const flowSelectableNodes = computed(() => {
   const search = String(state.flowSearch || '').trim().toLowerCase()
   return flowSource.value.nodes
     .slice()
+    .filter(node => state.flowShowUniversalNodes === true || !isUniversalFlowNode(node))
     .sort((a, b) => String(a.id || '').localeCompare(String(b.id || '')))
     .filter((node) => {
       if (!search) return true
@@ -819,6 +837,15 @@ watch(() => state.flowMaxNodes, (value) => {
   saveFlowPrefs()
 })
 watch(() => (state.flowSelectedGa || []).join('|'), () => {
+  saveFlowPrefs()
+})
+watch(() => state.flowShowUniversalNodes, (value) => {
+  if (value !== true) {
+    state.flowSelectedGa = (state.flowSelectedGa || []).filter((id) => {
+      const node = flowSource.value.nodes.find(item => item.id === id)
+      return !isUniversalFlowNode(node)
+    })
+  }
   saveFlowPrefs()
 })
 
@@ -1129,6 +1156,10 @@ onBeforeUnmount(() => {
                 {{ `${node.id}${node.subtitle ? ` | ${node.subtitle}` : ''}` }}
               </option>
             </select>
+          </label>
+          <label class="checkbox flow-toggle">
+            <input v-model="state.flowShowUniversalNodes" type="checkbox">
+            <span>Show Universal Mode nodes</span>
           </label>
           <div class="flow-legend">
             <span><i class="legend-line legend-write" />Write</span>
@@ -1600,7 +1631,7 @@ onBeforeUnmount(() => {
 
 .flow-toolbar {
   display: grid;
-  grid-template-columns: 120px minmax(180px, 1fr) minmax(220px, 1.2fr);
+  grid-template-columns: 120px minmax(180px, 1fr) minmax(220px, 1.2fr) auto;
   gap: 12px;
   align-items: start;
 }
@@ -1636,6 +1667,12 @@ onBeforeUnmount(() => {
   color: var(--muted);
   font-size: 12px;
   font-weight: 700;
+}
+
+.flow-toggle {
+  align-self: end;
+  min-height: 44px;
+  white-space: nowrap;
 }
 
 .legend-line,
