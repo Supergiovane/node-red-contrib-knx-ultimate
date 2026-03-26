@@ -10,6 +10,18 @@ Mostra tutti gli indirizzi di gruppo e i relativi valori in un widget della Dash
 | Gateway | Il gateway KNX. |
 | Name | Nome del nodo. |
 
+# PAGINA WEB
+
+Il nodo **KNX Viewer** include ora una **Pagina Web basata su Vue**, apribile direttamente dall'editor del nodo.
+
+Puoi usarla per:
+- visualizzare le **luci** rilevate dai valori KNX booleani
+- visualizzare i **dimmer** rilevati dai valori in stile `DPT 5.001`
+- filtrare gli oggetti, cambiare nodo Viewer e mantenere la pagina in auto-refresh
+- avere una UI coerente visivamente con **KNX AI**
+
+La pagina web è servita direttamente da Node-RED, quindi segue lo stesso modello di autenticazione dell'editor e degli endpoint admin.
+
 # PIN DI USCITA
 
 1. Indirizzi di gruppo (Dashboard)
@@ -18,6 +30,12 @@ Mostra tutti gli indirizzi di gruppo e i relativi valori in un widget della Dash
    : payload (array): array con tutti i GA; puoi formattare/riordinare a piacere.
 3. Coda telegrammi (Dashboard)
    : payload (html): collega a <b>Template</b>. Mostra la coda di trasmissione KNX per monitorare congestione BUS.
+
+# NOTE
+
+- La **Pagina Web** non sostituisce le uscite esistenti: restano disponibili per dashboard e template classici.
+- Le card luce e dimmer vengono dedotte dai valori KNX che il Viewer sta vedendo in quel momento.
+- Se non sono ancora passati telegrammi, la pagina web resterà vuota finché il Viewer non raccoglie traffico reale.
 
 # ESEMPIO
 

@@ -3,7 +3,7 @@
   "engines": {
     "node": ">=20.18.1"
   },
-  "version": "4.2.3",
+  "version": "4.2.4",
   "description": "Control your KNX and KNX Secure intallation via Node-Red! A bunch of KNX nodes, with integrated Philips HUE control, ETS group address importer, and KNX routing between interfaces. Easy to use and highly configurable.",
   "files": [
     "nodes/",
@@ -83,13 +83,15 @@
   "author": "Supergiovane",
   "license": "MIT",
   "scripts": {
-    "build": "npm run knx-ai:build",
-    "prepack": "npm run knx-ai:build",
+    "build": "npm run knx-ai:build && npm run knx-viewer:build",
+    "prepack": "npm run knx-ai:build && npm run knx-viewer:build",
     "test": "DEBUG_KNX_HUE_TEST=0 npm run test:unit && node scripts/check-node-load.js",
     "test:unit": "mocha \"test/**/*.test.js\"",
     "lint-fix": "standard --fix",
     "knx-ai:dev": "vite --config ui/knxUltimateAI-vue/vite.config.mjs",
     "knx-ai:build": "vite build --config ui/knxUltimateAI-vue/vite.config.mjs",
+    "knx-viewer:dev": "vite --config ui/knxUltimateViewer-vue/vite.config.mjs",
+    "knx-viewer:build": "vite build --config ui/knxUltimateViewer-vue/vite.config.mjs",
     "translate-wiki": "node scripts/translate-wiki.js",
     "wiki:help-export": "node scripts/help-to-wiki.js",
     "wiki:validate": "node scripts/validate-wiki-languagebar.js",

@@ -15,6 +15,18 @@ permalink: /wiki/zh-CN-knxUltimateViewer
 | Gateway | KNX 网关 |
 | Name | 节点名称 |
 
+# WEB 页面
+
+**KNX Viewer** 现在包含一个基于 **Vue** 的独立 **Web 页面**，可直接从节点编辑器中打开。
+
+它可用于：
+- 显示由布尔型 KNX 数值识别出的**灯光**
+- 显示由 `DPT 5.001` 类型数值识别出的**调光器**
+- 过滤项目、切换不同 Viewer 节点，并保持自动刷新
+- 使用与 **KNX AI** 风格一致的界面
+
+该 Web 页面由 Node-RED 直接提供，因此沿用与编辑器和管理端点相同的认证模型。
+
 # 输出引脚
 
 1. 组地址（Dashboard）
@@ -23,6 +35,12 @@ permalink: /wiki/zh-CN-knxUltimateViewer
    : payload (array)：包含所有 GA，可按需格式化/排序。
 3. 报文队列（Dashboard）
    : payload (html)：连接到 <b>Template</b>；显示 KNX 发送队列以监控总线拥塞。
+
+# 说明
+
+- **Web 页面**不会替代现有输出；原有 dashboard/template 输出方式仍然可用。
+- 灯光卡片和调光器卡片是根据 Viewer 当前看到的 KNX 实时数值推断得到的。
+- 如果还没有接收到任何报文，Web 页面会保持空白，直到 Viewer 收集到实时流量。
 
 # 示例
 

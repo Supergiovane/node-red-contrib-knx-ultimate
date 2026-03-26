@@ -7,19 +7,35 @@ Affichez toutes les adresses de groupe et leurs valeurs dans un widget de tablea
 
 | Propriété | Description |
 |-|-|
-|Passerelle |La passerelle KNX.|
-|Nom |Le nom du nœud.|
+| Gateway | La passerelle KNX. |
+| Name | Le nom du nœud. |
 
-# Broches de sortie
+# PAGE WEB
 
-1. Adresses du groupe de tableau de bord
-: Télélé utile (HTML): Connectez-le directement avec le nœud d'interface utilisateur du modèle.Il crée une table avec toutes les adresses de groupe et leur
-valeurs.
-2. Array simple JSON pour l'enregistrement de données
-: charge utile (tableau): un tableau contenant tous les GA.Vous pouvez utiliser le tableau pour faire votre propre format et réorganiser.
-3. Fitre de télégrammes de tableau de bord
-: Télélé utile (HTML): Connectez-le directement avec le nœud d'interface utilisateur du modèle.Il crée une table avec la file d'attente de transmission KNX pour
-Surveillance de la congestion des bus.
+Le nœud **KNX Viewer** inclut désormais une **page Web basée sur Vue**, ouvrable directement depuis l'éditeur du nœud.
+
+Elle permet de :
+- visualiser en direct les **lumières** détectées à partir de valeurs KNX booléennes
+- visualiser les **variateurs** détectés à partir de valeurs de type `DPT 5.001`
+- filtrer les éléments, changer de nœud Viewer et garder l'auto-refresh actif
+- profiter d'une interface cohérente visuellement avec **KNX AI**
+
+La page web est servie directement par Node-RED et suit donc le même modèle d'authentification que l'éditeur et les endpoints d'administration.
+
+# SORTIES
+
+1. Adresses de groupe (Dashboard)
+   : payload (html) : à connecter directement à un nœud Dashboard <b>Template</b> ; crée un tableau avec toutes les GA et leurs valeurs.
+2. Tableau simple pour enregistrement
+   : payload (array) : contient toutes les GA ; vous pouvez le reformater ou le trier librement.
+3. File des télégrammes (Dashboard)
+   : payload (html) : à connecter à <b>Template</b> ; affiche la file d'envoi KNX pour surveiller la congestion du BUS.
+
+# NOTES
+
+- La **page Web** ne remplace pas les sorties existantes ; elles restent disponibles pour les flows dashboard/template classiques.
+- Les cartes lumières et variateurs sont déduites des valeurs KNX actuellement vues par le Viewer.
+- Si aucun télégramme n'a encore été reçu, la page Web restera vide jusqu'à ce que le Viewer collecte du trafic réel.
 
 # ÉCHANTILLON
 

@@ -7,19 +7,35 @@ Vea todas las direcciones de grupo y sus valores en un widget del tablero.<Br />
 
 | Propiedad | Descripción |
 |-|-|
-|Puerta de entrada |La puerta de enlace KNX.|
-|Nombre |El nombre del nodo.|
+| Gateway | La pasarela KNX. |
+| Name | El nombre del nodo. |
 
-# Pines de salida
+# PÁGINA WEB
 
-1. Direcciones de grupo de tablero
-: carga útil (html): conéctelo directamente con el nodo UI de plantilla.Crea una tabla con todas las direcciones grupales y sus
-valores.
-2. Simple Array JSON para grabación de datos
-: carga útil (matriz): una matriz que contiene todo el GA.Puede usar la matriz para hacer su propio formato y reordenar.
-3. Dashboard Telegrams Queue
-: carga útil (html): conéctelo directamente con el nodo UI de plantilla.Crea una mesa con la cola de transmisión KNX para
-Monitoreo de la congestión del bus.
+El nodo **KNX Viewer** ahora incluye una **página web basada en Vue**, que se puede abrir directamente desde el editor del nodo.
+
+Se puede usar para:
+- visualizar en vivo las **luces** detectadas a partir de valores KNX booleanos
+- visualizar los **dimmers** detectados a partir de valores tipo `DPT 5.001`
+- filtrar elementos, cambiar entre nodos Viewer y mantener el auto-refresh activo
+- disponer de una interfaz visual coherente con **KNX AI**
+
+La página web es servida directamente por Node-RED, por lo que sigue el mismo modelo de autenticación que el editor y los endpoints de administración.
+
+# PINES DE SALIDA
+
+1. Direcciones de grupo del Dashboard
+   : payload (html): conéctelo directamente al nodo Dashboard <b>Template</b>. Crea una tabla con todas las direcciones de grupo y sus valores.
+2. Array simple para registro de datos
+   : payload (array): contiene todas las GA; puede formatearlo u ordenarlo como prefiera.
+3. Cola de telegramas del Dashboard
+   : payload (html): conéctelo a <b>Template</b>. Muestra la cola de transmisión KNX para supervisar la congestión del BUS.
+
+# NOTAS
+
+- La **página web** no sustituye las salidas existentes; siguen disponibles para flujos dashboard/template clásicos.
+- Las tarjetas de luces y dimmers se infieren a partir de los valores KNX que el Viewer está viendo en ese momento.
+- Si todavía no se han visto telegramas, la página web permanecerá vacía hasta que el Viewer recopile tráfico real.
 
 # MUESTRA
 

@@ -15,6 +15,18 @@ Zeigt alle Gruppenadressen und deren Werte in einem Dashboard-Widget an.
 | Gateway | KNX-Gateway. |
 | Name | Node-Name. |
 
+# WEBSEITE
+
+Der **KNX Viewer** enthält jetzt eine eigene **Vue-basierte Webseite**, die direkt aus dem Node-Editor geöffnet werden kann.
+
+Sie kann verwendet werden, um:
+- **Lichter** aus booleschen KNX-Werten live anzuzeigen
+- **Dimmer** aus Werten im Stil `DPT 5.001` anzuzeigen
+- Einträge zu filtern, zwischen Viewer-Nodes zu wechseln und Auto-Refresh aktiv zu halten
+- eine optisch mit **KNX AI** abgestimmte Oberfläche zu nutzen
+
+Die Webseite wird direkt von Node-RED bereitgestellt und folgt daher demselben Authentifizierungsmodell wie Editor und Admin-Endpunkte.
+
 # AUSGÄNGE
 
 1. Gruppenadressen (Dashboard)
@@ -23,6 +35,12 @@ Zeigt alle Gruppenadressen und deren Werte in einem Dashboard-Widget an.
    : payload (array): enthält alle GAs; für eigene Formatierung/Sortierung.
 3. Telegramm-Warteschlange (Dashboard)
    : payload (html): mit <b>Template</b> verbinden; zeigt die KNX-Sendequeue zur BUS-Überwachung.
+
+# HINWEISE
+
+- Die **Webseite** ersetzt die bestehenden Ausgänge nicht; sie bleiben für klassische Dashboard-/Template-Flows verfügbar.
+- Licht- und Dimmer-Karten werden aus den aktuell vom Viewer gesehenen KNX-Werten abgeleitet.
+- Wenn noch keine Telegramme empfangen wurden, bleibt die Webseite leer, bis der Viewer Live-Verkehr gesammelt hat.
 
 # BEISPIEL
 

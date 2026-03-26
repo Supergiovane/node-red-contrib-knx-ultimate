@@ -15,16 +15,32 @@ This node works in conjunction with the Node-Red dashboard UI Template node.
 | Gateway | The KNX gateway. |
 | Name | The node name. |
 
+# WEB PAGE
+
+The **KNX Viewer** node now includes a dedicated **Vue-based Web Page** that you can open directly from the node editor.
+
+Use it to:
+- browse live **lights** detected from boolean-style KNX values
+- browse live **dimmers** detected from `DPT 5.001` style values
+- filter items, switch between Viewer nodes and keep the page auto-refreshed
+- get a UI visually aligned with **KNX AI**
+
+The web page is served directly by Node-RED, so it follows the same authentication model used by the editor/admin endpoints.
+
 # OUTPUT PINS
 
 1. Dashboard Group Addresses
-   : payload (html) : Connect it directly with the Template UI node. It creates a table with all Group Addresses and their
-   values.
+   : payload (html) : Connect it directly with the Template UI node. It creates a table with all Group Addresses and their values.
 2. Simple Array JSON for data recording
    : payload (array) : An array containing all the GA. You can use the array to do your own format and reordering.
 3. Dashboard telegrams queue
-   : payload (html) : Connect it directly with the Template UI node. It creates a table with the KNX transmission queue for
-   monitoring BUS congestion.
+   : payload (html) : Connect it directly with the Template UI node. It creates a table with the KNX transmission queue for monitoring BUS congestion.
+
+# NOTES
+
+- The **Web Page** does not replace the existing outputs: they remain available for dashboard/template flows.
+- Light and dimmer cards are inferred from the KNX values currently seen by the Viewer node.
+- If no telegrams have been seen yet, the web page will stay empty until the Viewer collects live traffic.
 
 # SAMPLE
 

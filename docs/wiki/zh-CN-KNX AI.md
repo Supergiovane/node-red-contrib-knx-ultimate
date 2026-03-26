@@ -4,38 +4,71 @@ title: "KNX AI"
 lang: zh-CN
 permalink: /wiki/zh-CN-KNX%20AI
 ---
-此节点会监听所选 KNX Ultimate 网关上的**所有 KNX 电报**，生成统计信息、检测简单异常，并且（可选）可调用 LLM 输出更便于阅读的分析结果。
-
-## 功能
-- 在内存中保存一段滚动窗口的 KNX 电报历史（由 KNX Ultimate 解码）。
-- 定时或按需输出**流量摘要**（Top 组地址、事件类型、速率）。
-- 输出**异常事件**（总线速率过高、某 GA 过度刷屏、频繁抖动/翻转）。
-- 可选：通过 `ask` 命令向 LLM 提问。
+此节点会监听所选 KNX Ultimate 网关上的**所有 KNX 电报**，生成流量统计、检测异常，并可选调用 LLM。
 
 ## 输出
 1. **摘要/统计**（`msg.payload` 为 JSON）
-2. **异常**（`msg.payload` 为 JSON，描述异常）
-3. **AI 助手**（`msg.payload` 为文本；包含 `msg.summary`）
+2. **异常**（`msg.payload` 为 JSON）
+3. **AI 助手**（`msg.payload` 为文本，包含 `msg.summary`）
 
-## 命令（输入引脚）
-发送带 `msg.topic` 的消息：
+## 命令（输入）
+发送 `msg.topic`：
 - `summary`（或空）：立即输出摘要
 - `reset`：清空内部历史与计数器
-- `ask`：使用摘要 + 最近流量向 LLM 提问
+- `ask`：向已配置的 LLM 提问
 
-对于 `ask`，请将问题放在 `msg.prompt`（推荐）或 `msg.payload`（字符串）里。
+`ask` 的问题建议放在 `msg.prompt`，也可放在 `msg.payload`（字符串）。
 
-## LLM 上下文（更好的回答）
-使用 `ask` 时，此节点可选地向 LLM 发送额外上下文：
-- **Flow 清单**：你在 Node-RED flows 中使用的 KNX Ultimate 节点列表（帮助把电报与逻辑关联起来）。
-- **文档片段**：从内置 help/README/示例中提取的相关片段（以及在存在时的 `docs/wiki`）。
+## 配置字段
+以下是编辑器里用户可见的全部字段名称。
 
-## 注意
-- 启用 LLM 后，会把总线信息发送到所配置的接口地址。若希望本地化处理，请使用本地 provider。
-- 对于 OpenAI，请仅粘贴 API Key（以 `sk-` 开头）。不要粘贴 `Bearer ...` 或完整的 `Authorization: ...`。
+### 通用
+- **Gateway**：作为电报来源的 KNX Ultimate 网关/配置节点。
+- **Name**：节点名称与仪表板标题。
+- **Topic**：节点输出使用的基础 topic。
+- **Open KNX AI Web** 按钮：打开网页仪表板（`/knxUltimateAI/sidebar/page`）。
 
-## Web 仪表板
-- 在 KNX AI 节点编辑器中点击 **Open Web Page**，即可打开完整的 KNX AI 仪表板。
-- 直接访问 URL：`/knxUltimateAI/sidebar/page`（可选参数：`?nodeId=<id>`）。
-- 之前的 KNX AI 侧边栏插件已由该网页替代。
-- 仪表板包含 Flow Map、Event Mix、异常列表和 Ask 聊天。
+### Capture
+- **Capture GroupValue_Write**：抓取 Write 电报。
+- **Capture GroupValue_Response**：抓取 Response 电报。
+- **Capture GroupValue_Read**：抓取 Read 电报。
+
+### Analysis
+- **Analysis window (seconds)**：摘要/速率统计主窗口。
+- **History window (seconds)**：内部历史保留窗口。
+- **Max stored events**：内存中保留的最大电报数量。
+- **Auto emit summary (seconds, 0=off)**：周期性输出摘要间隔。
+- **Top list size**：摘要中 top 组地址/来源数量。
+- **Detect simple patterns (A -> B)**：启用组地址转移/模式检测。
+- **Pattern max lag (ms)**：模式关联允许的最大时间差。
+- **Pattern min occurrences**：报告模式前的最小出现次数。
+
+### Anomalies
+- **Rate window (seconds)**：异常速率检查滑动窗口。
+- **Max overall telegrams/sec (0=off)**：全总线 telegram/s 阈值。
+- **Max telegrams/sec per GA (0=off)**：单组地址 telegram/s 阈值。
+- **Flap window (seconds)**：抖动/快速变化检测窗口。
+- **Max changes per GA in window (0=off)**：窗口内允许的最大变化次数。
+
+### LLM Assistant
+- **Enable LLM assistant**：启用 Ask/chat 功能。
+- **Provider**：LLM 后端（OpenAI-compatible 或 Ollama）。
+- **Endpoint URL**：chat/completions 接口 URL。
+- **API key**：API Key（本地 Ollama 可不填）。
+- **Model**：模型 ID/名称。
+- **System prompt**：KNX 分析全局系统提示词。
+- **Temperature**：采样温度。
+- **Max tokens**：最大生成 token 数。
+- **Timeout (ms)**：LLM 请求 HTTP 超时。
+- **Recent events included**：提示词中包含的最近事件数量上限。
+- **Include raw payload hex**：在提示词中包含原始十六进制 payload。
+- **Include Node-RED KNX node inventory**：在提示词中包含 flow 清单。
+- **Max flow nodes included**：flow 清单中最多包含的节点数。
+- **Include documentation snippets (help/README/examples)**：在提示词中包含文档片段。
+- **Docs language**：文档片段优先语言。
+- **Max docs snippets**：文档片段最大条数。
+- **Max docs chars**：文档片段最大总字符数。
+- **Refresh** 按钮：请求 provider 并加载可用模型 ID。
+
+## 安全说明
+启用 LLM 后，KNX 流量上下文可能发送到所配置的 endpoint。若需严格本地化，请使用本地 provider。

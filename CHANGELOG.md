@@ -6,6 +6,13 @@
 
 # CHANGELOG
 
+**Version 4.2.4** - March 2026<br/>
+
+- NEW: **KNX Viewer Web** added a new Vue-based web page, opened directly from the **KNXViewer** node editor, to visualize KNX lights and dimmers in a modern dashboard.<br/>
+- UI: **KNX Viewer Web** uses a visual style aligned with **KNX AI**, including live light/dimmer cards, search, node selection and auto-refresh.<br/>
+- IMPROVE: **KNX Viewer Web** ON lights now use a much stronger yellow highlight for clearer visual feedback.<br/>
+- CHANGE: package build/publish flow now also includes the **KNX Viewer Web** Vue bundle.<br/>
+
 **Version 4.2.3** - March 2026<br/>
 
 - IMPROVE: **KNX AI Flow Map** added a new toggle to show or hide `knxUltimate` nodes running in **Universal Mode**; they are now hidden by default to keep the topology cleaner.<br/>

@@ -4,38 +4,71 @@ title: "KNX AI"
 lang: fr
 permalink: /wiki/fr-KNX%20AI
 ---
-Ce nœud écoute **tous les télégrammes KNX** du gateway KNX Ultimate sélectionné, construit des statistiques, détecte des anomalies simples et peut (optionnellement) interroger un LLM pour produire une analyse lisible.
-
-## Ce qu’il fait
-- Conserve un historique glissant des télégrammes KNX (déjà décodés par KNX Ultimate) en RAM.
-- Émet des **résumés de trafic** périodiquement ou à la demande (Top GA, types d’événement, débit).
-- Émet des **événements d’anomalie** (débit bus trop élevé, spam sur GA, « flapping »).
-- Optionnel : interroge un LLM via la commande `ask`.
+Ce nœud écoute **tous les télégrammes KNX** du gateway KNX Ultimate sélectionné, produit des statistiques de trafic, détecte des anomalies et peut interroger un LLM de façon optionnelle.
 
 ## Sorties
-1. **Résumé/Statistiques** (`msg.payload` est du JSON)
-2. **Anomalies** (`msg.payload` est un JSON décrivant l’anomalie)
-3. **Assistant IA** (`msg.payload` est du texte ; inclut `msg.summary`)
+1. **Résumé/Stats** (`msg.payload` JSON)
+2. **Anomalies** (`msg.payload` JSON)
+3. **Assistant IA** (`msg.payload` texte, avec `msg.summary`)
 
 ## Commandes (entrée)
-Envoyez un message avec `msg.topic` :
-- `summary` (ou vide) : émet un résumé immédiatement
-- `reset` : efface l’historique et les compteurs
-- `ask` : questionne le LLM avec le résumé + le trafic récent
+Envoyez `msg.topic` :
+- `summary` (ou vide) : envoie le résumé immédiatement
+- `reset` : vide l'historique/compteurs internes
+- `ask` : envoie une question au LLM configuré
 
-Pour `ask`, mettez la question dans `msg.prompt` (recommandé) ou dans `msg.payload` (chaîne).
+Pour `ask`, mettez la question dans `msg.prompt` (recommandé) ou `msg.payload` (chaîne).
 
-## Contexte LLM (meilleures réponses)
-Avec la commande `ask`, le nœud peut envoyer du contexte supplémentaire au LLM :
-- **Inventaire des flows** : liste des nœuds KNX Ultimate présents dans vos flows Node-RED (aide à relier les télégrammes à la logique).
-- **Extraits de documentation** : extraits pertinents depuis l’aide/README/exemples (et `docs/wiki` si disponible).
+## Champs de configuration
+Voici tous les champs tels qu'affichés dans l'éditeur KNX AI.
 
-## Notes
-- Si vous activez le LLM, des informations du bus seront envoyées à l’endpoint configuré. Utilisez un provider local si vous voulez rester on‑premise.
-- Pour OpenAI, collez **uniquement** la clé API (commence par `sk-`). Ne collez pas `Bearer ...` ni l’en-tête complet `Authorization: ...`.
+### Général
+- **Gateway** : gateway/config node KNX Ultimate utilisé comme source des télégrammes.
+- **Name** : nom du nœud et titre du dashboard.
+- **Topic** : topic de base utilisé dans les sorties.
+- Bouton **Open KNX AI Web** : ouvre le dashboard web (`/knxUltimateAI/sidebar/page`).
 
-## Tableau de bord Web
-- Cliquez sur **Open Web Page** dans l’éditeur du nœud KNX AI pour ouvrir le tableau de bord complet.
-- URL directe : `/knxUltimateAI/sidebar/page` (optionnellement avec `?nodeId=<id>`).
-- L’ancien plugin de barre latérale KNX AI a été remplacé par cette page web.
-- Le tableau de bord inclut Flow Map, Event Mix, liste des anomalies et chat Ask.
+### Capture
+- **Capture GroupValue_Write** : capture les télégrammes Write.
+- **Capture GroupValue_Response** : capture les télégrammes Response.
+- **Capture GroupValue_Read** : capture les télégrammes Read.
+
+### Analysis
+- **Analysis window (seconds)** : fenêtre principale pour résumé/débits.
+- **History window (seconds)** : fenêtre de rétention de l'historique interne.
+- **Max stored events** : nombre maximal de télégrammes en mémoire.
+- **Auto emit summary (seconds, 0=off)** : intervalle périodique d'émission du résumé.
+- **Top list size** : nombre de group addresses/sources dans le top.
+- **Detect simple patterns (A -> B)** : active la détection de transitions/patterns.
+- **Pattern max lag (ms)** : écart temporel max pour corrélation des patterns.
+- **Pattern min occurrences** : occurrences minimales avant signalement.
+
+### Anomalies
+- **Rate window (seconds)** : fenêtre glissante pour contrôles de débit.
+- **Max overall telegrams/sec (0=off)** : seuil sur le bus global.
+- **Max telegrams/sec per GA (0=off)** : seuil par group address.
+- **Flap window (seconds)** : fenêtre de détection flapping/changements rapides.
+- **Max changes per GA in window (0=off)** : nombre max de changements autorisés.
+
+### LLM Assistant
+- **Enable LLM assistant** : active les fonctions Ask/chat.
+- **Provider** : backend LLM (OpenAI-compatible ou Ollama).
+- **Endpoint URL** : URL endpoint chat/completions.
+- **API key** : clé API (non requise avec Ollama local).
+- **Model** : ID/nom du modèle.
+- **System prompt** : instruction système globale pour l'analyse KNX.
+- **Temperature** : température d'échantillonnage.
+- **Max tokens** : nombre maximal de tokens de complétion.
+- **Timeout (ms)** : timeout HTTP des requêtes LLM.
+- **Recent events included** : nombre max d'événements récents dans le prompt.
+- **Include raw payload hex** : inclut le payload hex brut dans le prompt.
+- **Include Node-RED KNX node inventory** : inclut l'inventaire des flows.
+- **Max flow nodes included** : limite de nœuds flow inclus.
+- **Include documentation snippets (help/README/examples)** : inclut le contexte documentation.
+- **Docs language** : langue préférée des snippets documentation.
+- **Max docs snippets** : nombre max de snippets documentation.
+- **Max docs chars** : nombre total max de caractères documentation.
+- Bouton **Refresh** : interroge le provider et charge les modèles disponibles.
+
+## Note sécurité
+Si le LLM est activé, le contexte trafic KNX peut être envoyé à l'endpoint configuré. Pour un usage strictement on-premise, utilisez un provider local.
