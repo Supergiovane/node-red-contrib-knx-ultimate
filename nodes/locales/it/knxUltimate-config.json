@@ -73,6 +73,8 @@
             "suppress_ack": "Sopprimi richieste ACK in modalità tunnel",
             "suppress_ack_help": "L'opzione ACK sopra aiuta la compatibilità con vecchie interfacce. Attenzione: il nodo potrebbe non accorgersi della disconnessione al gateway. In questo caso, usare il watchdog in modalità Ethernet+KNX twisted pair.",
             "ignoreTelegramsWithRepeatedFlag": "Sopprimi telegrammi dal BUS ripetuti (Flag R)",
+            "enable_flow_bubbles": "Abilita plugin flow bubbles",
+            "enable_flow_bubbles_help": "Mostra bubble di stato live accanto ai nodi KNX Device nell'editor. Utile durante commissioning e debug.",
             "log_level": "Livello log",
             "status_throttle": "Limitazione aggiornamento stato nodi",
             "status_throttle_none": "Immediato (senza limitazione)",
@@ -105,6 +107,14 @@
             "exposeAsVariableNO" : "No",
             "exposeAsVariableREADONLY" : "Sola lettura",
             "exposeAsVariableREADWRITE" : "Lettura/Scrittura"
+        },
+        "help": {
+            "intro": "Configura la connessione al gateway KNX, l'import ETS e il comportamento avanzato dell'editor.",
+            "flow_bubbles_title": "Plugin flow bubbles",
+            "flow_bubbles_enable": "Abilita questa opzione per disegnare una piccola bubble colorata accanto a ogni nodo KNX Device nell'editor.",
+            "flow_bubbles_scope": "Le bubble riflettono l'ultimo stato live ricevuto dall'editor dai nodi KNX Device collegati a questo gateway.",
+            "flow_bubbles_tooltip": "Passa con il mouse sulla bubble per vedere nome o topic del nodo, ultimo payload e testo di stato corrente.",
+            "flow_bubbles_stale": "Se non arriva traffico KNX recente, la bubble resta attenuata, così puoi distinguere dati stantii da aggiornamenti freschi."
         },
         "ets": {
             "description": "Puoi importare sia il file ETS in CSV, che ESF. Usa il CSV se possibile, perchè i datapoints sono più precisi.",

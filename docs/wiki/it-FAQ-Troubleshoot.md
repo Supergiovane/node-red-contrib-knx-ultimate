@@ -26,7 +26,6 @@ Requisito minimo: **Node.js >= 16**
 ## Configurazione knxd
 - knxd sulla stessa macchina di Node-RED: usa `127.0.0.1` come interfaccia.
 - Controlla le tabelle di filtro e adegua l'indirizzo fisico del config-node.
-- Abilita in Gateway "Echo sent message to all node with same Group Address” (opzioni avanzate).
 ## In ETS vedo il telegramma ma l'attuatore non reagisce
 Potresti avere altri plug-in KNX per Node-RED installati.
 - Rimuovi tutti i plug-in KNX dalla palette lasciando solo KNX-Ultimate (rimuovi anche i config-node nascosti).
@@ -41,7 +40,7 @@ Potrebbero esserci filtri attivi nel Router/Interface.
 - Verifica di non avere due nodi con **stesso GA ** ma**DPT diverso** .
 ## Messaggi tra nodi con lo stesso GA non si propagano
 Accade con connessioni tunneling/unicast (KNX/IP Interface o knxd).
-- Abilita "Echo sent message to all node with same Group Address” nel Gateway (opzioni avanzate).
+- Nelle versioni correnti, le scritture locali vengono già propagate automaticamente ai nodi KNX Device con lo stesso GA. Se vedi ancora incoerenze, verifica che i nodi usino lo stesso config-node gateway e lo stesso Group Address.
 ## Secure KNX Router/Interfaces
 In modalità secure non funzionano; funzionano se consenti connessioni non secure.
 - Disattiva il routing secure o consenti connessioni non secure.

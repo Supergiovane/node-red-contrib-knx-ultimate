@@ -38,9 +38,9 @@ Configuration de la passerelle KNX
 
 | Propriété | Description |
 |-|-|
-| Echo envoyé un message à tous les nœuds avec la même adresse de groupe | Envoyez l'entrée MSG provenant du flux, à tous les nœuds ayant la même adresse de groupe. Les nœuds recevront le nouveau MSG comme s'il provenait du bus KNX. Ceci est utile en cas d'utilisation de l'émulation KNX et au cas où la connexion au bus KNX n'est pas établie. **Cette option sera obsolète dans la version suivante et par défaut est vérifiée.** La valeur par défaut est vérifiée. |
 | Supprimez les télégrammes répétés (R-FLAG) FOM BUS | Ignorez des télégrammes KNX répétés provenant du bus. La valeur par défaut n'est pas contrôlée. |
 | Supprimez la demande ACK en mode tunnel | Activez-le si vous avez une très ancienne passerelle KNX / IP. Il ignore la procédure ACK et accepte tous les télégrammes. La valeur par défaut n'est pas contrôlée. |
+| Activer le plugin flow bubbles | Affiche une petite bulle colorée à côté de chaque nœud KNX Device dans l'éditeur. La bulle reflète le dernier état en direct reçu depuis le gateway et s'atténue lorsque les données deviennent obsolètes. Utile pendant la mise en service et le débogage. Valeur par défaut : désactivé. |
 | Retard entre chaque télégramme (en millisecondes) | KNX Specs indique que la vitesse d'envoi de télégramme maximum est de 50 télégrammes par seconde. Une vitesse comprise entre 25 et 50 ms devrait être bien, sauf si vous vous connectez à une passerelle KNX distante via une connexion Internet lente (dans ce cas, vous devez augmenter la valeur, par exemple, 200 à 500 ms ou plus). |
 | Loglevel | Niveau de journal, au cas où vous auriez besoin de déboguer quelque chose avec le développement. La valeur par défaut est "erreur", |
 | Temporisation de l'état du nœud | Définissez la fréquence de mise à jour des badges de statut. Avec un délai actif, les changements intermédiaires sont ignorés et seul le dernier est affiché après l'intervalle choisi. Sélectionnez **Immédiat** pour conserver le comportement en temps réel. |

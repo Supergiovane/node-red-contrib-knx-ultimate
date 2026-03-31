@@ -3,6 +3,63 @@ const loggerClass = require('./utils/sysLogger')
 const coerceBoolean = (value) => (value === true || value === 'true')
 
 let buttonEndpointRegistered = false
+let liveStateEndpointRegistered = false
+const knxUltimateLiveState = new Map()
+
+const resolveBubbleColor = (status = {}) => {
+  const fill = typeof status.fill === 'string' ? status.fill.trim().toLowerCase() : ''
+  if (typeof status.payload === 'boolean') return status.payload ? '#ffd84d' : '#a5afbf'
+  if (typeof status.payload === 'number' && Number.isFinite(status.payload)) {
+    if (status.payload > 0) return '#ffd84d'
+    if (status.payload === 0) return '#a5afbf'
+  }
+  switch (fill) {
+    case 'green':
+      return '#58c96a'
+    case 'yellow':
+      return '#ffd84d'
+    case 'blue':
+      return '#61a8ff'
+    case 'red':
+      return '#f06b6b'
+    case 'grey':
+    case 'gray':
+      return '#a5afbf'
+    default:
+      return '#d4d8e2'
+  }
+}
+
+const normalizePayloadForBubble = (payload) => {
+  if (payload === undefined || payload === null || payload === '') return ''
+  if (typeof payload === 'object') {
+    try {
+      return JSON.stringify(payload)
+    } catch (error) {
+      return String(payload)
+    }
+  }
+  return String(payload)
+}
+
+const storeKnxUltimateLiveState = (node, status = {}) => {
+  if (!node || !node.id) return
+  const payload = Object.prototype.hasOwnProperty.call(status, 'payload') ? status.payload : node.currentPayload
+  knxUltimateLiveState.set(node.id, {
+    id: node.id,
+    topic: node.topic || '',
+    name: node.name || '',
+    dpt: node.dpt || '',
+    listenallga: node.listenallga === true || node.listenallga === 'true',
+    fill: status.fill || '',
+    shape: status.shape || '',
+    text: status.text || '',
+    payload,
+    payloadText: normalizePayloadForBubble(payload),
+    bubbleColor: resolveBubbleColor({ fill: status.fill, payload }),
+    updatedAt: Date.now()
+  })
+}
 
 /* eslint-disable max-len */
 module.exports = function (RED) {
@@ -225,6 +282,18 @@ module.exports = function (RED) {
     })
     buttonEndpointRegistered = true
   }
+
+  if (!liveStateEndpointRegistered) {
+    RED.httpAdmin.get('/knxUltimate/editorLiveState', RED.auth.needsPermission('knxUltimate-config.read'), (req, res) => {
+      try {
+        const nodes = Array.from(knxUltimateLiveState.values())
+        res.json({ nodes, updatedAt: Date.now() })
+      } catch (error) {
+        res.status(500).json({ error: error.message || String(error) })
+      }
+    })
+    liveStateEndpointRegistered = true
+  }
   const _ = require('lodash')
   const KNXUtils = require('knxultimate')
   const payloadRounder = require('./utils/payloadManipulation')
@@ -244,6 +313,7 @@ module.exports = function (RED) {
     }
 
     if (node.serverKNX === undefined) {
+      storeKnxUltimateLiveState(node, { fill: 'red', shape: 'dot', text: '[THE GATEWAY NODE HAS BEEN DISABLED]', payload: node.currentPayload })
       pushStatus({ fill: 'red', shape: 'dot', text: '[THE GATEWAY NODE HAS BEEN DISABLED]' })
       return
     }
@@ -254,6 +324,7 @@ module.exports = function (RED) {
     }) => {
       try {
         if (node.serverKNX === null) { pushStatus({ fill: 'red', shape: 'dot', text: '[NO GATEWAY SELECTED]' }); return }
+        const rawPayload = payload
         if (node.icountMessageInWindow == -999) return // Locked out, doesn't change status.
         const dDate = new Date()
         const ts = (node.serverKNX && typeof node.serverKNX.formatStatusTimestamp === 'function')
@@ -265,6 +336,7 @@ module.exports = function (RED) {
         dpt = (typeof dpt === 'undefined' || dpt == '') ? '' : ` DPT${dpt}`
         payload = typeof payload === 'object' ? JSON.stringify(payload) : payload
         const statusText = `${GA + payload + (node.listenallga === true ? ` ${devicename}` : '')} (${ts}) ${text}`
+        storeKnxUltimateLiveState(node, { fill, shape, text: statusText, payload: rawPayload })
         pushStatus({ fill, shape, text: statusText })
         // 16/02/2020 signal errors to the server
         if (fill.toUpperCase() === 'RED') {
@@ -356,6 +428,12 @@ module.exports = function (RED) {
     node.buttonStaticValue = config.buttonStaticValue || ''
     node.buttonToggleInitial = coerceBoolean(config.buttonToggleInitial)
     node._buttonToggleState = node.buttonToggleInitial
+    storeKnxUltimateLiveState(node, {
+      fill: 'grey',
+      shape: 'ring',
+      text: 'Waiting for KNX traffic',
+      payload: node.currentPayload
+    })
     node.periodicSend = coerceBoolean(config.periodicSend)
     node.periodicSendInterval = Number(config.periodicSendInterval)
     if (!Number.isFinite(node.periodicSendInterval) || node.periodicSendInterval <= 0) node.periodicSendInterval = 0
@@ -871,6 +949,7 @@ module.exports = function (RED) {
       if (node.timerTTLInputMessage !== null) clearTimeout(node.timerTTLInputMessage)
       clearPeriodicSendTimer()
       node.inputmessage = {}
+      knxUltimateLiveState.delete(node.id)
       if (node.serverKNX) {
         node.serverKNX.removeClient(node)
         try {

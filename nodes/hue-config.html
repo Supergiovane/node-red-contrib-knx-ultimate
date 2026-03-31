@@ -29,7 +29,7 @@
             var $clientKeyInput = $("#node-config-input-clientkey");
             var $manualCredentialsButton = $("#manualCredentials");
 
-            function renderHueBridgeOptions (bridges) {
+            function renderHueBridgeOptions(bridges) {
                 discoveredHueBridges = Array.isArray(bridges) ? bridges : [];
                 if ($bridgeDatalist.length) {
                     $bridgeDatalist.empty();
@@ -66,7 +66,7 @@
                 }
             }
 
-            function runHueBridgeDiscovery (options) {
+            function runHueBridgeDiscovery(options) {
                 var settings = options || {};
                 if ($refreshHueBridges.length) {
                     $refreshHueBridges.addClass("fa-spin");
@@ -117,7 +117,7 @@
 
             runHueBridgeDiscovery({ silent: true });
 
-            function loadHueCredentials () {
+            function loadHueCredentials() {
                 if (!node || !node.id) return;
                 $.getJSON("KNXUltimateGetPlainHueBridgeCredentials?serverId=" + node.id, function (data) {
                     if (data && !data.error) {
@@ -171,7 +171,7 @@
                     var inflightRequest = null;
                     var myNotification;
 
-                    function cleanupPolling () {
+                    function cleanupPolling() {
                         polling = false;
                         if (retryTimer) {
                             clearTimeout(retryTimer);
@@ -183,17 +183,17 @@
                         inflightRequest = null;
                     }
 
-                    function restoreEditorView () {
+                    function restoreEditorView() {
                         $("#mainWindow").show();
                         $("#waitWindow").hide();
                     }
 
-                    function scheduleRetry () {
+                    function scheduleRetry() {
                         if (!polling) return;
                         retryTimer = setTimeout(attemptRegistration, 2000);
                     }
 
-                    function handleRegistrationSuccess (registration) {
+                    function handleRegistrationSuccess(registration) {
                         cleanupPolling();
                         if (registration && registration.bridge) {
                             if (registration.bridge.data && registration.bridge.data.name) {
@@ -213,7 +213,7 @@
                         if (myNotification) myNotification.close();
                     }
 
-                    function handleRegistrationError (message, { retryAllowed = false } = {}) {
+                    function handleRegistrationError(message, { retryAllowed = false } = {}) {
                         if (retryAllowed) {
                             scheduleRetry();
                             return;
@@ -232,7 +232,7 @@
                         });
                     }
 
-                    function attemptRegistration () {
+                    function attemptRegistration() {
                         if (!polling) return;
                         inflightRequest = $.getJSON("KNXUltimateRegisterToHueBridge?IP=" + $("#node-config-input-host").val() + "&serverId=" + node.id, function (data) {
                             if (!polling) return;
@@ -358,7 +358,10 @@
                 <label for="node-config-input-clientkey"> <span data-i18n="hue-config.properties.client_key"></span></label>
                 <input type="text" id="node-config-input-clientkey" placeholder="">
             </div>
+
         </div>    
+
+
     </div>
  
 

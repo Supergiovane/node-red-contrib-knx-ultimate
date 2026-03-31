@@ -32,6 +32,7 @@
             tunnelUserPassword: { value: "" },
             tunnelUserId: { value: "" },
             autoReconnect: { value: "yes" },
+            enableFlowBubbles: { value: false },
             statusUpdateThrottle: { value: "0" },
             statusDateTimeFormat: { value: "legacy" },
             statusDateTimeCustom: { value: "DD MMM HH:mm" },
@@ -1415,6 +1416,17 @@
                 </label>
             </div>
 
+            <div class="form-row form-row-checkbox">
+                <input type="checkbox" id="node-config-input-enableFlowBubbles"
+                    style="display:inline-block; width:auto; vertical-align:top;">
+                <label for="node-config-input-enableFlowBubbles">
+                    <i class="fa fa-commenting-o"></i>
+                    <span data-i18n="knxUltimate-config.advanced.enable_flow_bubbles"></span>
+                </label>
+            </div>
+            <div class="form-tips" data-i18n="knxUltimate-config.advanced.enable_flow_bubbles_help"></div>
+
+
             <div class="form-row">
                 <label for="node-config-input-delaybetweentelegrams">
                     <i class="fa fa-hourglass-start"></i>
@@ -1553,4 +1565,15 @@
 
     </div>
   
+</script>
+
+<script type="text/html" data-help-name="knxUltimate-config">
+    <div data-i18n="knxUltimate-config.help.intro"></div>
+    <h3 data-i18n="knxUltimate-config.help.flow_bubbles_title"></h3>
+    <ul>
+        <li data-i18n="knxUltimate-config.help.flow_bubbles_enable"></li>
+        <li data-i18n="knxUltimate-config.help.flow_bubbles_scope"></li>
+        <li data-i18n="knxUltimate-config.help.flow_bubbles_tooltip"></li>
+        <li data-i18n="knxUltimate-config.help.flow_bubbles_stale"></li>
+    </ul>
 </script>

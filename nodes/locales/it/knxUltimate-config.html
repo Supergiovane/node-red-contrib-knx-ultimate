@@ -38,9 +38,9 @@ Questo nodo si connette al tuo KNX/IP Gateway.
 
 |Proprietà|Descrizione|
 |--|--|
-| Echo sent message to all node with same Group Address | Inoltra ai nodi con lo stesso GA i msg inviati dal flow, come se provenissero dal BUS. Utile in emulazione KNX o senza connessione al BUS. **Opzione in deprecazione e presto abilitata di default.** Default: abilitato. |
 | Suppress repeated (R-Flag) telegrams fom BUS | Ignora i telegrammi ripetuti (flag R) dal BUS. Default: disabilitato. |
 | Suppress ACK request in tunneling mode | Per vecchie interfacce KNX/IP: ignora l'ACK e accetta tutti i telegrammi. Default: disabilitato. |
+| Abilita plugin flow bubbles | Disegna una piccola bubble colorata accanto a ogni nodo KNX Device nell'editor. La bubble riflette l'ultimo stato live ricevuto dal gateway e si attenua quando il dato diventa stantio. Utile durante commissioning e debug. Default: disabilitato. |
 | Delay between each telegram (ms) | Lo standard KNX prevede max 50 telegrammi/s. Un intervallo 25-50ms è adeguato. Con gateway remoto su link lento aumenta (es. 200-500ms). |
 | Loglevel | Livello di log per il debug. Default: "Error". |
 | Limitazione aggiornamento stato nodi | Imposta ogni quanto aggiornare il badge di stato dei nodi. Con un ritardo attivo gli stati intermedi vengono ignorati e viene mostrato solo l'ultimo dopo l'intervallo scelto. Seleziona **Immediato** per mantenere l'aggiornamento in tempo reale. |

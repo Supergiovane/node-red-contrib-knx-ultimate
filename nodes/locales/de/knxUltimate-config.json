@@ -72,6 +72,8 @@
             "suppress_ack": "ACK-Anfrage unterdrücken in Tunnel Modus",
             "suppress_ack_help": "Diese Option unterstützt die Kompatibilität mit der alten Firmware des alten IP-Interfaces.Achtung: Der Knoten kann die Trennung vom Gateway möglicherweise nicht bemerken. Verwenden Sie in diesem Fall den Watchdog im Ethernet+KNX-Twisted-Pair Modus.",
             "ignoreTelegramsWithRepeatedFlag": "Wiederholt (R-Flag) telegramme vom BUS unterdrücken",
+            "enable_flow_bubbles": "Flow-Bubbles-Plugin aktivieren",
+            "enable_flow_bubbles_help": "Zeigt Live-Status-Bubbles neben KNX Device Nodes im Editor an. Nützlich bei Inbetriebnahme und Debugging.",
             "log_level": "Loglevel",
             "status_datetime_format": "Status Datum/Uhrzeit-Format",
             "status_datetime_format_legacy": "Legacy (System-Locale)",
@@ -97,6 +99,14 @@
             "exposeAsVariableNO": "Nein",
             "exposeAsVariableREADONLY": "Nur Lesen",
             "exposeAsVariableREADWRITE": "Lesen/Schreiben"
+        },
+        "help": {
+            "intro": "Konfigurieren Sie die KNX-Gateway-Verbindung, den ETS-Import und das erweiterte Verhalten des Editors.",
+            "flow_bubbles_title": "Flow-Bubbles-Plugin",
+            "flow_bubbles_enable": "Aktivieren Sie diese Option, um neben jedem KNX Device Node im Editor eine kleine farbige Bubble anzuzeigen.",
+            "flow_bubbles_scope": "Die Bubbles spiegeln den zuletzt im Editor empfangenen Live-Status der KNX Device Nodes wider, die mit diesem Gateway verknüpft sind.",
+            "flow_bubbles_tooltip": "Fahren Sie mit der Maus über die Bubble, um Knotenname oder Topic, den letzten Payload und den aktuellen Statustext zu sehen.",
+            "flow_bubbles_stale": "Wenn kein aktueller KNX-Verkehr vorliegt, bleibt die Bubble abgeblendet, sodass alte Daten von frischen Aktualisierungen unterschieden werden können."
         },
         "ets": {
             "description": "Sie können entweder eine ETS CSV-Gruppenadressliste oder eine ESF-Gruppenadressliste importieren. Bitte bevorzugen Sie die Adressliste der ETS CSV-Gruppe, da die Datenpunkte vollständiger sind.",

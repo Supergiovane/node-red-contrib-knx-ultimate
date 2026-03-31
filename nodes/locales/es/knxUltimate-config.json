@@ -73,6 +73,8 @@
       "suppress_ack": "Suprimir la solicitud ACK en modo de túnel",
       "suppress_ack_help": "La opción anterior ayuda a la antigua compatibilidad de las interfaces KNX/IP. ADVERTENCIA: El nodo puede no notar la desconexión de la puerta de enlace. En este caso, use el regadeo en el modo de par torcido Ethernet+KNX.",
       "ignoreTelegramsWithRepeatedFlag": "Suprimir los telegramas repetidos (r-flag) FOM Bus",
+      "enable_flow_bubbles": "Habilitar plugin flow bubbles",
+      "enable_flow_bubbles_help": "Muestra burbujas de estado en vivo junto a los nodos KNX Device en el editor. Útil durante la puesta en marcha y la depuración.",
       "log_level": "Loglevel",
       "status_throttle": "Temporizar las actualizaciones de estado del nodo",
       "status_throttle_none": "Inmediato (sin temporización)",
@@ -101,6 +103,14 @@
       "tiphost": "Escriba emulado en lugar de la dirección IP, para simular una puerta de enlace (la puerta de enlace no se conectará al bus KNX)",
       "delaybetweentelegrams": "Retraso entre cada telegrama (en milisegundos)",
       "delaybetweentelegramsfurtherdelayREAD": "y más retraso de multiplicar solo entre los telegramas de lectura"
+    },
+    "help": {
+      "intro": "Configure la conexión del gateway KNX, la importación ETS y el comportamiento avanzado del editor.",
+      "flow_bubbles_title": "Plugin flow bubbles",
+      "flow_bubbles_enable": "Active esta opción para dibujar una pequeña burbuja de color junto a cada nodo KNX Device en el editor.",
+      "flow_bubbles_scope": "Las burbujas reflejan el último estado en vivo recibido por el editor desde los nodos KNX Device vinculados a este gateway.",
+      "flow_bubbles_tooltip": "Pase el cursor sobre la burbuja para ver el nombre o topic del nodo, el último payload y el texto de estado actual.",
+      "flow_bubbles_stale": "Si no hay tráfico KNX reciente, la burbuja queda atenuada para distinguir datos obsoletos de actualizaciones recientes."
     },
     "ets": {
       "description": "Puede importar una lista de direcciones de grupo CSV CSV o una lista de direcciones de grupo ESF. Prefiera la lista de direcciones del grupo CSV CSV, ya que los puntos de datos son más completos.",

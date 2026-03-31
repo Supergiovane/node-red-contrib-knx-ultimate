@@ -1,0 +1,279 @@
+<script type="text/javascript">
+    (function () {
+        RED.plugins.registerPlugin("knxUltimate-flow-bubbles-plugin", {
+            onadd: function () {
+                const endpoint = "knxUltimate/editorLiveState";
+                const stateById = new Map();
+                let timer = null;
+                let refreshTimer = null;
+
+                if (!document.getElementById("knx-flow-bubbles-style")) {
+                    $("<style>", {
+                        id: "knx-flow-bubbles-style",
+                        text: `
+                        .knx-ultimate-flow-bubble { pointer-events: none; }
+                        .knx-ultimate-flow-bubble .knx-bubble-tail,
+                        .knx-ultimate-flow-bubble .knx-bubble-shell {
+                            stroke: rgba(255,255,255,0.96);
+                            stroke-width: 2.2px;
+                            filter: drop-shadow(0 1px 2px rgba(24, 28, 42, 0.22));
+                        }
+                        .knx-ultimate-flow-bubble .knx-bulb-outline {
+                            fill: none;
+                            stroke: rgba(43, 45, 50, 0.92);
+                            stroke-width: 1.7px;
+                            stroke-linecap: round;
+                            stroke-linejoin: round;
+                        }
+                        .knx-ultimate-flow-bubble .knx-bulb-accent {
+                            fill: none;
+                            stroke: rgba(92, 98, 108, 0.7);
+                            stroke-width: 1.7px;
+                            stroke-linecap: round;
+                            stroke-linejoin: round;
+                            opacity: 0.7;
+                        }
+                        .knx-ultimate-flow-bubble.is-on .knx-bubble-shell {
+                            filter: drop-shadow(0 0 6px rgba(255, 216, 77, 0.72));
+                        }
+                        .knx-ultimate-flow-bubble.is-on .knx-bulb-outline {
+                            stroke: rgba(120, 76, 0, 0.98);
+                        }
+                        .knx-ultimate-flow-bubble.is-on .knx-bulb-accent {
+                            stroke: rgba(181, 119, 6, 0.98);
+                            opacity: 0.9;
+                        }
+                        .knx-ultimate-flow-bubble.is-stale { opacity: 0.56; }
+                        `
+                    }).appendTo("head");
+                }
+
+                const getWorkspaceChart = function () {
+                    return document.querySelector("#red-ui-workspace-chart")
+                        || document.querySelector("#workspace-chart")
+                        || document.querySelector("svg.red-ui-workspace-chart")
+                        || null;
+                };
+
+                const resolveNodeId = function (group) {
+                    if (!group) return "";
+                    const candidates = [
+                        group.getAttribute("data-node-id"),
+                        group.getAttribute("data-id"),
+                        group.id,
+                        group.__data__ && group.__data__.id,
+                        group.__data__ && group.__data__.d && group.__data__.d.id,
+                        group.__data__ && group.__data__.node && group.__data__.node.id
+                    ];
+                    for (const candidate of candidates) {
+                        if (typeof candidate === "string" && candidate) {
+                            const node = RED.nodes.node(candidate);
+                            if (node && node.type === "knxUltimate") return candidate;
+                        }
+                    }
+                    return "";
+                };
+
+                const resolveEditorNode = function (group) {
+                    const nodeId = resolveNodeId(group);
+                    if (!nodeId) return null;
+                    try {
+                        const node = RED.nodes.node(nodeId);
+                        return node && node.type === "knxUltimate" ? node : null;
+                    } catch (error) {
+                        return null;
+                    }
+                };
+
+                const getNodeGroups = function () {
+                    const chart = getWorkspaceChart();
+                    if (!chart) return [];
+                    const groups = chart.querySelectorAll("g[data-node-id], g[data-id], g[id], g.nodegroup, g.red-ui-flow-node");
+                    return Array.from(groups).filter(function (group) {
+                        if (!(group instanceof SVGGElement)) return false;
+                        if (!group.querySelector("rect")) return false;
+                        return !!resolveNodeId(group);
+                    });
+                };
+
+                const removeAllBubbles = function () {
+                    document.querySelectorAll("g.knx-ultimate-flow-bubble").forEach(function (bubble) {
+                        bubble.remove();
+                    });
+                };
+
+                const removeBubbleFromGroup = function (group) {
+                    if (!group) return;
+                    group.querySelectorAll("g.knx-ultimate-flow-bubble").forEach(function (bubble) {
+                        bubble.remove();
+                    });
+                };
+
+                const scheduleRefresh = function (delay) {
+                    if (refreshTimer) {
+                        window.clearTimeout(refreshTimer);
+                        refreshTimer = null;
+                    }
+                    refreshTimer = window.setTimeout(function () {
+                        refreshTimer = null;
+                        tick();
+                    }, typeof delay === "number" ? delay : 0);
+                };
+
+                const isNodeFeatureEnabled = function (node) {
+                    if (!node || node.type !== "knxUltimate" || !node.server) return false;
+                    try {
+                        const cfg = RED.nodes.node(node.server);
+                        return !!(cfg && (cfg.enableFlowBubbles === true || cfg.enableFlowBubbles === "true"));
+                    } catch (error) {
+                        return false;
+                    }
+                };
+
+                const hasAnyVisibleBubbleNode = function () {
+                    const groups = getNodeGroups();
+                    return groups.some(function (group) {
+                        const node = resolveEditorNode(group);
+                        return isNodeFeatureEnabled(node);
+                    });
+                };
+
+                const ensureBubble = function (group, entry) {
+                    const rect = group.querySelector("rect");
+                    if (!rect) return;
+                    const x = Number(rect.getAttribute("x") || 0);
+                    const y = Number(rect.getAttribute("y") || 0);
+                    const width = Number(rect.getAttribute("width") || 120);
+                    const bubbleX = x + width + 24;
+                    const bubbleY = y - 18;
+
+                    let bubble = group.querySelector("g.knx-ultimate-flow-bubble");
+                    if (!bubble) {
+                        bubble = document.createElementNS("http://www.w3.org/2000/svg", "g");
+                        bubble.setAttribute("class", "knx-ultimate-flow-bubble");
+
+                        const tail = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                        tail.setAttribute("class", "knx-bubble-tail");
+                        tail.setAttribute("d", "M-4,10 L-24,26 L4,18 Z");
+                        bubble.appendChild(tail);
+
+                        const shell = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+                        shell.setAttribute("class", "knx-bubble-shell");
+                        shell.setAttribute("x", "-20");
+                        shell.setAttribute("y", "-20");
+                        shell.setAttribute("width", "40");
+                        shell.setAttribute("height", "40");
+                        shell.setAttribute("rx", "20");
+                        shell.setAttribute("ry", "20");
+                        bubble.appendChild(shell);
+
+                        const bulbIcon = document.createElementNS("http://www.w3.org/2000/svg", "g");
+                        bulbIcon.setAttribute("transform", "translate(-10,-11) scale(0.78)");
+
+                        const accent = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                        accent.setAttribute("class", "knx-bulb-accent");
+                        accent.setAttribute("d", "M12.0001 7.89014L10.9301 9.75014C10.6901 10.1601 10.8901 10.5001 11.3601 10.5001H12.6301C13.1101 10.5001 13.3001 10.8401 13.0601 11.2501L12.0001 13.1101");
+                        bulbIcon.appendChild(accent);
+
+                        const outline = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                        outline.setAttribute("class", "knx-bulb-outline");
+                        outline.setAttribute("d", "M8.30035 18.0402V16.8802C6.00035 15.4902 4.11035 12.7802 4.11035 9.90018C4.11035 4.95018 8.66035 1.07018 13.8004 2.19018C16.0604 2.69018 18.0404 4.19018 19.0704 6.26018C21.1604 10.4602 18.9604 14.9202 15.7304 16.8702V18.0302C15.7304 18.3202 15.8404 18.9902 14.7704 18.9902H9.26035C8.16035 19.0002 8.30035 18.5702 8.30035 18.0402Z");
+                        bulbIcon.appendChild(outline);
+
+                        const base = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                        base.setAttribute("class", "knx-bulb-outline");
+                        base.setAttribute("d", "M8.5 22.0002C10.79 21.3502 13.21 21.3502 15.5 22.0002");
+                        bulbIcon.appendChild(base);
+
+                        bubble.appendChild(bulbIcon);
+
+                        const title = document.createElementNS("http://www.w3.org/2000/svg", "title");
+                        bubble.appendChild(title);
+                        group.appendChild(bubble);
+                    }
+
+                    const color = entry && entry.bubbleColor ? entry.bubbleColor : "#d4d8e2";
+                    const isOn = !!(entry && (entry.payload === true || entry.payload > 0 || color === "#ffd84d"));
+                    const isStale = !entry || !entry.updatedAt || (Date.now() - entry.updatedAt > 7000);
+                    const title = entry
+                        ? `${entry.name || entry.topic || entry.id}${entry.payloadText ? " | " + entry.payloadText : ""}${entry.text ? " | " + entry.text : ""}`
+                        : "Waiting for KNX traffic";
+
+                    bubble.setAttribute("transform", `translate(${bubbleX},${bubbleY})`);
+                    bubble.classList.toggle("is-on", isOn);
+                    bubble.classList.toggle("is-stale", isStale);
+                    bubble.querySelector(".knx-bubble-tail").setAttribute("fill", color);
+                    bubble.querySelector(".knx-bubble-shell").setAttribute("fill", color);
+                    bubble.querySelector("title").textContent = title;
+                };
+
+                const render = function () {
+                    const groups = getNodeGroups();
+                    if (!groups.length) return;
+                    if (!hasAnyVisibleBubbleNode()) {
+                        removeAllBubbles();
+                        return;
+                    }
+                    groups.forEach(function (group) {
+                        const node = resolveEditorNode(group);
+                        if (!node) return;
+                        if (!isNodeFeatureEnabled(node)) {
+                            removeBubbleFromGroup(group);
+                            return;
+                        }
+                        const id = node.id;
+                        ensureBubble(group, stateById.get(id));
+                    });
+                };
+
+                const tick = function () {
+                    if (!hasAnyVisibleBubbleNode()) {
+                        stateById.clear();
+                        removeAllBubbles();
+                        return;
+                    }
+                    if (document.visibilityState === "hidden") return;
+                    $.getJSON(endpoint, function (data) {
+                        stateById.clear();
+                        const nodes = Array.isArray(data && data.nodes) ? data.nodes : [];
+                        nodes.forEach(function (entry) {
+                            if (entry && entry.id) stateById.set(entry.id, entry);
+                        });
+                        window.requestAnimationFrame(render);
+                    }).fail(function () {
+                        window.requestAnimationFrame(render);
+                    });
+                };
+
+                $(document).on("change.knxUltimateFlowBubbles", "#node-config-input-enableFlowBubbles", function () {
+                    if ($(this).is(":checked")) {
+                        scheduleRefresh(0);
+                    } else {
+                        stateById.clear();
+                        removeAllBubbles();
+                    }
+                });
+
+                if (RED && RED.events && typeof RED.events.on === "function") {
+                    RED.events.on("flows:started", function () {
+                        scheduleRefresh(150);
+                    });
+                }
+
+                timer = window.setInterval(tick, 2000);
+                window.setTimeout(tick, 900);
+                window.addEventListener("beforeunload", function () {
+                    if (timer) {
+                        window.clearInterval(timer);
+                        timer = null;
+                    }
+                    if (refreshTimer) {
+                        window.clearTimeout(refreshTimer);
+                        refreshTimer = null;
+                    }
+                    $(document).off(".knxUltimateFlowBubbles");
+                }, { once: true });
+            }
+        });
+    }());
+</script>

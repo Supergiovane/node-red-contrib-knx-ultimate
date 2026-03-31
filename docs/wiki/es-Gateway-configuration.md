@@ -38,9 +38,9 @@ permalink: /wiki/es-Gateway-configuration
  **Avanzado** | Propiedad | Descripción |
 
 |-|-|
-| Echo enviado mensaje a todos los nodos con la misma dirección de grupo | Envíe la entrada MSG que viene del flujo a todos los nodos que tienen la misma dirección de grupo. Los nodos recibirán el nuevo MSG como si viniera del autobús KNX. Esto es útil en el caso de usar la emulación KNX y en caso de que no se establezca la conexión con el bus KNX. ** Esta opción estará en desuso en la próxima versión y se predeterminó en verificación.** Se verifica el valor predeterminado. |
 | Suprimir los telegramas repetidos (r-flag) FOM BUS | Ignore los repetidos telegramas de KNX que provengan del autobús. El valor predeterminado no está marcado. |
 | Suprimir la solicitud ACK en el modo de túnel | Habilite si tiene una puerta de enlace KNX/IP muy antigua. Ignora el procedimiento ACK y acepta todos los telegramas. El valor predeterminado no está marcado. |
+| Habilitar plugin flow bubbles | Dibuja una pequeña burbuja de color junto a cada nodo KNX Device en el editor. La burbuja refleja el último estado en vivo recibido desde el gateway y se atenúa cuando los datos ya no son recientes. Útil durante la puesta en marcha y la depuración. Valor predeterminado: desactivado. |
 | Retraso entre cada telegrama (en milisegundos) | Las especificaciones de KNX establecen que la velocidad máxima de envío de telegrama es de 50 telegramas por segundo. Una velocidad entre 25 y 50 ms debe estar bien, a menos que se conecte a una puerta de enlace KNX remota a través de una conexión a Internet lenta (en este caso, debe aumentar el valor, por ejemplo, de 200 a 500 ms o más). |
 | Loglevel | Nivel de registro, en caso de que necesite depurar algo con el desarrollo. El valor predeterminado es "error", |
 | Temporización de actualizaciones de estado | Define cada cuánto se actualiza la insignia de estado de los nodos. Con un retardo activo se descartan los estados intermedios y solo se muestra el último después del intervalo elegido. Seleccione **Inmediato** para mantener el comportamiento en tiempo real. |

@@ -73,6 +73,8 @@
             "suppress_ack": "Suppress ACK request in tunneling mode",
             "suppress_ack_help": "The option above helps old KNX/IP Interfaces compatibility. Warning: the node may not notice the disconnection from the gateway. In this case, use the watchdog in Ethernet+KNX twisted pair mode.",
             "ignoreTelegramsWithRepeatedFlag": "Suppress repeated (R-Flag) telegrams fom BUS",
+            "enable_flow_bubbles": "Enable flow bubbles plugin",
+            "enable_flow_bubbles_help": "Draw live status bubbles next to KNX Device nodes in the editor. Useful during commissioning and debugging.",
             "log_level": "Loglevel",
         "status_throttle": "Throttle node status updates",
         "status_throttle_none": "Immediate (no throttle)",
@@ -101,6 +103,14 @@
             "tiphost": "Write EMULATE instead of the IP address, to simulate a gateway (the gateway will not connect to the KNX BUS)",
             "delaybetweentelegrams": "Delay between each telegram (in milliseconds)",
             "delaybetweentelegramsfurtherdelayREAD": "and further multiply delay only between -read- telegrams"
+        },
+        "help": {
+            "intro": "Configure the KNX gateway connection, ETS import and advanced editor behaviour.",
+            "flow_bubbles_title": "Flow bubbles plugin",
+            "flow_bubbles_enable": "Enable this option to draw a small coloured bubble next to each KNX Device node in the editor.",
+            "flow_bubbles_scope": "Bubbles reflect the latest live state received by the editor from KNX Device nodes linked to this gateway.",
+            "flow_bubbles_tooltip": "Hover the bubble to inspect the node name/topic, the last payload and the current status text.",
+            "flow_bubbles_stale": "If no recent KNX traffic is available, the bubble stays dimmed so stale data can be distinguished from fresh updates."
         },
         "ets": {
             "description": "You can import either an ETS CSV group address list, or an ESF group address list. Please prefer the ETS CSV group address list, as the datapoints are more complete.",

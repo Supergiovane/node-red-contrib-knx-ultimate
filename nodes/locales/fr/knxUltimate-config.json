@@ -73,6 +73,8 @@
       "suppress_ack": "Supprimer la demande ACK en mode tunnelage",
       "suppress_ack_help": "L'option ci-dessus aide la compatibilité des interfaces KNX / IP anciennes. AVERTISSEMENT: le nœud ne peut pas remarquer la déconnexion de la passerelle. Dans ce cas, utilisez le chien de garde en mode paire twisted Ethernet + KNX.",
       "ignoreTelegramsWithRepeatedFlag": "Supprimez les télégrammes répétés (R-FLAG) FOM",
+      "enable_flow_bubbles": "Activer le plugin flow bubbles",
+      "enable_flow_bubbles_help": "Affiche des bulles d'état en direct à côté des nœuds KNX Device dans l'éditeur. Utile pendant la mise en service et le débogage.",
       "log_level": "Logevel",
       "status_throttle": "Temporisation des mises à jour d'état",
       "status_throttle_none": "Immédiat (sans temporisation)",
@@ -101,6 +103,14 @@
       "tiphost": "Écrivez imiter au lieu de l'adresse IP, pour simuler une passerelle (la passerelle ne se connectera pas au bus KNX)",
       "delaybetweentelegrams": "Retard entre chaque télégramme (en millisecondes)",
       "delaybetweentelegramsfurtherdelayREAD": "et multiplier davantage uniquement entre les télégrammes de lecture"
+    },
+    "help": {
+      "intro": "Configurez la connexion au gateway KNX, l'import ETS et le comportement avancé de l'éditeur.",
+      "flow_bubbles_title": "Plugin flow bubbles",
+      "flow_bubbles_enable": "Activez cette option pour afficher une petite bulle colorée à côté de chaque nœud KNX Device dans l'éditeur.",
+      "flow_bubbles_scope": "Les bulles reflètent le dernier état en direct reçu par l'éditeur depuis les nœuds KNX Device liés à ce gateway.",
+      "flow_bubbles_tooltip": "Survolez la bulle pour voir le nom ou le topic du nœud, le dernier payload et le texte d'état courant.",
+      "flow_bubbles_stale": "S'il n'y a pas de trafic KNX récent, la bulle reste atténuée afin de distinguer les données obsolètes des mises à jour récentes."
     },
     "ets": {
       "description": "Vous pouvez importer soit une liste d'adresses de groupe CSV ETS, soit une liste d'adresses de groupe ESF. Veuillez préférer la liste d'adresses du groupe CSV ETS, car les points de données sont plus complets.",

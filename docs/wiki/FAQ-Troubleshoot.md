@@ -25,7 +25,6 @@ Be aware that the minimum **nodejs version is 16** or above.
 ## KNXD CONFIGURATION
 - If you're running **knxd** on the same machine of node-red, please use 127.0.0.1 as interface address, otherwise knxd will have problems.
 - If you're using **knxd** , please check the filtering tables and change the KNX config-node's physycal address accordingly.
-- Enable the **Echo sent message to all node with same Group Address** in the gateway config-node, under advanded options.
 ## I SEE THE TELEGRAM IN ETS, BUT MY ACTUATOR WON'T REACT
 You may have other Node-Red KNX Plug-ins installed.
 - Remove all KNX Plugin from node-red Palette. Leave only knx-ultimate. Remember to remove the config nodes as well, they are hidden.
@@ -40,7 +39,7 @@ Your KNX/IP Router/Interface may have filtering active.
 - Make sure not to have two or more knx-ultimate nodes, having **same Group Address ** but**different Datapoint** .
 ## IF I SEND A MESSAGE TO A NODE FROM NODE-RED, OTHER NODES IN THE FLOWS HAVING THE SAME GROUP ADDRESS, DOESN'T RECEIVE/DON'T REACT TO THIS MESSAGE
 ### This happens if you use a tunneling/unicast connection, like KNX/IP Interfaces or knxd does.
-- Enable the **Echo sent message to all node with same Group Address** in the gateway config-node, under advanded options.
+- In current versions, local writes are mirrored automatically to KNX Device nodes sharing the same Group Address. If you still see inconsistencies, verify that the nodes use the same gateway config-node and the same Group Address.
 ## DOES IT WORK WITH SECURE KNX ROUTER/INTERFACES?
 Secure IP Router/Interfaces doesn't work if set to secure. It works, instead, if you allow unsecure connections to you router.
 - Make sure to disable the secure routing or to allow unsecure connections.

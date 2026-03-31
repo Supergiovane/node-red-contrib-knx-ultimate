@@ -39,9 +39,9 @@ Dieser Node stellt die Verbindung zu deinem KNX/IP-Gateway her.
 
 |Eigenschaft|Beschreibung|
 |--|--|
-| Echo sent message to all node with same Group Address | Leitet Flow-Nachrichten an alle Nodes mit derselben GA weiter, so als kämen sie vom BUS. Nützlich bei KNX-Emulation oder fehlender BUS-Verbindung. **Wird künftig standardmäßig aktiviert und dann entfernt.** |
 | Suppress repeated (R-Flag) telegrams fom BUS | Wiederholte BUS-Telegramme (R-Flag) ignorieren. |
 | Suppress ACK request in tunneling mode | Für sehr alte KNX/IP-Gateways: ACK ignorieren, alle Telegramme akzeptieren. |
+| Flow-Bubbles-Plugin aktivieren | Zeigt im Editor neben jedem KNX Device Node eine kleine farbige Bubble an. Die Bubble spiegelt den zuletzt vom Gateway empfangenen Live-Status wider und wird abgeblendet, wenn die Daten veraltet sind. Nützlich bei Inbetriebnahme und Debugging. Standard: deaktiviert. |
 | Delay between each telegram (ms) | KNX erlaubt max. 50 Telegramme/s. 25-50 ms sind üblich; bei langsamen Verbindungen höher (z. B. 200-500 ms). |
 | Loglevel | Log-Detailgrad. Standard: "Error". |
 | Aktualisierung der Status-Badges | Legt fest, wie oft die Statusanzeige der Nodes erneuert wird. Mit einer Verzögerung werden Zwischenstände verworfen und nur der letzte Wert nach dem gewählten Intervall angezeigt. Wählen Sie **Sofort**, um das bisherige Echtzeitverhalten beizubehalten. |

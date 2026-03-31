@@ -35,7 +35,6 @@ permalink: /wiki/zh-CN-FAQ-Troubleshoot
 
 - **knxd** 与 Node-RED 在同一主机时，接口建议使用 `127.0.0.1`。
 - 检查过滤表（filter tables），相应调整 Config-Node 的物理地址。
-- 在 Gateway（高级）中启用 "Echo sent message to all node with same Group Address”。
 
 ## ETS 能看到报文，但执行器无反应
 
@@ -61,7 +60,7 @@ permalink: /wiki/zh-CN-FAQ-Troubleshoot
 
 常见于 Tunneling/Unicast（Interface、knxd）。
 
-- 在 Gateway 中启用 "Echo sent message to all node with same Group Address”。
+- 在当前版本中，本地写入已经会自动同步到使用相同 Group Address 的 KNX Device 节点。如果仍有不一致，请检查这些节点是否使用同一个 gateway config-node，且 Group Address 完全一致。
 
 ## Secure KNX Router/Interfaces
 

@@ -216,6 +216,7 @@ module.exports = (RED) => {
     } else {
       node.autoReconnect = true
     }
+    node.enableFlowBubbles = config.enableFlowBubbles === true || config.enableFlowBubbles === 'true'
     node.ignoreTelegramsWithRepeatedFlag = config.ignoreTelegramsWithRepeatedFlag === undefined ? false : config.ignoreTelegramsWithRepeatedFlag
     const throttleSecondsRaw = Number(config.statusUpdateThrottle)
     node.statusUpdateThrottleMs = Number.isFinite(throttleSecondsRaw) && throttleSecondsRaw > 0

@@ -35,7 +35,6 @@ Mindestvoraussetzung: **Node.js >= 16**
 
 - Läuft **knxd** auf derselben Maschine: `127.0.0.1` als Interface verwenden.
 - Filtertabellen prüfen und physikalische Adresse des Config-Nodes anpassen.
-- Im Gateway (Erweitert) "Echo sent message to all node with same Group Address" aktivieren.
 
 ## ETS zeigt Telegramm, Aktor reagiert nicht
 
@@ -61,7 +60,7 @@ Eventuell ist Filtering im Router/Interface aktiv.
 
 Passiert bei Tunneling/Unicast (Interfaces, knxd).
 
-- Im Gateway "Echo sent message to all node with same Group Address" aktivieren.
+- In aktuellen Versionen werden lokale Schreibvorgänge bereits automatisch an KNX Device Nodes mit derselben GA gespiegelt. Wenn es trotzdem nicht klappt, prüfen Sie, ob dieselbe Gateway-Konfiguration und dieselbe Gruppenadresse verwendet werden.
 
 ## Secure KNX Router/Interfaces
 

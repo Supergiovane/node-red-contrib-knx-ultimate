@@ -39,9 +39,9 @@ permalink: /wiki/zh-CN-Gateway-configuration
 
 |属性|说明|
 |--|--|
-| Echo sent message to all node with same Group Address | 将来自流程的输入消息，转发给所有相同 GA 的节点，仿佛来自总线。在 KNX 模拟或未连总线时有用。 **该选项将来会废弃并默认启用。** |
 | Suppress repeated (R-Flag) telegrams fom BUS | 忽略来自总线的重复报文（R 标志）。|
 | Suppress ACK request in tunneling mode | 适用于非常老的 KNX/IP 网关：忽略 ACK 流程并接受所有报文。|
+| 启用 flow bubbles 插件 | 在编辑器中为每个 KNX Device 节点显示一个小的彩色气泡。该气泡反映从 gateway 收到的最新实时状态，当数据过旧时会自动变淡。适合在调试和现场调试时快速观察状态。默认未启用。 |
 | Delay between each telegram (ms) | KNX 规范最多 50 报文/秒。一般 25-50ms 合适；若经慢速网络远程连接，建议提高到 200-500ms。|
 | Loglevel | 日志级别（调试用）。默认 "Error"。|
 | 节点状态节流 | 设置状态徽章的刷新频率。启用延时后，中间状态会被丢弃，只在所选间隔后显示最后一次状态。选择 **立即** 可以保持实时显示。|

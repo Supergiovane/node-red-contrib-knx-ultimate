@@ -6,6 +6,14 @@
 
 # CHANGELOG
 
+**Version 4.2.5** - March 2026<br/>
+
+- NEW: added the **KNX Flow Bubbles** editor plugin to visualize live KNX Device state directly on the workspace.<br/>
+- FIX: **KNX Flow Bubbles** are now removed correctly when disabled, and their visibility is evaluated per linked **KNX Gateway** config-node instead of globally.<br/>
+- UI: **KNX Flow Bubbles** shell is now fully round for a cleaner visual appearance.<br/>
+- Docs/help/wiki: documented the **Enable flow bubbles plugin** option in the gateway editor and supported documentation languages.<br/>
+- Docs: removed obsolete references to **Echo sent message to all node with same Group Address** and aligned the text with the current automatic local mirroring behavior.<br/>
+
 **Version 4.2.4** - March 2026<br/>
 
 - NEW: **KNX Viewer Web** added a new Vue-based web page, opened directly from the **KNXViewer** node editor, to visualize KNX lights and dimmers in a modern dashboard.<br/>
@@ -2105,7 +2113,7 @@ This is an interim version, to quick fix some issues. Please report any issue wi
 
 **Version 1.1.45** - March 2020 in Italy, we're locked down for Coronavirus<br/>
 
-- Update knxultimate-api. Yet the nodes connected to an IP Interface, behaves like the nodes connected to an IP Router. See option **Echo sent message to all node with same Group Address** in the Gateway configuration wiki.<br/>
+- Update knxultimate-api. Nodes connected to an IP Interface now behave like nodes connected to an IP Router, and local writes are mirrored automatically to nodes sharing the same Group Address.<br/>
 - I'm internationalizing the node **(Deutsch, Italiano, English)** with the help of **@svenflender**, so please be patient if some parts are still only in english. Internationalization is working with node-red version 1.0.3 and above. Versions below, does have issues in the i18n module, so knx-ultimate falls back to english. Please upgrade node-red.<br/>
 
 **Version 1.1.43** - March 2020 in the middle of Coronavirus emergency in Italy<br/>

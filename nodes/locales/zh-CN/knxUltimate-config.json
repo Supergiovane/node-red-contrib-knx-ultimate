@@ -72,6 +72,8 @@
             "suppress_ack": "抑制 ACK 请求 in tunneling mode",
             "suppress_ack_help": "上面的选项有助于旧的 KNX/IP 接口兼容性 Warning: the node may not notice the disconnection from the gateway. In this case, use the watchdog in Ethernet+KNX twisted pair mode.",
             "ignoreTelegramsWithRepeatedFlag": "抑制重复的 (R-Flag) 来自总线的电报",
+            "enable_flow_bubbles": "启用 flow bubbles 插件",
+            "enable_flow_bubbles_help": "在编辑器中为 KNX Device 节点显示实时状态气泡。适合调试和调试期间快速观察状态。",
             "log_level": "日志等级",
             "status_datetime_format": "状态日期/时间格式",
             "status_datetime_format_legacy": "兼容模式（系统区域设置）",
@@ -93,6 +95,14 @@
             "tiphost": "写 EMULATE 而不是 IP 地址，模拟网关（网关不会连接到 KNX BUS）",
             "delaybetweentelegrams": "数据发送间隔时间 (毫秒)",
             "delaybetweentelegramsfurtherdelayREAD" : "并且仅在读取电报之间进一步增加延迟"      
+        },
+        "help": {
+            "intro": "配置 KNX gateway 连接、ETS 导入以及编辑器中的高级行为。",
+            "flow_bubbles_title": "Flow bubbles 插件",
+            "flow_bubbles_enable": "启用此选项后，编辑器会在每个 KNX Device 节点旁边显示一个小的彩色气泡。",
+            "flow_bubbles_scope": "这些气泡反映了编辑器从绑定到此 gateway 的 KNX Device 节点接收到的最新实时状态。",
+            "flow_bubbles_tooltip": "将鼠标悬停在气泡上，可以查看节点名称或 topic、最后一个 payload 以及当前状态文本。",
+            "flow_bubbles_stale": "如果最近没有 KNX 流量，气泡会保持变淡，以便区分过期数据和最新更新。"
         },
         "ets": {
             "description": "您可以导入 ETS CSV 组地址列表或 ESF 组地址列表。 请优先选择 ETS CSV 组地址列表，因为数据类型更完整.",

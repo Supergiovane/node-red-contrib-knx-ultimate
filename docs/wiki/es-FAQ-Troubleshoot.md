@@ -25,7 +25,6 @@ Tenga en cuenta que la versión mínima **NodeJS es 16** o superior.
 ## Configuración KNXD
 - Si está ejecutando ** KNXD** en la misma máquina de nodo-rojo, use 127.0.0.1 como dirección de interfaz, de lo contrario KNXD tendrá problemas.
 - Si está utilizando ** KNXD** , verifique las tablas de filtrado y cambie la dirección fisycal del nodo de configuración KNX en consecuencia.
-- Habilite el mensaje ** Echo enviado a todos los nodos con la misma dirección de grupo** en el nodo de configuración de la puerta de enlace, en opciones con aviso.
 ## Veo el telegrama en ETS, pero mi actuador no reacciona
 Es posible que tenga otros complementos KNX Red Node-Red instalados.
 - Retire todo el complemento KNX de la paleta de nodo-rojo. Deja solo knx-ultimate. Recuerde eliminar los nodos de configuración también, están ocultos.
@@ -40,7 +39,7 @@ Su enrutador/interfaz KNX/IP puede tener un filtrado activo.
 - Asegúrese de no tener dos o más nodos ultimados KNX, teniendo ** la misma dirección de grupo ** pero**punto de datos diferente** .
 ## Si envío un mensaje a un nodo desde nodo-rojo, otros nodos en los flujos que tienen la misma dirección de grupo, no reciben/no reaccionan a este mensaje
 ### Esto sucede si usa una conexión de túnel/unidifusión, como las interfaces KNX/IP o KNXD lo hace.
-- Habilite el mensaje ** Echo enviado a todos los nodos con la misma dirección de grupo** en el nodo de configuración de la puerta de enlace, en opciones con aviso.
+- En las versiones actuales, las escrituras locales ya se reflejan automáticamente en los nodos KNX Device que comparten la misma dirección de grupo. Si todavía ves incoherencias, verifica que los nodos usen el mismo gateway config-node y la misma Group Address.
 ## ¿Funciona con un enrutador/interfaces KNX seguro?
 El enrutador/interfaces IP seguro no funciona si se establece para asegurar. Funciona, en cambio, si permite conexiones no seguras con su enrutador.
 - Asegúrese de deshabilitar el enrutamiento seguro o permitir conexiones no seguras.
