@@ -19,7 +19,7 @@
     "dns-sync": "0.2.1",
     "js-yaml": "4.1.1",
     "knxultimate": "5.4.0",
-    "lodash": "4.17.21",
+    "lodash": "4.18.1",
     "node-color-log": "12.0.1",
     "ping": "0.4.4",
     "simple-get": "4.0.1"
