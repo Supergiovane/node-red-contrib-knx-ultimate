@@ -6,7 +6,7 @@
 
 # CHANGELOG
 
-**Version 4.2.6** - April 2026<br/>
+**Version 4.2.7** - April 2026<br/>
 
 - UI: **KNX AI Web** layout and visual style aligned to the Homebridge-like interface, with unified orange accent palette and cleaned component styling.<br/>
 - CHANGE: **KNX AI Web** removed legacy theme management and related theme files, keeping a single coherent visual theme.<br/>

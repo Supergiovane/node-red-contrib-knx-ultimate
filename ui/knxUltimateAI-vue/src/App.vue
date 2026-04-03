@@ -53,6 +53,7 @@ const FLOW_EVENT_COLORS = {
   repeat: '#c34747',
   other: '#8d8578'
 }
+const KNX_AI_VUE_DOCS_URL = 'https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/knxUltimateAI-vue'
 
 const queryNodeId = (() => {
   try {
@@ -4037,6 +4038,9 @@ onBeforeUnmount(() => {
       <div v-if="isSidebarExpanded" class="sidebar-footer">
         <span class="status-pill" :class="{ error: !!state.lastError }">{{ state.status }}</span>
         <span v-if="selectedNode" class="status-detail">Provider: {{ selectedNode.llmProvider || 'n/a' }} | Model: {{ selectedNode.llmModel || 'n/a' }}</span>
+        <a class="sidebar-doc-link" :href="KNX_AI_VUE_DOCS_URL" target="_blank" rel="noopener noreferrer">
+          Documentation: KNX AI Vue
+        </a>
       </div>
     </aside>
 
@@ -5925,6 +5929,20 @@ onBeforeUnmount(() => {
   flex-direction: column;
   gap: 8px;
   padding-top: 8px;
+}
+
+.sidebar-doc-link {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  color: var(--hb-primary-dark);
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.sidebar-doc-link:hover {
+  text-decoration: underline;
 }
 
 .statusbar {
