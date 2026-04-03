@@ -7,6 +7,7 @@ const tabKey = 'knxUltimateAI:activeTab'
 const flowPrefsKey = 'knxUltimateAI:flowPreview'
 const voiceKey = 'knxUltimateAI:voiceEnabled'
 const areaSelectionKeyPrefix = 'knxUltimateAI:selectedAreaId:'
+const testAreaSelectionKeyPrefix = 'knxUltimateAI:selectedTestAreaId:'
 const DEFAULT_THEME = 'mix'
 const PRESET_QUESTIONS = [
   'Summarize the current KNX traffic and highlight the busiest group addresses.',
@@ -14,10 +15,35 @@ const PRESET_QUESTIONS = [
   'Generate an SVG bar chart of Top Group Addresses with counts and title.'
 ]
 const TEST_PROMPT_PRESETS = [
-  'Turn the lights on, then turn them off, and verify that the related status values are coherent.',
-  'Activate the main actuators in the area and verify the status feedback to confirm that it follows the commands.',
-  'Open and close the shading actuators in the area, then verify that the status matches the commands sent.',
-  'Run a full test of the HVAC commands in the area and verify that setpoints and statuses are coherent.'
+  {
+    id: 'lights_on_off',
+    title: 'Lights on, then off',
+    prompt: 'Turn the lights on, then turn them off, and verify that the related status values are coherent.',
+    description: 'Applies to all matching lighting command GA in the selected area.'
+  },
+  {
+    id: 'area_activate',
+    title: 'Activate main actuators',
+    prompt: 'Activate the main actuators in the area and verify the status feedback to confirm that it follows the commands.',
+    description: 'Builds a deterministic active test using the supported command GA in the selected area.'
+  },
+  {
+    id: 'shading_open_close',
+    title: 'Open and close shading',
+    prompt: 'Open and close the shading actuators in the area, then verify that the status matches the commands sent.',
+    description: 'Targets supported shading command GA in the selected area.'
+  },
+  {
+    id: 'hvac_check',
+    title: 'HVAC active check',
+    prompt: 'Run a full test of the HVAC commands in the area and verify that setpoints and statuses are coherent.',
+    description: 'Targets supported HVAC command GA in the selected area.'
+  }
+]
+const AREA_GA_ROLE_OPTIONS = [
+  { value: 'command', label: 'Command' },
+  { value: 'status', label: 'Status' },
+  { value: 'neutral', label: "Don't use in tests" }
 ]
 const FLOW_EVENT_COLORS = {
   write: '#7a68d8',
@@ -47,16 +73,23 @@ const state = reactive({
   flowShowUniversalNodes: loadFlowPrefs().showUniversalNodes,
   flowSearch: '',
   areaSearch: '',
+  areaSearchOpen: false,
   areaSelectedId: '',
+  testAreaSelectedId: '',
   areaDraftName: '',
   areaDraftDescription: '',
   areaDraftTags: '',
   areaDraftGaList: [],
   areaDraftId: '',
   areaDraftIsNew: false,
+  areaLlmPrompt: '',
+  areaLlmBusy: false,
+  areaLlmError: '',
+  areaLlmRegenerating: false,
   gaCatalog: [],
   gaCatalogSearch: '',
   gaCatalogLoading: false,
+  areaGaRoleSavingGa: '',
   areaSaving: false,
   profileSelectedId: '',
   profileDraftMode: false,
@@ -84,6 +117,8 @@ const state = reactive({
   actuatorSaving: false,
   actuatorRunning: false,
   testPlanSelectedId: '',
+  testPlanSearch: '',
+  testPlanSearchOpen: false,
   selectedTestResultId: '',
   liveTestResultId: '',
   testResultsMenuOpen: true,
@@ -192,6 +227,11 @@ function areaSelectionKey (nodeId) {
   return id ? `${areaSelectionKeyPrefix}${id}` : ''
 }
 
+function testAreaSelectionKey (nodeId) {
+  const id = String(nodeId || '').trim()
+  return id ? `${testAreaSelectionKeyPrefix}${id}` : ''
+}
+
 function loadSelectedAreaIdForNode (nodeId) {
   const key = areaSelectionKey(nodeId)
   return key ? loadString(key, '') : ''
@@ -205,12 +245,34 @@ function saveSelectedAreaIdForNode (nodeId, areaId) {
   saveString(key, value)
 }
 
+function loadSelectedTestAreaIdForNode (nodeId) {
+  const key = testAreaSelectionKey(nodeId)
+  return key ? loadString(key, '') : ''
+}
+
+function saveSelectedTestAreaIdForNode (nodeId, areaId) {
+  const key = testAreaSelectionKey(nodeId)
+  if (!key) return
+  const value = String(areaId || '').trim()
+  if (!value) return
+  saveString(key, value)
+}
+
 function restoreSelectedAreaForCurrentNode () {
   const storedAreaId = loadSelectedAreaIdForNode(state.selectedNodeId)
   if (!storedAreaId) return false
   if (!suggestedAreas.value.find(area => area.id === storedAreaId)) return false
   if (state.areaSelectedId === storedAreaId) return true
   state.areaSelectedId = storedAreaId
+  return true
+}
+
+function restoreSelectedTestAreaForCurrentNode () {
+  const storedAreaId = loadSelectedTestAreaIdForNode(state.selectedNodeId)
+  if (!storedAreaId) return false
+  if (!suggestedAreas.value.find(area => area.id === storedAreaId)) return false
+  if (state.testAreaSelectedId === storedAreaId) return true
+  state.testAreaSelectedId = storedAreaId
   return true
 }
 
@@ -947,6 +1009,19 @@ const profileReport = computed(() => state.stateData && state.stateData.profileR
 const actuatorTests = computed(() => Array.isArray(state.stateData && state.stateData.actuatorTests) ? state.stateData.actuatorTests : [])
 const actuatorTestReport = computed(() => state.stateData && state.stateData.actuatorTestReport ? state.stateData.actuatorTestReport : null)
 const testPlans = computed(() => Array.isArray(state.stateData && state.stateData.testPlans) ? state.stateData.testPlans : [])
+const filteredTestPlans = computed(() => {
+  const search = String(state.testPlanSearch || '').trim().toLowerCase()
+  return testPlans.value.filter((plan) => {
+    if (!search) return true
+    const haystack = [
+      plan.name,
+      plan.description,
+      plan.areaName,
+      plan.areaId
+    ].filter(Boolean).join(' ').toLowerCase()
+    return haystack.includes(search)
+  })
+})
 const testPlanReport = computed(() => state.stateData && state.stateData.testPlanReport ? state.stateData.testPlanReport : null)
 const persistedTestResults = computed(() => Array.isArray(state.stateData && state.stateData.testResults) ? state.stateData.testResults : [])
 const liveTestResult = computed(() => {
@@ -992,11 +1067,27 @@ const filteredAreas = computed(() => {
   })
 })
 const selectedArea = computed(() => {
+  if (state.areaDraftIsNew === true && !String(state.areaSelectedId || '').trim()) return null
   if (state.areaSelectedId) {
     const found = suggestedAreas.value.find(area => area.id === state.areaSelectedId)
     if (found) return found
   }
-  return filteredAreas.value[0] || suggestedAreas.value[0] || null
+  return null
+})
+const selectedTestArea = computed(() => {
+  if (state.testAreaSelectedId) {
+    const found = suggestedAreas.value.find(area => area.id === state.testAreaSelectedId)
+    if (found) return found
+  }
+  return suggestedAreas.value[0] || null
+})
+const plannerCatalogArea = computed(() => {
+  const draftAreaId = String(state.testPlanDraft && state.testPlanDraft.areaId ? state.testPlanDraft.areaId : '').trim()
+  if (draftAreaId) {
+    const found = suggestedAreas.value.find(area => area.id === draftAreaId)
+    if (found) return found
+  }
+  return selectedTestArea.value
 })
 const filteredGaCatalog = computed(() => {
   const search = String(state.gaCatalogSearch || '').trim().toLowerCase()
@@ -1126,7 +1217,8 @@ const chatMessages = computed(() => state.chatMessages.map((item, index) => ({
 
 watch(() => state.selectedNodeId, (value) => {
   saveString(storageKey, value || '')
-  state.areaSelectedId = loadSelectedAreaIdForNode(value || '')
+  state.areaSelectedId = ''
+  state.testAreaSelectedId = loadSelectedTestAreaIdForNode(value || '')
 })
 
 watch(() => state.autoRefresh, (value) => {
@@ -1162,20 +1254,33 @@ watch(() => state.flowShowUniversalNodes, (value) => {
 watch(() => suggestedAreas.value.map(area => area.id).join('|'), () => {
   if (!suggestedAreas.value.length) {
     state.areaSelectedId = ''
+    state.testAreaSelectedId = ''
+    return
+  }
+  if (state.areaDraftIsNew === true && !String(state.areaSelectedId || '').trim()) {
+    const currentTestAreaId = String(state.testAreaSelectedId || '').trim()
+    if (restoreSelectedTestAreaForCurrentNode()) return
+    if (!currentTestAreaId || !suggestedAreas.value.find(area => area.id === currentTestAreaId)) {
+      state.testAreaSelectedId = suggestedAreas.value[0].id
+    }
     return
   }
   const currentAreaId = String(state.areaSelectedId || '').trim()
-  if (restoreSelectedAreaForCurrentNode()) {
+  if (currentAreaId && !suggestedAreas.value.find(area => area.id === currentAreaId)) {
+    state.areaSelectedId = ''
+  }
+  const currentTestAreaId = String(state.testAreaSelectedId || '').trim()
+  if (restoreSelectedTestAreaForCurrentNode()) {
     return
   }
-  if (!currentAreaId || !suggestedAreas.value.find(area => area.id === currentAreaId)) {
-    state.areaSelectedId = suggestedAreas.value[0].id
+  if (!currentTestAreaId || !suggestedAreas.value.find(area => area.id === currentTestAreaId)) {
+    state.testAreaSelectedId = suggestedAreas.value[0].id
   }
 })
 
-watch(() => state.areaSelectedId, (value) => {
+watch(() => state.testAreaSelectedId, (value) => {
   if (!state.selectedNodeId) return
-  saveSelectedAreaIdForNode(state.selectedNodeId, value || '')
+  saveSelectedTestAreaIdForNode(state.selectedNodeId, value || '')
 })
 
 watch(() => selectedArea.value ? JSON.stringify({
@@ -1184,6 +1289,7 @@ watch(() => selectedArea.value ? JSON.stringify({
   customDescription: selectedArea.value.customDescription || '',
   tags: selectedArea.value.tags || []
 }) : '', () => {
+  if (state.areaDraftIsNew === true && !String(state.areaSelectedId || '').trim()) return
   const area = selectedArea.value
   if (!area) {
     state.areaDraftId = ''
@@ -1202,7 +1308,7 @@ watch(() => selectedArea.value ? JSON.stringify({
   state.areaDraftIsNew = false
 })
 
-watch(() => selectedArea.value ? selectedArea.value.id : '', async (areaId, previousAreaId) => {
+watch(() => plannerCatalogArea.value ? plannerCatalogArea.value.id : '', async (areaId, previousAreaId) => {
   if (!areaId || !state.selectedNodeId) {
     state.testPlanCatalog = null
     state.testPlanCatalogError = ''
@@ -1212,8 +1318,8 @@ watch(() => selectedArea.value ? selectedArea.value.id : '', async (areaId, prev
     state.testPlanRunConfirmOpen = false
     if (state.testPlanDraft && !state.testPlanSelectedId) {
       state.testPlanDraft.areaId = String(areaId || '')
-      state.testPlanDraft.areaName = selectedArea.value
-        ? String(selectedArea.value.path || selectedArea.value.name || '')
+      state.testPlanDraft.areaName = plannerCatalogArea.value
+        ? String(plannerCatalogArea.value.path || plannerCatalogArea.value.name || '')
         : ''
     }
   }
@@ -1400,7 +1506,7 @@ function testResultAreaText (report) {
 
 function testResultModeLabel (report) {
   const mode = String(report && report.mode ? report.mode : '').trim().toLowerCase()
-  if (mode === 'ai_test_plan') return 'AI Plan'
+  if (mode === 'ai_test_plan') return 'Test Plan'
   if (mode === 'active_test') return 'Actuator'
   if (mode === 'read_only') return 'Read-only'
   return mode || 'Test'
@@ -1829,11 +1935,20 @@ async function fetchState ({ fresh = false } = {}) {
   state.loadingState = true
   if (fresh) setStatus('Loading...')
   try {
+    const localLiveReport = state.testPlanRunning === true && state.liveTestResultId
+      ? cloneJson(state.stateData && state.stateData.testPlanReport ? state.stateData.testPlanReport : null, null)
+      : null
     const data = await requestJson(apiUrl(`state?nodeId=${encodeURIComponent(state.selectedNodeId)}&fresh=${fresh ? 1 : 0}`))
+    if (localLiveReport && localLiveReport.id === state.liveTestResultId) {
+      data.testPlanReport = localLiveReport
+    }
     state.stateData = data
     nextTick(() => {
-      if (!restoreSelectedAreaForCurrentNode() && !state.areaSelectedId && suggestedAreas.value[0]) {
-        state.areaSelectedId = suggestedAreas.value[0].id
+      if (state.areaDraftIsNew !== true && state.areaSelectedId && !suggestedAreas.value.find(area => area.id === state.areaSelectedId)) {
+        state.areaSelectedId = ''
+      }
+      if (!restoreSelectedTestAreaForCurrentNode() && !state.testAreaSelectedId && suggestedAreas.value[0]) {
+        state.testAreaSelectedId = suggestedAreas.value[0].id
       }
     })
     state.lastError = ''
@@ -1857,6 +1972,7 @@ async function onNodeChange () {
   state.selectedTestResultId = ''
   state.liveTestResultId = ''
   state.testResultFocusMode = false
+  state.testAreaSelectedId = loadSelectedTestAreaIdForNode(state.selectedNodeId)
   await fetchState({ fresh: true })
   await fetchGaCatalog()
 }
@@ -1871,17 +1987,41 @@ function resetTestsWorkspaceView () {
   state.testPlanRunConfirmOpen = false
   state.testPlanUnsavedConfirmOpen = false
   state.showAiPlanner = true
-  if (!restoreSelectedAreaForCurrentNode() && !state.areaSelectedId && suggestedAreas.value[0]) {
-    state.areaSelectedId = suggestedAreas.value[0].id
+  if (!restoreSelectedTestAreaForCurrentNode() && !state.testAreaSelectedId && suggestedAreas.value[0]) {
+    state.testAreaSelectedId = suggestedAreas.value[0].id
   }
   resetPendingTestPlanAction()
   clearDraggedPlanStepState()
 }
 
+function resetAreasWorkspaceView () {
+  state.areaSelectedId = ''
+  state.areaDraftIsNew = false
+  state.areaDraftId = ''
+  state.areaDraftName = ''
+  state.areaDraftDescription = ''
+  state.areaDraftTags = ''
+  state.areaDraftGaList = []
+  state.areaLlmPrompt = ''
+  state.areaLlmError = ''
+  state.areaSearch = ''
+  state.areaSearchOpen = false
+}
+
 function activateSidebarTab (tabId) {
   const target = String(tabId || '').trim()
   if (!target) return
-  if (target === 'tests') resetTestsWorkspaceView()
+  if (target === 'areas') {
+    const hasSelectedArea = !!String(state.areaSelectedId || '').trim()
+    const hasAreaDraft = state.areaDraftIsNew === true
+    if (!hasSelectedArea && !hasAreaDraft) resetAreasWorkspaceView()
+  }
+  if (target === 'tests') {
+    const hasSelectedPlan = !!String(state.testPlanSelectedId || '').trim()
+    const hasSelectedResult = !!String(state.selectedTestResultId || '').trim()
+    const hasDraft = !!state.testPlanDraft
+    if (!hasSelectedPlan && !hasSelectedResult && !hasDraft) resetTestsWorkspaceView()
+  }
   if (state.activeTab !== target) {
     state.activeTab = target
     return
@@ -1956,9 +2096,6 @@ function openSourceTestFromSelectedResult () {
   const source = testResultSourceRef(report)
   state.activeTab = 'tests'
   state.testResultFocusMode = false
-  if (source.areaId && suggestedAreas.value.find(area => area.id === source.areaId)) {
-    state.areaSelectedId = source.areaId
-  }
   if (source.type === 'ai_test_plan' && source.planId) {
     const plan = testPlans.value.find(item => item && item.id === source.planId)
     if (plan) {
@@ -2040,7 +2177,6 @@ async function saveAreaDefinition () {
       body: JSON.stringify({
         nodeId: state.selectedNodeId,
         areaId: state.areaDraftIsNew ? undefined : area.id,
-        id: state.areaDraftId,
         name: state.areaDraftName,
         description: state.areaDraftDescription,
         tags: String(state.areaDraftTags || '')
@@ -2094,8 +2230,39 @@ async function resetAreaDefinition () {
   }
 }
 
-async function fetchAreaSignalCatalog () {
+async function deleteAreaDefinition () {
   const area = selectedArea.value
+  if (!area || !state.selectedNodeId || state.areaSaving) return
+  state.areaSaving = true
+  setStatus('Deleting area...')
+  try {
+    const data = await requestJson(apiUrl('areas/delete'), {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        nodeId: state.selectedNodeId,
+        areaId: area.id
+      })
+    })
+    if (data && data.areas) {
+      state.stateData = Object.assign({}, state.stateData || {}, { areas: data.areas })
+      const nextAreas = Array.isArray(data.areas && data.areas.suggested) ? data.areas.suggested : []
+      state.areaDraftIsNew = false
+      state.areaSelectedId = nextAreas[0] && nextAreas[0].id ? nextAreas[0].id : ''
+    } else {
+      await fetchState({ fresh: true })
+    }
+    setStatus('Area deleted')
+  } catch (error) {
+    state.lastError = error.message || 'Failed to delete area'
+    setStatus(state.lastError)
+  } finally {
+    state.areaSaving = false
+  }
+}
+
+async function fetchAreaSignalCatalog () {
+  const area = plannerCatalogArea.value
   if (!area || !state.selectedNodeId) {
     state.testPlanCatalog = null
     state.testPlanCatalogError = ''
@@ -2149,10 +2316,104 @@ function addGaToAreaDraft (ga) {
   state.areaDraftGaList = [...(state.areaDraftGaList || []), value]
 }
 
+function formatGaRoleLabel (value) {
+  const role = String(value || '').trim().toLowerCase()
+  const option = AREA_GA_ROLE_OPTIONS.find(item => item.value === role)
+  if (option) return option.label
+  if (role === 'auto') return 'Auto'
+  return 'Command'
+}
+
+function formatAreaListOptionLabel (area) {
+  const item = area && typeof area === 'object' ? area : {}
+  const name = String(item.path || item.name || 'Area').trim()
+  const kind = String(item.kind || '').trim()
+  const gaCount = Number(item.gaCount || 0)
+  const active = Number(item.activeGaCount || 0)
+  const suffix = [kind, `${gaCount} GA`, `active ${active}`].filter(Boolean).join(' | ')
+  return suffix ? `${name}   ${suffix}` : name
+}
+
+function selectAreaFromSearch (area) {
+  const item = area && typeof area === 'object' ? area : null
+  if (!item || !item.id) return
+  state.areaDraftIsNew = false
+  state.areaSelectedId = item.id
+  state.areaSearch = ''
+  state.areaSearchOpen = false
+}
+
+function closeAreaSearchSoon () {
+  setTimeout(() => {
+    state.areaSearchOpen = false
+  }, 150)
+}
+
+function formatTestPlanListOptionLabel (plan) {
+  const item = plan && typeof plan === 'object' ? plan : {}
+  const name = String(item.name || 'Plan').trim()
+  const area = String(item.areaName || item.areaId || '').trim()
+  const steps = Number(item.steps && item.steps.length ? item.steps.length : 0)
+  const suffix = [area, `${steps} steps`].filter(Boolean).join(' | ')
+  return suffix ? `${name}   ${suffix}` : name
+}
+
+function selectSavedPlanFromSearch (plan) {
+  const item = plan && typeof plan === 'object' ? plan : null
+  if (!item || !item.id) return
+  selectSavedPlan(item)
+  state.testPlanSearch = ''
+  state.testPlanSearchOpen = false
+}
+
+function closeTestPlanSearchSoon () {
+  setTimeout(() => {
+    state.testPlanSearchOpen = false
+  }, 150)
+}
+
+function getPreferredUiLanguage () {
+  const htmlLang = String(document && document.documentElement && document.documentElement.lang ? document.documentElement.lang : '').trim().toLowerCase()
+  if (htmlLang) return htmlLang.split('-')[0] || 'en'
+  const browserLanguage = String((navigator.language || 'en')).trim().toLowerCase()
+  return browserLanguage.split('-')[0] || 'en'
+}
+
 function removeGaFromAreaDraft (ga) {
   const value = String(ga || '').trim()
   if (!value) return
   state.areaDraftGaList = (state.areaDraftGaList || []).filter(item => item !== value)
+}
+
+async function saveAreaGaRole (ga, role) {
+  const targetGa = String(ga || '').trim()
+  if (!state.selectedNodeId || !targetGa || state.areaGaRoleSavingGa === targetGa) return
+  state.areaGaRoleSavingGa = targetGa
+  setStatus(`Saving role for ${targetGa}...`)
+  try {
+    const data = await requestJson(apiUrl('areas/ga-role/save'), {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        nodeId: state.selectedNodeId,
+        ga: targetGa,
+        role
+      })
+    })
+    if (Array.isArray(data && data.gaCatalog)) state.gaCatalog = data.gaCatalog
+    if (data && data.areas) {
+      state.stateData = Object.assign({}, state.stateData || {}, { areas: data.areas })
+    }
+    if (plannerCatalogArea.value && Array.isArray(plannerCatalogArea.value.gaList) && plannerCatalogArea.value.gaList.includes(targetGa)) {
+      await fetchAreaSignalCatalog()
+    }
+    setStatus(`Role saved for ${targetGa}`)
+  } catch (error) {
+    state.lastError = error.message || 'Failed to save GA role'
+    setStatus(state.lastError)
+  } finally {
+    state.areaGaRoleSavingGa = ''
+  }
 }
 
 function startNewAreaDraft () {
@@ -2164,10 +2425,81 @@ function startNewAreaDraft () {
   state.areaDraftDescription = ''
   state.areaDraftTags = ''
   state.areaDraftGaList = []
+  state.areaLlmPrompt = ''
+  state.areaLlmError = ''
 }
 
-function applyTestPromptPreset (prompt) {
-  state.testPlanPrompt = String(prompt || '').trim()
+async function regenerateLlmAreas () {
+  if (!state.selectedNodeId || state.areaLlmRegenerating) return
+  state.areaLlmRegenerating = true
+  state.areaLlmError = ''
+  setStatus('Regenerating AI areas...')
+  try {
+    const data = await requestJson(apiUrl('areas/regenerate-llm'), {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ nodeId: state.selectedNodeId })
+    })
+    if (Array.isArray(data && data.gaCatalog)) state.gaCatalog = data.gaCatalog
+    if (data && data.areas) {
+      state.stateData = Object.assign({}, state.stateData || {}, { areas: data.areas })
+    } else {
+      await fetchState({ fresh: true })
+    }
+    setStatus(`AI areas regenerated (${Number(data && data.generatedCount ? data.generatedCount : 0)})`)
+  } catch (error) {
+    state.areaLlmError = error.message || 'Failed to regenerate AI areas'
+    setStatus(state.areaLlmError)
+  } finally {
+    state.areaLlmRegenerating = false
+  }
+}
+
+async function suggestAreaDraftWithLlm () {
+  if (!state.selectedNodeId || state.areaLlmBusy) return
+  const prompt = String(state.areaLlmPrompt || '').trim()
+  if (!prompt) return
+  state.areaLlmBusy = true
+  state.areaLlmError = ''
+  setStatus('AI is selecting area GA...')
+  try {
+    const data = await requestJson(apiUrl('areas/suggest-llm'), {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        nodeId: state.selectedNodeId,
+        prompt,
+        name: state.areaDraftName,
+        description: state.areaDraftDescription,
+        gaList: state.areaDraftGaList || []
+      })
+    })
+    const suggestion = data && data.suggestion ? data.suggestion : null
+    if (Array.isArray(data && data.gaCatalog)) state.gaCatalog = data.gaCatalog
+    if (!suggestion || !Array.isArray(suggestion.gaList) || !suggestion.gaList.length) {
+      throw new Error('The AI did not return any group addresses')
+    }
+    if (!String(state.areaDraftName || '').trim() && suggestion.name) state.areaDraftName = String(suggestion.name)
+    if (!String(state.areaDraftDescription || '').trim() && suggestion.description) state.areaDraftDescription = String(suggestion.description)
+    if ((!state.areaDraftTags || !String(state.areaDraftTags).trim()) && Array.isArray(suggestion.tags) && suggestion.tags.length) {
+      state.areaDraftTags = suggestion.tags.join(', ')
+    }
+    state.areaDraftGaList = Array.from(new Set([...(state.areaDraftGaList || []), ...suggestion.gaList.map(item => String(item || '').trim()).filter(Boolean)]))
+    setStatus(`AI added ${Number(suggestion.gaList.length || 0)} GA to the draft`)
+  } catch (error) {
+    state.areaLlmError = error.message || 'Failed to suggest area GA'
+    setStatus(state.areaLlmError)
+  } finally {
+    state.areaLlmBusy = false
+  }
+}
+
+function applyTestPromptPreset (preset) {
+  if (preset && typeof preset === 'object') {
+    state.testPlanPrompt = String(preset.prompt || '').trim()
+    return
+  }
+  state.testPlanPrompt = String(preset || '').trim()
 }
 
 function pairForCommandGA (ga) {
@@ -2402,10 +2734,10 @@ function buildEditablePlanStep (seed = {}) {
     reason: String(seed.reason || ''),
     commandGA,
     commandDPT: String(seed.commandDPT || command?.dpt || ''),
-    commandPayload: String(seed.commandPayload ?? 'true'),
+    commandPayload: String(seed.commandPayload ?? ''),
     statusGA: String(seed.statusGA || status?.ga || ''),
     statusDPT: String(seed.statusDPT || status?.dpt || ''),
-    expectedPayload: String(seed.expectedPayload ?? seed.commandPayload ?? 'true'),
+    expectedPayload: String(seed.expectedPayload ?? seed.commandPayload ?? ''),
     statusWriteTimeoutMs: Number(seed.statusWriteTimeoutMs || seed.timeoutMs || 5000),
     statusResponseTimeoutMs: Number(seed.statusResponseTimeoutMs || seed.timeoutMs || 5000)
   }
@@ -2425,8 +2757,8 @@ function createEmptyAiTestPlanDraft () {
     id: '',
     name: '',
     description: '',
-    areaId: selectedArea.value ? String(selectedArea.value.id || '') : '',
-    areaName: selectedArea.value ? String(selectedArea.value.path || selectedArea.value.name || '') : '',
+    areaId: selectedTestArea.value ? String(selectedTestArea.value.id || '') : '',
+    areaName: selectedTestArea.value ? String(selectedTestArea.value.path || selectedTestArea.value.name || '') : '',
     prompt: '',
     source: 'manual',
     generatedAt: new Date().toISOString(),
@@ -2461,9 +2793,7 @@ function refreshDraftStepFromCatalog (step) {
 function addManualStepToPlan () {
   if (!state.testPlanDraft) return
   const next = buildEditablePlanStep({
-    id: `step-${(state.testPlanDraft.steps?.length || 0) + 1}`,
-    commandPayload: 'true',
-    expectedPayload: 'true'
+    id: `step-${(state.testPlanDraft.steps?.length || 0) + 1}`
   })
   state.testPlanDraft.steps = [...(state.testPlanDraft.steps || []), next]
 }
@@ -2584,9 +2914,6 @@ function loadSelectedTestPlanDraft (plan = null) {
   }
   state.testPlanRunConfirmOpen = false
   state.showAiPlanner = false
-  if (source.areaId && suggestedAreas.value.find(area => area.id === source.areaId)) {
-    state.areaSelectedId = source.areaId
-  }
   setCurrentTestPlanBaseline()
 }
 
@@ -2642,9 +2969,7 @@ function startNewAiTestPlan () {
     state.testPlanDraft = createEmptyAiTestPlanDraft()
     state.testPlanGeneration = null
     state.testPlanRunConfirmOpen = false
-    state.testPlanPrompt = selectedArea.value
-      ? `Activate the main actuators in area ${selectedArea.value.name || 'selected'} and read back the status to verify that it is coherent.`
-      : ''
+    state.testPlanPrompt = ''
     state.showAiPlanner = true
     setCurrentTestPlanBaseline()
   }, 'a new plan')
@@ -2675,13 +3000,14 @@ function duplicateCurrentAiTestPlan () {
 }
 
 async function generateAiTestPlan () {
-  const area = selectedArea.value
+  const area = selectedTestArea.value
   const prompt = String(state.testPlanPrompt || '').trim()
+  const browserLanguage = getPreferredUiLanguage()
   if (!state.selectedNodeId || !area || !prompt || state.testPlanGenerating) return
   state.testPlanGenerating = true
   state.testResultFocusMode = false
   state.testPlanGenerationError = ''
-  setStatus('Generating AI test plan...')
+  setStatus('Building test plan...')
   try {
     const data = await requestJson(apiUrl('test-plans/generate'), {
       method: 'POST',
@@ -2689,7 +3015,8 @@ async function generateAiTestPlan () {
       body: JSON.stringify({
         nodeId: state.selectedNodeId,
         areaId: area.id,
-        prompt
+        prompt,
+        language: browserLanguage
       })
     })
     state.testPlanDraft = data && data.plan ? normalizeDraftPlanForEditing(data.plan) : null
@@ -2703,9 +3030,9 @@ async function generateAiTestPlan () {
       state.stateData = Object.assign({}, state.stateData || {}, { testPlans: data.testPlans })
     }
     setCurrentTestPlanBaseline()
-    setStatus('AI test plan ready')
+    setStatus('Test plan ready')
   } catch (error) {
-    const message = error.message || 'Failed to generate AI test plan'
+    const message = error.message || 'Failed to build the test plan'
     state.lastError = message
     state.testPlanGenerationError = message
     state.testPlanGeneration = {
@@ -2723,7 +3050,7 @@ async function generateAiTestPlan () {
 async function saveAiTestPlanDefinition () {
   if (!state.selectedNodeId || !state.testPlanDraft || state.testPlanSaving) return false
   state.testPlanSaving = true
-  setStatus('Saving AI test plan...')
+  setStatus('Saving test plan...')
   try {
     const data = await requestJson(apiUrl('test-plans/save'), {
       method: 'POST',
@@ -2740,10 +3067,10 @@ async function saveAiTestPlanDefinition () {
     if (data && data.planId && state.testPlanDraft) state.testPlanDraft.id = data.planId
     state.testPlanRunConfirmOpen = false
     setCurrentTestPlanBaseline()
-    setStatus('AI test plan saved')
+    setStatus('Test plan saved')
     return true
   } catch (error) {
-    state.lastError = error.message || 'Failed to save AI test plan'
+    state.lastError = error.message || 'Failed to save test plan'
     setStatus(state.lastError)
     return false
   } finally {
@@ -2755,7 +3082,7 @@ async function deleteAiTestPlanDefinition () {
   const plan = selectedTestPlan.value
   if (!plan || !state.selectedNodeId || state.testPlanDeleting) return
   state.testPlanDeleting = true
-  setStatus('Deleting AI test plan...')
+  setStatus('Deleting test plan...')
   try {
     const data = await requestJson(apiUrl('test-plans/delete'), {
       method: 'POST',
@@ -2773,9 +3100,9 @@ async function deleteAiTestPlanDefinition () {
     state.testPlanRunConfirmOpen = false
     state.showAiPlanner = true
     setCurrentTestPlanBaseline()
-    setStatus('AI test plan deleted')
+    setStatus('Test plan deleted')
   } catch (error) {
-    state.lastError = error.message || 'Failed to delete AI test plan'
+    state.lastError = error.message || 'Failed to delete test plan'
     setStatus(state.lastError)
   } finally {
     state.testPlanDeleting = false
@@ -2793,13 +3120,13 @@ async function runAiTestPlanDefinition (modeInput = 'single') {
   state.testPlanRunningStepId = ''
   state.testPlanRunConfirmOpen = false
   state.lastError = ''
-  setStatus(repeatForever ? 'Running AI test plan in repeat mode...' : 'Running AI test plan...')
+  setStatus(repeatForever ? 'Running test plan in repeat mode...' : 'Running test plan...')
   try {
     const plan = JSON.parse(JSON.stringify(Object.assign({}, state.testPlanDraft, { prompt: state.testPlanPrompt })))
     const steps = Array.isArray(plan.steps) ? plan.steps : []
     if (!plan.areaId) throw new Error('Missing areaId in test plan')
     if (!steps.length) throw new Error('The test plan has no executable steps')
-    let area = selectedArea.value
+    let area = selectedTestArea.value
     let cycleNumber = 0
     do {
       cycleNumber += 1
@@ -2876,7 +3203,7 @@ async function runAiTestPlanDefinition (modeInput = 'single') {
         await persistTestResult(finalReport)
       } catch (error) {
         state.lastError = error.message || 'Failed to save test result'
-        setStatus(`AI test completed, but the result was not saved: ${state.lastError}`)
+        setStatus(`Test completed, but the result was not saved: ${state.lastError}`)
       }
       if (repeatForever && state.testPlanRepeatStopRequested !== true) {
         state.testResultFocusMode = false
@@ -2884,7 +3211,7 @@ async function runAiTestPlanDefinition (modeInput = 'single') {
       }
     } while (repeatForever && state.testPlanRepeatStopRequested !== true)
     state.testPlanRunConfirmOpen = false
-    if (!state.lastError) setStatus(repeatForever ? 'Repeat mode stopped' : 'AI test completed')
+    if (!state.lastError) setStatus(repeatForever ? 'Repeat mode stopped' : 'Test completed')
     requestAnimationFrame(() => {
       try {
         if (testPlanReportRef.value && typeof testPlanReportRef.value.scrollIntoView === 'function') {
@@ -2893,7 +3220,7 @@ async function runAiTestPlanDefinition (modeInput = 'single') {
       } catch (error) {}
     })
   } catch (error) {
-    state.lastError = error.message || 'Failed to run AI test plan'
+    state.lastError = error.message || 'Failed to run test plan'
     setStatus(state.lastError)
   } finally {
     state.testPlanRunningStepId = ''
@@ -3277,7 +3604,7 @@ onBeforeUnmount(() => {
         </button>
         <button class="tab-button sidebar-nav-child" :class="{ active: state.activeTab === 'tests' }" type="button" @click="activateSidebarTab('tests')">
           <span class="sidebar-nav-title">Tests</span>
-          <span class="sidebar-nav-meta">AI plans and active checks</span>
+          <span class="sidebar-nav-meta">Templates and active checks</span>
         </button>
         <button class="tab-button" :class="{ active: state.activeTab === 'assistant' }" type="button" @click="activateSidebarTab('assistant')">
           <span class="sidebar-nav-title">Assistant</span>
@@ -3306,7 +3633,10 @@ onBeforeUnmount(() => {
               @click="focusTestResult(report.id, { openMenu: true, activateTestsTab: true })"
             >
               <span class="sidebar-result-head">
-                <strong>{{ testResultDisplayName(report) }}</strong>
+                <strong class="sidebar-result-title">
+                  <span v-if="report.live === true" class="running-spinner" aria-hidden="true" />
+                  <span>{{ testResultDisplayName(report) }}</span>
+                </strong>
                 <span class="sidebar-result-status" :class="`status-${report.overallStatus || 'pass'}`">{{ report.overallStatus || 'n/a' }}</span>
               </span>
               <span class="area-list-meta">{{ testResultModeLabel(report) }}<span v-if="report.live === true"> | running</span></span>
@@ -3367,7 +3697,7 @@ onBeforeUnmount(() => {
                 : state.activeTab === 'areas'
                   ? 'Organize ETS objects into clear installer-friendly operational areas.'
                   : state.activeTab === 'tests'
-                    ? 'Generate, edit and execute proactive KNX test plans.'
+                    ? 'Build, edit and execute deterministic KNX test plans.'
                     : 'Query the AI assistant about the current KNX installation.'
             }}
           </p>
@@ -3414,16 +3744,15 @@ onBeforeUnmount(() => {
           <h2>Suggested Areas</h2>
           <div class="card-head-actions">
             <span class="meta-chip">{{ Number(areaTotals.suggestedAreaCount || 0) }} areas</span>
-            <button class="secondary-button" type="button" @click="startNewAreaDraft">
+            <button class="secondary-button" type="button" :disabled="state.areaLlmRegenerating || !nodeInfo.llmEnabled" @click="regenerateLlmAreas">
+              {{ state.areaLlmRegenerating ? 'Regenerating...' : 'Regenerate AI Areas' }}
+            </button>
+            <button class="secondary-button new-button" type="button" @click="startNewAreaDraft">
               New Area
             </button>
           </div>
         </div>
         <div class="areas-toolbar">
-          <label class="flow-field area-search-field">
-            <span>Find area</span>
-            <input v-model="state.areaSearch" type="text" placeholder="Search path or labels">
-          </label>
           <div class="pill-row">
             <span class="pill neutral">GA {{ Number(areaTotals.gaCount || 0) }}</span>
             <span class="pill neutral">Hierarchical {{ Number(areaTotals.hierarchicalGaCount || 0) }}</span>
@@ -3432,20 +3761,35 @@ onBeforeUnmount(() => {
           </div>
         </div>
         <div v-if="filteredAreas.length || state.areaDraftIsNew" class="areas-layout">
-          <div class="area-list">
-            <button
-              v-for="area in filteredAreas"
-              :key="area.id"
-              type="button"
-              class="area-list-item"
-              :class="{ active: selectedArea && selectedArea.id === area.id }"
-              @click="state.areaSelectedId = area.id"
-            >
-              <span class="area-list-title">{{ area.path || area.name }}</span>
-              <span class="area-list-meta">{{ area.kind }} | {{ Number(area.gaCount || 0) }} GA | active {{ Number(area.activeGaCount || 0) }}</span>
-            </button>
+          <div class="area-listbox-shell">
+            <label class="flow-field">
+              <span>Areas</span>
+              <div class="area-search-select">
+                <input
+                  v-model="state.areaSearch"
+                  class="area-search-select-input"
+                  type="text"
+                  :placeholder="selectedArea ? formatAreaListOptionLabel(selectedArea) : 'Search area...'"
+                  @focus="state.areaSearchOpen = true"
+                  @input="state.areaSearchOpen = true"
+                  @blur="closeAreaSearchSoon"
+                >
+                <div v-if="state.areaSearchOpen && filteredAreas.length" class="area-search-select-menu">
+                  <button
+                    v-for="area in filteredAreas.slice(0, 80)"
+                    :key="area.id"
+                    type="button"
+                    class="area-search-select-option"
+                    :class="{ active: selectedArea && selectedArea.id === area.id }"
+                    @mousedown.prevent="selectAreaFromSearch(area)"
+                  >
+                    {{ formatAreaListOptionLabel(area) }}
+                  </button>
+                </div>
+              </div>
+            </label>
           </div>
-          <article v-if="selectedArea || state.areaDraftIsNew" class="area-detail">
+          <article v-if="selectedArea || state.areaDraftIsNew" class="area-detail" :class="{ 'area-detail-wide': state.areaDraftIsNew }">
             <div class="card-head">
               <div>
                 <h3>{{ state.areaDraftIsNew ? 'New Custom Area' : (selectedArea.path || selectedArea.name) }}</h3>
@@ -3485,6 +3829,9 @@ onBeforeUnmount(() => {
                   <p class="area-detail-subhead">The installer can rename the area and decide exactly which group addresses belong to it. Everything is persisted per KNX AI node.</p>
                 </div>
                 <div class="card-head-actions action-cluster">
+                  <button v-if="!state.areaDraftIsNew" class="danger-button" type="button" :disabled="state.areaSaving" @click="deleteAreaDefinition">
+                    Delete Area
+                  </button>
                   <button class="secondary-button" type="button" :disabled="state.areaSaving" @click="resetAreaDefinition">
                     Reset
                   </button>
@@ -3494,10 +3841,6 @@ onBeforeUnmount(() => {
                 </div>
               </div>
               <div class="area-editor-grid">
-                <label v-if="state.areaDraftIsNew" class="flow-field">
-                  <span>Area id</span>
-                  <input v-model="state.areaDraftId" type="text" placeholder="custom-area-id">
-                </label>
                 <label class="flow-field">
                   <span>Area name</span>
                   <input v-model="state.areaDraftName" type="text" placeholder="Installer alias">
@@ -3511,18 +3854,58 @@ onBeforeUnmount(() => {
                   <input v-model="state.gaCatalogSearch" type="text" placeholder="Search GA, label or ETS path">
                 </label>
               </div>
+              <div v-if="state.areaDraftIsNew" class="ai-planner-shell area-llm-shell">
+                <div class="ai-planner-shell-head">
+                  <div>
+                    <h4>AI Area Assistant</h4>
+                    <p class="area-detail-subhead">Describe the room, zone or function you want. The AI will suggest the most relevant group addresses for this draft.</p>
+                  </div>
+                </div>
+                <div class="area-editor-grid">
+                  <label class="flow-field area-editor-span">
+                    <span>Assistant prompt</span>
+                    <textarea v-model="state.areaLlmPrompt" rows="3" placeholder="Example: Add all technical room lighting command and status GA." />
+                  </label>
+                </div>
+                <div class="profile-runbar">
+                  <button class="primary-button" type="button" :disabled="state.areaLlmBusy || !state.areaLlmPrompt.trim() || !nodeInfo.llmEnabled" @click="suggestAreaDraftWithLlm">
+                    {{ state.areaLlmBusy ? 'Suggesting...' : 'Suggest GA with AI' }}
+                  </button>
+                </div>
+                <p v-if="state.areaLlmError" class="planner-error-banner">
+                  {{ state.areaLlmError }}
+                </p>
+                <p v-if="!nodeInfo.llmEnabled" class="area-detail-subhead">
+                  Enable the AI in the KNX AI node to regenerate areas or suggest GA for a new draft.
+                </p>
+              </div>
               <div class="area-ga-editor">
                 <div>
                   <h4>Area GA membership</h4>
                   <ul v-if="areaDraftGaDetails.length" class="simple-list simple-list-mono area-ga-list">
                     <li v-for="item in areaDraftGaDetails" :key="item.ga" class="area-ga-item">
-                      <div>
+                      <div class="area-ga-main">
                         <strong>{{ item.ga }}</strong>
                         <span>{{ item.label || 'Unlabeled GA' }}<span v-if="item.dpt"> | DPT {{ item.dpt }}</span></span>
+                        <span>Role {{ formatGaRoleLabel(item.role) }}<span v-if="item.roleSource"> | source {{ item.roleSource }}</span></span>
                       </div>
-                      <button class="secondary-button" type="button" @click="removeGaFromAreaDraft(item.ga)">
-                        Remove
-                      </button>
+                      <div class="area-ga-actions">
+                        <label class="flow-field area-ga-role-field">
+                          <span>Role</span>
+                          <select
+                            :value="(item.roleOverride && item.roleOverride !== 'auto') ? item.roleOverride : (item.role || 'neutral')"
+                            :disabled="state.areaGaRoleSavingGa === item.ga"
+                            @change="saveAreaGaRole(item.ga, $event.target.value)"
+                          >
+                            <option v-for="option in AREA_GA_ROLE_OPTIONS" :key="option.value" :value="option.value">
+                              {{ option.label }}
+                            </option>
+                          </select>
+                        </label>
+                        <button class="secondary-button" type="button" @click="removeGaFromAreaDraft(item.ga)">
+                          Remove
+                        </button>
+                      </div>
                     </li>
                   </ul>
                   <p v-else class="empty-state">No GA selected for this area yet.</p>
@@ -3545,7 +3928,7 @@ onBeforeUnmount(() => {
                     >
                       <span class="area-list-title">{{ item.ga }}</span>
                       <span class="area-list-meta">{{ item.label || 'Unlabeled GA' }}</span>
-                      <span class="area-list-tags">{{ item.hierarchyPath || item.dpt || '' }}</span>
+                      <span class="area-list-tags">{{ item.hierarchyPath || item.dpt || '' }}<span v-if="item.role"> | {{ formatGaRoleLabel(item.role) }}</span></span>
                     </button>
                   </div>
                 </div>
@@ -3554,30 +3937,6 @@ onBeforeUnmount(() => {
                 Original ETS path: <strong>{{ state.areaDraftIsNew ? 'Manual area' : (selectedArea.basePath || selectedArea.path || selectedArea.name) }}</strong>
               </p>
             </div>
-            <div class="area-columns">
-              <div>
-                <h4>Sample labels</h4>
-                <ul v-if="(state.areaDraftIsNew ? areaDraftGaDetails.map(item => item.label).filter(Boolean).slice(0, 4) : selectedArea?.sampleLabels)?.length" class="simple-list">
-                  <li v-for="label in (state.areaDraftIsNew ? areaDraftGaDetails.map(item => item.label).filter(Boolean).slice(0, 4) : selectedArea.sampleLabels)" :key="label">{{ label }}</li>
-                </ul>
-                <p v-else class="empty-state">No sample labels available.</p>
-              </div>
-              <div>
-                <h4>Sample GA</h4>
-                <ul v-if="(state.areaDraftIsNew ? state.areaDraftGaList.slice(0, 6) : selectedArea?.sampleGAs)?.length" class="simple-list simple-list-mono">
-                  <li v-for="ga in (state.areaDraftIsNew ? state.areaDraftGaList.slice(0, 6) : selectedArea.sampleGAs)" :key="ga">{{ ga }}</li>
-                </ul>
-                <p v-else class="empty-state">No group addresses available.</p>
-              </div>
-            </div>
-            <div>
-              <h4>Recent payloads</h4>
-              <ul v-if="selectedArea?.recentPayloads?.length && !state.areaDraftIsNew" class="simple-list simple-list-mono">
-                <li v-for="payloadLine in selectedArea.recentPayloads" :key="payloadLine">{{ payloadLine }}</li>
-              </ul>
-              <p v-else class="empty-state">No recent payloads sampled for this area yet.</p>
-            </div>
-            <p class="bus-note">Prima base automatica: le aree arrivano dalla gerarchia ETS e servono come fondazione per i futuri profili di controllo e test plan.</p>
           </article>
         </div>
         <p v-else class="empty-state">No areas matched the current search or the ETS file does not expose a usable hierarchy yet.</p>
@@ -3586,18 +3945,18 @@ onBeforeUnmount(() => {
       <section v-if="state.activeTab === 'tests'" class="card card-profiles" :class="{ 'card-results-focus': isViewingTestResultOnly }">
         <div class="card-head">
           <div>
-            <h2>{{ isViewingTestResultOnly ? 'Test Result' : 'AI Test Planner' }}</h2>
+            <h2>{{ isViewingTestResultOnly ? 'Test Result' : 'Test Planner' }}</h2>
             <p class="area-detail-subhead">
-              {{ isViewingTestResultOnly ? 'Showing only the selected test report.' : 'Select an area, describe the active check you want, review the generated plan, then save or run it.' }}
+              {{ isViewingTestResultOnly ? 'Showing only the selected test report.' : 'Select an area, choose a standard test template, review the generated plan, then save or run it.' }}
             </p>
           </div>
           <div class="card-head-actions" v-if="!isViewingTestResultOnly">
-            <span class="meta-chip">Area {{ selectedArea ? (selectedArea.path || selectedArea.name) : 'n/a' }}</span>
+            <span class="meta-chip">Area {{ selectedTestArea ? (selectedTestArea.path || selectedTestArea.name) : 'n/a' }}</span>
             <span class="meta-chip">{{ testPlans.length }} saved plans</span>
             <button class="secondary-button" type="button" :disabled="!state.testPlanDraft" @click="duplicateCurrentAiTestPlan">
               Duplicate Plan
             </button>
-            <button class="secondary-button" type="button" @click="startNewAiTestPlan">
+            <button class="secondary-button new-button" type="button" @click="startNewAiTestPlan">
               New Plan
             </button>
           </div>
@@ -3612,42 +3971,55 @@ onBeforeUnmount(() => {
           </div>
         </div>
         <div class="profiles-layout test-planner-layout" :class="{ 'result-only-layout': isViewingTestResultOnly }">
-          <div v-if="!isViewingTestResultOnly" class="profile-list">
-            <article class="area-detail planner-sidecard">
+          <div class="profile-editor-stack">
+            <article v-if="!isViewingTestResultOnly" class="area-detail planner-sidecard">
               <div class="card-head">
                 <div>
                   <h3>Saved Plans</h3>
-                  <p class="area-detail-subhead">Reusable active tests prepared by AI and confirmed by the installer.</p>
+                  <p class="area-detail-subhead">Reusable deterministic active tests saved by the installer.</p>
                 </div>
               </div>
-              <div class="planner-list">
-                <button
-                  v-for="plan in testPlans"
-                  :key="plan.id"
-                  type="button"
-                  class="area-list-item"
-                  :class="{ active: selectedTestPlan && selectedTestPlan.id === plan.id }"
-                  @click="selectSavedPlan(plan)"
-                >
-                  <span class="area-list-title">{{ plan.name }}</span>
-                  <span class="area-list-meta">{{ plan.areaName || plan.areaId }} | {{ Number(plan.steps?.length || 0) }} steps</span>
-                </button>
+              <div class="area-listbox-shell">
+                <label class="flow-field">
+                  <span>Plans</span>
+                  <div class="area-search-select">
+                    <input
+                      v-model="state.testPlanSearch"
+                      class="area-search-select-input"
+                      type="text"
+                      :placeholder="selectedTestPlan ? formatTestPlanListOptionLabel(selectedTestPlan) : 'Search saved plan...'"
+                      @focus="state.testPlanSearchOpen = true"
+                      @input="state.testPlanSearchOpen = true"
+                      @blur="closeTestPlanSearchSoon"
+                    >
+                    <div v-if="state.testPlanSearchOpen && filteredTestPlans.length" class="area-search-select-menu">
+                      <button
+                        v-for="plan in filteredTestPlans.slice(0, 80)"
+                        :key="plan.id"
+                        type="button"
+                        class="area-search-select-option"
+                        :class="{ active: selectedTestPlan && selectedTestPlan.id === plan.id }"
+                        @mousedown.prevent="selectSavedPlanFromSearch(plan)"
+                      >
+                        {{ formatTestPlanListOptionLabel(plan) }}
+                      </button>
+                    </div>
+                  </div>
+                </label>
               </div>
-              <p v-if="!testPlans.length" class="empty-state">No saved AI plans yet.</p>
+              <p v-if="!testPlans.length" class="empty-state">No saved plans yet.</p>
             </article>
-          </div>
 
-          <div class="profile-editor-stack">
             <article v-if="!isViewingTestResultOnly && state.testPlanDraft" class="area-detail">
               <div class="card-head">
                 <div>
                   <h3>{{ state.testPlanDraft?.name || 'Plan Draft' }}</h3>
-                  <p class="area-detail-subhead">{{ showAiPlannerSection ? 'Use natural language, for example: "Turn on the lighting actuators, then read back the status and verify that the result is coherent".' : 'The AI crafting section is hidden. Use "Show AI Planner" to reopen it.' }}</p>
+                  <p class="area-detail-subhead">{{ showAiPlannerSection ? 'Choose a standard test template for the selected area, then build the plan deterministically from the ETS catalog.' : 'The template builder is hidden. Use "Show Template Builder" to reopen it.' }}</p>
                 </div>
                 <div class="card-head-actions action-cluster">
                   <span v-if="hasUnsavedTestPlanChanges" class="meta-chip">Unsaved changes</span>
                   <button
-                    class="secondary-button"
+                    class="secondary-button new-button"
                     type="button"
                     @click="startNewAiTestPlan"
                   >
@@ -3659,7 +4031,7 @@ onBeforeUnmount(() => {
                     type="button"
                     @click="state.showAiPlanner = true"
                   >
-                    Show AI Planner
+                    Show Template Builder
                   </button>
                   <label class="checkbox flow-toggle compact-toggle">
                     <input v-model="state.voiceEnabled" type="checkbox">
@@ -3691,40 +4063,44 @@ onBeforeUnmount(() => {
               <div v-if="showAiPlannerSection" class="ai-planner-shell">
                 <div class="ai-planner-shell-head">
                   <div>
-                    <h4>AI Planner</h4>
-                    <p class="area-detail-subhead">Use natural language to craft or regenerate the plan for the selected area.</p>
+                    <h4>Test Templates</h4>
+                    <p class="area-detail-subhead">Select one of the standard templates. The plan is built only from the command GA available in the selected area.</p>
                   </div>
                 </div>
                 <div class="area-editor-grid">
                   <label class="flow-field">
                     <span>Area to test</span>
-                    <select v-model="state.areaSelectedId">
+                    <select v-model="state.testAreaSelectedId">
                       <option v-for="area in suggestedAreas" :key="area.id" :value="area.id">
                         {{ area.path || area.name }}
                       </option>
                     </select>
                   </label>
                   <label class="flow-field area-editor-span">
-                    <span>AI prompt</span>
-                    <textarea v-model="state.testPlanPrompt" rows="4" placeholder="Describe the active KNX test you want to build for the selected area." />
+                    <span>Selected template</span>
+                    <textarea :value="state.testPlanPrompt || 'Select one of the templates below.'" rows="4" readonly />
                   </label>
                 </div>
 
                 <div class="preset-row compact-preset-row">
                   <button
                     v-for="preset in TEST_PROMPT_PRESETS"
-                    :key="preset"
+                    :key="preset.id"
                     class="preset-button"
                     type="button"
+                    :class="{ active: state.testPlanPrompt === preset.prompt }"
                     @click="applyTestPromptPreset(preset)"
                   >
-                    {{ preset }}
+                    {{ preset.title }}
                   </button>
                 </div>
+                <p class="area-detail-subhead">
+                  {{ (TEST_PROMPT_PRESETS.find(item => item.prompt === state.testPlanPrompt) || {}).description || 'Choose a template to see what the deterministic builder will do in the selected area.' }}
+                </p>
 
                 <div class="profile-runbar">
-                  <button class="primary-button" type="button" :disabled="state.testPlanGenerating || !selectedArea || !state.testPlanPrompt.trim() || !nodeInfo.llmEnabled" @click="generateAiTestPlan">
-                    {{ state.testPlanGenerating ? 'Generating...' : 'Prepare AI Test' }}
+                  <button class="primary-button" type="button" :disabled="state.testPlanGenerating || !selectedTestArea || !state.testPlanPrompt.trim()" @click="generateAiTestPlan">
+                    {{ state.testPlanGenerating ? 'Building...' : 'Build Test Plan' }}
                   </button>
                 </div>
 
@@ -3734,13 +4110,10 @@ onBeforeUnmount(() => {
 
                 <div v-if="state.testPlanGeneration" class="planner-generation">
                   <p v-if="!state.testPlanGeneration.error" class="area-detail-subhead">
-                    Generated with {{ state.testPlanGeneration.provider || 'llm' }}{{ state.testPlanGeneration.model ? ` / ${state.testPlanGeneration.model}` : '' }}.
+                    Built with {{ state.testPlanGeneration.provider || 'deterministic builder' }}.
                   </p>
                   <p v-if="state.testPlanGeneration.error" class="area-detail-subhead">{{ state.testPlanGeneration.error }}</p>
                 </div>
-                <p v-if="!nodeInfo.llmEnabled" class="area-detail-subhead">
-                  Enable and configure the LLM in the KNX AI node to generate test plans from prompts.
-                </p>
               </div>
             </article>
 
@@ -4211,7 +4584,7 @@ onBeforeUnmount(() => {
       <section v-if="state.activeTab === 'assistant'" class="card card-chat">
         <div class="card-head">
           <h2>Ask</h2>
-          <span class="meta-chip">{{ nodeInfo.llmEnabled ? 'LLM enabled' : 'LLM disabled' }}</span>
+          <span class="meta-chip">{{ nodeInfo.llmEnabled ? 'AI enabled' : 'AI disabled' }}</span>
         </div>
         <div class="preset-row">
           <button
@@ -4301,12 +4674,16 @@ onBeforeUnmount(() => {
   align-items: stretch;
 }
 
+:deep(*) {
+  --soft-radius: 4px;
+}
+
 .app-sidebar {
   display: flex;
   flex-direction: column;
   gap: 14px;
   padding: 18px 16px 16px;
-  border-radius: 0;
+  border-radius: var(--soft-radius);
   background:
     linear-gradient(180deg, rgba(220, 18, 32, 0.96) 0%, rgba(150, 8, 18, 0.96) 66px, rgba(20, 22, 28, 0.98) 66px, rgba(12, 14, 18, 1) 100%);
   box-shadow: 0 26px 60px rgba(8, 10, 16, 0.34);
@@ -4316,7 +4693,7 @@ onBeforeUnmount(() => {
 .workspace-shell {
   min-width: 0;
   padding: 10px;
-  border-radius: 0;
+  border-radius: var(--soft-radius);
   background: linear-gradient(180deg, rgba(246, 248, 252, 0.98) 0%, rgba(234, 238, 244, 0.96) 100%);
   box-shadow: 0 24px 60px rgba(25, 32, 48, 0.14);
 }
@@ -4324,7 +4701,7 @@ onBeforeUnmount(() => {
 .topbar {
   padding: 20px 22px 14px;
   border: 1px solid rgba(160, 170, 186, 0.22);
-  border-radius: 0;
+  border-radius: var(--soft-radius);
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(245, 247, 251, 0.94) 100%);
   box-shadow: 0 12px 30px rgba(26, 32, 44, 0.08);
 }
@@ -4396,9 +4773,10 @@ onBeforeUnmount(() => {
   gap: 8px;
   align-items: center;
   padding: 8px 10px;
-  border: 1px solid rgba(112, 122, 141, 0.14);
-  border-radius: 0;
-  background: rgba(255, 255, 255, 0.86);
+  border: 1px solid rgba(112, 122, 141, 0.24);
+  border-radius: var(--soft-radius);
+  background: linear-gradient(180deg, rgba(236, 241, 247, 0.96) 0%, rgba(225, 232, 241, 0.96) 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55);
 }
 
 .workspace-toolbar {
@@ -4413,9 +4791,9 @@ onBeforeUnmount(() => {
 .secondary-button,
 .tab-button {
   border: 1px solid var(--line);
-  border-radius: 0;
-  background: #fff;
-  color: var(--text);
+  border-radius: var(--soft-radius);
+  background: linear-gradient(180deg, #415066 0%, #2d3a4d 100%);
+  color: #fff;
   text-decoration: none;
   font-size: 12px;
   font-weight: 700;
@@ -4432,6 +4810,15 @@ onBeforeUnmount(() => {
   color: #fff;
 }
 
+.secondary-button,
+.preset-button,
+.theme-button,
+.tab-button {
+  border-color: transparent;
+  background: linear-gradient(180deg, #44546b 0%, #314056 100%);
+  color: #fff;
+}
+
 .danger-button {
   border-color: transparent;
   background: linear-gradient(135deg, #a10f1d, #d51e2f);
@@ -4443,12 +4830,31 @@ onBeforeUnmount(() => {
 .danger-button:hover,
 .secondary-button:hover,
 .tab-button:hover {
-  background: var(--accent-soft);
-  border-color: rgba(122, 104, 216, 0.4);
+  background: linear-gradient(180deg, #51627b 0%, #3a4b63 100%);
+  border-color: transparent;
 }
 
 .danger-button:hover {
   background: linear-gradient(135deg, #8c0d19, #be1627);
+  border-color: transparent;
+}
+
+.new-button {
+  background: linear-gradient(180deg, #62c27a 0%, #43a85f 100%);
+  border-color: transparent;
+  color: #fff;
+}
+
+.new-button:hover {
+  background: linear-gradient(180deg, #74cf8b 0%, #4fb46b 100%);
+  border-color: transparent;
+}
+
+.primary-button:hover,
+.primary-link:hover,
+.theme-button.active:hover,
+.tab-button.active:hover {
+  background: linear-gradient(135deg, #b90f1d, #df3d3d);
   border-color: transparent;
 }
 
@@ -4486,7 +4892,7 @@ onBeforeUnmount(() => {
 .chat-log,
 .anomaly-card pre {
   border: 1px solid var(--line);
-  border-radius: 0;
+  border-radius: var(--soft-radius);
   background: rgba(255, 255, 255, 0.88);
 }
 
@@ -4511,7 +4917,7 @@ onBeforeUnmount(() => {
 .sidebar-panel {
   padding: 12px;
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 0;
+  border-radius: var(--soft-radius);
   background: rgba(255, 255, 255, 0.04);
 }
 
@@ -4535,7 +4941,7 @@ onBeforeUnmount(() => {
   justify-content: flex-start;
   text-align: left;
   padding: 12px 14px;
-  border-radius: 0;
+  border-radius: var(--soft-radius);
   border-color: rgba(255, 255, 255, 0.06);
   background: rgba(255, 255, 255, 0.04);
   color: #edf1f8;
@@ -4676,6 +5082,13 @@ onBeforeUnmount(() => {
   font-weight: 800;
 }
 
+.sidebar-result-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
 .sidebar-result-item .area-list-meta,
 .sidebar-result-item .area-list-tags {
   color: rgba(237, 241, 248, 0.78);
@@ -4738,7 +5151,7 @@ onBeforeUnmount(() => {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  border-radius: 0;
+  border-radius: var(--soft-radius);
   padding: 6px 10px;
   font-size: 11px;
   font-weight: 800;
@@ -4784,7 +5197,7 @@ onBeforeUnmount(() => {
   min-height: 240px;
   padding: 15px;
   border: 1px solid var(--line);
-  border-radius: 0;
+  border-radius: var(--soft-radius);
   background: rgba(255, 255, 255, 0.94);
   box-shadow: 0 16px 34px rgba(18, 28, 45, 0.08);
 }
@@ -4855,7 +5268,7 @@ onBeforeUnmount(() => {
 
 .metric {
   padding: 10px;
-  border-radius: 0;
+  border-radius: var(--soft-radius);
   background: var(--panel-soft);
 }
 
@@ -4909,14 +5322,14 @@ onBeforeUnmount(() => {
 .event-bar {
   height: 10px;
   overflow: hidden;
-  border-radius: 0;
+  border-radius: var(--soft-radius);
   background: rgba(122, 104, 216, 0.12);
 }
 
 .event-bar-fill {
   display: block;
   height: 100%;
-  border-radius: 0;
+  border-radius: var(--soft-radius);
   background: linear-gradient(90deg, var(--accent), #4bbf77);
 }
 
@@ -4928,31 +5341,10 @@ onBeforeUnmount(() => {
   margin-bottom: 16px;
 }
 
-.area-search-field {
-  min-width: min(340px, 100%);
-}
-
-.area-search-field input {
-  border: 1px solid var(--line);
-  border-radius: 0;
-  background: rgba(255, 255, 255, 0.88);
-  color: var(--text);
-  padding: 10px 12px;
-}
-
 .areas-layout {
-  display: grid;
-  grid-template-columns: minmax(280px, 360px) minmax(0, 1fr);
-  gap: 16px;
-}
-
-.area-list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  max-height: 520px;
-  overflow: auto;
-  padding-right: 4px;
+  gap: 16px;
 }
 
 .area-list-item {
@@ -4962,7 +5354,7 @@ onBeforeUnmount(() => {
   align-items: flex-start;
   padding: 11px 12px;
   border: 1px solid var(--line);
-  border-radius: 0;
+  border-radius: var(--soft-radius);
   background: rgba(255, 255, 255, 0.9);
   color: var(--text);
   text-align: left;
@@ -4979,6 +5371,56 @@ onBeforeUnmount(() => {
   font-weight: 800;
 }
 
+.area-listbox-shell {
+  width: 100%;
+}
+
+.area-search-select {
+  position: relative;
+}
+
+.area-search-select-input {
+  width: 100%;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--text);
+  padding: 8px 10px;
+  font-size: 12px;
+  line-height: 1.35;
+  border-radius: var(--soft-radius);
+}
+
+.area-search-select-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 8;
+  max-height: 280px;
+  overflow: auto;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.98);
+  border-radius: var(--soft-radius);
+}
+
+.area-search-select-option {
+  display: block;
+  width: 100%;
+  padding: 8px 10px;
+  border: 0;
+  border-bottom: 1px solid rgba(98, 87, 142, 0.10);
+  background: transparent;
+  color: var(--text);
+  text-align: left;
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.area-search-select-option:hover,
+.area-search-select-option.active {
+  background: var(--accent-soft);
+}
+
 .area-list-meta,
 .area-list-tags,
 .area-detail-subhead {
@@ -4987,9 +5429,11 @@ onBeforeUnmount(() => {
 }
 
 .area-detail {
+  min-width: 0;
+  width: 100%;
   padding: 14px;
   border: 1px solid var(--line);
-  border-radius: 0;
+  border-radius: var(--soft-radius);
   background: linear-gradient(180deg, rgba(255,255,255,0.96) 0%, rgba(248,245,255,0.92) 100%);
 }
 
@@ -5000,7 +5444,10 @@ onBeforeUnmount(() => {
 }
 
 .test-planner-layout {
-  align-items: start;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: stretch;
 }
 
 .result-only-layout {
@@ -5070,17 +5517,12 @@ onBeforeUnmount(() => {
   font-size: 20px;
 }
 
-.planner-list {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
 .ai-planner-shell {
   margin-top: 12px;
   padding: 12px;
   border: 1px solid rgba(98, 87, 142, 0.24);
   background: rgba(244, 247, 252, 0.96);
+  border-radius: var(--soft-radius);
 }
 
 .ai-planner-shell-head {
@@ -5101,6 +5543,9 @@ onBeforeUnmount(() => {
   gap: 10px;
   align-items: center;
   margin-top: 14px;
+  padding: 10px 12px;
+  border: 1px solid rgba(126, 136, 154, 0.24);
+  background: linear-gradient(180deg, rgba(240, 244, 249, 0.98) 0%, rgba(231, 237, 244, 0.98) 100%);
 }
 
 .planner-error-banner {
@@ -5163,7 +5608,7 @@ onBeforeUnmount(() => {
   min-width: 26px;
   height: 24px;
   border: 1px solid rgba(98, 87, 142, 0.18);
-  border-radius: 0;
+  border-radius: var(--soft-radius);
   background: rgba(255, 255, 255, 0.84);
   color: var(--muted);
   font-size: 12px;
@@ -5179,7 +5624,7 @@ onBeforeUnmount(() => {
   min-width: 28px;
   height: 28px;
   border: 1px solid rgba(98, 87, 142, 0.18);
-  border-radius: 0;
+  border-radius: var(--soft-radius);
   background: rgba(255, 255, 255, 0.84);
   color: var(--text);
   cursor: pointer;
@@ -5325,7 +5770,7 @@ onBeforeUnmount(() => {
   margin: 14px 0 18px;
   padding: 12px;
   border: 1px solid rgba(98, 87, 142, 0.16);
-  border-radius: 0;
+  border-radius: var(--soft-radius);
   background: rgba(255, 255, 255, 0.72);
 }
 
@@ -5377,6 +5822,22 @@ onBeforeUnmount(() => {
   border-bottom: 1px solid rgba(98, 87, 142, 0.12);
 }
 
+.area-ga-main {
+  min-width: 0;
+  flex: 1;
+}
+
+.area-ga-actions {
+  display: flex;
+  align-items: end;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.area-ga-role-field {
+  min-width: 148px;
+}
+
 .area-ga-item strong,
 .planner-step-grid strong {
   color: var(--text);
@@ -5395,6 +5856,9 @@ onBeforeUnmount(() => {
   justify-content: space-between;
   align-items: center;
   margin-top: 16px;
+  padding: 10px 12px;
+  border: 1px solid rgba(118, 129, 147, 0.22);
+  background: linear-gradient(180deg, rgba(239, 244, 250, 0.98) 0%, rgba(230, 236, 244, 0.98) 100%);
 }
 
 .area-columns {
@@ -5427,7 +5891,7 @@ onBeforeUnmount(() => {
 .report-check {
   padding: 12px;
   border: 1px solid rgba(139, 149, 167, 0.28);
-  border-radius: 0;
+  border-radius: var(--soft-radius);
   border-left: 4px solid var(--line);
   background: rgba(255, 255, 255, 0.96);
   box-shadow: 0 1px 0 rgba(140, 150, 168, 0.14);
@@ -5454,7 +5918,7 @@ onBeforeUnmount(() => {
   margin-top: 16px;
   overflow: hidden;
   border: 1px solid rgba(98, 87, 142, 0.2);
-  border-radius: 0;
+  border-radius: var(--soft-radius);
   background: linear-gradient(180deg, #f6f3ff 0%, #efebfb 100%);
 }
 
@@ -5517,7 +5981,7 @@ onBeforeUnmount(() => {
 .flow-field select,
 .flow-field textarea {
   border: 1px solid var(--line);
-  border-radius: 0;
+  border-radius: var(--soft-radius);
   background: rgba(255, 255, 255, 0.88);
   color: var(--text);
   padding: 7px 10px;
@@ -5567,7 +6031,7 @@ onBeforeUnmount(() => {
   width: min(420px, 100%);
   padding: 18px;
   border: 1px solid var(--line);
-  border-radius: 0;
+  border-radius: var(--soft-radius);
   background: rgba(255, 255, 255, 0.98);
   box-shadow: var(--shadow);
 }
@@ -5632,7 +6096,7 @@ onBeforeUnmount(() => {
 .legend-dot {
   width: 10px;
   height: 10px;
-  border-radius: 0;
+  border-radius: var(--soft-radius);
 }
 
 .legend-anomaly {
@@ -5647,7 +6111,7 @@ onBeforeUnmount(() => {
   margin-top: 16px;
   overflow: auto;
   border: 1px solid var(--line);
-  border-radius: 0;
+  border-radius: var(--soft-radius);
   background: linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(248,245,255,0.96) 100%);
 }
 
@@ -5656,7 +6120,7 @@ onBeforeUnmount(() => {
   height: 100%;
   margin: 0;
   padding: 18px;
-  border-radius: 0;
+  border-radius: var(--soft-radius);
   background: rgba(255, 255, 255, 0.98);
   overflow: auto;
 }
@@ -5771,7 +6235,7 @@ onBeforeUnmount(() => {
 .anomaly-card {
   padding: 14px;
   border-left: 4px solid var(--warn-border);
-  border-radius: 0;
+  border-radius: var(--soft-radius);
   background: var(--warn-bg);
 }
 
@@ -5808,7 +6272,7 @@ onBeforeUnmount(() => {
   flex: 1 1 260px;
   min-width: 0;
   border: 1px solid var(--line);
-  border-radius: 0;
+  border-radius: var(--soft-radius);
   background: rgba(255, 255, 255, 0.88);
   color: var(--text);
   padding: 11px 14px;
@@ -5817,7 +6281,7 @@ onBeforeUnmount(() => {
 .chat-message {
   margin-bottom: 12px;
   padding: 12px;
-  border-radius: 0;
+  border-radius: var(--soft-radius);
 }
 
 .chat-message pre {
@@ -5848,7 +6312,7 @@ onBeforeUnmount(() => {
   margin-top: 10px;
   overflow: auto;
   border: 1px solid rgba(122, 104, 216, 0.25);
-  border-radius: 0;
+  border-radius: var(--soft-radius);
   background: #fff;
   padding: 8px;
 }
@@ -5883,7 +6347,7 @@ onBeforeUnmount(() => {
 
   .app-sidebar,
   .workspace-shell {
-    border-radius: 0;
+    border-radius: var(--soft-radius);
   }
 
   .sidebar-nav {
@@ -5913,13 +6377,13 @@ onBeforeUnmount(() => {
   .app-sidebar,
   .workspace-shell {
     padding: 12px;
-    border-radius: 0;
+    border-radius: var(--soft-radius);
   }
 
   .topbar,
   .card {
     padding: 14px;
-    border-radius: 0;
+    border-radius: var(--soft-radius);
   }
 
   .sidebar-nav {

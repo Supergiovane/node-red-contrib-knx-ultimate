@@ -141,6 +141,36 @@ const safeStringify = (value) => {
   }
 }
 
+const extractJsonFragmentFromText = (value) => {
+  const text = String(value || '').trim()
+  if (!text) throw new Error('Empty AI response')
+  const fenced = text.match(/```(?:json)?\s*([\s\S]*?)```/i)
+  const candidate = fenced && fenced[1] ? String(fenced[1]).trim() : text
+  const tryParse = (input) => {
+    if (!input) return null
+    try {
+      return JSON.parse(input)
+    } catch (error) {
+      return null
+    }
+  }
+  const direct = tryParse(candidate)
+  if (direct !== null) return direct
+  const objectStart = candidate.indexOf('{')
+  const objectEnd = candidate.lastIndexOf('}')
+  if (objectStart !== -1 && objectEnd !== -1 && objectEnd > objectStart) {
+    const parsedObject = tryParse(candidate.slice(objectStart, objectEnd + 1))
+    if (parsedObject !== null) return parsedObject
+  }
+  const arrayStart = candidate.indexOf('[')
+  const arrayEnd = candidate.lastIndexOf(']')
+  if (arrayStart !== -1 && arrayEnd !== -1 && arrayEnd > arrayStart) {
+    const parsedArray = tryParse(candidate.slice(arrayStart, arrayEnd + 1))
+    if (parsedArray !== null) return parsedArray
+  }
+  throw new Error('The LLM response did not contain valid JSON')
+}
+
 const normalizeValueForCompare = (value) => {
   if (value === undefined) return 'undefined'
   if (value === null) return 'null'
@@ -261,6 +291,12 @@ const pushUniqueValue = (list, value, maxItems = 6) => {
   if (list.includes(normalized)) return
   if (list.length >= maxItems) return
   list.push(normalized)
+}
+
+const normalizeGaRoleValue = (value, fallback = 'auto') => {
+  const raw = normalizeAreaText(value).toLowerCase()
+  if (['auto', 'command', 'status', 'neutral'].includes(raw)) return raw
+  return fallback
 }
 
 const parseEtsHierarchyLabel = (value) => {
@@ -448,6 +484,7 @@ const buildGaCatalogFromCsv = (csv) => {
     const parsed = parseEtsHierarchyLabel(row && row.devicename)
     const dpt = normalizeAreaText(row && row.dpt)
     const label = normalizeAreaText(parsed.deviceLabel || row.devicename || ga)
+    const roleDetails = inferSignalRoleDetails({ label, dpt })
     const tags = inferAreaTags({
       mainGroup: parsed.mainGroup,
       middleGroup: parsed.middleGroup,
@@ -458,6 +495,12 @@ const buildGaCatalogFromCsv = (csv) => {
       ga,
       dpt,
       label,
+      etsName: normalizeAreaText(row && row.devicename),
+      baseRole: roleDetails.role,
+      baseRoleSource: roleDetails.source,
+      role: roleDetails.role,
+      roleSource: roleDetails.source,
+      roleOverride: 'auto',
       mainGroup: parsed.mainGroup || '',
       middleGroup: parsed.middleGroup || '',
       hierarchyPath: parsed.hierarchyPath || '',
@@ -471,6 +514,75 @@ const buildGaCatalogFromCsv = (csv) => {
       const right = `${b.hierarchyPath} ${b.label} ${b.ga}`.trim()
       return left.localeCompare(right)
     })
+}
+
+const applyGaRoleOverridesToCatalog = ({ catalog, roleOverrides }) => {
+  const rawCatalog = Array.isArray(catalog) ? catalog : []
+  const overrides = roleOverrides && typeof roleOverrides === 'object' ? roleOverrides : {}
+  return rawCatalog.map((item) => {
+    const ga = String(item && item.ga ? item.ga : '').trim()
+    const overrideRole = normalizeGaRoleValue(overrides[ga], 'auto')
+    return Object.assign({}, item, {
+      role: overrideRole === 'auto' ? normalizeGaRoleValue(item && item.baseRole ? item.baseRole : item && item.role ? item.role : 'neutral', 'neutral') : overrideRole,
+      roleSource: overrideRole === 'auto'
+        ? String(item && item.baseRoleSource ? item.baseRoleSource : item && item.roleSource ? item.roleSource : 'unknown_rule')
+        : 'user_override',
+      roleOverride: overrideRole
+    })
+  })
+}
+
+const isAmbiguousGaRoleSource = (source) => {
+  const value = normalizeAreaText(source).toLowerCase()
+  return value === 'dpt_rule' || value === 'unknown_rule'
+}
+
+const normalizeGaRoleSuggestionPayload = ({ payload, gaCatalogMap }) => {
+  const parsed = payload && typeof payload === 'object' ? payload : {}
+  const rawRoles = Array.isArray(parsed)
+    ? parsed
+    : Array.isArray(parsed.roles)
+      ? parsed.roles
+      : Array.isArray(parsed.items)
+        ? parsed.items
+        : []
+  const overrides = {}
+  rawRoles.forEach((entry) => {
+    const ga = normalizeAreaText(entry && (entry.ga || entry.groupAddress || entry.address))
+    if (!ga || !gaCatalogMap.has(ga)) return
+    const role = normalizeGaRoleValue(entry && entry.role, 'auto')
+    if (role === 'auto') return
+    overrides[ga] = role
+  })
+  return overrides
+}
+
+const normalizeLanguageCode = (value, fallback = 'en') => {
+  const raw = normalizeAreaText(value).toLowerCase()
+  if (!raw) return fallback
+  const match = raw.match(/^[a-z]{2,3}/)
+  return match ? match[0] : fallback
+}
+
+const extractLanguageCodeFromHeader = (value, fallback = 'en') => {
+  const raw = normalizeAreaText(value)
+  if (!raw) return fallback
+  const first = raw.split(',')[0] || ''
+  return normalizeLanguageCode(first, fallback)
+}
+
+const languageNameFromCode = (value) => {
+  const code = normalizeLanguageCode(value, 'en')
+  const map = {
+    it: 'Italian',
+    en: 'English',
+    de: 'German',
+    fr: 'French',
+    es: 'Spanish',
+    pt: 'Portuguese',
+    nl: 'Dutch'
+  }
+  return map[code] || code
 }
 
 const enrichSuggestedAreasWithSummary = ({ baseSnapshot, summary }) => {
@@ -555,6 +667,7 @@ const normalizeAreaOverridePayload = (payload) => {
   const normalized = {}
   if (Object.prototype.hasOwnProperty.call(p, 'name')) normalized.name = normalizeAreaText(p.name)
   if (Object.prototype.hasOwnProperty.call(p, 'description')) normalized.description = normalizeAreaText(p.description)
+  if (Object.prototype.hasOwnProperty.call(p, 'deleted')) normalized.deleted = p.deleted === true
   if (Object.prototype.hasOwnProperty.call(p, 'tags')) {
     normalized.tags = Array.isArray(p.tags)
       ? Array.from(new Set(p.tags.map(tag => slugifyAreaText(tag)).filter(Boolean))).slice(0, 12)
@@ -585,6 +698,7 @@ const applyAreaOverridesToSnapshot = ({ snapshot, overrides, gaCatalog }) => {
     const override = rawOverrides[area.id] && typeof rawOverrides[area.id] === 'object'
       ? normalizeAreaOverridePayload(rawOverrides[area.id])
       : {}
+    if (override.deleted === true) return
     byId.set(area.id, Object.assign({}, area, {
       customName: Object.prototype.hasOwnProperty.call(override, 'name') ? override.name : '',
       customDescription: Object.prototype.hasOwnProperty.call(override, 'description') ? override.description : '',
@@ -597,6 +711,7 @@ const applyAreaOverridesToSnapshot = ({ snapshot, overrides, gaCatalog }) => {
   Object.keys(rawOverrides).forEach((overrideId) => {
     if (byId.has(overrideId)) return
     const override = normalizeAreaOverridePayload(rawOverrides[overrideId])
+    if (override.deleted === true) return
     const customGaList = Array.isArray(override.gaList) ? override.gaList.filter(ga => gaCatalogMap.has(ga)) : []
     const inferredTags = new Set(Array.isArray(override.tags) ? override.tags : [])
     const sampleLabels = []
@@ -609,9 +724,10 @@ const applyAreaOverridesToSnapshot = ({ snapshot, overrides, gaCatalog }) => {
         ; (Array.isArray(item.tags) ? item.tags : []).forEach(tag => inferredTags.add(tag))
     })
     const customName = normalizeAreaText(override.name || overrideId.replace(/^custom:/, ''))
+    const isLlmGenerated = String(overrideId || '').startsWith('llm:')
     byId.set(overrideId, {
       id: overrideId,
-      kind: 'custom_manual',
+      kind: isLlmGenerated ? 'custom_llm' : 'custom_manual',
       name: customName,
       baseName: customName,
       parentId: '',
@@ -1140,14 +1256,18 @@ const inferSignalCategory = ({ label, areaTags }) => {
   return ''
 }
 
-const inferSignalRole = ({ label, dpt }) => {
+const inferSignalRoleDetails = ({ label, dpt }) => {
   const text = normalizeSignalText(label)
-  if (!text) return 'neutral'
-  if (SIGNAL_STATUS_RE.test(text)) return 'status'
-  if (SIGNAL_SENSOR_RE.test(text) && !SIGNAL_COMMAND_RE.test(text)) return 'neutral'
-  if (SIGNAL_COMMAND_RE.test(text)) return 'command'
-  if (isLikelyWritableDpt(dpt)) return 'command'
-  return 'neutral'
+  if (!text) return { role: 'neutral', source: 'unknown_rule' }
+  if (SIGNAL_STATUS_RE.test(text)) return { role: 'status', source: 'status_rule' }
+  if (SIGNAL_SENSOR_RE.test(text) && !SIGNAL_COMMAND_RE.test(text)) return { role: 'neutral', source: 'sensor_rule' }
+  if (SIGNAL_COMMAND_RE.test(text)) return { role: 'command', source: 'command_rule' }
+  if (isLikelyWritableDpt(dpt)) return { role: 'command', source: 'dpt_rule' }
+  return { role: 'neutral', source: 'unknown_rule' }
+}
+
+const inferSignalRole = ({ label, dpt }) => {
+  return inferSignalRoleDetails({ label, dpt }).role
 }
 
 const scoreSignalPair = ({ command, status }) => {
@@ -1296,6 +1416,7 @@ const normalizeAiTestPlanPayload = (payload, fallbackId = '') => {
   const p = payload && typeof payload === 'object' ? payload : {}
   const name = normalizeProfileText(p.name, 'KNX Active Test')
   const baseId = normalizeAreaText(p.id || fallbackId || name)
+  const maxSteps = clampNumber(p.maxSteps, { min: 1, max: 500, fallback: 240 })
   return {
     id: slugifyAreaText(baseId),
     name,
@@ -1308,7 +1429,7 @@ const normalizeAiTestPlanPayload = (payload, fallbackId = '') => {
     steps: (Array.isArray(p.steps) ? p.steps : [])
       .map((step, index) => normalizeTestPlanStepPayload(step, `${baseId || 'plan'}-step-${index + 1}`))
       .filter(step => step.id && (step.kind === 'wait' || (step.commandGA && step.commandDPT)))
-      .slice(0, 24)
+      .slice(0, maxSteps)
   }
 }
 
@@ -1316,207 +1437,6 @@ const mergeAiTestPlans = ({ customPlans }) => {
   return (Array.isArray(customPlans) ? customPlans : [])
     .map((plan, index) => normalizeAiTestPlanPayload(plan, `plan-${index + 1}`))
     .filter(plan => plan.id && plan.areaId && Array.isArray(plan.steps) && plan.steps.length > 0)
-}
-
-const AI_TEST_PLAN_JSON_SCHEMA = {
-  name: 'knx_ai_test_plan',
-  strict: true,
-  schema: {
-    type: 'object',
-    additionalProperties: false,
-    required: ['name', 'description', 'steps'],
-    properties: {
-      name: { type: 'string' },
-      description: { type: 'string' },
-      steps: {
-        type: 'array',
-        minItems: 1,
-        maxItems: 24,
-        items: {
-          oneOf: [
-            {
-              type: 'object',
-              additionalProperties: false,
-              required: ['id', 'kind', 'title', 'description', 'reason', 'delayMs'],
-              properties: {
-                id: { type: 'string' },
-                kind: { const: 'wait' },
-                title: { type: 'string' },
-                description: { type: 'string' },
-                reason: { type: 'string' },
-                delayMs: { type: 'number' }
-              }
-            },
-            {
-              type: 'object',
-              additionalProperties: false,
-              required: ['id', 'kind', 'action', 'title', 'description', 'reason', 'commandGA', 'commandDPT', 'commandPayload', 'expectedPayload', 'statusWriteTimeoutMs', 'statusResponseTimeoutMs'],
-              properties: {
-                id: { type: 'string' },
-                kind: { enum: ['write_only', 'write_and_verify'] },
-                action: { enum: ['on', 'off', 'open', 'close', 'stop'] },
-                title: { type: 'string' },
-                description: { type: 'string' },
-                reason: { type: 'string' },
-                commandGA: { type: 'string' },
-                commandDPT: { type: 'string' },
-                commandPayload: { type: ['string', 'number', 'boolean'] },
-                statusGA: { type: 'string' },
-                statusDPT: { type: 'string' },
-                expectedPayload: { type: ['string', 'number', 'boolean'] },
-                statusWriteTimeoutMs: { type: 'number' },
-                statusResponseTimeoutMs: { type: 'number' }
-              }
-            }
-          ]
-        }
-      }
-    }
-  }
-}
-
-const validateAiPlanAgainstSchema = (plan) => {
-  const errors = []
-  if (!plan || typeof plan !== 'object' || Array.isArray(plan)) return { ok: false, errors: ['Root must be an object'] }
-  if (typeof plan.name !== 'string' || !plan.name.trim()) errors.push('name must be a non-empty string')
-  if (typeof plan.description !== 'string') errors.push('description must be a string')
-  if (!Array.isArray(plan.steps) || plan.steps.length === 0) errors.push('steps must be a non-empty array')
-  if (Array.isArray(plan.steps)) {
-    plan.steps.forEach((step, index) => {
-      const at = `steps[${index}]`
-      if (!step || typeof step !== 'object' || Array.isArray(step)) {
-        errors.push(`${at} must be an object`)
-        return
-      }
-      if (typeof step.id !== 'string' || !step.id.trim()) errors.push(`${at}.id must be a non-empty string`)
-      if (typeof step.kind !== 'string') errors.push(`${at}.kind must be a string`)
-      if (step.kind === 'wait') {
-        if (typeof step.title !== 'string') errors.push(`${at}.title must be a string`)
-        if (typeof step.description !== 'string') errors.push(`${at}.description must be a string`)
-        if (typeof step.reason !== 'string') errors.push(`${at}.reason must be a string`)
-        if (!Number.isFinite(Number(step.delayMs))) errors.push(`${at}.delayMs must be numeric`)
-        return
-      }
-      if (!['write_only', 'write_and_verify'].includes(String(step.kind || ''))) errors.push(`${at}.kind must be write_only, write_and_verify or wait`)
-      if (!['on', 'off', 'open', 'close', 'stop'].includes(String(step.action || ''))) errors.push(`${at}.action must be on/off/open/close/stop`)
-      if (typeof step.commandGA !== 'string' || !step.commandGA.trim()) errors.push(`${at}.commandGA must be a non-empty string`)
-      if (typeof step.commandDPT !== 'string' || !step.commandDPT.trim()) errors.push(`${at}.commandDPT must be a non-empty string`)
-      if (!['string', 'number', 'boolean'].includes(typeof step.commandPayload)) errors.push(`${at}.commandPayload must be string/number/boolean`)
-      if (!['string', 'number', 'boolean'].includes(typeof step.expectedPayload)) errors.push(`${at}.expectedPayload must be string/number/boolean`)
-      if (!Number.isFinite(Number(step.statusWriteTimeoutMs))) errors.push(`${at}.statusWriteTimeoutMs must be numeric`)
-      if (!Number.isFinite(Number(step.statusResponseTimeoutMs))) errors.push(`${at}.statusResponseTimeoutMs must be numeric`)
-      if (step.kind === 'write_and_verify' && (!String(step.statusGA || '').trim() || !String(step.statusDPT || '').trim())) {
-        errors.push(`${at}.statusGA and statusDPT are required for write_and_verify`)
-      }
-    })
-  }
-  return { ok: errors.length === 0, errors }
-}
-
-const extractJsonObjectFromText = (value) => {
-  const text = String(value || '').trim()
-  if (!text) throw new Error('Empty AI response')
-  const fenced = text.match(/```(?:json)?\s*([\s\S]*?)```/i)
-  const candidate = fenced && fenced[1] ? fenced[1].trim() : text
-  try {
-    return JSON.parse(candidate)
-  } catch (error) {
-    const start = candidate.indexOf('{')
-    const end = candidate.lastIndexOf('}')
-    if (start !== -1 && end !== -1 && end > start) {
-      return JSON.parse(candidate.slice(start, end + 1))
-    }
-    throw error
-  }
-}
-
-const normalizeAiActionValue = (value) => {
-  const raw = normalizeAreaText(value).toLowerCase()
-  if (!raw) return ''
-  if (['on', 'off', 'open', 'close', 'stop'].includes(raw)) return raw
-  if (['turn_on', 'switch_on', 'accendi', 'ein', 'encender', 'ligar', 'true', '1'].includes(raw)) return 'on'
-  if (['turn_off', 'switch_off', 'spegni', 'aus', 'apagar', 'desligar', 'false', '0'].includes(raw)) return 'off'
-  if (['up', 'raise', 'apri', 'ouvrir'].includes(raw)) return 'open'
-  if (['down', 'lower', 'chiudi', 'fermer'].includes(raw)) return 'close'
-  return ''
-}
-
-const coerceAiStepShape = (step, index = 0) => {
-  if (!step || typeof step !== 'object' || Array.isArray(step)) return null
-  const inferredKind = normalizeAreaText(
-    step.kind
-      || step.type
-      || step.stepType
-      || ((step.delayMs !== undefined || step.waitMs !== undefined || step.timeout !== undefined) && !step.commandGA && !step.ga ? 'wait' : '')
-  ).toLowerCase()
-  const isWait = inferredKind === 'wait' || inferredKind === 'delay' || inferredKind === 'pause'
-  if (isWait) {
-    return {
-      id: toPlanPayloadString(step.id || step.stepId || `step-${index + 1}`, `step-${index + 1}`),
-      kind: 'wait',
-      title: toPlanPayloadString(step.title || step.name || step.label || 'Wait', 'Wait'),
-      description: toPlanPayloadString(step.description || step.details || step.instruction || '', ''),
-      reason: toPlanPayloadString(step.reason || step.purpose || step.rationale || '', ''),
-      delayMs: Number(step.delayMs !== undefined ? step.delayMs : (step.waitMs !== undefined ? step.waitMs : step.timeout))
-    }
-  }
-  const command = step.command && typeof step.command === 'object' ? step.command : {}
-  const status = step.status && typeof step.status === 'object' ? step.status : {}
-  const action = normalizeAiActionValue(
-    step.action
-      || step.commandAction
-      || step.targetState
-      || step.state
-      || step.operation
-  )
-  return {
-    id: toPlanPayloadString(step.id || step.stepId || step.title || step.name || `step-${index + 1}`, `step-${index + 1}`),
-    kind: toPlanPayloadString(step.kind || step.type || step.stepType || (step.statusGA || step.feedbackGA || status.ga ? 'write_and_verify' : 'write_only'), ''),
-    action,
-    title: toPlanPayloadString(step.title || step.name || step.label || `Step ${index + 1}`, `Step ${index + 1}`),
-    description: toPlanPayloadString(step.description || step.details || step.instruction || '', ''),
-    reason: toPlanPayloadString(step.reason || step.purpose || step.rationale || '', ''),
-    commandGA: toPlanPayloadString(step.commandGA || step.commandGa || step.ga || step.groupAddress || command.ga || '', ''),
-    commandDPT: toPlanPayloadString(step.commandDPT || step.commandDpt || step.dpt || command.dpt || '', ''),
-    commandPayload: step.commandPayload !== undefined ? step.commandPayload : (step.payload !== undefined ? step.payload : (step.value !== undefined ? step.value : command.payload)),
-    statusGA: toPlanPayloadString(step.statusGA || step.statusGa || step.feedbackGA || step.feedbackGa || step.stateGA || status.ga || '', ''),
-    statusDPT: toPlanPayloadString(step.statusDPT || step.statusDpt || step.feedbackDPT || step.feedbackDpt || step.stateDPT || status.dpt || '', ''),
-    expectedPayload: step.expectedPayload !== undefined ? step.expectedPayload : (step.expected !== undefined ? step.expected : (step.expectedValue !== undefined ? step.expectedValue : (status.expectedPayload !== undefined ? status.expectedPayload : (step.commandPayload !== undefined ? step.commandPayload : (step.payload !== undefined ? step.payload : ''))))),
-    statusWriteTimeoutMs: Number(step.statusWriteTimeoutMs !== undefined ? step.statusWriteTimeoutMs : (step.writeTimeoutMs !== undefined ? step.writeTimeoutMs : (step.timeoutMs !== undefined ? step.timeoutMs : 5000))),
-    statusResponseTimeoutMs: Number(step.statusResponseTimeoutMs !== undefined ? step.statusResponseTimeoutMs : (step.readTimeoutMs !== undefined ? step.readTimeoutMs : (step.timeoutMs !== undefined ? step.timeoutMs : 5000)))
-  }
-}
-
-const coerceAiPlanShape = (value) => {
-  if (Array.isArray(value)) {
-    return {
-      name: 'KNX Active Test',
-      description: '',
-      steps: value.map((step, index) => coerceAiStepShape(step, index)).filter(Boolean)
-    }
-  }
-  if (!value || typeof value !== 'object') return value
-  const root = value.plan && typeof value.plan === 'object'
-    ? value.plan
-    : value.testPlan && typeof value.testPlan === 'object'
-      ? value.testPlan
-      : value.data && typeof value.data === 'object'
-        ? value.data
-        : value
-  const rawSteps = Array.isArray(root.steps)
-    ? root.steps
-    : Array.isArray(root.actions)
-      ? root.actions
-      : Array.isArray(root.sequence)
-        ? root.sequence
-        : Array.isArray(root.plan)
-          ? root.plan
-          : []
-  return {
-    name: toPlanPayloadString(root.name || root.title || root.planName || root.testName || value.name || value.title, ''),
-    description: toPlanPayloadString(root.description || root.summary || root.objective || root.goal || value.description || '', ''),
-    steps: rawSteps.map((step, index) => coerceAiStepShape(step, index)).filter(Boolean)
-  }
 }
 
 const extractTextFromContentParts = (value) => {
@@ -2560,6 +2480,30 @@ module.exports = function (RED) {
       }
     })
 
+    RED.httpAdmin.post('/knxUltimateAI/sidebar/areas/delete', RED.auth.needsPermission('knxUltimate-config.write'), async (req, res) => {
+      try {
+        const nodeId = req.body?.nodeId ? String(req.body.nodeId) : ''
+        const areaId = req.body?.areaId ? String(req.body.areaId) : ''
+        if (!nodeId) {
+          res.status(400).json({ error: 'Missing nodeId' })
+          return
+        }
+        if (!areaId) {
+          res.status(400).json({ error: 'Missing areaId' })
+          return
+        }
+        const n = aiRuntimeNodes.get(nodeId) || RED.nodes.getNode(nodeId)
+        if (!n || n.type !== 'knxUltimateAI' || typeof n.deleteAreaDefinition !== 'function') {
+          res.status(404).json({ error: 'KNX AI node not found' })
+          return
+        }
+        const ret = await n.deleteAreaDefinition({ areaId })
+        res.json(ret)
+      } catch (error) {
+        res.status(error.status || 500).json({ error: error.message || String(error) })
+      }
+    })
+
     RED.httpAdmin.post('/knxUltimateAI/sidebar/areas/catalog', RED.auth.needsPermission('knxUltimate-config.read'), async (req, res) => {
       try {
         const nodeId = req.body?.nodeId ? String(req.body.nodeId) : ''
@@ -2579,6 +2523,25 @@ module.exports = function (RED) {
       }
     })
 
+    RED.httpAdmin.post('/knxUltimateAI/sidebar/areas/ga-role/save', RED.auth.needsPermission('knxUltimate-config.write'), async (req, res) => {
+      try {
+        const nodeId = req.body?.nodeId ? String(req.body.nodeId) : ''
+        if (!nodeId) {
+          res.status(400).json({ error: 'Missing nodeId' })
+          return
+        }
+        const n = aiRuntimeNodes.get(nodeId) || RED.nodes.getNode(nodeId)
+        if (!n || n.type !== 'knxUltimateAI' || typeof n.saveGaRoleOverride !== 'function') {
+          res.status(404).json({ error: 'KNX AI node not found' })
+          return
+        }
+        const ret = await n.saveGaRoleOverride(req.body || {})
+        res.json(ret)
+      } catch (error) {
+        res.status(error.status || 500).json({ error: error.message || String(error) })
+      }
+    })
+
     RED.httpAdmin.post('/knxUltimateAI/sidebar/areas/create', RED.auth.needsPermission('knxUltimate-config.write'), async (req, res) => {
       try {
         const nodeId = req.body?.nodeId ? String(req.body.nodeId) : ''
@@ -2592,6 +2555,44 @@ module.exports = function (RED) {
           return
         }
         const ret = await n.createAreaDefinition(req.body || {})
+        res.json(ret)
+      } catch (error) {
+        res.status(error.status || 500).json({ error: error.message || String(error) })
+      }
+    })
+
+    RED.httpAdmin.post('/knxUltimateAI/sidebar/areas/regenerate-llm', RED.auth.needsPermission('knxUltimate-config.write'), async (req, res) => {
+      try {
+        const nodeId = req.body?.nodeId ? String(req.body.nodeId) : ''
+        if (!nodeId) {
+          res.status(400).json({ error: 'Missing nodeId' })
+          return
+        }
+        const n = aiRuntimeNodes.get(nodeId) || RED.nodes.getNode(nodeId)
+        if (!n || n.type !== 'knxUltimateAI' || typeof n.regenerateLlmAreas !== 'function') {
+          res.status(404).json({ error: 'KNX AI node not found' })
+          return
+        }
+        const ret = await n.regenerateLlmAreas()
+        res.json(ret)
+      } catch (error) {
+        res.status(error.status || 500).json({ error: error.message || String(error) })
+      }
+    })
+
+    RED.httpAdmin.post('/knxUltimateAI/sidebar/areas/suggest-llm', RED.auth.needsPermission('knxUltimate-config.write'), async (req, res) => {
+      try {
+        const nodeId = req.body?.nodeId ? String(req.body.nodeId) : ''
+        if (!nodeId) {
+          res.status(400).json({ error: 'Missing nodeId' })
+          return
+        }
+        const n = aiRuntimeNodes.get(nodeId) || RED.nodes.getNode(nodeId)
+        if (!n || n.type !== 'knxUltimateAI' || typeof n.suggestAreaDraftWithLlm !== 'function') {
+          res.status(404).json({ error: 'KNX AI node not found' })
+          return
+        }
+        const ret = await n.suggestAreaDraftWithLlm(req.body || {})
         res.json(ret)
       } catch (error) {
         res.status(error.status || 500).json({ error: error.message || String(error) })
@@ -2792,6 +2793,9 @@ module.exports = function (RED) {
         const nodeId = req.body?.nodeId ? String(req.body.nodeId) : ''
         const areaId = req.body?.areaId ? String(req.body.areaId) : ''
         const prompt = req.body?.prompt ? String(req.body.prompt) : ''
+        const language = req.body?.language
+          ? String(req.body.language)
+          : extractLanguageCodeFromHeader(req.headers && req.headers['accept-language'] ? String(req.headers['accept-language']) : '', 'en')
         if (!nodeId) {
           res.status(400).json({ error: 'Missing nodeId' })
           return
@@ -2809,7 +2813,7 @@ module.exports = function (RED) {
           res.status(404).json({ error: 'KNX AI node not found' })
           return
         }
-        const ret = await n.generateAiTestPlan({ areaId, prompt })
+        const ret = await n.generateAiTestPlan({ areaId, prompt, language })
         res.json(ret)
       } catch (error) {
         res.status(error.status || 500).json({ error: error.message || String(error) })
@@ -4347,11 +4351,16 @@ module.exports = function (RED) {
 
     const getGaCatalogSnapshot = () => {
       const csv = (node.serverKNX && Array.isArray(node.serverKNX.csv)) ? node.serverKNX.csv : []
-      if (node._gaCatalogCache && node._gaCatalogCache.ref === csv && Array.isArray(node._gaCatalogCache.snapshot)) {
+      const roleOverrides = loadGaRoleOverrides()
+      const roleOverridesKey = JSON.stringify(roleOverrides || {})
+      if (node._gaCatalogCache && node._gaCatalogCache.ref === csv && node._gaCatalogCache.roleOverridesKey === roleOverridesKey && Array.isArray(node._gaCatalogCache.snapshot)) {
         return node._gaCatalogCache.snapshot
       }
-      const snapshot = buildGaCatalogFromCsv(csv)
-      node._gaCatalogCache = { ref: csv, snapshot }
+      const snapshot = applyGaRoleOverridesToCatalog({
+        catalog: buildGaCatalogFromCsv(csv),
+        roleOverrides
+      })
+      node._gaCatalogCache = { ref: csv, roleOverridesKey, snapshot }
       return snapshot
     }
 
@@ -4376,6 +4385,7 @@ module.exports = function (RED) {
       if (configData && typeof configData === 'object') {
         const normalized = {
           areas: configData.areas && typeof configData.areas === 'object' ? configData.areas : {},
+          gaRoles: configData.gaRoles && typeof configData.gaRoles === 'object' ? configData.gaRoles : {},
           profiles: Array.isArray(configData.profiles) ? configData.profiles : [],
           actuatorTests: Array.isArray(configData.actuatorTests) ? configData.actuatorTests : [],
           testPlans: Array.isArray(configData.testPlans) ? configData.testPlans : [],
@@ -4388,6 +4398,7 @@ module.exports = function (RED) {
       const legacyData = readJsonFileSafe(legacyPath, {})
       const normalized = {
         areas: legacyData && legacyData.areas && typeof legacyData.areas === 'object' ? legacyData.areas : {},
+        gaRoles: {},
         profiles: [],
         actuatorTests: [],
         testPlans: [],
@@ -4456,6 +4467,9 @@ module.exports = function (RED) {
         areas: partialConfig && partialConfig.areas && typeof partialConfig.areas === 'object'
           ? partialConfig.areas
           : (current.areas || {}),
+        gaRoles: partialConfig && partialConfig.gaRoles && typeof partialConfig.gaRoles === 'object'
+          ? partialConfig.gaRoles
+          : (current.gaRoles || {}),
         profiles: partialConfig && Array.isArray(partialConfig.profiles)
           ? partialConfig.profiles
           : (Array.isArray(current.profiles) ? current.profiles : []),
@@ -4482,6 +4496,7 @@ module.exports = function (RED) {
         nodeId: node.id,
         gatewayId: node.serverKNX ? node.serverKNX.id : '',
         areas: nextConfig.areas,
+        gaRoles: nextConfig.gaRoles,
         profiles: nextConfig.profiles,
         actuatorTests: nextConfig.actuatorTests,
         testPlans: nextConfig.testPlans,
@@ -4496,10 +4511,28 @@ module.exports = function (RED) {
       return current && current.areas && typeof current.areas === 'object' ? current.areas : {}
     }
 
+    const loadGaRoleOverrides = () => {
+      const current = loadPersistedAiConfig()
+      return current && current.gaRoles && typeof current.gaRoles === 'object' ? current.gaRoles : {}
+    }
+
     const writeAreaOverrides = (overrides) => {
       const current = loadPersistedAiConfig()
       return writePersistedAiConfig({
         areas: overrides && typeof overrides === 'object' ? overrides : {},
+        gaRoles: current.gaRoles && typeof current.gaRoles === 'object' ? current.gaRoles : {},
+        profiles: Array.isArray(current.profiles) ? current.profiles : [],
+        actuatorTests: Array.isArray(current.actuatorTests) ? current.actuatorTests : [],
+        testPlans: Array.isArray(current.testPlans) ? current.testPlans : [],
+        testResults: Array.isArray(current.testResults) ? current.testResults : []
+      })
+    }
+
+    const writeGaRoleOverrides = (overrides) => {
+      const current = loadPersistedAiConfig()
+      return writePersistedAiConfig({
+        areas: current.areas && typeof current.areas === 'object' ? current.areas : {},
+        gaRoles: overrides && typeof overrides === 'object' ? overrides : {},
         profiles: Array.isArray(current.profiles) ? current.profiles : [],
         actuatorTests: Array.isArray(current.actuatorTests) ? current.actuatorTests : [],
         testPlans: Array.isArray(current.testPlans) ? current.testPlans : [],
@@ -4516,6 +4549,7 @@ module.exports = function (RED) {
       const current = loadPersistedAiConfig()
       return writePersistedAiConfig({
         areas: current.areas && typeof current.areas === 'object' ? current.areas : {},
+        gaRoles: current.gaRoles && typeof current.gaRoles === 'object' ? current.gaRoles : {},
         profiles: Array.isArray(profiles) ? profiles : [],
         actuatorTests: Array.isArray(current.actuatorTests) ? current.actuatorTests : [],
         testPlans: Array.isArray(current.testPlans) ? current.testPlans : [],
@@ -4532,6 +4566,7 @@ module.exports = function (RED) {
       const current = loadPersistedAiConfig()
       return writePersistedAiConfig({
         areas: current.areas && typeof current.areas === 'object' ? current.areas : {},
+        gaRoles: current.gaRoles && typeof current.gaRoles === 'object' ? current.gaRoles : {},
         profiles: Array.isArray(current.profiles) ? current.profiles : [],
         actuatorTests: Array.isArray(presets) ? presets : [],
         testPlans: Array.isArray(current.testPlans) ? current.testPlans : [],
@@ -4548,6 +4583,7 @@ module.exports = function (RED) {
       const current = loadPersistedAiConfig()
       return writePersistedAiConfig({
         areas: current.areas && typeof current.areas === 'object' ? current.areas : {},
+        gaRoles: current.gaRoles && typeof current.gaRoles === 'object' ? current.gaRoles : {},
         profiles: Array.isArray(current.profiles) ? current.profiles : [],
         actuatorTests: Array.isArray(current.actuatorTests) ? current.actuatorTests : [],
         testPlans: Array.isArray(plans) ? plans : [],
@@ -4564,6 +4600,7 @@ module.exports = function (RED) {
       const current = loadPersistedAiConfig()
       return writePersistedAiConfig({
         areas: current.areas && typeof current.areas === 'object' ? current.areas : {},
+        gaRoles: current.gaRoles && typeof current.gaRoles === 'object' ? current.gaRoles : {},
         profiles: Array.isArray(current.profiles) ? current.profiles : [],
         actuatorTests: Array.isArray(current.actuatorTests) ? current.actuatorTests : [],
         testPlans: Array.isArray(current.testPlans) ? current.testPlans : [],
@@ -4630,6 +4667,7 @@ module.exports = function (RED) {
           gatewayName: (node.serverKNX && node.serverKNX.name) ? node.serverKNX.name : ''
         },
         areas: loadAreaOverrides(),
+        gaRoles: loadGaRoleOverrides(),
         profiles: loadCustomAreaProfiles(),
         actuatorTests: loadActuatorTestPresets(),
         testPlans: loadAiTestPlans(),
@@ -4642,6 +4680,253 @@ module.exports = function (RED) {
           testResults: buildAiTestResultsSnapshot()
         }
       }
+    }
+
+    const buildAreaLlmCatalogLines = ({ gaCatalog, limit = 400 }) => {
+      return (Array.isArray(gaCatalog) ? gaCatalog : [])
+        .slice(0, Math.max(1, Number(limit) || 400))
+        .map((item) => {
+          const tags = Array.isArray(item && item.tags) && item.tags.length ? ` | tags ${item.tags.join(',')}` : ''
+          const pathLabel = normalizeAreaText(item && item.hierarchyPath ? item.hierarchyPath : '')
+          const pathChunk = pathLabel ? ` | path ${pathLabel}` : ''
+          const role = normalizeAreaText(item && item.role ? item.role : item && item.baseRole ? item.baseRole : '')
+          const roleSource = normalizeAreaText(item && item.roleSource ? item.roleSource : item && item.baseRoleSource ? item.baseRoleSource : '')
+          const roleChunk = role ? ` | role ${role}${roleSource ? ` (${roleSource})` : ''}` : ''
+          return `- ${item.ga} | dpt ${item.dpt || 'n/a'} | ${normalizeAreaText(item.label || item.ga)}${pathChunk}${roleChunk}${tags}`
+        })
+    }
+
+    const normalizeAreaSuggestionPayload = ({ candidate, gaCatalogMap, fallbackIndex = 0, idPrefix = 'llm' }) => {
+      const source = candidate && typeof candidate === 'object' ? candidate : {}
+      const rawGaList = Array.isArray(source.gaList)
+        ? source.gaList
+        : Array.isArray(source.groupAddresses)
+          ? source.groupAddresses
+          : Array.isArray(source.gas)
+            ? source.gas
+            : []
+      const gaList = Array.from(new Set(rawGaList.map(ga => normalizeAreaText(ga)).filter(ga => gaCatalogMap.has(ga)))).slice(0, 5000)
+      if (!gaList.length) return null
+      const fallbackName = `LLM Area ${fallbackIndex + 1}`
+      const name = normalizeAreaText(source.name || source.title || fallbackName)
+      const description = normalizeAreaText(source.description || source.note || '')
+      const tags = Array.isArray(source.tags)
+        ? Array.from(new Set(source.tags.map(tag => slugifyAreaText(tag)).filter(Boolean))).slice(0, 12)
+        : []
+      let areaId = normalizeAreaText(source.id || '')
+      if (areaId) {
+        areaId = `${idPrefix}:${slugifyAreaText(areaId)}`
+      } else {
+        areaId = `${idPrefix}:${slugifyAreaText(name || fallbackName)}`
+      }
+      return {
+        id: areaId,
+        name: name || fallbackName,
+        description,
+        tags,
+        gaList
+      }
+    }
+
+    const buildAreaRegenerationPrompt = ({ gaCatalog }) => {
+      const lines = buildAreaLlmCatalogLines({ gaCatalog, limit: 500 })
+      return [
+        'Create practical operational KNX areas for an installer.',
+        'Analyze the following KNX group addresses and cluster them into meaningful areas.',
+        'Each area must group related GA that belong to the same room, zone, or functional unit.',
+        'Return JSON only.',
+        '',
+        'JSON format:',
+        '{ "areas": [ { "name": "string", "description": "string", "tags": ["string"], "gaList": ["0/0/1"] } ] }',
+        '',
+        'Rules:',
+        '- Use only GA present in the list below.',
+        '- Each area must contain at least 2 GA.',
+        '- Prefer room/zone/function oriented areas.',
+        '- Keep the number of areas reasonable.',
+        '- Do not invent GA.',
+        '',
+        'Group addresses:',
+        lines.join('\n')
+      ].join('\n')
+    }
+
+    const buildAreaDraftSuggestionPrompt = ({ prompt, draftName, draftDescription, currentGaList, gaCatalog }) => {
+      const lines = buildAreaLlmCatalogLines({ gaCatalog, limit: 500 })
+      const currentGaLines = Array.isArray(currentGaList) && currentGaList.length
+        ? currentGaList.map(ga => `- ${ga}`).join('\n')
+        : '- none'
+      return [
+        'Help an installer compose a custom KNX area.',
+        'Given the installer request and the available group addresses, choose the GA that belong to the requested area.',
+        'Return JSON only.',
+        '',
+        'JSON format:',
+        '{ "name": "string", "description": "string", "tags": ["string"], "gaList": ["0/0/1"] }',
+        '',
+        'Rules:',
+        '- Use only GA present in the list below.',
+        '- Keep existing GA if they still fit the request.',
+        '- Do not invent GA.',
+        '- Prefer a clean operational area that an installer would actually use.',
+        '',
+        `Installer request: ${prompt || ''}`,
+        `Draft name: ${draftName || ''}`,
+        `Draft description: ${draftDescription || ''}`,
+        'Current GA:',
+        currentGaLines,
+        '',
+        'Available group addresses:',
+        lines.join('\n')
+      ].join('\n')
+    }
+
+    const buildGaRoleSuggestionPrompt = ({ gaCatalog }) => {
+      const lines = (Array.isArray(gaCatalog) ? gaCatalog : []).map((item) => {
+        const pathLabel = normalizeAreaText(item && item.hierarchyPath ? item.hierarchyPath : '')
+        const pathChunk = pathLabel ? ` | path ${pathLabel}` : ''
+        const etsName = normalizeAreaText(item && item.etsName ? item.etsName : '')
+        const etsChunk = etsName ? ` | ets ${etsName}` : ''
+        const mainChunk = normalizeAreaText(item && item.mainGroup ? item.mainGroup : '') ? ` | main ${normalizeAreaText(item.mainGroup)}` : ''
+        const middleChunk = normalizeAreaText(item && item.middleGroup ? item.middleGroup : '') ? ` | middle ${normalizeAreaText(item.middleGroup)}` : ''
+        const currentRole = normalizeAreaText(item && item.baseRole ? item.baseRole : item && item.role ? item.role : 'neutral')
+        const currentSource = normalizeAreaText(item && item.baseRoleSource ? item.baseRoleSource : item && item.roleSource ? item.roleSource : '')
+        return `- ${item.ga} | dpt ${item.dpt || 'n/a'} | label ${normalizeAreaText(item.label || item.ga)}${etsChunk}${mainChunk}${middleChunk}${pathChunk} | current ${currentRole}${currentSource ? ` (${currentSource})` : ''}`
+      })
+      return [
+        'Classify the KNX role of each group address.',
+        'Return JSON only.',
+        '',
+        'JSON format:',
+        '{ "roles": [ { "ga": "0/0/1", "role": "command|status|neutral" } ] }',
+        '',
+        'Rules:',
+        '- Use only the listed GA.',
+        '- command = actuator command or setpoint object.',
+        '- status = feedback, state, indication, actual result, read/response object.',
+        '- neutral = sensor, measurement, scene support, or unclear.',
+        '- Prefer status when the GA clearly represents feedback/state.',
+        '- Use the ETS name, label, hierarchy, and multilingual wording to infer the role.',
+        '- The names may contain Italian, English, German, French, Spanish, Portuguese, or mixed KNX installer wording.',
+        '- If unsure, return neutral.',
+        '',
+        'Group addresses to classify:',
+        lines.join('\n')
+      ].join('\n')
+    }
+
+    const buildTestPlanTranslationPrompt = ({ language, languageName, plan }) => {
+      const safePlan = plan && typeof plan === 'object' ? plan : {}
+      const payload = {
+        steps: (Array.isArray(safePlan.steps) ? safePlan.steps : []).map((step) => ({
+          id: String(step && step.id ? step.id : ''),
+          title: normalizeProfileText(step && step.title),
+          description: normalizeProfileText(step && step.description)
+        }))
+      }
+      return [
+        `Translate the following KNX test step titles and descriptions into ${languageName || language}.`,
+        'Return JSON only.',
+        '',
+        'JSON format:',
+        '{ "steps": [ { "id": "string", "title": "string", "description": "string" } ] }',
+        '',
+        'Rules:',
+        '- Keep every step id unchanged.',
+        '- Translate only title and description.',
+        '- Do not change KNX addresses, payloads, DPT, identifiers, or technical meaning.',
+        '- Use concise installer-friendly wording.',
+        '',
+        safeStringify(payload)
+      ].join('\n')
+    }
+
+    const translateTestPlanLabelsWithLlm = async ({ language, plan }) => {
+      const targetLanguage = normalizeLanguageCode(language, 'en')
+      const targetLanguageName = languageNameFromCode(targetLanguage)
+      if (targetLanguage === 'en') {
+        return {
+          plan,
+          provider: '',
+          model: '',
+          translated: false
+        }
+      }
+      if (!node.llmEnabled) {
+        return {
+          plan,
+          provider: '',
+          model: '',
+          translated: false
+        }
+      }
+      const llmResponse = await callLLMChat({
+        systemPrompt: [
+          'You are a KNX installer assistant.',
+          'Translate only human-readable KNX test labels.',
+          'Return JSON only.'
+        ].join(' '),
+        userContent: buildTestPlanTranslationPrompt({ language: targetLanguage, languageName: targetLanguageName, plan })
+      })
+      const parsed = extractJsonFragmentFromText(llmResponse.content)
+      const translatedSteps = Array.isArray(parsed)
+        ? parsed
+        : Array.isArray(parsed && parsed.steps)
+          ? parsed.steps
+          : Array.isArray(parsed && parsed.translations)
+            ? parsed.translations
+            : Array.isArray(parsed && parsed.items)
+              ? parsed.items
+              : []
+      if (!translatedSteps.length) {
+        return {
+          plan,
+          provider: llmResponse.provider || '',
+          model: llmResponse.model || '',
+          translated: false
+        }
+      }
+      const translatedById = new Map(translatedSteps.map((step) => [String(step && step.id ? step.id : '').trim(), step]))
+      const nextPlan = Object.assign({}, plan, {
+        steps: (Array.isArray(plan && plan.steps) ? plan.steps : []).map((step) => {
+          const translated = translatedById.get(String(step && step.id ? step.id : '').trim())
+          if (!translated) return step
+          return Object.assign({}, step, {
+            title: normalizeProfileText(translated.title, step.title || ''),
+            description: normalizeProfileText(translated.description, step.description || '')
+          })
+        })
+      })
+      return {
+        plan: nextPlan,
+        provider: llmResponse.provider || '',
+        model: llmResponse.model || '',
+        translated: true
+      }
+    }
+
+    const suggestGaRoleOverridesWithLlm = async ({ gaCatalog }) => {
+      const candidates = (Array.isArray(gaCatalog) ? gaCatalog : []).filter(item => item && item.ga && isAmbiguousGaRoleSource(item.baseRoleSource || item.roleSource))
+      if (!candidates.length) return {}
+      const llmResponse = await callLLMChat({
+        systemPrompt: [
+          'You are a KNX installation modeling assistant.',
+          'Classify KNX group addresses as command, status, or neutral for installers.',
+          'Return JSON only.'
+        ].join(' '),
+        userContent: buildGaRoleSuggestionPrompt({ gaCatalog: candidates })
+      })
+      const parsed = extractJsonFragmentFromText(llmResponse.content)
+      const gaCatalogMap = new Map(candidates.map(item => [String(item.ga).trim(), item]))
+      const suggested = normalizeGaRoleSuggestionPayload({ payload: parsed, gaCatalogMap })
+      const overrides = {}
+      Object.entries(suggested).forEach(([ga, role]) => {
+        const item = gaCatalogMap.get(ga)
+        if (!item) return
+        const baseRole = normalizeGaRoleValue(item.baseRole || item.role, 'neutral')
+        if (role !== baseRole) overrides[ga] = role
+      })
+      return overrides
     }
 
     const getCsvRowsByGa = () => {
@@ -4670,17 +4955,21 @@ module.exports = function (RED) {
       const gaLastSeenAt = safeSummary && typeof safeSummary.gaLastSeenAt === 'object' ? safeSummary.gaLastSeenAt : {}
       const gaLastPayload = safeSummary && typeof safeSummary.gaLastPayload === 'object' ? safeSummary.gaLastPayload : {}
       const rowsByGa = getCsvRowsByGa()
+      const gaCatalogMap = new Map(getGaCatalogSnapshot().map(item => [String(item && item.ga ? item.ga : '').trim(), item]))
       const dptOptionsById = {}
 
       const signals = (Array.isArray(area.gaList) ? area.gaList : [])
         .map((ga) => {
           const row = rowsByGa.get(ga) || {}
+          const catalogItem = gaCatalogMap.get(ga) || {}
           const parsed = parseEtsHierarchyLabel(row.devicename)
-          const label = normalizeAreaText(parsed.deviceLabel || row.devicename || ga)
-          const dpt = normalizeAreaText(row.dpt)
-          const valueOptions = getDptValueOptions(dpt)
+          const label = normalizeAreaText(catalogItem.label || parsed.deviceLabel || row.devicename || ga)
+          const dpt = normalizeAreaText(catalogItem.dpt || row.dpt)
+          const valueOptions = Array.isArray(catalogItem.valueOptions) && catalogItem.valueOptions.length
+            ? catalogItem.valueOptions
+            : getDptValueOptions(dpt)
           if (dpt && valueOptions.length) dptOptionsById[dpt] = valueOptions
-          const role = inferSignalRole({ label, dpt })
+          const role = normalizeGaRoleValue(catalogItem.role, inferSignalRole({ label, dpt }))
           const stem = normalizeSignalStem(label) || slugifyAreaText(label)
           const category = inferSignalCategory({ label, areaTags: area.tags })
           return {
@@ -4689,6 +4978,10 @@ module.exports = function (RED) {
             label,
             valueOptions,
             role,
+            roleSource: normalizeAreaText(catalogItem.roleSource || ''),
+            roleOverride: normalizeGaRoleValue(catalogItem.roleOverride, 'auto'),
+            baseRole: normalizeGaRoleValue(catalogItem.baseRole, role),
+            baseRoleSource: normalizeAreaText(catalogItem.baseRoleSource || ''),
             stem,
             category,
             mainGroup: parsed.mainGroup || '',
@@ -4758,7 +5051,7 @@ module.exports = function (RED) {
       const dpt = String(signal && signal.dpt ? signal.dpt : '').trim()
       const text = normalizeSignalText(prompt)
       const action = detectPrimaryActionFromText(prompt)
-      if (/^(1|2|3)\./.test(dpt)) {
+      if (/^1\./.test(dpt)) {
         if (actionImpliesTruthy(action) || /\b(on|true|1|accendi|attiva|apri|up|su|allume|einschalten|enciende|liga|aan)\b/.test(text)) return 'true'
         if (actionImpliesFalsy(action) || /\b(off|false|0|spegni|disattiva|chiudi|down|giu|ferma|stop|eteins|ausschalten|apaga|desliga|uit)\b/.test(text)) return 'false'
         return 'true'
@@ -4770,7 +5063,7 @@ module.exports = function (RED) {
         if (action === 'close' || /\b(close|chiudi|down|giu|ferme|schliessen|cierra|fechar|sluiten)\b/.test(text)) return '0'
         return '100'
       }
-      return 'true'
+      return ''
     }
 
     const extractPromptActionSequence = (prompt) => {
@@ -4782,7 +5075,7 @@ module.exports = function (RED) {
       const valueOptions = Array.isArray(signal && signal.valueOptions) ? signal.valueOptions : []
       const actionName = String(action || '').trim().toLowerCase()
 
-      if (/^(1|2|3)\./.test(dpt)) {
+      if (/^1\./.test(dpt)) {
         if (['on', 'open'].includes(actionName)) return 'true'
         if (['off', 'close', 'stop'].includes(actionName)) return 'false'
       }
@@ -4811,48 +5104,56 @@ module.exports = function (RED) {
       return inferDefaultPayloadForSignal({ signal, prompt: fallbackPrompt })
     }
 
-    const buildHeuristicAiTestPlan = ({ areaId, prompt, catalog }) => {
-      const promptActions = extractPromptActionSequence(prompt)
-      const searchTokens = tokenizeSignalText(prompt)
-      const scoredPairs = (Array.isArray(catalog && catalog.pairs) ? catalog.pairs : []).map((pair) => {
-        const haystack = [
-          pair.label,
-          pair.category,
-          pair.command && pair.command.label,
-          pair.status && pair.status.label,
-          ...(Array.isArray(catalog && catalog.area && catalog.area.tags) ? catalog.area.tags : [])
-        ].filter(Boolean).join(' ').toLowerCase()
-        let score = Number(pair.score || 0)
-        searchTokens.forEach((token) => {
-          if (haystack.includes(token)) score += 3
+    const supportsPresetActionForSignal = ({ signal, action, prompt }) => {
+      if (!signal || !signal.ga) return false
+      const dpt = String(signal.dpt || '').trim()
+      const actionName = String(action || '').trim().toLowerCase()
+      if (!actionName) return false
+      if (/^1\./.test(dpt)) return ['on', 'off', 'open', 'close', 'stop'].includes(actionName)
+      if (/^5\./.test(dpt)) return ['on', 'off', 'open', 'close', 'stop'].includes(actionName)
+      const payload = payloadFromPromptAction({ signal, action, fallbackPrompt: prompt })
+      return String(payload || '').trim() !== ''
+    }
+
+    const buildDeterministicPresetTestPlan = ({ areaId, prompt, catalog }) => {
+      const requestedActions = Array.from(new Set(extractPromptActionSequence(prompt).filter(Boolean)))
+      const actionSequence = requestedActions.length ? requestedActions : ['on']
+      const targetCategory = inferPromptScopeCategory(prompt)
+      const areaText = normalizeSignalText(prompt)
+      const pairByCommandGA = new Map((Array.isArray(catalog && catalog.pairs) ? catalog.pairs : [])
+        .filter(pair => pair && pair.command && pair.command.ga)
+        .map(pair => [pair.command.ga, pair]))
+
+      const commandSignals = (Array.isArray(catalog && catalog.commandSignals) ? catalog.commandSignals : [])
+        .filter((signal) => {
+          if (!signal || !signal.ga) return false
+          if (targetCategory && String(signal.category || '').trim().toLowerCase() !== targetCategory) return false
+          if (targetCategory === 'lighting' && !/^1\./.test(String(signal.dpt || '').trim())) return false
+          return true
         })
-        if (pair.status) score += 4
-        return Object.assign({}, pair, { heuristicScore: score })
-      })
+        .filter((signal) => {
+          const haystack = normalizeSignalText([
+            signal.label,
+            signal.category,
+            signal.hierarchyPath,
+            signal.role
+          ].filter(Boolean).join(' '))
+          if (targetCategory === 'lighting') return /\b(light|lights|lighting|luce|luci)\b/.test(areaText) ? /\b(light|lights|lighting|luce|luci)\b/.test(haystack) || /^1\./.test(String(signal.dpt || '').trim()) : true
+          if (targetCategory === 'shading') return /\b(shading|shade|shades|blind|blinds|cover|covers|tapparella|tapparelle|veneziana|veneziane)\b/.test(haystack)
+          if (targetCategory === 'hvac') return /\b(hvac|heating|cooling|climate|thermostat|fan|clima|climate|temperatura)\b/.test(haystack)
+          return true
+        })
+        .filter((signal) => actionSequence.every(action => supportsPresetActionForSignal({ signal, action, prompt })))
+        .sort((a, b) => String(a.label || a.ga || '').localeCompare(String(b.label || b.ga || '')))
 
-      const selectedPairs = scoredPairs
-        .sort((a, b) => b.heuristicScore - a.heuristicScore)
-        .slice(0, 6)
-
-      const fallbackCommands = selectedPairs.length
-        ? []
-        : (Array.isArray(catalog && catalog.commandSignals) ? catalog.commandSignals.slice(0, 4).map(signal => ({
-          id: `${slugifyAreaText(signal.ga)}-nostatus`,
-          category: signal.category || '',
-          score: 0,
-          heuristicScore: 0,
-          label: signal.label,
-          command: signal,
-          status: null
-        })) : [])
-
-      const targets = selectedPairs.length ? selectedPairs : fallbackCommands
       const steps = []
       let stepIndex = 1
-      targets.forEach((pair) => {
-        const actionSequence = promptActions.length ? promptActions : ['on']
-        actionSequence.forEach((action, actionIndex) => {
-          const commandPayload = payloadFromPromptAction({ signal: pair.command, action, fallbackPrompt: prompt })
+      actionSequence.forEach((action, actionIndex) => {
+        commandSignals.forEach((command) => {
+          const pair = pairByCommandGA.get(command.ga) || null
+          const status = pair && pair.status ? pair.status : null
+          const commandPayload = payloadFromPromptAction({ signal: command, action, fallbackPrompt: prompt })
+          if (String(commandPayload || '').trim() === '') return
           const actionLabel = action === 'on'
             ? 'Turn on'
             : action === 'off'
@@ -4861,49 +5162,59 @@ module.exports = function (RED) {
                 ? 'Open'
                 : action === 'close'
                   ? 'Close'
-                  : 'Set'
+                  : action === 'stop'
+                    ? 'Stop'
+                    : 'Set'
           steps.push({
             id: `step-${stepIndex++}`,
-            kind: pair.status ? 'write_and_verify' : 'write_only',
+            kind: status ? 'write_and_verify' : 'write_only',
             action,
-            title: pair.status ? `${actionLabel} ${pair.command.label} and verify feedback` : `${actionLabel} ${pair.command.label}`,
-            description: pair.status
-              ? `Send ${commandPayload} to ${pair.command.ga} and verify ${pair.status.ga}.`
-              : `Send ${commandPayload} to ${pair.command.ga}.`,
-            reason: 'Generated from ETS area catalog and user prompt.',
-            commandGA: pair.command.ga,
-            commandDPT: pair.command.dpt,
+            title: status ? `${actionLabel} ${command.label} and verify feedback` : `${actionLabel} ${command.label}`,
+            description: status
+              ? `Send ${commandPayload} to ${command.ga} and verify ${status.ga}.`
+              : `Send ${commandPayload} to ${command.ga}.`,
+            reason: 'Generated from the selected test template and ETS area catalog.',
+            commandGA: command.ga,
+            commandDPT: command.dpt,
             commandPayload,
-            statusGA: pair.status ? pair.status.ga : '',
-            statusDPT: pair.status ? pair.status.dpt : '',
+            statusGA: status ? status.ga : '',
+            statusDPT: status ? status.dpt : '',
             expectedPayload: commandPayload,
             statusWriteTimeoutMs: 5000,
             statusResponseTimeoutMs: 5000
           })
-          if (actionIndex < actionSequence.length - 1) {
-            steps.push({
-              id: `step-${stepIndex++}`,
-              kind: 'wait',
-              title: 'Wait for state propagation',
-              description: 'Pause before the next command.',
-              reason: 'Inserted automatically between prompt actions.',
-              delayMs: 1200
-            })
-          }
         })
+        if (actionIndex < actionSequence.length - 1 && commandSignals.length) {
+          steps.push({
+            id: `step-${stepIndex++}`,
+            kind: 'wait',
+            title: 'Wait for state propagation',
+            description: 'Pause before the next command phase.',
+            reason: 'Inserted automatically between command phases.',
+            delayMs: 1200
+          })
+        }
       })
 
       return normalizeAiTestPlanPayload({
         id: `plan-${areaId}-${Date.now()}`,
-        name: `Active Test ${catalog && catalog.area ? (catalog.area.name || 'Area') : 'Area'}`,
-        description: 'AI-guided proactive test plan generated from the selected area.',
+        name: `Template Test ${catalog && catalog.area ? (catalog.area.name || 'Area') : 'Area'}`,
+        description: 'Deterministic active test plan generated from the selected test template.',
         areaId,
         areaName: catalog && catalog.area ? (catalog.area.path || catalog.area.name || '') : '',
         prompt,
-        source: 'heuristic',
+        source: 'template',
         generatedAt: new Date().toISOString(),
         steps
       }, `plan-${areaId}-${Date.now()}`)
+    }
+
+    const inferPromptScopeCategory = (prompt) => {
+      const text = normalizeSignalText(prompt)
+      if (/\b(light|lights|lighting)\b/.test(text)) return 'lighting'
+      if (/\b(hvac|heating|cooling|climate|thermostat)\b/.test(text)) return 'hvac'
+      if (/\b(shading|shade|shades|blind|blinds|cover|covers)\b/.test(text)) return 'shading'
+      return ''
     }
 
     const finalizeAiTestPlanFromCatalog = ({ rawPlan, areaId, prompt, catalog }) => {
@@ -4969,52 +5280,6 @@ module.exports = function (RED) {
       })
     }
 
-    const buildAiPlanPrompt = ({ prompt, catalog }) => {
-      const pairLines = (Array.isArray(catalog && catalog.pairs) ? catalog.pairs : [])
-        .slice(0, 24)
-        .map((pair) => {
-          const commandLabel = normalizeAreaText(pair && pair.command && pair.command.label)
-          const statusLabel = normalizeAreaText(pair && pair.status && pair.status.label)
-          const statusChunk = pair && pair.status
-            ? `status ${pair.status.ga} | ${pair.status.dpt} | ${statusLabel}`
-            : 'status none'
-          return `- command ${pair.command.ga} | ${pair.command.dpt} | ${commandLabel} | ${statusChunk}`
-        })
-      const extraCommandLines = (Array.isArray(catalog && catalog.commandSignals) ? catalog.commandSignals : [])
-        .filter(signal => !(Array.isArray(catalog && catalog.pairs) ? catalog.pairs : []).some(pair => pair.command && pair.command.ga === signal.ga))
-        .slice(0, 12)
-        .map(signal => `- command ${signal.ga} | ${signal.dpt} | ${normalizeAreaText(signal.label)} | status none`)
-      return [
-        'Create a KNX active test plan.',
-        `Area: ${catalog && catalog.area ? (catalog.area.path || catalog.area.name || catalog.area.id) : 'unknown area'}`,
-        `Available command entries: ${pairLines.length + extraCommandLines.length}`,
-        '',
-        'Available command entries:',
-        [...pairLines, ...extraCommandLines].join('\n'),
-        '',
-        'Return ONLY one JSON object.',
-        'JSON root fields:',
-        '- name: string',
-        '- description: string',
-        '- steps: array',
-        '',
-        'Each step must be one of these two forms:',
-        '- wait step: { "id": "...", "kind": "wait", "title": "...", "description": "...", "reason": "...", "delayMs": 1000 }',
-        '- active step: { "id": "...", "kind": "write_only" or "write_and_verify", "action": "on"|"off"|"open"|"close"|"stop", "title": "...", "description": "...", "reason": "...", "commandGA": "...", "commandDPT": "...", "commandPayload": "0 or 1 or other valid value", "statusGA": "... or empty string", "statusDPT": "... or empty string", "expectedPayload": "value expected from status", "statusWriteTimeoutMs": 5000, "statusResponseTimeoutMs": 5000 }',
-        '',
-        'Rules:',
-        '- Use only the listed command entries.',
-        '- If a status GA is available, prefer kind "write_and_verify".',
-        '- If the request says "turn on, then turn off", create two ordered active steps: first on, then off.',
-        '- For DPT 1.001 use payload 1 for On and 0 for Off.',
-        '- expectedPayload must match the requested action.',
-        '- Insert a wait step between opposite commands when useful.',
-        '- Create 1 to 8 steps.',
-        '- No markdown. No explanations. JSON only.',
-        '',
-        `Installer request: ${prompt}`
-      ].join('\n')
-    }
 
     const executeWaitStep = async (stepPayload = {}) => {
       const step = normalizeTestPlanStepPayload(stepPayload, stepPayload && stepPayload.id ? String(stepPayload.id) : 'wait-step')
@@ -5214,6 +5479,27 @@ module.exports = function (RED) {
       }
     }
 
+    node.saveGaRoleOverride = async ({ ga, role } = {}) => {
+      const targetGa = normalizeAreaText(ga)
+      if (!targetGa) throw new Error('Missing ga')
+      const catalogMap = new Map(getGaCatalogSnapshot().map(item => [String(item && item.ga ? item.ga : '').trim(), item]))
+      if (!catalogMap.has(targetGa)) throw new Error(`GA '${targetGa}' not found`)
+      const normalizedRole = normalizeGaRoleValue(role, 'auto')
+      const currentOverrides = Object.assign({}, loadGaRoleOverrides())
+      if (normalizedRole === 'auto') delete currentOverrides[targetGa]
+      else currentOverrides[targetGa] = normalizedRole
+      writeGaRoleOverrides(currentOverrides)
+      const summary = node._lastSummary || rebuildCachedSummaryNow()
+      return {
+        ok: true,
+        ga: targetGa,
+        role: normalizedRole,
+        gaCatalog: getGaCatalogSnapshot(),
+        areas: buildAreasSnapshot({ summary }),
+        testPlans: buildAiTestPlansSnapshot()
+      }
+    }
+
     node.createAreaDefinition = async ({ id, name, description, tags, gaList } = {}) => {
       const currentOverrides = Object.assign({}, loadAreaOverrides())
       const normalizedId = normalizeCustomAreaId(id, name)
@@ -5276,6 +5562,162 @@ module.exports = function (RED) {
         profiles: buildProfilesSnapshot(),
         actuatorTests: buildActuatorTestsSnapshot(),
         testPlans: buildAiTestPlansSnapshot()
+      }
+    }
+
+    node.deleteAreaDefinition = async ({ areaId } = {}) => {
+      const targetAreaId = String(areaId || '').trim()
+      if (!targetAreaId) throw new Error('Missing areaId')
+      const baseSnapshot = getAreasBaseSnapshot()
+      const existsInBase = Array.isArray(baseSnapshot.suggested) && baseSnapshot.suggested.some(area => area.id === targetAreaId)
+      const currentOverrides = Object.assign({}, loadAreaOverrides())
+      if (existsInBase) {
+        currentOverrides[targetAreaId] = normalizeAreaOverridePayload({ deleted: true })
+      } else {
+        delete currentOverrides[targetAreaId]
+      }
+      writeAreaOverrides(currentOverrides)
+      const summary = node._lastSummary || rebuildCachedSummaryNow()
+      return {
+        ok: true,
+        areaId: targetAreaId,
+        areas: buildAreasSnapshot({ summary }),
+        profiles: buildProfilesSnapshot(),
+        actuatorTests: buildActuatorTestsSnapshot(),
+        testPlans: buildAiTestPlansSnapshot()
+      }
+    }
+
+    node.regenerateLlmAreas = async () => {
+      if (!node.llmEnabled) throw new Error('LLM is disabled in the KNX AI node config')
+      const gaCatalog = getGaCatalogSnapshot()
+      if (!Array.isArray(gaCatalog) || !gaCatalog.length) throw new Error('No ETS group addresses available')
+      const llmResponse = await callLLMChat({
+        systemPrompt: [
+          'You are a KNX installation modeling assistant.',
+          'Group KNX group addresses into practical installer-friendly operational areas.',
+          'Return JSON only.'
+        ].join(' '),
+        userContent: buildAreaRegenerationPrompt({ gaCatalog })
+      })
+      const parsed = extractJsonFragmentFromText(llmResponse.content)
+      const rawAreas = Array.isArray(parsed)
+        ? parsed
+        : Array.isArray(parsed && parsed.areas)
+          ? parsed.areas
+          : []
+      if (!rawAreas.length) throw new Error('The LLM did not return any areas')
+      const gaCatalogMap = new Map(gaCatalog.map(item => [String(item && item.ga ? item.ga : '').trim(), item]))
+      const normalizedAreas = rawAreas
+        .map((candidate, index) => normalizeAreaSuggestionPayload({
+          candidate,
+          gaCatalogMap,
+          fallbackIndex: index,
+          idPrefix: 'llm'
+        }))
+        .filter(Boolean)
+      if (!normalizedAreas.length) throw new Error('The LLM areas did not contain valid group addresses')
+
+      let nextGaRoles = Object.assign({}, loadGaRoleOverrides())
+      try {
+        const selectedGaSet = new Set(normalizedAreas.flatMap(area => Array.isArray(area.gaList) ? area.gaList : []).map(ga => String(ga || '').trim()).filter(Boolean))
+        const llmRoleOverrides = await suggestGaRoleOverridesWithLlm({
+          gaCatalog: gaCatalog.filter(item => selectedGaSet.has(String(item && item.ga ? item.ga : '').trim()))
+        })
+        if (llmRoleOverrides && typeof llmRoleOverrides === 'object' && Object.keys(llmRoleOverrides).length) {
+          nextGaRoles = Object.assign({}, nextGaRoles, llmRoleOverrides)
+          writeGaRoleOverrides(nextGaRoles)
+        }
+      } catch (error) {
+        node.warn(`KNX AI role classification skipped: ${error.message || String(error)}`)
+      }
+
+      const nextOverrides = Object.assign({}, loadAreaOverrides())
+      Object.keys(nextOverrides).forEach((key) => {
+        if (String(key || '').startsWith('llm:')) delete nextOverrides[key]
+      })
+      normalizedAreas.forEach((area, index) => {
+        const baseId = String(area.id || `llm:area-${index + 1}`)
+        let finalId = baseId
+        let suffix = 2
+        while (Object.prototype.hasOwnProperty.call(nextOverrides, finalId)) {
+          finalId = `${baseId}-${suffix++}`
+        }
+        nextOverrides[finalId] = normalizeAreaOverridePayload({
+          name: area.name,
+          description: area.description,
+          tags: area.tags,
+          gaList: area.gaList
+        })
+      })
+      writeAreaOverrides(nextOverrides)
+      const summary = node._lastSummary || rebuildCachedSummaryNow()
+      return {
+        ok: true,
+        generatedCount: normalizedAreas.length,
+        provider: llmResponse && llmResponse.provider ? llmResponse.provider : '',
+        model: llmResponse && llmResponse.model ? llmResponse.model : '',
+        gaCatalog: getGaCatalogSnapshot(),
+        areas: buildAreasSnapshot({ summary }),
+        profiles: buildProfilesSnapshot(),
+        actuatorTests: buildActuatorTestsSnapshot(),
+        testPlans: buildAiTestPlansSnapshot()
+      }
+    }
+
+    node.suggestAreaDraftWithLlm = async ({ prompt, name, description, gaList } = {}) => {
+      if (!node.llmEnabled) throw new Error('LLM is disabled in the KNX AI node config')
+      const installerPrompt = String(prompt || '').trim()
+      if (!installerPrompt) throw new Error('Missing prompt')
+      const gaCatalog = getGaCatalogSnapshot()
+      if (!Array.isArray(gaCatalog) || !gaCatalog.length) throw new Error('No ETS group addresses available')
+      const llmResponse = await callLLMChat({
+        systemPrompt: [
+          'You are a KNX installation modeling assistant.',
+          'Choose the best group addresses for a custom installer-defined area.',
+          'Return JSON only.'
+        ].join(' '),
+        userContent: buildAreaDraftSuggestionPrompt({
+          prompt: installerPrompt,
+          draftName: name,
+          draftDescription: description,
+          currentGaList: Array.isArray(gaList) ? gaList : [],
+          gaCatalog
+        })
+      })
+      const parsed = extractJsonFragmentFromText(llmResponse.content)
+      const gaCatalogMap = new Map(gaCatalog.map(item => [String(item && item.ga ? item.ga : '').trim(), item]))
+      const suggestion = normalizeAreaSuggestionPayload({
+        candidate: parsed,
+        gaCatalogMap,
+        fallbackIndex: 0,
+        idPrefix: 'draft'
+      })
+      if (!suggestion || !Array.isArray(suggestion.gaList) || !suggestion.gaList.length) {
+        throw new Error('The LLM did not return valid group addresses for this area')
+      }
+      try {
+        const llmRoleOverrides = await suggestGaRoleOverridesWithLlm({
+          gaCatalog: gaCatalog.filter(item => suggestion.gaList.includes(String(item && item.ga ? item.ga : '').trim()))
+        })
+        if (llmRoleOverrides && typeof llmRoleOverrides === 'object' && Object.keys(llmRoleOverrides).length) {
+          const nextGaRoles = Object.assign({}, loadGaRoleOverrides(), llmRoleOverrides)
+          writeGaRoleOverrides(nextGaRoles)
+        }
+      } catch (error) {
+        node.warn(`KNX AI draft GA role classification skipped: ${error.message || String(error)}`)
+      }
+      return {
+        ok: true,
+        suggestion: {
+          name: suggestion.name,
+          description: suggestion.description,
+          tags: suggestion.tags,
+          gaList: suggestion.gaList
+        },
+        provider: llmResponse && llmResponse.provider ? llmResponse.provider : '',
+        model: llmResponse && llmResponse.model ? llmResponse.model : '',
+        gaCatalog: getGaCatalogSnapshot()
       }
     }
 
@@ -5586,12 +6028,18 @@ module.exports = function (RED) {
     node.importAiConfig = async (payload) => {
       const p = payload && typeof payload === 'object' ? payload : {}
       const nextAreas = p.areas && typeof p.areas === 'object' ? p.areas : {}
+      const nextGaRoles = p.gaRoles && typeof p.gaRoles === 'object'
+        ? Object.fromEntries(Object.entries(p.gaRoles)
+          .map(([ga, role]) => [normalizeAreaText(ga), normalizeGaRoleValue(role, 'auto')])
+          .filter(([ga, role]) => ga && role !== 'auto'))
+        : {}
       const nextProfiles = Array.isArray(p.profiles) ? p.profiles.map((profile, index) => normalizeAreaProfilePayload(profile, `import-${index + 1}`)) : []
       const nextActuatorTests = Array.isArray(p.actuatorTests) ? p.actuatorTests.map((preset, index) => normalizeActuatorTestPresetPayload(preset, `import-actuator-${index + 1}`)) : []
       const nextTestPlans = Array.isArray(p.testPlans) ? p.testPlans.map((plan, index) => normalizeAiTestPlanPayload(plan, `import-plan-${index + 1}`)) : []
       const nextTestResults = Array.isArray(p.testResults) ? p.testResults.map((report, index) => normalizeAiTestResultPayload(report, `import-result-${index + 1}`)).filter(Boolean) : []
       writePersistedAiConfig({
         areas: nextAreas,
+        gaRoles: nextGaRoles,
         profiles: nextProfiles,
         actuatorTests: nextActuatorTests,
         testPlans: nextTestPlans,
@@ -5700,96 +6148,60 @@ module.exports = function (RED) {
       return { provider: 'openai_compat', model: baseBody.model, content }
     }
 
-    const normalizePromptForPlanner = async (inputPrompt = '') => {
-      const originalPrompt = String(inputPrompt || '').trim()
-      if (!originalPrompt) return { originalPrompt: '', normalizedPrompt: '' }
-      try {
-        const translation = await callLLMChat({
-          systemPrompt: [
-            'You rewrite KNX installer requests into concise technical English.',
-            'Preserve the exact intent, sequence, and polarity of commands.',
-            'Do not explain anything.',
-            'Return only the rewritten English request as plain text.'
-          ].join(' '),
-          userContent: `Rewrite this KNX installer request into precise technical English:\n\n${originalPrompt}`
-        })
-        const normalizedPrompt = String(translation && translation.content ? translation.content : '')
-          .trim()
-          .replace(/^["'`]+|["'`]+$/g, '')
-        return {
-          originalPrompt,
-          normalizedPrompt: normalizedPrompt || originalPrompt,
-          provider: translation && translation.provider ? translation.provider : '',
-          model: translation && translation.model ? translation.model : ''
-        }
-      } catch (error) {
-        return {
-          originalPrompt,
-          normalizedPrompt: originalPrompt,
-          provider: '',
-          model: '',
-          error: error && error.message ? String(error.message) : String(error)
-        }
-      }
-    }
-
-    node.generateAiTestPlan = async ({ areaId, prompt } = {}) => {
+    node.generateAiTestPlan = async ({ areaId, prompt, language } = {}) => {
       const targetAreaId = String(areaId || '').trim()
       const question = String(prompt || '').trim()
+      const targetLanguage = normalizeLanguageCode(language, 'en')
       if (!targetAreaId) throw new Error('Missing areaId')
       if (!question) throw new Error('Missing prompt')
-      if (!node.llmEnabled) throw new Error('LLM is disabled in the KNX AI node config')
       const summary = rebuildCachedSummaryNow()
       const catalog = buildAreaSignalCatalog({ areaId: targetAreaId, summary })
-      let plan = null
-      let provider = ''
-      let model = ''
-      const promptNormalization = await normalizePromptForPlanner(question)
-      const plannerPrompt = String(promptNormalization && promptNormalization.normalizedPrompt ? promptNormalization.normalizedPrompt : question).trim() || question
-      const llmResponse = await callLLMChat({
-        systemPrompt: [
-          'You are a KNX commissioning assistant.',
-          'Generate deterministic active test plans only.',
-          'Return JSON only, no markdown.'
-        ].join(' '),
-        userContent: buildAiPlanPrompt({ prompt: plannerPrompt, catalog })
-      })
-      provider = llmResponse.provider || 'openai_compat'
-      model = llmResponse.model || ''
-      const rawPlan = coerceAiPlanShape(extractJsonObjectFromText(llmResponse.content))
-      if (!rawPlan || typeof rawPlan !== 'object' || Array.isArray(rawPlan)) {
-        throw new Error('The configured LLM did not return a valid JSON object')
-      }
-      if (!String(rawPlan.name || '').trim()) {
-        rawPlan.name = `KNX Active Test ${catalog && catalog.area ? (catalog.area.name || 'Area') : 'Area'}`
-      }
-      if (rawPlan.description === undefined || rawPlan.description === null) {
-        rawPlan.description = ''
-      }
-      plan = finalizeAiTestPlanFromCatalog({
-        rawPlan,
+      let plan = buildDeterministicPresetTestPlan({
         areaId: targetAreaId,
-        prompt: plannerPrompt,
+        prompt: question,
         catalog
       })
       if (!plan || !Array.isArray(plan.steps) || plan.steps.length === 0) {
-        throw new Error('The configured LLM did not return executable steps for this area and prompt')
+        throw new Error('The selected test template did not produce executable steps for this area')
       }
       plan.prompt = question
-      plan.normalizedPrompt = plannerPrompt
+      let translation = {
+        provider: '',
+        model: '',
+        translated: false
+      }
+      try {
+        translation = await translateTestPlanLabelsWithLlm({
+          language: targetLanguage,
+          plan
+        })
+        plan = translation.plan || plan
+      } catch (error) {
+        translation = {
+          provider: '',
+          model: '',
+          translated: false,
+          error: error.message || String(error)
+        }
+      }
 
       return {
         ok: true,
         plan,
         catalog,
         generation: {
-          provider,
-          model,
-          normalizedPrompt: plannerPrompt,
-          translationProvider: promptNormalization && promptNormalization.provider ? promptNormalization.provider : '',
-          translationModel: promptNormalization && promptNormalization.model ? promptNormalization.model : '',
+          provider: 'deterministic',
+          model: '',
+          normalizedPrompt: question,
+          translationProvider: '',
+          translationModel: '',
           fallback: false,
-          error: ''
+          error: translation.error || '',
+          language: targetLanguage,
+          languageName: languageNameFromCode(targetLanguage),
+          translated: translation.translated === true,
+          translationProvider: translation.provider || '',
+          translationModel: translation.model || ''
         },
         testPlans: buildAiTestPlansSnapshot()
       }
@@ -6206,7 +6618,7 @@ module.exports = function (RED) {
             payload: ret.report,
             knxAi: { type: 'ai_test_plan_report', areaId: ret.report && ret.report.area ? ret.report.area.id : '' }
           }, null, null])
-          updateStatus({ fill: 'green', shape: 'dot', text: `AI test ${ret.report.name || ret.report.id}` })
+          updateStatus({ fill: 'green', shape: 'dot', text: `Test plan ${ret.report.name || ret.report.id}` })
           return
         }
 
