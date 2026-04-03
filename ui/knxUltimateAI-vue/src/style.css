@@ -1,22 +1,22 @@
 :root {
   color-scheme: light;
-  --bg: #f4f1ff;
+  --bg: #f4f4f4;
   --panel: #ffffff;
-  --panel-soft: #f8f5ff;
-  --text: #2b2446;
-  --muted: #655f80;
-  --line: rgba(98, 87, 142, 0.24);
-  --accent: #7a68d8;
-  --accent-soft: #ece8ff;
+  --panel-soft: #efefef;
+  --text: #333333;
+  --muted: #666666;
+  --line: rgba(0, 0, 0, 0.125);
+  --accent: #ff9800;
+  --accent-soft: #fff3e0;
   --ok-bg: #edf9ef;
   --ok-border: #5bbf73;
   --err-bg: #ffe9ea;
   --err-border: #d95b63;
-  --warn-bg: #fff3df;
+  --warn-bg: #fff5e3;
   --warn-border: #d99a34;
-  --card-radius: 18px;
-  --shadow: 0 12px 40px rgba(43, 36, 70, 0.08);
-  font-family: "Manrope", "Segoe UI", sans-serif;
+  --card-radius: 4px;
+  --shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans", "Liberation Sans", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 }
 
 * {
@@ -31,10 +31,7 @@ body,
 }
 
 body {
-  background:
-    radial-gradient(circle at top left, rgba(122, 104, 216, 0.16), transparent 30%),
-    radial-gradient(circle at top right, rgba(91, 191, 115, 0.14), transparent 24%),
-    linear-gradient(180deg, #f6f2ff 0%, #f5f8ff 52%, #f7fcf8 100%);
+  background: #f4f4f4;
   color: var(--text);
 }
 

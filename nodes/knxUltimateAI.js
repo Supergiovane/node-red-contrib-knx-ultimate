@@ -2343,28 +2343,6 @@ module.exports = function (RED) {
       })
     })
 
-    RED.httpAdmin.get('/knxUltimateAI/sidebar/theme/:theme.css', RED.auth.needsPermission('knxUltimate-config.read'), (req, res) => {
-      const themeName = String(req.params?.theme || '').trim().toLowerCase()
-      const allowed = {
-        mix: 'knxUltimateAI-theme-mix.css',
-        green: 'knxUltimateAI-theme-green.css',
-        lavender: 'knxUltimateAI-theme-lavender.css'
-      }
-      const fileName = allowed[themeName]
-      if (!fileName) {
-        res.status(404).type('text/plain').send('Theme not found')
-        return
-      }
-      const cssPath = path.join(__dirname, 'plugins', 'themes', fileName)
-      res.type('text/css; charset=utf-8')
-      res.sendFile(cssPath, (error) => {
-        if (!error) return
-        if (!res.headersSent) {
-          res.status(error.statusCode || 500).type('text/plain').send(error.message || String(error))
-        }
-      })
-    })
-
     RED.httpAdmin.get('/knxUltimateAI/sidebar/nodes', RED.auth.needsPermission('knxUltimate-config.read'), (req, res) => {
       try {
         const nodes = Array.from(aiRuntimeNodes.values()).map((n) => ({
@@ -4641,7 +4619,30 @@ module.exports = function (RED) {
         overrides: loadAreaOverrides(),
         gaCatalog: getGaCatalogSnapshot()
       })
-      return enrichSuggestedAreasWithSummary({ baseSnapshot: mergedSnapshot, summary })
+      const suggested = Array.isArray(mergedSnapshot.suggested) ? mergedSnapshot.suggested : []
+      const filteredSuggested = suggested.filter((area) => {
+        const kind = String(area && area.kind ? area.kind : '')
+        return kind === 'custom_manual' || kind === 'custom_llm'
+      })
+      const filteredGaSet = new Set()
+      filteredSuggested.forEach((area) => {
+        (Array.isArray(area && area.gaList) ? area.gaList : []).forEach((ga) => {
+          const normalizedGa = String(ga || '').trim()
+          if (normalizedGa) filteredGaSet.add(normalizedGa)
+        })
+      })
+      const filteredSnapshot = Object.assign({}, mergedSnapshot, {
+        source: filteredSuggested.length ? 'custom' : 'none',
+        totals: Object.assign({}, mergedSnapshot.totals || {}, {
+          gaCount: filteredGaSet.size,
+          hierarchicalGaCount: 0,
+          secondaryGroupCount: 0,
+          mainGroupCount: 0,
+          suggestedAreaCount: filteredSuggested.length
+        }),
+        suggested: filteredSuggested
+      })
+      return enrichSuggestedAreasWithSummary({ baseSnapshot: filteredSnapshot, summary })
     }
 
     const buildProfilesSnapshot = () => {
@@ -5527,9 +5528,13 @@ module.exports = function (RED) {
     node.saveAreaDefinition = async ({ areaId, name, description, tags, gaList } = {}) => {
       const targetAreaId = String(areaId || '').trim()
       if (!targetAreaId) throw new Error('Missing areaId')
-      const baseSnapshot = getAreasBaseSnapshot()
-      const exists = Array.isArray(baseSnapshot.suggested) && baseSnapshot.suggested.some(area => area.id === targetAreaId)
-      const isCustom = targetAreaId.startsWith('custom:')
+      const mergedSnapshot = applyAreaOverridesToSnapshot({
+        snapshot: getAreasBaseSnapshot(),
+        overrides: loadAreaOverrides(),
+        gaCatalog: getGaCatalogSnapshot()
+      })
+      const exists = Array.isArray(mergedSnapshot.suggested) && mergedSnapshot.suggested.some(area => area.id === targetAreaId)
+      const isCustom = targetAreaId.startsWith('custom:') || targetAreaId.startsWith('llm:')
       if (!exists && !isCustom) throw new Error(`Area '${targetAreaId}' not found`)
       const currentOverrides = Object.assign({}, loadAreaOverrides())
       const nextOverride = normalizeAreaOverridePayload({ name, description, tags, gaList })

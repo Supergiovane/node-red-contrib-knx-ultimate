@@ -6,6 +6,15 @@
 
 # CHANGELOG
 
+**Version 4.2.6** - April 2026<br/>
+
+- UI: **KNX AI Web** layout and visual style aligned to the Homebridge-like interface, with unified orange accent palette and cleaned component styling.<br/>
+- CHANGE: **KNX AI Web** removed legacy theme management and related theme files, keeping a single coherent visual theme.<br/>
+- UI: **KNX AI Web** navigation/workspace refactor: dedicated pages for **Settings** and **Test Results**, plus improved menu structure and labels.<br/>
+- NEW: **KNX AI Web** **Settings** now includes split tabs (**KNX AI Node** and **Import / Export**) and moved node selection/auto-refresh controls into the dedicated node settings panel.<br/>
+- NEW: **KNX AI Web** **Test Results** can now be exported to **PDF** directly from the selected report.<br/>
+- FIX: **KNX AI Web** area editor unsaved-changes detection no longer prompts discard/stay immediately after saving a newly created area and pressing **Close**.<br/>
+
 **Version 4.2.5** - March 2026<br/>
 
 - NEW: added the **KNX Flow Bubbles** editor plugin to visualize live KNX Device state directly on the workspace.<br/>
