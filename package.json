@@ -17,9 +17,10 @@
   ],
   "dependencies": {
     "dns-sync": "0.2.1",
+    "google-translate-tts": "^0.3.0",
     "js-yaml": "4.1.1",
     "knxultimate": "5.4.0",
-    "lodash": "4.17.21",
+    "lodash": "4.18.1",
     "node-color-log": "12.0.1",
     "ping": "0.4.4",
     "simple-get": "4.0.1"
@@ -107,11 +108,11 @@
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^6.0.1",
-    "vite": "^7.1.3",
-    "vue": "^3.5.21",
-    "translate-google": "^1.5.0",
     "chai": "^4.3.10",
+    "marked": "^14.1.0",
     "mocha": "^10.4.0",
-    "marked": "^14.1.0"
+    "translate-google": "^1.5.0",
+    "vite": "^7.1.3",
+    "vue": "^3.5.21"
   }
 }

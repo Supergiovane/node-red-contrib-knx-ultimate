@@ -1,15 +1,23 @@
 <script setup>
-import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 
 const storageKey = 'knxUltimateAI:selectedNodeId'
 const autoKey = 'knxUltimateAI:autoRefresh'
-const themeKey = 'knxUltimateAI:theme'
+const tabKey = 'knxUltimateAI:activeTab'
 const flowPrefsKey = 'knxUltimateAI:flowPreview'
-const THEMES = ['mix', 'green', 'lavender']
+const voiceKey = 'knxUltimateAI:voiceEnabled'
+const areaSelectionKeyPrefix = 'knxUltimateAI:selectedAreaId:'
+const DEFAULT_THEME = 'mix'
 const PRESET_QUESTIONS = [
   'Summarize the current KNX traffic and highlight the busiest group addresses.',
   'Explain any anomalies you see and suggest what to check first.',
   'Generate an SVG bar chart of Top Group Addresses with counts and title.'
+]
+const TEST_PROMPT_PRESETS = [
+  'Turn the lights on, then turn them off, and verify that the related status values are coherent.',
+  'Activate the main actuators in the area and verify the status feedback to confirm that it follows the commands.',
+  'Open and close the shading actuators in the area, then verify that the status matches the commands sent.',
+  'Run a full test of the HVAC commands in the area and verify that setpoints and statuses are coherent.'
 ]
 const FLOW_EVENT_COLORS = {
   write: '#7a68d8',
@@ -30,12 +38,79 @@ const queryNodeId = (() => {
 const state = reactive({
   nodes: [],
   selectedNodeId: '',
+  activeTab: loadString(tabKey, 'overview'),
   autoRefresh: loadBoolean(autoKey, true),
-  theme: normalizeTheme(loadString(themeKey, 'mix')),
+  voiceEnabled: loadBoolean(voiceKey, true),
+  theme: DEFAULT_THEME,
   flowMaxNodes: loadFlowPrefs().maxNodes,
   flowSelectedGa: loadFlowPrefs().selectedGa,
   flowShowUniversalNodes: loadFlowPrefs().showUniversalNodes,
   flowSearch: '',
+  areaSearch: '',
+  areaSelectedId: '',
+  areaDraftName: '',
+  areaDraftDescription: '',
+  areaDraftTags: '',
+  areaDraftGaList: [],
+  areaDraftId: '',
+  areaDraftIsNew: false,
+  gaCatalog: [],
+  gaCatalogSearch: '',
+  gaCatalogLoading: false,
+  areaSaving: false,
+  profileSelectedId: '',
+  profileDraftMode: false,
+  profileDraftId: '',
+  profileDraftName: '',
+  profileDraftDescription: '',
+  profileDraftTargetTags: '',
+  profileDraftMinActivityPct: 20,
+  profileDraftMaxSilentPct: 60,
+  profileDraftMaxAnomalies: 2,
+  profileSaving: false,
+  profileRunning: false,
+  actuatorPresetSelectedId: '',
+  actuatorDraftMode: false,
+  actuatorDraftId: '',
+  actuatorDraftName: '',
+  actuatorDraftDescription: '',
+  actuatorDraftCommandGA: '',
+  actuatorDraftCommandDPT: '',
+  actuatorDraftCommandPayload: '',
+  actuatorDraftStatusGA: '',
+  actuatorDraftStatusDPT: '',
+  actuatorDraftStatusWriteTimeoutMs: 5000,
+  actuatorDraftStatusResponseTimeoutMs: 5000,
+  actuatorSaving: false,
+  actuatorRunning: false,
+  testPlanSelectedId: '',
+  selectedTestResultId: '',
+  liveTestResultId: '',
+  testResultsMenuOpen: true,
+  testResultFocusMode: false,
+  deletingTestResultId: '',
+  testPlanPrompt: '',
+  testPlanDraft: null,
+  testPlanCatalog: null,
+  testPlanCatalogLoading: false,
+  testPlanCatalogError: '',
+  testPlanGenerating: false,
+  testPlanSaving: false,
+  testPlanDeleting: false,
+  testPlanRunning: false,
+  testPlanGeneration: null,
+  testPlanGenerationError: '',
+  testPlanRunConfirmOpen: false,
+  testPlanRunMode: 'single',
+  testPlanRunningStepId: '',
+  testPlanRepeatForever: false,
+  testPlanRepeatStopRequested: false,
+  testPlanDraftBaseline: '',
+  testPlanUnsavedConfirmOpen: false,
+  testPlanPendingActionLabel: '',
+  draggedTestPlanStepId: '',
+  dragOverTestPlanStepId: '',
+  showAiPlanner: true,
   status: 'Ready',
   loadingNodes: false,
   loadingState: false,
@@ -49,6 +124,20 @@ const state = reactive({
 })
 const flowCardRef = ref(null)
 const isFlowFullscreen = ref(false)
+const configImportRef = ref(null)
+const testPlanReportRef = ref(null)
+let activeStepAudio = null
+let testPlanBaselineData = null
+let pendingTestPlanAction = null
+
+function stopActiveStepAudio () {
+  if (!activeStepAudio) return
+  try {
+    activeStepAudio.pause()
+    activeStepAudio.src = ''
+  } catch (error) {}
+  activeStepAudio = null
+}
 
 function loadString (key, fallback = '') {
   try {
@@ -98,6 +187,33 @@ function saveBoolean (key, value) {
   } catch (error) {}
 }
 
+function areaSelectionKey (nodeId) {
+  const id = String(nodeId || '').trim()
+  return id ? `${areaSelectionKeyPrefix}${id}` : ''
+}
+
+function loadSelectedAreaIdForNode (nodeId) {
+  const key = areaSelectionKey(nodeId)
+  return key ? loadString(key, '') : ''
+}
+
+function saveSelectedAreaIdForNode (nodeId, areaId) {
+  const key = areaSelectionKey(nodeId)
+  if (!key) return
+  const value = String(areaId || '').trim()
+  if (!value) return
+  saveString(key, value)
+}
+
+function restoreSelectedAreaForCurrentNode () {
+  const storedAreaId = loadSelectedAreaIdForNode(state.selectedNodeId)
+  if (!storedAreaId) return false
+  if (!suggestedAreas.value.find(area => area.id === storedAreaId)) return false
+  if (state.areaSelectedId === storedAreaId) return true
+  state.areaSelectedId = storedAreaId
+  return true
+}
+
 function saveFlowPrefs () {
   try {
     if (!window.localStorage) return
@@ -126,8 +242,7 @@ function syncFullscreenState () {
 }
 
 function normalizeTheme (value) {
-  const t = String(value || '').trim().toLowerCase()
-  return THEMES.includes(t) ? t : 'mix'
+  return DEFAULT_THEME
 }
 
 function apiUrl (tail) {
@@ -155,6 +270,23 @@ async function requestJson (url, options) {
     throw new Error(baseMessage)
   }
   return json
+}
+
+async function requestAudioBlob (url, options) {
+  const response = await fetch(url, Object.assign({ credentials: 'same-origin', cache: 'no-store' }, options || {}))
+  if (!response.ok) {
+    const text = await response.text()
+    let errorMessage = text || `HTTP ${response.status}`
+    try {
+      const parsed = text ? JSON.parse(text) : {}
+      errorMessage = parsed && parsed.error ? parsed.error : errorMessage
+    } catch (error) {}
+    if (response.status === 401 || response.status === 403) {
+      throw new Error(`Authentication required or insufficient permissions (${response.status}).`)
+    }
+    throw new Error(errorMessage)
+  }
+  return await response.blob()
 }
 
 function normalizeChatText (value) {
@@ -469,6 +601,58 @@ function toTrimmedText (value) {
   return String(value).trim()
 }
 
+function cloneJson (value, fallback = null) {
+  try {
+    return JSON.parse(JSON.stringify(value))
+  } catch (error) {
+    return fallback
+  }
+}
+
+function buildTestPlanBaselineSnapshot (data = {}) {
+  return JSON.stringify({
+    prompt: String(data.prompt || ''),
+    draft: cloneJson(data.draft, null)
+  })
+}
+
+function captureCurrentTestPlanBaselineData () {
+  return {
+    selectedId: String(state.testPlanSelectedId || ''),
+    prompt: String(state.testPlanPrompt || ''),
+    draft: cloneJson(state.testPlanDraft, null),
+    generation: cloneJson(state.testPlanGeneration, null),
+    showAiPlanner: state.showAiPlanner === true
+  }
+}
+
+function setCurrentTestPlanBaseline () {
+  testPlanBaselineData = captureCurrentTestPlanBaselineData()
+  state.testPlanDraftBaseline = buildTestPlanBaselineSnapshot(testPlanBaselineData)
+}
+
+function restoreCurrentTestPlanBaseline () {
+  const source = cloneJson(testPlanBaselineData, null)
+  if (!source) {
+    state.testPlanSelectedId = ''
+    state.testPlanPrompt = ''
+    state.testPlanDraft = null
+    state.testPlanGeneration = null
+    state.testPlanRunConfirmOpen = false
+    state.showAiPlanner = true
+    return
+  }
+  state.testPlanSelectedId = String(source.selectedId || '')
+  state.testPlanPrompt = String(source.prompt || '')
+  state.testPlanDraft = cloneJson(source.draft, null)
+  state.testPlanGeneration = cloneJson(source.generation, null)
+  state.testPlanRunConfirmOpen = false
+  state.showAiPlanner = source.showAiPlanner !== false
+  if (source.draft && source.draft.areaId && suggestedAreas.value.find(area => area.id === source.draft.areaId)) {
+    state.areaSelectedId = source.draft.areaId
+  }
+}
+
 function shortNodeLabel (value) {
   const s = String(value || '').trim()
   return s.length > 14 ? `${s.slice(0, 12)}..` : s
@@ -755,6 +939,126 @@ function buildVisibleFlowGraph (source) {
 const selectedNode = computed(() => state.nodes.find(node => node.id === state.selectedNodeId) || null)
 const summary = computed(() => state.stateData && state.stateData.summary ? state.stateData.summary : {})
 const nodeInfo = computed(() => state.stateData && state.stateData.node ? state.stateData.node : {})
+const areasState = computed(() => state.stateData && state.stateData.areas ? state.stateData.areas : { suggested: [], totals: {} })
+const suggestedAreas = computed(() => Array.isArray(areasState.value && areasState.value.suggested) ? areasState.value.suggested : [])
+const areaTotals = computed(() => areasState.value && areasState.value.totals ? areasState.value.totals : {})
+const profiles = computed(() => Array.isArray(state.stateData && state.stateData.profiles) ? state.stateData.profiles : [])
+const profileReport = computed(() => state.stateData && state.stateData.profileReport ? state.stateData.profileReport : null)
+const actuatorTests = computed(() => Array.isArray(state.stateData && state.stateData.actuatorTests) ? state.stateData.actuatorTests : [])
+const actuatorTestReport = computed(() => state.stateData && state.stateData.actuatorTestReport ? state.stateData.actuatorTestReport : null)
+const testPlans = computed(() => Array.isArray(state.stateData && state.stateData.testPlans) ? state.stateData.testPlans : [])
+const testPlanReport = computed(() => state.stateData && state.stateData.testPlanReport ? state.stateData.testPlanReport : null)
+const persistedTestResults = computed(() => Array.isArray(state.stateData && state.stateData.testResults) ? state.stateData.testResults : [])
+const liveTestResult = computed(() => {
+  if (!state.liveTestResultId || !testPlanReport.value || testPlanReport.value.id !== state.liveTestResultId) return null
+  return Object.assign({}, testPlanReport.value, { live: state.testPlanRunning === true })
+})
+const sidebarTestResults = computed(() => {
+  const out = []
+  const seen = new Set()
+  const pushResult = (report, live = false) => {
+    if (!report || typeof report !== 'object' || !report.id) return
+    const id = String(report.id)
+    if (seen.has(id)) return
+    seen.add(id)
+    out.push(Object.assign({}, report, { live }))
+  }
+  pushResult(liveTestResult.value, true)
+  persistedTestResults.value.forEach(report => pushResult(report, false))
+  return out
+})
+const selectedTestResult = computed(() => {
+  if (state.selectedTestResultId) {
+    const found = sidebarTestResults.value.find(report => report && report.id === state.selectedTestResultId)
+    if (found) return found
+  }
+  return liveTestResult.value || persistedTestResults.value[0] || null
+})
+const isViewingTestResultOnly = computed(() => {
+  return state.activeTab === 'tests' && state.testResultFocusMode === true && !!selectedTestResult.value
+})
+const filteredAreas = computed(() => {
+  const search = String(state.areaSearch || '').trim().toLowerCase()
+  return suggestedAreas.value.filter((area) => {
+    if (!search) return true
+    const haystack = [
+      area.path,
+      area.name,
+      area.parentName,
+      ...(Array.isArray(area.tags) ? area.tags : []),
+      ...(Array.isArray(area.sampleLabels) ? area.sampleLabels : [])
+    ].filter(Boolean).join(' ').toLowerCase()
+    return haystack.includes(search)
+  })
+})
+const selectedArea = computed(() => {
+  if (state.areaSelectedId) {
+    const found = suggestedAreas.value.find(area => area.id === state.areaSelectedId)
+    if (found) return found
+  }
+  return filteredAreas.value[0] || suggestedAreas.value[0] || null
+})
+const filteredGaCatalog = computed(() => {
+  const search = String(state.gaCatalogSearch || '').trim().toLowerCase()
+  const selectedSet = new Set((state.areaDraftGaList || []).map(item => String(item || '').trim()).filter(Boolean))
+  return (Array.isArray(state.gaCatalog) ? state.gaCatalog : [])
+    .filter((item) => {
+      if (!item || !item.ga || selectedSet.has(item.ga)) return false
+      if (!search) return true
+      const haystack = [
+        item.ga,
+        item.label,
+        item.hierarchyPath,
+        ...(Array.isArray(item.tags) ? item.tags : [])
+      ].filter(Boolean).join(' ').toLowerCase()
+      return haystack.includes(search)
+    })
+    .slice(0, 80)
+})
+const areaDraftGaDetails = computed(() => {
+  const byGa = new Map((Array.isArray(state.gaCatalog) ? state.gaCatalog : []).map(item => [String(item && item.ga ? item.ga : '').trim(), item]))
+  return (state.areaDraftGaList || []).map((ga) => {
+    const item = byGa.get(String(ga || '').trim())
+    return item || { ga: String(ga || '').trim(), label: '', dpt: '', hierarchyPath: '', tags: [] }
+  })
+})
+const plannerCommandOptions = computed(() => Array.isArray(state.testPlanCatalog && state.testPlanCatalog.commandSignals) ? state.testPlanCatalog.commandSignals : [])
+const plannerStatusOptions = computed(() => Array.isArray(state.testPlanCatalog && state.testPlanCatalog.statusSignals) ? state.testPlanCatalog.statusSignals : [])
+const selectedProfile = computed(() => {
+  if (state.profileDraftMode === true) return null
+  if (state.profileSelectedId) {
+    const found = profiles.value.find(profile => profile.id === state.profileSelectedId)
+    if (found) return found
+  }
+  return profiles.value[0] || null
+})
+const selectedActuatorPreset = computed(() => {
+  if (state.actuatorDraftMode === true) return null
+  if (state.actuatorPresetSelectedId) {
+    const found = actuatorTests.value.find(preset => preset.id === state.actuatorPresetSelectedId)
+    if (found) return found
+  }
+  return actuatorTests.value[0] || null
+})
+const selectedTestPlan = computed(() => {
+  if (!state.testPlanSelectedId) return null
+  return testPlans.value.find(plan => plan.id === state.testPlanSelectedId) || null
+})
+const currentRunningStep = computed(() => {
+  if (!state.testPlanRunningStepId || !state.testPlanDraft || !Array.isArray(state.testPlanDraft.steps)) return null
+  return state.testPlanDraft.steps.find(step => String(step && step.id ? step.id : '') === state.testPlanRunningStepId) || null
+})
+const hasDraftSteps = computed(() => {
+  return !!(state.testPlanDraft && Array.isArray(state.testPlanDraft.steps) && state.testPlanDraft.steps.length > 0)
+})
+const showAiPlannerSection = computed(() => !hasDraftSteps.value || state.showAiPlanner === true)
+const hasUnsavedTestPlanChanges = computed(() => {
+  if (!state.testPlanDraft) return false
+  return buildTestPlanBaselineSnapshot({
+    prompt: state.testPlanPrompt,
+    draft: state.testPlanDraft
+  }) !== state.testPlanDraftBaseline
+})
 const anomalies = computed(() => Array.isArray(state.stateData && state.stateData.anomalies) ? state.stateData.anomalies.slice().reverse() : [])
 const topGroups = computed(() => Array.isArray(summary.value.topGAs) ? summary.value.topGAs.slice(0, 10) : [])
 const eventEntries = computed(() => {
@@ -822,16 +1126,22 @@ const chatMessages = computed(() => state.chatMessages.map((item, index) => ({
 
 watch(() => state.selectedNodeId, (value) => {
   saveString(storageKey, value || '')
+  state.areaSelectedId = loadSelectedAreaIdForNode(value || '')
 })
 
 watch(() => state.autoRefresh, (value) => {
   saveBoolean(autoKey, value)
 })
 
-watch(() => state.theme, (value) => {
-  saveString(themeKey, normalizeTheme(value))
-  applyThemeLink()
+watch(() => state.voiceEnabled, (value) => {
+  saveBoolean(voiceKey, value)
+  if (value !== true) stopActiveStepAudio()
 })
+
+watch(() => state.activeTab, (value) => {
+  saveString(tabKey, value || 'overview')
+})
+
 watch(() => state.flowMaxNodes, (value) => {
   state.flowMaxNodes = Math.max(4, Math.min(32, Number(value) || 14))
   saveFlowPrefs()
@@ -849,12 +1159,618 @@ watch(() => state.flowShowUniversalNodes, (value) => {
   saveFlowPrefs()
 })
 
+watch(() => suggestedAreas.value.map(area => area.id).join('|'), () => {
+  if (!suggestedAreas.value.length) {
+    state.areaSelectedId = ''
+    return
+  }
+  const currentAreaId = String(state.areaSelectedId || '').trim()
+  if (restoreSelectedAreaForCurrentNode()) {
+    return
+  }
+  if (!currentAreaId || !suggestedAreas.value.find(area => area.id === currentAreaId)) {
+    state.areaSelectedId = suggestedAreas.value[0].id
+  }
+})
+
+watch(() => state.areaSelectedId, (value) => {
+  if (!state.selectedNodeId) return
+  saveSelectedAreaIdForNode(state.selectedNodeId, value || '')
+})
+
+watch(() => selectedArea.value ? JSON.stringify({
+  id: selectedArea.value.id,
+  name: selectedArea.value.name,
+  customDescription: selectedArea.value.customDescription || '',
+  tags: selectedArea.value.tags || []
+}) : '', () => {
+  const area = selectedArea.value
+  if (!area) {
+    state.areaDraftId = ''
+    state.areaDraftName = ''
+    state.areaDraftDescription = ''
+    state.areaDraftTags = ''
+    state.areaDraftGaList = []
+    state.areaDraftIsNew = false
+    return
+  }
+  state.areaDraftId = String(area.id || '')
+  state.areaDraftName = String(area.name || '')
+  state.areaDraftDescription = String(area.customDescription || '')
+  state.areaDraftTags = Array.isArray(area.tags) ? area.tags.join(', ') : ''
+  state.areaDraftGaList = Array.isArray(area.gaList) ? area.gaList.slice() : []
+  state.areaDraftIsNew = false
+})
+
+watch(() => selectedArea.value ? selectedArea.value.id : '', async (areaId, previousAreaId) => {
+  if (!areaId || !state.selectedNodeId) {
+    state.testPlanCatalog = null
+    state.testPlanCatalogError = ''
+    return
+  }
+  if (previousAreaId && areaId !== previousAreaId) {
+    state.testPlanRunConfirmOpen = false
+    if (state.testPlanDraft && !state.testPlanSelectedId) {
+      state.testPlanDraft.areaId = String(areaId || '')
+      state.testPlanDraft.areaName = selectedArea.value
+        ? String(selectedArea.value.path || selectedArea.value.name || '')
+        : ''
+    }
+  }
+  await fetchAreaSignalCatalog()
+})
+
+watch(() => profiles.value.map(profile => profile.id).join('|'), () => {
+  if (!profiles.value.length) {
+    state.profileSelectedId = ''
+    return
+  }
+  if (state.profileDraftMode === true) return
+  if (!state.profileSelectedId || !profiles.value.find(profile => profile.id === state.profileSelectedId)) {
+    state.profileSelectedId = profiles.value[0].id
+  }
+})
+
+watch(() => selectedProfile.value ? JSON.stringify({
+  id: selectedProfile.value.id,
+  name: selectedProfile.value.name,
+  description: selectedProfile.value.description,
+  targetTags: selectedProfile.value.targetTags || [],
+  minActivityPct: selectedProfile.value.minActivityPct,
+  maxSilentPct: selectedProfile.value.maxSilentPct,
+  maxAnomalies: selectedProfile.value.maxAnomalies,
+  builtIn: selectedProfile.value.builtIn === true
+}) : '', () => {
+  const profile = selectedProfile.value
+  if (!profile) {
+    state.profileDraftId = ''
+    state.profileDraftName = ''
+    state.profileDraftDescription = ''
+    state.profileDraftTargetTags = ''
+    state.profileDraftMinActivityPct = 20
+    state.profileDraftMaxSilentPct = 60
+    state.profileDraftMaxAnomalies = 2
+    return
+  }
+  state.profileDraftId = String(profile.id || '')
+  state.profileDraftName = String(profile.name || '')
+  state.profileDraftDescription = String(profile.description || '')
+  state.profileDraftTargetTags = Array.isArray(profile.targetTags) ? profile.targetTags.join(', ') : ''
+  state.profileDraftMinActivityPct = Number(profile.minActivityPct || 20)
+  state.profileDraftMaxSilentPct = Number(profile.maxSilentPct || 60)
+  state.profileDraftMaxAnomalies = Number(profile.maxAnomalies || 2)
+})
+
+watch(() => actuatorTests.value.map(preset => preset.id).join('|'), () => {
+  if (!actuatorTests.value.length) {
+    state.actuatorPresetSelectedId = ''
+    return
+  }
+  if (state.actuatorDraftMode === true) return
+  if (!state.actuatorPresetSelectedId || !actuatorTests.value.find(preset => preset.id === state.actuatorPresetSelectedId)) {
+    state.actuatorPresetSelectedId = actuatorTests.value[0].id
+  }
+})
+
+watch(() => selectedActuatorPreset.value ? JSON.stringify({
+  id: selectedActuatorPreset.value.id,
+  name: selectedActuatorPreset.value.name,
+  description: selectedActuatorPreset.value.description,
+  commandGA: selectedActuatorPreset.value.commandGA,
+  commandDPT: selectedActuatorPreset.value.commandDPT,
+  commandPayload: selectedActuatorPreset.value.commandPayload,
+  statusGA: selectedActuatorPreset.value.statusGA,
+  statusDPT: selectedActuatorPreset.value.statusDPT,
+  statusWriteTimeoutMs: selectedActuatorPreset.value.statusWriteTimeoutMs,
+  statusResponseTimeoutMs: selectedActuatorPreset.value.statusResponseTimeoutMs
+}) : '', () => {
+  const preset = selectedActuatorPreset.value
+  if (!preset) {
+    state.actuatorDraftId = ''
+    state.actuatorDraftName = ''
+    state.actuatorDraftDescription = ''
+    state.actuatorDraftCommandGA = ''
+    state.actuatorDraftCommandDPT = ''
+    state.actuatorDraftCommandPayload = ''
+    state.actuatorDraftStatusGA = ''
+    state.actuatorDraftStatusDPT = ''
+    state.actuatorDraftStatusWriteTimeoutMs = 5000
+    state.actuatorDraftStatusResponseTimeoutMs = 5000
+    return
+  }
+  state.actuatorDraftId = String(preset.id || '')
+  state.actuatorDraftName = String(preset.name || '')
+  state.actuatorDraftDescription = String(preset.description || '')
+  state.actuatorDraftCommandGA = String(preset.commandGA || '')
+  state.actuatorDraftCommandDPT = String(preset.commandDPT || '')
+  state.actuatorDraftCommandPayload = String(preset.commandPayload || '')
+  state.actuatorDraftStatusGA = String(preset.statusGA || '')
+  state.actuatorDraftStatusDPT = String(preset.statusDPT || '')
+  state.actuatorDraftStatusWriteTimeoutMs = Number(preset.statusWriteTimeoutMs || 5000)
+  state.actuatorDraftStatusResponseTimeoutMs = Number(preset.statusResponseTimeoutMs || 5000)
+})
+
+watch(() => testPlans.value.map(plan => plan.id).join('|'), () => {
+  if (!testPlans.value.length) {
+    state.testPlanSelectedId = ''
+    return
+  }
+  if (state.testPlanSelectedId && !testPlans.value.find(plan => plan.id === state.testPlanSelectedId)) {
+    state.testPlanSelectedId = ''
+  }
+})
+
+watch(() => sidebarTestResults.value.map(report => report.id).join('|'), () => {
+  if (!sidebarTestResults.value.length) {
+    state.selectedTestResultId = ''
+    return
+  }
+  if (!state.selectedTestResultId || !sidebarTestResults.value.find(report => report.id === state.selectedTestResultId)) {
+    state.selectedTestResultId = String(sidebarTestResults.value[0].id || '')
+  }
+  if (state.liveTestResultId && persistedTestResults.value.some(report => String(report && report.id ? report.id : '') === state.liveTestResultId) && state.testPlanRunning !== true) {
+    state.liveTestResultId = ''
+  }
+})
+
+watch(() => `${state.selectedTestResultId}|${state.testResultsMenuOpen}`, () => {
+  if (state.testResultsMenuOpen !== true || !state.selectedTestResultId) return
+  requestAnimationFrame(() => {
+    const activeButton = document.querySelector('.sidebar-test-results .area-list-item.active')
+    if (activeButton && typeof activeButton.scrollIntoView === 'function') {
+      activeButton.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
+    }
+  })
+})
+
 function appendChat (kind, text) {
   state.chatMessages.push({ kind, text })
 }
 
 function clearChat () {
   state.chatMessages = []
+}
+
+function buildTestPlanMetrics (stepResults, totalStepsOverride = null) {
+  const results = Array.isArray(stepResults) ? stepResults : []
+  const totalSteps = Math.max(results.length, Number(totalStepsOverride || 0))
+  return {
+    totalSteps,
+    pass: results.filter(item => item && item.status === 'pass').length,
+    warn: results.filter(item => item && item.status === 'warn').length,
+    fail: results.filter(item => item && item.status === 'fail').length
+  }
+}
+
+function buildTestPlanSuggestions (metrics) {
+  const suggestions = []
+  if (Number(metrics && metrics.fail) > 0) suggestions.push('At least one feedback object returned an incoherent value. Check the actuator/status pairing in ETS first.')
+  if (Number(metrics && metrics.warn) > 0) suggestions.push('Some steps did not receive feedback in time. Verify the status group address and the actuator programming.')
+  if (!suggestions.length) suggestions.push('The selected active test completed with coherent feedback on all verified steps.')
+  return suggestions
+}
+
+function buildClientTestPlanReport ({ plan, area, stepResults, reportId = '' }) {
+  const metrics = buildTestPlanMetrics(stepResults, Array.isArray(plan && plan.steps) ? plan.steps.length : 0)
+  const overallStatus = metrics.fail > 0 ? 'fail' : (metrics.warn > 0 ? 'warn' : 'pass')
+  return {
+    id: String(reportId || `${plan.id || 'plan'}:${Date.now()}`),
+    generatedAt: new Date().toISOString(),
+    mode: 'ai_test_plan',
+    overallStatus,
+    name: plan.name,
+    description: plan.description,
+    prompt: plan.prompt,
+    area,
+    metrics,
+    steps: stepResults,
+    suggestions: buildTestPlanSuggestions(metrics)
+  }
+}
+
+function testResultDisplayName (report) {
+  if (!report || typeof report !== 'object') return 'Test result'
+  return String(report.name || report.profile?.name || 'Test result')
+}
+
+function testResultAreaText (report) {
+  if (!report || typeof report !== 'object') return ''
+  return String(report.area?.path || report.area?.name || report.area?.id || '')
+}
+
+function testResultModeLabel (report) {
+  const mode = String(report && report.mode ? report.mode : '').trim().toLowerCase()
+  if (mode === 'ai_test_plan') return 'AI Plan'
+  if (mode === 'active_test') return 'Actuator'
+  if (mode === 'read_only') return 'Read-only'
+  return mode || 'Test'
+}
+
+function testResultMetricCards (report) {
+  const metrics = report && report.metrics && typeof report.metrics === 'object' ? report.metrics : {}
+  if (String(report && report.mode ? report.mode : '') === 'read_only') {
+    return [
+      { label: 'Total GA', value: Number(metrics.totalGAs || 0) },
+      { label: 'Active GA', value: Number(metrics.activeGaCount || 0) },
+      { label: 'Silent GA', value: Number(metrics.silentGaCount || 0) },
+      { label: 'Anomalies', value: Number(metrics.anomalyCount || 0) }
+    ]
+  }
+  if (String(report && report.mode ? report.mode : '') === 'active_test') {
+    return [
+      { label: 'Command GA', value: report && report.command && report.command.ga ? report.command.ga : 'n/a' },
+      { label: 'Status GA', value: report && (report.statusResponse?.ga || report.statusWrite?.ga || report.statusRead?.ga) ? (report.statusResponse?.ga || report.statusWrite?.ga || report.statusRead?.ga) : 'n/a' },
+      { label: 'Status', value: report && report.overallStatus ? report.overallStatus : 'n/a' },
+      { label: 'Generated', value: formatDateTime(report && report.generatedAt ? report.generatedAt : '') || 'n/a' }
+    ]
+  }
+  return [
+    { label: 'Total Steps', value: Number(metrics.totalSteps || 0) },
+    { label: 'Pass', value: Number(metrics.pass || 0) },
+    { label: 'Warn', value: Number(metrics.warn || 0) },
+    { label: 'Fail', value: Number(metrics.fail || 0) }
+  ]
+}
+
+function stringifyResultDetailValue (value) {
+  if (value === undefined || value === null || value === '') return 'n/a'
+  if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') return String(value)
+  try {
+    return JSON.stringify(value)
+  } catch (error) {
+    return String(value)
+  }
+}
+
+function displayPayloadLabelForDpt (value, dpt, fallback = 'n/a') {
+  const key = String(dpt || '').trim()
+  const raw = value === undefined || value === null ? '' : String(value)
+  if (!key) return raw || fallback
+  const normalized = normalizePayloadForDptInput(raw, key)
+  const option = dptValueOptions(key).find(item => String(item.value) === String(normalized))
+  if (option && option.label) return option.label
+  return raw || fallback
+}
+
+function formatFeedbackCheckResult (check) {
+  if (!check || typeof check !== 'object') return 'n/a'
+  const ga = check.ga || 'n/a'
+  if (check.ok === true) {
+    const payload = check.payloadLabel || stringifyResultDetailValue(check.payload)
+    const status = check.coherent === false ? 'mismatch' : 'ok'
+    return `${ga} / ${payload} / ${status}`
+  }
+  return `${ga} / ${check.error || 'timeout'}`
+}
+
+function formatResultMoment (value) {
+  return formatDateTime(value || '') || 'n/a'
+}
+
+function buildFeedbackResultGroups ({ command, statusWrite, statusResponse, statusRead, expectedPayloadLabel, expectedPayload }) {
+  const resolvedResponse = statusResponse || statusRead
+  return [
+    {
+      title: 'Command',
+      items: [
+        { label: 'Command', value: `${command?.ga || 'n/a'} / ${command?.payloadLabel || stringifyResultDetailValue(command?.payload)}` },
+        { label: 'Command Sent', value: formatResultMoment(command?.sentAt) }
+      ]
+    },
+    {
+      title: 'Spontaneous Write From Status GA',
+      items: [
+        { label: 'Result', value: formatFeedbackCheckResult(statusWrite) },
+        { label: 'Expected', value: statusWrite?.expectedPayloadLabel || expectedPayloadLabel || stringifyResultDetailValue(expectedPayload) },
+        { label: 'Received At', value: formatResultMoment(statusWrite?.at) },
+        { label: 'Event', value: statusWrite?.event || 'n/a' }
+      ]
+    },
+    {
+      title: 'Active Read Request To Status GA',
+      items: [
+        { label: 'Result', value: formatFeedbackCheckResult(resolvedResponse) },
+        { label: 'Expected', value: resolvedResponse?.expectedPayloadLabel || expectedPayloadLabel || stringifyResultDetailValue(expectedPayload) },
+        { label: 'Received At', value: formatResultMoment(resolvedResponse?.at) },
+        { label: 'Event', value: resolvedResponse?.event || 'n/a' }
+      ]
+    }
+  ]
+}
+
+function testResultEntries (report) {
+  if (!report || typeof report !== 'object') return []
+  if (Array.isArray(report.steps) && report.steps.length) {
+    return report.steps.map((step) => {
+      const details = step.kind === 'wait'
+        ? [
+            { label: 'Wait', value: `${Number(step.delayMs || 0)} ms` },
+            { label: 'Reason', value: step.reason || 'Pause before next action' }
+          ]
+        : []
+      return {
+        id: String(step.id || `${report.id}-step`),
+        title: step.title || step.id || 'Step',
+        status: step.status || 'pass',
+        message: step.message || step.description || '',
+        details,
+        detailGroups: step.kind === 'wait'
+          ? []
+          : buildFeedbackResultGroups({
+            command: step.command,
+            statusWrite: step.statusWrite,
+            statusResponse: step.statusResponse,
+            statusRead: step.statusRead,
+            expectedPayloadLabel: step.expectedPayloadLabel,
+            expectedPayload: step.expectedPayload
+          })
+      }
+    })
+  }
+  if (Array.isArray(report.checks) && report.checks.length) {
+    return report.checks.map((check) => ({
+      id: String(check.id || `${report.id}-check`),
+      title: check.title || check.id || 'Check',
+      status: check.status || 'pass',
+      message: check.message || '',
+      details: [
+        { label: 'Metrics', value: stringifyResultDetailValue(check.metrics || {}) },
+        { label: 'Sample', value: stringifyResultDetailValue(check.sample || []) }
+      ]
+    }))
+  }
+  if (String(report.mode || '') === 'active_test') {
+    return [{
+      id: String(report.id || 'active-test'),
+      title: report.name || 'Actuator Test',
+      status: report.overallStatus || 'pass',
+      message: report.overallStatus === 'pass'
+        ? 'Both feedback checks passed.'
+        : report.overallStatus === 'warn'
+          ? 'One feedback check passed and one failed.'
+          : 'Both feedback checks failed.',
+      details: [],
+      detailGroups: buildFeedbackResultGroups({
+        command: report.command,
+        statusWrite: report.statusWrite,
+        statusResponse: report.statusResponse,
+        statusRead: report.statusRead,
+        expectedPayloadLabel: report.statusResponse?.expectedPayloadLabel || report.statusWrite?.expectedPayloadLabel || report.statusRead?.expectedPayloadLabel,
+        expectedPayload: report.statusRead?.expectedPayload
+      })
+    }]
+  }
+  return []
+}
+
+function testResultSuggestions (report) {
+  return Array.isArray(report && report.suggestions) ? report.suggestions : []
+}
+
+function testResultSourceRef (report) {
+  const source = report && report.source && typeof report.source === 'object' ? report.source : {}
+  const mode = String(report && report.mode ? report.mode : '').trim().toLowerCase()
+  const areaId = String(source.areaId || report?.area?.id || '').trim()
+  if (mode === 'ai_test_plan') {
+    return {
+      type: 'ai_test_plan',
+      planId: String(source.planId || String(report.id || '').split(':')[0] || '').trim(),
+      areaId
+    }
+  }
+  if (mode === 'read_only') {
+    return {
+      type: 'profile',
+      profileId: String(source.profileId || report?.profile?.id || '').trim(),
+      areaId
+    }
+  }
+  if (mode === 'active_test') {
+    return {
+      type: 'actuator_test',
+      presetId: String(source.presetId || String(report.id || '').split(':')[0] || '').trim(),
+      areaId
+    }
+  }
+  return {
+    type: '',
+    areaId
+  }
+}
+
+function canOpenSourceTest (report) {
+  const source = testResultSourceRef(report)
+  if (source.areaId && suggestedAreas.value.find(area => area.id === source.areaId)) return true
+  if (source.type === 'ai_test_plan' && source.planId && testPlans.value.find(plan => plan.id === source.planId)) return true
+  return source.type === 'profile' || source.type === 'actuator_test'
+}
+
+function buildClientStepFailureResult (step, error, at = new Date().toISOString()) {
+  const isWait = step && step.kind === 'wait'
+  return {
+    id: step && step.id ? step.id : `step-${Date.now()}`,
+    title: step && step.title ? step.title : 'Test Step',
+    description: step && step.description ? step.description : '',
+    reason: step && step.reason ? step.reason : '',
+    kind: step && step.kind ? step.kind : 'write_and_verify',
+    status: 'warn',
+    command: isWait ? null : {
+      ga: step && step.commandGA ? step.commandGA : '',
+      dpt: step && step.commandDPT ? step.commandDPT : '',
+      payload: step ? step.commandPayload : undefined,
+      sentAt: at
+    },
+    statusWrite: null,
+    statusResponse: null,
+    statusRead: null,
+    expectedPayload: isWait ? undefined : (step ? step.expectedPayload : undefined),
+    delayMs: Number(step && step.delayMs ? step.delayMs : 0),
+    statusWriteTimeoutMs: isWait ? 0 : Number(step && step.statusWriteTimeoutMs ? step.statusWriteTimeoutMs : 0),
+    statusResponseTimeoutMs: isWait ? 0 : Number(step && step.statusResponseTimeoutMs ? step.statusResponseTimeoutMs : 0),
+    message: error && error.message ? error.message : 'Failed to run step'
+  }
+}
+
+async function playStepAudioFromBlob (blob) {
+  stopActiveStepAudio()
+  return await new Promise((resolve, reject) => {
+    const objectUrl = URL.createObjectURL(blob)
+    const audio = new Audio(objectUrl)
+    activeStepAudio = audio
+    const cleanup = () => {
+      if (activeStepAudio === audio) activeStepAudio = null
+      audio.onended = null
+      audio.onerror = null
+      URL.revokeObjectURL(objectUrl)
+    }
+    audio.onended = () => {
+      cleanup()
+      resolve()
+    }
+    audio.onerror = () => {
+      cleanup()
+      reject(new Error('Audio playback failed'))
+    }
+    const playPromise = audio.play()
+    if (playPromise && typeof playPromise.then === 'function') {
+      playPromise.catch((error) => {
+        cleanup()
+        reject(error instanceof Error ? error : new Error(String(error)))
+      })
+    }
+  })
+}
+
+function currentDraftStepById (stepId, fallbackStep = null) {
+  const targetId = String(stepId || '').trim()
+  if (!targetId || !state.testPlanDraft || !Array.isArray(state.testPlanDraft.steps)) return fallbackStep
+  return state.testPlanDraft.steps.find(step => String(step && step.id ? step.id : '') === targetId) || fallbackStep
+}
+
+function detectSpeechLanguage (title, description = '') {
+  const text = `${String(title || '')} ${String(description || '')}`.trim().toLowerCase()
+  const paddedText = ` ${text} `
+  if (!text) {
+    const browserLanguage = String((navigator.language || 'it').split('-')[0] || 'it').trim().toLowerCase()
+    return browserLanguage || 'it'
+  }
+
+  const hasAny = (tokens) => tokens.some(token => paddedText.includes(token))
+  const weightedMatches = [
+    {
+      voice: 'it',
+      score: [
+        hasAny([' accendi ', ' spegni ', ' stato ', ' verifica ', ' coerente ', ' leggi ', ' apri ', ' chiudi ', ' attiva ', ' controlla ', ' area ', ' luce ', ' luci ', ' tapparella ', ' tapparelle ', ' clima ']) ? 3 : 0,
+        /[àèéìíîòóù]/.test(text) ? 2 : 0
+      ].reduce((sum, value) => sum + value, 0)
+    },
+    {
+      voice: 'en',
+      score: [
+        hasAny([' turn on ', ' turn off ', ' verify ', ' feedback ', ' status ', ' check ', ' read ', ' open ', ' close ', ' command ', ' area ', ' light ', ' lights ']) ? 3 : 0
+      ].reduce((sum, value) => sum + value, 0)
+    },
+    {
+      voice: 'fr',
+      score: [
+        hasAny([' allume ', ' éteins ', ' etat ', ' état ', ' vérifier ', ' ouvre ', ' ferme ', ' lumière ', ' lumières ', ' zone ']) ? 3 : 0,
+        /[àâçéèêëîïôûùüÿœ]/.test(text) ? 2 : 0
+      ].reduce((sum, value) => sum + value, 0)
+    },
+    {
+      voice: 'de',
+      score: [
+        hasAny([' einschalten ', ' ausschalten ', ' status ', ' prüfen ', ' öffne ', ' schließe ', ' licht ', ' bereich ']) ? 3 : 0,
+        /[äöüß]/.test(text) ? 2 : 0
+      ].reduce((sum, value) => sum + value, 0)
+    },
+    {
+      voice: 'es',
+      score: [
+        hasAny([' enciende ', ' apaga ', ' estado ', ' verifica ', ' abre ', ' cierra ', ' luz ', ' luces ', ' zona ']) ? 3 : 0,
+        /[áéíóúñü]/.test(text) ? 2 : 0
+      ].reduce((sum, value) => sum + value, 0)
+    },
+    {
+      voice: 'pt',
+      score: [
+        hasAny([' liga ', ' desliga ', ' estado ', ' verificar ', ' abre ', ' fecha ', ' luz ', ' luzes ', ' área ']) ? 3 : 0,
+        /[ãõâêôçáéíóú]/.test(text) ? 2 : 0
+      ].reduce((sum, value) => sum + value, 0)
+    }
+  ]
+
+  weightedMatches.sort((a, b) => b.score - a.score)
+  if (weightedMatches[0] && weightedMatches[0].score > 0) return weightedMatches[0].voice
+  const browserLanguage = String((navigator.language || 'it').split('-')[0] || 'it').trim().toLowerCase()
+  return browserLanguage || 'it'
+}
+
+function speechSpecFromStep (stepInput = {}, stepNumber = null) {
+  const liveStep = currentDraftStepById(stepInput && stepInput.id ? stepInput.id : '', stepInput)
+  const title = String(liveStep && liveStep.title ? liveStep.title : '').trim()
+  const description = String(liveStep && liveStep.description ? liveStep.description : '').trim()
+  const numericPrefix = Number.isInteger(stepNumber) && stepNumber > 0 ? `${stepNumber}. ` : ''
+  return {
+    text: `${numericPrefix}${title}`.trim(),
+    voice: detectSpeechLanguage(title, description)
+  }
+}
+
+async function speakTestStepTitle (stepInput = {}, stepNumber = null) {
+  if (state.voiceEnabled !== true) return
+  const speech = speechSpecFromStep(stepInput, stepNumber)
+  const text = String(speech.text || '').trim()
+  if (!text || !state.selectedNodeId) return
+  const blob = await requestAudioBlob(`${apiUrl('tts/googletranslate')}?ts=${Date.now()}`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({
+      nodeId: state.selectedNodeId,
+      text,
+      voice: speech.voice,
+      slow: false
+    })
+  })
+  await playStepAudioFromBlob(blob)
+}
+
+async function speakText (text, description = '') {
+  if (state.voiceEnabled !== true || !state.selectedNodeId) return
+  const spokenText = String(text || '').trim()
+  if (!spokenText) return
+  const voice = detectSpeechLanguage(spokenText, description)
+  const blob = await requestAudioBlob(`${apiUrl('tts/googletranslate')}?ts=${Date.now()}`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({
+      nodeId: state.selectedNodeId,
+      text: spokenText,
+      voice,
+      slow: false
+    })
+  })
+  await playStepAudioFromBlob(blob)
 }
 
 function applyThemeLink () {
@@ -915,6 +1831,11 @@ async function fetchState ({ fresh = false } = {}) {
   try {
     const data = await requestJson(apiUrl(`state?nodeId=${encodeURIComponent(state.selectedNodeId)}&fresh=${fresh ? 1 : 0}`))
     state.stateData = data
+    nextTick(() => {
+      if (!restoreSelectedAreaForCurrentNode() && !state.areaSelectedId && suggestedAreas.value[0]) {
+        state.areaSelectedId = suggestedAreas.value[0].id
+      }
+    })
     state.lastError = ''
     setStatus('Ready')
   } catch (error) {
@@ -928,11 +1849,156 @@ async function fetchState ({ fresh = false } = {}) {
 async function onRefresh () {
   await fetchNodes({ preserveSelection: true })
   await fetchState({ fresh: true })
+  await fetchGaCatalog()
 }
 
 async function onNodeChange () {
   clearChat()
+  state.selectedTestResultId = ''
+  state.liveTestResultId = ''
+  state.testResultFocusMode = false
   await fetchState({ fresh: true })
+  await fetchGaCatalog()
+}
+
+function resetTestsWorkspaceView () {
+  state.selectedTestResultId = ''
+  state.testResultFocusMode = false
+  state.testPlanSelectedId = ''
+  state.testPlanDraft = null
+  state.testPlanPrompt = ''
+  state.testPlanGeneration = null
+  state.testPlanRunConfirmOpen = false
+  state.testPlanUnsavedConfirmOpen = false
+  state.showAiPlanner = true
+  if (!restoreSelectedAreaForCurrentNode() && !state.areaSelectedId && suggestedAreas.value[0]) {
+    state.areaSelectedId = suggestedAreas.value[0].id
+  }
+  resetPendingTestPlanAction()
+  clearDraggedPlanStepState()
+}
+
+function activateSidebarTab (tabId) {
+  const target = String(tabId || '').trim()
+  if (!target) return
+  if (target === 'tests') resetTestsWorkspaceView()
+  if (state.activeTab !== target) {
+    state.activeTab = target
+    return
+  }
+  state.activeTab = ''
+  nextTick(() => {
+    state.activeTab = target
+  })
+}
+
+async function deleteTestResult (reportId) {
+  const targetId = String(reportId || '').trim()
+  if (!targetId || !state.selectedNodeId || state.deletingTestResultId) return
+  state.deletingTestResultId = targetId
+  try {
+    const data = await requestJson(apiUrl('test-results/delete'), {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        nodeId: state.selectedNodeId,
+        reportId: targetId
+      })
+    })
+    const nextResults = Array.isArray(data && data.testResults) ? data.testResults : []
+    state.stateData = Object.assign({}, state.stateData || {}, {
+      testResults: nextResults
+    })
+    if (state.selectedTestResultId === targetId) {
+      state.selectedTestResultId = nextResults[0] && nextResults[0].id ? String(nextResults[0].id) : ''
+      if (!nextResults.length) state.testResultFocusMode = false
+    }
+    if (state.liveTestResultId === targetId) state.liveTestResultId = ''
+    setStatus('Test result deleted')
+  } catch (error) {
+    state.lastError = error.message || 'Failed to delete test result'
+    setStatus(state.lastError)
+  } finally {
+    state.deletingTestResultId = ''
+  }
+}
+
+function focusTestResult (reportId, { openMenu = true, activateTestsTab = false, resultOnly = true } = {}) {
+  const id = String(reportId || '').trim()
+  if (!id) return
+  if (openMenu) state.testResultsMenuOpen = true
+  const applyFocus = () => {
+    if (activateTestsTab) state.activeTab = 'tests'
+    state.selectedTestResultId = id
+    state.testResultFocusMode = resultOnly === true
+    nextTick(() => {
+      const activeButton = document.querySelector('.sidebar-test-results .area-list-item.active')
+      if (activeButton && typeof activeButton.scrollIntoView === 'function') {
+        activeButton.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
+      }
+    })
+  }
+  if (state.selectedTestResultId === id && (!activateTestsTab || state.activeTab === 'tests')) {
+    state.selectedTestResultId = ''
+    nextTick(() => applyFocus())
+    return
+  }
+  applyFocus()
+}
+
+function leaveTestResultFocusMode () {
+  state.testResultFocusMode = false
+}
+
+function openSourceTestFromSelectedResult () {
+  const report = selectedTestResult.value
+  if (!report) return
+  const source = testResultSourceRef(report)
+  state.activeTab = 'tests'
+  state.testResultFocusMode = false
+  if (source.areaId && suggestedAreas.value.find(area => area.id === source.areaId)) {
+    state.areaSelectedId = source.areaId
+  }
+  if (source.type === 'ai_test_plan' && source.planId) {
+    const plan = testPlans.value.find(item => item && item.id === source.planId)
+    if (plan) {
+      loadSelectedTestPlanDraft(plan)
+      setStatus(`Opened source plan "${plan.name || plan.id}"`)
+      return
+    }
+  }
+  if (source.type === 'profile') {
+    setStatus('Returned to the Tests page for the source read-only profile.')
+    return
+  }
+  if (source.type === 'actuator_test') {
+    setStatus('Returned to the Tests page for the source actuator test.')
+    return
+  }
+  setStatus('Returned to the Tests page.')
+}
+
+async function persistTestResult (report) {
+  if (!state.selectedNodeId || !report || typeof report !== 'object') return null
+  const data = await requestJson(apiUrl('test-results/save'), {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({
+      nodeId: state.selectedNodeId,
+      report
+    })
+  })
+  state.stateData = Object.assign({}, state.stateData || {}, {
+    testResults: data.testResults || persistedTestResults.value,
+    testPlanReport: data.report && data.report.mode === 'ai_test_plan' ? data.report : testPlanReport.value,
+    actuatorTestReport: data.report && data.report.mode === 'active_test' ? data.report : actuatorTestReport.value,
+    profileReport: data.report && data.report.mode === 'read_only' ? data.report : profileReport.value
+  })
+  if (data && data.report && data.report.id) {
+    state.liveTestResultId = ''
+    focusTestResult(data.report.id, { openMenu: true, activateTestsTab: true, resultOnly: true })
+  }
+  return data
 }
 
 async function sendAsk (questionOverride = '') {
@@ -956,6 +2022,1182 @@ async function sendAsk (questionOverride = '') {
     setStatus(error.message || 'Ask failed')
   } finally {
     state.asking = false
+  }
+}
+
+async function saveAreaDefinition () {
+  const area = selectedArea.value
+  if (!state.selectedNodeId || state.areaSaving) return
+  if (!state.areaDraftIsNew && !area) return
+  const creating = state.areaDraftIsNew === true
+  state.areaSaving = true
+  setStatus(creating ? 'Creating area...' : 'Saving area...')
+  try {
+    const endpoint = creating ? 'areas/create' : 'areas/save'
+    const data = await requestJson(apiUrl(endpoint), {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        nodeId: state.selectedNodeId,
+        areaId: state.areaDraftIsNew ? undefined : area.id,
+        id: state.areaDraftId,
+        name: state.areaDraftName,
+        description: state.areaDraftDescription,
+        tags: String(state.areaDraftTags || '')
+          .split(',')
+          .map(item => String(item || '').trim())
+          .filter(Boolean),
+        gaList: state.areaDraftGaList || []
+      })
+    })
+    if (data && data.areas) {
+      state.stateData = Object.assign({}, state.stateData || {}, { areas: data.areas })
+      if (data.areaId) state.areaSelectedId = data.areaId
+      state.areaDraftIsNew = false
+    } else {
+      await fetchState({ fresh: true })
+    }
+    setStatus(creating ? 'Area created' : 'Area saved')
+  } catch (error) {
+    state.lastError = error.message || 'Failed to save area'
+    setStatus(state.lastError)
+  } finally {
+    state.areaSaving = false
+  }
+}
+
+async function resetAreaDefinition () {
+  const area = selectedArea.value
+  if (!area || !state.selectedNodeId || state.areaSaving) return
+  state.areaSaving = true
+  setStatus('Resetting area...')
+  try {
+    const data = await requestJson(apiUrl('areas/reset'), {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        nodeId: state.selectedNodeId,
+        areaId: area.id
+      })
+    })
+    if (data && data.areas) {
+      state.stateData = Object.assign({}, state.stateData || {}, { areas: data.areas })
+    } else {
+      await fetchState({ fresh: true })
+    }
+    setStatus('Area reset')
+  } catch (error) {
+    state.lastError = error.message || 'Failed to reset area'
+    setStatus(state.lastError)
+  } finally {
+    state.areaSaving = false
+  }
+}
+
+async function fetchAreaSignalCatalog () {
+  const area = selectedArea.value
+  if (!area || !state.selectedNodeId) {
+    state.testPlanCatalog = null
+    state.testPlanCatalogError = ''
+    return
+  }
+  state.testPlanCatalogLoading = true
+  state.testPlanCatalogError = ''
+  try {
+    const data = await requestJson(apiUrl('test-plans/catalog'), {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        nodeId: state.selectedNodeId,
+        areaId: area.id
+      })
+    })
+    state.testPlanCatalog = data && data.catalog ? data.catalog : null
+    if (data && data.testPlans) {
+      state.stateData = Object.assign({}, state.stateData || {}, { testPlans: data.testPlans })
+    }
+  } catch (error) {
+    state.testPlanCatalog = null
+    state.testPlanCatalogError = error.message || 'Failed to load area command/status catalog'
+  } finally {
+    state.testPlanCatalogLoading = false
+  }
+}
+
+async function fetchGaCatalog () {
+  if (!state.selectedNodeId || state.gaCatalogLoading) return
+  state.gaCatalogLoading = true
+  try {
+    const data = await requestJson(apiUrl('areas/catalog'), {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ nodeId: state.selectedNodeId })
+    })
+    state.gaCatalog = Array.isArray(data && data.gaCatalog) ? data.gaCatalog : []
+  } catch (error) {
+    state.lastError = error.message || 'Failed to load GA catalog'
+    setStatus(state.lastError)
+  } finally {
+    state.gaCatalogLoading = false
+  }
+}
+
+function addGaToAreaDraft (ga) {
+  const value = String(ga || '').trim()
+  if (!value) return
+  if ((state.areaDraftGaList || []).includes(value)) return
+  state.areaDraftGaList = [...(state.areaDraftGaList || []), value]
+}
+
+function removeGaFromAreaDraft (ga) {
+  const value = String(ga || '').trim()
+  if (!value) return
+  state.areaDraftGaList = (state.areaDraftGaList || []).filter(item => item !== value)
+}
+
+function startNewAreaDraft () {
+  state.activeTab = 'areas'
+  state.areaDraftIsNew = true
+  state.areaSelectedId = ''
+  state.areaDraftId = ''
+  state.areaDraftName = 'New Area'
+  state.areaDraftDescription = ''
+  state.areaDraftTags = ''
+  state.areaDraftGaList = []
+}
+
+function applyTestPromptPreset (prompt) {
+  state.testPlanPrompt = String(prompt || '').trim()
+}
+
+function pairForCommandGA (ga) {
+  const target = String(ga || '').trim()
+  if (!target) return null
+  const pairs = Array.isArray(state.testPlanCatalog && state.testPlanCatalog.pairs) ? state.testPlanCatalog.pairs : []
+  return pairs.find(pair => pair && pair.command && pair.command.ga === target) || null
+}
+
+function commandSignalByGA (ga) {
+  const target = String(ga || '').trim()
+  return plannerCommandOptions.value.find(item => item && item.ga === target) || null
+}
+
+function statusSignalByGA (ga) {
+  const target = String(ga || '').trim()
+  return plannerStatusOptions.value.find(item => item && item.ga === target) || null
+}
+
+function dptValueOptions (dpt) {
+  const key = String(dpt || '').trim()
+  if (!key) return []
+  const byId = state.testPlanCatalog && state.testPlanCatalog.dptOptionsById && typeof state.testPlanCatalog.dptOptionsById === 'object'
+    ? state.testPlanCatalog.dptOptionsById
+    : {}
+  return Array.isArray(byId[key]) ? byId[key] : []
+}
+
+function normalizeComparableText (value) {
+  return String(value || '')
+    .trim()
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+}
+
+const ACTION_PATTERN_GROUPS = [
+  {
+    type: 'on',
+    patterns: [
+      /\bturn on\b/g, /\bturn(?:\s+\w+){1,4}\s+on\b/g,
+      /\bswitch on\b/g, /\bswitch(?:\s+\w+){1,4}\s+on\b/g,
+      /\bpower on\b/g, /\bpower(?:\s+\w+){1,4}\s+on\b/g,
+      /\bstart\b/g, /\benable\b/g, /\bactivate\b/g,
+      /\baccendi\b/g, /\battiva\b/g,
+      /\ballume\b/g, /\bactive\b/g,
+      /\beinschalten\b/g, /\baktivieren\b/g,
+      /\benciende\b/g, /\bactivar\b/g,
+      /\bliga\b/g, /\bativa\b/g,
+      /\baan\b/g, /\binschakelen\b/g
+    ]
+  },
+  {
+    type: 'off',
+    patterns: [
+      /\bturn off\b/g, /\bturn(?:\s+\w+){1,4}\s+off\b/g,
+      /\bswitch off\b/g, /\bswitch(?:\s+\w+){1,4}\s+off\b/g,
+      /\bpower off\b/g, /\bpower(?:\s+\w+){1,4}\s+off\b/g,
+      /\bdisable\b/g, /\bdeactivate\b/g, /\bshutdown\b/g,
+      /\bspegni\b/g, /\bdisattiva\b/g,
+      /\beteins\b/g, /\bdesactive\b/g,
+      /\bausschalten\b/g, /\bdeaktivieren\b/g,
+      /\bapaga\b/g, /\bdesactiva\b/g,
+      /\bdesliga\b/g, /\bdesativa\b/g,
+      /\buit\b/g, /\buitschakelen\b/g
+    ]
+  },
+  {
+    type: 'open',
+    patterns: [
+      /\bopen\b/g, /\braise\b/g, /\blift\b/g, /\bmove up\b/g,
+      /\bapri\b/g, /\balza\b/g, /\bsolleva\b/g,
+      /\bouvre\b/g, /\bmonte\b/g,
+      /\boffnen\b/g, /\bhoch\b/g, /\bauf\b/g,
+      /\babre\b/g, /\bsube\b/g,
+      /\babrir\b/g, /\bsobe\b/g,
+      /\bopenen\b/g, /\bomhoog\b/g
+    ]
+  },
+  {
+    type: 'close',
+    patterns: [
+      /\bclose\b/g, /\blower\b/g, /\bmove down\b/g,
+      /\bchiudi\b/g, /\babbassa\b/g,
+      /\bferme\b/g, /\bdescends?\b/g,
+      /\bschliessen\b/g, /\brunter\b/g, /\bzu\b/g,
+      /\bcierra\b/g, /\bbaja\b/g,
+      /\bfechar\b/g, /\bdesce\b/g,
+      /\bsluiten\b/g, /\bomlaag\b/g
+    ]
+  },
+  {
+    type: 'stop',
+    patterns: [
+      /\bstop\b/g, /\bhalt\b/g, /\bpause\b/g,
+      /\bferma\b/g, /\barresta\b/g,
+      /\barrete\b/g, /\bstoppe\b/g,
+      /\banhalten\b/g, /\bstopp\b/g,
+      /\bdeten\b/g, /\bparar\b/g,
+      /\bpare\b/g,
+      /\bstoppen\b/g
+    ]
+  }
+]
+
+function detectPrimaryActionFromText (value) {
+  const text = normalizeComparableText(value)
+  if (!text) return ''
+  const hits = []
+  ACTION_PATTERN_GROUPS.forEach((group) => {
+    group.patterns.forEach((regex) => {
+      regex.lastIndex = 0
+      let match
+      while ((match = regex.exec(text)) !== null) {
+        hits.push({ type: group.type, index: match.index })
+      }
+    })
+  })
+  hits.sort((a, b) => a.index - b.index)
+  return hits[0] ? hits[0].type : ''
+}
+
+function actionImpliesTruthy (action) {
+  return ['on', 'open'].includes(String(action || '').trim().toLowerCase())
+}
+
+function actionImpliesFalsy (action) {
+  return ['off', 'close', 'stop'].includes(String(action || '').trim().toLowerCase())
+}
+
+function normalizePayloadForDptInput (value, dpt, contextText = '') {
+  const options = dptValueOptions(dpt)
+  if (!options.length) return String(value ?? '')
+  const raw = String(value ?? '').trim()
+
+  const normalizedRaw = normalizeComparableText(raw)
+  const normalizedContext = normalizeComparableText(contextText)
+  const combinedText = `${normalizedRaw} ${normalizedContext}`.trim()
+  const action = detectPrimaryActionFromText(contextText || combinedText)
+
+  if (action) {
+    if (actionImpliesTruthy(action)) {
+      const explicit = options.find(option => ['true', '1', '100'].includes(String(option.value)))
+      if (explicit) return String(explicit.value)
+      const labelMatch = options.find(option => /\b(on|open|up|start|enable|enabled|active|acceso|accesa|aperto|aperta|su|einschalten|allume|enciende|liga|aan)\b/.test(normalizeComparableText(option.label)))
+      if (labelMatch) return String(labelMatch.value)
+    }
+    if (actionImpliesFalsy(action)) {
+      const explicit = options.find(option => ['false', '0'].includes(String(option.value)))
+      if (explicit) return String(explicit.value)
+      const labelMatch = options.find(option => /\b(off|close|down|stop|disable|disabled|inactive|chiuso|spento|giu|ausschalten|eteins|apaga|desliga|uit)\b/.test(normalizeComparableText(option.label)))
+      if (labelMatch) return String(labelMatch.value)
+    }
+  }
+
+  if (options.some(option => String(option.value) === raw)) return raw
+
+  const exactLabelMatch = options.find(option => normalizeComparableText(option.label) === normalizedRaw)
+  if (exactLabelMatch) return String(exactLabelMatch.value)
+
+  const containsLabelMatch = options.find(option => {
+    const label = normalizeComparableText(option.label)
+    return normalizedRaw && (label.includes(normalizedRaw) || normalizedRaw.includes(label))
+  })
+  if (containsLabelMatch) return String(containsLabelMatch.value)
+
+  const trueLike = /\b(on|open|up|true|1|accendi|attiva|apri|su|acceso|accesa|accesi|accese|aperto|aperta|enabled|enable|start|allume|einschalten|enciende|liga|aan)\b/
+  const falseLike = /\b(off|close|down|false|0|spegni|disattiva|chiudi|giu|spento|spenta|spenti|spente|chiuso|chiusa|disabled|disable|stop|ferma|eteins|ausschalten|apaga|desliga|uit)\b/
+
+  if (trueLike.test(combinedText)) {
+    const explicit = options.find(option => ['true', '1', '100'].includes(String(option.value)))
+    if (explicit) return String(explicit.value)
+    const labelMatch = options.find(option => /\b(on|open|up|start|enable|enabled|active|acceso|accesa|aperto|aperta|su)\b/.test(normalizeComparableText(option.label)))
+    if (labelMatch) return String(labelMatch.value)
+  }
+  if (falseLike.test(combinedText)) {
+    const explicit = options.find(option => ['false', '0'].includes(String(option.value)))
+    if (explicit) return String(explicit.value)
+    const labelMatch = options.find(option => /\b(off|close|down|stop|disable|disabled|inactive|spento|spenta|chiuso|chiusa|giu)\b/.test(normalizeComparableText(option.label)))
+    if (labelMatch) return String(labelMatch.value)
+  }
+
+  return String(options[0].value)
+}
+
+function ensureStepPayloadFitsDpt (step) {
+  if (!step) return
+  const commandOptions = dptValueOptions(step.commandDPT)
+  const expectedOptions = dptValueOptions(step.statusDPT || step.commandDPT)
+  const action = String(step.action || '').trim().toLowerCase()
+  if (commandOptions.length) {
+    step.commandPayload = normalizePayloadForDptInput(step.commandPayload, step.commandDPT, action || `${step.title || ''} ${step.description || ''} ${step.reason || ''}`)
+  }
+  if (expectedOptions.length) {
+    step.expectedPayload = normalizePayloadForDptInput(step.expectedPayload, step.statusDPT || step.commandDPT, action || `${step.title || ''} ${step.description || ''} ${step.reason || ''}`)
+  }
+}
+
+function buildEditablePlanStep (seed = {}) {
+  const isWait = String(seed.kind || '').trim().toLowerCase() === 'wait'
+  if (isWait) {
+    return {
+      id: String(seed.id || `step-${Date.now()}-${Math.round(Math.random() * 1000)}`),
+      kind: 'wait',
+      action: '',
+      collapsed: seed.collapsed !== false,
+      title: String(seed.title || 'Wait'),
+      description: String(seed.description || ''),
+      reason: String(seed.reason || ''),
+      delayMs: Number(seed.delayMs || seed.readDelayMs || 1200),
+      commandGA: '',
+      commandDPT: '',
+      commandPayload: '',
+      statusGA: '',
+      statusDPT: '',
+      expectedPayload: '',
+      statusWriteTimeoutMs: 0,
+      statusResponseTimeoutMs: 0
+    }
+  }
+  const commandGA = String(seed.commandGA || '').trim() || String(plannerCommandOptions.value[0]?.ga || '')
+  const pair = pairForCommandGA(commandGA)
+  const command = commandSignalByGA(commandGA)
+  const status = pair && pair.status ? pair.status : null
+  const next = {
+    id: String(seed.id || `step-${Date.now()}-${Math.round(Math.random() * 1000)}`),
+    kind: String(seed.kind || (status ? 'write_and_verify' : 'write_only')),
+    action: String(seed.action || '').trim().toLowerCase(),
+    collapsed: seed.collapsed !== false,
+    title: String(seed.title || (command ? `Step ${command.label}` : 'Manual Step')),
+    description: String(seed.description || ''),
+    reason: String(seed.reason || ''),
+    commandGA,
+    commandDPT: String(seed.commandDPT || command?.dpt || ''),
+    commandPayload: String(seed.commandPayload ?? 'true'),
+    statusGA: String(seed.statusGA || status?.ga || ''),
+    statusDPT: String(seed.statusDPT || status?.dpt || ''),
+    expectedPayload: String(seed.expectedPayload ?? seed.commandPayload ?? 'true'),
+    statusWriteTimeoutMs: Number(seed.statusWriteTimeoutMs || seed.timeoutMs || 5000),
+    statusResponseTimeoutMs: Number(seed.statusResponseTimeoutMs || seed.timeoutMs || 5000)
+  }
+  ensureStepPayloadFitsDpt(next)
+  return next
+}
+
+function normalizeDraftPlanForEditing (plan) {
+  const source = cloneJson(plan, null)
+  if (!source) return null
+  source.steps = (Array.isArray(source.steps) ? source.steps : []).map(step => buildEditablePlanStep(step))
+  return source
+}
+
+function createEmptyAiTestPlanDraft () {
+  return normalizeDraftPlanForEditing({
+    id: '',
+    name: '',
+    description: '',
+    areaId: selectedArea.value ? String(selectedArea.value.id || '') : '',
+    areaName: selectedArea.value ? String(selectedArea.value.path || selectedArea.value.name || '') : '',
+    prompt: '',
+    source: 'manual',
+    generatedAt: new Date().toISOString(),
+    steps: []
+  })
+}
+
+function refreshDraftStepFromCatalog (step) {
+  if (!step) return
+  if (step.kind === 'wait') return
+  const command = commandSignalByGA(step.commandGA)
+  const selectedStatus = statusSignalByGA(step.statusGA)
+  const pair = pairForCommandGA(step.commandGA)
+  if (command) step.commandDPT = String(command.dpt || '')
+  if (selectedStatus) step.statusDPT = String(selectedStatus.dpt || '')
+  if (pair && pair.status && (!step.statusGA || step.statusGA === '')) {
+    step.statusGA = String(pair.status.ga || '')
+    step.statusDPT = String(pair.status.dpt || '')
+    step.kind = 'write_and_verify'
+  }
+  if (step.statusGA) {
+    step.kind = 'write_and_verify'
+  }
+  if (!step.expectedPayload) step.expectedPayload = String(step.commandPayload ?? '')
+  if (!step.statusGA) {
+    step.statusDPT = ''
+    step.kind = 'write_only'
+  }
+  ensureStepPayloadFitsDpt(step)
+}
+
+function addManualStepToPlan () {
+  if (!state.testPlanDraft) return
+  const next = buildEditablePlanStep({
+    id: `step-${(state.testPlanDraft.steps?.length || 0) + 1}`,
+    commandPayload: 'true',
+    expectedPayload: 'true'
+  })
+  state.testPlanDraft.steps = [...(state.testPlanDraft.steps || []), next]
+}
+
+function addWaitStepToPlan () {
+  if (!state.testPlanDraft) return
+  const next = buildEditablePlanStep({
+    id: `wait-${(state.testPlanDraft.steps?.length || 0) + 1}`,
+    kind: 'wait',
+    title: 'Wait',
+    description: 'Pause the test before the next action.',
+    delayMs: 1200
+  })
+  state.testPlanDraft.steps = [...(state.testPlanDraft.steps || []), next]
+}
+
+function duplicatePlanStep (index) {
+  if (!state.testPlanDraft || !Array.isArray(state.testPlanDraft.steps)) return
+  const source = state.testPlanDraft.steps[index]
+  if (!source) return
+  const duplicate = buildEditablePlanStep(Object.assign({}, source, {
+    id: `${source.id || 'step'}-copy`
+  }))
+  state.testPlanDraft.steps.splice(index + 1, 0, duplicate)
+}
+
+function removePlanStep (index) {
+  if (!state.testPlanDraft || !Array.isArray(state.testPlanDraft.steps)) return
+  state.testPlanDraft.steps.splice(index, 1)
+}
+
+function togglePlanStepCollapsed (step) {
+  if (!step) return
+  step.collapsed = step.collapsed !== true
+}
+
+function clearDraggedPlanStepState () {
+  state.draggedTestPlanStepId = ''
+  state.dragOverTestPlanStepId = ''
+}
+
+function onPlanStepDragStart (stepId, event) {
+  const targetId = String(stepId || '').trim()
+  if (!targetId) return
+  state.draggedTestPlanStepId = targetId
+  state.dragOverTestPlanStepId = ''
+  if (event && event.dataTransfer) {
+    event.dataTransfer.effectAllowed = 'move'
+    event.dataTransfer.setData('text/plain', targetId)
+  }
+}
+
+function onPlanStepDragEnter (stepId) {
+  const targetId = String(stepId || '').trim()
+  if (!targetId || !state.draggedTestPlanStepId || targetId === state.draggedTestPlanStepId) return
+  state.dragOverTestPlanStepId = targetId
+}
+
+function movePlanStep (sourceId, targetId) {
+  if (!state.testPlanDraft || !Array.isArray(state.testPlanDraft.steps)) return
+  const fromId = String(sourceId || '').trim()
+  const toId = String(targetId || '').trim()
+  if (!fromId || !toId || fromId === toId) return
+  const steps = state.testPlanDraft.steps.slice()
+  const fromIndex = steps.findIndex(step => String(step && step.id ? step.id : '') === fromId)
+  const toIndex = steps.findIndex(step => String(step && step.id ? step.id : '') === toId)
+  if (fromIndex === -1 || toIndex === -1) return
+  const [moved] = steps.splice(fromIndex, 1)
+  steps.splice(toIndex, 0, moved)
+  state.testPlanDraft.steps = steps
+}
+
+function onPlanStepDrop (targetStepId, event) {
+  if (event) event.preventDefault()
+  const sourceId = String(state.draggedTestPlanStepId || '').trim()
+  const targetId = String(targetStepId || '').trim()
+  if (sourceId && targetId && sourceId !== targetId) movePlanStep(sourceId, targetId)
+  clearDraggedPlanStepState()
+}
+
+function openRunTestPlanConfirm () {
+  if (!state.testPlanDraft || state.testPlanRunning) return
+  state.testPlanRunMode = 'single'
+  state.testPlanRepeatStopRequested = false
+  state.testPlanRunConfirmOpen = true
+}
+
+function openRepeatTestPlanConfirm () {
+  if (!state.testPlanDraft || state.testPlanRunning) return
+  state.testPlanRunMode = 'repeat'
+  state.testPlanRepeatStopRequested = false
+  state.testPlanRunConfirmOpen = true
+}
+
+function closeRunTestPlanConfirm () {
+  state.testPlanRunConfirmOpen = false
+  state.testPlanRunMode = 'single'
+}
+
+function stopRepeatingTestPlan () {
+  if (state.testPlanRepeatForever !== true) return
+  state.testPlanRepeatStopRequested = true
+  setStatus('Stopping repeat mode after the current cycle...')
+}
+
+function loadSelectedTestPlanDraft (plan = null) {
+  const source = plan || selectedTestPlan.value
+  if (!source) return
+  state.testResultFocusMode = false
+  state.testPlanSelectedId = String(source.id || '')
+  state.testPlanDraft = normalizeDraftPlanForEditing(source)
+  state.testPlanPrompt = String(source.prompt || '')
+  state.testPlanGeneration = {
+    provider: String(source.source || 'saved'),
+    model: '',
+    fallback: false,
+    error: ''
+  }
+  state.testPlanRunConfirmOpen = false
+  state.showAiPlanner = false
+  if (source.areaId && suggestedAreas.value.find(area => area.id === source.areaId)) {
+    state.areaSelectedId = source.areaId
+  }
+  setCurrentTestPlanBaseline()
+}
+
+function resetPendingTestPlanAction () {
+  pendingTestPlanAction = null
+  state.testPlanPendingActionLabel = ''
+}
+
+function closeUnsavedTestPlanConfirm () {
+  state.testPlanUnsavedConfirmOpen = false
+  resetPendingTestPlanAction()
+}
+
+function runPendingTestPlanAction () {
+  const action = pendingTestPlanAction
+  state.testPlanUnsavedConfirmOpen = false
+  resetPendingTestPlanAction()
+  if (typeof action === 'function') action()
+}
+
+function requestTestPlanChange (action, label = 'another plan') {
+  if (!hasUnsavedTestPlanChanges.value) {
+    action()
+    return
+  }
+  pendingTestPlanAction = action
+  state.testPlanPendingActionLabel = String(label || 'another plan')
+  state.testPlanUnsavedConfirmOpen = true
+}
+
+function selectSavedPlan (plan) {
+  if (!plan || !plan.id) return
+  const targetId = String(plan.id)
+  if (state.testPlanSelectedId === targetId) return
+  requestTestPlanChange(() => loadSelectedTestPlanDraft(plan), `plan "${plan.name || targetId}"`)
+}
+
+function cancelTestPlanChanges () {
+  restoreCurrentTestPlanBaseline()
+  setStatus('Plan changes discarded')
+}
+
+async function saveCurrentTestPlanAndContinue () {
+  const ok = await saveAiTestPlanDefinition()
+  if (ok) runPendingTestPlanAction()
+}
+
+function startNewAiTestPlan () {
+  requestTestPlanChange(() => {
+    state.activeTab = 'tests'
+    state.testResultFocusMode = false
+    state.testPlanSelectedId = ''
+    state.testPlanDraft = createEmptyAiTestPlanDraft()
+    state.testPlanGeneration = null
+    state.testPlanRunConfirmOpen = false
+    state.testPlanPrompt = selectedArea.value
+      ? `Activate the main actuators in area ${selectedArea.value.name || 'selected'} and read back the status to verify that it is coherent.`
+      : ''
+    state.showAiPlanner = true
+    setCurrentTestPlanBaseline()
+  }, 'a new plan')
+}
+
+function duplicateCurrentAiTestPlan () {
+  const source = cloneJson(state.testPlanDraft || selectedTestPlan.value, null)
+  if (!source) return
+  state.activeTab = 'tests'
+  state.testResultFocusMode = false
+  state.testPlanSelectedId = ''
+  state.testPlanRunConfirmOpen = false
+  state.testPlanGeneration = {
+    provider: 'duplicated',
+    model: '',
+    fallback: false,
+    error: ''
+  }
+  source.id = ''
+  source.name = String(source.name || 'Plan Draft').trim()
+    ? `${String(source.name || 'Plan Draft').trim()} Copy`
+    : 'Plan Copy'
+  state.testPlanPrompt = String(source.prompt || state.testPlanPrompt || '')
+  state.testPlanDraft = normalizeDraftPlanForEditing(source)
+  state.showAiPlanner = true
+  setCurrentTestPlanBaseline()
+  setStatus('Plan duplicated')
+}
+
+async function generateAiTestPlan () {
+  const area = selectedArea.value
+  const prompt = String(state.testPlanPrompt || '').trim()
+  if (!state.selectedNodeId || !area || !prompt || state.testPlanGenerating) return
+  state.testPlanGenerating = true
+  state.testResultFocusMode = false
+  state.testPlanGenerationError = ''
+  setStatus('Generating AI test plan...')
+  try {
+    const data = await requestJson(apiUrl('test-plans/generate'), {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        nodeId: state.selectedNodeId,
+        areaId: area.id,
+        prompt
+      })
+    })
+    state.testPlanDraft = data && data.plan ? normalizeDraftPlanForEditing(data.plan) : null
+    state.testPlanCatalog = data && data.catalog ? data.catalog : state.testPlanCatalog
+    state.testPlanGeneration = data && data.generation ? data.generation : null
+    state.testPlanGenerationError = ''
+    state.testPlanSelectedId = ''
+    state.testPlanRunConfirmOpen = false
+    state.showAiPlanner = true
+    if (data && data.testPlans) {
+      state.stateData = Object.assign({}, state.stateData || {}, { testPlans: data.testPlans })
+    }
+    setCurrentTestPlanBaseline()
+    setStatus('AI test plan ready')
+  } catch (error) {
+    const message = error.message || 'Failed to generate AI test plan'
+    state.lastError = message
+    state.testPlanGenerationError = message
+    state.testPlanGeneration = {
+      provider: '',
+      model: '',
+      fallback: false,
+      error: message
+    }
+    setStatus(message)
+  } finally {
+    state.testPlanGenerating = false
+  }
+}
+
+async function saveAiTestPlanDefinition () {
+  if (!state.selectedNodeId || !state.testPlanDraft || state.testPlanSaving) return false
+  state.testPlanSaving = true
+  setStatus('Saving AI test plan...')
+  try {
+    const data = await requestJson(apiUrl('test-plans/save'), {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        nodeId: state.selectedNodeId,
+        plan: Object.assign({}, state.testPlanDraft, { prompt: state.testPlanPrompt })
+      })
+    })
+    if (data && data.testPlans) {
+      state.stateData = Object.assign({}, state.stateData || {}, { testPlans: data.testPlans })
+    }
+    if (data && data.planId) state.testPlanSelectedId = data.planId
+    if (data && data.planId && state.testPlanDraft) state.testPlanDraft.id = data.planId
+    state.testPlanRunConfirmOpen = false
+    setCurrentTestPlanBaseline()
+    setStatus('AI test plan saved')
+    return true
+  } catch (error) {
+    state.lastError = error.message || 'Failed to save AI test plan'
+    setStatus(state.lastError)
+    return false
+  } finally {
+    state.testPlanSaving = false
+  }
+}
+
+async function deleteAiTestPlanDefinition () {
+  const plan = selectedTestPlan.value
+  if (!plan || !state.selectedNodeId || state.testPlanDeleting) return
+  state.testPlanDeleting = true
+  setStatus('Deleting AI test plan...')
+  try {
+    const data = await requestJson(apiUrl('test-plans/delete'), {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        nodeId: state.selectedNodeId,
+        planId: plan.id
+      })
+    })
+    if (data && data.testPlans) {
+      state.stateData = Object.assign({}, state.stateData || {}, { testPlans: data.testPlans })
+    }
+    state.testPlanDraft = null
+    state.testPlanGeneration = null
+    state.testPlanRunConfirmOpen = false
+    state.showAiPlanner = true
+    setCurrentTestPlanBaseline()
+    setStatus('AI test plan deleted')
+  } catch (error) {
+    state.lastError = error.message || 'Failed to delete AI test plan'
+    setStatus(state.lastError)
+  } finally {
+    state.testPlanDeleting = false
+  }
+}
+
+async function runAiTestPlanDefinition (modeInput = 'single') {
+  if (!state.selectedNodeId || !state.testPlanDraft || state.testPlanRunning) return
+  const runMode = String(modeInput || state.testPlanRunMode || 'single').trim().toLowerCase()
+  const repeatForever = runMode === 'repeat'
+  state.testPlanRunning = true
+  state.showAiPlanner = false
+  state.testPlanRepeatForever = repeatForever
+  state.testPlanRepeatStopRequested = false
+  state.testPlanRunningStepId = ''
+  state.testPlanRunConfirmOpen = false
+  state.lastError = ''
+  setStatus(repeatForever ? 'Running AI test plan in repeat mode...' : 'Running AI test plan...')
+  try {
+    const plan = JSON.parse(JSON.stringify(Object.assign({}, state.testPlanDraft, { prompt: state.testPlanPrompt })))
+    const steps = Array.isArray(plan.steps) ? plan.steps : []
+    if (!plan.areaId) throw new Error('Missing areaId in test plan')
+    if (!steps.length) throw new Error('The test plan has no executable steps')
+    let area = selectedArea.value
+    let cycleNumber = 0
+    do {
+      cycleNumber += 1
+      const liveReportId = `${plan.id || 'plan'}:${Date.now()}`
+      const stepResults = []
+      state.liveTestResultId = liveReportId
+      state.testResultsMenuOpen = true
+      focusTestResult(liveReportId, { openMenu: true, activateTestsTab: true, resultOnly: false })
+      state.stateData = Object.assign({}, state.stateData || {}, {
+        testPlanReport: buildClientTestPlanReport({
+          plan,
+          area,
+          stepResults: [],
+          reportId: liveReportId
+        })
+      })
+
+      try {
+        // Announce the plan name before the first executable step.
+        // This makes the test session clearer for the installer on site.
+        // eslint-disable-next-line no-await-in-loop
+        await speakText(plan.name || 'Test plan', plan.description || '')
+      } catch (error) {}
+
+      for (let index = 0; index < steps.length; index += 1) {
+        const step = steps[index]
+        state.testPlanRunningStepId = step && step.id ? step.id : ''
+        const cyclePrefix = repeatForever ? `Cycle ${cycleNumber} · ` : ''
+        setStatus(`${cyclePrefix}Step ${index + 1}/${steps.length}: ${step && step.title ? step.title : 'Running...'}`)
+
+        try {
+          // Voice feedback is best-effort. A playback error must not stop the KNX test.
+          // eslint-disable-next-line no-await-in-loop
+          await speakTestStepTitle(step || { title: `Step ${index + 1}` }, index + 1)
+        } catch (error) {
+          setStatus(`Voice unavailable for step ${index + 1}. Continuing test...`)
+        }
+
+        try {
+          // eslint-disable-next-line no-await-in-loop
+          const data = await requestJson(apiUrl('test-plans/run-step'), {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({
+              nodeId: state.selectedNodeId,
+              areaId: plan.areaId,
+              step
+            })
+          })
+          if (data && data.area) area = data.area
+          stepResults.push(data && data.stepResult ? data.stepResult : buildClientStepFailureResult(step, new Error('Step returned no result')))
+        } catch (error) {
+          stepResults.push(buildClientStepFailureResult(step, error))
+        }
+
+        state.stateData = Object.assign({}, state.stateData || {}, {
+          testPlanReport: buildClientTestPlanReport({
+            plan,
+            area,
+            stepResults: stepResults.slice(),
+            reportId: liveReportId
+          })
+        })
+      }
+
+      const finalReport = buildClientTestPlanReport({ plan, area, stepResults, reportId: liveReportId })
+      state.stateData = Object.assign({}, state.stateData || {}, {
+        testPlans: testPlans.value,
+        testPlanReport: finalReport
+      })
+      focusTestResult(liveReportId, { openMenu: true, activateTestsTab: true, resultOnly: false })
+      try {
+        // eslint-disable-next-line no-await-in-loop
+        await persistTestResult(finalReport)
+      } catch (error) {
+        state.lastError = error.message || 'Failed to save test result'
+        setStatus(`AI test completed, but the result was not saved: ${state.lastError}`)
+      }
+      if (repeatForever && state.testPlanRepeatStopRequested !== true) {
+        state.testResultFocusMode = false
+        setStatus(`Cycle ${cycleNumber} completed. Starting the next cycle...`)
+      }
+    } while (repeatForever && state.testPlanRepeatStopRequested !== true)
+    state.testPlanRunConfirmOpen = false
+    if (!state.lastError) setStatus(repeatForever ? 'Repeat mode stopped' : 'AI test completed')
+    requestAnimationFrame(() => {
+      try {
+        if (testPlanReportRef.value && typeof testPlanReportRef.value.scrollIntoView === 'function') {
+          testPlanReportRef.value.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        }
+      } catch (error) {}
+    })
+  } catch (error) {
+    state.lastError = error.message || 'Failed to run AI test plan'
+    setStatus(state.lastError)
+  } finally {
+    state.testPlanRunningStepId = ''
+    stopActiveStepAudio()
+    state.testPlanRunning = false
+    state.testPlanRepeatForever = false
+    state.testPlanRepeatStopRequested = false
+    state.testPlanRunMode = 'single'
+  }
+}
+
+function startNewProfileDraft () {
+  state.activeTab = 'tests'
+  state.profileDraftMode = true
+  state.profileSelectedId = ''
+  state.profileDraftId = ''
+  state.profileDraftName = selectedArea.value ? `Control ${selectedArea.value.name || 'Area'}` : 'Custom Area Profile'
+  state.profileDraftDescription = 'Read-only profile customized by the installer.'
+  state.profileDraftTargetTags = Array.isArray(selectedArea.value && selectedArea.value.tags) ? selectedArea.value.tags.join(', ') : ''
+  state.profileDraftMinActivityPct = 20
+  state.profileDraftMaxSilentPct = 60
+  state.profileDraftMaxAnomalies = 2
+}
+
+function startNewActuatorDraft () {
+  state.activeTab = 'tests'
+  state.actuatorDraftMode = true
+  state.actuatorPresetSelectedId = ''
+  state.actuatorDraftId = ''
+  state.actuatorDraftName = selectedArea.value ? `Actuator ${selectedArea.value.name || 'Test'}` : 'Actuator Test'
+  state.actuatorDraftDescription = 'Manual active test with command write, spontaneous status write check and explicit read-response check.'
+  state.actuatorDraftCommandGA = selectedArea.value && Array.isArray(selectedArea.value.sampleGAs) && selectedArea.value.sampleGAs[0] ? selectedArea.value.sampleGAs[0] : ''
+  state.actuatorDraftCommandDPT = ''
+  state.actuatorDraftCommandPayload = 'true'
+  state.actuatorDraftStatusGA = ''
+  state.actuatorDraftStatusDPT = ''
+  state.actuatorDraftStatusWriteTimeoutMs = 5000
+  state.actuatorDraftStatusResponseTimeoutMs = 5000
+}
+
+async function saveProfileDefinition () {
+  if (!state.selectedNodeId || state.profileSaving) return
+  state.profileSaving = true
+  setStatus('Saving profile...')
+  try {
+    const data = await requestJson(apiUrl('profiles/save'), {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        nodeId: state.selectedNodeId,
+        id: state.profileDraftId,
+        name: state.profileDraftName,
+        description: state.profileDraftDescription,
+        targetTags: String(state.profileDraftTargetTags || '')
+          .split(',')
+          .map(item => String(item || '').trim())
+          .filter(Boolean),
+        minActivityPct: Number(state.profileDraftMinActivityPct),
+        maxSilentPct: Number(state.profileDraftMaxSilentPct),
+        maxAnomalies: Number(state.profileDraftMaxAnomalies)
+      })
+    })
+    if (data && data.profiles) {
+      state.stateData = Object.assign({}, state.stateData || {}, { profiles: data.profiles })
+      state.profileDraftMode = false
+      if (data.profileId) state.profileSelectedId = data.profileId
+    } else {
+      state.profileDraftMode = false
+      await fetchState({ fresh: true })
+    }
+    setStatus('Profile saved')
+  } catch (error) {
+    state.lastError = error.message || 'Failed to save profile'
+    setStatus(state.lastError)
+  } finally {
+    state.profileSaving = false
+  }
+}
+
+async function deleteProfileDefinition () {
+  const profile = selectedProfile.value
+  if (!profile || profile.builtIn === true || !state.selectedNodeId || state.profileSaving) return
+  state.profileSaving = true
+  setStatus('Deleting profile...')
+  try {
+    const data = await requestJson(apiUrl('profiles/delete'), {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        nodeId: state.selectedNodeId,
+        profileId: profile.id
+      })
+    })
+    if (data && data.profiles) {
+      state.stateData = Object.assign({}, state.stateData || {}, { profiles: data.profiles })
+      state.profileDraftMode = false
+    } else {
+      state.profileDraftMode = false
+      await fetchState({ fresh: true })
+    }
+    setStatus('Profile deleted')
+  } catch (error) {
+    state.lastError = error.message || 'Failed to delete profile'
+    setStatus(state.lastError)
+  } finally {
+    state.profileSaving = false
+  }
+}
+
+async function runSelectedProfile () {
+  if (!state.selectedNodeId || !selectedArea.value || !selectedProfile.value || state.profileRunning) return
+  state.profileRunning = true
+  setStatus('Running profile...')
+  try {
+    const data = await requestJson(apiUrl('profiles/run'), {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        nodeId: state.selectedNodeId,
+        areaId: selectedArea.value.id,
+        profileId: selectedProfile.value.id
+      })
+    })
+    state.stateData = Object.assign({}, state.stateData || {}, {
+      areas: data.areas || areasState.value,
+      profiles: data.profiles || profiles.value,
+      profileReport: data.report || null,
+      actuatorTests: data.actuatorTests || actuatorTests.value,
+      testResults: data.testResults || persistedTestResults.value
+    })
+    focusTestResult(data && data.report && data.report.id ? data.report.id : '', { openMenu: true, activateTestsTab: true, resultOnly: true })
+    setStatus('Profile report ready')
+  } catch (error) {
+    state.lastError = error.message || 'Failed to run profile'
+    setStatus(state.lastError)
+  } finally {
+    state.profileRunning = false
+  }
+}
+
+async function saveActuatorPreset () {
+  if (!state.selectedNodeId || state.actuatorSaving) return
+  state.actuatorSaving = true
+  setStatus('Saving actuator preset...')
+  try {
+    const data = await requestJson(apiUrl('actuator-tests/save'), {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        nodeId: state.selectedNodeId,
+        id: state.actuatorDraftId,
+        name: state.actuatorDraftName,
+        description: state.actuatorDraftDescription,
+        commandGA: state.actuatorDraftCommandGA,
+        commandDPT: state.actuatorDraftCommandDPT,
+        commandPayload: state.actuatorDraftCommandPayload,
+        statusGA: state.actuatorDraftStatusGA,
+        statusDPT: state.actuatorDraftStatusDPT,
+        statusWriteTimeoutMs: Number(state.actuatorDraftStatusWriteTimeoutMs),
+        statusResponseTimeoutMs: Number(state.actuatorDraftStatusResponseTimeoutMs)
+      })
+    })
+    if (data && data.actuatorTests) {
+      state.stateData = Object.assign({}, state.stateData || {}, { actuatorTests: data.actuatorTests })
+      state.actuatorDraftMode = false
+      if (data.presetId) state.actuatorPresetSelectedId = data.presetId
+    } else {
+      state.actuatorDraftMode = false
+      await fetchState({ fresh: true })
+    }
+    setStatus('Actuator preset saved')
+  } catch (error) {
+    state.lastError = error.message || 'Failed to save actuator preset'
+    setStatus(state.lastError)
+  } finally {
+    state.actuatorSaving = false
+  }
+}
+
+async function deleteActuatorPreset () {
+  const preset = selectedActuatorPreset.value
+  if (!preset || !state.selectedNodeId || state.actuatorSaving) return
+  state.actuatorSaving = true
+  setStatus('Deleting actuator preset...')
+  try {
+    const data = await requestJson(apiUrl('actuator-tests/delete'), {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        nodeId: state.selectedNodeId,
+        presetId: preset.id
+      })
+    })
+    if (data && data.actuatorTests) {
+      state.stateData = Object.assign({}, state.stateData || {}, { actuatorTests: data.actuatorTests })
+      state.actuatorDraftMode = false
+    } else {
+      state.actuatorDraftMode = false
+      await fetchState({ fresh: true })
+    }
+    setStatus('Actuator preset deleted')
+  } catch (error) {
+    state.lastError = error.message || 'Failed to delete actuator preset'
+    setStatus(state.lastError)
+  } finally {
+    state.actuatorSaving = false
+  }
+}
+
+async function runActuatorTest () {
+  if (!state.selectedNodeId || state.actuatorRunning) return
+  state.actuatorRunning = true
+  setStatus('Running actuator test...')
+  try {
+    const data = await requestJson(apiUrl('actuator-tests/run'), {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        nodeId: state.selectedNodeId,
+        id: state.actuatorDraftId,
+        name: state.actuatorDraftName,
+        description: state.actuatorDraftDescription,
+        commandGA: state.actuatorDraftCommandGA,
+        commandDPT: state.actuatorDraftCommandDPT,
+        commandPayload: state.actuatorDraftCommandPayload,
+        statusGA: state.actuatorDraftStatusGA,
+        statusDPT: state.actuatorDraftStatusDPT,
+        statusWriteTimeoutMs: Number(state.actuatorDraftStatusWriteTimeoutMs),
+        statusResponseTimeoutMs: Number(state.actuatorDraftStatusResponseTimeoutMs)
+      })
+    })
+    state.stateData = Object.assign({}, state.stateData || {}, {
+      actuatorTests: data.actuatorTests || actuatorTests.value,
+      actuatorTestReport: data.report || null,
+      testResults: data.testResults || persistedTestResults.value
+    })
+    focusTestResult(data && data.report && data.report.id ? data.report.id : '', { openMenu: true, activateTestsTab: true, resultOnly: true })
+    setStatus('Actuator test complete')
+  } catch (error) {
+    state.lastError = error.message || 'Failed to run actuator test'
+    setStatus(state.lastError)
+  } finally {
+    state.actuatorRunning = false
+  }
+}
+
+async function exportFullConfig () {
+  if (!state.selectedNodeId) return
+  setStatus('Exporting config...')
+  try {
+    const data = await requestJson(apiUrl('config/export'), {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ nodeId: state.selectedNodeId })
+    })
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
+    const url = window.URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `knx-ai-config-${state.selectedNodeId}.json`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    window.URL.revokeObjectURL(url)
+    setStatus('Config exported')
+  } catch (error) {
+    state.lastError = error.message || 'Failed to export config'
+    setStatus(state.lastError)
+  }
+}
+
+function triggerConfigImport () {
+  if (configImportRef.value) configImportRef.value.click()
+}
+
+async function importFullConfig (event) {
+  const file = event && event.target && event.target.files && event.target.files[0] ? event.target.files[0] : null
+  if (!file || !state.selectedNodeId) return
+  setStatus('Importing config...')
+  try {
+    const text = await file.text()
+    const parsed = JSON.parse(text)
+    const data = await requestJson(apiUrl('config/import'), {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        nodeId: state.selectedNodeId,
+        config: parsed
+      })
+    })
+    state.stateData = Object.assign({}, state.stateData || {}, {
+      areas: data.areas || areasState.value,
+      profiles: data.profiles || profiles.value,
+      actuatorTests: data.actuatorTests || actuatorTests.value,
+      testPlans: data.testPlans || testPlans.value,
+      testResults: data.testResults || persistedTestResults.value
+    })
+    await fetchGaCatalog()
+    setStatus('Config imported')
+  } catch (error) {
+    state.lastError = error.message || 'Failed to import config'
+    setStatus(state.lastError)
+  } finally {
+    if (event && event.target) event.target.value = ''
   }
 }
 
@@ -989,57 +3231,159 @@ onMounted(async () => {
   applyThemeLink()
   await fetchNodes({ preserveSelection: false })
   await fetchState({ fresh: true })
+  await fetchGaCatalog()
   startTimers()
 })
 
 onBeforeUnmount(() => {
   document.removeEventListener('fullscreenchange', syncFullscreenState)
   stopTimers()
+  stopActiveStepAudio()
 })
 </script>
 
 <template>
   <div class="page-shell">
-    <header class="topbar">
-      <div class="brand">
-        <p class="eyebrow">Vue Preview</p>
+    <aside class="app-sidebar">
+      <div class="sidebar-brand">
+        <p class="eyebrow">KNX Ultimate</p>
         <h1>KNX AI Web</h1>
-        <p class="subhead">Nuova UI in Vue 3, servita dal backend di Node-RED. Ora include anche una flow map SVG nativa per lavorare senza uscire dalla preview.</p>
+        <p class="subhead">Diagnostics, areas, and active tests in a single panel with stronger contrast and clearer separation.</p>
       </div>
-      <div class="toolbar">
-        <div class="theme-strip">
-          <button
-            v-for="themeOption in THEMES"
-            :key="themeOption"
-            class="theme-button"
-            :class="{ active: state.theme === themeOption }"
-            type="button"
-            @click="state.theme = themeOption"
-          >
-            {{ themeOption }}
-          </button>
-        </div>
-        <select v-model="state.selectedNodeId" class="node-select" @change="onNodeChange">
-          <option v-for="node in state.nodes" :key="node.id" :value="node.id">
-            {{ `${node.name || 'KNX AI'}${node.gatewayName ? ` | ${node.gatewayName}` : ''}` }}
-          </option>
-        </select>
-        <label class="checkbox">
+
+      <div class="sidebar-panel">
+        <label class="sidebar-field">
+          <span>Installation</span>
+          <select v-model="state.selectedNodeId" class="node-select sidebar-select" @change="onNodeChange">
+            <option v-for="node in state.nodes" :key="node.id" :value="node.id">
+              {{ `${node.name || 'KNX AI'}${node.gatewayName ? ` | ${node.gatewayName}` : ''}` }}
+            </option>
+          </select>
+        </label>
+        <label class="checkbox sidebar-checkbox">
           <input v-model="state.autoRefresh" type="checkbox">
           <span>Auto refresh</span>
         </label>
-        <button class="primary-button" type="button" :disabled="state.loadingNodes || state.loadingState" @click="onRefresh">
+      </div>
+
+      <nav class="sidebar-nav">
+        <button class="tab-button" :class="{ active: state.activeTab === 'overview' }" type="button" @click="activateSidebarTab('overview')">
+          <span class="sidebar-nav-title">Overview</span>
+          <span class="sidebar-nav-meta">Traffic and diagnostics</span>
+        </button>
+        <button class="tab-button" :class="{ active: state.activeTab === 'areas' }" type="button" @click="activateSidebarTab('areas')">
+          <span class="sidebar-nav-title">Areas</span>
+          <span class="sidebar-nav-meta">ETS grouping and editing</span>
+        </button>
+        <button class="tab-button sidebar-nav-child" :class="{ active: state.activeTab === 'tests' }" type="button" @click="activateSidebarTab('tests')">
+          <span class="sidebar-nav-title">Tests</span>
+          <span class="sidebar-nav-meta">AI plans and active checks</span>
+        </button>
+        <button class="tab-button" :class="{ active: state.activeTab === 'assistant' }" type="button" @click="activateSidebarTab('assistant')">
+          <span class="sidebar-nav-title">Assistant</span>
+          <span class="sidebar-nav-meta">Ask the KNX analyzer</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-panel sidebar-test-results">
+        <button class="sidebar-section-toggle" type="button" :aria-expanded="state.testResultsMenuOpen === true" @click="state.testResultsMenuOpen = state.testResultsMenuOpen !== true">
+          <span>
+            <strong>Test Results</strong>
+            <small>{{ sidebarTestResults.length }} available</small>
+          </span>
+          <span class="collapse-icon" :class="{ collapsed: state.testResultsMenuOpen !== true }">▾</span>
+        </button>
+        <div v-if="state.testResultsMenuOpen" class="sidebar-results-list">
+          <div
+            v-for="report in sidebarTestResults"
+            :key="report.id"
+            class="sidebar-result-row"
+          >
+            <button
+              type="button"
+              class="area-list-item sidebar-result-item"
+              :class="{ active: selectedTestResult && selectedTestResult.id === report.id, running: report.live === true }"
+              @click="focusTestResult(report.id, { openMenu: true, activateTestsTab: true })"
+            >
+              <span class="sidebar-result-head">
+                <strong>{{ testResultDisplayName(report) }}</strong>
+                <span class="sidebar-result-status" :class="`status-${report.overallStatus || 'pass'}`">{{ report.overallStatus || 'n/a' }}</span>
+              </span>
+              <span class="area-list-meta">{{ testResultModeLabel(report) }}<span v-if="report.live === true"> | running</span></span>
+              <span class="area-list-tags">{{ testResultAreaText(report) || formatDateTime(report.generatedAt) }}</span>
+              <span class="area-list-tags">{{ formatDateTime(report.generatedAt) }}</span>
+            </button>
+            <button
+              class="sidebar-result-delete-button"
+              type="button"
+              :disabled="state.deletingTestResultId === report.id"
+              @click.stop="deleteTestResult(report.id)"
+            >
+              {{ state.deletingTestResultId === report.id ? 'Deleting...' : 'Delete' }}
+            </button>
+          </div>
+          <p v-if="!sidebarTestResults.length" class="empty-state sidebar-empty-state">No saved test results yet.</p>
+        </div>
+      </div>
+
+      <div class="sidebar-panel sidebar-actions">
+        <button class="secondary-button sidebar-action-button" type="button" @click="exportFullConfig">
+          Export JSON
+        </button>
+        <button class="secondary-button sidebar-action-button" type="button" @click="triggerConfigImport">
+          Import JSON
+        </button>
+        <input ref="configImportRef" type="file" accept="application/json,.json" class="hidden-file-input" @change="importFullConfig">
+        <button class="primary-button sidebar-action-button" type="button" :disabled="state.loadingNodes || state.loadingState" @click="onRefresh">
           Refresh
         </button>
       </div>
-      <div class="statusbar">
+
+      <div class="sidebar-footer">
         <span class="status-pill" :class="{ error: !!state.lastError }">{{ state.status }}</span>
         <span v-if="selectedNode" class="status-detail">Provider: {{ selectedNode.llmProvider || 'n/a' }} | Model: {{ selectedNode.llmModel || 'n/a' }}</span>
       </div>
-    </header>
+    </aside>
 
-    <main class="content-grid">
-      <section class="card card-summary">
+    <section class="workspace-shell">
+      <header class="topbar workspace-header">
+        <div class="brand workspace-brand">
+          <p class="eyebrow">Workspace</p>
+          <h2>
+            {{
+              state.activeTab === 'overview'
+                ? 'Overview'
+                : state.activeTab === 'areas'
+                  ? 'Areas'
+                  : state.activeTab === 'tests'
+                    ? 'Tests'
+                    : 'Assistant'
+            }}
+          </h2>
+          <p class="subhead">
+            {{
+              state.activeTab === 'overview'
+                ? 'Monitor KNX traffic, flow, anomalies and connection persistence.'
+                : state.activeTab === 'areas'
+                  ? 'Organize ETS objects into clear installer-friendly operational areas.'
+                  : state.activeTab === 'tests'
+                    ? 'Generate, edit and execute proactive KNX test plans.'
+                    : 'Query the AI assistant about the current KNX installation.'
+            }}
+          </p>
+        </div>
+        <div class="toolbar workspace-toolbar">
+          <div class="toolbar-cluster action-cluster workspace-badges">
+            <span class="meta-chip">Node {{ selectedNode?.name || 'n/a' }}</span>
+            <span class="meta-chip">Areas {{ Number(areaTotals.suggestedAreaCount || 0) }}</span>
+            <span class="meta-chip">Plans {{ testPlans.length }}</span>
+            <span class="meta-chip">Results {{ sidebarTestResults.length }}</span>
+          </div>
+        </div>
+      </header>
+
+    <main class="content-grid workspace-main">
+      <section v-if="state.activeTab === 'overview'" class="card card-summary">
         <div class="card-head">
           <h2>Summary</h2>
           <span v-if="summary.meta?.generatedAt" class="meta-chip">{{ formatDateTime(summary.meta.generatedAt) }}</span>
@@ -1065,7 +3409,633 @@ onBeforeUnmount(() => {
         </div>
       </section>
 
-      <section class="card">
+      <section v-if="state.activeTab === 'areas'" class="card card-areas">
+        <div class="card-head">
+          <h2>Suggested Areas</h2>
+          <div class="card-head-actions">
+            <span class="meta-chip">{{ Number(areaTotals.suggestedAreaCount || 0) }} areas</span>
+            <button class="secondary-button" type="button" @click="startNewAreaDraft">
+              New Area
+            </button>
+          </div>
+        </div>
+        <div class="areas-toolbar">
+          <label class="flow-field area-search-field">
+            <span>Find area</span>
+            <input v-model="state.areaSearch" type="text" placeholder="Search path or labels">
+          </label>
+          <div class="pill-row">
+            <span class="pill neutral">GA {{ Number(areaTotals.gaCount || 0) }}</span>
+            <span class="pill neutral">Hierarchical {{ Number(areaTotals.hierarchicalGaCount || 0) }}</span>
+            <span class="pill neutral">Secondary {{ Number(areaTotals.secondaryGroupCount || 0) }}</span>
+            <span class="pill neutral">Active {{ Number(areaTotals.activeAreaCount || 0) }}</span>
+          </div>
+        </div>
+        <div v-if="filteredAreas.length || state.areaDraftIsNew" class="areas-layout">
+          <div class="area-list">
+            <button
+              v-for="area in filteredAreas"
+              :key="area.id"
+              type="button"
+              class="area-list-item"
+              :class="{ active: selectedArea && selectedArea.id === area.id }"
+              @click="state.areaSelectedId = area.id"
+            >
+              <span class="area-list-title">{{ area.path || area.name }}</span>
+              <span class="area-list-meta">{{ area.kind }} | {{ Number(area.gaCount || 0) }} GA | active {{ Number(area.activeGaCount || 0) }}</span>
+            </button>
+          </div>
+          <article v-if="selectedArea || state.areaDraftIsNew" class="area-detail">
+            <div class="card-head">
+              <div>
+                <h3>{{ state.areaDraftIsNew ? 'New Custom Area' : (selectedArea.path || selectedArea.name) }}</h3>
+                <p class="area-detail-subhead">{{ state.areaDraftIsNew ? 'Create a manual area and assign the exact group addresses you want.' : (selectedArea.description || selectedArea.kind) }}</p>
+              </div>
+              <div class="card-head-actions">
+                <span v-if="selectedArea?.hasOverride || state.areaDraftIsNew" class="meta-chip">Custom</span>
+                <span v-if="!state.areaDraftIsNew" class="meta-chip">{{ Number(selectedArea?.activityPct || 0) }}% active</span>
+              </div>
+            </div>
+            <div class="metric-grid area-metrics">
+              <article class="metric">
+                <span>Group Addresses</span>
+                <strong>{{ state.areaDraftIsNew ? Number(state.areaDraftGaList.length || 0) : Number(selectedArea?.gaCount || 0) }}</strong>
+              </article>
+              <article class="metric">
+                <span>DPT Count</span>
+                <strong>{{ state.areaDraftIsNew ? Number(new Set(areaDraftGaDetails.map(item => item.dpt).filter(Boolean)).size || 0) : Number(selectedArea?.dptCount || 0) }}</strong>
+              </article>
+              <article class="metric">
+                <span>Active GA</span>
+                <strong>{{ state.areaDraftIsNew ? 'n/a' : Number(selectedArea?.activeGaCount || 0) }}</strong>
+              </article>
+              <article class="metric">
+                <span>Last Seen</span>
+                <strong>{{ state.areaDraftIsNew ? 'n/a' : (selectedArea?.lastSeenAt ? formatDateTime(selectedArea.lastSeenAt) : 'n/a') }}</strong>
+              </article>
+            </div>
+            <div class="area-chips">
+              <span v-if="selectedArea?.parentName && !state.areaDraftIsNew" class="meta-chip">Parent {{ selectedArea.parentName }}</span>
+              <span v-if="selectedArea?.kind && !state.areaDraftIsNew" class="meta-chip">{{ selectedArea.kind }}</span>
+            </div>
+            <div class="area-editor">
+              <div class="card-head">
+                <div>
+                  <h4>Customize Area</h4>
+                  <p class="area-detail-subhead">The installer can rename the area and decide exactly which group addresses belong to it. Everything is persisted per KNX AI node.</p>
+                </div>
+                <div class="card-head-actions action-cluster">
+                  <button class="secondary-button" type="button" :disabled="state.areaSaving" @click="resetAreaDefinition">
+                    Reset
+                  </button>
+                  <button class="primary-button" type="button" :disabled="state.areaSaving" @click="saveAreaDefinition">
+                    {{ state.areaSaving ? 'Saving...' : 'Save Area' }}
+                  </button>
+                </div>
+              </div>
+              <div class="area-editor-grid">
+                <label v-if="state.areaDraftIsNew" class="flow-field">
+                  <span>Area id</span>
+                  <input v-model="state.areaDraftId" type="text" placeholder="custom-area-id">
+                </label>
+                <label class="flow-field">
+                  <span>Area name</span>
+                  <input v-model="state.areaDraftName" type="text" placeholder="Installer alias">
+                </label>
+                <label class="flow-field area-editor-span">
+                  <span>Description</span>
+                  <textarea v-model="state.areaDraftDescription" rows="3" placeholder="Optional note for diagnostics and reports" />
+                </label>
+                <label class="flow-field area-editor-span">
+                  <span>Add group addresses to this area</span>
+                  <input v-model="state.gaCatalogSearch" type="text" placeholder="Search GA, label or ETS path">
+                </label>
+              </div>
+              <div class="area-ga-editor">
+                <div>
+                  <h4>Area GA membership</h4>
+                  <ul v-if="areaDraftGaDetails.length" class="simple-list simple-list-mono area-ga-list">
+                    <li v-for="item in areaDraftGaDetails" :key="item.ga" class="area-ga-item">
+                      <div>
+                        <strong>{{ item.ga }}</strong>
+                        <span>{{ item.label || 'Unlabeled GA' }}<span v-if="item.dpt"> | DPT {{ item.dpt }}</span></span>
+                      </div>
+                      <button class="secondary-button" type="button" @click="removeGaFromAreaDraft(item.ga)">
+                        Remove
+                      </button>
+                    </li>
+                  </ul>
+                  <p v-else class="empty-state">No GA selected for this area yet.</p>
+                </div>
+                <div>
+                  <div class="card-head">
+                    <div>
+                      <h4>Available GA</h4>
+                      <p class="area-detail-subhead">Pick from the ETS catalog. Already selected GA are hidden from this list.</p>
+                    </div>
+                    <span class="meta-chip">{{ state.gaCatalogLoading ? 'Loading...' : `${filteredGaCatalog.length} visible` }}</span>
+                  </div>
+                  <div class="area-ga-catalog">
+                    <button
+                      v-for="item in filteredGaCatalog"
+                      :key="item.ga"
+                      type="button"
+                      class="area-list-item"
+                      @click="addGaToAreaDraft(item.ga)"
+                    >
+                      <span class="area-list-title">{{ item.ga }}</span>
+                      <span class="area-list-meta">{{ item.label || 'Unlabeled GA' }}</span>
+                      <span class="area-list-tags">{{ item.hierarchyPath || item.dpt || '' }}</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <p class="area-editor-note">
+                Original ETS path: <strong>{{ state.areaDraftIsNew ? 'Manual area' : (selectedArea.basePath || selectedArea.path || selectedArea.name) }}</strong>
+              </p>
+            </div>
+            <div class="area-columns">
+              <div>
+                <h4>Sample labels</h4>
+                <ul v-if="(state.areaDraftIsNew ? areaDraftGaDetails.map(item => item.label).filter(Boolean).slice(0, 4) : selectedArea?.sampleLabels)?.length" class="simple-list">
+                  <li v-for="label in (state.areaDraftIsNew ? areaDraftGaDetails.map(item => item.label).filter(Boolean).slice(0, 4) : selectedArea.sampleLabels)" :key="label">{{ label }}</li>
+                </ul>
+                <p v-else class="empty-state">No sample labels available.</p>
+              </div>
+              <div>
+                <h4>Sample GA</h4>
+                <ul v-if="(state.areaDraftIsNew ? state.areaDraftGaList.slice(0, 6) : selectedArea?.sampleGAs)?.length" class="simple-list simple-list-mono">
+                  <li v-for="ga in (state.areaDraftIsNew ? state.areaDraftGaList.slice(0, 6) : selectedArea.sampleGAs)" :key="ga">{{ ga }}</li>
+                </ul>
+                <p v-else class="empty-state">No group addresses available.</p>
+              </div>
+            </div>
+            <div>
+              <h4>Recent payloads</h4>
+              <ul v-if="selectedArea?.recentPayloads?.length && !state.areaDraftIsNew" class="simple-list simple-list-mono">
+                <li v-for="payloadLine in selectedArea.recentPayloads" :key="payloadLine">{{ payloadLine }}</li>
+              </ul>
+              <p v-else class="empty-state">No recent payloads sampled for this area yet.</p>
+            </div>
+            <p class="bus-note">Prima base automatica: le aree arrivano dalla gerarchia ETS e servono come fondazione per i futuri profili di controllo e test plan.</p>
+          </article>
+        </div>
+        <p v-else class="empty-state">No areas matched the current search or the ETS file does not expose a usable hierarchy yet.</p>
+      </section>
+
+      <section v-if="state.activeTab === 'tests'" class="card card-profiles" :class="{ 'card-results-focus': isViewingTestResultOnly }">
+        <div class="card-head">
+          <div>
+            <h2>{{ isViewingTestResultOnly ? 'Test Result' : 'AI Test Planner' }}</h2>
+            <p class="area-detail-subhead">
+              {{ isViewingTestResultOnly ? 'Showing only the selected test report.' : 'Select an area, describe the active check you want, review the generated plan, then save or run it.' }}
+            </p>
+          </div>
+          <div class="card-head-actions" v-if="!isViewingTestResultOnly">
+            <span class="meta-chip">Area {{ selectedArea ? (selectedArea.path || selectedArea.name) : 'n/a' }}</span>
+            <span class="meta-chip">{{ testPlans.length }} saved plans</span>
+            <button class="secondary-button" type="button" :disabled="!state.testPlanDraft" @click="duplicateCurrentAiTestPlan">
+              Duplicate Plan
+            </button>
+            <button class="secondary-button" type="button" @click="startNewAiTestPlan">
+              New Plan
+            </button>
+          </div>
+          <div class="card-head-actions" v-else>
+            <span class="meta-chip">{{ testResultModeLabel(selectedTestResult) }}</span>
+            <button class="danger-button" type="button" :disabled="!selectedTestResult || state.deletingTestResultId === selectedTestResult.id" @click="deleteTestResult(selectedTestResult?.id)">
+              {{ state.deletingTestResultId === selectedTestResult?.id ? 'Deleting...' : 'Delete' }}
+            </button>
+            <button class="secondary-button" type="button" @click="openSourceTestFromSelectedResult">
+              Open Source Test
+            </button>
+          </div>
+        </div>
+        <div class="profiles-layout test-planner-layout" :class="{ 'result-only-layout': isViewingTestResultOnly }">
+          <div v-if="!isViewingTestResultOnly" class="profile-list">
+            <article class="area-detail planner-sidecard">
+              <div class="card-head">
+                <div>
+                  <h3>Saved Plans</h3>
+                  <p class="area-detail-subhead">Reusable active tests prepared by AI and confirmed by the installer.</p>
+                </div>
+              </div>
+              <div class="planner-list">
+                <button
+                  v-for="plan in testPlans"
+                  :key="plan.id"
+                  type="button"
+                  class="area-list-item"
+                  :class="{ active: selectedTestPlan && selectedTestPlan.id === plan.id }"
+                  @click="selectSavedPlan(plan)"
+                >
+                  <span class="area-list-title">{{ plan.name }}</span>
+                  <span class="area-list-meta">{{ plan.areaName || plan.areaId }} | {{ Number(plan.steps?.length || 0) }} steps</span>
+                </button>
+              </div>
+              <p v-if="!testPlans.length" class="empty-state">No saved AI plans yet.</p>
+            </article>
+          </div>
+
+          <div class="profile-editor-stack">
+            <article v-if="!isViewingTestResultOnly && state.testPlanDraft" class="area-detail">
+              <div class="card-head">
+                <div>
+                  <h3>{{ state.testPlanDraft?.name || 'Plan Draft' }}</h3>
+                  <p class="area-detail-subhead">{{ showAiPlannerSection ? 'Use natural language, for example: "Turn on the lighting actuators, then read back the status and verify that the result is coherent".' : 'The AI crafting section is hidden. Use "Show AI Planner" to reopen it.' }}</p>
+                </div>
+                <div class="card-head-actions action-cluster">
+                  <span v-if="hasUnsavedTestPlanChanges" class="meta-chip">Unsaved changes</span>
+                  <button
+                    class="secondary-button"
+                    type="button"
+                    @click="startNewAiTestPlan"
+                  >
+                    New Plan
+                  </button>
+                  <button
+                    v-if="hasDraftSteps && !showAiPlannerSection"
+                    class="secondary-button"
+                    type="button"
+                    @click="state.showAiPlanner = true"
+                  >
+                    Show AI Planner
+                  </button>
+                  <label class="checkbox flow-toggle compact-toggle">
+                    <input v-model="state.voiceEnabled" type="checkbox">
+                    <span>Voice</span>
+                  </label>
+                  <button class="danger-button" type="button" :disabled="state.testPlanDeleting || !selectedTestPlan" @click="deleteAiTestPlanDefinition">
+                    {{ state.testPlanDeleting ? 'Deleting...' : 'Delete' }}
+                  </button>
+                  <button class="secondary-button" type="button" :disabled="!hasUnsavedTestPlanChanges" @click="cancelTestPlanChanges">
+                    Cancel Changes
+                  </button>
+                  <button class="secondary-button" type="button" :disabled="state.testPlanSaving || !state.testPlanDraft" @click="saveAiTestPlanDefinition">
+                    {{ state.testPlanSaving ? 'Saving...' : 'Save Plan' }}
+                  </button>
+                  <button
+                    class="secondary-button"
+                    type="button"
+                    :disabled="(!state.testPlanDraft && state.testPlanRepeatForever !== true) || (state.testPlanRunning && state.testPlanRepeatForever !== true) || state.testPlanRepeatStopRequested === true"
+                    @click="state.testPlanRepeatForever === true ? stopRepeatingTestPlan() : openRepeatTestPlanConfirm()"
+                  >
+                    {{ state.testPlanRepeatForever === true ? (state.testPlanRepeatStopRequested === true ? 'Stopping...' : 'Stop Repeat') : 'Repeat Forever' }}
+                  </button>
+                  <button class="primary-button" type="button" :disabled="state.testPlanRunning || !state.testPlanDraft" @click="openRunTestPlanConfirm">
+                    {{ state.testPlanRunning ? 'Running...' : 'Run Plan' }}
+                  </button>
+                </div>
+              </div>
+
+              <div v-if="showAiPlannerSection" class="ai-planner-shell">
+                <div class="ai-planner-shell-head">
+                  <div>
+                    <h4>AI Planner</h4>
+                    <p class="area-detail-subhead">Use natural language to craft or regenerate the plan for the selected area.</p>
+                  </div>
+                </div>
+                <div class="area-editor-grid">
+                  <label class="flow-field">
+                    <span>Area to test</span>
+                    <select v-model="state.areaSelectedId">
+                      <option v-for="area in suggestedAreas" :key="area.id" :value="area.id">
+                        {{ area.path || area.name }}
+                      </option>
+                    </select>
+                  </label>
+                  <label class="flow-field area-editor-span">
+                    <span>AI prompt</span>
+                    <textarea v-model="state.testPlanPrompt" rows="4" placeholder="Describe the active KNX test you want to build for the selected area." />
+                  </label>
+                </div>
+
+                <div class="preset-row compact-preset-row">
+                  <button
+                    v-for="preset in TEST_PROMPT_PRESETS"
+                    :key="preset"
+                    class="preset-button"
+                    type="button"
+                    @click="applyTestPromptPreset(preset)"
+                  >
+                    {{ preset }}
+                  </button>
+                </div>
+
+                <div class="profile-runbar">
+                  <button class="primary-button" type="button" :disabled="state.testPlanGenerating || !selectedArea || !state.testPlanPrompt.trim() || !nodeInfo.llmEnabled" @click="generateAiTestPlan">
+                    {{ state.testPlanGenerating ? 'Generating...' : 'Prepare AI Test' }}
+                  </button>
+                </div>
+
+                <p v-if="state.testPlanGenerationError" class="planner-error-banner">
+                  {{ state.testPlanGenerationError }}
+                </p>
+
+                <div v-if="state.testPlanGeneration" class="planner-generation">
+                  <p v-if="!state.testPlanGeneration.error" class="area-detail-subhead">
+                    Generated with {{ state.testPlanGeneration.provider || 'llm' }}{{ state.testPlanGeneration.model ? ` / ${state.testPlanGeneration.model}` : '' }}.
+                  </p>
+                  <p v-if="state.testPlanGeneration.error" class="area-detail-subhead">{{ state.testPlanGeneration.error }}</p>
+                </div>
+                <p v-if="!nodeInfo.llmEnabled" class="area-detail-subhead">
+                  Enable and configure the LLM in the KNX AI node to generate test plans from prompts.
+                </p>
+              </div>
+            </article>
+
+            <article v-if="state.testPlanRunning && !isViewingTestResultOnly" class="area-detail planner-run-focus">
+              <div class="card-head">
+                <div>
+                  <h3 class="running-headline">
+                    <span class="running-spinner" aria-hidden="true" />
+                    <span>Test Running</span>
+                  </h3>
+                  <p class="area-detail-subhead">{{ currentRunningStep?.title || 'Executing current step...' }}</p>
+                </div>
+                <span class="meta-chip">{{ testPlanReport?.metrics?.totalSteps ? `${Number(testPlanReport.steps?.length || 0)}/${Number(testPlanReport.metrics.totalSteps || 0)}` : 'in progress' }}</span>
+              </div>
+              <div class="metric-grid area-metrics">
+                <article class="metric">
+                  <span>Completed</span>
+                  <strong>{{ Number(testPlanReport?.steps?.length || 0) }}</strong>
+                </article>
+                <article class="metric">
+                  <span>Pass</span>
+                  <strong>{{ Number(testPlanReport?.metrics?.pass || 0) }}</strong>
+                </article>
+                <article class="metric">
+                  <span>Warn</span>
+                  <strong>{{ Number(testPlanReport?.metrics?.warn || 0) }}</strong>
+                </article>
+                <article class="metric">
+                  <span>Fail</span>
+                  <strong>{{ Number(testPlanReport?.metrics?.fail || 0) }}</strong>
+                </article>
+              </div>
+              <div v-if="currentRunningStep" class="report-check report-pass planner-step-card planner-step-running">
+                <div class="anomaly-head">
+                  <strong>{{ currentRunningStep.title || currentRunningStep.id }}</strong>
+                  <span>{{ currentRunningStep.kind }}</span>
+                </div>
+                <p class="area-detail-subhead">{{ currentRunningStep.description || 'Current step in execution.' }}</p>
+                <div v-if="currentRunningStep.kind === 'wait'" class="planner-step-grid">
+                  <span><strong>Wait</strong> {{ Number(currentRunningStep.delayMs || 0) }} ms</span>
+                  <span><strong>Reason</strong> {{ currentRunningStep.reason || 'Pause before next action' }}</span>
+                </div>
+                <div v-else class="planner-step-grid">
+                  <span><strong>Command</strong> {{ currentRunningStep.commandGA || 'n/a' }}</span>
+                  <span><strong>Status GA</strong> {{ currentRunningStep.statusGA || 'n/a' }}</span>
+                  <span><strong>Payload</strong> {{ displayPayloadLabelForDpt(currentRunningStep.commandPayload, currentRunningStep.commandDPT) }}</span>
+                  <span><strong>Expected</strong> {{ displayPayloadLabelForDpt(currentRunningStep.expectedPayload, currentRunningStep.statusDPT || currentRunningStep.commandDPT) }}</span>
+                </div>
+                <div v-if="currentRunningStep.kind !== 'wait' && currentRunningStep.statusGA" class="planner-check-sections">
+                  <section class="planner-check-section">
+                    <h4>Spontaneous Write From Status GA</h4>
+                    <div class="planner-step-grid compact-grid">
+                      <span><strong>Status GA</strong> {{ currentRunningStep.statusGA || 'n/a' }}</span>
+                      <span><strong>Timeout</strong> {{ Number(currentRunningStep.statusWriteTimeoutMs || 0) }} ms</span>
+                    </div>
+                  </section>
+                  <section class="planner-check-section">
+                    <h4>Active Read Request To Status GA</h4>
+                    <div class="planner-step-grid compact-grid">
+                      <span><strong>Status GA</strong> {{ currentRunningStep.statusGA || 'n/a' }}</span>
+                      <span><strong>Timeout</strong> {{ Number(currentRunningStep.statusResponseTimeoutMs || 0) }} ms</span>
+                    </div>
+                  </section>
+                </div>
+              </div>
+            </article>
+
+            <article ref="testPlanReportRef" class="area-detail" v-if="selectedTestResult && isViewingTestResultOnly">
+              <div class="card-head">
+                <div>
+                  <h3>{{ testResultDisplayName(selectedTestResult) }}</h3>
+                  <p class="area-detail-subhead">{{ testResultAreaText(selectedTestResult) || formatDateTime(selectedTestResult.generatedAt) }}</p>
+                </div>
+                <div class="card-head-actions action-cluster">
+                  <span class="meta-chip">{{ testResultModeLabel(selectedTestResult) }}</span>
+                  <span v-if="selectedTestResult.live === true" class="meta-chip">Running</span>
+                  <span class="meta-chip">{{ selectedTestResult.overallStatus }}</span>
+                </div>
+              </div>
+              <div class="metric-grid area-metrics">
+                <article v-for="metric in testResultMetricCards(selectedTestResult)" :key="metric.label" class="metric">
+                  <span>{{ metric.label }}</span>
+                  <strong>{{ metric.value }}</strong>
+                </article>
+              </div>
+              <div class="report-checks">
+                <article v-for="entry in testResultEntries(selectedTestResult)" :key="entry.id" class="report-check" :class="`report-${entry.status}`">
+                  <div class="anomaly-head">
+                    <strong>{{ entry.title }}</strong>
+                    <span>{{ entry.status }}</span>
+                  </div>
+                  <p class="area-detail-subhead">{{ entry.message || 'No additional details available.' }}</p>
+                  <div v-if="entry.detailGroups?.length" class="planner-check-sections result-check-sections">
+                    <section v-for="group in entry.detailGroups" :key="`${entry.id}-${group.title}`" class="planner-check-section">
+                      <h4>{{ group.title }}</h4>
+                      <div class="planner-step-grid compact-grid">
+                        <span v-for="detail in group.items" :key="`${entry.id}-${group.title}-${detail.label}`"><strong>{{ detail.label }}</strong> {{ detail.value }}</span>
+                      </div>
+                    </section>
+                  </div>
+                  <div v-else class="planner-step-grid">
+                    <span v-for="detail in entry.details" :key="`${entry.id}-${detail.label}`"><strong>{{ detail.label }}</strong> {{ detail.value }}</span>
+                  </div>
+                </article>
+              </div>
+              <p v-if="!testResultEntries(selectedTestResult).length" class="empty-state">No detailed entries stored for this report yet.</p>
+              <div v-if="testResultSuggestions(selectedTestResult).length">
+                <h4>Suggestions</h4>
+                <ul class="simple-list">
+                  <li v-for="suggestion in testResultSuggestions(selectedTestResult)" :key="suggestion">{{ suggestion }}</li>
+                </ul>
+              </div>
+            </article>
+
+            <article class="area-detail" v-if="state.testPlanDraft && !state.testPlanRunning && !isViewingTestResultOnly">
+              <div class="card-head">
+                <div>
+                  <h3>{{ state.testPlanDraft.name || 'Plan Draft' }}</h3>
+                  <p class="area-detail-subhead">{{ state.testPlanDraft.description || 'AI generated proactive test plan.' }}</p>
+                </div>
+                <div class="card-head-actions action-cluster">
+                  <span class="meta-chip">{{ Number(state.testPlanDraft.steps?.length || 0) }} steps</span>
+                  <button class="secondary-button" type="button" @click="addManualStepToPlan">
+                    Add Step
+                  </button>
+                  <button class="secondary-button" type="button" @click="addWaitStepToPlan">
+                    Add Wait
+                  </button>
+                </div>
+              </div>
+              <div class="area-editor-grid">
+                <label class="flow-field">
+                  <span>Plan name</span>
+                  <input v-model="state.testPlanDraft.name" type="text" placeholder="KNX active test name">
+                </label>
+                <label class="flow-field area-editor-span">
+                  <span>Description</span>
+                  <textarea v-model="state.testPlanDraft.description" rows="2" placeholder="Short operator-facing description" />
+                </label>
+              </div>
+              <div class="report-checks">
+                <article
+                  v-for="(step, index) in (state.testPlanDraft.steps || [])"
+                  :key="step.id"
+                  class="report-check report-pass planner-step-card"
+                  :class="{
+                    'planner-step-running': state.testPlanRunning && state.testPlanRunningStepId === step.id,
+                    'planner-step-dragging': state.draggedTestPlanStepId === step.id,
+                    'planner-step-drop-target': state.dragOverTestPlanStepId === step.id
+                  }"
+                  @dragenter.prevent="onPlanStepDragEnter(step.id)"
+                  @dragover.prevent
+                  @drop="onPlanStepDrop(step.id, $event)"
+                >
+                  <div class="anomaly-head">
+                    <div class="planner-step-title">
+                      <button
+                        class="drag-handle"
+                        type="button"
+                        draggable="true"
+                        tabindex="-1"
+                        aria-label="Drag step"
+                        title="Drag step"
+                        @dragstart="onPlanStepDragStart(step.id, $event)"
+                        @dragend="clearDraggedPlanStepState"
+                      >
+                        ⋮⋮
+                      </button>
+                      <button
+                        class="collapse-toggle"
+                        type="button"
+                        :aria-expanded="step.collapsed !== true"
+                        :title="step.collapsed === true ? 'Expand step' : 'Collapse step'"
+                        @click="togglePlanStepCollapsed(step)"
+                      >
+                        <span class="collapse-icon" :class="{ collapsed: step.collapsed === true }">▾</span>
+                      </button>
+                      <strong>{{ step.title || step.id }}</strong>
+                    </div>
+                    <div class="card-head-actions action-cluster compact-actions">
+                      <span>{{ step.kind }}</span>
+                      <button class="secondary-button" type="button" @click="duplicatePlanStep(index)">
+                        Duplicate
+                      </button>
+                      <button class="secondary-button" type="button" @click="removePlanStep(index)">
+                        Remove
+                      </button>
+                    </div>
+                  </div>
+                  <div v-if="step.collapsed === true" class="planner-step-summary">
+                    <span v-if="step.kind === 'wait'"><strong>Wait</strong> {{ Number(step.delayMs || 0) }} ms</span>
+                    <span v-else><strong>Command</strong> {{ step.commandGA || 'n/a' }}</span>
+                    <span v-if="step.kind !== 'wait'"><strong>Status GA</strong> {{ step.statusGA || 'n/a' }}</span>
+                    <span v-if="step.kind !== 'wait'"><strong>Payload</strong> {{ displayPayloadLabelForDpt(step.commandPayload, step.commandDPT) }}</span>
+                    <span v-if="step.kind !== 'wait' && step.statusGA"><strong>Write timeout</strong> {{ Number(step.statusWriteTimeoutMs || 0) }} ms</span>
+                    <span v-if="step.kind !== 'wait' && step.statusGA"><strong>Response timeout</strong> {{ Number(step.statusResponseTimeoutMs || 0) }} ms</span>
+                  </div>
+                  <div v-else class="planner-step-editor">
+                    <label class="flow-field">
+                      <span>Title</span>
+                      <input v-model="step.title" type="text" placeholder="Step title">
+                    </label>
+                    <label class="flow-field area-editor-span">
+                      <span>Description</span>
+                      <textarea v-model="step.description" rows="2" placeholder="What this step checks" />
+                    </label>
+                    <label v-if="step.kind === 'wait'" class="flow-field">
+                      <span>Wait ms</span>
+                      <input v-model.number="step.delayMs" type="number" min="0" max="30000" step="100">
+                    </label>
+                    <section v-if="step.kind !== 'wait'" class="planner-field-group area-editor-span">
+                      <h4>Command</h4>
+                      <div class="planner-field-group-grid">
+                        <label class="flow-field">
+                          <span>Command GA</span>
+                          <select v-model="step.commandGA" @change="refreshDraftStepFromCatalog(step)">
+                            <option v-for="item in plannerCommandOptions" :key="item.ga" :value="item.ga">
+                              {{ `${item.ga} | ${item.label}` }}
+                            </option>
+                          </select>
+                        </label>
+                        <label class="flow-field">
+                          <span>Command DPT</span>
+                          <input v-model="step.commandDPT" type="text" placeholder="1.001" @change="ensureStepPayloadFitsDpt(step)">
+                        </label>
+                        <label class="flow-field group-span">
+                          <span>Command payload</span>
+                          <select v-if="dptValueOptions(step.commandDPT).length" v-model="step.commandPayload">
+                            <option v-for="option in dptValueOptions(step.commandDPT)" :key="`${step.id}-command-${option.value}`" :value="String(option.value)">
+                              {{ option.label }}
+                            </option>
+                          </select>
+                          <input v-else v-model="step.commandPayload" type="text" placeholder="true, false, 50">
+                        </label>
+                      </div>
+                    </section>
+                    <section v-if="step.kind !== 'wait'" class="planner-field-group area-editor-span">
+                      <h4>Status</h4>
+                      <div class="planner-field-group-grid">
+                        <label class="flow-field group-span">
+                          <span>Status GA</span>
+                          <select v-model="step.statusGA" @change="refreshDraftStepFromCatalog(step)">
+                            <option value="">No feedback</option>
+                            <option v-for="item in plannerStatusOptions" :key="item.ga" :value="item.ga">
+                              {{ `${item.ga} | ${item.label}` }}
+                            </option>
+                          </select>
+                        </label>
+                        <label class="flow-field">
+                          <span>Status DPT</span>
+                          <input v-model="step.statusDPT" type="text" placeholder="1.001" @change="ensureStepPayloadFitsDpt(step)">
+                        </label>
+                        <label class="flow-field">
+                          <span>Expected payload</span>
+                          <select v-if="dptValueOptions(step.statusDPT || step.commandDPT).length" v-model="step.expectedPayload">
+                            <option v-for="option in dptValueOptions(step.statusDPT || step.commandDPT)" :key="`${step.id}-expected-${option.value}`" :value="String(option.value)">
+                              {{ option.label }}
+                            </option>
+                          </select>
+                          <input v-else v-model="step.expectedPayload" type="text" placeholder="Expected feedback value">
+                        </label>
+                      </div>
+                    </section>
+                    <div v-if="step.kind !== 'wait' && step.statusGA" class="planner-check-sections editor-check-sections area-editor-span">
+                      <section class="planner-check-section">
+                        <h4>Spontaneous Write From Status GA</h4>
+                        <p class="area-detail-subhead">Wait for a spontaneous <code>GroupValue_Write</code> telegram from the status GA.</p>
+                        <label class="flow-field">
+                          <span>Status write timeout ms</span>
+                          <input v-model.number="step.statusWriteTimeoutMs" type="number" min="500" max="60000" step="100">
+                        </label>
+                      </section>
+                      <section class="planner-check-section">
+                        <h4>Active Read Request To Status GA</h4>
+                        <p class="area-detail-subhead">Send a <code>read</code> telegram to the status GA and wait for a <code>GroupValue_Response</code>.</p>
+                        <label class="flow-field">
+                          <span>Read response timeout ms</span>
+                          <input v-model.number="step.statusResponseTimeoutMs" type="number" min="500" max="60000" step="100">
+                        </label>
+                      </section>
+                    </div>
+                    <label class="flow-field area-editor-span">
+                      <span>Reason</span>
+                      <input v-model="step.reason" type="text" placeholder="Why this step exists">
+                    </label>
+                  </div>
+                </article>
+              </div>
+            </article>
+
+          </div>
+        </div>
+      </section>
+
+      <section v-if="state.activeTab === 'overview'" class="card">
         <div class="card-head">
           <h2>Top Group Addresses</h2>
           <span class="meta-chip">{{ topGroups.length }} visible</span>
@@ -1080,7 +4050,7 @@ onBeforeUnmount(() => {
         <p v-else class="empty-state">No top group address data available yet.</p>
       </section>
 
-      <section class="card">
+      <section v-if="state.activeTab === 'overview'" class="card">
         <div class="card-head">
           <h2>Event Mix</h2>
           <span class="meta-chip">{{ eventEntries.length }} event types</span>
@@ -1097,7 +4067,7 @@ onBeforeUnmount(() => {
         <p v-else class="empty-state">Event distribution will appear after the first samples.</p>
       </section>
 
-      <section class="card card-bus">
+      <section v-if="state.activeTab === 'overview'" class="card card-bus">
         <div class="card-head">
           <h2>Bus Connection Persistence</h2>
           <span v-if="busConnection" class="meta-chip">{{ String(busConnection.currentState || 'unknown') }}</span>
@@ -1128,7 +4098,7 @@ onBeforeUnmount(() => {
         <p v-else class="empty-state">Waiting for connection persistence data...</p>
       </section>
 
-      <section ref="flowCardRef" class="card card-flow" :class="{ 'is-fullscreen': isFlowFullscreen }">
+      <section v-if="state.activeTab === 'overview'" ref="flowCardRef" class="card card-flow" :class="{ 'is-fullscreen': isFlowFullscreen }">
         <div class="card-head">
           <h2>Flow Map</h2>
           <div class="card-head-actions">
@@ -1220,7 +4190,7 @@ onBeforeUnmount(() => {
         <p class="flow-note">Window {{ flowGraph.telemetryWindowSec || 0 }}s.</p>
       </section>
 
-      <section class="card card-anomalies">
+      <section v-if="state.activeTab === 'overview'" class="card card-anomalies">
         <div class="card-head">
           <h2>Anomalies</h2>
           <span class="meta-chip">{{ anomalies.length }} recent</span>
@@ -1238,7 +4208,7 @@ onBeforeUnmount(() => {
         <p v-else class="empty-state">No anomalies detected right now.</p>
       </section>
 
-      <section class="card card-chat">
+      <section v-if="state.activeTab === 'assistant'" class="card card-chat">
         <div class="card-head">
           <h2>Ask</h2>
           <span class="meta-chip">{{ nodeInfo.llmEnabled ? 'LLM enabled' : 'LLM disabled' }}</span>
@@ -1279,54 +4249,131 @@ onBeforeUnmount(() => {
       </section>
 
     </main>
+    </section>
+
+    <div v-if="state.testPlanRunConfirmOpen" class="modal-backdrop" @click="closeRunTestPlanConfirm">
+      <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="run-test-title" @click.stop>
+        <h3 id="run-test-title">Start test?</h3>
+        <p class="area-detail-subhead">
+          {{ state.testPlanRunMode === 'repeat'
+            ? 'This will send real telegrams on the KNX bus and repeat the selected test plan until you press Stop Repeat.'
+            : 'This will send real telegrams on the KNX bus for the selected test plan.' }}
+        </p>
+        <div class="modal-actions">
+          <button class="secondary-button" type="button" autofocus @click="closeRunTestPlanConfirm">
+            CANCEL
+          </button>
+          <button class="primary-button" type="button" :disabled="state.testPlanRunning" @click="runAiTestPlanDefinition(state.testPlanRunMode)">
+            GO
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div v-if="state.testPlanUnsavedConfirmOpen" class="modal-backdrop" @click="closeUnsavedTestPlanConfirm">
+      <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="unsaved-plan-title" @click.stop>
+        <h3 id="unsaved-plan-title">Unsaved changes</h3>
+        <p class="area-detail-subhead">Save or discard the current plan changes before opening {{ state.testPlanPendingActionLabel || 'another plan' }}.</p>
+        <div class="modal-actions">
+          <button class="secondary-button" type="button" autofocus @click="closeUnsavedTestPlanConfirm">
+            STAY HERE
+          </button>
+          <button class="secondary-button" type="button" @click="cancelTestPlanChanges(); runPendingTestPlanAction()">
+            DISCARD CHANGES
+          </button>
+          <button class="primary-button" type="button" :disabled="state.testPlanSaving || !state.testPlanDraft" @click="saveCurrentTestPlanAndContinue">
+            {{ state.testPlanSaving ? 'SAVING...' : 'SAVE AND CONTINUE' }}
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <style scoped>
 .page-shell {
-  width: min(1660px, calc(100% - 18px));
-  margin: 14px auto 28px;
+  width: min(1600px, calc(100% - 24px));
+  min-height: calc(100vh - 24px);
+  margin: 12px auto;
+  display: grid;
+  grid-template-columns: 292px minmax(0, 1fr);
+  gap: 16px;
+  align-items: stretch;
+}
+
+.app-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 18px 16px 16px;
+  border-radius: 0;
+  background:
+    linear-gradient(180deg, rgba(220, 18, 32, 0.96) 0%, rgba(150, 8, 18, 0.96) 66px, rgba(20, 22, 28, 0.98) 66px, rgba(12, 14, 18, 1) 100%);
+  box-shadow: 0 26px 60px rgba(8, 10, 16, 0.34);
+  color: #f6f8fb;
+}
+
+.workspace-shell {
+  min-width: 0;
+  padding: 10px;
+  border-radius: 0;
+  background: linear-gradient(180deg, rgba(246, 248, 252, 0.98) 0%, rgba(234, 238, 244, 0.96) 100%);
+  box-shadow: 0 24px 60px rgba(25, 32, 48, 0.14);
 }
 
 .topbar {
-  margin-bottom: 18px;
-  padding: 22px;
-  border: 1px solid var(--line);
-  border-radius: 24px;
-  background: rgba(255, 255, 255, 0.88);
-  box-shadow: var(--shadow);
-  backdrop-filter: blur(10px);
+  padding: 20px 22px 14px;
+  border: 1px solid rgba(160, 170, 186, 0.22);
+  border-radius: 0;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(245, 247, 251, 0.94) 100%);
+  box-shadow: 0 12px 30px rgba(26, 32, 44, 0.08);
 }
 
-.brand {
-  margin-bottom: 18px;
+.workspace-header {
+  margin-bottom: 16px;
+}
+
+.brand,
+.sidebar-brand {
+  margin-bottom: 6px;
 }
 
 .eyebrow {
   margin: 0 0 6px;
-  color: var(--accent);
+  color: inherit;
   font-size: 12px;
   font-weight: 800;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+  opacity: 0.75;
 }
 
-.brand h1 {
+.brand h1,
+.sidebar-brand h1 {
   margin: 0;
-  font-size: clamp(28px, 4vw, 40px);
+  font-size: clamp(24px, 3.4vw, 34px);
   line-height: 1;
+}
+
+.workspace-brand h2 {
+  margin: 0;
+  font-size: clamp(24px, 3vw, 32px);
+  line-height: 1.02;
+  color: #111723;
 }
 
 .subhead {
   max-width: 860px;
-  margin: 10px 0 0;
-  color: var(--muted);
-  font-size: 14px;
-  line-height: 1.5;
+  margin: 8px 0 0;
+  color: inherit;
+  font-size: 12px;
+  line-height: 1.4;
+  opacity: 0.78;
 }
 
 .toolbar,
 .statusbar,
+.tab-strip,
 .theme-strip,
 .checkbox,
 .pill-row,
@@ -1339,48 +4386,98 @@ onBeforeUnmount(() => {
 }
 
 .toolbar {
-  margin-bottom: 12px;
+  justify-content: space-between;
+}
+
+.toolbar-cluster,
+.action-cluster {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  padding: 8px 10px;
+  border: 1px solid rgba(112, 122, 141, 0.14);
+  border-radius: 0;
+  background: rgba(255, 255, 255, 0.86);
+}
+
+.workspace-toolbar {
+  margin-top: 16px;
 }
 
 .theme-button,
 .primary-button,
 .preset-button,
+.danger-button,
 .primary-link,
-.secondary-button {
+.secondary-button,
+.tab-button {
   border: 1px solid var(--line);
-  border-radius: 999px;
+  border-radius: 0;
   background: #fff;
   color: var(--text);
   text-decoration: none;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
-  padding: 10px 14px;
+  padding: 8px 12px;
   transition: 0.18s ease;
 }
 
 .theme-button.active,
 .primary-button,
-.primary-link {
+.primary-link,
+.tab-button.active {
   border-color: transparent;
-  background: linear-gradient(135deg, var(--accent), #4bbf77);
+  background: linear-gradient(135deg, #ca1020, #f04747);
+  color: #fff;
+}
+
+.danger-button {
+  border-color: transparent;
+  background: linear-gradient(135deg, #a10f1d, #d51e2f);
   color: #fff;
 }
 
 .theme-button:hover,
 .preset-button:hover,
-.secondary-button:hover {
+.danger-button:hover,
+.secondary-button:hover,
+.tab-button:hover {
   background: var(--accent-soft);
   border-color: rgba(122, 104, 216, 0.4);
 }
 
+.danger-button:hover {
+  background: linear-gradient(135deg, #8c0d19, #be1627);
+  border-color: transparent;
+}
+
 .primary-button:disabled,
-.preset-button:disabled {
+.preset-button:disabled,
+.danger-button:disabled,
+.secondary-button:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
 
+.hidden-file-input {
+  display: none;
+}
+
 .node-select {
   min-width: min(360px, 100%);
+}
+
+.sidebar-select {
+  min-width: 0;
+  width: 100%;
+  border-color: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.06);
+  color: #f6f8fb;
+}
+
+.sidebar-select option {
+  color: #0f1520;
 }
 
 .node-select,
@@ -1389,18 +4486,246 @@ onBeforeUnmount(() => {
 .chat-log,
 .anomaly-card pre {
   border: 1px solid var(--line);
-  border-radius: 16px;
+  border-radius: 0;
   background: rgba(255, 255, 255, 0.88);
 }
 
 .node-select {
-  padding: 10px 12px;
+  padding: 8px 10px;
   color: var(--text);
+  font-size: 12px;
 }
 
 .checkbox {
-  padding: 10px 12px;
+  padding: 8px 10px;
   gap: 8px;
+  font-size: 12px;
+}
+
+.sidebar-checkbox {
+  border-color: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.06);
+  color: #eef3f9;
+}
+
+.sidebar-panel {
+  padding: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 0;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.sidebar-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 800;
+  color: rgba(246, 248, 252, 0.88);
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sidebar-nav .tab-button {
+  width: 100%;
+  justify-content: flex-start;
+  text-align: left;
+  padding: 12px 14px;
+  border-radius: 0;
+  border-color: rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.04);
+  color: #edf1f8;
+}
+
+.sidebar-nav .sidebar-nav-child {
+  width: calc(100% - 18px);
+  margin-left: 18px;
+}
+
+.sidebar-nav .tab-button.active {
+  background: linear-gradient(135deg, rgba(77, 90, 142, 0.92), rgba(42, 49, 77, 0.96));
+  color: #fff;
+}
+
+.sidebar-nav-title {
+  display: block;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.sidebar-nav-meta {
+  display: block;
+  margin-top: 3px;
+  font-size: 11px;
+  opacity: 0.72;
+  font-weight: 600;
+}
+
+.sidebar-actions {
+  gap: 8px;
+}
+
+.sidebar-section-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #f6f8fb;
+  text-align: left;
+  font: inherit;
+}
+
+.sidebar-section-toggle strong {
+  display: block;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.sidebar-section-toggle small {
+  display: block;
+  margin-top: 3px;
+  font-size: 11px;
+  opacity: 0.72;
+}
+
+.sidebar-test-results {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sidebar-results-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 320px;
+  overflow: auto;
+  padding-right: 2px;
+}
+
+.sidebar-result-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: stretch;
+}
+
+.sidebar-result-delete-button {
+  width: 74px;
+  min-width: 74px;
+  padding: 10px 8px;
+  border: 1px solid rgba(136, 18, 26, 0.88);
+  background: linear-gradient(180deg, rgba(183, 43, 43, 0.98) 0%, rgba(148, 23, 23, 0.98) 100%);
+  color: #fff;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+}
+
+.sidebar-result-delete-button:hover:not(:disabled) {
+  background: linear-gradient(180deg, rgba(199, 48, 48, 1) 0%, rgba(160, 27, 27, 1) 100%);
+}
+
+.sidebar-result-delete-button:disabled {
+  opacity: 0.72;
+  cursor: wait;
+}
+
+.sidebar-result-item {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
+  min-height: 78px;
+  text-align: left;
+  border-color: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.08);
+  color: #edf1f8;
+  transition: border-color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+}
+
+.sidebar-result-item.active {
+  border-color: rgba(255, 255, 255, 0.34);
+  background: linear-gradient(180deg, rgba(104, 119, 179, 0.64) 0%, rgba(69, 81, 124, 0.72) 100%);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+.sidebar-result-item.running {
+  box-shadow: inset 0 0 0 1px rgba(240, 179, 34, 0.55);
+}
+
+.sidebar-result-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+}
+
+.sidebar-result-head strong {
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.sidebar-result-item .area-list-meta,
+.sidebar-result-item .area-list-tags {
+  color: rgba(237, 241, 248, 0.78);
+}
+
+.sidebar-result-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 54px;
+  padding: 3px 8px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.sidebar-result-status.status-pass {
+  background: rgba(34, 135, 82, 0.22);
+  color: #baf0ca;
+}
+
+.sidebar-result-status.status-warn {
+  background: rgba(207, 150, 20, 0.22);
+  color: #ffe29a;
+}
+
+.sidebar-result-status.status-fail {
+  background: rgba(176, 52, 67, 0.26);
+  color: #ffd0d6;
+}
+
+.sidebar-empty-state {
+  margin: 0;
+  color: rgba(246, 248, 252, 0.76);
+}
+
+.sidebar-action-button {
+  width: 100%;
+  justify-content: center;
+}
+
+.sidebar-footer {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 8px;
 }
 
 .statusbar {
@@ -1413,9 +4738,9 @@ onBeforeUnmount(() => {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  border-radius: 999px;
-  padding: 7px 12px;
-  font-size: 12px;
+  border-radius: 0;
+  padding: 6px 10px;
+  font-size: 11px;
   font-weight: 800;
 }
 
@@ -1438,9 +4763,10 @@ onBeforeUnmount(() => {
 }
 
 .status-detail {
-  color: var(--muted);
+  color: inherit;
   font-size: 12px;
   font-weight: 700;
+  opacity: 0.7;
 }
 
 .content-grid {
@@ -1449,20 +4775,26 @@ onBeforeUnmount(() => {
   gap: 16px;
 }
 
+.workspace-main {
+  padding: 0 2px 6px;
+}
+
 .card {
   grid-column: span 6;
   min-height: 240px;
-  padding: 18px;
+  padding: 15px;
   border: 1px solid var(--line);
-  border-radius: var(--card-radius);
-  background: rgba(255, 255, 255, 0.9);
-  box-shadow: var(--shadow);
+  border-radius: 0;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 16px 34px rgba(18, 28, 45, 0.08);
 }
 
 .card-summary,
 .card-bus,
 .card-chat,
-.card-flow {
+.card-flow,
+.card-areas,
+.card-profiles {
   grid-column: span 6;
 }
 
@@ -1471,8 +4803,16 @@ onBeforeUnmount(() => {
   grid-column: span 6;
 }
 
-.card-flow {
+.card-flow,
+.card-areas,
+.card-profiles {
   grid-column: span 12;
+}
+
+.card-profiles {
+  border-color: rgba(84, 96, 116, 0.38);
+  background: linear-gradient(180deg, rgba(244, 247, 251, 0.98) 0%, rgba(233, 238, 244, 0.98) 100%);
+  box-shadow: 0 18px 36px rgba(17, 24, 39, 0.12);
 }
 
 .card-head {
@@ -1492,7 +4832,7 @@ onBeforeUnmount(() => {
 
 .card-head h2 {
   margin: 0;
-  font-size: 18px;
+  font-size: 16px;
 }
 
 .summary-pre,
@@ -1514,8 +4854,8 @@ onBeforeUnmount(() => {
 }
 
 .metric {
-  padding: 12px;
-  border-radius: 16px;
+  padding: 10px;
+  border-radius: 0;
   background: var(--panel-soft);
 }
 
@@ -1528,7 +4868,7 @@ onBeforeUnmount(() => {
 }
 
 .metric strong {
-  font-size: 20px;
+  font-size: 17px;
 }
 
 .rank-list,
@@ -1569,15 +4909,543 @@ onBeforeUnmount(() => {
 .event-bar {
   height: 10px;
   overflow: hidden;
-  border-radius: 999px;
+  border-radius: 0;
   background: rgba(122, 104, 216, 0.12);
 }
 
 .event-bar-fill {
   display: block;
   height: 100%;
-  border-radius: inherit;
+  border-radius: 0;
   background: linear-gradient(90deg, var(--accent), #4bbf77);
+}
+
+.areas-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: end;
+  margin-bottom: 16px;
+}
+
+.area-search-field {
+  min-width: min(340px, 100%);
+}
+
+.area-search-field input {
+  border: 1px solid var(--line);
+  border-radius: 0;
+  background: rgba(255, 255, 255, 0.88);
+  color: var(--text);
+  padding: 10px 12px;
+}
+
+.areas-layout {
+  display: grid;
+  grid-template-columns: minmax(280px, 360px) minmax(0, 1fr);
+  gap: 16px;
+}
+
+.area-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 520px;
+  overflow: auto;
+  padding-right: 4px;
+}
+
+.area-list-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-start;
+  padding: 11px 12px;
+  border: 1px solid var(--line);
+  border-radius: 0;
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--text);
+  text-align: left;
+  transition: 0.18s ease;
+}
+
+.area-list-item:hover,
+.area-list-item.active {
+  border-color: rgba(122, 104, 216, 0.32);
+  background: var(--accent-soft);
+}
+
+.area-list-title {
+  font-weight: 800;
+}
+
+.area-list-meta,
+.area-list-tags,
+.area-detail-subhead {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.area-detail {
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 0;
+  background: linear-gradient(180deg, rgba(255,255,255,0.96) 0%, rgba(248,245,255,0.92) 100%);
+}
+
+.profiles-layout {
+  display: grid;
+  grid-template-columns: minmax(260px, 340px) minmax(0, 1fr);
+  gap: 16px;
+}
+
+.test-planner-layout {
+  align-items: start;
+}
+
+.result-only-layout {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.card-results-focus {
+  grid-column: span 12;
+}
+
+.profile-list,
+.profile-editor-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.planner-sidecard {
+  gap: 12px;
+}
+
+.card-profiles .area-detail {
+  border-color: rgba(97, 108, 128, 0.34);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 1) 0%, rgba(247, 250, 253, 1) 100%);
+  box-shadow: 0 2px 0 rgba(121, 131, 150, 0.16);
+}
+
+.card-profiles .card-head {
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(148, 158, 176, 0.32);
+}
+
+.card-profiles .area-detail-subhead {
+  color: #4b5565;
+}
+
+.card-profiles .meta-chip,
+.card-profiles .pill.neutral {
+  border: 1px solid rgba(124, 135, 153, 0.24);
+  background: rgba(230, 234, 242, 0.96);
+  color: #1c2430;
+}
+
+.card-profiles .planner-list .area-list-item {
+  border-color: rgba(136, 146, 165, 0.35);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(244, 247, 251, 0.98) 100%);
+  box-shadow: 0 1px 0 rgba(153, 163, 181, 0.14);
+}
+
+.card-profiles .planner-list .area-list-item:hover,
+.card-profiles .planner-list .area-list-item.active {
+  border-color: rgba(74, 90, 144, 0.62);
+  background: linear-gradient(180deg, rgba(224, 230, 243, 0.96) 0%, rgba(214, 222, 238, 0.96) 100%);
+}
+
+.card-profiles .metric {
+  border: 1px solid rgba(139, 149, 167, 0.26);
+  background: linear-gradient(180deg, rgba(244, 247, 251, 1) 0%, rgba(235, 240, 246, 1) 100%);
+}
+
+.card-profiles .metric span {
+  color: #475163;
+}
+
+.card-profiles .metric strong {
+  color: #161d29;
+  font-size: 20px;
+}
+
+.planner-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ai-planner-shell {
+  margin-top: 12px;
+  padding: 12px;
+  border: 1px solid rgba(98, 87, 142, 0.24);
+  background: rgba(244, 247, 252, 0.96);
+}
+
+.ai-planner-shell-head {
+  margin-bottom: 12px;
+}
+
+.ai-planner-shell-head h4 {
+  margin: 0;
+}
+
+.planner-pairs {
+  margin-top: 12px;
+}
+
+.planner-generation {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  margin-top: 14px;
+}
+
+.planner-error-banner {
+  margin: 14px 0 0;
+  padding: 10px 12px;
+  border: 1px solid #b42318;
+  background: #fef3f2;
+  color: #b42318;
+  font-weight: 700;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.planner-step-card {
+  border: 1px solid rgba(132, 143, 160, 0.28);
+  border-left: 5px solid rgba(112, 122, 141, 0.66);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 1) 0%, rgba(244, 248, 252, 1) 100%);
+  box-shadow: 0 2px 0 rgba(123, 133, 151, 0.14);
+  cursor: default;
+}
+
+.planner-step-running {
+  border-left-color: #3d5ca8;
+  background: linear-gradient(180deg, rgba(245, 249, 255, 1) 0%, rgba(233, 240, 251, 1) 100%);
+  box-shadow: 0 0 0 2px rgba(61, 92, 168, 0.16);
+}
+
+.planner-step-dragging {
+  opacity: 0.56;
+  cursor: grabbing;
+}
+
+.planner-step-drop-target {
+  box-shadow: 0 0 0 2px rgba(70, 184, 109, 0.18);
+  border-left-color: #46b86d;
+}
+
+.planner-step-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.planner-step-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px 14px;
+  margin-top: 10px;
+  padding: 10px 12px;
+  border: 1px solid rgba(155, 165, 183, 0.24);
+  background: rgba(241, 245, 249, 0.94);
+  color: #4c5566;
+  font-size: 12px;
+}
+
+.drag-handle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 26px;
+  height: 24px;
+  border: 1px solid rgba(98, 87, 142, 0.18);
+  border-radius: 0;
+  background: rgba(255, 255, 255, 0.84);
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+  cursor: grab;
+  user-select: none;
+}
+
+.collapse-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 28px;
+  border: 1px solid rgba(98, 87, 142, 0.18);
+  border-radius: 0;
+  background: rgba(255, 255, 255, 0.84);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.collapse-icon {
+  display: inline-block;
+  font-size: 12px;
+  line-height: 1;
+  transition: transform 0.16s ease;
+}
+
+.collapse-icon.collapsed {
+  transform: rotate(-90deg);
+}
+
+.planner-step-editor {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 12px;
+  margin-top: 10px;
+  padding: 12px;
+  border: 1px solid rgba(155, 165, 183, 0.24);
+  background: rgba(247, 250, 253, 0.96);
+}
+
+.planner-field-group {
+  padding: 10px 12px 12px;
+  border: 1px solid rgba(155, 165, 183, 0.28);
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.planner-field-group h4 {
+  margin: 0 0 10px;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #1d2433;
+}
+
+.planner-field-group-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 12px;
+}
+
+.planner-field-group-grid .group-span {
+  grid-column: 1 / -1;
+}
+
+.planner-check-sections {
+  display: grid;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.planner-check-section {
+  padding: 10px 12px;
+  border: 1px solid rgba(155, 165, 183, 0.28);
+  background: rgba(255, 255, 255, 0.86);
+}
+
+.planner-check-section h4 {
+  margin: 0 0 8px;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #1d2433;
+}
+
+.planner-check-section .area-detail-subhead {
+  margin: 0 0 8px;
+}
+
+.running-headline {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+}
+
+.running-spinner {
+  width: 14px;
+  height: 14px;
+  display: inline-block;
+  border: 2px solid rgba(29, 36, 51, 0.18);
+  border-top-color: #ca1020;
+  animation: running-spin 0.85s linear infinite;
+}
+
+@keyframes running-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.editor-check-sections {
+  grid-column: 1 / -1;
+}
+
+.compact-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 0;
+}
+
+.result-check-sections .planner-check-section {
+  background: rgba(250, 252, 255, 0.98);
+}
+
+.planner-step-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px 14px;
+  margin-top: 10px;
+  color: #4c5566;
+  font-size: 12px;
+}
+
+.area-detail h3,
+.area-detail h4 {
+  margin: 0;
+}
+
+.area-detail-subhead {
+  margin: 6px 0 0;
+}
+
+.area-metrics {
+  margin-top: 4px;
+}
+
+.area-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 14px 0;
+}
+
+.area-editor {
+  margin: 14px 0 18px;
+  padding: 12px;
+  border: 1px solid rgba(98, 87, 142, 0.16);
+  border-radius: 0;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.area-editor-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.area-editor-span {
+  grid-column: 1 / -1;
+}
+
+.area-editor-note {
+  margin: 12px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.compact-preset-row {
+  margin-top: 10px;
+}
+
+.compact-preset-row .preset-button {
+  text-align: left;
+  font-size: 11px;
+  padding: 7px 10px;
+}
+
+.area-ga-editor {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.area-ga-list,
+.area-ga-catalog {
+  max-height: 320px;
+  overflow: auto;
+}
+
+.area-ga-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(98, 87, 142, 0.12);
+}
+
+.area-ga-item strong,
+.planner-step-grid strong {
+  color: var(--text);
+}
+
+.area-ga-item span {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.profile-runbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 16px;
+}
+
+.area-columns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin: 16px 0;
+}
+
+.simple-list {
+  margin: 10px 0 0;
+  padding-left: 18px;
+}
+
+.simple-list li {
+  margin-bottom: 6px;
+}
+
+.simple-list-mono {
+  font-family: "JetBrains Mono", "SFMono-Regular", monospace;
+  font-size: 11px;
+}
+
+.report-checks {
+  display: grid;
+  gap: 10px;
+  margin: 16px 0;
+}
+
+.report-check {
+  padding: 12px;
+  border: 1px solid rgba(139, 149, 167, 0.28);
+  border-radius: 0;
+  border-left: 4px solid var(--line);
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 1px 0 rgba(140, 150, 168, 0.14);
+}
+
+.report-pass {
+  border-left-color: #46b86d;
+  background: linear-gradient(180deg, rgba(247, 252, 248, 1) 0%, rgba(238, 247, 240, 1) 100%);
+}
+
+.report-warn {
+  border-left-color: #d99a34;
+  background: linear-gradient(180deg, rgba(255, 250, 242, 1) 0%, rgba(252, 244, 229, 1) 100%);
+}
+
+.report-fail {
+  border-left-color: #d94b55;
+  background: linear-gradient(180deg, rgba(255, 246, 246, 1) 0%, rgba(252, 236, 237, 1) 100%);
 }
 
 .bus-track {
@@ -1586,7 +5454,7 @@ onBeforeUnmount(() => {
   margin-top: 16px;
   overflow: hidden;
   border: 1px solid rgba(98, 87, 142, 0.2);
-  border-radius: 999px;
+  border-radius: 0;
   background: linear-gradient(180deg, #f6f3ff 0%, #efebfb 100%);
 }
 
@@ -1641,21 +5509,79 @@ onBeforeUnmount(() => {
   flex-direction: column;
   gap: 6px;
   color: var(--muted);
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
 }
 
 .flow-field input,
-.flow-field select {
+.flow-field select,
+.flow-field textarea {
   border: 1px solid var(--line);
-  border-radius: 14px;
+  border-radius: 0;
   background: rgba(255, 255, 255, 0.88);
   color: var(--text);
-  padding: 10px 12px;
+  padding: 7px 10px;
+  min-height: 36px;
+  box-sizing: border-box;
+  line-height: 1.25;
+  font-size: 12px;
 }
 
 .flow-field select {
-  min-height: 128px;
+  padding-right: 28px;
+}
+
+.flow-field textarea {
+  resize: vertical;
+  min-height: 62px;
+  font: inherit;
+}
+
+.flow-field select[multiple],
+.flow-field-select select {
+  min-height: 108px;
+  padding-right: 10px;
+}
+
+.compact-actions {
+  justify-content: flex-end;
+}
+
+.compact-toggle {
+  min-height: 40px;
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(34, 29, 48, 0.34);
+  backdrop-filter: blur(3px);
+}
+
+.modal-card {
+  width: min(420px, 100%);
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 0;
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow: var(--shadow);
+}
+
+.modal-card h3 {
+  margin: 0 0 8px;
+  font-size: 18px;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 16px;
 }
 
 .flow-legend {
@@ -1706,7 +5632,7 @@ onBeforeUnmount(() => {
 .legend-dot {
   width: 10px;
   height: 10px;
-  border-radius: 50%;
+  border-radius: 0;
 }
 
 .legend-anomaly {
@@ -1721,7 +5647,7 @@ onBeforeUnmount(() => {
   margin-top: 16px;
   overflow: auto;
   border: 1px solid var(--line);
-  border-radius: 20px;
+  border-radius: 0;
   background: linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(248,245,255,0.96) 100%);
 }
 
@@ -1845,7 +5771,7 @@ onBeforeUnmount(() => {
 .anomaly-card {
   padding: 14px;
   border-left: 4px solid var(--warn-border);
-  border-radius: 18px;
+  border-radius: 0;
   background: var(--warn-bg);
 }
 
@@ -1882,7 +5808,7 @@ onBeforeUnmount(() => {
   flex: 1 1 260px;
   min-width: 0;
   border: 1px solid var(--line);
-  border-radius: 999px;
+  border-radius: 0;
   background: rgba(255, 255, 255, 0.88);
   color: var(--text);
   padding: 11px 14px;
@@ -1891,7 +5817,7 @@ onBeforeUnmount(() => {
 .chat-message {
   margin-bottom: 12px;
   padding: 12px;
-  border-radius: 16px;
+  border-radius: 0;
 }
 
 .chat-message pre {
@@ -1922,7 +5848,7 @@ onBeforeUnmount(() => {
   margin-top: 10px;
   overflow: auto;
   border: 1px solid rgba(122, 104, 216, 0.25);
-  border-radius: 14px;
+  border-radius: 0;
   background: #fff;
   padding: 8px;
 }
@@ -1951,32 +5877,66 @@ onBeforeUnmount(() => {
 }
 
 @media (max-width: 1100px) {
+  .page-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .app-sidebar,
+  .workspace-shell {
+    border-radius: 0;
+  }
+
+  .sidebar-nav {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .card,
   .card-summary,
   .card-bus,
   .card-chat,
   .card-flow,
-  .card-anomalies {
+  .card-anomalies,
+  .card-areas,
+  .card-profiles {
     grid-column: span 12;
   }
 }
 
 @media (max-width: 720px) {
   .page-shell {
-    width: min(100% - 16px, 1440px);
-    margin-top: 8px;
+    width: min(100% - 12px, 1440px);
+    margin-top: 6px;
+    gap: 10px;
+  }
+
+  .app-sidebar,
+  .workspace-shell {
+    padding: 12px;
+    border-radius: 0;
   }
 
   .topbar,
   .card {
     padding: 14px;
-    border-radius: 20px;
+    border-radius: 0;
+  }
+
+  .sidebar-nav {
+    grid-template-columns: 1fr;
   }
 
   .rank-row,
   .event-row,
   .metric-grid,
-  .flow-toolbar {
+  .flow-toolbar,
+  .areas-layout,
+  .area-columns,
+  .profiles-layout,
+  .area-ga-editor,
+  .area-editor-grid,
+  .planner-step-editor,
+  .planner-step-grid {
     grid-template-columns: 1fr;
   }
 

@@ -1,7 +1,14 @@
 // KNX Ultimate AI / Traffic Analyzer
 const loggerClass = require('./utils/sysLogger')
+const dptlib = require('knxultimate').dptlib
 const fs = require('fs')
 const path = require('path')
+let googleTranslateTTS = null
+try {
+  googleTranslateTTS = require('google-translate-tts')
+} catch (error) {
+  googleTranslateTTS = null
+}
 
 const coerceBoolean = (value) => (value === true || value === 'true')
 
@@ -41,6 +48,71 @@ const sendStaticFileSafe = ({ rootDir, relativePath, res }) => {
       res.status(sendError.statusCode || 500).type('text/plain').send(sendError.message || String(sendError))
     })
   })
+}
+
+const GOOGLE_TRANSLATE_MAX_CHARS = 200
+
+const stripId3v2 = (buffer) => {
+  if (!Buffer.isBuffer(buffer) || buffer.length < 10) return buffer
+  if (buffer[0] !== 0x49 || buffer[1] !== 0x44 || buffer[2] !== 0x33) return buffer
+  const size =
+    ((buffer[6] & 0x7f) << 21) |
+    ((buffer[7] & 0x7f) << 14) |
+    ((buffer[8] & 0x7f) << 7) |
+    (buffer[9] & 0x7f)
+  const tagEnd = 10 + size
+  if (tagEnd <= 10 || tagEnd >= buffer.length) return buffer
+  return buffer.subarray(tagEnd)
+}
+
+const splitGoogleTranslateText = (text, maxLen = GOOGLE_TRANSLATE_MAX_CHARS) => {
+  const chunks = []
+  let remaining = String(text || '').trim()
+  if (!remaining) return chunks
+  const breakChars = ['\n', '.', '!', '?', ';', ':', ',', ' ']
+  while (remaining.length > maxLen) {
+    const window = remaining.slice(0, maxLen + 1)
+    let breakAt = -1
+    for (const ch of breakChars) {
+      const idx = window.lastIndexOf(ch)
+      if (idx > breakAt) breakAt = idx
+    }
+    if (breakAt <= 0) breakAt = maxLen
+    const cutAt = breakAt === maxLen ? maxLen : breakAt + 1
+    const chunk = remaining.slice(0, cutAt).trim()
+    if (chunk) chunks.push(chunk)
+    remaining = remaining.slice(cutAt).trimStart()
+  }
+  if (remaining) chunks.push(remaining)
+  return chunks
+}
+
+const synthesizeGoogleTranslateSpeech = async ({ text, voice = 'it', slow = false } = {}) => {
+  if (!googleTranslateTTS || typeof googleTranslateTTS.synthesize !== 'function') {
+    throw new Error('Google Translate TTS is not available')
+  }
+  const resolvedVoice = typeof voice === 'string' && voice.includes('-') ? voice.split('-')[0] : String(voice || 'it')
+  const textChunks = splitGoogleTranslateText(text, GOOGLE_TRANSLATE_MAX_CHARS)
+  if (!textChunks.length) return Buffer.from([])
+  if (textChunks.length === 1) {
+    return await googleTranslateTTS.synthesize({
+      text: textChunks[0],
+      voice: resolvedVoice,
+      slow: slow === true
+    })
+  }
+  const buffers = []
+  for (let i = 0; i < textChunks.length; i += 1) {
+    // Google Translate TTS accepts only short chunks; concatenate the resulting mp3 frames.
+    // eslint-disable-next-line no-await-in-loop
+    const chunkBuffer = await googleTranslateTTS.synthesize({
+      text: textChunks[i],
+      voice: resolvedVoice,
+      slow: slow === true
+    })
+    buffers.push(i === 0 ? chunkBuffer : stripId3v2(chunkBuffer))
+  }
+  return Buffer.concat(buffers)
 }
 
 const sanitizeApiKey = (value) => {
@@ -168,6 +240,1443 @@ const compactPayloadForNodeLabel = (value, maxLen = 28) => {
   if (s.length <= maxLen) return s
   return s.slice(0, Math.max(1, maxLen - 2)) + '..'
 }
+
+const normalizeAreaText = (value) => String(value || '')
+  .replace(/\s+/g, ' ')
+  .replace(/[–—]/g, '-')
+  .trim()
+
+const slugifyAreaText = (value) => normalizeAreaText(value)
+  .normalize('NFKD')
+  .replace(/[\u0300-\u036f]/g, '')
+  .toLowerCase()
+  .replace(/[^a-z0-9]+/g, '-')
+  .replace(/^-+|-+$/g, '')
+  .slice(0, 80) || 'area'
+
+const pushUniqueValue = (list, value, maxItems = 6) => {
+  const normalized = normalizeAreaText(value)
+  if (!normalized) return
+  if (!Array.isArray(list)) return
+  if (list.includes(normalized)) return
+  if (list.length >= maxItems) return
+  list.push(normalized)
+}
+
+const parseEtsHierarchyLabel = (value) => {
+  const raw = normalizeAreaText(value)
+  if (!raw) return {
+    raw: '',
+    deviceLabel: '',
+    mainGroup: '',
+    middleGroup: '',
+    hierarchyPath: ''
+  }
+  const match = raw.match(/^\(([^()]+)\)\s*(.*)$/)
+  if (!match) {
+    return {
+      raw,
+      deviceLabel: raw,
+      mainGroup: '',
+      middleGroup: '',
+      hierarchyPath: ''
+    }
+  }
+  const hierarchy = String(match[1] || '')
+    .split('->')
+    .map(part => normalizeAreaText(part))
+    .filter(Boolean)
+  return {
+    raw,
+    deviceLabel: normalizeAreaText(match[2] || raw),
+    mainGroup: hierarchy[0] || '',
+    middleGroup: hierarchy[1] || '',
+    hierarchyPath: hierarchy.join(' / ')
+  }
+}
+
+const AREA_TAG_RULES = [
+  { tag: 'lighting', pattern: /\b(light|lights|lighting|luce|luci|lamp|dimmer)\b/i },
+  { tag: 'hvac', pattern: /\b(hvac|clima|climate|fan\s?coil|fancoil|heating|cooling|thermo|temp|temperature)\b/i },
+  { tag: 'shading', pattern: /\b(blind|blinds|shutter|shutters|jalousie|curtain|curtains|tapparella|tapparelle)\b/i },
+  { tag: 'presence', pattern: /\b(presence|occupancy|motion|presence detector|pir|presence sensor|presence)\b/i },
+  { tag: 'access', pattern: /\b(door|doors|window|windows|access|lock|badge|porta|porte|finestra|finestre)\b/i },
+  { tag: 'energy', pattern: /\b(power|energy|meter|consumption|load|carico|consumo|misura)\b/i }
+]
+
+const inferAreaTags = ({ mainGroup, middleGroup, deviceLabel, dpt }) => {
+  const text = [mainGroup, middleGroup, deviceLabel, dpt].filter(Boolean).join(' ')
+  const tags = []
+  AREA_TAG_RULES.forEach((rule) => {
+    if (rule.pattern.test(text)) tags.push(rule.tag)
+  })
+  return tags
+}
+
+const buildSuggestedAreasFromCsv = (csv) => {
+  const rows = Array.isArray(csv) ? csv : []
+  const areasById = new Map()
+  let hierarchicalGaCount = 0
+  let secondaryGroupCount = 0
+  let mainGroupCount = 0
+
+  const ensureArea = ({ id, kind, name, parentName, pathTokens }) => {
+    const key = String(id || '').trim()
+    if (!key) return null
+    if (!areasById.has(key)) {
+      areasById.set(key, {
+        id: key,
+        kind: String(kind || 'area').trim() || 'area',
+        name: normalizeAreaText(name || ''),
+        parentName: normalizeAreaText(parentName || ''),
+        pathTokens: Array.isArray(pathTokens) ? pathTokens.map(token => normalizeAreaText(token)).filter(Boolean) : [],
+        gaSet: new Set(),
+        dptSet: new Set(),
+        tags: new Set(),
+        sampleGAs: [],
+        sampleLabels: []
+      })
+      if (kind === 'secondary_group') secondaryGroupCount += 1
+      if (kind === 'main_group') mainGroupCount += 1
+    }
+    return areasById.get(key)
+  }
+
+  const registerAreaRow = ({ areaId, kind, name, parentName, pathTokens, row, parsed }) => {
+    const area = ensureArea({ id: areaId, kind, name, parentName, pathTokens })
+    if (!area) return
+    const ga = normalizeAreaText(row && row.ga)
+    const dpt = normalizeAreaText(row && row.dpt)
+    if (ga) area.gaSet.add(ga)
+    if (dpt) area.dptSet.add(dpt)
+    pushUniqueValue(area.sampleGAs, ga, 6)
+    pushUniqueValue(area.sampleLabels, parsed && parsed.deviceLabel, 4)
+    inferAreaTags({
+      mainGroup: parsed && parsed.mainGroup,
+      middleGroup: parsed && parsed.middleGroup,
+      deviceLabel: parsed && parsed.deviceLabel,
+      dpt
+    }).forEach(tag => area.tags.add(tag))
+  }
+
+  rows.forEach((row) => {
+    const ga = normalizeAreaText(row && row.ga)
+    if (!ga) return
+    const parsed = parseEtsHierarchyLabel(row && row.devicename)
+    if (parsed.mainGroup || parsed.middleGroup) hierarchicalGaCount += 1
+
+    if (parsed.mainGroup) {
+      registerAreaRow({
+        areaId: `main:${slugifyAreaText(parsed.mainGroup)}`,
+        kind: 'main_group',
+        name: parsed.mainGroup,
+        parentName: '',
+        pathTokens: [parsed.mainGroup],
+        row,
+        parsed
+      })
+    }
+
+    if (parsed.mainGroup && parsed.middleGroup) {
+      registerAreaRow({
+        areaId: `secondary:${slugifyAreaText(parsed.mainGroup)}:${slugifyAreaText(parsed.middleGroup)}`,
+        kind: 'secondary_group',
+        name: parsed.middleGroup,
+        parentName: parsed.mainGroup,
+        pathTokens: [parsed.mainGroup, parsed.middleGroup],
+        row,
+        parsed
+      })
+    }
+  })
+
+  const suggested = Array.from(areasById.values())
+    .map((entry) => {
+      const gaCount = entry.gaSet.size
+      const dptCount = entry.dptSet.size
+      const path = entry.pathTokens.join(' / ')
+      return {
+        id: entry.id,
+        kind: entry.kind,
+        name: entry.name,
+        baseName: entry.name,
+        parentId: entry.kind === 'secondary_group' ? `main:${slugifyAreaText(entry.parentName)}` : '',
+        parentName: entry.parentName,
+        baseParentName: entry.parentName,
+        path,
+        basePath: path,
+        gaCount,
+        dptCount,
+        gaList: Array.from(entry.gaSet.values()).sort(),
+        dptList: Array.from(entry.dptSet.values()).sort(),
+        tags: Array.from(entry.tags.values()).sort(),
+        baseTags: Array.from(entry.tags.values()).sort(),
+        sampleGAs: entry.sampleGAs.slice(0, 6),
+        sampleLabels: entry.sampleLabels.slice(0, 4),
+        description: entry.kind === 'secondary_group'
+          ? `${entry.parentName || 'ETS'} / ${entry.name} (${gaCount} GA)`
+          : `${entry.name} (${gaCount} GA)`,
+        priority: entry.kind === 'secondary_group' ? 2 : 1
+      }
+    })
+    .sort((a, b) => {
+      if (b.priority !== a.priority) return b.priority - a.priority
+      if (b.gaCount !== a.gaCount) return b.gaCount - a.gaCount
+      return String(a.path || a.name || '').localeCompare(String(b.path || b.name || ''))
+    })
+
+  return {
+    source: rows.length ? 'ets_csv' : 'none',
+    generatedAt: new Date().toISOString(),
+    totals: {
+      gaCount: rows.length,
+      hierarchicalGaCount,
+      suggestedAreaCount: suggested.length,
+      secondaryGroupCount,
+      mainGroupCount
+    },
+    suggested
+  }
+}
+
+const buildGaCatalogFromCsv = (csv) => {
+  const rows = Array.isArray(csv) ? csv : []
+  const byGa = new Map()
+  rows.forEach((row) => {
+    const ga = normalizeAreaText(row && row.ga)
+    if (!ga || byGa.has(ga)) return
+    const parsed = parseEtsHierarchyLabel(row && row.devicename)
+    const dpt = normalizeAreaText(row && row.dpt)
+    const label = normalizeAreaText(parsed.deviceLabel || row.devicename || ga)
+    const tags = inferAreaTags({
+      mainGroup: parsed.mainGroup,
+      middleGroup: parsed.middleGroup,
+      deviceLabel: label,
+      dpt
+    })
+    byGa.set(ga, {
+      ga,
+      dpt,
+      label,
+      mainGroup: parsed.mainGroup || '',
+      middleGroup: parsed.middleGroup || '',
+      hierarchyPath: parsed.hierarchyPath || '',
+      tags,
+      valueOptions: getDptValueOptions(dpt)
+    })
+  })
+  return Array.from(byGa.values())
+    .sort((a, b) => {
+      const left = `${a.hierarchyPath} ${a.label} ${a.ga}`.trim()
+      const right = `${b.hierarchyPath} ${b.label} ${b.ga}`.trim()
+      return left.localeCompare(right)
+    })
+}
+
+const enrichSuggestedAreasWithSummary = ({ baseSnapshot, summary }) => {
+  const snapshot = baseSnapshot && typeof baseSnapshot === 'object' ? baseSnapshot : buildSuggestedAreasFromCsv([])
+  const gaLastSeenAt = summary && typeof summary.gaLastSeenAt === 'object' ? summary.gaLastSeenAt : {}
+  const gaLastPayload = summary && typeof summary.gaLastPayload === 'object' ? summary.gaLastPayload : {}
+  const analysisWindowSec = Math.max(30, Number(summary && summary.meta && summary.meta.analysisWindowSec) || 0)
+  const activeCutoffMs = nowMs() - (analysisWindowSec * 1000)
+  let activeAreaCount = 0
+
+  const suggested = (Array.isArray(snapshot.suggested) ? snapshot.suggested : []).map((area) => {
+    let activeGaCount = 0
+    let lastSeenAtMs = 0
+    const recentPayloads = []
+      ; (Array.isArray(area.sampleGAs) ? area.sampleGAs : []).forEach((ga) => {
+        const ts = new Date(String(gaLastSeenAt[ga] || '')).getTime()
+        if (Number.isFinite(ts) && ts > 0) {
+          lastSeenAtMs = Math.max(lastSeenAtMs, ts)
+          if (ts >= activeCutoffMs) activeGaCount += 1
+        }
+        if (gaLastPayload[ga] !== undefined) {
+          pushUniqueValue(recentPayloads, `${ga}: ${compactPayloadForNodeLabel(gaLastPayload[ga], 22)}`, 4)
+        }
+      })
+    if (activeGaCount > 0) activeAreaCount += 1
+    return Object.assign({}, area, {
+      activeGaCount,
+      activityPct: area.gaCount > 0 ? roundTo((activeGaCount / area.gaCount) * 100, 1) : 0,
+      lastSeenAt: lastSeenAtMs > 0 ? new Date(lastSeenAtMs).toISOString() : '',
+      recentPayloads
+    })
+  })
+
+  return {
+    source: snapshot.source || 'none',
+    generatedAt: new Date().toISOString(),
+    totals: Object.assign({}, snapshot.totals || {}, {
+      activeAreaCount
+    }),
+    suggested
+  }
+}
+
+const buildAreasPromptContext = (areasSnapshot) => {
+  const suggested = Array.isArray(areasSnapshot && areasSnapshot.suggested) ? areasSnapshot.suggested : []
+  if (!suggested.length) return ''
+  const lines = suggested.slice(0, 12).map((area) => {
+    const tags = Array.isArray(area.tags) && area.tags.length ? ` tags=${area.tags.join(',')}` : ''
+    const activity = area.gaCount > 0 ? ` active=${Number(area.activeGaCount || 0)}/${Number(area.gaCount || 0)}` : ''
+    return `- ${area.path || area.name} [${area.kind}]${activity}${tags}`
+  })
+  return [
+    'Suggested installation areas derived from ETS hierarchy:',
+    lines.join('\n')
+  ].join('\n')
+}
+
+const ensureDirectorySync = (dirPath) => {
+  const target = String(dirPath || '').trim()
+  if (!target) return false
+  try {
+    fs.mkdirSync(target, { recursive: true })
+    return true
+  } catch (error) {
+    return false
+  }
+}
+
+const readJsonFileSafe = (filePath, fallbackValue) => {
+  try {
+    if (!fs.existsSync(filePath)) return fallbackValue
+    const raw = fs.readFileSync(filePath, 'utf8')
+    if (!raw || String(raw).trim() === '') return fallbackValue
+    return JSON.parse(raw)
+  } catch (error) {
+    return fallbackValue
+  }
+}
+
+const normalizeAreaOverridePayload = (payload) => {
+  const p = payload && typeof payload === 'object' ? payload : {}
+  const normalized = {}
+  if (Object.prototype.hasOwnProperty.call(p, 'name')) normalized.name = normalizeAreaText(p.name)
+  if (Object.prototype.hasOwnProperty.call(p, 'description')) normalized.description = normalizeAreaText(p.description)
+  if (Object.prototype.hasOwnProperty.call(p, 'tags')) {
+    normalized.tags = Array.isArray(p.tags)
+      ? Array.from(new Set(p.tags.map(tag => slugifyAreaText(tag)).filter(Boolean))).slice(0, 12)
+      : []
+  }
+  if (Object.prototype.hasOwnProperty.call(p, 'gaList')) {
+    normalized.gaList = Array.isArray(p.gaList)
+      ? Array.from(new Set(p.gaList.map(ga => normalizeAreaText(ga)).filter(Boolean))).slice(0, 5000)
+      : []
+  }
+  return normalized
+}
+
+const normalizeCustomAreaId = (value, fallback = '') => {
+  const raw = normalizeAreaText(value || fallback)
+  const slug = slugifyAreaText(raw)
+  return slug ? `custom:${slug}` : ''
+}
+
+const applyAreaOverridesToSnapshot = ({ snapshot, overrides, gaCatalog }) => {
+  const baseSnapshot = snapshot && typeof snapshot === 'object' ? snapshot : buildSuggestedAreasFromCsv([])
+  const rawOverrides = overrides && typeof overrides === 'object' ? overrides : {}
+  const gaCatalogMap = new Map((Array.isArray(gaCatalog) ? gaCatalog : []).map(item => [String(item && item.ga ? item.ga : '').trim(), item]))
+  const baseAreas = Array.isArray(baseSnapshot.suggested) ? baseSnapshot.suggested : []
+  const byId = new Map()
+
+  baseAreas.forEach((area) => {
+    const override = rawOverrides[area.id] && typeof rawOverrides[area.id] === 'object'
+      ? normalizeAreaOverridePayload(rawOverrides[area.id])
+      : {}
+    byId.set(area.id, Object.assign({}, area, {
+      customName: Object.prototype.hasOwnProperty.call(override, 'name') ? override.name : '',
+      customDescription: Object.prototype.hasOwnProperty.call(override, 'description') ? override.description : '',
+      customTags: Object.prototype.hasOwnProperty.call(override, 'tags') ? override.tags : null,
+      customGaList: Object.prototype.hasOwnProperty.call(override, 'gaList') ? override.gaList : null,
+      hasOverride: Object.keys(override).length > 0
+    }))
+  })
+
+  Object.keys(rawOverrides).forEach((overrideId) => {
+    if (byId.has(overrideId)) return
+    const override = normalizeAreaOverridePayload(rawOverrides[overrideId])
+    const customGaList = Array.isArray(override.gaList) ? override.gaList.filter(ga => gaCatalogMap.has(ga)) : []
+    const inferredTags = new Set(Array.isArray(override.tags) ? override.tags : [])
+    const sampleLabels = []
+    const dptSet = new Set()
+    customGaList.forEach((ga) => {
+      const item = gaCatalogMap.get(ga)
+      if (!item) return
+      if (item.dpt) dptSet.add(item.dpt)
+      pushUniqueValue(sampleLabels, item.label, 4)
+        ; (Array.isArray(item.tags) ? item.tags : []).forEach(tag => inferredTags.add(tag))
+    })
+    const customName = normalizeAreaText(override.name || overrideId.replace(/^custom:/, ''))
+    byId.set(overrideId, {
+      id: overrideId,
+      kind: 'custom_manual',
+      name: customName,
+      baseName: customName,
+      parentId: '',
+      parentName: '',
+      baseParentName: '',
+      path: customName,
+      basePath: customName,
+      gaCount: customGaList.length,
+      dptCount: dptSet.size,
+      gaList: customGaList,
+      dptList: Array.from(dptSet.values()).sort(),
+      tags: Array.from(inferredTags.values()).sort(),
+      baseTags: Array.from(inferredTags.values()).sort(),
+      sampleGAs: customGaList.slice(0, 6),
+      sampleLabels,
+      description: normalizeAreaText(override.description || `${customName} (${customGaList.length} GA)`),
+      priority: 3,
+      customName,
+      customDescription: normalizeAreaText(override.description || ''),
+      customTags: Array.isArray(override.tags) ? override.tags.slice(0, 12) : null,
+      customGaList,
+      hasOverride: true
+    })
+  })
+
+  const resolveAreaName = (area) => normalizeAreaText((area && area.customName) || (area && area.baseName) || (area && area.name))
+
+  byId.forEach((area) => {
+    const parentArea = area.parentId ? byId.get(area.parentId) : null
+    const resolvedName = resolveAreaName(area)
+    const resolvedParentName = parentArea ? resolveAreaName(parentArea) : normalizeAreaText(area.baseParentName || area.parentName)
+    const resolvedPath = parentArea
+      ? [normalizeAreaText(parentArea.path || parentArea.name), resolvedName].filter(Boolean).join(' / ')
+      : resolvedName
+    let tags = Array.isArray(area.customTags) ? area.customTags.slice(0, 12) : (Array.isArray(area.baseTags) ? area.baseTags.slice(0, 12) : [])
+    let gaList = Array.isArray(area.gaList) ? area.gaList.slice() : []
+    let dptList = Array.isArray(area.dptList) ? area.dptList.slice() : []
+    let sampleGAs = Array.isArray(area.sampleGAs) ? area.sampleGAs.slice(0, 6) : []
+    let sampleLabels = Array.isArray(area.sampleLabels) ? area.sampleLabels.slice(0, 4) : []
+
+    if (Array.isArray(area.gaList) && Array.isArray(area.customGaList)) {
+      const filtered = area.customGaList
+        .filter(ga => gaCatalogMap.has(ga))
+      gaList = filtered
+      const nextDptSet = new Set()
+      const nextLabelSet = []
+      const inferredTags = new Set()
+      filtered.forEach((ga) => {
+        const item = gaCatalogMap.get(ga)
+        if (!item) return
+        if (item.dpt) nextDptSet.add(item.dpt)
+        pushUniqueValue(nextLabelSet, item.label, 4)
+          ; (Array.isArray(item.tags) ? item.tags : []).forEach(tag => inferredTags.add(tag))
+      })
+      dptList = Array.from(nextDptSet.values()).sort()
+      sampleGAs = filtered.slice(0, 6)
+      sampleLabels = nextLabelSet
+      if (!Array.isArray(area.customTags)) tags = Array.from(inferredTags.values()).sort()
+    }
+    const gaCount = gaList.length
+    const dptCount = dptList.length
+    const description = area.customDescription !== ''
+      ? area.customDescription
+      : area.kind === 'secondary_group'
+        ? `${resolvedParentName || 'ETS'} / ${resolvedName} (${gaCount} GA)`
+        : `${resolvedName} (${gaCount} GA)`
+    Object.assign(area, {
+      name: resolvedName,
+      parentName: resolvedParentName,
+      path: resolvedPath,
+      tags,
+      description,
+      gaList,
+      dptList,
+      gaCount,
+      dptCount,
+      sampleGAs,
+      sampleLabels
+    })
+  })
+
+  return Object.assign({}, baseSnapshot, {
+    generatedAt: new Date().toISOString(),
+    suggested: Array.from(byId.values())
+  })
+}
+
+const DEFAULT_AREA_PROFILES = [
+  {
+    id: 'area_diagnostic',
+    builtIn: true,
+    name: 'Control Area',
+    description: 'General read-only diagnostic of the selected area based on ETS structure and current KNX activity.',
+    minActivityPct: 20,
+    maxSilentPct: 60,
+    maxAnomalies: 2,
+    targetTags: []
+  },
+  {
+    id: 'lighting_area',
+    builtIn: true,
+    name: 'Lighting Area',
+    description: 'Focus on lighting-oriented areas and highlight low activity or repeated anomalies.',
+    minActivityPct: 15,
+    maxSilentPct: 70,
+    maxAnomalies: 1,
+    targetTags: ['lighting']
+  },
+  {
+    id: 'hvac_area',
+    builtIn: true,
+    name: 'HVAC Area',
+    description: 'Focus on HVAC-oriented areas and check whether the related addresses are alive.',
+    minActivityPct: 10,
+    maxSilentPct: 80,
+    maxAnomalies: 1,
+    targetTags: ['hvac']
+  }
+]
+
+const clampNumber = (value, { min = 0, max = 100, fallback = 0 } = {}) => {
+  const n = Number(value)
+  if (!Number.isFinite(n)) return fallback
+  if (n < min) return min
+  if (n > max) return max
+  return n
+}
+
+const normalizeProfileText = (value, fallback = '') => normalizeAreaText(value || fallback)
+
+const normalizeAreaProfilePayload = (payload, fallbackId = '') => {
+  const p = payload && typeof payload === 'object' ? payload : {}
+  const name = normalizeProfileText(p.name, 'Custom Area Profile')
+  const baseId = normalizeAreaText(p.id || fallbackId || name)
+  return {
+    id: slugifyAreaText(baseId),
+    builtIn: false,
+    name,
+    description: normalizeProfileText(p.description),
+    minActivityPct: clampNumber(p.minActivityPct, { min: 0, max: 100, fallback: 20 }),
+    maxSilentPct: clampNumber(p.maxSilentPct, { min: 0, max: 100, fallback: 60 }),
+    maxAnomalies: clampNumber(p.maxAnomalies, { min: 0, max: 999, fallback: 2 }),
+    targetTags: Array.isArray(p.targetTags)
+      ? Array.from(new Set(p.targetTags.map(tag => slugifyAreaText(tag)).filter(Boolean))).slice(0, 12)
+      : []
+  }
+}
+
+const mergeAreaProfiles = ({ customProfiles }) => {
+  const out = new Map()
+  DEFAULT_AREA_PROFILES.forEach((profile) => {
+    out.set(profile.id, Object.assign({}, profile))
+  })
+    ; (Array.isArray(customProfiles) ? customProfiles : []).forEach((profile, index) => {
+      const normalized = normalizeAreaProfilePayload(profile, `custom-${index + 1}`)
+      if (!normalized.id) return
+      out.set(normalized.id, normalized)
+    })
+  return Array.from(out.values())
+}
+
+const severityRank = (status) => {
+  const value = String(status || '').toLowerCase()
+  if (value === 'fail') return 3
+  if (value === 'warn') return 2
+  if (value === 'pass') return 1
+  return 0
+}
+
+const buildAreaProfileReport = ({ area, profile, summary, anomalies, generatedAt }) => {
+  const safeArea = area && typeof area === 'object' ? area : {}
+  const safeProfile = profile && typeof profile === 'object' ? profile : {}
+  const safeSummary = summary && typeof summary === 'object' ? summary : {}
+  const gaList = Array.isArray(safeArea.gaList) ? safeArea.gaList.slice() : []
+  const gaSet = new Set(gaList.map(ga => String(ga || '').trim()).filter(Boolean))
+  const gaLastSeenAt = safeSummary && typeof safeSummary.gaLastSeenAt === 'object' ? safeSummary.gaLastSeenAt : {}
+  const gaLastPayload = safeSummary && typeof safeSummary.gaLastPayload === 'object' ? safeSummary.gaLastPayload : {}
+  const analysisWindowSec = Math.max(30, Number(safeSummary && safeSummary.meta && safeSummary.meta.analysisWindowSec) || 0)
+  const activeCutoffMs = nowMs() - (analysisWindowSec * 1000)
+  const activeGAs = []
+  const silentGAs = []
+
+  gaList.forEach((ga) => {
+    const ts = new Date(String(gaLastSeenAt[ga] || '')).getTime()
+    if (Number.isFinite(ts) && ts > 0 && ts >= activeCutoffMs) {
+      activeGAs.push(ga)
+    } else {
+      silentGAs.push(ga)
+    }
+  })
+
+  const relevantAnomalies = (Array.isArray(anomalies) ? anomalies : [])
+    .filter((entry) => {
+      const ga = String(entry && entry.payload && entry.payload.ga ? entry.payload.ga : '').trim()
+      return ga && gaSet.has(ga)
+    })
+    .slice(-50)
+    .reverse()
+
+  const totalGAs = gaList.length
+  const activeGaCount = activeGAs.length
+  const silentGaCount = silentGAs.length
+  const activityPct = totalGAs > 0 ? roundTo((activeGaCount / totalGAs) * 100, 1) : 0
+  const silentPct = totalGAs > 0 ? roundTo((silentGaCount / totalGAs) * 100, 1) : 0
+  const tagMismatch = Array.isArray(safeProfile.targetTags) && safeProfile.targetTags.length > 0
+    ? !safeProfile.targetTags.some(tag => Array.isArray(safeArea.tags) && safeArea.tags.includes(tag))
+    : false
+
+  const checks = [
+    {
+      id: 'scope_match',
+      title: 'Profile scope alignment',
+      status: tagMismatch ? 'warn' : 'pass',
+      message: tagMismatch
+        ? `Area tags ${Array.isArray(safeArea.tags) ? safeArea.tags.join(', ') : 'n/a'} do not match profile focus ${safeProfile.targetTags.join(', ')}.`
+        : 'Area tags are compatible with the selected profile.',
+      metrics: {
+        areaTags: Array.isArray(safeArea.tags) ? safeArea.tags : [],
+        targetTags: Array.isArray(safeProfile.targetTags) ? safeProfile.targetTags : []
+      }
+    },
+    {
+      id: 'activity',
+      title: 'Area activity',
+      status: activityPct >= Number(safeProfile.minActivityPct || 0) ? 'pass' : (activityPct > 0 ? 'warn' : 'fail'),
+      message: `${activeGaCount}/${totalGAs} GA active in the last ${analysisWindowSec}s.`,
+      metrics: {
+        activeGaCount,
+        totalGAs,
+        activityPct,
+        minActivityPct: Number(safeProfile.minActivityPct || 0)
+      }
+    },
+    {
+      id: 'silence',
+      title: 'Silent addresses',
+      status: silentPct <= Number(safeProfile.maxSilentPct || 100) ? 'pass' : (silentPct < 100 ? 'warn' : 'fail'),
+      message: `${silentGaCount}/${totalGAs} GA silent in the current analysis window.`,
+      metrics: {
+        silentGaCount,
+        totalGAs,
+        silentPct,
+        maxSilentPct: Number(safeProfile.maxSilentPct || 0)
+      },
+      sample: silentGAs.slice(0, 10).map(ga => ({
+        ga,
+        lastPayload: gaLastPayload[ga] || ''
+      }))
+    },
+    {
+      id: 'anomalies',
+      title: 'Recent anomalies in area',
+      status: relevantAnomalies.length <= Number(safeProfile.maxAnomalies || 0) ? 'pass' : 'warn',
+      message: `${relevantAnomalies.length} recent anomalies match the selected area.`,
+      metrics: {
+        anomalyCount: relevantAnomalies.length,
+        maxAnomalies: Number(safeProfile.maxAnomalies || 0)
+      }
+    }
+  ]
+
+  const suggestions = []
+  if (tagMismatch) suggestions.push('Check whether the selected profile is appropriate for this area or add matching tags.')
+  if (activityPct < Number(safeProfile.minActivityPct || 0)) suggestions.push('Run a guided verification on the area or trigger live activity before diagnosing.')
+  if (silentGaCount > 0) suggestions.push('Inspect the silent GA list first: they are the best candidates for missing feedback or dormant devices.')
+  if (relevantAnomalies.length > Number(safeProfile.maxAnomalies || 0)) suggestions.push('Open the anomaly list for this area and correlate the failing GA with the ETS object names.')
+  if (!suggestions.length) suggestions.push('Area looks consistent in read-only mode. Continue with a focused active test only if the issue is still reproducible.')
+
+  const overallStatus = checks
+    .map(check => check.status)
+    .sort((a, b) => severityRank(b) - severityRank(a))[0] || 'pass'
+
+  return {
+    id: `${safeProfile.id || 'profile'}:${safeArea.id || 'area'}:${Date.now()}`,
+    generatedAt: generatedAt || new Date().toISOString(),
+    mode: 'read_only',
+    overallStatus,
+    source: {
+      type: 'profile',
+      profileId: safeProfile.id || '',
+      areaId: safeArea.id || ''
+    },
+    profile: {
+      id: safeProfile.id || '',
+      name: safeProfile.name || '',
+      description: safeProfile.description || '',
+      builtIn: safeProfile.builtIn === true
+    },
+    area: {
+      id: safeArea.id || '',
+      name: safeArea.name || '',
+      path: safeArea.path || safeArea.name || '',
+      tags: Array.isArray(safeArea.tags) ? safeArea.tags : []
+    },
+    metrics: {
+      totalGAs,
+      activeGaCount,
+      silentGaCount,
+      activityPct,
+      silentPct,
+      anomalyCount: relevantAnomalies.length,
+      analysisWindowSec
+    },
+    checks,
+    suggestions,
+    anomalyHighlights: relevantAnomalies.slice(0, 8).map((entry) => ({
+      at: entry.at || '',
+      type: entry && entry.payload ? entry.payload.type : '',
+      ga: entry && entry.payload ? entry.payload.ga : '',
+      payload: entry && entry.payload ? entry.payload : {}
+    }))
+  }
+}
+
+const parseActuatorPayloadInput = (value) => {
+  if (value === undefined || value === null) return ''
+  if (typeof value !== 'string') return value
+  const raw = value.trim()
+  if (raw === '') return ''
+  if (/^(true|false)$/i.test(raw)) return raw.toLowerCase() === 'true'
+  if (/^[+-]?\d+(?:\.\d+)?$/.test(raw)) return Number(raw)
+  if ((raw.startsWith('{') && raw.endsWith('}')) || (raw.startsWith('[') && raw.endsWith(']'))) {
+    try {
+      return JSON.parse(raw)
+    } catch (error) {
+      return raw
+    }
+  }
+  return raw
+}
+
+const normalizeActuatorTestPresetPayload = (payload, fallbackId = '') => {
+  const p = payload && typeof payload === 'object' ? payload : {}
+  const name = normalizeProfileText(p.name, 'Actuator Test')
+  const baseId = normalizeAreaText(p.id || fallbackId || name)
+  const sharedTimeout = clampNumber(p.timeoutMs, { min: 500, max: 60000, fallback: 5000 })
+  return {
+    id: slugifyAreaText(baseId),
+    name,
+    description: normalizeProfileText(p.description),
+    commandGA: normalizeAreaText(p.commandGA),
+    commandDPT: normalizeAreaText(p.commandDPT),
+    commandPayload: typeof p.commandPayload === 'string' ? p.commandPayload : safeStringify(p.commandPayload),
+    statusGA: normalizeAreaText(p.statusGA),
+    statusDPT: normalizeAreaText(p.statusDPT),
+    statusWriteTimeoutMs: clampNumber(p.statusWriteTimeoutMs !== undefined ? p.statusWriteTimeoutMs : p.timeoutMs, { min: 500, max: 60000, fallback: sharedTimeout }),
+    statusResponseTimeoutMs: clampNumber(p.statusResponseTimeoutMs !== undefined ? p.statusResponseTimeoutMs : p.timeoutMs, { min: 500, max: 60000, fallback: sharedTimeout })
+  }
+}
+
+const mergeActuatorTestPresets = ({ customPresets }) => {
+  return (Array.isArray(customPresets) ? customPresets : [])
+    .map((preset, index) => normalizeActuatorTestPresetPayload(preset, `actuator-${index + 1}`))
+    .filter(preset => preset.id && preset.commandGA && preset.commandDPT)
+}
+
+const SIGNAL_STATUS_RE = /\b(status|state|feedback|fb|stato|riscontro|indicazione|actual|actual value|current state)\b/i
+const SIGNAL_COMMAND_RE = /\b(command|cmd|switch|control|set|setpoint|on\/off|dim|dimmer|move|step|up|down|open|close|toggle|scene|comando|attiva|attivazione|start|stop)\b/i
+const SIGNAL_SENSOR_RE = /\b(sensor|misura|measure|actual|temperature|temperatura|humidity|umidita|lux|brightness|illuminance|co2|meter|energy|power|consumption|wind|rain|anemometer|counter)\b/i
+const SIGNAL_CATEGORY_RULES = [
+  { id: 'lighting', pattern: /\b(light|lights|lighting|luce|luci|lamp|dimmer|dim)\b/i },
+  { id: 'hvac', pattern: /\b(hvac|clima|climate|fan\s?coil|fancoil|heating|cooling|thermo|temp|temperature|setpoint|mode)\b/i },
+  { id: 'shading', pattern: /\b(blind|blinds|shutter|shutters|jalousie|curtain|curtains|tapparella|tapparelle|venetian)\b/i },
+  { id: 'access', pattern: /\b(door|doors|window|windows|lock|unlock|badge|porta|porte|finestra|finestre|serratura)\b/i },
+  { id: 'scene', pattern: /\b(scene|scenario|scena)\b/i }
+]
+
+const normalizeSignalText = (value) => normalizeAreaText(value)
+  .normalize('NFKD')
+  .replace(/[\u0300-\u036f]/g, '')
+  .toLowerCase()
+
+const ACTION_PATTERN_GROUPS = [
+  {
+    type: 'on',
+    patterns: [
+      /\bturn on\b/g, /\bturn(?:\s+\w+){1,4}\s+on\b/g,
+      /\bswitch on\b/g, /\bswitch(?:\s+\w+){1,4}\s+on\b/g,
+      /\bpower on\b/g, /\bpower(?:\s+\w+){1,4}\s+on\b/g,
+      /\bstart\b/g, /\benable\b/g, /\bactivate\b/g,
+      /\baccendi\b/g, /\battiva\b/g,
+      /\ballume\b/g, /\bactive\b/g,
+      /\beinschalten\b/g, /\baktivieren\b/g,
+      /\benciende\b/g, /\bactivar\b/g,
+      /\bliga\b/g, /\bativa\b/g,
+      /\baan\b/g, /\binschakelen\b/g
+    ]
+  },
+  {
+    type: 'off',
+    patterns: [
+      /\bturn off\b/g, /\bturn(?:\s+\w+){1,4}\s+off\b/g,
+      /\bswitch off\b/g, /\bswitch(?:\s+\w+){1,4}\s+off\b/g,
+      /\bpower off\b/g, /\bpower(?:\s+\w+){1,4}\s+off\b/g,
+      /\bdisable\b/g, /\bdeactivate\b/g, /\bshutdown\b/g,
+      /\bspegni\b/g, /\bdisattiva\b/g,
+      /\beteins\b/g, /\bdesactive\b/g,
+      /\bausschalten\b/g, /\bdeaktivieren\b/g,
+      /\bapaga\b/g, /\bdesactiva\b/g,
+      /\bdesliga\b/g, /\bdesativa\b/g,
+      /\buit\b/g, /\buitschakelen\b/g
+    ]
+  },
+  {
+    type: 'open',
+    patterns: [
+      /\bopen\b/g, /\braise\b/g, /\blift\b/g, /\bmove up\b/g,
+      /\bapri\b/g, /\balza\b/g, /\bsolleva\b/g,
+      /\bouvre\b/g, /\bmonte\b/g,
+      /\boffnen\b/g, /\bhoch\b/g, /\bauf\b/g,
+      /\babre\b/g, /\bsube\b/g,
+      /\babrir\b/g, /\bsobe\b/g,
+      /\bopenen\b/g, /\bomhoog\b/g
+    ]
+  },
+  {
+    type: 'close',
+    patterns: [
+      /\bclose\b/g, /\blower\b/g, /\bmove down\b/g,
+      /\bchiudi\b/g, /\babbassa\b/g,
+      /\bferme\b/g, /\bdescends?\b/g,
+      /\bschliessen\b/g, /\brunter\b/g, /\bzu\b/g,
+      /\bcierra\b/g, /\bbaja\b/g,
+      /\bfechar\b/g, /\bdesce\b/g,
+      /\bsluiten\b/g, /\bomlaag\b/g
+    ]
+  },
+  {
+    type: 'stop',
+    patterns: [
+      /\bstop\b/g, /\bhalt\b/g, /\bpause\b/g,
+      /\bferma\b/g, /\barresta\b/g,
+      /\barrete\b/g, /\bstoppe\b/g,
+      /\banhalten\b/g, /\bstopp\b/g,
+      /\bdeten\b/g, /\bparar\b/g,
+      /\bpare\b/g,
+      /\bstoppen\b/g
+    ]
+  }
+]
+
+const extractActionHitsFromText = (value) => {
+  const text = normalizeSignalText(value)
+  if (!text) return []
+  const hits = []
+  ACTION_PATTERN_GROUPS.forEach((group) => {
+    group.patterns.forEach((regex) => {
+      regex.lastIndex = 0
+      let match
+      while ((match = regex.exec(text)) !== null) {
+        hits.push({ type: group.type, index: match.index, raw: match[0] })
+      }
+    })
+  })
+  return hits.sort((a, b) => a.index - b.index)
+}
+
+const detectPrimaryActionFromText = (value) => {
+  const hits = extractActionHitsFromText(value)
+  return hits[0] ? hits[0].type : ''
+}
+
+const actionImpliesTruthy = (action) => ['on', 'open'].includes(String(action || '').trim().toLowerCase())
+const actionImpliesFalsy = (action) => ['off', 'close', 'stop'].includes(String(action || '').trim().toLowerCase())
+
+const tokenizeSignalText = (value) => normalizeSignalText(value)
+  .replace(/[()[\]{}]/g, ' ')
+  .split(/[^a-z0-9]+/i)
+  .map(token => token.trim())
+  .filter(token => token.length >= 2)
+
+const normalizeSignalStem = (value) => normalizeSignalText(value)
+  .replace(/\b(status|state|feedback|fb|stato|riscontro|indicazione|command|cmd|control|set|switch|actual|value|current)\b/g, ' ')
+  .replace(/\b(on|off|up|down|open|close)\b/g, ' ')
+  .replace(/\s+/g, ' ')
+  .trim()
+
+const parseGaTriplet = (value) => {
+  const match = String(value || '').trim().match(/^(\d+)\/(\d+)\/(\d+)$/)
+  if (!match) return null
+  return [Number(match[1]), Number(match[2]), Number(match[3])]
+}
+
+const computeGaDistanceScore = (left, right) => {
+  const a = parseGaTriplet(left)
+  const b = parseGaTriplet(right)
+  if (!a || !b) return 0
+  let score = 0
+  if (a[0] === b[0]) score += 1
+  if (a[1] === b[1]) score += 2
+  const delta = Math.abs(a[2] - b[2])
+  if (delta === 0) return 0
+  if (delta <= 1) score += 4
+  else if (delta <= 3) score += 2
+  else if (delta <= 8) score += 1
+  return score
+}
+
+const tokenIntersectionSize = (leftTokens, rightTokens) => {
+  const left = new Set(Array.isArray(leftTokens) ? leftTokens : [])
+  const right = new Set(Array.isArray(rightTokens) ? rightTokens : [])
+  let matches = 0
+  left.forEach((token) => {
+    if (right.has(token)) matches += 1
+  })
+  return matches
+}
+
+const sameDptFamily = (left, right) => {
+  const a = String(left || '').trim().split('.')[0]
+  const b = String(right || '').trim().split('.')[0]
+  return !!a && !!b && a === b
+}
+
+const isLikelyWritableDpt = (dpt) => {
+  const value = String(dpt || '').trim()
+  if (!value) return false
+  return /^(1|2|3|5|6|7|8|9|14|17|18|20)\./.test(value)
+}
+
+const inferSignalCategory = ({ label, areaTags }) => {
+  const text = [label, ...(Array.isArray(areaTags) ? areaTags : [])].filter(Boolean).join(' ')
+  for (const rule of SIGNAL_CATEGORY_RULES) {
+    if (rule.pattern.test(text)) return rule.id
+  }
+  return ''
+}
+
+const inferSignalRole = ({ label, dpt }) => {
+  const text = normalizeSignalText(label)
+  if (!text) return 'neutral'
+  if (SIGNAL_STATUS_RE.test(text)) return 'status'
+  if (SIGNAL_SENSOR_RE.test(text) && !SIGNAL_COMMAND_RE.test(text)) return 'neutral'
+  if (SIGNAL_COMMAND_RE.test(text)) return 'command'
+  if (isLikelyWritableDpt(dpt)) return 'command'
+  return 'neutral'
+}
+
+const scoreSignalPair = ({ command, status }) => {
+  if (!command || !status) return 0
+  if (String(command.ga || '').trim() === String(status.ga || '').trim()) return 0
+  let score = 0
+  const commandStem = String(command.stem || '').trim()
+  const statusStem = String(status.stem || '').trim()
+  if (commandStem && statusStem && commandStem === statusStem) score += 10
+  const commandTokens = tokenizeSignalText(command.label || commandStem)
+  const statusTokens = tokenizeSignalText(status.label || statusStem)
+  score += tokenIntersectionSize(commandTokens, statusTokens) * 2
+  if (command.category && status.category && command.category === status.category) score += 2
+  if (sameDptFamily(command.dpt, status.dpt)) score += 1
+  if (command.hierarchyPath && status.hierarchyPath && command.hierarchyPath === status.hierarchyPath) score += 3
+  if (command.mainGroup && status.mainGroup && command.mainGroup === status.mainGroup) score += 1
+  if (command.middleGroup && status.middleGroup && command.middleGroup === status.middleGroup) score += 2
+  score += computeGaDistanceScore(command.ga, status.ga)
+  return score
+}
+
+const scoreCommandSignalForStep = ({ signal, step, prompt }) => {
+  if (!signal || !step) return -1
+  const rawCommandRef = normalizeSignalText(step.commandGA || '')
+  const stepText = [
+    step.title,
+    step.description,
+    step.reason,
+    rawCommandRef,
+    prompt
+  ].filter(Boolean).join(' ')
+  const stepTokens = tokenizeSignalText(stepText)
+  const signalTokens = tokenizeSignalText([
+    signal.label,
+    signal.hierarchyPath,
+    signal.category,
+    signal.ga
+  ].filter(Boolean).join(' '))
+  let score = 0
+  if (rawCommandRef) {
+    const signalGa = normalizeSignalText(signal.ga)
+    const signalLabel = normalizeSignalText(signal.label)
+    const signalPath = normalizeSignalText(signal.hierarchyPath)
+    if (rawCommandRef === signalGa) score += 100
+    if (signalLabel && rawCommandRef === signalLabel) score += 80
+    if (signalPath && rawCommandRef === signalPath) score += 70
+    if (signalLabel && rawCommandRef && (signalLabel.includes(rawCommandRef) || rawCommandRef.includes(signalLabel))) score += 25
+    if (signalPath && rawCommandRef && (signalPath.includes(rawCommandRef) || rawCommandRef.includes(signalPath))) score += 18
+  }
+  score += tokenIntersectionSize(stepTokens, signalTokens) * 4
+  const stepStem = normalizeSignalStem(stepText)
+  const signalStem = normalizeSignalStem([signal.label, signal.hierarchyPath].filter(Boolean).join(' '))
+  if (stepStem && signalStem && stepStem === signalStem) score += 18
+  if (step.commandDPT && signal.dpt && sameDptFamily(step.commandDPT, signal.dpt)) score += 6
+  if (signal.role === 'command') score += 3
+  return score
+}
+
+const resolveCommandSignalForStep = ({ step, catalog, prompt }) => {
+  const commandSignals = Array.isArray(catalog && catalog.commandSignals) ? catalog.commandSignals : []
+  if (!commandSignals.length) return null
+  const exactGa = normalizeAreaText(step && step.commandGA)
+  if (exactGa) {
+    const exact = commandSignals.find(signal => signal && signal.ga === exactGa)
+    if (exact) return exact
+  }
+  return commandSignals
+    .map(signal => ({ signal, score: scoreCommandSignalForStep({ signal, step, prompt }) }))
+    .sort((a, b) => b.score - a.score)[0]?.score > 0
+    ? commandSignals
+      .map(signal => ({ signal, score: scoreCommandSignalForStep({ signal, step, prompt }) }))
+      .sort((a, b) => b.score - a.score)[0].signal
+    : null
+}
+
+const toPlanPayloadString = (value, fallback = '') => {
+  if (value === undefined || value === null) return fallback
+  if (typeof value === 'string') return value.trim()
+  return safeStringify(value)
+}
+
+const normalizeTestPlanStepPayload = (payload, fallbackId = '') => {
+  const p = payload && typeof payload === 'object' ? payload : {}
+  const command = p.command && typeof p.command === 'object' ? p.command : {}
+  const status = p.status && typeof p.status === 'object' ? p.status : {}
+  const baseId = normalizeAreaText(p.id || fallbackId || `step-${Date.now()}`)
+  const statusGA = normalizeAreaText(p.statusGA || status.ga)
+  const kind = normalizeAreaText(p.kind || (statusGA ? 'write_and_verify' : 'write_only')).toLowerCase()
+  const title = normalizeProfileText(p.title, 'KNX active test step')
+  const description = normalizeProfileText(p.description)
+  const reason = normalizeProfileText(p.reason)
+  const action = normalizeAreaText(p.action).toLowerCase()
+  const normalizedKind = ['write_and_verify', 'write_only', 'wait'].includes(kind) ? kind : (statusGA ? 'write_and_verify' : 'write_only')
+  if (normalizedKind === 'wait') {
+    return {
+      id: slugifyAreaText(baseId),
+      kind: 'wait',
+      action: '',
+      title: normalizeProfileText(p.title, 'Wait'),
+      description,
+      reason,
+      delayMs: clampNumber(p.delayMs !== undefined ? p.delayMs : p.readDelayMs, { min: 0, max: 30000, fallback: 1200 }),
+      commandGA: '',
+      commandDPT: '',
+      commandPayload: '',
+      statusGA: '',
+      statusDPT: '',
+      expectedPayload: '',
+      statusWriteTimeoutMs: 0,
+      statusResponseTimeoutMs: 0
+    }
+  }
+  const sharedTimeout = clampNumber(p.timeoutMs, { min: 500, max: 60000, fallback: 5000 })
+  return {
+    id: slugifyAreaText(baseId),
+    kind: normalizedKind,
+    action,
+    title,
+    description,
+    reason,
+    commandGA: normalizeAreaText(p.commandGA || command.ga),
+    commandDPT: normalizeAreaText(p.commandDPT || command.dpt),
+    commandPayload: resolvePayloadValueForDpt({
+      value: p.commandPayload !== undefined ? p.commandPayload : command.payload,
+      dptId: p.commandDPT || command.dpt,
+      contextText: `${title} ${description} ${reason}`,
+      action
+    }),
+    statusGA,
+    statusDPT: normalizeAreaText(p.statusDPT || status.dpt),
+    expectedPayload: resolvePayloadValueForDpt({
+      value: toPlanPayloadString(
+        p.expectedPayload !== undefined ? p.expectedPayload : (status.expectedPayload !== undefined ? status.expectedPayload : undefined),
+        toPlanPayloadString(p.commandPayload !== undefined ? p.commandPayload : command.payload)
+      ),
+      dptId: p.statusDPT || status.dpt || p.commandDPT || command.dpt,
+      contextText: `${title} ${description} ${reason}`,
+      action
+    }),
+    statusWriteTimeoutMs: clampNumber(p.statusWriteTimeoutMs !== undefined ? p.statusWriteTimeoutMs : p.timeoutMs, { min: 500, max: 60000, fallback: sharedTimeout }),
+    statusResponseTimeoutMs: clampNumber(p.statusResponseTimeoutMs !== undefined ? p.statusResponseTimeoutMs : p.timeoutMs, { min: 500, max: 60000, fallback: sharedTimeout })
+  }
+}
+
+const normalizeAiTestPlanPayload = (payload, fallbackId = '') => {
+  const p = payload && typeof payload === 'object' ? payload : {}
+  const name = normalizeProfileText(p.name, 'KNX Active Test')
+  const baseId = normalizeAreaText(p.id || fallbackId || name)
+  return {
+    id: slugifyAreaText(baseId),
+    name,
+    description: normalizeProfileText(p.description),
+    areaId: normalizeAreaText(p.areaId),
+    areaName: normalizeProfileText(p.areaName),
+    prompt: normalizeProfileText(p.prompt),
+    source: normalizeProfileText(p.source, 'ai'),
+    generatedAt: normalizeProfileText(p.generatedAt, new Date().toISOString()),
+    steps: (Array.isArray(p.steps) ? p.steps : [])
+      .map((step, index) => normalizeTestPlanStepPayload(step, `${baseId || 'plan'}-step-${index + 1}`))
+      .filter(step => step.id && (step.kind === 'wait' || (step.commandGA && step.commandDPT)))
+      .slice(0, 24)
+  }
+}
+
+const mergeAiTestPlans = ({ customPlans }) => {
+  return (Array.isArray(customPlans) ? customPlans : [])
+    .map((plan, index) => normalizeAiTestPlanPayload(plan, `plan-${index + 1}`))
+    .filter(plan => plan.id && plan.areaId && Array.isArray(plan.steps) && plan.steps.length > 0)
+}
+
+const AI_TEST_PLAN_JSON_SCHEMA = {
+  name: 'knx_ai_test_plan',
+  strict: true,
+  schema: {
+    type: 'object',
+    additionalProperties: false,
+    required: ['name', 'description', 'steps'],
+    properties: {
+      name: { type: 'string' },
+      description: { type: 'string' },
+      steps: {
+        type: 'array',
+        minItems: 1,
+        maxItems: 24,
+        items: {
+          oneOf: [
+            {
+              type: 'object',
+              additionalProperties: false,
+              required: ['id', 'kind', 'title', 'description', 'reason', 'delayMs'],
+              properties: {
+                id: { type: 'string' },
+                kind: { const: 'wait' },
+                title: { type: 'string' },
+                description: { type: 'string' },
+                reason: { type: 'string' },
+                delayMs: { type: 'number' }
+              }
+            },
+            {
+              type: 'object',
+              additionalProperties: false,
+              required: ['id', 'kind', 'action', 'title', 'description', 'reason', 'commandGA', 'commandDPT', 'commandPayload', 'expectedPayload', 'statusWriteTimeoutMs', 'statusResponseTimeoutMs'],
+              properties: {
+                id: { type: 'string' },
+                kind: { enum: ['write_only', 'write_and_verify'] },
+                action: { enum: ['on', 'off', 'open', 'close', 'stop'] },
+                title: { type: 'string' },
+                description: { type: 'string' },
+                reason: { type: 'string' },
+                commandGA: { type: 'string' },
+                commandDPT: { type: 'string' },
+                commandPayload: { type: ['string', 'number', 'boolean'] },
+                statusGA: { type: 'string' },
+                statusDPT: { type: 'string' },
+                expectedPayload: { type: ['string', 'number', 'boolean'] },
+                statusWriteTimeoutMs: { type: 'number' },
+                statusResponseTimeoutMs: { type: 'number' }
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}
+
+const validateAiPlanAgainstSchema = (plan) => {
+  const errors = []
+  if (!plan || typeof plan !== 'object' || Array.isArray(plan)) return { ok: false, errors: ['Root must be an object'] }
+  if (typeof plan.name !== 'string' || !plan.name.trim()) errors.push('name must be a non-empty string')
+  if (typeof plan.description !== 'string') errors.push('description must be a string')
+  if (!Array.isArray(plan.steps) || plan.steps.length === 0) errors.push('steps must be a non-empty array')
+  if (Array.isArray(plan.steps)) {
+    plan.steps.forEach((step, index) => {
+      const at = `steps[${index}]`
+      if (!step || typeof step !== 'object' || Array.isArray(step)) {
+        errors.push(`${at} must be an object`)
+        return
+      }
+      if (typeof step.id !== 'string' || !step.id.trim()) errors.push(`${at}.id must be a non-empty string`)
+      if (typeof step.kind !== 'string') errors.push(`${at}.kind must be a string`)
+      if (step.kind === 'wait') {
+        if (typeof step.title !== 'string') errors.push(`${at}.title must be a string`)
+        if (typeof step.description !== 'string') errors.push(`${at}.description must be a string`)
+        if (typeof step.reason !== 'string') errors.push(`${at}.reason must be a string`)
+        if (!Number.isFinite(Number(step.delayMs))) errors.push(`${at}.delayMs must be numeric`)
+        return
+      }
+      if (!['write_only', 'write_and_verify'].includes(String(step.kind || ''))) errors.push(`${at}.kind must be write_only, write_and_verify or wait`)
+      if (!['on', 'off', 'open', 'close', 'stop'].includes(String(step.action || ''))) errors.push(`${at}.action must be on/off/open/close/stop`)
+      if (typeof step.commandGA !== 'string' || !step.commandGA.trim()) errors.push(`${at}.commandGA must be a non-empty string`)
+      if (typeof step.commandDPT !== 'string' || !step.commandDPT.trim()) errors.push(`${at}.commandDPT must be a non-empty string`)
+      if (!['string', 'number', 'boolean'].includes(typeof step.commandPayload)) errors.push(`${at}.commandPayload must be string/number/boolean`)
+      if (!['string', 'number', 'boolean'].includes(typeof step.expectedPayload)) errors.push(`${at}.expectedPayload must be string/number/boolean`)
+      if (!Number.isFinite(Number(step.statusWriteTimeoutMs))) errors.push(`${at}.statusWriteTimeoutMs must be numeric`)
+      if (!Number.isFinite(Number(step.statusResponseTimeoutMs))) errors.push(`${at}.statusResponseTimeoutMs must be numeric`)
+      if (step.kind === 'write_and_verify' && (!String(step.statusGA || '').trim() || !String(step.statusDPT || '').trim())) {
+        errors.push(`${at}.statusGA and statusDPT are required for write_and_verify`)
+      }
+    })
+  }
+  return { ok: errors.length === 0, errors }
+}
+
+const extractJsonObjectFromText = (value) => {
+  const text = String(value || '').trim()
+  if (!text) throw new Error('Empty AI response')
+  const fenced = text.match(/```(?:json)?\s*([\s\S]*?)```/i)
+  const candidate = fenced && fenced[1] ? fenced[1].trim() : text
+  try {
+    return JSON.parse(candidate)
+  } catch (error) {
+    const start = candidate.indexOf('{')
+    const end = candidate.lastIndexOf('}')
+    if (start !== -1 && end !== -1 && end > start) {
+      return JSON.parse(candidate.slice(start, end + 1))
+    }
+    throw error
+  }
+}
+
+const normalizeAiActionValue = (value) => {
+  const raw = normalizeAreaText(value).toLowerCase()
+  if (!raw) return ''
+  if (['on', 'off', 'open', 'close', 'stop'].includes(raw)) return raw
+  if (['turn_on', 'switch_on', 'accendi', 'ein', 'encender', 'ligar', 'true', '1'].includes(raw)) return 'on'
+  if (['turn_off', 'switch_off', 'spegni', 'aus', 'apagar', 'desligar', 'false', '0'].includes(raw)) return 'off'
+  if (['up', 'raise', 'apri', 'ouvrir'].includes(raw)) return 'open'
+  if (['down', 'lower', 'chiudi', 'fermer'].includes(raw)) return 'close'
+  return ''
+}
+
+const coerceAiStepShape = (step, index = 0) => {
+  if (!step || typeof step !== 'object' || Array.isArray(step)) return null
+  const inferredKind = normalizeAreaText(
+    step.kind
+      || step.type
+      || step.stepType
+      || ((step.delayMs !== undefined || step.waitMs !== undefined || step.timeout !== undefined) && !step.commandGA && !step.ga ? 'wait' : '')
+  ).toLowerCase()
+  const isWait = inferredKind === 'wait' || inferredKind === 'delay' || inferredKind === 'pause'
+  if (isWait) {
+    return {
+      id: toPlanPayloadString(step.id || step.stepId || `step-${index + 1}`, `step-${index + 1}`),
+      kind: 'wait',
+      title: toPlanPayloadString(step.title || step.name || step.label || 'Wait', 'Wait'),
+      description: toPlanPayloadString(step.description || step.details || step.instruction || '', ''),
+      reason: toPlanPayloadString(step.reason || step.purpose || step.rationale || '', ''),
+      delayMs: Number(step.delayMs !== undefined ? step.delayMs : (step.waitMs !== undefined ? step.waitMs : step.timeout))
+    }
+  }
+  const command = step.command && typeof step.command === 'object' ? step.command : {}
+  const status = step.status && typeof step.status === 'object' ? step.status : {}
+  const action = normalizeAiActionValue(
+    step.action
+      || step.commandAction
+      || step.targetState
+      || step.state
+      || step.operation
+  )
+  return {
+    id: toPlanPayloadString(step.id || step.stepId || step.title || step.name || `step-${index + 1}`, `step-${index + 1}`),
+    kind: toPlanPayloadString(step.kind || step.type || step.stepType || (step.statusGA || step.feedbackGA || status.ga ? 'write_and_verify' : 'write_only'), ''),
+    action,
+    title: toPlanPayloadString(step.title || step.name || step.label || `Step ${index + 1}`, `Step ${index + 1}`),
+    description: toPlanPayloadString(step.description || step.details || step.instruction || '', ''),
+    reason: toPlanPayloadString(step.reason || step.purpose || step.rationale || '', ''),
+    commandGA: toPlanPayloadString(step.commandGA || step.commandGa || step.ga || step.groupAddress || command.ga || '', ''),
+    commandDPT: toPlanPayloadString(step.commandDPT || step.commandDpt || step.dpt || command.dpt || '', ''),
+    commandPayload: step.commandPayload !== undefined ? step.commandPayload : (step.payload !== undefined ? step.payload : (step.value !== undefined ? step.value : command.payload)),
+    statusGA: toPlanPayloadString(step.statusGA || step.statusGa || step.feedbackGA || step.feedbackGa || step.stateGA || status.ga || '', ''),
+    statusDPT: toPlanPayloadString(step.statusDPT || step.statusDpt || step.feedbackDPT || step.feedbackDpt || step.stateDPT || status.dpt || '', ''),
+    expectedPayload: step.expectedPayload !== undefined ? step.expectedPayload : (step.expected !== undefined ? step.expected : (step.expectedValue !== undefined ? step.expectedValue : (status.expectedPayload !== undefined ? status.expectedPayload : (step.commandPayload !== undefined ? step.commandPayload : (step.payload !== undefined ? step.payload : ''))))),
+    statusWriteTimeoutMs: Number(step.statusWriteTimeoutMs !== undefined ? step.statusWriteTimeoutMs : (step.writeTimeoutMs !== undefined ? step.writeTimeoutMs : (step.timeoutMs !== undefined ? step.timeoutMs : 5000))),
+    statusResponseTimeoutMs: Number(step.statusResponseTimeoutMs !== undefined ? step.statusResponseTimeoutMs : (step.readTimeoutMs !== undefined ? step.readTimeoutMs : (step.timeoutMs !== undefined ? step.timeoutMs : 5000)))
+  }
+}
+
+const coerceAiPlanShape = (value) => {
+  if (Array.isArray(value)) {
+    return {
+      name: 'KNX Active Test',
+      description: '',
+      steps: value.map((step, index) => coerceAiStepShape(step, index)).filter(Boolean)
+    }
+  }
+  if (!value || typeof value !== 'object') return value
+  const root = value.plan && typeof value.plan === 'object'
+    ? value.plan
+    : value.testPlan && typeof value.testPlan === 'object'
+      ? value.testPlan
+      : value.data && typeof value.data === 'object'
+        ? value.data
+        : value
+  const rawSteps = Array.isArray(root.steps)
+    ? root.steps
+    : Array.isArray(root.actions)
+      ? root.actions
+      : Array.isArray(root.sequence)
+        ? root.sequence
+        : Array.isArray(root.plan)
+          ? root.plan
+          : []
+  return {
+    name: toPlanPayloadString(root.name || root.title || root.planName || root.testName || value.name || value.title, ''),
+    description: toPlanPayloadString(root.description || root.summary || root.objective || root.goal || value.description || '', ''),
+    steps: rawSteps.map((step, index) => coerceAiStepShape(step, index)).filter(Boolean)
+  }
+}
+
+const extractTextFromContentParts = (value) => {
+  if (typeof value === 'string') return value
+  if (!Array.isArray(value)) return ''
+  const parts = []
+  value.forEach((item) => {
+    if (typeof item === 'string') {
+      if (item.trim()) parts.push(item)
+      return
+    }
+    if (!item || typeof item !== 'object') return
+    if (typeof item.text === 'string' && item.text.trim()) {
+      parts.push(item.text)
+      return
+    }
+    if (typeof item.output_text === 'string' && item.output_text.trim()) {
+      parts.push(item.output_text)
+      return
+    }
+    if (item.type === 'text' && typeof item.value === 'string' && item.value.trim()) {
+      parts.push(item.value)
+      return
+    }
+    if (item.type === 'output_text' && typeof item.text === 'string' && item.text.trim()) {
+      parts.push(item.text)
+      return
+    }
+    if (item.type === 'refusal' && typeof item.refusal === 'string' && item.refusal.trim()) {
+      parts.push(item.refusal)
+    }
+  })
+  return parts.join('\n').trim()
+}
+
+const extractOpenAICompatText = (json) => {
+  if (!json || typeof json !== 'object') return ''
+  if (typeof json.output_text === 'string' && json.output_text.trim()) return json.output_text
+  if (Array.isArray(json.output)) {
+    const outputText = json.output
+      .map(item => extractTextFromContentParts(item && typeof item === 'object' ? item.content : ''))
+      .filter(Boolean)
+      .join('\n')
+      .trim()
+    if (outputText) return outputText
+  }
+  const message = json && json.choices && json.choices[0] && json.choices[0].message
+    ? json.choices[0].message
+    : null
+  if (!message || typeof message !== 'object') return ''
+  if (typeof message.content === 'string' && message.content.trim()) return message.content
+  const fromParts = extractTextFromContentParts(message.content)
+  if (fromParts) return fromParts
+  if (typeof message.refusal === 'string' && message.refusal.trim()) return message.refusal
+  return ''
+}
+
+const DPT_OPTIONS_CACHE = new Map()
+
+const getDptValueOptions = (dptId) => {
+  const key = String(dptId || '').trim()
+  if (!key) return []
+  if (DPT_OPTIONS_CACHE.has(key)) return DPT_OPTIONS_CACHE.get(key) || []
+  let options = []
+  try {
+    const resolved = dptlib.resolve(key)
+    const enc = resolved && resolved.subtype ? resolved.subtype.enc : undefined
+    if (Array.isArray(enc)) {
+      options = enc.map((label, index) => ({
+        value: index === 0 ? 'false' : (index === 1 ? 'true' : String(index)),
+        label: String(label || '')
+      })).filter(option => option.label)
+    } else if (enc && typeof enc === 'object') {
+      options = Object.keys(enc).map((value) => ({
+        value: String(value),
+        label: String(enc[value] || '')
+      })).filter(option => option.label)
+    }
+  } catch (error) {
+    options = []
+  }
+  DPT_OPTIONS_CACHE.set(key, options)
+  return options
+}
+
+const resolvePayloadValueForDpt = ({ value, dptId, contextText = '', action = '' } = {}) => {
+  const raw = toPlanPayloadString(value)
+  const options = getDptValueOptions(dptId)
+  if (!options.length) return raw
+
+  const optionByValue = new Map(options.map(option => [String(option.value), option]))
+  const normalizedRaw = normalizeSignalText(raw)
+  const normalizedContext = normalizeSignalText(contextText)
+  const combinedText = `${normalizedRaw} ${normalizedContext}`.trim()
+  const resolvedAction = String(action || '').trim().toLowerCase() || detectPrimaryActionFromText(contextText || combinedText)
+
+  if (resolvedAction) {
+    if (actionImpliesTruthy(resolvedAction)) {
+      const explicit = ['true', '1', '100'].find(candidate => optionByValue.has(candidate))
+      if (explicit) return explicit
+      const labelMatch = options.find(option => /\b(on|open|up|start|enable|enabled|active|acceso|accesa|aperto|aperta|su|einschalten|allume|enciende|liga|aan)\b/.test(normalizeSignalText(option.label)))
+      if (labelMatch) return String(labelMatch.value)
+    }
+    if (actionImpliesFalsy(resolvedAction)) {
+      const explicit = ['false', '0'].find(candidate => optionByValue.has(candidate))
+      if (explicit) return explicit
+      const labelMatch = options.find(option => /\b(off|close|down|stop|disable|disabled|inactive|chiuso|spento|giu|ausschalten|eteins|apaga|desliga|uit)\b/.test(normalizeSignalText(option.label)))
+      if (labelMatch) return String(labelMatch.value)
+    }
+  }
+
+  if (optionByValue.has(raw)) return raw
+
+  const exactLabelMatch = options.find(option => normalizeSignalText(option.label) === normalizedRaw)
+  if (exactLabelMatch) return String(exactLabelMatch.value)
+
+  const containsLabelMatch = options.find(option => {
+    const label = normalizeSignalText(option.label)
+    return normalizedRaw && (label.includes(normalizedRaw) || normalizedRaw.includes(label))
+  })
+  if (containsLabelMatch) return String(containsLabelMatch.value)
+
+  const trueLike = /\b(on|open|up|true|1|accendi|attiva|apri|su|acceso|accesa|accesi|accese|aperto|aperta|enabled|enable|start|allume|einschalten|enciende|liga|aan)\b/
+  const falseLike = /\b(off|close|down|false|0|spegni|disattiva|chiudi|giu|spento|spenta|spenti|spente|chiuso|chiusa|disabled|disable|stop|ferma|eteins|ausschalten|apaga|desliga|uit)\b/
+
+  if (trueLike.test(combinedText)) {
+    const explicit = ['true', '1', '100'].find(candidate => optionByValue.has(candidate))
+    if (explicit) return explicit
+    const labelMatch = options.find(option => /\b(on|open|up|start|enable|enabled|active|acceso|accesa|aperto|aperta|su)\b/.test(normalizeSignalText(option.label)))
+    if (labelMatch) return String(labelMatch.value)
+  }
+  if (falseLike.test(combinedText)) {
+    const explicit = ['false', '0'].find(candidate => optionByValue.has(candidate))
+    if (explicit) return explicit
+    const labelMatch = options.find(option => /\b(off|close|down|stop|disable|disabled|inactive|spento|spenta|chiuso|chiusa|giu)\b/.test(normalizeSignalText(option.label)))
+    if (labelMatch) return String(labelMatch.value)
+  }
+
+  return String(options[0].value)
+}
+
+const normalizePayloadForDptCompare = ({ value, dptId, contextText = '' } = {}) => {
+  const normalized = resolvePayloadValueForDpt({ value, dptId, contextText })
+  return normalizeValueForCompare(parseActuatorPayloadInput(normalized))
+}
+
+const formatPayloadForDptDisplay = ({ value, dptId, contextText = '' } = {}) => {
+  const normalized = resolvePayloadValueForDpt({ value, dptId, contextText })
+  const options = getDptValueOptions(dptId)
+  if (options.length) {
+    const hit = options.find(option => String(option.value) === String(normalized))
+    if (hit && hit.label) return String(hit.label)
+  }
+  return normalizeValueForCompare(parseActuatorPayloadInput(normalized))
+}
+
+const normalizeTelegramEventName = (value) => String(value || '')
+  .trim()
+  .replace(/\s*\(.+?\)\s*/g, '')
+  .trim()
 
 const buildFallbackSvgChartFromSummary = ({ summary, question }) => {
   const s = summary || {}
@@ -997,6 +2506,469 @@ module.exports = function (RED) {
       }
     })
 
+    RED.httpAdmin.post('/knxUltimateAI/sidebar/areas/save', RED.auth.needsPermission('knxUltimate-config.write'), async (req, res) => {
+      try {
+        const nodeId = req.body?.nodeId ? String(req.body.nodeId) : ''
+        const areaId = req.body?.areaId ? String(req.body.areaId) : ''
+        if (!nodeId) {
+          res.status(400).json({ error: 'Missing nodeId' })
+          return
+        }
+        if (!areaId) {
+          res.status(400).json({ error: 'Missing areaId' })
+          return
+        }
+        const n = aiRuntimeNodes.get(nodeId) || RED.nodes.getNode(nodeId)
+        if (!n || n.type !== 'knxUltimateAI' || typeof n.saveAreaDefinition !== 'function') {
+          res.status(404).json({ error: 'KNX AI node not found' })
+          return
+        }
+        const ret = await n.saveAreaDefinition({
+          areaId,
+          name: req.body?.name,
+          description: req.body?.description,
+          tags: req.body?.tags,
+          gaList: req.body?.gaList
+        })
+        res.json(ret)
+      } catch (error) {
+        res.status(error.status || 500).json({ error: error.message || String(error) })
+      }
+    })
+
+    RED.httpAdmin.post('/knxUltimateAI/sidebar/areas/reset', RED.auth.needsPermission('knxUltimate-config.write'), async (req, res) => {
+      try {
+        const nodeId = req.body?.nodeId ? String(req.body.nodeId) : ''
+        const areaId = req.body?.areaId ? String(req.body.areaId) : ''
+        if (!nodeId) {
+          res.status(400).json({ error: 'Missing nodeId' })
+          return
+        }
+        if (!areaId) {
+          res.status(400).json({ error: 'Missing areaId' })
+          return
+        }
+        const n = aiRuntimeNodes.get(nodeId) || RED.nodes.getNode(nodeId)
+        if (!n || n.type !== 'knxUltimateAI' || typeof n.resetAreaDefinition !== 'function') {
+          res.status(404).json({ error: 'KNX AI node not found' })
+          return
+        }
+        const ret = await n.resetAreaDefinition({ areaId })
+        res.json(ret)
+      } catch (error) {
+        res.status(error.status || 500).json({ error: error.message || String(error) })
+      }
+    })
+
+    RED.httpAdmin.post('/knxUltimateAI/sidebar/areas/catalog', RED.auth.needsPermission('knxUltimate-config.read'), async (req, res) => {
+      try {
+        const nodeId = req.body?.nodeId ? String(req.body.nodeId) : ''
+        if (!nodeId) {
+          res.status(400).json({ error: 'Missing nodeId' })
+          return
+        }
+        const n = aiRuntimeNodes.get(nodeId) || RED.nodes.getNode(nodeId)
+        if (!n || n.type !== 'knxUltimateAI' || typeof n.getGaCatalog !== 'function') {
+          res.status(404).json({ error: 'KNX AI node not found' })
+          return
+        }
+        const ret = await n.getGaCatalog()
+        res.json(ret)
+      } catch (error) {
+        res.status(error.status || 500).json({ error: error.message || String(error) })
+      }
+    })
+
+    RED.httpAdmin.post('/knxUltimateAI/sidebar/areas/create', RED.auth.needsPermission('knxUltimate-config.write'), async (req, res) => {
+      try {
+        const nodeId = req.body?.nodeId ? String(req.body.nodeId) : ''
+        if (!nodeId) {
+          res.status(400).json({ error: 'Missing nodeId' })
+          return
+        }
+        const n = aiRuntimeNodes.get(nodeId) || RED.nodes.getNode(nodeId)
+        if (!n || n.type !== 'knxUltimateAI' || typeof n.createAreaDefinition !== 'function') {
+          res.status(404).json({ error: 'KNX AI node not found' })
+          return
+        }
+        const ret = await n.createAreaDefinition(req.body || {})
+        res.json(ret)
+      } catch (error) {
+        res.status(error.status || 500).json({ error: error.message || String(error) })
+      }
+    })
+
+    RED.httpAdmin.post('/knxUltimateAI/sidebar/profiles/save', RED.auth.needsPermission('knxUltimate-config.write'), async (req, res) => {
+      try {
+        const nodeId = req.body?.nodeId ? String(req.body.nodeId) : ''
+        if (!nodeId) {
+          res.status(400).json({ error: 'Missing nodeId' })
+          return
+        }
+        const n = aiRuntimeNodes.get(nodeId) || RED.nodes.getNode(nodeId)
+        if (!n || n.type !== 'knxUltimateAI' || typeof n.saveAreaProfile !== 'function') {
+          res.status(404).json({ error: 'KNX AI node not found' })
+          return
+        }
+        const ret = await n.saveAreaProfile(req.body || {})
+        res.json(ret)
+      } catch (error) {
+        res.status(error.status || 500).json({ error: error.message || String(error) })
+      }
+    })
+
+    RED.httpAdmin.post('/knxUltimateAI/sidebar/profiles/delete', RED.auth.needsPermission('knxUltimate-config.write'), async (req, res) => {
+      try {
+        const nodeId = req.body?.nodeId ? String(req.body.nodeId) : ''
+        const profileId = req.body?.profileId ? String(req.body.profileId) : ''
+        if (!nodeId) {
+          res.status(400).json({ error: 'Missing nodeId' })
+          return
+        }
+        if (!profileId) {
+          res.status(400).json({ error: 'Missing profileId' })
+          return
+        }
+        const n = aiRuntimeNodes.get(nodeId) || RED.nodes.getNode(nodeId)
+        if (!n || n.type !== 'knxUltimateAI' || typeof n.deleteAreaProfile !== 'function') {
+          res.status(404).json({ error: 'KNX AI node not found' })
+          return
+        }
+        const ret = await n.deleteAreaProfile({ profileId })
+        res.json(ret)
+      } catch (error) {
+        res.status(error.status || 500).json({ error: error.message || String(error) })
+      }
+    })
+
+    RED.httpAdmin.post('/knxUltimateAI/sidebar/profiles/run', RED.auth.needsPermission('knxUltimate-config.write'), async (req, res) => {
+      try {
+        const nodeId = req.body?.nodeId ? String(req.body.nodeId) : ''
+        const areaId = req.body?.areaId ? String(req.body.areaId) : ''
+        const profileId = req.body?.profileId ? String(req.body.profileId) : ''
+        if (!nodeId) {
+          res.status(400).json({ error: 'Missing nodeId' })
+          return
+        }
+        const n = aiRuntimeNodes.get(nodeId) || RED.nodes.getNode(nodeId)
+        if (!n || n.type !== 'knxUltimateAI' || typeof n.runAreaProfile !== 'function') {
+          res.status(404).json({ error: 'KNX AI node not found' })
+          return
+        }
+        const ret = await n.runAreaProfile({ areaId, profileId })
+        res.json(ret)
+      } catch (error) {
+        res.status(error.status || 500).json({ error: error.message || String(error) })
+      }
+    })
+
+    RED.httpAdmin.post('/knxUltimateAI/sidebar/config/export', RED.auth.needsPermission('knxUltimate-config.read'), async (req, res) => {
+      try {
+        const nodeId = req.body?.nodeId ? String(req.body.nodeId) : ''
+        if (!nodeId) {
+          res.status(400).json({ error: 'Missing nodeId' })
+          return
+        }
+        const n = aiRuntimeNodes.get(nodeId) || RED.nodes.getNode(nodeId)
+        if (!n || n.type !== 'knxUltimateAI' || typeof n.exportAiConfig !== 'function') {
+          res.status(404).json({ error: 'KNX AI node not found' })
+          return
+        }
+        const ret = await n.exportAiConfig()
+        res.json(ret)
+      } catch (error) {
+        res.status(error.status || 500).json({ error: error.message || String(error) })
+      }
+    })
+
+    RED.httpAdmin.post('/knxUltimateAI/sidebar/config/import', RED.auth.needsPermission('knxUltimate-config.write'), async (req, res) => {
+      try {
+        const nodeId = req.body?.nodeId ? String(req.body.nodeId) : ''
+        const configPayload = req.body?.config
+        if (!nodeId) {
+          res.status(400).json({ error: 'Missing nodeId' })
+          return
+        }
+        const n = aiRuntimeNodes.get(nodeId) || RED.nodes.getNode(nodeId)
+        if (!n || n.type !== 'knxUltimateAI' || typeof n.importAiConfig !== 'function') {
+          res.status(404).json({ error: 'KNX AI node not found' })
+          return
+        }
+        const ret = await n.importAiConfig(configPayload)
+        res.json(ret)
+      } catch (error) {
+        res.status(error.status || 500).json({ error: error.message || String(error) })
+      }
+    })
+
+    RED.httpAdmin.post('/knxUltimateAI/sidebar/actuator-tests/save', RED.auth.needsPermission('knxUltimate-config.write'), async (req, res) => {
+      try {
+        const nodeId = req.body?.nodeId ? String(req.body.nodeId) : ''
+        if (!nodeId) {
+          res.status(400).json({ error: 'Missing nodeId' })
+          return
+        }
+        const n = aiRuntimeNodes.get(nodeId) || RED.nodes.getNode(nodeId)
+        if (!n || n.type !== 'knxUltimateAI' || typeof n.saveActuatorTestPreset !== 'function') {
+          res.status(404).json({ error: 'KNX AI node not found' })
+          return
+        }
+        const ret = await n.saveActuatorTestPreset(req.body || {})
+        res.json(ret)
+      } catch (error) {
+        res.status(error.status || 500).json({ error: error.message || String(error) })
+      }
+    })
+
+    RED.httpAdmin.post('/knxUltimateAI/sidebar/actuator-tests/delete', RED.auth.needsPermission('knxUltimate-config.write'), async (req, res) => {
+      try {
+        const nodeId = req.body?.nodeId ? String(req.body.nodeId) : ''
+        const presetId = req.body?.presetId ? String(req.body.presetId) : ''
+        if (!nodeId) {
+          res.status(400).json({ error: 'Missing nodeId' })
+          return
+        }
+        if (!presetId) {
+          res.status(400).json({ error: 'Missing presetId' })
+          return
+        }
+        const n = aiRuntimeNodes.get(nodeId) || RED.nodes.getNode(nodeId)
+        if (!n || n.type !== 'knxUltimateAI' || typeof n.deleteActuatorTestPreset !== 'function') {
+          res.status(404).json({ error: 'KNX AI node not found' })
+          return
+        }
+        const ret = await n.deleteActuatorTestPreset({ presetId })
+        res.json(ret)
+      } catch (error) {
+        res.status(error.status || 500).json({ error: error.message || String(error) })
+      }
+    })
+
+    RED.httpAdmin.post('/knxUltimateAI/sidebar/actuator-tests/run', RED.auth.needsPermission('knxUltimate-config.write'), async (req, res) => {
+      try {
+        const nodeId = req.body?.nodeId ? String(req.body.nodeId) : ''
+        if (!nodeId) {
+          res.status(400).json({ error: 'Missing nodeId' })
+          return
+        }
+        const n = aiRuntimeNodes.get(nodeId) || RED.nodes.getNode(nodeId)
+        if (!n || n.type !== 'knxUltimateAI' || typeof n.runActuatorTest !== 'function') {
+          res.status(404).json({ error: 'KNX AI node not found' })
+          return
+        }
+        const ret = await n.runActuatorTest(req.body || {})
+        res.json(ret)
+      } catch (error) {
+        res.status(error.status || 500).json({ error: error.message || String(error) })
+      }
+    })
+
+    RED.httpAdmin.post('/knxUltimateAI/sidebar/test-plans/catalog', RED.auth.needsPermission('knxUltimate-config.read'), async (req, res) => {
+      try {
+        const nodeId = req.body?.nodeId ? String(req.body.nodeId) : ''
+        const areaId = req.body?.areaId ? String(req.body.areaId) : ''
+        if (!nodeId) {
+          res.status(400).json({ error: 'Missing nodeId' })
+          return
+        }
+        if (!areaId) {
+          res.status(400).json({ error: 'Missing areaId' })
+          return
+        }
+        const n = aiRuntimeNodes.get(nodeId) || RED.nodes.getNode(nodeId)
+        if (!n || n.type !== 'knxUltimateAI' || typeof n.getAreaSignalCatalog !== 'function') {
+          res.status(404).json({ error: 'KNX AI node not found' })
+          return
+        }
+        const ret = await n.getAreaSignalCatalog({ areaId })
+        res.json(ret)
+      } catch (error) {
+        res.status(error.status || 500).json({ error: error.message || String(error) })
+      }
+    })
+
+    RED.httpAdmin.post('/knxUltimateAI/sidebar/test-plans/generate', RED.auth.needsPermission('knxUltimate-config.write'), async (req, res) => {
+      try {
+        const nodeId = req.body?.nodeId ? String(req.body.nodeId) : ''
+        const areaId = req.body?.areaId ? String(req.body.areaId) : ''
+        const prompt = req.body?.prompt ? String(req.body.prompt) : ''
+        if (!nodeId) {
+          res.status(400).json({ error: 'Missing nodeId' })
+          return
+        }
+        if (!areaId) {
+          res.status(400).json({ error: 'Missing areaId' })
+          return
+        }
+        if (!prompt.trim()) {
+          res.status(400).json({ error: 'Missing prompt' })
+          return
+        }
+        const n = aiRuntimeNodes.get(nodeId) || RED.nodes.getNode(nodeId)
+        if (!n || n.type !== 'knxUltimateAI' || typeof n.generateAiTestPlan !== 'function') {
+          res.status(404).json({ error: 'KNX AI node not found' })
+          return
+        }
+        const ret = await n.generateAiTestPlan({ areaId, prompt })
+        res.json(ret)
+      } catch (error) {
+        res.status(error.status || 500).json({ error: error.message || String(error) })
+      }
+    })
+
+    RED.httpAdmin.post('/knxUltimateAI/sidebar/test-plans/save', RED.auth.needsPermission('knxUltimate-config.write'), async (req, res) => {
+      try {
+        const nodeId = req.body?.nodeId ? String(req.body.nodeId) : ''
+        if (!nodeId) {
+          res.status(400).json({ error: 'Missing nodeId' })
+          return
+        }
+        const n = aiRuntimeNodes.get(nodeId) || RED.nodes.getNode(nodeId)
+        if (!n || n.type !== 'knxUltimateAI' || typeof n.saveAiTestPlan !== 'function') {
+          res.status(404).json({ error: 'KNX AI node not found' })
+          return
+        }
+        const ret = await n.saveAiTestPlan(req.body?.plan || {})
+        res.json(ret)
+      } catch (error) {
+        res.status(error.status || 500).json({ error: error.message || String(error) })
+      }
+    })
+
+    RED.httpAdmin.post('/knxUltimateAI/sidebar/test-plans/delete', RED.auth.needsPermission('knxUltimate-config.write'), async (req, res) => {
+      try {
+        const nodeId = req.body?.nodeId ? String(req.body.nodeId) : ''
+        const planId = req.body?.planId ? String(req.body.planId) : ''
+        if (!nodeId) {
+          res.status(400).json({ error: 'Missing nodeId' })
+          return
+        }
+        if (!planId) {
+          res.status(400).json({ error: 'Missing planId' })
+          return
+        }
+        const n = aiRuntimeNodes.get(nodeId) || RED.nodes.getNode(nodeId)
+        if (!n || n.type !== 'knxUltimateAI' || typeof n.deleteAiTestPlan !== 'function') {
+          res.status(404).json({ error: 'KNX AI node not found' })
+          return
+        }
+        const ret = await n.deleteAiTestPlan({ planId })
+        res.json(ret)
+      } catch (error) {
+        res.status(error.status || 500).json({ error: error.message || String(error) })
+      }
+    })
+
+    RED.httpAdmin.post('/knxUltimateAI/sidebar/test-plans/run', RED.auth.needsPermission('knxUltimate-config.write'), async (req, res) => {
+      try {
+        const nodeId = req.body?.nodeId ? String(req.body.nodeId) : ''
+        if (!nodeId) {
+          res.status(400).json({ error: 'Missing nodeId' })
+          return
+        }
+        const n = aiRuntimeNodes.get(nodeId) || RED.nodes.getNode(nodeId)
+        if (!n || n.type !== 'knxUltimateAI' || typeof n.runAiTestPlan !== 'function') {
+          res.status(404).json({ error: 'KNX AI node not found' })
+          return
+        }
+        const ret = await n.runAiTestPlan({
+          planId: req.body?.planId,
+          plan: req.body?.plan
+        })
+        res.json(ret)
+      } catch (error) {
+        res.status(error.status || 500).json({ error: error.message || String(error) })
+      }
+    })
+
+    RED.httpAdmin.post('/knxUltimateAI/sidebar/test-plans/run-step', RED.auth.needsPermission('knxUltimate-config.write'), async (req, res) => {
+      try {
+        const nodeId = req.body?.nodeId ? String(req.body.nodeId) : ''
+        const areaId = req.body?.areaId ? String(req.body.areaId) : ''
+        if (!nodeId) {
+          res.status(400).json({ error: 'Missing nodeId' })
+          return
+        }
+        if (!areaId) {
+          res.status(400).json({ error: 'Missing areaId' })
+          return
+        }
+        const n = aiRuntimeNodes.get(nodeId) || RED.nodes.getNode(nodeId)
+        if (!n || n.type !== 'knxUltimateAI' || typeof n.runAiTestPlanStep !== 'function') {
+          res.status(404).json({ error: 'KNX AI node not found' })
+          return
+        }
+        const ret = await n.runAiTestPlanStep({
+          areaId,
+          step: req.body?.step
+        })
+        res.json(ret)
+      } catch (error) {
+        res.status(error.status || 500).json({ error: error.message || String(error) })
+      }
+    })
+
+    RED.httpAdmin.post('/knxUltimateAI/sidebar/test-results/save', RED.auth.needsPermission('knxUltimate-config.write'), async (req, res) => {
+      try {
+        const nodeId = req.body?.nodeId ? String(req.body.nodeId) : ''
+        if (!nodeId) {
+          res.status(400).json({ error: 'Missing nodeId' })
+          return
+        }
+        const n = aiRuntimeNodes.get(nodeId) || RED.nodes.getNode(nodeId)
+        if (!n || n.type !== 'knxUltimateAI' || typeof n.saveAiTestResult !== 'function') {
+          res.status(404).json({ error: 'KNX AI node not found' })
+          return
+        }
+        const ret = await n.saveAiTestResult(req.body?.report || {})
+        res.json(ret)
+      } catch (error) {
+        res.status(error.status || 500).json({ error: error.message || String(error) })
+      }
+    })
+
+    RED.httpAdmin.post('/knxUltimateAI/sidebar/test-results/delete', RED.auth.needsPermission('knxUltimate-config.write'), async (req, res) => {
+      try {
+        const nodeId = req.body?.nodeId ? String(req.body.nodeId) : ''
+        const reportId = req.body?.reportId ? String(req.body.reportId) : ''
+        if (!nodeId) {
+          res.status(400).json({ error: 'Missing nodeId' })
+          return
+        }
+        if (!reportId) {
+          res.status(400).json({ error: 'Missing reportId' })
+          return
+        }
+        const n = aiRuntimeNodes.get(nodeId) || RED.nodes.getNode(nodeId)
+        if (!n || n.type !== 'knxUltimateAI' || typeof n.deleteAiTestResult !== 'function') {
+          res.status(404).json({ error: 'KNX AI node not found' })
+          return
+        }
+        const ret = await n.deleteAiTestResult({ reportId })
+        res.json(ret)
+      } catch (error) {
+        res.status(error.status || 500).json({ error: error.message || String(error) })
+      }
+    })
+
+    RED.httpAdmin.post('/knxUltimateAI/sidebar/tts/googletranslate', RED.auth.needsPermission('knxUltimate-config.write'), async (req, res) => {
+      try {
+        const text = String(req.body?.text || '').trim()
+        const voice = String(req.body?.voice || 'it').trim() || 'it'
+        const slow = coerceBoolean(req.body?.slow)
+        if (!text) {
+          res.status(400).json({ error: 'Missing text' })
+          return
+        }
+        const mp3Buffer = await synthesizeGoogleTranslateSpeech({ text, voice, slow })
+        res.set('content-type', 'audio/mpeg')
+        res.set('cache-control', 'no-store, max-age=0')
+        res.status(200).send(mp3Buffer)
+      } catch (error) {
+        res.status(error.status || 500).json({ error: error.message || String(error) })
+      }
+    })
+
     RED.httpAdmin.post('/knxUltimateAI/models', RED.auth.needsPermission('knxUltimate-config.write'), async (req, res) => {
       try {
         const body = req.body || {}
@@ -1184,6 +3156,11 @@ module.exports = function (RED) {
     node._assistantLog = []
     node._flowContextCache = { at: 0, text: '' }
     node._docsContextCache = { at: 0, question: '', text: '' }
+    node._areaSuggestionCache = { ref: null, snapshot: buildSuggestedAreasFromCsv([]) }
+    node._persistedAiConfigCache = null
+    node._lastAreaProfileReport = null
+    node._lastActuatorTestReport = null
+    node._telegramWaiters = []
     node._transitionStats = new Map()
     node._transitionRecent = []
     node._anomalyLifecycle = new Map()
@@ -1239,6 +3216,83 @@ module.exports = function (RED) {
         payloadmeasureunit: msg.payloadmeasureunit || '',
         rawHex
       }
+    }
+
+    const resolveTelegramWaiters = (telegram) => {
+      if (!telegram || !Array.isArray(node._telegramWaiters) || node._telegramWaiters.length === 0) return
+      const pending = []
+      for (let i = 0; i < node._telegramWaiters.length; i++) {
+        const waiter = node._telegramWaiters[i]
+        if (!waiter || waiter.done === true) continue
+        let matched = false
+        try {
+          matched = typeof waiter.match === 'function' ? waiter.match(telegram) : false
+        } catch (error) {
+          matched = false
+        }
+        if (matched) {
+          waiter.done = true
+          try { if (waiter.timer) clearTimeout(waiter.timer) } catch (error) { /* ignore */ }
+          try { waiter.resolve(telegram) } catch (error) { /* ignore */ }
+          continue
+        }
+        pending.push(waiter)
+      }
+      node._telegramWaiters = pending
+    }
+
+    const waitForTelegram = ({ destination, events = [], minTs = 0, timeoutMs = 6000 } = {}) => {
+      const targetGA = String(destination || '').trim()
+      const eventSet = new Set((Array.isArray(events) ? events : []).map(evt => normalizeTelegramEventName(evt)).filter(Boolean))
+      if (!targetGA) return Promise.reject(new Error('Missing destination'))
+      return new Promise((resolve, reject) => {
+        const waiter = {
+          done: false,
+          match: (telegram) => {
+            if (!telegram || String(telegram.destination || '').trim() !== targetGA) return false
+            if (Number(telegram.ts || 0) < Number(minTs || 0)) return false
+            if (eventSet.size > 0 && !eventSet.has(normalizeTelegramEventName(telegram.event))) return false
+            return true
+          },
+          resolve,
+          reject,
+          timer: setTimeout(() => {
+            waiter.done = true
+            node._telegramWaiters = (node._telegramWaiters || []).filter(item => item !== waiter)
+            reject(new Error(`Timeout waiting for telegram ${targetGA}`))
+          }, Math.max(250, Number(timeoutMs || 6000)))
+        }
+
+        for (let index = node._history.length - 1; index >= 0; index--) {
+          const telegram = node._history[index]
+          if (waiter.match(telegram)) {
+            waiter.done = true
+            clearTimeout(waiter.timer)
+            resolve(telegram)
+            return
+          }
+          if (Number(telegram && telegram.ts ? telegram.ts : 0) < Number(minTs || 0)) break
+        }
+
+        node._telegramWaiters.push(waiter)
+      })
+    }
+
+    const describeRecentTelegramForGA = ({ destination, minTs = 0 } = {}) => {
+      const targetGA = String(destination || '').trim()
+      if (!targetGA) return ''
+      for (let index = node._history.length - 1; index >= 0; index--) {
+        const telegram = node._history[index]
+        if (!telegram || String(telegram.destination || '').trim() !== targetGA) continue
+        if (Number(telegram.ts || 0) < Number(minTs || 0)) break
+        const payloadLabel = formatPayloadForDptDisplay({
+          value: telegram.payload,
+          dptId: telegram.dpt || '',
+          contextText: ''
+        })
+        return ` Last seen on ${targetGA}: ${normalizeTelegramEventName(telegram.event) || 'unknown'} / ${payloadLabel || normalizeValueForCompare(telegram.payload)}.`
+      }
+      return ''
     }
 
     const trimHistory = (now) => {
@@ -2215,6 +4269,8 @@ module.exports = function (RED) {
       const maxEvents = Math.max(10, node.llmMaxEventsInPrompt)
       const recent = node._history.slice(-maxEvents)
       const wantsSvgChart = shouldGenerateSvgChart(question)
+      const areasSnapshot = buildAreasSnapshot({ summary })
+      const areasContext = buildAreasPromptContext(areasSnapshot)
       const lines = recent.map(t => {
         const payloadStr = normalizeValueForCompare(t.payload)
         const rawStr = (node.llmIncludeRaw && t.rawHex) ? ` raw=${t.rawHex}` : ''
@@ -2258,6 +4314,8 @@ module.exports = function (RED) {
         'KNX bus summary (JSON):',
         safeStringify(summary),
         '',
+        areasContext ? areasContext : '',
+        areasContext ? '' : '',
         flowContext ? 'Node-RED context:' : '',
         flowContext ? flowContext : '',
         flowContext ? '' : '',
@@ -2277,13 +4335,1284 @@ module.exports = function (RED) {
       ].join('\n')
     }
 
-    const callLLM = async ({ question }) => {
+    const getAreasBaseSnapshot = () => {
+      const csv = (node.serverKNX && Array.isArray(node.serverKNX.csv)) ? node.serverKNX.csv : []
+      if (node._areaSuggestionCache && node._areaSuggestionCache.ref === csv && node._areaSuggestionCache.snapshot) {
+        return node._areaSuggestionCache.snapshot
+      }
+      const snapshot = buildSuggestedAreasFromCsv(csv)
+      node._areaSuggestionCache = { ref: csv, snapshot }
+      return snapshot
+    }
+
+    const getGaCatalogSnapshot = () => {
+      const csv = (node.serverKNX && Array.isArray(node.serverKNX.csv)) ? node.serverKNX.csv : []
+      if (node._gaCatalogCache && node._gaCatalogCache.ref === csv && Array.isArray(node._gaCatalogCache.snapshot)) {
+        return node._gaCatalogCache.snapshot
+      }
+      const snapshot = buildGaCatalogFromCsv(csv)
+      node._gaCatalogCache = { ref: csv, snapshot }
+      return snapshot
+    }
+
+    const getLegacyAreaStorageFile = () => {
+      const baseDir = (node.serverKNX && node.serverKNX.userDir)
+        ? node.serverKNX.userDir
+        : path.join(RED.settings.userDir, 'knxultimatestorage')
+      return path.join(baseDir, 'knxai', 'areas', `knxai-areas-${node.id}.json`)
+    }
+
+    const getAiConfigStorageFile = () => {
+      const baseDir = (node.serverKNX && node.serverKNX.userDir)
+        ? node.serverKNX.userDir
+        : path.join(RED.settings.userDir, 'knxultimatestorage')
+      return path.join(baseDir, 'knxai', 'config', `knxai-config-${node.id}.json`)
+    }
+
+    const loadPersistedAiConfig = () => {
+      if (node._persistedAiConfigCache && typeof node._persistedAiConfigCache === 'object') return node._persistedAiConfigCache
+      const configPath = getAiConfigStorageFile()
+      const configData = readJsonFileSafe(configPath, null)
+      if (configData && typeof configData === 'object') {
+        const normalized = {
+          areas: configData.areas && typeof configData.areas === 'object' ? configData.areas : {},
+          profiles: Array.isArray(configData.profiles) ? configData.profiles : [],
+          actuatorTests: Array.isArray(configData.actuatorTests) ? configData.actuatorTests : [],
+          testPlans: Array.isArray(configData.testPlans) ? configData.testPlans : [],
+          testResults: Array.isArray(configData.testResults) ? configData.testResults : []
+        }
+        node._persistedAiConfigCache = normalized
+        return normalized
+      }
+      const legacyPath = getLegacyAreaStorageFile()
+      const legacyData = readJsonFileSafe(legacyPath, {})
+      const normalized = {
+        areas: legacyData && legacyData.areas && typeof legacyData.areas === 'object' ? legacyData.areas : {},
+        profiles: [],
+        actuatorTests: [],
+        testPlans: [],
+        testResults: []
+      }
+      node._persistedAiConfigCache = normalized
+      return normalized
+    }
+
+    const clonePersistedTestResult = (value, fallback = null) => {
+      try {
+        return JSON.parse(JSON.stringify(value))
+      } catch (error) {
+        return fallback
+      }
+    }
+
+    const normalizeAiTestResultPayload = (payload, fallbackId = '') => {
+      const source = clonePersistedTestResult(payload, null)
+      if (!source || typeof source !== 'object') return null
+      const baseId = normalizeAreaText(source.id || fallbackId || `test-result-${Date.now()}`)
+      const generatedAt = (() => {
+        try {
+          const iso = new Date(source.generatedAt || Date.now()).toISOString()
+          return iso
+        } catch (error) {
+          return new Date().toISOString()
+        }
+      })()
+      const report = Object.assign({}, source, {
+        id: baseId,
+        generatedAt,
+        mode: normalizeAreaText(source.mode, 'ai_test_plan'),
+        name: normalizeProfileText(source.name, 'Test Result'),
+        description: normalizeProfileText(source.description),
+        overallStatus: normalizeAreaText(source.overallStatus, 'pass')
+      })
+      report.suggestions = Array.isArray(source.suggestions)
+        ? source.suggestions.map(item => normalizeProfileText(item)).filter(Boolean)
+        : []
+      report.steps = Array.isArray(source.steps)
+        ? source.steps.map(step => clonePersistedTestResult(step, null)).filter(step => step && typeof step === 'object')
+        : []
+      report.checks = Array.isArray(source.checks)
+        ? source.checks.map(check => clonePersistedTestResult(check, null)).filter(check => check && typeof check === 'object')
+        : []
+      report.metrics = source.metrics && typeof source.metrics === 'object' ? clonePersistedTestResult(source.metrics, {}) : {}
+      report.area = source.area && typeof source.area === 'object' ? clonePersistedTestResult(source.area, {}) : {}
+      report.profile = source.profile && typeof source.profile === 'object' ? clonePersistedTestResult(source.profile, {}) : {}
+      report.source = source.source && typeof source.source === 'object' ? clonePersistedTestResult(source.source, {}) : {}
+      report.command = source.command && typeof source.command === 'object' ? clonePersistedTestResult(source.command, {}) : undefined
+      report.statusWrite = source.statusWrite && typeof source.statusWrite === 'object' ? clonePersistedTestResult(source.statusWrite, {}) : undefined
+      report.statusResponse = source.statusResponse && typeof source.statusResponse === 'object' ? clonePersistedTestResult(source.statusResponse, {}) : undefined
+      report.statusRead = source.statusRead && typeof source.statusRead === 'object' ? clonePersistedTestResult(source.statusRead, {}) : undefined
+      report.anomalyHighlights = Array.isArray(source.anomalyHighlights)
+        ? source.anomalyHighlights.map(item => clonePersistedTestResult(item, null)).filter(item => item && typeof item === 'object')
+        : []
+      return report
+    }
+
+    const AI_TEST_RESULTS_MAX = 200
+
+    const writePersistedAiConfig = (partialConfig) => {
+      const current = loadPersistedAiConfig()
+      const nextConfig = {
+        areas: partialConfig && partialConfig.areas && typeof partialConfig.areas === 'object'
+          ? partialConfig.areas
+          : (current.areas || {}),
+        profiles: partialConfig && Array.isArray(partialConfig.profiles)
+          ? partialConfig.profiles
+          : (Array.isArray(current.profiles) ? current.profiles : []),
+        actuatorTests: partialConfig && Array.isArray(partialConfig.actuatorTests)
+          ? partialConfig.actuatorTests
+          : (Array.isArray(current.actuatorTests) ? current.actuatorTests : [])
+        ,
+        testPlans: partialConfig && Array.isArray(partialConfig.testPlans)
+          ? partialConfig.testPlans
+          : (Array.isArray(current.testPlans) ? current.testPlans : []),
+        testResults: partialConfig && Array.isArray(partialConfig.testResults)
+          ? partialConfig.testResults
+            .map((report, index) => normalizeAiTestResultPayload(report, `report-${index + 1}`))
+            .filter(Boolean)
+            .slice(0, AI_TEST_RESULTS_MAX)
+          : (Array.isArray(current.testResults) ? current.testResults : [])
+      }
+      const filePath = getAiConfigStorageFile()
+      const dirPath = path.dirname(filePath)
+      if (!ensureDirectorySync(dirPath)) throw new Error('Unable to create KNX AI storage directory')
+      fs.writeFileSync(filePath, JSON.stringify({
+        version: 3,
+        updatedAt: new Date().toISOString(),
+        nodeId: node.id,
+        gatewayId: node.serverKNX ? node.serverKNX.id : '',
+        areas: nextConfig.areas,
+        profiles: nextConfig.profiles,
+        actuatorTests: nextConfig.actuatorTests,
+        testPlans: nextConfig.testPlans,
+        testResults: nextConfig.testResults
+      }, null, 2), 'utf8')
+      node._persistedAiConfigCache = nextConfig
+      return nextConfig
+    }
+
+    const loadAreaOverrides = () => {
+      const current = loadPersistedAiConfig()
+      return current && current.areas && typeof current.areas === 'object' ? current.areas : {}
+    }
+
+    const writeAreaOverrides = (overrides) => {
+      const current = loadPersistedAiConfig()
+      return writePersistedAiConfig({
+        areas: overrides && typeof overrides === 'object' ? overrides : {},
+        profiles: Array.isArray(current.profiles) ? current.profiles : [],
+        actuatorTests: Array.isArray(current.actuatorTests) ? current.actuatorTests : [],
+        testPlans: Array.isArray(current.testPlans) ? current.testPlans : [],
+        testResults: Array.isArray(current.testResults) ? current.testResults : []
+      })
+    }
+
+    const loadCustomAreaProfiles = () => {
+      const current = loadPersistedAiConfig()
+      return Array.isArray(current.profiles) ? current.profiles : []
+    }
+
+    const writeCustomAreaProfiles = (profiles) => {
+      const current = loadPersistedAiConfig()
+      return writePersistedAiConfig({
+        areas: current.areas && typeof current.areas === 'object' ? current.areas : {},
+        profiles: Array.isArray(profiles) ? profiles : [],
+        actuatorTests: Array.isArray(current.actuatorTests) ? current.actuatorTests : [],
+        testPlans: Array.isArray(current.testPlans) ? current.testPlans : [],
+        testResults: Array.isArray(current.testResults) ? current.testResults : []
+      })
+    }
+
+    const loadActuatorTestPresets = () => {
+      const current = loadPersistedAiConfig()
+      return Array.isArray(current.actuatorTests) ? current.actuatorTests : []
+    }
+
+    const writeActuatorTestPresets = (presets) => {
+      const current = loadPersistedAiConfig()
+      return writePersistedAiConfig({
+        areas: current.areas && typeof current.areas === 'object' ? current.areas : {},
+        profiles: Array.isArray(current.profiles) ? current.profiles : [],
+        actuatorTests: Array.isArray(presets) ? presets : [],
+        testPlans: Array.isArray(current.testPlans) ? current.testPlans : [],
+        testResults: Array.isArray(current.testResults) ? current.testResults : []
+      })
+    }
+
+    const loadAiTestPlans = () => {
+      const current = loadPersistedAiConfig()
+      return Array.isArray(current.testPlans) ? current.testPlans : []
+    }
+
+    const writeAiTestPlans = (plans) => {
+      const current = loadPersistedAiConfig()
+      return writePersistedAiConfig({
+        areas: current.areas && typeof current.areas === 'object' ? current.areas : {},
+        profiles: Array.isArray(current.profiles) ? current.profiles : [],
+        actuatorTests: Array.isArray(current.actuatorTests) ? current.actuatorTests : [],
+        testPlans: Array.isArray(plans) ? plans : [],
+        testResults: Array.isArray(current.testResults) ? current.testResults : []
+      })
+    }
+
+    const loadAiTestResults = () => {
+      const current = loadPersistedAiConfig()
+      return Array.isArray(current.testResults) ? current.testResults : []
+    }
+
+    const writeAiTestResults = (results) => {
+      const current = loadPersistedAiConfig()
+      return writePersistedAiConfig({
+        areas: current.areas && typeof current.areas === 'object' ? current.areas : {},
+        profiles: Array.isArray(current.profiles) ? current.profiles : [],
+        actuatorTests: Array.isArray(current.actuatorTests) ? current.actuatorTests : [],
+        testPlans: Array.isArray(current.testPlans) ? current.testPlans : [],
+        testResults: Array.isArray(results) ? results : []
+      })
+    }
+
+    const buildAiTestResultsSnapshot = () => {
+      return loadAiTestResults()
+        .map((report, index) => normalizeAiTestResultPayload(report, `result-${index + 1}`))
+        .filter(Boolean)
+        .sort((a, b) => String(b.generatedAt || '').localeCompare(String(a.generatedAt || '')))
+    }
+
+    const appendAiTestResult = (reportPayload) => {
+      const normalized = normalizeAiTestResultPayload(reportPayload, `result-${Date.now()}`)
+      if (!normalized) throw new Error('Invalid test result payload')
+      const nextResults = buildAiTestResultsSnapshot()
+        .filter(report => String(report && report.id ? report.id : '') !== normalized.id)
+      nextResults.unshift(normalized)
+      writeAiTestResults(nextResults.slice(0, AI_TEST_RESULTS_MAX))
+      return buildAiTestResultsSnapshot()
+    }
+
+    const deleteAiTestResultById = (reportId) => {
+      const targetId = String(reportId || '').trim()
+      if (!targetId) throw new Error('Missing reportId')
+      const nextResults = buildAiTestResultsSnapshot()
+        .filter(report => String(report && report.id ? report.id : '') !== targetId)
+      writeAiTestResults(nextResults.slice(0, AI_TEST_RESULTS_MAX))
+      return buildAiTestResultsSnapshot()
+    }
+
+    const buildAreasSnapshot = ({ summary } = {}) => {
+      const baseSnapshot = getAreasBaseSnapshot()
+      const mergedSnapshot = applyAreaOverridesToSnapshot({
+        snapshot: baseSnapshot,
+        overrides: loadAreaOverrides(),
+        gaCatalog: getGaCatalogSnapshot()
+      })
+      return enrichSuggestedAreasWithSummary({ baseSnapshot: mergedSnapshot, summary })
+    }
+
+    const buildProfilesSnapshot = () => {
+      return mergeAreaProfiles({ customProfiles: loadCustomAreaProfiles() })
+    }
+
+    const buildActuatorTestsSnapshot = () => {
+      return mergeActuatorTestPresets({ customPresets: loadActuatorTestPresets() })
+    }
+
+    const buildAiTestPlansSnapshot = () => {
+      return mergeAiTestPlans({ customPlans: loadAiTestPlans() })
+    }
+
+    const buildAiConfigExport = ({ summary } = {}) => {
+      return {
+        version: 3,
+        exportedAt: new Date().toISOString(),
+        node: {
+          id: node.id,
+          name: node.name || '',
+          gatewayId: node.serverKNX ? node.serverKNX.id : '',
+          gatewayName: (node.serverKNX && node.serverKNX.name) ? node.serverKNX.name : ''
+        },
+        areas: loadAreaOverrides(),
+        profiles: loadCustomAreaProfiles(),
+        actuatorTests: loadActuatorTestPresets(),
+        testPlans: loadAiTestPlans(),
+        testResults: loadAiTestResults(),
+        live: {
+          areas: buildAreasSnapshot({ summary }),
+          profiles: buildProfilesSnapshot(),
+          actuatorTests: buildActuatorTestsSnapshot(),
+          testPlans: buildAiTestPlansSnapshot(),
+          testResults: buildAiTestResultsSnapshot()
+        }
+      }
+    }
+
+    const getCsvRowsByGa = () => {
+      const csv = (node.serverKNX && Array.isArray(node.serverKNX.csv)) ? node.serverKNX.csv : []
+      if (node._csvRowsByGaCache && node._csvRowsByGaCache.ref === csv && node._csvRowsByGaCache.map instanceof Map) {
+        return node._csvRowsByGaCache.map
+      }
+      const out = new Map()
+      csv.forEach((row) => {
+        const ga = normalizeAreaText(row && row.ga)
+        if (!ga || out.has(ga)) return
+        out.set(ga, row || {})
+      })
+      node._csvRowsByGaCache = { ref: csv, map: out }
+      return out
+    }
+
+    const buildAreaSignalCatalog = ({ areaId, summary } = {}) => {
+      const targetAreaId = String(areaId || '').trim()
+      if (!targetAreaId) throw new Error('Missing areaId')
+      const safeSummary = summary || rebuildCachedSummaryNow()
+      const areas = buildAreasSnapshot({ summary: safeSummary })
+      const area = Array.isArray(areas.suggested) ? areas.suggested.find(item => item.id === targetAreaId) : null
+      if (!area) throw new Error(`Area '${targetAreaId}' not found`)
+
+      const gaLastSeenAt = safeSummary && typeof safeSummary.gaLastSeenAt === 'object' ? safeSummary.gaLastSeenAt : {}
+      const gaLastPayload = safeSummary && typeof safeSummary.gaLastPayload === 'object' ? safeSummary.gaLastPayload : {}
+      const rowsByGa = getCsvRowsByGa()
+      const dptOptionsById = {}
+
+      const signals = (Array.isArray(area.gaList) ? area.gaList : [])
+        .map((ga) => {
+          const row = rowsByGa.get(ga) || {}
+          const parsed = parseEtsHierarchyLabel(row.devicename)
+          const label = normalizeAreaText(parsed.deviceLabel || row.devicename || ga)
+          const dpt = normalizeAreaText(row.dpt)
+          const valueOptions = getDptValueOptions(dpt)
+          if (dpt && valueOptions.length) dptOptionsById[dpt] = valueOptions
+          const role = inferSignalRole({ label, dpt })
+          const stem = normalizeSignalStem(label) || slugifyAreaText(label)
+          const category = inferSignalCategory({ label, areaTags: area.tags })
+          return {
+            ga,
+            dpt,
+            label,
+            valueOptions,
+            role,
+            stem,
+            category,
+            mainGroup: parsed.mainGroup || '',
+            middleGroup: parsed.middleGroup || '',
+            lastSeenAt: gaLastSeenAt[ga] || '',
+            lastPayload: gaLastPayload[ga] !== undefined ? gaLastPayload[ga] : '',
+            hierarchyPath: parsed.hierarchyPath || area.path || area.name || ''
+          }
+        })
+        .filter(signal => signal.ga)
+
+      const commandSignals = signals.filter(signal => signal.role === 'command')
+      const statusSignals = signals.filter(signal => signal.role === 'status')
+      const neutralSignals = signals.filter(signal => signal.role === 'neutral')
+
+      const pairs = commandSignals
+        .map((command) => {
+          let bestStatus = null
+          let bestScore = 0
+          statusSignals.forEach((status) => {
+            const score = scoreSignalPair({ command, status })
+            if (score > bestScore) {
+              bestScore = score
+              bestStatus = status
+            }
+          })
+          const status = bestScore >= 4 ? bestStatus : null
+          return {
+            id: `${slugifyAreaText(command.ga)}-${slugifyAreaText(status ? status.ga : 'nostatus')}`,
+            category: command.category || (status && status.category) || '',
+            score: bestScore,
+            label: command.label,
+            command,
+            status
+          }
+        })
+        .sort((a, b) => {
+          if (b.score !== a.score) return b.score - a.score
+          return String(a.label || a.command.ga || '').localeCompare(String(b.label || b.command.ga || ''))
+        })
+
+      return {
+        area: {
+          id: area.id,
+          name: area.name || '',
+          path: area.path || area.name || '',
+          tags: Array.isArray(area.tags) ? area.tags : [],
+          gaCount: Number(area.gaCount || 0)
+        },
+        stats: {
+          signalCount: signals.length,
+          commandCount: commandSignals.length,
+          statusCount: statusSignals.length,
+          neutralCount: neutralSignals.length,
+          pairCount: pairs.filter(pair => !!pair.status).length
+        },
+        dptOptionsById,
+        signals,
+        commandSignals,
+        statusSignals,
+        neutralSignals,
+        pairs
+      }
+    }
+
+    const inferDefaultPayloadForSignal = ({ signal, prompt }) => {
+      const dpt = String(signal && signal.dpt ? signal.dpt : '').trim()
+      const text = normalizeSignalText(prompt)
+      const action = detectPrimaryActionFromText(prompt)
+      if (/^(1|2|3)\./.test(dpt)) {
+        if (actionImpliesTruthy(action) || /\b(on|true|1|accendi|attiva|apri|up|su|allume|einschalten|enciende|liga|aan)\b/.test(text)) return 'true'
+        if (actionImpliesFalsy(action) || /\b(off|false|0|spegni|disattiva|chiudi|down|giu|ferma|stop|eteins|ausschalten|apaga|desliga|uit)\b/.test(text)) return 'false'
+        return 'true'
+      }
+      if (/^5\./.test(dpt)) {
+        const percentMatch = text.match(/\b(\d{1,3})\s*%/)
+        if (percentMatch) return String(Math.max(0, Math.min(100, Number(percentMatch[1] || 0))))
+        if (action === 'open' || /\b(open|apri|up|su|ouvre|offnen|abre|abrir|openen)\b/.test(text)) return '100'
+        if (action === 'close' || /\b(close|chiudi|down|giu|ferme|schliessen|cierra|fechar|sluiten)\b/.test(text)) return '0'
+        return '100'
+      }
+      return 'true'
+    }
+
+    const extractPromptActionSequence = (prompt) => {
+      return extractActionHitsFromText(prompt).map(hit => hit.type)
+    }
+
+    const payloadFromPromptAction = ({ signal, action, fallbackPrompt }) => {
+      const dpt = String(signal && signal.dpt ? signal.dpt : '').trim()
+      const valueOptions = Array.isArray(signal && signal.valueOptions) ? signal.valueOptions : []
+      const actionName = String(action || '').trim().toLowerCase()
+
+      if (/^(1|2|3)\./.test(dpt)) {
+        if (['on', 'open'].includes(actionName)) return 'true'
+        if (['off', 'close', 'stop'].includes(actionName)) return 'false'
+      }
+
+      if (/^5\./.test(dpt)) {
+        if (actionName === 'open' || actionName === 'on') return '100'
+        if (actionName === 'close' || actionName === 'off' || actionName === 'stop') return '0'
+      }
+
+      if (valueOptions.length) {
+        const labelsByValue = new Map(valueOptions.map(option => [String(option.value), normalizeSignalText(option.label)]))
+        if (['on', 'open'].includes(actionName)) {
+          const direct = ['true', '1', '100'].find(value => labelsByValue.has(value))
+          if (direct) return direct
+          const byLabel = valueOptions.find(option => /\b(on|open|up|start|enable|enabled|active|aperto|acceso|su)\b/.test(normalizeSignalText(option.label)))
+          if (byLabel) return String(byLabel.value)
+        }
+        if (['off', 'close', 'stop'].includes(actionName)) {
+          const direct = ['false', '0'].find(value => labelsByValue.has(value))
+          if (direct) return direct
+          const byLabel = valueOptions.find(option => /\b(off|close|down|stop|disable|disabled|inactive|chiuso|spento|giu)\b/.test(normalizeSignalText(option.label)))
+          if (byLabel) return String(byLabel.value)
+        }
+      }
+
+      return inferDefaultPayloadForSignal({ signal, prompt: fallbackPrompt })
+    }
+
+    const buildHeuristicAiTestPlan = ({ areaId, prompt, catalog }) => {
+      const promptActions = extractPromptActionSequence(prompt)
+      const searchTokens = tokenizeSignalText(prompt)
+      const scoredPairs = (Array.isArray(catalog && catalog.pairs) ? catalog.pairs : []).map((pair) => {
+        const haystack = [
+          pair.label,
+          pair.category,
+          pair.command && pair.command.label,
+          pair.status && pair.status.label,
+          ...(Array.isArray(catalog && catalog.area && catalog.area.tags) ? catalog.area.tags : [])
+        ].filter(Boolean).join(' ').toLowerCase()
+        let score = Number(pair.score || 0)
+        searchTokens.forEach((token) => {
+          if (haystack.includes(token)) score += 3
+        })
+        if (pair.status) score += 4
+        return Object.assign({}, pair, { heuristicScore: score })
+      })
+
+      const selectedPairs = scoredPairs
+        .sort((a, b) => b.heuristicScore - a.heuristicScore)
+        .slice(0, 6)
+
+      const fallbackCommands = selectedPairs.length
+        ? []
+        : (Array.isArray(catalog && catalog.commandSignals) ? catalog.commandSignals.slice(0, 4).map(signal => ({
+          id: `${slugifyAreaText(signal.ga)}-nostatus`,
+          category: signal.category || '',
+          score: 0,
+          heuristicScore: 0,
+          label: signal.label,
+          command: signal,
+          status: null
+        })) : [])
+
+      const targets = selectedPairs.length ? selectedPairs : fallbackCommands
+      const steps = []
+      let stepIndex = 1
+      targets.forEach((pair) => {
+        const actionSequence = promptActions.length ? promptActions : ['on']
+        actionSequence.forEach((action, actionIndex) => {
+          const commandPayload = payloadFromPromptAction({ signal: pair.command, action, fallbackPrompt: prompt })
+          const actionLabel = action === 'on'
+            ? 'Turn on'
+            : action === 'off'
+              ? 'Turn off'
+              : action === 'open'
+                ? 'Open'
+                : action === 'close'
+                  ? 'Close'
+                  : 'Set'
+          steps.push({
+            id: `step-${stepIndex++}`,
+            kind: pair.status ? 'write_and_verify' : 'write_only',
+            action,
+            title: pair.status ? `${actionLabel} ${pair.command.label} and verify feedback` : `${actionLabel} ${pair.command.label}`,
+            description: pair.status
+              ? `Send ${commandPayload} to ${pair.command.ga} and verify ${pair.status.ga}.`
+              : `Send ${commandPayload} to ${pair.command.ga}.`,
+            reason: 'Generated from ETS area catalog and user prompt.',
+            commandGA: pair.command.ga,
+            commandDPT: pair.command.dpt,
+            commandPayload,
+            statusGA: pair.status ? pair.status.ga : '',
+            statusDPT: pair.status ? pair.status.dpt : '',
+            expectedPayload: commandPayload,
+            statusWriteTimeoutMs: 5000,
+            statusResponseTimeoutMs: 5000
+          })
+          if (actionIndex < actionSequence.length - 1) {
+            steps.push({
+              id: `step-${stepIndex++}`,
+              kind: 'wait',
+              title: 'Wait for state propagation',
+              description: 'Pause before the next command.',
+              reason: 'Inserted automatically between prompt actions.',
+              delayMs: 1200
+            })
+          }
+        })
+      })
+
+      return normalizeAiTestPlanPayload({
+        id: `plan-${areaId}-${Date.now()}`,
+        name: `Active Test ${catalog && catalog.area ? (catalog.area.name || 'Area') : 'Area'}`,
+        description: 'AI-guided proactive test plan generated from the selected area.',
+        areaId,
+        areaName: catalog && catalog.area ? (catalog.area.path || catalog.area.name || '') : '',
+        prompt,
+        source: 'heuristic',
+        generatedAt: new Date().toISOString(),
+        steps
+      }, `plan-${areaId}-${Date.now()}`)
+    }
+
+    const finalizeAiTestPlanFromCatalog = ({ rawPlan, areaId, prompt, catalog }) => {
+      const commandsByGa = new Map((Array.isArray(catalog && catalog.commandSignals) ? catalog.commandSignals : []).map(signal => [signal.ga, signal]))
+      const statusByGa = new Map((Array.isArray(catalog && catalog.statusSignals) ? catalog.statusSignals : []).map(signal => [signal.ga, signal]))
+      const pairByCommandGA = new Map((Array.isArray(catalog && catalog.pairs) ? catalog.pairs : []).map(pair => [pair.command && pair.command.ga ? pair.command.ga : '', pair]))
+      const promptActions = extractPromptActionSequence(prompt)
+      let activeStepCursor = 0
+      const normalized = normalizeAiTestPlanPayload(Object.assign({}, rawPlan || {}, {
+        areaId,
+        areaName: catalog && catalog.area ? (catalog.area.path || catalog.area.name || '') : '',
+        prompt,
+        source: (rawPlan && rawPlan.source) ? rawPlan.source : 'ai',
+        generatedAt: (rawPlan && rawPlan.generatedAt) ? rawPlan.generatedAt : new Date().toISOString()
+      }), `plan-${areaId}-${Date.now()}`)
+      const sourceSteps = Array.isArray(rawPlan && rawPlan.steps) && rawPlan.steps.length
+        ? rawPlan.steps
+        : normalized.steps
+
+      const steps = sourceSteps.map((rawStep, index) => {
+        const step = normalizeTestPlanStepPayload(rawStep, `step-${index + 1}`)
+        if (step.kind === 'wait') {
+          return normalizeTestPlanStepPayload({
+            id: step.id || `step-${index + 1}`,
+            kind: 'wait',
+            title: step.title || 'Wait',
+            description: step.description || '',
+            reason: step.reason || '',
+            delayMs: step.delayMs
+          }, `step-${index + 1}`)
+        }
+        const command = commandsByGa.get(step.commandGA) || resolveCommandSignalForStep({ step, catalog, prompt })
+        if (!command) return null
+        const suggestedPair = pairByCommandGA.get(step.commandGA)
+        const status = step.statusGA
+          ? statusByGa.get(step.statusGA) || null
+          : ((pairByCommandGA.get(command.ga) && pairByCommandGA.get(command.ga).status) ? pairByCommandGA.get(command.ga).status : (suggestedPair && suggestedPair.status ? suggestedPair.status : null))
+        const action = normalizeAreaText(step.action).toLowerCase() || String(promptActions[activeStepCursor] || '').trim().toLowerCase()
+        activeStepCursor += 1
+        return normalizeTestPlanStepPayload({
+          id: step.id || `step-${index + 1}`,
+          kind: status ? (step.kind || 'write_and_verify') : 'write_only',
+          action,
+          title: step.title || (status ? `Write ${command.label} and verify` : `Write ${command.label}`),
+          description: step.description || '',
+          reason: step.reason || '',
+          commandGA: command.ga,
+          commandDPT: step.commandDPT || command.dpt,
+          commandPayload: step.commandPayload || inferDefaultPayloadForSignal({ signal: command, prompt }),
+          statusGA: status ? status.ga : '',
+          statusDPT: status ? (step.statusDPT || status.dpt) : '',
+          expectedPayload: step.expectedPayload || step.commandPayload || inferDefaultPayloadForSignal({ signal: command, prompt }),
+          statusWriteTimeoutMs: status ? step.statusWriteTimeoutMs : 0,
+          statusResponseTimeoutMs: status ? step.statusResponseTimeoutMs : 0
+        }, `step-${index + 1}`)
+      }).filter(Boolean)
+
+      return Object.assign({}, normalized, {
+        areaId,
+        areaName: catalog && catalog.area ? (catalog.area.path || catalog.area.name || '') : '',
+        prompt,
+        steps
+      })
+    }
+
+    const buildAiPlanPrompt = ({ prompt, catalog }) => {
+      const pairLines = (Array.isArray(catalog && catalog.pairs) ? catalog.pairs : [])
+        .slice(0, 24)
+        .map((pair) => {
+          const commandLabel = normalizeAreaText(pair && pair.command && pair.command.label)
+          const statusLabel = normalizeAreaText(pair && pair.status && pair.status.label)
+          const statusChunk = pair && pair.status
+            ? `status ${pair.status.ga} | ${pair.status.dpt} | ${statusLabel}`
+            : 'status none'
+          return `- command ${pair.command.ga} | ${pair.command.dpt} | ${commandLabel} | ${statusChunk}`
+        })
+      const extraCommandLines = (Array.isArray(catalog && catalog.commandSignals) ? catalog.commandSignals : [])
+        .filter(signal => !(Array.isArray(catalog && catalog.pairs) ? catalog.pairs : []).some(pair => pair.command && pair.command.ga === signal.ga))
+        .slice(0, 12)
+        .map(signal => `- command ${signal.ga} | ${signal.dpt} | ${normalizeAreaText(signal.label)} | status none`)
+      return [
+        'Create a KNX active test plan.',
+        `Area: ${catalog && catalog.area ? (catalog.area.path || catalog.area.name || catalog.area.id) : 'unknown area'}`,
+        `Available command entries: ${pairLines.length + extraCommandLines.length}`,
+        '',
+        'Available command entries:',
+        [...pairLines, ...extraCommandLines].join('\n'),
+        '',
+        'Return ONLY one JSON object.',
+        'JSON root fields:',
+        '- name: string',
+        '- description: string',
+        '- steps: array',
+        '',
+        'Each step must be one of these two forms:',
+        '- wait step: { "id": "...", "kind": "wait", "title": "...", "description": "...", "reason": "...", "delayMs": 1000 }',
+        '- active step: { "id": "...", "kind": "write_only" or "write_and_verify", "action": "on"|"off"|"open"|"close"|"stop", "title": "...", "description": "...", "reason": "...", "commandGA": "...", "commandDPT": "...", "commandPayload": "0 or 1 or other valid value", "statusGA": "... or empty string", "statusDPT": "... or empty string", "expectedPayload": "value expected from status", "statusWriteTimeoutMs": 5000, "statusResponseTimeoutMs": 5000 }',
+        '',
+        'Rules:',
+        '- Use only the listed command entries.',
+        '- If a status GA is available, prefer kind "write_and_verify".',
+        '- If the request says "turn on, then turn off", create two ordered active steps: first on, then off.',
+        '- For DPT 1.001 use payload 1 for On and 0 for Off.',
+        '- expectedPayload must match the requested action.',
+        '- Insert a wait step between opposite commands when useful.',
+        '- Create 1 to 8 steps.',
+        '- No markdown. No explanations. JSON only.',
+        '',
+        `Installer request: ${prompt}`
+      ].join('\n')
+    }
+
+    const executeWaitStep = async (stepPayload = {}) => {
+      const step = normalizeTestPlanStepPayload(stepPayload, stepPayload && stepPayload.id ? String(stepPayload.id) : 'wait-step')
+      const delayMs = Math.max(0, Number(step.delayMs || 0))
+      if (delayMs > 0) await new Promise(resolve => setTimeout(resolve, delayMs))
+      return {
+        id: step.id,
+        title: step.title,
+        description: step.description,
+        reason: step.reason,
+        kind: 'wait',
+        status: 'pass',
+        delayMs,
+        message: delayMs > 0 ? `Waited ${delayMs} ms.` : 'No wait applied.'
+      }
+    }
+
+    const executeActiveCommandStep = async (stepPayload = {}) => {
+      const step = normalizeTestPlanStepPayload(stepPayload, stepPayload && stepPayload.id ? String(stepPayload.id) : 'active-step')
+      if (!step.commandGA || !step.commandDPT) throw new Error('Command GA and DPT are required')
+      if (!node.serverKNX || typeof node.serverKNX.sendKNXTelegramToKNXEngine !== 'function') throw new Error('KNX gateway not available')
+      if (node.serverKNX.linkStatus !== 'connected') throw new Error('KNX gateway is not connected')
+
+      const commandPayload = parseActuatorPayloadInput(step.commandPayload)
+      const commandPayloadLabel = formatPayloadForDptDisplay({
+        value: step.commandPayload,
+        dptId: step.commandDPT,
+        contextText: `${step.title || ''} ${step.description || ''} ${step.reason || ''}`
+      })
+      const commandSentAt = nowMs()
+      node.serverKNX.sendKNXTelegramToKNXEngine({
+        grpaddr: step.commandGA,
+        payload: commandPayload,
+        dpt: step.commandDPT,
+        outputtype: 'write',
+        nodecallerid: node.id
+      })
+
+      const expectedPayload = parseActuatorPayloadInput(step.expectedPayload)
+      const expectedPayloadLabel = formatPayloadForDptDisplay({
+        value: expectedPayload,
+        dptId: step.statusDPT || step.commandDPT || '',
+        contextText: `${step.title || ''} ${step.description || ''} ${step.reason || ''}`
+      })
+
+      const runFeedbackCheck = async ({ name, events, timeoutMs, issueRead = false, minTs }) => {
+        const checkTimeoutMs = Math.max(500, Number(timeoutMs || 6000))
+        const checkStartedAt = Number(minTs || nowMs())
+        if (issueRead) {
+          node.serverKNX.sendKNXTelegramToKNXEngine({
+            grpaddr: step.statusGA,
+            payload: '',
+            dpt: step.statusDPT || '',
+            outputtype: 'read',
+            nodecallerid: node.id
+          })
+        }
+        try {
+          const telegram = await waitForTelegram({
+            destination: step.statusGA,
+            events,
+            minTs: checkStartedAt,
+            timeoutMs: checkTimeoutMs
+          })
+          const compareDpt = step.statusDPT || telegram.dpt || step.commandDPT || ''
+          const normalizedFeedback = normalizePayloadForDptCompare({
+            value: telegram.payload,
+            dptId: compareDpt,
+            contextText: `${step.title || ''} ${step.description || ''} ${step.reason || ''}`
+          })
+          const feedbackPayloadLabel = formatPayloadForDptDisplay({
+            value: telegram.payload,
+            dptId: compareDpt,
+            contextText: `${step.title || ''} ${step.description || ''} ${step.reason || ''}`
+          })
+          const normalizedExpected = normalizePayloadForDptCompare({
+            value: expectedPayload,
+            dptId: compareDpt,
+            contextText: `${step.title || ''} ${step.description || ''} ${step.reason || ''}`
+          })
+          const coherent = normalizedFeedback === normalizedExpected
+          return {
+            name,
+            ok: true,
+            status: coherent ? 'pass' : 'fail',
+            ga: step.statusGA,
+            dpt: telegram.dpt || step.statusDPT || '',
+            event: telegram.event || '',
+            payload: telegram.payload,
+            payloadLabel: feedbackPayloadLabel,
+            expectedPayload,
+            expectedPayloadLabel,
+            normalizedPayload: normalizedFeedback,
+            normalizedExpectedPayload: normalizedExpected,
+            coherent,
+            timeoutMs: checkTimeoutMs,
+            at: new Date(telegram.ts || Date.now()).toISOString(),
+            message: coherent
+              ? `${name} coherent on ${step.statusGA}.`
+              : `${name} returned ${feedbackPayloadLabel || normalizedFeedback || normalizeValueForCompare(telegram.payload)} instead of ${expectedPayloadLabel || normalizedExpected || normalizeValueForCompare(expectedPayload)}.`
+          }
+        } catch (error) {
+          const diagnostic = describeRecentTelegramForGA({
+            destination: step.statusGA,
+            minTs: checkStartedAt
+          })
+          return {
+            name,
+            ok: false,
+            status: 'fail',
+            ga: step.statusGA,
+            expectedPayload,
+            expectedPayloadLabel,
+            timeoutMs: checkTimeoutMs,
+            error: `${error.message || String(error)}${diagnostic}`,
+            message: `${name} not received on ${step.statusGA} within ${checkTimeoutMs} ms.${diagnostic}`.trim()
+          }
+        }
+      }
+
+      let statusWrite = null
+      let statusResponse = null
+      if (step.statusGA) {
+        statusWrite = await runFeedbackCheck({
+          name: 'Status write',
+          events: ['GroupValue_Write'],
+          timeoutMs: step.statusWriteTimeoutMs,
+          issueRead: false,
+          minTs: commandSentAt
+        })
+        const responseStartedAt = nowMs()
+        statusResponse = await runFeedbackCheck({
+          name: 'Read response',
+          events: ['GroupValue_Response'],
+          timeoutMs: step.statusResponseTimeoutMs,
+          issueRead: true,
+          minTs: responseStartedAt
+        })
+      }
+
+      const feedbackChecks = [statusWrite, statusResponse].filter(Boolean)
+      const passedChecks = feedbackChecks.filter(check => check.ok === true && check.coherent !== false).length
+      const stepStatus = !feedbackChecks.length
+        ? 'pass'
+        : passedChecks === feedbackChecks.length
+          ? 'pass'
+          : passedChecks > 0
+            ? 'warn'
+            : 'fail'
+
+      const message = !feedbackChecks.length
+        ? 'Command telegram sent without status validation.'
+        : passedChecks === feedbackChecks.length
+          ? `Both status checks passed on ${step.statusGA}.`
+          : passedChecks > 0
+            ? `One status check passed and one failed on ${step.statusGA}.`
+            : `Both status checks failed on ${step.statusGA}.`
+
+      return {
+        id: step.id,
+        title: step.title,
+        description: step.description,
+        reason: step.reason,
+        kind: step.kind,
+        status: stepStatus,
+        command: {
+          ga: step.commandGA,
+          dpt: step.commandDPT,
+          payload: commandPayload,
+          payloadLabel: commandPayloadLabel,
+          sentAt: new Date(commandSentAt).toISOString()
+        },
+        statusWrite,
+        statusResponse,
+        statusRead: statusResponse,
+        expectedPayload,
+        expectedPayloadLabel,
+        statusWriteTimeoutMs: Number(step.statusWriteTimeoutMs || 0),
+        statusResponseTimeoutMs: Number(step.statusResponseTimeoutMs || 0),
+        message
+      }
+    }
+
+    node.getAreaSignalCatalog = async ({ areaId } = {}) => {
+      const summary = node._lastSummary || rebuildCachedSummaryNow()
+      return {
+        ok: true,
+        catalog: buildAreaSignalCatalog({ areaId, summary }),
+        testPlans: buildAiTestPlansSnapshot()
+      }
+    }
+
+    node.getGaCatalog = async () => {
+      return {
+        ok: true,
+        gaCatalog: getGaCatalogSnapshot()
+      }
+    }
+
+    node.createAreaDefinition = async ({ id, name, description, tags, gaList } = {}) => {
+      const currentOverrides = Object.assign({}, loadAreaOverrides())
+      const normalizedId = normalizeCustomAreaId(id, name)
+      if (!normalizedId) throw new Error('Missing custom area id or name')
+      const nextOverride = normalizeAreaOverridePayload({
+        name: normalizeAreaText(name || normalizedId.replace(/^custom:/, '')),
+        description,
+        tags,
+        gaList
+      })
+      if (!nextOverride.name) throw new Error('Missing custom area name')
+      currentOverrides[normalizedId] = nextOverride
+      writeAreaOverrides(currentOverrides)
+      const summary = node._lastSummary || rebuildCachedSummaryNow()
+      return {
+        ok: true,
+        areaId: normalizedId,
+        areas: buildAreasSnapshot({ summary }),
+        profiles: buildProfilesSnapshot(),
+        actuatorTests: buildActuatorTestsSnapshot(),
+        testPlans: buildAiTestPlansSnapshot()
+      }
+    }
+
+    node.saveAreaDefinition = async ({ areaId, name, description, tags, gaList } = {}) => {
+      const targetAreaId = String(areaId || '').trim()
+      if (!targetAreaId) throw new Error('Missing areaId')
+      const baseSnapshot = getAreasBaseSnapshot()
+      const exists = Array.isArray(baseSnapshot.suggested) && baseSnapshot.suggested.some(area => area.id === targetAreaId)
+      const isCustom = targetAreaId.startsWith('custom:')
+      if (!exists && !isCustom) throw new Error(`Area '${targetAreaId}' not found`)
+      const currentOverrides = Object.assign({}, loadAreaOverrides())
+      const nextOverride = normalizeAreaOverridePayload({ name, description, tags, gaList })
+      const shouldPersist = Object.keys(nextOverride).length > 0
+      if (shouldPersist) currentOverrides[targetAreaId] = nextOverride
+      else delete currentOverrides[targetAreaId]
+      writeAreaOverrides(currentOverrides)
+      const summary = node._lastSummary || rebuildCachedSummaryNow()
+      return {
+        ok: true,
+        areaId: targetAreaId,
+        areas: buildAreasSnapshot({ summary }),
+        profiles: buildProfilesSnapshot(),
+        actuatorTests: buildActuatorTestsSnapshot(),
+        testPlans: buildAiTestPlansSnapshot()
+      }
+    }
+
+    node.resetAreaDefinition = async ({ areaId } = {}) => {
+      const targetAreaId = String(areaId || '').trim()
+      if (!targetAreaId) throw new Error('Missing areaId')
+      const currentOverrides = Object.assign({}, loadAreaOverrides())
+      delete currentOverrides[targetAreaId]
+      writeAreaOverrides(currentOverrides)
+      const summary = node._lastSummary || rebuildCachedSummaryNow()
+      return {
+        ok: true,
+        areaId: targetAreaId,
+        areas: buildAreasSnapshot({ summary }),
+        profiles: buildProfilesSnapshot(),
+        actuatorTests: buildActuatorTestsSnapshot(),
+        testPlans: buildAiTestPlansSnapshot()
+      }
+    }
+
+    node.saveAreaProfile = async (profilePayload = {}) => {
+      const normalized = normalizeAreaProfilePayload(profilePayload, profilePayload && profilePayload.id ? String(profilePayload.id) : '')
+      if (!normalized.id) throw new Error('Missing profile id')
+      if (DEFAULT_AREA_PROFILES.some(profile => profile.id === normalized.id)) {
+        throw new Error(`Profile id '${normalized.id}' is reserved by a built-in profile`)
+      }
+      const customProfiles = loadCustomAreaProfiles()
+      const nextProfiles = customProfiles.filter(profile => String(profile && profile.id ? profile.id : '') !== normalized.id)
+      nextProfiles.push(normalized)
+      writeCustomAreaProfiles(nextProfiles)
+      return {
+        ok: true,
+        profileId: normalized.id,
+        profiles: buildProfilesSnapshot(),
+        actuatorTests: buildActuatorTestsSnapshot(),
+        testPlans: buildAiTestPlansSnapshot()
+      }
+    }
+
+    node.deleteAreaProfile = async ({ profileId } = {}) => {
+      const targetId = String(profileId || '').trim()
+      if (!targetId) throw new Error('Missing profileId')
+      if (DEFAULT_AREA_PROFILES.some(profile => profile.id === targetId)) {
+        throw new Error('Built-in profiles cannot be deleted')
+      }
+      const nextProfiles = loadCustomAreaProfiles().filter(profile => String(profile && profile.id ? profile.id : '') !== targetId)
+      writeCustomAreaProfiles(nextProfiles)
+      return {
+        ok: true,
+        profileId: targetId,
+        profiles: buildProfilesSnapshot(),
+        actuatorTests: buildActuatorTestsSnapshot(),
+        testPlans: buildAiTestPlansSnapshot()
+      }
+    }
+
+    node.runAreaProfile = async ({ areaId, profileId } = {}) => {
+      const targetAreaId = String(areaId || '').trim()
+      const targetProfileId = String(profileId || '').trim()
+      if (!targetAreaId) throw new Error('Missing areaId')
+      if (!targetProfileId) throw new Error('Missing profileId')
+      const summary = rebuildCachedSummaryNow()
+      const areas = buildAreasSnapshot({ summary })
+      const profiles = buildProfilesSnapshot()
+      const area = Array.isArray(areas.suggested) ? areas.suggested.find(item => item.id === targetAreaId) : null
+      const profile = Array.isArray(profiles) ? profiles.find(item => item.id === targetProfileId) : null
+      if (!area) throw new Error(`Area '${targetAreaId}' not found`)
+      if (!profile) throw new Error(`Profile '${targetProfileId}' not found`)
+      const report = buildAreaProfileReport({
+        area,
+        profile,
+        summary,
+        anomalies: node._anomalies.slice(-100),
+        generatedAt: new Date().toISOString()
+      })
+      node._lastAreaProfileReport = report
+      const testResults = appendAiTestResult(report)
+      return {
+        ok: true,
+        report,
+        areas,
+        profiles,
+        actuatorTests: buildActuatorTestsSnapshot(),
+        testPlans: buildAiTestPlansSnapshot(),
+        testResults
+      }
+    }
+
+    node.saveActuatorTestPreset = async (presetPayload = {}) => {
+      const normalized = normalizeActuatorTestPresetPayload(presetPayload, presetPayload && presetPayload.id ? String(presetPayload.id) : '')
+      if (!normalized.id) throw new Error('Missing preset id')
+      if (!normalized.commandGA || !normalized.commandDPT) throw new Error('Command GA and DPT are required')
+      const customPresets = loadActuatorTestPresets()
+      const nextPresets = customPresets.filter(preset => String(preset && preset.id ? preset.id : '') !== normalized.id)
+      nextPresets.push(normalized)
+      writeActuatorTestPresets(nextPresets)
+      return {
+        ok: true,
+        presetId: normalized.id,
+        actuatorTests: buildActuatorTestsSnapshot(),
+        testPlans: buildAiTestPlansSnapshot()
+      }
+    }
+
+    node.deleteActuatorTestPreset = async ({ presetId } = {}) => {
+      const targetId = String(presetId || '').trim()
+      if (!targetId) throw new Error('Missing presetId')
+      const nextPresets = loadActuatorTestPresets().filter(preset => String(preset && preset.id ? preset.id : '') !== targetId)
+      writeActuatorTestPresets(nextPresets)
+      return {
+        ok: true,
+        presetId: targetId,
+        actuatorTests: buildActuatorTestsSnapshot(),
+        testPlans: buildAiTestPlansSnapshot()
+      }
+    }
+
+    node.runActuatorTest = async (testPayload = {}) => {
+      const test = normalizeActuatorTestPresetPayload(testPayload, testPayload && testPayload.id ? String(testPayload.id) : 'manual-actuator-test')
+      const generatedAt = new Date().toISOString()
+      const executed = await executeActiveCommandStep({
+        id: test.id,
+        title: test.name || 'Actuator Test',
+        description: test.description || '',
+        kind: test.statusGA ? 'write_and_verify' : 'write_only',
+        commandGA: test.commandGA,
+        commandDPT: test.commandDPT,
+        commandPayload: test.commandPayload,
+        statusGA: test.statusGA,
+        statusDPT: test.statusDPT,
+        expectedPayload: test.commandPayload,
+        statusWriteTimeoutMs: test.statusWriteTimeoutMs,
+        statusResponseTimeoutMs: test.statusResponseTimeoutMs
+      })
+
+      const report = {
+        id: `${test.id || 'actuator'}:${Date.now()}`,
+        generatedAt,
+        mode: 'active_test',
+        name: test.name || 'Actuator Test',
+        description: test.description || '',
+        source: {
+          type: 'actuator_test',
+          presetId: test.id || '',
+          areaId: normalizeAreaText(test.areaId),
+          commandGA: test.commandGA || ''
+        },
+        command: executed.command,
+        statusWrite: executed.statusWrite,
+        statusResponse: executed.statusResponse,
+        statusRead: executed.statusRead,
+        overallStatus: executed.status
+      }
+      node._lastActuatorTestReport = report
+      const testResults = appendAiTestResult(report)
+      return {
+        ok: true,
+        report,
+        actuatorTests: buildActuatorTestsSnapshot(),
+        testPlans: buildAiTestPlansSnapshot(),
+        testResults
+      }
+    }
+
+    node.saveAiTestPlan = async (planPayload = {}) => {
+      const normalized = normalizeAiTestPlanPayload(planPayload, planPayload && planPayload.id ? String(planPayload.id) : `plan-${Date.now()}`)
+      if (!normalized.id) throw new Error('Missing plan id')
+      if (!normalized.areaId) throw new Error('Missing areaId')
+      if (!Array.isArray(normalized.steps) || normalized.steps.length === 0) throw new Error('The test plan has no executable steps')
+      const nextPlans = loadAiTestPlans().filter(plan => String(plan && plan.id ? plan.id : '') !== normalized.id)
+      nextPlans.push(normalized)
+      writeAiTestPlans(nextPlans)
+      return {
+        ok: true,
+        planId: normalized.id,
+        testPlans: buildAiTestPlansSnapshot()
+      }
+    }
+
+    node.deleteAiTestPlan = async ({ planId } = {}) => {
+      const targetId = String(planId || '').trim()
+      if (!targetId) throw new Error('Missing planId')
+      const nextPlans = loadAiTestPlans().filter(plan => String(plan && plan.id ? plan.id : '') !== targetId)
+      writeAiTestPlans(nextPlans)
+      return {
+        ok: true,
+        planId: targetId,
+        testPlans: buildAiTestPlansSnapshot()
+      }
+    }
+
+    node.runAiTestPlan = async ({ planId, plan } = {}) => {
+      const normalizedInput = plan && typeof plan === 'object' ? normalizeAiTestPlanPayload(plan, plan.id || `plan-${Date.now()}`) : null
+      const resolvedPlan = normalizedInput && normalizedInput.steps.length
+        ? normalizedInput
+        : buildAiTestPlansSnapshot().find(item => item.id === String(planId || '').trim())
+      if (!resolvedPlan) throw new Error('Test plan not found')
+      if (!resolvedPlan.areaId) throw new Error('Missing areaId in test plan')
+
+      const summary = rebuildCachedSummaryNow()
+      const catalog = buildAreaSignalCatalog({ areaId: resolvedPlan.areaId, summary })
+      const finalPlan = finalizeAiTestPlanFromCatalog({
+        rawPlan: resolvedPlan,
+        areaId: resolvedPlan.areaId,
+        prompt: resolvedPlan.prompt || '',
+        catalog
+      })
+      if (!finalPlan.steps.length) throw new Error('The test plan has no valid steps for the selected area')
+
+      const generatedAt = new Date().toISOString()
+      const stepResults = []
+      for (const step of finalPlan.steps) {
+        // Sequential execution avoids overlapping writes on the KNX bus.
+        // Each step can optionally wait for its feedback telegram before continuing.
+        // This keeps the report deterministic and easier to audit.
+        // eslint-disable-next-line no-await-in-loop
+        const result = step.kind === 'wait'
+          ? await executeWaitStep(step)
+          : await executeActiveCommandStep(step)
+        stepResults.push(result)
+      }
+
+      const metrics = {
+        totalSteps: stepResults.length,
+        pass: stepResults.filter(item => item.status === 'pass').length,
+        warn: stepResults.filter(item => item.status === 'warn').length,
+        fail: stepResults.filter(item => item.status === 'fail').length
+      }
+      const overallStatus = metrics.fail > 0 ? 'fail' : (metrics.warn > 0 ? 'warn' : 'pass')
+      const suggestions = []
+      if (metrics.fail > 0) suggestions.push('At least one feedback object returned an incoherent value. Check the actuator/status pairing in ETS first.')
+      if (metrics.warn > 0) suggestions.push('Some steps did not receive feedback in time. Verify the status group address and the actuator programming.')
+      if (overallStatus === 'pass') suggestions.push('The selected active test completed with coherent feedback on all verified steps.')
+
+      const report = {
+        id: `${finalPlan.id}:${Date.now()}`,
+        generatedAt,
+        mode: 'ai_test_plan',
+        overallStatus,
+        name: finalPlan.name,
+        description: finalPlan.description,
+        prompt: finalPlan.prompt,
+        source: {
+          type: 'ai_test_plan',
+          planId: finalPlan.id,
+          areaId: finalPlan.areaId || ''
+        },
+        area: catalog.area,
+        metrics,
+        steps: stepResults,
+        suggestions
+      }
+      node._lastAiTestPlanReport = report
+      const testResults = appendAiTestResult(report)
+      return {
+        ok: true,
+        report,
+        testPlans: buildAiTestPlansSnapshot(),
+        testResults
+      }
+    }
+
+    node.runAiTestPlanStep = async ({ areaId, step } = {}) => {
+      const targetAreaId = String(areaId || '').trim()
+      if (!targetAreaId) throw new Error('Missing areaId')
+      const summary = rebuildCachedSummaryNow()
+      const catalog = buildAreaSignalCatalog({ areaId: targetAreaId, summary })
+      if (!catalog || !catalog.area) throw new Error(`Area '${targetAreaId}' not found`)
+      const finalPlan = finalizeAiTestPlanFromCatalog({
+        rawPlan: {
+          id: `step-${Date.now()}`,
+          name: 'Ad-hoc Step',
+          description: '',
+          areaId: targetAreaId,
+          prompt: '',
+          steps: [step || {}]
+        },
+        areaId: targetAreaId,
+        prompt: '',
+        catalog
+      })
+      if (!Array.isArray(finalPlan.steps) || !finalPlan.steps.length) {
+        throw new Error('The step is not valid for the selected area')
+      }
+      const stepResult = finalPlan.steps[0].kind === 'wait'
+        ? await executeWaitStep(finalPlan.steps[0])
+        : await executeActiveCommandStep(finalPlan.steps[0])
+      return {
+        ok: true,
+        area: catalog.area,
+        stepResult
+      }
+    }
+
+    node.exportAiConfig = async () => {
+      const summary = node._lastSummary || rebuildCachedSummaryNow()
+      return buildAiConfigExport({ summary })
+    }
+
+    node.saveAiTestResult = async (reportPayload = {}) => {
+      const report = normalizeAiTestResultPayload(reportPayload, `result-${Date.now()}`)
+      if (!report) throw new Error('Invalid report payload')
+      if (report.mode === 'ai_test_plan') node._lastAiTestPlanReport = report
+      if (report.mode === 'active_test') node._lastActuatorTestReport = report
+      if (report.mode === 'read_only') node._lastAreaProfileReport = report
+      const testResults = appendAiTestResult(report)
+      return {
+        ok: true,
+        report,
+        testResults
+      }
+    }
+
+    node.deleteAiTestResult = async ({ reportId } = {}) => {
+      const targetId = String(reportId || '').trim()
+      if (!targetId) throw new Error('Missing reportId')
+      const testResults = deleteAiTestResultById(targetId)
+      return {
+        ok: true,
+        reportId: targetId,
+        testResults
+      }
+    }
+
+    node.importAiConfig = async (payload) => {
+      const p = payload && typeof payload === 'object' ? payload : {}
+      const nextAreas = p.areas && typeof p.areas === 'object' ? p.areas : {}
+      const nextProfiles = Array.isArray(p.profiles) ? p.profiles.map((profile, index) => normalizeAreaProfilePayload(profile, `import-${index + 1}`)) : []
+      const nextActuatorTests = Array.isArray(p.actuatorTests) ? p.actuatorTests.map((preset, index) => normalizeActuatorTestPresetPayload(preset, `import-actuator-${index + 1}`)) : []
+      const nextTestPlans = Array.isArray(p.testPlans) ? p.testPlans.map((plan, index) => normalizeAiTestPlanPayload(plan, `import-plan-${index + 1}`)) : []
+      const nextTestResults = Array.isArray(p.testResults) ? p.testResults.map((report, index) => normalizeAiTestResultPayload(report, `import-result-${index + 1}`)).filter(Boolean) : []
+      writePersistedAiConfig({
+        areas: nextAreas,
+        profiles: nextProfiles,
+        actuatorTests: nextActuatorTests,
+        testPlans: nextTestPlans,
+        testResults: nextTestResults
+      })
+      const summary = node._lastSummary || rebuildCachedSummaryNow()
+      return {
+        ok: true,
+        areas: buildAreasSnapshot({ summary }),
+        profiles: buildProfilesSnapshot(),
+        actuatorTests: buildActuatorTestsSnapshot(),
+        testPlans: buildAiTestPlansSnapshot(),
+        testResults: buildAiTestResultsSnapshot()
+      }
+    }
+
+    const callLLMChat = async ({ systemPrompt, userContent, jsonSchema = null }) => {
       if (!node.llmEnabled) throw new Error('LLM is disabled in node config')
       if (!node.llmApiKey && node.llmProvider !== 'ollama') {
         throw new Error('Missing API key: paste only the OpenAI key (starts with sk-), without "Bearer"')
       }
-      const summary = rebuildCachedSummaryNow()
-      const userContent = buildLLMPrompt({ question, summary })
 
       if (node.llmProvider === 'ollama') {
         const url = node.llmBaseUrl || 'http://localhost:11434/api/chat'
@@ -2291,7 +5620,7 @@ module.exports = function (RED) {
           model: node.llmModel || 'llama3.1',
           stream: false,
           messages: [
-            { role: 'system', content: node.llmSystemPrompt || '' },
+            { role: 'system', content: systemPrompt || node.llmSystemPrompt || '' },
             { role: 'user', content: userContent }
           ],
           options: {
@@ -2300,8 +5629,7 @@ module.exports = function (RED) {
         }
         const json = await postJson({ url, body, timeoutMs: node.llmTimeoutMs })
         const content = json && json.message && typeof json.message.content === 'string' ? json.message.content : safeStringify(json)
-        const finalContent = ensureSvgChartResponse({ question, summary, content })
-        return { provider: 'ollama', model: body.model, content: finalContent, summary }
+        return { provider: 'ollama', model: body.model, content }
       }
 
       // Default: OpenAI-compatible chat/completions
@@ -2312,22 +5640,55 @@ module.exports = function (RED) {
         model: node.llmModel,
         temperature: node.llmTemperature,
         messages: [
-          { role: 'system', content: node.llmSystemPrompt || '' },
+          { role: 'system', content: systemPrompt || node.llmSystemPrompt || '' },
           { role: 'user', content: userContent }
         ]
       }
+      const shouldUseNativeJsonSchema = false
+
+      const schemaBody = shouldUseNativeJsonSchema
+        ? Object.assign({}, baseBody, {
+          response_format: {
+            type: 'json_schema',
+            json_schema: jsonSchema
+          }
+        })
+        : baseBody
 
       // Some OpenAI models (and some compatible gateways) require `max_completion_tokens` instead of `max_tokens`.
       // Try with `max_tokens` first for broad compatibility, then fallback once if the server rejects it.
-      const bodyWithMaxTokens = Object.assign({ max_tokens: node.llmMaxTokens }, baseBody)
-      const bodyWithMaxCompletionTokens = Object.assign({ max_completion_tokens: node.llmMaxTokens }, baseBody)
+      const bodyWithMaxTokens = Object.assign({ max_tokens: node.llmMaxTokens }, schemaBody)
+      const bodyWithMaxCompletionTokens = Object.assign({ max_completion_tokens: node.llmMaxTokens }, schemaBody)
+      const plainBodyWithMaxTokens = Object.assign({ max_tokens: node.llmMaxTokens }, baseBody)
+      const plainBodyWithMaxCompletionTokens = Object.assign({ max_completion_tokens: node.llmMaxTokens }, baseBody)
+
+      const isResponseFormatCompatibilityError = (message) => {
+        const msg = String(message || '')
+        return msg.includes("Unsupported parameter: 'response_format'")
+          || msg.includes('Invalid schema for response_format')
+          || msg.includes('response_format')
+          || msg.includes('json_schema')
+      }
 
       let json
       try {
         json = await postJson({ url, headers, body: bodyWithMaxTokens, timeoutMs: node.llmTimeoutMs })
       } catch (error) {
         const msg = (error && error.message) ? String(error.message) : ''
-        if (msg.includes("Unsupported parameter: 'max_tokens'") || msg.includes('max_completion_tokens')) {
+        if (isResponseFormatCompatibilityError(msg)) {
+          try {
+            json = await postJson({ url, headers, body: plainBodyWithMaxTokens, timeoutMs: node.llmTimeoutMs })
+          } catch (innerError) {
+            const innerMsg = (innerError && innerError.message) ? String(innerError.message) : ''
+            if (innerMsg.includes("Unsupported parameter: 'max_tokens'") || innerMsg.includes('max_completion_tokens')) {
+              json = await postJson({ url, headers, body: plainBodyWithMaxCompletionTokens, timeoutMs: node.llmTimeoutMs })
+            } else if (innerMsg.includes("Unsupported parameter: 'max_completion_tokens'")) {
+              json = await postJson({ url, headers, body: plainBodyWithMaxTokens, timeoutMs: node.llmTimeoutMs })
+            } else {
+              throw innerError
+            }
+          }
+        } else if (msg.includes("Unsupported parameter: 'max_tokens'") || msg.includes('max_completion_tokens')) {
           json = await postJson({ url, headers, body: bodyWithMaxCompletionTokens, timeoutMs: node.llmTimeoutMs })
         } else if (msg.includes("Unsupported parameter: 'max_completion_tokens'")) {
           json = await postJson({ url, headers, body: bodyWithMaxTokens, timeoutMs: node.llmTimeoutMs })
@@ -2335,11 +5696,114 @@ module.exports = function (RED) {
           throw error
         }
       }
-      const content = json && json.choices && json.choices[0] && json.choices[0].message && typeof json.choices[0].message.content === 'string'
-        ? json.choices[0].message.content
-        : safeStringify(json)
-      const finalContent = ensureSvgChartResponse({ question, summary, content })
-      return { provider: 'openai_compat', model: baseBody.model, content: finalContent, summary }
+      const content = extractOpenAICompatText(json) || safeStringify(json)
+      return { provider: 'openai_compat', model: baseBody.model, content }
+    }
+
+    const normalizePromptForPlanner = async (inputPrompt = '') => {
+      const originalPrompt = String(inputPrompt || '').trim()
+      if (!originalPrompt) return { originalPrompt: '', normalizedPrompt: '' }
+      try {
+        const translation = await callLLMChat({
+          systemPrompt: [
+            'You rewrite KNX installer requests into concise technical English.',
+            'Preserve the exact intent, sequence, and polarity of commands.',
+            'Do not explain anything.',
+            'Return only the rewritten English request as plain text.'
+          ].join(' '),
+          userContent: `Rewrite this KNX installer request into precise technical English:\n\n${originalPrompt}`
+        })
+        const normalizedPrompt = String(translation && translation.content ? translation.content : '')
+          .trim()
+          .replace(/^["'`]+|["'`]+$/g, '')
+        return {
+          originalPrompt,
+          normalizedPrompt: normalizedPrompt || originalPrompt,
+          provider: translation && translation.provider ? translation.provider : '',
+          model: translation && translation.model ? translation.model : ''
+        }
+      } catch (error) {
+        return {
+          originalPrompt,
+          normalizedPrompt: originalPrompt,
+          provider: '',
+          model: '',
+          error: error && error.message ? String(error.message) : String(error)
+        }
+      }
+    }
+
+    node.generateAiTestPlan = async ({ areaId, prompt } = {}) => {
+      const targetAreaId = String(areaId || '').trim()
+      const question = String(prompt || '').trim()
+      if (!targetAreaId) throw new Error('Missing areaId')
+      if (!question) throw new Error('Missing prompt')
+      if (!node.llmEnabled) throw new Error('LLM is disabled in the KNX AI node config')
+      const summary = rebuildCachedSummaryNow()
+      const catalog = buildAreaSignalCatalog({ areaId: targetAreaId, summary })
+      let plan = null
+      let provider = ''
+      let model = ''
+      const promptNormalization = await normalizePromptForPlanner(question)
+      const plannerPrompt = String(promptNormalization && promptNormalization.normalizedPrompt ? promptNormalization.normalizedPrompt : question).trim() || question
+      const llmResponse = await callLLMChat({
+        systemPrompt: [
+          'You are a KNX commissioning assistant.',
+          'Generate deterministic active test plans only.',
+          'Return JSON only, no markdown.'
+        ].join(' '),
+        userContent: buildAiPlanPrompt({ prompt: plannerPrompt, catalog })
+      })
+      provider = llmResponse.provider || 'openai_compat'
+      model = llmResponse.model || ''
+      const rawPlan = coerceAiPlanShape(extractJsonObjectFromText(llmResponse.content))
+      if (!rawPlan || typeof rawPlan !== 'object' || Array.isArray(rawPlan)) {
+        throw new Error('The configured LLM did not return a valid JSON object')
+      }
+      if (!String(rawPlan.name || '').trim()) {
+        rawPlan.name = `KNX Active Test ${catalog && catalog.area ? (catalog.area.name || 'Area') : 'Area'}`
+      }
+      if (rawPlan.description === undefined || rawPlan.description === null) {
+        rawPlan.description = ''
+      }
+      plan = finalizeAiTestPlanFromCatalog({
+        rawPlan,
+        areaId: targetAreaId,
+        prompt: plannerPrompt,
+        catalog
+      })
+      if (!plan || !Array.isArray(plan.steps) || plan.steps.length === 0) {
+        throw new Error('The configured LLM did not return executable steps for this area and prompt')
+      }
+      plan.prompt = question
+      plan.normalizedPrompt = plannerPrompt
+
+      return {
+        ok: true,
+        plan,
+        catalog,
+        generation: {
+          provider,
+          model,
+          normalizedPrompt: plannerPrompt,
+          translationProvider: promptNormalization && promptNormalization.provider ? promptNormalization.provider : '',
+          translationModel: promptNormalization && promptNormalization.model ? promptNormalization.model : '',
+          fallback: false,
+          error: ''
+        },
+        testPlans: buildAiTestPlansSnapshot()
+      }
+    }
+
+    const callLLM = async ({ question }) => {
+      const summary = rebuildCachedSummaryNow()
+      const userContent = buildLLMPrompt({ question, summary })
+      const ret = await callLLMChat({
+        systemPrompt: node.llmSystemPrompt || '',
+        userContent
+      })
+      const finalContent = ensureSvgChartResponse({ question, summary, content: ret.content })
+      return Object.assign({}, ret, { content: finalContent, summary })
     }
 
     const emitSummary = () => {
@@ -2624,6 +6088,7 @@ module.exports = function (RED) {
         const telegram = extractTelegram(msg)
         if (!telegram) return
         node._history.push(telegram)
+        resolveTelegramWaiters(telegram)
         trackTransitionTelemetry(telegram)
         const now = telegram.ts
         trimHistory(now)
@@ -2695,7 +6160,57 @@ module.exports = function (RED) {
           return
         }
 
-        node.warn(`knxUltimateAI: unknown command '${cmd}'. Supported: reset, summary, ask`)
+        if (cmd === 'run_profile') {
+          const areaId = msg.areaId !== undefined ? String(msg.areaId) : (msg.payload && msg.payload.areaId ? String(msg.payload.areaId) : '')
+          const profileId = msg.profileId !== undefined ? String(msg.profileId) : (msg.payload && msg.payload.profileId ? String(msg.payload.profileId) : '')
+          const ret = await node.runAreaProfile({ areaId, profileId })
+          node.send([{
+            topic: node.outputtopic,
+            payload: ret.report,
+            knxAi: { type: 'profile_report', areaId, profileId }
+          }, null, null])
+          updateStatus({ fill: 'green', shape: 'dot', text: `Profile ${profileId} on ${areaId}` })
+          return
+        }
+
+        if (cmd === 'run_actuator_test') {
+          const payload = msg.payload && typeof msg.payload === 'object' ? msg.payload : {}
+          const ret = await node.runActuatorTest(Object.assign({}, payload, {
+            id: msg.id !== undefined ? msg.id : payload.id,
+            name: msg.name !== undefined ? msg.name : payload.name,
+            commandGA: msg.commandGA !== undefined ? msg.commandGA : payload.commandGA,
+            commandDPT: msg.commandDPT !== undefined ? msg.commandDPT : payload.commandDPT,
+            commandPayload: msg.commandPayload !== undefined ? msg.commandPayload : payload.commandPayload,
+            statusGA: msg.statusGA !== undefined ? msg.statusGA : payload.statusGA,
+            statusDPT: msg.statusDPT !== undefined ? msg.statusDPT : payload.statusDPT,
+            statusWriteTimeoutMs: msg.statusWriteTimeoutMs !== undefined ? msg.statusWriteTimeoutMs : (msg.timeoutMs !== undefined ? msg.timeoutMs : (payload.statusWriteTimeoutMs !== undefined ? payload.statusWriteTimeoutMs : payload.timeoutMs)),
+            statusResponseTimeoutMs: msg.statusResponseTimeoutMs !== undefined ? msg.statusResponseTimeoutMs : (msg.timeoutMs !== undefined ? msg.timeoutMs : (payload.statusResponseTimeoutMs !== undefined ? payload.statusResponseTimeoutMs : payload.timeoutMs))
+          }))
+          node.send([{
+            topic: node.outputtopic,
+            payload: ret.report,
+            knxAi: { type: 'actuator_test_report', commandGA: ret.report.command.ga }
+          }, null, null])
+          updateStatus({ fill: 'green', shape: 'dot', text: `Actuator test ${ret.report.command.ga}` })
+          return
+        }
+
+        if (cmd === 'run_test_plan') {
+          const payload = msg.payload && typeof msg.payload === 'object' ? msg.payload : {}
+          const ret = await node.runAiTestPlan({
+            planId: msg.planId !== undefined ? msg.planId : payload.planId,
+            plan: msg.plan !== undefined ? msg.plan : payload.plan
+          })
+          node.send([{
+            topic: node.outputtopic,
+            payload: ret.report,
+            knxAi: { type: 'ai_test_plan_report', areaId: ret.report && ret.report.area ? ret.report.area.id : '' }
+          }, null, null])
+          updateStatus({ fill: 'green', shape: 'dot', text: `AI test ${ret.report.name || ret.report.id}` })
+          return
+        }
+
+        node.warn(`knxUltimateAI: unknown command '${cmd}'. Supported: reset, summary, ask, run_profile, run_actuator_test, run_test_plan`)
       } catch (error) {
         try { node.sysLogger?.error(`knxUltimateAI handleCommand error: ${error.message || error}`) } catch (e) { /* ignore */ }
         try { node.error(error) } catch (e) { /* ignore */ }
@@ -2714,6 +6229,7 @@ module.exports = function (RED) {
         const isStale = !lastAt || (now - lastAt) > summaryTtlMs
         const shouldRebuild = fresh || !node._lastSummary || isStale
         const summary = shouldRebuild ? rebuildCachedSummaryNow() : node._lastSummary
+        const areas = buildAreasSnapshot({ summary })
         return {
           node: {
             id: node.id,
@@ -2727,6 +6243,14 @@ module.exports = function (RED) {
             llmModel: node.llmModel || ''
           },
           summary,
+          areas,
+          profiles: buildProfilesSnapshot(),
+          profileReport: node._lastAreaProfileReport,
+          actuatorTests: buildActuatorTestsSnapshot(),
+          actuatorTestReport: node._lastActuatorTestReport,
+          testPlans: buildAiTestPlansSnapshot(),
+          testPlanReport: node._lastAiTestPlanReport,
+          testResults: buildAiTestResultsSnapshot(),
           anomalies: node._anomalies.slice(-50),
           assistant: node._assistantLog.slice(-30)
         }
@@ -2739,6 +6263,14 @@ module.exports = function (RED) {
             topic: node.topic || ''
           },
           summary: { error: error.message || String(error) },
+          areas: buildSuggestedAreasFromCsv([]),
+          profiles: mergeAreaProfiles({ customProfiles: [] }),
+          profileReport: null,
+          actuatorTests: [],
+          actuatorTestReport: null,
+          testPlans: [],
+          testPlanReport: null,
+          testResults: [],
           anomalies: [],
           assistant: []
         }
@@ -2778,6 +6310,13 @@ module.exports = function (RED) {
         if (node._summaryRebuildTimer) {
           clearTimeout(node._summaryRebuildTimer)
           node._summaryRebuildTimer = null
+        }
+        if (Array.isArray(node._telegramWaiters)) {
+          node._telegramWaiters.forEach((waiter) => {
+            try { if (waiter && waiter.timer) clearTimeout(waiter.timer) } catch (error) { /* ignore */ }
+            try { if (waiter && typeof waiter.reject === 'function') waiter.reject(new Error('Node closed')) } catch (error) { /* ignore */ }
+          })
+          node._telegramWaiters = []
         }
       } catch (error) { /* empty */ }
       if (node.serverKNX) {
