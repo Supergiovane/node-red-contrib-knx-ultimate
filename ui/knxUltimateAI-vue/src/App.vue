@@ -3979,7 +3979,6 @@ onBeforeUnmount(() => {
           </span>
           <span class="sidebar-nav-copy">
             <span class="sidebar-nav-title">Overview</span>
-            <span class="sidebar-nav-meta">Traffic and diagnostics</span>
           </span>
         </button>
         <button class="tab-button" :class="{ active: state.activeTab === 'areas' }" type="button" @click="activateSidebarTab('areas')">
@@ -3988,7 +3987,6 @@ onBeforeUnmount(() => {
           </span>
           <span class="sidebar-nav-copy">
             <span class="sidebar-nav-title">Areas</span>
-            <span class="sidebar-nav-meta">ETS grouping and editing</span>
           </span>
         </button>
         <button class="tab-button sidebar-nav-child" :class="{ active: state.activeTab === 'tests' }" type="button" :disabled="!suggestedAreas.length" @click="activateSidebarTab('tests')">
@@ -3997,7 +3995,6 @@ onBeforeUnmount(() => {
           </span>
           <span class="sidebar-nav-copy">
             <span class="sidebar-nav-title">Tests</span>
-            <span class="sidebar-nav-meta">Templates and active checks</span>
           </span>
         </button>
         <button class="tab-button sidebar-nav-child" :class="{ active: state.activeTab === 'results' }" type="button" @click="activateSidebarTab('results')">
@@ -4006,7 +4003,6 @@ onBeforeUnmount(() => {
           </span>
           <span class="sidebar-nav-copy">
             <span class="sidebar-nav-title">Test Results</span>
-            <span class="sidebar-nav-meta">Saved and live reports</span>
           </span>
         </button>
         <button class="tab-button" :class="{ active: state.activeTab === 'assistant' }" type="button" @click="activateSidebarTab('assistant')">
@@ -4015,7 +4011,6 @@ onBeforeUnmount(() => {
           </span>
           <span class="sidebar-nav-copy">
             <span class="sidebar-nav-title">Assistant</span>
-            <span class="sidebar-nav-meta">Ask the KNX analyzer</span>
           </span>
         </button>
         <button class="tab-button" :class="{ active: state.activeTab === 'settings' }" type="button" @click="activateSidebarTab('settings')">
@@ -4024,7 +4019,6 @@ onBeforeUnmount(() => {
           </span>
           <span class="sidebar-nav-copy">
             <span class="sidebar-nav-title">Settings</span>
-            <span class="sidebar-nav-meta">Node and configuration settings</span>
           </span>
         </button>
       </nav>
@@ -5190,8 +5184,8 @@ onBeforeUnmount(() => {
 
 <style scoped>
 .page-shell {
-  --sidebar-expanded-width: 286px;
-  --sidebar-collapsed-width: 68px;
+  --sidebar-expanded-width: 210px;
+  --sidebar-collapsed-width: 60px;
   --sidebar-current-width: var(--sidebar-expanded-width);
   width: min(1600px, calc(100% - 24px));
   min-height: calc(100vh - 24px);
@@ -5595,45 +5589,52 @@ onBeforeUnmount(() => {
 .sidebar-nav {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 0;
 }
 
 .sidebar-nav .tab-button {
   width: 100%;
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: 10px;
   justify-content: flex-start;
   text-align: left;
-  padding: 12px 14px;
-  border-radius: var(--soft-radius);
+  padding: 15px 10px;
+  border-radius: 0;
   border-color: transparent;
   background: transparent;
   color: #edf1f8;
+  font-size: 17px;
+  font-weight: 400;
+  line-height: 1.2;
+  transition: 0.2s;
 }
 
 .sidebar-nav-icon {
-  width: 18px;
-  min-width: 18px;
-  text-align: center;
-  display: inline-flex;
+  flex: 0 0 38px;
+  width: 38px;
+  min-width: 38px;
+  display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .sidebar-nav-svg {
-  width: 15px;
-  height: 15px;
+  width: 17px;
+  height: 17px;
   fill: currentColor;
 }
 
 .sidebar-nav-copy {
+  flex: 1;
   min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  padding-left: 10px;
 }
 
 .sidebar-nav .sidebar-nav-child {
-  width: calc(100% - 18px);
-  margin-left: 18px;
+  width: 100%;
+  margin-left: 0;
 }
 
 .sidebar-nav .tab-button.active {
@@ -5670,8 +5671,8 @@ onBeforeUnmount(() => {
 
 .sidebar-nav-title {
   display: block;
-  font-size: 13px;
-  font-weight: 800;
+  font-size: 17px;
+  font-weight: 400;
 }
 
 .sidebar-nav-meta {
@@ -5706,7 +5707,7 @@ onBeforeUnmount(() => {
 
 .page-shell.sidebar-collapsed .sidebar-nav .tab-button {
   justify-content: center;
-  padding: 12px 8px;
+  padding: 15px 10px;
 }
 
 .page-shell.sidebar-collapsed .sidebar-nav .sidebar-nav-child {
@@ -6024,6 +6025,11 @@ onBeforeUnmount(() => {
 .card-profiles,
 .card-settings {
   grid-column: span 12;
+}
+
+.card-chat {
+  grid-column: 1 / -1;
+  max-width: 50vw;
 }
 
 .card-profiles {
@@ -7292,7 +7298,7 @@ onBeforeUnmount(() => {
     top: 0;
     left: 0;
     z-index: 200;
-    width: 286px;
+    width: 210px;
     height: 100vh;
     margin: 0;
     border-radius: 0;
@@ -7328,6 +7334,10 @@ onBeforeUnmount(() => {
   .card-areas,
   .card-profiles {
     grid-column: span 12;
+  }
+
+  .card-chat {
+    max-width: 100%;
   }
 }
 

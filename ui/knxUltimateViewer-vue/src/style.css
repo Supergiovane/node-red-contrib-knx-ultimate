@@ -16,7 +16,7 @@
   --warn-border: #d99a34;
   --card-radius: 18px;
   --shadow: 0 12px 40px rgba(43, 36, 70, 0.08);
-  font-family: "Manrope", "Segoe UI", sans-serif;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans", "Liberation Sans", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 }
 
 * {

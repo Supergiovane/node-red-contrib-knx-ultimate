@@ -141,6 +141,116 @@ const safeStringify = (value) => {
   }
 }
 
+const truncatePromptText = (value, maxChars = 10000) => {
+  const text = String(value || '')
+  const limit = Math.max(256, Number(maxChars) || 0)
+  if (text.length <= limit) return text
+  const marker = '\n...[truncated]'
+  const keep = Math.max(0, limit - marker.length)
+  return text.slice(0, keep) + marker
+}
+
+const compactObjectForPrompt = (value, { preferredKeys = [], maxEntries = 40, formatValue } = {}) => {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return {}
+  const source = value
+  const out = {}
+  const preferred = Array.isArray(preferredKeys) ? preferredKeys.map(key => String(key || '').trim()).filter(Boolean) : []
+  const preferredSet = new Set(preferred)
+  const keys = [
+    ...preferred,
+    ...Object.keys(source).filter(key => !preferredSet.has(key))
+  ]
+  const limit = Math.max(1, Number(maxEntries) || 1)
+  for (const key of keys) {
+    if (!Object.prototype.hasOwnProperty.call(source, key)) continue
+    const raw = source[key]
+    const normalized = typeof formatValue === 'function' ? formatValue(raw, key) : raw
+    out[key] = normalized
+    if (Object.keys(out).length >= limit) break
+  }
+  return out
+}
+
+const takeLastItemsByCharBudget = (items, maxChars = 7000) => {
+  const source = Array.isArray(items) ? items : []
+  const limit = Math.max(200, Number(maxChars) || 0)
+  const selected = []
+  let total = 0
+  for (let i = source.length - 1; i >= 0; i -= 1) {
+    const item = String(source[i] || '')
+    if (!item) continue
+    const next = item.length + (selected.length > 0 ? 1 : 0)
+    if (selected.length > 0 && (total + next) > limit) break
+    selected.push(item)
+    total += next
+  }
+  return selected.reverse()
+}
+
+const buildLlmSummarySnapshot = (summary) => {
+  const s = summary && typeof summary === 'object' ? summary : {}
+  const topGAs = Array.isArray(s.topGAs) ? s.topGAs.slice(0, 30) : []
+  const topGaKeys = topGAs
+    .map(item => String(item && item.ga ? item.ga : '').trim())
+    .filter(Boolean)
+
+  const graph = s.graph && typeof s.graph === 'object'
+    ? {
+        windowSec: Number(s.graph.windowSec || 0),
+        edges: (Array.isArray(s.graph.edges) ? s.graph.edges : []).slice(0, 60),
+        hotEdgesDelta: (Array.isArray(s.graph.hotEdgesDelta) ? s.graph.hotEdgesDelta : []).slice(0, 40),
+        anomalyLifecycle: (Array.isArray(s.graph.anomalyLifecycle) ? s.graph.anomalyLifecycle : []).slice(0, 30)
+      }
+    : {}
+
+  const flowMapTopology = s.flowMapTopology && typeof s.flowMapTopology === 'object'
+    ? {
+        mode: String(s.flowMapTopology.mode || '').trim(),
+        windowSec: Number(s.flowMapTopology.windowSec || 0),
+        nodes: (Array.isArray(s.flowMapTopology.nodes) ? s.flowMapTopology.nodes : []).slice(0, 80).map((node) => ({
+          id: String(node && node.id ? node.id : '').trim(),
+          displayId: String(node && node.displayId ? node.displayId : '').trim(),
+          kind: String(node && node.kind ? node.kind : '').trim(),
+          subtitle: String(node && node.subtitle ? node.subtitle : '').trim(),
+          payload: compactPayloadForNodeLabel(node && Object.prototype.hasOwnProperty.call(node, 'payload') ? node.payload : '', 36),
+          anomalyCount: Number(node && node.anomalyCount ? node.anomalyCount : 0),
+          lastSeenAtMs: Number(node && node.lastSeenAtMs ? node.lastSeenAtMs : 0)
+        })),
+        edges: (Array.isArray(s.flowMapTopology.edges) ? s.flowMapTopology.edges : []).slice(0, 120).map((edge) => ({
+          from: String(edge && edge.from ? edge.from : '').trim(),
+          to: String(edge && edge.to ? edge.to : '').trim(),
+          linkType: String(edge && edge.linkType ? edge.linkType : '').trim(),
+          event: String(edge && edge.event ? edge.event : '').trim(),
+          currentWindowCount: Number(edge && edge.currentWindowCount ? edge.currentWindowCount : 0),
+          totalCount: Number(edge && edge.totalCount ? edge.totalCount : 0),
+          delta: Number(edge && edge.delta ? edge.delta : 0),
+          delayMs: Number(edge && edge.delayMs ? edge.delayMs : 0),
+          lastAt: String(edge && edge.lastAt ? edge.lastAt : '').trim()
+        }))
+      }
+    : undefined
+
+  return {
+    meta: s.meta && typeof s.meta === 'object' ? s.meta : {},
+    counters: s.counters && typeof s.counters === 'object' ? s.counters : {},
+    byEvent: s.byEvent && typeof s.byEvent === 'object' ? s.byEvent : {},
+    topGAs,
+    topSources: (Array.isArray(s.topSources) ? s.topSources : []).slice(0, 20),
+    patterns: (Array.isArray(s.patterns) ? s.patterns : []).slice(0, 30),
+    gaLastSeenAt: compactObjectForPrompt(s.gaLastSeenAt, { preferredKeys: topGaKeys, maxEntries: 60 }),
+    gaLastPayload: compactObjectForPrompt(s.gaLastPayload, {
+      preferredKeys: topGaKeys,
+      maxEntries: 60,
+      formatValue: value => compactPayloadForNodeLabel(value, 42)
+    }),
+    flowKnownCount: Number(s.flowKnownCount || 0),
+    busConnection: s.busConnection && typeof s.busConnection === 'object' ? s.busConnection : {},
+    anomalyLifecycle: (Array.isArray(s.anomalyLifecycle) ? s.anomalyLifecycle : []).slice(-40),
+    graph,
+    flowMapTopology
+  }
+}
+
 const extractJsonFragmentFromText = (value) => {
   const text = String(value || '').trim()
   if (!text) throw new Error('Empty AI response')
@@ -1492,6 +1602,26 @@ const extractOpenAICompatText = (json) => {
   if (fromParts) return fromParts
   if (typeof message.refusal === 'string' && message.refusal.trim()) return message.refusal
   return ''
+}
+
+const buildOpenAICompatFallbackText = (json) => {
+  const reason = String(json && json.choices && json.choices[0] && json.choices[0].finish_reason ? json.choices[0].finish_reason : '').trim()
+  const usage = json && json.usage && typeof json.usage === 'object' ? json.usage : {}
+  const promptTokens = Number(usage.prompt_tokens || 0)
+  const completionTokens = Number(usage.completion_tokens || 0)
+  const usageText = (promptTokens > 0 || completionTokens > 0)
+    ? ` (prompt_tokens=${promptTokens}, completion_tokens=${completionTokens})`
+    : ''
+  if (reason === 'length') {
+    return `The model stopped because of token limit${usageText}. Increase Max completion tokens and/or reduce prompt context (events/docs/flow), then retry.`
+  }
+  if (reason === 'content_filter') {
+    return `The provider blocked the response with content filtering${usageText}.`
+  }
+  if (reason) {
+    return `No assistant text was returned by the provider (finish_reason=${reason})${usageText}.`
+  }
+  return `No assistant text was returned by the provider${usageText}.`
 }
 
 const DPT_OPTIONS_CACHE = new Map()
@@ -3075,7 +3205,7 @@ module.exports = function (RED) {
     node.llmTemperature = (config.llmTemperature === undefined || config.llmTemperature === '') ? 0.2 : Number(config.llmTemperature)
     node.llmMaxTokens = (config.llmMaxTokens === undefined || config.llmMaxTokens === '') ? 600 : Number(config.llmMaxTokens)
     node.llmTimeoutMs = (config.llmTimeoutMs === undefined || config.llmTimeoutMs === '') ? 30000 : Number(config.llmTimeoutMs)
-    node.llmMaxEventsInPrompt = (config.llmMaxEventsInPrompt === undefined || config.llmMaxEventsInPrompt === '') ? 600 : Number(config.llmMaxEventsInPrompt)
+    node.llmMaxEventsInPrompt = (config.llmMaxEventsInPrompt === undefined || config.llmMaxEventsInPrompt === '') ? 120 : Number(config.llmMaxEventsInPrompt)
     node.llmIncludeRaw = config.llmIncludeRaw !== undefined ? coerceBoolean(config.llmIncludeRaw) : false
     node.llmIncludeFlowContext = config.llmIncludeFlowContext !== undefined ? coerceBoolean(config.llmIncludeFlowContext) : true
     node.llmMaxFlowNodesInPrompt = (config.llmMaxFlowNodesInPrompt === undefined || config.llmMaxFlowNodesInPrompt === '')
@@ -4248,17 +4378,21 @@ module.exports = function (RED) {
     }
 
     const buildLLMPrompt = ({ question, summary }) => {
-      const maxEvents = Math.max(10, node.llmMaxEventsInPrompt)
+      const maxEventsRequested = Math.max(10, Number(node.llmMaxEventsInPrompt) || 120)
+      const maxEvents = Math.min(240, maxEventsRequested)
       const recent = node._history.slice(-maxEvents)
       const wantsSvgChart = shouldGenerateSvgChart(question)
       const areasSnapshot = buildAreasSnapshot({ summary })
       const areasContext = buildAreasPromptContext(areasSnapshot)
+      const summaryForPrompt = buildLlmSummarySnapshot(summary)
+      const summaryText = truncatePromptText(safeStringify(summaryForPrompt), 10000)
       const lines = recent.map(t => {
         const payloadStr = normalizeValueForCompare(t.payload)
         const rawStr = (node.llmIncludeRaw && t.rawHex) ? ` raw=${t.rawHex}` : ''
         const devName = t.devicename ? ` (${t.devicename})` : ''
         return `${new Date(t.ts).toISOString()} ${t.event} ${t.source} -> ${t.destination}${devName} dpt=${t.dpt} payload=${payloadStr}${rawStr}`
       })
+      const recentLines = takeLastItemsByCharBudget(lines, 7000)
 
       let flowContext = ''
       if (node.llmIncludeFlowContext) {
@@ -4268,7 +4402,7 @@ module.exports = function (RED) {
           flowContext = node._flowContextCache.text
         } else {
           flowContext = buildKnxUltimateFlowInventory({ maxNodes: Math.max(0, Number(node.llmMaxFlowNodesInPrompt) || 0) })
-          if (flowContext && flowContext.length > 8000) flowContext = flowContext.slice(0, 8000) + '\n...'
+          flowContext = truncatePromptText(flowContext, 5000)
           node._flowContextCache = { at: now, text: flowContext }
         }
       }
@@ -4282,19 +4416,21 @@ module.exports = function (RED) {
           docsContext = node._docsContextCache.text
         } else {
           const preferredLangDir = (node.llmDocsLanguage && node.llmDocsLanguage !== 'auto') ? node.llmDocsLanguage : ''
+          const docsMaxChars = Math.max(500, Math.min(5000, Number(node.llmDocsMaxChars) || 500))
           docsContext = buildRelevantDocsContext({
             moduleRootDir,
             question: q,
             preferredLangDir,
             maxSnippets: Math.max(1, Number(node.llmDocsMaxSnippets) || 1),
-            maxChars: Math.max(500, Number(node.llmDocsMaxChars) || 500)
+            maxChars: docsMaxChars
           })
+          docsContext = truncatePromptText(docsContext, docsMaxChars)
           node._docsContextCache = { at: now, question: q, text: docsContext }
         }
       }
       return [
         'KNX bus summary (JSON):',
-        safeStringify(summary),
+        summaryText,
         '',
         areasContext ? areasContext : '',
         areasContext ? '' : '',
@@ -4310,7 +4446,7 @@ module.exports = function (RED) {
         wantsSvgChart ? '- Prefer width via viewBox and include labels + legend when useful.' : '',
         wantsSvgChart ? '' : '',
         'Recent KNX telegrams:',
-        lines.join('\n'),
+        recentLines.join('\n'),
         '',
         'User request:',
         question || ''
@@ -6149,7 +6285,7 @@ module.exports = function (RED) {
           throw error
         }
       }
-      const content = extractOpenAICompatText(json) || safeStringify(json)
+      const content = extractOpenAICompatText(json) || buildOpenAICompatFallbackText(json)
       return { provider: 'openai_compat', model: baseBody.model, content }
     }
 
