@@ -6,7 +6,7 @@
 
 # CHANGELOG
 
-**Version 4.2.8** - April 2026<br/>
+**Version 4.2.9** - April 2026<br/>
 
 - UI: **KNX AI Web** sidebar menu style aligned to Homebridge (font size/weight, spacing, icon/text alignment and sidebar widths) for closer visual consistency.<br/>
 - UI: **KNX AI Web** removed sidebar menu subtitles to keep navigation labels clean and compact.<br/>
