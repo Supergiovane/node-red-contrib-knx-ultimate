@@ -1624,6 +1624,10 @@ const buildOpenAICompatFallbackText = (json) => {
   return `No assistant text was returned by the provider${usageText}.`
 }
 
+const isOpenAICompatLengthFallbackText = (value) => {
+  return /^The model stopped because of token limit\b/i.test(String(value || '').trim())
+}
+
 const DPT_OPTIONS_CACHE = new Map()
 
 const getDptValueOptions = (dptId) => {
@@ -3203,7 +3207,7 @@ module.exports = function (RED) {
     node.llmModel = config.llmModel || 'gpt-4o-mini'
     node.llmSystemPrompt = config.llmSystemPrompt || 'You are a KNX building automation assistant. Analyze KNX bus traffic and provide actionable insights.'
     node.llmTemperature = (config.llmTemperature === undefined || config.llmTemperature === '') ? 0.2 : Number(config.llmTemperature)
-    node.llmMaxTokens = (config.llmMaxTokens === undefined || config.llmMaxTokens === '') ? 600 : Number(config.llmMaxTokens)
+    node.llmMaxTokens = (config.llmMaxTokens === undefined || config.llmMaxTokens === '') ? 10000 : Number(config.llmMaxTokens)
     node.llmTimeoutMs = (config.llmTimeoutMs === undefined || config.llmTimeoutMs === '') ? 30000 : Number(config.llmTimeoutMs)
     node.llmMaxEventsInPrompt = (config.llmMaxEventsInPrompt === undefined || config.llmMaxEventsInPrompt === '') ? 120 : Number(config.llmMaxEventsInPrompt)
     node.llmIncludeRaw = config.llmIncludeRaw !== undefined ? coerceBoolean(config.llmIncludeRaw) : false
@@ -4377,51 +4381,61 @@ module.exports = function (RED) {
       }, 90)
     }
 
-    const buildLLMPrompt = ({ question, summary }) => {
+    const buildLLMPrompt = ({ question, summary, compact = false } = {}) => {
+      const compactMode = compact === true
       const maxEventsRequested = Math.max(10, Number(node.llmMaxEventsInPrompt) || 120)
-      const maxEvents = Math.min(240, maxEventsRequested)
+      const maxEvents = Math.min(compactMode ? 80 : 240, maxEventsRequested)
       const recent = node._history.slice(-maxEvents)
       const wantsSvgChart = shouldGenerateSvgChart(question)
       const areasSnapshot = buildAreasSnapshot({ summary })
       const areasContext = buildAreasPromptContext(areasSnapshot)
       const summaryForPrompt = buildLlmSummarySnapshot(summary)
-      const summaryText = truncatePromptText(safeStringify(summaryForPrompt), 10000)
+      const summaryText = truncatePromptText(safeStringify(summaryForPrompt), compactMode ? 4000 : 10000)
       const lines = recent.map(t => {
         const payloadStr = normalizeValueForCompare(t.payload)
         const rawStr = (node.llmIncludeRaw && t.rawHex) ? ` raw=${t.rawHex}` : ''
         const devName = t.devicename ? ` (${t.devicename})` : ''
         return `${new Date(t.ts).toISOString()} ${t.event} ${t.source} -> ${t.destination}${devName} dpt=${t.dpt} payload=${payloadStr}${rawStr}`
       })
-      const recentLines = takeLastItemsByCharBudget(lines, 7000)
+      const recentLines = takeLastItemsByCharBudget(lines, compactMode ? 2600 : 7000)
 
       let flowContext = ''
       if (node.llmIncludeFlowContext) {
+        const flowMaxChars = compactMode ? 1400 : 5000
         const ttlMs = 10 * 1000
         const now = nowMs()
         if (node._flowContextCache && node._flowContextCache.text && (now - (node._flowContextCache.at || 0)) < ttlMs) {
           flowContext = node._flowContextCache.text
         } else {
-          flowContext = buildKnxUltimateFlowInventory({ maxNodes: Math.max(0, Number(node.llmMaxFlowNodesInPrompt) || 0) })
-          flowContext = truncatePromptText(flowContext, 5000)
+          const configuredMaxFlowNodes = Math.max(0, Number(node.llmMaxFlowNodesInPrompt) || 0)
+          const maxFlowNodes = compactMode
+            ? (configuredMaxFlowNodes > 0 ? Math.min(configuredMaxFlowNodes, 30) : 0)
+            : configuredMaxFlowNodes
+          flowContext = buildKnxUltimateFlowInventory({ maxNodes: maxFlowNodes })
+          flowContext = truncatePromptText(flowContext, flowMaxChars)
           node._flowContextCache = { at: now, text: flowContext }
         }
+        flowContext = truncatePromptText(flowContext, flowMaxChars)
       }
 
       let docsContext = ''
       if (node.llmIncludeDocsSnippets) {
+        const docsMaxCharsConfigured = Math.max(500, Math.min(5000, Number(node.llmDocsMaxChars) || 500))
+        const docsMaxChars = compactMode ? Math.min(docsMaxCharsConfigured, 1200) : docsMaxCharsConfigured
+        const docsMaxSnippetsConfigured = Math.max(1, Number(node.llmDocsMaxSnippets) || 1)
+        const docsMaxSnippets = compactMode ? Math.min(docsMaxSnippetsConfigured, 2) : docsMaxSnippetsConfigured
         const ttlMs = 30 * 1000
         const now = nowMs()
         const q = String(question || '').trim()
         if (node._docsContextCache && node._docsContextCache.text && node._docsContextCache.question === q && (now - (node._docsContextCache.at || 0)) < ttlMs) {
-          docsContext = node._docsContextCache.text
+          docsContext = truncatePromptText(node._docsContextCache.text, docsMaxChars)
         } else {
           const preferredLangDir = (node.llmDocsLanguage && node.llmDocsLanguage !== 'auto') ? node.llmDocsLanguage : ''
-          const docsMaxChars = Math.max(500, Math.min(5000, Number(node.llmDocsMaxChars) || 500))
           docsContext = buildRelevantDocsContext({
             moduleRootDir,
             question: q,
             preferredLangDir,
-            maxSnippets: Math.max(1, Number(node.llmDocsMaxSnippets) || 1),
+            maxSnippets: docsMaxSnippets,
             maxChars: docsMaxChars
           })
           docsContext = truncatePromptText(docsContext, docsMaxChars)
@@ -6197,11 +6211,15 @@ module.exports = function (RED) {
       }
     }
 
-    const callLLMChat = async ({ systemPrompt, userContent, jsonSchema = null }) => {
+    const callLLMChat = async ({ systemPrompt, userContent, jsonSchema = null, maxTokensOverride = null }) => {
       if (!node.llmEnabled) throw new Error('LLM is disabled in node config')
       if (!node.llmApiKey && node.llmProvider !== 'ollama') {
         throw new Error('Missing API key: paste only the OpenAI key (starts with sk-), without "Bearer"')
       }
+      const maxTokensRaw = (maxTokensOverride !== null && maxTokensOverride !== undefined && maxTokensOverride !== '')
+        ? Number(maxTokensOverride)
+        : Number(node.llmMaxTokens)
+      const resolvedMaxTokens = Number.isFinite(maxTokensRaw) && maxTokensRaw > 0 ? Math.round(maxTokensRaw) : 10000
 
       if (node.llmProvider === 'ollama') {
         const url = node.llmBaseUrl || 'http://localhost:11434/api/chat'
@@ -6218,7 +6236,7 @@ module.exports = function (RED) {
         }
         const json = await postJson({ url, body, timeoutMs: node.llmTimeoutMs })
         const content = json && json.message && typeof json.message.content === 'string' ? json.message.content : safeStringify(json)
-        return { provider: 'ollama', model: body.model, content }
+        return { provider: 'ollama', model: body.model, content, finishReason: String(json && json.done_reason ? json.done_reason : '') }
       }
 
       // Default: OpenAI-compatible chat/completions
@@ -6246,10 +6264,10 @@ module.exports = function (RED) {
 
       // Some OpenAI models (and some compatible gateways) require `max_completion_tokens` instead of `max_tokens`.
       // Try with `max_tokens` first for broad compatibility, then fallback once if the server rejects it.
-      const bodyWithMaxTokens = Object.assign({ max_tokens: node.llmMaxTokens }, schemaBody)
-      const bodyWithMaxCompletionTokens = Object.assign({ max_completion_tokens: node.llmMaxTokens }, schemaBody)
-      const plainBodyWithMaxTokens = Object.assign({ max_tokens: node.llmMaxTokens }, baseBody)
-      const plainBodyWithMaxCompletionTokens = Object.assign({ max_completion_tokens: node.llmMaxTokens }, baseBody)
+      const bodyWithMaxTokens = Object.assign({ max_tokens: resolvedMaxTokens }, schemaBody)
+      const bodyWithMaxCompletionTokens = Object.assign({ max_completion_tokens: resolvedMaxTokens }, schemaBody)
+      const plainBodyWithMaxTokens = Object.assign({ max_tokens: resolvedMaxTokens }, baseBody)
+      const plainBodyWithMaxCompletionTokens = Object.assign({ max_completion_tokens: resolvedMaxTokens }, baseBody)
 
       const isResponseFormatCompatibilityError = (message) => {
         const msg = String(message || '')
@@ -6286,7 +6304,8 @@ module.exports = function (RED) {
         }
       }
       const content = extractOpenAICompatText(json) || buildOpenAICompatFallbackText(json)
-      return { provider: 'openai_compat', model: baseBody.model, content }
+      const finishReason = String(json && json.choices && json.choices[0] && json.choices[0].finish_reason ? json.choices[0].finish_reason : '')
+      return { provider: 'openai_compat', model: baseBody.model, content, finishReason }
     }
 
     node.generateAiTestPlan = async ({ areaId, prompt, language } = {}) => {
@@ -6351,10 +6370,27 @@ module.exports = function (RED) {
     const callLLM = async ({ question }) => {
       const summary = rebuildCachedSummaryNow()
       const userContent = buildLLMPrompt({ question, summary })
-      const ret = await callLLMChat({
+      const configuredMaxTokens = Math.max(10000, Number(node.llmMaxTokens) || 0)
+      let ret = await callLLMChat({
         systemPrompt: node.llmSystemPrompt || '',
-        userContent
+        userContent,
+        maxTokensOverride: configuredMaxTokens
       })
+      const finishReason = String(ret && ret.finishReason ? ret.finishReason : '').trim().toLowerCase()
+      const lengthLimited = finishReason === 'length' || isOpenAICompatLengthFallbackText(ret && ret.content)
+      if (lengthLimited) {
+        const compactPrompt = buildLLMPrompt({ question, summary, compact: true })
+        const retryMaxTokens = Math.min(16000, Math.max(10000, Math.round(configuredMaxTokens * 1.25)))
+        try {
+          ret = await callLLMChat({
+            systemPrompt: node.llmSystemPrompt || '',
+            userContent: compactPrompt,
+            maxTokensOverride: retryMaxTokens
+          })
+        } catch (retryError) {
+          // Keep the first provider answer if retry fails.
+        }
+      }
       const finalContent = ensureSvgChartResponse({ question, summary, content: ret.content })
       return Object.assign({}, ret, { content: finalContent, summary })
     }

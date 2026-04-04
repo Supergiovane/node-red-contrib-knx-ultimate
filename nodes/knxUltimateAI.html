@@ -36,7 +36,7 @@
             llmModel: { value: "gpt-5.4" },
             llmSystemPrompt: { value: "" },
             llmTemperature: { value: 0.2, required: false, validate: RED.validators.number() },
-            llmMaxTokens: { value: 600, required: false, validate: RED.validators.number() },
+            llmMaxTokens: { value: 10000, required: false, validate: RED.validators.number() },
             llmTimeoutMs: { value: 30000, required: false, validate: RED.validators.number() },
             llmMaxEventsInPrompt: { value: 120, required: false, validate: RED.validators.number() },
             llmIncludeRaw: { value: false },
