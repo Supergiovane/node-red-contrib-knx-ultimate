@@ -4367,7 +4367,8 @@ onBeforeUnmount(() => {
                       {{ state.testPlanRepeatForever === true ? (state.testPlanRepeatStopRequested === true ? 'Stopping...' : 'Stop Repeat') : 'Repeat Forever' }}
                     </button>
                     <button class="primary-button" type="button" :disabled="state.testPlanRunning || !state.testPlanDraft" @click="openRunTestPlanConfirm">
-                      {{ state.testPlanRunning ? 'Running...' : 'Run Plan' }}
+                      <span v-if="state.testPlanRunning" class="running-spinner run-button-spinner" aria-hidden="true" />
+                      <span>{{ state.testPlanRunning ? 'Running...' : 'Run Plan' }}</span>
                     </button>
                   </div>
                 </div>
@@ -4507,7 +4508,10 @@ onBeforeUnmount(() => {
                 </div>
                 <div class="card-head-actions action-cluster">
                   <span class="meta-chip">{{ testResultModeLabel(selectedTestResult) }}</span>
-                  <span v-if="selectedTestResult.live === true" class="meta-chip">Running</span>
+                  <span v-if="selectedTestResult.live === true" class="meta-chip">
+                    <span class="running-spinner run-chip-spinner" aria-hidden="true" />
+                    <span>Running</span>
+                  </span>
                   <span class="meta-chip">{{ selectedTestResult.overallStatus }}</span>
                   <button class="secondary-button" type="button" @click="exportSelectedTestResultPdf">
                     Export PDF
@@ -4804,7 +4808,10 @@ onBeforeUnmount(() => {
               </div>
               <div class="card-head-actions action-cluster">
                 <span class="meta-chip">{{ testResultModeLabel(selectedTestResult) }}</span>
-                <span v-if="selectedTestResult.live === true" class="meta-chip">Running</span>
+                <span v-if="selectedTestResult.live === true" class="meta-chip">
+                  <span class="running-spinner run-chip-spinner" aria-hidden="true" />
+                  <span>Running</span>
+                </span>
                 <span class="meta-chip">{{ selectedTestResult.overallStatus }}</span>
                 <button class="secondary-button" type="button" @click="exportSelectedTestResultPdf">
                   Export PDF
@@ -5066,7 +5073,10 @@ onBeforeUnmount(() => {
             <div v-if="message.kind === 'assistant'" v-html="message.html" />
             <pre v-else>{{ message.rawText }}</pre>
           </article>
-          <article v-if="state.asking" class="chat-message chat-pending">Thinking...</article>
+          <article v-if="state.asking" class="chat-message chat-pending">
+            <span class="chat-pending-spinner" aria-hidden="true"></span>
+            <span>Thinking...</span>
+          </article>
           <p v-if="!chatMessages.length && !state.asking" class="empty-state">Ask a question about KNX traffic. SVG responses are supported here as well.</p>
         </div>
       </section>
@@ -6622,9 +6632,21 @@ onBeforeUnmount(() => {
   width: 14px;
   height: 14px;
   display: inline-block;
-  border: 2px solid rgba(29, 36, 51, 0.18);
-  border-top-color: var(--hb-primary);
+  border-radius: 50%;
+  border: 2px solid rgba(90, 102, 122, 0.28);
+  border-top-color: #5a667a;
   animation: running-spin 0.85s linear infinite;
+}
+
+.run-button-spinner {
+  margin-right: 6px;
+  vertical-align: -2px;
+}
+
+.run-chip-spinner {
+  width: 12px;
+  height: 12px;
+  margin-right: 6px;
 }
 
 @keyframes running-spin {
@@ -7244,8 +7266,25 @@ onBeforeUnmount(() => {
 }
 
 .chat-pending {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   background: rgba(120, 120, 120, 0.08);
   color: var(--muted);
+}
+
+.chat-pending-spinner {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid rgba(90, 102, 122, 0.28);
+  border-top-color: #5a667a;
+  animation: chat-pending-spin 0.75s linear infinite;
+}
+
+@keyframes chat-pending-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
 :deep(.chat-svg-wrap) {
