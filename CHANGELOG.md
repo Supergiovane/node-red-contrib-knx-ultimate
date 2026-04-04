@@ -6,6 +6,12 @@
 
 # CHANGELOG
 
+**Version 4.2.8** - April 2026<br/>
+
+- UI: **KNX AI Web** sidebar menu style aligned to Homebridge (font size/weight, spacing, icon/text alignment and sidebar widths) for closer visual consistency.<br/>
+- UI: **KNX AI Web** removed sidebar menu subtitles to keep navigation labels clean and compact.<br/>
+- UI: **KNX AI Web** **Assistant** tab: the **Ask** panel is now half-page width on desktop and full width on smaller screens.<br/>
+
 **Version 4.2.7** - April 2026<br/>
 
 - UI: **KNX AI Web** layout and visual style aligned to the Homebridge-like interface, with unified orange accent palette and cleaned component styling.<br/>
