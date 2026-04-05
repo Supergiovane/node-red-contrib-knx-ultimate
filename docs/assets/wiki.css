@@ -215,3 +215,57 @@
   word-wrap: break-word;
   white-space: normal;
 }
+
+.wiki-nav-cta {
+  margin-top: 0.9rem;
+  padding-top: 0.8rem;
+  border-top: 1px solid #dde4ef;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.wiki-nav-cta__title {
+  color: #1f2937;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.wiki-nav-cta__button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 0.48rem 0.75rem;
+  border-radius: 999px;
+  color: #ffffff;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
+}
+
+.wiki-nav-cta__button:hover,
+.wiki-nav-cta__button:focus {
+  color: #ffffff;
+  text-decoration: none;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px rgba(15, 23, 42, 0.16);
+}
+
+.wiki-nav-cta__button--paypal {
+  background: #0070ba;
+}
+
+.wiki-nav-cta__button--paypal:hover,
+.wiki-nav-cta__button--paypal:focus {
+  filter: brightness(1.03);
+}
+
+.wiki-nav-cta__button--youtube {
+  background: #cc0000;
+}
+
+.wiki-nav-cta__button--youtube:hover,
+.wiki-nav-cta__button--youtube:focus {
+  filter: brightness(1.05);
+}

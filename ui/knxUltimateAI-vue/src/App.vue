@@ -1,5 +1,6 @@
 <script setup>
 import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
+import { KNX_AI_WEB_I18N } from './knxAiWebI18n'
 
 const storageKey = 'knxUltimateAI:selectedNodeId'
 const autoKey = 'knxUltimateAI:autoRefresh'
@@ -54,6 +55,8 @@ const FLOW_EVENT_COLORS = {
   other: '#8d8578'
 }
 const KNX_AI_VUE_DOCS_URL = 'https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/knxUltimateAI-vue'
+const KNX_AI_PAYPAL_URL = 'https://www.paypal.com/donate/?hosted_button_id=S8SKPUBSPK758'
+const KNX_AI_YOUTUBE_URL = 'https://www.youtube.com/@maxsupervibe'
 
 const queryNodeId = (() => {
   try {
@@ -62,6 +65,385 @@ const queryNodeId = (() => {
     return ''
   }
 })()
+
+const uiLanguage = ref('en')
+let uiTranslateObserver = null
+let uiTranslateRaf = 0
+let uiTranslateApplying = false
+
+const DYNAMIC_UI_PATTERNS = {
+  it: {
+    countAreas: '{{count}} aree',
+    countSavedPlans: '{{count}} piani salvati',
+    countAvailable: '{{count}} disponibili',
+    countVisible: '{{count}} visibili',
+    countEventTypes: '{{count}} tipi di eventi',
+    countRecent: '{{count}} recenti',
+    nodesLinks: 'Nodi {{nodes}} | Link {{links}}',
+    connected: 'Connesso {{value}}',
+    disconnected: 'Disconnesso {{value}}',
+    coverage: 'Copertura {{value}}%',
+    windowSec: 'Finestra {{value}}s.',
+    anomalyCount: 'anomalia x{{value}}',
+    areaLabel: 'Area {{value}}',
+    providerModel: 'Provider: {{provider}} | Modello: {{model}}'
+  },
+  de: {
+    countAreas: '{{count}} Bereiche',
+    countSavedPlans: '{{count}} gespeicherte Pläne',
+    countAvailable: '{{count}} verfügbar',
+    countVisible: '{{count}} sichtbar',
+    countEventTypes: '{{count}} Ereignistypen',
+    countRecent: '{{count}} aktuell',
+    nodesLinks: 'Knoten {{nodes}} | Verbindungen {{links}}',
+    connected: 'Verbunden {{value}}',
+    disconnected: 'Getrennt {{value}}',
+    coverage: 'Abdeckung {{value}}%',
+    windowSec: 'Fenster {{value}}s.',
+    anomalyCount: 'Anomalie x{{value}}',
+    areaLabel: 'Bereich {{value}}',
+    providerModel: 'Anbieter: {{provider}} | Modell: {{model}}'
+  },
+  fr: {
+    countAreas: '{{count}} zones',
+    countSavedPlans: '{{count}} plans enregistrés',
+    countAvailable: '{{count}} disponibles',
+    countVisible: '{{count}} visibles',
+    countEventTypes: '{{count}} types d\'événements',
+    countRecent: '{{count}} récents',
+    nodesLinks: 'Nœuds {{nodes}} | Liens {{links}}',
+    connected: 'Connecté {{value}}',
+    disconnected: 'Déconnecté {{value}}',
+    coverage: 'Couverture {{value}}%',
+    windowSec: 'Fenêtre {{value}}s.',
+    anomalyCount: 'anomalie x{{value}}',
+    areaLabel: 'Zone {{value}}',
+    providerModel: 'Fournisseur : {{provider}} | Modèle : {{model}}'
+  },
+  es: {
+    countAreas: '{{count}} áreas',
+    countSavedPlans: '{{count}} planes guardados',
+    countAvailable: '{{count}} disponibles',
+    countVisible: '{{count}} visibles',
+    countEventTypes: '{{count}} tipos de eventos',
+    countRecent: '{{count}} recientes',
+    nodesLinks: 'Nodos {{nodes}} | Enlaces {{links}}',
+    connected: 'Conectado {{value}}',
+    disconnected: 'Desconectado {{value}}',
+    coverage: 'Cobertura {{value}}%',
+    windowSec: 'Ventana {{value}}s.',
+    anomalyCount: 'anomalía x{{value}}',
+    areaLabel: 'Área {{value}}',
+    providerModel: 'Proveedor: {{provider}} | Modelo: {{model}}'
+  },
+  'zh-CN': {
+    countAreas: '{{count}} 个区域',
+    countSavedPlans: '{{count}} 个已保存计划',
+    countAvailable: '{{count}} 可用',
+    countVisible: '{{count}} 可见',
+    countEventTypes: '{{count}} 种事件类型',
+    countRecent: '{{count}} 条最近记录',
+    nodesLinks: '节点 {{nodes}} | 连线 {{links}}',
+    connected: '已连接 {{value}}',
+    disconnected: '已断开 {{value}}',
+    coverage: '覆盖率 {{value}}%',
+    windowSec: '窗口 {{value}} 秒。',
+    anomalyCount: '异常 x{{value}}',
+    areaLabel: '区域 {{value}}',
+    providerModel: '提供方: {{provider}} | 模型: {{model}}'
+  }
+}
+
+const UI_LANGUAGE_ALIASES = {
+  en: 'en',
+  'en-us': 'en',
+  'en-gb': 'en',
+  it: 'it',
+  'it-it': 'it',
+  de: 'de',
+  'de-de': 'de',
+  fr: 'fr',
+  'fr-fr': 'fr',
+  es: 'es',
+  'es-es': 'es',
+  zh: 'zh-CN',
+  'zh-cn': 'zh-CN',
+  'zh-hans': 'zh-CN',
+  'zh-hans-cn': 'zh-CN'
+}
+
+const NON_TRANSLATABLE_LITERALS = new Set([
+  'KNX AI',
+  'KNX Ultimate',
+  'GroupValue_Write',
+  'GroupValue_Response',
+  'GA',
+  'DPT',
+  'ETS',
+  'SVG'
+])
+
+const REVIEWED_TRANSLATION_OVERRIDES = {
+  it: {
+    'Open Source Test': 'Apri Test Sorgente',
+    'Asking...': 'Sto chiedendo...',
+    'Loading...': 'Caricamento...',
+    'Running...': 'In esecuzione...',
+    'Running': 'In esecuzione',
+    'Flow Map': 'Mappa Flussi',
+    'Anomalies': 'Anomalie',
+    'Rate': 'Frequenza',
+    'Pass': 'OK',
+    'Fail': 'Errore',
+    'Warn': 'Attenzione',
+    'Wait': 'Attesa',
+    'Wait ms': 'Attesa (ms)',
+    'Response timeout': 'Timeout risposta',
+    'Read response timeout ms': 'Timeout risposta lettura (ms)',
+    'Status write timeout ms': 'Timeout scrittura stato (ms)',
+    'Regenerating...': 'Rigenerazione...',
+    'Regenerate AI Areas': 'Rigenera Aree AI',
+    'Deleting...': 'Eliminazione...',
+    'Delete AI Areas': 'Elimina Aree AI',
+    'Test Results': 'Risultati Test',
+    'Select Test Result': 'Seleziona risultato test',
+    'No test result selected.': 'Nessun risultato test selezionato.',
+    'Open and close shading': 'Apri e chiudi schermature'
+  },
+  de: {
+    'Open Source Test': 'Quelltest öffnen',
+    'Asking...': 'Anfrage läuft...',
+    'Loading...': 'Wird geladen...',
+    'Running...': 'Läuft...',
+    'Running': 'Läuft',
+    'Flow Map': 'Flusskarte',
+    'Anomalies': 'Anomalien',
+    'Rate': 'Rate',
+    'Pass': 'OK',
+    'Fail': 'Fehler',
+    'Warn': 'Warnung',
+    'Wait': 'Warten',
+    'Wait ms': 'Warten (ms)',
+    'Regenerating...': 'Wird neu erstellt...',
+    'Regenerate AI Areas': 'KI-Bereiche neu erstellen',
+    'Deleting...': 'Wird gelöscht...',
+    'Delete AI Areas': 'KI-Bereiche löschen'
+  },
+  fr: {
+    'Open Source Test': 'Ouvrir le test source',
+    'Asking...': 'Interrogation en cours...',
+    'Loading...': 'Chargement...',
+    'Running...': 'En cours...',
+    'Running': 'En cours',
+    'Flow Map': 'Carte des flux',
+    'Anomalies': 'Anomalies',
+    'Rate': 'Débit',
+    'Pass': 'OK',
+    'Fail': 'Échec',
+    'Warn': 'Alerte',
+    'Wait': 'Attente',
+    'Wait ms': 'Attente (ms)',
+    'Regenerating...': 'Régénération...',
+    'Regenerate AI Areas': 'Régénérer les zones IA',
+    'Deleting...': 'Suppression...',
+    'Delete AI Areas': 'Supprimer les zones IA'
+  },
+  es: {
+    'Open Source Test': 'Abrir prueba de origen',
+    'Asking...': 'Consultando...',
+    'Loading...': 'Cargando...',
+    'Running...': 'En ejecución...',
+    'Running': 'En ejecución',
+    'Flow Map': 'Mapa de flujo',
+    'Anomalies': 'Anomalías',
+    'Rate': 'Tasa',
+    'Pass': 'OK',
+    'Fail': 'Fallo',
+    'Warn': 'Aviso',
+    'Wait': 'Espera',
+    'Wait ms': 'Espera (ms)',
+    'Regenerating...': 'Regenerando...',
+    'Regenerate AI Areas': 'Regenerar áreas de IA',
+    'Deleting...': 'Eliminando...',
+    'Delete AI Areas': 'Eliminar áreas de IA'
+  },
+  'zh-CN': {
+    'Open Source Test': '打开源测试',
+    'Asking...': '正在提问...',
+    'Loading...': '加载中...',
+    'Running...': '运行中...',
+    'Running': '运行中',
+    'Flow Map': '流量拓扑图',
+    'Anomalies': '异常',
+    'Rate': '速率',
+    'Pass': '通过',
+    'Fail': '失败',
+    'Warn': '警告',
+    'Wait': '等待',
+    'Wait ms': '等待（毫秒）',
+    'Regenerating...': '正在重新生成...',
+    'Regenerate AI Areas': '重新生成 AI 区域',
+    'Deleting...': '正在删除...',
+    'Delete AI Areas': '删除 AI 区域'
+  }
+}
+
+function normalizeUiLanguageCode (value, fallback = 'en') {
+  const raw = String(value || '').trim().toLowerCase()
+  if (!raw) return fallback
+  if (UI_LANGUAGE_ALIASES[raw]) return UI_LANGUAGE_ALIASES[raw]
+  if (raw.includes('-')) {
+    const base = raw.split('-')[0]
+    if (UI_LANGUAGE_ALIASES[base]) return UI_LANGUAGE_ALIASES[base]
+  }
+  return fallback
+}
+
+function resolveUiLanguage () {
+  try {
+    const queryLanguage = new URLSearchParams(window.location.search).get('lang')
+    if (queryLanguage) return normalizeUiLanguageCode(queryLanguage, 'en')
+  } catch (error) {}
+  const browserLanguage = normalizeUiLanguageCode(String(navigator.language || ''), '')
+  if (browserLanguage) return browserLanguage
+  const htmlLang = String(document && document.documentElement && document.documentElement.lang ? document.documentElement.lang : '').trim()
+  if (htmlLang) return normalizeUiLanguageCode(htmlLang, 'en')
+  return 'en'
+}
+
+function translateTemplate (template, values = {}) {
+  return String(template || '').replace(/\{\{\s*([^}\s]+)\s*\}\}/g, (all, key) => {
+    return Object.prototype.hasOwnProperty.call(values, key) ? String(values[key]) : all
+  })
+}
+
+function translateDynamicUiText (text) {
+  const langPatterns = DYNAMIC_UI_PATTERNS[uiLanguage.value]
+  if (!langPatterns) return ''
+  let match = text.match(/^(\d+)\sareas$/i)
+  if (match) return translateTemplate(langPatterns.countAreas, { count: match[1] })
+  match = text.match(/^(\d+)\ssaved plans$/i)
+  if (match) return translateTemplate(langPatterns.countSavedPlans, { count: match[1] })
+  match = text.match(/^(\d+)\savailable$/i)
+  if (match) return translateTemplate(langPatterns.countAvailable, { count: match[1] })
+  match = text.match(/^(\d+)\svisible$/i)
+  if (match) return translateTemplate(langPatterns.countVisible, { count: match[1] })
+  match = text.match(/^(\d+)\sevent types$/i)
+  if (match) return translateTemplate(langPatterns.countEventTypes, { count: match[1] })
+  match = text.match(/^(\d+)\srecent$/i)
+  if (match) return translateTemplate(langPatterns.countRecent, { count: match[1] })
+  match = text.match(/^Nodes\s+(.+?)\s+\|\s+Links\s+(.+)$/)
+  if (match) return translateTemplate(langPatterns.nodesLinks, { nodes: match[1], links: match[2] })
+  match = text.match(/^Connected\s+(.+)$/)
+  if (match) return translateTemplate(langPatterns.connected, { value: match[1] })
+  match = text.match(/^Disconnected\s+(.+)$/)
+  if (match) return translateTemplate(langPatterns.disconnected, { value: match[1] })
+  match = text.match(/^Coverage\s+(.+?)%$/)
+  if (match) return translateTemplate(langPatterns.coverage, { value: match[1] })
+  match = text.match(/^Window\s+(.+?)s\.$/)
+  if (match) return translateTemplate(langPatterns.windowSec, { value: match[1] })
+  match = text.match(/^anomaly x(.+)$/i)
+  if (match) return translateTemplate(langPatterns.anomalyCount, { value: match[1] })
+  match = text.match(/^Area\s+(.+)$/)
+  if (match) return translateTemplate(langPatterns.areaLabel, { value: match[1] })
+  match = text.match(/^Provider:\s+(.+?)\s+\|\s+Model:\s+(.+)$/)
+  if (match) return translateTemplate(langPatterns.providerModel, { provider: match[1], model: match[2] })
+  return ''
+}
+
+function localizeUiText (value) {
+  const raw = String(value || '')
+  const trimmed = raw.trim()
+  if (!trimmed || uiLanguage.value === 'en') return raw
+  if (NON_TRANSLATABLE_LITERALS.has(trimmed)) return raw
+  const reviewed = REVIEWED_TRANSLATION_OVERRIDES[uiLanguage.value] || {}
+  const dictionary = KNX_AI_WEB_I18N[uiLanguage.value] || {}
+  const translated = reviewed[trimmed] || dictionary[trimmed] || translateDynamicUiText(trimmed)
+  if (!translated || translated === trimmed) return raw
+  return raw.replace(trimmed, translated)
+}
+
+function shouldSkipUiTranslationNode (node) {
+  const parent = node && node.parentElement
+  if (!parent) return true
+  const tagName = String(parent.tagName || '').toUpperCase()
+  if (tagName === 'SCRIPT' || tagName === 'STYLE' || tagName === 'CODE' || tagName === 'PRE') return true
+  if (parent.closest('.chat-log')) return true
+  return false
+}
+
+function applyUiTranslationsToDom (rootElement) {
+  const root = rootElement || document.body
+  if (!root || uiLanguage.value === 'en') return
+  if (uiTranslateApplying) return
+  uiTranslateApplying = true
+  try {
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT)
+    let current = walker.nextNode()
+    while (current) {
+      if (!shouldSkipUiTranslationNode(current)) {
+        const localized = localizeUiText(current.nodeValue)
+        if (localized !== current.nodeValue) current.nodeValue = localized
+      }
+      current = walker.nextNode()
+    }
+    const attrNodes = root.querySelectorAll('[placeholder], [title], [aria-label]')
+    for (const element of attrNodes) {
+      const placeholder = element.getAttribute('placeholder')
+      if (placeholder) {
+        const localized = localizeUiText(placeholder)
+        if (localized !== placeholder) element.setAttribute('placeholder', localized)
+      }
+      const title = element.getAttribute('title')
+      if (title) {
+        const localized = localizeUiText(title)
+        if (localized !== title) element.setAttribute('title', localized)
+      }
+      const ariaLabel = element.getAttribute('aria-label')
+      if (ariaLabel) {
+        const localized = localizeUiText(ariaLabel)
+        if (localized !== ariaLabel) element.setAttribute('aria-label', localized)
+      }
+    }
+  } finally {
+    uiTranslateApplying = false
+  }
+}
+
+function scheduleUiTranslation () {
+  if (uiLanguage.value === 'en') return
+  if (uiTranslateRaf) return
+  uiTranslateRaf = window.requestAnimationFrame(() => {
+    uiTranslateRaf = 0
+    applyUiTranslationsToDom(document.body)
+  })
+}
+
+function stopUiTranslationObserver () {
+  if (uiTranslateObserver) {
+    uiTranslateObserver.disconnect()
+    uiTranslateObserver = null
+  }
+  if (uiTranslateRaf) {
+    window.cancelAnimationFrame(uiTranslateRaf)
+    uiTranslateRaf = 0
+  }
+}
+
+function startUiTranslationObserver () {
+  if (uiLanguage.value === 'en') return
+  stopUiTranslationObserver()
+  uiTranslateObserver = new MutationObserver(() => {
+    if (uiTranslateApplying) return
+    scheduleUiTranslation()
+  })
+  uiTranslateObserver.observe(document.body, {
+    childList: true,
+    subtree: true,
+    characterData: true
+  })
+  scheduleUiTranslation()
+}
 
 const state = reactive({
   nodes: [],
@@ -88,6 +470,7 @@ const state = reactive({
   areaLlmBusy: false,
   areaLlmError: '',
   areaLlmRegenerating: false,
+  areaLlmBulkDeleting: false,
   gaCatalog: [],
   gaCatalogSearch: '',
   gaCatalogLoading: false,
@@ -344,7 +727,7 @@ function apiUrl (tail) {
 }
 
 function setStatus (text) {
-  state.status = String(text || '')
+  state.status = localizeUiText(String(text || ''))
 }
 
 async function requestJson (url, options) {
@@ -1055,6 +1438,8 @@ const summary = computed(() => state.stateData && state.stateData.summary ? stat
 const nodeInfo = computed(() => state.stateData && state.stateData.node ? state.stateData.node : {})
 const areasState = computed(() => state.stateData && state.stateData.areas ? state.stateData.areas : { suggested: [], totals: {} })
 const suggestedAreas = computed(() => Array.isArray(areasState.value && areasState.value.suggested) ? areasState.value.suggested : [])
+const aiGeneratedAreas = computed(() => suggestedAreas.value.filter(area => String(area && area.id ? area.id : '').startsWith('llm:')))
+const aiGeneratedAreaCount = computed(() => Number(aiGeneratedAreas.value.length || 0))
 const areaTotals = computed(() => areasState.value && areasState.value.totals ? areasState.value.totals : {})
 const profiles = computed(() => Array.isArray(state.stateData && state.stateData.profiles) ? state.stateData.profiles : [])
 const profileReport = computed(() => state.stateData && state.stateData.profileReport ? state.stateData.profileReport : null)
@@ -2682,10 +3067,7 @@ function closeTestPlanSearchSoon () {
 }
 
 function getPreferredUiLanguage () {
-  const htmlLang = String(document && document.documentElement && document.documentElement.lang ? document.documentElement.lang : '').trim().toLowerCase()
-  if (htmlLang) return htmlLang.split('-')[0] || 'en'
-  const browserLanguage = String((navigator.language || 'en')).trim().toLowerCase()
-  return browserLanguage.split('-')[0] || 'en'
+  return normalizeUiLanguageCode(uiLanguage.value, 'en')
 }
 
 function removeGaFromAreaDraft (ga) {
@@ -2741,7 +3123,13 @@ function startNewAreaDraft () {
 }
 
 async function regenerateLlmAreas () {
-  if (!state.selectedNodeId || state.areaLlmRegenerating) return
+  const nodeId = String(state.selectedNodeId || '').trim()
+  if (state.areaLlmRegenerating || state.areaLlmBulkDeleting) return
+  if (!nodeId) {
+    state.areaLlmError = 'Select a KNX AI node first'
+    setStatus(state.areaLlmError)
+    return
+  }
   state.areaLlmRegenerating = true
   state.areaLlmError = ''
   setStatus('Regenerating AI areas...')
@@ -2749,20 +3137,75 @@ async function regenerateLlmAreas () {
     const data = await requestJson(apiUrl('areas/regenerate-llm'), {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ nodeId: state.selectedNodeId })
+      body: JSON.stringify({ nodeId })
     })
-    if (Array.isArray(data && data.gaCatalog)) state.gaCatalog = data.gaCatalog
-    if (data && data.areas) {
-      state.stateData = Object.assign({}, state.stateData || {}, { areas: data.areas })
+    const hasGaCatalog = Array.isArray(data && data.gaCatalog)
+    if (hasGaCatalog) state.gaCatalog = data.gaCatalog
+
+    if (data && (data.areas || data.profiles || data.actuatorTests || data.testPlans)) {
+      const nextStateData = Object.assign({}, state.stateData || {})
+      if (data.areas) nextStateData.areas = data.areas
+      if (data.profiles) nextStateData.profiles = data.profiles
+      if (data.actuatorTests) nextStateData.actuatorTests = data.actuatorTests
+      if (data.testPlans) nextStateData.testPlans = data.testPlans
+      state.stateData = nextStateData
     } else {
       await fetchState({ fresh: true })
     }
+
+    if (!hasGaCatalog) await fetchGaCatalog()
     setStatus(`AI areas regenerated (${Number(data && data.generatedCount ? data.generatedCount : 0)})`)
   } catch (error) {
     state.areaLlmError = error.message || 'Failed to regenerate AI areas'
     setStatus(state.areaLlmError)
   } finally {
     state.areaLlmRegenerating = false
+  }
+}
+
+async function deleteAllLlmAreas () {
+  const nodeId = String(state.selectedNodeId || '').trim()
+  if (state.areaLlmRegenerating || state.areaLlmBulkDeleting) return
+  if (!nodeId) {
+    state.areaLlmError = 'Select a KNX AI node first'
+    setStatus(state.areaLlmError)
+    return
+  }
+  const totalAiAreas = Number(aiGeneratedAreaCount.value || 0)
+  if (totalAiAreas <= 0) {
+    setStatus('No AI areas to delete')
+    return
+  }
+  const confirmed = window.confirm(`Delete all AI-generated areas (${totalAiAreas})?`)
+  if (!confirmed) return
+
+  state.areaLlmBulkDeleting = true
+  state.areaLlmError = ''
+  setStatus('Deleting AI areas...')
+  try {
+    const data = await requestJson(apiUrl('areas/delete-llm'), {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ nodeId })
+    })
+    if (Array.isArray(data && data.gaCatalog)) state.gaCatalog = data.gaCatalog
+    if (data && (data.areas || data.profiles || data.actuatorTests || data.testPlans)) {
+      const nextStateData = Object.assign({}, state.stateData || {})
+      if (data.areas) nextStateData.areas = data.areas
+      if (data.profiles) nextStateData.profiles = data.profiles
+      if (data.actuatorTests) nextStateData.actuatorTests = data.actuatorTests
+      if (data.testPlans) nextStateData.testPlans = data.testPlans
+      state.stateData = nextStateData
+    } else {
+      await fetchState({ fresh: true })
+    }
+    if (!Array.isArray(data && data.gaCatalog)) await fetchGaCatalog()
+    setStatus(`AI areas deleted (${Number(data && data.deletedCount ? data.deletedCount : totalAiAreas)})`)
+  } catch (error) {
+    state.areaLlmError = error.message || 'Failed to delete AI areas'
+    setStatus(state.areaLlmError)
+  } finally {
+    state.areaLlmBulkDeleting = false
   }
 }
 
@@ -3904,6 +4347,7 @@ function stopTimers () {
 }
 
 onMounted(async () => {
+  uiLanguage.value = resolveUiLanguage()
   syncViewportMode()
   window.addEventListener('resize', syncViewportMode)
   document.addEventListener('keydown', onGlobalKeydown)
@@ -3912,12 +4356,14 @@ onMounted(async () => {
   await fetchState({ fresh: true })
   await fetchGaCatalog()
   startTimers()
+  startUiTranslationObserver()
 })
 
 onBeforeUnmount(() => {
   window.removeEventListener('resize', syncViewportMode)
   document.removeEventListener('keydown', onGlobalKeydown)
   document.removeEventListener('fullscreenchange', syncFullscreenState)
+  stopUiTranslationObserver()
   stopTimers()
   stopActiveStepAudio()
 })
@@ -3973,7 +4419,7 @@ onBeforeUnmount(() => {
       </div>
 
       <nav class="sidebar-nav">
-        <button class="tab-button" :class="{ active: state.activeTab === 'overview' }" type="button" @click="activateSidebarTab('overview')">
+        <button class="tab-button" :class="{ active: state.activeTab === 'overview' }" type="button" title="Overview" aria-label="Overview" @click="activateSidebarTab('overview')">
           <span class="sidebar-nav-icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" class="sidebar-nav-svg"><path d="M3 10.8 12 3l9 7.8v9.2a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg>
           </span>
@@ -3981,7 +4427,7 @@ onBeforeUnmount(() => {
             <span class="sidebar-nav-title">Overview</span>
           </span>
         </button>
-        <button class="tab-button" :class="{ active: state.activeTab === 'areas' }" type="button" @click="activateSidebarTab('areas')">
+        <button class="tab-button" :class="{ active: state.activeTab === 'areas' }" type="button" title="Areas" aria-label="Areas" @click="activateSidebarTab('areas')">
           <span class="sidebar-nav-icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" class="sidebar-nav-svg"><path d="M3 3h8v8H3zm10 0h8v8h-8zM3 13h8v8H3zm10 0h8v8h-8z"/></svg>
           </span>
@@ -3989,7 +4435,7 @@ onBeforeUnmount(() => {
             <span class="sidebar-nav-title">Areas</span>
           </span>
         </button>
-        <button class="tab-button sidebar-nav-child" :class="{ active: state.activeTab === 'tests' }" type="button" :disabled="!suggestedAreas.length" @click="activateSidebarTab('tests')">
+        <button class="tab-button sidebar-nav-child" :class="{ active: state.activeTab === 'tests' }" type="button" title="Tests" aria-label="Tests" :disabled="!suggestedAreas.length" @click="activateSidebarTab('tests')">
           <span class="sidebar-nav-icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" class="sidebar-nav-svg"><path d="M9 3h6v2h-1v4.3l5.5 8.8A2 2 0 0 1 17.8 21H6.2a2 2 0 0 1-1.7-2.9L10 9.3V5H9zm1.9 8.2L6.9 18h10.2l-4-6.8z"/></svg>
           </span>
@@ -3997,7 +4443,7 @@ onBeforeUnmount(() => {
             <span class="sidebar-nav-title">Tests</span>
           </span>
         </button>
-        <button class="tab-button sidebar-nav-child" :class="{ active: state.activeTab === 'results' }" type="button" @click="activateSidebarTab('results')">
+        <button class="tab-button sidebar-nav-child" :class="{ active: state.activeTab === 'results' }" type="button" title="Test Results" aria-label="Test Results" @click="activateSidebarTab('results')">
           <span class="sidebar-nav-icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" class="sidebar-nav-svg"><path d="M4 4h16v4H4zm0 6h16v4H4zm0 6h16v4H4z"/></svg>
           </span>
@@ -4005,7 +4451,7 @@ onBeforeUnmount(() => {
             <span class="sidebar-nav-title">Test Results</span>
           </span>
         </button>
-        <button class="tab-button" :class="{ active: state.activeTab === 'assistant' }" type="button" @click="activateSidebarTab('assistant')">
+        <button class="tab-button" :class="{ active: state.activeTab === 'assistant' }" type="button" title="Assistant" aria-label="Assistant" @click="activateSidebarTab('assistant')">
           <span class="sidebar-nav-icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" class="sidebar-nav-svg"><path d="M4 5h16a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H9l-5 4v-4H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z"/></svg>
           </span>
@@ -4013,7 +4459,7 @@ onBeforeUnmount(() => {
             <span class="sidebar-nav-title">Assistant</span>
           </span>
         </button>
-        <button class="tab-button" :class="{ active: state.activeTab === 'settings' }" type="button" @click="activateSidebarTab('settings')">
+        <button class="tab-button" :class="{ active: state.activeTab === 'settings' }" type="button" title="Settings" aria-label="Settings" @click="activateSidebarTab('settings')">
           <span class="sidebar-nav-icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" class="sidebar-nav-svg"><path d="M19.14 12.94a7.43 7.43 0 0 0 .05-.94 7.43 7.43 0 0 0-.05-.94l2.03-1.58a.5.5 0 0 0 .12-.64l-1.92-3.32a.5.5 0 0 0-.6-.22l-2.39.96a7.18 7.18 0 0 0-1.63-.94l-.36-2.54A.5.5 0 0 0 13.9 2h-3.8a.5.5 0 0 0-.49.42l-.36 2.54a7.18 7.18 0 0 0-1.63.94l-2.39-.96a.5.5 0 0 0-.6.22L2.71 8.48a.5.5 0 0 0 .12.64l2.03 1.58a7.43 7.43 0 0 0-.05.94 7.43 7.43 0 0 0 .05.94l-2.03 1.58a.5.5 0 0 0-.12.64l1.92 3.32a.5.5 0 0 0 .6.22l2.39-.96c.5.39 1.04.71 1.63.94l.36 2.54a.5.5 0 0 0 .49.42h3.8a.5.5 0 0 0 .49-.42l.36-2.54c.59-.23 1.13-.55 1.63-.94l2.39.96a.5.5 0 0 0 .6-.22l1.92-3.32a.5.5 0 0 0-.12-.64zM12 15.2A3.2 3.2 0 1 1 12 8.8a3.2 3.2 0 0 1 0 6.4z"/></svg>
           </span>
@@ -4027,10 +4473,25 @@ onBeforeUnmount(() => {
         <button class="primary-button sidebar-action-button" type="button" :disabled="state.loadingNodes || state.loadingState" @click="onRefresh">
           Refresh
         </button>
+        <div class="support-link-row">
+          <a class="secondary-button support-link-button" :href="KNX_AI_PAYPAL_URL" target="_blank" rel="noopener noreferrer">
+            Donate via PayPal
+          </a>
+          <a class="secondary-button support-link-button support-link-button-youtube" :href="KNX_AI_YOUTUBE_URL" target="_blank" rel="noopener noreferrer">
+            Subscribe
+          </a>
+        </div>
       </div>
 
       <div v-if="isSidebarExpanded" class="sidebar-footer">
-        <span class="status-pill" :class="{ error: !!state.lastError }">{{ state.status }}</span>
+        <span class="status-pill" :class="{ error: !!state.lastError }">
+          <span
+            v-if="state.loadingNodes || state.loadingState || state.areaLlmRegenerating || state.areaLlmBulkDeleting || state.areaLlmBusy || state.testPlanGenerating || state.asking"
+            class="running-spinner status-pill-spinner"
+            aria-hidden="true"
+          />
+          <span>{{ state.status }}</span>
+        </span>
         <span v-if="selectedNode" class="status-detail">Provider: {{ selectedNode.llmProvider || 'n/a' }} | Model: {{ selectedNode.llmModel || 'n/a' }}</span>
         <a class="sidebar-doc-link" :href="KNX_AI_VUE_DOCS_URL" target="_blank" rel="noopener noreferrer">
           Documentation: KNX AI Vue
@@ -4071,14 +4532,27 @@ onBeforeUnmount(() => {
           <h2>Select an Area</h2>
           <div class="card-head-actions">
             <span class="meta-chip">{{ Number(areaTotals.suggestedAreaCount || 0) }} areas</span>
-            <button class="secondary-button" type="button" :disabled="state.areaLlmRegenerating || !nodeInfo.llmEnabled" @click="regenerateLlmAreas">
-              {{ state.areaLlmRegenerating ? 'Regenerating...' : 'Regenerate AI Areas' }}
+            <button class="secondary-button" type="button" :disabled="state.areaLlmRegenerating || state.areaLlmBulkDeleting || !nodeInfo.llmEnabled" @click="regenerateLlmAreas">
+              <span v-if="state.areaLlmRegenerating" class="running-spinner run-button-spinner" aria-hidden="true" />
+              <span>{{ state.areaLlmRegenerating ? 'Regenerating...' : 'Regenerate AI Areas' }}</span>
+            </button>
+            <button
+              class="danger-button"
+              type="button"
+              :disabled="state.areaLlmRegenerating || state.areaLlmBulkDeleting || aiGeneratedAreaCount <= 0"
+              @click="deleteAllLlmAreas"
+            >
+              <span v-if="state.areaLlmBulkDeleting" class="running-spinner run-button-spinner" aria-hidden="true" />
+              <span>{{ state.areaLlmBulkDeleting ? 'Deleting...' : 'Delete AI Areas' }}</span>
             </button>
             <button class="secondary-button new-button" type="button" @click="startNewAreaDraft">
               New Area
             </button>
           </div>
         </div>
+        <p v-if="state.areaLlmError" class="planner-error-banner area-regenerate-error">
+          {{ state.areaLlmError }}
+        </p>
         <div class="areas-toolbar">
           <div class="pill-row">
             <span class="pill neutral">GA {{ Number(areaTotals.gaCount || 0) }}</span>
@@ -4180,6 +4654,7 @@ onBeforeUnmount(() => {
                 </div>
                 <div class="profile-runbar">
                   <button class="primary-button" type="button" :disabled="state.areaLlmBusy || !state.areaLlmPrompt.trim() || !nodeInfo.llmEnabled" @click="suggestAreaDraftWithLlm">
+                    <span v-if="state.areaLlmBusy" class="running-spinner run-button-spinner" aria-hidden="true" />
                     {{ state.areaLlmBusy ? 'Suggesting...' : 'Suggest GA with AI' }}
                   </button>
                 </div>
@@ -4419,6 +4894,7 @@ onBeforeUnmount(() => {
 
                 <div class="profile-runbar">
                   <button class="primary-button" type="button" :disabled="state.testPlanGenerating || !selectedTestArea || !state.testPlanPrompt.trim()" @click="generateAiTestPlan">
+                    <span v-if="state.testPlanGenerating" class="running-spinner run-button-spinner" aria-hidden="true" />
                     {{ state.testPlanGenerating ? 'Building...' : 'Build Test Plan' }}
                   </button>
                 </div>
@@ -4556,7 +5032,10 @@ onBeforeUnmount(() => {
             <article class="area-detail plan-draft-shell" v-if="state.testPlanDraft && !state.testPlanRunning && !isViewingTestResultOnly && state.testTemplateBuilderFocus !== true">
               <div class="card-head">
                 <div>
-                  <h3>Edit Plan</h3>
+                  <h3 class="running-headline">
+                    <span>Edit Plan</span>
+                    <span v-if="state.testPlanGenerating" class="running-spinner" aria-hidden="true" />
+                  </h3>
                 </div>
                 <div class="card-head-actions action-cluster">
                   <span class="meta-chip">{{ Number(state.testPlanDraft.steps?.length || 0) }} steps</span>
@@ -5043,6 +5522,16 @@ onBeforeUnmount(() => {
           <h2>Ask</h2>
           <span class="meta-chip">{{ nodeInfo.llmEnabled ? 'AI enabled' : 'AI disabled' }}</span>
         </div>
+        <div class="chat-log">
+          <article v-for="message in chatMessages" :key="message.key" class="chat-message" :class="`chat-${message.kind}`">
+            <div v-if="message.kind === 'assistant'" v-html="message.html" />
+            <pre v-else>{{ message.rawText }}</pre>
+          </article>
+          <article v-if="state.asking" class="chat-message chat-pending">
+            <span class="chat-pending-spinner" aria-hidden="true"></span>
+            <span>Thinking...</span>
+          </article>
+        </div>
         <div class="preset-row">
           <button
             v-for="preset in PRESET_QUESTIONS"
@@ -5067,17 +5556,6 @@ onBeforeUnmount(() => {
           <button class="primary-button" type="button" :disabled="state.asking || !nodeInfo.llmEnabled" @click="sendAsk()">
             Send
           </button>
-        </div>
-        <div class="chat-log">
-          <article v-for="message in chatMessages" :key="message.key" class="chat-message" :class="`chat-${message.kind}`">
-            <div v-if="message.kind === 'assistant'" v-html="message.html" />
-            <pre v-else>{{ message.rawText }}</pre>
-          </article>
-          <article v-if="state.asking" class="chat-message chat-pending">
-            <span class="chat-pending-spinner" aria-hidden="true"></span>
-            <span>Thinking...</span>
-          </article>
-          <p v-if="!chatMessages.length && !state.asking" class="empty-state">Ask a question about KNX traffic. SVG responses are supported here as well.</p>
         </div>
       </section>
 
@@ -5137,6 +5615,14 @@ onBeforeUnmount(() => {
 
     </main>
     </section>
+
+    <div v-if="state.areaLlmRegenerating || state.areaLlmBulkDeleting" class="global-wait-overlay" role="status" aria-live="polite" aria-busy="true">
+      <div class="global-wait-card">
+        <span class="running-spinner global-wait-spinner" aria-hidden="true" />
+        <strong>{{ state.areaLlmBulkDeleting ? 'Deleting AI Areas' : 'Regenerating AI Areas' }}</strong>
+        <span>{{ state.areaLlmBulkDeleting ? 'Please wait while AI-generated areas are removed.' : 'Please wait, this can take a while with large ETS projects.' }}</span>
+      </div>
+    </div>
 
     <div v-if="state.testPlanRunConfirmOpen" class="modal-backdrop" @click="closeRunTestPlanConfirm">
       <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="run-test-title" @click.stop>
@@ -5730,7 +6216,9 @@ onBeforeUnmount(() => {
 }
 
 .sidebar-actions {
-  gap: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
 }
 
 .sidebar-section-toggle {
@@ -5956,6 +6444,27 @@ onBeforeUnmount(() => {
   text-decoration: underline;
 }
 
+.support-link-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.support-link-button {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  white-space: nowrap;
+}
+
+.support-link-button-youtube {
+  background: #cc2f2f;
+}
+
+.support-link-button-youtube:hover {
+  background: #b72727;
+}
+
 .statusbar {
   justify-content: space-between;
 }
@@ -5983,6 +6492,14 @@ onBeforeUnmount(() => {
 .status-pill.error,
 .pill.danger {
   color: #a4333a;
+}
+
+.status-pill-spinner {
+  width: 11px;
+  height: 11px;
+  border-width: 2px;
+  border-color: rgba(90, 102, 122, 0.24);
+  border-top-color: currentColor;
 }
 
 .pill.success {
@@ -6971,6 +7488,47 @@ onBeforeUnmount(() => {
   backdrop-filter: blur(3px);
 }
 
+.global-wait-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 260;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(16, 20, 28, 0.42);
+  backdrop-filter: blur(2px);
+}
+
+.global-wait-card {
+  width: min(420px, 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 18px 20px;
+  border: 1px solid rgba(118, 128, 145, 0.38);
+  background: rgba(255, 255, 255, 0.96);
+  color: #1d2433;
+  text-align: center;
+  box-shadow: 0 14px 38px rgba(8, 12, 19, 0.2);
+}
+
+.global-wait-card strong {
+  font-size: 15px;
+}
+
+.global-wait-card span {
+  font-size: 13px;
+  color: #4d5a6e;
+}
+
+.global-wait-spinner {
+  width: 20px;
+  height: 20px;
+  border-width: 2px;
+}
+
 .modal-card {
   width: min(420px, 100%);
   padding: 18px;
@@ -7227,17 +7785,29 @@ onBeforeUnmount(() => {
 }
 
 .ask-row {
-  margin-bottom: 12px;
+  margin-top: 12px;
+  margin-bottom: 0;
+  padding: 10px;
+  border: 1px solid rgba(255, 152, 0, 0.34);
+  border-radius: var(--soft-radius);
+  background: linear-gradient(180deg, rgba(255, 248, 232, 0.86) 0%, rgba(255, 243, 214, 0.8) 100%);
 }
 
 .ask-input {
   flex: 1 1 260px;
   min-width: 0;
-  border: 1px solid var(--line);
+  border: 2px solid var(--hb-primary);
   border-radius: var(--soft-radius);
-  background: rgba(255, 255, 255, 0.88);
+  background: #fff;
   color: var(--text);
   padding: 11px 14px;
+  box-shadow: 0 0 0 2px rgba(255, 152, 0, 0.14);
+}
+
+.ask-input:focus {
+  outline: none;
+  border-color: #ef6c00;
+  box-shadow: 0 0 0 3px rgba(239, 108, 0, 0.22);
 }
 
 .chat-message {

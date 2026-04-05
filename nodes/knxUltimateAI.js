@@ -254,31 +254,124 @@ const buildLlmSummarySnapshot = (summary) => {
 const extractJsonFragmentFromText = (value) => {
   const text = String(value || '').trim()
   if (!text) throw new Error('Empty AI response')
-  const fenced = text.match(/```(?:json)?\s*([\s\S]*?)```/i)
-  const candidate = fenced && fenced[1] ? String(fenced[1]).trim() : text
+  const normalizeCandidate = (input) => String(input || '')
+    .replace(/^\uFEFF/, '')
+    .replace(/^\s*json\s*\n/i, '')
+    .trim()
+
   const tryParse = (input) => {
-    if (!input) return null
+    const source = normalizeCandidate(input)
+    if (!source) return null
     try {
-      return JSON.parse(input)
+      return JSON.parse(source)
+    } catch (error) {}
+    // Fallback: tolerate comments and trailing commas that some models emit.
+    const relaxed = source
+      .replace(/\/\*[\s\S]*?\*\//g, '')
+      .replace(/^\s*\/\/.*$/gm, '')
+      .replace(/,\s*([}\]])/g, '$1')
+      .trim()
+    if (!relaxed || relaxed === source) return null
+    try {
+      return JSON.parse(relaxed)
     } catch (error) {
       return null
     }
   }
-  const direct = tryParse(candidate)
-  if (direct !== null) return direct
-  const objectStart = candidate.indexOf('{')
-  const objectEnd = candidate.lastIndexOf('}')
-  if (objectStart !== -1 && objectEnd !== -1 && objectEnd > objectStart) {
-    const parsedObject = tryParse(candidate.slice(objectStart, objectEnd + 1))
-    if (parsedObject !== null) return parsedObject
+
+  const extractBalancedJsonSlices = (input, maxSlices = 24) => {
+    const source = String(input || '')
+    const out = []
+    for (let i = 0; i < source.length; i += 1) {
+      const ch = source[i]
+      if (ch !== '{' && ch !== '[') continue
+      const stack = [ch === '{' ? '}' : ']']
+      let inString = false
+      let escaped = false
+      for (let j = i + 1; j < source.length; j += 1) {
+        const current = source[j]
+        if (inString) {
+          if (escaped) {
+            escaped = false
+            continue
+          }
+          if (current === '\\') {
+            escaped = true
+            continue
+          }
+          if (current === '"') inString = false
+          continue
+        }
+        if (current === '"') {
+          inString = true
+          continue
+        }
+        if (current === '{') {
+          stack.push('}')
+          continue
+        }
+        if (current === '[') {
+          stack.push(']')
+          continue
+        }
+        if ((current === '}' || current === ']') && stack.length) {
+          if (current !== stack[stack.length - 1]) break
+          stack.pop()
+          if (!stack.length) {
+            const slice = normalizeCandidate(source.slice(i, j + 1))
+            if (slice) out.push(slice)
+            i = j
+            break
+          }
+        }
+      }
+      if (out.length >= maxSlices) break
+    }
+    return out
   }
-  const arrayStart = candidate.indexOf('[')
-  const arrayEnd = candidate.lastIndexOf(']')
-  if (arrayStart !== -1 && arrayEnd !== -1 && arrayEnd > arrayStart) {
-    const parsedArray = tryParse(candidate.slice(arrayStart, arrayEnd + 1))
-    if (parsedArray !== null) return parsedArray
+
+  const candidates = []
+  const seen = new Set()
+  const pushCandidate = (input) => {
+    const normalized = normalizeCandidate(input)
+    if (!normalized || seen.has(normalized)) return
+    seen.add(normalized)
+    candidates.push(normalized)
   }
-  throw new Error('The LLM response did not contain valid JSON')
+
+  pushCandidate(text)
+  const fencedRe = /```(?:[a-zA-Z0-9_-]+)?\s*([\s\S]*?)```/g
+  let fenceMatch
+  while ((fenceMatch = fencedRe.exec(text)) !== null) {
+    pushCandidate(fenceMatch[1])
+  }
+
+  for (const candidate of candidates) {
+    const direct = tryParse(candidate)
+    if (direct !== null) return direct
+
+    const objectStart = candidate.indexOf('{')
+    const objectEnd = candidate.lastIndexOf('}')
+    if (objectStart !== -1 && objectEnd !== -1 && objectEnd > objectStart) {
+      const parsedObject = tryParse(candidate.slice(objectStart, objectEnd + 1))
+      if (parsedObject !== null) return parsedObject
+    }
+    const arrayStart = candidate.indexOf('[')
+    const arrayEnd = candidate.lastIndexOf(']')
+    if (arrayStart !== -1 && arrayEnd !== -1 && arrayEnd > arrayStart) {
+      const parsedArray = tryParse(candidate.slice(arrayStart, arrayEnd + 1))
+      if (parsedArray !== null) return parsedArray
+    }
+
+    const balancedSlices = extractBalancedJsonSlices(candidate)
+    for (const slice of balancedSlices) {
+      const parsedSlice = tryParse(slice)
+      if (parsedSlice !== null) return parsedSlice
+    }
+  }
+
+  const preview = text.slice(0, 180).replace(/\s+/g, ' ').trim()
+  throw new Error(`The LLM response did not contain valid JSON${preview ? ` (preview: ${preview})` : ''}`)
 }
 
 const normalizeValueForCompare = (value) => {
@@ -2046,15 +2139,25 @@ const buildRelevantDocsContext = ({ moduleRootDir, question, preferredLangDir, m
 }
 
 const postJson = async ({ url, headers, body, timeoutMs }) => {
+  const resolvedTimeoutMs = Math.max(1000, Number(timeoutMs) || 30000)
   const controller = new AbortController()
-  const timer = setTimeout(() => controller.abort(), timeoutMs || 30000)
+  const timer = setTimeout(() => controller.abort(), resolvedTimeoutMs)
   try {
-    const res = await fetch(url, {
-      method: 'POST',
-      headers: Object.assign({ 'content-type': 'application/json' }, headers || {}),
-      body: JSON.stringify(body || {}),
-      signal: controller.signal
-    })
+    let res
+    try {
+      res = await fetch(url, {
+        method: 'POST',
+        headers: Object.assign({ 'content-type': 'application/json' }, headers || {}),
+        body: JSON.stringify(body || {}),
+        signal: controller.signal
+      })
+    } catch (error) {
+      const isAbort = (error && error.name === 'AbortError') || /\babort(ed)?\b/i.test(String(error && error.message ? error.message : ''))
+      if (isAbort) {
+        throw new Error(`LLM request timeout after ${Math.round(resolvedTimeoutMs / 1000)}s. Increase "Timeout ms" in the KNX AI node settings or reduce prompt context.`)
+      }
+      throw error
+    }
     const text = await res.text()
     let json
     try {
@@ -2076,8 +2179,9 @@ const postJson = async ({ url, headers, body, timeoutMs }) => {
 }
 
 const getJson = async ({ url, headers, timeoutMs }) => {
+  const resolvedTimeoutMs = Math.max(1000, Number(timeoutMs) || 20000)
   const controller = new AbortController()
-  const timer = setTimeout(() => controller.abort(), timeoutMs || 20000)
+  const timer = setTimeout(() => controller.abort(), resolvedTimeoutMs)
   try {
     const res = await fetch(url, { method: 'GET', headers: headers || {}, signal: controller.signal })
     const text = await res.text()
@@ -2610,6 +2714,25 @@ module.exports = function (RED) {
           return
         }
         const ret = await n.deleteAreaDefinition({ areaId })
+        res.json(ret)
+      } catch (error) {
+        res.status(error.status || 500).json({ error: error.message || String(error) })
+      }
+    })
+
+    RED.httpAdmin.post('/knxUltimateAI/sidebar/areas/delete-llm', RED.auth.needsPermission('knxUltimate-config.write'), async (req, res) => {
+      try {
+        const nodeId = req.body?.nodeId ? String(req.body.nodeId) : ''
+        if (!nodeId) {
+          res.status(400).json({ error: 'Missing nodeId' })
+          return
+        }
+        const n = aiRuntimeNodes.get(nodeId) || RED.nodes.getNode(nodeId)
+        if (!n || n.type !== 'knxUltimateAI' || typeof n.deleteAllLlmAreas !== 'function') {
+          res.status(404).json({ error: 'KNX AI node not found' })
+          return
+        }
+        const ret = await n.deleteAllLlmAreas()
         res.json(ret)
       } catch (error) {
         res.status(error.status || 500).json({ error: error.message || String(error) })
@@ -3207,8 +3330,8 @@ module.exports = function (RED) {
     node.llmModel = config.llmModel || 'gpt-4o-mini'
     node.llmSystemPrompt = config.llmSystemPrompt || 'You are a KNX building automation assistant. Analyze KNX bus traffic and provide actionable insights.'
     node.llmTemperature = (config.llmTemperature === undefined || config.llmTemperature === '') ? 0.2 : Number(config.llmTemperature)
-    node.llmMaxTokens = (config.llmMaxTokens === undefined || config.llmMaxTokens === '') ? 10000 : Number(config.llmMaxTokens)
-    node.llmTimeoutMs = (config.llmTimeoutMs === undefined || config.llmTimeoutMs === '') ? 30000 : Number(config.llmTimeoutMs)
+    node.llmMaxTokens = (config.llmMaxTokens === undefined || config.llmMaxTokens === '') ? 50000 : Number(config.llmMaxTokens)
+    node.llmTimeoutMs = (config.llmTimeoutMs === undefined || config.llmTimeoutMs === '') ? 120000 : Number(config.llmTimeoutMs)
     node.llmMaxEventsInPrompt = (config.llmMaxEventsInPrompt === undefined || config.llmMaxEventsInPrompt === '') ? 120 : Number(config.llmMaxEventsInPrompt)
     node.llmIncludeRaw = config.llmIncludeRaw !== undefined ? coerceBoolean(config.llmIncludeRaw) : false
     node.llmIncludeFlowContext = config.llmIncludeFlowContext !== undefined ? coerceBoolean(config.llmIncludeFlowContext) : true
@@ -5011,13 +5134,15 @@ module.exports = function (RED) {
           translated: false
         }
       }
+      const jsonMaxTokens = Math.max(50000, Number(node.llmMaxTokens) || 0)
       const llmResponse = await callLLMChat({
         systemPrompt: [
           'You are a KNX installer assistant.',
           'Translate only human-readable KNX test labels.',
           'Return JSON only.'
         ].join(' '),
-        userContent: buildTestPlanTranslationPrompt({ language: targetLanguage, languageName: targetLanguageName, plan })
+        userContent: buildTestPlanTranslationPrompt({ language: targetLanguage, languageName: targetLanguageName, plan }),
+        maxTokensOverride: jsonMaxTokens
       })
       const parsed = extractJsonFragmentFromText(llmResponse.content)
       const translatedSteps = Array.isArray(parsed)
@@ -5059,13 +5184,15 @@ module.exports = function (RED) {
     const suggestGaRoleOverridesWithLlm = async ({ gaCatalog }) => {
       const candidates = (Array.isArray(gaCatalog) ? gaCatalog : []).filter(item => item && item.ga && isAmbiguousGaRoleSource(item.baseRoleSource || item.roleSource))
       if (!candidates.length) return {}
+      const jsonMaxTokens = Math.max(50000, Number(node.llmMaxTokens) || 0)
       const llmResponse = await callLLMChat({
         systemPrompt: [
           'You are a KNX installation modeling assistant.',
           'Classify KNX group addresses as command, status, or neutral for installers.',
           'Return JSON only.'
         ].join(' '),
-        userContent: buildGaRoleSuggestionPrompt({ gaCatalog: candidates })
+        userContent: buildGaRoleSuggestionPrompt({ gaCatalog: candidates }),
+        maxTokensOverride: jsonMaxTokens
       })
       const parsed = extractJsonFragmentFromText(llmResponse.content)
       const gaCatalogMap = new Map(candidates.map(item => [String(item.ga).trim(), item]))
@@ -5743,17 +5870,38 @@ module.exports = function (RED) {
       }
     }
 
+    node.deleteAllLlmAreas = async () => {
+      const currentOverrides = Object.assign({}, loadAreaOverrides())
+      const llmAreaIds = Object.keys(currentOverrides).filter(key => String(key || '').startsWith('llm:'))
+      llmAreaIds.forEach((areaId) => {
+        delete currentOverrides[areaId]
+      })
+      writeAreaOverrides(currentOverrides)
+      const summary = node._lastSummary || rebuildCachedSummaryNow()
+      return {
+        ok: true,
+        deletedCount: llmAreaIds.length,
+        areas: buildAreasSnapshot({ summary }),
+        profiles: buildProfilesSnapshot(),
+        actuatorTests: buildActuatorTestsSnapshot(),
+        testPlans: buildAiTestPlansSnapshot(),
+        gaCatalog: getGaCatalogSnapshot()
+      }
+    }
+
     node.regenerateLlmAreas = async () => {
       if (!node.llmEnabled) throw new Error('LLM is disabled in the KNX AI node config')
       const gaCatalog = getGaCatalogSnapshot()
       if (!Array.isArray(gaCatalog) || !gaCatalog.length) throw new Error('No ETS group addresses available')
+      const jsonMaxTokens = Math.max(50000, Number(node.llmMaxTokens) || 0)
       const llmResponse = await callLLMChat({
         systemPrompt: [
           'You are a KNX installation modeling assistant.',
           'Group KNX group addresses into practical installer-friendly operational areas.',
           'Return JSON only.'
         ].join(' '),
-        userContent: buildAreaRegenerationPrompt({ gaCatalog })
+        userContent: buildAreaRegenerationPrompt({ gaCatalog }),
+        maxTokensOverride: jsonMaxTokens
       })
       const parsed = extractJsonFragmentFromText(llmResponse.content)
       const rawAreas = Array.isArray(parsed)
@@ -5826,6 +5974,7 @@ module.exports = function (RED) {
       if (!installerPrompt) throw new Error('Missing prompt')
       const gaCatalog = getGaCatalogSnapshot()
       if (!Array.isArray(gaCatalog) || !gaCatalog.length) throw new Error('No ETS group addresses available')
+      const jsonMaxTokens = Math.max(50000, Number(node.llmMaxTokens) || 0)
       const llmResponse = await callLLMChat({
         systemPrompt: [
           'You are a KNX installation modeling assistant.',
@@ -5838,7 +5987,8 @@ module.exports = function (RED) {
           draftDescription: description,
           currentGaList: Array.isArray(gaList) ? gaList : [],
           gaCatalog
-        })
+        }),
+        maxTokensOverride: jsonMaxTokens
       })
       const parsed = extractJsonFragmentFromText(llmResponse.content)
       const gaCatalogMap = new Map(gaCatalog.map(item => [String(item && item.ga ? item.ga : '').trim(), item]))
@@ -6216,10 +6366,13 @@ module.exports = function (RED) {
       if (!node.llmApiKey && node.llmProvider !== 'ollama') {
         throw new Error('Missing API key: paste only the OpenAI key (starts with sk-), without "Bearer"')
       }
-      const maxTokensRaw = (maxTokensOverride !== null && maxTokensOverride !== undefined && maxTokensOverride !== '')
-        ? Number(maxTokensOverride)
-        : Number(node.llmMaxTokens)
-      const resolvedMaxTokens = Number.isFinite(maxTokensRaw) && maxTokensRaw > 0 ? Math.round(maxTokensRaw) : 10000
+    const maxTokensRaw = (maxTokensOverride !== null && maxTokensOverride !== undefined && maxTokensOverride !== '')
+      ? Number(maxTokensOverride)
+      : Number(node.llmMaxTokens)
+    const resolvedMaxTokens = Number.isFinite(maxTokensRaw) && maxTokensRaw > 0 ? Math.round(maxTokensRaw) : 10000
+    const configuredTimeoutMs = Number(node.llmTimeoutMs)
+    const resolvedTimeoutMs = Number.isFinite(configuredTimeoutMs) && configuredTimeoutMs > 0 ? Math.round(configuredTimeoutMs) : 30000
+    const effectiveTimeoutMs = Math.max(120000, resolvedTimeoutMs)
 
       if (node.llmProvider === 'ollama') {
         const url = node.llmBaseUrl || 'http://localhost:11434/api/chat'
@@ -6234,7 +6387,7 @@ module.exports = function (RED) {
             temperature: node.llmTemperature
           }
         }
-        const json = await postJson({ url, body, timeoutMs: node.llmTimeoutMs })
+        const json = await postJson({ url, body, timeoutMs: effectiveTimeoutMs })
         const content = json && json.message && typeof json.message.content === 'string' ? json.message.content : safeStringify(json)
         return { provider: 'ollama', model: body.model, content, finishReason: String(json && json.done_reason ? json.done_reason : '') }
       }
@@ -6279,26 +6432,26 @@ module.exports = function (RED) {
 
       let json
       try {
-        json = await postJson({ url, headers, body: bodyWithMaxTokens, timeoutMs: node.llmTimeoutMs })
+        json = await postJson({ url, headers, body: bodyWithMaxTokens, timeoutMs: effectiveTimeoutMs })
       } catch (error) {
         const msg = (error && error.message) ? String(error.message) : ''
         if (isResponseFormatCompatibilityError(msg)) {
           try {
-            json = await postJson({ url, headers, body: plainBodyWithMaxTokens, timeoutMs: node.llmTimeoutMs })
+            json = await postJson({ url, headers, body: plainBodyWithMaxTokens, timeoutMs: effectiveTimeoutMs })
           } catch (innerError) {
             const innerMsg = (innerError && innerError.message) ? String(innerError.message) : ''
             if (innerMsg.includes("Unsupported parameter: 'max_tokens'") || innerMsg.includes('max_completion_tokens')) {
-              json = await postJson({ url, headers, body: plainBodyWithMaxCompletionTokens, timeoutMs: node.llmTimeoutMs })
+              json = await postJson({ url, headers, body: plainBodyWithMaxCompletionTokens, timeoutMs: effectiveTimeoutMs })
             } else if (innerMsg.includes("Unsupported parameter: 'max_completion_tokens'")) {
-              json = await postJson({ url, headers, body: plainBodyWithMaxTokens, timeoutMs: node.llmTimeoutMs })
+              json = await postJson({ url, headers, body: plainBodyWithMaxTokens, timeoutMs: effectiveTimeoutMs })
             } else {
               throw innerError
             }
           }
         } else if (msg.includes("Unsupported parameter: 'max_tokens'") || msg.includes('max_completion_tokens')) {
-          json = await postJson({ url, headers, body: bodyWithMaxCompletionTokens, timeoutMs: node.llmTimeoutMs })
+          json = await postJson({ url, headers, body: bodyWithMaxCompletionTokens, timeoutMs: effectiveTimeoutMs })
         } else if (msg.includes("Unsupported parameter: 'max_completion_tokens'")) {
-          json = await postJson({ url, headers, body: bodyWithMaxTokens, timeoutMs: node.llmTimeoutMs })
+          json = await postJson({ url, headers, body: bodyWithMaxTokens, timeoutMs: effectiveTimeoutMs })
         } else {
           throw error
         }

@@ -6,6 +6,15 @@
 
 # CHANGELOG
 
+**Version 4.2.11** - April 2026<br/>
+
+- UI: **KNX AI Web** improved assistant workflow with chat-style layout (prompt input under messages), clearer prompt focus, and streamlined Ask page text.<br/>
+- UI: **KNX AI Web** added clearer loading feedback for AI operations (area regeneration/deletion and planner generation), including a centered blocking wait overlay during long-running area generation.<br/>
+- NEW: **KNX AI Web** added bulk action **Delete AI Areas** and localized labels for **Regenerate AI Areas** / **Delete AI Areas** across supported UI languages.<br/>
+- FIX: **KNX AI backend** hardened JSON extraction/parsing for LLM outputs and improved timeout/token-limit diagnostics in error messages.<br/>
+- CHANGE: **KNX AI backend** raised default/forced `llmMaxTokens` handling for structured responses and aligned editor defaults for high-token completions.<br/>
+- Docs/wiki: improved **KNX AI Dashboard** pages for end users, added localized guidance updates, and made support CTA links visible in docs navigation.<br/>
+
 **Version 4.2.10** - April 2026<br/>
 
 - UI: **KNX AI Web** sidebar menu style aligned to Homebridge (font size/weight, spacing, icon/text alignment and sidebar widths) for closer visual consistency.<br/>

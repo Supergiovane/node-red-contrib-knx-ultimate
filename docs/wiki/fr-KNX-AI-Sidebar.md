@@ -4,47 +4,57 @@ title: "KNX-AI-Sidebar"
 lang: fr
 permalink: /wiki/fr-KNX-AI-Sidebar
 ---
-Le **tableau de bord Web KNX AI** est désormais l’interface officielle pour l’analyse en temps réel de vos nœuds **KNX AI** : résumé, anomalies, flow map et chat.
+Le **tableau de bord KNX AI** vous aide à surveiller votre installation KNX simplement.
+Vous voyez rapidement ce qui se passe, vous repérez les anomalies, vous lancez des tests et vous posez des questions en langage naturel.
 Cette page conserve le nom historique `KNX-AI-Sidebar` pour compatibilité.
 
 <img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/knx-ai-sidebar.svg" alt="KNX AI sidebar" style="width:100%;max-width:980px;border-radius:14px;box-shadow:0 12px 26px rgba(0,0,0,0.18);" />
 
-## À quoi ça sert
+## Ce que vous pouvez faire
 
-- Afficher le résumé produit par le nœud `knxUltimateAI` sélectionné.
-- Consulter les anomalies détectées.
-- Poser des questions via la chat (les réponses sont rendues en Markdown) pour accélérer le dépannage.
+- Voir l'etat du systeme en un coup d'oeil.
+- Identifier les adresses de groupe les plus actives.
+- Creer et gerer des zones avec l'aide de l'IA.
+- Lancer des tests guides et lire des resultats clairs.
+- Demander a l'assistant : "qu'est-ce qui ne va pas ?"
 
-## Comment l’utiliser
+## Demarrage rapide
 
 1. Ouvrez-le depuis l’éditeur du nœud KNX AI avec **Open Web Page**.
-2. Ou utilisez directement `/knxUltimateAI/sidebar/page` (optionnellement avec `?nodeId=<id>`).
-3. Sélectionnez le nœud `knxUltimateAI` dans la liste.
-4. Utilisez **Auto** ou un rafraîchissement manuel et posez vos questions dans le chat.
+2. Selectionnez votre nœud KNX AI dans la liste.
+3. Appuyez sur **Refresh** si necessaire.
 
-## Plus de contexte (meilleures réponses)
+## Sections principales (guide simple)
 
-Dans le nœud `knxUltimateAI` sélectionné, vous pouvez inclure du contexte supplémentaire dans le prompt du LLM :
+- **Overview** : resume en direct et activite.
+- **Areas** : pieces/zones et adresses de groupe associees.
+- **Tests** : preparer et executer des controles.
+- **Test Results** : historique pass/warn/fail.
+- **Ask** : poser une question en langage naturel.
+- **Settings** : selection du nœud et import/export.
 
-- **Inventaire des flows :** l’IA “voit” quels nœuds KNX Ultimate (et gateways) sont présents dans vos flows, et peut relier les télégrammes à votre logique.
-- **Extraits de documentation :** ajoute des extraits pertinents depuis l’aide/README/exemples (et `docs/wiki` si disponible) pour mieux expliquer les nœuds et proposer la bonne configuration.
+## Parcours conseille (premiere utilisation)
 
-## Exemples d’utilisation (scénarios)
+1. Commencez par **Overview** pour verifier si le systeme est stable.
+2. Ouvrez **Areas** pour controler les pieces/zones.
+3. Si besoin, utilisez **Regenerate AI Areas**.
+4. Lancez un test dans **Tests**, puis lisez **Test Results**.
+5. Dans **Ask**, decrivez le probleme en une phrase et suivez les verifications proposees.
 
-- **Boucle / télégrammes dupliqués :** identifier les causes probables et isoler la source.
-- **GA très bavarde :** comprendre pourquoi une GA est en tête et quelles sources écrivent dessus.
-- **Comportement inattendu après un déploiement :** voir ce qui a changé et quels patterns sont apparus.
-- **Routing entre passerelles :** filtrer/réécrire pour éviter storms et boucles de retour.
+## Boutons les plus utiles
 
-## Exemples de questions à coller dans la chat
+- **Refresh** : met a jour les donnees immediatement.
+- **Regenerate AI Areas** : reconstruit les suggestions de zones IA a partir des adresses ETS.
+- **Delete AI Areas** : supprime toutes les zones generees par l'IA en une action.
+- **New Area** : cree une zone manuellement.
 
-- « Pourquoi `2/4/2` est si active ? Quelles causes sont les plus probables ? »
-- « Vois-tu un pattern de boucle entre deux adresses de groupe ? »
-- « Quelles adresses physiques écrivent sur `x/y/z` et à quelle fréquence ? »
-- « Quels filtres mettre dans Router Filter pour stopper le spam tout en gardant le trafic normal ? »
+## Quand l'IA travaille
+
+Pendant la generation ou la suppression des zones, un ecran d'attente apparait au centre.
+C'est normal : la page bloque les clics jusqu'a la fin pour eviter les modifications involontaires.
 
 ## Prérequis
 
-- Au moins un nœud `knxUltimateAI` dans vos flows.
-- Le nœud `knxUltimateAI` sélectionné doit être lié à une passerelle `knxUltimate-config`.
-- Pour les réponses LLM : activer le LLM dans `knxUltimateAI` et configurer la clé API dans ce nœud.
+- Au moins un nœud KNX AI configure.
+- Une passerelle connectee et active.
+- Pour les reponses du chat : LLM active et cle API configuree dans le nœud KNX AI.

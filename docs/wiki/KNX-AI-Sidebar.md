@@ -4,47 +4,57 @@ title: "KNX-AI-Sidebar"
 lang: en
 permalink: /wiki/KNX-AI-Sidebar
 ---
-The **KNX AI Web Dashboard** is now the official UI for live analysis of your **KNX AI nodes**: summary, anomalies, flow map, and chat.
-This page keeps the historical name `KNX-AI-Sidebar` for backward compatibility.
+The **KNX AI Dashboard** helps you monitor your KNX system in a simple way.
+You can see what is happening, find anomalies, run tests, and ask questions in plain language.
+This page keeps the historical name `KNX-AI-Sidebar` for compatibility.
 
 <img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/knx-ai-sidebar.svg" alt="KNX AI sidebar" style="width:100%;max-width:980px;border-radius:14px;box-shadow:0 12px 26px rgba(0,0,0,0.18);" />
 
-## What it is for
+## What you can do
 
-- Quickly browse the summary produced by a selected `knxUltimateAI` node.
-- Inspect detected anomalies and spot suspicious behaviour (spam, flapping, bursts).
-- Ask questions in the chat (answers are rendered in Markdown) to speed up troubleshooting.
+- Check the system status at a glance.
+- See which group addresses are most active.
+- Create and manage areas with AI support.
+- Run guided tests and read clear results.
+- Ask the assistant "what is wrong?" and get quick suggestions.
 
-## How to use it
+## Open it quickly
 
-1. Open it from the KNX AI node editor using **Open Web Page**.
-2. Alternatively open `/knxUltimateAI/sidebar/page` (optionally with `?nodeId=<id>`).
-3. Select the `knxUltimateAI` node from the dropdown.
-4. Use **Auto** or manual refresh and ask questions in chat.
+1. Open it from the KNX AI node editor with **Open Web Page**.
+2. Select your KNX AI node from the list.
+3. Press **Refresh** if needed.
 
-## Make the AI smarter (extra context)
+## Main sections (simple guide)
 
-In the selected `knxUltimateAI` node you can include additional context in the LLM prompt:
+- **Overview**: live summary and activity.
+- **Areas**: rooms/zones and related group addresses.
+- **Tests**: prepare and run checks.
+- **Test Results**: pass/warn/fail history.
+- **Ask**: type a question in natural language.
+- **Settings**: node selection and import/export.
 
-- **Flow inventory:** lets the AI “see” which KNX Ultimate nodes (and gateways) are present in your flows, so it can relate telegrams to your logic.
-- **Documentation snippets:** adds relevant excerpts from built-in help/README/examples (and `docs/wiki` when available) so the AI can explain node behaviour and suggest the right configuration.
+## First guided workflow
 
-## Example usage (human scenarios)
+1. Start in **Overview** and check if the system looks stable.
+2. Open **Areas** and verify rooms/zones are meaningful.
+3. If needed, use **Regenerate AI Areas** to rebuild suggestions.
+4. Open **Tests**, run one test, then check **Test Results**.
+5. In **Ask**, describe the issue in one sentence and follow the suggested checks.
 
-- **Loop / duplicated telegrams:** ask what could generate repeated writes on the same GA and how to isolate the source.
-- **Noisy GA:** ask why a GA is the top talker and which devices/nodes are involved.
-- **Unexpected behaviour after deploy:** ask what changed in the last minutes and which patterns appeared.
-- **Routing bridge issues:** ask how to filter/rewrite routed telegrams to avoid storms or feedback loops.
+## Buttons you will use most
 
-## Example questions to paste in chat
+- **Refresh**: update data immediately.
+- **Regenerate AI Areas**: rebuild AI area suggestions from ETS addresses.
+- **Delete AI Areas**: remove all AI-generated areas at once.
+- **New Area**: create one area manually.
 
-- “Why is `2/4/2` so active? What are the most likely causes?”
-- “Do you see any loop pattern between two group addresses?”
-- “Which physical sources are writing to `x/y/z` and how often?”
-- “What should I filter in Router Filter to stop the spam but keep normal traffic?”
+## While AI is working
+
+When areas are being generated or deleted, a centered waiting screen appears.
+This is normal: the page blocks clicks until the operation ends, to prevent accidental changes.
 
 ## Requirements
 
-- At least one `knxUltimateAI` node in your flows.
-- The selected `knxUltimateAI` node must be connected to a `knxUltimate-config` gateway.
-- To use chat LLM answers: enable LLM in the `knxUltimateAI` node and configure its credentials (API key) there.
+- At least one configured KNX AI node.
+- A gateway connected and running.
+- For chat answers: LLM enabled and API key configured in the KNX AI node.

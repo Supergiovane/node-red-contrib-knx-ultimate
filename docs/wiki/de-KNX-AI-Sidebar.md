@@ -4,47 +4,57 @@ title: "KNX-AI-Sidebar"
 lang: de
 permalink: /wiki/de-KNX-AI-Sidebar
 ---
-Das **KNX AI Web-Dashboard** ist jetzt die offizielle Oberfläche für die Live-Analyse deiner **KNX AI Nodes**: Summary, Anomalien, Flow Map und Chat.
+Das **KNX AI Dashboard** hilft dir, deine KNX-Anlage einfach zu überwachen.
+Du siehst schnell, was passiert, findest Anomalien, startest Tests und stellst Fragen in normaler Sprache.
 Diese Seite behält den historischen Namen `KNX-AI-Sidebar` aus Kompatibilitätsgründen.
 
 <img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/knx-ai-sidebar.svg" alt="KNX AI sidebar" style="width:100%;max-width:980px;border-radius:14px;box-shadow:0 12px 26px rgba(0,0,0,0.18);" />
 
-## Zweck
+## Was du damit machen kannst
 
-- Summary des ausgewählten `knxUltimateAI` Nodes anzeigen.
-- Erkannte Anomalien prüfen.
-- Fragen im Chat stellen (Antworten werden als Markdown gerendert), um Fehler schneller einzugrenzen.
+- Anlagenstatus auf einen Blick sehen.
+- Erkennen, welche Gruppenadressen am aktivsten sind.
+- Bereiche mit KI-Unterstützung erstellen und verwalten.
+- Geführte Tests ausführen und klare Ergebnisse lesen.
+- Den Assistenten fragen: "Was stimmt nicht?"
 
-## So benutzt du es
+## Schnell starten
 
 1. Öffne es im KNX-AI-Node-Editor mit **Open Web Page**.
-2. Alternativ direkt `/knxUltimateAI/sidebar/page` öffnen (optional mit `?nodeId=<id>`).
-3. `knxUltimateAI` Node im Dropdown auswählen.
-4. **Auto** oder manuelles Refresh verwenden und Fragen im Chat stellen.
+2. Deinen KNX-AI-Node aus der Liste auswählen.
+3. Bei Bedarf **Refresh** drücken.
 
-## Mehr Kontext (bessere Antworten)
+## Hauptbereiche (kurz erklärt)
 
-Im ausgewählten `knxUltimateAI` Node kannst du zusätzlichen Kontext in den LLM-Prompt aufnehmen:
+- **Overview**: Live-Zusammenfassung und Aktivität.
+- **Areas**: Räume/Zonen und zugehörige Gruppenadressen.
+- **Tests**: Prüfungen vorbereiten und starten.
+- **Test Results**: Historie mit pass/warn/fail.
+- **Ask**: Fragen in natürlicher Sprache stellen.
+- **Settings**: Node-Auswahl und Import/Export.
 
-- **Flow-Inventar:** damit „sieht“ die AI, welche KNX-Ultimate Nodes (und Gateways) in deinen Flows existieren, und kann Telegramme besser mit der Logik verknüpfen.
-- **Doku-Auszüge:** relevante Ausschnitte aus Help/README/Beispielen (und `docs/wiki`, falls verfügbar), damit die AI Nodes erklären und passende Einstellungen vorschlagen kann.
+## Empfohlener Ablauf (erste Nutzung)
 
-## Beispiel-Szenarien (ohne Code)
+1. In **Overview** prüfen, ob das System stabil wirkt.
+2. In **Areas** kontrollieren, ob Räume/Zonen sinnvoll sind.
+3. Bei Bedarf **Regenerate AI Areas** verwenden.
+4. In **Tests** einen Test starten und danach **Test Results** prüfen.
+5. In **Ask** das Problem in einem Satz beschreiben und die Vorschläge abarbeiten.
 
-- **Loop / doppelte Telegramme:** Ursachen eingrenzen und die Quelle isolieren.
-- **„Lauter“ GA:** warum ist ein GA Top‑Talker, welche Quellen schreiben darauf?
-- **Unerwartetes Verhalten nach Deploy:** was hat sich in den letzten Minuten geändert, welche Pattern sind neu?
-- **Routing/Bridging:** wie filtern/umschreiben, um Storms und Feedback‑Loops zu vermeiden?
+## Wichtige Buttons
 
-## Beispiel-Fragen für den Chat
+- **Refresh**: Daten sofort aktualisieren.
+- **Regenerate AI Areas**: KI-Bereichsvorschläge aus ETS-Adressen neu erstellen.
+- **Delete AI Areas**: alle KI-erzeugten Bereiche auf einmal löschen.
+- **New Area**: einen Bereich manuell anlegen.
 
-- „Warum ist `2/4/2` so aktiv? Was sind die wahrscheinlichsten Ursachen?“
-- „Siehst du Loop‑Pattern zwischen zwei Group Addresses?“
-- „Welche physikalischen Quellen schreiben auf `x/y/z` und wie oft?“
-- „Welche Filter im Router Filter stoppen den Spam, ohne normale Telegramme zu blockieren?“
+## Wenn die KI arbeitet
+
+Beim Generieren oder Löschen von Bereichen erscheint ein Wartebildschirm in der Mitte.
+Das ist normal: Die Seite blockiert Klicks bis zum Ende, damit keine falschen Änderungen passieren.
 
 ## Voraussetzungen
 
-- Mindestens ein `knxUltimateAI` Node im Flow.
-- Der ausgewählte `knxUltimateAI` Node muss an ein `knxUltimate-config` Gateway gebunden sein.
-- Für LLM-Antworten im Chat: LLM im `knxUltimateAI` Node aktivieren und dort den API-Key konfigurieren.
+- Mindestens ein konfigurierter KNX-AI-Node.
+- Ein verbundenes und laufendes Gateway.
+- Für Chat-Antworten: LLM aktivieren und API-Key im KNX-AI-Node eintragen.
