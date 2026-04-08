@@ -39,6 +39,21 @@
             });
 
             const nodeId = this.id;
+            const resolveAdminRoot = () => {
+                const raw = (RED.settings && typeof RED.settings.httpAdminRoot === "string") ? RED.settings.httpAdminRoot : "/";
+                const trimmed = String(raw || "/").trim();
+                if (trimmed === "" || trimmed === "/") return "";
+                return "/" + trimmed.replace(/^\/+|\/+$/g, "");
+            };
+            const resolveAccessToken = () => {
+                try {
+                    const tokens = (RED.settings && typeof RED.settings.get === "function") ? RED.settings.get("auth-tokens") : null;
+                    const token = tokens && typeof tokens.access_token === "string" ? tokens.access_token.trim() : "";
+                    return token;
+                } catch (error) {
+                    return "";
+                }
+            };
 
             const toggleFilePath = () => {
                 const isEmitSave = $("#node-input-saveMode").val() === "emit_save";
@@ -67,8 +82,16 @@
                     }
                     return;
                 }
-                const url = "knxUltimateLoggerDownload?nodeId=" + encodeURIComponent(nodeId) + "&_=" + new Date().getTime();
-                window.open(url, "_blank");
+                const adminRoot = resolveAdminRoot();
+                const targetBase = adminRoot + "/knxUltimateLoggerDownload";
+                const params = new URLSearchParams();
+                if (nodeId) params.set("nodeId", nodeId);
+                params.set("_", String(Date.now()));
+                const accessToken = resolveAccessToken();
+                if (accessToken) params.set("access_token", accessToken);
+                const target = targetBase + "?" + params.toString();
+                const wnd = window.open(target, "_blank", "noopener,noreferrer");
+                try { if (wnd && typeof wnd.focus === "function") wnd.focus(); } catch (e) { }
             });
         },
         oneditsave: function () {

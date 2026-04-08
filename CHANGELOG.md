@@ -6,6 +6,12 @@
 
 # CHANGELOG
 
+**Version 4.2.14** - April 2026<br/>
+
+- FIX: **KNX Logger** XML download now works also with Node-RED authentication enabled by appending the active editor `access_token` and respecting `httpAdminRoot` when opening the download URL.<br/>
+- FIX: **KNX Logger** admin download route now normalizes `access_token` from query into `Authorization: Bearer ...` before permission checks, then removes it from query parameters to avoid auth conflicts.<br/>
+- FIX: resolved authenticated XML export failures (`401 Unauthorized`) reported in issue #502.<br/>
+
 **Version 4.2.13** - April 2026<br/>
 
 - FIX: **KNX AI Web** hardened authenticated requests by always attaching Bearer auth on API/audio calls (query token or Node-RED stored editor token fallback), preventing silent audio failures in authenticated sessions.<br/>

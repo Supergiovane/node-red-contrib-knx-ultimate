@@ -8,6 +8,7 @@ const dptlib = require('knxultimate').dptlib
 const customHTTP = require('./utils/http')
 const KNXClient = require('knxultimate').KNXClient
 const sysLogger = require('./utils/sysLogger')
+const { normalizeAuthFromAccessTokenQuery } = require('./utils/httpAdminAccessToken')
 
 // DATAPONT MANIPULATION HELPERS
 // ####################
@@ -328,7 +329,7 @@ module.exports = (RED) => {
     })
 
     // 2025-12 Download logger XML file configured in a knxUltimateLogger node
-    RED.httpAdmin.get('/knxUltimateLoggerDownload', RED.auth.needsPermission('knxUltimate-config.read'), (req, res) => {
+    RED.httpAdmin.get('/knxUltimateLoggerDownload', normalizeAuthFromAccessTokenQuery, RED.auth.needsPermission('knxUltimate-config.read'), (req, res) => {
       try {
         const nodeId = (req.query.nodeId || req.query.id || '').toString()
         if (!nodeId) {
