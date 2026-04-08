@@ -13,6 +13,14 @@ const queryNodeId = (() => {
   }
 })()
 
+const queryAccessToken = (() => {
+  try {
+    return new URLSearchParams(window.location.search).get('access_token') || ''
+  } catch (error) {
+    return ''
+  }
+})()
+
 const state = reactive({
   nodes: [],
   selectedNodeId: queryNodeId || loadString(nodeKey, ''),
@@ -58,7 +66,9 @@ function saveBoolean (key, value) {
 }
 
 function apiUrl (tail) {
-  return new URL(tail, window.location.href).toString()
+  const url = new URL(tail, window.location.href)
+  if (queryAccessToken) url.searchParams.set('access_token', queryAccessToken)
+  return url.toString()
 }
 
 function setStatus (text) {

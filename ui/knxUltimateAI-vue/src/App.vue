@@ -66,6 +66,14 @@ const queryNodeId = (() => {
   }
 })()
 
+const queryAccessToken = (() => {
+  try {
+    return new URLSearchParams(window.location.search).get('access_token') || ''
+  } catch (error) {
+    return ''
+  }
+})()
+
 const uiLanguage = ref('en')
 let uiTranslateObserver = null
 let uiTranslateRaf = 0
@@ -723,7 +731,9 @@ function syncFullscreenState () {
 }
 
 function apiUrl (tail) {
-  return new URL(tail, window.location.href).toString()
+  const url = new URL(tail, window.location.href)
+  if (queryAccessToken) url.searchParams.set('access_token', queryAccessToken)
+  return url.toString()
 }
 
 function setStatus (text) {

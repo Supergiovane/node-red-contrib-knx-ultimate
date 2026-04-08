@@ -3,6 +3,7 @@ const loggerClass = require('./utils/sysLogger')
 const dptlib = require('knxultimate').dptlib
 const fs = require('fs')
 const path = require('path')
+const { getRequestAccessToken, normalizeAuthFromAccessTokenQuery } = require('./utils/httpAdminAccessToken')
 let googleTranslateTTS = null
 try {
   googleTranslateTTS = require('google-translate-tts')
@@ -16,17 +17,23 @@ let adminEndpointsRegistered = false
 const aiRuntimeNodes = new Map()
 const knxAiVueDistDir = path.join(__dirname, 'plugins', 'knxUltimateAI-vue')
 
-const sendKnxAiVueIndex = (res) => {
+const sendKnxAiVueIndex = (req, res) => {
   const entryPath = path.join(knxAiVueDistDir, 'index.html')
-  fs.stat(entryPath, (error, stats) => {
-    if (error || !stats || !stats.isFile()) {
+  fs.readFile(entryPath, 'utf8', (error, html) => {
+    if (error || typeof html !== 'string') {
       res.status(503).type('text/plain').send('KNX AI Vue build not found. Run "npm run knx-ai:build" in the module root.')
       return
     }
-    res.sendFile(entryPath, (sendError) => {
-      if (!sendError || res.headersSent) return
-      res.status(sendError.statusCode || 500).type('text/plain').send(sendError.message || String(sendError))
-    })
+    const rawToken = getRequestAccessToken(req)
+    if (!rawToken) {
+      res.type('text/html').send(html)
+      return
+    }
+    const encodedToken = encodeURIComponent(rawToken)
+    const htmlWithToken = html
+      .replace('./assets/app.js', `./assets/app.js?access_token=${encodedToken}`)
+      .replace('./assets/app.css', `./assets/app.css?access_token=${encodedToken}`)
+    res.type('text/html').send(htmlWithToken)
   })
 }
 
@@ -2557,15 +2564,27 @@ module.exports = function (RED) {
   if (!adminEndpointsRegistered) {
     adminEndpointsRegistered = true
 
+    RED.httpAdmin.use('/knxUltimateAI/sidebar', normalizeAuthFromAccessTokenQuery)
+
     RED.httpAdmin.get('/knxUltimateAI/sidebar/page', RED.auth.needsPermission('knxUltimate-config.read'), (req, res) => {
-      sendKnxAiVueIndex(res)
+      sendKnxAiVueIndex(req, res)
     })
 
     RED.httpAdmin.get('/knxUltimateAI/sidebar/page-vue', RED.auth.needsPermission('knxUltimate-config.read'), (req, res) => {
-      sendKnxAiVueIndex(res)
+      sendKnxAiVueIndex(req, res)
     })
 
     RED.httpAdmin.get('/knxUltimateAI/sidebar/page/assets/:file', RED.auth.needsPermission('knxUltimate-config.read'), (req, res) => {
+      sendStaticFileSafe({
+        rootDir: knxAiVueDistDir,
+        relativePath: path.join('assets', String(req.params?.file || '')),
+        res
+      })
+    })
+
+    // Alias for relative asset URLs resolved from ".../sidebar/page?nodeId=..."
+    // which become ".../sidebar/assets/<file>" in browsers.
+    RED.httpAdmin.get('/knxUltimateAI/sidebar/assets/:file', RED.auth.needsPermission('knxUltimate-config.read'), (req, res) => {
       sendStaticFileSafe({
         rootDir: knxAiVueDistDir,
         relativePath: path.join('assets', String(req.params?.file || '')),

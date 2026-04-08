@@ -99,10 +99,31 @@
             toggleProvider();
 
             const nodeId = this.id;
+            const resolveAdminRoot = () => {
+                const raw = (RED.settings && typeof RED.settings.httpAdminRoot === "string") ? RED.settings.httpAdminRoot : "/";
+                const trimmed = String(raw || "/").trim();
+                if (trimmed === "" || trimmed === "/") return "";
+                return "/" + trimmed.replace(/^\/+|\/+$/g, "");
+            };
+            const resolveAccessToken = () => {
+                try {
+                    const tokens = (RED.settings && typeof RED.settings.get === "function") ? RED.settings.get("auth-tokens") : null;
+                    const token = tokens && typeof tokens.access_token === "string" ? tokens.access_token.trim() : "";
+                    return token;
+                } catch (error) {
+                    return "";
+                }
+            };
 
             $("#knx-ai-open-web-page-vue").on("click", function (evt) {
                 evt.preventDefault();
-                const target = "knxUltimateAI/sidebar/page" + (nodeId ? ("?nodeId=" + encodeURIComponent(nodeId)) : "");
+                const adminRoot = resolveAdminRoot();
+                const targetBase = adminRoot + "/knxUltimateAI/sidebar/page";
+                const params = new URLSearchParams();
+                if (nodeId) params.set("nodeId", nodeId);
+                const accessToken = resolveAccessToken();
+                if (accessToken) params.set("access_token", accessToken);
+                const target = targetBase + (params.toString() ? ("?" + params.toString()) : "");
                 const wnd = window.open(target, "_blank", "noopener,noreferrer");
                 try { if (wnd && typeof wnd.focus === "function") wnd.focus(); } catch (e) { }
             });

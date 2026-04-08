@@ -8,7 +8,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 export default defineConfig({
   plugins: [vue()],
   root: __dirname,
-  base: '/knxUltimateViewer/page/',
+  base: './',
   publicDir: false,
   build: {
     outDir: path.resolve(__dirname, '../../nodes/plugins/knxUltimateViewer-vue'),

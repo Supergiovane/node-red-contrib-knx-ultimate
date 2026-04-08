@@ -2,22 +2,29 @@ const fs = require('fs')
 const path = require('path')
 const KNXAddress = require('knxultimate').KNXAddress
 const _ = require('lodash')
+const { getRequestAccessToken, normalizeAuthFromAccessTokenQuery } = require('./utils/httpAdminAccessToken')
 
 let viewerAdminEndpointsRegistered = false
 const viewerRuntimeNodes = new Map()
 const knxUltimateViewerVueDistDir = path.join(__dirname, 'plugins', 'knxUltimateViewer-vue')
 
-const sendKnxUltimateViewerVueIndex = (res) => {
+const sendKnxUltimateViewerVueIndex = (req, res) => {
   const entryPath = path.join(knxUltimateViewerVueDistDir, 'index.html')
-  fs.stat(entryPath, (error, stats) => {
-    if (error || !stats || !stats.isFile()) {
+  fs.readFile(entryPath, 'utf8', (error, html) => {
+    if (error || typeof html !== 'string') {
       res.status(503).type('text/plain').send('KNX Viewer Vue build not found. Run "npm run knx-viewer:build" in the module root.')
       return
     }
-    res.sendFile(entryPath, (sendError) => {
-      if (!sendError || res.headersSent) return
-      res.status(sendError.statusCode || 500).type('text/plain').send(sendError.message || String(sendError))
-    })
+    const rawToken = getRequestAccessToken(req)
+    if (!rawToken) {
+      res.type('text/html').send(html)
+      return
+    }
+    const encodedToken = encodeURIComponent(rawToken)
+    const htmlWithToken = html
+      .replace('./assets/app.js', `./assets/app.js?access_token=${encodedToken}`)
+      .replace('./assets/app.css', `./assets/app.css?access_token=${encodedToken}`)
+    res.type('text/html').send(htmlWithToken)
   })
 }
 
@@ -157,11 +164,23 @@ const buildViewerWebState = (node) => {
 
 module.exports = function (RED) {
   if (!viewerAdminEndpointsRegistered) {
+    RED.httpAdmin.use('/knxUltimateViewer', normalizeAuthFromAccessTokenQuery)
+
     RED.httpAdmin.get('/knxUltimateViewer/page', RED.auth.needsPermission('knxUltimate-config.read'), (req, res) => {
-      sendKnxUltimateViewerVueIndex(res)
+      sendKnxUltimateViewerVueIndex(req, res)
     })
 
     RED.httpAdmin.get('/knxUltimateViewer/page/assets/:file', RED.auth.needsPermission('knxUltimate-config.read'), (req, res) => {
+      sendStaticFileSafe({
+        rootDir: path.join(knxUltimateViewerVueDistDir, 'assets'),
+        relativePath: req.params.file,
+        res
+      })
+    })
+
+    // Alias for relative asset URLs resolved from ".../page?nodeId=..."
+    // which become ".../assets/<file>" in browsers.
+    RED.httpAdmin.get('/knxUltimateViewer/assets/:file', RED.auth.needsPermission('knxUltimate-config.read'), (req, res) => {
       sendStaticFileSafe({
         rootDir: path.join(knxUltimateViewerVueDistDir, 'assets'),
         relativePath: req.params.file,

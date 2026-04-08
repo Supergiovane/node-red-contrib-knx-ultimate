@@ -6,6 +6,12 @@
 
 # CHANGELOG
 
+**Version 4.2.12** - April 2026<br/>
+
+- FIX: **KNX AI Web** and **KNX Viewer Web** admin routes now normalize `access_token` auth safely by mapping query token to `Authorization: Bearer ...` only when missing, then removing `access_token` from `req.query` before permission checks.<br/>
+- FIX: resolved intermittent `400 Bad Request` on authenticated web pages caused by duplicate bearer token sources (header + query string).<br/>
+- CHANGE: extracted shared auth normalization helper to `nodes/utils/httpAdminAccessToken.js` to keep AI/Viewer behavior aligned and easier to maintain.<br/>
+
 **Version 4.2.11** - April 2026<br/>
 
 - UI: **KNX AI Web** improved assistant workflow with chat-style layout (prompt input under messages), clearer prompt focus, and streamlined Ask page text.<br/>

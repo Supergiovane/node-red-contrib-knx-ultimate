@@ -1,0 +1,144 @@
+[
+  {
+    "id": "tab_osc_knx_fn",
+    "type": "tab",
+    "label": "OSC -> KNX (Function)",
+    "disabled": false,
+    "info": ""
+  },
+  {
+    "id": "cmt_osc_knx_fn_intro",
+    "type": "comment",
+    "z": "tab_osc_knx_fn",
+    "name": "Receive OSC in a Function node and map to two KNX DPTs",
+    "info": "Prerequisites:\n1) In Node-RED settings.js set functionExternalModules: true and restart Node-RED.\n2) Deploy this flow: Node-RED will install node-osc for this Function node.\n\nOSC mappings handled by the Function node:\n- /knx/switch <value>  -> KNX Device DPT 1.001 (true/false)\n- /knx/value <value>   -> KNX Device DPT 5.001 (0..255 integer)\n\nExample OSC values:\n- /knx/switch 1\n- /knx/switch false\n- /knx/value 120",
+    "x": 410,
+    "y": 40,
+    "wires": []
+  },
+  {
+    "id": "fn_osc_receiver",
+    "type": "function",
+    "z": "tab_osc_knx_fn",
+    "name": "OSC Receiver (node-osc)",
+    "func": "// Input messages are ignored: this node emits only from the OSC callback defined in Setup.\nreturn null;",
+    "outputs": 2,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "const listenPort = 8001;\nconst listenHost = \"0.0.0.0\";\n\nconst closeServer = (server) => {\n    if (!server || typeof server.close !== \"function\") {\n        return Promise.resolve();\n    }\n\n    try {\n        if (typeof server.removeAllListeners === \"function\") {\n            server.removeAllListeners(\"message\");\n            server.removeAllListeners(\"bundle\");\n            server.removeAllListeners(\"error\");\n            server.removeAllListeners(\"listening\");\n        }\n    } catch (err) {\n        node.warn(\"Error removing OSC listeners: \" + err.message);\n    }\n\n    return new Promise((resolve) => {\n        let doneCalled = false;\n        const done = () => {\n            if (doneCalled) return;\n            doneCalled = true;\n            resolve();\n        };\n\n        try {\n            const maybePromise = server.close((err) => {\n                if (err) node.warn(\"OSC close callback error: \" + err.message);\n                done();\n            });\n\n            if (maybePromise && typeof maybePromise.then === \"function\") {\n                maybePromise.then(done).catch((err) => {\n                    node.warn(\"OSC close promise error: \" + err.message);\n                    done();\n                });\n            } else {\n                setTimeout(done, 150);\n            }\n        } catch (err) {\n            node.warn(\"OSC close throw: \" + err.message);\n            done();\n        }\n    });\n};\n\nif (!nodeOsc || typeof nodeOsc.Server !== \"function\") {\n    node.status({ fill: \"red\", shape: \"ring\", text: \"node-osc missing\" });\n    node.error(\"node-osc not available. Enable functionExternalModules and deploy again.\");\n    return;\n}\n\nconst normalizeBoolean = (value) => {\n    if (typeof value === \"boolean\") return value;\n    if (typeof value === \"number\") return value !== 0;\n    const text = String(value).trim().toLowerCase();\n    return text === \"true\" || text === \"1\" || text === \"on\";\n};\n\nconst previousServer = context.get(\"oscServer\");\ncontext.set(\"oscServer\", null);\nnode.status({ fill: \"yellow\", shape: \"ring\", text: \"restarting OSC...\" });\n\nreturn closeServer(previousServer).then(() => {\n    const oscServer = new nodeOsc.Server(listenPort, listenHost, function () {\n        node.status({ fill: \"green\", shape: \"dot\", text: \"OSC \" + listenHost + \":\" + listenPort });\n    });\n\n    context.set(\"oscServer\", oscServer);\n\n    oscServer.on(\"error\", function (err) {\n        node.warn(\"OSC server error: \" + (err && err.message ? err.message : err));\n    });\n\n    oscServer.on(\"message\", function (oscMsg) {\n        if (!Array.isArray(oscMsg) || oscMsg.length < 2) return;\n\n        const address = String(oscMsg[0] || \"\");\n        const value = oscMsg[1];\n\n        if (address === \"/knx/switch\") {\n            node.send([{\n                payload: normalizeBoolean(value),\n                oscAddress: address,\n                rawOsc: oscMsg\n            }, null]);\n            return;\n        }\n\n        if (address === \"/knx/value\") {\n            const parsed = Number(value);\n            if (!Number.isFinite(parsed)) {\n                node.warn(\"OSC /knx/value not numeric: \" + value);\n                return;\n            }\n\n            node.send([null, {\n                payload: Math.max(0, Math.min(255, Math.round(parsed))),\n                oscAddress: address,\n                rawOsc: oscMsg\n            }]);\n        }\n    });\n}).catch((err) => {\n    node.status({ fill: \"red\", shape: \"ring\", text: \"OSC start error\" });\n    node.error(\"Unable to start OSC server: \" + (err && err.message ? err.message : err));\n});",
+    "finalize": "const closeServer = (server) => {\n    if (!server || typeof server.close !== \"function\") {\n        return Promise.resolve();\n    }\n\n    try {\n        if (typeof server.removeAllListeners === \"function\") {\n            server.removeAllListeners(\"message\");\n            server.removeAllListeners(\"bundle\");\n            server.removeAllListeners(\"error\");\n            server.removeAllListeners(\"listening\");\n        }\n    } catch (err) {\n        node.warn(\"Error removing OSC listeners in finalize: \" + err.message);\n    }\n\n    return new Promise((resolve) => {\n        let doneCalled = false;\n        const done = () => {\n            if (doneCalled) return;\n            doneCalled = true;\n            resolve();\n        };\n\n        try {\n            const maybePromise = server.close((err) => {\n                if (err) node.warn(\"OSC finalize close callback error: \" + err.message);\n                done();\n            });\n\n            if (maybePromise && typeof maybePromise.then === \"function\") {\n                maybePromise.then(done).catch((err) => {\n                    node.warn(\"OSC finalize close promise error: \" + err.message);\n                    done();\n                });\n            } else {\n                setTimeout(done, 150);\n            }\n        } catch (err) {\n            node.warn(\"OSC finalize close throw: \" + err.message);\n            done();\n        }\n    });\n};\n\nconst oscServer = context.get(\"oscServer\");\ncontext.set(\"oscServer\", null);\nnode.status({ fill: \"yellow\", shape: \"ring\", text: \"stopping OSC...\" });\n\nreturn closeServer(oscServer).then(() => {\n    node.status({});\n});",
+    "libs": [
+      {
+        "var": "nodeOsc",
+        "module": "node-osc"
+      }
+    ],
+    "x": 230,
+    "y": 180,
+    "wires": [
+      [
+        "knx_bool_1"
+      ],
+      [
+        "knx_int_1"
+      ]
+    ]
+  },
+  {
+    "id": "knx_bool_1",
+    "type": "knxUltimate",
+    "z": "tab_osc_knx_fn",
+    "server": "osc_knx_cfg_1",
+    "topic": "1/1/1",
+    "outputtopic": "",
+    "dpt": "1.001",
+    "initialread": false,
+    "notifyreadrequest": false,
+    "notifyresponse": true,
+    "notifywrite": true,
+    "notifyreadrequestalsorespondtobus": false,
+    "notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized": "",
+    "listenallga": false,
+    "name": "KNX Switch (DPT 1.001)",
+    "outputtype": "write",
+    "outputRBE": false,
+    "inputRBE": false,
+    "x": 520,
+    "y": 150,
+    "wires": [
+      [
+        "dbg_bool_out"
+      ]
+    ]
+  },
+  {
+    "id": "knx_int_1",
+    "type": "knxUltimate",
+    "z": "tab_osc_knx_fn",
+    "server": "osc_knx_cfg_1",
+    "topic": "1/1/2",
+    "outputtopic": "",
+    "dpt": "5.001",
+    "initialread": false,
+    "notifyreadrequest": false,
+    "notifyresponse": true,
+    "notifywrite": true,
+    "notifyreadrequestalsorespondtobus": false,
+    "notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized": "",
+    "listenallga": false,
+    "name": "KNX Value (DPT 5.001)",
+    "outputtype": "write",
+    "outputRBE": false,
+    "inputRBE": false,
+    "x": 510,
+    "y": 220,
+    "wires": [
+      [
+        "dbg_int_out"
+      ]
+    ]
+  },
+  {
+    "id": "dbg_bool_out",
+    "type": "debug",
+    "z": "tab_osc_knx_fn",
+    "name": "Bool KNX out",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "true",
+    "targetType": "full",
+    "x": 720,
+    "y": 150,
+    "wires": []
+  },
+  {
+    "id": "dbg_int_out",
+    "type": "debug",
+    "z": "tab_osc_knx_fn",
+    "name": "Int KNX out",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "true",
+    "targetType": "full",
+    "x": 710,
+    "y": 220,
+    "wires": []
+  },
+  {
+    "id": "osc_knx_cfg_1",
+    "type": "knxUltimate-config",
+    "z": "",
+    "host": "224.0.23.12",
+    "port": "3671",
+    "physAddr": "15.15.203",
+    "suppressACKRequest": false,
+    "csv": "",
+    "KNXEthInterface": "Auto",
+    "KNXEthInterfaceManuallyInput": "",
+    "autoReconnect": "yes"
+  }
+]
