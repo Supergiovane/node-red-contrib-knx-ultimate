@@ -74,6 +74,48 @@ const queryAccessToken = (() => {
   }
 })()
 
+function readAuthTokenFromLocalStorage () {
+  try {
+    if (!window.localStorage) return ''
+    const candidates = []
+    for (let i = 0; i < window.localStorage.length; i += 1) {
+      const key = String(window.localStorage.key(i) || '')
+      if (!key.startsWith('auth-tokens')) continue
+      const raw = window.localStorage.getItem(key)
+      if (!raw) continue
+      let parsed = null
+      try {
+        parsed = JSON.parse(raw)
+      } catch (error) {
+        parsed = null
+      }
+      const token = parsed && typeof parsed.access_token === 'string' ? parsed.access_token.trim() : ''
+      if (!token) continue
+      const expiresAt = Number(parsed && (parsed.expires_at || parsed.expiry || parsed.expires) ? (parsed.expires_at || parsed.expiry || parsed.expires) : 0)
+      candidates.push({ token, expiresAt: Number.isFinite(expiresAt) ? expiresAt : 0 })
+    }
+    if (!candidates.length) return ''
+    candidates.sort((a, b) => b.expiresAt - a.expiresAt)
+    return candidates[0].token || ''
+  } catch (error) {
+    return ''
+  }
+}
+
+const bearerAccessToken = (() => {
+  const urlToken = String(queryAccessToken || '').trim()
+  if (urlToken) return urlToken
+  return readAuthTokenFromLocalStorage()
+})()
+
+function withAuthHeaders (headersInput) {
+  const headers = Object.assign({}, headersInput || {})
+  if (bearerAccessToken && !headers.Authorization && !headers.authorization) {
+    headers.Authorization = `Bearer ${bearerAccessToken}`
+  }
+  return headers
+}
+
 const uiLanguage = ref('en')
 let uiTranslateObserver = null
 let uiTranslateRaf = 0
@@ -741,8 +783,14 @@ function setStatus (text) {
 }
 
 async function requestJson (url, options) {
-  const response = await fetch(url, Object.assign({ credentials: 'same-origin' }, options || {}))
+  const requestOptions = Object.assign({ credentials: 'same-origin' }, options || {})
+  requestOptions.headers = withAuthHeaders(requestOptions.headers)
+  const response = await fetch(url, requestOptions)
+  const contentType = String(response.headers.get('content-type') || '').toLowerCase()
   const text = await response.text()
+  if (response.ok && contentType.includes('text/html')) {
+    throw new Error('Authentication required or insufficient permissions (session token missing or expired).')
+  }
   let json = {}
   try {
     json = text ? JSON.parse(text) : {}
@@ -760,7 +808,9 @@ async function requestJson (url, options) {
 }
 
 async function requestAudioBlob (url, options) {
-  const response = await fetch(url, Object.assign({ credentials: 'same-origin', cache: 'no-store' }, options || {}))
+  const requestOptions = Object.assign({ credentials: 'same-origin', cache: 'no-store' }, options || {})
+  requestOptions.headers = withAuthHeaders(requestOptions.headers)
+  const response = await fetch(url, requestOptions)
   if (!response.ok) {
     const text = await response.text()
     let errorMessage = text || `HTTP ${response.status}`
@@ -771,6 +821,19 @@ async function requestAudioBlob (url, options) {
     if (response.status === 401 || response.status === 403) {
       throw new Error(`Authentication required or insufficient permissions (${response.status}).`)
     }
+    throw new Error(errorMessage)
+  }
+  const contentType = String(response.headers.get('content-type') || '').toLowerCase()
+  if (!contentType.includes('audio/')) {
+    const text = await response.text()
+    if (contentType.includes('text/html')) {
+      throw new Error('Authentication required or insufficient permissions (invalid audio response).')
+    }
+    let errorMessage = text || `Unexpected audio response (${contentType || 'unknown'}).`
+    try {
+      const parsed = text ? JSON.parse(text) : {}
+      errorMessage = parsed && parsed.error ? parsed.error : errorMessage
+    } catch (error) {}
     throw new Error(errorMessage)
   }
   return await response.blob()
@@ -4013,8 +4076,15 @@ async function runAiTestPlanDefinition (modeInput = 'single') {
         setStatus(`Cycle ${cycleNumber} completed. Starting the next cycle...`)
       }
     } while (repeatForever && state.testPlanRepeatStopRequested !== true)
+    const finalStatusMessage = repeatForever ? 'Repeat mode stopped' : 'Test completed'
     state.testPlanRunConfirmOpen = false
-    if (!state.lastError) setStatus(repeatForever ? 'Repeat mode stopped' : 'Test completed')
+    if (!state.lastError) setStatus(finalStatusMessage)
+    try {
+      // Announce completion once at the end of the test execution.
+      // This is useful for installers running long test plans hands-free.
+      // eslint-disable-next-line no-await-in-loop
+      await speakText(localizeUiText(finalStatusMessage))
+    } catch (error) {}
     requestAnimationFrame(() => {
       try {
         if (testPlanReportRef.value && typeof testPlanReportRef.value.scrollIntoView === 'function') {
@@ -5626,11 +5696,23 @@ onBeforeUnmount(() => {
     </main>
     </section>
 
-    <div v-if="state.areaLlmRegenerating || state.areaLlmBulkDeleting" class="global-wait-overlay" role="status" aria-live="polite" aria-busy="true">
+    <div v-if="state.areaLlmRegenerating || state.areaLlmBulkDeleting || state.testPlanGenerating" class="global-wait-overlay" role="status" aria-live="polite" aria-busy="true">
       <div class="global-wait-card">
         <span class="running-spinner global-wait-spinner" aria-hidden="true" />
-        <strong>{{ state.areaLlmBulkDeleting ? 'Deleting AI Areas' : 'Regenerating AI Areas' }}</strong>
-        <span>{{ state.areaLlmBulkDeleting ? 'Please wait while AI-generated areas are removed.' : 'Please wait, this can take a while with large ETS projects.' }}</span>
+        <strong>
+          {{
+            state.testPlanGenerating
+              ? 'Building Test Plan'
+              : (state.areaLlmBulkDeleting ? 'Deleting AI Areas' : 'Regenerating AI Areas')
+          }}
+        </strong>
+        <span>
+          {{
+            state.testPlanGenerating
+              ? 'Please wait while the template builder generates the test plan.'
+              : (state.areaLlmBulkDeleting ? 'Please wait while AI-generated areas are removed.' : 'Please wait, this can take a while with large ETS projects.')
+          }}
+        </span>
       </div>
     </div>
 

@@ -6,6 +6,14 @@
 
 # CHANGELOG
 
+**Version 4.2.13** - April 2026<br/>
+
+- FIX: **KNX AI Web** hardened authenticated requests by always attaching Bearer auth on API/audio calls (query token or Node-RED stored editor token fallback), preventing silent audio failures in authenticated sessions.<br/>
+- FIX: **KNX AI Tests** now validates audio responses (`audio/*`) and reports auth/session issues explicitly instead of failing silently when HTML/login pages are returned.<br/>
+- NEW: **KNX AI Tests** now announces test completion by voice at the end of the test run (single and repeat-stop end states).<br/>
+- UI: **KNX AI Tests** added a blocking wait popup while building a Test Plan from the template builder, aligned with the existing AI Areas wait overlay behavior.<br/>
+- i18n: normalized **Duplicate / Duplicate Plan** action labels to imperative form across supported UI languages for consistency in the Tests page.<br/>
+
 **Version 4.2.12** - April 2026<br/>
 
 - FIX: **KNX AI Web** and **KNX Viewer Web** admin routes now normalize `access_token` auth safely by mapping query token to `Authorization: Bearer ...` only when missing, then removing `access_token` from `req.query` before permission checks.<br/>

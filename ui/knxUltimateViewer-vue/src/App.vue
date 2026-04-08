@@ -21,6 +21,48 @@ const queryAccessToken = (() => {
   }
 })()
 
+function readAuthTokenFromLocalStorage () {
+  try {
+    if (!window.localStorage) return ''
+    const candidates = []
+    for (let i = 0; i < window.localStorage.length; i += 1) {
+      const key = String(window.localStorage.key(i) || '')
+      if (!key.startsWith('auth-tokens')) continue
+      const raw = window.localStorage.getItem(key)
+      if (!raw) continue
+      let parsed = null
+      try {
+        parsed = JSON.parse(raw)
+      } catch (error) {
+        parsed = null
+      }
+      const token = parsed && typeof parsed.access_token === 'string' ? parsed.access_token.trim() : ''
+      if (!token) continue
+      const expiresAt = Number(parsed && (parsed.expires_at || parsed.expiry || parsed.expires) ? (parsed.expires_at || parsed.expiry || parsed.expires) : 0)
+      candidates.push({ token, expiresAt: Number.isFinite(expiresAt) ? expiresAt : 0 })
+    }
+    if (!candidates.length) return ''
+    candidates.sort((a, b) => b.expiresAt - a.expiresAt)
+    return candidates[0].token || ''
+  } catch (error) {
+    return ''
+  }
+}
+
+const bearerAccessToken = (() => {
+  const urlToken = String(queryAccessToken || '').trim()
+  if (urlToken) return urlToken
+  return readAuthTokenFromLocalStorage()
+})()
+
+function withAuthHeaders (headersInput) {
+  const headers = Object.assign({}, headersInput || {})
+  if (bearerAccessToken && !headers.Authorization && !headers.authorization) {
+    headers.Authorization = `Bearer ${bearerAccessToken}`
+  }
+  return headers
+}
+
 const state = reactive({
   nodes: [],
   selectedNodeId: queryNodeId || loadString(nodeKey, ''),
@@ -76,8 +118,14 @@ function setStatus (text) {
 }
 
 async function requestJson (url, options) {
-  const response = await fetch(url, Object.assign({ credentials: 'same-origin' }, options || {}))
+  const requestOptions = Object.assign({ credentials: 'same-origin' }, options || {})
+  requestOptions.headers = withAuthHeaders(requestOptions.headers)
+  const response = await fetch(url, requestOptions)
+  const contentType = String(response.headers.get('content-type') || '').toLowerCase()
   const text = await response.text()
+  if (response.ok && contentType.includes('text/html')) {
+    throw new Error('Authentication required or insufficient permissions (session token missing or expired).')
+  }
   let json = {}
   try {
     json = text ? JSON.parse(text) : {}
