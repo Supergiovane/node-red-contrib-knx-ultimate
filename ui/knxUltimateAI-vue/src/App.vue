@@ -1562,6 +1562,16 @@ const selectedTestResult = computed(() => {
 const isViewingTestResultOnly = computed(() => {
   return state.activeTab === 'tests' && state.testResultFocusMode === true && !!selectedTestResult.value
 })
+const localizedPresetQuestions = computed(() => {
+  return PRESET_QUESTIONS.map((question) => {
+    const raw = String(question || '').trim()
+    const localized = String(localizeUiText(raw) || '').trim()
+    return {
+      key: raw,
+      text: localized || raw
+    }
+  })
+})
 const filteredAreas = computed(() => {
   const search = String(state.areaSearch || '').trim().toLowerCase()
   return suggestedAreas.value.filter((area) => {
@@ -2903,7 +2913,8 @@ async function persistTestResult (report) {
 
 async function sendAsk (questionOverride = '') {
   const useOverride = String(questionOverride || '').trim()
-  const question = useOverride || String(state.chatDraft || '').trim()
+  const typedQuestion = String(state.chatDraft || '').trim()
+  const question = useOverride || typedQuestion
   if (!question || !state.selectedNodeId) return
   appendChat('user', question)
   if (!useOverride) state.chatDraft = ''
@@ -5614,14 +5625,14 @@ onBeforeUnmount(() => {
         </div>
         <div class="preset-row">
           <button
-            v-for="preset in PRESET_QUESTIONS"
-            :key="preset"
+            v-for="preset in localizedPresetQuestions"
+            :key="preset.key"
             class="preset-button"
             type="button"
             :disabled="state.asking || !nodeInfo.llmEnabled"
-            @click="sendAsk(preset)"
+            @click="sendAsk(preset.text)"
           >
-            {{ preset }}
+            {{ preset.text }}
           </button>
         </div>
         <div class="ask-row">

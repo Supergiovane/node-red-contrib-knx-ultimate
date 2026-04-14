@@ -6,6 +6,12 @@
 
 # CHANGELOG
 
+**Version 4.3.1** - April 2026<br/>
+
+- Bumped KNXEngine to 5.5.2<br/>
+- UI: **KNX AI Web** now always opens on the first menu item (**Overview**).<br/>
+- FIX: **KNX AI Web Assistant** preset prompts now send the exact current button text to the AI request, so localized UI labels are used directly (no forced English fallback).<br/>
+
 **Version 4.3.0** - April 2026<br/>
 
 - Bumped KNXEngine to 5.5.1<br/>
