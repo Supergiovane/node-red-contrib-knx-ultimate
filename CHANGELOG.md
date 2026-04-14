@@ -6,6 +6,10 @@
 
 # CHANGELOG
 
+**Version 4.3.0** - April 2026<br/>
+
+- Bumped KNXEngine to 5.5.1<br/>
+
 **Version 4.2.14** - April 2026<br/>
 
 - FIX: **KNX Logger** XML download now works also with Node-RED authentication enabled by appending the active editor `access_token` and respecting `httpAdminRoot` when opening the download URL.<br/>
