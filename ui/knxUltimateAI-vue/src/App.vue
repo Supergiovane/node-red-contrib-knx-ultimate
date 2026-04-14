@@ -498,7 +498,7 @@ function startUiTranslationObserver () {
 const state = reactive({
   nodes: [],
   selectedNodeId: '',
-  activeTab: loadString(tabKey, 'overview'),
+  activeTab: 'overview',
   settingsTab: loadString(settingsTabKey, 'config'),
   autoRefresh: loadBoolean(autoKey, true),
   voiceEnabled: loadBoolean(voiceKey, true),
