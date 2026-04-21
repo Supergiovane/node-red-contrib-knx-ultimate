@@ -46,6 +46,7 @@ All fields exposed in the KNX AI editor are listed below.
 - **Max changes per GA in window (0=off)**: Max allowed changes in flap window.
 
 ### LLM Assistant
+- The **LLM Assistant** tab is shown first in the editor for faster setup.
 - **Enable LLM assistant**: Enable Ask/chat assistant features.
 - **Provider**: Select LLM backend (OpenAI-compatible or Ollama).
 - **Endpoint URL**: Chat/completions endpoint URL.
@@ -64,6 +65,16 @@ All fields exposed in the KNX AI editor are listed below.
 - **Max docs snippets**: Max number of docs snippets.
 - **Max docs chars**: Max total docs characters.
 - **Refresh** button: Query provider and load available model IDs.
+
+### Ollama quick setup (local)
+- Choose **Provider = Ollama**.
+- Default endpoint: `http://localhost:11434/api/chat`.
+- If no local models are found, use:
+  - **1) Download model**: opens the **Model library** page.
+  - **2) Install it**: downloads and installs the model locally (for example `llama3.1`).
+- During model refresh/install, KNX AI also tries to auto-start the Ollama server when possible.
+- If install fails with connection errors, ensure Ollama is running (desktop app or `ollama serve`).
+- If Node-RED runs in Docker, use `host.docker.internal` instead of `localhost` in the endpoint URL.
 
 ## Security note
 If LLM is enabled, KNX traffic context can be sent to the configured endpoint. Use local providers if you need strict on-prem data handling.

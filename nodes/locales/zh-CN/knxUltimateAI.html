@@ -46,6 +46,7 @@
 - **Max changes per GA in window (0=off)**：窗口内允许的最大变化次数。
 
 ### LLM Assistant
+- **LLM Assistant** 标签页现在固定在编辑器最前面，便于快速配置。
 - **Enable LLM assistant**：启用 Ask/chat 功能。
 - **Provider**：LLM 后端（OpenAI-compatible 或 Ollama）。
 - **Endpoint URL**：chat/completions 接口 URL。
@@ -64,6 +65,16 @@
 - **Max docs snippets**：文档片段最大条数。
 - **Max docs chars**：文档片段最大总字符数。
 - **Refresh** 按钮：请求 provider 并加载可用模型 ID。
+
+### Ollama 快速配置（本地）
+- 选择 **Provider = Ollama**。
+- 默认 endpoint：`http://localhost:11434/api/chat`。
+- 若未发现本地模型：
+  - **1) Download model**：打开 **Model library** 页面。
+  - **2) Install it**：在本机下载并安装模型（例如 `llama3.1`）。
+- 在刷新/安装模型时，KNX AI 也会在可能情况下尝试自动启动 Ollama 服务。
+- 若安装因连接错误失败，请确认 Ollama 已运行（桌面应用或 `ollama serve`）。
+- 若 Node-RED 运行在 Docker 中，endpoint 请使用 `host.docker.internal` 替代 `localhost`。
 
 ## 安全说明
 启用 LLM 后，KNX 流量上下文可能发送到所配置的 endpoint。若需严格本地化，请使用本地 provider。

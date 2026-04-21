@@ -6,6 +6,12 @@
 
 # CHANGELOG
 
+**Version 4.3.2** - April 2026<br/>
+
+- Docs/help/wiki: updated **KNX AI** help HTML and wiki pages in all supported languages (EN/IT/DE/FR/ES/zh-CN) to reflect the latest LLM/Ollama UX changes.<br/>
+- Docs/help/wiki: documented the new **Ollama quick setup** flow (**Download model** -> **Install it**).<br/>
+- Docs/help/wiki: clarified that the **LLM Assistant** tab is shown first in the KNX AI editor for faster setup.<br/>
+
 **Version 4.3.1** - April 2026<br/>
 
 - Bumped KNXEngine to 5.5.2<br/>
