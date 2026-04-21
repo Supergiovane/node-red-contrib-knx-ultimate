@@ -3,6 +3,7 @@ const loggerClass = require('./utils/sysLogger')
 const dptlib = require('knxultimate').dptlib
 const fs = require('fs')
 const path = require('path')
+const { spawn } = require('child_process')
 const { getRequestAccessToken, normalizeAuthFromAccessTokenQuery } = require('./utils/httpAdminAccessToken')
 let googleTranslateTTS = null
 try {
@@ -203,38 +204,38 @@ const buildLlmSummarySnapshot = (summary) => {
 
   const graph = s.graph && typeof s.graph === 'object'
     ? {
-        windowSec: Number(s.graph.windowSec || 0),
-        edges: (Array.isArray(s.graph.edges) ? s.graph.edges : []).slice(0, 60),
-        hotEdgesDelta: (Array.isArray(s.graph.hotEdgesDelta) ? s.graph.hotEdgesDelta : []).slice(0, 40),
-        anomalyLifecycle: (Array.isArray(s.graph.anomalyLifecycle) ? s.graph.anomalyLifecycle : []).slice(0, 30)
-      }
+      windowSec: Number(s.graph.windowSec || 0),
+      edges: (Array.isArray(s.graph.edges) ? s.graph.edges : []).slice(0, 60),
+      hotEdgesDelta: (Array.isArray(s.graph.hotEdgesDelta) ? s.graph.hotEdgesDelta : []).slice(0, 40),
+      anomalyLifecycle: (Array.isArray(s.graph.anomalyLifecycle) ? s.graph.anomalyLifecycle : []).slice(0, 30)
+    }
     : {}
 
   const flowMapTopology = s.flowMapTopology && typeof s.flowMapTopology === 'object'
     ? {
-        mode: String(s.flowMapTopology.mode || '').trim(),
-        windowSec: Number(s.flowMapTopology.windowSec || 0),
-        nodes: (Array.isArray(s.flowMapTopology.nodes) ? s.flowMapTopology.nodes : []).slice(0, 80).map((node) => ({
-          id: String(node && node.id ? node.id : '').trim(),
-          displayId: String(node && node.displayId ? node.displayId : '').trim(),
-          kind: String(node && node.kind ? node.kind : '').trim(),
-          subtitle: String(node && node.subtitle ? node.subtitle : '').trim(),
-          payload: compactPayloadForNodeLabel(node && Object.prototype.hasOwnProperty.call(node, 'payload') ? node.payload : '', 36),
-          anomalyCount: Number(node && node.anomalyCount ? node.anomalyCount : 0),
-          lastSeenAtMs: Number(node && node.lastSeenAtMs ? node.lastSeenAtMs : 0)
-        })),
-        edges: (Array.isArray(s.flowMapTopology.edges) ? s.flowMapTopology.edges : []).slice(0, 120).map((edge) => ({
-          from: String(edge && edge.from ? edge.from : '').trim(),
-          to: String(edge && edge.to ? edge.to : '').trim(),
-          linkType: String(edge && edge.linkType ? edge.linkType : '').trim(),
-          event: String(edge && edge.event ? edge.event : '').trim(),
-          currentWindowCount: Number(edge && edge.currentWindowCount ? edge.currentWindowCount : 0),
-          totalCount: Number(edge && edge.totalCount ? edge.totalCount : 0),
-          delta: Number(edge && edge.delta ? edge.delta : 0),
-          delayMs: Number(edge && edge.delayMs ? edge.delayMs : 0),
-          lastAt: String(edge && edge.lastAt ? edge.lastAt : '').trim()
-        }))
-      }
+      mode: String(s.flowMapTopology.mode || '').trim(),
+      windowSec: Number(s.flowMapTopology.windowSec || 0),
+      nodes: (Array.isArray(s.flowMapTopology.nodes) ? s.flowMapTopology.nodes : []).slice(0, 80).map((node) => ({
+        id: String(node && node.id ? node.id : '').trim(),
+        displayId: String(node && node.displayId ? node.displayId : '').trim(),
+        kind: String(node && node.kind ? node.kind : '').trim(),
+        subtitle: String(node && node.subtitle ? node.subtitle : '').trim(),
+        payload: compactPayloadForNodeLabel(node && Object.prototype.hasOwnProperty.call(node, 'payload') ? node.payload : '', 36),
+        anomalyCount: Number(node && node.anomalyCount ? node.anomalyCount : 0),
+        lastSeenAtMs: Number(node && node.lastSeenAtMs ? node.lastSeenAtMs : 0)
+      })),
+      edges: (Array.isArray(s.flowMapTopology.edges) ? s.flowMapTopology.edges : []).slice(0, 120).map((edge) => ({
+        from: String(edge && edge.from ? edge.from : '').trim(),
+        to: String(edge && edge.to ? edge.to : '').trim(),
+        linkType: String(edge && edge.linkType ? edge.linkType : '').trim(),
+        event: String(edge && edge.event ? edge.event : '').trim(),
+        currentWindowCount: Number(edge && edge.currentWindowCount ? edge.currentWindowCount : 0),
+        totalCount: Number(edge && edge.totalCount ? edge.totalCount : 0),
+        delta: Number(edge && edge.delta ? edge.delta : 0),
+        delayMs: Number(edge && edge.delayMs ? edge.delayMs : 0),
+        lastAt: String(edge && edge.lastAt ? edge.lastAt : '').trim()
+      }))
+    }
     : undefined
 
   return {
@@ -271,7 +272,7 @@ const extractJsonFragmentFromText = (value) => {
     if (!source) return null
     try {
       return JSON.parse(source)
-    } catch (error) {}
+    } catch (error) { }
     // Fallback: tolerate comments and trailing commas that some models emit.
     const relaxed = source
       .replace(/\/\*[\s\S]*?\*\//g, '')
@@ -2245,6 +2246,184 @@ const deriveModelsUrlFromBaseUrl = (baseUrl) => {
   }
 }
 
+const OPENAI_COMPAT_DEFAULT_CHAT_URL = 'https://api.openai.com/v1/chat/completions'
+const OLLAMA_DEFAULT_CHAT_URL = 'http://localhost:11434/api/chat'
+
+const normalizeUrlForCompare = (value) => {
+  const raw = String(value || '').trim()
+  if (!raw) return ''
+  try {
+    const u = new URL(raw)
+    u.hash = ''
+    u.search = ''
+    u.pathname = String(u.pathname || '/').replace(/\/+$/, '')
+    return u.toString().toLowerCase()
+  } catch (error) {
+    return raw.replace(/\/+$/, '').toLowerCase()
+  }
+}
+
+const isOpenAiDefaultChatUrl = (value) => {
+  return normalizeUrlForCompare(value) === normalizeUrlForCompare(OPENAI_COMPAT_DEFAULT_CHAT_URL)
+}
+
+const resolveOllamaChatUrl = (value) => {
+  const raw = String(value || '').trim()
+  if (!raw) return OLLAMA_DEFAULT_CHAT_URL
+  if (isOpenAiDefaultChatUrl(raw)) return OLLAMA_DEFAULT_CHAT_URL
+  return raw
+}
+
+const isLikelyConnectionFailure = (error) => {
+  const message = String(error && error.message ? error.message : '')
+  const causeMessage = String(error && error.cause && error.cause.message ? error.cause.message : '')
+  const merged = `${message} ${causeMessage}`.toLowerCase()
+  return (
+    merged.includes('fetch failed') ||
+    merged.includes('econnrefused') ||
+    merged.includes('enotfound') ||
+    merged.includes('ehostunreach') ||
+    merged.includes('network') ||
+    merged.includes('socket') ||
+    merged.includes('connect')
+  )
+}
+
+const decorateOllamaConnectionError = ({ error, url, action }) => {
+  if (!isLikelyConnectionFailure(error)) return error
+  const step = String(action || 'reach the API')
+  const err = new Error(`Cannot reach Ollama at ${url} while trying to ${step}. Ensure Ollama is running (start the Ollama app or run "ollama serve"), then retry. If Node-RED runs in Docker, use host.docker.internal instead of localhost.`)
+  err.status = 502
+  return err
+}
+
+const deriveOllamaApiUrl = (baseUrl, endpointPath = '/api/chat') => {
+  const raw = resolveOllamaChatUrl(baseUrl)
+  const normalizedEndpointPath = String(endpointPath || '/api/chat').startsWith('/') ? String(endpointPath || '/api/chat') : ('/' + String(endpointPath || '/api/chat'))
+  try {
+    const u = new URL(raw)
+    if (/\/api\/(chat|generate|tags|pull)\/?$/.test(u.pathname)) {
+      u.pathname = u.pathname.replace(/\/api\/(chat|generate|tags|pull)\/?$/, normalizedEndpointPath)
+    } else {
+      u.pathname = normalizedEndpointPath
+    }
+    return u.toString()
+  } catch (error) {
+    return OLLAMA_DEFAULT_CHAT_URL.replace(/\/api\/chat\/?$/, normalizedEndpointPath)
+  }
+}
+
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, Math.max(0, Number(ms) || 0)))
+
+const spawnDetached = ({ command, args = [] }) => {
+  return new Promise((resolve, reject) => {
+    let settled = false
+    let child
+    try {
+      child = spawn(command, args, {
+        detached: true,
+        stdio: 'ignore',
+        windowsHide: true
+      })
+    } catch (error) {
+      reject(error)
+      return
+    }
+
+    child.on('error', (error) => {
+      if (settled) return
+      settled = true
+      reject(error)
+    })
+
+    child.unref()
+    setTimeout(() => {
+      if (settled) return
+      settled = true
+      resolve({ command, args, pid: child.pid || 0 })
+    }, 400)
+  })
+}
+
+const getOllamaServeCandidates = () => {
+  const base = [
+    { command: 'ollama', args: ['serve'] },
+    { command: '/usr/bin/ollama', args: ['serve'] },
+    { command: '/usr/local/bin/ollama', args: ['serve'] },
+    { command: '/opt/homebrew/bin/ollama', args: ['serve'] }
+  ]
+  if (process.platform === 'darwin') {
+    base.push({ command: '/Applications/Ollama.app/Contents/MacOS/Ollama', args: ['serve'] })
+  }
+  if (process.platform === 'win32') {
+    base.unshift({ command: 'ollama.exe', args: ['serve'] })
+  }
+  const seen = new Set()
+  return base.filter((entry) => {
+    const key = `${entry.command} ${entry.args.join(' ')}`
+    if (seen.has(key)) return false
+    seen.add(key)
+    return true
+  })
+}
+
+const waitForOllamaReady = async ({ baseUrl, timeoutMs = 20000 }) => {
+  const tagsUrl = deriveOllamaApiUrl(baseUrl, '/api/tags')
+  const stopAt = Date.now() + Math.max(1000, Number(timeoutMs) || 20000)
+  let lastError = null
+  while (Date.now() < stopAt) {
+    try {
+      const json = await getJson({ url: tagsUrl, timeoutMs: 1500 })
+      return { tagsUrl, json }
+    } catch (error) {
+      lastError = error
+      // eslint-disable-next-line no-await-in-loop
+      await delay(800)
+    }
+  }
+  throw lastError || new Error(`Timeout waiting for Ollama at ${tagsUrl}`)
+}
+
+const ensureOllamaServerRunning = async ({ baseUrl, autoStart = false, timeoutMs = 22000 }) => {
+  const resolvedBaseUrl = resolveOllamaChatUrl(baseUrl)
+  const tagsUrl = deriveOllamaApiUrl(resolvedBaseUrl, '/api/tags')
+
+  try {
+    const json = await getJson({ url: tagsUrl, timeoutMs: 1500 })
+    return { started: false, tagsUrl, json, baseUrl: resolvedBaseUrl }
+  } catch (probeError) {
+    if (!autoStart) throw decorateOllamaConnectionError({ error: probeError, url: tagsUrl, action: 'load models' })
+  }
+
+  const candidates = getOllamaServeCandidates()
+  const attempted = []
+  const deadline = Date.now() + Math.max(2000, Number(timeoutMs) || 22000)
+  for (const candidate of candidates) {
+    const remainingMs = deadline - Date.now()
+    if (remainingMs <= 0) break
+    try {
+      // eslint-disable-next-line no-await-in-loop
+      await spawnDetached(candidate)
+      const waitBudget = Math.max(1500, Math.min(9000, remainingMs))
+      // eslint-disable-next-line no-await-in-loop
+      const ready = await waitForOllamaReady({ baseUrl: resolvedBaseUrl, timeoutMs: waitBudget })
+      return {
+        started: true,
+        startedBy: candidate.command,
+        tagsUrl: ready.tagsUrl,
+        json: ready.json,
+        baseUrl: resolvedBaseUrl
+      }
+    } catch (error) {
+      attempted.push(`${candidate.command}: ${String(error && error.message ? error.message : error)}`)
+    }
+  }
+
+  const err = new Error(`Unable to auto-start Ollama at ${tagsUrl}. Tried: ${attempted.join(' | ') || 'no command candidates'}. Start Ollama manually or set a reachable base URL.`)
+  err.status = 502
+  throw err
+}
+
 const isProbablyChatModelId = (id) => {
   const s = String(id || '').toLowerCase()
   if (!s) return false
@@ -3235,6 +3414,7 @@ module.exports = function (RED) {
         let provider = body.provider ? String(body.provider) : ''
         let baseUrl = body.baseUrl ? String(body.baseUrl) : ''
         let apiKey = sanitizeApiKey(body.apiKey || '')
+        const autoStart = coerceBoolean(body.autoStart)
         const includeAll = body.includeAll === true || body.includeAll === 'true'
 
         const deployedNode = nodeId ? RED.nodes.getNode(nodeId) : null
@@ -3252,22 +3432,11 @@ module.exports = function (RED) {
         provider = provider || 'openai_compat'
 
         if (provider === 'ollama') {
-          const tagsUrl = (() => {
-            const raw = String(baseUrl || '').trim()
-            if (!raw) return 'http://localhost:11434/api/tags'
-            try {
-              const u = new URL(raw)
-              if (/\/api\/chat\/?$/.test(u.pathname)) u.pathname = u.pathname.replace(/\/api\/chat\/?$/, '/api/tags')
-              else if (/\/api\/generate\/?$/.test(u.pathname)) u.pathname = u.pathname.replace(/\/api\/generate\/?$/, '/api/tags')
-              else if (!/\/api\/tags\/?$/.test(u.pathname)) u.pathname = '/api/tags'
-              return u.toString()
-            } catch (error) {
-              return 'http://localhost:11434/api/tags'
-            }
-          })()
-          const json = await getJson({ url: tagsUrl })
+          const started = await ensureOllamaServerRunning({ baseUrl, autoStart, timeoutMs: 22000 })
+          const tagsUrl = started.tagsUrl
+          const json = started.json || await getJson({ url: tagsUrl })
           const models = (json && Array.isArray(json.models)) ? json.models.map(m => m.name).filter(Boolean) : []
-          res.json({ provider, baseUrl: tagsUrl, models })
+          res.json({ provider, baseUrl: tagsUrl, models, ollamaStarted: !!started.started, startedBy: started.startedBy || '' })
           return
         }
 
@@ -3290,6 +3459,39 @@ module.exports = function (RED) {
         ids.sort()
 
         res.json({ provider, baseUrl: modelsUrl, models: ids, filtered: !includeAll })
+      } catch (error) {
+        res.status(error.status || 500).json({ error: error.message || String(error) })
+      }
+    })
+
+    RED.httpAdmin.post('/knxUltimateAI/ollama/pull', RED.auth.needsPermission('knxUltimate-config.write'), async (req, res) => {
+      try {
+        const body = req.body || {}
+        const nodeId = body.nodeId ? String(body.nodeId) : ''
+        let baseUrl = body.baseUrl ? String(body.baseUrl) : ''
+        const model = String(body.model || '').trim() || 'llama3.1'
+
+        const deployedNode = nodeId ? RED.nodes.getNode(nodeId) : null
+        if (deployedNode && deployedNode.type !== 'knxUltimateAI') {
+          res.status(400).json({ error: 'Invalid nodeId' })
+          return
+        }
+
+        if (!baseUrl && deployedNode) baseUrl = deployedNode.llmBaseUrl || ''
+        const started = await ensureOllamaServerRunning({ baseUrl, autoStart: true, timeoutMs: 26000 })
+        const pullUrl = deriveOllamaApiUrl(baseUrl, '/api/pull')
+        let json
+        try {
+          json = await postJson({
+            url: pullUrl,
+            body: { model, stream: false },
+            timeoutMs: 1000 * 60 * 15
+          })
+        } catch (error) {
+          throw decorateOllamaConnectionError({ error, url: pullUrl, action: `install model "${model}"` })
+        }
+        const status = String((json && (json.status || json.message)) || '').trim()
+        res.json({ ok: true, model, pullUrl, status, ollamaStarted: !!started.started, startedBy: started.startedBy || '' })
       } catch (error) {
         res.status(error.status || 500).json({ error: error.message || String(error) })
       }
@@ -3344,6 +3546,9 @@ module.exports = function (RED) {
     node.llmEnabled = config.llmEnabled !== undefined ? coerceBoolean(config.llmEnabled) : false
     node.llmProvider = config.llmProvider || 'openai_compat'
     node.llmBaseUrl = config.llmBaseUrl || 'https://api.openai.com/v1/chat/completions'
+    if (node.llmProvider === 'ollama') {
+      node.llmBaseUrl = resolveOllamaChatUrl(node.llmBaseUrl)
+    }
     // Prefer Node-RED credentials store, fallback to legacy config field (backward compatible)
     node.llmApiKey = sanitizeApiKey((node.credentials && node.credentials.llmApiKey) ? node.credentials.llmApiKey : (config.llmApiKey || ''))
     node.llmModel = config.llmModel || 'gpt-4o-mini'
@@ -3355,12 +3560,12 @@ module.exports = function (RED) {
     node.llmIncludeRaw = config.llmIncludeRaw !== undefined ? coerceBoolean(config.llmIncludeRaw) : false
     node.llmIncludeFlowContext = config.llmIncludeFlowContext !== undefined ? coerceBoolean(config.llmIncludeFlowContext) : true
     node.llmMaxFlowNodesInPrompt = (config.llmMaxFlowNodesInPrompt === undefined || config.llmMaxFlowNodesInPrompt === '')
-      ? 80
+      ? 400
       : Number(config.llmMaxFlowNodesInPrompt)
     node.llmIncludeDocsSnippets = config.llmIncludeDocsSnippets !== undefined ? coerceBoolean(config.llmIncludeDocsSnippets) : true
     node.llmDocsLanguage = config.llmDocsLanguage ? String(config.llmDocsLanguage) : 'it'
     node.llmDocsMaxSnippets = (config.llmDocsMaxSnippets === undefined || config.llmDocsMaxSnippets === '') ? 5 : Number(config.llmDocsMaxSnippets)
-    node.llmDocsMaxChars = (config.llmDocsMaxChars === undefined || config.llmDocsMaxChars === '') ? 3000 : Number(config.llmDocsMaxChars)
+    node.llmDocsMaxChars = (config.llmDocsMaxChars === undefined || config.llmDocsMaxChars === '') ? 60000 : Number(config.llmDocsMaxChars)
 
     const pushStatus = (status) => {
       if (!status) return
@@ -6385,16 +6590,16 @@ module.exports = function (RED) {
       if (!node.llmApiKey && node.llmProvider !== 'ollama') {
         throw new Error('Missing API key: paste only the OpenAI key (starts with sk-), without "Bearer"')
       }
-    const maxTokensRaw = (maxTokensOverride !== null && maxTokensOverride !== undefined && maxTokensOverride !== '')
-      ? Number(maxTokensOverride)
-      : Number(node.llmMaxTokens)
-    const resolvedMaxTokens = Number.isFinite(maxTokensRaw) && maxTokensRaw > 0 ? Math.round(maxTokensRaw) : 10000
-    const configuredTimeoutMs = Number(node.llmTimeoutMs)
-    const resolvedTimeoutMs = Number.isFinite(configuredTimeoutMs) && configuredTimeoutMs > 0 ? Math.round(configuredTimeoutMs) : 30000
-    const effectiveTimeoutMs = Math.max(120000, resolvedTimeoutMs)
+      const maxTokensRaw = (maxTokensOverride !== null && maxTokensOverride !== undefined && maxTokensOverride !== '')
+        ? Number(maxTokensOverride)
+        : Number(node.llmMaxTokens)
+      const resolvedMaxTokens = Number.isFinite(maxTokensRaw) && maxTokensRaw > 0 ? Math.round(maxTokensRaw) : 10000
+      const configuredTimeoutMs = Number(node.llmTimeoutMs)
+      const resolvedTimeoutMs = Number.isFinite(configuredTimeoutMs) && configuredTimeoutMs > 0 ? Math.round(configuredTimeoutMs) : 30000
+      const effectiveTimeoutMs = Math.max(120000, resolvedTimeoutMs)
 
       if (node.llmProvider === 'ollama') {
-        const url = node.llmBaseUrl || 'http://localhost:11434/api/chat'
+        const url = resolveOllamaChatUrl(node.llmBaseUrl)
         const body = {
           model: node.llmModel || 'llama3.1',
           stream: false,
@@ -6406,7 +6611,17 @@ module.exports = function (RED) {
             temperature: node.llmTemperature
           }
         }
-        const json = await postJson({ url, body, timeoutMs: effectiveTimeoutMs })
+        let json
+        try {
+          json = await postJson({ url, body, timeoutMs: effectiveTimeoutMs })
+        } catch (error) {
+          if (isLikelyConnectionFailure(error)) {
+            await ensureOllamaServerRunning({ baseUrl: url, autoStart: true, timeoutMs: 22000 })
+            json = await postJson({ url, body, timeoutMs: effectiveTimeoutMs })
+          } else {
+            throw decorateOllamaConnectionError({ error, url, action: 'chat with the model' })
+          }
+        }
         const content = json && json.message && typeof json.message.content === 'string' ? json.message.content : safeStringify(json)
         return { provider: 'ollama', model: body.model, content, finishReason: String(json && json.done_reason ? json.done_reason : '') }
       }

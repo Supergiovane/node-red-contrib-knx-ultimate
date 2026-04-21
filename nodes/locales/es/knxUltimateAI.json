@@ -53,11 +53,17 @@
     "selectlists": {
       "llmProvider": {
         "openai_compat": "OpenAI-compatible (chat/completions)",
-        "ollama": "Ollama (local) - not yet supported"
+        "ollama": "Ollama (local, beta)"
       }
     },
     "messages": {
-      "ollamaNotSupported": "Ollama integration is marked as not yet supported (testing in progress)."
+      "ollamaNotSupported": "Ollama local mode: API key not required. Default endpoint is http://localhost:11434/api/chat.",
+      "ollamaNoModels": "No local Ollama model found. Install one or pick one from the library.",
+      "installingOllamaModel": "Starting Ollama and installing model…",
+      "installedOllamaModel": "Ollama model installed",
+      "installOllamaModelFailed": "Failed to install Ollama model",
+      "ollamaInstallSteps": "1) Open the model library and copy the model name (for example llama3.1). 2) Put the name in the Model field and click Install it.",
+      "ollamaStartedAuto": "Ollama server started automatically."
     },
     "placeholder": {
       "llmBaseUrl": "https://api.openai.com/v1/chat/completions (or your compatible endpoint)",
@@ -111,6 +117,11 @@
         "patternsTitle": "Patrones (secuencias recurrentes):",
         "patternItem": "{{from}} → {{to}}  ({{count}} veces en {{withinMs}}ms)"
       }
+    },
+    "buttons": {
+      "installOllamaModel": "2) Install it",
+      "ollamaLibrary": "Model library",
+      "downloadOllamaModel": "1) Download model"
     }
   }
 }

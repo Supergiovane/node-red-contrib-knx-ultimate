@@ -1,4 +1,53 @@
 <script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/htmlUtils.js"></script>
+<style type="text/css">
+    #knx-ai-models-status {
+        margin-top: 6px;
+        margin-bottom: 6px;
+    }
+
+    #knx-ai-ollama-install-row {
+        align-items: flex-start;
+    }
+
+    #knx-ai-ollama-install-row > label {
+        padding-top: 6px;
+    }
+
+    #knx-ai-ollama-install-row .knx-ai-ollama-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        align-items: center;
+        max-width: calc(100% - 300px);
+    }
+
+    #knx-ai-ollama-install-row .knx-ai-ollama-actions .red-ui-button {
+        margin: 0 !important;
+    }
+
+    #knx-ai-ollama-steps,
+    #knx-ai-ollama-empty-help {
+        margin-left: 290px;
+        margin-top: 6px;
+    }
+
+    @media (max-width: 900px) {
+        #knx-ai-ollama-install-row > label {
+            width: 100% !important;
+            padding-top: 0;
+            margin-bottom: 6px;
+        }
+
+        #knx-ai-ollama-install-row .knx-ai-ollama-actions {
+            max-width: 100%;
+        }
+
+        #knx-ai-ollama-steps,
+        #knx-ai-ollama-empty-help {
+            margin-left: 0;
+        }
+    }
+</style>
 
 <script type="text/javascript">
     RED.nodes.registerType('knxUltimateAI', {
@@ -41,11 +90,11 @@
             llmMaxEventsInPrompt: { value: 120, required: false, validate: RED.validators.number() },
             llmIncludeRaw: { value: false },
             llmIncludeFlowContext: { value: true },
-            llmMaxFlowNodesInPrompt: { value: 80, required: false, validate: RED.validators.number() },
+            llmMaxFlowNodesInPrompt: { value: 400, required: false, validate: RED.validators.number() },
             llmIncludeDocsSnippets: { value: true },
             llmDocsLanguage: { value: "en" },
             llmDocsMaxSnippets: { value: 5, required: false, validate: RED.validators.number() },
-            llmDocsMaxChars: { value: 3000, required: false, validate: RED.validators.number() }
+            llmDocsMaxChars: { value: 60000, required: false, validate: RED.validators.number() }
         },
         credentials: {
             llmApiKey: { type: "password" }
@@ -66,6 +115,19 @@
         paletteLabel: "KNX AI",
         oneditprepare: function () {
             try { RED.sidebar.show("help"); } catch (error) { }
+            const OPENAI_COMPAT_DEFAULT_CHAT_URL = "https://api.openai.com/v1/chat/completions";
+            const OLLAMA_DEFAULT_CHAT_URL = "http://localhost:11434/api/chat";
+            const OLLAMA_LIBRARY_URL = "https://ollama.com/library";
+            const OPENAI_COMPAT_DEFAULT_MODELS = ["gpt-5.4", "gpt-4o-mini"];
+            const OLLAMA_DEFAULT_MODEL = "llama3.1";
+
+            const $accordion = $("#knx-ai-accordion");
+            const $llmContent = $accordion.find("#node-input-llmEnabled").closest("#knx-ai-accordion > div").first();
+            const $llmHeader = $llmContent.prev("h3");
+            if ($llmHeader.length && $llmContent.length) {
+                $llmContent.prependTo($accordion);
+                $llmHeader.prependTo($accordion);
+            }
 
             $("#knx-ai-accordion").accordion({
                 header: "h3",
@@ -85,19 +147,6 @@
             $("#node-input-llmEnabled").on("change", toggleLLM);
             toggleLLM();
 
-            const toggleProvider = () => {
-                const provider = $("#node-input-llmProvider").val();
-                if (provider === "ollama") {
-                    $("#knx-ai-apikey-row").hide();
-                    $("#knx-ai-ollama-warning").show();
-                } else {
-                    $("#knx-ai-apikey-row").show();
-                    $("#knx-ai-ollama-warning").hide();
-                }
-            };
-            $("#node-input-llmProvider").on("change", toggleProvider);
-            toggleProvider();
-
             const nodeId = this.id;
             const resolveAdminRoot = () => {
                 const raw = (RED.settings && typeof RED.settings.httpAdminRoot === "string") ? RED.settings.httpAdminRoot : "/";
@@ -113,6 +162,11 @@
                 } catch (error) {
                     return "";
                 }
+            };
+            const t = (key, fallback) => {
+                const value = RED._(key);
+                if (!value || value === key) return fallback || "";
+                return value;
             };
 
             $("#knx-ai-open-web-page-vue").on("click", function (evt) {
@@ -138,6 +192,16 @@
                 if (level === "err") $status.addClass("knx-ai-models-err");
             };
 
+            const setOllamaNoModelsVisible = (visible) => {
+                if (visible) $("#knx-ai-ollama-empty-help").show();
+                else $("#knx-ai-ollama-empty-help").hide();
+            };
+
+            const setOllamaInstallUiState = (busy) => {
+                $("#knx-ai-installOllamaModel").prop("disabled", !!busy);
+                $("#knx-ai-downloadOllamaModel").prop("disabled", !!busy);
+            };
+
             const populateModels = (models) => {
                 const $dl = $("#knx-ai-llmModels");
                 if (!$dl || $dl.length === 0) return;
@@ -147,15 +211,37 @@
                 });
             };
 
+            const normalizeUrl = (value) => String(value || "").trim().replace(/\/+$/, "").toLowerCase();
+            const isOpenAiDefaultUrl = (value) => normalizeUrl(value) === normalizeUrl(OPENAI_COMPAT_DEFAULT_CHAT_URL);
+            const isOllamaDefaultUrl = (value) => normalizeUrl(value) === normalizeUrl(OLLAMA_DEFAULT_CHAT_URL);
+            const isOpenAiDefaultModel = (value) => OPENAI_COMPAT_DEFAULT_MODELS.indexOf(String(value || "").trim().toLowerCase()) >= 0;
+
+            const applyProviderDefaults = (provider) => {
+                const $baseUrl = $("#node-input-llmBaseUrl");
+                const $model = $("#node-input-llmModel");
+                const currentBaseUrl = String($baseUrl.val() || "").trim();
+                const currentModel = String($model.val() || "").trim();
+
+                if (provider === "ollama") {
+                    if (!currentBaseUrl || isOpenAiDefaultUrl(currentBaseUrl)) $baseUrl.val(OLLAMA_DEFAULT_CHAT_URL);
+                    if (!currentModel || isOpenAiDefaultModel(currentModel)) $model.val(OLLAMA_DEFAULT_MODEL);
+                    return;
+                }
+
+                if (!currentBaseUrl || isOllamaDefaultUrl(currentBaseUrl)) $baseUrl.val(OPENAI_COMPAT_DEFAULT_CHAT_URL);
+                if (!currentModel || String(currentModel).trim().toLowerCase() === OLLAMA_DEFAULT_MODEL) $model.val(OPENAI_COMPAT_DEFAULT_MODELS[0]);
+            };
+
             const refreshModels = () => {
                 const provider = $("#node-input-llmProvider").val();
                 const baseUrl = $("#node-input-llmBaseUrl").val() || "";
                 const apiKey = $("#node-input-llmApiKey").val() || "";
                 const payload = { nodeId: nodeId, provider: provider, baseUrl: baseUrl };
+                if (provider === "ollama") payload.autoStart = true;
                 // Node-RED uses "__PWRD__" as placeholder for stored credentials: don't send it.
                 if (apiKey && apiKey !== "__PWRD__") payload.apiKey = apiKey;
 
-                setModelsStatus(RED._('knxUltimateAI.messages.loadingModels') || "Loading models...", "warn");
+                setModelsStatus(t('knxUltimateAI.messages.loadingModels', "Loading models..."), "warn");
                 $("#knx-ai-refreshModels").prop("disabled", true);
 
                 $.ajax({
@@ -166,9 +252,23 @@
                 })
                     .done(function (data) {
                         const models = (data && data.models) ? data.models : [];
+                        let msg = "";
                         populateModels(models);
-                        const msg = (RED._('knxUltimateAI.messages.loadedModels') || "Models loaded") + ": " + models.length;
-                        setModelsStatus(msg, "ok");
+                        if (provider === "ollama" && data && data.ollamaStarted) {
+                            try {
+                                const startedMsg = t('knxUltimateAI.messages.ollamaStartedAuto', "Ollama server started automatically.");
+                                RED.notify(startedMsg, "success");
+                            } catch (e) { }
+                        }
+                        if (provider === "ollama" && models.length === 0) {
+                            msg = t('knxUltimateAI.messages.ollamaNoModels', "No local Ollama model found. Install one from https://ollama.com/library.");
+                            setModelsStatus(msg, "warn");
+                            setOllamaNoModelsVisible(true);
+                        } else {
+                            msg = t('knxUltimateAI.messages.loadedModels', "Models loaded") + ": " + models.length;
+                            setModelsStatus(msg, "ok");
+                            setOllamaNoModelsVisible(false);
+                        }
                         try { RED.notify(msg, "success"); } catch (e) { }
                     })
                     .fail(function (xhr) {
@@ -185,9 +285,87 @@
                     });
             };
 
+            const installOllamaModel = () => {
+                const provider = $("#node-input-llmProvider").val();
+                if (provider !== "ollama") return;
+                const baseUrl = $("#node-input-llmBaseUrl").val() || "";
+                const model = String($("#node-input-llmModel").val() || "").trim() || OLLAMA_DEFAULT_MODEL;
+                const payload = { nodeId: nodeId, baseUrl: baseUrl, model: model };
+
+                setModelsStatus(t('knxUltimateAI.messages.installingOllamaModel', "Installing Ollama model..."), "warn");
+                $("#knx-ai-refreshModels").prop("disabled", true);
+                setOllamaInstallUiState(true);
+
+                $.ajax({
+                    url: "knxUltimateAI/ollama/pull",
+                    type: "POST",
+                    contentType: "application/json",
+                    data: JSON.stringify(payload)
+                })
+                    .done(function (data) {
+                        try {
+                            const okMsg = t('knxUltimateAI.messages.installedOllamaModel', "Ollama model installed") + ": " + model;
+                            RED.notify(okMsg, "success");
+                            if (data && data.ollamaStarted) {
+                                const startedMsg = t('knxUltimateAI.messages.ollamaStartedAuto', "Ollama server started automatically.");
+                                RED.notify(startedMsg, "success");
+                            }
+                        } catch (e) { }
+                        refreshModels();
+                    })
+                    .fail(function (xhr) {
+                        let err = t('knxUltimateAI.messages.installOllamaModelFailed', "Failed to install Ollama model");
+                        try {
+                            const resp = xhr && xhr.responseJSON;
+                            if (resp && resp.error) err = resp.error;
+                        } catch (e) { }
+                        setModelsStatus(err, "err");
+                        try { RED.notify(err, "error"); } catch (e) { }
+                    })
+                    .always(function () {
+                        $("#knx-ai-refreshModels").prop("disabled", false);
+                        setOllamaInstallUiState(false);
+                    });
+            };
+
+            const openOllamaLibrary = () => {
+                const wnd = window.open(OLLAMA_LIBRARY_URL, "_blank", "noopener,noreferrer");
+                try { if (wnd && typeof wnd.focus === "function") wnd.focus(); } catch (e) { }
+            };
+
+            const toggleProvider = ({ applyDefaults = false, autoLoadModels = false } = {}) => {
+                const provider = $("#node-input-llmProvider").val();
+                if (applyDefaults) applyProviderDefaults(provider);
+                if (provider === "ollama") {
+                    $("#knx-ai-apikey-row").hide();
+                    $("#knx-ai-ollama-warning").show();
+                    $("#knx-ai-ollama-install-row").show();
+                    $("#knx-ai-ollama-steps").show();
+                    if (autoLoadModels) refreshModels();
+                } else {
+                    $("#knx-ai-apikey-row").show();
+                    $("#knx-ai-ollama-warning").hide();
+                    $("#knx-ai-ollama-install-row").hide();
+                    $("#knx-ai-ollama-steps").hide();
+                    setOllamaNoModelsVisible(false);
+                }
+            };
+            $("#node-input-llmProvider").on("change", function () {
+                toggleProvider({ applyDefaults: true, autoLoadModels: true });
+            });
+            toggleProvider({ applyDefaults: true });
+
             $("#knx-ai-refreshModels").on("click", function (evt) {
                 evt.preventDefault();
                 refreshModels();
+            });
+            $("#knx-ai-downloadOllamaModel").on("click", function (evt) {
+                evt.preventDefault();
+                openOllamaLibrary();
+            });
+            $("#knx-ai-installOllamaModel").on("click", function (evt) {
+                evt.preventDefault();
+                installOllamaModel();
             });
         },
         oneditsave: function () {
@@ -342,6 +520,25 @@
                 </div>
                 <datalist id="knx-ai-llmModels"></datalist>
                 <div class="form-tips" id="knx-ai-models-status"></div>
+                <div class="form-row" id="knx-ai-ollama-install-row" style="display:none;">
+                    <label style="width:290px"><i class="fa fa-download"></i> Ollama</label>
+                    <div class="knx-ai-ollama-actions">
+                        <button type="button" class="red-ui-button" id="knx-ai-downloadOllamaModel">
+                            <i class="fa fa-cloud-download"></i> <span data-i18n="knxUltimateAI.buttons.downloadOllamaModel"></span>
+                        </button>
+                        <button type="button" class="red-ui-button" id="knx-ai-installOllamaModel">
+                            <i class="fa fa-download"></i> <span data-i18n="knxUltimateAI.buttons.installOllamaModel"></span>
+                        </button>
+                    </div>
+                </div>
+                <div class="form-tips" id="knx-ai-ollama-steps" style="display:none;">
+                    <span data-i18n="knxUltimateAI.messages.ollamaInstallSteps"></span>
+                </div>
+                <div class="form-tips" id="knx-ai-ollama-empty-help" style="display:none;">
+                    <span data-i18n="knxUltimateAI.messages.ollamaNoModels"></span>
+                    <br>
+                    <code>ollama pull llama3.1</code>
+                </div>
 
                 <div class="form-row">
                     <label style="width:290px" for="node-input-llmSystemPrompt"><i class="fa fa-commenting-o"></i> <span data-i18n="knxUltimateAI.properties.llmSystemPrompt"></span></label>
