@@ -1,7 +1,7 @@
 const fs = require('fs')
 
 module.exports = function (RED) {
-  function knxUltimateLogger(config) {
+  function knxUltimateLogger (config) {
     RED.nodes.createNode(this, config)
     const node = this
     node.serverKNX = RED.nodes.getNode(config.server) || undefined
@@ -66,7 +66,6 @@ module.exports = function (RED) {
 
     if (!node.serverKNX) return
 
-
     const buildXMLFromLines = (lines) => {
       const header = '<CommunicationLog xmlns="http://knx.org/xml/telegrams/01">\n'
       const stop = '<RecordStop Timestamp="' + new Date().toISOString() + '" />\n'
@@ -96,7 +95,7 @@ module.exports = function (RED) {
     }
 
     // 26/03/2020 Create and output the XML for ETS bus monitor
-    function createETSXML() {
+    function createETSXML () {
       let sFile = '<CommunicationLog xmlns="http://knx.org/xml/telegrams/01">\n'
       for (let index = 0; index < node.etsXMLRow.length; index++) {
         const element = node.etsXMLRow[index]
@@ -129,7 +128,7 @@ module.exports = function (RED) {
     };
 
     // 25/10/2021 Count Telegrams. Requested by RicharddeCrep https://github.com/Supergiovane/node-red-contrib-knx-ultimate/issues/149#issue-1034644956
-    function countTelegrams() {
+    function countTelegrams () {
       node.send([null, { topic: node.topic, payload: node.telegramCount, countIntervalInSeconds: node.intervalTelegramCount / 1000, currentTime: new Date().toLocaleString() }])
       node.setNodeStatus({ fill: 'green', shape: 'dot', text: 'Payload Telegram counter sent.', payload: node.telegramCount, GA: '', dpt: '', devicename: '' })
       node.telegramCount = 0

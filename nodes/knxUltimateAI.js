@@ -204,38 +204,38 @@ const buildLlmSummarySnapshot = (summary) => {
 
   const graph = s.graph && typeof s.graph === 'object'
     ? {
-      windowSec: Number(s.graph.windowSec || 0),
-      edges: (Array.isArray(s.graph.edges) ? s.graph.edges : []).slice(0, 60),
-      hotEdgesDelta: (Array.isArray(s.graph.hotEdgesDelta) ? s.graph.hotEdgesDelta : []).slice(0, 40),
-      anomalyLifecycle: (Array.isArray(s.graph.anomalyLifecycle) ? s.graph.anomalyLifecycle : []).slice(0, 30)
-    }
+        windowSec: Number(s.graph.windowSec || 0),
+        edges: (Array.isArray(s.graph.edges) ? s.graph.edges : []).slice(0, 60),
+        hotEdgesDelta: (Array.isArray(s.graph.hotEdgesDelta) ? s.graph.hotEdgesDelta : []).slice(0, 40),
+        anomalyLifecycle: (Array.isArray(s.graph.anomalyLifecycle) ? s.graph.anomalyLifecycle : []).slice(0, 30)
+      }
     : {}
 
   const flowMapTopology = s.flowMapTopology && typeof s.flowMapTopology === 'object'
     ? {
-      mode: String(s.flowMapTopology.mode || '').trim(),
-      windowSec: Number(s.flowMapTopology.windowSec || 0),
-      nodes: (Array.isArray(s.flowMapTopology.nodes) ? s.flowMapTopology.nodes : []).slice(0, 80).map((node) => ({
-        id: String(node && node.id ? node.id : '').trim(),
-        displayId: String(node && node.displayId ? node.displayId : '').trim(),
-        kind: String(node && node.kind ? node.kind : '').trim(),
-        subtitle: String(node && node.subtitle ? node.subtitle : '').trim(),
-        payload: compactPayloadForNodeLabel(node && Object.prototype.hasOwnProperty.call(node, 'payload') ? node.payload : '', 36),
-        anomalyCount: Number(node && node.anomalyCount ? node.anomalyCount : 0),
-        lastSeenAtMs: Number(node && node.lastSeenAtMs ? node.lastSeenAtMs : 0)
-      })),
-      edges: (Array.isArray(s.flowMapTopology.edges) ? s.flowMapTopology.edges : []).slice(0, 120).map((edge) => ({
-        from: String(edge && edge.from ? edge.from : '').trim(),
-        to: String(edge && edge.to ? edge.to : '').trim(),
-        linkType: String(edge && edge.linkType ? edge.linkType : '').trim(),
-        event: String(edge && edge.event ? edge.event : '').trim(),
-        currentWindowCount: Number(edge && edge.currentWindowCount ? edge.currentWindowCount : 0),
-        totalCount: Number(edge && edge.totalCount ? edge.totalCount : 0),
-        delta: Number(edge && edge.delta ? edge.delta : 0),
-        delayMs: Number(edge && edge.delayMs ? edge.delayMs : 0),
-        lastAt: String(edge && edge.lastAt ? edge.lastAt : '').trim()
-      }))
-    }
+        mode: String(s.flowMapTopology.mode || '').trim(),
+        windowSec: Number(s.flowMapTopology.windowSec || 0),
+        nodes: (Array.isArray(s.flowMapTopology.nodes) ? s.flowMapTopology.nodes : []).slice(0, 80).map((node) => ({
+          id: String(node && node.id ? node.id : '').trim(),
+          displayId: String(node && node.displayId ? node.displayId : '').trim(),
+          kind: String(node && node.kind ? node.kind : '').trim(),
+          subtitle: String(node && node.subtitle ? node.subtitle : '').trim(),
+          payload: compactPayloadForNodeLabel(node && Object.prototype.hasOwnProperty.call(node, 'payload') ? node.payload : '', 36),
+          anomalyCount: Number(node && node.anomalyCount ? node.anomalyCount : 0),
+          lastSeenAtMs: Number(node && node.lastSeenAtMs ? node.lastSeenAtMs : 0)
+        })),
+        edges: (Array.isArray(s.flowMapTopology.edges) ? s.flowMapTopology.edges : []).slice(0, 120).map((edge) => ({
+          from: String(edge && edge.from ? edge.from : '').trim(),
+          to: String(edge && edge.to ? edge.to : '').trim(),
+          linkType: String(edge && edge.linkType ? edge.linkType : '').trim(),
+          event: String(edge && edge.event ? edge.event : '').trim(),
+          currentWindowCount: Number(edge && edge.currentWindowCount ? edge.currentWindowCount : 0),
+          totalCount: Number(edge && edge.totalCount ? edge.totalCount : 0),
+          delta: Number(edge && edge.delta ? edge.delta : 0),
+          delayMs: Number(edge && edge.delayMs ? edge.delayMs : 0),
+          lastAt: String(edge && edge.lastAt ? edge.lastAt : '').trim()
+        }))
+      }
     : undefined
 
   return {
@@ -512,12 +512,14 @@ const normalizeGaRoleValue = (value, fallback = 'auto') => {
 
 const parseEtsHierarchyLabel = (value) => {
   const raw = normalizeAreaText(value)
-  if (!raw) return {
-    raw: '',
-    deviceLabel: '',
-    mainGroup: '',
-    middleGroup: '',
-    hierarchyPath: ''
+  if (!raw) {
+    return {
+      raw: '',
+      deviceLabel: '',
+      mainGroup: '',
+      middleGroup: '',
+      hierarchyPath: ''
+    }
   }
   const match = raw.match(/^\(([^()]+)\)\s*(.*)$/)
   if (!match) {
@@ -809,15 +811,15 @@ const enrichSuggestedAreasWithSummary = ({ baseSnapshot, summary }) => {
     let lastSeenAtMs = 0
     const recentPayloads = []
       ; (Array.isArray(area.sampleGAs) ? area.sampleGAs : []).forEach((ga) => {
-        const ts = new Date(String(gaLastSeenAt[ga] || '')).getTime()
-        if (Number.isFinite(ts) && ts > 0) {
-          lastSeenAtMs = Math.max(lastSeenAtMs, ts)
-          if (ts >= activeCutoffMs) activeGaCount += 1
-        }
-        if (gaLastPayload[ga] !== undefined) {
-          pushUniqueValue(recentPayloads, `${ga}: ${compactPayloadForNodeLabel(gaLastPayload[ga], 22)}`, 4)
-        }
-      })
+      const ts = new Date(String(gaLastSeenAt[ga] || '')).getTime()
+      if (Number.isFinite(ts) && ts > 0) {
+        lastSeenAtMs = Math.max(lastSeenAtMs, ts)
+        if (ts >= activeCutoffMs) activeGaCount += 1
+      }
+      if (gaLastPayload[ga] !== undefined) {
+        pushUniqueValue(recentPayloads, `${ga}: ${compactPayloadForNodeLabel(gaLastPayload[ga], 22)}`, 4)
+      }
+    })
     if (activeGaCount > 0) activeAreaCount += 1
     return Object.assign({}, area, {
       activeGaCount,
@@ -932,7 +934,7 @@ const applyAreaOverridesToSnapshot = ({ snapshot, overrides, gaCatalog }) => {
       if (!item) return
       if (item.dpt) dptSet.add(item.dpt)
       pushUniqueValue(sampleLabels, item.label, 4)
-        ; (Array.isArray(item.tags) ? item.tags : []).forEach(tag => inferredTags.add(tag))
+      ; (Array.isArray(item.tags) ? item.tags : []).forEach(tag => inferredTags.add(tag))
     })
     const customName = normalizeAreaText(override.name || overrideId.replace(/^custom:/, ''))
     const isLlmGenerated = String(overrideId || '').startsWith('llm:')
@@ -991,7 +993,7 @@ const applyAreaOverridesToSnapshot = ({ snapshot, overrides, gaCatalog }) => {
         if (!item) return
         if (item.dpt) nextDptSet.add(item.dpt)
         pushUniqueValue(nextLabelSet, item.label, 4)
-          ; (Array.isArray(item.tags) ? item.tags : []).forEach(tag => inferredTags.add(tag))
+        ; (Array.isArray(item.tags) ? item.tags : []).forEach(tag => inferredTags.add(tag))
       })
       dptList = Array.from(nextDptSet.values()).sort()
       sampleGAs = filtered.slice(0, 6)
@@ -1092,11 +1094,11 @@ const mergeAreaProfiles = ({ customProfiles }) => {
   DEFAULT_AREA_PROFILES.forEach((profile) => {
     out.set(profile.id, Object.assign({}, profile))
   })
-    ; (Array.isArray(customProfiles) ? customProfiles : []).forEach((profile, index) => {
-      const normalized = normalizeAreaProfilePayload(profile, `custom-${index + 1}`)
-      if (!normalized.id) return
-      out.set(normalized.id, normalized)
-    })
+  ; (Array.isArray(customProfiles) ? customProfiles : []).forEach((profile, index) => {
+    const normalized = normalizeAreaProfilePayload(profile, `custom-${index + 1}`)
+    if (!normalized.id) return
+    out.set(normalized.id, normalized)
+  })
   return Array.from(out.values())
 }
 
@@ -3498,7 +3500,7 @@ module.exports = function (RED) {
     })
   }
 
-  function knxUltimateAI(config) {
+  function knxUltimateAI (config) {
     RED.nodes.createNode(this, config)
     const node = this
 
@@ -3659,11 +3661,15 @@ module.exports = function (RED) {
         }
         return false
       }
-      const repeatCandidate = (msg.knx && msg.knx.repeated !== undefined) ? msg.knx.repeated
-        : (msg.knx && msg.knx.repeat !== undefined) ? msg.knx.repeat
-          : (msg.knx && msg.knx.isRepeated !== undefined) ? msg.knx.isRepeated
-            : (msg.repeated !== undefined) ? msg.repeated
-              : msg.repeat
+      const repeatCandidate = (msg.knx && msg.knx.repeated !== undefined)
+        ? msg.knx.repeated
+        : (msg.knx && msg.knx.repeat !== undefined)
+            ? msg.knx.repeat
+            : (msg.knx && msg.knx.isRepeated !== undefined)
+                ? msg.knx.isRepeated
+                : (msg.repeated !== undefined)
+                    ? msg.repeated
+                    : msg.repeat
       const repeated = parseRepeatFlag(repeatCandidate)
       return {
         ts: nowMs(),
@@ -4089,11 +4095,11 @@ module.exports = function (RED) {
       pruneGARateSeries(now)
       const candidates = new Set()
         ; (topGAs || []).forEach(x => { if (x && x.ga) candidates.add(String(x.ga)) })
-        ; (patterns || []).forEach(p => {
-          if (p && p.from) candidates.add(String(p.from))
-          if (p && p.to) candidates.add(String(p.to))
-        })
-        ; (anomalyLifecycle || []).forEach(a => { if (a && a.ga) candidates.add(String(a.ga)) })
+      ; (patterns || []).forEach(p => {
+        if (p && p.from) candidates.add(String(p.from))
+        if (p && p.to) candidates.add(String(p.to))
+      })
+      ; (anomalyLifecycle || []).forEach(a => { if (a && a.ga) candidates.add(String(a.ga)) })
 
       if (!candidates.size) {
         const recent = Array.from(node._gaRateSeries.values())
@@ -4793,12 +4799,12 @@ module.exports = function (RED) {
         'KNX bus summary (JSON):',
         summaryText,
         '',
-        areasContext ? areasContext : '',
+        areasContext || '',
         areasContext ? '' : '',
         flowContext ? 'Node-RED context:' : '',
-        flowContext ? flowContext : '',
+        flowContext || '',
         flowContext ? '' : '',
-        docsContext ? docsContext : '',
+        docsContext || '',
         docsContext ? '' : '',
         wantsSvgChart ? 'SVG output rules:' : '',
         wantsSvgChart ? '- Return exactly one fenced SVG block using ```svg ... ```.' : '',
@@ -4950,8 +4956,7 @@ module.exports = function (RED) {
           : (Array.isArray(current.profiles) ? current.profiles : []),
         actuatorTests: partialConfig && Array.isArray(partialConfig.actuatorTests)
           ? partialConfig.actuatorTests
-          : (Array.isArray(current.actuatorTests) ? current.actuatorTests : [])
-        ,
+          : (Array.isArray(current.actuatorTests) ? current.actuatorTests : []),
         testPlans: partialConfig && Array.isArray(partialConfig.testPlans)
           ? partialConfig.testPlans
           : (Array.isArray(current.testPlans) ? current.testPlans : []),
@@ -5781,7 +5786,6 @@ module.exports = function (RED) {
         steps
       })
     }
-
 
     const executeWaitStep = async (stepPayload = {}) => {
       const step = normalizeTestPlanStepPayload(stepPayload, stepPayload && stepPayload.id ? String(stepPayload.id) : 'wait-step')
@@ -6658,10 +6662,10 @@ module.exports = function (RED) {
 
       const isResponseFormatCompatibilityError = (message) => {
         const msg = String(message || '')
-        return msg.includes("Unsupported parameter: 'response_format'")
-          || msg.includes('Invalid schema for response_format')
-          || msg.includes('response_format')
-          || msg.includes('json_schema')
+        return msg.includes("Unsupported parameter: 'response_format'") ||
+          msg.includes('Invalid schema for response_format') ||
+          msg.includes('response_format') ||
+          msg.includes('json_schema')
       }
 
       let json

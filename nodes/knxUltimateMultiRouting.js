@@ -326,7 +326,6 @@ module.exports = function (RED) {
       if (parsed.event === 'GroupValue_Read') {
         if (typeof client.read !== 'function') throw new Error('KNX client does not support read')
         client.read(ga)
-        return
       }
     }
 

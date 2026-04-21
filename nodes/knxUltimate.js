@@ -982,4 +982,4 @@ module.exports = function (RED) {
 	    startPeriodicSendTimer()
 	  }
 	  RED.nodes.registerType('knxUltimate', knxUltimate)
-	}
+}
