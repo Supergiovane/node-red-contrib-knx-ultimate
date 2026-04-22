@@ -37,6 +37,7 @@ All fields exposed in the KNX AI editor are listed below.
 - **Analysis window (seconds)**: Main analysis window used for summaries/rates.
 - **History window (seconds)**: Retention window for internal telegram history.
 - **Max stored events**: Maximum number of telegrams kept in memory.
+- Telegrams with `echoed: true` are internal passthrough copies (from the node input pin to its own output pin), not real KNX BUS traffic: exclude them from bus statistics/anomaly analysis.
 - **Auto emit summary (seconds, 0=off)**: Periodic summary output interval.
 - **Top list size**: Number of top group addresses/sources in summary.
 - **Detect simple patterns (A -> B)**: Enable transition/pattern detection.

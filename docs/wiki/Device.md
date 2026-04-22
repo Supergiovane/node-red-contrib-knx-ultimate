@@ -216,7 +216,7 @@ msg = {
         middlegroupnumber:"1"
         ganumber:"0"
     },
-    echoed:true, // True if the msg is coming from the input PIN, otherwise false if the msg is coming form the KNX BUS.
+    echoed:true, // True if this is an internal passthrough copy (input PIN -> output PIN of the same node), false if it comes from the KNX BUS. echoed=true is not real bus traffic for KNX bus analysis.
     knx: { // This is a representation of the KNX BUS telegram, coming from BUS
         event: "GroupValue_Write" // (or "GroupValue_Response", or "GroupValue_Read")
         dpt: "1.001"

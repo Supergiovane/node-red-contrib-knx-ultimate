@@ -37,6 +37,7 @@ Hier sind alle Felder aufgeführt, wie sie im KNX-AI-Editor sichtbar sind.
 - **Analysis window (seconds)**: Hauptfenster für Summary/Rate-Berechnung.
 - **History window (seconds)**: Aufbewahrungsfenster der internen Telegramm-Historie.
 - **Max stored events**: Maximale Anzahl Telegramme im Speicher.
+- Telegramme mit `echoed: true` sind interne Passthrough-Kopien (vom Eingangspin zum Ausgangspin desselben Nodes), also kein echter KNX-Busverkehr: für Busstatistik/Anomalieanalyse ausschließen.
 - **Auto emit summary (seconds, 0=off)**: Periodisches Summary-Intervall.
 - **Top list size**: Anzahl Top-Gruppenadressen/Quellen in der Summary.
 - **Detect simple patterns (A -> B)**: Aktiviert Übergangs-/Pattern-Erkennung.

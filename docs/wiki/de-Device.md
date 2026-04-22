@@ -161,6 +161,8 @@ msg = {
 }
 ```
 
+Hinweis zu `echoed`: Wenn `echoed` auf `true` steht, ist die Nachricht nur eine interne Passthrough-Kopie (Eingangspin -> Ausgangspin desselben Nodes). Das ist kein echter KNX-Busverkehr und sollte bei der Busanalyse ignoriert werden.
+
 ---
 
 # EINGANGS-NACHRICHT AUS DEM FLOW

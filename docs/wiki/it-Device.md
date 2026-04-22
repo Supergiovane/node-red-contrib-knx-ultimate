@@ -200,6 +200,8 @@ msg = {
 }
 ```
 
+Nota su `echoed`: quando è `true`, il messaggio è una copia passthrough interna (dal pin input al pin output dello stesso nodo). Non rappresenta traffico reale del BUS KNX e va ignorato nell'analisi del bus.
+
 ---
 
 # MESSAGGIO DAL FLOW IN INGRESSO
