@@ -356,16 +356,63 @@
                     }
                     if (typeof monaco !== 'undefined' && !globalScope.knxFunctionMonacoCompletionProvider) {
                         try {
-                            const suggestions = knxFunctionHelperItems.map(item => ({
+                            const functionSuggestions = knxFunctionHelperItems.map(item => ({
                                 label: item.label,
                                 kind: monaco.languages.CompletionItemKind.Function,
                                 insertText: item.snippet,
                                 insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
                                 documentation: item.doc
                             }));
+
+                            if (!globalScope._knxGaCache) globalScope._knxGaCache = {};
+                            const fetchGaData = (serverId) => {
+                                if (globalScope._knxGaCache[serverId]) return Promise.resolve(globalScope._knxGaCache[serverId]);
+                                return new Promise((resolve) => {
+                                    $.getJSON("knxUltimatecsv?nodeID=" + serverId + "&_=" + new Date().getTime(), (data) => {
+                                        globalScope._knxGaCache[serverId] = data || [];
+                                        resolve(globalScope._knxGaCache[serverId]);
+                                    }).fail(() => resolve([]));
+                                });
+                            };
+
                             globalScope.knxFunctionMonacoCompletionProvider = monaco.languages.registerCompletionItemProvider('javascript', {
-                                provideCompletionItems: () => ({ suggestions })
+                                triggerCharacters: ['(', "'", '"'],
+                                provideCompletionItems: async (model, position) => {
+                                    const lineContent = model.getLineContent(position.lineNumber);
+                                    const textUntilPosition = lineContent.substring(0, position.column - 1);
+
+                                    // Detect: cursor is inside first argument of getGAValue( or setGAValue(
+                                    const gaArgMatch = textUntilPosition.match(/(?:getGAValue|setGAValue)\s*\(\s*(['"]?)([^'",)]*)$/);
+                                    if (gaArgMatch) {
+                                        const serverId = $("#node-input-server").val();
+                                        if (!serverId || serverId === '_ADD_') return { suggestions: [] };
+                                        const quoteChar = gaArgMatch[1];
+                                        const typedGa = gaArgMatch[2];
+                                        const gaData = await fetchGaData(serverId);
+                                        const replaceStart = position.column - typedGa.length - quoteChar.length;
+                                        const range = {
+                                            startLineNumber: position.lineNumber,
+                                            endLineNumber: position.lineNumber,
+                                            startColumn: replaceStart,
+                                            endColumn: position.column
+                                        };
+                                        return {
+                                            suggestions: gaData.map(item => ({
+                                                label: item.ga + '  -  ' + item.devicename,
+                                                detail: 'DPT: ' + item.dpt,
+                                                kind: monaco.languages.CompletionItemKind.Value,
+                                                insertText: "'" + item.ga + "', '" + item.dpt + "'",
+                                                filterText: item.ga + ' ' + item.devicename + ' ' + item.dpt,
+                                                sortText: item.ga,
+                                                range: range
+                                            }))
+                                        };
+                                    }
+
+                                    return { suggestions: functionSuggestions };
+                                }
                             });
+
                             monaco.languages.typescript.javascriptDefaults.addExtraLib([
                                 '/** Read the cached value of a KNX group address. */',
                                 'declare function getGAValue(address: string, dpt?: string): any;',
