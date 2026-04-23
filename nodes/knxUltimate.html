@@ -1,5 +1,25 @@
 <!-- <script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/jquery.searchableSelect.js"></script> -->
 
+<style>
+/* Monaco editor - first area (input to bus): light green */
+#sendMsgToKNXCode-editor .monaco-editor,
+#sendMsgToKNXCode-editor .monaco-editor-background,
+#sendMsgToKNXCode-editor .monaco-editor .margin,
+#sendMsgToKNXCode-editor .monaco-editor .overflow-guard,
+#sendMsgToKNXCode-editor .monaco-editor .lines-content,
+#sendMsgToKNXCode-editor .monaco-editor .editor-scrollable {
+    background-color: #e8f5e9 !important;
+}
+/* Monaco editor - second area (bus to output): light yellow */
+#receiveMsgFromKNXCode-editor .monaco-editor,
+#receiveMsgFromKNXCode-editor .monaco-editor-background,
+#receiveMsgFromKNXCode-editor .monaco-editor .margin,
+#receiveMsgFromKNXCode-editor .monaco-editor .overflow-guard,
+#receiveMsgFromKNXCode-editor .monaco-editor .lines-content,
+#receiveMsgFromKNXCode-editor .monaco-editor .editor-scrollable {
+    background-color: #fffde7 !important;
+}
+</style>
 
 <script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/htmlUtils.js"></script>
 <script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/KNXSendSnippets.js"></script>
@@ -346,6 +366,18 @@
                             globalScope.knxFunctionMonacoCompletionProvider = monaco.languages.registerCompletionItemProvider('javascript', {
                                 provideCompletionItems: () => ({ suggestions })
                             });
+                            monaco.languages.typescript.javascriptDefaults.addExtraLib([
+                                '/** Read the cached value of a KNX group address. */',
+                                'declare function getGAValue(address: string, dpt?: string): any;',
+                                '/** Send a value to a KNX group address. */',
+                                'declare function setGAValue(address: string, value: any, dpt?: string): void;',
+                                '/** Toggle (invert) this node\'s current value on the KNX bus. */',
+                                'declare function toggle(): void;',
+                            ].join('\n'), 'knx-ultimate-globals.d.ts');
+                            monaco.languages.typescript.javascriptDefaults.setDiagnosticsOptions({
+                                noSemanticValidation: true,
+                                noSyntaxValidation: false
+                            });
                         } catch (error) { }
                     }
                 } catch (error) { }
@@ -499,6 +531,27 @@
                 value: node.receiveMsgFromKNXCode
             });
             applyEditorOptions(node.receiveMsgFromKNXCodeEditor);
+            if (typeof monaco !== 'undefined') {
+                try {
+                    if (!globalScope._knxEditorThemesDefined) {
+                        monaco.editor.defineTheme('knx-send-theme', {
+                            base: 'vs', inherit: true, rules: [],
+                            colors: { 'editor.background': '#e8f5e9', 'editorGutter.background': '#e8f5e9' }
+                        });
+                        monaco.editor.defineTheme('knx-receive-theme', {
+                            base: 'vs', inherit: true, rules: [],
+                            colors: { 'editor.background': '#fffde7', 'editorGutter.background': '#fffde7' }
+                        });
+                        globalScope._knxEditorThemesDefined = true;
+                    }
+                    if (typeof node.sendMsgToKNXCodeEditor.updateOptions === 'function') {
+                        node.sendMsgToKNXCodeEditor.updateOptions({ theme: 'knx-send-theme' });
+                    }
+                    if (typeof node.receiveMsgFromKNXCodeEditor.updateOptions === 'function') {
+                        node.receiveMsgFromKNXCodeEditor.updateOptions({ theme: 'knx-receive-theme' });
+                    }
+                } catch (e) { }
+            }
             node.activeCodeEditor = null;
             attachFocusHandlers(node.sendMsgToKNXCodeEditor);
             attachFocusHandlers(node.receiveMsgFromKNXCodeEditor);
