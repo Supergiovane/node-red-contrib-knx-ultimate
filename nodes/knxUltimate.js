@@ -299,7 +299,7 @@ module.exports = function (RED) {
   const payloadRounder = require('./utils/payloadManipulation')
   const dptlib = require('knxultimate').dptlib
 
-  function knxUltimate (config) {
+  function knxUltimate(config) {
     RED.nodes.createNode(this, config)
     const node = this
     node.serverKNX = RED.nodes.getNode(config.server) || undefined
@@ -500,36 +500,61 @@ module.exports = function (RED) {
     }
 
     // Used in the KNX Function TAB
-    const getGAValue = function getGAValue (_ga = undefined, _dpt = undefined) {
-      try {
-        if (_ga === undefined) return
-        // The GA can have the devicename as well, separated by a blank space (1/1/0 light table ovest),
-        // I must take the GA only
-        const blankSpacePosition = _ga.indexOf(' ')
-        if (blankSpacePosition > -1) _ga = _ga.substring(0, blankSpacePosition)
-        // Is there a GA in the server's exposedGAs?
-        const found = node.serverKNX.exposedGAs.find(a => a.ga === _ga)
-        if (found !== undefined) {
-          if (_dpt === undefined && found.dpt === undefined) {
-            const errM = 'getGaValue: node ID:' + node.id + ' ' + 'No CSV file imported. Please provide the dpt manually'
-            RED.log.error(errM)
-            if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(errM)
-            return
-          };
-          return dptlib.fromBuffer(found.rawValue, dptlib.resolve(_dpt || found.dpt))
-        } else {
-          const errM = 'getGaValue: node ID:' + node.id + ' ' + 'Group Address not yet read, try later.'
-          RED.log.error(errM)
-          if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(errM)
-        }
-      } catch (error) {
-        const errM = 'getGaValue: node ID:' + node.id + ' ' + error.stack
-        RED.log.error(errM)
-        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(errM)
+    const getGAValue = async function getGAValue(_ga = undefined, _dpt = undefined) {
+      if (_ga === undefined) return null
+      // Strip devicename if present (e.g. "1/1/1 Light name" → "1/1/1")
+      const blankSpacePosition = _ga.indexOf(' ')
+      if (blankSpacePosition > -1) _ga = _ga.substring(0, blankSpacePosition)
+
+      const tryDecode = (rawValue, dpt) => {
+        try {
+          if (rawValue === null || rawValue === undefined) return undefined
+          return dptlib.fromBuffer(rawValue, dptlib.resolve(dpt))
+        } catch (_e) { return undefined }
       }
+
+      const sendRead = () => {
+        try {
+          node.serverKNX.sendKNXTelegramToKNXEngine({
+            grpaddr: _ga, payload: '', dpt: '', outputtype: 'read', nodecallerid: node.id
+          })
+          RED.log.warn('getGAValue: sent groupvalue_read for ' + _ga)
+        } catch (e) {
+          RED.log.error('getGAValue: failed to send read for ' + _ga + ': ' + e.message)
+        }
+      }
+
+      // Check cache first
+      let found = node.serverKNX.exposedGAs.find(a => a.ga === _ga)
+      if (found !== undefined) {
+        const dptFinal = _dpt || found.dpt
+        if (!dptFinal) {
+          RED.log.error('getGAValue: no DPT for ' + _ga + '. Provide it as second parameter.')
+          return null
+        }
+        const val = tryDecode(found.rawValue, dptFinal)
+        if (val !== undefined) return val
+        // rawValue present but decode failed (bad format) — fall through to read
+        RED.log.warn('getGAValue: cached rawValue for ' + _ga + ' could not be decoded, sending read request')
+      }
+
+      // Not cached or decode failed: send read and poll up to 3 seconds
+      sendRead()
+      for (let i = 0; i < 30; i++) {
+        await new Promise(resolve => setTimeout(resolve, 100))
+        found = node.serverKNX.exposedGAs.find(a => a.ga === _ga)
+        if (found !== undefined) {
+          const dptFinal = _dpt || found.dpt
+          if (!dptFinal) return null
+          const val = tryDecode(found.rawValue, dptFinal)
+          if (val !== undefined) return val
+        }
+      }
+      RED.log.warn('getGAValue: no response from KNX bus for ' + _ga + ' within 3 seconds')
+      return null
     }
     // Used in the KNX Function TAB
-    const setGAValue = function setGAValue (_ga = undefined, _value = undefined, _dpt = undefined) {
+    const setGAValue = function setGAValue(_ga = undefined, _value = undefined, _dpt = undefined) {
       try {
         if (_ga === undefined) return
         // The GA can have the devicename as well, separated by a blank space (1/1/0 light table ovest),
@@ -556,7 +581,7 @@ module.exports = function (RED) {
       }
     }
     // Used in the KNX Function TAB
-    const self = function self (_value) {
+    const self = function self(_value) {
       try {
         node.serverKNX.sendKNXTelegramToKNXEngine({
           grpaddr: node.topic, payload: _value, dpt: node.dpt, outputtype: 'write', nodecallerid: node.id
@@ -568,7 +593,7 @@ module.exports = function (RED) {
       }
     }
     // Used in the KNX Function TAB
-    const toggle = function toggle () {
+    const toggle = function toggle() {
       if (node.currentPayload === true || node.currentPayload === false) {
         try {
           node.serverKNX.sendKNXTelegramToKNXEngine({
@@ -583,7 +608,7 @@ module.exports = function (RED) {
     }
 
     // This function is called by the knx-ultimate config node, to output a msg.payload.
-    node.handleSend = (msg) => {
+    node.handleSend = async (msg) => {
       // 27/03/2020 can i merge the last input msg arrived, with the output?
       try {
         if (node.passthrough === 'yes') {
@@ -613,8 +638,8 @@ module.exports = function (RED) {
       // -+++++++++++++++++++++++++++++++++++++++++++
       if (node.receiveMsgFromKNXCode !== undefined) {
         try {
-          const receiveMsgFromKNXCode = new Function('msg', 'getGAValue', 'node', 'RED', 'self', 'toggle', 'setGAValue', node.receiveMsgFromKNXCode)
-          msg = receiveMsgFromKNXCode(msg, getGAValue, node, RED, self, toggle, setGAValue)
+          const receiveMsgFromKNXCode = (new (Object.getPrototypeOf(async function () { }).constructor)('msg', 'getGAValue', 'node', 'RED', 'self', 'toggle', 'setGAValue', node.receiveMsgFromKNXCode))
+          msg = await receiveMsgFromKNXCode(msg, getGAValue, node, RED, self, toggle, setGAValue)
         } catch (error) {
           RED.log.error('knxUltimate: receiveMsgFromKNXCode: node ID:' + node.id + ' ' + error.message)
           if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(`receiveMsgFromKNXCode: node id ${node.id} ` || ' ' + error.stack)
@@ -631,7 +656,7 @@ module.exports = function (RED) {
       if (msg !== undefined) node.send(msg)
     }
 
-    node.on('input', (msg) => {
+    node.on('input', async (msg) => {
       if (typeof msg === 'undefined') return
       if (!node.serverKNX) return // 29/08/2019 Server not instantiate
 
@@ -679,8 +704,8 @@ module.exports = function (RED) {
       // -+++++++++++++++++++++++++++++++++++++++++++
       if (node.sendMsgToKNXCode !== undefined) {
         try {
-          const sendMsgToKNXCode = new Function('msg', 'getGAValue', 'node', 'RED', 'self', 'toggle', 'setGAValue', node.sendMsgToKNXCode)
-          msg = sendMsgToKNXCode(msg, getGAValue, node, RED, self, toggle, setGAValue)
+          const sendMsgToKNXCode = (new (Object.getPrototypeOf(async function () { }).constructor)('msg', 'getGAValue', 'node', 'RED', 'self', 'toggle', 'setGAValue', node.sendMsgToKNXCode))
+          msg = await sendMsgToKNXCode(msg, getGAValue, node, RED, self, toggle, setGAValue)
           if (msg === undefined) return
         } catch (error) {
           RED.log.error('knxUltimate: sendMsgToKNXCode: node ID:' + node.id + ' ' + error.message)
@@ -960,9 +985,9 @@ module.exports = function (RED) {
     })
 
     // On each deploy, add the node to the server list
-	    if (node.serverKNX) {
-	      node.serverKNX.addClient(node)
-	      if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info(`addClient: node id ${node.id}` || '' + ` with topic ${node.topic || ''} has been added to the server.`)
+    if (node.serverKNX) {
+      node.serverKNX.addClient(node)
+      if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info(`addClient: node id ${node.id}` || '' + ` with topic ${node.topic || ''} has been added to the server.`)
       // 05/11/2021 if the node is set to read from bus, issue a read.
       // "node-input-initialread0": "No",
       // "node-input-initialread1": "Leggi dal BUS KNX",
@@ -975,11 +1000,11 @@ module.exports = function (RED) {
         const t = setTimeout(() => { // 21/03/2022 fixed possible memory leak. Previously was setTimeout without "let t = ".
           node.emit('input', { readstatus: true })
         }, 3000)
-	      }
-	    }
+      }
+    }
 
-	    // Start periodic send timer (optional)
-	    startPeriodicSendTimer()
-	  }
-	  RED.nodes.registerType('knxUltimate', knxUltimate)
+    // Start periodic send timer (optional)
+    startPeriodicSendTimer()
+  }
+  RED.nodes.registerType('knxUltimate', knxUltimate)
 }

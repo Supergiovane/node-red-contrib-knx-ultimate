@@ -6,6 +6,12 @@
 
 # CHANGELOG
 
+**Version 4.3.4** - April 2026<br/>
+
+- UI: **KNX Function** editor areas now have colored backgrounds (light green for *input→bus*, light yellow for *bus→output*) for easier visual distinction.<br/>
+- UI: **KNX Function** Monaco editor no longer shows red underlines for custom KNX functions (`getGAValue`, `setGAValue`, `toggle`, `self`).<br/>
+- NEW: **KNX Function** : **`let val = await getGAValue(...)`** now automatically sends a `GroupValue_Read` to the KNX bus when the requested group address has no cached value yet, and waits up to 3 seconds for the device to respond before returning `null`. Use `await getGAValue(...)` in your KNX Function code to benefit from this behaviour.<br/>
+
 **Version 4.3.3** - April 2026<br/>
 
 - UI: in the **KNX Function helper**, the **Search GA** field is now always visible; if the ETS CSV is not imported, the field is disabled and shows `To enable the search, IMPORT THE ETS FILE`.<br/>
