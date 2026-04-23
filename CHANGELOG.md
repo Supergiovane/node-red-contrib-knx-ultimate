@@ -6,6 +6,11 @@
 
 # CHANGELOG
 
+**Version 4.3.3** - April 2026<br/>
+
+- UI: in the **KNX Function helper**, the **Search GA** field is now always visible; if the ETS CSV is not imported, the field is disabled and shows `To enable the search, IMPORT THE ETS FILE`.<br/>
+- In the KNX DEVICE NODE, added the "toggle with status" function snippet.<br/>
+
 **Version 4.3.2** - April 2026<br/>
 
 - Docs/help/wiki: updated **KNX AI** help HTML and wiki pages in all supported languages (EN/IT/DE/FR/ES/zh-CN) to reflect the latest LLM/Ollama UX changes.<br/>

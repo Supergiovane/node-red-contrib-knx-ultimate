@@ -516,6 +516,27 @@
                 insertTextIntoEditor(editor, sanitizedValue);
             });
 
+            const $knxFunctionHelperInput = $("#node-input-knxFunctionHelperGAList");
+            const $knxFunctionHelperInsertButton = $("#btn-insert-knxFunctionGA");
+            let knxFunctionHelperDefaultPlaceholder = $knxFunctionHelperInput.attr('placeholder') || '';
+            if (!knxFunctionHelperDefaultPlaceholder) {
+                try {
+                    knxFunctionHelperDefaultPlaceholder = RED._("node-red-contrib-knx-ultimate/knxUltimate:knxUltimate.placeholder.search") || '';
+                } catch (error) { }
+            }
+            const knxFunctionHelperNoEtsPlaceholder = 'To enable the search, IMPORT THE ETS FILE';
+            const refreshKnxFunctionHelperState = (hasEtsCsv) => {
+                $("#divknxFunctionHelperGAList").show();
+                $knxFunctionHelperInput.prop('disabled', !hasEtsCsv);
+                $knxFunctionHelperInsertButton.prop('disabled', !hasEtsCsv);
+                if (hasEtsCsv) {
+                    $knxFunctionHelperInput.attr('placeholder', knxFunctionHelperDefaultPlaceholder);
+                } else {
+                    $knxFunctionHelperInput.val('');
+                    $knxFunctionHelperInput.attr('placeholder', knxFunctionHelperNoEtsPlaceholder);
+                }
+            };
+
             const configureSnippetPicker = (snippets, inputSelector, datalistSelector, applySnippet) => {
                 const inputEl = $(inputSelector)
                 const datalistEl = $(datalistSelector)
@@ -628,15 +649,13 @@
                     try {
                         if (typeof oNodeServer.csv !== "undefined" && oNodeServer.csv !== "") {
                             $("#isETSFileLoaded").val("si");
-                            $("#divknxFunctionHelperGAList").show();
                         } else {
                             $("#isETSFileLoaded").val("no");
-                            $("#divknxFunctionHelperGAList").hide();
                         }
                     } catch (error) {
                         $("#isETSFileLoaded").val("no");
-                        $("#divknxFunctionHelperGAList").hide();
                     }
+                    refreshKnxFunctionHelperState($("#isETSFileLoaded").val() === "si");
                     if (oNodeServer.knxSecureSelected) {
                         $("#divknxsecure").show();
                     } else {

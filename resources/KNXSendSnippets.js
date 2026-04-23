@@ -1,9 +1,9 @@
-;(function (root) {
-  const KNXSendSnippets = [
-    {
-      id: 'status-ga-check',
-      title: 'Status GA check',
-      code: `// @ts-nocheck
+; (function (root) {
+    const KNXSendSnippets = [
+        {
+            id: 'status-ga-check',
+            title: 'Status GA check',
+            code: `// @ts-nocheck
 // Replace '' with the real status group address.
 const statusGA = getGAValue('','1.001');
 if (msg.payload !== statusGA){ // " !==" means " not equal"
@@ -13,41 +13,57 @@ if (msg.payload !== statusGA){ // " !==" means " not equal"
     node.status({fill:"grey",shape:"dot",text:"Not sent"}); 
     return; 
 }`
-    },
-    {
-      id: 'toggle-value',
-      title: 'Toggle value',
-      code: `// @ts-nocheck
+        },
+        {
+            id: 'toggle-value-no-check',
+            title: 'Toggle value (without status check)',
+            code: `// @ts-nocheck
 // After 5000 milliseconds, toggle.
 setTimeout(function() {
     toggle();
 }, 5000);
 return msg;`
-    },
-    {
-      id: 'send-false-delay',
-      title: 'Send false after 5 secs',
-      code: `// @ts-nocheck
+        },
+        {
+            id: 'toggle-value-with-check',
+            title: 'Toggle value (with status check)',
+            code: `// @ts-nocheck
+// Get the current value of the status GA. insert the actual STATUS GA here.
+let prevValue = getGAValue('InsertHereTheStatusGA', '1.001')
+if (prevValue === null)
+{
+    // If the status of the light is not defined, at the
+    // first input of this node, it turns the light on
+    self(true);
+}else{
+    // Otherwise, toggles the value
+    self(!prevValue);
+}`
+        },
+        {
+            id: 'send-false-delay',
+            title: 'Send false after 5 secs',
+            code: `// @ts-nocheck
 // After 5000 milliseconds, send false.
 setTimeout(function () {
     self(false);
 }, 5000);
 return msg;`
-    },
-    {
-      id: 'send-20-percent-other-ga',
-      title: 'Send 20% to another GA',
-      code: `// @ts-nocheck
+        },
+        {
+            id: 'send-20-percent-other-ga',
+            title: 'Send 20% to another GA',
+            code: `// @ts-nocheck
 // Send 20% to the GA 1/0/1 having DPT 5.001
 if (msg.payload === true){
     setGAValue('1/0/1',20,'5.001') 
 }
 return msg;`
-    },
-    {
-      id: 'motion-activated-light',
-      title: 'Turn on light on motion, auto off',
-      code: `// @ts-nocheck
+        },
+        {
+            id: 'motion-activated-light',
+            title: 'Turn on light on motion, auto off',
+            code: `// @ts-nocheck
 // This snippet expects a motion sensor boolean on msg.payload.
 // When motion is detected turn the light on, otherwise schedule an auto-off.
 if (msg.payload === true) {
@@ -63,11 +79,11 @@ if (msg.payload === true) {
     context.set('autoOffTimer', timer);
 }
 return;`
-    },
-    {
-      id: 'window-hvac-standby',
-      title: 'HVAC standby when window open',
-      code: `// @ts-nocheck
+        },
+        {
+            id: 'window-hvac-standby',
+            title: 'HVAC standby when window open',
+            code: `// @ts-nocheck
 // msg.payload should contain the window contact state (true = open).
 // If the window is open, set the HVAC to standby, otherwise restore comfort.
 const hvacGa = ''; // Replace with your HVAC GA.
@@ -82,11 +98,11 @@ if (msg.payload === true) {
     node.status({fill: 'green', shape: 'dot', text: 'HVAC comfort'});
 }
 return;`
-    },
-    {
-      id: 'night-door-alert',
-      title: 'Night door alert',
-      code: `// @ts-nocheck
+        },
+        {
+            id: 'night-door-alert',
+            title: 'Night door alert',
+            code: `// @ts-nocheck
 // Send a KNX notification GA if a door opens between 22:00 and 06:00.
 const now = new Date();
 const hour = now.getHours();
@@ -96,11 +112,11 @@ if (msg.payload === true && (hour >= 22 || hour < 6)) {
     node.status({fill: 'red', shape: 'ring', text: 'Door alert sent'});
 }
 return;`
-    },
-    {
-      id: 'bedtime-all-off',
-      title: 'Bedtime all off',
-      code: `// @ts-nocheck
+        },
+        {
+            id: 'bedtime-all-off',
+            title: 'Bedtime all off',
+            code: `// @ts-nocheck
 // Turn off a list of lights when a bedtime command is received.
 const lights = [
     '', // Replace with GA of the first light
@@ -117,13 +133,13 @@ if (msg.payload === 'bedtime') {
     return;
 }
 return msg;`
-    }
-  ]
+        }
+    ]
 
-  if (root) {
-    root.KNXSendSnippets = KNXSendSnippets
-  }
-  if (typeof module !== 'undefined' && module.exports) {
-    module.exports = KNXSendSnippets
-  }
+    if (root) {
+        root.KNXSendSnippets = KNXSendSnippets
+    }
+    if (typeof module !== 'undefined' && module.exports) {
+        module.exports = KNXSendSnippets
+    }
 })(typeof window !== 'undefined' ? window : (typeof globalThis !== 'undefined' ? globalThis : this))
