@@ -6,6 +6,10 @@
 
 # CHANGELOG
 
+**Version 4.3.6** - April 2026<br/>
+
+- UI: when **KNX DEVICE** is set to **`dpt = raw`**, the editor now hides decoded-payload options that do not apply to raw telegrams, including **RBE**, **periodic send**, **format numeric values**, manual write button modes, and **notifyreadrequestalsorespondtobus**.<br/>
+
 **Version 4.3.5** - April 2026<br/>
 
 - NEW: **KNX DEVICE** now supports explicit **`dpt = raw`** mode for incoming telegrams: decoding is skipped, `msg.payload` is `null`, and raw bytes remain available in `msg.knx.rawValue`.<br/>
