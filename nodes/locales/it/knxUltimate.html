@@ -141,7 +141,7 @@ if (msg.payload === false && getGAValue('0/0/11','1.001') === false){
 - **event (string)**: `GroupValue_Write` (scrive sul BUS), `GroupValue_Response` (risponde sul BUS), `Update_NoWrite` (non invia al BUS, aggiorna solo il valore interno del nodo)
 - **readstatus (boolean)**: invia un "Read" al BUS (usa sempre `true`)
 - **dpt (string)**: per es. `1.001` (imposta il Datapoint)
-- **writeraw (buffer)** + **bitlenght (int)**: invio RAW verso il BUS (vedi esempio); `bitlenght` è la lunghezza in bit del dato RAW
+- **writeraw (buffer)** + **bitlength (int)**: invio RAW verso il BUS (vedi esempio); `bitlength` è la lunghezza in bit del dato RAW (`bitlenght` resta accettato per retrocompatibilità)
 - **resetRBE (boolean)**: resetta i filtri RBE interni (`msg.resetRBE = true`)
 - **setConfig (json)**: cambia via msg il GA e il DPT del nodo (vedi sotto)
 
@@ -230,7 +230,8 @@ Se vuoi emettere un "read”, usa `msg.readstatus = true`.
 
 - **msg.readstatus = true**: emette un comando di lettura verso il BUS
 - **msg.dpt**: per es. `1.001` (accetta anche `9`, `"9"`, `"DPT9.001"`)
-- **msg.writeraw** + **msg.bitlenght**: invio RAW al BUS (vedi esempio sotto); se usi `writeraw`, il DPT impostato nel nodo viene ignorato
+- **msg.dpt = raw**: lascia i telegrammi in ingresso non decodificati; `msg.payload` sara' `null` e i byte saranno disponibili in `msg.knx.rawValue`. Per inviare RAW usa `msg.writeraw`
+- **msg.writeraw** + **msg.bitlength**: invio RAW al BUS (vedi esempio sotto); se usi `writeraw`, il DPT impostato nel nodo viene ignorato
 - **msg.resetRBE = true**: resetta i filtri RBE di input e output del nodo
 
 ## Cambiare la configurazione via msg
@@ -285,7 +286,7 @@ Inserisci un function node prima del nodo KNX-Ultimate e usa questo codice:
 
 // Esempio DPT 1: luce ON = Buffer<01> con bitlength = 1
 msg.writeraw = Buffer.from('01', 'hex');
-msg.bitlenght = 1;
+msg.bitlength = 1;
 return msg;
 
 // Esempio temperatura (DPT 9): 18.4 °C = Buffer<0730>

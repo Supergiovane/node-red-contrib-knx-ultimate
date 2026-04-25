@@ -2066,6 +2066,8 @@ module.exports = (RED) => {
         }
       }
 
+      const isRawMode = typeof _inputDpt === 'string' && _inputDpt.trim().toLowerCase() === 'raw'
+
       const errorMessage = {
         topic: _outputtopic,
         payload: 'UNKNOWN, PLEASE IMPORT THE ETS FILE!',
@@ -2088,83 +2090,18 @@ module.exports = (RED) => {
 
       // Resolve DPT and convert value if available
       if (_Rawvalue !== null) {
-        try {
-          sInputDpt = _inputDpt === null ? tryToFigureOutDataPointFromRawValue(_Rawvalue) : _inputDpt
-        } catch (error) {
-          // Here comes if no datapoint has beeen found
-          node.sysLogger?.error(
-            'buildInputMessage: Error returning from tryToFigureOutDataPointFromRawValue. Device ' +
-            _srcGA +
-            ' Destination ' +
-            _destGA +
-            ' Event ' +
-            _event +
-            " GA's Datapoint " +
-            (_inputDpt === null
-              ? "THE ETS FILE HAS NOT BEEN IMPORTED, SO I'M TRYING TO FIGURE OUT WHAT DATAPOINT BELONGS THIS GROUP ADDRESS. DON'T BLAME ME IF I'M WRONG, INSTEAD, IMPORT THE ETS FILE!"
-              : _inputDpt) +
-            ' Devicename ' +
-            _devicename +
-            ' Topic ' +
-            _outputtopic +
-            ' ' +
-            error.message
-          )
-          errorMessage.payload = 'UNKNOWN: ERROR tryToFigureOutDataPointFromRawValue:' + error.message
-          return errorMessage
-        }
-
-        try {
-          var dpt = dptlib.resolve(sInputDpt)
-        } catch (error) {
-          node.sysLogger?.error(
-            'buildInputMessage: Error returning from dptlib.resolve(sInputDpt). Device ' +
-            _srcGA +
-            ' Destination ' +
-            _destGA +
-            ' Event ' +
-            _event +
-            " GA's Datapoint " +
-            (_inputDpt === null
-              ? "THE ETS FILE HAS NOT BEEN IMPORTED, SO I'M TRYING TO FIGURE OUT WHAT DATAPOINT BELONGS THIS GROUP ADDRESS. DON'T BLAME ME IF I'M WRONG, INSTEAD, IMPORT THE ETS FILE!"
-              : _inputDpt) +
-            ' Devicename ' +
-            _devicename +
-            ' Topic ' +
-            _outputtopic +
-            ' ' +
-            error.message
-          )
-          errorMessage.payload = 'UNKNOWN: ERROR dptlib.resolve:' + error.messages
-          return errorMessage
-        }
-
-        if (dpt !== null && _Rawvalue !== null) {
+        if (isRawMode) {
+          sInputDpt = 'raw'
+          sPayloadmeasureunit = ''
+          sDptdesc = 'Raw value'
+          sPayloadsubtypevalue = ''
+        } else {
           try {
-            jsValue = dptlib.fromBuffer(_Rawvalue, dpt)
-            if (jsValue === null) {
-              node.sysLogger?.warn(
-                'buildInputMessage: received a wrong datagram form KNX BUS, from device ' +
-                _srcGA +
-                ' Destination ' +
-                _destGA +
-                ' Event ' +
-                _event +
-                " GA's Datapoint " +
-                (_inputDpt === null
-                  ? "THE ETS FILE HAS NOT BEEN IMPORTED, SO I'M TRYING TO FIGURE OUT WHAT DATAPOINT BELONGS THIS GROUP ADDRESS. DON'T BLAME ME IF I'M WRONG, INSTEAD, IMPORT THE ETS FILE!"
-                  : _inputDpt) +
-                ' Devicename ' +
-                _devicename +
-                ' Topic ' +
-                _outputtopic +
-                ' NodeID ' +
-                _oNode.id || ''
-              )
-            }
+            sInputDpt = _inputDpt === null ? tryToFigureOutDataPointFromRawValue(_Rawvalue) : _inputDpt
           } catch (error) {
+            // Here comes if no datapoint has beeen found
             node.sysLogger?.error(
-              'buildInputMessage: Error returning from DPT decoding. Device ' +
+              'buildInputMessage: Error returning from tryToFigureOutDataPointFromRawValue. Device ' +
               _srcGA +
               ' Destination ' +
               _destGA +
@@ -2179,34 +2116,112 @@ module.exports = (RED) => {
               ' Topic ' +
               _outputtopic +
               ' ' +
-              error.message +
-              ' NodeID ' +
-              _oNode.id || ''
+              error.message
             )
-            errorMessage.payload = 'UNKNOWN: ERROR dptlib.fromBuffer:' + error.stack
+            errorMessage.payload = 'UNKNOWN: ERROR tryToFigureOutDataPointFromRawValue:' + error.message
             return errorMessage
           }
-        }
 
-        // 19/01/2023 FORMATTING THE OUTPUT PAYLOAD (ROUND, ETC) BASED ON THE NODE CONFIG
-        //* ********************************************************
-        jsValue = payloadRounder.Manipulate(_oNode, jsValue)
-        //* ********************************************************
+          try {
+            var dpt = dptlib.resolve(sInputDpt)
+          } catch (error) {
+            node.sysLogger?.error(
+              'buildInputMessage: Error returning from dptlib.resolve(sInputDpt). Device ' +
+              _srcGA +
+              ' Destination ' +
+              _destGA +
+              ' Event ' +
+              _event +
+              " GA's Datapoint " +
+              (_inputDpt === null
+                ? "THE ETS FILE HAS NOT BEEN IMPORTED, SO I'M TRYING TO FIGURE OUT WHAT DATAPOINT BELONGS THIS GROUP ADDRESS. DON'T BLAME ME IF I'M WRONG, INSTEAD, IMPORT THE ETS FILE!"
+                : _inputDpt) +
+              ' Devicename ' +
+              _devicename +
+              ' Topic ' +
+              _outputtopic +
+              ' ' +
+              error.message
+            )
+            errorMessage.payload = 'UNKNOWN: ERROR dptlib.resolve:' + error.messages
+            return errorMessage
+          }
 
-        if (dpt.subtype !== undefined) {
-          sPayloadmeasureunit = dpt.subtype.unit !== undefined ? dpt.subtype.unit : 'unknown'
-          sDptdesc = dpt.subtype.desc !== undefined ? dpt.subtype.desc.charAt(0).toUpperCase() + dpt.subtype.desc.slice(1) : 'unknown'
-          if (dpt.subtype.enc !== undefined) {
+          if (dpt !== null && _Rawvalue !== null) {
             try {
-              if (!jsValue) sPayloadsubtypevalue = dpt.subtype.enc[0]
-              if (jsValue) sPayloadsubtypevalue = dpt.subtype.enc[1]
+              jsValue = dptlib.fromBuffer(_Rawvalue, dpt)
+              if (jsValue === null) {
+                node.sysLogger?.warn(
+                  'buildInputMessage: received a wrong datagram form KNX BUS, from device ' +
+                  _srcGA +
+                  ' Destination ' +
+                  _destGA +
+                  ' Event ' +
+                  _event +
+                  " GA's Datapoint " +
+                  (_inputDpt === null
+                    ? "THE ETS FILE HAS NOT BEEN IMPORTED, SO I'M TRYING TO FIGURE OUT WHAT DATAPOINT BELONGS THIS GROUP ADDRESS. DON'T BLAME ME IF I'M WRONG, INSTEAD, IMPORT THE ETS FILE!"
+                    : _inputDpt) +
+                  ' Devicename ' +
+                  _devicename +
+                  ' Topic ' +
+                  _outputtopic +
+                  ' NodeID ' +
+                  _oNode.id || ''
+                )
+              }
             } catch (error) {
-              // Don't care
+              node.sysLogger?.error(
+                'buildInputMessage: Error returning from DPT decoding. Device ' +
+                _srcGA +
+                ' Destination ' +
+                _destGA +
+                ' Event ' +
+                _event +
+                " GA's Datapoint " +
+                (_inputDpt === null
+                  ? "THE ETS FILE HAS NOT BEEN IMPORTED, SO I'M TRYING TO FIGURE OUT WHAT DATAPOINT BELONGS THIS GROUP ADDRESS. DON'T BLAME ME IF I'M WRONG, INSTEAD, IMPORT THE ETS FILE!"
+                  : _inputDpt) +
+                ' Devicename ' +
+                _devicename +
+                ' Topic ' +
+                _outputtopic +
+                ' ' +
+                error.message +
+                ' NodeID ' +
+                _oNode.id || ''
+              )
+              errorMessage.payload = 'UNKNOWN: ERROR dptlib.fromBuffer:' + error.stack
+              return errorMessage
+            }
+          }
+
+          // 19/01/2023 FORMATTING THE OUTPUT PAYLOAD (ROUND, ETC) BASED ON THE NODE CONFIG
+          //* ********************************************************
+          jsValue = payloadRounder.Manipulate(_oNode, jsValue)
+          //* ********************************************************
+
+          if (dpt.subtype !== undefined) {
+            sPayloadmeasureunit = dpt.subtype.unit !== undefined ? dpt.subtype.unit : 'unknown'
+            sDptdesc = dpt.subtype.desc !== undefined ? dpt.subtype.desc.charAt(0).toUpperCase() + dpt.subtype.desc.slice(1) : 'unknown'
+            if (dpt.subtype.enc !== undefined) {
+              try {
+                if (!jsValue) sPayloadsubtypevalue = dpt.subtype.enc[0]
+                if (jsValue) sPayloadsubtypevalue = dpt.subtype.enc[1]
+              } catch (error) {
+                // Don't care
+              }
             }
           }
         }
       } else {
         // Don't care, it's a READ REQUEST
+        if (isRawMode) {
+          sInputDpt = 'raw'
+          sPayloadmeasureunit = ''
+          sDptdesc = 'Raw value'
+          sPayloadsubtypevalue = ''
+        }
       }
 
       try {

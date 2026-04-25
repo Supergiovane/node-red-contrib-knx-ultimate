@@ -147,8 +147,9 @@ if (msg.payload === false && getGAValue('0/0/11','1.001') === false){
 - **event (string)**: `_GroupValue_Write_` / `_GroupValue_Response_` / `_Update_NoWrite_` (`_Update_NoWrite_` updates the internal value only)
 - **readstatus (boolean)**: issue a read request to the KNX bus (pass `_true_` every time: `msg.readstatus = true`)
 - **dpt (string)**: for example `"1.001"` (sets the datapoint)
-- **writeraw (buffer)**: sends a raw buffer value to the bus (use with **bitlenght**)
-- **bitlenght (int)**: bit length of **writeraw**
+- **dpt = raw**: keeps incoming telegrams undecoded; `msg.payload` will be `null` and the bytes will be available in `msg.knx.rawValue`. Use `msg.writeraw` to send raw telegrams
+- **writeraw (buffer)**: sends a raw buffer value to the bus (use with **bitlength**)
+- **bitlength (int)**: bit length of **writeraw** (`bitlenght` is still accepted for backward compatibility)
 - **resetRBE (boolean)**: resets the internal RBE filters (`msg.resetRBE = true`)
 - **setConfig (json)**: programmatically change the node Group Address and Datapoint (see details)
 
@@ -242,8 +243,9 @@ msg = {
 - **event (string)**: `_GroupValue_Write_` / `_GroupValue_Response_` / `_Update_NoWrite_` (`_Update_NoWrite_` updates the internal value only)
 - **readstatus (boolean)**: issue a read request to the KNX bus (pass `_true_` every time: `msg.readstatus = true`)
 - **dpt (string)**: for example `"1.001"` (sets the datapoint)
-- **writeraw (buffer)**: sends a raw buffer value to the bus (use with **bitlenght**)
-- **bitlenght (int)**: bit length of **writeraw**
+- **dpt = raw**: keeps incoming telegrams undecoded; `msg.payload` will be `null` and the bytes will be available in `msg.knx.rawValue`. Use `msg.writeraw` to send raw telegrams
+- **writeraw (buffer)**: sends a raw buffer value to the bus (use with **bitlength**)
+- **bitlength (int)**: bit length of **writeraw** (`bitlenght` is still accepted for backward compatibility)
 - **resetRBE (boolean)**: resets the internal RBE filters (`msg.resetRBE = true`)
 - **setConfig (json)**: programmatically change the node Group Address and Datapoint (see details)
 
@@ -424,7 +426,7 @@ Issue a "Read" command to the BUS.
 For example "1.001". Sets the <b>Datapoint</b>. (You can write it in these formats: 9 , "9" , "9.001" or "DPT9.001")
 
 **msg.writeraw ** 
-**msg.bitlenght** 
+**msg.bitlength** 
 
 Writes RAW data to the KNX BUS. Please see below an example.
 
@@ -485,7 +487,7 @@ return msg;
 
 **SEND RAW VALUE TO THE BUS** 
 
-To send a RAW buffer value to the KNX bus, use the _ **writeraw ** _ and _**bitlenght** _ properties of the msg input.
+To send a RAW buffer value to the KNX bus, use the _ **writeraw ** _ and _**bitlength** _ properties of the msg input.
 
 In this case, the _Datapoint_ you set in the property window will be ignored.
 
@@ -494,16 +496,16 @@ Slap a function node in front of knx-ultimate and paste his code:
 ```javascript
 
 // If you encode the values by yourself, you can write raw buffers with writeraw.
-// The bitlenght is necessary for datapoint types where the bitlenght does not equal the buffers bytelenght * 8. This is the case for dpt 1 (bitlength 1), 2 (bitlenght 2) and 3 (bitlenght 4).
+// The bitlength is necessary for datapoint types where the bitlength does not equal the buffer bytelength * 8. This is the case for dpt 1 (bitlength 1), 2 (bitlength 2) and 3 (bitlength 4).
 // Write raw buffer to a groupaddress with dpt 1 (e.g light on = value true = Buffer<01>) with a bitlength of 1
 msg.writeraw = Buffer.from('01', 'hex'); // Put '00' instead of '01' to switch off the light.
-msg.bitlenght = 1;
+msg.bitlength = 1;
 return msg;
 
 // Temperature sample (uncomment below and comment above)
 // Write raw buffer to a groupaddress with dpt 9 (e.g temperature 18.4 °C = Buffer<0730>) without bitlength
 // msg.writeraw = Buffer.from('0730', 'hex');
-// msg.bitlenght = 1;
+// msg.bitlength = 1;
 // return msg;
 
 ```

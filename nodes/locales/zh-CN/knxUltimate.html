@@ -112,7 +112,7 @@ if (msg.payload === false && getGAValue('0/0/11','1.001') === false){ return; } 
 - **event (string)**：`GroupValue_Write` / `GroupValue_Response` / `Update_NoWrite`（`Update_NoWrite` 仅更新内部值，不发送）
 - **readstatus (boolean)**：向总线发起读取（使用 `msg.readstatus = true`）
 - **dpt (string)**：如 `1.001`
-- **writeraw (buffer)** + **bitlenght (int)**：发送 RAW，`bitlenght` 为比特长度
+- **writeraw (buffer)** + **bitlength (int)**：发送 RAW，`bitlength` 为比特长度（为兼容旧流程，`bitlenght` 仍然可用）
 - **resetRBE (boolean)**：重置内部 RBE 过滤（`msg.resetRBE = true`）
 - **setConfig (json)**：通过消息修改节点的 GA 与 DPT
 
@@ -181,7 +181,8 @@ msg = {
 
 - **msg.readstatus = true**：向总线发起读取
 - **msg.dpt**：如 `1.001`（也接受 `9`、`"9"`、`"DPT9.001"`）
-- **msg.writeraw** + **msg.bitlenght**：发送 RAW；会忽略节点上设置的 DPT
+- **msg.dpt = raw**：保持收到的报文不做解码；`msg.payload` 将为 `null`，原始字节可在 `msg.knx.rawValue` 中获取。发送 RAW 时请使用 `msg.writeraw`
+- **msg.writeraw** + **msg.bitlength**：发送 RAW；会忽略节点上设置的 DPT
 - **msg.resetRBE = true**：重置 RBE 过滤
 
 ## 通过消息修改配置
@@ -229,7 +230,7 @@ msg.readstatus = true; return msg;
 
 // DPT1 示例：开灯 = Buffer<01>，bitlength = 1
 msg.writeraw = Buffer.from('01','hex');
-msg.bitlenght = 1; return msg;
+msg.bitlength = 1; return msg;
 // 温度（DPT9）示例：18.4 °C = <0730>
 // msg.writeraw = Buffer.from('0730','hex'); return msg;
 ```

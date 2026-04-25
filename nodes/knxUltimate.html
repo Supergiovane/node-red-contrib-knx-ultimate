@@ -245,6 +245,15 @@
                 }
             ];
             const globalScope = typeof window !== 'undefined' ? window : (typeof globalThis !== 'undefined' ? globalThis : {});
+            const rawDptOption = { value: 'raw', text: 'raw Raw telegram (no decode)' }
+
+            function appendRawDptOption($select) {
+                if (!$select || !$select.length) return
+                if ($select.find("option[value='raw']").length > 0) return
+                $select.prepend($("<option></option>")
+                    .attr("value", rawDptOption.value)
+                    .text(rawDptOption.text))
+            }
 
             function knxUltimateDptsGetHelp(_dpt, _forceClose) {
                 const detailsContainer = $("#dptDetailsContainer")
@@ -253,6 +262,39 @@
                 }
                 const serverId = $("#node-input-server").val()
                 if (serverId === "_ADD_" || serverId === '' || _dpt === null || _dpt === '') return
+                if (String(_dpt).trim().toLowerCase() === 'raw') {
+                    const helplinkContainer = $("#sampleCodeEditor")
+                    try {
+                        if (node.sampleEditor) {
+                            node.sampleEditor.destroy()
+                            delete node.sampleEditor
+                        }
+                    } catch (error) { }
+                    $("#example-editor").empty()
+                    helplinkContainer.empty()
+                    node.sampleEditor = RED.editor.createEditor({
+                        id: 'example-editor',
+                        mode: 'ace/mode/javascript',
+                        value: `// KNX-Ultimate set as RAW NODE
+// Incoming telegrams skip datapoint decoding.
+// msg.payload will be null and the raw telegram bytes are available in msg.knx.rawValue.
+// For outgoing telegrams, use msg.writeraw = Buffer.from("0730", "hex")
+// and optionally msg.bitlength for 1-bit / 2-bit / 4-bit datapoints.
+return msg;`
+                    })
+                    try {
+                        node.sampleEditor.setReadOnly(true)
+                        node.sampleEditor.setShowPrintMargin(false)
+                    } catch (error) { }
+                    $("<div>", {
+                        class: "dpt-details-link"
+                    })
+                        .append($("<span>").text("RAW mode keeps the telegram undecoded and exposes the bytes in "))
+                        .append($("<code>").text("msg.knx.rawValue"))
+                        .append($("<span>").text("."))
+                        .appendTo(helplinkContainer)
+                    return
+                }
                 $.getJSON("knxUltimateDptsGetHelp?dpt=" + _dpt + "&serverId=" + serverId + "&" + { _: new Date().getTime() }, (data) => {
                     const helplinkContainer = $("#sampleCodeEditor")
                     try {
@@ -721,11 +763,13 @@
                         refreshSecureGAs();
                         $.getJSON("knxUltimateDpts?serverId=" + $("#node-input-server").val() + "&_=" + new Date().getTime(), (data) => {
                             $("#node-input-dpt").empty();
+                            appendRawDptOption($("#node-input-dpt"));
                             data.forEach(dpt => {
                                 $("#node-input-dpt").append($("<option></option>")
                                     .attr("value", dpt.value)
                                     .text(dpt.text))
                             });
+                            if (node.dpt === undefined || node.dpt === '') node.dpt = '1.001'
                             $("#node-input-dpt").val(node.dpt);
                             // Load help sample
                             knxUltimateDptsGetHelp(node.dpt, true);

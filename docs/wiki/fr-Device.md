@@ -147,7 +147,8 @@ if (msg.payload === false && getGAValue('0/0/11','1.001') === false){
 - **event (string)**: `GroupValue_Write` / `GroupValue_Response` / `Update_NoWrite` (`Update_NoWrite` met à jour la valeur interne et n'envoie rien au BUS)
 - **readstatus (boolean)**: demande de lecture au bus (utiliser toujours `true`: `msg.readstatus = true`)
 - **dpt (string)**: par exemple `1.001` (datapoint)
-- **writeraw (buffer)** + **bitlenght (int)**: envoi RAW au BUS (voir exemple)
+- **dpt = raw**: conserve les telegrammes entrants sans decodage ; `msg.payload` sera `null` et les octets seront disponibles dans `msg.knx.rawValue`. Pour envoyer du RAW, utilisez `msg.writeraw`
+- **writeraw (buffer)** + **bitlength (int)**: envoi RAW au BUS (voir exemple) ; `bitlenght` reste accepte pour compatibilite
 - **resetRBE (boolean)**: réinitialise les filtres RBE (`msg.resetRBE = true`)
 - **setConfig (json)**: modifier GA et DPT par message (voir détails)
 
@@ -238,7 +239,8 @@ msg = {
 - **event (string)**: `GroupValue_Write` / `GroupValue_Response` / `Update_NoWrite`
 - **readstatus (boolean)**: demande de lecture au bus (`msg.readstatus = true`)
 - **dpt (string)**: par exemple `1.001`
-- **writeraw (buffer)** + **bitlenght (int)**: envoi RAW au BUS (voir exemple)
+- **dpt = raw**: conserve les telegrammes entrants sans decodage ; `msg.payload` sera `null` et les octets seront disponibles dans `msg.knx.rawValue`. Pour envoyer du RAW, utilisez `msg.writeraw`
+- **writeraw (buffer)** + **bitlength (int)**: envoi RAW au BUS (voir exemple) ; `bitlenght` reste accepte pour compatibilite
 - **resetRBE (boolean)**: réinitialise les filtres RBE (`msg.resetRBE = true`)
 - **setConfig (json)**: modifier GA et DPT (voir détails)
 
@@ -410,7 +412,7 @@ Si vous souhaitez émettre une commande "lire", veuillez utiliser "ReadStatus" �
 Émettez une commande "lire" au bus. ** msg.dpt** 
 
 Par exemple "1.001". Définit le <b> datapoint </b>. (Vous pouvez l'écrire dans ces formats: 9, "9", "9.001" ou "DPT9.001") ** msg.writeraw ** 
-**msg.bitlenght** 
+**msg.bitlength** 
 
 Écrit des données brutes au bus KNX. Veuillez voir ci-dessous un exemple. 
  ** MSG.RESETRBE** 
@@ -468,7 +470,7 @@ return msg;
 
 **Envoyez la valeur brute au bus** 
 
-Pour envoyer une valeur de tampon brute au bus KNX, utilisez les propriétés _ ** writerraw ** _ et _**bitlenght** _ de l'entrée msg. 
+Pour envoyer une valeur RAW au bus KNX, utilisez les proprietes _ **writeraw** _ et _**bitlength** _ de l'entree msg. 
 
 Dans ce cas, le _datapoint_ que vous définissez dans la fenêtre de propriété sera ignoré. 
 
@@ -477,16 +479,16 @@ Grapez un nœud de fonction devant KNX-ultime et collez son code:
 ```javascript
 
 // If you encode the values by yourself, you can write raw buffers with writeraw.
-// The bitlenght is necessary for datapoint types where the bitlenght does not equal the buffers bytelenght * 8. This is the case for dpt 1 (bitlength 1), 2 (bitlenght 2) and 3 (bitlenght 4).
+// The bitlength is necessary for datapoint types where the bitlength does not equal the buffer bytelength * 8. This is the case for dpt 1 (bitlength 1), 2 (bitlength 2) and 3 (bitlength 4).
 // Write raw buffer to a groupaddress with dpt 1 (e.g light on = value true = Buffer<01>) with a bitlength of 1
 msg.writeraw = Buffer.from('01', 'hex'); // Put '00' instead of '01' to switch off the light.
-msg.bitlenght = 1;
+msg.bitlength = 1;
 return msg;
 
 // Temperature sample (uncomment below and comment above)
 // Write raw buffer to a groupaddress with dpt 9 (e.g temperature 18.4 °C = Buffer<0730>) without bitlength
 // msg.writeraw = Buffer.from('0730', 'hex');
-// msg.bitlenght = 1;
+// msg.bitlength = 1;
 // return msg;
 
 ```

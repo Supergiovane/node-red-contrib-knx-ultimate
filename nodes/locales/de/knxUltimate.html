@@ -112,7 +112,7 @@ if (msg.payload === false && getGAValue('0/0/11','1.001') === false){ return; } 
 - **event (string)**: `GroupValue_Write`, `GroupValue_Response`, `Update_NoWrite` (nur interner Wert, kein BUS-Senden)
 - **readstatus (boolean)**: Leseauftrag an den BUS
 - **dpt (string)**: z. B. `1.001`
-- **writeraw (buffer)** + **bitlenght (int)**: RAW-Senden; `bitlenght` in Bit
+- **writeraw (buffer)** + **bitlength (int)**: RAW-Senden; `bitlength` in Bit (`bitlenght` wird aus Kompatibilitaetsgruenden weiterhin akzeptiert)
 - **resetRBE (boolean)**: RBE-Filter zurücksetzen
 - **setConfig (json)**: GA/DPT des Nodes per Nachricht ändern
 
@@ -181,7 +181,8 @@ Für Read statt `event` bitte `msg.readstatus = true` verwenden.
 
 - **msg.readstatus = true**: Read an den BUS
 - **msg.dpt**: z. B. `1.001` (auch `9`, `"9"`, `"DPT9.001"`)
-- **msg.writeraw** + **msg.bitlenght**: RAW-Senden; ignoriert den am Node gesetzten DPT
+- **msg.dpt = raw**: eingehende Telegramme bleiben undekodiert; `msg.payload` ist `null` und die Bytes stehen in `msg.knx.rawValue`. Zum Senden von RAW-Telegrammen `msg.writeraw` verwenden
+- **msg.writeraw** + **msg.bitlength**: RAW-Senden; ignoriert den am Node gesetzten DPT
 - **msg.resetRBE = true**: RBE-Filter zurücksetzen
 
 ## Konfiguration per Nachricht ändern
@@ -227,7 +228,7 @@ msg.readstatus = true; return msg;
 ```javascript
 
 msg.writeraw = Buffer.from('01','hex');
-msg.bitlenght = 1; return msg;
+msg.bitlength = 1; return msg;
 // Temperatur (DPT9): 18.4 °C = <0730>
 // msg.writeraw = Buffer.from('0730','hex'); return msg;
 ```

@@ -136,6 +136,7 @@ module.exports = function (RED) {
         }
         const mode = (req.body && req.body.mode ? String(req.body.mode) : 'read').toLowerCase()
         const grpaddr = targetNode.topic
+        const isRawMode = typeof targetNode.dpt === 'string' && targetNode.dpt.trim().toLowerCase() === 'raw'
         if (mode !== 'read') {
           if (!grpaddr || String(grpaddr).trim() === '') {
             res.status(400).json({ error: 'Group address not set' })
@@ -143,6 +144,10 @@ module.exports = function (RED) {
           }
           if (!targetNode.dpt || targetNode.dpt === '' || targetNode.dpt === 'auto') {
             res.status(400).json({ error: 'Datapoint not defined for this node' })
+            return
+          }
+          if (isRawMode) {
+            res.status(400).json({ error: 'Manual write is not available when the node datapoint is set to raw' })
             return
           }
         }
@@ -365,7 +370,7 @@ module.exports = function (RED) {
     // Get the Group Address from various sources
     if (config.setTopicType === undefined || config.setTopicType === 'str') {
       node.topic = config.topic
-      node.dpt = config.dpt || '1.001'
+      node.dpt = (config.dpt === undefined || config.dpt === '') ? '1.001' : config.dpt
     } else if (config.setTopicType === 'flow') {
       try {
         node.topic = node.context().flow.get(config.topic)
@@ -467,6 +472,7 @@ module.exports = function (RED) {
           if (node.listenallga === true) return
           if (typeof node.topic !== 'string' || node.topic === '') return
           if (typeof node.dpt !== 'string' || node.dpt === '' || node.dpt === 'auto') return
+          if (node.dpt.trim().toLowerCase() === 'raw') return
 
           node.serverKNX.sendKNXTelegramToKNXEngine({
             grpaddr: node.topic,
@@ -911,8 +917,11 @@ module.exports = function (RED) {
           // connection.writeRaw('1/0/0', Buffer.from('0730', 'hex'))
           if (msg.hasOwnProperty('writeraw') && msg.hasOwnProperty('writeraw') !== null) {
             try {
-              if (msg.hasOwnProperty('bitlenght') && msg.bitlenght !== null) {
-                node.serverKNX.knxConnection.writeRaw(grpaddr, msg.writeraw, msg.bitlenght)
+              const rawBitlength = msg.hasOwnProperty('bitlength') && msg.bitlength !== null
+                ? msg.bitlength
+                : (msg.hasOwnProperty('bitlenght') && msg.bitlenght !== null ? msg.bitlenght : null)
+              if (rawBitlength !== null) {
+                node.serverKNX.knxConnection.writeRaw(grpaddr, msg.writeraw, rawBitlength)
               } else {
                 node.serverKNX.knxConnection.writeRaw(grpaddr, msg.writeraw)
               }
@@ -924,6 +933,20 @@ module.exports = function (RED) {
                 fill: 'red', shape: 'dot', text: `Error RAW Write: ${error}`, payload: '', GA: grpaddr, dpt: '', devicename: ''
               })
             }
+            return
+          }
+
+          if (typeof dpt === 'string' && dpt.trim().toLowerCase() === 'raw') {
+            node.setNodeStatus({
+              fill: 'red',
+              shape: 'dot',
+              text: 'RAW mode accepts only msg.writeraw for outgoing telegrams',
+              payload: '',
+              GA: grpaddr,
+              dpt: '',
+              devicename: ''
+            })
+            node.sysLogger?.error(`node id: ${node.id} RAW mode accepts only msg.writeraw for outgoing telegrams (${grpaddr})`)
             return
           }
 

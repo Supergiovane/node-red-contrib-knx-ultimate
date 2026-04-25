@@ -6,6 +6,13 @@
 
 # CHANGELOG
 
+**Version 4.3.5** - April 2026<br/>
+
+- NEW: **KNX DEVICE** now supports explicit **`dpt = raw`** mode for incoming telegrams: decoding is skipped, `msg.payload` is `null`, and raw bytes remain available in `msg.knx.rawValue`.<br/>
+- FIX: **KNX DEVICE RAW write** now accepts both **`msg.bitlength`** and legacy **`msg.bitlenght`**, with `bitlength` preferred and old flows kept backward compatible.<br/>
+- CHANGE: **KNX DEVICE** in **`dpt = raw`** mode now accepts raw outgoing telegrams only via **`msg.writeraw`**, preventing accidental normal writes with an invalid datapoint.<br/>
+- Docs/help/wiki: updated **KNX DEVICE** help HTML and **Device** wiki pages in all supported languages (**EN/IT/DE/FR/ES/zh-CN**) to document **raw mode** and the preferred **`bitlength`** property.<br/>
+
 **Version 4.3.4** - April 2026<br/>
 
 - UI: **KNX Function** editor areas now have colored backgrounds (light green for *input→bus*, light yellow for *bus→output*) for easier visual distinction.<br/>
