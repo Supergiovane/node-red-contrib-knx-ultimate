@@ -424,6 +424,8 @@ const computeAnomalySeverity = (payload) => {
 
 const SVG_REQUEST_RE = /\b(svg|chart|graph|plot|diagram|bar|pie|line|grafico|grafici|diagramma|istogramma|torta)\b/i
 const SVG_PRESENT_RE = /```svg[\s\S]*?```|<svg[\s>][\s\S]*?<\/svg>/i
+const FUNCTION_NODE_CODE_REVIEW_RE = /\b(function|function node|nodo function|nodi function)\b/i
+const JAVASCRIPT_REVIEW_RE = /\b(js|javascript|java\s*script|code|codice|script|sorgente|source|errore|errori|error|bug|review|reviewa|analizza|analy(?:s|z)e|check|controlla|debug)\b/i
 
 const escapeXml = (value) => String(value || '')
   .replace(/&/g, '&amp;')
@@ -439,6 +441,17 @@ const truncateLabel = (value, maxLen = 14) => {
 }
 
 const shouldGenerateSvgChart = (question) => SVG_REQUEST_RE.test(String(question || ''))
+
+const shouldIncludeFunctionNodeSourceContext = (question) => {
+  const q = String(question || '').trim()
+  if (!q) return false
+  return FUNCTION_NODE_CODE_REVIEW_RE.test(q) && JAVASCRIPT_REVIEW_RE.test(q)
+}
+
+const normalizeCodeBlockText = (value) => String(value || '')
+  .replace(/\r\n/g, '\n')
+  .replace(/\r/g, '\n')
+  .trim()
 
 const stripPayloadDecimals = (value) => {
   if (value === undefined || value === null) return value
@@ -2890,6 +2903,147 @@ module.exports = function (RED) {
     return lines.join('\n').trim()
   }
 
+  const buildFunctionNodeSourceContext = ({ maxChars = 12000, maxNodes = 12 } = {}) => {
+    try {
+      const functionNodes = []
+      const tabById = new Map()
+
+      RED.nodes.eachNode((n) => {
+        if (!n || typeof n !== 'object') return
+        if (String(n.type || '') === 'tab') {
+          tabById.set(String(n.id || ''), String(n.label || n.name || ''))
+        }
+      })
+
+      RED.nodes.eachNode((n) => {
+        if (!n || typeof n !== 'object') return
+        if (String(n.type || '') !== 'function') return
+
+        const func = normalizeCodeBlockText(n.func)
+        const initialize = normalizeCodeBlockText(n.initialize)
+        const finalize = normalizeCodeBlockText(n.finalize)
+        if (!func && !initialize && !finalize) return
+
+        const gaRefs = new Set()
+        extractGAsFromValue({ value: n, outSet: gaRefs, gaRe, maxItems: 24 })
+
+        functionNodes.push({
+          id: String(n.id || ''),
+          name: String(n.name || ''),
+          tabLabel: tabById.get(String(n.z || '')) || '',
+          outputs: Number.isFinite(Number(n.outputs)) ? Number(n.outputs) : '',
+          libs: Array.isArray(n.libs) ? n.libs : [],
+          gaRefs: Array.from(gaRefs.values()).slice(0, 24),
+          func,
+          initialize,
+          finalize
+        })
+      })
+
+      if (!functionNodes.length) return ''
+
+      const shorten = (id) => (id && id.length > 8) ? id.slice(0, 8) : id
+      const safeLine = (s) => String(s || '').replace(/\s+/g, ' ').trim()
+      const limit = Math.max(1200, Number(maxChars) || 0)
+      const nodeLimit = Math.max(1, Number(maxNodes) || 1)
+      const lines = [
+        'Node-RED Function node source code:',
+        'The following JavaScript comes from the live Node-RED flow. Review it directly. If any block is truncated, say that explicitly.'
+      ]
+
+      let totalChars = lines.join('\n').length
+      let included = 0
+      let truncatedBlocks = 0
+
+      const sortedNodes = functionNodes
+        .sort((a, b) => {
+          const at = (a.tabLabel || '').localeCompare(b.tabLabel || '')
+          if (at !== 0) return at
+          const an = (a.name || a.id).localeCompare(b.name || b.id)
+          if (an !== 0) return an
+          return (a.id || '').localeCompare(b.id || '')
+        })
+        .slice(0, nodeLimit)
+
+      const buildSection = (label, code, remainingChars) => {
+        const normalized = normalizeCodeBlockText(code)
+        if (!normalized) return ''
+        const overhead = `${label}:\n\`\`\`javascript\n\n\`\`\``.length
+        const availableCodeChars = Math.max(120, remainingChars - overhead)
+        const truncated = normalized.length > availableCodeChars
+        const finalCode = truncated ? truncatePromptText(normalized, availableCodeChars) : normalized
+        return {
+          text: `${label}:\n\`\`\`javascript\n${finalCode}\n\`\`\``,
+          truncated
+        }
+      }
+
+      for (const item of sortedNodes) {
+        if (included >= nodeLimit) break
+        const remainingBeforeHeader = limit - totalChars
+        if (remainingBeforeHeader < 220) break
+
+        const header = []
+        header.push(`Function node ${included + 1}: ${item.name || shorten(item.id) || 'unnamed'}`)
+        if (item.tabLabel) header.push(`tab="${safeLine(item.tabLabel)}"`)
+        header.push(`id=${shorten(item.id)}`)
+        if (item.outputs !== '') header.push(`outputs=${item.outputs}`)
+        if (item.gaRefs.length) header.push(`gaRefs="${safeLine(item.gaRefs.join(','))}"`)
+        if (item.libs.length) {
+          const libsLabel = item.libs
+            .map(lib => safeLine((lib && (lib.module || lib.var)) ? `${lib.var || ''}:${lib.module || ''}` : safeStringify(lib)))
+            .filter(Boolean)
+            .join(', ')
+          if (libsLabel) header.push(`libs="${libsLabel}"`)
+        }
+
+        const blockLines = [header.join(' | ')]
+        let remainingForSections = limit - totalChars - header.join(' | ').length - 2
+        if (remainingForSections < 180) break
+
+        const sections = [
+          buildSection('Main function body', item.func, remainingForSections)
+        ]
+        remainingForSections -= sections[0] && sections[0].text ? sections[0].text.length + 1 : 0
+
+        const initSection = buildSection('On Start / initialize', item.initialize, remainingForSections)
+        if (initSection && initSection.text) {
+          sections.push(initSection)
+          remainingForSections -= initSection.text.length + 1
+        }
+
+        const finalizeSection = buildSection('On Stop / finalize', item.finalize, remainingForSections)
+        if (finalizeSection && finalizeSection.text) sections.push(finalizeSection)
+
+        sections.forEach((section) => {
+          if (section && section.truncated) truncatedBlocks += 1
+          if (section && section.text) blockLines.push(section.text)
+        })
+
+        const blockText = blockLines.filter(Boolean).join('\n')
+        if (!blockText.trim()) continue
+        if ((totalChars + blockText.length + 1) > limit && included > 0) break
+
+        lines.push(blockText)
+        totalChars += blockText.length + 1
+        included += 1
+        if (totalChars >= limit) break
+      }
+
+      const omittedCount = Math.max(0, functionNodes.length - included)
+      if (omittedCount > 0) {
+        lines.push(`Additional function nodes omitted due to prompt budget: ${omittedCount}.`)
+      }
+      if (truncatedBlocks > 0) {
+        lines.push(`Truncated code blocks due to prompt budget: ${truncatedBlocks}.`)
+      }
+
+      return lines.join('\n\n').trim()
+    } catch (error) {
+      return ''
+    }
+  }
+
   if (!adminEndpointsRegistered) {
     adminEndpointsRegistered = true
 
@@ -4889,6 +5043,7 @@ module.exports = function (RED) {
       const promptEvents = selectTelegramsForPrompt({ question, maxEvents })
       const recent = Array.isArray(promptEvents.events) ? promptEvents.events : []
       const wantsSvgChart = shouldGenerateSvgChart(question)
+      const wantsFunctionNodeSourceContext = node.llmIncludeFlowContext && shouldIncludeFunctionNodeSourceContext(question)
       const areasSnapshot = buildAreasSnapshot({ summary })
       const areasContext = buildAreasPromptContext(areasSnapshot)
       const summaryForPrompt = buildLlmSummarySnapshot(summary)
@@ -4915,6 +5070,31 @@ module.exports = function (RED) {
           node._flowContextCache = { at: now, text: flowContext }
         }
         flowContext = truncatePromptText(flowContext, flowMaxChars)
+      }
+
+      let functionNodeSourceContext = ''
+      if (wantsFunctionNodeSourceContext) {
+        const sourceMaxChars = compactMode ? 4500 : 18000
+        const sourceMaxNodes = compactMode ? 4 : 12
+        const ttlMs = 10 * 1000
+        const now = nowMs()
+        if (
+          node._functionNodeSourceContextCache &&
+          node._functionNodeSourceContextCache.text &&
+          node._functionNodeSourceContextCache.maxChars === sourceMaxChars &&
+          node._functionNodeSourceContextCache.maxNodes === sourceMaxNodes &&
+          (now - (node._functionNodeSourceContextCache.at || 0)) < ttlMs
+        ) {
+          functionNodeSourceContext = node._functionNodeSourceContextCache.text
+        } else {
+          functionNodeSourceContext = buildFunctionNodeSourceContext({ maxChars: sourceMaxChars, maxNodes: sourceMaxNodes })
+          node._functionNodeSourceContextCache = {
+            at: now,
+            maxChars: sourceMaxChars,
+            maxNodes: sourceMaxNodes,
+            text: functionNodeSourceContext
+          }
+        }
       }
 
       let docsContext = ''
@@ -4950,6 +5130,8 @@ module.exports = function (RED) {
         flowContext ? 'Node-RED context:' : '',
         flowContext || '',
         flowContext ? '' : '',
+        functionNodeSourceContext || '',
+        functionNodeSourceContext ? '' : '',
         docsContext || '',
         docsContext ? '' : '',
         wantsSvgChart ? 'SVG output rules:' : '',

@@ -6,12 +6,14 @@
 
 # CHANGELOG
 
-**Version 4.3.7** - April 2026<br/>
+**Version 4.3.8** - April 2026<br/>
 
+- FIX: **KNX AI Web Assistant** `Ask` tab now truly uses the full available content width on desktop too; removed the leftover `50vw` cap that still kept the panel at half width.<br/>
 - FIX: **KNX DEVICE** in universal mode (`listenAllGA`) now falls back to `raw` instead of raising a datapoint-detection error when no ETS DPT is available and automatic inference fails; raw bytes remain available in `msg.knx.rawValue`.<br/>
 - NEW: **KNX AI** can now optionally archive captured telegrams to disk under `knxultimatestorage`, with configurable retention in days and automatic reuse of the archive for `Ask` queries.<br/>
 - CHANGE: **KNX AI** `Ask` now uses the disk archive by default when enabled, honoring explicit time references and otherwise searching the last 24 hours plus current RAM events.<br/>
 - CHANGE: **KNX AI** flow context for the AI prompt now includes the whole **Node-RED project inventory**, not only KNX nodes or the current flow, so `function`/`change`/`inject`/`template` nodes with KNX-related logic are visible to the assistant.<br/>
+- FIX: **KNX AI Ask** now includes the real JavaScript source of Node-RED `function` nodes for code-review questions, instead of exposing only short flattened snippets that could make the assistant say it could not inspect the full code.<br/>
 - UI: **KNX AI** editor options were reorganized into clearer sections, with technical tuning moved under **Advanced**, several low-value LLM tuning fields removed from the editor, and localized tab labels/help/docs updated in all supported languages.<br/>
 - UI: **KNX AI Web Assistant** `Ask` panel now uses the full available page width instead of being capped to half-page width on desktop.<br/>
 

@@ -6659,7 +6659,7 @@ onBeforeUnmount(() => {
 
 .card-chat {
   grid-column: 1 / -1;
-  max-width: 50vw;
+  max-width: 100%;
 }
 
 .card-profiles {
